@@ -2,7 +2,7 @@
 name: User Story Template
 about: User Story
 title: ''
-labels: ''
+labels: Story
 assignees: ''
 
 ---
@@ -10,7 +10,10 @@ assignees: ''
 #### Description:
  
 [User Story]
- 
+As 
+I would like to 
+So that
+
 [Description of the ticket]
  
 #### Acceptance Criteria:
