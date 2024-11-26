@@ -45,7 +45,7 @@ function getMiddlewares() {
         prismaOptions: {
           log: ["error", "warn"],
           errorFormat: "pretty",
-          datasourceUrl: `postgresql://${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}&connection_limit=5`,
+          datasourceUrl: dataSourceURL,
         },
         middlewares: getMiddlewares(),
       },
