@@ -43,45 +43,46 @@ jobs:
           cd tests/integration
           npm ci
           node src/main.js
-
-  e2e-tests:
-    name: E2E
-    defaults:
-      run:
-        working-directory: frontend
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    strategy:
-      matrix:
-        project: [ chromium, Google Chrome, firefox, safari, Microsoft Edge ]
-    steps:
-      - uses: actions/checkout@v4
-        name: Checkout
-      - uses: actions/setup-node@v4
-        name: Setup Node
-        with:
-          node-version: 20
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-      - name: Install dependencies
-        run: |
-          npm ci
-          npx playwright install --with-deps
-
-      - name: Run Tests
-        env:
-          E2E_BASE_URL: https://${{ github.event.repository.name }}-${{ inputs.target }}-frontend.${{ env.DOMAIN }}/
-          CI: 'true'
-        run: |
-          npx playwright test --project="${{ matrix.project }}" --reporter=html
-
-      - uses: actions/upload-artifact@v4
-        if: ${{ !cancelled() }}
-        name: upload results
-        with:
-          name: playwright-report-${{ matrix.project }}
-          path: "./frontend/playwright-report" # path from current folder
-          retention-days: 7
+  
+  # Not deployed yet
+  # e2e-tests:
+  #   name: E2E
+  #   defaults:
+  #     run:
+  #       working-directory: frontend
+  #   runs-on: ubuntu-24.04
+  #   timeout-minutes: 5
+  #   strategy:
+  #     matrix:
+  #       project: [ chromium, Google Chrome, firefox, safari, Microsoft Edge ]
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #       name: Checkout
+  #     - uses: actions/setup-node@v4
+  #       name: Setup Node
+  #       with:
+  #         node-version: 20
+  #         cache: 'npm'
+  #         cache-dependency-path: frontend/package-lock.json
+  #     - name: Install dependencies
+  #       run: |
+  #         npm ci
+  #         npx playwright install --with-deps
+  #
+  #     - name: Run Tests
+  #       env:
+  #         E2E_BASE_URL: https://${{ github.event.repository.name }}-${{ inputs.target }}-frontend.${{ env.DOMAIN }}/
+  #         CI: 'true'
+  #       run: |
+  #         npx playwright test --project="${{ matrix.project }}" --reporter=html
+  #
+  #     - uses: actions/upload-artifact@v4
+  #       if: ${{ !cancelled() }}
+  #       name: upload results
+  #       with:
+  #         name: playwright-report-${{ matrix.project }}
+  #         path: "./frontend/playwright-report" # path from current folder
+  #         retention-days: 7
 
   load-tests:
     name: Load

@@ -1,8 +1,10 @@
 name: PR Validate
 
 on:
-  pull_request:
-    types: [edited, opened, synchronize, reopened, ready_for_review]
+  # URLs are OpenShift specific and will need to be updated for this to be useful. Remove workflow_dispatch when updated.
+  workflow_dispatch:
+  # pull_request:
+  #   types: [edited, opened, synchronize, reopened, ready_for_review]
 
 concurrency:
   group: ${{ github.workflow }}-edit-${{ github.event.number }}

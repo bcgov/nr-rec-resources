@@ -32,33 +32,32 @@ jobs:
         id: pr
         uses: bcgov-nr/action-get-pr@v0.0.1
 
-  # https://github.com/bcgov/quickstart-openshift-helpers
-  deploy-test:
-    name: Deploy (test)
-    uses: ./.github/workflows/.deployer.yml
-    secrets:
-      oc_namespace: ${{ secrets.OC_NAMESPACE }}
-      oc_token: ${{ secrets.OC_TOKEN }}
-    with:
-      environment: test
-      db_user: app
-
-  deploy-prod:
-    name: Deploy (prod)
-    needs: [deploy-test, vars]
-    uses: ./.github/workflows/.deployer.yml
-    secrets:
-      oc_namespace: ${{ secrets.OC_NAMESPACE }}
-      oc_token: ${{ secrets.OC_TOKEN }}
-    with:
-      environment: prod
-      db_user: app
-      params:
-        --set backend.deploymentStrategy=RollingUpdate
-        --set frontend.deploymentStrategy=RollingUpdate
-        --set global.autoscaling=true
-        --set frontend.pdb.enabled=true
-        --set backend.pdb.enabled=true
+  # deploy-test:
+  #   name: Deploy (test)
+  #   uses: ./.github/workflows/.deployer.yml
+  #   secrets:
+  #     oc_namespace: ${{ secrets.OC_NAMESPACE }}
+  #     oc_token: ${{ secrets.OC_TOKEN }}
+  #   with:
+  #     environment: test
+  #     db_user: app
+  #
+  # deploy-prod:
+  #   name: Deploy (prod)
+  #   needs: [deploy-test, vars]
+  #   uses: ./.github/workflows/.deployer.yml
+  #   secrets:
+  #     oc_namespace: ${{ secrets.OC_NAMESPACE }}
+  #     oc_token: ${{ secrets.OC_TOKEN }}
+  #   with:
+  #     environment: prod
+  #     db_user: app
+  #     params:
+  #       --set backend.deploymentStrategy=RollingUpdate
+  #       --set frontend.deploymentStrategy=RollingUpdate
+  #       --set global.autoscaling=true
+  #       --set frontend.pdb.enabled=true
+  #       --set backend.pdb.enabled=true
 
   promote:
     name: Promote Images
