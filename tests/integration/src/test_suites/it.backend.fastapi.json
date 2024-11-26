@@ -5,12 +5,7 @@
   "tests": [
     {
       "name": "User Endpoint TEST",
-      "methods": [
-        "GET",
-        "POST",
-        "GET",
-        "DELETE"
-      ],
+      "methods": ["GET", "POST", "GET", "DELETE"],
       "path": "/api/v1/user/",
       "headers": {
         "Content-Type": "application/json",
