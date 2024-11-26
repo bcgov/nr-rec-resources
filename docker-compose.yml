@@ -1,0 +1,100 @@
+# Reusable vars
+x-var:
+  - &POSTGRES_USER
+    postgres
+  - &POSTGRES_PASSWORD
+    default
+  - &POSTGRES_DATABASE
+    postgres
+
+# Reusable envars for postgres
+x-postgres-vars: &postgres-vars
+  POSTGRES_HOST: database
+  POSTGRES_USER: *POSTGRES_USER
+  POSTGRES_PASSWORD: *POSTGRES_PASSWORD
+  POSTGRES_DATABASE: *POSTGRES_DATABASE
+
+services:
+  database:
+    image: postgis/postgis:16-3.4 # if using crunchy , make sure to align with crunchy version, currently it is at 16 and postgis 3.3
+    container_name: database
+    environment:
+      <<: *postgres-vars
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", *POSTGRES_USER]
+    ports: ["5432:5432"]
+
+  migrations:
+    image: flyway/flyway:10-alpine
+    container_name: migrations
+    command: info migrate info
+    volumes: ["./migrations/sql:/flyway/sql:ro"]
+    environment:
+      FLYWAY_URL: jdbc:postgresql://database:5432/postgres
+      FLYWAY_USER: *POSTGRES_USER
+      FLYWAY_PASSWORD: *POSTGRES_PASSWORD
+      FLYWAY_BASELINE_ON_MIGRATE: true
+      FLYWAY_DEFAULT_SCHEMA: users
+    depends_on:
+      database:
+        condition: service_healthy
+
+  schemaspy:
+    image: schemaspy/schemaspy:6.2.4
+    profiles: ["schemaspy"]
+    container_name: schemaspy
+    command: -t pgsql11 -db postgres -host database -port 5432 -u postgres -p default -schemas users
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+    volumes: ["./output:/output"]
+
+  backend:
+    container_name: backend
+    depends_on:
+      migrations:
+        condition: service_started
+    entrypoint: sh -c "npm i && npm run start:dev"
+    environment:
+      <<: *postgres-vars
+      NODE_ENV: development
+    image: node:22
+    ports: ["3001:3000"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api"]
+    working_dir: "/app"
+    volumes: ["./backend:/app", "/app/node_modules"]
+
+  frontend:
+    container_name: frontend
+    entrypoint: sh -c "npm ci && npm run dev"
+    environment:
+      BACKEND_URL: http://backend:3000
+      PORT: 3000
+      NODE_ENV: development
+    image: node:22
+    ports: ["3000:3000"]
+    volumes: ["./frontend:/app", "/app/node_modules"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+    working_dir: "/app"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+  caddy:
+    container_name: caddy
+    profiles: ["caddy"]
+    build: ./frontend
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      BACKEND_URL: http://backend:3000
+      LOG_LEVEL: info
+    ports: ["3005:3000"]
+    volumes: ["./frontend/Caddyfile:/etc/caddy/Caddyfile"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+    depends_on:
+      backend:
+        condition: service_healthy
