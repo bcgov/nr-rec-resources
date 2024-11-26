@@ -5,5 +5,4 @@ test.describe.parallel('QSOS', () => {
   test('Dashboard Page', async ({ page }) => {
     await dashboard_page(page);
   });
-
 });

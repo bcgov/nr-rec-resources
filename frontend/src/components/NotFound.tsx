@@ -1,12 +1,12 @@
-import { Box, Button, Container, Typography } from '@mui/material'
-import Grid from '@mui/material/Grid'
-import { useNavigate } from 'react-router'
+import { Box, Button, Container, Typography } from '@mui/material';
+import Grid from '@mui/material/Grid';
+import { useNavigate } from 'react-router';
 
 export default function NotFound() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const buttonClicked = () => {
-    navigate('/', { state: { data: undefined } }) // reset the state
-  }
+    navigate('/', { state: { data: undefined } }); // reset the state
+  };
   return (
     <Box
       sx={{
@@ -33,5 +33,5 @@ export default function NotFound() {
         </Grid>
       </Container>
     </Box>
-  )
+  );
 }

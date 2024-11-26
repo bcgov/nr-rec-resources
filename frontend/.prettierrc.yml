@@ -13,7 +13,7 @@ useTabs: false
 trailingComma: 'all'
 
 # Print semicolons at the ends of statements
-semi: false
+semi: true
 
 # Wrap prose-like comments as-is
 proseWrap: 'always'
