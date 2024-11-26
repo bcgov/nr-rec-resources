@@ -1,0 +1,93 @@
+name: Scheduled
+
+on:
+  schedule: [cron: "0 11 * * 6"] # 3 AM PST = 12 PM UDT, Saturdays
+  workflow_dispatch:
+  workflow_call:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ageOutPRs:
+    name: PR Env Purge
+    env:
+      # https://tecadmin.net/getting-yesterdays-date-in-bash/
+      CUTOFF: "1 week ago"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Clean up Helm Releases
+        run: |
+          # OC Login
+          OC_TEMP_TOKEN=$(curl -k -X POST ${{ vars.oc_server }}/api/v1/namespaces/${{ secrets.oc_namespace }}/serviceaccounts/pipeline/token --header "Authorization: Bearer ${{ secrets.oc_token }}" -d '{"spec": {"expirationSeconds": 600}}' -H 'Content-Type: application/json; charset=utf-8' | jq -r '.status.token' )
+
+          oc login --token=$OC_TEMP_TOKEN --server=${{ vars.oc_server }}
+          oc project ${{ secrets.OC_NAMESPACE }} # Safeguard!
+
+          # Catch errors, unset variables, and pipe failures (e.g. grep || true )
+          set -euo pipefail
+
+          # Echos
+          echo "Delete stale Helm releases"
+          echo "Cutoff: ${{ env.CUTOFF }}"
+
+          # Before date, list of releases
+          BEFORE=$(date +%s -d "${{ env.CUTOFF }}")
+          RELEASES=$(helm ls -aq | grep ${{ github.event.repository.name }} || :)
+
+          # If releases, then iterate
+          [ -z "${RELEASES}" ]|| for r in ${RELEASES[@]}; do
+
+            # Get last update and convert the date
+            UPDATED=$(date "+%s" -d <<< echo $(helm status $r -o json | jq -r .info.last_deployed))
+
+            # Compare to cutoff and delete as necessary
+            if [[ ${UPDATED} < ${BEFORE} ]]; then
+              echo -e "\nOlder than cutoff: ${r}"
+              helm uninstall --no-hooks ${r}
+              oc delete pvc/${r}-bitnami-pg-0 || true
+            else
+              echo -e "\nNewer than cutoff: ${r}"
+              echo "No need to delete"
+            fi
+          done
+
+  # https://github.com/bcgov/quickstart-openshift-helpers
+  schema-spy:
+    name: SchemaSpy Documentation
+    uses: bcgov/quickstart-openshift-helpers/.github/workflows/.schema-spy.yml@v0.9.0
+
+
+  tests:
+    name: Tests
+    uses: ./.github/workflows/.tests.yml
+    with:
+      target: test
+
+  # Run sequentially to reduce chances of rate limiting
+  zap_scan:
+    runs-on: ubuntu-latest
+    name: ZAP Scans
+    env:
+      DOMAIN: apps.silver.devops.gov.bc.ca
+      PREFIX: ${{ github.event.repository.name }}-test
+    steps:
+      - name: ZAP Scan
+        uses: zaproxy/action-full-scan@v0.11.0
+        with:
+          allow_issue_writing: true
+          artifact_name: "zap_backend"
+          cmd_options: "-a"
+          issue_title: "ZAP: Backend"
+          target: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}/api
+
+      - name: ZAP Scan - Frontend
+        uses: zaproxy/action-full-scan@v0.11.0
+        with:
+          allow_issue_writing: true
+          artifact_name: "zap_frontend"
+          cmd_options: "-a"
+          issue_title: "ZAP: Frontend"
+          target: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}

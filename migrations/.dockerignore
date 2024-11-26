@@ -1,0 +1,6 @@
+.idea
+.vscode
+coverage
+cypress
+dist
+node_modules
