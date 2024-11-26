@@ -1,6 +1,6 @@
-import { defineConfig } from 'vite'
-import { fileURLToPath, URL } from 'node:url'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import { fileURLToPath, URL } from 'node:url';
+import react from '@vitejs/plugin-react';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -48,10 +48,15 @@ export default defineConfig({
             '@emotion/react',
             '@emotion/styled',
           ],
-          mui: ['@mui/material', '@mui/icons-material', '@mui/system', '@mui/x-data-grid'],
+          mui: [
+            '@mui/material',
+            '@mui/icons-material',
+            '@mui/system',
+            '@mui/x-data-grid',
+          ],
           axios: ['axios'],
         },
       },
     },
   },
-})
+});

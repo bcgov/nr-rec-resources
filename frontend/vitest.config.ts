@@ -1,5 +1,5 @@
-import { defineConfig } from 'vitest/config'
-import tsconfigPaths from 'vite-tsconfig-paths'
+import { defineConfig } from 'vitest/config';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -13,7 +13,7 @@ export default defineConfig({
     // since parsing CSS is slow
     css: false,
     coverage: {
-      reporter: ['lcov', 'text-summary','text', 'json', 'html'],
+      reporter: ['lcov', 'text-summary', 'text', 'json', 'html'],
     },
   },
-})
+});
