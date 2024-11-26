@@ -29,8 +29,8 @@ COPY --from=build /app/node_modules/prisma ./node_modules/prisma
 COPY --from=build /app/dist ./dist
 
 # Boilerplate, not used in OpenShift/Kubernetes
-EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost:3000/api
+EXPOSE 8000
+HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost:8000/api
 
 # Nonroot user, limit heap size to 50 MB
 USER nonroot
