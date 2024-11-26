@@ -5,13 +5,7 @@
   "tests": [
     {
       "name": "User Endpoint TEST",
-      "methods": [
-        "GET",
-        "POST",
-        "PUT",
-        "GET",
-        "DELETE"
-      ],
+      "methods": ["GET", "POST", "PUT", "GET", "DELETE"],
       "path": "/api/v1/users",
       "headers": {
         "Content-Type": "application/json"
@@ -21,14 +15,12 @@
         "post_payload": {
           "name": "John",
           "email": "John.ipsum@test.com",
-          "addresses": [
-          ]
+          "addresses": []
         },
         "put_payload": {
           "name": "Jane",
           "email": "Jane.ipsum@test.com",
-          "addresses": [
-          ]
+          "addresses": []
         },
         "patch_payload": {
           "name": "Jane",

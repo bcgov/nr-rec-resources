@@ -1,11 +1,8 @@
 # Reusable vars
 x-var:
-  - &POSTGRES_USER
-    postgres
-  - &POSTGRES_PASSWORD
-    default
-  - &POSTGRES_DATABASE
-    postgres
+  - &POSTGRES_USER postgres
+  - &POSTGRES_PASSWORD default
+  - &POSTGRES_DATABASE postgres
 
 # Reusable envars for postgres
 x-postgres-vars: &postgres-vars
@@ -43,7 +40,9 @@ services:
     image: schemaspy/schemaspy:6.2.4
     profiles: ["schemaspy"]
     container_name: schemaspy
-    command: -t pgsql11 -db postgres -host database -port 5432 -u postgres -p default -schemas users
+    command:
+      -t pgsql11 -db postgres -host database -port 5432 -u postgres -p default
+      -schemas users
     depends_on:
       migrations:
         condition: service_completed_successfully
