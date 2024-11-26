@@ -29,30 +29,16 @@ Backend (JavaScript/TypeScript)
 [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=quickstart-openshift_backend&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=quickstart-openshift_backend)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=quickstart-openshift_backend&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=quickstart-openshift_backend)
 
-# QuickStart for OpenShift
+# Recreation Sites and Trails BC Resources
 
-**SONAR_TOKEN(s)**
+- (Contributing)[CONTRIBUTING.md]
+- (Code of Conduct)[CODE_OF_CONDUCT.md]
+- (License)[LICENSE.md]
+- (Security)[SECURITY.md]
 
-If SonarCloud is being used each application will have its own token.  Single-application repositories typically use `${{ secrets.SONAR_TOKEN }}`, while monorepos use similar names.
+## Style Guide
 
-E.g.:
-* `${{ secrets.SONAR_TOKEN_BACKEND }}`
-* `${{ secrets.SONAR_TOKEN_FRONTEND }}`
-
-BC Government employees can request SonarCloud projects by creating an [issue](https://github.com/BCDevOps/devops-requests/issues/new/choose) with BCDevOps.  Please make sure to request a monorepo with component names (e.g. backend, frontend), which may not be explained in their directions.
-
-## SchemaSpy
-
-The database documentation is created and deployed to GitHub pages.  See [here](https://bcgov.github.io/quickstart-openshift/schemaspy/index.html).
-
-After a full workflow run and merge can been run, please do the following:
-
-1. Select Settings (gear, top right)  *> Pages (under `Code and automation`)
-2. Click `Branch` or `Add teams`
-3. Select `gh-pages`
-4. Click `Save`
+Commits follow the conventions defined in the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification.
 
 
-# Contributing
 
-Please contribute your ideas!  [Issues](/../../issues) and [Pull Requests](/../../pulls) are appreciated.
