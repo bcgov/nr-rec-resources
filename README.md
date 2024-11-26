@@ -29,7 +29,7 @@ Backend (JavaScript/TypeScript)
 [![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=quickstart-openshift_backend&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=quickstart-openshift_backend)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=quickstart-openshift_backend&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=quickstart-openshift_backend)
 
-# Recreation Sites and Trails BC Resources
+# Recreation Resource Services - RSTBC
 
 - (Contributing)[CONTRIBUTING.md]
 - (Code of Conduct)[CODE_OF_CONDUCT.md]
