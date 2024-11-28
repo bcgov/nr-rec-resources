@@ -1,3 +1,16 @@
-.MuiDrawer-paperAnchorLeft {
-  margin-top: 4.2em !important;
+body {
+  minheight: 100vh;
+  margin: 0;
+}
+
+main {
+  flexgrow: 1;
+  margintop: 5em;
+  marginright: 1em;
+  marginleft: 1em;
+  marginbottom: 5em;
+  height: 100%;
+  display: flex;
+  justifycontent: center;
+  alignitems: flex-start;
 }
