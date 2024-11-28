@@ -26,16 +26,5 @@ export default function Dashboard() {
       });
   }, []);
 
-  return (
-    <div
-      style={{
-        minHeight: '45em',
-        maxHeight: '45em',
-        width: '100%',
-        marginLeft: '4em',
-      }}
-    >
-      {JSON.stringify(data)}
-    </div>
-  );
+  return <div>{JSON.stringify(data)}</div>;
 }

@@ -58,9 +58,9 @@ services:
       <<: *postgres-vars
       NODE_ENV: development
     image: node:22
-    ports: ["3001:3000"]
+    ports: ["8000:8000"]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api"]
     working_dir: "/app"
     volumes: ["./backend:/app", "/app/node_modules"]
 
@@ -68,8 +68,9 @@ services:
     container_name: frontend
     entrypoint: sh -c "npm ci && npm run dev"
     environment:
-      BACKEND_URL: http://backend:3000
+      BACKEND_URL: http://backend:8000
       PORT: 3000
+      API_PORT: 8000
       NODE_ENV: development
     image: node:22
     ports: ["3000:3000"]
@@ -88,7 +89,7 @@ services:
     environment:
       NODE_ENV: development
       PORT: 3000
-      BACKEND_URL: http://backend:3000
+      BACKEND_URL: http://backend:8000
       LOG_LEVEL: info
     ports: ["3005:3000"]
     volumes: ["./frontend/Caddyfile:/etc/caddy/Caddyfile"]
