@@ -1,16 +1,12 @@
+
 body {
-  minheight: 100vh;
+  min-height: 100vh;
   margin: 0;
 }
 
-main {
-  flexgrow: 1;
-  margintop: 5em;
-  marginright: 1em;
-  marginleft: 1em;
-  marginbottom: 5em;
-  height: 100%;
+#root {
   display: flex;
-  justifycontent: center;
-  alignitems: flex-start;
+  flex-direction: column;
+  min-height: 100vh;
 }
+
