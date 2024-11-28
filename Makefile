@@ -20,10 +20,10 @@ drop_db:
 		grep -q 0 || \
 		$(PSQL) -d postgres -c "DROP DATABASE $(DB_NAME)";
 
-.PHONY: migrations
-migrations: ## create the migrations
-migrations: 
-	## TODO:: use flyway for migrations
+.PHONY: migrate
+migrate: ## create the migrations
+migrate: 
+	## TODO:: this is a very basic setup, we should use flyway for migrations
 	for file in ./migrations/sql/*.sql; do \
 		printf "Applying migration: ${DB_NAME}/$$(basename $$file)\n"; \
 		$(PSQL) -d $(DB_NAME) -f $$file; \
