@@ -32,9 +32,9 @@ describe("HTTPLoggerMiddleware", () => {
       },
     } as unknown as Response;
 
-    const loggerSpy = jest.spyOn(middleware["logger"], "log");
+    const loggerSpy = vi.spyOn(middleware["logger"], "log");
 
-    middleware.use(request, response, () => {});
+    middleware.use(request, response, () => { });
 
     expect(loggerSpy).toHaveBeenCalledWith(
       `GET /test 200 100 - Test User Agent`,

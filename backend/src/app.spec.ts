@@ -1,15 +1,19 @@
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { bootstrap } from "./app";
-jest.mock("prom-client", () => ({
-  Registry: jest.fn().mockImplementation(() => ({})),
-  collectDefaultMetrics: jest.fn().mockImplementation(() => ({})),
+
+vi.mock("prom-client", () => ({
+  Registry: vi.fn().mockImplementation(() => ({})),
+  collectDefaultMetrics: vi.fn().mockImplementation(() => ({})),
 }));
-jest.mock("express-prom-bundle", () => ({
-  default: jest.fn().mockImplementation(() => ({})),
+
+vi.mock("express-prom-bundle", () => ({
+  default: vi.fn().mockImplementation(() => ({})),
 }));
-jest.mock("./prom", () => ({
-  metricsMiddleware: jest.fn().mockImplementation((req, res, next) => next()),
+
+vi.mock("./prom", () => ({
+  metricsMiddleware: vi.fn().mockImplementation((req, res, next) => next()),
 }));
+
 describe("main", () => {
   let app: NestExpressApplication;
 

@@ -1,7 +1,7 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { UsersController } from "./users.controller";
 import { UsersService } from "./users.service";
-import * as request from "supertest";
+import request from "supertest";
 import { HttpException, INestApplication } from "@nestjs/common";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
@@ -49,7 +49,7 @@ describe("UserController", () => {
         id: 1,
         ...createUserDto,
       };
-      jest.spyOn(usersService, "create").mockResolvedValue(expectedResult);
+      vi.spyOn(usersService, "create").mockResolvedValue(expectedResult);
 
       // Act
       const result = await controller.create(createUserDto);
@@ -63,7 +63,7 @@ describe("UserController", () => {
     it("should return an array of users", async () => {
       const result = [];
       result.push({ id: 1, name: "Alice", email: "test@gmail.com" });
-      jest.spyOn(usersService, "findAll").mockResolvedValue(result);
+      vi.spyOn(usersService, "findAll").mockResolvedValue(result);
       expect(await controller.findAll()).toBe(result);
     });
   });
@@ -74,11 +74,11 @@ describe("UserController", () => {
         name: "john",
         email: "John_Doe@gmail.com",
       };
-      jest.spyOn(usersService, "findOne").mockResolvedValue(result);
+      vi.spyOn(usersService, "findOne").mockResolvedValue(result);
       expect(await controller.findOne("1")).toBe(result);
     });
     it("should throw error if user not found", async () => {
-      jest.spyOn(usersService, "findOne").mockResolvedValue(undefined);
+      vi.spyOn(usersService, "findOne").mockResolvedValue(undefined);
       try {
         await controller.findOne("1");
       } catch (e) {
@@ -99,7 +99,7 @@ describe("UserController", () => {
         name: "John Doe",
         email: "johndoe@example.com",
       };
-      jest.spyOn(usersService, "update").mockResolvedValue(userDto);
+      vi.spyOn(usersService, "update").mockResolvedValue(userDto);
 
       expect(await controller.update(id, updateUserDto)).toBe(userDto);
       expect(usersService.update).toHaveBeenCalledWith(+id, updateUserDto);
@@ -108,7 +108,7 @@ describe("UserController", () => {
   describe("remove", () => {
     it("should remove a user", async () => {
       const id = "1";
-      jest.spyOn(usersService, "remove").mockResolvedValue(undefined);
+      vi.spyOn(usersService, "remove").mockResolvedValue(undefined);
 
       expect(await controller.remove(id)).toBeUndefined();
       expect(usersService.remove).toHaveBeenCalledWith(+id);
@@ -131,9 +131,9 @@ describe("UserController", () => {
         total: 2,
         totalPages: 1,
       };
-      jest
-        .spyOn(usersService, "searchUsers")
-        .mockImplementation(async () => result);
+      vi.spyOn(usersService, "searchUsers").mockImplementation(
+        async () => result,
+      );
 
       // Make a GET request with query parameters and expect a 200 status code and the result object
       return request(app.getHttpServer())
@@ -165,7 +165,7 @@ describe("UserController", () => {
     });
     it("given sort and filter as invalid query parameters_should return a 400 status code with an error message", async () => {
       // Make a GET request with invalid query parameters and expect a 400 status code and an error message
-      jest.spyOn(usersService, "searchUsers").mockImplementation(async () => {
+      vi.spyOn(usersService, "searchUsers").mockImplementation(async () => {
         throw new HttpException("Invalid query parameters", 400);
       });
       return request(app.getHttpServer())
