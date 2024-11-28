@@ -1,37 +1,26 @@
-import { Box, Button, Container, Typography } from '@mui/material';
-import Grid from '@mui/material/Grid';
 import { useNavigate } from 'react-router';
+import './NotFound.css'; // Import the CSS file
 
 export default function NotFound() {
   const navigate = useNavigate();
   const buttonClicked = () => {
     navigate('/', { state: { data: undefined } }); // reset the state
   };
+
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '100vh',
-      }}
-    >
-      <Container maxWidth="md">
-        <Grid>
-          <Typography variant="h1">404</Typography>
-          <Typography variant="h6">
-            The page you’re looking for does not exist.
-          </Typography>
-          <Button
-            name="homeBtn"
-            id="homeBtn"
-            onClick={() => buttonClicked()}
-            variant="contained"
-          >
-            Back Home
-          </Button>
-        </Grid>
-      </Container>
-    </Box>
+    <div className="not-found-container">
+      <div className="content-container">
+        <h1 className="title">404</h1>
+        <p className="subtitle">The page you’re looking for does not exist.</p>
+        <button
+          name="homeBtn"
+          id="homeBtn"
+          className="back-home-btn"
+          onClick={buttonClicked}
+        >
+          Back Home
+        </button>
+      </div>
+    </div>
   );
 }
