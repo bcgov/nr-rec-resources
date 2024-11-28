@@ -14,6 +14,7 @@ root.render(
   <StrictMode>
     <Header />
     <main
+      // use bcparks bootstrap theme container class to share same page max width
       className="container"
       style={{
         display: 'flex',

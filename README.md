@@ -36,6 +36,63 @@ Backend (JavaScript/TypeScript)
 - (License)[LICENSE.md]
 - (Security)[SECURITY.md]
 
+## Local Development
+
+### Prerequisites
+
+- Node.js 
+- npm
+- Docker OR PostgreSQL 15
+
+### Docker Compose
+
+To run the entire application using Docker Compose, run the following commands:
+
+```bash
+git clone git@github.com:bcgov/nr-rec-resources.git
+cd nr-rec-resources
+docker-compose up
+```
+
+Navigate to `http://localhost:3000` in your web browser to view the application.
+
+### Installation
+
+To run this on your local machine, you will need a working installation of PostgreSQL 15. 
+
+### Database
+
+Create an `.env` file in the `backend` directory using the example in `backend/.env.example` as a template.
+
+```bash
+cd nr-rec-resources
+make create_db
+make migrate
+```
+
+### Backend
+
+Ensure you have the `.env` file in the `backend` directory from the previous step.
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+
+### Frontend
+
+Create an `.env` file in the `frontend` directory using the example in `frontend/.env.example` as a template.
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Navigate to `http://localhost:3000` in your web browser to view the application.
+
+
 ## Style Guide
 
 Commits follow the conventions defined in the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification.
