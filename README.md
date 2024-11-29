@@ -40,7 +40,7 @@ Backend (JavaScript/TypeScript)
 
 ### Prerequisites
 
-- Node.js 
+- Node.js
 - npm
 - Docker OR PostgreSQL 15
 
@@ -58,7 +58,7 @@ Navigate to `http://localhost:3000` in your web browser to view the application.
 
 ### Installation
 
-To run this on your local machine, you will need a working installation of PostgreSQL 15. 
+To run this on your local machine, you will need a working installation of PostgreSQL 15.
 
 ### Database
 
@@ -92,10 +92,20 @@ npm run dev
 
 Navigate to `http://localhost:3000` in your web browser to view the application.
 
+## Pre-commit hooks
+
+Pre-commit is set up to run checks for linting, formatting, and secrets.
+
+- Install [pre-commit](https://pre-commit.com/)
+- With pre-commit installed run `pre-commit install` in the root directory of the project
+- Pre-commit should now run on your staged files every time you make a commit
+
+Sometimes it may be necessary to run `pre-commit` on the entire project due to a mistake or a configuration change.
+
+```bash
+pre-commit run --all-files
+```
 
 ## Style Guide
 
 Commits follow the conventions defined in the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification.
-
-
-
