@@ -43,7 +43,7 @@ jobs:
           cd tests/integration
           npm ci
           node src/main.js
-  
+
   # Not deployed yet
   # e2e-tests:
   #   name: E2E

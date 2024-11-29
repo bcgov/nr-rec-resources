@@ -8,35 +8,35 @@ assignees: ''
 ---
 
 #### Description:
- 
+
 [Description of the task]
- 
+
 #### Acceptance Criteria:
 [Note: Use 'Given/When/Then' format if it makes sense to. Otherwise, a simple checklist that can be tested.]
- 
+
 #### Development Checklist:
- 
+
 - [ ] ...
 - [ ] ...
 - [ ] ...
- 
+
 #### Dependencies
- 
+
 - Blocked by
 - Blocking
- 
+
 **Relevant documentation as reference**
- 
- 
+
+
 **Definition of Ready**
- 
+
 - [ ] Acceptance criteria are included
 - [ ] Wireframes are included (if applicable)
 - [ ] Design / Solution is accepted by Product Owner (if applicable)
 - [ ] Dependencies are identified (technical, business, regulatory/policy)
 - [ ] Story has been estimated (under 13 pts)
- 
-**Definition of Done** 
+
+**Definition of Done**
 - In progress:
   - [ ] Acceptance criteria are tested (Functionality meets the acceptance criteria defined in the ticket)
   - [ ] UI meets accessibility requirements
@@ -55,7 +55,7 @@ assignees: ''
 - PO Review:
   - [ ] Acceptance criteria are tested (Functionality meets the acceptance criteria defined in the ticket)
   - [ ] Reviewed and approved by Product Owner
- 
+
 #### Notes:
-- 
+-
 -

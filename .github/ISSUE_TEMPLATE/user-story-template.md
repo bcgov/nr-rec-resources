@@ -8,40 +8,40 @@ assignees: ''
 ---
 
 #### Description:
- 
+
 [User Story]
- 
+
 [Description of the ticket]
- 
+
 #### Acceptance Criteria:
- 
+
 Given
 When
 Then
- 
+
 Given
 When
 Then
- 
+
 #### Development Checklist:
- 
+
 - [ ] ...
 - [ ] ...
 - [ ] ...
- 
+
 #### Dependencies
- 
+
 - Blocked by
 - Blocking
- 
+
 **Wireframe(s):**
- 
- 
+
+
 **Workflows:**
- 
- 
+
+
 **Definition of Ready** (Note: If any of these points are not applicable, mark N/A)
- 
+
 - [ ] User story is included
 - [ ] User role and type are identified
 - [ ] Acceptance criteria are included
@@ -49,8 +49,8 @@ Then
 - [ ] Design / Solution is accepted by Product Owner
 - [ ] Dependencies are identified (technical, business, regulatory/policy)
 - [ ] Story has been estimated (under 13 pts)
- 
-**Definition of Done** 
+
+**Definition of Done**
 - In progress:
   - [ ] Acceptance criteria are tested (Functionality meets the acceptance criteria defined in the ticket)
   - [ ] UI meets accessibility requirements
@@ -69,7 +69,7 @@ Then
 - PO Review:
   - [ ] Acceptance criteria are tested (Functionality meets the acceptance criteria defined in the ticket)
   - [ ] Reviewed and approved by Product Owner
- 
+
 #### Notes:
-- 
+-
 -

@@ -7,6 +7,14 @@ repos:
       - id: check-yaml
       - id: check-added-large-files
 
+  # eslint needs to be correctly configured for the monorepo to use this
+  # - repo: https://github.com/pre-commit/mirrors-eslint
+  #   rev: "v8.56.0" # Use the sha / tag you want to point at
+  #   hooks:
+  #     - id: eslint
+  #       files: \.[jt]sx?$ # *.js, *.jsx, *.ts and *.tsx
+  #       types: [file]
+
   - repo: https://github.com/rbubley/mirrors-prettier
     rev: v3.4.1
     hooks:
