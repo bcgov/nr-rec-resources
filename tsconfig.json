@@ -7,5 +7,10 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true
   },
-  "include": ["backend/**/*", "tests/**/*", "eslint.config.mjs"]
+  "include": [
+    "backend/**/*",
+    "frontend/**/*",
+    "tests/**/*",
+    "eslint.config.mjs"
+  ]
 }
