@@ -22,7 +22,7 @@ drop_db:
 
 .PHONY: migrate
 migrate: ## create the migrations
-migrate: 
+migrate:
 	## TODO:: this is a very basic setup, we should use flyway for migrations
 	for file in ./migrations/sql/*.sql; do \
 		printf "Applying migration: ${DB_NAME}/$$(basename $$file)\n"; \

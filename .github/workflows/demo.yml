@@ -8,7 +8,7 @@ on:
       target:
         description: 'PR number to receive DEMO URL routing'
         required: true
-        type: number      
+        type: number
 
 concurrency:
   group: ${{ github.workflow }}

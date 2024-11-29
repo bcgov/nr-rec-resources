@@ -21,4 +21,3 @@ VALUES ('John', 'John.ipsum@test.com'),
        ('Jack', 'Jack.ipsum@test.com'),
        ('Jill', 'Jill.ipsum@test.com'),
        ('Joe', 'Joe.ipsum@test.com');
-

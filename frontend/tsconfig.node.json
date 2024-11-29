@@ -6,9 +6,5 @@
     "types": ["node"],
     "allowSyntheticDefaultImports": true
   },
-  "include": [
-    "playwright.config.ts",
-    "vite.config.ts",
-    "vitest.config.ts",
-  ]
+  "include": ["playwright.config.ts", "vite.config.ts", "vitest.config.ts"]
 }
