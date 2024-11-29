@@ -1,0 +1,29 @@
+extends:
+  - "@commitlint/config-conventional"
+rules:
+  header-max-length: [1, "always", 72]
+  type-enum:
+    - 2
+    - always
+    - - ci
+      - feat
+      - fix
+      - docs
+      - style
+      - refactor
+      - perf
+      - test
+      - revert
+      - chore
+help: |
+  **Possible types**:
+  `ci`:       Changes to our CI configuration files and scripts
+  `feat`:     Adds a new feature
+  `fix`:      Solves a bug
+  `docs`:     Adds or modifies documentation
+  `style`:    Improves formatting, white-space
+  `refactor`: Rewrites code without feature, performance or bug changes
+  `perf`:     Improves performance
+  `test`:     Adds or modifies tests
+  `revert`:   Changes that reverting other changes
+  `chore`:    Adds or modifies build scripts, no production code change
