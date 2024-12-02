@@ -103,7 +103,7 @@ jobs:
   commitlint: # Test all commits in PR follow conventional commit format
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: wagoid/commitlint-github-action@v6
         with:
           configFile: '.commitlintrc.yml'
