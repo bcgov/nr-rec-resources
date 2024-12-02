@@ -6,7 +6,7 @@ describe("CustomLogger", () => {
   });
 
   it("should log a message", () => {
-    const spy = vi.spyOn(customLogger, "verbose");
+    const spy = jest.spyOn(customLogger, "verbose");
     customLogger.verbose("Test message");
     expect(spy).toHaveBeenCalledWith("Test message");
     spy.mockRestore();

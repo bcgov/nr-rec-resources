@@ -57,12 +57,12 @@ describe("UserService", () => {
           provide: PrismaService,
           useValue: {
             users: {
-              findMany: vi.fn().mockResolvedValue(savedUserArray),
-              findUnique: vi.fn().mockResolvedValue(savedUser1),
-              create: vi.fn().mockResolvedValue(savedUser1),
-              update: vi.fn().mockResolvedValue(updatedUser),
-              delete: vi.fn().mockResolvedValue(true),
-              count: vi.fn(),
+              findMany: jest.fn().mockResolvedValue(savedUserArray),
+              findUnique: jest.fn().mockResolvedValue(savedUser1),
+              create: jest.fn().mockResolvedValue(savedUser1),
+              update: jest.fn().mockResolvedValue(updatedUser),
+              delete: jest.fn().mockResolvedValue(true),
+              count: jest.fn(),
             },
           },
         },
@@ -110,7 +110,7 @@ describe("UserService", () => {
       expect(service.remove(2)).resolves.toEqual({ deleted: true });
     });
     it("should return {deleted: false, message: err.message}", () => {
-      const repoSpy = vi
+      const repoSpy = jest
         .spyOn(prisma.users, "delete")
         .mockRejectedValueOnce(new Error("Bad Delete Method."));
       expect(service.remove(-1)).resolves.toEqual({
@@ -129,8 +129,8 @@ describe("UserService", () => {
       const sort: any = `[{ "name": "${sortObject}" }]`;
       const filter: any = '[{ "name": { "equals": "Peter" } }]';
 
-      vi.spyOn(prisma.users, "findMany").mockResolvedValue([]);
-      vi.spyOn(prisma.users, "count").mockResolvedValue(0);
+      jest.spyOn(prisma.users, "findMany").mockResolvedValue([]);
+      jest.spyOn(prisma.users, "count").mockResolvedValue(0);
       const result = await service.searchUsers(page, limit, sort, filter);
 
       expect(result).toEqual({
@@ -148,8 +148,8 @@ describe("UserService", () => {
       const sort: any = `[{ "name": "${sortObject}" }]`;
       const filter: any = '[{ "name": { "equals": "Peter" } }]';
 
-      vi.spyOn(prisma.users, "findMany").mockResolvedValue([]);
-      vi.spyOn(prisma.users, "count").mockResolvedValue(0);
+      jest.spyOn(prisma.users, "findMany").mockResolvedValue([]);
+      jest.spyOn(prisma.users, "count").mockResolvedValue(0);
       const result = await service.searchUsers(null, limit, sort, filter);
 
       expect(result).toEqual({
@@ -166,8 +166,8 @@ describe("UserService", () => {
       const sort: any = `[{ "name": "${sortObject}" }]`;
       const filter: any = '[{ "name": { "equals": "Peter" } }]';
 
-      vi.spyOn(prisma.users, "findMany").mockResolvedValue([]);
-      vi.spyOn(prisma.users, "count").mockResolvedValue(0);
+      jest.spyOn(prisma.users, "findMany").mockResolvedValue([]);
+      jest.spyOn(prisma.users, "count").mockResolvedValue(0);
       const result = await service.searchUsers(page, null, sort, filter);
 
       expect(result).toEqual({
@@ -186,8 +186,8 @@ describe("UserService", () => {
       const sort: any = `[{ "name": "${sortObject}" }]`;
       const filter: any = '[{ "name": { "equals": "Peter" } }]';
 
-      vi.spyOn(prisma.users, "findMany").mockResolvedValue([]);
-      vi.spyOn(prisma.users, "count").mockResolvedValue(0);
+      jest.spyOn(prisma.users, "findMany").mockResolvedValue([]);
+      jest.spyOn(prisma.users, "count").mockResolvedValue(0);
       const result = await service.searchUsers(page, limit, sort, filter);
 
       expect(result).toEqual({
