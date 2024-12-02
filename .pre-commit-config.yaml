@@ -8,10 +8,10 @@ repos:
       - id: check-added-large-files
 
   - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: "v9.15.0" # Use the sha / tag you want to point at
+    rev: "v9.15.0"
     hooks:
       - id: eslint
-        files: \.[jt]sx?$ # *.js, *.jsx, *.ts and *.tsx
+        files: \.[jt]sx?$
         types: [file]
 
   - repo: https://github.com/rbubley/mirrors-prettier
