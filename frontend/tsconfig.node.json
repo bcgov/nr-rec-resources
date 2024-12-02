@@ -6,11 +6,5 @@
     "types": ["node"],
     "allowSyntheticDefaultImports": true
   },
-  "include": [
-    "e2e/**/*",
-    "eslint.config.mjs",
-    "playwright.config.ts",
-    "vite.config.ts",
-    "vitest.config.ts"
-  ]
+  "include": ["playwright.config.ts", "vite.config.ts", "vitest.config.ts"]
 }
