@@ -91,6 +91,8 @@ jobs:
       - name: install eslint packages
         run: npm ci
       - uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
       - name: set PY
         run: echo "PY=$(python -VV | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
       - uses: actions/cache@v4
@@ -98,8 +100,6 @@ jobs:
           path: ~/.cache/pre-commit
           key: pre-commit|${{ env.PY }}|${{ hashFiles('.pre-commit-config.yaml') }}
       - uses: pre-commit/action@v3.0.1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
 
   commitlint: # Test all commits in PR follow conventional commit format
     runs-on: ubuntu-latest
