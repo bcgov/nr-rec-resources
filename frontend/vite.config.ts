@@ -52,6 +52,12 @@ export default defineConfig(({ mode }) => {
                 '@emotion/react',
                 '@emotion/styled',
               ],
+              mui: [
+                '@mui/material',
+                '@mui/icons-material',
+                '@mui/system',
+                '@mui/x-data-grid',
+              ],
               axios: ['axios'],
             },
           },
