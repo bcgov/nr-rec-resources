@@ -1,4 +1,4 @@
-import type { NestExpressApplication } from "@nestjs/platform-express";
+import { NestExpressApplication } from "@nestjs/platform-express";
 import { bootstrap } from "./app";
 
 vi.mock("prom-client", () => ({
@@ -11,7 +11,7 @@ vi.mock("express-prom-bundle", () => ({
 }));
 
 vi.mock("./prom", () => ({
-  metricsMiddleware: vi.fn().mockImplementation((req, res, next) => next()),
+  metricsMiddleware: vi.fn().mockImplementation((_req, _res, next) => next()),
 }));
 
 describe("main", () => {
