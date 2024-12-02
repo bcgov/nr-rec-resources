@@ -1,4 +1,4 @@
-import type { TestingModule } from "@nestjs/testing";
+import { TestingModule } from "@nestjs/testing";
 import { Test } from "@nestjs/testing";
 import { UsersService } from "./users.service";
 import { PrismaService } from "nestjs-prisma";

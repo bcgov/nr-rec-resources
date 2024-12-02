@@ -1,13 +1,13 @@
-import type { TestingModule } from "@nestjs/testing";
+import { TestingModule } from "@nestjs/testing";
 import { Test } from "@nestjs/testing";
 import { UsersController } from "./users.controller";
 import { UsersService } from "./users.service";
 import request from "supertest";
-import type { INestApplication } from "@nestjs/common";
+import { INestApplication } from "@nestjs/common";
 import { HttpException } from "@nestjs/common";
-import type { CreateUserDto } from "./dto/create-user.dto";
-import type { UpdateUserDto } from "./dto/update-user.dto";
-import type { UserDto } from "./dto/user.dto";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import { UserDto } from "./dto/user.dto";
 import { PrismaService } from "nestjs-prisma";
 
 describe("UserController", () => {
