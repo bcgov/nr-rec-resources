@@ -39,18 +39,17 @@ jobs:
   #     db_user: app-${{github.event.number}}
   #     params: --set global.secrets.persist=false
 
-  # All current tests require deployment to dev first. 
-  # tests:
-  #   name: Tests
-  #   if: needs.deploys.outputs.triggered == 'true'
-  #   # needs: [deploys]
-  #   uses: ./.github/workflows/.tests.yml
-  #   with:
-  #     target: ${{ github.event.number }}
+  tests:
+    name: Tests
+    if: needs.deploys.outputs.triggered == 'true'
+    # needs: [deploys]
+    uses: ./.github/workflows/.tests.yml
+    with:
+      target: ${{ github.event.number }}
 
   results:
     name: PR Results
-    needs: [builds]
+    needs: [builds, tests]
     # needs: [builds, deploys, tests]
     if: always()
     runs-on: ubuntu-24.04

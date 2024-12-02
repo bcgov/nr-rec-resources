@@ -1,10 +1,8 @@
 name: PR Closed
 
 on:
-  # Disabling this for now as it's OpenShift specific. Remove workflow_dispatch when updated.
-  workflow_dispatch:
-  # pull_request:
-  #   types: [closed]
+  pull_request:
+    types: [closed]
 
 concurrency:
   # PR open and close use the same group, allowing only one at a time
@@ -22,7 +20,6 @@ jobs:
       cleanup: helm
       packages: backend frontend migrations
 
-  
   cleanup_db: # TODO move it off to another action later.
     name: Remove DB User from crunchy
     runs-on: ubuntu-24.04
