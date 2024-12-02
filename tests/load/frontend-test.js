@@ -20,7 +20,7 @@ function checkStatus(response, checkName, statusCode = 200) {
   errorRate.add(!success, { tag1: checkName });
 }
 
-export default function (_token) {
+export default function (token) {
   let url = `${__ENV.FRONTEND_URL}`;
 
   let res = http.get(url);

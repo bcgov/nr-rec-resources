@@ -1,6 +1,10 @@
 import "dotenv/config";
-import type { MiddlewareConsumer } from "@nestjs/common";
-import { Logger, Module, RequestMethod } from "@nestjs/common";
+import {
+  Logger,
+  MiddlewareConsumer,
+  Module,
+  RequestMethod,
+} from "@nestjs/common";
 import { HTTPLoggerMiddleware } from "./middleware/req.res.logger";
 import { loggingMiddleware, PrismaModule } from "nestjs-prisma";
 import { ConfigModule } from "@nestjs/config";

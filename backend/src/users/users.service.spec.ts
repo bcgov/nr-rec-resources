@@ -40,6 +40,12 @@ describe("UserService", () => {
     email: "numtwo@test.com",
   };
 
+  const threeUser = {
+    id: 3,
+    name: "Test Numthree",
+    email: "numthree@test.com",
+  };
+
   const userArray = [oneUser, twoUser];
   const savedUserArray = [savedUser1, savedUser2];
 

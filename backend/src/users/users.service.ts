@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import type { PrismaService } from "nestjs-prisma";
+import { PrismaService } from "nestjs-prisma";
 
-import type { CreateUserDto } from "./dto/create-user.dto";
-import type { UpdateUserDto } from "./dto/update-user.dto";
-import type { UserDto } from "./dto/user.dto";
+import { CreateUserDto } from "./dto/create-user.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
+import { UserDto } from "./dto/user.dto";
 import { Prisma } from "@prisma/client";
 
 @Injectable()
@@ -97,7 +97,7 @@ export class UsersService {
       sortObj = JSON.parse(sort);
       filterObj = JSON.parse(filter);
     } catch (e) {
-      throw new Error("Invalid query parameters", e);
+      throw new Error("Invalid query parameters");
     }
     const users = await this.prisma.users.findMany({
       skip: (page - 1) * limit,
@@ -121,7 +121,7 @@ export class UsersService {
   }
 
   public convertFiltersToPrismaFormat(filterObj): any {
-    const prismaFilterObj = {};
+    let prismaFilterObj = {};
 
     for (const item of filterObj) {
       if (item.operation === "like") {

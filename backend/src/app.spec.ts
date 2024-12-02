@@ -1,4 +1,4 @@
-import type { NestExpressApplication } from "@nestjs/platform-express";
+import { NestExpressApplication } from "@nestjs/platform-express";
 import { bootstrap } from "./app";
 
 vi.mock("prom-client", () => ({
