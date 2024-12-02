@@ -52,6 +52,7 @@ After a full workflow run and merge can been run, please do the following:
 3. Select `gh-pages`
 4. Click `Save`
 
+![img.png](.github/graphics/schemaspy.png)
 
 # Contributing
 
