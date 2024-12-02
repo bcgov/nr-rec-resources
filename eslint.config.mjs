@@ -89,7 +89,7 @@ export default [
       "@typescript-eslint/explicit-function-return-type": "off",
 
       "@typescript-eslint/consistent-type-imports": [
-        "off",
+        "error",
         {
           prefer: "type-imports",
         },
