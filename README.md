@@ -58,11 +58,16 @@ Navigate to `http://localhost:3000` in your web browser to view the application.
 
 ### Installation
 
-To run this on your local machine, you will need a working installation of PostgreSQL 15.
+Before starting development on this project, run `npm install` in the base
+directory to install eslint and plugins to ensure linting is working correctly.
 
 ### Database
 
-Create an `.env` file in the `backend` directory using the example in `backend/.env.example` as a template.
+To run this on your local machine, you will need a working installation of
+PostgreSQL 15.
+
+Create an `.env` file in the `backend` directory using the example in
+`backend/.env.example` as a template.
 
 ```bash
 cd nr-rec-resources
@@ -72,7 +77,8 @@ make migrate
 
 ### Backend
 
-Ensure you have the `.env` file in the `backend` directory from the previous step.
+Ensure you have the `.env` file in the `backend` directory from the previous
+step.
 
 ```bash
 cd backend
@@ -82,7 +88,8 @@ npm run dev
 
 ### Frontend
 
-Create an `.env` file in the `frontend` directory using the example in `frontend/.env.example` as a template.
+Create an `.env` file in the `frontend` directory using the example in
+`frontend/.env.example` as a template.
 
 ```bash
 cd frontend
@@ -97,10 +104,27 @@ Navigate to `http://localhost:3000` in your web browser to view the application.
 Pre-commit is set up to run checks for linting, formatting, and secrets.
 
 - Install [pre-commit](https://pre-commit.com/)
-- With pre-commit installed run `pre-commit install` in the root directory of the project
+- With pre-commit installed run `pre-commit install` in the root directory of
+  the project
 - Pre-commit should now run on your staged files every time you make a commit
 
-Sometimes it may be necessary to run `pre-commit` on the entire project due to a mistake or a configuration change.
+### Skipping pre-commit hooks
+
+If you need to skip the pre-commit hooks for a specific commit, you can use the
+`--no-verify` flag. Some developers may use this when they are making a commit
+that they know will fail the pre-commit checks, but they still want to commit
+the changes. This is a perfectly acceptible workflow, though there is a
+pre-commit check in CI so it may be necessary to run pre-commit on all files
+before putting a PR up for review if this is skipped.
+
+```bash
+git commit -m "Your commit message" --no-verify
+```
+
+### Running pre-commit on all files
+
+Sometimes it may be necessary to run `pre-commit` on the entire project due to a
+mistake or a configuration change.
 
 ```bash
 pre-commit run --all-files
@@ -108,4 +132,6 @@ pre-commit run --all-files
 
 ## Style Guide
 
-Commits follow the conventions defined in the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) specification.
+Commits follow the conventions defined in the
+[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
+specification.
