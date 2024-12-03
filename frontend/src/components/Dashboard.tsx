@@ -8,18 +8,19 @@ export default function Dashboard() {
   useEffect(() => {
     apiService
       .getAxiosInstance()
-      .get('/v1/users')
+      .get('/v1/recreation-resource')
       .then((response: AxiosResponse) => {
-        const users = [];
-        for (const user of response.data) {
-          const userDto = {
-            id: user.id,
-            name: user.name,
-            email: user.email,
+        const recreationResources = [];
+        for (const resource of response.data) {
+          console.log(response);
+          const recreationResourceDto = {
+            forst_file_id: resource.forst_file_id,
+            name: resource.name,
+            description: resource.description,
           };
-          users.push(userDto);
+          recreationResources.push(recreationResourceDto);
         }
-        setData(users);
+        setData(recreationResources);
       })
       .catch((error) => {
         console.error(error);

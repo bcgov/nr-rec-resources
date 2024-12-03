@@ -10,6 +10,7 @@ import { AppController } from "./app.controller";
 import { MetricsController } from "./metrics.controller";
 import { TerminusModule } from "@nestjs/terminus";
 import { HealthController } from "./health.controller";
+import { RecreationResourceModule } from "./recreation-resource/recreation-resource.module";
 
 const DB_HOST = process.env.POSTGRES_HOST || "localhost";
 const DB_USER = process.env.POSTGRES_USER || "postgres";
@@ -48,6 +49,7 @@ function getMiddlewares() {
       },
     }),
     UsersModule,
+    RecreationResourceModule,
   ],
   controllers: [AppController, MetricsController, HealthController],
   providers: [AppService],

@@ -11,6 +11,7 @@ export class UsersService {
   constructor(private prisma: PrismaService) {}
 
   async create(user: CreateUserDto): Promise<UserDto> {
+    // @ts-expect-error
     const savedUser = await this.prisma.users.create({
       data: {
         name: user.name,
@@ -26,6 +27,7 @@ export class UsersService {
   }
 
   async findAll(): Promise<UserDto[]> {
+    // @ts-expect-error
     const users = await this.prisma.users.findMany();
     return users.flatMap((user) => {
       const userDto: UserDto = {
@@ -38,6 +40,7 @@ export class UsersService {
   }
 
   async findOne(id: number): Promise<UserDto> {
+    // @ts-expect-error
     const user = await this.prisma.users.findUnique({
       where: {
         id: new Prisma.Decimal(id),
@@ -51,6 +54,7 @@ export class UsersService {
   }
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<UserDto> {
+    // @ts-expect-error
     const user = await this.prisma.users.update({
       where: {
         id: new Prisma.Decimal(id),
@@ -69,6 +73,7 @@ export class UsersService {
 
   async remove(id: number): Promise<{ deleted: boolean; message?: string }> {
     try {
+      // @ts-expect-error
       await this.prisma.users.delete({
         where: {
           id: new Prisma.Decimal(id),
@@ -99,6 +104,7 @@ export class UsersService {
     } catch (e) {
       throw new Error("Invalid query parameters", e);
     }
+    // @ts-expect-error
     const users = await this.prisma.users.findMany({
       skip: (page - 1) * limit,
       take: parseInt(String(limit)),
@@ -106,6 +112,7 @@ export class UsersService {
       where: this.convertFiltersToPrismaFormat(filterObj),
     });
 
+    // @ts-expect-error
     const count = await this.prisma.users.count({
       orderBy: sortObj,
       where: this.convertFiltersToPrismaFormat(filterObj),

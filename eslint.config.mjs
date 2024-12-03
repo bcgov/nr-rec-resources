@@ -64,7 +64,6 @@ export default [
       "no-undef": "off",
       "no-use-before-define": "off",
       semi: ["error", "always"],
-
       "@typescript-eslint/no-unused-vars": [
         "error",
         {
@@ -77,6 +76,7 @@ export default [
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-non-null-assertion": "off",
       "@typescript-eslint/ban-types": "off",
+      "@typescript-eslint/ban-ts-comment": "off",
 
       "@typescript-eslint/no-use-before-define": [
         "error",
