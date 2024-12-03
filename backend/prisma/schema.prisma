@@ -12,5 +12,6 @@ datasource db {
 model recreation_resource {
   forest_file_id String @id @db.VarChar(200)
   name           String @db.VarChar(200)
-  description    String @db.VarChar(200)
+  description    String @db.VarChar(1000)
+  site_location  String @db.VarChar(200)
 }

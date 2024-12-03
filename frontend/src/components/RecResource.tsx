@@ -2,6 +2,7 @@ import { useParams } from 'react-router-dom';
 import apiService from '@/service/api-service';
 import { useEffect, useState } from 'react';
 import type { AxiosResponse } from '~/axios';
+import styles from './RecResource.module.css';
 
 const RecResource = () => {
   const [recResource, setRecResource] = useState<any>([]);
@@ -19,12 +20,13 @@ const RecResource = () => {
       .catch((error) => {
         console.error(error);
       });
+    // eslint-disable-next-line
   }, []);
 
   const { forest_file_id, name, description } = recResource;
 
   return (
-    <>
+    <div className={styles.container}>
       <section>
         <h2>{name}</h2>
         <p>
@@ -35,7 +37,7 @@ const RecResource = () => {
       <p>
         <a href="/">Return to Dashboard</a>
       </p>
-    </>
+    </div>
   );
 };
 
