@@ -14,6 +14,7 @@ export class RecreationResourceService {
         forest_file_id: recResource.forest_file_id,
         name: recResource.name,
         description: recResource.description,
+        site_location: recResource.site_location,
       };
 
       return recResourceDto;
@@ -31,6 +32,7 @@ export class RecreationResourceService {
       forest_file_id: recResource.forest_file_id,
       name: recResource.name,
       description: recResource.description,
+      site_location: recResource.site_location,
     };
   }
 }
