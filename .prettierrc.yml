@@ -17,3 +17,6 @@ semi: true
 
 # Wrap prose-like comments as-is
 proseWrap: "always"
+
+# Format files with Unix-style line endings
+endOfLine: "lf"
