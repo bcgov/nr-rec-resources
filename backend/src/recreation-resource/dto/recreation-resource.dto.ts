@@ -5,7 +5,7 @@ export class RecreationResourceDto {
     description: "The ID of the Recreation Resource",
     // default: 'REC1234',
   })
-  forst_file_id: string;
+  forest_file_id: string;
 
   @ApiProperty({
     description: "The name of the Recreation Resource",

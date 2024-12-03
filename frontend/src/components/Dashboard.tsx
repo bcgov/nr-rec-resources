@@ -3,9 +3,10 @@ import { useEffect, useState } from 'react';
 import type { AxiosResponse } from '~/axios';
 
 export default function Dashboard() {
-  const [data, setData] = useState<any>([]);
+  const [recResources, setRecResources] = useState<any>([]);
 
   useEffect(() => {
+    // Get all recreation resources
     apiService
       .getAxiosInstance()
       .get('/v1/recreation-resource')
@@ -14,18 +15,43 @@ export default function Dashboard() {
         for (const resource of response.data) {
           console.log(response);
           const recreationResourceDto = {
-            forst_file_id: resource.forst_file_id,
+            forest_file_id: resource.forest_file_id,
             name: resource.name,
             description: resource.description,
           };
           recreationResources.push(recreationResourceDto);
         }
-        setData(recreationResources);
+        setRecResources(recreationResources);
       })
       .catch((error) => {
         console.error(error);
       });
   }, []);
 
-  return <div>{JSON.stringify(data)}</div>;
+  return (
+    <>
+      <h2>Get all Recreation Resources</h2>
+      <section>
+        {recResources.map((resource: any) => {
+          const { forest_file_id, name, description } = resource;
+          return (
+            <div
+              key={forest_file_id}
+              style={{
+                border: '1px solid black',
+                padding: '1rem',
+                margin: '1rem',
+              }}
+            >
+              <h3>{name}</h3>
+              <p>{description}</p>
+              <a href={`/resource/${forest_file_id}`}>
+                View {name} Information
+              </a>
+            </div>
+          );
+        })}
+      </section>
+    </>
+  );
 }
