@@ -8,7 +8,6 @@ export class RecreationResourceService {
 
   async getAll(): Promise<RecreationResourceDto[]> {
     const recResources = await this.prisma.recreation_resource.findMany();
-    console.log("recResouces", recResources);
 
     return recResources.flatMap((recResource) => {
       const recResourceDto: RecreationResourceDto = {

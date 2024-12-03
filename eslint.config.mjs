@@ -1,4 +1,5 @@
 import typescriptEslint from "@typescript-eslint/eslint-plugin";
+import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 import prettier from "eslint-plugin-prettier";
 import globals from "globals";
 import tsParser from "@typescript-eslint/parser";
@@ -23,7 +24,6 @@ export default [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
     "prettier",
-    "plugin:prettier/recommended",
   ),
   {
     plugins: {
@@ -96,4 +96,5 @@ export default [
       ],
     },
   },
+  eslintPluginPrettierRecommended,
 ];
