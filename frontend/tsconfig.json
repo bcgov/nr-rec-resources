@@ -32,6 +32,13 @@
       "~/*": ["node_modules/*"]
     }
   },
-  "include": ["src", "src/**/*", "src/**/*.tsx", "e2e", "e2e/**/*"],
+  "include": [
+    "src",
+    "src/**/*",
+    "src/**/*.tsx",
+    "e2e",
+    "e2e/**/*",
+    "declaration.d.ts"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
