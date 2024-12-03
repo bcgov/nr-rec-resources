@@ -11,7 +11,7 @@ export class RecreationResourceService {
 
     return recResources.flatMap((recResource) => {
       const recResourceDto: RecreationResourceDto = {
-        forst_file_id: recResource.forest_file_id,
+        forest_file_id: recResource.forest_file_id,
         name: recResource.name,
         description: recResource.description,
       };
@@ -28,7 +28,7 @@ export class RecreationResourceService {
     });
 
     return {
-      forst_file_id: recResource.forest_file_id,
+      forest_file_id: recResource.forest_file_id,
       name: recResource.name,
       description: recResource.description,
     };
