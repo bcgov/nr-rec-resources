@@ -7,10 +7,10 @@
 
 # Recreation Resource Services - RSTBC
 
-- (Contributing)[CONTRIBUTING.md]
-- (Code of Conduct)[CODE_OF_CONDUCT.md]
-- (License)[LICENSE.md]
-- (Security)[SECURITY.md]
+- [Contributing](CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [License](LICENSE.md)
+- [Security](SECURITY.md)
 
 ## Local Development
 
