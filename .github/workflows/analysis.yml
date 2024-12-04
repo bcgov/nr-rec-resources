@@ -9,9 +9,7 @@ on:
     - cron: "0 11 * * 0" # 3 AM PST = 12 PM UDT, runs sundays
   workflow_dispatch:
 
-permissions: # used for commitlint
-  contents: read
-  pull-requests: read
+
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -106,6 +104,9 @@ jobs:
 
   commitlint: # Test all commits in PR follow conventional commit format
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     steps:
       - uses: actions/checkout@v4
       - uses: wagoid/commitlint-github-action@v6
