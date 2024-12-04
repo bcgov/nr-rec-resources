@@ -5,7 +5,6 @@
 [![Analysis](https://github.com/bcgov/quickstart-openshift/actions/workflows/analysis.yml/badge.svg)](https://github.com/bcgov/nr-rec-resources/actions/workflows/analysis.yml)
 [![Scheduled](https://github.com/bcgov/quickstart-openshift/actions/workflows/scheduled.yml/badge.svg)](https://github.com/bcgov/nr-rec-resources/actions/workflows/scheduled.yml)
 
-
 # Recreation Resource Services - RSTBC
 
 - (Contributing)[CONTRIBUTING.md]
