@@ -3,6 +3,10 @@ name: Deploy AWS
 on:
   pull_request:
 
+env:
+  FRONTEND_BUCKET: frontend
+  STACK_NAME: rst-dev
+
 
 
 permissions:
@@ -10,7 +14,7 @@ permissions:
   contents: read # This is required for actions/checkout
 
 jobs:
-  deploy-to-aws:
+  deploy-infrastructure-to-aws:
     runs-on: ubuntu-latest
     environment:
       name: development
@@ -27,10 +31,11 @@ jobs:
       - name: Provision infrastructure with AWS CloudFormation
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-          name: test-deploy-s3
+          name: ${{ env.STACK_NAME }}
           no-fail-on-empty-changeset: "1"
           template: ./infrastructure/deploy.yml
 
+      # Build frontend and deploy to s3 - maybe split this out into a separate workflow and call from here
       - name: Setup Node
         uses: actions/setup-node@v3
 
@@ -42,3 +47,6 @@ jobs:
       - name: Build project
         working-directory: ./frontend
         run: npm run build
+
+      - name: Deploy static site to S3 bucket
+        run: aws s3 sync .frontend/dist s3://$FRONTEND_BUCKET --delete
