@@ -5,7 +5,8 @@ import type { AxiosResponse } from '~/axios';
 import styles from './RecResource.module.css';
 
 const RecResource = () => {
-  const [recResource, setRecResource] = useState<any>([]);
+  const [recResource, setRecResource] = useState<object>({});
+  const [notFound, setNotFound] = useState<boolean>(false);
 
   const { id } = useParams();
 
@@ -19,18 +20,33 @@ const RecResource = () => {
       })
       .catch((error) => {
         console.error(error);
+        setNotFound(true);
       });
     // eslint-disable-next-line
   }, []);
 
-  const { forest_file_id, name, description } = recResource;
+  if (notFound) {
+    return (
+      <>
+        <h2>Resource not found</h2>
+        <p>
+          <a href="/">Return to Dashboard</a>
+        </p>
+      </>
+    );
+  }
+
+  const { description, forest_file_id, name, site_location } = recResource;
 
   return (
     <div className={styles.container}>
       <section>
         <h2>{name}</h2>
-        <p>
+        <div>
           <b>Rec site#</b> {forest_file_id}
+        </div>
+        <p>
+          <b>Site location</b> {site_location}
         </p>
         <p>{description}</p>
       </section>
