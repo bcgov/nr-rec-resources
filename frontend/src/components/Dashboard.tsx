@@ -3,28 +3,49 @@ import { useEffect, useState } from 'react';
 import type { AxiosResponse } from '~/axios';
 
 export default function Dashboard() {
-  const [data, setData] = useState<any>([]);
+  const [recResources, setRecResources] = useState<any>([]);
 
   useEffect(() => {
+    // Get all recreation resources
     apiService
       .getAxiosInstance()
-      .get('/v1/users')
+      .get('/v1/recreation-resource')
       .then((response: AxiosResponse) => {
-        const users = [];
-        for (const user of response.data) {
-          const userDto = {
-            id: user.id,
-            name: user.name,
-            email: user.email,
+        const recreationResources = [];
+        for (const resource of response.data) {
+          const recreationResourceDto = {
+            forest_file_id: resource.forest_file_id,
+            name: resource.name,
+            description: resource.description,
           };
-          users.push(userDto);
+          recreationResources.push(recreationResourceDto);
         }
-        setData(users);
+        setRecResources(recreationResources);
       })
       .catch((error) => {
         console.error(error);
       });
   }, []);
 
-  return <div>{JSON.stringify(data)}</div>;
+  return (
+    <section>
+      {recResources.map((resource: any) => {
+        const { forest_file_id, name, description } = resource;
+        return (
+          <div
+            key={forest_file_id}
+            style={{
+              border: '1px solid black',
+              padding: '1rem',
+              margin: '1rem',
+            }}
+          >
+            <h3>{name}</h3>
+            <p>{description}</p>
+            <a href={`/resource/${forest_file_id}`}>View {name} Information</a>
+          </div>
+        );
+      })}
+    </section>
+  );
 }

@@ -1,4 +1,5 @@
 import typescriptEslint from "@typescript-eslint/eslint-plugin";
+import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 import prettier from "eslint-plugin-prettier";
 import globals from "globals";
 import tsParser from "@typescript-eslint/parser";
@@ -23,7 +24,6 @@ export default [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
     "prettier",
-    "plugin:prettier/recommended",
   ),
   {
     plugins: {
@@ -64,11 +64,17 @@ export default [
       "no-undef": "off",
       "no-use-before-define": "off",
       semi: ["error", "always"],
-
       "@typescript-eslint/no-unused-vars": [
         "error",
         {
           argsIgnorePattern: "^_",
+        },
+      ],
+
+      "prettier/prettier": [
+        "error",
+        {
+          endOfLine: "auto",
         },
       ],
 
@@ -77,6 +83,7 @@ export default [
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-non-null-assertion": "off",
       "@typescript-eslint/ban-types": "off",
+      "@typescript-eslint/ban-ts-comment": "off",
 
       "@typescript-eslint/no-use-before-define": [
         "error",
@@ -96,4 +103,5 @@ export default [
       ],
     },
   },
+  eslintPluginPrettierRecommended,
 ];
