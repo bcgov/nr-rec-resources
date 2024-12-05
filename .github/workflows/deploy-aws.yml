@@ -49,4 +49,4 @@ jobs:
         run: npm run build
 
       - name: Deploy static site to S3 bucket
-        run: aws s3 sync .frontend/dist s3://$FRONTEND_BUCKET --delete
+        run: aws s3 sync ./frontend/dist s3://$FRONTEND_BUCKET --delete
