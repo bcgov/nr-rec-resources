@@ -1,0 +1,31 @@
+name: Deploy AWS
+
+on:
+  pull_request:
+
+
+
+permissions:
+  id-token: write # This is required for GitHub OIDC auth with AWS
+  contents: read # This is required for actions/checkout
+
+jobs:
+  deploy_to_aws:
+    runs-on: ubuntu-latest
+    environment:
+      name: development
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Deploy to AWS CloudFormation
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: test-deploy-s3
+          template: infrastructure/deploy.yaml
