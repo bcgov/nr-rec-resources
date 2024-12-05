@@ -1,0 +1,38 @@
+Description: A template for static hosting using S3 bucket
+
+Outputs:
+  S3BucketName:
+    Value:
+      Ref: Bucket
+
+Resources:
+  Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${AWS::StackName}-bucket-${AWS::AccountId}"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: aws:kms
+              KMSMasterKeyID: alias/aws/s3
+      PublicAccessBlockConfiguration:
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+
+  BucketBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref Bucket
+      PolicyDocument:
+        Id: RequireEncryptionInTransit
+        Version: "2012-10-17"
+        Statement:
+          - Principal: "*"
+            Action: "*"
+            Effect: Deny
+            Resource:
+              - !GetAtt Bucket.Arn
+              - !Sub "${BucketArn}/*"
+            Condition:
+              Bool:
+                aws:SecureTransport: "false"
