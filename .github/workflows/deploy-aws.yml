@@ -28,4 +28,4 @@ jobs:
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
           name: test-deploy-s3
-          template: infrastructure/deploy.yaml
+          template: ./infrastructure/deploy.yml
