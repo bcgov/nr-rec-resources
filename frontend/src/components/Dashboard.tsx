@@ -13,7 +13,6 @@ export default function Dashboard() {
       .then((response: AxiosResponse) => {
         const recreationResources = [];
         for (const resource of response.data) {
-          console.log(response);
           const recreationResourceDto = {
             forest_file_id: resource.forest_file_id,
             name: resource.name,
@@ -29,29 +28,24 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <>
-      <h2>Get all Recreation Resources</h2>
-      <section>
-        {recResources.map((resource: any) => {
-          const { forest_file_id, name, description } = resource;
-          return (
-            <div
-              key={forest_file_id}
-              style={{
-                border: '1px solid black',
-                padding: '1rem',
-                margin: '1rem',
-              }}
-            >
-              <h3>{name}</h3>
-              <p>{description}</p>
-              <a href={`/resource/${forest_file_id}`}>
-                View {name} Information
-              </a>
-            </div>
-          );
-        })}
-      </section>
-    </>
+    <section>
+      {recResources.map((resource: any) => {
+        const { forest_file_id, name, description } = resource;
+        return (
+          <div
+            key={forest_file_id}
+            style={{
+              border: '1px solid black',
+              padding: '1rem',
+              margin: '1rem',
+            }}
+          >
+            <h3>{name}</h3>
+            <p>{description}</p>
+            <a href={`/resource/${forest_file_id}`}>View {name} Information</a>
+          </div>
+        );
+      })}
+    </section>
   );
 }
