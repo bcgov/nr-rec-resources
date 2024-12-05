@@ -28,6 +28,7 @@ jobs:
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
           name: test-deploy-s3
+          no-fail-on-empty-changeset: "1"
           template: ./infrastructure/deploy.yml
 
       - name: Setup Node
