@@ -8,16 +8,16 @@ import { RecreationResourceDto } from "./dto/recreation-resource.dto";
 export class RecreationResourceController {
   constructor(
     private readonly recreationResourceService: RecreationResourceService,
-  ) {}
+  ) { }
 
   @Get()
   getRecreationResources(): Promise<RecreationResourceDto[]> {
-    return this.recreationResourceService.getAll();
+    return this.recreationResourceService.findMany();
   }
 
   @Get(":id")
   async getRecreationResource(@Param("id") id: string) {
-    const recResource = await this.recreationResourceService.getOne(id);
+    const recResource = await this.recreationResourceService.findOne(id);
     if (!recResource) {
       throw new HttpException("Recreation Resource not found.", 404);
     }

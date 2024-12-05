@@ -4,9 +4,9 @@ import { RecreationResourceDto } from "./dto/recreation-resource.dto";
 
 @Injectable()
 export class RecreationResourceService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
-  async getAll(): Promise<RecreationResourceDto[]> {
+  async findMany(): Promise<RecreationResourceDto[]> {
     const recResources = await this.prisma.recreation_resource.findMany();
 
     return recResources.flatMap((recResource) => {
@@ -21,7 +21,7 @@ export class RecreationResourceService {
     });
   }
 
-  async getOne(id: string): Promise<RecreationResourceDto> {
+  async findOne(id: string): Promise<RecreationResourceDto> {
     const recResource = await this.prisma.recreation_resource.findUnique({
       where: {
         forest_file_id: id,
