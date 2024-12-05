@@ -10,7 +10,7 @@ permissions:
   contents: read # This is required for actions/checkout
 
 jobs:
-  deploy_to_aws:
+  deploy-to-aws:
     runs-on: ubuntu-latest
     environment:
       name: development
@@ -24,8 +24,20 @@ jobs:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Deploy to AWS CloudFormation
+      - name: Provision infrastructure with AWS CloudFormation
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
           name: test-deploy-s3
           template: ./infrastructure/deploy.yml
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+
+      - name: Install dependencies
+        uses: bahmutov/npm-install@v1
+        with:
+          working-directory: ./frontend
+
+      - name: Build project
+        working-directory: ./frontend
+        run: npm run build
