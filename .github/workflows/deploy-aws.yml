@@ -28,25 +28,23 @@ jobs:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Provision infrastructure with AWS CloudFormation
-        uses: aws-actions/aws-cloudformation-github-deploy@v1
-        with:
-          name: ${{ env.STACK_NAME }}
-          no-fail-on-empty-changeset: "1"
-          template: ./infrastructure/deploy.yml
-
-      # Build frontend and deploy to s3 - maybe split this out into a separate workflow and call from here
       - name: Setup Node
         uses: actions/setup-node@v3
 
-      - name: Install dependencies
+      # Build frontend
+      - name: Install frontend dependencies
         uses: bahmutov/npm-install@v1
         with:
           working-directory: ./frontend
-
       - name: Build project
         working-directory: ./frontend
         run: npm run build
 
-      - name: Deploy static site to S3 bucket
-        run: aws s3 sync ./frontend/dist s3://$FRONTEND_BUCKET --delete
+      - name: Install CDK dependencies
+        uses: bahmutov/npm-install@v1
+        with:
+          working-directory: ./infrastructure
+
+      - name: Provision infrastructure and deploy frontend to s3 with AWS CDK
+        working-directory: ./infrastructure
+        run: npm run cdk deploy
