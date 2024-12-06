@@ -34,6 +34,7 @@ export class InfrastructureStack extends Stack {
       ],
       destinationBucket: s3Bucket,
       distribution: new cloudfront.Distribution(this, "FrontendCF", {
+        defaultRootObject: "index.html",
         defaultBehavior: {
           origin: new origins.S3Origin(s3Bucket, { originAccessIdentity: oai }),
           viewerProtocolPolicy:
