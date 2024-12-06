@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => {
         proxy: {
           // Proxy API requests to the backend
           '/api': {
-            target: `http://localhost:${env.API_PORT || 8000}`,
+            target: `http://${env.API_HOST || 'localhost'}:${env.API_PORT || 8000}`,
             changeOrigin: true,
           },
         },
