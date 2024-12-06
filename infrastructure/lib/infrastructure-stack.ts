@@ -5,6 +5,8 @@ import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
 import * as path from "path";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as origins from "aws-cdk-lib/aws-cloudfront-origins";
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as rds from "aws-cdk-lib/aws-rds";
 
 export class InfrastructureStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -38,6 +40,29 @@ export class InfrastructureStack extends Stack {
             cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         },
       }),
+    });
+
+    const vpc = new ec2.Vpc(this, "VPC", {
+      maxAzs: 2,
+      natGateways: 1,
+    });
+
+    new rds.DatabaseCluster(this, "Database", {
+      engine: rds.DatabaseClusterEngine.auroraPostgres({
+        version: rds.AuroraPostgresEngineVersion.VER_16_6,
+      }),
+      credentials: rds.Credentials.fromGeneratedSecret("clusteradmin"), // Optional - will default to 'admin' username and generated password
+      writer: rds.ClusterInstance.provisioned("writer", {
+        publiclyAccessible: false,
+      }),
+      readers: [
+        rds.ClusterInstance.provisioned("reader1", { promotionTier: 1 }),
+        rds.ClusterInstance.serverlessV2("reader2"),
+      ],
+      vpcSubnets: {
+        subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+      },
+      vpc,
     });
   }
 }
