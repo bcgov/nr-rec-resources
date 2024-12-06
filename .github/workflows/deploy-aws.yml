@@ -47,4 +47,4 @@ jobs:
 
       - name: Provision infrastructure and deploy frontend to s3 with AWS CDK
         working-directory: ./infrastructure
-        run: npm run cdk deploy
+        run: npm run deploy

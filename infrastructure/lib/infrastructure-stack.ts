@@ -22,11 +22,11 @@ export class InfrastructureStack extends Stack {
       accessControl: s3.BucketAccessControl.PRIVATE,
       cors: [s3CorsRule],
       removalPolicy: RemovalPolicy.DESTROY,
-      objectLockEnabled: false,
+      autoDeleteObjects: true,
     });
 
-    const oai = new cloudfront.OriginAccessIdentity(this, "OAI");
-    s3Bucket.grantRead(oai);
+    // const oai = new cloudfront.OriginAccessIdentity(this, "OAI");
+    // s3Bucket.grantRead(oai);
 
     new s3deploy.BucketDeployment(this, "DeployFrontend", {
       sources: [
@@ -36,7 +36,9 @@ export class InfrastructureStack extends Stack {
       distribution: new cloudfront.Distribution(this, "FrontendCF", {
         defaultRootObject: "index.html",
         defaultBehavior: {
-          origin: new origins.S3Origin(s3Bucket, { originAccessIdentity: oai }),
+          origin: new origins.S3StaticWebsiteOrigin(s3Bucket, {
+            // originAccessIdentity: oai,
+          }),
           viewerProtocolPolicy:
             cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
         },

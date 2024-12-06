@@ -5,9 +5,10 @@
     "infrastructure": "bin/infrastructure.js"
   },
   "scripts": {
+    "cdk": "cdk",
     "build": "tsc",
-    "watch": "tsc -w",
-    "cdk": "cdk"
+    "deploy": "cdk deploy --require-approval never",
+    "watch": "tsc -w"
   },
   "devDependencies": {
     "aws-cdk": "2.171.1",
