@@ -10,6 +10,7 @@
   "include": [
     "backend/**/*",
     "frontend/**/*",
+    "infrastructure/**/*",
     "tests/**/*",
     "eslint.config.mjs"
   ]
