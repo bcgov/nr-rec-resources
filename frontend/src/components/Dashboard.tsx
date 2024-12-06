@@ -26,5 +26,12 @@ export default function Dashboard() {
       });
   }, []);
 
-  return <div>{JSON.stringify(data)}</div>;
+  return (
+    <>
+      <h2>CDK Deployment working</h2>
+      <p>Random build number: {Math.floor(Math.random() * 90000) + 10000}</p>
+
+      <div>{JSON.stringify(data)}</div>
+    </>
+  );
 }
