@@ -1,10 +1,7 @@
 data "aws_kms_alias" "rds_key" {
   name = "alias/aws/rds"
 }
-
-locals {
-    aws_security_group_data_sg_id = "${aws_security_group.custom_data_sg.id}"
-}
+data "aws_caller_identity" "current" {}
 
 resource "random_password" "db_master_password" {
   length           = 12
@@ -15,7 +12,7 @@ resource "random_password" "db_master_password" {
 resource "aws_db_subnet_group" "db_subnet_group" {
   description = "For Aurora cluster ${var.db_cluster_name}"
   name        = "${var.db_cluster_name}-subnet-group"
-  subnet_ids  = [data.aws_subnet.a_data.id, data.aws_subnet.b_data.id]
+  subnet_ids  = [ for s in data.aws_subnet.data : s.id ]
 
   tags = {
     managed-by = "terraform"
@@ -51,7 +48,7 @@ resource "aws_rds_cluster_parameter_group" "db_postgresql" {
 
 
 resource "aws_secretsmanager_secret" "db_mastercreds_secret" {
-  name = "aurora-db-master-creds-${var.target_env}"
+  name = "aurora-pg-db-master-creds-${var.target_env}"
 
   tags = {
     managed-by = "terraform"
@@ -78,8 +75,8 @@ module "aurora_postgresql_v2" {
   storage_encrypted = true
   database_name     = var.db_database_name
 
-  vpc_id                 = data.aws_vpc.selected.id
-  vpc_security_group_ids = [local.aws_security_group_data_sg_id]
+  vpc_id                 = data.aws_vpc.main.id
+  vpc_security_group_ids = [data.aws_security_group.data.id]
   db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name
 
   master_username = var.db_master_username

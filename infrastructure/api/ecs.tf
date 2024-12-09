@@ -1,22 +1,6 @@
-data "aws_security_group" "app" {
-  name = "custom_app_sg_${var.target_env}"
-}
 
-data "aws_subnets" "subnets_app" {
-  filter {
-    name   = "tag:Name"
-    values = [var.subnet_app_a, var.subnet_app_b]
-  }
-}
-data "aws_subnets" "subnets_web" {
-  filter {
-    name   = "tag:Name"
-    values = [var.subnet_web_a, var.subnet_web_b]
-  }
-
-}
 data "aws_secretsmanager_secret" "db_master_creds" {
-  name = "aurora-db-master-creds-${var.target_env}"
+  name = "aurora-pg-db-master-creds-${var.target_env}"
 }
 
 
@@ -36,6 +20,7 @@ locals {
 resource "aws_ecs_cluster" "ecs_cluster" {
   name = "ecs-cluster-${var.target_env}_${var.app_env}"
 }
+
 resource "aws_ecs_cluster_capacity_providers" "ecs_cluster_capacity_providers" {
   cluster_name = aws_ecs_cluster.ecs_cluster.name
 
@@ -126,6 +111,11 @@ resource "aws_ecs_task_definition" "node_api_task" {
           name  = "DB_SCHEMA"
           value = "${var.db_schema}"
         }
+        ,
+         {
+          name  = "PORT"
+          value = "8000"
+        }
       ]
       portMappings = [
         {
@@ -165,7 +155,7 @@ resource "aws_ecs_service" "node_api_service" {
 
   network_configuration {
     security_groups  = [data.aws_security_group.app.id]
-    subnets          = data.aws_subnets.subnets_app.ids
+    subnets          = data.aws_subnets.app.ids
     assign_public_ip = false
   }
 
