@@ -1,7 +1,8 @@
 resource "aws_apigatewayv2_vpc_link" "app" {
   name               = var.app_name
   subnet_ids         = data.aws_subnets.subnets_web.ids
-  security_group_ids = [data.aws_security_group.web.id]
+  security_group_ids = [aws_security_group.custom_web_sg.id]
+
 }
 
 resource "aws_apigatewayv2_api" "app" {
@@ -29,20 +30,21 @@ resource "aws_apigatewayv2_stage" "app" {
   name        = "$default"
   auto_deploy = true
 }
-resource "aws_vpc_security_group_ingress_rule" "api_inbound_1" {
-  security_group_id = data.aws_security_group.web.id
-  referenced_security_group_id = data.aws_security_group.app.id
-  from_port = 3000
-  to_port = 3000
-  ip_protocol = "TCP"
-  description = "Allow traffic to api from web tier on 3000."
-}
 
-resource "aws_vpc_security_group_ingress_rule" "api_inbound_2" {
-  security_group_id = data.aws_security_group.web.id
-  referenced_security_group_id = data.aws_security_group.app.id
-  from_port = 80
-  to_port = 3000
-  ip_protocol = "TCP"
-  description = "Allow traffic to api from web tier on 80."
-}
+# resource "aws_vpc_security_group_ingress_rule" "api_inbound_1" {
+#   security_group_id = data.aws_security_group.web.id
+#   referenced_security_group_id = data.aws_security_group.app.id
+#   from_port = 3000
+#   to_port = 3000
+#   ip_protocol = "TCP"
+#   description = "Allow traffic to api from web tier on 3000."
+# }
+
+# resource "aws_vpc_security_group_ingress_rule" "api_inbound_2" {
+#   security_group_id = data.aws_security_group.web.id
+#   referenced_security_group_id = data.aws_security_group.app.id
+#   from_port = 80
+#   to_port = 3000
+#   ip_protocol = "TCP"
+#   description = "Allow traffic to api from web tier on 80."
+# }
