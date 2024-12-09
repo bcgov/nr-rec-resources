@@ -1,0 +1,71 @@
+name: .Terraform Deployer
+
+on:
+  workflow_call:
+    inputs:
+      ### Required
+      environment_name:
+        description: 'The name of the environment to deploy to'
+        required: true
+        default: 'dev'
+        type: string
+      command:
+        description: 'The terragrunt command to run'
+        required: true
+        default: 'apply'
+        type: string
+      working_directory:
+        description: 'The working directory to run the command in'
+        required: true
+        default: 'database'
+        type: string
+      tag:
+        description: 'The tag of the containers to deploy'
+        default: 'latest'
+        type: string
+        required: false
+      app_env:
+        required: false
+        type: string
+        description: 'The APP env separates between AWS ENV and Actual APP, since AWS dev is where PR, and TEST is deployed'
+
+
+
+
+
+env:
+    TG_VERSION: 0.55.2
+    TF_VERSION: 1.5.3
+    TG_SRC_PATH: terraform/${{ inputs.working_directory }}
+    AWS_REGION: ca-central-1
+jobs:
+ deploy:
+  name: Deploy
+  runs-on: ubuntu-24.04
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          role-session-name: ${{ inputs.environment_name }}-deployment
+          aws-region: ${{ env.AWS_REGION }}
+    - uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+    - name: Setup Terragrunt
+      uses: autero1/action-terragrunt@v3
+      with:
+          terragrunt-version: ${{ env.TG_VERSION }}
+    - name: Terragrunt Apply
+      working-directory: terraform/${{ inputs.working_directory }}/${{ inputs.environment_name }}
+      env:
+          target_env: ${{ inputs.environment_name }}
+          aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
+          flyway_image: ghcr.io/${{github.repository}}/migrations:${{inputs.tag}}
+          api_image: ghcr.io/${{github.repository}}/backend:${{inputs.tag}}
+          app_env: ${{inputs.app_env}}
+      run: |
+          # Run terraform
+          terragrunt run-all ${{inputs.command}} --terragrunt-non-interactive
