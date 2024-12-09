@@ -1,9 +1,7 @@
 data "aws_security_group" "app" {
   name = "custom_app_sg_${var.target_env}"
 }
-data "aws_security_group" "web" {
-  name = "Web_sg"
-}
+
 data "aws_subnets" "subnets_app" {
   filter {
     name   = "tag:Name"
