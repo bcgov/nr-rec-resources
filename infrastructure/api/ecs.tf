@@ -164,8 +164,7 @@ resource "aws_ecs_service" "node_api_service" {
     container_name   = "node-api-task-${var.target_env}-${var.app_env}"
     container_port   = var.app_port
   }
-
+  wait_for_steady_state = true
   depends_on = [aws_iam_role_policy_attachment.ecs_task_execution_role]
-
   tags = local.common_tags
 }

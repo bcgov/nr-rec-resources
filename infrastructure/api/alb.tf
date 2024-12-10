@@ -13,6 +13,7 @@ resource "aws_alb" "app-alb" {
   lifecycle {
     ignore_changes = [access_logs]
   }
+  drop_invalid_header_fields = true
 }
 resource "aws_alb_listener" "internal" {
   load_balancer_arn = aws_alb.app-alb.arn

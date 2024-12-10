@@ -1,7 +1,6 @@
-CREATE SCHEMA IF NOT EXISTS ${flyway:defaultSchema};
+CREATE SCHEMA IF NOT EXISTS RST;
 
-
-CREATE TABLE IF NOT EXISTS ${flyway:defaultSchema}.RECREATION_RESOURCE
+CREATE TABLE IF NOT EXISTS RST.RECREATION_RESOURCE
 (
     FOREST_FILE_ID varchar(200) not null primary key,
     NAME           varchar(200) not null,
@@ -9,7 +8,7 @@ CREATE TABLE IF NOT EXISTS ${flyway:defaultSchema}.RECREATION_RESOURCE
     SITE_LOCATION  varchar(200) not null
 );
 
-INSERT INTO ${flyway:defaultSchema}.RECREATION_RESOURCE (FOREST_FILE_ID, NAME, DESCRIPTION, SITE_LOCATION)
+INSERT INTO RST.RECREATION_RESOURCE (FOREST_FILE_ID, NAME, DESCRIPTION, SITE_LOCATION)
 VALUES ('REC5600', 'A Walk In The Forest Trail (Lost Shoe)', 'Trail offers two short loops under a mainly cedar canopy. Some boardwalks and bridges have been constructed to cross over a babbling creek. This is a rainforest and one should use caution while navigating the trail''s slippery sections.', 'Tofino'),
        ('REC1585', 'Aberdeen Lake', 'This semi-open site on a medium sized fishing lake is subject to significant water level fluctuations. The access is very rough for 2 km before the site.', 'Lavington'),
        ('REC5763', 'Ahdatay', 'Located on the north shore of Tchentlo Lake, 1. 5 km from the mouth of the Nation River between Tchentlo and Chuchi Lake.', 'Fort St. James'),
