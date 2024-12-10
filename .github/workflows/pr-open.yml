@@ -61,7 +61,7 @@ jobs:
   deploy-cloudfront:
     name: Deploys Cloudfront
     needs: [deploy-db]
-    uses: ./.github/workflows/.deployer.yml
+    uses: ./.github/workflows/.aws-deployer.yml
     with:
       environment_name: dev
       command: apply
