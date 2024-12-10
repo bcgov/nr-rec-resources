@@ -62,7 +62,6 @@ jobs:
   #       --set backend.pdb.enabled=true
 
   deploy-db:
-    needs: [builds]
     name: Deploys Database
     uses: ./.github/workflows/.aws-deployer.yml
     with:
