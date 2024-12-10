@@ -32,6 +32,8 @@ jobs:
         id: pr
         uses: bcgov-nr/action-get-pr@v0.0.1
 
+  # Leaving this in for now as OpenShift deployment is likely needed for
+  # the API to communicate with Oracle database
   # deploy-test:
   #   name: Deploy (test)
   #   uses: ./.github/workflows/.deployer.yml
@@ -59,9 +61,70 @@ jobs:
   #       --set frontend.pdb.enabled=true
   #       --set backend.pdb.enabled=true
 
+  deploy-db:
+    needs: [builds]
+    name: Deploys Database
+    uses: ./.github/workflows/.aws-deployer.yml
+    with:
+      environment_name: dev
+      command: apply
+      working_directory: database
+    secrets: inherit
+  deploy-api:
+    name: Deploys API
+    needs: [deploy-db]
+    uses: ./.github/workflows/.aws-deployer.yml
+    with:
+      environment_name: dev
+      command: apply
+      working_directory: api
+      tag: ${{ github.event.number }}-${{ github.run_number }}
+      app_env: ${{github.event.number}}
+    secrets: inherit
+  deploy-cloudfront:
+    name: Deploys Cloudfront
+    needs: [deploy-db]
+    uses: ./.github/workflows/.aws-deployer.yml
+    with:
+      environment_name: dev
+      command: apply
+      working_directory: frontend
+      tag: ${{ github.event.number }}-${{ github.run_number }}
+      app_env: ${{github.event.number}}
+    secrets: inherit
+  build-ui:
+    name: Builds UI
+    needs: [deploy-api, deploy-cloudfront]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+            role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+            aws-region: ${{ env.AWS_REGION }}
+      - name: Build And Update UI (CF)
+        working-directory: frontend
+        env:
+          VITE_API_BASE_URL: ${{ needs.deploy-api.outputs.API_GW_URL }}/api
+          S3_BUCKET_ARN: ${{ needs.deploy-cloudfront.outputs.S3_BUCKET_ARN }}
+          CF_DISTRIBUTION_ID: ${{ needs.deploy-cloudfront.outputs.CF_DISTRIBUTION_ID }}
+        run: |
+          npm run deploy
+          aws s3 sync --delete ./dist s3://$(echo "$S3_BUCKET_ARN" | cut -d: -f6)
+          aws cloudfront create-invalidation --distribution-id $CF_DISTRIBUTION_ID --paths "/*"
+
   promote:
     name: Promote Images
-    needs: [deploy-prod, vars]
+    needs: [deploy-api, vars]
     runs-on: ubuntu-24.04
     permissions:
       packages: write
