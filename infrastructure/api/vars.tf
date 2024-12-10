@@ -30,7 +30,6 @@ variable "subnet_app_b" {
   type = string
   default = "App_Dev_azb_net"
 }
-
 variable "subnet_web_a" {
   description = "Value of the name tag for a subnet in the APP security group"
   type = string
@@ -62,28 +61,23 @@ variable "app_port" {
   type        = number
   default     = 8000
 }
-
 variable "app_name" {
   description  = " The APP name"
   type        = string
 }
-
 variable "common_tags" {
   description = "Common tags to be applied to resources"
   type        = map(string)
   default     = {}
 }
-
 variable "flyway_image" {
   description = "The image for the Flyway container"
   type        = string
 }
-
 variable "api_image" {
   description = "The image for the API container"
   type        = string
 }
-
 variable "health_check_path" {
   description = "The path for the health check"
   type        = string
@@ -95,13 +89,19 @@ variable "api_cpu" {
   type = number
   default     = "256"
 }
-
 variable "api_memory" {
   type = number
   default     = "512"
 }
-
 variable "aws_region" {
   type = string
   default = "ca-central-1"
+}
+variable "min_capacity" {
+  type = number
+  default = 1
+}
+variable "max_capacity" {
+  type = number
+  default = 3
 }
