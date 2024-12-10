@@ -28,7 +28,15 @@ on:
         required: false
         type: string
         description: 'The APP env separates between AWS ENV and Actual APP, since AWS dev is where PR, and TEST is deployed'
-
+    outputs:
+      API_GW_URL:
+        value: ${{ jobs.infra.outputs.API_GW_URL }}
+      S3_BUCKET_ARN:
+        value: ${{ jobs.infra.outputs.S3_BUCKET_ARN }}
+      CF_DOMAIN:
+        value: ${{ jobs.infra.outputs.CF_DOMAIN }}
+      CF_DISTRIBUTION_ID:
+        value: ${{ jobs.infra.outputs.CF_DISTRIBUTION_ID }}
 
 
 
@@ -39,9 +47,14 @@ env:
     TG_SRC_PATH: terraform/${{ inputs.working_directory }}
     AWS_REGION: ca-central-1
 jobs:
- deploy:
-  name: Deploy
+ infra:
+  name: Terraform ${{inputs.command}}
   runs-on: ubuntu-24.04
+  outputs:
+    API_GW_URL: ${{ steps.tg-outputs.outputs.API_GW_URL }}
+    S3_BUCKET_ARN: ${{ steps.tg-outputs-frontend.outputs.S3_BUCKET_ARN }}
+    CF_DOMAIN: ${{ steps.tg-outputs-frontend.outputs.CF_DOMAIN }}
+    CF_DISTRIBUTION_ID: ${{ steps.tg-outputs-frontend.outputs.CF_DISTRIBUTION_ID }}
   steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -58,7 +71,7 @@ jobs:
       uses: autero1/action-terragrunt@v3
       with:
           terragrunt-version: ${{ env.TG_VERSION }}
-    - name: Terragrunt Apply
+    - name: Terragrunt ${{inputs.command}}
       working-directory: terraform/${{ inputs.working_directory }}/${{ inputs.environment_name }}
       env:
           target_env: ${{ inputs.environment_name }}
@@ -69,3 +82,37 @@ jobs:
       run: |
           # Run terraform
           terragrunt run-all ${{inputs.command}} --terragrunt-non-interactive
+    - name: Terragrunt ${{ inputs.working_directory }} Outputs
+      if: ${{ inputs.working_directory == 'api' }}
+      working-directory: terraform/${{ inputs.working_directory }}/${{ inputs.environment_name }}
+      id: tg-outputs
+      env:
+          target_env: ${{ inputs.environment_name }}
+          aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
+          flyway_image: ghcr.io/${{github.repository}}/migrations:${{inputs.tag}}
+          api_image: ghcr.io/${{github.repository}}/backend:${{inputs.tag}}
+          app_env: ${{inputs.app_env}}
+      run: |
+          terragrunt output -json > outputs.json
+          #print the output
+          cat outputs.json
+
+          echo "API_GW_URL=$(jq -r .apigw_url.value outputs.json)" >> $GITHUB_OUTPUT
+    - name: Terragrunt ${{ inputs.working_directory }} Outputs
+      if: ${{ inputs.working_directory == 'frontend' }}
+      working-directory: terraform/${{ inputs.working_directory }}/${{ inputs.environment_name }}
+      id: tg-outputs-frontend
+      env:
+          target_env: ${{ inputs.environment_name }}
+          aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
+          flyway_image: ghcr.io/${{github.repository}}/migrations:${{inputs.tag}}
+          api_image: ghcr.io/${{github.repository}}/backend:${{inputs.tag}}
+          app_env: ${{inputs.app_env}}
+      run: |
+          terragrunt output -json > outputs.json
+          #print the output
+          cat outputs.json
+
+          echo "S3_BUCKET_ARN=$(jq -r .s3_bucket_arn.value outputs.json)" >> $GITHUB_OUTPUT
+          echo "CF_DOMAIN=$(jq -r .cloudfront.value.domain_name outputs.json)" >> $GITHUB_OUTPUT
+          echo "CF_DISTRIBUTION_ID=$(jq -r .cloudfront.value.distribution_id outputs.json)" >> $GITHUB_OUTPUT
