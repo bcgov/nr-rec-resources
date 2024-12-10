@@ -21,5 +21,5 @@ variable "db_master_username" {
 variable "db_database_name" {
   description = "The name of the database"
   type        = string
-  default     = "app"
+  default     = "rst"
 }
