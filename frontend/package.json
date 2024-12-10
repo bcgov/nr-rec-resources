@@ -18,8 +18,6 @@
     "@bcgov/bc-sans": "^2.1.0",
     "@bcgov/design-system-react-components": "^0.4.0",
     "@digitalspace/bcparks-bootstrap-theme": "^1.4.6",
-    "@emotion/react": "^11.13.3",
-    "@emotion/styled": "^11.13.0",
     "@vitejs/plugin-react": "^4.3.4",
     "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
