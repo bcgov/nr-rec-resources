@@ -1,6 +1,7 @@
 name: PR Close
 
 on:
+  # workflow_call:
   pull_request:
     types: [closed]
 concurrency:
@@ -13,14 +14,14 @@ permissions:
   packages: write
   pull-requests: write
 jobs:
-  cleanup-aws-database:
-    name: Cleanup AWS Database
-    uses: ./.github/workflows/.aws-deployer.yml
-    with:
-      environment_name: dev
-      command: destroy
-      working_directory: database
-    secrets: inherit
+  # cleanup-aws-database:
+  #   name: Cleanup AWS Database
+  #   uses: ./.github/workflows/.aws-deployer.yml
+  #   with:
+  #     environment_name: dev
+  #     command: destroy
+  #     working_directory: database
+  #   secrets: inherit
   cleanup-aws-api:
       name: Cleanup AWS API
       uses: ./.github/workflows/.aws-deployer.yml
@@ -28,4 +29,12 @@ jobs:
         environment_name: dev
         command: destroy
         working_directory: api
+      secrets: inherit
+  cleanup-aws-frontend:
+      name: Cleanup AWS Frontend
+      uses: ./.github/workflows/.aws-deployer.yml
+      with:
+        environment_name: dev
+        command: destroy
+        working_directory: frontend
       secrets: inherit
