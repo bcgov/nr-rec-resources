@@ -76,6 +76,7 @@ export default [
         {
           endOfLine: "auto",
         },
+        { usePrettierrc: true },
       ],
 
       "@typescript-eslint/explicit-module-boundary-types": "off",

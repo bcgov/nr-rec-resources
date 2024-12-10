@@ -11,13 +11,13 @@ export class RecreationResourceController {
   ) {}
 
   @Get()
-  getRecreationResources(): Promise<RecreationResourceDto[]> {
-    return this.recreationResourceService.getAll();
+  findAll(): Promise<RecreationResourceDto[]> {
+    return this.recreationResourceService.findAll();
   }
 
   @Get(":id")
-  async getRecreationResource(@Param("id") id: string) {
-    const recResource = await this.recreationResourceService.getOne(id);
+  async findOne(@Param("id") id: string) {
+    const recResource = await this.recreationResourceService.findOne(id);
     if (!recResource) {
       throw new HttpException("Recreation Resource not found.", 404);
     }
