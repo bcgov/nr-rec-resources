@@ -72,7 +72,7 @@ jobs:
   deploy-db:
     needs: [vars]
     name: Deploys Database
-    uses: ./.github/workflows/.deployer.yml
+    uses: ./.github/workflows/.aws-deployer.yml
     with:
       environment_name: dev
       command: apply
@@ -82,7 +82,7 @@ jobs:
   deploy-api:
     name: Deploys API
     needs: [vars,deploy-db]
-    uses: ./.github/workflows/.deployer.yml
+    uses: ./.github/workflows/.aws-deployer.yml
     with:
       environment_name: dev
       command: apply
@@ -93,7 +93,7 @@ jobs:
   deploy-cloudfront:
     name: Deploys Cloudfront
     needs: [vars]
-    uses: ./.github/workflows/.deployer.yml
+    uses: ./.github/workflows/.aws-deployer.yml
     with:
       environment_name: dev
       command: apply
