@@ -1,11 +1,13 @@
-
+locals {
+  container_name = "${var.app_name}"
+}
 data "aws_secretsmanager_secret" "db_master_creds" {
-  name = "aurora-pg-db-master-creds-${var.target_env}"
+  name = "aurora-pg-db-master-creds-${var.target_env}_${var.app_env}"
 }
 
 
 data "aws_rds_cluster" "rds_cluster" {
-  cluster_identifier = "qsawsc-aurora-cluster-${var.target_env}"
+  cluster_identifier = "qsawsc-aurora-cluster-${var.app_env}"
 }
 
 data "aws_secretsmanager_secret_version" "db_master_creds_version" {
@@ -18,7 +20,7 @@ locals {
 
 
 resource "aws_ecs_cluster" "ecs_cluster" {
-  name = "ecs-cluster-${var.target_env}_${var.app_env}"
+  name = "ecs-cluster-${var.app_name}"
 }
 
 resource "aws_ecs_cluster_capacity_providers" "ecs_cluster_capacity_providers" {
@@ -36,7 +38,7 @@ resource "aws_ecs_cluster_capacity_providers" "ecs_cluster_capacity_providers" {
 
 
 resource "aws_ecs_task_definition" "node_api_task" {
-  family                   = "node-api-task-${var.target_env}-${var.app_env}"
+  family                   = "${var.app_name}-task"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.api_cpu
@@ -45,7 +47,7 @@ resource "aws_ecs_task_definition" "node_api_task" {
   task_role_arn            = aws_iam_role.app_container_role.arn
   container_definitions = jsonencode([
     {
-      name      = "flyway-${var.target_env}-${var.app_env}"
+      name      = "${var.app_name}-flyway"
       image     = "${var.flyway_image}"
       essential = false
       environment = [
@@ -71,7 +73,7 @@ resource "aws_ecs_task_definition" "node_api_task" {
         logDriver = "awslogs"
         options = {
           awslogs-create-group  = "true"
-          awslogs-group         = "/ecs/flyway/${var.app_name}"
+          awslogs-group         = "/ecs/${var.app_name}/flyway"
           awslogs-region        = var.aws_region
           awslogs-stream-prefix = "ecs"
         }
@@ -81,12 +83,12 @@ resource "aws_ecs_task_definition" "node_api_task" {
 
     },
     {
-      name      = "node-api-task-${var.target_env}-${var.app_env}"
+      name      = "${local.container_name}"
       image     = "${var.api_image}"
       essential = true
       depends_on = [
         {
-          containerName = "flyway-${var.target_env}-${var.app_env}"
+          containerName = "${var.app_name}-flyway"
           condition     = "SUCCESS"
         }
       ]
@@ -114,7 +116,7 @@ resource "aws_ecs_task_definition" "node_api_task" {
         ,
          {
           name  = "PORT"
-          value = "3000"
+          value = "8000"
         }
       ]
       portMappings = [
@@ -128,7 +130,7 @@ resource "aws_ecs_task_definition" "node_api_task" {
         logDriver = "awslogs"
         options = {
           awslogs-create-group  = "true"
-          awslogs-group         = "/ecs/node-api/${var.app_name}"
+          awslogs-group         = "/ecs/${var.app_name}/api"
           awslogs-region        = var.aws_region
           awslogs-stream-prefix = "ecs"
         }
@@ -141,7 +143,7 @@ resource "aws_ecs_task_definition" "node_api_task" {
 
 
 resource "aws_ecs_service" "node_api_service" {
-  name            = "node-api-service-${var.target_env}-${var.app_env}"
+  name            = "${var.app_name}-service"
   cluster         = aws_ecs_cluster.ecs_cluster.id
   task_definition = aws_ecs_task_definition.node_api_task.arn
   desired_count   = 1
@@ -161,7 +163,7 @@ resource "aws_ecs_service" "node_api_service" {
 
   load_balancer {
     target_group_arn = aws_alb_target_group.app.id
-    container_name   = "node-api-task-${var.target_env}-${var.app_env}"
+    container_name   = "${local.container_name}"
     container_port   = var.app_port
   }
   wait_for_steady_state = true
