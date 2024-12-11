@@ -1,6 +1,7 @@
 locals {
   common_tags        = var.common_tags
 }
+
 resource "aws_alb" "app-alb" {
 
   name                             = var.app_name
@@ -24,7 +25,6 @@ resource "aws_alb_listener" "internal" {
     type             = "forward"
     target_group_arn = aws_alb_target_group.app.arn
   }
-
 }
 resource "aws_alb_target_group" "app" {
   name                 = "${var.app_name}-tg"

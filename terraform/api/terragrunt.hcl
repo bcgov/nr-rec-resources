@@ -13,7 +13,7 @@ locals {
   aws_license_plate          = get_env("aws_license_plate")
   app_env          = get_env("app_env")
   statefile_bucket_name   = "${local.tf_remote_state_prefix}-${local.aws_license_plate}-${local.target_env}"
-  statefile_key           = "${local.target_env}/${local.app_env}/api/terraform.tfstate"
+  statefile_key           = "${local.app_env}/api/terraform.tfstate"
   statelock_table_name    = "${local.tf_remote_state_prefix}-lock-${local.aws_license_plate}"
   flyway_image              = get_env("flyway_image")
   api_image          = get_env("api_image")

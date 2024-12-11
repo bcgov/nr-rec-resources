@@ -9,10 +9,11 @@ locals {
 
   # Terraform remote S3 config
   tf_remote_state_prefix  = "terraform-remote-state" # Do not change this, given by cloud.pathfinder.
-  target_env              = get_env("target_env")
+  target_env              = get_env("target_env") # this is the target environment of AWS, like dev, test, prod
   aws_license_plate          = get_env("aws_license_plate")
+  app_env          = get_env("app_env") # this is the environment for the app, like PR, dev, test, since same AWS dev can be reused for both dev and test
   statefile_bucket_name   = "${local.tf_remote_state_prefix}-${local.aws_license_plate}-${local.target_env}"
-  statefile_key           = "${local.target_env}/database/aurora-v2/terraform.tfstate"
+  statefile_key           = "${local.app_env}/database/aurora-v2/terraform.tfstate"
   statelock_table_name    = "${local.tf_remote_state_prefix}-lock-${local.aws_license_plate}"
 }
 
