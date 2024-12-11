@@ -5,11 +5,13 @@
     "allowJs": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "strict": true
+    "strict": true,
+    "types": ["node"]
   },
   "include": [
     "backend/**/*",
     "frontend/**/*",
+    "infrastructure/**/*",
     "tests/**/*",
     "eslint.config.mjs"
   ]

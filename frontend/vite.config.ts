@@ -8,6 +8,7 @@ export default defineConfig(({ mode }) => {
 
   {
     return {
+      base: '/',
       plugins: [react()],
       server: {
         port: parseInt(env.PORT || '3000'),
@@ -18,7 +19,7 @@ export default defineConfig(({ mode }) => {
         proxy: {
           // Proxy API requests to the backend
           '/api': {
-            target: `http://localhost:${env.API_PORT || 8000}`,
+            target: `http://${env.API_HOST || 'localhost'}:${env.API_PORT || 8000}`,
             changeOrigin: true,
           },
         },
@@ -44,14 +45,7 @@ export default defineConfig(({ mode }) => {
           output: {
             manualChunks: {
               // Split external library from transpiled code.
-              react: [
-                'react',
-                'react-dom',
-                'react-router-dom',
-                'react-router',
-                '@emotion/react',
-                '@emotion/styled',
-              ],
+              react: ['react', 'react-dom', 'react-router-dom', 'react-router'],
               axios: ['axios'],
             },
           },

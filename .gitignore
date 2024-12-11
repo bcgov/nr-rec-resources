@@ -144,6 +144,9 @@ web_modules/
 .next
 out
 
+# MacOS directory metadata
+.DS_Store
+
 # Nuxt.js build / generate output
 .nuxt
 dist
@@ -211,8 +214,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
 parts/
 sdist/
 var/
@@ -368,3 +369,8 @@ pyrightconfig.json
 *.key
 *.pem
 *.pub
+**/node_modules
+**/dist
+
+# nested terragrunt-cache
+**/.terragrunt-cache/**
