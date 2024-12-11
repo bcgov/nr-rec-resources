@@ -1,14 +1,18 @@
 name: PR Close
 
 on:
-  workflow_call:
-  # Careful re-enabling this, as it will trigger on every PR close and nuke the dev environment
+  workflow_dispatch:
+    inputs:
+      pr_no:
+        description: "PR-numbered container set to deploy"
+        type: number
+        required: true
   pull_request:
     types: [closed]
-concurrency:
-  # Cancel in progress for PR open and close
-  group: ${{ github.event.number }}
-  cancel-in-progress: false
+# concurrency:
+#   # Cancel in progress for PR open and close
+#   group: ${{ github.event.number }}
+#   cancel-in-progress: false
 permissions:
   id-token: write # This is required for requesting the JWT
   contents: write # This is required for actions/checkout
