@@ -29,13 +29,13 @@ jobs:
   vars:
     name: Set Variables
     outputs:
-      pr: ${{ steps.pr.outputs.pr }}
+      pr: ${{ steps.pr.outputs.pr || github.event.inputs.pr_no }}
     runs-on: ubuntu-24.04
     timeout-minutes: 1
     steps:
       # Get PR number for squash merges to main
       - name: PR Number
-        if: github.event_name != 'workflow_dispatch'
+        if: ${{ github.event_name != 'workflow_dispatch' }}
         id: pr
         uses: bcgov-nr/action-get-pr@v0.0.1
 
@@ -68,35 +68,37 @@ jobs:
   #       --set frontend.pdb.enabled=true
   #       --set backend.pdb.enabled=true
 
+  # https://github.com/bcgov/quickstart-openshift-helpers
   deploy-db:
+    needs: [vars]
     name: Deploys Database
-    uses: ./.github/workflows/.aws-deployer.yml
+    uses: ./.github/workflows/.deployer.yml
     with:
       environment_name: dev
       command: apply
       working_directory: database
+      app_env: dev
     secrets: inherit
   deploy-api:
     name: Deploys API
-    needs: [deploy-db]
-    uses: ./.github/workflows/.aws-deployer.yml
+    needs: [vars,deploy-db]
+    uses: ./.github/workflows/.deployer.yml
     with:
       environment_name: dev
       command: apply
       working_directory: api
-      tag: ${{ github.event.number }}-${{ github.run_number }}
-      app_env: ${{github.event.number}}
+      tag: ${{ needs.vars.outputs.pr }}
+      app_env: dev
     secrets: inherit
   deploy-cloudfront:
     name: Deploys Cloudfront
-    needs: [deploy-db]
-    uses: ./.github/workflows/.aws-deployer.yml
+    needs: [vars]
+    uses: ./.github/workflows/.deployer.yml
     with:
       environment_name: dev
       command: apply
       working_directory: frontend
-      tag: ${{ github.event.number }}-${{ github.run_number }}
-      app_env: ${{github.event.number}}
+      app_env: dev
     secrets: inherit
   build-ui:
     name: Builds UI
