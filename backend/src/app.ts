@@ -26,10 +26,10 @@ export async function bootstrap() {
     prefix: "v",
   });
   const config = new DocumentBuilder()
-    .setTitle("Users example")
-    .setDescription("The user API description")
+    .setTitle("Recreation Sites and Trails BC API")
+    .setDescription("RST API documentation")
     .setVersion("1.0")
-    .addTag("users")
+    .addTag("recreation-resource")
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
