@@ -2,7 +2,7 @@ locals {
   container_name = "${var.app_name}"
 }
 data "aws_secretsmanager_secret" "db_master_creds" {
-  name = "aurora-pg-db-master-creds-${var.target_env}_${var.app_env}"
+  name = "aurora-postgis-db-master-creds-${var.target_env}_${var.app_env}"
 }
 
 
