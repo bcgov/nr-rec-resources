@@ -59,7 +59,7 @@ variable "subnet_data_b" {
 variable "app_port" {
   description = "The port of the API container"
   type        = number
-  default     = 8000
+  default     = 3000
 }
 variable "app_name" {
   description  = " The APP name"

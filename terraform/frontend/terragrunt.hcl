@@ -49,5 +49,13 @@ generate "provider" {
 provider "aws" {
   region  = "${local.region}"
 }
+# Additional provider configuration for us-east-1 region; resources can reference this as `aws.east`.
+# This is essential for adding WAF ACL rules as they are only available at us-east-1.
+# See AWS doc: https://docs.aws.amazon.com/pdfs/waf/latest/developerguide/waf-dg.pdf#how-aws-waf-works-resources
+#     on section: "Amazon CloudFront distributions"
+provider "aws" {
+  alias  = "east"
+  region = "us-east-1"
+}
 EOF
 }
