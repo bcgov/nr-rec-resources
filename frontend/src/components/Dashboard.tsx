@@ -29,6 +29,7 @@ export default function Dashboard() {
 
   return (
     <section>
+      <h2>Recreation Resources</h2>
       {recResources.map((resource: any) => {
         const { forest_file_id, name, description } = resource;
         return (
