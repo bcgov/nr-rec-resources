@@ -1,22 +1,5 @@
 data "aws_caller_identity" "current" {}
-locals {
-  src_dir = "./"
-  content_type_map = {
-    html = "text/html",
-    ico  = "image/x-icon",
-    js   = "application/javascript",
-    json = "application/json",
-    svg  = "image/svg+xml",
-    ttf  = "font/ttf",
-    txt  = "text/txt",
-    css  = "text/css"
-  }
-  files_raw = fileset(local.src_dir, "**")
-  files = toset([
-    for jsFile in local.files_raw:
-      jsFile if jsFile != ".terragrunt-source-manifest" && jsFile != "assets/.terragrunt-source-manifest"
-  ])
-}
+
 
 resource "aws_s3_bucket" "frontend" {
   bucket = "${var.app_name}-frontend-${data.aws_caller_identity.current.account_id}-${var.aws_region}"
@@ -113,17 +96,4 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   tags = {
     Name = "${var.app_name}-distribution"
   }
-}
-
-resource "aws_s3_object" "site_files" {
-  
-  for_each = local.files
-
-  # Create an object from each
-  bucket = aws_s3_bucket.frontend.id
-  key    = each.value
-  source = "${local.src_dir}/${each.value}"
-  etag = filemd5("${local.src_dir}/${each.value}")
-
-  content_type = lookup(local.content_type_map, regex("\\.(?P<extension>[A-Za-z0-9]+)$", each.value).extension, "application/octet-stream")
 }
