@@ -1,9 +1,10 @@
 name: PR Close
 
 on:
-  # workflow_call:
-  pull_request:
-    types: [closed]
+  workflow_call:
+  # Careful re-enabling this, as it will trigger on every PR close and nuke the dev environment
+  # pull_request:
+  #   types: [closed]
 concurrency:
   # Cancel in progress for PR open and close
   group: ${{ github.event.number }}
