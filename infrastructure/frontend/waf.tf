@@ -1,5 +1,5 @@
 locals {
-  waf_cloudfront_resource_name = "frontend-${var.target_env}-${var.app_env}waf-cloudfront"
+  waf_cloudfront_resource_name = "${var.target_env}-${var.app_env}-waf-cloudfront"
 }
 
 # CloudFront WAF ACL
