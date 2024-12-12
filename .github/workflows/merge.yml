@@ -33,35 +33,6 @@ jobs:
         id: pr
         uses: bcgov-nr/action-get-pr@v0.0.1
 
-  # Leaving this in for now as OpenShift deployment is likely needed for
-  # the API to communicate with Oracle database
-  # deploy-test:
-  #   name: Deploy (test)
-  #   uses: ./.github/workflows/.deployer.yml
-  #   secrets:
-  #     oc_namespace: ${{ secrets.OC_NAMESPACE }}
-  #     oc_token: ${{ secrets.OC_TOKEN }}
-  #   with:
-  #     environment: test
-  #     db_user: app
-  #
-  # deploy-prod:
-  #   name: Deploy (prod)
-  #   needs: [deploy-test, vars]
-  #   uses: ./.github/workflows/.deployer.yml
-  #   secrets:
-  #     oc_namespace: ${{ secrets.OC_NAMESPACE }}
-  #     oc_token: ${{ secrets.OC_TOKEN }}
-  #   with:
-  #     environment: prod
-  #     db_user: app
-  #     params:
-  #       --set backend.deploymentStrategy=RollingUpdate
-  #       --set frontend.deploymentStrategy=RollingUpdate
-  #       --set global.autoscaling=true
-  #       --set frontend.pdb.enabled=true
-  #       --set backend.pdb.enabled=true
-
   deploy-to-aws-dev:
     needs: [vars]
     name: Deploys Application to AWS dev
@@ -91,3 +62,33 @@ jobs:
             prod
             latest
             ${{ needs.vars.outputs.pr }}
+
+  release:
+    name: Release
+    needs: [promote]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Conventional Changelog Update
+        uses: TriPSs/conventional-changelog-action@v5
+        id: changelog
+        continue-on-error: true
+        with:
+          github-token: ${{ github.token }}
+          output-file: "CHANGELOG.md"
+          skip-version-file: "true"
+          skip-commit: "true"
+          git-push: "true"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        if: ${{ steps.changelog.outputs.tag != '' }}
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          token: ${{ github.token }}
+          tag_name: ${{ steps.changelog.outputs.tag }}
+          name: ${{ steps.changelog.outputs.tag }}
+          body: ${{ steps.changelog.outputs.clean_changelog }}
