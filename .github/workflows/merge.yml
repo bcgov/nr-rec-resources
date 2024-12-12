@@ -100,7 +100,6 @@ jobs:
   deploy-to-aws-test:
     needs: [release]
     name: Deploys Application to AWS test
-    environment: test
     runs-on: ubuntu-24.04
     steps:
       - name: Deploy to AWS test
@@ -109,10 +108,10 @@ jobs:
 
   deploy-to-aws-prod:
     needs: [deploy-to-aws-test]
-    name: Deploys Application to AWS test
-    environment: test
+    name: Deploys Application to AWS prod
+    environment: prod
     runs-on: ubuntu-24.04
     steps:
-      - name: Deploy to AWS test
+      - name: Deploy to AWS prod
         # Placeholder
-        run: echo "Deploying to AWS test"
+        run: echo "Deploying to AWS prod"
