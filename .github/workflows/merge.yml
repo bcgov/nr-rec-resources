@@ -19,13 +19,6 @@ concurrency:
   group: ${{ github.workflow }}
   cancel-in-progress: false
 
-permissions:
-  id-token: write # This is required for requesting the JWT
-  contents: write # This is required for actions/checkout
-  packages: write
-  pull-requests: write
-env:
-    AWS_REGION: ca-central-1
 jobs:
   vars:
     name: Set Variables
@@ -69,71 +62,18 @@ jobs:
   #       --set frontend.pdb.enabled=true
   #       --set backend.pdb.enabled=true
 
-  # https://github.com/bcgov/quickstart-openshift-helpers
-  deploy-db:
+  deploy-to-aws-dev:
     needs: [vars]
-    name: Deploys Database
-    uses: ./.github/workflows/.aws-deployer.yml
+    name: Deploys Application to AWS dev
+    uses: ./.github/workflows/.deploy-app.yml
     with:
       environment_name: dev
-      command: apply
-      working_directory: database
       app_env: dev
     secrets: inherit
-  deploy-api:
-    name: Deploys API
-    needs: [vars,deploy-db]
-    uses: ./.github/workflows/.aws-deployer.yml
-    with:
-      environment_name: dev
-      command: apply
-      working_directory: api
-      tag: ${{ needs.vars.outputs.pr }}
-      app_env: dev
-    secrets: inherit
-  deploy-cloudfront:
-    name: Deploys Cloudfront
-    needs: [vars]
-    uses: ./.github/workflows/.aws-deployer.yml
-    with:
-      environment_name: dev
-      command: apply
-      working_directory: frontend
-      app_env: dev
-    secrets: inherit
-  build-ui:
-    name: Builds UI
-    needs: [deploy-api, deploy-cloudfront]
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-          cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-            role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
-            aws-region: ${{ env.AWS_REGION }}
-      - name: Build And Update UI (CF)
-        working-directory: frontend
-        env:
-          VITE_API_BASE_URL: ${{ needs.deploy-api.outputs.API_GW_URL }}/api
-          S3_BUCKET_ARN: ${{ needs.deploy-cloudfront.outputs.S3_BUCKET_ARN }}
-          CF_DISTRIBUTION_ID: ${{ needs.deploy-cloudfront.outputs.CF_DISTRIBUTION_ID }}
-        run: |
-          npm run deploy
-          aws s3 sync --delete ./dist s3://$(echo "$S3_BUCKET_ARN" | cut -d: -f6)
-          aws cloudfront create-invalidation --distribution-id $CF_DISTRIBUTION_ID --paths "/*"
 
   promote:
     name: Promote Images
-    needs: [deploy-api, vars]
+    needs: [deploy-to-aws-dev, vars]
     runs-on: ubuntu-24.04
     permissions:
       packages: write
