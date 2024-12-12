@@ -45,8 +45,9 @@ jobs:
     secrets: inherit
 
   promote:
-    name: Promote Images
+    name: Promote Images, make release and deploy to Test
     needs: [deploy-to-aws-dev, vars]
+    environment: test
     runs-on: ubuntu-24.04
     permissions:
       packages: write
@@ -65,3 +66,53 @@ jobs:
             prod
             latest
             ${{ needs.vars.outputs.pr }}
+
+  release:
+    name: Release
+    needs: [promote]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Conventional Changelog Update
+        uses: TriPSs/conventional-changelog-action@v5
+        id: changelog
+        continue-on-error: true
+        with:
+          github-token: ${{ github.token }}
+          output-file: "CHANGELOG.md"
+          skip-version-file: "true"
+          skip-commit: "true"
+          git-push: "true"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        if: ${{ steps.changelog.outputs.tag != '' }}
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          token: ${{ github.token }}
+          tag_name: ${{ steps.changelog.outputs.tag }}
+          name: ${{ steps.changelog.outputs.tag }}
+          body: ${{ steps.changelog.outputs.clean_changelog }}
+
+  deploy-to-aws-test:
+    needs: [release]
+    name: Deploys Application to AWS test
+    environment: test
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Deploy to AWS test
+        # Placeholder
+        run: echo "Deploying to AWS test"
+
+  deploy-to-aws-prod:
+    needs: [deploy-to-aws-test]
+    name: Deploys Application to AWS test
+    environment: test
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Deploy to AWS test
+        # Placeholder
+        run: echo "Deploying to AWS test"
