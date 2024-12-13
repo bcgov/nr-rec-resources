@@ -1,0 +1,18 @@
+name: "Run app locally with Docker Compose"
+
+runs:
+  using: composite
+  steps:
+    - name: Check out the repository
+      uses: actions/checkout@v4
+
+    - name: Set environment variables
+      run: |
+        echo "GITHUB_SHA=${{ github.sha }}" >> $GITHUB_ENV
+
+      shell: bash
+
+    - name: Start services with Docker Compose and wait for them to be ready
+      run: |
+        docker compose -f 'docker-compose.yml' up -d --wait
+      shell: bash

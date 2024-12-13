@@ -22,31 +22,19 @@ services:
     ports: ["5432:5432"]
 
   migrations:
-    image: ghcr.io/bcgov/nr-rec-resources/migrations:latest
+    image: ghcr.io/bcgov/nr-rec-resources/migrations:a9b5134b270aab6498590d4f27c92c662184dfda
     depends_on:
       database:
         condition: service_healthy
 
   backend:
-    image: ghcr.io/bcgov/nr-rec-resources/backend:latest
-    depends_on:
-      migrations:
-        condition: service_started
+    image: ghcr.io/bcgov/nr-rec-resources/backend:a9b5134b270aab6498590d4f27c92c662184dfda
     ports: ["8000:8000"]
-    healthcheck:
-      test: curl --fail http://localhost:8000/api || exit 1
-      interval: 10s
-      timeout: 10s
-      retries: 20
-      start_period: 60s
 
   frontend:
-    image: ghcr.io/bcgov/nr-rec-resources/frontend:latest
-    depends_on:
-      backend:
-        condition: service_healthy
+    image: ghcr.io/bcgov/nr-rec-resources/frontend:a9b5134b270aab6498590d4f27c92c662184dfda
     environment:
       API_URL: http://backend:8000
     ports: ["3000:3000"]
     healthcheck:
-      test: curl --fail http://
+      test: curl --fail http://localhost:3000 || exit 1
