@@ -68,9 +68,8 @@ services:
     container_name: frontend
     entrypoint: sh -c "npm ci && npm run dev"
     environment:
-      BACKEND_URL: http://backend:8000
+      API_URL: http://backend:8000
       PORT: 3000
-      API_PORT: 8000
       NODE_ENV: development
     image: node:22
     ports: ["3000:3000"]
