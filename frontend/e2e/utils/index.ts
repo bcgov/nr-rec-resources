@@ -1,3 +1,3 @@
 export const baseURL =
   process.env.E2E_BASE_URL ||
-  'https://quickstart-openshift-test-frontend.apps.silver.devops.gov.bc.ca/';
+  'http://localhost:3000'; /* Default to localhost if not set */
