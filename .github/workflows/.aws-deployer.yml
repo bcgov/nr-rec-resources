@@ -76,8 +76,8 @@ jobs:
       env:
           target_env: ${{ inputs.environment_name }}
           aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
-          flyway_image: ghcr.io/${{github.repository}}/migrations:${{inputs.tag}}
-          api_image: ghcr.io/${{github.repository}}/backend:${{inputs.tag}}
+          flyway_image: ghcr.io/${{github.repository}}/migrations:${{ github.sha }}
+          api_image: ghcr.io/${{github.repository}}/backend:${{ github.sha }}
           app_env: ${{inputs.app_env}}
       run: |
           # Run terraform
@@ -89,8 +89,8 @@ jobs:
       env:
           target_env: ${{ inputs.environment_name }}
           aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
-          flyway_image: ghcr.io/${{github.repository}}/migrations:${{inputs.tag}}
-          api_image: ghcr.io/${{github.repository}}/backend:${{inputs.tag}}
+          flyway_image: ghcr.io/${{github.repository}}/migrations:${{ github.sha }}
+          api_image: ghcr.io/${{github.repository}}/backend:${{ github.sha }}
           app_env: ${{inputs.app_env}}
       run: |
           terragrunt output -json > outputs.json
