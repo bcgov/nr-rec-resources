@@ -35,7 +35,6 @@ services:
     depends_on:
       database:
         condition: service_healthy
-    tty: true
 
   schemaspy:
     image: schemaspy/schemaspy:6.2.4
@@ -45,15 +44,12 @@ services:
       -t pgsql11 -db postgres -host database -port 5432 -u postgres -p default
       -schemas users
     depends_on:
-      migrations:
-        condition: service_completed_successfully
+      backend:
+        condition: service_started
     volumes: ["./output:/output"]
 
   backend:
     container_name: backend
-    depends_on:
-      migrations:
-        condition: service_started
     entrypoint: sh -c "npm i && npm run start:dev"
     environment:
       <<: *postgres-vars
