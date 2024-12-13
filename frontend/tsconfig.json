@@ -34,12 +34,9 @@
     }
   },
   "include": [
-    "src",
-    "src/**/*",
-    "src/**/*.tsx",
-    "e2e",
-    "e2e/**/*",
-    "declaration.d.ts"
-  ],
-  "references": [{ "path": "./tsconfig.node.json" }]
+    "**/*.ts",
+    "**/*.tsx",
+    "declaration.d.ts",
+    "./playwright.config.ts"
+  ]
 }
