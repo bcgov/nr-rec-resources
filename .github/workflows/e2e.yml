@@ -13,14 +13,26 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 'latest'
-    - name: Install dependencies
-      run: npm ci
+    - run: npm ci
       working-directory: ./frontend
     - name: Run local app
       uses: ./.github/actions/run-local-app
       continue-on-error: true
-    - run: npx @playwright/test install --with-deps
+    - name: Cache Playwright Browsers
+      uses: actions/cache@v4
+      id: playwright-cache
+      with:
+        path: |
+          ~/.cache/ms-playwright
+        key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
+    - name: Fix permissions
+      run: sudo chown -R $USER:$USER frontend
+    - run: npx playwright install --with-deps
+      if: steps.playwright-cache.outputs.cache-hit != 'true'
+      working-directory: ./frontend
+    - run: npx playwright install-deps
+      if: steps.playwright-cache.outputs.cache-hit == 'true'
       working-directory: ./frontend
     - name: Run Playwright tests
-      run: npx playwright test
+      run: npm run e2e
       working-directory: ./frontend
