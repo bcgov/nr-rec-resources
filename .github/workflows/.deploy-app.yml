@@ -40,7 +40,7 @@ jobs:
       environment_name: ${{ inputs.environment_name }}
       command: apply
       working_directory: api
-      tag: ${{ needs.vars.outputs.pr }}
+      tag: ${{ github.sha }}
       app_env: ${{ inputs.app_env }}
     secrets: inherit
   deploy-cloudfront:

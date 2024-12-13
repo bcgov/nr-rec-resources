@@ -1,0 +1,52 @@
+# Reusable vars
+x-var:
+  - &POSTGRES_USER postgres
+  - &POSTGRES_PASSWORD default
+  - &POSTGRES_DATABASE postgres
+
+# Reusable envars for postgres
+x-postgres-vars: &postgres-vars
+  POSTGRES_HOST: database
+  POSTGRES_USER: *POSTGRES_USER
+  POSTGRES_PASSWORD: *POSTGRES_PASSWORD
+  POSTGRES_DATABASE: *POSTGRES_DATABASE
+
+services:
+  database:
+    image: postgis/postgis:16-3.4 # if using crunchy , make sure to align with crunchy version, currently it is at 16 and postgis 3.3
+    container_name: database
+    environment:
+      <<: *postgres-vars
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", *POSTGRES_USER]
+    ports: ["5432:5432"]
+
+  migrations:
+    image: ghcr.io/bcgov/nr-rec-resources/migrations:latest
+    depends_on:
+      database:
+        condition: service_healthy
+
+  backend:
+    image: ghcr.io/bcgov/nr-rec-resources/backend:latest
+    depends_on:
+      migrations:
+        condition: service_started
+    ports: ["8000:8000"]
+    healthcheck:
+      test: curl --fail http://localhost:8000/api || exit 1
+      interval: 10s
+      timeout: 10s
+      retries: 20
+      start_period: 60s
+
+  frontend:
+    image: ghcr.io/bcgov/nr-rec-resources/frontend:latest
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      API_URL: http://backend:8000
+    ports: ["3000:3000"]
+    healthcheck:
+      test: curl --fail http://
