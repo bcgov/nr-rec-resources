@@ -66,6 +66,14 @@ resource "aws_ecs_task_definition" "node_api_task" {
         {
           name  = "FLYWAY_DEFAULT_SCHEMA"
           value = "${var.db_schema}"
+        },
+        {
+          name  = "FLYWAY_CONNECT_RETRIES"
+          value = "2"
+        },
+        {
+          name  = "FLYWAY_BASELINE_ON_MIGRATE"
+          value = "true"
         }
       ]
 
@@ -86,10 +94,11 @@ resource "aws_ecs_task_definition" "node_api_task" {
       name      = "${local.container_name}"
       image     = "${var.api_image}"
       essential = true
-      depends_on = [
+      #https://docs.aws.amazon.com/AmazonECS/latest/developerguide/example_task_definitions.html#example_task_definition-containerdependency
+      dependsOn = [
         {
           containerName = "${var.app_name}-flyway"
-          condition     = "SUCCESS"
+          condition     = "SUCCESS" #https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDependency.html
         }
       ]
       environment = [
