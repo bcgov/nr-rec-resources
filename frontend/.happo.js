@@ -1,6 +1,5 @@
-import { RemoteBrowserTarget } from 'happo.io';
-import dotenv from 'dotenv';
-dotenv.config();
+const { RemoteBrowserTarget } = require('happo.io');
+require('dotenv').config();
 
 const VIEWPORT = '1366x768';
 const MAXHEIGHT = 20000;
