@@ -33,5 +33,14 @@
       "~/*": ["node_modules/*"]
     }
   },
-  "include": ["eslint.config.mjs"]
+  "include": [
+    "**/*.d.ts",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.js",
+    "**/*.ts",
+    "**/*.tsx",
+    "eslint.config.mjs"
+  ]
 }
