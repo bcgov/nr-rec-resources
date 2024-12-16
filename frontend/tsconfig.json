@@ -33,11 +33,5 @@
       "~/*": ["node_modules/*"]
     }
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    "declaration.d.ts",
-    "./playwright.config.ts",
-    "eslint.config.mjs"
-  ]
+  "include": ["eslint.config.mjs"]
 }
