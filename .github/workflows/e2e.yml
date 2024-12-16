@@ -27,12 +27,12 @@ jobs:
         key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
     - name: Fix permissions
       run: sudo chown -R $USER:$USER frontend
-    - run: npx playwright install --with-deps
-      if: steps.playwright-cache.outputs.cache-hit != 'true'
+    - run: npx @playwright/test install --with-deps
+      # if: steps.playwright-cache.outputs.cache-hit != 'true'
       working-directory: ./frontend
-    - run: npx playwright install-deps
-      if: steps.playwright-cache.outputs.cache-hit == 'true'
+    - run: npx @playwright/test install-deps
+      # if: steps.playwright-cache.outputs.cache-hit == 'true'
       working-directory: ./frontend
     - name: Run Playwright tests
-      run: npm run e2e
+      run: npx playwright test
       working-directory: ./frontend
