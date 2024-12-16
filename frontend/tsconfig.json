@@ -37,6 +37,7 @@
     "**/*.ts",
     "**/*.tsx",
     "declaration.d.ts",
-    "./playwright.config.ts"
+    "./playwright.config.ts",
+    "eslint.config.mjs"
   ]
 }

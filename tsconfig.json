@@ -9,10 +9,11 @@
     "types": ["node"]
   },
   "include": [
-    "backend/**/*",
-    "frontend/**/*",
-    "infrastructure/**/*",
-    "tests/**/*",
-    "eslint.config.mjs"
+    "backend/**/*.ts",
+    "frontend/**/*.ts(,x)",
+    "infrastructure/**/*.ts",
+    "tests/**/*.ts",
+    "eslint.config.mjs",
+    "frontend/.happo.js"
   ]
 }

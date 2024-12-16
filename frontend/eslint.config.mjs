@@ -42,7 +42,7 @@ export default [
           jsx: true,
         },
 
-        project: ['./tsconfig.json', './tsconfig.node.json'],
+        project: ['./tsconfig.json'],
       },
     },
 
