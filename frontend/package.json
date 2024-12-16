@@ -2,7 +2,7 @@
   "name": "quickstart-openshift-react-frontend",
   "private": true,
   "version": "1.0.0",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "build": "vite build",
     "build:analyze": "vite build --mode analyze",
@@ -10,8 +10,8 @@
     "clean": "rimraf ./node_modules/.vite",
     "deploy": "npm ci --ignore-scripts --no-update-notifier --omit=dev && npm run build",
     "dev": "vite --host",
-    "e2e": "playwright test",
-    "e2e:ui": "playwright test --ui",
+    "e2e": "npx happo-e2e -- npx playwright test",
+    "e2e:ui": "npx happo-e2e -- npx playwright test --ui",
     "preview": "vite preview",
     "test": "vitest --mode test",
     "test:cov": "vitest run --mode test --coverage"
@@ -23,6 +23,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
+    "dotenv": "^16.4.7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router": "^7.0.0",

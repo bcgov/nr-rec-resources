@@ -18,7 +18,13 @@ const compat = new FlatCompat({
 
 export default [
   {
-    ignores: ["**/.git/", "**/.github/", "**/migrations/", "**/node_modules/"],
+    ignores: [
+      "**/.git/",
+      "**/.github/",
+      "**/migrations/",
+      "**/node_modules/",
+      "**/.happo.js",
+    ],
   },
   ...compat.extends(
     "eslint:recommended",
