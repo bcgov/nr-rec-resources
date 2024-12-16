@@ -11,10 +11,9 @@
   "include": [
     "**/*.d.ts",
     "**/*.spec.ts",
-    "backend/**/*.ts",
-    "frontend/**/*.ts(,x)",
-    "infrastructure/**/*.ts",
-    "tests/**/*.ts",
+    "**/*.js",
+    "**/*.ts",
+    "**/*.tsx",
     "eslint.config.mjs"
   ]
 }
