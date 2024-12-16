@@ -2,7 +2,7 @@
   "name": "quickstart-openshift-react-frontend",
   "private": true,
   "version": "1.0.0",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "build": "vite build",
     "build:analyze": "vite build --mode analyze",
