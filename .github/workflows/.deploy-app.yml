@@ -35,10 +35,10 @@ jobs:
     name: Deploys Database
     uses: ./.github/workflows/.aws-deployer.yml
     with:
+      app_env: ${{ inputs.app_env }}
       environment_name: ${{ inputs.environment_name }}
       command: ${{ inputs.command }}
       working_directory: database
-      app_env: ${{ inputs.app_env }}
     secrets: inherit
   deploy-api:
     name: Deploys API
