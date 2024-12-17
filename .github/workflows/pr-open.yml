@@ -42,7 +42,7 @@ jobs:
     name: Verify Terraform
     uses: ./.github/workflows/.deploy-app.yml
     with:
-      app_env: dev
+      app_env: ephermal-${{ github.event.number }}
       command: plan
       environment_name: dev
       tag: ${{ github.event.number }}
