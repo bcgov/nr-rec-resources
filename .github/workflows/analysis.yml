@@ -58,11 +58,6 @@ jobs:
           sonar_token: ${{ secrets[matrix.token] }}
           triggers: ('${{ matrix.dir }}/')
 
-  e2e:
-    name: E2E Tests
-    uses: ./.github/workflows/e2e.yml
-    secrets: inherit
-
   # https://github.com/marketplace/actions/aqua-security-trivy
   trivy:
     name: Trivy Security Scan
