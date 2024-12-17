@@ -3,13 +3,17 @@ name: Deploy application to AWS
 on:
   workflow_call:
     inputs:
-      environment_name:
-        description: 'The name of the environment to deploy to'
-        required: true
-        type: string
       app_env:
         required: true
         description: 'The APP env separates between AWS ENV and Actual APP, since AWS dev is where PR, and TEST is deployed'
+        type: string
+      command:
+        required: true
+        description: 'The Terraform command to run'
+        type: string
+      environment_name:
+        description: 'The name of the environment to deploy to'
+        required: true
         type: string
       tag:
         description: 'The tag of the containers to deploy'
@@ -32,7 +36,7 @@ jobs:
     uses: ./.github/workflows/.aws-deployer.yml
     with:
       environment_name: ${{ inputs.environment_name }}
-      command: apply
+      command: ${{ inputs.command }}
       working_directory: database
       app_env: ${{ inputs.app_env }}
     secrets: inherit
@@ -42,7 +46,7 @@ jobs:
     uses: ./.github/workflows/.aws-deployer.yml
     with:
       environment_name: ${{ inputs.environment_name }}
-      command: apply
+      command: ${{ inputs.command }}
       working_directory: api
       tag: ${{ inputs.tag }}
       app_env: ${{ inputs.app_env }}
@@ -52,7 +56,7 @@ jobs:
     uses: ./.github/workflows/.aws-deployer.yml
     with:
       environment_name: ${{ inputs.environment_name }}
-      command: apply
+      command: ${{ inputs.command }}
       working_directory: frontend
       app_env: ${{ inputs.app_env }}
     secrets: inherit
