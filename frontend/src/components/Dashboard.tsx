@@ -29,7 +29,7 @@ export default function Dashboard() {
 
   return (
     <section>
-      <h2>Recreation Resources</h2>
+      <h1>Find a Recreation Resource</h1>
       {recResources.map((resource: any) => {
         const { forest_file_id, name, description } = resource;
         return (
@@ -41,7 +41,7 @@ export default function Dashboard() {
               margin: '1rem',
             }}
           >
-            <h3>{name}</h3>
+            <h2>{name}</h2>
             <p>{description}</p>
             <a href={`/resource/${forest_file_id}`}>View {name} Information</a>
           </div>
