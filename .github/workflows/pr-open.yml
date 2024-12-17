@@ -39,3 +39,8 @@ jobs:
           tags: |
             ${{ github.event.number }}-${{ github.run_number }}
             ${{ github.sha }}
+
+  tests-e2e:
+    name: Tests
+    needs: builds
+    uses: ./.github/workflows/e2e.yml
