@@ -1,3 +1,6 @@
+import BCLogo from '@/images/BC_nav_logo.svg';
+import RSTLogo from '@/images/RST_nav_logo.svg';
+
 const Header = () => {
   return (
     <header>
@@ -8,21 +11,16 @@ const Header = () => {
         <div className="container">
           <a className="navbar-brand" href="https://www2.gov.bc.ca">
             <img
-              className="img-fluid d-none d-md-block"
-              src="/bcid-logo-rev-en.svg"
-              width="181"
-              height="44"
-              alt="B.C. Government Logo"
+              src={BCLogo}
+              alt="British Columbia Logo"
+              style={{ height: 64 }}
             />
             <img
-              className="img-fluid d-md-none"
-              src="/bcid-symbol-rev.svg"
-              width="64"
-              height="44"
-              alt="B.C. Government Logo"
+              src={RSTLogo}
+              alt="Recreation Sites and Trails BC Logo"
+              style={{ height: 64 }}
             />
           </a>
-          <div className="navbar-brand">Recreation Sites and Trails BC</div>
           <button
             className="navbar-toggler"
             type="button"
