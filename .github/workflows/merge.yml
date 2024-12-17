@@ -38,8 +38,9 @@ jobs:
     name: Deploys Application to AWS dev
     uses: ./.github/workflows/.deploy-app.yml
     with:
-      environment_name: dev
       app_env: dev
+      command: apply
+      environment_name: dev
       tag: ${{ needs.vars.outputs.pr }}
     secrets: inherit
 
