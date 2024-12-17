@@ -85,6 +85,12 @@ variable "health_check_path" {
 
 }
 
+
+variable "aws_region" {
+  type = string
+  default = "ca-central-1"
+}
+# Below vars can be manipulated to change the capacity of the ECS cluster based on app environment.
 variable "api_cpu" {
   type = number
   default     = "256"
@@ -93,10 +99,6 @@ variable "api_memory" {
   type = number
   default     = "512"
 }
-variable "aws_region" {
-  type = string
-  default = "ca-central-1"
-}
 variable "min_capacity" {
   type = number
   default = 1
@@ -104,4 +106,22 @@ variable "min_capacity" {
 variable "max_capacity" {
   type = number
   default = 3
+}
+
+
+variable "fargate_base_capacity" {
+  description = "value of the base capacity for the Fargate capacity provider, which is the minimum number of tasks to keep running and not interrupted"
+  type = number
+  default = 1
+  
+}
+variable "fargate_base_weight" {
+  description = "value of the base weight for the Fargate capacity provider, which is the weight of the base capacity provider"
+  type = number
+  default = 20
+}
+variable "fargate_spot_weight" {
+  description = "value of the spot weight for the Fargate capacity provider, which is the weight of the spot capacity provider"
+  type = number
+  default = 80
 }

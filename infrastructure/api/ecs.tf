@@ -154,9 +154,16 @@ resource "aws_ecs_service" "node_api_service" {
   desired_count   = 1
   health_check_grace_period_seconds = 60
 
- capacity_provider_strategy {
+  # fargate spot which may get interrupted #https://docs.aws.amazon.com/AmazonECS/latest/developerguide/fargate-capacity-providers.html
+  capacity_provider_strategy {
     capacity_provider = "FARGATE_SPOT"
-    weight            = 100
+    weight            = "${var.fargate_spot_weight}"
+  }
+  # non interrupted service by fargate, makes sure there is alaways minimum capacity
+  capacity_provider_strategy {
+    capacity_provider = "FARGATE"
+    weight            = "${var.fargate_base_weight}"
+    base              = "${var.fargate_base_capacity}"
   }
 
 
