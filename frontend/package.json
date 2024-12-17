@@ -30,6 +30,7 @@
     "react-router-dom": "^7.0.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.1",
     "@eslint/compat": "^1.2.3",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.15.0",
