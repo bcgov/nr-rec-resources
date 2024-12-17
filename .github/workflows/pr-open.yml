@@ -39,14 +39,13 @@ jobs:
           tags: ${{ github.event.number }}-${{ github.run_number }}
 
   verify-terraform:
-    needs: [vars]
     name: Verify Terraform
     uses: ./.github/workflows/.deploy-app.yml
     with:
       app_env: dev
       command: plan
       environment_name: dev
-      tag: ${{ needs.vars.outputs.pr }}
+      tag: ${{ github.event.number }}
     secrets: inherit
 
   tests-e2e:
