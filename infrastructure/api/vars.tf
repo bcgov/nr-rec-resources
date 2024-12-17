@@ -113,7 +113,7 @@ variable "fargate_base_capacity" {
   description = "value of the base capacity for the Fargate capacity provider, which is the minimum number of tasks to keep running and not interrupted"
   type = number
   default = 1
-  
+
 }
 variable "fargate_base_weight" {
   description = "value of the base weight for the Fargate capacity provider, which is the weight of the base capacity provider"
