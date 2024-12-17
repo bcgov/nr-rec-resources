@@ -1,10 +1,11 @@
 locals {
   container_name = "${var.app_name}"
-}
-data "aws_secretsmanager_secret" "db_master_creds" {
-  name = "aurora-postgis-db-master-creds-${var.target_env}_${var.app_env}"
+  rds_app_env = (contains(["dev", "test", "prod"], var.app_env) ? var.app_env : "dev") # if app_env is not dev, test, or prod, default to dev
 }
 
+data "aws_secretsmanager_secret" "db_master_creds" {
+  name = "aurora-postgis-db-master-creds-${var.target_env}_${local.rds_app_env}"
+}
 
 data "aws_rds_cluster" "rds_cluster" {
   cluster_identifier = "qsawsc-aurora-cluster-${var.app_env}"
