@@ -8,7 +8,7 @@ data "aws_secretsmanager_secret" "db_master_creds" {
 }
 
 data "aws_rds_cluster" "rds_cluster" {
-  cluster_identifier = "qsawsc-aurora-cluster-${var.app_env}"
+  cluster_identifier = "qsawsc-aurora-cluster-${local.rds_app_env}"
 }
 
 data "aws_secretsmanager_secret_version" "db_master_creds_version" {
