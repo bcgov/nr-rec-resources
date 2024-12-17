@@ -24,7 +24,7 @@ jobs:
     - name: Setup node
       uses: actions/setup-node@v4
       with:
-        node-version: 'latest'
+        node-version: '20'
     - run: npm ci
       working-directory: ./frontend
     - run: npx @playwright/test install --with-deps
