@@ -1,7 +1,10 @@
 const Header = () => {
   return (
     <header>
-      <nav className="navbar navbar-expand-lg navbar-dark">
+      <nav
+        className="navbar navbar-expand-lg navbar-dark"
+        aria-label="Header navigation"
+      >
         <div className="container">
           <a className="navbar-brand" href="https://www2.gov.bc.ca">
             <img
