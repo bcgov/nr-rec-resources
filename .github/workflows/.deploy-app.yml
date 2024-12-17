@@ -64,6 +64,7 @@ jobs:
     name: Builds UI
     needs: [deploy-api, deploy-cloudfront]
     runs-on: ubuntu-24.04
+    if: ${{ inputs.command == 'apply' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
