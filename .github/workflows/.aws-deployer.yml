@@ -3,31 +3,30 @@ name: .Terraform Deployer
 on:
   workflow_call:
     inputs:
-      ### Required
-      environment_name:
-        description: 'The name of the environment to deploy to'
-        required: true
-        default: 'dev'
+      app_env:
+        required: false
         type: string
+        description: 'The APP env separates between AWS ENV and Actual APP, since AWS dev is where PR, and TEST is deployed'
       command:
         description: 'The terragrunt command to run'
         required: true
         default: 'apply'
         type: string
-      working_directory:
-        description: 'The working directory to run the command in'
+      environment_name:
+        description: 'The name of the environment to deploy to'
         required: true
-        default: 'database'
+        default: 'dev'
         type: string
       tag:
         description: 'The tag of the containers to deploy'
         default: 'latest'
         type: string
         required: false
-      app_env:
-        required: false
+      working_directory:
+        description: 'The working directory to run the command in'
+        required: true
+        default: 'database'
         type: string
-        description: 'The APP env separates between AWS ENV and Actual APP, since AWS dev is where PR, and TEST is deployed'
     outputs:
       API_GW_URL:
         value: ${{ jobs.infra.outputs.API_GW_URL }}
@@ -48,7 +47,7 @@ env:
     AWS_REGION: ca-central-1
 jobs:
  infra:
-  name: Terraform ${{inputs.command}}
+  name: Terraform ${{inputs.command}} ${{ inputs.package }} ${{ inputs.working_directory }}
   runs-on: ubuntu-24.04
   outputs:
     API_GW_URL: ${{ steps.tg-outputs.outputs.API_GW_URL }}
