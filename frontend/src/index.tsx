@@ -1,4 +1,4 @@
-import '@/index.css';
+import '@/styles/global.scss';
 import '@digitalspace/bcparks-bootstrap-theme/dist/css/bootstrap-theme.min.css';
 import '@bcgov/bc-sans/css/BC_Sans.css';
 import { StrictMode } from 'react';

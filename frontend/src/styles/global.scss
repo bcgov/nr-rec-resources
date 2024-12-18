@@ -1,0 +1,72 @@
+@import 'variables.scss';
+
+.bc-bg-yellow {
+  background: $colorGold;
+}
+.bc-color-white {
+  color: $colorWhite;
+}
+.bc-color-blue-dk {
+  color: $colorBlue;
+}
+.bc-bg-blue-dk {
+  background: $colorBlue;
+}
+.bc-bg-blue-md {
+  background: $colorBlueMed;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+html,
+body {
+  scroll-behavior: smooth;
+  min-height: 100vh;
+  margin: 0;
+}
+
+body {
+  color: $colorGrey;
+  letter-spacing: normal;
+  font-family: $globalFont;
+}
+
+head,
+script,
+style {
+  display: none;
+}
+
+main {
+  max-width: $pageMaxWidth;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  flex-grow: 1;
+  min-height: 100%;
+}
+
+.line {
+  background-color: $colorGold;
+  height: 2px;
+}
+
+#main {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0;
+  text-align: left;
+}
+
+/** Typography overrides **/
+
+// override BC Govt Bootstrap defaults
+h1,
+h2 {
+  color: $colorBlue;
+}

@@ -1,0 +1,69 @@
+@import 'variables.scss';
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins/_breakpoints';
+
+#footer {
+  background-color: $colorBlue;
+  overflow-x: hidden;
+}
+
+#home-footer {
+  max-width: $pageMaxWidth;
+  font-size: 0.8rem;
+  padding: 48px 30px;
+  margin: 0px auto;
+  @media (min-width: $lgBreakpoint) {
+    padding: 48px 16px;
+  }
+
+  .footer-utility-link {
+    font-size: 1rem;
+    min-width: 100px;
+    margin-right: 16px;
+    margin-bottom: 16px;
+    &:last-of-type {
+      margin-right: 0;
+    }
+    @media (min-width: $mdBreakpoint) {
+      margin-bottom: 0;
+    }
+  }
+
+  .footer-menu-container {
+    margin-bottom: 32px;
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+    @media (min-width: $smBreakpoint) {
+      margin-top: 12px;
+      margin-bottom: 0;
+    }
+    .footer-menu-list {
+      font-size: 1.05rem;
+      margin-bottom: 0;
+
+      .footer-menu-divider {
+        margin: 1rem 0;
+        height: 1px;
+        background-color: $colorGold;
+        width: 48px;
+      }
+    }
+  }
+
+  a {
+    color: $colorWhite;
+    text-decoration: none;
+    &:hover,
+    &:focus-visible {
+      text-decoration: underline;
+    }
+    &:focus-visible {
+      border: $colorWhite solid 2px;
+      outline: $colorBlueMed solid 2px;
+      outline-offset: 0px;
+      border-radius: 4px;
+    }
+  }
+}

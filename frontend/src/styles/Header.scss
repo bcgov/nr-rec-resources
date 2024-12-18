@@ -1,0 +1,33 @@
+@import 'variables.scss';
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins/_breakpoints';
+
+#header {
+  width: 100%;
+  background: $colorBlue;
+}
+
+#header-nav {
+  height: 96px;
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  border: 0;
+
+  @include media-breakpoint-up(lg) {
+    max-width: 1060px;
+    margin: 0px auto;
+    padding: 0px 16px;
+  }
+  @include media-breakpoint-down(md) {
+    margin: 0px;
+    padding: 0px 30px;
+  }
+}
+
+a {
+  text-decoration: none;
+}
