@@ -38,7 +38,7 @@ export default function Dashboard() {
             style={{
               border: '1px solid black',
               padding: '1rem',
-              margin: '1rem',
+              margin: '1rem 0',
             }}
           >
             <h2>{name}</h2>
