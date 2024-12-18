@@ -14,17 +14,14 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  margin: 0px auto;
   justify-content: space-between;
   border: 0;
+  padding: 0 $pagePadding;
 
   @include media-breakpoint-up(lg) {
-    max-width: 1060px;
-    margin: 0px auto;
-    padding: 0px 16px;
-  }
-  @include media-breakpoint-down(md) {
-    margin: 0px;
-    padding: 0px 30px;
+    max-width: $pageMaxWidth;
+    padding: $pagePaddingLg;
   }
 }
 

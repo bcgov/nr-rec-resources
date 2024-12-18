@@ -11,10 +11,11 @@
 #home-footer {
   max-width: $pageMaxWidth;
   font-size: 0.8rem;
-  padding: 48px 30px;
+  padding: 48px $pagePadding;
   margin: 0px auto;
+
   @media (min-width: $lgBreakpoint) {
-    padding: 48px 16px;
+    padding: 48px $pagePaddingLg;
   }
 
   .footer-utility-link {
