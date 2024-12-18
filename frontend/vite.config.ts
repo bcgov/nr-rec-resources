@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv } from 'vite';
 import { fileURLToPath, URL } from 'node:url';
 import react from '@vitejs/plugin-react';
+import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -29,6 +30,7 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': fileURLToPath(new URL('./src', import.meta.url)),
           '~': fileURLToPath(new URL('./node_modules', import.meta.url)),
+          '~bootstrap': path.resolve(__dirname, 'node_modules/bootstrap'),
         },
         extensions: ['.js', '.json', '.jsx', '.mjs', '.ts', '.tsx', '.vue'],
       },
@@ -48,6 +50,21 @@ export default defineConfig(({ mode }) => {
               react: ['react', 'react-dom', 'react-router-dom', 'react-router'],
               axios: ['axios'],
             },
+          },
+        },
+      },
+      css: {
+        preprocessorOptions: {
+          scss: {
+            api: 'modern-compiler',
+            // Silence depreciations until next bootstrap release
+            // https://github.com/twbs/bootstrap/issues/40962
+            silenceDeprecations: [
+              'mixed-decls',
+              'color-functions',
+              'global-builtin',
+              'import',
+            ],
           },
         },
       },
