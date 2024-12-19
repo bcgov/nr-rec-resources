@@ -1,0 +1,30 @@
+@import '@/styles/variables.scss';
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins/_breakpoints';
+
+#header {
+  width: 100%;
+  background: $colorBlue;
+}
+
+#header-nav {
+  height: 96px;
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0px auto;
+  justify-content: space-between;
+  border: 0;
+  padding: 0 $pagePadding;
+
+  @include media-breakpoint-up(lg) {
+    max-width: $pageMaxWidth;
+    padding: $pagePaddingLg;
+  }
+}
+
+a {
+  text-decoration: none;
+}

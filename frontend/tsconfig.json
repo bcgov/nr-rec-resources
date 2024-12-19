@@ -16,21 +16,13 @@
     "strictNullChecks": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": [
-      "vite/client",
-      "vitest/globals",
-      "cypress",
-      "node",
-      "cypress-file-upload",
-      "@testing-library/cypress"
-    ],
+    "types": ["vite/client", "vitest/globals", "node"],
     "baseUrl": "./",
     "paths": {
       "@": ["src"],
-      "test": ["test"],
-      "test/*": ["test/*"],
       "@/*": ["src/*"],
-      "~/*": ["node_modules/*"]
+      "~/*": ["node_modules/*"],
+      "e2e/*": ["e2e/*"]
     }
   },
   "include": [
