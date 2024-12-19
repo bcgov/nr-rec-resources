@@ -1,1 +1,2 @@
+recreation_resource
 flyway_schema_history
