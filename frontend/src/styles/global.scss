@@ -41,15 +41,25 @@ style {
   display: none;
 }
 
+a {
+  color: $colorBlueMed;
+  text-decoration: none;
+
+  &:hover {
+    color: $colorBlue;
+  }
+}
+
 .page {
   max-width: $pageMaxWidth;
+  margin: 0 auto;
 }
 
 .page-padding {
-  padding: 0 $pagePadding;
+  padding: $pagePadding;
 
   @media (min-width: $lgBreakpoint) {
-    padding: 0 $pagePaddingLg;
+    padding: $pagePaddingLg;
   }
 }
 

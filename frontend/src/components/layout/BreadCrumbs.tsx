@@ -12,7 +12,7 @@ const BreadCrumbs = ({ customPathNames }: BreadCrumbsProps) => {
   return (
     <div className="breadcrumbs">
       <a href="/">Home</a>
-      <span>&gt;</span>
+      <span className="spacer">&gt;</span>
       {pathnames.length > 0 &&
         pathnames.map((name, index) => {
           const routeTo = `/${pathnames.slice(0, index + 1).join('/')}`;
@@ -25,7 +25,7 @@ const BreadCrumbs = ({ customPathNames }: BreadCrumbsProps) => {
               <a href={routeTo} key={pathName}>
                 {pathName}
               </a>
-              <span>&gt;</span>
+              <span className="spacer">&gt;</span>
             </>
           );
         })}
