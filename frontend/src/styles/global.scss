@@ -70,6 +70,7 @@ main {
   flex-grow: 1;
   margin: 0 auto;
   min-height: 100%;
+  padding: 0;
 }
 
 .line {
@@ -89,4 +90,65 @@ h1 {
 h1,
 h2 {
   color: $colorBlue;
+}
+
+h2.section-heading {
+  position: relative;
+  padding-bottom: 2rem;
+  &:after {
+    position: absolute;
+    content: '';
+    height: 3px;
+    bottom: 9px;
+    margin: 0;
+    left: 0;
+    right: 0;
+    width: 5rem;
+    background: #fdb813;
+  }
+}
+
+tr,
+th,
+td {
+  padding: 1rem;
+}
+
+figure.table {
+  color: $colorGrey;
+  table {
+    width: 100%;
+    tr {
+      &:first-of-type {
+        th,
+        td {
+          border-top: 1px solid $colorGreyLight;
+        }
+      }
+      & > :first-child {
+        background: $colorBrownLight;
+      }
+    }
+    th,
+    td {
+      border-bottom: 1px solid $colorGreyLight;
+    }
+    th {
+      background: $colorBrownLight;
+    }
+  }
+
+  &.horizontal-heading {
+    overflow-x: auto;
+    table {
+      min-width: 600px;
+    }
+    &::-webkit-scrollbar {
+      height: 5px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: rgba($colorBlack, 0.2);
+      border-radius: 5px;
+    }
+  }
 }

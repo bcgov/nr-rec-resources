@@ -1,12 +1,11 @@
 @import '@/styles/variables.scss';
 
-main {
-  max-width: 100vw;
-  padding: 0;
-}
-
 .rec-resource-container {
-  with: 100%;
+  width: 100%;
+
+  section {
+    margin-bottom: 64px;
+  }
 }
 
 .bg-container {
@@ -29,21 +28,5 @@ main {
 
   & span {
     margin-left: 8px;
-  }
-}
-
-h2.section-heading {
-  position: relative;
-  padding-bottom: 2rem;
-  &:after {
-    position: absolute;
-    content: '';
-    height: 3px;
-    bottom: 9px;
-    margin: 0;
-    left: 0;
-    right: 0;
-    width: 5rem;
-    background: #fdb813;
   }
 }

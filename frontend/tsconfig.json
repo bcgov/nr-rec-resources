@@ -16,14 +16,7 @@
     "strictNullChecks": true,
     "noEmit": true,
     "jsx": "react-jsx",
-    "types": [
-      "vite/client",
-      "vitest/globals",
-      "cypress",
-      "node",
-      "cypress-file-upload",
-      "@testing-library/cypress"
-    ],
+    "types": ["vite/client", "vitest/globals", "node"],
     "baseUrl": "./",
     "paths": {
       "@": ["src"],
