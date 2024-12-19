@@ -1,7 +1,7 @@
 import { test } from '@playwright/test';
 import { dashboard_page } from './pages/dashboard';
 import happoPlaywright from 'happo-playwright';
-import { analyzeAccessibility } from './utils';
+import { analyzeAccessibility } from 'e2e/utils';
 
 test.beforeEach(async ({ context }) => {
   await happoPlaywright.init(context);
