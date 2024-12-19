@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import useScrollSpy from 'react-use-scrollspy';
 import apiService from '@/service/api-service';
 import type { AxiosResponse } from '~/axios';
 import BreadCrumbs from '@/components/layout/BreadCrumbs';
@@ -10,6 +11,7 @@ import {
   SiteDescription,
   ThingsToDo,
 } from '@/components/RecResource';
+import PageMenu from '@/components/PageMenu';
 import locationDot from '@/assets/fontAwesomeIcons/location-dot.svg';
 import '@/styles/components/RecResource.scss';
 
@@ -43,6 +45,28 @@ const RecResource = () => {
     // eslint-disable-next-line
   }, []);
 
+  const { description, forest_file_id, name, site_location } =
+    recResource || {};
+
+  const siteDescriptionRef = useRef<HTMLElement>(null);
+  const mapLocationRef = useRef<HTMLElement>(null);
+  const campingRef = useRef<HTMLElement>(null);
+  const thingsToDoRef = useRef<HTMLElement>(null);
+  const contactRef = useRef<HTMLElement>(null);
+
+  const sectionRefs = [
+    siteDescriptionRef,
+    mapLocationRef,
+    campingRef,
+    thingsToDoRef,
+    contactRef,
+  ];
+
+  const activeSection = useScrollSpy({
+    sectionElementRefs: sectionRefs,
+    offsetPx: -100,
+  });
+
   if (notFound) {
     return (
       <>
@@ -53,9 +77,6 @@ const RecResource = () => {
       </>
     );
   }
-
-  const { description, forest_file_id, name, site_location } =
-    recResource || {};
 
   return (
     <div className="rec-resource-container">
@@ -77,19 +98,66 @@ const RecResource = () => {
         </div>
       </div>
       <div className="page page-padding">
-        {description && <SiteDescription description={description} />}
+        <div className="row no-gutters">
+          <div className="page-menu--desktop d-none d-md-block col-12 col-md-4">
+            <PageMenu
+              pageSections={[
+                {
+                  sectionIndex: 0,
+                  link: '#site-description',
+                  display: 'Site Description',
+                  visible: !!description,
+                },
+                {
+                  sectionIndex: 1,
+                  link: '#maps-and-location',
+                  display: 'Maps and Location',
+                  visible: true,
+                },
+                {
+                  sectionIndex: 2,
+                  link: '#camping',
+                  display: 'Camping',
+                  visible: true,
+                },
+                {
+                  sectionIndex: 3,
+                  link: '#things-to-do',
+                  display: 'Things to Do',
+                  visible: true,
+                },
+                {
+                  sectionIndex: 4,
+                  link: '#contact',
+                  display: 'Contact',
+                  visible: true,
+                },
+              ]}
+              activeSection={activeSection ?? 0}
+              menuStyle="nav"
+            />
+          </div>
+          <div className="info-container">
+            {description && (
+              <SiteDescription
+                description={description}
+                ref={siteDescriptionRef}
+              />
+            )}
 
-        <MapsAndLocation />
+            <MapsAndLocation ref={mapLocationRef} />
 
-        <Camping />
+            <Camping ref={campingRef} />
 
-        <ThingsToDo />
+            <ThingsToDo ref={thingsToDoRef} />
 
-        <Contact />
+            <Contact ref={contactRef} />
 
-        <p>
-          <a href="/">Return to Dashboard</a>
-        </p>
+            <p>
+              <a href="/">Return to Dashboard</a>
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

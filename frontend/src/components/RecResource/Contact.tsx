@@ -1,6 +1,8 @@
-const Contact = () => {
+import { forwardRef } from 'react';
+
+const Contact = forwardRef<HTMLElement>((_, ref) => {
   return (
-    <section>
+    <section id="contact" ref={ref}>
       <h2 className="section-heading">Contact</h2>
       <figure className="table">
         <table>
@@ -27,6 +29,6 @@ const Contact = () => {
       </figure>
     </section>
   );
-};
+});
 
 export default Contact;
