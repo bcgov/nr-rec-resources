@@ -53,7 +53,7 @@ const RecResource = () => {
   return (
     <div className="rec-resource-container">
       <div className="bg-container">
-        <div className="rec-resource-content">
+        <div className="page page-padding">
           <BreadCrumbs customPathNames={['Find a Recreation Site or Trail']} />
           <section>
             <div>
@@ -65,13 +65,16 @@ const RecResource = () => {
             <div className="icon-container">
               <img src={locationDot} width={16} /> <span>{site_location}</span>
             </div>
-
-            <p>{description}</p>
           </section>
-          <p>
-            <a href="/">Return to Dashboard</a>
-          </p>
         </div>
+      </div>
+      <div className="page page-padding">
+        <section>
+          <p>{description}</p>
+        </section>
+        <p>
+          <a href="/">Return to Dashboard</a>
+        </p>
       </div>
     </div>
   );
