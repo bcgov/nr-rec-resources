@@ -43,12 +43,14 @@
 .page-menu--desktop[section-count='1'] {
   display: none;
 }
-.page-menu--desktop [active-section='true'] {
+
+.page-menu--desktop .active {
   color: $colorBlue;
   font-weight: bold;
   box-sizing: border-box;
   border-left: $colorBlue solid 3px;
 }
+
 .page-menu--mobile {
   top: 0px;
   position: sticky;
