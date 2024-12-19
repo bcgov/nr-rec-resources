@@ -1,0 +1,91 @@
+@import '@/styles/variables.scss';
+
+.page-menu--desktop {
+  padding-right: 20px;
+  font-size: 0.875rem;
+  padding-left: 0px;
+  margin-bottom: 80px;
+  max-width: 200px;
+
+  align-self: flex-start;
+  top: 0px;
+  position: sticky;
+  position: -webkit-sticky;
+
+  .navbar {
+    padding: 0;
+  }
+
+  a {
+    width: 100%;
+    color: $colorBlueMed;
+    font-size: 1rem;
+    text-decoration: none;
+    border-radius: 0px;
+    margin-top: 15px;
+    padding: 6px 12px;
+    &:hover,
+    &:focus-visible {
+      color: $colorBlue;
+      text-decoration: underline;
+    }
+    &:focus-visible {
+      border: $colorWhite solid 2px;
+      outline: $colorBlueMed solid 2px;
+      outline-offset: 0px;
+      border-radius: 4px;
+    }
+    &:first-of-type {
+      margin-top: 64px;
+    }
+  }
+}
+.page-menu--desktop[section-count='1'] {
+  display: none;
+}
+.page-menu--desktop [active-section='true'] {
+  color: $colorBlue;
+  font-weight: bold;
+  box-sizing: border-box;
+  border-left: $colorBlue solid 3px;
+}
+.page-menu--mobile {
+  top: 0px;
+  position: sticky;
+  position: -webkit-sticky;
+  z-index: 1024;
+  background: #fff;
+  width: 100%;
+  margin-top: 32px;
+
+  .section-select-container {
+    position: relative;
+    &::after {
+      position: absolute;
+      content: '\f078';
+      top: calc(50% - 8px);
+      right: 22px;
+      color: $colorBlue;
+      font-weight: 900;
+      font-size: 12px;
+      font-style: normal;
+      font-variant: normal;
+      font-family: 'Font Awesome 5 Free';
+      text-rendering: auto;
+      text-decoration: none;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .section-select {
+      width: 100%;
+      height: 68px !important;
+      border-left: none;
+      border-right: none;
+      padding: 0px 20px;
+      color: $colorBlue;
+      background: #fff;
+      text-overflow: ellipsis;
+      appearance: none;
+    }
+  }
+}
