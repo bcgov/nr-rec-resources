@@ -1,11 +1,22 @@
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import apiService from '@/service/api-service';
-import { useEffect, useState } from 'react';
 import type { AxiosResponse } from '~/axios';
-import styles from './RecResource.module.css';
+import BreadCrumbs from '@/components/layout/BreadCrumbs';
+import locationDot from '@/assets/fontAwesomeIcons/location-dot.svg';
+import '@/styles/components/RecResource.scss';
+
+interface RecResourceProps {
+  forest_file_id: string;
+  name: string;
+  description: string;
+  site_location: string;
+}
 
 const RecResource = () => {
-  const [recResource, setRecResource] = useState<object>({});
+  const [recResource, setRecResource] = useState<
+    RecResourceProps | undefined
+  >();
   const [notFound, setNotFound] = useState<boolean>(false);
 
   const { id } = useParams();
@@ -36,23 +47,32 @@ const RecResource = () => {
     );
   }
 
-  const { description, forest_file_id, name, site_location } = recResource;
+  const { description, forest_file_id, name, site_location } =
+    recResource || {};
 
   return (
-    <div className={styles.container}>
-      <section>
-        <h2>{name}</h2>
-        <div>
-          <b>Rec site#</b> {forest_file_id}
+    <div className="rec-resource-container">
+      <div className="bg-container">
+        <div className="rec-resource-content">
+          <BreadCrumbs />
+          <section>
+            <div>
+              <h1>{name}</h1>
+              <div className="bc-color-blue-dk">
+                <span>Recreation site |</span> {forest_file_id}
+              </div>
+            </div>
+            <div className="icon-container">
+              <img src={locationDot} width={16} /> <span>{site_location}</span>
+            </div>
+
+            <p>{description}</p>
+          </section>
+          <p>
+            <a href="/">Return to Dashboard</a>
+          </p>
         </div>
-        <p>
-          <b>Site location</b> {site_location}
-        </p>
-        <p>{description}</p>
-      </section>
-      <p>
-        <a href="/">Return to Dashboard</a>
-      </p>
+      </div>
     </div>
   );
 };

@@ -7,15 +7,7 @@ const App = () => {
   return (
     <>
       <Header />
-      <main
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          flex: 1,
-          flexGrow: 1,
-          minHeight: '100%',
-        }}
-      >
+      <main className="page-padding">
         <BrowserRouter>
           <AppRoutes />
         </BrowserRouter>

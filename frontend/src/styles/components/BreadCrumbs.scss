@@ -1,0 +1,11 @@
+@import '@/styles/variables.scss';
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  color: $colorBlueMed;
+
+  & > * {
+    margin-right: 4px;
+  }
+}

@@ -41,6 +41,14 @@ style {
   display: none;
 }
 
+.page-padding {
+  padding: 0 $pagePadding;
+
+  @media (min-width: $lgBreakpoint) {
+    padding: 0 $pagePaddingLg;
+  }
+}
+
 main {
   display: flex;
   flex-direction: column;
@@ -49,14 +57,6 @@ main {
   max-width: $pageMaxWidth;
   margin: 0 auto;
   min-height: 100%;
-  padding: 0 $pagePadding;
-
-  @media (min-width: $lgBreakpoint) {
-    padding: $pagePaddingLg;
-  }
-}
-
-.page {
 }
 
 .line {
@@ -64,16 +64,15 @@ main {
   height: 2px;
 }
 
-#main {
-  box-sizing: border-box;
-  width: 100%;
-  padding: 0;
-  text-align: left;
-}
-
 /** Typography overrides **/
 
 // override BC Govt Bootstrap defaults
+
+h1 {
+  font-size: 32px;
+  color: $colorBlue;
+}
+
 h1,
 h2 {
   color: $colorBlue;
