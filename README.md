@@ -113,4 +113,6 @@ Commits follow the conventions defined in the
 specification.
 
 ## Schemaspy Database Schema Documentation
-Schedule job runs every saturday and keep schema documentation upto date in [github pages](https://bcgov.github.io/nr-rec-resources/).
+
+Schedule job runs every saturday and keep schema documentation upto date in
+[github pages](https://bcgov.github.io/nr-rec-resources/).
