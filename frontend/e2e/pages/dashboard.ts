@@ -1,5 +1,5 @@
 import { expect } from '@playwright/test';
-import { baseURL } from '../utils';
+import { baseURL } from 'e2e/utils';
 import type { Page } from 'playwright';
 
 export const dashboard_page = async (page: Page) => {
