@@ -41,6 +41,10 @@ style {
   display: none;
 }
 
+.page {
+  max-width: $pageMaxWidth;
+}
+
 .page-padding {
   padding: 0 $pagePadding;
 
@@ -54,7 +58,6 @@ main {
   flex-direction: column;
   flex: 1;
   flex-grow: 1;
-  max-width: $pageMaxWidth;
   margin: 0 auto;
   min-height: 100%;
 }

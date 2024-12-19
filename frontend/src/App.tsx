@@ -7,7 +7,7 @@ const App = () => {
   return (
     <>
       <Header />
-      <main className="page-padding">
+      <main>
         <BrowserRouter>
           <AppRoutes />
         </BrowserRouter>
