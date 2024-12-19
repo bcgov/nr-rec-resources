@@ -1,7 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import Dashboard from '@/components/Dashboard';
 import NotFound from '@/components/NotFound';
-import RecResource from '@/components/RecResource';
+import RecResource from '@/components/RecResource/RecResource';
 
 export default function AppRoutes() {
   return (
