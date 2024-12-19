@@ -1,0 +1,34 @@
+@import '@/styles/variables.scss';
+
+main {
+  max-width: 100vw;
+  padding: 0;
+}
+
+.rec-resource-container {
+  with: 100%;
+}
+
+.bg-container {
+  width: 100vw;
+  background: $colorBrownLight;
+  max-height: 160px;
+}
+
+.rec-resource-content {
+  padding: $pagePaddingLg;
+  max-width: $pageMaxWidth;
+  margin: 0 auto;
+}
+
+.icon-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: 16px;
+  margin-bottom: 32px;
+
+  & span {
+    margin-left: 8px;
+  }
+}
