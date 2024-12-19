@@ -60,5 +60,8 @@
   },
   "overrides": {
     "rollup@<4.22.4": "^4.22.4"
+  },
+  "optionalDependencies": {
+    "sass-embedded-linux-x64": "^1.83.0"
   }
 }
