@@ -63,7 +63,8 @@ const RecResource = () => {
               </div>
             </div>
             <div className="icon-container">
-              <img src={locationDot} width={16} /> <span>{site_location}</span>
+              <img alt="Location dot icon" src={locationDot} width={16} />{' '}
+              <span>{site_location}</span>
             </div>
           </section>
         </div>
