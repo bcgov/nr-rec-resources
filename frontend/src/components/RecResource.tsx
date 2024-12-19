@@ -54,7 +54,7 @@ const RecResource = () => {
     <div className="rec-resource-container">
       <div className="bg-container">
         <div className="rec-resource-content">
-          <BreadCrumbs />
+          <BreadCrumbs customPathNames={['Find a Recreation Site or Trail']} />
           <section>
             <div>
               <h1>{name}</h1>
