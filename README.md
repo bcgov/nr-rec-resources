@@ -40,7 +40,7 @@ directory to install eslint and plugins to ensure linting is working correctly.
 ### Database
 
 To run this on your local machine, you will need a working installation of
-PostgreSQL 15.
+PostgreSQL 16.
 
 Create an `.env` file in the `backend` directory using the example in
 `backend/.env.example` as a template.
@@ -111,3 +111,6 @@ pre-commit run --all-files
 Commits follow the conventions defined in the
 [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
 specification.
+
+## Schemaspy Database Schema Documentation
+Schedule job runs every saturday and keep schema documentation upto date in [github pages](https://bcgov.github.io/nr-rec-resources/).

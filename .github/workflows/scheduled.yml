@@ -14,6 +14,9 @@ jobs:
   schema-spy:
     name: SchemaSpy Documentation
     uses: bcgov/quickstart-openshift-helpers/.github/workflows/.schema-spy.yml@v0.9.0
+    with:
+      schemaspy_schema: rst
+      flyway_schema: rst
 
   # Tests are run against dev application so we need to deploy first
   # tests:
