@@ -1,6 +1,7 @@
 import { test } from '@playwright/test';
-import { dashboard_page } from './pages/dashboard';
 import happoPlaywright from 'happo-playwright';
+import { dashboardPage } from 'e2e/pages/dashboard';
+import { recResourcePage } from 'e2e/pages/recResource';
 import { analyzeAccessibility } from 'e2e/utils';
 
 test.beforeEach(async ({ context }) => {
@@ -13,12 +14,25 @@ test.afterEach(async () => {
 
 test.describe.parallel('RST', () => {
   test('Landing Page', async ({ page }) => {
-    await dashboard_page(page);
+    await dashboardPage(page);
 
     const pageContent = page.locator('html');
 
     await happoPlaywright.screenshot(page, pageContent, {
       component: 'Landing page',
+      variant: 'default',
+    });
+
+    await analyzeAccessibility(page);
+  });
+
+  test('Recreation Resource Page', async ({ page }) => {
+    await recResourcePage(page);
+
+    const pageContent = page.locator('html');
+
+    await happoPlaywright.screenshot(page, pageContent, {
+      component: 'Recreation Resource page',
       variant: 'default',
     });
 

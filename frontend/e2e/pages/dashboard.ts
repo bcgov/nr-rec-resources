@@ -2,10 +2,9 @@ import { expect } from '@playwright/test';
 import { baseURL } from 'e2e/utils';
 import type { Page } from 'playwright';
 
-export const dashboard_page = async (page: Page) => {
+export const dashboardPage = async (page: Page) => {
   await page.goto(baseURL);
-  await expect(page.getByText('Recreation Sites and Trails BC')).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Home' })).toBeVisible();
+  await expect(page.getByText('Find a Recreation Resource')).toBeVisible();
   await expect(page.getByRole('link', { name: 'Disclaimer' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Privacy' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Accessibility' })).toBeVisible();
