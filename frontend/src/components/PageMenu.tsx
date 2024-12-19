@@ -26,7 +26,7 @@ const PageMenu: React.FC<PageMenuProps> = ({
             .filter((s) => s.visible)
             .map((section) => (
               <a
-                className="nav-link"
+                className={`nav-link ${activeSection === section.sectionIndex ? 'active' : ''}`}
                 data-active-section={
                   activeSection === section.sectionIndex ? 'true' : 'false'
                 }
