@@ -11,8 +11,6 @@ describe('Simple working test', () => {
     await act(async () => {
       render(<App />);
     });
-    expect(
-      screen.getByText(/Recreation Sites and Trails BC/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Find a Recreation Resource/i)).toBeInTheDocument();
   });
 });
