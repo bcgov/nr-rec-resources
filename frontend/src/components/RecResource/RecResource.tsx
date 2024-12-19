@@ -3,6 +3,13 @@ import { useParams } from 'react-router-dom';
 import apiService from '@/service/api-service';
 import type { AxiosResponse } from '~/axios';
 import BreadCrumbs from '@/components/layout/BreadCrumbs';
+import {
+  Camping,
+  Contact,
+  MapsAndLocation,
+  SiteDescription,
+  ThingsToDo,
+} from '@/components/RecResource';
 import locationDot from '@/assets/fontAwesomeIcons/location-dot.svg';
 import '@/styles/components/RecResource.scss';
 
@@ -70,9 +77,16 @@ const RecResource = () => {
         </div>
       </div>
       <div className="page page-padding">
-        <section>
-          <p>{description}</p>
-        </section>
+        {description && <SiteDescription description={description} />}
+
+        <MapsAndLocation />
+
+        <Camping />
+
+        <ThingsToDo />
+
+        <Contact />
+
         <p>
           <a href="/">Return to Dashboard</a>
         </p>
