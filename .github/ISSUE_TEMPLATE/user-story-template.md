@@ -14,14 +14,9 @@ assignees: ''
 [Description of the ticket]
 
 #### Acceptance Criteria:
-
-Given
-When
-Then
-
-Given
-When
-Then
+- [ ] ...
+- [ ] ...
+- [ ] ...
 
 #### Development Checklist:
 
