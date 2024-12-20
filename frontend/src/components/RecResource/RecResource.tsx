@@ -8,6 +8,7 @@ import {
   Camping,
   Contact,
   MapsAndLocation,
+  PhotoGallery,
   SiteDescription,
   ThingsToDo,
 } from '@/components/RecResource';
@@ -21,6 +22,29 @@ interface RecResourceProps {
   description: string;
   site_location: string;
 }
+
+const photosExample = [
+  {
+    imageUrl:
+      'https://nrs.objectstore.gov.bc.ca/kuwyyf/strathcona_RS_456_74e6820c20.jpg',
+  },
+  {
+    imageUrl:
+      'https://nrs.objectstore.gov.bc.ca/kuwyyf/strathcona_RS_472_538ead3dd8.jpg',
+  },
+  {
+    imageUrl:
+      'https://nrs.objectstore.gov.bc.ca/kuwyyf/strathcona_RS_421_a328feaae2.jpg',
+  },
+  {
+    imageUrl:
+      'https://nrs.objectstore.gov.bc.ca/kuwyyf/strathcona_RS_466_6f54643b87.jpg',
+  },
+  {
+    imageUrl:
+      'https://nrs.objectstore.gov.bc.ca/kuwyyf/strathcona_RS_440_2aaac38e2d.jpg',
+  },
+];
 
 const RecResource = () => {
   const [recResource, setRecResource] = useState<
@@ -98,8 +122,9 @@ const RecResource = () => {
         </div>
       </div>
       <div className="page page-padding">
+        <PhotoGallery photos={photosExample} />
         <div className="row no-gutters">
-          <div className="page-menu--desktop d-none d-md-block col-12 col-md-4">
+          <div className="page-menu--desktop">
             <PageMenu
               pageSections={[
                 {
@@ -137,7 +162,7 @@ const RecResource = () => {
               menuStyle="nav"
             />
           </div>
-          <div className="info-container">
+          <div className="rec-content-container">
             {description && (
               <SiteDescription
                 description={description}
