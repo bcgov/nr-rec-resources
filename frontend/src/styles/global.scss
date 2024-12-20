@@ -63,7 +63,7 @@ a {
   padding: $pagePadding;
 
   @media (min-width: $lgBreakpoint) {
-    padding: $pagePaddingLg;
+    padding: 8px;
   }
 }
 
