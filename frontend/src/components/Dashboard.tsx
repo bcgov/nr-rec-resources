@@ -1,5 +1,6 @@
 import apiService from '@/service/api-service';
 import { useEffect, useState } from 'react';
+import RecResourceCard from '@/components/Search/RecResourceCard';
 import type { AxiosResponse } from '~/axios';
 
 export default function Dashboard() {
@@ -28,25 +29,21 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <section>
-      <h1>Find a Recreation Resource</h1>
-      {recResources.map((resource: any) => {
-        const { forest_file_id, name, description } = resource;
-        return (
-          <div
-            key={forest_file_id}
-            style={{
-              border: '1px solid black',
-              padding: '1rem',
-              margin: '1rem',
-            }}
-          >
-            <h2>{name}</h2>
-            <p>{description}</p>
-            <a href={`/resource/${forest_file_id}`}>View {name} Information</a>
-          </div>
-        );
-      })}
-    </section>
+    <div className="page page-padding">
+      <section>
+        <h1>Find a Recreation Resource</h1>
+        {recResources.map((resource: any) => {
+          const { forest_file_id, name, description } = resource;
+          return (
+            <RecResourceCard
+              key={forest_file_id}
+              forest_file_id={forest_file_id}
+              name={name}
+              description={description}
+            />
+          );
+        })}
+      </section>
+    </div>
   );
 }

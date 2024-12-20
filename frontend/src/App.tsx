@@ -7,17 +7,7 @@ const App = () => {
   return (
     <>
       <Header />
-      <main
-        // use bcparks bootstrap theme container class to share same page max width
-        className="container"
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          flex: 1,
-          flexGrow: 1,
-          minHeight: '100%',
-        }}
-      >
+      <main>
         <BrowserRouter>
           <AppRoutes />
         </BrowserRouter>
