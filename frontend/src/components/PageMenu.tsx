@@ -20,23 +20,25 @@ const PageMenu: React.FC<PageMenuProps> = ({
 }) => {
   if (menuStyle === 'nav') {
     return (
-      <nav className="navbar">
-        <nav id="section-navbar" className="nav">
-          {pageSections
-            .filter((s) => s.visible)
-            .map((section) => (
-              <a
-                className={`nav-link ${activeSection === section.sectionIndex ? 'active' : ''}`}
-                data-active-section={
-                  activeSection === section.sectionIndex ? 'true' : 'false'
-                }
-                key={section.sectionIndex}
-                href={section.link}
-              >
-                {section.display}
-              </a>
-            ))}
-        </nav>
+      <nav
+        id="section-navbar"
+        aria-label="Page section navigation"
+        className="navbar"
+      >
+        {pageSections
+          .filter((s) => s.visible)
+          .map((section) => (
+            <a
+              className={`nav-link ${activeSection === section.sectionIndex ? 'active' : ''}`}
+              data-active-section={
+                activeSection === section.sectionIndex ? 'true' : 'false'
+              }
+              key={section.sectionIndex}
+              href={section.link}
+            >
+              {section.display}
+            </a>
+          ))}
       </nav>
     );
   }

@@ -25,7 +25,7 @@ interface ShowPhotosProps {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const ShowPhotos: React.FC<ShowPhotosProps> = ({
+const ShowPhotosBtn: React.FC<ShowPhotosProps> = ({
   text,
   setShowPhotos,
   setOpen,
@@ -111,7 +111,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
                     alt={parkPhotos[0].altText}
                   />
                   <div className="show-photos">
-                    <ShowPhotos
+                    <ShowPhotosBtn
                       text="Show photo"
                       setShowPhotos={setShowPhoto}
                       setOpen={setOpen}
@@ -137,7 +137,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
                     alt={parkPhotos[1].altText}
                   />
                   <div className="show-photos">
-                    <ShowPhotos
+                    <ShowPhotosBtn
                       text="Show photos"
                       setShowPhotos={setShowPhoto}
                       setOpen={setOpen}
@@ -175,7 +175,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
                       ))}
                   </div>
                   <div className="show-photos">
-                    <ShowPhotos
+                    <ShowPhotosBtn
                       text="Show photos"
                       setShowPhotos={setShowPhoto}
                       setOpen={setOpen}
@@ -215,7 +215,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
                   alt={parkPhotos[0].altText}
                 />
                 <div className="show-photos">
-                  <ShowPhotos
+                  <ShowPhotosBtn
                     text={parkPhotos.length}
                     setOpen={setOpen}
                     setShowPhotos={setShowPhoto}
