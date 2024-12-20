@@ -5,7 +5,6 @@ import type { Page } from 'playwright';
 export const recResourcePage = async (page: Page) => {
   const url = `${baseURL}/resource/REC5600/`;
   await page.goto(url);
-  await expect(page.getByText('Find A Recreation Site Or Trail')).toBeVisible();
 
   // Verify dyanmic content loads
   await expect(

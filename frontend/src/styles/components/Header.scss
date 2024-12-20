@@ -3,12 +3,19 @@
 @import '~bootstrap/scss/variables';
 @import '~bootstrap/scss/mixins/_breakpoints';
 
-#header {
+.page-nav-container {
   width: 100%;
-  background: $colorBlue;
+
+  &.main {
+    background-color: $colorBlue;
+  }
+
+  &.sub {
+    background-color: $colorBlueMed;
+  }
 }
 
-#header-nav {
+.header-nav {
   height: 96px;
   position: relative;
   display: flex;
@@ -16,12 +23,30 @@
   align-items: center;
   margin: 0px auto;
   justify-content: space-between;
-  border: 0;
   padding: 0 $pagePadding;
 
   @include media-breakpoint-up(lg) {
     max-width: $pageMaxWidth;
     padding: $pagePaddingLg;
+  }
+
+  &.main {
+    background-color: $colorBlue;
+  }
+
+  &.sub {
+    background-color: $colorBlueMed;
+    height: 64px;
+    justify-content: flex-start;
+
+    & a {
+      color: $colorWhite;
+      margin-right: 32px;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
   }
 }
 
