@@ -13,6 +13,15 @@
   background: $colorBrownLight;
 }
 
+.with-gallery {
+  padding-bottom: 64px;
+}
+
+.photo-gallery-container {
+  position: relative;
+  top: -112px;
+}
+
 .rec-resource-content {
   padding: $pagePaddingLg;
   max-width: $pageMaxWidth;
@@ -33,6 +42,6 @@
 
 .rec-content-container {
   width: 100%;
-  max-width: 660px;
+  max-width: 800px;
   margin-top: 64px;
 }
