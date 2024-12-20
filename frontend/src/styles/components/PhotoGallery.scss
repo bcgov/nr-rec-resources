@@ -42,10 +42,13 @@
   right: 16px;
   bottom: 16px;
   z-index: 100;
+  width: fit-content;
+
   @media (min-width: $lgBreakpoint) {
     right: 32px;
     bottom: 32px;
   }
+
   .show-photo-button {
     color: $colorWhite;
     background-color: rgba($colorGrey, 0.5);

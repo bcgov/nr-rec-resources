@@ -102,9 +102,11 @@ const RecResource = () => {
     );
   }
 
+  const isPhotoGallery = photosExample.length > 0;
+
   return (
     <div className="rec-resource-container">
-      <div className="bg-container">
+      <div className={`bg-container ${isPhotoGallery ? 'with-gallery' : ''}`}>
         <div className="page page-padding">
           <BreadCrumbs customPathNames={['Find a Recreation Site or Trail']} />
           <section>
@@ -122,7 +124,11 @@ const RecResource = () => {
         </div>
       </div>
       <div className="page page-padding">
-        <PhotoGallery photos={photosExample} />
+        {isPhotoGallery && (
+          <div className="photo-gallery-container">
+            <PhotoGallery photos={photosExample} />
+          </div>
+        )}
         <div className="row no-gutters">
           <div className="page-menu--desktop">
             <PageMenu
