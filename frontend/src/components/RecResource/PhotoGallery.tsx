@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImages } from '@fortawesome/free-solid-svg-icons';
 import Lightbox from 'yet-another-react-lightbox';
@@ -85,7 +83,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
         thumbnails={{ border: 0 }}
         plugins={[Captions, Thumbnails, Zoom, Slideshow, Fullscreen]}
       />
-      {/* Photo gallery for PC */}
+      {/* Photo gallery for Desktop */}
       <div className="park-photo-gallery d-none d-md-block">
         {parkPhotos.length > 0 && (
           <div
@@ -105,8 +103,8 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
             }}
           >
             {parkPhotos.length === 1 && (
-              <Row noGutters onClick={() => setOpen(true)}>
-                <Col className="px-0">
+              <div className="photo-row" onClick={() => setOpen(true)}>
+                <div className="photo-col">
                   <Photo
                     type="big"
                     src={parkPhotos[0].imageUrl}
@@ -119,26 +117,25 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
                       setOpen={setOpen}
                     />
                   </div>
-                </Col>
-              </Row>
+                </div>
+              </div>
             )}
 
             {isGalleryMed && (
-              <Row noGutters onClick={() => setOpen(true)}>
-                <Col xs={12} md={6} className="pl-0 pr-1">
+              <div className="photo-row" onClick={() => setOpen(true)}>
+                <div className="photo-col">
                   <Photo
                     type="big"
                     src={parkPhotos[0].imageUrl}
                     alt={parkPhotos[0].altText}
                   />
-                </Col>
-                <Col xs={12} md={6} className="pl-1 pr-0">
+                </div>
+                <div className="photo-col">
                   <Photo
                     type="big"
                     src={parkPhotos[1].imageUrl}
                     alt={parkPhotos[1].altText}
                   />
-
                   <div className="show-photos">
                     <ShowPhotos
                       text="Show photos"
@@ -146,12 +143,13 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
                       setOpen={setOpen}
                     />
                   </div>
-                </Col>
-              </Row>
+                </div>
+              </div>
             )}
+
             {parkPhotos.length > 4 && (
-              <Row noGutters onClick={() => setOpen(true)}>
-                <Col xs={12} md={6} className="pl-0 pr-1">
+              <div className="photo-row" onClick={() => setOpen(true)}>
+                <div className="photo-col">
                   {parkPhotos
                     .filter((f) => f.index === 0)
                     .map((photo, index) => (
@@ -162,40 +160,39 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
                         key={index}
                       />
                     ))}
-                </Col>
-                <Col xs={12} md={6} className="px-0">
-                  <Row noGutters className="position-relative">
+                </div>
+                <div className="photo-col">
+                  <div className="photo-grid">
                     {parkPhotos
                       .filter((photo) => photo.index > 0 && photo.index <= 4)
                       .map((photo, index) => (
-                        <Col xs={6} key={index} className="pl-2 pb-2">
-                          <Photo
-                            type="small"
-                            src={photo.imageUrl}
-                            alt={photo.altText}
-                            key={index}
-                          />
-                        </Col>
+                        <Photo
+                          type="small"
+                          src={photo.imageUrl}
+                          alt={photo.altText}
+                          key={index}
+                        />
                       ))}
-                    <div className="show-photos">
-                      <ShowPhotos
-                        text="Show photos"
-                        setShowPhotos={setShowPhoto}
-                        setOpen={setOpen}
-                      />
-                    </div>
-                  </Row>
-                </Col>
-              </Row>
+                  </div>
+                  <div className="show-photos">
+                    <ShowPhotos
+                      text="Show photos"
+                      setShowPhotos={setShowPhoto}
+                      setOpen={setOpen}
+                    />
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         )}
       </div>
-      {/* Photo gallery for mobile */}
+
+      {/* Mobile photo gallery */}
       <div className="park-photo-gallery d-block d-md-none">
         {parkPhotos.length > 0 && (
           <div
-            id="park-photo-gallery-container"
+            id="park-photo-gallery-container-mobile"
             role="button"
             tabIndex={0}
             className="gallery-container"
@@ -210,8 +207,8 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
               }
             }}
           >
-            <Row noGutters onClick={() => setOpen(true)}>
-              <Col className="px-0">
+            <div className="photo-row" onClick={() => setOpen(true)}>
+              <div className="photo-col">
                 <Photo
                   type="big"
                   src={parkPhotos[0].imageUrl}
@@ -224,8 +221,8 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
                     setShowPhotos={setShowPhoto}
                   />
                 </div>
-              </Col>
-            </Row>
+              </div>
+            </div>
           </div>
         )}
       </div>

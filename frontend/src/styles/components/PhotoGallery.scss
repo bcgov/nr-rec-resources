@@ -77,7 +77,7 @@
 
 // park photo gallery
 .yarl__slide_image {
-  max-height: calc(100vh - 300px) !important;
+  max-height: calc(100vh - 300px);
 }
 .yarl__slide_description_container {
   bottom: 10%;
@@ -119,4 +119,50 @@
 }
 .yarl__navigation_next {
   right: 16px;
+}
+
+.park-photo-gallery {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.gallery-container {
+  width: 100%;
+  cursor: pointer;
+  outline: none;
+}
+
+.photo-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+}
+
+.photo-col {
+  flex: 1;
+  padding: 0.5rem; /* Adjust for spacing between columns */
+  display: flex;
+  flex-direction: column;
+}
+
+.photo-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem; /* Adjust for spacing between small photos */
+}
+
+.photo-grid > * {
+  flex: 1 1 calc(50% - 0.5rem); /* Two items per row with spacing */
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .photo-col {
+    padding: 0.25rem;
+  }
+
+  .photo-grid > * {
+    flex: 1 1 100%; /* Single column on smaller screens */
+  }
 }
