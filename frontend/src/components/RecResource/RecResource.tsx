@@ -13,7 +13,8 @@ import {
   ThingsToDo,
 } from '@/components/RecResource';
 import PageMenu from '@/components/PageMenu';
-import locationDot from '@/assets/fontAwesomeIcons/location-dot.svg';
+import locationDot from '@/images/fontAwesomeIcons/location-dot.svg';
+import blueStatus from '@/images/icons/blue-status.svg';
 import '@/styles/components/RecResource.scss';
 
 interface RecResourceProps {
@@ -117,8 +118,22 @@ const RecResource = () => {
               </div>
             </div>
             <div className="icon-container">
-              <img alt="Location dot icon" src={locationDot} width={16} />{' '}
+              <img
+                alt="Location dot icon"
+                src={locationDot}
+                height={24}
+                width={24}
+              />{' '}
               <span>{site_location}</span>
+            </div>
+            <div className="icon-container">
+              <img
+                alt="Site open status icon"
+                src={blueStatus}
+                height={24}
+                width={24}
+              />{' '}
+              <span>Open (Placeholder)</span>
             </div>
           </section>
         </div>
