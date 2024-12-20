@@ -27,23 +27,27 @@ interface RecResourceProps {
 const photosExample = [
   {
     imageUrl:
-      'https://nrs.objectstore.gov.bc.ca/kuwyyf/strathcona_RS_456_74e6820c20.jpg',
+      'http://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Lost%20Shoe%201.jpg',
   },
   {
     imageUrl:
-      'https://nrs.objectstore.gov.bc.ca/kuwyyf/strathcona_RS_472_538ead3dd8.jpg',
+      'http://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Lost%20Shoe%203.jpg',
   },
   {
     imageUrl:
-      'https://nrs.objectstore.gov.bc.ca/kuwyyf/strathcona_RS_421_a328feaae2.jpg',
+      'http://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Trail%20Entrance.jpg',
   },
   {
     imageUrl:
-      'https://nrs.objectstore.gov.bc.ca/kuwyyf/strathcona_RS_466_6f54643b87.jpg',
+      'http://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Lost%20Shoe%202.jpg',
   },
   {
     imageUrl:
-      'https://nrs.objectstore.gov.bc.ca/kuwyyf/strathcona_RS_440_2aaac38e2d.jpg',
+      'http://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Interpretive%20sign.jpg',
+  },
+  {
+    imageUrl:
+      'http://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Lost%20Shoe.jpg',
   },
 ];
 
