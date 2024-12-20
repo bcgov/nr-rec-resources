@@ -88,7 +88,6 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
         {parkPhotos.length > 0 && (
           <div
             id="park-photo-gallery-container"
-            role="button"
             tabIndex={0}
             className="gallery-container"
             onClick={() => {
@@ -193,7 +192,6 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
         {parkPhotos.length > 0 && (
           <div
             id="park-photo-gallery-container-mobile"
-            role="button"
             tabIndex={0}
             className="gallery-container"
             onClick={() => {
