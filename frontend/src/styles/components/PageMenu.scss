@@ -48,10 +48,12 @@
 }
 
 .page-menu--desktop .active {
-  color: $colorBlue;
-  font-weight: bold;
-  box-sizing: border-box;
-  border-left: $colorBlue solid 3px;
+  @media (min-width: $mdBreakpoint) {
+    color: $colorBlue;
+    font-weight: bold;
+    box-sizing: border-box;
+    border-left: $colorBlue solid 3px;
+  }
 }
 
 .page-menu--mobile {
