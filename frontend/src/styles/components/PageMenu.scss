@@ -9,8 +9,11 @@
 
   align-self: flex-start;
   top: 0px;
-  position: sticky;
-  position: -webkit-sticky;
+
+  @media (min-width: $mdBreakpoint) {
+    position: sticky;
+    position: -webkit-sticky;
+  }
 
   .navbar {
     padding: 0;
