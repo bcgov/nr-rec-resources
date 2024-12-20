@@ -2,7 +2,7 @@
 name: UX Task
 about: This is a Task for UX Research, Design or Testing
 title: ''
-labels: ux
+labels: ''
 assignees: ''
 
 ---
