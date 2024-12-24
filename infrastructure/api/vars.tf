@@ -8,7 +8,7 @@ variable "app_env" {
 }
 
 variable "db_name" {
-  description = "The default schema for Flyway"
+  description = "The default database for Flyway"
   type        = string
   default     = "app"
 }
@@ -16,7 +16,7 @@ variable "db_name" {
 variable "db_schema" {
   description = "The default schema for Flyway"
   type        = string
-  default     = "app"
+  default     = "rst"
 }
 
 variable "subnet_app_a" {
