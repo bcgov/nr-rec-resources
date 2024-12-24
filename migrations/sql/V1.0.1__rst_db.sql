@@ -37,6 +37,8 @@ CREATE TABLE RECREATION_PROJECT (
     CONSTRAINT CHK_CAMP_HOST_IND CHECK (CAMP_HOST_IND IN ('Y', 'N'))
 );
 
+COMMENT ON TABLE RECREATION_PROJECT IS 'Project information relating to a recreational file. A recreation file can have only one project. A project must be of type Site, Reserve, Trail, or Interpretive Forest.';
+
 COMMENT ON COLUMN RECREATION_PROJECT.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
 COMMENT ON COLUMN RECREATION_PROJECT.PROJECT_NAME IS 'Name of the Recreation Project.';
 COMMENT ON COLUMN RECREATION_PROJECT.RECREATION_CONTROL_ACCESS_CODE IS 'Describes the Controlled Access Code for a project. E.g. “Gated”, “Restricted Use”.';
@@ -79,6 +81,8 @@ CREATE TABLE RECREATION_ACCESS (
     UPDATE_TIMESTAMP TIMESTAMP
 );
 
+COMMENT ON TABLE RECREATION_ACCESS IS 'Information relating to modes of access to a recreation project.';
+
 COMMENT ON COLUMN RECREATION_ACCESS.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
 COMMENT ON COLUMN RECREATION_ACCESS.RECREATION_ACCESS_CODE IS 'Code describing the Recreation Objective.';
 COMMENT ON COLUMN RECREATION_ACCESS.RECREATION_SUB_ACCESS_CODE IS 'Code describing the Recreation Sub Access types.';
@@ -96,6 +100,8 @@ CREATE TABLE RECREATION_ACCESS_CODE (
     UPDATE_TIMESTAMP TIMESTAMP
 );
 
+-- There was no table description in the original RECREATION_ACCESS_CODE table
+
 COMMENT ON COLUMN RECREATION_ACCESS_CODE.RECREATION_ACCESS_CODE IS 'Code describing the Recreation Objective.';
 COMMENT ON COLUMN RECREATION_ACCESS_CODE.DESCRIPTION IS 'Description of the code value.';
 COMMENT ON COLUMN RECREATION_ACCESS_CODE.EFFECTIVE_DATE IS 'Date the code becomes effective.';
@@ -112,6 +118,8 @@ CREATE TABLE RECREATION_ACCESS_XREF (
     UPDATE_TIMESTAMP TIMESTAMP,
     FOREST_FILE_ID VARCHAR(10)
 );
+
+COMMENT ON TABLE RECREATION_ACCESS_XREF IS 'Describes valid combinations between Recreation Access and Recreation Sub Access types. E.g. Boat in - Motor Boat, Boat in - Canoe, Trail-MultiUse, Trail-Snowmobile.';
 
 COMMENT ON COLUMN RECREATION_ACCESS_XREF.RECREATION_ACCESS_CODE IS 'Code describing the Recreation Objective.';
 COMMENT ON COLUMN RECREATION_ACCESS_XREF.RECREATION_SUB_ACCESS_CODE IS 'Code describing the Recreation Sub Access types.';
@@ -132,6 +140,8 @@ CREATE TABLE RECREATION_ACTIVITY (
     UPDATE_TIMESTAMP TIMESTAMP
 );
 
+COMMENT ON TABLE RECREATION_ACTIVITY IS 'The types of available activities for a given project.';
+
 COMMENT ON COLUMN RECREATION_ACTIVITY.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
 COMMENT ON COLUMN RECREATION_ACTIVITY.RECREATION_ACTIVITY_CODE IS 'Code describing the Recreation Activity.';
 COMMENT ON COLUMN RECREATION_ACTIVITY.ACTIVITY_RANK IS 'The order of importance of this activity for the given project as a number from 1 to 3.';
@@ -148,6 +158,8 @@ CREATE TABLE RECREATION_ACTIVITY_CODE (
     EXPIRY_DATE DATE,
     UPDATE_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+COMMENT ON TABLE RECREATION_ACTIVITY_CODE IS 'Activity code types for recreation projects.';
 
 COMMENT ON COLUMN RECREATION_ACTIVITY_CODE.RECREATION_ACTIVITY_CODE IS 'Code describing the Recreation Activity.';
 COMMENT ON COLUMN RECREATION_ACTIVITY_CODE.DESCRIPTION IS 'Description of the code value.';
@@ -168,6 +180,8 @@ CREATE TABLE RECREATION_AGREEMENT_HOLDER (
     UPDATE_USERID VARCHAR(30),
     UPDATE_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+COMMENT ON TABLE RECREATION_AGREEMENT_HOLDER IS 'Identifies the Agreement Holder responsible for maintaining a project for a given time frame.';
 
 COMMENT ON COLUMN RECREATION_AGREEMENT_HOLDER.AGREEMENT_HOLDER_ID IS 'The unique identifier for a recreation agreement holder.';
 COMMENT ON COLUMN RECREATION_AGREEMENT_HOLDER.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
@@ -192,6 +206,8 @@ CREATE TABLE RECREATION_ATTACHMENT (
     UPDATE_TIMESTAMP TIMESTAMP
 );
 
+COMMENT ON TABLE RECREATION_ATTACHMENT IS 'Stores a reference to each attachment related to the Recreation project such as the Establishment Order document.';
+
 COMMENT ON COLUMN RECREATION_ATTACHMENT.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
 COMMENT ON COLUMN RECREATION_ATTACHMENT.RECREATION_ATTACHMENT_ID IS 'System-generated ID for the attachment.';
 COMMENT ON COLUMN RECREATION_ATTACHMENT.ATTACHMENT_FILE_NAME IS 'File name, not including the path, of the attached file at the time it was uploaded.';
@@ -207,6 +223,8 @@ CREATE TABLE RECREATION_ATTACHMENT_CONTENT (
     ATTACHMENT_CONTENT BYTEA,
     PRIMARY KEY (FOREST_FILE_ID, RECREATION_ATTACHMENT_ID)
 );
+
+COMMENT ON TABLE RECREATION_ATTACHMENT_CONTENT IS 'Stores attachment content for each attachment related to the Recreation project.';
 
 COMMENT ON COLUMN RECREATION_ATTACHMENT_CONTENT.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
 COMMENT ON COLUMN RECREATION_ATTACHMENT_CONTENT.RECREATION_ATTACHMENT_ID IS 'System-generated ID for the attachment.';
@@ -226,6 +244,8 @@ CREATE TABLE RECREATION_COMMENT (
     UPDATE_TIMESTAMP TIMESTAMP,
     CONSTRAINT CHK_CLOSURE_IND CHECK (CLOSURE_IND IN ('Y', 'N'))
 );
+
+COMMENT ON TABLE RECREATION_COMMENT IS 'Stores comments related to the Recreation project such as driving directions and closures.';
 
 COMMENT ON COLUMN RECREATION_COMMENT.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
 COMMENT ON COLUMN RECREATION_COMMENT.RECREATION_COMMENT_ID IS 'A system-generated unique identifier for the comment.';
@@ -247,6 +267,8 @@ CREATE TABLE RECREATION_CONTROL_ACCESS_CODE (
     UPDATE_TIMESTAMP TIMESTAMP
 );
 
+COMMENT ON TABLE RECREATION_CONTROL_ACCESS_CODE IS 'Control access codes for recreation projects.';
+
 COMMENT ON COLUMN RECREATION_CONTROL_ACCESS_CODE.RECREATION_CONTROL_ACCESS_CODE IS 'Describes the Controlled Access Code for a project. E.g. “Gated”, “Restricted Use”.';
 COMMENT ON COLUMN RECREATION_CONTROL_ACCESS_CODE.DESCRIPTION IS 'Description of the code value.';
 COMMENT ON COLUMN RECREATION_CONTROL_ACCESS_CODE.EFFECTIVE_DATE IS 'Date the code becomes effective.';
@@ -266,6 +288,8 @@ CREATE TABLE RECREATION_DEF_CS_RPR_HISTORY (
     UPDATE_TIMESTAMP TIMESTAMP NULL,
     PRIMARY KEY (FOREST_FILE_ID, CAMPSITE_NUMBER)
 );
+
+COMMENT ON TABLE RECREATION_DEF_CS_RPR_HISTORY IS 'Recreation Defined Campsite repair history audit log. Note that defined campsites can be deleted, while retaining the repair history.';
 
 COMMENT ON COLUMN RECREATION_DEF_CS_RPR_HISTORY.FOREST_FILE_ID IS 'File identification assigned to Recreation Project.';
 COMMENT ON COLUMN RECREATION_DEF_CS_RPR_HISTORY.CAMPSITE_NUMBER IS 'The number assigned to a defined campsite by Recreation staff.';
@@ -291,6 +315,8 @@ CREATE TABLE RECREATION_DEFINED_CAMPSITE (
     UPDATE_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+COMMENT ON TABLE RECREATION_DEFINED_CAMPSITE IS 'A defined campsite is a camping area within a project designated by the Recreation officer. This may contain recreation structures.';
+
 COMMENT ON COLUMN RECREATION_DEFINED_CAMPSITE.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
 COMMENT ON COLUMN RECREATION_DEFINED_CAMPSITE.CAMPSITE_NUMBER IS 'The number assigned to a defined campsite by Recreation staff.';
 COMMENT ON COLUMN RECREATION_DEFINED_CAMPSITE.ESTIMATED_REPAIR_COST IS 'Identifies the estimated remedial repair cost for a campsite.';
@@ -310,6 +336,8 @@ CREATE TABLE RECREATION_DISTRICT_CODE (
     UPDATE_TIMESTAMP TIMESTAMP
 );
 
+COMMENT ON TABLE RECREATION_DISTRICT_CODE IS 'Recreation district codes for classification of areas within a project.';
+
 COMMENT ON COLUMN RECREATION_DISTRICT_CODE.RECREATION_DISTRICT_CODE IS 'A code indicating a recreation district boundary. EG Cascades, Chilliwack, Discovery Coast. Note: There are 17 Recreation District Boundaries, most of which have different geographical boundaries than Forest District Boundaries. Because of this, Rec District Boundary Codes are different from Forest District Boundary Codes.';
 COMMENT ON COLUMN RECREATION_DISTRICT_CODE.DESCRIPTION IS 'Description of the recreation district boundary type.';
 COMMENT ON COLUMN RECREATION_DISTRICT_CODE.EFFECTIVE_DATE IS 'Date the code becomes effective.';
@@ -325,6 +353,8 @@ CREATE TABLE RECREATION_DISTRICT_XREF (
     UPDATE_USERID VARCHAR(30),
     UPDATE_TIMESTAMP TIMESTAMP
 );
+
+-- There was no table description in the original RECREATION_DISTRICT_XREF table
 
 COMMENT ON COLUMN RECREATION_DISTRICT_XREF.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
 COMMENT ON COLUMN RECREATION_DISTRICT_XREF.RECREATION_DISTRICT_CODE IS 'A code indicating a recreation district boundary. EG Cascades, Chilliwack, Discovery Coast. Note: There are 17 Recreation District Boundaries, most of which have different geographical boundaries than Forest District Boundaries. Because of this, Rec District Boundary Codes are different from Forest District Boundary Codes.';
@@ -342,6 +372,8 @@ CREATE TABLE RECREATION_FEATURE_CODE (
     UPDATE_TIMESTAMP TIMESTAMP
 );
 
+COMMENT ON TABLE RECREATION_FEATURE_CODE IS 'Codes describing the recreation features within a project.';
+
 COMMENT ON COLUMN RECREATION_FEATURE_CODE.RECREATION_FEATURE_CODE IS 'Code describing the Recreation Feature.';
 COMMENT ON COLUMN RECREATION_FEATURE_CODE.DESCRIPTION IS 'Description of the code value.';
 COMMENT ON COLUMN RECREATION_FEATURE_CODE.EFFECTIVE_DATE IS 'Date the code becomes effective.';
@@ -355,6 +387,8 @@ CREATE TABLE RECREATION_FEE_CODE (
     EXPIRY_DATE DATE,
     UPDATE_TIMESTAMP TIMESTAMP
 );
+
+COMMENT ON TABLE RECREATION_FEE_CODE IS 'Fee code types for recreation projects.';
 
 COMMENT ON COLUMN RECREATION_FEE_CODE.RECREATION_FEE_CODE IS 'Code describing the Recreation Fee.';
 COMMENT ON COLUMN RECREATION_FEE_CODE.DESCRIPTION IS 'Description of the code value.';
@@ -390,6 +424,8 @@ CREATE TABLE RECREATION_FEE (
     CONSTRAINT CHK_SUNDAY_IND CHECK (SUNDAY_IND IN ('Y', 'N'))
 );
 
+COMMENT ON TABLE RECREATION_FEE IS 'The types of fees for a given project (e.g., Overnight, firewood, etc.).';
+
 COMMENT ON COLUMN RECREATION_FEE.FEE_ID IS 'The unique identifier for a Recreation fee.';
 COMMENT ON COLUMN RECREATION_FEE.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
 COMMENT ON COLUMN RECREATION_FEE.FEE_AMOUNT IS 'The fee amount for a given recreation fee type.';
@@ -417,6 +453,8 @@ CREATE TABLE RECREATION_FILE_STATUS_CODE (
     UPDATE_TIMESTAMP TIMESTAMP
 );
 
+COMMENT ON TABLE RECREATION_FILE_STATUS_CODE IS 'Codes describing the status of a recreation file.';
+
 COMMENT ON COLUMN RECREATION_FILE_STATUS_CODE.RECREATION_FILE_STATUS_CODE IS 'Code describing the Status of a Recreation File';
 COMMENT ON COLUMN RECREATION_FILE_STATUS_CODE.DESCRIPTION IS 'Description of the code value';
 COMMENT ON COLUMN RECREATION_FILE_STATUS_CODE.EFFECTIVE_DATE IS 'Date the code becomes effective';
@@ -430,6 +468,8 @@ CREATE TABLE RECREATION_FILE_TYPE_CODE (
     EXPIRY_DATE DATE,
     UPDATE_TIMESTAMP DATE
 );
+
+COMMENT ON TABLE RECREATION_FILE_TYPE_CODE IS 'Describes the RECREATION FILE TYPE CODE for categorizing recreation files.';
 
 -- There were no descriptions for the columns in the original RECREATION_FILE_TYPE_CODE table
 
@@ -461,6 +501,8 @@ CREATE TABLE RECREATION_INSPECTION_REPORT (
     UPDATE_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+COMMENT ON TABLE RECREATION_INSPECTION_REPORT IS 'Contains the reports for inspections related to recreation projects.';
+
 -- There were no descriptions for the columns in the original RECREATION_INSPECTION_REPORT table
 
 CREATE TABLE RECREATION_MAINTAIN_STD_CODE (
@@ -470,6 +512,8 @@ CREATE TABLE RECREATION_MAINTAIN_STD_CODE (
     EXPIRY_DATE DATE,
     UPDATE_TIMESTAMP TIMESTAMP
 );
+
+COMMENT ON TABLE RECREATION_MAINTAIN_STD_CODE IS 'Codes describing the maintenance standards for recreation projects.';
 
 COMMENT ON COLUMN RECREATION_MAINTAIN_STD_CODE.RECREATION_MAINTAIN_STD_CODE IS 'Code describing the Maintenance Standard of a given site. E.g. User Maintained, Maintained to Standard, Not Maintained.';
 COMMENT ON COLUMN RECREATION_MAINTAIN_STD_CODE.DESCRIPTION IS 'Description of the code value';
@@ -484,6 +528,8 @@ CREATE TABLE RECREATION_MAP_FEATURE_CODE (
     EXPIRY_DATE DATE,
     UPDATE_TIMESTAMP TIMESTAMP
 );
+
+COMMENT ON TABLE RECREATION_MAP_FEATURE_CODE IS 'Codes describing types of map features within a recreation project.';
 
 COMMENT ON COLUMN RECREATION_MAP_FEATURE_CODE.RECREATION_MAP_FEATURE_CODE IS 'Identifies the RECREATION MAP FEATURE TYPE CODE.';
 COMMENT ON COLUMN RECREATION_MAP_FEATURE_CODE.DESCRIPTION IS 'Description of the code value.';
@@ -506,6 +552,8 @@ CREATE TABLE RECREATION_MAP_FEATURE_GEOM (
     UPDATE_TIMESTAMP TIMESTAMP
 );
 
+COMMENT ON TABLE RECREATION_MAP_FEATURE_GEOM IS 'Captures amendments to spatial geometry for recreation applications received via the electronic submission process.';
+
 COMMENT ON COLUMN RECREATION_MAP_FEATURE_GEOM.RMF_SKEY IS 'The SKEY for the RECREATION MAP FEATURE.';
 COMMENT ON COLUMN RECREATION_MAP_FEATURE_GEOM.MAP_FEATURE_ID IS 'A unique identifier to a version of a map object. This is very similar to the feature ID in INCOSADA except it was universally unique. If a new version of a cut block came in it would be assigned a new identifier.';
 COMMENT ON COLUMN RECREATION_MAP_FEATURE_GEOM.GEOMETRY_TYPE_CODE IS 'Identifies linear or polygonal geometry types for a tenure application feature.';
@@ -523,6 +571,8 @@ CREATE TABLE RECREATION_MAP_FEATURE_XGUID (
     RMF_GUID BYTEA PRIMARY KEY,
     RMF_SKEY INT
 );
+
+COMMENT ON TABLE RECREATION_MAP_FEATURE_XGUID IS 'Global unique identifier for map features related to recreation projects.';
 
 -- There were no descriptions for the columns in the original RECREATION_MAP_FEATURE_XGUID table
 
@@ -543,6 +593,8 @@ CREATE TABLE RECREATION_MAP_FEATURE (
     UPDATE_TIMESTAMP DATE,
     RECREATION_MAP_FEATURE_GUID UUID DEFAULT gen_random_uuid()
 );
+
+COMMENT ON TABLE RECREATION_MAP_FEATURE IS 'Captures both current and historical attributes for Recreation Map Features.';
 
 COMMENT ON COLUMN RECREATION_MAP_FEATURE.RMF_SKEY IS 'The SKEY for the RECREATION MAP FEATURE.';
 COMMENT ON COLUMN RECREATION_MAP_FEATURE.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
@@ -574,6 +626,8 @@ CREATE TABLE RECREATION_OBJECTIVE (
     UPDATE_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+COMMENT ON TABLE RECREATION_OBJECTIVE IS 'The objectives pertaining to a recreation project.';
+
 COMMENT ON COLUMN RECREATION_OBJECTIVE.OBJECTIVE_ID IS 'The unique identifier for a recreation objective.';
 COMMENT ON COLUMN RECREATION_OBJECTIVE.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
 COMMENT ON COLUMN RECREATION_OBJECTIVE.OBJECTIVE_DESCRIPTION IS 'The description of the objective.';
@@ -594,6 +648,8 @@ CREATE TABLE RECREATION_OCCUPANCY_CODE (
     UPDATE_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+COMMENT ON TABLE RECREATION_OCCUPANCY_CODE IS 'Codes describing the occupancy of recreation projects.';
+
 -- There were no descriptions for the columns in the original RECREATION_OCCUPANCY_CODE table
 
 CREATE TABLE RECREATION_PLAN (
@@ -604,6 +660,8 @@ CREATE TABLE RECREATION_PLAN (
     PRIMARY KEY (FOREST_FILE_ID, REC_PROJECT_SKEY, PLAN_TYPE_CODE)
 );
 
+COMMENT ON TABLE RECREATION_PLAN IS 'Plans and details related to recreation projects.';
+
 -- There were no descriptions for the columns in the original RECREATION_PLAN table
 
 CREATE TABLE RECREATION_REMED_REPAIR_CODE (
@@ -613,6 +671,8 @@ CREATE TABLE RECREATION_REMED_REPAIR_CODE (
     EXPIRY_DATE DATE,
     UPDATE_TIMESTAMP TIMESTAMP
 );
+
+COMMENT ON TABLE RECREATION_REMED_REPAIR_CODE IS 'Codes describing types of remedial repairs for recreation structures.';
 
 COMMENT ON COLUMN RECREATION_REMED_REPAIR_CODE.RECREATION_REMED_REPAIR_CODE IS 'Indicates the type of remedial repair applicable to the defined campsite.';
 COMMENT ON COLUMN RECREATION_REMED_REPAIR_CODE.DESCRIPTION IS 'Description of the code value';
@@ -630,6 +690,8 @@ CREATE TABLE RECREATION_RISK_EVALUATION (
     UPDATE_USERID VARCHAR(30)
 );
 
+COMMENT ON TABLE RECREATION_RISK_EVALUATION IS 'Evaluation of risks associated with recreation projects.';
+
 -- There were no descriptions for the columns in the original RECREATION_RISK_EVALUATION table
 
 CREATE TABLE RECREATION_RISK_RATING_CODE (
@@ -639,6 +701,8 @@ CREATE TABLE RECREATION_RISK_RATING_CODE (
     EXPIRY_DATE DATE,
     UPDATE_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+COMMENT ON TABLE RECREATION_RISK_RATING_CODE IS 'Codes describing the Recreation Risk Rating for a project.';
 
 COMMENT ON COLUMN RECREATION_RISK_RATING_CODE.RECREATION_RISK_RATING_CODE IS 'Code describing the Recreation Risk Rating.';
 COMMENT ON COLUMN RECREATION_RISK_RATING_CODE.DESCRIPTION IS 'Description of the code value';
@@ -655,6 +719,8 @@ CREATE TABLE RECREATION_RISK_SITE (
     UPDATE_USERID VARCHAR(30)
 );
 
+COMMENT ON TABLE RECREATION_RISK_SITE IS 'Sites that have been identified as having specific risks within a recreation project.';
+
 -- There were no descriptions for the columns in the original RECREATION_RISK_SITE table
 
 CREATE TABLE RECREATION_SEARCH_RESULT (
@@ -668,12 +734,16 @@ CREATE TABLE RECREATION_SEARCH_RESULT (
     RECREATION_PROJECT_CODE_DESC VARCHAR(120) NULL
 );
 
+COMMENT ON TABLE RECREATION_SEARCH_RESULT IS 'The global temp table used to facilitate Recreation Searches.';
+
 -- There were no descriptions for the columns in the original RECREATION_SEARCH_RESULT table
 
 CREATE TABLE RECREATION_SITE (
     FOREST_FILE_ID VARCHAR(10) PRIMARY KEY,
     REC_SITE_NAME VARCHAR(50) NULL
 );
+
+COMMENT ON TABLE RECREATION_SITE IS 'Stores information about recreation sites.';
 
 -- There were no descriptions for the columns in the original RECREATION_SITE table
 
@@ -686,6 +756,8 @@ CREATE TABLE RECREATION_SITE_POINT (
     UPDATE_USERID VARCHAR(30),
     UPDATE_TIMESTAMP TIMESTAMP
 );
+
+COMMENT ON TABLE RECREATION_SITE_POINT IS 'Stores the location of a Recreation Site as an oracle locator point. The data is used to provide the public a map location of the Recreation Site.';
 
 COMMENT ON COLUMN RECREATION_SITE_POINT.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
 COMMENT ON COLUMN RECREATION_SITE_POINT.GEOMETRY IS 'A point geometry location represented by a single X,Y pair';
@@ -702,6 +774,8 @@ CREATE TABLE RECREATION_STRUCT_DIMEN_CODE (
     EXPIRY_DATE DATE NULL,
     UPDATE_TIMESTAMP DATE NULL
 );
+
+COMMENT ON TABLE RECREATION_STRUCT_DIMEN_CODE IS 'Codes describing the dimensions of recreation structures (e.g., Length, Area).';
 
 COMMENT ON COLUMN RECREATION_STRUCT_DIMEN_CODE.RECREATION_STRUCT_DIMEN_CODE IS 'Code describing the unit of measure for a Recreation Structure. (e.g. Length or Area)';
 COMMENT ON COLUMN RECREATION_STRUCT_DIMEN_CODE.DESCRIPTION IS 'Description of the code value';
@@ -720,6 +794,8 @@ CREATE TABLE RECREATION_STRUCT_DIMEN_XREF (
     PRIMARY KEY (RECREATION_STRUCTURE_CODE, RECREATION_STRUCT_DIMEN_CODE)
 );
 
+COMMENT ON TABLE RECREATION_STRUCT_DIMEN_XREF IS 'Describes the applicable dimensions for the given structure type. E.g., Paths may have count and length, docks may have length and area.';
+
 COMMENT ON COLUMN RECREATION_STRUCT_DIMEN_XREF.RECREATION_STRUCTURE_CODE IS 'Indicates the type of structure (man-made improvement).';
 COMMENT ON COLUMN RECREATION_STRUCT_DIMEN_XREF.RECREATION_STRUCT_DIMEN_CODE IS 'Code describing the unit of measure for a Recreation Structure. (e.g. Length or Area)';
 COMMENT ON COLUMN RECREATION_STRUCT_DIMEN_XREF.REVISION_COUNT IS 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
@@ -735,6 +811,8 @@ CREATE TABLE RECREATION_STRUCTURE_CODE (
     EXPIRY_DATE DATE,
     UPDATE_TIMESTAMP DATE
 );
+
+COMMENT ON TABLE RECREATION_STRUCTURE_CODE IS 'Codes describing the type of structure (man-made improvement) within a recreation project.';
 
 COMMENT ON COLUMN RECREATION_STRUCTURE_CODE.RECREATION_STRUCTURE_CODE IS 'Indicates the type of structure (man-made improvement).';
 COMMENT ON COLUMN RECREATION_STRUCTURE_CODE.DESCRIPTION IS 'Description of the code value.';
@@ -763,6 +841,8 @@ CREATE TABLE RECREATION_STRUCTURE (
     UPDATE_USERID VARCHAR(30),
     UPDATE_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+COMMENT ON TABLE RECREATION_STRUCTURE IS 'Information relating to a recreation site improvement in a recreational tenure. All improvements are man-made.';
 
 COMMENT ON COLUMN RECREATION_STRUCTURE.STRUCTURE_ID IS 'The unique identifier for the structure.';
 COMMENT ON COLUMN RECREATION_STRUCTURE.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
@@ -796,6 +876,8 @@ CREATE TABLE RECREATION_STRUCTURE_VALUE (
     PRIMARY KEY (RECREATION_STRUCTURE_CODE)
 );
 
+COMMENT ON TABLE RECREATION_STRUCTURE_VALUE IS 'Identifies the value and dimension for a given structure. E.g., Barrel Shelters, 300/u, or Boardwalks, $50/m.';
+
 COMMENT ON COLUMN RECREATION_STRUCTURE_VALUE.RECREATION_STRUCTURE_CODE IS 'Indicates the type of structure (man-made improvement).';
 COMMENT ON COLUMN RECREATION_STRUCTURE_VALUE.STRUCTURE_VALUE IS 'Identifies the value for a given structure.';
 COMMENT ON COLUMN RECREATION_STRUCTURE_VALUE.DIMENSION IS 'Identifies the dimension for the given structure value. E.g. Unit, or Metres.';
@@ -812,6 +894,8 @@ CREATE TABLE RECREATION_SUB_ACCESS_CODE (
     EXPIRY_DATE DATE,
     UPDATE_TIMESTAMP TIMESTAMP
 );
+
+COMMENT ON TABLE RECREATION_SUB_ACCESS_CODE IS 'Codes describing the Recreation Sub Access types within a project.';
 
 COMMENT ON COLUMN RECREATION_SUB_ACCESS_CODE.RECREATION_SUB_ACCESS_CODE IS 'Code describing the Recreation Sub Access types.';
 COMMENT ON COLUMN RECREATION_SUB_ACCESS_CODE.DESCRIPTION IS 'Description of the code value.';
@@ -839,6 +923,8 @@ CREATE TABLE RECREATION_TRAIL_SEGMENT (
     UNIQUE (FOREST_FILE_ID, TRAIL_SEGMENT_NAME)
 );
 
+COMMENT ON TABLE RECREATION_TRAIL_SEGMENT IS 'Stores coordinate and repair information for trail segments in a Recreation project. May also store coordinate and repair information for a project trail.';
+
 COMMENT ON COLUMN RECREATION_TRAIL_SEGMENT.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
 COMMENT ON COLUMN RECREATION_TRAIL_SEGMENT.RECREATION_TRAIL_SEG_ID IS 'A system-generated unique identifier for the trail.';
 COMMENT ON COLUMN RECREATION_TRAIL_SEGMENT.TRAIL_SEGMENT_NAME IS 'The user-entered name specified for the trail segment.';
@@ -862,6 +948,8 @@ CREATE TABLE RECREATION_USER_DAYS_CODE (
     EXPIRY_DATE DATE,
     UPDATE_TIMESTAMP TIMESTAMP
 );
+
+COMMENT ON TABLE RECREATION_USER_DAYS_CODE IS 'Codes describing the Recreation User Days associated with a project.';
 
 COMMENT ON COLUMN RECREATION_USER_DAYS_CODE.RECREATION_USER_DAYS_CODE IS 'Code describing the Recreation User Days.';
 COMMENT ON COLUMN RECREATION_USER_DAYS_CODE.DESCRIPTION IS 'Description of the code value';
