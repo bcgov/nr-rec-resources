@@ -53,6 +53,10 @@ resource "aws_ecs_task_definition" "node_api_task" {
       essential = false
       environment = [
         {
+          name = "APP_ENV"
+          value = local.rds_app_env
+        },
+        {
           name  = "FLYWAY_URL"
           value = "jdbc:postgresql://${data.aws_rds_cluster.rds_cluster.endpoint}/${var.db_name}"
         },
@@ -71,6 +75,11 @@ resource "aws_ecs_task_definition" "node_api_task" {
         {
           name  = "FLYWAY_CONNECT_RETRIES"
           value = "2"
+        },
+        {
+          # This defaults to true, though we want to enable it only in dev to reset the database
+          name = "FLYWAY_CLEAN_DISABLED"
+          value = contains(["dev"], local.rds_app_env) ? "false" : "true"
         }
       ]
 
