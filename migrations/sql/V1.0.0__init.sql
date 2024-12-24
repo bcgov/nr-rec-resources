@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS RST.RECREATION_RESOURCE
 );
 
 INSERT INTO RST.RECREATION_RESOURCE (FOREST_FILE_ID, NAME, DESCRIPTION, SITE_LOCATION)
-VALUES ('REC5600', 'TESTING MIGRATIONS', 'Trail offers two short loops under a mainly cedar canopy. Some boardwalks and bridges have been constructed to cross over a babbling creek. This is a rainforest and one should use caution while navigating the trail''s slippery sections.', 'Tofino'),
+VALUES ('REC5600', 'A Walk In The Forest Trail (Lost Shoe)', 'Trail offers two short loops under a mainly cedar canopy. Some boardwalks and bridges have been constructed to cross over a babbling creek. This is a rainforest and one should use caution while navigating the trail''s slippery sections.', 'Tofino'),
        ('REC1585', 'Aberdeen Lake', 'This semi-open site on a medium sized fishing lake is subject to significant water level fluctuations. The access is very rough for 2 km before the site.', 'Lavington'),
        ('REC5763', 'Ahdatay', 'Located on the north shore of Tchentlo Lake, 1. 5 km from the mouth of the Nation River between Tchentlo and Chuchi Lake.', 'Fort St. James'),
        ('REC2602', 'Alexis Lake', 'Located north of Alexis Creek, Alexis Lake is a popular fishing destination and day use area. This family friendly site has five units, a cartop boat launch and a small sandy beach for swimming. Boaters should take notice that power-driven vessels are prohibited on this lake under the Vessel Operation Restriction Regulations (Transport Canada). Electric motors are permitted.', 'Alexis Creek'),
