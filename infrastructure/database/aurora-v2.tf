@@ -66,7 +66,7 @@ EOF
 }
 module "aurora_postgresql_v2" {
   source = "terraform-aws-modules/rds-aurora/aws"
-  version = "9.10.0"
+  version = "9.11.0"
 
   name              = var.db_cluster_name
   engine            = data.aws_rds_engine_version.postgresql.engine
