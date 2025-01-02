@@ -1,7 +1,7 @@
 import { TestingModule } from "@nestjs/testing";
 import { Test } from "@nestjs/testing";
 import { UsersService } from "./users.service";
-import { PrismaService } from "nestjs-prisma";
+import { PrismaService } from "src/prisma.service";
 import { Prisma } from "@prisma/client";
 
 describe("UserService", () => {
@@ -72,8 +72,8 @@ describe("UserService", () => {
   });
 
   describe("createOne", () => {
-    it("should successfully add a user", () => {
-      expect(service.create(oneUser)).resolves.toEqual(oneUser);
+    it("should successfully add a user", async () => {
+      await expect(service.create(oneUser)).resolves.toEqual(oneUser);
       expect(prisma.users.create).toBeCalledTimes(1);
     });
   });
@@ -86,8 +86,8 @@ describe("UserService", () => {
   });
 
   describe("findOne", () => {
-    it("should get a single user", () => {
-      expect(service.findOne(1)).resolves.toEqual(oneUser);
+    it("should get a single user", async () => {
+      await expect(service.findOne(1)).resolves.toEqual(oneUser);
     });
   });
 
@@ -99,15 +99,15 @@ describe("UserService", () => {
     });
   });
 
-  describe("remove", () => {
-    it("should return {deleted: true}", () => {
-      expect(service.remove(2)).resolves.toEqual({ deleted: true });
+  describe("remove", async () => {
+    it("should return {deleted: true}", async () => {
+      await expect(service.remove(2)).resolves.toEqual({ deleted: true });
     });
-    it("should return {deleted: false, message: err.message}", () => {
+    it("should return {deleted: false, message: err.message}", async () => {
       const repoSpy = vi
         .spyOn(prisma.users, "delete")
         .mockRejectedValueOnce(new Error("Bad Delete Method."));
-      expect(service.remove(-1)).resolves.toEqual({
+      await expect(service.remove(-1)).resolves.toEqual({
         deleted: false,
         message: "Bad Delete Method.",
       });
