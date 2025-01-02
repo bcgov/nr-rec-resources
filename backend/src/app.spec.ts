@@ -10,7 +10,7 @@ vi.mock("express-prom-bundle", () => ({
   default: vi.fn().mockImplementation(() => ({})),
 }));
 
-vi.mock("./prom", () => ({
+vi.mock("src/middleware/prom", () => ({
   metricsMiddleware: vi.fn().mockImplementation((_req, _res, next) => next()),
 }));
 
