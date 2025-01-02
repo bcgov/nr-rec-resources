@@ -2,7 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { INestApplication } from "@nestjs/common";
 import { RecreationResourceController } from "./recreation-resource.controller";
 import { RecreationResourceService } from "./recreation-resource.service";
-import { PrismaService } from "nestjs-prisma";
+import { PrismaService } from "src/prisma";
 import { HttpException } from "@nestjs/common";
 
 describe("RecreationResourceController", () => {

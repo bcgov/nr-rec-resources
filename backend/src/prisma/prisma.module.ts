@@ -1,13 +1,12 @@
 import {
   DynamicModule,
-  Injectable,
   Module,
   ModuleMetadata,
-  OnModuleInit,
   Provider,
   Type,
 } from "@nestjs/common";
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import { PrismaService } from "src/prisma";
 
 interface PrismaModuleOptions {
   isGlobal?: boolean;
@@ -33,13 +32,6 @@ export interface PrismaModuleAsyncOptions
     ...args: any[]
   ) => Promise<PrismaServiceOptions> | PrismaServiceOptions;
   inject?: any[];
-}
-
-@Injectable()
-class PrismaService extends PrismaClient implements OnModuleInit {
-  async onModuleInit() {
-    await this.$connect();
-  }
 }
 
 @Module({
@@ -108,4 +100,4 @@ class PrismaModule {
   }
 }
 
-export { PrismaModule, PrismaService };
+export { PrismaModule };
