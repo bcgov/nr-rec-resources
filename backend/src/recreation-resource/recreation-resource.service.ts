@@ -41,7 +41,7 @@ export class RecreationResourceService {
     limit?: number,
     filter?: string,
   ): Promise<any> {
-    page = page || 1;
+    page = page ?? 1;
     if (!limit || limit > 200) {
       limit = 10;
     }
