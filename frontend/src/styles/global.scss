@@ -1,4 +1,7 @@
 @import 'variables.scss';
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins/_breakpoints';
 
 .bc-bg-yellow {
   background: $colorGold;
@@ -69,13 +72,44 @@ a {
   }
 }
 
+.page-nav-container {
+  width: 100%;
+
+  &.main {
+    background-color: $colorBlue;
+  }
+
+  &.sub {
+    background-color: $colorBlueMed;
+  }
+
+  &.search {
+    background-color: $colorBlueLight;
+  }
+}
+
+.page-nav {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 0px auto;
+  justify-content: space-between;
+  padding: 0 $pagePadding;
+
+  @include media-breakpoint-up(lg) {
+    max-width: $pageMaxWidth;
+    padding: $pagePaddingLg;
+  }
+}
+
 main {
   display: flex;
   flex-direction: column;
   flex: 1;
   flex-grow: 1;
-  margin: 0 auto;
   min-height: 100%;
+  margin: 0;
   padding: 0;
 }
 
