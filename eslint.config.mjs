@@ -86,6 +86,7 @@ export default [
       "import/no-named-as-default": "off",
       "import/no-unresolved": "off",
       "import/no-duplicates": "error",
+      "import/no-relative-parent-imports": "error",
 
       "promise/always-return": "error",
       "promise/no-return-wrap": "error",
