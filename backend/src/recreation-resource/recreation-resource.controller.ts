@@ -1,4 +1,4 @@
-import { Controller, Get, HttpException, Param } from "@nestjs/common";
+import { Controller, Get, HttpException, Param, Query } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { RecreationResourceService } from "./recreation-resource.service";
 import { RecreationResourceDto } from "./dto/recreation-resource.dto";
@@ -13,6 +13,19 @@ export class RecreationResourceController {
   @Get()
   findAll(): Promise<RecreationResourceDto[]> {
     return this.recreationResourceService.findAll();
+  }
+
+  @Get("search") // it must be ahead Get(":id") to avoid conflict
+  async searchRecreationResources(
+    @Query("page") page: number,
+    @Query("limit") limit: number,
+    @Query("filter") filter?: string,
+  ) {
+    return this.recreationResourceService.searchRecreationResources(
+      page,
+      limit,
+      filter,
+    );
   }
 
   @Get(":id")
