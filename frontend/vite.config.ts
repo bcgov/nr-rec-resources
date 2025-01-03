@@ -64,6 +64,7 @@ export default defineConfig(({ mode }) => {
               'color-functions',
               'global-builtin',
               'import',
+              'legacy-js-api',
             ],
           },
         },
