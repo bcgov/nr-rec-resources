@@ -90,7 +90,7 @@ const RecResource = () => {
     campingRef,
     thingsToDoRef,
     contactRef,
-  ];
+  ] as React.RefObject<HTMLElement>[];
 
   const activeSection = useScrollSpy({
     sectionElementRefs: sectionRefs,
