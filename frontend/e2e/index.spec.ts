@@ -4,11 +4,11 @@ import { dashboardPage } from 'e2e/pages/dashboard';
 import { recResourcePage } from 'e2e/pages/recResource';
 import { analyzeAccessibility } from 'e2e/utils';
 
-test.beforeEach(async ({ context }) => {
-  await happoPlaywright.init(context);
+test.beforeAll(async () => {
+  await happoPlaywright.init();
 });
 
-test.afterEach(async () => {
+test.afterAll(async () => {
   await happoPlaywright.finish();
 });
 
