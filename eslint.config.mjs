@@ -1,6 +1,7 @@
 import typescriptEslint from "@typescript-eslint/eslint-plugin";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 import prettier from "eslint-plugin-prettier";
+import pluginPromise from "eslint-plugin-promise";
 import globals from "globals";
 import tsParser from "@typescript-eslint/parser";
 import path from "node:path";
@@ -17,6 +18,7 @@ const compat = new FlatCompat({
 });
 
 export default [
+  pluginPromise.configs["flat/recommended"],
   {
     ignores: [
       "**/.git/",
@@ -76,6 +78,20 @@ export default [
           argsIgnorePattern: "^_",
         },
       ],
+
+      "promise/always-return": "error",
+      "promise/no-return-wrap": "error",
+      "promise/param-names": "error",
+      "promise/catch-or-return": "error",
+      "promise/no-native": "off",
+      "promise/no-nesting": "warn",
+      "promise/no-promise-in-callback": "warn",
+      "promise/no-callback-in-promise": "warn",
+      "promise/avoid-new": "warn",
+      "promise/no-new-statics": "error",
+      "promise/no-return-in-finally": "warn",
+      "promise/valid-params": "warn",
+      "promise/no-multiple-resolved": "error",
 
       "prettier/prettier": [
         "error",
