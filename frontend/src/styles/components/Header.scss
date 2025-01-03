@@ -3,18 +3,6 @@
 @import '~bootstrap/scss/variables';
 @import '~bootstrap/scss/mixins/_breakpoints';
 
-.page-nav-container {
-  width: 100%;
-
-  &.main {
-    background-color: $colorBlue;
-  }
-
-  &.sub {
-    background-color: $colorBlueMed;
-  }
-}
-
 .header-nav {
   height: 96px;
   position: relative;
