@@ -30,6 +30,9 @@ export default defineConfig({
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: baseURL,
 
+    /* Bypass CSP needed when running e2e on the docker-compose file due to Caddyfile header security */
+    bypassCSP: true,
+
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
   },
