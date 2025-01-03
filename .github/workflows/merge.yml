@@ -44,10 +44,56 @@ jobs:
       tag: ${{ needs.vars.outputs.pr }}
     secrets: inherit
 
-  promote:
-    name: Promote Images, make release and deploy to Test
-    needs: [deploy-to-aws-dev, vars]
+  # Separate review job since we can't use GitHub environments in reusable workflows
+  review-test-deployment:
+    name: Review Test Deployment
+    needs: [deploy-to-aws-dev]
     environment: test
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Review Test Deployment
+        run: echo "Reviewing Test Deployment"
+
+  deploy-to-aws-test:
+    needs: [review-test-deployment]
+    name: Deploys Application to AWS test
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Deploy to AWS test
+        # Placeholder
+        run: echo "Deploying to AWS test"
+
+  release:
+    name: Release
+    needs: [deploy-to-aws-test]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Conventional Changelog Update
+        uses: TriPSs/conventional-changelog-action@v5
+        id: changelog
+        continue-on-error: true
+        with:
+          github-token: ${{ github.token }}
+          output-file: "CHANGELOG.md"
+          skip-version-file: "true"
+          skip-commit: "true"
+          git-push: "true"
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        if: ${{ steps.changelog.outputs.tag != '' }}
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          token: ${{ github.token }}
+          tag_name: ${{ steps.changelog.outputs.tag }}
+          name: ${{ steps.changelog.outputs.tag }}
+          body: ${{ steps.changelog.outputs.clean_changelog }}
+
+  promote:
+    name: Promote Images
+    needs: [deploy-to-aws-test, vars]
     runs-on: ubuntu-24.04
     permissions:
       packages: write
@@ -67,44 +113,15 @@ jobs:
             latest
             ${{ needs.vars.outputs.pr }}
 
-  release:
-    name: Release
+  # Separate review job since we can't use GitHub environments in reusable workflows
+  review-prod-deployment:
+    name: Review Prod Deployment
     needs: [promote]
+    environment: prod
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Conventional Changelog Update
-        uses: TriPSs/conventional-changelog-action@v5
-        id: changelog
-        continue-on-error: true
-        with:
-          github-token: ${{ github.token }}
-          output-file: "CHANGELOG.md"
-          skip-version-file: "true"
-          skip-commit: "true"
-          git-push: "true"
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        if: ${{ steps.changelog.outputs.tag != '' }}
-        continue-on-error: true
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          token: ${{ github.token }}
-          tag_name: ${{ steps.changelog.outputs.tag }}
-          name: ${{ steps.changelog.outputs.tag }}
-          body: ${{ steps.changelog.outputs.clean_changelog }}
-
-  deploy-to-aws-test:
-    needs: [release]
-    name: Deploys Application to AWS test
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Deploy to AWS test
-        # Placeholder
-        run: echo "Deploying to AWS test"
+      - name: Review Prod Deployment
+        run: echo "Reviewing Prod Deployment"
 
   deploy-to-aws-prod:
     needs: [deploy-to-aws-test]
