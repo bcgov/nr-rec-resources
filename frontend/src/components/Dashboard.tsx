@@ -22,6 +22,7 @@ export default function Dashboard() {
           recreationResources.push(recreationResourceDto);
         }
         setRecResources(recreationResources);
+        return recreationResources;
       })
       .catch((error) => {
         console.error(error);

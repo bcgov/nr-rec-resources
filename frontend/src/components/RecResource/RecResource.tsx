@@ -66,6 +66,7 @@ const RecResource = () => {
       .get(`/v1/recreation-resource/${id}`)
       .then((response: AxiosResponse) => {
         setRecResource(response.data);
+        return response.data;
       })
       .catch((error) => {
         console.error(error);
