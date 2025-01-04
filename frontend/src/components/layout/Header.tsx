@@ -29,7 +29,7 @@ const Header = () => {
           aria-label="Secondary header site navigation"
           className="header-nav sub"
         >
-          <a href="/">Find a recreation site or trail</a>
+          <a href="/search">Find a recreation site or trail</a>
           <a href="/">Contact</a>
         </nav>
       </div>
