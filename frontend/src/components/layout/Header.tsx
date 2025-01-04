@@ -6,7 +6,10 @@ const Header = () => {
   return (
     <header id="header">
       <div className="page-nav-container main">
-        <nav aria-label="Main header navigation" className="header-nav main">
+        <nav
+          aria-label="Main header navigation"
+          className="page-nav header-nav main"
+        >
           <a className="navbar-brand" href="https://www2.gov.bc.ca">
             <img
               src={BCLogo}
@@ -26,7 +29,7 @@ const Header = () => {
           aria-label="Secondary header site navigation"
           className="header-nav sub"
         >
-          <a href="/">Find a recreation site or trail</a>
+          <a href="/search">Find a recreation site or trail</a>
           <a href="/">Contact</a>
         </nav>
       </div>

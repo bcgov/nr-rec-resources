@@ -1,0 +1,16 @@
+@import '@/styles/variables.scss';
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins/_breakpoints';
+
+.search-banner {
+  padding: 16px 32px;
+
+  @include media-breakpoint-up(lg) {
+    padding: 8px 16px;
+  }
+
+  h1 {
+    max-width: 356px;
+  }
+}

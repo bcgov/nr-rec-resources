@@ -51,7 +51,7 @@ const photosExample = [
   },
 ];
 
-const RecResource = () => {
+const RecResourcePage = () => {
   const [recResource, setRecResource] = useState<
     RecResourceProps | undefined
   >();
@@ -66,6 +66,7 @@ const RecResource = () => {
       .get(`/v1/recreation-resource/${id}`)
       .then((response: AxiosResponse) => {
         setRecResource(response.data);
+        return response.data;
       })
       .catch((error) => {
         console.error(error);
@@ -89,7 +90,7 @@ const RecResource = () => {
     campingRef,
     thingsToDoRef,
     contactRef,
-  ];
+  ] as React.RefObject<HTMLElement>[];
 
   const activeSection = useScrollSpy({
     sectionElementRefs: sectionRefs,
@@ -213,4 +214,4 @@ const RecResource = () => {
   );
 };
 
-export default RecResource;
+export default RecResourcePage;

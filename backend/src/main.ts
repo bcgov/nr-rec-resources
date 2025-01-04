@@ -8,6 +8,7 @@ bootstrap()
     await app.listen(process.env.PORT || 8000);
     logger.log(`Listening on ${await app.getUrl()}`);
     logger.log(`Process start up took ${process.uptime()} seconds`);
+    return app;
   })
   .catch((err) => {
     logger.error(err);

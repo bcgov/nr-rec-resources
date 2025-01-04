@@ -1,9 +1,8 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { INestApplication } from "@nestjs/common";
+import { HttpException, INestApplication } from "@nestjs/common";
 import { RecreationResourceController } from "./recreation-resource.controller";
 import { RecreationResourceService } from "./recreation-resource.service";
 import { PrismaService } from "src/prisma.service";
-import { HttpException } from "@nestjs/common";
 
 describe("RecreationResourceController", () => {
   let recService: RecreationResourceService;

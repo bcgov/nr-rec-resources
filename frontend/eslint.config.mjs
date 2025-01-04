@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import js from '@eslint/js';
 import { FlatCompat } from '@eslint/eslintrc';
+// eslint-disable-next-line import/no-relative-parent-imports
 import baseConfig from '../eslint.config.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
