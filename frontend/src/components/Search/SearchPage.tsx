@@ -4,7 +4,7 @@ import RecResourceCard from '@/components/Search/RecResourceCard';
 import SearchBanner from '@/components/Search/SearchBanner';
 import type { AxiosResponse } from '~/axios';
 
-export default function Dashboard() {
+const SearchPage = () => {
   const [recResources, setRecResources] = useState<any>([]);
 
   useEffect(() => {
@@ -35,7 +35,6 @@ export default function Dashboard() {
       <SearchBanner />
       <div className="page page-padding">
         <section>
-          <h1>Find a Recreation Resource</h1>
           {recResources.map((resource: any) => {
             const { forest_file_id, name, description } = resource;
             return (
@@ -51,4 +50,6 @@ export default function Dashboard() {
       </div>
     </>
   );
-}
+};
+
+export default SearchPage;
