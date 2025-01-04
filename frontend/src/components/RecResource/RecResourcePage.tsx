@@ -51,7 +51,7 @@ const photosExample = [
   },
 ];
 
-const RecResource = () => {
+const RecResourcePage = () => {
   const [recResource, setRecResource] = useState<
     RecResourceProps | undefined
   >();
@@ -214,4 +214,4 @@ const RecResource = () => {
   );
 };
 
-export default RecResource;
+export default RecResourcePage;
