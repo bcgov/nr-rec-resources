@@ -19,7 +19,7 @@
             <column ascending="true" name="success"/>
          </index>
       </table>
-      <table name="recreation_resource" remarks="" schema="rst" type="TABLE">
+      <table name="recreation_resource" remarks="Resource information relating to a recreational file. A recreation file can have only one resource. A recreation resource must be of type Site, Reserve, Trail, or Interpretive Forest." schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="forest_file_id" nullable="false" remarks="" size="200" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="name" nullable="false" remarks="" size="200" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="description" nullable="false" remarks="" size="1000" type="varchar" typeCode="12"/>
