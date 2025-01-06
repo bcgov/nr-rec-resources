@@ -4,14 +4,19 @@ import debounce from 'lodash.debounce';
 import '@/styles/components/Search.scss';
 
 const SearchBanner = () => {
-  const [_, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const onSearchChange = useMemo(
     () =>
       debounce((e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchParams({ filter: e.target.value });
+        if (e.target.value === '') {
+          searchParams.delete('filter');
+          setSearchParams(searchParams);
+        } else {
+          setSearchParams({ filter: e.target.value });
+        }
       }, 100),
-    [setSearchParams],
+    [searchParams, setSearchParams],
   );
 
   return (
