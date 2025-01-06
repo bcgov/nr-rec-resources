@@ -6,11 +6,15 @@
 .search-banner {
   padding: 16px 32px;
 
-  @include media-breakpoint-up(lg) {
+  @include media-breakpoint-up(sm) {
     padding: 8px 16px;
-  }
 
-  h1 {
-    max-width: 356px;
+    h1 {
+      max-width: 372px;
+    }
+
+    input {
+      max-width: 256px;
+    }
   }
 }
