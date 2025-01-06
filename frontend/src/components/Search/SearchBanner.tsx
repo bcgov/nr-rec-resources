@@ -24,10 +24,11 @@ const SearchBanner = () => {
       <nav aria-label="Search banner" className="page-nav search-banner">
         <h1>Find a recreation site or trail</h1>
         <input
+          className="form-control"
           type="text"
           placeholder="Search..."
           onChange={onSearchChange}
-        ></input>
+        />
       </nav>
     </div>
   );
