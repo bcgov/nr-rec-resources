@@ -53,8 +53,11 @@ header nav {
 a {
   color: $colorBlueMed;
   text-decoration: none;
-
   &:hover {
+    color: $colorBlue;
+    text-decoration: underline;
+  }
+  &:not(.btn):focus {
     color: $colorBlue;
   }
 }
@@ -192,4 +195,39 @@ figure.table {
       border-radius: 5px;
     }
   }
+}
+
+.btn {
+  font-weight: 700;
+  height: 48px;
+}
+
+.btn-primary {
+  background-color: $colorBlue;
+  border-color: $colorBlue;
+  color: $colorWhite;
+  &:hover {
+    color: $colorWhite;
+    background-color: $colorBlueMed;
+  }
+}
+
+.btn-secondary {
+  background-color: $colorWhite;
+  border-color: $colorBlue;
+  color: $colorBlue;
+  &:hover {
+    color: $colorBlue;
+    background-color: $colorBlueLight;
+  }
+}
+
+.btn-primary:not(:disabled):not(.disabled):active {
+  background-color: $colorBlue;
+  border-color: $colorBlue;
+}
+
+.btn-secondary:not(:disabled):not(.disabled):active {
+  background-color: $colorWhite;
+  border-color: $colorBlue;
 }

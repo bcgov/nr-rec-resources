@@ -15,11 +15,18 @@ class PrismaService extends PrismaClient implements OnModuleInit {
 
   constructor() {
     super({
+      errorFormat: "pretty",
       datasources: {
         db: {
           url: dataSourceURL,
         },
       },
+      log: [
+        { emit: "event", level: "query" },
+        { emit: "stdout", level: "info" },
+        { emit: "stdout", level: "warn" },
+        { emit: "stdout", level: "error" },
+      ],
     });
   }
 
