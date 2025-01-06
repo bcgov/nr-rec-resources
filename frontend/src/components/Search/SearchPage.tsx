@@ -7,24 +7,27 @@ import SearchBanner from '@/components/Search/SearchBanner';
 
 const SearchPage = () => {
   const [recResources, setRecResources] = useState<any>([]);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const handleLoadMore = () => {
+    const page = searchParams.get('page');
+    const updatedPage = (page ? parseInt(page) + 1 : 2).toString();
+    setSearchParams({ ...searchParams, page: updatedPage });
+  };
 
   const filter = searchParams.get('filter');
+  const page = searchParams.get('page');
 
   useEffect(() => {
     if (!filter) {
       // Get all recreation resources
       apiService
         .getAxiosInstance()
-        .get('/v1/recreation-resource')
+        .get('/v1/recreation-resource/search')
         .then((response: AxiosResponse) => {
-          const recreationResources = [];
-          console.log(response.data);
-          for (const resource of response.data) {
-            recreationResources.push(resource);
-          }
-          setRecResources(recreationResources);
-          return recreationResources;
+          const { data } = response.data;
+          setRecResources(data);
+          return data;
         })
         .catch((error) => {
           console.error(error);
@@ -35,30 +38,23 @@ const SearchPage = () => {
   }, []);
 
   useEffect(() => {
-    if (filter) {
+    if (filter || page) {
       // Get recreation resources by filter
       apiService
         .getAxiosInstance()
-        .get(`/v1/recreation-resource/search?filter=${filter}&page=1&limit=10`)
+        .get(
+          `/v1/recreation-resource/search?filter=${filter}&page=${page ?? 1}`,
+        )
         .then((response: AxiosResponse) => {
-          const recreationResources = [];
-          const res = response.data;
-          for (const resource of res.data) {
-            const recreationResourceDto = {
-              forest_file_id: resource.forest_file_id,
-              name: resource.name,
-              description: resource.description,
-            };
-            recreationResources.push(recreationResourceDto);
-          }
-          setRecResources(recreationResources);
-          return recreationResources;
+          const { data } = response.data;
+          setRecResources(data);
+          return data;
         })
         .catch((error) => {
           console.error(error);
         });
     }
-  }, [filter]);
+  }, [filter, page]);
 
   const isResults = recResources.length > 0;
   return (
@@ -84,6 +80,17 @@ const SearchPage = () => {
             <p>No results found.</p>
           )}
         </section>
+        {isResults && (
+          <div className="load-more-container">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handleLoadMore}
+            >
+              Load More
+            </button>
+          </div>
+        )}
       </div>
     </>
   );
