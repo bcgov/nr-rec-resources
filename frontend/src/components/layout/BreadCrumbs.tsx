@@ -2,23 +2,28 @@ import { useLocation } from 'react-router-dom';
 import '@/styles/components/BreadCrumbs.scss';
 
 interface BreadCrumbsProps {
-  customPathNames?: string[];
+  customPaths?: { name: string; route: string }[];
 }
 
-const BreadCrumbs = ({ customPathNames }: BreadCrumbsProps) => {
+const BreadCrumbs = ({ customPaths }: BreadCrumbsProps) => {
   const { pathname } = useLocation();
-  const pathnames = pathname.split('/').filter((x) => x);
+  const paths = pathname
+    .split('/')
+    .filter((x) => x)
+    .map((path, index) => {
+      return customPaths?.[index]?.route ?? path;
+    });
 
   return (
     <div className="breadcrumbs">
       <a href="/">Home</a>
       <span className="spacer" />
-      {pathnames.length > 0 &&
-        pathnames.map((name, index) => {
-          const routeTo = `/${pathnames.slice(0, index + 1).join('/')}`;
-          const pathName = customPathNames?.[index] ?? name;
+      {paths.length > 0 &&
+        paths.map((name, index) => {
+          const pathName = customPaths?.[index]?.name ?? name;
+          const routeTo = `/${paths.slice(0, index + 1).join('/')}`;
 
-          return index === pathnames.length - 1 ? (
+          return index === paths.length - 1 ? (
             <span key={pathName} className="current-path">
               {pathName}
             </span>
