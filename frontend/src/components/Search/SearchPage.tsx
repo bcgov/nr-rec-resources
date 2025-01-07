@@ -5,9 +5,12 @@ import type { AxiosResponse } from '~/axios';
 import RecResourceCard from '@/components/Search/RecResourceCard';
 import SearchBanner from '@/components/Search/SearchBanner';
 
+import { photosExample } from '@/components/RecResource/RecResourcePage';
+
 const SearchPage = () => {
   const [recResourceData, setRecResourceData] = useState<any>([]);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [isComponentMounted, setIsComponentMounted] = useState(false);
 
   const recResourceList = recResourceData?.data;
   const recResourceCount = recResourceData?.total;
@@ -26,12 +29,13 @@ const SearchPage = () => {
 
   useEffect(() => {
     if (!filter) {
-      // Get all recreation resources
+      // Fetch initial list of recreation resources
       apiService
         .getAxiosInstance()
         .get('/v1/recreation-resource/search')
         .then((response: AxiosResponse) => {
           setRecResourceData(response.data);
+          setIsComponentMounted(true);
           return response;
         })
         .catch((error) => {
@@ -43,8 +47,8 @@ const SearchPage = () => {
   }, []);
 
   useEffect(() => {
-    if (filter || page) {
-      // Get recreation resources by filter
+    if (isComponentMounted) {
+      // Fetch recreation resources if filter changes
       apiService
         .getAxiosInstance()
         .get(
@@ -58,7 +62,7 @@ const SearchPage = () => {
           console.error(error);
         });
     }
-  }, [filter, page]);
+  }, [filter, page, isComponentMounted]);
 
   return (
     <>
@@ -69,13 +73,17 @@ const SearchPage = () => {
             {isResults ? (
               <>
                 {recResourceList?.map((resource: any) => {
-                  const { forest_file_id, name, description } = resource;
+                  const { forest_file_id, name, site_location } = resource;
                   return (
                     <RecResourceCard
                       key={forest_file_id}
-                      forest_file_id={forest_file_id}
+                      recId={forest_file_id}
+                      imageList={[
+                        // Hacky way to randomize photos for each card
+                        ...photosExample.sort(() => 0.5 - Math.random()),
+                      ]}
                       name={name}
-                      description={description}
+                      siteLocation={site_location}
                     />
                   );
                 })}

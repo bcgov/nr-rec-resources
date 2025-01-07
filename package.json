@@ -11,5 +11,8 @@
     "eslint-plugin-promise": "^7.2.1",
     "globals": "^15.12.0",
     "prettier": "^3.4.1"
+  },
+  "dependencies": {
+    "react-bootstrap": "^2.10.7"
   }
 }

@@ -1,0 +1,50 @@
+@import '@/styles/variables.scss';
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins/_breakpoints';
+
+.rec-resource-card {
+  display: flex;
+  border-radius: 10px;
+  background-color: $white;
+  margin-bottom: 16px;
+  overflow: hidden;
+
+  @include media-breakpoint-up(sm) {
+    height: 200px;
+  }
+}
+
+.card-heading-text {
+  display: flex;
+  align-items: center;
+  color: $colorBlue;
+  font-size: 1.25rem !important;
+  margin-bottom: 8px;
+}
+
+.card-heading-icon {
+  width: 1rem;
+  height: 1rem;
+  font-size: 1rem;
+  margin-left: 8px;
+}
+
+.carousel-container {
+  height: 200px;
+  width: 250px;
+}
+
+.carousel-content {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  width: 100%;
+}
+
+.carousel-card-image {
+  height: 200px;
+  width: 250px;
+  object-fit: cover;
+  object-position: center;
+}
