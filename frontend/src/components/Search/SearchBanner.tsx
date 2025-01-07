@@ -15,7 +15,7 @@ const SearchBanner = () => {
         } else {
           setSearchParams({ filter: e.target.value });
         }
-      }, 100),
+      }, 250),
     [searchParams, setSearchParams],
   );
 
