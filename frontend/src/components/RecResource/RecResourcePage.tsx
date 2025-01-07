@@ -24,7 +24,7 @@ interface RecResourceProps {
   site_location: string;
 }
 
-const photosExample = [
+export const photosExample = [
   {
     imageUrl:
       'http://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Lost%20Shoe%201.jpg',
