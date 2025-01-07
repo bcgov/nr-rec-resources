@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleChevronRight } from '@fortawesome/free-solid-svg-icons';
 import CardCarousel from '@/components/Search/CardCarousel';
+import blueStatus from '@/images/icons/blue-status.svg';
 import '@/styles/components/RecResourceCard.scss';
 
 interface RecResourceCardProps {
@@ -30,6 +31,17 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
           </h3>
         </a>
         <p>{siteLocation}</p>
+      </div>
+      <div className="status-container">
+        <div className="icon-container">
+          <img
+            alt="Site open status icon"
+            src={blueStatus}
+            height={24}
+            width={24}
+          />{' '}
+          <span>Open (Placeholder)</span>
+        </div>
       </div>
     </div>
   );
