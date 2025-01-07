@@ -26,7 +26,7 @@ const SearchBanner = () => {
         <input
           className="form-control"
           type="text"
-          placeholder="Search..."
+          placeholder="Search by name or site location"
           onChange={onSearchChange}
         />
       </nav>
