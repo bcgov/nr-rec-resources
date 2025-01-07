@@ -15,20 +15,25 @@
     flex-direction: row;
     height: 200px;
   }
+
+  .status-container {
+    padding: 16px;
+    min-width: 200px;
+  }
 }
 
 .card-heading-text {
   display: flex;
   align-items: center;
-  color: $colorBlue;
+  // Unfortunate use of important since bootstrap theme is using it
   font-size: 1.25rem !important;
+  color: $colorBlue;
   margin-bottom: 8px;
 }
 
 .card-heading-icon {
   width: 1rem;
   height: 1rem;
-  font-size: 1rem;
   margin-left: 8px;
 }
 

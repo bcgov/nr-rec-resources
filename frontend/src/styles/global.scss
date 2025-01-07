@@ -235,3 +235,15 @@ figure.table {
   background-color: $colorWhite;
   border-color: $colorBlue;
 }
+
+.icon-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 24px;
+
+  img,
+  svg {
+    margin-right: 8px;
+  }
+}
