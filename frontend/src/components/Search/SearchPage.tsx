@@ -69,8 +69,18 @@ const SearchPage = () => {
       <SearchBanner />
       <div className="page-container bg-brown-light">
         <div className="page page-padding">
+          <section className="search-results-count">
+            {recResourceCount ? (
+              <>
+                <b>{recResourceCount}</b>{' '}
+                {recResourceCount === 1 ? 'Result' : 'Results'}
+              </>
+            ) : (
+              <p>No results found</p>
+            )}
+          </section>
           <section>
-            {isResults ? (
+            {isResults && (
               <>
                 {recResourceList?.map((resource: any) => {
                   const { forest_file_id, name, site_location } = resource;
@@ -85,9 +95,7 @@ const SearchPage = () => {
                   );
                 })}
               </>
-            ) : (
-              <p>No results found.</p>
-            )}
+            )}{' '}
           </section>
           {isLoadMore && (
             <div className="load-more-container">
