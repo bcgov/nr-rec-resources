@@ -1,29 +1,36 @@
-import '@/styles/components/Search.scss';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCircleChevronRight } from '@fortawesome/free-solid-svg-icons';
+import CardCarousel from '@/components/Search/CardCarousel';
+import '@/styles/components/RecResourceCard.scss';
 
 interface RecResourceCardProps {
-  forest_file_id: string;
+  recId: string;
+  imageList: { imageUrl: string }[];
   name: string;
-  description: string;
+  siteLocation: string;
 }
 
 const RecResourceCard: React.FC<RecResourceCardProps> = ({
-  forest_file_id,
+  recId,
+  imageList,
   name,
-  description,
+  siteLocation,
 }) => {
   return (
-    <div
-      className="rec-resource-card"
-      key={forest_file_id}
-      style={{
-        border: '1px solid black',
-        padding: '1rem',
-        margin: '1rem 0',
-      }}
-    >
-      <h2>{name}</h2>
-      <p>{description}</p>
-      <a href={`/resource/${forest_file_id}`}>View {name} Information</a>
+    <div className="rec-resource-card" key={recId}>
+      <CardCarousel imageList={imageList} />
+      <div className="carousel-content">
+        <a href={`/resource/${recId}`}>
+          <h2 className="card-heading-text">
+            {name}{' '}
+            <FontAwesomeIcon
+              icon={faCircleChevronRight}
+              className="card-heading-icon"
+            />
+          </h2>
+        </a>
+        <p>{siteLocation}</p>
+      </div>
     </div>
   );
 };
