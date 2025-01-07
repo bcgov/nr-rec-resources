@@ -14,13 +14,13 @@ export const searchPage = async (page: Page) => {
   // Verify dyanmic content loads
   await expect(
     page.getByRole('heading', {
-      name: 'A Walk In The Forest Trail (Lost Shoe)',
+      name: 'Allison Pool',
     }),
   ).toBeVisible();
 
   await expect(
     page.getByRole('heading', {
-      name: 'Aberdeen Lake',
+      name: 'Appleton Creek Site & Trail',
     }),
   ).toBeVisible();
 };
