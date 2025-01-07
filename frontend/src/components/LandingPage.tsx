@@ -2,7 +2,7 @@ const LandingPage = () => {
   return (
     <div className="page page-padding">
       <h1>
-        <a href="/search">Search for recreation resource</a>
+        <a href="/search">Find a recreation resource</a>
       </h1>
     </div>
   );
