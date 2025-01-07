@@ -21,13 +21,13 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
       <CardCarousel imageList={imageList} />
       <div className="carousel-content">
         <a href={`/resource/${recId}`}>
-          <h2 className="card-heading-text">
+          <h3 className="card-heading-text">
             {name}{' '}
             <FontAwesomeIcon
               icon={faCircleChevronRight}
               className="card-heading-icon"
             />
-          </h2>
+          </h3>
         </a>
         <p>{siteLocation}</p>
       </div>
