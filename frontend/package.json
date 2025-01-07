@@ -1,5 +1,5 @@
 {
-  "name": "quickstart-openshift-react-frontend",
+  "name": "rec-resources-frontend",
   "private": true,
   "version": "1.0.0",
   "scripts": {
@@ -26,6 +26,7 @@
     "dotenv": "^16.4.7",
     "lodash.debounce": "^4.0.8",
     "react": "^19.0.0",
+    "react-bootstrap": "^2.10.7",
     "react-dom": "^19.0.0",
     "react-router": "^7.1.1",
     "react-router-dom": "^7.1.1",
