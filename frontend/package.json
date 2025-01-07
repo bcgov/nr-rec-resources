@@ -1,5 +1,5 @@
 {
-  "name": "quickstart-openshift-react-frontend",
+  "name": "rec-resources-frontend",
   "private": true,
   "version": "1.0.0",
   "scripts": {
@@ -26,6 +26,7 @@
     "dotenv": "^16.4.7",
     "lodash.debounce": "^4.0.8",
     "react": "^19.0.0",
+    "react-bootstrap": "^2.10.7",
     "react-dom": "^19.0.0",
     "react-router": "^7.1.1",
     "react-router-dom": "^7.1.1",
@@ -54,7 +55,7 @@
     "happo.io": "^11.0.1",
     "jsdom": "^25.0.1",
     "msw": "^2.7.0",
-    "sass-embedded": "^1.83.0",
+    "sass-embedded": "^1.83.1",
     "typescript": "^5.7.2",
     "vite": "^6.0.7",
     "vite-tsconfig-paths": "^5.1.4",
@@ -64,6 +65,6 @@
     "rollup@<4.22.4": "^4.22.4"
   },
   "optionalDependencies": {
-    "sass-embedded-linux-x64": "^1.83.0"
+    "sass-embedded-linux-x64": "^1.83.1"
   }
 }
