@@ -1,3 +1,5 @@
+import '@/styles/components/Search.scss';
+
 interface RecResourceCardProps {
   forest_file_id: string;
   name: string;
@@ -11,6 +13,7 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
 }) => {
   return (
     <div
+      className="rec-resource-card"
       key={forest_file_id}
       style={{
         border: '1px solid black',

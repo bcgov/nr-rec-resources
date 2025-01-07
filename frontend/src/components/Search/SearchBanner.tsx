@@ -20,7 +20,7 @@ const SearchBanner = () => {
   );
 
   return (
-    <div className="page-nav-container search">
+    <div className="page-container search">
       <nav aria-label="Search banner" className="page-nav search-banner">
         <h1>Find a recreation site or trail</h1>
         <input

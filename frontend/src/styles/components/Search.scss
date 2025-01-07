@@ -3,6 +3,13 @@
 @import '~bootstrap/scss/variables';
 @import '~bootstrap/scss/mixins/_breakpoints';
 
+.rec-resource-card {
+  border-radius: 10px;
+  background-color: $white;
+  padding: 16px;
+  margin: 16px;
+}
+
 .search-banner {
   padding: 16px 32px;
 
