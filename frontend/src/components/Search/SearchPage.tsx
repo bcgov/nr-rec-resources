@@ -78,10 +78,7 @@ const SearchPage = () => {
                     <RecResourceCard
                       key={forest_file_id}
                       recId={forest_file_id}
-                      imageList={[
-                        // Hacky way to randomize photos for each card
-                        ...photosExample.sort(() => 0.5 - Math.random()),
-                      ]}
+                      imageList={photosExample}
                       name={name}
                       siteLocation={site_location}
                     />
