@@ -18,11 +18,11 @@ export class RecreationResourceController {
   @Get("search") // it must be ahead Get(":id") to avoid conflict
   async searchRecreationResources(
     @Query("page") page: number = 1,
-    @Query("filter") filter?: string,
+    @Query("filter") filter: string = "",
   ) {
     return this.recreationResourceService.searchRecreationResources(
       page,
-      filter,
+      filter ?? "",
     );
   }
 
