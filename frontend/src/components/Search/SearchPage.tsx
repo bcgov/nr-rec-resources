@@ -63,37 +63,39 @@ const SearchPage = () => {
   return (
     <>
       <SearchBanner />
-      <div className="page page-padding">
-        <section>
-          {isResults ? (
-            <>
-              {recResourceList?.map((resource: any) => {
-                const { forest_file_id, name, description } = resource;
-                return (
-                  <RecResourceCard
-                    key={forest_file_id}
-                    forest_file_id={forest_file_id}
-                    name={name}
-                    description={description}
-                  />
-                );
-              })}
-            </>
-          ) : (
-            <p>No results found.</p>
+      <div className="page-container bg-brown-light">
+        <div className="page page-padding">
+          <section>
+            {isResults ? (
+              <>
+                {recResourceList?.map((resource: any) => {
+                  const { forest_file_id, name, description } = resource;
+                  return (
+                    <RecResourceCard
+                      key={forest_file_id}
+                      forest_file_id={forest_file_id}
+                      name={name}
+                      description={description}
+                    />
+                  );
+                })}
+              </>
+            ) : (
+              <p>No results found.</p>
+            )}
+          </section>
+          {isLoadMore && (
+            <div className="load-more-container">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={handleLoadMore}
+              >
+                Load More
+              </button>
+            </div>
           )}
-        </section>
-        {isLoadMore && (
-          <div className="load-more-container">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={handleLoadMore}
-            >
-              Load More
-            </button>
-          </div>
-        )}
+        </div>
       </div>
     </>
   );

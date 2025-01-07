@@ -76,7 +76,7 @@ a {
   }
 }
 
-.page-nav-container {
+.page-container {
   width: 100%;
 
   &.main {
@@ -89,6 +89,10 @@ a {
 
   &.search {
     background-color: $colorBlueLight;
+  }
+
+  &.bg-brown-light {
+    background-color: $colorBrownLight;
   }
 }
 
