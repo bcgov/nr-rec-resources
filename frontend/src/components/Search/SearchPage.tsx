@@ -6,8 +6,14 @@ import RecResourceCard from '@/components/Search/RecResourceCard';
 import SearchBanner from '@/components/Search/SearchBanner';
 
 const SearchPage = () => {
-  const [recResources, setRecResources] = useState<any>([]);
+  const [recResourceData, setRecResourceData] = useState<any>([]);
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const recResourceList = recResourceData?.data;
+  const recResourceCount = recResourceData?.total;
+
+  const isResults = recResourceList?.length > 0;
+  const isLoadMore = isResults && recResourceCount > recResourceList?.length;
 
   const handleLoadMore = () => {
     const page = searchParams.get('page');
@@ -25,9 +31,8 @@ const SearchPage = () => {
         .getAxiosInstance()
         .get('/v1/recreation-resource/search')
         .then((response: AxiosResponse) => {
-          const { data } = response.data;
-          setRecResources(data);
-          return data;
+          setRecResourceData(response.data);
+          return response;
         })
         .catch((error) => {
           console.error(error);
@@ -43,12 +48,11 @@ const SearchPage = () => {
       apiService
         .getAxiosInstance()
         .get(
-          `/v1/recreation-resource/search?filter=${filter}&page=${page ?? 1}`,
+          `/v1/recreation-resource/search?page=${page ?? 1}${filter ? `&filter=${filter}` : ''}`,
         )
         .then((response: AxiosResponse) => {
-          const { data } = response.data;
-          setRecResources(data);
-          return data;
+          setRecResourceData(response.data);
+          return response;
         })
         .catch((error) => {
           console.error(error);
@@ -56,7 +60,6 @@ const SearchPage = () => {
     }
   }, [filter, page]);
 
-  const isResults = recResources.length > 0;
   return (
     <>
       <SearchBanner />
@@ -64,7 +67,7 @@ const SearchPage = () => {
         <section>
           {isResults ? (
             <>
-              {recResources.map((resource: any) => {
+              {recResourceList?.map((resource: any) => {
                 const { forest_file_id, name, description } = resource;
                 return (
                   <RecResourceCard
@@ -80,7 +83,7 @@ const SearchPage = () => {
             <p>No results found.</p>
           )}
         </section>
-        {isResults && (
+        {isLoadMore && (
           <div className="load-more-container">
             <button
               type="button"

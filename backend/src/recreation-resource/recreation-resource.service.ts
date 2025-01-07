@@ -40,8 +40,8 @@ export class RecreationResourceService {
   }
 
   async searchRecreationResources(
-    page?: number,
-    filter?: string,
+    page: number = 1,
+    filter: string = "",
   ): Promise<any> {
     const limit = 10;
     page = page ?? 1;
@@ -49,43 +49,27 @@ export class RecreationResourceService {
 
     const filterQuery = {
       take,
-      where: {
-        OR: [
-          {
-            forest_file_id: {
-              contains: filter,
-              mode: QueryMode.insensitive,
-            },
-          },
-          { name: { contains: filter, mode: QueryMode.insensitive } },
-          {
-            description: { contains: filter, mode: QueryMode.insensitive },
-          },
-          {
-            site_location: {
-              contains: filter,
-              mode: QueryMode.insensitive,
-            },
-          },
-        ],
-      },
+      where: { name: { contains: filter, mode: QueryMode.insensitive } },
     };
 
-    return this.prisma.$transaction(async () => {
-      const recreationResources =
-        await this.prisma.recreation_resource.findMany(filterQuery);
+    const countQuery = {
+      where: filterQuery.where,
+    };
 
-      const count = await this.prisma.recreation_resource.count({
-        where: filterQuery?.where,
-      });
+    const recreationResources = await this.prisma.recreation_resource.findMany(
+      filter ? filterQuery : { take },
+    );
 
-      return {
-        data: recreationResources,
-        page,
-        limit,
-        total: count,
-        totalPages: Math.ceil(count / limit),
-      };
-    });
+    const count = await this.prisma.recreation_resource.count(
+      filter ? countQuery : undefined,
+    );
+
+    return {
+      data: recreationResources,
+      page,
+      limit,
+      total: count,
+      totalPages: Math.ceil(count / limit),
+    };
   }
 }
