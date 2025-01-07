@@ -78,19 +78,19 @@ const RecResourcePage = () => {
   const { description, forest_file_id, name, site_location } =
     recResource || {};
 
-  const siteDescriptionRef = useRef<HTMLElement>(null);
-  const mapLocationRef = useRef<HTMLElement>(null);
-  const campingRef = useRef<HTMLElement>(null);
-  const thingsToDoRef = useRef<HTMLElement>(null);
-  const contactRef = useRef<HTMLElement>(null);
+  const siteDescriptionRef = useRef<HTMLElement>(null!);
+  const mapLocationRef = useRef<HTMLElement>(null!);
+  const campingRef = useRef<HTMLElement>(null!);
+  const thingsToDoRef = useRef<HTMLElement>(null!);
+  const contactRef = useRef<HTMLElement>(null!);
 
-  const sectionRefs = [
+  const sectionRefs: React.RefObject<HTMLElement>[] = [
     siteDescriptionRef,
     mapLocationRef,
     campingRef,
     thingsToDoRef,
     contactRef,
-  ] as React.RefObject<HTMLElement>[];
+  ];
 
   const activeSection = useScrollSpy({
     sectionElementRefs: sectionRefs,
