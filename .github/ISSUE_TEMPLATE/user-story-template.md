@@ -2,7 +2,7 @@
 name: User Story Template
 about: User Story
 title: ''
-labels: Story
+labels: needs refinement
 assignees: ''
 
 ---
@@ -31,5 +31,5 @@ assignees: ''
 
 
 #### Notes:
--
--
+- [ ] ...
+- [ ] ...
