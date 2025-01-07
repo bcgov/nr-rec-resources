@@ -49,7 +49,12 @@ export class RecreationResourceService {
 
     const filterQuery = {
       take,
-      where: { name: { contains: filter, mode: QueryMode.insensitive } },
+      where: {
+        OR: [
+          { name: { contains: filter, mode: QueryMode.insensitive } },
+          { site_location: { contains: filter, mode: QueryMode.insensitive } },
+        ],
+      },
     };
 
     const countQuery = {
