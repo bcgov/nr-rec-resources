@@ -14,7 +14,13 @@
     }
 
     input {
-      max-width: 256px;
+      max-width: 330px;
+    }
+  }
+
+  @include media-breakpoint-up(md) {
+    input {
+      max-width: 400px;
     }
   }
 }
