@@ -47,7 +47,7 @@ const SearchPage = () => {
   }, []);
 
   useEffect(() => {
-    if (isComponentMounted) {
+    if (isComponentMounted || filter) {
       // Fetch recreation resources if filter changes
       apiService
         .getAxiosInstance()
