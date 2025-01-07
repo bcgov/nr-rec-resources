@@ -5,7 +5,7 @@ import '@/styles/components/Header.scss';
 const Header = () => {
   return (
     <header id="header">
-      <div className="page-nav-container main">
+      <div className="page-container main">
         <nav
           aria-label="Main header navigation"
           className="page-nav header-nav main"
@@ -24,7 +24,7 @@ const Header = () => {
           </a>
         </nav>
       </div>
-      <div className="page-nav-container sub">
+      <div className="page-container sub">
         <nav
           aria-label="Secondary header site navigation"
           className="header-nav sub"
