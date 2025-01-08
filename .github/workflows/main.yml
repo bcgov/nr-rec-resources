@@ -33,6 +33,7 @@ jobs:
           triggers: ('${{ matrix.package }}/')
   analysis:
     uses: ./.github/workflows/.analysis.yml
+    secrets: inherit
   tests-e2e:
     name: Tests
     needs: build-containers
