@@ -28,7 +28,7 @@ jobs:
   # Needs deployment to dev to have something to run against
   # Run sequentially to reduce chances of rate limiting
   # zap_scan:
-  #   runs-on: ubuntu-latest
+  #   runs-on: ubuntu-24.04
   #   name: ZAP Scans
   #   env:
   #     DOMAIN: apps.silver.devops.gov.bc.ca
