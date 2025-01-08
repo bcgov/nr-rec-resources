@@ -11,7 +11,7 @@ on:
 jobs:
   playwright-e2e:
     timeout-minutes: 60
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v4
     - name: Run Docker compose
@@ -49,6 +49,3 @@ jobs:
         HAPPO_API_KEY: ${{ secrets.HAPPO_API_KEY }}
         HAPPO_API_SECRET: ${{ secrets.HAPPO_API_SECRET }}
         HAPPO_PROJECT: rst-public
-    - name: Dump docker logs on failure
-      if: failure()
-      uses: jwalton/gh-docker-logs@v2
