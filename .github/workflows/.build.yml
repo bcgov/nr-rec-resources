@@ -1,0 +1,22 @@
+name: Build Containers
+
+on:
+  workflow_call:
+
+jobs:
+  # https://github.com/bcgov-nr/action-builder-ghcr
+  build-containers:
+    name: Builds
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        package: [backend, migrations, frontend]
+    timeout-minutes: 10
+    steps:
+      - uses: bcgov-nr/action-builder-ghcr@v2.3.0
+        with:
+          keep_versions: 50
+          package: ${{ matrix.package }}
+          tag: ${{ github.sha }}
+          tag_fallback: latest
+          triggers: ('${{ matrix.package }}/')

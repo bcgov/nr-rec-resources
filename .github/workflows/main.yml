@@ -11,39 +11,22 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-# env:
-#     AWS_REGION: ca-central-1
-
 jobs:
-  # https://github.com/bcgov-nr/action-builder-ghcr
-  build-containers:
-    name: Builds
-    runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        package: [backend, migrations, frontend]
-    timeout-minutes: 10
-    steps:
-      - uses: bcgov-nr/action-builder-ghcr@v2.3.0
-        with:
-          keep_versions: 50
-          package: ${{ matrix.package }}
-          tag: ${{ github.sha }}
-          tag_fallback: latest
-          triggers: ('${{ matrix.package }}/')
+  build:
+    uses: ./.github/workflows/.build-containers.yml
   analysis:
     uses: ./.github/workflows/.analysis.yml
     secrets: inherit
   tests-e2e:
     name: Tests
-    needs: build-containers
+    needs: build
     uses: ./.github/workflows/.e2e.yml
     with:
       tag: ${{ github.sha }}
     secrets: inherit
   deploy-to-aws-dev:
     if: github.ref == 'refs/heads/main'
-    needs: [build-containers, tests-e2e]
+    needs: [build, tests-e2e]
     name: Deploys Application to AWS dev
     uses: ./.github/workflows/.deploy-app.yml
     with:
