@@ -1,0 +1,27 @@
+# Manually triggered workflow to deploy PR to AWS dev
+name: Deploy PR
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "The tag of the containers to deploy"
+        type: number
+        required: true
+
+concurrency:
+  # Do not interrupt previous workflows
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  deploy-to-aws-dev:
+    needs: [vars]
+    name: Deploys Application to AWS dev
+    uses: ./.github/workflows/.deploy-app.yml
+    with:
+      app_env: dev
+      command: apply
+      environment_name: dev
+      tag: ${{ inputs.tag }}
+    secrets: inherit
