@@ -37,11 +37,11 @@ jobs:
           tag_fallback: latest
           triggers: ('${{ matrix.package }}/')
   analysis:
-    uses: ./.github/workflows/analysis.yml
+    uses: ./.github/workflows/.analysis.yml
   tests-e2e:
     name: Tests
     needs: build-containers
-    uses: ./.github/workflows/e2e.yml
+    uses: ./.github/workflows/.e2e.yml
     with:
       tag: ${{ github.sha }}
     secrets: inherit
@@ -58,4 +58,4 @@ jobs:
     secrets: inherit
   promote:
     needs: [deploy-to-aws-dev]
-    uses: ./.github/workflows/promote.yml
+    uses: ./.github/workflows/.promote.yml
