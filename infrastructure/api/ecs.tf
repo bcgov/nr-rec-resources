@@ -55,6 +55,10 @@ resource "aws_ecs_task_definition" "flyway_task" {
       essential   = true
       environment = [
         {
+          name = "APP_ENV"
+          value = local.rds_app_env
+        },
+        {
           name  = "FLYWAY_URL"
           value = "jdbc:postgresql://${data.aws_rds_cluster.rds_cluster.endpoint}/${var.db_name}"
         },
