@@ -2,6 +2,13 @@ name: Promote
 
 on:
   workflow_call:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Manually provide the tag of the containers to promote"
+        type: number
+        required: true
+        default: ${{ github.sha }}
 
 jobs:
   promote:
@@ -22,4 +29,4 @@ jobs:
           target: ${{ github.sha }}
           tags: |
             latest
-            ${{ github.sha }}
+            ${{ inputs.tag }}
