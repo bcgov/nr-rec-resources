@@ -12,15 +12,15 @@ export const dashboardPage = async (page: Page) => {
   await expect(page.getByRole('link', { name: 'Contact us' })).toBeVisible();
 
   // Verify dyanmic content loads
-  // await expect(
-  //   page.getByRole('heading', {
-  //     name: 'A Walk In The Forest Trail (Lost Shoe)',
-  //   }),
-  // ).toBeVisible();
-  //
-  // await expect(
-  //   page.getByRole('heading', {
-  //     name: 'Aberdeen Lake',
-  //   }),
-  // ).toBeVisible();
+  await expect(
+    page.getByRole('heading', {
+      name: 'A Walk In The Forest Trail (Lost Shoe)',
+    }),
+  ).toBeVisible({ timeout: 10000 });
+
+  await expect(
+    page.getByRole('heading', {
+      name: 'Aberdeen Lake',
+    }),
+  ).toBeVisible({ timeout: 10000 });
 };
