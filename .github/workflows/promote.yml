@@ -1,0 +1,26 @@
+name: Promote
+
+on:
+  workflow_call:
+
+jobs:
+  promote:
+    name: Promote Images
+    runs-on: ubuntu-24.04
+    permissions:
+      packages: write
+    strategy:
+      matrix:
+        # Only building frontend for e2e testing
+        package: [migrations, backend, frontend]
+    timeout-minutes: 1
+    steps:
+      - uses: shrink/actions-docker-registry-tag@v4
+        with:
+          registry: ghcr.io
+          repository: ${{ github.repository }}/${{ matrix.package }}
+          target: ${{ github.sha }}
+          tags: |
+            prod
+            latest
+            ${{ github.sha }}
