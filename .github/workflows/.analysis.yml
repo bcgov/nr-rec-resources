@@ -4,10 +4,12 @@ on:
   workflow_call:
 
 permissions:
+  actions: read
   id-token: write # This is required for requesting the JWT
   contents: write # This is required for actions/checkout
   packages: write
   pull-requests: write
+  security-events: write # CodeQL
 
 jobs:
   tests:
