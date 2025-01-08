@@ -62,6 +62,9 @@ jobs:
       tag: ${{ github.sha }}
     secrets: inherit
 
+  codeql:
+    uses: ./.github/workflows/.codeql.yml
+
   # https://github.com/marketplace/actions/aqua-security-trivy
   trivy:
     name: Trivy Security Scan
