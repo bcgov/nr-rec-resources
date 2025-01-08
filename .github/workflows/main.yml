@@ -13,7 +13,7 @@ concurrency:
 
 jobs:
   build:
-    uses: ./.github/workflows/.build-containers.yml
+    uses: ./.github/workflows/.build.yml
   analysis:
     uses: ./.github/workflows/.analysis.yml
     secrets: inherit
