@@ -91,6 +91,7 @@ jobs:
           sarif_file: "trivy-results.sarif"
 
   pre-commit:
+    name: Pre-Commit Validation
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -108,6 +109,7 @@ jobs:
       - uses: pre-commit/action@v3.0.1
 
   commitlint: # Test all commits in PR follow conventional commit format
+    name: Commitlint
     runs-on: ubuntu-24.04
     permissions:
       contents: read
