@@ -16,11 +16,11 @@ export const dashboardPage = async (page: Page) => {
     page.getByRole('heading', {
       name: 'A Walk In The Forest Trail (Lost Shoe)',
     }),
-  ).toBeVisible({ timeout: 10000 });
+  ).toBeVisible();
 
   await expect(
     page.getByRole('heading', {
       name: 'Aberdeen Lake',
     }),
-  ).toBeVisible({ timeout: 10000 });
+  ).toBeVisible();
 };
