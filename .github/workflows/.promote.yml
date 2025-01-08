@@ -21,6 +21,5 @@ jobs:
           repository: ${{ github.repository }}/${{ matrix.package }}
           target: ${{ github.sha }}
           tags: |
-            prod
             latest
             ${{ github.sha }}
