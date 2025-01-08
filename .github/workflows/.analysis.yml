@@ -3,6 +3,12 @@ name: Analysis
 on:
   workflow_call:
 
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: write # This is required for actions/checkout
+  packages: write
+  pull-requests: write
+
 jobs:
   tests:
     name: Tests
