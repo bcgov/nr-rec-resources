@@ -58,7 +58,7 @@ jobs:
     name: Verify Terraform
     uses: ./.github/workflows/.deploy-app.yml
     with:
-      app_env: ${{ github.ref == 'refs/heads/main' && 'dev' || 'ephermal-' + github.event.number }}
+      app_env: ${{ github.ref == 'refs/heads/main' && 'dev' || format('ephermal-{0}', github.event.number) }}
       command: plan
       environment_name: dev
       tag: ${{ github.sha }}
