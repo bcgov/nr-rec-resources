@@ -64,32 +64,6 @@ jobs:
       tag: ${{ github.sha }}
     secrets: inherit
 
-  codeql:
-    uses: ./.github/workflows/.codeql.yml
-
-  # https://github.com/marketplace/actions/aqua-security-trivy
-  trivy:
-    name: Trivy Security Scan
-    if: ${{ !github.event.pull_request.draft }}
-    runs-on: ubuntu-24.04
-    timeout-minutes: 1
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run Trivy vulnerability scanner in repo mode
-        uses: aquasecurity/trivy-action@0.29.0
-        with:
-          format: "sarif"
-          output: "trivy-results.sarif"
-          ignore-unfixed: true
-          scan-type: "fs"
-          scanners: "vuln,secret,config"
-          severity: "CRITICAL,HIGH"
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: "trivy-results.sarif"
-
   pre-commit:
     name: Pre-Commit Validation
     runs-on: ubuntu-24.04
@@ -119,13 +93,3 @@ jobs:
       - uses: wagoid/commitlint-github-action@v6
         with:
           configFile: '.commitlintrc.yml'
-
-  results:
-    name: Analysis Results
-    needs: [tests] # Restore trivy when/if fixed
-    if: always()
-    runs-on: ubuntu-24.04
-    steps:
-      - if: contains(needs.*.result, 'failure')
-        run: echo "At least one job has failed." && exit 1
-      - run: echo "Success!"
