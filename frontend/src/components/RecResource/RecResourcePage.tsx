@@ -122,7 +122,7 @@ const RecResourcePage = () => {
           <section>
             <div>
               <h1>{name}</h1>
-              <p className="bc-color-blue-dk">
+              <p className="bc-color-blue-dk mb-4">
                 <span>Recreation site |</span> {forest_file_id}
               </p>
             </div>
