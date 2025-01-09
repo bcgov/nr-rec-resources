@@ -14,9 +14,14 @@ const SearchPage = () => {
 
   const recResourceList = recResourceData?.data;
   const recResourceCount = recResourceData?.total;
+  const filter = searchParams.get('filter');
+  const page = searchParams.get('page');
 
   const isResults = recResourceList?.length > 0;
   const isLoadMore = isResults && recResourceCount > recResourceList?.length;
+
+  const isFilters =
+    Object.keys(Object.fromEntries(searchParams.entries())).length > 0;
 
   const handleLoadMore = () => {
     const page = searchParams.get('page');
@@ -24,8 +29,9 @@ const SearchPage = () => {
     setSearchParams({ ...searchParams, page: updatedPage });
   };
 
-  const filter = searchParams.get('filter');
-  const page = searchParams.get('page');
+  const handleClearFilters = () => {
+    setSearchParams({});
+  };
 
   useEffect(() => {
     if (!filter) {
@@ -70,13 +76,24 @@ const SearchPage = () => {
       <div className="page-container bg-brown-light">
         <div className="page page-padding">
           <section className="search-results-count">
-            {recResourceCount ? (
-              <>
-                <b>{recResourceCount}</b>{' '}
-                {recResourceCount === 1 ? 'Result' : 'Results'}
-              </>
-            ) : (
-              <p>No results found</p>
+            <div>
+              {recResourceCount ? (
+                <>
+                  <b>{recResourceCount}</b>{' '}
+                  {recResourceCount === 1 ? 'Result' : 'Results'}
+                </>
+              ) : (
+                <span>No results found</span>
+              )}
+            </div>
+            {isFilters && (
+              <button
+                type="button"
+                className="btn-link"
+                onClick={handleClearFilters}
+              >
+                Clear Filters
+              </button>
             )}
           </section>
           <section>
