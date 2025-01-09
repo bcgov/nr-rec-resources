@@ -16,7 +16,6 @@ concurrency:
 
 jobs:
   deploy-to-aws-dev:
-    needs: [vars]
     name: Deploys Application to AWS dev
     uses: ./.github/workflows/.deploy-app.yml
     with:
