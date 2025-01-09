@@ -214,6 +214,17 @@ figure.table {
   height: 48px;
 }
 
+.btn-link {
+  color: $colorBlue;
+  text-decoration: none;
+  border: none;
+
+  &:hover {
+    color: $colorBlue;
+    text-decoration: underline;
+  }
+}
+
 .btn-primary {
   background-color: $colorBlue;
   border-color: $colorBlue;
