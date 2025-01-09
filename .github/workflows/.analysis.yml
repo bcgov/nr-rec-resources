@@ -119,13 +119,3 @@ jobs:
       - uses: wagoid/commitlint-github-action@v6
         with:
           configFile: '.commitlintrc.yml'
-
-  results:
-    name: Analysis Results
-    needs: [tests] # Restore trivy when/if fixed
-    if: always()
-    runs-on: ubuntu-24.04
-    steps:
-      - if: contains(needs.*.result, 'failure')
-        run: echo "At least one job has failed." && exit 1
-      - run: echo "Success!"
