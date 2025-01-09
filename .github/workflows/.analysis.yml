@@ -58,7 +58,8 @@ jobs:
     name: Verify Terraform
     uses: ./.github/workflows/.deploy-app.yml
     with:
-      app_env: ${{ github.ref == 'refs/heads/main' && 'dev' || format('ephemeral-{0}', github.event.number) }}
+      # event.number is only available in PRs, so we use github.ref_name as a fallback on main
+      app_env: ${{ format('ephemeral-{0}', github.event.number || github.ref_name ) }}
       command: plan
       environment_name: dev
       tag: ${{ github.sha }}
