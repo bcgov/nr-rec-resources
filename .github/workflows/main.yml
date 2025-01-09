@@ -19,6 +19,15 @@ jobs:
     name: Analysis
     uses: ./.github/workflows/.analysis.yml
     secrets: inherit
+  analysis-results:
+    name: Analysis Results
+    needs: [analysis]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - if: contains(needs.*.result, 'failure')
+        run: echo "At least one job has failed." && exit 1
+      - run: echo "Success!"
   tests-e2e:
     name: Tests
     needs: build-containers
