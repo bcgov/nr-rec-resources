@@ -10,6 +10,7 @@ import { photosExample } from '@/components/RecResource/RecResourcePage';
 const SearchPage = () => {
   const [recResourceData, setRecResourceData] = useState<any>([]);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [searchResetKey, setSearchResetKey] = useState('');
   const [isComponentMounted, setIsComponentMounted] = useState(false);
 
   const recResourceList = recResourceData?.data;
@@ -31,6 +32,7 @@ const SearchPage = () => {
 
   const handleClearFilters = () => {
     setSearchParams({});
+    setSearchResetKey(crypto.randomUUID());
   };
 
   useEffect(() => {
@@ -72,7 +74,7 @@ const SearchPage = () => {
 
   return (
     <>
-      <SearchBanner />
+      <SearchBanner key={searchResetKey} />
       <div className="page-container bg-brown-light">
         <div className="page page-padding">
           <section className="search-results-count">
