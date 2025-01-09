@@ -36,7 +36,7 @@ jobs:
       tag: ${{ github.sha }}
     secrets: inherit
   deploy-to-aws-dev:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref_name == 'main' || github.head_ref == 'main'
     needs: [build-containers, tests-e2e]
     name: Deploys Application to AWS dev
     uses: ./.github/workflows/.deploy-app.yml
