@@ -37,23 +37,23 @@
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.17.0",
     "@playwright/test": "^1.49.1",
-    "@testing-library/jest-dom": "^6.0.0",
+    "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.1.0",
     "@testing-library/user-event": "^14.5.2",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
+    "@types/react": "^19.0.4",
+    "@types/react-dom": "^19.0.2",
     "@vitest/coverage-v8": "^2.1.8",
-    "@vitest/ui": "^2.0.0",
+    "@vitest/ui": "^2.1.8",
     "eslint": "^9.17.0",
     "eslint-plugin-react": "^7.37.3",
     "eslint-plugin-react-hooks": "^5.1.0",
     "happo-e2e": "^3.2.0",
     "happo-playwright": "^2.2.0",
     "happo.io": "^11.0.1",
-    "jsdom": "^25.0.1",
+    "jsdom": "^26.0.0",
     "msw": "^2.7.0",
-    "sass-embedded": "^1.83.0",
-    "typescript": "^5.7.2",
+    "sass-embedded": "^1.83.1",
+    "typescript": "^5.7.3",
     "vite": "^6.0.7",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^2.1.8"
@@ -62,6 +62,6 @@
     "rollup@<4.22.4": "^4.22.4"
   },
   "optionalDependencies": {
-    "sass-embedded-linux-x64": "^1.83.0"
+    "sass-embedded-linux-x64": "^1.83.1"
   }
 }
