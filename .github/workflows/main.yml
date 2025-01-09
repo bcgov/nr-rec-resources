@@ -39,8 +39,63 @@ jobs:
       tag: ${{ github.sha }}
     secrets: inherit
 
-  deploy:
-    name: Deploy
+  deploy-to-aws-dev:
+    if: github.ref_name == 'main' || github.head_ref == 'main'
+    name: Deploys Application to AWS dev
     needs: [tests-e2e]
-    uses: ./.github/workflows/.deploy.yml
+    uses: ./.github/workflows/.deploy-app.yml
+    with:
+      app_env: dev
+      command: apply
+      environment_name: dev
+      tag: ${{ github.sha }}
     secrets: inherit
+
+  # Separate review job since we can't use GitHub environments in reusable workflows
+  review-test-deployment:
+    name: Review Test Deployment
+    needs: [deploy-to-aws-dev]
+    environment: test
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Review Test Deployment
+        run: echo "Reviewing Test Deployment"
+
+  deploy-to-aws-test:
+    name: Deploys Application to AWS test
+    needs: [review-test-deployment]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Deploy to AWS test
+        # Placeholder
+        run: echo "Deploying to AWS test"
+
+  release:
+    name: Release
+    needs: [deploy-to-aws-test]
+    uses: ./.github/workflows/.release.yml
+
+  promote:
+    name: Promote
+    needs: [release]
+    uses: ./.github/workflows/.promote.yml
+
+  # Separate review job since we can't use GitHub environments in reusable workflows
+  review-prod-deployment:
+    name: Review Prod Deployment
+    needs: [promote]
+    environment: prod
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Review Prod Deployment
+        run: echo "Reviewing Prod Deployment"
+
+  deploy-to-aws-prod:
+    name: Deploys Application to AWS prod
+    needs: [deploy-to-aws-test]
+    environment: prod
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Deploy to AWS prod
+        # Placeholder
+        run: echo "Deploying to AWS prod"
