@@ -58,7 +58,7 @@ jobs:
     name: Verify Terraform
     uses: ./.github/workflows/.deploy-app.yml
     with:
-      app_env: ${{ github.ref == 'refs/heads/main' && 'dev' || format('ephermal-{0}', github.event.number) }}
+      app_env: ${{ github.ref == 'refs/heads/main' && 'dev' || format('ephemeral-{0}', github.event.number) }}
       command: plan
       environment_name: dev
       tag: ${{ github.sha }}
@@ -70,7 +70,7 @@ jobs:
   # https://github.com/marketplace/actions/aqua-security-trivy
   trivy:
     name: Trivy Security Scan
-    if: ${{ !github.event.pull_request.draft }}
+    if: ${{ ! github.event.pull_request.draft }}
     runs-on: ubuntu-24.04
     timeout-minutes: 1
     steps:
