@@ -6,7 +6,6 @@ on:
 jobs:
   release:
     name: Release
-    needs: [deploy-to-aws-test]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
