@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import apiService from '@/service/api-service';
 import type { AxiosResponse } from '~/axios';
+import buildQueryString from '@/utils/buildQueryString';
 import RecResourceCard from '@/components/Search/RecResourceCard';
 import SearchBanner from '@/components/Search/SearchBanner';
 
@@ -55,13 +56,14 @@ const SearchPage = () => {
   }, []);
 
   useEffect(() => {
-    if (isComponentMounted || filter) {
+    if (isComponentMounted) {
       // Fetch recreation resources if filter changes
+      const queryString = buildQueryString(
+        Object.fromEntries(searchParams.entries()),
+      );
       apiService
         .getAxiosInstance()
-        .get(
-          `/v1/recreation-resource/search?page=${page ?? 1}${filter ? `&filter=${filter}` : ''}`,
-        )
+        .get(`/v1/recreation-resource/search${queryString}`)
         .then((response: AxiosResponse) => {
           setRecResourceData(response.data);
           return response;
@@ -70,7 +72,7 @@ const SearchPage = () => {
           console.error(error);
         });
     }
-  }, [filter, page, isComponentMounted]);
+  }, [filter, isComponentMounted, page, searchParams]);
 
   return (
     <>

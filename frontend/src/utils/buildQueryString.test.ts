@@ -1,7 +1,7 @@
 import { describe, expect } from 'vitest';
-import buildQueryParams from 'src/utils/buildQueryParams';
+import buildQueryString from 'src/utils/buildQueryString';
 
-describe('buildQueryParams function', () => {
+describe('buildQueryString function', () => {
   it('should return a query string from an object of key-value pairs', () => {
     const queryParams = {
       page: '1',
@@ -9,7 +9,7 @@ describe('buildQueryParams function', () => {
       sort_direction: 'asc',
       sort_field: 'name',
     };
-    const result = buildQueryParams(queryParams);
+    const result = buildQueryString(queryParams);
     expect(result).toEqual(
       '?page=1&filter=filter&sort_direction=asc&sort_field=name',
     );
@@ -21,7 +21,7 @@ describe('buildQueryParams function', () => {
       search: '',
       sort: undefined,
     };
-    const result = buildQueryParams(queryParams);
+    const result = buildQueryString(queryParams);
     expect(result).toEqual('?page=1');
   });
 });
