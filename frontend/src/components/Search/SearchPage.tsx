@@ -13,10 +13,10 @@ const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchResetKey, setSearchResetKey] = useState('');
   const [isComponentMounted, setIsComponentMounted] = useState(false);
+  const [isLazyLoading, setIsLazyLoading] = useState(false);
 
   const recResourceList = recResourceData?.data;
   const recResourceCount = recResourceData?.total;
-  const filter = searchParams.get('filter');
   const page = searchParams.get('page');
 
   const isResults = recResourceList?.length > 0;
@@ -26,7 +26,7 @@ const SearchPage = () => {
     Object.keys(Object.fromEntries(searchParams.entries())).length > 0;
 
   const handleLoadMore = () => {
-    const page = searchParams.get('page');
+    setIsLazyLoading(true);
     const updatedPage = (page ? parseInt(page) + 1 : 2).toString();
     setSearchParams({ ...searchParams, page: updatedPage });
   };
@@ -37,7 +37,7 @@ const SearchPage = () => {
   };
 
   useEffect(() => {
-    if (!filter) {
+    if (!isFilters && !isComponentMounted) {
       // Fetch initial list of recreation resources
       apiService
         .getAxiosInstance()
@@ -45,6 +45,7 @@ const SearchPage = () => {
         .then((response: AxiosResponse) => {
           setRecResourceData(response.data);
           setIsComponentMounted(true);
+          console.log('initial response', response.data.data);
           return response;
         })
         .catch((error) => {
@@ -56,23 +57,37 @@ const SearchPage = () => {
   }, []);
 
   useEffect(() => {
-    if (isComponentMounted) {
+    if (isFilters) {
       // Fetch recreation resources if filter changes
       const queryString = buildQueryString(
         Object.fromEntries(searchParams.entries()),
       );
       apiService
         .getAxiosInstance()
-        .get(`/v1/recreation-resource/search${queryString}`)
+        .get(
+          `/v1/recreation-resource/search${queryString}${isLazyLoading ? '&limit=10' : ''}`,
+        )
         .then((response: AxiosResponse) => {
-          setRecResourceData(response.data);
+          if (isLazyLoading) {
+            // Append paginated data to existing data
+            setRecResourceData({
+              data: [...recResourceList, ...response.data.data],
+              total: response.data.total,
+            });
+          } else {
+            setRecResourceData(response.data);
+          }
+          setIsLazyLoading(false);
           return response;
         })
         .catch((error) => {
           console.error(error);
         });
     }
-  }, [filter, isComponentMounted, page, searchParams]);
+
+    // Don't want all dependencies to trigger this
+    // eslint-disable-next-line
+  }, [isFilters]);
 
   return (
     <>
