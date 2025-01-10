@@ -24,4 +24,9 @@ describe('buildQueryString function', () => {
     const result = buildQueryString(queryParams);
     expect(result).toEqual('?page=1');
   });
+
+  it('should return an empty string if no params are provided', () => {
+    const result = buildQueryString({});
+    expect(result).toEqual('');
+  });
 });

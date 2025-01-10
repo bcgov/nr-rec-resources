@@ -53,7 +53,6 @@ const CardCarousel = ({ imageList }: CardCarouselProps) => {
             >
               <img
                 alt="rec resource carousel"
-                key={index}
                 height="200"
                 width="250"
                 className="carousel-desktop-image"
@@ -61,7 +60,6 @@ const CardCarousel = ({ imageList }: CardCarouselProps) => {
               />
               <img
                 alt="rec resource carousel"
-                key={index}
                 className="carousel-mobile-image"
                 src={image.imageUrl}
               />

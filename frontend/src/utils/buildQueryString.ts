@@ -10,7 +10,7 @@ const buildQueryString = (params: {
     .filter(([_, value]) => value !== '' && value !== undefined)
     .map(([key, value]) => `${key}=${value}`)
     .join('&');
-  return `?${query}`;
+  return query ? `?${query}` : '';
 };
 
 export default buildQueryString;
