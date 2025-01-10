@@ -42,13 +42,17 @@ export class RecreationResourceService {
   async searchRecreationResources(
     page: number = 1,
     filter: string = "",
+    limit?: number,
   ): Promise<any> {
-    const limit = 10;
-    page = page ?? 1;
-    const take = parseInt(String(limit)) * page;
+    // If only page is provided, we will return all records up to the end of that page
+    // If limit is provided, we will return that many paginated records for lazy loading
+    const take = limit ? limit : 10 * page;
+    const skip = limit ? (page - 1) * limit : 0;
 
     const filterQuery = {
+      skip,
       take,
+      // If limit is provided, we will skip the records up to the end of the previous page
       where: {
         OR: [
           { name: { contains: filter, mode: QueryMode.insensitive } },
@@ -62,7 +66,7 @@ export class RecreationResourceService {
     };
 
     const recreationResources = await this.prisma.recreation_resource.findMany(
-      filter ? filterQuery : { take },
+      filter ? filterQuery : { skip, take },
     );
 
     const count = await this.prisma.recreation_resource.count(
@@ -74,7 +78,6 @@ export class RecreationResourceService {
       page,
       limit,
       total: count,
-      totalPages: Math.ceil(count / limit),
     };
   }
 }
