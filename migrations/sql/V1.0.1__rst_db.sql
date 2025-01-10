@@ -1,959 +1,1217 @@
-CREATE EXTENSION IF NOT EXISTS "postgis";
+create extension if not exists "postgis";
 
-CREATE TABLE RECREATION_PROJECT (
-    FOREST_FILE_ID VARCHAR(10) PRIMARY KEY,
-    PROJECT_NAME VARCHAR(100),
-    RECREATION_CONTROL_ACCESS_CODE VARCHAR(1) NULL,
-    RECREATION_FEATURE_CODE VARCHAR(3) NULL,
-    RECREATION_MAINTAIN_STD_CODE VARCHAR(1) NULL,
-    RECREATION_RISK_RATING_CODE VARCHAR(3) NULL,
-    UTM_ZONE INT NULL,
-    LAST_REC_INSPECTION_DATE DATE NULL,
-    REC_PROJECT_SKEY INT NULL,
-    RESOURCE_FEATURE_IND VARCHAR(1) DEFAULT 'N',
-    LAST_HZRD_TREE_ASSESS_DATE DATE NULL,
-    SITE_DESCRIPTION VARCHAR(500) NULL,
-    RECREATION_USER_DAYS_CODE VARCHAR(3) NULL,
-    OVERFLOW_CAMPSITES INT NULL,
-    UTM_NORTHING INT NULL,
-    UTM_EASTING INT NULL,
-    RIGHT_OF_WAY NUMERIC(7, 1) NULL,
-    ARCH_IMPACT_ASSESS_IND VARCHAR(1) NULL,
-    SITE_LOCATION VARCHAR(500) NULL,
-    PROJECT_ESTABLISHED_DATE DATE NULL,
-    RECREATION_VIEW_IND VARCHAR(1) DEFAULT 'N',
-    REVISION_COUNT INT NULL,
-    ENTRY_USERID VARCHAR(30) NULL,
-    ENTRY_TIMESTAMP DATE NULL,
-    UPDATE_USERID VARCHAR(30) NULL,
-    UPDATE_TIMESTAMP DATE NULL,
-    ARCH_IMPACT_DATE DATE NULL,
-    BORDEN_NO VARCHAR(200) NULL,
-    CAMP_HOST_IND VARCHAR(1) DEFAULT 'N',
-    LOW_MOBILITY_ACCESS_IND VARCHAR(1) DEFAULT 'N',
-    CONSTRAINT CHK_RESOURCE_FEATURE_IND CHECK (RESOURCE_FEATURE_IND IN ('N', 'Y')),
-    CONSTRAINT CHK_ARCH_IMPACT_ASSESS_IND CHECK (ARCH_IMPACT_ASSESS_IND IN ('Y', 'N')),
-    CONSTRAINT CHK_RECREATION_VIEW_IND CHECK (RECREATION_VIEW_IND IN ('Y', 'N')),
-    CONSTRAINT CHK_CAMP_HOST_IND CHECK (CAMP_HOST_IND IN ('Y', 'N'))
+create schema if not exists fta;
+
+set search_path to fta;
+
+create table recreation_project (
+    forest_file_id varchar(10) primary key,
+    project_name varchar(100),
+    recreation_control_access_code varchar(1) null,
+    recreation_feature_code varchar(3) null,
+    recreation_maintain_std_code varchar(1) null,
+    recreation_risk_rating_code varchar(3) null,
+    utm_zone int null,
+    last_rec_inspection_date date null,
+    rec_project_skey int null,
+    resource_feature_ind varchar(1) default 'N',
+    last_hzrd_tree_assess_date date null,
+    site_description varchar(500) null,
+    recreation_user_days_code varchar(3) null,
+    overflow_campsites int null,
+    utm_northing int null,
+    utm_easting int null,
+    right_of_way numeric(7, 1) null,
+    arch_impact_assess_ind varchar(1) null,
+    site_location varchar(500) null,
+    project_established_date date null,
+    recreation_view_ind varchar(1) default 'N',
+    revision_count int null,
+    entry_userid varchar(30) null,
+    entry_timestamp date null,
+    update_userid varchar(30) null,
+    update_timestamp date null,
+    arch_impact_date date null,
+    borden_no varchar(200) null,
+    camp_host_ind varchar(1) default 'N',
+    low_mobility_access_ind varchar(1) default 'N',
+    constraint chk_resource_feature_ind check (resource_feature_ind in ('N', 'Y')),
+    constraint chk_arch_impact_assess_ind check (arch_impact_assess_ind in ('Y', 'N')),
+    constraint chk_recreation_view_ind check (recreation_view_ind in ('Y', 'N')),
+    constraint chk_camp_host_ind check (camp_host_ind in ('Y', 'N'))
 );
 
-COMMENT ON TABLE RECREATION_PROJECT IS 'Project information relating to a recreational file. A recreation file can have only one project. A project must be of type Site, Reserve, Trail, or Interpretive Forest.';
+comment on table recreation_project is 'Project information relating to a recreational file. A recreation file can have only one project. A project must be of type Site, Reserve, Trail, or Interpretive Forest.';
 
-COMMENT ON COLUMN RECREATION_PROJECT.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
-COMMENT ON COLUMN RECREATION_PROJECT.PROJECT_NAME IS 'Name of the Recreation Project.';
-COMMENT ON COLUMN RECREATION_PROJECT.RECREATION_CONTROL_ACCESS_CODE IS 'Describes the Controlled Access Code for a project. E.g. “Gated”, “Restricted Use”.';
-COMMENT ON COLUMN RECREATION_PROJECT.RECREATION_FEATURE_CODE IS 'Code describing the Recreation Feature.';
-COMMENT ON COLUMN RECREATION_PROJECT.RECREATION_MAINTAIN_STD_CODE IS 'Code describing the Maintenance Standard of a given site. E.g. User Maintained, Maintained to Standard, Not Maintained.';
-COMMENT ON COLUMN RECREATION_PROJECT.RECREATION_RISK_RATING_CODE IS 'Code describing the Recreation Risk Rating.';
-COMMENT ON COLUMN RECREATION_PROJECT.UTM_ZONE IS 'The Universal Transverse Mercator location reference known as the Zone reference.';
-COMMENT ON COLUMN RECREATION_PROJECT.LAST_REC_INSPECTION_DATE IS 'The last date of inspection for the project.';
-COMMENT ON COLUMN RECREATION_PROJECT.REC_PROJECT_SKEY IS 'Concatenation of Forest File Id and project.';
-COMMENT ON COLUMN RECREATION_PROJECT.RESOURCE_FEATURE_IND IS 'The resource feature for a recreation project.';
-COMMENT ON COLUMN RECREATION_PROJECT.LAST_HZRD_TREE_ASSESS_DATE IS 'Identifies the date of the last hazard tree assessment for the recreation project.';
-COMMENT ON COLUMN RECREATION_PROJECT.SITE_DESCRIPTION IS 'Field notes related to a recreation site. e.g. A managed, 11 unit site with 2WD access, gravel beach launch and a small float. Watch for hazards on the lake. This column is for internal use and is not a description for public use.';
-COMMENT ON COLUMN RECREATION_PROJECT.RECREATION_USER_DAYS_CODE IS 'Code describing the Recreation User Days.';
-COMMENT ON COLUMN RECREATION_PROJECT.OVERFLOW_CAMPSITES IS 'The number of overflow spaces that the project site can handle.';
-COMMENT ON COLUMN RECREATION_PROJECT.UTM_NORTHING IS 'The Universal Transverse Mercator location reference. This is the Northing reference (metres north of the Equator).';
-COMMENT ON COLUMN RECREATION_PROJECT.UTM_EASTING IS 'The Universal Transverse Mercator location reference for the project. This is the Easting reference (metres east of the Central Meridian of the zone).';
-COMMENT ON COLUMN RECREATION_PROJECT.RIGHT_OF_WAY IS 'Identifies the Right of Way width for a linear feature. This attribute will likely be replaced by a spatial attribute in the future.';
-COMMENT ON COLUMN RECREATION_PROJECT.ARCH_IMPACT_ASSESS_IND IS 'Indicates if an archaeological impact assessment has been performed for the given project.';
-COMMENT ON COLUMN RECREATION_PROJECT.SITE_LOCATION IS 'A text description generally describing the closest community or, for more isolated sites and trails, it could be a geographic feature to a recreation site or trail. e.g. VERNON, KELOWNA, PRINCE GEORGE.';
-COMMENT ON COLUMN RECREATION_PROJECT.PROJECT_ESTABLISHED_DATE IS 'Date on which the project was legally established.';
-COMMENT ON COLUMN RECREATION_PROJECT.RECREATION_VIEW_IND IS 'Indicates whether a Recreation project must be shown in the Recreation View web mapping tool. Allowable values are “Y” and “N”.';
-COMMENT ON COLUMN RECREATION_PROJECT.REVISION_COUNT IS 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
-COMMENT ON COLUMN RECREATION_PROJECT.ENTRY_USERID IS 'The userid responsible for inserting data into a table.';
-COMMENT ON COLUMN RECREATION_PROJECT.ENTRY_TIMESTAMP IS 'Contains the system timestamp when data in a table was inserted.';
-COMMENT ON COLUMN RECREATION_PROJECT.UPDATE_USERID IS 'The userid of the individual who last updated this road section record.';
-COMMENT ON COLUMN RECREATION_PROJECT.UPDATE_TIMESTAMP IS 'The timestamp of the last update to the road section record.';
-COMMENT ON COLUMN RECREATION_PROJECT.ARCH_IMPACT_DATE IS 'Identifies the archaeological impact assessment date.';
-COMMENT ON COLUMN RECREATION_PROJECT.BORDEN_NO IS 'Identifies the borden numbers of the archaeological site.';
-COMMENT ON COLUMN RECREATION_PROJECT.CAMP_HOST_IND IS 'Identifies whether or not there is a camp host or operator.';
-COMMENT ON COLUMN RECREATION_PROJECT.LOW_MOBILITY_ACCESS_IND IS 'Identifies whether or not there is low mobility access to the site.';
+comment on column recreation_project.forest_file_id is 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
 
-CREATE TABLE RECREATION_ACCESS (
-    FOREST_FILE_ID VARCHAR(10) PRIMARY KEY,
-    RECREATION_ACCESS_CODE VARCHAR(3) NOT NULL,
-    RECREATION_SUB_ACCESS_CODE VARCHAR(3) NOT NULL,
-    REVISION_COUNT INTEGER,
-    ENTRY_USERID VARCHAR(30),
-    ENTRY_TIMESTAMP TIMESTAMP,
-    UPDATE_USERID VARCHAR(30),
-    UPDATE_TIMESTAMP TIMESTAMP
+comment on column recreation_project.project_name is 'Name of the Recreation Project.';
+
+comment on column recreation_project.recreation_control_access_code is 'Describes the Controlled Access Code for a project. E.g. “Gated”, “Restricted Use”.';
+
+comment on column recreation_project.recreation_feature_code is 'Code describing the Recreation Feature.';
+
+comment on column recreation_project.recreation_maintain_std_code is 'Code describing the Maintenance Standard of a given site. E.g. User Maintained, Maintained to Standard, Not Maintained.';
+
+comment on column recreation_project.recreation_risk_rating_code is 'Code describing the Recreation Risk Rating.';
+
+comment on column recreation_project.utm_zone is 'The Universal Transverse Mercator location reference known as the Zone reference.';
+
+comment on column recreation_project.last_rec_inspection_date is 'The last date of inspection for the project.';
+
+comment on column recreation_project.rec_project_skey is 'Concatenation of Forest File Id and project.';
+
+comment on column recreation_project.resource_feature_ind is 'The resource feature for a recreation project.';
+
+comment on column recreation_project.last_hzrd_tree_assess_date is 'Identifies the date of the last hazard tree assessment for the recreation project.';
+
+comment on column recreation_project.site_description is 'Field notes related to a recreation site. e.g. A managed, 11 unit site with 2WD access, gravel beach launch and a small float. Watch for hazards on the lake. This column is for internal use and is not a description for public use.';
+
+comment on column recreation_project.recreation_user_days_code is 'Code describing the Recreation User Days.';
+
+comment on column recreation_project.overflow_campsites is 'The number of overflow spaces that the project site can handle.';
+
+comment on column recreation_project.utm_northing is 'The Universal Transverse Mercator location reference. This is the Northing reference (metres north of the Equator).';
+
+comment on column recreation_project.utm_easting is 'The Universal Transverse Mercator location reference for the project. This is the Easting reference (metres east of the Central Meridian of the zone).';
+
+comment on column recreation_project.right_of_way is 'Identifies the Right of Way width for a linear feature. This attribute will likely be replaced by a spatial attribute in the future.';
+
+comment on column recreation_project.arch_impact_assess_ind is 'Indicates if an archaeological impact assessment has been performed for the given project.';
+
+comment on column recreation_project.site_location is 'A text description generally describing the closest community or, for more isolated sites and trails, it could be a geographic feature to a recreation site or trail. e.g. VERNON, KELOWNA, PRINCE GEORGE.';
+
+comment on column recreation_project.project_established_date is 'Date on which the project was legally established.';
+
+comment on column recreation_project.recreation_view_ind is 'Indicates whether a Recreation project must be shown in the Recreation View web mapping tool. Allowable values are “Y” and “N”.';
+
+comment on column recreation_project.revision_count is 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
+
+comment on column recreation_project.entry_userid is 'The userid responsible for inserting data into a table.';
+
+comment on column recreation_project.entry_timestamp is 'Contains the system timestamp when data in a table was inserted.';
+
+comment on column recreation_project.update_userid is 'The userid of the individual who last updated this road section record.';
+
+comment on column recreation_project.update_timestamp is 'The timestamp of the last update to the road section record.';
+
+comment on column recreation_project.arch_impact_date is 'Identifies the archaeological impact assessment date.';
+
+comment on column recreation_project.borden_no is 'Identifies the borden numbers of the archaeological site.';
+
+comment on column recreation_project.camp_host_ind is 'Identifies whether or not there is a camp host or operator.';
+
+comment on column recreation_project.low_mobility_access_ind is 'Identifies whether or not there is low mobility access to the site.';
+
+create table recreation_access (
+    forest_file_id varchar(10) primary key,
+    recreation_access_code varchar(3) not null,
+    recreation_sub_access_code varchar(3) not null,
+    revision_count integer,
+    entry_userid varchar(30),
+    entry_timestamp timestamp,
+    update_userid varchar(30),
+    update_timestamp timestamp
 );
 
-COMMENT ON TABLE RECREATION_ACCESS IS 'Information relating to modes of access to a recreation project.';
+comment on table recreation_access is 'Information relating to modes of access to a recreation project.';
 
-COMMENT ON COLUMN RECREATION_ACCESS.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
-COMMENT ON COLUMN RECREATION_ACCESS.RECREATION_ACCESS_CODE IS 'Code describing the Recreation Objective.';
-COMMENT ON COLUMN RECREATION_ACCESS.RECREATION_SUB_ACCESS_CODE IS 'Code describing the Recreation Sub Access types.';
-COMMENT ON COLUMN RECREATION_ACCESS.REVISION_COUNT IS 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
-COMMENT ON COLUMN RECREATION_ACCESS.ENTRY_USERID IS 'The userid responsible for inserting data into a table.';
-COMMENT ON COLUMN RECREATION_ACCESS.ENTRY_TIMESTAMP IS 'Contains the system timestamp when data in a table was inserted.';
-COMMENT ON COLUMN RECREATION_ACCESS.UPDATE_USERID IS 'The userid of the individual who last updated this road section record.';
-COMMENT ON COLUMN RECREATION_ACCESS.UPDATE_TIMESTAMP IS 'The timestamp of the last update to the road section record.';
+comment on column recreation_access.forest_file_id is 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
 
-CREATE TABLE RECREATION_ACCESS_CODE (
-    RECREATION_ACCESS_CODE VARCHAR(3) NOT NULL,
-    DESCRIPTION VARCHAR(120),
-    EFFECTIVE_DATE DATE,
-    EXPIRY_DATE DATE,
-    UPDATE_TIMESTAMP TIMESTAMP
+comment on column recreation_access.recreation_access_code is 'Code describing the Recreation Objective.';
+
+comment on column recreation_access.recreation_sub_access_code is 'Code describing the Recreation Sub Access types.';
+
+comment on column recreation_access.revision_count is 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
+
+comment on column recreation_access.entry_userid is 'The userid responsible for inserting data into a table.';
+
+comment on column recreation_access.entry_timestamp is 'Contains the system timestamp when data in a table was inserted.';
+
+comment on column recreation_access.update_userid is 'The userid of the individual who last updated this road section record.';
+
+comment on column recreation_access.update_timestamp is 'The timestamp of the last update to the road section record.';
+
+create table recreation_access_code (
+    recreation_access_code varchar(3) not null,
+    description varchar(120),
+    effective_date date,
+    expiry_date date,
+    update_timestamp timestamp
 );
 
 -- There was no table description in the original RECREATION_ACCESS_CODE table
+comment on column recreation_access_code.recreation_access_code is 'Code describing the Recreation Objective.';
 
-COMMENT ON COLUMN RECREATION_ACCESS_CODE.RECREATION_ACCESS_CODE IS 'Code describing the Recreation Objective.';
-COMMENT ON COLUMN RECREATION_ACCESS_CODE.DESCRIPTION IS 'Description of the code value.';
-COMMENT ON COLUMN RECREATION_ACCESS_CODE.EFFECTIVE_DATE IS 'Date the code becomes effective.';
-COMMENT ON COLUMN RECREATION_ACCESS_CODE.EXPIRY_DATE IS 'Date the code expires.';
-COMMENT ON COLUMN RECREATION_ACCESS_CODE.UPDATE_TIMESTAMP IS 'The date and time the value was last modified.';
+comment on column recreation_access_code.description is 'Description of the code value.';
 
-CREATE TABLE RECREATION_ACCESS_XREF (
-    RECREATION_ACCESS_CODE VARCHAR(3) NOT NULL,
-    RECREATION_SUB_ACCESS_CODE VARCHAR(3) NOT NULL,
-    REVISION_COUNT INTEGER,
-    ENTRY_USERID VARCHAR(30),
-    ENTRY_TIMESTAMP TIMESTAMP,
-    UPDATE_USERID VARCHAR(30),
-    UPDATE_TIMESTAMP TIMESTAMP,
-    FOREST_FILE_ID VARCHAR(10)
+comment on column recreation_access_code.effective_date is 'Date the code becomes effective.';
+
+comment on column recreation_access_code.expiry_date is 'Date the code expires.';
+
+comment on column recreation_access_code.update_timestamp is 'The date and time the value was last modified.';
+
+create table recreation_access_xref (
+    recreation_access_code varchar(3) not null,
+    recreation_sub_access_code varchar(3) not null,
+    revision_count integer,
+    entry_userid varchar(30),
+    entry_timestamp timestamp,
+    update_userid varchar(30),
+    update_timestamp timestamp,
+    forest_file_id varchar(10)
 );
 
-COMMENT ON TABLE RECREATION_ACCESS_XREF IS 'Describes valid combinations between Recreation Access and Recreation Sub Access types. E.g. Boat in - Motor Boat, Boat in - Canoe, Trail-MultiUse, Trail-Snowmobile.';
+comment on table recreation_access_xref is 'Describes valid combinations between Recreation Access and Recreation Sub Access types. E.g. Boat in - Motor Boat, Boat in - Canoe, Trail-MultiUse, Trail-Snowmobile.';
 
-COMMENT ON COLUMN RECREATION_ACCESS_XREF.RECREATION_ACCESS_CODE IS 'Code describing the Recreation Objective.';
-COMMENT ON COLUMN RECREATION_ACCESS_XREF.RECREATION_SUB_ACCESS_CODE IS 'Code describing the Recreation Sub Access types.';
-COMMENT ON COLUMN RECREATION_ACCESS_XREF.REVISION_COUNT IS 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
-COMMENT ON COLUMN RECREATION_ACCESS_XREF.ENTRY_USERID IS 'The userid responsible for inserting data into a table.';
-COMMENT ON COLUMN RECREATION_ACCESS_XREF.ENTRY_TIMESTAMP IS 'Contains the system timestamp when data in a table was inserted.';
-COMMENT ON COLUMN RECREATION_ACCESS_XREF.UPDATE_USERID IS 'The userid of the individual who last updated this road section record.';
-COMMENT ON COLUMN RECREATION_ACCESS_XREF.UPDATE_TIMESTAMP IS 'The timestamp of the last update to the road section record.';
+comment on column recreation_access_xref.recreation_access_code is 'Code describing the Recreation Objective.';
 
-CREATE TABLE RECREATION_ACTIVITY (
-    FOREST_FILE_ID VARCHAR(10) PRIMARY KEY,
-    RECREATION_ACTIVITY_CODE VARCHAR(3) NOT NULL,
-    ACTIVITY_RANK INT,
-    REVISION_COUNT INT,
-    ENTRY_USERID VARCHAR(30),
-    ENTRY_TIMESTAMP TIMESTAMP,
-    UPDATE_USERID VARCHAR(30),
-    UPDATE_TIMESTAMP TIMESTAMP
+comment on column recreation_access_xref.recreation_sub_access_code is 'Code describing the Recreation Sub Access types.';
+
+comment on column recreation_access_xref.revision_count is 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
+
+comment on column recreation_access_xref.entry_userid is 'The userid responsible for inserting data into a table.';
+
+comment on column recreation_access_xref.entry_timestamp is 'Contains the system timestamp when data in a table was inserted.';
+
+comment on column recreation_access_xref.update_userid is 'The userid of the individual who last updated this road section record.';
+
+comment on column recreation_access_xref.update_timestamp is 'The timestamp of the last update to the road section record.';
+
+create table recreation_activity (
+    forest_file_id varchar(10) primary key,
+    recreation_activity_code varchar(3) not null,
+    activity_rank int,
+    revision_count int,
+    entry_userid varchar(30),
+    entry_timestamp timestamp,
+    update_userid varchar(30),
+    update_timestamp timestamp
 );
 
-COMMENT ON TABLE RECREATION_ACTIVITY IS 'The types of available activities for a given project.';
+comment on table recreation_activity is 'The types of available activities for a given project.';
 
-COMMENT ON COLUMN RECREATION_ACTIVITY.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
-COMMENT ON COLUMN RECREATION_ACTIVITY.RECREATION_ACTIVITY_CODE IS 'Code describing the Recreation Activity.';
-COMMENT ON COLUMN RECREATION_ACTIVITY.ACTIVITY_RANK IS 'The order of importance of this activity for the given project as a number from 1 to 3.';
-COMMENT ON COLUMN RECREATION_ACTIVITY.REVISION_COUNT IS 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
-COMMENT ON COLUMN RECREATION_ACTIVITY.ENTRY_USERID IS 'The userid responsible for inserting data into a table.';
-COMMENT ON COLUMN RECREATION_ACTIVITY.ENTRY_TIMESTAMP IS 'Contains the system timestamp when data in a table was inserted.';
-COMMENT ON COLUMN RECREATION_ACTIVITY.UPDATE_USERID IS 'The userid of the individual who last updated this road section record.';
-COMMENT ON COLUMN RECREATION_ACTIVITY.UPDATE_TIMESTAMP IS 'The timestamp of the last update to the road section record.';
+comment on column recreation_activity.forest_file_id is 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
 
-CREATE TABLE RECREATION_ACTIVITY_CODE (
-    RECREATION_ACTIVITY_CODE VARCHAR(3) PRIMARY KEY,
-    DESCRIPTION VARCHAR(120),
-    EFFECTIVE_DATE DATE,
-    EXPIRY_DATE DATE,
-    UPDATE_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+comment on column recreation_activity.recreation_activity_code is 'Code describing the Recreation Activity.';
+
+comment on column recreation_activity.activity_rank is 'The order of importance of this activity for the given project as a number from 1 to 3.';
+
+comment on column recreation_activity.revision_count is 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
+
+comment on column recreation_activity.entry_userid is 'The userid responsible for inserting data into a table.';
+
+comment on column recreation_activity.entry_timestamp is 'Contains the system timestamp when data in a table was inserted.';
+
+comment on column recreation_activity.update_userid is 'The userid of the individual who last updated this road section record.';
+
+comment on column recreation_activity.update_timestamp is 'The timestamp of the last update to the road section record.';
+
+create table recreation_activity_code (
+    recreation_activity_code varchar(3) primary key,
+    description varchar(120),
+    effective_date date,
+    expiry_date date,
+    update_timestamp timestamp default current_timestamp
 );
 
-COMMENT ON TABLE RECREATION_ACTIVITY_CODE IS 'Activity code types for recreation projects.';
+comment on table recreation_activity_code is 'Activity code types for recreation projects.';
 
-COMMENT ON COLUMN RECREATION_ACTIVITY_CODE.RECREATION_ACTIVITY_CODE IS 'Code describing the Recreation Activity.';
-COMMENT ON COLUMN RECREATION_ACTIVITY_CODE.DESCRIPTION IS 'Description of the code value.';
-COMMENT ON COLUMN RECREATION_ACTIVITY_CODE.EFFECTIVE_DATE IS 'Date the code becomes effective.';
-COMMENT ON COLUMN RECREATION_ACTIVITY_CODE.EXPIRY_DATE IS 'Date the code expires.';
-COMMENT ON COLUMN RECREATION_ACTIVITY_CODE.UPDATE_TIMESTAMP IS 'The date and time the value was last modified.';
+comment on column recreation_activity_code.recreation_activity_code is 'Code describing the Recreation Activity.';
 
-CREATE TABLE RECREATION_AGREEMENT_HOLDER (
-    AGREEMENT_HOLDER_ID SERIAL PRIMARY KEY,
-    FOREST_FILE_ID VARCHAR(10) REFERENCES RECREATION_PROJECT(FOREST_FILE_ID) ON DELETE RESTRICT,
-    CLIENT_NUMBER VARCHAR(8),
-    CLIENT_LOCN_CODE VARCHAR(2),
-    AGREEMENT_START_DATE DATE,
-    AGREEMENT_END_DATE DATE,
-    REVISION_COUNT INT,
-    ENTRY_USERID VARCHAR(30),
-    ENTRY_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UPDATE_USERID VARCHAR(30),
-    UPDATE_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+comment on column recreation_activity_code.description is 'Description of the code value.';
+
+comment on column recreation_activity_code.effective_date is 'Date the code becomes effective.';
+
+comment on column recreation_activity_code.expiry_date is 'Date the code expires.';
+
+comment on column recreation_activity_code.update_timestamp is 'The date and time the value was last modified.';
+
+create table recreation_agreement_holder (
+    agreement_holder_id serial primary key,
+    forest_file_id varchar(10) references recreation_project (forest_file_id) on delete restrict,
+    client_number varchar(8),
+    client_locn_code varchar(2),
+    agreement_start_date date,
+    agreement_end_date date,
+    revision_count int,
+    entry_userid varchar(30),
+    entry_timestamp timestamp default current_timestamp,
+    update_userid varchar(30),
+    update_timestamp timestamp default current_timestamp
 );
 
-COMMENT ON TABLE RECREATION_AGREEMENT_HOLDER IS 'Identifies the Agreement Holder responsible for maintaining a project for a given time frame.';
+comment on table recreation_agreement_holder is 'Identifies the Agreement Holder responsible for maintaining a project for a given time frame.';
 
-COMMENT ON COLUMN RECREATION_AGREEMENT_HOLDER.AGREEMENT_HOLDER_ID IS 'The unique identifier for a recreation agreement holder.';
-COMMENT ON COLUMN RECREATION_AGREEMENT_HOLDER.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
-COMMENT ON COLUMN RECREATION_AGREEMENT_HOLDER.CLIENT_NUMBER IS 'Sequentially assigned number to identify a ministry client.';
-COMMENT ON COLUMN RECREATION_AGREEMENT_HOLDER.CLIENT_LOCN_CODE IS 'Retrofitted from column CLIENT_LOCN_CODE of table FOR_CLIENT_LINK.';
-COMMENT ON COLUMN RECREATION_AGREEMENT_HOLDER.AGREEMENT_START_DATE IS 'Start date of the agreement held between the ministry and the agreement holder.';
-COMMENT ON COLUMN RECREATION_AGREEMENT_HOLDER.AGREEMENT_END_DATE IS 'End date of the agreement held between the ministry and the agreement holder.';
-COMMENT ON COLUMN RECREATION_AGREEMENT_HOLDER.REVISION_COUNT IS 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
-COMMENT ON COLUMN RECREATION_AGREEMENT_HOLDER.ENTRY_USERID IS 'The userid responsible for inserting data into a table.';
-COMMENT ON COLUMN RECREATION_AGREEMENT_HOLDER.ENTRY_TIMESTAMP IS 'Contains the system timestamp when data in a table was inserted.';
-COMMENT ON COLUMN RECREATION_AGREEMENT_HOLDER.UPDATE_USERID IS 'The userid of the individual who last updated this road section record.';
-COMMENT ON COLUMN RECREATION_AGREEMENT_HOLDER.UPDATE_TIMESTAMP IS 'The timestamp of the last update to the road section record.';
+comment on column recreation_agreement_holder.agreement_holder_id is 'The unique identifier for a recreation agreement holder.';
 
-CREATE TABLE RECREATION_ATTACHMENT (
-    FOREST_FILE_ID VARCHAR(10) PRIMARY KEY,
-    RECREATION_ATTACHMENT_ID SERIAL NOT NULL,
-    ATTACHMENT_FILE_NAME VARCHAR(50),
-    REVISION_COUNT INT,
-    ENTRY_USERID VARCHAR(30),
-    ENTRY_TIMESTAMP TIMESTAMP,
-    UPDATE_USERID VARCHAR(30),
-    UPDATE_TIMESTAMP TIMESTAMP
+comment on column recreation_agreement_holder.forest_file_id is 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
+
+comment on column recreation_agreement_holder.client_number is 'Sequentially assigned number to identify a ministry client.';
+
+comment on column recreation_agreement_holder.client_locn_code is 'Retrofitted from column CLIENT_LOCN_CODE of table FOR_CLIENT_LINK.';
+
+comment on column recreation_agreement_holder.agreement_start_date is 'Start date of the agreement held between the ministry and the agreement holder.';
+
+comment on column recreation_agreement_holder.agreement_end_date is 'End date of the agreement held between the ministry and the agreement holder.';
+
+comment on column recreation_agreement_holder.revision_count is 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
+
+comment on column recreation_agreement_holder.entry_userid is 'The userid responsible for inserting data into a table.';
+
+comment on column recreation_agreement_holder.entry_timestamp is 'Contains the system timestamp when data in a table was inserted.';
+
+comment on column recreation_agreement_holder.update_userid is 'The userid of the individual who last updated this road section record.';
+
+comment on column recreation_agreement_holder.update_timestamp is 'The timestamp of the last update to the road section record.';
+
+create table recreation_attachment (
+    forest_file_id varchar(10) primary key,
+    recreation_attachment_id serial not null,
+    attachment_file_name varchar(50),
+    revision_count int,
+    entry_userid varchar(30),
+    entry_timestamp timestamp,
+    update_userid varchar(30),
+    update_timestamp timestamp
 );
 
-COMMENT ON TABLE RECREATION_ATTACHMENT IS 'Stores a reference to each attachment related to the Recreation project such as the Establishment Order document.';
+comment on table recreation_attachment is 'Stores a reference to each attachment related to the Recreation project such as the Establishment Order document.';
 
-COMMENT ON COLUMN RECREATION_ATTACHMENT.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
-COMMENT ON COLUMN RECREATION_ATTACHMENT.RECREATION_ATTACHMENT_ID IS 'System-generated ID for the attachment.';
-COMMENT ON COLUMN RECREATION_ATTACHMENT.ATTACHMENT_FILE_NAME IS 'File name, not including the path, of the attached file at the time it was uploaded.';
-COMMENT ON COLUMN RECREATION_ATTACHMENT.REVISION_COUNT IS 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
-COMMENT ON COLUMN RECREATION_ATTACHMENT.ENTRY_USERID IS 'The userid of the user that inserted data into the record.';
-COMMENT ON COLUMN RECREATION_ATTACHMENT.ENTRY_TIMESTAMP IS 'Timestamp indicating when data was last inserted into the record.';
-COMMENT ON COLUMN RECREATION_ATTACHMENT.UPDATE_USERID IS 'The userid of the user that last updated the declared area record.';
-COMMENT ON COLUMN RECREATION_ATTACHMENT.UPDATE_TIMESTAMP IS 'The timestamp of the last update to the declared area record.';
+comment on column recreation_attachment.forest_file_id is 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
 
-CREATE TABLE RECREATION_ATTACHMENT_CONTENT (
-    FOREST_FILE_ID VARCHAR(10) REFERENCES RECREATION_ATTACHMENT(FOREST_FILE_ID) ON DELETE RESTRICT,
-    RECREATION_ATTACHMENT_ID INT,
-    ATTACHMENT_CONTENT BYTEA,
-    PRIMARY KEY (FOREST_FILE_ID, RECREATION_ATTACHMENT_ID),
-    CONSTRAINT FK_RECREATION_ATTACHMENT_FOREST_FILE_ID FOREIGN KEY (FOREST_FILE_ID) REFERENCES RECREATION_PROJECT (FOREST_FILE_ID) ON DELETE RESTRICT
+comment on column recreation_attachment.recreation_attachment_id is 'System-generated ID for the attachment.';
+
+comment on column recreation_attachment.attachment_file_name is 'File name, not including the path, of the attached file at the time it was uploaded.';
+
+comment on column recreation_attachment.revision_count is 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
+
+comment on column recreation_attachment.entry_userid is 'The userid of the user that inserted data into the record.';
+
+comment on column recreation_attachment.entry_timestamp is 'Timestamp indicating when data was last inserted into the record.';
+
+comment on column recreation_attachment.update_userid is 'The userid of the user that last updated the declared area record.';
+
+comment on column recreation_attachment.update_timestamp is 'The timestamp of the last update to the declared area record.';
+
+create table recreation_attachment_content (
+    forest_file_id varchar(10) references recreation_attachment (forest_file_id) on delete restrict,
+    recreation_attachment_id int,
+    attachment_content bytea,
+    primary key (forest_file_id, recreation_attachment_id),
+    constraint fk_recreation_attachment_forest_file_id foreign key (forest_file_id) references recreation_project (forest_file_id) on delete restrict
 );
 
-COMMENT ON TABLE RECREATION_ATTACHMENT_CONTENT IS 'Stores attachment content for each attachment related to the Recreation project.';
+comment on table recreation_attachment_content is 'Stores attachment content for each attachment related to the Recreation project.';
 
-COMMENT ON COLUMN RECREATION_ATTACHMENT_CONTENT.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
-COMMENT ON COLUMN RECREATION_ATTACHMENT_CONTENT.RECREATION_ATTACHMENT_ID IS 'System-generated ID for the attachment.';
-COMMENT ON COLUMN RECREATION_ATTACHMENT_CONTENT.ATTACHMENT_CONTENT IS 'Content for the attachment.';
+comment on column recreation_attachment_content.forest_file_id is 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
 
-CREATE TABLE RECREATION_COMMENT (
-    FOREST_FILE_ID VARCHAR(10) REFERENCES RECREATION_PROJECT(FOREST_FILE_ID) ON DELETE RESTRICT,
-    RECREATION_COMMENT_ID SERIAL PRIMARY KEY,
-    REC_COMMENT_TYPE_CODE VARCHAR(4),
-    CLOSURE_IND CHAR(1) DEFAULT 'N',
-    PROJECT_COMMENT VARCHAR(2000),
-    COMMENT_DATE DATE,
-    REVISION_COUNT INT,
-    ENTRY_USERID VARCHAR(30),
-    ENTRY_TIMESTAMP TIMESTAMP,
-    UPDATE_USERID VARCHAR(30),
-    UPDATE_TIMESTAMP TIMESTAMP,
-    CONSTRAINT CHK_CLOSURE_IND CHECK (CLOSURE_IND IN ('Y', 'N'))
+comment on column recreation_attachment_content.recreation_attachment_id is 'System-generated ID for the attachment.';
+
+comment on column recreation_attachment_content.attachment_content is 'Content for the attachment.';
+
+create table recreation_comment (
+    forest_file_id varchar(10) references recreation_project (forest_file_id) on delete restrict,
+    recreation_comment_id serial primary key,
+    rec_comment_type_code varchar(4),
+    closure_ind char(1) default 'N',
+    project_comment varchar(2000),
+    comment_date date,
+    revision_count int,
+    entry_userid varchar(30),
+    entry_timestamp timestamp,
+    update_userid varchar(30),
+    update_timestamp timestamp,
+    constraint chk_closure_ind check (closure_ind in ('Y', 'N'))
 );
 
-COMMENT ON TABLE RECREATION_COMMENT IS 'Stores comments related to the Recreation project such as driving directions and closures.';
+comment on table recreation_comment is 'Stores comments related to the Recreation project such as driving directions and closures.';
 
-COMMENT ON COLUMN RECREATION_COMMENT.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
-COMMENT ON COLUMN RECREATION_COMMENT.RECREATION_COMMENT_ID IS 'A system-generated unique identifier for the comment.';
-COMMENT ON COLUMN RECREATION_COMMENT.REC_COMMENT_TYPE_CODE IS 'A code which specifies the type of comment. Eg. Driving Directions, Closures.';
-COMMENT ON COLUMN RECREATION_COMMENT.CLOSURE_IND IS 'Indicates whether there is a closure within the Recreation project site. Allowable values are “Y” and “N”.';
-COMMENT ON COLUMN RECREATION_COMMENT.PROJECT_COMMENT IS 'The comment content.';
-COMMENT ON COLUMN RECREATION_COMMENT.COMMENT_DATE IS 'The user-entered date on which the comment was entered.';
-COMMENT ON COLUMN RECREATION_COMMENT.REVISION_COUNT IS 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
-COMMENT ON COLUMN RECREATION_COMMENT.ENTRY_USERID IS 'The userid of the user that inserted data into the record.';
-COMMENT ON COLUMN RECREATION_COMMENT.ENTRY_TIMESTAMP IS 'Timestamp indicating when data was last inserted into the record.';
-COMMENT ON COLUMN RECREATION_COMMENT.UPDATE_USERID IS 'The userid of the user that last updated the declared area record.';
-COMMENT ON COLUMN RECREATION_COMMENT.UPDATE_TIMESTAMP IS 'The timestamp of the last update to the declared area record.';
+comment on column recreation_comment.forest_file_id is 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
 
-CREATE TABLE RECREATION_CONTROL_ACCESS_CODE (
-    RECREATION_CONTROL_ACCESS_CODE VARCHAR(1) PRIMARY KEY,
-    DESCRIPTION VARCHAR(120),
-    EFFECTIVE_DATE DATE,
-    EXPIRY_DATE DATE,
-    UPDATE_TIMESTAMP TIMESTAMP
+comment on column recreation_comment.recreation_comment_id is 'A system-generated unique identifier for the comment.';
+
+comment on column recreation_comment.rec_comment_type_code is 'A code which specifies the type of comment. Eg. Driving Directions, Closures.';
+
+comment on column recreation_comment.closure_ind is 'Indicates whether there is a closure within the Recreation project site. Allowable values are “Y” and “N”.';
+
+comment on column recreation_comment.project_comment is 'The comment content.';
+
+comment on column recreation_comment.comment_date is 'The user-entered date on which the comment was entered.';
+
+comment on column recreation_comment.revision_count is 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
+
+comment on column recreation_comment.entry_userid is 'The userid of the user that inserted data into the record.';
+
+comment on column recreation_comment.entry_timestamp is 'Timestamp indicating when data was last inserted into the record.';
+
+comment on column recreation_comment.update_userid is 'The userid of the user that last updated the declared area record.';
+
+comment on column recreation_comment.update_timestamp is 'The timestamp of the last update to the declared area record.';
+
+create table recreation_control_access_code (
+    recreation_control_access_code varchar(1) primary key,
+    description varchar(120),
+    effective_date date,
+    expiry_date date,
+    update_timestamp timestamp
 );
 
-COMMENT ON TABLE RECREATION_CONTROL_ACCESS_CODE IS 'Control access codes for recreation projects.';
+comment on table recreation_control_access_code is 'Control access codes for recreation projects.';
 
-COMMENT ON COLUMN RECREATION_CONTROL_ACCESS_CODE.RECREATION_CONTROL_ACCESS_CODE IS 'Describes the Controlled Access Code for a project. E.g. “Gated”, “Restricted Use”.';
-COMMENT ON COLUMN RECREATION_CONTROL_ACCESS_CODE.DESCRIPTION IS 'Description of the code value.';
-COMMENT ON COLUMN RECREATION_CONTROL_ACCESS_CODE.EFFECTIVE_DATE IS 'Date the code becomes effective.';
-COMMENT ON COLUMN RECREATION_CONTROL_ACCESS_CODE.EXPIRY_DATE IS 'Date the code expires.';
-COMMENT ON COLUMN RECREATION_CONTROL_ACCESS_CODE.UPDATE_TIMESTAMP IS 'The date and time the value was last modified.';
+comment on column recreation_control_access_code.recreation_control_access_code is 'Describes the Controlled Access Code for a project. E.g. “Gated”, “Restricted Use”.';
 
-CREATE TABLE RECREATION_DEF_CS_RPR_HISTORY (
-    FOREST_FILE_ID VARCHAR(10) NOT NULL,
-    CAMPSITE_NUMBER INT NOT NULL,
-    RECREATION_REMED_REPAIR_CODE VARCHAR(2) NULL,
-    ESTIMATED_REPAIR_COST NUMERIC(7, 2) NULL,
-    REPAIR_COMPLETE_DATE DATE NULL,
-    REVISION_COUNT INT NULL,
-    ENTRY_USERID VARCHAR(30) NULL,
-    ENTRY_TIMESTAMP TIMESTAMP NULL,
-    UPDATE_USERID VARCHAR(30) NULL,
-    UPDATE_TIMESTAMP TIMESTAMP NULL,
-    PRIMARY KEY (FOREST_FILE_ID, CAMPSITE_NUMBER)
+comment on column recreation_control_access_code.description is 'Description of the code value.';
+
+comment on column recreation_control_access_code.effective_date is 'Date the code becomes effective.';
+
+comment on column recreation_control_access_code.expiry_date is 'Date the code expires.';
+
+comment on column recreation_control_access_code.update_timestamp is 'The date and time the value was last modified.';
+
+create table recreation_def_cs_rpr_history (
+    forest_file_id varchar(10) not null,
+    campsite_number int not null,
+    recreation_remed_repair_code varchar(2) null,
+    estimated_repair_cost numeric(7, 2) null,
+    repair_complete_date date null,
+    revision_count int null,
+    entry_userid varchar(30) null,
+    entry_timestamp timestamp null,
+    update_userid varchar(30) null,
+    update_timestamp timestamp null,
+    primary key (forest_file_id, campsite_number)
 );
 
-COMMENT ON TABLE RECREATION_DEF_CS_RPR_HISTORY IS 'Recreation Defined Campsite repair history audit log. Note that defined campsites can be deleted, while retaining the repair history.';
+comment on table recreation_def_cs_rpr_history is 'Recreation Defined Campsite repair history audit log. Note that defined campsites can be deleted, while retaining the repair history.';
 
-COMMENT ON COLUMN RECREATION_DEF_CS_RPR_HISTORY.FOREST_FILE_ID IS 'File identification assigned to Recreation Project.';
-COMMENT ON COLUMN RECREATION_DEF_CS_RPR_HISTORY.CAMPSITE_NUMBER IS 'The number assigned to a defined campsite by Recreation staff.';
-COMMENT ON COLUMN RECREATION_DEF_CS_RPR_HISTORY.RECREATION_REMED_REPAIR_CODE IS 'Indicates the type of remedial repair applicable to the defined campsite.';
-COMMENT ON COLUMN RECREATION_DEF_CS_RPR_HISTORY.ESTIMATED_REPAIR_COST IS 'Identifies the estimated remedial repair cost for a campsite.';
-COMMENT ON COLUMN RECREATION_DEF_CS_RPR_HISTORY.REPAIR_COMPLETE_DATE IS 'Identifies the completion date for the campsite repair.';
-COMMENT ON COLUMN RECREATION_DEF_CS_RPR_HISTORY.REVISION_COUNT IS 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
-COMMENT ON COLUMN RECREATION_DEF_CS_RPR_HISTORY.ENTRY_USERID IS 'The userid responsible for inserting data into a table.';
-COMMENT ON COLUMN RECREATION_DEF_CS_RPR_HISTORY.ENTRY_TIMESTAMP IS 'Contains the system timestamp when data in a table was inserted.';
-COMMENT ON COLUMN RECREATION_DEF_CS_RPR_HISTORY.UPDATE_USERID IS 'The userid of the individual who last updated this road section record.';
-COMMENT ON COLUMN RECREATION_DEF_CS_RPR_HISTORY.UPDATE_TIMESTAMP IS 'The timestamp of the last update to the road section record.';
+comment on column recreation_def_cs_rpr_history.forest_file_id is 'File identification assigned to Recreation Project.';
 
-CREATE TABLE RECREATION_DEFINED_CAMPSITE (
-    FOREST_FILE_ID VARCHAR(10) PRIMARY KEY,
-    CAMPSITE_NUMBER INT NOT NULL,
-    ESTIMATED_REPAIR_COST NUMERIC(7,2),
-    RECREATION_REMED_REPAIR_CODE VARCHAR(2),
-    REPAIR_COMPLETE_DATE DATE,
-    REVISION_COUNT INT,
-    ENTRY_USERID VARCHAR(30),
-    ENTRY_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UPDATE_USERID VARCHAR(30),
-    UPDATE_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+comment on column recreation_def_cs_rpr_history.campsite_number is 'The number assigned to a defined campsite by Recreation staff.';
+
+comment on column recreation_def_cs_rpr_history.recreation_remed_repair_code is 'Indicates the type of remedial repair applicable to the defined campsite.';
+
+comment on column recreation_def_cs_rpr_history.estimated_repair_cost is 'Identifies the estimated remedial repair cost for a campsite.';
+
+comment on column recreation_def_cs_rpr_history.repair_complete_date is 'Identifies the completion date for the campsite repair.';
+
+comment on column recreation_def_cs_rpr_history.revision_count is 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
+
+comment on column recreation_def_cs_rpr_history.entry_userid is 'The userid responsible for inserting data into a table.';
+
+comment on column recreation_def_cs_rpr_history.entry_timestamp is 'Contains the system timestamp when data in a table was inserted.';
+
+comment on column recreation_def_cs_rpr_history.update_userid is 'The userid of the individual who last updated this road section record.';
+
+comment on column recreation_def_cs_rpr_history.update_timestamp is 'The timestamp of the last update to the road section record.';
+
+create table recreation_defined_campsite (
+    forest_file_id varchar(10) primary key,
+    campsite_number int not null,
+    estimated_repair_cost numeric(7, 2),
+    recreation_remed_repair_code varchar(2),
+    repair_complete_date date,
+    revision_count int,
+    entry_userid varchar(30),
+    entry_timestamp timestamp default current_timestamp,
+    update_userid varchar(30),
+    update_timestamp timestamp default current_timestamp
 );
 
-COMMENT ON TABLE RECREATION_DEFINED_CAMPSITE IS 'A defined campsite is a camping area within a project designated by the Recreation officer. This may contain recreation structures.';
+comment on table recreation_defined_campsite is 'A defined campsite is a camping area within a project designated by the Recreation officer. This may contain recreation structures.';
 
-COMMENT ON COLUMN RECREATION_DEFINED_CAMPSITE.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
-COMMENT ON COLUMN RECREATION_DEFINED_CAMPSITE.CAMPSITE_NUMBER IS 'The number assigned to a defined campsite by Recreation staff.';
-COMMENT ON COLUMN RECREATION_DEFINED_CAMPSITE.ESTIMATED_REPAIR_COST IS 'Identifies the estimated remedial repair cost for a campsite.';
-COMMENT ON COLUMN RECREATION_DEFINED_CAMPSITE.RECREATION_REMED_REPAIR_CODE IS 'Indicates the type of remedial repair applicable to the defined campsite.';
-COMMENT ON COLUMN RECREATION_DEFINED_CAMPSITE.REPAIR_COMPLETE_DATE IS 'Identifies the completion date for the campsite repair.';
-COMMENT ON COLUMN RECREATION_DEFINED_CAMPSITE.REVISION_COUNT IS 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
-COMMENT ON COLUMN RECREATION_DEFINED_CAMPSITE.ENTRY_USERID IS 'The userid responsible for inserting data into a table.';
-COMMENT ON COLUMN RECREATION_DEFINED_CAMPSITE.ENTRY_TIMESTAMP IS 'Contains the system timestamp when data in a table was inserted.';
-COMMENT ON COLUMN RECREATION_DEFINED_CAMPSITE.UPDATE_USERID IS 'The userid of the individual who last updated this road section record.';
-COMMENT ON COLUMN RECREATION_DEFINED_CAMPSITE.UPDATE_TIMESTAMP IS 'The timestamp of the last update to the road section record.';
+comment on column recreation_defined_campsite.forest_file_id is 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
 
-CREATE TABLE RECREATION_DISTRICT_CODE (
-    RECREATION_DISTRICT_CODE VARCHAR(4) PRIMARY KEY,
-    DESCRIPTION VARCHAR(120),
-    EFFECTIVE_DATE DATE,
-    EXPIRY_DATE DATE,
-    UPDATE_TIMESTAMP TIMESTAMP
+comment on column recreation_defined_campsite.campsite_number is 'The number assigned to a defined campsite by Recreation staff.';
+
+comment on column recreation_defined_campsite.estimated_repair_cost is 'Identifies the estimated remedial repair cost for a campsite.';
+
+comment on column recreation_defined_campsite.recreation_remed_repair_code is 'Indicates the type of remedial repair applicable to the defined campsite.';
+
+comment on column recreation_defined_campsite.repair_complete_date is 'Identifies the completion date for the campsite repair.';
+
+comment on column recreation_defined_campsite.revision_count is 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
+
+comment on column recreation_defined_campsite.entry_userid is 'The userid responsible for inserting data into a table.';
+
+comment on column recreation_defined_campsite.entry_timestamp is 'Contains the system timestamp when data in a table was inserted.';
+
+comment on column recreation_defined_campsite.update_userid is 'The userid of the individual who last updated this road section record.';
+
+comment on column recreation_defined_campsite.update_timestamp is 'The timestamp of the last update to the road section record.';
+
+create table recreation_district_code (
+    recreation_district_code varchar(4) primary key,
+    description varchar(120),
+    effective_date date,
+    expiry_date date,
+    update_timestamp timestamp
 );
 
-COMMENT ON TABLE RECREATION_DISTRICT_CODE IS 'Recreation district codes for classification of areas within a project.';
+comment on table recreation_district_code is 'Recreation district codes for classification of areas within a project.';
 
-COMMENT ON COLUMN RECREATION_DISTRICT_CODE.RECREATION_DISTRICT_CODE IS 'A code indicating a recreation district boundary. EG Cascades, Chilliwack, Discovery Coast. Note: There are 17 Recreation District Boundaries, most of which have different geographical boundaries than Forest District Boundaries. Because of this, Rec District Boundary Codes are different from Forest District Boundary Codes.';
-COMMENT ON COLUMN RECREATION_DISTRICT_CODE.DESCRIPTION IS 'Description of the recreation district boundary type.';
-COMMENT ON COLUMN RECREATION_DISTRICT_CODE.EFFECTIVE_DATE IS 'Date the code becomes effective.';
-COMMENT ON COLUMN RECREATION_DISTRICT_CODE.EXPIRY_DATE IS 'Date the code expires.';
-COMMENT ON COLUMN RECREATION_DISTRICT_CODE.UPDATE_TIMESTAMP IS 'The date and time the value was last modified.';
+comment on column recreation_district_code.recreation_district_code is 'A code indicating a recreation district boundary. EG Cascades, Chilliwack, Discovery Coast. Note: There are 17 Recreation District Boundaries, most of which have different geographical boundaries than Forest District Boundaries. Because of this, Rec District Boundary Codes are different from Forest District Boundary Codes.';
 
-CREATE TABLE RECREATION_DISTRICT_XREF (
-    FOREST_FILE_ID VARCHAR(10) NOT NULL,
-    RECREATION_DISTRICT_CODE VARCHAR(4) NOT NULL,
-    REVISION_COUNT INT,
-    ENTRY_USERID VARCHAR(30),
-    ENTRY_TIMESTAMP TIMESTAMP,
-    UPDATE_USERID VARCHAR(30),
-    UPDATE_TIMESTAMP TIMESTAMP
+comment on column recreation_district_code.description is 'Description of the recreation district boundary type.';
+
+comment on column recreation_district_code.effective_date is 'Date the code becomes effective.';
+
+comment on column recreation_district_code.expiry_date is 'Date the code expires.';
+
+comment on column recreation_district_code.update_timestamp is 'The date and time the value was last modified.';
+
+create table recreation_district_xref (
+    forest_file_id varchar(10) not null,
+    recreation_district_code varchar(4) not null,
+    revision_count int,
+    entry_userid varchar(30),
+    entry_timestamp timestamp,
+    update_userid varchar(30),
+    update_timestamp timestamp
 );
 
 -- There was no table description in the original RECREATION_DISTRICT_XREF table
+comment on column recreation_district_xref.forest_file_id is 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
 
-COMMENT ON COLUMN RECREATION_DISTRICT_XREF.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
-COMMENT ON COLUMN RECREATION_DISTRICT_XREF.RECREATION_DISTRICT_CODE IS 'A code indicating a recreation district boundary. EG Cascades, Chilliwack, Discovery Coast. Note: There are 17 Recreation District Boundaries, most of which have different geographical boundaries than Forest District Boundaries. Because of this, Rec District Boundary Codes are different from Forest District Boundary Codes.';
-COMMENT ON COLUMN RECREATION_DISTRICT_XREF.REVISION_COUNT IS 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user"s web browser is the most current.';
-COMMENT ON COLUMN RECREATION_DISTRICT_XREF.ENTRY_USERID IS 'The unique user id of the resource who initially added the entry.';
-COMMENT ON COLUMN RECREATION_DISTRICT_XREF.ENTRY_TIMESTAMP IS 'Timestamp when the event information was entered.';
-COMMENT ON COLUMN RECREATION_DISTRICT_XREF.UPDATE_USERID IS 'The userid of the individual who last updated this information.';
-COMMENT ON COLUMN RECREATION_DISTRICT_XREF.UPDATE_TIMESTAMP IS 'The date and time of the last update.';
+comment on column recreation_district_xref.recreation_district_code is 'A code indicating a recreation district boundary. EG Cascades, Chilliwack, Discovery Coast. Note: There are 17 Recreation District Boundaries, most of which have different geographical boundaries than Forest District Boundaries. Because of this, Rec District Boundary Codes are different from Forest District Boundary Codes.';
 
-CREATE TABLE RECREATION_FEATURE_CODE (
-    RECREATION_FEATURE_CODE VARCHAR(3) PRIMARY KEY,
-    DESCRIPTION VARCHAR(120),
-    EFFECTIVE_DATE DATE,
-    EXPIRY_DATE DATE,
-    UPDATE_TIMESTAMP TIMESTAMP
+comment on column recreation_district_xref.revision_count is 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user"s web browser is the most current.';
+
+comment on column recreation_district_xref.entry_userid is 'The unique user id of the resource who initially added the entry.';
+
+comment on column recreation_district_xref.entry_timestamp is 'Timestamp when the event information was entered.';
+
+comment on column recreation_district_xref.update_userid is 'The userid of the individual who last updated this information.';
+
+comment on column recreation_district_xref.update_timestamp is 'The date and time of the last update.';
+
+create table recreation_feature_code (
+    recreation_feature_code varchar(3) primary key,
+    description varchar(120),
+    effective_date date,
+    expiry_date date,
+    update_timestamp timestamp
 );
 
-COMMENT ON TABLE RECREATION_FEATURE_CODE IS 'Codes describing the recreation features within a project.';
+comment on table recreation_feature_code is 'Codes describing the recreation features within a project.';
 
-COMMENT ON COLUMN RECREATION_FEATURE_CODE.RECREATION_FEATURE_CODE IS 'Code describing the Recreation Feature.';
-COMMENT ON COLUMN RECREATION_FEATURE_CODE.DESCRIPTION IS 'Description of the code value.';
-COMMENT ON COLUMN RECREATION_FEATURE_CODE.EFFECTIVE_DATE IS 'Date the code becomes effective.';
-COMMENT ON COLUMN RECREATION_FEATURE_CODE.EXPIRY_DATE IS 'Date the code expires.';
-COMMENT ON COLUMN RECREATION_FEATURE_CODE.UPDATE_TIMESTAMP IS 'The date and time the value was last modified.';
+comment on column recreation_feature_code.recreation_feature_code is 'Code describing the Recreation Feature.';
 
-CREATE TABLE RECREATION_FEE_CODE (
-    RECREATION_FEE_CODE VARCHAR(3) PRIMARY KEY,
-    DESCRIPTION VARCHAR(120),
-    EFFECTIVE_DATE DATE,
-    EXPIRY_DATE DATE,
-    UPDATE_TIMESTAMP TIMESTAMP
+comment on column recreation_feature_code.description is 'Description of the code value.';
+
+comment on column recreation_feature_code.effective_date is 'Date the code becomes effective.';
+
+comment on column recreation_feature_code.expiry_date is 'Date the code expires.';
+
+comment on column recreation_feature_code.update_timestamp is 'The date and time the value was last modified.';
+
+create table recreation_fee_code (
+    recreation_fee_code varchar(3) primary key,
+    description varchar(120),
+    effective_date date,
+    expiry_date date,
+    update_timestamp timestamp
 );
 
-COMMENT ON TABLE RECREATION_FEE_CODE IS 'Fee code types for recreation projects.';
+comment on table recreation_fee_code is 'Fee code types for recreation projects.';
 
-COMMENT ON COLUMN RECREATION_FEE_CODE.RECREATION_FEE_CODE IS 'Code describing the Recreation Fee.';
-COMMENT ON COLUMN RECREATION_FEE_CODE.DESCRIPTION IS 'Description of the code value.';
-COMMENT ON COLUMN RECREATION_FEE_CODE.EFFECTIVE_DATE IS 'Date the code becomes effective.';
-COMMENT ON COLUMN RECREATION_FEE_CODE.EXPIRY_DATE IS 'Date the code expires.';
-COMMENT ON COLUMN RECREATION_FEE_CODE.UPDATE_TIMESTAMP IS 'The date and time the value was last modified.';
+comment on column recreation_fee_code.recreation_fee_code is 'Code describing the Recreation Fee.';
 
-CREATE TABLE RECREATION_FEE (
-    FEE_ID SERIAL PRIMARY KEY,
-    FOREST_FILE_ID VARCHAR(10) REFERENCES RECREATION_PROJECT(FOREST_FILE_ID) ON DELETE RESTRICT,
-    FEE_AMOUNT NUMERIC(5,2) DEFAULT NULL,
-    FEE_START_DATE DATE DEFAULT NULL,
-    FEE_END_DATE DATE DEFAULT NULL,
-    MONDAY_IND VARCHAR(1) DEFAULT 'N',
-    TUESDAY_IND VARCHAR(1) DEFAULT 'N',
-    WEDNESDAY_IND VARCHAR(1) DEFAULT 'N',
-    THURSDAY_IND VARCHAR(1) DEFAULT 'N',
-    FRIDAY_IND VARCHAR(1) DEFAULT 'N',
-    SATURDAY_IND VARCHAR(1) DEFAULT 'N',
-    SUNDAY_IND VARCHAR(1) DEFAULT 'N',
-    RECREATION_FEE_CODE VARCHAR(3) REFERENCES RECREATION_FEE_CODE(RECREATION_FEE_CODE) ON DELETE RESTRICT,
-    REVISION_COUNT NUMERIC(5) DEFAULT NULL,
-    ENTRY_USERID VARCHAR(30) DEFAULT NULL,
-    ENTRY_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UPDATE_USERID VARCHAR(30) DEFAULT NULL,
-    UPDATE_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT CHK_MONDAY_IND CHECK (MONDAY_IND IN ('Y', 'N')),
-    CONSTRAINT CHK_TUESDAY_IND CHECK (TUESDAY_IND IN ('Y', 'N')),
-    CONSTRAINT CHK_WEDNESDAY_IND CHECK (WEDNESDAY_IND IN ('Y', 'N')),
-    CONSTRAINT CHK_THURSDAY_IND CHECK (THURSDAY_IND IN ('Y', 'N')),
-    CONSTRAINT CHK_FRIDAY_IND CHECK (FRIDAY_IND IN ('Y', 'N')),
-    CONSTRAINT CHK_SATURDAY_IND CHECK (SATURDAY_IND IN ('Y', 'N')),
-    CONSTRAINT CHK_SUNDAY_IND CHECK (SUNDAY_IND IN ('Y', 'N'))
+comment on column recreation_fee_code.description is 'Description of the code value.';
+
+comment on column recreation_fee_code.effective_date is 'Date the code becomes effective.';
+
+comment on column recreation_fee_code.expiry_date is 'Date the code expires.';
+
+comment on column recreation_fee_code.update_timestamp is 'The date and time the value was last modified.';
+
+create table recreation_fee (
+    fee_id serial primary key,
+    forest_file_id varchar(10) references recreation_project (forest_file_id) on delete restrict,
+    fee_amount numeric(5, 2) default null,
+    fee_start_date date default null,
+    fee_end_date date default null,
+    monday_ind varchar(1) default 'N',
+    tuesday_ind varchar(1) default 'N',
+    wednesday_ind varchar(1) default 'N',
+    thursday_ind varchar(1) default 'N',
+    friday_ind varchar(1) default 'N',
+    saturday_ind varchar(1) default 'N',
+    sunday_ind varchar(1) default 'N',
+    recreation_fee_code varchar(3) references recreation_fee_code (recreation_fee_code) on delete restrict,
+    revision_count numeric(5) default null,
+    entry_userid varchar(30) default null,
+    entry_timestamp timestamp default current_timestamp,
+    update_userid varchar(30) default null,
+    update_timestamp timestamp default current_timestamp,
+    constraint chk_monday_ind check (monday_ind in ('Y', 'N')),
+    constraint chk_tuesday_ind check (tuesday_ind in ('Y', 'N')),
+    constraint chk_wednesday_ind check (wednesday_ind in ('Y', 'N')),
+    constraint chk_thursday_ind check (thursday_ind in ('Y', 'N')),
+    constraint chk_friday_ind check (friday_ind in ('Y', 'N')),
+    constraint chk_saturday_ind check (saturday_ind in ('Y', 'N')),
+    constraint chk_sunday_ind check (sunday_ind in ('Y', 'N'))
 );
 
-COMMENT ON TABLE RECREATION_FEE IS 'The types of fees for a given project (e.g., Overnight, firewood, etc.).';
+comment on table recreation_fee is 'The types of fees for a given project (e.g., Overnight, firewood, etc.).';
 
-COMMENT ON COLUMN RECREATION_FEE.FEE_ID IS 'The unique identifier for a Recreation fee.';
-COMMENT ON COLUMN RECREATION_FEE.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
-COMMENT ON COLUMN RECREATION_FEE.FEE_AMOUNT IS 'The fee amount for a given recreation fee type.';
-COMMENT ON COLUMN RECREATION_FEE.FEE_START_DATE IS 'Identifies the start date for the given fee type.';
-COMMENT ON COLUMN RECREATION_FEE.FEE_END_DATE IS 'Identifies the end date for the given fee type.';
-COMMENT ON COLUMN RECREATION_FEE.MONDAY_IND IS 'Identifies if fees are applicable for the day of Monday in the given date range.';
-COMMENT ON COLUMN RECREATION_FEE.TUESDAY_IND IS 'Identifies if fees are applicable for the day of Tuesday in the given date range.';
-COMMENT ON COLUMN RECREATION_FEE.WEDNESDAY_IND IS 'Identifies if fees are applicable for the day of Wednesday in the given date range.';
-COMMENT ON COLUMN RECREATION_FEE.THURSDAY_IND IS 'Identifies if fees are applicable for the day of Thursday in the given date range.';
-COMMENT ON COLUMN RECREATION_FEE.FRIDAY_IND IS 'Identifies if fees are applicable for the day of Friday in the given date range.';
-COMMENT ON COLUMN RECREATION_FEE.SATURDAY_IND IS 'Identifies if fees are applicable for the day of Saturday in the given date range.';
-COMMENT ON COLUMN RECREATION_FEE.SUNDAY_IND IS 'Identifies if fees are applicable for the day of Sunday in the given date range.';
-COMMENT ON COLUMN RECREATION_FEE.RECREATION_FEE_CODE IS 'Code describing the Recreation Fee.';
-COMMENT ON COLUMN RECREATION_FEE.REVISION_COUNT IS 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user"s web browser is the most current.';
-COMMENT ON COLUMN RECREATION_FEE.ENTRY_USERID IS 'The userid responsible for inserting data into a table.';
-COMMENT ON COLUMN RECREATION_FEE.ENTRY_TIMESTAMP IS 'Contains the system timestamp when data in a table was inserted.';
-COMMENT ON COLUMN RECREATION_FEE.UPDATE_USERID IS 'The userid of the individual who last updated this road section record.';
-COMMENT ON COLUMN RECREATION_FEE.UPDATE_TIMESTAMP IS 'The timestamp of the last update to the road section record.';
+comment on column recreation_fee.fee_id is 'The unique identifier for a Recreation fee.';
 
-CREATE TABLE RECREATION_FILE_STATUS_CODE (
-    RECREATION_FILE_STATUS_CODE VARCHAR(3) PRIMARY KEY,
-    DESCRIPTION VARCHAR(120),
-    EFFECTIVE_DATE DATE,
-    EXPIRY_DATE DATE,
-    UPDATE_TIMESTAMP TIMESTAMP
+comment on column recreation_fee.forest_file_id is 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
+
+comment on column recreation_fee.fee_amount is 'The fee amount for a given recreation fee type.';
+
+comment on column recreation_fee.fee_start_date is 'Identifies the start date for the given fee type.';
+
+comment on column recreation_fee.fee_end_date is 'Identifies the end date for the given fee type.';
+
+comment on column recreation_fee.monday_ind is 'Identifies if fees are applicable for the day of Monday in the given date range.';
+
+comment on column recreation_fee.tuesday_ind is 'Identifies if fees are applicable for the day of Tuesday in the given date range.';
+
+comment on column recreation_fee.wednesday_ind is 'Identifies if fees are applicable for the day of Wednesday in the given date range.';
+
+comment on column recreation_fee.thursday_ind is 'Identifies if fees are applicable for the day of Thursday in the given date range.';
+
+comment on column recreation_fee.friday_ind is 'Identifies if fees are applicable for the day of Friday in the given date range.';
+
+comment on column recreation_fee.saturday_ind is 'Identifies if fees are applicable for the day of Saturday in the given date range.';
+
+comment on column recreation_fee.sunday_ind is 'Identifies if fees are applicable for the day of Sunday in the given date range.';
+
+comment on column recreation_fee.recreation_fee_code is 'Code describing the Recreation Fee.';
+
+comment on column recreation_fee.revision_count is 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user"s web browser is the most current.';
+
+comment on column recreation_fee.entry_userid is 'The userid responsible for inserting data into a table.';
+
+comment on column recreation_fee.entry_timestamp is 'Contains the system timestamp when data in a table was inserted.';
+
+comment on column recreation_fee.update_userid is 'The userid of the individual who last updated this road section record.';
+
+comment on column recreation_fee.update_timestamp is 'The timestamp of the last update to the road section record.';
+
+create table recreation_file_status_code (
+    recreation_file_status_code varchar(3) primary key,
+    description varchar(120),
+    effective_date date,
+    expiry_date date,
+    update_timestamp timestamp
 );
 
-COMMENT ON TABLE RECREATION_FILE_STATUS_CODE IS 'Codes describing the status of a recreation file.';
+comment on table recreation_file_status_code is 'Codes describing the status of a recreation file.';
 
-COMMENT ON COLUMN RECREATION_FILE_STATUS_CODE.RECREATION_FILE_STATUS_CODE IS 'Code describing the Status of a Recreation File';
-COMMENT ON COLUMN RECREATION_FILE_STATUS_CODE.DESCRIPTION IS 'Description of the code value';
-COMMENT ON COLUMN RECREATION_FILE_STATUS_CODE.EFFECTIVE_DATE IS 'Date the code becomes effective';
-COMMENT ON COLUMN RECREATION_FILE_STATUS_CODE.EXPIRY_DATE IS 'Date the code expires';
-COMMENT ON COLUMN RECREATION_FILE_STATUS_CODE.UPDATE_TIMESTAMP IS 'The date and time the value was last modified';
+comment on column recreation_file_status_code.recreation_file_status_code is 'Code describing the Status of a Recreation File';
 
-CREATE TABLE RECREATION_FILE_TYPE_CODE (
-    RECREATION_FILE_TYPE_CODE VARCHAR(3) PRIMARY KEY,
-    DESCRIPTION VARCHAR(120),
-    EFFECTIVE_DATE DATE,
-    EXPIRY_DATE DATE,
-    UPDATE_TIMESTAMP DATE
+comment on column recreation_file_status_code.description is 'Description of the code value';
+
+comment on column recreation_file_status_code.effective_date is 'Date the code becomes effective';
+
+comment on column recreation_file_status_code.expiry_date is 'Date the code expires';
+
+comment on column recreation_file_status_code.update_timestamp is 'The date and time the value was last modified';
+
+create table recreation_file_type_code (
+    recreation_file_type_code varchar(3) primary key,
+    description varchar(120),
+    effective_date date,
+    expiry_date date,
+    update_timestamp date
 );
 
-COMMENT ON TABLE RECREATION_FILE_TYPE_CODE IS 'Describes the RECREATION FILE TYPE CODE for categorizing recreation files.';
+comment on table recreation_file_type_code is 'Describes the RECREATION FILE TYPE CODE for categorizing recreation files.';
 
 -- There were no descriptions for the columns in the original RECREATION_FILE_TYPE_CODE table
-
-CREATE TABLE RECREATION_INSPECTION_REPORT (
-    INSPECTION_ID NUMERIC PRIMARY KEY,
-    FOREST_FILE_ID VARCHAR(10),
-    SITE_OCCUPANCY_CODE VARCHAR(10),
-    REC_FILE_TYPE_CODE VARCHAR(10),
-    SITE_NAME VARCHAR(50),
-    LOCATION VARCHAR(100),
-    INSPECTED_BY VARCHAR(30),
-    CAMPSITE_NO NUMERIC,
-    OCCUPIED_CAMPSITE_NO NUMERIC,
-    VEHICLE_NO NUMERIC,
-    CAMPING_PARTY_NO NUMERIC,
-    DAY_USE_PARTY_NO NUMERIC,
-    WITH_PASS_NO NUMERIC,
-    WITHOUT_PASS_NO NUMERIC,
-    ABSENT_OWNER_NO NUMERIC,
-    TOTAL_INSPECTED_NO NUMERIC,
-    PURCHASED_PASS_NO NUMERIC,
-    REFUSED_PASS_NO NUMERIC,
-    CONTRACT_ID VARCHAR(20),
-    CONTRACTOR VARCHAR(30),
-    REC_PROJECT_SKEY NUMERIC,
-    ENTRY_USERID VARCHAR(30) DEFAULT NULL,
-    ENTRY_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UPDATE_USERID VARCHAR(30) DEFAULT NULL,
-    UPDATE_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+create table recreation_inspection_report (
+    inspection_id numeric primary key,
+    forest_file_id varchar(10),
+    site_occupancy_code varchar(10),
+    rec_file_type_code varchar(10),
+    site_name varchar(50),
+    location varchar(100),
+    inspected_by varchar(30),
+    campsite_no numeric,
+    occupied_campsite_no numeric,
+    vehicle_no numeric,
+    camping_party_no numeric,
+    day_use_party_no numeric,
+    with_pass_no numeric,
+    without_pass_no numeric,
+    absent_owner_no numeric,
+    total_inspected_no numeric,
+    purchased_pass_no numeric,
+    refused_pass_no numeric,
+    contract_id varchar(20),
+    contractor varchar(30),
+    rec_project_skey numeric,
+    entry_userid varchar(30) default null,
+    entry_timestamp timestamp default current_timestamp,
+    update_userid varchar(30) default null,
+    update_timestamp timestamp default current_timestamp
 );
 
-COMMENT ON TABLE RECREATION_INSPECTION_REPORT IS 'Contains the reports for inspections related to recreation projects.';
+comment on table recreation_inspection_report is 'Contains the reports for inspections related to recreation projects.';
 
 -- There were no descriptions for the columns in the original RECREATION_INSPECTION_REPORT table
-
-CREATE TABLE RECREATION_MAINTAIN_STD_CODE (
-    RECREATION_MAINTAIN_STD_CODE VARCHAR(1) PRIMARY KEY,
-    DESCRIPTION VARCHAR(120),
-    EFFECTIVE_DATE DATE,
-    EXPIRY_DATE DATE,
-    UPDATE_TIMESTAMP TIMESTAMP
+create table recreation_maintain_std_code (
+    recreation_maintain_std_code varchar(1) primary key,
+    description varchar(120),
+    effective_date date,
+    expiry_date date,
+    update_timestamp timestamp
 );
 
-COMMENT ON TABLE RECREATION_MAINTAIN_STD_CODE IS 'Codes describing the maintenance standards for recreation projects.';
+comment on table recreation_maintain_std_code is 'Codes describing the maintenance standards for recreation projects.';
 
-COMMENT ON COLUMN RECREATION_MAINTAIN_STD_CODE.RECREATION_MAINTAIN_STD_CODE IS 'Code describing the Maintenance Standard of a given site. E.g. User Maintained, Maintained to Standard, Not Maintained.';
-COMMENT ON COLUMN RECREATION_MAINTAIN_STD_CODE.DESCRIPTION IS 'Description of the code value';
-COMMENT ON COLUMN RECREATION_MAINTAIN_STD_CODE.EFFECTIVE_DATE IS 'Date the code becomes effective';
-COMMENT ON COLUMN RECREATION_MAINTAIN_STD_CODE.EXPIRY_DATE IS 'Date the code expires';
-COMMENT ON COLUMN RECREATION_MAINTAIN_STD_CODE.UPDATE_TIMESTAMP IS 'The date and time the value was last modified';
+comment on column recreation_maintain_std_code.recreation_maintain_std_code is 'Code describing the Maintenance Standard of a given site. E.g. User Maintained, Maintained to Standard, Not Maintained.';
 
-CREATE TABLE RECREATION_MAP_FEATURE_CODE (
-    RECREATION_MAP_FEATURE_CODE VARCHAR(3) PRIMARY KEY,
-    DESCRIPTION VARCHAR(120),
-    EFFECTIVE_DATE DATE,
-    EXPIRY_DATE DATE,
-    UPDATE_TIMESTAMP TIMESTAMP
+comment on column recreation_maintain_std_code.description is 'Description of the code value';
+
+comment on column recreation_maintain_std_code.effective_date is 'Date the code becomes effective';
+
+comment on column recreation_maintain_std_code.expiry_date is 'Date the code expires';
+
+comment on column recreation_maintain_std_code.update_timestamp is 'The date and time the value was last modified';
+
+create table recreation_map_feature_code (
+    recreation_map_feature_code varchar(3) primary key,
+    description varchar(120),
+    effective_date date,
+    expiry_date date,
+    update_timestamp timestamp
 );
 
-COMMENT ON TABLE RECREATION_MAP_FEATURE_CODE IS 'Codes describing types of map features within a recreation project.';
+comment on table recreation_map_feature_code is 'Codes describing types of map features within a recreation project.';
 
-COMMENT ON COLUMN RECREATION_MAP_FEATURE_CODE.RECREATION_MAP_FEATURE_CODE IS 'Identifies the RECREATION MAP FEATURE TYPE CODE.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE_CODE.DESCRIPTION IS 'Description of the code value.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE_CODE.EFFECTIVE_DATE IS 'Date the code becomes effective.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE_CODE.EXPIRY_DATE IS 'Date the code expires.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE_CODE.UPDATE_TIMESTAMP IS 'The date and time the value was last modified.';
+comment on column recreation_map_feature_code.recreation_map_feature_code is 'Identifies the RECREATION MAP FEATURE TYPE CODE.';
 
-CREATE TABLE RECREATION_MAP_FEATURE_GEOM (
-    RMF_SKEY SERIAL PRIMARY KEY,
-    MAP_FEATURE_ID INT,
-    GEOMETRY_TYPE_CODE VARCHAR(4),
-    GEOMETRY GEOMETRY,
-    FEATURE_AREA NUMERIC(11,4),
-    FEATURE_LENGTH NUMERIC(11,4),
-    FEATURE_PERIMETER NUMERIC(11,4),
-    REVISION_COUNT INT,
-    ENTRY_USERID VARCHAR(30),
-    ENTRY_TIMESTAMP TIMESTAMP,
-    UPDATE_USERID VARCHAR(30),
-    UPDATE_TIMESTAMP TIMESTAMP
+comment on column recreation_map_feature_code.description is 'Description of the code value.';
+
+comment on column recreation_map_feature_code.effective_date is 'Date the code becomes effective.';
+
+comment on column recreation_map_feature_code.expiry_date is 'Date the code expires.';
+
+comment on column recreation_map_feature_code.update_timestamp is 'The date and time the value was last modified.';
+
+create table recreation_map_feature_geom (
+    rmf_skey serial primary key,
+    map_feature_id int,
+    geometry_type_code varchar(4),
+    geometry geometry,
+    feature_area numeric(11, 4),
+    feature_length numeric(11, 4),
+    feature_perimeter numeric(11, 4),
+    revision_count int,
+    entry_userid varchar(30),
+    entry_timestamp timestamp,
+    update_userid varchar(30),
+    update_timestamp timestamp
 );
 
-COMMENT ON TABLE RECREATION_MAP_FEATURE_GEOM IS 'Captures amendments to spatial geometry for recreation applications received via the electronic submission process.';
+comment on table recreation_map_feature_geom is 'Captures amendments to spatial geometry for recreation applications received via the electronic submission process.';
 
-COMMENT ON COLUMN RECREATION_MAP_FEATURE_GEOM.RMF_SKEY IS 'The SKEY for the RECREATION MAP FEATURE.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE_GEOM.MAP_FEATURE_ID IS 'A unique identifier to a version of a map object. This is very similar to the feature ID in INCOSADA except it was universally unique. If a new version of a cut block came in it would be assigned a new identifier.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE_GEOM.GEOMETRY_TYPE_CODE IS 'Identifies linear or polygonal geometry types for a tenure application feature.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE_GEOM.GEOMETRY IS 'The geometry for this feature.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE_GEOM.FEATURE_AREA IS 'Spatial feature area in hectares. This value is calculated.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE_GEOM.FEATURE_LENGTH IS 'Spatial feature length in kilometres. This value is calculated.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE_GEOM.FEATURE_PERIMETER IS 'Spatial feature perimeter in kilometres. This value is calculated.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE_GEOM.REVISION_COUNT IS 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE_GEOM.ENTRY_USERID IS 'The userid responsible for inserting data into a table.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE_GEOM.ENTRY_TIMESTAMP IS 'Contains the system timestamp when data in a table was inserted.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE_GEOM.UPDATE_USERID IS 'The userid of the individual who last updated this road section record.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE_GEOM.UPDATE_TIMESTAMP IS 'The timestamp of the last update to the road section record.';
+comment on column recreation_map_feature_geom.rmf_skey is 'The SKEY for the RECREATION MAP FEATURE.';
 
-CREATE TABLE RECREATION_MAP_FEATURE_XGUID (
-    RMF_GUID BYTEA PRIMARY KEY,
-    RMF_SKEY INT
-);
+comment on column recreation_map_feature_geom.map_feature_id is 'A unique identifier to a version of a map object. This is very similar to the feature ID in INCOSADA except it was universally unique. If a new version of a cut block came in it would be assigned a new identifier.';
 
-COMMENT ON TABLE RECREATION_MAP_FEATURE_XGUID IS 'Global unique identifier for map features related to recreation projects.';
+comment on column recreation_map_feature_geom.geometry_type_code is 'Identifies linear or polygonal geometry types for a tenure application feature.';
+
+comment on column recreation_map_feature_geom.geometry is 'The geometry for this feature.';
+
+comment on column recreation_map_feature_geom.feature_area is 'Spatial feature area in hectares. This value is calculated.';
+
+comment on column recreation_map_feature_geom.feature_length is 'Spatial feature length in kilometres. This value is calculated.';
+
+comment on column recreation_map_feature_geom.feature_perimeter is 'Spatial feature perimeter in kilometres. This value is calculated.';
+
+comment on column recreation_map_feature_geom.revision_count is 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
+
+comment on column recreation_map_feature_geom.entry_userid is 'The userid responsible for inserting data into a table.';
+
+comment on column recreation_map_feature_geom.entry_timestamp is 'Contains the system timestamp when data in a table was inserted.';
+
+comment on column recreation_map_feature_geom.update_userid is 'The userid of the individual who last updated this road section record.';
+
+comment on column recreation_map_feature_geom.update_timestamp is 'The timestamp of the last update to the road section record.';
+
+create table recreation_map_feature_xguid (rmf_guid bytea primary key, rmf_skey int);
+
+comment on table recreation_map_feature_xguid is 'Global unique identifier for map features related to recreation projects.';
 
 -- There were no descriptions for the columns in the original RECREATION_MAP_FEATURE_XGUID table
-
-CREATE TABLE RECREATION_MAP_FEATURE (
-    RMF_SKEY INTEGER PRIMARY KEY,
-    FOREST_FILE_ID VARCHAR(10),
-    SECTION_ID VARCHAR(30) NULL,
-    AMENDMENT_ID INTEGER,
-    AMEND_STATUS_CODE VARCHAR(3),
-    RECREATION_MAP_FEATURE_CODE VARCHAR(3),
-    CURRENT_IND VARCHAR(1),
-    AMEND_STATUS_DATE DATE,
-    RETIREMENT_DATE DATE NULL,
-    REVISION_COUNT INTEGER,
-    ENTRY_USERID VARCHAR(30),
-    ENTRY_TIMESTAMP DATE,
-    UPDATE_USERID VARCHAR(30),
-    UPDATE_TIMESTAMP DATE,
-    RECREATION_MAP_FEATURE_GUID UUID DEFAULT gen_random_uuid()
+create table recreation_map_feature (
+    rmf_skey integer primary key,
+    forest_file_id varchar(10),
+    section_id varchar(30) null,
+    amendment_id integer,
+    amend_status_code varchar(3),
+    recreation_map_feature_code varchar(3),
+    current_ind varchar(1),
+    amend_status_date date,
+    retirement_date date null,
+    revision_count integer,
+    entry_userid varchar(30),
+    entry_timestamp date,
+    update_userid varchar(30),
+    update_timestamp date,
+    recreation_map_feature_guid uuid default gen_random_uuid ()
 );
 
-COMMENT ON TABLE RECREATION_MAP_FEATURE IS 'Captures both current and historical attributes for Recreation Map Features.';
+comment on table recreation_map_feature is 'Captures both current and historical attributes for Recreation Map Features.';
 
-COMMENT ON COLUMN RECREATION_MAP_FEATURE.RMF_SKEY IS 'The SKEY for the RECREATION MAP FEATURE.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE.SECTION_ID IS 'The section id for the RECREATION MAP FEATURE.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE.AMENDMENT_ID IS 'The amendment id for the RECREATION MAP FEATURE.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE.AMEND_STATUS_CODE IS 'Code to indicate status of amendment, that is, pending, approved or disallowed. This references Timber_Status_Code.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE.RECREATION_MAP_FEATURE_CODE IS 'Identifies the RECREATION MAP FEATURE TYPE CODE.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE.CURRENT_IND IS 'Indicates the current version of the record for this entity.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE.AMEND_STATUS_DATE IS 'The date the amendment status was changed.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE.RETIREMENT_DATE IS 'The date the entry is retired.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE.REVISION_COUNT IS 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE.ENTRY_USERID IS 'The userid responsible for inserting data into a table.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE.ENTRY_TIMESTAMP IS 'Contains the system timestamp when data in a table was inserted.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE.UPDATE_USERID IS 'The userid of the individual who last updated this road section record.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE.UPDATE_TIMESTAMP IS 'The timestamp of the last update to the road section record.';
-COMMENT ON COLUMN RECREATION_MAP_FEATURE.RECREATION_MAP_FEATURE_GUID IS 'Global Unique Identifier generated by the system for new records. It was added for FTA 5.';
+comment on column recreation_map_feature.rmf_skey is 'The SKEY for the RECREATION MAP FEATURE.';
 
-CREATE TABLE RECREATION_OBJECTIVE (
-    OBJECTIVE_ID SERIAL PRIMARY KEY,
-    FOREST_FILE_ID VARCHAR(10) NOT NULL,
-    OBJECTIVE_DESCRIPTION VARCHAR(2000),
-    OBJECTIVE_ESTABLISHED_DATE DATE,
-    OBJECTIVE_AMENDED_DATE DATE,
-    OBJECTIVE_CANCELLED_DATE DATE,
-    REVISION_COUNT INTEGER DEFAULT 0,
-    ENTRY_USERID VARCHAR(30),
-    ENTRY_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UPDATE_USERID VARCHAR(30),
-    UPDATE_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+comment on column recreation_map_feature.forest_file_id is 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
+
+comment on column recreation_map_feature.section_id is 'The section id for the RECREATION MAP FEATURE.';
+
+comment on column recreation_map_feature.amendment_id is 'The amendment id for the RECREATION MAP FEATURE.';
+
+comment on column recreation_map_feature.amend_status_code is 'Code to indicate status of amendment, that is, pending, approved or disallowed. This references Timber_Status_Code.';
+
+comment on column recreation_map_feature.recreation_map_feature_code is 'Identifies the RECREATION MAP FEATURE TYPE CODE.';
+
+comment on column recreation_map_feature.current_ind is 'Indicates the current version of the record for this entity.';
+
+comment on column recreation_map_feature.amend_status_date is 'The date the amendment status was changed.';
+
+comment on column recreation_map_feature.retirement_date is 'The date the entry is retired.';
+
+comment on column recreation_map_feature.revision_count is 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
+
+comment on column recreation_map_feature.entry_userid is 'The userid responsible for inserting data into a table.';
+
+comment on column recreation_map_feature.entry_timestamp is 'Contains the system timestamp when data in a table was inserted.';
+
+comment on column recreation_map_feature.update_userid is 'The userid of the individual who last updated this road section record.';
+
+comment on column recreation_map_feature.update_timestamp is 'The timestamp of the last update to the road section record.';
+
+comment on column recreation_map_feature.recreation_map_feature_guid is 'Global Unique Identifier generated by the system for new records. It was added for FTA 5.';
+
+create table recreation_objective (
+    objective_id serial primary key,
+    forest_file_id varchar(10) not null,
+    objective_description varchar(2000),
+    objective_established_date date,
+    objective_amended_date date,
+    objective_cancelled_date date,
+    revision_count integer default 0,
+    entry_userid varchar(30),
+    entry_timestamp timestamp default current_timestamp,
+    update_userid varchar(30),
+    update_timestamp timestamp default current_timestamp
 );
 
-COMMENT ON TABLE RECREATION_OBJECTIVE IS 'The objectives pertaining to a recreation project.';
+comment on table recreation_objective is 'The objectives pertaining to a recreation project.';
 
-COMMENT ON COLUMN RECREATION_OBJECTIVE.OBJECTIVE_ID IS 'The unique identifier for a recreation objective.';
-COMMENT ON COLUMN RECREATION_OBJECTIVE.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
-COMMENT ON COLUMN RECREATION_OBJECTIVE.OBJECTIVE_DESCRIPTION IS 'The description of the objective.';
-COMMENT ON COLUMN RECREATION_OBJECTIVE.OBJECTIVE_ESTABLISHED_DATE IS 'The date an objective was established.';
-COMMENT ON COLUMN RECREATION_OBJECTIVE.OBJECTIVE_AMENDED_DATE IS 'The date an objective was amended.';
-COMMENT ON COLUMN RECREATION_OBJECTIVE.OBJECTIVE_CANCELLED_DATE IS 'The date an objective was cancelled.';
-COMMENT ON COLUMN RECREATION_OBJECTIVE.REVISION_COUNT IS 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
-COMMENT ON COLUMN RECREATION_OBJECTIVE.ENTRY_USERID IS 'The userid responsible for inserting data into a table.';
-COMMENT ON COLUMN RECREATION_OBJECTIVE.ENTRY_TIMESTAMP IS 'Contains the system timestamp when data in a table was inserted.';
-COMMENT ON COLUMN RECREATION_OBJECTIVE.UPDATE_USERID IS 'The userid of the individual who last updated this road section record.';
-COMMENT ON COLUMN RECREATION_OBJECTIVE.UPDATE_TIMESTAMP IS 'The timestamp of the last update to the road section record.';
+comment on column recreation_objective.objective_id is 'The unique identifier for a recreation objective.';
 
-CREATE TABLE RECREATION_OCCUPANCY_CODE (
-    RECREATION_OCCUPANCY_CODE VARCHAR(10) PRIMARY KEY,
-    DESCRIPTION VARCHAR(120),
-    EFFECTIVE_DATE DATE,
-    EXPIRY_DATE DATE,
-    UPDATE_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+comment on column recreation_objective.forest_file_id is 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
+
+comment on column recreation_objective.objective_description is 'The description of the objective.';
+
+comment on column recreation_objective.objective_established_date is 'The date an objective was established.';
+
+comment on column recreation_objective.objective_amended_date is 'The date an objective was amended.';
+
+comment on column recreation_objective.objective_cancelled_date is 'The date an objective was cancelled.';
+
+comment on column recreation_objective.revision_count is 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
+
+comment on column recreation_objective.entry_userid is 'The userid responsible for inserting data into a table.';
+
+comment on column recreation_objective.entry_timestamp is 'Contains the system timestamp when data in a table was inserted.';
+
+comment on column recreation_objective.update_userid is 'The userid of the individual who last updated this road section record.';
+
+comment on column recreation_objective.update_timestamp is 'The timestamp of the last update to the road section record.';
+
+create table recreation_occupancy_code (
+    recreation_occupancy_code varchar(10) primary key,
+    description varchar(120),
+    effective_date date,
+    expiry_date date,
+    update_timestamp timestamp default current_timestamp
 );
 
-COMMENT ON TABLE RECREATION_OCCUPANCY_CODE IS 'Codes describing the occupancy of recreation projects.';
+comment on table recreation_occupancy_code is 'Codes describing the occupancy of recreation projects.';
 
 -- There were no descriptions for the columns in the original RECREATION_OCCUPANCY_CODE table
-
-CREATE TABLE RECREATION_PLAN (
-    FOREST_FILE_ID VARCHAR(10),
-    REC_PROJECT_SKEY INT,
-    PLAN_TYPE_CODE CHAR(1),
-    REMARKS VARCHAR(254),
-    PRIMARY KEY (FOREST_FILE_ID, REC_PROJECT_SKEY, PLAN_TYPE_CODE)
+create table recreation_plan (
+    forest_file_id varchar(10),
+    rec_project_skey int,
+    plan_type_code char(1),
+    remarks varchar(254),
+    primary key (forest_file_id, rec_project_skey, plan_type_code)
 );
 
-COMMENT ON TABLE RECREATION_PLAN IS 'Plans and details related to recreation projects.';
+comment on table recreation_plan is 'Plans and details related to recreation projects.';
 
 -- There were no descriptions for the columns in the original RECREATION_PLAN table
-
-CREATE TABLE RECREATION_REMED_REPAIR_CODE (
-    RECREATION_REMED_REPAIR_CODE VARCHAR(2) PRIMARY KEY,
-    DESCRIPTION VARCHAR(120),
-    EFFECTIVE_DATE DATE,
-    EXPIRY_DATE DATE,
-    UPDATE_TIMESTAMP TIMESTAMP
+create table recreation_remed_repair_code (
+    recreation_remed_repair_code varchar(2) primary key,
+    description varchar(120),
+    effective_date date,
+    expiry_date date,
+    update_timestamp timestamp
 );
 
-COMMENT ON TABLE RECREATION_REMED_REPAIR_CODE IS 'Codes describing types of remedial repairs for recreation structures.';
+comment on table recreation_remed_repair_code is 'Codes describing types of remedial repairs for recreation structures.';
 
-COMMENT ON COLUMN RECREATION_REMED_REPAIR_CODE.RECREATION_REMED_REPAIR_CODE IS 'Indicates the type of remedial repair applicable to the defined campsite.';
-COMMENT ON COLUMN RECREATION_REMED_REPAIR_CODE.DESCRIPTION IS 'Description of the code value';
-COMMENT ON COLUMN RECREATION_REMED_REPAIR_CODE.EFFECTIVE_DATE IS 'Date the code becomes effective';
-COMMENT ON COLUMN RECREATION_REMED_REPAIR_CODE.EXPIRY_DATE IS 'Date the code expires';
-COMMENT ON COLUMN RECREATION_REMED_REPAIR_CODE.UPDATE_TIMESTAMP IS 'The date and time the value was last modified.';
+comment on column recreation_remed_repair_code.recreation_remed_repair_code is 'Indicates the type of remedial repair applicable to the defined campsite.';
 
-CREATE TABLE RECREATION_RISK_EVALUATION (
-    RISK_EVALUATION_ID BIGINT PRIMARY KEY,
-    RECREATION_USER_DAYS_CODE VARCHAR(10),
-    RECREATION_OCCUPANCY_CODE VARCHAR(10),
-    ENTRY_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    ENTRY_USERID VARCHAR(30),
-    UPDATE_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UPDATE_USERID VARCHAR(30)
+comment on column recreation_remed_repair_code.description is 'Description of the code value';
+
+comment on column recreation_remed_repair_code.effective_date is 'Date the code becomes effective';
+
+comment on column recreation_remed_repair_code.expiry_date is 'Date the code expires';
+
+comment on column recreation_remed_repair_code.update_timestamp is 'The date and time the value was last modified.';
+
+create table recreation_risk_evaluation (
+    risk_evaluation_id bigint primary key,
+    recreation_user_days_code varchar(10),
+    recreation_occupancy_code varchar(10),
+    entry_timestamp timestamp default current_timestamp,
+    entry_userid varchar(30),
+    update_timestamp timestamp default current_timestamp,
+    update_userid varchar(30)
 );
 
-COMMENT ON TABLE RECREATION_RISK_EVALUATION IS 'Evaluation of risks associated with recreation projects.';
+comment on table recreation_risk_evaluation is 'Evaluation of risks associated with recreation projects.';
 
 -- There were no descriptions for the columns in the original RECREATION_RISK_EVALUATION table
-
-CREATE TABLE RECREATION_RISK_RATING_CODE (
-    RECREATION_RISK_RATING_CODE VARCHAR(3) PRIMARY KEY,
-    DESCRIPTION VARCHAR(120),
-    EFFECTIVE_DATE DATE,
-    EXPIRY_DATE DATE,
-    UPDATE_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+create table recreation_risk_rating_code (
+    recreation_risk_rating_code varchar(3) primary key,
+    description varchar(120),
+    effective_date date,
+    expiry_date date,
+    update_timestamp timestamp default current_timestamp
 );
 
-COMMENT ON TABLE RECREATION_RISK_RATING_CODE IS 'Codes describing the Recreation Risk Rating for a project.';
+comment on table recreation_risk_rating_code is 'Codes describing the Recreation Risk Rating for a project.';
 
-COMMENT ON COLUMN RECREATION_RISK_RATING_CODE.RECREATION_RISK_RATING_CODE IS 'Code describing the Recreation Risk Rating.';
-COMMENT ON COLUMN RECREATION_RISK_RATING_CODE.DESCRIPTION IS 'Description of the code value';
-COMMENT ON COLUMN RECREATION_RISK_RATING_CODE.EFFECTIVE_DATE IS 'Date the code becomes effective';
-COMMENT ON COLUMN RECREATION_RISK_RATING_CODE.EXPIRY_DATE IS 'Date the code expires';
-COMMENT ON COLUMN RECREATION_RISK_RATING_CODE.UPDATE_TIMESTAMP IS 'The date and time the value was last modified.';
+comment on column recreation_risk_rating_code.recreation_risk_rating_code is 'Code describing the Recreation Risk Rating.';
 
-CREATE TABLE RECREATION_RISK_SITE (
-    RISK_SITE_ID SERIAL PRIMARY KEY,
-    FOREST_FILE_ID VARCHAR(10),
-    ENTRY_TIMESTAMP DATE,
-    ENTRY_USERID VARCHAR(30),
-    UPDATE_TIMESTAMP DATE,
-    UPDATE_USERID VARCHAR(30)
+comment on column recreation_risk_rating_code.description is 'Description of the code value';
+
+comment on column recreation_risk_rating_code.effective_date is 'Date the code becomes effective';
+
+comment on column recreation_risk_rating_code.expiry_date is 'Date the code expires';
+
+comment on column recreation_risk_rating_code.update_timestamp is 'The date and time the value was last modified.';
+
+create table recreation_risk_site (
+    risk_site_id serial primary key,
+    forest_file_id varchar(10),
+    entry_timestamp date,
+    entry_userid varchar(30),
+    update_timestamp date,
+    update_userid varchar(30)
 );
 
-COMMENT ON TABLE RECREATION_RISK_SITE IS 'Sites that have been identified as having specific risks within a recreation project.';
+comment on table recreation_risk_site is 'Sites that have been identified as having specific risks within a recreation project.';
 
 -- There were no descriptions for the columns in the original RECREATION_RISK_SITE table
-
-CREATE TABLE RECREATION_SEARCH_RESULT (
-    FOREST_FILE_ID VARCHAR(10) NULL,
-    ORG_UNIT_CODE VARCHAR(6) NULL,
-    ORG_UNIT_NAME VARCHAR(100) NULL,
-    FILE_STATUS_CODE VARCHAR(3) NULL,
-    PROJECT_NAME VARCHAR(100) NULL,
-    PROJECT_TYPE VARCHAR(240) NULL,
-    RECREATION_PROJECT_CODE VARCHAR(3) NULL,
-    RECREATION_PROJECT_CODE_DESC VARCHAR(120) NULL
+create table recreation_search_result (
+    forest_file_id varchar(10) null,
+    org_unit_code varchar(6) null,
+    org_unit_name varchar(100) null,
+    file_status_code varchar(3) null,
+    project_name varchar(100) null,
+    project_type varchar(240) null,
+    recreation_project_code varchar(3) null,
+    recreation_project_code_desc varchar(120) null
 );
 
-COMMENT ON TABLE RECREATION_SEARCH_RESULT IS 'The global temp table used to facilitate Recreation Searches.';
+comment on table recreation_search_result is 'The global temp table used to facilitate Recreation Searches.';
 
 -- There were no descriptions for the columns in the original RECREATION_SEARCH_RESULT table
-
-CREATE TABLE RECREATION_SITE (
-    FOREST_FILE_ID VARCHAR(10) PRIMARY KEY,
-    REC_SITE_NAME VARCHAR(50) NULL
+create table recreation_site (
+    forest_file_id varchar(10) primary key,
+    rec_site_name varchar(50) null
 );
 
-COMMENT ON TABLE RECREATION_SITE IS 'Stores information about recreation sites.';
+comment on table recreation_site is 'Stores information about recreation sites.';
 
 -- There were no descriptions for the columns in the original RECREATION_SITE table
-
-CREATE TABLE RECREATION_SITE_POINT (
-    FOREST_FILE_ID VARCHAR(10) PRIMARY KEY,
-    GEOMETRY GEOMETRY,
-    REVISION_COUNT INTEGER,
-    ENTRY_USERID VARCHAR(30),
-    ENTRY_TIMESTAMP TIMESTAMP,
-    UPDATE_USERID VARCHAR(30),
-    UPDATE_TIMESTAMP TIMESTAMP
+create table recreation_site_point (
+    forest_file_id varchar(10) primary key,
+    geometry geometry,
+    revision_count integer,
+    entry_userid varchar(30),
+    entry_timestamp timestamp,
+    update_userid varchar(30),
+    update_timestamp timestamp
 );
 
-COMMENT ON TABLE RECREATION_SITE_POINT IS 'Stores the location of a Recreation Site as an oracle locator point. The data is used to provide the public a map location of the Recreation Site.';
+comment on table recreation_site_point is 'Stores the location of a Recreation Site as an oracle locator point. The data is used to provide the public a map location of the Recreation Site.';
 
-COMMENT ON COLUMN RECREATION_SITE_POINT.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
-COMMENT ON COLUMN RECREATION_SITE_POINT.GEOMETRY IS 'A point geometry location represented by a single X,Y pair';
-COMMENT ON COLUMN RECREATION_SITE_POINT.REVISION_COUNT IS 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user"s web browser is the most current.';
-COMMENT ON COLUMN RECREATION_SITE_POINT.ENTRY_USERID IS 'The userid of the user that inserted data into the record.';
-COMMENT ON COLUMN RECREATION_SITE_POINT.ENTRY_TIMESTAMP IS 'Timestamp indicating when data was last inserted into the record.';
-COMMENT ON COLUMN RECREATION_SITE_POINT.UPDATE_USERID IS 'The userid of the user that last updated the declared area record.';
-COMMENT ON COLUMN RECREATION_SITE_POINT.UPDATE_TIMESTAMP IS 'The timestamp of the last update to the declared area record.';
+comment on column recreation_site_point.forest_file_id is 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
 
-CREATE TABLE RECREATION_STRUCT_DIMEN_CODE (
-    RECREATION_STRUCT_DIMEN_CODE VARCHAR(2) PRIMARY KEY,
-    DESCRIPTION VARCHAR(120) NULL,
-    EFFECTIVE_DATE DATE NULL,
-    EXPIRY_DATE DATE NULL,
-    UPDATE_TIMESTAMP DATE NULL
+comment on column recreation_site_point.geometry is 'A point geometry location represented by a single X,Y pair';
+
+comment on column recreation_site_point.revision_count is 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user"s web browser is the most current.';
+
+comment on column recreation_site_point.entry_userid is 'The userid of the user that inserted data into the record.';
+
+comment on column recreation_site_point.entry_timestamp is 'Timestamp indicating when data was last inserted into the record.';
+
+comment on column recreation_site_point.update_userid is 'The userid of the user that last updated the declared area record.';
+
+comment on column recreation_site_point.update_timestamp is 'The timestamp of the last update to the declared area record.';
+
+create table recreation_struct_dimen_code (
+    recreation_struct_dimen_code varchar(2) primary key,
+    description varchar(120) null,
+    effective_date date null,
+    expiry_date date null,
+    update_timestamp date null
 );
 
-COMMENT ON TABLE RECREATION_STRUCT_DIMEN_CODE IS 'Codes describing the dimensions of recreation structures (e.g., Length, Area).';
+comment on table recreation_struct_dimen_code is 'Codes describing the dimensions of recreation structures (e.g., Length, Area).';
 
-COMMENT ON COLUMN RECREATION_STRUCT_DIMEN_CODE.RECREATION_STRUCT_DIMEN_CODE IS 'Code describing the unit of measure for a Recreation Structure. (e.g. Length or Area)';
-COMMENT ON COLUMN RECREATION_STRUCT_DIMEN_CODE.DESCRIPTION IS 'Description of the code value';
-COMMENT ON COLUMN RECREATION_STRUCT_DIMEN_CODE.EFFECTIVE_DATE IS 'Date the code becomes effective';
-COMMENT ON COLUMN RECREATION_STRUCT_DIMEN_CODE.EXPIRY_DATE IS 'Date the code expires';
-COMMENT ON COLUMN RECREATION_STRUCT_DIMEN_CODE.UPDATE_TIMESTAMP IS 'The date and time the value was last modified.';
+comment on column recreation_struct_dimen_code.recreation_struct_dimen_code is 'Code describing the unit of measure for a Recreation Structure. (e.g. Length or Area)';
 
-CREATE TABLE RECREATION_STRUCT_DIMEN_XREF (
-    RECREATION_STRUCTURE_CODE VARCHAR(3),
-    RECREATION_STRUCT_DIMEN_CODE VARCHAR(2),
-    REVISION_COUNT INT NULL,
-    ENTRY_USERID VARCHAR(30) NULL,
-    ENTRY_TIMESTAMP TIMESTAMP NULL,
-    UPDATE_USERID VARCHAR(30) NULL,
-    UPDATE_TIMESTAMP TIMESTAMP NULL,
-    PRIMARY KEY (RECREATION_STRUCTURE_CODE, RECREATION_STRUCT_DIMEN_CODE)
+comment on column recreation_struct_dimen_code.description is 'Description of the code value';
+
+comment on column recreation_struct_dimen_code.effective_date is 'Date the code becomes effective';
+
+comment on column recreation_struct_dimen_code.expiry_date is 'Date the code expires';
+
+comment on column recreation_struct_dimen_code.update_timestamp is 'The date and time the value was last modified.';
+
+create table recreation_struct_dimen_xref (
+    recreation_structure_code varchar(3),
+    recreation_struct_dimen_code varchar(2),
+    revision_count int null,
+    entry_userid varchar(30) null,
+    entry_timestamp timestamp null,
+    update_userid varchar(30) null,
+    update_timestamp timestamp null,
+    primary key (
+        recreation_structure_code,
+        recreation_struct_dimen_code
+    )
 );
 
-COMMENT ON TABLE RECREATION_STRUCT_DIMEN_XREF IS 'Describes the applicable dimensions for the given structure type. E.g., Paths may have count and length, docks may have length and area.';
+comment on table recreation_struct_dimen_xref is 'Describes the applicable dimensions for the given structure type. E.g., Paths may have count and length, docks may have length and area.';
 
-COMMENT ON COLUMN RECREATION_STRUCT_DIMEN_XREF.RECREATION_STRUCTURE_CODE IS 'Indicates the type of structure (man-made improvement).';
-COMMENT ON COLUMN RECREATION_STRUCT_DIMEN_XREF.RECREATION_STRUCT_DIMEN_CODE IS 'Code describing the unit of measure for a Recreation Structure. (e.g. Length or Area)';
-COMMENT ON COLUMN RECREATION_STRUCT_DIMEN_XREF.REVISION_COUNT IS 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
-COMMENT ON COLUMN RECREATION_STRUCT_DIMEN_XREF.ENTRY_USERID IS 'The userid responsible for inserting data into a table.';
-COMMENT ON COLUMN RECREATION_STRUCT_DIMEN_XREF.ENTRY_TIMESTAMP IS 'Contains the system timestamp when data in a table was inserted.';
-COMMENT ON COLUMN RECREATION_STRUCT_DIMEN_XREF.UPDATE_USERID IS 'The userid of the individual who last updated this road section record.';
-COMMENT ON COLUMN RECREATION_STRUCT_DIMEN_XREF.UPDATE_TIMESTAMP IS 'The timestamp of the last update to the road section record.';
+comment on column recreation_struct_dimen_xref.recreation_structure_code is 'Indicates the type of structure (man-made improvement).';
 
-CREATE TABLE RECREATION_STRUCTURE_CODE (
-    RECREATION_STRUCTURE_CODE VARCHAR(3) PRIMARY KEY,
-    DESCRIPTION VARCHAR(120),
-    EFFECTIVE_DATE DATE,
-    EXPIRY_DATE DATE,
-    UPDATE_TIMESTAMP DATE
+comment on column recreation_struct_dimen_xref.recreation_struct_dimen_code is 'Code describing the unit of measure for a Recreation Structure. (e.g. Length or Area)';
+
+comment on column recreation_struct_dimen_xref.revision_count is 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
+
+comment on column recreation_struct_dimen_xref.entry_userid is 'The userid responsible for inserting data into a table.';
+
+comment on column recreation_struct_dimen_xref.entry_timestamp is 'Contains the system timestamp when data in a table was inserted.';
+
+comment on column recreation_struct_dimen_xref.update_userid is 'The userid of the individual who last updated this road section record.';
+
+comment on column recreation_struct_dimen_xref.update_timestamp is 'The timestamp of the last update to the road section record.';
+
+create table recreation_structure_code (
+    recreation_structure_code varchar(3) primary key,
+    description varchar(120),
+    effective_date date,
+    expiry_date date,
+    update_timestamp date
 );
 
-COMMENT ON TABLE RECREATION_STRUCTURE_CODE IS 'Codes describing the type of structure (man-made improvement) within a recreation project.';
+comment on table recreation_structure_code is 'Codes describing the type of structure (man-made improvement) within a recreation project.';
 
-COMMENT ON COLUMN RECREATION_STRUCTURE_CODE.RECREATION_STRUCTURE_CODE IS 'Indicates the type of structure (man-made improvement).';
-COMMENT ON COLUMN RECREATION_STRUCTURE_CODE.DESCRIPTION IS 'Description of the code value.';
-COMMENT ON COLUMN RECREATION_STRUCTURE_CODE.EFFECTIVE_DATE IS 'Date the code becomes effective.';
-COMMENT ON COLUMN RECREATION_STRUCTURE_CODE.EXPIRY_DATE IS 'Date the code expires.';
-COMMENT ON COLUMN RECREATION_STRUCTURE_CODE.UPDATE_TIMESTAMP IS 'The date and time the value was last modified.';
+comment on column recreation_structure_code.recreation_structure_code is 'Indicates the type of structure (man-made improvement).';
 
-CREATE TABLE RECREATION_STRUCTURE (
-    STRUCTURE_ID NUMERIC(10) PRIMARY KEY,
-    FOREST_FILE_ID VARCHAR(10) NOT NULL REFERENCES RECREATION_PROJECT (FOREST_FILE_ID) ON DELETE RESTRICT,
-    CAMPSITE_FOREST_FILE_ID VARCHAR(10) NULL,
-    CAMPSITE_NUMBER NUMERIC(3) NULL,
-    RECREATION_STRUCTURE_CODE VARCHAR(3) NULL REFERENCES RECREATION_STRUCTURE_CODE (RECREATION_STRUCTURE_CODE) ON DELETE RESTRICT,
-    STRUCTURE_NAME VARCHAR(100),
-    STRUCTURE_COUNT NUMERIC(3),
-    STRUCTURE_LENGTH NUMERIC(7, 1),
-    STRUCTURE_WIDTH NUMERIC(7, 1),
-    STRUCTURE_AREA NUMERIC(7, 1),
-    ACTUAL_VALUE NUMERIC(7, 2),
-    RECREATION_REMED_REPAIR_CODE VARCHAR(2) NULL REFERENCES RECREATION_REMED_REPAIR_CODE (RECREATION_REMED_REPAIR_CODE) ON DELETE RESTRICT,
-    ESTIMATED_REPAIR_COST NUMERIC(10, 2),
-    REPAIR_COMPLETED_DATE DATE,
-    REVISION_COUNT NUMERIC(5),
-    ENTRY_USERID VARCHAR(30),
-    ENTRY_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UPDATE_USERID VARCHAR(30),
-    UPDATE_TIMESTAMP TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+comment on column recreation_structure_code.description is 'Description of the code value.';
+
+comment on column recreation_structure_code.effective_date is 'Date the code becomes effective.';
+
+comment on column recreation_structure_code.expiry_date is 'Date the code expires.';
+
+comment on column recreation_structure_code.update_timestamp is 'The date and time the value was last modified.';
+
+create table recreation_structure (
+    structure_id numeric(10) primary key,
+    forest_file_id varchar(10) not null references recreation_project (forest_file_id) on delete restrict,
+    campsite_forest_file_id varchar(10) null,
+    campsite_number numeric(3) null,
+    recreation_structure_code varchar(3) null references recreation_structure_code (recreation_structure_code) on delete restrict,
+    structure_name varchar(100),
+    structure_count numeric(3),
+    structure_length numeric(7, 1),
+    structure_width numeric(7, 1),
+    structure_area numeric(7, 1),
+    actual_value numeric(7, 2),
+    recreation_remed_repair_code varchar(2) null references recreation_remed_repair_code (recreation_remed_repair_code) on delete restrict,
+    estimated_repair_cost numeric(10, 2),
+    repair_completed_date date,
+    revision_count numeric(5),
+    entry_userid varchar(30),
+    entry_timestamp timestamp default current_timestamp,
+    update_userid varchar(30),
+    update_timestamp timestamp default current_timestamp
 );
 
-COMMENT ON TABLE RECREATION_STRUCTURE IS 'Information relating to a recreation site improvement in a recreational tenure. All improvements are man-made.';
+comment on table recreation_structure is 'Information relating to a recreation site improvement in a recreational tenure. All improvements are man-made.';
 
-COMMENT ON COLUMN RECREATION_STRUCTURE.STRUCTURE_ID IS 'The unique identifier for the structure.';
-COMMENT ON COLUMN RECREATION_STRUCTURE.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
-COMMENT ON COLUMN RECREATION_STRUCTURE.CAMPSITE_FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
-COMMENT ON COLUMN RECREATION_STRUCTURE.RECREATION_STRUCTURE_CODE IS 'Indicates the type of structure (man-made improvement).';
-COMMENT ON COLUMN RECREATION_STRUCTURE.STRUCTURE_NAME IS 'The name of the structure.';
-COMMENT ON COLUMN RECREATION_STRUCTURE.STRUCTURE_COUNT IS 'The number of structures for a given project''s structure type.';
-COMMENT ON COLUMN RECREATION_STRUCTURE.STRUCTURE_LENGTH IS 'Total length in metres for length-based structure types. (E.g. paths).';
-COMMENT ON COLUMN RECREATION_STRUCTURE.STRUCTURE_WIDTH IS 'Total width in metres for width-based structure types. (E.g. parking lots).';
-COMMENT ON COLUMN RECREATION_STRUCTURE.STRUCTURE_AREA IS 'Total area in square metres for area-based structure types. This will be applicable to only certain structures. E.g. Shelter.';
-COMMENT ON COLUMN RECREATION_STRUCTURE.ACTUAL_VALUE IS 'The actual value of the recreation structure. This value takes precedence over the structure type value.';
-COMMENT ON COLUMN RECREATION_STRUCTURE.CAMPSITE_NUMBER IS 'The number assigned to a defined campsite by Recreation staff.';
-COMMENT ON COLUMN RECREATION_STRUCTURE.RECREATION_REMED_REPAIR_CODE IS 'Indicates the type of remedial repair applicable to the defined campsite.';
-COMMENT ON COLUMN RECREATION_STRUCTURE.ESTIMATED_REPAIR_COST IS 'The estimated repair cost for the structure.';
-COMMENT ON COLUMN RECREATION_STRUCTURE.REPAIR_COMPLETED_DATE IS 'The date on which the structure repair was completed.';
-COMMENT ON COLUMN RECREATION_STRUCTURE.REVISION_COUNT IS 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
-COMMENT ON COLUMN RECREATION_STRUCTURE.ENTRY_USERID IS 'The userid responsible for inserting data into a table.';
-COMMENT ON COLUMN RECREATION_STRUCTURE.UPDATE_USERID IS 'The userid of the individual who last updated this road section record.';
-COMMENT ON COLUMN RECREATION_STRUCTURE.UPDATE_TIMESTAMP IS 'The timestamp of the last update to the road section record.';
-COMMENT ON COLUMN RECREATION_STRUCTURE.ENTRY_TIMESTAMP IS 'Contains the system timestamp when data in a table was inserted.';
+comment on column recreation_structure.structure_id is 'The unique identifier for the structure.';
 
-CREATE TABLE RECREATION_STRUCTURE_VALUE (
-    RECREATION_STRUCTURE_CODE VARCHAR(3) NOT NULL,
-    STRUCTURE_VALUE NUMERIC(7, 2),
-    DIMENSION VARCHAR(1) DEFAULT 'U',
-    REVISION_COUNT NUMERIC(5),
-    ENTRY_USERID VARCHAR(30),
-    ENTRY_TIMESTAMP DATE,
-    UPDATE_USERID VARCHAR(30),
-    UPDATE_TIMESTAMP DATE,
-    PRIMARY KEY (RECREATION_STRUCTURE_CODE)
+comment on column recreation_structure.forest_file_id is 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
+
+comment on column recreation_structure.campsite_forest_file_id is 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
+
+comment on column recreation_structure.recreation_structure_code is 'Indicates the type of structure (man-made improvement).';
+
+comment on column recreation_structure.structure_name is 'The name of the structure.';
+
+comment on column recreation_structure.structure_count is 'The number of structures for a given project''s structure type.';
+
+comment on column recreation_structure.structure_length is 'Total length in metres for length-based structure types. (E.g. paths).';
+
+comment on column recreation_structure.structure_width is 'Total width in metres for width-based structure types. (E.g. parking lots).';
+
+comment on column recreation_structure.structure_area is 'Total area in square metres for area-based structure types. This will be applicable to only certain structures. E.g. Shelter.';
+
+comment on column recreation_structure.actual_value is 'The actual value of the recreation structure. This value takes precedence over the structure type value.';
+
+comment on column recreation_structure.campsite_number is 'The number assigned to a defined campsite by Recreation staff.';
+
+comment on column recreation_structure.recreation_remed_repair_code is 'Indicates the type of remedial repair applicable to the defined campsite.';
+
+comment on column recreation_structure.estimated_repair_cost is 'The estimated repair cost for the structure.';
+
+comment on column recreation_structure.repair_completed_date is 'The date on which the structure repair was completed.';
+
+comment on column recreation_structure.revision_count is 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
+
+comment on column recreation_structure.entry_userid is 'The userid responsible for inserting data into a table.';
+
+comment on column recreation_structure.update_userid is 'The userid of the individual who last updated this road section record.';
+
+comment on column recreation_structure.update_timestamp is 'The timestamp of the last update to the road section record.';
+
+comment on column recreation_structure.entry_timestamp is 'Contains the system timestamp when data in a table was inserted.';
+
+create table recreation_structure_value (
+    recreation_structure_code varchar(3) not null,
+    structure_value numeric(7, 2),
+    dimension varchar(1) default 'U',
+    revision_count numeric(5),
+    entry_userid varchar(30),
+    entry_timestamp date,
+    update_userid varchar(30),
+    update_timestamp date,
+    primary key (recreation_structure_code)
 );
 
-COMMENT ON TABLE RECREATION_STRUCTURE_VALUE IS 'Identifies the value and dimension for a given structure. E.g., Barrel Shelters, 300/u, or Boardwalks, $50/m.';
+comment on table recreation_structure_value is 'Identifies the value and dimension for a given structure. E.g., Barrel Shelters, 300/u, or Boardwalks, $50/m.';
 
-COMMENT ON COLUMN RECREATION_STRUCTURE_VALUE.RECREATION_STRUCTURE_CODE IS 'Indicates the type of structure (man-made improvement).';
-COMMENT ON COLUMN RECREATION_STRUCTURE_VALUE.STRUCTURE_VALUE IS 'Identifies the value for a given structure.';
-COMMENT ON COLUMN RECREATION_STRUCTURE_VALUE.DIMENSION IS 'Identifies the dimension for the given structure value. E.g. Unit, or Metres.';
-COMMENT ON COLUMN RECREATION_STRUCTURE_VALUE.REVISION_COUNT IS 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
-COMMENT ON COLUMN RECREATION_STRUCTURE_VALUE.ENTRY_USERID IS 'The userid responsible for inserting data into a table.';
-COMMENT ON COLUMN RECREATION_STRUCTURE_VALUE.ENTRY_TIMESTAMP IS 'Contains the system timestamp when data in a table was inserted.';
-COMMENT ON COLUMN RECREATION_STRUCTURE_VALUE.UPDATE_USERID IS 'The userid of the individual who last updated this road section record.';
-COMMENT ON COLUMN RECREATION_STRUCTURE_VALUE.UPDATE_TIMESTAMP IS 'The timestamp of the last update to the road section record.';
+comment on column recreation_structure_value.recreation_structure_code is 'Indicates the type of structure (man-made improvement).';
 
-CREATE TABLE RECREATION_SUB_ACCESS_CODE (
-    RECREATION_SUB_ACCESS_CODE VARCHAR(3) PRIMARY KEY,
-    DESCRIPTION VARCHAR(120),
-    EFFECTIVE_DATE DATE,
-    EXPIRY_DATE DATE,
-    UPDATE_TIMESTAMP TIMESTAMP
+comment on column recreation_structure_value.structure_value is 'Identifies the value for a given structure.';
+
+comment on column recreation_structure_value.dimension is 'Identifies the dimension for the given structure value. E.g. Unit, or Metres.';
+
+comment on column recreation_structure_value.revision_count is 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
+
+comment on column recreation_structure_value.entry_userid is 'The userid responsible for inserting data into a table.';
+
+comment on column recreation_structure_value.entry_timestamp is 'Contains the system timestamp when data in a table was inserted.';
+
+comment on column recreation_structure_value.update_userid is 'The userid of the individual who last updated this road section record.';
+
+comment on column recreation_structure_value.update_timestamp is 'The timestamp of the last update to the road section record.';
+
+create table recreation_sub_access_code (
+    recreation_sub_access_code varchar(3) primary key,
+    description varchar(120),
+    effective_date date,
+    expiry_date date,
+    update_timestamp timestamp
 );
 
-COMMENT ON TABLE RECREATION_SUB_ACCESS_CODE IS 'Codes describing the Recreation Sub Access types within a project.';
+comment on table recreation_sub_access_code is 'Codes describing the Recreation Sub Access types within a project.';
 
-COMMENT ON COLUMN RECREATION_SUB_ACCESS_CODE.RECREATION_SUB_ACCESS_CODE IS 'Code describing the Recreation Sub Access types.';
-COMMENT ON COLUMN RECREATION_SUB_ACCESS_CODE.DESCRIPTION IS 'Description of the code value.';
-COMMENT ON COLUMN RECREATION_SUB_ACCESS_CODE.EFFECTIVE_DATE IS 'Date the code becomes effective';
-COMMENT ON COLUMN RECREATION_SUB_ACCESS_CODE.EXPIRY_DATE IS 'Date the code expires';
-COMMENT ON COLUMN RECREATION_SUB_ACCESS_CODE.UPDATE_TIMESTAMP IS 'The date and time the value was last modified.';
+comment on column recreation_sub_access_code.recreation_sub_access_code is 'Code describing the Recreation Sub Access types.';
 
-CREATE TABLE RECREATION_TRAIL_SEGMENT (
-    FOREST_FILE_ID VARCHAR(10) NOT NULL,
-    RECREATION_TRAIL_SEG_ID SERIAL NOT NULL,
-    TRAIL_SEGMENT_NAME VARCHAR(50),
-    START_STATION NUMERIC(11, 4),
-    END_STATION NUMERIC(11, 4),
-    RECREATION_REMED_REPAIR_CODE VARCHAR(2),
-    ESTIMATED_REPAIR_COST NUMERIC(10, 2),
-    ACTUAL_REPAIR_COST NUMERIC(10, 2),
-    REPAIR_COMPLETED_DATE DATE,
-    WHEELCHAIR_ACCESSIBLE_IND CHAR(1),
-    REVISION_COUNT INTEGER,
-    ENTRY_USERID VARCHAR(30),
-    ENTRY_TIMESTAMP TIMESTAMP,
-    UPDATE_USERID VARCHAR(30),
-    UPDATE_TIMESTAMP TIMESTAMP,
-    PRIMARY KEY (FOREST_FILE_ID, RECREATION_TRAIL_SEG_ID),
-    UNIQUE (FOREST_FILE_ID, TRAIL_SEGMENT_NAME)
+comment on column recreation_sub_access_code.description is 'Description of the code value.';
+
+comment on column recreation_sub_access_code.effective_date is 'Date the code becomes effective';
+
+comment on column recreation_sub_access_code.expiry_date is 'Date the code expires';
+
+comment on column recreation_sub_access_code.update_timestamp is 'The date and time the value was last modified.';
+
+create table recreation_trail_segment (
+    forest_file_id varchar(10) not null,
+    recreation_trail_seg_id serial not null,
+    trail_segment_name varchar(50),
+    start_station numeric(11, 4),
+    end_station numeric(11, 4),
+    recreation_remed_repair_code varchar(2),
+    estimated_repair_cost numeric(10, 2),
+    actual_repair_cost numeric(10, 2),
+    repair_completed_date date,
+    wheelchair_accessible_ind char(1),
+    revision_count integer,
+    entry_userid varchar(30),
+    entry_timestamp timestamp,
+    update_userid varchar(30),
+    update_timestamp timestamp,
+    primary key (forest_file_id, recreation_trail_seg_id),
+    unique (forest_file_id, trail_segment_name)
 );
 
-COMMENT ON TABLE RECREATION_TRAIL_SEGMENT IS 'Stores coordinate and repair information for trail segments in a Recreation project. May also store coordinate and repair information for a project trail.';
+comment on table recreation_trail_segment is 'Stores coordinate and repair information for trail segments in a Recreation project. May also store coordinate and repair information for a project trail.';
 
-COMMENT ON COLUMN RECREATION_TRAIL_SEGMENT.FOREST_FILE_ID IS 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
-COMMENT ON COLUMN RECREATION_TRAIL_SEGMENT.RECREATION_TRAIL_SEG_ID IS 'A system-generated unique identifier for the trail.';
-COMMENT ON COLUMN RECREATION_TRAIL_SEGMENT.TRAIL_SEGMENT_NAME IS 'The user-entered name specified for the trail segment.';
-COMMENT ON COLUMN RECREATION_TRAIL_SEGMENT.START_STATION IS 'The start station of the trail segment. Identified in the field by the user-entered name given to the trail segment. START_STATION is measured in meters from the start of the trail.';
-COMMENT ON COLUMN RECREATION_TRAIL_SEGMENT.END_STATION IS 'The end station of the trail segment. END_STATION is measured in meters from the start of the trail. The END_STATION of a trail segment must be greater than the START_STATION of the trail segment.';
-COMMENT ON COLUMN RECREATION_TRAIL_SEGMENT.RECREATION_REMED_REPAIR_CODE IS 'Indicates the type of remedial repair applicable to the defined campsite.';
-COMMENT ON COLUMN RECREATION_TRAIL_SEGMENT.ESTIMATED_REPAIR_COST IS 'The estimated repair cost for the trail.';
-COMMENT ON COLUMN RECREATION_TRAIL_SEGMENT.ACTUAL_REPAIR_COST IS 'The actual repair cost of the trail or trail segment.';
-COMMENT ON COLUMN RECREATION_TRAIL_SEGMENT.REPAIR_COMPLETED_DATE IS 'The date on which the trail repair was completed.';
-COMMENT ON COLUMN RECREATION_TRAIL_SEGMENT.WHEELCHAIR_ACCESSIBLE_IND IS 'Indicates when the trail is wheelchair accessible (Y, N or NULL).';
-COMMENT ON COLUMN RECREATION_TRAIL_SEGMENT.REVISION_COUNT IS 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
-COMMENT ON COLUMN RECREATION_TRAIL_SEGMENT.ENTRY_USERID IS 'The userid of the user that inserted data into the record.';
-COMMENT ON COLUMN RECREATION_TRAIL_SEGMENT.ENTRY_TIMESTAMP IS 'Timestamp indicating when data was last inserted into the record.';
-COMMENT ON COLUMN RECREATION_TRAIL_SEGMENT.UPDATE_USERID IS 'The userid of the user that last updated the declared area record.';
-COMMENT ON COLUMN RECREATION_TRAIL_SEGMENT.UPDATE_TIMESTAMP IS 'The timestamp of the last update to the declared area record.';
+comment on column recreation_trail_segment.forest_file_id is 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
 
-CREATE TABLE RECREATION_USER_DAYS_CODE (
-    RECREATION_USER_DAYS_CODE VARCHAR(10) NOT NULL PRIMARY KEY,
-    DESCRIPTION VARCHAR(120),
-    EFFECTIVE_DATE DATE,
-    EXPIRY_DATE DATE,
-    UPDATE_TIMESTAMP TIMESTAMP
+comment on column recreation_trail_segment.recreation_trail_seg_id is 'A system-generated unique identifier for the trail.';
+
+comment on column recreation_trail_segment.trail_segment_name is 'The user-entered name specified for the trail segment.';
+
+comment on column recreation_trail_segment.start_station is 'The start station of the trail segment. Identified in the field by the user-entered name given to the trail segment. START_STATION is measured in meters from the start of the trail.';
+
+comment on column recreation_trail_segment.end_station is 'The end station of the trail segment. END_STATION is measured in meters from the start of the trail. The END_STATION of a trail segment must be greater than the START_STATION of the trail segment.';
+
+comment on column recreation_trail_segment.recreation_remed_repair_code is 'Indicates the type of remedial repair applicable to the defined campsite.';
+
+comment on column recreation_trail_segment.estimated_repair_cost is 'The estimated repair cost for the trail.';
+
+comment on column recreation_trail_segment.actual_repair_cost is 'The actual repair cost of the trail or trail segment.';
+
+comment on column recreation_trail_segment.repair_completed_date is 'The date on which the trail repair was completed.';
+
+comment on column recreation_trail_segment.wheelchair_accessible_ind is 'Indicates when the trail is wheelchair accessible (Y, N or NULL).';
+
+comment on column recreation_trail_segment.revision_count is 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
+
+comment on column recreation_trail_segment.entry_userid is 'The userid of the user that inserted data into the record.';
+
+comment on column recreation_trail_segment.entry_timestamp is 'Timestamp indicating when data was last inserted into the record.';
+
+comment on column recreation_trail_segment.update_userid is 'The userid of the user that last updated the declared area record.';
+
+comment on column recreation_trail_segment.update_timestamp is 'The timestamp of the last update to the declared area record.';
+
+create table recreation_user_days_code (
+    recreation_user_days_code varchar(10) not null primary key,
+    description varchar(120),
+    effective_date date,
+    expiry_date date,
+    update_timestamp timestamp
 );
 
-COMMENT ON TABLE RECREATION_USER_DAYS_CODE IS 'Codes describing the Recreation User Days associated with a project.';
+comment on table recreation_user_days_code is 'Codes describing the Recreation User Days associated with a project.';
 
-COMMENT ON COLUMN RECREATION_USER_DAYS_CODE.RECREATION_USER_DAYS_CODE IS 'Code describing the Recreation User Days.';
-COMMENT ON COLUMN RECREATION_USER_DAYS_CODE.DESCRIPTION IS 'Description of the code value';
-COMMENT ON COLUMN RECREATION_USER_DAYS_CODE.EFFECTIVE_DATE IS 'Date the code becomes effective';
-COMMENT ON COLUMN RECREATION_USER_DAYS_CODE.EXPIRY_DATE IS 'Date the code expires';
-COMMENT ON COLUMN RECREATION_USER_DAYS_CODE.UPDATE_TIMESTAMP IS 'The date and time the value was last modified.';
+comment on column recreation_user_days_code.recreation_user_days_code is 'Code describing the Recreation User Days.';
+
+comment on column recreation_user_days_code.description is 'Description of the code value';
+
+comment on column recreation_user_days_code.effective_date is 'Date the code becomes effective';
+
+comment on column recreation_user_days_code.expiry_date is 'Date the code expires';
+
+comment on column recreation_user_days_code.update_timestamp is 'The date and time the value was last modified.';
