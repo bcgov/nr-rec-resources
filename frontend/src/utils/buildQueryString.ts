@@ -1,8 +1,8 @@
 // Function to build a query string from an object of key-value pairs
-// eg: buildQueryParams({ page: "1", search: "search" }) => "?page=1&search=search"
+// eg: buildQueryString({ page: "1", search: "search" }) => "?page=1&search=search"
 
-const buildQueryParams = (params: {
-  [key: string]: string | number | undefined;
+const buildQueryString = (params: {
+  [key: string]: string | number | undefined | null;
 }) => {
   if (!params) return '';
   const query = Object.entries(params)
@@ -13,4 +13,4 @@ const buildQueryParams = (params: {
   return `?${query}`;
 };
 
-export default buildQueryParams;
+export default buildQueryString;
