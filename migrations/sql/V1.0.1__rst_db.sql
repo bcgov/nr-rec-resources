@@ -1215,3 +1215,6 @@ comment on column recreation_user_days_code.effective_date is 'Date the code bec
 comment on column recreation_user_days_code.expiry_date is 'Date the code expires';
 
 comment on column recreation_user_days_code.update_timestamp is 'The date and time the value was last modified.';
+
+-- Set the search path back to default
+set search_path to rst;
