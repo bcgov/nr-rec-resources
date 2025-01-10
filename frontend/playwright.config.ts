@@ -13,7 +13,7 @@ import { baseURL } from './e2e/utils';
 export default defineConfig({
   timeout: 120000,
   expect: {
-    timeout: 20000,
+    timeout: 10000,
   },
   testDir: './e2e',
   /* Run tests in files in parallel */
