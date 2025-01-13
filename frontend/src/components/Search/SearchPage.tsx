@@ -56,7 +56,7 @@ const SearchPage = () => {
   }, []);
 
   useEffect(() => {
-    if (isComponentMounted) {
+    if (isComponentMounted || isFilters) {
       // Fetch recreation resources if filter changes
       const queryString = buildQueryString(
         Object.fromEntries(searchParams.entries()),
