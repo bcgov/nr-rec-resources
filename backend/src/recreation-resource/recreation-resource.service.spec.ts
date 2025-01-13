@@ -19,26 +19,7 @@ describe("RecreationResourceService", () => {
     site_location: "Rec site 2 location",
   };
 
-  const recreationResource3 = {
-    forest_file_id: "REC0003",
-    name: "Rec site 3",
-    description: "Rec site 3 description",
-    site_location: "Rec site 3 location",
-  };
-
-  const recreationResource4 = {
-    forest_file_id: "REC0004",
-    name: "Rec site 4",
-    description: "Rec site 4 description",
-    site_location: "Rec site 4 location",
-  };
-
-  const recresourceArray = [
-    recreationResource1,
-    recreationResource2,
-    recreationResource3,
-    recreationResource4,
-  ];
+  const recresourceArray = [recreationResource1, recreationResource2];
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -112,13 +93,13 @@ describe("RecreationResourceService", () => {
 
       service["prisma"].recreation_resource.count = vi
         .fn()
-        .mockResolvedValue(4);
+        .mockResolvedValue(2);
 
       expect(await service.searchRecreationResources(1, "Rec", 10)).toEqual({
         data: recresourceArray,
         limit: 10,
         page: 1,
-        total: 4,
+        total: 2,
       });
     });
 
