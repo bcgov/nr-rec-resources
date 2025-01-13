@@ -86,7 +86,7 @@ const SearchPage = () => {
 
     // Don't want all dependencies to trigger this
     // eslint-disable-next-line
-  }, [isFilters]);
+  }, [isComponentMounted, isFilters, searchParams]);
 
   return (
     <>
