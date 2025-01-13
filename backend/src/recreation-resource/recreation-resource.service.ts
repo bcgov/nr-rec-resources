@@ -30,6 +30,16 @@ export class RecreationResourceService {
     filter: string = "",
     limit?: number,
   ): Promise<any> {
+    // 10 page limit - max 100 records since if no limit we fetch page * limit
+    if (page > 10 && !limit) {
+      page = 10;
+      limit = 10;
+    }
+
+    // 10 is the maximum limit
+    if (!limit || limit > 10) {
+      limit = 10;
+    }
     // If only page is provided, we will return all records up to the end of that page
     // If limit is provided, we will return that many paginated records for lazy loading
     const take = limit ? limit : 10 * page;
