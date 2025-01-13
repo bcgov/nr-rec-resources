@@ -45,7 +45,6 @@ const SearchPage = () => {
         .then((response: AxiosResponse) => {
           setRecResourceData(response.data);
           setIsComponentMounted(true);
-          console.log('initial response', response.data.data);
           return response;
         })
         .catch((error) => {
@@ -57,7 +56,7 @@ const SearchPage = () => {
   }, []);
 
   useEffect(() => {
-    if (isFilters) {
+    if (isComponentMounted) {
       // Fetch recreation resources if filter changes
       const queryString = buildQueryString(
         Object.fromEntries(searchParams.entries()),
