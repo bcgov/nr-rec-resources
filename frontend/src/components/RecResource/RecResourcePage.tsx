@@ -209,7 +209,7 @@ const RecResourcePage = () => {
             <Contact ref={contactRef} />
 
             <p>
-              <a href="/">Return to Dashboard</a>
+              <a href="/search">Find another Recreation Site or Trail</a>
             </p>
           </div>
         </div>
