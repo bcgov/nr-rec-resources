@@ -12,16 +12,7 @@ export class RecreationResourceService {
   async findAll(): Promise<RecreationResourceDto[]> {
     const recResources = await this.prisma.recreation_resource.findMany();
 
-    return recResources.flatMap((recResource) => {
-      const recResourceDto: RecreationResourceDto = {
-        forest_file_id: recResource.forest_file_id,
-        name: recResource.name,
-        description: recResource.description,
-        site_location: recResource.site_location,
-      };
-
-      return recResourceDto;
-    });
+    return recResources;
   }
 
   async findOne(id: string): Promise<RecreationResourceDto> {
@@ -31,12 +22,7 @@ export class RecreationResourceService {
       },
     });
 
-    return {
-      forest_file_id: recResource.forest_file_id,
-      name: recResource.name,
-      description: recResource.description,
-      site_location: recResource.site_location,
-    };
+    return recResource;
   }
 
   async searchRecreationResources(
