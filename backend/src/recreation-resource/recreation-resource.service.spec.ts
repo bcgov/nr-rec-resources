@@ -19,7 +19,26 @@ describe("RecreationResourceService", () => {
     site_location: "Rec site 2 location",
   };
 
-  const recresourceArray = [recreationResource1, recreationResource2];
+  const recreationResource3 = {
+    forest_file_id: "REC0003",
+    name: "Rec site 3",
+    description: "Rec site 3 description",
+    site_location: "Rec site 3 location",
+  };
+
+  const recreationResource4 = {
+    forest_file_id: "REC0004",
+    name: "Rec site 4",
+    description: "Rec site 4 description",
+    site_location: "Rec site 4 location",
+  };
+
+  const recresourceArray = [
+    recreationResource1,
+    recreationResource2,
+    recreationResource3,
+    recreationResource4,
+  ];
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -29,6 +48,7 @@ describe("RecreationResourceService", () => {
           provide: PrismaService,
           useValue: {
             recreation_resource: {
+              count: vi.fn(),
               findMany: vi.fn(),
               findUnique: vi.fn(),
             },
@@ -49,6 +69,7 @@ describe("RecreationResourceService", () => {
       service["prisma"].recreation_resource.findUnique = vi
         .fn()
         .mockResolvedValue(recreationResource1);
+
       await expect(service.findOne("REC0001")).resolves.toEqual(
         recreationResource1,
       );
@@ -58,6 +79,7 @@ describe("RecreationResourceService", () => {
       service["prisma"].recreation_resource.findUnique = vi
         .fn()
         .mockResolvedValue(null);
+
       await expect(service.findOne("REC0001")).resolves.toBeNull();
     });
   });
@@ -76,7 +98,47 @@ describe("RecreationResourceService", () => {
       service["prisma"].recreation_resource.findMany = vi
         .fn()
         .mockResolvedValue([]);
+
       await expect(service.findAll()).resolves.toEqual([]);
+    });
+  });
+
+  describe("searchRecreationResources", () => {
+    it("should return an array of Recreation Resources", async () => {
+      await service.searchRecreationResources(1, "Rec", 10);
+      service["prisma"].recreation_resource.findMany = vi
+        .fn()
+        .mockResolvedValue(recresourceArray);
+
+      service["prisma"].recreation_resource.count = vi
+        .fn()
+        .mockResolvedValue(4);
+
+      expect(await service.searchRecreationResources(1, "Rec", 10)).toEqual({
+        data: recresourceArray,
+        limit: 10,
+        page: 1,
+        total: 4,
+      });
+    });
+
+    it("should return an empty array if no Recreation Resources are found", async () => {
+      service["prisma"].recreation_resource.findMany = vi
+        .fn()
+        .mockResolvedValue([]);
+
+      service["prisma"].recreation_resource.count = vi
+        .fn()
+        .mockResolvedValue(0);
+
+      await expect(
+        service.searchRecreationResources(1, "Rec", 10),
+      ).resolves.toEqual({
+        data: [],
+        limit: 10,
+        page: 1,
+        total: 0,
+      });
     });
   });
 });
