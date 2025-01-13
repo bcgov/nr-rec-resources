@@ -10,3 +10,10 @@ export const analyzeAccessibility = async (page: Page) => {
 
   expect(accessibilityScanResults.violations).toEqual([]);
 };
+
+export const waitForImagesToLoad = async (page: Page) => {
+  await page.waitForFunction(() => {
+    const images = Array.from(document.querySelectorAll('img'));
+    return images.every((img) => img.complete);
+  });
+};
