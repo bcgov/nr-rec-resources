@@ -21,11 +21,14 @@ export class RecreationResourceController {
     @Query("limit") limit?: number,
     @Query("page") page: number = 1,
   ) {
-    return this.recreationResourceService.searchRecreationResources(
-      page,
-      filter ?? "",
-      limit ? parseInt(String(limit)) : undefined,
-    );
+    const response =
+      await this.recreationResourceService.searchRecreationResources(
+        page,
+        filter ?? "",
+        limit ? parseInt(String(limit)) : undefined,
+      );
+
+    return response;
   }
 
   @Get(":id")
