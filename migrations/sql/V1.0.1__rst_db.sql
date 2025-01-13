@@ -1,8 +1,4 @@
-create schema if not exists fta;
-
-create extension if not exists "postgis" with schema fta;
-
-set search_path to fta;
+set search_path to fta, public;
 
 create table recreation_project (
     forest_file_id varchar(10) primary key,
@@ -1217,4 +1213,4 @@ comment on column recreation_user_days_code.expiry_date is 'Date the code expire
 comment on column recreation_user_days_code.update_timestamp is 'The date and time the value was last modified.';
 
 -- Set the search path back to default
-set search_path to rst;
+set search_path to rst, public;

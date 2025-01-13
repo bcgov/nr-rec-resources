@@ -1,10 +1,9 @@
 create schema if not exists fta;
 create schema if not exists rst;
 
-create extension if not exists "postgis" with schema fta;
-create extension if not exists "postgis" with schema rst;
+create extension if not exists "postgis";
 
-set search_path to rst;
+set search_path to rst, public;
 
 create table if not exists recreation_resource
 (
