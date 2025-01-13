@@ -1,4 +1,8 @@
+create schema if not exists fta;
 create schema if not exists rst;
+
+create extension if not exists "postgis" with schema fta;
+create extension if not exists "postgis" with schema rst;
 
 set search_path to rst;
 

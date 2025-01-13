@@ -1,6 +1,6 @@
-create extension if not exists "postgis";
-
 create schema if not exists fta;
+
+create extension if not exists "postgis" with schema fta;
 
 set search_path to fta;
 
