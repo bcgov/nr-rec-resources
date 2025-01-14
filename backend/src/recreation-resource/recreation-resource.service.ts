@@ -12,16 +12,7 @@ export class RecreationResourceService {
   async findAll(): Promise<RecreationResourceDto[]> {
     const recResources = await this.prisma.recreation_resource.findMany();
 
-    return recResources.flatMap((recResource) => {
-      const recResourceDto: RecreationResourceDto = {
-        forest_file_id: recResource.forest_file_id,
-        name: recResource.name,
-        description: recResource.description,
-        site_location: recResource.site_location,
-      };
-
-      return recResourceDto;
-    });
+    return recResources;
   }
 
   async findOne(id: string): Promise<RecreationResourceDto> {
@@ -31,24 +22,33 @@ export class RecreationResourceService {
       },
     });
 
-    return {
-      forest_file_id: recResource.forest_file_id,
-      name: recResource.name,
-      description: recResource.description,
-      site_location: recResource.site_location,
-    };
+    return recResource;
   }
 
   async searchRecreationResources(
     page: number = 1,
     filter: string = "",
+    limit?: number,
   ): Promise<any> {
-    const limit = 10;
-    page = page ?? 1;
-    const take = parseInt(String(limit)) * page;
+    // 10 page limit - max 100 records since if no limit we fetch page * limit
+    if (page > 10 && !limit) {
+      throw new Error("Maximum page limit is 10 when no limit is provided");
+    }
+
+    // 10 is the maximum limit
+    if (limit && limit > 10) {
+      limit = 10;
+    }
+
+    // If only page is provided, we will return all records up to the end of that page
+    // If limit is provided, we will return that many paginated records for lazy loading
+    const take = limit ? limit : 10 * page;
+    const skip = limit ? (page - 1) * limit : 0;
 
     const filterQuery = {
+      skip,
       take,
+      // If limit is provided, we will skip the records up to the end of the previous page
       where: {
         OR: [
           { name: { contains: filter, mode: QueryMode.insensitive } },
@@ -62,7 +62,7 @@ export class RecreationResourceService {
     };
 
     const recreationResources = await this.prisma.recreation_resource.findMany(
-      filter ? filterQuery : { take },
+      filter ? filterQuery : { skip, take },
     );
 
     const count = await this.prisma.recreation_resource.count(
@@ -74,7 +74,6 @@ export class RecreationResourceService {
       page,
       limit,
       total: count,
-      totalPages: Math.ceil(count / limit),
     };
   }
 }
