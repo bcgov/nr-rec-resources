@@ -121,5 +121,11 @@ describe("RecreationResourceService", () => {
         total: 0,
       });
     });
+
+    it("should throw an error if page is greater than 10 and limit is not provided", async () => {
+      await expect(
+        service.searchRecreationResources(11, "Rec"),
+      ).rejects.toThrow("Maximum page limit is 10 when no limit is provided");
+    });
   });
 });

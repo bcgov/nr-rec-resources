@@ -50,6 +50,8 @@ const SearchPage = () => {
         .catch((error) => {
           console.error(error);
         });
+    } else {
+      setIsComponentMounted(true);
     }
 
     // eslint-disable-next-line
@@ -62,6 +64,7 @@ const SearchPage = () => {
       if (!isComponentMounted) {
         if (page && parseInt(page) > 10) {
           // Reset page to 10 if user navigates back to search page since api only supports up to 10 pages simultaneously
+          // Lazy loading works past page 10 since we pass a limit and fetch 10 at a time
           params.page = '10';
           // Use shallow routing so we don't trigger use effect again
           window.history.replaceState(null, '', buildQueryString(params));
