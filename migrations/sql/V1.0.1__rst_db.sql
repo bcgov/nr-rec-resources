@@ -1,4 +1,9 @@
+create schema if not exists fta;
+
+create extension if not exists "postgis";
+
 set search_path to fta, public;
+
 
 create table recreation_project (
     forest_file_id varchar(10) primary key,

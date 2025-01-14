@@ -78,10 +78,10 @@ resource "aws_ecs_task_definition" "flyway_task" {
           name  = "FLYWAY_CONNECT_RETRIES"
           value = "2"
         },
-        {
-          name  = "FLYWAY_GROUP"
-          value = "true"
-        },
+        # {
+        #   name  = "FLYWAY_GROUP"
+        #   value = "true"
+        # },
         {
           # This defaults to true, though we want to enable it only in dev to reset the database
           name = "FLYWAY_CLEAN_DISABLED"
