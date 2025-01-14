@@ -57,10 +57,18 @@ const SearchPage = () => {
 
   useEffect(() => {
     if (isComponentMounted || isFilters) {
+      const params = Object.fromEntries(searchParams.entries());
+
+      if (!isComponentMounted) {
+        if (page && parseInt(page) > 10) {
+          // Reset page to 10 if user navigates back to search page since api only supports up to 10 pages simultaneously
+          params.page = '10';
+          // Use shallow routing so we don't trigger use effect again
+          window.history.replaceState(null, '', buildQueryString(params));
+        }
+      }
       // Fetch recreation resources if filter changes
-      const queryString = buildQueryString(
-        Object.fromEntries(searchParams.entries()),
-      );
+      const queryString = buildQueryString(params);
       apiService
         .getAxiosInstance()
         .get(
