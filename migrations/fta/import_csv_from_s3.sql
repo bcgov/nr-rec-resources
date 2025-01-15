@@ -411,3 +411,30 @@ select aws_s3.table_import_from_s3(
   )',
   aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_STRUCTURE_CODE.csv', 'ca-central-1')
 );
+
+select aws_s3.table_import_from_s3(
+  'fta.recreation_structure',
+  '',
+  '(
+    FORMAT csv,
+    HEADER true,
+    FORCE_NULL
+      (
+        structure_id,
+        structure_count,
+        structure_length,
+        structure_width,
+        structure_area,
+        actual_value,
+        campsite_number,
+        estimated_repair_cost,
+        repair_completed_date,
+        revision_count,
+        entry_userid,
+        update_userid,
+        entry_timestamp,
+        update_timestamp
+      )
+  )',
+  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_STRUCTURE.csv', 'ca-central-1')
+);
