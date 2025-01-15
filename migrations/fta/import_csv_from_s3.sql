@@ -330,3 +330,13 @@ select aws_s3.table_import_from_s3(
   )',
   aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_RISK_EVALUATION.csv', 'ca-central-1')
 );
+
+select aws_s3.table_import_from_s3(
+  'fta.recreation_risk_rating_code',
+  '',
+  '(
+    FORMAT csv,
+    HEADER true
+  )',
+  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_RISK_RATING_CODE.csv', 'ca-central-1')
+);
