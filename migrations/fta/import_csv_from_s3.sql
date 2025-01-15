@@ -299,3 +299,13 @@ select aws_s3.table_import_from_s3(
     )',
   aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_OBJECTIVE.csv', 'ca-central-1')
 );
+
+select aws_s3.table_import_from_s3(
+  'fta.recreation_occupancy_code',
+  '',
+  '(
+    FORMAT csv,
+    HEADER true
+  )',
+  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_OCCUPANCY_CODE.csv', 'ca-central-1')
+);
