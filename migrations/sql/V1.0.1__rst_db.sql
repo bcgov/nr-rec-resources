@@ -399,7 +399,7 @@ comment on column fta.recreation_def_cs_rpr_history.update_userid is 'The userid
 comment on column fta.recreation_def_cs_rpr_history.update_timestamp is 'The timestamp of the last update to the road section record.';
 
 create table fta.recreation_defined_campsite (
-    forest_file_id varchar(10) primary key,
+    forest_file_id varchar(10),
     campsite_number int not null,
     estimated_repair_cost numeric(7, 2),
     recreation_remed_repair_code varchar(2),
