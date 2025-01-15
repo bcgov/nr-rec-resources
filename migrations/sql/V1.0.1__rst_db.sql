@@ -1029,7 +1029,6 @@ create table fta.recreation_structure (
     structure_id numeric(10) primary key,
     forest_file_id varchar(10) not null references fta.recreation_project (forest_file_id) on delete restrict,
     campsite_forest_file_id varchar(10) null,
-    campsite_number numeric(3) null,
     recreation_structure_code varchar(3) null references fta.recreation_structure_code (recreation_structure_code) on delete restrict,
     structure_name varchar(100),
     structure_count numeric(3),
@@ -1037,14 +1036,15 @@ create table fta.recreation_structure (
     structure_width numeric(7, 1),
     structure_area numeric(7, 1),
     actual_value numeric(7, 2),
-    recreation_remed_repair_code varchar(2) null references fta.recreation_remed_repair_code (recreation_remed_repair_code) on delete restrict,
+    campsite_number numeric(3) null,
+    recreation_remed_repair_code varchar(2) null on delete restrict,
     estimated_repair_cost numeric(10, 2),
     repair_completed_date date,
     revision_count numeric(5),
     entry_userid varchar(30),
-    entry_timestamp timestamp default current_timestamp,
     update_userid varchar(30),
-    update_timestamp timestamp default current_timestamp
+    update_timestamp timestamp default current_timestamp,
+    entry_timestamp timestamp default current_timestamp
 );
 
 comment on table fta.recreation_structure is 'Information relating to a recreation site improvement in a recreational tenure. All improvements are man-made.';
