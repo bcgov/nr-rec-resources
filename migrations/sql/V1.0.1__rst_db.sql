@@ -289,7 +289,7 @@ comment on column fta.recreation_attachment.update_userid is 'The userid of the 
 comment on column fta.recreation_attachment.update_timestamp is 'The timestamp of the last update to the declared area record.';
 
 create table fta.recreation_attachment_content (
-    forest_file_id varchar(10) references fta.recreation_attachment (forest_file_id) on delete restrict,
+    forest_file_id varchar(10),
     recreation_attachment_id int,
     attachment_content bytea,
     primary key (forest_file_id, recreation_attachment_id),
@@ -305,7 +305,7 @@ comment on column fta.recreation_attachment_content.recreation_attachment_id is 
 comment on column fta.recreation_attachment_content.attachment_content is 'Content for the attachment.';
 
 create table fta.recreation_comment (
-    forest_file_id varchar(10) references fta.recreation_project (forest_file_id) on delete restrict,
+    forest_file_id varchar(10),
     recreation_comment_id serial primary key,
     rec_comment_type_code varchar(4),
     closure_ind char(1) default 'N',
@@ -639,8 +639,8 @@ create table fta.recreation_inspection_report (
     rec_project_skey varchar(20),
     entry_timestamp timestamp default current_timestamp,
     entry_userid varchar(30) default null,
-    update_timestamp timestamp default current_timestamp
-    update_userid varchar(30) default null,
+    update_timestamp timestamp default current_timestamp,
+    update_userid varchar(30) default null
 );
 
 comment on table fta.recreation_inspection_report is 'Contains the reports for inspections related to recreation projects.';
@@ -1029,7 +1029,7 @@ create table fta.recreation_structure (
     structure_id numeric(10) primary key,
     forest_file_id varchar(10) not null references fta.recreation_project (forest_file_id) on delete restrict,
     campsite_forest_file_id varchar(10) null,
-    recreation_structure_code varchar(3) null references fta.recreation_structure_code (recreation_structure_code) on delete restrict,
+    recreation_structure_code varchar(3),
     structure_name varchar(100),
     structure_count numeric(3),
     structure_length numeric(7, 1),
@@ -1037,7 +1037,7 @@ create table fta.recreation_structure (
     structure_area numeric(7, 1),
     actual_value numeric(7, 2),
     campsite_number numeric(3) null,
-    recreation_remed_repair_code varchar(2) null on delete restrict,
+    recreation_remed_repair_code varchar(2),
     estimated_repair_cost numeric(10, 2),
     repair_completed_date date,
     revision_count numeric(5),
