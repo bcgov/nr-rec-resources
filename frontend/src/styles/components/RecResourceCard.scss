@@ -17,7 +17,7 @@
   }
 
   .status-container {
-    padding: 16px;
+    padding: 14px;
     min-width: 200px;
   }
 }
@@ -28,7 +28,7 @@
   // Unfortunate use of important since bootstrap theme is using it
   font-size: 1.25rem !important;
   color: $colorBlue;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 }
 
 .card-heading-icon {
@@ -57,14 +57,14 @@
   display: none;
 
   @include media-breakpoint-up(sm) {
-    display: block;
+    display: none;
   }
 }
 
 .carousel-mobile-image {
   object-fit: cover;
   max-height: 300px;
-  display: block;
+  display: none;
 
   @include media-breakpoint-up(sm) {
     display: none;

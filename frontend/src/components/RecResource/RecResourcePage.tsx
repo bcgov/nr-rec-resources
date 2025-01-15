@@ -121,6 +121,9 @@ const RecResourcePage = () => {
           />
           <section>
             <div>
+              <p>
+                <b>Whoops</b>
+              </p>
               <h1>{name}</h1>
               <p className="bc-color-blue-dk mb-4">
                 <span>Recreation site |</span> {forest_file_id}
@@ -192,7 +195,7 @@ const RecResourcePage = () => {
               menuStyle="nav"
             />
           </div>
-          <div className="rec-content-container">
+          <div className="rec-content-container mb-4">
             {description && (
               <SiteDescription
                 description={description}
