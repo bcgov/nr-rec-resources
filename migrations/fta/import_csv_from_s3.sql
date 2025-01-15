@@ -258,11 +258,44 @@ select aws_s3.table_import_from_s3(
 );
 
 select aws_s3.table_import_from_s3(
-  'fta.recreation_map_feature_code',
+  'fta.recreation_map_feature_geom',
   '',
   '(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_MAP_FEATURE_CODE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_MAP_FEATURE_GEOM.csv', 'ca-central-1')
+);
+
+select aws_s3.table_import_from_s3(
+  'fta.recreation_map_feature',
+  '',
+  '(
+    FORMAT csv,
+    HEADER true,
+    FORCE_NULL
+      (
+        amend_status_date,
+        retirement_date,
+        entry_timestamp,
+        update_timestamp
+      )
+  )',
+  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_MAP_FEATURE.csv', 'ca-central-1')
+);
+
+select aws_s3.table_import_from_s3(
+  'fta.recreation_objective',
+  '',
+  '(
+    FORMAT csv,
+    HEADER true,
+    FORCE_NULL
+      (
+        objective_established_date,
+        objective_amended_date,
+        objective_cancelled_date
+      )
+    )',
+  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_OBJECTIVE.csv', 'ca-central-1')
 );
