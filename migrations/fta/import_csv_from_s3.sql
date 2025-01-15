@@ -122,3 +122,13 @@ select aws_s3.table_import_from_s3(
   )',
   aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_CONTROL_ACCESS_CODE.csv', 'ca-central-1')
 );
+
+select aws_s3.table_import_from_s3(
+  'fta.recreation_def_cs_rpr_history',
+  '',
+  '(
+    FORMAT csv,
+    HEADER true
+  )',
+  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_DEF_CS_RPR_HISTORY.csv', 'ca-central-1')
+);
