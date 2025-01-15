@@ -1,6 +1,8 @@
 create schema if not exists fta;
 create schema if not exists rst;
 
+-- Had errors with RDS and PostGIS, so had to drop extension and recreate it
+drop extension if exists "postgis";
 create extension if not exists "postgis";
 
 set search_path to rst, public;
