@@ -3,9 +3,8 @@ create schema if not exists rst;
 
 create extension if not exists "postgis";
 
-set search_path to rst, public;
 
-create table if not exists recreation_resource
+create table if not exists rst.recreation_resource
 (
     forest_file_id varchar(200) not null primary key,
     name           varchar(200) not null,
@@ -13,9 +12,9 @@ create table if not exists recreation_resource
     site_location  varchar(200) not null
 );
 
-comment on table recreation_resource is 'Resource information relating to a recreational file. A recreation file can have only one resource. A recreation resource must be of type Site, Reserve, Trail, or Interpretive Forest.';
+comment on table rst.recreation_resource is 'Resource information relating to a recreational file. A recreation file can have only one resource. A recreation resource must be of type Site, Reserve, Trail, or Interpretive Forest.';
 
-insert into recreation_resource (forest_file_id, name, description, site_location)
+insert into rst.recreation_resource (forest_file_id, name, description, site_location)
 values ('REC5600', 'A Walk In The Forest Trail (Lost Shoe)', 'Trail offers two short loops under a mainly cedar canopy. Some boardwalks and bridges have been constructed to cross over a babbling creek. This is a rainforest and one should use caution while navigating the trail''s slippery sections.', 'Tofino'),
        ('REC1585', 'Aberdeen Lake', 'This semi-open site on a medium sized fishing lake is subject to significant water level fluctuations. The access is very rough for 2 km before the site.', 'Lavington'),
        ('REC5763', 'Ahdatay', 'Located on the north shore of Tchentlo Lake, 1. 5 km from the mouth of the Nation River between Tchentlo and Chuchi Lake.', 'Fort St. James'),
