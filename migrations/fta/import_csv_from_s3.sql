@@ -44,3 +44,30 @@ select aws_s3.table_import_from_s3(
   )',
   aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_ACCESS_CODE.csv', 'ca-central-1')
 );
+
+select aws_s3.table_import_from_s3(
+  'fta.recreation_access_xref',
+  '',
+  '(
+    FORMAT csv,
+    HEADER true
+  )',
+  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_ACCESS_XREF.csv', 'ca-central-1')
+);
+
+select aws_s3.table_import_from_s3(
+  'fta.recreation_activity',
+  '',
+  '(
+    FORMAT csv,
+    HEADER true,
+    FORCE_NULL
+      (
+        activity_rank,
+        revision_count,
+        entry_timestamp,
+        update_timestamp
+      )
+  )',
+  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_ACTIVITY.csv', 'ca-central-1')
+);

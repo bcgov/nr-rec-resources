@@ -153,8 +153,7 @@ create table fta.recreation_access_xref (
     entry_userid varchar(30),
     entry_timestamp timestamp,
     update_userid varchar(30),
-    update_timestamp timestamp,
-    forest_file_id varchar(10)
+    update_timestamp timestamp
 );
 
 comment on table fta.recreation_access_xref is 'Describes valid combinations between Recreation Access and Recreation Sub Access types. E.g. Boat in - Motor Boat, Boat in - Canoe, Trail-MultiUse, Trail-Snowmobile.';
@@ -174,7 +173,7 @@ comment on column fta.recreation_access_xref.update_userid is 'The userid of the
 comment on column fta.recreation_access_xref.update_timestamp is 'The timestamp of the last update to the road section record.';
 
 create table fta.recreation_activity (
-    forest_file_id varchar(10) primary key,
+    forest_file_id varchar(10),
     recreation_activity_code varchar(3) not null,
     activity_rank int,
     revision_count int,
