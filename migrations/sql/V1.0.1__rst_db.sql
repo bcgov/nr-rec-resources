@@ -30,10 +30,6 @@ create table fta.recreation_project (
     borden_no varchar(200) null,
     camp_host_ind varchar(1) default 'N',
     low_mobility_access_ind varchar(1) default 'N',
-    constraint chk_resource_feature_ind check (resource_feature_ind in ('N', 'Y')),
-    constraint chk_arch_impact_assess_ind check (arch_impact_assess_ind in ('Y', 'N')),
-    constraint chk_recreation_view_ind check (recreation_view_ind in ('Y', 'N')),
-    constraint chk_camp_host_ind check (camp_host_ind in ('Y', 'N'))
 );
 
 comment on table fta.recreation_project is 'Project information relating to a recreational file. A recreation file can have only one project. A project must be of type Site, Reserve, Trail, or Interpretive Forest.';
