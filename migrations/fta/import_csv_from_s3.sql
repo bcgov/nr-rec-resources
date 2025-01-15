@@ -220,3 +220,29 @@ select aws_s3.table_import_from_s3(
   )',
   aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_FILE_TYPE_CODE.csv', 'ca-central-1')
 );
+
+select aws_s3.table_import_from_s3(
+  'fta.recreation_inspection_report',
+  '',
+  '(
+    FORMAT csv,
+    HEADER true,
+    FORCE_NULL
+      (
+        campsite_no,
+        occupied_campsite_no,
+        vehicle_no,
+        camping_party_no,
+        day_use_party_no,
+        with_pass_no,
+        without_pass_no,
+        absent_owner_no,
+        total_inspected_no,
+        purchased_pass_no,
+        refused_pass_no,
+        entry_timestamp,
+        update_timestamp
+      )
+  )',
+  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_INSPECTION_REPORT.csv', 'ca-central-1')
+);
