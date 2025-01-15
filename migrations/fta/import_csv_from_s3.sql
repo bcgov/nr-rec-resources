@@ -92,12 +92,23 @@ select aws_s3.table_import_from_s3(
   aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_AGREEMENT_HOLDER.csv', 'ca-central-1')
 );
 
+-- come back to this, file wasn't in s3
+-- select aws_s3.table_import_from_s3(
+--   'fta.recreation_attachment',
+--   '',
+--   '(
+--     FORMAT csv,
+--     HEADER true
+--   )',
+--   aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_ATTACHMENT.csv', 'ca-central-1')
+-- );
+
 select aws_s3.table_import_from_s3(
-  'fta.recreation_attachment',
+  'fta.recreation_comment',
   '',
   '(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_ATTACHMENT.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_COMMENT.csv', 'ca-central-1')
 );
