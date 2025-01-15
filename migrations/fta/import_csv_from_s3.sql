@@ -458,3 +458,27 @@ select aws_s3.table_import_from_s3(
   )',
   aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_SUB_ACCESS_CODE.csv', 'ca-central-1')
 );
+
+select aws_s3.table_import_from_s3(
+  'fta.recreation_trail_segment',
+  '',
+  '(
+    FORMAT csv,
+    HEADER true,
+    FORCE_NULL
+      (
+        start_station,
+        end_station,
+        estimated_repair_cost,
+        actual_repair_cost,
+        repair_completed_date,
+        wheelchair_accessible_ind,
+        revision_count,
+        entry_userid,
+        entry_timestamp,
+        update_userid,
+        update_timestamp
+      )
+  )',
+  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_TRAIL_SEGMENT.csv', 'ca-central-1')
+);
