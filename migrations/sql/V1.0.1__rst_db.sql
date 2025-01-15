@@ -224,7 +224,7 @@ comment on column fta.recreation_activity_code.update_timestamp is 'The date and
 
 create table fta.recreation_agreement_holder (
     agreement_holder_id serial primary key,
-    forest_file_id varchar(10) references recreation_project (forest_file_id) on delete restrict,
+    forest_file_id varchar(10) references fta.recreation_project (forest_file_id) on delete restrict,
     client_number varchar(8),
     client_locn_code varchar(2),
     agreement_start_date date,
@@ -290,11 +290,11 @@ comment on column fta.recreation_attachment.update_userid is 'The userid of the 
 comment on column fta.recreation_attachment.update_timestamp is 'The timestamp of the last update to the declared area record.';
 
 create table fta.recreation_attachment_content (
-    forest_file_id varchar(10) references recreation_attachment (forest_file_id) on delete restrict,
+    forest_file_id varchar(10) references fta.recreation_attachment (forest_file_id) on delete restrict,
     recreation_attachment_id int,
     attachment_content bytea,
     primary key (forest_file_id, recreation_attachment_id),
-    constraint fk_recreation_attachment_forest_file_id foreign key (forest_file_id) references recreation_project (forest_file_id) on delete restrict
+    constraint fk_recreation_attachment_forest_file_id foreign key (forest_file_id) references fta.recreation_project (forest_file_id) on delete restrict
 );
 
 comment on table fta.recreation_attachment_content is 'Stores attachment content for each attachment related to the Recreation project.';
@@ -306,7 +306,7 @@ comment on column fta.recreation_attachment_content.recreation_attachment_id is 
 comment on column fta.recreation_attachment_content.attachment_content is 'Content for the attachment.';
 
 create table fta.recreation_comment (
-    forest_file_id varchar(10) references recreation_project (forest_file_id) on delete restrict,
+    forest_file_id varchar(10) references fta.recreation_project (forest_file_id) on delete restrict,
     recreation_comment_id serial primary key,
     rec_comment_type_code varchar(4),
     closure_ind char(1) default 'N',
@@ -522,7 +522,7 @@ comment on column fta.recreation_fee_code.update_timestamp is 'The date and time
 
 create table fta.recreation_fee (
     fee_id serial primary key,
-    forest_file_id varchar(10) references recreation_project (forest_file_id) on delete restrict,
+    forest_file_id varchar(10) references fta.recreation_project (forest_file_id) on delete restrict,
     fee_amount numeric(5, 2) default null,
     fee_start_date date default null,
     fee_end_date date default null,
@@ -533,7 +533,7 @@ create table fta.recreation_fee (
     friday_ind varchar(1) default 'N',
     saturday_ind varchar(1) default 'N',
     sunday_ind varchar(1) default 'N',
-    recreation_fee_code varchar(3) references recreation_fee_code (recreation_fee_code) on delete restrict,
+    recreation_fee_code varchar(3) references fta.recreation_fee_code (recreation_fee_code) on delete restrict,
     revision_count numeric(5) default null,
     entry_userid varchar(30) default null,
     entry_timestamp timestamp default current_timestamp,
@@ -1029,17 +1029,17 @@ comment on column fta.recreation_structure_code.update_timestamp is 'The date an
 
 create table fta.recreation_structure (
     structure_id numeric(10) primary key,
-    forest_file_id varchar(10) not null references recreation_project (forest_file_id) on delete restrict,
+    forest_file_id varchar(10) not null references fta.recreation_project (forest_file_id) on delete restrict,
     campsite_forest_file_id varchar(10) null,
     campsite_number numeric(3) null,
-    recreation_structure_code varchar(3) null references recreation_structure_code (recreation_structure_code) on delete restrict,
+    recreation_structure_code varchar(3) null references fta.recreation_structure_code (recreation_structure_code) on delete restrict,
     structure_name varchar(100),
     structure_count numeric(3),
     structure_length numeric(7, 1),
     structure_width numeric(7, 1),
     structure_area numeric(7, 1),
     actual_value numeric(7, 2),
-    recreation_remed_repair_code varchar(2) null references recreation_remed_repair_code (recreation_remed_repair_code) on delete restrict,
+    recreation_remed_repair_code varchar(2) null references fta.recreation_remed_repair_code (recreation_remed_repair_code) on delete restrict,
     estimated_repair_cost numeric(10, 2),
     repair_completed_date date,
     revision_count numeric(5),
