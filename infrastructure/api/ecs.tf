@@ -75,6 +75,10 @@ resource "aws_ecs_task_definition" "flyway_task" {
           value = "${var.db_schema}"
         },
         {
+          name = "FLYWAY_SCHEMAS"
+          value = "${var.db_schema},fta"
+        },
+        {
           name  = "FLYWAY_CONNECT_RETRIES"
           value = "2"
         },
