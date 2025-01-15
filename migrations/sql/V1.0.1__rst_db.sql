@@ -260,7 +260,7 @@ comment on column fta.recreation_agreement_holder.update_userid is 'The userid o
 comment on column fta.recreation_agreement_holder.update_timestamp is 'The timestamp of the last update to the road section record.';
 
 create table fta.recreation_attachment (
-    forest_file_id varchar(10) primary key,
+    forest_file_id varchar(10),
     recreation_attachment_id serial not null,
     attachment_file_name varchar(50),
     revision_count int,
