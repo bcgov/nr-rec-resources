@@ -448,3 +448,13 @@ select aws_s3.table_import_from_s3(
   )',
   aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_STRUCTURE_VALUE.csv', 'ca-central-1')
 );
+
+select aws_s3.table_import_from_s3(
+  'fta.recreation_sub_access_code',
+  '',
+  '(
+    FORMAT csv,
+    HEADER true
+  )',
+  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_SUB_ACCESS_CODE.csv', 'ca-central-1')
+);
