@@ -617,7 +617,7 @@ comment on table fta.recreation_file_type_code is 'Describes the RECREATION FILE
 -- There were no descriptions for the columns in the original RECREATION_FILE_TYPE_CODE table
 create table fta.recreation_inspection_report (
     inspection_id numeric primary key,
-    forest_file_id varchar(10),
+    forest_file_id varchar(20),
     site_occupancy_code varchar(10),
     rec_file_type_code varchar(10),
     site_name varchar(50),
@@ -636,11 +636,11 @@ create table fta.recreation_inspection_report (
     refused_pass_no numeric,
     contract_id varchar(20),
     contractor varchar(30),
-    rec_project_skey numeric,
-    entry_userid varchar(30) default null,
+    rec_project_skey varchar(20),
     entry_timestamp timestamp default current_timestamp,
-    update_userid varchar(30) default null,
+    entry_userid varchar(30) default null,
     update_timestamp timestamp default current_timestamp
+    update_userid varchar(30) default null,
 );
 
 comment on table fta.recreation_inspection_report is 'Contains the reports for inspections related to recreation projects.';
