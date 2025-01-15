@@ -747,7 +747,7 @@ create table fta.recreation_map_feature (
     entry_timestamp date,
     update_userid varchar(30),
     update_timestamp date,
-    recreation_map_feature_guid uuid default gen_random_uuid ()
+    recreation_map_feature_guid varchar(36)
 );
 
 comment on table fta.recreation_map_feature is 'Captures both current and historical attributes for Recreation Map Features.';
