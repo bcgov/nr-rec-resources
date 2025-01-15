@@ -373,8 +373,7 @@ create table fta.recreation_def_cs_rpr_history (
     entry_userid varchar(30) null,
     entry_timestamp timestamp null,
     update_userid varchar(30) null,
-    update_timestamp timestamp null,
-    primary key (forest_file_id, campsite_number)
+    update_timestamp timestamp null
 );
 
 comment on table fta.recreation_def_cs_rpr_history is 'Recreation Defined Campsite repair history audit log. Note that defined campsites can be deleted, while retaining the repair history.';
