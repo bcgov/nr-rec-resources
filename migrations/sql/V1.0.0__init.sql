@@ -1,8 +1,6 @@
-create schema if not exists fta;
-create schema if not exists rst;
-
 create extension if not exists "postgis";
 
+create schema if not exists rst;
 
 create table if not exists rst.recreation_resource
 (
