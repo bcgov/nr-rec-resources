@@ -29,11 +29,7 @@ create table fta.recreation_project (
     arch_impact_date date null,
     borden_no varchar(200) null,
     camp_host_ind varchar(1) default 'N',
-    low_mobility_access_ind varchar(1) default 'N',
-    constraint chk_resource_feature_ind check (resource_feature_ind in ('N', 'Y')),
-    constraint chk_arch_impact_assess_ind check (arch_impact_assess_ind in ('Y', 'N')),
-    constraint chk_recreation_view_ind check (recreation_view_ind in ('Y', 'N')),
-    constraint chk_camp_host_ind check (camp_host_ind in ('Y', 'N'))
+    low_mobility_access_ind varchar(1) default 'N'
 );
 
 comment on table fta.recreation_project is 'Project information relating to a recreational file. A recreation file can have only one project. A project must be of type Site, Reserve, Trail, or Interpretive Forest.';
@@ -223,7 +219,7 @@ comment on column fta.recreation_activity_code.update_timestamp is 'The date and
 
 create table fta.recreation_agreement_holder (
     agreement_holder_id serial primary key,
-    forest_file_id varchar(10) references fta.recreation_project (forest_file_id) on delete restrict,
+    forest_file_id varchar(10),
     client_number varchar(8),
     client_locn_code varchar(2),
     agreement_start_date date,
@@ -520,7 +516,7 @@ comment on column fta.recreation_fee_code.update_timestamp is 'The date and time
 
 create table fta.recreation_fee (
     fee_id serial primary key,
-    forest_file_id varchar(10) references fta.recreation_project (forest_file_id) on delete restrict,
+    forest_file_id varchar(10),
     fee_amount numeric(5, 2) default null,
     fee_start_date date default null,
     fee_end_date date default null,
@@ -531,7 +527,7 @@ create table fta.recreation_fee (
     friday_ind varchar(1) default 'N',
     saturday_ind varchar(1) default 'N',
     sunday_ind varchar(1) default 'N',
-    recreation_fee_code varchar(3) references fta.recreation_fee_code (recreation_fee_code) on delete restrict,
+    recreation_fee_code varchar(3),
     revision_count numeric(5) default null,
     entry_userid varchar(30) default null,
     entry_timestamp timestamp default current_timestamp,
@@ -1027,7 +1023,7 @@ comment on column fta.recreation_structure_code.update_timestamp is 'The date an
 
 create table fta.recreation_structure (
     structure_id numeric(10) primary key,
-    forest_file_id varchar(10) not null references fta.recreation_project (forest_file_id) on delete restrict,
+    forest_file_id varchar(10),
     campsite_forest_file_id varchar(10) null,
     recreation_structure_code varchar(3),
     structure_name varchar(100),
