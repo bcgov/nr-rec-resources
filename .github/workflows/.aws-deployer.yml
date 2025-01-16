@@ -104,7 +104,7 @@ jobs:
       env:
           target_env: ${{ inputs.environment_name }}
           aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
-          flyway_image: ghcr.io/${{github.repository}}/migrations:${{inputs.tag}}
+          flyway_image: ghcr.io/${{github.repository}}/migrations/rst:${{inputs.tag}}
           api_image: ghcr.io/${{github.repository}}/backend:${{inputs.tag}}
           app_env: ${{inputs.app_env}}
       run: |
