@@ -6,8 +6,7 @@ COPY ./sql /flyway/sql
 # Set correct permissions for non-root user
 RUN adduser -D app && chown -R app:app /flyway/sql
 
-# Non-root user
-RUN adduser -D app
+# Switch to non-root user
 USER app
 
 # Health check
