@@ -188,7 +188,7 @@ comment on column fta.recreation_activity.forest_file_id is 'File identification
 
 comment on column fta.recreation_activity.recreation_activity_code is 'Code describing the Recreation Activity.';
 
-comment on column fta.recreation_activity.activity_rank is 'The order of importance of this activity for the given project as a number from 1 to 3.';
+comment on column fta..activity_rank is 'The order of importance of this activity for the given project as a number from 1 to 3.';
 
 comment on column fta.recreation_activity.revision_count is 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
 
