@@ -29,6 +29,7 @@
   font-size: 1.25rem !important;
   color: $colorBlue;
   margin-bottom: 8px;
+  text-transform: capitalize;
 }
 
 .card-heading-icon {
@@ -46,7 +47,7 @@
   }
 }
 
-.carousel-content {
+.card-content {
   display: flex;
   flex-direction: column;
   padding: 16px;

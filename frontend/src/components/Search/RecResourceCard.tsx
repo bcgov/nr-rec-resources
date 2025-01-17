@@ -20,17 +20,19 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
   return (
     <div className="rec-resource-card" key={recId}>
       <CardCarousel imageList={imageList} />
-      <div className="carousel-content">
+      <div className="card-content">
         <a href={`/resource/${recId}`}>
           <h2 className="card-heading-text">
-            {name}{' '}
+            {name && name.toLowerCase()}{' '}
             <FontAwesomeIcon
               icon={faCircleChevronRight}
               className="card-heading-icon"
             />
           </h2>
         </a>
-        <p>{siteLocation}</p>
+        <p className="capitalize">
+          {siteLocation && siteLocation.toLowerCase()}
+        </p>
       </div>
       <div className="status-container">
         <div className="icon-container">

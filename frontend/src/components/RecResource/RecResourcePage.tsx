@@ -121,7 +121,7 @@ const RecResourcePage = () => {
           />
           <section>
             <div>
-              <h1>{name}</h1>
+              <h1 className="capitalize">{name && name.toLowerCase()}</h1>
               <p className="bc-color-blue-dk mb-4">
                 <span>Recreation site |</span> {forest_file_id}
               </p>
@@ -133,7 +133,9 @@ const RecResourcePage = () => {
                 height={24}
                 width={24}
               />{' '}
-              <span>{site_location}</span>
+              <span className="capitalize">
+                {site_location && site_location.toLowerCase()}
+              </span>
             </div>
             <div className="icon-container">
               <img
