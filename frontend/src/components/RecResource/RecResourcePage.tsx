@@ -99,12 +99,12 @@ const RecResourcePage = () => {
 
   if (notFound) {
     return (
-      <>
+      <div className="page page-padding">
         <h2>Resource not found</h2>
         <p>
           <a href="/">Return to Dashboard</a>
         </p>
-      </>
+      </div>
     );
   }
 
