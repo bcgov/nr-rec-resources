@@ -11,4 +11,4 @@ left join
 on
     rp.forest_file_id = rc.forest_file_id
 where
-    rc.rec_comment_type_code = 'desc';
+    rc.rec_comment_type_code = 'DESC';
