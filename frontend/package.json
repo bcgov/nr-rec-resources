@@ -24,6 +24,7 @@
     "axios": "^1.7.9",
     "bootstrap": "^5.3.3",
     "dotenv": "^16.4.7",
+    "html-react-parser": "^5.2.2",
     "lodash.debounce": "^4.0.8",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.7",
