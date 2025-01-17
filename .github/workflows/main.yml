@@ -16,15 +16,6 @@ jobs:
     name: Build containers
     uses: ./.github/workflows/.build.yml
 
-  # Remove this, just for testing
-  fta-migration:
-    needs: build-containers
-    name: FTA Migration
-    uses: ./.github/workflows/fta-migration.yml
-    with:
-      tag: ${{ github.sha }}
-    secrets: inherit
-
   analysis:
     name: Analysis
     uses: ./.github/workflows/.analysis.yml
@@ -57,6 +48,15 @@ jobs:
       app_env: dev
       command: apply
       environment_name: dev
+      tag: ${{ github.sha }}
+    secrets: inherit
+
+  # Running FTA migration after each dev deployment since we are clearing the database each run
+  fta-migration:
+    needs: deploy-to-aws-dev
+    name: FTA Migration
+    uses: ./.github/workflows/fta-migration.yml
+    with:
       tag: ${{ github.sha }}
     secrets: inherit
 

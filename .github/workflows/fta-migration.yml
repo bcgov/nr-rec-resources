@@ -1,6 +1,7 @@
 name: FTA Migration
 
 on:
+  # Will schedule this to run on test/prod in the future
   # schedule: [cron: "0 3 * * *"] # Every day at 3 AM
   workflow_call:
     inputs:
@@ -16,24 +17,13 @@ permissions:
   pull-requests: write
 
 jobs:
-  deploy-api:
-    name: Deploys API
-    uses: ./.github/workflows/.aws-deployer.yml
-    with:
-      environment_name: dev
-      command: apply
-      working_directory: api
-      tag: ${{ inputs.tag }}
-      app_env: dev
-    secrets: inherit
   run-fta-dev-migration:
     name: Run FTA Dev Migration
-    needs: [deploy-api]
     uses: ./.github/workflows/.aws-deployer.yml
     with:
       environment_name: dev
       command: apply
-      flyway_image: ghcr.io/bcgov/nr-rec-resources/migrations/fta:${{ inputs.tag }}
+      flyway_image: ghcr.io/bcgov/nr-rec-resources/migrations/fta:${{ inputs.tag || 'latest' }}
       working_directory: migration
       tag: ${{ inputs.tag }}
       app_env: dev
