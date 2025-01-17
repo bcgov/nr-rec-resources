@@ -44,10 +44,12 @@ export class RecreationResourceService {
     // If limit is provided, we will return that many paginated records for lazy loading
     const take = limit ? limit : 10 * page;
     const skip = limit ? (page - 1) * limit : 0;
+    const orderBy = [{ name: Prisma.SortOrder.asc }];
 
     const filterQuery = {
       skip,
       take,
+      orderBy,
       // If limit is provided, we will skip the records up to the end of the previous page
       where: {
         OR: [
@@ -62,7 +64,7 @@ export class RecreationResourceService {
     };
 
     const recreationResources = await this.prisma.recreation_resource.findMany(
-      filter ? filterQuery : { skip, take },
+      filter ? filterQuery : { skip, take, orderBy },
     );
 
     const count = await this.prisma.recreation_resource.count(
