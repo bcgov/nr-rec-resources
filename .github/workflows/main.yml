@@ -16,6 +16,15 @@ jobs:
     name: Build containers
     uses: ./.github/workflows/.build.yml
 
+  # Remove this, just for testing
+  fta-migration:
+    needs: build-containers
+    name: FTA Migration
+    uses: ./.github/workflows/fta-migration.yml
+    with:
+      tag: ${{ github.sha }}
+    secrets: inherit
+
   analysis:
     name: Analysis
     uses: ./.github/workflows/.analysis.yml

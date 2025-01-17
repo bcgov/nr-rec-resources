@@ -24,7 +24,7 @@ drop_db:
 migrate: ## create the migrations
 migrate:
 	## TODO:: this is a very basic setup, we should use flyway for migrations
-	for file in ./migrations/sql/*.sql; do \
+	for file in ./migrations/rst/sql/*.sql; do \
 		printf "Applying migration: ${DB_NAME}/$$(basename $$file)\n"; \
 		$(PSQL) -d $(DB_NAME) -f $$file; \
 	done
