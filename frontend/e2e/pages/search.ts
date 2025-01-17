@@ -17,13 +17,13 @@ export const searchPage = async (page: Page) => {
   // Verify dynanmic content loads
   await expect(
     page.getByRole('heading', {
-      name: 'Allison Pool',
+      name: 'Aberdeen Lake',
     }),
   ).toBeVisible();
 
   await expect(
     page.getByRole('heading', {
-      name: 'Appleton Creek Site & Trail',
+      name: 'A-Branch Cabin',
     }),
   ).toBeVisible();
 };
