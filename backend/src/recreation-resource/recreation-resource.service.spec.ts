@@ -19,7 +19,26 @@ describe("RecreationResourceService", () => {
     site_location: "Rec site 2 location",
   };
 
-  const recresourceArray = [recreationResource1, recreationResource2];
+  const recreationResource3 = {
+    forest_file_id: "REC0003",
+    name: "A testing orderBy",
+    description: "Rec site 3 description",
+    site_location: "Rec site 3 location",
+  };
+
+  const recreationResource4 = {
+    forest_file_id: "REC0004",
+    name: "Z testing orderBy",
+    description: "Rec site 4 description",
+    site_location: "Rec site 4 location",
+  };
+
+  const recresourceArray = [
+    recreationResource1,
+    recreationResource2,
+    recreationResource3,
+    recreationResource4,
+  ];
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -93,14 +112,36 @@ describe("RecreationResourceService", () => {
 
       service["prisma"].recreation_resource.count = vi
         .fn()
-        .mockResolvedValue(2);
+        .mockResolvedValue(4);
 
       expect(await service.searchRecreationResources(1, "Rec", 10)).toEqual({
         data: recresourceArray,
         limit: 10,
         page: 1,
-        total: 2,
+        total: 4,
       });
+    });
+
+    it("should return results sorted by name in ascending order", async () => {
+      service["prisma"].recreation_resource.findMany = vi
+        .fn()
+        .mockResolvedValue([
+          recreationResource3,
+          recreationResource1,
+          recreationResource2,
+          recreationResource4,
+        ]);
+
+      service["prisma"].recreation_resource.count = vi
+        .fn()
+        .mockResolvedValue(4);
+
+      const results = await service.searchRecreationResources(1, "", 10);
+
+      expect(results.data[0].name).toEqual("A testing orderBy");
+      expect(results.data[1].name).toEqual("Rec site 1");
+      expect(results.data[2].name).toEqual("Rec site 2");
+      expect(results.data[3].name).toEqual("Z testing orderBy");
     });
 
     it("should return an empty array if no Recreation Resources are found", async () => {
