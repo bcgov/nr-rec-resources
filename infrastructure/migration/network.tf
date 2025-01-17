@@ -13,9 +13,7 @@ locals {
 
   security_group_name_suffix = "_sg"
 
-  web_security_group_name  = "Web${local.security_group_name_suffix}"
   app_security_group_name  = "App${local.security_group_name_suffix}"
-  data_security_group_name = "Data${local.security_group_name_suffix}"
 }
 
 data "aws_vpc" "main" {
