@@ -1,6 +1,15 @@
 locals {
+  common_tags        = var.common_tags
   container_name = "${var.app_name}"
   rds_app_env = (contains(["dev", "test", "prod"], var.app_env) ? var.app_env : "dev") # if app_env is not dev, test, or prod, default to dev
+}
+
+data "aws_iam_role" "ecs_task_execution_role" {
+  name = "${var.app_name}_ecs_task_execution_role"
+}
+
+data "aws_iam_role" "app_container_role" {
+  name = "${var.app_name}_container_role"
 }
 
 data "aws_secretsmanager_secret" "db_master_creds" {
