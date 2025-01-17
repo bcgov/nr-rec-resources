@@ -28,9 +28,8 @@ locals {
   db_master_creds = jsondecode(data.aws_secretsmanager_secret_version.db_master_creds_version.secret_string)
 }
 
-
-resource "aws_ecs_cluster" "ecs_cluster" {
-  name = "ecs-cluster-${var.app_name}"
+data "aws_ecs_cluster" "ecs_cluster" {
+  cluster_name = "ecs-cluster-${var.app_name}"
 }
 
 resource "terraform_data" "trigger_deployment" {
@@ -80,7 +79,7 @@ resource "aws_ecs_task_definition" "flyway_task" {
           value = "true"
         },
         {
-          # This defaults to true, though we want to enable it only in dev to reset the database
+          # Enable Flyway clean
           name = "FLYWAY_CLEAN_DISABLED"
           value = "false"
         }
@@ -107,7 +106,7 @@ resource "aws_ecs_task_definition" "flyway_task" {
     command = <<-EOF
     task_arn=$(aws ecs run-task \
       --task-definition ${var.app_name}-flyway-task \
-      --cluster ${aws_ecs_cluster.ecs_cluster.id} \
+      --cluster ${data.aws_ecs_cluster.ecs_cluster.id} \
       --count 1 \
       --network-configuration awsvpcConfiguration={securityGroups=[${data.aws_security_group.app.id}],subnets=${data.aws_subnets.app.ids[0]},assignPublicIp=DISABLED} \
       --query 'tasks[0].taskArn' \
@@ -116,11 +115,11 @@ resource "aws_ecs_task_definition" "flyway_task" {
     echo "Flyway task started with ARN: $task_arn at $(date)."
 
     echo "Waiting for Flyway task to complete..."
-    aws ecs wait tasks-stopped --cluster ${aws_ecs_cluster.ecs_cluster.id} --tasks $task_arn
+    aws ecs wait tasks-stopped --cluster ${data.aws_ecs_cluster.ecs_cluster.id} --tasks $task_arn
 
     echo "Flyway task completed, at $(date)."
 
-    task_status=$(aws ecs describe-tasks --cluster ${aws_ecs_cluster.ecs_cluster.id} --tasks $task_arn --query 'tasks[0].lastStatus' --output text)
+    task_status=$(aws ecs describe-tasks --cluster ${data.aws_ecs_cluster.ecs_cluster.id} --tasks $task_arn --query 'tasks[0].lastStatus' --output text)
     echo "Flyway task status: $task_status at $(date)."
     log_stream_name=$(aws logs describe-log-streams \
       --log-group-name "/ecs/${var.app_name}/flyway" \

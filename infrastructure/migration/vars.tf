@@ -25,6 +25,11 @@ variable "app_name" {
   type        = string
 }
 
+variable "api_image" {
+  description = "The image for the API container"
+  type        = string
+}
+
 variable "common_tags" {
   description = "Common tags to be applied to resources"
   type        = map(string)
@@ -34,6 +39,12 @@ variable "common_tags" {
 variable "flyway_image" {
   description = "The image for the Flyway container"
   type        = string
+}
+
+variable "flyway_clean_disabled" {
+  description = "Enable Flyway clean"
+  type        = bool
+  default     = false
 }
 
 variable "aws_region" {
