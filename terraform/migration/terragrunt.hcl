@@ -22,11 +22,11 @@ locals {
 
 # Remote S3 state for Terraform.
 generate "remote_state" {
-  path      = "backend.tf"
+  path      = "migration.tf"
   if_exists = "overwrite"
   contents  = <<EOF
 terraform {
-  backend "s3" {
+  migration "s3" {
     bucket         = "${local.statefile_bucket_name}"
     key            = "${local.statefile_key}"            # Path and name of the state file within the bucket
     region         = "${local.region}"                    # AWS region where the bucket is located
