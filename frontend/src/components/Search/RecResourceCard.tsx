@@ -1,11 +1,13 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleChevronRight } from '@fortawesome/free-solid-svg-icons';
+import Activities from '@/components/RecResource/Activities';
 import CardCarousel from '@/components/Search/CardCarousel';
 import blueStatus from '@/images/icons/blue-status.svg';
 import '@/styles/components/RecResourceCard.scss';
 
 interface RecResourceCardProps {
   recId: string;
+  activities: { recreation_activity_code: string }[];
   imageList: { imageUrl: string }[];
   name: string;
   siteLocation: string;
@@ -13,10 +15,12 @@ interface RecResourceCardProps {
 
 const RecResourceCard: React.FC<RecResourceCardProps> = ({
   recId,
+  activities,
   imageList,
   name,
   siteLocation,
 }) => {
+  const isActivities = activities.length > 0;
   return (
     <div className="rec-resource-card" key={recId}>
       <CardCarousel imageList={imageList} />
@@ -45,6 +49,7 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
           <span>Open (Placeholder)</span>
         </div>
       </div>
+      {isActivities && <Activities activities={activities} />}
     </div>
   );
 };
