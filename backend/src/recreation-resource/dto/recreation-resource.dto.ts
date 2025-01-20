@@ -20,4 +20,9 @@ export class RecreationResourceDto {
     description: "The location of the Recreation Resource",
   })
   site_location: string;
+
+  @ApiProperty({
+    description: "The list of available activities at the Recreation Resource",
+  })
+  recreation_activity: { recreation_activity_code: string }[];
 }
