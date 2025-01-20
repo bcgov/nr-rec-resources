@@ -2,7 +2,10 @@ insert into rst.recreation_resource (rec_resource_id, name, description, site_lo
 select
     rp.forest_file_id,
     rp.project_name as name,
-    rc.project_comment as description,
+    case
+        when rc.rec_comment_type_code = 'DESC' then rc.project_comment
+        else ''
+    end as description,
     rp.site_location
 from
     fta.recreation_project rp
@@ -10,5 +13,19 @@ left join
     fta.recreation_comment rc
 on
     rp.forest_file_id = rc.forest_file_id
-where
-    rc.rec_comment_type_code = 'DESC';
+on conflict do nothing;
+
+insert into rst.recreation_activity_code (recreation_activity_code, description)
+select
+    rac.recreation_activity_code,
+    rac.description as description
+from
+    fta.recreation_activity_code rac;
+
+
+insert into rst.recreation_activity (rec_resource_id, recreation_activity_code)
+select
+    ra.forest_file_id as rec_resource_id,
+    ra.recreation_activity_code
+from
+    fta.recreation_activity ra;
