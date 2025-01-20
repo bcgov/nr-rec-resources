@@ -23,7 +23,7 @@ comment on column rst.recreation_activity_code.recreation_activity_code is 'Code
 comment on column rst.recreation_activity_code.description is 'Description of the code value.';
 
 create table if not exists rst.recreation_activity (
-    id serial primary key,
+    id serial primary key, -- This is a surrogate key to make Prisma happy
     rec_resource_id varchar(200) not null references rst.recreation_resource (rec_resource_id),
     recreation_activity_code varchar(3) not null references rst.recreation_activity_code (recreation_activity_code)
 );
