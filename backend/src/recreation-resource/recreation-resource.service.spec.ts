@@ -6,28 +6,28 @@ describe("RecreationResourceService", () => {
   let service: RecreationResourceService;
 
   const recreationResource1 = {
-    forest_file_id: "REC0001",
+    rec_resource_id: "REC0001",
     name: "Rec site 1",
     description: "Rec site 1 description",
     site_location: "Rec site 1 location",
   };
 
   const recreationResource2 = {
-    forest_file_id: "REC0002",
+    rec_resource_id: "REC0002",
     name: "Rec site 2",
     description: "Rec site 2 description",
     site_location: "Rec site 2 location",
   };
 
   const recreationResource3 = {
-    forest_file_id: "REC0003",
+    rec_resource_id: "REC0003",
     name: "A testing orderBy",
     description: "Rec site 3 description",
     site_location: "Rec site 3 location",
   };
 
   const recreationResource4 = {
-    forest_file_id: "REC0004",
+    rec_resource_id: "REC0004",
     name: "Z testing orderBy",
     description: "Rec site 4 description",
     site_location: "Rec site 4 location",

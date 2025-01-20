@@ -4,7 +4,7 @@ export class RecreationResourceDto {
   @ApiProperty({
     description: "The ID of the Recreation Resource",
   })
-  forest_file_id: string;
+  rec_resource_id: string;
 
   @ApiProperty({
     description: "The name of the Recreation Resource",
