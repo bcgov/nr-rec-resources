@@ -24,32 +24,34 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
   return (
     <div className="rec-resource-card" key={recId}>
       <CardCarousel imageList={imageList} />
-      <div className="card-content">
-        <a href={`/resource/${recId}`}>
-          <h2 className="card-heading-text">
-            {name && name.toLowerCase()}{' '}
-            <FontAwesomeIcon
-              icon={faCircleChevronRight}
-              className="card-heading-icon"
-            />
-          </h2>
-        </a>
-        <p className="capitalize">
-          {siteLocation && siteLocation.toLowerCase()}
-        </p>
-      </div>
-      <div className="status-container">
-        <div className="icon-container">
-          <img
-            alt="Site open status icon"
-            src={blueStatus}
-            height={24}
-            width={24}
-          />{' '}
-          <span>Open (Placeholder)</span>
+      <div className="rec-resource-card-content">
+        <div className="rec-resource-card-info">
+          <a href={`/resource/${recId}`}>
+            <h2 className="card-heading-text">
+              {name && name.toLowerCase()}{' '}
+              <FontAwesomeIcon
+                icon={faCircleChevronRight}
+                className="card-heading-icon"
+              />
+            </h2>
+          </a>
+          <p className="capitalize">
+            {siteLocation && siteLocation.toLowerCase()}
+          </p>
+        </div>
+        <div className="card-content-lower">
+          {isActivities && <Activities activities={activities} />}
+          <div className="card-status-container">
+            <img
+              alt="Site open status icon"
+              src={blueStatus}
+              height={24}
+              width={24}
+            />{' '}
+            <span>Open (Placeholder)</span>
+          </div>
         </div>
       </div>
-      {isActivities && <Activities activities={activities} />}
     </div>
   );
 };
