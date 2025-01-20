@@ -20,6 +20,13 @@ export class RecreationResourceService {
       where: {
         rec_resource_id: id,
       },
+      include: {
+        recreation_activity: {
+          select: {
+            recreation_activity_code: true,
+          },
+        },
+      },
     });
 
     return recResource;
@@ -56,6 +63,13 @@ export class RecreationResourceService {
           { name: { contains: filter, mode: QueryMode.insensitive } },
           { site_location: { contains: filter, mode: QueryMode.insensitive } },
         ],
+      },
+      include: {
+        recreation_activity: {
+          select: {
+            recreation_activity_code: true,
+          },
+        },
       },
     };
 
