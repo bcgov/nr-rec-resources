@@ -11,3 +11,24 @@ create table if not exists rst.recreation_resource
 );
 
 comment on table rst.recreation_resource is 'Resource information relating to a recreational file. A recreation file can have only one resource. A recreation resource must be of type Site, Reserve, Trail, or Interpretive Forest.';
+
+create table rst.recreation_activity_code (
+    recreation_activity_code varchar(3) primary key,
+    description varchar(120)
+);
+
+comment on table rst.recreation_activity_code is 'Activity code types for recreation projects.';
+
+comment on column rst.recreation_activity_code.recreation_activity_code is 'Code describing the Recreation Activity.';
+comment on column rst.recreation_activity_code.description is 'Description of the code value.';
+
+create table if not exists rst.recreation_activity
+(
+    forest_file_id varchar(200) not null,
+    recreation_activity_code varchar(3) not null references rst.recreation_activity_code(recreation_activity_code)
+);
+
+comment on table rst.recreation_activity is 'The types of available activities for a given project.';
+
+comment on column rst.recreation_activity.forest_file_id is 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
+comment on column rst.recreation_activity.recreation_activity_code is 'Code describing the Recreation Activity.';
