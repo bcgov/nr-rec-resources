@@ -18,7 +18,7 @@ import campingIcon from '@/images/activities/frontcountry-camping.svg';
 import viewpointIcon from '@/images/activities/viewpoint.svg';
 import horsebackRidingIcon from '@/images/activities/horseback-riding.svg';
 
-import '@/styles/components/activities.scss';
+import '@/styles/components/Activities.scss';
 
 interface ActivityProps {
   activities: { recreation_activity_code: string }[];

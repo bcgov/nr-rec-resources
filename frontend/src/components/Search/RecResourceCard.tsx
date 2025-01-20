@@ -40,7 +40,7 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
           </p>
         </div>
         <div className="card-content-lower">
-          {isActivities && <Activities activities={activities} />}
+          {isActivities ? <Activities activities={activities} /> : <div />}
           <div className="card-status-container">
             <img
               alt="Site open status icon"
