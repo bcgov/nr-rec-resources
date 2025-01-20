@@ -129,11 +129,17 @@ const SearchPage = () => {
             {isResults && (
               <>
                 {recResourceList?.map((resource: any) => {
-                  const { rec_resource_id, name, site_location } = resource;
+                  const {
+                    rec_resource_id,
+                    name,
+                    recreation_activity,
+                    site_location,
+                  } = resource;
                   return (
                     <RecResourceCard
                       key={rec_resource_id}
                       recId={rec_resource_id}
+                      activities={recreation_activity}
                       imageList={photosExample}
                       name={name}
                       siteLocation={site_location}
