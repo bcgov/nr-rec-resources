@@ -18,7 +18,7 @@ export class RecreationResourceService {
   async findOne(id: string): Promise<RecreationResourceDto> {
     const recResource = await this.prisma.recreation_resource.findUnique({
       where: {
-        forest_file_id: id,
+        rec_resource_id: id,
       },
     });
 

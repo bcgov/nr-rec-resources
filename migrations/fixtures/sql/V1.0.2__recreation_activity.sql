@@ -1,4 +1,5 @@
-insert into rst.recreation_activity (forest_file_id, recreation_activity_code)
+insert into
+    rst.recreation_activity (rec_resource_id, recreation_activity_code)
 values
     ('REC204117', '22'),
     ('REC6586', '12'),

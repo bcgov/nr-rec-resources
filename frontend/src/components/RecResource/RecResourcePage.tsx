@@ -18,7 +18,7 @@ import blueStatus from '@/images/icons/blue-status.svg';
 import '@/styles/components/RecResource.scss';
 
 interface RecResourceProps {
-  forest_file_id: string;
+  rec_resource_id: string;
   name: string;
   description: string;
   site_location: string;
@@ -75,7 +75,7 @@ const RecResourcePage = () => {
     // eslint-disable-next-line
   }, []);
 
-  const { description, forest_file_id, name, site_location } =
+  const { description, rec_resource_id, name, site_location } =
     recResource || {};
 
   const siteDescriptionRef = useRef<HTMLElement>(null!);
@@ -123,7 +123,7 @@ const RecResourcePage = () => {
             <div>
               <h1 className="capitalize">{name && name.toLowerCase()}</h1>
               <p className="bc-color-blue-dk mb-4">
-                <span>Recreation site |</span> {forest_file_id}
+                <span>Recreation site |</span> {rec_resource_id}
               </p>
             </div>
             <div className="icon-container">

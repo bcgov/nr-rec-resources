@@ -44,7 +44,7 @@ describe("RecreationResourceController", () => {
     it("should return an array of users", async () => {
       const result = [];
       result.push({
-        forest_file_id: "REC0001",
+        rec_resource_id: "REC0001",
         name: "Rec site 1",
         description: "Rec site 1 description",
         site_location: "Rec site 1 location",
@@ -57,7 +57,7 @@ describe("RecreationResourceController", () => {
   describe("findOne", () => {
     it("should return a Recreation Resource object", async () => {
       const result = {
-        forest_file_id: "REC0001",
+        rec_resource_id: "REC0001",
         name: "Rec site 1",
         description: "Rec site 1 description",
         site_location: "Rec site 1 location",

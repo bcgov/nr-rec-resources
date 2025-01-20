@@ -1,4 +1,4 @@
-insert into rst.recreation_resource (forest_file_id, name, description, site_location)
+insert into rst.recreation_resource (rec_resource_id, name, description, site_location)
 select
     rp.forest_file_id,
     rp.project_name as name,
