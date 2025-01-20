@@ -51,6 +51,15 @@ jobs:
       tag: ${{ github.sha }}
     secrets: inherit
 
+  # Running FTA migration after each dev deployment since we are clearing the database each run
+  fta-migration:
+    needs: deploy-to-aws-dev
+    name: FTA Migration
+    uses: ./.github/workflows/fta-migration.yml
+    with:
+      tag: ${{ github.sha }}
+    secrets: inherit
+
   # Separate review job since we can't use GitHub environments in reusable workflows
   review-test-deployment:
     name: Review Test Deployment

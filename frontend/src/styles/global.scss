@@ -19,6 +19,10 @@
   background: $colorBlueMed;
 }
 
+.capitalize {
+  text-transform: capitalize;
+}
+
 #root {
   display: flex;
   flex-direction: column;

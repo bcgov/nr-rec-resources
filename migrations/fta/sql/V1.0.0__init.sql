@@ -1,3 +1,6 @@
+create extension if not exists "postgis";
+
+create schema if not exists fta;
 
 create table fta.recreation_project (
     forest_file_id varchar(20) primary key,
@@ -29,11 +32,7 @@ create table fta.recreation_project (
     arch_impact_date date null,
     borden_no varchar(200) null,
     camp_host_ind varchar(1) default 'N',
-    low_mobility_access_ind varchar(1) default 'N',
-    constraint chk_resource_feature_ind check (resource_feature_ind in ('N', 'Y')),
-    constraint chk_arch_impact_assess_ind check (arch_impact_assess_ind in ('Y', 'N')),
-    constraint chk_recreation_view_ind check (recreation_view_ind in ('Y', 'N')),
-    constraint chk_camp_host_ind check (camp_host_ind in ('Y', 'N'))
+    low_mobility_access_ind varchar(1) default 'N'
 );
 
 comment on table fta.recreation_project is 'Project information relating to a recreational file. A recreation file can have only one project. A project must be of type Site, Reserve, Trail, or Interpretive Forest.';
@@ -99,7 +98,7 @@ comment on column fta.recreation_project.camp_host_ind is 'Identifies whether or
 comment on column fta.recreation_project.low_mobility_access_ind is 'Identifies whether or not there is low mobility access to the site.';
 
 create table fta.recreation_access (
-    forest_file_id varchar(10) primary key,
+    forest_file_id varchar(10),
     recreation_access_code varchar(3) not null,
     recreation_sub_access_code varchar(3) not null,
     revision_count integer,
@@ -153,8 +152,7 @@ create table fta.recreation_access_xref (
     entry_userid varchar(30),
     entry_timestamp timestamp,
     update_userid varchar(30),
-    update_timestamp timestamp,
-    forest_file_id varchar(10)
+    update_timestamp timestamp
 );
 
 comment on table fta.recreation_access_xref is 'Describes valid combinations between Recreation Access and Recreation Sub Access types. E.g. Boat in - Motor Boat, Boat in - Canoe, Trail-MultiUse, Trail-Snowmobile.';
@@ -174,7 +172,7 @@ comment on column fta.recreation_access_xref.update_userid is 'The userid of the
 comment on column fta.recreation_access_xref.update_timestamp is 'The timestamp of the last update to the road section record.';
 
 create table fta.recreation_activity (
-    forest_file_id varchar(10) primary key,
+    forest_file_id varchar(10),
     recreation_activity_code varchar(3) not null,
     activity_rank int,
     revision_count int,
@@ -224,7 +222,7 @@ comment on column fta.recreation_activity_code.update_timestamp is 'The date and
 
 create table fta.recreation_agreement_holder (
     agreement_holder_id serial primary key,
-    forest_file_id varchar(10) references fta.recreation_project (forest_file_id) on delete restrict,
+    forest_file_id varchar(10),
     client_number varchar(8),
     client_locn_code varchar(2),
     agreement_start_date date,
@@ -261,7 +259,7 @@ comment on column fta.recreation_agreement_holder.update_userid is 'The userid o
 comment on column fta.recreation_agreement_holder.update_timestamp is 'The timestamp of the last update to the road section record.';
 
 create table fta.recreation_attachment (
-    forest_file_id varchar(10) primary key,
+    forest_file_id varchar(10),
     recreation_attachment_id serial not null,
     attachment_file_name varchar(50),
     revision_count int,
@@ -290,7 +288,7 @@ comment on column fta.recreation_attachment.update_userid is 'The userid of the 
 comment on column fta.recreation_attachment.update_timestamp is 'The timestamp of the last update to the declared area record.';
 
 create table fta.recreation_attachment_content (
-    forest_file_id varchar(10) references fta.recreation_attachment (forest_file_id) on delete restrict,
+    forest_file_id varchar(10),
     recreation_attachment_id int,
     attachment_content bytea,
     primary key (forest_file_id, recreation_attachment_id),
@@ -306,7 +304,7 @@ comment on column fta.recreation_attachment_content.recreation_attachment_id is 
 comment on column fta.recreation_attachment_content.attachment_content is 'Content for the attachment.';
 
 create table fta.recreation_comment (
-    forest_file_id varchar(10) references fta.recreation_project (forest_file_id) on delete restrict,
+    forest_file_id varchar(10),
     recreation_comment_id serial primary key,
     rec_comment_type_code varchar(4),
     closure_ind char(1) default 'N',
@@ -374,8 +372,7 @@ create table fta.recreation_def_cs_rpr_history (
     entry_userid varchar(30) null,
     entry_timestamp timestamp null,
     update_userid varchar(30) null,
-    update_timestamp timestamp null,
-    primary key (forest_file_id, campsite_number)
+    update_timestamp timestamp null
 );
 
 comment on table fta.recreation_def_cs_rpr_history is 'Recreation Defined Campsite repair history audit log. Note that defined campsites can be deleted, while retaining the repair history.';
@@ -401,7 +398,7 @@ comment on column fta.recreation_def_cs_rpr_history.update_userid is 'The userid
 comment on column fta.recreation_def_cs_rpr_history.update_timestamp is 'The timestamp of the last update to the road section record.';
 
 create table fta.recreation_defined_campsite (
-    forest_file_id varchar(10) primary key,
+    forest_file_id varchar(10),
     campsite_number int not null,
     estimated_repair_cost numeric(7, 2),
     recreation_remed_repair_code varchar(2),
@@ -522,7 +519,7 @@ comment on column fta.recreation_fee_code.update_timestamp is 'The date and time
 
 create table fta.recreation_fee (
     fee_id serial primary key,
-    forest_file_id varchar(10) references fta.recreation_project (forest_file_id) on delete restrict,
+    forest_file_id varchar(10),
     fee_amount numeric(5, 2) default null,
     fee_start_date date default null,
     fee_end_date date default null,
@@ -533,7 +530,7 @@ create table fta.recreation_fee (
     friday_ind varchar(1) default 'N',
     saturday_ind varchar(1) default 'N',
     sunday_ind varchar(1) default 'N',
-    recreation_fee_code varchar(3) references fta.recreation_fee_code (recreation_fee_code) on delete restrict,
+    recreation_fee_code varchar(3),
     revision_count numeric(5) default null,
     entry_userid varchar(30) default null,
     entry_timestamp timestamp default current_timestamp,
@@ -619,7 +616,7 @@ comment on table fta.recreation_file_type_code is 'Describes the RECREATION FILE
 -- There were no descriptions for the columns in the original RECREATION_FILE_TYPE_CODE table
 create table fta.recreation_inspection_report (
     inspection_id numeric primary key,
-    forest_file_id varchar(10),
+    forest_file_id varchar(20),
     site_occupancy_code varchar(10),
     rec_file_type_code varchar(10),
     site_name varchar(50),
@@ -638,11 +635,11 @@ create table fta.recreation_inspection_report (
     refused_pass_no numeric,
     contract_id varchar(20),
     contractor varchar(30),
-    rec_project_skey numeric,
-    entry_userid varchar(30) default null,
+    rec_project_skey varchar(20),
     entry_timestamp timestamp default current_timestamp,
-    update_userid varchar(30) default null,
-    update_timestamp timestamp default current_timestamp
+    entry_userid varchar(30) default null,
+    update_timestamp timestamp default current_timestamp,
+    update_userid varchar(30) default null
 );
 
 comment on table fta.recreation_inspection_report is 'Contains the reports for inspections related to recreation projects.';
@@ -749,7 +746,7 @@ create table fta.recreation_map_feature (
     entry_timestamp date,
     update_userid varchar(30),
     update_timestamp date,
-    recreation_map_feature_guid uuid default gen_random_uuid ()
+    recreation_map_feature_guid varchar(36)
 );
 
 comment on table fta.recreation_map_feature is 'Captures both current and historical attributes for Recreation Map Features.';
@@ -1029,24 +1026,24 @@ comment on column fta.recreation_structure_code.update_timestamp is 'The date an
 
 create table fta.recreation_structure (
     structure_id numeric(10) primary key,
-    forest_file_id varchar(10) not null references fta.recreation_project (forest_file_id) on delete restrict,
+    forest_file_id varchar(10),
     campsite_forest_file_id varchar(10) null,
-    campsite_number numeric(3) null,
-    recreation_structure_code varchar(3) null references fta.recreation_structure_code (recreation_structure_code) on delete restrict,
+    recreation_structure_code varchar(3),
     structure_name varchar(100),
     structure_count numeric(3),
     structure_length numeric(7, 1),
     structure_width numeric(7, 1),
     structure_area numeric(7, 1),
     actual_value numeric(7, 2),
-    recreation_remed_repair_code varchar(2) null references fta.recreation_remed_repair_code (recreation_remed_repair_code) on delete restrict,
+    campsite_number numeric(3) null,
+    recreation_remed_repair_code varchar(2),
     estimated_repair_cost numeric(10, 2),
     repair_completed_date date,
     revision_count numeric(5),
     entry_userid varchar(30),
-    entry_timestamp timestamp default current_timestamp,
     update_userid varchar(30),
-    update_timestamp timestamp default current_timestamp
+    update_timestamp timestamp default current_timestamp,
+    entry_timestamp timestamp default current_timestamp
 );
 
 comment on table fta.recreation_structure is 'Information relating to a recreation site improvement in a recreational tenure. All improvements are man-made.';

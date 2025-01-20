@@ -25,7 +25,7 @@ services:
     image: ${FLYWAY_IMAGE:-flyway/flyway:10-alpine}
     container_name: migrations
     command: info migrate info
-    volumes: ["./migrations/sql:/flyway/sql:ro"]
+    volumes: ["./migrations/rst/sql:/flyway/sql:ro"]
     environment:
       FLYWAY_URL: jdbc:postgresql://database:5432/postgres
       FLYWAY_USER: *POSTGRES_USER
@@ -35,6 +35,21 @@ services:
     depends_on:
       database:
         condition: service_healthy
+
+  fixtures:
+    image: ${FLYWAY_FIXTURES_IMAGE:-flyway/flyway:10-alpine}
+    container_name: fixtures
+    command: info migrate info
+    volumes: ["./migrations/fixtures/sql:/flyway/sql:ro"]
+    environment:
+      FLYWAY_URL: jdbc:postgresql://database:5432/postgres
+      FLYWAY_USER: *POSTGRES_USER
+      FLYWAY_PASSWORD: *POSTGRES_PASSWORD
+      FLYWAY_BASELINE_ON_MIGRATE: true
+      FLYWAY_DEFAULT_SCHEMA: migration # needs a separate migration schema or it will fail
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
 
   schemaspy:
     image: schemaspy/schemaspy:6.2.4
