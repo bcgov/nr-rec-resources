@@ -15,6 +15,10 @@ import mountainBikingIcon from '@/images/activities/mountain-biking.svg';
 import climbingIcon from '@/images/activities/climbing.svg';
 import sailingIcon from '@/images/activities/sailing.svg';
 import campingIcon from '@/images/activities/frontcountry-camping.svg';
+import viewpointIcon from '@/images/activities/viewpoint.svg';
+import horsebackRidingIcon from '@/images/activities/horseback-riding.svg';
+
+import '@/styles/components/activities.scss';
 
 interface ActivityProps {
   activities: { recreation_activity_code: string }[];
@@ -35,18 +39,18 @@ const activityMap: ActivityMap = {
   '05': { icon: scubaDivingIcon, description: 'Scuba Diving or Skin Diving' },
   '06': { icon: waterskiingIcon, description: 'Waterskiing' },
   '07': { icon: swimmingIcon, description: 'Swimming & Bathing' },
-  // '08': { icon: 'beach-activities', description: 'Beach Activities' },
+  // '08': { icon: beachActivitiesIcon, description: 'Beach Activities' },
   '09': { icon: picnicAreaIcon, description: 'Picnicking' },
   '10': { icon: huntingIcon, description: 'Hunting' },
   '11': { icon: cavingIcon, description: 'Caving' },
   '12': { icon: hikingIcon, description: 'Hiking' },
   // '13': { icon: 'mountaineering', description: 'Mountaineering' },
-  // '14': { icon: 'wildlife-viewing', description: 'Nature Study' }, -- is this correct?
+  // '14': { icon: 'nature-study', description: 'Nature Study' }, -- is this correct?
   // '15': { icon: 'orienteering', description: 'Orienteering' },
-  // '16': { icon: 'viewpoint', description: 'Viewing' }, -- is this correct?
+  '16': { icon: viewpointIcon, description: 'Viewing' },
   '17': { icon: wildlifeViewingIcon, description: 'Wildlife Viewing' },
   // '18': { icon: 'gathering-and-collecting', description: 'Gathering and Collecting' },
-  // '19': { icon: 'horseback-riding', description: 'Horseback Riding' },
+  '19': { icon: horsebackRidingIcon, description: 'Horseback Riding' },
   // '20': { icon: 'atv', description: 'Trailbike Riding (Motorized)' }, -- is this correct?
   // '21': { icon: '4-wheel-driving', description: '4-Wheel Driving' },
   '22': { icon: snowmobilingIcon, description: 'Snowmobiling' },
@@ -64,9 +68,8 @@ const activityMap: ActivityMap = {
 };
 
 const Activities = ({ activities }: ActivityProps) => {
-  console.log('activityCodes', activities);
   return (
-    <ul>
+    <ul className="activities-list">
       {activities.map((activityCode, index: number) => {
         const { recreation_activity_code } = activityCode;
         const activity = activityMap?.[recreation_activity_code];
