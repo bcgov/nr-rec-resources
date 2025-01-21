@@ -1,10 +1,10 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleChevronRight } from '@fortawesome/free-solid-svg-icons';
-import Activities from '@/components/rec-resource/Card/Activities';
-import CardCarousel from '@/components/search/CardCarousel';
+import Activities from '@/components/rec-resource/card/Activities';
+import CardCarousel from '@/components/rec-resource/card/CardCarousel';
 import blueStatus from '@/images/icons/blue-status.svg';
 import { Activity } from '@/components/rec-resource/types';
-import '@/components/rec-resource/Card/RecResourceCard.scss';
+import '@/components/rec-resource/card/RecResourceCard.scss';
 
 interface RecResourceCardProps {
   recId: string;
