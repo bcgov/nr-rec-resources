@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import apiService from '@/service/api-service';
 import type { AxiosResponse } from '~/axios';
 import buildQueryString from '@/utils/buildQueryString';
-import RecResourceCard from '@/components/Search/RecResourceCard';
+import RecResourceCard from '@/components/RecResource/Card/RecResourceCard';
 import SearchBanner from '@/components/Search/SearchBanner';
 
 import { photosExample } from '@/components/RecResource/RecResourcePage';

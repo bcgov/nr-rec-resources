@@ -16,13 +16,7 @@ import PageMenu from '@/components/PageMenu';
 import locationDot from '@/images/fontAwesomeIcons/location-dot.svg';
 import blueStatus from '@/images/icons/blue-status.svg';
 import '@/styles/components/RecResource.scss';
-
-interface RecResourceProps {
-  rec_resource_id: string;
-  name: string;
-  description: string;
-  site_location: string;
-}
+import { RecResource } from '@/components/RecResource/types';
 
 export const photosExample = [
   {
@@ -52,9 +46,7 @@ export const photosExample = [
 ];
 
 const RecResourcePage = () => {
-  const [recResource, setRecResource] = useState<
-    RecResourceProps | undefined
-  >();
+  const [recResource, setRecResource] = useState<RecResource | undefined>();
   const [notFound, setNotFound] = useState<boolean>(false);
 
   const { id } = useParams();
@@ -75,8 +67,15 @@ const RecResourcePage = () => {
     // eslint-disable-next-line
   }, []);
 
-  const { description, rec_resource_id, name, site_location } =
-    recResource || {};
+  const {
+    recreation_activity,
+    description,
+    name,
+    rec_resource_id,
+    site_location,
+  } = recResource || {};
+
+  console.log('recResource', recResource);
 
   const siteDescriptionRef = useRef<HTMLElement>(null!);
   const mapLocationRef = useRef<HTMLElement>(null!);
@@ -108,6 +107,7 @@ const RecResourcePage = () => {
     );
   }
 
+  const isActivities = recreation_activity && recreation_activity.length > 0;
   const isPhotoGallery = photosExample.length > 0;
 
   return (
@@ -206,7 +206,12 @@ const RecResourcePage = () => {
 
             <Camping ref={campingRef} />
 
-            <ThingsToDo ref={thingsToDoRef} />
+            {isActivities && (
+              <ThingsToDo
+                activities={recreation_activity}
+                ref={thingsToDoRef}
+              />
+            )}
 
             <Contact ref={contactRef} />
 
