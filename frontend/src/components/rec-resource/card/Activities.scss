@@ -1,0 +1,11 @@
+.activities-list {
+  list-style-type: none;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+
+  li {
+    margin-right: 8px;
+  }
+}

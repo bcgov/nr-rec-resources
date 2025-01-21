@@ -3,8 +3,6 @@ import { Prisma } from "@prisma/client";
 import { PrismaService } from "src/prisma.service";
 import { RecreationResourceDto } from "./dto/recreation-resource.dto";
 
-const { QueryMode } = Prisma;
-
 interface RecreationActivityWithDescription {
   with_description: {
     description: string;
@@ -91,8 +89,13 @@ export class RecreationResourceService {
       // If limit is provided, we will skip the records up to the end of the previous page
       where: {
         OR: [
-          { name: { contains: filter, mode: QueryMode.insensitive } },
-          { site_location: { contains: filter, mode: QueryMode.insensitive } },
+          { name: { contains: filter, mode: Prisma.QueryMode.insensitive } },
+          {
+            site_location: {
+              contains: filter,
+              mode: Prisma.QueryMode.insensitive,
+            },
+          },
         ],
       },
       select: this.recreationResourceSelect,

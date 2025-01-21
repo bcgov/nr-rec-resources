@@ -151,6 +151,29 @@ describe("RecreationResourceService", () => {
     expect(service).toBeDefined();
   });
 
+  describe("formatResults function", () => {
+    it("should correctly format recreation_activity with_description relation in the results", () => {
+      const results = service.formatResults(recresourceArray);
+
+      expect(results[0]).toEqual(recreationResource1Response);
+      expect(results[1]).toEqual(recreationResource2Response);
+      expect(results[2]).toEqual(recreationResource3Response);
+      expect(results[3]).toEqual(recreationResource4Response);
+    });
+
+    it("should return an empty array if no Recreation Resources are found", () => {
+      const results = service.formatResults([]);
+
+      expect(results).toEqual([]);
+    });
+
+    it("should throw an error with garbage data", () => {
+      expect(() => service.formatResults([{}])).toThrow(
+        "Cannot read properties of undefined (reading 'map')",
+      );
+    });
+  });
+
   describe("findOne", () => {
     it("should return a Recreation Resource", async () => {
       service["prisma"].recreation_resource.findUnique = vi
