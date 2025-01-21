@@ -23,12 +23,24 @@ export class RecreationResourceService {
     },
   };
 
+  // Format the results to match the DTO due to many-to-many relationship
+  formatResults(recResources: any[]): RecreationResourceDto[] {
+    return recResources.map((resource) => ({
+      ...resource,
+      recreation_activity: resource.recreation_activity.map((activity) => ({
+        description: activity.with_description.description,
+        recreation_activity_code:
+          activity.with_description.recreation_activity_code,
+      })),
+    }));
+  }
+
   async findAll(): Promise<RecreationResourceDto[]> {
     const recResources = await this.prisma.recreation_resource.findMany({
       include: this.recreationResourceInclude,
     });
 
-    return recResources;
+    return this.formatResults(recResources);
   }
 
   async findOne(id: string): Promise<RecreationResourceDto> {
@@ -39,7 +51,7 @@ export class RecreationResourceService {
       include: this.recreationResourceInclude,
     });
 
-    return recResource;
+    return this.formatResults([recResource])[0];
   }
 
   async searchRecreationResources(
@@ -91,13 +103,8 @@ export class RecreationResourceService {
       filter ? countQuery : undefined,
     );
 
-    console.log(
-      "recreationResources",
-      recreationResources[0].recreation_activity,
-    );
-
     return {
-      data: recreationResources,
+      data: this.formatResults(recreationResources),
       page,
       limit,
       total: count,
