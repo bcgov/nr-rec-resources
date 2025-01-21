@@ -10,7 +10,7 @@ import Fullscreen from 'yet-another-react-lightbox/plugins/fullscreen';
 import 'yet-another-react-lightbox/styles.css';
 import 'yet-another-react-lightbox/plugins/captions.css';
 import 'yet-another-react-lightbox/plugins/thumbnails.css';
-import '@/components/RecResource/PhotoGallery.scss';
+import '@/components/rec-resource/PhotoGallery.scss';
 
 import Photo from './Photo';
 

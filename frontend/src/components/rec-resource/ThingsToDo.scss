@@ -1,0 +1,17 @@
+@import '@/styles/variables.scss';
+
+.things-to-do-list {
+  list-style-type: none;
+  padding-inline-start: 0;
+
+  li {
+    padding: 8px 16px;
+    border-bottom: 1px solid $colorGreyMed;
+    color: $colorBlue;
+    font-weight: 700;
+
+    img {
+      margin-right: 16px;
+    }
+  }
+}

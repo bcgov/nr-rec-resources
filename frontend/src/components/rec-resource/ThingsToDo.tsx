@@ -1,6 +1,7 @@
 import { forwardRef } from 'react';
 import activityIconMap from '@/data/activityIconMap';
-import { Activity } from '@/components/RecResource/types';
+import { Activity } from '@/components/rec-resource/types';
+import '@/components/rec-resource/ThingsToDo.scss';
 
 interface ThingsToDoProps {
   activities: Activity[];
@@ -21,10 +22,10 @@ const ThingsToDo = forwardRef<HTMLElement, ThingsToDoProps>(
                 <img
                   alt={description}
                   src={activityIcon}
-                  height={32}
-                  width={32}
+                  height={36}
+                  width={36}
                 />
-                <span>{description}</span>
+                {description}
               </li>
             );
           })}
