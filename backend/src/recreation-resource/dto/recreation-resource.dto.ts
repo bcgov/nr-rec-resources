@@ -24,5 +24,7 @@ export class RecreationResourceDto {
   @ApiProperty({
     description: "The list of available activities at the Recreation Resource",
   })
-  recreation_activity: { recreation_activity_code: string }[];
+  recreation_activity: {
+    recreation_activity_code: string;
+  }[];
 }
