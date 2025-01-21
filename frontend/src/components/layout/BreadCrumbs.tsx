@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom';
-import '@/styles/components/BreadCrumbs.scss';
+import '@/components/layout/BreadCrumbs.scss';
 
 interface BreadCrumbsProps {
   customPaths?: { name: string; route: string }[];

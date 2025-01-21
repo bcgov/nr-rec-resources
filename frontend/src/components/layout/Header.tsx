@@ -1,6 +1,6 @@
 import BCLogo from '@/images/BC_nav_logo.svg';
 import RSTLogo from '@/images/RST_nav_logo.svg';
-import '@/styles/components/Header.scss';
+import '@/components/layout/Header.scss';
 
 const Header = () => {
   return (

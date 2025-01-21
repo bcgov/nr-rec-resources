@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import debounce from 'lodash.debounce';
-import '@/styles/components/Search.scss';
+import '@/components/Search/Search.scss';
 
 const SearchBanner = () => {
   const [searchParams, setSearchParams] = useSearchParams();

@@ -11,12 +11,12 @@ import {
   PhotoGallery,
   SiteDescription,
   ThingsToDo,
-} from '@/components/RecResource';
-import PageMenu from '@/components/PageMenu';
+} from '@/components/recResource';
+import PageMenu from '@/components/layout/PageMenu';
 import locationDot from '@/images/fontAwesomeIcons/location-dot.svg';
 import blueStatus from '@/images/icons/blue-status.svg';
-import '@/styles/components/RecResource.scss';
 import { RecResource } from '@/components/RecResource/types';
+import '@/components/recResource/RecResource.scss';
 
 export const photosExample = [
   {
