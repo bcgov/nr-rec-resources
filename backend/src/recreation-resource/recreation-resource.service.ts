@@ -5,6 +5,13 @@ import { RecreationResourceDto } from "./dto/recreation-resource.dto";
 
 const { QueryMode } = Prisma;
 
+interface RecreationActivityWithDescription {
+  with_description: {
+    description: string;
+    recreation_activity_code: string;
+  };
+}
+
 @Injectable()
 export class RecreationResourceService {
   constructor(private prisma: PrismaService) {}
@@ -27,11 +34,13 @@ export class RecreationResourceService {
   formatResults(recResources: any[]): RecreationResourceDto[] {
     return recResources.map((resource) => ({
       ...resource,
-      recreation_activity: resource.recreation_activity.map((activity) => ({
-        description: activity.with_description.description,
-        recreation_activity_code:
-          activity.with_description.recreation_activity_code,
-      })),
+      recreation_activity: resource.recreation_activity.map(
+        (activity: RecreationActivityWithDescription) => ({
+          description: activity.with_description.description,
+          recreation_activity_code:
+            activity.with_description.recreation_activity_code,
+        }),
+      ),
     }));
   }
 
