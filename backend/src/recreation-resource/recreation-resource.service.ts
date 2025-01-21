@@ -11,9 +11,14 @@ export class RecreationResourceService {
 
   // get recreation_activity and recreation_activity_code from recreation_resource
   recreationResourceInclude = {
+    rec_resource_id: true,
+    name: true,
+    site_location: true,
+
     recreation_activity: {
       select: {
-        recreation_activity_code: true,
+        // Join recreation_activity_code to get description
+        with_description: true,
       },
     },
   };
@@ -69,7 +74,7 @@ export class RecreationResourceService {
           { site_location: { contains: filter, mode: QueryMode.insensitive } },
         ],
       },
-      include: this.recreationResourceInclude,
+      select: this.recreationResourceInclude,
     };
 
     const countQuery = {
@@ -79,11 +84,16 @@ export class RecreationResourceService {
     const recreationResources = await this.prisma.recreation_resource.findMany(
       filter
         ? filterQuery
-        : { include: this.recreationResourceInclude, orderBy, skip, take },
+        : { select: this.recreationResourceInclude, orderBy, skip, take },
     );
 
     const count = await this.prisma.recreation_resource.count(
       filter ? countQuery : undefined,
+    );
+
+    console.log(
+      "recreationResources",
+      recreationResources[0].recreation_activity,
     );
 
     return {

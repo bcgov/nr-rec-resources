@@ -19,16 +19,16 @@ model recreation_resource {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_activity {
-  id                                                                                              Int                      @id @default(autoincrement())
-  rec_resource_id                                                                                 String                   @db.VarChar(200)
-  recreation_activity_code                                                                        String                   @db.VarChar(3)
-  recreation_resource                                                                             recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
-  recreation_activity_code_recreation_activity_recreation_activity_codeTorecreation_activity_code recreation_activity_code @relation("recreation_activity_recreation_activity_codeTorecreation_activity_code", fields: [recreation_activity_code], references: [recreation_activity_code], onDelete: NoAction, onUpdate: NoAction)
+  id                       Int                      @id @default(autoincrement())
+  rec_resource_id          String                   @db.VarChar(200)
+  recreation_activity_code String                   @db.VarChar(3)
+  recreation_resource      recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+  with_description         recreation_activity_code @relation("activity_with_description", fields: [recreation_activity_code], references: [recreation_activity_code], onDelete: NoAction, onUpdate: NoAction)
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_activity_code {
-  recreation_activity_code                                                                   String                @id @db.VarChar(3)
-  description                                                                                String?               @db.VarChar(120)
-  recreation_activity_recreation_activity_recreation_activity_codeTorecreation_activity_code recreation_activity[] @relation("recreation_activity_recreation_activity_codeTorecreation_activity_code")
+  recreation_activity_code String                @id @db.VarChar(3)
+  description              String?               @db.VarChar(120)
+  with_description         recreation_activity[] @relation("activity_with_description")
 }
