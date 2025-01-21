@@ -4,7 +4,7 @@ import Activities from '@/components/RecResource/Card/Activities';
 import CardCarousel from '@/components/Search/CardCarousel';
 import blueStatus from '@/images/icons/blue-status.svg';
 import { Activity } from '@/components/RecResource/types';
-import '@/styles/components/RecResourceCard.scss';
+import '@/components/RecResource/Card/RecResourceCard.scss';
 
 interface RecResourceCardProps {
   recId: string;

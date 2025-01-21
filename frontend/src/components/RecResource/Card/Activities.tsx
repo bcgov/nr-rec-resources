@@ -1,7 +1,7 @@
 import activityIconMap from '@/data/activityIconMap';
 import { Activity } from '@/components/RecResource/types';
 
-import '@/styles/components/Activities.scss';
+import '@/components/RecResource/Card/Activities.scss';
 
 interface ActivityProps {
   activities: Activity[];

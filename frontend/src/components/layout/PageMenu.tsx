@@ -1,4 +1,4 @@
-import '@/styles/components/PageMenu.scss';
+import '@/components/layout/PageMenu.scss';
 
 type PageSection = {
   sectionIndex: number;

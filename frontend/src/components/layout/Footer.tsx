@@ -1,5 +1,5 @@
 import RSTLogo from '@/images/RST_nav_logo.svg';
-import '@/styles/components/Footer.scss';
+import '@/components/layout/Footer.scss';
 
 const Footer = () => {
   return (
