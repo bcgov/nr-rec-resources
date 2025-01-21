@@ -25,9 +25,7 @@ export class RecreationResourceDto {
     description: "The list of available activities at the Recreation Resource",
   })
   recreation_activity: {
-    with_description: {
-      recreation_activity_code: string;
-      description: string;
-    };
+    recreation_activity_code: string;
+    description: string;
   }[];
 }
