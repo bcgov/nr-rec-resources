@@ -10,7 +10,7 @@ export class RecreationResourceService {
   constructor(private prisma: PrismaService) {}
 
   // get recreation_activity and recreation_activity_code from recreation_resource
-  recreationResourceInclude = {
+  recreationResourceSelect = {
     rec_resource_id: true,
     name: true,
     site_location: true,
@@ -37,7 +37,7 @@ export class RecreationResourceService {
 
   async findAll(): Promise<RecreationResourceDto[]> {
     const recResources = await this.prisma.recreation_resource.findMany({
-      include: this.recreationResourceInclude,
+      select: this.recreationResourceSelect,
     });
 
     return this.formatResults(recResources);
@@ -48,7 +48,7 @@ export class RecreationResourceService {
       where: {
         rec_resource_id: id,
       },
-      include: this.recreationResourceInclude,
+      select: this.recreationResourceSelect,
     });
 
     return this.formatResults([recResource])[0];
@@ -86,7 +86,7 @@ export class RecreationResourceService {
           { site_location: { contains: filter, mode: QueryMode.insensitive } },
         ],
       },
-      select: this.recreationResourceInclude,
+      select: this.recreationResourceSelect,
     };
 
     const countQuery = {
@@ -96,7 +96,7 @@ export class RecreationResourceService {
     const recreationResources = await this.prisma.recreation_resource.findMany(
       filter
         ? filterQuery
-        : { select: this.recreationResourceInclude, orderBy, skip, take },
+        : { select: this.recreationResourceSelect, orderBy, skip, take },
     );
 
     const count = await this.prisma.recreation_resource.count(
