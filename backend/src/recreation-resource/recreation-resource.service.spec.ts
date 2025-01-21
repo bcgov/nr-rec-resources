@@ -2,43 +2,130 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { PrismaService } from "src/prisma.service";
 import { RecreationResourceService } from "./recreation-resource.service";
 
+const recreationResource1 = {
+  rec_resource_id: "REC0001",
+  name: "Rec site 1",
+  description: "Rec site 1 description",
+  site_location: "Rec site 1 location",
+  recreation_activity: [
+    {
+      with_description: {
+        recreation_activity_code: "32",
+        description: "Camping",
+      },
+    },
+  ],
+};
+
+const recreationResource1Response = {
+  ...recreationResource1,
+  recreation_activity: [
+    {
+      description: "Camping",
+      recreation_activity_code: "32",
+    },
+  ],
+};
+
+const recreationResource2 = {
+  rec_resource_id: "REC0002",
+  name: "Rec site 2",
+  description: "Rec site 2 description",
+  site_location: "Rec site 2 location",
+  recreation_activity: [],
+};
+
+const recreationResource2Response = {
+  ...recreationResource2,
+  recreation_activity: [],
+};
+
+const recreationResource3 = {
+  rec_resource_id: "REC0003",
+  name: "A testing orderBy",
+  description: "Rec site 3 description",
+  site_location: "Rec site 3 location",
+  recreation_activity: [
+    {
+      with_description: {
+        recreation_activity_code: "09",
+        description: "Picnicking",
+      },
+    },
+  ],
+};
+
+const recreationResource3Response = {
+  ...recreationResource3,
+  recreation_activity: [
+    {
+      description: "Picnicking",
+      recreation_activity_code: "09",
+    },
+  ],
+};
+
+const recreationResource4 = {
+  rec_resource_id: "REC0004",
+  name: "Z testing orderBy",
+  description: "Rec site 4 description",
+  site_location: "Rec site 4 location",
+  recreation_activity: [
+    {
+      with_description: {
+        recreation_activity_code: "01",
+        description: "Angling",
+      },
+    },
+    {
+      with_description: {
+        recreation_activity_code: "04",
+        description: "Kayaking",
+      },
+    },
+    {
+      with_description: {
+        recreation_activity_code: "03",
+        description: "Canoeing",
+      },
+    },
+  ],
+};
+
+const recreationResource4Response = {
+  ...recreationResource4,
+  recreation_activity: [
+    {
+      description: "Angling",
+      recreation_activity_code: "01",
+    },
+    {
+      description: "Kayaking",
+      recreation_activity_code: "04",
+    },
+    {
+      description: "Canoeing",
+      recreation_activity_code: "03",
+    },
+  ],
+};
+
+const recresourceArray = [
+  recreationResource1,
+  recreationResource2,
+  recreationResource3,
+  recreationResource4,
+];
+
+const recresourceArrayResolved = [
+  recreationResource1Response,
+  recreationResource2Response,
+  recreationResource3Response,
+  recreationResource4Response,
+];
+
 describe("RecreationResourceService", () => {
   let service: RecreationResourceService;
-
-  const recreationResource1 = {
-    rec_resource_id: "REC0001",
-    name: "Rec site 1",
-    description: "Rec site 1 description",
-    site_location: "Rec site 1 location",
-  };
-
-  const recreationResource2 = {
-    rec_resource_id: "REC0002",
-    name: "Rec site 2",
-    description: "Rec site 2 description",
-    site_location: "Rec site 2 location",
-  };
-
-  const recreationResource3 = {
-    rec_resource_id: "REC0003",
-    name: "A testing orderBy",
-    description: "Rec site 3 description",
-    site_location: "Rec site 3 location",
-  };
-
-  const recreationResource4 = {
-    rec_resource_id: "REC0004",
-    name: "Z testing orderBy",
-    description: "Rec site 4 description",
-    site_location: "Rec site 4 location",
-  };
-
-  const recresourceArray = [
-    recreationResource1,
-    recreationResource2,
-    recreationResource3,
-    recreationResource4,
-  ];
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -71,7 +158,7 @@ describe("RecreationResourceService", () => {
         .mockResolvedValue(recreationResource1);
 
       await expect(service.findOne("REC0001")).resolves.toEqual(
-        recreationResource1,
+        recreationResource1Response,
       );
     });
 
@@ -82,6 +169,16 @@ describe("RecreationResourceService", () => {
 
       await expect(service.findOne("REC0001")).resolves.toBeNull();
     });
+
+    it("should correctly format recreation_activity with_description relation in the response", async () => {
+      service["prisma"].recreation_resource.findUnique = vi
+        .fn()
+        .mockResolvedValue(recreationResource4);
+
+      await expect(service.findOne("REC0004")).resolves.toEqual(
+        recreationResource4Response,
+      );
+    });
   });
 
   describe("findAll", () => {
@@ -91,7 +188,19 @@ describe("RecreationResourceService", () => {
         .fn()
         .mockResolvedValue(recresourceArray);
 
-      expect(await service.findAll()).toEqual(recresourceArray);
+      expect(await service.findAll()).toEqual(recresourceArrayResolved);
+    });
+
+    it("should correctly format recreation_activity with_description relation in the results", async () => {
+      service["prisma"].recreation_resource.findMany = vi
+        .fn()
+        .mockResolvedValue([recreationResource4]);
+
+      const results = await service.findAll();
+
+      expect(results[0].recreation_activity).toEqual(
+        recreationResource4Response.recreation_activity,
+      );
     });
 
     it("should return an empty array if no Recreation Resources are found", async () => {
@@ -115,11 +224,27 @@ describe("RecreationResourceService", () => {
         .mockResolvedValue(4);
 
       expect(await service.searchRecreationResources(1, "Rec", 10)).toEqual({
-        data: recresourceArray,
+        data: recresourceArrayResolved,
         limit: 10,
         page: 1,
         total: 4,
       });
+    });
+
+    it("should correctly format recreation_activity with_description relation in the results", async () => {
+      service["prisma"].recreation_resource.findMany = vi
+        .fn()
+        .mockResolvedValue([recreationResource4]);
+
+      service["prisma"].recreation_resource.count = vi
+        .fn()
+        .mockResolvedValue(1);
+
+      const results = await service.searchRecreationResources(1, "Rec", 10);
+
+      expect(results.data[0].recreation_activity).toEqual(
+        recreationResource4Response.recreation_activity,
+      );
     });
 
     it("should return results sorted by name in ascending order", async () => {

@@ -32,7 +32,7 @@ export class RecreationResourceService {
 
   // Format the results to match the DTO due to many-to-many relationship
   formatResults(recResources: any[]): RecreationResourceDto[] {
-    return recResources.map((resource) => ({
+    return recResources?.map((resource) => ({
       ...resource,
       recreation_activity: resource.recreation_activity.map(
         (activity: RecreationActivityWithDescription) => ({
@@ -60,7 +60,7 @@ export class RecreationResourceService {
       select: this.recreationResourceSelect,
     });
 
-    return this.formatResults([recResource])[0];
+    return recResource ? this.formatResults([recResource])[0] : null;
   }
 
   async searchRecreationResources(
