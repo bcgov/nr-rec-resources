@@ -9,15 +9,18 @@ const { QueryMode } = Prisma;
 export class RecreationResourceService {
   constructor(private prisma: PrismaService) {}
 
+  // get recreation_activity and recreation_activity_code from recreation_resource
+  recreationResourceInclude = {
+    recreation_activity: {
+      select: {
+        recreation_activity_code: true,
+      },
+    },
+  };
+
   async findAll(): Promise<RecreationResourceDto[]> {
     const recResources = await this.prisma.recreation_resource.findMany({
-      include: {
-        recreation_activity: {
-          select: {
-            recreation_activity_code: true,
-          },
-        },
-      },
+      include: this.recreationResourceInclude,
     });
 
     return recResources;
@@ -28,13 +31,7 @@ export class RecreationResourceService {
       where: {
         rec_resource_id: id,
       },
-      include: {
-        recreation_activity: {
-          select: {
-            recreation_activity_code: true,
-          },
-        },
-      },
+      include: this.recreationResourceInclude,
     });
 
     return recResource;
@@ -61,14 +58,6 @@ export class RecreationResourceService {
     const skip = limit ? (page - 1) * limit : 0;
     const orderBy = [{ name: Prisma.SortOrder.asc }];
 
-    const include = {
-      recreation_activity: {
-        select: {
-          recreation_activity_code: true,
-        },
-      },
-    };
-
     const filterQuery = {
       skip,
       take,
@@ -80,7 +69,7 @@ export class RecreationResourceService {
           { site_location: { contains: filter, mode: QueryMode.insensitive } },
         ],
       },
-      include,
+      include: this.recreationResourceInclude,
     };
 
     const countQuery = {
@@ -88,7 +77,9 @@ export class RecreationResourceService {
     };
 
     const recreationResources = await this.prisma.recreation_resource.findMany(
-      filter ? filterQuery : { include, orderBy, skip, take },
+      filter
+        ? filterQuery
+        : { include: this.recreationResourceInclude, orderBy, skip, take },
     );
 
     const count = await this.prisma.recreation_resource.count(
