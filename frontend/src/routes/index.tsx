@@ -2,7 +2,7 @@ import { Routes, Route } from 'react-router-dom';
 import LandingPage from '@/components/LandingPage';
 import NotFound from '@/components/NotFound';
 import RecResourcePage from '@/components/rec-resource/RecResourcePage';
-import SearchPage from '@/components/search/SearchPage';
+import SearchPage from '@/components/search-page/SearchPage';
 
 export default function AppRoutes() {
   return (
