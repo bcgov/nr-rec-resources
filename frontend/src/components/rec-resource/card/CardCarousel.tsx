@@ -42,10 +42,11 @@ const CardCarousel = ({ imageList }: CardCarouselProps) => {
         activeIndex={index}
         className={`park-carousel tab-focus-${isTabFocused}`}
       >
-        {imageList.map((image, index: number) => {
+        {imageList.map((image) => {
+          const { imageUrl } = image;
           return (
             <Carousel.Item
-              key={index}
+              key={imageUrl}
               tabIndex={0}
               onFocus={() => setIsTabFocused(true)}
               onBlur={() => setIsTabFocused(false)}
@@ -56,12 +57,12 @@ const CardCarousel = ({ imageList }: CardCarouselProps) => {
                 height="200"
                 width="250"
                 className="carousel-desktop-image"
-                src={image.imageUrl}
+                src={imageUrl}
               />
               <img
                 alt="rec resource carousel"
                 className="carousel-mobile-image"
-                src={image.imageUrl}
+                src={imageUrl}
               />
             </Carousel.Item>
           );
