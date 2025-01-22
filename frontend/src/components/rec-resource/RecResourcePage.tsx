@@ -12,9 +12,9 @@ import {
   SiteDescription,
   ThingsToDo,
 } from '@/components/rec-resource';
+import Status from '@/components/rec-resource/Status';
 import PageMenu from '@/components/layout/PageMenu';
 import locationDot from '@/images/fontAwesomeIcons/location-dot.svg';
-import blueStatus from '@/images/icons/blue-status.svg';
 import { RecResource } from '@/components/rec-resource/types';
 import '@/components/rec-resource/RecResource.scss';
 
@@ -75,8 +75,6 @@ const RecResourcePage = () => {
     site_location,
   } = recResource || {};
 
-  console.log('recResource', recResource);
-
   const siteDescriptionRef = useRef<HTMLElement>(null!);
   const mapLocationRef = useRef<HTMLElement>(null!);
   const campingRef = useRef<HTMLElement>(null!);
@@ -126,7 +124,7 @@ const RecResourcePage = () => {
                 <span>Recreation site |</span> {rec_resource_id}
               </p>
             </div>
-            <div className="icon-container">
+            <div className="icon-container mb-4">
               <img
                 alt="Location dot icon"
                 src={locationDot}
@@ -135,15 +133,7 @@ const RecResourcePage = () => {
               />{' '}
               <span className="capitalize">{site_location?.toLowerCase()}</span>
             </div>
-            <div className="icon-container">
-              <img
-                alt="Site open status icon"
-                src={blueStatus}
-                height={24}
-                width={24}
-              />{' '}
-              <span>Open (Placeholder)</span>
-            </div>
+            <Status />
           </section>
         </div>
       </div>

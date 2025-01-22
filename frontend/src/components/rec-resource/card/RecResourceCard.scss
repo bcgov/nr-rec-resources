@@ -41,18 +41,6 @@
       align-items: center;
     }
   }
-
-  .card-status-container {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    margin-right: 16px;
-    margin-top: 16px;
-
-    @include media-breakpoint-up(md) {
-      margin-top: 0;
-    }
-  }
 }
 
 .card-heading-text {
