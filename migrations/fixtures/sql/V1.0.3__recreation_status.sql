@@ -1,5 +1,5 @@
 -- Development fixtures for rst.recreation_status
-insert into rst.recreation_status (rec_resource_id, recreation_status_code, description) values
+insert into rst.recreation_status (rec_resource_id, status_code, comment) values
 ('REC204117', '01', 'Open status for REC204117'),
 ('REC1222', '02', 'Closed status for REC1222'),
 ('REC160773', '01', 'Open status for REC160773'),

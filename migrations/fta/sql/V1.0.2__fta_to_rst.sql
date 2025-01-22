@@ -30,7 +30,7 @@ select
 from
     fta.recreation_activity ra;
 
-insert into rst.recreation_status (rec_resource_id, recreation_status_code, description)
+insert into rst.recreation_status (rec_resource_id, status_code, comment)
 select
     forest_file_id,
     case
