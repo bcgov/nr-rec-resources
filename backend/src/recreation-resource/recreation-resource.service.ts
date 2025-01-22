@@ -17,6 +17,7 @@ export class RecreationResourceService {
   // get recreation_activity and recreation_activity_code from recreation_resource
   recreationResourceSelect = {
     rec_resource_id: true,
+    description: true,
     name: true,
     site_location: true,
 
