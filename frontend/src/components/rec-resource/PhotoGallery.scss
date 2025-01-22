@@ -2,6 +2,10 @@
 
 // Photo gallery display
 .park-photo-gallery {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
   hr {
     border-color: $colorGreyLight;
     margin: 2rem 0;
@@ -119,12 +123,6 @@
 }
 .yarl__navigation_next {
   right: 16px;
-}
-
-.park-photo-gallery {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
 }
 
 .gallery-container {

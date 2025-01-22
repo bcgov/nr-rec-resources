@@ -62,8 +62,8 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
 
   const parkPhotos = photos.map((photo, index) => ({
     index,
-    caption: photo?.caption || '',
-    altText: (photo?.caption || '').replace(/(<([^>]+)>)/gi, ''),
+    caption: photo?.caption ?? '',
+    altText: (photo?.caption ?? '').replace(/(<([^>]+)>)/gi, ''),
     imageUrl: photo.imageUrl,
   }));
 
@@ -87,6 +87,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
       <div className="park-photo-gallery d-none d-md-block">
         {parkPhotos.length > 0 && (
           <div
+            role="button"
             id="park-photo-gallery-container"
             tabIndex={0}
             className="gallery-container"
