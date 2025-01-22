@@ -11,7 +11,7 @@ export default defineConfig({
     setupFiles: "test/test-setup.ts",
     coverage: {
       provider: "v8",
-      reporter: ["text-summary", "text", "json", "html"],
+      reporter: ["lcov"],
     },
   },
   plugins: [swc.vite()],
