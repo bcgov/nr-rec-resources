@@ -16,7 +16,12 @@ const Activities = ({ activities }: ActivityProps) => {
         if (!activityIcon) return null;
         return (
           <li key={description} className="activity-icon">
-            <img alt={description} src={activityIcon} height={32} width={32} />
+            <img
+              alt={`${description} icon`}
+              src={activityIcon}
+              height={32}
+              width={32}
+            />
           </li>
         );
       })}

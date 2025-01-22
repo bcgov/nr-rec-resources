@@ -87,7 +87,6 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
       <div className="park-photo-gallery d-none d-md-block">
         {parkPhotos.length > 0 && (
           <div
-            role="button"
             id="park-photo-gallery-container"
             tabIndex={0}
             className="gallery-container"
