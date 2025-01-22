@@ -60,10 +60,22 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
     ),
   }));
 
+  const handleKeyDownShowPhotos = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      setShowPhoto(true);
+    }
+  };
+
+  const handleKeyDownOpen = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      setOpen(true);
+    }
+  };
+
   const parkPhotos = photos.map((photo, index) => ({
     index,
     caption: photo?.caption ?? '',
-    altText: (photo?.caption ?? '').replace(/(<([^>]+)>)/gi, ''),
+    altText: photo?.caption ?? '',
     imageUrl: photo.imageUrl,
   }));
 
@@ -95,14 +107,14 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
                 setShowPhoto(true);
               }
             }}
-            onKeyDown={(e) => {
-              if (!showPhoto && (e.key === 'Enter' || e.key === ' ')) {
-                setShowPhoto(true);
-              }
-            }}
+            onKeyDown={handleKeyDownShowPhotos}
           >
             {parkPhotos.length === 1 && (
-              <div className="photo-row" onClick={() => setOpen(true)}>
+              <div
+                className="photo-row"
+                onClick={() => setOpen(true)}
+                onKeyDown={handleKeyDownOpen}
+              >
                 <div className="photo-col">
                   <Photo
                     type="big"
@@ -121,7 +133,11 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
             )}
 
             {isGalleryMed && (
-              <div className="photo-row" onClick={() => setOpen(true)}>
+              <div
+                className="photo-row"
+                onClick={() => setOpen(true)}
+                onKeyDown={handleKeyDownOpen}
+              >
                 <div className="photo-col">
                   <Photo
                     type="big"
@@ -147,31 +163,41 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
             )}
 
             {parkPhotos.length > 4 && (
-              <div className="photo-row" onClick={() => setOpen(true)}>
+              <div
+                className="photo-row"
+                onClick={() => setOpen(true)}
+                onKeyDown={handleKeyDownOpen}
+              >
                 <div className="photo-col">
                   {parkPhotos
                     .filter((f) => f.index === 0)
-                    .map((photo, index) => (
-                      <Photo
-                        type="big"
-                        src={photo.imageUrl}
-                        alt={photo.altText}
-                        key={index}
-                      />
-                    ))}
+                    .map((photo) => {
+                      const { altText, imageUrl } = photo;
+                      return (
+                        <Photo
+                          type="big"
+                          src={imageUrl}
+                          alt={altText}
+                          key={imageUrl}
+                        />
+                      );
+                    })}
                 </div>
                 <div className="photo-col">
                   <div className="photo-grid">
                     {parkPhotos
                       .filter((photo) => photo.index > 0 && photo.index <= 4)
-                      .map((photo, index) => (
-                        <Photo
-                          type="small"
-                          src={photo.imageUrl}
-                          alt={photo.altText}
-                          key={index}
-                        />
-                      ))}
+                      .map((photo) => {
+                        const { altText, imageUrl } = photo;
+                        return (
+                          <Photo
+                            type="small"
+                            src={imageUrl}
+                            alt={altText}
+                            key={imageUrl}
+                          />
+                        );
+                      })}
                   </div>
                   <div className="show-photos">
                     <ShowPhotosBtn
@@ -199,13 +225,13 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
                 setShowPhoto(true);
               }
             }}
-            onKeyDown={(e) => {
-              if (!showPhoto && (e.key === 'Enter' || e.key === ' ')) {
-                setShowPhoto(true);
-              }
-            }}
+            onKeyDown={handleKeyDownShowPhotos}
           >
-            <div className="photo-row" onClick={() => setOpen(true)}>
+            <div
+              className="photo-row"
+              onClick={() => setOpen(true)}
+              onKeyDown={handleKeyDownOpen}
+            >
               <div className="photo-col">
                 <Photo
                   type="big"
