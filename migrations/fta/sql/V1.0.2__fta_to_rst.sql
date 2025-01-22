@@ -29,3 +29,16 @@ select
     ra.recreation_activity_code
 from
     fta.recreation_activity ra;
+
+insert into rst.recreation_status (rec_resource_id, recreation_status_code, description)
+select
+    forest_file_id,
+    case
+        when closure_ind = 'Y' then '02' -- Closed
+        when closure_ind = 'N' then '01' -- Open
+    end as recreation_status_code,
+    project_comment as description
+from
+    fta.recreation_comment
+where
+    rec_comment_type_code = 'CLOS';
