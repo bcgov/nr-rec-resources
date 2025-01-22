@@ -21,27 +21,27 @@ import '@/components/rec-resource/RecResource.scss';
 export const photosExample = [
   {
     imageUrl:
-      'http://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Lost%20Shoe%201.jpg',
+      'https://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Lost%20Shoe%201.jpg',
   },
   {
     imageUrl:
-      'http://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Lost%20Shoe%203.jpg',
+      'https://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Lost%20Shoe%203.jpg',
   },
   {
     imageUrl:
-      'http://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Trail%20Entrance.jpg',
+      'https://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Trail%20Entrance.jpg',
   },
   {
     imageUrl:
-      'http://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Lost%20Shoe%202.jpg',
+      'https://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Lost%20Shoe%202.jpg',
   },
   {
     imageUrl:
-      'http://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Interpretive%20sign.jpg',
+      'https://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Interpretive%20sign.jpg',
   },
   {
     imageUrl:
-      'http://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Lost%20Shoe.jpg',
+      'https://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Lost%20Shoe.jpg',
   },
 ];
 
