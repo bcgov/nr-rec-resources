@@ -33,6 +33,7 @@
     "**/*.js",
     "**/*.ts",
     "**/*.tsx",
-    "eslint.config.mjs"
+    "**/*.mjs",
+    "**/*.mts"
   ]
 }
