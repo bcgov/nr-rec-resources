@@ -15,6 +15,7 @@ model recreation_resource {
   description         String?               @db.VarChar(5000)
   site_location       String?               @db.VarChar(200)
   recreation_activity recreation_activity[]
+  recreation_status   recreation_status?
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -31,4 +32,18 @@ model recreation_activity_code {
   recreation_activity_code String                @id @db.VarChar(3)
   description              String?               @db.VarChar(120)
   with_description         recreation_activity[] @relation("activity_with_description")
+}
+
+model recreation_status {
+  rec_resource_id        String                 @id @db.VarChar(200)
+  status_code            String                 @db.VarChar(3)
+  comment                String                 @db.VarChar(5000)
+  recreation_resource    recreation_resource    @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+  recreation_status_code recreation_status_code @relation(fields: [status_code], references: [status_code], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model recreation_status_code {
+  status_code       String              @id @db.VarChar(3)
+  description       String              @db.VarChar(120)
+  recreation_status recreation_status[]
 }
