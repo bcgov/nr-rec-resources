@@ -20,7 +20,7 @@ const ThingsToDo = forwardRef<HTMLElement, ThingsToDoProps>(
             return (
               <li key={description}>
                 <img
-                  alt={description}
+                  alt={`${description} icon`}
                   src={activityIcon}
                   height={36}
                   width={36}
