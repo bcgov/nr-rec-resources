@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleChevronRight } from '@fortawesome/free-solid-svg-icons';
 import Activities from '@/components/rec-resource/card/Activities';
 import CardCarousel from '@/components/rec-resource/card/CardCarousel';
-import blueStatus from '@/images/icons/blue-status.svg';
+import Status from '@/components/rec-resource/Status';
 import { Activity } from '@/components/rec-resource/types';
 import '@/components/rec-resource/card/RecResourceCard.scss';
 
@@ -40,15 +40,7 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
         </div>
         <div className="card-content-lower">
           {isActivities ? <Activities activities={activities} /> : <div />}
-          <div className="card-status-container">
-            <img
-              alt="Site open status icon"
-              src={blueStatus}
-              height={24}
-              width={24}
-            />{' '}
-            <span>Open (Placeholder)</span>
-          </div>
+          <Status />
         </div>
       </div>
     </div>
