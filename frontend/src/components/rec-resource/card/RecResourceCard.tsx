@@ -29,16 +29,14 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
         <div className="rec-resource-card-info">
           <a href={`/resource/${recId}`}>
             <h2 className="card-heading-text">
-              {name && name.toLowerCase()}{' '}
+              {name?.toLowerCase()}{' '}
               <FontAwesomeIcon
                 icon={faCircleChevronRight}
                 className="card-heading-icon"
               />
             </h2>
           </a>
-          <p className="capitalize">
-            {siteLocation && siteLocation.toLowerCase()}
-          </p>
+          <p className="capitalize">{siteLocation?.toLowerCase()}</p>
         </div>
         <div className="card-content-lower">
           {isActivities ? <Activities activities={activities} /> : <div />}
