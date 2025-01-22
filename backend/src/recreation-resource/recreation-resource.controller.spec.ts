@@ -61,6 +61,7 @@ describe("RecreationResourceController", () => {
         name: "Rec site 1",
         description: "Rec site 1 description",
         site_location: "Rec site 1 location",
+        recreation_activity: [],
       };
       vi.spyOn(recService, "findOne").mockResolvedValue(result);
       expect(await controller.findOne("REC0001")).toBe(result);
