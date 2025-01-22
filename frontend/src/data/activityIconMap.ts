@@ -42,7 +42,7 @@ const activityMap: ActivityMap = {
   '17': wildlifeViewingIcon,
   // '18': gatheringAndCollectingIcon,
   '19': horsebackRidingIcon,
-  // '20': atvIcon,
+  // '20': atvIcon, // Trail Bike Riding - Motorized
   // '21': fourWheelDrivingIcon,
   '22': snowmobilingIcon,
   // '23': snowshoeingIcon,
@@ -52,7 +52,7 @@ const activityMap: ActivityMap = {
   '27': mountainBikingIcon,
   '28': climbingIcon,
   '29': sailingIcon,
-  //'30': campingIcon,
+  //'30': windSurfingIcon,
   // '31': raftingIcon,
   '32': campingIcon,
   // '33': skiTouringIcon,
