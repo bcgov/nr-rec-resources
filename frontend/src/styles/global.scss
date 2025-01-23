@@ -269,3 +269,15 @@ figure.table {
     margin-right: 8px;
   }
 }
+
+.advisory-container {
+  border-top: 1px solid $colorGreyMed;
+  border-bottom: 1px solid $colorGreyMed;
+  padding: 1rem;
+  background-color: $colorBrownLight;
+
+  p {
+    margin-top: 2rem;
+    margin-bottom: 0;
+  }
+}

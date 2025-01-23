@@ -6,6 +6,7 @@ import type { AxiosResponse } from '~/axios';
 import BreadCrumbs from '@/components/layout/BreadCrumbs';
 import {
   Camping,
+  Closures,
   Contact,
   MapsAndLocation,
   PhotoGallery,
@@ -46,9 +47,7 @@ export const photosExample = [
 ];
 
 const RecResourcePage = () => {
-  const [recResource, setRecResource] = useState<
-    RecreationResource | undefined
-  >();
+  const [recResource, setRecResource] = useState<RecreationResource>();
   const [notFound, setNotFound] = useState<boolean>(false);
 
   const { id } = useParams();
@@ -78,11 +77,13 @@ const RecResourcePage = () => {
     recreation_status: {
       status_code: statusCode,
       description: statusDescription,
+      comment: statusComment,
     } = {},
   } = recResource || {};
 
-  console.log(recResource);
+  const formattedName = name?.toLowerCase();
 
+  const closuresRef = useRef<HTMLElement>(null!);
   const siteDescriptionRef = useRef<HTMLElement>(null!);
   const mapLocationRef = useRef<HTMLElement>(null!);
   const campingRef = useRef<HTMLElement>(null!);
@@ -90,6 +91,7 @@ const RecResourcePage = () => {
   const contactRef = useRef<HTMLElement>(null!);
 
   const sectionRefs: React.RefObject<HTMLElement>[] = [
+    closuresRef,
     siteDescriptionRef,
     mapLocationRef,
     campingRef,
@@ -115,6 +117,7 @@ const RecResourcePage = () => {
 
   const isActivities = recreation_activity && recreation_activity.length > 0;
   const isPhotoGallery = photosExample.length > 0;
+  const isClosures = statusComment && formattedName && statusCode === '02';
 
   return (
     <div className="rec-resource-container">
@@ -127,7 +130,7 @@ const RecResourcePage = () => {
           />
           <section>
             <div>
-              <h1 className="capitalize">{name?.toLowerCase()}</h1>
+              <h1 className="capitalize">{formattedName}</h1>
               <p className="bc-color-blue-dk mb-4">
                 <span>Recreation site |</span> {rec_resource_id}
               </p>
@@ -193,6 +196,13 @@ const RecResourcePage = () => {
             />
           </div>
           <div className="rec-content-container">
+            {isClosures && (
+              <Closures
+                comment={statusComment}
+                siteName={formattedName}
+                ref={closuresRef}
+              />
+            )}
             {description && (
               <SiteDescription
                 description={description}

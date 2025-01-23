@@ -1,4 +1,5 @@
 export { default as Camping } from './Camping';
+export { default as Closures } from './Closures';
 export { default as Contact } from './Contact';
 export { default as MapsAndLocation } from './MapsAndLocation';
 export { default as Photo } from './Photo';
