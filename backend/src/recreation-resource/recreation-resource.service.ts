@@ -64,6 +64,9 @@ export class RecreationResourceService {
     const recResource = await this.prisma.recreation_resource.findUnique({
       where: {
         rec_resource_id: id,
+        AND: {
+          display_on_public_site: true,
+        },
       },
       select: this.recreationResourceSelect,
     });
@@ -107,6 +110,9 @@ export class RecreationResourceService {
             },
           },
         ],
+        AND: {
+          display_on_public_site: true,
+        },
       },
       select: this.recreationResourceSelect,
     };
@@ -115,15 +121,10 @@ export class RecreationResourceService {
       where: filterQuery.where,
     };
 
-    const recreationResources = await this.prisma.recreation_resource.findMany(
-      filter
-        ? filterQuery
-        : { select: this.recreationResourceSelect, orderBy, skip, take },
-    );
+    const recreationResources =
+      await this.prisma.recreation_resource.findMany(filterQuery);
 
-    const count = await this.prisma.recreation_resource.count(
-      filter ? countQuery : undefined,
-    );
+    const count = await this.prisma.recreation_resource.count(countQuery);
 
     return {
       data: this.formatResults(recreationResources),
