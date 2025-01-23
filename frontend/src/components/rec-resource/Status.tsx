@@ -1,6 +1,5 @@
 import blueStatus from '@/images/icons/blue-status.svg';
 import redStatus from '@/images/icons/red-status.svg';
-import '@/components/rec-resource/Status.scss';
 
 interface StatusProps {
   description: string;
@@ -20,7 +19,12 @@ const Status = ({ description, statusCode }: StatusProps) => {
   const statusIcon = getStatusIcon(statusCode);
   if (!statusIcon) return null;
   return (
-    <div className="icon-container status-icon-container">
+    <div
+      className="icon-container"
+      style={{
+        minWidth: '96px',
+      }}
+    >
       <img
         alt={`Site ${description} status icon`}
         src={statusIcon}
