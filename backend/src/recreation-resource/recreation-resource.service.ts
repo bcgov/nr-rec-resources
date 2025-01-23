@@ -10,6 +10,21 @@ interface RecreationActivityWithDescription {
   };
 }
 
+interface RecreationResource {
+  rec_resource_id: string;
+  name: string;
+  description: string;
+  site_location: string;
+  recreation_activity: RecreationActivityWithDescription[];
+  recreation_status: {
+    recreation_status_code: {
+      description: string;
+    };
+    comment: string;
+    status_code: string;
+  };
+}
+
 @Injectable()
 export class RecreationResourceService {
   constructor(private prisma: PrismaService) {}
@@ -41,7 +56,7 @@ export class RecreationResourceService {
   };
 
   // Format the results to match the DTO
-  formatResults(recResources: any[]): RecreationResourceDto[] {
+  formatResults(recResources: RecreationResource[]): RecreationResourceDto[] {
     return recResources?.map((resource) => ({
       ...resource,
       recreation_activity: resource.recreation_activity?.map(

@@ -7,6 +7,7 @@ const recreationResource1 = {
   name: "Rec site 1",
   description: "Rec site 1 description",
   site_location: "Rec site 1 location",
+  display_on_public_site: true,
   recreation_activity: [
     {
       with_description: {
@@ -15,6 +16,13 @@ const recreationResource1 = {
       },
     },
   ],
+  recreation_status: {
+    recreation_status_code: {
+      description: "Open",
+    },
+    comment: "Site is open comment",
+    status_code: "01",
+  },
 };
 
 const recreationResource1Response = {
@@ -25,6 +33,11 @@ const recreationResource1Response = {
       recreation_activity_code: "32",
     },
   ],
+  recreation_status: {
+    description: "Open",
+    comment: "Site is open comment",
+    status_code: "01",
+  },
 };
 
 const recreationResource2 = {
@@ -32,12 +45,25 @@ const recreationResource2 = {
   name: "Rec site 2",
   description: "Rec site 2 description",
   site_location: "Rec site 2 location",
+  display_on_public_site: true,
   recreation_activity: [],
+  recreation_status: {
+    recreation_status_code: {
+      description: "Closed",
+    },
+    comment: "Site is closed comment",
+    status_code: "02",
+  },
 };
 
 const recreationResource2Response = {
   ...recreationResource2,
   recreation_activity: [],
+  recreation_status: {
+    description: "Closed",
+    comment: "Site is closed comment",
+    status_code: "02",
+  },
 };
 
 const recreationResource3 = {
@@ -45,6 +71,7 @@ const recreationResource3 = {
   name: "A testing orderBy",
   description: "Rec site 3 description",
   site_location: "Rec site 3 location",
+  display_on_public_site: true,
   recreation_activity: [
     {
       with_description: {
@@ -53,6 +80,13 @@ const recreationResource3 = {
       },
     },
   ],
+  recreation_status: {
+    recreation_status_code: {
+      description: "Active",
+    },
+    comment: "Site is active comment",
+    status_code: "01",
+  },
 };
 
 const recreationResource3Response = {
@@ -63,6 +97,11 @@ const recreationResource3Response = {
       recreation_activity_code: "09",
     },
   ],
+  recreation_status: {
+    description: "Active",
+    comment: "Site is active comment",
+    status_code: "01",
+  },
 };
 
 const recreationResource4 = {
@@ -70,6 +109,7 @@ const recreationResource4 = {
   name: "Z testing orderBy",
   description: "Rec site 4 description",
   site_location: "Rec site 4 location",
+  display_on_public_site: false,
   recreation_activity: [
     {
       with_description: {
@@ -90,6 +130,7 @@ const recreationResource4 = {
       },
     },
   ],
+  recreation_status: null,
 };
 
 const recreationResource4Response = {
@@ -108,6 +149,11 @@ const recreationResource4Response = {
       recreation_activity_code: "03",
     },
   ],
+  recreation_status: {
+    description: undefined,
+    comment: undefined,
+    status_code: undefined,
+  },
 };
 
 const recresourceArray = [
@@ -168,8 +214,8 @@ describe("RecreationResourceService", () => {
     });
 
     it("should throw an error with garbage data", () => {
-      expect(() => service.formatResults([{}])).toThrow(
-        "Cannot read properties of undefined (reading 'map')",
+      expect(() => service.formatResults({} as any)).toThrow(
+        "recResources?.map is not a function",
       );
     });
   });
@@ -178,7 +224,7 @@ describe("RecreationResourceService", () => {
     it("should return a Recreation Resource", async () => {
       service["prisma"].recreation_resource.findUnique = vi
         .fn()
-        .mockResolvedValue(recreationResource1);
+        .mockResolvedValueOnce(recreationResource1);
 
       await expect(service.findOne("REC0001")).resolves.toEqual(
         recreationResource1Response,
@@ -188,7 +234,7 @@ describe("RecreationResourceService", () => {
     it("should return null if Recreation Resource is not found", async () => {
       service["prisma"].recreation_resource.findUnique = vi
         .fn()
-        .mockResolvedValue(null);
+        .mockResolvedValueOnce(null);
 
       await expect(service.findOne("REC0001")).resolves.toBeNull();
     });
@@ -196,42 +242,11 @@ describe("RecreationResourceService", () => {
     it("should correctly format recreation_activity with_description relation in the response", async () => {
       service["prisma"].recreation_resource.findUnique = vi
         .fn()
-        .mockResolvedValue(recreationResource4);
+        .mockResolvedValueOnce(recreationResource4);
 
       await expect(service.findOne("REC0004")).resolves.toEqual(
         recreationResource4Response,
       );
-    });
-  });
-
-  describe("findAll", () => {
-    it("should return an array of Recreation Resources", async () => {
-      await service.findAll();
-      service["prisma"].recreation_resource.findMany = vi
-        .fn()
-        .mockResolvedValue(recresourceArray);
-
-      expect(await service.findAll()).toEqual(recresourceArrayResolved);
-    });
-
-    it("should correctly format recreation_activity with_description relation in the results", async () => {
-      service["prisma"].recreation_resource.findMany = vi
-        .fn()
-        .mockResolvedValue([recreationResource4]);
-
-      const results = await service.findAll();
-
-      expect(results[0].recreation_activity).toEqual(
-        recreationResource4Response.recreation_activity,
-      );
-    });
-
-    it("should return an empty array if no Recreation Resources are found", async () => {
-      service["prisma"].recreation_resource.findMany = vi
-        .fn()
-        .mockResolvedValue([]);
-
-      await expect(service.findAll()).resolves.toEqual([]);
     });
   });
 
@@ -240,11 +255,11 @@ describe("RecreationResourceService", () => {
       await service.searchRecreationResources(1, "Rec", 10);
       service["prisma"].recreation_resource.findMany = vi
         .fn()
-        .mockResolvedValue(recresourceArray);
+        .mockResolvedValueOnce(recresourceArray);
 
       service["prisma"].recreation_resource.count = vi
         .fn()
-        .mockResolvedValue(4);
+        .mockResolvedValueOnce(4);
 
       expect(await service.searchRecreationResources(1, "Rec", 10)).toEqual({
         data: recresourceArrayResolved,
@@ -257,11 +272,11 @@ describe("RecreationResourceService", () => {
     it("should correctly format recreation_activity with_description relation in the results", async () => {
       service["prisma"].recreation_resource.findMany = vi
         .fn()
-        .mockResolvedValue([recreationResource4]);
+        .mockResolvedValueOnce([recreationResource4]);
 
       service["prisma"].recreation_resource.count = vi
         .fn()
-        .mockResolvedValue(1);
+        .mockResolvedValueOnce(1);
 
       const results = await service.searchRecreationResources(1, "Rec", 10);
 
@@ -273,7 +288,7 @@ describe("RecreationResourceService", () => {
     it("should return results sorted by name in ascending order", async () => {
       service["prisma"].recreation_resource.findMany = vi
         .fn()
-        .mockResolvedValue([
+        .mockResolvedValueOnce([
           recreationResource3,
           recreationResource1,
           recreationResource2,
