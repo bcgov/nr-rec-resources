@@ -32,8 +32,8 @@ export class RecreationResourceDto {
   @ApiProperty({
     description: "The status of the Recreation Resource",
   })
-  status: {
-    recreation_status_code: string;
+  recreation_status: {
+    status_code: string;
     comment: string;
     description: string;
   };

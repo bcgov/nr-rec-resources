@@ -27,9 +27,20 @@ export class RecreationResourceService {
         with_description: true,
       },
     },
+    recreation_status: {
+      select: {
+        recreation_status_code: {
+          select: {
+            description: true,
+          },
+        },
+        comment: true,
+        status_code: true,
+      },
+    },
   };
 
-  // Format the results to match the DTO due to many-to-many relationship
+  // Format the results to match the DTO
   formatResults(recResources: any[]): RecreationResourceDto[] {
     return recResources?.map((resource) => ({
       ...resource,
@@ -40,6 +51,12 @@ export class RecreationResourceService {
             activity.with_description.recreation_activity_code,
         }),
       ),
+      recreation_status: {
+        description:
+          resource.recreation_status.recreation_status_code.description,
+        comment: resource.recreation_status.comment,
+        status_code: resource.recreation_status.status_code,
+      },
     }));
   }
 

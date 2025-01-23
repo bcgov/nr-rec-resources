@@ -15,7 +15,7 @@ import {
 import Status from '@/components/rec-resource/Status';
 import PageMenu from '@/components/layout/PageMenu';
 import locationDot from '@/images/fontAwesomeIcons/location-dot.svg';
-import { RecResource } from '@/components/rec-resource/types';
+import { RecreationResource } from '@/components/rec-resource/types';
 import '@/components/rec-resource/RecResource.scss';
 
 export const photosExample = [
@@ -46,7 +46,9 @@ export const photosExample = [
 ];
 
 const RecResourcePage = () => {
-  const [recResource, setRecResource] = useState<RecResource | undefined>();
+  const [recResource, setRecResource] = useState<
+    RecreationResource | undefined
+  >();
   const [notFound, setNotFound] = useState<boolean>(false);
 
   const { id } = useParams();
@@ -73,7 +75,13 @@ const RecResourcePage = () => {
     name,
     rec_resource_id,
     site_location,
+    recreation_status: {
+      status_code: statusCode,
+      description: statusDescription,
+    } = {},
   } = recResource || {};
+
+  console.log(recResource);
 
   const siteDescriptionRef = useRef<HTMLElement>(null!);
   const mapLocationRef = useRef<HTMLElement>(null!);
@@ -133,7 +141,9 @@ const RecResourcePage = () => {
               />{' '}
               <span className="capitalize">{site_location?.toLowerCase()}</span>
             </div>
-            <Status />
+            {statusCode && statusDescription && (
+              <Status description={statusDescription} statusCode={statusCode} />
+            )}
           </section>
         </div>
       </div>

@@ -6,6 +6,7 @@ import buildQueryString from '@/utils/buildQueryString';
 import RecResourceCard from '@/components/rec-resource/card/RecResourceCard';
 import SearchBanner from '@/components/search/SearchBanner';
 import { photosExample } from '@/components/rec-resource/RecResourcePage';
+import { RecreationResource } from '@/components/rec-resource/types';
 
 const SearchPage = () => {
   const [recResourceData, setRecResourceData] = useState<any>([]);
@@ -127,21 +128,13 @@ const SearchPage = () => {
           <section>
             {isResults && (
               <>
-                {recResourceList?.map((resource: any) => {
-                  const {
-                    rec_resource_id,
-                    name,
-                    recreation_activity,
-                    site_location,
-                  } = resource;
+                {recResourceList?.map((resource: RecreationResource) => {
+                  const { rec_resource_id } = resource;
                   return (
                     <RecResourceCard
                       key={rec_resource_id}
-                      recId={rec_resource_id}
-                      activities={recreation_activity}
                       imageList={photosExample}
-                      name={name}
-                      siteLocation={site_location}
+                      recreationResource={resource}
                     />
                   );
                 })}
