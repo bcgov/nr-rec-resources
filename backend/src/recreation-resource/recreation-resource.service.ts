@@ -53,9 +53,9 @@ export class RecreationResourceService {
       ),
       recreation_status: {
         description:
-          resource.recreation_status.recreation_status_code.description,
-        comment: resource.recreation_status.comment,
-        status_code: resource.recreation_status.status_code,
+          resource.recreation_status?.recreation_status_code.description,
+        comment: resource?.recreation_status.comment,
+        status_code: resource?.recreation_status.status_code,
       },
     }));
   }
