@@ -4,6 +4,18 @@ import SearchPage from '@/components/search/SearchPage';
 import { BrowserRouter as Router } from 'react-router-dom';
 import apiService from '@/service/api-service';
 
+const mockOpenStatus = {
+  description: 'Open',
+  comment: 'Site is open',
+  status_code: '01',
+};
+
+const mockClosedStatus = {
+  description: 'Closed',
+  comment: 'Site is closed',
+  status_code: '02',
+};
+
 const mockResources = {
   data: {
     data: [
@@ -17,6 +29,7 @@ const mockResources = {
             recreation_activity_code: '22',
           },
         ],
+        recreation_status: mockOpenStatus,
       },
       {
         rec_resource_id: 'REC203239',
@@ -28,6 +41,7 @@ const mockResources = {
             recreation_activity_code: '22',
           },
         ],
+        recreation_status: mockOpenStatus,
       },
       {
         rec_resource_id: 'REC1222',
@@ -43,6 +57,7 @@ const mockResources = {
             recreation_activity_code: '01',
           },
         ],
+        recreation_status: mockClosedStatus,
       },
       {
         rec_resource_id: 'REC160773',
@@ -54,6 +69,7 @@ const mockResources = {
             recreation_activity_code: '22',
           },
         ],
+        recreation_status: mockOpenStatus,
       },
       {
         rec_resource_id: 'REC203900',
@@ -81,6 +97,7 @@ const mockResources = {
             recreation_activity_code: '01',
           },
         ],
+        recreation_status: mockOpenStatus,
       },
       {
         rec_resource_id: 'REC6866',
@@ -100,6 +117,7 @@ const mockResources = {
             recreation_activity_code: '23',
           },
         ],
+        recreation_status: mockClosedStatus,
       },
       {
         rec_resource_id: 'REC160432',
@@ -111,6 +129,7 @@ const mockResources = {
             recreation_activity_code: '22',
           },
         ],
+        recreation_status: mockOpenStatus,
       },
       {
         rec_resource_id: 'REC6739',
@@ -122,6 +141,7 @@ const mockResources = {
             recreation_activity_code: '22',
           },
         ],
+        recreation_status: mockOpenStatus,
       },
       {
         rec_resource_id: 'REC16158',
@@ -133,6 +153,11 @@ const mockResources = {
             recreation_activity_code: '27',
           },
         ],
+        recreation_status: {
+          description: undefined,
+          comment: undefined,
+          status_code: undefined,
+        },
       },
       {
         rec_resource_id: 'REC2094',
@@ -144,6 +169,7 @@ const mockResources = {
             recreation_activity_code: '01',
           },
         ],
+        recreation_status: mockOpenStatus,
       },
     ],
     page: 1,
