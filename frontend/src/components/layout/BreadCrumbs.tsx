@@ -28,12 +28,12 @@ const BreadCrumbs = ({ customPaths }: BreadCrumbsProps) => {
               {pathName}
             </span>
           ) : (
-            <>
+            <span key={pathName}>
               <a href={routeTo} key={pathName}>
                 {pathName}
               </a>
               <span className="spacer" />
-            </>
+            </span>
           );
         })}
     </div>
