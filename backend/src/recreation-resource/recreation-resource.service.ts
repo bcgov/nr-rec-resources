@@ -60,14 +60,6 @@ export class RecreationResourceService {
     }));
   }
 
-  async findAll(): Promise<RecreationResourceDto[]> {
-    const recResources = await this.prisma.recreation_resource.findMany({
-      select: this.recreationResourceSelect,
-    });
-
-    return this.formatResults(recResources);
-  }
-
   async findOne(id: string): Promise<RecreationResourceDto> {
     const recResource = await this.prisma.recreation_resource.findUnique({
       where: {
@@ -106,9 +98,6 @@ export class RecreationResourceService {
       orderBy,
       // If limit is provided, we will skip the records up to the end of the previous page
       where: {
-        NOT: {
-          recreation_status: null,
-        },
         OR: [
           { name: { contains: filter, mode: Prisma.QueryMode.insensitive } },
           {

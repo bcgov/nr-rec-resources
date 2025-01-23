@@ -40,20 +40,6 @@ describe("RecreationResourceController", () => {
     expect(controller).toBeDefined();
   });
 
-  describe("findAll", () => {
-    it("should return an array of users", async () => {
-      const result = [];
-      result.push({
-        rec_resource_id: "REC0001",
-        name: "Rec site 1",
-        description: "Rec site 1 description",
-        site_location: "Rec site 1 location",
-      });
-      vi.spyOn(recService, "findAll").mockResolvedValue(result);
-      expect(await controller.findAll()).toBe(result);
-    });
-  });
-
   describe("findOne", () => {
     it("should return a Recreation Resource object", async () => {
       const result = {
@@ -62,6 +48,12 @@ describe("RecreationResourceController", () => {
         description: "Rec site 1 description",
         site_location: "Rec site 1 location",
         recreation_activity: [],
+        display_on_public_site: true,
+        recreation_status: {
+          description: "Active",
+          comment: "Active",
+          status_code: "01",
+        },
       };
       vi.spyOn(recService, "findOne").mockResolvedValue(result);
       expect(await controller.findOne("REC0001")).toBe(result);
