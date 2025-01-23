@@ -6,7 +6,8 @@ create table if not exists rst.recreation_resource (
     rec_resource_id varchar(200) not null primary key,
     name varchar(200),
     description varchar(5000),
-    site_location varchar(200)
+    site_location varchar(200),
+    display_on_public_site boolean default false
 );
 
 comment on table rst.recreation_resource is 'Resource information relating to a recreational file. A recreation file can have only one resource. A recreation resource must be of type Site, Reserve, Trail, or Interpretive Forest.';
