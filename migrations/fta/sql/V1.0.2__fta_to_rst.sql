@@ -1,4 +1,4 @@
-insert into rst.recreation_resource (rec_resource_id, name, description, site_location)
+insert into rst.recreation_resource (rec_resource_id, name, description, site_location, display_on_public_site)
 select
     rp.forest_file_id,
     rp.project_name as name,
@@ -6,7 +6,11 @@ select
         when rc.rec_comment_type_code = 'DESC' then rc.project_comment
         else ''
     end as description,
-    rp.site_location
+    rp.site_location,
+    case
+        when rp.recreation_view_ind = 'Y' then true
+        else false
+    end as display_on_public_site
 from
     fta.recreation_project rp
 left join
