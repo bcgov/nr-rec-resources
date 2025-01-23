@@ -44,7 +44,7 @@ export class RecreationResourceService {
   formatResults(recResources: any[]): RecreationResourceDto[] {
     return recResources?.map((resource) => ({
       ...resource,
-      recreation_activity: resource.recreation_activity.map(
+      recreation_activity: resource.recreation_activity?.map(
         (activity: RecreationActivityWithDescription) => ({
           description: activity.with_description.description,
           recreation_activity_code:
@@ -53,9 +53,9 @@ export class RecreationResourceService {
       ),
       recreation_status: {
         description:
-          resource.recreation_status?.recreation_status_code.description,
-        comment: resource?.recreation_status.comment,
-        status_code: resource?.recreation_status.status_code,
+          resource.recreation_status.recreation_status_code.description,
+        comment: resource.recreation_status.comment,
+        status_code: resource.recreation_status.status_code,
       },
     }));
   }
@@ -106,6 +106,9 @@ export class RecreationResourceService {
       orderBy,
       // If limit is provided, we will skip the records up to the end of the previous page
       where: {
+        NOT: {
+          recreation_status: null,
+        },
         OR: [
           { name: { contains: filter, mode: Prisma.QueryMode.insensitive } },
           {
