@@ -1,3 +1,7 @@
+locals {
+  rds_app_env = (contains(["dev", "test", "prod"], var.app_env) ? var.app_env : "dev") # if app_env is not dev, test, or prod, default to dev
+}
+
 data "aws_kms_alias" "rds_key" {
   name = "alias/aws/rds"
 }
@@ -74,6 +78,8 @@ module "aurora_postgresql_v2" {
   engine_version    = data.aws_rds_engine_version.postgresql.version
   storage_encrypted = true
   database_name     = var.db_database_name
+
+  enable_http_endpoint = contains(["dev"], local.rds_app_env) ? true : false
 
   vpc_id                 = data.aws_vpc.main.id
   vpc_security_group_ids = [data.aws_security_group.data.id]
