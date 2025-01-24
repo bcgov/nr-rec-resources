@@ -19,12 +19,7 @@ const Status = ({ description, statusCode }: StatusProps) => {
   const statusIcon = getStatusIcon(statusCode);
   if (!statusIcon) return null;
   return (
-    <div
-      className="icon-container"
-      style={{
-        minWidth: '96px',
-      }}
-    >
+    <div className="icon-container">
       <img
         alt={`Site ${description} status icon`}
         src={statusIcon}
