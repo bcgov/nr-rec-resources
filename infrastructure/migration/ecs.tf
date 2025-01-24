@@ -119,6 +119,24 @@ resource "aws_ecs_task_definition" "flyway_task" {
 
     echo "Flyway task completed at $(date)."
 
+    task_status=$(aws ecs describe-tasks --cluster ${data.aws_ecs_cluster.ecs_cluster.id} --tasks $task_arn --query 'tasks[0].lastStatus' --output text)
+    echo "Flyway task status: $task_status at $(date)."
+    log_stream_name=$(aws logs describe-log-streams \
+      --log-group-name "/ecs/${var.app_name}/flyway" \
+      --order-by "LastEventTime" \
+      --descending \
+      --limit 1 \
+      --query 'logStreams[0].logStreamName' \
+      --output text)
+
+    echo "Fetching logs from log stream: $log_stream_name"
+
+    aws logs get-log-events \
+      --log-group-name "/ecs/${var.app_name}/flyway" \
+      --log-stream-name $log_stream_name \
+      --limit 1000 \
+      --no-cli-pager
+
     # Fetch the task's exit code
     task_exit_code=$(aws ecs describe-tasks \
       --cluster ${data.aws_ecs_cluster.ecs_cluster.id} \
@@ -128,20 +146,6 @@ resource "aws_ecs_task_definition" "flyway_task" {
 
     if [ "$task_exit_code" != "0" ]; then
       echo "Flyway task failed with exit code: $task_exit_code"
-      log_stream_name=$(aws logs describe-log-streams \
-        --log-group-name "/ecs/${var.app_name}/flyway" \
-        --order-by "LastEventTime" \
-        --descending \
-        --limit 1 \
-        --query 'logStreams[0].logStreamName' \
-        --output text)
-
-      echo "Fetching logs from log stream: $log_stream_name"
-      aws logs get-log-events \
-        --log-group-name "/ecs/${var.app_name}/flyway" \
-        --log-stream-name $log_stream_name \
-        --limit 1000 \
-        --no-cli-pager
 
       exit 1
     fi
