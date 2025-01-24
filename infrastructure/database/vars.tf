@@ -11,7 +11,6 @@ variable "app_env" {
 variable "db_cluster_name" {
   description = "Name for the database cluster -- must be unique"
   type        = string
-
 }
 
 variable "db_master_username" {
@@ -25,4 +24,10 @@ variable "db_database_name" {
   description = "The name of the database"
   type        = string
   default     = "rst"
+}
+
+variable "fta_dataload_bucket" {
+  description = "The name of the S3 bucket for FTA CSV files"
+  type        = string
+  default     = "rst-fta-dataload-oracle"
 }

@@ -229,6 +229,8 @@ venv.bak/
 
 # Terraform
 .terraform.lock.hcl
+.terraform/
+
 
 # nested terragrunt-cache
 **/.terragrunt-cache/**
