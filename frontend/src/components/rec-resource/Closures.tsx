@@ -9,6 +9,7 @@ interface ClosuresProps {
 
 const Closures = forwardRef<HTMLElement, ClosuresProps>(
   ({ comment, siteName }, ref) => {
+    if (!comment || !siteName) return null;
     return (
       <section id="site-description" ref={ref}>
         <h2 className="section-heading">Closures</h2>
