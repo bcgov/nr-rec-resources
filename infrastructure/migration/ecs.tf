@@ -103,7 +103,7 @@ resource "aws_ecs_task_definition" "flyway_task" {
     replace_triggered_by = [terraform_data.trigger_deployment]
   }
   provisioner "local-exec" {
-    command = <<-EOF
+  command = <<-EOF
     task_arn=$(aws ecs run-task \
       --task-definition ${var.app_name}-flyway-task \
       --cluster ${data.aws_ecs_cluster.ecs_cluster.id} \
@@ -117,26 +117,36 @@ resource "aws_ecs_task_definition" "flyway_task" {
     echo "Waiting for Flyway task to complete..."
     aws ecs wait tasks-stopped --cluster ${data.aws_ecs_cluster.ecs_cluster.id} --tasks $task_arn
 
-    echo "Flyway task completed, at $(date)."
+    echo "Flyway task completed at $(date)."
 
-    task_status=$(aws ecs describe-tasks --cluster ${data.aws_ecs_cluster.ecs_cluster.id} --tasks $task_arn --query 'tasks[0].lastStatus' --output text)
-    echo "Flyway task status: $task_status at $(date)."
-    log_stream_name=$(aws logs describe-log-streams \
-      --log-group-name "/ecs/${var.app_name}/flyway" \
-      --order-by "LastEventTime" \
-      --descending \
-      --limit 1 \
-      --query 'logStreams[0].logStreamName' \
+    # Fetch the task's exit code
+    task_exit_code=$(aws ecs describe-tasks \
+      --cluster ${data.aws_ecs_cluster.ecs_cluster.id} \
+      --tasks $task_arn \
+      --query 'tasks[0].containers[0].exitCode' \
       --output text)
 
-    echo "Fetching logs from log stream: $log_stream_name"
+    if [ "$task_exit_code" != "0" ]; then
+      echo "Flyway task failed with exit code: $task_exit_code"
+      log_stream_name=$(aws logs describe-log-streams \
+        --log-group-name "/ecs/${var.app_name}/flyway" \
+        --order-by "LastEventTime" \
+        --descending \
+        --limit 1 \
+        --query 'logStreams[0].logStreamName' \
+        --output text)
 
-    aws logs get-log-events \
-      --log-group-name "/ecs/${var.app_name}/flyway" \
-      --log-stream-name $log_stream_name \
-      --limit 1000 \
-      --no-cli-pager
+      echo "Fetching logs from log stream: $log_stream_name"
+      aws logs get-log-events \
+        --log-group-name "/ecs/${var.app_name}/flyway" \
+        --log-stream-name $log_stream_name \
+        --limit 1000 \
+        --no-cli-pager
 
-EOF
-  }
+      exit 1
+    fi
+
+    echo "Flyway task succeeded with exit code: $task_exit_code."
+  EOF
+}
 }
