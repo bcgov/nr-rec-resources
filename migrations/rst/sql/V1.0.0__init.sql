@@ -1,6 +1,5 @@
 begin;
 
-drop extension if exists "postgis";
 create extension if not exists "postgis";
 
 create schema if not exists rst;
