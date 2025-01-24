@@ -340,3 +340,6 @@ pyrightconfig.json
 # Playwright
 playwright-report/
 test-results/
+!backend-el
+backend-el/target
+backend-el/*.iml
