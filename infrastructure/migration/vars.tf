@@ -11,7 +11,7 @@ variable "app_env" {
 variable "db_name" {
   description = "The default database for Flyway"
   type        = string
-  default     = "app"
+  default     = "rst"
 }
 
 variable "db_schema" {
