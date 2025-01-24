@@ -6,25 +6,23 @@ variable "app_env" {
   description = "The environment for the app, since multiple instances can be deployed to same dev environment of AWS, this represents whether it is PR or dev or test"
   type        = string
 }
-
 variable "db_name" {
   description = "The default database for Flyway"
   type        = string
   default     = "rst"
 }
-
 variable "db_schema" {
   description = "The default schema for Flyway"
   type        = string
   default     = "rst"
 }
 
+
 variable "subnet_app_a" {
   description = "Value of the name tag for a subnet in the APP security group"
   type = string
   default = "App_Dev_aza_net"
 }
-
 variable "subnet_app_b" {
   description = "Value of the name tag for a subnet in the APP security group"
   type = string
@@ -113,7 +111,6 @@ variable "fargate_base_capacity" {
   description = "value of the base capacity for the Fargate capacity provider, which is the minimum number of tasks to keep running and not interrupted"
   type = number
   default = 1
-
 }
 variable "fargate_base_weight" {
   description = "value of the base weight for the Fargate capacity provider, which is the weight of the base capacity provider"
