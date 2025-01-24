@@ -1,3 +1,5 @@
+begin;
+
 insert into rst.recreation_resource (rec_resource_id, name, description, site_location, display_on_public_site)
 select
     rp.forest_file_id,
@@ -46,3 +48,5 @@ from
     fta.recreation_comment
 where
     rec_comment_type_code = 'CLOS';
+
+commit;

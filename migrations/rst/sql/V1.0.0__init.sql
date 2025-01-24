@@ -1,3 +1,6 @@
+begin;
+
+drop extension if exists "postgis";
 create extension if not exists "postgis";
 
 create schema if not exists rst;
@@ -40,3 +43,5 @@ comment on table rst.recreation_activity is 'The types of available activities f
 comment on column rst.recreation_activity.rec_resource_id is 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
 
 comment on column rst.recreation_activity.recreation_activity_code is 'Code describing the Recreation Activity.';
+
+commit;

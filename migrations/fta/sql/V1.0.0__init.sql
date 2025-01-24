@@ -1,3 +1,5 @@
+begin;
+
 create extension if not exists "postgis";
 
 create schema if not exists fta;
@@ -1207,3 +1209,5 @@ comment on column fta.recreation_user_days_code.effective_date is 'Date the code
 comment on column fta.recreation_user_days_code.expiry_date is 'Date the code expires';
 
 comment on column fta.recreation_user_days_code.update_timestamp is 'The date and time the value was last modified.';
+
+commit;

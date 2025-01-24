@@ -1,5 +1,7 @@
 create extension if not exists aws_s3 cascade;
 
+begin;
+
 select aws_s3.table_import_from_s3(
   'fta.recreation_project',
   '',
@@ -503,3 +505,5 @@ select aws_s3.table_import_from_s3(
   )',
   aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_USER_DAYS_CODE.csv', 'ca-central-1')
 );
+
+commit;
