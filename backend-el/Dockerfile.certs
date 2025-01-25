@@ -9,7 +9,8 @@ WORKDIR /app
 RUN apk --no-cache add openssl
 
 COPY get_certs.sh .
-
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
 RUN chmod g+w /app && \
     chmod g+x get_certs.sh && \
     chmod g+w ${JAVA_HOME}/lib/security/cacerts

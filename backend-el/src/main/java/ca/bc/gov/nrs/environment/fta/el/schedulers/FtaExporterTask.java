@@ -13,10 +13,10 @@ public class FtaExporterTask {
   }
 
   @Scheduled(cron = "0 2 * * * *")
-  public void runExportToS3(){
+  public void runExportToS3() {
     try {
       this.applicationService.extractAndUploadCSVToS3();
-    }catch (Exception e){
+    } catch (Exception e) {
       e.printStackTrace();
     }
   }

@@ -1,5 +1,16 @@
 package ca.bc.gov.nrs.environment.fta.el.services;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import ca.bc.gov.nrs.environment.fta.el.entities.RecreationAccess;
 import ca.bc.gov.nrs.environment.fta.el.entities.RecreationAccessCode;
 import ca.bc.gov.nrs.environment.fta.el.entities.RecreationAccessXref;
@@ -7,18 +18,8 @@ import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationAccessCodeReposit
 import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationAccessRepository;
 import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationAccessXrefRepository;
 import jakarta.persistence.Column;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class ApplicationService {
