@@ -19,6 +19,10 @@
   background: $colorBlueMed;
 }
 
+.capitalize {
+  text-transform: capitalize;
+}
+
 #root {
   display: flex;
   flex-direction: column;
@@ -77,6 +81,17 @@ a {
 }
 
 .page-container {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  width: 100%;
+
+  &.bg-brown-light {
+    background-color: $colorBrownLight;
+  }
+}
+
+.page-nav-container {
   width: 100%;
 
   &.main {
@@ -90,14 +105,11 @@ a {
   &.search {
     background-color: $colorBlueLight;
   }
-
-  &.bg-brown-light {
-    background-color: $colorBrownLight;
-  }
 }
 
 .page-nav {
   position: relative;
+  width: 100%;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -206,6 +218,17 @@ figure.table {
   height: 48px;
 }
 
+.btn-link {
+  color: $colorBlue;
+  text-decoration: none;
+  border: none;
+
+  &:hover {
+    color: $colorBlue;
+    text-decoration: underline;
+  }
+}
+
 .btn-primary {
   background-color: $colorBlue;
   border-color: $colorBlue;
@@ -240,10 +263,21 @@ figure.table {
   display: flex;
   justify-content: flex-start;
   align-items: center;
-  margin-bottom: 24px;
 
   img,
   svg {
     margin-right: 8px;
+  }
+}
+
+.advisory-container {
+  border-top: 1px solid $colorGreyMed;
+  border-bottom: 1px solid $colorGreyMed;
+  padding: 1rem;
+  background-color: $colorBrownLight;
+
+  p {
+    margin-top: 2rem;
+    margin-bottom: 0;
   }
 }

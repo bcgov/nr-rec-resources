@@ -9,7 +9,7 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref_name != 'main' }}
 
 jobs:
   build-containers:
@@ -42,12 +42,21 @@ jobs:
   deploy-to-aws-dev:
     if: github.ref_name == 'main' || github.head_ref == 'main'
     name: Deploys Application to AWS dev
-    needs: [tests-e2e]
+    needs: tests-e2e
     uses: ./.github/workflows/.deploy-app.yml
     with:
       app_env: dev
       command: apply
       environment_name: dev
+      tag: ${{ github.sha }}
+    secrets: inherit
+
+  # Running FTA migration after each dev deployment since we are clearing the database each run
+  fta-migration:
+    needs: deploy-to-aws-dev
+    name: FTA Migration
+    uses: ./.github/workflows/fta-migration.yml
+    with:
       tag: ${{ github.sha }}
     secrets: inherit
 

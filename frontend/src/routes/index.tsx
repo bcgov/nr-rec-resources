@@ -1,8 +1,8 @@
 import { Routes, Route } from 'react-router-dom';
 import LandingPage from '@/components/LandingPage';
 import NotFound from '@/components/NotFound';
-import RecResourcePage from '@/components/RecResource/RecResourcePage';
-import SearchPage from '@/components/Search/SearchPage';
+import RecResourcePage from '@/components/rec-resource/RecResourcePage';
+import SearchPage from '@/components/search/SearchPage';
 
 export default function AppRoutes() {
   return (

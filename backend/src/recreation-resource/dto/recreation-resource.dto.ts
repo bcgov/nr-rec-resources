@@ -4,7 +4,7 @@ export class RecreationResourceDto {
   @ApiProperty({
     description: "The ID of the Recreation Resource",
   })
-  forest_file_id: string;
+  rec_resource_id: string;
 
   @ApiProperty({
     description: "The name of the Recreation Resource",
@@ -20,4 +20,21 @@ export class RecreationResourceDto {
     description: "The location of the Recreation Resource",
   })
   site_location: string;
+
+  @ApiProperty({
+    description: "The list of available activities at the Recreation Resource",
+  })
+  recreation_activity: {
+    recreation_activity_code: string;
+    description: string;
+  }[];
+
+  @ApiProperty({
+    description: "The status of the Recreation Resource",
+  })
+  recreation_status: {
+    status_code: string;
+    comment: string;
+    description: string;
+  };
 }

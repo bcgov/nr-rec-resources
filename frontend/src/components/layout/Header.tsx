@@ -1,11 +1,11 @@
 import BCLogo from '@/images/BC_nav_logo.svg';
 import RSTLogo from '@/images/RST_nav_logo.svg';
-import '@/styles/components/Header.scss';
+import '@/components/layout/Header.scss';
 
 const Header = () => {
   return (
     <header id="header">
-      <div className="page-container main">
+      <div className="page-nav-container main">
         <nav
           aria-label="Main header navigation"
           className="page-nav header-nav main"
@@ -24,7 +24,7 @@ const Header = () => {
           </a>
         </nav>
       </div>
-      <div className="page-container sub">
+      <div className="page-nav-container sub">
         <nav
           aria-label="Secondary header site navigation"
           className="header-nav sub"

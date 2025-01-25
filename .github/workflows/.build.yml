@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        package: [backend, migrations, frontend]
+        package: [backend, 'migrations/rst', 'migrations/fta', frontend]
     timeout-minutes: 10
     steps:
       - uses: bcgov-nr/action-builder-ghcr@v2.3.0
@@ -18,5 +18,3 @@ jobs:
           keep_versions: 50
           package: ${{ matrix.package }}
           tag: ${{ github.sha }}
-          tag_fallback: latest
-          triggers: ('${{ matrix.package }}/')

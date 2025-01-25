@@ -1,0 +1,30 @@
+name: FTA Migration
+
+on:
+  # Will schedule this to run on test/prod in the future
+  # schedule: [cron: "0 3 * * *"] # Every day at 3 AM
+  workflow_call:
+    inputs:
+      tag:
+        description: 'The tag of the containers to deploy'
+        required: true
+        type: string
+
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: write # This is required for actions/checkout
+  packages: write
+  pull-requests: write
+
+jobs:
+  run-fta-dev-migration:
+    name: Run FTA Dev Migration
+    uses: ./.github/workflows/.aws-deployer.yml
+    with:
+      environment_name: dev
+      command: apply
+      flyway_image: ghcr.io/bcgov/nr-rec-resources/migrations/fta:${{ inputs.tag || 'latest' }}
+      working_directory: migration
+      tag: ${{ inputs.tag }}
+      app_env: dev
+    secrets: inherit

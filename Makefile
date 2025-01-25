@@ -24,11 +24,19 @@ drop_db:
 migrate: ## create the migrations
 migrate:
 	## TODO:: this is a very basic setup, we should use flyway for migrations
-	for file in ./migrations/sql/*.sql; do \
+	for file in ./migrations/rst/sql/*.sql; do \
 		printf "Applying migration: ${DB_NAME}/$$(basename $$file)\n"; \
 		$(PSQL) -d $(DB_NAME) -f $$file; \
 	done
 
+.PHONY: load_fixtures
+load_fixtures: ## Load the fixtures
+load_fixtures:
+	for file in ./migrations/fixtures/sql/*.sql; do \
+		printf "Applying fixture: ${DB_NAME}/$$(basename $$file)\n"; \
+		$(PSQL) -d $(DB_NAME) -f $$file; \
+	done
+
 .PHONY: reset_db
-reset_db: ## Drop and recreate the $(DB_NAME) database
-reset_db: drop_db create_db migrations
+reset_db: ## Drop and recreate the $(DB_NAME) database, migrate and load fixtures
+reset_db: drop_db create_db migrate load_fixtures

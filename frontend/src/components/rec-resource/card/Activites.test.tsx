@@ -1,0 +1,25 @@
+import { render, screen } from '@testing-library/react';
+import Activities from '@/components/rec-resource/card/Activities';
+import { mockActivities } from '@/components/rec-resource/ThingsToDo.test';
+
+describe('the Activities component', () => {
+  it('renders the activity icons', async () => {
+    render(<Activities activities={mockActivities} />);
+    const activityElement = screen.getByAltText(/Angling icon/i);
+    const activityElement2 = screen.getByAltText(/Boating icon/i);
+    const activityElement3 = screen.getByAltText(/Hiking icon/i);
+    const activityElement4 = screen.getByAltText(/Camping icon/i);
+
+    expect(activityElement).toBeInTheDocument();
+    expect(activityElement2).toBeInTheDocument();
+    expect(activityElement3).toBeInTheDocument();
+    expect(activityElement4).toBeInTheDocument();
+  });
+
+  it('does not render activity icons that are not in the activityMap', async () => {
+    render(<Activities activities={mockActivities} />);
+    const activityElement = screen.queryByAltText(/Beach Activities icon/i);
+
+    expect(activityElement).not.toBeInTheDocument();
+  });
+});

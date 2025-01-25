@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom';
-import '@/styles/components/BreadCrumbs.scss';
+import '@/components/layout/BreadCrumbs.scss';
 
 interface BreadCrumbsProps {
   customPaths?: { name: string; route: string }[];
@@ -28,12 +28,12 @@ const BreadCrumbs = ({ customPaths }: BreadCrumbsProps) => {
               {pathName}
             </span>
           ) : (
-            <>
+            <span key={pathName}>
               <a href={routeTo} key={pathName}>
                 {pathName}
               </a>
               <span className="spacer" />
-            </>
+            </span>
           );
         })}
     </div>

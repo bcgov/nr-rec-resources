@@ -18,7 +18,7 @@ jobs:
     - name: Run Docker compose
       env:
         BACKEND_IMAGE: ghcr.io/bcgov/nr-rec-resources/backend:${{ inputs.tag }}
-        FLYWAY_IMAGE: ghcr.io/bcgov/nr-rec-resources/migrations:${{ inputs.tag }}
+        FLYWAY_IMAGE: ghcr.io/bcgov/nr-rec-resources/migrations/rst:${{ inputs.tag }}
         FRONTEND_IMAGE: ghcr.io/bcgov/nr-rec-resources/frontend:${{ inputs.tag }}
       run: docker compose up -d --wait
       continue-on-error: true
@@ -50,3 +50,6 @@ jobs:
         HAPPO_API_KEY: ${{ secrets.HAPPO_API_KEY }}
         HAPPO_API_SECRET: ${{ secrets.HAPPO_API_SECRET }}
         HAPPO_PROJECT: rst-public
+    - name: Dump docker logs on failure
+      if: failure()
+      uses: jwalton/gh-docker-logs@v2

@@ -7,5 +7,5 @@ future.
 
 ## Reporting a Vulnerability
 
-Please report any issues or vulerabilities with an
+Please report any issues or vulnerabilities with an
 [issue](https://github.com/bcgov/quickstart-openshift/issues).

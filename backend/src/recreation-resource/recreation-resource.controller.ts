@@ -10,24 +10,24 @@ export class RecreationResourceController {
     private readonly recreationResourceService: RecreationResourceService,
   ) {}
 
-  @Get()
-  findAll(): Promise<RecreationResourceDto[]> {
-    return this.recreationResourceService.findAll();
-  }
-
   @Get("search") // it must be ahead Get(":id") to avoid conflict
   async searchRecreationResources(
-    @Query("page") page: number = 1,
     @Query("filter") filter: string = "",
-  ) {
-    return this.recreationResourceService.searchRecreationResources(
-      page,
-      filter ?? "",
-    );
+    @Query("limit") limit?: number,
+    @Query("page") page: number = 1,
+  ): Promise<{ data: RecreationResourceDto[]; total: number; page: number }> {
+    const response =
+      await this.recreationResourceService.searchRecreationResources(
+        page,
+        filter ?? "",
+        limit ? parseInt(String(limit)) : undefined,
+      );
+
+    return response;
   }
 
   @Get(":id")
-  async findOne(@Param("id") id: string) {
+  async findOne(@Param("id") id: string): Promise<RecreationResourceDto> {
     const recResource = await this.recreationResourceService.findOne(id);
     if (!recResource) {
       throw new HttpException("Recreation Resource not found.", 404);
