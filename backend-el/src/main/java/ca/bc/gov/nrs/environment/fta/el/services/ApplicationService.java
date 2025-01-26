@@ -1,25 +1,20 @@
 package ca.bc.gov.nrs.environment.fta.el.services;
 
+import ca.bc.gov.nrs.environment.fta.el.entities.*;
+import ca.bc.gov.nrs.environment.fta.el.repositories.*;
+import jakarta.persistence.Column;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import ca.bc.gov.nrs.environment.fta.el.entities.RecreationAccess;
-import ca.bc.gov.nrs.environment.fta.el.entities.RecreationAccessCode;
-import ca.bc.gov.nrs.environment.fta.el.entities.RecreationAccessXref;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationAccessCodeRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationAccessRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationAccessXrefRepository;
-import jakarta.persistence.Column;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Service
 public class ApplicationService {
@@ -32,6 +27,10 @@ public class ApplicationService {
   private final RecreationAccessCodeRepository recreationAccessCodeRepository;
   private final RecreationAccessRepository recreationAccessRepository;
   private final RecreationAccessXrefRepository recreationAccessXrefRepository;
+  private final RecreationMapFeatureCodeRepository recreationMapFeatureCodeRepository;
+  private final RecreationMapFeatureGeomRepository recreationMapFeatureGeomRepository;
+  private final RecreationMapFeatureRepository recreationMapFeatureRepository;
+  private final RecreationMapFeatureXguidRepository recreationMapFeatureXguidRepository;
   /*private final RecreationActivityCodeRepository recreationActivityCodeRepository;
   private final RecreationActivityRepository recreationActivityRepository;
   private final RecreationAgreementHolderRepository recreationAgreementHolderRepository;
@@ -52,41 +51,130 @@ public class ApplicationService {
 
   private final RecreationMapFeatureGeomRepository recreationMapFeatureGeomRepository;*/
 
-  public ApplicationService(S3Client s3Client, RecreationAccessRepository recreationAccessRepository, RecreationAccessCodeRepository recreationAccessCodeRepository, RecreationAccessXrefRepository recreationAccessXrefRepository/*, RecreationActivityCodeRepository recreationActivityCodeRepository, RecreationActivityRepository recreationActivityRepository, RecreationAgreementHolderRepository recreationAgreementHolderRepository, RecreationAttachmentContentRepository recreationAttachmentContentRepository, RecreationAttachmentRepository recreationAttachmentRepository, RecreationCommentRepository recreationCommentRepository, RecreationControlAccessCodeRepository recreationControlAccessCodeRepository, RecreationDefCsRprHistoryRepository recreationDefCsRprHistoryRepository, RecreationDefinedCampsiteRepository recreationDefinedCampsiteRepository, RecreationDistrictCodeRepository recreationDistrictCodeRepository, RecreationDistrictXrefRepository recreationDistrictXrefRepository, RecreationFeeCodeRepository recreationFeeCodeRepository, RecreationFeatureCodeRepository recreationFeatureCodeRepository, RecreationFeeRepository recreationFeeRepository, RecreationFileStatusCodeRepository recreationFileStatusCodeRepository, RecreationFileTypeCodeRepository recreationFileTypeCodeRepository, RecreationInspectionReportRepository recreationInspectionReportRepository, RecreationMapFeatureGeomRepository recreationMapFeatureGeomRepository*/) {
+  public ApplicationService(S3Client s3Client, RecreationAccessRepository recreationAccessRepository, RecreationAccessCodeRepository recreationAccessCodeRepository, RecreationAccessXrefRepository recreationAccessXrefRepository, RecreationMapFeatureCodeRepository recreationMapFeatureCodeRepository, RecreationMapFeatureGeomRepository recreationMapFeatureGeomRepository, RecreationMapFeatureRepository recreationMapFeatureRepository, RecreationMapFeatureXguidRepository recreationMapFeatureXguidRepository) {
     this.s3Client = s3Client;
     this.recreationAccessRepository = recreationAccessRepository;
     this.recreationAccessCodeRepository = recreationAccessCodeRepository;
     this.recreationAccessXrefRepository = recreationAccessXrefRepository;
-    /*this.recreationActivityCodeRepository = recreationActivityCodeRepository;
-    this.recreationActivityRepository = recreationActivityRepository;
-    this.recreationAgreementHolderRepository = recreationAgreementHolderRepository;
-    this.recreationAttachmentContentRepository = recreationAttachmentContentRepository;
-    this.recreationAttachmentRepository = recreationAttachmentRepository;
-    this.recreationCommentRepository = recreationCommentRepository;
-    this.recreationControlAccessCodeRepository = recreationControlAccessCodeRepository;
-    this.recreationDefCsRprHistoryRepository = recreationDefCsRprHistoryRepository;
-    this.recreationDefinedCampsiteRepository = recreationDefinedCampsiteRepository;
-    this.recreationDistrictCodeRepository = recreationDistrictCodeRepository;
-    this.recreationDistrictXrefRepository = recreationDistrictXrefRepository;
-    this.recreationFeeCodeRepository = recreationFeeCodeRepository;
-    this.recreationFeatureCodeRepository = recreationFeatureCodeRepository;
-    this.recreationFeeRepository = recreationFeeRepository;
-    this.recreationFileStatusCodeRepository = recreationFileStatusCodeRepository;
-    this.recreationFileTypeCodeRepository = recreationFileTypeCodeRepository;
-    this.recreationInspectionReportRepository = recreationInspectionReportRepository;
-    this.recreationMapFeatureGeomRepository = recreationMapFeatureGeomRepository;*/
-
+    this.recreationMapFeatureCodeRepository = recreationMapFeatureCodeRepository;
+    this.recreationMapFeatureGeomRepository = recreationMapFeatureGeomRepository;
+    this.recreationMapFeatureRepository = recreationMapFeatureRepository;
+    this.recreationMapFeatureXguidRepository = recreationMapFeatureXguidRepository;
   }
 
   public void extractAndUploadCSVToS3() {
     extractAndUploadRecreationAccessCode();
     extractAndUploadRecreationAccess();
     extractAndUploadRecreationAccessXref();
+    extractAndUploadRecreationMapFeatureXguid();
+    extractAndUploadRecreationMapFeatureCode();
+    extractAndUploadRecreationMapFeatureGeom();
+  }
+
+  private void extractAndUploadRecreationMapFeatureGeom() {
+    var results = this.recreationMapFeatureGeomRepository.findAll();
+    var entityName = RecreationMapFeatureGeom.class.getSimpleName();
+    var fileName = entityName.replaceAll("([a-z])([A-Z]+)", "$1_$2").toUpperCase() + ".csv";
+    var filePath = fileBasePath + "/" + fileName;
+    var csvFormatBuilder = CSVFormat.DEFAULT.builder();
+    List<String> headerNames = new ArrayList<>();
+    for (var field : RecreationMapFeatureGeom.class.getDeclaredFields()) {
+      field.setAccessible(true);
+      var annotation = field.getAnnotation(Column.class);
+      if (annotation != null) {
+        var headerName = field.getDeclaredAnnotation(Column.class).name();
+        headerNames.add(headerName);
+      }
+    }
+    csvFormatBuilder.setHeader(headerNames.toArray(new String[0]));
+    try (
+      FileWriter out = new FileWriter(filePath);
+      CSVPrinter printer = new CSVPrinter(out, csvFormatBuilder.build());
+    ) {
+
+      for (var item : results) {
+        printer.printRecord(item.getId(), item.getGeometryTypeCode(), item.getMapFeatureId(), item.getFeatureArea(), item.getFeatureLength(), item.getFeaturePerimeter(), item.getRevisionCount(), item.getEntryUserid(), item.getEntryTimestamp(), item.getUpdateUserid(), item
+          .getUpdateTimestamp(),item.getGeometry());
+      }
+      printer.flush();
+      uploadFileToS3(filePath, fileName);
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void extractAndUploadRecreationMapFeatureCode() {
+    var results = this.recreationMapFeatureCodeRepository.findAll();
+    var entityName = RecreationMapFeatureCode.class.getSimpleName();
+    var fileName = entityName.replaceAll("([a-z])([A-Z]+)", "$1_$2").toUpperCase() + ".csv";
+    var filePath = fileBasePath + "/" + fileName;
+    var csvFormatBuilder = CSVFormat.DEFAULT.builder();
+    List<String> headerNames = new ArrayList<>();
+    for (var field : RecreationMapFeatureCode.class.getDeclaredFields()) {
+      field.setAccessible(true);
+      var annotation = field.getAnnotation(Column.class);
+      if (annotation != null) {
+        var headerName = field.getDeclaredAnnotation(Column.class).name();
+        headerNames.add(headerName);
+      }
+    }
+    csvFormatBuilder.setHeader(headerNames.toArray(new String[0]));
+    try (
+      FileWriter out = new FileWriter(filePath);
+      CSVPrinter printer = new CSVPrinter(out, csvFormatBuilder.build());
+    ) {
+
+      for (var item : results) {
+        printer.printRecord(item.getRecreationMapFeatureCode(), item.getDescription(), item.getEffectiveDate(), item.getExpiryDate(), item.getUpdateTimestamp());
+      }
+      printer.flush();
+      uploadFileToS3(filePath, fileName);
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+  }
+
+  private void extractAndUploadRecreationMapFeatureXguid() {
+    var results = this.recreationMapFeatureXguidRepository.findAll();
+    var entityName = RecreationMapFeatureXguid.class.getSimpleName();
+    var fileName = entityName.replaceAll("([a-z])([A-Z]+)", "$1_$2").toUpperCase() + ".csv";
+    var filePath = fileBasePath + "/" + fileName;
+    var csvFormatBuilder = CSVFormat.DEFAULT.builder();
+    List<String> headerNames = new ArrayList<>();
+    for (var field : RecreationMapFeatureXguid.class.getDeclaredFields()) {
+      field.setAccessible(true);
+      var annotation = field.getAnnotation(Column.class);
+      if (annotation != null) {
+        var headerName = field.getDeclaredAnnotation(Column.class).name();
+        headerNames.add(headerName);
+      }
+    }
+    csvFormatBuilder.setHeader(headerNames.toArray(new String[0]));
+
+    try (
+      FileWriter out = new FileWriter(filePath);
+      CSVPrinter printer = new CSVPrinter(out, csvFormatBuilder.build());
+    ) {
+
+      for (var item : results) {
+        printer.printRecord(item.getId(), item.getRmfSkey());
+      }
+      printer.flush();
+      uploadFileToS3(filePath, fileName);
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
   }
 
   private void extractAndUploadRecreationAccessXref() {
     var results = this.recreationAccessXrefRepository.findAll();
-    var fileName = "recreation-access-xref.csv";
+    var entityName = RecreationAccessXref.class.getSimpleName();
+    var fileName = entityName.replaceAll("([a-z])([A-Z]+)", "$1_$2").toUpperCase() + ".csv";
     var filePath = fileBasePath + "/" + fileName;
     var csvFormatBuilder = CSVFormat.DEFAULT.builder();
     List<String> headerNames = new ArrayList<>();
@@ -119,7 +207,8 @@ public class ApplicationService {
 
   private void extractAndUploadRecreationAccessCode() {
     var results = this.recreationAccessCodeRepository.findAll();
-    var fileName = "recreation-access-code.csv";
+    var entityName = RecreationAccessCode.class.getSimpleName();
+    var fileName = entityName.replaceAll("([a-z])([A-Z]+)", "$1_$2").toUpperCase() + ".csv";
     var filePath = fileBasePath + "/" + fileName;
     var csvFormatBuilder = CSVFormat.DEFAULT.builder();
     List<String> headerNames = new ArrayList<>();
@@ -151,7 +240,8 @@ public class ApplicationService {
 
   private void extractAndUploadRecreationAccess() {
     var results = this.recreationAccessRepository.findAll();
-    var fileName = "recreation-access.csv";
+    var entityName = RecreationAccess.class.getSimpleName();
+    var fileName = entityName.replaceAll("([a-z])([A-Z]+)", "$1_$2").toUpperCase() + ".csv";
     var filePath = fileBasePath + "/" + fileName;
     var csvFormatBuilder = CSVFormat.DEFAULT.builder();
     List<String> headerNames = new ArrayList<>();

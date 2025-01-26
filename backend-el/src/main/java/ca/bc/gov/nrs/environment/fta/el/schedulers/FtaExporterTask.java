@@ -12,7 +12,7 @@ public class FtaExporterTask {
     this.applicationService = applicationService;
   }
 
-  @Scheduled(cron = "0 2 * * * *")
+  @Scheduled(cron = "0 39 * * * *")
   public void runExportToS3() {
     try {
       this.applicationService.extractAndUploadCSVToS3();
