@@ -1,8 +1,9 @@
 package ca.bc.gov.nrs.environment.fta.el.schedulers;
 
-import ca.bc.gov.nrs.environment.fta.el.services.ApplicationService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import ca.bc.gov.nrs.environment.fta.el.services.ApplicationService;
 
 @Component
 public class FtaExporterTask {
@@ -12,7 +13,7 @@ public class FtaExporterTask {
     this.applicationService = applicationService;
   }
 
-  @Scheduled(cron = "0 39 * * * *")
+  @Scheduled(cron = "0 32 * * * *")
   public void runExportToS3() {
     try {
       this.applicationService.extractAndUploadCSVToS3();
