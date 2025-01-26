@@ -13,12 +13,16 @@ import org.springframework.stereotype.Service;
 import ca.bc.gov.nrs.environment.fta.el.entities.RecreationAccess;
 import ca.bc.gov.nrs.environment.fta.el.entities.RecreationAccessCode;
 import ca.bc.gov.nrs.environment.fta.el.entities.RecreationAccessXref;
+import ca.bc.gov.nrs.environment.fta.el.entities.RecreationActivity;
+import ca.bc.gov.nrs.environment.fta.el.entities.RecreationActivityCode;
 import ca.bc.gov.nrs.environment.fta.el.entities.RecreationMapFeatureCode;
 import ca.bc.gov.nrs.environment.fta.el.entities.RecreationMapFeatureGeom;
 import ca.bc.gov.nrs.environment.fta.el.entities.RecreationMapFeatureXguid;
 import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationAccessCodeRepository;
 import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationAccessRepository;
 import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationAccessXrefRepository;
+import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationActivityCodeRepository;
+import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationActivityRepository;
 import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationMapFeatureCodeRepository;
 import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationMapFeatureGeomRepository;
 import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationMapFeatureRepository;
@@ -40,6 +44,8 @@ public class ApplicationService {
   private final RecreationMapFeatureCodeRepository recreationMapFeatureCodeRepository;
   private final RecreationMapFeatureGeomRepository recreationMapFeatureGeomRepository;
   private final RecreationMapFeatureXguidRepository recreationMapFeatureXguidRepository;
+  private final RecreationActivityCodeRepository recreationActivityCodeRepository;
+  private final RecreationActivityRepository recreationActivityRepository;
 
   public ApplicationService(S3Client s3Client, S3UploaderService s3UploaderService,
       RecreationAccessRepository recreationAccessRepository,
@@ -48,7 +54,9 @@ public class ApplicationService {
       RecreationMapFeatureCodeRepository recreationMapFeatureCodeRepository,
       RecreationMapFeatureGeomRepository recreationMapFeatureGeomRepository,
       RecreationMapFeatureRepository recreationMapFeatureRepository,
-      RecreationMapFeatureXguidRepository recreationMapFeatureXguidRepository) {
+      RecreationMapFeatureXguidRepository recreationMapFeatureXguidRepository,
+      RecreationActivityCodeRepository recreationActivityCodeRepository,
+      RecreationActivityRepository recreationActivityRepository) {
     this.s3UploaderService = s3UploaderService;
     this.recreationAccessRepository = recreationAccessRepository;
     this.recreationAccessCodeRepository = recreationAccessCodeRepository;
@@ -56,15 +64,57 @@ public class ApplicationService {
     this.recreationMapFeatureCodeRepository = recreationMapFeatureCodeRepository;
     this.recreationMapFeatureGeomRepository = recreationMapFeatureGeomRepository;
     this.recreationMapFeatureXguidRepository = recreationMapFeatureXguidRepository;
+    this.recreationActivityCodeRepository = recreationActivityCodeRepository;
+    this.recreationActivityRepository = recreationActivityRepository;
   }
 
   public void extractAndUploadCSVToS3() {
     extractAndUploadRecreationAccessCode();
     extractAndUploadRecreationAccess();
     extractAndUploadRecreationAccessXref();
+    extractAndUploadRecreationActivity();
+    extractAndUploadRecreationActivityCode();
     extractAndUploadRecreationMapFeatureXguid();
     extractAndUploadRecreationMapFeatureCode();
     extractAndUploadRecreationMapFeatureGeom();
+  }
+
+  private void extractAndUploadRecreationActivityCode() {
+    var results = this.recreationActivityCodeRepository.findAll();
+    var entityMetadata = getEntityMetadata(RecreationActivityCode.class);
+    try (
+        var out = new FileWriter(entityMetadata.filePath());
+        var printer = new CSVPrinter(out, entityMetadata.csvFormatBuilder().build());) {
+      for (var item : results) {
+        printer.printRecord(item.getRecreationActivityCode(), item.getDescription(), item.getEffectiveDate(),
+            item.getExpiryDate(), item.getUpdateTimestamp());
+      }
+      printer.flush();
+      this.s3UploaderService.uploadFileToS3(entityMetadata.filePath(), entityMetadata.fileName());
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void extractAndUploadRecreationActivity() {
+    var results = this.recreationActivityRepository.findAll();
+    var entityMetadata = getEntityMetadata(RecreationActivity.class);
+    try (
+        var out = new FileWriter(entityMetadata.filePath());
+        var printer = new CSVPrinter(out, entityMetadata.csvFormatBuilder().build());) {
+      for (var item : results) {
+        printer.printRecord(item.getForestFileId(), item.getRecreationActivityCode(), item.getActivityRank(),
+            item.getRevisionCount(), item.getEntryUserid(), item.getEntryTimestamp(), item.getUpdateUserid(),
+            item.getUpdateTimestamp());
+      }
+      printer.flush();
+      this.s3UploaderService.uploadFileToS3(entityMetadata.filePath(), entityMetadata.fileName());
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
   }
 
   private void extractAndUploadRecreationMapFeatureGeom() {

@@ -1,12 +1,14 @@
 package ca.bc.gov.nrs.environment.fta.el.entities;
 
-import jakarta.persistence.*;
+import java.time.LocalDate;
+
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Immutable;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
 
-import java.time.LocalDate;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "RECREATION_MAP_FEATURE", schema = "THE")
