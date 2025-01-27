@@ -9,10 +9,12 @@
 
 - [Contributing](CONTRIBUTING.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
-- [License](LICENSE.md)
+- [License](LICENSE)
 - [Security](SECURITY.md)
 
 ## Table of Contents
+
+### Project Setup
 
 - [Local Development](#local-development)
   - [Prerequisites](#prerequisites)
@@ -26,6 +28,12 @@
   - [Running pre-commit on all files](#running-pre-commit-on-all-files)
 - [Style Guide](#style-guide)
 - [Schemaspy Database Schema Documentation](#schemaspy-database-schema-documentation)
+
+### Deployment
+
+- [Deploying to AWS](docs/deployment.md#deploying-to-aws)
+  - [Manually deploying pull request to AWS](docs/deployment.md#manually-deploying-pull-request-to-aws)
+  - [Clearing Terraform state lock](docs/deployment.md#clearing-terraform-state-lock)
 
 ## Local Development
 
