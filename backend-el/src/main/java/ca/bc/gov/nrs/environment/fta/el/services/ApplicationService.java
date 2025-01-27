@@ -1,11 +1,8 @@
 package ca.bc.gov.nrs.environment.fta.el.services;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import ca.bc.gov.nrs.environment.fta.el.entities.*;
+import ca.bc.gov.nrs.environment.fta.el.repositories.*;
+import jakarta.persistence.Column;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.slf4j.Logger;
@@ -13,52 +10,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationAccessCodeRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationAccessRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationAccessXrefRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationActivityCodeRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationActivityRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationAgreementHolderRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationAttachmentContentRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationAttachmentRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationCommentRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationControlAccessCodeRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationDefCsRprHistoryRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationDefinedCampsiteRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationDistrictCodeRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationDistrictXrefRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationFeatureCodeRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationFeeCodeRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationFeeRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationFileStatusCodeRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationFileTypeCodeRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationInspectionReportRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationMaintainStdCodeRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationMapFeatureCodeRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationMapFeatureGeomRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationMapFeatureRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationMapFeatureXguidRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationObjectiveRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationOccupancyCodeRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationPlanRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationProjectRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationRemedRepairCodeRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationRiskEvaluationRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationRiskRatingCodeRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationRiskSiteRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationSearchResultRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationSitePointRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationSiteRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationStructDimenCodeRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationStructDimenXrefRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationStructureCodeRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationStructureRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationStructureValueRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationSubAccessCodeRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationTrailSegmentRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationUserDaysCodeRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreatnEventRepository;
-import jakarta.persistence.Column;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class ApplicationService {
@@ -510,12 +465,12 @@ public class ApplicationService {
     var results = this.recreationRiskSiteRepository.findAll();
     var entityMetadata = getEntityMetadata(RecreationRiskSite.class);
     try (
-      var out = new FileWriter(entityMetadata.filePath());
-      var printer = new CSVPrinter(out, entityMetadata.csvFormatBuilder().build());) {
+        var out = new FileWriter(entityMetadata.filePath());
+        var printer = new CSVPrinter(out, entityMetadata.csvFormatBuilder().build());) {
       for (var item : results) {
-      printer.printRecord(item.getId(), item.getForestFile(), item.getEntryTimestamp(),
-         item.getEntryUserid(),
-        item.getUpdateTimestamp(),item.getUpdateUserid(),);
+        printer.printRecord(item.getId(), item.getForestFile(), item.getEntryTimestamp(),
+            item.getEntryUserid(),
+            item.getUpdateTimestamp(), item.getUpdateUserid());
       }
       printer.flush();
       this.s3UploaderService.uploadFileToS3(entityMetadata.filePath(), entityMetadata.fileName());
