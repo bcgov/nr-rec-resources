@@ -61,6 +61,6 @@ jobs:
               --set-string secrets.dbName=${{ secrets.dbName }} \
               --set-string secrets.dbPassword=${{ secrets.dbPassword }} \
               --set-string secrets.dbUser=${{ secrets.dbUser }} \
-              --install --wait 
+              --install --wait \
               --values values.yaml \
               ./backend-el-1.0.0.tgz
