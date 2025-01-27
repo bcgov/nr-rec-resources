@@ -232,7 +232,8 @@ venv.bak/
 .terraform/
 
 
-# nested terragrunt-cache
+# Terragrunt-cache
+**/.terragrunt-cache
 **/.terragrunt-cache/**
 
 # Playwright
