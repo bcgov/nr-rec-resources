@@ -1,2 +1,6 @@
-recreation_resource
 flyway_schema_history
+recreation_status
+recreation_activity
+recreation_status_code
+recreation_activity_code
+recreation_resource
