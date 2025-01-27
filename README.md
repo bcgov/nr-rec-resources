@@ -1,7 +1,7 @@
 [![MIT License](https://img.shields.io/github/license/bcgov/quickstart-openshift.svg)](/LICENSE)
 [![Lifecycle](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
 
-[![Merge](https://github.com/bcgov/quickstart-openshift/actions/workflows/merge.yml/badge.svg)](https://github.com/bcgov/nr-rec-resources/actions/workflows/merge.yml)
+[![Merge](https://github.com/bcgov/quickstart-openshift/actions/workflows/merge.yml/badge.svg)](https://github.com/bcgov/nr-rec-resources/actions/workflows/main.yml)
 [![Analysis](https://github.com/bcgov/quickstart-openshift/actions/workflows/analysis.yml/badge.svg)](https://github.com/bcgov/nr-rec-resources/actions/workflows/analysis.yml)
 [![Scheduled](https://github.com/bcgov/quickstart-openshift/actions/workflows/scheduled.yml/badge.svg)](https://github.com/bcgov/nr-rec-resources/actions/workflows/scheduled.yml)
 
@@ -11,6 +11,21 @@
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [License](LICENSE.md)
 - [Security](SECURITY.md)
+
+## Table of Contents
+
+- [Local Development](#local-development)
+  - [Prerequisites](#prerequisites)
+  - [Docker Compose](#docker-compose)
+  - [Installing and running the application locally](#installing-and-running-the-application-locally)
+  - [Database](#database)
+  - [Backend](#backend)
+  - [Frontend](#frontend)
+- [Pre-commit hooks](#pre-commit-hooks)
+  - [Skipping pre-commit hooks](#skipping-pre-commit-hooks)
+  - [Running pre-commit on all files](#running-pre-commit-on-all-files)
+- [Style Guide](#style-guide)
+- [Schemaspy Database Schema Documentation](#schemaspy-database-schema-documentation)
 
 ## Local Development
 
@@ -40,7 +55,7 @@ directory to install eslint and plugins to ensure linting is working correctly.
 ### Database
 
 To run this on your local machine, you will need a working installation of
-PostgreSQL 16.
+PostgreSQL 15.
 
 Create an `.env` file in the `backend` directory using the example in
 `backend/.env.example` as a template.
