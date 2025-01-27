@@ -32,10 +32,6 @@ data "aws_ecs_cluster" "ecs_cluster" {
   cluster_name = "ecs-cluster-${var.app_name}"
 }
 
-resource "terraform_data" "trigger_deployment" {
-  input = "${timestamp()}"
-}
-
 module "flyway_task" {
   source = "../modules/ecs-flyway-task"
 

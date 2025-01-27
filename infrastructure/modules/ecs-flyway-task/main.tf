@@ -1,3 +1,9 @@
+resource "null_resource" "trigger_deployment" {
+  triggers = {
+    deployment_timestamp = timestamp()
+  }
+}
+
 resource "aws_ecs_task_definition" "flyway_task" {
   family                   = "${var.app_name}-flyway-task"
   network_mode             = "awsvpc"
@@ -28,7 +34,7 @@ resource "aws_ecs_task_definition" "flyway_task" {
   ])
 
   lifecycle {
-    replace_triggered_by = [terraform_data.trigger_deployment]
+    replace_triggered_by = [null_resource.trigger_deployment]
   }
 
   provisioner "local-exec" {
