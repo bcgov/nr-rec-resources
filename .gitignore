@@ -229,8 +229,11 @@ venv.bak/
 
 # Terraform
 .terraform.lock.hcl
+.terraform/
 
-# nested terragrunt-cache
+
+# Terragrunt-cache
+**/.terragrunt-cache
 **/.terragrunt-cache/**
 
 # Playwright

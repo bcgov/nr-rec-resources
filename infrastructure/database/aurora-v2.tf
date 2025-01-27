@@ -1,3 +1,7 @@
+locals {
+  rds_app_env = (contains(["dev", "test", "prod"], var.app_env) ? var.app_env : "dev") # if app_env is not dev, test, or prod, default to dev
+}
+
 data "aws_kms_alias" "rds_key" {
   name = "alias/aws/rds"
 }
@@ -75,6 +79,8 @@ module "aurora_postgresql_v2" {
   storage_encrypted = true
   database_name     = var.db_database_name
 
+  enable_http_endpoint = contains(["dev"], local.rds_app_env) ? true : false
+
   vpc_id                 = data.aws_vpc.main.id
   vpc_security_group_ids = [data.aws_security_group.data.id]
   db_subnet_group_name   = aws_db_subnet_group.db_subnet_group.name
@@ -110,4 +116,10 @@ module "aurora_postgresql_v2" {
   }
 
   enabled_cloudwatch_logs_exports = ["postgresql"]
+}
+
+resource "aws_rds_cluster_role_association" "s3_import" {
+  db_cluster_identifier = var.db_cluster_name
+  feature_name           = "s3Import"
+  role_arn               = aws_iam_role.s3_import.arn
 }
