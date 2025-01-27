@@ -8,12 +8,6 @@ variable "flyway_image" {
   type        = string
 }
 
-variable "trigger_deployment" {
-  description = "Trigger for replacing the task definition"
-  type        = any
-  default     = null
-}
-
 variable "cpu" {
   description = "Task CPU"
   type        = string
