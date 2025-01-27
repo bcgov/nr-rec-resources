@@ -116,7 +116,6 @@ module "aurora_postgresql_v2" {
   }
 
   enabled_cloudwatch_logs_exports = ["postgresql"]
-
 }
 
 resource "aws_rds_cluster_role_association" "s3_import" {
