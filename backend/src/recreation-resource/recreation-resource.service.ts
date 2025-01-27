@@ -76,6 +76,20 @@ export class RecreationResourceService {
     }));
   }
 
+  formatActivityGroup(
+    activityGroup: {
+      recreation_activity_code: string;
+      _count: {
+        recreation_activity_code: number;
+      };
+    }[],
+  ): any {
+    return activityGroup.map((activity) => ({
+      recreation_activity_code: activity.recreation_activity_code,
+      count: activity._count.recreation_activity_code,
+    }));
+  }
+
   async findOne(id: string): Promise<RecreationResourceDto> {
     const recResource = await this.prisma.recreation_resource.findUnique({
       where: {
@@ -137,16 +151,44 @@ export class RecreationResourceService {
       where: filterQuery.where,
     };
 
+    // Return paginated records
     const recreationResources =
       await this.prisma.recreation_resource.findMany(filterQuery);
 
-    const count = await this.prisma.recreation_resource.count(countQuery);
+    const totalRecords =
+      await this.prisma.recreation_resource.count(countQuery);
+
+    // Get all unpaginated rec_resource_ids for the records so we can group/count records for the filter sidebar
+    const totalRecordIds = await this.prisma.recreation_resource.findMany({
+      where: countQuery.where,
+      select: {
+        rec_resource_id: true,
+      },
+    });
+
+    // Group by recreation_activity_code so we can get the count of each activity for filter sidebar
+    // TODO: need to return activity_code description
+    const groupActivities = await this.prisma.recreation_activity.groupBy({
+      by: ["recreation_activity_code"],
+      _count: {
+        recreation_activity_code: true,
+      },
+      where: {
+        rec_resource_id: {
+          in: totalRecordIds.map((record) => record.rec_resource_id),
+        },
+      },
+    });
 
     return {
       data: this.formatResults(recreationResources),
       page,
       limit,
-      total: count,
+      total: totalRecords,
+      activityGroups: groupActivities.map((activityGroup) => ({
+        recreation_activity_code: activityGroup.recreation_activity_code,
+        count: activityGroup._count.recreation_activity_code,
+      })),
     };
   }
 }
