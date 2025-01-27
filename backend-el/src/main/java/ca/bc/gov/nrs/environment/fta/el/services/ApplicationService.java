@@ -1,37 +1,24 @@
 package ca.bc.gov.nrs.environment.fta.el.services;
 
+import ca.bc.gov.nrs.environment.fta.el.entities.*;
+import ca.bc.gov.nrs.environment.fta.el.repositories.*;
+import jakarta.persistence.Column;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.s3.S3Client;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import ca.bc.gov.nrs.environment.fta.el.entities.RecreationAccess;
-import ca.bc.gov.nrs.environment.fta.el.entities.RecreationAccessCode;
-import ca.bc.gov.nrs.environment.fta.el.entities.RecreationAccessXref;
-import ca.bc.gov.nrs.environment.fta.el.entities.RecreationActivity;
-import ca.bc.gov.nrs.environment.fta.el.entities.RecreationActivityCode;
-import ca.bc.gov.nrs.environment.fta.el.entities.RecreationMapFeatureCode;
-import ca.bc.gov.nrs.environment.fta.el.entities.RecreationMapFeatureGeom;
-import ca.bc.gov.nrs.environment.fta.el.entities.RecreationMapFeatureXguid;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationAccessCodeRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationAccessRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationAccessXrefRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationActivityCodeRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationActivityRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationMapFeatureCodeRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationMapFeatureGeomRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationMapFeatureRepository;
-import ca.bc.gov.nrs.environment.fta.el.repositories.RecreationMapFeatureXguidRepository;
-import jakarta.persistence.Column;
-import software.amazon.awssdk.services.s3.S3Client;
-
 @Service
 public class ApplicationService {
+  private final Logger logger = LoggerFactory.getLogger(ApplicationService.class);
   @Value("${ca.bc.gov.nrs.environment.fta.el.file-base-path}")
   private String fileBasePath;
   @Value("${ca.bc.gov.nrs.environment.fta.el.s3.bucket}")
@@ -46,6 +33,9 @@ public class ApplicationService {
   private final RecreationMapFeatureXguidRepository recreationMapFeatureXguidRepository;
   private final RecreationActivityCodeRepository recreationActivityCodeRepository;
   private final RecreationActivityRepository recreationActivityRepository;
+  private final RecreationAgreementHolderRepository recreationAgreementHolderRepository;
+  private final RecreationAttachmentRepository recreationAttachmentRepository;
+  private final RecreationAttachmentContentRepository recreationAttachmentContentRepository;
 
   public ApplicationService(S3Client s3Client, S3UploaderService s3UploaderService,
       RecreationAccessRepository recreationAccessRepository,
@@ -56,7 +46,10 @@ public class ApplicationService {
       RecreationMapFeatureRepository recreationMapFeatureRepository,
       RecreationMapFeatureXguidRepository recreationMapFeatureXguidRepository,
       RecreationActivityCodeRepository recreationActivityCodeRepository,
-      RecreationActivityRepository recreationActivityRepository) {
+      RecreationActivityRepository recreationActivityRepository,
+      RecreationAgreementHolderRepository recreationAgreementHolderRepository,
+      RecreationAttachmentRepository recreationAttachmentRepository,
+      RecreationAttachmentContentRepository recreationAttachmentContentRepository) {
     this.s3UploaderService = s3UploaderService;
     this.recreationAccessRepository = recreationAccessRepository;
     this.recreationAccessCodeRepository = recreationAccessCodeRepository;
@@ -66,6 +59,9 @@ public class ApplicationService {
     this.recreationMapFeatureXguidRepository = recreationMapFeatureXguidRepository;
     this.recreationActivityCodeRepository = recreationActivityCodeRepository;
     this.recreationActivityRepository = recreationActivityRepository;
+    this.recreationAgreementHolderRepository = recreationAgreementHolderRepository;
+    this.recreationAttachmentRepository = recreationAttachmentRepository;
+    this.recreationAttachmentContentRepository = recreationAttachmentContentRepository;
   }
 
   public void extractAndUploadCSVToS3() {
@@ -74,9 +70,86 @@ public class ApplicationService {
     extractAndUploadRecreationAccessXref();
     extractAndUploadRecreationActivity();
     extractAndUploadRecreationActivityCode();
+    extractAndUploadRecreationAgreementHolder();
+    var recAttachments = extractAndUploadRecreationAttachment();
+    extractAndUploadRecreationAttachmentContent(recAttachments);
     extractAndUploadRecreationMapFeatureXguid();
     extractAndUploadRecreationMapFeatureCode();
     extractAndUploadRecreationMapFeatureGeom();
+  }
+
+  /**
+   * This method is special as it upload the attachment contents into its own
+   * forest file id as path.
+   *
+   * @param recAttachments all the attachment objects from db
+   */
+  private void extractAndUploadRecreationAttachmentContent(final List<RecreationAttachment> recAttachments) {
+    for (var recAttachment : recAttachments) {
+      // for each attachment, check if it is already present in s3, if not query db
+      // and upload.
+      var filePath = String.format("uploads/attachments/%s", recAttachment.getForestFileId());
+      var fileName = recAttachment.getAttachmentFileName();
+      var fileExists = this.s3UploaderService.checkIfFileExistInTheBucketPath(filePath, fileName);
+      if (fileExists) {
+        logger.debug("File exists in S3 bucket {} {}", filePath, fileName);
+      } else {
+        // directly upload to s3
+        var contentId = new RecreationAttachmentContentId();
+        contentId.setRecreationAttachmentId(recAttachment.getRecreationAttachmentId());
+        contentId.setForestFileId(recAttachment.getForestFileId());
+        var attachmentContentOptional = this.recreationAttachmentContentRepository.findById(contentId);
+        if (attachmentContentOptional.isPresent()) {
+          var attachmentContent = attachmentContentOptional.get();
+          // upload the byte array to s3 directly using file path file name and byte
+          // array.
+          this.s3UploaderService.uploadBytesToS3(filePath, fileName, attachmentContent.getAttachmentContent());
+        } else {
+          logger.warn("File does not exist in database {} {}", filePath, fileName);
+        }
+      }
+    }
+  }
+
+  private List<RecreationAttachment> extractAndUploadRecreationAttachment() {
+    var results = this.recreationAttachmentRepository.findAll();
+    var entityMetadata = getEntityMetadata(RecreationAttachment.class);
+    try (
+        var out = new FileWriter(entityMetadata.filePath());
+        var printer = new CSVPrinter(out, entityMetadata.csvFormatBuilder().build());) {
+      for (var item : results) {
+        printer.printRecord(item.getForestFileId(), item.getRecreationAttachmentId(), item.getAttachmentFileName(),
+            item.getRevisionCount(), item.getEntryUserid(), item.getEntryTimestamp(), item.getUpdateUserid(),
+            item.getUpdateTimestamp());
+      }
+      printer.flush();
+      this.s3UploaderService.uploadFileToS3(entityMetadata.filePath(), entityMetadata.fileName());
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return results;
+  }
+
+  private void extractAndUploadRecreationAgreementHolder() {
+    var results = this.recreationAgreementHolderRepository.findAll();
+    var entityMetadata = getEntityMetadata(RecreationAgreementHolder.class);
+    try (
+        var out = new FileWriter(entityMetadata.filePath());
+        var printer = new CSVPrinter(out, entityMetadata.csvFormatBuilder().build());) {
+      for (var item : results) {
+        printer.printRecord(item.getId(), item.getForestFile(), item.getClientNumber(),
+            item.getClientLocationCode(), item.getAgreementStartDate(), item.getAgreementEndDate(),
+            item.getRevisionCount(), item.getEntryUserid(), item.getEntryTimestamp(), item.getUpdateUserid(),
+            item.getUpdateTimestamp());
+      }
+      printer.flush();
+      this.s3UploaderService.uploadFileToS3(entityMetadata.filePath(), entityMetadata.fileName());
+
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
   }
 
   private void extractAndUploadRecreationActivityCode() {
