@@ -32,7 +32,7 @@ docker-compose up
 
 Navigate to `http://localhost:3000` in your web browser to view the application.
 
-### Installation
+### Installing and running the application locally
 
 Before starting development on this project, run `npm install` in the base
 directory to install eslint and plugins to ensure linting is working correctly.
@@ -49,6 +49,14 @@ Create an `.env` file in the `backend` directory using the example in
 cd nr-rec-resources
 make create_db
 make migrate
+make load_fixtures
+```
+
+or to drop, recreate, run migrations and reseed the database, ensure no
+connections are open to the database then run:
+
+```bash
+make reset_db
 ```
 
 ### Backend
@@ -167,7 +175,7 @@ Pre-commit is set up to run checks for linting, formatting, and secrets.
 If you need to skip the pre-commit hooks for a specific commit, you can use the
 `--no-verify` flag. Some developers may use this when they are making a commit
 that they know will fail the pre-commit checks, but they still want to commit
-the changes. This is a perfectly acceptible workflow, though there is a
+the changes. This is a perfectly acceptable workflow, though there is a
 pre-commit check in CI so it may be necessary to run pre-commit on all files
 before putting a PR up for review if this is skipped.
 
