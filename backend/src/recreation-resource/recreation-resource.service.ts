@@ -137,6 +137,7 @@ export class RecreationResourceService {
     page: number = 1,
     filter: string = "",
     limit?: number,
+    activities?: string,
   ): Promise<PaginatedRecreationResourceDto> {
     // 10 page limit - max 100 records since if no limit we fetch page * limit
     if (page > 10 && !limit) {
@@ -153,6 +154,20 @@ export class RecreationResourceService {
     const take = limit ? limit : 10 * page;
     const skip = limit ? (page - 1) * limit : 0;
     const orderBy = [{ name: Prisma.SortOrder.asc }];
+    const activityFilter = activities?.split("_").map(Number);
+
+    // Filter by activities if provided
+    const activityFilterQuery = activities
+      ? {
+          recreation_activity: {
+            some: {
+              recreation_activity_code: {
+                in: activityFilter,
+              },
+            },
+          },
+        }
+      : null;
 
     const filterQuery = {
       skip,
@@ -171,6 +186,7 @@ export class RecreationResourceService {
         ],
         AND: {
           display_on_public_site: true,
+          ...activityFilterQuery,
         },
       },
       select: this.recreationResourceSelect,
