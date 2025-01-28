@@ -3,6 +3,16 @@
 @import '~bootstrap/scss/variables';
 @import '~bootstrap/scss/mixins/_breakpoints';
 
+.search-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.search-results-container {
+  width: 100%;
+}
+
 .search-banner {
   padding: 16px 32px;
 

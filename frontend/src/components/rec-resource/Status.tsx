@@ -3,20 +3,20 @@ import redStatus from '@/images/icons/red-status.svg';
 
 interface StatusProps {
   description: string;
-  statusCode: string;
+  statusCode: number;
 }
 
 const Status = ({ description, statusCode }: StatusProps) => {
   const getStatusIcon = (statusCode: string) => {
     switch (statusCode) {
-      case '01':
+      case '1':
         return blueStatus;
-      case '02':
+      case '2':
         return redStatus;
     }
   };
 
-  const statusIcon = getStatusIcon(statusCode);
+  const statusIcon = getStatusIcon(String(statusCode));
   if (!statusIcon) return null;
   return (
     <div className="icon-container">

@@ -92,6 +92,49 @@ export class RecreationResourceService {
     return recResource ? this.formatResults([recResource])[0] : null;
   }
 
+  async getActivityCounts(totalRecordIds: { rec_resource_id: string }[]) {
+    // Fetch all possible recreation_activity_code values
+    const allActivityCodes = await this.prisma.recreation_activity.findMany({
+      select: {
+        recreation_activity_code: true,
+        with_description: {
+          select: {
+            description: true,
+          },
+        },
+      },
+      distinct: ["recreation_activity_code"],
+    });
+
+    // Fetch grouped activity counts
+    const groupActivities = await this.prisma.recreation_activity.groupBy({
+      by: ["recreation_activity_code"],
+      _count: {
+        recreation_activity_code: true,
+      },
+      where: {
+        rec_resource_id: {
+          in: totalRecordIds.map((record) => record.rec_resource_id),
+        },
+      },
+    });
+
+    // Merge and include missing entries with a count of 0
+    const activityCount = allActivityCodes.map((activity) => {
+      const matchedGroup = groupActivities.find(
+        (group) =>
+          group.recreation_activity_code === activity.recreation_activity_code,
+      );
+      return {
+        id: activity.recreation_activity_code,
+        count: matchedGroup ? matchedGroup._count.recreation_activity_code : 0,
+        description: activity.with_description.description,
+      };
+    });
+
+    return activityCount;
+  }
+
   async searchRecreationResources(
     page: number = 1,
     filter: string = "",
@@ -155,29 +198,14 @@ export class RecreationResourceService {
       },
     });
 
-    // Group by recreation_activity_code so we can get the count of each activity for filter sidebar
-    // TODO: need to return activity_code description
-    const groupActivities = await this.prisma.recreation_activity.groupBy({
-      by: ["recreation_activity_code"],
-      _count: {
-        recreation_activity_code: true,
-      },
-      where: {
-        rec_resource_id: {
-          in: totalRecordIds.map((record) => record.rec_resource_id),
-        },
-      },
-    });
+    const activityCount = await this.getActivityCounts(totalRecordIds);
 
     return {
       data: this.formatResults(recreationResources),
       page,
       limit,
       total: totalRecords,
-      activityCount: groupActivities.map((activityGroup) => ({
-        id: activityGroup.recreation_activity_code,
-        count: activityGroup._count.recreation_activity_code,
-      })),
+      activityCount,
     };
   }
 }
