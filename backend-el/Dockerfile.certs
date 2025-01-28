@@ -1,5 +1,5 @@
 #This Dockerfile mounts the certs
-FROM eclipse-temurin:21
+FROM eclipse-temurin:21-jdk-alpine
 
 ENV LANG=en_CA.UTF-8
 ENV LANGUAGE=en_CA.UTF-8
@@ -9,10 +9,10 @@ WORKDIR /app
 RUN apk --no-cache add openssl
 
 COPY get_certs.sh .
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
-USER appuser
+
 RUN chmod g+w /app && \
     chmod g+x get_certs.sh && \
     chmod g+w ${JAVA_HOME}/lib/security/cacerts
-
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+USER appuser
 ENTRYPOINT ["sh", "get_certs.sh"]

@@ -9,7 +9,6 @@ on:
         type: choice
         options:
           - dev
-          - test
           - prod
 
 jobs:
@@ -37,7 +36,7 @@ jobs:
   deploy:
     name: Deploy Helm Chart
     needs: build
-    environment: ${{ github.event.inputs.environment }}
+    environment: openshift-${{ github.event.inputs.environment }}
     runs-on: ubuntu-24.04
     steps:
       - name: Helm Deploy
@@ -56,8 +55,6 @@ jobs:
               --set-string image.tag=${{ github.sha }} \
               --set-string secrets.dbHost=${{ secrets.dbHost }} \
               --set-string secrets.certSecret=${{ secrets.certSecret }} \
-              --set-string secrets.awsAccessKey=${{ secrets.awsAccessKey }} \
-              --set-string secrets.awsSecretKey=${{ secrets.awsSecretKey }} \
               --set-string secrets.dbName=${{ secrets.dbName }} \
               --set-string secrets.dbPassword=${{ secrets.dbPassword }} \
               --set-string secrets.dbUser=${{ secrets.dbUser }} \
