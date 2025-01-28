@@ -19,11 +19,11 @@ jobs:
       matrix:
         package: ['backend-el','backend-el-init']
         include:
-          - package: backend-el
-            build_file: Dockerfile
+          - package: 'backend-el'
+            build_file: ./backend-el/Dockerfile
             build_context: .
-          - package: backend-el-init
-            build_file: Dockerfile.certs
+          - package: 'backend-el-init'
+            build_file: ./backend-el/Dockerfile.certs
             build_context: .
     timeout-minutes: 10
     steps:
