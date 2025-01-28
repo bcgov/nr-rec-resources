@@ -11,7 +11,7 @@ const recreationResource1 = {
   recreation_activity: [
     {
       with_description: {
-        recreation_activity_code: "32",
+        recreation_activity_code: 32,
         description: "Camping",
       },
     },
@@ -21,7 +21,7 @@ const recreationResource1 = {
       description: "Open",
     },
     comment: "Site is open comment",
-    status_code: "01",
+    status_code: 1,
   },
   rec_resource_type: "SIT",
 };
@@ -31,13 +31,13 @@ const recreationResource1Response = {
   recreation_activity: [
     {
       description: "Camping",
-      recreation_activity_code: "32",
+      recreation_activity_code: 32,
     },
   ],
   recreation_status: {
     description: "Open",
     comment: "Site is open comment",
-    status_code: "01",
+    status_code: 1,
   },
   rec_resource_type: "SIT",
 };
@@ -54,7 +54,7 @@ const recreationResource2 = {
       description: "Closed",
     },
     comment: "Site is closed comment",
-    status_code: "02",
+    status_code: 2,
   },
   rec_resource_type: "RTR",
 };
@@ -65,7 +65,7 @@ const recreationResource2Response = {
   recreation_status: {
     description: "Closed",
     comment: "Site is closed comment",
-    status_code: "02",
+    status_code: 2,
   },
   rec_resource_type: "RTR",
 };
@@ -79,7 +79,7 @@ const recreationResource3 = {
   recreation_activity: [
     {
       with_description: {
-        recreation_activity_code: "09",
+        recreation_activity_code: 9,
         description: "Picnicking",
       },
     },
@@ -89,7 +89,7 @@ const recreationResource3 = {
       description: "Active",
     },
     comment: "Site is active comment",
-    status_code: "01",
+    status_code: 1,
   },
   rec_resource_type: "RR",
 };
@@ -99,13 +99,13 @@ const recreationResource3Response = {
   recreation_activity: [
     {
       description: "Picnicking",
-      recreation_activity_code: "09",
+      recreation_activity_code: 9,
     },
   ],
   recreation_status: {
     description: "Active",
     comment: "Site is active comment",
-    status_code: "01",
+    status_code: 1,
   },
   rec_resource_type: "RR",
 };
@@ -119,19 +119,19 @@ const recreationResource4 = {
   recreation_activity: [
     {
       with_description: {
-        recreation_activity_code: "01",
+        recreation_activity_code: 1,
         description: "Angling",
       },
     },
     {
       with_description: {
-        recreation_activity_code: "04",
+        recreation_activity_code: 4,
         description: "Kayaking",
       },
     },
     {
       with_description: {
-        recreation_activity_code: "03",
+        recreation_activity_code: 3,
         description: "Canoeing",
       },
     },
@@ -145,15 +145,15 @@ const recreationResource4Response = {
   recreation_activity: [
     {
       description: "Angling",
-      recreation_activity_code: "01",
+      recreation_activity_code: 1,
     },
     {
       description: "Kayaking",
-      recreation_activity_code: "04",
+      recreation_activity_code: 4,
     },
     {
       description: "Canoeing",
-      recreation_activity_code: "03",
+      recreation_activity_code: 3,
     },
   ],
   recreation_status: {
@@ -192,6 +192,7 @@ describe("RecreationResourceService", () => {
               count: vi.fn(),
               findMany: vi.fn(),
               findUnique: vi.fn(),
+              groupBy: vi.fn(),
             },
           },
         },

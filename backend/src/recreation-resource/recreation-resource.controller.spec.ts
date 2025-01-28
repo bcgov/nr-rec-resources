@@ -52,7 +52,7 @@ describe("RecreationResourceController", () => {
         recreation_status: {
           description: "Active",
           comment: "Active",
-          status_code: "01",
+          status_code: 1,
         },
       };
       vi.spyOn(recService, "findOne").mockResolvedValue(result);
