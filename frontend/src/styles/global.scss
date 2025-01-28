@@ -30,6 +30,11 @@
   min-width: 100vw;
 }
 
+label {
+  // override BC Govt Bootstrap defaults
+  font-size: unset !important;
+}
+
 html,
 body {
   scroll-behavior: smooth;

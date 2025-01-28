@@ -5,6 +5,7 @@ import type { AxiosResponse } from '~/axios';
 import buildQueryString from '@/utils/buildQueryString';
 import RecResourceCard from '@/components/rec-resource/card/RecResourceCard';
 import SearchBanner from '@/components/search/SearchBanner';
+import FilterMenu from '@/components/search/FilterMenu';
 import { photosExample } from '@/components/rec-resource/RecResourcePage';
 import { RecreationResource } from '@/components/rec-resource/types';
 
@@ -43,6 +44,7 @@ const SearchPage = () => {
         .getAxiosInstance()
         .get('/v1/recreation-resource/search')
         .then((response: AxiosResponse) => {
+          console.log(response.data);
           setRecResourceData(response.data);
           setIsComponentMounted(true);
           return response;
@@ -99,59 +101,72 @@ const SearchPage = () => {
     // eslint-disable-next-line
   }, [searchParams]);
 
+  const activityCount = recResourceData?.activityCount;
+
+  const filterMenuContent = [
+    {
+      category: 'Activity',
+      filters: activityCount,
+      param: 'activity',
+    },
+  ];
+
   return (
     <>
       <SearchBanner key={searchResetKey} />
       <div className="page-container bg-brown-light">
-        <div className="page page-padding">
-          <section className="search-results-count">
-            <div>
-              {recResourceCount ? (
-                <>
-                  <b>{recResourceCount}</b>{' '}
-                  {recResourceCount === 1 ? 'Result' : 'Results'}
-                </>
-              ) : (
-                <span>No results found</span>
+        <div className="page page-padding search-container">
+          <FilterMenu menuContent={filterMenuContent} />
+          <div className="search-results-container">
+            <div className="search-results-count">
+              <div>
+                {recResourceCount ? (
+                  <>
+                    <b>{recResourceCount}</b>{' '}
+                    {recResourceCount === 1 ? 'Result' : 'Results'}
+                  </>
+                ) : (
+                  <span>No results found</span>
+                )}
+              </div>
+              {isFilters && (
+                <button
+                  type="button"
+                  className="btn-link"
+                  onClick={handleClearFilters}
+                >
+                  Clear Filters
+                </button>
               )}
             </div>
-            {isFilters && (
-              <button
-                type="button"
-                className="btn-link"
-                onClick={handleClearFilters}
-              >
-                Clear Filters
-              </button>
+            <section>
+              {isResults && (
+                <>
+                  {recResourceList?.map((resource: RecreationResource) => {
+                    const { rec_resource_id } = resource;
+                    return (
+                      <RecResourceCard
+                        key={rec_resource_id}
+                        imageList={photosExample}
+                        recreationResource={resource}
+                      />
+                    );
+                  })}
+                </>
+              )}{' '}
+            </section>
+            {isLoadMore && (
+              <div className="load-more-container">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleLoadMore}
+                >
+                  Load More
+                </button>
+              </div>
             )}
-          </section>
-          <section>
-            {isResults && (
-              <>
-                {recResourceList?.map((resource: RecreationResource) => {
-                  const { rec_resource_id } = resource;
-                  return (
-                    <RecResourceCard
-                      key={rec_resource_id}
-                      imageList={photosExample}
-                      recreationResource={resource}
-                    />
-                  );
-                })}
-              </>
-            )}{' '}
-          </section>
-          {isLoadMore && (
-            <div className="load-more-container">
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={handleLoadMore}
-              >
-                Load More
-              </button>
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </>

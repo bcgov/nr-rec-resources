@@ -1,10 +1,10 @@
 export interface Activity {
   description: string;
-  recreation_activity_code: string;
+  recreation_activity_code: number;
 }
 
 export interface RecreationStatus {
-  status_code: string;
+  status_code: number;
   comment: string;
   description: string;
 }

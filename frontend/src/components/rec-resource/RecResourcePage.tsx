@@ -120,7 +120,7 @@ const RecResourcePage = () => {
 
   const isActivities = recreation_activity && recreation_activity.length > 0;
   const isPhotoGallery = photosExample.length > 0;
-  const isClosures = statusComment && formattedName && statusCode === '02';
+  const isClosures = statusComment && formattedName && statusCode === 2;
 
   return (
     <div className="rec-resource-container">
