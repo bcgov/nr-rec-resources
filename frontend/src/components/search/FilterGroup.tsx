@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Form } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import removeFilter from '@/utils/removeFilter';
 import { Filter } from '@/components/search/types';
 
@@ -13,6 +16,7 @@ interface FilterGroupProps {
 
 const FilterGroup = ({ category, filters, param }: FilterGroupProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [showAllFilters, setShowAllFilters] = useState(false);
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { id, checked } = event.target;
     const newSearchParams = new URLSearchParams(searchParams.toString());
@@ -34,11 +38,16 @@ const FilterGroup = ({ category, filters, param }: FilterGroupProps) => {
       setSearchParams(newSearchParams);
     }
   };
+
+  const filtersCount = filters?.length + 1;
+  const isShowAllFilters = filtersCount > 5 && !showAllFilters;
+  const filterList = isShowAllFilters ? filters.slice(0, 5) : filters;
+
   return (
     <div className="filter-group-container">
       <span className="filter-group-title">{category}</span>
       <Form.Group className="filter-options-container">
-        {filters?.map((filter) => {
+        {filterList?.map((filter) => {
           const { count, description, id } = filter;
           return (
             <Form.Check
@@ -51,6 +60,30 @@ const FilterGroup = ({ category, filters, param }: FilterGroupProps) => {
           );
         })}
       </Form.Group>
+      <button
+        className="show-all-link"
+        onClick={() => {
+          setShowAllFilters(!showAllFilters);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setShowAllFilters(!showAllFilters);
+          }
+        }}
+      >
+        {showAllFilters ? (
+          <>
+            Show all {filtersCount}
+            <FontAwesomeIcon icon={faChevronDown} />
+          </>
+        ) : (
+          <>
+            Show less
+            <FontAwesomeIcon icon={faChevronUp} />
+          </>
+        )}
+      </button>
     </div>
   );
 };
