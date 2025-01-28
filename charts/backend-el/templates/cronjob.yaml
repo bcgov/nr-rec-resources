@@ -59,6 +59,8 @@ spec:
                   value: "false"
                 - name: AWS_S3_BUCKET
                   value: "fta-rec-rst-uploads"
+                - name: spring_profiles_active
+                  value: "openshift"
               volumeMounts:
                 - name: {{ .Release.Name }}-certs
                   mountPath: /app/cert
