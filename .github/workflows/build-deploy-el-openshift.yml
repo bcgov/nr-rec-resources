@@ -52,12 +52,12 @@ jobs:
             helm package -u . --app-version="${{ github.sha }}" --version=1.0.0
              # Helm upgrade/rollout, the db secrets are related to ORACLE DB, the cert secret can be a random one.
             helm upgrade \
-              --set-string image.tag=${{ github.sha }} \
-              --set-string secrets.dbHost=${{ secrets.dbHost }} \
-              --set-string secrets.certSecret=${{ secrets.certSecret }} \
+              --set-string image.tag="${{ github.sha }}" \
+              --set-string secrets.dbHost="${{ secrets.dbHost }}" \
+              --set-string secrets.certSecret="${{ secrets.certSecret }}" \
               --set-string secrets.dbName=${{ secrets.dbName }} \
-              --set-string secrets.dbPassword=${{ secrets.dbPassword }} \
-              --set-string secrets.dbUser=${{ secrets.dbUser }} \
+              --set-string secrets.dbPassword="${{ secrets.dbPassword }}" \
+              --set-string secrets.dbUser="${{ secrets.dbUser }}" \
               --install --wait \
               --values values.yaml backend-el\
               ./backend-el-1.0.0.tgz
