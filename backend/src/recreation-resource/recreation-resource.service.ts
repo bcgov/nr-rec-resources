@@ -7,7 +7,7 @@ import { RecreationResourceDto } from "./dto/recreation-resource.dto";
 interface RecreationActivityWithDescription {
   with_description: {
     description: string;
-    recreation_activity_code: string;
+    recreation_activity_code: number;
   };
 }
 
@@ -23,7 +23,7 @@ interface RecreationResource {
       description: string;
     };
     comment: string;
-    status_code: string;
+    status_code: number;
   };
 }
 
@@ -75,20 +75,6 @@ export class RecreationResourceService {
         comment: resource.recreation_status?.comment,
         status_code: resource.recreation_status?.status_code,
       },
-    }));
-  }
-
-  formatActivityGroup(
-    activityGroup: {
-      recreation_activity_code: string;
-      _count: {
-        recreation_activity_code: number;
-      };
-    }[],
-  ): any {
-    return activityGroup.map((activity) => ({
-      recreation_activity_code: activity.recreation_activity_code,
-      count: activity._count.recreation_activity_code,
     }));
   }
 
@@ -161,6 +147,7 @@ export class RecreationResourceService {
       await this.prisma.recreation_resource.count(countQuery);
 
     // Get all unpaginated rec_resource_ids for the records so we can group/count records for the filter sidebar
+    // This can be used to get the count of each filter group
     const totalRecordIds = await this.prisma.recreation_resource.findMany({
       where: countQuery.where,
       select: {
@@ -187,8 +174,8 @@ export class RecreationResourceService {
       page,
       limit,
       total: totalRecords,
-      activityGroups: groupActivities.map((activityGroup) => ({
-        recreation_activity_code: activityGroup.recreation_activity_code,
+      activityCount: groupActivities.map((activityGroup) => ({
+        id: activityGroup.recreation_activity_code,
         count: activityGroup._count.recreation_activity_code,
       })),
     };
