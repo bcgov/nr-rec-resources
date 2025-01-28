@@ -1,4 +1,3 @@
----
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -14,7 +13,6 @@ spec:
     metadata:
       labels:
         {{- include "labels" . | nindent 8 }}
-
     spec:
       backoffLimit: {{.Values.backoffLimit}}
       activeDeadlineSeconds: 3600
@@ -35,7 +33,7 @@ spec:
               image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/nr-rec-resources/backend-el-init:{{ .Values.image.tag | default .Chart.AppVersion }}"
               imagePullPolicy: Always
               resources:
-                {{- toYaml .Values.initContainerResources | nindent 12 }}
+                {{- toYaml .Values.initContainerResources | nindent 16 }}
               envFrom:
                 - secretRef:
                     name: {{ .Release.Name }}-backend-el-init
@@ -45,10 +43,8 @@ spec:
           containers:
             - name: {{ .Chart.Name }}
               image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/nr-rec-resources/backend-el:{{ .Values.image.tag | default .Chart.AppVersion }}"
-              imagePullPolicy: Always
-
               resources:
-                {{- toYaml .Values.resources | nindent 12 }}
+                {{- toYaml .Values.resources | nindent 16 }}
               envFrom:
                 - secretRef:
                     name: {{ .Release.Name }}-backend-el
@@ -56,13 +52,13 @@ spec:
                     name: aws-secrets
               env:
                 - name: DB_PORT
-                  value: '1543'
+                  value: "1543"
                 - name: FILE_BASE_PATH
                   value: "/uploads"
                 - name: SPRING_JPA_SHOW_SQL
                   value: "false"
                 - name: AWS_S3_BUCKET
-                  value: fta-rec-rst-uploads
+                  value: "fta-rec-rst-uploads"
               volumeMounts:
                 - name: {{ .Release.Name }}-certs
                   mountPath: /app/cert
