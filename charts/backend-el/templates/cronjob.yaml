@@ -1,0 +1,67 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    {{- include "labels" . | nindent 4 }}
+spec:
+  schedule: {{.Values.schedule | quote}}
+  concurrencyPolicy: "Replace"
+  successfulJobsHistoryLimit: {{.Values.successHistoryLimit }}
+  failedJobsHistoryLimit: {{.Values.failedHistoryLimit }}
+  jobTemplate:
+    metadata:
+      labels:
+        {{- include "labels" . | nindent 8 }}
+
+    spec:
+      backoffLimit: {{.Values.backoffLimit}}
+      activeDeadlineSeconds: 3600
+      template:
+        metadata:
+          labels:
+            {{- include "labels" . | nindent 12 }}
+        spec:
+          volumes:
+            - name: {{ .Release.Name }}-certs
+              persistentVolumeClaim:
+                claimName: {{ .Release.Name }}-certs
+            - name: {{ .Release.Name }}-csv
+              persistentVolumeClaim:
+                claimName: {{ .Release.Name }}-csv
+          initContainers:
+            - name: {{ .Chart.Name }}-init
+              image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/nr-rec-resources/backend-el-init:{{ .Values.image.tag | default .Chart.AppVersion }}"
+              imagePullPolicy: Always
+              resources:
+                {{- toYaml .Values.initContainerResources | nindent 12 }}
+              envFrom:
+                - secretRef:
+                    name: {{ .Release.Name }}-backend-el-init
+              volumeMounts:
+                - name: {{ .Release.Name }}-certs
+                  mountPath: /app/cert
+          containers:
+            - name: {{ .Chart.Name }}
+              image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/nr-rec-resources/backend-el:{{ .Values.image.tag | default .Chart.AppVersion }}"
+              imagePullPolicy: Always
+
+              resources:
+                {{- toYaml .Values.resources | nindent 12 }}
+              envFrom:
+                - secretRef:
+                    name: {{ .Release.Name }}-backend-el
+              env:
+                - name: DB_PORT
+                  value: '1543'
+                - name: FILE_BASE_PATH
+                  value: "/uploads"
+                - name: SPRING_JPA_SHOW_SQL
+                  value: "false"
+              volumeMounts:
+                - name: {{ .Release.Name }}-certs
+                  mountPath: /app/cert
+                - name: {{ .Release.Name }}-csv
+                  mountPath: /uploads
+          restartPolicy: OnFailure
