@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "src/prisma.service";
 import { RecreationResourceDto } from "./dto/recreation-resource.dto";
+import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resouce.dto";
 
 interface RecreationActivityWithDescription {
   with_description: {
@@ -93,7 +94,7 @@ export class RecreationResourceService {
     page: number = 1,
     filter: string = "",
     limit?: number,
-  ): Promise<any> {
+  ): Promise<PaginatedRecreationResourceDto> {
     // 10 page limit - max 100 records since if no limit we fetch page * limit
     if (page > 10 && !limit) {
       throw new Error("Maximum page limit is 10 when no limit is provided");
