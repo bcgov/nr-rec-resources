@@ -10,6 +10,7 @@ FROM eclipse-temurin:21
 WORKDIR /app
 ARG DEPENDENCY=/app/target/
 COPY --from=build ${DEPENDENCY}/*.jar /app/app.jar
+COPY run_app.sh .
 RUN useradd -ms /bin/bash appuser
 USER appuser
-ENTRYPOINT ["java","-Duser.name=REC-ORACLE-EL","-Xms512m","-Xmx512m" ,"-jar","app.jar"]
+ENTRYPOINT ["sh", "run_app.sh"]
