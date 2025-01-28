@@ -31,4 +31,4 @@ build/
 
 ### VS Code ###
 .vscode/
-backend-el/application-local.properties
+src/main/resources/application-local.properties

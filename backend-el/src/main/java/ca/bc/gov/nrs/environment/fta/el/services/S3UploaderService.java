@@ -10,6 +10,7 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 @Service
@@ -18,7 +19,8 @@ public class S3UploaderService {
   private final S3Client s3Client;
   @Value("${ca.bc.gov.nrs.environment.fta.el.s3.bucket}")
   private String bucket;
-
+  @Value("${ca.bc.gov.nrs.environment.fta.el.s3.bucket.attachment.threshold}")
+  private Integer attachmentTheshold;
   public S3UploaderService(S3Client s3Client) {
     this.s3Client = s3Client;
   }
@@ -62,11 +64,11 @@ public class S3UploaderService {
   public boolean checkIfFileExistInTheBucketPath(String filePath, String fileName) {
     try {
       var keyToCheck = filePath + "/" + fileName;
-      var listObjectsRequest = software.amazon.awssdk.services.s3.model.ListObjectsRequest.builder()
+      var listObjectsRequest = software.amazon.awssdk.services.s3.model.ListObjectsV2Request.builder()
           .bucket(bucket)
           .prefix(filePath)
           .build();
-      var listObjectsResponse = this.s3Client.listObjects(listObjectsRequest);
+      var listObjectsResponse = this.s3Client.listObjectsV2(listObjectsRequest);
       for (var listObject : listObjectsResponse.contents()) {
         logger.debug("Key from s3 {}",listObject.key());
         logger.debug("Key to check {}", keyToCheck);
@@ -78,5 +80,28 @@ public class S3UploaderService {
       throw new RuntimeException(e);
     }
     return false;
+  }
+
+  /**
+   * This method will check for the count, if the number of objects in the bucket are more than x(a value from property file),
+   * then it is considered that the attachment process is completed earlier and getting only one week back of data would be sufficient.
+   * @return true or false based on whether initial load has been done.
+   */
+  public boolean isAttachmentProcessCompletedEarlier() {
+    var countObjectsRequest= software.amazon.awssdk.services.s3.model.ListObjectsV2Request.builder()
+        .bucket(bucket)
+        .prefix("uploads/attachments")
+        .maxKeys(attachmentTheshold)
+        .build();
+    var countObjectsResponse = this.s3Client.listObjectsV2Paginator(countObjectsRequest);
+    long totalObjects = 0;
+
+    for (ListObjectsV2Response page : countObjectsResponse) {
+        long retrievedPageSize = page.contents().stream()
+          .reduce(0, (subtotal, element) -> subtotal + 1, Integer::sum);
+        totalObjects += retrievedPageSize;
+    }
+    logger.info("Total objects in the bucket: {}, attachment threshold {}", totalObjects, attachmentTheshold);
+    return totalObjects > attachmentTheshold;
   }
 }
