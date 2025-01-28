@@ -28,21 +28,6 @@ spec:
             - name: {{ .Release.Name }}-csv
               persistentVolumeClaim:
                 claimName: {{ .Release.Name }}-csv
-          initContainers:
-            - name: {{ .Chart.Name }}-init
-              image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/nr-rec-resources/backend-el-init:{{ .Values.image.tag | default .Chart.AppVersion }}"
-              imagePullPolicy: Always
-              resources:
-                {{- toYaml .Values.initContainerResources | nindent 16 }}
-              envFrom:
-                - secretRef:
-                    name: {{ .Release.Name }}-backend-el-init
-              env:
-                - name: DB_PORT
-                  value: "1543"
-              volumeMounts:
-                - name: {{ .Release.Name }}-certs
-                  mountPath: /app/cert
           containers:
             - name: {{ .Chart.Name }}
               image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/nr-rec-resources/backend-el:{{ .Values.image.tag | default .Chart.AppVersion }}"
