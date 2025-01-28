@@ -105,9 +105,9 @@ const SearchPage = () => {
 
   const filterMenuContent = [
     {
-      category: 'Activity',
+      category: 'Activities',
       filters: activityCount,
-      param: 'activity',
+      param: 'activities',
     },
   ];
 
@@ -116,7 +116,7 @@ const SearchPage = () => {
       <SearchBanner key={searchResetKey} />
       <div className="page-container bg-brown-light">
         <div className="page page-padding search-container">
-          <FilterMenu menuContent={filterMenuContent} />
+          <FilterMenu key={searchResetKey} menuContent={filterMenuContent} />
           <div className="search-results-container">
             <div className="search-results-count">
               <div>

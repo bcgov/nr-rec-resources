@@ -13,7 +13,8 @@ const SearchBanner = () => {
           searchParams.delete('filter');
           setSearchParams(searchParams);
         } else {
-          setSearchParams({ filter: e.target.value });
+          searchParams.set('filter', e.target.value);
+          setSearchParams(searchParams);
         }
       }, 250),
     [searchParams, setSearchParams],

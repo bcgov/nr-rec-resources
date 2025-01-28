@@ -15,19 +15,24 @@ const FilterGroup = ({ category, filters, param }: FilterGroupProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { id, checked } = event.target;
-    const updateFilters = removeFilter(id, param, searchParams);
+    const newSearchParams = new URLSearchParams(searchParams.toString());
+    // Remove the filter from the search params if it exists
+    const updateFilters = removeFilter(id, param, newSearchParams);
+
     if (checked) {
-      setSearchParams({
-        ...searchParams,
-        [param]: updateFilters ? `${updateFilters}_${id}` : id,
-      });
+      // Append the new filter to the existing filters if they exist
+      newSearchParams.set(param, updateFilters ? `${updateFilters}_${id}` : id);
+      setSearchParams(newSearchParams);
     } else {
-      setSearchParams({
-        ...searchParams,
-        [param]: updateFilters,
-      });
+      if (!updateFilters) {
+        // Remove the param if there are no filters
+        newSearchParams.delete(param);
+      } else {
+        // Update the param with the new filters
+        newSearchParams.set(param, updateFilters);
+      }
+      setSearchParams(newSearchParams);
     }
-    console.log(id, checked);
   };
   return (
     <div className="filter-group-container">
