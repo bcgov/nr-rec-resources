@@ -1,0 +1,22 @@
+secrets:
+  dbHost: ~
+  certSecret: ~
+  awsAccessKey: ~
+  awsSecretKey: ~
+  dbName: ~
+  dbPassword: ~
+  dbUser: ~
+image:
+  tag: ~
+resources:
+  requests:
+    cpu: 400m
+    memory: 1500Mi
+initContainerResources:
+  requests:
+    cpu: 400m
+    memory: 256Mi
+schedule: "0 8 * * *" # Daily at midnight PST
+backoffLimit: 3 # retry 3 times before giving up
+successHistoryLimit: 7
+failedHistoryLimit: 7
