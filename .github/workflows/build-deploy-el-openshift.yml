@@ -21,10 +21,10 @@ jobs:
         include:
           - package: 'backend-el'
             build_file: ./backend-el/Dockerfile
-            build_context: .
+            build_context: ./backend-el
           - package: 'backend-el-init'
             build_file: ./backend-el/Dockerfile.certs
-            build_context: .
+            build_context: ./backend-el
     timeout-minutes: 10
     steps:
       - uses: bcgov/action-builder-ghcr@v2.3.0
