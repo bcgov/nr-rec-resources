@@ -4,24 +4,24 @@ import ThingsToDo from '@/components/rec-resource/ThingsToDo';
 export const mockActivities = [
   {
     description: 'Angling',
-    recreation_activity_code: '01',
+    recreation_activity_code: 1,
   },
   {
     description: 'Boating',
-    recreation_activity_code: '02',
+    recreation_activity_code: 2,
   },
   {
     description: 'Hiking',
-    recreation_activity_code: '12',
+    recreation_activity_code: 12,
   },
   {
     // This doesn't exist in the activityMap yet
     description: 'Beach Activities',
-    recreation_activity_code: '08',
+    recreation_activity_code: 8,
   },
   {
     description: 'Camping',
-    recreation_activity_code: '32',
+    recreation_activity_code: 32,
   },
 ];
 

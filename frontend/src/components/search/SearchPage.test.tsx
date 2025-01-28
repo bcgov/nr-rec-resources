@@ -7,13 +7,13 @@ import apiService from '@/service/api-service';
 const mockOpenStatus = {
   description: 'Open',
   comment: 'Site is open',
-  status_code: '01',
+  status_code: 1,
 };
 
 const mockClosedStatus = {
   description: 'Closed',
   comment: 'Site is closed',
-  status_code: '02',
+  status_code: 2,
 };
 
 const mockResources = {
@@ -26,7 +26,7 @@ const mockResources = {
         recreation_activity: [
           {
             description: 'Snowmobiling',
-            recreation_activity_code: '22',
+            recreation_activity_code: 22,
           },
         ],
         recreation_status: mockOpenStatus,
@@ -38,7 +38,7 @@ const mockResources = {
         recreation_activity: [
           {
             description: 'Snowmobiling',
-            recreation_activity_code: '22',
+            recreation_activity_code: 22,
           },
         ],
         recreation_status: mockOpenStatus,
@@ -50,11 +50,11 @@ const mockResources = {
         recreation_activity: [
           {
             description: 'Picnicking',
-            recreation_activity_code: '09',
+            recreation_activity_code: 9,
           },
           {
             description: 'Angling',
-            recreation_activity_code: '01',
+            recreation_activity_code: 1,
           },
         ],
         recreation_status: mockClosedStatus,
@@ -66,7 +66,7 @@ const mockResources = {
         recreation_activity: [
           {
             description: 'Snowmobiling',
-            recreation_activity_code: '22',
+            recreation_activity_code: 22,
           },
         ],
         recreation_status: mockOpenStatus,
@@ -78,23 +78,23 @@ const mockResources = {
         recreation_activity: [
           {
             description: 'Boating',
-            recreation_activity_code: '02',
+            recreation_activity_code: 2,
           },
           {
             description: 'Hiking',
-            recreation_activity_code: '12',
+            recreation_activity_code: 12,
           },
           {
             description: 'Beach Activities',
-            recreation_activity_code: '08',
+            recreation_activity_code: 8,
           },
           {
             description: 'Camping',
-            recreation_activity_code: '32',
+            recreation_activity_code: 32,
           },
           {
             description: 'Angling',
-            recreation_activity_code: '01',
+            recreation_activity_code: 1,
           },
         ],
         recreation_status: mockOpenStatus,
@@ -106,15 +106,15 @@ const mockResources = {
         recreation_activity: [
           {
             description: 'Ski Touring',
-            recreation_activity_code: '33',
+            recreation_activity_code: 33,
           },
           {
             description: 'Hiking',
-            recreation_activity_code: '12',
+            recreation_activity_code: 12,
           },
           {
             description: 'Snowshoeing',
-            recreation_activity_code: '23',
+            recreation_activity_code: 23,
           },
         ],
         recreation_status: mockClosedStatus,
@@ -126,7 +126,7 @@ const mockResources = {
         recreation_activity: [
           {
             description: 'Snowmobiling',
-            recreation_activity_code: '22',
+            recreation_activity_code: 22,
           },
         ],
         recreation_status: mockOpenStatus,
@@ -138,7 +138,7 @@ const mockResources = {
         recreation_activity: [
           {
             description: 'Snowmobiling',
-            recreation_activity_code: '22',
+            recreation_activity_code: 22,
           },
         ],
         recreation_status: mockOpenStatus,
@@ -150,7 +150,7 @@ const mockResources = {
         recreation_activity: [
           {
             description: 'Mountain Biking',
-            recreation_activity_code: '27',
+            recreation_activity_code: 27,
           },
         ],
         recreation_status: {
@@ -166,7 +166,7 @@ const mockResources = {
         recreation_activity: [
           {
             description: 'Angling',
-            recreation_activity_code: '01',
+            recreation_activity_code: 1,
           },
         ],
         recreation_status: mockOpenStatus,

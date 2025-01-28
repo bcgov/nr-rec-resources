@@ -12,9 +12,15 @@ const mockResource = {
   description: 'Resource Description',
   site_location: 'Resource Location',
   recreation_activity: [
-    { recreation_activity_code: '01', description: 'Activity Description' },
+    {
+      recreation_activity_code: 1,
+      description: 'Activity Description',
+    },
   ],
-  recreation_status: { status_code: '01', description: 'Open' },
+  recreation_status: {
+    status_code: 1,
+    description: 'Open',
+  },
 };
 
 // Setup mocks
