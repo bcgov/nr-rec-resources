@@ -65,3 +65,22 @@
     }
   }
 }
+
+.show-all-link {
+  border: none;
+  color: $colorBlueMed;
+  text-decoration: none;
+  &:hover,
+  &:focus-visible {
+    color: $colorBlue;
+    text-decoration: underline;
+  }
+  &:focus-visible {
+    outline-offset: 0px;
+    border-radius: 4px;
+  }
+  svg {
+    font-size: 1rem;
+    margin-left: 6px;
+  }
+}
