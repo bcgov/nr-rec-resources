@@ -37,6 +37,9 @@ spec:
               envFrom:
                 - secretRef:
                     name: {{ .Release.Name }}-backend-el-init
+              env:
+                - name: DB_PORT
+                  value: "1543"
               volumeMounts:
                 - name: {{ .Release.Name }}-certs
                   mountPath: /app/cert
