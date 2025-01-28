@@ -9,17 +9,24 @@
   .filter-menu-title {
     font-size: 1.25rem;
     font-weight: 700;
-    margin-bottom: 16px;
+  }
+}
+
+.filter-group-container {
+  margin: 16px 0;
+
+  .filter-group-title {
+    font-size: 1rem;
+    font-weight: 700;
   }
 }
 
 .filter-options-container {
-  margin-bottom: 0;
+  margin: 8px 0;
 
   // checkbox
   .form-check {
     display: flex;
-    position: static;
     margin-bottom: 8px;
     padding: 0;
     input[type='checkbox'] {
