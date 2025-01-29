@@ -1,35 +1,50 @@
-import { useMemo } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import debounce from 'lodash.debounce';
 import '@/components/search/Search.scss';
 
 const SearchBanner = () => {
+  const [inputValue, setInputValue] = useState('');
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const onSearchChange = useMemo(
-    () =>
-      debounce((e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.value === '') {
-          searchParams.delete('filter');
-          setSearchParams(searchParams);
-        } else {
-          searchParams.set('filter', e.target.value);
-          setSearchParams(searchParams);
-        }
-      }, 250),
-    [searchParams, setSearchParams],
-  );
+  const handleSearch = () => {
+    if (inputValue === '') {
+      searchParams.delete('filter');
+      setSearchParams(searchParams);
+    } else {
+      searchParams.set('filter', inputValue);
+      setSearchParams(searchParams);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      handleSearch();
+    }
+  };
 
   return (
     <div className="page-nav-container search">
       <nav aria-label="Search banner" className="page-nav search-banner">
         <h1>Find a recreation site or trail</h1>
-        <input
-          className="form-control"
-          type="text"
-          placeholder="Search by name or site location"
-          onChange={onSearchChange}
-        />
+        <div className="search-banner-input-container">
+          <input
+            className="form-control"
+            type="text"
+            placeholder="Search by name or site location"
+            value={inputValue}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setInputValue(e.target.value)
+            }
+            onKeyDown={handleKeyDown}
+          />
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={handleSearch}
+          >
+            Search
+          </button>
+        </div>
       </nav>
     </div>
   );

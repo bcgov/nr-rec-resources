@@ -14,6 +14,8 @@
 }
 
 .search-banner {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
   padding: 16px 32px;
 
   @include media-breakpoint-up(sm) {
@@ -31,6 +33,15 @@
   @include media-breakpoint-up(md) {
     input {
       max-width: 400px;
+    }
+  }
+
+  .search-banner-input-container {
+    display: flex;
+    justify-content: flex-end;
+
+    input {
+      margin-right: 16px;
     }
   }
 }

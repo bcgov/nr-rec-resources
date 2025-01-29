@@ -22,7 +22,6 @@ const SearchPage = () => {
 
   const isResults = recResourceList?.length > 0;
   const isLoadMore = isResults && recResourceCount > recResourceList?.length;
-
   const isFilters =
     Object.keys(Object.fromEntries(searchParams.entries())).length > 0;
 
@@ -105,7 +104,7 @@ const SearchPage = () => {
 
   const filterMenuContent = [
     {
-      category: 'Activities',
+      title: 'Activities',
       filters: activityCount,
       param: 'activities',
     },
