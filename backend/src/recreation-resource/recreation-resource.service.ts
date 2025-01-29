@@ -200,9 +200,6 @@ export class RecreationResourceService {
     const recreationResources =
       await this.prisma.recreation_resource.findMany(filterQuery);
 
-    const totalRecords =
-      await this.prisma.recreation_resource.count(countQuery);
-
     // Get all unpaginated rec_resource_ids for the records so we can group/count records for the filter sidebar
     // This can be used to get the count of each filter group
     const totalRecordIds = await this.prisma.recreation_resource.findMany({
@@ -211,6 +208,8 @@ export class RecreationResourceService {
         rec_resource_id: true,
       },
     });
+
+    const totalRecords = totalRecordIds.length;
 
     const activityCount = await this.getActivityCounts(totalRecordIds);
 
