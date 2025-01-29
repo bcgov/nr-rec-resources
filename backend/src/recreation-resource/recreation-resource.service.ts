@@ -159,17 +159,15 @@ export class RecreationResourceService {
     const activityFilter = activities?.split("_").map(Number);
 
     // Filter by activities if provided
-    const activityFilterQuery = activities
-      ? {
-          recreation_activity: {
-            some: {
-              recreation_activity_code: {
-                in: activityFilter,
-              },
-            },
+    const activityFilterQuery = activities && {
+      recreation_activity: {
+        some: {
+          recreation_activity_code: {
+            in: activityFilter,
           },
-        }
-      : null;
+        },
+      },
+    };
 
     const filterQuery = {
       skip,
@@ -214,7 +212,6 @@ export class RecreationResourceService {
     const totalRecords = totalRecordIds.length;
 
     const activityCount = await this.getActivityCounts(totalRecordIds);
-
     return {
       data: this.formatResults(recreationResources),
       page,
