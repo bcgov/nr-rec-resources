@@ -1,0 +1,61 @@
+name: OpenShit Oracle S3 Sync
+on:
+  schedule:
+    - cron: '0 0 * * *'
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: write # This is required for actions/checkout
+  packages: write
+env:
+  AWS_REGION: ca-central-1
+jobs:
+  read-s3-credentials-from-aws:
+    runs-on: ubuntu-24.04
+    environment: dev
+    outputs:
+      AWS_ACCESS_KEY_ID: ${{ steps.read-s3-credentials.outputs.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ steps.read-s3-credentials.outputs.AWS_SECRET_ACCESS_KEY }}
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+            role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+            role-session-name: openshift-oracle-s3-sync
+            aws-region: ${{ env.AWS_REGION }}
+      - name: Read S3 Credentials
+        id: read-s3-credentials
+        shell: bash
+        run: |
+            AWS_CREDENTIALS=$(aws ssm get-parameter \
+            --name "/iam_users/fta-rst-el-s3-upload-service-account_keys" \
+            --with-decryption \
+            --query "Parameter.Value" \
+            --output text)
+            # Extract and mask credentials
+            ACCESS_KEY=$(echo $AWS_CREDENTIALS | jq -r '.current.AccessKeyID')
+            SECRET_KEY=$(echo $AWS_CREDENTIALS | jq -r '.current.SecretAccessKey')
+            # Mask values in logs
+            echo "::add-mask::$ACCESS_KEY"
+            echo "::add-mask::$SECRET_KEY"
+            # Set outputs
+            echo "AWS_ACCESS_KEY_ID=$ACCESS_KEY" >> $GITHUB_OUTPUT
+            echo "AWS_SECRET_ACCESS_KEY=$SECRET_KEY" >> $GITHUB_OUTPUT
+
+  update-openshift-secret:
+    runs-on: ubuntu-24.04
+    needs: read-s3-credentials-from-aws
+    environment: openshift-dev
+    steps:
+      - name: Update OpenShift Secret
+        uses: bcgov/action-oc-runner@v0.2.0
+        env:
+          DB_PASSWORD: ${{ secrets.dbPassword }} # handle special characters.
+        with:
+          oc_namespace: ${{ secrets.oc_namespace }}
+          oc_token: ${{ secrets.oc_token }}
+          oc_server: ${{ vars.oc_server }}
+          commands: |
+            oc delete secret aws-secrets || true
+            oc create secret generic aws-secrets \
+              --from-literal=AWS_ACCESS_KEY="${{ needs.read-s3-credentials-from-aws.outputs.AWS_ACCESS_KEY_ID }}" \
+              --from-literal=AWS_SECRET_KEY="${{ needs.read-s3-credentials-from-aws.outputs.AWS_SECRET_ACCESS_KEY }}"

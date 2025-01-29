@@ -11,4 +11,3 @@ if [ -n "${SSL_DEBUG}" ]; then
 else
   java -Duser.name=REC-ORACLE-EL -Xms512m -Xmx512m -jar app.jar
 fi
-``
