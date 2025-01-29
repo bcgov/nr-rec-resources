@@ -51,12 +51,12 @@ const FilterMenuMobile = ({
     <Modal
       show={isOpen}
       onHide={handleCloseFilter}
-      aria-labelledby="search-filter-modal"
-      className="park-filter-modal d-block d-lg-none"
+      aria-labelledby="mobile-filter-modal"
+      className="mobile-filter-modal d-block d-lg-none"
       scrollable
     >
-      <Modal.Body className="park-filter-modal-content">
-        <div className="park-filter-modal-content--header">
+      <Modal.Body className="mobile-filter-modal-content">
+        <div className="mobile-filter-modal-content--header">
           <h2>Filter</h2>
           <button
             aria-label="close"
@@ -85,7 +85,7 @@ const FilterMenuMobile = ({
       </Modal.Body>
       <Modal.Footer className="d-block">
         <button
-          aria-label="Show parks"
+          aria-label="Show results"
           onClick={handleCloseFilter}
           className="btn btn-primary w-100 mx-0 mb-2"
         >

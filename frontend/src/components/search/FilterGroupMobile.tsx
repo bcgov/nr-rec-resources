@@ -22,9 +22,9 @@ const FilterGroupMobile = ({
   tabIndex,
 }: FilterGroupMobileProps) => {
   return (
-    <div key={title} className="park-filter-options">
+    <div key={title} className="mobile-filter-options">
       <div
-        className="park-filter-option-label pointer p-3"
+        className="mobile-filter-option-label pointer p-3"
         onClick={() => {
           onOpen(param);
         }}
@@ -34,7 +34,7 @@ const FilterGroupMobile = ({
           onOpen(param);
         }}
       >
-        <div className="park-select-label">{title}</div>
+        <div>{title}</div>
         {isOpen ? (
           <FontAwesomeIcon icon={faChevronUp} />
         ) : (
