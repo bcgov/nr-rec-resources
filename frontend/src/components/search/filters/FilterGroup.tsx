@@ -5,8 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
 import removeFilter from '@/utils/removeFilter';
 import { Filter } from '@/components/search/types';
-
-import '@/components/search/Filters.scss';
+import '@/components/search/filters/Filters.scss';
 
 interface FilterGroupProps {
   title?: string;

@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { Modal } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
-import FilterGroupMobile from '@/components/search/FilterGroupMobile';
+import FilterGroupMobile from '@/components/search/filters/FilterGroupMobile';
 import { FilterMenuContent } from '@/components/search/types';
-import '@/components/search/Filters.scss';
+import '@/components/search/filters/Filters.scss';
 
 interface FilterMenuMobileProps {
   totalResults: number;

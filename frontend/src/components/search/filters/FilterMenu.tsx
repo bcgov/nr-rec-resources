@@ -1,6 +1,6 @@
-import FilterGroup from '@/components/search/FilterGroup';
+import FilterGroup from '@/components/search/filters/FilterGroup';
 import { FilterMenuContent } from '@/components/search/types';
-import '@/components/search/Filters.scss';
+import '@/components/search/filters/Filters.scss';
 
 interface FilterMenuProps {
   menuContent: FilterMenuContent[];

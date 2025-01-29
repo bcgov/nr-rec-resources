@@ -1,9 +1,9 @@
 import { Collapse } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
-import FilterGroup from '@/components/search/FilterGroup';
+import FilterGroup from '@/components/search/filters/FilterGroup';
 import { Filter } from '@/components/search/types';
-import '@/components/search/Filters.scss';
+import '@/components/search/filters/Filters.scss';
 
 interface FilterGroupMobileProps {
   title: string;
