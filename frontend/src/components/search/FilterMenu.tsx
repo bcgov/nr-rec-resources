@@ -12,7 +12,7 @@ interface FilterMenuProps {
 
 const FilterMenu = ({ menuContent }: FilterMenuProps) => {
   return (
-    <div className="filter-menu-container">
+    <nav className="filter-menu-container">
       <span className="filter-menu-title">Filter</span>
       <div className="filter-menu">
         {menuContent?.map((group) => {
@@ -27,7 +27,7 @@ const FilterMenu = ({ menuContent }: FilterMenuProps) => {
           );
         })}
       </div>
-    </div>
+    </nav>
   );
 };
 
