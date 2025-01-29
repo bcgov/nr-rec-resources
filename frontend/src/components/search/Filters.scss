@@ -93,14 +93,10 @@
 // modal
 .modal.park-filter-modal {
   .modal-dialog {
-    margin: auto 32px;
-    @media screen and (min-width: $smBreakpoint) {
-      margin: auto;
-    }
-  }
-  .modal-dialog-scrollable {
-    height: 100vh;
+    display: flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
   }
   .modal-content {
     background-color: $colorBackgroundGrey;
