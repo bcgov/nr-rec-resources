@@ -16,14 +16,14 @@ const SearchPage = () => {
   const [searchResetKey, setSearchResetKey] = useState('');
   const [isComponentMounted, setIsComponentMounted] = useState(false);
   const [isLazyLoading, setIsLazyLoading] = useState(false);
-  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(true);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   const recResourceList = recResourceData?.data;
-  const recResourceCount = recResourceData?.total;
+  const resultsTotal = recResourceData?.total;
   const page = searchParams.get('page');
 
   const isResults = recResourceList?.length > 0;
-  const isLoadMore = isResults && recResourceCount > recResourceList?.length;
+  const isLoadMore = isResults && resultsTotal > recResourceList?.length;
   const isFilters =
     Object.keys(Object.fromEntries(searchParams.entries())).length > 0;
 
@@ -36,6 +36,10 @@ const SearchPage = () => {
   const handleClearFilters = () => {
     setSearchParams({});
     setSearchResetKey(crypto.randomUUID());
+  };
+
+  const handleOpenMobileFilter = () => {
+    setIsMobileFilterOpen(true);
   };
 
   useEffect(() => {
@@ -124,15 +128,22 @@ const SearchPage = () => {
             isOpen={isMobileFilterOpen}
             setIsOpen={setIsMobileFilterOpen}
             onClearFilters={handleClearFilters}
-            totalResults={recResourceCount}
+            totalResults={resultsTotal}
           />
           <div className="search-results-container">
+            <button
+              aria-label="Open mobile filter menu"
+              onClick={handleOpenMobileFilter}
+              className="btn btn-secondary show-filters-btn-mobile"
+            >
+              Filter
+            </button>
             <div className="search-results-count">
               <div>
-                {recResourceCount ? (
+                {resultsTotal ? (
                   <>
-                    <b>{recResourceCount}</b>{' '}
-                    {recResourceCount === 1 ? 'Result' : 'Results'}
+                    <b>{resultsTotal}</b>{' '}
+                    {resultsTotal === 1 ? 'Result' : 'Results'}
                   </>
                 ) : (
                   <span>No results found</span>
@@ -141,7 +152,7 @@ const SearchPage = () => {
               {isFilters && (
                 <button
                   type="button"
-                  className="btn-link"
+                  className="btn-link clear-filters-btn-desktop"
                   onClick={handleClearFilters}
                 >
                   Clear Filters
