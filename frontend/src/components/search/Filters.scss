@@ -91,7 +91,7 @@
 }
 
 // modal
-.modal.park-filter-modal {
+.modal.mobile-filter-modal {
   .modal-dialog {
     display: flex;
     flex-direction: column;
@@ -100,7 +100,7 @@
   }
   .modal-content {
     background-color: $colorBackgroundGrey;
-    .park-filter-modal-content {
+    .mobile-filter-modal-content {
       &--header {
         display: flex;
         justify-content: space-between;
@@ -119,12 +119,12 @@
           margin-left: 6px;
         }
       }
-      .park-filter-options {
+      .mobile-filter-options {
         background-color: $colorWhite;
         border: 1px solid $colorGreyMed;
         border-radius: 4px;
         margin-top: 16px;
-        .park-filter-option-label {
+        .mobile-filter-option-label {
           display: flex;
           align-items: center;
           justify-content: space-between;
