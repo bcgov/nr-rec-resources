@@ -17,6 +17,7 @@ interface FilterGroupProps {
 const FilterGroup = ({ category, filters, param }: FilterGroupProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showAllFilters, setShowAllFilters] = useState(false);
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { id, checked } = event.target;
     const newSearchParams = new URLSearchParams(searchParams.toString());
@@ -42,6 +43,7 @@ const FilterGroup = ({ category, filters, param }: FilterGroupProps) => {
   const filtersCount = filters?.length + 1;
   const isShowAllFilters = filtersCount > 5 && !showAllFilters;
   const filterList = isShowAllFilters ? filters.slice(0, 5) : filters;
+  const filterParamsArray = searchParams.get(param)?.split('_');
 
   return (
     <div className="filter-group-container">
@@ -49,11 +51,14 @@ const FilterGroup = ({ category, filters, param }: FilterGroupProps) => {
       <Form.Group className="filter-options-container">
         {filterList?.map((filter) => {
           const { count, description, id } = filter;
+          const isDefaultChecked = filterParamsArray?.includes(String(id));
+
           return (
             <Form.Check
               key={id}
               type="checkbox"
               id={id}
+              defaultChecked={isDefaultChecked}
               label={`${description} (${count})`}
               onChange={handleChange}
             />
