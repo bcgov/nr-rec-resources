@@ -5,8 +5,8 @@ import type { AxiosResponse } from '~/axios';
 import buildQueryString from '@/utils/buildQueryString';
 import RecResourceCard from '@/components/rec-resource/card/RecResourceCard';
 import SearchBanner from '@/components/search/SearchBanner';
-import FilterMenu from '@/components/search/FilterMenu';
-import FilterMenuMobile from '@/components/search/FilterMenuMobile';
+import FilterMenu from '@/components/search/filters/FilterMenu';
+import FilterMenuMobile from '@/components/search/filters/FilterMenuMobile';
 import { photosExample } from '@/components/rec-resource/RecResourcePage';
 import { RecreationResource } from '@/components/rec-resource/types';
 
