@@ -59,6 +59,7 @@ const RecResourcePage = () => {
       .get(`/v1/recreation-resource/${id}`)
       .then((response: AxiosResponse) => {
         setRecResource(response.data);
+        console.log(response.data);
         return response.data;
       })
       .catch((error) => {
@@ -70,6 +71,7 @@ const RecResourcePage = () => {
 
   const {
     recreation_activity,
+    recreation_map_feature,
     description,
     name,
     rec_resource_id,
@@ -80,6 +82,8 @@ const RecResourcePage = () => {
       comment: statusComment,
     } = {},
   } = recResource || {};
+
+  const { description: mapDescription } = recreation_map_feature || {};
 
   const formattedName = name?.toLowerCase();
 
@@ -132,7 +136,7 @@ const RecResourcePage = () => {
             <div>
               <h1 className="capitalize">{formattedName}</h1>
               <p className="bc-color-blue-dk mb-4">
-                <span>Recreation site |</span> {rec_resource_id}
+                <span>{mapDescription} |</span> {rec_resource_id}
               </p>
             </div>
             <div className="icon-container mb-4">

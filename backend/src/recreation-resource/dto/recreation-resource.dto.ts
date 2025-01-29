@@ -37,4 +37,12 @@ export class RecreationResourceDto {
     comment: string;
     description: string;
   };
+
+  @ApiProperty({
+    description: "The Recreation Map Feature",
+  })
+  recreation_map_feature: {
+    description: string;
+    recreation_map_feature_code: string;
+  };
 }

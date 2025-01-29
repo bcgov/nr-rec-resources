@@ -10,12 +10,13 @@ datasource db {
 }
 
 model recreation_resource {
-  rec_resource_id        String                @id @db.VarChar(200)
-  name                   String?               @db.VarChar(200)
-  description            String?               @db.VarChar(5000)
-  site_location          String?               @db.VarChar(200)
-  display_on_public_site Boolean?              @default(false)
+  rec_resource_id        String                   @id @db.VarChar(200)
+  name                   String?                  @db.VarChar(200)
+  description            String?                  @db.VarChar(5000)
+  site_location          String?                  @db.VarChar(200)
+  display_on_public_site Boolean?                 @default(false)
   recreation_activity    recreation_activity[]
+  recreation_map_feature recreation_map_feature[]
   recreation_status      recreation_status?
 }
 
@@ -47,4 +48,18 @@ model recreation_status_code {
   status_code       String              @id @db.VarChar(3)
   description       String              @db.VarChar(120)
   recreation_status recreation_status[]
+}
+
+model recreation_map_feature {
+  id                          Int                         @id @default(autoincrement())
+  rec_resource_id             String                      @db.VarChar(200)
+  recreation_map_feature_code String                      @db.VarChar(3)
+  recreation_resource         recreation_resource         @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+  with_description            recreation_map_feature_code @relation("map_feature_with_description", fields: [recreation_map_feature_code], references: [recreation_map_feature_code], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model recreation_map_feature_code {
+  recreation_map_feature_code String                   @id @db.VarChar(3)
+  description                 String?                  @db.VarChar(120)
+  with_description            recreation_map_feature[] @relation("map_feature_with_description")
 }

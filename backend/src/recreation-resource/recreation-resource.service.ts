@@ -23,6 +23,10 @@ interface RecreationResource {
     comment: string;
     status_code: string;
   };
+  recreation_map_feature: {
+    rec_resource_id: string;
+    recreation_map_feature_code: string;
+  };
 }
 
 @Injectable()
@@ -42,6 +46,11 @@ export class RecreationResourceService {
         with_description: true,
       },
     },
+    recreation_map_feature: {
+      select: {
+        with_description: true,
+      },
+    },
     recreation_status: {
       select: {
         recreation_status_code: {
@@ -57,6 +66,7 @@ export class RecreationResourceService {
 
   // Format the results to match the DTO
   formatResults(recResources: RecreationResource[]): RecreationResourceDto[] {
+    console.log(recResources[0].recreation_map_feature);
     return recResources?.map((resource) => ({
       ...resource,
       recreation_activity: resource.recreation_activity?.map(
@@ -71,6 +81,13 @@ export class RecreationResourceService {
           resource.recreation_status?.recreation_status_code.description,
         comment: resource.recreation_status?.comment,
         status_code: resource.recreation_status?.status_code,
+      },
+      recreation_map_feature: {
+        description:
+          resource.recreation_map_feature[0]?.with_description.description,
+        recreation_map_feature_code:
+          resource.recreation_map_feature[0]?.with_description
+            .recreation_map_feature_code,
       },
     }));
   }
