@@ -14,23 +14,24 @@
 }
 
 .search-banner {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
+  display: flex;
   padding: 16px 32px;
 
   @include media-breakpoint-up(sm) {
     padding: 8px 32px;
 
     h1 {
-      max-width: 372px;
+      max-width: 100%;
     }
 
     input {
-      max-width: 330px;
+      max-width: 100%;
     }
   }
 
   @include media-breakpoint-up(md) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     padding: 8px 16px;
 
     input {
@@ -38,12 +39,25 @@
     }
   }
 
+  @include media-breakpoint-up(lg) {
+    grid-template-columns: 1fr 2fr;
+  }
+
   .search-banner-input-container {
     display: flex;
-    justify-content: flex-end;
+    width: 100%;
+    margin-top: 16px;
 
     input {
       margin-right: 16px;
+    }
+
+    @include media-breakpoint-up(md) {
+      margin-top: 0;
+      justify-content: flex-end;
+      input {
+        margin: 0 16px;
+      }
     }
   }
 }
