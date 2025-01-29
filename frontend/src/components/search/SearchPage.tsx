@@ -6,6 +6,7 @@ import buildQueryString from '@/utils/buildQueryString';
 import RecResourceCard from '@/components/rec-resource/card/RecResourceCard';
 import SearchBanner from '@/components/search/SearchBanner';
 import FilterMenu from '@/components/search/FilterMenu';
+import FilterMenuMobile from '@/components/search/FilterMenuMobile';
 import { photosExample } from '@/components/rec-resource/RecResourcePage';
 import { RecreationResource } from '@/components/rec-resource/types';
 
@@ -15,6 +16,7 @@ const SearchPage = () => {
   const [searchResetKey, setSearchResetKey] = useState('');
   const [isComponentMounted, setIsComponentMounted] = useState(false);
   const [isLazyLoading, setIsLazyLoading] = useState(false);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(true);
 
   const recResourceList = recResourceData?.data;
   const recResourceCount = recResourceData?.total;
@@ -116,6 +118,14 @@ const SearchPage = () => {
       <div className="page-container bg-brown-light">
         <div className="page page-padding search-container">
           <FilterMenu key={searchResetKey} menuContent={filterMenuContent} />
+          <FilterMenuMobile
+            key={searchResetKey}
+            menuContent={filterMenuContent}
+            isOpen={isMobileFilterOpen}
+            setIsOpen={setIsMobileFilterOpen}
+            onClearFilters={handleClearFilters}
+            totalResults={recResourceCount}
+          />
           <div className="search-results-container">
             <div className="search-results-count">
               <div>
