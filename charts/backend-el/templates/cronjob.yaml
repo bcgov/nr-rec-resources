@@ -22,9 +22,6 @@ spec:
             {{- include "labels" . | nindent 12 }}
         spec:
           volumes:
-            - name: {{ .Release.Name }}-certs
-              persistentVolumeClaim:
-                claimName: {{ .Release.Name }}-certs
             - name: {{ .Release.Name }}-csv
               persistentVolumeClaim:
                 claimName: {{ .Release.Name }}-csv
@@ -50,8 +47,6 @@ spec:
                 - name: spring_profiles_active
                   value: "openshift"
               volumeMounts:
-                - name: {{ .Release.Name }}-certs
-                  mountPath: /app/cert
                 - name: {{ .Release.Name }}-csv
                   mountPath: /uploads
           restartPolicy: OnFailure
