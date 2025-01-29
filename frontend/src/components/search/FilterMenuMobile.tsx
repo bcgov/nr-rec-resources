@@ -51,7 +51,6 @@ const FilterMenuMobile = ({
     <Modal
       show={isOpen}
       onHide={handleCloseFilter}
-      fullscreen="sm-down"
       aria-labelledby="search-filter-modal"
       className="park-filter-modal d-block d-lg-none"
       scrollable
