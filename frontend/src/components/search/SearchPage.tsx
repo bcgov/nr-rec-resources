@@ -83,8 +83,8 @@ const SearchPage = () => {
           if (isLazyLoading) {
             // Append paginated data to existing data
             setRecResourceData({
+              ...response.data,
               data: [...recResourceList, ...response.data.data],
-              total: response.data.total,
             });
           } else {
             setRecResourceData(response.data);
