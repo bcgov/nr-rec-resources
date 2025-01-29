@@ -9,12 +9,12 @@ import { Filter } from '@/components/search/types';
 import '@/components/search/Filters.scss';
 
 interface FilterGroupProps {
-  category: string;
+  title: string;
   filters: Filter[];
   param: string;
 }
 
-const FilterGroup = ({ category, filters, param }: FilterGroupProps) => {
+const FilterGroup = ({ title, filters, param }: FilterGroupProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [showAllFilters, setShowAllFilters] = useState(false);
 
@@ -47,7 +47,7 @@ const FilterGroup = ({ category, filters, param }: FilterGroupProps) => {
 
   return (
     <div className="filter-group-container">
-      <span className="filter-group-title">{category}</span>
+      <span className="filter-group-title">{title}</span>
       <Form.Group className="filter-options-container">
         {filterList?.map((filter) => {
           const { count, description, id } = filter;
