@@ -1,13 +1,9 @@
 import FilterGroup from '@/components/search/FilterGroup';
-import { Filter } from '@/components/search/types';
+import { FilterMenuContent } from '@/components/search/types';
 import '@/components/search/Filters.scss';
 
 interface FilterMenuProps {
-  menuContent: {
-    title: string;
-    filters: Filter[];
-    param: string; // Name of the query parameter
-  }[];
+  menuContent: FilterMenuContent[];
 }
 
 const FilterMenu = ({ menuContent }: FilterMenuProps) => {
