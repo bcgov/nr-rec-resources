@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { Modal } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import {
+  faChevronUp,
+  faChevronDown,
+  faXmark,
+} from '@fortawesome/free-solid-svg-icons';
 import FilterGroupMobile from '@/components/search/filters/FilterGroupMobile';
 import { FilterMenuContent } from '@/components/search/types';
 import '@/components/search/filters/Filters.scss';
@@ -21,15 +25,11 @@ const FilterMenuMobile = ({
   setIsOpen,
   onClearFilters,
 }: FilterMenuMobileProps) => {
-  const filterMenu = menuContent.reduce<Record<string, boolean>>(
-    (acc, curr) => {
-      const { param } = curr;
-      acc[param] = false;
-      return acc;
-    },
-    {},
+  const filterMenu = Object.fromEntries(
+    menuContent.map(({ param }) => [param, false]),
   );
 
+  const [expandAll, setExpandAll] = useState(false);
   const [showFilters, setShowFilter] = useState(filterMenu);
 
   const handleClearFilter = () => {
@@ -45,6 +45,15 @@ const FilterMenuMobile = ({
       ...prev,
       [param]: !prev[param],
     }));
+  };
+
+  const handleExpandAll = () => {
+    setExpandAll((prev) => !prev);
+    setShowFilter((prev) =>
+      Object.fromEntries(
+        Object.entries(prev).map(([key, value]) => [key, !value]),
+      ),
+    );
   };
 
   return (
@@ -66,6 +75,17 @@ const FilterMenuMobile = ({
             <FontAwesomeIcon icon={faXmark} />
           </button>
         </div>
+        <button
+          className="btn btn-link expand-link expand-icon"
+          onClick={handleExpandAll}
+        >
+          {expandAll ? 'Collapse' : 'Expand'} all
+          {expandAll ? (
+            <FontAwesomeIcon icon={faChevronUp} />
+          ) : (
+            <FontAwesomeIcon icon={faChevronDown} />
+          )}
+        </button>
 
         {menuContent.map((content, index) => {
           const { filters, param, title } = content;
