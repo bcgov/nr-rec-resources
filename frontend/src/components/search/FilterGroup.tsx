@@ -52,12 +52,14 @@ const FilterGroup = ({ category, filters, param }: FilterGroupProps) => {
         {filterList?.map((filter) => {
           const { count, description, id } = filter;
           const isDefaultChecked = filterParamsArray?.includes(String(id));
+          const isDisabled = count === 0;
 
           return (
             <Form.Check
               key={id}
               type="checkbox"
               id={id}
+              disabled={isDisabled}
               defaultChecked={isDefaultChecked}
               label={`${description} (${count})`}
               onChange={handleChange}
