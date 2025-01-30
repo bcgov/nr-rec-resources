@@ -1,10 +1,11 @@
 package ca.bc.gov.nrs.environment.fta.el.entities;
 
+import org.springframework.data.annotation.Immutable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import org.springframework.data.annotation.Immutable;
 
 @Entity
 @Table(name = "RECREATION_SITE", schema = "THE")

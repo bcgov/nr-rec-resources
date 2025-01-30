@@ -1,13 +1,16 @@
 package ca.bc.gov.nrs.environment.fta.el.entities;
 
-import jakarta.persistence.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-import org.springframework.data.annotation.Immutable;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import org.springframework.data.annotation.Immutable;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "RECREATION_TRAIL_SEGMENT", schema = "THE")
@@ -43,7 +46,7 @@ public class RecreationTrailSegment {
   private BigDecimal actualRepairCost;
 
   @Column(name = "REPAIR_COMPLETED_DATE")
-  private LocalDateTime repairCompletedDate;
+  private LocalDate repairCompletedDate;
 
   @Column(name = "WHEELCHAIR_ACCESSIBLE_IND", length = 1)
   private String wheelchairAccessibleInd;
@@ -127,14 +130,6 @@ public class RecreationTrailSegment {
     this.actualRepairCost = actualRepairCost;
   }
 
-  public LocalDateTime getRepairCompletedDate() {
-    return repairCompletedDate;
-  }
-
-  public void setRepairCompletedDate(LocalDateTime repairCompletedDate) {
-    this.repairCompletedDate = repairCompletedDate;
-  }
-
   public String getWheelchairAccessibleInd() {
     return wheelchairAccessibleInd;
   }
@@ -181,5 +176,13 @@ public class RecreationTrailSegment {
 
   public void setUpdateTimestamp(LocalDateTime updateTimestamp) {
     this.updateTimestamp = updateTimestamp;
+  }
+
+  public LocalDate getRepairCompletedDate() {
+    return repairCompletedDate;
+  }
+
+  public void setRepairCompletedDate(LocalDate repairCompletedDate) {
+    this.repairCompletedDate = repairCompletedDate;
   }
 }

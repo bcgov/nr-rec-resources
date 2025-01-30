@@ -1,11 +1,16 @@
 package ca.bc.gov.nrs.environment.fta.el.entities;
 
-import jakarta.persistence.*;
-import org.springframework.data.annotation.Immutable;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import org.springframework.data.annotation.Immutable;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "RECREATION_DEF_CS_RPR_HISTORY", schema = "THE")
@@ -27,7 +32,7 @@ public class RecreationDefCsRprHistory {
   private BigDecimal estimatedRepairCost;
 
   @Column(name = "REPAIR_COMPLETE_DATE", nullable = false)
-  private LocalDateTime repairCompleteDate;
+  private LocalDate repairCompleteDate;
 
   @Column(name = "REVISION_COUNT", nullable = false)
   private Integer revisionCount;
@@ -76,11 +81,11 @@ public class RecreationDefCsRprHistory {
     this.estimatedRepairCost = estimatedRepairCost;
   }
 
-  public LocalDateTime getRepairCompleteDate() {
+  public LocalDate getRepairCompleteDate() {
     return repairCompleteDate;
   }
 
-  public void setRepairCompleteDate(LocalDateTime repairCompleteDate) {
+  public void setRepairCompleteDate(LocalDate repairCompleteDate) {
     this.repairCompleteDate = repairCompleteDate;
   }
 

@@ -1,12 +1,13 @@
 package ca.bc.gov.nrs.environment.fta.el.entities;
 
-import jakarta.persistence.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import java.time.LocalDateTime;
+
 import org.springframework.data.annotation.Immutable;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "RECREATION_INSPECTION_REPORT", schema = "THE")

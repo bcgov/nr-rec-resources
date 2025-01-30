@@ -1,15 +1,16 @@
 package ca.bc.gov.nrs.environment.fta.el.entities;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.ColumnDefault;
+import org.springframework.data.annotation.Immutable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import org.hibernate.annotations.ColumnDefault;
-import org.springframework.data.annotation.Immutable;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "RECREATION_FEE", schema = "THE")
@@ -26,10 +27,10 @@ public class RecreationFee {
   private BigDecimal feeAmount;
 
   @Column(name = "FEE_START_DATE", nullable = false)
-  private LocalDateTime feeStartDate;
+  private LocalDate feeStartDate;
 
   @Column(name = "FEE_END_DATE", nullable = false)
-  private LocalDateTime feeEndDate;
+  private LocalDate feeEndDate;
 
   @ColumnDefault("'N'")
   @Column(name = "MONDAY_IND", nullable = false, length = 1)
@@ -101,19 +102,19 @@ public class RecreationFee {
     this.feeAmount = feeAmount;
   }
 
-  public LocalDateTime getFeeStartDate() {
+  public LocalDate getFeeStartDate() {
     return feeStartDate;
   }
 
-  public void setFeeStartDate(LocalDateTime feeStartDate) {
+  public void setFeeStartDate(LocalDate feeStartDate) {
     this.feeStartDate = feeStartDate;
   }
 
-  public LocalDateTime getFeeEndDate() {
+  public LocalDate getFeeEndDate() {
     return feeEndDate;
   }
 
-  public void setFeeEndDate(LocalDateTime feeEndDate) {
+  public void setFeeEndDate(LocalDate feeEndDate) {
     this.feeEndDate = feeEndDate;
   }
 

@@ -1,13 +1,14 @@
 package ca.bc.gov.nrs.environment.fta.el.entities;
 
-import jakarta.persistence.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import java.time.LocalDateTime;
+
 import org.locationtech.jts.geom.Geometry;
 import org.springframework.data.annotation.Immutable;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "RECREATION_SITE_POINT", schema = "THE")
@@ -16,6 +17,9 @@ public class RecreationSitePoint {
   @Id
   @Column(name = "FOREST_FILE_ID", nullable = false, length = 10)
   private String forestFileId;
+
+  @Column(name = "GEOMETRY", columnDefinition = "SDO_GEOMETRY")
+  private Geometry geometry;
 
   @Column(name = "REVISION_COUNT", nullable = false)
   private Integer revisionCount;
@@ -28,10 +32,10 @@ public class RecreationSitePoint {
 
   @Column(name = "UPDATE_USERID", nullable = false, length = 30)
   private String updateUserid;
+
   @Column(name = "UPDATE_TIMESTAMP", nullable = false)
   private LocalDateTime updateTimestamp;
-  @Column(name = "GEOMETRY", columnDefinition = "SDO_GEOMETRY")
-  private Geometry geometry;
+
 
   public String getForestFileId() {
     return forestFileId;

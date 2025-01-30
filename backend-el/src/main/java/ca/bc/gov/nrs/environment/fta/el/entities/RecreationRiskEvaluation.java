@@ -1,12 +1,13 @@
 package ca.bc.gov.nrs.environment.fta.el.entities;
 
+import java.time.LocalDateTime;
+
+import org.springframework.data.annotation.Immutable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import org.springframework.data.annotation.Immutable;
-
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "RECREATION_RISK_EVALUATION", schema = "THE")

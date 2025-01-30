@@ -1,10 +1,10 @@
 package ca.bc.gov.nrs.environment.fta.el.entities;
 
-import org.hibernate.Hibernate;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
+
+import org.hibernate.Hibernate;
 
 public class RecreationActivityId implements Serializable {
   @Serial

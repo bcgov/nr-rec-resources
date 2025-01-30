@@ -1,12 +1,13 @@
 package ca.bc.gov.nrs.environment.fta.el.entities;
 
-import jakarta.persistence.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
+import java.time.LocalDate;
+
 import org.springframework.data.annotation.Immutable;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "RECREATION_RISK_SITE", schema = "THE")
@@ -20,13 +21,13 @@ public class RecreationRiskSite {
   private String forestFile;
 
   @Column(name = "ENTRY_TIMESTAMP", nullable = false)
-  private LocalDateTime entryTimestamp;
+  private LocalDate entryTimestamp;
 
   @Column(name = "ENTRY_USERID", nullable = false, length = 30)
   private String entryUserid;
 
   @Column(name = "UPDATE_TIMESTAMP", nullable = false)
-  private LocalDateTime updateTimestamp;
+  private LocalDate updateTimestamp;
 
   @Column(name = "UPDATE_USERID", nullable = false, length = 30)
   private String updateUserid;
@@ -47,14 +48,6 @@ public class RecreationRiskSite {
     this.forestFile = forestFile;
   }
 
-  public LocalDateTime getEntryTimestamp() {
-    return entryTimestamp;
-  }
-
-  public void setEntryTimestamp(LocalDateTime entryTimestamp) {
-    this.entryTimestamp = entryTimestamp;
-  }
-
   public String getEntryUserid() {
     return entryUserid;
   }
@@ -63,19 +56,27 @@ public class RecreationRiskSite {
     this.entryUserid = entryUserid;
   }
 
-  public LocalDateTime getUpdateTimestamp() {
-    return updateTimestamp;
-  }
-
-  public void setUpdateTimestamp(LocalDateTime updateTimestamp) {
-    this.updateTimestamp = updateTimestamp;
-  }
-
   public String getUpdateUserid() {
     return updateUserid;
   }
 
   public void setUpdateUserid(String updateUserid) {
     this.updateUserid = updateUserid;
+  }
+
+  public LocalDate getEntryTimestamp() {
+    return entryTimestamp;
+  }
+
+  public void setEntryTimestamp(LocalDate entryTimestamp) {
+    this.entryTimestamp = entryTimestamp;
+  }
+
+  public LocalDate getUpdateTimestamp() {
+    return updateTimestamp;
+  }
+
+  public void setUpdateTimestamp(LocalDate updateTimestamp) {
+    this.updateTimestamp = updateTimestamp;
   }
 }

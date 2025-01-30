@@ -19,11 +19,14 @@ public class RecreationMapFeatureGeom {
   @Column(name = "RMF_SKEY", nullable = false)
   private Long id;
 
+  @Column(name = "MAP_FEATURE_ID", nullable = false)
+  private Long mapFeatureId;
+
   @Column(name = "GEOMETRY_TYPE_CODE", nullable = false)
   private String geometryTypeCode;
 
-  @Column(name = "MAP_FEATURE_ID", nullable = false)
-  private Long mapFeatureId;
+  @Column(name = "GEOMETRY", columnDefinition = "SDO_GEOMETRY")
+  private Geometry geometry;
 
   @Column(name = "FEATURE_AREA", nullable = false, precision = 11, scale = 4)
   private BigDecimal featureArea;
@@ -57,8 +60,7 @@ public class RecreationMapFeatureGeom {
     this.geometry = geometry;
   }
 
-  @Column(name = "GEOMETRY", columnDefinition = "SDO_GEOMETRY")
-  private Geometry geometry;
+
 
 
   public Long getId() {

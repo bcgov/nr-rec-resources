@@ -1,14 +1,14 @@
 package ca.bc.gov.nrs.environment.fta.el.entities;
 
-import jakarta.persistence.*;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-import org.springframework.data.annotation.Immutable;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+
+import org.springframework.data.annotation.Immutable;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "RECREATION_PROJECT", schema = "THE")
@@ -37,7 +37,7 @@ public class RecreationProject {
   private Integer utmZone;
 
   @Column(name = "LAST_REC_INSPECTION_DATE")
-  private LocalDateTime lastRecInspectionDate;
+  private LocalDate lastRecInspectionDate;
 
   @Column(name = "REC_PROJECT_SKEY")
   private Long recProjectSkey;
@@ -46,7 +46,7 @@ public class RecreationProject {
   private String resourceFeatureInd;
 
   @Column(name = "LAST_HZRD_TREE_ASSESS_DATE")
-  private LocalDateTime lastHzrdTreeAssessDate;
+  private LocalDate lastHzrdTreeAssessDate;
 
   @Column(name = "SITE_DESCRIPTION", length = 500)
   private String siteDescription;
@@ -73,7 +73,7 @@ public class RecreationProject {
   private String siteLocation;
 
   @Column(name = "PROJECT_ESTABLISHED_DATE")
-  private LocalDateTime projectEstablishedDate;
+  private LocalDate projectEstablishedDate;
 
   @Column(name = "RECREATION_VIEW_IND", nullable = false, length = 1)
   private String recreationViewInd;
@@ -85,16 +85,16 @@ public class RecreationProject {
   private String entryUserid;
 
   @Column(name = "ENTRY_TIMESTAMP", nullable = false)
-  private LocalDateTime entryTimestamp;
+  private LocalDate entryTimestamp;
 
   @Column(name = "UPDATE_USERID", nullable = false, length = 30)
   private String updateUserid;
 
   @Column(name = "UPDATE_TIMESTAMP", nullable = false)
-  private LocalDateTime updateTimestamp;
+  private LocalDate updateTimestamp;
 
   @Column(name = "ARCH_IMPACT_DATE")
-  private LocalDateTime archImpactDate;
+  private LocalDate archImpactDate;
 
   @Column(name = "BORDEN_NO", length = 200)
   private String bordenNo;
@@ -161,11 +161,11 @@ public class RecreationProject {
     this.utmZone = utmZone;
   }
 
-  public LocalDateTime getLastRecInspectionDate() {
+  public LocalDate getLastRecInspectionDate() {
     return lastRecInspectionDate;
   }
 
-  public void setLastRecInspectionDate(LocalDateTime lastRecInspectionDate) {
+  public void setLastRecInspectionDate(LocalDate lastRecInspectionDate) {
     this.lastRecInspectionDate = lastRecInspectionDate;
   }
 
@@ -185,11 +185,11 @@ public class RecreationProject {
     this.resourceFeatureInd = resourceFeatureInd;
   }
 
-  public LocalDateTime getLastHzrdTreeAssessDate() {
+  public LocalDate getLastHzrdTreeAssessDate() {
     return lastHzrdTreeAssessDate;
   }
 
-  public void setLastHzrdTreeAssessDate(LocalDateTime lastHzrdTreeAssessDate) {
+  public void setLastHzrdTreeAssessDate(LocalDate lastHzrdTreeAssessDate) {
     this.lastHzrdTreeAssessDate = lastHzrdTreeAssessDate;
   }
 
@@ -257,11 +257,11 @@ public class RecreationProject {
     this.siteLocation = siteLocation;
   }
 
-  public LocalDateTime getProjectEstablishedDate() {
+  public LocalDate getProjectEstablishedDate() {
     return projectEstablishedDate;
   }
 
-  public void setProjectEstablishedDate(LocalDateTime projectEstablishedDate) {
+  public void setProjectEstablishedDate(LocalDate projectEstablishedDate) {
     this.projectEstablishedDate = projectEstablishedDate;
   }
 
@@ -289,11 +289,11 @@ public class RecreationProject {
     this.entryUserid = entryUserid;
   }
 
-  public LocalDateTime getEntryTimestamp() {
+  public LocalDate getEntryTimestamp() {
     return entryTimestamp;
   }
 
-  public void setEntryTimestamp(LocalDateTime entryTimestamp) {
+  public void setEntryTimestamp(LocalDate entryTimestamp) {
     this.entryTimestamp = entryTimestamp;
   }
 
@@ -305,19 +305,19 @@ public class RecreationProject {
     this.updateUserid = updateUserid;
   }
 
-  public LocalDateTime getUpdateTimestamp() {
+  public LocalDate getUpdateTimestamp() {
     return updateTimestamp;
   }
 
-  public void setUpdateTimestamp(LocalDateTime updateTimestamp) {
+  public void setUpdateTimestamp(LocalDate updateTimestamp) {
     this.updateTimestamp = updateTimestamp;
   }
 
-  public LocalDateTime getArchImpactDate() {
+  public LocalDate getArchImpactDate() {
     return archImpactDate;
   }
 
-  public void setArchImpactDate(LocalDateTime archImpactDate) {
+  public void setArchImpactDate(LocalDate archImpactDate) {
     this.archImpactDate = archImpactDate;
   }
 

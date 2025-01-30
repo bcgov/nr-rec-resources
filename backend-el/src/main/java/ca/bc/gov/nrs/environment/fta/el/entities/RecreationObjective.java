@@ -1,12 +1,14 @@
 package ca.bc.gov.nrs.environment.fta.el.entities;
 
-import jakarta.persistence.*;
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-import org.springframework.data.annotation.Immutable;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import org.springframework.data.annotation.Immutable;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "RECREATION_OBJECTIVE", schema = "THE")
@@ -23,10 +25,10 @@ public class RecreationObjective {
   private String objectiveDescription;
 
   @Column(name = "OBJECTIVE_ESTABLISHED_DATE", nullable = false)
-  private LocalDateTime objectiveEstablishedDate;
+  private LocalDate objectiveEstablishedDate;
 
   @Column(name = "OBJECTIVE_AMENDED_DATE")
-  private LocalDateTime objectiveAmendedDate;
+  private LocalDate objectiveAmendedDate;
 
   @Column(name = "OBJECTIVE_CANCELLED_DATE")
   private LocalDateTime objectiveCancelledDate;
@@ -70,19 +72,19 @@ public class RecreationObjective {
     this.objectiveDescription = objectiveDescription;
   }
 
-  public LocalDateTime getObjectiveEstablishedDate() {
+  public LocalDate getObjectiveEstablishedDate() {
     return objectiveEstablishedDate;
   }
 
-  public void setObjectiveEstablishedDate(LocalDateTime objectiveEstablishedDate) {
+  public void setObjectiveEstablishedDate(LocalDate objectiveEstablishedDate) {
     this.objectiveEstablishedDate = objectiveEstablishedDate;
   }
 
-  public LocalDateTime getObjectiveAmendedDate() {
+  public LocalDate getObjectiveAmendedDate() {
     return objectiveAmendedDate;
   }
 
-  public void setObjectiveAmendedDate(LocalDateTime objectiveAmendedDate) {
+  public void setObjectiveAmendedDate(LocalDate objectiveAmendedDate) {
     this.objectiveAmendedDate = objectiveAmendedDate;
   }
 

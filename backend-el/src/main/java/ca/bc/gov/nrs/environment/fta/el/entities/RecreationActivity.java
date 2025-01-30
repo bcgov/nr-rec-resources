@@ -1,9 +1,14 @@
 package ca.bc.gov.nrs.environment.fta.el.entities;
 
-import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
 import org.hibernate.annotations.Immutable;
 
-import java.time.LocalDateTime;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "RECREATION_ACTIVITY", schema = "THE")

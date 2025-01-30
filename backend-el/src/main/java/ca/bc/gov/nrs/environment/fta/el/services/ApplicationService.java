@@ -923,7 +923,7 @@ public class ApplicationService {
     for (var recAttachment : recAttachments) {
       // for each attachment, check if it is already present in s3, if not query db
       // and upload.
-      var filePath = String.format("uploads/attachments/%s", recAttachment.getForestFileId());
+      var filePath = String.format("attachments/%s", recAttachment.getForestFileId());
       var fileName = recAttachment.getAttachmentFileName();
       var fileExists = this.s3UploaderService.checkIfFileExistInTheBucketPath(filePath, fileName);
       if (fileExists) {

@@ -1,13 +1,13 @@
 package ca.bc.gov.nrs.environment.fta.el.entities;
 
+import java.time.LocalDate;
+
+import org.springframework.data.annotation.Immutable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import org.springframework.data.annotation.Immutable;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "RECREATION_STRUCTURE_CODE", schema = "THE")
@@ -21,13 +21,13 @@ public class RecreationStructureCode {
   private String description;
 
   @Column(name = "EFFECTIVE_DATE", nullable = false)
-  private LocalDateTime effectiveDate;
+  private LocalDate effectiveDate;
 
   @Column(name = "EXPIRY_DATE", nullable = false)
-  private LocalDateTime expiryDate;
+  private LocalDate expiryDate;
 
   @Column(name = "UPDATE_TIMESTAMP", nullable = false)
-  private LocalDateTime updateTimestamp;
+  private LocalDate updateTimestamp;
 
   public String getRecreationStructureCode() {
     return recreationStructureCode;
@@ -45,27 +45,27 @@ public class RecreationStructureCode {
     this.description = description;
   }
 
-  public LocalDateTime getEffectiveDate() {
+  public LocalDate getEffectiveDate() {
     return effectiveDate;
   }
 
-  public void setEffectiveDate(LocalDateTime effectiveDate) {
+  public void setEffectiveDate(LocalDate effectiveDate) {
     this.effectiveDate = effectiveDate;
   }
 
-  public LocalDateTime getExpiryDate() {
+  public LocalDate getExpiryDate() {
     return expiryDate;
   }
 
-  public void setExpiryDate(LocalDateTime expiryDate) {
+  public void setExpiryDate(LocalDate expiryDate) {
     this.expiryDate = expiryDate;
   }
 
-  public LocalDateTime getUpdateTimestamp() {
+  public LocalDate getUpdateTimestamp() {
     return updateTimestamp;
   }
 
-  public void setUpdateTimestamp(LocalDateTime updateTimestamp) {
+  public void setUpdateTimestamp(LocalDate updateTimestamp) {
     this.updateTimestamp = updateTimestamp;
   }
 }

@@ -1,12 +1,11 @@
 package ca.bc.gov.nrs.environment.fta.el.entities;
 
-import org.hibernate.Hibernate;
-
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
+
+import org.hibernate.Hibernate;
 
 public class RecreatnEventId implements Serializable {
   @Serial

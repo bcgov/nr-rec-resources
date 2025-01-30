@@ -20,7 +20,7 @@ public class S3UploaderService {
   @Value("${ca.bc.gov.nrs.environment.fta.el.s3.bucket}")
   private String bucket;
   @Value("${ca.bc.gov.nrs.environment.fta.el.s3.bucket.attachment.threshold}")
-  private Integer attachmentTheshold;
+  private Integer attachmentThreshold;
   public S3UploaderService(S3Client s3Client) {
     this.s3Client = s3Client;
   }
@@ -31,7 +31,7 @@ public class S3UploaderService {
       var file = new File(filePath);
       var putObjectRequest = PutObjectRequest.builder()
           .bucket(bucket)
-          .key("uploads/" + fileName)
+          .key(fileName)
           .build();
       this.s3Client.putObject(putObjectRequest, software.amazon.awssdk.core.sync.RequestBody.fromFile(file));
     } catch (Exception e) {
@@ -90,8 +90,8 @@ public class S3UploaderService {
   public boolean isAttachmentProcessCompletedEarlier() {
     var countObjectsRequest= software.amazon.awssdk.services.s3.model.ListObjectsV2Request.builder()
         .bucket(bucket)
-        .prefix("uploads/attachments")
-        .maxKeys(attachmentTheshold)
+        .prefix("attachments")
+        .maxKeys(attachmentThreshold)
         .build();
     var countObjectsResponse = this.s3Client.listObjectsV2Paginator(countObjectsRequest);
     long totalObjects = 0;
@@ -101,7 +101,7 @@ public class S3UploaderService {
           .reduce(0, (subtotal, element) -> subtotal + 1, Integer::sum);
         totalObjects += retrievedPageSize;
     }
-    logger.info("Total objects in the bucket: {}, attachment threshold {}", totalObjects, attachmentTheshold);
-    return totalObjects > attachmentTheshold;
+    logger.info("Total objects in the bucket: {}, attachment threshold {}", totalObjects, attachmentThreshold);
+    return totalObjects > attachmentThreshold;
   }
 }

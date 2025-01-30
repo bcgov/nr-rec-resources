@@ -1,11 +1,16 @@
 package ca.bc.gov.nrs.environment.fta.el.entities;
 
-import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.Immutable;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "RECREATION_COMMENT", schema = "THE")
@@ -29,7 +34,7 @@ public class RecreationComment {
   private String projectComment;
 
   @Column(name = "COMMENT_DATE")
-  private LocalDateTime commentDate;
+  private LocalDate commentDate;
 
   @Column(name = "REVISION_COUNT", nullable = false)
   private Integer revisionCount;
@@ -78,11 +83,11 @@ public class RecreationComment {
     this.projectComment = projectComment;
   }
 
-  public LocalDateTime getCommentDate() {
+  public LocalDate getCommentDate() {
     return commentDate;
   }
 
-  public void setCommentDate(LocalDateTime commentDate) {
+  public void setCommentDate(LocalDate commentDate) {
     this.commentDate = commentDate;
   }
 

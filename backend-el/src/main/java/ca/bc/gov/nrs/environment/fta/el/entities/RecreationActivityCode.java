@@ -1,12 +1,14 @@
 package ca.bc.gov.nrs.environment.fta.el.entities;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import org.springframework.data.annotation.Immutable;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import org.springframework.data.annotation.Immutable;
-
-import java.time.LocalDate;
 
 @Entity
 @Table(name = "RECREATION_ACTIVITY_CODE", schema = "THE")
@@ -26,7 +28,7 @@ public class RecreationActivityCode {
   private LocalDate expiryDate;
 
   @Column(name = "UPDATE_TIMESTAMP", nullable = false)
-  private LocalDate updateTimestamp;
+  private LocalDateTime updateTimestamp;
 
   public String getRecreationActivityCode() {
     return recreationActivityCode;
@@ -60,12 +62,11 @@ public class RecreationActivityCode {
     this.expiryDate = expiryDate;
   }
 
-  public LocalDate getUpdateTimestamp() {
+  public LocalDateTime getUpdateTimestamp() {
     return updateTimestamp;
   }
 
-  public void setUpdateTimestamp(LocalDate updateTimestamp) {
+  public void setUpdateTimestamp(LocalDateTime updateTimestamp) {
     this.updateTimestamp = updateTimestamp;
   }
-
 }
