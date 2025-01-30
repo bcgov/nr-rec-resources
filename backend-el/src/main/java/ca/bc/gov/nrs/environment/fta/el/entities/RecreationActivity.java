@@ -25,7 +25,7 @@ public class RecreationActivity {
   private String recreationActivityCode;
 
   @Column(name = "ACTIVITY_RANK")
-  private Boolean activityRank;
+  private Integer activityRank;
 
   @Column(name = "REVISION_COUNT", nullable = false)
   private Integer revisionCount;
@@ -58,11 +58,11 @@ public class RecreationActivity {
     this.recreationActivityCode = recreationActivityCode;
   }
 
-  public Boolean getActivityRank() {
+  public Integer getActivityRank() {
     return activityRank;
   }
 
-  public void setActivityRank(Boolean activityRank) {
+  public void setActivityRank(Integer activityRank) {
     this.activityRank = activityRank;
   }
 
