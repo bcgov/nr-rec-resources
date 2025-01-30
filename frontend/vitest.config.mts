@@ -15,6 +15,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['lcov'],
+      exclude: ['src/service/recreation-resource/**'],
     },
   },
 });
