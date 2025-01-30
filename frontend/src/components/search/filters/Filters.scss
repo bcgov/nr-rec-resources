@@ -113,10 +113,18 @@
         }
       }
       .expand-link {
-        margin-bottom: 0;
+        margin: 0;
+        padding: 0;
+        color: $colorBlue;
+
         svg {
           font-size: 1rem;
           margin-left: 6px;
+        }
+
+        &:focus {
+          box-shadow: none;
+          color: $colorBlue;
         }
       }
       .mobile-filter-options {
@@ -139,5 +147,11 @@
         margin: 0;
       }
     }
+  }
+}
+
+.closer-filter-btn {
+  svg {
+    vertical-align: 1px; // optical
   }
 }
