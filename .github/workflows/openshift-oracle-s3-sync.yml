@@ -28,7 +28,7 @@ jobs:
         shell: bash
         run: |
             AWS_CREDENTIALS=$(aws ssm get-parameter \
-            --name "/iam_users/fta-rst-el-s3-upload-service-account_keys" \
+            --name "/iam_users/node-api-dev-fta-rec-s3-upload-service-account_keys" \
             --with-decryption \
             --query "Parameter.Value" \
             --output text)
