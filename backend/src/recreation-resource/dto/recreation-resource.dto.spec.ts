@@ -8,7 +8,7 @@ describe("Recreation DTOs", () => {
   describe("RecreationActivityDto", () => {
     it("should create a valid RecreationActivityDto instance", () => {
       const activity = new RecreationActivityDto();
-      activity.recreation_activity_code = "HIKING";
+      activity.recreation_activity_code = 1;
       activity.description = "Hiking trails available for all skill levels";
 
       expect(activity instanceof RecreationActivityDto).toBeTruthy();
@@ -20,7 +20,7 @@ describe("Recreation DTOs", () => {
   describe("RecreationStatusDto", () => {
     it("should create a valid RecreationStatusDto", () => {
       const status = new RecreationStatusDto();
-      status.status_code = "CLOSED";
+      status.status_code = 2;
       status.comment = "Temporary closure due to weather conditions";
       status.description = "The facility is currently closed to visitors";
 
@@ -30,7 +30,7 @@ describe("Recreation DTOs", () => {
 
     it("should allow null comment", () => {
       const status: RecreationStatusDto = {
-        status_code: "OPEN",
+        status_code: 1,
         comment: null,
         description: "The facility is open",
       };
@@ -49,12 +49,12 @@ describe("Recreation DTOs", () => {
         site_location: "123 Forest Road, Mountain View, CA 94043",
         recreation_activity: [
           {
-            recreation_activity_code: "HIKING",
-            description: "Hiking trails available for all skill levels",
+            recreation_activity_code: 1,
+            description: "Hiking",
           },
         ],
         recreation_status: {
-          status_code: "OPEN",
+          status_code: 1,
           comment: null,
           description: "The facility is open",
         },
@@ -75,7 +75,7 @@ describe("Recreation DTOs", () => {
         site_location: "Test Location",
         recreation_activity: [],
         recreation_status: {
-          status_code: "OPEN",
+          status_code: 1,
           comment: null,
           description: "Open",
         },

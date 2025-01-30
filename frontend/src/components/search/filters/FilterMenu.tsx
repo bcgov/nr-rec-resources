@@ -12,12 +12,12 @@ const FilterMenu = ({ menuContent }: FilterMenuProps) => {
       <span className="filter-menu-title">Filter</span>
       <div className="filter-menu">
         {menuContent?.map((group) => {
-          const { title, filters, param } = group;
+          const { label, options, param } = group;
           return (
             <FilterGroup
-              key={title}
-              title={title}
-              filters={filters}
+              key={label}
+              label={label}
+              options={options}
               param={param}
             />
           );

@@ -106,15 +106,7 @@ const SearchPage = () => {
     // eslint-disable-next-line
   }, [searchParams]);
 
-  const activityFilters = recResourceData.filters?.activities;
-
-  const filterMenuContent = [
-    {
-      title: 'Activities',
-      filters: activityFilters,
-      param: 'activities',
-    },
-  ];
+  const filterMenuContent = recResourceData.filters;
 
   return (
     <>

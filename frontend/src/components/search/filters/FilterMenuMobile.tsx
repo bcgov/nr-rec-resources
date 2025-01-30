@@ -85,13 +85,13 @@ const FilterMenuMobile = ({
         </button>
 
         {menuContent.map((content, index) => {
-          const { filters, param, title } = content;
+          const { options, label, param } = content;
           const isSectionOpen = showFilters[param];
           return (
             <FilterGroupMobile
               key={param}
-              title={title}
-              filters={filters}
+              label={label}
+              options={options}
               param={param}
               isOpen={isSectionOpen}
               onOpen={handleOpenFilterGroup}
