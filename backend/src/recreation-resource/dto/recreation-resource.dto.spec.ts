@@ -1,0 +1,87 @@
+import {
+  RecreationActivityDto,
+  RecreationStatusDto,
+  RecreationResourceDto,
+} from "./recreation-resource.dto";
+
+describe("Recreation DTOs", () => {
+  describe("RecreationActivityDto", () => {
+    it("should create a valid RecreationActivityDto instance", () => {
+      const activity = new RecreationActivityDto();
+      activity.recreation_activity_code = "HIKING";
+      activity.description = "Hiking trails available for all skill levels";
+
+      expect(activity instanceof RecreationActivityDto).toBeTruthy();
+      expect(activity.recreation_activity_code).toBeDefined();
+      expect(activity.description).toBeDefined();
+    });
+  });
+
+  describe("RecreationStatusDto", () => {
+    it("should create a valid RecreationStatusDto", () => {
+      const status = new RecreationStatusDto();
+      status.status_code = "CLOSED";
+      status.comment = "Temporary closure due to weather conditions";
+      status.description = "The facility is currently closed to visitors";
+
+      expect(status.status_code).toBeDefined();
+      expect(status.description).toBeDefined();
+    });
+
+    it("should allow null comment", () => {
+      const status: RecreationStatusDto = {
+        status_code: "OPEN",
+        comment: null,
+        description: "The facility is open",
+      };
+
+      expect(status.comment).toBeNull();
+    });
+  });
+
+  describe("RecreationResourceDto", () => {
+    it("should create a valid RecreationResourceDto", () => {
+      const resource: RecreationResourceDto = {
+        rec_resource_id: "rec-123-abc",
+        name: "Evergreen Valley Campground",
+        description:
+          "A scenic campground nestled in the heart of Evergreen Valley",
+        site_location: "123 Forest Road, Mountain View, CA 94043",
+        recreation_activity: [
+          {
+            recreation_activity_code: "HIKING",
+            description: "Hiking trails available for all skill levels",
+          },
+        ],
+        recreation_status: {
+          status_code: "OPEN",
+          comment: null,
+          description: "The facility is open",
+        },
+      };
+
+      expect(resource.rec_resource_id).toBeDefined();
+      expect(resource.name.length).toBeGreaterThanOrEqual(1);
+      expect(resource.name.length).toBeLessThanOrEqual(100);
+      expect(Array.isArray(resource.recreation_activity)).toBeTruthy();
+      expect(resource.recreation_status).toBeDefined();
+    });
+
+    it("should allow null description", () => {
+      const resource: RecreationResourceDto = {
+        rec_resource_id: "rec-123-abc",
+        name: "Test Resource",
+        description: null,
+        site_location: "Test Location",
+        recreation_activity: [],
+        recreation_status: {
+          status_code: "OPEN",
+          comment: null,
+          description: "Open",
+        },
+      };
+
+      expect(resource.description).toBeNull();
+    });
+  });
+});

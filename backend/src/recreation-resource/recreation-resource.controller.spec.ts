@@ -69,4 +69,43 @@ describe("RecreationResourceController", () => {
       }
     });
   });
+
+  describe("searchRecreationResources", () => {
+    it("should return paginated recreation resources", async () => {
+      const mockResult = {
+        data: [
+          {
+            rec_resource_id: "REC0001",
+            name: "Rec site 1",
+          },
+        ],
+        total: 1,
+        page: 1,
+        limit: 10,
+      };
+
+      vi.spyOn(recService, "searchRecreationResources").mockResolvedValue(
+        mockResult,
+      );
+
+      const result = await controller.searchRecreationResources("test", 10, 1);
+      expect(result).toBe(mockResult);
+    });
+
+    it("should handle empty search results", async () => {
+      const mockResult = {
+        data: [],
+        total: 0,
+        page: 1,
+        limit: 10,
+      };
+
+      vi.spyOn(recService, "searchRecreationResources").mockResolvedValue(
+        mockResult,
+      );
+
+      const result = await controller.searchRecreationResources("", 10, 1);
+      expect(result).toBe(mockResult);
+    });
+  });
 });

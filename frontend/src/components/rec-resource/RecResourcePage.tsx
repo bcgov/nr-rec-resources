@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useScrollSpy from 'react-use-scrollspy';
-import apiService from '@/service/api-service';
-import type { AxiosResponse } from '~/axios';
 import BreadCrumbs from '@/components/layout/BreadCrumbs';
 import {
   Camping,
@@ -16,8 +14,9 @@ import {
 import Status from '@/components/rec-resource/Status';
 import PageMenu from '@/components/layout/PageMenu';
 import locationDot from '@/images/fontAwesomeIcons/location-dot.svg';
-import { RecreationResource } from '@/components/rec-resource/types';
 import '@/components/rec-resource/RecResource.scss';
+import { RecreationResourceDto } from '@/service/recreation-resource';
+import { useRecreationResourceApi } from '@/service/hooks/useRecreationResourceApi';
 
 export const photosExample = [
   {
@@ -47,26 +46,28 @@ export const photosExample = [
 ];
 
 const RecResourcePage = () => {
-  const [recResource, setRecResource] = useState<RecreationResource>();
+  const [recResource, setRecResource] = useState<RecreationResourceDto>();
   const [notFound, setNotFound] = useState<boolean>(false);
 
   const { id } = useParams();
 
+  const recreationResourceApi = useRecreationResourceApi();
+
   useEffect(() => {
     // Get a single recreation resource by forest file ID
-    apiService
-      .getAxiosInstance()
-      .get(`/v1/recreation-resource/${id}`)
-      .then((response: AxiosResponse) => {
-        setRecResource(response.data);
-        return response.data;
-      })
-      .catch((error) => {
-        console.error(error);
-        setNotFound(true);
-      });
-    // eslint-disable-next-line
-  }, []);
+    if (id) {
+      recreationResourceApi
+        .getRecreationResourceById(id)
+        .then((response) => {
+          setRecResource(response.data);
+          return response.data;
+        })
+        .catch((error) => {
+          console.error(error);
+          setNotFound(true);
+        });
+    }
+  }, [id]);
 
   const {
     recreation_activity,
