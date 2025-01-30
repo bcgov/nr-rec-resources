@@ -5,7 +5,7 @@ export class RecreationActivityDto {
     description: "Unique code identifying the recreation activity",
     example: "HIKING",
   })
-  recreation_activity_code: string;
+  recreation_activity_code: number;
 
   @ApiProperty({
     description: "Detailed description of the activity",
@@ -18,7 +18,7 @@ export class RecreationStatusDto {
   @ApiProperty({
     description: "Status code of the resource",
   })
-  status_code: string;
+  status_code: number;
 
   @ApiProperty({
     description: "Additional status information",
