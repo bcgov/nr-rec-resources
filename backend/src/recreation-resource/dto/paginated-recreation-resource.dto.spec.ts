@@ -1,4 +1,4 @@
-import { PaginatedRecreationResourceDto } from "./paginated-recreation-resouce.dto";
+import { PaginatedRecreationResourceDto } from "./paginated-recreation-resource.dto";
 import { RecreationResourceDto } from "./recreation-resource.dto";
 
 const recResourceArrayResolved: RecreationResourceDto[] = [
