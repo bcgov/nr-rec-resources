@@ -98,8 +98,6 @@ export class RecreationResourceService {
       },
     });
 
-    console.log(groupActivities);
-
     // Merge and include missing entries with a count of 0
     const activityCount = allActivityCodes.map((activity) => {
       const matchedGroup = groupActivities.find(
