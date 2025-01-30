@@ -30,8 +30,21 @@ const recreationResourceSelect = {
   },
 };
 
+const activitySelect = {
+  recreation_activity_code: true,
+  with_description: {
+    select: {
+      description: true,
+    },
+  },
+};
+
 type RecreationResourceGetPayload = Prisma.recreation_resourceGetPayload<{
   select: typeof recreationResourceSelect;
+}>;
+
+type ActivityGetPayload = Prisma.recreation_activityGetPayload<{
+  select: typeof activitySelect;
 }>;
 
 @Injectable()
@@ -72,16 +85,8 @@ export class RecreationResourceService {
   }
 
   async getActivityCounts(totalRecordIds: { rec_resource_id: string }[]) {
-    // Fetch all possible recreation_activity_code values
     const allActivityCodes = await this.prisma.recreation_activity.findMany({
-      select: {
-        recreation_activity_code: true,
-        with_description: {
-          select: {
-            description: true,
-          },
-        },
-      },
+      select: activitySelect,
       distinct: ["recreation_activity_code"],
     });
 
@@ -99,17 +104,22 @@ export class RecreationResourceService {
     });
 
     // Merge and include missing entries with a count of 0
-    const activityCount = allActivityCodes.map((activity) => {
-      const matchedGroup = groupActivities.find(
-        (group) =>
-          group.recreation_activity_code === activity.recreation_activity_code,
-      );
-      return {
-        id: activity.recreation_activity_code,
-        count: matchedGroup ? matchedGroup._count.recreation_activity_code : 0,
-        description: activity.with_description.description,
-      };
-    });
+    const activityCount = allActivityCodes.map(
+      (activity: ActivityGetPayload) => {
+        const matchedGroup = groupActivities.find(
+          (group) =>
+            group.recreation_activity_code ===
+            activity.recreation_activity_code,
+        );
+        return {
+          id: activity.recreation_activity_code,
+          count: matchedGroup
+            ? matchedGroup._count.recreation_activity_code
+            : 0,
+          description: activity.with_description.description,
+        };
+      },
+    );
 
     return activityCount;
   }
@@ -183,13 +193,15 @@ export class RecreationResourceService {
         }),
       ]);
 
-    const activityCount = await this.getActivityCounts(totalRecordIds);
+    const activityFilters = await this.getActivityCounts(totalRecordIds);
     return {
       data: this.formatResults(recreationResources),
       page,
       limit,
       total: totalRecordIds.length,
-      activityCount,
+      filters: {
+        activities: activityFilters,
+      },
     };
   }
 }

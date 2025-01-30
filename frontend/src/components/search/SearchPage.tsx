@@ -106,12 +106,12 @@ const SearchPage = () => {
     // eslint-disable-next-line
   }, [searchParams]);
 
-  const activityCount = recResourceData?.activityCount;
+  const activityFilters = recResourceData.filters?.activities;
 
   const filterMenuContent = [
     {
       title: 'Activities',
-      filters: activityCount,
+      filters: activityFilters,
       param: 'activities',
     },
   ];
