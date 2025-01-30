@@ -106,21 +106,24 @@ resource "aws_iam_role_policy_attachment" "rdsAttach" {
 }
 
 resource "aws_dynamodb_table_item" "iam_user" {
+  count = (var.app_env == "dev" || var.app_env == "test" || var.app_env == "prod") ? 1 : 0 # dont enable for PR
   table_name = "BCGOV_IAM_USER_TABLE"
   hash_key   = "UserName"
 
   item = jsonencode({
     UserName = {
-      S = "${var.app_name}_fta_rec_s3_upload_service_account"
+      S = "${var.app_name}-fta-rec-s3-upload-service-account"
     }
   })
 }
 
 data "aws_iam_user" "s3_upload_user" {
-  user_name = "${var.app_name}_fta_rec_s3_upload_service_account"
+  count = (var.app_env == "dev" || var.app_env == "test" || var.app_env == "prod") ? 1 : 0 # dont enable for PR
+  user_name = "${var.app_name}-fta-rec-s3-upload-service-account"
 }
 
 resource "aws_iam_user_policy" "s3_upload_policy" {
+  count = (var.app_env == "dev" || var.app_env == "test" || var.app_env == "prod") ? 1 : 0 # dont enable for PR
   name = "${var.app_name}_fta_rec_s3_upload_policy"
   user = data.aws_iam_user.s3_upload_user.user_name
 
@@ -131,11 +134,13 @@ resource "aws_iam_user_policy" "s3_upload_policy" {
         Effect = "Allow"
         Action = [
           "s3:ListBucket",
+          "s3:GetObject",
+          "s3:ListObjects",
           "s3:PutObject"
         ]
         Resource = [
-          "arn:aws:s3:::*",
-          "arn:aws:s3:::*/*"
+          "arn:aws:s3:::${var.fta_dataload_bucket}",
+        "arn:aws:s3:::${var.fta_dataload_bucket}/*"
         ]
       }
     ]
