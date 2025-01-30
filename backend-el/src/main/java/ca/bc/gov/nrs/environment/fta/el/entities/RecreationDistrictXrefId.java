@@ -9,8 +9,9 @@ import org.hibernate.Hibernate;
 public class RecreationDistrictXrefId implements Serializable {
   @Serial
   private static final long serialVersionUID = 851404823896192963L;
-  private String recreationDistrictCode;
   private String forestFileId;
+  private String recreationDistrictCode;
+
 
   public String getRecreationDistrictCode() {
     return recreationDistrictCode;

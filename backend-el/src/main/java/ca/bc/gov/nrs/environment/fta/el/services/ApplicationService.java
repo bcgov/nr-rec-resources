@@ -219,8 +219,9 @@ public class ApplicationService {
       var out = new FileWriter(entityMetadata.filePath());
       var printer = new CSVPrinter(out, entityMetadata.csvFormatBuilder().build());) {
       for (var item : results) {
-        printer.printRecord(item.getId(), item.getSectionId(),
-          item.getAmendmentId(),
+        printer.printRecord(item.getId(), item.getForestFileId(),
+          item.getSectionId(),
+          item.getAmendmentId(), item.getAmendStatusCode(),
           item.getRecreationMapFeatureCode(), item.getCurrentInd(),
           item.getAmendStatusDate(), item.getRetirementDate(),
           item.getRevisionCount(), item.getEntryUserid(),
@@ -431,10 +432,10 @@ public class ApplicationService {
       var out = new FileWriter(entityMetadata.filePath());
       var printer = new CSVPrinter(out, entityMetadata.csvFormatBuilder().build());) {
       for (var item : results) {
-        printer.printRecord(item.getForestFileId(), item.getRevisionCount(),
+        printer.printRecord(item.getForestFileId(), item.getGeometry(),
+          item.getRevisionCount(),
           item.getEntryUserid(), item.getEntryTimestamp(),
-          item.getUpdateUserid(), item.getUpdateTimestamp(),
-          item.getGeometry());
+          item.getUpdateUserid(), item.getUpdateTimestamp());
       }
       printer.flush();
       this.s3UploaderService.uploadFileToS3(entityMetadata.filePath(), entityMetadata.fileName());
@@ -657,7 +658,8 @@ public class ApplicationService {
       var out = new FileWriter(entityMetadata.filePath());
       var printer = new CSVPrinter(out, entityMetadata.csvFormatBuilder().build());) {
       for (var item : results) {
-        printer.printRecord(item.getId(), item.getForestFile(), item.getSiteName(),
+        printer.printRecord(item.getId(), item.getForestFile(),
+          item.getSiteOccupancyCode(), item.getRecFileTypeCode(), item.getSiteName(),
           item.getLocation(), item.getInspectedBy(), item.getCampsiteNo(),
           item.getOccupiedCampsiteNo(), item.getVehicleNo(), item.getCampingPartyNo(),
           item.getDayUsePartyNo(), item.getWithPassNo(), item.getWithoutPassNo(),
@@ -781,8 +783,8 @@ public class ApplicationService {
       var out = new FileWriter(entityMetadata.filePath());
       var printer = new CSVPrinter(out, entityMetadata.csvFormatBuilder().build());) {
       for (var item : results) {
-        printer.printRecord(item.getRecreationDistrictCode(),
-          item.getForestFileId(),
+        printer.printRecord(item.getForestFileId(),
+          item.getRecreationDistrictCode(),
           item.getRevisionCount(),
           item.getEntryUserid(),
           item.getEntryTimestamp(),
@@ -884,7 +886,8 @@ public class ApplicationService {
       var out = new FileWriter(entityMetadata.filePath());
       var printer = new CSVPrinter(out, entityMetadata.csvFormatBuilder().build());) {
       for (var item : results) {
-        printer.printRecord(item.getRecreationCommentId(), item.getForestFileId(), item.getClosureInd(),
+        printer.printRecord(item.getForestFileId(), item.getRecreationCommentId(), item.getRecCommentTypeCode(),
+          item.getClosureInd(),
           item.getProjectComment(), item.getCommentDate(), item.getRevisionCount(), item.getEntryUserid(),
           item.getEntryTimestamp(), item.getUpdateUserid(), item.getUpdateTimestamp());
       }

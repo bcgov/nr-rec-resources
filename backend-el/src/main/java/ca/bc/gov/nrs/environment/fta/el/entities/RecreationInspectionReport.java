@@ -20,6 +20,12 @@ public class RecreationInspectionReport {
   @Column(name = "FOREST_FILE_ID", nullable = false)
   private String forestFile;
 
+  @Column(name = "SITE_OCCUPANCY_CODE", nullable = false)
+  private String siteOccupancyCode;
+  @Column(name = "REC_FILE_TYPE_CODE", nullable = false)
+  private String recFileTypeCode;
+
+
   @Column(name = "SITE_NAME", nullable = false, length = 50)
   private String siteName;
 
@@ -69,7 +75,7 @@ public class RecreationInspectionReport {
   private String contractor;
 
   @Column(name = "REC_PROJECT_SKEY")
-  private Long recProjectSkey;
+  private String recProjectSkey;
 
   @Column(name = "ENTRY_TIMESTAMP", nullable = false)
   private LocalDateTime entryTimestamp;
@@ -227,11 +233,27 @@ public class RecreationInspectionReport {
     this.contractor = contractor;
   }
 
-  public Long getRecProjectSkey() {
+  public String getSiteOccupancyCode() {
+    return siteOccupancyCode;
+  }
+
+  public void setSiteOccupancyCode(String siteOccupancyCode) {
+    this.siteOccupancyCode = siteOccupancyCode;
+  }
+
+  public String getRecFileTypeCode() {
+    return recFileTypeCode;
+  }
+
+  public void setRecFileTypeCode(String recFileTypeCode) {
+    this.recFileTypeCode = recFileTypeCode;
+  }
+
+  public String getRecProjectSkey() {
     return recProjectSkey;
   }
 
-  public void setRecProjectSkey(Long recProjectSkey) {
+  public void setRecProjectSkey(String recProjectSkey) {
     this.recProjectSkey = recProjectSkey;
   }
 

@@ -17,14 +17,17 @@ import jakarta.persistence.Table;
 @Immutable
 @IdClass(RecreationCommentId.class)
 public class RecreationComment {
-  @Id
-  @Column(name = "RECREATION_COMMENT_ID", nullable = false)
-  private Long recreationCommentId;
 
   @Id
   @Column(name = "FOREST_FILE_ID", nullable = false, length = 10)
   private String forestFileId;
 
+  @Id
+  @Column(name = "RECREATION_COMMENT_ID", nullable = false)
+  private Long recreationCommentId;
+
+  @Column(name = "REC_COMMENT_TYPE_CODE", nullable = false, length = 1)
+  private String recCommentTypeCode;
 
   @ColumnDefault("'N'")
   @Column(name = "CLOSURE_IND", nullable = false, length = 1)
@@ -129,5 +132,13 @@ public class RecreationComment {
 
   public void setUpdateTimestamp(LocalDateTime updateTimestamp) {
     this.updateTimestamp = updateTimestamp;
+  }
+
+  public String getRecCommentTypeCode() {
+    return recCommentTypeCode;
+  }
+
+  public void setRecCommentTypeCode(String recCommentTypeCode) {
+    this.recCommentTypeCode = recCommentTypeCode;
   }
 }

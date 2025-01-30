@@ -16,13 +16,14 @@ import jakarta.persistence.Table;
 @IdClass(RecreationDistrictXrefId.class)
 public class RecreationDistrictXref {
 
-  @Id
-  @Column(name = "RECREATION_DISTRICT_CODE", nullable = false, length = 4)
-  private String recreationDistrictCode;
 
   @Id
   @Column(name = "FOREST_FILE_ID", nullable = false, length = 10)
   private String forestFileId;
+
+  @Id
+  @Column(name = "RECREATION_DISTRICT_CODE", nullable = false, length = 4)
+  private String recreationDistrictCode;
 
   @Column(name = "REVISION_COUNT", nullable = false)
   private Integer revisionCount;

@@ -9,10 +9,8 @@ import org.hibernate.Hibernate;
 public class RecreationCommentId implements Serializable {
   @Serial
   private static final long serialVersionUID = -3501419533934602098L;
-  private Long recreationCommentId;
-
   private String forestFileId;
-
+  private Long recreationCommentId;
   public Long getRecreationCommentId() {
     return recreationCommentId;
   }

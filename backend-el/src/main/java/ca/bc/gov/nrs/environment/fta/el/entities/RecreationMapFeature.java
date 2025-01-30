@@ -17,12 +17,15 @@ public class RecreationMapFeature {
   @Id
   @Column(name = "RMF_SKEY", nullable = false)
   private Long id;
-
+  @Column(name = "FOREST_FILE_ID", nullable = false)
+  private String forestFileId;
   @Column(name = "SECTION_ID", length = 30)
   private String sectionId;
 
   @Column(name = "AMENDMENT_ID", nullable = false)
   private Long amendmentId;
+  @Column(name = "AMEND_STATUS_CODE", length = 30)
+  private String amendStatusCode;
 
   @Column(name = "RECREATION_MAP_FEATURE_CODE", nullable = false)
   private String recreationMapFeatureCode;
@@ -159,4 +162,19 @@ public class RecreationMapFeature {
     this.recreationMapFeatureGuid = recreationMapFeatureGuid;
   }
 
+  public String getForestFileId() {
+    return forestFileId;
+  }
+
+  public void setForestFileId(String forestFileId) {
+    this.forestFileId = forestFileId;
+  }
+
+  public String getAmendStatusCode() {
+    return amendStatusCode;
+  }
+
+  public void setAmendStatusCode(String amendStatusCode) {
+    this.amendStatusCode = amendStatusCode;
+  }
 }
