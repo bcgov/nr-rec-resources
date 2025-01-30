@@ -67,6 +67,29 @@ backend-el/
 - Run this command to run the docker image
   `docker run -e spring_profiles_active=local -v ./uploads:/uploads backend-el:latest`
 
+### OpenShift Deployment.
+
+- The recent upgrade had broken the pipeline token creation which the GHA
+  workflow uses to deploy to OpenShift.
+- The following secret yaml needs to be run manually in the oc namespace for
+  pipeline token to be created, <b><u>if there is no `pipeline-token-<name>` in
+  the secrets</u></b>
+
+```yaml
+kind: Secret
+apiVersion: v1
+metadata:
+  name: pipeline-token-<name>
+  namespace: <ns>-<env>
+  annotations:
+    kubernetes.io/service-account.name: "pipeline"
+type: kubernetes.io/service-account-token
+```
+
+- Once the token is populated that is copied to GHA secrets which is used in the
+  [workflow](../.github/workflows/build-deploy-el-openshift.yml)
+- [The AWS secret is created outside of this helm chart, as it is managed differently and auto rotated](../.github/workflows/openshift-oracle-s3-sync.yml)
+
 ### IAM User
 
 - This Extract process relies on this IAM user creation and also associated
