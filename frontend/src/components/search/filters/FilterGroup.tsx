@@ -61,7 +61,7 @@ const FilterGroup = ({
 
           return (
             <Form.Check
-              key={id}
+              key={Date.now() + id} // Using Date.now as checkboxes weren't clearing on clear filters re-render
               type="checkbox"
               id={id}
               disabled={isDisabled}

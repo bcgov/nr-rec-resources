@@ -13,7 +13,7 @@ import { RecreationResource } from '@/components/rec-resource/types';
 const SearchPage = () => {
   const [recResourceData, setRecResourceData] = useState<any>([]);
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchResetKey, setSearchResetKey] = useState('');
+  const [searchResetKey, setSearchResetKey] = useState('search-reset-key');
   const [isComponentMounted, setIsComponentMounted] = useState(false);
   const [isLazyLoading, setIsLazyLoading] = useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
@@ -118,12 +118,15 @@ const SearchPage = () => {
 
   return (
     <>
-      <SearchBanner key={searchResetKey} />
+      <SearchBanner key={`${searchResetKey}-search-banner`} />
       <div className="page-container bg-brown-light">
         <div className="page page-padding search-container">
-          <FilterMenu key={searchResetKey} menuContent={filterMenuContent} />
+          <FilterMenu
+            key={`${searchResetKey}-filter-menu-desktop`}
+            menuContent={filterMenuContent}
+          />
           <FilterMenuMobile
-            key={searchResetKey}
+            key={`${searchResetKey}-filter-menu-mobile`}
             menuContent={filterMenuContent}
             isOpen={isMobileFilterOpen}
             setIsOpen={setIsMobileFilterOpen}
