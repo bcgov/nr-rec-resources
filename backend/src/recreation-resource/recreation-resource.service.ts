@@ -4,71 +4,50 @@ import { PrismaService } from "src/prisma.service";
 import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resource.dto";
 import { RecreationResourceDto } from "./dto/recreation-resource.dto";
 
-interface RecreationActivityWithDescription {
-  with_description: {
-    description: string;
-    recreation_activity_code: number;
-  };
-}
+const recreationResourceSelect = {
+  rec_resource_id: true,
+  description: true,
+  name: true,
+  site_location: true,
+  display_on_public_site: true,
+  rec_resource_type: true,
 
-interface RecreationResource {
-  rec_resource_id: string;
-  name: string;
-  description: string;
-  site_location: string;
-  recreation_activity: RecreationActivityWithDescription[];
-  rec_resource_type: string;
+  recreation_activity: {
+    select: {
+      with_description: true,
+    },
+  },
   recreation_status: {
-    recreation_status_code: {
-      description: string;
-    };
-    comment: string;
-    status_code: number;
-  };
-}
+    select: {
+      recreation_status_code: {
+        select: {
+          description: true,
+        },
+      },
+      comment: true,
+      status_code: true,
+    },
+  },
+};
+
+type RecreationResourceGetPayload = Prisma.recreation_resourceGetPayload<{
+  select: typeof recreationResourceSelect;
+}>;
 
 @Injectable()
 export class RecreationResourceService {
   constructor(private prisma: PrismaService) {}
 
-  // get recreation_activity and recreation_activity_code from recreation_resource
-  recreationResourceSelect = {
-    rec_resource_id: true,
-    description: true,
-    name: true,
-    site_location: true,
-    rec_resource_type: true,
-
-    recreation_activity: {
-      select: {
-        // Join recreation_activity_code to get description
-        with_description: true,
-      },
-    },
-    recreation_status: {
-      select: {
-        recreation_status_code: {
-          select: {
-            description: true,
-          },
-        },
-        comment: true,
-        status_code: true,
-      },
-    },
-  };
 
   // Format the results to match the DTO
-  formatResults(recResources: RecreationResource[]): RecreationResourceDto[] {
+  formatResults(recResources: RecreationResourceGetPayload[]) {
     return recResources?.map((resource) => ({
       ...resource,
-      recreation_activity: resource.recreation_activity?.map(
-        (activity: RecreationActivityWithDescription) => ({
-          description: activity.with_description.description,
-          recreation_activity_code:
-            activity.with_description.recreation_activity_code,
-        }),
-      ),
+      recreation_activity: resource.recreation_activity?.map((activity) => ({
+        description: activity.with_description.description,
+        recreation_activity_code:
+          activity.with_description.recreation_activity_code,
+      })),
       recreation_status: {
         description:
           resource.recreation_status?.recreation_status_code.description,
@@ -86,7 +65,7 @@ export class RecreationResourceService {
           display_on_public_site: true,
         },
       },
-      select: this.recreationResourceSelect,
+      select: recreationResourceSelect,
     });
 
     return recResource ? this.formatResults([recResource])[0] : null;
@@ -189,7 +168,7 @@ export class RecreationResourceService {
           ...activityFilterQuery,
         },
       },
-      select: this.recreationResourceSelect,
+      select: recreationResourceSelect,
     };
 
     const countQuery = {
