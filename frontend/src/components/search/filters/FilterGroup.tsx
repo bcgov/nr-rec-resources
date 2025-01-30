@@ -38,7 +38,6 @@ const FilterGroup = ({
         // Remove the param if there are no filters
         newSearchParams.delete(param);
       } else {
-        // Update the param with the new filters
         newSearchParams.set(param, updateFilters);
       }
       setSearchParams(newSearchParams);
