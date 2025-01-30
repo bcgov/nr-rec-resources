@@ -38,12 +38,12 @@ spec:
               env:
                 - name: DB_PORT
                   value: "1543"
-                - name: FILE_BASE_PATH
+                - name: FILE_BASE_PATH # this is where the pvc is mounted and local csv files are stored before uploading to S3
                   value: "/uploads"
                 - name: SPRING_JPA_SHOW_SQL
                   value: "false"
                 - name: AWS_S3_BUCKET
-                  value: "fta-rec-rst-uploads"
+                  value: "rst-fta-dataload-oracle"
                 - name: spring_profiles_active
                   value: "openshift"
               volumeMounts:
