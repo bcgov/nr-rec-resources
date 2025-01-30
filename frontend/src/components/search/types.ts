@@ -5,7 +5,7 @@ export interface Filter {
 }
 
 export interface FilterMenuContent {
-  title: string;
-  filters: Filter[];
+  label: string;
+  options: Filter[];
   param: string; // Name of the query parameter
 }

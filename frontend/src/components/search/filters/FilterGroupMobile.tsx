@@ -6,23 +6,23 @@ import { Filter } from '@/components/search/types';
 import '@/components/search/filters/Filters.scss';
 
 interface FilterGroupMobileProps {
-  title: string;
+  label: string;
   param: string;
-  filters: Filter[];
+  options: Filter[];
   isOpen: boolean;
   onOpen: (param: string) => void;
   tabIndex: number;
 }
 const FilterGroupMobile = ({
-  title,
+  label,
   param,
-  filters,
+  options,
   isOpen,
   onOpen,
   tabIndex,
 }: FilterGroupMobileProps) => {
   return (
-    <div key={title} className="mobile-filter-options">
+    <div key={label} className="mobile-filter-options">
       <div
         className="mobile-filter-option-label pointer p-3"
         onClick={() => {
@@ -34,7 +34,7 @@ const FilterGroupMobile = ({
           onOpen(param);
         }}
       >
-        <div>{title}</div>
+        <div>{label}</div>
         {isOpen ? (
           <FontAwesomeIcon icon={faChevronUp} />
         ) : (
@@ -44,7 +44,7 @@ const FilterGroupMobile = ({
 
       <Collapse in={isOpen} className="p-3">
         <div>
-          <FilterGroup filters={filters} param={param} showMoreBtn={false} />
+          <FilterGroup options={options} param={param} showMoreBtn={false} />
         </div>
       </Collapse>
     </div>
