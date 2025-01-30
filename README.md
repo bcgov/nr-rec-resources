@@ -23,9 +23,10 @@
   - [Database](#database)
   - [Backend](#backend)
   - [Frontend](#frontend)
-  - [Generate Client Library](#generate-client-library)
+  - [Generate API Client Library](#generate-api-client-library)
     - [Prerequisites](#client-library-prerequisites)
     - [Generate TypeScript Axios Client](#generate-typescript-axios-client)
+  - [Generating Prisma Schema and Client](#generating-prisma-schema-and-client)
 - [Pre-commit hooks](#pre-commit-hooks)
   - [Skipping pre-commit hooks](#skipping-pre-commit-hooks)
   - [Running pre-commit on all files](#running-pre-commit-on-all-files)
@@ -116,7 +117,7 @@ npm run dev
 
 Navigate to `http://localhost:3000` in your web browser to view the application.
 
-### Generate Client Library
+### Generate API Client Library
 
 #### Client Library Prerequisites
 
@@ -140,8 +141,22 @@ This command will:
 
 - Generate TypeScript client code using Axios
 - Use the OpenAPI spec from your local NestJS server which should be running on
-  port **3000**
+  port **8000**
 - Output the generated code to `src/service/recreation-resource` directory
+
+### Generating Prisma Schema and Client
+
+When you make changes to the database schema, you will need to regenerate the
+Prisma schema and client. Ensure your database is running and run the following
+commands:
+
+```bash
+cd backend
+npx prisma db pull # Pull the latest schema from the database
+npx prisma generate # Generate the Prisma client
+```
+
+The updated Prisma schema can be viewed in `backend/prisma/schema.prisma`
 
 ## Pre-commit hooks
 
