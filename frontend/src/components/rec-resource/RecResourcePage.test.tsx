@@ -106,7 +106,7 @@ describe('RecResourcePage', () => {
     it('displays closed status correctly', async () => {
       await renderComponent({
         ...mockResource,
-        recreation_status: { status_code: '02', description: 'Closed' },
+        recreation_status: { status_code: 2, description: 'Closed' },
       });
 
       expect(
@@ -115,7 +115,7 @@ describe('RecResourcePage', () => {
       expect(screen.getByText(/Closed/i)).toBeInTheDocument();
     });
 
-    it('handles missing status gracefully', async () => {
+    it('does not display missing status', async () => {
       await renderComponent({
         ...mockResource,
         recreation_status: { status_code: undefined, description: undefined },
