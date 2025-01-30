@@ -15,9 +15,11 @@ export class PaginatedRecreationResourceDto {
   limit: number;
 
   @ApiProperty()
-  activityCount: {
-    id: number;
-    count: number;
-    description: string;
-  }[];
+  filters: {
+    activities: {
+      id: number;
+      count: number;
+      description: string;
+    }[];
+  };
 }
