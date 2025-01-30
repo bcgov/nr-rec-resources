@@ -1,6 +1,10 @@
-create extension if not exists "postgis";
-
 create schema if not exists rst;
+create schema if not exists fta;
+ 
+ 
+create extension if not exists "postgis";
+create extension if not exists "postgis" with schema rst;
+create extension if not exists "postgis" with schema fta;
 
 create table if not exists rst.recreation_resource (
     rec_resource_id varchar(200) not null primary key,
