@@ -2,7 +2,7 @@ import { Controller, Get, HttpException, Param, Query } from "@nestjs/common";
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { RecreationResourceService } from "./recreation-resource.service";
 import { RecreationResourceDto } from "./dto/recreation-resource.dto";
-import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resouce.dto";
+import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resource.dto";
 
 @ApiTags("recreation-resource")
 @Controller({ path: "recreation-resource", version: "1" })
