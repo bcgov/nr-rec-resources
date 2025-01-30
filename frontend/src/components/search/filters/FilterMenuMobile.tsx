@@ -69,16 +69,13 @@ const FilterMenuMobile = ({
           <h2>Filter</h2>
           <button
             aria-label="close"
-            className="btn"
+            className="btn closer-filter-btn"
             onClick={handleCloseFilter}
           >
             <FontAwesomeIcon icon={faXmark} />
           </button>
         </div>
-        <button
-          className="btn btn-link expand-link expand-icon"
-          onClick={handleExpandAll}
-        >
+        <button className="btn btn-link expand-link" onClick={handleExpandAll}>
           {expandAll ? 'Collapse' : 'Expand'} all
           {expandAll ? (
             <FontAwesomeIcon icon={faChevronUp} />
