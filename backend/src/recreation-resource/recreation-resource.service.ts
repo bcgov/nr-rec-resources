@@ -95,6 +95,8 @@ export class RecreationResourceService {
       },
     });
 
+    console.log(groupActivities);
+
     // Merge and include missing entries with a count of 0
     const activityCount = allActivityCodes.map((activity) => {
       const matchedGroup = groupActivities.find(
@@ -168,31 +170,24 @@ export class RecreationResourceService {
       select: recreationResourceSelect,
     };
 
-    const countQuery = {
-      where: filterQuery.where,
-    };
-
-    // Return paginated records
-    const recreationResources =
-      await this.prisma.recreation_resource.findMany(filterQuery);
-
-    // Get all unpaginated rec_resource_ids for the records so we can group/count records for the filter sidebar
-    // This can be used to get the count of each filter group
-    const totalRecordIds = await this.prisma.recreation_resource.findMany({
-      where: countQuery.where,
-      select: {
-        rec_resource_id: true,
-      },
-    });
-
-    const totalRecords = totalRecordIds.length;
+    const [recreationResources, totalRecordIds] =
+      await this.prisma.$transaction([
+        // Fetch paginated records
+        this.prisma.recreation_resource.findMany(filterQuery),
+        // Get all unpaginated rec_resource_ids for the records so we can group/count records for the filter sidebar
+        // This can be used to get the count of each filter group
+        this.prisma.recreation_resource.findMany({
+          where: filterQuery.where,
+          select: { rec_resource_id: true },
+        }),
+      ]);
 
     const activityCount = await this.getActivityCounts(totalRecordIds);
     return {
       data: this.formatResults(recreationResources),
       page,
       limit,
-      total: totalRecords,
+      total: totalRecordIds.length,
       activityCount,
     };
   }
