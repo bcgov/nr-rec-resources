@@ -57,10 +57,10 @@ const RecResourcePage = () => {
     // Get a single recreation resource by forest file ID
     if (id) {
       recreationResourceApi
-        .getRecreationResourceById(id)
+        .getRecreationResourceById({ id })
         .then((response) => {
-          setRecResource(response.data);
-          return response.data;
+          setRecResource(response);
+          return response;
         })
         .catch((error) => {
           console.error(error);

@@ -138,11 +138,12 @@ brew install openjdk@17
 
 #### Generate TypeScript Axios Client
 
-Run the following command to generate the TypeScript client library from your
-OpenAPI specification:
+Run the following command from the project root folder to generate the
+TypeScript client library from your OpenAPI specification and run `prettier-fix`
+to format the files:
 
 ```bash
-npx openapi-generator-cli generate -i http://localhost:3000/api/docs-json -g typescript-axios -o src/service/recreation-resource --skip-validate-spec
+npm run install-client-sdk
 ```
 
 This command will:

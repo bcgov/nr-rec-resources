@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "src/prisma.service";
-import { RecreationResourceDto } from "./dto/recreation-resource.dto";
 import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resource.dto";
+import { RecreationResourceDto } from "./dto/recreation-resource.dto";
 
 interface RecreationActivityWithDescription {
   with_description: {
