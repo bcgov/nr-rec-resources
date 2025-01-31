@@ -26,6 +26,7 @@ const FilterGroupMobile = ({
       <div
         className="mobile-filter-option-label pointer p-3"
         onClick={() => {
+          console.log('onOpen', param);
           onOpen(param);
         }}
         tabIndex={tabIndex}
@@ -36,9 +37,17 @@ const FilterGroupMobile = ({
       >
         <div>{label}</div>
         {isOpen ? (
-          <FontAwesomeIcon icon={faChevronUp} />
+          <FontAwesomeIcon
+            aria-label="Close filter group"
+            data-testid="close-filter-group"
+            icon={faChevronUp}
+          />
         ) : (
-          <FontAwesomeIcon icon={faChevronDown} />
+          <FontAwesomeIcon
+            aria-label="Open filter group"
+            data-testid="open-filter-group"
+            icon={faChevronDown}
+          />
         )}
       </div>
 
