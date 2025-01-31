@@ -142,8 +142,21 @@ Run the following command to generate the TypeScript client library from your
 OpenAPI specification:
 
 ```bash
-npx openapi-generator-cli generate -i http://localhost:3000/api/docs-json -g typescript-axios -o src/service/recreation-resource --skip-validate-spec
+npx openapi-generator-cli generate -i http://localhost:3000/api/docs-json -g typescript-fetch -o src/service/recreation-resource --skip-validate-spec --additional-properties=modelPropertyNaming=original
+
 ```
+
+- **-i http://localhost:3000/api/docs-json**: Input specification - points to
+  the OpenAPI documentation JSON file
+- **-g typescript-fetch**: Generator name - specifies that we want to generate a
+  TypeScript client using the fetch API
+- **-o src/service/recreation-resource**: Output directory - where the generated
+  code will be placed
+- **--skip-validate-spec**: Skips the validation of the OpenAPI specification,
+  which can be useful if you trust the spec source
+- **--additional-properties=modelPropertyNaming=original**: Preserves the
+  original property naming (**_snake_case_**) from the API specification instead
+  of converting to a different case format
 
 This command will:
 

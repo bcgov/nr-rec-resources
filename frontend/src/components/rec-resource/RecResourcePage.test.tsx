@@ -68,7 +68,7 @@ describe('RecResourcePage', () => {
 
   describe('Activities section', () => {
     it('shows activities when present', async () => {
-      await renderComponent({ data: mockResource });
+      await renderComponent(mockResource);
 
       expect(
         screen.getByRole('heading', { name: /Things to Do/i }),
@@ -78,7 +78,8 @@ describe('RecResourcePage', () => {
 
     it('hides activities when empty', async () => {
       await renderComponent({
-        data: { ...mockResource, recreation_activity: [] },
+        ...mockResource,
+        recreation_activity: [],
       });
 
       expect(
@@ -90,7 +91,7 @@ describe('RecResourcePage', () => {
 
   describe('Status handling', () => {
     it('displays open status correctly', async () => {
-      await renderComponent({ data: mockResource });
+      await renderComponent(mockResource);
 
       expect(screen.getByAltText(/Site Open status icon/i)).toBeInTheDocument();
       expect(screen.getByText(/Open/i)).toBeInTheDocument();
@@ -98,10 +99,8 @@ describe('RecResourcePage', () => {
 
     it('displays closed status correctly', async () => {
       await renderComponent({
-        data: {
-          ...mockResource,
-          recreation_status: { status_code: '02', description: 'Closed' },
-        },
+        ...mockResource,
+        recreation_status: { status_code: '02', description: 'Closed' },
       });
 
       expect(
@@ -112,10 +111,8 @@ describe('RecResourcePage', () => {
 
     it('handles missing status gracefully', async () => {
       await renderComponent({
-        data: {
-          ...mockResource,
-          recreation_status: { status_code: undefined, description: undefined },
-        },
+        ...mockResource,
+        recreation_status: { status_code: undefined, description: undefined },
       });
 
       expect(screen.queryByAltText(/Site.*status icon/i)).toBeNull();
@@ -123,10 +120,8 @@ describe('RecResourcePage', () => {
 
     it('ignores unknown status codes', async () => {
       await renderComponent({
-        data: {
-          ...mockResource,
-          recreation_status: { status_code: '03', description: 'Unknown' },
-        },
+        ...mockResource,
+        recreation_status: { status_code: '03', description: 'Unknown' },
       });
 
       expect(screen.queryByAltText(/Site.*status icon/i)).toBeNull();
@@ -136,13 +131,11 @@ describe('RecResourcePage', () => {
   describe('Closures section', () => {
     it('shows closure information when closed', async () => {
       await renderComponent({
-        data: {
-          ...mockResource,
-          recreation_status: {
-            status_code: '02',
-            description: 'Closed',
-            comment: 'This site is closed',
-          },
+        ...mockResource,
+        recreation_status: {
+          status_code: '02',
+          description: 'Closed',
+          comment: 'This site is closed',
         },
       });
 
@@ -154,13 +147,11 @@ describe('RecResourcePage', () => {
 
     it('hides closure information when open', async () => {
       await renderComponent({
-        data: {
-          ...mockResource,
-          recreation_status: {
-            status_code: '01',
-            description: 'Open',
-            comment: 'This site is open',
-          },
+        ...mockResource,
+        recreation_status: {
+          status_code: '01',
+          description: 'Open',
+          comment: 'This site is open',
         },
       });
 

@@ -14,7 +14,7 @@
     "preview": "vite preview",
     "test": "vitest --mode test",
     "test:cov": "vitest run --mode test --coverage",
-    "generate-api": "npx openapi-generator-cli generate -i http://localhost:3000/api/docs-json -g typescript-axios -o src/service/recreation-resource --skip-validate-spec"
+    "generate-api": "npx openapi-generator-cli generate -i http://localhost:3000/api/docs-json -g typescript-fetch -o src/service/recreation-resource --skip-validate-spec --additional-properties=modelPropertyNaming=original"
   },
   "dependencies": {
     "@bcgov/bc-sans": "^2.1.0",
