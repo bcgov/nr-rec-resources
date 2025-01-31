@@ -40,6 +40,7 @@ const FilterGroup = ({
       } else {
         newSearchParams.set(param, updateFilters);
       }
+      console.log('set search params', newSearchParams.toString());
       setSearchParams(newSearchParams);
     }
   };
