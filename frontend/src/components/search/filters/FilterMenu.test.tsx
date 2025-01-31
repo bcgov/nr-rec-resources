@@ -1,33 +1,35 @@
 import { render, screen } from '@testing-library/react';
 import FilterMenu from '@/components/search/filters/FilterMenu';
 
+export const activitiesOptions = [
+  {
+    id: 22,
+    count: 9,
+    description: 'Snowmobiling',
+  },
+  {
+    id: 1,
+    count: 14,
+    description: 'Angling',
+  },
+  {
+    id: 3,
+    count: 5,
+    description: 'Canoeing',
+  },
+  {
+    id: 32,
+    count: 12,
+    description: 'Camping',
+  },
+];
+
 const mockMenuContent = [
   {
     type: 'multi-select',
     label: 'Activities',
     param: 'activities',
-    options: [
-      {
-        id: 22,
-        count: 9,
-        description: 'Snowmobiling',
-      },
-      {
-        id: 1,
-        count: 14,
-        description: 'Angling',
-      },
-      {
-        id: 3,
-        count: 5,
-        description: 'Canoeing',
-      },
-      {
-        id: 32,
-        count: 12,
-        description: 'Camping',
-      },
-    ],
+    options: activitiesOptions,
   },
   {
     type: 'multi-select',
