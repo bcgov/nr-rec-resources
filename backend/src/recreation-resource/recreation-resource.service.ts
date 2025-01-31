@@ -200,7 +200,7 @@ export class RecreationResourceService {
       filters: [
         {
           type: "multi-select",
-          label: "Activities",
+          label: "Things to do",
           param: "activities",
           options: activityFilters,
         },
