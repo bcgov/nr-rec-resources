@@ -1,4 +1,3 @@
-import { vi } from 'vitest';
 import { act, render, screen } from '@testing-library/react';
 import SearchPage from '@/components/search/SearchPage';
 import { BrowserRouter as Router } from 'react-router-dom';
