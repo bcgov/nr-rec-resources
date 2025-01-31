@@ -62,7 +62,7 @@ const FilterGroup = ({
             <Form.Check
               key={crypto.randomUUID()} // Using uuid as checkboxes weren't clearing on clear filters re-render
               type="checkbox"
-              id={id}
+              id={String(id)}
               disabled={isDisabled}
               defaultChecked={isDefaultChecked}
               label={`${description} (${count})`}
