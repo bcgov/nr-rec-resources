@@ -25,9 +25,9 @@ const FilterMenuMobile = ({
   setIsOpen,
   onClearFilters,
 }: FilterMenuMobileProps) => {
-  const filterMenu = Object.fromEntries(
-    menuContent.map(({ param }) => [param, false]),
-  );
+  const filterMenu =
+    menuContent &&
+    Object.fromEntries(menuContent.map(({ param }) => [param, false]));
 
   const [expandAll, setExpandAll] = useState(false);
   const [showFilters, setShowFilter] = useState(filterMenu);
@@ -50,9 +50,7 @@ const FilterMenuMobile = ({
   const handleExpandAll = () => {
     setExpandAll((prev) => !prev);
     setShowFilter((prev) =>
-      Object.fromEntries(
-        Object.entries(prev).map(([key, value]) => [key, !value]),
-      ),
+      Object.fromEntries(Object.keys(prev).map((key) => [key, !prev[key]])),
     );
   };
 
@@ -83,10 +81,9 @@ const FilterMenuMobile = ({
             <FontAwesomeIcon icon={faChevronDown} />
           )}
         </button>
-
-        {menuContent.map((content, index) => {
+        {menuContent?.map((content, index) => {
           const { options, label, param } = content;
-          const isSectionOpen = showFilters[param];
+          const isSectionOpen = showFilters?.[param];
           return (
             <FilterGroupMobile
               key={param}
