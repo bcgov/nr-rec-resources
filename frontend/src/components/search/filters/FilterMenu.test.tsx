@@ -24,7 +24,7 @@ export const activitiesOptions = [
   },
 ];
 
-const mockMenuContent = [
+export const mockMenuContent = [
   {
     type: 'multi-select',
     label: 'Activities',
@@ -51,7 +51,7 @@ const mockMenuContent = [
 ];
 
 describe('FilterMenu', () => {
-  beforeEach(() => {
+  it('renders FilterMenu component', () => {
     vi.mock('react-router-dom', async () => {
       const actual = (await vi.importActual('react-router-dom')) as any;
       return {
@@ -59,8 +59,6 @@ describe('FilterMenu', () => {
         useSearchParams: vi.fn().mockReturnValue([new URLSearchParams()]),
       };
     });
-  });
-  it('renders FilterMenu component', () => {
     render(<FilterMenu menuContent={mockMenuContent} />);
 
     // Renders titles
