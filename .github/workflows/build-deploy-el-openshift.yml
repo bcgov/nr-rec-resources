@@ -9,23 +9,19 @@ on:
         type: choice
         options:
           - dev
-          - test
           - prod
 
 jobs:
   build:
-    name: Build
+    name: Build Spring Boot Oracle EL Containers
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        package: ['backend-el','backend-el-init']
+        package: ['backend-el']
         include:
-          - package: backend-el
-            build_file: Dockerfile
-            build_context: .
-          - package: backend-el-init
-            build_file: Dockerfile.certs
-            build_context: .
+          - package: 'backend-el'
+            build_file: ./backend-el/Dockerfile
+            build_context: ./backend-el
     timeout-minutes: 10
     steps:
       - uses: bcgov/action-builder-ghcr@v2.3.0
@@ -35,14 +31,16 @@ jobs:
           build_file: ${{ matrix.build_file }}
           build_context: ${{ matrix.build_context }}
   deploy:
-    name: Deploy Helm Chart
+    name: Deploy Helm Chart to OpenShift ${{ github.event.inputs.environment }}
     needs: build
-    environment: ${{ github.event.inputs.environment }}
+    environment: openshift-${{ github.event.inputs.environment }}
     runs-on: ubuntu-24.04
     steps:
       - name: Helm Deploy
         id: deploy
         uses: bcgov/action-oc-runner@v0.2.0
+        env:
+          DB_PASSWORD: ${{ secrets.dbPassword }} # handle special characters.
         with:
           oc_namespace: ${{ secrets.oc_namespace }}
           oc_token: ${{ secrets.oc_token }}
@@ -53,14 +51,12 @@ jobs:
             helm package -u . --app-version="${{ github.sha }}" --version=1.0.0
              # Helm upgrade/rollout, the db secrets are related to ORACLE DB, the cert secret can be a random one.
             helm upgrade \
-              --set-string image.tag=${{ github.sha }} \
-              --set-string secrets.dbHost=${{ secrets.dbHost }} \
-              --set-string secrets.certSecret=${{ secrets.certSecret }} \
-              --set-string secrets.awsAccessKey=${{ secrets.awsAccessKey }} \
-              --set-string secrets.awsSecretKey=${{ secrets.awsSecretKey }} \
-              --set-string secrets.dbName=${{ secrets.dbName }} \
-              --set-string secrets.dbPassword=${{ secrets.dbPassword }} \
-              --set-string secrets.dbUser=${{ secrets.dbUser }} \
+              --set-string image.tag="${{ github.sha }}" \
+              --set-string secrets.dbHost="${{ secrets.dbHost }}" \
+              --set-string secrets.certSecret="${{ secrets.certSecret }}" \
+              --set-string secrets.dbName="${{ secrets.dbName }}" \
+              --set-string secrets.dbPassword="$DB_PASSWORD" \
+              --set-string secrets.dbUser="${{ secrets.dbUser }}" \
               --install --wait \
-              --values values.yaml \
+              --values values.yaml backend-el\
               ./backend-el-1.0.0.tgz

@@ -1,4 +1,3 @@
----
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -14,7 +13,6 @@ spec:
     metadata:
       labels:
         {{- include "labels" . | nindent 8 }}
-
     spec:
       backoffLimit: {{.Values.backoffLimit}}
       activeDeadlineSeconds: 3600
@@ -24,44 +22,31 @@ spec:
             {{- include "labels" . | nindent 12 }}
         spec:
           volumes:
-            - name: {{ .Release.Name }}-certs
-              persistentVolumeClaim:
-                claimName: {{ .Release.Name }}-certs
             - name: {{ .Release.Name }}-csv
               persistentVolumeClaim:
                 claimName: {{ .Release.Name }}-csv
-          initContainers:
-            - name: {{ .Chart.Name }}-init
-              image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/nr-rec-resources/backend-el-init:{{ .Values.image.tag | default .Chart.AppVersion }}"
-              imagePullPolicy: Always
-              resources:
-                {{- toYaml .Values.initContainerResources | nindent 12 }}
-              envFrom:
-                - secretRef:
-                    name: {{ .Release.Name }}-backend-el-init
-              volumeMounts:
-                - name: {{ .Release.Name }}-certs
-                  mountPath: /app/cert
           containers:
             - name: {{ .Chart.Name }}
               image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/nr-rec-resources/backend-el:{{ .Values.image.tag | default .Chart.AppVersion }}"
-              imagePullPolicy: Always
-
               resources:
-                {{- toYaml .Values.resources | nindent 12 }}
+                {{- toYaml .Values.resources | nindent 16 }}
               envFrom:
                 - secretRef:
                     name: {{ .Release.Name }}-backend-el
+                - secretRef:
+                    name: aws-secrets
               env:
                 - name: DB_PORT
-                  value: '1543'
-                - name: FILE_BASE_PATH
+                  value: "1543"
+                - name: FILE_BASE_PATH # this is where the pvc is mounted and local csv files are stored before uploading to S3
                   value: "/uploads"
                 - name: SPRING_JPA_SHOW_SQL
                   value: "false"
+                - name: AWS_S3_BUCKET
+                  value: "rst-fta-dataload-oracle"
+                - name: spring_profiles_active
+                  value: "openshift"
               volumeMounts:
-                - name: {{ .Release.Name }}-certs
-                  mountPath: /app/cert
                 - name: {{ .Release.Name }}-csv
                   mountPath: /uploads
           restartPolicy: OnFailure

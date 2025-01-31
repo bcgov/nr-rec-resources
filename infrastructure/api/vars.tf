@@ -122,3 +122,8 @@ variable "fargate_spot_weight" {
   type = number
   default = 80
 }
+variable "fta_dataload_bucket" {
+  description = "The name of the S3 bucket for FTA CSV files"
+  type        = string
+  default     = "rst-fta-dataload-oracle"
+}

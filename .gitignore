@@ -248,3 +248,8 @@ frontend/src/service/recreation-resource/.npmignore
 frontend/src/service/recreation-resource/.openapi-generator-ignore
 frontend/src/service/recreation-resource/git_push.sh
 frontend/src/service/recreation-resource/.openapi-generator
+
+#Ignoreing Backend Extract Load
+!backend-el
+backend-el/target
+backend-el/*.iml

@@ -104,3 +104,38 @@ resource "aws_iam_role_policy_attachment" "rdsAttach" {
   role       = aws_iam_role.app_container_role.name
   policy_arn = data.aws_iam_policy.appRDS.arn
 }
+
+resource "aws_dynamodb_table_item" "iam_user" {
+  table_name = "BCGOV_IAM_USER_TABLE"
+  hash_key   = "UserName"
+
+  item = jsonencode({
+    UserName = {
+      S = "${var.app_name}-fta-rec-s3-upload-service-account"
+    }
+  })
+}
+
+resource "aws_iam_user_policy" "s3_upload_policy" {
+  name = "${var.app_name}_fta_rec_s3_upload_policy"
+  user = "${var.app_name}-fta-rec-s3-upload-service-account"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:ListBucket",
+          "s3:GetObject",
+          "s3:ListObjects",
+          "s3:PutObject"
+        ]
+        Resource = [
+          "arn:aws:s3:::${var.fta_dataload_bucket}",
+          "arn:aws:s3:::${var.fta_dataload_bucket}/*"
+        ]
+      }
+    ]
+  })
+}

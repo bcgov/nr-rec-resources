@@ -1,8 +1,6 @@
 secrets:
   dbHost: ~
   certSecret: ~
-  awsAccessKey: ~
-  awsSecretKey: ~
   dbName: ~
   dbPassword: ~
   dbUser: ~
