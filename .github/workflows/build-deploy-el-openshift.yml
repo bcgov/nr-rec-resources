@@ -38,7 +38,7 @@ jobs:
     steps:
       - name: Helm Deploy
         id: deploy
-        uses: bcgov/action-oc-runner@v0.2.0
+        uses: bcgov/action-oc-runner@v0.3.0
         env:
           DB_PASSWORD: ${{ secrets.dbPassword }} # handle special characters.
         with:
