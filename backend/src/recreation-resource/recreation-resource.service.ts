@@ -191,7 +191,7 @@ export class RecreationResourceService {
       ]);
 
     const activityFilters = await this.getActivityCounts(totalRecordIds);
-    console.log(activityFilters);
+
     return {
       data: this.formatResults(recreationResources),
       page,

@@ -49,7 +49,6 @@ const SearchPage = () => {
         .getAxiosInstance()
         .get('/v1/recreation-resource/search')
         .then((response: AxiosResponse) => {
-          console.log(response.data);
           setRecResourceData(response.data);
           setIsComponentMounted(true);
           return response;
