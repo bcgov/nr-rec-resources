@@ -149,13 +149,13 @@ export class RecreationResourceService {
 
     // Filter by activities if provided
     const activityFilterQuery = activities && {
-      recreation_activity: {
-        some: {
-          recreation_activity_code: {
-            in: activityFilter,
+      AND: activityFilter.map((activity) => ({
+        recreation_activity: {
+          some: {
+            recreation_activity_code: activity,
           },
         },
-      },
+      })),
     };
 
     const filterQuery = {
