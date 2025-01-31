@@ -1,5 +1,5 @@
-import { render, screen } from '@testing-library/react';
-import FilterGroup from '@/components/search/filters/FilterGroup';
+import { act, render, screen } from '@testing-library/react';
+import FilterGroupMobile from '@/components/search/filters/FilterGroupMobile';
 import { activitiesOptions } from '@/components/search/filters/FilterMenu.test';
 
 vi.mock('react-router-dom', async () => {
@@ -8,16 +8,20 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-describe('the FilterGroup component', () => {
+describe('the FilterGroupMobile component', () => {
   afterEach(() => {
     vi.resetAllMocks();
   });
+
   it('renders a filter group with a label and options', () => {
     render(
-      <FilterGroup
+      <FilterGroupMobile
         label="Activities"
         options={activitiesOptions}
         param="activities"
+        isOpen={false}
+        onOpen={vi.fn()}
+        tabIndex={0}
       />,
     );
 
@@ -30,10 +34,13 @@ describe('the FilterGroup component', () => {
 
   it('should not check any options by default', () => {
     render(
-      <FilterGroup
+      <FilterGroupMobile
         label="Activities"
         options={activitiesOptions}
         param="activities"
+        isOpen={false}
+        onOpen={vi.fn()}
+        tabIndex={0}
       />,
     );
 
@@ -47,10 +54,13 @@ describe('the FilterGroup component', () => {
 
   it('should check an option when clicked', () => {
     render(
-      <FilterGroup
+      <FilterGroupMobile
         label="Activities"
         options={activitiesOptions}
         param="activities"
+        isOpen={false}
+        onOpen={vi.fn()}
+        tabIndex={0}
       />,
     );
     const checkbox = screen.getByLabelText('Angling (14)');
@@ -58,18 +68,42 @@ describe('the FilterGroup component', () => {
     expect(checkbox).toBeChecked();
   });
 
-  it('should uncheck an option when clicked twice', () => {
+  it('should open the filter group when isOpen changes', async () => {
+    const onOpen = vi.fn();
     render(
-      <FilterGroup
-        label="Activities"
+      <FilterGroupMobile
+        label="Things to do"
         options={activitiesOptions}
         param="activities"
+        isOpen={false}
+        onOpen={onOpen}
+        tabIndex={0}
       />,
     );
 
-    const checkbox = screen.getByLabelText('Angling (14)');
-    checkbox.click();
-    checkbox.click();
-    expect(checkbox).not.toBeChecked();
+    expect(screen.getByTestId('open-filter-group')).toBeVisible();
+
+    const openButton = screen.getByRole('button', {
+      name: 'Things to do',
+    });
+    await act(async () => {
+      openButton.click();
+    });
+
+    // isOpen is handled by the parent component so re-render here
+    render(
+      <FilterGroupMobile
+        label="Things to do"
+        options={activitiesOptions}
+        param="activities"
+        isOpen={true}
+        onOpen={onOpen}
+        tabIndex={0}
+      />,
+    );
+
+    expect(onOpen).toHaveBeenCalledWith('activities');
+
+    expect(screen.getByTestId('close-filter-group')).toBeVisible();
   });
 });
