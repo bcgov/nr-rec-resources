@@ -43,14 +43,16 @@ const FilterMenuMobile = ({
   const handleOpenFilterGroup = (param: string) => {
     setShowFilter((prev) => ({
       ...prev,
-      [param]: !prev[param],
+      [param]: !prev?.[param],
     }));
   };
 
   const handleExpandAll = () => {
     setExpandAll((prev) => !prev);
     setShowFilter((prev) =>
-      Object.fromEntries(Object.keys(prev).map((key) => [key, !prev[key]])),
+      Object.fromEntries(
+        Object.keys(filterMenu).map((key) => [key, !prev?.[key]]),
+      ),
     );
   };
 

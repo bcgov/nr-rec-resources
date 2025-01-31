@@ -60,7 +60,7 @@ const FilterGroup = ({
 
           return (
             <Form.Check
-              key={Date.now() + id} // Using Date.now as checkboxes weren't clearing on clear filters re-render
+              key={crypto.randomUUID()} // Using uuid as checkboxes weren't clearing on clear filters re-render
               type="checkbox"
               id={id}
               disabled={isDisabled}
