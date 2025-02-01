@@ -30,7 +30,7 @@ const FilterMenuMobile = ({
     Object.fromEntries(menuContent.map(({ param }) => [param, false]));
 
   const [expandAll, setExpandAll] = useState(false);
-  const [showFilters, setShowFilter] = useState(filterMenu);
+  const [showFilterGroup, setShowFilterGroup] = useState(filterMenu);
 
   const handleClearFilter = () => {
     onClearFilters();
@@ -41,7 +41,7 @@ const FilterMenuMobile = ({
   };
 
   const handleOpenFilterGroup = (param: string) => {
-    setShowFilter((prev) => ({
+    setShowFilterGroup((prev) => ({
       ...prev,
       [param]: !prev?.[param],
     }));
@@ -49,7 +49,7 @@ const FilterMenuMobile = ({
 
   const handleExpandAll = () => {
     setExpandAll((prev) => !prev);
-    setShowFilter((prev) =>
+    setShowFilterGroup((prev) =>
       Object.fromEntries(
         Object.keys(filterMenu).map((key) => [key, !prev?.[key]]),
       ),
@@ -85,14 +85,14 @@ const FilterMenuMobile = ({
         </button>
         {menuContent?.map((content, index) => {
           const { options, label, param } = content;
-          const isSectionOpen = showFilters?.[param];
+          const isFilterGroupOpen = showFilterGroup?.[param];
           return (
             <FilterGroupMobile
               key={param}
               label={label}
               options={options}
               param={param}
-              isOpen={isSectionOpen}
+              isOpen={isFilterGroupOpen}
               onOpen={handleOpenFilterGroup}
               tabIndex={index}
             />

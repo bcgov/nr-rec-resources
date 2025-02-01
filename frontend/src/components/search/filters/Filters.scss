@@ -73,7 +73,7 @@
 
 .show-all-link {
   border: none;
-  color: $colorBlueMed;
+  color: $colorBlue;
   text-decoration: none;
   &:hover,
   &:focus-visible {
@@ -132,10 +132,16 @@
         border: 1px solid $colorGreyMed;
         border-radius: 4px;
         margin-top: 16px;
+        width: 100%;
+
         .mobile-filter-option-label {
+          margin: 1px 0; // optical
           display: flex;
+          width: 100%;
           align-items: center;
           justify-content: space-between;
+          border: none;
+          background-color: inherit;
         }
       }
       .filter-group-container {
