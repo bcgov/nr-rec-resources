@@ -21,7 +21,7 @@ const FilterGroup = ({
   showMoreBtn = true,
 }: FilterGroupProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [showAllOptions, setShowAllFilters] = useState(false);
+  const [showAllOptions, setShowAllOptions] = useState(false);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { id, checked } = event.target;
@@ -75,13 +75,11 @@ const FilterGroup = ({
       {showMoreBtn && (
         <button
           className="show-all-link"
-          onClick={() => {
-            setShowAllFilters(!showAllOptions);
-          }}
+          onClick={() => setShowAllOptions(!showAllOptions)}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
-              setShowAllFilters(!showAllOptions);
+              setShowAllOptions(!showAllOptions);
             }
           }}
         >

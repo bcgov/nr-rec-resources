@@ -21,19 +21,14 @@ const FilterGroupMobile = ({
   onOpen,
   tabIndex,
 }: FilterGroupMobileProps) => {
+  const handleOpen = () => onOpen(param);
   return (
     <div key={label} className="mobile-filter-options">
-      <div
+      <button
         className="mobile-filter-option-label pointer p-3"
-        onClick={() => {
-          console.log('onOpen', param);
-          onOpen(param);
-        }}
+        onClick={handleOpen}
         tabIndex={tabIndex}
-        role="button"
-        onKeyDown={() => {
-          onOpen(param);
-        }}
+        onKeyDown={handleOpen}
       >
         <div>{label}</div>
         {isOpen ? (
@@ -49,7 +44,7 @@ const FilterGroupMobile = ({
             icon={faChevronDown}
           />
         )}
-      </div>
+      </button>
 
       <Collapse in={isOpen} className="p-3">
         <div>
