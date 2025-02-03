@@ -139,7 +139,7 @@ describe('RecResourcePage', () => {
       await renderComponent({
         ...mockResource,
         recreation_status: {
-          status_code: '02',
+          status_code: 2,
           description: 'Closed',
           comment: 'This site is closed',
         },
@@ -155,7 +155,7 @@ describe('RecResourcePage', () => {
       await renderComponent({
         ...mockResource,
         recreation_status: {
-          status_code: '01',
+          status_code: 1,
           description: 'Open',
           comment: 'This site is open',
         },
