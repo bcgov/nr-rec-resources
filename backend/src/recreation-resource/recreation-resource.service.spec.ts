@@ -369,9 +369,12 @@ describe("RecreationResourceService", () => {
       service["prisma"].recreation_activity.groupBy = vi
         .fn()
         .mockResolvedValueOnce(groupActivityCodes);
-      service["prisma"].$transaction = vi
+      (service["prisma"].$transaction = vi
         .fn()
-        .mockResolvedValueOnce([recresourceArray, totalRecordIds]);
+        .mockResolvedValueOnce([
+          recresourceArray,
+          totalRecordIds,
+        ])).mockResolvedValueOnce([allActivityCodes, groupActivityCodes]);
 
       expect(await service.searchRecreationResources(1, "Rec", 10)).toEqual({
         data: recresourceArrayResolved,
@@ -428,7 +431,8 @@ describe("RecreationResourceService", () => {
         .mockResolvedValueOnce(groupActivityCodes);
       service["prisma"].$transaction = vi
         .fn()
-        .mockResolvedValueOnce([recresourceArray, totalRecordIds]);
+        .mockResolvedValueOnce([recresourceArray, totalRecordIds])
+        .mockResolvedValueOnce([allActivityCodes, groupActivityCodes]);
 
       const results = await service.searchRecreationResources(1, "Rec", 10);
 
@@ -450,7 +454,8 @@ describe("RecreationResourceService", () => {
         .mockResolvedValueOnce(groupActivityCodes);
       service["prisma"].$transaction = vi
         .fn()
-        .mockResolvedValueOnce([orderedRecresourceArray, totalRecordIds]);
+        .mockResolvedValueOnce([orderedRecresourceArray, totalRecordIds])
+        .mockResolvedValueOnce([allActivityCodes, groupActivityCodes]);
 
       const results = await service.searchRecreationResources(1, "", 10);
 
@@ -471,7 +476,10 @@ describe("RecreationResourceService", () => {
       service["prisma"].recreation_activity.groupBy = vi
         .fn()
         .mockResolvedValueOnce([]);
-      service["prisma"].$transaction = vi.fn().mockResolvedValueOnce([[], []]);
+      service["prisma"].$transaction = vi
+        .fn()
+        .mockResolvedValueOnce([[], []])
+        .mockResolvedValueOnce([allActivityCodes, []]);
 
       await expect(
         service.searchRecreationResources(1, "Rec", 10),
@@ -495,7 +503,10 @@ describe("RecreationResourceService", () => {
       service["prisma"].recreation_activity.groupBy = vi
         .fn()
         .mockResolvedValueOnce([]);
-      service["prisma"].$transaction = vi.fn().mockResolvedValueOnce([[], []]);
+      service["prisma"].$transaction = vi
+        .fn()
+        .mockResolvedValueOnce([[], []])
+        .mockResolvedValueOnce([allActivityCodes, []]);
 
       const results = await service.searchRecreationResources(1, "Rec", 10);
 
@@ -535,7 +546,8 @@ describe("RecreationResourceService", () => {
         .mockResolvedValueOnce(groupActivityCodes);
       service["prisma"].$transaction = vi
         .fn()
-        .mockResolvedValueOnce([recresourceArray, totalRecordIds]);
+        .mockResolvedValueOnce([recresourceArray, totalRecordIds])
+        .mockResolvedValueOnce([allActivityCodes, groupActivityCodes]);
 
       const results = await service.searchRecreationResources(
         1,
@@ -568,7 +580,8 @@ describe("RecreationResourceService", () => {
         .mockResolvedValueOnce(groupActivityCodes);
       service["prisma"].$transaction = vi
         .fn()
-        .mockResolvedValueOnce([recresourceArray, totalRecordIds]);
+        .mockResolvedValueOnce([recresourceArray, totalRecordIds])
+        .mockResolvedValueOnce([allActivityCodes, groupActivityCodes]);
 
       const results = await service.searchRecreationResources(
         1,
@@ -602,7 +615,8 @@ describe("RecreationResourceService", () => {
         .mockResolvedValueOnce(groupActivityCodes);
       service["prisma"].$transaction = vi
         .fn()
-        .mockResolvedValueOnce([recresourceArray, totalRecordIds]);
+        .mockResolvedValueOnce([recresourceArray, totalRecordIds])
+        .mockResolvedValueOnce([allActivityCodes, groupActivityCodes]);
 
       const results = await service.searchRecreationResources(1, "Rec", 10, "");
 
@@ -630,7 +644,8 @@ describe("RecreationResourceService", () => {
         .mockResolvedValueOnce([]);
       service["prisma"].$transaction = vi
         .fn()
-        .mockResolvedValueOnce([recresourceArray, totalRecordIds]);
+        .mockResolvedValueOnce([recresourceArray, totalRecordIds])
+        .mockResolvedValueOnce([allActivityCodes, []]);
 
       const results = await service.searchRecreationResources(
         1,
