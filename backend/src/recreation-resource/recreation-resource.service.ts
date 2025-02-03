@@ -37,6 +37,8 @@ const activitySelect = {
   },
 };
 
+const excludedActivityCodes = [26];
+
 type RecreationResourceGetPayload = Prisma.recreation_resourceGetPayload<{
   select: typeof recreationResourceSelect;
 }>;
@@ -85,9 +87,16 @@ export class RecreationResourceService {
     const [allActivityCodes, groupActivities] = await this.prisma.$transaction([
       this.prisma.recreation_activity.findMany({
         select: activitySelect,
+        where: {
+          NOT: {
+            recreation_activity_code: {
+              in: excludedActivityCodes,
+            },
+          },
+        },
         distinct: ["recreation_activity_code"],
       }),
-      // https://github.com/prisma/prisma/issues/17297 - this issue doesn't happen used this outside of a transaction
+      // https://github.com/prisma/prisma/issues/17297 - this issue doesn't occur if groupBy used outside of transaction
       // @ts-ignore
       this.prisma.recreation_activity.groupBy({
         by: ["recreation_activity_code"],
