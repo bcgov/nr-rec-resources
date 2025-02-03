@@ -22,6 +22,8 @@ jobs:
     outputs:
       triggered: ${{ steps.diff_triggers.outputs.triggered }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
       - uses: bcgov/action-diff-triggers@v0.2.0
         id: diff_triggers
         with:
