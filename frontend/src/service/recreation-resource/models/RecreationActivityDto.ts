@@ -21,10 +21,10 @@ import { mapValues } from '../runtime';
 export interface RecreationActivityDto {
   /**
    * Unique code identifying the recreation activity
-   * @type {string}
+   * @type {number}
    * @memberof RecreationActivityDto
    */
-  recreation_activity_code: string;
+  recreation_activity_code: number;
   /**
    * Detailed description of the activity
    * @type {string}
