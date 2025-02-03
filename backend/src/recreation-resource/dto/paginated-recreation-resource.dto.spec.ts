@@ -34,15 +34,28 @@ describe("PaginatedRecreationResourceDto", () => {
     expect(paginatedResponse).toHaveProperty("total");
     expect(paginatedResponse).toHaveProperty("page");
     expect(Array.isArray(paginatedResponse.data)).toBe(true);
-    expect(typeof paginatedResponse.total).toBe("number");
-    expect(typeof paginatedResponse.page).toBe("number");
+
     expect(paginatedResponse.filters).toHaveLength(1);
     expect(paginatedResponse.filters[0]).toHaveProperty("options");
+    expect(paginatedResponse.filters[0]).toHaveProperty("label");
+    expect(paginatedResponse.filters[0]).toHaveProperty("param");
+    expect(paginatedResponse.filters[0]).toHaveProperty("type");
     expect(paginatedResponse.filters[0].options).toHaveLength(1);
     expect(paginatedResponse.filters[0].options[0]).toHaveProperty("id");
     expect(paginatedResponse.filters[0].options[0]).toHaveProperty("count");
+    expect(typeof paginatedResponse.total).toBe("number");
+    expect(typeof paginatedResponse.page).toBe("number");
+    expect(typeof paginatedResponse.filters[0].options).toBe("object");
+    expect(typeof paginatedResponse.filters[0].options[0].count).toBe("number");
+    expect(typeof paginatedResponse.filters[0].label).toBe("string");
+    expect(typeof paginatedResponse.filters[0].param).toBe("string");
+    expect(typeof paginatedResponse.filters[0].options[0].id).toBe("number");
+    expect(typeof paginatedResponse.filters[0].type).toBe("string");
     expect(paginatedResponse.filters[0].options[0]).toHaveProperty(
       "description",
+    );
+    expect(typeof paginatedResponse.filters[0].options[0].description).toBe(
+      "string",
     );
   });
 
