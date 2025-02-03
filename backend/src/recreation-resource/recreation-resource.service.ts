@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "src/prisma.service";
-import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resource.dto";
 import { RecreationResourceDto } from "./dto/recreation-resource.dto";
+import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resource.dto";
 
 const recreationResourceSelect = {
   rec_resource_id: true,
@@ -85,28 +85,30 @@ export class RecreationResourceService {
   }
 
   async getActivityCounts(totalRecordIds: { rec_resource_id: string }[]) {
-    const allActivityCodes = await this.prisma.recreation_activity.findMany({
-      select: activitySelect,
-      distinct: ["recreation_activity_code"],
-    });
-
-    // Fetch grouped activity counts
-    const groupActivities = await this.prisma.recreation_activity.groupBy({
-      by: ["recreation_activity_code"],
-      _count: {
-        recreation_activity_code: true,
-      },
-      where: {
-        rec_resource_id: {
-          in: totalRecordIds?.map((record) => record.rec_resource_id),
+    const [allActivityCodes, groupActivities] = await this.prisma.$transaction([
+      this.prisma.recreation_activity.findMany({
+        select: activitySelect,
+        distinct: ["recreation_activity_code"],
+      }),
+      // https://github.com/prisma/prisma/issues/17297 - this issue doesn't happen used this outside of a transaction
+      // @ts-ignore
+      this.prisma.recreation_activity.groupBy({
+        by: ["recreation_activity_code"],
+        _count: {
+          recreation_activity_code: true,
         },
-      },
-    });
+        where: {
+          rec_resource_id: {
+            in: totalRecordIds?.map((record) => record.rec_resource_id),
+          },
+        },
+      }),
+    ]);
     // Merge and include missing entries with a count of 0
     const activityCount = allActivityCodes?.map(
       (activity: ActivityGetPayload) => {
         const matchedGroup = groupActivities.find(
-          (group) =>
+          (group: { recreation_activity_code: number }) =>
             group.recreation_activity_code ===
             activity.recreation_activity_code,
         );
