@@ -591,7 +591,6 @@ describe("RecreationResourceService", () => {
       );
 
       const activityFilter = results.filters[0];
-      console.log(activityFilter);
 
       for (const option of activityFilter.options) {
         const group = groupActivityCodes.find(
