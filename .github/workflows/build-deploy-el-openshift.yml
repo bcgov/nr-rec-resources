@@ -1,5 +1,8 @@
 name: Build & Deploy Spring Boot EL API to OpenShift
 on:
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       environment:
@@ -12,8 +15,21 @@ on:
           - prod
 
 jobs:
+  triggers:
+    name: Triggers
+    if: github.event.action != 'closed'
+    runs-on: ubuntu-24.04
+    outputs:
+      triggered: ${{ steps.diff_triggers.outputs.triggered }}
+    steps:
+      - uses: bcgov/action-diff-triggers@v0.2.0
+        id: diff_triggers
+        with:
+          triggers: ('./github/workflows/build-deploy-el-openshift.yml', './backend-el/','./charts/backend-el/')
   build:
     name: Build Spring Boot Oracle EL Containers
+    needs: [triggers]
+    if: needs.triggers.outputs.triggered == 'true' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     strategy:
       matrix:
@@ -32,8 +48,8 @@ jobs:
           build_context: ${{ matrix.build_context }}
   deploy:
     name: Deploy Helm Chart to OpenShift ${{ github.event.inputs.environment }}
-    needs: build
-    environment: openshift-${{ github.event.inputs.environment }}
+    needs: [build]
+    environment: openshift-${{ github.event.inputs.environment || 'dev' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Helm Deploy
@@ -48,6 +64,14 @@ jobs:
           commands: |
             # Deploy
             cd charts/backend-el
+            # if event is PR then use a different bucket
+            if [ "${{ github.event_name }}" == "pull_request" ]; then
+              export AWS_S3_BUCKET="fta-rec-rst-uploads"
+              export RELEASE_NAME="backend-el-pr-${{ github.event.number }}"
+            else
+              export AWS_S3_BUCKET="rst-fta-dataload-oracle"
+              export RELEASE_NAME="backend-el"
+            fi
             helm package -u . --app-version="${{ github.sha }}" --version=1.0.0
              # Helm upgrade/rollout, the db secrets are related to ORACLE DB, the cert secret can be a random one.
             helm upgrade \
@@ -57,6 +81,24 @@ jobs:
               --set-string secrets.dbName="${{ secrets.dbName }}" \
               --set-string secrets.dbPassword="$DB_PASSWORD" \
               --set-string secrets.dbUser="${{ secrets.dbUser }}" \
+              --set-string config.awsS3Bucket="$AWS_S3_BUCKET" \
               --install --wait \
-              --values values.yaml backend-el\
+              --values values.yaml "$RELEASE_NAME"\
               ./backend-el-1.0.0.tgz
+            oc create job $RELEASE_NAME-${{github.run_number}} --from=cronjob/$RELEASE_NAME
+  clean_up:
+    name: Clean up
+    if: github.event_name=='pull_request' && github.event.action == 'closed'
+    environment: openshift-${{ github.event.inputs.environment || 'dev' }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Helm Uninstall on PR close
+        id: helm-uninstall
+        uses: bcgov/action-oc-runner@v0.3.0
+        with:
+          oc_namespace: ${{ secrets.oc_namespace }}
+          oc_token: ${{ secrets.oc_token }}
+          oc_server: ${{ vars.oc_server }}
+          commands: |
+            # Helm Uninstall
+            helm uninstall backend-el-pr-${{ github.event.number }}
