@@ -20,6 +20,13 @@ import {
   RecreationResourceDtoToJSON,
   RecreationResourceDtoToJSONTyped,
 } from './RecreationResourceDto';
+import type { FilterDto } from './FilterDto';
+import {
+  FilterDtoFromJSON,
+  FilterDtoFromJSONTyped,
+  FilterDtoToJSON,
+  FilterDtoToJSONTyped,
+} from './FilterDto';
 
 /**
  *
@@ -51,6 +58,12 @@ export interface PaginatedRecreationResourceDto {
    * @memberof PaginatedRecreationResourceDto
    */
   limit: number;
+  /**
+   *
+   * @type {Array<FilterDto>}
+   * @memberof PaginatedRecreationResourceDto
+   */
+  filters: Array<FilterDto>;
 }
 
 /**
@@ -63,6 +76,7 @@ export function instanceOfPaginatedRecreationResourceDto(
   if (!('total' in value) || value['total'] === undefined) return false;
   if (!('page' in value) || value['page'] === undefined) return false;
   if (!('limit' in value) || value['limit'] === undefined) return false;
+  if (!('filters' in value) || value['filters'] === undefined) return false;
   return true;
 }
 
@@ -84,6 +98,7 @@ export function PaginatedRecreationResourceDtoFromJSONTyped(
     total: json['total'],
     page: json['page'],
     limit: json['limit'],
+    filters: (json['filters'] as Array<any>).map(FilterDtoFromJSON),
   };
 }
 
@@ -106,5 +121,6 @@ export function PaginatedRecreationResourceDtoToJSONTyped(
     total: value['total'],
     page: value['page'],
     limit: value['limit'],
+    filters: (value['filters'] as Array<any>).map(FilterDtoToJSON),
   };
 }

@@ -32,6 +32,7 @@ export interface SearchRecreationResourcesRequest {
   filter?: string;
   limit?: number;
   page?: number;
+  activities?: string;
 }
 
 /**
@@ -107,6 +108,10 @@ export class RecreationResourceApi extends runtime.BaseAPI {
 
     if (requestParameters['page'] != null) {
       queryParameters['page'] = requestParameters['page'];
+    }
+
+    if (requestParameters['activities'] != null) {
+      queryParameters['activities'] = requestParameters['activities'];
     }
 
     const headerParameters: runtime.HTTPHeaders = {};
