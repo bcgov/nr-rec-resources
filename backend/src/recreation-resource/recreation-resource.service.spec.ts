@@ -171,6 +171,13 @@ const recresourceArray = [
   recreationResource4,
 ];
 
+const orderedRecresourceArray = [
+  recreationResource3,
+  recreationResource1,
+  recreationResource2,
+  recreationResource4,
+];
+
 const recresourceArrayResolved = [
   recreationResource1Response,
   recreationResource2Response,
@@ -178,20 +185,119 @@ const recresourceArrayResolved = [
   recreationResource4Response,
 ];
 
+const totalRecordIds = [
+  { rec_resource_id: "REC0001" },
+  { rec_resource_id: "REC0002" },
+  { rec_resource_id: "REC0003" },
+  { rec_resource_id: "REC0004" },
+];
+
+const allActivityCodes = [
+  {
+    recreation_activity_code: 22,
+    with_description: { description: "Snowmobiling" },
+  },
+  {
+    recreation_activity_code: 9,
+    with_description: { description: "Picnicking" },
+  },
+  {
+    recreation_activity_code: 1,
+    with_description: { description: "Angling" },
+  },
+  {
+    recreation_activity_code: 4,
+    with_description: { description: "Kayaking" },
+  },
+  {
+    recreation_activity_code: 3,
+    with_description: { description: "Canoeing" },
+  },
+];
+
+const groupActivityCodes = [
+  {
+    _count: { recreation_activity_code: 5 },
+    recreation_activity_code: 24,
+  },
+  {
+    _count: { recreation_activity_code: 2 },
+    recreation_activity_code: 8,
+  },
+  {
+    _count: { recreation_activity_code: 1 },
+    recreation_activity_code: 19,
+  },
+  {
+    _count: { recreation_activity_code: 1 },
+    recreation_activity_code: 4,
+  },
+  {
+    _count: { recreation_activity_code: 4 },
+    recreation_activity_code: 14,
+  },
+  {
+    _count: { recreation_activity_code: 5 },
+    recreation_activity_code: 3,
+  },
+];
+
+const noSearchResultsFilterArray = [
+  {
+    label: "Things to do",
+    options: [
+      {
+        count: 0,
+        description: "Snowmobiling",
+        id: 22,
+      },
+      {
+        count: 0,
+        description: "Picnicking",
+        id: 9,
+      },
+      {
+        count: 0,
+        description: "Angling",
+        id: 1,
+      },
+      {
+        count: 0,
+        description: "Kayaking",
+        id: 4,
+      },
+      {
+        count: 0,
+        description: "Canoeing",
+        id: 3,
+      },
+    ],
+    param: "activities",
+    type: "multi-select",
+  },
+];
+
 describe("RecreationResourceService", () => {
   let service: RecreationResourceService;
 
   beforeEach(async () => {
+    vi.resetAllMocks();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RecreationResourceService,
         {
           provide: PrismaService,
+
           useValue: {
+            $transaction: vi.fn().mockImplementation((res) => res),
             recreation_resource: {
               count: vi.fn(),
               findMany: vi.fn(),
               findUnique: vi.fn(),
+              groupBy: vi.fn(),
+            },
+            recreation_activity: {
+              findMany: vi.fn(),
               groupBy: vi.fn(),
             },
           },
@@ -264,51 +370,102 @@ describe("RecreationResourceService", () => {
       await service.searchRecreationResources(1, "Rec", 10);
       service["prisma"].recreation_resource.findMany = vi
         .fn()
-        .mockResolvedValueOnce(recresourceArray);
-
-      service["prisma"].recreation_resource.count = vi
+        .mockResolvedValueOnce(recresourceArray)
+        .mockResolvedValueOnce(totalRecordIds);
+      service["prisma"].recreation_activity.findMany = vi
         .fn()
-        .mockResolvedValueOnce(4);
+        .mockResolvedValueOnce(allActivityCodes);
+      service["prisma"].recreation_activity.groupBy = vi
+        .fn()
+        .mockResolvedValueOnce(groupActivityCodes);
+      service["prisma"].$transaction = vi
+        .fn()
+        .mockResolvedValueOnce([recresourceArray, totalRecordIds]);
 
       expect(await service.searchRecreationResources(1, "Rec", 10)).toEqual({
         data: recresourceArrayResolved,
         limit: 10,
         page: 1,
         total: 4,
+        filters: [
+          {
+            label: "Things to do",
+            type: "multi-select",
+            param: "activities",
+            options: [
+              {
+                count: 0,
+                description: "Snowmobiling",
+                id: 22,
+              },
+              {
+                count: 0,
+                description: "Picnicking",
+                id: 9,
+              },
+              {
+                count: 0,
+                description: "Angling",
+                id: 1,
+              },
+              {
+                count: 1,
+                description: "Kayaking",
+                id: 4,
+              },
+              {
+                count: 5,
+                description: "Canoeing",
+                id: 3,
+              },
+            ],
+          },
+        ],
       });
     });
 
     it("should correctly format recreation_activity with_description relation in the results", async () => {
+      await service.searchRecreationResources(1, "Rec", 10);
       service["prisma"].recreation_resource.findMany = vi
         .fn()
-        .mockResolvedValueOnce([recreationResource4]);
-
-      service["prisma"].recreation_resource.count = vi
+        .mockResolvedValueOnce(recresourceArray)
+        .mockResolvedValueOnce(totalRecordIds);
+      service["prisma"].recreation_activity.findMany = vi
         .fn()
-        .mockResolvedValueOnce(1);
+        .mockResolvedValueOnce(allActivityCodes);
+      service["prisma"].recreation_activity.groupBy = vi
+        .fn()
+        .mockResolvedValueOnce(groupActivityCodes);
+      service["prisma"].$transaction = vi
+        .fn()
+        .mockResolvedValueOnce([recresourceArray, totalRecordIds]);
 
       const results = await service.searchRecreationResources(1, "Rec", 10);
 
       expect(results.data[0].recreation_activity).toEqual(
-        recreationResource4Response.recreation_activity,
+        recreationResource1Response.recreation_activity,
       );
     });
 
     it("should return results sorted by name in ascending order", async () => {
+      await service.searchRecreationResources(1, "Rec", 10);
       service["prisma"].recreation_resource.findMany = vi
         .fn()
-        .mockResolvedValueOnce([
-          recreationResource3,
-          recreationResource1,
-          recreationResource2,
-          recreationResource4,
-        ]);
-
-      service["prisma"].recreation_resource.count = vi
+        .mockResolvedValueOnce(orderedRecresourceArray)
+        .mockResolvedValueOnce(totalRecordIds);
+      service["prisma"].recreation_activity.findMany = vi
         .fn()
-        .mockResolvedValue(4);
+        .mockResolvedValueOnce(allActivityCodes);
+      service["prisma"].recreation_activity.groupBy = vi
+        .fn()
+        .mockResolvedValueOnce(groupActivityCodes);
+      service["prisma"].$transaction = vi
+        .fn()
+        .mockResolvedValueOnce([orderedRecresourceArray, totalRecordIds]);
 
       const results = await service.searchRecreationResources(1, "", 10);
+
+      console.log(results.data);
 
       expect(results.data[0].name).toEqual("A testing orderBy");
       expect(results.data[1].name).toEqual("Rec site 1");
@@ -317,13 +474,18 @@ describe("RecreationResourceService", () => {
     });
 
     it("should return an empty array if no Recreation Resources are found", async () => {
+      await service.searchRecreationResources(1, "Rec", 10);
       service["prisma"].recreation_resource.findMany = vi
         .fn()
-        .mockResolvedValue([]);
-
-      service["prisma"].recreation_resource.count = vi
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([]);
+      service["prisma"].recreation_activity.findMany = vi
         .fn()
-        .mockResolvedValue(0);
+        .mockResolvedValueOnce(allActivityCodes);
+      service["prisma"].recreation_activity.groupBy = vi
+        .fn()
+        .mockResolvedValueOnce([]);
+      service["prisma"].$transaction = vi.fn().mockResolvedValueOnce([[], []]);
 
       await expect(
         service.searchRecreationResources(1, "Rec", 10),
@@ -332,7 +494,47 @@ describe("RecreationResourceService", () => {
         limit: 10,
         page: 1,
         total: 0,
+        filters: noSearchResultsFilterArray,
       });
+    });
+
+    it("should return a filter array with count 0 for each activity if no Recreation Resources are found", async () => {
+      await service.searchRecreationResources(1, "Rec", 10);
+      service["prisma"].recreation_resource.findMany = vi
+        .fn()
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([]);
+      service["prisma"].recreation_activity.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(allActivityCodes);
+      service["prisma"].recreation_activity.groupBy = vi
+        .fn()
+        .mockResolvedValueOnce([]);
+      service["prisma"].$transaction = vi.fn().mockResolvedValueOnce([[], []]);
+
+      const results = await service.searchRecreationResources(1, "Rec", 10);
+
+      expect(results).toEqual({
+        data: [],
+        limit: 10,
+        page: 1,
+        total: 0,
+        filters: noSearchResultsFilterArray,
+      });
+
+      expect(
+        service["prisma"].recreation_activity.groupBy,
+      ).toHaveBeenCalledWith({
+        by: ["recreation_activity_code"],
+        _count: { recreation_activity_code: true },
+        where: { rec_resource_id: { in: [] } },
+      });
+
+      const activityFilter = results.filters[0];
+
+      for (const option of activityFilter.options) {
+        expect(option.count).toBe(0);
+      }
     });
 
     it("should throw an error if page is greater than 10 and limit is not provided", async () => {

@@ -98,13 +98,12 @@ export class RecreationResourceService {
       },
       where: {
         rec_resource_id: {
-          in: totalRecordIds.map((record) => record.rec_resource_id),
+          in: totalRecordIds?.map((record) => record.rec_resource_id),
         },
       },
     });
-
     // Merge and include missing entries with a count of 0
-    const activityCount = allActivityCodes.map(
+    const activityCount = allActivityCodes?.map(
       (activity: ActivityGetPayload) => {
         const matchedGroup = groupActivities.find(
           (group) =>
@@ -199,7 +198,7 @@ export class RecreationResourceService {
       data: this.formatResults(recreationResources),
       page,
       limit,
-      total: totalRecordIds.length,
+      total: totalRecordIds?.length,
       filters: [
         {
           type: "multi-select",
