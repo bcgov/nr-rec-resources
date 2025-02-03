@@ -16,12 +16,12 @@ jobs:
     name: Build containers
     uses: ./.github/workflows/.build.yml
 
-  deploy-to-aws-dev:
-    name: Deploys Application to AWS dev
-    needs: [build-containers]
+  deploy-to-aws-test:
+    name: Deploys Application to AWS test
+    needs: [ build-containers ]
     uses: ./.github/workflows/.deploy-app.yml
     with:
-      app_env: dev
+      app_env: test
       command: apply
       environment_name: dev
       tag: ${{ github.sha }}
@@ -29,20 +29,12 @@ jobs:
 
   # Running FTA migration after each dev deployment since we are clearing the database each run
   fta-migration:
-    needs: deploy-to-aws-dev
+    needs: deploy-to-aws-test
     name: FTA Migration
     uses: ./.github/workflows/fta-migration.yml
     with:
-      tag: ${{ github.sha }}
-    secrets: inherit
-
-  deploy-to-aws-test:
-    name: Deploys Application to AWS test
-    needs: [build-containers]
-    uses: ./.github/workflows/.deploy-app.yml
-    with:
       app_env: test
-      command: apply
       environment_name: test
+      vpc_target_env: dev
       tag: ${{ github.sha }}
     secrets: inherit

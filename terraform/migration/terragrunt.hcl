@@ -10,6 +10,7 @@ locals {
   # Terraform remote S3 config
   tf_remote_state_prefix  = "terraform-remote-state" # Do not change this, given by cloud.pathfinder.
   target_env              = get_env("target_env")
+  vpc_target_env              = get_env("vpc_target_env")
   aws_license_plate          = get_env("aws_license_plate")
   app_env          = get_env("app_env")
   statefile_bucket_name   = "${local.tf_remote_state_prefix}-${local.aws_license_plate}-${local.target_env}"

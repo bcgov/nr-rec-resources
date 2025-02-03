@@ -17,6 +17,10 @@ on:
         required: true
         default: 'dev'
         type: string
+      vpc_target_env:
+        required: true
+        description: 'The VPC target env to use for networking'
+        type: string
       tag:
         description: 'The tag of the containers to deploy'
         default: 'latest'
@@ -83,6 +87,7 @@ jobs:
           flyway_image: ${{ inputs.flyway_image && inputs.flyway_image || env.FLYWAY_IMAGE }}
           api_image: ghcr.io/${{github.repository}}/backend:${{ inputs.tag }}
           app_env: ${{inputs.app_env}}
+          vpc_target_env: ${{inputs.vpc_target_env}}
       run: |
           # Run terraform
           terragrunt run-all ${{inputs.command}} --terragrunt-non-interactive
