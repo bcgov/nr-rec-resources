@@ -44,6 +44,10 @@
 - [Deploying to AWS](docs/deployment.md#deploying-to-aws)
   - [Manually deploying pull request to AWS](docs/deployment.md#manually-deploying-pull-request-to-aws)
   - [Clearing Terraform state lock](docs/deployment.md#clearing-terraform-state-lock)
+  - [AWS Logging](docs/deployment.md#aws-logging)
+    - [API logs](docs/deployment.md#api-logs)
+    - [Aurora RDS PostgreSQL logs](docs/deployment.md#aurora-rds-postgresql-logs)
+  - [Aurora RDS PostgreSQL Query Editor](docs/deployment.md#aurora-rds-postgresql-query-editor)
 
 ## Local Development
 
@@ -51,7 +55,7 @@
 
 - Node.js
 - npm
-- Docker OR PostgreSQL 15
+- Docker OR PostgreSQL 16
 
 ### Docker Compose
 
@@ -73,7 +77,7 @@ directory to install eslint and plugins to ensure linting is working correctly.
 ### Database
 
 To run this on your local machine, you will need a working installation of
-PostgreSQL 15.
+PostgreSQL 16.
 
 Create an `.env` file in the `backend` directory using the example in
 `backend/.env.example` as a template.
