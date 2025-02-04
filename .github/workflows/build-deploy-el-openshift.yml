@@ -30,7 +30,7 @@ jobs:
   build:
     name: Build Spring Boot Oracle EL Containers
     needs: [triggers]
-    if: needs.triggers.outputs.triggered == 'true' || github.event_name == 'workflow_dispatch'
+    if: (always() && (needs.triggers.outputs.triggered == 'true' || github.event_name == 'workflow_dispatch') && (github.event.action != 'closed') && (!github.event.pull_request.draft))
     runs-on: ubuntu-24.04
     strategy:
       matrix:
@@ -105,4 +105,4 @@ jobs:
           oc_server: ${{ vars.oc_server }}
           commands: |
             # Helm Uninstall
-            helm uninstall backend-el-pr-${{ github.event.number }}
+            helm uninstall backend-el-pr-${{ github.event.number }} || true
