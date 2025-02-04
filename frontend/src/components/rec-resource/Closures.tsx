@@ -11,7 +11,7 @@ const Closures = forwardRef<HTMLElement, ClosuresProps>(
   ({ comment, siteName }, ref) => {
     if (!comment || !siteName) return null;
     return (
-      <section id="site-description" ref={ref}>
+      <section id="closures" ref={ref}>
         <h2 className="section-heading">Closures</h2>
         <div className="advisory-container">
           <span className="icon-container fw-bold">

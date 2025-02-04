@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useScrollSpy from 'react-use-scrollspy';
 import BreadCrumbs from '@/components/layout/BreadCrumbs';
@@ -68,7 +68,8 @@ const RecResourcePage = () => {
           setNotFound(true);
         });
     }
-  }, [id]);
+    // eslint-disable-next-line
+  }, []);
 
   const {
     recreation_activity,
@@ -93,14 +94,58 @@ const RecResourcePage = () => {
   const thingsToDoRef = useRef<HTMLElement>(null!);
   const contactRef = useRef<HTMLElement>(null!);
 
-  const sectionRefs: React.RefObject<HTMLElement>[] = [
-    closuresRef,
-    siteDescriptionRef,
-    mapLocationRef,
-    campingRef,
-    thingsToDoRef,
-    contactRef,
-  ];
+  const isThingsToDo = recreation_activity && recreation_activity.length > 0;
+  const isPhotoGallery = photosExample.length > 0;
+  const isClosures = statusComment && formattedName && statusCode === 2;
+
+  const sectionRefs: React.RefObject<HTMLElement>[] = useMemo(
+    () =>
+      [
+        isClosures ? closuresRef : null,
+        description ? siteDescriptionRef : null,
+        mapLocationRef,
+        campingRef,
+        isThingsToDo ? thingsToDoRef : null,
+        contactRef,
+      ].filter((ref) => ref !== null),
+    [description, isClosures, isThingsToDo],
+  );
+
+  const pageSections = useMemo(
+    () =>
+      [
+        isClosures && {
+          link: '#closures',
+          display: 'Closures',
+        },
+        description && {
+          link: '#site-description',
+          display: 'Site Description',
+        },
+        {
+          link: '#maps-and-location',
+          display: 'Maps and Location',
+        },
+        {
+          link: '#camping',
+          display: 'Camping',
+        },
+        isThingsToDo && {
+          link: '#things-to-do',
+          display: 'Things to Do',
+        },
+        {
+          link: '#contact',
+          display: 'Contact',
+        },
+      ]
+        .filter((section) => !!section)
+        .map((section, i) => ({
+          ...section,
+          sectionIndex: i,
+        })),
+    [description, isClosures, isThingsToDo],
+  );
 
   const activeSection = useScrollSpy({
     sectionElementRefs: sectionRefs,
@@ -117,10 +162,6 @@ const RecResourcePage = () => {
       </div>
     );
   }
-
-  const isActivities = recreation_activity && recreation_activity.length > 0;
-  const isPhotoGallery = photosExample.length > 0;
-  const isClosures = statusComment && formattedName && statusCode === 2;
 
   return (
     <div className="rec-resource-container">
@@ -163,38 +204,7 @@ const RecResourcePage = () => {
         <div className="row no-gutters">
           <div className="page-menu--desktop">
             <PageMenu
-              pageSections={[
-                {
-                  sectionIndex: 0,
-                  link: '#site-description',
-                  display: 'Site Description',
-                  visible: !!description,
-                },
-                {
-                  sectionIndex: 1,
-                  link: '#maps-and-location',
-                  display: 'Maps and Location',
-                  visible: true,
-                },
-                {
-                  sectionIndex: 2,
-                  link: '#camping',
-                  display: 'Camping',
-                  visible: true,
-                },
-                {
-                  sectionIndex: 3,
-                  link: '#things-to-do',
-                  display: 'Things to Do',
-                  visible: true,
-                },
-                {
-                  sectionIndex: 4,
-                  link: '#contact',
-                  display: 'Contact',
-                  visible: true,
-                },
-              ]}
+              pageSections={pageSections}
               activeSection={activeSection ?? 0}
               menuStyle="nav"
             />
@@ -218,7 +228,7 @@ const RecResourcePage = () => {
 
             <Camping ref={campingRef} />
 
-            {isActivities && (
+            {isThingsToDo && (
               <ThingsToDo
                 activities={recreation_activity}
                 ref={thingsToDoRef}

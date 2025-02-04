@@ -4,7 +4,6 @@ type PageSection = {
   sectionIndex: number;
   link: string;
   display: string;
-  visible: boolean;
 };
 
 type PageMenuProps = {
@@ -25,20 +24,21 @@ const PageMenu: React.FC<PageMenuProps> = ({
         aria-label="Page section navigation"
         className="navbar"
       >
-        {pageSections
-          .filter((s) => s.visible)
-          .map((section) => (
+        {pageSections.map((section) => {
+          const { display, link, sectionIndex } = section;
+          return (
             <a
-              className={`nav-link ${activeSection === section.sectionIndex ? 'active' : ''}`}
+              className={`nav-link ${activeSection === sectionIndex ? 'active' : ''}`}
               data-active-section={
-                activeSection === section.sectionIndex ? 'true' : 'false'
+                activeSection === sectionIndex ? 'true' : 'false'
               }
-              key={section.sectionIndex}
-              href={section.link}
+              key={link}
+              href={link}
             >
-              {section.display}
+              {display}
             </a>
-          ))}
+          );
+        })}
       </nav>
     );
   }
@@ -65,13 +65,14 @@ const PageMenu: React.FC<PageMenuProps> = ({
           <option value="" disabled>
             Table of Contents
           </option>
-          {pageSections
-            .filter((s) => s.visible)
-            .map((section) => (
-              <option key={section.sectionIndex} value={section.sectionIndex}>
-                {section.display}
+          {pageSections.map((section) => {
+            const { display, sectionIndex } = section;
+            return (
+              <option key={display} value={sectionIndex}>
+                {display}
               </option>
-            ))}
+            );
+          })}
         </select>
       </div>
     );
