@@ -52,7 +52,20 @@ delete the lock item.
 
 ## AWS Logging
 
+### Cloudwatch
+
+Cloudwatch is used to aggregate and store logs for the application, API,
+migrations and Aurora RDS. To view logs in Cloudwatch:
+
+- Login to AWS console
+- Go to AWS Cloudwatch
+- Click on `Log groups` in the left sidebar
+- Select the log group for the environment ie `/ecs/ecs-cluster-node-api-dev`
+- Click on the log stream to view the logs
+
 ### API logs
+
+Alternatively it may be helpful to view logs directly in the actual service:
 
 - Login to AWS console
 - Go to AWS Elastic Container Service (ECS)
@@ -70,7 +83,7 @@ delete the lock item.
 - Sort by logs by `Last written` and click on the log file to view the latest
   log
 
-### Aurora RDS Postgres Query Editor
+### Aurora RDS PostgreSQL Query Editor
 
 Using the Query editor lets you run SQL queries on the database in AWS. This can
 be useful for viewing the data, testing migrations and debugging.
