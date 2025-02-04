@@ -2,8 +2,8 @@ import '@/components/layout/PageMenu.scss';
 
 type PageSection = {
   sectionIndex: number;
-  link: string;
-  display: string;
+  href: string;
+  title: string;
 };
 
 type PageMenuProps = {
@@ -25,17 +25,17 @@ const PageMenu: React.FC<PageMenuProps> = ({
         className="navbar"
       >
         {pageSections.map((section) => {
-          const { display, link, sectionIndex } = section;
+          const { href, sectionIndex, title } = section;
           return (
             <a
               className={`nav-link ${activeSection === sectionIndex ? 'active' : ''}`}
               data-active-section={
                 activeSection === sectionIndex ? 'true' : 'false'
               }
-              key={link}
-              href={link}
+              key={href}
+              href={href}
             >
-              {display}
+              {title}
             </a>
           );
         })}
@@ -50,7 +50,7 @@ const PageMenu: React.FC<PageMenuProps> = ({
         (section) => section.sectionIndex === Number(index),
       );
       if (selectedSection) {
-        window.location.hash = selectedSection.link;
+        window.location.hash = selectedSection.href;
       }
     };
 
@@ -66,10 +66,10 @@ const PageMenu: React.FC<PageMenuProps> = ({
             Table of Contents
           </option>
           {pageSections.map((section) => {
-            const { display, sectionIndex } = section;
+            const { title, sectionIndex } = section;
             return (
-              <option key={display} value={sectionIndex}>
-                {display}
+              <option key={title} value={sectionIndex}>
+                {title}
               </option>
             );
           })}
