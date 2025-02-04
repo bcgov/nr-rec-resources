@@ -70,6 +70,12 @@ export interface RecreationResourceDto {
    * @memberof RecreationResourceDto
    */
   recreation_status: RecreationStatusDto;
+
+  recreation_map_feature: {
+    rec_resource_id: string;
+    recreation_map_feature_code: string;
+    description: string;
+  };
 }
 
 /**
@@ -120,6 +126,7 @@ export function RecreationResourceDtoFromJSONTyped(
       RecreationActivityDtoFromJSON,
     ),
     recreation_status: RecreationStatusDtoFromJSON(json['recreation_status']),
+    recreation_map_feature: json['recreation_map_feature'],
   };
 }
 

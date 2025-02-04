@@ -13,6 +13,12 @@
   @media (min-width: $mdBreakpoint) {
     position: sticky;
     position: -webkit-sticky;
+    background-color: #fff;
+    z-index: 100;
+  }
+
+  @media (max-width: $lgBreakpoint) {
+    max-width: 100%;
   }
 
   .navbar {

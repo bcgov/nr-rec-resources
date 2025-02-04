@@ -11,6 +11,13 @@ interface RecreationActivityWithDescription {
   };
 }
 
+interface RecreationMapFeatureWithDescription {
+  with_description: {
+    description: string;
+    recreation_map_feature_code: string;
+  };
+}
+
 interface RecreationResource {
   rec_resource_id: string;
   name: string;
@@ -24,6 +31,7 @@ interface RecreationResource {
     comment: string;
     status_code: string;
   };
+  recreation_map_feature: RecreationMapFeatureWithDescription[];
 }
 
 @Injectable()
@@ -54,6 +62,11 @@ export class RecreationResourceService {
         status_code: true,
       },
     },
+    recreation_map_feature: {
+      select: {
+        with_description: true,
+      },
+    },
   };
 
   // Format the results to match the DTO
@@ -73,6 +86,18 @@ export class RecreationResourceService {
         comment: resource.recreation_status?.comment,
         status_code: resource.recreation_status?.status_code,
       },
+      recreation_map_feature:
+        resource.recreation_map_feature?.length &&
+        resource.recreation_map_feature[0]?.with_description
+          ? {
+              description:
+                resource.recreation_map_feature[0].with_description
+                  ?.description ?? null,
+              recreation_map_feature_code:
+                resource.recreation_map_feature[0].with_description
+                  ?.recreation_map_feature_code ?? null,
+            }
+          : null,
     }));
   }
 
