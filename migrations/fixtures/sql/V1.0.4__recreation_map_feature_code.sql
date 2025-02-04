@@ -7,3 +7,4 @@ values
     ('REC1222', 'SIT'),
     ('REC1222', 'RR'),
     ('REC1222', 'IF');
+    
