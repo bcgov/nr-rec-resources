@@ -90,7 +90,7 @@ jobs:
           sarif_file: "trivy-results.sarif"
 
   # Retry the workflow due to Trivy flaky sarif-upload issue
-  retry-on-failure:
+  retry-trivy-on-failure:
     needs: trivy
     if: failure() || (needs.trivy.result != 'success' && fromJSON(github.run_attempt) < 3 && !cancelled())
     runs-on: ubuntu-latest
