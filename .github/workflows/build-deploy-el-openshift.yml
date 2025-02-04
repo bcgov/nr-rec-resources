@@ -1,6 +1,7 @@
 name: Build & Deploy Spring Boot EL API to OpenShift
 on:
   pull_request:
+    types: [opened, synchronize, reopened, closed]
     branches:
       - main
   workflow_dispatch:
@@ -22,7 +23,6 @@ jobs:
     outputs:
       triggered: ${{ steps.diff_triggers.outputs.triggered }}
     steps:
-      - uses: actions/checkout@v4
       - uses: bcgov/action-diff-triggers@v0.2.0
         id: diff_triggers
         with:
@@ -30,7 +30,7 @@ jobs:
   build:
     name: Build Spring Boot Oracle EL Containers
     needs: [triggers]
-    if: (always() && (needs.triggers.outputs.triggered == 'true' || github.event_name == 'workflow_dispatch') && (github.event.action != 'closed'))
+    if: (always() && (needs.triggers.outputs.triggered == 'true' || github.event_name == 'workflow_dispatch') && (github.event.action != 'closed') && (!github.event.pull_request.draft))
     runs-on: ubuntu-24.04
     strategy:
       matrix:
