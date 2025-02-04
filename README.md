@@ -45,6 +45,7 @@
   - [Manually deploying pull request to AWS](docs/deployment.md#manually-deploying-pull-request-to-aws)
   - [Clearing Terraform state lock](docs/deployment.md#clearing-terraform-state-lock)
   - [AWS Logging](docs/deployment.md#aws-logging)
+    - [Cloudwatch](docs/deployment.md#cloudwatch)
     - [API logs](docs/deployment.md#api-logs)
     - [Aurora RDS PostgreSQL logs](docs/deployment.md#aurora-rds-postgresql-logs)
   - [Aurora RDS PostgreSQL Query Editor](docs/deployment.md#aurora-rds-postgresql-query-editor)
