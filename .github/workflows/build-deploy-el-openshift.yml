@@ -86,7 +86,10 @@ jobs:
               --install --wait \
               --values values.yaml "$RELEASE_NAME"\
               ./backend-el-1.0.0.tgz
-            oc create job $RELEASE_NAME-${{github.run_number}} --from=cronjob/$RELEASE_NAME
+            if [ "${{ github.event_name }}" == "pull_request" ]; then
+              oc create job $RELEASE_NAME-${{github.run_number}} --from=cronjob/$RELEASE_NAME
+              oc wait --for=condition=complete --timeout=600s job/$RELEASE_NAME-${{github.run_number}}
+            fi
   clean_up:
     name: Clean up
     if: github.event_name=='pull_request' && github.event.action == 'closed'
