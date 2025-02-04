@@ -12,6 +12,8 @@ to deploy the application to AWS dev environment.
 
 ## Manually deploying pull request to AWS
 
+### Using Deploy PR manual workflow dispatch
+
 Sometimes you may want to deploy a pull request to AWS for testing. To do this,
 open the pull request and check to workflow to make sure the images have been
 built successfully. Get the image tag which is the `github.sha` for that run
@@ -27,9 +29,57 @@ images.
 The `Deploy PR` workflow will be triggered and the application will be deployed
 to the AWS `dev` environment.
 
+### Altering the `deploy-to-aws-dev` GitHub Actions workflow
+
+Alternatively you can comment out the `if` condition in the `deploy-to-aws-dev`
+workflow in and push a test commit to the pull request to manually deploy to aws
+dev for testing.
+
+Find the deploy-to-aws-dev job in `.github/workflows/main.yml`:
+
+```yaml
+deploy-to-aws-dev:
+  # if: github.ref_name == 'main' || github.head_ref == 'main'
+  name: Deploys Application to AWS dev ...
+```
+
 ## Clearing Terraform state lock
 
 If you encounter an error with Terraform state lock, you can clear the lock by
 logging into the AWS console and navigating to dynamodb tables. Find the state
 lock table named `terraform-remote-state-lock`, click `Explore table items` and
 delete the lock item.
+
+## AWS Logging
+
+### API logs
+
+- Login to AWS console
+- Go to AWS Elastic Container Service (ECS)
+- Select the cluster for the environment ie `ecs-cluster-node-api-dev`
+- Select the service ie `node-api-dev-service`
+- Click the `Logs` tab
+
+### Aurora RDS PostgreSQL logs
+
+- Login to AWS console
+- Go to AWS RDS
+- Click on DB instances resource
+- Select the database cluster ie `aurora-cluster-dev-one`
+- Click on the `Logs & events` tab
+- Sort by logs by `Last written` and click on the log file to view the latest
+  log
+
+### Aurora RDS Postgres Query Editor
+
+Using the Query editor lets you run SQL queries on the database in AWS. This can
+be useful for viewing the data, testing migrations and debugging.
+
+To access the Query editor:
+
+- Login to AWS console
+- Go to AWS RDS
+- Select Query Editor from the left sidebar
+- Select the database cluster ie `aurora-cluster-dev-one`
+- Select user `sysadmin`
+- Enter the name of the database or schema ie `rst`
