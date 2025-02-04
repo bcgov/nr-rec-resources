@@ -92,7 +92,7 @@ jobs:
   # Retry the workflow due to Trivy flaky sarif-upload issue
   retry-trivy-on-failure:
     needs: trivy
-    if: failure() || (needs.trivy.result != 'success' && fromJSON(github.run_attempt) < 3 && !cancelled())
+    if: needs.trivy.result != 'success' && fromJSON(github.run_attempt) < 3 && !cancelled()
     runs-on: ubuntu-latest
     steps:
       - env:
