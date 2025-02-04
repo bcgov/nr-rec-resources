@@ -26,7 +26,7 @@ jobs:
       - uses: bcgov/action-diff-triggers@v0.2.0
         id: diff_triggers
         with:
-          triggers: ('./.github/workflows/build-deploy-el-openshift.yml' './backend-el/' './charts/backend-el/')
+          triggers: ('.github/workflows/build-deploy-el-openshift.yml' 'backend-el' 'charts/backend-el')
   build:
     name: Build Spring Boot Oracle EL Containers
     needs: [triggers]
