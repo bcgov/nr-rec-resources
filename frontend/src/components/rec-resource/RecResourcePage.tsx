@@ -115,28 +115,28 @@ const RecResourcePage = () => {
     () =>
       [
         isClosures && {
-          link: '#closures',
-          display: 'Closures',
+          href: '#closures',
+          title: 'Closures',
         },
         description && {
-          link: '#site-description',
-          display: 'Site Description',
+          href: '#site-description',
+          title: 'Site Description',
         },
         {
-          link: '#maps-and-location',
-          display: 'Maps and Location',
+          href: '#maps-and-location',
+          title: 'Maps and Location',
         },
         {
-          link: '#camping',
-          display: 'Camping',
+          href: '#camping',
+          title: 'Camping',
         },
         isThingsToDo && {
-          link: '#things-to-do',
-          display: 'Things to Do',
+          href: '#things-to-do',
+          title: 'Things to Do',
         },
         {
-          link: '#contact',
-          display: 'Contact',
+          href: '#contact',
+          title: 'Contact',
         },
       ]
         .filter((section) => !!section)
