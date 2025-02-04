@@ -101,6 +101,7 @@ jobs:
           flyway_image: ghcr.io/${{github.repository}}/migrations/rst:${{ inputs.tag }}
           api_image: ghcr.io/${{github.repository}}/backend:${{ inputs.tag }}
           app_env: ${{inputs.app_env}}
+          vpc_target_env: ${{inputs.vpc_target_env}}
       run: |
           terragrunt output -json > outputs.json
           #print the output
@@ -117,6 +118,7 @@ jobs:
           flyway_image: ghcr.io/${{github.repository}}/migrations/rst:${{inputs.tag}}
           api_image: ghcr.io/${{github.repository}}/backend:${{inputs.tag}}
           app_env: ${{inputs.app_env}}
+          vpc_target_env: ${{inputs.vpc_target_env}}
       run: |
           terragrunt output -json > outputs.json
           #print the output

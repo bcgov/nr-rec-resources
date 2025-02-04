@@ -15,6 +15,10 @@ on:
         description: 'The name of the environment to deploy to'
         required: true
         type: string
+      vpc_target_env:
+        required: true
+        description: 'The VPC target env to use for networking'
+        type: string
       tag:
         description: 'The tag of the containers to deploy'
         required: true
@@ -39,6 +43,7 @@ jobs:
       environment_name: ${{ inputs.environment_name }}
       command: ${{ inputs.command }}
       working_directory: database
+      vpc_target_env: ${{ inputs.vpc_target_env }}
     secrets: inherit
   deploy-api:
     name: Deploys API
@@ -50,6 +55,7 @@ jobs:
       working_directory: api
       tag: ${{ inputs.tag }}
       app_env: ${{ inputs.app_env }}
+      vpc_target_env: ${{ inputs.vpc_target_env }}
     secrets: inherit
   deploy-cloudfront:
     name: Deploys Cloudfront
@@ -59,6 +65,7 @@ jobs:
       command: ${{ inputs.command }}
       working_directory: frontend
       app_env: ${{ inputs.app_env }}
+      vpc_target_env: ${{ inputs.vpc_target_env }}
     secrets: inherit
   build-ui:
     name: Builds UI
