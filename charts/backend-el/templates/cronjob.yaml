@@ -43,7 +43,7 @@ spec:
                 - name: SPRING_JPA_SHOW_SQL
                   value: "false"
                 - name: AWS_S3_BUCKET
-                  value: "rst-fta-dataload-oracle"
+                  value: "{{ .Values.config.awsS3Bucket }}"
                 - name: spring_profiles_active
                   value: "openshift"
               volumeMounts:
