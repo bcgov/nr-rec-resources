@@ -18,8 +18,10 @@
   "dependencies": {
     "@bcgov/bc-sans": "^2.1.0",
     "@digitalspace/bcparks-bootstrap-theme": "^1.4.6",
+    "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
+    "@testing-library/dom": "^10.4.0",
     "@vitejs/plugin-react": "^4.3.4",
     "axios": "^1.7.9",
     "bootstrap": "^5.3.3",

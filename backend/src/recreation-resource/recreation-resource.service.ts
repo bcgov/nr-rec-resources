@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "src/prisma.service";
 import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resource.dto";
@@ -8,6 +8,13 @@ interface RecreationActivityWithDescription {
   with_description: {
     description: string;
     recreation_activity_code: string;
+  };
+}
+
+interface RecreationMapFeatureWithDescription {
+  with_description: {
+    description: string;
+    recreation_map_feature_code: string;
   };
 }
 
@@ -24,6 +31,7 @@ interface RecreationResource {
     comment: string;
     status_code: string;
   };
+  recreation_map_feature: RecreationMapFeatureWithDescription[];
 }
 
 @Injectable()
@@ -40,6 +48,11 @@ export class RecreationResourceService {
     recreation_activity: {
       select: {
         // Join recreation_activity_code to get description
+        with_description: true,
+      },
+    },
+    recreation_map_feature: {
+      select: {
         with_description: true,
       },
     },
@@ -73,6 +86,18 @@ export class RecreationResourceService {
         comment: resource.recreation_status?.comment,
         status_code: resource.recreation_status?.status_code,
       },
+      recreation_map_feature:
+        resource.recreation_map_feature?.length &&
+        resource.recreation_map_feature[0]?.with_description
+          ? {
+              description:
+                resource.recreation_map_feature[0].with_description
+                  ?.description ?? null,
+              recreation_map_feature_code:
+                resource.recreation_map_feature[0].with_description
+                  ?.recreation_map_feature_code ?? null,
+            }
+          : null,
     }));
   }
 
@@ -91,62 +116,68 @@ export class RecreationResourceService {
   }
 
   async searchRecreationResources(
-    page: number = 1,
-    filter: string = "",
+    page = 1,
+    filter = "",
     limit?: number,
   ): Promise<PaginatedRecreationResourceDto> {
-    // 10 page limit - max 100 records since if no limit we fetch page * limit
-    if (page > 10 && !limit) {
-      throw new Error("Maximum page limit is 10 when no limit is provided");
+    const DEFAULT_LIMIT = 10;
+    const MAX_LIMIT = 10;
+    const MAX_PAGE_WITHOUT_LIMIT = 10;
+
+    if (page < 1) {
+      throw new BadRequestException("Page number must be at least 1");
+    }
+    if (limit !== undefined && limit < 1) {
+      throw new BadRequestException("Limit must be at least 1");
     }
 
-    // 10 is the maximum limit
-    if (limit && limit > 10) {
-      limit = 10;
+    if (limit === undefined && page > MAX_PAGE_WITHOUT_LIMIT) {
+      throw new BadRequestException(
+        `Maximum page limit is ${MAX_PAGE_WITHOUT_LIMIT} when no limit is provided`,
+      );
     }
 
-    // If only page is provided, we will return all records up to the end of that page
-    // If limit is provided, we will return that many paginated records for lazy loading
-    const take = limit ? limit : 10 * page;
-    const skip = limit ? (page - 1) * limit : 0;
+    if (limit !== undefined && limit > MAX_LIMIT) {
+      limit = MAX_LIMIT;
+    }
+
+    // If a limit is provided, we use it for lazy loading (skip & take).
+    // Otherwise, we return all records up to the current page.
+    const take = limit !== undefined ? limit : DEFAULT_LIMIT * page;
+    const skip = limit !== undefined ? (page - 1) * limit : 0;
+
+    // Build the filtering criteria.
+    const where = {
+      display_on_public_site: true,
+      OR: [
+        { name: { contains: filter, mode: Prisma.QueryMode.insensitive } },
+        {
+          site_location: {
+            contains: filter,
+            mode: Prisma.QueryMode.insensitive,
+          },
+        },
+      ],
+    };
+
     const orderBy = [{ name: Prisma.SortOrder.asc }];
 
-    const filterQuery = {
-      skip,
-      take,
-      orderBy,
-      // If limit is provided, we will skip the records up to the end of the previous page
-      where: {
-        OR: [
-          { name: { contains: filter, mode: Prisma.QueryMode.insensitive } },
-          {
-            site_location: {
-              contains: filter,
-              mode: Prisma.QueryMode.insensitive,
-            },
-          },
-        ],
-        AND: {
-          display_on_public_site: true,
-        },
-      },
-      select: this.recreationResourceSelect,
-    };
-
-    const countQuery = {
-      where: filterQuery.where,
-    };
-
-    const recreationResources =
-      await this.prisma.recreation_resource.findMany(filterQuery);
-
-    const count = await this.prisma.recreation_resource.count(countQuery);
+    const [resources, total] = await Promise.all([
+      this.prisma.recreation_resource.findMany({
+        skip,
+        take,
+        orderBy,
+        where,
+        select: this.recreationResourceSelect,
+      }),
+      this.prisma.recreation_resource.count({ where }),
+    ]);
 
     return {
-      data: this.formatResults(recreationResources),
+      data: this.formatResults(resources),
       page,
-      limit,
-      total: count,
+      limit: limit ?? DEFAULT_LIMIT,
+      total,
     };
   }
 }

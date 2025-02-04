@@ -23,6 +23,14 @@ const recreationResource1 = {
     comment: "Site is open comment",
     status_code: "01",
   },
+  recreation_map_feature: [
+    {
+      with_description: {
+        recreation_map_feature_code: "SIT",
+        description: "Recreation Site",
+      },
+    },
+  ],
 };
 
 const recreationResource1Response = {
@@ -37,6 +45,10 @@ const recreationResource1Response = {
     description: "Open",
     comment: "Site is open comment",
     status_code: "01",
+  },
+  recreation_map_feature: {
+    description: "Recreation Site",
+    recreation_map_feature_code: "SIT",
   },
 };
 
@@ -54,6 +66,14 @@ const recreationResource2 = {
     comment: "Site is closed comment",
     status_code: "02",
   },
+  recreation_map_feature: [
+    {
+      with_description: {
+        recreation_map_feature_code: "RTR",
+        description: "Recreation Trail",
+      },
+    },
+  ],
 };
 
 const recreationResource2Response = {
@@ -63,6 +83,10 @@ const recreationResource2Response = {
     description: "Closed",
     comment: "Site is closed comment",
     status_code: "02",
+  },
+  recreation_map_feature: {
+    description: "Recreation Trail",
+    recreation_map_feature_code: "RTR",
   },
 };
 
@@ -87,6 +111,14 @@ const recreationResource3 = {
     comment: "Site is active comment",
     status_code: "01",
   },
+  recreation_map_feature: [
+    {
+      with_description: {
+        recreation_map_feature_code: "RR",
+        description: "Recreation Reserve",
+      },
+    },
+  ],
 };
 
 const recreationResource3Response = {
@@ -101,6 +133,10 @@ const recreationResource3Response = {
     description: "Active",
     comment: "Site is active comment",
     status_code: "01",
+  },
+  recreation_map_feature: {
+    description: "Recreation Reserve",
+    recreation_map_feature_code: "RR",
   },
 };
 
@@ -131,6 +167,14 @@ const recreationResource4 = {
     },
   ],
   recreation_status: null,
+  recreation_map_feature: [
+    {
+      with_description: {
+        recreation_map_feature_code: "IF",
+        description: "Interpretive Forest",
+      },
+    },
+  ],
 };
 
 const recreationResource4Response = {
@@ -153,6 +197,10 @@ const recreationResource4Response = {
     description: undefined,
     comment: undefined,
     status_code: undefined,
+  },
+  recreation_map_feature: {
+    description: "Interpretive Forest",
+    recreation_map_feature_code: "IF",
   },
 };
 
