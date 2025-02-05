@@ -82,7 +82,7 @@ module "flyway_task" {
       {
         # This defaults to true, though we want to enable it only in dev to reset the database
         name = "FLYWAY_CLEAN_DISABLED"
-        value = contains(["dev"], local.rds_app_env) ? "false" : "true"
+        value = contains(["dev", "test"], local.rds_app_env) ? "false" : "true"
       }
   ]
   aws_region      = var.aws_region
