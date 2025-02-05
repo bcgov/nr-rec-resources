@@ -39,9 +39,10 @@
   - [Swagger Decorators](docs/open-api-swagger.md#swagger-decorators)
   - [Accessing Generated Documentation](docs/open-api-swagger.md#accessing-generated-documentation)
 
-### CI/CD Pipeline with GitHub Actions
+### CI/CD
 
-- [E2E Testing](docs/ci.md#e2e-testing)
+- [CI/CD pipeline with GitHub Actions](docs/ci.md#ci-cd-pipeline-with-github-actions)
+  - [Docker image build and push](docs/ci.md#docker-image-build-and-push)
   - [Visual Regression Testing with Happo](docs/ci.md#visual-regression-testing)
 
 ### Deployment
