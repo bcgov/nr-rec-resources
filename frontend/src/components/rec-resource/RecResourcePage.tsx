@@ -76,8 +76,8 @@ const RecResourcePage = () => {
     description,
     name,
     rec_resource_id,
-    site_location,
     rec_resource_type,
+    closest_community,
     recreation_status: {
       status_code: statusCode,
       description: statusDescription,
@@ -187,7 +187,9 @@ const RecResourcePage = () => {
                 height={24}
                 width={24}
               />{' '}
-              <span className="capitalize">{site_location?.toLowerCase()}</span>
+              <span className="capitalize">
+                {closest_community?.toLowerCase()}
+              </span>
             </div>
             {statusCode && statusDescription && (
               <Status description={statusDescription} statusCode={statusCode} />

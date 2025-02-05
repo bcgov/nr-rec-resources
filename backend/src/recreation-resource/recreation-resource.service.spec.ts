@@ -6,7 +6,7 @@ const recreationResource1 = {
   rec_resource_id: "REC0001",
   name: "Rec site 1",
   description: "Rec site 1 description",
-  site_location: "Rec site 1 location",
+  closest_community: "Rec site 1 location",
   display_on_public_site: true,
   recreation_activity: [
     {
@@ -46,7 +46,7 @@ const recreationResource2 = {
   rec_resource_id: "REC0002",
   name: "Rec site 2",
   description: "Rec site 2 description",
-  site_location: "Rec site 2 location",
+  closest_community: "Rec site 2 location",
   display_on_public_site: true,
   recreation_activity: [],
   recreation_status: {
@@ -74,7 +74,7 @@ const recreationResource3 = {
   rec_resource_id: "REC0003",
   name: "A testing orderBy",
   description: "Rec site 3 description",
-  site_location: "Rec site 3 location",
+  closest_community: "Rec site 3 location",
   display_on_public_site: true,
   recreation_activity: [
     {
@@ -114,7 +114,7 @@ const recreationResource4 = {
   rec_resource_id: "REC0004",
   name: "Z testing orderBy",
   description: "Rec site 4 description",
-  site_location: "Rec site 4 location",
+  closest_community: "Rec site 4 location",
   display_on_public_site: false,
   recreation_activity: [
     {

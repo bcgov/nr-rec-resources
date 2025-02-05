@@ -46,7 +46,7 @@ describe("Recreation DTOs", () => {
         name: "Evergreen Valley Campground",
         description:
           "A scenic campground nestled in the heart of Evergreen Valley",
-        site_location: "123 Forest Road, Mountain View, CA 94043",
+        closest_community: "123 Forest Road, Mountain View, CA 94043",
         recreation_activity: [
           {
             recreation_activity_code: 1,
@@ -72,7 +72,7 @@ describe("Recreation DTOs", () => {
         rec_resource_id: "rec-123-abc",
         name: "Test Resource",
         description: null,
-        site_location: "Test Location",
+        closest_community: "Test Location",
         recreation_activity: [],
         recreation_status: {
           status_code: 1,
