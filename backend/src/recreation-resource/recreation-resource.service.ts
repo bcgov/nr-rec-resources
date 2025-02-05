@@ -99,7 +99,7 @@ export class RecreationResourceService {
         },
         distinct: ["recreation_activity_code"],
       }),
-      // https://github.com/prisma/prisma/issues/17297 - this issue doesn't occur if groupBy used outside of transaction
+      // https://github.com/prisma/prisma/issues/17276
       // @ts-ignore
       this.prisma.recreation_activity.groupBy({
         by: ["recreation_activity_code"],
@@ -168,37 +168,36 @@ export class RecreationResourceService {
       })),
     };
 
-    const filterQuery = {
-      skip,
-      take,
-      orderBy,
-      // If limit is provided, we will skip the records up to the end of the previous page
-      where: {
-        OR: [
-          { name: { contains: filter, mode: Prisma.QueryMode.insensitive } },
-          {
-            site_location: {
-              contains: filter,
-              mode: Prisma.QueryMode.insensitive,
-            },
+    const where = {
+      OR: [
+        { name: { contains: filter, mode: Prisma.QueryMode.insensitive } },
+        {
+          site_location: {
+            contains: filter,
+            mode: Prisma.QueryMode.insensitive,
           },
-        ],
-        AND: {
-          display_on_public_site: true,
-          ...activityFilterQuery,
         },
+      ],
+      AND: {
+        display_on_public_site: true,
+        ...activityFilterQuery,
       },
-      select: recreationResourceSelect,
     };
 
     const [recreationResources, totalRecordIds] =
       await this.prisma.$transaction([
         // Fetch paginated records
-        this.prisma.recreation_resource.findMany(filterQuery),
+        this.prisma.recreation_resource.findMany({
+          where,
+          select: recreationResourceSelect,
+          take,
+          skip,
+          orderBy,
+        }),
         // Get all unpaginated rec_resource_ids for the records so we can group/count records for the filter sidebar
         // This can be used to get the count of each filter group
         this.prisma.recreation_resource.findMany({
-          where: filterQuery.where,
+          where,
           select: { rec_resource_id: true },
         }),
       ]);
