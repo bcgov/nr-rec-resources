@@ -10,7 +10,7 @@ const mockResource = {
   rec_resource_id: 'REC1234',
   name: 'Resource Name',
   description: 'Resource Description',
-  site_location: 'Resource Location',
+  closest_community: 'Resource Location',
   recreation_activity: [
     {
       recreation_activity_code: 1,

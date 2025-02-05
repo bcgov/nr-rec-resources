@@ -61,7 +61,7 @@ export class RecreationResourceDto {
     description: "Physical location of the Recreation Resource",
     example: "123 Forest Road, Mountain View, CA 94043",
   })
-  site_location: string;
+  closest_community: string;
 
   @ApiProperty({
     description: "List of recreational activities available at this resource",

@@ -14,6 +14,6 @@ export interface RecreationResource {
   name: string;
   rec_resource_id: string;
   recreation_activity: Activity[];
-  site_location: string;
+  closest_community: string;
   recreation_status: RecreationStatus;
 }

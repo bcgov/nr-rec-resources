@@ -21,7 +21,7 @@ const mockResources = {
       {
         rec_resource_id: 'REC204117',
         name: '0 K SNOWMOBILE PARKING LOT',
-        site_location: 'MERRITT',
+        closest_community: 'MERRITT',
         recreation_activity: [
           {
             description: 'Snowmobiling',
@@ -33,7 +33,7 @@ const mockResources = {
       {
         rec_resource_id: 'REC203239',
         name: '10 K SNOWMOBILE PARKING LOT',
-        site_location: 'MERRITT',
+        closest_community: 'MERRITT',
         recreation_activity: [
           {
             description: 'Snowmobiling',
@@ -45,7 +45,7 @@ const mockResources = {
       {
         rec_resource_id: 'REC1222',
         name: '100 ROAD BRIDGE',
-        site_location: 'PRINCE GEORGE',
+        closest_community: 'PRINCE GEORGE',
         recreation_activity: [
           {
             description: 'Picnicking',
@@ -61,7 +61,7 @@ const mockResources = {
       {
         rec_resource_id: 'REC160773',
         name: '10K CABIN',
-        site_location: 'MERRITT',
+        closest_community: 'MERRITT',
         recreation_activity: [
           {
             description: 'Snowmobiling',
@@ -73,7 +73,7 @@ const mockResources = {
       {
         rec_resource_id: 'REC203900',
         name: '18 Mile',
-        site_location: 'REVELSTOKE',
+        closest_community: 'REVELSTOKE',
         recreation_activity: [
           {
             description: 'Boating',
@@ -101,7 +101,7 @@ const mockResources = {
       {
         rec_resource_id: 'REC6866',
         name: '1861 GOLDRUSH PACK TRAIL',
-        site_location: 'WELLS',
+        closest_community: 'WELLS',
         recreation_activity: [
           {
             description: 'Ski Touring',
@@ -121,7 +121,7 @@ const mockResources = {
       {
         rec_resource_id: 'REC160432',
         name: '24 KM SHELTER',
-        site_location: 'MERRITT',
+        closest_community: 'MERRITT',
         recreation_activity: [
           {
             description: 'Snowmobiling',
@@ -133,7 +133,7 @@ const mockResources = {
       {
         rec_resource_id: 'REC6739',
         name: '24 MILE SNOWMOBILE AREA',
-        site_location: 'CASTLEGAR',
+        closest_community: 'CASTLEGAR',
         recreation_activity: [
           {
             description: 'Snowmobiling',
@@ -145,7 +145,7 @@ const mockResources = {
       {
         rec_resource_id: 'REC16158',
         name: '27 Swithbacks',
-        site_location: 'WHISTLER',
+        closest_community: 'WHISTLER',
         recreation_activity: [
           {
             description: 'Mountain Biking',
@@ -161,7 +161,7 @@ const mockResources = {
       {
         rec_resource_id: 'REC2094',
         name: '40 Mile CAMP / BULL River',
-        site_location: 'FERNIE',
+        closest_community: 'FERNIE',
         recreation_activity: [
           {
             description: 'Angling',
