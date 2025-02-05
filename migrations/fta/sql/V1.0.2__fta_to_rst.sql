@@ -1,4 +1,4 @@
-insert into rst.recreation_resource (rec_resource_id, name, description, site_location, display_on_public_site, recreation_map_feature_code)
+insert into rst.recreation_resource (rec_resource_id, name, description, site_location, display_on_public_site, rec_resource_type)
 select
     rp.forest_file_id,
     rp.project_name as name,
@@ -11,7 +11,7 @@ select
         when rp.recreation_view_ind = 'Y' then true
         else false
     end as display_on_public_site,
-    rmf.recreation_map_feature_code
+    rmf.rec_resource_type
 from
     fta.recreation_project rp
 left join

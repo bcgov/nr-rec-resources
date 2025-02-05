@@ -80,5 +80,5 @@ export class RecreationResourceDto {
       "Code representing a specific feature associated with the recreation resource",
     example: "IF",
   })
-  recreation_map_feature_code: string;
+  rec_resource_type: string;
 }

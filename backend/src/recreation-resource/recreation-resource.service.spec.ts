@@ -23,7 +23,7 @@ const recreationResource1 = {
     comment: "Site is open comment",
     status_code: "01",
   },
-  recreation_map_feature_code: "SIT",
+  rec_resource_type: "SIT",
 };
 
 const recreationResource1Response = {
@@ -39,7 +39,7 @@ const recreationResource1Response = {
     comment: "Site is open comment",
     status_code: "01",
   },
-  recreation_map_feature_code: "SIT",
+  rec_resource_type: "SIT",
 };
 
 const recreationResource2 = {
@@ -56,7 +56,7 @@ const recreationResource2 = {
     comment: "Site is closed comment",
     status_code: "02",
   },
-  recreation_map_feature_code: "RTR",
+  rec_resource_type: "RTR",
 };
 
 const recreationResource2Response = {
@@ -67,7 +67,7 @@ const recreationResource2Response = {
     comment: "Site is closed comment",
     status_code: "02",
   },
-  recreation_map_feature_code: "RTR",
+  rec_resource_type: "RTR",
 };
 
 const recreationResource3 = {
@@ -91,7 +91,7 @@ const recreationResource3 = {
     comment: "Site is active comment",
     status_code: "01",
   },
-  recreation_map_feature_code: "RR",
+  rec_resource_type: "RR",
 };
 
 const recreationResource3Response = {
@@ -107,7 +107,7 @@ const recreationResource3Response = {
     comment: "Site is active comment",
     status_code: "01",
   },
-  recreation_map_feature_code: "RR",
+  rec_resource_type: "RR",
 };
 
 const recreationResource4 = {
@@ -137,7 +137,7 @@ const recreationResource4 = {
     },
   ],
   recreation_status: null,
-  recreation_map_feature_code: "IF",
+  rec_resource_type: "IF",
 };
 
 const recreationResource4Response = {
@@ -161,7 +161,7 @@ const recreationResource4Response = {
     comment: undefined,
     status_code: undefined,
   },
-  recreation_map_feature_code: "IF",
+  rec_resource_type: "IF",
 };
 
 const recresourceArray = [

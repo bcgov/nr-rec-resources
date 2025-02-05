@@ -1,4 +1,4 @@
-insert into rst.recreation_resource (rec_resource_id, name, description, site_location, display_on_public_site, recreation_map_feature_code)
+insert into rst.recreation_resource (rec_resource_id, name, description, site_location, display_on_public_site, rec_resource_type)
 values
 ('REC204117', '0 K SNOWMOBILE PARKING LOT', 'The Zero K Tulameen Snowmobile Parking Lot is an area managed for snowmobilers who use the Mt. Henning and 10 K Area Snowmobile Trails in the vicinity. The parking lot and the trail network it supports is managed under a partnership agreement with the Coquihalla Summit Snowmobile Club during the snowmobile season and has an informative kiosk, outhouse and fee collection hut complete with a heated change room. Fees are applicable for the use of the snowmobile trails which are frequently groomed.', 'MERRITT', true, 'RTR'),
 ('REC1222', '100 ROAD BRIDGE', 'Site not currently being managed. Pending disestablishment (Jan 2009) - Sept 2021 Update: Site should have updated inspection. Site was never disestablished and is well used by the public.', 'PRINCE GEORGE', true, 'RTR'),

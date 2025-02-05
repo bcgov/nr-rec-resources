@@ -71,7 +71,7 @@ export interface RecreationResourceDto {
    */
   recreation_status: RecreationStatusDto;
 
-  recreation_map_feature_code: string;
+  rec_resource_type: string;
 }
 
 /**
@@ -118,7 +118,7 @@ export function RecreationResourceDtoFromJSONTyped(
     name: json['name'],
     description: json['description'],
     site_location: json['site_location'],
-    recreation_map_feature_code: json['recreation_map_feature_code'],
+    rec_resource_type: json['rec_resource_type'],
     recreation_activity: (json['recreation_activity'] as Array<any>).map(
       RecreationActivityDtoFromJSON,
     ),

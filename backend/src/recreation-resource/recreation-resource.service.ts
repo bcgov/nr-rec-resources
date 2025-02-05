@@ -17,7 +17,7 @@ interface RecreationResource {
   description: string;
   site_location: string;
   recreation_activity: RecreationActivityWithDescription[];
-  recreation_map_feature_code: string;
+  rec_resource_type: string;
   recreation_status: {
     recreation_status_code: {
       description: string;
@@ -37,7 +37,7 @@ export class RecreationResourceService {
     description: true,
     name: true,
     site_location: true,
-    recreation_map_feature_code: true,
+    rec_resource_type: true,
 
     recreation_activity: {
       select: {

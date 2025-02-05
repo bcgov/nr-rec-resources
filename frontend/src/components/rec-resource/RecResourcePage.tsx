@@ -76,7 +76,7 @@ const RecResourcePage = () => {
     name,
     rec_resource_id,
     site_location,
-    recreation_map_feature_code,
+    rec_resource_type,
     recreation_status: {
       status_code: statusCode,
       description: statusDescription,
@@ -135,9 +135,7 @@ const RecResourcePage = () => {
             <div>
               <h1 className="capitalize">{formattedName}</h1>
               <p className="bc-color-blue-dk mb-4">
-                <span>
-                  {mapRecreationFeatureCode(recreation_map_feature_code!)} |
-                </span>{' '}
+                <span>{mapRecreationFeatureCode(rec_resource_type!)} |</span>{' '}
                 {rec_resource_id}
               </p>
             </div>
