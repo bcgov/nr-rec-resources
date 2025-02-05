@@ -6,6 +6,11 @@ on:
   push:
     branches: [main]
   pull_request:
+    paths-ignore:
+      - 'charts/**'
+      - 'backend-el/**'
+      - '.github/workflows/build-deploy-el-openshift.yml'
+
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
