@@ -5,10 +5,6 @@ on:
   # schedule: [cron: "0 3 * * *"] # Every day at 3 AM
   workflow_call:
     inputs:
-      vpc_target_env:
-        required: true
-        description: 'The VPC target env to use for networking'
-        type: string
       app_env:
         required: true
         description: 'The APP env separates between AWS ENV and Actual APP, since AWS dev is where PR, and TEST is deployed'
@@ -35,7 +31,6 @@ jobs:
     with:
       app_env: ${{ inputs.app_env || 'dev' }}
       environment_name: ${{ inputs.environment_name || 'dev' }}
-      vpc_target_env: ${{ inputs.vpc_target_env || 'dev' }}
       command: apply
       flyway_image: ghcr.io/bcgov/nr-rec-resources/migrations/fta:${{ inputs.tag || 'latest' }}
       working_directory: migration

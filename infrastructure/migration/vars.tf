@@ -3,11 +3,6 @@ variable "target_env" {
   type        = string
 }
 
-variable "vpc_target_env" {
-  description = "The target vpc environments to use" # dev & test environments use the same VPC
-  type        = string
-}
-
 variable "app_env" {
   description = "The environment for the app, since multiple instances can be deployed to same dev environment of AWS, this represents whether it is PR or dev or test"
   type        = string

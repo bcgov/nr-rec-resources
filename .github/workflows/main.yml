@@ -25,7 +25,6 @@ jobs:
       command: apply
       environment_name: dev
       tag: ${{ github.sha }}
-      vpc_target_env: dev # same vpc as dev environment since using the same aws account
     secrets: inherit
 
   # Running FTA migration after each dev deployment since we are clearing the database each run
@@ -36,6 +35,5 @@ jobs:
     with:
       app_env: test
       environment_name: test
-      vpc_target_env: dev
       tag: ${{ github.sha }}
     secrets: inherit
