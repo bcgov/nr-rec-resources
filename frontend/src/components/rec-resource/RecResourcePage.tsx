@@ -17,6 +17,7 @@ import locationDot from '@/images/fontAwesomeIcons/location-dot.svg';
 import '@/components/rec-resource/RecResource.scss';
 import { RecreationResourceDto } from '@/service/recreation-resource';
 import { useRecreationResourceApi } from '@/service/hooks/useRecreationResourceApi';
+import { mapRecreationFeatureCode } from '@/utils/mapRecreationFeatureCode';
 
 export const photosExample = [
   {
@@ -75,7 +76,7 @@ const RecResourcePage = () => {
     name,
     rec_resource_id,
     site_location,
-    recreation_map_feature,
+    recreation_map_feature_code,
     recreation_status: {
       status_code: statusCode,
       description: statusDescription,
@@ -134,7 +135,9 @@ const RecResourcePage = () => {
             <div>
               <h1 className="capitalize">{formattedName}</h1>
               <p className="bc-color-blue-dk mb-4">
-                <span>{recreation_map_feature?.description} |</span>{' '}
+                <span>
+                  {mapRecreationFeatureCode(recreation_map_feature_code!)} |
+                </span>{' '}
                 {rec_resource_id}
               </p>
             </div>

@@ -71,11 +71,7 @@ export interface RecreationResourceDto {
    */
   recreation_status: RecreationStatusDto;
 
-  recreation_map_feature: {
-    rec_resource_id: string;
-    recreation_map_feature_code: string;
-    description: string;
-  };
+  recreation_map_feature_code: string;
 }
 
 /**
@@ -122,11 +118,11 @@ export function RecreationResourceDtoFromJSONTyped(
     name: json['name'],
     description: json['description'],
     site_location: json['site_location'],
+    recreation_map_feature_code: json['recreation_map_feature_code'],
     recreation_activity: (json['recreation_activity'] as Array<any>).map(
       RecreationActivityDtoFromJSON,
     ),
     recreation_status: RecreationStatusDtoFromJSON(json['recreation_status']),
-    recreation_map_feature: json['recreation_map_feature'],
   };
 }
 

@@ -1,4 +1,4 @@
-insert into rst.recreation_resource (rec_resource_id, name, description, site_location, display_on_public_site)
+insert into rst.recreation_resource (rec_resource_id, name, description, site_location, display_on_public_site, recreation_map_feature_code)
 select
     rp.forest_file_id,
     rp.project_name as name,
@@ -10,13 +10,18 @@ select
     case
         when rp.recreation_view_ind = 'Y' then true
         else false
-    end as display_on_public_site
-from
+    end as display_on_public_site,
+    rmf.recreation_map_feature_code
+from 
     fta.recreation_project rp
 left join
     fta.recreation_comment rc
 on
     rp.forest_file_id = rc.forest_file_id
+left join
+    rst.recreation_map_feature rmf
+on
+    rp.forest_file_id = rmf.rec_resource_id
 on conflict do nothing;
 
 insert into rst.recreation_activity_code (recreation_activity_code, description)

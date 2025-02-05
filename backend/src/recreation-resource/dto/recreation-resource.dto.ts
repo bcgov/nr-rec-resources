@@ -76,10 +76,9 @@ export class RecreationResourceDto {
   recreation_status: RecreationStatusDto;
 
   @ApiProperty({
-    description: "The Recreation Map Feature",
+    description:
+      "Code representing a specific feature associated with the recreation resource",
+    example: "IF",
   })
-  recreation_map_feature: {
-    description: string;
-    recreation_map_feature_code: string;
-  };
+  recreation_map_feature_code: string;
 }
