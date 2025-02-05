@@ -4,6 +4,10 @@ on:
     types: [opened, synchronize, reopened, closed]
     branches:
       - main
+    paths:
+      - 'backend-el/**'
+      - 'charts/**'
+      - '.github/workflows/build-deploy-el-openshift.yml'
   workflow_dispatch:
     inputs:
       environment:
