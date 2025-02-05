@@ -12,7 +12,7 @@ select
         else false
     end as display_on_public_site,
     rmf.recreation_map_feature_code
-from 
+from
     fta.recreation_project rp
 left join
     fta.recreation_comment rc
