@@ -15,6 +15,7 @@ model recreation_resource {
   description            String?               @db.VarChar(5000)
   site_location          String?               @db.VarChar(200)
   display_on_public_site Boolean?              @default(false)
+  rec_resource_type      String?               @db.VarChar(50)
   recreation_activity    recreation_activity[]
   recreation_status      recreation_status?
 }

@@ -23,6 +23,7 @@ const recreationResource1 = {
     comment: "Site is open comment",
     status_code: "01",
   },
+  rec_resource_type: "SIT",
 };
 
 const recreationResource1Response = {
@@ -38,6 +39,7 @@ const recreationResource1Response = {
     comment: "Site is open comment",
     status_code: "01",
   },
+  rec_resource_type: "SIT",
 };
 
 const recreationResource2 = {
@@ -54,6 +56,7 @@ const recreationResource2 = {
     comment: "Site is closed comment",
     status_code: "02",
   },
+  rec_resource_type: "RTR",
 };
 
 const recreationResource2Response = {
@@ -64,6 +67,7 @@ const recreationResource2Response = {
     comment: "Site is closed comment",
     status_code: "02",
   },
+  rec_resource_type: "RTR",
 };
 
 const recreationResource3 = {
@@ -87,6 +91,7 @@ const recreationResource3 = {
     comment: "Site is active comment",
     status_code: "01",
   },
+  rec_resource_type: "RR",
 };
 
 const recreationResource3Response = {
@@ -102,6 +107,7 @@ const recreationResource3Response = {
     comment: "Site is active comment",
     status_code: "01",
   },
+  rec_resource_type: "RR",
 };
 
 const recreationResource4 = {
@@ -131,6 +137,7 @@ const recreationResource4 = {
     },
   ],
   recreation_status: null,
+  rec_resource_type: "IF",
 };
 
 const recreationResource4Response = {
@@ -154,6 +161,7 @@ const recreationResource4Response = {
     comment: undefined,
     status_code: undefined,
   },
+  rec_resource_type: "IF",
 };
 
 const recresourceArray = [

@@ -74,4 +74,11 @@ export class RecreationResourceDto {
     type: RecreationStatusDto,
   })
   recreation_status: RecreationStatusDto;
+
+  @ApiProperty({
+    description:
+      "Code representing a specific feature associated with the recreation resource",
+    example: "IF",
+  })
+  rec_resource_type: string;
 }
