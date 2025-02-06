@@ -53,7 +53,6 @@ type ActivityGetPayload = Prisma.recreation_activityGetPayload<{
 export class RecreationResourceService {
   constructor(private prisma: PrismaService) {}
 
-
   // Format the results to match the DTO
   formatResults(recResources: RecreationResourceGetPayload[]) {
     return recResources?.map((resource) => ({
