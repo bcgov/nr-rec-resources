@@ -11,7 +11,7 @@ select
         when rp.recreation_view_ind = 'Y' then true
         else false
     end as display_on_public_site,
-    rmf.rec_resource_type
+    rmf.recreation_map_feature_code
 from
     fta.recreation_project rp
 left join
@@ -19,9 +19,9 @@ left join
 on
     rp.forest_file_id = rc.forest_file_id
 left join
-    rst.recreation_map_feature rmf
+    fta.recreation_map_feature rmf
 on
-    rp.forest_file_id = rmf.rec_resource_id
+    rp.forest_file_id = rmf.forest_file_id
 on conflict do nothing;
 
 insert into rst.recreation_activity_code (recreation_activity_code, description)
