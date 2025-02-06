@@ -11,7 +11,7 @@ const SearchBanner = () => {
       searchParams.delete('filter');
       setSearchParams(searchParams);
     } else {
-      searchParams.set('filter', inputValue);
+      searchParams.set('filter', inputValue.trim());
       setSearchParams(searchParams);
     }
   };
