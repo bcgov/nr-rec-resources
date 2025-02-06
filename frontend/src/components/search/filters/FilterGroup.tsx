@@ -14,6 +14,8 @@ interface FilterGroupProps {
   showMoreBtn?: boolean;
 }
 
+const MAX_VISIBLE_OPTIONS = 5;
+
 const FilterGroup = ({
   options,
   param,
@@ -45,8 +47,11 @@ const FilterGroup = ({
   };
 
   const filtersCount = options?.length + 1;
-  const isShowAllFilters = filtersCount > 5 && !showAllOptions && showMoreBtn;
-  const optionList = isShowAllFilters ? options.slice(0, 5) : options;
+  const isShowAllFilters =
+    filtersCount > MAX_VISIBLE_OPTIONS && !showAllOptions && showMoreBtn;
+  const optionList = isShowAllFilters
+    ? options.slice(0, MAX_VISIBLE_OPTIONS)
+    : options;
   const filterParamsArray = searchParams.get(param)?.split('_');
 
   return (
