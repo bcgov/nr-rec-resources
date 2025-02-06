@@ -96,7 +96,7 @@ const RecResourcePage = () => {
 
   const isThingsToDo = recreation_activity && recreation_activity.length > 0;
   const isPhotoGallery = photosExample.length > 0;
-  const isClosures = statusComment && formattedName && statusCode === 2;
+  const isClosures = statusComment && formattedName && statusCode === '02';
 
   const sectionRefs: React.RefObject<HTMLElement>[] = useMemo(
     () =>
@@ -107,7 +107,7 @@ const RecResourcePage = () => {
         campingRef,
         isThingsToDo ? thingsToDoRef : null,
         contactRef,
-      ].filter((ref) => ref !== null),
+      ].filter((ref) => !!ref),
     [description, isClosures, isThingsToDo],
   );
 
