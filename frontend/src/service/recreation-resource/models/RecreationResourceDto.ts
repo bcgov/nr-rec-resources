@@ -70,7 +70,11 @@ export interface RecreationResourceDto {
    * @memberof RecreationResourceDto
    */
   recreation_status: RecreationStatusDto;
-
+  /**
+   * Code representing a specific feature associated with the recreation resource
+   * @type {string}
+   * @memberof RecreationResourceDto
+   */
   rec_resource_type: string;
 }
 
@@ -100,6 +104,11 @@ export function instanceOfRecreationResourceDto(
     value['recreation_status'] === undefined
   )
     return false;
+  if (
+    !('rec_resource_type' in value) ||
+    value['rec_resource_type'] === undefined
+  )
+    return false;
   return true;
 }
 
@@ -120,12 +129,12 @@ export function RecreationResourceDtoFromJSONTyped(
     rec_resource_id: json['rec_resource_id'],
     name: json['name'],
     description: json['description'],
-    rec_resource_type: json['rec_resource_type'],
     closest_community: json['closest_community'],
     recreation_activity: (json['recreation_activity'] as Array<any>).map(
       RecreationActivityDtoFromJSON,
     ),
     recreation_status: RecreationStatusDtoFromJSON(json['recreation_status']),
+    rec_resource_type: json['rec_resource_type'],
   };
 }
 
@@ -150,5 +159,6 @@ export function RecreationResourceDtoToJSONTyped(
       RecreationActivityDtoToJSON,
     ),
     recreation_status: RecreationStatusDtoToJSON(value['recreation_status']),
+    rec_resource_type: value['rec_resource_type'],
   };
 }
