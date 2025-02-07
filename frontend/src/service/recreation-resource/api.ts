@@ -257,7 +257,7 @@ export interface RecreationResourceDto {
    * @type {string}
    * @memberof RecreationResourceDto
    */
-  site_location: string;
+  closest_community: string;
   /**
    * List of recreational activities available at this resource
    * @type {Array<RecreationActivityDto>}
