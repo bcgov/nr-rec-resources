@@ -8,7 +8,7 @@ const recreationResourceSelect = {
   rec_resource_id: true,
   description: true,
   name: true,
-  site_location: true,
+  closest_community: true,
   display_on_public_site: true,
   rec_resource_type: true,
 
@@ -171,7 +171,7 @@ export class RecreationResourceService {
       OR: [
         { name: { contains: filter, mode: Prisma.QueryMode.insensitive } },
         {
-          site_location: {
+          closest_community: {
             contains: filter,
             mode: Prisma.QueryMode.insensitive,
           },

@@ -19,7 +19,7 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
     rec_resource_id,
     name,
     recreation_activity: activities,
-    site_location,
+    closest_community,
     recreation_status: { status_code, description: statusDescription },
   } = recreationResource;
   const isActivities = activities.length > 0;
@@ -37,7 +37,7 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
               />
             </h2>
           </a>
-          <p className="capitalize">{site_location?.toLowerCase()}</p>
+          <p className="capitalize">{closest_community?.toLowerCase()}</p>
         </div>
         <div className="card-content-lower">
           {isActivities ? <Activities activities={activities} /> : <div />}
