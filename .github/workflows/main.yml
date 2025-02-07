@@ -53,11 +53,13 @@ jobs:
     secrets: inherit
 
   # Running FTA migration after each dev deployment since we are clearing the database each run
-  fta-migration:
+  fta-migration-dev:
     needs: deploy-to-aws-dev
     name: FTA Migration
     uses: ./.github/workflows/fta-migration.yml
     with:
+      app_env: dev
+      environment_name: dev
       tag: ${{ github.sha }}
     secrets: inherit
 
@@ -71,14 +73,30 @@ jobs:
       - name: Review Test Deployment
         run: echo "Reviewing Test Deployment"
 
+  # Deploys to test environment in the same AWS account as dev.
+  # resources in test environment uses the same vpc as the dev (Dev_vpc)
   deploy-to-aws-test:
     name: Deploys Application to AWS test
-    needs: [review-test-deployment]
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Deploy to AWS test
-        # Placeholder
-        run: echo "Deploying to AWS test"
+    needs: [ review-test-deployment ]
+    uses: ./.github/workflows/.deploy-app.yml
+    with:
+      app_env: test
+      command: apply
+      environment_name: test
+      tag: ${{ github.sha }}
+    secrets: inherit
+
+  # Running FTA migration after each dev deployment since we are clearing the database each run
+  fta-migration-test:
+    needs: deploy-to-aws-test
+    name: FTA Migration
+    uses: ./.github/workflows/fta-migration.yml
+    with:
+      app_env: test
+      environment_name: test
+      tag: ${{ github.sha }}
+    secrets: inherit
+
 
   release:
     name: Release
