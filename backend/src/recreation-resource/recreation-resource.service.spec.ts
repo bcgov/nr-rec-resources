@@ -19,6 +19,29 @@ import {
   noSearchResultsFilterArray,
 } from "src/recreation-resource/test/mock-data.test";
 
+const recResourceTypeCounts = [
+  {
+    rec_resource_type_code: "IF",
+    description: "Interpretive Forest",
+    _count: { recreation_resource: 6 },
+  },
+  {
+    rec_resource_type_code: "RR",
+    description: "Recreation Reserve",
+    _count: { recreation_resource: 4 },
+  },
+  {
+    rec_resource_type_code: "RTR",
+    description: "Recreation Trail",
+    _count: { recreation_resource: 37 },
+  },
+  {
+    rec_resource_type_code: "SIT",
+    description: "Recreation Site",
+    _count: { recreation_resource: 4 },
+  },
+];
+
 describe("RecreationResourceService", () => {
   let service: RecreationResourceService;
 
