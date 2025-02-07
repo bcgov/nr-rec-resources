@@ -248,7 +248,7 @@ export class RecreationResourceService {
       filters: [
         {
           type: "multi-select",
-          label: "Resource Type",
+          label: "Type",
           param: "type",
           options: recResourceTypeFilters,
         },

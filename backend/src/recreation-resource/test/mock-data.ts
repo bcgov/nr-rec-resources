@@ -256,7 +256,7 @@ const groupActivityCodes = [
 ];
 
 const recResourceTypeCountsResolved = {
-  label: "Resource Type",
+  label: "Type",
   options: [
     {
       count: 6,
