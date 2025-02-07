@@ -87,8 +87,6 @@ export class RecreationResourceService {
       select: recreationResourceSelect,
     });
 
-    console.log(recResource);
-
     return recResource ? this.formatResults([recResource])[0] : null;
   }
 
