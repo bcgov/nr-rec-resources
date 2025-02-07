@@ -8,6 +8,7 @@ const recreationResource1 = {
   description: "Rec site 1 description",
   closest_community: "Rec site 1 location",
   display_on_public_site: true,
+
   recreation_activity: [
     {
       with_description: {
@@ -23,8 +24,10 @@ const recreationResource1 = {
     comment: "Site is open comment",
     status_code: 1,
   },
-  rec_resource_type: "SIT",
-  campsite_count: 10,
+  campsite_count: 10, 
+  recreation_resource_type_code: {
+    description: "Recreation Site",
+  },
 };
 
 const recreationResource1Response = {
@@ -40,8 +43,8 @@ const recreationResource1Response = {
     comment: "Site is open comment",
     status_code: 1,
   },
-  rec_resource_type: "SIT",
   campsite_count: 10,
+  rec_resource_type: "Recreation Site",
 };
 
 const recreationResource2 = {
@@ -58,8 +61,10 @@ const recreationResource2 = {
     comment: "Site is closed comment",
     status_code: 2,
   },
-  rec_resource_type: "RTR",
   campsite_count: 10,
+  recreation_resource_type_code: {
+    description: "Interpretive Forest",
+  },
 };
 
 const recreationResource2Response = {
@@ -70,8 +75,8 @@ const recreationResource2Response = {
     comment: "Site is closed comment",
     status_code: 2,
   },
-  rec_resource_type: "RTR",
   campsite_count: 10,
+  rec_resource_type: "Interpretive Forest",
 };
 
 const recreationResource3 = {
@@ -95,8 +100,10 @@ const recreationResource3 = {
     comment: "Site is active comment",
     status_code: 1,
   },
-  rec_resource_type: "RR",
   campsite_count: 10,
+  recreation_resource_type_code: {
+    description: "Recreation Trail",
+  },
 };
 
 const recreationResource3Response = {
@@ -112,8 +119,8 @@ const recreationResource3Response = {
     comment: "Site is active comment",
     status_code: 1,
   },
-  rec_resource_type: "RR",
   campsite_count: 10,
+  rec_resource_type: "Recreation Trail",
 };
 
 const recreationResource4 = {
@@ -143,8 +150,10 @@ const recreationResource4 = {
     },
   ],
   recreation_status: null,
-  rec_resource_type: "IF",
   campsite_count: 10,
+  recreation_resource_type_code: {
+    description: "Recreation Site",
+  },
 };
 
 const recreationResource4Response = {
@@ -168,11 +177,11 @@ const recreationResource4Response = {
     comment: undefined,
     status_code: undefined,
   },
-  rec_resource_type: "IF",
   campsite_count: 10,
+  rec_resource_type: "Recreation Site",
 };
 
-const recresourceArray = [
+const recResourceArray = [
   recreationResource1,
   recreationResource2,
   recreationResource3,
@@ -250,7 +259,36 @@ const groupActivityCodes = [
   },
 ];
 
+const recResourceTypeCountsResolved = {
+  label: "Resource Type",
+  options: [
+    {
+      count: 6,
+      description: "Interpretive Forest",
+      id: "IF",
+    },
+    {
+      count: 4,
+      description: "Recreation Reserve",
+      id: "RR",
+    },
+    {
+      count: 37,
+      description: "Recreation Trail",
+      id: "RTR",
+    },
+    {
+      count: 4,
+      description: "Recreation Site",
+      id: "SIT",
+    },
+  ],
+  param: "type",
+  type: "multi-select",
+};
+
 const noSearchResultsFilterArray = [
+  { ...recResourceTypeCountsResolved },
   {
     label: "Things to do",
     options: [
@@ -285,6 +323,29 @@ const noSearchResultsFilterArray = [
   },
 ];
 
+const recResourceTypeCounts = [
+  {
+    rec_resource_type_code: "IF",
+    description: "Interpretive Forest",
+    _count: { recreation_resource: 6 },
+  },
+  {
+    rec_resource_type_code: "RR",
+    description: "Recreation Reserve",
+    _count: { recreation_resource: 4 },
+  },
+  {
+    rec_resource_type_code: "RTR",
+    description: "Recreation Trail",
+    _count: { recreation_resource: 37 },
+  },
+  {
+    rec_resource_type_code: "SIT",
+    description: "Recreation Site",
+    _count: { recreation_resource: 4 },
+  },
+];
+
 describe("RecreationResourceService", () => {
   let service: RecreationResourceService;
 
@@ -308,6 +369,9 @@ describe("RecreationResourceService", () => {
               findMany: vi.fn(),
               groupBy: vi.fn(),
             },
+            recreation_resource_type_code: {
+              findMany: vi.fn(),
+            },
           },
         },
       ],
@@ -322,7 +386,7 @@ describe("RecreationResourceService", () => {
 
   describe("formatResults function", () => {
     it("should correctly format recreation_activity with_description relation in the results", () => {
-      const results = service.formatResults(recresourceArray);
+      const results = service.formatResults(recResourceArray);
 
       expect(results[0]).toEqual(recreationResource1Response);
       expect(results[1]).toEqual(recreationResource2Response);
@@ -377,8 +441,11 @@ describe("RecreationResourceService", () => {
     it("should return an array of Recreation Resources", async () => {
       service["prisma"].recreation_resource.findMany = vi
         .fn()
-        .mockResolvedValueOnce(recresourceArray)
+        .mockResolvedValueOnce(recResourceArray)
         .mockResolvedValueOnce(totalRecordIds);
+      service["prisma"].recreation_resource_type_code.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(recResourceTypeCounts);
       service["prisma"].recreation_activity.findMany = vi
         .fn()
         .mockResolvedValueOnce(allActivityCodes);
@@ -388,8 +455,9 @@ describe("RecreationResourceService", () => {
       (service["prisma"].$transaction = vi
         .fn()
         .mockResolvedValueOnce([
-          recresourceArray,
+          recResourceArray,
           totalRecordIds,
+          recResourceTypeCounts,
         ])).mockResolvedValueOnce([allActivityCodes, groupActivityCodes]);
 
       expect(await service.searchRecreationResources(1, "Rec", 10)).toEqual({
@@ -398,6 +466,7 @@ describe("RecreationResourceService", () => {
         page: 1,
         total: 4,
         filters: [
+          { ...recResourceTypeCountsResolved },
           {
             label: "Things to do",
             type: "multi-select",
@@ -437,8 +506,11 @@ describe("RecreationResourceService", () => {
     it("should correctly format recreation_activity with_description relation in the results", async () => {
       service["prisma"].recreation_resource.findMany = vi
         .fn()
-        .mockResolvedValueOnce(recresourceArray)
+        .mockResolvedValueOnce(recResourceArray)
         .mockResolvedValueOnce(totalRecordIds);
+      service["prisma"].recreation_resource_type_code.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(recResourceTypeCounts);
       service["prisma"].recreation_activity.findMany = vi
         .fn()
         .mockResolvedValueOnce(allActivityCodes);
@@ -447,7 +519,11 @@ describe("RecreationResourceService", () => {
         .mockResolvedValueOnce(groupActivityCodes);
       service["prisma"].$transaction = vi
         .fn()
-        .mockResolvedValueOnce([recresourceArray, totalRecordIds])
+        .mockResolvedValueOnce([
+          recResourceArray,
+          totalRecordIds,
+          recResourceTypeCounts,
+        ])
         .mockResolvedValueOnce([allActivityCodes, groupActivityCodes]);
 
       const results = await service.searchRecreationResources(1, "Rec", 10);
@@ -462,6 +538,9 @@ describe("RecreationResourceService", () => {
         .fn()
         .mockResolvedValueOnce(orderedRecresourceArray)
         .mockResolvedValueOnce(totalRecordIds);
+      service["prisma"].recreation_resource_type_code.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(recResourceTypeCounts);
       service["prisma"].recreation_activity.findMany = vi
         .fn()
         .mockResolvedValueOnce(allActivityCodes);
@@ -470,7 +549,11 @@ describe("RecreationResourceService", () => {
         .mockResolvedValueOnce(groupActivityCodes);
       service["prisma"].$transaction = vi
         .fn()
-        .mockResolvedValueOnce([orderedRecresourceArray, totalRecordIds])
+        .mockResolvedValueOnce([
+          orderedRecresourceArray,
+          totalRecordIds,
+          recResourceTypeCounts,
+        ])
         .mockResolvedValueOnce([allActivityCodes, groupActivityCodes]);
 
       const results = await service.searchRecreationResources(1, "", 10);
@@ -486,6 +569,9 @@ describe("RecreationResourceService", () => {
         .fn()
         .mockResolvedValueOnce([])
         .mockResolvedValueOnce([]);
+      service["prisma"].recreation_resource_type_code.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(recResourceTypeCounts);
       service["prisma"].recreation_activity.findMany = vi
         .fn()
         .mockResolvedValueOnce(allActivityCodes);
@@ -494,7 +580,7 @@ describe("RecreationResourceService", () => {
         .mockResolvedValueOnce([]);
       service["prisma"].$transaction = vi
         .fn()
-        .mockResolvedValueOnce([[], []])
+        .mockResolvedValueOnce([[], [], recResourceTypeCounts])
         .mockResolvedValueOnce([allActivityCodes, []]);
 
       await expect(
@@ -513,6 +599,9 @@ describe("RecreationResourceService", () => {
         .fn()
         .mockResolvedValueOnce([])
         .mockResolvedValueOnce([]);
+      service["prisma"].recreation_resource_type_code.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(recResourceTypeCounts);
       service["prisma"].recreation_activity.findMany = vi
         .fn()
         .mockResolvedValueOnce(allActivityCodes);
@@ -521,7 +610,7 @@ describe("RecreationResourceService", () => {
         .mockResolvedValueOnce([]);
       service["prisma"].$transaction = vi
         .fn()
-        .mockResolvedValueOnce([[], []])
+        .mockResolvedValueOnce([[], [], recResourceTypeCounts])
         .mockResolvedValueOnce([allActivityCodes, []]);
 
       const results = await service.searchRecreationResources(1, "Rec", 10);
@@ -542,7 +631,9 @@ describe("RecreationResourceService", () => {
         where: { rec_resource_id: { in: [] } },
       });
 
-      const activityFilter = results.filters[0];
+      const activityFilter = results.filters.find(
+        (filter) => filter.param === "activities",
+      );
 
       for (const option of activityFilter.options) {
         expect(option.count).toBe(0);
@@ -552,8 +643,11 @@ describe("RecreationResourceService", () => {
     it("should return activity filters with correct counts", async () => {
       service["prisma"].recreation_resource.findMany = vi
         .fn()
-        .mockResolvedValueOnce(recresourceArray)
+        .mockResolvedValueOnce(recResourceArray)
         .mockResolvedValueOnce(totalRecordIds);
+      service["prisma"].recreation_resource_type_code.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(recResourceTypeCounts);
       service["prisma"].recreation_activity.findMany = vi
         .fn()
         .mockResolvedValueOnce(allActivityCodes);
@@ -562,7 +656,11 @@ describe("RecreationResourceService", () => {
         .mockResolvedValueOnce(groupActivityCodes);
       service["prisma"].$transaction = vi
         .fn()
-        .mockResolvedValueOnce([recresourceArray, totalRecordIds])
+        .mockResolvedValueOnce([
+          recResourceArray,
+          totalRecordIds,
+          recResourceTypeCounts,
+        ])
         .mockResolvedValueOnce([allActivityCodes, groupActivityCodes]);
 
       const results = await service.searchRecreationResources(
@@ -572,7 +670,9 @@ describe("RecreationResourceService", () => {
         "32",
       );
 
-      const activityFilter = results.filters[0];
+      const activityFilter = results.filters.find(
+        (filter) => filter.param === "activities",
+      );
 
       for (const option of activityFilter.options) {
         const group = groupActivityCodes.find(
@@ -586,8 +686,11 @@ describe("RecreationResourceService", () => {
     it("should return activity filters with correct counts when multiple activities are selected", async () => {
       service["prisma"].recreation_resource.findMany = vi
         .fn()
-        .mockResolvedValueOnce(recresourceArray)
+        .mockResolvedValueOnce(recResourceArray)
         .mockResolvedValueOnce(totalRecordIds);
+      service["prisma"].recreation_resource_type_code.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(recResourceTypeCounts);
       service["prisma"].recreation_activity.findMany = vi
         .fn()
         .mockResolvedValueOnce(allActivityCodes);
@@ -596,7 +699,11 @@ describe("RecreationResourceService", () => {
         .mockResolvedValueOnce(groupActivityCodes);
       service["prisma"].$transaction = vi
         .fn()
-        .mockResolvedValueOnce([recresourceArray, totalRecordIds])
+        .mockResolvedValueOnce([
+          recResourceArray,
+          totalRecordIds,
+          recResourceTypeCounts,
+        ])
         .mockResolvedValueOnce([allActivityCodes, groupActivityCodes]);
 
       const results = await service.searchRecreationResources(
@@ -606,7 +713,9 @@ describe("RecreationResourceService", () => {
         "32_9",
       );
 
-      const activityFilter = results.filters[0];
+      const activityFilter = results.filters.find(
+        (filter) => filter.param === "activities",
+      );
 
       for (const option of activityFilter.options) {
         const group = groupActivityCodes.find(
@@ -620,8 +729,11 @@ describe("RecreationResourceService", () => {
     it("should return activity filters with correct counts when no activities are selected", async () => {
       service["prisma"].recreation_resource.findMany = vi
         .fn()
-        .mockResolvedValueOnce(recresourceArray)
+        .mockResolvedValueOnce(recResourceArray)
         .mockResolvedValueOnce(totalRecordIds);
+      service["prisma"].recreation_resource_type_code.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(recResourceTypeCounts);
       service["prisma"].recreation_activity.findMany = vi
         .fn()
         .mockResolvedValueOnce(allActivityCodes);
@@ -630,12 +742,18 @@ describe("RecreationResourceService", () => {
         .mockResolvedValueOnce(groupActivityCodes);
       service["prisma"].$transaction = vi
         .fn()
-        .mockResolvedValueOnce([recresourceArray, totalRecordIds])
+        .mockResolvedValueOnce([
+          recResourceArray,
+          totalRecordIds,
+          recResourceTypeCounts,
+        ])
         .mockResolvedValueOnce([allActivityCodes, groupActivityCodes]);
 
       const results = await service.searchRecreationResources(1, "Rec", 10, "");
 
-      const activityFilter = results.filters[0];
+      const activityFilter = results.filters.find(
+        (filter) => filter.param === "activities",
+      );
 
       for (const option of activityFilter.options) {
         const group = groupActivityCodes.find(
@@ -649,8 +767,11 @@ describe("RecreationResourceService", () => {
     it("should return activity filters with correct counts when no activities are found", async () => {
       service["prisma"].recreation_resource.findMany = vi
         .fn()
-        .mockResolvedValueOnce(recresourceArray)
+        .mockResolvedValueOnce(recResourceArray)
         .mockResolvedValueOnce(totalRecordIds);
+      service["prisma"].recreation_resource_type_code.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(recResourceTypeCounts);
       service["prisma"].recreation_activity.findMany = vi
         .fn()
         .mockResolvedValueOnce(allActivityCodes);
@@ -659,7 +780,11 @@ describe("RecreationResourceService", () => {
         .mockResolvedValueOnce([]);
       service["prisma"].$transaction = vi
         .fn()
-        .mockResolvedValueOnce([recresourceArray, totalRecordIds])
+        .mockResolvedValueOnce([
+          recResourceArray,
+          totalRecordIds,
+          recResourceTypeCounts,
+        ])
         .mockResolvedValueOnce([allActivityCodes, []]);
 
       const results = await service.searchRecreationResources(
@@ -669,7 +794,9 @@ describe("RecreationResourceService", () => {
         "99",
       );
 
-      const activityFilter = results.filters[0];
+      const activityFilter = results.filters.find(
+        (filter) => filter.param === "activities",
+      );
 
       for (const option of activityFilter.options) {
         expect(option.count).toBe(0);
