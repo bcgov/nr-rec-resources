@@ -10,15 +10,16 @@ datasource db {
 }
 
 model recreation_resource {
-  rec_resource_id        String                @id @db.VarChar(200)
-  name                   String?               @db.VarChar(200)
-  description            String?               @db.VarChar(5000)
-  closest_community      String?               @db.VarChar(200)
-  display_on_public_site Boolean?              @default(false)
-  rec_resource_type      String?               @db.VarChar(50)
+  rec_resource_id               String                        @id @db.VarChar(200)
+  name                          String?                       @db.VarChar(200)
+  description                   String?                       @db.VarChar(5000)
+  closest_community                 String?                       @db.VarChar(200)
+  display_on_public_site        Boolean?                      @default(false)
+  rec_resource_type             String                        @db.VarChar(10)
   campsite_count         Int?                  @default(0)
-  recreation_activity    recreation_activity[]
-  recreation_status      recreation_status?
+  recreation_activity           recreation_activity[]
+  recreation_resource_type_code recreation_resource_type_code @relation(fields: [rec_resource_type], references: [rec_resource_type_code], onDelete: NoAction, onUpdate: NoAction)
+  recreation_status             recreation_status?
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -49,4 +50,10 @@ model recreation_status_code {
   status_code       Int                 @id @default(autoincrement())
   description       String              @db.VarChar(120)
   recreation_status recreation_status[]
+}
+
+model recreation_resource_type_code {
+  rec_resource_type_code String                @id @db.VarChar(10)
+  description            String?               @db.VarChar(200)
+  recreation_resource    recreation_resource[]
 }
