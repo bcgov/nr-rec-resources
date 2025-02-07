@@ -96,7 +96,7 @@ const RecResourcePage = () => {
 
   const isThingsToDo = recreation_activity && recreation_activity.length > 0;
   const isPhotoGallery = photosExample.length > 0;
-  const isClosures = statusComment && formattedName && statusCode === '02';
+  const isClosures = statusComment && formattedName && statusCode === 2;
 
   const sectionRefs: React.RefObject<HTMLElement>[] = useMemo(
     () =>
