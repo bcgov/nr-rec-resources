@@ -49,8 +49,11 @@ const PageMenu: React.FC<PageMenuProps> = ({
       const selectedSection = pageSections.find(
         (section) => section.sectionIndex === Number(index),
       );
-      if (selectedSection) {
-        window.location.hash = selectedSection.href;
+      if (
+        selectedSection?.href &&
+        window.location.hash !== `#${selectedSection.href}`
+      ) {
+        window.location.hash = encodeURIComponent(selectedSection.href);
       }
     };
 
