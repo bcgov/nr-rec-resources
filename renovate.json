@@ -1,5 +1,14 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "description": "Presets from https://github.com/bcgov/renovate-config",
-  "extends": ["github>bcgov/renovate-config"]
+  "extends": ["github>bcgov/renovate-config"],
+  "packageRules": [
+    {
+      "matchPackageNames": ["software.amazon.awssdk**"],
+      "matchUpdateTypes": ["patch"],
+      "enabled": false,
+      "description": "Schedule aws-sdk updates on Sunday nights (9 PM - 12 AM) and dont update patch versions, they are noisy",
+      "schedule": ["* 21-23 * * 0"]
+    }
+  ]
 }
