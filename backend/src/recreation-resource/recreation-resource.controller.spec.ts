@@ -49,6 +49,7 @@ describe("RecreationResourceController", () => {
         closest_community: "Rec site 1 location",
         recreation_activity: [],
         display_on_public_site: true,
+        rec_resource_type: "RR",
         recreation_status: {
           description: "Active",
           comment: "Active",
@@ -79,6 +80,7 @@ describe("RecreationResourceController", () => {
             name: "Rec site 1",
             description: "Rec site 1 description",
             closest_community: "Rec site 1 location",
+            rec_resource_type: "RR",
             recreation_activity: [],
             recreation_status: {
               description: "Active",

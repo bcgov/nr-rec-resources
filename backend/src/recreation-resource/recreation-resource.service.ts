@@ -94,31 +94,33 @@ export class RecreationResourceService {
   }
 
   async getActivityCounts(totalRecordIds: { rec_resource_id: string }[]) {
+    const groupActivitiesQuery = this.prisma.recreation_activity.groupBy({
+      by: ["recreation_activity_code"],
+      _count: {
+        recreation_activity_code: true,
+      },
+      where: {
+        rec_resource_id: {
+          in: totalRecordIds?.map((record) => record.rec_resource_id),
+        },
+      },
+    });
+
+    const allActivityCodesQuery = this.prisma.recreation_activity.findMany({
+      select: activitySelect,
+      where: {
+        NOT: {
+          recreation_activity_code: {
+            in: excludedActivityCodes,
+          },
+        },
+      },
+      distinct: ["recreation_activity_code"],
+    });
+
     const [allActivityCodes, groupActivities] = await this.prisma.$transaction([
-      this.prisma.recreation_activity.findMany({
-        select: activitySelect,
-        where: {
-          NOT: {
-            recreation_activity_code: {
-              in: excludedActivityCodes,
-            },
-          },
-        },
-        distinct: ["recreation_activity_code"],
-      }),
-      // https://github.com/prisma/prisma/issues/17276
-      // @ts-ignore
-      this.prisma.recreation_activity.groupBy({
-        by: ["recreation_activity_code"],
-        _count: {
-          recreation_activity_code: true,
-        },
-        where: {
-          rec_resource_id: {
-            in: totalRecordIds?.map((record) => record.rec_resource_id),
-          },
-        },
-      }),
+      allActivityCodesQuery,
+      groupActivitiesQuery,
     ]);
     // Merge and include missing entries with a count of 0
     const activityCount = allActivityCodes?.map(
@@ -236,7 +238,7 @@ export class RecreationResourceService {
       (resourceType) => ({
         id: resourceType.rec_resource_type_code,
         description: resourceType.description,
-        count: resourceType._count.recreation_resource || 0,
+        count: resourceType._count.recreation_resource ?? 0,
       }),
     );
 
