@@ -7,14 +7,6 @@ create table if not exists rst.recreation_resource_type_code (
     description varchar(200)
 );
 
-insert into
-    rst.recreation_resource_type_code (rec_resource_type_code, description)
-values
-    ('IF', 'Interpretive Forest'),
-    ('RR', 'Recreation Reserve'),
-    ('RTR', 'Recreation Trail'),
-    ('SIT', 'Recreation Site');
-
 create table if not exists rst.recreation_resource (
     rec_resource_id varchar(200) not null primary key,
     name varchar(200),
