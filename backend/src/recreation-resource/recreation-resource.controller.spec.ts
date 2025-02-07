@@ -78,7 +78,7 @@ describe("RecreationResourceController", () => {
             rec_resource_id: "REC0001",
             name: "Rec site 1",
             description: "Rec site 1 description",
-            site_location: "Rec site 1 location",
+            closest_community: "Rec site 1 location",
             recreation_activity: [],
             recreation_status: {
               description: "Active",
