@@ -235,6 +235,9 @@ export class RecreationResourceService {
               notIn: excludedResourceTypes,
             },
           },
+          orderBy: {
+            description: Prisma.SortOrder.desc,
+          },
         }),
       ]);
 
