@@ -6,7 +6,7 @@ class FilterOptionDto {
     description: "Unique identifier for the filter option",
     example: 1,
   })
-  id: number;
+  id: string | number;
 
   @ApiProperty({
     description: "Number of matching results for this filter",

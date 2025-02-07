@@ -47,6 +47,7 @@ describe("Recreation DTOs", () => {
         description:
           "A scenic campground nestled in the heart of Evergreen Valley",
         closest_community: "123 Forest Road, Mountain View, CA 94043",
+        rec_resource_type: "RR",
         recreation_activity: [
           {
             recreation_activity_code: 1,
@@ -67,6 +68,9 @@ describe("Recreation DTOs", () => {
       expect(resource.name.length).toBeLessThanOrEqual(100);
       expect(Array.isArray(resource.recreation_activity)).toBeTruthy();
       expect(resource.recreation_status).toBeDefined();
+      expect(resource.description).toBeDefined();
+      expect(resource.closest_community).toBeDefined();
+      expect(resource.rec_resource_type).toBeDefined();
     });
 
     it("should allow null description", () => {
@@ -75,6 +79,7 @@ describe("Recreation DTOs", () => {
         name: "Test Resource",
         description: null,
         closest_community: "Test Location",
+        rec_resource_type: "RR",
         recreation_activity: [],
         recreation_status: {
           status_code: 1,
