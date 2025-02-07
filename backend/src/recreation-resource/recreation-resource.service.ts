@@ -171,7 +171,7 @@ export class RecreationResourceService {
       OR: [
         { name: { contains: filter, mode: Prisma.QueryMode.insensitive } },
         {
-          site_location: {
+          closest_community: {
             contains: filter,
             mode: Prisma.QueryMode.insensitive,
           },
