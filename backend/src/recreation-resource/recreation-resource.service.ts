@@ -4,6 +4,9 @@ import { PrismaService } from "src/prisma.service";
 import { RecreationResourceDto } from "./dto/recreation-resource.dto";
 import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resource.dto";
 
+const excludedActivityCodes = [26];
+const excludedResourceTypes = ["RR"];
+
 const recreationResourceSelect = {
   rec_resource_id: true,
   description: true,
@@ -43,8 +46,6 @@ const activitySelect = {
     },
   },
 };
-
-const excludedActivityCodes = [26];
 
 type RecreationResourceGetPayload = Prisma.recreation_resourceGetPayload<{
   select: typeof recreationResourceSelect;
@@ -195,6 +196,9 @@ export class RecreationResourceService {
       ],
       AND: {
         display_on_public_site: true,
+        rec_resource_type: {
+          notIn: excludedResourceTypes,
+        },
         ...activityFilterQuery,
         ...resourceTypeFilterQuery,
       },
@@ -225,6 +229,11 @@ export class RecreationResourceService {
               select: {
                 recreation_resource: true, // Count related recreation resources
               },
+            },
+          },
+          where: {
+            rec_resource_type_code: {
+              notIn: excludedResourceTypes,
             },
           },
         }),
