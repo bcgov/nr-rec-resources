@@ -30,7 +30,7 @@ const SearchBanner = () => {
           <input
             className="form-control"
             type="text"
-            placeholder="Search by name or site location"
+            placeholder="Search by name or closest community"
             value={inputValue}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setInputValue(e.target.value)

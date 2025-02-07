@@ -214,13 +214,13 @@ export class RecreationResourceService {
           skip,
           orderBy,
         }),
-        // Get all unpaginated rec_resource_ids for the records so we can group/count records for the filter sidebar
-        // This can be used to get the count of each filter group
+        // Get all unpaginated but filtered rec_resource_ids for the records so we can group/count records for the filter sidebar
+        // This can be used to get the count of each many to many filter group
         this.prisma.recreation_resource.findMany({
           where,
           select: { rec_resource_id: true },
         }),
-        // Get counts for all, unfitered resource types that are in the records
+        // Get counts for all, unfiltered resource types that are in the records
         this.prisma.recreation_resource_type_code.findMany({
           select: {
             rec_resource_type_code: true,
