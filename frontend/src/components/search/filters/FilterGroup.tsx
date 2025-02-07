@@ -53,6 +53,7 @@ const FilterGroup = ({
     ? options.slice(0, MAX_VISIBLE_OPTIONS)
     : options;
   const filterParamsArray = searchParams.get(param)?.split('_');
+  const isShowMoreBtn = showMoreBtn && filtersCount > MAX_VISIBLE_OPTIONS;
 
   return (
     <div className="filter-group-container">
@@ -76,7 +77,7 @@ const FilterGroup = ({
           );
         })}
       </Form.Group>
-      {showMoreBtn && (
+      {isShowMoreBtn && (
         <button
           className="show-all-link"
           onClick={() => setShowAllOptions(!showAllOptions)}
