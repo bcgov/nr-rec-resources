@@ -26,7 +26,7 @@ from
     fta.recreation_project rp
     left join fta.recreation_comment rc on rp.forest_file_id = rc.forest_file_id
     left join fta.recreation_map_feature rmf on rp.forest_file_id = rmf.forest_file_id
-    left join 
+    left join
     (select forest_file_id, count(*) as campsite_count
      from fta.recreation_defined_campsite
      group by forest_file_id) c
