@@ -16,4 +16,5 @@ export interface RecreationResource {
   recreation_activity: Activity[];
   closest_community: string;
   recreation_status: RecreationStatus;
+  campsite_count: number;
 }

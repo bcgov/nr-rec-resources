@@ -76,6 +76,8 @@ export interface RecreationResourceDto {
    * @memberof RecreationResourceDto
    */
   rec_resource_type: string;
+
+  campsite_count: number;
 }
 
 /**
@@ -135,6 +137,7 @@ export function RecreationResourceDtoFromJSONTyped(
     ),
     recreation_status: RecreationStatusDtoFromJSON(json['recreation_status']),
     rec_resource_type: json['rec_resource_type'],
+    campsite_count: json['campsite_count'],
   };
 }
 
