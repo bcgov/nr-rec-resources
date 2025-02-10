@@ -14,7 +14,7 @@ select
         when rc.rec_comment_type_code = 'DESC' then rc.project_comment
         else ''
     end as description,
-    rp.closest_community,
+    rp.site_location as closest_community,
     case
         when rp.recreation_view_ind = 'Y' then true
         else false
