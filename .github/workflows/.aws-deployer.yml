@@ -52,7 +52,7 @@ env:
     FLYWAY_IMAGE: ghcr.io/${{github.repository}}/migrations/rst:${{ inputs.tag }}
 jobs:
  infra:
-  name: Terraform ${{inputs.command}} ${{ inputs.package }} ${{ inputs.working_directory }}
+  name: Terraform ${{inputs.command}} ${{ inputs.package }} ${{ inputs.working_directory }} ${{ inputs.environment_name }}
   runs-on: ubuntu-24.04
   outputs:
     API_GW_URL: ${{ steps.tg-outputs.outputs.API_GW_URL }}
