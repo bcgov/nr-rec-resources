@@ -17,7 +17,7 @@ import {
   recResourceTypeCountsResolved,
   recResourceTypeCounts,
   noSearchResultsFilterArray,
-} from "src/recreation-resource/test/mock-data";
+} from "src/recreation-resource/test/mock-data.test";
 
 describe("RecreationResourceService", () => {
   let service: RecreationResourceService;
@@ -499,7 +499,13 @@ describe("RecreationResourceService", () => {
         ])
         .mockResolvedValueOnce([allActivityCodes, groupActivityCodes]);
 
-      const results = await service.searchRecreationResources(1, "Rec", 10);
+      const results = await service.searchRecreationResources(
+        1,
+        "Rec",
+        10,
+        null,
+        "SIT",
+      );
 
       const recResourceTypeFilter = results.filters.find(
         (filter) => filter.param === "type",
@@ -542,7 +548,13 @@ describe("RecreationResourceService", () => {
         .mockResolvedValueOnce([[], [], recResourceTypeCounts])
         .mockResolvedValueOnce([allActivityCodes, []]);
 
-      const results = await service.searchRecreationResources(1, "Rec", 10);
+      const results = await service.searchRecreationResources(
+        1,
+        "Rec",
+        10,
+        null,
+        "RR",
+      );
 
       const recResourceTypeFilter = results.filters.find(
         (filter) => filter.param === "type",
