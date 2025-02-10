@@ -26,14 +26,6 @@ from
     left join fta.recreation_map_feature rmf on rp.forest_file_id = rmf.forest_file_id on conflict do nothing;
 
 insert into
-    rst.recreation_activity_code (recreation_activity_code, description)
-select
-    rac.recreation_activity_code,
-    rac.description as description
-from
-    fta.recreation_activity_code rac;
-
-insert into
     rst.recreation_activity (rec_resource_id, recreation_activity_code)
 select
     ra.forest_file_id as rec_resource_id,
@@ -48,7 +40,7 @@ select
     forest_file_id,
     case
         when closure_ind = 'Y' then 2 -- Closed
-        when closure_ind = 'N' then 1 -- Open
+        else 1 -- Open
     end as recreation_status_code,
     project_comment as description
 from
