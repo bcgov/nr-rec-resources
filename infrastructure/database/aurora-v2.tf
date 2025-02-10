@@ -79,7 +79,7 @@ module "aurora_postgresql_v2" {
   storage_encrypted = true
   database_name     = var.db_database_name
 
-  enable_http_endpoint = contains(["dev"], local.rds_app_env) ? true : false
+  enable_http_endpoint = contains(["dev", "test"], local.rds_app_env) ? true : false
 
   vpc_id                 = data.aws_vpc.main.id
   vpc_security_group_ids = [data.aws_security_group.data.id]
