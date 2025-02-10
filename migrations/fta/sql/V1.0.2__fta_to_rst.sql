@@ -1,4 +1,4 @@
-insert into rst.recreation_resource (rec_resource_id, name, description, site_location, display_on_public_site, rec_resource_type)
+insert into rst.recreation_resource (rec_resource_id, name, description, site_location, display_on_public_site, rec_resource_type, campsite_count)
 select
     rp.forest_file_id,
     rp.project_name as name,
@@ -11,7 +11,8 @@ select
         when rp.recreation_view_ind = 'Y' then true
         else false
     end as display_on_public_site,
-    rmf.recreation_map_feature_code
+    rmf.recreation_map_feature_code,
+    coalesce(c.campsite_count, 0) as campsite_count
 from
     fta.recreation_project rp
 left join
@@ -22,6 +23,12 @@ left join
     fta.recreation_map_feature rmf
 on
     rp.forest_file_id = rmf.forest_file_id
+left join 
+    (select forest_file_id, count(*) as campsite_count
+     from fta.recreation_defined_campsite
+     group by forest_file_id) c
+on
+    rp.forest_file_id = c.forest_file_id
 on conflict do nothing;
 
 insert into rst.recreation_activity_code (recreation_activity_code, description)

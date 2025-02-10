@@ -18,6 +18,7 @@ interface RecreationResource {
   site_location: string;
   recreation_activity: RecreationActivityWithDescription[];
   rec_resource_type: string;
+  campsite_count: number;
   recreation_status: {
     recreation_status_code: {
       description: string;
@@ -38,7 +39,7 @@ export class RecreationResourceService {
     name: true,
     site_location: true,
     rec_resource_type: true,
-
+    campsite_count: true,
     recreation_activity: {
       select: {
         // Join recreation_activity_code to get description

@@ -58,6 +58,8 @@ describe("Recreation DTOs", () => {
           comment: null,
           description: "The facility is open",
         },
+        rec_resource_type: "IF",
+        campsite_count: 2,
       };
 
       expect(resource.rec_resource_id).toBeDefined();
@@ -79,6 +81,8 @@ describe("Recreation DTOs", () => {
           comment: null,
           description: "Open",
         },
+        rec_resource_type: "IF",
+        campsite_count: 2,
       };
 
       expect(resource.description).toBeNull();
