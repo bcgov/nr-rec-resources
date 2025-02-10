@@ -1,4 +1,12 @@
 insert into
+    rst.recreation_resource_type_code (rec_resource_type_code, description)
+select
+    recreation_map_feature_code,
+    description
+from
+    fta.recreation_map_feature_code;
+
+insert into
     rst.recreation_resource (
         rec_resource_id,
         name,

@@ -197,12 +197,10 @@ describe('the SearchPage component', () => {
       expect(resourceElement).toBeInTheDocument();
     });
 
-    // loop through the resources and check if the site location is displayed
     mockResources.data.data.forEach((resource) => {
-      const resourceElement = screen
-        .getByText(resource.name.toLowerCase())
-        .parentElement?.parentElement?.querySelector('p');
-      expect(resourceElement).toBeInTheDocument();
+      expect(
+        screen.getAllByText(resource.closest_community.toLowerCase()).length,
+      ).toBeGreaterThan(0);
     });
   });
 

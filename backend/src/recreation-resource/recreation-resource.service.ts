@@ -4,13 +4,20 @@ import { PrismaService } from "src/prisma.service";
 import { RecreationResourceDto } from "./dto/recreation-resource.dto";
 import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resource.dto";
 
+const excludedActivityCodes = [26];
+const excludedResourceTypes = ["RR"];
+
 const recreationResourceSelect = {
   rec_resource_id: true,
   description: true,
   name: true,
   closest_community: true,
   display_on_public_site: true,
-  rec_resource_type: true,
+  recreation_resource_type_code: {
+    select: {
+      description: true,
+    },
+  },
 
   recreation_activity: {
     select: {
@@ -39,8 +46,6 @@ const activitySelect = {
   },
 };
 
-const excludedActivityCodes = [26];
-
 type RecreationResourceGetPayload = Prisma.recreation_resourceGetPayload<{
   select: typeof recreationResourceSelect;
 }>;
@@ -57,6 +62,7 @@ export class RecreationResourceService {
   formatResults(recResources: RecreationResourceGetPayload[]) {
     return recResources?.map((resource) => ({
       ...resource,
+      rec_resource_type: resource?.recreation_resource_type_code.description,
       recreation_activity: resource.recreation_activity?.map((activity) => ({
         description: activity.with_description.description,
         recreation_activity_code:
@@ -86,31 +92,33 @@ export class RecreationResourceService {
   }
 
   async getActivityCounts(totalRecordIds: { rec_resource_id: string }[]) {
+    const groupActivitiesQuery = this.prisma.recreation_activity.groupBy({
+      by: ["recreation_activity_code"],
+      _count: {
+        recreation_activity_code: true,
+      },
+      where: {
+        rec_resource_id: {
+          in: totalRecordIds?.map((record) => record.rec_resource_id),
+        },
+      },
+    });
+
+    const allActivityCodesQuery = this.prisma.recreation_activity.findMany({
+      select: activitySelect,
+      where: {
+        NOT: {
+          recreation_activity_code: {
+            in: excludedActivityCodes,
+          },
+        },
+      },
+      distinct: ["recreation_activity_code"],
+    });
+
     const [allActivityCodes, groupActivities] = await this.prisma.$transaction([
-      this.prisma.recreation_activity.findMany({
-        select: activitySelect,
-        where: {
-          NOT: {
-            recreation_activity_code: {
-              in: excludedActivityCodes,
-            },
-          },
-        },
-        distinct: ["recreation_activity_code"],
-      }),
-      // https://github.com/prisma/prisma/issues/17276
-      // @ts-ignore
-      this.prisma.recreation_activity.groupBy({
-        by: ["recreation_activity_code"],
-        _count: {
-          recreation_activity_code: true,
-        },
-        where: {
-          rec_resource_id: {
-            in: totalRecordIds?.map((record) => record.rec_resource_id),
-          },
-        },
-      }),
+      allActivityCodesQuery,
+      groupActivitiesQuery,
     ]);
     // Merge and include missing entries with a count of 0
     const activityCount = allActivityCodes?.map(
@@ -138,6 +146,7 @@ export class RecreationResourceService {
     filter: string = "",
     limit?: number,
     activities?: string,
+    type?: string,
   ): Promise<PaginatedRecreationResourceDto> {
     // 10 page limit - max 100 records since if no limit we fetch page * limit
     if (page > 10 && !limit) {
@@ -155,6 +164,7 @@ export class RecreationResourceService {
     const skip = limit ? (page - 1) * limit : 0;
     const orderBy = [{ name: Prisma.SortOrder.asc }];
     const activityFilter = activities?.split("_").map(Number);
+    const typeFilter = type?.split("_").map(String);
 
     // Filter by activities if provided
     const activityFilterQuery = activities && {
@@ -165,6 +175,12 @@ export class RecreationResourceService {
           },
         },
       })),
+    };
+
+    const resourceTypeFilterQuery = type && {
+      rec_resource_type: {
+        in: typeFilter,
+      },
     };
 
     const where = {
@@ -179,11 +195,15 @@ export class RecreationResourceService {
       ],
       AND: {
         display_on_public_site: true,
+        rec_resource_type: {
+          notIn: excludedResourceTypes,
+        },
         ...activityFilterQuery,
+        ...resourceTypeFilterQuery,
       },
     };
 
-    const [recreationResources, totalRecordIds] =
+    const [recreationResources, totalRecordIds, recResourceTypeCounts] =
       await this.prisma.$transaction([
         // Fetch paginated records
         this.prisma.recreation_resource.findMany({
@@ -193,15 +213,43 @@ export class RecreationResourceService {
           skip,
           orderBy,
         }),
-        // Get all unpaginated rec_resource_ids for the records so we can group/count records for the filter sidebar
-        // This can be used to get the count of each filter group
+        // Get all unpaginated but filtered rec_resource_ids for the records so we can group/count records for the filter sidebar
+        // This can be used to get the count of each many to many filter group
         this.prisma.recreation_resource.findMany({
           where,
           select: { rec_resource_id: true },
         }),
+        // Get counts for all, unfiltered resource types that are in the records
+        this.prisma.recreation_resource_type_code.findMany({
+          select: {
+            rec_resource_type_code: true,
+            description: true,
+            _count: {
+              select: {
+                recreation_resource: true, // Count related recreation resources
+              },
+            },
+          },
+          where: {
+            rec_resource_type_code: {
+              notIn: excludedResourceTypes,
+            },
+          },
+          orderBy: {
+            description: Prisma.SortOrder.desc,
+          },
+        }),
       ]);
 
     const activityFilters = await this.getActivityCounts(totalRecordIds);
+
+    const recResourceTypeFilters = recResourceTypeCounts.map(
+      (resourceType) => ({
+        id: resourceType.rec_resource_type_code,
+        description: resourceType.description,
+        count: resourceType._count.recreation_resource ?? 0,
+      }),
+    );
 
     return {
       data: this.formatResults(recreationResources),
@@ -209,6 +257,12 @@ export class RecreationResourceService {
       limit,
       total: totalRecordIds?.length,
       filters: [
+        {
+          type: "multi-select",
+          label: "Type",
+          param: "type",
+          options: recResourceTypeFilters,
+        },
         {
           type: "multi-select",
           label: "Things to do",
