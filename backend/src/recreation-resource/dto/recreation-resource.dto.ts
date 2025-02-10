@@ -81,4 +81,12 @@ export class RecreationResourceDto {
     example: "IF",
   })
   rec_resource_type: string;
+
+  @ApiProperty({
+    description:
+      "Number of campsites available in the recreation site or trail",
+    example: 15,
+    minimum: 0,
+  })
+  campsite_count: number;
 }
