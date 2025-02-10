@@ -68,16 +68,26 @@
 
   .search-banner-input-container {
     display: flex;
+    flex-direction: column;
     width: 100%;
-    margin-top: 16px;
 
     input {
-      margin-right: 16px;
+      margin-bottom: 16px;
+      min-height: 48px;
+    }
+
+    @include media-breakpoint-up(sm) {
+      flex-direction: row;
+
+      input {
+        margin-right: 16px;
+        margin-bottom: 0;
+      }
     }
 
     @include media-breakpoint-up(md) {
-      margin-top: 0;
       justify-content: flex-end;
+
       input {
         margin: 0 16px;
       }
