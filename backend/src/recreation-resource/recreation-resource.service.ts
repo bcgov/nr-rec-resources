@@ -86,8 +86,8 @@ export class RecreationResourceService {
     const [_, recResourceLocation] = await this.prisma.$transaction([
       this.prisma.$executeRaw`set search_path to public, rst`,
       this.prisma.$queryRaw`
-        select st_y(st_transform(location, 4326)) as latitude,
-        st_x(st_transform(location, 4326)) as longitude
+        select st_y(st_transform(location, 3857)) as latitude,
+        st_x(st_transform(location, 3857)) as longitude
         from rst.recreation_resource
         where rec_resource_id = ${id}`,
     ]);

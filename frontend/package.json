@@ -30,6 +30,8 @@
     "html-react-parser": "^5.2.2",
     "mapbox-gl-esri-sources": "^0.0.7",
     "maplibre-gl": "^5.1.0",
+    "ol": "^10.4.0",
+    "ol-mapbox-style": "^12.4.1",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.7",
     "react-dom": "^19.0.0",
