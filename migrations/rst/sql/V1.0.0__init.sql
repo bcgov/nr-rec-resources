@@ -1,4 +1,4 @@
-create extension if not exists "postgis";
+create extension if not exists "postgis" cascade;
 
 create schema if not exists rst;
 
@@ -8,7 +8,8 @@ create table if not exists rst.recreation_resource (
     description varchar(5000),
     closest_community varchar(200),
     display_on_public_site boolean default false,
-    rec_resource_type varchar(50)
+    rec_resource_type varchar(50),
+    location geometry (point, 3005) default null
 );
 
 comment on table rst.recreation_resource is 'Resource information relating to a recreational file. A recreation file can have only one resource. A recreation resource must be of type Site, Reserve, Trail, or Interpretive Forest.';

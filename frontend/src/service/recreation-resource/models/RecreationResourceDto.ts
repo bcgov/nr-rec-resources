@@ -76,6 +76,12 @@ export interface RecreationResourceDto {
    * @memberof RecreationResourceDto
    */
   rec_resource_type: string;
+  /**
+   * Location coordinates of the Recreation Resource
+   * @type {Array<string>}
+   * @memberof RecreationResourceDto
+   */
+  location: Array<string>;
 }
 
 /**
@@ -109,6 +115,7 @@ export function instanceOfRecreationResourceDto(
     value['rec_resource_type'] === undefined
   )
     return false;
+  if (!('location' in value) || value['location'] === undefined) return false;
   return true;
 }
 
@@ -135,6 +142,7 @@ export function RecreationResourceDtoFromJSONTyped(
     ),
     recreation_status: RecreationStatusDtoFromJSON(json['recreation_status']),
     rec_resource_type: json['rec_resource_type'],
+    location: json['location'],
   };
 }
 
@@ -160,5 +168,6 @@ export function RecreationResourceDtoToJSONTyped(
     ),
     recreation_status: RecreationStatusDtoToJSON(value['recreation_status']),
     rec_resource_type: value['rec_resource_type'],
+    location: value['location'],
   };
 }

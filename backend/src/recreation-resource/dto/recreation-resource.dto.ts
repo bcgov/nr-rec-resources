@@ -81,4 +81,10 @@ export class RecreationResourceDto {
     example: "IF",
   })
   rec_resource_type: string;
+
+  @ApiProperty({
+    description: "Location coordinates of the Recreation Resource",
+    example: [-123.36, 48.42],
+  })
+  location?: [number, number];
 }
