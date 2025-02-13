@@ -96,6 +96,7 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
         view: new View({
           center: [location[1], location[0]],
           zoom: 14,
+          minZoom: 5,
           projection: 'EPSG:3857',
         }),
       });
