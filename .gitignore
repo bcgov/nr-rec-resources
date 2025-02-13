@@ -253,3 +253,7 @@ frontend/src/service/recreation-resource/.openapi-generator
 !backend-el
 backend-el/target
 backend-el/*.iml
+
+# sonarqube config/analysis files (local)
+/sonar-project.properties
+/.scannerwork/

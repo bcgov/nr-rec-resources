@@ -1,36 +1,57 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import apiService from '@/service/api-service';
-import type { AxiosResponse } from '~/axios';
-import buildQueryString from '@/utils/buildQueryString';
 import RecResourceCard from '@/components/rec-resource/card/RecResourceCard';
 import SearchBanner from '@/components/search/SearchBanner';
 import FilterMenu from '@/components/search/filters/FilterMenu';
 import FilterMenuMobile from '@/components/search/filters/FilterMenuMobile';
-import { photosExample } from '@/components/rec-resource/RecResourcePage';
-import { RecreationResource } from '@/components/rec-resource/types';
+import {
+  PaginatedRecreationResourceDto,
+  RecreationResourceDto,
+} from '@/service/recreation-resource';
+import { useSearchRecreationResourcesPaginated } from '@/service/queries/recreation-resource';
+import { useInitialPageFromSearchParams } from '@/components/search/hooks/useInitialPageFromSearchParams';
 
 const SearchPage = () => {
-  const [recResourceData, setRecResourceData] = useState<any>([]);
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchResetKey, setSearchResetKey] = useState('search-reset-key');
-  const [isComponentMounted, setIsComponentMounted] = useState(false);
-  const [isLazyLoading, setIsLazyLoading] = useState(false);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
-  const recResourceList = recResourceData?.data;
-  const resultsTotal = recResourceData?.total;
-  const page = searchParams.get('page');
+  const initialPage = useInitialPageFromSearchParams();
 
-  const isResults = recResourceList?.length > 0;
-  const isLoadMore = isResults && resultsTotal > recResourceList?.length;
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    hasPreviousPage,
+    fetchPreviousPage,
+  } = useSearchRecreationResourcesPaginated({
+    limit: 10,
+    filter: searchParams.get('filter') ?? undefined,
+    district: searchParams.get('district') ?? undefined,
+    activities: searchParams.get('activities') ?? undefined,
+    access: searchParams.get('access') ?? undefined,
+    facilities: searchParams.get('facilities') ?? undefined,
+    type: searchParams.get('type') ?? undefined,
+    imageSizeCodes: ['llc'],
+    page: initialPage,
+  });
+
+  const filterMenuContent = data?.filters ?? [];
+  const resultsTotal = data?.totalCount ?? 0;
   const isFilters =
     Object.keys(Object.fromEntries(searchParams.entries())).length > 0;
 
   const handleLoadMore = () => {
-    setIsLazyLoading(true);
-    const updatedPage = (page ? parseInt(page) + 1 : 2).toString();
-    setSearchParams({ ...searchParams, page: updatedPage });
+    const newSearchParams = {
+      ...Object.fromEntries(searchParams),
+      page: (Number(data?.currentPage || 1) + 1).toString(),
+    };
+    setSearchParams(newSearchParams);
+    fetchNextPage();
+  };
+
+  const handleLoadPrevious = () => {
+    fetchPreviousPage();
   };
 
   const handleClearFilters = () => {
@@ -41,71 +62,6 @@ const SearchPage = () => {
   const handleOpenMobileFilter = () => {
     setIsMobileFilterOpen(true);
   };
-
-  useEffect(() => {
-    if (!isFilters && !isComponentMounted) {
-      // Fetch initial list of recreation resources
-      apiService
-        .getAxiosInstance()
-        .get('/v1/recreation-resource/search')
-        .then((response: AxiosResponse) => {
-          setRecResourceData(response.data);
-          setIsComponentMounted(true);
-          return response;
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    } else {
-      setIsComponentMounted(true);
-    }
-
-    // eslint-disable-next-line
-  }, []);
-
-  useEffect(() => {
-    if (isComponentMounted || isFilters) {
-      const params = Object.fromEntries(searchParams.entries());
-
-      if (!isComponentMounted) {
-        if (page && parseInt(page) > 10) {
-          // Reset page to 10 if user navigates back to search page since api only supports up to 10 pages simultaneously
-          // Lazy loading works past page 10 since we pass a limit and fetch 10 at a time
-          params.page = '10';
-          // Use shallow routing so we don't trigger use effect again
-          window.history.replaceState(null, '', buildQueryString(params));
-        }
-      }
-      // Fetch recreation resources if filter changes
-      const queryString = buildQueryString(params);
-      apiService
-        .getAxiosInstance()
-        .get(
-          `/v1/recreation-resource/search${queryString}${isLazyLoading ? '&limit=10' : ''}`,
-        )
-        .then((response: AxiosResponse) => {
-          if (isLazyLoading) {
-            // Append paginated data to existing data
-            setRecResourceData({
-              ...response.data,
-              data: [...recResourceList, ...response.data.data],
-            });
-          } else {
-            setRecResourceData(response.data);
-          }
-          setIsLazyLoading(false);
-          return response;
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    }
-
-    // Don't want all dependencies to trigger this
-    // eslint-disable-next-line
-  }, [searchParams]);
-
-  const filterMenuContent = recResourceData.filters;
 
   return (
     <>
@@ -135,12 +91,12 @@ const SearchPage = () => {
             <div className="search-results-count">
               <div>
                 {resultsTotal ? (
-                  <>
-                    <b>{resultsTotal}</b>{' '}
-                    {resultsTotal === 1 ? 'Result' : 'Results'}
-                  </>
+                  <span>
+                    <strong>{resultsTotal.toLocaleString()}</strong>
+                    {` ${resultsTotal === 1 ? 'Result' : 'Results'}`}
+                  </span>
                 ) : (
-                  <span>No results found</span>
+                  'No results found'
                 )}
               </div>
               {isFilters && (
@@ -153,23 +109,30 @@ const SearchPage = () => {
                 </button>
               )}
             </div>
+            {hasPreviousPage && (
+              <div className="load-more-container mb-3">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleLoadPrevious}
+                >
+                  Load Previous
+                </button>
+              </div>
+            )}
             <section>
-              {isResults && (
-                <>
-                  {recResourceList?.map((resource: RecreationResource) => {
-                    const { rec_resource_id } = resource;
-                    return (
-                      <RecResourceCard
-                        key={rec_resource_id}
-                        imageList={photosExample}
-                        recreationResource={resource}
-                      />
-                    );
-                  })}
-                </>
-              )}{' '}
+              {data?.pages?.map((pageData: PaginatedRecreationResourceDto) =>
+                pageData.data.map(
+                  (recreationResource: RecreationResourceDto) => (
+                    <RecResourceCard
+                      key={recreationResource.rec_resource_id}
+                      recreationResource={recreationResource}
+                    />
+                  ),
+                ),
+              )}
             </section>
-            {isLoadMore && (
+            {hasNextPage && (
               <div className="load-more-container">
                 <button
                   type="button"

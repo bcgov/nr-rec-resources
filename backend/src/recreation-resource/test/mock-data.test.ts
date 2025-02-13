@@ -45,6 +45,28 @@ const recreationResource1 = {
     saturday_ind: "N",
     sunday_ind: "N",
   },
+  recreation_resource_images: [
+    {
+      ref_id: "1000",
+      caption: "Campground facilities",
+      recreation_resource_image_variants: [
+        {
+          width: 1920,
+          height: 1080,
+          url: "https://example.com/images/campground1.jpg",
+          size_code: "llc",
+          extension: "jpg",
+        },
+        {
+          width: 1920,
+          height: 1080,
+          url: "https://example.com/images/campground2.jpg",
+          size_code: "thm",
+          extension: "jpg",
+        },
+      ],
+    },
+  ],
 };
 
 const recreationResource1Response = {
@@ -69,6 +91,28 @@ const recreationResource1Response = {
     ...recreationResource1.recreation_fee,
     with_description: undefined,
   },
+  recreation_resource_images: [
+    {
+      ref_id: "1000",
+      caption: "Campground facilities",
+      recreation_resource_image_variants: [
+        {
+          width: 1920,
+          height: 1080,
+          url: "https://example.com/images/campground1.jpg",
+          size_code: "llc",
+          extension: "jpg",
+        },
+        {
+          width: 1920,
+          height: 1080,
+          url: "https://example.com/images/campground2.jpg",
+          size_code: "thm",
+          extension: "jpg",
+        },
+      ],
+    },
+  ],
 };
 
 const recreationResource2 = {
@@ -95,6 +139,21 @@ const recreationResource2 = {
       description: "Interpretive Forest",
     },
   },
+  recreation_resource_images: [
+    {
+      ref_id: "1001",
+      caption: "Trail views",
+      recreation_resource_image_variants: [
+        {
+          width: 1920,
+          height: 1080,
+          url: "https://example.com/images/trail1.jpg",
+          size_code: "llc",
+          extension: "jpg",
+        },
+      ],
+    },
+  ],
   recreation_fee: {
     fee_description: "Camping Fee",
     with_description: { description: "Camping Fee" },
@@ -129,6 +188,21 @@ const recreationResource2Response = {
     ...recreationResource1.recreation_fee,
     with_description: undefined,
   },
+  recreation_resource_images: [
+    {
+      ref_id: "1001",
+      caption: "Trail views",
+      recreation_resource_image_variants: [
+        {
+          width: 1920,
+          height: 1080,
+          url: "https://example.com/images/trail1.jpg",
+          size_code: "llc",
+          extension: "jpg",
+        },
+      ],
+    },
+  ],
 };
 
 const recreationResource3 = {
@@ -177,6 +251,28 @@ const recreationResource3 = {
     saturday_ind: "N",
     sunday_ind: "N",
   },
+  recreation_resource_images: [
+    {
+      ref_id: "1002",
+      caption: "Forest area",
+      recreation_resource_image_variants: [
+        {
+          width: 1920,
+          height: 1080,
+          url: "https://example.com/images/forest1.jpg",
+          size_code: "llc",
+          extension: "jpg",
+        },
+        {
+          width: 1920,
+          height: 1080,
+          url: "https://example.com/images/forest2.jpg",
+          size_code: "thm",
+          extension: "jpg",
+        },
+      ],
+    },
+  ],
 };
 
 const recreationResource3Response = {
@@ -201,6 +297,28 @@ const recreationResource3Response = {
     ...recreationResource1.recreation_fee,
     with_description: undefined,
   },
+  recreation_resource_images: [
+    {
+      ref_id: "1002",
+      caption: "Forest area",
+      recreation_resource_image_variants: [
+        {
+          width: 1920,
+          height: 1080,
+          url: "https://example.com/images/forest1.jpg",
+          size_code: "llc",
+          extension: "jpg",
+        },
+        {
+          width: 1920,
+          height: 1080,
+          url: "https://example.com/images/forest2.jpg",
+          size_code: "thm",
+          extension: "jpg",
+        },
+      ],
+    },
+  ],
 };
 
 const recreationResource4 = {
@@ -255,6 +373,21 @@ const recreationResource4 = {
     saturday_ind: "N",
     sunday_ind: "N",
   },
+  recreation_resource_images: [
+    {
+      ref_id: "1003",
+      caption: "",
+      recreation_resource_image_variants: [
+        {
+          width: 1920,
+          height: 1080,
+          url: "https://example.com/images/riverside1.jpg",
+          size_code: "llc",
+          extension: "jpg",
+        },
+      ],
+    },
+  ],
 };
 
 const recreationResource4Response = {
@@ -287,6 +420,21 @@ const recreationResource4Response = {
     ...recreationResource1.recreation_fee,
     with_description: undefined,
   },
+  recreation_resource_images: [
+    {
+      ref_id: "1003",
+      caption: "",
+      recreation_resource_image_variants: [
+        {
+          width: 1920,
+          height: 1080,
+          url: "https://example.com/images/riverside1.jpg",
+          size_code: "llc",
+          extension: "jpg",
+        },
+      ],
+    },
+  ],
 };
 
 const recResourceArray = [
@@ -381,22 +529,22 @@ const activitiesFilterResolved = {
     {
       count: 7,
       description: "Angling",
-      id: 1,
+      id: "1",
     },
     {
       count: 2,
       description: "Boating",
-      id: 2,
+      id: "2",
     },
     {
       count: 2,
       description: "Canoeing",
-      id: 3,
+      id: "3",
     },
     {
       count: 1,
       description: "Kayaking",
-      id: 4,
+      id: "4",
     },
   ],
 };
@@ -551,22 +699,22 @@ const noSearchResultsFilterArray = [
       {
         count: 0,
         description: "Angling",
-        id: 1,
+        id: "1",
       },
       {
         count: 0,
         description: "Boating",
-        id: 2,
+        id: "2",
       },
       {
         count: 0,
         description: "Kayaking",
-        id: 4,
+        id: "4",
       },
       {
         count: 0,
         description: "Canoeing",
-        id: 3,
+        id: "3",
       },
     ],
     param: "activities",

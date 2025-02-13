@@ -3,6 +3,7 @@ import { HttpException, INestApplication } from "@nestjs/common";
 import { RecreationResourceController } from "./recreation-resource.controller";
 import { RecreationResourceService } from "./recreation-resource.service";
 import { PrismaService } from "src/prisma.service";
+import { RecreationResourceImageDto } from "./dto/recreation-resource-image.dto";
 
 describe("RecreationResourceController", () => {
   let recService: RecreationResourceService;
@@ -49,12 +50,28 @@ describe("RecreationResourceController", () => {
         closest_community: "Rec site 1 location",
         recreation_activity: [],
         display_on_public_site: true,
+        campsite_count: 20,
         rec_resource_type: "RR",
         recreation_status: {
           description: "Active",
           comment: "Active",
           status_code: 1,
         },
+        recreation_resource_images: <RecreationResourceImageDto[]>[
+          {
+            ref_id: "1000",
+            caption: "Campground facilities",
+            recreation_resource_image_variants: [
+              {
+                width: 1920,
+                height: 1080,
+                url: "https://example.com/images/campground1.jpg",
+                size_code: "llc",
+                extension: "jpg",
+              },
+            ],
+          },
+        ],
       };
       vi.spyOn(recService, "findOne").mockResolvedValue(result);
       expect(await controller.findOne("REC0001")).toBe(result);
@@ -82,11 +99,27 @@ describe("RecreationResourceController", () => {
             closest_community: "Rec site 1 location",
             rec_resource_type: "RR",
             recreation_activity: [],
+            campsite_count: 20,
             recreation_status: {
               description: "Active",
               comment: "Active",
               status_code: 1,
             },
+            recreation_resource_images: <RecreationResourceImageDto[]>[
+              {
+                ref_id: "1000",
+                caption: "Campground facilities",
+                recreation_resource_image_variants: [
+                  {
+                    width: 1920,
+                    height: 1080,
+                    url: "https://example.com/images/campground1.jpg",
+                    size_code: "llc",
+                    extension: "jpg",
+                  },
+                ],
+              },
+            ],
           },
         ],
         total: 1,

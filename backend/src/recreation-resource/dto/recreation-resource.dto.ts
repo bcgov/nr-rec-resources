@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { RecreationResourceImageDto } from "./recreation-resource-image.dto";
 
 export class RecreationActivityDto {
   @ApiProperty({
@@ -22,6 +23,12 @@ export class RecreationFeeDto {
   fee_amount: number;
 
   @ApiProperty({
+    description: "Description of the fee type",
+    example: "Camping",
+  })
+  fee_description: string;
+
+  @ApiProperty({
     description: "Start date for the fee applicability",
     example: "2024-06-01",
   })
@@ -35,7 +42,7 @@ export class RecreationFeeDto {
 
   @ApiProperty({
     description: "Type of fee applicable",
-    example: "Camping",
+    example: 1,
   })
   recreation_fee_code: number;
 
@@ -167,6 +174,12 @@ export class RecreationResourceDto {
     example: "IF",
   })
   rec_resource_type: string;
+
+  @ApiProperty({
+    description: "List of images for the recreation resource",
+    type: [RecreationResourceImageDto],
+  })
+  recreation_resource_images: RecreationResourceImageDto[];
 
   @ApiProperty({
     description:

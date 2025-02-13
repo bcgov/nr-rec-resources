@@ -1,285 +1,200 @@
-import { act, render, screen } from '@testing-library/react';
-import SearchPage from '@/components/search/SearchPage';
-import { BrowserRouter as Router } from 'react-router-dom';
-import apiService from '@/service/api-service';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import * as recreationResourceQueries from '@/service/queries/recreation-resource';
+import SearchPage from './SearchPage';
 
-const mockOpenStatus = {
-  description: 'Open',
-  comment: 'Site is open',
-  status_code: 1,
-};
+vi.mock('@/service/queries/recreation-resource');
+vi.mock('@/components/rec-resource/card/RecResourceCard', () => ({
+  default: vi.fn(() => <div data-testid="mock-resource-card" />),
+}));
 
-const mockClosedStatus = {
-  description: 'Closed',
-  comment: 'Site is closed',
-  status_code: 2,
-};
-
-const mockResources = {
-  data: {
-    data: [
+describe('SearchPage', () => {
+  const mockData = {
+    pages: [
       {
-        rec_resource_id: 'REC204117',
-        name: '0 K SNOWMOBILE PARKING LOT',
-        closest_community: 'MERRITT',
-        recreation_activity: [
+        data: [
           {
-            description: 'Snowmobiling',
-            recreation_activity_code: 22,
+            rec_resource_id: '1',
+            title: 'Test Resource',
           },
         ],
-        recreation_status: mockOpenStatus,
-      },
-      {
-        rec_resource_id: 'REC203239',
-        name: '10 K SNOWMOBILE PARKING LOT',
-        closest_community: 'MERRITT',
-        recreation_activity: [
-          {
-            description: 'Snowmobiling',
-            recreation_activity_code: 22,
-          },
-        ],
-        recreation_status: mockOpenStatus,
-      },
-      {
-        rec_resource_id: 'REC1222',
-        name: '100 ROAD BRIDGE',
-        closest_community: 'PRINCE GEORGE',
-        recreation_activity: [
-          {
-            description: 'Picnicking',
-            recreation_activity_code: 9,
-          },
-          {
-            description: 'Angling',
-            recreation_activity_code: 1,
-          },
-        ],
-        recreation_status: mockClosedStatus,
-      },
-      {
-        rec_resource_id: 'REC160773',
-        name: '10K CABIN',
-        closest_community: 'MERRITT',
-        recreation_activity: [
-          {
-            description: 'Snowmobiling',
-            recreation_activity_code: 22,
-          },
-        ],
-        recreation_status: mockOpenStatus,
-      },
-      {
-        rec_resource_id: 'REC203900',
-        name: '18 Mile',
-        closest_community: 'REVELSTOKE',
-        recreation_activity: [
-          {
-            description: 'Boating',
-            recreation_activity_code: 2,
-          },
-          {
-            description: 'Hiking',
-            recreation_activity_code: 12,
-          },
-          {
-            description: 'Beach Activities',
-            recreation_activity_code: 8,
-          },
-          {
-            description: 'Camping',
-            recreation_activity_code: 32,
-          },
-          {
-            description: 'Angling',
-            recreation_activity_code: 1,
-          },
-        ],
-        recreation_status: mockOpenStatus,
-      },
-      {
-        rec_resource_id: 'REC6866',
-        name: '1861 GOLDRUSH PACK TRAIL',
-        closest_community: 'WELLS',
-        recreation_activity: [
-          {
-            description: 'Ski Touring',
-            recreation_activity_code: 33,
-          },
-          {
-            description: 'Hiking',
-            recreation_activity_code: 12,
-          },
-          {
-            description: 'Snowshoeing',
-            recreation_activity_code: 23,
-          },
-        ],
-        recreation_status: mockClosedStatus,
-      },
-      {
-        rec_resource_id: 'REC160432',
-        name: '24 KM SHELTER',
-        closest_community: 'MERRITT',
-        recreation_activity: [
-          {
-            description: 'Snowmobiling',
-            recreation_activity_code: 22,
-          },
-        ],
-        recreation_status: mockOpenStatus,
-      },
-      {
-        rec_resource_id: 'REC6739',
-        name: '24 MILE SNOWMOBILE AREA',
-        closest_community: 'CASTLEGAR',
-        recreation_activity: [
-          {
-            description: 'Snowmobiling',
-            recreation_activity_code: 22,
-          },
-        ],
-        recreation_status: mockOpenStatus,
-      },
-      {
-        rec_resource_id: 'REC16158',
-        name: '27 Swithbacks',
-        closest_community: 'WHISTLER',
-        recreation_activity: [
-          {
-            description: 'Mountain Biking',
-            recreation_activity_code: 27,
-          },
-        ],
-        recreation_status: {
-          description: undefined,
-          comment: undefined,
-          status_code: undefined,
-        },
-      },
-      {
-        rec_resource_id: 'REC2094',
-        name: '40 Mile CAMP / BULL River',
-        closest_community: 'FERNIE',
-        recreation_activity: [
-          {
-            description: 'Angling',
-            recreation_activity_code: 1,
-          },
-        ],
-        recreation_status: mockOpenStatus,
+        filters: [],
+        currentPage: 1,
+        totalCount: 1,
       },
     ],
-    page: 1,
-    total: 51,
-  },
-};
+    totalCount: 1,
+  };
 
-describe('the SearchPage component', () => {
+  const mockQueryResult = {
+    data: mockData,
+    fetchNextPage: vi.fn(),
+    fetchPreviousPage: vi.fn(),
+    hasNextPage: true,
+    hasPreviousPage: false,
+  };
+
   beforeEach(() => {
-    vi.clearAllMocks();
-  });
-  it('renders the default list of resources', async () => {
-    vi.spyOn(apiService as any, 'getAxiosInstance').mockReturnValue({
-      get: vi.fn().mockResolvedValue(mockResources),
-    });
-    await act(async () => {
-      render(
-        <Router>
-          <SearchPage />
-        </Router>,
-      );
-    });
-
-    mockResources.data.data.forEach((resource) => {
-      const resourceElement = screen.getByText(resource.name.toLowerCase());
-      expect(resourceElement).toBeInTheDocument();
-    });
-
-    mockResources.data.data.forEach((resource) => {
-      expect(
-        screen.getAllByText(resource.closest_community.toLowerCase()).length,
-      ).toBeGreaterThan(0);
-    });
+    vi.spyOn(
+      recreationResourceQueries,
+      'useSearchRecreationResourcesPaginated',
+    ).mockReturnValue(mockQueryResult as any);
   });
 
-  it('displays the total results found', async () => {
-    vi.spyOn(apiService as any, 'getAxiosInstance').mockReturnValue({
-      get: vi.fn().mockResolvedValue(mockResources),
-    });
-    await act(async () => {
-      render(
-        <Router>
-          <SearchPage />
-        </Router>,
-      );
-    });
+  it('displays correct singular/plural results text', () => {
+    // Test singular case
+    vi.spyOn(
+      recreationResourceQueries,
+      'useSearchRecreationResourcesPaginated',
+    ).mockReturnValue({
+      ...mockQueryResult,
+      data: { ...mockData, totalCount: 1 },
+    } as any);
 
-    expect(
-      // This is a workaround to get the text content of the element since it's broken up with <b> tag
-      screen.getAllByText(
-        (_, element) => element?.textContent === '51 Results',
-      )[0],
-    ).toBeInTheDocument();
+    const { rerender } = render(
+      <MemoryRouter>
+        <SearchPage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText('1')).toBeInTheDocument();
+    expect(screen.getByText('Result')).toBeInTheDocument();
+    expect(screen.getAllByTestId('mock-resource-card')).toHaveLength(1);
+
+    // Test plural case
+    vi.spyOn(
+      recreationResourceQueries,
+      'useSearchRecreationResourcesPaginated',
+    ).mockReturnValue({
+      ...mockQueryResult,
+      data: { ...mockData, totalCount: 2 },
+    } as any);
+
+    rerender(
+      <MemoryRouter>
+        <SearchPage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText('2')).toBeInTheDocument();
+    expect(screen.getByText('Results')).toBeInTheDocument();
+    expect(screen.getAllByTestId('mock-resource-card')).toHaveLength(1);
   });
 
-  it('displays the Load More button if there are more than 10 results', async () => {
-    vi.spyOn(apiService as any, 'getAxiosInstance').mockReturnValue({
-      get: vi.fn().mockResolvedValue(mockResources),
-    });
-    await act(async () => {
-      render(
-        <Router>
-          <SearchPage />
-        </Router>,
-      );
-    });
+  it('handles load more button click', () => {
+    render(
+      <MemoryRouter>
+        <SearchPage />
+      </MemoryRouter>,
+    );
 
-    expect(
-      screen.getByRole('button', { name: 'Load More' }),
-    ).toBeInTheDocument();
+    const loadMoreButton = screen.getByText('Load More');
+    fireEvent.click(loadMoreButton);
+
+    expect(mockQueryResult.fetchNextPage).toHaveBeenCalled();
   });
 
-  it('does not display the Load More button if there are less than 10 results', async () => {
-    vi.spyOn(apiService as any, 'getAxiosInstance').mockReturnValue({
-      get: vi.fn().mockResolvedValue({
-        data: {
-          ...mockResources,
-          total: 5,
-        },
-      }),
-    });
-    await act(async () => {
-      render(
-        <Router>
-          <SearchPage />
-        </Router>,
-      );
-    });
+  it('handles clear filters', () => {
+    render(
+      <MemoryRouter initialEntries={['/?filter=test']}>
+        <SearchPage />
+      </MemoryRouter>,
+    );
 
-    expect(
-      screen.queryByRole('button', { name: 'Load More' }),
-    ).not.toBeInTheDocument();
+    const clearFiltersButton = screen.getByText('Clear Filters');
+    fireEvent.click(clearFiltersButton);
+
+    // Check if URL params are cleared
+    expect(window.location.search).toBe('');
   });
 
-  it('displays No results found when no results are found', async () => {
-    vi.spyOn(apiService as any, 'getAxiosInstance').mockReturnValue({
-      get: vi.fn().mockResolvedValue({
-        data: {
-          data: [],
-          page: 1,
-          total: 0,
-        },
-      }),
-    });
-    await act(async () => {
-      render(
-        <Router>
-          <SearchPage />
-        </Router>,
-      );
-    });
+  it('handles mobile filter menu', () => {
+    render(
+      <MemoryRouter>
+        <SearchPage />
+      </MemoryRouter>,
+    );
+
+    const filterButton = screen.getByLabelText('Open mobile filter menu');
+    fireEvent.click(filterButton);
+
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('displays no results message when data is empty', () => {
+    vi.spyOn(
+      recreationResourceQueries,
+      'useSearchRecreationResourcesPaginated',
+    ).mockReturnValue({
+      ...mockQueryResult,
+      data: { ...mockData, totalCount: 0, pages: [{ data: [], filters: [] }] },
+    } as any);
+
+    render(
+      <MemoryRouter>
+        <SearchPage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText('No results found')).toBeInTheDocument();
+  });
+
+  it('handles load previous button click', () => {
+    const mockQueryResultWithPrevious = {
+      ...mockQueryResult,
+      hasPreviousPage: true,
+    };
+
+    vi.spyOn(
+      recreationResourceQueries,
+      'useSearchRecreationResourcesPaginated',
+    ).mockReturnValue(mockQueryResultWithPrevious as any);
+
+    render(
+      <MemoryRouter>
+        <SearchPage />
+      </MemoryRouter>,
+    );
+
+    const loadPreviousButton = screen.getByText('Load Previous');
+    fireEvent.click(loadPreviousButton);
+
+    expect(mockQueryResultWithPrevious.fetchPreviousPage).toHaveBeenCalled();
+  });
+
+  it('handles null or undefined data gracefully', () => {
+    // Test case 1: undefined data
+    vi.spyOn(
+      recreationResourceQueries,
+      'useSearchRecreationResourcesPaginated',
+    ).mockReturnValue({
+      ...mockQueryResult,
+      data: undefined,
+    } as any);
+
+    const { rerender } = render(
+      <MemoryRouter>
+        <SearchPage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText('No results found')).toBeInTheDocument();
+
+    // Test case 2: data with undefined pages
+    vi.spyOn(
+      recreationResourceQueries,
+      'useSearchRecreationResourcesPaginated',
+    ).mockReturnValue({
+      ...mockQueryResult,
+      data: { pages: undefined, totalCount: undefined },
+    } as any);
+
+    rerender(
+      <MemoryRouter>
+        <SearchPage />
+      </MemoryRouter>,
+    );
 
     expect(screen.getByText('No results found')).toBeInTheDocument();
   });

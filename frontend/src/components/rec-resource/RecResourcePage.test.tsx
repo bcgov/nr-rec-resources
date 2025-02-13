@@ -1,9 +1,9 @@
 import { vi } from 'vitest';
 import { act, render, screen } from '@testing-library/react';
 import RecResourcePage from '@/components/rec-resource/RecResourcePage';
-import { BrowserRouter as Router } from 'react-router-dom';
-import { useRecreationResourceApi } from '@/service/hooks/useRecreationResourceApi';
 import * as routerDom from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
+import { useGetRecreationResourceById } from '@/service/queries/recreation-resource';
 
 // Mock data
 const mockResource = {
@@ -21,21 +21,32 @@ const mockResource = {
     status_code: 1,
     description: 'Open',
   },
+  recreation_resource_images: [
+    {
+      caption: 'test image',
+      recreation_resource_image_variants: [
+        { size_code: 'llc', url: 'preview-url' },
+        { size_code: 'original', url: 'full-url' },
+      ],
+    },
+  ],
 };
 
 // Setup mocks
-vi.mock('@/service/hooks/useRecreationResourceApi');
+vi.mock('@/service/queries/recreation-resource', () => ({
+  useGetRecreationResourceById: vi.fn(),
+}));
 vi.mock('react-router-dom', async () => ({
   ...(await vi.importActual('react-router-dom')),
   useParams: vi.fn(),
 }));
 
 describe('RecResourcePage', () => {
-  const renderComponent = async (mockApiResponse: any) => {
-    const mockApi = {
-      getRecreationResourceById: vi.fn().mockResolvedValue(mockApiResponse),
-    };
-    (useRecreationResourceApi as any).mockReturnValue(mockApi);
+  const renderComponent = async (mockApiResponse: any, error?: any) => {
+    (useGetRecreationResourceById as any).mockReturnValue({
+      data: mockApiResponse,
+      error: error,
+    });
 
     await act(async () => {
       render(
@@ -53,21 +64,7 @@ describe('RecResourcePage', () => {
 
   describe('Error handling', () => {
     it('displays not found message on error', async () => {
-      const mockApi = {
-        getRecreationResourceById: vi
-          .fn()
-          .mockRejectedValue(new Error('Not found')),
-      };
-      (useRecreationResourceApi as any).mockReturnValue(mockApi);
-
-      await act(async () => {
-        render(
-          <Router>
-            <RecResourcePage />
-          </Router>,
-        );
-      });
-
+      await renderComponent(undefined, { response: { status: 404 } });
       expect(screen.getByText(/Resource not found/i)).toBeInTheDocument();
     });
   });

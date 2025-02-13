@@ -15,60 +15,48 @@ import Status from '@/components/rec-resource/Status';
 import PageMenu from '@/components/layout/PageMenu';
 import locationDot from '@/images/fontAwesomeIcons/location-dot.svg';
 import '@/components/rec-resource/RecResource.scss';
-import { RecreationResourceDto } from '@/service/recreation-resource';
-import { useRecreationResourceApi } from '@/service/hooks/useRecreationResourceApi';
+import { PhotoGalleryProps } from '@/components/rec-resource/PhotoGallery';
+import { useGetRecreationResourceById } from '@/service/queries/recreation-resource';
 
-export const photosExample = [
-  {
-    imageUrl:
-      'https://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Lost%20Shoe%201.jpg',
-  },
-  {
-    imageUrl:
-      'https://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Lost%20Shoe%203.jpg',
-  },
-  {
-    imageUrl:
-      'https://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Trail%20Entrance.jpg',
-  },
-  {
-    imageUrl:
-      'https://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Lost%20Shoe%202.jpg',
-  },
-  {
-    imageUrl:
-      'https://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Interpretive%20sign.jpg',
-  },
-  {
-    imageUrl:
-      'https://www.sitesandtrailsbc.ca/resources/REC5600/siteimages/Lost%20Shoe.jpg',
-  },
-];
+const PREVIEW_SIZE_CODE = 'scr';
+const FULL_RESOLUTION_SIZE_CODE = 'original';
 
 const RecResourcePage = () => {
-  const [recResource, setRecResource] = useState<RecreationResourceDto>();
-  const [notFound, setNotFound] = useState<boolean>(false);
+  const [photos, setPhotos] = useState<PhotoGalleryProps['photos']>([]);
 
   const { id } = useParams();
 
-  const recreationResourceApi = useRecreationResourceApi();
+  const { data: recResource, error } = useGetRecreationResourceById({
+    id,
+    imageSizeCodes: [PREVIEW_SIZE_CODE, FULL_RESOLUTION_SIZE_CODE],
+  });
 
+  /**
+   * Processes recreation resource images to extract the preview and full size image urls
+   */
   useEffect(() => {
-    // Get a single recreation resource by forest file ID
-    if (id) {
-      recreationResourceApi
-        .getRecreationResourceById({ id })
-        .then((response) => {
-          setRecResource(response);
-          return response;
-        })
-        .catch((error) => {
-          console.error(error);
-          setNotFound(true);
-        });
+    if (recResource) {
+      setPhotos(
+        recResource.recreation_resource_images.map((imageObj) => {
+          const photoObj = {
+            caption: imageObj.caption,
+            previewUrl: '',
+            fullResolutionUrl: '',
+          };
+
+          imageObj.recreation_resource_image_variants.forEach((variant) => {
+            if (variant.size_code === PREVIEW_SIZE_CODE) {
+              photoObj.previewUrl = variant.url;
+            } else if (variant.size_code === FULL_RESOLUTION_SIZE_CODE) {
+              photoObj.fullResolutionUrl = variant.url;
+            }
+          });
+
+          return photoObj;
+        }),
+      );
     }
-    // eslint-disable-next-line
-  }, []);
+  }, [recResource]);
 
   const {
     recreation_activity,
@@ -96,7 +84,7 @@ const RecResourcePage = () => {
   const contactRef = useRef<HTMLElement>(null!);
 
   const isThingsToDo = recreation_activity && recreation_activity.length > 0;
-  const isPhotoGallery = photosExample.length > 0;
+  const isPhotoGallery = photos.length > 0;
   const isClosures = statusComment && formattedName && statusCode === 2;
 
   const sectionRefs: React.RefObject<HTMLElement>[] = useMemo(
@@ -153,7 +141,9 @@ const RecResourcePage = () => {
     offsetPx: -100,
   });
 
-  if (notFound) {
+  const resourceNotFound = error?.response.status === 404;
+
+  if (resourceNotFound) {
     return (
       <div className="page page-padding">
         <h2>Resource not found</h2>
@@ -200,7 +190,7 @@ const RecResourcePage = () => {
       <div className="page page-padding">
         {isPhotoGallery && (
           <div className="photo-gallery-container">
-            <PhotoGallery photos={photosExample} />
+            <PhotoGallery photos={photos} />
           </div>
         )}
         <div className="row no-gutters">

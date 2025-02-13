@@ -1,9 +1,9 @@
 import {
   RecreationActivityDto,
-  RecreationStatusDto,
-  RecreationResourceDto,
   RecreationCampsiteDto,
   RecreationFeeDto,
+  RecreationResourceDto,
+  RecreationStatusDto,
 } from "./recreation-resource.dto";
 
 describe("Recreation DTOs", () => {
@@ -61,12 +61,14 @@ describe("Recreation DTOs", () => {
           comment: null,
           description: "The facility is open",
         },
+        recreation_resource_images: [],
         recreation_campsite: {
           rec_resource_id: "123",
           campsite_count: 2,
         },
         recreation_fee: {
           fee_amount: 25.0,
+          fee_description: "Camping fees",
           fee_start_date: new Date("2024-06-01"),
           fee_end_date: new Date("2024-09-30"),
           recreation_fee_code: 2,
@@ -103,12 +105,14 @@ describe("Recreation DTOs", () => {
           comment: null,
           description: "Open",
         },
+        recreation_resource_images: [],
         recreation_campsite: {
           rec_resource_id: "123",
           campsite_count: 2,
         },
         recreation_fee: {
           fee_amount: 25.0,
+          fee_description: "Camping fees",
           fee_start_date: new Date("2024-06-01"),
           fee_end_date: new Date("2024-09-30"),
           recreation_fee_code: 2,

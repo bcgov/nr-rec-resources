@@ -3,6 +3,8 @@ import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { RecreationResourceService } from "./recreation-resource.service";
 import { RecreationResourceDto } from "./dto/recreation-resource.dto";
 import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resource.dto";
+import { RecreationResourceImageSize } from "./dto/recreation-resource-image.dto";
+import { ParseImageSizesPipe } from "./pipes/parse-image-sizes.pipe";
 
 @ApiTags("recreation-resource")
 @Controller({ path: "recreation-resource", version: "1" })
@@ -46,6 +48,18 @@ export class RecreationResourceController {
     description: "Recreation resource type",
   })
   @ApiQuery({
+    name: "imageSizeCodes",
+    required: false,
+    default: "llc",
+    enum: RecreationResourceImageSize,
+    type: () => RecreationResourceImageSize,
+    isArray: true,
+    description:
+      "Comma separated list of image sizes codes to be returned for the" +
+      " recreation resource. You can pass a single status or multiple size codes " +
+      "separated by commas. If nothing is passed in, only Landing Card (llc) sizes are returned",
+  })
+  @ApiQuery({
     name: "district",
     required: false,
     type: String,
@@ -78,25 +92,39 @@ export class RecreationResourceController {
     @Query("district") district?: string,
     @Query("access") access?: string,
     @Query("facilities") facilities?: string,
+    @Query(
+      "imageSizeCodes",
+      new ParseImageSizesPipe([RecreationResourceImageSize.LANDING_CARD]),
+    )
+    imageSizeCodes?: RecreationResourceImageSize[],
   ): Promise<PaginatedRecreationResourceDto> {
-    const response =
-      await this.recreationResourceService.searchRecreationResources(
-        page,
-        filter ?? "",
-        limit ? parseInt(String(limit)) : undefined,
-        activities,
-        type,
-        district,
-        access,
-        facilities,
-      );
-
-    return response;
+    return await this.recreationResourceService.searchRecreationResources(
+      page,
+      filter ?? "",
+      limit ? parseInt(String(limit)) : undefined,
+      activities,
+      type,
+      district,
+      access,
+      facilities,
+      imageSizeCodes,
+    );
   }
 
+  @Get(":id")
   @ApiOperation({
     summary: "Find recreation resource by ID",
     operationId: "getRecreationResourceById",
+  })
+  @ApiQuery({
+    name: "imageSizeCodes",
+    required: false,
+    enum: RecreationResourceImageSize,
+    type: () => RecreationResourceImageSize,
+    isArray: true,
+    description:
+      "Comma separated list of image sizes codes to be returned for the " +
+      "recreation resource. You can pass a single status or multiple size codes separated by commas.",
   })
   @ApiResponse({
     status: 200,
@@ -104,9 +132,18 @@ export class RecreationResourceController {
     type: RecreationResourceDto,
   })
   @ApiResponse({ status: 404, description: "Resource not found" })
-  @Get(":id")
-  async findOne(@Param("id") id: string): Promise<RecreationResourceDto> {
-    const recResource = await this.recreationResourceService.findOne(id);
+  async findOne(
+    @Param("id") id: string,
+    @Query(
+      "imageSizeCodes",
+      new ParseImageSizesPipe([RecreationResourceImageSize.THUMBNAIL]),
+    )
+    imageSizeCodes?: RecreationResourceImageSize[],
+  ): Promise<RecreationResourceDto> {
+    const recResource = await this.recreationResourceService.findOne(
+      id,
+      imageSizeCodes,
+    );
     if (!recResource) {
       throw new HttpException("Recreation Resource not found.", 404);
     }
