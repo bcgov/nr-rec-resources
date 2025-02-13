@@ -6,32 +6,30 @@ import {
   VectorTile as VectorTileSource,
 } from 'ol/source';
 import { Vector as VectorLayer, VectorTile as VectorTileLayer } from 'ol/layer';
-import { Point } from 'ol/geom';
-import { fromLonLat } from 'ol/proj';
 import { EsriJSON, MVT } from 'ol/format';
 import { bbox as bboxStrategy } from 'ol/loadingstrategy';
 import { applyStyle } from 'ol-mapbox-style';
 import { Style, Icon } from 'ol/style';
+import Point from 'ol/geom/Point';
 import hikingIcon from '@/images/activities/hiking.svg';
-import locationIcon from '@/images/fontAwesomeIcons/location-dot.svg';
+import locationIcon from '@/images/icons/blue-status.svg'; // location-dot wasn't working for some reason
 
 interface MapsAndLocationProps {
   location: [number, number];
 }
 
-// 🔹 Style function to apply SVG icon to points
 const hikingIconStyle = new Style({
   image: new Icon({
     src: hikingIcon,
-    scale: 0.1, // Adjust size if necessary
-    anchor: [0.5, 1], // Center the icon properly
+    scale: 0.1,
+    anchor: [0.5, 1],
   }),
 });
 
 const locationMarkerStyle = new Style({
   image: new Icon({
     src: locationIcon,
-    scale: 0.08,
+    scale: 1,
     anchor: [0.5, 1],
   }),
 });
@@ -60,9 +58,18 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
         }),
       });
 
-      applyStyle(baseLayer, baseMapVectorTileStyleUrl)
-        .then(() => console.log('Esri basemap style applied successfully'))
-        .catch((err) => console.error('Error applying Esri style:', err));
+      applyStyle(baseLayer, baseMapVectorTileStyleUrl);
+
+      const locationLayer = new VectorLayer({
+        source: new VectorSource({
+          features: [
+            new Feature({
+              geometry: new Point([location[1], location[0]]),
+            }),
+          ],
+        }),
+        style: locationMarkerStyle,
+      });
 
       const featureSource = new VectorSource({
         format: new EsriJSON(),
@@ -70,25 +77,14 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
           `${arcgisFeatureServerUrl}?f=json&where=1=1&outFields=*&geometry=${extent.join(
             ',',
           )}&geometryType=esriGeometryEnvelope&spatialRel=esriSpatialRelIntersects&outSR=3857`,
-        strategy: bboxStrategy, // Load features dynamically
-      });
-
-      const recResourceLocationFeature = new Feature({
-        geometry: new Point(fromLonLat([location[1], location[0]])), // Convert to EPSG:3857
-      });
-
-      recResourceLocationFeature.setStyle(locationMarkerStyle);
-
-      const recResourceLocationLayer = new VectorLayer({
-        source: new VectorSource({
-          features: [recResourceLocationFeature],
-        }),
+        strategy: bboxStrategy,
       });
 
       const featureLayer = new VectorLayer({
         source: featureSource,
         style: (feature) => {
-          if (feature.getGeometry().getType() === 'Point') {
+          const geometry = feature.getGeometry();
+          if (geometry?.getType() === 'Point') {
             return hikingIconStyle;
           }
         },
@@ -96,7 +92,7 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
 
       const map = new Map({
         target: mapRef.current,
-        layers: [baseLayer, featureLayer, recResourceLocationLayer],
+        layers: [baseLayer, featureLayer, locationLayer],
         view: new View({
           center: [location[1], location[0]],
           zoom: 14,
@@ -104,7 +100,7 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
         }),
       });
 
-      return () => map.setTarget(null);
+      return () => map.setTarget(undefined);
     }, [location]);
 
     if (!location) return null;
