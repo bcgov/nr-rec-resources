@@ -32,6 +32,8 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
         target: mapRef.current,
         layers: [baseLayer],
         view: new View({
+          // This expect EPSG:3857 coordinates so I changed from 4326 (lat/long) to 3857 in the backend query
+          // Also it expects the coordinates in the form [longitude, latitude]
           center: [location[1], location[0]],
           zoom: 12,
           projection: 'EPSG:3857',
