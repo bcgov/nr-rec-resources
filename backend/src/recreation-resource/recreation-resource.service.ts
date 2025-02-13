@@ -82,7 +82,25 @@ export class RecreationResourceService {
       select: recreationResourceSelect,
     });
 
-    return recResource ? this.formatResults([recResource])[0] : null;
+    // get the latitude and longitude using a raw query from location column of rst.recreation_resource table
+    const [_, recResourceLocation] = await this.prisma.$transaction([
+      this.prisma.$executeRaw`set search_path to public, rst`,
+      this.prisma.$queryRaw`
+        select st_y(st_transform(location, 4326)) as latitude,
+        st_x(st_transform(location, 4326)) as longitude
+        from rst.recreation_resource
+        where rec_resource_id = ${id}`,
+    ]);
+    const location: [number, number] = [
+      recResourceLocation[0].latitude,
+      recResourceLocation[0].longitude,
+    ];
+
+    console.log({ ...this.formatResults([recResource])[0], location });
+
+    return recResource
+      ? { ...this.formatResults([recResource])[0], location }
+      : null;
   }
 
   async getActivityCounts(totalRecordIds: { rec_resource_id: string }[]) {

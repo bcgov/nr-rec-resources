@@ -78,6 +78,7 @@ const RecResourcePage = () => {
     rec_resource_id,
     rec_resource_type,
     closest_community,
+    location,
     recreation_status: {
       status_code: statusCode,
       description: statusDescription,
@@ -226,7 +227,7 @@ const RecResourcePage = () => {
               />
             )}
 
-            <MapsAndLocation ref={mapLocationRef} />
+            <MapsAndLocation ref={mapLocationRef} location={location} />
 
             <Camping ref={campingRef} />
 
