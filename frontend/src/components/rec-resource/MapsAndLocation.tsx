@@ -1,12 +1,54 @@
-import { forwardRef } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
+import { Map, Marker, NavigationControl } from '@vis.gl/react-maplibre';
+import 'maplibre-gl/dist/maplibre-gl.css';
+import '@/components/rec-resource/MapsAndLocation.scss';
 
-const MapsAndLocation = forwardRef<HTMLElement>((_, ref) => {
-  return (
-    <section id="maps-and-location" ref={ref}>
-      <h2 className="section-heading">Maps and Location</h2>
-      <p>Placeholder</p>
-    </section>
-  );
-});
+import { constructMapboxStyleFromEsri } from 'esri-style-ft-mapbox-style';
+
+const baseStyleUrl =
+  'https://tiles.arcgis.com/tiles/ubm4tcTYICKBpist/arcgis/rest/services/BC_BASEMAP_20240307/VectorTileServer';
+
+interface MapsAndLocationProps {
+  location: [number, number];
+}
+
+const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
+  ({ location }, ref) => {
+    const [baseStyle, setBaseStyle] = useState(null);
+
+    useEffect(() => {
+      const fetchMapStyle = async () => {
+        // Fetch the base style from the URL and convert from ESRI to Mapbox/MapLibre
+        const style = await constructMapboxStyleFromEsri(baseStyleUrl);
+        setBaseStyle(style);
+      };
+
+      fetchMapStyle();
+    }, []);
+
+    if (!location) return null;
+    const zoom = 12;
+    return (
+      <section id="maps-and-location" ref={ref}>
+        <h2 className="section-heading">Maps and Location</h2>
+
+        {baseStyle && (
+          <Map
+            initialViewState={{
+              latitude: location[0],
+              longitude: location[1],
+              zoom,
+            }}
+            style={{ width: 600, height: 400 }}
+            mapStyle={baseStyle}
+          >
+            <NavigationControl position="top-right" />
+            <Marker latitude={location[0]} longitude={location[1]} />
+          </Map>
+        )}
+      </section>
+    );
+  },
+);
 
 export default MapsAndLocation;

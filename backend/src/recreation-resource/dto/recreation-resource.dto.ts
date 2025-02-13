@@ -89,4 +89,9 @@ export class RecreationResourceDto {
     minimum: 0,
   })
   campsite_count: number;
+  @ApiProperty({
+    description: "Location coordinates of the Recreation Resource",
+    example: [-123.36, 48.42],
+  })
+  location?: [number, number];
 }

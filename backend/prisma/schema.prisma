@@ -10,13 +10,14 @@ datasource db {
 }
 
 model recreation_resource {
-  rec_resource_id        String                @id @db.VarChar(200)
-  name                   String?               @db.VarChar(200)
-  description            String?               @db.VarChar(5000)
-  closest_community      String?               @db.VarChar(200)
-  display_on_public_site Boolean?              @default(false)
-  rec_resource_type      String?               @db.VarChar(50)
-  campsite_count         Int?                  @default(0)
+  rec_resource_id        String                   @id @db.VarChar(200)
+  name                   String?                  @db.VarChar(200)
+  description            String?                  @db.VarChar(5000)
+  closest_community      String?                  @db.VarChar(200)
+  display_on_public_site Boolean?                 @default(false)
+  rec_resource_type      String?                  @db.VarChar(50)
+  campsite_count         Int?                     @default(0)
+  location               Unsupported("geometry")?
   recreation_activity    recreation_activity[]
   recreation_status      recreation_status?
 }

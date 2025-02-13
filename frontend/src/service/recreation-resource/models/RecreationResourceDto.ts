@@ -78,6 +78,12 @@ export interface RecreationResourceDto {
   rec_resource_type: string;
 
   campsite_count: number;
+  /**
+   * Location coordinates of the Recreation Resource
+   * @type {Array<string>}
+   * @memberof RecreationResourceDto
+   */
+  location: Array<string>;
 }
 
 /**
@@ -111,6 +117,7 @@ export function instanceOfRecreationResourceDto(
     value['rec_resource_type'] === undefined
   )
     return false;
+  if (!('location' in value) || value['location'] === undefined) return false;
   return true;
 }
 
@@ -137,7 +144,11 @@ export function RecreationResourceDtoFromJSONTyped(
     ),
     recreation_status: RecreationStatusDtoFromJSON(json['recreation_status']),
     rec_resource_type: json['rec_resource_type'],
+<<<<<<< HEAD
     campsite_count: json['campsite_count'],
+=======
+    location: json['location'],
+>>>>>>> 55b30a3 (chore: demo fetching and displaying geospatial data)
   };
 }
 
@@ -163,5 +174,6 @@ export function RecreationResourceDtoToJSONTyped(
     ),
     recreation_status: RecreationStatusDtoToJSON(value['recreation_status']),
     rec_resource_type: value['rec_resource_type'],
+    location: value['location'],
   };
 }
