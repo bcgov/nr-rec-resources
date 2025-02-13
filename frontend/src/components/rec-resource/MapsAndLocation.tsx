@@ -1,21 +1,20 @@
 import { forwardRef, useEffect, useRef } from 'react';
 import 'ol/ol.css';
-import Map from 'ol/Map';
-import View from 'ol/View';
-import VectorTileLayer from 'ol/layer/VectorTile';
-import { VectorTile as VectorTileSource } from 'ol/source';
-import VectorSource from 'ol/source/Vector';
-import VectorLayer from 'ol/layer/Vector';
-import Feature from 'ol/Feature';
-import Point from 'ol/geom/Point';
+import { Feature, Map, View } from 'ol';
+import {
+  Vector as VectorSource,
+  VectorTile as VectorTileSource,
+} from 'ol/source';
+import { Vector as VectorLayer, VectorTile as VectorTileLayer } from 'ol/layer';
+import { Point } from 'ol/geom';
 import { fromLonLat } from 'ol/proj';
-import EsriJSON from 'ol/format/EsriJSON';
+import { EsriJSON, MVT } from 'ol/format';
 import { bbox as bboxStrategy } from 'ol/loadingstrategy';
-import MVT from 'ol/format/MVT';
 import { applyStyle } from 'ol-mapbox-style';
-import Style from 'ol/style/Style';
+import { Style, Icon } from 'ol/style';
 import hikingIcon from '@/images/activities/hiking.svg';
-import Icon from 'ol/style/Icon';
+import locationIcon from '@/images/fontAwesomeIcons/location-dot.svg';
+
 interface MapsAndLocationProps {
   location: [number, number];
 }
@@ -26,6 +25,14 @@ const hikingIconStyle = new Style({
     src: hikingIcon,
     scale: 0.1, // Adjust size if necessary
     anchor: [0.5, 1], // Center the icon properly
+  }),
+});
+
+const locationMarkerStyle = new Style({
+  image: new Icon({
+    src: locationIcon,
+    scale: 0.08,
+    anchor: [0.5, 1],
   }),
 });
 
@@ -46,7 +53,6 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
     useEffect(() => {
       if (!mapRef.current) return;
 
-      // 🔹 ESRI Vector Tile Layer (Basemap)
       const baseLayer = new VectorTileLayer({
         source: new VectorTileSource({
           url: baseMapVectorTileUrl,
@@ -54,12 +60,10 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
         }),
       });
 
-      // 🔹 Apply Mapbox Style to Esri Basemap (ASYNC)
       applyStyle(baseLayer, baseMapVectorTileStyleUrl)
         .then(() => console.log('Esri basemap style applied successfully'))
         .catch((err) => console.error('Error applying Esri style:', err));
 
-      // 🔹 ArcGIS Feature Server Layer (Dynamic Data)
       const featureSource = new VectorSource({
         format: new EsriJSON(),
         url: (extent) =>
@@ -67,6 +71,18 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
             ',',
           )}&geometryType=esriGeometryEnvelope&spatialRel=esriSpatialRelIntersects&outSR=3857`,
         strategy: bboxStrategy, // Load features dynamically
+      });
+
+      const recResourceLocationFeature = new Feature({
+        geometry: new Point(fromLonLat([location[1], location[0]])), // Convert to EPSG:3857
+      });
+
+      recResourceLocationFeature.setStyle(locationMarkerStyle);
+
+      const recResourceLocationLayer = new VectorLayer({
+        source: new VectorSource({
+          features: [recResourceLocationFeature],
+        }),
       });
 
       const featureLayer = new VectorLayer({
@@ -78,19 +94,9 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
         },
       });
 
-      const point = new VectorLayer({
-        source: new VectorSource({
-          features: [
-            new Feature({
-              geometry: new Point(fromLonLat(location)),
-            }),
-          ],
-        }),
-      });
-
       const map = new Map({
         target: mapRef.current,
-        layers: [baseLayer, featureLayer, point],
+        layers: [baseLayer, featureLayer, recResourceLocationLayer],
         view: new View({
           center: [location[1], location[0]],
           zoom: 14,
