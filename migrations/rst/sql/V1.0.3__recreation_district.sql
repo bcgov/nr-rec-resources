@@ -5,7 +5,9 @@ comment on column rst.recreation_district_code.description is 'Description of th
 
 insert into rst.recreation_district_code (district_code, description)
 values
-('RDCC', 'Quesnel-Central Cariboo'),
+-- Line breaks are unfortunately intentional to format better on the filter menu using css white-space: pre-line
+('RDCC', 'Quesnel-Central
+  Cariboo'),
 ('RDCK', 'Chilliwack'),
 ('RDCO', 'Columbia-Shuswap'),
 ('RDCR', 'Discovery Coast'),
@@ -18,12 +20,16 @@ values
 ('RDMH', '100 Mile-Chilcotin'),
 ('RDOS', 'Okanagan'),
 ('RDPC', 'Peace - Ft. Nelson'),
-('RDPG', 'Prince George-Mackenzie'),
-('RDQC', 'Queen Charlotte Islands  ( Haida Gwaii )'),
+('RDPG', 'Prince George -
+  Mackenzie'),
+('RDQC', 'Queen Charlotte Islands
+  (Haida Gwaii)'),
 ('RDRM', 'Rocky Mountain'),
 ('RDRN', 'Rocky Mountain North'),
 ('RDRS', 'Rocky Mountain South'),
-('RDSI', 'Sunshine Coast/South Island'),
+('RDSI', 'Sunshine Coast /
+  South Island'),
 ('RDSQ', 'Squamish'),
 ('RDSS', 'Nadina-Skeena'),
-('RDVA', 'Vanderhoof-Ft. St. James');
+('RDVA', 'Vanderhoof -
+  Ft. St. James');
