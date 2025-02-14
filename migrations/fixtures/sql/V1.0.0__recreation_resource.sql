@@ -1,10 +1,10 @@
 insert into
-    rst.recreation_resource_type_code (rec_resource_type_code, description)
+  rst.recreation_resource_type_code (rec_resource_type_code, description)
 values
-    ('IF', 'Interpretive Forest'),
-    ('RR', 'Recreation Reserve'),
-    ('RTR', 'Recreation Trail'),
-    ('SIT', 'Recreation Site');
+  ('IF', 'Interpretive Forest'),
+  ('RR', 'Recreation Reserve'),
+  ('RTR', 'Recreation Trail'),
+  ('SIT', 'Recreation Site');
 
 insert into
   rst.recreation_resource (
@@ -46,14 +46,16 @@ values
     'A 1 hectare gravel parking lot located at 10.2 km of the Tulameen Forest Service Road. Managed in partnership with the Coquihalla Summit Snowmobile Club this parking lot can be used by sledders who generally access the Coquihalla Mountain area near where the 10 k Cabin is located. The parking lot may be ploughed some winter seasons while other seasons it will not be ploughed depending upon whether the industrial road is being used and machinery can then access the lot for ploughing. Best to check the club website for more details at Coqsnow.com',
     'MERRITT',
     true,
-    'RTR'  ),
+    'RTR'
+  ),
   (
     'REC6866',
     '1861 GOLDRUSH PACK TRAIL',
     'Come and hike the original route used by Goldrush miners as they travelled overland from the Coast into the Goldfields of the Barkerville area. The trailhead is in Barkerville and travels up and over Yanks Peak (French Snowshoe Mountain) and down to Weaver Creek where it joins the current road system. There are numerous historic sites along the trail as well as several rustic campsites. Visit www.barkerville.bc.ca for more details. Non Motorized Use Only',
     'WELLS',
     true,
-    'RTR'  ),
+    'RTR'
+  ),
   (
     'REC203900',
     '18 Mile',
@@ -84,28 +86,32 @@ values
     'Forested Mtn Bike',
     'WHISTLER',
     true,
-    'RTR'  ),
+    'RTR'
+  ),
   (
     'REC2094',
     '40 Mile CAMP / BULL River',
     'A small scenic site at the confluence of Quinn Creek and the Bull River.',
     'FERNIE',
     true,
-    'RR'  ),
+    'RR'
+  ),
   (
     'REC6897',
     '70 Mile Green Lake Trail',
     'The trail starts at 70 Mile House BC and connects to a vast network of snowmobile and ATV trails around south Green Lake. From 70 Mile House, it is also possible to connect to the Gold Rush Recreation Trail, allowing users to travel as far north as Horsefly, and as far south as Clinton.',
     '70 MILE HOUSE',
     true,
-    'RR'  ),
+    'RR'
+  ),
   (
     'REC2206',
     '7 MILE LAKE',
     'This is a small site, semi-forested with mature Larch and Lodgepole Pine trees, with a central grassy, open area. Most of the sites are well-shaded, as the recreation site is nestled in a valley bottom. The site is located adjacent to Seven Mile Lake, a small shallow, weedy lake which is the headwaters of Caven Creek. The lake has a steep shoreline and is treed right to the water on the south shore, but a rough trail along the north side of the lake provides access to the deeper portion of the lake which is suitable for fishing. The lake is stocked with Cutthroat trout every other year. The site is located right on the main FSR but traffic is not excessive at this point.',
     'CRANBROOK',
     true,
-    'RR'  ),
+    'RR'
+  ),
   (
     'REC206043',
     '8 Mile Cabin Telegraph Trail',
@@ -128,28 +134,32 @@ values
     'These trails wind their way through stands of Douglas-fir and lodgepole pine above the community of 100 Mile House. The 99 Mile Hill is home to several trail networks for a variety of recreation activities, including cross-country skiing, snowmobiling, and horseback riding. The area also provides opportunities for the public to tour through a demonstration forest with interpretative signs.',
     '100 MILE HOUSE',
     true,
-    'RTR'  ),
+    'RTR'
+  ),
   (
     'REC261475',
     '99 Mile Off Road Motorcycle',
     'off-road motorcycle trails (singletrack)',
     '100 MILE HOUSE',
     true,
-    'RTR'  ),
+    'RTR'
+  ),
   (
     'REC166942',
     '99 Mile Parking Oval',
     'This is a parking area for those enjoying the recreation trails.',
     '100 Mile House',
     true,
-    'RTR'  ),
+    'RTR'
+  ),
   (
     'REC2792',
     '99 MILE SKI TRAILS',
     'These Trails are a short Drive outside of 100 Mile house',
     '100 Mile House',
     true,
-    'RTR'  ),
+    'RTR'
+  ),
   (
     'REC230522',
     '99 Mile Snowshoe Trails',
@@ -204,7 +214,8 @@ values
     'Aberdeen columns are basalt rock formations. The Okanagan valley formed 60 million years ago as a result from a rift. 40 million years ago the valley was a wash with gushing volcanoes. Some of which are Knox Mountain, Dilworth and Mount Boucherie. The valley didn''t exist when dinosaurs roamed the earth. The result today is a popular climbing area.',
     'LAVINGTON',
     true,
-    'RTR'  ),
+    'RTR'
+  ),
   (
     'REC1585',
     'ABERDEEN LAKE',
@@ -235,7 +246,8 @@ values
     'Forested Trail',
     'SILVERTON',
     true,
-    'SIT'  ),
+    'SIT'
+  ),
   (
     'REC0587',
     'AGATE POINT',
@@ -266,21 +278,24 @@ values
     'This semi-remote site is located on the northern shores of beautiful Ahbau Lake, near the border of the Prince George and Quesnel Forest Districts. This site has camping pads to accommodate 10 larger units as well as another 10 smaller sites on the upper loop road. There is access to a lake via a concrete boat launch. The lake is popular for kayaking and boating, and offers opportunities for angling of wild fish (rainbow trout and coarse fish species). The site offers the basic amenities of fire rings, tables and pit toilets.',
     'QUESNEL',
     true,
-    'RTR'  ),
+    'RTR'
+  ),
   (
     'REC5763',
     'AHDATAY',
     'Sand beach, boat access only, user maintained.',
     'FORT ST. JAMES',
     true,
-    'RTR'  ),
+    'RTR'
+  ),
   (
     'REC4519',
     'AILEEN LAKE',
     'This site is on a small fishing lake. There is 1 table and outhouse on site. Access is poor and requires a 4wd vehicle. Campers and trailers will have a difficult time getting into Aileen Lake due to water bars along the roads through cutblocks, and large water puddles and the ingrown forest for the last 800m. Best suited for the day fisherman in a pickup truck.',
     'WINFIELD',
     true,
-    'RTR'  ),
+    'RTR'
+  ),
   (
     'REC265446',
     'Airy Area',
@@ -367,14 +382,16 @@ values
     'A small, scenic lake with fishing opportunities.',
     'PENTICTON',
     true,
-    'RTR'  ),
+    'RTR'
+  ),
   (
     'REC1163',
     'ALPINE LAKE TRAIL',
     'A short but steep hike through alpine meadows to the scenic Alpine Lake.',
     'TROUT CREEK',
     true,
-    'RTR'  ),
+    'RTR'
+  ),
   (
     'REC5973',
     'ALTA LAKE',
