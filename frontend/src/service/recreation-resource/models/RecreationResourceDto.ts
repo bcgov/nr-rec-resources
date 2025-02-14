@@ -144,11 +144,8 @@ export function RecreationResourceDtoFromJSONTyped(
     ),
     recreation_status: RecreationStatusDtoFromJSON(json['recreation_status']),
     rec_resource_type: json['rec_resource_type'],
-<<<<<<< HEAD
     campsite_count: json['campsite_count'],
-=======
     location: json['location'],
->>>>>>> 55b30a3 (chore: demo fetching and displaying geospatial data)
   };
 }
 
