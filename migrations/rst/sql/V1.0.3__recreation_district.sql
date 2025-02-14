@@ -1,8 +1,3 @@
-create table if not exists rst.recreation_district_code (
-    district_code varchar(4) primary key,
-    description varchar(120) not null
-);
-
 comment on table rst.recreation_district_code is 'Recreation district codes for classification of areas within a project';
 
 comment on column rst.recreation_district_code.district_code is 'A code indicating a recreation district boundary. EG Cascades, Chilliwack, Discovery Coast. Note: There are 17 Recreation District Boundaries, most of which have different geographical boundaries than Forest District Boundaries. Because of this, Rec District Boundary Codes are different from Forest District Boundary Codes.';
