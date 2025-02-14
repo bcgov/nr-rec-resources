@@ -283,7 +283,20 @@ const recResourceTypeCountsResolved = {
   type: "multi-select",
 };
 
+const recDistrictCountsResolved = {
+  label: "District",
+  options: [
+    { id: "RDMH", description: "100 Mile-Chilcotin", count: 1 },
+    { id: "RDCS", description: "Cascades", count: 0 },
+    { id: "RDCK", description: "Chilliwack", count: 0 },
+    { id: "RDCO", description: "Columbia-Shuswap", count: 0 },
+  ],
+  param: "district",
+  type: "multi-select",
+};
+
 const noSearchResultsFilterArray = [
+  { ...recDistrictCountsResolved },
   { ...recResourceTypeCountsResolved },
   {
     label: "Things to do",
@@ -342,6 +355,29 @@ const recResourceTypeCounts = [
   },
 ];
 
+const recreationDistrictCounts = [
+  {
+    district_code: "RDMH",
+    description: "100 Mile-Chilcotin",
+    _count: { recreation_resource: 1 },
+  },
+  {
+    district_code: "RDCS",
+    description: "Cascades",
+    _count: { recreation_resource: 0 },
+  },
+  {
+    district_code: "RDCK",
+    description: "Chilliwack",
+    _count: { recreation_resource: 0 },
+  },
+  {
+    district_code: "RDCO",
+    description: "Columbia-Shuswap",
+    _count: { recreation_resource: 0 },
+  },
+];
+
 export {
   recreationResource1,
   recreationResource1Response,
@@ -360,4 +396,6 @@ export {
   recResourceTypeCountsResolved,
   recResourceTypeCounts,
   noSearchResultsFilterArray,
+  recDistrictCountsResolved,
+  recreationDistrictCounts,
 };

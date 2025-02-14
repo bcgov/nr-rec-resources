@@ -287,6 +287,8 @@ export class RecreationResourceService {
       }),
     );
 
+    console.log(recreationDistrictFilters);
+
     return {
       data: this.formatResults(recreationResources),
       page,
