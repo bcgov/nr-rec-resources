@@ -14,10 +14,11 @@ insert into
         closest_community,
         display_on_public_site,
         rec_resource_type,
-        campsite_count
+        campsite_count,
+        district_code
     )
 select
-    rp.forest_file_id,
+    rp.forest_file_id as rec_resource_id,
     rp.project_name as name,
     case
         when rc.rec_comment_type_code = 'DESC' then rc.project_comment
@@ -28,18 +29,20 @@ select
         when rp.recreation_view_ind = 'Y' then true
         else false
     end as display_on_public_site,
-    rmf.recreation_map_feature_code,
-    coalesce(c.campsite_count, 0) as campsite_count
+    rmf.recreation_map_feature_code as rec_resource_type,
+    coalesce(c.campsite_count, 0) as campsite_count,
+    xref.recreation_district_code as district_code
 from
     fta.recreation_project rp
     left join fta.recreation_comment rc on rp.forest_file_id = rc.forest_file_id
     left join fta.recreation_map_feature rmf on rp.forest_file_id = rmf.forest_file_id
     left join
     (select forest_file_id, count(*) as campsite_count
-     from fta.recreation_defined_campsite
-     group by forest_file_id) c
-on
-    rp.forest_file_id = c.forest_file_id on conflict do nothing;
+    from fta.recreation_defined_campsite
+    group by forest_file_id) c on rp.forest_file_id = c.forest_file_id
+    left join fta.recreation_district_xref xref on rp.forest_file_id = xref.forest_file_id
+on conflict (rec_resource_id) do nothing;
+
 
 insert into
     rst.recreation_activity (rec_resource_id, recreation_activity_code)
