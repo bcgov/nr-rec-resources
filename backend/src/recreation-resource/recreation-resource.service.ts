@@ -241,43 +241,62 @@ export class RecreationResourceService {
       },
     };
 
-    const [recreationResources, totalRecordIds, recResourceTypeCounts] =
-      await this.prisma.$transaction([
-        // Fetch paginated records
-        this.prisma.recreation_resource.findMany({
-          where,
-          select: recreationResourceSelect,
-          take,
-          skip,
-          orderBy,
-        }),
-        // Get all unpaginated but filtered rec_resource_ids for the records so we can group/count records for the filter sidebar
-        // This can be used to get the count of each many to many filter group
-        this.prisma.recreation_resource.findMany({
-          where,
-          select: { rec_resource_id: true },
-        }),
-        // Get counts for all, unfiltered resource types that are in the records
-        this.prisma.recreation_resource_type_code.findMany({
-          select: {
-            rec_resource_type_code: true,
-            description: true,
-            _count: {
-              select: {
-                recreation_resource: true, // Count related recreation resources
-              },
+    const [
+      recreationResources,
+      totalRecordIds,
+      recResourceTypeCounts,
+      recreationDistrictCounts,
+    ] = await this.prisma.$transaction([
+      // Fetch paginated records
+      this.prisma.recreation_resource.findMany({
+        where,
+        select: recreationResourceSelect,
+        take,
+        skip,
+        orderBy,
+      }),
+      // Get all unpaginated but filtered rec_resource_ids for the records so we can group/count records for the filter sidebar
+      // This can be used to get the count of each many to many filter group
+      this.prisma.recreation_resource.findMany({
+        where,
+        select: { rec_resource_id: true },
+      }),
+      // Get counts for all, unfiltered resource types that are in the records
+      this.prisma.recreation_resource_type_code.findMany({
+        select: {
+          rec_resource_type_code: true,
+          description: true,
+          _count: {
+            select: {
+              recreation_resource: true, // Count related recreation resources
             },
           },
-          where: {
-            rec_resource_type_code: {
-              notIn: excludedResourceTypes,
+        },
+        where: {
+          rec_resource_type_code: {
+            notIn: excludedResourceTypes,
+          },
+        },
+        orderBy: {
+          description: Prisma.SortOrder.desc,
+        },
+      }),
+      // Get counts for all, unfiltered recreation_districts that are in the records
+      this.prisma.recreation_district_code.findMany({
+        select: {
+          district_code: true,
+          description: true,
+          _count: {
+            select: {
+              recreation_resource: true, // Count related recreation resources
             },
           },
-          orderBy: {
-            description: Prisma.SortOrder.desc,
-          },
-        }),
-      ]);
+        },
+        orderBy: {
+          description: Prisma.SortOrder.desc,
+        },
+      }),
+    ]);
 
     const activityFilters = await this.getActivityCounts(totalRecordIds);
 
@@ -289,12 +308,26 @@ export class RecreationResourceService {
       }),
     );
 
+    const recreationDistrictFilters = recreationDistrictCounts.map(
+      (district) => ({
+        id: district.district_code,
+        description: district.description,
+        count: district._count.recreation_resource ?? 0,
+      }),
+    );
+
     return {
       data: this.formatResults(recreationResources),
       page,
       limit,
       total: totalRecordIds?.length,
       filters: [
+        {
+          type: "multi-select",
+          label: "District",
+          param: "district",
+          options: recreationDistrictFilters,
+        },
         {
           type: "multi-select",
           label: "Type",
