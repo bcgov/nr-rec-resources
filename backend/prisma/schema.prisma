@@ -16,13 +16,19 @@ model recreation_resource {
   closest_community             String?                       @db.VarChar(200)
   display_on_public_site        Boolean?                      @default(false)
   rec_resource_type             String                        @db.VarChar(10)
+<<<<<<< HEAD
   district_code            String?                   @db.VarChar(4)
   recreation_activity           recreation_activity[]
   recreation_campsite           recreation_campsite?
   recreation_fee                recreation_fee?
+=======
+  district_code                 String                        @db.VarChar(4)
+  campsite_count                Int?                          @default(0)
+  recreation_activity           recreation_activity[]
+  recreation_district_code      recreation_district_code      @relation(fields: [district_code], references: [district_code], onDelete: NoAction, onUpdate: NoAction)
+>>>>>>> 5a71fd0 (chore: rebase recreation type branch and update prisma schema)
   recreation_resource_type_code recreation_resource_type_code @relation(fields: [rec_resource_type], references: [rec_resource_type_code], onDelete: NoAction, onUpdate: NoAction)
-  recreation_district_code recreation_district_code? @relation(fields: [district_code], references: [district_code], onDelete: NoAction, onUpdate: NoAction)
-  recreation_status        recreation_status?
+  recreation_status             recreation_status?
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -57,9 +63,10 @@ model recreation_status_code {
 
 model recreation_resource_type_code {
   rec_resource_type_code String                @id @db.VarChar(10)
-  description            String?               @db.VarChar(200)
+  description            String                @db.VarChar(200)
   recreation_resource    recreation_resource[]
-  
+}
+
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_district_code {
   district_code       String                @id @db.VarChar(4)

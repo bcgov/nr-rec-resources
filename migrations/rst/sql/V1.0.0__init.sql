@@ -4,7 +4,7 @@ create schema if not exists rst;
 
 create table if not exists rst.recreation_resource_type_code (
     rec_resource_type_code varchar(10) primary key,
-    description varchar(200)
+    description varchar(200) not null
 );
 
 create table if not exists rst.recreation_district_code (
@@ -19,7 +19,7 @@ create table if not exists rst.recreation_resource (
     closest_community varchar(200),
     display_on_public_site boolean default false,
     rec_resource_type varchar(10) not null references rst.recreation_resource_type_code (rec_resource_type_code),
-    district_code varchar(4) references rst.recreation_district_code (district_code)
+    district_code varchar(4) not null references rst.recreation_district_code (district_code)
 );
 
 comment on table rst.recreation_resource is 'Resource information relating to a recreational file. A recreation file can have only one resource. A recreation resource must be of type Site, Reserve, Trail, or Interpretive Forest.';
