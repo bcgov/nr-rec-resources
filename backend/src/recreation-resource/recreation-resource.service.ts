@@ -17,6 +17,7 @@ const recreationResourceSelect = {
       with_description: true,
     },
   },
+  campsite_count: true,
   recreation_status: {
     select: {
       recreation_status_code: {

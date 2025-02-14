@@ -24,6 +24,7 @@ const recreationResource1 = {
     status_code: 1,
   },
   rec_resource_type: "SIT",
+  campsite_count: 10,
 };
 
 const recreationResource1Response = {
@@ -40,6 +41,7 @@ const recreationResource1Response = {
     status_code: 1,
   },
   rec_resource_type: "SIT",
+  campsite_count: 10,
 };
 
 const recreationResource2 = {
@@ -57,6 +59,7 @@ const recreationResource2 = {
     status_code: 2,
   },
   rec_resource_type: "RTR",
+  campsite_count: 10,
 };
 
 const recreationResource2Response = {
@@ -68,6 +71,7 @@ const recreationResource2Response = {
     status_code: 2,
   },
   rec_resource_type: "RTR",
+  campsite_count: 10,
 };
 
 const recreationResource3 = {
@@ -92,6 +96,7 @@ const recreationResource3 = {
     status_code: 1,
   },
   rec_resource_type: "RR",
+  campsite_count: 10,
 };
 
 const recreationResource3Response = {
@@ -108,6 +113,7 @@ const recreationResource3Response = {
     status_code: 1,
   },
   rec_resource_type: "RR",
+  campsite_count: 10,
 };
 
 const recreationResource4 = {
@@ -138,6 +144,7 @@ const recreationResource4 = {
   ],
   recreation_status: null,
   rec_resource_type: "IF",
+  campsite_count: 10,
 };
 
 const recreationResource4Response = {
@@ -162,6 +169,7 @@ const recreationResource4Response = {
     status_code: undefined,
   },
   rec_resource_type: "IF",
+  campsite_count: 10,
 };
 
 const recresourceArray = [
