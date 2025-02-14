@@ -301,7 +301,7 @@ export class RecreationResourceService {
           },
         },
         orderBy: {
-          description: Prisma.SortOrder.desc,
+          description: Prisma.SortOrder.asc,
         },
       }),
     ]);
