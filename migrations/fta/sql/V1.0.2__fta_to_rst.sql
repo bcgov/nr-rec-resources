@@ -71,7 +71,7 @@ INSERT INTO rst.recreation_fee (
     recreation_fee_code,
     fee_description
 )
-SELECT 
+SELECT
     rf.forest_file_id AS rec_resource_id,
     rf.fee_amount,
     rf.fee_start_date,
@@ -86,6 +86,6 @@ SELECT
     rf.recreation_fee_code,
     rfc.description AS fee_description
 FROM fta.recreation_fee rf
-LEFT JOIN fta.recreation_fee_code rfc 
+LEFT JOIN fta.recreation_fee_code rfc
     ON rf.recreation_fee_code = rfc.recreation_fee_code
 ON CONFLICT DO NOTHING;
