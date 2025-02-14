@@ -148,6 +148,7 @@ export class RecreationResourceService {
     limit?: number,
     activities?: string,
     type?: string,
+    district?: string,
   ): Promise<PaginatedRecreationResourceDto> {
     // 10 page limit - max 100 records since if no limit we fetch page * limit
     if (page > 10 && !limit) {
@@ -166,8 +167,8 @@ export class RecreationResourceService {
     const orderBy = [{ name: Prisma.SortOrder.asc }];
     const activityFilter = activities?.split("_").map(Number);
     const typeFilter = type?.split("_").map(String);
+    const districtFilter = district?.split("_").map(String);
 
-    // Filter by activities if provided
     const activityFilterQuery = activities && {
       AND: activityFilter.map((activity) => ({
         recreation_activity: {
@@ -181,6 +182,12 @@ export class RecreationResourceService {
     const resourceTypeFilterQuery = type && {
       rec_resource_type: {
         in: typeFilter,
+      },
+    };
+
+    const districtFilterQuery = district && {
+      district_code: {
+        in: districtFilter,
       },
     };
 
@@ -201,6 +208,7 @@ export class RecreationResourceService {
         },
         ...activityFilterQuery,
         ...resourceTypeFilterQuery,
+        ...districtFilterQuery,
       },
     };
 
