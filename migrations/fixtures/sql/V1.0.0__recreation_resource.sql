@@ -296,7 +296,7 @@ values
         true,
         'SIT',
         45,
-        'RDKA'
+        'RDCC'
     ),
     (
         'REC270155',
@@ -306,7 +306,7 @@ values
         true,
         'SIT',
         6,
-        'RDCR'
+        'RDCC'
     ),
     (
         'REC0587',
@@ -316,7 +316,7 @@ values
         true,
         'SIT',
         12,
-        'RDPG'
+        'RDCC'
     ),
     (
         'REC166367',
@@ -326,7 +326,7 @@ values
         true,
         'SIT',
         14,
-        'RDKM'
+        'RDCC'
     ),
     (
         'REC1621',
@@ -336,7 +336,7 @@ values
         true,
         'RTR',
         48,
-        'RDKA'
+        'RDOS'
     ),
     (
         'REC1164',
@@ -346,7 +346,7 @@ values
         true,
         'RTR',
         7,
-        'RDPG'
+        'RDCO'
     ),
     (
         'REC5763',
@@ -356,7 +356,7 @@ values
         true,
         'RTR',
         8,
-        'RDVA'
+        'RDCO'
     ),
     (
         'REC4519',
@@ -366,7 +366,7 @@ values
         true,
         'RTR',
         9,
-        'RDKA'
+        'RDCO'
     ),
     (
         'REC265446',
@@ -376,7 +376,7 @@ values
         true,
         'RTR',
         10,
-        'RDCR'
+        'RDCK'
     ),
     (
         'REC262362',
@@ -386,7 +386,7 @@ values
         true,
         'RTR',
         11,
-        'RDPG'
+        'RDCK'
     ),
     (
         'REC192109',
