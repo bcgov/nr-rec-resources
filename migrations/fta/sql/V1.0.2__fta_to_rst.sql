@@ -55,3 +55,37 @@ from
     fta.recreation_comment
 where
     rec_comment_type_code = 'CLOS';
+
+INSERT INTO rst.recreation_fee (
+    rec_resource_id,
+    fee_amount,
+    fee_start_date,
+    fee_end_date,
+    monday_ind,
+    tuesday_ind,
+    wednesday_ind,
+    thursday_ind,
+    friday_ind,
+    saturday_ind,
+    sunday_ind,
+    recreation_fee_code,
+    fee_description
+)
+SELECT 
+    rf.forest_file_id AS rec_resource_id,
+    rf.fee_amount,
+    rf.fee_start_date,
+    rf.fee_end_date,
+    rf.monday_ind,
+    rf.tuesday_ind,
+    rf.wednesday_ind,
+    rf.thursday_ind,
+    rf.friday_ind,
+    rf.saturday_ind,
+    rf.sunday_ind,
+    rf.recreation_fee_code,
+    rfc.description AS fee_description
+FROM fta.recreation_fee rf
+LEFT JOIN fta.recreation_fee_code rfc 
+    ON rf.recreation_fee_code = rfc.recreation_fee_code
+ON CONFLICT DO NOTHING;

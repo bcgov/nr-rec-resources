@@ -84,6 +84,7 @@ const RecResourcePage = () => {
       description: statusDescription,
       comment: statusComment,
     } = {},
+    recreation_fee,
   } = recResource || {};
 
   const formattedName = name?.toLowerCase();
@@ -229,7 +230,11 @@ const RecResourcePage = () => {
 
             <MapsAndLocation ref={mapLocationRef} />
 
-            <Camping ref={campingRef} campsite_count={campsite_count!} />
+            <Camping
+              ref={campingRef}
+              fees={recreation_fee!}
+              campsite_count={campsite_count!}
+            />
 
             {isThingsToDo && (
               <ThingsToDo

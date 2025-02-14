@@ -29,6 +29,26 @@ const recreationResourceSelect = {
       status_code: true,
     },
   },
+  recreation_fee: {
+    select: {
+      fee_amount: true,
+      fee_start_date: true,
+      fee_end_date: true,
+      monday_ind: true,
+      tuesday_ind: true,
+      wednesday_ind: true,
+      thursday_ind: true,
+      friday_ind: true,
+      saturday_ind: true,
+      sunday_ind: true,
+      recreation_fee_code: true,
+      with_description: {
+        select: {
+          description: true,
+        },
+      },
+    },
+  },
 };
 
 const activitySelect = {
@@ -69,6 +89,23 @@ export class RecreationResourceService {
         comment: resource.recreation_status?.comment,
         status_code: resource.recreation_status?.status_code,
       },
+      recreation_fee: resource.recreation_fee
+        ? {
+            fee_amount: resource.recreation_fee.fee_amount,
+            fee_start_date: resource.recreation_fee.fee_start_date,
+            fee_end_date: resource.recreation_fee.fee_end_date,
+            monday_ind: resource.recreation_fee.monday_ind,
+            tuesday_ind: resource.recreation_fee.tuesday_ind,
+            wednesday_ind: resource.recreation_fee.wednesday_ind,
+            thursday_ind: resource.recreation_fee.thursday_ind,
+            friday_ind: resource.recreation_fee.friday_ind,
+            saturday_ind: resource.recreation_fee.saturday_ind,
+            sunday_ind: resource.recreation_fee.sunday_ind,
+            recreation_fee_code: resource.recreation_fee.recreation_fee_code,
+            fee_description:
+              resource.recreation_fee.with_description?.description,
+          }
+        : null,
     }));
   }
 

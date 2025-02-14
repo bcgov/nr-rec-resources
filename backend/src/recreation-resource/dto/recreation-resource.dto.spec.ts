@@ -60,6 +60,19 @@ describe("Recreation DTOs", () => {
         },
         rec_resource_type: "IF",
         campsite_count: 2,
+        recreation_fee: {
+          fee_amount: 25.0,
+          fee_start_date: new Date("2024-06-01"),
+          fee_end_date: new Date("2024-09-30"),
+          recreation_fee_code: 2,
+          monday_ind: "Y",
+          tuesday_ind: "Y",
+          wednesday_ind: "Y",
+          thursday_ind: "Y",
+          friday_ind: "Y",
+          saturday_ind: "N",
+          sunday_ind: "N",
+        },
       };
 
       expect(resource.rec_resource_id).toBeDefined();
@@ -83,6 +96,19 @@ describe("Recreation DTOs", () => {
         },
         rec_resource_type: "IF",
         campsite_count: 2,
+        recreation_fee: {
+          fee_amount: 25.0,
+          fee_start_date: new Date("2024-06-01"),
+          fee_end_date: new Date("2024-09-30"),
+          recreation_fee_code: 2,
+          monday_ind: "Y",
+          tuesday_ind: "Y",
+          wednesday_ind: "Y",
+          thursday_ind: "Y",
+          friday_ind: "Y",
+          saturday_ind: "N",
+          sunday_ind: "N",
+        },
       };
 
       expect(resource.description).toBeNull();

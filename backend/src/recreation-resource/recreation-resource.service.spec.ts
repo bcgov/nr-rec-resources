@@ -25,6 +25,21 @@ const recreationResource1 = {
   },
   rec_resource_type: "SIT",
   campsite_count: 10,
+  recreation_fee: {
+    fee_description: "Camping Fee",
+    with_description: { description: "Camping Fee" },
+    fee_amount: 25.0,
+    fee_start_date: new Date("2024-06-01"),
+    fee_end_date: new Date("2024-09-30"),
+    recreation_fee_code: 2,
+    monday_ind: "Y",
+    tuesday_ind: "Y",
+    wednesday_ind: "Y",
+    thursday_ind: "Y",
+    friday_ind: "Y",
+    saturday_ind: "N",
+    sunday_ind: "N",
+  },
 };
 
 const recreationResource1Response = {
@@ -40,8 +55,10 @@ const recreationResource1Response = {
     comment: "Site is open comment",
     status_code: 1,
   },
-  rec_resource_type: "SIT",
-  campsite_count: 10,
+  recreation_fee: {
+    ...recreationResource1.recreation_fee,
+    with_description: undefined,
+  },
 };
 
 const recreationResource2 = {
@@ -60,6 +77,21 @@ const recreationResource2 = {
   },
   rec_resource_type: "RTR",
   campsite_count: 10,
+  recreation_fee: {
+    fee_description: "Day Use Fee",
+    with_description: { description: "Day Use Fee" },
+    fee_amount: 10.0,
+    fee_start_date: new Date("2024-05-01"),
+    fee_end_date: new Date("2024-10-01"),
+    recreation_fee_code: 3,
+    monday_ind: "Y",
+    tuesday_ind: "N",
+    wednesday_ind: "N",
+    thursday_ind: "Y",
+    friday_ind: "Y",
+    saturday_ind: "Y",
+    sunday_ind: "N",
+  },
 };
 
 const recreationResource2Response = {
@@ -70,8 +102,10 @@ const recreationResource2Response = {
     comment: "Site is closed comment",
     status_code: 2,
   },
-  rec_resource_type: "RTR",
-  campsite_count: 10,
+  recreation_fee: {
+    ...recreationResource2.recreation_fee,
+    with_description: undefined,
+  },
 };
 
 const recreationResource3 = {
@@ -97,6 +131,21 @@ const recreationResource3 = {
   },
   rec_resource_type: "RR",
   campsite_count: 10,
+  recreation_fee: {
+    fee_description: "Picnic Fee",
+    with_description: { description: "Picnic Fee" },
+    fee_amount: 5.0,
+    fee_start_date: new Date("2024-04-01"),
+    fee_end_date: new Date("2024-09-30"),
+    recreation_fee_code: 4,
+    monday_ind: "N",
+    tuesday_ind: "N",
+    wednesday_ind: "Y",
+    thursday_ind: "Y",
+    friday_ind: "Y",
+    saturday_ind: "Y",
+    sunday_ind: "N",
+  },
 };
 
 const recreationResource3Response = {
@@ -112,8 +161,10 @@ const recreationResource3Response = {
     comment: "Site is active comment",
     status_code: 1,
   },
-  rec_resource_type: "RR",
-  campsite_count: 10,
+  recreation_fee: {
+    ...recreationResource3.recreation_fee,
+    with_description: undefined,
+  },
 };
 
 const recreationResource4 = {
@@ -145,6 +196,21 @@ const recreationResource4 = {
   recreation_status: null,
   rec_resource_type: "IF",
   campsite_count: 10,
+  recreation_fee: {
+    fee_description: "Boating Fee",
+    with_description: { description: "Boating Fee" },
+    fee_amount: 15.0,
+    fee_start_date: new Date("2024-06-01"),
+    fee_end_date: new Date("2024-09-30"),
+    recreation_fee_code: 5,
+    monday_ind: "Y",
+    tuesday_ind: "Y",
+    wednesday_ind: "N",
+    thursday_ind: "N",
+    friday_ind: "Y",
+    saturday_ind: "Y",
+    sunday_ind: "Y",
+  },
 };
 
 const recreationResource4Response = {
@@ -168,8 +234,10 @@ const recreationResource4Response = {
     comment: undefined,
     status_code: undefined,
   },
-  rec_resource_type: "IF",
-  campsite_count: 10,
+  recreation_fee: {
+    ...recreationResource4.recreation_fee,
+    with_description: undefined,
+  },
 };
 
 const recresourceArray = [
