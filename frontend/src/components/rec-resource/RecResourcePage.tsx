@@ -79,6 +79,7 @@ const RecResourcePage = () => {
     rec_resource_type,
     closest_community,
     campsite_count,
+    location,
     recreation_status: {
       status_code: statusCode,
       description: statusDescription,
@@ -227,7 +228,7 @@ const RecResourcePage = () => {
               />
             )}
 
-            <MapsAndLocation ref={mapLocationRef} />
+            <MapsAndLocation ref={mapLocationRef} location={location} />
 
             <Camping ref={campingRef} campsite_count={campsite_count!} />
 
