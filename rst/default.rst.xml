@@ -57,6 +57,7 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="closest_community" nullable="true" remarks="A text description generally describing the closest community or, for more isolated sites and trails, it could be a geographic feature to a recreation site or trail. e.g. VERNON, KELOWNA, PRINCE GEORGE." size="200" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="false" digits="0" id="4" name="display_on_public_site" nullable="true" remarks="" size="1" type="bool" typeCode="-7"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="rec_resource_type" nullable="true" remarks="Code representing a specific feature associated with the recreation resource." size="50" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="6" name="campsite_count" nullable="true" remarks="Number of campsites available in the recreation site or trail." size="10" type="int4" typeCode="4"/>
          <primaryKey column="rec_resource_id" sequenceNumberInPK="1"/>
          <index name="recreation_resource_pkey" unique="true">
             <column ascending="true" name="rec_resource_id"/>
