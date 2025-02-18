@@ -86,7 +86,7 @@ describe("RecreationResourceService", () => {
   });
 
   describe("formatResults function", () => {
-    it("should correctly format recreation_activity with_description relation in the results", () => {
+    it("should correctly format recreation_activity recreation_activity relation in the results", () => {
       const results = service.formatResults(recResourceArray);
 
       expect(results[0]).toEqual(recreationResource1Response);
@@ -127,7 +127,7 @@ describe("RecreationResourceService", () => {
       await expect(service.findOne("REC0001")).resolves.toBeNull();
     });
 
-    it("should correctly format recreation_activity with_description relation in the response", async () => {
+    it("should correctly format recreation_activity recreation_activity relation in the response", async () => {
       service["prisma"].recreation_resource.findUnique = vi
         .fn()
         .mockResolvedValueOnce(recreationResource4);
@@ -209,7 +209,7 @@ describe("RecreationResourceService", () => {
       });
     });
 
-    it("should correctly format recreation_activity with_description relation in the results", async () => {
+    it("should correctly format recreation_activity recreation_activity relation in the results", async () => {
       service["prisma"].recreation_resource.findMany = vi
         .fn()
         .mockResolvedValueOnce(recResourceArray)

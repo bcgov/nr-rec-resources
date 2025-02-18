@@ -7,7 +7,7 @@ const recreationResource1 = {
 
   recreation_activity: [
     {
-      with_description: {
+      recreation_activity: {
         recreation_activity_code: 32,
         description: "Camping",
       },
@@ -133,7 +133,7 @@ const recreationResource3 = {
   display_on_public_site: true,
   recreation_activity: [
     {
-      with_description: {
+      recreation_activity: {
         recreation_activity_code: 9,
         description: "Picnicking",
       },
@@ -202,19 +202,19 @@ const recreationResource4 = {
   display_on_public_site: false,
   recreation_activity: [
     {
-      with_description: {
+      recreation_activity: {
         recreation_activity_code: 1,
         description: "Angling",
       },
     },
     {
-      with_description: {
+      recreation_activity: {
         recreation_activity_code: 4,
         description: "Kayaking",
       },
     },
     {
-      with_description: {
+      recreation_activity: {
         recreation_activity_code: 3,
         description: "Canoeing",
       },
@@ -308,23 +308,23 @@ const totalRecordIds = [
 const allActivityCodes = [
   {
     recreation_activity_code: 22,
-    with_description: { description: "Snowmobiling" },
+    recreation_activity: { description: "Snowmobiling" },
   },
   {
     recreation_activity_code: 9,
-    with_description: { description: "Picnicking" },
+    recreation_activity: { description: "Picnicking" },
   },
   {
     recreation_activity_code: 1,
-    with_description: { description: "Angling" },
+    recreation_activity: { description: "Angling" },
   },
   {
     recreation_activity_code: 4,
-    with_description: { description: "Kayaking" },
+    recreation_activity: { description: "Kayaking" },
   },
   {
     recreation_activity_code: 3,
-    with_description: { description: "Canoeing" },
+    recreation_activity: { description: "Canoeing" },
   },
 ];
 
