@@ -21,7 +21,7 @@ const recreationResourceSelect = {
 
   recreation_activity: {
     select: {
-      with_description: true,
+      recreation_activity: true,
     },
   },
   campsite_count: true,
@@ -40,7 +40,7 @@ const recreationResourceSelect = {
 
 const activitySelect = {
   recreation_activity_code: true,
-  with_description: {
+  recreation_activity: {
     select: {
       description: true,
     },
@@ -67,9 +67,9 @@ export class RecreationResourceService {
         resource?.recreation_resource_type.recreation_resource_type_code
           .description,
       recreation_activity: resource.recreation_activity?.map((activity) => ({
-        description: activity.with_description.description,
+        description: activity.recreation_activity.description,
         recreation_activity_code:
-          activity.with_description.recreation_activity_code,
+          activity.recreation_activity.recreation_activity_code,
       })),
       recreation_status: {
         description:
@@ -136,7 +136,7 @@ export class RecreationResourceService {
           count: matchedGroup
             ? matchedGroup._count.recreation_activity_code
             : 0,
-          description: activity.with_description.description,
+          description: activity.recreation_activity.description,
         };
       },
     );
@@ -289,8 +289,6 @@ export class RecreationResourceService {
         count: district._count.recreation_resource ?? 0,
       }),
     );
-
-    console.log(recreationDistrictFilters);
 
     return {
       data: this.formatResults(recreationResources),
