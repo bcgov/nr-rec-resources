@@ -235,7 +235,6 @@ export class RecreationResourceService {
         select: { rec_resource_id: true },
       }),
       // Get counts for all, unfiltered resource types that are in the records
-      // @ts-ignore
       this.prisma.recreation_resource_type_code.findMany({
         select: {
           rec_resource_type_code: true,
