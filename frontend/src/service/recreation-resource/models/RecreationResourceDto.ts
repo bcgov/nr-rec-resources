@@ -204,6 +204,8 @@ export function instanceOfRecreationResourceDto(
     value['rec_resource_type'] === undefined
   )
     return false;
+  if (!('campsite_count' in value) || value['campsite_count'] === undefined)
+    return false;
   return true;
 }
 
@@ -257,5 +259,6 @@ export function RecreationResourceDtoToJSONTyped(
     ),
     recreation_status: RecreationStatusDtoToJSON(value['recreation_status']),
     rec_resource_type: value['rec_resource_type'],
+    campsite_count: value['campsite_count'],
   };
 }
