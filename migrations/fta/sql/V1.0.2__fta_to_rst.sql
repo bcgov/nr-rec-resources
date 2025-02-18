@@ -1,5 +1,5 @@
 -- Migrate data from fta schema to rst schema
--- Insert data into recreation_district_code from fta.recreation_district_code
+-- Insert into recreation_district_code from fta.recreation_district_code
 insert into
     rst.recreation_resource_type_code (rec_resource_type_code, description)
 select
@@ -8,7 +8,7 @@ select
 from
     fta.recreation_map_feature_code;
 
--- Insert data into recreation_resource from fta.recreation_project table
+-- Insert into recreation_resource from fta.recreation_project table
 insert into
     rst.recreation_resource (
         rec_resource_id,
@@ -46,7 +46,7 @@ from
 where
     rr.rec_resource_id = xref.forest_file_id;
 
--- Insert data into recreation_activity from fta.recreation_activity
+-- Insert into recreation_activity from fta.recreation_activity
 insert into
     rst.recreation_activity (rec_resource_id, recreation_activity_code)
 select
@@ -56,6 +56,7 @@ select
 from
     fta.recreation_activity ra;
 
+-- Insert into recreation_status from fta.recreation_comment
 insert into
     rst.recreation_status (rec_resource_id, status_code, comment)
 select
