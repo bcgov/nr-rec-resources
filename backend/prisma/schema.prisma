@@ -13,11 +13,12 @@ model recreation_resource {
   rec_resource_id               String                        @id @db.VarChar(200)
   name                          String?                       @db.VarChar(200)
   description                   String?                       @db.VarChar(5000)
-  closest_community                 String?                       @db.VarChar(200)
+  closest_community             String?                       @db.VarChar(200)
   display_on_public_site        Boolean?                      @default(false)
+  campsite_count                Int?                          @default(0)
   rec_resource_type             String                        @db.VarChar(10)
-  campsite_count         Int?                  @default(0)
   recreation_activity           recreation_activity[]
+  recreation_fee                recreation_fee?
   recreation_resource_type_code recreation_resource_type_code @relation(fields: [rec_resource_type], references: [rec_resource_type_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_status             recreation_status?
 }
@@ -56,4 +57,27 @@ model recreation_resource_type_code {
   rec_resource_type_code String                @id @db.VarChar(10)
   description            String?               @db.VarChar(200)
   recreation_resource    recreation_resource[]
+}
+
+model recreation_fee {
+  rec_resource_id     String              @id @db.VarChar(200)
+  fee_amount          Int?
+  fee_start_date      DateTime?           @db.Date
+  fee_end_date        DateTime?           @db.Date
+  monday_ind          String?             @default("N") @db.VarChar(1)
+  tuesday_ind         String?             @default("N") @db.VarChar(1)
+  wednesday_ind       String?             @default("N") @db.VarChar(1)
+  thursday_ind        String?             @default("N") @db.VarChar(1)
+  friday_ind          String?             @default("N") @db.VarChar(1)
+  saturday_ind        String?             @default("N") @db.VarChar(1)
+  sunday_ind          String?             @default("N") @db.VarChar(1)
+  recreation_fee_code Int
+  recreation_resource recreation_resource @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+  with_description    recreation_fee_code @relation("fee_with_description", fields: [recreation_fee_code], references: [recreation_fee_code], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model recreation_fee_code {
+  recreation_fee_code Int              @id @default(autoincrement())
+  description         String           @db.VarChar(120)
+  with_description    recreation_fee[] @relation("fee_with_description")
 }
