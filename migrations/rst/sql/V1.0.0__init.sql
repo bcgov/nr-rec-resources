@@ -2,18 +2,13 @@ create extension if not exists "postgis";
 
 create schema if not exists rst;
 
-create table if not exists rst.recreation_resource_type_code (
-    rec_resource_type_code varchar(10) primary key,
-    description varchar(200) not null
-);
-
 create table if not exists rst.recreation_district_code (
     district_code varchar(4) primary key,
     description varchar(120) not null
 );
 
 create table if not exists rst.recreation_resource (
-    rec_resource_id varchar(200) not null primary key,
+    rec_resource_id varchar(20) not null primary key,
     name varchar(200),
     description varchar(5000),
     closest_community varchar(200),
