@@ -1,3 +1,5 @@
+-- Migrate data from fta schema to rst schema
+-- Insert data into recreation_district_code from fta.recreation_district_code
 insert into
     rst.recreation_resource_type_code (rec_resource_type_code, description)
 select
@@ -6,46 +8,45 @@ select
 from
     fta.recreation_map_feature_code;
 
+-- Insert data into recreation_resource from fta.recreation_project table
 insert into
     rst.recreation_resource (
         rec_resource_id,
         name,
-        description,
         closest_community,
-        display_on_public_site,
-        rec_resource_type,
-        district_code
+        display_on_public_site
     )
 select
-    rp.forest_file_id as rec_resource_id,
-    rp.project_name as name,
-    case
-        when rc.rec_comment_type_code = 'DESC' then rc.project_comment
-        else ''
-    end as description,
-    rp.site_location as closest_community,
+    rp.forest_file_id,
+    rp.project_name,
+    rp.site_location,
     case
         when rp.recreation_view_ind = 'Y' then true
         else false
-    end as display_on_public_site,
-    rmf.recreation_map_feature_code as rec_resource_type,
-    coalesce(c.campsite_count, 0) as campsite_count,
-    xref.recreation_district_code as district_code
+    end
 from
-    fta.recreation_project rp
-    left join fta.recreation_comment rc on rp.forest_file_id = rc.forest_file_id
-    left join fta.recreation_map_feature rmf on rp.forest_file_id = rmf.forest_file_id
-    left join (
-        select
-            forest_file_id,
-            count(*) as campsite_count
-        from
-            fta.recreation_defined_campsite
-        group by
-            forest_file_id
-    ) c on rp.forest_file_id = c.forest_file_id
-    left join fta.recreation_district_xref xref on rp.forest_file_id = xref.forest_file_id on conflict (rec_resource_id) do nothing;
+    fta.recreation_project rp;
 
+-- Add description from fta.recreation_comment table
+update rst.recreation_resource rr
+set
+    description = rc.project_comment
+from
+    fta.recreation_comment rc
+where
+    rr.rec_resource_id = rc.forest_file_id
+    and rc.rec_comment_type_code = 'DESC';
+
+-- Add district_code from recreation_district_xref
+update rst.recreation_resource rr
+set
+    district_code = xref.recreation_district_code
+from
+    fta.recreation_district_xref xref
+where
+    rr.rec_resource_id = xref.forest_file_id;
+
+-- Insert data into recreation_activity from fta.recreation_activity
 insert into
     rst.recreation_activity (rec_resource_id, recreation_activity_code)
 select
