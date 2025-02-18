@@ -76,7 +76,11 @@ export interface RecreationResourceDto {
    * @memberof RecreationResourceDto
    */
   rec_resource_type: string;
-
+  /**
+   * Number of campsites available in the recreation site or trail
+   * @type {number}
+   * @memberof RecreationResourceDto
+   */
   campsite_count: number;
 }
 
@@ -110,6 +114,8 @@ export function instanceOfRecreationResourceDto(
     !('rec_resource_type' in value) ||
     value['rec_resource_type'] === undefined
   )
+    return false;
+  if (!('campsite_count' in value) || value['campsite_count'] === undefined)
     return false;
   return true;
 }
@@ -163,5 +169,6 @@ export function RecreationResourceDtoToJSONTyped(
     ),
     recreation_status: RecreationStatusDtoToJSON(value['recreation_status']),
     rec_resource_type: value['rec_resource_type'],
+    campsite_count: value['campsite_count'],
   };
 }
