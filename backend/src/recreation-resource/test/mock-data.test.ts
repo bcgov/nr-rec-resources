@@ -21,8 +21,11 @@ const recreationResource1 = {
     status_code: 1,
   },
   campsite_count: 10,
-  recreation_resource_type_code: {
-    description: "Recreation Site",
+  recreation_resource_type: {
+    recreation_resource_type_code: {
+      rec_resource_type_code: "SIT",
+      description: "Recreation Site",
+    },
   },
 };
 
@@ -58,8 +61,11 @@ const recreationResource2 = {
     status_code: 2,
   },
   campsite_count: 10,
-  recreation_resource_type_code: {
-    description: "Interpretive Forest",
+  recreation_resource_type: {
+    recreation_resource_type_code: {
+      rec_resource_type_code: "IF",
+      description: "Interpretive Forest",
+    },
   },
 };
 
@@ -97,8 +103,11 @@ const recreationResource3 = {
     status_code: 1,
   },
   campsite_count: 10,
-  recreation_resource_type_code: {
-    description: "Recreation Trail",
+  recreation_resource_type: {
+    recreation_resource_type_code: {
+      rec_resource_type_code: "RTR",
+      description: "Recreation Trail",
+    },
   },
 };
 
@@ -147,8 +156,11 @@ const recreationResource4 = {
   ],
   recreation_status: null,
   campsite_count: 10,
-  recreation_resource_type_code: {
-    description: "Recreation Site",
+  recreation_resource_type: {
+    recreation_resource_type_code: {
+      rec_resource_type_code: "SIT",
+      description: "Recreation Site",
+    },
   },
 };
 
@@ -336,22 +348,22 @@ const recResourceTypeCounts = [
   {
     rec_resource_type_code: "IF",
     description: "Interpretive Forest",
-    _count: { recreation_resource: 6 },
+    _count: { recreation_resource_type: 6 },
   },
   {
     rec_resource_type_code: "RR",
     description: "Recreation Reserve",
-    _count: { recreation_resource: 4 },
+    _count: { recreation_resource_type: 4 },
   },
   {
     rec_resource_type_code: "RTR",
     description: "Recreation Trail",
-    _count: { recreation_resource: 37 },
+    _count: { recreation_resource_type: 37 },
   },
   {
     rec_resource_type_code: "SIT",
     description: "Recreation Site",
-    _count: { recreation_resource: 4 },
+    _count: { recreation_resource_type: 4 },
   },
 ];
 
