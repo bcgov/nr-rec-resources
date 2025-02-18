@@ -1,10 +1,5 @@
 -- Migrate data from fta schema to rst schema
 
--- Insert into recreation_district_code from fta.recreation_district_code
-insert into rst.recreation_resource_type_code (rec_resource_type_code, description)
-select recreation_map_feature_code, description
-from fta.recreation_map_feature_code;
-
 -- Insert into recreation_resource from fta.recreation_project table
 insert into rst.recreation_resource (rec_resource_id, name, closest_community, display_on_public_site)
 select

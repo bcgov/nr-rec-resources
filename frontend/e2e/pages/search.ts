@@ -23,7 +23,7 @@ export const searchPage = async (page: Page) => {
 
   await expect(
     page.getByRole('heading', {
-      name: '100 Road Bridge',
+      name: '10k Cabin',
     }),
   ).toBeVisible();
 };
