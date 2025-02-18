@@ -13,9 +13,9 @@ const recreationResourceSelect = {
   name: true,
   closest_community: true,
   display_on_public_site: true,
-  recreation_resource_type_code: {
+  recreation_resource_type: {
     select: {
-      description: true,
+      recreation_resource_type_code: true,
     },
   },
 
@@ -83,7 +83,9 @@ export class RecreationResourceService {
   formatResults(recResources: RecreationResourceGetPayload[]) {
     return recResources?.map((resource) => ({
       ...resource,
-      rec_resource_type: resource?.recreation_resource_type_code.description,
+      rec_resource_type:
+        resource?.recreation_resource_type.recreation_resource_type_code
+          .description,
       recreation_activity: resource.recreation_activity?.map((activity) => ({
         description: activity.with_description.description,
         recreation_activity_code:
@@ -217,9 +219,7 @@ export class RecreationResourceService {
     };
 
     const resourceTypeFilterQuery = type && {
-      rec_resource_type: {
-        in: typeFilter,
-      },
+      in: typeFilter,
     };
 
     const districtFilterQuery = district && {
@@ -240,11 +240,13 @@ export class RecreationResourceService {
       ],
       AND: {
         display_on_public_site: true,
-        rec_resource_type: {
-          notIn: excludedResourceTypes,
+        recreation_resource_type: {
+          rec_resource_type_code: {
+            notIn: excludedResourceTypes,
+            ...resourceTypeFilterQuery,
+          },
         },
         ...activityFilterQuery,
-        ...resourceTypeFilterQuery,
         ...districtFilterQuery,
       },
     };
@@ -270,13 +272,14 @@ export class RecreationResourceService {
         select: { rec_resource_id: true },
       }),
       // Get counts for all, unfiltered resource types that are in the records
+      // @ts-ignore
       this.prisma.recreation_resource_type_code.findMany({
         select: {
           rec_resource_type_code: true,
           description: true,
           _count: {
             select: {
-              recreation_resource: true, // Count related recreation resources
+              recreation_resource_type: true, // Count related recreation resources
             },
           },
         },
@@ -312,7 +315,7 @@ export class RecreationResourceService {
       (resourceType) => ({
         id: resourceType.rec_resource_type_code,
         description: resourceType.description,
-        count: resourceType._count.recreation_resource ?? 0,
+        count: resourceType._count.recreation_resource_type ?? 0,
       }),
     );
 
