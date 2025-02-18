@@ -1,11 +1,11 @@
 -- Migrate data from fta schema to rst schema
 
--- Insert data into recreation_district_code from fta.recreation_district_code
+-- Insert into recreation_district_code from fta.recreation_district_code
 insert into rst.recreation_resource_type_code (rec_resource_type_code, description)
 select recreation_map_feature_code, description
 from fta.recreation_map_feature_code;
 
--- Insert data into recreation_resource from fta.recreation_project table
+-- Insert into recreation_resource from fta.recreation_project table
 insert into rst.recreation_resource (rec_resource_id, name, closest_community, display_on_public_site)
 select
     rp.forest_file_id,
@@ -37,7 +37,7 @@ set district_code = xref.recreation_district_code
 from fta.recreation_district_xref xref
 where rr.rec_resource_id = xref.forest_file_id;
 
--- Insert data into recreation_activity from fta.recreation_activity
+-- Insert into recreation_activity from fta.recreation_activity
 insert into rst.recreation_activity (rec_resource_id, recreation_activity_code)
 select
     ra.forest_file_id as rec_resource_id,
@@ -45,6 +45,7 @@ select
     cast(ra.recreation_activity_code as int) as recreation_activity_code
 from fta.recreation_activity ra;
 
+-- Insert into recreation_status from fta.recreation_comment
 insert into rst.recreation_status (rec_resource_id, status_code, comment)
 select
     forest_file_id,
@@ -55,3 +56,16 @@ select
     project_comment as description
 from fta.recreation_comment
 where rec_comment_type_code = 'CLOS';
+
+-- Insert into recreation_resource_type_code from fta.recreation_map_feature_code
+insert into rst.recreation_resource_type_code (rec_resource_type_code, description)
+select recreation_map_feature_code, description
+from fta.recreation_map_feature_code;
+
+-- Insert into recreation_resource_type from fta.recreation_map_feature
+insert into rst.recreation_resource_type (rec_resource_id, rec_resource_type_code)
+select distinct on (rmf.forest_file_id)
+    rmf.forest_file_id,
+    rmf.recreation_map_feature_code
+from fta.recreation_map_feature rmf
+order by rmf.forest_file_id, rmf.amend_status_date desc limit 1;
