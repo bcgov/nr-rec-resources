@@ -68,3 +68,15 @@ from fta.recreation_map_feature rmf
 where rmf.forest_file_id in (select rec_resource_id from rst.recreation_resource)
 and rmf.current_ind = 'Y'
 order by rmf.forest_file_id, rmf.amend_status_date desc;
+
+-- FTA structure_code ids were all over the place, so using serial id.
+-- Need to verify this matches up and inserts the correct ids
+insert into rst.recreation_structure (rec_resource_id, structure_code)
+select
+    fta.recreation_structure.forest_file_id as rec_resource_id,
+    rst.recreation_structure_code.structure_code
+from fta.recreation_structure
+join fta.recreation_structure_code
+on fta.recreation_structure.structure_id = fta.recreation_structure_code.recreation_structure_code
+join rst.recreation_structure_code
+on fta.recreation_structure_code.description = rst.recreation_structure_code.description;
