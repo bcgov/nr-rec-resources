@@ -64,6 +64,7 @@ export class RecreationResourceController {
     @Query("activities") activities?: string,
     @Query("type") type?: string,
     @Query("district") district?: string,
+    @Query("access") access?: string,
   ): Promise<PaginatedRecreationResourceDto> {
     const response =
       await this.recreationResourceService.searchRecreationResources(
@@ -73,6 +74,7 @@ export class RecreationResourceController {
         activities,
         type,
         district,
+        access,
       );
 
     return response;
