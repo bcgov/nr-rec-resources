@@ -17,6 +17,8 @@ import {
   recResourceTypeCountsResolved,
   recResourceTypeCounts,
   noSearchResultsFilterArray,
+  recreationDistrictCounts,
+  recDistrictCountsResolved,
 } from "src/recreation-resource/test/mock-data.test";
 
 describe("RecreationResourceService", () => {
@@ -45,6 +47,9 @@ describe("RecreationResourceService", () => {
             recreation_resource_type_code: {
               findMany: vi.fn(),
             },
+            recreation_district_code: {
+              findMany: vi.fn(),
+            },
           },
         },
       ],
@@ -58,7 +63,7 @@ describe("RecreationResourceService", () => {
   });
 
   describe("formatResults function", () => {
-    it("should correctly format recreation_activity with_description relation in the results", () => {
+    it("should correctly format recreation_activity recreation_activity relation in the results", () => {
       const results = service.formatResults(recResourceArray);
 
       expect(results[0]).toEqual(recreationResource1Response);
@@ -99,7 +104,7 @@ describe("RecreationResourceService", () => {
       await expect(service.findOne("REC0001")).resolves.toBeNull();
     });
 
-    it("should correctly format recreation_activity with_description relation in the response", async () => {
+    it("should correctly format recreation_activity recreation_activity relation in the response", async () => {
       service["prisma"].recreation_resource.findUnique = vi
         .fn()
         .mockResolvedValueOnce(recreationResource4);
@@ -125,12 +130,16 @@ describe("RecreationResourceService", () => {
       service["prisma"].recreation_activity.groupBy = vi
         .fn()
         .mockResolvedValueOnce(groupActivityCodes);
+      service["prisma"].recreation_district_code.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(recreationDistrictCounts);
       (service["prisma"].$transaction = vi
         .fn()
         .mockResolvedValueOnce([
           recResourceArray,
           totalRecordIds,
           recResourceTypeCounts,
+          recreationDistrictCounts,
         ])).mockResolvedValueOnce([allActivityCodes, groupActivityCodes]);
 
       expect(await service.searchRecreationResources(1, "Rec", 10)).toEqual({
@@ -139,6 +148,7 @@ describe("RecreationResourceService", () => {
         page: 1,
         total: 4,
         filters: [
+          { ...recDistrictCountsResolved },
           { ...recResourceTypeCountsResolved },
           {
             label: "Things to do",
@@ -176,7 +186,7 @@ describe("RecreationResourceService", () => {
       });
     });
 
-    it("should correctly format recreation_activity with_description relation in the results", async () => {
+    it("should correctly format recreation_activity recreation_activity relation in the results", async () => {
       service["prisma"].recreation_resource.findMany = vi
         .fn()
         .mockResolvedValueOnce(recResourceArray)
@@ -190,12 +200,16 @@ describe("RecreationResourceService", () => {
       service["prisma"].recreation_activity.groupBy = vi
         .fn()
         .mockResolvedValueOnce(groupActivityCodes);
+      service["prisma"].recreation_district_code.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(recreationDistrictCounts);
       service["prisma"].$transaction = vi
         .fn()
         .mockResolvedValueOnce([
           recResourceArray,
           totalRecordIds,
           recResourceTypeCounts,
+          recreationDistrictCounts,
         ])
         .mockResolvedValueOnce([allActivityCodes, groupActivityCodes]);
 
@@ -220,12 +234,16 @@ describe("RecreationResourceService", () => {
       service["prisma"].recreation_activity.groupBy = vi
         .fn()
         .mockResolvedValueOnce(groupActivityCodes);
+      service["prisma"].recreation_district_code.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(recreationDistrictCounts);
       service["prisma"].$transaction = vi
         .fn()
         .mockResolvedValueOnce([
           orderedRecresourceArray,
           totalRecordIds,
           recResourceTypeCounts,
+          recreationDistrictCounts,
         ])
         .mockResolvedValueOnce([allActivityCodes, groupActivityCodes]);
 
@@ -251,9 +269,17 @@ describe("RecreationResourceService", () => {
       service["prisma"].recreation_activity.groupBy = vi
         .fn()
         .mockResolvedValueOnce([]);
+      service["prisma"].recreation_district_code.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(recreationDistrictCounts);
       service["prisma"].$transaction = vi
         .fn()
-        .mockResolvedValueOnce([[], [], recResourceTypeCounts])
+        .mockResolvedValueOnce([
+          [],
+          [],
+          recResourceTypeCounts,
+          recreationDistrictCounts,
+        ])
         .mockResolvedValueOnce([allActivityCodes, []]);
 
       await expect(
@@ -281,9 +307,17 @@ describe("RecreationResourceService", () => {
       service["prisma"].recreation_activity.groupBy = vi
         .fn()
         .mockResolvedValueOnce([]);
+      service["prisma"].recreation_district_code.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(recreationDistrictCounts);
       service["prisma"].$transaction = vi
         .fn()
-        .mockResolvedValueOnce([[], [], recResourceTypeCounts])
+        .mockResolvedValueOnce([
+          [],
+          [],
+          recResourceTypeCounts,
+          recreationDistrictCounts,
+        ])
         .mockResolvedValueOnce([allActivityCodes, []]);
 
       const results = await service.searchRecreationResources(1, "Rec", 10);
@@ -327,12 +361,16 @@ describe("RecreationResourceService", () => {
       service["prisma"].recreation_activity.groupBy = vi
         .fn()
         .mockResolvedValueOnce(groupActivityCodes);
+      service["prisma"].recreation_activity.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(allActivityCodes);
       service["prisma"].$transaction = vi
         .fn()
         .mockResolvedValueOnce([
           recResourceArray,
           totalRecordIds,
           recResourceTypeCounts,
+          recreationDistrictCounts,
         ])
         .mockResolvedValueOnce([allActivityCodes, groupActivityCodes]);
 
@@ -370,12 +408,16 @@ describe("RecreationResourceService", () => {
       service["prisma"].recreation_activity.groupBy = vi
         .fn()
         .mockResolvedValueOnce(groupActivityCodes);
+      service["prisma"].recreation_district_code.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(recreationDistrictCounts);
       service["prisma"].$transaction = vi
         .fn()
         .mockResolvedValueOnce([
           recResourceArray,
           totalRecordIds,
           recResourceTypeCounts,
+          recreationDistrictCounts,
         ])
         .mockResolvedValueOnce([allActivityCodes, groupActivityCodes]);
 
@@ -413,12 +455,16 @@ describe("RecreationResourceService", () => {
       service["prisma"].recreation_activity.groupBy = vi
         .fn()
         .mockResolvedValueOnce(groupActivityCodes);
+      service["prisma"].recreation_district_code.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(recreationDistrictCounts);
       service["prisma"].$transaction = vi
         .fn()
         .mockResolvedValueOnce([
           recResourceArray,
           totalRecordIds,
           recResourceTypeCounts,
+          recreationDistrictCounts,
         ])
         .mockResolvedValueOnce([allActivityCodes, groupActivityCodes]);
 
@@ -451,12 +497,16 @@ describe("RecreationResourceService", () => {
       service["prisma"].recreation_activity.groupBy = vi
         .fn()
         .mockResolvedValueOnce([]);
+      service["prisma"].recreation_district_code.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(recreationDistrictCounts);
       service["prisma"].$transaction = vi
         .fn()
         .mockResolvedValueOnce([
           recResourceArray,
           totalRecordIds,
           recResourceTypeCounts,
+          recreationDistrictCounts,
         ])
         .mockResolvedValueOnce([allActivityCodes, []]);
 
@@ -490,12 +540,16 @@ describe("RecreationResourceService", () => {
       service["prisma"].recreation_activity.groupBy = vi
         .fn()
         .mockResolvedValueOnce(groupActivityCodes);
+      service["prisma"].recreation_district_code.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(recreationDistrictCounts);
       service["prisma"].$transaction = vi
         .fn()
         .mockResolvedValueOnce([
           recResourceArray,
           totalRecordIds,
           recResourceTypeCounts,
+          recreationDistrictCounts,
         ])
         .mockResolvedValueOnce([allActivityCodes, groupActivityCodes]);
 
@@ -529,7 +583,7 @@ describe("RecreationResourceService", () => {
       );
     });
 
-    it("should return a filter array with correct count and description if no Recreation Resources are found", async () => {
+    it("should return a resource type filter array with correct count and description if no Recreation Resources are found", async () => {
       service["prisma"].recreation_resource.findMany = vi
         .fn()
         .mockResolvedValueOnce([])
@@ -543,9 +597,17 @@ describe("RecreationResourceService", () => {
       service["prisma"].recreation_activity.groupBy = vi
         .fn()
         .mockResolvedValueOnce([]);
+      service["prisma"].recreation_district_code.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(recreationDistrictCounts);
       service["prisma"].$transaction = vi
         .fn()
-        .mockResolvedValueOnce([[], [], recResourceTypeCounts])
+        .mockResolvedValueOnce([
+          [],
+          [],
+          recResourceTypeCounts,
+          recreationDistrictCounts,
+        ])
         .mockResolvedValueOnce([allActivityCodes, []]);
 
       const results = await service.searchRecreationResources(
@@ -582,6 +644,111 @@ describe("RecreationResourceService", () => {
       await expect(
         service.searchRecreationResources(11, "Rec"),
       ).rejects.toThrow("Maximum page limit is 10 when no limit is provided");
+    });
+
+    it("should return a filter array with count and description for each district", async () => {
+      service["prisma"].recreation_resource.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(recResourceArray)
+        .mockResolvedValueOnce(totalRecordIds);
+      service["prisma"].recreation_resource_type_code.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(recResourceTypeCounts);
+      service["prisma"].recreation_activity.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(allActivityCodes);
+      service["prisma"].recreation_activity.groupBy = vi
+        .fn()
+        .mockResolvedValueOnce(groupActivityCodes);
+      service["prisma"].recreation_district_code.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(recreationDistrictCounts);
+      service["prisma"].$transaction = vi
+        .fn()
+        .mockResolvedValueOnce([
+          recResourceArray,
+          totalRecordIds,
+          recResourceTypeCounts,
+          recreationDistrictCounts,
+        ])
+        .mockResolvedValueOnce([allActivityCodes, groupActivityCodes]);
+
+      const results = await service.searchRecreationResources(
+        1,
+        "Rec",
+        10,
+        null,
+        null,
+        "RDMH",
+      );
+
+      const recDistrictFilter = results.filters.find(
+        (filter) => filter.param === "district",
+      );
+
+      expect(recDistrictFilter.options[0].count).toBe(1);
+      expect(recDistrictFilter.options[0].description).toBe(
+        "100 Mile-Chilcotin",
+      );
+      expect(recDistrictFilter.options[1].id).toBe("RDCS");
+
+      expect(recDistrictFilter.options[1].count).toBe(0);
+      expect(recDistrictFilter.options[1].description).toBe("Cascades");
+      expect(recDistrictFilter.options[0].id).toBe("RDMH");
+
+      expect(recDistrictFilter.options[2].count).toBe(0);
+      expect(recDistrictFilter.options[2].description).toBe("Chilliwack");
+      expect(recDistrictFilter.options[2].id).toBe("RDCK");
+
+      expect(recDistrictFilter.options[3].count).toBe(0);
+      expect(recDistrictFilter.options[3].description).toBe("Columbia-Shuswap");
+      expect(recDistrictFilter.options[3].id).toBe("RDCO");
+    });
+
+    it("should return a district filter array with correct count and description if no Recreation Resources are found", async () => {
+      service["prisma"].recreation_resource.findMany = vi
+        .fn()
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([]);
+      service["prisma"].recreation_resource_type_code.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(recResourceTypeCounts);
+      service["prisma"].recreation_activity.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(allActivityCodes);
+      service["prisma"].recreation_activity.groupBy = vi
+        .fn()
+        .mockResolvedValueOnce([]);
+      service["prisma"].recreation_district_code.findMany = vi
+        .fn()
+        .mockResolvedValueOnce(recreationDistrictCounts);
+      service["prisma"].$transaction = vi
+        .fn()
+        .mockResolvedValueOnce([
+          [],
+          [],
+          recResourceTypeCounts,
+          recreationDistrictCounts,
+        ])
+        .mockResolvedValueOnce([allActivityCodes, []]);
+
+      const results = await service.searchRecreationResources(
+        1,
+        "Rec",
+        10,
+        null,
+        null,
+        "RDMH",
+      );
+
+      const recDistrictFilter = results.filters.find(
+        (filter) => filter.param === "district",
+      );
+
+      expect(recDistrictFilter.options[0].count).toBe(1);
+      expect(recDistrictFilter.options[1].count).toBe(0);
+      expect(recDistrictFilter.options[2].count).toBe(0);
+      expect(recDistrictFilter.options[3].count).toBe(0);
     });
   });
 });

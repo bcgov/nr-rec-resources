@@ -7,7 +7,7 @@ const recreationResource1 = {
 
   recreation_activity: [
     {
-      with_description: {
+      recreation_activity: {
         recreation_activity_code: 32,
         description: "Camping",
       },
@@ -21,8 +21,11 @@ const recreationResource1 = {
     status_code: 1,
   },
   campsite_count: 10,
-  recreation_resource_type_code: {
-    description: "Recreation Site",
+  recreation_resource_type: {
+    recreation_resource_type_code: {
+      rec_resource_type_code: "SIT",
+      description: "Recreation Site",
+    },
   },
 };
 
@@ -58,8 +61,11 @@ const recreationResource2 = {
     status_code: 2,
   },
   campsite_count: 10,
-  recreation_resource_type_code: {
-    description: "Interpretive Forest",
+  recreation_resource_type: {
+    recreation_resource_type_code: {
+      rec_resource_type_code: "IF",
+      description: "Interpretive Forest",
+    },
   },
 };
 
@@ -83,7 +89,7 @@ const recreationResource3 = {
   display_on_public_site: true,
   recreation_activity: [
     {
-      with_description: {
+      recreation_activity: {
         recreation_activity_code: 9,
         description: "Picnicking",
       },
@@ -97,8 +103,11 @@ const recreationResource3 = {
     status_code: 1,
   },
   campsite_count: 10,
-  recreation_resource_type_code: {
-    description: "Recreation Trail",
+  recreation_resource_type: {
+    recreation_resource_type_code: {
+      rec_resource_type_code: "RTR",
+      description: "Recreation Trail",
+    },
   },
 };
 
@@ -127,19 +136,19 @@ const recreationResource4 = {
   display_on_public_site: false,
   recreation_activity: [
     {
-      with_description: {
+      recreation_activity: {
         recreation_activity_code: 1,
         description: "Angling",
       },
     },
     {
-      with_description: {
+      recreation_activity: {
         recreation_activity_code: 4,
         description: "Kayaking",
       },
     },
     {
-      with_description: {
+      recreation_activity: {
         recreation_activity_code: 3,
         description: "Canoeing",
       },
@@ -147,8 +156,11 @@ const recreationResource4 = {
   ],
   recreation_status: null,
   campsite_count: 10,
-  recreation_resource_type_code: {
-    description: "Recreation Site",
+  recreation_resource_type: {
+    recreation_resource_type_code: {
+      rec_resource_type_code: "SIT",
+      description: "Recreation Site",
+    },
   },
 };
 
@@ -208,23 +220,23 @@ const totalRecordIds = [
 const allActivityCodes = [
   {
     recreation_activity_code: 22,
-    with_description: { description: "Snowmobiling" },
+    recreation_activity: { description: "Snowmobiling" },
   },
   {
     recreation_activity_code: 9,
-    with_description: { description: "Picnicking" },
+    recreation_activity: { description: "Picnicking" },
   },
   {
     recreation_activity_code: 1,
-    with_description: { description: "Angling" },
+    recreation_activity: { description: "Angling" },
   },
   {
     recreation_activity_code: 4,
-    with_description: { description: "Kayaking" },
+    recreation_activity: { description: "Kayaking" },
   },
   {
     recreation_activity_code: 3,
-    with_description: { description: "Canoeing" },
+    recreation_activity: { description: "Canoeing" },
   },
 ];
 
@@ -283,7 +295,20 @@ const recResourceTypeCountsResolved = {
   type: "multi-select",
 };
 
+const recDistrictCountsResolved = {
+  label: "District",
+  options: [
+    { id: "RDMH", description: "100 Mile-Chilcotin", count: 1 },
+    { id: "RDCS", description: "Cascades", count: 0 },
+    { id: "RDCK", description: "Chilliwack", count: 0 },
+    { id: "RDCO", description: "Columbia-Shuswap", count: 0 },
+  ],
+  param: "district",
+  type: "multi-select",
+};
+
 const noSearchResultsFilterArray = [
+  { ...recDistrictCountsResolved },
   { ...recResourceTypeCountsResolved },
   {
     label: "Things to do",
@@ -323,22 +348,45 @@ const recResourceTypeCounts = [
   {
     rec_resource_type_code: "IF",
     description: "Interpretive Forest",
-    _count: { recreation_resource: 6 },
+    _count: { recreation_resource_type: 6 },
   },
   {
     rec_resource_type_code: "RR",
     description: "Recreation Reserve",
-    _count: { recreation_resource: 4 },
+    _count: { recreation_resource_type: 4 },
   },
   {
     rec_resource_type_code: "RTR",
     description: "Recreation Trail",
-    _count: { recreation_resource: 37 },
+    _count: { recreation_resource_type: 37 },
   },
   {
     rec_resource_type_code: "SIT",
     description: "Recreation Site",
-    _count: { recreation_resource: 4 },
+    _count: { recreation_resource_type: 4 },
+  },
+];
+
+const recreationDistrictCounts = [
+  {
+    district_code: "RDMH",
+    description: "100 Mile-Chilcotin",
+    _count: { recreation_resource: 1 },
+  },
+  {
+    district_code: "RDCS",
+    description: "Cascades",
+    _count: { recreation_resource: 0 },
+  },
+  {
+    district_code: "RDCK",
+    description: "Chilliwack",
+    _count: { recreation_resource: 0 },
+  },
+  {
+    district_code: "RDCO",
+    description: "Columbia-Shuswap",
+    _count: { recreation_resource: 0 },
   },
 ];
 
@@ -360,4 +408,6 @@ export {
   recResourceTypeCountsResolved,
   recResourceTypeCounts,
   noSearchResultsFilterArray,
+  recDistrictCountsResolved,
+  recreationDistrictCounts,
 };
