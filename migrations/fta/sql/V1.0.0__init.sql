@@ -135,7 +135,7 @@ create table fta.recreation_access_code (
 );
 
 -- There was no table description in the original RECREATION_ACCESS_CODE table
-comment on column fta.recreation_access_code.recreation_access_code is 'Code describing the Recreation Objective.';
+comment on column fta.recreation_access_code.recreation_access_code is 'Access code types for recreation resources.';
 
 comment on column fta.recreation_access_code.description is 'Description of the code value.';
 
