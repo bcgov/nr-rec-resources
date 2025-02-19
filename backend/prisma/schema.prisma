@@ -21,6 +21,7 @@ model recreation_resource {
   recreation_district_code recreation_district_code? @relation(fields: [district_code], references: [district_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_resource_type recreation_resource_type?
   recreation_status        recreation_status?
+  recreation_structure     recreation_structure[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -118,4 +119,20 @@ model recreation_access_code {
   description       String?             @db.VarChar(120)
   sub_description   String?             @db.VarChar(120)
   recreation_access recreation_access[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_structure {
+  id                        Int                       @id @default(autoincrement())
+  rec_resource_id           String                    @db.VarChar(20)
+  structure_code            Int
+  recreation_resource       recreation_resource       @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+  recreation_structure_code recreation_structure_code @relation(fields: [structure_code], references: [structure_code], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_structure_code {
+  structure_code       Int                    @id @default(autoincrement())
+  description          String?                @db.VarChar(120)
+  recreation_structure recreation_structure[]
 }
