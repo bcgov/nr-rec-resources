@@ -13,6 +13,7 @@ comment on column rst.recreation_access_code.description is 'Description of the 
 comment on column rst.recreation_access_code.sub_description is 'Additional description of the code value';
 
 create table rst.recreation_access (
+    id serial primary key, -- This is a surrogate key to make Prisma happy
     rec_resource_id varchar(20) not null references rst.recreation_resource (rec_resource_id),
     recreation_access_code varchar(3) not null references rst.recreation_access_code (recreation_access_code)
 );
