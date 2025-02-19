@@ -59,6 +59,7 @@ from fta.recreation_map_feature_code;
 
 -- Insert into recreation_resource_type from fta.recreation_map_feature
 -- Select distinct, ordered by amend_status_date as there are some duplicated with current_ind = 'Y'
+-- In the future we will need to decide how to store historical records ie current_ind = 'N'
 insert into rst.recreation_resource_type (rec_resource_id, rec_resource_type_code)
 select distinct on (rmf.forest_file_id)
     rmf.forest_file_id,
