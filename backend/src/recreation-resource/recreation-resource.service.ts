@@ -188,6 +188,7 @@ export class RecreationResourceService {
     activities?: string,
     type?: string,
     district?: string,
+    access?: string,
   ): Promise<PaginatedRecreationResourceDto> {
     // 10 page limit - max 100 records since if no limit we fetch page * limit
     if (page > 10 && !limit) {
@@ -207,12 +208,23 @@ export class RecreationResourceService {
     const activityFilter = activities?.split("_").map(Number);
     const typeFilter = type?.split("_").map(String);
     const districtFilter = district?.split("_").map(String);
+    const accessFilter = access?.split("_").map(String);
 
     const activityFilterQuery = activities && {
       AND: activityFilter.map((activity) => ({
         recreation_activity: {
           some: {
             recreation_activity_code: activity,
+          },
+        },
+      })),
+    };
+
+    const accessFilterQuery = access && {
+      AND: accessFilter.map((access) => ({
+        recreation_access: {
+          some: {
+            access_code: access,
           },
         },
       })),
@@ -248,6 +260,7 @@ export class RecreationResourceService {
         },
         ...activityFilterQuery,
         ...districtFilterQuery,
+        ...accessFilterQuery,
       },
     };
 
@@ -308,6 +321,19 @@ export class RecreationResourceService {
       }),
     ]);
 
+    const recreationAccessCounts =
+      await this.prisma.recreation_access_code.findMany({
+        select: {
+          access_code: true,
+          description: true,
+          _count: {
+            select: {
+              recreation_access: true,
+            },
+          },
+        },
+      });
+
     const activityFilters = await this.getActivityCounts(totalRecordIds);
 
     const recResourceTypeFilters = recResourceTypeCounts.map(
@@ -325,6 +351,12 @@ export class RecreationResourceService {
         count: district._count.recreation_resource ?? 0,
       }),
     );
+
+    const recreationAccessFilters = recreationAccessCounts.map((access) => ({
+      id: access.access_code,
+      description: access.description,
+      count: access._count.recreation_access ?? 0,
+    }));
 
     return {
       data: this.formatResults(recreationResources),
@@ -349,6 +381,12 @@ export class RecreationResourceService {
           label: "Things to do",
           param: "activities",
           options: activityFilters,
+        },
+        {
+          type: "multi-select",
+          label: "Access Type",
+          param: "access",
+          options: recreationAccessFilters,
         },
       ],
     };
