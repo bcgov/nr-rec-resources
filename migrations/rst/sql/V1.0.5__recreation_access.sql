@@ -1,5 +1,5 @@
 create table rst.recreation_access_code (
-    recreation_access_code varchar(3) not null,
+    recreation_access_code varchar(3) primary key,
     description varchar(120),
     sub_description varchar(120)
 );
@@ -16,6 +16,12 @@ create table rst.recreation_access (
     rec_resource_id varchar(20) not null references rst.recreation_resource (rec_resource_id),
     recreation_access_code varchar(3) not null references rst.recreation_access_code (recreation_access_code)
 );
+
+comment on table rst.recreation_access is 'Recreation Resource Access types';
+
+comment on column rst.recreation_access.rec_resource_id is 'Identification manually assigned to a Recreation Resource';
+
+comment on column rst.recreation_access.recreation_access_code is 'Code identifying the type of access';
 
 insert into
     rst.recreation_access_code (recreation_access_code, description, sub_description)

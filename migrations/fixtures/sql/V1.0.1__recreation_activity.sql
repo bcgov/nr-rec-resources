@@ -1,6 +1,6 @@
-INSERT INTO
+insert into
     rst.recreation_activity (rec_resource_id, recreation_activity_code)
-VALUES
+values
     ('REC204117', 22),
     ('REC1222', 9),
     ('REC1222', 1),
