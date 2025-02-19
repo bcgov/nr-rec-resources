@@ -1,4 +1,4 @@
-insert into rst.recreation_access (rec_resource_id, recreation_access_code)
+insert into rst.recreation_access (rec_resource_id, access_code)
 values
     ('REC204117', 'B'),
     ('REC1222', 'R'),
