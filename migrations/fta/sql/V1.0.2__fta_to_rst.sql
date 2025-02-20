@@ -1,6 +1,5 @@
 -- Migrate data from fta schema to rst schema
 
--- Insert into recreation_resource from fta.recreation_project table
 insert into rst.recreation_resource (rec_resource_id, name, closest_community, display_on_public_site)
 select
     rp.forest_file_id,
@@ -65,10 +64,12 @@ where rmf.forest_file_id in (select rec_resource_id from rst.recreation_resource
 and rmf.current_ind = 'Y'
 order by rmf.forest_file_id, rmf.amend_status_date desc;
 
-insert into rst.recreation_access (rec_resource_id, access_code)
+insert into rst.recreation_access (rec_resource_id, access_code, sub_access_code)
 select
     ra.forest_file_id as rec_resource_id,
-    ra.recreation_access_code
+    -- access_code and sub_access_code are reversed in the fta data for some reason
+    ra.recreation_access_code as sub_access_code,
+    ra.recreation_sub_access_code as access_code
 from fta.recreation_access ra;
 
 -- FTA structure_code ids were all over the place, so using serial id.
