@@ -126,7 +126,7 @@ where
         from
             rst.recreation_resource
     )
-    and rmf.current_ind = 'y'
+    and rmf.current_ind = 'Y'
 order by
     rmf.forest_file_id,
     rmf.amend_status_date desc;
