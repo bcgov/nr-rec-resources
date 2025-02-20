@@ -371,7 +371,7 @@ export class RecreationResourceService {
 
     const recreationAccessFilters = recreationAccessCounts.map((access) => ({
       id: access.access_code,
-      description: access.description,
+      description: `${access.description} Access`,
       count: access._count.recreation_access ?? 0,
     }));
 
