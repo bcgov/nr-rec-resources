@@ -9,7 +9,7 @@ interface FilterMenuProps {
 const FilterMenu = ({ menuContent }: FilterMenuProps) => {
   return (
     <nav className="filter-menu-container">
-      <span className="filter-menu-title">Filter</span>
+      <div className="filter-menu-title">Filter</div>
       <div className="filter-menu">
         {menuContent?.map((group) => {
           const { label, options, param } = group;
