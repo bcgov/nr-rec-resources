@@ -102,6 +102,24 @@ export class RecreationStatusDto {
   description: string;
 }
 
+export class RecreationCampsiteDto {
+  @ApiProperty({
+    description:
+      "Unique identifier of the Recreation Resource linked to campsites",
+    example: "rec-123-abc",
+    format: "uuid",
+  })
+  rec_resource_id: string;
+
+  @ApiProperty({
+    description:
+      "Number of campsites available in the recreation site or trail",
+    example: 15,
+    minimum: 0,
+  })
+  campsite_count: number;
+}
+
 export class RecreationResourceDto {
   @ApiProperty({
     description: "Unique identifier of the Recreation Resource",
@@ -156,7 +174,7 @@ export class RecreationResourceDto {
     example: 15,
     minimum: 0,
   })
-  campsite_count: number;
+  recreation_campsite: RecreationCampsiteDto;
 
   @ApiProperty({
     description: "Fee details for the recreation resource",

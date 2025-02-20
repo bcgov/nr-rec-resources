@@ -1,7 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import Camping from './Camping';
-import { RecreationFeeDto } from '@/service/recreation-resource';
+import {
+  RecreationCampsiteDto,
+  RecreationFeeDto,
+} from '@/service/recreation-resource';
 
 describe('Camping Component', () => {
   const mockFees: RecreationFeeDto = {
@@ -19,20 +22,25 @@ describe('Camping Component', () => {
     fee_description: 'Camping Fee',
   };
 
+  const mockCampsite: RecreationCampsiteDto = {
+    rec_resource_id: '123',
+    campsite_count: 2,
+  };
+
   it('renders the section title and campsite count correctly', () => {
-    render(<Camping campsite_count={5} fees={mockFees} />);
+    render(<Camping recreation_campsite={mockCampsite} fees={mockFees} />);
     expect(
       screen.getByRole('heading', { level: 2, name: /camping/i }),
     ).toBeInTheDocument();
   });
 
   it('renders fallback text when no fees are available', () => {
-    render(<Camping campsite_count={3} fees={null as any} />);
+    render(<Camping recreation_campsite={mockCampsite} fees={null as any} />);
     expect(screen.getByText('No camping fees available.')).toBeInTheDocument();
   });
 
   it('renders correct campsite count', () => {
-    render(<Camping campsite_count={8} fees={mockFees} />);
-    expect(screen.getByText('8 campsites')).toBeInTheDocument();
+    render(<Camping recreation_campsite={mockCampsite} fees={mockFees} />);
+    expect(screen.getByText('2 campsites')).toBeInTheDocument();
   });
 });

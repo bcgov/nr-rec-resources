@@ -28,6 +28,11 @@ import {
   RecreationActivityDtoToJSONTyped,
 } from './RecreationActivityDto';
 
+export interface RecreationCampsiteDto {
+  rec_resource_id: string;
+  campsite_count: number;
+}
+
 /**
  *
  * @export
@@ -77,7 +82,7 @@ export interface RecreationResourceDto {
    */
   rec_resource_type: string;
 
-  campsite_count: number;
+  recreation_campsite: RecreationCampsiteDto;
 
   recreation_fee: RecreationFeeDto;
 }
@@ -225,7 +230,7 @@ export function RecreationResourceDtoFromJSONTyped(
     ),
     recreation_status: RecreationStatusDtoFromJSON(json['recreation_status']),
     rec_resource_type: json['rec_resource_type'],
-    campsite_count: json['campsite_count'],
+    recreation_campsite: json['recreation_campsite'],
     recreation_fee: json['recreation_fee'],
   };
 }

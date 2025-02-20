@@ -1,19 +1,22 @@
-import { RecreationFeeDto } from '@/service/recreation-resource';
+import {
+  RecreationCampsiteDto,
+  RecreationFeeDto,
+} from '@/service/recreation-resource';
 import { forwardRef } from 'react';
 import RecreationFee from './RecreationFee';
 
 interface CampingProps {
-  campsite_count: number;
+  recreation_campsite: RecreationCampsiteDto;
   fees: RecreationFeeDto;
 }
 
 const Camping = forwardRef<HTMLElement, CampingProps>(
-  ({ campsite_count, fees }, ref) => {
+  ({ recreation_campsite, fees }, ref) => {
     return (
       <section className="anchor-link" id="camping" ref={ref}>
         <h2 className="section-heading">Camping</h2>
         <strong>Number of campsites</strong>
-        <p>{campsite_count} campsites</p>
+        <p>{recreation_campsite?.campsite_count} campsites</p>
         {fees ? (
           <RecreationFee data={fees} />
         ) : (
