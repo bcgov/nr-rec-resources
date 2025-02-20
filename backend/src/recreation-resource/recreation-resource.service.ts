@@ -406,12 +406,12 @@ export class RecreationResourceService {
           options: [
             {
               id: "toilet",
-              description: "Toilet",
+              description: "Toilets",
               count: toiletCount,
             },
             {
               id: "table",
-              description: "Table",
+              description: "Tables",
               count: tableCount,
             },
           ],
