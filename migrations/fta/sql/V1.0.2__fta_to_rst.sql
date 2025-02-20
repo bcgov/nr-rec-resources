@@ -8,7 +8,6 @@ select
 from
     fta.recreation_map_feature_code;
 
--- Insert into recreation_resource from fta.recreation_project table
 insert into
     rst.recreation_resource (
         rec_resource_id,
@@ -46,7 +45,6 @@ from
 where
     rr.rec_resource_id = xref.forest_file_id;
 
--- Insert into recreation_activity from fta.recreation_activity
 insert into
     rst.recreation_activity (rec_resource_id, recreation_activity_code)
 select
@@ -56,7 +54,6 @@ select
 from
     fta.recreation_activity ra;
 
--- Insert into recreation_status from fta.recreation_comment
 insert into
     rst.recreation_status (rec_resource_id, status_code, comment)
 select
@@ -104,3 +101,54 @@ select
 from
     fta.recreation_fee rf
     left join fta.recreation_fee_code rfc on rf.recreation_fee_code = rfc.recreation_fee_code on conflict do nothing;
+
+insert into
+    rst.recreation_resource_type_code (rec_resource_type_code, description)
+select
+    recreation_map_feature_code,
+    description
+from
+    fta.recreation_map_feature_code;
+
+-- Select distinct, ordered by amend_status_date as there are some duplicated with current_ind = 'Y'
+-- In the future we will need to decide how to store historical records ie current_ind = 'N'
+insert into
+    rst.recreation_resource_type (rec_resource_id, rec_resource_type_code)
+select distinct
+    on (rmf.forest_file_id) rmf.forest_file_id,
+    rmf.recreation_map_feature_code
+from
+    fta.recreation_map_feature rmf
+where
+    rmf.forest_file_id in (
+        select
+            rec_resource_id
+        from
+            rst.recreation_resource
+    )
+    and rmf.current_ind = 'Y'
+order by
+    rmf.forest_file_id,
+    rmf.amend_status_date desc;
+
+insert into
+    rst.recreation_access (rec_resource_id, access_code, sub_access_code)
+select
+    ra.forest_file_id as rec_resource_id,
+    -- access_code and sub_access_code are reversed in the fta data for some reason
+    ra.recreation_access_code as sub_access_code,
+    ra.recreation_sub_access_code as access_code
+from
+    fta.recreation_access ra;
+
+-- FTA structure_code ids were all over the place, so using serial id.
+-- Need to verify this matches up and inserts the correct ids
+insert into
+    rst.recreation_structure (rec_resource_id, structure_code)
+select
+    fta.recreation_structure.forest_file_id as rec_resource_id,
+    rst.recreation_structure_code.structure_code
+from
+    fta.recreation_structure
+    join fta.recreation_structure_code on fta.recreation_structure.structure_id = fta.recreation_structure_code.recreation_structure_code
+    join rst.recreation_structure_code on fta.recreation_structure_code.description = rst.recreation_structure_code.description;
