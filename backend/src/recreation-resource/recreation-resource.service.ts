@@ -6,7 +6,7 @@ import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resou
 
 const excludedActivityCodes = [26];
 const excludedResourceTypes = ["RR"];
-// Only tables and toilets are included in the facilities filter
+// Only tables and toilets are included in the facilities filter, there are multiple types of each
 const includedStructureCodes = [1, 2, 3, 4, 48, 49, 50, 51, 52];
 
 const recreationResourceSelect = {
@@ -66,7 +66,7 @@ type RecreationResourceGetPayload = Prisma.recreation_resourceGetPayload<{
 
 @Injectable()
 export class RecreationResourceService {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   // Format the results to match the DTO
   formatResults(recResources: RecreationResourceGetPayload[]) {
@@ -296,8 +296,8 @@ export class RecreationResourceService {
       }),
     ]);
 
-    const facilityCounts = await this.prisma.recreation_structure_code.findMany(
-      {
+    const [facilityCounts, activityCounts] = await Promise.all([
+      this.prisma.recreation_structure_code.findMany({
         select: {
           structure_code: true,
           description: true,
@@ -318,26 +318,30 @@ export class RecreationResourceService {
             in: includedStructureCodes,
           },
         },
-      },
-    );
-
-    const activityCounts = await this.prisma.recreation_activity_code.findMany({
-      select: {
-        recreation_activity_code: true,
-        description: true,
-        _count: {
-          select: {
-            recreation_activity: {
-              where: {
-                rec_resource_id: {
-                  in: totalRecordIds?.map((record) => record.rec_resource_id),
+      }),
+      this.prisma.recreation_activity_code.findMany({
+        select: {
+          recreation_activity_code: true,
+          description: true,
+          _count: {
+            select: {
+              recreation_activity: {
+                where: {
+                  rec_resource_id: {
+                    in: totalRecordIds?.map((record) => record.rec_resource_id),
+                  },
                 },
               },
             },
           },
         },
-      },
-    });
+        where: {
+          recreation_activity_code: {
+            notIn: excludedActivityCodes,
+          },
+        },
+      }),
+    ]);
 
     const getUniqueFacilityCounts = (facilityCounts) => {
       let toiletCount = 0;
