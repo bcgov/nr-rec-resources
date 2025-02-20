@@ -6,8 +6,6 @@ import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resou
 
 const excludedActivityCodes = [26];
 const excludedResourceTypes = ["RR"];
-// Only tables and toilets are included in the facilities filter, there are multiple types of each
-const includedStructureCodes = [1, 2, 3, 4, 48, 49, 50, 51, 52];
 
 const recreationResourceSelect = {
   rec_resource_id: true,
@@ -20,7 +18,6 @@ const recreationResourceSelect = {
       recreation_resource_type_code: true,
     },
   },
-
   recreation_activity: {
     select: {
       recreation_activity: true,
@@ -145,11 +142,18 @@ export class RecreationResourceService {
     };
 
     const facilityFilterQuery = facilities && {
-      recreation_structure: {
-        structure_code: {
-          in: facilityFilter,
+      AND: facilityFilter.map((facility) => ({
+        recreation_structure: {
+          some: {
+            recreation_structure_code: {
+              description: {
+                contains: facility,
+                mode: Prisma.QueryMode.insensitive,
+              },
+            },
+          },
         },
-      },
+      })),
     };
 
     const where = {
@@ -162,20 +166,22 @@ export class RecreationResourceService {
           },
         },
       ],
-      AND: {
-        display_on_public_site: true,
-        recreation_resource_type: {
-          rec_resource_type_code: {
-            notIn: excludedResourceTypes,
-            ...resourceTypeFilterQuery,
+      AND: [
+        { display_on_public_site: true },
+        {
+          recreation_resource_type: {
+            rec_resource_type_code: {
+              notIn: excludedResourceTypes,
+              ...resourceTypeFilterQuery,
+            },
           },
         },
-        ...activityFilterQuery,
-        ...accessFilterQuery,
-        ...districtFilterQuery,
-      },
+        accessFilterQuery,
+        districtFilterQuery,
+        activityFilterQuery,
+        facilityFilterQuery,
+      ].filter(Boolean),
     };
-
     const [
       recreationResources,
       totalRecordIds,
@@ -259,29 +265,7 @@ export class RecreationResourceService {
       }),
     ]);
 
-    const [facilityCounts, activityCounts] = await Promise.all([
-      this.prisma.recreation_structure_code.findMany({
-        select: {
-          structure_code: true,
-          description: true,
-          _count: {
-            select: {
-              recreation_structure: {
-                where: {
-                  rec_resource_id: {
-                    in: totalRecordIds?.map((record) => record.rec_resource_id),
-                  },
-                },
-              },
-            },
-          },
-        },
-        where: {
-          structure_code: {
-            in: includedStructureCodes,
-          },
-        },
-      }),
+    const [activityCounts, toiletCount, tableCount] = await Promise.all([
       this.prisma.recreation_activity_code.findMany({
         select: {
           recreation_activity_code: true,
@@ -304,31 +288,27 @@ export class RecreationResourceService {
           },
         },
       }),
+      this.prisma.recreation_structure.count({
+        where: {
+          rec_resource_id: {
+            in: totalRecordIds?.map((r) => r.rec_resource_id),
+          },
+          recreation_structure_code: {
+            description: { contains: "toilet", mode: "insensitive" },
+          },
+        },
+      }),
+      this.prisma.recreation_structure.count({
+        where: {
+          rec_resource_id: {
+            in: totalRecordIds?.map((r) => r.rec_resource_id),
+          },
+          recreation_structure_code: {
+            description: { contains: "table", mode: "insensitive" },
+          },
+        },
+      }),
     ]);
-
-    const getUniqueFacilityCounts = (facilityCounts) => {
-      let toiletCount = 0;
-      let tableCount = 0;
-      facilityCounts.map((facility) => {
-        if (facility.description.toLowerCase().includes("toilet")) {
-          toiletCount += facility._count.recreation_structure;
-        } else if (facility.description.toLowerCase().includes("table")) {
-          tableCount += facility._count.recreation_structure;
-        }
-      });
-      return [
-        {
-          id: "toilet",
-          description: "Toilet",
-          count: toiletCount,
-        },
-        {
-          id: "table",
-          description: "Table",
-          count: tableCount,
-        },
-      ];
-    };
 
     const activityFilters = activityCounts.map((activity) => ({
       id: activity.recreation_activity_code,
@@ -386,7 +366,18 @@ export class RecreationResourceService {
           type: "multi-select",
           label: "Facilities",
           param: "facilities",
-          options: getUniqueFacilityCounts(facilityCounts),
+          options: [
+            {
+              id: "toilet",
+              description: "Toilet",
+              count: toiletCount,
+            },
+            {
+              id: "table",
+              description: "Table",
+              count: tableCount,
+            },
+          ],
         },
         {
           type: "multi-select",
