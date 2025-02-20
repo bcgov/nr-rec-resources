@@ -18,13 +18,12 @@ public class RecreationAccess {
   @Column(name = "FOREST_FILE_ID", nullable = false, length = 10)
   private String forestFileId;
 
-  @Column(name = "RECREATION_SUB_ACCESS_CODE", nullable = false, length = 3)
-  private String recreationSubAccessCode;
-
-
   @Column(name = "RECREATION_ACCESS_CODE", nullable = false, length = 3)
   private String recreationAccessCode;
 
+
+  @Column(name = "RECREATION_SUB_ACCESS_CODE", nullable = false, length = 3)
+  private String recreationSubAccessCode;
 
 
   @Column(name = "REVISION_COUNT", nullable = false)
