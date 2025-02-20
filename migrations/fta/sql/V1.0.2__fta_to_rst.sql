@@ -61,7 +61,7 @@ select distinct on (rmf.forest_file_id)
     rmf.recreation_map_feature_code
 from fta.recreation_map_feature rmf
 where rmf.forest_file_id in (select rec_resource_id from rst.recreation_resource)
-and rmf.current_ind = 'y'
+and rmf.current_ind = 'Y'
 order by rmf.forest_file_id, rmf.amend_status_date desc;
 
 insert into rst.recreation_sub_access_code (sub_access_code, description)
