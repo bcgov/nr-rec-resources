@@ -1130,7 +1130,7 @@ public class ApplicationService {
       CSVPrinter printer = new CSVPrinter(out, entityMetadata.csvFormatBuilder().build());) {
 
       for (var item : results) {
-        printer.printRecord(item.getForestFileId(), item.getRecreationSubAccessCode(), item.getRecreationAccessCode(),
+        printer.printRecord(item.getForestFileId(), item.getRecreationAccessCode(), item.getRecreationSubAccessCode(),
           item.getRevisionCount(), item.getEntryUserid(), item.getEntryTimestamp(), item.getUpdateUserid(),
           item.getUpdateTimestamp());
       }
