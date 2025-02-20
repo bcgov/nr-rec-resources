@@ -59,7 +59,10 @@ describe("Recreation DTOs", () => {
           comment: null,
           description: "The facility is open",
         },
-        campsite_count: 2,
+        recreation_campsite: {
+          rec_resource_id: "123",
+          campsite_count: 2,
+        },
         recreation_fee: {
           fee_amount: 25.0,
           fee_start_date: new Date("2024-06-01"),
@@ -98,7 +101,10 @@ describe("Recreation DTOs", () => {
           comment: null,
           description: "Open",
         },
-        campsite_count: 2,
+        recreation_campsite: {
+          rec_resource_id: "123",
+          campsite_count: 2,
+        },
         recreation_fee: {
           fee_amount: 25.0,
           fee_start_date: new Date("2024-06-01"),

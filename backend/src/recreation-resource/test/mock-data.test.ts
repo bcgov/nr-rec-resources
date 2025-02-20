@@ -20,7 +20,10 @@ const recreationResource1 = {
     comment: "Site is open comment",
     status_code: 1,
   },
-  campsite_count: 10,
+  recreation_campsite: {
+    rec_resource_id: "123",
+    campsite_count: 2,
+  },
   recreation_resource_type_code: {
     description: "Recreation Site",
   },
@@ -54,7 +57,10 @@ const recreationResource1Response = {
     comment: "Site is open comment",
     status_code: 1,
   },
-  campsite_count: 10,
+  recreation_campsite: {
+    rec_resource_id: "123",
+    campsite_count: 2,
+  },
   rec_resource_type: "Recreation Site",
   recreation_fee: {
     ...recreationResource1.recreation_fee,
@@ -76,7 +82,10 @@ const recreationResource2 = {
     comment: "Site is closed comment",
     status_code: 2,
   },
-  campsite_count: 10,
+  recreation_campsite: {
+    rec_resource_id: "123",
+    campsite_count: 2,
+  },
   recreation_resource_type_code: {
     description: "Interpretive Forest",
   },
@@ -105,7 +114,10 @@ const recreationResource2Response = {
     comment: "Site is closed comment",
     status_code: 2,
   },
-  campsite_count: 10,
+  recreation_campsite: {
+    rec_resource_id: "123",
+    campsite_count: 2,
+  },
   rec_resource_type: "Interpretive Forest",
   recreation_fee: {
     ...recreationResource1.recreation_fee,
@@ -134,7 +146,10 @@ const recreationResource3 = {
     comment: "Site is active comment",
     status_code: 1,
   },
-  campsite_count: 10,
+  recreation_campsite: {
+    rec_resource_id: "123",
+    campsite_count: 2,
+  },
   recreation_resource_type_code: {
     description: "Recreation Trail",
   },
@@ -168,7 +183,10 @@ const recreationResource3Response = {
     comment: "Site is active comment",
     status_code: 1,
   },
-  campsite_count: 10,
+  recreation_campsite: {
+    rec_resource_id: "123",
+    campsite_count: 2,
+  },
   rec_resource_type: "Recreation Trail",
   recreation_fee: {
     ...recreationResource1.recreation_fee,
@@ -203,7 +221,10 @@ const recreationResource4 = {
     },
   ],
   recreation_status: null,
-  campsite_count: 10,
+  recreation_campsite: {
+    rec_resource_id: "123",
+    campsite_count: 2,
+  },
   recreation_resource_type_code: {
     description: "Recreation Site",
   },
@@ -245,7 +266,10 @@ const recreationResource4Response = {
     comment: undefined,
     status_code: undefined,
   },
-  campsite_count: 10,
+  recreation_campsite: {
+    rec_resource_id: "123",
+    campsite_count: 2,
+  },
   rec_resource_type: "Recreation Site",
   recreation_fee: {
     ...recreationResource1.recreation_fee,
