@@ -6,6 +6,8 @@ import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resou
 
 const excludedActivityCodes = [26];
 const excludedResourceTypes = ["RR"];
+// Only tables and toilets are included in the facilities filter
+const includedStructureCodes = [1, 2, 3, 4, 48, 49, 50, 51, 52];
 
 const recreationResourceSelect = {
   rec_resource_id: true,
@@ -58,26 +60,13 @@ const recreationResourceSelect = {
   },
 };
 
-const activitySelect = {
-  recreation_activity_code: true,
-  recreation_activity: {
-    select: {
-      description: true,
-    },
-  },
-};
-
 type RecreationResourceGetPayload = Prisma.recreation_resourceGetPayload<{
   select: typeof recreationResourceSelect;
 }>;
 
-type ActivityGetPayload = Prisma.recreation_activityGetPayload<{
-  select: typeof activitySelect;
-}>;
-
 @Injectable()
 export class RecreationResourceService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   // Format the results to match the DTO
   formatResults(recResources: RecreationResourceGetPayload[]) {
@@ -131,56 +120,6 @@ export class RecreationResourceService {
     return recResource ? this.formatResults([recResource])[0] : null;
   }
 
-  async getActivityCounts(totalRecordIds: { rec_resource_id: string }[]) {
-    const groupActivitiesQuery = this.prisma.recreation_activity.groupBy({
-      by: ["recreation_activity_code"],
-      _count: {
-        recreation_activity_code: true,
-      },
-      where: {
-        rec_resource_id: {
-          in: totalRecordIds?.map((record) => record.rec_resource_id),
-        },
-      },
-    });
-
-    const allActivityCodesQuery = this.prisma.recreation_activity.findMany({
-      select: activitySelect,
-      where: {
-        NOT: {
-          recreation_activity_code: {
-            in: excludedActivityCodes,
-          },
-        },
-      },
-      distinct: ["recreation_activity_code"],
-    });
-
-    const [allActivityCodes, groupActivities] = await this.prisma.$transaction([
-      allActivityCodesQuery,
-      groupActivitiesQuery,
-    ]);
-    // Merge and include missing entries with a count of 0
-    const activityCount = allActivityCodes?.map(
-      (activity: ActivityGetPayload) => {
-        const matchedGroup = groupActivities.find(
-          (group: { recreation_activity_code: number }) =>
-            group.recreation_activity_code ===
-            activity.recreation_activity_code,
-        );
-        return {
-          id: activity.recreation_activity_code,
-          count: matchedGroup
-            ? matchedGroup._count.recreation_activity_code
-            : 0,
-          description: activity.recreation_activity.description,
-        };
-      },
-    );
-
-    return activityCount;
-  }
-
   async searchRecreationResources(
     page: number = 1,
     filter: string = "",
@@ -189,6 +128,7 @@ export class RecreationResourceService {
     type?: string,
     district?: string,
     access?: string,
+    facilities?: string,
   ): Promise<PaginatedRecreationResourceDto> {
     // 10 page limit - max 100 records since if no limit we fetch page * limit
     if (page > 10 && !limit) {
@@ -209,6 +149,7 @@ export class RecreationResourceService {
     const typeFilter = type?.split("_").map(String);
     const districtFilter = district?.split("_").map(String);
     const accessFilter = access?.split("_").map(String);
+    const facilityFilter = facilities?.split("_").map(String);
 
     const activityFilterQuery = activities && {
       AND: activityFilter.map((activity) => ({
@@ -221,13 +162,13 @@ export class RecreationResourceService {
     };
 
     const accessFilterQuery = access && {
-      AND: accessFilter.map((access) => ({
-        recreation_access: {
-          some: {
-            access_code: access,
+      recreation_access: {
+        every: {
+          access_code: {
+            in: accessFilter,
           },
         },
-      })),
+      },
     };
 
     const resourceTypeFilterQuery = type && {
@@ -237,6 +178,14 @@ export class RecreationResourceService {
     const districtFilterQuery = district && {
       district_code: {
         in: districtFilter,
+      },
+    };
+
+    const facilityFilterQuery = facilities && {
+      recreation_structure: {
+        structure_code: {
+          in: facilityFilter,
+        },
       },
     };
 
@@ -259,8 +208,8 @@ export class RecreationResourceService {
           },
         },
         ...activityFilterQuery,
-        ...districtFilterQuery,
         ...accessFilterQuery,
+        ...districtFilterQuery,
       },
     };
 
@@ -269,6 +218,7 @@ export class RecreationResourceService {
       totalRecordIds,
       recResourceTypeCounts,
       recreationDistrictCounts,
+      recreationAccessCounts,
     ] = await this.prisma.$transaction([
       // Fetch paginated records
       this.prisma.recreation_resource.findMany({
@@ -311,7 +261,13 @@ export class RecreationResourceService {
           description: true,
           _count: {
             select: {
-              recreation_resource: true, // Count related recreation resources
+              recreation_resource: {
+                where: {
+                  display_on_public_site: {
+                    equals: true,
+                  },
+                },
+              },
             },
           },
         },
@@ -319,22 +275,99 @@ export class RecreationResourceService {
           description: Prisma.SortOrder.asc,
         },
       }),
-    ]);
-
-    const recreationAccessCounts =
-      await this.prisma.recreation_access_code.findMany({
+      this.prisma.recreation_access_code.findMany({
         select: {
           access_code: true,
           description: true,
           _count: {
             select: {
-              recreation_access: true,
+              recreation_access: {
+                where: {
+                  recreation_resource: {
+                    display_on_public_site: {
+                      equals: true,
+                    },
+                  },
+                },
+              },
             },
           },
         },
-      });
+      }),
+    ]);
 
-    const activityFilters = await this.getActivityCounts(totalRecordIds);
+    const facilityCounts = await this.prisma.recreation_structure_code.findMany(
+      {
+        select: {
+          structure_code: true,
+          description: true,
+          _count: {
+            select: {
+              recreation_structure: {
+                where: {
+                  rec_resource_id: {
+                    in: totalRecordIds?.map((record) => record.rec_resource_id),
+                  },
+                },
+              },
+            },
+          },
+        },
+        where: {
+          structure_code: {
+            in: includedStructureCodes,
+          },
+        },
+      },
+    );
+
+    const activityCounts = await this.prisma.recreation_activity_code.findMany({
+      select: {
+        recreation_activity_code: true,
+        description: true,
+        _count: {
+          select: {
+            recreation_activity: {
+              where: {
+                rec_resource_id: {
+                  in: totalRecordIds?.map((record) => record.rec_resource_id),
+                },
+              },
+            },
+          },
+        },
+      },
+    });
+
+    const getUniqueFacilityCounts = (facilityCounts) => {
+      let toiletCount = 0;
+      let tableCount = 0;
+      facilityCounts.map((facility) => {
+        if (facility.description.toLowerCase().includes("toilet")) {
+          toiletCount += facility._count.recreation_structure;
+        } else if (facility.description.toLowerCase().includes("table")) {
+          tableCount += facility._count.recreation_structure;
+        }
+      });
+      return [
+        {
+          id: "toilet",
+          description: "Toilet",
+          count: toiletCount,
+        },
+        {
+          id: "table",
+          description: "Table",
+          count: tableCount,
+        },
+      ];
+    };
+
+    const activityFilters = activityCounts.map((activity) => ({
+      id: activity.recreation_activity_code,
+      description: activity.description,
+      count: activity._count.recreation_activity ?? 0,
+    }));
 
     const recResourceTypeFilters = recResourceTypeCounts.map(
       (resourceType) => ({
@@ -381,6 +414,12 @@ export class RecreationResourceService {
           label: "Things to do",
           param: "activities",
           options: activityFilters,
+        },
+        {
+          type: "multi-select",
+          label: "Facilities",
+          param: "facilities",
+          options: getUniqueFacilityCounts(facilityCounts),
         },
         {
           type: "multi-select",

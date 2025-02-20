@@ -51,6 +51,18 @@ export class RecreationResourceController {
     type: String,
     description: "Recreation district",
   })
+  @ApiQuery({
+    name: "access",
+    required: false,
+    type: String,
+    description: "Recreation resource access type",
+  })
+  @ApiQuery({
+    name: "facilities",
+    required: false,
+    type: String,
+    description: "Recreation resource facilities",
+  })
   @ApiResponse({
     status: 200,
     description: "Resources found",
@@ -65,6 +77,7 @@ export class RecreationResourceController {
     @Query("type") type?: string,
     @Query("district") district?: string,
     @Query("access") access?: string,
+    @Query("facilities") facilities?: string,
   ): Promise<PaginatedRecreationResourceDto> {
     const response =
       await this.recreationResourceService.searchRecreationResources(
@@ -75,6 +88,7 @@ export class RecreationResourceController {
         type,
         district,
         access,
+        facilities,
       );
 
     return response;
