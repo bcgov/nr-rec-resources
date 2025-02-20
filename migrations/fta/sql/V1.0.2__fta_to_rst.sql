@@ -32,7 +32,6 @@ set district_code = xref.recreation_district_code
 from fta.recreation_district_xref xref
 where rr.rec_resource_id = xref.forest_file_id;
 
--- Insert into recreation_activity from fta.recreation_activity
 insert into rst.recreation_activity (rec_resource_id, recreation_activity_code)
 select
     ra.forest_file_id as rec_resource_id,
@@ -40,7 +39,6 @@ select
     cast(ra.recreation_activity_code as int) as recreation_activity_code
 from fta.recreation_activity ra;
 
--- Insert into recreation_status from fta.recreation_comment
 insert into rst.recreation_status (rec_resource_id, status_code, comment)
 select
     forest_file_id,
@@ -52,12 +50,10 @@ select
 from fta.recreation_comment
 where rec_comment_type_code = 'CLOS';
 
--- Insert into recreation_resource_type_code from fta.recreation_map_feature_code
 insert into rst.recreation_resource_type_code (rec_resource_type_code, description)
 select recreation_map_feature_code, description
 from fta.recreation_map_feature_code;
 
--- Insert into recreation_resource_type from fta.recreation_map_feature
 -- Select distinct, ordered by amend_status_date as there are some duplicated with current_ind = 'Y'
 -- In the future we will need to decide how to store historical records ie current_ind = 'N'
 insert into rst.recreation_resource_type (rec_resource_id, rec_resource_type_code)
@@ -68,6 +64,12 @@ from fta.recreation_map_feature rmf
 where rmf.forest_file_id in (select rec_resource_id from rst.recreation_resource)
 and rmf.current_ind = 'Y'
 order by rmf.forest_file_id, rmf.amend_status_date desc;
+
+insert into rst.recreation_access (rec_resource_id, access_code)
+select
+    ra.forest_file_id as rec_resource_id,
+    ra.recreation_access_code
+from fta.recreation_access ra;
 
 -- FTA structure_code ids were all over the place, so using serial id.
 -- Need to verify this matches up and inserts the correct ids
