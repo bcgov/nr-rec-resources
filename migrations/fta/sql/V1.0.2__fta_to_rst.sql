@@ -61,15 +61,21 @@ select distinct on (rmf.forest_file_id)
     rmf.recreation_map_feature_code
 from fta.recreation_map_feature rmf
 where rmf.forest_file_id in (select rec_resource_id from rst.recreation_resource)
-and rmf.current_ind = 'Y'
+and rmf.current_ind = 'y'
 order by rmf.forest_file_id, rmf.amend_status_date desc;
+
+insert into rst.recreation_sub_access_code (sub_access_code, description)
+select
+    recreation_sub_access_code as sub_access_code,
+    description
+from fta.recreation_sub_access_code;
 
 insert into rst.recreation_access (rec_resource_id, access_code, sub_access_code)
 select
     ra.forest_file_id as rec_resource_id,
     -- access_code and sub_access_code are reversed in the fta data for some reason
-    ra.recreation_access_code as sub_access_code,
-    ra.recreation_sub_access_code as access_code
+    ra.recreation_sub_access_code as access_code,
+    ra.recreation_access_code as sub_access_code
 from fta.recreation_access ra;
 
 -- FTA structure_code ids were all over the place, so using serial id.
@@ -77,9 +83,9 @@ from fta.recreation_access ra;
 insert into rst.recreation_structure (rec_resource_id, structure_code)
 select
     fta.recreation_structure.forest_file_id as rec_resource_id,
-    rst.recreation_structure_code.structure_code
+    rst.recreation_structure_code.structure_code as structure_code
 from fta.recreation_structure
 join fta.recreation_structure_code
-on fta.recreation_structure.structure_id = fta.recreation_structure_code.recreation_structure_code
+on fta.recreation_structure.recreation_structure_code = fta.recreation_structure_code.recreation_structure_code
 join rst.recreation_structure_code
 on fta.recreation_structure_code.description = rst.recreation_structure_code.description;

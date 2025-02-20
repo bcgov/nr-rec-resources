@@ -975,7 +975,7 @@ comment on column fta.recreation_struct_dimen_code.expiry_date is 'Date the code
 comment on column fta.recreation_struct_dimen_code.update_timestamp is 'The date and time the value was last modified.';
 
 create table fta.recreation_struct_dimen_xref (
-    recreation_structure_code varchar(3),
+    recreation_structure_code int,
     recreation_struct_dimen_code varchar(2),
     revision_count int null,
     entry_userid varchar(30) null,
@@ -1005,7 +1005,7 @@ comment on column fta.recreation_struct_dimen_xref.update_userid is 'The userid 
 comment on column fta.recreation_struct_dimen_xref.update_timestamp is 'The timestamp of the last update to the road section record.';
 
 create table fta.recreation_structure_code (
-    recreation_structure_code varchar(3) primary key,
+    recreation_structure_code int primary key,
     description varchar(120),
     effective_date date,
     expiry_date date,
@@ -1028,7 +1028,7 @@ create table fta.recreation_structure (
     structure_id numeric(10) primary key,
     forest_file_id varchar(10),
     campsite_forest_file_id varchar(10) null,
-    recreation_structure_code varchar(3),
+    recreation_structure_code int,
     structure_name varchar(100),
     structure_count numeric(3),
     structure_length numeric(7, 1),
