@@ -46,7 +46,7 @@ const FilterGroup = ({
     }
   };
 
-  const filtersCount = options?.length + 1;
+  const filtersCount = options?.length;
   const isShowAllFilters =
     filtersCount > MAX_VISIBLE_OPTIONS && !showAllOptions && showMoreBtn;
   const optionList = isShowAllFilters
