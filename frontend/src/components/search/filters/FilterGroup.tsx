@@ -14,7 +14,7 @@ interface FilterGroupProps {
   showMoreBtn?: boolean;
 }
 
-const MAX_VISIBLE_OPTIONS = 5;
+export const MAX_VISIBLE_OPTIONS = 5;
 
 const FilterGroup = ({
   options,
