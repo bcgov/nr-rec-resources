@@ -2,10 +2,10 @@
 
 insert into rst.recreation_resource (rec_resource_id, name, closest_community, display_on_public_site)
 select
-    rp.forest_file_id,
-    rp.project_name,
-    rp.site_location,
-    case when rp.recreation_view_ind = 'Y' then true else false end
+    rp.forest_file_id as rec_resource_id,
+    rp.project_name as name,
+    rp.site_location as closest_community,
+    case when rp.recreation_view_ind = 'Y' then true else false end as display_on_public_site
 from fta.recreation_project rp;
 
 -- Add description from fta.recreation_comment table

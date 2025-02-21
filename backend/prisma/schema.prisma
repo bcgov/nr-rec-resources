@@ -78,11 +78,13 @@ model recreation_resource_type {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_access {
-  id                     Int                    @id @default(autoincrement())
-  rec_resource_id        String                 @db.VarChar(20)
-  access_code            String                 @db.VarChar(3)
-  recreation_access_code recreation_access_code @relation(fields: [access_code], references: [access_code], onDelete: NoAction, onUpdate: NoAction)
-  recreation_resource    recreation_resource    @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+  id                         Int                         @id @default(autoincrement())
+  rec_resource_id            String                      @db.VarChar(20)
+  access_code                String                      @db.VarChar(3)
+  sub_access_code            String?                     @db.VarChar(3)
+  recreation_access_code     recreation_access_code      @relation(fields: [access_code], references: [access_code], onDelete: NoAction, onUpdate: NoAction)
+  recreation_resource        recreation_resource         @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+  recreation_sub_access_code recreation_sub_access_code? @relation(fields: [sub_access_code], references: [sub_access_code], onDelete: NoAction, onUpdate: NoAction)
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -107,4 +109,11 @@ model recreation_structure_code {
   structure_code       Int                    @id @default(autoincrement())
   description          String?                @db.VarChar(120)
   recreation_structure recreation_structure[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_sub_access_code {
+  sub_access_code   String              @id @db.VarChar(3)
+  description       String?             @db.VarChar(120)
+  recreation_access recreation_access[]
 }
