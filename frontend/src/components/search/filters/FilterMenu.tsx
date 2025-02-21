@@ -1,4 +1,6 @@
-import FilterGroup from '@/components/search/filters/FilterGroup';
+import FilterGroup, {
+  MAX_VISIBLE_OPTIONS,
+} from '@/components/search/filters/FilterGroup';
 import { FilterMenuContent } from '@/components/search/types';
 import '@/components/search/filters/Filters.scss';
 
@@ -19,6 +21,7 @@ const FilterMenu = ({ menuContent }: FilterMenuProps) => {
               label={label}
               options={options}
               param={param}
+              showMoreBtn={options.length > MAX_VISIBLE_OPTIONS}
             />
           );
         })}
