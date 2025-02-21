@@ -587,5 +587,150 @@ describe("RecreationResourceService", () => {
       expect(recDistrictFilter.options[2].count).toBe(0);
       expect(recDistrictFilter.options[3].count).toBe(0);
     });
+
+    it("should return a filter array with count and description for each access code", async () => {
+      buildSearchResponse({});
+
+      const results = await service.searchRecreationResources(1, "Rec", 10);
+
+      const recAccessFilter = results.filters.find(
+        (filter) => filter.param === "access",
+      );
+
+      expect(recAccessFilter.options[0].count).toBe(17);
+      expect(recAccessFilter.options[0].description).toBe("Boat-in Access");
+
+      expect(recAccessFilter.options[1].count).toBe(13);
+      expect(recAccessFilter.options[1].description).toBe("Fly-in Access");
+
+      expect(recAccessFilter.options[2].count).toBe(16);
+      expect(recAccessFilter.options[2].description).toBe("Road Access");
+
+      expect(recAccessFilter.options[3].count).toBe(17);
+      expect(recAccessFilter.options[3].description).toBe("Trail Access");
+    });
+
+    it("should return the correct count for access if a filter is applied", async () => {
+      buildSearchResponse({
+        recreation_access_code: [
+          {
+            recreation_access_code: "B",
+            description: "Boat-in Access",
+            _count: { recreation_access: 17 },
+          },
+          {
+            recreation_access_code: "F",
+            description: "Fly-in Access",
+            _count: { recreation_access: 0 },
+          },
+          {
+            recreation_access_code: "R",
+            description: "Road Access",
+            _count: { recreation_access: 0 },
+          },
+          {
+            recreation_access_code: "T",
+            description: "Trail Access",
+            _count: { recreation_access: 0 },
+          },
+        ],
+      });
+
+      const results = await service.searchRecreationResources(
+        1,
+        "Rec",
+        10,
+        null,
+        null,
+        null,
+        "B",
+      );
+
+      const recAccessFilter = results.filters.find(
+        (filter) => filter.param === "access",
+      );
+
+      expect(recAccessFilter.options[0].count).toBe(17);
+      expect(recAccessFilter.options[1].count).toBe(0);
+      expect(recAccessFilter.options[2].count).toBe(0);
+      expect(recAccessFilter.options[3].count).toBe(0);
+    });
+
+    it("should return an access filter array with correct count and description if no Recreation Resources are found", async () => {
+      buildSearchResponse({
+        recreation_resource: [],
+        recreation_resource_total_ids: [],
+      });
+
+      const results = await service.searchRecreationResources(1, "Rec", 10);
+
+      const recAccessFilter = results.filters.find(
+        (filter) => filter.param === "access",
+      );
+
+      expect(recAccessFilter.options[0].count).toBe(17);
+      expect(recAccessFilter.options[1].count).toBe(13);
+      expect(recAccessFilter.options[2].count).toBe(16);
+      expect(recAccessFilter.options[3].count).toBe(17);
+    });
+
+    it("should return a filter array with facilities count", async () => {
+      buildSearchResponse({});
+
+      const results = await service.searchRecreationResources(1, "Rec", 10);
+
+      const facilitiesFilter = results.filters.find(
+        (filter) => filter.param === "facilities",
+      );
+
+      expect(facilitiesFilter.options[0].description).toBe("Toilets");
+      expect(facilitiesFilter.options[1].description).toBe("Tables");
+
+      expect(facilitiesFilter.options[0].count).toBe(10);
+      expect(facilitiesFilter.options[1].count).toBe(9);
+    });
+
+    it("should return the proper facilities filter array if no Recreation Resources are found", async () => {
+      buildSearchResponse({
+        recreation_resource: [],
+        recreation_resource_total_ids: [],
+        recreation_structure_toilet_count: 0,
+        recreation_structure_table_count: 0,
+      });
+
+      const results = await service.searchRecreationResources(1, "Rec", 10);
+
+      const facilitiesFilter = results.filters.find(
+        (filter) => filter.param === "facilities",
+      );
+
+      expect(facilitiesFilter.options[0].count).toBe(0);
+      expect(facilitiesFilter.options[1].count).toBe(0);
+    });
+
+    it("should return the correct facilities filter array if a filter is applied", async () => {
+      buildSearchResponse({
+        recreation_structure_toilet_count: 10,
+        recreation_structure_table_count: 0,
+      });
+
+      const results = await service.searchRecreationResources(
+        1,
+        "Rec",
+        10,
+        null,
+        null,
+        null,
+        null,
+        "toilet",
+      );
+
+      const facilitiesFilter = results.filters.find(
+        (filter) => filter.param === "facilities",
+      );
+
+      expect(facilitiesFilter.options[0].count).toBe(10);
+      expect(facilitiesFilter.options[1].count).toBe(0);
+    });
   });
 });
