@@ -28,6 +28,11 @@ import {
   RecreationActivityDtoToJSONTyped,
 } from './RecreationActivityDto';
 
+export interface RecreationCampsiteDto {
+  rec_resource_id: string;
+  campsite_count: number;
+}
+
 /**
  *
  * @export
@@ -77,7 +82,95 @@ export interface RecreationResourceDto {
    */
   rec_resource_type: string;
 
-  campsite_count: number;
+  recreation_campsite: RecreationCampsiteDto;
+
+  recreation_fee: RecreationFeeDto;
+}
+
+export interface RecreationFeeDto {
+  /**
+   * Amount charged for the recreation resource
+   * @type {number}
+   * @memberof RecreationFeeDto
+   */
+  fee_amount: number;
+
+  /**
+   * Start date for the fee applicability
+   * @type {Date}
+   * @memberof RecreationFeeDto
+   */
+  fee_start_date: Date;
+
+  /**
+   * End date for the fee applicability
+   * @type {Date}
+   * @memberof RecreationFeeDto
+   */
+  fee_end_date: Date;
+
+  /**
+   * Type of fee applicable (from recreation_fee_code)
+   * @type {number}
+   * @memberof RecreationFeeDto
+   */
+  recreation_fee_code: number;
+
+  /**
+   * Description of the fee type
+   * @type {string}
+   * @memberof RecreationFeeDto
+   */
+  fee_description: string;
+
+  /**
+   * Indicates if the fee applies on Monday
+   * @type {string}
+   * @memberof RecreationFeeDto
+   */
+  monday_ind: string;
+
+  /**
+   * Indicates if the fee applies on Tuesday
+   * @type {string}
+   * @memberof RecreationFeeDto
+   */
+  tuesday_ind: string;
+
+  /**
+   * Indicates if the fee applies on Wednesday
+   * @type {string}
+   * @memberof RecreationFeeDto
+   */
+  wednesday_ind: string;
+
+  /**
+   * Indicates if the fee applies on Thursday
+   * @type {string}
+   * @memberof RecreationFeeDto
+   */
+  thursday_ind: string;
+
+  /**
+   * Indicates if the fee applies on Friday
+   * @type {string}
+   * @memberof RecreationFeeDto
+   */
+  friday_ind: string;
+
+  /**
+   * Indicates if the fee applies on Saturday
+   * @type {string}
+   * @memberof RecreationFeeDto
+   */
+  saturday_ind: string;
+
+  /**
+   * Indicates if the fee applies on Sunday
+   * @type {string}
+   * @memberof RecreationFeeDto
+   */
+  sunday_ind: string;
 }
 
 /**
@@ -137,7 +230,8 @@ export function RecreationResourceDtoFromJSONTyped(
     ),
     recreation_status: RecreationStatusDtoFromJSON(json['recreation_status']),
     rec_resource_type: json['rec_resource_type'],
-    campsite_count: json['campsite_count'],
+    recreation_campsite: json['recreation_campsite'],
+    recreation_fee: json['recreation_fee'],
   };
 }
 
