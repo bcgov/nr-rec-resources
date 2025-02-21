@@ -7,7 +7,7 @@ const recreationResource1 = {
 
   recreation_activity: [
     {
-      with_description: {
+      recreation_activity: {
         recreation_activity_code: 32,
         description: "Camping",
       },
@@ -21,8 +21,11 @@ const recreationResource1 = {
     status_code: 1,
   },
   campsite_count: 10,
-  recreation_resource_type_code: {
-    description: "Recreation Site",
+  recreation_resource_type: {
+    recreation_resource_type_code: {
+      rec_resource_type_code: "SIT",
+      description: "Recreation Site",
+    },
   },
 };
 
@@ -58,8 +61,11 @@ const recreationResource2 = {
     status_code: 2,
   },
   campsite_count: 10,
-  recreation_resource_type_code: {
-    description: "Interpretive Forest",
+  recreation_resource_type: {
+    recreation_resource_type_code: {
+      rec_resource_type_code: "IF",
+      description: "Interpretive Forest",
+    },
   },
 };
 
@@ -83,7 +89,7 @@ const recreationResource3 = {
   display_on_public_site: true,
   recreation_activity: [
     {
-      with_description: {
+      recreation_activity: {
         recreation_activity_code: 9,
         description: "Picnicking",
       },
@@ -97,8 +103,11 @@ const recreationResource3 = {
     status_code: 1,
   },
   campsite_count: 10,
-  recreation_resource_type_code: {
-    description: "Recreation Trail",
+  recreation_resource_type: {
+    recreation_resource_type_code: {
+      rec_resource_type_code: "RTR",
+      description: "Recreation Trail",
+    },
   },
 };
 
@@ -127,19 +136,19 @@ const recreationResource4 = {
   display_on_public_site: false,
   recreation_activity: [
     {
-      with_description: {
+      recreation_activity: {
         recreation_activity_code: 1,
         description: "Angling",
       },
     },
     {
-      with_description: {
+      recreation_activity: {
         recreation_activity_code: 4,
         description: "Kayaking",
       },
     },
     {
-      with_description: {
+      recreation_activity: {
         recreation_activity_code: 3,
         description: "Canoeing",
       },
@@ -147,8 +156,11 @@ const recreationResource4 = {
   ],
   recreation_status: null,
   campsite_count: 10,
-  recreation_resource_type_code: {
-    description: "Recreation Site",
+  recreation_resource_type: {
+    recreation_resource_type_code: {
+      rec_resource_type_code: "SIT",
+      description: "Recreation Site",
+    },
   },
 };
 
@@ -205,57 +217,160 @@ const totalRecordIds = [
   { rec_resource_id: "REC0004" },
 ];
 
-const allActivityCodes = [
-  {
-    recreation_activity_code: 22,
-    with_description: { description: "Snowmobiling" },
-  },
-  {
-    recreation_activity_code: 9,
-    with_description: { description: "Picnicking" },
-  },
+const facilitiesResolved = {
+  label: "Facilities",
+  options: [
+    { id: "toilet", description: "Toilets", count: 10 },
+    { id: "table", description: "Tables", count: 9 },
+  ],
+  param: "facilities",
+  type: "multi-select",
+};
+
+const activityCounts = [
   {
     recreation_activity_code: 1,
-    with_description: { description: "Angling" },
+    description: "Angling",
+    _count: { recreation_activity: 7 },
   },
   {
-    recreation_activity_code: 4,
-    with_description: { description: "Kayaking" },
+    recreation_activity_code: 2,
+    description: "Boating",
+    _count: { recreation_activity: 2 },
   },
   {
     recreation_activity_code: 3,
-    with_description: { description: "Canoeing" },
-  },
-];
-
-const groupActivityCodes = [
-  {
-    _count: { recreation_activity_code: 5 },
-    recreation_activity_code: 24,
+    description: "Canoeing",
+    _count: { recreation_activity: 2 },
   },
   {
-    _count: { recreation_activity_code: 2 },
-    recreation_activity_code: 8,
-  },
-  {
-    _count: { recreation_activity_code: 1 },
-    recreation_activity_code: 19,
-  },
-  {
-    _count: { recreation_activity_code: 1 },
     recreation_activity_code: 4,
-  },
-  {
-    _count: { recreation_activity_code: 4 },
-    recreation_activity_code: 14,
-  },
-  {
-    _count: { recreation_activity_code: 5 },
-    recreation_activity_code: 3,
+    description: "Kayaking",
+    _count: { recreation_activity: 1 },
   },
 ];
 
-const recResourceTypeCountsResolved = {
+const activityCountsNoResults = [
+  {
+    recreation_activity_code: 1,
+    description: "Angling",
+    _count: { recreation_activity: 0 },
+  },
+  {
+    recreation_activity_code: 2,
+    description: "Boating",
+    _count: { recreation_activity: 0 },
+  },
+  {
+    recreation_activity_code: 4,
+    description: "Kayaking",
+    _count: { recreation_activity: 0 },
+  },
+  {
+    recreation_activity_code: 3,
+    description: "Canoeing",
+    _count: { recreation_activity: 0 },
+  },
+];
+
+const activitiesFilterResolved = {
+  label: "Things to do",
+  type: "multi-select",
+  param: "activities",
+  options: [
+    {
+      count: 7,
+      description: "Angling",
+      id: 1,
+    },
+    {
+      count: 2,
+      description: "Boating",
+      id: 2,
+    },
+    {
+      count: 2,
+      description: "Canoeing",
+      id: 3,
+    },
+    {
+      count: 1,
+      description: "Kayaking",
+      id: 4,
+    },
+  ],
+};
+
+const recResourceTypeCounts = [
+  {
+    rec_resource_type_code: "IF",
+    description: "Interpretive Forest",
+    _count: { recreation_resource_type: 6 },
+  },
+  {
+    rec_resource_type_code: "RR",
+    description: "Recreation Reserve",
+    _count: { recreation_resource_type: 4 },
+  },
+  {
+    rec_resource_type_code: "RTR",
+    description: "Recreation Trail",
+    _count: { recreation_resource_type: 37 },
+  },
+  {
+    rec_resource_type_code: "SIT",
+    description: "Recreation Site",
+    _count: { recreation_resource_type: 4 },
+  },
+];
+
+const recreationDistrictCounts = [
+  {
+    district_code: "RDMH",
+    description: "100 Mile-Chilcotin",
+    _count: { recreation_resource: 1 },
+  },
+  {
+    district_code: "RDCS",
+    description: "Cascades",
+    _count: { recreation_resource: 0 },
+  },
+  {
+    district_code: "RDCK",
+    description: "Chilliwack",
+    _count: { recreation_resource: 0 },
+  },
+  {
+    district_code: "RDCO",
+    description: "Columbia-Shuswap",
+    _count: { recreation_resource: 0 },
+  },
+];
+
+const recreationAccessCounts = [
+  {
+    access_code: "B",
+    description: "Boat-in",
+    _count: { recreation_access: 17 },
+  },
+  {
+    access_code: "F",
+    description: "Fly-in",
+    _count: { recreation_access: 13 },
+  },
+  {
+    access_code: "R",
+    description: "Road",
+    _count: { recreation_access: 16 },
+  },
+  {
+    access_code: "T",
+    description: "Trail",
+    _count: { recreation_access: 17 },
+  },
+];
+
+const recResourceTypeFilterResolved = {
   label: "Type",
   options: [
     {
@@ -283,25 +398,65 @@ const recResourceTypeCountsResolved = {
   type: "multi-select",
 };
 
+const districtFilterResolved = {
+  label: "District",
+  options: [
+    { id: "RDMH", description: "100 Mile-Chilcotin", count: 1 },
+    { id: "RDCS", description: "Cascades", count: 0 },
+    { id: "RDCK", description: "Chilliwack", count: 0 },
+    { id: "RDCO", description: "Columbia-Shuswap", count: 0 },
+  ],
+  param: "district",
+  type: "multi-select",
+};
+
+const facilitiesFilterResolved = {
+  label: "Facilities",
+  options: [
+    { id: "toilet", description: "Toilets", count: 10 },
+    { id: "table", description: "Tables", count: 9 },
+  ],
+  param: "facilities",
+  type: "multi-select",
+};
+
+const facilitiesFilterNoResultsResolved = {
+  label: "Facilities",
+  options: [
+    { id: "toilet", description: "Toilets", count: 0 },
+    { id: "table", description: "Tables", count: 0 },
+  ],
+  param: "facilities",
+  type: "multi-select",
+};
+
+const accessFilterResolved = {
+  label: "Access Type",
+  options: [
+    { id: "B", description: "Boat-in Access", count: 17 },
+    { id: "F", description: "Fly-in Access", count: 13 },
+    { id: "R", description: "Road Access", count: 16 },
+    { id: "T", description: "Trail Access", count: 17 },
+  ],
+  param: "access",
+  type: "multi-select",
+};
+
 const noSearchResultsFilterArray = [
-  { ...recResourceTypeCountsResolved },
+  { ...districtFilterResolved },
+  { ...recResourceTypeFilterResolved },
   {
     label: "Things to do",
     options: [
       {
         count: 0,
-        description: "Snowmobiling",
-        id: 22,
-      },
-      {
-        count: 0,
-        description: "Picnicking",
-        id: 9,
-      },
-      {
-        count: 0,
         description: "Angling",
         id: 1,
+      },
+      {
+        count: 0,
+        description: "Boating",
+        id: 2,
       },
       {
         count: 0,
@@ -317,29 +472,16 @@ const noSearchResultsFilterArray = [
     param: "activities",
     type: "multi-select",
   },
+  { ...facilitiesFilterNoResultsResolved },
+  { ...accessFilterResolved },
 ];
 
-const recResourceTypeCounts = [
-  {
-    rec_resource_type_code: "IF",
-    description: "Interpretive Forest",
-    _count: { recreation_resource: 6 },
-  },
-  {
-    rec_resource_type_code: "RR",
-    description: "Recreation Reserve",
-    _count: { recreation_resource: 4 },
-  },
-  {
-    rec_resource_type_code: "RTR",
-    description: "Recreation Trail",
-    _count: { recreation_resource: 37 },
-  },
-  {
-    rec_resource_type_code: "SIT",
-    description: "Recreation Site",
-    _count: { recreation_resource: 4 },
-  },
+const searchResultsFilterArray = [
+  { ...districtFilterResolved },
+  { ...recResourceTypeFilterResolved },
+  { ...activitiesFilterResolved },
+  { ...facilitiesFilterResolved },
+  { ...accessFilterResolved },
 ];
 
 export {
@@ -355,9 +497,17 @@ export {
   orderedRecresourceArray,
   recresourceArrayResolved,
   totalRecordIds,
-  allActivityCodes,
-  groupActivityCodes,
-  recResourceTypeCountsResolved,
+  activityCounts,
+  activityCountsNoResults,
   recResourceTypeCounts,
   noSearchResultsFilterArray,
+  recreationDistrictCounts,
+  recreationAccessCounts,
+  facilitiesResolved,
+  recResourceTypeFilterResolved,
+  districtFilterResolved,
+  activitiesFilterResolved,
+  facilitiesFilterResolved,
+  accessFilterResolved,
+  searchResultsFilterArray,
 };

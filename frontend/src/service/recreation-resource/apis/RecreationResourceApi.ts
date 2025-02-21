@@ -33,6 +33,10 @@ export interface SearchRecreationResourcesRequest {
   limit?: number;
   page?: number;
   activities?: string;
+  type?: string;
+  district?: string;
+  access?: string;
+  facilities?: string;
 }
 
 /**
@@ -112,6 +116,22 @@ export class RecreationResourceApi extends runtime.BaseAPI {
 
     if (requestParameters['activities'] != null) {
       queryParameters['activities'] = requestParameters['activities'];
+    }
+
+    if (requestParameters['type'] != null) {
+      queryParameters['type'] = requestParameters['type'];
+    }
+
+    if (requestParameters['district'] != null) {
+      queryParameters['district'] = requestParameters['district'];
+    }
+
+    if (requestParameters['access'] != null) {
+      queryParameters['access'] = requestParameters['access'];
+    }
+
+    if (requestParameters['facilities'] != null) {
+      queryParameters['facilities'] = requestParameters['facilities'];
     }
 
     const headerParameters: runtime.HTTPHeaders = {};
