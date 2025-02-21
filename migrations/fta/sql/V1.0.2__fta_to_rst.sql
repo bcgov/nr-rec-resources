@@ -16,13 +16,13 @@ insert into
         display_on_public_site
     )
 select
-    rp.forest_file_id,
-    rp.project_name,
-    rp.site_location,
+    rp.forest_file_id as rec_resource_id,
+    rp.project_name as name,
+    rp.site_location as closest_community,
     case
         when rp.recreation_view_ind = 'Y' then true
         else false
-    end
+    end as display_on_public_site
 from
     fta.recreation_project rp;
 
