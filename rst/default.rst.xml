@@ -56,11 +56,23 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="description" nullable="true" remarks="" size="5000" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="closest_community" nullable="true" remarks="A text description generally describing the closest community or, for more isolated sites and trails, it could be a geographic feature to a recreation site or trail. e.g. VERNON, KELOWNA, PRINCE GEORGE." size="200" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="false" digits="0" id="4" name="display_on_public_site" nullable="true" remarks="" size="1" type="bool" typeCode="-7"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="rec_resource_type" nullable="true" remarks="Code representing a specific feature associated with the recreation resource." size="50" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="0" digits="0" id="6" name="campsite_count" nullable="true" remarks="Number of campsites available in the recreation site or trail." size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="0" digits="0" id="5" name="campsite_count" nullable="true" remarks="Number of campsites available in the recreation site or trail." size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="rec_resource_type" nullable="false" remarks="Code representing a specific feature associated with the recreation resource." size="10" type="varchar" typeCode="12">
+            <parent column="rec_resource_type_code" foreignKey="recreation_resource_rec_resource_type_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource_type_code"/>
+         </column>
          <primaryKey column="rec_resource_id" sequenceNumberInPK="1"/>
          <index name="recreation_resource_pkey" unique="true">
             <column ascending="true" name="rec_resource_id"/>
+         </index>
+      </table>
+      <table name="recreation_resource_type_code" remarks="" schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="rec_resource_type_code" nullable="false" remarks="" size="10" type="varchar" typeCode="12">
+            <child column="rec_resource_type" foreignKey="recreation_resource_rec_resource_type_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="description" nullable="true" remarks="" size="200" type="varchar" typeCode="12"/>
+         <primaryKey column="rec_resource_type_code" sequenceNumberInPK="1"/>
+         <index name="recreation_resource_type_code_pkey" unique="true">
+            <column ascending="true" name="rec_resource_type_code"/>
          </index>
       </table>
       <table name="recreation_status" remarks="" schema="rst" type="TABLE">
