@@ -2,6 +2,8 @@ import {
   RecreationActivityDto,
   RecreationStatusDto,
   RecreationResourceDto,
+  RecreationCampsiteDto,
+  RecreationFeeDto,
 } from "./recreation-resource.dto";
 
 describe("Recreation DTOs", () => {
@@ -121,6 +123,77 @@ describe("Recreation DTOs", () => {
       };
 
       expect(resource.description).toBeNull();
+    });
+  });
+
+  describe("Recreation DTOs", () => {
+    describe("RecreationFeeDto", () => {
+      it("should create a valid RecreationFeeDto instance", () => {
+        const fee = new RecreationFeeDto();
+        fee.fee_amount = 20.0;
+        fee.fee_start_date = new Date("2024-06-01");
+        fee.fee_end_date = new Date("2024-09-30");
+        fee.recreation_fee_code = 1;
+        fee.monday_ind = "Y";
+        fee.tuesday_ind = "Y";
+        fee.wednesday_ind = "Y";
+        fee.thursday_ind = "Y";
+        fee.friday_ind = "Y";
+        fee.saturday_ind = "N";
+        fee.sunday_ind = "N";
+
+        expect(fee instanceof RecreationFeeDto).toBeTruthy();
+        expect(fee.fee_amount).toBeDefined();
+        expect(fee.fee_start_date).toBeInstanceOf(Date);
+        expect(fee.fee_end_date).toBeInstanceOf(Date);
+        expect(fee.recreation_fee_code).toBeDefined();
+        expect(fee.monday_ind).toBe("Y");
+      });
+
+      it("should allow zero fee amount", () => {
+        const fee = new RecreationFeeDto();
+        fee.fee_amount = 0;
+        fee.fee_start_date = new Date("2024-06-01");
+        fee.fee_end_date = new Date("2024-09-30");
+        fee.recreation_fee_code = 1;
+        fee.monday_ind = "N";
+        fee.tuesday_ind = "N";
+        fee.wednesday_ind = "N";
+        fee.thursday_ind = "N";
+        fee.friday_ind = "N";
+        fee.saturday_ind = "N";
+        fee.sunday_ind = "N";
+
+        expect(fee.fee_amount).toBe(0);
+      });
+    });
+
+    describe("RecreationCampsiteDto", () => {
+      it("should create a valid RecreationCampsiteDto instance", () => {
+        const campsite = new RecreationCampsiteDto();
+        campsite.rec_resource_id = "rec-123-abc";
+        campsite.campsite_count = 15;
+
+        expect(campsite instanceof RecreationCampsiteDto).toBeTruthy();
+        expect(campsite.rec_resource_id).toBeDefined();
+        expect(campsite.campsite_count).toBeGreaterThanOrEqual(0);
+      });
+
+      it("should allow zero campsite count", () => {
+        const campsite = new RecreationCampsiteDto();
+        campsite.rec_resource_id = "rec-456-def";
+        campsite.campsite_count = 0;
+
+        expect(campsite.campsite_count).toBe(0);
+      });
+
+      it("should allow negative campsite count (invalid case)", () => {
+        const campsite = new RecreationCampsiteDto();
+        campsite.rec_resource_id = "rec-789-ghi";
+        campsite.campsite_count = -1;
+
+        expect(campsite.campsite_count).toBeLessThan(0);
+      });
     });
   });
 });
