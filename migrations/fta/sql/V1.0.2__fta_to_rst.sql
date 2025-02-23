@@ -6,7 +6,7 @@ select
 from
     fta.recreation_map_feature_code;
 
-INSERT INTO
+insert into
     rst.recreation_resource (
         rec_resource_id,
         name,
@@ -15,44 +15,44 @@ INSERT INTO
         display_on_public_site,
         rec_resource_type
     )
-SELECT
+select
     rp.forest_file_id,
-    rp.project_name AS name,
-    CASE
-        WHEN rc.rec_comment_type_code = 'DESC' THEN rc.project_comment
-        ELSE ''
-    END AS description,
-    rp.site_location AS closest_community,
-    CASE
-        WHEN rp.recreation_view_ind = 'Y' THEN TRUE
-        ELSE FALSE
-    END AS display_on_public_site,
+    rp.project_name as name,
+    case
+        when rc.rec_comment_type_code = 'DESC' then rc.project_comment
+        else ''
+    end as description,
+    rp.site_location as closest_community,
+    case
+        when rp.recreation_view_ind = 'Y' then TRUE
+        else FALSE
+    end as display_on_public_site,
     rmf.recreation_map_feature_code
-FROM
+from
     fta.recreation_project rp
-    LEFT JOIN fta.recreation_comment rc ON rp.forest_file_id = rc.forest_file_id
-    LEFT JOIN fta.recreation_map_feature rmf ON rp.forest_file_id = rmf.forest_file_id
-ON CONFLICT DO NOTHING;
+    left join fta.recreation_comment rc on rp.forest_file_id = rc.forest_file_id
+    left join fta.recreation_map_feature rmf on rp.forest_file_id = rmf.forest_file_id
+on conflict do nothing;
 
 
-INSERT INTO
+insert into
     rst.recreation_campsite (
         rec_resource_id,
         campsite_count
     )
-SELECT
+select
     rp.forest_file_id,
-    COALESCE(c.campsite_count, 0) AS campsite_count
-FROM
+    coalesce(c.campsite_count, 0) as campsite_count
+from
     fta.recreation_project rp
-    LEFT JOIN (
-        SELECT 
-            forest_file_id, 
-            COUNT(*) AS campsite_count
-        FROM fta.recreation_defined_campsite
-        GROUP BY forest_file_id
-    ) c ON rp.forest_file_id = c.forest_file_id 
-ON CONFLICT DO NOTHING;
+    left join (
+        select
+            forest_file_id,
+            COUNT(*) as campsite_count
+        from fta.recreation_defined_campsite
+        group by forest_file_id
+    ) c on rp.forest_file_id = c.forest_file_id
+on conflict do nothing;
 
 
 insert into
@@ -78,7 +78,7 @@ from
 where
     rec_comment_type_code = 'CLOS';
 
-INSERT INTO rst.recreation_fee (
+insert into rst.recreation_fee (
     rec_resource_id,
     fee_amount,
     fee_start_date,
@@ -93,8 +93,8 @@ INSERT INTO rst.recreation_fee (
     recreation_fee_code,
     fee_description
 )
-SELECT
-    rf.forest_file_id AS rec_resource_id,
+select
+    rf.forest_file_id as rec_resource_id,
     rf.fee_amount,
     rf.fee_start_date,
     rf.fee_end_date,
@@ -106,8 +106,8 @@ SELECT
     rf.saturday_ind,
     rf.sunday_ind,
     rf.recreation_fee_code,
-    rfc.description AS fee_description
-FROM fta.recreation_fee rf
-LEFT JOIN fta.recreation_fee_code rfc
-    ON rf.recreation_fee_code = rfc.recreation_fee_code
-ON CONFLICT DO NOTHING;
+    rfc.description as fee_description
+from fta.recreation_fee rf
+left join fta.recreation_fee_code rfc
+    on rf.recreation_fee_code = rfc.recreation_fee_code
+on conflict do nothing;
