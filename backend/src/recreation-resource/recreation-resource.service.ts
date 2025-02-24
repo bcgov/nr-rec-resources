@@ -5,6 +5,7 @@ import { RecreationResourceDto } from "./dto/recreation-resource.dto";
 import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resource.dto";
 
 const excludedActivityCodes = [26];
+const excludedRecreationDistricts = ["RDQC", "RDRM"];
 const excludedResourceTypes = ["RR"];
 
 const recreationResourceSelect = {
@@ -213,6 +214,11 @@ export class RecreationResourceService {
             },
           },
         },
+        {
+          district_code: {
+            notIn: excludedRecreationDistricts,
+          },
+        },
         accessFilterQuery,
         districtFilterQuery,
         activityFilterQuery,
@@ -275,6 +281,11 @@ export class RecreationResourceService {
                 },
               },
             },
+          },
+        },
+        where: {
+          district_code: {
+            notIn: excludedRecreationDistricts,
           },
         },
         orderBy: {
