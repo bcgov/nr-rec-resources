@@ -13,7 +13,6 @@ create table if not exists rst.recreation_resource (
     description varchar(5000),
     closest_community varchar(200),
     display_on_public_site boolean default false,
-    rec_resource_type varchar(10) references rst.recreation_resource_type_code (rec_resource_type_code),
     district_code varchar(4) references rst.recreation_district_code (district_code)
 );
 
@@ -24,7 +23,5 @@ comment on column rst.recreation_resource.rec_resource_id is 'Identification man
 comment on column rst.recreation_resource.name is 'Name of the Recreation Project.';
 
 comment on column rst.recreation_resource.closest_community is 'A text description generally describing the closest community or, for more isolated sites and trails, it could be a geographic feature to a recreation site or trail. e.g. VERNON, KELOWNA, PRINCE GEORGE.';
-
-comment on column rst.recreation_resource.rec_resource_type is 'Code representing a specific feature associated with the recreation resource.';
 
 comment on column rst.recreation_resource.district_code is 'A code indicating a recreation district boundary. EG Cascades, Chilliwack, Discovery Coast. Note: There are 17 Recreation District Boundaries, most of which have different geographical boundaries than Forest District Boundaries. Because of this, Rec District Boundary Codes are different from Forest District Boundary Codes.';

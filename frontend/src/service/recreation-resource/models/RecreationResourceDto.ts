@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { RecreationCampsiteDto } from './RecreationCampsiteDto';
+import {
+  RecreationCampsiteDtoFromJSON,
+  RecreationCampsiteDtoFromJSONTyped,
+  RecreationCampsiteDtoToJSON,
+  RecreationCampsiteDtoToJSONTyped,
+} from './RecreationCampsiteDto';
 import type { RecreationStatusDto } from './RecreationStatusDto';
 import {
   RecreationStatusDtoFromJSON,
@@ -20,6 +27,13 @@ import {
   RecreationStatusDtoToJSON,
   RecreationStatusDtoToJSONTyped,
 } from './RecreationStatusDto';
+import type { RecreationFeeDto } from './RecreationFeeDto';
+import {
+  RecreationFeeDtoFromJSON,
+  RecreationFeeDtoFromJSONTyped,
+  RecreationFeeDtoToJSON,
+  RecreationFeeDtoToJSONTyped,
+} from './RecreationFeeDto';
 import type { RecreationActivityDto } from './RecreationActivityDto';
 import {
   RecreationActivityDtoFromJSON,
@@ -27,11 +41,6 @@ import {
   RecreationActivityDtoToJSON,
   RecreationActivityDtoToJSONTyped,
 } from './RecreationActivityDto';
-
-export interface RecreationCampsiteDto {
-  rec_resource_id: string;
-  campsite_count: number;
-}
 
 /**
  *
@@ -81,96 +90,18 @@ export interface RecreationResourceDto {
    * @memberof RecreationResourceDto
    */
   rec_resource_type: string;
-
+  /**
+   * Number of campsites available in the recreation site or trail
+   * @type {RecreationCampsiteDto}
+   * @memberof RecreationResourceDto
+   */
   recreation_campsite: RecreationCampsiteDto;
-
+  /**
+   * Fee details for the recreation resource
+   * @type {RecreationFeeDto}
+   * @memberof RecreationResourceDto
+   */
   recreation_fee: RecreationFeeDto;
-}
-
-export interface RecreationFeeDto {
-  /**
-   * Amount charged for the recreation resource
-   * @type {number}
-   * @memberof RecreationFeeDto
-   */
-  fee_amount: number;
-
-  /**
-   * Start date for the fee applicability
-   * @type {Date}
-   * @memberof RecreationFeeDto
-   */
-  fee_start_date: Date;
-
-  /**
-   * End date for the fee applicability
-   * @type {Date}
-   * @memberof RecreationFeeDto
-   */
-  fee_end_date: Date;
-
-  /**
-   * Type of fee applicable (from recreation_fee_code)
-   * @type {number}
-   * @memberof RecreationFeeDto
-   */
-  recreation_fee_code: number;
-
-  /**
-   * Description of the fee type
-   * @type {string}
-   * @memberof RecreationFeeDto
-   */
-  fee_description: string;
-
-  /**
-   * Indicates if the fee applies on Monday
-   * @type {string}
-   * @memberof RecreationFeeDto
-   */
-  monday_ind: string;
-
-  /**
-   * Indicates if the fee applies on Tuesday
-   * @type {string}
-   * @memberof RecreationFeeDto
-   */
-  tuesday_ind: string;
-
-  /**
-   * Indicates if the fee applies on Wednesday
-   * @type {string}
-   * @memberof RecreationFeeDto
-   */
-  wednesday_ind: string;
-
-  /**
-   * Indicates if the fee applies on Thursday
-   * @type {string}
-   * @memberof RecreationFeeDto
-   */
-  thursday_ind: string;
-
-  /**
-   * Indicates if the fee applies on Friday
-   * @type {string}
-   * @memberof RecreationFeeDto
-   */
-  friday_ind: string;
-
-  /**
-   * Indicates if the fee applies on Saturday
-   * @type {string}
-   * @memberof RecreationFeeDto
-   */
-  saturday_ind: string;
-
-  /**
-   * Indicates if the fee applies on Sunday
-   * @type {string}
-   * @memberof RecreationFeeDto
-   */
-  sunday_ind: string;
 }
 
 /**
@@ -204,7 +135,12 @@ export function instanceOfRecreationResourceDto(
     value['rec_resource_type'] === undefined
   )
     return false;
-  if (!('campsite_count' in value) || value['campsite_count'] === undefined)
+  if (
+    !('recreation_campsite' in value) ||
+    value['recreation_campsite'] === undefined
+  )
+    return false;
+  if (!('recreation_fee' in value) || value['recreation_fee'] === undefined)
     return false;
   return true;
 }
@@ -232,8 +168,10 @@ export function RecreationResourceDtoFromJSONTyped(
     ),
     recreation_status: RecreationStatusDtoFromJSON(json['recreation_status']),
     rec_resource_type: json['rec_resource_type'],
-    recreation_campsite: json['recreation_campsite'],
-    recreation_fee: json['recreation_fee'],
+    recreation_campsite: RecreationCampsiteDtoFromJSON(
+      json['recreation_campsite'],
+    ),
+    recreation_fee: RecreationFeeDtoFromJSON(json['recreation_fee']),
   };
 }
 
@@ -259,6 +197,9 @@ export function RecreationResourceDtoToJSONTyped(
     ),
     recreation_status: RecreationStatusDtoToJSON(value['recreation_status']),
     rec_resource_type: value['rec_resource_type'],
-    campsite_count: value['campsite_count'],
+    recreation_campsite: RecreationCampsiteDtoToJSON(
+      value['recreation_campsite'],
+    ),
+    recreation_fee: RecreationFeeDtoToJSON(value['recreation_fee']),
   };
 }

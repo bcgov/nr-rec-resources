@@ -24,8 +24,11 @@ const recreationResource1 = {
     rec_resource_id: "123",
     campsite_count: 2,
   },
-  recreation_resource_type_code: {
-    description: "Recreation Site",
+  recreation_resource_type: {
+    recreation_resource_type_code: {
+      rec_resource_type_code: "SIT",
+      description: "Recreation Site",
+    },
   },
   recreation_fee: {
     fee_description: "Camping Fee",
@@ -82,21 +85,15 @@ const recreationResource2 = {
     comment: "Site is closed comment",
     status_code: 2,
   },
-<<<<<<< HEAD
   recreation_campsite: {
     rec_resource_id: "123",
     campsite_count: 2,
   },
-  recreation_resource_type_code: {
-    description: "Interpretive Forest",
-=======
-  campsite_count: 10,
   recreation_resource_type: {
     recreation_resource_type_code: {
       rec_resource_type_code: "IF",
       description: "Interpretive Forest",
     },
->>>>>>> 93f3c64 (test: update recreation-resource.service test for rec type changes)
   },
   recreation_fee: {
     fee_description: "Camping Fee",
@@ -155,21 +152,15 @@ const recreationResource3 = {
     comment: "Site is active comment",
     status_code: 1,
   },
-<<<<<<< HEAD
   recreation_campsite: {
     rec_resource_id: "123",
     campsite_count: 2,
   },
-  recreation_resource_type_code: {
-    description: "Recreation Trail",
-=======
-  campsite_count: 10,
   recreation_resource_type: {
     recreation_resource_type_code: {
       rec_resource_type_code: "RTR",
       description: "Recreation Trail",
     },
->>>>>>> 93f3c64 (test: update recreation-resource.service test for rec type changes)
   },
   recreation_fee: {
     fee_description: "Camping Fee",
@@ -239,21 +230,15 @@ const recreationResource4 = {
     },
   ],
   recreation_status: null,
-<<<<<<< HEAD
   recreation_campsite: {
     rec_resource_id: "123",
     campsite_count: 2,
   },
-  recreation_resource_type_code: {
-    description: "Recreation Site",
-=======
-  campsite_count: 10,
   recreation_resource_type: {
     recreation_resource_type_code: {
       rec_resource_type_code: "SIT",
       description: "Recreation Site",
     },
->>>>>>> 93f3c64 (test: update recreation-resource.service test for rec type changes)
   },
   recreation_fee: {
     fee_description: "Camping Fee",
