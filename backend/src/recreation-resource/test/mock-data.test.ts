@@ -20,9 +20,27 @@ const recreationResource1 = {
     comment: "Site is open comment",
     status_code: 1,
   },
-  campsite_count: 10,
+  recreation_campsite: {
+    rec_resource_id: "123",
+    campsite_count: 2,
+  },
   recreation_resource_type_code: {
     description: "Recreation Site",
+  },
+  recreation_fee: {
+    fee_description: "Camping Fee",
+    with_description: { description: "Camping Fee" },
+    fee_amount: 25.0,
+    fee_start_date: new Date("2024-06-01"),
+    fee_end_date: new Date("2024-09-30"),
+    recreation_fee_code: 2,
+    monday_ind: "Y",
+    tuesday_ind: "Y",
+    wednesday_ind: "Y",
+    thursday_ind: "Y",
+    friday_ind: "Y",
+    saturday_ind: "N",
+    sunday_ind: "N",
   },
 };
 
@@ -39,8 +57,15 @@ const recreationResource1Response = {
     comment: "Site is open comment",
     status_code: 1,
   },
-  campsite_count: 10,
+  recreation_campsite: {
+    rec_resource_id: "123",
+    campsite_count: 2,
+  },
   rec_resource_type: "Recreation Site",
+  recreation_fee: {
+    ...recreationResource1.recreation_fee,
+    with_description: undefined,
+  },
 };
 
 const recreationResource2 = {
@@ -57,9 +82,27 @@ const recreationResource2 = {
     comment: "Site is closed comment",
     status_code: 2,
   },
-  campsite_count: 10,
+  recreation_campsite: {
+    rec_resource_id: "123",
+    campsite_count: 2,
+  },
   recreation_resource_type_code: {
     description: "Interpretive Forest",
+  },
+  recreation_fee: {
+    fee_description: "Camping Fee",
+    with_description: { description: "Camping Fee" },
+    fee_amount: 25.0,
+    fee_start_date: new Date("2024-06-01"),
+    fee_end_date: new Date("2024-09-30"),
+    recreation_fee_code: 2,
+    monday_ind: "Y",
+    tuesday_ind: "Y",
+    wednesday_ind: "Y",
+    thursday_ind: "Y",
+    friday_ind: "Y",
+    saturday_ind: "N",
+    sunday_ind: "N",
   },
 };
 
@@ -71,8 +114,15 @@ const recreationResource2Response = {
     comment: "Site is closed comment",
     status_code: 2,
   },
-  campsite_count: 10,
+  recreation_campsite: {
+    rec_resource_id: "123",
+    campsite_count: 2,
+  },
   rec_resource_type: "Interpretive Forest",
+  recreation_fee: {
+    ...recreationResource1.recreation_fee,
+    with_description: undefined,
+  },
 };
 
 const recreationResource3 = {
@@ -96,9 +146,27 @@ const recreationResource3 = {
     comment: "Site is active comment",
     status_code: 1,
   },
-  campsite_count: 10,
+  recreation_campsite: {
+    rec_resource_id: "123",
+    campsite_count: 2,
+  },
   recreation_resource_type_code: {
     description: "Recreation Trail",
+  },
+  recreation_fee: {
+    fee_description: "Camping Fee",
+    with_description: { description: "Camping Fee" },
+    fee_amount: 25.0,
+    fee_start_date: new Date("2024-06-01"),
+    fee_end_date: new Date("2024-09-30"),
+    recreation_fee_code: 2,
+    monday_ind: "Y",
+    tuesday_ind: "Y",
+    wednesday_ind: "Y",
+    thursday_ind: "Y",
+    friday_ind: "Y",
+    saturday_ind: "N",
+    sunday_ind: "N",
   },
 };
 
@@ -115,8 +183,15 @@ const recreationResource3Response = {
     comment: "Site is active comment",
     status_code: 1,
   },
-  campsite_count: 10,
+  recreation_campsite: {
+    rec_resource_id: "123",
+    campsite_count: 2,
+  },
   rec_resource_type: "Recreation Trail",
+  recreation_fee: {
+    ...recreationResource1.recreation_fee,
+    with_description: undefined,
+  },
 };
 
 const recreationResource4 = {
@@ -146,9 +221,27 @@ const recreationResource4 = {
     },
   ],
   recreation_status: null,
-  campsite_count: 10,
+  recreation_campsite: {
+    rec_resource_id: "123",
+    campsite_count: 2,
+  },
   recreation_resource_type_code: {
     description: "Recreation Site",
+  },
+  recreation_fee: {
+    fee_description: "Camping Fee",
+    with_description: { description: "Camping Fee" },
+    fee_amount: 25.0,
+    fee_start_date: new Date("2024-06-01"),
+    fee_end_date: new Date("2024-09-30"),
+    recreation_fee_code: 2,
+    monday_ind: "Y",
+    tuesday_ind: "Y",
+    wednesday_ind: "Y",
+    thursday_ind: "Y",
+    friday_ind: "Y",
+    saturday_ind: "N",
+    sunday_ind: "N",
   },
 };
 
@@ -173,8 +266,15 @@ const recreationResource4Response = {
     comment: undefined,
     status_code: undefined,
   },
-  campsite_count: 10,
+  recreation_campsite: {
+    rec_resource_id: "123",
+    campsite_count: 2,
+  },
   rec_resource_type: "Recreation Site",
+  recreation_fee: {
+    ...recreationResource1.recreation_fee,
+    with_description: undefined,
+  },
 };
 
 const recResourceArray = [

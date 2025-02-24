@@ -77,12 +77,13 @@ const RecResourcePage = () => {
     rec_resource_id,
     rec_resource_type,
     closest_community,
-    campsite_count,
+    recreation_campsite,
     recreation_status: {
       status_code: statusCode,
       description: statusDescription,
       comment: statusComment,
     } = {},
+    recreation_fee,
   } = recResource || {};
 
   const formattedName = name?.toLowerCase();
@@ -227,7 +228,11 @@ const RecResourcePage = () => {
 
             <MapsAndLocation ref={mapLocationRef} />
 
-            <Camping ref={campingRef} campsite_count={campsite_count!} />
+            <Camping
+              ref={campingRef}
+              fees={recreation_fee!}
+              recreation_campsite={recreation_campsite!}
+            />
 
             {isThingsToDo && (
               <ThingsToDo

@@ -14,6 +14,74 @@ export class RecreationActivityDto {
   description: string;
 }
 
+export class RecreationFeeDto {
+  @ApiProperty({
+    description: "Amount charged for the recreation resource",
+    example: 15,
+  })
+  fee_amount: number;
+
+  @ApiProperty({
+    description: "Start date for the fee applicability",
+    example: "2024-06-01",
+  })
+  fee_start_date: Date;
+
+  @ApiProperty({
+    description: "End date for the fee applicability",
+    example: "2024-09-30",
+  })
+  fee_end_date: Date;
+
+  @ApiProperty({
+    description: "Type of fee applicable",
+    example: "Camping",
+  })
+  recreation_fee_code: number;
+
+  @ApiProperty({
+    description: "Indicates if the fee applies on Monday",
+    example: "Y",
+  })
+  monday_ind: string;
+
+  @ApiProperty({
+    description: "Indicates if the fee applies on Tuesday",
+    example: "Y",
+  })
+  tuesday_ind: string;
+
+  @ApiProperty({
+    description: "Indicates if the fee applies on Wednesday",
+    example: "Y",
+  })
+  wednesday_ind: string;
+
+  @ApiProperty({
+    description: "Indicates if the fee applies on Thursday",
+    example: "Y",
+  })
+  thursday_ind: string;
+
+  @ApiProperty({
+    description: "Indicates if the fee applies on Friday",
+    example: "Y",
+  })
+  friday_ind: string;
+
+  @ApiProperty({
+    description: "Indicates if the fee applies on Saturday",
+    example: "Y",
+  })
+  saturday_ind: string;
+
+  @ApiProperty({
+    description: "Indicates if the fee applies on Sunday",
+    example: "Y",
+  })
+  sunday_ind: string;
+}
+
 export class RecreationStatusDto {
   @ApiProperty({
     description: "Status code of the resource",
@@ -32,6 +100,24 @@ export class RecreationStatusDto {
     example: "The facility is currently closed to visitors",
   })
   description: string;
+}
+
+export class RecreationCampsiteDto {
+  @ApiProperty({
+    description:
+      "Unique identifier of the Recreation Resource linked to campsites",
+    example: "rec-123-abc",
+    format: "uuid",
+  })
+  rec_resource_id: string;
+
+  @ApiProperty({
+    description:
+      "Number of campsites available in the recreation site or trail",
+    example: 15,
+    minimum: 0,
+  })
+  campsite_count: number;
 }
 
 export class RecreationResourceDto {
@@ -88,5 +174,11 @@ export class RecreationResourceDto {
     example: 15,
     minimum: 0,
   })
-  campsite_count: number;
+  recreation_campsite: RecreationCampsiteDto;
+
+  @ApiProperty({
+    description: "Fee details for the recreation resource",
+    type: RecreationFeeDto,
+  })
+  recreation_fee: RecreationFeeDto;
 }
