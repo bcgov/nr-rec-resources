@@ -18,6 +18,8 @@ model recreation_resource {
   district_code            String?                   @db.VarChar(4)
   recreation_access        recreation_access[]
   recreation_activity      recreation_activity[]
+  recreation_campsite      recreation_campsite?
+  recreation_fee           recreation_fee?
   recreation_district_code recreation_district_code? @relation(fields: [district_code], references: [district_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_resource_type recreation_resource_type?
   recreation_status        recreation_status?
