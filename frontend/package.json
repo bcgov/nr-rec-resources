@@ -55,7 +55,7 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "happo-e2e": "^3.2.0",
     "happo-playwright": "^2.2.0",
-    "happo.io": "^11.0.1",
+    "happo.io": "^12.0.0",
     "jsdom": "^26.0.0",
     "msw": "^2.7.0",
     "sass-embedded": "^1.83.1",
