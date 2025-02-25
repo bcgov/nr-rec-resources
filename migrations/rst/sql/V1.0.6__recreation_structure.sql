@@ -3,6 +3,8 @@ create table if not exists rst.recreation_structure_code (
     description varchar(120)
 );
 
+select upsert_timestamp_columns('rst', 'recreation_structure_code');
+
 comment on table rst.recreation_structure_code is 'Codes describing the type of structure (human-made improvement) within a recreation project';
 
 comment on column rst.recreation_structure_code.structure_code is 'Indicates the type of structure (human-made improvement)';
@@ -102,6 +104,8 @@ create table if not exists rst.recreation_structure (
     rec_resource_id varchar(20) not null references rst.recreation_resource (rec_resource_id),
     structure_code int not null references rst.recreation_structure_code (structure_code)
 );
+
+select upsert_timestamp_columns('rst', 'recreation_structure');
 
 comment on table rst.recreation_structure is 'Information relating to a recreation site improvement in a recreational tenure. All improvements are human-made.';
 
