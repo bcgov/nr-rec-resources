@@ -10,20 +10,21 @@ datasource db {
 }
 
 model recreation_resource {
-  rec_resource_id          String                    @id @db.VarChar(20)
-  name                     String?                   @db.VarChar(200)
-  description              String?                   @db.VarChar(5000)
-  closest_community        String?                   @db.VarChar(200)
-  display_on_public_site   Boolean?                  @default(false)
-  district_code            String?                   @db.VarChar(4)
-  recreation_access        recreation_access[]
-  recreation_activity      recreation_activity[]
-  recreation_campsite      recreation_campsite?
-  recreation_fee           recreation_fee?
-  recreation_district_code recreation_district_code? @relation(fields: [district_code], references: [district_code], onDelete: NoAction, onUpdate: NoAction)
-  recreation_resource_type recreation_resource_type?
-  recreation_status        recreation_status?
-  recreation_structure     recreation_structure[]
+  rec_resource_id            String                       @id @db.VarChar(20)
+  name                       String?                      @db.VarChar(200)
+  description                String?                      @db.VarChar(5000)
+  closest_community          String?                      @db.VarChar(200)
+  display_on_public_site     Boolean?                     @default(false)
+  district_code              String?                      @db.VarChar(4)
+  recreation_access          recreation_access[]
+  recreation_activity        recreation_activity[]
+  recreation_campsite        recreation_campsite?
+  recreation_fee             recreation_fee?
+  recreation_district_code   recreation_district_code?    @relation(fields: [district_code], references: [district_code], onDelete: NoAction, onUpdate: NoAction)
+  recreation_resource_images recreation_resource_images[]
+  recreation_resource_type   recreation_resource_type?
+  recreation_status          recreation_status?
+  recreation_structure       recreation_structure[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -146,4 +147,28 @@ model recreation_sub_access_code {
   sub_access_code   String              @id @db.VarChar(3)
   description       String?             @db.VarChar(120)
   recreation_access recreation_access[]
+}
+
+model recreation_resource_image_variants {
+  id                         Int                         @id @default(autoincrement())
+  ref_id                     String?                     @db.VarChar
+  size_code                  String?                     @db.VarChar(20)
+  url                        String?
+  width                      Int?
+  height                     Int?
+  extension                  String?                     @db.VarChar(10)
+  recreation_resource_images recreation_resource_images? @relation(fields: [ref_id], references: [ref_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([ref_id, size_code])
+}
+
+model recreation_resource_images {
+  id                                 Int                                  @id @default(autoincrement())
+  rec_resource_id                    String?                              @db.VarChar(10)
+  ref_id                             String?                              @unique @db.VarChar
+  caption                            String?                              @db.VarChar
+  recreation_resource_image_variants recreation_resource_image_variants[]
+  recreation_resource                recreation_resource?                 @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([rec_resource_id, ref_id])
 }

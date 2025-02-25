@@ -22,7 +22,7 @@ describe("PaginatedRecreationResourceDto", () => {
         param: "activities",
         options: [
           {
-            id: 1,
+            id: "1",
             count: 42,
             description: "Snowmobiling",
           },
@@ -49,7 +49,7 @@ describe("PaginatedRecreationResourceDto", () => {
     expect(typeof paginatedResponse.filters[0].options[0].count).toBe("number");
     expect(typeof paginatedResponse.filters[0].label).toBe("string");
     expect(typeof paginatedResponse.filters[0].param).toBe("string");
-    expect(typeof paginatedResponse.filters[0].options[0].id).toBe("number");
+    expect(typeof paginatedResponse.filters[0].options[0].id).toBe("string");
     expect(typeof paginatedResponse.filters[0].type).toBe("string");
     expect(paginatedResponse.filters[0].options[0]).toHaveProperty(
       "description",

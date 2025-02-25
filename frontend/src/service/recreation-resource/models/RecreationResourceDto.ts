@@ -20,6 +20,13 @@ import {
   RecreationCampsiteDtoToJSON,
   RecreationCampsiteDtoToJSONTyped,
 } from './RecreationCampsiteDto';
+import type { RecreationResourceImageDto } from './RecreationResourceImageDto';
+import {
+  RecreationResourceImageDtoFromJSON,
+  RecreationResourceImageDtoFromJSONTyped,
+  RecreationResourceImageDtoToJSON,
+  RecreationResourceImageDtoToJSONTyped,
+} from './RecreationResourceImageDto';
 import type { RecreationStatusDto } from './RecreationStatusDto';
 import {
   RecreationStatusDtoFromJSON,
@@ -91,6 +98,12 @@ export interface RecreationResourceDto {
    */
   rec_resource_type: string;
   /**
+   * List of images for the recreation resource
+   * @type {Array<RecreationResourceImageDto>}
+   * @memberof RecreationResourceDto
+   */
+  recreation_resource_images: Array<RecreationResourceImageDto>;
+  /**
    * Number of campsites available in the recreation site or trail
    * @type {RecreationCampsiteDto}
    * @memberof RecreationResourceDto
@@ -136,6 +149,11 @@ export function instanceOfRecreationResourceDto(
   )
     return false;
   if (
+    !('recreation_resource_images' in value) ||
+    value['recreation_resource_images'] === undefined
+  )
+    return false;
+  if (
     !('recreation_campsite' in value) ||
     value['recreation_campsite'] === undefined
   )
@@ -168,6 +186,9 @@ export function RecreationResourceDtoFromJSONTyped(
     ),
     recreation_status: RecreationStatusDtoFromJSON(json['recreation_status']),
     rec_resource_type: json['rec_resource_type'],
+    recreation_resource_images: (
+      json['recreation_resource_images'] as Array<any>
+    ).map(RecreationResourceImageDtoFromJSON),
     recreation_campsite: RecreationCampsiteDtoFromJSON(
       json['recreation_campsite'],
     ),
@@ -197,6 +218,9 @@ export function RecreationResourceDtoToJSONTyped(
     ),
     recreation_status: RecreationStatusDtoToJSON(value['recreation_status']),
     rec_resource_type: value['rec_resource_type'],
+    recreation_resource_images: (
+      value['recreation_resource_images'] as Array<any>
+    ).map(RecreationResourceImageDtoToJSON),
     recreation_campsite: RecreationCampsiteDtoToJSON(
       value['recreation_campsite'],
     ),

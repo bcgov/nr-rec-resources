@@ -21,10 +21,10 @@ import { mapValues } from '../runtime';
 export interface FilterOptionDto {
   /**
    * Unique identifier for the filter option
-   * @type {object}
+   * @type {string}
    * @memberof FilterOptionDto
    */
-  id: object;
+  id: string;
   /**
    * Number of matching results for this filter
    * @type {number}

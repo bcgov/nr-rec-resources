@@ -26,6 +26,7 @@ import {
 
 export interface GetRecreationResourceByIdRequest {
   id: string;
+  imageSizeCodes?: Array<GetRecreationResourceByIdImageSizeCodesEnum>;
 }
 
 export interface SearchRecreationResourcesRequest {
@@ -37,6 +38,7 @@ export interface SearchRecreationResourcesRequest {
   district?: string;
   access?: string;
   facilities?: string;
+  imageSizeCodes?: Array<SearchRecreationResourcesImageSizeCodesEnum>;
 }
 
 /**
@@ -58,6 +60,10 @@ export class RecreationResourceApi extends runtime.BaseAPI {
     }
 
     const queryParameters: any = {};
+
+    if (requestParameters['imageSizeCodes'] != null) {
+      queryParameters['imageSizeCodes'] = requestParameters['imageSizeCodes'];
+    }
 
     const headerParameters: runtime.HTTPHeaders = {};
 
@@ -134,6 +140,10 @@ export class RecreationResourceApi extends runtime.BaseAPI {
       queryParameters['facilities'] = requestParameters['facilities'];
     }
 
+    if (requestParameters['imageSizeCodes'] != null) {
+      queryParameters['imageSizeCodes'] = requestParameters['imageSizeCodes'];
+    }
+
     const headerParameters: runtime.HTTPHeaders = {};
 
     const response = await this.request(
@@ -165,3 +175,50 @@ export class RecreationResourceApi extends runtime.BaseAPI {
     return await response.value();
   }
 }
+
+/**
+ * @export
+ */
+export const GetRecreationResourceByIdImageSizeCodesEnum = {
+  Original: 'original',
+  Col: 'col',
+  Con: 'con',
+  Pcs: 'pcs',
+  Hpr: 'hpr',
+  Ili: 'ili',
+  Lan: 'lan',
+  Llc: 'llc',
+  Lpr: 'lpr',
+  Gal: 'gal',
+  Ppp: 'ppp',
+  Pre: 'pre',
+  Rsr: 'rsr',
+  Rth: 'rth',
+  Scr: 'scr',
+  Thm: 'thm',
+} as const;
+export type GetRecreationResourceByIdImageSizeCodesEnum =
+  (typeof GetRecreationResourceByIdImageSizeCodesEnum)[keyof typeof GetRecreationResourceByIdImageSizeCodesEnum];
+/**
+ * @export
+ */
+export const SearchRecreationResourcesImageSizeCodesEnum = {
+  Original: 'original',
+  Col: 'col',
+  Con: 'con',
+  Pcs: 'pcs',
+  Hpr: 'hpr',
+  Ili: 'ili',
+  Lan: 'lan',
+  Llc: 'llc',
+  Lpr: 'lpr',
+  Gal: 'gal',
+  Ppp: 'ppp',
+  Pre: 'pre',
+  Rsr: 'rsr',
+  Rth: 'rth',
+  Scr: 'scr',
+  Thm: 'thm',
+} as const;
+export type SearchRecreationResourcesImageSizeCodesEnum =
+  (typeof SearchRecreationResourcesImageSizeCodesEnum)[keyof typeof SearchRecreationResourcesImageSizeCodesEnum];

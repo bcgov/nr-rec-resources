@@ -3,16 +3,15 @@ import { faCircleChevronRight } from '@fortawesome/free-solid-svg-icons';
 import Activities from '@/components/rec-resource/card/Activities';
 import CardCarousel from '@/components/rec-resource/card/CardCarousel';
 import Status from '@/components/rec-resource/Status';
-import { RecreationResource } from '@/components/rec-resource/types';
 import '@/components/rec-resource/card/RecResourceCard.scss';
+import { RecreationResourceDto } from '@/service/recreation-resource';
+import { getImageList } from '@/components/rec-resource/card/helpers';
 
 interface RecResourceCardProps {
-  imageList: { imageUrl: string }[];
-  recreationResource: RecreationResource;
+  recreationResource: RecreationResourceDto;
 }
 
 const RecResourceCard: React.FC<RecResourceCardProps> = ({
-  imageList,
   recreationResource,
 }) => {
   const {
@@ -23,6 +22,9 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
     recreation_status: { status_code, description: statusDescription },
   } = recreationResource;
   const isActivities = activities.length > 0;
+
+  const imageList = getImageList(recreationResource);
+
   return (
     <div className="rec-resource-card" key={rec_resource_id}>
       <CardCarousel imageList={imageList} />

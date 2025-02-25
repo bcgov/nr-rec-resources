@@ -3,12 +3,18 @@ import { Prisma } from "@prisma/client";
 import { PrismaService } from "src/prisma.service";
 import { RecreationResourceDto } from "./dto/recreation-resource.dto";
 import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resource.dto";
+import {
+  RecreationResourceImageDto,
+  RecreationResourceImageSize,
+} from "./dto/recreation-resource-image.dto";
 
 const excludedActivityCodes = [26];
 const excludedRecreationDistricts = ["RDQC", "RDRM"];
 const excludedResourceTypes = ["RR"];
 
-const recreationResourceSelect = {
+const getRecreationResourceSelect = (
+  imageSizeCodes?: RecreationResourceImageSize[],
+) => ({
   rec_resource_id: true,
   description: true,
   name: true,
@@ -56,10 +62,30 @@ const recreationResourceSelect = {
       },
     },
   },
-};
+  recreation_resource_images: {
+    select: {
+      ref_id: true,
+      caption: true,
+      recreation_resource_image_variants: {
+        select: {
+          size_code: true,
+          url: true,
+          width: true,
+          height: true,
+          extension: true,
+        },
+        where: {
+          size_code: {
+            in: imageSizeCodes ?? [],
+          },
+        },
+      },
+    },
+  },
+});
 
 type RecreationResourceGetPayload = Prisma.recreation_resourceGetPayload<{
-  select: typeof recreationResourceSelect;
+  select: ReturnType<typeof getRecreationResourceSelect>;
 }>;
 
 @Injectable()
@@ -67,7 +93,9 @@ export class RecreationResourceService {
   constructor(private prisma: PrismaService) {}
 
   // Format the results to match the DTO
-  formatResults(recResources: RecreationResourceGetPayload[]) {
+  formatResults(
+    recResources: RecreationResourceGetPayload[],
+  ): RecreationResourceDto[] {
     return recResources?.map((resource) => ({
       ...resource,
       rec_resource_type:
@@ -84,6 +112,8 @@ export class RecreationResourceService {
         comment: resource.recreation_status?.comment,
         status_code: resource.recreation_status?.status_code,
       },
+      recreation_resource_images:
+        resource.recreation_resource_images as RecreationResourceImageDto[],
       recreation_fee: resource.recreation_fee
         ? {
             fee_amount: resource.recreation_fee.fee_amount,
@@ -104,7 +134,10 @@ export class RecreationResourceService {
     }));
   }
 
-  async findOne(id: string): Promise<RecreationResourceDto> {
+  async findOne(
+    id: string,
+    imageSizeCodes?: RecreationResourceImageSize[],
+  ): Promise<RecreationResourceDto> {
     const recResource = await this.prisma.recreation_resource.findUnique({
       where: {
         rec_resource_id: id,
@@ -112,7 +145,7 @@ export class RecreationResourceService {
           display_on_public_site: true,
         },
       },
-      select: recreationResourceSelect,
+      select: getRecreationResourceSelect(imageSizeCodes),
     });
 
     return recResource ? this.formatResults([recResource])[0] : null;
@@ -127,6 +160,7 @@ export class RecreationResourceService {
     district?: string,
     access?: string,
     facilities?: string,
+    imageSizeCodes?: RecreationResourceImageSize[],
   ): Promise<PaginatedRecreationResourceDto> {
     // 10 page limit - max 100 records since if no limit we fetch page * limit
     if (page > 10 && !limit) {
@@ -140,8 +174,8 @@ export class RecreationResourceService {
 
     // If only page is provided, we will return all records up to the end of that page
     // If limit is provided, we will return that many paginated records for lazy loading
-    const take = limit ? limit : 10 * page;
-    const skip = limit ? (page - 1) * limit : 0;
+    const take = limit ? limit : 10;
+    const skip = (page - 1) * take;
     const orderBy = [{ name: Prisma.SortOrder.asc }];
     const activityFilter = activities?.split("_").map(Number);
     const typeFilter = type?.split("_").map(String);
@@ -235,7 +269,7 @@ export class RecreationResourceService {
       // Fetch paginated records
       this.prisma.recreation_resource.findMany({
         where,
-        select: recreationResourceSelect,
+        select: getRecreationResourceSelect(imageSizeCodes),
         take,
         skip,
         orderBy,
@@ -359,7 +393,7 @@ export class RecreationResourceService {
     ]);
 
     const activityFilters = activityCounts.map((activity) => ({
-      id: activity.recreation_activity_code,
+      id: activity.recreation_activity_code.toString(),
       description: activity.description,
       count: activity._count.recreation_activity ?? 0,
     }));

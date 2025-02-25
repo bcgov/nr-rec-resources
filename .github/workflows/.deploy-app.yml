@@ -21,7 +21,7 @@ on:
         type: string
 
 env:
-    AWS_REGION: ca-central-1
+  AWS_REGION: ca-central-1
 
 permissions:
   id-token: write # This is required for requesting the JWT
@@ -83,10 +83,12 @@ jobs:
       - name: Build And Update UI (CF)
         working-directory: frontend
         env:
+          VITE_RECREATION_RESOURCE_ASSETS_BASE_URL: "https://dam.lqc63d-prod.nimbus.cloud.gov.bc.ca"
           VITE_API_BASE_URL: ${{ needs.deploy-api.outputs.API_GW_URL }}/api
           S3_BUCKET_ARN: ${{ needs.deploy-cloudfront.outputs.S3_BUCKET_ARN }}
           CF_DISTRIBUTION_ID: ${{ needs.deploy-cloudfront.outputs.CF_DISTRIBUTION_ID }}
         run: |
+          echo "VITE_RECREATION_RESOURCE_ASSETS_BASE_URL: $VITE_RECREATION_RESOURCE_ASSETS_BASE_URL"
           npm run deploy
           aws s3 sync --delete ./dist s3://$(echo "$S3_BUCKET_ARN" | cut -d: -f6)
           aws cloudfront create-invalidation --distribution-id $CF_DISTRIBUTION_ID --paths "/*"

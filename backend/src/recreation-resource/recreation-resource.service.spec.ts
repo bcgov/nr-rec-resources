@@ -2,6 +2,12 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { PrismaService } from "src/prisma.service";
 import { RecreationResourceService } from "./recreation-resource.service";
 import {
+  activityCounts,
+  activityCountsNoResults,
+  noSearchResultsFilterArray,
+  orderedRecresourceArray,
+  recreationAccessCounts,
+  recreationDistrictCounts,
   recreationResource1,
   recreationResource1Response,
   recreationResource2Response,
@@ -9,16 +15,10 @@ import {
   recreationResource4,
   recreationResource4Response,
   recResourceArray,
-  orderedRecresourceArray,
   recresourceArrayResolved,
-  totalRecordIds,
-  activityCounts,
   recResourceTypeCounts,
-  noSearchResultsFilterArray,
-  recreationDistrictCounts,
-  recreationAccessCounts,
   searchResultsFilterArray,
-  activityCountsNoResults,
+  totalRecordIds,
 } from "src/recreation-resource/test/mock-data.test";
 
 type ResponseInputs = {
@@ -379,7 +379,7 @@ describe("RecreationResourceService", () => {
 
       for (const option of activityFilter.options) {
         const group = activityCounts.find(
-          (group) => group.recreation_activity_code === option.id,
+          (group) => group.recreation_activity_code.toString() === option.id,
         );
 
         expect(option.count).toBe(group?._count.recreation_activity || 0);
@@ -402,7 +402,7 @@ describe("RecreationResourceService", () => {
 
       for (const option of activityFilter.options) {
         const group = activityCounts.find(
-          (group) => group.recreation_activity_code === option.id,
+          (group) => group.recreation_activity_code.toString() === option.id,
         );
 
         expect(option.count).toBe(group?._count.recreation_activity || 0);
@@ -420,7 +420,7 @@ describe("RecreationResourceService", () => {
 
       for (const option of activityFilter.options) {
         const group = activityCounts.find(
-          (group) => group.recreation_activity_code === option.id,
+          (group) => group.recreation_activity_code.toString() === option.id,
         );
 
         expect(option.count).toBe(group?._count.recreation_activity || 0);

@@ -16,7 +16,8 @@ import Photo from './Photo';
 
 interface Photo {
   caption?: string;
-  imageUrl: string;
+  previewUrl: string;
+  fullResolutionUrl: string;
 }
 
 interface ShowPhotosProps {
@@ -45,7 +46,7 @@ const ShowPhotosBtn: React.FC<ShowPhotosProps> = ({
   );
 };
 
-interface PhotoGalleryProps {
+export interface PhotoGalleryProps {
   photos: Photo[];
 }
 
@@ -54,7 +55,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
   const [open, setOpen] = useState(false);
 
   const photoSlides = photos.map((photo) => ({
-    src: photo.imageUrl,
+    src: photo.fullResolutionUrl,
     description: (
       <div dangerouslySetInnerHTML={{ __html: photo.caption || '' }} />
     ),
@@ -76,7 +77,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
     index,
     caption: photo?.caption ?? '',
     altText: photo?.caption ?? '',
-    imageUrl: photo.imageUrl,
+    imageUrl: photo.previewUrl,
   }));
 
   const isGalleryMed =
