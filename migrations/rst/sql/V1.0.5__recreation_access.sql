@@ -4,6 +4,8 @@ create table if not exists rst.recreation_access_code (
     sub_description varchar(120)
 );
 
+select upsert_timestamp_columns('rst', 'recreation_access_code');
+
 comment on table rst.recreation_access_code is 'Codes describing types of access to Recreation Resources';
 
 comment on column rst.recreation_access_code.access_code is 'Code identifying the type of access';
@@ -17,6 +19,8 @@ create table if not exists rst.recreation_sub_access_code (
     description varchar(120)
 );
 
+select upsert_timestamp_columns('rst', 'recreation_sub_access_code');
+
 comment on table rst.recreation_sub_access_code is 'Codes describing the Recreation Sub Access types within a project.';
 
 comment on column rst.recreation_sub_access_code.sub_access_code is 'Code describing the Recreation Sub Access types.';
@@ -29,6 +33,8 @@ create table if not exists rst.recreation_access (
     access_code varchar(3) not null references rst.recreation_access_code (access_code),
     sub_access_code varchar(3) references rst.recreation_sub_access_code (sub_access_code)
 );
+
+select upsert_timestamp_columns('rst', 'recreation_access');
 
 comment on table rst.recreation_access is 'Recreation Resource Access types';
 

@@ -4,6 +4,8 @@ create table if not exists rst.recreation_fee_code (
     description varchar(120) not null
 );
 
+select upsert_timestamp_columns('rst', 'recreation_fee_code');
+
 -- Inserting values into recreation_fee_code
 insert into rst.recreation_fee_code (description)
 values
@@ -26,3 +28,5 @@ create table if not exists rst.recreation_fee (
     sunday_ind varchar(1) default 'N',
     recreation_fee_code int not null references rst.recreation_fee_code (recreation_fee_code)
 );
+
+select upsert_timestamp_columns('rst', 'recreation_fee');
