@@ -25,6 +25,15 @@ const getRecreationResourceSelect = (
       recreation_resource_type_code: true,
     },
   },
+  recreation_access: {
+    select: {
+      recreation_access_code: {
+        select: {
+          description: true,
+        },
+      },
+    },
+  },
   recreation_activity: {
     select: {
       recreation_activity: true,
@@ -116,6 +125,9 @@ export class RecreationResourceService {
       rec_resource_type:
         resource?.recreation_resource_type.recreation_resource_type_code
           .description,
+      recreation_access_types: resource.recreation_access?.map((access) => ({
+        description: access.recreation_access_code.description,
+      })),
       recreation_activity: resource.recreation_activity?.map((activity) => ({
         description: activity.recreation_activity.description,
         recreation_activity_code:

@@ -151,6 +151,13 @@ export class RecreationResourceDto {
   closest_community: string;
 
   @ApiProperty({
+    description: "Recreation Access Types",
+    example: ["Drive in", "HIKE_IN"],
+    type: [String],
+  })
+  recreation_access_types: string[];
+
+  @ApiProperty({
     description: "List of recreational activities available at this resource",
     type: [RecreationActivityDto],
   })
