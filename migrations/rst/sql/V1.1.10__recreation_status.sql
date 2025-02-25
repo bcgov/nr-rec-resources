@@ -6,6 +6,8 @@ create table if not exists rst.recreation_status_code (
     description varchar(120) not null
 );
 
+select upsert_timestamp_columns('rst', 'recreation_status_code');
+
 insert into rst.recreation_status_code (description)
 values
     ('Open'),
@@ -15,4 +17,6 @@ create table if not exists rst.recreation_status (
     rec_resource_id varchar(200) not null references rst.recreation_resource (rec_resource_id) primary key,
     status_code int not null references rst.recreation_status_code (status_code),
     comment varchar(5000) not null
-)
+);
+
+select upsert_timestamp_columns('rst', 'recreation_status');
