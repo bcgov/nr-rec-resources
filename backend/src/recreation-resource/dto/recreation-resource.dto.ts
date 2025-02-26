@@ -23,12 +23,6 @@ export class RecreationFeeDto {
   fee_amount: number;
 
   @ApiProperty({
-    description: "Description of the fee type",
-    example: "Camping",
-  })
-  fee_description: string;
-
-  @ApiProperty({
     description: "Start date for the fee applicability",
     example: "2024-06-01",
   })
