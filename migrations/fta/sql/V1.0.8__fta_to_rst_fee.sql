@@ -28,5 +28,5 @@ select
     rf.recreation_fee_code
 from
     fta.recreation_fee rf
-    left join fta.recreation_fee_code rfc 
+    left join fta.recreation_fee_code rfc
         on rf.recreation_fee_code = rfc.recreation_fee_code;
