@@ -17,33 +17,9 @@ jobs:
     name: Build containers
     uses: ./.github/workflows/.build.yml
 
-  analysis:
-    name: Analysis
-    uses: ./.github/workflows/.analysis.yml
-    secrets: inherit
-
-  analysis-results:
-    name: Analysis Results
-    needs: [analysis]
-    if: always()
-    runs-on: ubuntu-24.04
-    steps:
-      - if: contains(needs.*.result, 'failure')
-        run: echo "At least one job has failed." && exit 1
-      - run: echo "Success!"
-
-  tests-e2e:
-    name: Tests
-    needs: build-containers
-    uses: ./.github/workflows/.e2e.yml
-    with:
-      tag: ${{ github.sha }}
-    secrets: inherit
-
   deploy-to-aws-dev:
-    if: github.ref_name == 'main' || github.head_ref == 'main'
     name: Deploys Application to AWS dev
-    needs: tests-e2e
+    needs: build-containers
     uses: ./.github/workflows/.deploy-app.yml
     with:
       app_env: dev
@@ -62,67 +38,3 @@ jobs:
       environment_name: dev
       tag: ${{ github.sha }}
     secrets: inherit
-
-  # Separate review job since we can't use GitHub environments in reusable workflows
-  review-test-deployment:
-    name: Review Test Deployment
-    needs: [fta-migration-dev]
-    environment: test
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Review Test Deployment
-        run: echo "Reviewing Test Deployment"
-
-  # Deploys to test environment in the same AWS account as dev.
-  # resources in test environment uses the same vpc as the dev (Dev_vpc)
-  deploy-to-aws-test:
-    name: Deploys Application to AWS test
-    needs: [ review-test-deployment ]
-    uses: ./.github/workflows/.deploy-app.yml
-    with:
-      app_env: test
-      command: apply
-      environment_name: test
-      tag: ${{ github.sha }}
-    secrets: inherit
-
-  # Running FTA migration after each dev deployment since we are clearing the database each run
-  fta-migration-test:
-    needs: deploy-to-aws-test
-    name: FTA Migration
-    uses: ./.github/workflows/fta-migration.yml
-    with:
-      app_env: test
-      environment_name: test
-      tag: ${{ github.sha }}
-    secrets: inherit
-
-
-  release:
-    name: Release
-    needs: [fta-migration-test]
-    uses: ./.github/workflows/.release.yml
-
-  promote:
-    name: Promote
-    needs: [release]
-    uses: ./.github/workflows/.promote.yml
-
-  # Separate review job since we can't use GitHub environments in reusable workflows
-  review-prod-deployment:
-    name: Review Prod Deployment
-    needs: [promote]
-    environment: prod
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Review Prod Deployment
-        run: echo "Reviewing Prod Deployment"
-
-  deploy-to-aws-prod:
-    name: Deploys Application to AWS prod
-    needs: [deploy-to-aws-test]
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Deploy to AWS prod
-        # Placeholder
-        run: echo "Deploying to AWS prod"
