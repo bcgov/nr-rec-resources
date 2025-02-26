@@ -37,6 +37,8 @@ create table if not exists rst.recreation_access (
 
 select upsert_timestamp_columns('rst', 'recreation_access');
 
+select setup_temporal_table('rst', 'recreation_access');
+
 comment on table rst.recreation_access is 'Recreation Resource Access types';
 
 comment on column rst.recreation_access.rec_resource_id is 'Identification manually assigned to a Recreation Resource';
@@ -51,3 +53,7 @@ values
     ('F', 'Fly-in', null),
     ('R', 'Road', '4 wheel drive, 2 wheel drive, or motor home'),
     ('T', 'Trail', 'Multi-use, Snowmobile, XC Ski, ATV, horse, mtn bike, hiking');
+
+select upsert_timestamp_columns('rst', 'recreation_access_code');
+
+select setup_temporal_table('rst', 'recreation_access_code');

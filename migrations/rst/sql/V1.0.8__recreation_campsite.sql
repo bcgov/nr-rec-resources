@@ -6,6 +6,8 @@ create table if not exists rst.recreation_campsite (
 
 select upsert_timestamp_columns('rst', 'recreation_campsite');
 
+select setup_temporal_table('rst', 'recreation_campsite');
+
 comment on table rst.recreation_campsite is 'Stores the number of campsites associated with each recreation resource.';
 
 comment on column rst.recreation_campsite.rec_resource_id is 'Foreign key linking to the recreation resource this campsite count belongs to.';

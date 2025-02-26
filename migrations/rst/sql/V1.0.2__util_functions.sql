@@ -10,20 +10,6 @@ begin
 end;
 $$ language plpgsql;
 
-
--- Function to check if the row has changed and only update it if it has, so that we keep a clean history
-create or replace function update_if_changed()
-returns trigger as $$
-begin
-    if new is distinct from old then
-        return new;
-    else
-        return null;
-    end if;
-end;
-$$ language plpgsql;
-
-
 -- Function to set up history tracking on a table with temporal_tables
 create or replace function setup_temporal_table(schema_name text, table_name text)
 returns void language plpgsql as $$
@@ -51,15 +37,8 @@ begin
     -- create the versioning trigger on the table
     execute format(
         'create trigger %I before insert or update or delete on %I.%I
-        for each row execute procedure %I(''sys_period'', %L, true);',
+        for each row execute procedure %I(''sys_period'', %L, true, true);',
         trigger_name, schema_name, table_name, versioning_function, schema_name || '.' || table_name || '_history'
-    );
-
-    -- create the update trigger on the table that only updates the row if it's changed
-    execute format(
-        'create trigger %I before update on %I.%I
-        for each row execute function update_if_changed();',
-        update_trigger_name, schema_name, table_name
     );
 
     raise notice 'temporal tables setup completed for % and history table %',

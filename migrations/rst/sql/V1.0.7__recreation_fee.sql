@@ -3,6 +3,10 @@ create table if not exists rst.recreation_fee_code (
     description varchar(120) not null
 );
 
+select upsert_timestamp_columns ('rst', 'recreation_fee_code');
+
+select setup_temporal_table ('rst', 'recreation_fee_code');
+
 comment on table rst.recreation_fee_code is 'Recreation fee codes for classification of fees within a project';
 
 comment on column rst.recreation_fee_code.recreation_fee_code is 'A code indicating a specific recreation fee type. E.g., C for Camping, D for Day Use, H for Hut.';
@@ -34,5 +38,6 @@ create table if not exists rst.recreation_fee (
     recreation_fee_code varchar(1) not null references rst.recreation_fee_code (recreation_fee_code)
 );
 
-select
-    upsert_timestamp_columns ('rst', 'recreation_fee');
+select upsert_timestamp_columns ('rst', 'recreation_fee');
+
+select setup_temporal_table ('rst', 'recreation_fee');

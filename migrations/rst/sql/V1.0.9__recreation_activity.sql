@@ -5,6 +5,8 @@ create table rst.recreation_activity_code (
 
 select upsert_timestamp_columns('rst', 'recreation_activity_code');
 
+select setup_temporal_table('rst', 'recreation_activity_code');
+
 comment on table rst.recreation_activity_code is 'Activity code types for recreation projects.';
 
 comment on column rst.recreation_activity_code.recreation_activity_code is 'Code describing the Recreation Activity.';
@@ -53,6 +55,8 @@ create table if not exists rst.recreation_activity (
 );
 
 select upsert_timestamp_columns('rst', 'recreation_activity');
+
+select setup_temporal_table('rst', 'recreation_activity');
 
 comment on table rst.recreation_activity is 'The types of available activities for a given project.';
 

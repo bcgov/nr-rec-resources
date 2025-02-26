@@ -5,6 +5,8 @@ create table if not exists rst.recreation_resource_type_code (
 
 select upsert_timestamp_columns('rst', 'recreation_resource_type_code');
 
+select setup_temporal_table('rst', 'recreation_resource_type_code');
+
 comment on table rst.recreation_resource_type_code is 'Codes describing types of Recreation Resources';
 
 comment on column rst.recreation_resource_type_code.rec_resource_type_code is 'Identifies the Recreation Resource Type Code';
@@ -21,6 +23,8 @@ create table if not exists rst.recreation_resource_type (
 );
 
 select upsert_timestamp_columns('rst', 'recreation_resource_type');
+
+select setup_temporal_table('rst', 'recreation_resource_type');
 
 comment on table rst.recreation_resource_type is 'Captures both current and historical attributes for Recreation Map Types';
 

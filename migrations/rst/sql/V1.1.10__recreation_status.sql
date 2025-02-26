@@ -8,6 +8,8 @@ create table if not exists rst.recreation_status_code (
 
 select upsert_timestamp_columns('rst', 'recreation_status_code');
 
+select setup_temporal_table('rst', 'recreation_status_code');
+
 insert into rst.recreation_status_code (description)
 values
     ('Open'),
@@ -20,3 +22,5 @@ create table if not exists rst.recreation_status (
 );
 
 select upsert_timestamp_columns('rst', 'recreation_status');
+
+select setup_temporal_table('rst', 'recreation_status');
