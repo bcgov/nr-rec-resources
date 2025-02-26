@@ -71,7 +71,8 @@ model recreation_district_code {
 }
 
 model recreation_fee {
-  rec_resource_id     String              @id @db.VarChar(200)
+  id                  Int                 @id @default(autoincrement())
+  rec_resource_id     String              @db.VarChar(200)
   fee_amount          Int?
   fee_start_date      DateTime?           @db.Date
   fee_end_date        DateTime?           @db.Date
@@ -82,13 +83,13 @@ model recreation_fee {
   friday_ind          String?             @default("N") @db.VarChar(1)
   saturday_ind        String?             @default("N") @db.VarChar(1)
   sunday_ind          String?             @default("N") @db.VarChar(1)
-  recreation_fee_code Int
+  recreation_fee_code String              @db.VarChar(1)
   recreation_resource recreation_resource @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
   with_description    recreation_fee_code @relation("fee_with_description", fields: [recreation_fee_code], references: [recreation_fee_code], onDelete: NoAction, onUpdate: NoAction)
 }
 
 model recreation_fee_code {
-  recreation_fee_code Int              @id @default(autoincrement())
+  recreation_fee_code String           @id @db.VarChar(1)
   description         String           @db.VarChar(120)
   with_description    recreation_fee[] @relation("fee_with_description")
 }

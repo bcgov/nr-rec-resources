@@ -115,22 +115,21 @@ export class RecreationResourceService {
       recreation_resource_images:
         resource.recreation_resource_images as RecreationResourceImageDto[],
       recreation_fee: resource.recreation_fee
-        ? {
-            fee_amount: resource.recreation_fee.fee_amount,
-            fee_start_date: resource.recreation_fee.fee_start_date,
-            fee_end_date: resource.recreation_fee.fee_end_date,
-            monday_ind: resource.recreation_fee.monday_ind,
-            tuesday_ind: resource.recreation_fee.tuesday_ind,
-            wednesday_ind: resource.recreation_fee.wednesday_ind,
-            thursday_ind: resource.recreation_fee.thursday_ind,
-            friday_ind: resource.recreation_fee.friday_ind,
-            saturday_ind: resource.recreation_fee.saturday_ind,
-            sunday_ind: resource.recreation_fee.sunday_ind,
-            recreation_fee_code: resource.recreation_fee.recreation_fee_code,
-            fee_description:
-              resource.recreation_fee.with_description?.description,
-          }
-        : null,
+        ? resource.recreation_fee.map((fee) => ({
+            fee_amount: fee.fee_amount,
+            fee_start_date: fee.fee_start_date,
+            fee_end_date: fee.fee_end_date,
+            monday_ind: fee.monday_ind,
+            tuesday_ind: fee.tuesday_ind,
+            wednesday_ind: fee.wednesday_ind,
+            thursday_ind: fee.thursday_ind,
+            friday_ind: fee.friday_ind,
+            saturday_ind: fee.saturday_ind,
+            sunday_ind: fee.sunday_ind,
+            recreation_fee_code: fee.recreation_fee_code,
+            fee_description: fee.with_description?.description,
+          }))
+        : [],
     }));
   }
 

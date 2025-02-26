@@ -87,8 +87,8 @@ const recreationResource1Response = {
     campsite_count: 2,
   },
   rec_resource_type: "Recreation Site",
-  recreation_fee: {
-    ...recreationResource1.recreation_fee,
+  recreation_fee: recreationResource1.recreation_fee.map((fee) => ({
+    ...fee,
     with_description: undefined,
   },
   recreation_resource_images: [
@@ -184,8 +184,8 @@ const recreationResource2Response = {
     campsite_count: 2,
   },
   rec_resource_type: "Interpretive Forest",
-  recreation_fee: {
-    ...recreationResource1.recreation_fee,
+  recreation_fee: recreationResource2.recreation_fee.map((fee) => ({
+    ...fee,
     with_description: undefined,
   },
   recreation_resource_images: [
@@ -236,41 +236,21 @@ const recreationResource3 = {
       description: "Recreation Trail",
     },
   },
-  recreation_fee: {
-    fee_description: "Camping Fee",
-    with_description: { description: "Camping Fee" },
-    fee_amount: 25.0,
-    fee_start_date: new Date("2024-06-01"),
-    fee_end_date: new Date("2024-09-30"),
-    recreation_fee_code: 2,
-    monday_ind: "Y",
-    tuesday_ind: "Y",
-    wednesday_ind: "Y",
-    thursday_ind: "Y",
-    friday_ind: "Y",
-    saturday_ind: "N",
-    sunday_ind: "N",
-  },
-  recreation_resource_images: [
+  recreation_fee: [
     {
-      ref_id: "1002",
-      caption: "Forest area",
-      recreation_resource_image_variants: [
-        {
-          width: 1920,
-          height: 1080,
-          url: "https://example.com/images/forest1.jpg",
-          size_code: "llc",
-          extension: "jpg",
-        },
-        {
-          width: 1920,
-          height: 1080,
-          url: "https://example.com/images/forest2.jpg",
-          size_code: "thm",
-          extension: "jpg",
-        },
-      ],
+      fee_description: "Trail Use Fee",
+      with_description: { description: "Trail Use Fee" },
+      fee_amount: 20.0,
+      fee_start_date: new Date("2024-06-01"),
+      fee_end_date: new Date("2024-09-30"),
+      recreation_fee_code: "T",
+      monday_ind: "Y",
+      tuesday_ind: "Y",
+      wednesday_ind: "Y",
+      thursday_ind: "Y",
+      friday_ind: "Y",
+      saturday_ind: "N",
+      sunday_ind: "N",
     },
   ],
 };
@@ -293,8 +273,8 @@ const recreationResource3Response = {
     campsite_count: 2,
   },
   rec_resource_type: "Recreation Trail",
-  recreation_fee: {
-    ...recreationResource1.recreation_fee,
+  recreation_fee: recreationResource3.recreation_fee.map((fee) => ({
+    ...fee,
     with_description: undefined,
   },
   recreation_resource_images: [
@@ -416,8 +396,8 @@ const recreationResource4Response = {
     campsite_count: 2,
   },
   rec_resource_type: "Recreation Site",
-  recreation_fee: {
-    ...recreationResource1.recreation_fee,
+  recreation_fee: recreationResource4.recreation_fee.map((fee) => ({
+    ...fee,
     with_description: undefined,
   },
   recreation_resource_images: [
