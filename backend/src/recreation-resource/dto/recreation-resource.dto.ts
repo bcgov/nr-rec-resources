@@ -152,10 +152,10 @@ export class RecreationResourceDto {
 
   @ApiProperty({
     description: "Recreation Access Types",
-    example: ["Drive in", "HIKE_IN"],
+    example: ["Road", "Boat-in"],
     type: [String],
   })
-  recreation_access_types: string[];
+  recreation_access: string[];
 
   @ApiProperty({
     description: "List of recreational activities available at this resource",
