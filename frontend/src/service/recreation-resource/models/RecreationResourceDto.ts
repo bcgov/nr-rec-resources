@@ -61,42 +61,49 @@ export interface RecreationResourceDto {
    * @memberof RecreationResourceDto
    */
   rec_resource_id: string;
+
   /**
    * Official name of the Recreation Resource
    * @type {string}
    * @memberof RecreationResourceDto
    */
   name: string;
+
   /**
    * Detailed description of the Recreation Resource
-   * @type {string}
+   * @type {string | null}
    * @memberof RecreationResourceDto
    */
   description: string | null;
+
   /**
    * Physical location of the Recreation Resource
    * @type {string}
    * @memberof RecreationResourceDto
    */
   closest_community: string;
+
   /**
    * List of recreational activities available at this resource
    * @type {Array<RecreationActivityDto>}
    * @memberof RecreationResourceDto
    */
   recreation_activity: Array<RecreationActivityDto>;
+
   /**
    * Current operational status of the Recreation Resource
    * @type {RecreationStatusDto}
    * @memberof RecreationResourceDto
    */
   recreation_status: RecreationStatusDto;
+
   /**
    * Code representing a specific feature associated with the recreation resource
    * @type {string}
    * @memberof RecreationResourceDto
    */
   rec_resource_type: string;
+
   /**
    * List of images for the recreation resource
    * @type {Array<RecreationResourceImageDto>}
@@ -109,12 +116,13 @@ export interface RecreationResourceDto {
    * @memberof RecreationResourceDto
    */
   recreation_campsite: RecreationCampsiteDto;
+
   /**
-   * Fee details for the recreation resource
-   * @type {RecreationFeeDto}
+   * List of fee details for the recreation resource (supports multiple fees)
+   * @type {Array<RecreationFeeDto>}
    * @memberof RecreationResourceDto
    */
-  recreation_fee: RecreationFeeDto;
+  recreation_fee: Array<RecreationFeeDto>;
 }
 
 /**
@@ -192,7 +200,9 @@ export function RecreationResourceDtoFromJSONTyped(
     recreation_campsite: RecreationCampsiteDtoFromJSON(
       json['recreation_campsite'],
     ),
-    recreation_fee: RecreationFeeDtoFromJSON(json['recreation_fee']),
+    recreation_fee: (json['recreation_fee'] as Array<any>).map(
+      RecreationFeeDtoFromJSON,
+    ),
   };
 }
 

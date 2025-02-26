@@ -25,6 +25,7 @@ export interface RecreationFeeDto {
    * @memberof RecreationFeeDto
    */
   fee_amount: number;
+
   /**
    * Description of the fee type
    * @type {string}
@@ -37,60 +38,76 @@ export interface RecreationFeeDto {
    * @memberof RecreationFeeDto
    */
   fee_start_date: Date;
+
   /**
    * End date for the fee applicability
    * @type {Date}
    * @memberof RecreationFeeDto
    */
   fee_end_date: Date;
+
   /**
-   * Type of fee applicable
-   * @type {number}
+   * Type of fee applicable (C - Camping, D - Day Use, H - Hut, P - Parking, T - Trail Use)
+   * @type {string}
    * @memberof RecreationFeeDto
    */
-  recreation_fee_code: number;
+  recreation_fee_code: string;
+
   /**
    * Indicates if the fee applies on Monday
    * @type {string}
    * @memberof RecreationFeeDto
    */
   monday_ind: string;
+
   /**
    * Indicates if the fee applies on Tuesday
    * @type {string}
    * @memberof RecreationFeeDto
    */
   tuesday_ind: string;
+
   /**
    * Indicates if the fee applies on Wednesday
    * @type {string}
    * @memberof RecreationFeeDto
    */
   wednesday_ind: string;
+
   /**
    * Indicates if the fee applies on Thursday
    * @type {string}
    * @memberof RecreationFeeDto
    */
   thursday_ind: string;
+
   /**
    * Indicates if the fee applies on Friday
    * @type {string}
    * @memberof RecreationFeeDto
    */
   friday_ind: string;
+
   /**
    * Indicates if the fee applies on Saturday
    * @type {string}
    * @memberof RecreationFeeDto
    */
   saturday_ind: string;
+
   /**
    * Indicates if the fee applies on Sunday
    * @type {string}
    * @memberof RecreationFeeDto
    */
   sunday_ind: string;
+
+  /**
+   * Optional description of the fee type
+   * @type {string}
+   * @memberof RecreationFeeDto
+   */
+  fee_description?: string;
 }
 
 /**
