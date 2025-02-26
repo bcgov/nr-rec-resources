@@ -2,6 +2,8 @@ create extension if not exists "postgis";
 
 create schema if not exists rst;
 
+SET search_path TO rst, public;
+
 create table if not exists rst.recreation_district_code (
     district_code varchar(4) primary key,
     description varchar(120) not null
