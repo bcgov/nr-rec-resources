@@ -19,18 +19,6 @@ interface RecreationFeeListProps {
   data: RecreationFeeProps[];
 }
 
-const mapFeeCodeToDescription = (code: string): string => {
-  const feeCodeMap: Record<string, string> = {
-    C: 'Camping',
-    D: 'Day Use',
-    H: 'Hut',
-    P: 'Parking',
-    T: 'Trail Use',
-  };
-
-  return feeCodeMap[code] || 'Unknown Fee Type';
-};
-
 const RecreationFee: React.FC<RecreationFeeListProps> = ({ data }) => {
   const formatDate = (dateStr: Date) => {
     const date = new Date(dateStr);
