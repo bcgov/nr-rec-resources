@@ -60,7 +60,7 @@ const RecreationFee: React.FC<RecreationFeeListProps> = ({ data }) => {
         <div key={index} className="mb-4">
           <p className="mb-1">${fee.fee_amount.toFixed(2)}</p>
 
-          <p className="fw-bold mb-1 mt-3 pt-4 pb-3">Fee applies</p>
+          <p className="fw-bold mb-1 mt-3 pt-4">Fee applies</p>
           <p className="mb-1 mt-2">
             {formatDate(fee.fee_start_date)} - {formatDate(fee.fee_end_date)}
           </p>

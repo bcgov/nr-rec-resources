@@ -66,7 +66,7 @@ const Camping = forwardRef<HTMLElement, CampingProps>(
         {/* Camping Fees Section */}
         {campingFees.length > 0 ? (
           <>
-            <p className="fw-bold mb-1 mt-3 pt-4 pb-3">Camping fee</p>
+            <p className="fw-bold mb-1 mt-3 pt-4">Camping fee</p>
             <RecreationFee data={campingFees} />
           </>
         ) : (
