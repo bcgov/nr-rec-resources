@@ -18,10 +18,10 @@ select
         when rp.recreation_view_ind = 'Y' then true
         else false
     end as display_on_public_site,
-    entry_timestamp as updated_at,
-    entry_userid as updated_by,
-    update_timestamp as created_at,
-    update_userid as created_by
+    rp.entry_timestamp as updated_at,
+    rp.entry_userid as updated_by,
+    rp.update_timestamp as created_at,
+    rp.update_userid as created_by
 from
     fta.recreation_project rp on conflict (rec_resource_id) do
 update
@@ -37,7 +37,7 @@ where
 -- Add description from fta.recreation_comment table
 update rst.recreation_resource rr
 set
-    description = rc.project_comment,
+    description = rc.project_comment
 from
     fta.recreation_comment rc
 where
