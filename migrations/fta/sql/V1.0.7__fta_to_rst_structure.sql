@@ -7,4 +7,8 @@ select
 from
     fta.recreation_structure
     join fta.recreation_structure_code on fta.recreation_structure.recreation_structure_code = fta.recreation_structure_code.recreation_structure_code
-    join rst.recreation_structure_code on fta.recreation_structure_code.description = rst.recreation_structure_code.description;
+    join rst.recreation_structure_code on fta.recreation_structure_code.description = rst.recreation_structure_code.description
+on conflict (rec_resource_id, structure_code)
+do update
+set
+    structure_code = excluded.structure_code;

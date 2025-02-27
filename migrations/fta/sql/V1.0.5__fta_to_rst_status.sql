@@ -10,4 +10,9 @@ select
 from
     fta.recreation_comment
 where
-    rec_comment_type_code = 'CLOS';
+    rec_comment_type_code = 'CLOS'
+on conflict (rec_resource_id, status_code)
+do update
+set
+    comment = excluded.comment
+    status_code = excluded.status_code;

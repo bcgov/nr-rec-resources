@@ -1,4 +1,3 @@
-
 insert into
     rst.recreation_resource_type_code (rec_resource_type_code, description)
 select

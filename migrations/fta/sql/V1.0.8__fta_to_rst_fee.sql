@@ -28,5 +28,16 @@ select
     rf.recreation_fee_code
 from
     fta.recreation_fee rf
-    left join fta.recreation_fee_code rfc
-        on rf.recreation_fee_code = rfc.recreation_fee_code;
+on conflict (rec_resource_id, recreation_fee_code)
+do update
+set
+    fee_amount = excluded.fee_amount,
+    fee_start_date = excluded.fee_start_date,
+    fee_end_date = excluded.fee_end_date,
+    monday_ind = excluded.monday_ind,
+    tuesday_ind = excluded.tuesday_ind,
+    wednesday_ind = excluded.wednesday_ind,
+    thursday_ind = excluded.thursday_ind,
+    friday_ind = excluded.friday_ind,
+    saturday_ind = excluded.saturday_ind,
+    sunday_ind = excluded.sunday_ind;
