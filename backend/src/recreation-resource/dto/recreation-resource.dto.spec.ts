@@ -66,20 +66,34 @@ describe("Recreation DTOs", () => {
           rec_resource_id: "123",
           campsite_count: 2,
         },
-        recreation_fee: {
-          fee_amount: 25.0,
-          fee_description: "Camping fees",
-          fee_start_date: new Date("2024-06-01"),
-          fee_end_date: new Date("2024-09-30"),
-          recreation_fee_code: 2,
-          monday_ind: "Y",
-          tuesday_ind: "Y",
-          wednesday_ind: "Y",
-          thursday_ind: "Y",
-          friday_ind: "Y",
-          saturday_ind: "N",
-          sunday_ind: "N",
-        },
+        recreation_fee: [
+          {
+            fee_amount: 25.0,
+            fee_start_date: new Date("2024-06-01"),
+            fee_end_date: new Date("2024-09-30"),
+            recreation_fee_code: "C",
+            monday_ind: "Y",
+            tuesday_ind: "Y",
+            wednesday_ind: "Y",
+            thursday_ind: "Y",
+            friday_ind: "Y",
+            saturday_ind: "N",
+            sunday_ind: "N",
+          },
+          {
+            fee_amount: 10.0,
+            fee_start_date: new Date("2024-06-01"),
+            fee_end_date: new Date("2024-09-30"),
+            recreation_fee_code: "P",
+            monday_ind: "Y",
+            tuesday_ind: "Y",
+            wednesday_ind: "Y",
+            thursday_ind: "Y",
+            friday_ind: "Y",
+            saturday_ind: "Y",
+            sunday_ind: "Y",
+          },
+        ],
       };
 
       expect(resource.rec_resource_id).toBeDefined();
@@ -110,20 +124,34 @@ describe("Recreation DTOs", () => {
           rec_resource_id: "123",
           campsite_count: 2,
         },
-        recreation_fee: {
-          fee_amount: 25.0,
-          fee_description: "Camping fees",
-          fee_start_date: new Date("2024-06-01"),
-          fee_end_date: new Date("2024-09-30"),
-          recreation_fee_code: 2,
-          monday_ind: "Y",
-          tuesday_ind: "Y",
-          wednesday_ind: "Y",
-          thursday_ind: "Y",
-          friday_ind: "Y",
-          saturday_ind: "N",
-          sunday_ind: "N",
-        },
+        recreation_fee: [
+          {
+            fee_amount: 25.0,
+            fee_start_date: new Date("2024-06-01"),
+            fee_end_date: new Date("2024-09-30"),
+            recreation_fee_code: "C",
+            monday_ind: "Y",
+            tuesday_ind: "Y",
+            wednesday_ind: "Y",
+            thursday_ind: "Y",
+            friday_ind: "Y",
+            saturday_ind: "N",
+            sunday_ind: "N",
+          },
+          {
+            fee_amount: 10.0,
+            fee_start_date: new Date("2024-06-01"),
+            fee_end_date: new Date("2024-09-30"),
+            recreation_fee_code: "P",
+            monday_ind: "Y",
+            tuesday_ind: "Y",
+            wednesday_ind: "Y",
+            thursday_ind: "Y",
+            friday_ind: "Y",
+            saturday_ind: "Y",
+            sunday_ind: "Y",
+          },
+        ],
       };
 
       expect(resource.description).toBeNull();
@@ -137,7 +165,7 @@ describe("Recreation DTOs", () => {
         fee.fee_amount = 20.0;
         fee.fee_start_date = new Date("2024-06-01");
         fee.fee_end_date = new Date("2024-09-30");
-        fee.recreation_fee_code = 1;
+        fee.recreation_fee_code = "C";
         fee.monday_ind = "Y";
         fee.tuesday_ind = "Y";
         fee.wednesday_ind = "Y";
@@ -150,7 +178,7 @@ describe("Recreation DTOs", () => {
         expect(fee.fee_amount).toBeDefined();
         expect(fee.fee_start_date).toBeInstanceOf(Date);
         expect(fee.fee_end_date).toBeInstanceOf(Date);
-        expect(fee.recreation_fee_code).toBeDefined();
+        expect(fee.recreation_fee_code).toBe("C");
         expect(fee.monday_ind).toBe("Y");
       });
 
@@ -159,7 +187,7 @@ describe("Recreation DTOs", () => {
         fee.fee_amount = 0;
         fee.fee_start_date = new Date("2024-06-01");
         fee.fee_end_date = new Date("2024-09-30");
-        fee.recreation_fee_code = 1;
+        fee.recreation_fee_code = "D";
         fee.monday_ind = "N";
         fee.tuesday_ind = "N";
         fee.wednesday_ind = "N";
@@ -169,6 +197,41 @@ describe("Recreation DTOs", () => {
         fee.sunday_ind = "N";
 
         expect(fee.fee_amount).toBe(0);
+      });
+
+      it("should handle invalid fee code gracefully", () => {
+        const fee = new RecreationFeeDto();
+        fee.fee_amount = 10.0;
+        fee.fee_start_date = new Date("2024-06-01");
+        fee.fee_end_date = new Date("2024-09-30");
+        fee.recreation_fee_code = "X";
+        fee.monday_ind = "Y";
+        fee.tuesday_ind = "Y";
+        fee.wednesday_ind = "Y";
+        fee.thursday_ind = "Y";
+        fee.friday_ind = "Y";
+        fee.saturday_ind = "Y";
+        fee.sunday_ind = "Y";
+
+        expect(fee.recreation_fee_code).toBe("X");
+      });
+
+      it("should handle all days being selected", () => {
+        const fee = new RecreationFeeDto();
+        fee.fee_amount = 15.0;
+        fee.fee_start_date = new Date("2024-06-01");
+        fee.fee_end_date = new Date("2024-09-30");
+        fee.recreation_fee_code = "P";
+        fee.monday_ind = "Y";
+        fee.tuesday_ind = "Y";
+        fee.wednesday_ind = "Y";
+        fee.thursday_ind = "Y";
+        fee.friday_ind = "Y";
+        fee.saturday_ind = "Y";
+        fee.sunday_ind = "Y";
+
+        expect(fee.monday_ind).toBe("Y");
+        expect(fee.sunday_ind).toBe("Y");
       });
     });
 

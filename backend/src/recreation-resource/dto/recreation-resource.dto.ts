@@ -23,12 +23,6 @@ export class RecreationFeeDto {
   fee_amount: number;
 
   @ApiProperty({
-    description: "Description of the fee type",
-    example: "Camping",
-  })
-  fee_description: string;
-
-  @ApiProperty({
     description: "Start date for the fee applicability",
     example: "2024-06-01",
   })
@@ -41,10 +35,10 @@ export class RecreationFeeDto {
   fee_end_date: Date;
 
   @ApiProperty({
-    description: "Type of fee applicable",
-    example: 1,
+    description: "Type of fee applicable represented by code (C, D, H, P, T)",
+    example: "C",
   })
-  recreation_fee_code: number;
+  recreation_fee_code: string;
 
   @ApiProperty({
     description: "Indicates if the fee applies on Monday",
@@ -190,8 +184,9 @@ export class RecreationResourceDto {
   recreation_campsite: RecreationCampsiteDto;
 
   @ApiProperty({
-    description: "Fee details for the recreation resource",
-    type: RecreationFeeDto,
+    description:
+      "List of fee details for the recreation resource (supports multiple fees)",
+    type: [RecreationFeeDto],
   })
-  recreation_fee: RecreationFeeDto;
+  recreation_fee: RecreationFeeDto[];
 }
