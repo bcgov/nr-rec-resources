@@ -2,7 +2,7 @@ create extension if not exists "postgis";
 
 create schema if not exists fta;
 
-SET search_path TO public, rst;
+SET search_path TO rst, fta, public;
 
 create table fta.recreation_project (
     forest_file_id varchar(20) primary key,
@@ -691,7 +691,7 @@ create table fta.recreation_map_feature_geom (
     rmf_skey serial primary key,
     map_feature_id int,
     geometry_type_code varchar(4),
-    geometry rst.geometry,
+    geometry geometry,
     feature_area numeric(11, 4),
     feature_length numeric(11, 4),
     feature_perimeter numeric(11, 4),
