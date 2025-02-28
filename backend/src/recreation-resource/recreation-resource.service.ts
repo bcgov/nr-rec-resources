@@ -310,58 +310,50 @@ export class RecreationResourceService {
         facilityFilterQuery,
       ].filter(Boolean),
     };
-    const [recreationResources, totalRecordIds, recreationDistrictCounts] =
-      await this.prisma.$transaction([
-        // Fetch paginated records
-        this.prisma.recreation_resource.findMany({
-          where,
-          select: getRecreationResourceSelect(imageSizeCodes),
-          take,
-          skip,
-          orderBy,
-        }),
-        // Get all unpaginated but filtered rec_resource_ids for the records so we can group/count records for the filter sidebar
-        // This can be used to get the count of each many to many filter group
-        this.prisma.recreation_resource.findMany({
-          where,
-          select: { rec_resource_id: true },
-        }),
+    const [
+      recreationResources,
+      totalRecordIds,
+      recreationDistrictCounts,
+      recreationAccessCounts,
+      recResourceTypeCounts,
+    ] = await this.prisma.$transaction([
+      // Fetch paginated records
+      this.prisma.recreation_resource.findMany({
+        where,
+        select: getRecreationResourceSelect(imageSizeCodes),
+        take,
+        skip,
+        orderBy,
+      }),
+      // Get all unpaginated but filtered rec_resource_ids for the records so we can group/count records for the filter sidebar
+      // This can be used to get the count of each many to many filter group
+      this.prisma.recreation_resource.findMany({
+        where,
+        select: { rec_resource_id: true },
+      }),
 
-        // Get counts for all, unfiltered recreation_districts that are in the records
-        this.prisma.recreation_district_code.findMany({
-          select: {
-            district_code: true,
-            description: true,
-            _count: {
-              select: {
-                recreation_resource: {
-                  where: recResourceWhereConstants,
-                },
+      // Get counts for all, unfiltered recreation_districts that are in the records
+      this.prisma.recreation_district_code.findMany({
+        select: {
+          district_code: true,
+          description: true,
+          _count: {
+            select: {
+              recreation_resource: {
+                where: recResourceWhereConstants,
               },
             },
           },
-          where: {
-            district_code: {
-              notIn: excludedRecreationDistricts,
-            },
+        },
+        where: {
+          district_code: {
+            notIn: excludedRecreationDistricts,
           },
-          orderBy: {
-            description: Prisma.SortOrder.asc,
-          },
-        }),
-      ]);
-
-    const totalRecordIdsList = totalRecordIds.map(
-      (record) => record.rec_resource_id,
-    );
-
-    const [
-      recreationAccessCounts,
-      recResourceTypeCounts,
-      activityCounts,
-      toiletCount,
-      tableCount,
-    ] = await Promise.all([
+        },
+        orderBy: {
+          description: Prisma.SortOrder.asc,
+        },
+      }),
       this.prisma.recreation_access_code.findMany({
         select: {
           access_code: true,
@@ -410,6 +402,13 @@ export class RecreationResourceService {
           description: Prisma.SortOrder.desc,
         },
       }),
+    ]);
+
+    const totalRecordIdsList = totalRecordIds.map(
+      (record) => record.rec_resource_id,
+    );
+
+    const [activityCounts, toiletCount, tableCount] = await Promise.all([
       this.prisma.recreation_activity_code.findMany({
         select: {
           recreation_activity_code: true,
