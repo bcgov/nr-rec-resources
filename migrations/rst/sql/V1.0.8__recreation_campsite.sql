@@ -1,7 +1,6 @@
 create table if not exists rst.recreation_campsite (
-    rec_resource_id VARCHAR(200) not null primary key,
-    campsite_count int not null default 0,
-    foreign key (rec_resource_id) references rst.recreation_resource (rec_resource_id) on delete cascade
+    rec_resource_id varchar(20) not null references rst.recreation_resource (rec_resource_id),
+    campsite_count int not null default 0
 );
 
 select upsert_timestamp_columns('rst', 'recreation_campsite');
