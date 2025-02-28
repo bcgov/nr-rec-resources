@@ -11,8 +11,8 @@ from
     fta.recreation_comment
 where
     rec_comment_type_code = 'CLOS'
-on conflict (rec_resource_id, status_code)
+on conflict (rec_resource_id)
 do update
 set
-    comment = excluded.comment
+    comment = excluded.comment,
     status_code = excluded.status_code;

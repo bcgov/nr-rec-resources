@@ -45,10 +45,12 @@ where
     and rc.rec_comment_type_code = 'DESC';
 
 -- Add district_code from recreation_district_xref
-update rst.recreation_resource rr
-set
-    district_code = xref.recreation_district_code
-from
-    fta.recreation_district_xref xref
-where
-    rr.rec_resource_id = xref.forest_file_id;
+-- Select distinct, ordered by update_timestamp as there is a single forest_file_id with multiple district entries
+update rst.recreation_resource
+set district_code = xref.recreation_district_code
+from (
+    select distinct on (forest_file_id) forest_file_id, recreation_district_code
+    from fta.recreation_district_xref
+    order by forest_file_id, update_timestamp desc
+) as xref
+where recreation_resource.rec_resource_id = xref.forest_file_id;

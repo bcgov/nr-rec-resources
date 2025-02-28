@@ -31,7 +31,7 @@ where
 order by
     rmf.forest_file_id,
     rmf.amend_status_date desc
-on conflict (rec_resource_id, rec_resource_type_code)
+on conflict (rec_resource_id)
 do update
 set
     rec_resource_type_code = excluded.rec_resource_type_code;

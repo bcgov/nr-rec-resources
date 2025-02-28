@@ -35,7 +35,8 @@ create table if not exists rst.recreation_fee (
     friday_ind varchar(1) default 'N',
     saturday_ind varchar(1) default 'N',
     sunday_ind varchar(1) default 'N',
-    recreation_fee_code varchar(1) not null references rst.recreation_fee_code (recreation_fee_code)
+    recreation_fee_code varchar(1) not null references rst.recreation_fee_code (recreation_fee_code),
+    unique (rec_resource_id, recreation_fee_code)
 );
 
 select upsert_timestamp_columns ('rst', 'recreation_fee');

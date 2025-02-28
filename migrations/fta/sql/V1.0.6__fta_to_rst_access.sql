@@ -1,13 +1,12 @@
-insert into
-    rst.recreation_sub_access_code (sub_access_code, description)
+insert into rst.recreation_sub_access_code (sub_access_code, description)
 select
     recreation_sub_access_code as sub_access_code,
     description
-from
-    fta.recreation_sub_access_code on conflict (sub_access_code) do
-update
-set
-    description = excluded.description;
+from fta.recreation_sub_access_code
+on conflict (sub_access_code) do update
+set description = excluded.description
+where rst.recreation_sub_access_code.description <> excluded.description;
+
 
 insert into
     rst.recreation_access (rec_resource_id, access_code, sub_access_code)

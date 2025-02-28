@@ -49,9 +49,9 @@ values ('Angling'),
        ('Ski Touring');
 
 create table if not exists rst.recreation_activity (
-    id serial primary key, -- This is a surrogate key to make Prisma happy
     rec_resource_id varchar(200) not null references rst.recreation_resource (rec_resource_id),
-    recreation_activity_code int not null references rst.recreation_activity_code (recreation_activity_code)
+    recreation_activity_code int not null references rst.recreation_activity_code (recreation_activity_code),
+    unique (rec_resource_id, recreation_activity_code)
 );
 
 select upsert_timestamp_columns('rst', 'recreation_activity');
