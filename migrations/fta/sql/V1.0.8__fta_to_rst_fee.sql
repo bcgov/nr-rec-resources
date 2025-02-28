@@ -12,7 +12,9 @@ insert into rst.recreation_fee (
     sunday_ind,
     recreation_fee_code,
     updated_at,
-    updated_by
+    updated_by,
+    created_at,
+    created_by
 )
 select distinct on (rf.forest_file_id, rf.recreation_fee_code)
     rf.forest_file_id as rec_resource_id,
@@ -28,7 +30,9 @@ select distinct on (rf.forest_file_id, rf.recreation_fee_code)
     rf.sunday_ind,
     rf.recreation_fee_code,
     rf.update_timestamp as updated_at,
-    rf.update_userid as updated_by
+    rf.update_userid as updated_by,
+    rf.entry_timestamp as created_at,
+    rf.entry_userid as created_by
 from fta.recreation_fee rf
 order by rf.forest_file_id, rf.recreation_fee_code, rf.update_timestamp desc
 on conflict (rec_resource_id, recreation_fee_code)
