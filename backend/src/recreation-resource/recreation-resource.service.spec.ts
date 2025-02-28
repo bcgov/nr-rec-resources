@@ -130,10 +130,10 @@ describe("RecreationResourceService", () => {
         recreation_resource ?? recResourceArray,
         recreation_resource_total_ids ?? totalRecordIds,
         recreation_district_code ?? recreationDistrictCounts,
-        recreation_access_code ?? recreationAccessCounts,
-        recreation_resource_type_code ?? recResourceTypeCounts,
       ])
       .mockResolvedValueOnce([
+        recreation_access_code ?? recreationAccessCounts,
+        recreation_resource_type_code ?? recResourceTypeCounts,
         recreation_activity_code ?? activityCounts,
         recreation_structure_toilet_count ?? 10,
         recreation_structure_table_count ?? 10,
