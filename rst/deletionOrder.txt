@@ -1,7 +1,17 @@
 flyway_schema_history
+recreation_access
+recreation_structure
 recreation_status
+recreation_resource_type
+recreation_fee
 recreation_activity
+recreation_campsite
 recreation_resource
+recreation_sub_access_code
+recreation_structure_code
 recreation_status_code
 recreation_resource_type_code
+recreation_fee_code
+recreation_district_code
 recreation_activity_code
+recreation_access_code
