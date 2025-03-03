@@ -17,6 +17,4 @@ on conflict (rec_resource_id, structure_code)
 do update
 set
     updated_at = excluded.updated_at,
-    updated_by = excluded.updated_by
-where rst.recreation_structure.updated_at is distinct from excluded.updated_at
-   or rst.recreation_structure.updated_by is distinct from excluded.updated_by;
+    updated_by = excluded.updated_by;

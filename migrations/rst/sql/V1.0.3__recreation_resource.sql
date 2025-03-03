@@ -3,6 +3,7 @@ create table if not exists rst.recreation_district_code (
     description varchar(120) not null
 );
 
+select upsert_timestamp_columns('rst', 'recreation_district_code', true);
 
 select setup_temporal_table('rst', 'recreation_district_code');
 

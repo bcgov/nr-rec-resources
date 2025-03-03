@@ -1,12 +1,15 @@
 -- Function to add created_at, created_by, updated_at, updated_by columns to a table
-create or replace function upsert_timestamp_columns(schema_name text, table_name text)
+create or replace function upsert_timestamp_columns(schema_name text, table_name text, updated_at_only boolean default false)
 returns void as $$
 begin
-    execute format('alter table %I.%I add column if not exists updated_at timestamp default now()', schema_name, table_name);
-    execute format('alter table %I.%I add column if not exists updated_by text', schema_name, table_name);
-    execute format('alter table %I.%I add column if not exists created_at timestamp default now()', schema_name, table_name);
-    execute format('alter table %I.%I add column if not exists created_by text', schema_name, table_name);
-
+    if updated_at_only then
+        execute format('alter table %I.%I add column if not exists updated_at timestamp default now()', schema_name, table_name);
+    else
+        execute format('alter table %I.%I add column if not exists updated_at timestamp default now()', schema_name, table_name);
+        execute format('alter table %I.%I add column if not exists updated_by text', schema_name, table_name);
+        execute format('alter table %I.%I add column if not exists created_at timestamp default now()', schema_name, table_name);
+        execute format('alter table %I.%I add column if not exists created_by text', schema_name, table_name);
+    end if;
 end;
 $$ language plpgsql;
 
@@ -16,7 +19,7 @@ create or replace function update_if_changed()
 returns trigger as $$
 begin
     if new is distinct from old then
-        -- new.updated_at := now();
+        -- new.updated_at := now(); -- once we start updating data in the admin app we will need to handle this
         -- new.updated_by := current_user; -- will need to be changed to a session user when auth is implemented
         return new;
     else

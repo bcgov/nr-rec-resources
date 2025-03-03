@@ -4,7 +4,9 @@ create table if not exists rst.recreation_access_code (
     sub_description varchar(120)
 );
 
-select upsert_timestamp_columns('rst', 'recreation_access_code');
+select upsert_timestamp_columns('rst', 'recreation_access_code', true);
+
+select setup_temporal_table('rst', 'recreation_access_code');
 
 comment on table rst.recreation_access_code is 'Codes describing types of access to Recreation Resources';
 
@@ -19,7 +21,9 @@ create table if not exists rst.recreation_sub_access_code (
     description varchar(120)
 );
 
-select upsert_timestamp_columns('rst', 'recreation_sub_access_code');
+select upsert_timestamp_columns('rst', 'recreation_sub_access_code', true);
+
+select setup_temporal_table('rst', 'recreation_sub_access_code');
 
 comment on table rst.recreation_sub_access_code is 'Codes describing the Recreation Sub Access types within a project.';
 
@@ -53,7 +57,3 @@ values
     ('F', 'Fly-in', null),
     ('R', 'Road', '4 wheel drive, 2 wheel drive, or motor home'),
     ('T', 'Trail', 'Multi-use, Snowmobile, XC Ski, ATV, horse, mtn bike, hiking');
-
-select upsert_timestamp_columns('rst', 'recreation_access_code');
-
-select setup_temporal_table('rst', 'recreation_access_code');

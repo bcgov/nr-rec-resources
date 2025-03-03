@@ -45,6 +45,4 @@ set
     updated_at = excluded.updated_at,
     updated_by = excluded.updated_by,
     description = excluded.description,
-    district_code = excluded.district_code
-where
-    excluded.updated_at > rst.recreation_resource.updated_at;
+    district_code = excluded.district_code;

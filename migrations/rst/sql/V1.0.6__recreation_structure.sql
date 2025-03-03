@@ -3,7 +3,7 @@ create table if not exists rst.recreation_structure_code (
     description varchar(120)
 );
 
-select upsert_timestamp_columns('rst', 'recreation_structure_code');
+select upsert_timestamp_columns('rst', 'recreation_structure_code', true);
 
 select setup_temporal_table('rst', 'recreation_structure_code');
 

@@ -3,7 +3,7 @@ create table rst.recreation_activity_code (
     description varchar(120)
 );
 
-select upsert_timestamp_columns('rst', 'recreation_activity_code');
+select upsert_timestamp_columns('rst', 'recreation_activity_code', true);
 
 select setup_temporal_table('rst', 'recreation_activity_code');
 

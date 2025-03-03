@@ -11,5 +11,4 @@ on conflict (rec_resource_id, recreation_activity_code)
 do update
 set recreation_activity_code = excluded.recreation_activity_code,
     updated_at = excluded.updated_at,
-    updated_by = excluded.updated_by
-where rst.recreation_activity.updated_at is distinct from excluded.updated_at;
+    updated_by = excluded.updated_by;
