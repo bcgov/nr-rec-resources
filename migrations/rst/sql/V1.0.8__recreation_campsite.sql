@@ -1,5 +1,5 @@
 create table if not exists rst.recreation_campsite (
-    rec_resource_id varchar(20) not null references rst.recreation_resource (rec_resource_id),
+    rec_resource_id varchar(20) primary key references rst.recreation_resource (rec_resource_id),
     campsite_count int not null default 0
 );
 
