@@ -25,7 +25,7 @@ const mockResource = {
     {
       caption: 'test image',
       recreation_resource_image_variants: [
-        { size_code: 'llc', url: 'preview-url' },
+        { size_code: 'scr', url: 'preview-url' },
         { size_code: 'original', url: 'full-url' },
       ],
     },

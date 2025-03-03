@@ -1,8 +1,9 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, Mock, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import RecResourceCard from './RecResourceCard';
 import '@testing-library/jest-dom';
 import { RecreationResourceDto } from '@/service/recreation-resource';
+import { getImageList } from '@/components/rec-resource/card/helpers';
 
 // Mock the components used in RecResourceCard
 vi.mock('@/components/rec-resource/card/Activities', () => ({
@@ -17,8 +18,12 @@ vi.mock('@/components/rec-resource/Status', () => ({
   default: () => <div data-testid="status-component" />,
 }));
 
+vi.mock('@/components/RSTSVGLogo/RSTSVGLogo', () => ({
+  RSTSVGLogo: () => <div data-testid="rst-svg-logo" />,
+}));
+
 vi.mock('@/components/rec-resource/card/helpers', () => ({
-  getImageList: vi.fn().mockReturnValue([]),
+  getImageList: vi.fn(),
 }));
 
 describe('RecResourceCard', () => {
@@ -34,7 +39,13 @@ describe('RecResourceCard', () => {
     rec_resource_type: 'Park',
   } as unknown as RecreationResourceDto;
 
-  it('renders the card with all components', () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
+  it('renders the card with all components and images', () => {
+    (getImageList as Mock).mockReturnValue(['image1.jpg']);
+
     render(<RecResourceCard recreationResource={mockRecreationResource} />);
 
     // Check if the name is rendered and transformed to lowercase
@@ -50,9 +61,28 @@ describe('RecResourceCard', () => {
     expect(screen.getByTestId('card-carousel-component')).toBeInTheDocument();
     expect(screen.getByTestId('activities-component')).toBeInTheDocument();
     expect(screen.getByTestId('status-component')).toBeInTheDocument();
+
+    // SVG logo should not be rendered when images are available
+    expect(screen.queryByTestId('rst-svg-logo')).not.toBeInTheDocument();
+  });
+
+  it('renders the SVG logo when no images are available', () => {
+    (getImageList as Mock).mockReturnValue([]);
+
+    render(<RecResourceCard recreationResource={mockRecreationResource} />);
+
+    // SVG logo should be rendered
+    expect(screen.getByTestId('rst-svg-logo')).toBeInTheDocument();
+
+    // CardCarousel should not be rendered
+    expect(
+      screen.queryByTestId('card-carousel-component'),
+    ).not.toBeInTheDocument();
   });
 
   it('renders without activities when none are provided', () => {
+    (getImageList as Mock).mockReturnValue(['image1.jpg']);
+
     const noActivitiesResource = {
       ...mockRecreationResource,
       recreation_activity: [],
@@ -67,6 +97,8 @@ describe('RecResourceCard', () => {
   });
 
   it('renders without resource type when none is provided', () => {
+    (getImageList as Mock).mockReturnValue(['image1.jpg']);
+
     const noTypeResource = {
       ...mockRecreationResource,
       rec_resource_type: null,
@@ -76,5 +108,18 @@ describe('RecResourceCard', () => {
 
     // Resource type should not be rendered
     expect(screen.queryByText('Park')).not.toBeInTheDocument();
+
+    // Check that the separator is not rendered
+    expect(screen.queryByText('|')).not.toBeInTheDocument();
+  });
+
+  it('renders with correct URL in anchor tag', () => {
+    (getImageList as Mock).mockReturnValue(['image1.jpg']);
+
+    render(<RecResourceCard recreationResource={mockRecreationResource} />);
+
+    // Check if the link has the correct href
+    const link = screen.getByRole('link');
+    expect(link).toHaveAttribute('href', '/resource/123');
   });
 });
