@@ -7,18 +7,19 @@ on:
     branches: [main]
   pull_request:
 
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.ref_name != 'main' }}
-
 jobs:
   build-containers:
     name: Build containers
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-build-containers
+      cancel-in-progress: true
     uses: ./.github/workflows/.build.yml
 
   analysis:
     name: Analysis
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-analysis
+      cancel-in-progress: true
     uses: ./.github/workflows/.analysis.yml
     secrets: inherit
 
@@ -35,6 +36,9 @@ jobs:
   tests-e2e:
     name: Tests
     needs: build-containers
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-e2e
+      cancel-in-progress: true
     uses: ./.github/workflows/.e2e.yml
     with:
       tag: ${{ github.sha }}
@@ -45,6 +49,9 @@ jobs:
     name: Deploys Application to AWS dev
     needs: tests-e2e
     uses: ./.github/workflows/.deploy-app.yml
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-deploy-to-aws-dev
+      cancel-in-progress: false
     with:
       app_env: dev
       command: apply
@@ -57,6 +64,9 @@ jobs:
     needs: deploy-to-aws-dev
     name: FTA Migration
     uses: ./.github/workflows/fta-migration.yml
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-fta-migration-dev
+      cancel-in-progress: false
     with:
       app_env: dev
       environment_name: dev
@@ -67,6 +77,9 @@ jobs:
   review-test-deployment:
     name: Review Test Deployment
     needs: [fta-migration-dev]
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-review-test-deployment
+      cancel-in-progress: true
     environment: test
     runs-on: ubuntu-24.04
     steps:
@@ -79,6 +92,9 @@ jobs:
     name: Deploys Application to AWS test
     needs: [ review-test-deployment ]
     uses: ./.github/workflows/.deploy-app.yml
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-deploy-to-aws-test
+      cancel-in-progress: false
     with:
       app_env: test
       command: apply
@@ -91,6 +107,9 @@ jobs:
     needs: deploy-to-aws-test
     name: FTA Migration
     uses: ./.github/workflows/fta-migration.yml
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-fta-migration-test
+      cancel-in-progress: true
     with:
       app_env: test
       environment_name: test
@@ -112,6 +131,9 @@ jobs:
   review-prod-deployment:
     name: Review Prod Deployment
     needs: [promote]
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-review-prod-deployment
+      cancel-in-progress: true
     environment: prod
     runs-on: ubuntu-24.04
     steps:
@@ -121,6 +143,9 @@ jobs:
   deploy-to-aws-prod:
     name: Deploys Application to AWS prod
     needs: [deploy-to-aws-test]
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-deploy-to-aws-prod
+      cancel-in-progress: false
     runs-on: ubuntu-24.04
     steps:
       - name: Deploy to AWS prod
