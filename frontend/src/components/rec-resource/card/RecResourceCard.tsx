@@ -20,6 +20,7 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
     recreation_activity: activities,
     closest_community,
     recreation_status: { status_code, description: statusDescription },
+    rec_resource_type,
   } = recreationResource;
   const isActivities = activities.length > 0;
 
@@ -39,7 +40,22 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
               />
             </h2>
           </a>
-          <p className="capitalize">{closest_community?.toLowerCase()}</p>
+
+          <div className="d-flex flex-column flex-md-row align-items-md-center align-items-start mb-2 mb-md-0">
+            <span className="fs-6 fw-normal capitalize">
+              {closest_community.toLowerCase()}
+            </span>
+            {rec_resource_type && (
+              <>
+                <span className="fs-5 fw-normal mx-2 d-none d-md-inline">
+                  |
+                </span>
+                <span className="fs-6 fw-normal fst-italic">
+                  {rec_resource_type}
+                </span>
+              </>
+            )}
+          </div>
         </div>
         <div className="card-content-lower">
           {isActivities ? <Activities activities={activities} /> : <div />}
