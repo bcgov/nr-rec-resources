@@ -44,3 +44,5 @@ select * from rst.my_table_history;
 > that point in time. If you add or change a column you will have to manually
 > update the history table as well. If you add a column and forget to add it to
 > the history table then it won't be tracked.
+
+> [!NOTE] Useful information that users should know, even when skimming content.
