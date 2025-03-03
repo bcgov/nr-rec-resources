@@ -1,11 +1,12 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleChevronRight } from '@fortawesome/free-solid-svg-icons';
 import Activities from '@/components/rec-resource/card/Activities';
-import CardCarousel from '@/components/rec-resource/card/CardCarousel';
 import Status from '@/components/rec-resource/Status';
 import '@/components/rec-resource/card/RecResourceCard.scss';
 import { RecreationResourceDto } from '@/service/recreation-resource';
 import { getImageList } from '@/components/rec-resource/card/helpers';
+import { RSTSVGLogo } from '@/components/RSTSVGLogo/RSTSVGLogo';
+import CardCarousel from '@/components/rec-resource/card/CardCarousel';
 
 interface RecResourceCardProps {
   recreationResource: RecreationResourceDto;
@@ -22,13 +23,16 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
     recreation_status: { status_code, description: statusDescription },
     rec_resource_type,
   } = recreationResource;
-  const isActivities = activities.length > 0;
 
   const imageList = getImageList(recreationResource);
+  const hasActivities = activities.length > 0;
+  const hasImages = imageList.length > 0;
 
   return (
     <div className="rec-resource-card" key={rec_resource_id}>
-      <CardCarousel imageList={imageList} />
+      <div className={'card-image-container'}>
+        {hasImages ? <CardCarousel imageList={imageList} /> : <RSTSVGLogo />}
+      </div>
       <div className="rec-resource-card-content">
         <div className="rec-resource-card-info">
           <a href={`/resource/${rec_resource_id}`}>
@@ -58,7 +62,7 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
           </div>
         </div>
         <div className="card-content-lower">
-          {isActivities ? <Activities activities={activities} /> : <div />}
+          {hasActivities && <Activities activities={activities} />}
           <Status description={statusDescription} statusCode={status_code} />
         </div>
       </div>
