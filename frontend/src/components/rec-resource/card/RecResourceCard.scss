@@ -75,6 +75,7 @@
 
 .carousel-desktop-image {
   display: none;
+  object-fit: cover;
 
   @include media-breakpoint-up(sm) {
     display: block;
@@ -82,7 +83,6 @@
 }
 
 .carousel-mobile-image {
-  object-fit: cover;
   max-height: 300px;
   display: block;
 

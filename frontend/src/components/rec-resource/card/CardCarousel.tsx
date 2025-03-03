@@ -2,8 +2,8 @@ import { useState } from 'react';
 import Carousel from 'react-bootstrap/Carousel';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faCircleChevronRight,
   faCircleChevronLeft,
+  faCircleChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
 
 type ImageList = { imageUrl: string }[];
@@ -51,6 +51,7 @@ const CardCarousel = ({ imageList }: CardCarouselProps) => {
               onFocus={() => setIsTabFocused(true)}
               onBlur={() => setIsTabFocused(false)}
               onKeyDown={(e) => handleKeyDown(e, imageList)}
+              className={'d-flex align-items-center justify-content-center'}
             >
               <img
                 alt="rec resource carousel"
