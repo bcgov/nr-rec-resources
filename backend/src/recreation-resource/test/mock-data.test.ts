@@ -792,6 +792,19 @@ const noSearchResultsFilterArray = [
   { ...accessFilterResolved },
 ];
 
+const recreationStructureCountsArray = [
+  { rec_resource_id: "REC001" },
+  { rec_resource_id: "REC002" },
+  { rec_resource_id: "REC003" },
+  { rec_resource_id: "REC004" },
+  { rec_resource_id: "REC005" },
+  { rec_resource_id: "REC006" },
+  { rec_resource_id: "REC007" },
+  { rec_resource_id: "REC008" },
+  { rec_resource_id: "REC009" },
+  { rec_resource_id: "REC010" },
+];
+
 const searchResultsFilterArray = [
   { ...districtFilterResolved },
   { ...recResourceTypeFilterResolved },
@@ -826,4 +839,5 @@ export {
   facilitiesFilterResolved,
   accessFilterResolved,
   searchResultsFilterArray,
+  recreationStructureCountsArray,
 };

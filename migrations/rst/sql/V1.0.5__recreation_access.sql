@@ -27,7 +27,8 @@ create table if not exists rst.recreation_access (
     id serial primary key, -- This is a surrogate key to make Prisma happy
     rec_resource_id varchar(20) not null references rst.recreation_resource (rec_resource_id),
     access_code varchar(3) not null references rst.recreation_access_code (access_code),
-    sub_access_code varchar(3) references rst.recreation_sub_access_code (sub_access_code)
+    sub_access_code varchar(3) references rst.recreation_sub_access_code (sub_access_code),
+    unique (rec_resource_id, access_code, sub_access_code)
 );
 
 comment on table rst.recreation_access is 'Recreation Resource Access types';
