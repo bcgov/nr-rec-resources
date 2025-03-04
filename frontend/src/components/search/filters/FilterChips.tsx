@@ -5,14 +5,10 @@ const FilterChips = () => {
   const filterChips = filterChipStore.state;
   return (
     <div>
-      {filterChips.map((filterChip) => (
-        <FilterChip
-          key={filterChip.id}
-          param={filterChip.param}
-          id={filterChip.id}
-          description={filterChip.label}
-        />
-      ))}
+      {filterChips.map((filterChip) => {
+        const { id, label, param } = filterChip;
+        return <FilterChip key={id} param={param} id={id} label={label} />;
+      })}
     </div>
   );
 };

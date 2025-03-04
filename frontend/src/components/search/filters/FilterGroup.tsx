@@ -31,7 +31,7 @@ const FilterGroup = ({
     label: string,
   ) => {
     const { id, checked } = event.target;
-    toggleFilter(id, label, param, checked);
+    toggleFilter({ param, id, label }, checked);
   };
 
   const filtersCount = options?.length;

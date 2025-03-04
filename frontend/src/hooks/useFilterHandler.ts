@@ -1,16 +1,13 @@
 import { useSearchParams } from 'react-router-dom';
 import removeFilter from '@/utils/removeFilter';
+import { FilterChip } from '@/components/search/types';
 import { filterChipStore } from '@/store';
 
 const useFilterHandler = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const toggleFilter = (
-    id: string,
-    label: string,
-    param: string,
-    isChecked?: boolean,
-  ) => {
+  const toggleFilter = (filterChip: FilterChip, isChecked?: boolean) => {
+    const { id, label, param } = filterChip;
     const newSearchParams = new URLSearchParams(searchParams.toString());
     const updateFilters = removeFilter(id, param, newSearchParams);
 
