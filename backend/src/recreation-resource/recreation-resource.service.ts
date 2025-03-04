@@ -393,6 +393,9 @@ export class RecreationResourceService {
             notIn: excludedActivityCodes,
           },
         },
+        orderBy: {
+          description: Prisma.SortOrder.asc,
+        },
       }),
       this.prisma.recreation_structure.findMany({
         where: {
