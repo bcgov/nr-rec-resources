@@ -84,6 +84,13 @@ const recreationResource1 = {
       ],
     },
   ],
+  recreation_structure: [
+    {
+      recreation_structure_code: { description: "Table" },
+      has_table: false,
+      has_toilet: false,
+    },
+  ],
 };
 
 const recreationResource1Response = {
@@ -130,10 +137,13 @@ const recreationResource1Response = {
       ],
     },
   ],
-  recreation_structure: {
-    has_table: false,
-    has_toilet: false,
-  },
+  recreation_structure: [
+    {
+      recreation_structure_code: { description: "Table" },
+      has_table: false,
+      has_toilet: false,
+    },
+  ],
 };
 
 const recreationResource2 = {
@@ -207,6 +217,13 @@ const recreationResource2 = {
       sunday_ind: "Y",
     },
   ],
+  recreation_structure: [
+    {
+      recreation_structure_code: { description: "Table" },
+      has_table: false,
+      has_toilet: false,
+    },
+  ],
 };
 
 const recreationResource2Response = {
@@ -241,10 +258,13 @@ const recreationResource2Response = {
       ],
     },
   ],
-  recreation_structure: {
-    has_table: false,
-    has_toilet: false,
-  },
+  recreation_structure: [
+    {
+      recreation_structure_code: { description: "Table" },
+      has_table: false,
+      has_toilet: false,
+    },
+  ],
 };
 
 const recreationResource3 = {
@@ -332,6 +352,13 @@ const recreationResource3 = {
       ],
     },
   ],
+  recreation_structure: [
+    {
+      recreation_structure_code: { description: "Table" },
+      has_table: false,
+      has_toilet: false,
+    },
+  ],
 };
 
 const recreationResource3Response = {
@@ -378,10 +405,13 @@ const recreationResource3Response = {
       ],
     },
   ],
-  recreation_structure: {
-    has_table: false,
-    has_toilet: false,
-  },
+  recreation_structure: [
+    {
+      recreation_structure_code: { description: "Table" },
+      has_table: false,
+      has_toilet: false,
+    },
+  ],
 };
 
 const recreationResource4 = {
@@ -468,6 +498,13 @@ const recreationResource4 = {
       ],
     },
   ],
+  recreation_structure: [
+    {
+      recreation_structure_code: { description: "Table" },
+      has_table: false,
+      has_toilet: false,
+    },
+  ],
 };
 
 const recreationResource4Response = {
@@ -515,10 +552,13 @@ const recreationResource4Response = {
       ],
     },
   ],
-  recreation_structure: {
-    has_table: false,
-    has_toilet: false,
-  },
+  recreation_structure: [
+    {
+      recreation_structure_code: { description: "Table" },
+      has_table: false,
+      has_toilet: false,
+    },
+  ],
 };
 
 const recResourceArray = [
