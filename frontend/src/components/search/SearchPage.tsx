@@ -92,7 +92,7 @@ const SearchPage = () => {
             </button>
             <div className="search-results-count">
               {isFetching ? (
-                <div>Loading...</div>
+                <div>Searching...</div>
               ) : (
                 <div>
                   {resultsTotal ? (

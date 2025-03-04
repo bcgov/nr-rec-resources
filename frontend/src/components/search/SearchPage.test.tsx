@@ -250,7 +250,7 @@ describe('SearchPage', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    expect(screen.getByText('Searching...')).toBeInTheDocument();
   });
 
   it('should not display "Loading..." text when not fetching data', () => {
@@ -268,6 +268,6 @@ describe('SearchPage', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.queryByText('Loading...')).not.toBeInTheDocument();
+    expect(screen.queryByText('Searching...')).not.toBeInTheDocument();
   });
 });
