@@ -2,7 +2,8 @@ import {
   RecreationActivityDto,
   RecreationCampsiteDto,
   RecreationFeeDto,
-  RecreationResourceDto,
+  RecreationResourceDetailDto,
+  RecreationResourceSearchDto,
   RecreationStatusDto,
   RecreationStructureDto,
 } from "./recreation-resource.dto";
@@ -42,9 +43,11 @@ describe("Recreation DTOs", () => {
     });
   });
 
-  describe("RecreationResourceDto", () => {
-    it("should create a valid RecreationResourceDto", () => {
-      const resource: RecreationResourceDto = {
+  describe("RecreationResourceDetailDto", () => {
+    it("should create a valid RecreationResourceDetailDto", () => {
+      const resource: RecreationResourceDetailDto = {
+        recreation_access: [],
+        spatial_feature_geometry: [],
         rec_resource_id: "rec-123-abc",
         name: "Evergreen Valley Campground",
         description:
@@ -112,7 +115,8 @@ describe("Recreation DTOs", () => {
     });
 
     it("should allow null description", () => {
-      const resource: RecreationResourceDto = {
+      const resource: RecreationResourceSearchDto = {
+        recreation_access: [],
         rec_resource_id: "rec-123-abc",
         name: "Test Resource",
         description: null,

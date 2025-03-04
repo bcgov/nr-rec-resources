@@ -14,13 +14,16 @@ import {
   recreationResource3Response,
   recreationResource4,
   recreationResource4Response,
+  recreationResourceDetail1Response,
+  recreationResourceDetail4Response,
+  recreationStructureCountsArray,
   recResourceArray,
   recresourceArrayResolved,
   recResourceTypeCounts,
   searchResultsFilterArray,
   totalRecordIds,
-  recreationStructureCountsArray,
 } from "src/recreation-resource/test/mock-data.test";
+import { beforeEach } from "vitest";
 
 type ResponseInputs = {
   recreation_resource?: object;
@@ -172,9 +175,10 @@ describe("RecreationResourceService", () => {
       service["prisma"].recreation_resource.findUnique = vi
         .fn()
         .mockResolvedValueOnce(recreationResource1);
+      service["prisma"].$queryRawTyped = vi.fn().mockResolvedValueOnce([]);
 
       await expect(service.findOne("REC0001")).resolves.toEqual(
-        recreationResource1Response,
+        recreationResourceDetail1Response,
       );
     });
 
@@ -182,6 +186,7 @@ describe("RecreationResourceService", () => {
       service["prisma"].recreation_resource.findUnique = vi
         .fn()
         .mockResolvedValueOnce(null);
+      service["prisma"].$queryRawTyped = vi.fn().mockResolvedValueOnce(null);
 
       await expect(service.findOne("REC0001")).resolves.toBeNull();
     });
@@ -190,9 +195,15 @@ describe("RecreationResourceService", () => {
       service["prisma"].recreation_resource.findUnique = vi
         .fn()
         .mockResolvedValueOnce(recreationResource4);
+      service["prisma"].$queryRawTyped = vi
+        .fn()
+        .mockResolvedValueOnce([
+          { spatial_feature_geometry: "1" },
+          { spatial_feature_geometry: "2" },
+        ]);
 
       await expect(service.findOne("REC0004")).resolves.toEqual(
-        recreationResource4Response,
+        recreationResourceDetail4Response,
       );
     });
   });

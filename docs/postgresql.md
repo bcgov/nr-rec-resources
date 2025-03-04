@@ -46,3 +46,29 @@ select * from rst.my_table_history;
 > time. If you add or change a column you will have to manually update the
 > history table as well. If you add a column and forget to add it to the history
 > table then it won't be tracked.
+
+## Prisma Generated SQL Functions
+
+The project uses Prisma's
+[TypedSQL](https://www.prisma.io/docs/orm/prisma-client/using-raw-sql/typedsql)
+capabilities to generate type definitions and functions for SQL files in the
+`prisma/sql` folder. These types are essential for type-safe database operations
+but are stored deep within the `node_modules` folder. This generation process
+requires a working PostgreSQL server with pre-created tables, which poses a
+challenge in our CI/CD process. To generate these types during CI, we would need
+to extensively modify the build configurations to create proper tables in the
+build containers for the backend.
+
+To make these types accessible in our codebase, we've implemented a script that
+copies the generated types and functions to the `./src/prisma-generated-sql`
+directory. You can run this process using:
+
+```bash
+npm run copy-prisma-generated-sql
+```
+
+This script will generate the required types and functions and then copy them
+over.
+
+> Note: This script should be run after any new raw SQL files are created in the
+> `prisma/sql` folder.
