@@ -1,4 +1,4 @@
-import React, { forwardRef } from 'react';
+import { forwardRef } from 'react';
 import RecreationFee from './RecreationFee';
 
 interface RecreationFeeProps {
@@ -57,7 +57,7 @@ const Camping = forwardRef<HTMLElement, CampingProps>(
     const groupedAdditionalFees = groupFeesByCode(additionalFees);
 
     return (
-      <section className="anchor-link" id="camping" ref={ref}>
+      <section className="anchor-link" ref={ref}>
         <h2 className="section-heading">Camping</h2>
 
         <strong>Number of campsites</strong>
@@ -66,7 +66,9 @@ const Camping = forwardRef<HTMLElement, CampingProps>(
         {/* Camping Fees Section */}
         {campingFees.length > 0 ? (
           <>
-            <p className="fw-bold mb-1 mt-3 pt-4">Camping fee</p>
+            <p id="camping" className="fw-bold mb-1 mt-3 pt-4">
+              Camping fee
+            </p>
             <RecreationFee data={campingFees} />
           </>
         ) : (
@@ -76,7 +78,9 @@ const Camping = forwardRef<HTMLElement, CampingProps>(
         {/* Additional Fees Section */}
         {additionalFees.length > 0 && (
           <>
-            <h2 className="section-heading mt-5">Additional Fees</h2>
+            <h2 className="section-heading mt-5" id="additional-fees">
+              Additional Fees
+            </h2>
             {Object.entries(groupedAdditionalFees).map(([feeCode, feeList]) => (
               <div key={feeCode} className="mt-4">
                 <p className="fw-bold mb-1 mt-3">

@@ -91,6 +91,15 @@ const getRecreationResourceSelect = (
       },
     },
   },
+  recreation_structure: {
+    select: {
+      recreation_structure_code: {
+        select: {
+          description: true,
+        },
+      },
+    },
+  },
 });
 
 // Always filter resource by these conditions
@@ -157,6 +166,22 @@ export class RecreationResourceService {
             fee_description: fee.with_description?.description,
           }))
         : [],
+      recreation_structure: {
+        has_toilet: resource.recreation_structure?.some((s) =>
+          s.recreation_structure_code.description
+            .toLowerCase()
+            .includes("toilet"),
+        )
+          ? true
+          : false,
+        has_table: resource.recreation_structure?.some((s) =>
+          s.recreation_structure_code.description
+            .toLowerCase()
+            .includes("table"),
+        )
+          ? true
+          : false,
+      },
     }));
   }
 

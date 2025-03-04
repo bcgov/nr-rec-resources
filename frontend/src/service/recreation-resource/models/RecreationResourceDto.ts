@@ -129,6 +129,12 @@ export interface RecreationResourceDto {
    * @memberof RecreationResourceDto
    */
   recreation_fee: Array<RecreationFeeDto>;
+  recreation_structure: RecreationStructureDto;
+}
+
+export interface RecreationStructureDto {
+  has_toilet: boolean;
+  has_table: boolean;
 }
 
 /**
@@ -215,6 +221,7 @@ export function RecreationResourceDtoFromJSONTyped(
     recreation_fee: (json['recreation_fee'] as Array<any>).map(
       RecreationFeeDtoFromJSON,
     ),
+    recreation_structure: json['recreation_structure'],
   };
 }
 

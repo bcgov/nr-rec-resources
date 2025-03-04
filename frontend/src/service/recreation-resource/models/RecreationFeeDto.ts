@@ -25,13 +25,6 @@ export interface RecreationFeeDto {
    * @memberof RecreationFeeDto
    */
   fee_amount: number;
-
-  /**
-   * Description of the fee type
-   * @type {string}
-   * @memberof RecreationFeeDto
-   */
-  fee_description: string;
   /**
    * Start date for the fee applicability
    * @type {Date}
