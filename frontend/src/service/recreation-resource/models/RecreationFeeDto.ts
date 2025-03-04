@@ -31,76 +31,60 @@ export interface RecreationFeeDto {
    * @memberof RecreationFeeDto
    */
   fee_start_date: Date;
-
   /**
    * End date for the fee applicability
    * @type {Date}
    * @memberof RecreationFeeDto
    */
   fee_end_date: Date;
-
   /**
-   * Type of fee applicable (C - Camping, D - Day Use, H - Hut, P - Parking, T - Trail Use)
+   * Type of fee applicable represented by code (C, D, H, P, T)
    * @type {string}
    * @memberof RecreationFeeDto
    */
   recreation_fee_code: string;
-
   /**
    * Indicates if the fee applies on Monday
    * @type {string}
    * @memberof RecreationFeeDto
    */
   monday_ind: string;
-
   /**
    * Indicates if the fee applies on Tuesday
    * @type {string}
    * @memberof RecreationFeeDto
    */
   tuesday_ind: string;
-
   /**
    * Indicates if the fee applies on Wednesday
    * @type {string}
    * @memberof RecreationFeeDto
    */
   wednesday_ind: string;
-
   /**
    * Indicates if the fee applies on Thursday
    * @type {string}
    * @memberof RecreationFeeDto
    */
   thursday_ind: string;
-
   /**
    * Indicates if the fee applies on Friday
    * @type {string}
    * @memberof RecreationFeeDto
    */
   friday_ind: string;
-
   /**
    * Indicates if the fee applies on Saturday
    * @type {string}
    * @memberof RecreationFeeDto
    */
   saturday_ind: string;
-
   /**
    * Indicates if the fee applies on Sunday
    * @type {string}
    * @memberof RecreationFeeDto
    */
   sunday_ind: string;
-
-  /**
-   * Optional description of the fee type
-   * @type {string}
-   * @memberof RecreationFeeDto
-   */
-  fee_description: string;
 }
 
 /**
@@ -110,8 +94,6 @@ export function instanceOfRecreationFeeDto(
   value: object,
 ): value is RecreationFeeDto {
   if (!('fee_amount' in value) || value['fee_amount'] === undefined)
-    return false;
-  if (!('fee_description' in value) || value['fee_description'] === undefined)
     return false;
   if (!('fee_start_date' in value) || value['fee_start_date'] === undefined)
     return false;
@@ -152,7 +134,6 @@ export function RecreationFeeDtoFromJSONTyped(
   }
   return {
     fee_amount: json['fee_amount'],
-    fee_description: json['fee_description'],
     fee_start_date: new Date(json['fee_start_date']),
     fee_end_date: new Date(json['fee_end_date']),
     recreation_fee_code: json['recreation_fee_code'],
@@ -180,7 +161,6 @@ export function RecreationFeeDtoToJSONTyped(
 
   return {
     fee_amount: value['fee_amount'],
-    fee_description: value['fee_description'],
     fee_start_date: value['fee_start_date'].toISOString(),
     fee_end_date: value['fee_end_date'].toISOString(),
     recreation_fee_code: value['recreation_fee_code'],

@@ -1,11 +1,14 @@
 import { forwardRef } from 'react';
+import { RecreationResourceMap } from '@/components/rec-resource/RecreationResourceMap';
+import { RecreationResourceDetailModel } from '@/service/custom-models';
 
 interface MapsAndLocationProps {
   accessTypes?: string[];
+  recResource?: RecreationResourceDetailModel;
 }
 
 const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
-  ({ accessTypes }, ref) => {
+  ({ accessTypes, recResource }, ref) => {
     return (
       <section
         id="maps-and-location"
@@ -23,6 +26,14 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
             </ul>
           </>
         )}
+
+        <RecreationResourceMap
+          recResource={recResource}
+          mapComponentCssStyles={{
+            position: 'relative',
+            height: '40vh',
+          }}
+        />
       </section>
     );
   },

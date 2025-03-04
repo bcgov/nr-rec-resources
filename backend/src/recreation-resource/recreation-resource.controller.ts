@@ -1,10 +1,10 @@
 import { Controller, Get, HttpException, Param, Query } from "@nestjs/common";
 import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { RecreationResourceService } from "./recreation-resource.service";
-import { RecreationResourceDto } from "./dto/recreation-resource.dto";
 import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resource.dto";
 import { RecreationResourceImageSize } from "./dto/recreation-resource-image.dto";
 import { ParseImageSizesPipe } from "./pipes/parse-image-sizes.pipe";
+import { RecreationResourceDetailDto } from "./dto/recreation-resource.dto";
 
 @ApiTags("recreation-resource")
 @Controller({ path: "recreation-resource", version: "1" })
@@ -129,7 +129,7 @@ export class RecreationResourceController {
   @ApiResponse({
     status: 200,
     description: "Resource found",
-    type: RecreationResourceDto,
+    type: RecreationResourceDetailDto,
   })
   @ApiResponse({ status: 404, description: "Resource not found" })
   async findOne(
@@ -139,7 +139,7 @@ export class RecreationResourceController {
       new ParseImageSizesPipe([RecreationResourceImageSize.THUMBNAIL]),
     )
     imageSizeCodes?: RecreationResourceImageSize[],
-  ): Promise<RecreationResourceDto> {
+  ): Promise<RecreationResourceDetailDto> {
     const recResource = await this.recreationResourceService.findOne(
       id,
       imageSizeCodes,

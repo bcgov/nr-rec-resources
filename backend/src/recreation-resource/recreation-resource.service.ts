@@ -1,12 +1,16 @@
 import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 import { PrismaService } from "src/prisma.service";
-import { RecreationResourceDto } from "./dto/recreation-resource.dto";
-import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resource.dto";
+import {
+  BaseRecreationResourceDto,
+  RecreationResourceDetailDto,
+} from "./dto/recreation-resource.dto";
 import {
   RecreationResourceImageDto,
   RecreationResourceImageSize,
 } from "./dto/recreation-resource-image.dto";
+import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resource.dto";
+import { getRecreationResourceSpatialFeatureGeometry } from "@prisma-generated-sql";
 
 const excludedActivityCodes = [26];
 const excludedRecreationDistricts = ["RDQC", "RDRM"];
@@ -123,12 +127,12 @@ type RecreationResourceGetPayload = Prisma.recreation_resourceGetPayload<{
 
 @Injectable()
 export class RecreationResourceService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   // Format the results to match the DTO
   formatResults(
     recResources: RecreationResourceGetPayload[],
-  ): RecreationResourceDto[] {
+  ): BaseRecreationResourceDto[] {
     return recResources?.map((resource) => ({
       ...resource,
       rec_resource_type:
@@ -188,7 +192,7 @@ export class RecreationResourceService {
   async findOne(
     id: string,
     imageSizeCodes?: RecreationResourceImageSize[],
-  ): Promise<RecreationResourceDto> {
+  ): Promise<RecreationResourceDetailDto> {
     const recResource = await this.prisma.recreation_resource.findUnique({
       where: {
         rec_resource_id: id,
@@ -199,7 +203,26 @@ export class RecreationResourceService {
       select: getRecreationResourceSelect(imageSizeCodes),
     });
 
-    return recResource ? this.formatResults([recResource])[0] : null;
+    if (!recResource) {
+      return null;
+    }
+
+    const baseRecreationResourceDto = this.formatResults([recResource])[0];
+
+    // fetch the spatial features
+    const recResourceSpatialGeometryResult: getRecreationResourceSpatialFeatureGeometry.Result[] =
+      await this.prisma.$queryRawTyped(
+        getRecreationResourceSpatialFeatureGeometry(id),
+      );
+
+    return {
+      ...baseRecreationResourceDto,
+
+      // add spatial features of the rec resource to the results
+      spatial_feature_geometry: recResourceSpatialGeometryResult.map(
+        (spatialFeature) => spatialFeature.spatial_feature_geometry,
+      ),
+    };
   }
 
   async searchRecreationResources(

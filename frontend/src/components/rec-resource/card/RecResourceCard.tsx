@@ -3,13 +3,13 @@ import { faCircleChevronRight } from '@fortawesome/free-solid-svg-icons';
 import Activities from '@/components/rec-resource/card/Activities';
 import Status from '@/components/rec-resource/Status';
 import '@/components/rec-resource/card/RecResourceCard.scss';
-import { RecreationResourceDto } from '@/service/recreation-resource';
 import { getImageList } from '@/components/rec-resource/card/helpers';
 import { RSTSVGLogo } from '@/components/RSTSVGLogo/RSTSVGLogo';
 import CardCarousel from '@/components/rec-resource/card/CardCarousel';
+import { RecreationResourceSearchModel } from '@/service/custom-models';
 
 interface RecResourceCardProps {
-  recreationResource: RecreationResourceDto;
+  recreationResource: RecreationResourceSearchModel;
 }
 
 const RecResourceCard: React.FC<RecResourceCardProps> = ({

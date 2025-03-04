@@ -2,7 +2,8 @@ import {
   RecreationActivityDto,
   RecreationCampsiteDto,
   RecreationFeeDto,
-  RecreationResourceDto,
+  RecreationResourceDetailDto,
+  RecreationResourceSearchDto,
   RecreationStatusDto,
   RecreationStructureDto,
 } from "./recreation-resource.dto";
@@ -42,64 +43,65 @@ describe("Recreation DTOs", () => {
     });
   });
 
-  describe("RecreationResourceDto", () => {
-    it("should create a valid RecreationResourceDto", () => {
-      const resource: RecreationResourceDto = {
-        rec_resource_id: "rec-123-abc",
-        name: "Evergreen Valley Campground",
-        description:
-          "A scenic campground nestled in the heart of Evergreen Valley",
-        closest_community: "123 Forest Road, Mountain View, CA 94043",
-        rec_resource_type: "RR",
-        recreation_activity: [
-          {
-            recreation_activity_code: 1,
-            description: "Hiking",
-          },
-        ],
-        recreation_status: {
-          status_code: 1,
-          comment: null,
-          description: "The facility is open",
+  describe("RecreationResourceDetailDto", () => {
+    it("should create a valid RecreationResourceDetailDto", () => {
+      const resource = new RecreationResourceDetailDto();
+      resource.recreation_access = [];
+      resource.spatial_feature_geometry = [];
+      resource.rec_resource_id = "rec-123-abc";
+      resource.name = "Evergreen Valley Campground";
+      resource.description =
+        "A scenic campground nestled in the heart of Evergreen Valley";
+      resource.closest_community = "123 Forest Road, Mountain View, CA 94043";
+      resource.rec_resource_type = "RR";
+      resource.recreation_activity = [
+        {
+          recreation_activity_code: 1,
+          description: "Hiking",
         },
-        recreation_resource_images: [],
-        recreation_campsite: {
-          rec_resource_id: "123",
-          campsite_count: 2,
-        },
-        recreation_structure: {
-          has_table: true,
-          has_toilet: true,
-        },
-        recreation_fee: [
-          {
-            fee_amount: 25.0,
-            fee_start_date: new Date("2024-06-01"),
-            fee_end_date: new Date("2024-09-30"),
-            recreation_fee_code: "C",
-            monday_ind: "Y",
-            tuesday_ind: "Y",
-            wednesday_ind: "Y",
-            thursday_ind: "Y",
-            friday_ind: "Y",
-            saturday_ind: "N",
-            sunday_ind: "N",
-          },
-          {
-            fee_amount: 10.0,
-            fee_start_date: new Date("2024-06-01"),
-            fee_end_date: new Date("2024-09-30"),
-            recreation_fee_code: "P",
-            monday_ind: "Y",
-            tuesday_ind: "Y",
-            wednesday_ind: "Y",
-            thursday_ind: "Y",
-            friday_ind: "Y",
-            saturday_ind: "Y",
-            sunday_ind: "Y",
-          },
-        ],
+      ];
+      resource.recreation_status = {
+        status_code: 1,
+        comment: null,
+        description: "The facility is open",
       };
+      resource.recreation_resource_images = [];
+      resource.recreation_campsite = {
+        rec_resource_id: "123",
+        campsite_count: 2,
+      };
+      resource.recreation_structure = {
+        has_table: true,
+        has_toilet: true,
+      };
+      resource.recreation_fee = [
+        {
+          fee_amount: 25.0,
+          fee_start_date: new Date("2024-06-01"),
+          fee_end_date: new Date("2024-09-30"),
+          recreation_fee_code: "C",
+          monday_ind: "Y",
+          tuesday_ind: "Y",
+          wednesday_ind: "Y",
+          thursday_ind: "Y",
+          friday_ind: "Y",
+          saturday_ind: "N",
+          sunday_ind: "N",
+        },
+        {
+          fee_amount: 10.0,
+          fee_start_date: new Date("2024-06-01"),
+          fee_end_date: new Date("2024-09-30"),
+          recreation_fee_code: "P",
+          monday_ind: "Y",
+          tuesday_ind: "Y",
+          wednesday_ind: "Y",
+          thursday_ind: "Y",
+          friday_ind: "Y",
+          saturday_ind: "Y",
+          sunday_ind: "Y",
+        },
+      ];
 
       expect(resource.rec_resource_id).toBeDefined();
       expect(resource.name.length).toBeGreaterThanOrEqual(1);
@@ -112,58 +114,88 @@ describe("Recreation DTOs", () => {
     });
 
     it("should allow null description", () => {
-      const resource: RecreationResourceDto = {
-        rec_resource_id: "rec-123-abc",
-        name: "Test Resource",
-        description: null,
-        closest_community: "Test Location",
-        rec_resource_type: "RR",
-        recreation_activity: [],
-        recreation_status: {
-          status_code: 1,
-          comment: null,
-          description: "Open",
-        },
-        recreation_structure: {
-          has_table: true,
-          has_toilet: true,
-        },
-        recreation_resource_images: [],
-        recreation_campsite: {
-          rec_resource_id: "123",
-          campsite_count: 2,
-        },
-        recreation_fee: [
-          {
-            fee_amount: 25.0,
-            fee_start_date: new Date("2024-06-01"),
-            fee_end_date: new Date("2024-09-30"),
-            recreation_fee_code: "C",
-            monday_ind: "Y",
-            tuesday_ind: "Y",
-            wednesday_ind: "Y",
-            thursday_ind: "Y",
-            friday_ind: "Y",
-            saturday_ind: "N",
-            sunday_ind: "N",
-          },
-          {
-            fee_amount: 10.0,
-            fee_start_date: new Date("2024-06-01"),
-            fee_end_date: new Date("2024-09-30"),
-            recreation_fee_code: "P",
-            monday_ind: "Y",
-            tuesday_ind: "Y",
-            wednesday_ind: "Y",
-            thursday_ind: "Y",
-            friday_ind: "Y",
-            saturday_ind: "Y",
-            sunday_ind: "Y",
-          },
-        ],
+      const resource = new RecreationResourceSearchDto();
+      resource.recreation_access = [];
+      resource.rec_resource_id = "rec-123-abc";
+      resource.name = "Test Resource";
+      resource.description = null;
+      resource.closest_community = "Test Location";
+      resource.rec_resource_type = "RR";
+      resource.recreation_activity = [];
+      resource.recreation_status = {
+        status_code: 1,
+        comment: null,
+        description: "Open",
       };
+      resource.recreation_structure = {
+        has_table: true,
+        has_toilet: true,
+      };
+      resource.recreation_resource_images = [];
+      resource.recreation_campsite = {
+        rec_resource_id: "123",
+        campsite_count: 2,
+      };
+      resource.recreation_fee = [
+        {
+          fee_amount: 25.0,
+          fee_start_date: new Date("2024-06-01"),
+          fee_end_date: new Date("2024-09-30"),
+          recreation_fee_code: "C",
+          monday_ind: "Y",
+          tuesday_ind: "Y",
+          wednesday_ind: "Y",
+          thursday_ind: "Y",
+          friday_ind: "Y",
+          saturday_ind: "N",
+          sunday_ind: "N",
+        },
+        {
+          fee_amount: 10.0,
+          fee_start_date: new Date("2024-06-01"),
+          fee_end_date: new Date("2024-09-30"),
+          recreation_fee_code: "P",
+          monday_ind: "Y",
+          tuesday_ind: "Y",
+          wednesday_ind: "Y",
+          thursday_ind: "Y",
+          friday_ind: "Y",
+          saturday_ind: "Y",
+          sunday_ind: "Y",
+        },
+      ];
 
       expect(resource.description).toBeNull();
+    });
+
+    it("should handle empty spatial feature geometry", () => {
+      const resource = new RecreationResourceDetailDto();
+      resource.recreation_access = [];
+      resource.spatial_feature_geometry = [];
+      resource.rec_resource_id = "rec-123-abc";
+      resource.name = "Test Resource";
+      resource.description = "Test description";
+      resource.closest_community = "Test Location";
+      resource.rec_resource_type = "RR";
+      resource.recreation_activity = [];
+      resource.recreation_status = {
+        status_code: 1,
+        comment: null,
+        description: "Open",
+      };
+      resource.recreation_resource_images = [];
+      resource.recreation_campsite = {
+        rec_resource_id: "123",
+        campsite_count: 0,
+      };
+      resource.recreation_structure = {
+        has_table: false,
+        has_toilet: false,
+      };
+      resource.recreation_fee = [];
+
+      expect(Array.isArray(resource.spatial_feature_geometry)).toBeTruthy();
+      expect(resource.spatial_feature_geometry.length).toBe(0);
     });
   });
 

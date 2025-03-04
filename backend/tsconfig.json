@@ -19,7 +19,10 @@
     "incremental": true,
     "skipLibCheck": true,
     "lib": ["es2022"],
-    "types": ["vitest/globals", "node"]
+    "types": ["vitest/globals", "node"],
+    "paths": {
+      "@prisma-generated-sql": ["src/prisma-generated-sql"]
+    }
   },
   "include": ["src/**/*.ts", "e2e/**/*.ts", "**/*.ts", "**/*.mjs", "**/*.mts"]
 }

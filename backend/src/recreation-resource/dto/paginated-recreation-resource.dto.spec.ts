@@ -1,11 +1,14 @@
-import { PaginatedRecreationResourceDto } from "./paginated-recreation-resource.dto";
-import { RecreationResourceDto } from "./recreation-resource.dto";
+import {
+  FilterOptionDto,
+  PaginatedRecreationResourceDto,
+} from "./paginated-recreation-resource.dto";
+import { RecreationResourceSearchDto } from "./recreation-resource.dto";
 
-const recResourceArrayResolved: RecreationResourceDto[] = [
-  new RecreationResourceDto(),
-  new RecreationResourceDto(),
-  new RecreationResourceDto(),
-  new RecreationResourceDto(),
+const recResourceArrayResolved: RecreationResourceSearchDto[] = [
+  new RecreationResourceSearchDto(),
+  new RecreationResourceSearchDto(),
+  new RecreationResourceSearchDto(),
+  new RecreationResourceSearchDto(),
 ];
 
 describe("PaginatedRecreationResourceDto", () => {
@@ -79,5 +82,19 @@ describe("PaginatedRecreationResourceDto", () => {
     emptyFiltersPaginatedResponse.filters = [];
 
     expect(emptyFiltersPaginatedResponse.filters).toHaveLength(0);
+  });
+});
+
+describe("FilterOptionDto", () => {
+  it("should create a valid filter option", () => {
+    const filterOption = new FilterOptionDto();
+    filterOption.id = "1";
+    filterOption.count = 42;
+    filterOption.description = "Snowmobiling";
+
+    expect(filterOption).toBeInstanceOf(FilterOptionDto);
+    expect(filterOption.id).toBe("1");
+    expect(filterOption.count).toBe(42);
+    expect(filterOption.description).toBe("Snowmobiling");
   });
 });

@@ -1,14 +1,14 @@
 import {
   GetRecreationResourceByIdRequest,
   PaginatedRecreationResourceDto,
-  RecreationResourceDto,
   ResponseError,
   SearchRecreationResourcesRequest,
 } from '@/service/recreation-resource';
 import { useRecreationResourceApi } from '@/service/hooks/useRecreationResourceApi';
 import { useInfiniteQuery, useQuery } from '~/@tanstack/react-query';
-import { transformRecreationResource } from '@/service/queries/recreation-resource/helpers';
+import { transformRecreationResourceDetail } from '@/service/queries/recreation-resource/helpers';
 import { InfiniteData } from '@tanstack/react-query';
+import { RecreationResourceDetailModel } from '@/service/custom-models';
 
 /**
  * Custom hook to fetch a recreation resource by ID.
@@ -22,7 +22,7 @@ export const useGetRecreationResourceById = ({
   imageSizeCodes,
 }: Partial<GetRecreationResourceByIdRequest>) => {
   const api = useRecreationResourceApi();
-  return useQuery<RecreationResourceDto | undefined, ResponseError>({
+  return useQuery<RecreationResourceDetailModel | undefined, ResponseError>({
     queryKey: ['recreationResource', id],
 
     // Fetch function that calls the API and transforms the response
@@ -34,7 +34,9 @@ export const useGetRecreationResourceById = ({
         });
 
         // normalize image urls
-        return transformRecreationResource(response);
+        return transformRecreationResourceDetail(
+          response,
+        ) as RecreationResourceDetailModel;
       }
     },
 
@@ -121,7 +123,7 @@ export const useSearchRecreationResourcesPaginated = (
       // Transform each resource in the response to normalize image urls
       return {
         ...response,
-        data: response.data.map(transformRecreationResource),
+        data: response.data.map(transformRecreationResourceDetail),
       };
     } catch (error) {
       console.error('Failed to fetch recreation resources:', error);
