@@ -100,7 +100,7 @@ export interface RecreationFeeDto {
    * @type {string}
    * @memberof RecreationFeeDto
    */
-  fee_description?: string;
+  fee_description: string;
 }
 
 /**
