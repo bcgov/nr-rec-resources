@@ -137,13 +137,10 @@ const recreationResource1Response = {
       ],
     },
   ],
-  recreation_structure: [
-    {
-      recreation_structure_code: { description: "Table" },
-      has_table: false,
-      has_toilet: false,
-    },
-  ],
+  recreation_structure: {
+    has_table: true,
+    has_toilet: false,
+  },
 };
 
 const recreationResource2 = {
@@ -258,13 +255,10 @@ const recreationResource2Response = {
       ],
     },
   ],
-  recreation_structure: [
-    {
-      recreation_structure_code: { description: "Table" },
-      has_table: false,
-      has_toilet: false,
-    },
-  ],
+  recreation_structure: {
+    has_table: true,
+    has_toilet: false,
+  },
 };
 
 const recreationResource3 = {
@@ -405,13 +399,10 @@ const recreationResource3Response = {
       ],
     },
   ],
-  recreation_structure: [
-    {
-      recreation_structure_code: { description: "Table" },
-      has_table: false,
-      has_toilet: false,
-    },
-  ],
+  recreation_structure: {
+    has_table: true,
+    has_toilet: false,
+  },
 };
 
 const recreationResource4 = {
@@ -552,13 +543,10 @@ const recreationResource4Response = {
       ],
     },
   ],
-  recreation_structure: [
-    {
-      recreation_structure_code: { description: "Table" },
-      has_table: false,
-      has_toilet: false,
-    },
-  ],
+  recreation_structure: {
+    has_table: true,
+    has_toilet: false,
+  },
 };
 
 const recResourceArray = [
