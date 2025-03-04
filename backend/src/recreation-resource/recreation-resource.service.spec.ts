@@ -298,6 +298,9 @@ describe("RecreationResourceService", () => {
             notIn: [26],
           },
         },
+        orderBy: {
+          description: "asc",
+        },
       });
 
       const activityFilter = results.filters.find(
