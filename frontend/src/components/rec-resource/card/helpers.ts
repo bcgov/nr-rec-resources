@@ -1,18 +1,18 @@
 import {
-  RecreationResourceDto,
-  RecreationResourceImageVariantDtoSizeCodeEnum,
-} from '@/service/recreation-resource';
+  RecreationResourceImageVariantSizeCode,
+  RecreationResourceSearchModel,
+} from '@/service/custom-models';
 
 /**
  * Extracts image URLs of size-code (llc) from a recreation resource
  *
- * @param {RecreationResourceDto} recreationResource - Resource containing image data
+ * @param {RecreationResourceSearchModel} recreationResource - Resource containing image data
  * @returns {Array<{imageUrl: string}>} Array of image URL objects
  */
 export const getImageList = (
-  recreationResource: RecreationResourceDto,
+  recreationResource: RecreationResourceSearchModel,
 ): Array<{ imageUrl: string }> => {
-  const sizeCodeForCard = RecreationResourceImageVariantDtoSizeCodeEnum.Llc;
+  const sizeCodeForCard: RecreationResourceImageVariantSizeCode = 'llc';
 
   return recreationResource.recreation_resource_images.flatMap(
     ({ recreation_resource_image_variants }) =>

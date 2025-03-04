@@ -1,29 +1,14 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useRecreationResourceApi } from '@/service/hooks/useRecreationResourceApi';
 import {
   useGetRecreationResourceById,
   useSearchRecreationResourcesPaginated,
 } from '@/service/queries/recreation-resource/recreationResourceQueries';
-import { ReactNode } from 'react';
+import { TestQueryClientProvider } from '@/test-utils';
 
 vi.mock('@/service/hooks/useRecreationResourceApi', () => ({
   useRecreationResourceApi: vi.fn(),
 }));
-
-// Create wrapper with QueryClientProvider
-const createWrapper = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-      },
-    },
-  });
-  return ({ children }: { children: ReactNode }) => (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-  );
-};
 
 describe('useGetRecreationResourceById', () => {
   const mockApi = {
@@ -38,7 +23,7 @@ describe('useGetRecreationResourceById', () => {
   it('should throw error when id is not provided', async () => {
     renderHook(
       () => useGetRecreationResourceById({ imageSizeCodes: ['llc'] }),
-      { wrapper: createWrapper() },
+      { wrapper: TestQueryClientProvider },
     );
 
     expect(mockApi.getRecreationResourceById).not.toHaveBeenCalled();
@@ -55,7 +40,7 @@ describe('useGetRecreationResourceById', () => {
     const { result } = renderHook(
       () =>
         useGetRecreationResourceById({ id: '123', imageSizeCodes: ['llc'] }),
-      { wrapper: createWrapper() },
+      { wrapper: TestQueryClientProvider },
     );
 
     await waitFor(() => {
@@ -80,7 +65,7 @@ describe('useGetRecreationResourceById', () => {
       () =>
         useGetRecreationResourceById({ id: '123', imageSizeCodes: ['llc'] }),
       {
-        wrapper: createWrapper(),
+        wrapper: TestQueryClientProvider,
       },
     );
 
@@ -102,7 +87,7 @@ describe('useGetRecreationResourceById', () => {
     const { result } = renderHook(
       () =>
         useGetRecreationResourceById({ id: '123', imageSizeCodes: ['llc'] }),
-      { wrapper: createWrapper() },
+      { wrapper: TestQueryClientProvider },
     );
 
     await waitFor(() => {
@@ -133,7 +118,7 @@ describe('useSearchRecreationResourcesPaginated', () => {
 
     const { result } = renderHook(
       () => useSearchRecreationResourcesPaginated({ limit: 5 }),
-      { wrapper: createWrapper() },
+      { wrapper: TestQueryClientProvider },
     );
 
     await waitFor(() => {
@@ -161,7 +146,7 @@ describe('useSearchRecreationResourcesPaginated', () => {
 
     const { result } = renderHook(
       () => useSearchRecreationResourcesPaginated({ limit: 5 }),
-      { wrapper: createWrapper() },
+      { wrapper: TestQueryClientProvider },
     );
 
     await waitFor(() => {
@@ -184,7 +169,7 @@ describe('useSearchRecreationResourcesPaginated', () => {
 
     const { result } = renderHook(
       () => useSearchRecreationResourcesPaginated({ limit: 5 }),
-      { wrapper: createWrapper() },
+      { wrapper: TestQueryClientProvider },
     );
 
     await waitFor(() => {
@@ -205,7 +190,7 @@ describe('useSearchRecreationResourcesPaginated', () => {
 
       const { result } = renderHook(
         () => useSearchRecreationResourcesPaginated({ limit: 5 }),
-        { wrapper: createWrapper() },
+        { wrapper: TestQueryClientProvider },
       );
 
       await waitFor(() => {
@@ -224,7 +209,7 @@ describe('useSearchRecreationResourcesPaginated', () => {
 
       const { result } = renderHook(
         () => useSearchRecreationResourcesPaginated({ page: 2, limit: 5 }),
-        { wrapper: createWrapper() },
+        { wrapper: TestQueryClientProvider },
       );
 
       await waitFor(() => {

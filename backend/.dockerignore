@@ -22,3 +22,5 @@ migrations
 output
 test
 tests
+
+.env

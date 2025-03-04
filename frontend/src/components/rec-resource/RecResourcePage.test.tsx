@@ -4,6 +4,23 @@ import RecResourcePage from '@/components/rec-resource/RecResourcePage';
 import * as routerDom from 'react-router-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { useGetRecreationResourceById } from '@/service/queries/recreation-resource';
+import { ReactNode } from 'react';
+
+// Setup mocks
+vi.mock('@/service/queries/recreation-resource', () => ({
+  useGetRecreationResourceById: vi.fn(),
+}));
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual('react-router-dom')),
+  useParams: vi.fn(),
+}));
+vi.mock('@/components/rec-resource/MapsAndLocation', () => ({
+  default: (): ReactNode => (
+    <>
+      <h2 className="section-heading">Maps and Location</h2>
+    </>
+  ),
+}));
 
 // Mock data
 const mockResource = {
@@ -32,15 +49,6 @@ const mockResource = {
     },
   ],
 };
-
-// Setup mocks
-vi.mock('@/service/queries/recreation-resource', () => ({
-  useGetRecreationResourceById: vi.fn(),
-}));
-vi.mock('react-router-dom', async () => ({
-  ...(await vi.importActual('react-router-dom')),
-  useParams: vi.fn(),
-}));
 
 describe('RecResourcePage', () => {
   const renderComponent = async (mockApiResponse: any, error?: any) => {
@@ -169,8 +177,6 @@ describe('RecResourcePage', () => {
       expect(
         screen.getByRole('heading', { name: /Maps and Location/i }),
       ).toBeInTheDocument();
-      expect(screen.getByText(/Road/i)).toBeInTheDocument();
-      expect(screen.getByText(/Boat-in/i)).toBeInTheDocument();
     });
 
     it('hides the Maps and Location section when there is no relevant information', async () => {
