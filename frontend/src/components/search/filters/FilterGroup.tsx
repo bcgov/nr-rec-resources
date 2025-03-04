@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Form } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
-import removeFilter from '@/utils/removeFilter';
+import { useFilterHandler } from '@/hooks';
 import { Filter } from '@/components/search/types';
 import '@/components/search/filters/Filters.scss';
 
@@ -22,28 +22,16 @@ const FilterGroup = ({
   label,
   showMoreBtn = true,
 }: FilterGroupProps) => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [showAllOptions, setShowAllOptions] = useState(false);
+  const { toggleFilter } = useFilterHandler();
 
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    label: string,
+  ) => {
     const { id, checked } = event.target;
-    const newSearchParams = new URLSearchParams(searchParams.toString());
-    // Remove the filter from the search params if it exists
-    const updateFilters = removeFilter(id, param, newSearchParams);
-
-    if (checked) {
-      // Append the new filter to the existing filters if they exist
-      newSearchParams.set(param, updateFilters ? `${updateFilters}_${id}` : id);
-      setSearchParams(newSearchParams);
-    } else {
-      if (!updateFilters) {
-        // Remove the param if there are no filters
-        newSearchParams.delete(param);
-      } else {
-        newSearchParams.set(param, updateFilters);
-      }
-      setSearchParams(newSearchParams);
-    }
+    toggleFilter(id, label, param, checked);
   };
 
   const filtersCount = options?.length;
@@ -72,7 +60,7 @@ const FilterGroup = ({
               disabled={isDisabled}
               defaultChecked={isDefaultChecked}
               label={`${description} (${count})`}
-              onChange={handleChange}
+              onChange={(e) => handleChange(e, description)}
             />
           );
         })}

@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import RecResourceCard from '@/components/rec-resource/card/RecResourceCard';
 import SearchBanner from '@/components/search/SearchBanner';
 import ProgressBar from 'react-bootstrap/ProgressBar';
+import FilterChips from '@/components/search/filters/FilterChips';
 import FilterMenu from '@/components/search/filters/FilterMenu';
 import FilterMenuMobile from '@/components/search/filters/FilterMenuMobile';
 import {
@@ -105,6 +106,7 @@ const SearchPage = () => {
                   )}
                 </div>
               )}
+              <FilterChips />
               {isFilters && (
                 <button
                   type="button"
