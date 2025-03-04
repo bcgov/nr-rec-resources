@@ -66,6 +66,10 @@ describe("Recreation DTOs", () => {
           rec_resource_id: "123",
           campsite_count: 2,
         },
+        recreation_structure: {
+          has_table: true,
+          has_toilet: true,
+        },
         recreation_fee: [
           {
             fee_amount: 25.0,
@@ -118,6 +122,10 @@ describe("Recreation DTOs", () => {
           status_code: 1,
           comment: null,
           description: "Open",
+        },
+        recreation_structure: {
+          has_table: true,
+          has_toilet: true,
         },
         recreation_resource_images: [],
         recreation_campsite: {
