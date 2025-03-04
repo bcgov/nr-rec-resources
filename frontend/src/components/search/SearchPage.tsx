@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import RecResourceCard from '@/components/rec-resource/card/RecResourceCard';
 import SearchBanner from '@/components/search/SearchBanner';
+import ProgressBar from 'react-bootstrap/ProgressBar';
 import FilterMenu from '@/components/search/filters/FilterMenu';
 import FilterMenuMobile from '@/components/search/filters/FilterMenuMobile';
 import {
@@ -24,6 +25,7 @@ const SearchPage = () => {
     hasNextPage,
     hasPreviousPage,
     fetchPreviousPage,
+    isFetching,
   } = useSearchRecreationResourcesPaginated({
     limit: 10,
     filter: searchParams.get('filter') ?? undefined,
@@ -89,16 +91,20 @@ const SearchPage = () => {
               Filter
             </button>
             <div className="search-results-count">
-              <div>
-                {resultsTotal ? (
-                  <span>
-                    <strong>{resultsTotal.toLocaleString()}</strong>
-                    {` ${resultsTotal === 1 ? 'Result' : 'Results'}`}
-                  </span>
-                ) : (
-                  'No results found'
-                )}
-              </div>
+              {isFetching ? (
+                <div>Loading...</div>
+              ) : (
+                <div>
+                  {resultsTotal ? (
+                    <span>
+                      <strong>{resultsTotal.toLocaleString()}</strong>
+                      {` ${resultsTotal === 1 ? 'Result' : 'Results'}`}
+                    </span>
+                  ) : (
+                    'No results found'
+                  )}
+                </div>
+              )}
               {isFilters && (
                 <button
                   type="button"
@@ -121,15 +127,19 @@ const SearchPage = () => {
               </div>
             )}
             <section>
-              {data?.pages?.map((pageData: PaginatedRecreationResourceDto) =>
-                pageData.data.map(
-                  (recreationResource: RecreationResourceDto) => (
-                    <RecResourceCard
-                      key={recreationResource.rec_resource_id}
-                      recreationResource={recreationResource}
-                    />
+              {isFetching ? (
+                <ProgressBar animated now={100} className="mb-4" />
+              ) : (
+                data?.pages?.map((pageData: PaginatedRecreationResourceDto) =>
+                  pageData.data.map(
+                    (recreationResource: RecreationResourceDto) => (
+                      <RecResourceCard
+                        key={recreationResource.rec_resource_id}
+                        recreationResource={recreationResource}
+                      />
+                    ),
                   ),
-                ),
+                )
               )}
             </section>
             {hasNextPage && (
