@@ -27,6 +27,7 @@ model recreation_resource {
   recreation_fee             recreation_fee[]
   recreation_map_feature     recreation_map_feature[]
   recreation_district_code   recreation_district_code?    @relation(fields: [district_code], references: [district_code], onDelete: NoAction, onUpdate: NoAction)
+  recreation_resource_docs   recreation_resource_docs[]
   recreation_resource_images recreation_resource_images[]
   recreation_resource_type   recreation_resource_type?
   recreation_status          recreation_status?
@@ -522,4 +523,25 @@ model recreation_resource_images {
   recreation_resource                recreation_resource?                 @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([rec_resource_id, ref_id])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_resource_doc_code {
+  doc_code                 String                     @id @db.VarChar
+  description              String?                    @db.VarChar
+  recreation_resource_docs recreation_resource_docs[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_resource_docs {
+  ref_id                       String                        @id(map: "recreation_resource_doc_pkey") @db.VarChar
+  rec_resource_id              String?                       @db.VarChar(10)
+  title                        String?                       @db.VarChar
+  url                          String?                       @db.VarChar
+  doc_code                     String?                       @db.VarChar
+  extension                    String?                       @db.VarChar
+  recreation_resource_doc_code recreation_resource_doc_code? @relation(fields: [doc_code], references: [doc_code], onDelete: NoAction, onUpdate: NoAction, map: "recreation_resource_doc_doc_code_fkey")
+  recreation_resource          recreation_resource?          @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction, map: "recreation_resource_doc_rec_resource_id_fkey")
+
+  @@unique([rec_resource_id, ref_id], map: "recreation_resource_doc_rec_resource_id_ref_id_key")
 }

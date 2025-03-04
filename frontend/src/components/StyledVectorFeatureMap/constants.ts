@@ -29,3 +29,8 @@ export const MAP_URLS = {
   styles:
     'https://www.arcgis.com/sharing/rest/content/items/b1624fea73bd46c681fab55be53d96ae/resources/styles/root.json',
 };
+
+/**
+ * Default padding in pixels to apply when fitting the map view to an extent
+ */
+export const DEFAULT_MAP_PADDING = [50, 50, 50, 50];

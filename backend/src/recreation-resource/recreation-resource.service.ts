@@ -11,6 +11,7 @@ import {
 } from "./dto/recreation-resource-image.dto";
 import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resource.dto";
 import { getRecreationResourceSpatialFeatureGeometry } from "@prisma-generated-sql";
+import { RecreationResourceDocCode } from "./dto/recreation-resource-doc.dto";
 
 const excludedActivityCodes = [26];
 const excludedRecreationDistricts = ["RDQC", "RDRM"];
@@ -106,6 +107,26 @@ const getRecreationResourceSelect = (
   },
 });
 
+const getRecreationResourceDetailSelect = (
+  imageSizeCodes?: RecreationResourceImageSize[],
+) => ({
+  ...getRecreationResourceSelect(imageSizeCodes),
+  recreation_resource_docs: {
+    select: {
+      doc_code: true,
+      url: true,
+      title: true,
+      ref_id: true,
+      extension: true,
+      recreation_resource_doc_code: {
+        select: {
+          description: true,
+        },
+      },
+    },
+  },
+});
+
 // Always filter resource by these conditions
 const recResourceWhereConstants = {
   display_on_public_site: {
@@ -123,6 +144,10 @@ const recResourceWhereConstants = {
 
 type RecreationResourceGetPayload = Prisma.recreation_resourceGetPayload<{
   select: ReturnType<typeof getRecreationResourceSelect>;
+}>;
+
+type RecreationResourceDetailGetPayload = Prisma.recreation_resourceGetPayload<{
+  select: ReturnType<typeof getRecreationResourceDetailSelect>;
 }>;
 
 @Injectable()
@@ -189,6 +214,25 @@ export class RecreationResourceService {
     }));
   }
 
+  formatRecreationResourceDetailResults(
+    result: RecreationResourceDetailGetPayload,
+    spatial_feature_geometry: getRecreationResourceSpatialFeatureGeometry.Result[],
+  ): RecreationResourceDetailDto {
+    const formatted = this.formatResults([result])[0];
+
+    return {
+      ...formatted,
+      recreation_resource_docs: result.recreation_resource_docs.map((i) => ({
+        ...i,
+        doc_code: i.doc_code as RecreationResourceDocCode,
+        doc_code_description: i.recreation_resource_doc_code.description,
+      })),
+      spatial_feature_geometry: spatial_feature_geometry.map(
+        ({ spatial_feature_geometry }) => spatial_feature_geometry,
+      ),
+    };
+  }
+
   async findOne(
     id: string,
     imageSizeCodes?: RecreationResourceImageSize[],
@@ -200,14 +244,12 @@ export class RecreationResourceService {
           display_on_public_site: true,
         },
       },
-      select: getRecreationResourceSelect(imageSizeCodes),
+      select: getRecreationResourceDetailSelect(imageSizeCodes),
     });
 
     if (!recResource) {
       return null;
     }
-
-    const baseRecreationResourceDto = this.formatResults([recResource])[0];
 
     // fetch the spatial features
     const recResourceSpatialGeometryResult: getRecreationResourceSpatialFeatureGeometry.Result[] =
@@ -215,14 +257,10 @@ export class RecreationResourceService {
         getRecreationResourceSpatialFeatureGeometry(id),
       );
 
-    return {
-      ...baseRecreationResourceDto,
-
-      // add spatial features of the rec resource to the results
-      spatial_feature_geometry: recResourceSpatialGeometryResult.map(
-        (spatialFeature) => spatialFeature.spatial_feature_geometry,
-      ),
-    };
+    return this.formatRecreationResourceDetailResults(
+      recResource,
+      recResourceSpatialGeometryResult,
+    );
   }
 
   async searchRecreationResources(

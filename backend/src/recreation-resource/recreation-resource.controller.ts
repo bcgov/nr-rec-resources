@@ -1,5 +1,11 @@
 import { Controller, Get, HttpException, Param, Query } from "@nestjs/common";
-import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
+import {
+  ApiOperation,
+  ApiParam,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from "@nestjs/swagger";
 import { RecreationResourceService } from "./recreation-resource.service";
 import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resource.dto";
 import { RecreationResourceImageSize } from "./dto/recreation-resource-image.dto";
@@ -115,6 +121,13 @@ export class RecreationResourceController {
   @ApiOperation({
     summary: "Find recreation resource by ID",
     operationId: "getRecreationResourceById",
+  })
+  @ApiParam({
+    name: "id",
+    required: true,
+    description: "Resource identifier",
+    type: "string",
+    example: "REC204117",
   })
   @ApiQuery({
     name: "imageSizeCodes",

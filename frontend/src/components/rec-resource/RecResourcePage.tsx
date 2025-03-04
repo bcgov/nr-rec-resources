@@ -76,6 +76,7 @@ const RecResourcePage = () => {
     } = {},
     recreation_fee,
     spatial_feature_geometry,
+    recreation_resource_docs,
   } = recResource || {};
 
   const formattedName = name?.toLowerCase();
@@ -101,7 +102,10 @@ const RecResourcePage = () => {
     recreation_structure && recreation_structure !== null;
   const isPhotoGallery = photos.length > 0;
   const isClosures = statusComment && formattedName && statusCode === 2;
-  const isMapsAndLocation = isAccess || spatial_feature_geometry; // add more conditions as we add map sections
+  const isMapsAndLocation =
+    isAccess ||
+    spatial_feature_geometry?.length ||
+    recreation_resource_docs?.length;
 
   const sectionRefs: React.RefObject<HTMLElement>[] = useMemo(
     () =>

@@ -3,6 +3,7 @@ import {
   RecreationCampsiteDto,
   RecreationFeeDto,
   RecreationResourceDetailDto,
+  RecreationResourceDocDto,
   RecreationResourceImageVariantDtoSizeCodeEnum,
   RecreationResourceSearchDto,
 } from '@/service/recreation-resource';
@@ -18,3 +19,4 @@ export type RecreationCampsiteModel = RecreationCampsiteDto;
 export type RecreationFeeModel = RecreationFeeDto;
 export type RecreationResourceImageVariantSizeCode =
   RecreationResourceImageVariantDtoSizeCodeEnum;
+export type RecreationResourceDocModel = RecreationResourceDocDto;

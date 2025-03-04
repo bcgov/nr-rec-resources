@@ -4,6 +4,7 @@ import { Feature } from 'ol';
 import { StyleLike } from 'ol/style/Style';
 import { StyledVectorFeatureMap } from '@/components/StyledVectorFeatureMap';
 import { useAddVectorLayerToMap } from '@/components/StyledVectorFeatureMap/hooks';
+import { DEFAULT_MAP_PADDING } from '@/components/StyledVectorFeatureMap/constants';
 
 // Mock constants
 const MOCK_EXTENT = [0, 0, 100, 100];
@@ -85,7 +86,9 @@ describe('StyledVectorFeatureMap', () => {
 
     await waitFor(() => {
       expect(mockMap.getView).toHaveBeenCalled();
-      expect(mockFit).toHaveBeenCalledWith(MOCK_EXTENT);
+      expect(mockFit).toHaveBeenCalledWith(MOCK_EXTENT, {
+        padding: DEFAULT_MAP_PADDING,
+      });
     });
   });
 });
