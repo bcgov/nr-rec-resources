@@ -6,7 +6,7 @@ import { FilterChip as FilterChipProps } from '@/components/search/types';
 const FilterChip = ({ param, id, label }: FilterChipProps) => {
   const { toggleFilter } = useFilterHandler();
   const handleFilterDelete = () => {
-    toggleFilter(id, label, param);
+    toggleFilter({ param, id, label });
   };
 
   return (
