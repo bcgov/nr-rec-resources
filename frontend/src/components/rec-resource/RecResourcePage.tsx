@@ -31,8 +31,6 @@ const RecResourcePage = () => {
     imageSizeCodes: [PREVIEW_SIZE_CODE, FULL_RESOLUTION_SIZE_CODE],
   });
 
-  console.log(recResource);
-
   /**
    * Processes recreation resource images to extract the preview and full size image urls
    */
