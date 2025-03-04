@@ -162,3 +162,15 @@
     vertical-align: 1px; // optical
   }
 }
+
+.search-filter-chip {
+  height: auto;
+  border-radius: 32px;
+  font-size: 0.875rem;
+  margin: 0 8px 8px 0;
+  padding: 4px 12px;
+  svg.close-icon {
+    font-size: 1rem;
+    margin-left: 8px;
+  }
+}
