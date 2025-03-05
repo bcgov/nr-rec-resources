@@ -1035,11 +1035,10 @@ public class ApplicationService {
       var out = new FileWriter(entityMetadata.filePath());
       var printer = new CSVPrinter(out, entityMetadata.csvFormatBuilder().build());) {
       for (var item : results) {
-        printer.printRecord(item.getId(), item.getGeometryTypeCode(), item.getMapFeatureId(), item.getFeatureArea(),
-          item.getFeatureLength(), item.getFeaturePerimeter(), item.getRevisionCount(), item.getEntryUserid(),
-          item.getEntryTimestamp(), item.getUpdateUserid(), item
-            .getUpdateTimestamp(),
-          item.getGeometry());
+        printer.printRecord(item.getId(), item.getMapFeatureId(), item.getGeometryTypeCode(), item.getGeometry(), item.getFeatureArea(),
+                item.getFeatureLength(), item.getFeaturePerimeter(), item.getRevisionCount(), item.getEntryUserid(),
+                item.getEntryTimestamp(), item.getUpdateUserid(), item.getUpdateTimestamp()
+        );
       }
       printer.flush();
       this.s3UploaderService.uploadFileToS3(entityMetadata.filePath(), entityMetadata.fileName());
