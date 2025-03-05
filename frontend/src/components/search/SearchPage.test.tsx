@@ -205,7 +205,7 @@ describe('SearchPage', () => {
       'useSearchRecreationResourcesPaginated',
     ).mockReturnValue({
       ...mockQueryResult,
-      isFetching: true,
+      isLoading: true,
     } as any);
 
     render(
@@ -223,7 +223,7 @@ describe('SearchPage', () => {
       'useSearchRecreationResourcesPaginated',
     ).mockReturnValue({
       ...mockQueryResult,
-      isFetching: false,
+      isLoading: false,
     } as any);
 
     render(
@@ -241,7 +241,7 @@ describe('SearchPage', () => {
       'useSearchRecreationResourcesPaginated',
     ).mockReturnValue({
       ...mockQueryResult,
-      isFetching: true,
+      isLoading: true,
     } as any);
 
     render(
@@ -259,7 +259,7 @@ describe('SearchPage', () => {
       'useSearchRecreationResourcesPaginated',
     ).mockReturnValue({
       ...mockQueryResult,
-      isFetching: false,
+      isLoading: false,
     } as any);
 
     render(

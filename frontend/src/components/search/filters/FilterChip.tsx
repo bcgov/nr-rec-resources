@@ -1,6 +1,6 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleXmark } from '@fortawesome/free-solid-svg-icons';
-import { useFilterHandler } from '@/hooks';
+import useFilterHandler from '@/components/search/hooks/useFilterHandler';
 import { FilterChip as FilterChipProps } from '@/components/search/types';
 
 const FilterChip = ({ param, id, label }: FilterChipProps) => {
