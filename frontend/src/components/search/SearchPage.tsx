@@ -111,7 +111,7 @@ const SearchPage = () => {
               {isFetching ? (
                 <ProgressBar animated now={100} className="mb-4" />
               ) : (
-                paginatedResults.flatMap(
+                paginatedResults?.flatMap(
                   (pageData: PaginatedRecreationResourceDto) =>
                     pageData?.data.map(
                       (recreationResource: RecreationResourceDto) => (
