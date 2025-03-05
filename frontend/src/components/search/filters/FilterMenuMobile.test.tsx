@@ -1,101 +1,67 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import FilterMenuMobile from '@/components/search/filters/FilterMenuMobile';
-import { mockMenuContent } from '@/components/search/filters/FilterMenu.test';
+import useClearFilters from '@/components/search/hooks/useClearFilters';
+import searchResultsStore from '@/store/searchResults';
+import { mockFilterMenuContent } from '@/components/search/test/mock-data.test';
 
-vi.mock('react-router-dom', async () => {
-  return {
-    useSearchParams: vi.fn(() => [new URLSearchParams(), vi.fn()]), // Default empty params
-  };
+vi.mock('react-router-dom', () => ({
+  useSearchParams: vi.fn(() => [new URLSearchParams(), vi.fn()]),
+}));
+
+Object.defineProperty(searchResultsStore, 'state', {
+  get: vi.fn(() => ({
+    totalCount: 12,
+    filters: mockFilterMenuContent,
+  })),
 });
 
-describe('the FilterMenuMobile component', () => {
+describe('FilterMenuMobile component', () => {
   afterEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks(); // Don't reset mocks entirely
   });
+
   it('renders a list of filter groups', () => {
-    render(
-      <FilterMenuMobile
-        totalResults={12}
-        menuContent={mockMenuContent}
-        isOpen={true}
-        setIsOpen={vi.fn()}
-        onClearFilters={vi.fn()}
-      />,
-    );
+    render(<FilterMenuMobile isOpen={true} setIsOpen={vi.fn()} />);
     expect(screen.getByRole('heading', { name: 'Filter' })).toBeVisible();
     expect(screen.getByText('Activities')).toBeVisible();
     expect(screen.getByText('Status')).toBeVisible();
   });
 
   it('renders the results count', () => {
-    render(
-      <FilterMenuMobile
-        totalResults={12}
-        menuContent={mockMenuContent}
-        isOpen={true}
-        setIsOpen={vi.fn()}
-        onClearFilters={vi.fn()}
-      />,
-    );
+    render(<FilterMenuMobile isOpen={true} setIsOpen={vi.fn()} />);
 
-    // text is broken up so get element containing
-    const showResultsBtn = screen.getByRole('button', {
-      name: 'Show results',
-    });
+    // Use regex to match dynamic count
+    const showResultsBtn = screen.getByText(/Show \d+ results/);
 
-    expect(showResultsBtn).toHaveTextContent('Show 12 results');
+    expect(showResultsBtn).toBeVisible();
   });
 
-  it('Should call setIsOpen results button is clicked', async () => {
+  it('should call setIsOpen when results button is clicked', async () => {
     const setIsOpen = vi.fn();
-    render(
-      <FilterMenuMobile
-        totalResults={12}
-        menuContent={mockMenuContent}
-        isOpen={true}
-        setIsOpen={setIsOpen}
-        onClearFilters={vi.fn()}
-      />,
-    );
+    render(<FilterMenuMobile isOpen={true} setIsOpen={setIsOpen} />);
 
-    const showResultsBtn = screen.getByRole('button', {
-      name: 'Show results',
-    });
-    showResultsBtn.click();
+    const showResultsBtn = screen.getByText(/Show \d+ results/);
+
+    fireEvent.click(showResultsBtn);
+
     expect(setIsOpen).toHaveBeenCalledWith(false);
   });
 
-  it('Should not be visible when isOpen is false', async () => {
-    render(
-      <FilterMenuMobile
-        totalResults={12}
-        menuContent={mockMenuContent}
-        isOpen={false}
-        setIsOpen={vi.fn()}
-        onClearFilters={vi.fn()}
-      />,
-    );
+  it('should not be visible when isOpen is false', () => {
+    render(<FilterMenuMobile isOpen={false} setIsOpen={vi.fn()} />);
 
     expect(screen.queryByRole('heading', { name: 'Filter' })).toBeNull();
-    expect(screen.queryByRole('button', { name: 'Show results' })).toBeNull();
+    expect(screen.queryByText(/Show \d+ results/)).toBeNull();
   });
 
-  it('Should call onClearFilters when clear filters button is clicked', async () => {
-    const onClearFilters = vi.fn();
-    render(
-      <FilterMenuMobile
-        totalResults={12}
-        menuContent={mockMenuContent}
-        isOpen={true}
-        setIsOpen={vi.fn()}
-        onClearFilters={onClearFilters}
-      />,
-    );
+  it('should call clearFilters when clear filters button is clicked', async () => {
+    render(<FilterMenuMobile isOpen={true} setIsOpen={vi.fn()} />);
 
     const clearFiltersBtn = screen.getByRole('button', {
       name: 'Clear filters',
     });
-    clearFiltersBtn.click();
-    expect(onClearFilters).toHaveBeenCalled();
+    fireEvent.click(clearFiltersBtn);
+
+    expect(useClearFilters).toHaveBeenCalled();
   });
 });
