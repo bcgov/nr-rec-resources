@@ -198,4 +198,76 @@ describe('SearchPage', () => {
 
     expect(screen.getByText('No results found')).toBeInTheDocument();
   });
+
+  it('should display the progress bar when fetching data', () => {
+    vi.spyOn(
+      recreationResourceQueries,
+      'useSearchRecreationResourcesPaginated',
+    ).mockReturnValue({
+      ...mockQueryResult,
+      isFetching: true,
+    } as any);
+
+    render(
+      <MemoryRouter>
+        <SearchPage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+  });
+
+  it('should not display the progress bar when not fetching data', () => {
+    vi.spyOn(
+      recreationResourceQueries,
+      'useSearchRecreationResourcesPaginated',
+    ).mockReturnValue({
+      ...mockQueryResult,
+      isFetching: false,
+    } as any);
+
+    render(
+      <MemoryRouter>
+        <SearchPage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+  });
+
+  it('should display "Loading..." text when fetching data', () => {
+    vi.spyOn(
+      recreationResourceQueries,
+      'useSearchRecreationResourcesPaginated',
+    ).mockReturnValue({
+      ...mockQueryResult,
+      isFetching: true,
+    } as any);
+
+    render(
+      <MemoryRouter>
+        <SearchPage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText('Searching...')).toBeInTheDocument();
+  });
+
+  it('should not display "Loading..." text when not fetching data', () => {
+    vi.spyOn(
+      recreationResourceQueries,
+      'useSearchRecreationResourcesPaginated',
+    ).mockReturnValue({
+      ...mockQueryResult,
+      isFetching: false,
+    } as any);
+
+    render(
+      <MemoryRouter>
+        <SearchPage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.queryByText('Searching...')).not.toBeInTheDocument();
+  });
 });
