@@ -18,8 +18,7 @@ interface FilterMenuMobileProps {
 
 const FilterMenuMobile = ({ isOpen, setIsOpen }: FilterMenuMobileProps) => {
   const clearFilters = useClearFilters();
-  const { filters: menuContent, total: totalResults } =
-    searchResultsStore.state;
+  const { filters: menuContent, totalCount } = searchResultsStore.state;
 
   const filterMenu =
     menuContent &&
@@ -97,7 +96,7 @@ const FilterMenuMobile = ({ isOpen, setIsOpen }: FilterMenuMobileProps) => {
           onClick={handleCloseFilter}
           className="btn btn-primary w-100 mx-0 mb-2"
         >
-          Show {totalResults} {totalResults > 1 ? 'results' : 'result'}
+          Show {totalCount} {totalCount > 1 ? 'results' : 'result'}
         </button>
         <button
           className="btn btn-link clear-filter-link w-100"

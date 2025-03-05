@@ -6,7 +6,7 @@ import ProgressBar from 'react-bootstrap/ProgressBar';
 import FilterChips from '@/components/search/filters/FilterChips';
 import FilterMenu from '@/components/search/filters/FilterMenu';
 import FilterMenuMobile from '@/components/search/filters/FilterMenuMobile';
-import searchResultsStore from '@/store/searchResults';
+import searchResultsStore, { initialState } from '@/store/searchResults';
 import {
   PaginatedRecreationResourceDto,
   RecreationResourceDto,
@@ -39,17 +39,9 @@ const SearchPage = () => {
     page: initialPage,
   });
 
-  searchResultsStore.setState((prevState) => {
-    return {
-      ...prevState,
-      paginatedResults: data?.pages ?? [],
-      page: data?.pages?.[0]?.page ?? 1,
-      total: data?.pages?.[0]?.total ?? 0,
-      filters: data?.pages?.[0]?.filters ?? [],
-    };
-  });
+  searchResultsStore.setState(() => data ?? initialState);
 
-  const { paginatedResults, total: resultsTotal } = searchResultsStore.state;
+  const { pages: paginatedResults, totalCount } = searchResultsStore.state;
 
   const handleLoadMore = () => {
     const newSearchParams = {
@@ -91,10 +83,10 @@ const SearchPage = () => {
                 <div>Searching...</div>
               ) : (
                 <div>
-                  {resultsTotal ? (
+                  {totalCount ? (
                     <span>
-                      <strong>{resultsTotal.toLocaleString()}</strong>
-                      {` ${resultsTotal === 1 ? 'Result' : 'Results'}`}
+                      <strong>{totalCount.toLocaleString()}</strong>
+                      {` ${totalCount === 1 ? 'Result' : 'Results'}`}
                     </span>
                   ) : (
                     'No results found'
