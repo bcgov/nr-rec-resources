@@ -1,19 +1,24 @@
 import { Store } from '@tanstack/store';
-import { PaginatedRecreationResourceDto } from '@/service/recreation-resource';
+import {
+  PaginatedRecreationResourceDto,
+  SearchRecreationResourcesRequest,
+} from '@/service/recreation-resource';
 import { FilterMenuContent } from '@/components/search/types';
 
 export const initialState = {
-  paginatedResults: [],
-  page: 1,
-  total: 0,
+  currentPage: 1,
   filters: [],
+  totalCount: 0,
+  pages: [],
+  pageParams: [],
 };
 
 interface SearchResultsStore {
-  paginatedResults: PaginatedRecreationResourceDto[];
-  page: number;
-  total: number;
+  pages: PaginatedRecreationResourceDto[];
+  currentPage: number;
+  totalCount: number;
   filters: FilterMenuContent[];
+  pageParams: SearchRecreationResourcesRequest[];
 }
 
 const searchResultsStore = new Store<SearchResultsStore>(initialState);
