@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import FilterGroup from '@/components/search/filters/FilterGroup';
-import { activitiesOptions } from '@/components/search/filters/FilterMenu.test';
+import { activitiesOptions } from '@/components/search/test/mock-data.test';
 
 vi.mock('react-router-dom', async () => {
   return {
