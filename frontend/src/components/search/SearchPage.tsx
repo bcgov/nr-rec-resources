@@ -6,6 +6,7 @@ import ProgressBar from 'react-bootstrap/ProgressBar';
 import FilterChips from '@/components/search/filters/FilterChips';
 import FilterMenu from '@/components/search/filters/FilterMenu';
 import FilterMenuMobile from '@/components/search/filters/FilterMenuMobile';
+import searchResultsStore from '@/store/searchResults';
 import {
   PaginatedRecreationResourceDto,
   RecreationResourceDto,
@@ -15,7 +16,6 @@ import { useInitialPageFromSearchParams } from '@/components/search/hooks/useIni
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchResetKey, setSearchResetKey] = useState('search-reset-key');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   const initialPage = useInitialPageFromSearchParams();
@@ -39,10 +39,17 @@ const SearchPage = () => {
     page: initialPage,
   });
 
-  const filterMenuContent = data?.filters ?? [];
-  const resultsTotal = data?.totalCount ?? 0;
-  const isFilters =
-    Object.keys(Object.fromEntries(searchParams.entries())).length > 0;
+  searchResultsStore.setState((prevState) => {
+    return {
+      ...prevState,
+      paginatedResults: data?.pages ?? [],
+      page: data?.pages?.[0]?.page ?? 1,
+      total: data?.pages?.[0]?.total ?? 0,
+      filters: data?.pages?.[0]?.filters ?? [],
+    };
+  });
+
+  const { paginatedResults, total: resultsTotal } = searchResultsStore.state;
 
   const handleLoadMore = () => {
     const newSearchParams = {
@@ -57,31 +64,19 @@ const SearchPage = () => {
     fetchPreviousPage();
   };
 
-  const handleClearFilters = () => {
-    setSearchParams({});
-    setSearchResetKey(crypto.randomUUID());
-  };
-
   const handleOpenMobileFilter = () => {
     setIsMobileFilterOpen(true);
   };
 
   return (
     <>
-      <SearchBanner key={`${searchResetKey}-search-banner`} />
+      <SearchBanner />
       <div className="page-container bg-brown-light">
         <div className="page page-padding search-container">
-          <FilterMenu
-            key={`${searchResetKey}-filter-menu-desktop`}
-            menuContent={filterMenuContent}
-          />
+          <FilterMenu />
           <FilterMenuMobile
-            key={`${searchResetKey}-filter-menu-mobile`}
-            menuContent={filterMenuContent}
             isOpen={isMobileFilterOpen}
             setIsOpen={setIsMobileFilterOpen}
-            onClearFilters={handleClearFilters}
-            totalResults={resultsTotal}
           />
           <div className="search-results-container">
             <button
@@ -106,17 +101,9 @@ const SearchPage = () => {
                   )}
                 </div>
               )}
-              <FilterChips />
-              {isFilters && (
-                <button
-                  type="button"
-                  className="btn-link clear-filters-btn-desktop"
-                  onClick={handleClearFilters}
-                >
-                  Clear Filters
-                </button>
-              )}
             </div>
+            <FilterChips />
+
             {hasPreviousPage && (
               <div className="load-more-container mb-3">
                 <button
@@ -132,15 +119,16 @@ const SearchPage = () => {
               {isFetching ? (
                 <ProgressBar animated now={100} className="mb-4" />
               ) : (
-                data?.pages?.map((pageData: PaginatedRecreationResourceDto) =>
-                  pageData.data.map(
-                    (recreationResource: RecreationResourceDto) => (
-                      <RecResourceCard
-                        key={recreationResource.rec_resource_id}
-                        recreationResource={recreationResource}
-                      />
+                paginatedResults.flatMap(
+                  (pageData: PaginatedRecreationResourceDto) =>
+                    pageData?.data.map(
+                      (recreationResource: RecreationResourceDto) => (
+                        <RecResourceCard
+                          key={recreationResource.rec_resource_id}
+                          recreationResource={recreationResource}
+                        />
+                      ),
                     ),
-                  ),
                 )
               )}
             </section>

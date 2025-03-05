@@ -22,14 +22,6 @@
       display: none;
     }
   }
-
-  .clear-filters-btn-desktop {
-    display: none;
-
-    @include media-breakpoint-up(md) {
-      display: block;
-    }
-  }
 }
 
 .search-results-container {
@@ -102,9 +94,5 @@
 }
 
 .search-results-count {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   margin-bottom: 16px;
-  height: 24px;
 }

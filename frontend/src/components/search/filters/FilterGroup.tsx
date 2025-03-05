@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Form } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
-import { useFilterHandler } from '@/hooks';
+import useFilterHandler from '@/components/search/hooks/useFilterHandler';
 import { Filter } from '@/components/search/types';
 import '@/components/search/filters/Filters.scss';
 
