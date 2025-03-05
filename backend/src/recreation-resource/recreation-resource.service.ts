@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
+import { getGeom } from "@prisma/client/sql";
 import { PrismaService } from "src/prisma.service";
 import { RecreationResourceDto } from "./dto/recreation-resource.dto";
 import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resource.dto";
@@ -189,6 +190,10 @@ export class RecreationResourceService {
     id: string,
     imageSizeCodes?: RecreationResourceImageSize[],
   ): Promise<RecreationResourceDto> {
+    const t: getGeom.Result[] = await this.prisma.$queryRawTyped(getGeom(id));
+
+    console.log(t);
+
     const recResource = await this.prisma.recreation_resource.findUnique({
       where: {
         rec_resource_id: id,
