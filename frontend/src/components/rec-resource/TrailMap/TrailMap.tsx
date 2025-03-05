@@ -8,8 +8,8 @@ import { Map } from 'ol';
 
 // Import proj4 and register function
 import { register } from 'ol/proj/proj4';
-import CircleStyle from '~/ol/style/Circle';
-import { GeoJSON, MVT } from '~/ol/format';
+import CircleStyle from 'ol/style/Circle';
+import { GeoJSON, MVT } from 'ol/format';
 import { RecreationResourceDto } from '@/service/recreation-resource';
 import {
   Geometry,
@@ -18,7 +18,7 @@ import {
   MultiPoint,
   Point,
   Polygon,
-} from '~/ol/geom';
+} from 'ol/geom';
 import proj4 from 'proj4';
 import { applyStyle } from 'ol-mapbox-style';
 import VectorTileLayer from 'ol/layer/VectorTile';
@@ -101,9 +101,7 @@ export const TrailMap = ({ recResource }: TrailMapProps) => {
       },
     ).then(function (response) {
       response.json().then(function (glStyle) {
-        applyStyle(tileLayer, glStyle, 'esri')
-          .then(console.log)
-          .catch(console.error);
+        applyStyle(tileLayer, glStyle, 'esri');
       });
     });
 
@@ -113,13 +111,9 @@ export const TrailMap = ({ recResource }: TrailMapProps) => {
 
     olMap.current = new Map({
       target: mapRef.current,
-      layers: [
-        // new TileLayer({
-        //   source: new OSM(),
-        // }),
-        tileLayer,
-      ],
+      layers: [tileLayer],
       view: new View({
+        projection: 'EPSG:3005',
         // Centered on Downtown Kelowna
         center: transform([1758871.897, 514456.792], proj3005, 'EPSG:3857'),
         constrainResolution: true,
@@ -138,42 +132,14 @@ export const TrailMap = ({ recResource }: TrailMapProps) => {
   }, []);
 
   useEffect(() => {
-    if (olMap.current) {
-      const geojsonFormat = new GeoJSON();
-
-      const dummyData = {
-        type: 'Polygon',
-        coordinates: [
-          [
-            transform([1758871.897, 514456.792], 'EPSG:3005', 'EPSG:3857'),
-            [1758911.097, 514194.33],
-            transform([1759708.351, 514313.399], 'EPSG:3005', 'EPSG:3857'),
-            [1759708.351, 514313.399],
-            [1759661.614, 514626.327],
-            [1759649.021, 514710.66],
-            [1759380.326, 514670.534],
-            [1759263.808, 514653.135],
-            [1758851.773, 514591.592],
-            [1758871.897, 514456.792],
-
-            [1e6, -6e6],
-            [3e6, -6e6],
-            [2e6, -4e6],
-            [1e6, -6e6],
-          ],
-        ],
-      };
-
-      const features = geojsonFormat.readFeatures(JSON.stringify(dummyData));
-
-      features.map((geom) => geom.getGeometry());
+    if (recResource && olMap.current) {
+      const geojsonFormat = new GeoJSON({
+        dataProjection: proj3005,
+        featureProjection: 'EPSG:3857',
+      });
 
       const vectorSource = new VectorSource({
-        features,
-        // format: new GeoJSON({
-        //   dataProjection: 'EPSG:3005',
-        //   featureProjection: 'EPSG:3857',
-        // }),
+        features: geojsonFormat.readFeatures(recResource.geometry),
       });
 
       const vectorLayer = new VectorLayer({
