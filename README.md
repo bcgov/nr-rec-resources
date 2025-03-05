@@ -54,7 +54,7 @@
     - [Cloudwatch](docs/deployment.md#cloudwatch)
     - [API logs](docs/deployment.md#api-logs)
     - [Aurora RDS PostgreSQL logs](docs/deployment.md#aurora-rds-postgresql-logs)
-  - [Aurora RDS PostgreSQL Query Editor](docs/deployment.md#aurora-rds-postgresql-query-editor)\
+  - [Aurora RDS PostgreSQL Query Editor](docs/deployment.md#aurora-rds-postgresql-query-editor)
 
 ### Database
 
