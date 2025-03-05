@@ -217,4 +217,13 @@ export class RecreationResourceDto {
     type: RecreationStructureDto,
   })
   recreation_structure: RecreationStructureDto;
+
+  @ApiProperty({
+    description: "GeoJSON geometry data",
+    example: {
+      type: "Point",
+      coordinates: [-73.965, 40.782],
+    },
+  })
+  geometry: string;
 }

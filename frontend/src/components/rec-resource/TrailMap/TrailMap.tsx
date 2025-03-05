@@ -1,34 +1,47 @@
 import React, { useEffect, useRef } from 'react';
 import View from 'ol/View';
 import VectorLayer from 'ol/layer/Vector';
-import VectorSource from 'ol/source/Vector';
-import { transform, transformExtent } from 'ol/proj';
-import { LineString } from 'ol/geom';
+import VectorTileSource from 'ol/source/VectorTile';
+import { get as getProjection, transform, transformExtent } from 'ol/proj';
 import { Fill, Stroke, Style } from 'ol/style';
-import { Feature, Map } from 'ol';
+import { Map } from 'ol';
 
 // Import proj4 and register function
-import proj4 from 'proj4';
 import { register } from 'ol/proj/proj4';
-import VectorTileLayer from '~/ol/layer/VectorTile';
-import { VectorTile } from '~/ol/source';
 import CircleStyle from '~/ol/style/Circle';
-import { MVT } from '~/ol/format';
-import { applyStyle } from '~/ol-mapbox-style';
-import { rawData } from '@/components/rec-resource/TrailMap/rawData';
+import { GeoJSON, MVT } from '~/ol/format';
+import { RecreationResourceDto } from '@/service/recreation-resource';
+import {
+  Geometry,
+  LineString,
+  MultiLineString,
+  MultiPoint,
+  Point,
+  Polygon,
+} from '~/ol/geom';
+import proj4 from 'proj4';
+import { applyStyle } from 'ol-mapbox-style';
+import VectorTileLayer from 'ol/layer/VectorTile';
+import VectorSource from 'ol/source/Vector';
 
-export const TrailMap = () => {
+// Define and register EPSG:3005 projection
+proj4.defs(
+  'EPSG:3005',
+  '+proj=aea +lat_0=45 +lon_0=-126 +lat_1=50 +lat_2=58.5 +x_0=1000000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs',
+);
+register(proj4);
+
+const proj3005 = getProjection('EPSG:3005') ?? 'EPSG:3857';
+
+interface TrailMapProps {
+  recResource?: RecreationResourceDto | undefined;
+}
+
+export const TrailMap = ({ recResource }: TrailMapProps) => {
   const mapRef = useRef<HTMLDivElement>(undefined);
   const olMap = useRef<Map>(null);
 
   useEffect(() => {
-    // Define and register EPSG:3005 projection
-    proj4.defs(
-      'EPSG:3005',
-      '+proj=aea +lat_0=45 +lon_0=-126 +lat_1=50 +lat_2=58.5 +x_0=1000000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs',
-    );
-    register(proj4);
-
     const image = new CircleStyle({
       radius: 5,
       stroke: new Stroke({ color: 'red', width: 1 }),
@@ -69,8 +82,9 @@ export const TrailMap = () => {
     };
 
     const tileLayer = new VectorTileLayer({
+      declutter: true,
       // Use VectorTileLayer
-      source: new VectorTile({
+      source: new VectorTileSource({
         // Use VectorTileSource
         format: new MVT(), // Use MVT format for ArcGIS Vector Tiles
         url: 'https://tiles.arcgis.com/tiles/ubm4tcTYICKBpist/arcgis/rest/services/BC_BASEMAP_20240307/VectorTileServer/tile/{z}/{x}/{y}.pbf', // Updated URL
@@ -87,11 +101,9 @@ export const TrailMap = () => {
       },
     ).then(function (response) {
       response.json().then(function (glStyle) {
-        // DBC22-2153
-        glStyle.metadata['ol:webfonts'] =
-          '/fonts/{font-family}/{fontweight}{-fontstyle}.css';
-
-        applyStyle(tileLayer, glStyle, 'esri');
+        applyStyle(tileLayer, glStyle, 'esri')
+          .then(console.log)
+          .catch(console.error);
       });
     });
 
@@ -109,16 +121,12 @@ export const TrailMap = () => {
       ],
       view: new View({
         // Centered on Downtown Kelowna
-        center: transform(
-          [-119.49662112970556, 49.887338062986295],
-          'EPSG:4326',
-          'EPSG:3857',
-        ),
+        center: transform([1758871.897, 514456.792], proj3005, 'EPSG:3857'),
         constrainResolution: true,
         zoom: 7,
         enableRotation: false,
         extent: transformedExtent,
-        // maxZoom: 15,
+        maxZoom: 15,
       }),
     });
 
@@ -131,46 +139,75 @@ export const TrailMap = () => {
 
   useEffect(() => {
     if (olMap.current) {
-      (rawData.split('\n') ?? []).map((rawDataString) => {
-        const trailData: string =
-          rawDataString.split('{')?.pop()?.replaceAll('}', '') ?? '';
+      const geojsonFormat = new GeoJSON();
 
-        const coordinates = trailData.split(',');
-        const transformedCoordinates = [];
+      const dummyData = {
+        type: 'Polygon',
+        coordinates: [
+          [
+            transform([1758871.897, 514456.792], 'EPSG:3005', 'EPSG:3857'),
+            [1758911.097, 514194.33],
+            transform([1759708.351, 514313.399], 'EPSG:3005', 'EPSG:3857'),
+            [1759708.351, 514313.399],
+            [1759661.614, 514626.327],
+            [1759649.021, 514710.66],
+            [1759380.326, 514670.534],
+            [1759263.808, 514653.135],
+            [1758851.773, 514591.592],
+            [1758871.897, 514456.792],
 
-        // Assuming coordinates are in EPSG:3005 (BC Albers)
-        for (let i = 0; i + 1 < coordinates.length; i += 2) {
-          const x = parseInt(coordinates[i]);
-          const y = parseInt(coordinates[i + 1]);
+            [1e6, -6e6],
+            [3e6, -6e6],
+            [2e6, -4e6],
+            [1e6, -6e6],
+          ],
+        ],
+      };
 
-          try {
-            const transformed = transform([x, y], 'EPSG:3005', 'EPSG:3857'); // Transform from EPSG:3005 to WGS 84 (lat/lon)
-            transformedCoordinates.push(transformed);
-          } catch (e) {
-            console.error('Projection transformation error:', e);
-          }
-        }
+      const features = geojsonFormat.readFeatures(JSON.stringify(dummyData));
 
-        if (transformedCoordinates.length > 0) {
-          const lineString = new LineString(transformedCoordinates);
-          const feature = new Feature({ geometry: lineString });
+      features.map((geom) => geom.getGeometry());
 
-          const vectorSource = new VectorSource({ features: [feature] });
-          const vectorLayer = new VectorLayer({
-            source: vectorSource,
-            style: new Style({
-              stroke: new Stroke({ color: 'red', width: 3 }),
-            }),
-          });
-
-          olMap.current.addLayer(vectorLayer);
-          olMap.current
-            .getView()
-            .fit(lineString.getExtent(), { padding: [20, 20, 20, 20] });
-        }
+      const vectorSource = new VectorSource({
+        features,
+        // format: new GeoJSON({
+        //   dataProjection: 'EPSG:3005',
+        //   featureProjection: 'EPSG:3857',
+        // }),
       });
+
+      const vectorLayer = new VectorLayer({
+        source: vectorSource,
+        style: new Style({
+          stroke: new Stroke({ color: 'blue', width: 30 }),
+        }),
+      });
+
+      olMap.current.addLayer(vectorLayer);
     }
-  }, [olMap.current]);
+  }, [recResource, olMap.current]);
 
   return <div ref={mapRef} style={{ width: '100%', height: '500px' }}></div>;
+};
+
+const printCoords = (geometry: Geometry) => {
+  const geometryType = geometry.getType();
+  let coordinates: number[] | number[][] | number[][][] | undefined; // Define a flexible type for coordinates
+
+  if (geometryType === 'Point') {
+    coordinates = (geometry as Point).getCoordinates(); // Type assertion to Point
+    console.log('Point Coordinates:', coordinates);
+  } else if (geometryType === 'LineString') {
+    coordinates = (geometry as LineString).getCoordinates(); // Type assertion to LineString
+    console.log('LineString Coordinates:', coordinates);
+  } else if (geometryType === 'Polygon') {
+    coordinates = (geometry as Polygon).getCoordinates(); // Type assertion to Polygon
+    console.log('Polygon Coordinates:', coordinates);
+  } else if (geometryType === 'MultiPoint') {
+    coordinates = (geometry as MultiPoint).getCoordinates(); // Type assertion to MultiPoint
+    console.log('MultiPoint Coordinates:', coordinates);
+  } else if (geometryType === 'MultiLineString') {
+    coordinates = (geometry as MultiLineString).getCoordinates(); // Type assertion to MultiLineString
+    console.log('MultiLineString Coordinates:', coordinates);
+  }
 };
