@@ -11,6 +11,7 @@ const mockResource = {
   name: 'Resource Name',
   description: 'Resource Description',
   closest_community: 'Resource Location',
+  recreation_access: ['Road', 'Boat-in'],
   recreation_activity: [
     {
       recreation_activity_code: 1,
@@ -160,6 +161,29 @@ describe('RecResourcePage', () => {
 
       expect(screen.queryByRole('heading', { name: /Closures/i })).toBeNull();
       expect(screen.queryByText(/This site is open/i)).toBeNull();
+    });
+
+    it('shows the access types in the Maps and Location section', async () => {
+      await renderComponent(mockResource);
+
+      expect(
+        screen.getByRole('heading', { name: /Maps and Location/i }),
+      ).toBeInTheDocument();
+      expect(screen.getByText(/Road/i)).toBeInTheDocument();
+      expect(screen.getByText(/Boat-in/i)).toBeInTheDocument();
+    });
+
+    it('hides the Maps and Location section when there is no relevant information', async () => {
+      await renderComponent({
+        ...mockResource,
+        recreation_access: [],
+      });
+
+      expect(
+        screen.queryByRole('heading', { name: /Maps and Location/i }),
+      ).toBeNull();
+      expect(screen.queryByText(/Road/i)).toBeNull();
+      expect(screen.queryByText(/Boat-in/i)).toBeNull();
     });
   });
 });

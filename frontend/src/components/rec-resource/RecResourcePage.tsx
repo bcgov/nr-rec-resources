@@ -59,6 +59,7 @@ const RecResourcePage = () => {
   }, [recResource]);
 
   const {
+    recreation_access,
     recreation_activity,
     description,
     name,
@@ -84,20 +85,22 @@ const RecResourcePage = () => {
   const contactRef = useRef<HTMLElement>(null!);
 
   const isThingsToDo = recreation_activity && recreation_activity.length > 0;
+  const isAccess = recreation_access && recreation_access.length > 0;
   const isPhotoGallery = photos.length > 0;
   const isClosures = statusComment && formattedName && statusCode === 2;
+  const isMapsAndLocation = isAccess; // add more conditions as we add map sections
 
   const sectionRefs: React.RefObject<HTMLElement>[] = useMemo(
     () =>
       [
         isClosures ? closuresRef : null,
         description ? siteDescriptionRef : null,
-        mapLocationRef,
+        isMapsAndLocation ? mapLocationRef : null,
         campingRef,
         isThingsToDo ? thingsToDoRef : null,
         contactRef,
       ].filter((ref) => !!ref),
-    [description, isClosures, isThingsToDo],
+    [description, isClosures, isThingsToDo, isMapsAndLocation],
   );
 
   const pageSections = useMemo(
@@ -111,7 +114,7 @@ const RecResourcePage = () => {
           href: '#site-description',
           title: 'Site Description',
         },
-        {
+        isMapsAndLocation && {
           href: '#maps-and-location',
           title: 'Maps and Location',
         },
@@ -133,7 +136,7 @@ const RecResourcePage = () => {
           ...section,
           sectionIndex: i,
         })),
-    [description, isClosures, isThingsToDo],
+    [description, isClosures, isThingsToDo, isMapsAndLocation],
   );
 
   const activeSection = useScrollSpy({
@@ -209,6 +212,7 @@ const RecResourcePage = () => {
                 ref={closuresRef}
               />
             )}
+
             {description && (
               <SiteDescription
                 description={description}
@@ -216,7 +220,12 @@ const RecResourcePage = () => {
               />
             )}
 
-            <MapsAndLocation ref={mapLocationRef} />
+            {isMapsAndLocation && (
+              <MapsAndLocation
+                accessTypes={recreation_access}
+                ref={mapLocationRef}
+              />
+            )}
 
             <Camping
               ref={campingRef}
