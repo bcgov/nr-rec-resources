@@ -151,6 +151,7 @@ export class RecreationResourceService {
       },
       recreation_resource_images:
         resource.recreation_resource_images as RecreationResourceImageDto[],
+      geometry: "",
       recreation_fee: resource.recreation_fee
         ? resource.recreation_fee.map((fee) => ({
             fee_amount: fee.fee_amount,
@@ -204,7 +205,14 @@ export class RecreationResourceService {
       select: getRecreationResourceSelect(imageSizeCodes),
     });
 
-    return recResource ? this.formatResults([recResource])[0] : null;
+    if (!recResource) {
+      return null;
+    }
+
+    const formatted = this.formatResults([recResource])[0];
+    formatted.geometry = t[0].geometry;
+
+    return formatted;
   }
 
   async searchRecreationResources(
