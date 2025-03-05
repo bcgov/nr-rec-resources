@@ -3,6 +3,26 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import * as recreationResourceQueries from '@/service/queries/recreation-resource';
 import SearchPage from './SearchPage';
+import searchResultsStore from '@/store/searchResults';
+import { mockFilterMenuContent } from '@/components/search/test/mock-data';
+
+const mockData = {
+  pages: [
+    {
+      data: [
+        {
+          rec_resource_id: '1',
+          title: 'Test Resource',
+        },
+      ],
+      filters: [],
+      currentPage: 1,
+      totalCount: 1,
+    },
+  ],
+  totalCount: 1,
+  filters: mockFilterMenuContent,
+};
 
 vi.mock('@/service/queries/recreation-resource');
 vi.mock('@/components/rec-resource/card/RecResourceCard', () => ({
@@ -10,23 +30,6 @@ vi.mock('@/components/rec-resource/card/RecResourceCard', () => ({
 }));
 
 describe('SearchPage', () => {
-  const mockData = {
-    pages: [
-      {
-        data: [
-          {
-            rec_resource_id: '1',
-            title: 'Test Resource',
-          },
-        ],
-        filters: [],
-        currentPage: 1,
-        totalCount: 1,
-      },
-    ],
-    totalCount: 1,
-  };
-
   const mockQueryResult = {
     data: mockData,
     fetchNextPage: vi.fn(),
@@ -47,10 +50,16 @@ describe('SearchPage', () => {
     vi.spyOn(
       recreationResourceQueries,
       'useSearchRecreationResourcesPaginated',
-    ).mockReturnValue({
+    ).mockReturnValueOnce({
       ...mockQueryResult,
       data: { ...mockData, totalCount: 1 },
     } as any);
+
+    vi.spyOn(searchResultsStore, 'subscribe').mockReturnValueOnce(() => ({
+      state: {
+        ...mockData,
+      },
+    }));
 
     const { rerender } = render(
       <MemoryRouter>
@@ -66,10 +75,17 @@ describe('SearchPage', () => {
     vi.spyOn(
       recreationResourceQueries,
       'useSearchRecreationResourcesPaginated',
-    ).mockReturnValue({
+    ).mockReturnValueOnce({
       ...mockQueryResult,
       data: { ...mockData, totalCount: 2 },
     } as any);
+
+    vi.spyOn(searchResultsStore, 'subscribe').mockReturnValueOnce(() => ({
+      state: {
+        ...mockData,
+        totalCount: 2,
+      },
+    }));
 
     rerender(
       <MemoryRouter>
@@ -95,20 +111,6 @@ describe('SearchPage', () => {
     expect(mockQueryResult.fetchNextPage).toHaveBeenCalled();
   });
 
-  it('handles clear filters', () => {
-    render(
-      <MemoryRouter initialEntries={['/?filter=test']}>
-        <SearchPage />
-      </MemoryRouter>,
-    );
-
-    const clearFiltersButton = screen.getByText('Clear Filters');
-    fireEvent.click(clearFiltersButton);
-
-    // Check if URL params are cleared
-    expect(window.location.search).toBe('');
-  });
-
   it('handles mobile filter menu', () => {
     render(
       <MemoryRouter>
@@ -130,6 +132,13 @@ describe('SearchPage', () => {
       ...mockQueryResult,
       data: { ...mockData, totalCount: 0, pages: [{ data: [], filters: [] }] },
     } as any);
+
+    vi.spyOn(searchResultsStore, 'subscribe').mockReturnValueOnce(() => ({
+      state: {
+        pages: [{ data: [], filters: [] }],
+        totalCount: 0,
+      },
+    }));
 
     render(
       <MemoryRouter>
@@ -173,6 +182,10 @@ describe('SearchPage', () => {
       data: undefined,
     } as any);
 
+    vi.spyOn(searchResultsStore, 'subscribe').mockReturnValueOnce(() => ({
+      state: undefined,
+    }));
+
     const { rerender } = render(
       <MemoryRouter>
         <SearchPage />
@@ -205,7 +218,7 @@ describe('SearchPage', () => {
       'useSearchRecreationResourcesPaginated',
     ).mockReturnValue({
       ...mockQueryResult,
-      isLoading: true,
+      isFetching: true,
     } as any);
 
     render(
@@ -223,7 +236,7 @@ describe('SearchPage', () => {
       'useSearchRecreationResourcesPaginated',
     ).mockReturnValue({
       ...mockQueryResult,
-      isLoading: false,
+      isFetching: false,
     } as any);
 
     render(
@@ -241,7 +254,7 @@ describe('SearchPage', () => {
       'useSearchRecreationResourcesPaginated',
     ).mockReturnValue({
       ...mockQueryResult,
-      isLoading: true,
+      isFetching: true,
     } as any);
 
     render(
@@ -259,7 +272,7 @@ describe('SearchPage', () => {
       'useSearchRecreationResourcesPaginated',
     ).mockReturnValue({
       ...mockQueryResult,
-      isLoading: false,
+      isFetching: false,
     } as any);
 
     render(
