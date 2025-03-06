@@ -56,6 +56,12 @@
     - [Aurora RDS PostgreSQL logs](docs/deployment.md#aurora-rds-postgresql-logs)
   - [Aurora RDS PostgreSQL Query Editor](docs/deployment.md#aurora-rds-postgresql-query-editor)
 
+### Database
+
+- [Postgresql](docs/postgresql.md)
+  - [Metadata columns](docs/postgresql.md#metadata-columns)
+  - [History tracking with temporal tables](docs/postgresql.md#history-tracking-with-temporal-tables)
+
 ## Local Development
 
 ### Prerequisites

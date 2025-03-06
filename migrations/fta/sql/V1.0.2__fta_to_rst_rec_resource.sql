@@ -1,28 +1,48 @@
--- Migrate data from fta schema to rst schema
-insert into
-    rst.recreation_resource (
-        rec_resource_id,
-        name,
-        closest_community,
-        display_on_public_site
-    )
+insert into rst.recreation_resource (
+    rec_resource_id,
+    name,
+    closest_community,
+    display_on_public_site,
+    updated_at,
+    updated_by,
+    created_at,
+    created_by,
+    description,
+    district_code
+)
 select
     rp.forest_file_id as rec_resource_id,
     rp.project_name as name,
     rp.site_location as closest_community,
     case
-        when rp.recreation_view_ind = 'Y' then true
+        when rp.recreation_view_ind = 'y' then true
         else false
-    end as display_on_public_site
+    end as display_on_public_site,
+    rp.update_timestamp as updated_at,
+    rp.update_userid as updated_by,
+    rp.entry_timestamp as created_at,
+    rp.entry_userid as created_by,
+    rc.project_comment as description,
+    xref.recreation_district_code as district_code
 from
-    fta.recreation_project rp;
-
--- Add description from fta.recreation_comment table
-update rst.recreation_resource rr
-set
-    description = rc.project_comment
-from
+    fta.recreation_project rp
+left join
     fta.recreation_comment rc
-where
-    rr.rec_resource_id = rc.forest_file_id
-    and rc.rec_comment_type_code = 'DESC';
+on
+    rp.forest_file_id = rc.forest_file_id
+    and rc.rec_comment_type_code = 'desc'
+left join
+    (select distinct on (forest_file_id) forest_file_id, recreation_district_code
+     from fta.recreation_district_xref
+     order by forest_file_id, update_timestamp desc) as xref
+on
+    rp.forest_file_id = xref.forest_file_id
+on conflict (rec_resource_id) do update
+set
+    name = excluded.name,
+    closest_community = excluded.closest_community,
+    display_on_public_site = excluded.display_on_public_site,
+    updated_at = excluded.updated_at,
+    updated_by = excluded.updated_by,
+    description = excluded.description,
+    district_code = excluded.district_code;

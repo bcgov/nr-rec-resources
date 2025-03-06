@@ -1,3 +1,4 @@
+-- This feature needs to be redone to query the count of recreation_defined_campsite and not store it in the table
 insert into
     rst.recreation_campsite (
         rec_resource_id,

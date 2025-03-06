@@ -3,6 +3,10 @@ create table rst.recreation_activity_code (
     description varchar(120)
 );
 
+select upsert_timestamp_columns('rst', 'recreation_activity_code', true);
+
+select setup_temporal_table('rst', 'recreation_activity_code');
+
 comment on table rst.recreation_activity_code is 'Activity code types for recreation projects.';
 
 comment on column rst.recreation_activity_code.recreation_activity_code is 'Code describing the Recreation Activity.';
@@ -45,10 +49,14 @@ values ('Angling'),
        ('Ski Touring');
 
 create table if not exists rst.recreation_activity (
-    id serial primary key, -- This is a surrogate key to make Prisma happy
     rec_resource_id varchar(200) not null references rst.recreation_resource (rec_resource_id),
-    recreation_activity_code int not null references rst.recreation_activity_code (recreation_activity_code)
+    recreation_activity_code int not null references rst.recreation_activity_code (recreation_activity_code),
+    unique (rec_resource_id, recreation_activity_code)
 );
+
+select upsert_timestamp_columns('rst', 'recreation_activity');
+
+select setup_temporal_table('rst', 'recreation_activity');
 
 comment on table rst.recreation_activity is 'The types of available activities for a given project.';
 

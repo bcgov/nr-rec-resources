@@ -1,11 +1,14 @@
-CREATE TABLE IF NOT EXISTS rst.recreation_campsite (
-    rec_resource_id VARCHAR(200) NOT NULL PRIMARY KEY,
-    campsite_count INT NOT NULL DEFAULT 0,
-    FOREIGN KEY (rec_resource_id) REFERENCES rst.recreation_resource (rec_resource_id) ON DELETE CASCADE
+create table if not exists rst.recreation_campsite (
+    rec_resource_id varchar(20) primary key references rst.recreation_resource (rec_resource_id),
+    campsite_count int not null default 0
 );
 
-COMMENT ON TABLE rst.recreation_campsite IS 'Stores the number of campsites associated with each recreation resource.';
+select upsert_timestamp_columns('rst', 'recreation_campsite');
 
-COMMENT ON COLUMN rst.recreation_campsite.rec_resource_id IS 'Foreign key linking to the recreation resource this campsite count belongs to.';
+select setup_temporal_table('rst', 'recreation_campsite');
 
-COMMENT ON COLUMN rst.recreation_campsite.campsite_count IS 'The number of campsites available at this recreation resource.';
+comment on table rst.recreation_campsite is 'Stores the number of campsites associated with each recreation resource.';
+
+comment on column rst.recreation_campsite.rec_resource_id is 'Foreign key linking to the recreation resource this campsite count belongs to.';
+
+comment on column rst.recreation_campsite.campsite_count is 'The number of campsites available at this recreation resource.';
