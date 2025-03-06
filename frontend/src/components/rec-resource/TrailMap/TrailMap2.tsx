@@ -97,7 +97,11 @@ export const TrailMap2 = ({ recResource, style }: TrailMapProps) => {
         const type = geometry?.getType();
 
         return new Style({
-          stroke: new Stroke({ color: 'green', width: 3, lineDash: [6, 6] }),
+          stroke: new Stroke({ color: '#42814A', width: 3, lineDash: [6, 6] }),
+          fill:
+            type !== 'LineString'
+              ? new Fill({ color: 'rgba(255, 0, 0, 0.2)' })
+              : undefined,
           text: new Text({
             text: recResource.name, // Replace with your label property
             placement: type === 'LineString' ? 'line' : 'point',
