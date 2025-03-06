@@ -46,3 +46,39 @@ export const mockFilterMenuContent = [
     ],
   },
 ];
+
+export const mockSearchResultsData = {
+  pages: [
+    {
+      data: [
+        {
+          rec_resource_id: '1',
+          title: 'Test Resource',
+        },
+      ],
+      filters: [],
+      currentPage: 1,
+      totalCount: 1,
+    },
+  ],
+  totalCount: 1,
+  filters: mockFilterMenuContent,
+};
+
+export const mockFilterChips = [
+  {
+    param: 'district',
+    id: 'RDMH',
+    label: '100 Mile-Chilcotin',
+  },
+  {
+    param: 'district',
+    id: 'RDCK',
+    label: 'Chilliwack',
+  },
+  {
+    param: 'type',
+    id: 'SIT',
+    label: 'Recreation Site',
+  },
+];

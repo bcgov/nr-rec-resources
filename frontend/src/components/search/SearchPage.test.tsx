@@ -3,26 +3,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import * as recreationResourceQueries from '@/service/queries/recreation-resource';
 import SearchPage from './SearchPage';
-import searchResultsStore from '@/store/searchResults';
-import { mockFilterMenuContent } from '@/components/search/test/mock-data';
-
-const mockData = {
-  pages: [
-    {
-      data: [
-        {
-          rec_resource_id: '1',
-          title: 'Test Resource',
-        },
-      ],
-      filters: [],
-      currentPage: 1,
-      totalCount: 1,
-    },
-  ],
-  totalCount: 1,
-  filters: mockFilterMenuContent,
-};
+import { mockSearchResultsData } from '@/components/search/test/mock-data';
 
 vi.mock('@/service/queries/recreation-resource');
 vi.mock('@/components/rec-resource/card/RecResourceCard', () => ({
@@ -31,7 +12,7 @@ vi.mock('@/components/rec-resource/card/RecResourceCard', () => ({
 
 describe('SearchPage', () => {
   const mockQueryResult = {
-    data: mockData,
+    data: mockSearchResultsData,
     fetchNextPage: vi.fn(),
     fetchPreviousPage: vi.fn(),
     hasNextPage: true,
@@ -52,15 +33,8 @@ describe('SearchPage', () => {
       'useSearchRecreationResourcesPaginated',
     ).mockReturnValueOnce({
       ...mockQueryResult,
-      data: { ...mockData, totalCount: 1 },
+      data: { ...mockSearchResultsData, totalCount: 1 },
     } as any);
-
-    vi.spyOn(searchResultsStore, 'subscribe').mockReturnValueOnce(() => ({
-      state: {
-        ...mockData,
-      },
-    }));
-
     const { rerender } = render(
       <MemoryRouter>
         <SearchPage />
@@ -77,15 +51,8 @@ describe('SearchPage', () => {
       'useSearchRecreationResourcesPaginated',
     ).mockReturnValueOnce({
       ...mockQueryResult,
-      data: { ...mockData, totalCount: 2 },
+      data: { ...mockSearchResultsData, totalCount: 2 },
     } as any);
-
-    vi.spyOn(searchResultsStore, 'subscribe').mockReturnValueOnce(() => ({
-      state: {
-        ...mockData,
-        totalCount: 2,
-      },
-    }));
 
     rerender(
       <MemoryRouter>
@@ -130,15 +97,12 @@ describe('SearchPage', () => {
       'useSearchRecreationResourcesPaginated',
     ).mockReturnValue({
       ...mockQueryResult,
-      data: { ...mockData, totalCount: 0, pages: [{ data: [], filters: [] }] },
-    } as any);
-
-    vi.spyOn(searchResultsStore, 'subscribe').mockReturnValueOnce(() => ({
-      state: {
-        pages: [{ data: [], filters: [] }],
+      data: {
+        ...mockSearchResultsData,
         totalCount: 0,
+        pages: [{ data: [], filters: [] }],
       },
-    }));
+    } as any);
 
     render(
       <MemoryRouter>
@@ -181,10 +145,6 @@ describe('SearchPage', () => {
       ...mockQueryResult,
       data: undefined,
     } as any);
-
-    vi.spyOn(searchResultsStore, 'subscribe').mockReturnValueOnce(() => ({
-      state: undefined,
-    }));
 
     const { rerender } = render(
       <MemoryRouter>

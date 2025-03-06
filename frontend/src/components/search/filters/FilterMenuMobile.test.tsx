@@ -10,7 +10,6 @@ vi.mock('react-router-dom', () => ({
 
 // Mock the useClearFilters hook
 vi.mock('@/components/search/hooks/useClearFilters', () => ({
-  __esModule: true,
   default: vi.fn(),
 }));
 
