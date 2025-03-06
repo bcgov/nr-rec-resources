@@ -5,10 +5,14 @@ import '@/components/RSTSVGLogo/RSTSVGLogo.scss';
 
 export const RSTSVGLogo: React.FC = () => {
   return (
-    <div className="rst-svg-logo-container d-flex align-items-center justify-content-center px-4 w-100 h-100">
-      <img className="w-40" src={BCLogo} alt="British Columbia Logo" />
+    <div
+      className={
+        'rst-svg-logo-container d-flex align-items-center justify-content-center px-4 w-100 h-100'
+      }
+    >
+      <img className={'bc-logo'} src={BCLogo} alt="British Columbia Logo" />
       <img
-        className="w-60"
+        className={'rst-logo'}
         src={RSTLogo}
         alt="Recreation Sites and Trails BC Logo"
       />
