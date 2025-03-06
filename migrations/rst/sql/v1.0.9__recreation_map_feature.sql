@@ -6,7 +6,7 @@ create table rst.recreation_map_feature
     section_id                  varchar(30),
     amendment_id                integer,
     amend_status_code           varchar(3),
-    recreation_map_feature_code varchar(3),
+    recreation_resource_type varchar(3),
     current_ind                 varchar(1),
     amend_status_date           date,
     retirement_date             date,
@@ -48,7 +48,7 @@ comment on column rst.recreation_map_feature.amendment_id is 'The amendment id f
 
 comment on column rst.recreation_map_feature.amend_status_code is 'Code to indicate status of amendment, that is, pending, approved or disallowed. This references Timber_Status_Code.';
 
-comment on column rst.recreation_map_feature.recreation_map_feature_code is 'Identifies the RECREATION MAP FEATURE TYPE CODE.';
+comment on column rst.recreation_map_feature.recreation_resource_type is 'Identifies the RECREATION MAP FEATURE TYPE CODE.';
 
 comment on column rst.recreation_map_feature.current_ind is 'Indicates the current version of the record for this entity.';
 
