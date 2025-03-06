@@ -11,18 +11,12 @@ import { register } from 'ol/proj/proj4';
 import CircleStyle from 'ol/style/Circle';
 import { GeoJSON, MVT } from 'ol/format';
 import { RecreationResourceDto } from '@/service/recreation-resource';
-import {
-  Geometry,
-  LineString,
-  MultiLineString,
-  MultiPoint,
-  Point,
-  Polygon,
-} from 'ol/geom';
 import proj4 from 'proj4';
 import { applyStyle } from 'ol-mapbox-style';
 import VectorTileLayer from 'ol/layer/VectorTile';
 import VectorSource from 'ol/source/Vector';
+import { extend, getCenter } from 'ol/extent';
+import { ZoomControl } from '@/components/rec-resource/TrailMap/controls/ZoomControl';
 
 // Define and register EPSG:3005 projection
 proj4.defs(
@@ -111,16 +105,17 @@ export const TrailMap = ({ recResource }: TrailMapProps) => {
 
     olMap.current = new Map({
       target: mapRef.current,
+      controls: [new ZoomControl()],
       layers: [tileLayer],
       view: new View({
         projection: 'EPSG:3005',
         // Centered on Downtown Kelowna
         center: transform([1758871.897, 514456.792], proj3005, 'EPSG:3857'),
         constrainResolution: true,
-        zoom: 7,
+        zoom: 15,
         enableRotation: false,
         extent: transformedExtent,
-        maxZoom: 15,
+        maxZoom: 30,
       }),
     });
 
@@ -138,6 +133,24 @@ export const TrailMap = ({ recResource }: TrailMapProps) => {
         featureProjection: 'EPSG:3857',
       });
 
+      const features = geojsonFormat.readFeatures(recResource.geometry);
+
+      // Compute the combined extent of the features
+      if (features.length > 0) {
+        // Initialize the combined extent with the extent of the first feature
+        let combinedExtent = features?.[0]?.getGeometry()?.getExtent() || [];
+
+        // Extend the combined extent with each subsequent feature's extent
+        features.slice(1).forEach((feature) => {
+          extend(combinedExtent, feature?.getGeometry()?.getExtent() || []);
+        });
+
+        // Compute the center of the combined extent
+        const center = getCenter(combinedExtent);
+        olMap.current.getView().setCenter(center);
+        console.log('Map centered at:', center);
+      }
+
       const vectorSource = new VectorSource({
         features: geojsonFormat.readFeatures(recResource.geometry),
       });
@@ -145,7 +158,7 @@ export const TrailMap = ({ recResource }: TrailMapProps) => {
       const vectorLayer = new VectorLayer({
         source: vectorSource,
         style: new Style({
-          stroke: new Stroke({ color: 'blue', width: 30 }),
+          stroke: new Stroke({ color: 'red', width: 3 }),
         }),
       });
 
@@ -154,26 +167,4 @@ export const TrailMap = ({ recResource }: TrailMapProps) => {
   }, [recResource, olMap.current]);
 
   return <div ref={mapRef} style={{ width: '100%', height: '500px' }}></div>;
-};
-
-const printCoords = (geometry: Geometry) => {
-  const geometryType = geometry.getType();
-  let coordinates: number[] | number[][] | number[][][] | undefined; // Define a flexible type for coordinates
-
-  if (geometryType === 'Point') {
-    coordinates = (geometry as Point).getCoordinates(); // Type assertion to Point
-    console.log('Point Coordinates:', coordinates);
-  } else if (geometryType === 'LineString') {
-    coordinates = (geometry as LineString).getCoordinates(); // Type assertion to LineString
-    console.log('LineString Coordinates:', coordinates);
-  } else if (geometryType === 'Polygon') {
-    coordinates = (geometry as Polygon).getCoordinates(); // Type assertion to Polygon
-    console.log('Polygon Coordinates:', coordinates);
-  } else if (geometryType === 'MultiPoint') {
-    coordinates = (geometry as MultiPoint).getCoordinates(); // Type assertion to MultiPoint
-    console.log('MultiPoint Coordinates:', coordinates);
-  } else if (geometryType === 'MultiLineString') {
-    coordinates = (geometry as MultiLineString).getCoordinates(); // Type assertion to MultiLineString
-    console.log('MultiLineString Coordinates:', coordinates);
-  }
 };
