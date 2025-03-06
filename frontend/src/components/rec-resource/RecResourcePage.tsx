@@ -17,6 +17,7 @@ import locationDot from '@/images/fontAwesomeIcons/location-dot.svg';
 import '@/components/rec-resource/RecResource.scss';
 import { PhotoGalleryProps } from '@/components/rec-resource/PhotoGallery';
 import { useGetRecreationResourceById } from '@/service/queries/recreation-resource';
+import Facilities from './Facilities';
 
 const PREVIEW_SIZE_CODE = 'scr';
 const FULL_RESOLUTION_SIZE_CODE = 'original';
@@ -67,6 +68,7 @@ const RecResourcePage = () => {
     rec_resource_type,
     closest_community,
     recreation_campsite,
+    recreation_structure,
     recreation_status: {
       status_code: statusCode,
       description: statusDescription,
@@ -83,9 +85,19 @@ const RecResourcePage = () => {
   const campingRef = useRef<HTMLElement>(null!);
   const thingsToDoRef = useRef<HTMLElement>(null!);
   const contactRef = useRef<HTMLElement>(null!);
+  const facilitiesRef = useRef<HTMLElement>(null!);
+  const additionalFeesRef = useRef<HTMLElement>(null!);
+
+  const additionalFees = recreation_fee?.filter(
+    (fee) => fee.recreation_fee_code !== 'C',
+  );
 
   const isThingsToDo = recreation_activity && recreation_activity.length > 0;
   const isAccess = recreation_access && recreation_access.length > 0;
+  const isAdditionalFeesAvailable = recreation_fee && additionalFees;
+
+  const isFacilitiesAvailable =
+    recreation_structure && recreation_structure !== null;
   const isPhotoGallery = photos.length > 0;
   const isClosures = statusComment && formattedName && statusCode === 2;
   const isMapsAndLocation = isAccess; // add more conditions as we add map sections
@@ -97,10 +109,19 @@ const RecResourcePage = () => {
         description ? siteDescriptionRef : null,
         isMapsAndLocation ? mapLocationRef : null,
         campingRef,
+        isAdditionalFeesAvailable ? additionalFeesRef : null,
         isThingsToDo ? thingsToDoRef : null,
+        isFacilitiesAvailable ? facilitiesRef : null,
         contactRef,
       ].filter((ref) => !!ref),
-    [description, isClosures, isThingsToDo, isMapsAndLocation],
+    [
+      description,
+      isClosures,
+      isThingsToDo,
+      isMapsAndLocation,
+      isFacilitiesAvailable,
+      isAdditionalFeesAvailable,
+    ],
   );
 
   const pageSections = useMemo(
@@ -122,9 +143,17 @@ const RecResourcePage = () => {
           href: '#camping',
           title: 'Camping',
         },
+        isAdditionalFeesAvailable && {
+          href: '#additional-fees',
+          title: 'Additional Fees',
+        },
         isThingsToDo && {
           href: '#things-to-do',
           title: 'Things to Do',
+        },
+        isFacilitiesAvailable && {
+          href: '#facilities',
+          title: 'Facilities',
         },
         {
           href: '#contact',
@@ -136,7 +165,14 @@ const RecResourcePage = () => {
           ...section,
           sectionIndex: i,
         })),
-    [description, isClosures, isThingsToDo, isMapsAndLocation],
+    [
+      description,
+      isClosures,
+      isThingsToDo,
+      isMapsAndLocation,
+      isFacilitiesAvailable,
+      isAdditionalFeesAvailable,
+    ],
   );
 
   const activeSection = useScrollSpy({
@@ -233,10 +269,25 @@ const RecResourcePage = () => {
               recreation_campsite={recreation_campsite!}
             />
 
+            {isAdditionalFeesAvailable && (
+              <Camping
+                ref={additionalFeesRef}
+                fees={recreation_fee!}
+                recreation_campsite={recreation_campsite!}
+              />
+            )}
+
             {isThingsToDo && (
               <ThingsToDo
                 activities={recreation_activity}
                 ref={thingsToDoRef}
+              />
+            )}
+
+            {isFacilitiesAvailable && (
+              <Facilities
+                recreation_structure={recreation_structure}
+                ref={facilitiesRef}
               />
             )}
 

@@ -186,4 +186,58 @@ describe('RecResourcePage', () => {
       expect(screen.queryByText(/Boat-in/i)).toBeNull();
     });
   });
+
+  describe('RecResourcePage - Additional Features', () => {
+    describe('Additional Fees section', () => {
+      it('displays additional fees when available', async () => {
+        await renderComponent({
+          ...mockResource,
+          recreation_fee: [
+            {
+              fee_description: 'Parking Fee',
+              recreation_fee_code: 'P',
+              fee_amount: 10,
+            },
+          ],
+        });
+
+        expect(screen.getAllByText(/Parking Fee/i).length).toBeGreaterThan(0);
+      });
+
+      it('does not display additional fees when only camping fee exists', async () => {
+        await renderComponent({
+          ...mockResource,
+          recreation_fee: [
+            {
+              fee_description: 'Camping Fee',
+              recreation_fee_code: 'C',
+              fee_amount: 25,
+            },
+          ],
+        });
+
+        expect(screen.queryByText(/Parking Fee/i)).toBeNull();
+      });
+    });
+
+    describe('Facilities section', () => {
+      it('displays facilities when recreation structure exists', async () => {
+        await renderComponent({
+          ...mockResource,
+          recreation_structure: { has_toilet: true, has_table: true },
+        });
+
+        expect(screen.getAllByText(/Facilities/i).length).toBeGreaterThan(0);
+      });
+
+      it('does not display facilities when recreation structure is missing', async () => {
+        await renderComponent({
+          ...mockResource,
+          recreation_structure: null,
+        });
+
+        expect(screen.queryByText(/Facilities/i)).toBeNull();
+      });
+    });
+  });
 });

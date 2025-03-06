@@ -121,6 +121,20 @@ export class RecreationCampsiteDto {
   campsite_count: number;
 }
 
+export class RecreationStructureDto {
+  @ApiProperty({
+    description: "Indicates if the recreation resource has at least one toilet",
+    example: false,
+  })
+  has_toilet: boolean;
+
+  @ApiProperty({
+    description: "Indicates if the recreation resource has at least one table",
+    example: false,
+  })
+  has_table: boolean;
+}
+
 export class RecreationResourceDto {
   @ApiProperty({
     description: "Unique identifier of the Recreation Resource",
@@ -196,4 +210,11 @@ export class RecreationResourceDto {
     type: [RecreationFeeDto],
   })
   recreation_fee: RecreationFeeDto[];
+
+  @ApiProperty({
+    description:
+      "Structure-related facilities available at the recreation resource (e.g., toilets, tables)",
+    type: RecreationStructureDto,
+  })
+  recreation_structure: RecreationStructureDto;
 }

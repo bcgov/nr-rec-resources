@@ -4,6 +4,7 @@ import {
   RecreationFeeDto,
   RecreationResourceDto,
   RecreationStatusDto,
+  RecreationStructureDto,
 } from "./recreation-resource.dto";
 
 describe("Recreation DTOs", () => {
@@ -66,6 +67,10 @@ describe("Recreation DTOs", () => {
           rec_resource_id: "123",
           campsite_count: 2,
         },
+        recreation_structure: {
+          has_table: true,
+          has_toilet: true,
+        },
         recreation_fee: [
           {
             fee_amount: 25.0,
@@ -118,6 +123,10 @@ describe("Recreation DTOs", () => {
           status_code: 1,
           comment: null,
           description: "Open",
+        },
+        recreation_structure: {
+          has_table: true,
+          has_toilet: true,
         },
         recreation_resource_images: [],
         recreation_campsite: {
@@ -261,6 +270,37 @@ describe("Recreation DTOs", () => {
 
         expect(campsite.campsite_count).toBeLessThan(0);
       });
+    });
+  });
+
+  describe("RecreationStructureDto", () => {
+    it("should create a valid RecreationStructureDto with default values", () => {
+      const structure = new RecreationStructureDto();
+      structure.has_toilet = false;
+      structure.has_table = false;
+
+      expect(structure.has_toilet).toBeDefined();
+      expect(structure.has_table).toBeDefined();
+      expect(structure.has_toilet).toBe(false);
+      expect(structure.has_table).toBe(false);
+    });
+
+    it("should allow true values for has_toilet and has_table", () => {
+      const structure = new RecreationStructureDto();
+      structure.has_toilet = true;
+      structure.has_table = true;
+
+      expect(structure.has_toilet).toBe(true);
+      expect(structure.has_table).toBe(true);
+    });
+
+    it("should allow false values for has_toilet and has_table", () => {
+      const structure = new RecreationStructureDto();
+      structure.has_toilet = false;
+      structure.has_table = false;
+
+      expect(structure.has_toilet).toBe(false);
+      expect(structure.has_table).toBe(false);
     });
   });
 });
