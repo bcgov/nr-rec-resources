@@ -8,12 +8,22 @@ import { Coordinate } from 'ol/coordinate';
 import { StyleLike } from 'ol/style/Style';
 
 interface UseVectorLayerProps {
+  /** OpenLayers map instance */
   map: OlMap;
+  /** Array of features to display */
   features: Feature[];
+  /** Style configuration for the layer */
   layerStyle?: StyleLike;
+  /** Callback fired when layer is added to map */
   onLayerAdded?: (center: Coordinate, extent: Coordinate) => void;
 }
-export const useVectorLayer = ({
+
+/**
+ * Hook that manages vector layer creation and updates on the given map
+ * with the given features
+ * @param props - Vector layer configuration
+ */
+export const useAddVectorLayerToMap = ({
   map,
   features,
   layerStyle,
@@ -35,6 +45,7 @@ export const useVectorLayer = ({
     setVectorLayer(layer);
     map.addLayer(layer);
 
+    // Calculate and set view extent
     const extent = source.getExtent();
     const center = getCenter(extent);
 
@@ -45,6 +56,7 @@ export const useVectorLayer = ({
 
     onLayerAdded?.(center, extent);
 
+    // Cleanup function to remove layer
     return () => {
       map.removeLayer(layer);
     };

@@ -2,12 +2,12 @@ import * as React from 'react';
 import { useMemo } from 'react';
 import { GeoJSON } from 'ol/format';
 import { RecreationResourceDto } from '@/service/recreation-resource';
-import {
-  getLayerStyle,
-  MAP_PROJECTION_WEB_MERCATOR,
-  proj3005,
-} from '@/components/StyledVectorFeatureMap/utils';
 import { StyledVectorFeatureMap } from '@/components/StyledVectorFeatureMap';
+import {
+  MAP_PROJECTION_BC_ALBERS,
+  MAP_PROJECTION_WEB_MERCATOR,
+} from '@/components/StyledVectorFeatureMap/constants';
+import { getLayerStyle } from '@/components/RecreationResourceMap/helpers';
 
 interface TrailMapProps {
   recResource?: RecreationResourceDto | undefined;
@@ -21,7 +21,7 @@ export const RecreationResourceMap = ({
   const features = useMemo(() => {
     if (!recResource) return [];
     const geojsonFormat = new GeoJSON({
-      dataProjection: proj3005,
+      dataProjection: MAP_PROJECTION_BC_ALBERS,
       featureProjection: MAP_PROJECTION_WEB_MERCATOR,
     });
     return recResource.geometry.flatMap((geom) =>
