@@ -10,10 +10,10 @@ describe('Facilities Component', () => {
     );
 
     expect(screen.getByText('Facilities')).toBeInTheDocument();
-    expect(screen.getByText('Toilet')).toBeInTheDocument();
-    expect(screen.getByText('Table')).toBeInTheDocument();
-    expect(screen.getByAltText('Toilet icon')).toBeInTheDocument();
-    expect(screen.getByAltText('Table icon')).toBeInTheDocument();
+    expect(screen.getByText('Toilets')).toBeInTheDocument();
+    expect(screen.getByText('Tables')).toBeInTheDocument();
+    expect(screen.getByAltText('Toilets icon')).toBeInTheDocument();
+    expect(screen.getByAltText('Tables icon')).toBeInTheDocument();
   });
 
   it('should not render the Facilities section when no facilities are available', () => {
@@ -33,10 +33,10 @@ describe('Facilities Component', () => {
     );
 
     expect(screen.getByText('Facilities')).toBeInTheDocument();
-    expect(screen.getByText('Toilet')).toBeInTheDocument();
-    expect(screen.getByAltText('Toilet icon')).toBeInTheDocument();
-    expect(screen.queryByText('Table')).not.toBeInTheDocument();
-    expect(screen.queryByAltText('Table icon')).not.toBeInTheDocument();
+    expect(screen.getByText('Toilets')).toBeInTheDocument();
+    expect(screen.getByAltText('Toilets icon')).toBeInTheDocument();
+    expect(screen.queryByText('Tables')).not.toBeInTheDocument();
+    expect(screen.queryByAltText('Tables icon')).not.toBeInTheDocument();
   });
 
   it('should render the correct icons based on facilityMap', () => {
@@ -46,7 +46,7 @@ describe('Facilities Component', () => {
       />,
     );
 
-    expect(screen.getByAltText('Toilet icon')).toBeInTheDocument();
-    expect(screen.getByAltText('Table icon')).toBeInTheDocument();
+    expect(screen.getByAltText('Toilets icon')).toBeInTheDocument();
+    expect(screen.getByAltText('Tables icon')).toBeInTheDocument();
   });
 });
