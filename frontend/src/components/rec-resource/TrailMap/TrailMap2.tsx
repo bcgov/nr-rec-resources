@@ -16,6 +16,15 @@ import VectorSource from 'ol/source/Vector';
 import { Stroke, Style } from 'ol/style';
 import { extend, getCenter } from 'ol/extent';
 import { RecreationResourceDto } from '@/service/recreation-resource';
+import { ZoomButton, ZoomToExtentButton } from '@terrestris/react-geo';
+import './TrailMap.scss';
+import {
+  faLocationCrosshairs,
+  faMinus,
+  faPlus,
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Coordinate } from '~/ol/coordinate';
 
 // Define and register EPSG:3005 projection
 proj4.defs(
@@ -28,6 +37,7 @@ const proj3005 = getProjection('EPSG:3005') ?? 'EPSG:3857';
 
 interface TrailMapProps {
   recResource?: RecreationResourceDto | undefined;
+  style?: React.CSSProperties;
 }
 
 const vectorTileLayer = new VectorTileLayer({
@@ -37,8 +47,9 @@ const vectorTileLayer = new VectorTileLayer({
   }),
 });
 
-export const TrailMap2 = ({ recResource }: TrailMapProps) => {
+export const TrailMap2 = ({ recResource, style }: TrailMapProps) => {
   const [map, setMap] = useState<OlMap>();
+  const [center, setCenter] = useState<Coordinate>();
 
   // Apply the basemap style
   useEffect(() => {
@@ -56,8 +67,8 @@ export const TrailMap2 = ({ recResource }: TrailMapProps) => {
 
     setMap(
       new OlMap({
+        controls: [],
         view: new OlView({
-          // projection: proj3005,
           center: transform([1758871.897, 514456.792], proj3005, 'EPSG:3857'),
           constrainResolution: true,
           zoom: 15,
@@ -89,6 +100,8 @@ export const TrailMap2 = ({ recResource }: TrailMapProps) => {
         });
         const center = getCenter(combinedExtent);
         map.getView().setCenter(center);
+        map.getView().fit(combinedExtent);
+        setCenter(center);
       }
 
       const vectorSource = new VectorSource({
@@ -104,19 +117,25 @@ export const TrailMap2 = ({ recResource }: TrailMapProps) => {
 
       map.addLayer(vectorLayer);
     }
-  }, [recResource]);
+  }, [recResource, map]);
 
   if (!map) return null;
 
   return (
     <MapContext.Provider value={map}>
-      <MapComponent
-        map={map}
-        style={{
-          position: 'relative',
-          height: '500px',
-        }}
-      ></MapComponent>
+      <MapComponent map={map} style={style}>
+        <div className="map-btn zoom-control">
+          <ZoomToExtentButton center={center} zoom={map.getView().getZoom()}>
+            <FontAwesomeIcon icon={faLocationCrosshairs} />
+          </ZoomToExtentButton>
+          <ZoomButton className="zoom-in-btn">
+            <FontAwesomeIcon icon={faPlus} />
+          </ZoomButton>
+          <ZoomButton delta={-1} className="zoom-out-btn">
+            <FontAwesomeIcon icon={faMinus} />
+          </ZoomButton>
+        </div>
+      </MapComponent>
     </MapContext.Provider>
   );
 };

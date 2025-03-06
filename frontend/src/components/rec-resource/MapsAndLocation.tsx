@@ -1,11 +1,14 @@
 import { forwardRef } from 'react';
+import { RecreationResourceDto } from '@/service/recreation-resource';
+import { TrailMap2 } from '@/components/rec-resource/TrailMap/TrailMap2';
 
 interface MapsAndLocationProps {
   accessTypes?: string[];
+  recResource: RecreationResourceDto;
 }
 
 const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
-  ({ accessTypes }, ref) => {
+  ({ accessTypes, recResource }, ref) => {
     return (
       <section
         id="maps-and-location"
@@ -23,6 +26,11 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
             </ul>
           </>
         )}
+
+        <TrailMap2
+          recResource={recResource}
+          style={{ position: 'relative', height: '500px' }}
+        />
       </section>
     );
   },
