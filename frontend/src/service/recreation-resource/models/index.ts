@@ -13,3 +13,4 @@ export * from './RecreationResourceDto';
 export * from './RecreationResourceImageDto';
 export * from './RecreationResourceImageVariantDto';
 export * from './RecreationStatusDto';
+export * from './RecreationStructureDto';

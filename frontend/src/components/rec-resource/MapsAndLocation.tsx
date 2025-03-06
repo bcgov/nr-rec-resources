@@ -4,7 +4,7 @@ import { TrailMap2 } from '@/components/rec-resource/TrailMap/TrailMap2';
 
 interface MapsAndLocationProps {
   accessTypes?: string[];
-  recResource: RecreationResourceDto;
+  recResource?: RecreationResourceDto;
 }
 
 const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
