@@ -25,6 +25,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Coordinate } from 'ol/coordinate';
 import { applyStyle } from 'ol-mapbox-style';
+import { useGetMapStyles } from '@/service/queries/map-service';
 
 // Define and register EPSG:3005 projection
 proj4.defs(
@@ -52,20 +53,14 @@ export const TrailMap2 = ({ recResource, style }: TrailMapProps) => {
   const [center, setCenter] = useState<Coordinate>();
   const [zoomExtent, setZoomExtent] = useState<Coordinate>();
 
+  const { data: glStyles } = useGetMapStyles();
+
+  useEffect(() => {
+    applyStyle(vectorTileLayer, glStyles, 'esri');
+  }, [glStyles]);
+
   // Apply the basemap style
   useEffect(() => {
-    fetch(
-      'https://www.arcgis.com/sharing/rest/content/items/b1624fea73bd46c681fab55be53d96ae/resources/styles/root.json',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      },
-    ).then(function (response) {
-      response.json().then(function (glStyle) {
-        applyStyle(vectorTileLayer, glStyle, 'esri');
-      });
-    });
-
     setMap(
       new OlMap({
         controls: [],
@@ -102,7 +97,7 @@ export const TrailMap2 = ({ recResource, style }: TrailMapProps) => {
         const type = geometry?.getType();
 
         return new Style({
-          stroke: new Stroke({ color: 'red', width: 3 }),
+          stroke: new Stroke({ color: 'green', width: 3, lineDash: [6, 6] }),
           text: new Text({
             text: recResource.name, // Replace with your label property
             placement: type === 'LineString' ? 'line' : 'point',
