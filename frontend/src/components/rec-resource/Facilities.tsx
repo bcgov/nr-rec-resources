@@ -13,12 +13,12 @@ const Facilities = forwardRef<HTMLElement, FacilitiesProps>(
   ({ recreation_structure }, ref) => {
     const facilitiesList = [
       {
-        name: 'Toilet',
+        name: 'Toilets',
         code: '2',
         available: recreation_structure?.has_toilet,
       },
       {
-        name: 'Table',
+        name: 'Tables',
         code: '1',
         available: recreation_structure?.has_table,
       },
