@@ -220,10 +220,11 @@ export class RecreationResourceDto {
 
   @ApiProperty({
     description: "GeoJSON geometry data",
+    type: [String],
     example: {
       type: "Point",
       coordinates: [-73.965, 40.782],
     },
   })
-  geometry: string;
+  geometry: string[];
 }

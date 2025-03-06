@@ -7,13 +7,12 @@ import MapContext from '@terrestris/react-util/dist/Context/MapContext/MapContex
 import VectorTileLayer from 'ol/layer/VectorTile';
 import VectorTileSource from 'ol/source/VectorTile';
 import { GeoJSON, MVT } from 'ol/format';
-import { applyStyle } from 'ol-mapbox-style';
 import { register } from 'ol/proj/proj4';
 import proj4 from 'proj4';
 import { get as getProjection, transform, transformExtent } from 'ol/proj';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
-import { Stroke, Style } from 'ol/style';
+import { Fill, Stroke, Style, Text } from 'ol/style';
 import { extend, getCenter } from 'ol/extent';
 import { RecreationResourceDto } from '@/service/recreation-resource';
 import { ZoomButton, ZoomToExtentButton } from '@terrestris/react-geo';
@@ -24,7 +23,8 @@ import {
   faPlus,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Coordinate } from '~/ol/coordinate';
+import { Coordinate } from 'ol/coordinate';
+import { applyStyle } from 'ol-mapbox-style';
 
 // Define and register EPSG:3005 projection
 proj4.defs(
@@ -50,6 +50,7 @@ const vectorTileLayer = new VectorTileLayer({
 export const TrailMap2 = ({ recResource, style }: TrailMapProps) => {
   const [map, setMap] = useState<OlMap>();
   const [center, setCenter] = useState<Coordinate>();
+  const [zoomExtent, setZoomExtent] = useState<Coordinate>();
 
   // Apply the basemap style
   useEffect(() => {
@@ -85,38 +86,75 @@ export const TrailMap2 = ({ recResource, style }: TrailMapProps) => {
   const transformedExtent = transformExtent(extent, 'EPSG:4326', 'EPSG:3857');
 
   useEffect(() => {
-    if (recResource && map) {
-      const geojsonFormat = new GeoJSON({
-        dataProjection: proj3005,
-        featureProjection: 'EPSG:3857',
-      });
+    if (!recResource?.geometry || !map) return;
 
-      const features = geojsonFormat.readFeatures(recResource.geometry);
+    const geojsonFormat = new GeoJSON({
+      dataProjection: proj3005,
+      featureProjection: 'EPSG:3857',
+    });
 
-      if (features.length > 0) {
-        let combinedExtent = features?.[0]?.getGeometry()?.getExtent() || [];
-        features.slice(1).forEach((feature) => {
-          extend(combinedExtent, feature?.getGeometry()?.getExtent() || []);
-        });
-        const center = getCenter(combinedExtent);
-        map.getView().setCenter(center);
-        map.getView().fit(combinedExtent);
-        setCenter(center);
-      }
+    // Initialize vector layer for all features
+    const vectorSource = new VectorSource();
+    const vectorLayer = new VectorLayer({
+      source: vectorSource,
+      style: (feature) => {
+        const geometry = feature.getGeometry();
+        const type = geometry?.getType();
 
-      const vectorSource = new VectorSource({
-        features: geojsonFormat.readFeatures(recResource.geometry),
-      });
-
-      const vectorLayer = new VectorLayer({
-        source: vectorSource,
-        style: new Style({
+        return new Style({
           stroke: new Stroke({ color: 'red', width: 3 }),
-        }),
-      });
+          text: new Text({
+            text: recResource.name, // Replace with your label property
+            placement: type === 'LineString' ? 'line' : 'point',
+            fill: new Fill({ color: 'black' }),
+            stroke: new Stroke({ color: 'white', width: 2 }),
+            textBaseline: type === 'Polygon' ? 'middle' : 'bottom',
+            textAlign: 'center',
+          }),
+        });
+      },
+    });
 
-      map.addLayer(vectorLayer);
+    let combinedExtent: number[] = [];
+
+    // Process each geometry and add features to the same vector source
+    recResource.geometry.forEach((geom) => {
+      const features = geojsonFormat.readFeatures(geom);
+
+      if (features.length === 0) return;
+
+      // Update combined extent
+      const geometryExtent = features[0]?.getGeometry()?.getExtent();
+      if (!geometryExtent) return;
+
+      combinedExtent =
+        combinedExtent.length === 0
+          ? geometryExtent
+          : extend(combinedExtent, geometryExtent);
+
+      // Add features to vector source
+      vectorSource.addFeatures(features);
+    });
+
+    // Add single vector layer to map
+    map.addLayer(vectorLayer);
+
+    // Update map view if we have valid extent
+    if (combinedExtent.length > 0) {
+      const center = getCenter(combinedExtent);
+      map.getView().setCenter(center);
+      map.getView().fit(combinedExtent, {
+        padding: [50, 50, 50, 50], // Add padding around extent
+        duration: 1000, // Animate transition
+      });
+      setCenter(center);
+      setZoomExtent(combinedExtent);
     }
+
+    // Cleanup function
+    return () => {
+      map.removeLayer(vectorLayer);
+    };
   }, [recResource, map]);
 
   if (!map) return null;
@@ -125,7 +163,11 @@ export const TrailMap2 = ({ recResource, style }: TrailMapProps) => {
     <MapContext.Provider value={map}>
       <MapComponent map={map} style={style}>
         <div className="map-btn zoom-control">
-          <ZoomToExtentButton center={center} zoom={map.getView().getZoom()}>
+          <ZoomToExtentButton
+            center={center}
+            zoom={map.getView().getZoom()}
+            extent={zoomExtent}
+          >
             <FontAwesomeIcon icon={faLocationCrosshairs} />
           </ZoomToExtentButton>
           <ZoomButton className="zoom-in-btn">

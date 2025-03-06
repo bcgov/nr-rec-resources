@@ -151,7 +151,7 @@ export class RecreationResourceService {
       },
       recreation_resource_images:
         resource.recreation_resource_images as RecreationResourceImageDto[],
-      geometry: "",
+      geometry: [],
       recreation_fee: resource.recreation_fee
         ? resource.recreation_fee.map((fee) => ({
             fee_amount: fee.fee_amount,
@@ -210,7 +210,7 @@ export class RecreationResourceService {
     }
 
     const formatted = this.formatResults([recResource])[0];
-    formatted.geometry = t[0].geometry;
+    formatted.geometry = t.map((i) => i.geometry);
 
     return formatted;
   }
