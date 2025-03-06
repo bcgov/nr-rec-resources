@@ -7,6 +7,7 @@ import {
   faPlus,
 } from '@fortawesome/free-solid-svg-icons';
 import './MapControls.scss';
+import React from 'react';
 
 interface MapControlsProps {
   center?: Coordinate;

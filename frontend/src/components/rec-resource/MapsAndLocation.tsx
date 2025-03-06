@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import { RecreationResourceDto } from '@/service/recreation-resource';
-import { TrailMap } from '@/components/rec-resource/TrailMap/TrailMap';
+import { RecreationResourceMap } from '@/components/RecreationResourceMap';
 
 interface MapsAndLocationProps {
   accessTypes?: string[];
@@ -27,9 +27,9 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
           </>
         )}
 
-        <TrailMap
+        <RecreationResourceMap
           recResource={recResource}
-          style={{ position: 'relative', height: '500px' }}
+          mapComponentCssStyles={{ position: 'relative', height: '500px' }}
         />
       </section>
     );

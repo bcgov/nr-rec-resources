@@ -4,7 +4,7 @@ import {
   MAP_PROJECTION_BC_ALBERS,
   MAP_PROJECTION_WEB_MERCATOR,
   MAP_PROJECTION_WGS84,
-} from '@/components/rec-resource/TrailMap/utils/projections';
+} from '@/components/StyledVectorFeatureMap/utils';
 import OlMap from 'ol/Map';
 import OlView from 'ol/View';
 import BaseLayer from 'ol/layer/Base';
