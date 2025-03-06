@@ -1,22 +1,31 @@
-import React, { useEffect, useRef } from 'react';
-import View from 'ol/View';
-import VectorLayer from 'ol/layer/Vector';
-import VectorTileSource from 'ol/source/VectorTile';
-import { get as getProjection, transform, transformExtent } from 'ol/proj';
-import { Fill, Stroke, Style } from 'ol/style';
-import { Map } from 'ol';
-
-// Import proj4 and register function
-import { register } from 'ol/proj/proj4';
-import CircleStyle from 'ol/style/Circle';
-import { GeoJSON, MVT } from 'ol/format';
-import { RecreationResourceDto } from '@/service/recreation-resource';
-import proj4 from 'proj4';
-import { applyStyle } from 'ol-mapbox-style';
+import * as React from 'react';
+import { useEffect, useState } from 'react';
+import OlMap from 'ol/Map';
+import OlView from 'ol/View';
+import MapComponent from '@terrestris/react-geo/dist/Map/MapComponent/MapComponent';
+import MapContext from '@terrestris/react-util/dist/Context/MapContext/MapContext';
 import VectorTileLayer from 'ol/layer/VectorTile';
+import VectorTileSource from 'ol/source/VectorTile';
+import { GeoJSON, MVT } from 'ol/format';
+import { register } from 'ol/proj/proj4';
+import proj4 from 'proj4';
+import { get as getProjection, transform, transformExtent } from 'ol/proj';
+import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
+import { Fill, Stroke, Style, Text } from 'ol/style';
 import { extend, getCenter } from 'ol/extent';
-import { ZoomControl } from '@/components/rec-resource/TrailMap/controls/ZoomControl';
+import { RecreationResourceDto } from '@/service/recreation-resource';
+import { ZoomButton, ZoomToExtentButton } from '@terrestris/react-geo';
+import './TrailMap.scss';
+import {
+  faLocationCrosshairs,
+  faMinus,
+  faPlus,
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Coordinate } from 'ol/coordinate';
+import { applyStyle } from 'ol-mapbox-style';
+import { useGetMapStyles } from '@/service/queries/map-service';
 
 // Define and register EPSG:3005 projection
 proj4.defs(
@@ -29,142 +38,145 @@ const proj3005 = getProjection('EPSG:3005') ?? 'EPSG:3857';
 
 interface TrailMapProps {
   recResource?: RecreationResourceDto | undefined;
+  style?: React.CSSProperties;
 }
 
-export const TrailMap = ({ recResource }: TrailMapProps) => {
-  const mapRef = useRef<HTMLDivElement>(undefined);
-  const olMap = useRef<Map>(null);
+const vectorTileLayer = new VectorTileLayer({
+  source: new VectorTileSource({
+    format: new MVT(),
+    url: 'https://tiles.arcgis.com/tiles/ubm4tcTYICKBpist/arcgis/rest/services/BC_BASEMAP_20240307/VectorTileServer/tile/{z}/{x}/{y}.pbf', // Updated URL
+  }),
+});
+
+export const TrailMap = ({ recResource, style }: TrailMapProps) => {
+  const [map, setMap] = useState<OlMap>();
+  const [center, setCenter] = useState<Coordinate>();
+  const [zoomExtent, setZoomExtent] = useState<Coordinate>();
+
+  const { data: glStyles } = useGetMapStyles();
 
   useEffect(() => {
-    const image = new CircleStyle({
-      radius: 5,
-      stroke: new Stroke({ color: 'red', width: 1 }),
-    });
+    applyStyle(vectorTileLayer, glStyles, 'esri');
+  }, [glStyles]);
 
-    const styles = {
-      Point: new Style({
-        image: image,
-      }),
-      LineString: new Style({
-        stroke: new Stroke({
-          color: 'green',
-          width: 1,
+  // Apply the basemap style
+  useEffect(() => {
+    setMap(
+      new OlMap({
+        controls: [],
+        view: new OlView({
+          center: transform([1758871.897, 514456.792], proj3005, 'EPSG:3857'),
+          constrainResolution: true,
+          zoom: 15,
+          enableRotation: false,
+          extent: transformedExtent,
+          maxZoom: 30,
         }),
+        layers: [vectorTileLayer],
       }),
-      Polygon: new Style({
-        stroke: new Stroke({
-          color: 'rgb(255, 90, 0)',
-          width: 2,
-        }),
-        fill: new Fill({
-          color: 'rgba(255, 217, 105, 0.4)',
-        }),
-      }),
-      MultiPolygon: new Style({
-        stroke: new Stroke({
-          color: 'rgb(255, 90, 0)',
-          width: 2,
-        }),
-        fill: new Fill({
-          color: 'rgba(255, 217, 105, 0.4)',
-        }),
-      }),
-    };
-
-    const styleFunction = function (feature) {
-      return styles[feature.getGeometry().getType()];
-    };
-
-    const tileLayer = new VectorTileLayer({
-      declutter: true,
-      // Use VectorTileLayer
-      source: new VectorTileSource({
-        // Use VectorTileSource
-        format: new MVT(), // Use MVT format for ArcGIS Vector Tiles
-        url: 'https://tiles.arcgis.com/tiles/ubm4tcTYICKBpist/arcgis/rest/services/BC_BASEMAP_20240307/VectorTileServer/tile/{z}/{x}/{y}.pbf', // Updated URL
-      }),
-      style: styleFunction,
-    });
-
-    // Apply the basemap style from the arcgis resource
-    fetch(
-      'https://www.arcgis.com/sharing/rest/content/items/b1624fea73bd46c681fab55be53d96ae/resources/styles/root.json',
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-      },
-    ).then(function (response) {
-      response.json().then(function (glStyle) {
-        applyStyle(tileLayer, glStyle, 'esri');
-      });
-    });
-
-    // Set map extent (W, S, E, N)
-    const extent = [-155.230138, 36.180153, -102.977437, 66.591323];
-    const transformedExtent = transformExtent(extent, 'EPSG:4326', 'EPSG:3857');
-
-    olMap.current = new Map({
-      target: mapRef.current,
-      controls: [new ZoomControl()],
-      layers: [tileLayer],
-      view: new View({
-        projection: 'EPSG:3005',
-        // Centered on Downtown Kelowna
-        center: transform([1758871.897, 514456.792], proj3005, 'EPSG:3857'),
-        constrainResolution: true,
-        zoom: 15,
-        enableRotation: false,
-        extent: transformedExtent,
-        maxZoom: 30,
-      }),
-    });
-
-    return () => {
-      if (olMap.current) {
-        olMap.current.setTarget(null);
-      }
-    };
+    );
   }, []);
 
+  const extent = [-155.230138, 36.180153, -102.977437, 66.591323];
+  const transformedExtent = transformExtent(extent, 'EPSG:4326', 'EPSG:3857');
+
   useEffect(() => {
-    if (recResource && olMap.current) {
-      const geojsonFormat = new GeoJSON({
-        dataProjection: proj3005,
-        featureProjection: 'EPSG:3857',
-      });
+    if (!recResource?.geometry || !map) return;
 
-      const features = geojsonFormat.readFeatures(recResource.geometry);
+    const geojsonFormat = new GeoJSON({
+      dataProjection: proj3005,
+      featureProjection: 'EPSG:3857',
+    });
 
-      // Compute the combined extent of the features
-      if (features.length > 0) {
-        // Initialize the combined extent with the extent of the first feature
-        let combinedExtent = features?.[0]?.getGeometry()?.getExtent() || [];
+    // Initialize vector layer for all features
+    const vectorSource = new VectorSource();
+    const vectorLayer = new VectorLayer({
+      source: vectorSource,
+      style: (feature) => {
+        const geometry = feature.getGeometry();
+        const type = geometry?.getType();
 
-        // Extend the combined extent with each subsequent feature's extent
-        features.slice(1).forEach((feature) => {
-          extend(combinedExtent, feature?.getGeometry()?.getExtent() || []);
+        return new Style({
+          stroke: new Stroke({ color: '#42814A', width: 3, lineDash: [6, 6] }),
+          fill:
+            type !== 'LineString'
+              ? new Fill({ color: 'rgba(255, 0, 0, 0.2)' })
+              : undefined,
+          text: new Text({
+            text: recResource.name, // Replace with your label property
+            placement: type === 'LineString' ? 'line' : 'point',
+            fill: new Fill({ color: 'black' }),
+            stroke: new Stroke({ color: 'white', width: 2 }),
+            textBaseline: type === 'Polygon' ? 'middle' : 'bottom',
+            textAlign: 'center',
+          }),
         });
+      },
+    });
 
-        // Compute the center of the combined extent
-        const center = getCenter(combinedExtent);
-        olMap.current.getView().setCenter(center);
-        console.log('Map centered at:', center);
-      }
+    let combinedExtent: number[] = [];
 
-      const vectorSource = new VectorSource({
-        features: geojsonFormat.readFeatures(recResource.geometry),
+    // Process each geometry and add features to the same vector source
+    recResource.geometry.forEach((geom) => {
+      const features = geojsonFormat.readFeatures(geom);
+
+      if (features.length === 0) return;
+
+      // Update combined extent
+      const geometryExtent = features[0]?.getGeometry()?.getExtent();
+      if (!geometryExtent) return;
+
+      combinedExtent =
+        combinedExtent.length === 0
+          ? geometryExtent
+          : extend(combinedExtent, geometryExtent);
+
+      // Add features to vector source
+      vectorSource.addFeatures(features);
+    });
+
+    // Add single vector layer to map
+    map.addLayer(vectorLayer);
+
+    // Update map view if we have valid extent
+    if (combinedExtent.length > 0) {
+      const center = getCenter(combinedExtent);
+      map.getView().setCenter(center);
+      map.getView().fit(combinedExtent, {
+        padding: [50, 50, 50, 50], // Add padding around extent
+        duration: 1000, // Animate transition
       });
-
-      const vectorLayer = new VectorLayer({
-        source: vectorSource,
-        style: new Style({
-          stroke: new Stroke({ color: 'red', width: 3 }),
-        }),
-      });
-
-      olMap.current.addLayer(vectorLayer);
+      setCenter(center);
+      setZoomExtent(combinedExtent);
     }
-  }, [recResource, olMap.current]);
 
-  return <div ref={mapRef} style={{ width: '100%', height: '500px' }}></div>;
+    // Cleanup function
+    return () => {
+      map.removeLayer(vectorLayer);
+    };
+  }, [recResource, map]);
+
+  if (!map) return null;
+
+  return (
+    <MapContext.Provider value={map}>
+      <MapComponent map={map} style={style}>
+        <div className="map-btn zoom-control">
+          <ZoomToExtentButton
+            center={center}
+            zoom={map.getView().getZoom()}
+            extent={zoomExtent}
+          >
+            <FontAwesomeIcon icon={faLocationCrosshairs} />
+          </ZoomToExtentButton>
+          <ZoomButton className="zoom-in-btn">
+            <FontAwesomeIcon icon={faPlus} />
+          </ZoomButton>
+          <ZoomButton delta={-1} className="zoom-out-btn">
+            <FontAwesomeIcon icon={faMinus} />
+          </ZoomButton>
+        </div>
+      </MapComponent>
+    </MapContext.Provider>
+  );
 };
