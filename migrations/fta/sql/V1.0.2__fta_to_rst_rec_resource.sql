@@ -15,7 +15,7 @@ select
     rp.project_name as name,
     rp.site_location as closest_community,
     case
-        when rp.recreation_view_ind = 'y' then true
+        when rp.recreation_view_ind = 'Y' then true
         else false
     end as display_on_public_site,
     rp.update_timestamp as updated_at,
@@ -30,7 +30,7 @@ left join
     fta.recreation_comment rc
 on
     rp.forest_file_id = rc.forest_file_id
-    and rc.rec_comment_type_code = 'desc'
+    and rc.rec_comment_type_code = 'DESC'
 left join
     (select distinct on (forest_file_id) forest_file_id, recreation_district_code
      from fta.recreation_district_xref
