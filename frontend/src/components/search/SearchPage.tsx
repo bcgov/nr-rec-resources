@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useStore } from '@tanstack/react-store';
 import RecResourceCard from '@/components/rec-resource/card/RecResourceCard';
 import SearchBanner from '@/components/search/SearchBanner';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import FilterChips from '@/components/search/filters/FilterChips';
 import FilterMenu from '@/components/search/filters/FilterMenu';
 import FilterMenuMobile from '@/components/search/filters/FilterMenuMobile';
+import filterChipStore from '@/store/filterChips';
 import searchResultsStore, { initialState } from '@/store/searchResults';
 import {
   PaginatedRecreationResourceDto,
@@ -13,6 +15,7 @@ import {
 } from '@/service/recreation-resource';
 import { useSearchRecreationResourcesPaginated } from '@/service/queries/recreation-resource';
 import { useInitialPageFromSearchParams } from '@/components/search/hooks/useInitialPageFromSearchParams';
+import setFilterChipsFromSearchParams from '@/components/search/utils/setFilterChipsFromSearchParams';
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -41,7 +44,15 @@ const SearchPage = () => {
 
   searchResultsStore.setState(() => data ?? initialState);
 
-  const { pages: paginatedResults, totalCount } = searchResultsStore.state;
+  const searchResults = useStore(searchResultsStore);
+  const filterChips = useStore(filterChipStore);
+
+  useEffect(() => {
+    setFilterChipsFromSearchParams(filterChips, searchResults, searchParams);
+    // eslint-disable-next-line
+  }, [data]);
+
+  const { pages: paginatedResults, totalCount } = searchResults;
 
   const handleLoadMore = () => {
     const newSearchParams = {

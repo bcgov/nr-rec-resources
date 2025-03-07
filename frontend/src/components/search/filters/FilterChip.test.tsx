@@ -1,9 +1,9 @@
 import { render, screen } from '@testing-library/react';
-import useFilterHandler from '@/components/search/hooks/useFilterHandler';
+import { useFilterHandler } from '@/components/search/hooks/useFilterHandler';
 import FilterChip from '@/components/search/filters/FilterChip';
 
 vi.mock('@/components/search/hooks/useFilterHandler', () => ({
-  default: vi.fn(() => ({
+  useFilterHandler: vi.fn(() => ({
     toggleFilter: vi.fn(),
   })),
 }));

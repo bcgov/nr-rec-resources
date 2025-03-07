@@ -3,7 +3,7 @@ import removeFilter from '@/utils/removeFilter';
 import { FilterChip } from '@/components/search/types';
 import { filterChipStore } from '@/store';
 
-const useFilterHandler = () => {
+export const useFilterHandler = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const toggleFilter = (filterChip: FilterChip, isChecked?: boolean) => {
@@ -33,5 +33,3 @@ const useFilterHandler = () => {
 
   return { toggleFilter };
 };
-
-export default useFilterHandler;

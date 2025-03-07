@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import searchResultsStore, { initialState } from '@/store/searchResults';
 import * as recreationResourceQueries from '@/service/queries/recreation-resource';
 import SearchPage from './SearchPage';
 import { mockSearchResultsData } from '@/components/search/test/mock-data';
@@ -8,6 +9,12 @@ import { mockSearchResultsData } from '@/components/search/test/mock-data';
 vi.mock('@/service/queries/recreation-resource');
 vi.mock('@/components/rec-resource/card/RecResourceCard', () => ({
   default: vi.fn(() => <div data-testid="mock-resource-card" />),
+}));
+
+vi.mock('@/store/searchResultsStore', async () => ({
+  default: {
+    state: initialState,
+  },
 }));
 
 describe('SearchPage', () => {
@@ -24,17 +31,31 @@ describe('SearchPage', () => {
       recreationResourceQueries,
       'useSearchRecreationResourcesPaginated',
     ).mockReturnValue(mockQueryResult as any);
+    vi.clearAllMocks();
   });
 
-  it('displays correct singular/plural results text', () => {
+  it('displays correct singular/plural results text', async () => {
+    const mockSingeResultData = {
+      ...mockSearchResultsData,
+      totalCount: 1,
+      pages: [
+        {
+          ...mockSearchResultsData.pages[0],
+          data: [mockSearchResultsData.pages[0].data[0]],
+        },
+      ],
+    };
     // Test singular case
     vi.spyOn(
       recreationResourceQueries,
       'useSearchRecreationResourcesPaginated',
     ).mockReturnValueOnce({
-      ...mockQueryResult,
-      data: { ...mockSearchResultsData, totalCount: 1 },
+      ...mockSearchResultsData,
+      data: { ...mockSingeResultData, totalCount: 1 },
     } as any);
+
+    searchResultsStore.state = { ...mockSingeResultData, totalCount: 1 };
+
     const { rerender } = render(
       <MemoryRouter>
         <SearchPage />
@@ -53,6 +74,8 @@ describe('SearchPage', () => {
       ...mockQueryResult,
       data: { ...mockSearchResultsData, totalCount: 2 },
     } as any);
+
+    searchResultsStore.state = { ...mockSearchResultsData, totalCount: 2 };
 
     rerender(
       <MemoryRouter>

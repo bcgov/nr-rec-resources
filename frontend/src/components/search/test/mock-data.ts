@@ -1,3 +1,5 @@
+import { SearchResultsStore } from '@/store/searchResults';
+
 export const activitiesOptions = [
   {
     id: 22,
@@ -47,24 +49,70 @@ export const mockFilterMenuContent = [
   },
 ];
 
-export const mockSearchResultsData = {
+export const mockSearchResultsData: SearchResultsStore = {
   pages: [
     {
       data: [
         {
           rec_resource_id: '1',
-          title: 'Test Resource',
+          name: 'Resource 1',
+          description: 'Description 1',
+          closest_community: 'Community 1',
+          recreation_access: ['Access 1'],
+          recreation_activity: [],
+          recreation_status: {
+            status_code: 1,
+            comment: null,
+            description: 'Open',
+          },
+          rec_resource_type: 'Type 1',
+          recreation_resource_images: [],
+          recreation_campsite: {
+            rec_resource_id: '1',
+            campsite_count: 10,
+          },
+          recreation_fee: [],
+          recreation_structure: {
+            has_toilet: true,
+            has_table: true,
+          },
+        },
+        {
+          rec_resource_id: '2',
+          name: 'Resource 2',
+          description: 'Description 2',
+          closest_community: 'Community 2',
+          recreation_access: ['Access 2'],
+          recreation_activity: [],
+          recreation_status: {
+            status_code: 2,
+            comment: null,
+            description: 'Closed',
+          },
+          rec_resource_type: 'Type 2',
+          recreation_resource_images: [],
+          recreation_campsite: {
+            rec_resource_id: '2',
+            campsite_count: 20,
+          },
+          recreation_fee: [],
+          recreation_structure: {
+            has_toilet: true,
+            has_table: true,
+          },
         },
       ],
+      total: 1,
+      page: 1,
+      limit: 10,
       filters: [],
-      currentPage: 1,
-      totalCount: 1,
     },
   ],
+  filters: [],
   totalCount: 1,
-  filters: mockFilterMenuContent,
+  currentPage: 1,
+  pageParams: [],
 };
-
 export const mockFilterChips = [
   {
     param: 'district',

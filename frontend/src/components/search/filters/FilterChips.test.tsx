@@ -2,7 +2,7 @@ import { vi, Mock } from 'vitest';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import filterChipStore from '@/store/filterChips';
 import { mockFilterChips } from '@/components/search/test/mock-data';
-import useFilterHandler from '@/components/search/hooks/useFilterHandler';
+import { useFilterHandler } from '@/components/search/hooks/useFilterHandler';
 import FilterChips from '@/components/search/filters/FilterChips';
 import { FilterChip } from '@/components/search/types';
 
@@ -13,7 +13,7 @@ vi.mock('react-router-dom', async () => {
 });
 
 vi.mock('@/components/search/hooks/useFilterHandler', () => ({
-  default: vi.fn(() => ({
+  useFilterHandler: vi.fn(() => ({
     toggleFilter: vi.fn(({ id, label, param }: FilterChip) => {
       return { id, label, param };
     }),
