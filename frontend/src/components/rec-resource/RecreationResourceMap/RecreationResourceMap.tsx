@@ -1,5 +1,4 @@
-import * as React from 'react';
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { GeoJSON } from 'ol/format';
 import { RecreationResourceDto } from '@/service/recreation-resource';
 import { StyledVectorFeatureMap } from '@/components/StyledVectorFeatureMap';
@@ -7,7 +6,7 @@ import {
   MAP_PROJECTION_BC_ALBERS,
   MAP_PROJECTION_WEB_MERCATOR,
 } from '@/components/StyledVectorFeatureMap/constants';
-import { getLayerStyle } from '@/components/RecreationResourceMap/helpers';
+import { getLayerStyle } from '@/components/rec-resource/RecreationResourceMap/helpers';
 
 interface TrailMapProps {
   recResource?: RecreationResourceDto | undefined;
@@ -24,7 +23,7 @@ export const RecreationResourceMap = ({
       dataProjection: MAP_PROJECTION_BC_ALBERS,
       featureProjection: MAP_PROJECTION_WEB_MERCATOR,
     });
-    return recResource.geometry.flatMap((geom) =>
+    return recResource.spatial_feature_geometry.flatMap((geom) =>
       geojsonFormat.readFeatures(geom),
     );
   }, [recResource]);

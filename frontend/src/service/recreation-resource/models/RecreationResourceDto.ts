@@ -135,11 +135,11 @@ export interface RecreationResourceDto {
    */
   recreation_structure: RecreationStructureDto;
   /**
-   * GeoJSON geometry data
+   * GeoJSON geometry data for the rec resource in string format
    * @type {Array<string>}
    * @memberof RecreationResourceDto
    */
-  geometry: Array<string>;
+  spatial_feature_geometry: Array<string>;
 }
 
 /**
@@ -195,7 +195,11 @@ export function instanceOfRecreationResourceDto(
     value['recreation_structure'] === undefined
   )
     return false;
-  if (!('geometry' in value) || value['geometry'] === undefined) return false;
+  if (
+    !('spatial_feature_geometry' in value) ||
+    value['spatial_feature_geometry'] === undefined
+  )
+    return false;
   return true;
 }
 
@@ -235,7 +239,7 @@ export function RecreationResourceDtoFromJSONTyped(
     recreation_structure: RecreationStructureDtoFromJSON(
       json['recreation_structure'],
     ),
-    geometry: json['geometry'],
+    spatial_feature_geometry: json['spatial_feature_geometry'],
   };
 }
 
@@ -274,6 +278,6 @@ export function RecreationResourceDtoToJSONTyped(
     recreation_structure: RecreationStructureDtoToJSON(
       value['recreation_structure'],
     ),
-    geometry: value['geometry'],
+    spatial_feature_geometry: value['spatial_feature_geometry'],
   };
 }

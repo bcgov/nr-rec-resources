@@ -1,3 +1,32 @@
+create table rst.recreation_site_point
+(
+    rec_resource_id  varchar(10) not null
+        primary key references rst.recreation_resource,
+    geometry         geometry,
+    revision_count   integer,
+    entry_userid     varchar(30),
+    entry_timestamp  timestamp,
+    update_userid    varchar(30),
+    update_timestamp timestamp
+);
+
+comment on table rst.recreation_site_point is 'Stores the location of a Recreation Site as an oracle locator point. The data is used to provide the public a map location of the Recreation Site.';
+
+comment on column rst.recreation_site_point.rec_resource_id is 'File identification assigned to Provincial Forest Use files. Assigned file number. Usually the Licence, Tenure or Private Mark number.';
+
+comment on column rst.recreation_site_point.geometry is 'A point geometry location represented by a single X,Y pair';
+
+comment on column rst.recreation_site_point.revision_count is 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user"s web browser is the most current.';
+
+comment on column rst.recreation_site_point.entry_userid is 'The userid of the user that inserted data into the record.';
+
+comment on column rst.recreation_site_point.entry_timestamp is 'Timestamp indicating when data was last inserted into the record.';
+
+comment on column rst.recreation_site_point.update_userid is 'The userid of the user that last updated the declared area record.';
+
+comment on column rst.recreation_site_point.update_timestamp is 'The timestamp of the last update to the declared area record.';
+
+
 create table rst.recreation_map_feature
 (
     rmf_skey                    integer not null
@@ -6,7 +35,7 @@ create table rst.recreation_map_feature
     section_id                  varchar(30),
     amendment_id                integer,
     amend_status_code           varchar(3),
-    recreation_resource_type varchar(3),
+    recreation_resource_type    varchar(3),
     current_ind                 varchar(1),
     amend_status_date           date,
     retirement_date             date,

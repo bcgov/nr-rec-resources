@@ -7,7 +7,7 @@ import Polygon from 'ol/geom/Polygon';
 import {
   FILL_COLOR,
   STROKE_COLOR,
-} from '@/components/RecreationResourceMap/constants';
+} from '@/components/rec-resource/RecreationResourceMap/constants';
 
 describe('helpers', () => {
   describe('getLayerStyle', () => {

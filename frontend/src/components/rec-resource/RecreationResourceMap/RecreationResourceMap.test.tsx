@@ -1,9 +1,9 @@
 import { describe, expect, it, Mock, vi } from 'vitest';
 import { render } from '@testing-library/react';
-import { RecreationResourceMap } from './RecreationResourceMap';
 import { StyledVectorFeatureMap } from '@/components/StyledVectorFeatureMap';
 import { GeoJSON } from 'ol/format';
 import { RecreationResourceDto } from '@/service/recreation-resource';
+import { RecreationResourceMap } from '@/components/rec-resource/RecreationResourceMap';
 
 // Mock dependencies
 vi.mock('@/components/StyledVectorFeatureMap', () => ({
@@ -14,14 +14,14 @@ vi.mock('ol/format', () => ({
   GeoJSON: vi.fn(),
 }));
 
-vi.mock('@/components/RecreationResourceMap/helpers', () => ({
+vi.mock('@/components/rec-resource/RecreationResourceMap/helpers', () => ({
   getLayerStyle: vi.fn(() => ({ color: 'blue' })),
 }));
 
 describe('RecreationResourceMap', () => {
   const mockRecResource = {
     name: 'Test Trail',
-    geometry: [
+    spatial_feature_geometry: [
       {
         type: 'Feature',
         geometry: {

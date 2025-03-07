@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
-import { getGeom } from "@prisma/client/sql";
+import { getRecreationResourceSpatialFeatureGeometry } from "@prisma/client/sql";
 import { PrismaService } from "src/prisma.service";
 import { RecreationResourceDto } from "./dto/recreation-resource.dto";
 import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resource.dto";
@@ -151,7 +151,7 @@ export class RecreationResourceService {
       },
       recreation_resource_images:
         resource.recreation_resource_images as RecreationResourceImageDto[],
-      geometry: [],
+      spatial_feature_geometry: [],
       recreation_fee: resource.recreation_fee
         ? resource.recreation_fee.map((fee) => ({
             fee_amount: fee.fee_amount,
@@ -191,10 +191,6 @@ export class RecreationResourceService {
     id: string,
     imageSizeCodes?: RecreationResourceImageSize[],
   ): Promise<RecreationResourceDto> {
-    const t: getGeom.Result[] = await this.prisma.$queryRawTyped(getGeom(id));
-
-    console.log(t);
-
     const recResource = await this.prisma.recreation_resource.findUnique({
       where: {
         rec_resource_id: id,
@@ -210,7 +206,15 @@ export class RecreationResourceService {
     }
 
     const formatted = this.formatResults([recResource])[0];
-    formatted.geometry = t.map((i) => i.geometry);
+
+    // add spatial features of the rec resource to the results
+    const recResourceSpatialGeometryResult: getRecreationResourceSpatialFeatureGeometry.Result[] =
+      await this.prisma.$queryRawTyped(
+        getRecreationResourceSpatialFeatureGeometry(id),
+      );
+    formatted.spatial_feature_geometry = recResourceSpatialGeometryResult.map(
+      (spatialFeature) => spatialFeature.spatial_feature_geometry,
+    );
 
     return formatted;
   }
