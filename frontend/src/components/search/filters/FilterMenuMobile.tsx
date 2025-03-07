@@ -1,40 +1,32 @@
 import { useState } from 'react';
 import { Modal } from 'react-bootstrap';
+import { useStore } from '@tanstack/react-store';
+import { useClearFilters } from '@/components/search/hooks/useClearFilters';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faChevronUp,
   faChevronDown,
   faXmark,
 } from '@fortawesome/free-solid-svg-icons';
+import searchResultsStore from '@/store/searchResults';
 import FilterGroupMobile from '@/components/search/filters/FilterGroupMobile';
-import { FilterMenuContent } from '@/components/search/types';
 import '@/components/search/filters/Filters.scss';
 
 interface FilterMenuMobileProps {
-  totalResults: number;
-  menuContent: FilterMenuContent[];
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  onClearFilters: () => void;
 }
 
-const FilterMenuMobile = ({
-  totalResults,
-  menuContent,
-  isOpen,
-  setIsOpen,
-  onClearFilters,
-}: FilterMenuMobileProps) => {
+const FilterMenuMobile = ({ isOpen, setIsOpen }: FilterMenuMobileProps) => {
+  const clearFilters = useClearFilters();
+  const { filters: menuContent, totalCount } = useStore(searchResultsStore);
+
   const filterMenu =
     menuContent &&
     Object.fromEntries(menuContent.map(({ param }) => [param, false]));
 
   const [expandAll, setExpandAll] = useState(false);
   const [showFilterGroup, setShowFilterGroup] = useState(filterMenu);
-
-  const handleClearFilter = () => {
-    onClearFilters();
-  };
 
   const handleCloseFilter = () => {
     setIsOpen(false);
@@ -69,7 +61,7 @@ const FilterMenuMobile = ({
           <h2>Filter</h2>
           <button
             aria-label="close"
-            className="btn closer-filter-btn"
+            className="btn close-filter-btn"
             onClick={handleCloseFilter}
           >
             <FontAwesomeIcon icon={faXmark} />
@@ -105,11 +97,11 @@ const FilterMenuMobile = ({
           onClick={handleCloseFilter}
           className="btn btn-primary w-100 mx-0 mb-2"
         >
-          Show {totalResults} {totalResults > 1 ? 'results' : 'result'}
+          Show {totalCount} {totalCount > 1 ? 'results' : 'result'}
         </button>
         <button
           className="btn btn-link clear-filter-link w-100"
-          onClick={handleClearFilter}
+          onClick={clearFilters}
         >
           Clear filters
         </button>

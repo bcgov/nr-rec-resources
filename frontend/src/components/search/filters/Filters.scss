@@ -157,8 +157,36 @@
   }
 }
 
-.closer-filter-btn {
+.close-filter-btn {
   svg {
     vertical-align: 1px; // optical
   }
+}
+
+.clear-filters-btn-desktop {
+  display: none;
+  padding-left: 0px;
+  margin-bottom: 8px;
+
+  @include media-breakpoint-up(md) {
+    display: block;
+  }
+}
+
+.search-filter-chip {
+  height: auto;
+  border-radius: 32px;
+  font-size: 0.875rem;
+  padding: 4px 12px;
+  margin-right: 16px;
+  margin-bottom: 8px;
+  svg.close-icon {
+    font-size: 1rem;
+    margin-left: 8px;
+  }
+}
+
+.filter-chips-container {
+  display: flex;
+  flex-wrap: wrap;
 }
