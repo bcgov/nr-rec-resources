@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import searchResultsStore, { initialState } from '@/store/searchResults';
+import searchResultsStore from '@/store/searchResults';
 import * as recreationResourceQueries from '@/service/queries/recreation-resource';
 import SearchPage from './SearchPage';
 import { mockSearchResultsData } from '@/components/search/test/mock-data';
@@ -11,9 +11,17 @@ vi.mock('@/components/rec-resource/card/RecResourceCard', () => ({
   default: vi.fn(() => <div data-testid="mock-resource-card" />),
 }));
 
-vi.mock('@/store/searchResultsStore', async () => ({
+vi.mock('@/store/searchResults', async () => ({
   default: {
-    state: initialState,
+    state: {
+      currentPage: 1,
+      filters: [],
+      totalCount: 0,
+      pages: [],
+      pageParams: [],
+    },
+    setState: vi.fn(),
+    subscribe: vi.fn(),
   },
 }));
 
@@ -35,7 +43,8 @@ describe('SearchPage', () => {
   });
 
   it('displays correct singular/plural results text', async () => {
-    const mockSingeResultData = {
+    // Test singular case
+    const mockSingleResultData = {
       ...mockSearchResultsData,
       totalCount: 1,
       pages: [
@@ -45,16 +54,8 @@ describe('SearchPage', () => {
         },
       ],
     };
-    // Test singular case
-    vi.spyOn(
-      recreationResourceQueries,
-      'useSearchRecreationResourcesPaginated',
-    ).mockReturnValueOnce({
-      ...mockSearchResultsData,
-      data: { ...mockSingeResultData, totalCount: 1 },
-    } as any);
 
-    searchResultsStore.state = { ...mockSingeResultData, totalCount: 1 };
+    searchResultsStore.state = { ...mockSingleResultData, totalCount: 1 };
 
     const { rerender } = render(
       <MemoryRouter>
@@ -66,15 +67,6 @@ describe('SearchPage', () => {
     expect(screen.getByText('Result')).toBeInTheDocument();
     expect(screen.getAllByTestId('mock-resource-card')).toHaveLength(1);
 
-    // Test plural case
-    vi.spyOn(
-      recreationResourceQueries,
-      'useSearchRecreationResourcesPaginated',
-    ).mockReturnValueOnce({
-      ...mockQueryResult,
-      data: { ...mockSearchResultsData, totalCount: 2 },
-    } as any);
-
     searchResultsStore.state = { ...mockSearchResultsData, totalCount: 2 };
 
     rerender(
@@ -85,7 +77,7 @@ describe('SearchPage', () => {
 
     expect(screen.getByText('2')).toBeInTheDocument();
     expect(screen.getByText('Results')).toBeInTheDocument();
-    expect(screen.getAllByTestId('mock-resource-card')).toHaveLength(1);
+    expect(screen.getAllByTestId('mock-resource-card')).toHaveLength(2);
   });
 
   it('handles load more button click', () => {
@@ -115,17 +107,16 @@ describe('SearchPage', () => {
   });
 
   it('displays no results message when data is empty', () => {
-    vi.spyOn(
-      recreationResourceQueries,
-      'useSearchRecreationResourcesPaginated',
-    ).mockReturnValue({
+    const mockSearchResults = {
       ...mockQueryResult,
       data: {
         ...mockSearchResultsData,
         totalCount: 0,
         pages: [{ data: [], filters: [] }],
       },
-    } as any);
+    };
+
+    searchResultsStore.state = mockSearchResults as any;
 
     render(
       <MemoryRouter>
@@ -147,6 +138,8 @@ describe('SearchPage', () => {
       'useSearchRecreationResourcesPaginated',
     ).mockReturnValue(mockQueryResultWithPrevious as any);
 
+    searchResultsStore.state = mockQueryResultWithPrevious as any;
+
     render(
       <MemoryRouter>
         <SearchPage />
@@ -161,13 +154,7 @@ describe('SearchPage', () => {
 
   it('handles null or undefined data gracefully', () => {
     // Test case 1: undefined data
-    vi.spyOn(
-      recreationResourceQueries,
-      'useSearchRecreationResourcesPaginated',
-    ).mockReturnValue({
-      ...mockQueryResult,
-      data: undefined,
-    } as any);
+    searchResultsStore.state = { ...mockQueryResult, pages: undefined } as any;
 
     const { rerender } = render(
       <MemoryRouter>
@@ -178,13 +165,10 @@ describe('SearchPage', () => {
     expect(screen.getByText('No results found')).toBeInTheDocument();
 
     // Test case 2: data with undefined pages
-    vi.spyOn(
-      recreationResourceQueries,
-      'useSearchRecreationResourcesPaginated',
-    ).mockReturnValue({
+    searchResultsStore.state = {
       ...mockQueryResult,
       data: { pages: undefined, totalCount: undefined },
-    } as any);
+    } as any;
 
     rerender(
       <MemoryRouter>
