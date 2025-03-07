@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Modal } from 'react-bootstrap';
-import useClearFilters from '@/components/search/hooks/useClearFilters';
+import { useStore } from '@tanstack/react-store';
+import { useClearFilters } from '@/components/search/hooks/useClearFilters';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faChevronUp,
@@ -18,7 +19,7 @@ interface FilterMenuMobileProps {
 
 const FilterMenuMobile = ({ isOpen, setIsOpen }: FilterMenuMobileProps) => {
   const clearFilters = useClearFilters();
-  const { filters: menuContent, totalCount } = searchResultsStore.state;
+  const { filters: menuContent, totalCount } = useStore(searchResultsStore);
 
   const filterMenu =
     menuContent &&

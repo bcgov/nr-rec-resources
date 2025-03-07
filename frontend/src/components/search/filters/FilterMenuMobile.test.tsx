@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import FilterMenuMobile from '@/components/search/filters/FilterMenuMobile';
-import useClearFilters from '@/components/search/hooks/useClearFilters';
+import { useClearFilters } from '@/components/search/hooks/useClearFilters';
 import searchResultsStore from '@/store/searchResults';
 import { mockFilterMenuContent } from '@/components/search/test/mock-data';
 
@@ -10,7 +10,7 @@ vi.mock('react-router-dom', () => ({
 
 // Mock the useClearFilters hook
 vi.mock('@/components/search/hooks/useClearFilters', () => ({
-  default: vi.fn(),
+  useClearFilters: vi.fn(),
 }));
 
 Object.defineProperty(searchResultsStore, 'state', {

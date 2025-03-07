@@ -2,7 +2,7 @@ import { describe, expect, it, Mock, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
 import { useSearchParams } from 'react-router-dom';
 import { filterChipStore } from '@/store';
-import useFilterHandler from '@/components/search/hooks/useFilterHandler';
+import { useFilterHandler } from '@/components/search/hooks/useFilterHandler';
 
 vi.mock('react-router-dom', () => ({
   useSearchParams: vi.fn(),

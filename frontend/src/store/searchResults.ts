@@ -13,7 +13,7 @@ export const initialState = {
   pageParams: [],
 };
 
-interface SearchResultsStore {
+export interface SearchResultsStore {
   pages: PaginatedRecreationResourceDto[];
   currentPage: number;
   totalCount: number;

@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { filterChipStore } from '@/store';
 
-const useClearFilters = () => {
+export const useClearFilters = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const clearFilters = useCallback(() => {
@@ -20,5 +20,3 @@ const useClearFilters = () => {
 
   return clearFilters;
 };
-
-export default useClearFilters;
