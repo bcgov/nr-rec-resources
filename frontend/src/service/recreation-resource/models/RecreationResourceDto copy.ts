@@ -27,13 +27,6 @@ import {
   RecreationResourceImageDtoToJSON,
   RecreationResourceImageDtoToJSONTyped,
 } from './RecreationResourceImageDto';
-import type { RecreationStructureDto } from './RecreationStructureDto';
-import {
-  RecreationStructureDtoFromJSON,
-  RecreationStructureDtoFromJSONTyped,
-  RecreationStructureDtoToJSON,
-  RecreationStructureDtoToJSONTyped,
-} from './RecreationStructureDto';
 import type { RecreationStatusDto } from './RecreationStatusDto';
 import {
   RecreationStatusDtoFromJSON,
@@ -69,48 +62,49 @@ export interface RecreationResourceDto {
    * @memberof RecreationResourceDto
    */
   rec_resource_id: string;
+
   /**
    * Official name of the Recreation Resource
    * @type {string}
    * @memberof RecreationResourceDto
    */
   name: string;
+
   /**
    * Detailed description of the Recreation Resource
-   * @type {string}
+   * @type {string | null}
    * @memberof RecreationResourceDto
    */
   description: string | null;
+
   /**
    * Physical location of the Recreation Resource
    * @type {string}
    * @memberof RecreationResourceDto
    */
   closest_community: string;
-  /**
-   * Recreation Access Types
-   * @type {Array<string>}
-   * @memberof RecreationResourceDto
-   */
-  recreation_access: Array<string>;
+
   /**
    * List of recreational activities available at this resource
    * @type {Array<RecreationActivityDto>}
    * @memberof RecreationResourceDto
    */
   recreation_activity: Array<RecreationActivityDto>;
+
   /**
    * Current operational status of the Recreation Resource
    * @type {RecreationStatusDto}
    * @memberof RecreationResourceDto
    */
   recreation_status: RecreationStatusDto;
+
   /**
    * Code representing a specific feature associated with the recreation resource
    * @type {string}
    * @memberof RecreationResourceDto
    */
   rec_resource_type: string;
+
   /**
    * List of images for the recreation resource
    * @type {Array<RecreationResourceImageDto>}
@@ -123,24 +117,14 @@ export interface RecreationResourceDto {
    * @memberof RecreationResourceDto
    */
   recreation_campsite: RecreationCampsiteDto;
+
   /**
    * List of fee details for the recreation resource (supports multiple fees)
    * @type {Array<RecreationFeeDto>}
    * @memberof RecreationResourceDto
    */
   recreation_fee: Array<RecreationFeeDto>;
-  /**
-   * Structure-related facilities available at the recreation resource (e.g., toilets, tables)
-   * @type {RecreationStructureDto}
-   * @memberof RecreationResourceDto
-   */
   recreation_structure: RecreationStructureDto;
-  /**
-   * GeoJSON geometry data for the rec resource in string format
-   * @type {Array<string>}
-   * @memberof RecreationResourceDto
-   */
-  spatial_feature_geometry: Array<string>;
   recreation_maintainance: RecreationMaintenanceDto[];
 }
 
@@ -172,11 +156,6 @@ export function instanceOfRecreationResourceDto(
   )
     return false;
   if (
-    !('recreation_access' in value) ||
-    value['recreation_access'] === undefined
-  )
-    return false;
-  if (
     !('recreation_activity' in value) ||
     value['recreation_activity'] === undefined
   )
@@ -203,16 +182,6 @@ export function instanceOfRecreationResourceDto(
     return false;
   if (!('recreation_fee' in value) || value['recreation_fee'] === undefined)
     return false;
-  if (
-    !('recreation_structure' in value) ||
-    value['recreation_structure'] === undefined
-  )
-    return false;
-  if (
-    !('spatial_feature_geometry' in value) ||
-    value['spatial_feature_geometry'] === undefined
-  )
-    return false;
   return true;
 }
 
@@ -234,7 +203,6 @@ export function RecreationResourceDtoFromJSONTyped(
     name: json['name'],
     description: json['description'],
     closest_community: json['closest_community'],
-    recreation_access: json['recreation_access'],
     recreation_activity: (json['recreation_activity'] as Array<any>).map(
       RecreationActivityDtoFromJSON,
     ),
@@ -249,10 +217,6 @@ export function RecreationResourceDtoFromJSONTyped(
     recreation_fee: (json['recreation_fee'] as Array<any>).map(
       RecreationFeeDtoFromJSON,
     ),
-    recreation_structure: RecreationStructureDtoFromJSON(
-      json['recreation_structure'],
-    ),
-    spatial_feature_geometry: json['spatial_feature_geometry'],
     recreation_structure: json['recreation_structure'],
     recreation_maintainance: (json['recreation_maintainace'] as Array<any>).map(
       RecreationMaintenanceDtoFromJSON,
@@ -277,7 +241,6 @@ export function RecreationResourceDtoToJSONTyped(
     name: value['name'],
     description: value['description'],
     closest_community: value['closest_community'],
-    recreation_access: value['recreation_access'],
     recreation_activity: (value['recreation_activity'] as Array<any>).map(
       RecreationActivityDtoToJSON,
     ),
@@ -289,12 +252,6 @@ export function RecreationResourceDtoToJSONTyped(
     recreation_campsite: RecreationCampsiteDtoToJSON(
       value['recreation_campsite'],
     ),
-    recreation_fee: (value['recreation_fee'] as Array<any>).map(
-      RecreationFeeDtoToJSON,
-    ),
-    recreation_structure: RecreationStructureDtoToJSON(
-      value['recreation_structure'],
-    ),
-    spatial_feature_geometry: value['spatial_feature_geometry'],
+    recreation_fee: RecreationFeeDtoToJSON(value['recreation_fee']),
   };
 }
