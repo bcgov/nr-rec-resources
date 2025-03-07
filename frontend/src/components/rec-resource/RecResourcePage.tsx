@@ -18,6 +18,7 @@ import '@/components/rec-resource/RecResource.scss';
 import { PhotoGalleryProps } from '@/components/rec-resource/PhotoGallery';
 import { useGetRecreationResourceById } from '@/service/queries/recreation-resource';
 import Facilities from './Facilities';
+import SiteMaintainance from './SiteMaintainance';
 
 const PREVIEW_SIZE_CODE = 'scr';
 const FULL_RESOLUTION_SIZE_CODE = 'original';
@@ -75,6 +76,7 @@ const RecResourcePage = () => {
       comment: statusComment,
     } = {},
     recreation_fee,
+    recreation_maintainance,
   } = recResource || {};
 
   const formattedName = name?.toLowerCase();
@@ -254,6 +256,10 @@ const RecResourcePage = () => {
                 description={description}
                 ref={siteDescriptionRef}
               />
+            )}
+
+            {recreation_maintainance && (
+              <SiteMaintainance data={recreation_maintainance} />
             )}
 
             {isMapsAndLocation && (
