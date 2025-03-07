@@ -6,7 +6,7 @@ import {
   STROKE_COLOR,
   TEXT_COLOR,
   TEXT_STROKE_COLOR,
-} from '@/components/RecreationResourceMap/constants';
+} from '@/components/rec-resource/RecreationResourceMap/constants';
 
 /**
  * Creates a style function for vector features with customizable appearance

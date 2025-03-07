@@ -7,7 +7,7 @@ import {
   MAP_PROJECTION_BC_ALBERS,
   MAP_PROJECTION_WEB_MERCATOR,
 } from '@/components/StyledVectorFeatureMap/constants';
-import { getLayerStyle } from '@/components/RecreationResourceMap/helpers';
+import { getLayerStyle } from '@/components/rec-resource/RecreationResourceMap/helpers';
 
 interface TrailMapProps {
   recResource?: RecreationResourceDto | undefined;

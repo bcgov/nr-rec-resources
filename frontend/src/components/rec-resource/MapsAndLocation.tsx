@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import { RecreationResourceDto } from '@/service/recreation-resource';
-import { RecreationResourceMap } from '@/components/RecreationResourceMap';
+import { RecreationResourceMap } from 'src/components/rec-resource/RecreationResourceMap';
 
 interface MapsAndLocationProps {
   accessTypes?: string[];
