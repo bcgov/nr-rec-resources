@@ -2,6 +2,7 @@ import { SearchResultsStore } from '@/store/searchResults';
 import { FilterChip } from '@/components/search/types';
 import filterChipStore from '@/store/filterChips';
 
+// Util to set filter chips from search params on initial page load
 const setFilterChipsFromSearchParams = (
   filterChips: FilterChip[],
   searchResults: SearchResultsStore,
@@ -18,8 +19,6 @@ const setFilterChipsFromSearchParams = (
   );
 
   if (Object.keys(filterParams).length === 0) return;
-
-  console.log(filterParams);
 
   filters.forEach((filterGroup) => {
     const groupParam = filterGroup.param;
