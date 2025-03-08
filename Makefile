@@ -43,9 +43,10 @@ reset_db: drop_db create_db migrate load_fixtures
 
 .PHONY: load_test_backend
 load_test_backend: ## run performance tests with k6
-load_test_backend: SERVER_HOST=http://127.0.0.1:8000
+load_test_backend: SERVER_HOST=http://localhost:8000
 load_test_backend: SERVER_API_ROUTE=/api
 load_test_backend: SERVER_ROUTE=$(SERVER_HOST)$(SERVER_API_ROUTE)
 load_test_backend:
+	@mkdir -p k6_results
 	@echo "Running performance tests with k6"
-	@k6 -e SERVER_HOST=$(SERVER_ROUTE) run tests/load/backend/backend-test.js --out csv=k6_results/test_results.csv
+	@k6 -e SERVER_HOST=$(SERVER_ROUTE) run tests/load/backend/main.js --out csv=k6_results/test_results.csv
