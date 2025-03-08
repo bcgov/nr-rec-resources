@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>default.rst</title>
+        <!-- Tell the browser to be responsive to screen width -->
+        <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+        <link rel="icon" type="image/png" sizes="16x16" href="../favicon.png">
+        <!-- Bootstrap 3.3.5 -->
+        <link rel="stylesheet" href="../bower/admin-lte/bootstrap/css/bootstrap.min.css">
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="../bower/font-awesome/css/font-awesome.min.css">
+        <!-- Ionicons -->
+        <link rel="stylesheet" href="../bower/ionicons/css/ionicons.min.css">
+        <!-- DataTables -->
+        <link rel="stylesheet" href="../bower/datatables.net-bs/css/dataTables.bootstrap.min.css">
+        <link rel="stylesheet" href="../bower/datatables.net-buttons-bs/css/buttons.bootstrap.min.css">
+        <!-- Code Mirror -->
+        <link rel="stylesheet" href="../bower/codemirror/codemirror.css">
+        <!-- Fonts -->
+        <link href='../fonts/indieflower/indie-flower.css' rel='stylesheet' type='text/css'>
+        <link href='../fonts/source-sans-pro/source-sans-pro.css' rel='stylesheet' type='text/css'>
+
+        <!-- Theme style -->
+        <link rel="stylesheet" href="../bower/admin-lte/dist/css/AdminLTE.min.css">
+        <!-- Salvattore -->
+        <link rel="stylesheet" href="../bower/salvattore/salvattore.css">
+        <!-- AdminLTE Skins. Choose a skin from the css/skins
+           folder instead of downloading all of them to reduce the load. -->
+        <link rel="stylesheet" href="../bower/admin-lte/dist/css/skins/_all-skins.min.css">
+        <!-- SchemaSpy -->
+        <link rel="stylesheet" href="../schemaSpy.css">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+        <script src="../bower/html5shiv/html5shiv.min.js"></script>
+        <script src="../bower/respond/respond.min.js"></script>
+        <![endif]-->
+    </head>
+    <!-- ADD THE CLASS layout-top-nav TO REMOVE THE SIDEBAR. -->
+    <body class="hold-transition skin-blue layout-top-nav">
+        <div class="wrapper">
+            <header class="main-header">
+                <nav class="navbar navbar-static-top">
+                    <div class="container">
+                        <div class="navbar-header">
+                            <a href="../../index.html" class="navbar-brand"><b>default</b></a><span class="navbar-brand" style="padding-left: 0">.rst</span>
+                            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse"><i class="fa fa-bars"></i></button>
+                        </div>
+
+                        <!-- Collect the nav links, forms, and other content for toggling -->
+                        <div class="collapse navbar-collapse pull-left" id="navbar-collapse">
+                            <ul class="nav navbar-nav">
+                                <li><a href="../index.html">Tables <span class="sr-only">(current)</span></a></li>
+                                <li><a href="../columns.html" title="All of the columns in the schema">Columns</a></li>
+                                <li><a href="../constraints.html" title="Useful for diagnosing error messages that just give constraint name or number">Constraints</a></li>
+                                <li><a href="../relationships.html" title="Diagram of table relationships">Relationships</a></li>
+                                <li><a href="../orphans.html" title="View of tables with neither parents nor children">Orphan&nbsp;Tables</a></li>
+                                <li><a href="../anomalies.html" title="Things that might not be quite right">Anomalies</a></li>
+                                <li><a href="../routines.html" title="Procedures and functions">Routines</a></li>
+                            </ul>
+                        </div>
+                        <!-- /.navbar-collapse -->
+                        <!-- Navbar Right Menu -->
+                    </div>
+                    <!-- /.container-fluid -->
+                </nav>
+            </header>
+            <!-- Main content -->
+            <!-- Full Width Column -->
+            <div class="content-wrapper">
+                <!-- Content Header (Page header) -->
+                <section class="content-header">
+                    <h1>versioning()</h1><br />
+                </section>
+                <!-- Main content -->
+                <section class="content">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <span class="glyphicon glyphicon-list-alt" aria-hidden="true"></span>
+                            <h3 id="Columns" class="box-title">Parameters</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <table id="standard_table" class="table table-bordered table-striped dataTable" role="grid">
+                                <thead align='left'>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Mode</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td></td>
+                                    <td></td>
+                                    <td>IN</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-file-code-o"></i>
+                            <h3 id="RoutineDefinition" class="box-title">Definition</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <textarea id="sql-script-codemirror" name="sql-script-codemirror" rows="" style="display: none;">DECLARE&#10;  sys_period text;&#10;  history_table text;&#10;  manipulate jsonb;&#10;  mitigate_update_conflicts text;&#10;  ignore_unchanged_values bool;&#10;  include_current_version_in_history bool;&#10;  commonColumns text[];&#10;  time_stamp_to_use timestamptz;&#10;  range_lower timestamptz;&#10;  existing_range tstzrange;&#10;  holder record;&#10;  holder2 record;&#10;  pg_version integer;&#10;  newVersion record;&#10;  oldVersion record;&#10;  user_defined_system_time text;&#10;BEGIN&#10;  -- set custom system time if exists&#10;  BEGIN&#10;    SELECT current_setting(&#39;user_defined.system_time&#39;) INTO user_defined_system_time;&#10;    IF NOT FOUND OR (user_defined_system_time &lt;&gt; &#39;&#39;) IS NOT TRUE THEN&#10;      time_stamp_to_use :&#61; CURRENT_TIMESTAMP;&#10;    ELSE&#10;      SELECT TO_TIMESTAMP(&#10;          user_defined_system_time,&#10;          &#39;YYYY-MM-DD HH24:MI:SS.MS.US&#39;&#10;      ) INTO time_stamp_to_use;&#10;    END IF;&#10;    EXCEPTION WHEN OTHERS THEN&#10;      time_stamp_to_use :&#61; CURRENT_TIMESTAMP;&#10;  END;&#10;&#10;  IF TG_WHEN !&#61; &#39;BEFORE&#39; OR TG_LEVEL !&#61; &#39;ROW&#39; THEN&#10;    RAISE TRIGGER_PROTOCOL_VIOLATED USING&#10;    MESSAGE &#61; &#39;function &quot;versioning&quot; must be fired BEFORE ROW&#39;;&#10;  END IF;&#10;&#10;  IF TG_OP !&#61; &#39;INSERT&#39; AND TG_OP !&#61; &#39;UPDATE&#39; AND TG_OP !&#61; &#39;DELETE&#39; THEN&#10;    RAISE TRIGGER_PROTOCOL_VIOLATED USING&#10;    MESSAGE &#61; &#39;function &quot;versioning&quot; must be fired for INSERT or UPDATE or DELETE&#39;;&#10;  END IF;&#10;&#10;  IF TG_NARGS not between 3 and 5 THEN&#10;    RAISE INVALID_PARAMETER_VALUE USING&#10;    MESSAGE &#61; &#39;wrong number of parameters for function &quot;versioning&quot;&#39;,&#10;    HINT &#61; &#39;expected 3 to 5 parameters but got &#39; || TG_NARGS;&#10;  END IF;&#10;&#10;  sys_period :&#61; TG_ARGV[0];&#10;  history_table :&#61; TG_ARGV[1];&#10;  mitigate_update_conflicts :&#61; TG_ARGV[2];&#10;  ignore_unchanged_values :&#61; COALESCE(TG_ARGV[3],&#39;false&#39;);&#10;  include_current_version_in_history :&#61; COALESCE(TG_ARGV[4],&#39;false&#39;);&#10;&#10;  IF ignore_unchanged_values AND TG_OP &#61; &#39;UPDATE&#39; THEN&#10;    IF NEW IS NOT DISTINCT FROM OLD THEN&#10;      RETURN OLD;&#10;    END IF;&#10;  END IF;&#10;&#10;  -- check if sys_period exists on original table&#10;  SELECT atttypid, attndims INTO holder FROM pg_attribute WHERE attrelid &#61; TG_RELID AND attname &#61; sys_period AND NOT attisdropped;&#10;  IF NOT FOUND THEN&#10;    RAISE &#39;column &quot;%&quot; of relation &quot;%&quot; does not exist&#39;, sys_period, TG_TABLE_NAME USING&#10;    ERRCODE &#61; &#39;undefined_column&#39;;&#10;  END IF;&#10;  IF holder.atttypid !&#61; to_regtype(&#39;tstzrange&#39;) THEN&#10;    IF holder.attndims &gt; 0 THEN&#10;      RAISE &#39;system period column &quot;%&quot; of relation &quot;%&quot; is not a range but an array&#39;, sys_period, TG_TABLE_NAME USING&#10;      ERRCODE &#61; &#39;datatype_mismatch&#39;;&#10;    END IF;&#10;&#10;    SELECT rngsubtype INTO holder2 FROM pg_range WHERE rngtypid &#61; holder.atttypid;&#10;    IF FOUND THEN&#10;      RAISE &#39;system period column &quot;%&quot; of relation &quot;%&quot; is not a range of timestamp with timezone but of type %&#39;, sys_period, TG_TABLE_NAME, format_type(holder2.rngsubtype, null) USING&#10;      ERRCODE &#61; &#39;datatype_mismatch&#39;;&#10;    END IF;&#10;&#10;    RAISE &#39;system period column &quot;%&quot; of relation &quot;%&quot; is not a range but type %&#39;, sys_period, TG_TABLE_NAME, format_type(holder.atttypid, null) USING&#10;    ERRCODE &#61; &#39;datatype_mismatch&#39;;&#10;  END IF;&#10;&#10;  IF TG_OP &#61; &#39;UPDATE&#39; OR TG_OP &#61; &#39;DELETE&#39; OR (include_current_version_in_history &#61; &#39;true&#39; AND TG_OP &#61; &#39;INSERT&#39;) THEN&#10;    IF include_current_version_in_history &lt;&gt; &#39;true&#39; THEN&#10;      -- Ignore rows already modified in the current transaction&#10;      IF OLD.xmin::text &#61; (txid_current() % (2^32)::bigint)::text THEN&#10;        IF TG_OP &#61; &#39;DELETE&#39; THEN&#10;          RETURN OLD;&#10;        END IF;&#10;        RETURN NEW;&#10;      END IF;&#10;    END IF;&#10;&#10;    SELECT current_setting(&#39;server_version_num&#39;)::integer&#10;    INTO pg_version;&#10;&#10;    -- to support postgres &lt; 9.6&#10;    IF pg_version &lt; 90600 THEN&#10;      -- check if history table exits&#10;      IF to_regclass(history_table::cstring) IS NULL THEN&#10;        RAISE &#39;relation &quot;%&quot; does not exist&#39;, history_table;&#10;      END IF;&#10;    ELSE&#10;      IF to_regclass(history_table) IS NULL THEN&#10;        RAISE &#39;relation &quot;%&quot; does not exist&#39;, history_table;&#10;      END IF;&#10;    END IF;&#10;&#10;    -- check if history table has sys_period&#10;    IF NOT EXISTS(SELECT * FROM pg_attribute WHERE attrelid &#61; history_table::regclass AND attname &#61; sys_period AND NOT attisdropped) THEN&#10;      RAISE &#39;history relation &quot;%&quot; does not contain system period column &quot;%&quot;&#39;, history_table, sys_period USING&#10;      HINT &#61; &#39;history relation must contain system period column with the same name and data type as the versioned one&#39;;&#10;    END IF;&#10;&#10;    -- If we we are performing an update or delete, we need to check if the current version is valid and optionally mitigate update conflicts&#10;    IF TG_OP &#61; &#39;UPDATE&#39; OR TG_OP &#61; &#39;DELETE&#39; THEN&#10;      EXECUTE format(&#39;SELECT $1.%I&#39;, sys_period) USING OLD INTO existing_range;&#10;&#10;      IF existing_range IS NULL THEN&#10;        RAISE &#39;system period column &quot;%&quot; of relation &quot;%&quot; must not be null&#39;, sys_period, TG_TABLE_NAME USING&#10;        ERRCODE &#61; &#39;null_value_not_allowed&#39;;&#10;      END IF;&#10;&#10;      IF isempty(existing_range) OR NOT upper_inf(existing_range) THEN&#10;        RAISE &#39;system period column &quot;%&quot; of relation &quot;%&quot; contains invalid value&#39;, sys_period, TG_TABLE_NAME USING&#10;        ERRCODE &#61; &#39;data_exception&#39;,&#10;        DETAIL &#61; &#39;valid ranges must be non-empty and unbounded on the high side&#39;;&#10;      END IF;&#10;&#10;      range_lower :&#61; lower(existing_range);&#10;&#10;      IF mitigate_update_conflicts &#61; &#39;true&#39; THEN&#10;        -- mitigate update conflicts&#10;        IF range_lower &gt;&#61; time_stamp_to_use THEN&#10;          time_stamp_to_use :&#61; range_lower + interval &#39;1 microseconds&#39;;&#10;        END IF;&#10;      END IF;&#10;      IF range_lower &gt;&#61; time_stamp_to_use THEN&#10;        RAISE &#39;system period value of relation &quot;%&quot; cannot be set to a valid period because a row that is attempted to modify was also modified by another transaction&#39;, TG_TABLE_NAME USING&#10;        ERRCODE &#61; &#39;data_exception&#39;,&#10;        DETAIL &#61; &#39;the start time of the system period is the greater than or equal to the time of the current transaction &#39;;&#10;      END IF;&#10;    END IF;&#10;&#10;    WITH history AS&#10;      (SELECT attname, atttypid&#10;      FROM   pg_attribute&#10;      WHERE  attrelid &#61; history_table::regclass&#10;      AND    attnum &gt; 0&#10;      AND    NOT attisdropped),&#10;      main AS&#10;      (SELECT attname, atttypid&#10;      FROM   pg_attribute&#10;      WHERE  attrelid &#61; TG_RELID&#10;      AND    attnum &gt; 0&#10;      AND    NOT attisdropped)&#10;    SELECT&#10;      history.attname AS history_name,&#10;      main.attname AS main_name,&#10;      history.atttypid AS history_type,&#10;      main.atttypid AS main_type&#10;    INTO holder&#10;      FROM history&#10;      INNER JOIN main&#10;      ON history.attname &#61; main.attname&#10;    WHERE&#10;      history.atttypid !&#61; main.atttypid;&#10;&#10;    IF FOUND THEN&#10;      RAISE &#39;column &quot;%&quot; of relation &quot;%&quot; is of type % but column &quot;%&quot; of history relation &quot;%&quot; is of type %&#39;,&#10;        holder.main_name, TG_TABLE_NAME, format_type(holder.main_type, null), holder.history_name, history_table, format_type(holder.history_type, null)&#10;      USING ERRCODE &#61; &#39;datatype_mismatch&#39;;&#10;    END IF;&#10;&#10;    WITH history AS&#10;      (SELECT attname&#10;      FROM   pg_attribute&#10;      WHERE  attrelid &#61; history_table::regclass&#10;      AND    attnum &gt; 0&#10;      AND    NOT attisdropped),&#10;      main AS&#10;      (SELECT attname&#10;      FROM   pg_attribute&#10;      WHERE  attrelid &#61; TG_RELID&#10;      AND    attnum &gt; 0&#10;      AND    NOT attisdropped)&#10;    SELECT array_agg(quote_ident(history.attname)) INTO commonColumns&#10;      FROM history&#10;      INNER JOIN main&#10;      ON history.attname &#61; main.attname&#10;      AND history.attname !&#61; sys_period;&#10;    -- skip version if it would be identical to the previous version&#10;    IF ignore_unchanged_values AND TG_OP &#61; &#39;UPDATE&#39; AND array_length(commonColumns, 1) &gt; 0 THEN&#10;      EXECUTE &#39;SELECT ROW($1.&#39; || array_to_string(commonColumns , &#39;, $1.&#39;) || &#39;)&#39;&#10;        USING NEW&#10;        INTO newVersion;&#10;      EXECUTE &#39;SELECT ROW($1.&#39; || array_to_string(commonColumns , &#39;, $1.&#39;) || &#39;)&#39;&#10;        USING OLD&#10;        INTO oldVersion;&#10;      IF newVersion IS NOT DISTINCT FROM oldVersion THEN&#10;        RETURN NEW;&#10;      END IF;&#10;    END IF;&#10;    -- If we are including the current version in the history and the operation is an update or delete, we need to update the previous version in the history table&#10;    IF include_current_version_in_history &#61; &#39;true&#39; THEN&#10;      IF TG_OP &#61; &#39;UPDATE&#39; OR TG_OP &#61; &#39;DELETE&#39; THEN&#10;        EXECUTE (&#10;          &#39;UPDATE &#39; ||&#10;          history_table ||&#10;          &#39; SET &#39; ||&#10;          quote_ident(sys_period) ||&#10;          &#39; &#61; tstzrange($2, $3, &#39;&#39;[)&#39;&#39;)&#39; ||&#10;          &#39; WHERE (&#39; ||&#10;          array_to_string(commonColumns , &#39;,&#39;) ||&#10;          &#39;) IS NOT DISTINCT FROM ($1.&#39; ||&#10;          array_to_string(commonColumns, &#39;,$1.&#39;) ||&#10;          &#39;) AND &#39; ||&#10;          quote_ident(sys_period) ||&#10;          &#39; &#61; $1.&#39; ||&#10;          quote_ident(sys_period)&#10;        )&#10;          USING OLD, range_lower, time_stamp_to_use;&#10;      END IF;&#10;      -- If we are including the current version in the history and the operation is an insert or update, we need to insert the current version in the history table&#10;      IF TG_OP &#61; &#39;UPDATE&#39; OR TG_OP &#61; &#39;INSERT&#39; THEN&#10;        EXECUTE (&#39;INSERT INTO &#39; ||&#10;          history_table ||&#10;          &#39;(&#39; ||&#10;          array_to_string(commonColumns , &#39;,&#39;) ||&#10;          &#39;,&#39; ||&#10;          quote_ident(sys_period) ||&#10;          &#39;) VALUES ($1.&#39; ||&#10;          array_to_string(commonColumns, &#39;,$1.&#39;) ||&#10;          &#39;,tstzrange($2, NULL, &#39;&#39;[)&#39;&#39;))&#39;)&#10;          USING NEW, time_stamp_to_use;&#10;      END IF;&#10;    ELSE&#10;      EXECUTE (&#39;INSERT INTO &#39; ||&#10;      history_table ||&#10;      &#39;(&#39; ||&#10;      array_to_string(commonColumns , &#39;,&#39;) ||&#10;      &#39;,&#39; ||&#10;      quote_ident(sys_period) ||&#10;      &#39;) VALUES ($1.&#39; ||&#10;      array_to_string(commonColumns, &#39;,$1.&#39;) ||&#10;      &#39;,tstzrange($2, $3, &#39;&#39;[)&#39;&#39;))&#39;)&#10;       USING OLD, range_lower, time_stamp_to_use;&#10;    END IF;&#10;  END IF;&#10;&#10;  IF TG_OP &#61; &#39;UPDATE&#39; OR TG_OP &#61; &#39;INSERT&#39; THEN&#10;    manipulate :&#61; jsonb_set(&#39;{}&#39;::jsonb, (&#39;{&#39; || sys_period || &#39;}&#39;)::text[], to_jsonb(tstzrange(time_stamp_to_use, null, &#39;[)&#39;)));&#10;&#10;    RETURN jsonb_populate_record(NEW, manipulate);&#10;  END IF;&#10;&#10;  RETURN OLD;&#10;END;</textarea>
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <!-- /.content-wrapper -->
+            <footer class="main-footer">
+                <div>
+                    <div class="pull-right hidden-xs">
+                        <a href="https://github.com/schemaspy/schemaspy" title="GitHub for SchemaSpy"><i class="fa fa-github-square fa-2x"></i></a>
+                        <a href="http://stackoverflow.com/questions/tagged/schemaspy" title="StackOverflow for SchemaSpy"><i class="fa fa-stack-overflow fa-2x"></i></a>
+                    </div>
+                    <strong>Generated by <a href="http://schemaspy.org/" class="logo-text"><i class="fa fa-database"></i> SchemaSpy 6.2.4</a></strong>
+                </div>
+                <!-- /.container -->
+            </footer>
+        </div>
+        <!-- ./wrapper -->
+
+        <!-- jQuery 2.2.3 -->
+        <script src="../bower/admin-lte/plugins/jQuery/jquery-2.2.3.min.js"></script>
+        <script src="../bower/admin-lte/plugins/jQueryUI/jquery-ui.min.js"></script>
+        <!-- Bootstrap 3.3.5 -->
+        <script src="../bower/admin-lte/bootstrap/js/bootstrap.min.js"></script>
+        <!-- DataTables -->
+        <script src="../bower/datatables.net/jquery.dataTables.min.js"></script>
+        <script src="../bower/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
+        <script src="../bower/datatables.net-buttons/dataTables.buttons.min.js"></script>
+        <script src="../bower/datatables.net-buttons-bs/js/buttons.bootstrap.min.js"></script>
+        <script src="../bower/datatables.net-buttons/buttons.html5.min.js"></script>
+        <script src="../bower/datatables.net-buttons/buttons.print.min.js"></script>
+        <script src="../bower/datatables.net-buttons/buttons.colVis.min.js"></script>
+        <!-- SheetJS -->
+        <script src="../bower/js-xlsx/xlsx.full.min.js"></script>
+        <!-- pdfmake -->
+        <script src="../bower/pdfmake/pdfmake.min.js"></script>
+        <script src="../bower/pdfmake/vfs_fonts.js"></script>
+        <!-- SlimScroll -->
+        <script src="../bower/admin-lte/plugins/slimScroll/jquery.slimscroll.min.js"></script>
+        <!-- FastClick -->
+        <script src="../bower/admin-lte/plugins/fastclick/fastclick.js"></script>
+        <!-- Salvattore -->
+        <script src="../bower/salvattore/salvattore.min.js"></script>
+        <!-- AnchorJS -->
+        <script src="../bower/anchor-js/anchor.min.js"></script>
+        <!-- CodeMirror -->
+        <script src="../bower/codemirror/codemirror.js"></script>
+        <script src="../bower/codemirror/sql.js"></script>
+        <!-- AdminLTE App -->
+        <script src="../bower/admin-lte/dist/js/app.min.js"></script>
+        <script src="routine.js"></script>
+        <script src="../schemaSpy.js"></script>
+    </body>
+</html>
