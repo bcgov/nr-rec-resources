@@ -1,4 +1,4 @@
-insert into rst.recreation_map_feature (rmf_skey, rec_resource_id, section_id, amendment_id, amend_status_code, recreation_resource_type, amend_status_date, retirement_date, revision_count, entry_userid, entry_timestamp, update_userid, update_timestamp, recreation_map_feature_guid)
+insert into rst.recreation_map_feature (rmf_skey, rec_resource_id, section_id, amendment_id, amend_status_code, recreation_resource_type, amend_status_date, retirement_date, revision_count, created_by, created_at, updated_by, updated_at, recreation_map_feature_guid)
 values  (23004, 'REC204117', null, 1, 'APP', 'RR', '2005-06-29 10:09', null, 1, 'idir\FTC_CONV', '2005-06-29 10:09', 'idir\FTC_CONV', '2005-06-29 10:16', 'System.Byte[]'),
         (23005, 'REC1222', null, 1, 'APP', 'RR', '2013-02-14 14:05', null, 2, 'idir\FTC_CONV', '2005-06-29 10:09', 'IDIR\MADUNN', '2013-02-14 14:05', 'System.Byte[]'),
         (23006, 'REC160773', null, 1, 'APP', 'RR', '2005-06-29 10:09', null, 1, 'idir\FTC_CONV', '2005-06-29 10:09', 'idir\FTC_CONV', '2005-06-29 10:17', 'System.Byte[]'),
