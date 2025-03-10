@@ -10,8 +10,6 @@ import './MapControls.scss';
 import React from 'react';
 
 interface MapControlsProps {
-  /** Center coordinate for the map */
-  center?: Coordinate;
   /** Extent boundaries for the map */
   extent?: Coordinate;
   /** Zoom level for the map */
@@ -22,13 +20,9 @@ interface MapControlsProps {
  * MapControls component that renders zoom and extent controls
  * @param props - Component properties
  */
-export const MapControls: React.FC<MapControlsProps> = ({
-  center,
-  extent,
-  zoom,
-}) => (
+export const MapControls: React.FC<MapControlsProps> = ({ extent, zoom }) => (
   <div className="map-btn zoom-control">
-    <ZoomToExtentButton center={center} zoom={zoom} extent={extent}>
+    <ZoomToExtentButton zoom={zoom} extent={extent}>
       <FontAwesomeIcon icon={faLocationCrosshairs} />
     </ZoomToExtentButton>
     <ZoomButton className="zoom-in-btn">

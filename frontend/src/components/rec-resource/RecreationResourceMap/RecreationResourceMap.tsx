@@ -1,15 +1,15 @@
 import React, { useMemo } from 'react';
 import { GeoJSON } from 'ol/format';
-import { RecreationResourceDto } from '@/service/recreation-resource';
 import { StyledVectorFeatureMap } from '@/components/StyledVectorFeatureMap';
 import {
   MAP_PROJECTION_BC_ALBERS,
   MAP_PROJECTION_WEB_MERCATOR,
 } from '@/components/StyledVectorFeatureMap/constants';
 import { getLayerStyle } from '@/components/rec-resource/RecreationResourceMap/helpers';
+import { RecreationResourceDetailModel } from '@/service/custom-models';
 
 interface TrailMapProps {
-  recResource?: RecreationResourceDto | undefined;
+  recResource?: RecreationResourceDetailModel;
   mapComponentCssStyles?: React.CSSProperties;
 }
 

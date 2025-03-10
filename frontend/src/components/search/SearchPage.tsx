@@ -5,12 +5,12 @@ import SearchBanner from '@/components/search/SearchBanner';
 import ProgressBar from 'react-bootstrap/ProgressBar';
 import FilterMenu from '@/components/search/filters/FilterMenu';
 import FilterMenuMobile from '@/components/search/filters/FilterMenuMobile';
-import {
-  PaginatedRecreationResourceDto,
-  RecreationResourceDto,
-} from '@/service/recreation-resource';
 import { useSearchRecreationResourcesPaginated } from '@/service/queries/recreation-resource';
 import { useInitialPageFromSearchParams } from '@/components/search/hooks/useInitialPageFromSearchParams';
+import {
+  PaginatedRecreationResourceModel,
+  RecreationResourceSearchModel,
+} from '@/service/custom-models';
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -130,9 +130,9 @@ const SearchPage = () => {
               {isFetching ? (
                 <ProgressBar animated now={100} className="mb-4" />
               ) : (
-                data?.pages?.map((pageData: PaginatedRecreationResourceDto) =>
+                data?.pages?.map((pageData: PaginatedRecreationResourceModel) =>
                   pageData.data.map(
-                    (recreationResource: RecreationResourceDto) => (
+                    (recreationResource: RecreationResourceSearchModel) => (
                       <RecResourceCard
                         key={recreationResource.rec_resource_id}
                         recreationResource={recreationResource}

@@ -2,8 +2,8 @@ import { describe, expect, it, Mock, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { StyledVectorFeatureMap } from '@/components/StyledVectorFeatureMap';
 import { GeoJSON } from 'ol/format';
-import { RecreationResourceDto } from '@/service/recreation-resource';
 import { RecreationResourceMap } from '@/components/rec-resource/RecreationResourceMap';
+import { RecreationResourceDetailModel } from '@/service/custom-models';
 
 // Mock dependencies
 vi.mock('@/components/StyledVectorFeatureMap', () => ({
@@ -33,7 +33,7 @@ describe('RecreationResourceMap', () => {
         },
       },
     ],
-  } as unknown as RecreationResourceDto;
+  } as unknown as RecreationResourceDetailModel;
 
   beforeEach(() => {
     vi.clearAllMocks();

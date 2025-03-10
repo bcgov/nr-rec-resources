@@ -127,7 +127,7 @@ type RecreationResourceGetPayload = Prisma.recreation_resourceGetPayload<{
 
 @Injectable()
 export class RecreationResourceService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   // Format the results to match the DTO
   formatResults(
@@ -248,7 +248,7 @@ export class RecreationResourceService {
 
     // If only page is provided, we will return all records up to the end of that page
     // If limit is provided, we will return that many paginated records for lazy loading
-    const take = limit ? limit : 10;
+    const take = limit ?? 10;
     const skip = (page - 1) * take;
     const orderBy = [{ name: Prisma.SortOrder.asc }];
     const activityFilter = activities?.split("_").map(Number);

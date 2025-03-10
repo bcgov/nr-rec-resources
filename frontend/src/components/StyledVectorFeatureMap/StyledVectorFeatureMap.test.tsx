@@ -6,16 +6,6 @@ import * as hooks from './hooks';
 import { ReactNode } from 'react';
 import { StyledVectorFeatureMap } from '@/components/StyledVectorFeatureMap';
 
-type MapComponentProps = {
-  children: ReactNode;
-};
-
-type MapControlsProps = {
-  extent: number[] | undefined;
-  center: number[] | undefined;
-  zoom: number | undefined;
-};
-
 // Mock the hooks
 vi.mock('./hooks', () => ({
   useMapBaseLayers: vi.fn(),
@@ -25,17 +15,22 @@ vi.mock('./hooks', () => ({
 
 // Mock MapComponent and MapControls
 vi.mock('@terrestris/react-geo/dist/Map/MapComponent/MapComponent', () => ({
-  default: ({ children }: MapComponentProps): ReactNode => (
+  default: ({ children }: { children: ReactNode }): ReactNode => (
     <div data-testid="map-component">{children}</div>
   ),
 }));
 
 vi.mock('./components/MapControls', () => ({
-  MapControls: ({ extent, center, zoom }: MapControlsProps): ReactNode => (
+  MapControls: ({
+    extent,
+    zoom,
+  }: {
+    extent: number[] | undefined;
+    zoom: number | undefined;
+  }): ReactNode => (
     <div
       data-testid="map-controls"
       data-extent={extent?.toString()}
-      data-center={center?.toString()}
       data-zoom={zoom?.toString()}
     />
   ),
@@ -92,22 +87,17 @@ describe('StyledVectorFeatureMap', () => {
     );
   });
 
-  it('updates center and zoom extent when callback is triggered', () => {
+  it('updates zoom extent when callback is triggered', () => {
     render(
       <StyledVectorFeatureMap features={mockFeatures} layerStyle={mockStyle} />,
     );
 
     const callback = (hooks.useAddVectorLayerToMap as Mock).mock.calls[0][0]
       .onLayerAdded;
-    const mockCenter: [number, number] = [0, 0];
     const mockExtent: [number, number, number, number] = [0, 0, 1, 1];
 
-    act(() => callback(mockCenter, mockExtent));
+    act(() => callback(mockExtent));
 
-    expect(screen.getByTestId('map-controls')).toHaveAttribute(
-      'data-center',
-      mockCenter.toString(),
-    );
     expect(screen.getByTestId('map-controls')).toHaveAttribute(
       'data-extent',
       mockExtent.toString(),

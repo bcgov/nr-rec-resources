@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
-import { getCenter } from 'ol/extent';
 import OlMap from 'ol/Map';
 import { Feature } from 'ol';
 import { Coordinate } from 'ol/coordinate';
@@ -15,7 +14,7 @@ interface UseVectorLayerProps {
   /** Style configuration for the layer */
   layerStyle?: StyleLike;
   /** Callback fired when layer is added to map */
-  onLayerAdded?: (center: Coordinate, extent: Coordinate) => void;
+  onLayerAdded?: (extent: Coordinate) => void;
 }
 
 /**
@@ -47,14 +46,13 @@ export const useAddVectorLayerToMap = ({
 
     // Calculate and set view extent
     const extent = source.getExtent();
-    const center = getCenter(extent);
 
     map.getView().fit(extent, {
       padding: [50, 50, 50, 50],
       duration: 1000,
     });
 
-    onLayerAdded?.(center, extent);
+    onLayerAdded?.(extent);
 
     // Cleanup function to remove layer
     return () => {

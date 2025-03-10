@@ -1,10 +1,10 @@
 import { forwardRef } from 'react';
-import { RecreationResourceDto } from '@/service/recreation-resource';
 import { RecreationResourceMap } from '@/components/rec-resource/RecreationResourceMap';
+import { RecreationResourceDetailModel } from '@/service/custom-models';
 
 interface MapsAndLocationProps {
   accessTypes?: string[];
-  recResource?: RecreationResourceDto;
+  recResource?: RecreationResourceDetailModel;
 }
 
 const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(

@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { RecreationResourceSearchDto } from "./recreation-resource.dto";
 
-class FilterOptionDto {
+export class FilterOptionDto {
   @ApiProperty({
     description: "Unique identifier for the filter option",
     example: 1,
@@ -22,7 +22,7 @@ class FilterOptionDto {
   description: string;
 }
 
-class FilterDto {
+export class FilterDto {
   @ApiProperty()
   type: "multi-select";
 

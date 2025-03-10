@@ -2,8 +2,8 @@ import { describe, expect, it, Mock, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import RecResourceCard from './RecResourceCard';
 import '@testing-library/jest-dom';
-import { RecreationResourceDto } from '@/service/recreation-resource';
 import { getImageList } from '@/components/rec-resource/card/helpers';
+import { RecreationResourceSearchModel } from '@/service/custom-models';
 
 // Mock the components used in RecResourceCard
 vi.mock('@/components/rec-resource/card/Activities', () => ({
@@ -37,7 +37,7 @@ describe('RecResourceCard', () => {
       description: 'Open for public',
     },
     rec_resource_type: 'Park',
-  } as unknown as RecreationResourceDto;
+  } as unknown as RecreationResourceSearchModel;
 
   beforeEach(() => {
     vi.resetAllMocks();
@@ -86,7 +86,7 @@ describe('RecResourceCard', () => {
     const noActivitiesResource = {
       ...mockRecreationResource,
       recreation_activity: [],
-    } as unknown as RecreationResourceDto;
+    } as unknown as RecreationResourceSearchModel;
 
     render(<RecResourceCard recreationResource={noActivitiesResource} />);
 
@@ -102,7 +102,7 @@ describe('RecResourceCard', () => {
     const noTypeResource = {
       ...mockRecreationResource,
       rec_resource_type: null,
-    } as unknown as RecreationResourceDto;
+    } as unknown as RecreationResourceSearchModel;
 
     render(<RecResourceCard recreationResource={noTypeResource} />);
 

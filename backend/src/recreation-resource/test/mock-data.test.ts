@@ -91,6 +91,7 @@ const recreationResource1 = {
       has_toilet: false,
     },
   ],
+  recreation_access: [],
 };
 
 const recreationResource1Response = {
@@ -141,6 +142,7 @@ const recreationResource1Response = {
     has_table: true,
     has_toilet: false,
   },
+  recreation_access: [],
 };
 
 const recreationResource2 = {
@@ -221,6 +223,7 @@ const recreationResource2 = {
       has_toilet: false,
     },
   ],
+  recreation_access: [],
 };
 
 const recreationResource2Response = {
@@ -259,6 +262,7 @@ const recreationResource2Response = {
     has_table: true,
     has_toilet: false,
   },
+  recreation_access: [],
 };
 
 const recreationResource3 = {
@@ -353,6 +357,7 @@ const recreationResource3 = {
       has_toilet: false,
     },
   ],
+  recreation_access: [],
 };
 
 const recreationResource3Response = {
@@ -403,6 +408,7 @@ const recreationResource3Response = {
     has_table: true,
     has_toilet: false,
   },
+  recreation_access: [],
 };
 
 const recreationResource4 = {
@@ -496,6 +502,7 @@ const recreationResource4 = {
       has_toilet: false,
     },
   ],
+  recreation_access: [],
 };
 
 const recreationResource4Response = {

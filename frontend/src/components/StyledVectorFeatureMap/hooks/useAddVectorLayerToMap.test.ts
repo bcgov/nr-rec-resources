@@ -27,10 +27,6 @@ vi.mock('ol/Map', () => ({
   })),
 }));
 
-vi.mock('ol/extent', () => ({
-  getCenter: () => [0.5, 0.5],
-}));
-
 describe('useAddVectorLayerToMap', () => {
   let map: OlMap;
   let features: Feature[];
@@ -101,7 +97,7 @@ describe('useAddVectorLayerToMap', () => {
     expect(result.current.vectorLayer).toBeUndefined();
   });
 
-  it('should call onLayerAdded with center and extent', () => {
+  it('should call onLayerAdded with extent', () => {
     renderHook(() =>
       useAddVectorLayerToMap({
         map,
@@ -112,7 +108,7 @@ describe('useAddVectorLayerToMap', () => {
     );
 
     expect(onLayerAdded).toHaveBeenCalledTimes(1);
-    expect(onLayerAdded).toHaveBeenCalledWith([0.5, 0.5], [0, 0, 1, 1]);
+    expect(onLayerAdded).toHaveBeenCalledWith([0, 0, 1, 1]);
   });
 
   it('should remove layer on cleanup', () => {

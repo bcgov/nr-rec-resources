@@ -35,19 +35,14 @@ export const StyledVectorFeatureMap: React.FC<StyledVectorFeatureMapProps> = ({
   layerStyle,
   children,
 }) => {
-  const [center, setCenter] = useState<Coordinate>();
   const [zoomExtent, setZoomExtent] = useState<Coordinate>();
 
   const baseLayers = useMapBaseLayers();
   const map = useMapInitialization(baseLayers);
 
-  const handleCallback = useCallback(
-    (center: Coordinate, zoomExtent: Coordinate) => {
-      setCenter(center);
-      setZoomExtent(zoomExtent);
-    },
-    [],
-  );
+  const handleCallback = useCallback((zoomExtent: Coordinate) => {
+    setZoomExtent(zoomExtent);
+  }, []);
 
   useAddVectorLayerToMap({
     map,
@@ -60,11 +55,7 @@ export const StyledVectorFeatureMap: React.FC<StyledVectorFeatureMapProps> = ({
     <MapContext.Provider value={map}>
       <MapComponent map={map} style={mapComponentCssStyles}>
         {children}
-        <MapControls
-          extent={zoomExtent}
-          center={center}
-          zoom={map.getView().getZoom()}
-        />
+        <MapControls extent={zoomExtent} zoom={map.getView().getZoom()} />
       </MapComponent>
     </MapContext.Provider>
   );
