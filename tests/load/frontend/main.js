@@ -15,7 +15,7 @@ const stages = [
 
 export const options = {
   scenarios: {
-    "recreation-resource-get-id": {
+    "recreation-resource": {
       executor: "ramping-vus",
       stages: stages,
     },
@@ -23,15 +23,7 @@ export const options = {
       executor: "ramping-vus",
       stages: stages,
     },
-    "recreation-resource-search-paginated": {
-      executor: "ramping-vus",
-      stages: stages,
-    },
-    "recreation-resource-search-filtered": {
-      executor: "ramping-vus",
-      stages: stages,
-    },
-    "recreation-resource-search-multi-filter": {
+    "recreation-resource-by-id": {
       executor: "ramping-vus",
       stages: stages,
     },
@@ -43,7 +35,7 @@ export const options = {
 };
 
 const testGetRoute = (route) => {
-  const url = __ENV.SERVER_HOST + route;
+  const url = __ENV.FRONTEND_URL + route;
   const params = {
     headers: {
       "Content-Type": "application/json",
@@ -54,21 +46,13 @@ const testGetRoute = (route) => {
 };
 
 export default function () {
-  if (exec.scenario.name === "recreation-resource-get-id") {
-    testGetRoute("/v1/recreation-resource/REC204117");
+  if (exec.scenario.name === "recreation-resource") {
+    testGetRoute("/");
   }
   if (exec.scenario.name === "recreation-resource-search") {
-    testGetRoute("/v1/recreation-resource/search");
+    testGetRoute("/search");
   }
-  if (exec.scenario.name === "recreation-resource-search-paginated") {
-    testGetRoute("/v1/recreation-resource/search?page=3");
-  }
-  if (exec.scenario.name === "recreation-resource-search-filtered") {
-    testGetRoute("/v1/recreation-resource/search?filter=tofino");
-  }
-  if (exec.scenario.name === "recreation-resource-search-multi-filter") {
-    testGetRoute(
-      "/v1/recreation-resource/search?page=1&district=RDMH&type=IF&access=R",
-    );
+  if (exec.scenario.name === "recreation-resource-by-id") {
+    testGetRoute("/resource/REC204117");
   }
 }

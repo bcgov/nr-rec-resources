@@ -9,6 +9,7 @@
     "clean": "rimraf ./node_modules/.vite",
     "deploy": "npm ci --ignore-scripts --no-update-notifier --omit=dev && npm run build",
     "dev": "vite --host",
+    "dev:debug": "vite --debug",
     "e2e": "npx happo-e2e -- npx playwright test",
     "e2e:ui": "npx happo-e2e -- npx playwright test --ui",
     "preview": "vite preview",
