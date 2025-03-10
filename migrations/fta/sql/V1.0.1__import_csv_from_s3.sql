@@ -257,16 +257,15 @@ select aws_s3.table_import_from_s3(
   aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_MAINTAIN_STD_CODE.csv', 'ca-central-1')
 );
 
--- This file is not currently in s3
--- select aws_s3.table_import_from_s3(
---   'fta.recreation_map_feature_geom',
---   '',
---   '(
---     FORMAT csv,
---     HEADER true
---   )',
---   aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_MAP_FEATURE_GEOM.csv', 'ca-central-1')
--- );
+select aws_s3.table_import_from_s3(
+  'fta.recreation_map_feature_geom',
+  '',
+  '(
+    FORMAT csv,
+    HEADER true
+  )',
+  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_MAP_FEATURE_GEOM.csv', 'ca-central-1')
+);
 
 select aws_s3.table_import_from_s3(
   'fta.recreation_map_feature_xguid',

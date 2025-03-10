@@ -690,7 +690,7 @@ comment on column fta.recreation_map_feature_code.update_timestamp is 'The date 
 create table fta.recreation_map_feature_geom (
     rmf_skey serial primary key,
     map_feature_id int,
-    geometry_type_code varchar(4),
+    geometry_type_code varchar(10),
     geometry geometry,
     feature_area numeric(11, 4),
     feature_length numeric(11, 4),
