@@ -25,8 +25,8 @@ where
             rec_resource_id
         from
             rst.recreation_resource
-    )
-    and rmf.current_ind = 'Y'
+    ) -- There are some forest_file_id that are not in the recreation_project table
+    and rmf.current_ind = 'Y' -- Only insert the current records
 order by rmf.forest_file_id, rmf.section_id, rmf.amend_status_date desc
 on conflict (rec_resource_id, section_id)
 do update
