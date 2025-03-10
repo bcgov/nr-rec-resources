@@ -13,13 +13,6 @@
  */
 
 import { mapValues } from '../runtime';
-import type { RecreationResourceDto } from './RecreationResourceDto';
-import {
-  RecreationResourceDtoFromJSON,
-  RecreationResourceDtoFromJSONTyped,
-  RecreationResourceDtoToJSON,
-  RecreationResourceDtoToJSONTyped,
-} from './RecreationResourceDto';
 import type { FilterDto } from './FilterDto';
 import {
   FilterDtoFromJSON,
@@ -27,6 +20,13 @@ import {
   FilterDtoToJSON,
   FilterDtoToJSONTyped,
 } from './FilterDto';
+import type { RecreationResourceSearchDto } from './RecreationResourceSearchDto';
+import {
+  RecreationResourceSearchDtoFromJSON,
+  RecreationResourceSearchDtoFromJSONTyped,
+  RecreationResourceSearchDtoToJSON,
+  RecreationResourceSearchDtoToJSONTyped,
+} from './RecreationResourceSearchDto';
 
 /**
  *
@@ -36,10 +36,10 @@ import {
 export interface PaginatedRecreationResourceDto {
   /**
    *
-   * @type {Array<RecreationResourceDto>}
+   * @type {Array<RecreationResourceSearchDto>}
    * @memberof PaginatedRecreationResourceDto
    */
-  data: Array<RecreationResourceDto>;
+  data: Array<RecreationResourceSearchDto>;
   /**
    *
    * @type {number}
@@ -94,7 +94,7 @@ export function PaginatedRecreationResourceDtoFromJSONTyped(
     return json;
   }
   return {
-    data: (json['data'] as Array<any>).map(RecreationResourceDtoFromJSON),
+    data: (json['data'] as Array<any>).map(RecreationResourceSearchDtoFromJSON),
     total: json['total'],
     page: json['page'],
     limit: json['limit'],
@@ -117,7 +117,7 @@ export function PaginatedRecreationResourceDtoToJSONTyped(
   }
 
   return {
-    data: (value['data'] as Array<any>).map(RecreationResourceDtoToJSON),
+    data: (value['data'] as Array<any>).map(RecreationResourceSearchDtoToJSON),
     total: value['total'],
     page: value['page'],
     limit: value['limit'],

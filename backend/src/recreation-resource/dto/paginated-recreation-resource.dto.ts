@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { RecreationResourceDto } from "./recreation-resource.dto";
+import { RecreationResourceSearchDto } from "./recreation-resource.dto";
 
 class FilterOptionDto {
   @ApiProperty({
@@ -37,8 +37,8 @@ class FilterDto {
 }
 
 export class PaginatedRecreationResourceDto {
-  @ApiProperty({ type: [RecreationResourceDto] })
-  data: RecreationResourceDto[];
+  @ApiProperty({ type: [RecreationResourceSearchDto] })
+  data: RecreationResourceSearchDto[];
 
   @ApiProperty()
   total: number;

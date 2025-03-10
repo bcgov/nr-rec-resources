@@ -15,13 +15,13 @@
 import * as runtime from '../runtime';
 import type {
   PaginatedRecreationResourceDto,
-  RecreationResourceDto,
+  RecreationResourceDetailDto,
 } from '../models/index';
 import {
   PaginatedRecreationResourceDtoFromJSON,
   PaginatedRecreationResourceDtoToJSON,
-  RecreationResourceDtoFromJSON,
-  RecreationResourceDtoToJSON,
+  RecreationResourceDetailDtoFromJSON,
+  RecreationResourceDetailDtoToJSON,
 } from '../models/index';
 
 export interface GetRecreationResourceByIdRequest {
@@ -51,7 +51,7 @@ export class RecreationResourceApi extends runtime.BaseAPI {
   async getRecreationResourceByIdRaw(
     requestParameters: GetRecreationResourceByIdRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationResourceDto>> {
+  ): Promise<runtime.ApiResponse<RecreationResourceDetailDto>> {
     if (requestParameters['id'] == null) {
       throw new runtime.RequiredError(
         'id',
@@ -81,7 +81,7 @@ export class RecreationResourceApi extends runtime.BaseAPI {
     );
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      RecreationResourceDtoFromJSON(jsonValue),
+      RecreationResourceDetailDtoFromJSON(jsonValue),
     );
   }
 
@@ -91,7 +91,7 @@ export class RecreationResourceApi extends runtime.BaseAPI {
   async getRecreationResourceById(
     requestParameters: GetRecreationResourceByIdRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<RecreationResourceDto> {
+  ): Promise<RecreationResourceDetailDto> {
     const response = await this.getRecreationResourceByIdRaw(
       requestParameters,
       initOverrides,

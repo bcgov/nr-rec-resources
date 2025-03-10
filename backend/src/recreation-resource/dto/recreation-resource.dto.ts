@@ -135,7 +135,11 @@ export class RecreationStructureDto {
   has_table: boolean;
 }
 
-export class RecreationResourceDto {
+/**
+ * Base class containing common fields/properties for recreation resources
+ * @abstract
+ */
+export abstract class BaseRecreationResourceDto {
   @ApiProperty({
     description: "Unique identifier of the Recreation Resource",
     example: "rec-123-abc",
@@ -217,7 +221,12 @@ export class RecreationResourceDto {
     type: RecreationStructureDto,
   })
   recreation_structure: RecreationStructureDto;
+}
 
+/**
+ * Complete DTO including spatial data - used for detailed resource retrieval
+ */
+export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
   @ApiProperty({
     description: "GeoJSON geometry data for the rec resource in string format",
     type: [String],
@@ -227,3 +236,8 @@ export class RecreationResourceDto {
   })
   spatial_feature_geometry: string[];
 }
+
+/**
+ * Limited DTO without spatial data - optimized for search operations
+ */
+export class RecreationResourceSearchDto extends BaseRecreationResourceDto {}
