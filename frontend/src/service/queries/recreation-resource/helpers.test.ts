@@ -16,9 +16,11 @@ describe('Asset URL Utilities', () => {
     });
 
     it('returns default test URL when environment variable not set', () => {
+      vi.stubEnv('VITE_RECREATION_RESOURCE_ASSETS_BASE_URL', undefined);
       expect(getBasePathForAssets()).toBe(
         'https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca',
       );
+      vi.unstubAllEnvs();
     });
   });
 
