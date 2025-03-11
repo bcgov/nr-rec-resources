@@ -179,30 +179,6 @@ model recreation_structure_code {
   recreation_structure recreation_structure[]
 }
 
-model recreation_resource_image_variants {
-  id                         Int                         @id @default(autoincrement())
-  ref_id                     String?                     @db.VarChar
-  size_code                  String?                     @db.VarChar(20)
-  url                        String?
-  width                      Int?
-  height                     Int?
-  extension                  String?                     @db.VarChar(10)
-  recreation_resource_images recreation_resource_images? @relation(fields: [ref_id], references: [ref_id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([ref_id, size_code])
-}
-
-model recreation_resource_images {
-  id                                 Int                                  @id @default(autoincrement())
-  rec_resource_id                    String?                              @db.VarChar(10)
-  ref_id                             String?                              @unique @db.VarChar
-  caption                            String?                              @db.VarChar
-  recreation_resource_image_variants recreation_resource_image_variants[]
-  recreation_resource                recreation_resource?                 @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([rec_resource_id, ref_id])
-}
-
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_access {
   id                         Int                         @id @default(autoincrement())
@@ -279,21 +255,6 @@ model recreation_map_feature_geom {
   created_by             String?
   sys_period             Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
   recreation_map_feature recreation_map_feature   @relation(fields: [rmf_skey], references: [rmf_skey], onDelete: NoAction, onUpdate: NoAction)
-}
-
-model flyway_schema_history {
-  installed_rank Int      @id(map: "flyway_schema_history_pk")
-  version        String?  @db.VarChar(50)
-  description    String   @db.VarChar(200)
-  type           String   @db.VarChar(20)
-  script         String   @db.VarChar(1000)
-  checksum       Int?
-  installed_by   String   @db.VarChar(100)
-  installed_on   DateTime @default(now()) @db.Timestamp(6)
-  execution_time Int
-  success        Boolean
-
-  @@index([success], map: "flyway_schema_history_s_idx")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -537,4 +498,28 @@ model recreation_sub_access_code_history {
   sys_period      Unsupported("tstzrange")
 
   @@ignore
+}
+
+model recreation_resource_image_variants {
+  id                         Int                         @id @default(autoincrement())
+  ref_id                     String?                     @db.VarChar
+  size_code                  String?                     @db.VarChar(20)
+  url                        String?
+  width                      Int?
+  height                     Int?
+  extension                  String?                     @db.VarChar(10)
+  recreation_resource_images recreation_resource_images? @relation(fields: [ref_id], references: [ref_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([ref_id, size_code])
+}
+
+model recreation_resource_images {
+  id                                 Int                                  @id @default(autoincrement())
+  rec_resource_id                    String?                              @db.VarChar(10)
+  ref_id                             String?                              @unique @db.VarChar
+  caption                            String?                              @db.VarChar
+  recreation_resource_image_variants recreation_resource_image_variants[]
+  recreation_resource                recreation_resource?                 @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([rec_resource_id, ref_id])
 }

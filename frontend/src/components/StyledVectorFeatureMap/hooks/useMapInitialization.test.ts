@@ -38,7 +38,7 @@ describe('useMapInitialization', () => {
   });
 
   it('should create a map with correct configuration', () => {
-    const { result } = renderHook(() => useMapInitialization(mockLayers));
+    renderHook(() => useMapInitialization(mockLayers));
 
     expect(OlMap).toHaveBeenCalledWith({
       controls: [],
