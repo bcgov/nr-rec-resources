@@ -44,8 +44,8 @@ const FilterGroup = ({
   const isShowMoreBtn = showMoreBtn && filtersCount > MAX_VISIBLE_OPTIONS;
 
   return (
-    <div className="filter-group-container">
-      <span className="filter-group-title">{label}</span>
+    <fieldset className="filter-group-container">
+      <legend className="filter-group-title">{label}</legend>
       <Form.Group className="filter-options-container">
         {optionList?.map((option) => {
           const { count, description, id } = option;
@@ -89,7 +89,7 @@ const FilterGroup = ({
           )}
         </button>
       )}
-    </div>
+    </fieldset>
   );
 };
 

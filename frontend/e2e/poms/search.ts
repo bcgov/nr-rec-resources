@@ -2,7 +2,7 @@
 // Page object models (POM) simplify authoring by creating a higher-level API which suits your application &
 // simplify maintenance by capturing element selectors in one place and create reusable code to avoid repetition.
 
-import { Page, expect } from '@playwright/test';
+import { expect, Page } from '@playwright/test';
 import { BASE_URL } from 'e2e/constants';
 import { waitForImagesToLoad } from 'e2e/utils';
 
@@ -39,10 +39,5 @@ export class SearchPOM {
         name: '10k Cabin',
       }),
     ).toBeVisible();
-  }
-
-  async verifyInitialFilterMenu() {
-    await expect(this.page.getByText('Filter')).toBeVisible();
-    await expect(this.page.getByText('District')).toBeVisible();
   }
 }
