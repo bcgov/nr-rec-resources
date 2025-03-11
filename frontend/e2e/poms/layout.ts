@@ -5,6 +5,7 @@
 import { expect, Locator, Page } from '@playwright/test';
 import happoPlaywright from 'happo-playwright';
 import { analyzeAccessibility } from 'e2e/utils';
+import { BASE_URL } from 'e2e/constants';
 
 export class LayoutPOM {
   readonly page: Page;
@@ -50,5 +51,13 @@ export class LayoutPOM {
     await expect(
       footer.getByRole('link', { name: 'Contact us' }),
     ).toBeVisible();
+  }
+
+  async clickFindARecreationSiteOrTrail() {
+    await this.page.click('header a[href="/search"]');
+
+    await this.page.waitForNavigation();
+
+    expect(this.page.url()).toBe(`${BASE_URL}/search`);
   }
 }

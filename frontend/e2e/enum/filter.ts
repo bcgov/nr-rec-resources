@@ -1,3 +1,7 @@
+export enum FilterEnum {
+  CLEAR_FILTER_LABEL = 'Clear filters',
+}
+
 export enum FilterGroup {
   DISTRICT = 'District',
   TYPE = 'Type',

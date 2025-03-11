@@ -11,7 +11,7 @@ import {
   thingsToDoFilterOptions,
   typeFilterOptions,
 } from 'e2e/data/filters';
-import { FilterGroup } from 'e2e/enum/filter';
+import { FilterEnum, FilterGroup } from 'e2e/enum/filter';
 
 export class FilterPOM {
   readonly page: Page;
@@ -50,12 +50,43 @@ export class FilterPOM {
       .filter({ hasText: FilterGroup.ACCESS_TYPE });
   }
 
+  async clickClearFilters() {
+    const clearFiltersButton = this.page.getByRole('button', {
+      name: FilterEnum.CLEAR_FILTER_LABEL,
+    });
+    await clearFiltersButton.click();
+  }
+
   async clickShowLessFilters(filterGroup: Locator) {
     await filterGroup.getByRole('button', { name: /Show less/ }).click();
   }
 
   async clickShowAllFilters(filterGroup: Locator) {
     await filterGroup.getByRole('button', { name: /Show all/ }).click();
+  }
+
+  async toggleFilterOn(filterGroup: Locator, filterOption: string) {
+    expect(
+      filterGroup.getByRole('checkbox', { name: filterOption }),
+    ).not.toBeChecked();
+    await filterGroup
+      .getByRole('checkbox', { name: filterOption })
+      .check({ force: true });
+    expect(
+      filterGroup.getByRole('checkbox', { name: filterOption }),
+    ).toBeChecked();
+  }
+
+  async toggleFilterOff(filterGroup: Locator, filterOption: string) {
+    expect(
+      filterGroup.getByRole('checkbox', { name: filterOption }),
+    ).toBeChecked();
+    await filterGroup
+      .getByRole('checkbox', { name: filterOption })
+      .uncheck({ force: true });
+    expect(
+      filterGroup.getByRole('checkbox', { name: filterOption }),
+    ).not.toBeChecked();
   }
 
   async verifyFilterGroup(
@@ -111,29 +142,5 @@ export class FilterPOM {
     await this.verifyThingsToDoFilterGroup();
     await this.verifyFacilitiesFilterGroup();
     await this.verifyAccessTypeFilterGroup();
-  }
-
-  async toggleFilterOn(filterGroup: Locator, filterOption: string) {
-    expect(
-      filterGroup.getByRole('checkbox', { name: filterOption }),
-    ).not.toBeChecked();
-    await filterGroup
-      .getByRole('checkbox', { name: filterOption })
-      .check({ force: true });
-    expect(
-      filterGroup.getByRole('checkbox', { name: filterOption }),
-    ).toBeChecked();
-  }
-
-  async toggleFilterOff(filterGroup: Locator, filterOption: string) {
-    expect(
-      filterGroup.getByRole('checkbox', { name: filterOption }),
-    ).toBeChecked();
-    await filterGroup
-      .getByRole('checkbox', { name: filterOption })
-      .uncheck({ force: true });
-    expect(
-      filterGroup.getByRole('checkbox', { name: filterOption }),
-    ).not.toBeChecked();
   }
 }
