@@ -1,0 +1,76 @@
+export const districtFilterOptions = [
+  { label: '100 Mile-Chilcotin', count: 1 },
+  { label: 'Cascades', count: 0 },
+  { label: 'Chilliwack', count: 2 },
+  { label: 'Columbia-Shuswap', count: 2 },
+  { label: 'Discovery Coast', count: 0 },
+  { label: 'Haida Gwaii', count: 0 },
+  { label: 'Headwaters', count: 0 },
+  { label: 'Kamloops', count: 8 },
+  { label: 'Kootenay-Boundary', count: 2 },
+  { label: 'Nadina-Skeena', count: 0 },
+  { label: 'North Coast - Kalum - Cassiar', count: 3 },
+  { label: 'Okanagan', count: 6 },
+  { label: 'Peace - Ft. Nelson', count: 0 },
+  { label: 'Prince George - Mackenzie', count: 4 },
+  { label: 'Quesnel-Central Cariboo', count: 3 },
+  { label: 'Rocky Mountain North', count: 0 },
+  { label: 'Rocky Mountain South', count: 0 },
+  { label: 'Squamish', count: 4 },
+  { label: 'Sunshine Coast', count: 2 },
+  { label: 'South Island', count: 2 },
+  { label: 'Vanderhoof - Ft. St. James', count: 1 },
+];
+
+export const typeFilterOptions = [
+  { label: 'Recreation Trail', count: 13 },
+  { label: 'Recreation Site', count: 12 },
+  { label: 'Interpretive Forest', count: 13 },
+];
+
+export const thingsToDoFilterOptions = [
+  { label: 'Angling', count: 7 },
+  { label: 'Beach Activities', count: 0 },
+  { label: 'Boating', count: 2 },
+  { label: 'Camping', count: 7 },
+  { label: 'Canoeing', count: 2 },
+  { label: 'Caving', count: 0 },
+  { label: 'Climbing', count: 2 },
+  { label: 'Four Wheel Driving', count: 0 },
+  { label: 'Gathering & Collecting', count: 0 },
+  { label: 'Hiking', count: 11 },
+  { label: 'Horseback Riding', count: 1 },
+  { label: 'Hunting', count: 3 },
+  { label: 'Icefishing', count: 0 },
+  { label: 'Kayaking', count: 0 },
+  { label: 'Mountain Biking', count: 3 },
+  { label: 'Mountaineering', count: 0 },
+  { label: 'Nature Study', count: 3 },
+  { label: 'Orienteering', count: 0 },
+  { label: 'Picnicking', count: 3 },
+  { label: 'Rafting', count: 0 },
+  { label: 'Sailing', count: 0 },
+  { label: 'Scuba or Skin Diving', count: 0 },
+  { label: 'Ski Touring', count: 5 },
+  { label: 'Skiing', count: 3 },
+  { label: 'Snowmobiling', count: 8 },
+  { label: 'Snowshoeing', count: 6 },
+  { label: 'Swimming & Bathing', count: 0 },
+  { label: 'Trail Bike Riding - Motorized', count: 2 },
+  { label: 'Viewing', count: 7 },
+  { label: 'Water Skiing', count: 0 },
+  { label: 'Wildlife Viewing', count: 3 },
+  { label: 'Windsurfing', count: 0 },
+];
+
+export const facilitiesFilterOptions = [
+  { label: 'Tables', count: 10 },
+  { label: 'Toilets', count: 10 },
+];
+
+export const accessTypeFilterOptions = [
+  { label: 'Boat-in Access', count: 15 },
+  { label: 'Fly-in Access', count: 8 },
+  { label: 'Road Access', count: 13 },
+  { label: 'Trail Access', count: 11 },
+];
