@@ -7,11 +7,12 @@ import { BASE_URL } from 'e2e/constants';
 import { waitForImagesToLoad } from 'e2e/utils';
 import { FilterEnum } from 'e2e/enum/filter';
 import { SearchEnum } from 'e2e/enum/search';
+import { RecResource } from 'e2e/poms/pages/types';
 
 export class SearchPOM {
   readonly page: Page;
 
-  readonly url: string = `${BASE_URL}/search/`;
+  readonly url: string = `${BASE_URL}/search`;
 
   readonly initialResults: number = 38;
 
@@ -25,9 +26,30 @@ export class SearchPOM {
     });
   }
 
-  async route() {
-    await this.page.goto(this.url);
+  async route(params?: string) {
+    await this.page.goto(`${this.url}${params ? params : ''}`);
     await waitForImagesToLoad(this.page);
+  }
+
+  async getRecResourceCardCount() {
+    return await this.page.locator('.rec-resource-card').count();
+  }
+
+  async clickLoadMore(btnLabel?: string) {
+    const loadMoreBtn = this.page.getByRole('button', {
+      name: btnLabel ? btnLabel : SearchEnum.LOAD_MORE_LABEL,
+    });
+    const searchCardCount = await this.getRecResourceCardCount();
+    await loadMoreBtn.click();
+    await this.page.waitForResponse((response) => response.status() === 200);
+
+    expect(await this.getRecResourceCardCount()).toBeGreaterThan(
+      searchCardCount,
+    );
+  }
+
+  async clickLoadPrevious() {
+    await this.clickLoadMore(SearchEnum.LOAD_PREV_LABEL);
   }
 
   async resultsCount(results: number) {
@@ -37,7 +59,7 @@ export class SearchPOM {
       ).toBeVisible();
     } else {
       await expect(
-        this.page.getByText(`${results} Result${results > 1 && 's'}`),
+        this.page.getByText(`${results} Result${results > 1 ? 's' : ''}`),
       ).toBeVisible();
     }
   }
@@ -57,9 +79,28 @@ export class SearchPOM {
     ).toBeVisible();
   }
 
+  async verifyRecResourceCardCount(count: number) {
+    await expect(this.page.locator('.rec-resource-card')).toHaveCount(count);
+  }
+
+  async verifyRecResourceCardContent({
+    rec_resource_id,
+    rec_resource_name,
+    rec_resource_type,
+    closest_community,
+    status,
+  }: RecResource) {
+    const cardContainer = this.page.locator(`#${rec_resource_id} `);
+    const cardText = await cardContainer.textContent();
+    expect(cardText).toContain(rec_resource_name.toLowerCase());
+    expect(cardText).toContain(rec_resource_type);
+    expect(cardText).toContain(closest_community.toLowerCase());
+    expect(cardText).toContain(status);
+  }
+
   async searchFor(searchTerm: string) {
     const input = this.page.locator(
-      `input[placeholder="${SearchEnum.PLACEHOLDER}"]`,
+      `input[placeholder = "${SearchEnum.PLACEHOLDER}"]`,
     );
     await input.fill(searchTerm);
     await this.searchBtn.click();

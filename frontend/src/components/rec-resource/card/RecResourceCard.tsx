@@ -29,7 +29,11 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
   const hasImages = imageList.length > 0;
 
   return (
-    <div className="rec-resource-card" key={rec_resource_id}>
+    <div
+      className="rec-resource-card"
+      key={rec_resource_id}
+      id={rec_resource_id}
+    >
       <div className={'card-image-container'}>
         {hasImages ? <CardCarousel imageList={imageList} /> : <RSTSVGLogo />}
       </div>
