@@ -2,34 +2,17 @@
 // Page object models (POM) simplify authoring by creating a higher-level API which suits your application &
 // simplify maintenance by capturing element selectors in one place and create reusable code to avoid repetition.
 
-import { expect, Locator, Page } from '@playwright/test';
-import happoPlaywright from 'happo-playwright';
-import { analyzeAccessibility } from 'e2e/utils';
+import { expect, Page } from '@playwright/test';
 import { BASE_URL } from 'e2e/constants';
 
 export class LayoutPOM {
   readonly page: Page;
 
-  readonly pageContent: Locator;
-
   constructor(page: Page) {
     this.page = page;
-
-    this.pageContent = page.locator('html');
   }
 
-  async accessibility() {
-    await analyzeAccessibility(this.page);
-  }
-
-  async screenshot(component: string, variant: string) {
-    await happoPlaywright.screenshot(this.page, this.pageContent, {
-      component,
-      variant,
-    });
-  }
-
-  async verifyHeader() {
+  async verifyHeaderContent() {
     const header = this.page.locator('header');
     await expect(
       header.getByRole('link', { name: 'Find a recreation site or trail' }),
@@ -38,7 +21,7 @@ export class LayoutPOM {
     await expect(header.getByRole('link', { name: 'Contact' })).toBeVisible();
   }
 
-  async verifyFooter() {
+  async verifyFooterContent() {
     const footer = this.page.locator('footer');
     await expect(
       footer.getByRole('link', { name: 'Disclaimer' }),
