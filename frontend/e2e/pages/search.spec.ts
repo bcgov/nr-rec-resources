@@ -1,6 +1,6 @@
 import { test } from '@playwright/test';
 import { initHappo } from 'e2e/utils';
-import { FilterPOM, LayoutPOM, SearchPOM } from 'e2e/poms';
+import { FilterPOM, LayoutPOM, SearchPOM, UtilsPOM } from 'e2e/poms';
 
 initHappo();
 
@@ -9,17 +9,18 @@ test.describe('Search page', () => {
     const filter = new FilterPOM(page);
     const layout = new LayoutPOM(page);
     const searchPage = new SearchPOM(page);
+    const utils = new UtilsPOM(page);
 
     await searchPage.route();
 
-    await layout.verifyHeader();
-    await layout.verifyFooter();
+    await layout.verifyHeaderContent();
+    await layout.verifyFooterContent();
 
     await filter.verifyInitialFilterMenu();
     await searchPage.verifyInitialResults();
 
-    await layout.screenshot('Search page', 'default');
+    await utils.screenshot('Search page', 'default');
 
-    await layout.accessibility();
+    await utils.accessibility();
   });
 });
