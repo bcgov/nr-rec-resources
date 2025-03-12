@@ -18,6 +18,12 @@ export class UtilsPOM {
     this.pageContent = page.locator('html');
   }
 
+  async checkExpectedUrlParams(params: string) {
+    const url = new URL(this.page.url());
+    const urlParams = url.searchParams.toString();
+    expect(urlParams).toContain(params);
+  }
+
   async clickLinkByText(text: string) {
     const link = this.page.locator(`a:has-text("${text}")`);
     const href = await link.getAttribute('href');

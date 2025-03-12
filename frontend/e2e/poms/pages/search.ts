@@ -35,6 +35,18 @@ export class SearchPOM {
     return await this.page.locator('.rec-resource-card').count();
   }
 
+  async resultsCount(results: number) {
+    if (results === 0) {
+      await expect(
+        this.page.getByText(SearchEnum.NO_RESULTS_LABEL),
+      ).toBeVisible();
+    } else {
+      await expect(
+        this.page.getByText(`${results} Result${results > 1 ? 's' : ''}`),
+      ).toBeVisible();
+    }
+  }
+
   async clickLoadMore(btnLabel?: string) {
     const loadMoreBtn = this.page.getByRole('button', {
       name: btnLabel ? btnLabel : SearchEnum.LOAD_MORE_LABEL,
@@ -52,18 +64,6 @@ export class SearchPOM {
     await this.clickLoadMore(SearchEnum.LOAD_PREV_LABEL);
   }
 
-  async resultsCount(results: number) {
-    if (results === 0) {
-      await expect(
-        this.page.getByText(SearchEnum.NO_RESULTS_LABEL),
-      ).toBeVisible();
-    } else {
-      await expect(
-        this.page.getByText(`${results} Result${results > 1 ? 's' : ''}`),
-      ).toBeVisible();
-    }
-  }
-
   async verifyInitialResults() {
     await this.resultsCount(this.initialResults);
     await expect(
@@ -79,7 +79,7 @@ export class SearchPOM {
     ).toBeVisible();
   }
 
-  async verifyRecResourceCardCount(count: number) {
+  async recResourceCardCount(count: number) {
     await expect(this.page.locator('.rec-resource-card')).toHaveCount(count);
   }
 
