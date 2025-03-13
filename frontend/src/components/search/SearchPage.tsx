@@ -2,15 +2,16 @@ import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import RecResourceCard from '@/components/rec-resource/card/RecResourceCard';
 import SearchBanner from '@/components/search/SearchBanner';
-import ProgressBar from 'react-bootstrap/ProgressBar';
 import FilterMenu from '@/components/search/filters/FilterMenu';
 import FilterMenuMobile from '@/components/search/filters/FilterMenuMobile';
-import {
-  PaginatedRecreationResourceDto,
-  RecreationResourceDto,
-} from '@/service/recreation-resource';
 import { useSearchRecreationResourcesPaginated } from '@/service/queries/recreation-resource';
 import { useInitialPageFromSearchParams } from '@/components/search/hooks/useInitialPageFromSearchParams';
+import {
+  PaginatedRecreationResourceModel,
+  RecreationResourceSearchModel,
+} from '@/service/custom-models';
+import { ProgressBar, Stack } from 'react-bootstrap';
+import { LoadingButton } from '@/components/LoadingButton';
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -26,6 +27,8 @@ const SearchPage = () => {
     hasPreviousPage,
     fetchPreviousPage,
     isFetching,
+    isFetchingNextPage,
+    isFetchingPreviousPage,
   } = useSearchRecreationResourcesPaginated({
     limit: 10,
     filter: searchParams.get('filter') ?? undefined,
@@ -65,6 +68,9 @@ const SearchPage = () => {
     setIsMobileFilterOpen(true);
   };
 
+  const isFetchingFirstPage =
+    isFetching && !isFetchingPreviousPage && !isFetchingNextPage;
+
   return (
     <>
       <SearchBanner key={`${searchResetKey}-search-banner`} />
@@ -82,7 +88,7 @@ const SearchPage = () => {
             onClearFilters={handleClearFilters}
             totalResults={resultsTotal}
           />
-          <div className="search-results-container">
+          <div className="w-100">
             <button
               aria-label="Open mobile filter menu"
               onClick={handleOpenMobileFilter}
@@ -90,8 +96,9 @@ const SearchPage = () => {
             >
               Filter
             </button>
-            <div className="search-results-count">
-              {isFetching ? (
+
+            <div className="d-flex align-items-center justify-content-between mb-4">
+              {isFetchingFirstPage ? (
                 <div>Searching...</div>
               ) : (
                 <div>
@@ -115,43 +122,40 @@ const SearchPage = () => {
                 </button>
               )}
             </div>
-            {hasPreviousPage && (
-              <div className="load-more-container mb-3">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={handleLoadPrevious}
-                >
-                  Load Previous
-                </button>
-              </div>
-            )}
-            <section>
-              {isFetching ? (
-                <ProgressBar animated now={100} className="mb-4" />
-              ) : (
-                data?.pages?.map((pageData: PaginatedRecreationResourceDto) =>
-                  pageData.data.map(
-                    (recreationResource: RecreationResourceDto) => (
-                      <RecResourceCard
-                        key={recreationResource.rec_resource_id}
-                        recreationResource={recreationResource}
-                      />
-                    ),
-                  ),
-                )
-              )}
-            </section>
-            {hasNextPage && (
-              <div className="load-more-container">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={handleLoadMore}
-                >
-                  Load More
-                </button>
-              </div>
+            {isFetching && !isFetchingPreviousPage && !isFetchingNextPage ? (
+              <ProgressBar animated now={100} className="mb-4" />
+            ) : (
+              <Stack gap={3} className="align-items-center">
+                {hasPreviousPage && (
+                  <LoadingButton
+                    onClick={handleLoadPrevious}
+                    loading={isFetchingPreviousPage}
+                  >
+                    Load Previous
+                  </LoadingButton>
+                )}
+                <section className="w-100">
+                  {data?.pages?.map(
+                    (pageData: PaginatedRecreationResourceModel) =>
+                      pageData.data.map(
+                        (recreationResource: RecreationResourceSearchModel) => (
+                          <RecResourceCard
+                            key={recreationResource.rec_resource_id}
+                            recreationResource={recreationResource}
+                          />
+                        ),
+                      ),
+                  )}
+                </section>
+                {hasNextPage && (
+                  <LoadingButton
+                    onClick={handleLoadMore}
+                    loading={isFetchingNextPage}
+                  >
+                    Load More
+                  </LoadingButton>
+                )}
+              </Stack>
             )}
           </div>
         </div>

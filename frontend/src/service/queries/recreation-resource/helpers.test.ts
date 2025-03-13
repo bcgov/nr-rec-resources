@@ -1,8 +1,8 @@
-import { RecreationResourceDto } from '@/service/recreation-resource';
 import {
   getBasePathForAssets,
-  transformRecreationResource,
+  transformRecreationResourceDetail,
 } from '@/service/queries/recreation-resource/helpers';
+import { RecreationResourceBaseModel } from '@/service/custom-models';
 
 describe('Asset URL Utilities', () => {
   describe('getBasePathForAssets', () => {
@@ -16,9 +16,11 @@ describe('Asset URL Utilities', () => {
     });
 
     it('returns default test URL when environment variable not set', () => {
+      vi.stubEnv('VITE_RECREATION_RESOURCE_ASSETS_BASE_URL', undefined);
       expect(getBasePathForAssets()).toBe(
         'https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca',
       );
+      vi.unstubAllEnvs();
     });
   });
 
@@ -42,10 +44,10 @@ describe('Asset URL Utilities', () => {
           ],
         },
       ],
-    } as unknown as RecreationResourceDto;
+    } as unknown as RecreationResourceBaseModel;
 
     it('transforms all image URLs with base path', () => {
-      const transformed = transformRecreationResource(mockResource);
+      const transformed = transformRecreationResourceDetail(mockResource);
       const basePath = getBasePathForAssets();
 
       expect(
@@ -59,7 +61,7 @@ describe('Asset URL Utilities', () => {
     });
 
     it('preserves original resource structure', () => {
-      const transformed = transformRecreationResource(mockResource);
+      const transformed = transformRecreationResourceDetail(mockResource);
 
       expect(transformed.rec_resource_id).toBe(mockResource.rec_resource_id);
       expect(transformed.recreation_resource_images[0].ref_id).toBe(
@@ -78,11 +80,14 @@ describe('Asset URL Utilities', () => {
       const emptyResource = {
         rec_resource_id: 1,
         recreation_resource_images: [],
-      } as unknown as RecreationResourceDto;
+      } as unknown as RecreationResourceBaseModel;
 
-      expect(() => transformRecreationResource(emptyResource)).not.toThrow();
+      expect(() =>
+        transformRecreationResourceDetail(emptyResource),
+      ).not.toThrow();
       expect(
-        transformRecreationResource(emptyResource).recreation_resource_images,
+        transformRecreationResourceDetail(emptyResource)
+          .recreation_resource_images,
       ).toEqual([]);
     });
   });

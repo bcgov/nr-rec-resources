@@ -1,13 +1,13 @@
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import Camping from './Camping';
 import {
-  RecreationCampsiteDto,
-  RecreationFeeDto,
-} from '@/service/recreation-resource';
+  RecreationCampsiteModel,
+  RecreationFeeModel,
+} from '@/service/custom-models';
 
 describe('Camping Component', () => {
-  const mockFees: RecreationFeeDto[] = [
+  const mockFees: RecreationFeeModel[] = [
     {
       fee_amount: 30.0,
       fee_start_date: new Date('2024-06-01'),
@@ -20,7 +20,6 @@ describe('Camping Component', () => {
       saturday_ind: 'n',
       sunday_ind: 'n',
       recreation_fee_code: 'C',
-      fee_description: 'Camping Fee',
     },
     {
       fee_amount: 15.0,
@@ -34,7 +33,6 @@ describe('Camping Component', () => {
       saturday_ind: 'y',
       sunday_ind: 'n',
       recreation_fee_code: 'D',
-      fee_description: 'Day Use Fee',
     },
     {
       fee_amount: 12.0,
@@ -48,11 +46,10 @@ describe('Camping Component', () => {
       saturday_ind: 'y',
       sunday_ind: 'y',
       recreation_fee_code: 'P',
-      fee_description: 'Parking Fee',
     },
   ];
 
-  const mockCampsite: RecreationCampsiteDto = {
+  const mockCampsite: RecreationCampsiteModel = {
     rec_resource_id: '123',
     campsite_count: 2,
   };

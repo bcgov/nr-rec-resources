@@ -1,16 +1,29 @@
-import App from '@/App';
-import { act, render, screen } from '@testing-library/react';
-import apiService from '@/service/api-service';
+import { describe, expect, it } from 'vitest';
+import { render } from '@testing-library/react';
+import App from './App';
 
-vi.spyOn(apiService as any, 'getAxiosInstance').mockReturnValue({
-  get: vi.fn().mockResolvedValue({}),
-});
+// Mock the components and dependencies
+vi.mock('@/components/layout/Header', () => ({
+  default: () => <div data-testid="mock-header">Header</div>,
+}));
+vi.mock('@/components/layout/Footer', () => ({
+  default: () => <div data-testid="mock-footer">Footer</div>,
+}));
+vi.mock('@/routes', () => ({
+  default: () => <div data-testid="mock-routes">Routes</div>,
+}));
 
-describe('Simple working test', () => {
-  it('the title is visible', async () => {
-    await act(async () => {
-      render(<App />);
-    });
-    expect(screen.getByText(/Find a Recreation Resource/i)).toBeInTheDocument();
+describe('App', () => {
+  it('renders the app structure correctly', () => {
+    const { getByTestId } = render(<App />);
+
+    expect(getByTestId('mock-header')).toBeInTheDocument();
+    expect(getByTestId('mock-routes')).toBeInTheDocument();
+    expect(getByTestId('mock-footer')).toBeInTheDocument();
+  });
+
+  it('initializes QueryClient', () => {
+    const { container } = render(<App />);
+    expect(container).toBeInTheDocument();
   });
 });

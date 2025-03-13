@@ -259,6 +259,7 @@ const RecResourcePage = () => {
             {isMapsAndLocation && (
               <MapsAndLocation
                 accessTypes={recreation_access}
+                recResource={recResource}
                 ref={mapLocationRef}
               />
             )}

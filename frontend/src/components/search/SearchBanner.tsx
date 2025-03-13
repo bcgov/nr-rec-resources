@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import '@/components/search/Search.scss';
+import { Button, Col, Container, Row } from 'react-bootstrap';
 
 const SearchBanner = () => {
   const [inputValue, setInputValue] = useState('');
@@ -26,25 +27,27 @@ const SearchBanner = () => {
     <div className="page-nav-container search">
       <nav aria-label="Search banner" className="page-nav search-banner">
         <h1>Find a recreation site or trail</h1>
-        <div className="search-banner-input-container">
-          <input
-            className="form-control"
-            type="text"
-            placeholder="Search by name or closest community"
-            value={inputValue}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setInputValue(e.target.value)
-            }
-            onKeyDown={handleKeyDown}
-          />
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={handleSearch}
-          >
-            Search
-          </button>
-        </div>
+        <Container className="search-banner-input-container">
+          <Row>
+            <Col sm={12} md={10} className="mb-3 mb-md-0">
+              <input
+                className="form-control"
+                type="text"
+                placeholder="Search by name or closest community"
+                value={inputValue}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setInputValue(e.target.value)
+                }
+                onKeyDown={handleKeyDown}
+              />
+            </Col>
+            <Col sm={12} md={2} className={'p-md-0'}>
+              <Button className="w-100" onClick={handleSearch}>
+                Search
+              </Button>
+            </Col>
+          </Row>
+        </Container>
       </nav>
     </div>
   );

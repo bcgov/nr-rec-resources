@@ -1,25 +1,3 @@
--- Create the resource_images table if it doesn't exist
-CREATE TABLE IF NOT EXISTS rst.recreation_resource_images
-(
-    id              SERIAL PRIMARY KEY,
-    rec_resource_id VARCHAR(10) REFERENCES rst.recreation_resource,
-    ref_id          VARCHAR UNIQUE,
-    caption         VARCHAR,
-    UNIQUE (rec_resource_id, ref_id)
-);
-
-CREATE TABLE IF NOT EXISTS rst.recreation_resource_image_variants
-(
-    id        SERIAL PRIMARY KEY,
-    ref_id    VARCHAR REFERENCES rst.recreation_resource_images (ref_id),
-    size_code VARCHAR(20),
-    url       TEXT,
-    width     INTEGER,
-    height    INTEGER,
-    extension VARCHAR(10),
-    UNIQUE (ref_id, size_code)
-);
-
 -- Insert image data
 INSERT INTO rst.recreation_resource_images
     (rec_resource_id, ref_id, caption)
