@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import '@/components/search/Search.scss';
 import { Button, Col, Container, Row } from 'react-bootstrap';
 
@@ -8,19 +10,24 @@ const SearchBanner = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const handleSearch = () => {
-    if (inputValue === '') {
+    if (inputValue.trim() === '') {
       searchParams.delete('filter');
-      setSearchParams(searchParams);
     } else {
       searchParams.set('filter', inputValue.trim());
-      setSearchParams(searchParams);
     }
+    setSearchParams(searchParams);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' || e.key === ' ') {
+    if (e.key === 'Enter') {
       handleSearch();
     }
+  };
+
+  const handleClear = () => {
+    setInputValue('');
+    searchParams.delete('filter');
+    setSearchParams(searchParams);
   };
 
   return (
