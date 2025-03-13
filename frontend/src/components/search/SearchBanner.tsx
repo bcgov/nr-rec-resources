@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 import '@/components/search/Search.scss';
 
 const SearchBanner = () => {
@@ -7,19 +9,24 @@ const SearchBanner = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const handleSearch = () => {
-    if (inputValue === '') {
+    if (inputValue.trim() === '') {
       searchParams.delete('filter');
-      setSearchParams(searchParams);
     } else {
       searchParams.set('filter', inputValue.trim());
-      setSearchParams(searchParams);
     }
+    setSearchParams(searchParams);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' || e.key === ' ') {
+    if (e.key === 'Enter') {
       handleSearch();
     }
+  };
+
+  const handleClear = () => {
+    setInputValue('');
+    searchParams.delete('filter');
+    setSearchParams(searchParams);
   };
 
   return (
@@ -27,16 +34,25 @@ const SearchBanner = () => {
       <nav aria-label="Search banner" className="page-nav search-banner">
         <h1>Find a recreation site or trail</h1>
         <div className="search-banner-input-container">
-          <input
-            className="form-control"
-            type="text"
-            placeholder="Search by name or closest community"
-            value={inputValue}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setInputValue(e.target.value)
-            }
-            onKeyDown={handleKeyDown}
-          />
+          <div className="search-input-wrapper">
+            <input
+              className="form-control"
+              type="text"
+              placeholder="Search by name or closest community"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+            {inputValue && (
+              <button
+                className="clear-btn"
+                onClick={handleClear}
+                aria-label="Clear search"
+              >
+                <FontAwesomeIcon icon={faTimes} />
+              </button>
+            )}
+          </div>
           <button
             type="button"
             className="btn btn-primary"
