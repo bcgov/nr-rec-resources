@@ -1,3 +1,7 @@
+select upsert_timestamp_columns('rst', 'recreation_maintainace_code', true);
+
+select setup_temporal_table('rst', 'recreation_maintainace_code');
+
 create table if not exists rst.recreation_maintainace_code (
     recreation_maintainace_code varchar(1) primary key,
     description varchar(120) not null
@@ -11,6 +15,10 @@ insert into rst.recreation_maintainace_code (recreation_maintainace_code, descri
 values
     ('M', 'Maintained to Standard'),
     ('U', 'User Maintained');
+
+select upsert_timestamp_columns('rst', 'recreation_maintainace', true);
+
+select setup_temporal_table('rst', 'recreation_maintainace');
 
 create table if not exists rst.recreation_maintainace (
     id serial primary key,
