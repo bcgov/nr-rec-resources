@@ -21,6 +21,8 @@
   - [Docker Compose](#docker-compose)
   - [Installing and running the application locally](#installing-and-running-the-application-locally)
   - [Database](#database)
+    - [Flyway](#flyway)
+    - [Running migrations](#running-migrations)
   - [Backend](#backend)
   - [Frontend](#frontend)
   - [Generate API Client Library](#generate-api-client-library)
@@ -69,6 +71,7 @@
 - Node.js
 - npm
 - Docker OR PostgreSQL 16
+- Flyway
 
 ### Docker Compose
 
@@ -90,7 +93,23 @@ directory to install eslint and plugins to ensure linting is working correctly.
 ### Database
 
 To run this on your local machine, you will need a working installation of
-PostgreSQL 16.
+PostgreSQL 16 and Flyway.
+
+#### Flyway
+
+Flyway is a database migration tool that is used to manage the database schema.
+
+To install flyway locally on macOS or Linux, if you have Homebrew installed, you
+can run:
+
+```bash
+brew install flyway
+```
+
+Alternatively you can manually download the latest version of Flyway from the
+[Flyway website](https://flywaydb.org/download/).
+
+#### Running migrations
 
 Create an `.env` file in the `backend` directory using the example in
 `backend/.env.example` as a template.
