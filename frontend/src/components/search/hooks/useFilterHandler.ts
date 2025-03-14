@@ -14,10 +14,12 @@ export const useFilterHandler = () => {
     if (isChecked) {
       newSearchParams.set(param, updateFilters ? `${updateFilters}_${id}` : id);
       setSearchParams(newSearchParams);
-      filterChipStore.setState((prevState) => [
-        ...prevState,
-        { param, id, label },
-      ]);
+      if (!filterChipStore.state?.some((filter) => filter.id === id)) {
+        filterChipStore.setState((prevState) => [
+          ...prevState,
+          { param, id, label },
+        ]);
+      }
     } else {
       filterChipStore.setState((prevState) =>
         prevState.filter((filter) => filter.id !== id),

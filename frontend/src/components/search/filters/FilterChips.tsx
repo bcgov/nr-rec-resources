@@ -14,7 +14,7 @@ const FilterChips = () => {
     <div className="filter-chips-container">
       {filterChips.map((filterChip) => {
         const { id, label, param } = filterChip;
-        return <FilterChip key={label} param={param} id={id} label={label} />;
+        return <FilterChip key={id} param={param} id={id} label={label} />;
       })}
       {isFilters && (
         <button
