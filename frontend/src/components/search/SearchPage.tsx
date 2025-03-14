@@ -1,20 +1,24 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useStore } from '@tanstack/react-store';
 import RecResourceCard from '@/components/rec-resource/card/RecResourceCard';
 import SearchBanner from '@/components/search/SearchBanner';
 import ProgressBar from 'react-bootstrap/ProgressBar';
+import FilterChips from '@/components/search/filters/FilterChips';
 import FilterMenu from '@/components/search/filters/FilterMenu';
 import FilterMenuMobile from '@/components/search/filters/FilterMenuMobile';
+import filterChipStore from '@/store/filterChips';
+import searchResultsStore, { initialState } from '@/store/searchResults';
 import {
   PaginatedRecreationResourceDto,
   RecreationResourceDto,
 } from '@/service/recreation-resource';
 import { useSearchRecreationResourcesPaginated } from '@/service/queries/recreation-resource';
 import { useInitialPageFromSearchParams } from '@/components/search/hooks/useInitialPageFromSearchParams';
+import setFilterChipsFromSearchParams from '@/components/search/utils/setFilterChipsFromSearchParams';
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [searchResetKey, setSearchResetKey] = useState('search-reset-key');
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   const initialPage = useInitialPageFromSearchParams();
@@ -38,10 +42,17 @@ const SearchPage = () => {
     page: initialPage,
   });
 
-  const filterMenuContent = data?.filters ?? [];
-  const resultsTotal = data?.totalCount ?? 0;
-  const isFilters =
-    Object.keys(Object.fromEntries(searchParams.entries())).length > 0;
+  searchResultsStore.setState(() => data ?? initialState);
+
+  const searchResults = useStore(searchResultsStore);
+  const filterChips = useStore(filterChipStore);
+
+  useEffect(() => {
+    setFilterChipsFromSearchParams(filterChips, searchResults, searchParams);
+    // eslint-disable-next-line
+  }, [data]);
+
+  const { pages: paginatedResults, totalCount } = searchResults;
 
   const handleLoadMore = () => {
     const newSearchParams = {
@@ -56,31 +67,19 @@ const SearchPage = () => {
     fetchPreviousPage();
   };
 
-  const handleClearFilters = () => {
-    setSearchParams({});
-    setSearchResetKey(crypto.randomUUID());
-  };
-
   const handleOpenMobileFilter = () => {
     setIsMobileFilterOpen(true);
   };
 
   return (
     <>
-      <SearchBanner key={`${searchResetKey}-search-banner`} />
+      <SearchBanner />
       <div className="page-container bg-brown-light">
         <div className="page page-padding search-container">
-          <FilterMenu
-            key={`${searchResetKey}-filter-menu-desktop`}
-            menuContent={filterMenuContent}
-          />
+          <FilterMenu />
           <FilterMenuMobile
-            key={`${searchResetKey}-filter-menu-mobile`}
-            menuContent={filterMenuContent}
             isOpen={isMobileFilterOpen}
             setIsOpen={setIsMobileFilterOpen}
-            onClearFilters={handleClearFilters}
-            totalResults={resultsTotal}
           />
           <div className="search-results-container">
             <button
@@ -95,26 +94,19 @@ const SearchPage = () => {
                 <div>Searching...</div>
               ) : (
                 <div>
-                  {resultsTotal ? (
+                  {totalCount ? (
                     <span>
-                      <strong>{resultsTotal.toLocaleString()}</strong>
-                      {` ${resultsTotal === 1 ? 'Result' : 'Results'}`}
+                      <strong>{totalCount.toLocaleString()}</strong>
+                      {` ${totalCount === 1 ? 'Result' : 'Results'}`}
                     </span>
                   ) : (
                     'No results found'
                   )}
                 </div>
               )}
-              {isFilters && (
-                <button
-                  type="button"
-                  className="btn-link clear-filters-btn-desktop"
-                  onClick={handleClearFilters}
-                >
-                  Clear Filters
-                </button>
-              )}
             </div>
+            <FilterChips />
+
             {hasPreviousPage && (
               <div className="load-more-container mb-3">
                 <button
@@ -130,15 +122,16 @@ const SearchPage = () => {
               {isFetching ? (
                 <ProgressBar animated now={100} className="mb-4" />
               ) : (
-                data?.pages?.map((pageData: PaginatedRecreationResourceDto) =>
-                  pageData.data.map(
-                    (recreationResource: RecreationResourceDto) => (
-                      <RecResourceCard
-                        key={recreationResource.rec_resource_id}
-                        recreationResource={recreationResource}
-                      />
+                paginatedResults?.flatMap(
+                  (pageData: PaginatedRecreationResourceDto) =>
+                    pageData?.data.map(
+                      (recreationResource: RecreationResourceDto) => (
+                        <RecResourceCard
+                          key={recreationResource.rec_resource_id}
+                          recreationResource={recreationResource}
+                        />
+                      ),
                     ),
-                  ),
                 )
               )}
             </section>

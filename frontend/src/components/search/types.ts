@@ -10,3 +10,9 @@ export interface FilterMenuContent {
   options: Filter[];
   param: string; // Name of the query parameter
 }
+
+export interface FilterChip {
+  param: string;
+  id: string;
+  label: string;
+}

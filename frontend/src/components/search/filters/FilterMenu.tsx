@@ -1,14 +1,12 @@
 import FilterGroup, {
   MAX_VISIBLE_OPTIONS,
 } from '@/components/search/filters/FilterGroup';
-import { FilterMenuContent } from '@/components/search/types';
+import searchResultsStore from '@/store/searchResults';
 import '@/components/search/filters/Filters.scss';
 
-interface FilterMenuProps {
-  menuContent: FilterMenuContent[];
-}
+const FilterMenu = () => {
+  const menuContent = searchResultsStore.state.filters;
 
-const FilterMenu = ({ menuContent }: FilterMenuProps) => {
   return (
     <nav className="filter-menu-container">
       <div className="filter-menu-title">Filter</div>
