@@ -28,6 +28,7 @@ export class RecreationResourcePOM {
     closest_community,
     status,
   }: RecResource) {
+    await this.page.waitForLoadState('networkidle');
     const recResourceHeader = this.page
       .locator('h1')
       .locator('..')
