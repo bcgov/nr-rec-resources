@@ -1,6 +1,3 @@
-alter table rst.recreation_maintenance
-add constraint recreation_maintenance_unique unique (rec_resource_id, recreation_maintenance_code);
-
 insert into rst.recreation_maintenance (
     rec_resource_id,
     recreation_maintenance_code,
@@ -18,10 +15,9 @@ select distinct on (rp.forest_file_id, rp.recreation_maintain_std_code)
     rp.update_userid as updated_by,
     rp.entry_timestamp as created_at,
     rp.entry_userid as created_by
-from
-    fta.recreation_project rp
-    left join fta.recreation_maintain_std_code rmsc
-        on rp.recreation_maintain_std_code = rmsc.recreation_maintain_std_code
+from fta.recreation_project rp
+left join fta.recreation_maintain_std_code rmsc
+    on rp.recreation_maintain_std_code = rmsc.recreation_maintain_std_code
 order by rp.forest_file_id, rp.recreation_maintain_std_code, rp.update_timestamp desc
 on conflict (rec_resource_id, recreation_maintenance_code)
 do update set
