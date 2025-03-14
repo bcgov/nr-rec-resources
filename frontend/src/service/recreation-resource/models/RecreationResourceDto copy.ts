@@ -85,12 +85,6 @@ export interface RecreationResourceDto {
   closest_community: string;
 
   /**
-   * Recreation Access Types
-   * @type {Array<string>}
-   * @memberof RecreationResourceDto
-   */
-  recreation_access: Array<string>;
-  /**
    * List of recreational activities available at this resource
    * @type {Array<RecreationActivityDto>}
    * @memberof RecreationResourceDto
@@ -162,11 +156,6 @@ export function instanceOfRecreationResourceDto(
   )
     return false;
   if (
-    !('recreation_access' in value) ||
-    value['recreation_access'] === undefined
-  )
-    return false;
-  if (
     !('recreation_activity' in value) ||
     value['recreation_activity'] === undefined
   )
@@ -214,7 +203,6 @@ export function RecreationResourceDtoFromJSONTyped(
     name: json['name'],
     description: json['description'],
     closest_community: json['closest_community'],
-    recreation_access: json['recreation_access'],
     recreation_activity: (json['recreation_activity'] as Array<any>).map(
       RecreationActivityDtoFromJSON,
     ),
@@ -253,7 +241,6 @@ export function RecreationResourceDtoToJSONTyped(
     name: value['name'],
     description: value['description'],
     closest_community: value['closest_community'],
-    recreation_access: value['recreation_access'],
     recreation_activity: (value['recreation_activity'] as Array<any>).map(
       RecreationActivityDtoToJSON,
     ),
