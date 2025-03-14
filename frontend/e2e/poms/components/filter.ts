@@ -68,9 +68,9 @@ export class FilterPOM {
   async toggleFilterOn(filterGroup: Locator, filterOption: string) {
     const checkbox = filterGroup.getByRole('checkbox', { name: filterOption });
     await checkbox.waitFor({ state: 'visible' });
+    expect(checkbox).not.toBeChecked();
     await checkbox.check();
-    await checkbox.waitFor({ state: 'visible' });
-    await expect(checkbox).toBeChecked();
+    await expect(checkbox).toBeChecked({ timeout: 3000 });
   }
 
   async toggleFilterOff(filterGroup: Locator, filterOption: string) {
@@ -78,6 +78,17 @@ export class FilterPOM {
     await checkbox.waitFor({ state: 'visible' });
     expect(checkbox).toBeChecked();
     await checkbox.uncheck();
+    expect(checkbox).not.toBeChecked({ timeout: 3000 });
+  }
+
+  async checkIsFilterToggledOn(filterGroup: Locator, filterOption: string) {
+    const checkbox = filterGroup.getByRole('checkbox', { name: filterOption });
+    await checkbox.waitFor({ state: 'visible' });
+    expect(checkbox).toBeChecked();
+  }
+
+  async checkIsFilterToggledOff(filterGroup: Locator, filterOption: string) {
+    const checkbox = filterGroup.getByRole('checkbox', { name: filterOption });
     await checkbox.waitFor({ state: 'visible' });
     expect(checkbox).not.toBeChecked();
   }
