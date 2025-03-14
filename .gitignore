@@ -249,7 +249,7 @@ frontend/src/service/recreation-resource/.openapi-generator-ignore
 frontend/src/service/recreation-resource/git_push.sh
 frontend/src/service/recreation-resource/.openapi-generator
 
-#Ignoreing Backend Extract Load
+#Ignoring Backend Extract Load
 !backend-el
 backend-el/target
 backend-el/*.iml
@@ -257,3 +257,6 @@ backend-el/*.iml
 # sonarqube config/analysis files (local)
 /sonar-project.properties
 /.scannerwork/
+
+# k6 results
+k6_results/

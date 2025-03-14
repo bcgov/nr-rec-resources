@@ -1,11 +1,9 @@
 import { check } from "k6";
-import http from "k6/http";
 import { Rate } from "k6/metrics";
+export const errorRate = new Rate("errors");
 
-export let errorRate = new Rate("errors");
-
-function checkStatus(response, checkName, statusCode = 200) {
-  let success = check(response, {
+const checkStatus = (response, checkName, statusCode = 200) => {
+  const success = check(response, {
     [checkName]: (r) => {
       if (r.status === statusCode) {
         return true;
@@ -18,11 +16,6 @@ function checkStatus(response, checkName, statusCode = 200) {
     },
   });
   errorRate.add(!success, { tag1: checkName });
-}
+};
 
-export default function (_token) {
-  let url = `${__ENV.FRONTEND_URL}`;
-
-  let res = http.get(url);
-  checkStatus(res, "frontend", 200);
-}
+export default checkStatus;
