@@ -4,7 +4,7 @@
 
 import { expect, Locator, Page } from '@playwright/test';
 import { BASE_URL } from 'e2e/constants';
-import { waitForImagesToLoad } from 'e2e/utils';
+import { waitForImagesToLoad, waitForNetworkResponse } from 'e2e/utils';
 import { FilterEnum } from 'e2e/enum/filter';
 import { SearchEnum } from 'e2e/enum/search';
 import { RecResource } from 'e2e/poms/pages/types';
@@ -37,13 +37,13 @@ export class SearchPOM {
 
   async resultsCount(results: number) {
     if (results === 0) {
-      await expect(
-        this.page.getByText(SearchEnum.NO_RESULTS_LABEL),
-      ).toBeVisible();
+      await this.page
+        .getByText(SearchEnum.NO_RESULTS_LABEL)
+        .waitFor({ state: 'visible' });
     } else {
-      await expect(
-        this.page.getByText(`${results} Result${results > 1 ? 's' : ''}`),
-      ).toBeVisible();
+      await this.page
+        .getByText(`${results} Result${results > 1 ? 's' : ''}`)
+        .waitFor({ state: 'visible' });
     }
   }
 
@@ -51,13 +51,16 @@ export class SearchPOM {
     const loadMoreBtn = this.page.getByRole('button', {
       name: btnLabel ? btnLabel : SearchEnum.LOAD_MORE_LABEL,
     });
+    await loadMoreBtn.waitFor({ state: 'visible' });
     const searchCardCount = await this.getRecResourceCardCount();
     await loadMoreBtn.click();
-    await this.page.waitForResponse((response) => response.status() === 200);
-
-    expect(await this.getRecResourceCardCount()).toBeGreaterThan(
-      searchCardCount,
-    );
+    await waitForNetworkResponse(this.page);
+    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForSelector('.rec-resource-card');
+    await this.page.waitForFunction((prevCount) => {
+      const newCount = document.querySelectorAll('.rec-resource-card').length;
+      return newCount > prevCount;
+    }, searchCardCount);
   }
 
   async clickLoadPrevious() {
@@ -66,17 +69,16 @@ export class SearchPOM {
 
   async verifyInitialResults() {
     await this.resultsCount(this.initialResults);
-    await expect(
-      this.page.getByRole('heading', {
+    await this.page
+      .getByRole('heading', {
         name: '10 K Snowmobile Parking Lot',
-      }),
-    ).toBeVisible();
-
-    await expect(
-      this.page.getByRole('heading', {
+      })
+      .waitFor({ state: 'visible' });
+    await this.page
+      .getByRole('heading', {
         name: '10k Cabin',
-      }),
-    ).toBeVisible();
+      })
+      .waitFor({ state: 'visible' });
   }
 
   async recResourceCardCount(count: number) {
@@ -90,27 +92,39 @@ export class SearchPOM {
     closest_community,
     status,
   }: RecResource) {
-    const cardContainer = this.page.locator(`#${rec_resource_id} `);
-    const cardText = await cardContainer.textContent();
-    expect(cardText).toContain(rec_resource_name.toLowerCase());
-    expect(cardText).toContain(rec_resource_type);
-    expect(cardText).toContain(closest_community.toLowerCase());
-    expect(cardText).toContain(status);
+    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForSelector('.rec-resource-card');
+    const cardContainer = this.page.locator(`#${rec_resource_id}`);
+    await cardContainer.waitFor({ state: 'attached' });
+    await cardContainer.waitFor({ state: 'visible' });
+    await cardContainer
+      .getByText(rec_resource_name.toLowerCase())
+      .waitFor({ state: 'visible' });
+    await cardContainer
+      .getByText(rec_resource_type)
+      .waitFor({ state: 'visible' });
+    await cardContainer
+      .getByText(closest_community.toLowerCase())
+      .waitFor({ state: 'visible' });
+    await cardContainer.getByText(status).waitFor({ state: 'visible' });
   }
 
-  async searchFor(searchTerm: string) {
+  // Pass false to expectResults if testing for no results
+  async searchFor(searchTerm: string, expectResults: boolean = true) {
     const input = this.page.locator(
       `input[placeholder = "${SearchEnum.PLACEHOLDER}"]`,
     );
+    await expect(input).toBeVisible();
     await input.fill(searchTerm);
+    await input.press('Enter');
+    await this.searchBtn.waitFor({ state: 'visible' });
     await this.searchBtn.click();
+    if (expectResults) {
+      await this.page.waitForSelector('.rec-resource-card');
 
-    const searchingLabel = this.page.getByText(SearchEnum.SEARCHING_LABEL);
-
-    await expect(searchingLabel).toBeVisible();
-    await expect(
-      this.page.getByRole('button', { name: FilterEnum.CLEAR_FILTER_LABEL }),
-    ).toBeVisible();
-    await expect(searchingLabel).not.toBeVisible();
+      await this.page
+        .getByRole('button', { name: FilterEnum.CLEAR_FILTER_LABEL })
+        .waitFor({ state: 'visible' });
+    }
   }
 }

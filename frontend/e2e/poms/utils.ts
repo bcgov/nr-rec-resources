@@ -4,7 +4,11 @@
 
 import { expect, Locator, Page } from '@playwright/test';
 import happoPlaywright from 'happo-playwright';
-import { analyzeAccessibility } from 'e2e/utils';
+import {
+  analyzeAccessibility,
+  waitForNetworkRequest,
+  waitForNetworkResponse,
+} from 'e2e/utils';
 import { BASE_URL } from 'e2e/constants';
 
 export class UtilsPOM {
@@ -18,10 +22,14 @@ export class UtilsPOM {
     this.pageContent = page.locator('html');
   }
 
-  async checkExpectedUrlParams(params: string) {
-    const url = new URL(this.page.url());
-    const urlParams = url.searchParams.toString();
-    expect(urlParams).toContain(params);
+  async checkExpectedUrlParams(expectedParams: string) {
+    await this.page.waitForFunction(
+      (expected) =>
+        new URL(window.location.href).searchParams
+          .toString()
+          .includes(expected),
+      expectedParams,
+    );
   }
 
   async clickLinkByText(text: string) {
@@ -42,5 +50,18 @@ export class UtilsPOM {
       component,
       variant,
     });
+  }
+
+  async waitForNetworkRequest(url: string) {
+    await waitForNetworkRequest(this.page, url);
+  }
+
+  async waitForNetworkResponse(statusCode?: number) {
+    await waitForNetworkResponse(this.page, statusCode);
+  }
+
+  async waitForNetwork(url: string, statusCode?: number) {
+    await this.waitForNetworkRequest(url);
+    await this.waitForNetworkResponse(statusCode);
   }
 }

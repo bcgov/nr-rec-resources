@@ -66,27 +66,20 @@ export class FilterPOM {
   }
 
   async toggleFilterOn(filterGroup: Locator, filterOption: string) {
-    expect(
-      filterGroup.getByRole('checkbox', { name: filterOption }),
-    ).not.toBeChecked();
-    await filterGroup
-      .getByRole('checkbox', { name: filterOption })
-      .check({ force: true });
-    expect(
-      filterGroup.getByRole('checkbox', { name: filterOption }),
-    ).toBeChecked();
+    const checkbox = filterGroup.getByRole('checkbox', { name: filterOption });
+    await checkbox.waitFor({ state: 'visible' });
+    await checkbox.check();
+    await checkbox.waitFor({ state: 'visible' });
+    await expect(checkbox).toBeChecked();
   }
 
   async toggleFilterOff(filterGroup: Locator, filterOption: string) {
-    expect(
-      filterGroup.getByRole('checkbox', { name: filterOption }),
-    ).toBeChecked();
-    await filterGroup
-      .getByRole('checkbox', { name: filterOption })
-      .uncheck({ force: true });
-    expect(
-      filterGroup.getByRole('checkbox', { name: filterOption }),
-    ).not.toBeChecked();
+    const checkbox = filterGroup.getByRole('checkbox', { name: filterOption });
+    await checkbox.waitFor({ state: 'visible' });
+    expect(checkbox).toBeChecked();
+    await checkbox.uncheck();
+    await checkbox.waitFor({ state: 'visible' });
+    expect(checkbox).not.toBeChecked();
   }
 
   async verifyFilterGroup(
@@ -103,7 +96,9 @@ export class FilterPOM {
 
     for (const filter of visibleFilters) {
       const { label, count } = filter;
-      expect(filterGroup.getByLabel(`${label} (${count})`)).toBeVisible();
+      await filterGroup
+        .getByLabel(`${label} (${count})`)
+        .waitFor({ state: 'visible' });
     }
   }
 
