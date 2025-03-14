@@ -5,7 +5,6 @@
 import { expect, Locator, Page } from '@playwright/test';
 import { BASE_URL } from 'e2e/constants';
 import { waitForImagesToLoad, waitForNetworkResponse } from 'e2e/utils';
-import { FilterEnum } from 'e2e/enum/filter';
 import { SearchEnum } from 'e2e/enum/search';
 import { RecResource } from 'e2e/poms/pages/types';
 
@@ -121,10 +120,6 @@ export class SearchPOM {
     await this.searchBtn.click();
     if (expectResults) {
       await this.page.waitForSelector('.rec-resource-card');
-
-      await this.page
-        .getByRole('button', { name: FilterEnum.CLEAR_FILTER_LABEL })
-        .waitFor({ state: 'visible' });
     }
   }
 }

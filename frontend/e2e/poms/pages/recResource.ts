@@ -64,5 +64,6 @@ export class RecreationResourcePOM {
         canvas.remove();
       }
     }, MAP_CANVAS_SELECTOR);
+
   }
 }
