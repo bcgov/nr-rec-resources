@@ -26,3 +26,11 @@ export const waitForImagesToLoad = async (page: Page) => {
     return images.every((img) => img.complete);
   });
 };
+
+export const waitForNetworkRequest = async (page: Page, url: string) => {
+  await page.waitForRequest((request) => request.url().includes(url));
+};
+
+export const waitForNetworkResponse = async (page: Page, statusCode = 200) => {
+  await page.waitForResponse((response) => response.status() === statusCode);
+};
