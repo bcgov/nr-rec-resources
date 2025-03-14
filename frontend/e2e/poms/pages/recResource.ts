@@ -42,4 +42,10 @@ export class RecreationResourcePOM {
     expect(headerText).toContain(status);
     expect(headerText).toContain(rec_resource_id);
   }
+
+  async VerifyRecResourceSections() {
+    const sections = this.page.locator('.resource-section');
+    await sections.waitFor({ state: 'visible' });
+    expect(await sections.count()).toBe(3);
+  }
 }

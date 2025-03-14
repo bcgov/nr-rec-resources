@@ -42,15 +42,17 @@ const SearchPage = () => {
     page: initialPage,
   });
 
-  searchResultsStore.setState(() => data ?? initialState);
-
   const searchResults = useStore(searchResultsStore);
   const filterChips = useStore(filterChipStore);
 
   useEffect(() => {
+    searchResultsStore.setState(() => data ?? initialState);
+  }, [data]);
+
+  useEffect(() => {
     setFilterChipsFromSearchParams(filterChips, searchResults, searchParams);
     // eslint-disable-next-line
-  }, [data]);
+  }, [searchResults]);
 
   const { pages: paginatedResults, totalCount } = searchResults;
 
@@ -77,10 +79,12 @@ const SearchPage = () => {
       <div className="page-container bg-brown-light">
         <div className="page page-padding search-container">
           <FilterMenu />
-          <FilterMenuMobile
-            isOpen={isMobileFilterOpen}
-            setIsOpen={setIsMobileFilterOpen}
-          />
+          {isMobileFilterOpen && (
+            <FilterMenuMobile
+              isOpen={isMobileFilterOpen}
+              setIsOpen={setIsMobileFilterOpen}
+            />
+          )}
           <div className="search-results-container">
             <button
               aria-label="Open mobile filter menu"
