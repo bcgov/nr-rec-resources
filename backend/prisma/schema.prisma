@@ -532,6 +532,8 @@ model recreation_maintainace {
   id                          Int                         @id @default(autoincrement())
   rec_resource_id             String                      @db.VarChar(200)
   recreation_maintainace_code String                      @db.VarChar(1)
+  updated_at                  DateTime?                   @default(now()) @db.Timestamp(6)
+  sys_period                  Unsupported("tstzrange")    @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
   recreation_resource         recreation_resource         @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
   with_description            recreation_maintainace_code @relation("maintenance_with_description", fields: [recreation_maintainace_code], references: [recreation_maintainace_code], onDelete: NoAction, onUpdate: NoAction)
 }
@@ -539,5 +541,28 @@ model recreation_maintainace {
 model recreation_maintainace_code {
   recreation_maintainace_code String                   @id @db.VarChar(1)
   description                 String                   @db.VarChar(120)
+  updated_at                  DateTime?                @default(now()) @db.Timestamp(6)
+  sys_period                  Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
   with_description            recreation_maintainace[] @relation("maintenance_with_description")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_maintainace_code_history {
+  recreation_maintainace_code String                   @db.VarChar(1)
+  description                 String                   @db.VarChar(120)
+  updated_at                  DateTime?                @db.Timestamp(6)
+  sys_period                  Unsupported("tstzrange")
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_maintainace_history {
+  id                          Int
+  rec_resource_id             String                   @db.VarChar(200)
+  recreation_maintainace_code String                   @db.VarChar(1)
+  updated_at                  DateTime?                @db.Timestamp(6)
+  sys_period                  Unsupported("tstzrange")
+
+  @@ignore
 }
