@@ -317,6 +317,13 @@ test.describe('Search page filter menu workflows', () => {
       closest_community: '100 Mile House',
       status: Status.CLOSED,
     });
+
+    await utils.screenshot(
+      'Search page with multiple filters applied',
+      'default',
+    );
+
+    await utils.accessibility();
   });
 
   test('Use the Clear Filters button to clear a single filter', async ({
