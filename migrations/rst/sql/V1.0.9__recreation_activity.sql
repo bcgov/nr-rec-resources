@@ -58,6 +58,9 @@ select upsert_timestamp_columns('rst', 'recreation_activity');
 
 select setup_temporal_table('rst', 'recreation_activity');
 
+create index idx_recreation_activity_rec_resource_id on rst.recreation_activity(rec_resource_id);
+create index idx_recreation_activity_recreation_activity_code on rst.recreation_activity(recreation_activity_code);
+
 comment on table rst.recreation_activity is 'The types of available activities for a given project.';
 
 comment on column rst.recreation_activity.rec_resource_id is 'File identification assigned to Recreation Resources. Assigned file number. Usually the Licence, Tenure or Private Mark number.';

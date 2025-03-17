@@ -20,6 +20,8 @@ select upsert_timestamp_columns('rst', 'recreation_resource');
 
 select setup_temporal_table('rst', 'recreation_resource');
 
+create index idx_recreation_resource_district_code on rst.recreation_resource(district_code);
+
 comment on table rst.recreation_resource is 'Resource information relating to a recreational file. A recreation file can have only one resource. A recreation resource must be of type Site, Reserve, Trail, or Interpretive Forest.';
 
 comment on column rst.recreation_resource.rec_resource_id is 'Identification manually assigned to a Recreation Resource.';

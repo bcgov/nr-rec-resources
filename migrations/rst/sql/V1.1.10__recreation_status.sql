@@ -24,3 +24,6 @@ create table if not exists rst.recreation_status (
 select upsert_timestamp_columns('rst', 'recreation_status');
 
 select setup_temporal_table('rst', 'recreation_status');
+
+create index idx_recreation_status_rec_resource_id on rst.recreation_status(rec_resource_id);
+create index idx_recreation_status_status_code on rst.recreation_status(status_code);

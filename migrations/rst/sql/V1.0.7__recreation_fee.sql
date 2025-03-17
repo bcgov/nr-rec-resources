@@ -42,3 +42,6 @@ create table if not exists rst.recreation_fee (
 select upsert_timestamp_columns ('rst', 'recreation_fee');
 
 select setup_temporal_table ('rst', 'recreation_fee');
+
+create index idx_recreation_fee_rec_resource_id on rst.recreation_fee(rec_resource_id);
+create index idx_recreation_fee_recreation_fee_code on rst.recreation_fee(recreation_fee_code);

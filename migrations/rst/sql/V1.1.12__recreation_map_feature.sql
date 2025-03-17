@@ -18,6 +18,10 @@ select upsert_timestamp_columns('rst', 'recreation_map_feature');
 
 select setup_temporal_table('rst', 'recreation_map_feature');
 
+create index idx_recreation_map_feature_rmf_skey on rst.recreation_map_feature(rmf_skey);
+create index idx_recreation_map_feature_rec_resource_id on rst.recreation_map_feature(rec_resource_id);
+create index idx_recreation_map_feature_recreation_resource_type on rst.recreation_map_feature(recreation_resource_type);
+
 create table rst.recreation_map_feature_geom
 (
     rmf_skey           integer primary key references rst.recreation_map_feature,
@@ -35,6 +39,10 @@ create table rst.recreation_map_feature_geom
 select upsert_timestamp_columns('rst', 'recreation_map_feature_geom');
 
 select setup_temporal_table('rst', 'recreation_map_feature_geom');
+
+create index idx_recreation_map_feature_geom_rmf_skey on rst.recreation_map_feature_geom(rmf_skey);
+create index idx_recreation_map_feature_geom_map_feature_id on rst.recreation_map_feature_geom(map_feature_id);
+create index idx_recreation_map_feature_geom_geometry_type_code on rst.recreation_map_feature_geom(geometry_type_code);
 
 
 comment on table rst.recreation_map_feature is 'Captures both current and historical attributes for Recreation Map Features.';
