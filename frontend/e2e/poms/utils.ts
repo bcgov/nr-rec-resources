@@ -1,6 +1,4 @@
 // https://playwright.dev/docs/pom
-// Page object models (POM) simplify authoring by creating a higher-level API which suits your application &
-// simplify maintenance by capturing element selectors in one place and create reusable code to avoid repetition.
 
 import { expect, Locator, Page } from '@playwright/test';
 import happoPlaywright from 'happo-playwright';

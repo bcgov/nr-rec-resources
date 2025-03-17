@@ -1,6 +1,4 @@
 // https://playwright.dev/docs/pom
-// Page object models (POM) simplify authoring by creating a higher-level API which suits your application &
-// simplify maintenance by capturing element selectors in one place and create reusable code to avoid repetition.
 
 import { expect, Locator, Page } from '@playwright/test';
 import { MAX_VISIBLE_FILTERS } from 'e2e/constants';
@@ -70,7 +68,7 @@ export class FilterPOM {
     await checkbox.waitFor({ state: 'visible' });
     expect(checkbox).not.toBeChecked();
     await checkbox.check();
-    await expect(checkbox).toBeChecked({ timeout: 3000 });
+    await expect(checkbox).toBeChecked();
   }
 
   async toggleFilterOff(filterGroup: Locator, filterOption: string) {
@@ -78,19 +76,19 @@ export class FilterPOM {
     await checkbox.waitFor({ state: 'visible' });
     expect(checkbox).toBeChecked();
     await checkbox.uncheck();
-    expect(checkbox).not.toBeChecked({ timeout: 3000 });
+    expect(checkbox).not.toBeChecked();
   }
 
   async checkIsFilterToggledOn(filterGroup: Locator, filterOption: string) {
     const checkbox = filterGroup.getByRole('checkbox', { name: filterOption });
     await checkbox.waitFor({ state: 'visible' });
-    expect(checkbox).toBeChecked();
+    await expect(checkbox).toBeChecked({ checked: true });
   }
 
   async checkIsFilterToggledOff(filterGroup: Locator, filterOption: string) {
     const checkbox = filterGroup.getByRole('checkbox', { name: filterOption });
     await checkbox.waitFor({ state: 'visible' });
-    expect(checkbox).not.toBeChecked();
+    await expect(checkbox).toBeChecked({ checked: false });
   }
 
   async verifyFilterGroup(

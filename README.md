@@ -64,6 +64,13 @@
   - [Metadata columns](docs/postgresql.md#metadata-columns)
   - [History tracking with temporal tables](docs/postgresql.md#history-tracking-with-temporal-tables)
 
+### Testing
+
+- [Playwright](docs/playwright.md)
+  - [Running e2e tests](docs/playwright.md#running-e2e-tests)
+  - [Writing tests](docs/playwright.md#writing-tests)
+    - [POM (Page Object Model)](docs/playwright.md#pom-page-object-model)
+
 ## Local Development
 
 ### Prerequisites
