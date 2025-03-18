@@ -1,0 +1,105 @@
+@import '@/styles/variables.scss';
+
+.banner {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  background-color: #f7b518;
+  padding: 12px 24px;
+  font-size: 16px;
+  color: #002b45;
+  text-align: center;
+
+  @media (min-width: 768px) {
+    flex-direction: row;
+  }
+}
+
+.banner-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+
+  .banner-text {
+    font-weight: 400;
+
+    &::before {
+      content: 'This site is in development | Visit the ';
+    }
+  }
+
+  .banner-link {
+    color: #002b45;
+    text-decoration: underline;
+    padding-right: 6em;
+
+    &::after {
+      content: 'original site here';
+    }
+  }
+
+  @media (max-width: 767px) {
+    width: 60%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+
+    .banner-link {
+      padding-right: 0;
+    }
+
+    .banner-text {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 2px;
+
+      &::before {
+        content: 'This site is in Beta';
+      }
+    }
+
+    .banner-link::after {
+      content: 'Visit original site';
+    }
+  }
+
+  @media (min-width: 768px) {
+    margin-bottom: 0;
+  }
+}
+
+.info-icon {
+  font-size: 18px;
+  padding-right: 0.2em;
+}
+
+.banner-button {
+  background-color: #002b45;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 4px;
+  width: auto;
+  position: relative;
+
+  &::after {
+    content: 'Submit your feedback';
+  }
+
+  @media (max-width: 767px) {
+    &::after {
+      content: 'Give feedback';
+    }
+  }
+}
+
+.banner-button:hover {
+  background-color: #001f33;
+}
