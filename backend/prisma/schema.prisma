@@ -31,6 +31,8 @@ model recreation_resource {
   recreation_resource_type   recreation_resource_type?
   recreation_status          recreation_status?
   recreation_structure       recreation_structure[]
+
+  @@index([district_code], map: "idx_recreation_resource_district_code")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -46,6 +48,8 @@ model recreation_activity {
   recreation_activity      recreation_activity_code @relation("recreation_activity", fields: [recreation_activity_code], references: [recreation_activity_code], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([rec_resource_id, recreation_activity_code])
+  @@index([rec_resource_id], map: "idx_recreation_activity_rec_resource_id")
+  @@index([recreation_activity_code], map: "idx_recreation_activity_recreation_activity_code")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -68,6 +72,9 @@ model recreation_status {
   sys_period             Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
   recreation_resource    recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
   recreation_status_code recreation_status_code   @relation(fields: [status_code], references: [status_code], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([rec_resource_id], map: "idx_recreation_status_rec_resource_id")
+  @@index([status_code], map: "idx_recreation_status_status_code")
 }
 
 model recreation_status_code {
@@ -119,6 +126,8 @@ model recreation_fee {
   with_description    recreation_fee_code      @relation("fee_with_description", fields: [recreation_fee_code], references: [recreation_fee_code], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([rec_resource_id, recreation_fee_code])
+  @@index([rec_resource_id], map: "idx_recreation_fee_rec_resource_id")
+  @@index([recreation_fee_code], map: "idx_recreation_fee_recreation_fee_code")
 }
 
 model recreation_fee_code {
@@ -153,6 +162,8 @@ model recreation_resource_type {
   recreation_resource_type_code recreation_resource_type_code @relation(fields: [rec_resource_type_code], references: [rec_resource_type_code], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([rec_resource_id, rec_resource_type_code])
+  @@index([rec_resource_id], map: "idx_recreation_resource_type_rec_resource_id")
+  @@index([rec_resource_type_code], map: "idx_recreation_resource_type_rec_resource_type_code")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -168,6 +179,8 @@ model recreation_structure {
   recreation_structure_code recreation_structure_code @relation(fields: [structure_code], references: [structure_code], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([rec_resource_id, structure_code])
+  @@index([rec_resource_id], map: "idx_recreation_structure_rec_resource_id")
+  @@index([structure_code], map: "idx_recreation_structure_structure_code")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -195,6 +208,9 @@ model recreation_access {
   recreation_sub_access_code recreation_sub_access_code? @relation(fields: [sub_access_code], references: [sub_access_code], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([rec_resource_id, access_code, sub_access_code])
+  @@index([access_code], map: "idx_recreation_access_access_code")
+  @@index([rec_resource_id], map: "idx_recreation_access_rec_resource_id")
+  @@index([sub_access_code], map: "idx_recreation_access_sub_access_code")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -238,6 +254,9 @@ model recreation_map_feature {
   recreation_map_feature_geom   recreation_map_feature_geom?
 
   @@unique([rec_resource_id, section_id])
+  @@index([rec_resource_id], map: "idx_recreation_map_feature_rec_resource_id")
+  @@index([recreation_resource_type], map: "idx_recreation_map_feature_recreation_resource_type")
+  @@index([rmf_skey], map: "idx_recreation_map_feature_rmf_skey")
 }
 
 model recreation_map_feature_geom {
@@ -255,6 +274,10 @@ model recreation_map_feature_geom {
   created_by             String?
   sys_period             Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
   recreation_map_feature recreation_map_feature   @relation(fields: [rmf_skey], references: [rmf_skey], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([geometry_type_code], map: "idx_recreation_map_feature_geom_geometry_type_code")
+  @@index([map_feature_id], map: "idx_recreation_map_feature_geom_map_feature_id")
+  @@index([rmf_skey], map: "idx_recreation_map_feature_geom_rmf_skey")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
