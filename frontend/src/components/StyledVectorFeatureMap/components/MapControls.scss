@@ -1,0 +1,15 @@
+@import '@/styles/variables.scss';
+
+.zoom-control {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+
+  button {
+    width: 25px;
+    height: 25px;
+    font-size: 0.75rem;
+    box-shadow: 0 2px 4px rgba($colorBlue, 0.2);
+  }
+}

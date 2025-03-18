@@ -1,7 +1,5 @@
-import {
-  RecreationResourceDto,
-  RecreationResourceImageDto,
-} from '@/service/recreation-resource';
+import { RecreationResourceImageDto } from '@/service/recreation-resource';
+import { RecreationResourceBaseModel } from '@/service/custom-models';
 
 /**
  * Gets the base URL for asset storage.
@@ -16,9 +14,9 @@ export const getBasePathForAssets = (): string =>
  * @param {RecreationResourceDto} resource - The recreation resource to transform
  * @returns {RecreationResourceDto} Transformed resource with complete image URLs
  */
-export const transformRecreationResource = (
-  resource: RecreationResourceDto,
-): RecreationResourceDto => {
+export const transformRecreationResourceDetail = (
+  resource: RecreationResourceBaseModel,
+): RecreationResourceBaseModel => {
   const basePath = getBasePathForAssets();
   return {
     ...resource,

@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import '@/components/search/Search.scss';
+import { Button, Col, Container, Row } from 'react-bootstrap';
 
 const SearchBanner = () => {
   const [inputValue, setInputValue] = useState('');
@@ -24,28 +25,34 @@ const SearchBanner = () => {
 
   return (
     <div className="page-nav-container search">
-      <nav aria-label="Search banner" className="page-nav search-banner">
-        <h1>Find a recreation site or trail</h1>
-        <div className="search-banner-input-container">
-          <input
-            className="form-control"
-            type="text"
-            placeholder="Search by name or closest community"
-            value={inputValue}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setInputValue(e.target.value)
-            }
-            onKeyDown={handleKeyDown}
-          />
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={handleSearch}
-          >
-            Search
-          </button>
-        </div>
-      </nav>
+      <Container
+        fluid
+        aria-label="Search banner"
+        className="search-banner d-flex justify-content-center"
+      >
+        <Row className="w-100 search-banner-input-container align-items-center justify-content-center py-3">
+          <Col sm={12} md={4} className="ps-md-0">
+            <h1>Find a recreation site or trail</h1>
+          </Col>
+          <Col sm={12} md={6} className="mb-3 mb-md-0">
+            <input
+              className="form-control"
+              type="text"
+              placeholder="Search by name or closest community"
+              value={inputValue}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setInputValue(e.target.value)
+              }
+              onKeyDown={handleKeyDown}
+            />
+          </Col>
+          <Col sm={12} md={2} className="pe-md-0">
+            <Button className="w-100 fs-6" onClick={handleSearch}>
+              Search
+            </Button>
+          </Col>
+        </Row>
+      </Container>
     </div>
   );
 };
