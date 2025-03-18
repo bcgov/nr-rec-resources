@@ -4,7 +4,7 @@ import '@/components/layout/BetaBanner.scss';
 
 const BetaBanner = () => {
   const handleButtonClick = () => {
-    window.open('https://example.com', '_blank');
+    window.open('https://example.com', '_blank', 'noreferrer');
   };
 
   return (
