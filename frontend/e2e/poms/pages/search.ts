@@ -2,7 +2,7 @@
 
 import { expect, Locator, Page } from '@playwright/test';
 import { BASE_URL } from 'e2e/constants';
-import { waitForImagesToLoad, waitForNetworkResponse } from 'e2e/utils';
+import { waitForImagesToLoad } from 'e2e/utils';
 import { SearchEnum } from 'e2e/enum/search';
 import { RecResource } from 'e2e/poms/pages/types';
 
@@ -51,7 +51,6 @@ export class SearchPOM {
     await loadMoreBtn.waitFor({ state: 'visible' });
     const searchCardCount = await this.getRecResourceCardCount();
     await loadMoreBtn.click();
-    await waitForNetworkResponse(this.page);
     await this.page.waitForLoadState('networkidle');
     await this.page.waitForSelector('.rec-resource-card');
     await this.page.waitForFunction((prevCount) => {
