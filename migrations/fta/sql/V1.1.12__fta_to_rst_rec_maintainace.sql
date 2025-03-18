@@ -1,7 +1,6 @@
 insert into rst.recreation_maintenance (
     rec_resource_id,
     recreation_maintenance_code,
-    description,
     updated_at,
     updated_by,
     created_at,
@@ -10,7 +9,6 @@ insert into rst.recreation_maintenance (
 select distinct on (rp.forest_file_id, rp.recreation_maintain_std_code)
     rp.forest_file_id as rec_resource_id,
     rp.recreation_maintain_std_code as recreation_maintenance_code,
-    rmsc.description,
     rp.update_timestamp as updated_at,
     rp.update_userid as updated_by,
     rp.entry_timestamp as created_at,
@@ -21,6 +19,5 @@ left join fta.recreation_maintain_std_code rmsc
 order by rp.forest_file_id, rp.recreation_maintain_std_code, rp.update_timestamp desc
 on conflict (rec_resource_id, recreation_maintenance_code)
 do update set
-    description = excluded.description,
     updated_at = excluded.updated_at,
     updated_by = excluded.updated_by;
