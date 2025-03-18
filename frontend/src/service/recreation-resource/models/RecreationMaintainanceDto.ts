@@ -1,20 +1,20 @@
-import { RecreationMaintenanceDto } from './RecreationResourceDto';
+import { RecreationmaintenanceDto } from './RecreationResourceDto';
 
-export function RecreationMaintenanceDtoFromJSON(
+export function RecreationmaintenanceDtoFromJSON(
   json: any,
-): RecreationMaintenanceDto {
-  return RecreationMaintenanceDtoFromJSONTyped(json);
+): RecreationmaintenanceDto {
+  return RecreationmaintenanceDtoFromJSONTyped(json);
 }
 
-export function RecreationMaintenanceDtoFromJSONTyped(
+export function RecreationmaintenanceDtoFromJSONTyped(
   json: any,
-): RecreationMaintenanceDto {
+): RecreationmaintenanceDto {
   if (json == null) {
     return json;
   }
   return {
     id: json['id'],
     rec_resource_id: json['rec_resource_id'],
-    recreation_maintainace_code: json['recreation_maintainace_code'],
+    recreation_maintenance_code: json['recreation_maintenance_code'],
   };
 }

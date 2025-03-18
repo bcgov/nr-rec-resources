@@ -2,7 +2,7 @@ import '@/components/rec-resource/SiteMaintainance.scss';
 
 interface RecreationMaintenanceDto {
   id: number;
-  recreation_maintainace_code: string;
+  recreation_maintenance_code: string;
 }
 
 interface SiteMaintenanceProps {
@@ -18,7 +18,7 @@ const SiteMaintenance: React.FC<SiteMaintenanceProps> = ({ data }) => {
   if (data.length === 0) return null;
 
   const maintenanceInfo =
-    maintenanceMessages[data[0]?.recreation_maintainace_code] ||
+    maintenanceMessages[data[0]?.recreation_maintenance_code] ||
     'Unknown maintenance status';
 
   return (

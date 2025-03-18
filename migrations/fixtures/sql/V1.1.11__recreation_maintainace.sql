@@ -1,4 +1,4 @@
-insert into rst.recreation_maintainace (rec_resource_id, recreation_maintainace_code)
+insert into rst.recreation_maintenance (rec_resource_id, recreation_maintenance_code)
 values
     ('REC204117', 'M'),
     ('REC1222', 'U'),

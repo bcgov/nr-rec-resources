@@ -47,7 +47,7 @@ comment on column fta.recreation_project.recreation_control_access_code is 'Desc
 
 comment on column fta.recreation_project.recreation_feature_code is 'Code describing the Recreation Feature.';
 
-comment on column fta.recreation_project.recreation_maintain_std_code is 'Code describing the Maintenance Standard of a given site. E.g. User Maintained, Maintained to Standard, Not Maintained.';
+comment on column fta.recreation_project.recreation_maintain_std_code is 'Code describing the maintenance Standard of a given site. E.g. User Maintained, Maintained to Standard, Not Maintained.';
 
 comment on column fta.recreation_project.recreation_risk_rating_code is 'Code describing the Recreation Risk Rating.';
 
@@ -657,7 +657,7 @@ create table fta.recreation_maintain_std_code (
 
 comment on table fta.recreation_maintain_std_code is 'Codes describing the maintenance standards for recreation projects.';
 
-comment on column fta.recreation_maintain_std_code.recreation_maintain_std_code is 'Code describing the Maintenance Standard of a given site. E.g. User Maintained, Maintained to Standard, Not Maintained.';
+comment on column fta.recreation_maintain_std_code.recreation_maintain_std_code is 'Code describing the maintenance Standard of a given site. E.g. User Maintained, Maintained to Standard, Not Maintained.';
 
 comment on column fta.recreation_maintain_std_code.description is 'Description of the code value';
 

@@ -104,7 +104,7 @@ const getRecreationResourceSelect = (
       },
     },
   },
-  recreation_maintainace: true,
+  recreation_maintenance: true,
 });
 
 // Always filter resource by these conditions
