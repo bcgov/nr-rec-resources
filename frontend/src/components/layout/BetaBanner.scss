@@ -10,10 +10,6 @@
   font-size: 16px;
   color: #002b45;
   text-align: center;
-
-  @media (min-width: 768px) {
-    flex-direction: row;
-  }
 }
 
 .banner-content {
@@ -21,55 +17,21 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 8px;
+}
 
-  .banner-text {
-    font-weight: 400;
+.banner-text {
+  font-weight: 400;
+  text-align: left;
+}
 
-    &::before {
-      content: 'This site is in development | Visit the ';
-    }
-  }
-
-  .banner-link {
-    color: #002b45;
-    text-decoration: underline;
-    padding-right: 6em;
-
-    &::after {
-      content: 'original site here';
-    }
-  }
+.banner-link {
+  color: #002b45;
+  text-decoration: underline;
+  padding-right: 5em;
+  padding-left: 0.3em;
 
   @media (max-width: 767px) {
-    width: 60%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    text-align: left;
-
-    .banner-link {
-      padding-right: 0;
-    }
-
-    .banner-text {
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 2px;
-
-      &::before {
-        content: 'This site is in Beta';
-      }
-    }
-
-    .banner-link::after {
-      content: 'Visit original site';
-    }
-  }
-
-  @media (min-width: 768px) {
-    margin-bottom: 0;
+    padding-right: 3em;
   }
 }
 
@@ -88,18 +50,8 @@
   border-radius: 4px;
   width: auto;
   position: relative;
-
-  &::after {
-    content: 'Submit your feedback';
-  }
-
-  @media (max-width: 767px) {
-    &::after {
-      content: 'Give feedback';
-    }
-  }
 }
 
 .banner-button:hover {
-  background-color: #001f33;
+  color: white;
 }
