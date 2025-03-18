@@ -20,4 +20,6 @@ order by rp.forest_file_id, rp.recreation_maintain_std_code, rp.update_timestamp
 on conflict (rec_resource_id, recreation_maintenance_code)
 do update set
     updated_at = excluded.updated_at,
-    updated_by = excluded.updated_by;
+    updated_by = excluded.updated_by,
+    created_at = excluded.created_at,
+    created_by = excluded.created_by;
