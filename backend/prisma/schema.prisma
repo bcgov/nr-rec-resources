@@ -533,8 +533,6 @@ model recreation_maintenance {
   sys_period                  Unsupported("tstzrange")    @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
   recreation_resource         recreation_resource         @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
   with_description            recreation_maintenance_code @relation("maintenance_with_description", fields: [recreation_maintenance_code], references: [recreation_maintenance_code], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([rec_resource_id, recreation_maintenance_code])
 }
 
 model recreation_maintenance_code {

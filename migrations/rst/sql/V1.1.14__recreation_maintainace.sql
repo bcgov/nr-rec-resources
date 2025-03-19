@@ -23,6 +23,6 @@ create table if not exists rst.recreation_maintenance (
     unique (rec_resource_id, recreation_maintenance_code)
 );
 
-select upsert_timestamp_columns('rst', 'recreation_maintenance', true);
+select upsert_timestamp_columns('rst', 'recreation_maintenance');
 
 select setup_temporal_table('rst', 'recreation_maintenance');
