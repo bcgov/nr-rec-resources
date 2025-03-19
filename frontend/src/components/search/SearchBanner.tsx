@@ -1,26 +1,33 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import '@/components/search/Search.scss';
 import { Button, Col, Container, Row } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTimes } from '@fortawesome/free-solid-svg-icons';
 
 const SearchBanner = () => {
   const [inputValue, setInputValue] = useState('');
   const [searchParams, setSearchParams] = useSearchParams();
 
   const handleSearch = () => {
-    if (inputValue === '') {
+    if (inputValue.trim() === '') {
       searchParams.delete('filter');
-      setSearchParams(searchParams);
     } else {
       searchParams.set('filter', inputValue.trim());
-      setSearchParams(searchParams);
     }
+    setSearchParams(searchParams);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' || e.key === ' ') {
+    if (e.key === 'Enter') {
       handleSearch();
     }
+  };
+
+  const handleClear = () => {
+    setInputValue('');
+    searchParams.delete('filter');
+    setSearchParams(searchParams);
   };
 
   return (
@@ -35,16 +42,27 @@ const SearchBanner = () => {
             <h1>Find a recreation site or trail</h1>
           </Col>
           <Col sm={12} md={6} className="mb-3 mb-md-0">
-            <input
-              className="form-control"
-              type="text"
-              placeholder="Search by name or closest community"
-              value={inputValue}
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setInputValue(e.target.value)
-              }
-              onKeyDown={handleKeyDown}
-            />
+            <div className="input-wrapper">
+              <input
+                className="form-control"
+                type="text"
+                placeholder="Search by name or closest community"
+                value={inputValue}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setInputValue(e.target.value)
+                }
+                onKeyDown={handleKeyDown}
+              />
+              {inputValue && (
+                <button
+                  className="clear-btn"
+                  onClick={handleClear}
+                  aria-label="Clear search"
+                >
+                  <FontAwesomeIcon icon={faTimes} />
+                </button>
+              )}
+            </div>
           </Col>
           <Col sm={12} md={2} className="pe-md-0">
             <Button className="w-100 fs-6" onClick={handleSearch}>
