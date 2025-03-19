@@ -25,6 +25,7 @@ model recreation_resource {
   recreation_activity        recreation_activity[]
   recreation_campsite        recreation_campsite?
   recreation_fee             recreation_fee[]
+  recreation_maintenance     recreation_maintenance[]
   recreation_map_feature     recreation_map_feature[]
   recreation_district_code   recreation_district_code?    @relation(fields: [district_code], references: [district_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_resource_images recreation_resource_images[]
@@ -522,4 +523,47 @@ model recreation_resource_images {
   recreation_resource                recreation_resource?                 @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@unique([rec_resource_id, ref_id])
+}
+
+model recreation_maintenance {
+  id                          Int                         @id @default(autoincrement())
+  rec_resource_id             String                      @db.VarChar(200)
+  recreation_maintenance_code String                      @db.VarChar(1)
+  updated_at                  DateTime?                   @default(now()) @db.Timestamp(6)
+  updated_by                  String?
+  created_at                  DateTime?                   @default(now()) @db.Timestamp(6)
+  created_by                  String?
+  sys_period                  Unsupported("tstzrange")    @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_resource         recreation_resource         @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+  with_description            recreation_maintenance_code @relation("maintenance_with_description", fields: [recreation_maintenance_code], references: [recreation_maintenance_code], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model recreation_maintenance_code {
+  recreation_maintenance_code String                   @id @db.VarChar(1)
+  description                 String                   @db.VarChar(120)
+  updated_at                  DateTime?                @default(now()) @db.Timestamp(6)
+  sys_period                  Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  with_description            recreation_maintenance[] @relation("maintenance_with_description")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_maintenance_code_history {
+  recreation_maintenance_code String                   @db.VarChar(1)
+  description                 String                   @db.VarChar(120)
+  updated_at                  DateTime?                @db.Timestamp(6)
+  sys_period                  Unsupported("tstzrange")
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_maintenance_history {
+  id                          Int
+  rec_resource_id             String                   @db.VarChar(200)
+  recreation_maintenance_code String                   @db.VarChar(1)
+  updated_at                  DateTime?                @db.Timestamp(6)
+  updated_by                  String?
+  created_at                  DateTime?                @db.Timestamp(6)
+  created_by                  String?
+  sys_period                  Unsupported("tstzrange")
+  @@ignore
 }
