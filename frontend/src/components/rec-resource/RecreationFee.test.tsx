@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import RecreationFee from './RecreationFee';
 
@@ -32,11 +31,7 @@ describe('RecreationFee Component', () => {
 
   test('renders specific days when not all are selected', () => {
     const partialData = [
-      {
-        ...mockData[0],
-        saturday_ind: 'n',
-        sunday_ind: 'n',
-      },
+      { ...mockData[0], saturday_ind: 'n', sunday_ind: 'n' },
     ];
     render(<RecreationFee data={partialData} />);
     expect(

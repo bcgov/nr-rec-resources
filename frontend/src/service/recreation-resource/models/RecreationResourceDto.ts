@@ -133,6 +133,7 @@ export interface RecreationResourceDto {
    * @type {RecreationStructureDto}
    * @memberof RecreationResourceDto
    */
+  additional_fees: Array<RecreationFeeDto>;
   recreation_structure: RecreationStructureDto;
   /**
    * GeoJSON geometry data for the rec resource in string format
@@ -240,6 +241,10 @@ export function RecreationResourceDtoFromJSONTyped(
       json['recreation_structure'],
     ),
     spatial_feature_geometry: json['spatial_feature_geometry'],
+    additional_fees: (json['additional_fees'] as Array<any>).map(
+      RecreationFeeDtoFromJSON,
+    ),
+    recreation_structure: json['recreation_structure'],
   };
 }
 

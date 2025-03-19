@@ -77,6 +77,7 @@ const RecResourcePage = () => {
     recreation_fee,
     spatial_feature_geometry,
     recreation_resource_docs,
+    additional_fees,
   } = recResource || {};
 
   const formattedName = name?.toLowerCase();
@@ -90,13 +91,10 @@ const RecResourcePage = () => {
   const facilitiesRef = useRef<HTMLElement>(null!);
   const additionalFeesRef = useRef<HTMLElement>(null!);
 
-  const additionalFees = recreation_fee?.filter(
-    (fee) => fee.recreation_fee_code !== 'C',
-  );
-
   const isThingsToDo = recreation_activity && recreation_activity.length > 0;
   const isAccess = recreation_access && recreation_access.length > 0;
-  const isAdditionalFeesAvailable = recreation_fee && additionalFees;
+  const isAdditionalFeesAvailable =
+    additional_fees && additional_fees.length > 0;
 
   const isFacilitiesAvailable =
     recreation_structure && recreation_structure !== null;
@@ -132,44 +130,24 @@ const RecResourcePage = () => {
   const pageSections = useMemo(
     () =>
       [
-        isClosures && {
-          href: '#closures',
-          title: 'Closures',
-        },
-        description && {
-          href: '#site-description',
-          title: 'Site Description',
-        },
+        isClosures && { href: '#closures', title: 'Closures' },
+        description && { href: '#site-description', title: 'Site Description' },
         isMapsAndLocation && {
           href: '#maps-and-location',
           title: 'Maps and Location',
         },
-        {
-          href: '#camping',
-          title: 'Camping',
-        },
+        { href: '#camping', title: 'Camping' },
+
         isAdditionalFeesAvailable && {
           href: '#additional-fees',
           title: 'Additional Fees',
         },
-        isThingsToDo && {
-          href: '#things-to-do',
-          title: 'Things to Do',
-        },
-        isFacilitiesAvailable && {
-          href: '#facilities',
-          title: 'Facilities',
-        },
-        {
-          href: '#contact',
-          title: 'Contact',
-        },
+        isThingsToDo && { href: '#things-to-do', title: 'Things to Do' },
+        isFacilitiesAvailable && { href: '#facilities', title: 'Facilities' },
+        { href: '#contact', title: 'Contact' },
       ]
         .filter((section) => !!section)
-        .map((section, i) => ({
-          ...section,
-          sectionIndex: i,
-        })),
+        .map((section, i) => ({ ...section, sectionIndex: i })),
     [
       description,
       isClosures,
@@ -270,16 +248,20 @@ const RecResourcePage = () => {
             )}
 
             <Camping
+              id="camping"
               ref={campingRef}
-              fees={recreation_fee!}
+              title="Camping"
               recreation_campsite={recreation_campsite!}
+              fees={recreation_fee!}
             />
 
             {isAdditionalFeesAvailable && (
               <Camping
+                id="additional-fees"
                 ref={additionalFeesRef}
-                fees={recreation_fee!}
-                recreation_campsite={recreation_campsite!}
+                title="Additional Fees"
+                showCampsiteCount={false}
+                fees={additional_fees!}
               />
             )}
 

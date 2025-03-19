@@ -69,11 +69,6 @@ const getRecreationResourceSelect = (
       saturday_ind: true,
       sunday_ind: true,
       recreation_fee_code: true,
-      with_description: {
-        select: {
-          description: true,
-        },
-      },
     },
   },
   recreation_resource_images: {
@@ -180,21 +175,35 @@ export class RecreationResourceService {
       recreation_resource_images:
         resource.recreation_resource_images as RecreationResourceImageDto[],
       recreation_fee: resource.recreation_fee
-        ? resource.recreation_fee.map((fee) => ({
-            fee_amount: fee.fee_amount,
-            fee_start_date: fee.fee_start_date,
-            fee_end_date: fee.fee_end_date,
-            monday_ind: fee.monday_ind,
-            tuesday_ind: fee.tuesday_ind,
-            wednesday_ind: fee.wednesday_ind,
-            thursday_ind: fee.thursday_ind,
-            friday_ind: fee.friday_ind,
-            saturday_ind: fee.saturday_ind,
-            sunday_ind: fee.sunday_ind,
-            recreation_fee_code: fee.recreation_fee_code,
-            fee_description: fee.with_description?.description,
-          }))
-        : [],
+        ?.filter((fee) => fee.recreation_fee_code === "C")
+        .map((fee) => ({
+          fee_amount: fee.fee_amount,
+          fee_start_date: fee.fee_start_date,
+          fee_end_date: fee.fee_end_date,
+          monday_ind: fee.monday_ind,
+          tuesday_ind: fee.tuesday_ind,
+          wednesday_ind: fee.wednesday_ind,
+          thursday_ind: fee.thursday_ind,
+          friday_ind: fee.friday_ind,
+          saturday_ind: fee.saturday_ind,
+          sunday_ind: fee.sunday_ind,
+          recreation_fee_code: fee.recreation_fee_code,
+        })),
+      additional_fees: resource.recreation_fee
+        ?.filter((fee) => fee.recreation_fee_code !== "C")
+        .map((fee) => ({
+          fee_amount: fee.fee_amount,
+          fee_start_date: fee.fee_start_date,
+          fee_end_date: fee.fee_end_date,
+          monday_ind: fee.monday_ind,
+          tuesday_ind: fee.tuesday_ind,
+          wednesday_ind: fee.wednesday_ind,
+          thursday_ind: fee.thursday_ind,
+          friday_ind: fee.friday_ind,
+          saturday_ind: fee.saturday_ind,
+          sunday_ind: fee.sunday_ind,
+          recreation_fee_code: fee.recreation_fee_code,
+        })),
       recreation_structure: {
         has_toilet: resource.recreation_structure?.some((s) =>
           s.recreation_structure_code.description

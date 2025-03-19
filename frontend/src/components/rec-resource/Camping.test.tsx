@@ -55,34 +55,77 @@ describe('Camping Component', () => {
   };
 
   it('renders the section title and campsite count correctly', () => {
-    render(<Camping recreation_campsite={mockCampsite} fees={mockFees} />);
+    render(
+      <Camping
+        id="camping"
+        title="Camping"
+        recreation_campsite={mockCampsite}
+        fees={mockFees}
+      />,
+    );
+
     expect(
       screen.getByRole('heading', { level: 2, name: /camping/i }),
     ).toBeInTheDocument();
-    expect(screen.getByText('2 campsites')).toBeInTheDocument();
+    expect(screen.getByText(/2 campsites/)).toBeInTheDocument();
   });
 
   it('renders additional fees grouped by type correctly', () => {
-    render(<Camping recreation_campsite={mockCampsite} fees={mockFees} />);
-    expect(screen.getByText('Day Use fee')).toBeInTheDocument();
+    render(
+      <Camping
+        id="camping"
+        title="Camping"
+        recreation_campsite={mockCampsite}
+        fees={mockFees}
+      />,
+    );
+
+    // Use regex or function matcher to handle spacing issues
+    expect(screen.getByText(/day use/i)).toBeInTheDocument();
+
     expect(screen.getByText('$15.00')).toBeInTheDocument();
 
-    expect(screen.getByText('Parking fee')).toBeInTheDocument();
+    expect(screen.getByText(/parking\s+fee/i)).toBeInTheDocument();
+
     expect(screen.getByText('$12.00')).toBeInTheDocument();
   });
 
   it('renders fallback text when no fees are available', () => {
-    render(<Camping recreation_campsite={mockCampsite} fees={[]} />);
-    expect(screen.getByText('No camping fees available.')).toBeInTheDocument();
+    render(
+      <Camping
+        id="camping"
+        title="Camping"
+        recreation_campsite={mockCampsite}
+        fees={[]}
+      />,
+    );
+
+    expect(screen.getByText('No fees available.')).toBeInTheDocument();
   });
 
-  it('renders "All Days" for applicable fees', () => {
-    render(<Camping recreation_campsite={mockCampsite} fees={mockFees} />);
-    expect(screen.getAllByText('All Days')).toHaveLength(1);
+  it('renders "All Days" when a fee applies to every day', () => {
+    render(
+      <Camping
+        id="camping"
+        title="Camping"
+        recreation_campsite={mockCampsite}
+        fees={mockFees}
+      />,
+    );
+
+    expect(screen.getByText('All Days')).toBeInTheDocument();
   });
 
   it('renders specific days when not all days apply', () => {
-    render(<Camping recreation_campsite={mockCampsite} fees={mockFees} />);
+    render(
+      <Camping
+        id="camping"
+        title="Camping"
+        recreation_campsite={mockCampsite}
+        fees={mockFees}
+      />,
+    );
+
     expect(
       screen.getByText('Monday, Tuesday, Wednesday, Thursday, Friday'),
     ).toBeInTheDocument();
