@@ -20,6 +20,7 @@ export class SearchPOM {
 
     this.searchBtn = page.getByRole('button', {
       name: SearchEnum.SEARCH_BTN_LABEL,
+      exact: true,
     });
   }
 
