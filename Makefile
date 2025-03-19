@@ -37,3 +37,21 @@ clean:
 
 .PHONY: reset_db
 reset_db: drop_db create_db migrate load_fixtures
+
+.PHONY: load_test_backend
+load_test_backend: ## run performance tests with k6
+load_test_backend: SERVER_HOST=http://localhost:8000
+load_test_backend: SERVER_API_ROUTE=/api
+load_test_backend: SERVER_ROUTE=$(SERVER_HOST)$(SERVER_API_ROUTE)
+load_test_backend:
+	@mkdir -p k6_results
+	@echo "Running backend performance tests with k6"
+	@k6 -e SERVER_HOST=$(SERVER_ROUTE) run tests/load/backend/main.js --out csv=k6_results/frontend_test_results.csv
+
+.PHONY: load_test_frontend
+load_test_frontend: ## run performance tests with k6
+load_test_frontend: FRONTEND_URL=http://localhost:3000
+load_test_frontend:
+	@mkdir -p k6_results
+	@echo "Running frontend performance tests with k6"
+	@k6 -e FRONTEND_URL=$(FRONTEND_URL) run tests/load/frontend/main.js --out csv=k6_results/backend_test_results.csv
