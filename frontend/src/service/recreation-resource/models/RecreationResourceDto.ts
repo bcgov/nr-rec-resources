@@ -244,7 +244,6 @@ export function RecreationResourceDtoFromJSONTyped(
     additional_fees: (json['additional_fees'] as Array<any>).map(
       RecreationFeeDtoFromJSON,
     ),
-    recreation_structure: json['recreation_structure'],
   };
 }
 

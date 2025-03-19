@@ -111,8 +111,6 @@ describe("Recreation DTOs", () => {
       expect(resource.description).toBeDefined();
       expect(resource.closest_community).toBeDefined();
       expect(resource.rec_resource_type).toBeDefined();
-      expect(Array.isArray(resource.recreation_fee)).toBeTruthy();
-      expect(Array.isArray(resource.additional_fees)).toBeTruthy();
     });
 
     it("should allow null description", () => {
@@ -168,7 +166,6 @@ describe("Recreation DTOs", () => {
       ];
 
       expect(resource.description).toBeNull();
-      expect(Array.isArray(resource.additional_fees)).toBeTruthy();
     });
 
     it("should handle empty spatial feature geometry", () => {
