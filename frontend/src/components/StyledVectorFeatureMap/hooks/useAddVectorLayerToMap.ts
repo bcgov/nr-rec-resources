@@ -45,8 +45,10 @@ export const useAddVectorLayerToMap = ({
     map.addLayer(layer);
 
     // call the callback function with the extent
-    const extent = source.getExtent();
-    onLayerAdded?.(extent);
+    map.once('rendercomplete', () => {
+      const extent = source.getExtent();
+      onLayerAdded?.(extent);
+    });
 
     // Cleanup function to remove layer
     return () => {
