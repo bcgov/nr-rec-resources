@@ -14,12 +14,8 @@ select distinct on (rp.forest_file_id, rp.recreation_maintain_std_code)
     rp.entry_timestamp as created_at,
     rp.entry_userid as created_by
 from fta.recreation_project rp
-left join fta.recreation_maintain_std_code rmsc
-    on rp.recreation_maintain_std_code = rmsc.recreation_maintain_std_code
 order by rp.forest_file_id, rp.recreation_maintain_std_code, rp.update_timestamp desc
 on conflict (rec_resource_id, recreation_maintenance_code)
 do update set
     updated_at = excluded.updated_at,
-    updated_by = excluded.updated_by,
-    created_at = excluded.created_at,
-    created_by = excluded.created_by;
+    updated_by = excluded.updated_by;
