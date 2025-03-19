@@ -23,4 +23,3 @@ do update set
     updated_by = excluded.updated_by,
     created_at = excluded.created_at,
     created_by = excluded.created_by;
-    
