@@ -55,6 +55,8 @@ import {
   RecreationActivityDtoToJSON,
   RecreationActivityDtoToJSONTyped,
 } from './RecreationActivityDto';
+import { RecreationmaintenanceDto } from './RecreationResourceDto';
+import { RecreationmaintenanceDtoFromJSON } from './RecreationMaintainanceDto';
 
 /**
  *
@@ -140,6 +142,7 @@ export interface RecreationResourceDetailDto {
    * @memberof RecreationResourceDetailDto
    */
   spatial_feature_geometry?: Array<string>;
+  recreation_maintainance: RecreationmaintenanceDto[];
 }
 
 /**
@@ -238,6 +241,9 @@ export function RecreationResourceDetailDtoFromJSONTyped(
       json['spatial_feature_geometry'] == null
         ? undefined
         : json['spatial_feature_geometry'],
+    recreation_maintainance: (json['recreation_maintenance'] as Array<any>).map(
+      RecreationmaintenanceDtoFromJSON,
+    ),
   };
 }
 

@@ -25,15 +25,8 @@ model recreation_resource {
   recreation_activity        recreation_activity[]
   recreation_campsite        recreation_campsite?
   recreation_fee             recreation_fee[]
-
-
-  recreation_map_feature     recreation_map_feature[]
-=======
-  recreation_maintainace     recreation_maintainace[]
->>>>>>> 8cc28e6 (feat(recreation): added recreation maintainance)
-=======
   recreation_maintenance     recreation_maintenance[]
->>>>>>> 73e5017 (feat(recreation): added recreation maintainance)
+  recreation_map_feature     recreation_map_feature[]
   recreation_district_code   recreation_district_code?    @relation(fields: [district_code], references: [district_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_resource_images recreation_resource_images[]
   recreation_resource_type   recreation_resource_type?
@@ -508,7 +501,6 @@ model recreation_sub_access_code_history {
   @@ignore
 }
 
-
 model recreation_resource_image_variants {
   id                         Int                         @id @default(autoincrement())
   ref_id                     String?                     @db.VarChar
@@ -533,10 +525,7 @@ model recreation_resource_images {
   @@unique([rec_resource_id, ref_id])
 }
 
-model recreation_maintainace {
-=======
 model recreation_maintenance {
->>>>>>> 73e5017 (feat(recreation): added recreation maintainance)
   id                          Int                         @id @default(autoincrement())
   rec_resource_id             String                      @db.VarChar(200)
   recreation_maintenance_code String                      @db.VarChar(1)

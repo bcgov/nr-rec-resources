@@ -55,7 +55,6 @@ import {
   RecreationActivityDtoToJSON,
   RecreationActivityDtoToJSONTyped,
 } from './RecreationActivityDto';
-import { RecreationmaintenanceDtoFromJSON } from './RecreationMaintainanceDto';
 
 /**
  *
@@ -135,28 +134,18 @@ export interface RecreationResourceDto {
    * @memberof RecreationResourceDto
    */
   recreation_structure: RecreationStructureDto;
-<<<<<<< HEAD
   /**
    * GeoJSON geometry data for the rec resource in string format
    * @type {Array<string>}
    * @memberof RecreationResourceDto
    */
   spatial_feature_geometry: Array<string>;
-  recreation_maintainance: RecreationMaintenanceDto[];
-=======
-  recreation_maintainance: RecreationmaintenanceDto[];
->>>>>>> 73e5017 (feat(recreation): added recreation maintainance)
 }
 
 export interface RecreationmaintenanceDto {
   id: number;
   rec_resource_id: string;
   recreation_maintenance_code: string;
-}
-
-export interface RecreationStructureDto {
-  has_toilet: boolean;
-  has_table: boolean;
 }
 
 /**
@@ -257,10 +246,6 @@ export function RecreationResourceDtoFromJSONTyped(
       json['recreation_structure'],
     ),
     spatial_feature_geometry: json['spatial_feature_geometry'],
-    recreation_structure: json['recreation_structure'],
-    recreation_maintainance: (json['recreation_maintenance'] as Array<any>).map(
-      RecreationmaintenanceDtoFromJSON,
-    ),
   };
 }
 
