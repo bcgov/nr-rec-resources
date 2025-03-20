@@ -1,4 +1,4 @@
-import { vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, render, screen } from '@testing-library/react';
 import RecResourcePage from '@/components/rec-resource/RecResourcePage';
 import * as routerDom from 'react-router-dom';
@@ -170,7 +170,9 @@ describe('RecResourcePage', () => {
       expect(screen.queryByRole('heading', { name: /Closures/i })).toBeNull();
       expect(screen.queryByText(/This site is open/i)).toBeNull();
     });
+  });
 
+  describe('RecResourcePage - Maps and Location', () => {
     it('shows the access types in the Maps and Location section', async () => {
       await renderComponent(mockResource);
 
@@ -190,6 +192,40 @@ describe('RecResourcePage', () => {
       ).toBeNull();
       expect(screen.queryByText(/Road/i)).toBeNull();
       expect(screen.queryByText(/Boat-in/i)).toBeNull();
+    });
+
+    describe('Maps and Location section visibility', () => {
+      test.each([
+        {
+          name: 'shows section with spatial geometry',
+          input: { spatial_feature_geometry: ['some-geometry'] },
+          shouldShow: true,
+        },
+        {
+          name: 'shows section with resource docs',
+          input: { recreation_resource_docs: ['some-doc'] },
+          shouldShow: true,
+        },
+        {
+          name: 'hides section when empty',
+          input: { spatial_feature_geometry: [], recreation_resource_docs: [] },
+          shouldShow: false,
+        },
+      ])('$name', async ({ input, shouldShow }) => {
+        await renderComponent({
+          ...mockResource,
+          recreation_access: [],
+          ...input,
+        });
+
+        const matcher = shouldShow
+          ? expect(screen.getByRole('heading', { name: /Maps and Location/i }))
+          : expect(
+              screen.queryByRole('heading', { name: /Maps and Location/i }),
+            );
+
+        matcher[shouldShow ? 'toBeInTheDocument' : 'toBeNull']();
+      });
     });
   });
 

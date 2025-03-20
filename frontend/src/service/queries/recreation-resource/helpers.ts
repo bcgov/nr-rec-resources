@@ -1,5 +1,8 @@
 import { RecreationResourceImageDto } from '@/service/recreation-resource';
-import { RecreationResourceBaseModel } from '@/service/custom-models';
+import {
+  RecreationResourceBaseModel,
+  RecreationResourceDetailModel,
+} from '@/service/custom-models';
 
 /**
  * Gets the base URL for asset storage.
@@ -14,7 +17,7 @@ export const getBasePathForAssets = (): string =>
  * @param {RecreationResourceDto} resource - The recreation resource to transform
  * @returns {RecreationResourceDto} Transformed resource with complete image URLs
  */
-export const transformRecreationResourceDetail = (
+export const transformRecreationResourceBase = (
   resource: RecreationResourceBaseModel,
 ): RecreationResourceBaseModel => {
   const basePath = getBasePathForAssets();
@@ -32,5 +35,24 @@ export const transformRecreationResourceDetail = (
           ),
       }),
     ),
+  };
+};
+
+/**
+ * Transforms recreation resource data by updating image URLs with full asset paths.
+ * @param {RecreationResourceDto} resource - The recreation resource to transform
+ * @returns {RecreationResourceDto} Transformed resource with complete image URLs
+ */
+export const transformRecreationResourceDetail = (
+  resource: RecreationResourceDetailModel,
+): RecreationResourceDetailModel => {
+  const basePath = getBasePathForAssets();
+  return {
+    ...transformRecreationResourceBase(resource),
+    spatial_feature_geometry: resource.spatial_feature_geometry,
+    recreation_resource_docs: resource.recreation_resource_docs?.map((doc) => ({
+      ...doc,
+      url: `${basePath}${doc.url}`,
+    })),
   };
 };

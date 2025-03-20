@@ -20,6 +20,13 @@ import {
   RecreationCampsiteDtoToJSON,
   RecreationCampsiteDtoToJSONTyped,
 } from './RecreationCampsiteDto';
+import type { RecreationResourceDocDto } from './RecreationResourceDocDto';
+import {
+  RecreationResourceDocDtoFromJSON,
+  RecreationResourceDocDtoFromJSONTyped,
+  RecreationResourceDocDtoToJSON,
+  RecreationResourceDocDtoToJSONTyped,
+} from './RecreationResourceDocDto';
 import type { RecreationResourceImageDto } from './RecreationResourceImageDto';
 import {
   RecreationResourceImageDtoFromJSON,
@@ -140,6 +147,12 @@ export interface RecreationResourceDetailDto {
    * @memberof RecreationResourceDetailDto
    */
   spatial_feature_geometry?: Array<string>;
+  /**
+   * List of documents for the recreation resource
+   * @type {Array<RecreationResourceDocDto>}
+   * @memberof RecreationResourceDetailDto
+   */
+  recreation_resource_docs?: Array<RecreationResourceDocDto>;
 }
 
 /**
@@ -238,6 +251,12 @@ export function RecreationResourceDetailDtoFromJSONTyped(
       json['spatial_feature_geometry'] == null
         ? undefined
         : json['spatial_feature_geometry'],
+    recreation_resource_docs:
+      json['recreation_resource_docs'] == null
+        ? undefined
+        : (json['recreation_resource_docs'] as Array<any>).map(
+            RecreationResourceDocDtoFromJSON,
+          ),
   };
 }
 
@@ -279,5 +298,11 @@ export function RecreationResourceDetailDtoToJSONTyped(
       value['recreation_structure'],
     ),
     spatial_feature_geometry: value['spatial_feature_geometry'],
+    recreation_resource_docs:
+      value['recreation_resource_docs'] == null
+        ? undefined
+        : (value['recreation_resource_docs'] as Array<any>).map(
+            RecreationResourceDocDtoToJSON,
+          ),
   };
 }

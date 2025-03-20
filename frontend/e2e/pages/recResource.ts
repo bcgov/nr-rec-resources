@@ -2,6 +2,19 @@ import { expect } from '@playwright/test';
 import { baseURL } from 'e2e/utils';
 import type { Page } from 'playwright';
 
+// constants
+const MAP_CANVAS_SELECTOR = '#map-container';
+const REC_DOC_LINKS = [
+  {
+    role: 'link',
+    name: 'Blue Lake Trail Map [PDF]',
+  },
+  {
+    role: 'link',
+    name: 'Morchuea Lake Map [PDF]',
+  },
+];
+
 /**
  * Remove the map canvas element
  *
@@ -13,16 +26,16 @@ import type { Page } from 'playwright';
  * resolve this non-existent url which ends up throwing the error.
  */
 const removeRecreationResourceFeatureMap = async (page: Page) => {
-  const MAP_CANVAS_SELECTOR = '#map-container';
-
-  await page.locator(MAP_CANVAS_SELECTOR).waitFor({ state: 'visible' });
-
-  await page.evaluate((selector) => {
-    const canvas = document.querySelector(selector) as HTMLCanvasElement;
-    if (canvas) {
-      canvas.remove();
-    }
-  }, MAP_CANVAS_SELECTOR);
+  try {
+    await page
+      .locator(MAP_CANVAS_SELECTOR)
+      .waitFor({ state: 'visible', timeout: 5000 });
+    await page.evaluate((selector) => {
+      document.querySelector(selector)?.remove();
+    }, MAP_CANVAS_SELECTOR);
+  } catch (error) {
+    console.warn(`Map element not found: ${error}`);
+  }
 };
 
 export const recResourcePage = async (page: Page) => {
@@ -37,4 +50,12 @@ export const recResourcePage = async (page: Page) => {
       name: '10k Cabin',
     }),
   ).toBeVisible();
+
+  // verify the doc links are valid pdf links
+  for (const exp of REC_DOC_LINKS) {
+    await expect(page.getByRole('link', { name: exp.name })).toHaveAttribute(
+      'href',
+      expect.stringMatching(/^https:\/\/.*\.pdf$/),
+    );
+  }
 };

@@ -10,6 +10,7 @@ export * from './RecreationActivityDto';
 export * from './RecreationCampsiteDto';
 export * from './RecreationFeeDto';
 export * from './RecreationResourceDetailDto';
+export * from './RecreationResourceDocDto';
 export * from './RecreationResourceImageDto';
 export * from './RecreationResourceImageVariantDto';
 export * from './RecreationResourceSearchDto';

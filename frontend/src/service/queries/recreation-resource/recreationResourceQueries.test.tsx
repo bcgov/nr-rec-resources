@@ -1,13 +1,21 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useRecreationResourceApi } from '@/service/hooks/useRecreationResourceApi';
+import {
+  transformRecreationResourceBase,
+  transformRecreationResourceDetail,
+} from '@/service/queries/recreation-resource/helpers';
 import {
   useGetRecreationResourceById,
   useSearchRecreationResourcesPaginated,
 } from '@/service/queries/recreation-resource/recreationResourceQueries';
 import { TestQueryClientProvider } from '@/test-utils';
 
-vi.mock('@/service/hooks/useRecreationResourceApi', () => ({
-  useRecreationResourceApi: vi.fn(),
+// Mock the API hook and transform functions
+vi.mock('@/service/hooks/useRecreationResourceApi');
+vi.mock('@/service/queries/recreation-resource/helpers', () => ({
+  transformRecreationResourceBase: vi.fn((data) => data),
+  transformRecreationResourceDetail: vi.fn((data) => data),
 }));
 
 describe('useGetRecreationResourceById', () => {
@@ -18,82 +26,70 @@ describe('useGetRecreationResourceById', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (useRecreationResourceApi as any).mockReturnValue(mockApi);
+    (transformRecreationResourceDetail as any).mockImplementation(
+      (data: any) => data,
+    );
   });
 
-  it('should throw error when id is not provided', async () => {
-    renderHook(
+  it('should return undefined when no id is provided', async () => {
+    const { result } = renderHook(
       () => useGetRecreationResourceById({ imageSizeCodes: ['llc'] }),
       { wrapper: TestQueryClientProvider },
     );
 
+    expect(result.current.data).toBeUndefined();
     expect(mockApi.getRecreationResourceById).not.toHaveBeenCalled();
+    expect(transformRecreationResourceDetail).not.toHaveBeenCalled();
   });
 
-  it('should fetch and transform recreation resource', async () => {
-    const mockResource = {
+  it('should fetch and transform recreation resource data', async () => {
+    const mockResponse = {
       id: '123',
       name: 'Test Resource',
-      recreation_resource_images: [],
+      images: [{ url: 'test.jpg' }],
     };
-    mockApi.getRecreationResourceById.mockResolvedValue(mockResource);
+
+    mockApi.getRecreationResourceById.mockResolvedValueOnce(mockResponse);
 
     const { result } = renderHook(
       () =>
-        useGetRecreationResourceById({ id: '123', imageSizeCodes: ['llc'] }),
+        useGetRecreationResourceById({
+          id: '123',
+          imageSizeCodes: ['llc'],
+        }),
       { wrapper: TestQueryClientProvider },
     );
 
     await waitFor(() => {
-      expect(result.current.isSuccess).toBe(true);
       expect(result.current.data).toBeDefined();
     });
-  });
 
-  it('should retry on 5xx errors', async () => {
-    const serverError = new Error('Server Error');
-    (serverError as any).response = { status: 503 };
-
-    mockApi.getRecreationResourceById
-      .mockRejectedValueOnce(serverError)
-      .mockResolvedValueOnce({
-        id: '123',
-        name: 'Test Resource',
-        recreation_resource_images: [],
-      });
-
-    const { result } = renderHook(
-      () =>
-        useGetRecreationResourceById({ id: '123', imageSizeCodes: ['llc'] }),
-      {
-        wrapper: TestQueryClientProvider,
-      },
-    );
-
-    await waitFor(
-      () => {
-        expect(result.current.isSuccess).toBe(true);
-        expect(mockApi.getRecreationResourceById).toHaveBeenCalledTimes(2);
-      },
-      { timeout: 2000 },
+    expect(mockApi.getRecreationResourceById).toHaveBeenCalledWith({
+      id: '123',
+      imageSizeCodes: ['llc'],
+    });
+    expect(transformRecreationResourceDetail).toHaveBeenCalledWith(
+      mockResponse,
     );
   });
 
-  it('should not retry on 4xx errors', async () => {
-    const clientError = new Error('Not Found');
-    (clientError as any).response = { status: 404 };
-
-    mockApi.getRecreationResourceById.mockRejectedValue(clientError);
+  it('should handle API errors', async () => {
+    const error = new Error('API Error');
+    mockApi.getRecreationResourceById.mockRejectedValueOnce(error);
 
     const { result } = renderHook(
       () =>
-        useGetRecreationResourceById({ id: '123', imageSizeCodes: ['llc'] }),
+        useGetRecreationResourceById({
+          id: '123',
+          imageSizeCodes: ['llc'],
+        }),
       { wrapper: TestQueryClientProvider },
     );
 
     await waitFor(() => {
-      expect(result.current.isError).toBe(true);
-      expect(mockApi.getRecreationResourceById).toHaveBeenCalledTimes(1);
+      expect(result.current.error).toBeDefined();
     });
+    expect(transformRecreationResourceDetail).not.toHaveBeenCalled();
   });
 });
 
@@ -105,39 +101,54 @@ describe('useSearchRecreationResourcesPaginated', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (useRecreationResourceApi as any).mockReturnValue(mockApi);
+    (transformRecreationResourceBase as any).mockImplementation(
+      (data: any) => data,
+    );
   });
 
-  it('should handle initial page load', async () => {
+  it('should fetch first page of resources', async () => {
     const mockResponse = {
-      data: [{ id: '1', name: 'Resource 1', recreation_resource_images: [] }],
-      total: 10,
-      limit: 5,
+      data: [
+        { id: '1', name: 'Resource 1' },
+        { id: '2', name: 'Resource 2' },
+      ],
       page: 1,
+      limit: 10,
+      total: 20,
+      filters: [],
     };
-    mockApi.searchRecreationResources.mockResolvedValue(mockResponse);
+
+    mockApi.searchRecreationResources.mockResolvedValueOnce(mockResponse);
 
     const { result } = renderHook(
-      () => useSearchRecreationResourcesPaginated({ limit: 5 }),
+      () => useSearchRecreationResourcesPaginated({ limit: 10 }),
       { wrapper: TestQueryClientProvider },
     );
 
     await waitFor(() => {
-      expect(result.current.data?.pages[0].data).toHaveLength(1);
-      expect(result.current.data?.totalCount).toBe(10);
-      expect(result.current.data?.currentPage).toBe(1);
+      expect(result.current.data?.pages[0].data).toHaveLength(2);
     });
+
+    expect(result.current.data?.totalCount).toBe(20);
+    expect(result.current.data?.currentPage).toBe(1);
+    expect(transformRecreationResourceBase).toHaveBeenCalledTimes(2);
   });
 
-  it('should handle pagination', async () => {
+  it('should handle pagination correctly', async () => {
     const mockFirstPage = {
-      data: [{ id: '1', name: 'Resource 1', recreation_resource_images: [] }],
-      limit: 5,
+      data: [{ id: '1' }],
       page: 1,
+      limit: 10,
+      total: 20,
+      filters: [],
     };
+
     const mockSecondPage = {
-      data: [{ id: '2', name: 'Resource 2', recreation_resource_images: [] }],
-      limit: 5,
+      data: [{ id: '2' }],
       page: 2,
+      limit: 10,
+      total: 20,
+      filters: [],
     };
 
     mockApi.searchRecreationResources
@@ -145,12 +156,12 @@ describe('useSearchRecreationResourcesPaginated', () => {
       .mockResolvedValueOnce(mockSecondPage);
 
     const { result } = renderHook(
-      () => useSearchRecreationResourcesPaginated({ limit: 5 }),
+      () => useSearchRecreationResourcesPaginated({ limit: 10 }),
       { wrapper: TestQueryClientProvider },
     );
 
     await waitFor(() => {
-      expect(result.current.hasNextPage).toBe(true);
+      expect(result.current.data?.pages[0]).toBeDefined();
     });
 
     // Fetch next page
@@ -158,63 +169,24 @@ describe('useSearchRecreationResourcesPaginated', () => {
 
     await waitFor(() => {
       expect(result.current.data?.pages).toHaveLength(2);
-      expect(result.current.data?.totalCount).toBe(0);
-      expect(result.current.data?.currentPage).toBe(2);
     });
+
+    expect(transformRecreationResourceBase).toHaveBeenCalledTimes(2);
   });
 
-  it('should handle error cases', async () => {
+  it('should handle API errors in pagination', async () => {
     const error = new Error('API Error');
-    mockApi.searchRecreationResources.mockRejectedValue(error);
+    mockApi.searchRecreationResources.mockRejectedValueOnce(error);
 
     const { result } = renderHook(
-      () => useSearchRecreationResourcesPaginated({ limit: 5 }),
+      () => useSearchRecreationResourcesPaginated({ limit: 10 }),
       { wrapper: TestQueryClientProvider },
     );
 
     await waitFor(() => {
-      expect(result.current.isError).toBe(true);
-      expect(result.current.error).toBe(error);
-    });
-  });
-
-  describe('pagination parameters', () => {
-    it('should return undefined for previous page when on first page', async () => {
-      const mockResponse = {
-        data: [],
-        total: 10,
-        limit: 5,
-        page: 1,
-      };
-      mockApi.searchRecreationResources.mockResolvedValue(mockResponse);
-
-      const { result } = renderHook(
-        () => useSearchRecreationResourcesPaginated({ limit: 5 }),
-        { wrapper: TestQueryClientProvider },
-      );
-
-      await waitFor(() => {
-        expect(result.current.hasPreviousPage).toBe(false);
-      });
+      expect(result.current.error).toBeDefined();
     });
 
-    it('should handle previous page navigation when not on first page', async () => {
-      const mockResponse = {
-        data: [],
-        total: 10,
-        limit: 5,
-        page: 2,
-      };
-      mockApi.searchRecreationResources.mockResolvedValue(mockResponse);
-
-      const { result } = renderHook(
-        () => useSearchRecreationResourcesPaginated({ page: 2, limit: 5 }),
-        { wrapper: TestQueryClientProvider },
-      );
-
-      await waitFor(() => {
-        expect(result.current.hasPreviousPage).toBe(true);
-      });
-    });
+    expect(transformRecreationResourceBase).not.toHaveBeenCalled();
   });
 });

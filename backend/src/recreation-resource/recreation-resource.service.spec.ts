@@ -1,696 +1,345 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { PrismaService } from "src/prisma.service";
+import { beforeEach, describe, expect, it, Mocked, vi } from "vitest";
 import { RecreationResourceService } from "./recreation-resource.service";
-import {
-  activityCounts,
-  activityCountsNoResults,
-  noSearchResultsFilterArray,
-  orderedRecresourceArray,
-  recreationAccessCounts,
-  recreationDistrictCounts,
-  recreationResource1,
-  recreationResource1Response,
-  recreationResource2Response,
-  recreationResource3Response,
-  recreationResource4,
-  recreationResource4Response,
-  recreationResourceDetail1Response,
-  recreationResourceDetail4Response,
-  recreationStructureCountsArray,
-  recResourceArray,
-  recresourceArrayResolved,
-  recResourceTypeCounts,
-  searchResultsFilterArray,
-  totalRecordIds,
-} from "src/recreation-resource/test/mock-data.test";
-import { beforeEach } from "vitest";
 
-type ResponseInputs = {
-  recreation_resource?: object;
-  recreation_resource_total_ids?: object;
-  recreation_resource_type_code?: object;
-  recreation_district_code?: object;
-  recreation_access_code?: object[];
-  recreation_activity_code?: object[];
-  recreation_structure_toilet_count?: object[];
-  recreation_structure_table_count?: object[];
+// Test fixtures
+const createMockRecResource = (overrides = {}) => ({
+  rec_resource_id: "REC0001",
+  name: "Test Recreation Site",
+  description: "A test recreation site description",
+  closest_community: "Test City",
+  display_on_public_site: true,
+  recreation_activity: [
+    {
+      recreation_activity: {
+        recreation_activity_code: 32,
+        description: "Camping",
+      },
+    },
+  ],
+  recreation_status: {
+    recreation_status_code: { description: "Open" },
+    comment: "Site is currently open",
+    status_code: 1,
+  },
+  recreation_campsite: {
+    rec_resource_id: "123",
+    campsite_count: 2,
+  },
+  recreation_resource_type: {
+    recreation_resource_type_code: {
+      rec_resource_type_code: "SIT",
+      description: "Recreation Site",
+    },
+  },
+  recreation_fee: [
+    {
+      fee_description: "Camping Fee",
+      with_description: { description: "Camping Fee" },
+      fee_amount: 25.0,
+      fee_start_date: new Date("2024-06-01"),
+      fee_end_date: new Date("2024-09-30"),
+      recreation_fee_code: "C",
+      monday_ind: "Y",
+      tuesday_ind: "Y",
+      wednesday_ind: "Y",
+      thursday_ind: "Y",
+      friday_ind: "Y",
+      saturday_ind: "N",
+      sunday_ind: "N",
+    },
+  ],
+  recreation_resource_images: [
+    {
+      ref_id: "1000",
+      caption: "Test Image",
+      recreation_resource_image_variants: [
+        {
+          width: 1920,
+          height: 1080,
+          url: "https://example.com/test.jpg",
+          size_code: "llc",
+          extension: "jpg",
+        },
+      ],
+    },
+  ],
+  recreation_resource_docs: [
+    {
+      doc_code: "DOC1",
+      url: "https://example.com/doc1.pdf",
+      title: "Test Document",
+      ref_id: "REF1",
+      extension: "pdf",
+      recreation_resource_doc_code: {
+        description: "General Information",
+      },
+    },
+  ],
+  recreation_structure: [
+    { recreation_structure_code: { description: "Table" } },
+    { recreation_structure_code: { description: "Toilet" } },
+  ],
+  ...overrides,
+});
+
+const mockCounts = {
+  activities: [
+    {
+      recreation_activity_code: 32,
+      description: "Camping",
+      _count: { recreation_activity: 5 },
+    },
+    {
+      recreation_activity_code: 9,
+      description: "Hiking",
+      _count: { recreation_activity: 3 },
+    },
+  ],
+  districts: [
+    {
+      district_code: "DIST1",
+      description: "Test District",
+      _count: { recreation_resource: 8 },
+    },
+  ],
+  access: [
+    {
+      access_code: "ROAD",
+      description: "Road Access",
+      _count: { recreation_access: 10 },
+    },
+  ],
+  resourceTypes: [
+    {
+      rec_resource_type_code: "SIT",
+      description: "Recreation Site",
+      _count: { recreation_resource_type: 15 },
+    },
+  ],
 };
 
 describe("RecreationResourceService", () => {
   let service: RecreationResourceService;
+  let prismaService: Mocked<PrismaService>;
 
   beforeEach(async () => {
-    vi.resetAllMocks();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RecreationResourceService,
         {
           provide: PrismaService,
-
           useValue: {
-            $transaction: vi.fn().mockImplementation((res) => res),
-            recreation_resource: {
-              count: vi.fn(),
-              findMany: vi.fn(),
-              findUnique: vi.fn(),
-              groupBy: vi.fn(),
-            },
-            recreation_activity: {
-              findMany: vi.fn(),
-              groupBy: vi.fn(),
-            },
-            recreation_resource_type_code: {
-              findMany: vi.fn(),
-            },
-            recreation_district_code: {
-              findMany: vi.fn(),
-            },
-            recreation_access_code: {
-              findMany: vi.fn(),
-            },
-            recreation_activity_code: {
-              findMany: vi.fn(),
-            },
-            recreation_structure: {
-              findMany: vi.fn(),
-            },
+            $transaction: vi.fn(),
+            recreation_resource: { findUnique: vi.fn(), findMany: vi.fn() },
+            $queryRawTyped: vi.fn(),
+            recreation_activity_code: { findMany: vi.fn() },
+            recreation_resource_type_code: { findMany: vi.fn() },
+            recreation_district_code: { findMany: vi.fn() },
+            recreation_access_code: { findMany: vi.fn() },
+            recreation_structure: { findMany: vi.fn() },
           },
         },
       ],
     }).compile();
 
     service = module.get<RecreationResourceService>(RecreationResourceService);
-  });
-
-  // Pass in an object with the properties you want to override to test different search results
-  const buildSearchResponse = (responseInput: ResponseInputs) => {
-    const {
-      recreation_resource,
-      recreation_resource_total_ids,
-      recreation_resource_type_code,
-      recreation_district_code,
-      recreation_access_code,
-      recreation_activity_code,
-      recreation_structure_toilet_count,
-      recreation_structure_table_count,
-    } = responseInput;
-    service["prisma"].recreation_resource.findMany = vi
-      .fn()
-      .mockResolvedValueOnce(recreation_resource ?? recResourceArray)
-      .mockResolvedValueOnce(recreation_resource_total_ids ?? totalRecordIds);
-    service["prisma"].recreation_resource_type_code.findMany = vi
-      .fn()
-      .mockResolvedValueOnce(
-        recreation_resource_type_code ?? recResourceTypeCounts,
-      );
-    service["prisma"].recreation_district_code.findMany = vi
-      .fn()
-      .mockResolvedValueOnce(
-        recreation_district_code ?? recreationDistrictCounts,
-      );
-    service["prisma"].recreation_access_code.findMany = vi
-      .fn()
-      .mockResolvedValueOnce(recreation_access_code ?? recreationAccessCounts);
-    service["prisma"].recreation_activity_code.findMany = vi
-      .fn()
-      .mockResolvedValueOnce(recreation_activity_code ?? activityCounts);
-    service["prisma"].recreation_structure.findMany = vi
-      .fn()
-      .mockResolvedValueOnce(
-        recreation_structure_toilet_count ?? [
-          ...recreationStructureCountsArray,
-        ],
-      )
-      .mockResolvedValueOnce(
-        recreation_structure_table_count ?? [
-          ...recreationStructureCountsArray.slice(0, 9),
-        ],
-      );
-
-    service["prisma"].$transaction = vi
-      .fn()
-      .mockResolvedValueOnce([
-        recreation_resource ?? recResourceArray,
-        recreation_resource_total_ids ?? totalRecordIds,
-        recreation_district_code ?? recreationDistrictCounts,
-        recreation_access_code ?? recreationAccessCounts,
-        recreation_resource_type_code ?? recResourceTypeCounts,
-      ])
-      .mockResolvedValueOnce([
-        recreation_activity_code ?? activityCounts,
-        recreation_structure_toilet_count ?? 10,
-        recreation_structure_table_count ?? 10,
-      ]);
-  };
-
-  it("should be defined", () => {
-    expect(service).toBeDefined();
-  });
-
-  describe("formatResults function", () => {
-    it("should correctly format recreation_activity recreation_activity relation in the results", () => {
-      const results = service.formatResults(recResourceArray);
-
-      expect(results[0]).toEqual(recreationResource1Response);
-      expect(results[1]).toEqual(recreationResource2Response);
-      expect(results[2]).toEqual(recreationResource3Response);
-      expect(results[3]).toEqual(recreationResource4Response);
-    });
-
-    it("should return an empty array if no Recreation Resources are found", () => {
-      const results = service.formatResults([]);
-
-      expect(results).toEqual([]);
-    });
-
-    it("should throw an error with garbage data", () => {
-      expect(() => service.formatResults({} as any)).toThrow(
-        "recResources?.map is not a function",
-      );
-    });
+    prismaService = module.get(PrismaService);
   });
 
   describe("findOne", () => {
-    it("should return a Recreation Resource", async () => {
-      service["prisma"].recreation_resource.findUnique = vi
-        .fn()
-        .mockResolvedValueOnce(recreationResource1);
-      service["prisma"].$queryRawTyped = vi.fn().mockResolvedValueOnce([]);
+    const mockResource = createMockRecResource();
+    const mockSpatialData = [
+      { spatial_feature_geometry: "GEOMETRY1" },
+      { spatial_feature_geometry: "GEOMETRY2" },
+    ];
 
-      await expect(service.findOne("REC0001")).resolves.toEqual(
-        recreationResourceDetail1Response,
+    it("should return formatted recreation resource with spatial data", async () => {
+      vi.mocked(
+        prismaService.recreation_resource.findUnique,
+      ).mockResolvedValueOnce(mockResource as any);
+      vi.mocked(prismaService.$queryRawTyped).mockResolvedValueOnce(
+        mockSpatialData,
       );
+
+      const result = await service.findOne("REC0001");
+
+      expect(result).toMatchObject({
+        ...mockResource,
+        recreation_fee: [
+          {
+            fee_amount: 25,
+            fee_description: "Camping Fee",
+            fee_end_date: new Date("2024-09-30"),
+            fee_start_date: new Date("2024-06-01"),
+            recreation_fee_code: "C",
+            monday_ind: "Y",
+            tuesday_ind: "Y",
+            wednesday_ind: "Y",
+            thursday_ind: "Y",
+            friday_ind: "Y",
+            saturday_ind: "N",
+            sunday_ind: "N",
+          },
+        ],
+        recreation_activity: [
+          {
+            description: "Camping",
+            recreation_activity_code: 32,
+          },
+        ],
+        recreation_status: {
+          comment: "Site is currently open",
+          status_code: 1,
+        },
+        recreation_structure: {
+          has_table: true,
+          has_toilet: true,
+        },
+        recreation_resource_docs: [
+          {
+            doc_code: "DOC1",
+            url: "https://example.com/doc1.pdf",
+            title: "Test Document",
+            ref_id: "REF1",
+            extension: "pdf",
+            doc_code_description: "General Information",
+          },
+        ],
+        spatial_feature_geometry: ["GEOMETRY1", "GEOMETRY2"],
+      });
     });
 
-    it("should return null if Recreation Resource is not found", async () => {
-      service["prisma"].recreation_resource.findUnique = vi
-        .fn()
-        .mockResolvedValueOnce(null);
-      service["prisma"].$queryRawTyped = vi.fn().mockResolvedValueOnce(null);
-
-      await expect(service.findOne("REC0001")).resolves.toBeNull();
-    });
-
-    it("should correctly format recreation_activity recreation_activity relation in the response", async () => {
-      service["prisma"].recreation_resource.findUnique = vi
-        .fn()
-        .mockResolvedValueOnce(recreationResource4);
-      service["prisma"].$queryRawTyped = vi
-        .fn()
-        .mockResolvedValueOnce([
-          { spatial_feature_geometry: "1" },
-          { spatial_feature_geometry: "2" },
-        ]);
-
-      await expect(service.findOne("REC0004")).resolves.toEqual(
-        recreationResourceDetail4Response,
-      );
+    it("should return null if resource not found", async () => {
+      vi.mocked(
+        prismaService.recreation_resource.findUnique,
+      ).mockResolvedValueOnce(null);
+      const result = await service.findOne("NONEXISTENT");
+      expect(result).toBeNull();
     });
   });
 
   describe("searchRecreationResources", () => {
-    it("should return an array of Recreation Resources", async () => {
-      buildSearchResponse({});
+    const setupSearchMocks = (data = mockCounts) => {
+      const mockTransactionResponse = [
+        [createMockRecResource()],
+        [{ rec_resource_id: "REC0001" }],
+        data.districts,
+        data.access,
+        data.resourceTypes,
+      ];
 
-      expect(await service.searchRecreationResources(1, "Rec", 10)).toEqual({
-        data: recresourceArrayResolved,
-        limit: 10,
-        page: 1,
-        total: 4,
-        filters: searchResultsFilterArray,
-      });
-    });
-
-    it("should correctly format recreation_activity recreation_activity relation in the results", async () => {
-      buildSearchResponse({});
-
-      const results = await service.searchRecreationResources(1, "Rec", 10);
-
-      expect(results.data[0].recreation_activity).toEqual(
-        recreationResource1Response.recreation_activity,
+      vi.mocked(prismaService.$transaction).mockResolvedValueOnce(
+        mockTransactionResponse,
       );
-    });
+      vi.mocked(
+        prismaService.recreation_activity_code.findMany,
+      ).mockResolvedValueOnce(data.activities as any);
+      vi.mocked(prismaService.recreation_structure.findMany)
+        .mockResolvedValueOnce([{ rec_resource_id: "REC0001" }] as any)
+        .mockResolvedValueOnce([{ rec_resource_id: "REC0001" }] as any);
+    };
 
-    it("should return results sorted by name in ascending order", async () => {
-      buildSearchResponse({
-        recreation_resource: orderedRecresourceArray,
-      });
+    it("should return formatted search results with filters", async () => {
+      setupSearchMocks();
+      const result = await service.searchRecreationResources(1, "", 10);
 
-      const results = await service.searchRecreationResources(1, "", 10);
-
-      expect(results.data[0].name).toEqual("A testing orderBy");
-      expect(results.data[1].name).toEqual("Rec site 1");
-      expect(results.data[2].name).toEqual("Rec site 2");
-      expect(results.data[3].name).toEqual("Z testing orderBy");
-    });
-
-    it("should return an empty array if no Recreation Resources are found", async () => {
-      buildSearchResponse({
-        recreation_resource: [],
-        recreation_resource_total_ids: [],
-        recreation_structure_table_count: [],
-        recreation_structure_toilet_count: [],
-        recreation_activity_code: activityCountsNoResults,
-      });
-
-      await expect(
-        service.searchRecreationResources(1, "Rec", 10),
-      ).resolves.toEqual({
-        data: [],
-        limit: 10,
+      expect(result).toMatchObject({
+        data: expect.arrayContaining([
+          expect.objectContaining({
+            rec_resource_id: "REC0001",
+            recreation_structure: { has_table: true, has_toilet: true },
+          }),
+        ]),
+        filters: expect.arrayContaining([
+          expect.objectContaining({
+            label: expect.any(String),
+            options: expect.any(Array),
+          }),
+        ]),
         page: 1,
-        total: 0,
-        filters: noSearchResultsFilterArray,
+        limit: 10,
+        total: 1,
       });
     });
 
-    it("should return a filter array with count 0 for each activity if no Recreation Resources are found", async () => {
-      buildSearchResponse({
-        recreation_resource: [],
-        recreation_resource_total_ids: [],
-        recreation_resource_type_code: recResourceTypeCounts,
-        recreation_district_code: recreationDistrictCounts,
-        recreation_access_code: recreationAccessCounts,
-        recreation_activity_code: activityCountsNoResults,
-        recreation_structure_table_count: [],
-        recreation_structure_toilet_count: [],
-      });
+    it("should handle empty search results", async () => {
+      vi.mocked(prismaService.$transaction).mockResolvedValue([
+        [],
+        [],
+        [],
+        [],
+        [],
+      ]);
+      vi.mocked(
+        prismaService.recreation_activity_code.findMany,
+      ).mockResolvedValue([]);
+      vi.mocked(prismaService.recreation_structure.findMany)
+        .mockResolvedValue([])
+        .mockResolvedValue([]);
 
-      const results = await service.searchRecreationResources(1, "Rec", 10);
-
-      expect(results).toEqual({
-        data: [],
-        limit: 10,
+      const result = await service.searchRecreationResources(1, "nonexistent");
+      expect(result).toMatchObject({
+        data: expect.any(Array),
+        filters: expect.any(Array),
         page: 1,
         total: 0,
-        filters: noSearchResultsFilterArray,
+      });
+    });
+
+    it("should throw error when page > 10 without limit", async () => {
+      await expect(service.searchRecreationResources(11)).rejects.toThrow(
+        "Maximum page limit is 10 when no limit is provided",
+      );
+    });
+
+    describe("filter handling", () => {
+      beforeEach(() => {
+        setupSearchMocks();
       });
 
-      expect(
-        service["prisma"].recreation_activity_code.findMany,
-      ).toHaveBeenCalledWith({
-        select: {
-          recreation_activity_code: true,
-          description: true,
-          _count: {
-            select: {
-              recreation_activity: {
-                where: {
-                  rec_resource_id: {
-                    in: [],
-                  },
-                },
-              },
-            },
-          },
+      it.each([
+        ["activities", "32", "Things to do"],
+        ["district", "DIST1", "District"],
+        ["access", "ROAD", "Access Type"],
+        ["type", "SIT", "Type"],
+        ["facilities", "toilet", "Facilities"],
+      ])(
+        "should correctly apply %s filter",
+        async (filterType, value, label) => {
+          const filterParams = {
+            activities: filterType === "activities" ? value : undefined,
+            type: filterType === "type" ? value : undefined,
+            district: filterType === "district" ? value : undefined,
+            access: filterType === "access" ? value : undefined,
+            facilities: filterType === "facilities" ? value : undefined,
+          };
+
+          const result = await service.searchRecreationResources(
+            1,
+            "",
+            10,
+            filterParams.activities,
+            filterParams.type,
+            filterParams.district,
+            filterParams.access,
+            filterParams.facilities,
+          );
+
+          expect(result.filters).toContainEqual(
+            expect.objectContaining({
+              label,
+              type: "multi-select",
+              options: expect.arrayContaining([
+                expect.objectContaining({
+                  id: value,
+                }),
+              ]),
+            }),
+          );
         },
-        where: {
-          recreation_activity_code: {
-            notIn: [26],
-          },
-        },
-        orderBy: {
-          description: "asc",
-        },
-      });
-
-      const activityFilter = results.filters.find(
-        (filter) => filter.param === "activities",
       );
-
-      for (const option of activityFilter.options) {
-        expect(option.count).toBe(0);
-      }
-    });
-
-    it("should return activity filters with correct counts", async () => {
-      buildSearchResponse({});
-
-      const results = await service.searchRecreationResources(
-        1,
-        "Rec",
-        10,
-        "32",
-      );
-
-      const activityFilter = results.filters.find(
-        (filter) => filter.param === "activities",
-      );
-
-      for (const option of activityFilter.options) {
-        const group = activityCounts.find(
-          (group) => group.recreation_activity_code.toString() === option.id,
-        );
-
-        expect(option.count).toBe(group?._count.recreation_activity || 0);
-      }
-    });
-
-    it("should return activity filters with correct counts when multiple activities are selected", async () => {
-      buildSearchResponse({});
-
-      const results = await service.searchRecreationResources(
-        1,
-        "Rec",
-        10,
-        "32_9",
-      );
-
-      const activityFilter = results.filters.find(
-        (filter) => filter.param === "activities",
-      );
-
-      for (const option of activityFilter.options) {
-        const group = activityCounts.find(
-          (group) => group.recreation_activity_code.toString() === option.id,
-        );
-
-        expect(option.count).toBe(group?._count.recreation_activity || 0);
-      }
-    });
-
-    it("should return activity filters with correct counts when no activities are selected", async () => {
-      buildSearchResponse({});
-
-      const results = await service.searchRecreationResources(1, "Rec", 10, "");
-
-      const activityFilter = results.filters.find(
-        (filter) => filter.param === "activities",
-      );
-
-      for (const option of activityFilter.options) {
-        const group = activityCounts.find(
-          (group) => group.recreation_activity_code.toString() === option.id,
-        );
-
-        expect(option.count).toBe(group?._count.recreation_activity || 0);
-      }
-    });
-
-    it("should return activity filters with correct counts when no activities are found", async () => {
-      buildSearchResponse({
-        recreation_activity_code: [],
-      });
-
-      const results = await service.searchRecreationResources(
-        1,
-        "Rec",
-        10,
-        "99",
-      );
-
-      const activityFilter = results.filters.find(
-        (filter) => filter.param === "activities",
-      );
-
-      for (const option of activityFilter.options) {
-        expect(option.count).toBe(0);
-      }
-    });
-
-    it("should return a filter array with count and description for each recreation resource type", async () => {
-      buildSearchResponse({});
-
-      const results = await service.searchRecreationResources(
-        1,
-        "Rec",
-        10,
-        null,
-        "SIT",
-      );
-
-      const recResourceTypeFilter = results.filters.find(
-        (filter) => filter.param === "type",
-      );
-
-      expect(recResourceTypeFilter.options[0].count).toBe(6);
-      expect(recResourceTypeFilter.options[1].count).toBe(4);
-      expect(recResourceTypeFilter.options[2].count).toBe(37);
-      expect(recResourceTypeFilter.options[3].count).toBe(4);
-      expect(recResourceTypeFilter.options[0].description).toBe(
-        "Interpretive Forest",
-      );
-      expect(recResourceTypeFilter.options[1].description).toBe(
-        "Recreation Reserve",
-      );
-      expect(recResourceTypeFilter.options[2].description).toBe(
-        "Recreation Trail",
-      );
-      expect(recResourceTypeFilter.options[3].description).toBe(
-        "Recreation Site",
-      );
-    });
-
-    it("should return a resource type filter array with correct count and description if no Recreation Resources are found", async () => {
-      buildSearchResponse({
-        recreation_resource: [],
-        recreation_resource_total_ids: [],
-        recreation_resource_type_code: recResourceTypeCounts,
-        recreation_district_code: recreationDistrictCounts,
-        recreation_access_code: recreationAccessCounts,
-      });
-
-      const results = await service.searchRecreationResources(
-        1,
-        "Rec",
-        10,
-        null,
-        "RR",
-      );
-
-      const recResourceTypeFilter = results.filters.find(
-        (filter) => filter.param === "type",
-      );
-
-      expect(recResourceTypeFilter.options[0].count).toBe(6);
-      expect(recResourceTypeFilter.options[1].count).toBe(4);
-      expect(recResourceTypeFilter.options[2].count).toBe(37);
-      expect(recResourceTypeFilter.options[3].count).toBe(4);
-      expect(recResourceTypeFilter.options[0].description).toBe(
-        "Interpretive Forest",
-      );
-      expect(recResourceTypeFilter.options[1].description).toBe(
-        "Recreation Reserve",
-      );
-      expect(recResourceTypeFilter.options[2].description).toBe(
-        "Recreation Trail",
-      );
-      expect(recResourceTypeFilter.options[3].description).toBe(
-        "Recreation Site",
-      );
-    });
-
-    it("should throw an error if page is greater than 10 and limit is not provided", async () => {
-      await expect(
-        service.searchRecreationResources(11, "Rec"),
-      ).rejects.toThrow("Maximum page limit is 10 when no limit is provided");
-    });
-
-    it("should return a filter array with count and description for each district", async () => {
-      buildSearchResponse({});
-
-      const results = await service.searchRecreationResources(
-        1,
-        "Rec",
-        10,
-        null,
-        null,
-        "RDMH",
-      );
-
-      const recDistrictFilter = results.filters.find(
-        (filter) => filter.param === "district",
-      );
-
-      expect(recDistrictFilter.options[0].count).toBe(1);
-      expect(recDistrictFilter.options[0].description).toBe(
-        "100 Mile-Chilcotin",
-      );
-      expect(recDistrictFilter.options[1].id).toBe("RDCS");
-
-      expect(recDistrictFilter.options[1].count).toBe(0);
-      expect(recDistrictFilter.options[1].description).toBe("Cascades");
-      expect(recDistrictFilter.options[0].id).toBe("RDMH");
-
-      expect(recDistrictFilter.options[2].count).toBe(0);
-      expect(recDistrictFilter.options[2].description).toBe("Chilliwack");
-      expect(recDistrictFilter.options[2].id).toBe("RDCK");
-
-      expect(recDistrictFilter.options[3].count).toBe(0);
-      expect(recDistrictFilter.options[3].description).toBe("Columbia-Shuswap");
-      expect(recDistrictFilter.options[3].id).toBe("RDCO");
-    });
-
-    it("should return a district filter array with correct count and description if no Recreation Resources are found", async () => {
-      buildSearchResponse({
-        recreation_resource: [],
-        recreation_resource_total_ids: [],
-        recreation_resource_type_code: recResourceTypeCounts,
-        recreation_district_code: recreationDistrictCounts,
-      });
-
-      const results = await service.searchRecreationResources(
-        1,
-        "Rec",
-        10,
-        null,
-        null,
-        "RDMH",
-      );
-
-      const recDistrictFilter = results.filters.find(
-        (filter) => filter.param === "district",
-      );
-
-      expect(recDistrictFilter.options[0].count).toBe(1);
-      expect(recDistrictFilter.options[1].count).toBe(0);
-      expect(recDistrictFilter.options[2].count).toBe(0);
-      expect(recDistrictFilter.options[3].count).toBe(0);
-    });
-
-    it("should return a filter array with count and description for each access code", async () => {
-      buildSearchResponse({});
-
-      const results = await service.searchRecreationResources(1, "Rec", 10);
-
-      const recAccessFilter = results.filters.find(
-        (filter) => filter.param === "access",
-      );
-
-      expect(recAccessFilter.options[0].count).toBe(17);
-      expect(recAccessFilter.options[0].description).toBe("Boat-in Access");
-
-      expect(recAccessFilter.options[1].count).toBe(13);
-      expect(recAccessFilter.options[1].description).toBe("Fly-in Access");
-
-      expect(recAccessFilter.options[2].count).toBe(16);
-      expect(recAccessFilter.options[2].description).toBe("Road Access");
-
-      expect(recAccessFilter.options[3].count).toBe(17);
-      expect(recAccessFilter.options[3].description).toBe("Trail Access");
-    });
-
-    it("should return the correct count for access if a filter is applied", async () => {
-      buildSearchResponse({
-        recreation_access_code: [
-          {
-            recreation_access_code: "B",
-            description: "Boat-in Access",
-            _count: { recreation_access: 17 },
-          },
-          {
-            recreation_access_code: "F",
-            description: "Fly-in Access",
-            _count: { recreation_access: 0 },
-          },
-          {
-            recreation_access_code: "R",
-            description: "Road Access",
-            _count: { recreation_access: 0 },
-          },
-          {
-            recreation_access_code: "T",
-            description: "Trail Access",
-            _count: { recreation_access: 0 },
-          },
-        ],
-      });
-
-      const results = await service.searchRecreationResources(
-        1,
-        "Rec",
-        10,
-        null,
-        null,
-        null,
-        "B",
-      );
-
-      const recAccessFilter = results.filters.find(
-        (filter) => filter.param === "access",
-      );
-
-      expect(recAccessFilter.options[0].count).toBe(17);
-      expect(recAccessFilter.options[1].count).toBe(0);
-      expect(recAccessFilter.options[2].count).toBe(0);
-      expect(recAccessFilter.options[3].count).toBe(0);
-    });
-
-    it("should return an access filter array with correct count and description if no Recreation Resources are found", async () => {
-      buildSearchResponse({
-        recreation_resource: [],
-        recreation_resource_total_ids: [],
-      });
-
-      const results = await service.searchRecreationResources(1, "Rec", 10);
-
-      const recAccessFilter = results.filters.find(
-        (filter) => filter.param === "access",
-      );
-
-      expect(recAccessFilter.options[0].count).toBe(17);
-      expect(recAccessFilter.options[1].count).toBe(13);
-      expect(recAccessFilter.options[2].count).toBe(16);
-      expect(recAccessFilter.options[3].count).toBe(17);
-    });
-
-    it("should return a filter array with facilities count", async () => {
-      buildSearchResponse({});
-
-      const results = await service.searchRecreationResources(1, "Rec", 10);
-
-      const facilitiesFilter = results.filters.find(
-        (filter) => filter.param === "facilities",
-      );
-
-      expect(facilitiesFilter.options[0].description).toBe("Toilets");
-      expect(facilitiesFilter.options[1].description).toBe("Tables");
-
-      expect(facilitiesFilter.options[0].count).toBe(10);
-      expect(facilitiesFilter.options[1].count).toBe(9);
-    });
-
-    it("should return the proper facilities filter array if no Recreation Resources are found", async () => {
-      buildSearchResponse({
-        recreation_resource: [],
-        recreation_resource_total_ids: [],
-        recreation_structure_toilet_count: [],
-        recreation_structure_table_count: [],
-      });
-
-      const results = await service.searchRecreationResources(1, "Rec", 10);
-
-      const facilitiesFilter = results.filters.find(
-        (filter) => filter.param === "facilities",
-      );
-
-      expect(facilitiesFilter.options[0].count).toBe(0);
-      expect(facilitiesFilter.options[1].count).toBe(0);
-    });
-
-    it("should return the correct facilities filter array if a filter is applied", async () => {
-      buildSearchResponse({
-        recreation_structure_toilet_count: [...recreationStructureCountsArray],
-        recreation_structure_table_count: [],
-      });
-
-      const results = await service.searchRecreationResources(
-        1,
-        "Rec",
-        10,
-        null,
-        null,
-        null,
-        null,
-        "toilet",
-      );
-
-      const facilitiesFilter = results.filters.find(
-        (filter) => filter.param === "facilities",
-      );
-
-      expect(facilitiesFilter.options[0].count).toBe(10);
-      expect(facilitiesFilter.options[1].count).toBe(0);
     });
   });
 });

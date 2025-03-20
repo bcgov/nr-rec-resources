@@ -6,7 +6,10 @@ import {
 } from '@/service/recreation-resource';
 import { useRecreationResourceApi } from '@/service/hooks/useRecreationResourceApi';
 import { useInfiniteQuery, useQuery } from '~/@tanstack/react-query';
-import { transformRecreationResourceDetail } from '@/service/queries/recreation-resource/helpers';
+import {
+  transformRecreationResourceBase,
+  transformRecreationResourceDetail,
+} from '@/service/queries/recreation-resource/helpers';
 import { InfiniteData } from '@tanstack/react-query';
 import { RecreationResourceDetailModel } from '@/service/custom-models';
 
@@ -123,7 +126,7 @@ export const useSearchRecreationResourcesPaginated = (
       // Transform each resource in the response to normalize image urls
       return {
         ...response,
-        data: response.data.map(transformRecreationResourceDetail),
+        data: response.data.map(transformRecreationResourceBase),
       };
     } catch (error) {
       console.error('Failed to fetch recreation resources:', error);

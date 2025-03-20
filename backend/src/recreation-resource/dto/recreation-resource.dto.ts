@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { RecreationResourceImageDto } from "./recreation-resource-image.dto";
+import { RecreationResourceDocDto } from "./recreation-resource-doc.dto";
 
 export class RecreationActivityDto {
   @ApiProperty({
@@ -236,6 +237,13 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
     ],
   })
   spatial_feature_geometry?: string[];
+
+  @ApiProperty({
+    description: "List of documents for the recreation resource",
+    type: [RecreationResourceDocDto],
+    required: false,
+  })
+  recreation_resource_docs?: RecreationResourceDocDto[];
 }
 
 /**

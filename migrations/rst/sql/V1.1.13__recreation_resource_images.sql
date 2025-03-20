@@ -8,6 +8,11 @@ create table if not exists rst.recreation_resource_images
     unique (rec_resource_id, ref_id)
 );
 
+select upsert_timestamp_columns('rst', 'recreation_resource_images');
+
+select setup_temporal_table('rst', 'recreation_resource_images');
+
+
 create table if not exists rst.recreation_resource_image_variants
 (
     id        serial primary key,
@@ -19,3 +24,7 @@ create table if not exists rst.recreation_resource_image_variants
     extension varchar(10),
     unique (ref_id, size_code)
 );
+
+select upsert_timestamp_columns('rst', 'recreation_resource_image_variants');
+
+select setup_temporal_table('rst', 'recreation_resource_image_variants');

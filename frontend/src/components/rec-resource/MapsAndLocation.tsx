@@ -1,6 +1,7 @@
 import { forwardRef } from 'react';
 import { RecreationResourceMap } from '@/components/rec-resource/RecreationResourceMap';
 import { RecreationResourceDetailModel } from '@/service/custom-models';
+import { RecreationResourceDocsList } from '@/components/rec-resource/RecreationResourceDocsList';
 
 interface MapsAndLocationProps {
   accessTypes?: string[];
@@ -16,6 +17,11 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
         ref={ref}
       >
         <h2 className="section-heading">Maps and Location</h2>
+
+        {recResource && (
+          <RecreationResourceDocsList recResource={recResource} />
+        )}
+
         {accessTypes && (
           <>
             <h3>Access Type{accessTypes.length > 1 && 's'}</h3>

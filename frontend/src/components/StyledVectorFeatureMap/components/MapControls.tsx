@@ -9,6 +9,7 @@ import './MapControls.scss';
 import React, { useCallback } from 'react';
 import OlMap from 'ol/Map';
 import { Coordinate } from 'ol/coordinate';
+import { DEFAULT_MAP_PADDING } from '@/components/StyledVectorFeatureMap/constants';
 
 interface MapControlsProps {
   map: OlMap;
@@ -38,7 +39,10 @@ export const MapControls: React.FC<MapControlsProps> = React.memo(
     }, [view]);
 
     const onCenter = useCallback(() => {
-      view.fit(extent ?? view.getProjection().getExtent(), { duration: 250 });
+      view.fit(extent ?? view.getProjection().getExtent(), {
+        duration: 250,
+        padding: DEFAULT_MAP_PADDING,
+      });
     }, [view, extent]);
 
     return (

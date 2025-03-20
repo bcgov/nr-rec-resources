@@ -5,6 +5,7 @@ import { Coordinate } from 'ol/coordinate';
 import { MapControls } from './MapControls';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { DEFAULT_MAP_PADDING } from '@/components/StyledVectorFeatureMap/constants';
 
 describe('MapControls', () => {
   const mockView = {
@@ -70,6 +71,7 @@ describe('MapControls', () => {
 
     expect(mockView.fit).toHaveBeenCalledWith([0, 0, 50, 50], {
       duration: 250,
+      padding: DEFAULT_MAP_PADDING,
     });
   });
 
@@ -79,6 +81,7 @@ describe('MapControls', () => {
     fireEvent.click(screen.getByLabelText('Center map to full extent'));
 
     expect(mockView.fit).toHaveBeenCalledWith([0, 0, 100, 100], {
+      padding: DEFAULT_MAP_PADDING,
       duration: 250,
     });
   });

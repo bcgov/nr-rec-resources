@@ -1,14 +1,24 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import MapsAndLocation from './MapsAndLocation';
-import { RecreationResourceMap } from 'src/components/rec-resource/RecreationResourceMap';
+import { RecreationResourceMap } from '@/components/rec-resource/RecreationResourceMap';
+import { RecreationResourceDocsList } from '@/components/rec-resource/RecreationResourceDocsList';
 
 // Mock the RecreationResourceMap component
 vi.mock('@/components/rec-resource/RecreationResourceMap', () => ({
   RecreationResourceMap: vi.fn(() => null),
 }));
 
+// Mock the RecreationResourceDocsList component
+vi.mock('@/components/rec-resource/RecreationResourceDocsList', () => ({
+  RecreationResourceDocsList: vi.fn(() => <div data-testid="docs-list" />),
+}));
+
 describe('MapsAndLocation', () => {
+  beforeEach(() => {
+    vi.resetAllMocks();
+  });
+
   const mockRecResource = {
     id: '123',
     name: 'Test Resource',
@@ -84,5 +94,25 @@ describe('MapsAndLocation', () => {
     );
 
     expect(ref.current).toBeInstanceOf(HTMLElement);
+  });
+
+  describe('RecreationResourceDocsList visibility', () => {
+    it('renders and configures docs list when recResource exists', () => {
+      render(<MapsAndLocation recResource={mockRecResource} />);
+
+      const docsList = screen.getByTestId('docs-list');
+      expect(docsList).toBeInTheDocument();
+      expect(RecreationResourceDocsList).toHaveBeenCalledWith(
+        { recResource: mockRecResource },
+        undefined,
+      );
+    });
+
+    it('does not render docs list without recResource', () => {
+      render(<MapsAndLocation />);
+
+      expect(screen.queryByTestId('docs-list')).toBeNull();
+      expect(RecreationResourceDocsList).not.toHaveBeenCalled();
+    });
   });
 });
