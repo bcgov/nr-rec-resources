@@ -2,6 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { PrismaService } from "src/prisma.service";
 import { beforeEach, describe, expect, it, Mocked, vi } from "vitest";
 import { RecreationResourceService } from "./recreation-resource.service";
+import { RecreationResourceSearchService } from "src/recreation-resource/service/search.service";
 
 // Test fixtures
 const createMockRecResource = (overrides = {}) => ({
@@ -121,13 +122,13 @@ const mockCounts = {
 };
 
 describe("RecreationResourceService", () => {
-  let service: RecreationResourceService;
   let prismaService: Mocked<PrismaService>;
+  let service: RecreationResourceSearchService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        RecreationResourceService,
+        RecreationResourceSearchService,
         {
           provide: PrismaService,
           useValue: {
