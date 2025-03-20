@@ -13,13 +13,6 @@
  */
 
 import { mapValues } from '../runtime';
-import type { RecreationCampsiteDto } from './RecreationCampsiteDto';
-import {
-  RecreationCampsiteDtoFromJSON,
-  RecreationCampsiteDtoFromJSONTyped,
-  RecreationCampsiteDtoToJSON,
-  RecreationCampsiteDtoToJSONTyped,
-} from './RecreationCampsiteDto';
 import type { RecreationResourceImageDto } from './RecreationResourceImageDto';
 import {
   RecreationResourceImageDtoFromJSON,
@@ -27,13 +20,6 @@ import {
   RecreationResourceImageDtoToJSON,
   RecreationResourceImageDtoToJSONTyped,
 } from './RecreationResourceImageDto';
-import type { RecreationStructureDto } from './RecreationStructureDto';
-import {
-  RecreationStructureDtoFromJSON,
-  RecreationStructureDtoFromJSONTyped,
-  RecreationStructureDtoToJSON,
-  RecreationStructureDtoToJSONTyped,
-} from './RecreationStructureDto';
 import type { RecreationStatusDto } from './RecreationStatusDto';
 import {
   RecreationStatusDtoFromJSON,
@@ -41,13 +27,6 @@ import {
   RecreationStatusDtoToJSON,
   RecreationStatusDtoToJSONTyped,
 } from './RecreationStatusDto';
-import type { RecreationFeeDto } from './RecreationFeeDto';
-import {
-  RecreationFeeDtoFromJSON,
-  RecreationFeeDtoFromJSONTyped,
-  RecreationFeeDtoToJSON,
-  RecreationFeeDtoToJSONTyped,
-} from './RecreationFeeDto';
 import type { RecreationActivityDto } from './RecreationActivityDto';
 import {
   RecreationActivityDtoFromJSON,
@@ -75,23 +54,11 @@ export interface RecreationResourceSearchDto {
    */
   name: string;
   /**
-   * Detailed description of the Recreation Resource
-   * @type {string}
-   * @memberof RecreationResourceSearchDto
-   */
-  description: string | null;
-  /**
    * Physical location of the Recreation Resource
    * @type {string}
    * @memberof RecreationResourceSearchDto
    */
   closest_community: string;
-  /**
-   * Recreation Access Types
-   * @type {Array<string>}
-   * @memberof RecreationResourceSearchDto
-   */
-  recreation_access: Array<string>;
   /**
    * List of recreational activities available at this resource
    * @type {Array<RecreationActivityDto>}
@@ -116,24 +83,6 @@ export interface RecreationResourceSearchDto {
    * @memberof RecreationResourceSearchDto
    */
   recreation_resource_images: Array<RecreationResourceImageDto>;
-  /**
-   * Number of campsites available in the recreation site or trail
-   * @type {RecreationCampsiteDto}
-   * @memberof RecreationResourceSearchDto
-   */
-  recreation_campsite: RecreationCampsiteDto;
-  /**
-   * List of fee details for the recreation resource (supports multiple fees)
-   * @type {Array<RecreationFeeDto>}
-   * @memberof RecreationResourceSearchDto
-   */
-  recreation_fee: Array<RecreationFeeDto>;
-  /**
-   * Structure-related facilities available at the recreation resource (e.g., toilets, tables)
-   * @type {RecreationStructureDto}
-   * @memberof RecreationResourceSearchDto
-   */
-  recreation_structure: RecreationStructureDto;
 }
 
 /**
@@ -145,16 +94,9 @@ export function instanceOfRecreationResourceSearchDto(
   if (!('rec_resource_id' in value) || value['rec_resource_id'] === undefined)
     return false;
   if (!('name' in value) || value['name'] === undefined) return false;
-  if (!('description' in value) || value['description'] === undefined)
-    return false;
   if (
     !('closest_community' in value) ||
     value['closest_community'] === undefined
-  )
-    return false;
-  if (
-    !('recreation_access' in value) ||
-    value['recreation_access'] === undefined
   )
     return false;
   if (
@@ -177,18 +119,6 @@ export function instanceOfRecreationResourceSearchDto(
     value['recreation_resource_images'] === undefined
   )
     return false;
-  if (
-    !('recreation_campsite' in value) ||
-    value['recreation_campsite'] === undefined
-  )
-    return false;
-  if (!('recreation_fee' in value) || value['recreation_fee'] === undefined)
-    return false;
-  if (
-    !('recreation_structure' in value) ||
-    value['recreation_structure'] === undefined
-  )
-    return false;
   return true;
 }
 
@@ -208,9 +138,7 @@ export function RecreationResourceSearchDtoFromJSONTyped(
   return {
     rec_resource_id: json['rec_resource_id'],
     name: json['name'],
-    description: json['description'],
     closest_community: json['closest_community'],
-    recreation_access: json['recreation_access'],
     recreation_activity: (json['recreation_activity'] as Array<any>).map(
       RecreationActivityDtoFromJSON,
     ),
@@ -219,15 +147,6 @@ export function RecreationResourceSearchDtoFromJSONTyped(
     recreation_resource_images: (
       json['recreation_resource_images'] as Array<any>
     ).map(RecreationResourceImageDtoFromJSON),
-    recreation_campsite: RecreationCampsiteDtoFromJSON(
-      json['recreation_campsite'],
-    ),
-    recreation_fee: (json['recreation_fee'] as Array<any>).map(
-      RecreationFeeDtoFromJSON,
-    ),
-    recreation_structure: RecreationStructureDtoFromJSON(
-      json['recreation_structure'],
-    ),
   };
 }
 
@@ -248,9 +167,7 @@ export function RecreationResourceSearchDtoToJSONTyped(
   return {
     rec_resource_id: value['rec_resource_id'],
     name: value['name'],
-    description: value['description'],
     closest_community: value['closest_community'],
-    recreation_access: value['recreation_access'],
     recreation_activity: (value['recreation_activity'] as Array<any>).map(
       RecreationActivityDtoToJSON,
     ),
@@ -259,14 +176,5 @@ export function RecreationResourceSearchDtoToJSONTyped(
     recreation_resource_images: (
       value['recreation_resource_images'] as Array<any>
     ).map(RecreationResourceImageDtoToJSON),
-    recreation_campsite: RecreationCampsiteDtoToJSON(
-      value['recreation_campsite'],
-    ),
-    recreation_fee: (value['recreation_fee'] as Array<any>).map(
-      RecreationFeeDtoToJSON,
-    ),
-    recreation_structure: RecreationStructureDtoToJSON(
-      value['recreation_structure'],
-    ),
   };
 }
