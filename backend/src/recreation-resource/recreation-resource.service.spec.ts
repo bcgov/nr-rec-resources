@@ -170,7 +170,6 @@ describe("RecreationResourceService", () => {
         recreation_fee: [
           {
             fee_amount: 25,
-            fee_description: "Camping Fee",
             fee_end_date: new Date("2024-09-30"),
             fee_start_date: new Date("2024-06-01"),
             recreation_fee_code: "C",
