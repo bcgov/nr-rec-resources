@@ -27,6 +27,8 @@ select upsert_timestamp_columns('rst', 'recreation_resource_type');
 
 select setup_temporal_table('rst', 'recreation_resource_type');
 
+create index idx_recreation_resource_type_rec_resource_id on rst.recreation_resource_type(rec_resource_id);
+
 comment on table rst.recreation_resource_type is 'Captures both current and historical attributes for Recreation Map Types';
 
 comment on column rst.recreation_resource_type.rec_resource_id is 'Identification manually assigned to a Recreation Resource';

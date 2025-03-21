@@ -3,9 +3,9 @@ create table if not exists rst.recreation_district_code (
     description varchar(120) not null
 );
 
-select upsert_timestamp_columns('rst', 'recreation_district_code', true);
+select upsert_timestamp_columns ('rst', 'recreation_district_code', true);
 
-select setup_temporal_table('rst', 'recreation_district_code');
+select setup_temporal_table ('rst', 'recreation_district_code');
 
 create table if not exists rst.recreation_resource (
     rec_resource_id varchar(20) not null primary key,
@@ -16,9 +16,9 @@ create table if not exists rst.recreation_resource (
     district_code varchar(4) references rst.recreation_district_code (district_code)
 );
 
-select upsert_timestamp_columns('rst', 'recreation_resource');
+select upsert_timestamp_columns ('rst', 'recreation_resource');
 
-select setup_temporal_table('rst', 'recreation_resource');
+select setup_temporal_table ('rst', 'recreation_resource');
 
 comment on table rst.recreation_resource is 'Resource information relating to a recreational file. A recreation file can have only one resource. A recreation resource must be of type Site, Reserve, Trail, or Interpretive Forest.';
 
