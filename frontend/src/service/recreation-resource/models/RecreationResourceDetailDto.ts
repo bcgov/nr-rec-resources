@@ -153,6 +153,7 @@ export interface RecreationResourceDetailDto {
    * @memberof RecreationResourceDetailDto
    */
   recreation_resource_docs?: Array<RecreationResourceDocDto>;
+  additional_fees: Array<RecreationFeeDto>;
 }
 
 /**
@@ -257,6 +258,10 @@ export function RecreationResourceDetailDtoFromJSONTyped(
         : (json['recreation_resource_docs'] as Array<any>).map(
             RecreationResourceDocDtoFromJSON,
           ),
+
+    additional_fees: (json['additional_fees'] as Array<any>).map(
+      RecreationFeeDtoFromJSON,
+    ),
   };
 }
 

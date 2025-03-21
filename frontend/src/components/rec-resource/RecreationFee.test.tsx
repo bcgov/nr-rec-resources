@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 import RecreationFee from './RecreationFee';
 
@@ -20,9 +19,39 @@ describe('RecreationFee Component', () => {
     },
   ];
 
-  test('renders the fee amount and description correctly', () => {
+  test('renders the fee amount correctly', () => {
     render(<RecreationFee data={mockData} />);
     expect(screen.getByText('$25.50')).toBeInTheDocument();
+  });
+
+  test('renders fee type based on recreation_fee_code', () => {
+    render(<RecreationFee data={mockData} />);
+    expect(screen.getByText('Parking fee')).toBeInTheDocument();
+  });
+
+  test('renders "Unknown Fee Type" when recreation_fee_code is not in feeTypeMap', () => {
+    const unknownFeeData = [{ ...mockData[0], recreation_fee_code: 'Z' }];
+    render(<RecreationFee data={unknownFeeData} />);
+    expect(screen.getByText('Unknown Fee Type fee')).toBeInTheDocument();
+  });
+
+  test('formats and displays the fee dates correctly', () => {
+    render(<RecreationFee data={mockData} />);
+
+    expect(
+      screen.getByText(
+        (content) =>
+          content.includes('January') || content.includes('February'),
+      ),
+    ).toBeInTheDocument();
+  });
+
+  test('renders correctly when fee_end_date is missing', () => {
+    const partialDateData = [{ ...mockData[0], fee_end_date: null }];
+    render(<RecreationFee data={partialDateData as any} />);
+
+    expect(screen.getByText(/January|February/)).toBeInTheDocument();
+    expect(screen.getByText(/N\/A/)).toBeInTheDocument();
   });
 
   test('renders "All Days" when all days are selected', () => {
@@ -32,11 +61,7 @@ describe('RecreationFee Component', () => {
 
   test('renders specific days when not all are selected', () => {
     const partialData = [
-      {
-        ...mockData[0],
-        saturday_ind: 'n',
-        sunday_ind: 'n',
-      },
+      { ...mockData[0], saturday_ind: 'n', sunday_ind: 'n' },
     ];
     render(<RecreationFee data={partialData} />);
     expect(
@@ -44,7 +69,7 @@ describe('RecreationFee Component', () => {
     ).toBeInTheDocument();
   });
 
-  test('renders only one day correctly', () => {
+  test('renders only one selected day correctly', () => {
     const singleDayData = [
       {
         ...mockData[0],
@@ -59,6 +84,14 @@ describe('RecreationFee Component', () => {
     ];
     render(<RecreationFee data={singleDayData} />);
     expect(screen.getByText('Sunday')).toBeInTheDocument();
+  });
+
+  test('renders correctly when fee_start_date is missing', () => {
+    const partialDateData = [{ ...mockData[0], fee_start_date: null }];
+    render(<RecreationFee data={partialDateData as any} />);
+
+    expect(screen.getByText(/N\/A/)).toBeInTheDocument();
+    expect(screen.getByText(/February/)).toBeInTheDocument();
   });
 
   test('displays "No fees available for this resource." when data is empty', () => {

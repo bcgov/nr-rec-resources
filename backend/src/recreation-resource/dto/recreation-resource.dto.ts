@@ -211,10 +211,17 @@ export abstract class BaseRecreationResourceDto {
 
   @ApiProperty({
     description:
-      "List of fee details for the recreation resource (supports multiple fees)",
+      "List of fee details for the recreation resource (supports multiple fees with code 'C')",
     type: [RecreationFeeDto],
   })
   recreation_fee: RecreationFeeDto[];
+
+  @ApiProperty({
+    description:
+      "List of additional fees that do not fall under the main recreation fee category (non-'C' codes)",
+    type: [RecreationFeeDto],
+  })
+  additional_fees: RecreationFeeDto[];
 
   @ApiProperty({
     description:

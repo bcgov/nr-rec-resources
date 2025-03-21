@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface RecreationFeeProps {
   fee_amount: number;
   fee_start_date: Date;
@@ -19,9 +17,20 @@ interface RecreationFeeListProps {
   data: RecreationFeeProps[];
 }
 
+const feeTypeMap: Record<string, string> = {
+  C: 'Camping',
+  D: 'Day Use',
+  H: 'Hut',
+  P: 'Parking',
+  T: 'Trail Use',
+};
+
 const RecreationFee: React.FC<RecreationFeeListProps> = ({ data }) => {
-  const formatDate = (dateStr: Date) => {
-    const date = new Date(dateStr);
+  const formatDate = (dateStr: Date | null | undefined) => {
+    if (!dateStr) return 'N/A';
+    const date = new Date(
+      Date.UTC(dateStr.getFullYear(), dateStr.getMonth(), dateStr.getDate()),
+    );
     return date.toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
@@ -57,10 +66,13 @@ const RecreationFee: React.FC<RecreationFeeListProps> = ({ data }) => {
   return (
     <>
       {data.map((fee, index) => (
-        <div key={index} className="mb-4">
+        <div key={index} className="mb-5">
+          <p className="fw-bold">
+            {feeTypeMap[fee.recreation_fee_code] || 'Unknown Fee Type'} fee
+          </p>
           <p className="mb-1">${fee.fee_amount.toFixed(2)}</p>
 
-          <p className="fw-bold mb-1 mt-3 pt-4">Fee applies</p>
+          <p className="fw-bold mb-1 mt-1 pt-4">Fee applies</p>
           <p className="mb-1 mt-2">
             {formatDate(fee.fee_start_date)} - {formatDate(fee.fee_end_date)}
           </p>
