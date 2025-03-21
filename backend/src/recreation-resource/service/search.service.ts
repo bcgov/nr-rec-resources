@@ -119,18 +119,18 @@ export class RecreationResourceSearchService {
           select: { rec_resource_id: true },
         }),
         this.prisma.$queryRaw<any[]>`
-        SELECT 'district' AS type, district_code AS code, description, CAST(resource_count AS INTEGER) AS count
-        FROM recreation_resource_district_count_view
-        WHERE district_code NOT IN (${Prisma.join(EXCLUDED_RECREATION_DISTRICTS)})
-        UNION ALL
-        SELECT 'access' AS type, access_code AS code, access_description AS description, CAST(count AS INTEGER) AS count
-        FROM recreation_resource_access_count_view
-        WHERE access_code NOT IN (${Prisma.join(EXCLUDED_RESOURCE_TYPES)})
-        UNION ALL
-        SELECT 'type' AS type, rec_resource_type_code AS code, description, CAST(count AS INTEGER) AS count
-        FROM recreation_resource_type_count_view
-        WHERE rec_resource_type_code NOT IN (${Prisma.join(EXCLUDED_RESOURCE_TYPES)})
-        ORDER BY description DESC;`,
+          select 'district' as type, district_code as code, description, cast(resource_count as integer) as count
+          from recreation_resource_district_count_view
+            where district_code not in (${Prisma.join(EXCLUDED_RECREATION_DISTRICTS)})
+          union all
+          select 'access' as type, access_code as code, access_description as description, cast(count as integer) as count
+          from recreation_resource_access_count_view
+            where access_code not in (${Prisma.join(EXCLUDED_RESOURCE_TYPES)})
+          union all
+          select 'type' as type, rec_resource_type_code as code, description, cast(count as integer) as count
+          from recreation_resource_type_count_view
+              where rec_resource_type_code not in (${Prisma.join(EXCLUDED_RESOURCE_TYPES)})
+          order by description desc;`,
       ]);
 
     const totalRecordIdsList = totalRecordIds.map(
@@ -164,17 +164,17 @@ export class RecreationResourceSearchService {
         },
       }),
       this.prisma.$queryRaw<any[]>`
-        SELECT rec_resource_id,
-        COUNT(DISTINCT CASE
-          WHEN rsc.description ILIKE '%toilet%' THEN rec_resource_id
-          END) AS toilet_count,
-        COUNT(DISTINCT CASE
-          WHEN rsc.description ILIKE '%table%' THEN rec_resource_id
-          END) AS table_count
-        FROM recreation_structure rs
-        LEFT JOIN recreation_structure_code rsc ON rs.structure_code = rsc.structure_code
-        WHERE rec_resource_id IN (${Prisma.join(totalRecordIdsList)})
-        GROUP BY rec_resource_id;`,
+      select rec_resource_id,
+        count(distinct case
+          when rsc.description ilike '%toilet%' then rec_resource_id
+        end) as toilet_count,
+        count(distinct case
+          when rsc.description ilike '%table%' then rec_resource_id
+        end) as table_count
+      from recreation_structure rs
+      left join recreation_structure_code rsc on rs.structure_code = rsc.structure_code
+      where rec_resource_id in (${Prisma.join(totalRecordIdsList)})
+      group by rec_resource_id;`,
     ]);
 
     const toiletCount = structureCounts.reduce(
