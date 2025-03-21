@@ -1,0 +1,3 @@
+refresh materialized view rst.recreation_resource_access_counts;
+refresh materialized view rst.recreation_resource_district_counts;
+refresh materialized view rst.recreation_resource_type_counts;
