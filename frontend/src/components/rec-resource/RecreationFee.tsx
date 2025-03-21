@@ -26,8 +26,11 @@ const feeTypeMap: Record<string, string> = {
 };
 
 const RecreationFee: React.FC<RecreationFeeListProps> = ({ data }) => {
-  const formatDate = (dateStr: Date) => {
-    const date = new Date(dateStr);
+  const formatDate = (dateStr: Date | null | undefined) => {
+    if (!dateStr) return 'N/A';
+    const date = new Date(
+      Date.UTC(dateStr.getFullYear(), dateStr.getMonth(), dateStr.getDate()),
+    );
     return date.toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
