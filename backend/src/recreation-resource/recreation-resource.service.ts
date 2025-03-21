@@ -225,7 +225,7 @@ export class RecreationResourceService {
 
   formatRecreationResourceDetailResults(
     result: RecreationResourceDetailGetPayload,
-    spatial_feature_geometry: getRecreationResourceSpatialFeatureGeometry.Result[],
+    spatial_feature_geometry: getRecreationResourceSpatialFeatureGeometry.Result[] = [],
   ): RecreationResourceDetailDto {
     const formatted = this.formatResults([result])[0];
 
@@ -236,7 +236,7 @@ export class RecreationResourceService {
         doc_code: i.doc_code as RecreationResourceDocCode,
         doc_code_description: i.recreation_resource_doc_code.description,
       })),
-      spatial_feature_geometry: spatial_feature_geometry.map(
+      spatial_feature_geometry: (spatial_feature_geometry || []).map(
         ({ spatial_feature_geometry }) => spatial_feature_geometry,
       ),
     };
