@@ -1,11 +1,11 @@
 create table rst.recreation_map_feature
 (
     rmf_skey                    int not null primary key,
-    rec_resource_id             varchar(10) references rst.recreation_resource,
+    rec_resource_id             varchar(10) references rst.recreation_resource(rec_resource_id),
     section_id                  varchar(30),
     amendment_id                integer,
     amend_status_code           varchar(3),
-    recreation_resource_type varchar(3) references rst.recreation_resource_type_code,
+    recreation_resource_type varchar(3) references rst.recreation_resource_type_code(rec_resource_type_code),
     amend_status_date           date,
     retirement_date             date,
     revision_count              integer,

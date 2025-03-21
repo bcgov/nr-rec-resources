@@ -14,9 +14,14 @@ export const getRecreationResourceSelect = (
   name: true,
   closest_community: true,
   display_on_public_site: true,
-  recreation_resource_type: {
+  recreation_map_feature: {
     select: {
-      recreation_resource_type_code: true,
+      recreation_resource_type_code: {
+        select: {
+          rec_resource_type_code: true,
+          description: true,
+        },
+      },
     },
   },
   recreation_access: {

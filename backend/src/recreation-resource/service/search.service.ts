@@ -120,15 +120,15 @@ export class RecreationResourceSearchService {
         }),
         this.prisma.$queryRaw<any[]>`
         SELECT 'district' AS type, district_code AS code, description, CAST(resource_count AS INTEGER) AS count
-        FROM recreation_resource_district_counts
+        FROM recreation_resource_district_count_view
         WHERE district_code NOT IN (${Prisma.join(EXCLUDED_RECREATION_DISTRICTS)})
         UNION ALL
         SELECT 'access' AS type, access_code AS code, access_description AS description, CAST(count AS INTEGER) AS count
-        FROM recreation_resource_access_counts
+        FROM recreation_resource_access_count_view
         WHERE access_code NOT IN (${Prisma.join(EXCLUDED_RESOURCE_TYPES)})
         UNION ALL
         SELECT 'type' AS type, rec_resource_type_code AS code, description, CAST(count AS INTEGER) AS count
-        FROM recreation_resource_type_counts
+        FROM recreation_resource_type_count_view
         WHERE rec_resource_type_code NOT IN (${Prisma.join(EXCLUDED_RESOURCE_TYPES)})
         ORDER BY description DESC;`,
       ]);
