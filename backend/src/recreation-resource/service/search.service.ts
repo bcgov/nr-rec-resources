@@ -105,13 +105,10 @@ export class RecreationResourceSearchService {
     const [recreationResources, totalRecordIds, combinedCounts] =
       await this.prisma.$transaction([
         // Fetch paginated records
-        this.prisma.recreation_resource.findMany({
-          where,
-          select: getSearchRecreationResourceSelect(imageSizeCodes),
-          take,
-          skip,
-          orderBy,
-        }),
+        this.prisma.$queryRaw<any[]>`
+          select * from recreation_resource_search_view
+          limit ${limit} offset ${skip}
+        `,
         // Get all unpaginated but filtered rec_resource_ids for the records so we can group/count records for the filter sidebar
         // This can be used to get the count of each many to many filter group
         this.prisma.recreation_resource.findMany({
@@ -217,6 +214,8 @@ export class RecreationResourceSearchService {
         description: resourceType.description,
         count: Number(resourceType.count ?? 0),
       }));
+
+    const results = formatSearchResults(recreationResources);
 
     return {
       data: formatSearchResults(recreationResources),
