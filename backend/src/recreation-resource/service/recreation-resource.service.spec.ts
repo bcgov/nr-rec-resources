@@ -85,42 +85,6 @@ const createMockRecResource = (overrides = {}) => ({
   ...overrides,
 });
 
-const mockCounts = {
-  activities: [
-    {
-      recreation_activity_code: 32,
-      description: "Camping",
-      _count: { recreation_activity: 5 },
-    },
-    {
-      recreation_activity_code: 9,
-      description: "Hiking",
-      _count: { recreation_activity: 3 },
-    },
-  ],
-  districts: [
-    {
-      district_code: "DIST1",
-      description: "Test District",
-      _count: { recreation_resource: 8 },
-    },
-  ],
-  access: [
-    {
-      access_code: "ROAD",
-      description: "Road Access",
-      _count: { recreation_access: 10 },
-    },
-  ],
-  resourceTypes: [
-    {
-      rec_resource_type_code: "SIT",
-      description: "Recreation Site",
-      _count: { recreation_resource_type: 15 },
-    },
-  ],
-};
-
 describe("RecreationResourceService", () => {
   let prismaService: Mocked<PrismaService>;
   let service: RecreationResourceService;

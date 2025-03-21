@@ -1,3 +1,4 @@
-refresh materialized view rst.recreation_resource_access_counts;
-refresh materialized view rst.recreation_resource_district_counts;
-refresh materialized view rst.recreation_resource_type_counts;
+refresh materialized view rst.recreation_resource_access_count_view;
+refresh materialized view rst.recreation_resource_district_count_view;
+refresh materialized view rst.recreation_resource_type_count_view;
+refresh materialized view rst.recreation_resource_search_view;
