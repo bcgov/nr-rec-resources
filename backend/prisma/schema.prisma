@@ -29,7 +29,6 @@ model recreation_resource {
   recreation_district_code   recreation_district_code?    @relation(fields: [district_code], references: [district_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_resource_docs   recreation_resource_docs[]
   recreation_resource_images recreation_resource_images[]
-  recreation_resource_type   recreation_resource_type?
   recreation_status          recreation_status?
   recreation_structure       recreation_structure[]
 }
@@ -83,12 +82,11 @@ model recreation_status_code {
 }
 
 model recreation_resource_type_code {
-  rec_resource_type_code   String                     @id @db.VarChar(10)
-  description              String                     @db.VarChar(200)
-  updated_at               DateTime?                  @default(now()) @db.Timestamp(6)
-  sys_period               Unsupported("tstzrange")   @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_map_feature   recreation_map_feature[]
-  recreation_resource_type recreation_resource_type[]
+  rec_resource_type_code String                   @id @db.VarChar(10)
+  description            String                   @db.VarChar(200)
+  updated_at             DateTime?                @default(now()) @db.Timestamp(6)
+  sys_period             Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_map_feature recreation_map_feature[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -143,22 +141,6 @@ model recreation_campsite {
   created_by          String?
   sys_period          Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
   recreation_resource recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model recreation_resource_type {
-  rec_resource_id               String                        @id @db.VarChar(20)
-  rec_resource_type_code        String                        @db.VarChar(10)
-  updated_at                    DateTime?                     @default(now()) @db.Timestamp(6)
-  updated_by                    String?
-  created_at                    DateTime?                     @default(now()) @db.Timestamp(6)
-  created_by                    String?
-  sys_period                    Unsupported("tstzrange")      @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_resource           recreation_resource           @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
-  recreation_resource_type_code recreation_resource_type_code @relation(fields: [rec_resource_type_code], references: [rec_resource_type_code], onDelete: NoAction, onUpdate: NoAction)
-
-  @@unique([rec_resource_id, rec_resource_type_code])
-  @@index([rec_resource_id], map: "idx_recreation_resource_type_rec_resource_id")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -439,19 +421,6 @@ model recreation_resource_type_code_history {
   rec_resource_type_code String                   @db.VarChar(10)
   description            String                   @db.VarChar(200)
   updated_at             DateTime?                @db.Timestamp(6)
-  sys_period             Unsupported("tstzrange")
-
-  @@ignore
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model recreation_resource_type_history {
-  rec_resource_id        String                   @db.VarChar(20)
-  rec_resource_type_code String                   @db.VarChar(10)
-  updated_at             DateTime?                @db.Timestamp(6)
-  updated_by             String?
-  created_at             DateTime?                @db.Timestamp(6)
-  created_by             String?
   sys_period             Unsupported("tstzrange")
 
   @@ignore
