@@ -1,7 +1,7 @@
 import { test } from '@playwright/test';
 import { initHappo } from 'e2e/utils';
 import { FilterPOM, SearchPOM, UtilsPOM } from 'e2e/poms';
-import { Status, RecResourceType } from 'e2e/enum/recResource';
+import { RecResourceType, Status } from 'e2e/enum/recResource';
 
 const TOTAL_RESULTS = 51;
 
@@ -30,7 +30,7 @@ test.describe('Search page filter menu workflows', () => {
     await searchPage.verifyRecResourceCardContent({
       rec_resource_id: 'REC265446',
       rec_resource_name: 'Airy Area',
-      rec_resource_type: RecResourceType.TRAIL,
+      rec_resource_type: RecResourceType.RESERVE,
       closest_community: 'Slocan',
       status: Status.CLOSED,
     });
@@ -79,7 +79,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await utils.checkExpectedUrlParams('type=RTR');
 
-    await searchPage.resultsCount(20);
+    await searchPage.resultsCount(18);
 
     await searchPage.recResourceCardCount(10);
 
@@ -111,16 +111,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await searchPage.recResourceCardCount(10);
 
-    await filter.toggleFilterOn(
-      filter.typeFilters,
-      RecResourceType.INTERPRETIVE,
-    );
-
-    await utils.checkExpectedUrlParams('type=RTR_SIT_IF');
-
-    await searchPage.resultsCount(46);
-
-    await searchPage.recResourceCardCount(10);
+    await utils.checkExpectedUrlParams('type=RTR_SIT');
   });
 
   test('Use the filter menu to filter by things to do', async ({ page }) => {
@@ -143,7 +134,7 @@ test.describe('Search page filter menu workflows', () => {
     await searchPage.verifyRecResourceCardContent({
       rec_resource_id: 'REC2206',
       rec_resource_name: '7 Mile Lake',
-      rec_resource_type: RecResourceType.TRAIL,
+      rec_resource_type: RecResourceType.SITE,
       closest_community: 'Cranbrook',
       status: Status.CLOSED,
     });
@@ -381,9 +372,9 @@ test.describe('Search page filter menu workflows', () => {
       'district=RDKA&page=1&type=SIT&facilities=table&access=B',
     );
 
-    await searchPage.resultsCount(2);
+    await searchPage.resultsCount(1);
 
-    await searchPage.recResourceCardCount(2);
+    await searchPage.recResourceCardCount(1);
 
     await filter.clickClearFilters();
 

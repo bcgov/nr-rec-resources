@@ -13,6 +13,7 @@ export const getRecreationResourceSpatialFeatureGeometry: (
 export namespace getRecreationResourceSpatialFeatureGeometry {
   export type Parameters = [text: string];
   export type Result = {
-    spatial_feature_geometry: string | null;
+    spatial_feature_geometry: string[] | null;
+    site_point_geometry: string | null;
   };
 }

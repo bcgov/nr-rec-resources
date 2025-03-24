@@ -8,7 +8,7 @@ import {
   SearchPOM,
   UtilsPOM,
 } from 'e2e/poms';
-import { Status, RecResourceType } from 'e2e/enum/recResource';
+import { RecResourceType, Status } from 'e2e/enum/recResource';
 
 initHappo();
 
@@ -45,7 +45,7 @@ test.describe('Search for a recreation site or trail workflows', () => {
     await recResourcePage.verifyRecResourceHeaderContent({
       rec_resource_id: 'REC1163',
       rec_resource_name: 'Alpine Lake Trail',
-      rec_resource_type: RecResourceType.TRAIL,
+      rec_resource_type: RecResourceType.SITE,
       closest_community: 'Trout Creek',
       status: Status.OPEN,
     });

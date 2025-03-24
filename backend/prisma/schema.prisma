@@ -250,7 +250,6 @@ model recreation_map_feature_geom {
   recreation_map_feature recreation_map_feature   @relation(fields: [rmf_skey], references: [rmf_skey], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([map_feature_id], map: "idx_recreation_map_feature_geom_map_feature_id")
-  @@index([rmf_skey], map: "idx_recreation_map_feature_geom_rmf_skey")
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
@@ -617,6 +616,34 @@ model recreation_resource_images_history {
   rec_resource_id String?                  @db.VarChar(10)
   ref_id          String?                  @db.VarChar
   caption         String?                  @db.VarChar
+  updated_at      DateTime?                @db.Timestamp(6)
+  updated_by      String?
+  created_at      DateTime?                @db.Timestamp(6)
+  created_by      String?
+  sys_period      Unsupported("tstzrange")
+
+  @@ignore
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_site_point {
+  rec_resource_id String                   @id @db.VarChar(10)
+  geometry        Unsupported("geometry")?
+  revision_count  Int?
+  updated_at      DateTime?                @default(now()) @db.Timestamp(6)
+  updated_by      String?
+  created_at      DateTime?                @default(now()) @db.Timestamp(6)
+  created_by      String?
+  sys_period      Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+
+  @@unique([rec_resource_id, geometry])
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_site_point_history {
+  rec_resource_id String                   @db.VarChar(10)
+  geometry        Unsupported("geometry")?
+  revision_count  Int?
   updated_at      DateTime?                @db.Timestamp(6)
   updated_by      String?
   created_at      DateTime?                @db.Timestamp(6)

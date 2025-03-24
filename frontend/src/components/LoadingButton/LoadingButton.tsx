@@ -1,4 +1,4 @@
-import React from 'react';
+import { ReactNode } from 'react';
 import { Button, Spinner, Stack } from 'react-bootstrap';
 
 interface LoadingButtonProps {
@@ -7,7 +7,7 @@ interface LoadingButtonProps {
   className?: string;
   variant?: string;
   disabled?: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export const LoadingButton: React.FC<LoadingButtonProps> = ({
