@@ -170,7 +170,6 @@ describe("RecreationResourceService", () => {
         recreation_fee: [
           {
             fee_amount: 25,
-            fee_description: "Camping Fee",
             fee_end_date: new Date("2024-09-30"),
             fee_start_date: new Date("2024-06-01"),
             recreation_fee_code: "C",
@@ -216,6 +215,128 @@ describe("RecreationResourceService", () => {
         prismaService.recreation_resource.findUnique,
       ).mockResolvedValueOnce(null);
       const result = await service.findOne("NONEXISTENT");
+      expect(result).toBeNull();
+    });
+  });
+
+  describe("RecreationResourceService - additional_fees", () => {
+    let service: RecreationResourceService;
+    let prismaService: Mocked<PrismaService>;
+
+    beforeEach(async () => {
+      const module: TestingModule = await Test.createTestingModule({
+        providers: [
+          RecreationResourceService,
+          {
+            provide: PrismaService,
+            useValue: {
+              $transaction: vi.fn(),
+              recreation_resource: { findUnique: vi.fn(), findMany: vi.fn() },
+              $queryRawTyped: vi.fn(),
+            },
+          },
+        ],
+      }).compile();
+
+      service = module.get<RecreationResourceService>(
+        RecreationResourceService,
+      );
+      prismaService = module.get(PrismaService);
+    });
+
+    it("should correctly format additional fees when present", async () => {
+      const mockResource = createMockRecResource({
+        recreation_fee: [
+          {
+            fee_description: "Camping Fee",
+            fee_amount: 25.0,
+            fee_start_date: new Date("2024-06-01"),
+            fee_end_date: new Date("2024-09-30"),
+            recreation_fee_code: "C",
+            monday_ind: "Y",
+            tuesday_ind: "Y",
+            wednesday_ind: "Y",
+            thursday_ind: "Y",
+            friday_ind: "Y",
+            saturday_ind: "N",
+            sunday_ind: "N",
+          },
+          {
+            fee_description: "Parking Fee",
+            fee_amount: 10.0,
+            fee_start_date: new Date("2024-06-01"),
+            fee_end_date: new Date("2024-09-30"),
+            recreation_fee_code: "P",
+            monday_ind: "Y",
+            tuesday_ind: "Y",
+            wednesday_ind: "Y",
+            thursday_ind: "Y",
+            friday_ind: "Y",
+            saturday_ind: "Y",
+            sunday_ind: "Y",
+          },
+        ],
+      });
+
+      vi.mocked(
+        prismaService.recreation_resource.findUnique,
+      ).mockResolvedValueOnce(mockResource as any);
+
+      const result = await service.findOne("REC0001");
+
+      expect(result.additional_fees).toEqual([
+        {
+          fee_amount: 10.0,
+          fee_start_date: new Date("2024-06-01"),
+          fee_end_date: new Date("2024-09-30"),
+          recreation_fee_code: "P",
+          monday_ind: "Y",
+          tuesday_ind: "Y",
+          wednesday_ind: "Y",
+          thursday_ind: "Y",
+          friday_ind: "Y",
+          saturday_ind: "Y",
+          sunday_ind: "Y",
+        },
+      ]);
+    });
+
+    it("should return an empty array when no additional fees exist", async () => {
+      const mockResource = createMockRecResource({
+        recreation_fee: [
+          {
+            fee_description: "Camping Fee",
+            fee_amount: 25.0,
+            fee_start_date: new Date("2024-06-01"),
+            fee_end_date: new Date("2024-09-30"),
+            recreation_fee_code: "C",
+            monday_ind: "Y",
+            tuesday_ind: "Y",
+            wednesday_ind: "Y",
+            thursday_ind: "Y",
+            friday_ind: "Y",
+            saturday_ind: "N",
+            sunday_ind: "N",
+          },
+        ],
+      });
+
+      vi.mocked(
+        prismaService.recreation_resource.findUnique,
+      ).mockResolvedValueOnce(mockResource as any);
+
+      const result = await service.findOne("REC0001");
+
+      expect(result.additional_fees).toEqual([]);
+    });
+
+    it("should return null if resource not found", async () => {
+      vi.mocked(
+        prismaService.recreation_resource.findUnique,
+      ).mockResolvedValueOnce(null);
+
+      const result = await service.findOne("INVALID_ID");
+
       expect(result).toBeNull();
     });
   });

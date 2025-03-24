@@ -32,8 +32,6 @@ const recreationResource1 = {
   },
   recreation_fee: [
     {
-      fee_description: "Camping Fee",
-      with_description: { description: "Camping Fee" },
       fee_amount: 25.0,
       fee_start_date: new Date("2024-06-01"),
       fee_end_date: new Date("2024-09-30"),
@@ -47,8 +45,6 @@ const recreationResource1 = {
       sunday_ind: "N",
     },
     {
-      fee_description: "Parking Fee",
-      with_description: { description: "Parking Fee" },
       fee_amount: 10.0,
       fee_start_date: new Date("2024-06-01"),
       fee_end_date: new Date("2024-09-30"),
@@ -112,10 +108,12 @@ const recreationResource1Response = {
     campsite_count: 2,
   },
   rec_resource_type: "Recreation Site",
-  recreation_fee: recreationResource1.recreation_fee.map((fee) => ({
-    ...fee,
-    with_description: undefined,
-  })),
+  recreation_fee: recreationResource1.recreation_fee.filter(
+    (fee) => fee.recreation_fee_code === "C",
+  ),
+  additional_fees: recreationResource1.recreation_fee.filter(
+    (fee) => fee.recreation_fee_code !== "C",
+  ),
   recreation_resource_images: [
     {
       ref_id: "1000",
@@ -186,8 +184,6 @@ const recreationResource2 = {
   ],
   recreation_fee: [
     {
-      fee_description: "Camping Fee",
-      with_description: { description: "Camping Fee" },
       fee_amount: 25.0,
       fee_start_date: new Date("2024-06-01"),
       fee_end_date: new Date("2024-09-30"),
@@ -201,8 +197,6 @@ const recreationResource2 = {
       sunday_ind: "N",
     },
     {
-      fee_description: "Parking Fee",
-      with_description: { description: "Parking Fee" },
       fee_amount: 10.0,
       fee_start_date: new Date("2024-06-01"),
       fee_end_date: new Date("2024-09-30"),
@@ -239,10 +233,12 @@ const recreationResource2Response = {
     campsite_count: 2,
   },
   rec_resource_type: "Interpretive Forest",
-  recreation_fee: recreationResource2.recreation_fee.map((fee) => ({
-    ...fee,
-    with_description: undefined,
-  })),
+  recreation_fee: recreationResource2.recreation_fee.filter(
+    (fee) => fee.recreation_fee_code === "C",
+  ),
+  additional_fees: recreationResource2.recreation_fee.filter(
+    (fee) => fee.recreation_fee_code !== "C",
+  ),
   recreation_resource_images: [
     {
       ref_id: "1001",
@@ -298,8 +294,6 @@ const recreationResource3 = {
   },
   recreation_fee: [
     {
-      fee_description: "Camping Fee",
-      with_description: { description: "Camping Fee" },
       fee_amount: 25.0,
       fee_start_date: new Date("2024-06-01"),
       fee_end_date: new Date("2024-09-30"),
@@ -313,8 +307,6 @@ const recreationResource3 = {
       sunday_ind: "N",
     },
     {
-      fee_description: "Parking Fee",
-      with_description: { description: "Parking Fee" },
       fee_amount: 10.0,
       fee_start_date: new Date("2024-06-01"),
       fee_end_date: new Date("2024-09-30"),
@@ -378,10 +370,12 @@ const recreationResource3Response = {
     campsite_count: 2,
   },
   rec_resource_type: "Recreation Trail",
-  recreation_fee: recreationResource3.recreation_fee.map((fee) => ({
-    ...fee,
-    with_description: undefined,
-  })),
+  recreation_fee: recreationResource3.recreation_fee.filter(
+    (fee) => fee.recreation_fee_code === "C",
+  ),
+  additional_fees: recreationResource3.recreation_fee.filter(
+    (fee) => fee.recreation_fee_code !== "C",
+  ),
   recreation_resource_images: [
     {
       ref_id: "1002",
@@ -450,8 +444,6 @@ const recreationResource4 = {
   },
   recreation_fee: [
     {
-      fee_description: "Camping Fee",
-      with_description: { description: "Camping Fee" },
       fee_amount: 25.0,
       fee_start_date: new Date("2024-06-01"),
       fee_end_date: new Date("2024-09-30"),
@@ -465,8 +457,6 @@ const recreationResource4 = {
       sunday_ind: "N",
     },
     {
-      fee_description: "Parking Fee",
-      with_description: { description: "Parking Fee" },
       fee_amount: 10.0,
       fee_start_date: new Date("2024-06-01"),
       fee_end_date: new Date("2024-09-30"),
@@ -531,10 +521,12 @@ const recreationResource4Response = {
     campsite_count: 2,
   },
   rec_resource_type: "Recreation Site",
-  recreation_fee: recreationResource4.recreation_fee.map((fee) => ({
-    ...fee,
-    with_description: undefined,
-  })),
+  recreation_fee: recreationResource4.recreation_fee.filter(
+    (fee) => fee.recreation_fee_code === "C",
+  ),
+  additional_fees: recreationResource4.recreation_fee.filter(
+    (fee) => fee.recreation_fee_code !== "C",
+  ),
   recreation_resource_images: [
     {
       ref_id: "1003",
