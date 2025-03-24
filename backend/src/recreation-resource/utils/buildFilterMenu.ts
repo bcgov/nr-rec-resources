@@ -5,14 +5,8 @@ export const buildFilterMenu = ({
   activityCounts,
   combinedCounts,
 }) => {
-  const toiletCount = structureCounts.reduce(
-    (acc, curr) => acc + (Number(curr.toilet_count) || 0),
-    0,
-  );
-  const tableCount = structureCounts.reduce(
-    (acc, curr) => acc + (Number(curr.table_count) || 0),
-    0,
-  );
+  const toiletCount = structureCounts[0]?.total_toilet_count ?? 0;
+  const tableCount = structureCounts[0]?.total_table_count ?? 0;
 
   const activityFilters = activityCounts.map((activity) => ({
     id: activity.recreation_activity_code.toString(),
@@ -25,7 +19,7 @@ export const buildFilterMenu = ({
     .map((district) => ({
       id: district.code,
       description: district.description,
-      count: Number(district.count ?? 0),
+      count: district.count ?? 0,
     }));
 
   const recreationAccessFilters = combinedCounts
@@ -33,7 +27,7 @@ export const buildFilterMenu = ({
     .map((access) => ({
       id: access.code,
       description: `${access.description} Access`,
-      count: Number(access.count ?? 0),
+      count: access.count ?? 0,
     }));
 
   const recResourceTypeFilters = combinedCounts
@@ -41,7 +35,7 @@ export const buildFilterMenu = ({
     .map((resourceType) => ({
       id: resourceType.code,
       description: resourceType.description,
-      count: Number(resourceType.count ?? 0),
+      count: resourceType.count ?? 0,
     }))
     .reverse();
 
