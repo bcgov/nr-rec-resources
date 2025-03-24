@@ -45,15 +45,17 @@ const SearchPage = () => {
     page: initialPage,
   });
 
-  searchResultsStore.setState(() => data ?? initialState);
-
   const searchResults = useStore(searchResultsStore);
   const filterChips = useStore(filterChipStore);
 
   useEffect(() => {
+    searchResultsStore.setState(() => data ?? initialState);
+  }, [data]);
+
+  useEffect(() => {
     setFilterChipsFromSearchParams(filterChips, searchResults, searchParams);
     // eslint-disable-next-line
-  }, [data]);
+  }, [searchResults]);
 
   const { pages: paginatedResults, totalCount } = searchResults;
 
