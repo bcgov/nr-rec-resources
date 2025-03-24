@@ -1,12 +1,14 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { HttpException, INestApplication } from "@nestjs/common";
 import { RecreationResourceController } from "./recreation-resource.controller";
-import { RecreationResourceService } from "./recreation-resource.service";
+import { RecreationResourceService } from "src/recreation-resource/service/recreation-resource.service";
+import { RecreationResourceSearchService } from "src/recreation-resource/service/search.service";
 import { PrismaService } from "src/prisma.service";
 import { RecreationResourceImageDto } from "./dto/recreation-resource-image.dto";
 
 describe("RecreationResourceController", () => {
   let recService: RecreationResourceService;
+  let recSearchService: RecreationResourceSearchService;
   let controller: RecreationResourceController;
   let app: INestApplication;
 
@@ -15,6 +17,7 @@ describe("RecreationResourceController", () => {
       controllers: [RecreationResourceController],
       providers: [
         RecreationResourceService,
+        RecreationResourceSearchService,
         {
           provide: PrismaService,
           useValue: {},
@@ -24,6 +27,9 @@ describe("RecreationResourceController", () => {
 
     recService = module.get<RecreationResourceService>(
       RecreationResourceService,
+    );
+    recSearchService = module.get<RecreationResourceSearchService>(
+      RecreationResourceSearchService,
     );
     controller = module.get<RecreationResourceController>(
       RecreationResourceController,
@@ -128,7 +134,7 @@ describe("RecreationResourceController", () => {
         filters: [],
       };
 
-      vi.spyOn(recService, "searchRecreationResources").mockResolvedValue(
+      vi.spyOn(recSearchService, "searchRecreationResources").mockResolvedValue(
         mockResult,
       );
 
@@ -145,7 +151,7 @@ describe("RecreationResourceController", () => {
         filters: [],
       };
 
-      vi.spyOn(recService, "searchRecreationResources").mockResolvedValue(
+      vi.spyOn(recSearchService, "searchRecreationResources").mockResolvedValue(
         mockResult,
       );
 

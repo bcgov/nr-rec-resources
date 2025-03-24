@@ -100,11 +100,6 @@ export class RecreationResourceController {
     @Query("district") district?: string,
     @Query("access") access?: string,
     @Query("facilities") facilities?: string,
-    @Query(
-      "imageSizeCodes",
-      new ParseImageSizesPipe([RecreationResourceImageSize.LANDING_CARD]),
-    )
-    imageSizeCodes?: RecreationResourceImageSize[],
   ): Promise<PaginatedRecreationResourceDto> {
     return await this.recreationResourceSearchService.searchRecreationResources(
       page,

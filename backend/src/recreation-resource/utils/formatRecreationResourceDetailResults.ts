@@ -58,6 +58,21 @@ export const formatRecreationResourceDetailResults = (
         ? true
         : false,
     },
+    additional_fees: result.recreation_fee
+      ?.filter((fee) => fee.recreation_fee_code !== "C")
+      .map((fee) => ({
+        fee_amount: fee.fee_amount,
+        fee_start_date: fee.fee_start_date,
+        fee_end_date: fee.fee_end_date,
+        monday_ind: fee.monday_ind,
+        tuesday_ind: fee.tuesday_ind,
+        wednesday_ind: fee.wednesday_ind,
+        thursday_ind: fee.thursday_ind,
+        friday_ind: fee.friday_ind,
+        saturday_ind: fee.saturday_ind,
+        sunday_ind: fee.sunday_ind,
+        recreation_fee_code: fee.recreation_fee_code,
+      })),
     recreation_resource_docs: result.recreation_resource_docs.map((i) => ({
       ...i,
       doc_code: i.doc_code as RecreationResourceDocCode,
