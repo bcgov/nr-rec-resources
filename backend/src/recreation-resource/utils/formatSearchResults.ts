@@ -5,7 +5,6 @@ export const formatSearchResults = (
   recResources: any[], // TODO: was SearchRecreationResourceGetPayload, need type
 ): BaseRecreationResourceDto[] => {
   return recResources?.map((resource) => {
-    console.log(resource?.recreation_resource_images);
     return {
       ...resource,
       rec_resource_type: resource?.recreation_resource_type,

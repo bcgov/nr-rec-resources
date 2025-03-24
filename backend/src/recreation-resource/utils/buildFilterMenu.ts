@@ -1,23 +1,49 @@
-import {
-  FilterDto,
-  FilterOptionDto,
-} from "src/recreation-resource/dto/paginated-recreation-resource.dto";
+import { FilterDto } from "src/recreation-resource/dto/paginated-recreation-resource.dto";
 
 export const buildFilterMenu = ({
-  recreationDistrictFilters,
-  recResourceTypeFilters,
-  activityFilters,
-  toiletCount,
-  tableCount,
-  recreationAccessFilters,
-}: {
-  recreationDistrictFilters: FilterOptionDto[];
-  recResourceTypeFilters: FilterOptionDto[];
-  activityFilters: FilterOptionDto[];
-  toiletCount: number;
-  tableCount: number;
-  recreationAccessFilters: FilterOptionDto[];
+  structureCounts,
+  activityCounts,
+  combinedCounts,
 }) => {
+  const toiletCount = structureCounts.reduce(
+    (acc, curr) => acc + (Number(curr.toilet_count) || 0),
+    0,
+  );
+  const tableCount = structureCounts.reduce(
+    (acc, curr) => acc + (Number(curr.table_count) || 0),
+    0,
+  );
+
+  const activityFilters = activityCounts.map((activity) => ({
+    id: activity.recreation_activity_code.toString(),
+    description: activity.description,
+    count: activity._count.recreation_activity ?? 0,
+  }));
+
+  const recreationDistrictFilters = combinedCounts
+    .filter((count) => count.type === "district")
+    .map((district) => ({
+      id: district.code,
+      description: district.description,
+      count: Number(district.count ?? 0),
+    }));
+
+  const recreationAccessFilters = combinedCounts
+    .filter((count) => count.type === "access")
+    .map((access) => ({
+      id: access.code,
+      description: `${access.description} Access`,
+      count: Number(access.count ?? 0),
+    }));
+
+  const recResourceTypeFilters = combinedCounts
+    .filter((count) => count.type === "type")
+    .map((resourceType) => ({
+      id: resourceType.code,
+      description: resourceType.description,
+      count: Number(resourceType.count ?? 0),
+    }));
+
   const filterMenu: FilterDto[] = [
     {
       type: "multi-select",
@@ -43,14 +69,14 @@ export const buildFilterMenu = ({
       param: "facilities",
       options: [
         {
-          id: "toilet",
-          description: "Toilets",
-          count: toiletCount,
-        },
-        {
           id: "table",
           description: "Tables",
           count: tableCount,
+        },
+        {
+          id: "toilet",
+          description: "Toilets",
+          count: toiletCount,
         },
       ],
     },

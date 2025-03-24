@@ -1,8 +1,4 @@
 import { Prisma } from "@prisma/client";
-import {
-  EXCLUDED_RECREATION_DISTRICTS,
-  EXCLUDED_RESOURCE_TYPES,
-} from "src/recreation-resource/constants/service.constants";
 
 export interface FilterOptions {
   filter?: string;
@@ -20,87 +16,62 @@ export const buildSearchFilterQuery = ({
   district,
   access,
   facilities,
-}: FilterOptions): Prisma.recreation_resourceWhereInput => {
-  const activityFilter = activities?.split("_").map(Number);
-  const typeFilter = type?.split("_").map(String);
-  const districtFilter = district?.split("_").map(String);
-  const accessFilter = access?.split("_").map(String);
-  const facilityFilter = facilities?.split("_").map(String);
+}: {
+  filter: string;
+  activities?: string;
+  type?: string;
+  district?: string;
+  access?: string;
+  facilities?: string;
+}) => {
+  const activityFilter = activities?.split("_").map(Number) ?? [];
+  const typeFilter = type?.split("_").map(String) ?? [];
+  const districtFilter = district?.split("_").map(String) ?? [];
+  const accessFilter = access?.split("_").map(String) ?? [];
+  const facilityFilter = facilities?.split("_").map(String) ?? [];
 
-  const activityFilterQuery = activities && {
-    AND: activityFilter.map((activity) => ({
-      recreation_activity: {
-        some: {
-          recreation_activity_code: activity,
-        },
-      },
-    })),
-  };
+  const filterQuery = Prisma.sql`(name ilike ${"%" + filter + "%"} or closest_community ilike ${"%" + filter + "%"})`;
 
-  const accessFilterQuery = access && {
-    recreation_access: {
-      some: {
-        access_code: {
-          in: accessFilter,
-        },
-      },
-    },
-  };
+  const accessFilterQuery =
+    accessFilter.length > 0
+      ? Prisma.sql`and access_code in (${Prisma.join(accessFilter)})`
+      : Prisma.sql``;
 
-  const resourceTypeFilterQuery = type && {
-    in: typeFilter,
-  };
+  const districtFilterQuery =
+    districtFilter.length > 0
+      ? Prisma.sql`and district_code in (${Prisma.join(districtFilter)})`
+      : Prisma.sql``;
 
-  const districtFilterQuery = district && {
-    district_code: {
-      in: districtFilter,
-    },
-  };
+  const typeFilterQuery =
+    typeFilter.length > 0
+      ? Prisma.sql`and recreation_resource_type_code in (${Prisma.join(typeFilter)})`
+      : Prisma.sql``;
 
-  const facilityFilterQuery = facilities && {
-    AND: facilityFilter.map((facility) => ({
-      recreation_structure: {
-        some: {
-          recreation_structure_code: {
-            description: {
-              contains: facility,
-              mode: Prisma.QueryMode.insensitive,
-            },
-          },
-        },
-      },
-    })),
-  };
+  const activityFilterQuery =
+    Array.isArray(activityFilter) && activityFilter.length > 0
+      ? Prisma.sql`and (
+            select count(*)
+            from jsonb_array_elements(recreation_activity) as activity
+            where (activity->>'recreation_activity_code')::bigint in (${Prisma.join(activityFilter)})
+        ) > 0`
+      : Prisma.sql``;
 
-  return {
-    OR: [
-      { name: { contains: filter, mode: Prisma.QueryMode.insensitive } },
-      {
-        closest_community: {
-          contains: filter,
-          mode: Prisma.QueryMode.insensitive,
-        },
-      },
-    ],
-    AND: [
-      { display_on_public_site: true },
-      {
-        recreation_resource_type: {
-          rec_resource_type_code: {
-            notIn: EXCLUDED_RESOURCE_TYPES,
-            ...resourceTypeFilterQuery,
-          },
-        },
-      },
-      {
-        district_code: {
-          notIn: EXCLUDED_RECREATION_DISTRICTS,
-        },
-      },
-      accessFilterQuery,
-      districtFilterQuery,
-      activityFilterQuery,
-      facilityFilterQuery,
-    ].filter(Boolean),
-  };
+  const facilityFilterQuery =
+    Array.isArray(facilityFilter) && facilityFilter.length > 0
+      ? Prisma.sql`and (
+            select count(*)
+            from jsonb_array_elements(recreation_structure) AS facility
+            where ${Prisma.join(facilityFilter.map((f) => Prisma.sql`(facility->>'description') ilike ${"%" + f + "%"}`))}
+        ) > 0`
+      : Prisma.sql``;
+
+  return Prisma.sql`
+    where 
+      ${filterQuery}
+      ${accessFilterQuery}
+      ${districtFilterQuery}
+      ${typeFilterQuery}
+      ${activityFilterQuery}
+      ${facilityFilterQuery}
+  `;
 };

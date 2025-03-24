@@ -1,0 +1,7 @@
+SELECT
+  recreation_resource_access_count_view.unique_id,
+  recreation_resource_access_count_view.access_code,
+  recreation_resource_access_count_view.access_description,
+  recreation_resource_access_count_view.count
+FROM
+  recreation_resource_access_count_view;
