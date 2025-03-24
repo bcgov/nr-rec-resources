@@ -49,11 +49,13 @@ export const buildSearchFilterQuery = ({
 
   const activityFilterQuery =
     Array.isArray(activityFilter) && activityFilter.length > 0
-      ? Prisma.sql`and (
-            select count(*)
-            from jsonb_array_elements(recreation_activity) as activity
-            where (activity->>'recreation_activity_code')::bigint in (${Prisma.join(activityFilter)})
-        ) > 0`
+      ? Prisma.sql`
+        AND (
+          SELECT COUNT(*)
+          FROM jsonb_array_elements(recreation_activity) AS activity
+          WHERE (activity->>'recreation_activity_code')::bigint IN (${Prisma.join(activityFilter)})
+        ) = ${activityFilter.length}
+    `
       : Prisma.sql``;
 
   const facilityFilterQuery =
@@ -66,7 +68,7 @@ export const buildSearchFilterQuery = ({
       : Prisma.sql``;
 
   return Prisma.sql`
-    where 
+    where
       ${filterQuery}
       ${accessFilterQuery}
       ${districtFilterQuery}

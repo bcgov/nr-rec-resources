@@ -50,23 +50,36 @@ export class RecreationResourceSearchService {
       facilities,
     });
 
-    const [recreationResources, totalRecordIds, combinedCounts] =
-      await this.prisma.$transaction([
-        this.prisma.$queryRaw<any[]>`
+    const [
+      recreationResources,
+      totalRecordIdsWithStructureCounts,
+      combinedCounts,
+    ] = await this.prisma.$transaction([
+      this.prisma.$queryRaw<any[]>`
           select * from recreation_resource_search_view
           ${whereClause}
           order by name asc
           limit ${take}
           ${skip ? Prisma.sql`OFFSET ${skip}` : Prisma.sql``};
         `,
-        // Get all unpaginated but filtered rec_resource_ids for the records so we can group/count records for the filter sidebar
-        // This can be used to get the count of each many to many filter group
-        this.prisma.$queryRaw<any[]>`
-          select rec_resource_id from recreation_resource_search_view
-          ${whereClause}
-          order by name asc;
+      // Get all unpaginated but filtered rec_resource_ids for the records so we can group/count records for the filter sidebar
+      // This can be used to get the count of each many to many filter group
+      this.prisma.$queryRaw<any[]>`
+          with filtered_resources as (
+            select rec_resource_id
+            from recreation_resource_search_view
+            ${whereClause}
+          )
+          select
+            fr.rec_resource_id,
+            count(distinct case when rsc.description ilike '%toilet%' then fr.rec_resource_id end) as toilet_count,
+            count(distinct case when rsc.description ilike '%table%' then fr.rec_resource_id end) as table_count
+          from filtered_resources fr
+          left join recreation_structure rs on rs.rec_resource_id = fr.rec_resource_id
+          left join recreation_structure_code rsc on rs.structure_code = rsc.structure_code
+          group by fr.rec_resource_id;
         `,
-        this.prisma.$queryRaw<any[]>`
+      this.prisma.$queryRaw<any[]>`
           select 'district' as type, district_code as code, description, cast(resource_count as integer) as count
           from recreation_resource_district_count_view
             where district_code not in (${Prisma.join(EXCLUDED_RECREATION_DISTRICTS)})
@@ -78,64 +91,35 @@ export class RecreationResourceSearchService {
           select 'type' as type, rec_resource_type_code as code, description, cast(count as integer) as count
           from recreation_resource_type_count_view
               where rec_resource_type_code not in (${Prisma.join(EXCLUDED_RESOURCE_TYPES)})
-          order by description desc; `,
-      ]);
+          order by description asc;`,
+    ]);
 
-    const totalRecordIdsList = totalRecordIds.map(
+    const totalRecordIdsList = totalRecordIdsWithStructureCounts.map(
       (record) => record.rec_resource_id,
     );
 
-    const [activityCounts, structureCounts] = await Promise.all([
-      this.prisma.recreation_activity_code.findMany({
-        select: {
-          recreation_activity_code: true,
-          description: true,
-          _count: {
-            select: {
-              recreation_activity: {
-                where: {
-                  rec_resource_id: {
-                    in: totalRecordIdsList,
-                  },
-                },
-              },
-            },
-          },
-        },
-        where: {
-          recreation_activity_code: {
-            notIn: EXCLUDED_ACTIVITY_CODES,
-          },
-        },
-        orderBy: {
-          description: Prisma.SortOrder.asc,
-        },
-      }),
-      this.prisma.$queryRaw<any[]>`
-        select rec_resource_id,
-        count(distinct case
-          when rsc.description ilike '%toilet%' then rec_resource_id
-        end) as toilet_count,
-        count(distinct case
-          when rsc.description ilike '%table%' then rec_resource_id
-        end) as table_count
-        from recreation_structure rs
-        left join recreation_structure_code rsc on rs.structure_code = rsc.structure_code
-        ${
-          totalRecordIdsList.length > 0
-            ? Prisma.sql`where rec_resource_id in (${Prisma.join(totalRecordIdsList)})`
-            : Prisma.sql`where true`
-        }
-        group by rec_resource_id; `,
-    ]);
+    const activityCounts = await this.prisma.$queryRaw`
+      select
+        rac.recreation_activity_code,
+        rac.description,
+        count(ra.rec_resource_id) as recreation_activity_count
+      from rst.recreation_activity_code rac
+      left join rst.recreation_activity ra
+        on ra.recreation_activity_code = rac.recreation_activity_code
+        and ra.rec_resource_id in (${Prisma.join(totalRecordIdsList)})
+      where rac.recreation_activity_code not in (${Prisma.join(EXCLUDED_ACTIVITY_CODES)})
+      group by
+        rac.recreation_activity_code,
+        rac.description
+      order by rac.description asc;`;
 
     return {
       data: formatSearchResults(recreationResources),
       page,
       limit,
-      total: totalRecordIds?.length,
+      total: totalRecordIdsWithStructureCounts?.length,
       filters: buildFilterMenu({
-        structureCounts,
+        structureCounts: totalRecordIdsWithStructureCounts,
         activityCounts,
         combinedCounts,
       }),

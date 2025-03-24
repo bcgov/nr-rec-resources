@@ -17,7 +17,7 @@ export const buildFilterMenu = ({
   const activityFilters = activityCounts.map((activity) => ({
     id: activity.recreation_activity_code.toString(),
     description: activity.description,
-    count: activity._count.recreation_activity ?? 0,
+    count: Number(activity.recreation_activity_count ?? 0),
   }));
 
   const recreationDistrictFilters = combinedCounts
@@ -42,7 +42,8 @@ export const buildFilterMenu = ({
       id: resourceType.code,
       description: resourceType.description,
       count: Number(resourceType.count ?? 0),
-    }));
+    }))
+    .reverse();
 
   const filterMenu: FilterDto[] = [
     {
