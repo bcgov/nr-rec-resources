@@ -26,7 +26,7 @@ export class RecreationResourcePOM {
     this.page = page;
   }
 
-  async route(resourceId: string = 'REC160432') {
+  async route(resourceId: string = 'REC160773') {
     await this.page.goto(`${this.baseUrl}/${resourceId}`);
     await waitForImagesToLoad(this.page);
   }
