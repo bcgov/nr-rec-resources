@@ -1,7 +1,0 @@
-SELECT
-  recreation_resource_district_count_view.unique_id,
-  recreation_resource_district_count_view.district_code,
-  recreation_resource_district_count_view.description,
-  recreation_resource_district_count_view.resource_count
-FROM
-  recreation_resource_district_count_view;

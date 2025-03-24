@@ -1,7 +1,0 @@
-SELECT
-  recreation_resource_type_count_view.unique_id,
-  recreation_resource_type_count_view.rec_resource_type_code,
-  recreation_resource_type_count_view.description,
-  recreation_resource_type_count_view.count
-FROM
-  recreation_resource_type_count_view;
