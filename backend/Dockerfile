@@ -32,6 +32,6 @@ COPY --from=build /app/dist ./dist
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost:8000/api
 
-# Nonroot user, limit heap size to 50 MB
+# Nonroot user, limit heap size to 300 MB since we have 512 MB limit
 USER nonroot
-CMD ["--max-old-space-size=50", "/app/dist/main"]
+CMD ["--max-old-space-size=300", "/app/dist/main"]

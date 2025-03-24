@@ -5,7 +5,9 @@ export const formatSearchResults = (
 ): BaseRecreationResourceDto[] => {
   return recResources?.map((resource) => {
     return {
-      ...resource,
+      rec_resource_id: resource.rec_resource_id,
+      name: resource.name,
+      closest_community: resource?.closest_community,
       rec_resource_type: resource?.recreation_resource_type,
       recreation_activity:
         resource.recreation_activity?.map((activity) => ({

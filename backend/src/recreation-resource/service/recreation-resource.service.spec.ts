@@ -27,12 +27,14 @@ const createMockRecResource = (overrides = {}) => ({
     rec_resource_id: "123",
     campsite_count: 2,
   },
-  recreation_map_feature: {
-    recreation_resource_type_code: {
-      rec_resource_type_code: "SIT",
-      description: "Recreation Site",
+  recreation_map_feature: [
+    {
+      recreation_resource_type_code: {
+        rec_resource_type_code: "SIT",
+        description: "Recreation Site",
+      },
     },
-  },
+  ],
   recreation_fee: [
     {
       fee_description: "Camping Fee",
