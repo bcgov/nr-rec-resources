@@ -60,8 +60,9 @@ export class RecreationResourceSearchService {
         ${whereClause}
         order by name asc
         limit ${take}
-        ${skip ? Prisma.sql`OFFSET ${skip}` : Prisma.sql``};`,
+        ${skip ? Prisma.sql`OFFSET ${skip}` : Prisma.empty};`,
 
+        // Query filter menu content and counts that change based on search results
         this.prisma.$queryRaw<CombinedRecordCount[]>`
         with filtered_resources as (
           select rec_resource_id, has_toilets, has_tables
@@ -86,6 +87,8 @@ export class RecreationResourceSearchService {
           left join filtered_resources fra on fra.rec_resource_id = ra.rec_resource_id
         where rac.recreation_activity_code not in (${Prisma.join(EXCLUDED_ACTIVITY_CODES)})
         group by rac.recreation_activity_code, rac.description;`,
+
+        // Query filter menu content and counts that remain static
         this.prisma.$queryRaw<CombinedStaticCount[]>`
           (select 'district' as type, district_code as code, description, cast(resource_count as integer) as count
           from recreation_resource_district_count_view
@@ -105,7 +108,7 @@ export class RecreationResourceSearchService {
       data: formatSearchResults(recreationResources),
       page,
       limit,
-      total: combinedRecordCounts[0]?.total_count ?? 0,
+      total: combinedRecordCounts?.[0]?.total_count ?? 0,
       filters: buildFilterMenu({
         combinedRecordCounts,
         combinedStaticCounts,

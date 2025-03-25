@@ -46,43 +46,37 @@ const createMockRecResource = (overrides = {}) => ({
   ...overrides,
 });
 
-const mockCounts = {
-  activities: [
-    {
-      recreation_activity_code: 32,
-      description: "Camping",
-      _count: { recreation_activity: 5 },
-    },
-    {
-      recreation_activity_code: 9,
-      description: "Hiking",
-      _count: { recreation_activity: 3 },
-    },
-  ],
-  districts: [
-    {
-      district_code: "DIST1",
-      description: "Test District",
-      _count: { recreation_resource: 8 },
-    },
-  ],
-  access: [
-    {
-      access_code: "ROAD",
-      description: "Road Access",
-      _count: { recreation_access: 10 },
-    },
-  ],
-  resourceTypes: [
-    {
-      rec_resource_type_code: "SIT",
-      description: "Recreation Site",
-      _count: { recreation_resource_type: 15 },
-    },
-  ],
-};
+const combinedStaticCounts = [
+  { type: "access", code: "B", description: "Boat-in", count: 17 },
+  { type: "district", code: "RDCS", description: "Cascades", count: 0 },
+  {
+    type: "type",
+    code: "IF",
+    description: "Interpretive Forest",
+    count: 2,
+  },
+];
 
-describe.skip("RecreationResourceService", () => {
+const combinedRecordCounts = [
+  {
+    recreation_activity_code: 1,
+    description: "Angling",
+    recreation_activity_count: 14,
+    total_toilet_count: 13,
+    total_table_count: 13,
+    total_count: 1,
+  },
+  {
+    recreation_activity_code: 2,
+    description: "Boating",
+    recreation_activity_count: 4,
+    total_toilet_count: 13,
+    total_table_count: 13,
+    total_count: 1,
+  },
+];
+
+describe("RecreationResourceSearchService", () => {
   let prismaService: Mocked<PrismaService>;
   let service: RecreationResourceSearchService;
 
@@ -94,7 +88,7 @@ describe.skip("RecreationResourceService", () => {
           provide: PrismaService,
           useValue: {
             $transaction: vi.fn(),
-            recreation_resource: { findUnique: vi.fn() },
+            $queryRaw: vi.fn(),
             $queryRawTyped: vi.fn(),
           },
         },
@@ -108,24 +102,16 @@ describe.skip("RecreationResourceService", () => {
   });
 
   describe("searchRecreationResources", () => {
-    const setupSearchMocks = (data = mockCounts) => {
+    const setupSearchMocks = () => {
       const mockTransactionResponse = [
         [createMockRecResource()],
-        [{ rec_resource_id: "REC0001" }],
-        data.districts,
-        data.access,
-        data.resourceTypes,
+        combinedRecordCounts,
+        combinedStaticCounts,
       ];
 
       vi.mocked(prismaService.$transaction).mockResolvedValueOnce(
         mockTransactionResponse,
       );
-      vi.mocked(
-        prismaService.recreation_activity_code.findMany,
-      ).mockResolvedValueOnce(data.activities as any);
-      vi.mocked(prismaService.recreation_structure.findMany)
-        .mockResolvedValueOnce([{ rec_resource_id: "REC0001" }] as any)
-        .mockResolvedValueOnce([{ rec_resource_id: "REC0001" }] as any);
     };
 
     it("should return formatted search results with filters", async () => {
@@ -136,7 +122,6 @@ describe.skip("RecreationResourceService", () => {
         data: expect.arrayContaining([
           expect.objectContaining({
             rec_resource_id: "REC0001",
-            recreation_structure: { has_table: true, has_toilet: true },
           }),
         ]),
         filters: expect.arrayContaining([
@@ -152,19 +137,7 @@ describe.skip("RecreationResourceService", () => {
     });
 
     it("should handle empty search results", async () => {
-      vi.mocked(prismaService.$transaction).mockResolvedValue([
-        [],
-        [],
-        [],
-        [],
-        [],
-      ]);
-      vi.mocked(
-        prismaService.recreation_activity_code.findMany,
-      ).mockResolvedValue([]);
-      vi.mocked(prismaService.recreation_structure.findMany)
-        .mockResolvedValue([])
-        .mockResolvedValue([]);
+      vi.mocked(prismaService.$transaction).mockResolvedValue([[], [], []]);
 
       const result = await service.searchRecreationResources(1, "nonexistent");
       expect(result).toMatchObject({
@@ -187,10 +160,10 @@ describe.skip("RecreationResourceService", () => {
       });
 
       it.each([
-        ["activities", "32", "Things to do"],
-        ["district", "DIST1", "District"],
-        ["access", "ROAD", "Access Type"],
-        ["type", "SIT", "Type"],
+        ["activities", "1", "Things to do"],
+        ["district", "RDCS", "District"],
+        ["access", "B", "Access Type"],
+        ["type", "IF", "Type"],
         ["facilities", "toilet", "Facilities"],
       ])(
         "should correctly apply %s filter",
