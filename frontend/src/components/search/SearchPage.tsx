@@ -59,13 +59,31 @@ const SearchPage = () => {
 
   const { pages: paginatedResults, totalCount } = searchResults;
 
-  const handleLoadMore = () => {
+  /**
+   * Handles loading the next page of search results.
+   *
+   * This function fetches the next page of results from the API and updates the
+   * search parameters in the URL. After fetching the new data, it smoothly
+   * scrolls the viewport to the last item of the previously loaded page.
+   */
+  const handleLoadMore = async () => {
+    // Store reference to last item of current list before loading more
+    const lastItem = document.querySelector(
+      '.search-container section',
+    )?.lastElementChild;
+
     const newSearchParams = {
       ...Object.fromEntries(searchParams),
       page: (Number(data?.currentPage || 1) + 1).toString(),
     };
     setSearchParams(newSearchParams);
-    fetchNextPage();
+
+    await fetchNextPage();
+
+    // scroll the last item of the previous list into view
+    setTimeout(() => {
+      lastItem?.scrollIntoView({ behavior: 'smooth' });
+    });
   };
 
   const handleLoadPrevious = () => {

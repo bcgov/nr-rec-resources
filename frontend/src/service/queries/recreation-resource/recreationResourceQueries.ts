@@ -158,7 +158,6 @@ export const useSearchRecreationResourcesPaginated = (
     getPreviousPageParam,
     getNextPageParam,
     queryFn,
-    maxPages: 3,
     select,
     placeholderData: (previousData) => previousData,
   });
