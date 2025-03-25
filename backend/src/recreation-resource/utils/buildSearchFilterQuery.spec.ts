@@ -7,7 +7,8 @@ const districtString = "and district_code in (?,?)";
 const typeString = "and recreation_resource_type_code in (?,?)";
 const activityString =
   "where (activity->>'recreation_activity_code')::bigint in (?,?)";
-const facilityString = "facility where (facility->>'description') ilike ?";
+const facilityString =
+  "select count(*) from jsonb_array_elements(recreation_structure) AS facility where ( (facility->>'description') ilike ? or (facility->>'description') ilike ? ) ";
 
 export const getQueryString = (query) => {
   return query.sql.replace(/\s+/g, " ").trim();

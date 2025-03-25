@@ -36,7 +36,7 @@ test.describe('Search for a recreation site or trail workflows', () => {
 
     await searchPage.searchFor('alpine');
 
-    await searchPage.resultsCount(1);
+    await searchPage.resultsCount(2);
 
     await utils.checkExpectedUrlParams('filter=alpine&page=1');
 

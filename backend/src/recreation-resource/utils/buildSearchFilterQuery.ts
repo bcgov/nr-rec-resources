@@ -62,10 +62,18 @@ export const buildSearchFilterQuery = ({
   const facilityFilterQuery =
     Array.isArray(facilityFilter) && facilityFilter.length > 0
       ? Prisma.sql`and (
-            select count(*)
-            from jsonb_array_elements(recreation_structure) AS facility
-            where ${Prisma.join(facilityFilter.map((f) => Prisma.sql`(facility->>'description') ilike ${"%" + f + "%"}`))}
-        ) > 0`
+          select count(*)
+          from jsonb_array_elements(recreation_structure) AS facility
+          where (
+            ${Prisma.join(
+              facilityFilter.map(
+                (f) =>
+                  Prisma.sql`(facility->>'description') ilike ${"%" + f + "%"}`,
+              ),
+              " or ",
+            )}
+          )
+      ) > 0`
       : Prisma.empty;
 
   return Prisma.sql`

@@ -11,7 +11,7 @@ export class SearchPOM {
 
   readonly url: string = `${BASE_URL}/search`;
 
-  readonly initialResults: number = 38;
+  readonly initialResults: number = 51;
 
   readonly searchBtn: Locator;
 

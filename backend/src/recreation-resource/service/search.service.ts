@@ -86,7 +86,8 @@ export class RecreationResourceSearchService {
           left join rst.recreation_activity ra on ra.recreation_activity_code = rac.recreation_activity_code
           left join filtered_resources fra on fra.rec_resource_id = ra.rec_resource_id
         where rac.recreation_activity_code not in (${Prisma.join(EXCLUDED_ACTIVITY_CODES)})
-        group by rac.recreation_activity_code, rac.description;`,
+        group by rac.recreation_activity_code, rac.description
+        order by rac.description asc;`,
 
         // Query filter menu content and counts that remain static
         this.prisma.$queryRaw<CombinedStaticCount[]>`

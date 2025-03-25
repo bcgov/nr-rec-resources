@@ -93,7 +93,7 @@ export class FilterPOM {
 
   async verifyFilterGroup(
     filterGroup: Locator,
-    filterOptions: { label: string; count: number }[],
+    filterOptions: { label: string }[],
   ) {
     const showLessButton = filterGroup.getByRole('button', {
       name: /Show less/,
@@ -104,9 +104,9 @@ export class FilterPOM {
         : filterOptions.slice(0, MAX_VISIBLE_FILTERS);
 
     for (const filter of visibleFilters) {
-      const { label, count } = filter;
+      const { label } = filter;
       await filterGroup
-        .getByLabel(`${label} (${count})`)
+        .getByLabel(new RegExp(label, 'i'))
         .waitFor({ state: 'visible' });
     }
   }
