@@ -28,7 +28,7 @@ vi.mock('@/store/searchResults', async () => ({
 describe('SearchPage', () => {
   const mockQueryResult = {
     data: mockSearchResultsData,
-    fetchNextPage: vi.fn(),
+    fetchNextPage: vi.fn().mockResolvedValue({}),
     fetchPreviousPage: vi.fn(),
     hasNextPage: true,
     hasPreviousPage: false,
@@ -80,7 +80,18 @@ describe('SearchPage', () => {
     expect(screen.getAllByTestId('mock-resource-card')).toHaveLength(2);
   });
 
-  it('handles load more button click', () => {
+  it('handles load more button click and scrolls to last item', async () => {
+    // Mock DOM elements and scroll behavior
+    const mockLastItem = document.createElement('div');
+    const mockScrollIntoView = vi.fn();
+    mockLastItem.scrollIntoView = mockScrollIntoView;
+
+    vi.spyOn(document, 'querySelector').mockReturnValue({
+      lastElementChild: mockLastItem,
+    } as unknown as Element);
+
+    vi.useFakeTimers(); // for setTimeout
+
     render(
       <MemoryRouter>
         <SearchPage />
@@ -90,7 +101,13 @@ describe('SearchPage', () => {
     const loadMoreButton = screen.getByText('Load More');
     fireEvent.click(loadMoreButton);
 
+    // Fast-forward timers
+    await vi.runAllTimersAsync();
+
     expect(mockQueryResult.fetchNextPage).toHaveBeenCalled();
+    expect(mockScrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth' });
+
+    vi.useRealTimers();
   });
 
   it('handles mobile filter menu', () => {
