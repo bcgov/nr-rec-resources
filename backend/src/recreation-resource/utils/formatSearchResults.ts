@@ -6,7 +6,6 @@ import {
 } from "src/recreation-resource/dto/recreation-resource.dto";
 import { RecreationResourceImageDto } from "src/recreation-resource/dto/recreation-resource-image.dto";
 
-// can this be generated with refactor to typed sql?
 export type RecreationResourceSearchView = {
   rec_resource_id: string;
   name: string;
@@ -26,6 +25,7 @@ export type RecreationResourceSearchView = {
   has_tables: boolean;
 };
 
+// Format search results to match the BaseRecreationResourceDto
 export const formatSearchResults = (
   recResources: RecreationResourceSearchView[],
 ): BaseRecreationResourceDto[] => {

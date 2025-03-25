@@ -4,6 +4,7 @@ import { RecreationResourceGetPayload } from "src/recreation-resource/service/ty
 import { getRecreationResourceSpatialFeatureGeometry } from "@prisma-generated-sql";
 import { RecreationResourceDocCode } from "src/recreation-resource/dto/recreation-resource-doc.dto";
 
+// Format recreation resource detail results to match the RecreationResourceDetailDto
 export const formatRecreationResourceDetailResults = (
   result: RecreationResourceGetPayload,
   spatial_feature_geometry: getRecreationResourceSpatialFeatureGeometry.Result[],

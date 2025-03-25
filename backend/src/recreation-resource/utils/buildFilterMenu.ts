@@ -4,6 +4,7 @@ import {
   CombinedStaticCount,
 } from "src/recreation-resource/service/types";
 
+// Build the filter menu based on the combined record and static counts
 export const buildFilterMenu = ({
   combinedRecordCounts,
   combinedStaticCounts,

@@ -186,7 +186,6 @@ describe("RecreationResourceSearchService", () => {
             filterParams.access,
             filterParams.facilities,
           );
-
           expect(result.filters).toContainEqual(
             expect.objectContaining({
               label,

@@ -13,6 +13,7 @@ where
 group by
   rd.district_code;
 
+comment on materialized view recreation_resource_district_count_view is 'Provides a list of district codes and counts of their associated recreation resources for use in the search filter menu.';
 
 create materialized view recreation_resource_access_count_view as
 select
@@ -30,6 +31,7 @@ group by
   rac.access_code,
   rac.description;
 
+comment on materialized view recreation_resource_access_count_view is 'Provides a list of access codes and counts of their associated recreation resources for use in the search filter menu.';
 
 create materialized view recreation_resource_type_count_view as
 select
@@ -51,3 +53,5 @@ group by
   rrtc.description
 order by
   rrtc.description desc;
+
+comment on materialized view recreation_resource_type_count_view is 'Provides a list of resource type codes and counts of their associated recreation resources for use in the search filter menu.';

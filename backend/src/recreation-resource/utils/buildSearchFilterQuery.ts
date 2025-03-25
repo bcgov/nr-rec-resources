@@ -9,6 +9,7 @@ export interface FilterOptions {
   facilities?: string;
 }
 
+// Build where clause for search filter query
 export const buildSearchFilterQuery = ({
   filter,
   activities,
@@ -50,10 +51,10 @@ export const buildSearchFilterQuery = ({
   const activityFilterQuery =
     Array.isArray(activityFilter) && activityFilter.length > 0
       ? Prisma.sql`
-        AND (
-          SELECT COUNT(*)
-          FROM jsonb_array_elements(recreation_activity) AS activity
-          WHERE (activity->>'recreation_activity_code')::bigint IN (${Prisma.join(activityFilter)})
+        and (
+          select count(*)
+          from jsonb_array_elements(recreation_activity) AS activity
+          where (activity->>'recreation_activity_code')::bigint in (${Prisma.join(activityFilter)})
         ) = ${activityFilter.length}
     `
       : Prisma.empty;

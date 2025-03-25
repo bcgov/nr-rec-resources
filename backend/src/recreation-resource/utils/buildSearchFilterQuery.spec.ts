@@ -6,7 +6,7 @@ const accessString = "and access_code in (?,?)";
 const districtString = "and district_code in (?,?)";
 const typeString = "and recreation_resource_type_code in (?,?)";
 const activityString =
-  "WHERE (activity->>'recreation_activity_code')::bigint IN (?,?)";
+  "where (activity->>'recreation_activity_code')::bigint in (?,?)";
 const facilityString = "facility where (facility->>'description') ilike ?";
 
 export const getQueryString = (query) => {

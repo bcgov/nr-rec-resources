@@ -91,3 +91,5 @@ group by
   rd.description,
   ac.access_code,
   ac.description;
+
+comment on materialized view recreation_resource_search_view is 'Provides a list of recreation resources and related data for use in the public site search page';
