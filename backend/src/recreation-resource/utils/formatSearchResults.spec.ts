@@ -7,6 +7,7 @@ const response = [
     closest_community: "MERRITT",
     display_on_public_site: true,
     recreation_resource_type: "Recreation Reserve",
+    recreation_resource_type_code: "RR",
     recreation_activity: [],
     recreation_status: {
       comment: "Open status for REC160773",
@@ -24,8 +25,8 @@ const response = [
   },
 ];
 
-describe("formatResults function", () => {
-  it("should correctly format recreation_activity recreation_activity relation in the results", () => {
+describe("formatSearchResults function", () => {
+  it("should correctly format the results", () => {
     const results = formatSearchResults(response);
 
     expect(results).toEqual([

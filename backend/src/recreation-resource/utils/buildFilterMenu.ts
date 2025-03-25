@@ -1,20 +1,26 @@
 import { FilterDto } from "src/recreation-resource/dto/paginated-recreation-resource.dto";
+import {
+  CombinedRecordCount,
+  CombinedStaticCount,
+} from "src/recreation-resource/service/types";
 
 export const buildFilterMenu = ({
-  structureCounts,
-  activityCounts,
-  combinedCounts,
+  combinedRecordCounts,
+  combinedStaticCounts,
+}: {
+  combinedRecordCounts: CombinedRecordCount[];
+  combinedStaticCounts: CombinedStaticCount[];
 }) => {
-  const toiletCount = structureCounts[0]?.total_toilet_count ?? 0;
-  const tableCount = structureCounts[0]?.total_table_count ?? 0;
+  const toiletCount = combinedRecordCounts[0]?.total_toilet_count ?? 0;
+  const tableCount = combinedRecordCounts[0]?.total_table_count ?? 0;
 
-  const activityFilters = activityCounts.map((activity) => ({
+  const activityFilters = combinedRecordCounts.map((activity) => ({
     id: activity.recreation_activity_code.toString(),
     description: activity.description,
     count: Number(activity.recreation_activity_count ?? 0),
   }));
 
-  const recreationDistrictFilters = combinedCounts
+  const recreationDistrictFilters = combinedStaticCounts
     .filter((count) => count.type === "district")
     .map((district) => ({
       id: district.code,
@@ -22,7 +28,7 @@ export const buildFilterMenu = ({
       count: district.count ?? 0,
     }));
 
-  const recreationAccessFilters = combinedCounts
+  const recreationAccessFilters = combinedStaticCounts
     .filter((count) => count.type === "access")
     .map((access) => ({
       id: access.code,
@@ -30,7 +36,7 @@ export const buildFilterMenu = ({
       count: access.count ?? 0,
     }));
 
-  const recResourceTypeFilters = combinedCounts
+  const recResourceTypeFilters = combinedStaticCounts
     .filter((count) => count.type === "type")
     .map((resourceType) => ({
       id: resourceType.code,

@@ -110,7 +110,6 @@ export class RecreationResourceController {
       district,
       access,
       facilities,
-      // imageSizeCodes,
     );
   }
 

@@ -10,6 +10,10 @@ import {
   EXCLUDED_RECREATION_DISTRICTS,
   EXCLUDED_RESOURCE_TYPES,
 } from "src/recreation-resource/constants/service.constants";
+import {
+  CombinedRecordCount,
+  CombinedStaticCount,
+} from "src/recreation-resource/service/types";
 
 @Injectable()
 export class RecreationResourceSearchService {
@@ -24,7 +28,6 @@ export class RecreationResourceSearchService {
     district?: string,
     access?: string,
     facilities?: string,
-    // imageSizeCodes?: RecreationResourceImageSize[],
   ): Promise<PaginatedRecreationResourceDto> {
     // 10 page limit - max 100 records since if no limit we fetch page * limit
     if (page > 10 && !limit) {
@@ -59,7 +62,7 @@ export class RecreationResourceSearchService {
         limit ${take}
         ${skip ? Prisma.sql`OFFSET ${skip}` : Prisma.sql``};`,
 
-        this.prisma.$queryRaw<any[]>`
+        this.prisma.$queryRaw<CombinedRecordCount[]>`
         with filtered_resources as (
           select rec_resource_id, has_toilets, has_tables
           from recreation_resource_search_view
@@ -83,7 +86,7 @@ export class RecreationResourceSearchService {
           left join filtered_resources fra on fra.rec_resource_id = ra.rec_resource_id
         where rac.recreation_activity_code not in (${Prisma.join(EXCLUDED_ACTIVITY_CODES)})
         group by rac.recreation_activity_code, rac.description;`,
-        this.prisma.$queryRaw<any[]>`
+        this.prisma.$queryRaw<CombinedStaticCount[]>`
           (select 'district' as type, district_code as code, description, cast(resource_count as integer) as count
           from recreation_resource_district_count_view
           where district_code not in (${Prisma.join(EXCLUDED_RECREATION_DISTRICTS)}))
@@ -104,9 +107,8 @@ export class RecreationResourceSearchService {
       limit,
       total: combinedRecordCounts[0]?.total_count ?? 0,
       filters: buildFilterMenu({
-        structureCounts: combinedRecordCounts,
-        activityCounts: combinedRecordCounts,
-        combinedCounts: combinedStaticCounts,
+        combinedRecordCounts,
+        combinedStaticCounts,
       }),
     };
   }

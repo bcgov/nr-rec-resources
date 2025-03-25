@@ -35,17 +35,17 @@ export const buildSearchFilterQuery = ({
   const accessFilterQuery =
     accessFilter.length > 0
       ? Prisma.sql`and access_code in (${Prisma.join(accessFilter)})`
-      : Prisma.sql``;
+      : Prisma.empty;
 
   const districtFilterQuery =
     districtFilter.length > 0
       ? Prisma.sql`and district_code in (${Prisma.join(districtFilter)})`
-      : Prisma.sql``;
+      : Prisma.empty;
 
   const typeFilterQuery =
     typeFilter.length > 0
       ? Prisma.sql`and recreation_resource_type_code in (${Prisma.join(typeFilter)})`
-      : Prisma.sql``;
+      : Prisma.empty;
 
   const activityFilterQuery =
     Array.isArray(activityFilter) && activityFilter.length > 0
@@ -56,7 +56,7 @@ export const buildSearchFilterQuery = ({
           WHERE (activity->>'recreation_activity_code')::bigint IN (${Prisma.join(activityFilter)})
         ) = ${activityFilter.length}
     `
-      : Prisma.sql``;
+      : Prisma.empty;
 
   const facilityFilterQuery =
     Array.isArray(facilityFilter) && facilityFilter.length > 0
@@ -65,7 +65,7 @@ export const buildSearchFilterQuery = ({
             from jsonb_array_elements(recreation_structure) AS facility
             where ${Prisma.join(facilityFilter.map((f) => Prisma.sql`(facility->>'description') ilike ${"%" + f + "%"}`))}
         ) > 0`
-      : Prisma.sql``;
+      : Prisma.empty;
 
   return Prisma.sql`
     where
