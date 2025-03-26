@@ -1,0 +1,3 @@
+export const EXCLUDED_ACTIVITY_CODES = [26];
+export const EXCLUDED_RECREATION_DISTRICTS = ["RDQC", "RDRM", "RDRN", "RDRS"];
+export const EXCLUDED_RESOURCE_TYPES = ["RR"];

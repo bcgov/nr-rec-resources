@@ -43,6 +43,8 @@ select upsert_timestamp_columns('rst', 'recreation_access');
 
 select setup_temporal_table('rst', 'recreation_access');
 
+create index idx_recreation_access_rec_resource_id on rst.recreation_access(rec_resource_id);
+
 comment on table rst.recreation_access is 'Recreation Resource Access types';
 
 comment on column rst.recreation_access.rec_resource_id is 'Identification manually assigned to a Recreation Resource';

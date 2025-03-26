@@ -157,24 +157,10 @@ export abstract class BaseRecreationResourceDto {
   name: string;
 
   @ApiProperty({
-    description: "Detailed description of the Recreation Resource",
-    example: "A scenic campground nestled in the heart of Evergreen Valley",
-    nullable: true,
-  })
-  description: string;
-
-  @ApiProperty({
     description: "Physical location of the Recreation Resource",
     example: "123 Forest Road, Mountain View, CA 94043",
   })
   closest_community: string;
-
-  @ApiProperty({
-    description: "Recreation Access Types",
-    example: ["Road", "Boat-in"],
-    type: [String],
-  })
-  recreation_access: string[];
 
   @ApiProperty({
     description: "List of recreational activities available at this resource",
@@ -200,6 +186,18 @@ export abstract class BaseRecreationResourceDto {
     type: [RecreationResourceImageDto],
   })
   recreation_resource_images: RecreationResourceImageDto[];
+}
+
+/**
+ * Complete DTO including spatial data - used for detailed resource retrieval
+ */
+export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
+  @ApiProperty({
+    description: "Detailed description of the Recreation Resource",
+    example: "A scenic campground nestled in the heart of Evergreen Valley",
+    nullable: true,
+  })
+  description: string;
 
   @ApiProperty({
     description:
@@ -217,6 +215,13 @@ export abstract class BaseRecreationResourceDto {
   recreation_fee: RecreationFeeDto[];
 
   @ApiProperty({
+    description: "Recreation Access Types",
+    example: ["Road", "Boat-in"],
+    type: [String],
+  })
+  recreation_access: string[];
+
+  @ApiProperty({
     description:
       "List of additional fees that do not fall under the main recreation fee category (non-'C' codes)",
     type: [RecreationFeeDto],
@@ -229,12 +234,7 @@ export abstract class BaseRecreationResourceDto {
     type: RecreationStructureDto,
   })
   recreation_structure: RecreationStructureDto;
-}
 
-/**
- * Complete DTO including spatial data - used for detailed resource retrieval
- */
-export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
   @ApiProperty({
     description: "GeoJSON geometry data for the rec resource in string format",
     type: [String],

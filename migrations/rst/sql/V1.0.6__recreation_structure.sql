@@ -111,6 +111,8 @@ select upsert_timestamp_columns('rst', 'recreation_structure');
 
 select setup_temporal_table('rst', 'recreation_structure');
 
+create index idx_recreation_structure_rec_resource_id on rst.recreation_structure(rec_resource_id);
+
 comment on table rst.recreation_structure is 'Information relating to a recreation site improvement in a recreational tenure. All improvements are human-made.';
 
 comment on column rst.recreation_structure.rec_resource_id is 'Identification manually assigned to a Recreation Resource';

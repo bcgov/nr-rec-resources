@@ -1,7 +1,8 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { HttpException, INestApplication } from "@nestjs/common";
 import { RecreationResourceController } from "./recreation-resource.controller";
-import { RecreationResourceService } from "./recreation-resource.service";
+import { RecreationResourceService } from "src/recreation-resource/service/recreation-resource.service";
+import { RecreationResourceSearchService } from "src/recreation-resource/service/recreation-resource-search.service";
 import { PrismaService } from "src/prisma.service";
 import { RecreationResourceImageDto } from "./dto/recreation-resource-image.dto";
 
@@ -15,6 +16,7 @@ describe("RecreationResourceController", () => {
       controllers: [RecreationResourceController],
       providers: [
         RecreationResourceService,
+        RecreationResourceSearchService,
         {
           provide: PrismaService,
           useValue: {},

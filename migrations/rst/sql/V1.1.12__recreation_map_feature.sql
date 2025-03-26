@@ -1,11 +1,11 @@
 create table rst.recreation_map_feature
 (
     rmf_skey                    int not null primary key,
-    rec_resource_id             varchar(10) references rst.recreation_resource,
+    rec_resource_id             varchar(10) references rst.recreation_resource(rec_resource_id),
     section_id                  varchar(30),
     amendment_id                integer,
     amend_status_code           varchar(3),
-    recreation_resource_type varchar(3) references rst.recreation_resource_type_code,
+    recreation_resource_type varchar(3) references rst.recreation_resource_type_code(rec_resource_type_code),
     amend_status_date           date,
     retirement_date             date,
     revision_count              integer,
@@ -17,6 +17,10 @@ create table rst.recreation_map_feature
 select upsert_timestamp_columns('rst', 'recreation_map_feature');
 
 select setup_temporal_table('rst', 'recreation_map_feature');
+
+create index idx_recreation_map_feature_rmf_skey on rst.recreation_map_feature(rmf_skey);
+create index idx_recreation_map_feature_rec_resource_id on rst.recreation_map_feature(rec_resource_id);
+create index idx_recreation_map_feature_recreation_resource_type on rst.recreation_map_feature(recreation_resource_type);
 
 create table rst.recreation_map_feature_geom
 (
@@ -35,6 +39,8 @@ create table rst.recreation_map_feature_geom
 select upsert_timestamp_columns('rst', 'recreation_map_feature_geom');
 
 select setup_temporal_table('rst', 'recreation_map_feature_geom');
+
+create index idx_recreation_map_feature_geom_map_feature_id on rst.recreation_map_feature_geom(map_feature_id);
 
 
 comment on table rst.recreation_map_feature is 'Captures both current and historical attributes for Recreation Map Features.';
