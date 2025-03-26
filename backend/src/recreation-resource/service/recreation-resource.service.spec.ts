@@ -2,6 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { PrismaService } from "src/prisma.service";
 import { beforeEach, describe, expect, it, Mocked, vi } from "vitest";
 import { RecreationResourceService } from "./recreation-resource.service";
+import { RecreationResourceSearchService } from "./recreation-resource-search.service";
 
 // Test fixtures
 const createMockRecResource = (overrides = {}) => ({
@@ -95,6 +96,7 @@ describe("RecreationResourceService", () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RecreationResourceService,
+        RecreationResourceSearchService,
         {
           provide: PrismaService,
           useValue: {

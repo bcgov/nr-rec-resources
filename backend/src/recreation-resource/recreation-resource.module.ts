@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 import { RecreationResourceService } from "src/recreation-resource/service/recreation-resource.service";
-import { RecreationResourceSearchService } from "src/recreation-resource/service/search.service";
+import { RecreationResourceSearchService } from "src/recreation-resource/service/recreation-resource-search.service";
 import { RecreationResourceController } from "./recreation-resource.controller";
 import { PrismaModule } from "src/prisma.module";
 

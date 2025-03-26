@@ -30,20 +30,22 @@ export const formatRecreationResourceDetailResults = (
     recreation_resource_images:
       result.recreation_resource_images as RecreationResourceImageDto[],
     recreation_fee: result.recreation_fee
-      ? result.recreation_fee.map((fee) => ({
-          fee_amount: fee.fee_amount,
-          fee_start_date: fee.fee_start_date,
-          fee_end_date: fee.fee_end_date,
-          monday_ind: fee.monday_ind,
-          tuesday_ind: fee.tuesday_ind,
-          wednesday_ind: fee.wednesday_ind,
-          thursday_ind: fee.thursday_ind,
-          friday_ind: fee.friday_ind,
-          saturday_ind: fee.saturday_ind,
-          sunday_ind: fee.sunday_ind,
-          recreation_fee_code: fee.recreation_fee_code,
-          fee_description: fee.with_description?.description,
-        }))
+      ? result.recreation_fee
+          ?.filter((fee) => fee.recreation_fee_code === "C")
+          .map((fee) => ({
+            fee_amount: fee.fee_amount,
+            fee_start_date: fee.fee_start_date,
+            fee_end_date: fee.fee_end_date,
+            monday_ind: fee.monday_ind,
+            tuesday_ind: fee.tuesday_ind,
+            wednesday_ind: fee.wednesday_ind,
+            thursday_ind: fee.thursday_ind,
+            friday_ind: fee.friday_ind,
+            saturday_ind: fee.saturday_ind,
+            sunday_ind: fee.sunday_ind,
+            recreation_fee_code: fee.recreation_fee_code,
+            fee_description: fee.with_description?.description,
+          }))
       : [],
     recreation_structure: {
       has_toilet: result.recreation_structure?.some((s) =>

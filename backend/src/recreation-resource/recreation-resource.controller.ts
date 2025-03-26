@@ -7,7 +7,6 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { RecreationResourceService } from "src/recreation-resource/service/recreation-resource.service";
-import { RecreationResourceSearchService } from "src/recreation-resource/service/search.service";
 import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resource.dto";
 import { RecreationResourceImageSize } from "./dto/recreation-resource-image.dto";
 import { ParseImageSizesPipe } from "./pipes/parse-image-sizes.pipe";
@@ -18,7 +17,6 @@ import { RecreationResourceDetailDto } from "./dto/recreation-resource.dto";
 export class RecreationResourceController {
   constructor(
     private readonly recreationResourceService: RecreationResourceService,
-    private readonly recreationResourceSearchService: RecreationResourceSearchService,
   ) {}
 
   @ApiOperation({
@@ -101,7 +99,7 @@ export class RecreationResourceController {
     @Query("access") access?: string,
     @Query("facilities") facilities?: string,
   ): Promise<PaginatedRecreationResourceDto> {
-    return await this.recreationResourceSearchService.searchRecreationResources(
+    return await this.recreationResourceService.searchRecreationResources(
       page,
       filter ?? "",
       limit ? parseInt(String(limit)) : undefined,

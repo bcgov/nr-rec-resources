@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma.service";
+import { RecreationResourceSearchService } from "src/recreation-resource/service/recreation-resource-search.service";
 import { formatRecreationResourceDetailResults } from "src/recreation-resource/utils/formatRecreationResourceDetailResults";
 import { RecreationResourceDetailDto } from "src/recreation-resource/dto/recreation-resource.dto";
 import { RecreationResourceImageSize } from "src/recreation-resource/dto/recreation-resource-image.dto";
@@ -122,7 +123,10 @@ export const getRecreationResourceSelect = (
 
 @Injectable()
 export class RecreationResourceService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly recreationResourceSearchService: RecreationResourceSearchService,
+  ) {}
 
   async findOne(
     id: string,
@@ -151,6 +155,28 @@ export class RecreationResourceService {
     return formatRecreationResourceDetailResults(
       recResource,
       recResourceSpatialGeometryResult,
+    );
+  }
+
+  async searchRecreationResources(
+    page: number = 1,
+    filter: string = "",
+    limit?: number,
+    activities?: string,
+    type?: string,
+    district?: string,
+    access?: string,
+    facilities?: string,
+  ) {
+    return this.recreationResourceSearchService.searchRecreationResources(
+      page,
+      filter,
+      limit,
+      activities,
+      type,
+      district,
+      access,
+      facilities,
     );
   }
 }

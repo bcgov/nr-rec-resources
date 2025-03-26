@@ -40,7 +40,6 @@ select upsert_timestamp_columns('rst', 'recreation_map_feature_geom');
 
 select setup_temporal_table('rst', 'recreation_map_feature_geom');
 
-create index idx_recreation_map_feature_geom_rmf_skey on rst.recreation_map_feature_geom(rmf_skey);
 create index idx_recreation_map_feature_geom_map_feature_id on rst.recreation_map_feature_geom(map_feature_id);
 
 
