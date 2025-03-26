@@ -82,7 +82,7 @@ export interface RecreationResourceSearchDto {
    * @type {Array<RecreationResourceImageDto>}
    * @memberof RecreationResourceSearchDto
    */
-  recreation_resource_images: Array<RecreationResourceImageDto>;
+  recreation_resource_images?: Array<RecreationResourceImageDto>;
 }
 
 /**
@@ -114,11 +114,6 @@ export function instanceOfRecreationResourceSearchDto(
     value['rec_resource_type'] === undefined
   )
     return false;
-  if (
-    !('recreation_resource_images' in value) ||
-    value['recreation_resource_images'] === undefined
-  )
-    return false;
   return true;
 }
 
@@ -144,9 +139,12 @@ export function RecreationResourceSearchDtoFromJSONTyped(
     ),
     recreation_status: RecreationStatusDtoFromJSON(json['recreation_status']),
     rec_resource_type: json['rec_resource_type'],
-    recreation_resource_images: (
-      json['recreation_resource_images'] as Array<any>
-    ).map(RecreationResourceImageDtoFromJSON),
+    recreation_resource_images:
+      json['recreation_resource_images'] == null
+        ? undefined
+        : (json['recreation_resource_images'] as Array<any>).map(
+            RecreationResourceImageDtoFromJSON,
+          ),
   };
 }
 
@@ -173,8 +171,11 @@ export function RecreationResourceSearchDtoToJSONTyped(
     ),
     recreation_status: RecreationStatusDtoToJSON(value['recreation_status']),
     rec_resource_type: value['rec_resource_type'],
-    recreation_resource_images: (
-      value['recreation_resource_images'] as Array<any>
-    ).map(RecreationResourceImageDtoToJSON),
+    recreation_resource_images:
+      value['recreation_resource_images'] == null
+        ? undefined
+        : (value['recreation_resource_images'] as Array<any>).map(
+            RecreationResourceImageDtoToJSON,
+          ),
   };
 }

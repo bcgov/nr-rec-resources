@@ -14,10 +14,12 @@ export const getImageList = (
 ): Array<{ imageUrl: string }> => {
   const sizeCodeForCard: RecreationResourceImageVariantSizeCode = 'llc';
 
-  return recreationResource.recreation_resource_images.flatMap(
-    ({ recreation_resource_image_variants }) =>
-      recreation_resource_image_variants
-        .filter(({ size_code }) => size_code === sizeCodeForCard)
-        .map(({ url }) => ({ imageUrl: url })),
+  return (
+    recreationResource?.recreation_resource_images?.flatMap(
+      ({ recreation_resource_image_variants }) =>
+        recreation_resource_image_variants
+          ?.filter(({ size_code }) => size_code === sizeCodeForCard)
+          .map(({ url }) => ({ imageUrl: url })) || [],
+    ) || []
   );
 };
