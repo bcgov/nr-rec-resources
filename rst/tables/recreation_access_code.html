@@ -145,6 +145,16 @@
                                                 <td class="constraint detail">Implied Constraint</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
+                                            <tr>
+                                                <td title="recreation_resource_access_count_view.access_code&#39;s name implies that it&#39;s a child of recreation_access_code.access_code, but it doesn&#39;t reference that column."><a href='recreation_resource_access_count_view.html'>recreation_resource_access_count_view</a><span class='relatedKey'>.access_code</span></td>
+                                                <td class="constraint detail">Implied Constraint</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
+                                                <td title="recreation_resource_search_view.access_code&#39;s name implies that it&#39;s a child of recreation_access_code.access_code, but it doesn&#39;t reference that column."><a href='recreation_resource_search_view.html'>recreation_resource_search_view</a><span class='relatedKey'>.access_code</span></td>
+                                                <td class="constraint detail">Implied Constraint</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
                                     <td>
@@ -298,21 +308,26 @@
                                     </div>
                                     <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_access.html" target="_top" title="recreation_access" alt="" coords="504,5,725,211">
-<area shape="rect" id="node2" href="recreation_access_code.html" target="_top" title="recreation_access_code" alt="" coords="5,225,407,441">
-<area shape="rect" id="node3" href="recreation_access_code_history.html" target="_top" title="recreation_access_code_history" alt="" coords="451,228,779,345">
-<area shape="rect" id="node4" href="recreation_access_history.html" target="_top" title="recreation_access_history" alt="" coords="473,363,757,480">
+<area shape="rect" id="node1" href="recreation_access.html" target="_top" title="recreation_access" alt="" coords="535,5,756,211">
+<area shape="rect" id="node2" href="recreation_access_code.html" target="_top" title="recreation_access_code" alt="" coords="5,360,407,576">
+<area shape="rect" id="node3" href="recreation_access_code_history.html" target="_top" title="recreation_access_code_history" alt="" coords="481,228,809,345">
+<area shape="rect" id="node4" href="recreation_access_history.html" target="_top" title="recreation_access_history" alt="" coords="503,363,787,480">
+<area shape="rect" id="node5" href="recreation_resource_access_count_view.html" target="_top" title="recreation_resource_access_count_view" alt="" coords="451,497,840,591">
+<area shape="rect" id="node6" href="recreation_resource_search_view.html" target="_top" title="recreation_resource_search_view" alt="" coords="476,608,815,731">
 </map>
                                         <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/recreation_access_code.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_access.html" target="_top" title="recreation_access" alt="" coords="504,307,725,512">
-<area shape="rect" id="node2" href="recreation_access_code.html" target="_top" title="recreation_access_code" alt="" coords="5,105,407,321">
-<area shape="rect" id="node3" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="86,339,326,427">
-<area shape="rect" id="node4" href="recreation_sub_access_code.html" target="_top" title="recreation_sub_access_code" alt="" coords="56,444,356,532">
-<area shape="rect" id="node5" href="recreation_access_code_history.html" target="_top" title="recreation_access_code_history" alt="" coords="451,5,779,123">
-<area shape="rect" id="node6" href="recreation_access_history.html" target="_top" title="recreation_access_history" alt="" coords="473,140,757,257">
+<area shape="rect" id="node1" href="recreation_access.html" target="_top" title="recreation_access" alt="" coords="849,5,1071,211">
+<area shape="rect" id="node2" href="recreation_access_code.html" target="_top" title="recreation_access_code" alt="" coords="320,360,721,576">
+<area shape="rect" id="node3" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="401,37,641,125">
+<area shape="rect" id="node4" href="recreation_sub_access_code.html" target="_top" title="recreation_sub_access_code" alt="" coords="371,143,671,231">
+<area shape="rect" id="node7" href="recreation_district_code.html" target="_top" title="recreation_district_code" alt="" coords="5,324,276,412">
+<area shape="rect" id="node5" href="recreation_access_code_history.html" target="_top" title="recreation_access_code_history" alt="" coords="796,228,1124,345">
+<area shape="rect" id="node6" href="recreation_access_history.html" target="_top" title="recreation_access_history" alt="" coords="818,363,1102,480">
+<area shape="rect" id="node8" href="recreation_resource_access_count_view.html" target="_top" title="recreation_resource_access_count_view" alt="" coords="765,497,1155,591">
+<area shape="rect" id="node9" href="recreation_resource_search_view.html" target="_top" title="recreation_resource_search_view" alt="" coords="791,608,1129,731">
 </map>
                                         <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/recreation_access_code.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>

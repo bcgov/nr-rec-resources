@@ -31,7 +31,7 @@ digraph "compactImpliedRelationshipsDiagram" {
       <TR><TD PORT="rec_resource_id" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/primaryKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="131" HEIGHT="16">rec_resource_id</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="district_code" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="131" HEIGHT="16">district_code</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">10 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">9 &gt;</TD></TR>
     </TABLE>>
     URL="tables/recreation_resource.html"
     target="_top"
@@ -48,31 +48,6 @@ digraph "compactImpliedRelationshipsDiagram" {
     URL="tables/recreation_resource_doc_code_history.html"
     target="_top"
     tooltip="recreation_resource_doc_code_history"
-  ];
-  "recreation_resource_type" [
-   label=<
-    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
-      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="151" HEIGHT="16"><B>recreation_resource_type</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="rec_resource_id" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/primaryKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="151" HEIGHT="16">rec_resource_id</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="rec_resource_type_code" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="151" HEIGHT="16">rec_resource_type_code</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
-    </TABLE>>
-    URL="tables/recreation_resource_type.html"
-    target="_top"
-    tooltip="recreation_resource_type"
-  ];
-  "recreation_resource_type_history" [
-   label=<
-    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
-      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="199" HEIGHT="16"><B>recreation_resource_type_history</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="rec_resource_type_code" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="199" HEIGHT="16">rec_resource_type_code</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
-    </TABLE>>
-    URL="tables/recreation_resource_type_history.html"
-    target="_top"
-    tooltip="recreation_resource_type_history"
   ];
   "recreation_campsite" [
    label=<
@@ -307,7 +282,7 @@ digraph "compactImpliedRelationshipsDiagram" {
       <TR><TD PORT="rmf_skey" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/primaryKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="174" HEIGHT="16">rmf_skey</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="rec_resource_id" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="174" HEIGHT="16">rec_resource_id</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="section_id" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="174" HEIGHT="16">section_id</TD></TR></TABLE></TD></TR>
-      <TR><TD PORT="recreation_resource_type" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="174" HEIGHT="16">recreation_resource_type</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="recreation_resource_type" COLSPAN="3" BGCOLOR="#ffffff" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="174" HEIGHT="16">recreation_resource_type</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
       <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
     </TABLE>>
@@ -448,7 +423,7 @@ digraph "compactImpliedRelationshipsDiagram" {
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="185" HEIGHT="16"><B>recreation_resource_type_code</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="rec_resource_type_code" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/primaryKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="185" HEIGHT="16">rec_resource_type_code</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">2 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
     </TABLE>>
     URL="tables/recreation_resource_type_code.html"
     target="_top"
@@ -504,6 +479,51 @@ digraph "compactImpliedRelationshipsDiagram" {
     target="_top"
     tooltip="recreation_status_history"
   ];
+  "recreation_resource_search_view" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="197" HEIGHT="16"><B>recreation_resource_search_view</B></TD><TD ALIGN="RIGHT">[view]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="district_code" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="197" HEIGHT="16">district_code</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="access_code" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="197" HEIGHT="16">access_code</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+    </TABLE>>
+    URL="tables/recreation_resource_search_view.html"
+    target="_top"
+    tooltip="recreation_resource_search_view"
+  ];
+  "recreation_resource_type_count_view" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="224" HEIGHT="16"><B>recreation_resource_type_count_view</B></TD><TD ALIGN="RIGHT">[view]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="rec_resource_type_code" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="224" HEIGHT="16">rec_resource_type_code</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+    </TABLE>>
+    URL="tables/recreation_resource_type_count_view.html"
+    target="_top"
+    tooltip="recreation_resource_type_count_view"
+  ];
+  "recreation_resource_access_count_view" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="235" HEIGHT="16"><B>recreation_resource_access_count_view</B></TD><TD ALIGN="RIGHT">[view]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="access_code" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="235" HEIGHT="16">access_code</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+    </TABLE>>
+    URL="tables/recreation_resource_access_count_view.html"
+    target="_top"
+    tooltip="recreation_resource_access_count_view"
+  ];
+  "recreation_resource_district_count_view" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="240" HEIGHT="16"><B>recreation_resource_district_count_view</B></TD><TD ALIGN="RIGHT">[view]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="district_code" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="240" HEIGHT="16">district_code</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+    </TABLE>>
+    URL="tables/recreation_resource_district_count_view.html"
+    target="_top"
+    tooltip="recreation_resource_district_count_view"
+  ];
   "recreation_access":"access_code":w -> "recreation_access_code":"access_code":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_access":"rec_resource_id":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_access":"sub_access_code":w -> "recreation_sub_access_code":"sub_access_code":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -525,6 +545,8 @@ digraph "compactImpliedRelationshipsDiagram" {
   "recreation_map_feature":"recreation_resource_type":w -> "recreation_resource_type_code":"rec_resource_type_code":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_map_feature_geom":"rmf_skey":w -> "recreation_map_feature":"rmf_skey":e [arrowhead=none dir=back arrowtail=teeodot];
   "recreation_resource":"district_code":w -> "recreation_district_code":"district_code":e [arrowhead=none dir=back arrowtail=crowodot];
+  "recreation_resource_access_count_view":"access_code":w -> "recreation_access_code":"access_code":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "recreation_resource_district_count_view":"district_code":w -> "recreation_district_code":"district_code":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_resource_doc_code_history":"doc_code":w -> "recreation_resource_doc_code":"doc_code":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_resource_docs":"doc_code":w -> "recreation_resource_doc_code":"doc_code":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_resource_docs":"rec_resource_id":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -536,10 +558,10 @@ digraph "compactImpliedRelationshipsDiagram" {
   "recreation_resource_images":"rec_resource_id":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_resource_images":"ref_id":w -> "recreation_resource_docs":"ref_id":e [arrowhead=none dir=back arrowtail=teeodot style=dashed];
   "recreation_resource_images_history":"ref_id":w -> "recreation_resource_docs":"ref_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
-  "recreation_resource_type":"rec_resource_id":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=teeodot];
-  "recreation_resource_type":"rec_resource_type_code":w -> "recreation_resource_type_code":"rec_resource_type_code":e [arrowhead=none dir=back arrowtail=crowodot];
+  "recreation_resource_search_view":"access_code":w -> "recreation_access_code":"access_code":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "recreation_resource_search_view":"district_code":w -> "recreation_district_code":"district_code":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_resource_type_code_history":"rec_resource_type_code":w -> "recreation_resource_type_code":"rec_resource_type_code":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
-  "recreation_resource_type_history":"rec_resource_type_code":w -> "recreation_resource_type_code":"rec_resource_type_code":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "recreation_resource_type_count_view":"rec_resource_type_code":w -> "recreation_resource_type_code":"rec_resource_type_code":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_status":"rec_resource_id":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=teeodot];
   "recreation_status":"status_code":w -> "recreation_status_code":"status_code":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_status_code_history":"status_code":w -> "recreation_status_code":"status_code":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];

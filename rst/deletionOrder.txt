@@ -6,7 +6,6 @@ flyway_schema_history
 recreation_access
 recreation_structure
 recreation_status_history
-recreation_resource_type
 recreation_resource_docs_history
 recreation_fee_history
 recreation_fee
@@ -15,7 +14,6 @@ recreation_activity
 recreation_structure_history
 recreation_structure_code_history
 recreation_status_code_history
-recreation_resource_type_history
 recreation_resource_type_code_history
 recreation_resource_images_history
 recreation_resource_image_variants_history
@@ -37,9 +35,9 @@ recreation_resource
 recreation_sub_access_code
 recreation_structure_code
 recreation_status_code
+recreation_resource_type_code
 recreation_resource_doc_code
 recreation_fee_code
-recreation_district_code
 recreation_activity_code
+recreation_district_code
 recreation_access_code
-recreation_resource_type_code

@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>recreation_resource_type_history - default.rst</title>
+        <title>recreation_resource_district_count_view - default.rst</title>
         <!-- Tell the browser to be responsive to screen width -->
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
         <link rel="icon" type="image/png" sizes="16x16" href="../favicon.png">
@@ -73,7 +73,20 @@
             <div class="content-wrapper">
                 <!-- Content Header (Page header) -->
                 <section class="content-header">
-                    <h1>recreation_resource_type_history</h1><p><span id="recordNumber">-1</span> rows</p><br />
+                    <h1>recreation_resource_district_count_view</h1><p><span id="recordNumber">0</span> rows</p><br />
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-file-text-o"></i>
+                            <h3 id="Description" class="box-title">Description</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div><!-- /.box-header -->
+                        <div class="box-body clearfix">
+                            <p>Provides a list of district codes and counts of their associated recreation resources for use in the search filter menu.</p>
+                        </div><!-- /.box-body -->
+                    </div>
                 </section>
                 <!-- Main content -->
                 <section class="content">
@@ -109,10 +122,10 @@
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td><span id="rec_resource_id">rec_resource_id</span></td>
-                                    <td>varchar</td>
-                                    <td>20</td>
-                                    <td title=''></td>
+                                    <td><span id="unique_id">unique_id</span></td>
+                                    <td>int8</td>
+                                    <td>19</td>
+                                    <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>null</td>
                                     <td>
@@ -126,10 +139,10 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="rec_resource_type_code">rec_resource_type_code</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="district_code">district_code</span></td>
                                     <td>varchar</td>
-                                    <td>10</td>
-                                    <td title=''></td>
+                                    <td>4</td>
+                                    <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>null</td>
                                     <td>
@@ -139,7 +152,7 @@
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                             <tr>
-                                                <td title="recreation_resource_type_history.rec_resource_type_code&#39;s name implies that it&#39;s a child of recreation_resource_type_code.rec_resource_type_code, but it doesn&#39;t reference that column."><a href='recreation_resource_type_code.html'>recreation_resource_type_code</a><span class='relatedKey'>.rec_resource_type_code</span></td>
+                                                <td title="recreation_resource_district_count_view.district_code&#39;s name implies that it&#39;s a child of recreation_district_code.district_code, but it doesn&#39;t reference that column."><a href='recreation_district_code.html'>recreation_district_code</a><span class='relatedKey'>.district_code</span></td>
                                                 <td class="constraint detail">Implied Constraint</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
@@ -148,9 +161,9 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="updated_at">updated_at</span></td>
-                                    <td>timestamp</td>
-                                    <td>29,6</td>
+                                    <td><span id="description">description</span></td>
+                                    <td>varchar</td>
+                                    <td>120</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>null</td>
@@ -165,61 +178,10 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="updated_by">updated_by</span></td>
-                                    <td>text</td>
-                                    <td>2147483647</td>
+                                    <td><span id="resource_count">resource_count</span></td>
+                                    <td>int8</td>
+                                    <td>19</td>
                                     <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="created_at">created_at</span></td>
-                                    <td>timestamp</td>
-                                    <td>29,6</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="created_by">created_by</span></td>
-                                    <td>text</td>
-                                    <td>2147483647</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="sys_period">sys_period</span></td>
-                                    <td>tstzrange</td>
-                                    <td>2147483647</td>
-                                    <td title=''></td>
                                     <td title=''></td>
                                     <td>null</td>
                                     <td>
@@ -256,28 +218,54 @@
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="recreation_resource_type_history.html" target="_top" title="recreation_resource_type_history" alt="" coords="5,5,487,280">
+<area shape="rect" id="node1" href="recreation_resource_district_count_view.html" target="_top" title="recreation_resource_district_count_view" alt="" coords="5,5,473,168">
 </map>
-                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/recreation_resource_type_history.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/recreation_resource_district_count_view.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_resource_type_history.html" target="_top" title="recreation_resource_type_history" alt="" coords="376,5,857,280">
-<area shape="rect" id="node2" href="recreation_resource_type_code.html" target="_top" title="recreation_resource_type_code" alt="" coords="5,37,332,155">
+<area shape="rect" id="node1" href="recreation_resource_district_count_view.html" target="_top" title="recreation_resource_district_count_view" alt="" coords="320,5,788,168">
+<area shape="rect" id="node2" href="recreation_district_code.html" target="_top" title="recreation_district_code" alt="" coords="5,37,276,155">
 </map>
-                                        <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/recreation_resource_type_history.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                        <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/recreation_resource_district_count_view.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_map_feature.html" target="_top" title="recreation_map_feature" alt="" coords="481,5,752,93">
-<area shape="rect" id="node2" href="recreation_resource_type_code.html" target="_top" title="recreation_resource_type_code" alt="" coords="5,161,332,279">
-<area shape="rect" id="node3" href="recreation_resource_type.html" target="_top" title="recreation_resource_type" alt="" coords="476,111,757,199">
-<area shape="rect" id="node4" href="recreation_resource_type_code_history.html" target="_top" title="recreation_resource_type_code_history" alt="" coords="422,216,811,304">
-<area shape="rect" id="node5" href="recreation_resource_type_history.html" target="_top" title="recreation_resource_type_history" alt="" coords="376,321,857,596">
+<area shape="rect" id="node1" href="recreation_district_code_history.html" target="_top" title="recreation_district_code_history" alt="" coords="387,5,721,93">
+<area shape="rect" id="node2" href="recreation_district_code.html" target="_top" title="recreation_district_code" alt="" coords="5,248,276,365">
+<area shape="rect" id="node3" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="434,111,674,199">
+<area shape="rect" id="node4" href="recreation_resource_district_count_view.html" target="_top" title="recreation_resource_district_count_view" alt="" coords="320,216,788,379">
+<area shape="rect" id="node5" href="recreation_resource_history.html" target="_top" title="recreation_resource_history" alt="" coords="403,396,705,484">
+<area shape="rect" id="node6" href="recreation_resource_search_view.html" target="_top" title="recreation_resource_search_view" alt="" coords="385,501,723,565">
 </map>
-                                        <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/recreation_resource_type_history.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                        <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/recreation_resource_district_count_view.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                 </div>
+                            </div>
+                        </div><!-- /.box-body -->
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-file-code-o"></i>
+                            <h3 id="ViewDefinition" class="box-title">View Definition</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <textarea id="sql-script-codemirror" name="sql-script-codemirror" rows="" style="display: none;">SELECT row_number() OVER () AS unique_id,&#10;    rd.district_code,&#10;    rd.description,&#10;    COALESCE(count(DISTINCT r.rec_resource_id), (0)::bigint) AS resource_count&#10;   FROM (rst.recreation_district_code rd&#10;     LEFT JOIN rst.recreation_resource r ON ((((r.district_code)::text &#61; (rd.district_code)::text) AND (r.display_on_public_site &#61; true))))&#10;  WHERE ((rd.district_code)::text &lt;&gt; ALL ((ARRAY[&#39;RDQC&#39;::character varying, &#39;RDRM&#39;::character varying, &#39;RDRN&#39;::character varying, &#39;RDRS&#39;::character varying])::text[]))&#10;  GROUP BY rd.district_code;</textarea>
+                            <div style="padding-top: 5px;"><hr></div>
+                            <div class="box box-solid">
+                                <div class="box-header with-border">
+                                    <i class="fa fa-puzzle-piece"></i>
+                                    <h3 class="box-title">Possibly Referenced Tables/Views</h3>
+                                </div>
+                                <!-- /.box-header -->
+                                <div class="box-body">
+                                    <ul class="list-unstyled">
+                                    </ul>
+                                </div><!-- /.box-body -->
                             </div>
                         </div><!-- /.box-body -->
                     </div>
