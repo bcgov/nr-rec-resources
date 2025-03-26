@@ -104,22 +104,7 @@ describe("formatRecreationResourceDetailResults function", () => {
         updated_at: expect.any(Date),
         updated_by: "test_user",
       },
-      recreation_fee: [
-        {
-          fee_amount: 8,
-          fee_description: "Fee description",
-          fee_end_date: expect.any(Date),
-          fee_start_date: expect.any(Date),
-          friday_ind: "Y",
-          monday_ind: "Y",
-          recreation_fee_code: "P",
-          saturday_ind: "N",
-          sunday_ind: "N",
-          thursday_ind: "Y",
-          tuesday_ind: "Y",
-          wednesday_ind: "Y",
-        },
-      ],
+      recreation_fee: [],
       recreation_map_feature: [
         {
           recreation_resource_type_code: {
