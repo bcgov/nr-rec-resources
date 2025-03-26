@@ -45,7 +45,7 @@ export const formatSearchResults = (
         comment: resource.recreation_status?.comment,
         status_code: resource.recreation_status?.status_code,
       },
-      recreation_resource_images: resource?.recreation_resource_images ?? [],
+      recreation_resource_images: resource.recreation_resource_images ?? [],
     };
   });
 };

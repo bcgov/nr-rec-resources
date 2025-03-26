@@ -15,7 +15,7 @@ export const getImageList = (
   const sizeCodeForCard: RecreationResourceImageVariantSizeCode = 'llc';
 
   return (
-    recreationResource?.recreation_resource_images?.flatMap(
+    recreationResource.recreation_resource_images?.flatMap(
       ({ recreation_resource_image_variants }) =>
         recreation_resource_image_variants
           ?.filter(({ size_code }) => size_code === sizeCodeForCard)
