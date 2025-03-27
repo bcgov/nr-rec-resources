@@ -1,4 +1,5 @@
 import { forwardRef } from 'react';
+import parse from 'html-react-parser';
 import { RecreationResourceMap } from '@/components/rec-resource/RecreationResourceMap';
 import { RecreationResourceDetailModel } from '@/service/custom-models';
 import { RecreationResourceDocsList } from '@/components/rec-resource/RecreationResourceDocsList';
@@ -10,6 +11,8 @@ interface MapsAndLocationProps {
 
 const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
   ({ accessTypes, recResource }, ref) => {
+    console.log(accessTypes);
+    const { driving_directions } = recResource || {};
     return (
       <section
         id="maps-and-location"
@@ -19,18 +22,9 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
         <h2 className="section-heading">Maps and Location</h2>
 
         {recResource && (
-          <RecreationResourceDocsList recResource={recResource} />
-        )}
-
-        {accessTypes && (
-          <>
-            <h3>Access Type{accessTypes.length > 1 && 's'}</h3>
-            <ul className="list-unstyled">
-              {accessTypes.map((type) => (
-                <li key={type}>{type}</li>
-              ))}
-            </ul>
-          </>
+          <section className="mb-4">
+            <RecreationResourceDocsList recResource={recResource} />
+          </section>
         )}
 
         <RecreationResourceMap
@@ -40,6 +34,24 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
             height: '40vh',
           }}
         />
+
+        {driving_directions && (
+          <article className="mb-4">
+            <h3>Getting there</h3>
+            <p>{parse(driving_directions)}</p>
+          </article>
+        )}
+
+        {accessTypes && (
+          <section className="mb-4">
+            <h3>Access Type{accessTypes.length > 1 && 's'}</h3>
+            <ul className="list-unstyled">
+              {accessTypes.map((type) => (
+                <li key={type}>{type}</li>
+              ))}
+            </ul>
+          </section>
+        )}
       </section>
     );
   },

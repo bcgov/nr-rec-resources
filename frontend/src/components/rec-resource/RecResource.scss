@@ -10,7 +10,9 @@
 
 .rec-resource-section {
   h3 {
-    font-size: 1.5rem;
+    // TODO: come back to this unfortunate use of !important due to bootstrap theme headings using !important
+    font-size: 1.5rem !important;
+    margin-bottom: 1rem;
   }
 }
 

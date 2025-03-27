@@ -14,7 +14,7 @@ vi.mock('react-router-dom', async () => ({
   ...(await vi.importActual('react-router-dom')),
   useParams: vi.fn(),
 }));
-vi.mock('@/components/rec-resource/MapsAndLocation', () => ({
+vi.mock('@/components/rec-resource/section/MapsAndLocation', () => ({
   default: (): ReactNode => (
     <>
       <h2 className="section-heading">Maps and Location</h2>
@@ -204,6 +204,11 @@ describe('RecResourcePage', () => {
         {
           name: 'shows section with resource docs',
           input: { recreation_resource_docs: ['some-doc'] },
+          shouldShow: true,
+        },
+        {
+          name: 'shows section with driving directions',
+          input: { driving_directions: 'some-directions' },
           shouldShow: true,
         },
         {

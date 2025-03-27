@@ -1,5 +1,5 @@
 import { Prisma } from "@prisma/client";
-import { getRecreationResourceSelect } from "src/recreation-resource/service/recreation-resource.service";
+import { getRecreationResourceSelect } from "src/recreation-resource/utils/getRecreationResourceSelect";
 
 export type RecreationResourceGetPayload =
   Prisma.recreation_resourceGetPayload<{
