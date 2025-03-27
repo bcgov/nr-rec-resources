@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import { FC } from 'react';
 import { RecreationResourceDetailModel } from '@/service/custom-models';
 import { RecreationResourceDocDto } from '@/service/recreation-resource';
 

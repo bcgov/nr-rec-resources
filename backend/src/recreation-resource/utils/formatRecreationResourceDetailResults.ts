@@ -7,8 +7,10 @@ import { RecreationResourceDocCode } from "src/recreation-resource/dto/recreatio
 // Format recreation resource detail results to match the RecreationResourceDetailDto
 export const formatRecreationResourceDetailResults = (
   result: RecreationResourceGetPayload,
-  spatial_feature_geometry: getRecreationResourceSpatialFeatureGeometry.Result[],
+  recreationResourceSpatialFeatureGeometryResult: getRecreationResourceSpatialFeatureGeometry.Result[],
 ): RecreationResourceDetailDto => {
+  const spatialFeatures = recreationResourceSpatialFeatureGeometryResult?.[0];
+
   return {
     ...result,
     rec_resource_type:
@@ -81,8 +83,7 @@ export const formatRecreationResourceDetailResults = (
       doc_code: i.doc_code as RecreationResourceDocCode,
       doc_code_description: i.recreation_resource_doc_code.description,
     })),
-    spatial_feature_geometry: spatial_feature_geometry.map(
-      ({ spatial_feature_geometry }) => spatial_feature_geometry,
-    ),
+    spatial_feature_geometry: spatialFeatures?.spatial_feature_geometry,
+    site_point_geometry: spatialFeatures?.site_point_geometry,
   };
 };

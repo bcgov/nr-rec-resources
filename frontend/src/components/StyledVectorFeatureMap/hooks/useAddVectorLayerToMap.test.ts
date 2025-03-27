@@ -4,7 +4,7 @@ import OlMap from 'ol/Map';
 import { Feature } from 'ol';
 import { Style } from 'ol/style';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { Point } from '~/ol/geom';
+import { Point } from 'ol/geom';
 
 // Mock OpenLayers dependencies
 vi.mock('ol/source/Vector', () => ({

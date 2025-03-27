@@ -1,5 +1,4 @@
 import './MapControls.scss';
-import React from 'react';
 import OlMap from 'ol/Map';
 import { Coordinate } from 'ol/coordinate';
 import { MapControls } from './MapControls';

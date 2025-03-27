@@ -247,6 +247,15 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
   spatial_feature_geometry?: string[];
 
   @ApiProperty({
+    description:
+      "GeoJSON geometry data for the point location for the rec resource in string format",
+    type: String,
+    required: false,
+    example: ['{"type":"Point","coordinates":[1292239.7691,1133870.4011]}'],
+  })
+  site_point_geometry?: string;
+
+  @ApiProperty({
     description: "List of documents for the recreation resource",
     type: [RecreationResourceDocDto],
     required: false,

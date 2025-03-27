@@ -115,8 +115,7 @@ describe("RecreationResourceService", () => {
   describe("findOne", () => {
     const mockResource = createMockRecResource();
     const mockSpatialData = [
-      { spatial_feature_geometry: "GEOMETRY1" },
-      { spatial_feature_geometry: "GEOMETRY2" },
+      { spatial_feature_geometry: ["GEOMETRY1"], site_point_geometry: "POINT" },
     ];
 
     it("should return formatted recreation resource with spatial data", async () => {
@@ -171,7 +170,8 @@ describe("RecreationResourceService", () => {
             doc_code_description: "General Information",
           },
         ],
-        spatial_feature_geometry: ["GEOMETRY1", "GEOMETRY2"],
+        spatial_feature_geometry: ["GEOMETRY1"],
+        site_point_geometry: "POINT",
       });
     });
 

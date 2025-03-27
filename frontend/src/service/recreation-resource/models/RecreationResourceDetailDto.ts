@@ -154,6 +154,12 @@ export interface RecreationResourceDetailDto {
    */
   spatial_feature_geometry?: Array<string>;
   /**
+   * GeoJSON geometry data for the point location for the rec resource in string format
+   * @type {string}
+   * @memberof RecreationResourceDetailDto
+   */
+  site_point_geometry?: string;
+  /**
    * List of documents for the recreation resource
    * @type {Array<RecreationResourceDocDto>}
    * @memberof RecreationResourceDetailDto
@@ -260,6 +266,10 @@ export function RecreationResourceDetailDtoFromJSONTyped(
       json['spatial_feature_geometry'] == null
         ? undefined
         : json['spatial_feature_geometry'],
+    site_point_geometry:
+      json['site_point_geometry'] == null
+        ? undefined
+        : json['site_point_geometry'],
     recreation_resource_docs:
       json['recreation_resource_docs'] == null
         ? undefined
@@ -313,6 +323,7 @@ export function RecreationResourceDetailDtoToJSONTyped(
       value['recreation_structure'],
     ),
     spatial_feature_geometry: value['spatial_feature_geometry'],
+    site_point_geometry: value['site_point_geometry'],
     recreation_resource_docs:
       value['recreation_resource_docs'] == null
         ? undefined
