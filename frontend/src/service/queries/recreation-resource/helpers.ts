@@ -6,11 +6,11 @@ import {
 
 /**
  * Gets the base URL for asset storage.
- * @returns {string} The configured assets URL or default test environment URL.
+ * @returns {string} The configured assets URL or default prod environment URL.
  */
 export const getBasePathForAssets = (): string =>
   import.meta.env.VITE_RECREATION_RESOURCE_ASSETS_BASE_URL ||
-  'https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca';
+  'https://dam.lqc63d-prod.nimbus.cloud.gov.bc.ca';
 
 /**
  * Transforms recreation resource data by updating image URLs with full asset paths.
@@ -50,7 +50,6 @@ export const transformRecreationResourceDetail = (
   return {
     ...resource,
     ...transformRecreationResourceBase(resource),
-    spatial_feature_geometry: resource.spatial_feature_geometry,
     recreation_resource_docs: resource.recreation_resource_docs?.map((doc) => ({
       ...doc,
       url: `${basePath}${doc.url}`,
