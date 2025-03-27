@@ -41,7 +41,6 @@ const SearchPage = () => {
     access: searchParams.get('access') ?? undefined,
     facilities: searchParams.get('facilities') ?? undefined,
     type: searchParams.get('type') ?? undefined,
-    imageSizeCodes: ['llc'],
     page: initialPage,
   });
 

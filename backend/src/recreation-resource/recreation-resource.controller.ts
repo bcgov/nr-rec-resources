@@ -54,18 +54,6 @@ export class RecreationResourceController {
     description: "Recreation resource type",
   })
   @ApiQuery({
-    name: "imageSizeCodes",
-    required: false,
-    default: "llc",
-    enum: RecreationResourceImageSize,
-    type: () => RecreationResourceImageSize,
-    isArray: true,
-    description:
-      "Comma separated list of image sizes codes to be returned for the" +
-      " recreation resource. You can pass a single status or multiple size codes " +
-      "separated by commas. If nothing is passed in, only Landing Card (llc) sizes are returned",
-  })
-  @ApiQuery({
     name: "district",
     required: false,
     type: String,
@@ -143,7 +131,7 @@ export class RecreationResourceController {
     @Param("id") id: string,
     @Query(
       "imageSizeCodes",
-      new ParseImageSizesPipe([RecreationResourceImageSize.THUMBNAIL]),
+      new ParseImageSizesPipe([RecreationResourceImageSize.HIGH_RES_PRINT]),
     )
     imageSizeCodes?: RecreationResourceImageSize[],
   ): Promise<RecreationResourceDetailDto> {

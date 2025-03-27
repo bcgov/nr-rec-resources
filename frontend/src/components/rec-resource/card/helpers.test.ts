@@ -1,15 +1,16 @@
 import { getImageList } from '@/components/rec-resource/card/helpers';
 import { RecreationResourceSearchModel } from '@/service/custom-models';
+import { IMAGE_SIZE_CODE_FOR_SEARCH_RESULTS_CARD } from '@/components/rec-resource/card/constants';
 
 describe('getImageList', () => {
-  it('should extract LLC size images from resource', () => {
+  it('should extract the correct size code size image from resource', () => {
     const mockResource: RecreationResourceSearchModel = {
       recreation_resource_images: [
         {
           recreation_resource_image_variants: [
             {
-              size_code: 'llc',
-              url: 'image1-llc.jpg',
+              size_code: IMAGE_SIZE_CODE_FOR_SEARCH_RESULTS_CARD,
+              url: 'image1.jpg',
             },
             {
               size_code: 'thm',
@@ -20,8 +21,8 @@ describe('getImageList', () => {
         {
           recreation_resource_image_variants: [
             {
-              size_code: 'llc',
-              url: 'image2-llc.jpg',
+              size_code: IMAGE_SIZE_CODE_FOR_SEARCH_RESULTS_CARD,
+              url: 'image2.jpg',
             },
           ],
         },
@@ -31,12 +32,12 @@ describe('getImageList', () => {
     const result = getImageList(mockResource);
 
     expect(result).toEqual([
-      { imageUrl: 'image1-llc.jpg' },
-      { imageUrl: 'image2-llc.jpg' },
+      { imageUrl: 'image1.jpg' },
+      { imageUrl: 'image2.jpg' },
     ]);
   });
 
-  it('should return empty array when no LLC images exist', () => {
+  it('should return empty array when no images exist for the required size code', () => {
     const mockResource: RecreationResourceSearchModel = {
       recreation_resource_images: [
         {

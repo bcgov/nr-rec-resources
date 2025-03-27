@@ -67,7 +67,7 @@ left join lateral (
   ) as variants
   from rst.recreation_resource_image_variants riv
   where riv.ref_id = ri.ref_id
-  and riv.size_code = 'llc'
+  and riv.size_code = 'hpr'
 ) rv on true
 left join rst.recreation_map_feature rrmf on rr.rec_resource_id = rrmf.rec_resource_id
 left join rst.recreation_resource_type_code rrtc on rrmf.recreation_resource_type = rrtc.rec_resource_type_code

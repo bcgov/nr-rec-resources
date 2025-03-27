@@ -38,7 +38,6 @@ export interface SearchRecreationResourcesRequest {
   district?: string;
   access?: string;
   facilities?: string;
-  imageSizeCodes?: Array<SearchRecreationResourcesImageSizeCodesEnum>;
 }
 
 /**
@@ -140,10 +139,6 @@ export class RecreationResourceApi extends runtime.BaseAPI {
       queryParameters['facilities'] = requestParameters['facilities'];
     }
 
-    if (requestParameters['imageSizeCodes'] != null) {
-      queryParameters['imageSizeCodes'] = requestParameters['imageSizeCodes'];
-    }
-
     const headerParameters: runtime.HTTPHeaders = {};
 
     const response = await this.request(
@@ -199,26 +194,3 @@ export const GetRecreationResourceByIdImageSizeCodesEnum = {
 } as const;
 export type GetRecreationResourceByIdImageSizeCodesEnum =
   (typeof GetRecreationResourceByIdImageSizeCodesEnum)[keyof typeof GetRecreationResourceByIdImageSizeCodesEnum];
-/**
- * @export
- */
-export const SearchRecreationResourcesImageSizeCodesEnum = {
-  Original: 'original',
-  Col: 'col',
-  Con: 'con',
-  Pcs: 'pcs',
-  Hpr: 'hpr',
-  Ili: 'ili',
-  Lan: 'lan',
-  Llc: 'llc',
-  Lpr: 'lpr',
-  Gal: 'gal',
-  Ppp: 'ppp',
-  Pre: 'pre',
-  Rsr: 'rsr',
-  Rth: 'rth',
-  Scr: 'scr',
-  Thm: 'thm',
-} as const;
-export type SearchRecreationResourcesImageSizeCodesEnum =
-  (typeof SearchRecreationResourcesImageSizeCodesEnum)[keyof typeof SearchRecreationResourcesImageSizeCodesEnum];
