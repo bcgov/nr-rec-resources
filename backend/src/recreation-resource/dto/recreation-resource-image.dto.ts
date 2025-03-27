@@ -106,6 +106,7 @@ export class RecreationResourceImageDto {
   @ApiProperty({
     description: "Available image variants",
     type: [RecreationResourceImageVariantDto],
+    required: false,
   })
-  recreation_resource_image_variants: RecreationResourceImageVariantDto[];
+  recreation_resource_image_variants?: RecreationResourceImageVariantDto[];
 }

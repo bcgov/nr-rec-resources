@@ -23,11 +23,11 @@ export const transformRecreationResourceBase = (
   const basePath = getBasePathForAssets();
   return {
     ...resource,
-    recreation_resource_images: resource.recreation_resource_images.map(
+    recreation_resource_images: resource?.recreation_resource_images?.map(
       (recreationResourceImageDto: RecreationResourceImageDto) => ({
         ...recreationResourceImageDto,
         recreation_resource_image_variants:
-          recreationResourceImageDto.recreation_resource_image_variants.map(
+          recreationResourceImageDto?.recreation_resource_image_variants?.map(
             (variant) => ({
               ...variant,
               url: `${basePath}${variant.url}`,
@@ -48,6 +48,7 @@ export const transformRecreationResourceDetail = (
 ): RecreationResourceDetailModel => {
   const basePath = getBasePathForAssets();
   return {
+    ...resource,
     ...transformRecreationResourceBase(resource),
     spatial_feature_geometry: resource.spatial_feature_geometry,
     recreation_resource_docs: resource.recreation_resource_docs?.map((doc) => ({
