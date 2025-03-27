@@ -110,7 +110,7 @@ export interface RecreationResourceDetailDto {
    * @type {Array<RecreationResourceImageDto>}
    * @memberof RecreationResourceDetailDto
    */
-  recreation_resource_images: Array<RecreationResourceImageDto>;
+  recreation_resource_images?: Array<RecreationResourceImageDto>;
   /**
    * Detailed description of the Recreation Resource
    * @type {string}
@@ -196,11 +196,6 @@ export function instanceOfRecreationResourceDetailDto(
     value['rec_resource_type'] === undefined
   )
     return false;
-  if (
-    !('recreation_resource_images' in value) ||
-    value['recreation_resource_images'] === undefined
-  )
-    return false;
   if (!('description' in value) || value['description'] === undefined)
     return false;
   if (
@@ -247,9 +242,12 @@ export function RecreationResourceDetailDtoFromJSONTyped(
     ),
     recreation_status: RecreationStatusDtoFromJSON(json['recreation_status']),
     rec_resource_type: json['rec_resource_type'],
-    recreation_resource_images: (
-      json['recreation_resource_images'] as Array<any>
-    ).map(RecreationResourceImageDtoFromJSON),
+    recreation_resource_images:
+      json['recreation_resource_images'] == null
+        ? undefined
+        : (json['recreation_resource_images'] as Array<any>).map(
+            RecreationResourceImageDtoFromJSON,
+          ),
     description: json['description'],
     recreation_campsite: RecreationCampsiteDtoFromJSON(
       json['recreation_campsite'],
@@ -304,9 +302,12 @@ export function RecreationResourceDetailDtoToJSONTyped(
     ),
     recreation_status: RecreationStatusDtoToJSON(value['recreation_status']),
     rec_resource_type: value['rec_resource_type'],
-    recreation_resource_images: (
-      value['recreation_resource_images'] as Array<any>
-    ).map(RecreationResourceImageDtoToJSON),
+    recreation_resource_images:
+      value['recreation_resource_images'] == null
+        ? undefined
+        : (value['recreation_resource_images'] as Array<any>).map(
+            RecreationResourceImageDtoToJSON,
+          ),
     description: value['description'],
     recreation_campsite: RecreationCampsiteDtoToJSON(
       value['recreation_campsite'],

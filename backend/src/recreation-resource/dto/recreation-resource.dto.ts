@@ -184,8 +184,9 @@ export abstract class BaseRecreationResourceDto {
   @ApiProperty({
     description: "List of images for the recreation resource",
     type: [RecreationResourceImageDto],
+    required: false,
   })
-  recreation_resource_images: RecreationResourceImageDto[];
+  recreation_resource_images?: RecreationResourceImageDto[];
 }
 
 /**

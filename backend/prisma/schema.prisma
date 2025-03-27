@@ -483,27 +483,25 @@ model recreation_sub_access_code_history {
 }
 
 model recreation_resource_image_variants {
-  id                         Int                         @id @default(autoincrement())
-  ref_id                     String?                     @db.VarChar
-  size_code                  String?                     @db.VarChar(20)
+  ref_id                     String                     @db.VarChar
+  size_code                  String                     @db.VarChar(20)
   url                        String?
   width                      Int?
   height                     Int?
-  extension                  String?                     @db.VarChar(10)
-  updated_at                 DateTime?                   @default(now()) @db.Timestamp(6)
+  extension                  String?                    @db.VarChar(10)
+  updated_at                 DateTime?                  @default(now()) @db.Timestamp(6)
   updated_by                 String?
-  created_at                 DateTime?                   @default(now()) @db.Timestamp(6)
+  created_at                 DateTime?                  @default(now()) @db.Timestamp(6)
   created_by                 String?
-  sys_period                 Unsupported("tstzrange")    @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_resource_images recreation_resource_images? @relation(fields: [ref_id], references: [ref_id], onDelete: NoAction, onUpdate: NoAction)
+  sys_period                 Unsupported("tstzrange")   @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_resource_images recreation_resource_images @relation(fields: [ref_id], references: [ref_id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@unique([ref_id, size_code])
+  @@id([ref_id, size_code])
 }
 
 model recreation_resource_images {
-  id                                 Int                                  @id @default(autoincrement())
-  rec_resource_id                    String?                              @db.VarChar(10)
-  ref_id                             String?                              @unique @db.VarChar
+  rec_resource_id                    String                               @db.VarChar(10)
+  ref_id                             String                               @unique @db.VarChar
   caption                            String?                              @db.VarChar
   updated_at                         DateTime?                            @default(now()) @db.Timestamp(6)
   updated_by                         String?
@@ -511,9 +509,9 @@ model recreation_resource_images {
   created_by                         String?
   sys_period                         Unsupported("tstzrange")             @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
   recreation_resource_image_variants recreation_resource_image_variants[]
-  recreation_resource                recreation_resource?                 @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+  recreation_resource                recreation_resource                  @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@unique([rec_resource_id, ref_id])
+  @@id([rec_resource_id, ref_id])
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -594,9 +592,8 @@ model recreation_resource_docs_history {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model recreation_resource_image_variants_history {
-  id         Int
-  ref_id     String?                  @db.VarChar
-  size_code  String?                  @db.VarChar(20)
+  ref_id     String                   @db.VarChar
+  size_code  String                   @db.VarChar(20)
   url        String?
   width      Int?
   height     Int?
@@ -612,9 +609,8 @@ model recreation_resource_image_variants_history {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model recreation_resource_images_history {
-  id              Int
-  rec_resource_id String?                  @db.VarChar(10)
-  ref_id          String?                  @db.VarChar
+  rec_resource_id String                   @db.VarChar(10)
+  ref_id          String                   @db.VarChar
   caption         String?                  @db.VarChar
   updated_at      DateTime?                @db.Timestamp(6)
   updated_by      String?

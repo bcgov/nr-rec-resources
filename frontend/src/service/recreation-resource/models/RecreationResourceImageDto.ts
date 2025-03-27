@@ -44,7 +44,7 @@ export interface RecreationResourceImageDto {
    * @type {Array<RecreationResourceImageVariantDto>}
    * @memberof RecreationResourceImageDto
    */
-  recreation_resource_image_variants: Array<RecreationResourceImageVariantDto>;
+  recreation_resource_image_variants?: Array<RecreationResourceImageVariantDto>;
 }
 
 /**
@@ -55,11 +55,6 @@ export function instanceOfRecreationResourceImageDto(
 ): value is RecreationResourceImageDto {
   if (!('ref_id' in value) || value['ref_id'] === undefined) return false;
   if (!('caption' in value) || value['caption'] === undefined) return false;
-  if (
-    !('recreation_resource_image_variants' in value) ||
-    value['recreation_resource_image_variants'] === undefined
-  )
-    return false;
   return true;
 }
 
@@ -79,9 +74,12 @@ export function RecreationResourceImageDtoFromJSONTyped(
   return {
     ref_id: json['ref_id'],
     caption: json['caption'],
-    recreation_resource_image_variants: (
-      json['recreation_resource_image_variants'] as Array<any>
-    ).map(RecreationResourceImageVariantDtoFromJSON),
+    recreation_resource_image_variants:
+      json['recreation_resource_image_variants'] == null
+        ? undefined
+        : (json['recreation_resource_image_variants'] as Array<any>).map(
+            RecreationResourceImageVariantDtoFromJSON,
+          ),
   };
 }
 
@@ -102,8 +100,11 @@ export function RecreationResourceImageDtoToJSONTyped(
   return {
     ref_id: value['ref_id'],
     caption: value['caption'],
-    recreation_resource_image_variants: (
-      value['recreation_resource_image_variants'] as Array<any>
-    ).map(RecreationResourceImageVariantDtoToJSON),
+    recreation_resource_image_variants:
+      value['recreation_resource_image_variants'] == null
+        ? undefined
+        : (value['recreation_resource_image_variants'] as Array<any>).map(
+            RecreationResourceImageVariantDtoToJSON,
+          ),
   };
 }

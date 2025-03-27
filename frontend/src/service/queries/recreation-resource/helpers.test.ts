@@ -10,7 +10,7 @@ import {
 } from '@/service/custom-models';
 
 describe('Asset URL Utilities', () => {
-  const DEFAULT_TEST_URL = 'https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca';
+  const DEFAULT_ASSETS_URL = 'https://dam.lqc63d-prod.nimbus.cloud.gov.bc.ca';
   const CUSTOM_URL = 'https://custom-domain.com';
 
   beforeEach(() => {
@@ -29,12 +29,12 @@ describe('Asset URL Utilities', () => {
 
     it('returns default test URL when environment variable is empty', () => {
       vi.stubEnv('VITE_RECREATION_RESOURCE_ASSETS_BASE_URL', '');
-      expect(getBasePathForAssets()).toBe(DEFAULT_TEST_URL);
+      expect(getBasePathForAssets()).toBe(DEFAULT_ASSETS_URL);
     });
 
     it('returns default test URL when environment variable is undefined', () => {
       vi.stubEnv('VITE_RECREATION_RESOURCE_ASSETS_BASE_URL', undefined);
-      expect(getBasePathForAssets()).toBe(DEFAULT_TEST_URL);
+      expect(getBasePathForAssets()).toBe(DEFAULT_ASSETS_URL);
     });
   });
 
