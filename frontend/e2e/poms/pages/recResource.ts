@@ -78,10 +78,9 @@ export class RecreationResourcePOM {
 
   async verifyPdfDocLinks() {
     for (const exp of REC_DOC_LINKS) {
-      expect(this.page.getByRole(exp.role, { name: exp.name })).toHaveAttribute(
-        'href',
-        expect.stringMatching(/^https:\/\/.*\.pdf$/),
-      );
+      await expect(
+        this.page.getByRole(exp.role, { name: exp.name }),
+      ).toHaveAttribute('href', expect.stringMatching(/^https:\/\/.*\.pdf$/));
     }
   }
 }

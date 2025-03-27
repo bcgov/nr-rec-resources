@@ -1,4 +1,4 @@
-import React, { ReactNode, useCallback, useEffect, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { Feature } from 'ol';
 import { StyleLike } from 'ol/style/Style';
 import {

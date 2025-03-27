@@ -61,8 +61,9 @@ const response = {
 
 const spatialResponse = [
   {
-    spatial_feature_geometry: '{"type":"Polygon","coordinates":"test"}',
-  },
+    spatial_feature_geometry: ['{"type":"Polygon","coordinates":"test"}'],
+    site_point_geometry: "Point",
+  } as any,
 ];
 
 describe("formatRecreationResourceDetailResults function", () => {
@@ -135,6 +136,7 @@ describe("formatRecreationResourceDetailResults function", () => {
         has_toilet: false,
       },
       spatial_feature_geometry: ['{"type":"Polygon","coordinates":"test"}'],
+      site_point_geometry: "Point",
     });
   });
 

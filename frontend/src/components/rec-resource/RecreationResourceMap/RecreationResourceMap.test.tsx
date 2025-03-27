@@ -1,106 +1,110 @@
-import { describe, expect, it, Mock, vi } from 'vitest';
 import { render } from '@testing-library/react';
+import { RecreationResourceMap } from './RecreationResourceMap';
 import { StyledVectorFeatureMap } from '@/components/StyledVectorFeatureMap';
-import { GeoJSON } from 'ol/format';
-import { RecreationResourceMap } from '@/components/rec-resource/RecreationResourceMap';
-import { RecreationResourceDetailModel } from '@/service/custom-models';
+import {
+  getLayerStyleForRecResource,
+  getMapFeaturesFromRecResource,
+} from '@/components/rec-resource/RecreationResourceMap/helpers';
+import { Mock, vi } from 'vitest';
 
-// Mock dependencies
+// Mock the dependencies
 vi.mock('@/components/StyledVectorFeatureMap', () => ({
   StyledVectorFeatureMap: vi.fn(() => null),
 }));
 
-vi.mock('ol/format', () => ({
-  GeoJSON: vi.fn(),
-}));
-
 vi.mock('@/components/rec-resource/RecreationResourceMap/helpers', () => ({
-  getLayerStyle: vi.fn(() => ({ color: 'blue' })),
+  getLayerStyleForRecResource: vi.fn(),
+  getMapFeaturesFromRecResource: vi.fn(),
 }));
 
 describe('RecreationResourceMap', () => {
   const mockRecResource = {
-    name: 'Test Trail',
-    spatial_feature_geometry: [
-      {
-        type: 'Feature',
-        geometry: {
-          type: 'LineString',
-          coordinates: [
-            [0, 0],
-            [1, 1],
-          ],
-        },
-      },
-    ],
-  } as unknown as RecreationResourceDetailModel;
+    additional_fees: undefined,
+    closest_community: '',
+    description: undefined,
+    name: '',
+    rec_resource_type: '',
+    recreation_access: undefined,
+    recreation_activity: undefined,
+    recreation_campsite: undefined,
+    recreation_fee: undefined,
+    recreation_resource_images: undefined,
+    recreation_status: undefined,
+    recreation_structure: undefined,
+    rec_resource_id: '123',
+    // Add other required properties
+  } as any;
+
+  const mockFeatures = [{ id: 'feature1' }];
+  const mockLayerStyle = { color: 'red' };
+  const mockMapStyles = { height: '100px' };
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (GeoJSON as Mock).mockImplementation(() => ({
-      readFeatures: vi.fn(() => [{ type: 'Feature' }]),
-    }));
+    (getMapFeaturesFromRecResource as Mock).mockReturnValue(mockFeatures);
+    (getLayerStyleForRecResource as Mock).mockReturnValue(mockLayerStyle);
   });
 
-  it('renders StyledVectorFeatureMap with correct props', () => {
-    const cssStyles = { width: '100%' };
+  it('renders StyledVectorFeatureMap with correct props when features exist', () => {
     render(
       <RecreationResourceMap
         recResource={mockRecResource}
-        mapComponentCssStyles={cssStyles}
+        mapComponentCssStyles={mockMapStyles}
       />,
     );
 
+    expect(getMapFeaturesFromRecResource).toHaveBeenCalledWith(mockRecResource);
+    expect(getLayerStyleForRecResource).toHaveBeenCalledWith(mockRecResource);
     expect(StyledVectorFeatureMap).toHaveBeenCalledWith(
-      expect.objectContaining({
-        mapComponentCssStyles: cssStyles,
-        features: expect.any(Array),
-        layerStyle: expect.any(Object),
-      }),
-      undefined, // no children passed
+      {
+        mapComponentCssStyles: mockMapStyles,
+        features: mockFeatures,
+        layerStyle: mockLayerStyle,
+      },
+      undefined,
     );
   });
 
-  it('handles undefined recResource', () => {
+  it('returns null when no features exist', () => {
+    (getMapFeaturesFromRecResource as Mock).mockReturnValue([]);
+
+    const { container } = render(
+      <RecreationResourceMap recResource={mockRecResource} />,
+    );
+
+    expect(container.firstChild).toBeNull();
+  });
+
+  it('returns null when features is undefined', () => {
+    (getMapFeaturesFromRecResource as Mock).mockReturnValue(undefined);
+
+    const { container } = render(
+      <RecreationResourceMap recResource={mockRecResource} />,
+    );
+
+    expect(container.firstChild).toBeNull();
+  });
+
+  it('memoizes features and layer style', () => {
+    const { rerender } = render(
+      <RecreationResourceMap recResource={mockRecResource} />,
+    );
+
+    expect(getMapFeaturesFromRecResource).toHaveBeenCalledTimes(1);
+    expect(getLayerStyleForRecResource).toHaveBeenCalledTimes(1);
+
+    // Rerender with same props
+    rerender(<RecreationResourceMap recResource={mockRecResource} />);
+
+    // Should not call the functions again due to memoization
+    expect(getMapFeaturesFromRecResource).toHaveBeenCalledTimes(1);
+    expect(getLayerStyleForRecResource).toHaveBeenCalledTimes(1);
+  });
+
+  it('handles undefined recResource prop', () => {
     render(<RecreationResourceMap />);
 
-    expect(StyledVectorFeatureMap).not.toHaveBeenCalledWith();
-  });
-
-  it('handles undefined spatial_feature_geometry', () => {
-    const mockRecResourceWithoutSpatialFeatureGeometry = {
-      ...mockRecResource,
-      spatial_feature_geometry: undefined,
-    };
-    render(
-      <RecreationResourceMap
-        recResource={mockRecResourceWithoutSpatialFeatureGeometry}
-      />,
-    );
-
-    expect(StyledVectorFeatureMap).not.toHaveBeenCalled();
-  });
-
-  it('handles empty spatial_feature_geometry', () => {
-    const mockRecResourceWithoutSpatialFeatureGeometry = {
-      ...mockRecResource,
-      spatial_feature_geometry: [],
-    };
-    render(
-      <RecreationResourceMap
-        recResource={mockRecResourceWithoutSpatialFeatureGeometry}
-      />,
-    );
-
-    expect(StyledVectorFeatureMap).not.toHaveBeenCalled();
-  });
-
-  it('creates GeoJSON with correct projections', () => {
-    render(<RecreationResourceMap recResource={mockRecResource} />);
-
-    expect(GeoJSON).toHaveBeenCalledWith({
-      dataProjection: 'EPSG:3005',
-      featureProjection: 'EPSG:3857',
-    });
+    expect(getMapFeaturesFromRecResource).toHaveBeenCalledWith(undefined);
+    expect(getLayerStyleForRecResource).toHaveBeenCalledWith(undefined);
   });
 });

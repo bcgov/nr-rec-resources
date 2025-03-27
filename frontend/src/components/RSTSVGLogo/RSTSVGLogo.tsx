@@ -1,9 +1,9 @@
-import React from 'react';
+import { FC } from 'react';
 import BCLogo from '@/images/BC_nav_logo.svg';
 import RSTLogo from '@/images/RST_nav_logo.svg';
 import '@/components/RSTSVGLogo/RSTSVGLogo.scss';
 
-export const RSTSVGLogo: React.FC = () => {
+export const RSTSVGLogo: FC = () => {
   return (
     <div
       className={

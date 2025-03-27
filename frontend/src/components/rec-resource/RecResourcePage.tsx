@@ -76,6 +76,7 @@ const RecResourcePage = () => {
     } = {},
     recreation_fee,
     spatial_feature_geometry,
+    site_point_geometry,
     recreation_resource_docs,
     additional_fees,
   } = recResource || {};
@@ -102,8 +103,9 @@ const RecResourcePage = () => {
   const isClosures = statusComment && formattedName && statusCode === 2;
   const isMapsAndLocation =
     isAccess ||
-    spatial_feature_geometry?.length ||
-    recreation_resource_docs?.length;
+    site_point_geometry ||
+    Boolean(spatial_feature_geometry?.length) ||
+    Boolean(recreation_resource_docs?.length);
 
   const sectionRefs: React.RefObject<HTMLElement>[] = useMemo(
     () =>
