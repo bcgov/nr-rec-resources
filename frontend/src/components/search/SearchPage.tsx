@@ -53,7 +53,6 @@ const SearchPage = () => {
 
   useEffect(() => {
     setFilterChipsFromSearchParams(filterChips, searchResults, searchParams);
-    // eslint-disable-next-line
   }, [searchResults]);
 
   const { pages: paginatedResults, totalCount } = searchResults;

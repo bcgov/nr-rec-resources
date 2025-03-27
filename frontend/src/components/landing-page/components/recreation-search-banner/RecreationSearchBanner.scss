@@ -1,0 +1,29 @@
+@import '@/styles/variables';
+
+.search-banner-container {
+  $banner-height: clamp(50vh, 50vw, 900px);
+
+  height: $banner-height;
+  background: {
+    image: url('/landing-page/search-banner-background.png');
+    size: cover;
+    repeat: no-repeat;
+  }
+  position: relative;
+
+  .search-container {
+    $container-max-height: 255px;
+    $max-position-top: calc(($banner-height - $container-max-height) / 2);
+
+    max-height: $container-max-height;
+    padding: 2rem;
+    background-color: $colorBlue;
+    width: clamp(min(700px, 90vw), 50%, 888px);
+    position: relative;
+    top: clamp(15%, 25%, $max-position-top);
+
+    .search-title {
+      color: $colorWhite;
+    }
+  }
+}

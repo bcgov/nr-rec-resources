@@ -28,42 +28,6 @@
   }
 }
 
-.input-wrapper {
-  position: relative;
-  width: 100%;
-
-  input {
-    width: 100%;
-    padding-right: 40px;
-
-    &:focus {
-      outline: none;
-      border-color: #656565;
-      box-shadow:
-        0 0 0 2px #fff,
-        0 0 0 4px #2464a4;
-      border-width: 3px;
-    }
-  }
-
-  .clear-btn {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    padding: 5px;
-    color: #999;
-    font-size: 16px;
-
-    &:hover {
-      color: #333;
-    }
-  }
-}
-
 .search-banner {
   max-width: 1060px;
 

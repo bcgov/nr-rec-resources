@@ -1,0 +1,17 @@
+.section-heading {
+  position: relative;
+  padding-bottom: 2rem;
+}
+
+// decorative underline for the heading
+.section-heading::after {
+  position: absolute;
+  content: '';
+  height: 3px;
+  bottom: 9px;
+  margin: 0;
+  left: 0;
+  right: 0;
+  width: 5rem;
+  background: #fdb813;
+}

@@ -1,0 +1,9 @@
+@import '@/styles/variables';
+
+.content-section {
+  .row {
+    flex-wrap: nowrap;
+    column-gap: calc(1rem + 2vw);
+    row-gap: 1.5rem;
+  }
+}

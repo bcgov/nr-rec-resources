@@ -2,6 +2,7 @@ import BCLogo from '@/images/BC_nav_logo.svg';
 import RSTLogo from '@/images/RST_nav_logo.svg';
 import '@/components/layout/Header.scss';
 import BetaBanner from './BetaBanner';
+import { ROUTE_PATHS } from '@/routes';
 
 const Header = () => {
   return (
@@ -13,7 +14,7 @@ const Header = () => {
           className="page-nav header-nav main"
         >
           <div className="navbar-brand">
-            <a href="https://www2.gov.bc.ca">
+            <a href={ROUTE_PATHS.HOME}>
               <img
                 src={BCLogo}
                 alt="British Columbia Logo"
