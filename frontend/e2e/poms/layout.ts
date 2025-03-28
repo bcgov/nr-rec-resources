@@ -13,7 +13,7 @@ export class LayoutPOM {
   async verifyHeaderContent() {
     const header = this.page.locator('header');
     await expect(
-      header.getByRole('link', { name: 'Find a recreation site or trail' }),
+      header.getByRole('link', { name: 'Find a site or trail' }),
     ).toBeVisible();
 
     await expect(header.getByRole('link', { name: 'Contact' })).toBeVisible();

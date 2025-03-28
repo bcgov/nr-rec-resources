@@ -30,9 +30,7 @@ describe('SearchBanner', () => {
     expect(
       screen.getByPlaceholderText('Search by name or closest community'),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText('Find a recreation site or trail'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Find a site or trail')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Search' })).toBeInTheDocument();
   });
 

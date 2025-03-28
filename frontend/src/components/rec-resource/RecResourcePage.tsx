@@ -132,8 +132,8 @@ const RecResourcePage = () => {
   const pageSections = useMemo(
     () =>
       [
-        isClosures && { title: 'Closures' },
-        description && { title: 'Site description' },
+        isClosures && { href: '#closures', title: 'Closures' },
+        description && { href: '#site-description', title: 'Site description' },
         isMapsAndLocation && {
           href: '#maps-and-location',
           title: 'Maps and location',
