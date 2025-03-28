@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import Facilities from '@/components/rec-resource/Facilities';
+import Facilities from '@/components/rec-resource/section/Facilities';
 
 describe('Facilities Component', () => {
   it('should render the Facilities section when facilities are available', () => {

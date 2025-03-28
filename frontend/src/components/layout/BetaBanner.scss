@@ -5,18 +5,18 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  background-color: #f7b518;
-  padding: 12px 24px;
+  background-color: $colorGold;
+  padding: 16px;
   font-size: 16px;
-  color: #002b45;
+  color: $colorBlue;
   text-align: center;
 }
 
 .banner-content {
+  color: $colorBlue;
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
 }
 
 .banner-text {
@@ -25,7 +25,7 @@
 }
 
 .banner-link {
-  color: #002b45;
+  color: $colorBlue;
   text-decoration: underline;
   padding-right: 5em;
   padding-left: 0.3em;
@@ -41,10 +41,10 @@
 }
 
 .banner-button {
-  background-color: #002b45;
+  background-color: $colorBlue;
   color: white;
   border: none;
-  padding: 8px 16px;
+  padding: 12px 16px;
   font-size: 16px;
   cursor: pointer;
   border-radius: 4px;

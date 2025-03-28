@@ -12,7 +12,12 @@ export const formatRecreationResourceDetailResults = (
   const spatialFeatures = recreationResourceSpatialFeatureGeometryResult?.[0];
 
   return {
-    ...result,
+    rec_resource_id: result.rec_resource_id,
+    name: result.name,
+    closest_community: result.closest_community,
+    description: result.recreation_site_description?.description,
+    driving_directions: result.recreation_driving_direction?.description,
+    maintenance_standard_code: result?.maintenance_standard_code,
     rec_resource_type:
       result?.recreation_map_feature?.[0].recreation_resource_type_code
         .description,
@@ -29,6 +34,7 @@ export const formatRecreationResourceDetailResults = (
       comment: result.recreation_status?.comment,
       status_code: result.recreation_status?.status_code,
     },
+    campsite_count: result._count?.recreation_defined_campsite,
     recreation_resource_images:
       result.recreation_resource_images as RecreationResourceImageDto[],
     recreation_fee: result.recreation_fee

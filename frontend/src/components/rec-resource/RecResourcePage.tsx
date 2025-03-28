@@ -2,22 +2,23 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useScrollSpy from 'react-use-scrollspy';
 import BreadCrumbs from '@/components/layout/BreadCrumbs';
+import PhotoGallery, {
+  PhotoGalleryProps,
+} from '@/components/rec-resource/PhotoGallery';
 import {
   Camping,
   Closures,
   Contact,
+  Facilities,
   MapsAndLocation,
-  PhotoGallery,
   SiteDescription,
   ThingsToDo,
-} from '@/components/rec-resource';
+} from '@/components/rec-resource/section';
 import Status from '@/components/rec-resource/Status';
 import PageMenu from '@/components/layout/PageMenu';
 import locationDot from '@/images/fontAwesomeIcons/location-dot.svg';
 import '@/components/rec-resource/RecResource.scss';
-import { PhotoGalleryProps } from '@/components/rec-resource/PhotoGallery';
 import { useGetRecreationResourceById } from '@/service/queries/recreation-resource';
-import Facilities from './Facilities';
 
 const PREVIEW_SIZE_CODE = 'scr';
 const FULL_RESOLUTION_SIZE_CODE = 'original';
@@ -36,7 +37,7 @@ const RecResourcePage = () => {
    * Processes recreation resource images to extract the preview and full size image urls
    */
   useEffect(() => {
-    if (recResource) {
+    if (recResource?.recreation_resource_images) {
       setPhotos(
         recResource.recreation_resource_images.map((imageObj) => {
           const photoObj = {
@@ -45,7 +46,7 @@ const RecResourcePage = () => {
             fullResolutionUrl: '',
           };
 
-          imageObj.recreation_resource_image_variants.forEach((variant) => {
+          imageObj.recreation_resource_image_variants?.forEach((variant) => {
             if (variant.size_code === PREVIEW_SIZE_CODE) {
               photoObj.previewUrl = variant.url;
             } else if (variant.size_code === FULL_RESOLUTION_SIZE_CODE) {
@@ -60,25 +61,27 @@ const RecResourcePage = () => {
   }, [recResource]);
 
   const {
-    recreation_access,
-    recreation_activity,
+    additional_fees,
+    campsite_count,
+    closest_community,
     description,
+    driving_directions,
+    maintenance_standard_code,
     name,
     rec_resource_id,
     rec_resource_type,
-    closest_community,
-    recreation_campsite,
+    recreation_access,
+    recreation_activity,
+    recreation_fee,
     recreation_structure,
     recreation_status: {
       status_code: statusCode,
       description: statusDescription,
       comment: statusComment,
     } = {},
-    recreation_fee,
-    spatial_feature_geometry,
     site_point_geometry,
     recreation_resource_docs,
-    additional_fees,
+    spatial_feature_geometry,
   } = recResource || {};
 
   const formattedName = name?.toLowerCase();
@@ -98,14 +101,15 @@ const RecResourcePage = () => {
     additional_fees && additional_fees.length > 0;
 
   const isFacilitiesAvailable =
-    recreation_structure && recreation_structure !== null;
+    recreation_structure?.has_toilet || recreation_structure?.has_table;
   const isPhotoGallery = photos.length > 0;
   const isClosures = statusComment && formattedName && statusCode === 2;
   const isMapsAndLocation =
     isAccess ||
     site_point_geometry ||
     Boolean(spatial_feature_geometry?.length) ||
-    Boolean(recreation_resource_docs?.length);
+    Boolean(recreation_resource_docs?.length) ||
+    driving_directions;
 
   const sectionRefs: React.RefObject<HTMLElement>[] = useMemo(
     () =>
@@ -237,6 +241,7 @@ const RecResourcePage = () => {
             {description && (
               <SiteDescription
                 description={description}
+                maintenanceCode={String(maintenance_standard_code)}
                 ref={siteDescriptionRef}
               />
             )}
@@ -253,7 +258,7 @@ const RecResourcePage = () => {
               id="camping"
               ref={campingRef}
               title="Camping"
-              recreation_campsite={recreation_campsite!}
+              campsite_count={campsite_count!}
               fees={recreation_fee!}
             />
 
@@ -282,10 +287,6 @@ const RecResourcePage = () => {
             )}
 
             <Contact ref={contactRef} />
-
-            <p>
-              <a href="/search">Find another Recreation Site or Trail</a>
-            </p>
           </div>
         </div>
       </div>

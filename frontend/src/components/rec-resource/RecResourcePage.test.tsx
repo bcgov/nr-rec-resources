@@ -14,7 +14,7 @@ vi.mock('react-router-dom', async () => ({
   ...(await vi.importActual('react-router-dom')),
   useParams: vi.fn(),
 }));
-vi.mock('@/components/rec-resource/MapsAndLocation', () => ({
+vi.mock('@/components/rec-resource/section/MapsAndLocation', () => ({
   default: (): ReactNode => (
     <>
       <h2 className="section-heading">Maps and Location</h2>
@@ -207,6 +207,11 @@ describe('RecResourcePage', () => {
           shouldShow: true,
         },
         {
+          name: 'shows section with driving directions',
+          input: { driving_directions: 'some-directions' },
+          shouldShow: true,
+        },
+        {
           name: 'hides section when empty',
           input: { spatial_feature_geometry: [], recreation_resource_docs: [] },
           shouldShow: false,
@@ -280,6 +285,81 @@ describe('RecResourcePage', () => {
 
         expect(screen.queryByText(/Facilities/i)).toBeNull();
       });
+    });
+
+    describe('Page navigation menu conditional links', () => {
+      test.each([
+        {
+          name: 'Closures',
+          input: {
+            recreation_status: {
+              status_code: 2,
+              description: 'Closed',
+              comment: 'This site is closed',
+            },
+          },
+        },
+        {
+          name: 'Site Description',
+          description: 'Resource Description',
+        },
+        {
+          name: 'Things to Do',
+          input: {
+            recreation_activity: [
+              {
+                recreation_activity_code: 1,
+                description: 'Activity Description',
+              },
+            ],
+          },
+        },
+        {
+          name: 'Maps and Location',
+          input: { spatial_feature_geometry: ['some-geometry'] },
+        },
+        {
+          name: 'Additional Fees',
+          input: {
+            additional_fees: [
+              {
+                fee_amount: 10,
+              },
+            ],
+          },
+        },
+        {
+          name: 'Facilities',
+          input: {
+            recreation_structure: { has_toilet: true, has_table: true },
+          },
+        },
+      ])(
+        'conditionally shows section link for $name',
+        async ({ input, name }) => {
+          await renderComponent({
+            rec_resource_id: 'REC1234',
+            name: 'Resource Name',
+          });
+
+          expect(
+            screen.queryByRole('link', {
+              name,
+            }),
+          ).not.toBeInTheDocument();
+
+          await renderComponent({
+            ...mockResource,
+            ...input,
+          });
+
+          expect(
+            screen.getByRole('link', {
+              name,
+            }),
+          ).toBeInTheDocument();
+        },
+      );
     });
   });
 });

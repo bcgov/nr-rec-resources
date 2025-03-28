@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import Closures from '@/components/rec-resource/Closures';
+import Closures from '@/components/rec-resource/section/Closures';
 
 describe('the Closures component', () => {
   it('renders the site name', async () => {

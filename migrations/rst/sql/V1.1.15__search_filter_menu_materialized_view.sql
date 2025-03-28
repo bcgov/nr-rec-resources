@@ -20,7 +20,7 @@ select
   row_number() over () as unique_id,
   rac.access_code,
   rac.description as access_description,
-  coalesce(count(distinct ra.id), 0) as count
+  coalesce(count(distinct (ra.rec_resource_id, ra.access_code, ra.sub_access_code)), 0) as count
 from
   recreation_access ra
   left join recreation_access_code rac on ra.access_code = rac.access_code

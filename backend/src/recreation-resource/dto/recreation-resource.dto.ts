@@ -104,24 +104,6 @@ export class RecreationStatusDto {
   description: string;
 }
 
-export class RecreationCampsiteDto {
-  @ApiProperty({
-    description:
-      "Unique identifier of the Recreation Resource linked to campsites",
-    example: "rec-123-abc",
-    format: "uuid",
-  })
-  rec_resource_id: string;
-
-  @ApiProperty({
-    description:
-      "Number of campsites available in the recreation site or trail",
-    example: 15,
-    minimum: 0,
-  })
-  campsite_count: number;
-}
-
 export class RecreationStructureDto {
   @ApiProperty({
     description: "Indicates if the recreation resource has at least one toilet",
@@ -201,12 +183,26 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
   description: string;
 
   @ApiProperty({
+    description: "Driving directions to the Recreation Resource",
+    example: "Take exit 123 off the highway and follow the signs",
+    nullable: true,
+  })
+  driving_directions: string;
+
+  @ApiProperty({
+    description: "The maintenance standard code for the recreation resource",
+    example: "U",
+    nullable: true,
+  })
+  maintenance_standard_code: string;
+
+  @ApiProperty({
     description:
       "Number of campsites available in the recreation site or trail",
     example: 15,
     minimum: 0,
   })
-  recreation_campsite: RecreationCampsiteDto;
+  campsite_count: number;
 
   @ApiProperty({
     description:

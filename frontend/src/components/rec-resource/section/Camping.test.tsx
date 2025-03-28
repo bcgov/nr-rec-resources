@@ -1,10 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import Camping from './Camping';
-import {
-  RecreationCampsiteModel,
-  RecreationFeeModel,
-} from '@/service/custom-models';
+import { RecreationFeeModel } from '@/service/custom-models';
 
 describe('Camping Component', () => {
   const mockFees: RecreationFeeModel[] = [
@@ -49,17 +46,14 @@ describe('Camping Component', () => {
     },
   ];
 
-  const mockCampsite: RecreationCampsiteModel = {
-    rec_resource_id: '123',
-    campsite_count: 2,
-  };
+  const campsiteCount = 2;
 
   it('renders the section title and campsite count correctly', () => {
     render(
       <Camping
         id="camping"
         title="Camping"
-        recreation_campsite={mockCampsite}
+        campsite_count={campsiteCount}
         fees={mockFees}
       />,
     );
@@ -75,7 +69,7 @@ describe('Camping Component', () => {
       <Camping
         id="camping"
         title="Camping"
-        recreation_campsite={mockCampsite}
+        campsite_count={campsiteCount}
         fees={mockFees}
       />,
     );
@@ -95,7 +89,7 @@ describe('Camping Component', () => {
       <Camping
         id="camping"
         title="Camping"
-        recreation_campsite={mockCampsite}
+        campsite_count={campsiteCount}
         fees={[]}
       />,
     );
@@ -108,7 +102,7 @@ describe('Camping Component', () => {
       <Camping
         id="camping"
         title="Camping"
-        recreation_campsite={mockCampsite}
+        campsite_count={campsiteCount}
         fees={mockFees}
       />,
     );
@@ -121,7 +115,7 @@ describe('Camping Component', () => {
       <Camping
         id="camping"
         title="Camping"
-        recreation_campsite={mockCampsite}
+        campsite_count={campsiteCount}
         fees={mockFees}
       />,
     );

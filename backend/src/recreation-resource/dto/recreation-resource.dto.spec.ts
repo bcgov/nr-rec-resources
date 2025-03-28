@@ -1,9 +1,7 @@
 import {
   RecreationActivityDto,
-  RecreationCampsiteDto,
   RecreationFeeDto,
   RecreationResourceDetailDto,
-  RecreationResourceSearchDto,
   RecreationStatusDto,
   RecreationStructureDto,
 } from "./recreation-resource.dto";
@@ -66,10 +64,7 @@ describe("Recreation DTOs", () => {
         description: "The facility is open",
       };
       resource.recreation_resource_images = [];
-      resource.recreation_campsite = {
-        rec_resource_id: "123",
-        campsite_count: 2,
-      };
+      resource.campsite_count = 0;
       resource.recreation_structure = {
         has_table: true,
         has_toilet: true,
@@ -114,7 +109,7 @@ describe("Recreation DTOs", () => {
     });
 
     it("should allow null description", () => {
-      const resource = new RecreationResourceSearchDto();
+      const resource = new RecreationResourceDetailDto();
       resource.recreation_access = [];
       resource.rec_resource_id = "rec-123-abc";
       resource.name = "Test Resource";
@@ -132,10 +127,7 @@ describe("Recreation DTOs", () => {
         has_toilet: true,
       };
       resource.recreation_resource_images = [];
-      resource.recreation_campsite = {
-        rec_resource_id: "123",
-        campsite_count: 2,
-      };
+      resource.campsite_count = 0;
       resource.recreation_fee = [
         {
           fee_amount: 25.0,
@@ -184,10 +176,7 @@ describe("Recreation DTOs", () => {
         description: "Open",
       };
       resource.recreation_resource_images = [];
-      resource.recreation_campsite = {
-        rec_resource_id: "123",
-        campsite_count: 0,
-      };
+      resource.campsite_count = 0;
       resource.recreation_structure = {
         has_table: false,
         has_toilet: false,
@@ -273,34 +262,6 @@ describe("Recreation DTOs", () => {
 
         expect(fee.monday_ind).toBe("Y");
         expect(fee.sunday_ind).toBe("Y");
-      });
-    });
-
-    describe("RecreationCampsiteDto", () => {
-      it("should create a valid RecreationCampsiteDto instance", () => {
-        const campsite = new RecreationCampsiteDto();
-        campsite.rec_resource_id = "rec-123-abc";
-        campsite.campsite_count = 15;
-
-        expect(campsite instanceof RecreationCampsiteDto).toBeTruthy();
-        expect(campsite.rec_resource_id).toBeDefined();
-        expect(campsite.campsite_count).toBeGreaterThanOrEqual(0);
-      });
-
-      it("should allow zero campsite count", () => {
-        const campsite = new RecreationCampsiteDto();
-        campsite.rec_resource_id = "rec-456-def";
-        campsite.campsite_count = 0;
-
-        expect(campsite.campsite_count).toBe(0);
-      });
-
-      it("should allow negative campsite count (invalid case)", () => {
-        const campsite = new RecreationCampsiteDto();
-        campsite.rec_resource_id = "rec-789-ghi";
-        campsite.campsite_count = -1;
-
-        expect(campsite.campsite_count).toBeLessThan(0);
       });
     });
   });

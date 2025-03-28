@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import '@/components/rec-resource/ThingsToDo.scss';
+import '@/components/rec-resource/section/ThingsToDo.scss';
 import { facilityMap } from '@/data/facilitiesIconMap';
 
 interface FacilitiesProps {
@@ -13,14 +13,14 @@ const Facilities = forwardRef<HTMLElement, FacilitiesProps>(
   ({ recreation_structure }, ref) => {
     const facilitiesList = [
       {
-        name: 'Toilets',
-        code: '2',
-        available: recreation_structure?.has_toilet,
-      },
-      {
         name: 'Tables',
         code: '1',
         available: recreation_structure?.has_table,
+      },
+      {
+        name: 'Toilets',
+        code: '2',
+        available: recreation_structure?.has_toilet,
       },
     ].filter((facility) => facility.available);
 

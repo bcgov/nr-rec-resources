@@ -1,6 +1,5 @@
 import {
   PaginatedRecreationResourceDto,
-  RecreationCampsiteDto,
   RecreationFeeDto,
   RecreationResourceDetailDto,
   RecreationResourceDocDto,
@@ -15,7 +14,6 @@ export type PaginatedRecreationResourceModel =
   PaginatedRecreationResourceDto & {
     data: Array<RecreationResourceSearchModel>;
   };
-export type RecreationCampsiteModel = RecreationCampsiteDto;
 export type RecreationFeeModel = RecreationFeeDto;
 export type RecreationResourceImageVariantSizeCode =
   RecreationResourceImageVariantDtoSizeCodeEnum;
