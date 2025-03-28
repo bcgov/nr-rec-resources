@@ -1,8 +1,3 @@
-create table if not exists rst.recreation_district_code (
-    district_code varchar(4) primary key,
-    description varchar(120) not null
-);
-
 select upsert_timestamp_columns ('rst', 'recreation_district_code', true);
 
 select setup_temporal_table ('rst', 'recreation_district_code');
@@ -13,7 +8,8 @@ create table if not exists rst.recreation_resource (
     description varchar(5000),
     closest_community varchar(200),
     display_on_public_site boolean default false,
-    district_code varchar(4) references rst.recreation_district_code (district_code)
+    district_code varchar(4) references rst.recreation_district_code (district_code),
+    rec_resource_type_code varchar(10) references rst.recreation_resource_type_code (rec_resource_type_code)
 );
 
 select upsert_timestamp_columns ('rst', 'recreation_resource');

@@ -30,7 +30,7 @@ test.describe('Search page filter menu workflows', () => {
     await searchPage.verifyRecResourceCardContent({
       rec_resource_id: 'REC265446',
       rec_resource_name: 'Airy Area',
-      rec_resource_type: RecResourceType.RESERVE,
+      rec_resource_type: RecResourceType.TRAIL,
       closest_community: 'Slocan',
       status: Status.CLOSED,
     });
@@ -79,7 +79,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await utils.checkExpectedUrlParams('type=RTR');
 
-    await searchPage.resultsCount(18);
+    await searchPage.resultsCount(25);
 
     await searchPage.recResourceCardCount(10);
 
@@ -107,7 +107,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.toggleFilterOn(filter.typeFilters, RecResourceType.SITE);
 
-    await searchPage.resultsCount(44);
+    await searchPage.resultsCount(49);
 
     await searchPage.recResourceCardCount(10);
 
@@ -186,7 +186,7 @@ test.describe('Search page filter menu workflows', () => {
     await searchPage.verifyRecResourceCardContent({
       rec_resource_id: 'REC203239',
       rec_resource_name: '10 k snowmobile parking lot',
-      rec_resource_type: RecResourceType.SITE,
+      rec_resource_type: RecResourceType.TRAIL,
       closest_community: 'Merritt',
       status: Status.CLOSED,
     });
@@ -362,19 +362,19 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.toggleFilterOn(filter.districtFilters, 'Kamloops');
 
-    await filter.toggleFilterOn(filter.typeFilters, RecResourceType.SITE);
+    await filter.toggleFilterOn(filter.typeFilters, RecResourceType.TRAIL);
 
     await filter.toggleFilterOn(filter.facilitiesFilters, 'Tables');
 
     await filter.toggleFilterOn(filter.accessTypeFilters, 'Boat-in Access');
 
     await utils.checkExpectedUrlParams(
-      'district=RDKA&page=1&type=SIT&facilities=table&access=B',
+      'district=RDKA&page=1&type=RTR&facilities=table&access=B',
     );
 
-    await searchPage.resultsCount(1);
+    await searchPage.resultsCount(2);
 
-    await searchPage.recResourceCardCount(1);
+    await searchPage.recResourceCardCount(2);
 
     await filter.clickClearFilters();
 

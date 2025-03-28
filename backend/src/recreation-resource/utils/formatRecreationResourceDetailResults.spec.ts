@@ -6,14 +6,9 @@ const response = {
   name: "10 K SNOWMOBILE PARKING LOT",
   closest_community: "MERRITT",
   display_on_public_site: true,
-  recreation_map_feature: [
-    {
-      recreation_resource_type_code: {
-        description: "Recreation Site",
-        rec_resource_type_code: "RS",
-      },
-    },
-  ],
+  recreation_resource_type_code: {
+    description: "Recreation Site",
+  },
   recreation_access: [],
   recreation_activity: [],
   recreation_campsite: {
@@ -105,15 +100,10 @@ describe("formatRecreationResourceDetailResults function", () => {
         updated_at: expect.any(Date),
         updated_by: "test_user",
       },
+      recreation_resource_type_code: {
+        description: "Recreation Site",
+      },
       recreation_fee: [],
-      recreation_map_feature: [
-        {
-          recreation_resource_type_code: {
-            description: "Recreation Site",
-            rec_resource_type_code: "RS",
-          },
-        },
-      ],
       recreation_resource_docs: [
         {
           doc_code: "RM",
