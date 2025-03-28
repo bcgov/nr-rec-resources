@@ -4,8 +4,8 @@ export enum Status {
 }
 
 export enum RecResourceType {
-  TRAIL = 'Recreation Trail',
-  SITE = 'Recreation Site',
-  RESERVE = 'Recreation Reserve',
-  INTERPRETIVE = 'Interpretive Forest',
+  TRAIL = 'Recreation trail',
+  SITE = 'Recreation site',
+  RESERVE = 'Recreation reserve',
+  INTERPRETIVE = 'Interpretive forest',
 }

@@ -5,7 +5,7 @@ select distinct on (rr.rec_resource_id)
   rr.closest_community,
   rr.display_on_public_site,
   rrtc.description as recreation_resource_type,
-  rrmf.recreation_resource_type as recreation_resource_type_code,
+  rr.rec_resource_type_code as recreation_resource_type_code,
   jsonb_agg(distinct jsonb_build_object(
     'recreation_activity_code', ra.recreation_activity_code,
     'description', rac.description
@@ -69,8 +69,7 @@ left join lateral (
   where riv.ref_id = ri.ref_id
   and riv.size_code = 'hpr'
 ) rv on true
-left join rst.recreation_map_feature rrmf on rr.rec_resource_id = rrmf.rec_resource_id
-left join rst.recreation_resource_type_code rrtc on rrmf.recreation_resource_type = rrtc.rec_resource_type_code
+left join rst.recreation_resource_type_code rrtc on rr.rec_resource_type_code = rrtc.rec_resource_type_code
 left join rst.recreation_district_code rd on rr.district_code = rd.district_code
 left join rst.recreation_access ra1 on rr.rec_resource_id = ra1.rec_resource_id
 left join rst.recreation_access_code ac on ra1.access_code = ac.access_code
@@ -83,7 +82,6 @@ group by
   rr.closest_community,
   rr.display_on_public_site,
   rrtc.description,
-  rrmf.recreation_resource_type,
   rs.status_code,
   rsc.description,
   rs.comment,

@@ -4,10 +4,7 @@ select
     recreation_map_feature_code as rec_resource_type_code,
     description,
     update_timestamp as updated_at
-from fta.recreation_map_feature_code
+from
+fta.recreation_map_feature_code
 on conflict (rec_resource_type_code)
-do update
-set
-    description = excluded.description
-where
-    excluded.description <> rst.recreation_resource_type_code.description;
+do nothing;
