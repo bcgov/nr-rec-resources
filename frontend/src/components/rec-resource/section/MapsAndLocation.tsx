@@ -11,7 +11,6 @@ interface MapsAndLocationProps {
 
 const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
   ({ accessTypes, recResource }, ref) => {
-    console.log(accessTypes);
     const { driving_directions } = recResource || {};
     return (
       <section
@@ -32,6 +31,7 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
           mapComponentCssStyles={{
             position: 'relative',
             height: '40vh',
+            marginBottom: '4rem',
           }}
         />
 

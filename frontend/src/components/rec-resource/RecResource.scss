@@ -10,9 +10,14 @@
 
 .rec-resource-section {
   h3 {
-    // TODO: come back to this unfortunate use of !important due to bootstrap theme headings using !important
+    // Unfortunate use of !important due to bootstrap theme headings using !important
     font-size: 1.5rem !important;
     margin-bottom: 1rem;
+  }
+
+  p {
+    margin-bottom: 2.25rem;
+    max-width: 610px;
   }
 }
 
@@ -39,6 +44,6 @@
 
 .rec-content-container {
   width: 100%;
-  max-width: 800px;
+  max-width: 740px;
   margin-top: 64px;
 }
