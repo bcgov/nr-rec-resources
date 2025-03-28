@@ -132,11 +132,11 @@ const RecResourcePage = () => {
   const pageSections = useMemo(
     () =>
       [
-        isClosures && { href: '#closures', title: 'Closures' },
-        description && { href: '#site-description', title: 'Site Description' },
+        isClosures && { title: 'Closures' },
+        description && { title: 'Site description' },
         isMapsAndLocation && {
           href: '#maps-and-location',
-          title: 'Maps and Location',
+          title: 'Maps and location',
         },
         { href: '#camping', title: 'Camping' },
 
@@ -144,7 +144,7 @@ const RecResourcePage = () => {
           href: '#additional-fees',
           title: 'Additional Fees',
         },
-        isThingsToDo && { href: '#things-to-do', title: 'Things to Do' },
+        isThingsToDo && { href: '#things-to-do', title: 'Things to do' },
         isFacilitiesAvailable && { href: '#facilities', title: 'Facilities' },
         { href: '#contact', title: 'Contact' },
       ]
@@ -183,9 +183,7 @@ const RecResourcePage = () => {
       <div className={`bg-container ${isPhotoGallery ? 'with-gallery' : ''}`}>
         <div className="page page-padding">
           <BreadCrumbs
-            customPaths={[
-              { name: 'Find a Recreation Site or Trail', route: 'search' },
-            ]}
+            customPaths={[{ name: 'Find a site or trail', route: 'search' }]}
           />
           <section>
             <div>

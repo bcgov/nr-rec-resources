@@ -8,7 +8,7 @@ const Contact = forwardRef<HTMLElement>((_, ref) => {
         <table>
           <tbody>
             <tr>
-              <th>Site Operator</th>
+              <th>Site operator</th>
               <td>
                 <p>Placeholder</p>
               </td>
