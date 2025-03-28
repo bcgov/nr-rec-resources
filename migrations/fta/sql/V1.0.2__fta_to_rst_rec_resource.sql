@@ -25,7 +25,7 @@ select
     rp.entry_userid as created_by,
     rp.site_description as description,
     xref.recreation_district_code as district_code,
-    pr.recreation_maintain_std_code as maintenance_standard_code
+    rp.recreation_maintain_std_code as maintenance_standard_code
 from
     fta.recreation_project rp
 left join

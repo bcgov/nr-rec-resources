@@ -286,5 +286,80 @@ describe('RecResourcePage', () => {
         expect(screen.queryByText(/Facilities/i)).toBeNull();
       });
     });
+
+    describe('Page navigation menu conditional links', () => {
+      test.each([
+        {
+          name: 'Closures',
+          input: {
+            recreation_status: {
+              status_code: 2,
+              description: 'Closed',
+              comment: 'This site is closed',
+            },
+          },
+        },
+        {
+          name: 'Site Description',
+          description: 'Resource Description',
+        },
+        {
+          name: 'Things to Do',
+          input: {
+            recreation_activity: [
+              {
+                recreation_activity_code: 1,
+                description: 'Activity Description',
+              },
+            ],
+          },
+        },
+        {
+          name: 'Maps and Location',
+          input: { spatial_feature_geometry: ['some-geometry'] },
+        },
+        {
+          name: 'Additional Fees',
+          input: {
+            additional_fees: [
+              {
+                fee_amount: 10,
+              },
+            ],
+          },
+        },
+        {
+          name: 'Facilities',
+          input: {
+            recreation_structure: { has_toilet: true, has_table: true },
+          },
+        },
+      ])(
+        'conditionally shows section link for $name',
+        async ({ input, name }) => {
+          await renderComponent({
+            rec_resource_id: 'REC1234',
+            name: 'Resource Name',
+          });
+
+          expect(
+            screen.queryByRole('link', {
+              name,
+            }),
+          ).not.toBeInTheDocument();
+
+          await renderComponent({
+            ...mockResource,
+            ...input,
+          });
+
+          expect(
+            screen.getByRole('link', {
+              name,
+            }),
+          ).toBeInTheDocument();
+        },
+      );
+    });
   });
 });
