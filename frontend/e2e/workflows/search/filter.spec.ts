@@ -369,12 +369,12 @@ test.describe('Search page filter menu workflows', () => {
     await filter.toggleFilterOn(filter.accessTypeFilters, 'Boat-in Access');
 
     await utils.checkExpectedUrlParams(
-      'district=RDKA&page=1&type=SIT&facilities=table&access=B',
+      'district=RDKA&page=1&type=RTR&facilities=table&access=B',
     );
 
     await searchPage.resultsCount(2);
 
-    await searchPage.recResourceCardCount(1);
+    await searchPage.recResourceCardCount(2);
 
     await filter.clickClearFilters();
 

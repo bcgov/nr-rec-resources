@@ -25,7 +25,12 @@ select
     rp.entry_userid as created_by,
     rc.project_comment as description,
     xref.recreation_district_code as district_code,
-    rmf.recreation_map_feature_code as rec_resource_type_code
+    -- Workaround for recreation reserves that are on the public site
+    -- to display as sites
+    case
+        when rp.recreation_view_ind = 'Y' and rmf.recreation_map_feature_code = 'RR' then 'SIT'
+        else rmf.recreation_map_feature_code
+    end as rec_resource_type_code
 from
     fta.recreation_project rp
 left join
