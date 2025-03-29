@@ -3,8 +3,6 @@
       <sequence increment="1" name="recreation_access_id_seq" startValue="1"/>
       <sequence increment="1" name="recreation_activity_code_recreation_activity_code_seq" startValue="1"/>
       <sequence increment="1" name="recreation_fee_id_seq" startValue="1"/>
-      <sequence increment="1" name="recreation_resource_image_variants_id_seq" startValue="1"/>
-      <sequence increment="1" name="recreation_resource_images_id_seq" startValue="1"/>
       <sequence increment="1" name="recreation_status_code_status_code_seq" startValue="1"/>
       <sequence increment="1" name="recreation_structure_code_structure_code_seq" startValue="1"/>
    </sequences>
@@ -364,7 +362,9 @@
       </table>
       <table name="recreation_map_feature_history" remarks="" schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="rmf_skey" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="rec_resource_id" nullable="true" remarks="" size="10" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="rec_resource_id" nullable="true" remarks="" size="10" type="varchar" typeCode="12">
+            <parent column="rec_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_site_point"/>
+         </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="section_id" nullable="true" remarks="" size="30" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="amendment_id" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="amend_status_code" nullable="true" remarks="" size="3" type="varchar" typeCode="12"/>
@@ -456,7 +456,6 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="ref_id" nullable="false" remarks="Unique reference identifier for the document" size="2147483647" type="varchar" typeCode="12">
             <child column="ref_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_docs_history"/>
             <child column="ref_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_image_variants_history"/>
-            <child column="ref_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_images"/>
             <child column="ref_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_images_history"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="rec_resource_id" nullable="true" remarks="Recreation Resource ID" size="10" type="varchar" typeCode="12">
@@ -486,7 +485,9 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="ref_id" nullable="false" remarks="" size="2147483647" type="varchar" typeCode="12">
             <parent column="ref_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_docs"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="rec_resource_id" nullable="true" remarks="" size="10" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="rec_resource_id" nullable="true" remarks="" size="10" type="varchar" typeCode="12">
+            <parent column="rec_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_site_point"/>
+         </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="title" nullable="true" remarks="" size="2147483647" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="url" nullable="true" remarks="" size="2147483647" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="doc_code" nullable="true" remarks="" size="2147483647" type="varchar" typeCode="12">
@@ -515,65 +516,57 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
       </table>
       <table name="recreation_resource_image_variants" remarks="" schema="rst" type="TABLE">
-         <column autoUpdated="true" defaultValue="nextval('rst.recreation_resource_image_variants_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="serial" typeCode="4"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="ref_id" nullable="true" remarks="" size="2147483647" type="varchar" typeCode="12">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="ref_id" nullable="false" remarks="" size="2147483647" type="varchar" typeCode="12">
             <parent column="ref_id" foreignKey="recreation_resource_image_variants_ref_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource_images"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="size_code" nullable="true" remarks="" size="20" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="url" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="width" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="height" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="extension" nullable="true" remarks="" size="10" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="now()" digits="6" id="7" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="now()" digits="6" id="9" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="11" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
-         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="size_code" nullable="false" remarks="" size="20" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="url" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="width" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="height" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="extension" nullable="true" remarks="" size="10" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="6" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="8" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="10" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <primaryKey column="ref_id" sequenceNumberInPK="1"/>
+         <primaryKey column="size_code" sequenceNumberInPK="2"/>
          <index name="recreation_resource_image_variants_pkey" unique="true">
-            <column ascending="true" name="id"/>
-         </index>
-         <index name="recreation_resource_image_variants_ref_id_size_code_key" unique="true">
             <column ascending="true" name="ref_id"/>
             <column ascending="true" name="size_code"/>
          </index>
       </table>
       <table name="recreation_resource_image_variants_history" remarks="" schema="rst" type="TABLE">
-         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="ref_id" nullable="true" remarks="" size="2147483647" type="varchar" typeCode="12">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="ref_id" nullable="false" remarks="" size="2147483647" type="varchar" typeCode="12">
             <parent column="ref_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_docs"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="size_code" nullable="true" remarks="" size="20" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="url" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="width" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="height" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="extension" nullable="true" remarks="" size="10" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="6" id="7" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="6" id="9" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="11" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="size_code" nullable="false" remarks="" size="20" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="url" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="width" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="height" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="extension" nullable="true" remarks="" size="10" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="6" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="8" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="9" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="10" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
       </table>
       <table name="recreation_resource_images" remarks="" schema="rst" type="TABLE">
-         <column autoUpdated="true" defaultValue="nextval('rst.recreation_resource_images_id_seq'::regclass)" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="serial" typeCode="4"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="rec_resource_id" nullable="true" remarks="" size="10" type="varchar" typeCode="12">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="rec_resource_id" nullable="false" remarks="" size="10" type="varchar" typeCode="12">
             <parent column="rec_resource_id" foreignKey="recreation_resource_images_rec_resource_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="ref_id" nullable="true" remarks="" size="2147483647" type="varchar" typeCode="12">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="ref_id" nullable="false" remarks="" size="2147483647" type="varchar" typeCode="12">
             <child column="ref_id" foreignKey="recreation_resource_image_variants_ref_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource_image_variants"/>
-            <parent column="ref_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_docs"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="caption" nullable="true" remarks="" size="2147483647" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="now()" digits="6" id="4" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="now()" digits="6" id="6" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="8" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
-         <primaryKey column="id" sequenceNumberInPK="1"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="caption" nullable="true" remarks="" size="2147483647" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="3" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="5" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="7" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <primaryKey column="rec_resource_id" sequenceNumberInPK="1"/>
+         <primaryKey column="ref_id" sequenceNumberInPK="2"/>
          <index name="recreation_resource_images_pkey" unique="true">
-            <column ascending="true" name="id"/>
-         </index>
-         <index name="recreation_resource_images_rec_resource_id_ref_id_key" unique="true">
             <column ascending="true" name="rec_resource_id"/>
             <column ascending="true" name="ref_id"/>
          </index>
@@ -582,19 +575,20 @@
          </index>
       </table>
       <table name="recreation_resource_images_history" remarks="" schema="rst" type="TABLE">
-         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="id" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="rec_resource_id" nullable="true" remarks="" size="10" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="ref_id" nullable="true" remarks="" size="2147483647" type="varchar" typeCode="12">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="rec_resource_id" nullable="false" remarks="" size="10" type="varchar" typeCode="12">
+            <parent column="rec_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_site_point"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="ref_id" nullable="false" remarks="" size="2147483647" type="varchar" typeCode="12">
             <parent column="ref_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_docs"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="caption" nullable="true" remarks="" size="2147483647" type="varchar" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="6" id="4" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="6" id="6" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="8" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="caption" nullable="true" remarks="" size="2147483647" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="3" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="5" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
       </table>
-      <table name="recreation_resource_search_view" numRows="0" remarks="Provides a list of recreation resources and related data for use in the public site search page" schema="rst" type="VIEW" viewSql=" SELECT DISTINCT ON (rr.rec_resource_id) rr.rec_resource_id,&#10;    rr.name,&#10;    rr.closest_community,&#10;    rr.display_on_public_site,&#10;    rrtc.description AS recreation_resource_type,&#10;    rrmf.recreation_resource_type AS recreation_resource_type_code,&#10;    jsonb_agg(DISTINCT jsonb_build_object('recreation_activity_code', ra.recreation_activity_code, 'description', rac.description)) FILTER (WHERE (ra.recreation_activity_code IS NOT NULL)) AS recreation_activity,&#10;    jsonb_build_object('status_code', rs.status_code, 'description', rsc.description, 'comment', rs.comment) AS recreation_status,&#10;    jsonb_agg(DISTINCT jsonb_build_object('ref_id', ri.ref_id, 'caption', ri.caption, 'recreation_resource_image_variants', rv.variants)) FILTER (WHERE (ri.ref_id IS NOT NULL)) AS recreation_resource_images,&#10;    rd.district_code,&#10;    rd.description AS district_description,&#10;    ac.access_code,&#10;    ac.description AS access_description,&#10;    jsonb_agg(DISTINCT jsonb_build_object('structure_code', rsc2.structure_code, 'description', rsc2.description)) FILTER (WHERE (rsc2.structure_code IS NOT NULL)) AS recreation_structure,&#10;        CASE&#10;            WHEN (EXISTS ( SELECT 1&#10;               FROM rst.recreation_structure_code rsc_1&#10;              WHERE (((rsc_1.description)::text ~~* '%toilet%'::text) AND (rsc_1.structure_code IN ( SELECT rst_1.structure_code&#10;                       FROM rst.recreation_structure rst_1&#10;                      WHERE ((rst_1.rec_resource_id)::text = (rr.rec_resource_id)::text)))))) THEN true&#10;            ELSE false&#10;        END AS has_toilets,&#10;        CASE&#10;            WHEN (EXISTS ( SELECT 1&#10;               FROM rst.recreation_structure_code rsc_1&#10;              WHERE (((rsc_1.description)::text ~~* '%table%'::text) AND (rsc_1.structure_code IN ( SELECT rst_1.structure_code&#10;                       FROM rst.recreation_structure rst_1&#10;                      WHERE ((rst_1.rec_resource_id)::text = (rr.rec_resource_id)::text)))))) THEN true&#10;            ELSE false&#10;        END AS has_tables&#10;   FROM (((((((((((((rst.recreation_resource rr&#10;     LEFT JOIN rst.recreation_activity ra ON (((rr.rec_resource_id)::text = (ra.rec_resource_id)::text)))&#10;     LEFT JOIN rst.recreation_activity_code rac ON ((ra.recreation_activity_code = rac.recreation_activity_code)))&#10;     LEFT JOIN rst.recreation_status rs ON (((rr.rec_resource_id)::text = (rs.rec_resource_id)::text)))&#10;     LEFT JOIN rst.recreation_status_code rsc ON ((rs.status_code = rsc.status_code)))&#10;     LEFT JOIN rst.recreation_resource_images ri ON (((rr.rec_resource_id)::text = (ri.rec_resource_id)::text)))&#10;     LEFT JOIN LATERAL ( SELECT jsonb_agg(jsonb_build_object('size_code', riv.size_code, 'url', riv.url, 'width', riv.width, 'height', riv.height, 'extension', riv.extension)) AS variants&#10;           FROM rst.recreation_resource_image_variants riv&#10;          WHERE (((riv.ref_id)::text = (ri.ref_id)::text) AND ((riv.size_code)::text = 'llc'::text))) rv ON (true))&#10;     LEFT JOIN rst.recreation_map_feature rrmf ON (((rr.rec_resource_id)::text = (rrmf.rec_resource_id)::text)))&#10;     LEFT JOIN rst.recreation_resource_type_code rrtc ON (((rrmf.recreation_resource_type)::text = (rrtc.rec_resource_type_code)::text)))&#10;     LEFT JOIN rst.recreation_district_code rd ON (((rr.district_code)::text = (rd.district_code)::text)))&#10;     LEFT JOIN rst.recreation_access ra1 ON (((rr.rec_resource_id)::text = (ra1.rec_resource_id)::text)))&#10;     LEFT JOIN rst.recreation_access_code ac ON (((ra1.access_code)::text = (ac.access_code)::text)))&#10;     LEFT JOIN rst.recreation_structure rst ON (((rr.rec_resource_id)::text = (rst.rec_resource_id)::text)))&#10;     LEFT JOIN rst.recreation_structure_code rsc2 ON ((rst.structure_code = rsc2.structure_code)))&#10;  WHERE (rr.display_on_public_site = true)&#10;  GROUP BY rr.rec_resource_id, rr.name, rr.closest_community, rr.display_on_public_site, rrtc.description, rrmf.recreation_resource_type, rs.status_code, rsc.description, rs.comment, rd.district_code, rd.description, ac.access_code, ac.description;">
+      <table name="recreation_resource_search_view" numRows="0" remarks="Provides a list of recreation resources and related data for use in the public site search page" schema="rst" type="VIEW" viewSql=" SELECT DISTINCT ON (rr.rec_resource_id) rr.rec_resource_id,&#10;    rr.name,&#10;    rr.closest_community,&#10;    rr.display_on_public_site,&#10;    rrtc.description AS recreation_resource_type,&#10;    rrmf.recreation_resource_type AS recreation_resource_type_code,&#10;    jsonb_agg(DISTINCT jsonb_build_object('recreation_activity_code', ra.recreation_activity_code, 'description', rac.description)) FILTER (WHERE (ra.recreation_activity_code IS NOT NULL)) AS recreation_activity,&#10;    jsonb_build_object('status_code', rs.status_code, 'description', rsc.description, 'comment', rs.comment) AS recreation_status,&#10;    jsonb_agg(DISTINCT jsonb_build_object('ref_id', ri.ref_id, 'caption', ri.caption, 'recreation_resource_image_variants', rv.variants)) FILTER (WHERE (ri.ref_id IS NOT NULL)) AS recreation_resource_images,&#10;    rd.district_code,&#10;    rd.description AS district_description,&#10;    ac.access_code,&#10;    ac.description AS access_description,&#10;    jsonb_agg(DISTINCT jsonb_build_object('structure_code', rsc2.structure_code, 'description', rsc2.description)) FILTER (WHERE (rsc2.structure_code IS NOT NULL)) AS recreation_structure,&#10;        CASE&#10;            WHEN (EXISTS ( SELECT 1&#10;               FROM rst.recreation_structure_code rsc_1&#10;              WHERE (((rsc_1.description)::text ~~* '%toilet%'::text) AND (rsc_1.structure_code IN ( SELECT rst_1.structure_code&#10;                       FROM rst.recreation_structure rst_1&#10;                      WHERE ((rst_1.rec_resource_id)::text = (rr.rec_resource_id)::text)))))) THEN true&#10;            ELSE false&#10;        END AS has_toilets,&#10;        CASE&#10;            WHEN (EXISTS ( SELECT 1&#10;               FROM rst.recreation_structure_code rsc_1&#10;              WHERE (((rsc_1.description)::text ~~* '%table%'::text) AND (rsc_1.structure_code IN ( SELECT rst_1.structure_code&#10;                       FROM rst.recreation_structure rst_1&#10;                      WHERE ((rst_1.rec_resource_id)::text = (rr.rec_resource_id)::text)))))) THEN true&#10;            ELSE false&#10;        END AS has_tables&#10;   FROM (((((((((((((rst.recreation_resource rr&#10;     LEFT JOIN rst.recreation_activity ra ON (((rr.rec_resource_id)::text = (ra.rec_resource_id)::text)))&#10;     LEFT JOIN rst.recreation_activity_code rac ON ((ra.recreation_activity_code = rac.recreation_activity_code)))&#10;     LEFT JOIN rst.recreation_status rs ON (((rr.rec_resource_id)::text = (rs.rec_resource_id)::text)))&#10;     LEFT JOIN rst.recreation_status_code rsc ON ((rs.status_code = rsc.status_code)))&#10;     LEFT JOIN rst.recreation_resource_images ri ON (((rr.rec_resource_id)::text = (ri.rec_resource_id)::text)))&#10;     LEFT JOIN LATERAL ( SELECT jsonb_agg(jsonb_build_object('size_code', riv.size_code, 'url', riv.url, 'width', riv.width, 'height', riv.height, 'extension', riv.extension)) AS variants&#10;           FROM rst.recreation_resource_image_variants riv&#10;          WHERE (((riv.ref_id)::text = (ri.ref_id)::text) AND ((riv.size_code)::text = 'hpr'::text))) rv ON (true))&#10;     LEFT JOIN rst.recreation_map_feature rrmf ON (((rr.rec_resource_id)::text = (rrmf.rec_resource_id)::text)))&#10;     LEFT JOIN rst.recreation_resource_type_code rrtc ON (((rrmf.recreation_resource_type)::text = (rrtc.rec_resource_type_code)::text)))&#10;     LEFT JOIN rst.recreation_district_code rd ON (((rr.district_code)::text = (rd.district_code)::text)))&#10;     LEFT JOIN rst.recreation_access ra1 ON (((rr.rec_resource_id)::text = (ra1.rec_resource_id)::text)))&#10;     LEFT JOIN rst.recreation_access_code ac ON (((ra1.access_code)::text = (ac.access_code)::text)))&#10;     LEFT JOIN rst.recreation_structure rst ON (((rr.rec_resource_id)::text = (rst.rec_resource_id)::text)))&#10;     LEFT JOIN rst.recreation_structure_code rsc2 ON ((rst.structure_code = rsc2.structure_code)))&#10;  WHERE (rr.display_on_public_site = true)&#10;  GROUP BY rr.rec_resource_id, rr.name, rr.closest_community, rr.display_on_public_site, rrtc.description, rrmf.recreation_resource_type, rs.status_code, rsc.description, rs.comment, rd.district_code, rd.description, ac.access_code, ac.description;">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="rec_resource_id" nullable="true" remarks="" size="20" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="name" nullable="true" remarks="" size="200" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="closest_community" nullable="true" remarks="" size="200" type="varchar" typeCode="12"/>
@@ -645,6 +639,41 @@
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="description" nullable="true" remarks="" size="200" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="count" nullable="true" remarks="" size="19" type="int8" typeCode="-5"/>
+      </table>
+      <table name="recreation_site_point" remarks="Stores the location of a Recreation Site as a point geometry. The data is used to provide the public a map location of the Recreation Site." schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="rec_resource_id" nullable="false" remarks="Identification manually assigned to a Recreation Resource." size="10" type="varchar" typeCode="12">
+            <child column="rec_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_map_feature_history"/>
+            <child column="rec_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_docs_history"/>
+            <child column="rec_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_images_history"/>
+            <child column="rec_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_site_point_history"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="geometry" nullable="true" remarks="A point geometry location represented by a single X,Y pair" size="2147483647" type="geometry" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="revision_count" nullable="true" remarks="A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user&quot;s web browser is the most current." size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="3" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="5" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="7" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <primaryKey column="rec_resource_id" sequenceNumberInPK="1"/>
+         <index name="recreation_site_point_pkey" unique="true">
+            <column ascending="true" name="rec_resource_id"/>
+         </index>
+         <index name="recreation_site_point_rec_resource_id_geometry_key" unique="true">
+            <column ascending="true" name="rec_resource_id"/>
+            <column ascending="true" name="geometry"/>
+         </index>
+      </table>
+      <table name="recreation_site_point_history" remarks="" schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="rec_resource_id" nullable="false" remarks="" size="10" type="varchar" typeCode="12">
+            <parent column="rec_resource_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_site_point"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="geometry" nullable="true" remarks="" size="2147483647" type="geometry" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="revision_count" nullable="true" remarks="" size="10" type="int4" typeCode="4"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="3" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="updated_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="5" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="6" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="7" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
       </table>
       <table name="recreation_status" remarks="" schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="rec_resource_id" nullable="false" remarks="" size="200" type="varchar" typeCode="12">
