@@ -30,12 +30,12 @@ const Camping = forwardRef<HTMLElement, CampingProps>(
       <section id={id} ref={ref}>
         <h2 className="section-heading">{title}</h2>
 
-        {showCampsiteCount && campsite_count && (
+        {showCampsiteCount && campsite_count ? (
           <>
             <strong>Number of campsites</strong>
             <p>{campsite_count} campsites</p>
           </>
-        )}
+        ) : null}
 
         {fees.length > 0 ? (
           <RecreationFee data={fees} />
