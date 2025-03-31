@@ -2,7 +2,7 @@ SHELL := /usr/bin/env bash
 
 include ./backend/.env
 
-PSQL=psql -h localhost
+PSQL=psql -h localhost -U ${POSTGRES_USER}
 DB_NAME=${POSTGRES_DATABASE}
 DB_SCHEMA=${POSTGRES_SCHEMA}
 FLYWAY=flyway
@@ -13,15 +13,15 @@ FIXTURE_TABLE=flyway_fixture_schema_history
 
 .PHONY: create_db
 create_db:
-	@$(PSQL) -d postgres -tc "SELECT count(*) FROM pg_database WHERE datname = '$(DB_NAME)'" | \
+	@$(PSQL) -d template1 -tc "SELECT count(*) FROM pg_database WHERE datname = '$(DB_NAME)'" | \
 		grep -q 1 || \
-		$(PSQL) -d postgres -c "CREATE DATABASE $(DB_NAME)";
+		$(PSQL) -d template1 -c "CREATE DATABASE $(DB_NAME)";
 
 .PHONY: drop_db
 drop_db:
-	@$(PSQL) -d postgres -tc "SELECT count(*) FROM pg_database WHERE datname = '$(DB_NAME)'" | \
+	@$(PSQL) -d template1 -tc "SELECT count(*) FROM pg_database WHERE datname = '$(DB_NAME)'" | \
 		grep -q 0 || \
-		$(PSQL) -d postgres -c "DROP DATABASE $(DB_NAME)";
+		$(PSQL) -d template1 -c "DROP DATABASE $(DB_NAME)";
 
 .PHONY: migrate
 migrate:
