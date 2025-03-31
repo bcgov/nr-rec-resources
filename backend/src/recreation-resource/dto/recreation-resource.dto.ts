@@ -2,6 +2,11 @@ import { ApiProperty } from "@nestjs/swagger";
 import { RecreationResourceImageDto } from "./recreation-resource-image.dto";
 import { RecreationResourceDocDto } from "./recreation-resource-doc.dto";
 
+export enum RecreationResourceMaintenanceStandardCode {
+  U = "U", // User maintained
+  M = "M", // Maintained
+}
+
 export class RecreationActivityDto {
   @ApiProperty({
     description: "Unique code identifying the recreation activity",
@@ -194,7 +199,7 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
     example: "U",
     nullable: true,
   })
-  maintenance_standard_code: string;
+  maintenance_standard_code: RecreationResourceMaintenanceStandardCode;
 
   @ApiProperty({
     description:

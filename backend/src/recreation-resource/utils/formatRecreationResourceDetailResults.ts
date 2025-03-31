@@ -1,4 +1,7 @@
-import { RecreationResourceDetailDto } from "src/recreation-resource/dto/recreation-resource.dto";
+import {
+  RecreationResourceDetailDto,
+  RecreationResourceMaintenanceStandardCode,
+} from "src/recreation-resource/dto/recreation-resource.dto";
 import { RecreationResourceImageDto } from "src/recreation-resource/dto/recreation-resource-image.dto";
 import { RecreationResourceGetPayload } from "src/recreation-resource/service/types";
 import { getRecreationResourceSpatialFeatureGeometry } from "@prisma-generated-sql";
@@ -17,7 +20,8 @@ export const formatRecreationResourceDetailResults = (
     closest_community: result.closest_community,
     description: result.recreation_site_description?.description,
     driving_directions: result.recreation_driving_direction?.description,
-    maintenance_standard_code: result?.maintenance_standard_code,
+    maintenance_standard_code:
+      result?.maintenance_standard_code as RecreationResourceMaintenanceStandardCode,
     rec_resource_type:
       result?.recreation_map_feature?.[0].recreation_resource_type_code
         .description,
