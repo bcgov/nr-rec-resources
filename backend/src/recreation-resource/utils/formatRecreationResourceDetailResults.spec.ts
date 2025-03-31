@@ -1,11 +1,17 @@
 import { formatRecreationResourceDetailResults } from "src/recreation-resource/utils/formatRecreationResourceDetailResults";
 
-const response = {
+export const mockResponse = {
   rec_resource_id: "REC203239",
-  description: "test",
   name: "10 K SNOWMOBILE PARKING LOT",
   closest_community: "MERRITT",
   display_on_public_site: true,
+  maintenance_standard_code: "M",
+  recreation_site_description: {
+    description: "Test description",
+  },
+  recreation_driving_direction: {
+    description: "Test driving direction",
+  },
   recreation_map_feature: [
     {
       recreation_resource_type_code: {
@@ -16,14 +22,6 @@ const response = {
   ],
   recreation_access: [],
   recreation_activity: [],
-  recreation_campsite: {
-    rec_resource_id: "REC203239",
-    campsite_count: 1,
-    updated_at: new Date(),
-    updated_by: "test_user",
-    created_at: new Date(),
-    created_by: "test_user",
-  },
   recreation_status: {
     recreation_status_code: { description: "Closed" },
     comment: "Closed status for REC203239",
@@ -57,87 +55,78 @@ const response = {
       recreation_resource_doc_code: {} as any,
     },
   ],
+  _count: {
+    recreation_defined_campsite: 1,
+  },
 };
 
-const spatialResponse = [
+export const mockSpatialResponse = [
   {
     spatial_feature_geometry: ['{"type":"Polygon","coordinates":"test"}'],
     site_point_geometry: "Point",
   } as any,
 ];
 
+export const mockResults = {
+  additional_fees: [
+    {
+      fee_amount: 8,
+      fee_end_date: expect.any(Date),
+      fee_start_date: expect.any(Date),
+      friday_ind: "Y",
+      monday_ind: "Y",
+      recreation_fee_code: "P",
+      saturday_ind: "N",
+      sunday_ind: "N",
+      thursday_ind: "Y",
+      tuesday_ind: "Y",
+      wednesday_ind: "Y",
+    },
+  ],
+  closest_community: "MERRITT",
+  description: "Test description",
+  driving_directions: "Test driving direction",
+  maintenance_standard_code: "M",
+  name: "10 K SNOWMOBILE PARKING LOT",
+  rec_resource_id: "REC203239",
+  rec_resource_type: "Recreation Site",
+  recreation_access: [],
+  recreation_activity: [],
+  recreation_fee: [],
+  campsite_count: 1,
+  recreation_resource_docs: [
+    {
+      doc_code: "RM",
+      doc_code_description: undefined,
+      extension: "pdf",
+      recreation_resource_doc_code: {},
+      ref_id: "11560",
+      title: "French Creek Map",
+      url: "/filestore/0/6/5/1/1_e6add31b6192a01/11560_d8bbba4218445a6.pdf",
+    },
+  ],
+  recreation_resource_images: [],
+  recreation_status: {
+    comment: "Closed status for REC203239",
+    description: "Closed",
+    status_code: 2,
+  },
+  recreation_structure: {
+    has_table: false,
+    has_toilet: false,
+  },
+  site_point_geometry: "Point",
+  spatial_feature_geometry: ['{"type":"Polygon","coordinates":"test"}'],
+};
+
 describe("formatRecreationResourceDetailResults function", () => {
   it("should correctly format the results", () => {
     const results = formatRecreationResourceDetailResults(
-      response,
-      spatialResponse,
+      mockResponse,
+      mockSpatialResponse,
     );
 
-    expect(results).toEqual({
-      additional_fees: [
-        {
-          fee_amount: 8,
-          fee_end_date: expect.any(Date),
-          fee_start_date: expect.any(Date),
-          friday_ind: "Y",
-          monday_ind: "Y",
-          recreation_fee_code: "P",
-          saturday_ind: "N",
-          sunday_ind: "N",
-          thursday_ind: "Y",
-          tuesday_ind: "Y",
-          wednesday_ind: "Y",
-        },
-      ],
-      closest_community: "MERRITT",
-      description: "test",
-      display_on_public_site: true,
-      name: "10 K SNOWMOBILE PARKING LOT",
-      rec_resource_id: "REC203239",
-      rec_resource_type: "Recreation Site",
-      recreation_access: [],
-      recreation_activity: [],
-      recreation_campsite: {
-        campsite_count: 1,
-        created_at: expect.any(Date),
-        created_by: "test_user",
-        rec_resource_id: "REC203239",
-        updated_at: expect.any(Date),
-        updated_by: "test_user",
-      },
-      recreation_fee: [],
-      recreation_map_feature: [
-        {
-          recreation_resource_type_code: {
-            description: "Recreation Site",
-            rec_resource_type_code: "RS",
-          },
-        },
-      ],
-      recreation_resource_docs: [
-        {
-          doc_code: "RM",
-          doc_code_description: undefined,
-          extension: "pdf",
-          recreation_resource_doc_code: {},
-          ref_id: "11560",
-          title: "French Creek Map",
-          url: "/filestore/0/6/5/1/1_e6add31b6192a01/11560_d8bbba4218445a6.pdf",
-        },
-      ],
-      recreation_resource_images: [],
-      recreation_status: {
-        comment: "Closed status for REC203239",
-        description: "Closed",
-        status_code: 2,
-      },
-      recreation_structure: {
-        has_table: false,
-        has_toilet: false,
-      },
-      spatial_feature_geometry: ['{"type":"Polygon","coordinates":"test"}'],
-      site_point_geometry: "Point",
-    });
+    expect(results).toEqual(mockResults);
   });
 
   it("should throw an error with garbage data", () => {

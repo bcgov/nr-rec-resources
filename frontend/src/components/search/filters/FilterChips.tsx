@@ -19,7 +19,7 @@ const FilterChips = () => {
       {isFilters && (
         <button
           type="button"
-          className="btn-link clear-filters-btn-desktop"
+          className="btn-link pl-0 mb-2"
           onClick={clearFilters}
         >
           Clear Filters

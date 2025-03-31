@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import ThingsToDo from '@/components/rec-resource/ThingsToDo';
+import ThingsToDo from '@/components/rec-resource/section/ThingsToDo';
 
 export const mockActivities = [
   {

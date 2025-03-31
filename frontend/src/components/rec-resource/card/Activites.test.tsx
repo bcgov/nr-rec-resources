@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import Activities from '@/components/rec-resource/card/Activities';
-import { mockActivities } from '@/components/rec-resource/ThingsToDo.test';
+import { mockActivities } from '@/components/rec-resource/section/ThingsToDo.test';
 
 describe('the Activities component', () => {
   it('renders the activity icons', async () => {

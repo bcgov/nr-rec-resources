@@ -10,27 +10,31 @@ datasource db {
 }
 
 model recreation_resource {
-  rec_resource_id            String                       @id @db.VarChar(20)
-  name                       String?                      @db.VarChar(200)
-  description                String?                      @db.VarChar(5000)
-  closest_community          String?                      @db.VarChar(200)
-  display_on_public_site     Boolean?                     @default(false)
-  district_code              String?                      @db.VarChar(4)
-  updated_at                 DateTime?                    @default(now()) @db.Timestamp(6)
-  updated_by                 String?
-  created_at                 DateTime?                    @default(now()) @db.Timestamp(6)
-  created_by                 String?
-  sys_period                 Unsupported("tstzrange")     @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_access          recreation_access[]
-  recreation_activity        recreation_activity[]
-  recreation_campsite        recreation_campsite?
-  recreation_fee             recreation_fee[]
-  recreation_map_feature     recreation_map_feature[]
-  recreation_district_code   recreation_district_code?    @relation(fields: [district_code], references: [district_code], onDelete: NoAction, onUpdate: NoAction)
-  recreation_resource_docs   recreation_resource_docs[]
-  recreation_resource_images recreation_resource_images[]
-  recreation_status          recreation_status?
-  recreation_structure       recreation_structure[]
+  rec_resource_id                      String                                @id @db.VarChar(20)
+  name                                 String?                               @db.VarChar(200)
+  description                          String?
+  closest_community                    String?                               @db.VarChar(200)
+  display_on_public_site               Boolean?                              @default(false)
+  district_code                        String?                               @db.VarChar(4)
+  maintenance_standard_code            String?                               @db.VarChar(1)
+  updated_at                           DateTime?                             @default(now()) @db.Timestamp(6)
+  updated_by                           String?
+  created_at                           DateTime?                             @default(now()) @db.Timestamp(6)
+  created_by                           String?
+  sys_period                           Unsupported("tstzrange")              @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_access                    recreation_access[]
+  recreation_activity                  recreation_activity[]
+  recreation_defined_campsite          recreation_defined_campsite[]
+  recreation_driving_direction         recreation_driving_direction?
+  recreation_fee                       recreation_fee[]
+  recreation_map_feature               recreation_map_feature[]
+  recreation_district_code             recreation_district_code?             @relation(fields: [district_code], references: [district_code], onDelete: NoAction, onUpdate: NoAction)
+  recreation_maintenance_standard_code recreation_maintenance_standard_code? @relation(fields: [maintenance_standard_code], references: [maintenance_standard_code], onDelete: NoAction, onUpdate: NoAction)
+  recreation_resource_docs             recreation_resource_docs[]
+  recreation_resource_images           recreation_resource_images[]
+  recreation_site_description          recreation_site_description?
+  recreation_status                    recreation_status?
+  recreation_structure                 recreation_structure[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -99,7 +103,6 @@ model recreation_district_code {
 }
 
 model recreation_fee {
-  id                  Int                      @id @default(autoincrement())
   rec_resource_id     String                   @db.VarChar(200)
   fee_amount          Int?
   fee_start_date      DateTime?                @db.Date
@@ -130,17 +133,6 @@ model recreation_fee_code {
   updated_at          DateTime?                @default(now()) @db.Timestamp(6)
   sys_period          Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
   with_description    recreation_fee[]         @relation("fee_with_description")
-}
-
-model recreation_campsite {
-  rec_resource_id     String                   @id @db.VarChar(20)
-  campsite_count      Int                      @default(0)
-  updated_at          DateTime?                @default(now()) @db.Timestamp(6)
-  updated_by          String?
-  created_at          DateTime?                @default(now()) @db.Timestamp(6)
-  created_by          String?
-  sys_period          Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_resource recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -302,19 +294,6 @@ model recreation_activity_history {
 }
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model recreation_campsite_history {
-  rec_resource_id String                   @db.VarChar(20)
-  campsite_count  Int
-  updated_at      DateTime?                @db.Timestamp(6)
-  updated_by      String?
-  created_at      DateTime?                @db.Timestamp(6)
-  created_by      String?
-  sys_period      Unsupported("tstzrange")
-
-  @@ignore
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model recreation_district_code_history {
   district_code String                   @db.VarChar(4)
   description   String                   @db.VarChar(120)
@@ -336,7 +315,6 @@ model recreation_fee_code_history {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model recreation_fee_history {
-  id                  Int
   rec_resource_id     String                   @db.VarChar(200)
   fee_amount          Int?
   fee_start_date      DateTime?                @db.Date
@@ -400,17 +378,18 @@ model recreation_map_feature_history {
 
 /// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 model recreation_resource_history {
-  rec_resource_id        String                   @db.VarChar(20)
-  name                   String?                  @db.VarChar(200)
-  description            String?                  @db.VarChar(5000)
-  closest_community      String?                  @db.VarChar(200)
-  display_on_public_site Boolean?
-  district_code          String?                  @db.VarChar(4)
-  updated_at             DateTime?                @db.Timestamp(6)
-  updated_by             String?
-  created_at             DateTime?                @db.Timestamp(6)
-  created_by             String?
-  sys_period             Unsupported("tstzrange")
+  rec_resource_id           String                   @db.VarChar(20)
+  name                      String?                  @db.VarChar(200)
+  description               String?
+  closest_community         String?                  @db.VarChar(200)
+  display_on_public_site    Boolean?
+  district_code             String?                  @db.VarChar(4)
+  maintenance_standard_code String?                  @db.VarChar(1)
+  updated_at                DateTime?                @db.Timestamp(6)
+  updated_by                String?
+  created_at                DateTime?                @db.Timestamp(6)
+  created_by                String?
+  sys_period                Unsupported("tstzrange")
 
   @@ignore
 }
@@ -640,6 +619,128 @@ model recreation_site_point_history {
   rec_resource_id String                   @db.VarChar(10)
   geometry        Unsupported("geometry")?
   revision_count  Int?
+  updated_at      DateTime?                @db.Timestamp(6)
+  updated_by      String?
+  created_at      DateTime?                @db.Timestamp(6)
+  created_by      String?
+  sys_period      Unsupported("tstzrange")
+
+  @@ignore
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_defined_campsite {
+  rec_resource_id                                                                                                     String                        @db.VarChar(10)
+  campsite_number                                                                                                     Int
+  estimated_repair_cost                                                                                               Decimal?                      @db.Decimal(10, 2)
+  recreation_remed_repair_code                                                                                        String?                       @db.VarChar(2)
+  repair_complete_date                                                                                                DateTime?                     @db.Date
+  updated_at                                                                                                          DateTime?                     @default(now()) @db.Timestamp(6)
+  updated_by                                                                                                          String?
+  created_at                                                                                                          DateTime?                     @default(now()) @db.Timestamp(6)
+  created_by                                                                                                          String?
+  sys_period                                                                                                          Unsupported("tstzrange")      @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_resource                                                                                                 recreation_resource           @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+  recreation_remed_repair_code_recreation_defined_campsite_recreation_remed_repair_codeTorecreation_remed_repair_code recreation_remed_repair_code? @relation("recreation_defined_campsite_recreation_remed_repair_codeTorecreation_remed_repair_code", fields: [recreation_remed_repair_code], references: [recreation_remed_repair_code], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([rec_resource_id, campsite_number])
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_defined_campsite_history {
+  rec_resource_id              String                   @db.VarChar(10)
+  campsite_number              Int
+  estimated_repair_cost        Decimal?                 @db.Decimal(10, 2)
+  recreation_remed_repair_code String?                  @db.VarChar(2)
+  repair_complete_date         DateTime?                @db.Date
+  updated_at                   DateTime?                @db.Timestamp(6)
+  updated_by                   String?
+  created_at                   DateTime?                @db.Timestamp(6)
+  created_by                   String?
+  sys_period                   Unsupported("tstzrange")
+
+  @@ignore
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_driving_direction {
+  rec_resource_id     String                   @id @db.VarChar(10)
+  description         String?
+  updated_at          DateTime?                @default(now()) @db.Timestamp(6)
+  updated_by          String?
+  created_at          DateTime?                @default(now()) @db.Timestamp(6)
+  created_by          String?
+  sys_period          Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_resource recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_driving_direction_history {
+  rec_resource_id String                   @db.VarChar(10)
+  description     String?
+  updated_at      DateTime?                @db.Timestamp(6)
+  updated_by      String?
+  created_at      DateTime?                @db.Timestamp(6)
+  created_by      String?
+  sys_period      Unsupported("tstzrange")
+
+  @@ignore
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_maintenance_standard_code {
+  maintenance_standard_code String                   @id @db.VarChar(1)
+  description               String                   @db.VarChar(200)
+  updated_at                DateTime?                @default(now()) @db.Timestamp(6)
+  sys_period                Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_resource       recreation_resource[]
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_maintenance_standard_code_history {
+  maintenance_standard_code String                   @db.VarChar(1)
+  description               String                   @db.VarChar(200)
+  updated_at                DateTime?                @db.Timestamp(6)
+  sys_period                Unsupported("tstzrange")
+
+  @@ignore
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_remed_repair_code {
+  recreation_remed_repair_code                                                                                       String                        @id @db.VarChar(2)
+  description                                                                                                        String?                       @db.VarChar(120)
+  updated_at                                                                                                         DateTime?                     @default(now()) @db.Timestamp(6)
+  sys_period                                                                                                         Unsupported("tstzrange")      @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_defined_campsite_recreation_defined_campsite_recreation_remed_repair_codeTorecreation_remed_repair_code recreation_defined_campsite[] @relation("recreation_defined_campsite_recreation_remed_repair_codeTorecreation_remed_repair_code")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_remed_repair_code_history {
+  recreation_remed_repair_code String                   @db.VarChar(2)
+  description                  String?                  @db.VarChar(120)
+  updated_at                   DateTime?                @db.Timestamp(6)
+  sys_period                   Unsupported("tstzrange")
+
+  @@ignore
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_site_description {
+  rec_resource_id     String                   @id @db.VarChar(10)
+  description         String?
+  updated_at          DateTime?                @default(now()) @db.Timestamp(6)
+  updated_by          String?
+  created_at          DateTime?                @default(now()) @db.Timestamp(6)
+  created_by          String?
+  sys_period          Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_resource recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_site_description_history {
+  rec_resource_id String                   @db.VarChar(10)
+  description     String?
   updated_at      DateTime?                @db.Timestamp(6)
   updated_by      String?
   created_at      DateTime?                @db.Timestamp(6)

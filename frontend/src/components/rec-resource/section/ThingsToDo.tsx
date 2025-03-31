@@ -1,7 +1,7 @@
 import { forwardRef } from 'react';
 import activityIconMap from '@/data/activityIconMap';
 import { Activity } from '@/components/rec-resource/types';
-import '@/components/rec-resource/ThingsToDo.scss';
+import '@/components/rec-resource/section/ThingsToDo.scss';
 
 interface ThingsToDoProps {
   activities: Activity[];

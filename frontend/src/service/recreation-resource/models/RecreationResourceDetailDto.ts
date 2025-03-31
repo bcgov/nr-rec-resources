@@ -13,13 +13,6 @@
  */
 
 import { mapValues } from '../runtime';
-import type { RecreationCampsiteDto } from './RecreationCampsiteDto';
-import {
-  RecreationCampsiteDtoFromJSON,
-  RecreationCampsiteDtoFromJSONTyped,
-  RecreationCampsiteDtoToJSON,
-  RecreationCampsiteDtoToJSONTyped,
-} from './RecreationCampsiteDto';
 import type { RecreationResourceDocDto } from './RecreationResourceDocDto';
 import {
   RecreationResourceDocDtoFromJSON,
@@ -118,11 +111,23 @@ export interface RecreationResourceDetailDto {
    */
   description: string | null;
   /**
-   * Number of campsites available in the recreation site or trail
-   * @type {RecreationCampsiteDto}
+   * Driving directions to the Recreation Resource
+   * @type {string}
    * @memberof RecreationResourceDetailDto
    */
-  recreation_campsite: RecreationCampsiteDto;
+  driving_directions: string | null;
+  /**
+   * The maintenance standard code for the recreation resource
+   * @type {string}
+   * @memberof RecreationResourceDetailDto
+   */
+  maintenance_standard_code: RecreationResourceDetailDtoMaintenanceStandardCodeEnum | null;
+  /**
+   * Number of campsites available in the recreation site or trail
+   * @type {number}
+   * @memberof RecreationResourceDetailDto
+   */
+  campsite_count: number;
   /**
    * List of fee details for the recreation resource (supports multiple fees with code 'C')
    * @type {Array<RecreationFeeDto>}
@@ -168,6 +173,16 @@ export interface RecreationResourceDetailDto {
 }
 
 /**
+ * @export
+ */
+export const RecreationResourceDetailDtoMaintenanceStandardCodeEnum = {
+  U: 'U',
+  M: 'M',
+} as const;
+export type RecreationResourceDetailDtoMaintenanceStandardCodeEnum =
+  (typeof RecreationResourceDetailDtoMaintenanceStandardCodeEnum)[keyof typeof RecreationResourceDetailDtoMaintenanceStandardCodeEnum];
+
+/**
  * Check if a given object implements the RecreationResourceDetailDto interface.
  */
 export function instanceOfRecreationResourceDetailDto(
@@ -199,9 +214,16 @@ export function instanceOfRecreationResourceDetailDto(
   if (!('description' in value) || value['description'] === undefined)
     return false;
   if (
-    !('recreation_campsite' in value) ||
-    value['recreation_campsite'] === undefined
+    !('driving_directions' in value) ||
+    value['driving_directions'] === undefined
   )
+    return false;
+  if (
+    !('maintenance_standard_code' in value) ||
+    value['maintenance_standard_code'] === undefined
+  )
+    return false;
+  if (!('campsite_count' in value) || value['campsite_count'] === undefined)
     return false;
   if (!('recreation_fee' in value) || value['recreation_fee'] === undefined)
     return false;
@@ -249,9 +271,9 @@ export function RecreationResourceDetailDtoFromJSONTyped(
             RecreationResourceImageDtoFromJSON,
           ),
     description: json['description'],
-    recreation_campsite: RecreationCampsiteDtoFromJSON(
-      json['recreation_campsite'],
-    ),
+    driving_directions: json['driving_directions'],
+    maintenance_standard_code: json['maintenance_standard_code'],
+    campsite_count: json['campsite_count'],
     recreation_fee: (json['recreation_fee'] as Array<any>).map(
       RecreationFeeDtoFromJSON,
     ),
@@ -309,9 +331,9 @@ export function RecreationResourceDetailDtoToJSONTyped(
             RecreationResourceImageDtoToJSON,
           ),
     description: value['description'],
-    recreation_campsite: RecreationCampsiteDtoToJSON(
-      value['recreation_campsite'],
-    ),
+    driving_directions: value['driving_directions'],
+    maintenance_standard_code: value['maintenance_standard_code'],
+    campsite_count: value['campsite_count'],
     recreation_fee: (value['recreation_fee'] as Array<any>).map(
       RecreationFeeDtoToJSON,
     ),

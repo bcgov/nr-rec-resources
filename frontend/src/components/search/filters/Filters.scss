@@ -163,16 +163,6 @@
   }
 }
 
-.clear-filters-btn-desktop {
-  display: none;
-  padding-left: 0px;
-  margin-bottom: 8px;
-
-  @include media-breakpoint-up(md) {
-    display: block;
-  }
-}
-
 .search-filter-chip {
   height: auto;
   border-radius: 32px;
