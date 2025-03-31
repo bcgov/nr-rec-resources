@@ -13,9 +13,7 @@ export const formatRecreationResourceDetailResults = (
 
   return {
     ...result,
-    rec_resource_type:
-      result?.recreation_map_feature?.[0].recreation_resource_type_code
-        .description,
+    rec_resource_type: result.recreation_resource_type_code?.description,
     recreation_access: result.recreation_access?.map(
       (access) => access.recreation_access_code.description,
     ),

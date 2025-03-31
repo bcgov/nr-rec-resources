@@ -33,6 +33,7 @@ group by
 
 comment on materialized view recreation_resource_access_count_view is 'Provides a list of access codes and counts of their associated recreation resources for use in the search filter menu.';
 
+
 create materialized view recreation_resource_type_count_view as
 select
   row_number() over () as unique_id,
@@ -41,10 +42,8 @@ select
   coalesce(count(distinct rr.rec_resource_id), 0) as count
 from
   recreation_resource_type_code rrtc
-  left join recreation_map_feature rmf
-    on rmf.recreation_resource_type = rrtc.rec_resource_type_code
   left join recreation_resource rr
-    on rr.rec_resource_id = rmf.rec_resource_id
+    on rr.rec_resource_type_code = rrtc.rec_resource_type_code
     and rr.display_on_public_site = true
 where
   rrtc.rec_resource_type_code != 'RR'
