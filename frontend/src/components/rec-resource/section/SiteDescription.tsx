@@ -1,12 +1,15 @@
 import { forwardRef } from 'react';
 import parse from 'html-react-parser';
+import { RecreationResourceDetailDtoMaintenanceStandardCodeEnum } from '@/service/recreation-resource';
 
 interface SiteDescriptionProps {
   description: string;
-  maintenanceCode?: string;
+  maintenanceCode?: RecreationResourceDetailDtoMaintenanceStandardCodeEnum;
 }
 
-const getMaintenanceDescription = (maintenanceCode: string) => {
+const getMaintenanceDescription = (
+  maintenanceCode: RecreationResourceDetailDtoMaintenanceStandardCodeEnum,
+) => {
   switch (maintenanceCode) {
     case 'U':
       return 'Limited maintenance services are provided at this site. Please respect the environment and pack out what you pack in.';

@@ -121,7 +121,7 @@ export interface RecreationResourceDetailDto {
    * @type {string}
    * @memberof RecreationResourceDetailDto
    */
-  maintenance_standard_code: string | null;
+  maintenance_standard_code: RecreationResourceDetailDtoMaintenanceStandardCodeEnum | null;
   /**
    * Number of campsites available in the recreation site or trail
    * @type {number}
@@ -171,6 +171,16 @@ export interface RecreationResourceDetailDto {
    */
   recreation_resource_docs?: Array<RecreationResourceDocDto>;
 }
+
+/**
+ * @export
+ */
+export const RecreationResourceDetailDtoMaintenanceStandardCodeEnum = {
+  U: 'U',
+  M: 'M',
+} as const;
+export type RecreationResourceDetailDtoMaintenanceStandardCodeEnum =
+  (typeof RecreationResourceDetailDtoMaintenanceStandardCodeEnum)[keyof typeof RecreationResourceDetailDtoMaintenanceStandardCodeEnum];
 
 /**
  * Check if a given object implements the RecreationResourceDetailDto interface.

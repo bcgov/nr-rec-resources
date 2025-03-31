@@ -196,7 +196,8 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
 
   @ApiProperty({
     description: "The maintenance standard code for the recreation resource",
-    example: "U",
+    enum: RecreationResourceMaintenanceStandardCode,
+    example: RecreationResourceMaintenanceStandardCode.U,
     nullable: true,
   })
   maintenance_standard_code: RecreationResourceMaintenanceStandardCode;
