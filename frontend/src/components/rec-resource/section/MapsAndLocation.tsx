@@ -42,7 +42,7 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
           </article>
         )}
 
-        {accessTypes && (
+        {accessTypes && accessTypes?.length > 0 && (
           <section className="mb-4">
             <h3>Access Type{accessTypes.length > 1 && 's'}</h3>
             <ul className="list-unstyled">

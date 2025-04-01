@@ -241,7 +241,7 @@ const RecResourcePage = () => {
             {description && (
               <SiteDescription
                 description={description}
-                maintenanceCode={String(maintenance_standard_code)}
+                maintenanceCode={maintenance_standard_code}
                 ref={siteDescriptionRef}
               />
             )}
