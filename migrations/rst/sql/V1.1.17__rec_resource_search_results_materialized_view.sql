@@ -4,8 +4,8 @@ select distinct on (rr.rec_resource_id)
   rr.name,
   rr.closest_community,
   rr.display_on_public_site,
-  rrtc.description as recreation_resource_type,
-  rrmf.recreation_resource_type as recreation_resource_type_code,
+  rrtv.description as recreation_resource_type,
+  rrtv.rec_resource_type_code as recreation_resource_type_code,
   jsonb_agg(distinct jsonb_build_object(
     'recreation_activity_code', ra.recreation_activity_code,
     'description', rac.description
@@ -50,6 +50,7 @@ select distinct on (rr.rec_resource_id)
   end as has_tables
 
 from rst.recreation_resource rr
+left join recreation_resource_type_view rrtv on rr.rec_resource_id = rrtv.rec_resource_id
 left join rst.recreation_activity ra on rr.rec_resource_id = ra.rec_resource_id
 left join rst.recreation_activity_code rac on ra.recreation_activity_code = rac.recreation_activity_code
 left join rst.recreation_status rs on rr.rec_resource_id = rs.rec_resource_id
@@ -69,8 +70,6 @@ left join lateral (
   where riv.ref_id = ri.ref_id
   and riv.size_code = 'hpr'
 ) rv on true
-left join rst.recreation_map_feature rrmf on rr.rec_resource_id = rrmf.rec_resource_id
-left join rst.recreation_resource_type_code rrtc on rrmf.recreation_resource_type = rrtc.rec_resource_type_code
 left join rst.recreation_district_code rd on rr.district_code = rd.district_code
 left join rst.recreation_access ra1 on rr.rec_resource_id = ra1.rec_resource_id
 left join rst.recreation_access_code ac on ra1.access_code = ac.access_code
@@ -82,8 +81,8 @@ group by
   rr.name,
   rr.closest_community,
   rr.display_on_public_site,
-  rrtc.description,
-  rrmf.recreation_resource_type,
+  rrtv.rec_resource_type_code,
+  rrtv.description,
   rs.status_code,
   rsc.description,
   rs.comment,
@@ -91,5 +90,6 @@ group by
   rd.description,
   ac.access_code,
   ac.description;
+
 
 comment on materialized view recreation_resource_search_view is 'Provides a list of recreation resources and related data for use in the public site search page';

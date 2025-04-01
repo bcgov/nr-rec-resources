@@ -1,6 +1,5 @@
 create materialized view recreation_resource_district_count_view as
 select
-  row_number() over () as unique_id,
   rd.district_code,
   rd.description,
   coalesce(count(distinct r.rec_resource_id), 0) as resource_count
@@ -17,7 +16,6 @@ comment on materialized view recreation_resource_district_count_view is 'Provide
 
 create materialized view recreation_resource_access_count_view as
 select
-  row_number() over () as unique_id,
   rac.access_code,
   rac.description as access_description,
   coalesce(count(distinct (ra.rec_resource_id, ra.access_code, ra.sub_access_code)), 0) as count
@@ -33,25 +31,23 @@ group by
 
 comment on materialized view recreation_resource_access_count_view is 'Provides a list of access codes and counts of their associated recreation resources for use in the search filter menu.';
 
+
 create materialized view recreation_resource_type_count_view as
 select
-  row_number() over () as unique_id,
-  rrtc.rec_resource_type_code as rec_resource_type_code,
-  rrtc.description,
+  rrtv.rec_resource_type_code,
+  rrtv.description as description,
   coalesce(count(distinct rr.rec_resource_id), 0) as count
 from
-  recreation_resource_type_code rrtc
-  left join recreation_map_feature rmf
-    on rmf.recreation_resource_type = rrtc.rec_resource_type_code
+  recreation_resource_type_view rrtv
   left join recreation_resource rr
-    on rr.rec_resource_id = rmf.rec_resource_id
+    on rr.rec_resource_id = rrtv.rec_resource_id
     and rr.display_on_public_site = true
 where
-  rrtc.rec_resource_type_code != 'RR'
+  rrtv.rec_resource_type_code != 'RR'
 group by
-  rrtc.rec_resource_type_code,
-  rrtc.description
+  rrtv.rec_resource_type_code,
+  rrtv.description
 order by
-  rrtc.description desc;
+  rrtv.description desc;
 
 comment on materialized view recreation_resource_type_count_view is 'Provides a list of resource type codes and counts of their associated recreation resources for use in the search filter menu.';
