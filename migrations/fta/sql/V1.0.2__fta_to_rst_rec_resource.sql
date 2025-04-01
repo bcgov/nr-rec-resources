@@ -8,7 +8,8 @@ insert into rst.recreation_resource (
     created_at,
     created_by,
     description,
-    district_code
+    district_code,
+    maintenance_standard_code
 )
 select
     rp.forest_file_id as rec_resource_id,
@@ -22,19 +23,21 @@ select
     rp.update_userid as updated_by,
     rp.entry_timestamp as created_at,
     rp.entry_userid as created_by,
-    rc.project_comment as description,
-    xref.recreation_district_code as district_code
+    rp.site_description as description,
+    xref.recreation_district_code as district_code,
+    rp.recreation_maintain_std_code as maintenance_standard_code
 from
     fta.recreation_project rp
 left join
-    fta.recreation_comment rc
-on
-    rp.forest_file_id = rc.forest_file_id
-    and rc.rec_comment_type_code = 'DESC'
-left join
-    (select distinct on (forest_file_id) forest_file_id, recreation_district_code
-     from fta.recreation_district_xref
-     order by forest_file_id, update_timestamp desc) as xref
+    (
+        select distinct on (forest_file_id)
+            forest_file_id,
+            recreation_district_code
+        from
+            fta.recreation_district_xref
+        order by
+            forest_file_id, update_timestamp desc
+    ) as xref
 on
     rp.forest_file_id = xref.forest_file_id
 on conflict (rec_resource_id) do update
@@ -45,4 +48,5 @@ set
     updated_at = excluded.updated_at,
     updated_by = excluded.updated_by,
     description = excluded.description,
-    district_code = excluded.district_code;
+    district_code = excluded.district_code,
+    maintenance_standard_code = excluded.maintenance_standard_code;

@@ -23,7 +23,6 @@ values
     ('T', 'Trail Use');
 
 create table if not exists rst.recreation_fee (
-    id serial primary key,
     rec_resource_id varchar(200) not null references rst.recreation_resource (rec_resource_id),
     fee_amount int null,
     fee_start_date date null,
