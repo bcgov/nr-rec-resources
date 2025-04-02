@@ -19,14 +19,10 @@ export const getRecreationResourceSelect = (
       description: true,
     },
   },
-  recreation_map_feature: {
+  recreation_resource_type_view: {
     select: {
-      recreation_resource_type_code: {
-        select: {
-          rec_resource_type_code: true,
-          description: true,
-        },
-      },
+      rec_resource_type_code: true,
+      description: true,
     },
   },
   recreation_access: {

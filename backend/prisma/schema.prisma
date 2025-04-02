@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["metrics", "typedSql"]
+  previewFeatures = ["metrics", "views", "typedSql"]
   binaryTargets   = ["native", "debian-openssl-3.0.x", "linux-arm64-openssl-3.0.x"]
 }
 
@@ -35,6 +35,7 @@ model recreation_resource {
   recreation_site_description          recreation_site_description?
   recreation_status                    recreation_status?
   recreation_structure                 recreation_structure[]
+  recreation_resource_type_view        recreation_resource_type_view[]
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -748,4 +749,13 @@ model recreation_site_description_history {
   sys_period      Unsupported("tstzrange")
 
   @@ignore
+}
+
+/// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+/// This view or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+view recreation_resource_type_view {
+  rec_resource_id        String               @id @db.VarChar(20)
+  rec_resource_type_code String?              @db.VarChar
+  description            String?              @db.VarChar(200)
+  recreation_resource    recreation_resource? @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 }

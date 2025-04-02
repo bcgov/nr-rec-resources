@@ -30,7 +30,7 @@ test.describe('Search page filter menu workflows', () => {
     await searchPage.verifyRecResourceCardContent({
       rec_resource_id: 'REC265446',
       rec_resource_name: 'Airy Area',
-      rec_resource_type: RecResourceType.RESERVE,
+      rec_resource_type: RecResourceType.SITE,
       closest_community: 'Slocan',
       status: Status.CLOSED,
     });
@@ -79,7 +79,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await utils.checkExpectedUrlParams('type=RTR');
 
-    await searchPage.resultsCount(18);
+    await searchPage.resultsCount(17);
 
     await searchPage.recResourceCardCount(10);
 
@@ -107,7 +107,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.toggleFilterOn(filter.typeFilters, RecResourceType.SITE);
 
-    await searchPage.resultsCount(44);
+    await searchPage.resultsCount(50);
 
     await searchPage.recResourceCardCount(10);
 
@@ -372,9 +372,9 @@ test.describe('Search page filter menu workflows', () => {
       'district=RDKA&page=1&type=SIT&facilities=table&access=B',
     );
 
-    await searchPage.resultsCount(1);
+    await searchPage.resultsCount(2);
 
-    await searchPage.recResourceCardCount(1);
+    await searchPage.recResourceCardCount(2);
 
     await filter.clickClearFilters();
 
