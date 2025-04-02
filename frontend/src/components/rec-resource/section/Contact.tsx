@@ -21,13 +21,7 @@ const Contact = forwardRef<HTMLElement>((_, ref) => {
               <td>
                 <p>We answer emails weekdays from 9 am to 5 pm Pacific Time.</p>
                 <p>
-                  <a
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    href={contactUrl}
-                  >
-                    Contact Us
-                  </a>
+                  <a href={contactUrl}>Contact Us</a>
                 </p>
               </td>
             </tr>

@@ -68,12 +68,7 @@ const Footer = () => {
             </a>
           </div>
           <div className="footer-utility-link d-inline-block">
-            <a
-              className="nav-link"
-              href={contactUrl}
-              target="_blank"
-              rel="noreferrer"
-            >
+            <a className="nav-link" href={contactUrl}>
               Contact Us
             </a>
           </div>
