@@ -1,0 +1,57 @@
+@import '@/styles/variables';
+
+.search-form {
+  position: relative;
+
+  .search-input {
+    padding-right: 2.5rem;
+    padding-left: 1rem;
+
+    &.has-search-icon {
+      padding-left: 2.5rem;
+    }
+
+    &:placeholder-shown {
+      text-overflow: ellipsis;
+      font-size: 0.9rem;
+      padding-right: 0;
+    }
+  }
+
+  .search-input,
+  .search-button {
+    height: 50px;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: $colorBlue;
+    pointer-events: none;
+    z-index: 10; // otherwise icon disappears when input is in focus
+  }
+
+  .search-button {
+    min-width: 130px;
+  }
+
+  .clear-button {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    color: #999;
+    font-size: 16px;
+    z-index: 10;
+
+    &:hover {
+      color: #333;
+    }
+  }
+}

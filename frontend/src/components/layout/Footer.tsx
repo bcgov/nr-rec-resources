@@ -1,5 +1,5 @@
 import RSTLogo from '@/images/RST_nav_logo.svg';
-import { contactUrl } from '@/data/urls';
+import { EXTERNAL_LINKS } from '@/data/urls';
 import '@/components/layout/Footer.scss';
 
 const Footer = () => {
@@ -68,7 +68,7 @@ const Footer = () => {
             </a>
           </div>
           <div className="footer-utility-link d-inline-block">
-            <a className="nav-link" href={contactUrl}>
+            <a className="nav-link" href={EXTERNAL_LINKS.CONTACT}>
               Contact Us
             </a>
           </div>

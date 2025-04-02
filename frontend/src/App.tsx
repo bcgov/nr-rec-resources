@@ -1,4 +1,4 @@
-import AppRoutes from '@/routes';
+import { AppRoutes } from '@/routes';
 import Footer from '@/components/layout/Footer';
 import Header from '@/components/layout/Header';
 import { BrowserRouter } from 'react-router-dom';

@@ -10,7 +10,7 @@ vi.mock('@/components/layout/Footer', () => ({
   default: () => <div data-testid="mock-footer">Footer</div>,
 }));
 vi.mock('@/routes', () => ({
-  default: () => <div data-testid="mock-routes">Routes</div>,
+  AppRoutes: () => <div data-testid="mock-routes">Routes</div>,
 }));
 
 describe('App', () => {

@@ -1,0 +1,17 @@
+@import '@/styles/variables';
+
+.info-section {
+  .content-section {
+    max-width: $pageMaxWidth;
+    margin: calc(2rem + 0.7vw) 1rem;
+  }
+
+  .learn-more-link {
+    color: $colorBlueMed;
+    text-decoration: underline;
+
+    svg {
+      font-size: 0.7rem;
+    }
+  }
+}

@@ -2,6 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import '@/components/layout/BetaBanner.scss';
 import useMediaQuery from '@/hooks/useMediaQuery';
+import { EXTERNAL_LINKS } from '@/data/urls';
 
 const BetaBanner = () => {
   const isMobile = useMediaQuery('(max-width: 767px)');
@@ -39,7 +40,7 @@ const BetaBanner = () => {
       </div>
       <a
         className="banner-button"
-        href="https://example.com"
+        href={EXTERNAL_LINKS.FEEDBACK_FORM}
         target="_blank"
         rel="noopener noreferrer"
       >
