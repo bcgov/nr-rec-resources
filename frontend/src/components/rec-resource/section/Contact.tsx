@@ -1,4 +1,5 @@
 import { forwardRef } from 'react';
+import { contactUrl } from '@/data/urls';
 
 const Contact = forwardRef<HTMLElement>((_, ref) => {
   return (
@@ -20,7 +21,7 @@ const Contact = forwardRef<HTMLElement>((_, ref) => {
               <td>
                 <p>We answer emails weekdays from 9 am to 5 pm Pacific Time.</p>
                 <p>
-                  <a href="">Contact Us</a>
+                  <a href={contactUrl}>Contact Us</a>
                 </p>
               </td>
             </tr>

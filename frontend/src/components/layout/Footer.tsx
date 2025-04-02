@@ -1,4 +1,5 @@
 import RSTLogo from '@/images/RST_nav_logo.svg';
+import { contactUrl } from '@/data/urls';
 import '@/components/layout/Footer.scss';
 
 const Footer = () => {
@@ -67,12 +68,7 @@ const Footer = () => {
             </a>
           </div>
           <div className="footer-utility-link d-inline-block">
-            <a
-              className="nav-link"
-              href="https://www2.gov.bc.ca/gov/content?id=6A77C17D0CCB48F897F8598CCC019111"
-              target="_blank"
-              rel="noreferrer"
-            >
+            <a className="nav-link" href={contactUrl}>
               Contact Us
             </a>
           </div>
