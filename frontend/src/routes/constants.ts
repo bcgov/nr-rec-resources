@@ -4,3 +4,12 @@ export const ROUTE_PATHS = {
   REC_RESOURCE: '/resource/:id',
   NOT_FOUND: '*',
 };
+
+export const SITE_TITLE = 'Find a site or trail';
+
+export const ROUTE_TITLES = {
+  HOME: SITE_TITLE,
+  SEARCH: `Find a site or trail | ${SITE_TITLE}`,
+  REC_RESOURCE: (name: string) => `${name} | ${SITE_TITLE}`,
+  NOT_FOUND: `404 | ${SITE_TITLE}`,
+};

@@ -17,7 +17,8 @@ import {
 import Status from '@/components/rec-resource/Status';
 import PageMenu from '@/components/layout/PageMenu';
 import locationDot from '@/images/fontAwesomeIcons/location-dot.svg';
-import PageTitle, { SITE_TITLE } from '@/components/layout/PageTitle';
+import PageTitle from '@/components/layout/PageTitle';
+import { ROUTE_TITLES, SITE_TITLE } from '@/routes/constants';
 import '@/components/rec-resource/RecResource.scss';
 import { useGetRecreationResourceById } from '@/service/queries/recreation-resource';
 
@@ -184,7 +185,9 @@ const RecResourcePage = () => {
   return (
     <>
       <PageTitle
-        title={formattedName ? `${formattedName} | ${SITE_TITLE}` : SITE_TITLE}
+        title={
+          formattedName ? ROUTE_TITLES.REC_RESOURCE(formattedName) : SITE_TITLE
+        }
       />
       <div className="rec-resource-container">
         <div className={`bg-container ${isPhotoGallery ? 'with-gallery' : ''}`}>

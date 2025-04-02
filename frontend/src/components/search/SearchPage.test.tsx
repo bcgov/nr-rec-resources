@@ -10,10 +10,6 @@ vi.mock('@/service/queries/recreation-resource');
 vi.mock('@/components/rec-resource/card/RecResourceCard', () => ({
   default: vi.fn(() => <div data-testid="mock-resource-card" />),
 }));
-vi.mock('react-router-dom', async () => ({
-  ...(await vi.importActual('react-router-dom')),
-  useParams: vi.fn(),
-}));
 
 vi.mock('@/store/searchResults', async () => ({
   default: {
