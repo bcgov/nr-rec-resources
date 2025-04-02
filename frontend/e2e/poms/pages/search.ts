@@ -95,7 +95,7 @@ export class SearchPOM {
     await cardContainer.waitFor({ state: 'attached' });
     await cardContainer.waitFor({ state: 'visible' });
     await cardContainer
-      .getByText(rec_resource_name.toLowerCase())
+      .getByText(rec_resource_name)
       .waitFor({ state: 'visible' });
     await cardContainer
       .getByText(rec_resource_type)

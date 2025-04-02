@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import useScrollSpy from 'react-use-scrollspy';
 import BreadCrumbs from '@/components/layout/BreadCrumbs';
 import PhotoGallery, {
@@ -17,6 +17,7 @@ import {
 import Status from '@/components/rec-resource/Status';
 import PageMenu from '@/components/layout/PageMenu';
 import locationDot from '@/images/fontAwesomeIcons/location-dot.svg';
+import PageTitle, { SITE_TITLE } from '@/components/layout/PageTitle';
 import '@/components/rec-resource/RecResource.scss';
 import { useGetRecreationResourceById } from '@/service/queries/recreation-resource';
 
@@ -24,6 +25,7 @@ const PREVIEW_SIZE_CODE = 'scr';
 const FULL_RESOLUTION_SIZE_CODE = 'original';
 
 const RecResourcePage = () => {
+  const navigate = useNavigate();
   const [photos, setPhotos] = useState<PhotoGalleryProps['photos']>([]);
 
   const { id } = useParams();
@@ -84,7 +86,9 @@ const RecResourcePage = () => {
     spatial_feature_geometry,
   } = recResource || {};
 
-  const formattedName = name?.toLowerCase();
+  const formattedName = name
+    ?.toLowerCase()
+    .replace(/(^\w|\s\w)/g, (m) => m.toUpperCase());
 
   const closuresRef = useRef<HTMLElement>(null!);
   const siteDescriptionRef = useRef<HTMLElement>(null!);
@@ -172,125 +176,128 @@ const RecResourcePage = () => {
   const resourceNotFound = error?.response.status === 404;
 
   if (resourceNotFound) {
-    return (
-      <div className="page page-padding">
-        <h2>Resource not found</h2>
-        <p>
-          <a href="/">Return to Dashboard</a>
-        </p>
-      </div>
-    );
+    navigate('/404', {
+      replace: true,
+    });
   }
 
   return (
-    <div className="rec-resource-container">
-      <div className={`bg-container ${isPhotoGallery ? 'with-gallery' : ''}`}>
+    <>
+      <PageTitle
+        title={formattedName ? `${formattedName} | ${SITE_TITLE}` : SITE_TITLE}
+      />
+      <div className="rec-resource-container">
+        <div className={`bg-container ${isPhotoGallery ? 'with-gallery' : ''}`}>
+          <div className="page page-padding">
+            <BreadCrumbs
+              customPaths={[
+                { name: 'Find a Recreation Site or Trail', route: 'search' },
+              ]}
+            />
+            <section>
+              <div>
+                <h1>{formattedName}</h1>
+                <p className="bc-color-blue-dk mb-4">
+                  <span>{rec_resource_type} |</span> {rec_resource_id}
+                </p>
+              </div>
+              <div className="icon-container mb-4">
+                <img
+                  alt="Location dot icon"
+                  src={locationDot}
+                  height={24}
+                  width={24}
+                />{' '}
+                <span className="capitalize">
+                  {closest_community?.toLowerCase()}
+                </span>
+              </div>
+              {statusCode && statusDescription && (
+                <Status
+                  description={statusDescription}
+                  statusCode={statusCode}
+                />
+              )}
+            </section>
+          </div>
+        </div>
         <div className="page page-padding">
-          <BreadCrumbs
-            customPaths={[
-              { name: 'Find a Recreation Site or Trail', route: 'search' },
-            ]}
-          />
-          <section>
-            <div>
-              <h1 className="capitalize">{formattedName}</h1>
-              <p className="bc-color-blue-dk mb-4">
-                <span>{rec_resource_type} |</span> {rec_resource_id}
-              </p>
+          {isPhotoGallery && (
+            <div className="photo-gallery-container">
+              <PhotoGallery photos={photos} />
             </div>
-            <div className="icon-container mb-4">
-              <img
-                alt="Location dot icon"
-                src={locationDot}
-                height={24}
-                width={24}
-              />{' '}
-              <span className="capitalize">
-                {closest_community?.toLowerCase()}
-              </span>
+          )}
+          <div className="row no-gutters">
+            <div className="page-menu--desktop">
+              <PageMenu
+                pageSections={pageSections}
+                activeSection={activeSection ?? 0}
+                menuStyle="nav"
+              />
             </div>
-            {statusCode && statusDescription && (
-              <Status description={statusDescription} statusCode={statusCode} />
-            )}
-          </section>
-        </div>
-      </div>
-      <div className="page page-padding">
-        {isPhotoGallery && (
-          <div className="photo-gallery-container">
-            <PhotoGallery photos={photos} />
-          </div>
-        )}
-        <div className="row no-gutters">
-          <div className="page-menu--desktop">
-            <PageMenu
-              pageSections={pageSections}
-              activeSection={activeSection ?? 0}
-              menuStyle="nav"
-            />
-          </div>
-          <div className="rec-content-container">
-            {isClosures && (
-              <Closures
-                comment={statusComment}
-                siteName={formattedName}
-                ref={closuresRef}
-              />
-            )}
+            <div className="rec-content-container">
+              {isClosures && (
+                <Closures
+                  comment={statusComment}
+                  siteName={formattedName}
+                  ref={closuresRef}
+                />
+              )}
 
-            {description && (
-              <SiteDescription
-                description={description}
-                maintenanceCode={maintenance_standard_code}
-                ref={siteDescriptionRef}
-              />
-            )}
+              {description && (
+                <SiteDescription
+                  description={description}
+                  maintenanceCode={maintenance_standard_code ?? undefined}
+                  ref={siteDescriptionRef}
+                />
+              )}
 
-            {isMapsAndLocation && (
-              <MapsAndLocation
-                accessTypes={recreation_access}
-                recResource={recResource}
-                ref={mapLocationRef}
-              />
-            )}
+              {isMapsAndLocation && (
+                <MapsAndLocation
+                  accessTypes={recreation_access}
+                  recResource={recResource}
+                  ref={mapLocationRef}
+                />
+              )}
 
-            <Camping
-              id="camping"
-              ref={campingRef}
-              title="Camping"
-              campsite_count={campsite_count!}
-              fees={recreation_fee!}
-            />
-
-            {isAdditionalFeesAvailable && (
               <Camping
-                id="additional-fees"
-                ref={additionalFeesRef}
-                title="Additional Fees"
-                showCampsiteCount={false}
-                fees={additional_fees!}
+                id="camping"
+                ref={campingRef}
+                title="Camping"
+                campsite_count={campsite_count!}
+                fees={recreation_fee!}
               />
-            )}
 
-            {isThingsToDo && (
-              <ThingsToDo
-                activities={recreation_activity}
-                ref={thingsToDoRef}
-              />
-            )}
+              {isAdditionalFeesAvailable && (
+                <Camping
+                  id="additional-fees"
+                  ref={additionalFeesRef}
+                  title="Additional Fees"
+                  showCampsiteCount={false}
+                  fees={additional_fees!}
+                />
+              )}
 
-            {isFacilitiesAvailable && (
-              <Facilities
-                recreation_structure={recreation_structure}
-                ref={facilitiesRef}
-              />
-            )}
+              {isThingsToDo && (
+                <ThingsToDo
+                  activities={recreation_activity}
+                  ref={thingsToDoRef}
+                />
+              )}
 
-            <Contact ref={contactRef} />
+              {isFacilitiesAvailable && (
+                <Facilities
+                  recreation_structure={recreation_structure}
+                  ref={facilitiesRef}
+                />
+              )}
+
+              <Contact ref={contactRef} />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
