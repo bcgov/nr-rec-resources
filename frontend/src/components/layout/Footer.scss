@@ -14,42 +14,41 @@
   padding: 48px $pagePadding;
   margin: 0px auto;
 
+  .icon {
+    width: 34px;
+    height: 34px;
+    padding-right: 10px;
+  }
+
+  .footer-heading {
+    font-size: 0.8rem;
+    font-weight: bolder;
+    color: $colorWhite;
+    margin-bottom: 18px;
+    @media (max-width: $mdBreakpoint) {
+      margin-top: 16px;
+    }
+  }
+
+  hr {
+    border-top: 1px solid $colorGold;
+    opacity: 1.0;
+    width: 42px;
+  }
+
   @media (min-width: $lgBreakpoint) {
     padding: 48px $pagePaddingLg;
   }
 
   .footer-utility-link {
-    font-size: 1rem;
-    min-width: 100px;
-    margin-right: 16px;
+    font-size: 0.8rem;
+    margin-right: 26px;
     margin-bottom: 16px;
     &:last-of-type {
       margin-right: 0;
     }
     @media (min-width: $mdBreakpoint) {
       margin-bottom: 0;
-    }
-  }
-
-  .footer-menu-container {
-    margin-bottom: 32px;
-    &:last-of-type {
-      margin-bottom: 0;
-    }
-    @media (min-width: $smBreakpoint) {
-      margin-top: 12px;
-      margin-bottom: 0;
-    }
-    .footer-menu-list {
-      font-size: 1.05rem;
-      margin-bottom: 0;
-
-      .footer-menu-divider {
-        margin: 1rem 0;
-        height: 1px;
-        background-color: $colorGold;
-        width: 48px;
-      }
     }
   }
 

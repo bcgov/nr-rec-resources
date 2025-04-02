@@ -1,4 +1,6 @@
 import RSTLogo from '@/images/RST_nav_logo.svg';
+import { faFacebook } from '@fortawesome/free-brands-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { EXTERNAL_LINKS } from '@/data/urls';
 import '@/components/layout/Footer.scss';
 
@@ -19,14 +21,101 @@ const Footer = () => {
             </div>
           </div>
           <div className="col col-12 col-md-8">
-            {/* <div className="row no-gutters"> */}
-            {/*   {footerMenu.map((item, index) => ( */}
-            {/*     <FooterMenu item={item} key={index} /> */}
-            {/*   ))} */}
-            {/* </div> */}
+            <div className="row no-gutters">
+              <div className="col-md-4">
+                <div>
+                  <p className="footer-heading">Plan your visit</p>
+                  <hr />
+                  <p>
+                    <a
+                      href={EXTERNAL_LINKS.CLOSURE}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Closures
+                    </a>
+                  </p>
+                  <p>
+                    <a
+                      href={EXTERNAL_LINKS.RULES_ETIQUETE}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Rules and etiquette
+                    </a>
+                  </p>
+                  <p>
+                    <a
+                      href={EXTERNAL_LINKS.RULES_ETIQUETE}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Authorizations
+                    </a>
+                  </p>
+                </div>
+              </div>
+              <div className="col-md-4">
+                <p className="footer-heading">Get involved</p>
+                <hr />
+                <p>
+                  <a
+                    href={EXTERNAL_LINKS.PARTNERING}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Partnering and volunteering
+                  </a>
+                </p>
+                <p>
+                  <a
+                    href={EXTERNAL_LINKS.RESEARCH_OPT}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Research oportunities
+                  </a>
+                </p>
+                <p>
+                  <a
+                    href={EXTERNAL_LINKS.ORV_TRAIL}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    ORV Trail Fund
+                  </a>
+                </p>
+              </div>
+              <div className="col-md-4">
+                <p className="footer-heading">Stay connected</p>
+                <hr />
+                <p>
+                  <a
+                    href={EXTERNAL_LINKS.CONTACT}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Contact us
+                  </a>
+                </p>
+                <p>
+                  <a
+                    href={EXTERNAL_LINKS.FACEBOOK_BC_REC}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <FontAwesomeIcon
+                      className="icon"
+                      icon={faFacebook}
+                      aria-hidden={true}
+                    />
+                  </a>
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-        <div className="text-left text-sm-center pt-4 mt-5 border-top border-white">
+        <div className="text-left pt-4 mt-5 border-top border-white">
           <div className="footer-utility-link d-inline-block">
             <a
               className="nav-link"
@@ -65,11 +154,6 @@ const Footer = () => {
               rel="noreferrer"
             >
               Copyright
-            </a>
-          </div>
-          <div className="footer-utility-link d-inline-block">
-            <a className="nav-link" href={EXTERNAL_LINKS.CONTACT}>
-              Contact Us
             </a>
           </div>
         </div>
