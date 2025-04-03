@@ -155,7 +155,10 @@ const RecResourcePage = () => {
           href: `#${SectionIds.MAPS_AND_LOCATION}`,
           title: SectionTitles.MAPS_AND_LOCATION,
         },
-        { href: '#camping', title: SectionTitles.CAMPING },
+        {
+          href: SectionIds.CAMPING,
+          title: SectionTitles.CAMPING,
+        },
 
         isAdditionalFeesAvailable && {
           href: `#${SectionIds.ADDITIONAL_FEES}`,
@@ -171,7 +174,7 @@ const RecResourcePage = () => {
         },
         {
           href: `#${SectionIds.CONTACT}`,
-          title: 'Contact',
+          title: SectionTitles.CONTACT,
         },
       ]
         .filter((section) => !!section)
@@ -264,13 +267,13 @@ const RecResourcePage = () => {
                 />
               )}
 
-            {isSiteDescription && (
-              <SiteDescription
-                description={description ?? undefined}
-                maintenanceCode={maintenance_standard_code ?? undefined}
-                ref={siteDescriptionRef}
-              />
-            )}
+              {isSiteDescription && (
+                <SiteDescription
+                  description={description}
+                  maintenanceCode={maintenance_standard_code}
+                  ref={siteDescriptionRef}
+                />
+              )}
 
               {isMapsAndLocation && (
                 <MapsAndLocation
@@ -280,28 +283,19 @@ const RecResourcePage = () => {
                 />
               )}
 
-            <Camping
-              id={SectionIds.CAMPING}
-              ref={campingRef}
-              title={SectionTitles.CAMPING}
-              campsite_count={campsite_count!}
-              fees={recreation_fee!}
-            />
-
-            {isAdditionalFeesAvailable && (
               <Camping
-                id={SectionIds.ADDITIONAL_FEES}
-                ref={additionalFeesRef}
-                title={SectionTitles.ADDITIONAL_FEES}
-                showCampsiteCount={false}
-                fees={additional_fees!}
+                id={SectionIds.CAMPING}
+                ref={campingRef}
+                title={SectionTitles.CAMPING}
+                campsite_count={campsite_count}
+                fees={recreation_fee}
               />
 
               {isAdditionalFeesAvailable && (
                 <Camping
-                  id="additional-fees"
+                  id={SectionIds.ADDITIONAL_FEES}
                   ref={additionalFeesRef}
-                  title="Additional Fees"
+                  title={SectionTitles.ADDITIONAL_FEES}
                   showCampsiteCount={false}
                   fees={additional_fees}
                 />
