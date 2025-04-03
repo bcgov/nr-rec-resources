@@ -1,15 +1,3 @@
-insert into rst.recreation_sub_access_code (sub_access_code, description)
-values
-    ('2W', '2 Wheel Drive'),
-    ('4W', '4 Wheel Drive'),
-    ('BM', 'Motorized'),
-    ('BN', 'Non-Motorized'),
-    ('FI', 'Fly-in'),
-    ('MH', 'Motorhome'),
-    ('TM', 'Multi-Use'),
-    ('TN', 'Non-Motorized');
-
-
 insert into rst.recreation_access (rec_resource_id, access_code)
 values
     ('REC204117', 'B'),

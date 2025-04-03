@@ -313,11 +313,11 @@ describe('RecResourcePage', () => {
           },
         },
         {
-          name: 'Site Description',
+          name: 'Site description',
           description: 'Resource Description',
         },
         {
-          name: 'Things to Do',
+          name: 'Things to do',
           input: {
             recreation_activity: [
               {
@@ -328,11 +328,11 @@ describe('RecResourcePage', () => {
           },
         },
         {
-          name: 'Maps and Location',
+          name: 'Maps and location',
           input: { spatial_feature_geometry: ['some-geometry'] },
         },
         {
-          name: 'Additional Fees',
+          name: 'Additional fees',
           input: {
             additional_fees: [
               {

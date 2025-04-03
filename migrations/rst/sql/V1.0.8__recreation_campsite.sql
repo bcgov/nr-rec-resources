@@ -16,8 +16,8 @@ comment on column rst.recreation_remed_repair_code.description is 'Description o
 insert into rst.recreation_remed_repair_code (recreation_remed_repair_code, description) values
 ('BR', 'Brushing'),
 ('CL', 'Clean'),
-('MA', 'Major Repair'),
-('MI', 'Minor Repairs'),
+('MA', 'Major repair'),
+('MI', 'Minor repairs'),
 ('RE', 'Remove'),
 ('RR', 'Relocate');
 

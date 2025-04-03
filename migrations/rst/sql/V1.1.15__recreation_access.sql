@@ -31,6 +31,17 @@ comment on column rst.recreation_sub_access_code.sub_access_code is 'Code descri
 
 comment on column rst.recreation_sub_access_code.description is 'Description of the code value.';
 
+insert into rst.recreation_sub_access_code (sub_access_code, description)
+values
+    ('2W', '2 wheel drive'),
+    ('4W', '4 wheel drive'),
+    ('BM', 'Motorized'),
+    ('BN', 'Non-motorized'),
+    ('FI', 'Fly-in'),
+    ('MH', 'Motorhome'),
+    ('TM', 'Multi-use'),
+    ('TN', 'Non-motorized');
+
 create table if not exists rst.recreation_access (
     id serial primary key, -- This is a surrogate key to make Prisma happy
     rec_resource_id varchar(20) not null references rst.recreation_resource (rec_resource_id),
@@ -55,7 +66,7 @@ comment on column rst.recreation_access.access_code is 'Code identifying the typ
 insert into
     rst.recreation_access_code (access_code, description, sub_description)
 values
-    ('B', 'Boat-in', 'Motor or Canoe/Kayak'),
+    ('B', 'Boat-in', 'Motor or canoe/kayak'),
     ('F', 'Fly-in', null),
     ('R', 'Road', '4 wheel drive, 2 wheel drive, or motor home'),
-    ('T', 'Trail', 'Multi-use, Snowmobile, XC Ski, ATV, horse, mtn bike, hiking');
+    ('T', 'Trail', 'Multi-use, snowmobile, XC ski, ATV, horse, mtn bike, hiking');

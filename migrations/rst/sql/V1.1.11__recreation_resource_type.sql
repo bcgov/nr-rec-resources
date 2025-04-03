@@ -12,3 +12,11 @@ comment on table rst.recreation_resource_type_code is 'Codes describing types of
 comment on column rst.recreation_resource_type_code.rec_resource_type_code is 'Identifies the Recreation Resource Type Code';
 
 comment on column rst.recreation_resource_type_code.description is 'Description of the code value';
+
+insert into
+    rst.recreation_resource_type_code (rec_resource_type_code, description)
+values
+    ('IF', 'Interpretive forest'),
+    ('RR', 'Recreation reserve'),
+    ('RTR', 'Recreation trail'),
+    ('SIT', 'Recreation site');

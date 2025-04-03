@@ -20,6 +20,7 @@ import locationDot from '@/images/fontAwesomeIcons/location-dot.svg';
 import PageTitle from '@/components/layout/PageTitle';
 import { ROUTE_TITLES, SITE_TITLE } from '@/routes/constants';
 import '@/components/rec-resource/RecResource.scss';
+import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 import { useGetRecreationResourceById } from '@/service/queries/recreation-resource';
 
 const PREVIEW_SIZE_CODE = 'scr';
@@ -104,6 +105,7 @@ const RecResourcePage = () => {
   const isAccess = recreation_access && recreation_access.length > 0;
   const isAdditionalFeesAvailable =
     additional_fees && additional_fees.length > 0;
+  const isSiteDescription = description || maintenance_standard_code;
 
   const isFacilitiesAvailable =
     recreation_structure?.has_toilet || recreation_structure?.has_table;
@@ -120,7 +122,7 @@ const RecResourcePage = () => {
     () =>
       [
         isClosures ? closuresRef : null,
-        description ? siteDescriptionRef : null,
+        isSiteDescription ? siteDescriptionRef : null,
         isMapsAndLocation ? mapLocationRef : null,
         campingRef,
         isAdditionalFeesAvailable ? additionalFeesRef : null,
@@ -129,7 +131,7 @@ const RecResourcePage = () => {
         contactRef,
       ].filter((ref) => !!ref),
     [
-      description,
+      isSiteDescription,
       isClosures,
       isThingsToDo,
       isMapsAndLocation,
@@ -141,26 +143,41 @@ const RecResourcePage = () => {
   const pageSections = useMemo(
     () =>
       [
-        isClosures && { href: '#closures', title: 'Closures' },
-        description && { href: '#site-description', title: 'Site Description' },
-        isMapsAndLocation && {
-          href: '#maps-and-location',
-          title: 'Maps and Location',
+        isClosures && {
+          href: `#${SectionIds.CLOSURES}`,
+          title: SectionTitles.CLOSURES,
         },
-        { href: '#camping', title: 'Camping' },
+        isSiteDescription && {
+          href: `#${SectionIds.SITE_DESCRIPTION}`,
+          title: SectionTitles.SITE_DESCRIPTION,
+        },
+        isMapsAndLocation && {
+          href: `#${SectionIds.MAPS_AND_LOCATION}`,
+          title: SectionTitles.MAPS_AND_LOCATION,
+        },
+        { href: '#camping', title: SectionTitles.CAMPING },
 
         isAdditionalFeesAvailable && {
-          href: '#additional-fees',
-          title: 'Additional Fees',
+          href: `#${SectionIds.ADDITIONAL_FEES}`,
+          title: SectionTitles.ADDITIONAL_FEES,
         },
-        isThingsToDo && { href: '#things-to-do', title: 'Things to Do' },
-        isFacilitiesAvailable && { href: '#facilities', title: 'Facilities' },
-        { href: '#contact', title: 'Contact' },
+        isThingsToDo && {
+          href: `#${SectionIds.THINGS_TO_DO}`,
+          title: SectionTitles.THINGS_TO_DO,
+        },
+        isFacilitiesAvailable && {
+          href: `#${SectionIds.FACILITIES}`,
+          title: SectionTitles.FACILITIES,
+        },
+        {
+          href: `#${SectionIds.CONTACT}`,
+          title: 'Contact',
+        },
       ]
         .filter((section) => !!section)
         .map((section, i) => ({ ...section, sectionIndex: i })),
     [
-      description,
+      isSiteDescription,
       isClosures,
       isThingsToDo,
       isMapsAndLocation,
@@ -247,13 +264,13 @@ const RecResourcePage = () => {
                 />
               )}
 
-              {description && (
-                <SiteDescription
-                  description={description}
-                  maintenanceCode={maintenance_standard_code ?? undefined}
-                  ref={siteDescriptionRef}
-                />
-              )}
+            {isSiteDescription && (
+              <SiteDescription
+                description={description ?? undefined}
+                maintenanceCode={maintenance_standard_code ?? undefined}
+                ref={siteDescriptionRef}
+              />
+            )}
 
               {isMapsAndLocation && (
                 <MapsAndLocation
@@ -263,12 +280,21 @@ const RecResourcePage = () => {
                 />
               )}
 
+            <Camping
+              id={SectionIds.CAMPING}
+              ref={campingRef}
+              title={SectionTitles.CAMPING}
+              campsite_count={campsite_count!}
+              fees={recreation_fee!}
+            />
+
+            {isAdditionalFeesAvailable && (
               <Camping
-                id="camping"
-                ref={campingRef}
-                title="Camping"
-                campsite_count={campsite_count}
-                fees={recreation_fee}
+                id={SectionIds.ADDITIONAL_FEES}
+                ref={additionalFeesRef}
+                title={SectionTitles.ADDITIONAL_FEES}
+                showCampsiteCount={false}
+                fees={additional_fees!}
               />
 
               {isAdditionalFeesAvailable && (

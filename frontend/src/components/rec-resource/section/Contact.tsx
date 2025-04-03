@@ -1,15 +1,16 @@
 import { forwardRef } from 'react';
 import { EXTERNAL_LINKS } from '@/data/urls';
+import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 
 const Contact = forwardRef<HTMLElement>((_, ref) => {
   return (
-    <section id="contact" ref={ref}>
-      <h2 className="section-heading">Contact</h2>
+    <section id={SectionIds.CONTACT} ref={ref}>
+      <h2 className="section-heading">{SectionTitles.CONTACT}</h2>
       <figure className="table">
         <table>
           <tbody>
             <tr>
-              <th>Site Operator</th>
+              <th>Site operator</th>
               <td>
                 <p>Placeholder</p>
               </td>
