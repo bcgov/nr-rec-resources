@@ -45,7 +45,7 @@ export class RecreationResourcePOM {
       .locator('..');
     const headerText = await recResourceHeader.textContent();
     expect(await recResourceHeader.locator('h1').textContent()).toBe(
-      rec_resource_name.toLowerCase(),
+      rec_resource_name,
     );
     expect(headerText).toContain(rec_resource_type);
     expect(headerText).toContain(closest_community.toLowerCase());

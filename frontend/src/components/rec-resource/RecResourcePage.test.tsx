@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import RecResourcePage from '@/components/rec-resource/RecResourcePage';
 import * as routerDom from 'react-router-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
@@ -10,10 +10,20 @@ import { ReactNode } from 'react';
 vi.mock('@/service/queries/recreation-resource', () => ({
   useGetRecreationResourceById: vi.fn(),
 }));
-vi.mock('react-router-dom', async () => ({
-  ...(await vi.importActual('react-router-dom')),
-  useParams: vi.fn(),
-}));
+const mockNavigate = vi.fn();
+
+vi.mock('react-router-dom', async () => {
+  const actual =
+    await vi.importActual<typeof import('react-router-dom')>(
+      'react-router-dom',
+    );
+  return {
+    ...actual,
+    useParams: vi.fn(),
+    useNavigate: () => mockNavigate,
+  };
+});
+
 vi.mock('@/components/rec-resource/section/MapsAndLocation', () => ({
   default: (): ReactNode => (
     <>
@@ -23,7 +33,7 @@ vi.mock('@/components/rec-resource/section/MapsAndLocation', () => ({
 }));
 
 // Mock data
-const mockResource = {
+export const mockResource = {
   rec_resource_id: 'REC1234',
   name: 'Resource Name',
   description: 'Resource Description',
@@ -71,10 +81,13 @@ describe('RecResourcePage', () => {
     vi.mocked(routerDom.useParams).mockReturnValue({ id: 'REC1234' });
   });
 
-  describe('Error handling', () => {
-    it('displays not found message on error', async () => {
+  describe('Error handling', async () => {
+    it('redirects to not found page', async () => {
       await renderComponent(undefined, { response: { status: 404 } });
-      expect(screen.getByText(/Resource not found/i)).toBeInTheDocument();
+
+      await waitFor(() => {
+        expect(mockNavigate).toHaveBeenCalledWith('/404', { replace: true });
+      });
     });
   });
 
