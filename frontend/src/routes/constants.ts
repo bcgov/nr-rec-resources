@@ -5,7 +5,7 @@ export const ROUTE_PATHS = {
   NOT_FOUND: '*',
 };
 
-export const SITE_TITLE = 'Find a site or trail';
+export const SITE_TITLE = 'Sites and trails BC';
 
 export const ROUTE_TITLES = {
   HOME: SITE_TITLE,

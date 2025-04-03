@@ -267,8 +267,8 @@ const RecResourcePage = () => {
                 id="camping"
                 ref={campingRef}
                 title="Camping"
-                campsite_count={campsite_count!}
-                fees={recreation_fee!}
+                campsite_count={campsite_count}
+                fees={recreation_fee}
               />
 
               {isAdditionalFeesAvailable && (
@@ -277,7 +277,7 @@ const RecResourcePage = () => {
                   ref={additionalFeesRef}
                   title="Additional Fees"
                   showCampsiteCount={false}
-                  fees={additional_fees!}
+                  fees={additional_fees}
                 />
               )}
 
