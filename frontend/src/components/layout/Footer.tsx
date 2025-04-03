@@ -103,6 +103,7 @@ const Footer = () => {
                     href={EXTERNAL_LINKS.FACEBOOK_BC_REC}
                     target="_blank"
                     rel="noreferrer"
+                    title="Facebook BC Recreation Sites and Trails"
                   >
                     <FontAwesomeIcon
                       className="icon"
