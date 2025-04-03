@@ -1,9 +1,10 @@
 import { forwardRef } from 'react';
 import parse from 'html-react-parser';
 import { RecreationResourceDetailDtoMaintenanceStandardCodeEnum } from '@/service/recreation-resource';
+import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 
 interface SiteDescriptionProps {
-  description: string;
+  description?: string;
   maintenanceCode?: RecreationResourceDetailDtoMaintenanceStandardCodeEnum;
 }
 
@@ -28,13 +29,17 @@ const SiteDescription = forwardRef<HTMLElement, SiteDescriptionProps>(
       maintenanceCode && getMaintenanceDescription(maintenanceCode);
 
     return (
-      <section id="site-description" className="rec-resource-section" ref={ref}>
-        <h2 className="section-heading">Site Description</h2>
-        <p>{parse(description)}</p>
+      <section
+        id={SectionIds.SITE_DESCRIPTION}
+        className="rec-resource-section"
+        ref={ref}
+      >
+        <h2 className="section-heading">{SectionTitles.SITE_DESCRIPTION}</h2>
+        {description && <p>{parse(description)}</p>}
 
         {maintenanceDescription && (
           <section className="mb-4">
-            <h3>Maintenance Standard</h3>
+            <h3>Maintenance standard</h3>
             <p>{maintenanceDescription}</p>
           </section>
         )}

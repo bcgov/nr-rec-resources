@@ -1,12 +1,21 @@
+insert into rst.recreation_access_code (access_code, description, updated_at)
+select
+    recreation_access_code as access_code,
+    description,
+    update_timestamp as updated_at
+from fta.recreation_access_code
+on conflict (access_code)
+do nothing; -- on conflict do nothing as we made changes to the descriptions
+
+
 insert into rst.recreation_sub_access_code (sub_access_code, description, updated_at)
 select
     recreation_sub_access_code as sub_access_code,
     description,
     update_timestamp as updated_at
 from fta.recreation_sub_access_code
-on conflict (sub_access_code) do update
-set description = excluded.description
-where rst.recreation_sub_access_code.description <> excluded.description;
+on conflict (sub_access_code)
+do nothing;
 
 
 insert into

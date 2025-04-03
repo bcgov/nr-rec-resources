@@ -6,7 +6,7 @@ describe('SiteDescription Component', () => {
     render(<SiteDescription description="Test Description" />);
 
     expect(
-      screen.getByRole('heading', { name: 'Site Description' }),
+      screen.getByRole('heading', { name: /site description/i }),
     ).toBeInTheDocument();
     expect(screen.getByText('Test Description')).toBeInTheDocument();
   });
@@ -19,7 +19,7 @@ describe('SiteDescription Component', () => {
 
   it('should return null if no description or maintenance code is provided', () => {
     const { container } = render(
-      <SiteDescription description="" maintenanceCode="" />,
+      <SiteDescription description="" maintenanceCode={undefined} />,
     );
 
     expect(container).toBeEmptyDOMElement();
@@ -29,10 +29,10 @@ describe('SiteDescription Component', () => {
     render(<SiteDescription description="" maintenanceCode="U" />);
 
     expect(
-      screen.getByRole('heading', { name: 'Maintenance Standard' }),
+      screen.getByRole('heading', { name: /maintenance standard/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Limited maintenance services/),
+      screen.getByText(/limited maintenance services/i),
     ).toBeInTheDocument();
   });
 
@@ -40,7 +40,7 @@ describe('SiteDescription Component', () => {
     render(<SiteDescription description="" maintenanceCode="M" />);
 
     expect(
-      screen.getByRole('heading', { name: 'Maintenance Standard' }),
+      screen.getByRole('heading', { name: /maintenance standard/i }),
     ).toBeInTheDocument();
     expect(screen.getByText(/This site is maintained/)).toBeInTheDocument();
   });
@@ -50,14 +50,15 @@ describe('SiteDescription Component', () => {
       <SiteDescription description="Test Description" />,
     );
 
-    expect(container).not.toHaveTextContent('Maintenance Standard');
+    expect(container).not.toHaveTextContent(/maintenance Standard/i);
   });
 
   it('should not render the maintenance section if an invalid maintenance code is provided', () => {
     const { container } = render(
+      // @ts-ignore
       <SiteDescription description="Test Description" maintenanceCode="X" />,
     );
 
-    expect(container).not.toHaveTextContent('Maintenance Standard');
+    expect(container).not.toHaveTextContent(/maintenance standard/i);
   });
 });

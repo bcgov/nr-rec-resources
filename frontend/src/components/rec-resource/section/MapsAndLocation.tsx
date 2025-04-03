@@ -3,6 +3,7 @@ import parse from 'html-react-parser';
 import { RecreationResourceMap } from '@/components/rec-resource/RecreationResourceMap';
 import { RecreationResourceDetailModel } from '@/service/custom-models';
 import { RecreationResourceDocsList } from '@/components/rec-resource/RecreationResourceDocsList';
+import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 
 interface MapsAndLocationProps {
   accessTypes?: string[];
@@ -14,11 +15,11 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
     const { driving_directions } = recResource || {};
     return (
       <section
-        id="maps-and-location"
+        id={SectionIds.MAPS_AND_LOCATION}
         className="rec-resource-section"
         ref={ref}
       >
-        <h2 className="section-heading">Maps and Location</h2>
+        <h2 className="section-heading">{SectionTitles.MAPS_AND_LOCATION}</h2>
 
         {recResource && (
           <section className="mb-4">

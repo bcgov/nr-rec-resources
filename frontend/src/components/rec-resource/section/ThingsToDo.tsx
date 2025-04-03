@@ -1,6 +1,7 @@
 import { forwardRef } from 'react';
 import activityIconMap from '@/data/activityIconMap';
 import { Activity } from '@/components/rec-resource/types';
+import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 import '@/components/rec-resource/section/ThingsToDo.scss';
 
 interface ThingsToDoProps {
@@ -10,8 +11,8 @@ interface ThingsToDoProps {
 const ThingsToDo = forwardRef<HTMLElement, ThingsToDoProps>(
   ({ activities }, ref) => {
     return (
-      <section id="things-to-do" ref={ref}>
-        <h2 className="section-heading">Things to do</h2>
+      <section id={SectionIds.THINGS_TO_DO} ref={ref}>
+        <h2 className="section-heading">{SectionTitles.THINGS_TO_DO}</h2>
         <ul className="things-to-do-list">
           {activities.map((activity) => {
             const { description, recreation_activity_code } = activity;

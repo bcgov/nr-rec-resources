@@ -1,3 +1,13 @@
+insert into rst.recreation_structure_code (structure_code, description, updated_at)
+select
+    recreation_structure_code as structure_code,
+    description,
+    update_timestamp as updated_at
+from fta.recreation_structure_code
+on conflict (structure_code)
+do nothing; -- on conflict do nothing as we made changes to the descriptions
+
+
 insert into rst.recreation_structure (rec_resource_id, structure_code, updated_at, updated_by, created_at, created_by)
 select distinct on (rs.forest_file_id, rsc_rst.structure_code)
     rs.forest_file_id as rec_resource_id,

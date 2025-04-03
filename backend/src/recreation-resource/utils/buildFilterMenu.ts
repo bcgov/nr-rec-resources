@@ -33,7 +33,7 @@ export const buildFilterMenu = ({
     .filter((count) => count.type === "access")
     .map((access) => ({
       id: access.code,
-      description: `${access.description} Access`,
+      description: `${access.description} access`,
       count: access.count ?? 0,
     }));
 

@@ -12,7 +12,7 @@ const SearchBanner = () => {
       >
         <Row className="w-100 search-banner-input-container align-items-center justify-content-center py-3">
           <Col sm={12} md={4} className="ps-md-0">
-            <h1>Find a recreation site or trail</h1>
+            <h1>Find a site or trail</h1>
           </Col>
           <Col sm={12} md={8} className="mb-3 mb-md-0 pe-md-0">
             <RecreationSearchForm />

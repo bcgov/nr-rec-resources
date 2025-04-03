@@ -183,24 +183,21 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
   @ApiProperty({
     description: "Detailed description of the Recreation Resource",
     example: "A scenic campground nestled in the heart of Evergreen Valley",
-    nullable: true,
   })
-  description: string;
+  description?: string;
 
   @ApiProperty({
     description: "Driving directions to the Recreation Resource",
     example: "Take exit 123 off the highway and follow the signs",
-    nullable: true,
   })
-  driving_directions: string;
+  driving_directions?: string;
 
   @ApiProperty({
     description: "The maintenance standard code for the recreation resource",
     enum: RecreationResourceMaintenanceStandardCode,
     example: RecreationResourceMaintenanceStandardCode.U,
-    nullable: true,
   })
-  maintenance_standard_code: RecreationResourceMaintenanceStandardCode;
+  maintenance_standard_code?: RecreationResourceMaintenanceStandardCode;
 
   @ApiProperty({
     description:
