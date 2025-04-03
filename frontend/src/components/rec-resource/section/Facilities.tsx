@@ -1,6 +1,7 @@
 import { forwardRef } from 'react';
 import '@/components/rec-resource/section/ThingsToDo.scss';
 import { facilityMap } from '@/data/facilitiesIconMap';
+import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 
 interface FacilitiesProps {
   recreation_structure: {
@@ -27,8 +28,8 @@ const Facilities = forwardRef<HTMLElement, FacilitiesProps>(
     if (facilitiesList.length === 0) return null;
 
     return (
-      <section id="facilities" ref={ref}>
-        <h2 className="section-heading">Facilities</h2>
+      <section id={SectionIds.FACILITIES} ref={ref}>
+        <h2 className="section-heading">{SectionTitles.FACILITIES}</h2>
         <ul className="things-to-do-list">
           {facilitiesList.map(({ name, code }) => {
             const facilityIcon = facilityMap?.[code];

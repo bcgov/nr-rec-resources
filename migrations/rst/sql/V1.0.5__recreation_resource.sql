@@ -1,39 +1,3 @@
-create table if not exists rst.recreation_district_code (
-    district_code varchar(4) primary key,
-    description varchar(120) not null
-);
-
-select upsert_timestamp_columns ('rst', 'recreation_district_code', true);
-
-select setup_temporal_table ('rst', 'recreation_district_code');
-
-comment on table rst.recreation_district_code is 'Recreation district codes for classification of areas within a project.';
-
-comment on column rst.recreation_district_code.district_code is 'A code indicating a recreation district boundary. EG Cascades, Chilliwack, Discovery Coast. Note: There are 17 Recreation District Boundaries, most of which have different geographical boundaries than Forest District Boundaries. Because of this, Rec District Boundary Codes are different from Forest District Boundary Codes.';
-
-comment on column rst.recreation_district_code.description is 'Description of the recreation district boundary type.';
-
-
-create table if not exists rst.recreation_maintenance_standard_code (
-    maintenance_standard_code varchar(1) primary key,
-    description varchar(200) not null
-);
-
-select upsert_timestamp_columns ('rst', 'recreation_maintenance_standard_code', true);
-
-select setup_temporal_table ('rst', 'recreation_maintenance_standard_code');
-
-comment on table rst.recreation_maintenance_standard_code is 'Codes describing the maintenance standards for recreation projects.';
-
-comment on column rst.recreation_maintenance_standard_code.maintenance_standard_code is 'Code describing the Maintenance Standard of a given site. E.g. User Maintained, Maintained to Standard, Not Maintained.';
-
-comment on column rst.recreation_maintenance_standard_code.description is 'Description of the code value';
-
-insert into rst.recreation_maintenance_standard_code (maintenance_standard_code, description)
-values ('U', 'User Maintained'),
-       ('M', 'Maintained to Standard');
-
-
 create table if not exists rst.recreation_resource (
     rec_resource_id varchar(20) not null primary key,
     name varchar(200),

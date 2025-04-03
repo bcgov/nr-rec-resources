@@ -17,10 +17,10 @@ insert into
     rst.recreation_fee_code (recreation_fee_code, description)
 values
     ('C', 'Camping'),
-    ('D', 'Day Use'),
+    ('D', 'Day use'),
     ('H', 'Hut'),
     ('P', 'Parking'),
-    ('T', 'Trail Use');
+    ('T', 'Trail use');
 
 create table if not exists rst.recreation_fee (
     rec_resource_id varchar(200) not null references rst.recreation_resource (rec_resource_id),

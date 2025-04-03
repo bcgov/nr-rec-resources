@@ -35,7 +35,6 @@ create table rst.recreation_map_feature_geom
     unique (map_feature_id)
 );
 
-
 select upsert_timestamp_columns('rst', 'recreation_map_feature_geom');
 
 select setup_temporal_table('rst', 'recreation_map_feature_geom');

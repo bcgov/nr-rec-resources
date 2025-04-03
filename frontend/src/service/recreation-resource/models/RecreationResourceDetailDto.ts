@@ -109,19 +109,19 @@ export interface RecreationResourceDetailDto {
    * @type {string}
    * @memberof RecreationResourceDetailDto
    */
-  description: string | null;
+  description: string;
   /**
    * Driving directions to the Recreation Resource
    * @type {string}
    * @memberof RecreationResourceDetailDto
    */
-  driving_directions: string | null;
+  driving_directions: string;
   /**
    * The maintenance standard code for the recreation resource
    * @type {string}
    * @memberof RecreationResourceDetailDto
    */
-  maintenance_standard_code: RecreationResourceDetailDtoMaintenanceStandardCodeEnum | null;
+  maintenance_standard_code: RecreationResourceDetailDtoMaintenanceStandardCodeEnum;
   /**
    * Number of campsites available in the recreation site or trail
    * @type {number}

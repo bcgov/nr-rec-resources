@@ -61,7 +61,7 @@ describe("buildFilterMenu", () => {
         type: "multi-select",
         label: "Access Type",
         param: "access",
-        options: [{ id: "1", description: "Wheelchair Access", count: 4 }],
+        options: [{ id: "1", description: "Wheelchair access", count: 4 }],
       },
     ]);
   });
