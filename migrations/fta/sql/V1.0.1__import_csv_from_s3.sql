@@ -22,7 +22,7 @@ select aws_s3.table_import_from_s3(
         arch_impact_date
       )
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_PROJECT.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_PROJECT.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -32,7 +32,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_ACCESS.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_ACCESS.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -42,7 +42,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_ACCESS_CODE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_ACCESS_CODE.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -52,7 +52,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_ACCESS_XREF.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_ACCESS_XREF.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -69,7 +69,7 @@ select aws_s3.table_import_from_s3(
         update_timestamp
       )
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_ACTIVITY.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_ACTIVITY.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -79,7 +79,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_ACTIVITY_CODE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_ACTIVITY_CODE.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -89,7 +89,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_AGREEMENT_HOLDER.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_AGREEMENT_HOLDER.csv', 'ca-central-1')
 );
 
 -- come back to this, file wasn't in s3
@@ -100,7 +100,7 @@ select aws_s3.table_import_from_s3(
 --     FORMAT csv,
 --     HEADER true
 --   )',
---   aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_ATTACHMENT.csv', 'ca-central-1')
+--   aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_ATTACHMENT.csv', 'ca-central-1')
 -- );
 
 select aws_s3.table_import_from_s3(
@@ -110,7 +110,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_COMMENT.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_COMMENT.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -120,7 +120,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_CONTROL_ACCESS_CODE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_CONTROL_ACCESS_CODE.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -130,7 +130,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_DEF_CS_RPR_HISTORY.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_DEF_CS_RPR_HISTORY.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -148,7 +148,7 @@ select aws_s3.table_import_from_s3(
         update_timestamp
       )
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_DEFINED_CAMPSITE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_DEFINED_CAMPSITE.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -158,7 +158,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_DISTRICT_CODE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_DISTRICT_CODE.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -168,7 +168,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_DISTRICT_XREF.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_DISTRICT_XREF.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -178,7 +178,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_FEATURE_CODE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_FEATURE_CODE.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -188,7 +188,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_FEE_CODE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_FEE_CODE.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -198,7 +198,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_FEE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_FEE.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -208,7 +208,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_FILE_STATUS_CODE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_FILE_STATUS_CODE.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -218,7 +218,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_FILE_TYPE_CODE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_FILE_TYPE_CODE.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -244,7 +244,7 @@ select aws_s3.table_import_from_s3(
         update_timestamp
       )
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_INSPECTION_REPORT.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_INSPECTION_REPORT.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -254,7 +254,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_MAINTAIN_STD_CODE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_MAINTAIN_STD_CODE.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -264,7 +264,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_MAP_FEATURE_GEOM.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_MAP_FEATURE_GEOM.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -274,7 +274,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_MAP_FEATURE_XGUID.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_MAP_FEATURE_XGUID.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -291,7 +291,7 @@ select aws_s3.table_import_from_s3(
         update_timestamp
       )
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_MAP_FEATURE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_MAP_FEATURE.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -301,7 +301,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_MAP_FEATURE_CODE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_MAP_FEATURE_CODE.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -317,7 +317,7 @@ select aws_s3.table_import_from_s3(
         objective_cancelled_date
       )
     )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_OBJECTIVE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_OBJECTIVE.csv', 'ca-central-1')
 );
 
 -- This file was empty, likely not used but should verify
@@ -328,7 +328,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_OCCUPANCY_CODE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_OCCUPANCY_CODE.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -338,7 +338,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_REMED_REPAIR_CODE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_REMED_REPAIR_CODE.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -348,7 +348,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_RISK_EVALUATION.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_RISK_EVALUATION.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -358,7 +358,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_RISK_RATING_CODE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_RISK_RATING_CODE.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -368,7 +368,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_RISK_SITE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_RISK_SITE.csv', 'ca-central-1')
 );
 
 -- This file was empty, likely not used but should verify
@@ -379,7 +379,7 @@ select aws_s3.table_import_from_s3(
 --     FORMAT csv,
 --     HEADER true
 --   )',
---   aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_SEARCH_RESULT.csv', 'ca-central-1')
+--   aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_SEARCH_RESULT.csv', 'ca-central-1')
 -- );
 
 select aws_s3.table_import_from_s3(
@@ -389,7 +389,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_SITE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_SITE.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -399,7 +399,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_SITE_POINT.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_SITE_POINT.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -409,7 +409,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_STRUCT_DIMEN_CODE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_STRUCT_DIMEN_CODE.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -419,7 +419,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_STRUCT_DIMEN_XREF.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_STRUCT_DIMEN_XREF.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -429,7 +429,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_STRUCTURE_CODE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_STRUCTURE_CODE.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -456,7 +456,7 @@ select aws_s3.table_import_from_s3(
         update_timestamp
       )
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_STRUCTURE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_STRUCTURE.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -466,7 +466,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_STRUCTURE_VALUE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_STRUCTURE_VALUE.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -476,7 +476,7 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_SUB_ACCESS_CODE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_SUB_ACCESS_CODE.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -500,7 +500,7 @@ select aws_s3.table_import_from_s3(
         update_timestamp
       )
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_TRAIL_SEGMENT.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_TRAIL_SEGMENT.csv', 'ca-central-1')
 );
 
 select aws_s3.table_import_from_s3(
@@ -510,5 +510,5 @@ select aws_s3.table_import_from_s3(
     FORMAT csv,
     HEADER true
   )',
-  aws_commons.create_s3_uri('rst-fta-dataload-oracle', 'RECREATION_USER_DAYS_CODE.csv', 'ca-central-1')
+  aws_commons.create_s3_uri('${S3_BUCKET}', 'RECREATION_USER_DAYS_CODE.csv', 'ca-central-1')
 );

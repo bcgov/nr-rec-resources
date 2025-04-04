@@ -51,3 +51,9 @@ variable "aws_region" {
   type = string
   default = "ca-central-1"
 }
+
+variable "oracle_dataload_bucket" {
+  description = "The S3 bucket for Oracle data load"
+  type        = string
+  default     = "rst-fta-dataload-oracle"
+}

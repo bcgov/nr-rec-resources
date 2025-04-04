@@ -59,24 +59,10 @@ jobs:
       tag: ${{ github.sha }}
     secrets: inherit
 
-  # Running FTA migration after each dev deployment since we are clearing the database each run
-  fta-migration-dev:
-    needs: deploy-to-aws-dev
-    name: FTA Migration
-    uses: ./.github/workflows/fta-migration.yml
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-fta-migration-dev
-      cancel-in-progress: false
-    with:
-      app_env: dev
-      environment_name: dev
-      tag: ${{ github.sha }}
-    secrets: inherit
-
   # Separate review job since we can't use GitHub environments in reusable workflows
   review-test-deployment:
     name: Review Test Deployment
-    needs: [fta-migration-dev]
+    needs: [deploy-to-aws-dev]
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-review-test-deployment
       cancel-in-progress: true
@@ -90,7 +76,7 @@ jobs:
   # resources in test environment uses the same vpc as the dev (Dev_vpc)
   deploy-to-aws-test:
     name: Deploys Application to AWS test
-    needs: [ review-test-deployment ]
+    needs: [review-test-deployment]
     uses: ./.github/workflows/.deploy-app.yml
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-deploy-to-aws-test
@@ -98,28 +84,13 @@ jobs:
     with:
       app_env: test
       command: apply
-      environment_name: test
+      environment_name: review-test-deployment
       tag: ${{ github.sha }}
     secrets: inherit
-
-  # Running FTA migration after each dev deployment since we are clearing the database each run
-  fta-migration-test:
-    needs: deploy-to-aws-test
-    name: FTA Migration
-    uses: ./.github/workflows/fta-migration.yml
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-fta-migration-test
-      cancel-in-progress: true
-    with:
-      app_env: test
-      environment_name: test
-      tag: ${{ github.sha }}
-    secrets: inherit
-
 
   release:
     name: Release
-    needs: [fta-migration-test]
+    needs: [deploy-to-aws-test]
     uses: ./.github/workflows/.release.yml
 
   promote:
@@ -130,11 +101,11 @@ jobs:
   # Separate review job since we can't use GitHub environments in reusable workflows
   review-prod-deployment:
     name: Review Prod Deployment
-    needs: [promote]
+    needs: [build-containers]
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-review-prod-deployment
       cancel-in-progress: true
-    environment: prod
+    environment: review-prod-deployment
     runs-on: ubuntu-24.04
     steps:
       - name: Review Prod Deployment
@@ -142,12 +113,14 @@ jobs:
 
   deploy-to-aws-prod:
     name: Deploys Application to AWS prod
-    needs: [deploy-to-aws-test]
+    needs: [review-prod-deployment]
+    uses: ./.github/workflows/.deploy-app.yml
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-deploy-to-aws-prod
       cancel-in-progress: false
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Deploy to AWS prod
-        # Placeholder
-        run: echo "Deploying to AWS prod"
+    with:
+      app_env: prod
+      command: apply
+      environment_name: prod
+      tag: ${{ github.sha }}
+    secrets: inherit
