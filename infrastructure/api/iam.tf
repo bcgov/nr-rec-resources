@@ -138,4 +138,6 @@ resource "aws_iam_user_policy" "s3_upload_policy" {
       }
     ]
   })
+
+  depends_on = [aws_dynamodb_table_item.iam_user]
 }

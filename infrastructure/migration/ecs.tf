@@ -74,7 +74,11 @@ module "flyway_task" {
         # Enable Flyway clean
         name = "FLYWAY_CLEAN_DISABLED"
         value = "false"
-      }
+      },
+      {
+        name = "FLYWAY_PLACEHOLDERS_S3_BUCKET"
+        value = "${var.fta_dataload_bucket}"
+      },
   ]
   aws_region      = var.aws_region
   cluster_id      = data.aws_ecs_cluster.ecs_cluster.id

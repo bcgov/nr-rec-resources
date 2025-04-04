@@ -83,7 +83,9 @@ module "flyway_task" {
         # This defaults to true, though we want to enable it only in dev to reset the database
         # also needs an update in migrations/rst/entrypoint.sh file for the flyaway ecs task to run correctly
         name = "FLYWAY_CLEAN_DISABLED"
-        value = contains(["dev", "test"], local.rds_app_env) ? "false" : "true"
+        # TEMPORARILY CLEANING PROD
+        value = false
+        # value = contains(["dev", "test"], local.rds_app_env) ? "false" : "true"
       }
   ]
   aws_region      = var.aws_region
