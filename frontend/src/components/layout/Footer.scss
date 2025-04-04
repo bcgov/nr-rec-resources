@@ -14,42 +14,60 @@
   padding: 48px $pagePadding;
   margin: 0px auto;
 
+  .logo-column {
+    width: 425px;
+  }
+
+  .icon {
+    width: 28px;
+    height: 28px;
+    padding-right: 10px;
+  }
+
+  .footer-heading {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: $colorWhite;
+    margin-bottom: 18px;
+    @media (max-width: $mdBreakpoint) {
+      margin-top: 16px;
+    }
+  }
+
+  .links-column {
+    width: 145px;
+    @media (max-width: $mdBreakpoint) {
+      width: 200px;
+    }
+  }
+
+  .paragraph-links {
+    font-size: 0.75rem;
+  }
+
+  .back-original-link {
+    margin-top: 20px;
+  }
+
+  hr {
+    border-top: 1px solid $colorGold;
+    opacity: 1;
+    width: 38px;
+  }
+
   @media (min-width: $lgBreakpoint) {
     padding: 48px $pagePaddingLg;
   }
 
   .footer-utility-link {
-    font-size: 1rem;
-    min-width: 100px;
-    margin-right: 16px;
+    font-size: 0.8rem;
+    margin-right: 26px;
     margin-bottom: 16px;
     &:last-of-type {
       margin-right: 0;
     }
     @media (min-width: $mdBreakpoint) {
       margin-bottom: 0;
-    }
-  }
-
-  .footer-menu-container {
-    margin-bottom: 32px;
-    &:last-of-type {
-      margin-bottom: 0;
-    }
-    @media (min-width: $smBreakpoint) {
-      margin-top: 12px;
-      margin-bottom: 0;
-    }
-    .footer-menu-list {
-      font-size: 1.05rem;
-      margin-bottom: 0;
-
-      .footer-menu-divider {
-        margin: 1rem 0;
-        height: 1px;
-        background-color: $colorGold;
-        width: 48px;
-      }
     }
   }
 
@@ -65,6 +83,26 @@
       outline: $colorBlueMed solid 2px;
       outline-offset: 0px;
       border-radius: 4px;
+    }
+  }
+
+  .beta-button {
+    position: relative;
+    color: $colorGold;
+    border: none;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 4px;
+    top: 20px;
+    left: -20px;
+    letter-spacing: 0.3em;
+    &:hover {
+      cursor: default;
+    }
+
+    @media (max-width: 767px) {
+      display: none;
     }
   }
 }
