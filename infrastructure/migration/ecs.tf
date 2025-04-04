@@ -77,8 +77,8 @@ module "flyway_task" {
       },
       {
         name = "FLYWAY_PLACEHOLDERS_S3_BUCKET"
-        value = "${var.oracle_dataload_bucket}"
-      }
+        value = "${var.fta_dataload_bucket}"
+      },
   ]
   aws_region      = var.aws_region
   cluster_id      = data.aws_ecs_cluster.ecs_cluster.id

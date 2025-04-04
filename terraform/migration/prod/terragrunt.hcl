@@ -19,5 +19,6 @@ generate "prod_tfvars" {
   api_image="${local.api_image}"
   app_env="${local.app_env}"
   app_name="node-api-${local.app_env}"
+  fta_dataload_bucket = "rst-fta-dataload-oracle-prod"
 EOF
 }
