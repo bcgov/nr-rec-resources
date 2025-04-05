@@ -109,7 +109,7 @@
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="rec_resource_id">rec_resource_id</span></td>
+                                    <td><span id="rec_resource_id">rec_resource_id</span></td>
                                     <td>varchar</td>
                                     <td>10</td>
                                     <td title=''></td>
@@ -121,11 +121,6 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
-                                            <tr>
-                                                <td title="recreation_site_point_history.rec_resource_id&#39;s name implies that it&#39;s a child of recreation_site_point.rec_resource_id, but it doesn&#39;t reference that column."><a href='recreation_site_point.html'>recreation_site_point</a><span class='relatedKey'>.rec_resource_id</span></td>
-                                                <td class="constraint detail">Implied Constraint</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
                                         </table>
                                     </td>
                                     <td></td>
@@ -267,8 +262,6 @@
                                 <h5>Close relationships within degrees of separation</h5>
                                 <ul class="nav nav-tabs pull-left ui-sortable-handle">
                                     <li class="active"><a href="#oneDegreeImg-chart" data-toggle="tab" aria-expanded="true">One</a></li>
-                                    <li class=""><a href="#oneimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">One implied</a></li>
-                                    <li class=""><a href="#twoimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two implied</a></li>
                                 </ul>
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
@@ -276,23 +269,6 @@
 <area shape="rect" id="node1" href="recreation_site_point_history.html" target="_top" title="recreation_site_point_history" alt="" coords="5,5,455,309">
 </map>
                                         <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/recreation_site_point_history.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
-                                    </div>
-                                    <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
-                                        <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_site_point_history.html" target="_top" title="recreation_site_point_history" alt="" coords="297,5,747,309">
-<area shape="rect" id="node2" href="recreation_site_point.html" target="_top" title="recreation_site_point" alt="" coords="5,8,253,155">
-</map>
-                                        <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/recreation_site_point_history.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
-                                    </div>
-                                    <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
-                                        <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_map_feature_history.html" target="_top" title="recreation_map_feature_history" alt="" coords="355,5,689,93">
-<area shape="rect" id="node2" href="recreation_site_point.html" target="_top" title="recreation_site_point" alt="" coords="5,161,253,308">
-<area shape="rect" id="node3" href="recreation_resource_docs_history.html" target="_top" title="recreation_resource_docs_history" alt="" coords="349,111,695,199">
-<area shape="rect" id="node4" href="recreation_resource_images_history.html" target="_top" title="recreation_resource_images_history" alt="" coords="339,216,705,304">
-<area shape="rect" id="node5" href="recreation_site_point_history.html" target="_top" title="recreation_site_point_history" alt="" coords="297,321,747,625">
-</map>
-                                        <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/recreation_site_point_history.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                 </div>
                             </div>

@@ -126,7 +126,7 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="map_feature_id">map_feature_id</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="map_feature_id">map_feature_id</span></td>
                                     <td>int4</td>
                                     <td>10</td>
                                     <td title='nullable'>√</td>
@@ -138,6 +138,11 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="recreation_map_feature_geom_history.map_feature_id&#39;s name implies that it&#39;s a child of recreation_access.id, but it doesn&#39;t reference that column."><a href='recreation_access.html'>recreation_access</a><span class='relatedKey'>.id</span></td>
+                                                <td class="constraint detail">Implied Constraint</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
                                     <td></td>
@@ -347,6 +352,8 @@
                                 <h5>Close relationships within degrees of separation</h5>
                                 <ul class="nav nav-tabs pull-left ui-sortable-handle">
                                     <li class="active"><a href="#oneDegreeImg-chart" data-toggle="tab" aria-expanded="true">One</a></li>
+                                    <li class=""><a href="#oneimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">One implied</a></li>
+                                    <li class=""><a href="#twoimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two implied</a></li>
                                 </ul>
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
@@ -354,6 +361,27 @@
 <area shape="rect" id="node1" href="recreation_map_feature_geom_history.html" target="_top" title="recreation_map_feature_geom_history" alt="" coords="5,5,529,456">
 </map>
                                         <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/recreation_map_feature_geom_history.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
+<area shape="rect" id="node1" href="recreation_map_feature_geom_history.html" target="_top" title="recreation_map_feature_geom_history" alt="" coords="271,5,795,456">
+<area shape="rect" id="node2" href="recreation_access.html" target="_top" title="recreation_access" alt="" coords="5,37,227,243">
+</map>
+                                        <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/recreation_map_feature_geom_history.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
+<area shape="rect" id="node1" href="recreation_access.html" target="_top" title="recreation_access" alt="" coords="349,200,571,405">
+<area shape="rect" id="node2" href="recreation_access_code.html" target="_top" title="recreation_access_code" alt="" coords="23,187,288,275">
+<area shape="rect" id="node3" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="35,81,275,169">
+<area shape="rect" id="node4" href="recreation_sub_access_code.html" target="_top" title="recreation_sub_access_code" alt="" coords="5,292,305,380">
+<area shape="rect" id="node5" href="recreation_access_history.html" target="_top" title="recreation_access_history" alt="" coords="735,5,1019,93">
+<area shape="rect" id="node6" href="recreation_map_feature.html" target="_top" title="recreation_map_feature" alt="" coords="741,111,1012,199">
+<area shape="rect" id="node7" href="recreation_map_feature_geom.html" target="_top" title="recreation_map_feature_geom" alt="" coords="1183,197,1504,285">
+<area shape="rect" id="node8" href="recreation_map_feature_geom_history.html" target="_top" title="recreation_map_feature_geom_history" alt="" coords="615,357,1139,808">
+<area shape="rect" id="node9" href="recreation_map_feature_history.html" target="_top" title="recreation_map_feature_history" alt="" coords="709,216,1044,304">
+</map>
+                                        <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/recreation_map_feature_geom_history.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                 </div>
                             </div>

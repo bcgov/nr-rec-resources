@@ -122,23 +122,6 @@
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td><span id="unique_id">unique_id</span></td>
-                                    <td>int8</td>
-                                    <td>19</td>
-                                    <td title='nullable'>√</td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
                                     <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="district_code">district_code</span></td>
                                     <td>varchar</td>
                                     <td>4</td>
@@ -218,25 +201,25 @@
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="recreation_resource_district_count_view.html" target="_top" title="recreation_resource_district_count_view" alt="" coords="5,5,473,168">
+<area shape="rect" id="node1" href="recreation_resource_district_count_view.html" target="_top" title="recreation_resource_district_count_view" alt="" coords="5,5,473,139">
 </map>
                                         <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/recreation_resource_district_count_view.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_resource_district_count_view.html" target="_top" title="recreation_resource_district_count_view" alt="" coords="320,5,788,168">
-<area shape="rect" id="node2" href="recreation_district_code.html" target="_top" title="recreation_district_code" alt="" coords="5,37,276,155">
+<area shape="rect" id="node1" href="recreation_resource_district_count_view.html" target="_top" title="recreation_resource_district_count_view" alt="" coords="320,5,788,139">
+<area shape="rect" id="node2" href="recreation_district_code.html" target="_top" title="recreation_district_code" alt="" coords="5,8,276,125">
 </map>
                                         <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/recreation_resource_district_count_view.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
 <area shape="rect" id="node1" href="recreation_district_code_history.html" target="_top" title="recreation_district_code_history" alt="" coords="387,5,721,93">
-<area shape="rect" id="node2" href="recreation_district_code.html" target="_top" title="recreation_district_code" alt="" coords="5,248,276,365">
-<area shape="rect" id="node3" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="434,111,674,199">
-<area shape="rect" id="node4" href="recreation_resource_district_count_view.html" target="_top" title="recreation_resource_district_count_view" alt="" coords="320,216,788,379">
-<area shape="rect" id="node5" href="recreation_resource_history.html" target="_top" title="recreation_resource_history" alt="" coords="403,396,705,484">
-<area shape="rect" id="node6" href="recreation_resource_search_view.html" target="_top" title="recreation_resource_search_view" alt="" coords="385,501,723,565">
+<area shape="rect" id="node2" href="recreation_district_code.html" target="_top" title="recreation_district_code" alt="" coords="5,144,276,261">
+<area shape="rect" id="node3" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="434,147,674,235">
+<area shape="rect" id="node4" href="recreation_resource_district_count_view.html" target="_top" title="recreation_resource_district_count_view" alt="" coords="320,288,788,421">
+<area shape="rect" id="node5" href="recreation_resource_history.html" target="_top" title="recreation_resource_history" alt="" coords="850,83,1153,171">
+<area shape="rect" id="node6" href="recreation_resource_search_view.html" target="_top" title="recreation_resource_search_view" alt="" coords="832,197,1171,261">
 </map>
                                         <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/recreation_resource_district_count_view.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
@@ -254,7 +237,7 @@
                             </div>
                         </div>
                         <div class="box-body">
-                            <textarea id="sql-script-codemirror" name="sql-script-codemirror" rows="" style="display: none;">SELECT row_number() OVER () AS unique_id,&#10;    rd.district_code,&#10;    rd.description,&#10;    COALESCE(count(DISTINCT r.rec_resource_id), (0)::bigint) AS resource_count&#10;   FROM (rst.recreation_district_code rd&#10;     LEFT JOIN rst.recreation_resource r ON ((((r.district_code)::text &#61; (rd.district_code)::text) AND (r.display_on_public_site &#61; true))))&#10;  WHERE ((rd.district_code)::text &lt;&gt; ALL ((ARRAY[&#39;RDQC&#39;::character varying, &#39;RDRM&#39;::character varying, &#39;RDRN&#39;::character varying, &#39;RDRS&#39;::character varying])::text[]))&#10;  GROUP BY rd.district_code;</textarea>
+                            <textarea id="sql-script-codemirror" name="sql-script-codemirror" rows="" style="display: none;">SELECT rd.district_code,&#10;    rd.description,&#10;    COALESCE(count(DISTINCT r.rec_resource_id), (0)::bigint) AS resource_count&#10;   FROM (rst.recreation_district_code rd&#10;     LEFT JOIN rst.recreation_resource r ON ((((r.district_code)::text &#61; (rd.district_code)::text) AND (r.display_on_public_site &#61; true))))&#10;  WHERE ((rd.district_code)::text &lt;&gt; ALL ((ARRAY[&#39;RDQC&#39;::character varying, &#39;RDRM&#39;::character varying, &#39;RDRN&#39;::character varying, &#39;RDRS&#39;::character varying])::text[]))&#10;  GROUP BY rd.district_code;</textarea>
                             <div style="padding-top: 5px;"><hr></div>
                             <div class="box box-solid">
                                 <div class="box-header with-border">

@@ -109,7 +109,7 @@
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td><span id="id">id</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="id">id</span></td>
                                     <td>int4</td>
                                     <td>10</td>
                                     <td title=''></td>
@@ -121,12 +121,17 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="recreation_access_history.id&#39;s name implies that it&#39;s a child of recreation_access.id, but it doesn&#39;t reference that column."><a href='recreation_access.html'>recreation_access</a><span class='relatedKey'>.id</span></td>
+                                                <td class="constraint detail">Implied Constraint</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="rec_resource_id">rec_resource_id</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="rec_resource_id">rec_resource_id</span></td>
                                     <td>varchar</td>
                                     <td>20</td>
                                     <td title=''></td>
@@ -138,6 +143,11 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="recreation_access_history.rec_resource_id&#39;s name implies that it&#39;s a child of recreation_resource.rec_resource_id, but it doesn&#39;t reference that column."><a href='recreation_resource.html'>recreation_resource</a><span class='relatedKey'>.rec_resource_id</span></td>
+                                                <td class="constraint detail">Implied Constraint</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
                                     <td></td>
@@ -296,19 +306,41 @@
                                     </div>
                                     <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_access_history.html" target="_top" title="recreation_access_history" alt="" coords="315,5,735,339">
-<area shape="rect" id="node2" href="recreation_access_code.html" target="_top" title="recreation_access_code" alt="" coords="5,67,271,184">
+<area shape="rect" id="node1" href="recreation_access.html" target="_top" title="recreation_access" alt="" coords="327,5,548,211">
+<area shape="rect" id="node2" href="recreation_access_code.html" target="_top" title="recreation_access_code" alt="" coords="11,227,277,344">
+<area shape="rect" id="node3" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="5,33,283,209">
+<area shape="rect" id="node4" href="recreation_access_history.html" target="_top" title="recreation_access_history" alt="" coords="592,156,1012,489">
 </map>
                                         <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/recreation_access_history.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_access.html" target="_top" title="recreation_access" alt="" coords="414,5,635,93">
-<area shape="rect" id="node2" href="recreation_access_code.html" target="_top" title="recreation_access_code" alt="" coords="5,277,271,395">
-<area shape="rect" id="node3" href="recreation_access_code_history.html" target="_top" title="recreation_access_code_history" alt="" coords="361,111,689,199">
-<area shape="rect" id="node4" href="recreation_access_history.html" target="_top" title="recreation_access_history" alt="" coords="315,216,735,549">
-<area shape="rect" id="node5" href="recreation_resource_access_count_view.html" target="_top" title="recreation_resource_access_count_view" alt="" coords="330,567,719,631">
-<area shape="rect" id="node6" href="recreation_resource_search_view.html" target="_top" title="recreation_resource_search_view" alt="" coords="355,648,694,712">
+<area shape="rect" id="node1" href="recreation_access.html" target="_top" title="recreation_access" alt="" coords="876,192,1097,280">
+<area shape="rect" id="node2" href="recreation_access_code.html" target="_top" title="recreation_access_code" alt="" coords="465,141,731,229">
+<area shape="rect" id="node3" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="478,911,718,999">
+<area shape="rect" id="node4" href="recreation_sub_access_code.html" target="_top" title="recreation_sub_access_code" alt="" coords="448,247,748,335">
+<area shape="rect" id="node15" href="recreation_district_code.html" target="_top" title="recreation_district_code" alt="" coords="69,908,340,996">
+<area shape="rect" id="node16" href="recreation_maintenance_standard_code.html" target="_top" title="recreation_maintenance_standard_code" alt="" coords="5,1241,404,1329">
+<area shape="rect" id="node5" href="recreation_access_code_history.html" target="_top" title="recreation_access_code_history" alt="" coords="823,87,1151,175">
+<area shape="rect" id="node6" href="recreation_access_history.html" target="_top" title="recreation_access_history" alt="" coords="1225,437,1645,771">
+<area shape="rect" id="node7" href="recreation_activity.html" target="_top" title="recreation_activity" alt="" coords="872,697,1101,785">
+<area shape="rect" id="node8" href="recreation_defined_campsite.html" target="_top" title="recreation_defined_campsite" alt="" coords="832,803,1141,891">
+<area shape="rect" id="node9" href="recreation_driving_direction.html" target="_top" title="recreation_driving_direction" alt="" coords="835,908,1139,996">
+<area shape="rect" id="node10" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="889,1013,1084,1101">
+<area shape="rect" id="node11" href="recreation_map_feature.html" target="_top" title="recreation_map_feature" alt="" coords="1300,332,1571,420">
+<area shape="rect" id="node12" href="recreation_map_feature_geom.html" target="_top" title="recreation_map_feature_geom" alt="" coords="1689,243,2011,331">
+<area shape="rect" id="node13" href="recreation_map_feature_geom_history.html" target="_top" title="recreation_map_feature_geom_history" alt="" coords="1243,227,1628,315">
+<area shape="rect" id="node14" href="recreation_map_feature_history.html" target="_top" title="recreation_map_feature_history" alt="" coords="1268,85,1603,173">
+<area shape="rect" id="node17" href="recreation_resource_access_count_view.html" target="_top" title="recreation_resource_access_count_view" alt="" coords="792,5,1181,69">
+<area shape="rect" id="node18" href="recreation_resource_docs.html" target="_top" title="recreation_resource_docs" alt="" coords="845,1119,1128,1207">
+<area shape="rect" id="node19" href="recreation_resource_history.html" target="_top" title="recreation_resource_history" alt="" coords="835,1621,1138,1709">
+<area shape="rect" id="node20" href="recreation_resource_images.html" target="_top" title="recreation_resource_images" alt="" coords="835,1224,1138,1312">
+<area shape="rect" id="node21" href="recreation_resource_search_view.html" target="_top" title="recreation_resource_search_view" alt="" coords="817,333,1156,397">
+<area shape="rect" id="node22" href="recreation_resource_type_view.html" target="_top" title="recreation_resource_type_view" alt="" coords="826,1329,1147,1393">
+<area shape="rect" id="node23" href="recreation_site_description.html" target="_top" title="recreation_site_description" alt="" coords="839,1411,1135,1499">
+<area shape="rect" id="node24" href="recreation_status.html" target="_top" title="recreation_status" alt="" coords="877,1516,1097,1604">
+<area shape="rect" id="node25" href="recreation_structure.html" target="_top" title="recreation_structure" alt="" coords="865,451,1109,539">
+<area shape="rect" id="node26" href="recreation_structure_history.html" target="_top" title="recreation_structure_history" alt="" coords="833,556,1141,644">
 </map>
                                         <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/recreation_access_history.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
