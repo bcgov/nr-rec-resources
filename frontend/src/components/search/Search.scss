@@ -18,22 +18,12 @@
       color: $colorBlue;
     }
 
-    @include media-breakpoint-up(md) {
+    @include media-breakpoint-up(lg) {
       display: none;
     }
   }
 
   .load-more-btn {
     width: 9rem;
-  }
-}
-
-.search-banner {
-  max-width: 1060px;
-
-  .search-banner-input-container {
-    input {
-      min-height: 48px;
-    }
   }
 }

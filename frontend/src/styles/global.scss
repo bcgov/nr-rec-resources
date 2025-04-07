@@ -71,17 +71,21 @@ a {
   }
 }
 
-.page {
-  width: 100%;
-  max-width: $pageMaxWidth;
-  margin: 0 auto;
-}
-
 .page-padding {
   padding: $pagePadding;
 
   @media (min-width: $lgBreakpoint) {
     padding: $pagePaddingLg;
+  }
+}
+
+.page {
+  @extend .page-padding;
+  width: 100%;
+  max-width: calc($pageMaxWidth + $pagePadding * 2);
+
+  @media (min-width: $lgBreakpoint) {
+    max-width: calc($pageMaxWidth + $pagePaddingLg * 2);
   }
 }
 

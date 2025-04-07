@@ -29,7 +29,6 @@ $mdBreakpoint: 768px;
 $lgBreakpoint: 992px;
 $xlBreakpoint: 1200px;
 
-$pageMaxWidth: 1060px;
-
-$pagePadding: 32px;
-$pagePaddingLg: 16px;
+$pagePadding: 2rem;
+$pagePaddingLg: 1rem;
+$pageMaxWidth: calc(1180px - ($pagePaddingLg * 2));
