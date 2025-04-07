@@ -11,13 +11,13 @@ interface LinkColumnProps {
   links: LinkProps[];
 }
 
-const FooterLinkColumn = (props: LinkColumnProps) => {
+const FooterLinkColumn = ({ title, links }: LinkColumnProps) => {
   return (
     <div className="col-md-4 links-column">
       <div>
-        <p className="footer-heading">{props.title}</p>
+        <p className="footer-heading">{title}</p>
         <hr />
-        {props.links.map((link, linkIndex) =>
+        {links.map((link, linkIndex) =>
           !link.component ? (
             <p key={linkIndex} className="paragraph-links">
               <a href={link.url} target="_blank" rel="noreferrer">

@@ -10,7 +10,7 @@ describe('the FooterLink component', () => {
     vi.mocked(useMediaQuery).mockReturnValue(false);
     render(<FooterLink title="Test title" url="testUrl" />);
 
-    const testTile = screen.getByTitle('Test title');
+    const testTile = screen.getByText('Test title');
 
     expect(testTile).toBeInTheDocument();
   });

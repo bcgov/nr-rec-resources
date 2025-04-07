@@ -3,11 +3,11 @@ interface FooterLinkProps {
   url: string;
 }
 
-const FooterLink = (props: FooterLinkProps) => {
+const FooterLink = ({ title, url }: FooterLinkProps) => {
   return (
     <div className="footer-utility-link d-inline-block">
-      <a className="nav-link" href={props.url} target="_blank" rel="noreferrer">
-        {props.title}
+      <a className="nav-link" href={url} target="_blank" rel="noreferrer">
+        {title}
       </a>
     </div>
   );

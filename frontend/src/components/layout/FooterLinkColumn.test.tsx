@@ -10,7 +10,7 @@ describe('the FooterLinkColumn component', () => {
     vi.mocked(useMediaQuery).mockReturnValue(false);
     render(<FooterLinkColumn title="Test title" links={[]} />);
 
-    const testTile = screen.getByTitle('Test title');
+    const testTile = screen.getByText('Test title');
 
     expect(testTile).toBeInTheDocument();
   });
