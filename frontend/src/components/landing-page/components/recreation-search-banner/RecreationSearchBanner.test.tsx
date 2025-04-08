@@ -24,7 +24,7 @@ describe('RecreationSearchBanner', () => {
 
     expect(RecreationSearchForm).toHaveBeenCalledWith(
       {
-        searchButtonProps: { variant: 'light' },
+        searchButtonProps: { variant: 'light', className: 'search-btn' },
         showSearchIcon: true,
       },
       undefined,

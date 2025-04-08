@@ -83,6 +83,7 @@ a {
   @extend .page-padding;
   width: 100%;
   max-width: calc($pageMaxWidth + $pagePadding * 2);
+  margin: auto;
 
   @media (min-width: $lgBreakpoint) {
     max-width: calc($pageMaxWidth + $pagePaddingLg * 2);
