@@ -18,7 +18,7 @@ export const RecreationSearchBanner: FC = () => {
             <span className="d-inline-block">site or trail</span>
           </h2>
           <RecreationSearchForm
-            searchButtonProps={{ variant: 'light' }}
+            searchButtonProps={{ variant: 'light', className: 'search-btn' }}
             showSearchIcon={true}
           />
         </Stack>

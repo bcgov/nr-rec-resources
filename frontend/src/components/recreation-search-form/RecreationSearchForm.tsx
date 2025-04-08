@@ -71,8 +71,8 @@ export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
         <Col md={12} lg="auto">
           <Button
             onClick={handleSearch}
-            className="search-button w-100"
             {...searchButtonProps}
+            className={`search-button w-100 ${searchButtonProps?.className}`}
           >
             {buttonText}
           </Button>
