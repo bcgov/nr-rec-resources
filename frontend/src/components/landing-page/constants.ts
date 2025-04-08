@@ -4,4 +4,4 @@ export const LANDING_PAGE_IMAGE_LINKS = {
   RESEARCH: '/landing-page/b.png',
   MAP: '/landing-page/c.png',
   SITE_SIGN: '/landing-page/d.png',
-} as const;
+};

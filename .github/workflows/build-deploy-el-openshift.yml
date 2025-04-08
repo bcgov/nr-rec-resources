@@ -18,6 +18,14 @@ on:
         options:
           - dev
           - prod
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+        description: 'Environment to deploy to OpenShift'
+        default: 'dev'
+
 
 jobs:
   triggers:
@@ -54,17 +62,18 @@ jobs:
   deploy:
     name: Deploy Helm Chart to OpenShift ${{ github.event.inputs.environment }}
     needs: [build]
-    environment: openshift-${{ github.event.inputs.environment || 'dev' }}
+    # Deploy to prod if PR is merged
+    environment: openshift-${{ github.event.inputs.environment || (github.event.action == 'closed' && 'prod') || 'dev' }}
     runs-on: ubuntu-24.04
     steps:
       - name: Helm Deploy
         id: deploy
         uses: bcgov/action-oc-runner@v1.0.0
         env:
-          DB_PASSWORD: ${{ secrets.dbPassword }} # handle special characters.
+          DB_PASSWORD: ${{ secrets.DBPASSWORD }} # handle special characters.
         with:
-          oc_namespace: ${{ secrets.oc_namespace }}
-          oc_token: ${{ secrets.oc_token }}
+          oc_namespace: ${{ secrets.OC_NAMESPACE }}
+          oc_token: ${{ secrets.OC_TOKEN }}
           oc_server: ${{ vars.oc_server }}
           commands: |
             # Deploy
@@ -74,19 +83,18 @@ jobs:
               export AWS_S3_BUCKET="fta-rec-rst-uploads"
               export RELEASE_NAME="backend-el-pr-${{ github.event.number }}"
             else
-              export AWS_S3_BUCKET="rst-fta-dataload-oracle"
+              export AWS_S3_BUCKET="${{ secrets.AWS_S3_BUCKET }}"
               export RELEASE_NAME="backend-el"
             fi
             helm package -u . --app-version="${{ github.sha }}" --version=1.0.0
-             # Helm upgrade/rollout, the db secrets are related to ORACLE DB, the cert secret can be a random one.
             helm upgrade \
               --set-string image.tag="${{ github.sha }}" \
-              --set-string secrets.dbHost="${{ secrets.dbHost }}" \
-              --set-string secrets.certSecret="${{ secrets.certSecret }}" \
-              --set-string secrets.dbName="${{ secrets.dbName }}" \
+              --set-string secrets.dbHost="${{ secrets.DBHOST }}" \
+              --set-string secrets.dbName="${{ secrets.DBNAME }}" \
               --set-string secrets.dbPassword="$DB_PASSWORD" \
-              --set-string secrets.dbUser="${{ secrets.dbUser }}" \
+              --set-string secrets.dbUser="${{ secrets.DBUSER }}" \
               --set-string config.awsS3Bucket="$AWS_S3_BUCKET" \
+              --set-string schedule="${{ secrets.SCHEDULE }}" \
               --install --wait \
               --values values.yaml "$RELEASE_NAME"\
               ./backend-el-1.0.0.tgz
@@ -104,8 +112,8 @@ jobs:
         id: helm-uninstall
         uses: bcgov/action-oc-runner@v1.0.0
         with:
-          oc_namespace: ${{ secrets.oc_namespace }}
-          oc_token: ${{ secrets.oc_token }}
+          oc_namespace: ${{ secrets.OC_NAMESPACE }}
+          oc_token: ${{ secrets.OC_TOKEN }}
           oc_server: ${{ vars.oc_server }}
           commands: |
             # Helm Uninstall

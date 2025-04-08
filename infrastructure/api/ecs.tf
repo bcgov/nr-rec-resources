@@ -153,7 +153,8 @@ resource "aws_ecs_task_definition" "node_api_task" {
     }
   ])
   lifecycle {
-    replace_triggered_by = [terraform_data.trigger_deployment]
+    create_before_destroy = true
+    replace_triggered_by  = [terraform_data.trigger_deployment]
   }
 }
 

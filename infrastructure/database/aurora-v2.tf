@@ -98,6 +98,8 @@ module "aurora_postgresql_v2" {
   skip_final_snapshot = true
   auto_minor_version_upgrade = false
 
+  deletion_protection = contains(["dev", "test"], local.rds_app_env) ? false : true
+
   db_parameter_group_name         = aws_db_parameter_group.db_postgresql.id
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.db_postgresql.id
 

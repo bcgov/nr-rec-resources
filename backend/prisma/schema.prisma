@@ -218,7 +218,6 @@ model recreation_map_feature {
   sys_period                    Unsupported("tstzrange")       @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
   recreation_resource           recreation_resource?           @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
   recreation_resource_type_code recreation_resource_type_code? @relation(fields: [recreation_resource_type], references: [rec_resource_type_code], onDelete: NoAction, onUpdate: NoAction)
-  recreation_map_feature_geom   recreation_map_feature_geom?
 
   @@unique([rec_resource_id, section_id])
   @@index([rec_resource_id], map: "idx_recreation_map_feature_rec_resource_id")
@@ -227,20 +226,19 @@ model recreation_map_feature {
 }
 
 model recreation_map_feature_geom {
-  rmf_skey               Int                      @id
-  map_feature_id         Int?                     @unique
-  geometry_type_code     String?                  @db.VarChar(3)
-  geometry               Unsupported("geometry")?
-  feature_area           Decimal?                 @db.Decimal(11, 4)
-  feature_length         Decimal?                 @db.Decimal(11, 4)
-  feature_perimeter      Decimal?                 @db.Decimal(11, 4)
-  revision_count         Int?
-  updated_at             DateTime?                @default(now()) @db.Timestamp(6)
-  updated_by             String?
-  created_at             DateTime?                @default(now()) @db.Timestamp(6)
-  created_by             String?
-  sys_period             Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_map_feature recreation_map_feature   @relation(fields: [rmf_skey], references: [rmf_skey], onDelete: NoAction, onUpdate: NoAction)
+  rmf_skey           Int                      @id
+  map_feature_id     Int?                     @unique
+  geometry_type_code String?                  @db.VarChar(3)
+  geometry           Unsupported("geometry")?
+  feature_area       Decimal?                 @db.Decimal(11, 4)
+  feature_length     Decimal?                 @db.Decimal(11, 4)
+  feature_perimeter  Decimal?                 @db.Decimal(11, 4)
+  revision_count     Int?
+  updated_at         DateTime?                @default(now()) @db.Timestamp(6)
+  updated_by         String?
+  created_at         DateTime?                @default(now()) @db.Timestamp(6)
+  created_by         String?
+  sys_period         Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
 
   @@index([map_feature_id], map: "idx_recreation_map_feature_geom_map_feature_id")
 }

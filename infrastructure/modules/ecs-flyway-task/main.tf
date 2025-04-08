@@ -34,6 +34,7 @@ resource "aws_ecs_task_definition" "flyway_task" {
   ])
 
   lifecycle {
+    create_before_destroy = true
     replace_triggered_by = [null_resource.trigger_deployment]
   }
 

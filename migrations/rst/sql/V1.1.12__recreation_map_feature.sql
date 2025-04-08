@@ -24,7 +24,7 @@ create index idx_recreation_map_feature_recreation_resource_type on rst.recreati
 
 create table rst.recreation_map_feature_geom
 (
-    rmf_skey           integer primary key references rst.recreation_map_feature,
+    rmf_skey           integer primary key,
     map_feature_id     int,
     geometry_type_code varchar(3),
     geometry           geometry,
