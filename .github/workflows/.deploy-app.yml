@@ -64,6 +64,7 @@ jobs:
     name: Builds UI
     needs: [deploy-api, deploy-cloudfront]
     runs-on: ubuntu-24.04
+    environment: ${{ inputs.environment_name }}
     if: ${{ inputs.command == 'apply' }}
     steps:
       - name: Checkout
@@ -92,3 +93,16 @@ jobs:
           npm run deploy
           aws s3 sync --delete ./dist s3://$(echo "$S3_BUCKET_ARN" | cut -d: -f6)
           aws cloudfront create-invalidation --distribution-id $CF_DISTRIBUTION_ID --paths "/*"
+  fta-migration:
+    name: FTA migration
+    uses: ./.github/workflows/.aws-deployer.yml
+    needs: [deploy-api]
+    if: ${{ inputs.command == 'apply' }}
+    with:
+      app_env: ${{ inputs.app_env || 'dev' }}
+      environment_name: ${{ inputs.environment_name || 'dev' }}
+      command: apply
+      flyway_image: ghcr.io/bcgov/nr-rec-resources/migrations/fta:${{ inputs.tag || 'latest' }}
+      working_directory: migration
+      tag: ${{ inputs.tag }}
+    secrets: inherit
