@@ -1,5 +1,6 @@
 import {
   GetRecreationResourceByIdRequest,
+  GetSiteOperatorByIdRequest,
   PaginatedRecreationResourceDto,
   ResponseError,
   SearchRecreationResourcesRequest,
@@ -11,7 +12,10 @@ import {
   transformRecreationResourceDetail,
 } from '@/service/queries/recreation-resource/helpers';
 import { InfiniteData } from '@tanstack/react-query';
-import { RecreationResourceDetailModel } from '@/service/custom-models';
+import {
+  RecreationResourceDetailModel,
+  SiteOperatorModel,
+} from '@/service/custom-models';
 
 /**
  * Custom hook to fetch a recreation resource by ID.
@@ -40,6 +44,39 @@ export const useGetRecreationResourceById = ({
         return transformRecreationResourceDetail(
           response,
         ) as RecreationResourceDetailModel;
+      }
+    },
+
+    // Only execute query when ID is provided
+    enabled: !!id,
+
+    // only retry on server errors (5xx)
+    retry: (_failureCount, error) => {
+      const status = error?.response?.status;
+      return status >= 500 && status < 600;
+    },
+  });
+};
+
+/**
+ * Custom hook to fetch a site operator by ID.
+ *
+ * @param {Partial<GetSiteOperatorByIdRequest>} params - The parameters for the query
+ * @param {string} params.id - The unique identifier of the recreation resource
+ */
+export const useGetSiteOperatorById = ({
+  id,
+}: Partial<GetSiteOperatorByIdRequest>) => {
+  const api = useRecreationResourceApi();
+  return useQuery<SiteOperatorModel | undefined, ResponseError>({
+    queryKey: ['siteOperator', id],
+
+    // Fetch function that calls the API and returns the response
+    queryFn: async () => {
+      if (id) {
+        return await api.getSiteOperatorById({
+          id,
+        });
       }
     },
 
