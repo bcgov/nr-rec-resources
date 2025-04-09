@@ -39,7 +39,7 @@ const SiteDescription = forwardRef<HTMLElement, SiteDescriptionProps>(
 
         {maintenanceDescription && (
           <section className="mb-4">
-            <h3>Maintenance standard</h3>
+            <h3>Maintenance type</h3>
             <p>{maintenanceDescription}</p>
           </section>
         )}
