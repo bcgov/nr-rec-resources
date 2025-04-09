@@ -50,7 +50,6 @@ resource "aws_rds_cluster_parameter_group" "db_postgresql" {
   }
 }
 
-
 resource "aws_secretsmanager_secret" "db_mastercreds_secret" {
   name = "aurora-postgis-db-master-creds-${var.target_env}_${var.app_env}"
 
@@ -99,6 +98,9 @@ module "aurora_postgresql_v2" {
   auto_minor_version_upgrade = false
 
   deletion_protection = contains(["dev", "test"], local.rds_app_env) ? false : true
+
+  performance_insights_enabled	= contains(["dev", "test"], local.rds_app_env) ? false : true
+  performance_insights_kms_key_id = data.aws_kms_alias.rds_key.arn
 
   db_parameter_group_name         = aws_db_parameter_group.db_postgresql.id
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.db_postgresql.id
