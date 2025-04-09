@@ -29,7 +29,7 @@ describe('SiteDescription Component', () => {
     render(<SiteDescription description="" maintenanceCode="U" />);
 
     expect(
-      screen.getByRole('heading', { name: /maintenance standard/i }),
+      screen.getByRole('heading', { name: /maintenance type/i }),
     ).toBeInTheDocument();
     expect(
       screen.getByText(/limited maintenance services/i),
@@ -40,7 +40,7 @@ describe('SiteDescription Component', () => {
     render(<SiteDescription description="" maintenanceCode="M" />);
 
     expect(
-      screen.getByRole('heading', { name: /maintenance standard/i }),
+      screen.getByRole('heading', { name: /maintenance type/i }),
     ).toBeInTheDocument();
     expect(screen.getByText(/This site is maintained/)).toBeInTheDocument();
   });
@@ -50,7 +50,7 @@ describe('SiteDescription Component', () => {
       <SiteDescription description="Test Description" />,
     );
 
-    expect(container).not.toHaveTextContent(/maintenance Standard/i);
+    expect(container).not.toHaveTextContent(/maintenance type/i);
   });
 
   it('should not render the maintenance section if an invalid maintenance code is provided', () => {
@@ -59,6 +59,6 @@ describe('SiteDescription Component', () => {
       <SiteDescription description="Test Description" maintenanceCode="X" />,
     );
 
-    expect(container).not.toHaveTextContent(/maintenance standard/i);
+    expect(container).not.toHaveTextContent(/maintenance type/i);
   });
 });
