@@ -17,7 +17,7 @@ const linkColumns = [
       },
       {
         title: 'Rules and etiquette',
-        url: EXTERNAL_LINKS.CLOSURE,
+        url: EXTERNAL_LINKS.RULES_ETIQUETE,
         component: null,
       },
       {
@@ -57,7 +57,7 @@ const linkColumns = [
       },
       {
         title: 'Facebook BC Recreation Sites and Trails',
-        url: EXTERNAL_LINKS.RESEARCH_OPT,
+        url: EXTERNAL_LINKS.FACEBOOK_BC_REC,
         component: (
           <FontAwesomeIcon
             className="icon"
