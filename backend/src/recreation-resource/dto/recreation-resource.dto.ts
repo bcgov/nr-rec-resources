@@ -266,3 +266,51 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
  * Limited DTO without spatial data - optimized for search operations
  */
 export class RecreationResourceSearchDto extends BaseRecreationResourceDto {}
+
+/**
+ * Base class containing common fields/properties for site operator
+ * @abstract
+ */
+export abstract class SiteOperatorDto {
+  @ApiProperty({
+    description: "Unique identifier of the Site Operator",
+    example: "00000002",
+  })
+  client_number: string;
+
+  @ApiProperty({
+    description: "Client Name",
+    example: "BAXTER",
+  })
+  client_name: string;
+
+  @ApiProperty({
+    description: "Client Legal First Name",
+    example: "JAMES",
+  })
+  legal_first_name: string;
+
+  @ApiProperty({
+    description: "Client Legal Middle Name",
+    example: "JAMES",
+  })
+  legal_middle_name: string;
+
+  @ApiProperty({
+    description: "Client Status Code",
+    example: "ACT",
+  })
+  client_status_code: string;
+
+  @ApiProperty({
+    description: "Client Type Code",
+    example: "I",
+  })
+  client_type_code: string;
+
+  @ApiProperty({
+    description: "Client Acronym",
+    example: "JAMES BAXTER",
+  })
+  acronym: string;
+}
