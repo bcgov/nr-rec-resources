@@ -10,7 +10,10 @@ import { RecreationResourceService } from "src/recreation-resource/service/recre
 import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resource.dto";
 import { RecreationResourceImageSize } from "./dto/recreation-resource-image.dto";
 import { ParseImageSizesPipe } from "./pipes/parse-image-sizes.pipe";
-import { RecreationResourceDetailDto } from "./dto/recreation-resource.dto";
+import {
+  RecreationResourceDetailDto,
+  SiteOperatorDto,
+} from "./dto/recreation-resource.dto";
 
 @ApiTags("recreation-resource")
 @Controller({ path: "recreation-resource", version: "1" })
@@ -143,5 +146,35 @@ export class RecreationResourceController {
       throw new HttpException("Recreation Resource not found.", 404);
     }
     return recResource;
+  }
+
+  @Get(":id/site-operator")
+  @ApiOperation({
+    summary: "Find site operator by resource ID",
+    operationId: "getSiteOperatorById",
+  })
+  @ApiParam({
+    name: "id",
+    required: true,
+    description: "Resource identifier",
+    type: "string",
+    example: "REC204117",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Site operator found",
+    type: SiteOperatorDto,
+  })
+  @ApiResponse({ status: 404, description: "Site operator not found" })
+  async findSiteOperatos(@Param("id") id: string): Promise<SiteOperatorDto> {
+    return await Promise.resolve({
+      client_number: id,
+      client_name: "BAXTER",
+      legal_first_name: "JAMES",
+      legal_middle_name: "Canter",
+      client_status_code: "ACT",
+      client_type_code: "I",
+      acronym: "JAMES BAXTER",
+    });
   }
 }
