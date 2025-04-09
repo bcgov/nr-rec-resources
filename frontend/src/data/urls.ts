@@ -16,4 +16,6 @@ export const EXTERNAL_LINKS = {
     'https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails#research-opportunities',
   ORV_TRAIL:
     'https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/orv-trail-fund',
+  RST_ARCGIS_MAP_FULL_SCREEN:
+    'https://governmentofbc.maps.arcgis.com/apps/webappviewer/index.html?id=4e9f5f3a722b45c8a86696f6c91d09c6',
 } as const;

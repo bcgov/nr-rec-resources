@@ -16,7 +16,9 @@ export class LayoutPOM {
       header.getByRole('link', { name: 'Find a site or trail' }),
     ).toBeVisible();
 
-    await expect(header.getByRole('link', { name: 'Contact' })).toBeVisible();
+    await expect(
+      header.getByRole('link', { name: 'Interactive map' }),
+    ).toBeVisible();
   }
 
   async verifyFooterContent() {
