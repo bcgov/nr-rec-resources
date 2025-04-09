@@ -1,0 +1,9 @@
+.openapi-generator-ignore
+apis/ClientAPIApi.ts
+apis/ClientSearchAPIApi.ts
+apis/index.ts
+index.ts
+models/ClientLocationDto.ts
+models/ClientPublicViewDto.ts
+models/index.ts
+runtime.ts
