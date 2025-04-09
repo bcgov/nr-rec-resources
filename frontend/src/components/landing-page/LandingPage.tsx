@@ -30,9 +30,8 @@ const LearnMoreLink: FC = () => (
 const FeedbackButton: FC = () => (
   <Button
     variant="primary"
-    href={EXTERNAL_LINKS.RST_GOV_BC_INFO}
-    className={'d-inline-flex align-items-center justify-content-center'}
-    target={'_blank'}
+    href={EXTERNAL_LINKS.FEEDBACK_FORM}
+    target="_blank"
     rel="noopener noreferrer"
     aria-label="Share your feedback (opens in a new tab)"
   >

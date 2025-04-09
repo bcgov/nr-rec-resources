@@ -3,6 +3,7 @@ import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import '@/components/layout/BetaBanner.scss';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import { EXTERNAL_LINKS } from '@/data/urls';
+import { Button } from 'react-bootstrap';
 
 const BetaBanner = () => {
   const isMobile = useMediaQuery('(max-width: 767px)');
@@ -38,14 +39,15 @@ const BetaBanner = () => {
           )}
         </span>
       </div>
-      <a
-        className="banner-button"
+      <Button
         href={EXTERNAL_LINKS.FEEDBACK_FORM}
         target="_blank"
         rel="noopener noreferrer"
+        aria-label="Share your feedback (opens in a new tab)"
+        className="py-4"
       >
-        {isMobile ? 'Give feedback' : 'Submit your feedback'}
-      </a>
+        {isMobile ? 'Share feedback' : 'Share your feedback'}
+      </Button>
     </div>
   );
 };
