@@ -156,7 +156,7 @@ const RecResourcePage = () => {
           title: SectionTitles.MAPS_AND_LOCATION,
         },
         {
-          href: SectionIds.CAMPING,
+          href: `#${SectionIds.CAMPING}`,
           title: SectionTitles.CAMPING,
         },
 
