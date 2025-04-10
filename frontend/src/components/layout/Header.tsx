@@ -13,10 +13,7 @@ const Header = () => {
     <header id="header">
       <BetaBanner />
       <div className="page-nav-container main">
-        <nav
-          aria-label="Main header navigation"
-          className="page-nav header-nav main"
-        >
+        <nav aria-label="Main header navigation" className="header-nav main">
           <div className="navbar-brand">
             <a href={ROUTE_PATHS.HOME}>
               <img

@@ -25,5 +25,11 @@
     .search-title {
       color: $colorWhite;
     }
+
+    .search-btn {
+      &:hover {
+        background-color: $colorGold;
+      }
+    }
   }
 }

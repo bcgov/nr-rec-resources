@@ -16,7 +16,7 @@ import {
   RecreationResourceSearchModel,
 } from '@/service/custom-models';
 import { LoadingButton } from '@/components/LoadingButton';
-import { ProgressBar, Stack } from 'react-bootstrap';
+import { Col, ProgressBar, Row, Stack } from 'react-bootstrap';
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -98,82 +98,92 @@ const SearchPage = () => {
   return (
     <>
       <SearchBanner />
-      <div className="page-container bg-brown-light">
-        <div className="page page-padding search-container">
-          <FilterMenu />
-          <FilterMenuMobile
-            isOpen={isMobileFilterOpen}
-            setIsOpen={setIsMobileFilterOpen}
-          />
-          <div className="w-100">
-            <button
-              aria-label="Open mobile filter menu"
-              onClick={handleOpenMobileFilter}
-              className="btn btn-secondary show-filters-btn-mobile"
-            >
-              Filter
-            </button>
+      <Stack
+        direction="horizontal"
+        className="page-container bg-brown-light justify-content-start"
+      >
+        <Row className="page search-container">
+          <Col md={12} lg={3} className="ps-lg-0">
+            <FilterMenu />
+            <FilterMenuMobile
+              isOpen={isMobileFilterOpen}
+              setIsOpen={setIsMobileFilterOpen}
+            />
+          </Col>
 
-            <div className="d-flex align-items-center justify-content-between mb-4">
-              {isFetchingFirstPage ? (
-                <div>Searching...</div>
+          <Col md={12} lg={9} className="pe-lg-0">
+            <div className="w-100">
+              <button
+                aria-label="Open mobile filter menu"
+                onClick={handleOpenMobileFilter}
+                className="btn btn-secondary show-filters-btn-mobile"
+              >
+                Filter
+              </button>
+
+              <div className="d-flex align-items-center justify-content-between mb-4">
+                {isFetchingFirstPage ? (
+                  <div>Searching...</div>
+                ) : (
+                  <div>
+                    {totalCount ? (
+                      <span>
+                        <strong>{totalCount.toLocaleString()}</strong>
+                        {` ${totalCount === 1 ? 'Result' : 'Results'}`}
+                      </span>
+                    ) : (
+                      'No results found'
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <FilterChips />
+              {isFetching && !isFetchingPreviousPage && !isFetchingNextPage ? (
+                <ProgressBar animated now={100} className="mb-4" />
               ) : (
-                <div>
-                  {totalCount ? (
-                    <span>
-                      <strong>{totalCount.toLocaleString()}</strong>
-                      {` ${totalCount === 1 ? 'Result' : 'Results'}`}
-                    </span>
-                  ) : (
-                    'No results found'
+                <Stack gap={3} className="align-items-center">
+                  {hasPreviousPage && (
+                    <LoadingButton
+                      onClick={handleLoadPrevious}
+                      loading={isFetchingPreviousPage}
+                      className={'load-more-btn'}
+                      disabled={isFetchingPreviousPage}
+                    >
+                      Load Previous
+                    </LoadingButton>
                   )}
-                </div>
+                  <section className="w-100">
+                    {paginatedResults?.flatMap(
+                      (pageData: PaginatedRecreationResourceModel) =>
+                        pageData?.data.map(
+                          (
+                            recreationResource: RecreationResourceSearchModel,
+                          ) => (
+                            <RecResourceCard
+                              key={recreationResource.rec_resource_id}
+                              recreationResource={recreationResource}
+                            />
+                          ),
+                        ),
+                    )}
+                  </section>
+                  {hasNextPage && (
+                    <LoadingButton
+                      onClick={handleLoadMore}
+                      loading={isFetchingNextPage}
+                      className={'load-more-btn'}
+                      disabled={isFetchingNextPage}
+                    >
+                      Load More
+                    </LoadingButton>
+                  )}
+                </Stack>
               )}
             </div>
-
-            <FilterChips />
-            {isFetching && !isFetchingPreviousPage && !isFetchingNextPage ? (
-              <ProgressBar animated now={100} className="mb-4" />
-            ) : (
-              <Stack gap={3} className="align-items-center">
-                {hasPreviousPage && (
-                  <LoadingButton
-                    onClick={handleLoadPrevious}
-                    loading={isFetchingPreviousPage}
-                    className={'load-more-btn'}
-                    disabled={isFetchingPreviousPage}
-                  >
-                    Load Previous
-                  </LoadingButton>
-                )}
-                <section className="w-100">
-                  {paginatedResults?.flatMap(
-                    (pageData: PaginatedRecreationResourceModel) =>
-                      pageData?.data.map(
-                        (recreationResource: RecreationResourceSearchModel) => (
-                          <RecResourceCard
-                            key={recreationResource.rec_resource_id}
-                            recreationResource={recreationResource}
-                          />
-                        ),
-                      ),
-                  )}
-                </section>
-                {hasNextPage && (
-                  <LoadingButton
-                    onClick={handleLoadMore}
-                    loading={isFetchingNextPage}
-                    className={'load-more-btn'}
-                    disabled={isFetchingNextPage}
-                  >
-                    Load More
-                  </LoadingButton>
-                )}
-              </Stack>
-            )}
-          </div>
-        </div>
-      </div>
+          </Col>
+        </Row>
+      </Stack>
     </>
   );
 };

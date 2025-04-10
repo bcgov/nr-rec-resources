@@ -20,7 +20,8 @@
     "test": "vitest --exclude e2e",
     "test:cov": "vitest run --coverage --exclude e2e",
     "test:e2e": "vitest --dir e2e",
-    "copy-prisma-generated-sql": "prisma generate --sql && node build-scripts/copy-prisma-generated-sql.js"
+    "prettier-fix": "prettier --write \"**/*.{js,ts,json,md}\"",
+    "copy-prisma-generated-sql": "prisma generate --sql && node build-scripts/copy-prisma-generated-sql.js && npm run prettier-fix"
   },
   "dependencies": {
     "@nestjs/class-validator": "^0.13.4",

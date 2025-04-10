@@ -211,7 +211,7 @@ const RecResourcePage = () => {
       />
       <div className="rec-resource-container">
         <div className={`bg-container ${isPhotoGallery ? 'with-gallery' : ''}`}>
-          <div className="page page-padding">
+          <div className="page">
             <BreadCrumbs
               customPaths={[{ name: 'Find a site or trail', route: 'search' }]}
             />
@@ -242,7 +242,7 @@ const RecResourcePage = () => {
             </section>
           </div>
         </div>
-        <div className="page page-padding">
+        <div className="page">
           {isPhotoGallery && (
             <div className="photo-gallery-container">
               <PhotoGallery photos={photos} />

@@ -42,7 +42,7 @@ export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
       className="search-form"
       data-testid="search-form"
     >
-      <Row className="g-3">
+      <Row className="gy-3 gx-0 gx-lg-3">
         <Col md={12} lg="auto" className="flex-grow-0 flex-lg-grow-1">
           <InputGroup className="search-input-group">
             <FormControl
@@ -71,8 +71,8 @@ export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
         <Col md={12} lg="auto">
           <Button
             onClick={handleSearch}
-            className="search-button w-100"
             {...searchButtonProps}
+            className={`search-button w-100 ${searchButtonProps?.className}`}
           >
             {buttonText}
           </Button>

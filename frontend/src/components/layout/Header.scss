@@ -1,9 +1,11 @@
 @import '@/styles/variables.scss';
+@import '@/styles/global.scss';
 @import '~bootstrap/scss/functions';
 @import '~bootstrap/scss/variables';
 @import '~bootstrap/scss/mixins/_breakpoints';
 
 .header-nav {
+  @extend .page;
   height: 96px;
   position: relative;
   display: flex;
@@ -11,12 +13,8 @@
   align-items: center;
   margin: 0px auto;
   justify-content: space-between;
-  padding: 0 $pagePadding;
-
-  @include media-breakpoint-up(lg) {
-    max-width: $pageMaxWidth;
-    padding: $pagePaddingLg;
-  }
+  padding-top: 0;
+  padding-bottom: 0;
 
   &.main {
     background-color: $colorBlue;
