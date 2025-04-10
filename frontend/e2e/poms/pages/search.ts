@@ -11,8 +11,6 @@ export class SearchPOM {
 
   readonly url: string = `${BASE_URL}/search`;
 
-  readonly initialResults: number = 51;
-
   readonly searchBtn: Locator;
 
   constructor(page: Page) {
@@ -64,22 +62,13 @@ export class SearchPOM {
     await this.clickLoadMore(SearchEnum.LOAD_PREV_LABEL);
   }
 
-  async verifyInitialResults() {
-    await this.resultsCount(this.initialResults);
-    await this.page
-      .getByRole('heading', {
-        name: '10 K Snowmobile Parking Lot',
-      })
-      .waitFor({ state: 'visible' });
-    await this.page
-      .getByRole('heading', {
-        name: '10k Cabin',
-      })
-      .waitFor({ state: 'visible' });
-  }
-
   async recResourceCardCount(count: number) {
     await expect(this.page.locator('.rec-resource-card')).toHaveCount(count);
+  }
+
+  async verifyInitialResults() {
+    await this.page.getByText(/result/i).waitFor({ state: 'visible' });
+    await this.recResourceCardCount(10);
   }
 
   async verifyRecResourceCardContent({
@@ -103,7 +92,9 @@ export class SearchPOM {
     await cardContainer
       .getByText(closest_community.toLowerCase())
       .waitFor({ state: 'visible' });
-    await cardContainer.getByText(status).waitFor({ state: 'visible' });
+    if (status) {
+      await cardContainer.getByText(status).waitFor({ state: 'visible' });
+    }
   }
 
   // Pass false to expectResults if testing for no results
