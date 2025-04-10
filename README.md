@@ -242,3 +242,7 @@ specification.
 
 Schedule job runs every saturday and keep schema documentation upto date in
 [github pages](https://bcgov.github.io/nr-rec-resources/).
+
+## Architecture
+
+![RST Architecture](docs/rst-arch.drawio.svg)
