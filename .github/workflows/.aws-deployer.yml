@@ -54,6 +54,7 @@ jobs:
  infra:
   name: Terraform ${{inputs.command}} ${{ inputs.package }} ${{ inputs.working_directory }} ${{ inputs.environment_name }}
   runs-on: ubuntu-24.04
+  environment: ${{ inputs.environment_name }}
   outputs:
     API_GW_URL: ${{ steps.tg-outputs.outputs.API_GW_URL }}
     S3_BUCKET_ARN: ${{ steps.tg-outputs-frontend.outputs.S3_BUCKET_ARN }}
