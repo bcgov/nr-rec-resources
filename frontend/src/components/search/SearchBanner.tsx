@@ -1,25 +1,22 @@
 import '@/components/search/Search.scss';
-import { Col, Container, Row } from 'react-bootstrap';
+import { Col, Row, Stack } from 'react-bootstrap';
 import { RecreationSearchForm } from '@/components/recreation-search-form';
 
 const SearchBanner = () => {
   return (
-    <div className="page-nav-container search">
-      <Container
-        fluid
-        aria-label="Search banner"
-        className="search-banner d-flex justify-content-center"
-      >
-        <Row className="w-100 search-banner-input-container align-items-center justify-content-center py-3">
-          <Col sm={12} md={4} className="ps-md-0">
-            <h1>Find a site or trail</h1>
-          </Col>
-          <Col sm={12} md={8} className="mb-3 mb-md-0 pe-md-0">
-            <RecreationSearchForm />
-          </Col>
-        </Row>
-      </Container>
-    </div>
+    <Stack
+      direction="horizontal"
+      className="page-nav-container search justify-content-center"
+    >
+      <Row aria-label="Search banner" className="page align-items-center">
+        <Col md={12} lg={3} className="ps-lg-0">
+          <h1 className="fs-3 mb-lg-0">Find a site or trail</h1>
+        </Col>
+        <Col md={12} lg={9} className="mb-3 mb-md-0 pe-lg-0">
+          <RecreationSearchForm searchButtonProps={{ variant: 'primary' }} />
+        </Col>
+      </Row>
+    </Stack>
   );
 };
 
