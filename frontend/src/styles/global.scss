@@ -6,15 +6,19 @@
 .bc-bg-yellow {
   background: $colorGold;
 }
+
 .bc-color-white {
   color: $colorWhite;
 }
+
 .bc-color-blue-dk {
   color: $colorBlue;
 }
+
 .bc-bg-blue-dk {
   background: $colorBlue;
 }
+
 .bc-bg-blue-md {
   background: $colorBlueMed;
 }
@@ -62,10 +66,12 @@ header nav {
 a {
   color: $colorBlueMed;
   text-decoration: none;
+
   &:hover {
     color: $colorBlue;
     text-decoration: underline;
   }
+
   &:not(.btn):focus {
     color: $colorBlue;
   }
@@ -169,6 +175,7 @@ h2 {
 h2.section-heading {
   position: relative;
   padding-bottom: 2rem;
+
   &:after {
     position: absolute;
     content: '';
@@ -190,8 +197,10 @@ td {
 
 figure.table {
   color: $colorGrey;
+
   table {
     width: 100%;
+
     tr {
       &:first-of-type {
         th,
@@ -199,14 +208,17 @@ figure.table {
           border-top: 1px solid $colorGreyLight;
         }
       }
+
       & > :first-child {
         background: $colorBrownLight;
       }
     }
+
     th,
     td {
       border-bottom: 1px solid $colorGreyLight;
     }
+
     th {
       background: $colorBrownLight;
     }
@@ -214,12 +226,15 @@ figure.table {
 
   &.horizontal-heading {
     overflow-x: auto;
+
     table {
       min-width: 600px;
     }
+
     &::-webkit-scrollbar {
       height: 5px;
     }
+
     &::-webkit-scrollbar-thumb {
       background-color: rgba($colorBlack, 0.2);
       border-radius: 5px;
@@ -250,6 +265,7 @@ figure.table {
   background-color: $colorBlue;
   border-color: $colorBlue;
   color: $colorWhite;
+
   &:hover {
     color: $colorWhite;
     background-color: $colorBlueMed;
@@ -260,6 +276,7 @@ figure.table {
   background-color: $colorWhite;
   border-color: $colorBlue;
   color: $colorBlue;
+
   &:hover {
     color: $colorBlue;
     background-color: $colorBlueLight;
@@ -296,5 +313,16 @@ figure.table {
   p {
     margin-top: 2rem;
     margin-bottom: 0;
+  }
+}
+
+// Override Bootstrap's default grid behavior on mobile devices
+.row {
+  @include media-breakpoint-down(lg) {
+    // Remove horizontal padding from all columns
+    > [class*='col-'] {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
   }
 }

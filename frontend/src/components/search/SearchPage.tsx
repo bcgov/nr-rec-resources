@@ -103,7 +103,7 @@ const SearchPage = () => {
         className="page-container bg-brown-light justify-content-start"
       >
         <Row className="page search-container">
-          <Col md={12} lg={4}>
+          <Col md={12} lg={3} className="ps-lg-0">
             <FilterMenu />
             <FilterMenuMobile
               isOpen={isMobileFilterOpen}
@@ -111,7 +111,7 @@ const SearchPage = () => {
             />
           </Col>
 
-          <Col md={12} lg={8}>
+          <Col md={12} lg={9} className="pe-lg-0">
             <div className="w-100">
               <button
                 aria-label="Open mobile filter menu"
