@@ -36,3 +36,11 @@ resource "aws_iam_role_policy" "s3_import" {
   role   = aws_iam_role.s3_import.name
   policy = data.aws_iam_policy_document.s3_import.json
 }
+
+resource "aws_rds_cluster_role_association" "s3_import" {
+  db_cluster_identifier = var.db_cluster_name
+  feature_name          = "s3Import"
+  role_arn              = aws_iam_role.s3_import.arn
+
+  depends_on = [module.aurora_postgresql_v2]
+}

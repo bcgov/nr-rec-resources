@@ -1,6 +1,5 @@
 secrets:
   dbHost: ~
-  certSecret: ~
   dbName: ~
   dbPassword: ~
   dbUser: ~
