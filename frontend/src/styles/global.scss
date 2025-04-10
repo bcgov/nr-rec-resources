@@ -88,12 +88,8 @@ a {
 .page {
   @extend .page-padding;
   width: 100%;
-  max-width: calc($pageMaxWidth + $pagePadding * 2);
+  max-width: $pageMaxWidth;
   margin: auto;
-
-  @media (min-width: $lgBreakpoint) {
-    max-width: calc($pageMaxWidth + $pagePaddingLg * 2);
-  }
 }
 
 .page-container {
@@ -313,16 +309,5 @@ figure.table {
   p {
     margin-top: 2rem;
     margin-bottom: 0;
-  }
-}
-
-// Override Bootstrap's default grid behavior on mobile devices
-.row {
-  @include media-breakpoint-down(lg) {
-    // Remove horizontal padding from all columns
-    > [class*='col-'] {
-      padding-left: 0 !important;
-      padding-right: 0 !important;
-    }
   }
 }

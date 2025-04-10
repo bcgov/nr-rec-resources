@@ -27,3 +27,13 @@
     width: 9rem;
   }
 }
+
+.search-page-row {
+  @include media-breakpoint-down(lg) {
+    // Remove horizontal padding from all columns
+    > [class*='col-'] {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+    }
+  }
+}
