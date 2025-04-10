@@ -11,7 +11,7 @@ describe('the BetaBanner component', () => {
     render(<BetaBanner />);
 
     const desktopText = screen.getByText(/This site is in development/i);
-    const feedbackButton = screen.getByText(/Submit your feedback/i);
+    const feedbackButton = screen.getByText(/Share your feedback/i);
     const originalSiteLink = screen.getByRole('link', {
       name: /original site here/i,
     });
@@ -29,7 +29,7 @@ describe('the BetaBanner component', () => {
     render(<BetaBanner />);
 
     const mobileText = screen.getByText(/This site is in Beta/i);
-    const feedbackButton = screen.getByText(/Give feedback/i);
+    const feedbackButton = screen.getByText(/Share feedback/i);
     const originalSiteLink = screen.getByRole('link', {
       name: /Visit original site/i,
     });
