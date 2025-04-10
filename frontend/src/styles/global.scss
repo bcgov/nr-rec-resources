@@ -225,6 +225,9 @@ figure.table {
 .btn {
   font-weight: 700;
   height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-link {
