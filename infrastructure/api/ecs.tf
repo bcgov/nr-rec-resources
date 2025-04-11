@@ -22,6 +22,11 @@ locals {
 
 resource "aws_ecs_cluster" "ecs_cluster" {
   name = "ecs-cluster-${var.app_name}"
+
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
 }
 
 resource "aws_ecs_cluster_capacity_providers" "ecs_cluster_capacity_providers" {
