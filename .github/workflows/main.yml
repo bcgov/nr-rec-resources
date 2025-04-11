@@ -71,7 +71,7 @@ jobs:
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-review-test-deployment
       cancel-in-progress: true
-    environment: test
+    environment: review-test-deployment
     runs-on: ubuntu-24.04
     steps:
       - name: Review Test Deployment
@@ -89,7 +89,7 @@ jobs:
     with:
       app_env: test
       command: apply
-      environment_name: review-test-deployment
+      environment_name: test
       tag: ${{ github.sha }}
     secrets: inherit
 
