@@ -1,14 +1,16 @@
 import { forwardRef } from 'react';
 import { EXTERNAL_LINKS } from '@/data/urls';
 import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
-import { SiteOperatorModel } from '@/service/custom-models';
+import { ResponseError, SiteOperatorDto } from '@/service/recreation-resource';
 
 interface SiteOperatorProps {
-  siteOperator?: SiteOperatorModel;
+  siteOperator?: SiteOperatorDto;
+  error: ResponseError | null;
+  isLoading: boolean;
 }
 
 const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
-  ({ siteOperator }, ref) => {
+  ({ siteOperator, error, isLoading }, ref) => {
     return (
       <section id={SectionIds.CONTACT} ref={ref}>
         <h2 className="section-heading">{SectionTitles.CONTACT}</h2>
@@ -18,7 +20,13 @@ const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
               <tr>
                 <th>Site operator</th>
                 <td>
-                  <p>{siteOperator?.acronym}</p>
+                  <p>
+                    {isLoading
+                      ? 'Loading ...'
+                      : error
+                        ? 'Not found'
+                        : siteOperator?.clientName}
+                  </p>
                 </td>
               </tr>
               <tr>
