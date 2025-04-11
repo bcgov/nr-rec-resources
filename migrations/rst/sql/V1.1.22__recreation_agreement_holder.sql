@@ -17,3 +17,7 @@ comment on column rst.recreation_agreement_holder.agreement_start_date is 'Start
 comment on column rst.recreation_agreement_holder.agreement_end_date is 'End date of the agreement held between the ministry and the agreement holder.';
 
 comment on column rst.recreation_agreement_holder.revision_count is 'A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user''s web browser is the most current.';
+
+select upsert_timestamp_columns('rst', 'recreation_agreement_holder');
+
+select setup_temporal_table('rst', 'recreation_agreement_holder');

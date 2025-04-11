@@ -1,10 +1,10 @@
-INSERT INTO rst.recreation_agreement_holder (
+insert into rst.recreation_agreement_holder (
     rec_resource_id,
     client_number,
     agreement_start_date,
     agreement_end_date,
     revision_count
-) VALUES
+) values
     ('REC204117','00167392','2017-12-01','2027-12-01',3),
     ('REC1222','00174782','2021-01-01','2025-12-31',12),
     ('REC160773','00174782','2021-01-01','2025-12-31',10),
