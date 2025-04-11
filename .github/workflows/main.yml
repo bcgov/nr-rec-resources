@@ -106,6 +106,18 @@ jobs:
       tag: ${{ github.sha }}
     secrets: inherit
 
+  tests-e2e-test-environment:
+    name: Run e2e tests on test env
+    needs: build-containers
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-e2e-test-environment
+      cancel-in-progress: true
+    uses: ./.github/workflows/.e2e.yml
+    with:
+      tag: ${{ github.sha }}
+      environment: test
+    secrets: inherit
+
   release:
     name: Release
     needs: [deploy-to-aws-test]
