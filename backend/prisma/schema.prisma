@@ -24,6 +24,7 @@ model recreation_resource {
   sys_period                           Unsupported("tstzrange")              @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
   recreation_access                    recreation_access[]
   recreation_activity                  recreation_activity[]
+  recreation_agreement_holder          recreation_agreement_holder?
   recreation_defined_campsite          recreation_defined_campsite[]
   recreation_driving_direction         recreation_driving_direction?
   recreation_fee                       recreation_fee[]
@@ -747,6 +748,37 @@ model recreation_site_description_history {
   created_at      DateTime?                @db.Timestamp(6)
   created_by      String?
   sys_period      Unsupported("tstzrange")
+
+  @@ignore
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_agreement_holder {
+  rec_resource_id      String                   @id @db.VarChar(10)
+  client_number        String?                  @db.VarChar(8)
+  agreement_start_date DateTime?                @db.Date
+  agreement_end_date   DateTime?                @db.Date
+  revision_count       Int?
+  updated_at           DateTime?                @default(now()) @db.Timestamp(6)
+  updated_by           String?
+  created_at           DateTime?                @default(now()) @db.Timestamp(6)
+  created_by           String?
+  sys_period           Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_resource  recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_agreement_holder_history {
+  rec_resource_id      String                   @db.VarChar(10)
+  client_number        String?                  @db.VarChar(8)
+  agreement_start_date DateTime?                @db.Date
+  agreement_end_date   DateTime?                @db.Date
+  revision_count       Int?
+  updated_at           DateTime?                @db.Timestamp(6)
+  updated_by           String?
+  created_at           DateTime?                @db.Timestamp(6)
+  created_by           String?
+  sys_period           Unsupported("tstzrange")
 
   @@ignore
 }
