@@ -31,18 +31,6 @@ export class SearchPOM {
     return await this.page.locator('.rec-resource-card').count();
   }
 
-  async resultsCount(results: number) {
-    if (results === 0) {
-      await this.page
-        .getByText(SearchEnum.NO_RESULTS_LABEL)
-        .waitFor({ state: 'visible' });
-    } else {
-      await this.page
-        .getByText(`${results} Result${results > 1 ? 's' : ''}`)
-        .waitFor({ state: 'visible' });
-    }
-  }
-
   async clickLoadMore(btnLabel?: string) {
     const loadMoreBtn = this.page.getByRole('button', {
       name: btnLabel ? btnLabel : SearchEnum.LOAD_MORE_LABEL,
@@ -66,8 +54,22 @@ export class SearchPOM {
     await expect(this.page.locator('.rec-resource-card')).toHaveCount(count);
   }
 
-  async verifyInitialResults() {
+  async waitForResults() {
     await this.page.getByText(/result/i).waitFor({ state: 'visible' });
+
+    const cards = this.page.locator('.rec-resource-card');
+    expect(await cards.count()).toBeGreaterThan(0);
+  }
+
+  async waitForNoResults() {
+    await this.page
+      .getByText(SearchEnum.NO_RESULTS_LABEL)
+      .waitFor({ state: 'visible' });
+    await expect(this.page.locator('.rec-resource-card')).not.toBeVisible();
+  }
+
+  async verifyInitialResults() {
+    await this.waitForResults();
     await this.recResourceCardCount(10);
   }
 
@@ -109,6 +111,18 @@ export class SearchPOM {
     await this.searchBtn.click();
     if (expectResults) {
       await this.page.waitForSelector('.rec-resource-card');
+    }
+  }
+
+  async verifySearchResults(searchTerm: string) {
+    const searchResults = this.page.locator('.rec-resource-card');
+    await searchResults.first().waitFor({ state: 'visible' });
+
+    const count = await searchResults.count();
+    for (let i = 0; i < count; i++) {
+      const card = searchResults.nth(i);
+      const cardText = await card.textContent();
+      expect(cardText).toContain(searchTerm);
     }
   }
 }

@@ -1,21 +1,33 @@
-name: Playwright Tests
+name: Playwright e2e tests
 
 on:
   workflow_call:
     inputs:
+      environment:
+        description: 'The environment to run the tests on'
+        required: false
+        type: string
       tag:
         description: 'The tag of the containers to run tests on'
         required: true
         type: string
+      local:
+        description: 'Run locally using docker compose'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   playwright-e2e:
     name: Playwright e2e
     timeout-minutes: 60
     runs-on: ubuntu-24.04
+    environment: ${{ inputs.environment }}
     steps:
     - uses: actions/checkout@v4
+
     - name: Run Docker compose
+      if: ${{ inputs.local }}
       env:
         BACKEND_IMAGE: ghcr.io/bcgov/nr-rec-resources/backend:${{ inputs.tag }}
         FLYWAY_IMAGE: ghcr.io/bcgov/nr-rec-resources/migrations/rst:${{ inputs.tag }}
@@ -49,7 +61,8 @@ jobs:
       env:
         HAPPO_API_KEY: ${{ secrets.HAPPO_API_KEY }}
         HAPPO_API_SECRET: ${{ secrets.HAPPO_API_SECRET }}
-        HAPPO_PROJECT: rst-public
+        HAPPO_PROJECT: ${{ secrets.HAPPO_PROJECT }}
+        E2E_BASE_URL: ${{ inputs.local && 'http://localhost:3000' || secrets.E2E_BASE_URL }}
     - name: Dump docker logs on failure
-      if: failure()
+      if: failure() && ${{ inputs.local }}
       uses: jwalton/gh-docker-logs@v2

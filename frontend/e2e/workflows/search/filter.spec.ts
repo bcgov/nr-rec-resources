@@ -20,6 +20,8 @@ test.describe('Search page filter menu workflows', () => {
     await filter.toggleFilterOn(filter.districtFilters, 'Chilliwack');
 
     await utils.checkExpectedUrlParams('district=RDCK');
+
+    await searchPage.waitForResults();
   });
 
   test('Use the filter menu to filter by multiple districts', async ({
@@ -45,7 +47,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await utils.checkExpectedUrlParams('district=RDCK_RDKA_RDOS_RDSQ');
 
-    await searchPage.recResourceCardCount(10);
+    await searchPage.waitForResults();
   });
 
   test('Use the filter menu to filter by rec resource type', async ({
@@ -59,11 +61,13 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.verifyInitialFilterMenu();
 
+    await filter.verifyFilterResultsListener({ type: ['Recreation trail'] });
+
     await filter.toggleFilterOn(filter.typeFilters, RecResourceType.TRAIL);
 
     await utils.checkExpectedUrlParams('type=RTR');
 
-    await searchPage.recResourceCardCount(10);
+    await searchPage.waitForResults();
   });
 
   test('Use the filter menu to filter by multiple rec resource types', async ({
@@ -77,13 +81,21 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.verifyInitialFilterMenu();
 
+    await filter.verifyFilterResultsListener({ type: ['Recreation trail'] });
+
     await filter.toggleFilterOn(filter.typeFilters, RecResourceType.TRAIL);
+
+    await searchPage.waitForResults();
+
+    await filter.verifyFilterResultsListener({
+      type: ['Recreation trail', 'Recreation site'],
+    });
 
     await filter.toggleFilterOn(filter.typeFilters, RecResourceType.SITE);
 
     await utils.checkExpectedUrlParams('type=RTR_SIT');
 
-    await searchPage.recResourceCardCount(10);
+    await searchPage.waitForResults();
   });
 
   test('Use the filter menu to filter by things to do', async ({ page }) => {
@@ -95,11 +107,13 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.verifyInitialFilterMenu();
 
+    await filter.verifyFilterResultsListener({ activities: ['Camping'] });
+
     await filter.toggleFilterOn(filter.thingsToDoFilters, 'Camping');
 
     await utils.checkExpectedUrlParams('activities=32');
 
-    await searchPage.recResourceCardCount(10);
+    await searchPage.waitForResults();
   });
 
   test('Use the filter menu to filter by multiple things to do', async ({
@@ -119,9 +133,15 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.clickShowAllFilters(filter.thingsToDoFilters);
 
+    await filter.verifyFilterResultsListener({
+      activities: ['Angling', 'Camping', 'Hunting'],
+    });
+
     await filter.toggleFilterOn(filter.thingsToDoFilters, 'Hunting');
 
     await utils.checkExpectedUrlParams('activities=1_32_10');
+
+    await searchPage.waitForResults();
   });
 
   test('Use the filter menu to filter by Facilities', async ({ page }) => {
@@ -137,7 +157,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await utils.checkExpectedUrlParams('facilities=toilet');
 
-    await searchPage.recResourceCardCount(10);
+    await searchPage.waitForResults();
   });
 
   test('Use the filter menu to filter by multiple Facilities', async ({
@@ -157,7 +177,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await utils.checkExpectedUrlParams('facilities=toilet_table');
 
-    await searchPage.recResourceCardCount(10);
+    await searchPage.waitForResults();
   });
 
   test('Use the filter menu to filter by Access Type', async ({ page }) => {
@@ -172,6 +192,8 @@ test.describe('Search page filter menu workflows', () => {
     await filter.toggleFilterOn(filter.accessTypeFilters, 'Road Access');
 
     await utils.checkExpectedUrlParams('access=R');
+
+    await searchPage.waitForResults();
   });
 
   test('Use the filter menu to filter by multiple Access Types', async ({
@@ -189,15 +211,17 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.toggleFilterOn(filter.accessTypeFilters, 'Fly-in Access');
 
-    await searchPage.recResourceCardCount(10);
+    await searchPage.waitForResults();
 
     await filter.toggleFilterOn(filter.accessTypeFilters, 'Road Access');
 
-    await searchPage.recResourceCardCount(10);
+    await searchPage.waitForResults();
 
     await filter.toggleFilterOn(filter.accessTypeFilters, 'Trail Access');
 
     await utils.checkExpectedUrlParams('access=B_F_R_T');
+
+    await searchPage.waitForResults();
   });
 
   test('Use the filter menu to filter by multiple filter types', async ({
@@ -223,7 +247,13 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.toggleFilterOn(filter.facilitiesFilters, 'Toilets');
 
+    await filter.verifyFilterResultsListener({
+      type: ['Recreation site'],
+    });
+
     await filter.toggleFilterOn(filter.accessTypeFilters, 'Road Access');
+
+    await searchPage.waitForResults();
 
     await utils.checkExpectedUrlParams(
       'district=RDCK_RDKA_RDOS&page=1&type=SIT&facilities=toilet&access=R',
@@ -252,11 +282,13 @@ test.describe('Search page filter menu workflows', () => {
 
     await utils.checkExpectedUrlParams('district=RDCK');
 
+    await searchPage.waitForResults();
+
     await filter.clickClearFilters();
 
     await utils.checkExpectedUrlParams('page=1');
 
-    await searchPage.recResourceCardCount(10);
+    await searchPage.waitForResults();
   });
 
   test('Use the Clear Filters button to clear all filters', async ({
@@ -276,18 +308,16 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.toggleFilterOn(filter.typeFilters, RecResourceType.SITE);
 
-    await filter.toggleFilterOn(filter.facilitiesFilters, 'Tables');
-
     await filter.toggleFilterOn(filter.accessTypeFilters, 'Boat-in Access');
 
     await utils.checkExpectedUrlParams(
-      'district=RDKA&page=1&type=SIT&facilities=table&access=B',
+      'district=RDKA&page=1&type=SIT&access=B',
     );
 
     await filter.clickClearFilters();
 
     await utils.checkExpectedUrlParams('');
 
-    await searchPage.recResourceCardCount(10);
+    await searchPage.waitForResults();
   });
 });
