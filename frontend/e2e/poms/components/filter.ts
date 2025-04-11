@@ -147,4 +147,42 @@ export class FilterPOM {
     await this.verifyFacilitiesFilterGroup();
     await this.verifyAccessTypeFilterGroup();
   }
+
+  async verifyFilterResultsListener({
+    type,
+    activities,
+  }: {
+    type?: string[];
+    activities?: string[];
+  }) {
+    this.page.on('response', async (response) => {
+      // We can't use this to check district, facilities, or access type
+      // because the API doesn't return data for those filters
+      const url = response.url();
+      if (url.includes('type') && type) {
+        const json = await response.json();
+        const results = json.data.map((item: any) => item.rec_resource_type);
+        expect(results).toEqual(expect.arrayContaining(type));
+      }
+
+      if (url.includes('activities') && activities) {
+        const json = await response.json();
+        const results = json.data.map((item: any) => item.recreation_activity);
+        results.forEach((activities: any) => {
+          const relevantActivities = activities.filter((activity: any) =>
+            activities.every((element: any) =>
+              activity.description.includes(element),
+            ),
+          );
+          relevantActivities.forEach((activity: any) => {
+            activities.forEach((option: any) => {
+              expect(activity.description).toEqual(
+                expect.stringContaining(option),
+              );
+            });
+          });
+        });
+      }
+    });
+  }
 }

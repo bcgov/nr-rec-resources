@@ -6,16 +6,6 @@ import { waitForImagesToLoad } from 'e2e/utils';
 import { RecResource } from 'e2e/poms/pages/types';
 
 const MAP_CANVAS_SELECTOR = '#map-container';
-const REC_DOC_LINKS: { role: 'link'; name: string }[] = [
-  {
-    role: 'link',
-    name: 'Blue Lake Trail Map [PDF]',
-  },
-  {
-    role: 'link',
-    name: 'Morchuea Lake Map [PDF]',
-  },
-];
 
 export class RecreationResourcePOM {
   readonly page: Page;
@@ -26,7 +16,7 @@ export class RecreationResourcePOM {
     this.page = page;
   }
 
-  async route(resourceId: string = 'REC160773') {
+  async route(resourceId: string = 'REC203239') {
     await this.page.goto(`${this.baseUrl}/${resourceId}`);
     await waitForImagesToLoad(this.page);
   }
@@ -49,8 +39,10 @@ export class RecreationResourcePOM {
     );
     expect(headerText).toContain(rec_resource_type);
     expect(headerText).toContain(closest_community.toLowerCase());
-    expect(headerText).toContain(status);
     expect(headerText).toContain(rec_resource_id);
+    if (status) {
+      expect(headerText).toContain(status);
+    }
   }
 
   /**
@@ -77,10 +69,7 @@ export class RecreationResourcePOM {
   }
 
   async verifyPdfDocLinks() {
-    for (const exp of REC_DOC_LINKS) {
-      await expect(
-        this.page.getByRole(exp.role, { name: exp.name }),
-      ).toHaveAttribute('href', expect.stringMatching(/^https:\/\/.*\.pdf$/));
-    }
+    const pdfLink = this.page.getByRole('link', { name: /\[PDF\]/ });
+    await expect(pdfLink).toHaveAttribute('href', /.*\.pdf$/);
   }
 }

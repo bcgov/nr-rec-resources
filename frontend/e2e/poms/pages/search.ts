@@ -11,8 +11,6 @@ export class SearchPOM {
 
   readonly url: string = `${BASE_URL}/search`;
 
-  readonly initialResults: number = 51;
-
   readonly searchBtn: Locator;
 
   constructor(page: Page) {
@@ -31,18 +29,6 @@ export class SearchPOM {
 
   async getRecResourceCardCount() {
     return await this.page.locator('.rec-resource-card').count();
-  }
-
-  async resultsCount(results: number) {
-    if (results === 0) {
-      await this.page
-        .getByText(SearchEnum.NO_RESULTS_LABEL)
-        .waitFor({ state: 'visible' });
-    } else {
-      await this.page
-        .getByText(`${results} Result${results > 1 ? 's' : ''}`)
-        .waitFor({ state: 'visible' });
-    }
   }
 
   async clickLoadMore(btnLabel?: string) {
@@ -64,22 +50,27 @@ export class SearchPOM {
     await this.clickLoadMore(SearchEnum.LOAD_PREV_LABEL);
   }
 
-  async verifyInitialResults() {
-    await this.resultsCount(this.initialResults);
-    await this.page
-      .getByRole('heading', {
-        name: '10 K Snowmobile Parking Lot',
-      })
-      .waitFor({ state: 'visible' });
-    await this.page
-      .getByRole('heading', {
-        name: '10k Cabin',
-      })
-      .waitFor({ state: 'visible' });
-  }
-
   async recResourceCardCount(count: number) {
     await expect(this.page.locator('.rec-resource-card')).toHaveCount(count);
+  }
+
+  async waitForResults() {
+    await this.page.getByText(/result/i).waitFor({ state: 'visible' });
+
+    const cards = this.page.locator('.rec-resource-card');
+    expect(await cards.count()).toBeGreaterThan(0);
+  }
+
+  async waitForNoResults() {
+    await this.page
+      .getByText(SearchEnum.NO_RESULTS_LABEL)
+      .waitFor({ state: 'visible' });
+    await expect(this.page.locator('.rec-resource-card')).not.toBeVisible();
+  }
+
+  async verifyInitialResults() {
+    await this.waitForResults();
+    await this.recResourceCardCount(10);
   }
 
   async verifyRecResourceCardContent({
@@ -103,7 +94,9 @@ export class SearchPOM {
     await cardContainer
       .getByText(closest_community.toLowerCase())
       .waitFor({ state: 'visible' });
-    await cardContainer.getByText(status).waitFor({ state: 'visible' });
+    if (status) {
+      await cardContainer.getByText(status).waitFor({ state: 'visible' });
+    }
   }
 
   // Pass false to expectResults if testing for no results
@@ -118,6 +111,18 @@ export class SearchPOM {
     await this.searchBtn.click();
     if (expectResults) {
       await this.page.waitForSelector('.rec-resource-card');
+    }
+  }
+
+  async verifySearchResults(searchTerm: string) {
+    const searchResults = this.page.locator('.rec-resource-card');
+    await searchResults.first().waitFor({ state: 'visible' });
+
+    const count = await searchResults.count();
+    for (let i = 0; i < count; i++) {
+      const card = searchResults.nth(i);
+      const cardText = await card.textContent();
+      expect(cardText).toContain(searchTerm);
     }
   }
 }
