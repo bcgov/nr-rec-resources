@@ -2,8 +2,9 @@
   "scripts": {
     "prettier-fix": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "generate-api": "npx openapi-generator-cli generate -i http://localhost:8000/api/docs-json -g typescript-fetch -o frontend/src/service/recreation-resource --skip-validate-spec --additional-properties=modelPropertyNaming=original",
-    "generate-fsa-api": "npx openapi-generator-cli generate -i https://nr-forest-client-api-prod.api.gov.bc.ca/v3/api-docs -g typescript-fetch -o backend/src/service/fsa-resources --skip-validate-spec --additional-properties=modelPropertyNaming=original",
-    "install-client-sdk": "npm run generate-api && npm run prettier-fix"
+    "generate-fsa-api": "npx openapi-generator-cli generate -i https://nr-forest-client-api-prod.api.gov.bc.ca/v3/api-docs -g typescript-nestjs -o backend/src/service/fsa-resources --skip-validate-spec --additional-properties=modelPropertyNaming=original",
+    "install-client-sdk": "npm run generate-api && npm run prettier-fix",
+    "install-client-sdk-fsa": "npm run generate-fsa-api && npm run prettier-fix"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
