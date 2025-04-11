@@ -1,6 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { RecreationResourceImageDto } from "./recreation-resource-image.dto";
 import { RecreationResourceDocDto } from "./recreation-resource-doc.dto";
+import { ClientPublicViewDto } from "src/service/fsa-resources";
 
 export enum RecreationResourceMaintenanceStandardCode {
   U = "U", // User maintained
@@ -271,46 +272,46 @@ export class RecreationResourceSearchDto extends BaseRecreationResourceDto {}
  * Base class containing common fields/properties for site operator
  * @abstract
  */
-export abstract class SiteOperatorDto {
+export abstract class SiteOperatorDto implements ClientPublicViewDto {
   @ApiProperty({
     description: "Unique identifier of the Site Operator",
     example: "00000002",
   })
-  client_number: string;
+  clientNumber?: string;
 
   @ApiProperty({
     description: "Client Name",
     example: "BAXTER",
   })
-  client_name: string;
+  clientName?: string;
 
   @ApiProperty({
     description: "Client Legal First Name",
     example: "JAMES",
   })
-  legal_first_name: string;
+  legalFirstName?: string;
 
   @ApiProperty({
     description: "Client Legal Middle Name",
     example: "JAMES",
   })
-  legal_middle_name: string;
+  legalMiddleName?: string;
 
   @ApiProperty({
     description: "Client Status Code",
     example: "ACT",
   })
-  client_status_code: string;
+  clientStatusCode?: string;
 
   @ApiProperty({
     description: "Client Type Code",
     example: "I",
   })
-  client_type_code: string;
+  clientTypeCode?: string;
 
   @ApiProperty({
     description: "Client Acronym",
     example: "JAMES BAXTER",
   })
-  acronym: string;
+  acronym?: string;
 }

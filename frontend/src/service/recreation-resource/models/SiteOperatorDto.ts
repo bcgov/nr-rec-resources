@@ -24,37 +24,37 @@ export interface SiteOperatorDto {
      * @type {string}
      * @memberof SiteOperatorDto
      */
-    client_number: string;
+    clientNumber: string;
     /**
      * Client Name
      * @type {string}
      * @memberof SiteOperatorDto
      */
-    client_name: string;
+    clientName: string;
     /**
      * Client Legal First Name
      * @type {string}
      * @memberof SiteOperatorDto
      */
-    legal_first_name: string;
+    legalFirstName: string;
     /**
      * Client Legal Middle Name
      * @type {string}
      * @memberof SiteOperatorDto
      */
-    legal_middle_name: string;
+    legalMiddleName: string;
     /**
      * Client Status Code
      * @type {string}
      * @memberof SiteOperatorDto
      */
-    client_status_code: string;
+    clientStatusCode: string;
     /**
      * Client Type Code
      * @type {string}
      * @memberof SiteOperatorDto
      */
-    client_type_code: string;
+    clientTypeCode: string;
     /**
      * Client Acronym
      * @type {string}
@@ -67,12 +67,12 @@ export interface SiteOperatorDto {
  * Check if a given object implements the SiteOperatorDto interface.
  */
 export function instanceOfSiteOperatorDto(value: object): value is SiteOperatorDto {
-    if (!('client_number' in value) || value['client_number'] === undefined) return false;
-    if (!('client_name' in value) || value['client_name'] === undefined) return false;
-    if (!('legal_first_name' in value) || value['legal_first_name'] === undefined) return false;
-    if (!('legal_middle_name' in value) || value['legal_middle_name'] === undefined) return false;
-    if (!('client_status_code' in value) || value['client_status_code'] === undefined) return false;
-    if (!('client_type_code' in value) || value['client_type_code'] === undefined) return false;
+    if (!('clientNumber' in value) || value['clientNumber'] === undefined) return false;
+    if (!('clientName' in value) || value['clientName'] === undefined) return false;
+    if (!('legalFirstName' in value) || value['legalFirstName'] === undefined) return false;
+    if (!('legalMiddleName' in value) || value['legalMiddleName'] === undefined) return false;
+    if (!('clientStatusCode' in value) || value['clientStatusCode'] === undefined) return false;
+    if (!('clientTypeCode' in value) || value['clientTypeCode'] === undefined) return false;
     if (!('acronym' in value) || value['acronym'] === undefined) return false;
     return true;
 }
@@ -87,12 +87,12 @@ export function SiteOperatorDtoFromJSONTyped(json: any, ignoreDiscriminator: boo
     }
     return {
         
-        'client_number': json['client_number'],
-        'client_name': json['client_name'],
-        'legal_first_name': json['legal_first_name'],
-        'legal_middle_name': json['legal_middle_name'],
-        'client_status_code': json['client_status_code'],
-        'client_type_code': json['client_type_code'],
+        'clientNumber': json['clientNumber'],
+        'clientName': json['clientName'],
+        'legalFirstName': json['legalFirstName'],
+        'legalMiddleName': json['legalMiddleName'],
+        'clientStatusCode': json['clientStatusCode'],
+        'clientTypeCode': json['clientTypeCode'],
         'acronym': json['acronym'],
     };
 }
@@ -108,12 +108,12 @@ export function SiteOperatorDtoToJSONTyped(value?: SiteOperatorDto | null, ignor
 
     return {
         
-        'client_number': value['client_number'],
-        'client_name': value['client_name'],
-        'legal_first_name': value['legal_first_name'],
-        'legal_middle_name': value['legal_middle_name'],
-        'client_status_code': value['client_status_code'],
-        'client_type_code': value['client_type_code'],
+        'clientNumber': value['clientNumber'],
+        'clientName': value['clientName'],
+        'legalFirstName': value['legalFirstName'],
+        'legalMiddleName': value['legalMiddleName'],
+        'clientStatusCode': value['clientStatusCode'],
+        'clientTypeCode': value['clientTypeCode'],
         'acronym': value['acronym'],
     };
 }
