@@ -39,6 +39,19 @@ resource "aws_s3_bucket_policy" "site_policy" {
   })
 }
 
+provider "aws" {
+  alias  = "cloudfront_cert"
+  region = "us-east-1" # ACM certificates for CloudFront must be in us-east-1
+}
+
+data "aws_acm_certificate" "primary_cert" {
+  provider    = aws.cloudfront_cert
+  for_each    = var.app_env == "prod" ? { "primary_cert" = var.custom_domain } : {}
+  domain      = each.value
+  statuses    = ["ISSUED"]
+  most_recent = true
+}
+
 resource "aws_cloudfront_distribution" "s3_distribution" {
   enabled             = true
   is_ipv6_enabled     = true
@@ -46,6 +59,15 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   default_root_object = "index.html"
   price_class         = "PriceClass_100"
   web_acl_id          = "${aws_wafv2_web_acl.waf_cloudfront.arn}"
+
+  aliases = var.app_env == "prod" ? [var.custom_domain] : []
+
+  viewer_certificate {
+    acm_certificate_arn            = var.app_env == "prod" ? data.aws_acm_certificate.primary_cert["primary_cert"].arn : null
+    ssl_support_method             = "sni-only"
+    minimum_protocol_version       = "TLSv1.2_2021"
+    cloudfront_default_certificate = var.app_env != "prod"
+  }
 
   origin {
     domain_name = aws_s3_bucket.frontend.bucket_regional_domain_name
@@ -87,10 +109,6 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     geo_restriction {
       restriction_type = "none"
     }
-  }
-
-  viewer_certificate {
-    cloudfront_default_certificate = true
   }
 
   tags = {
