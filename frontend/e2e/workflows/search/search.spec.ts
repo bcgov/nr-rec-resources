@@ -38,6 +38,8 @@ test.describe('Search for a recreation site or trail workflows', () => {
 
     await utils.checkExpectedUrlParams('filter=10k&page=1');
 
+    await searchPage.verifySearchResults('10k');
+
     await utils.clickLinkByText('10k cabin');
 
     await recResourcePage.verifyRecResourceHeaderContent({
@@ -66,6 +68,8 @@ test.describe('Search for a recreation site or trail workflows', () => {
 
     await utils.checkExpectedUrlParams('filter=summerland&page=1');
 
+    await searchPage.verifySearchResults('summerland');
+
     await utils.clickLinkByText('Agur Lake');
 
     await recResourcePage.verifyRecResourceHeaderContent({
@@ -90,7 +94,7 @@ test.describe('Search for a recreation site or trail workflows', () => {
 
     await searchPage.searchFor('not a real place', false);
 
-    await searchPage.resultsCount(0);
+    await searchPage.waitForNoResults();
   });
 
   test('Use the load more button to view more results', async ({ page }) => {

@@ -38,21 +38,22 @@ jobs:
         run: echo "At least one job has failed." && exit 1
       - run: echo "Success!"
 
-  tests-e2e:
-    name: Tests
+  tests-e2e-local:
+    name: Run E2E tests locally
     needs: build-containers
     concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-e2e
+      group: ${{ github.workflow }}-${{ github.ref }}-e2e-local
       cancel-in-progress: true
     uses: ./.github/workflows/.e2e.yml
     with:
       tag: ${{ github.sha }}
+      local: true
     secrets: inherit
 
   deploy-to-aws-dev:
     if: github.ref_name == 'main' || github.head_ref == 'main'
     name: Deploys Application to AWS dev
-    needs: tests-e2e
+    needs: tests-e2e-local
     uses: ./.github/workflows/.deploy-app.yml
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-deploy-to-aws-dev
@@ -64,10 +65,22 @@ jobs:
       tag: ${{ github.sha }}
     secrets: inherit
 
+  tests-e2e-dev-environment:
+    name: Run e2e tests on dev env
+    needs: deploy-to-aws-dev
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-e2e-dev-environment
+      cancel-in-progress: true
+    uses: ./.github/workflows/.e2e.yml
+    with:
+      tag: ${{ github.sha }}
+      environment: dev
+    secrets: inherit
+
   # Separate review job since we can't use GitHub environments in reusable workflows
   review-test-deployment:
     name: Review Test Deployment
-    needs: [deploy-to-aws-dev]
+    needs: tests-e2e-dev-environment
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-review-test-deployment
       cancel-in-progress: true
@@ -93,20 +106,32 @@ jobs:
       tag: ${{ github.sha }}
     secrets: inherit
 
+  tests-e2e-test-environment:
+    name: Run e2e tests on test env
+    needs: deploy-to-aws-test
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-e2e-test-environment
+      cancel-in-progress: true
+    uses: ./.github/workflows/.e2e.yml
+    with:
+      tag: ${{ github.sha }}
+      environment: test
+    secrets: inherit
+
   release:
     name: Release
-    needs: [deploy-to-aws-test]
+    needs: tests-e2e-test-environment
     uses: ./.github/workflows/.release.yml
 
   promote:
     name: Promote
-    needs: [release]
+    needs: release
     uses: ./.github/workflows/.promote.yml
 
   # Separate review job since we can't use GitHub environments in reusable workflows
   review-prod-deployment:
     name: Review Prod Deployment
-    needs: [promote]
+    needs: promote
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-review-prod-deployment
       cancel-in-progress: true
