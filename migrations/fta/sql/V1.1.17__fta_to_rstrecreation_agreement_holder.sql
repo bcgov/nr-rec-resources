@@ -5,7 +5,7 @@ agreement_start_date,
 agreement_end_date,
 revision_count
 )
-SELECT 
+SELECT
 a.forest_file_id, a.client_number, a.agreement_start_date, a.agreement_end_date, a.revision_count
 FROM fta.recreation_agreement_holder a
 INNER JOIN (
