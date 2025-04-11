@@ -250,6 +250,8 @@ frontend/src/service/recreation-resource/git_push.sh
 frontend/src/service/recreation-resource/.openapi-generator
 backend/src/service/fsa-resources/.openapi-generator-ignore
 backend/src/service/fsa-resources/.openapi-generator
+backend/src/service/fsa-resources/.gitignore
+backend/src/service/fsa-resources/git_push.sh
 
 #Ignoreing Backend Extract Load
 !backend-el
