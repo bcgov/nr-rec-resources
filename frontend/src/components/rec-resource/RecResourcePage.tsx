@@ -41,9 +41,17 @@ const RecResourcePage = () => {
     imageSizeCodes: [PREVIEW_SIZE_CODE, FULL_RESOLUTION_SIZE_CODE],
   });
 
-  const { data: siteOperator } = useGetSiteOperatorById({
+  const {
+    data: siteOperator,
+    isLoading: isOperatorLoading,
+    error: operatorError,
+  } = useGetSiteOperatorById({
     id,
   });
+
+  useEffect(() => {
+    console.log('OPERATOR', isOperatorLoading, operatorError, siteOperator);
+  }, [isOperatorLoading, operatorError, siteOperator]);
 
   /**
    * Processes recreation resource images to extract the preview and full size image urls
@@ -323,7 +331,12 @@ const RecResourcePage = () => {
                 />
               )}
 
-              <Contact ref={contactRef} siteOperator={siteOperator} />
+              <Contact
+                ref={contactRef}
+                error={operatorError}
+                isLoading={isOperatorLoading}
+                siteOperator={siteOperator}
+              />
             </div>
           </div>
         </div>

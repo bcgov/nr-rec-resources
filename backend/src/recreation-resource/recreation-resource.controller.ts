@@ -14,12 +14,15 @@ import {
   RecreationResourceDetailDto,
   SiteOperatorDto,
 } from "./dto/recreation-resource.dto";
+import { FsaResourceService } from "./service/fsa-resource.service";
+import { sleep } from "@nestjs/terminus/dist/utils";
 
 @ApiTags("recreation-resource")
 @Controller({ path: "recreation-resource", version: "1" })
 export class RecreationResourceController {
   constructor(
     private readonly recreationResourceService: RecreationResourceService,
+    private readonly fsaResourceService: FsaResourceService,
   ) {}
 
   @ApiOperation({
@@ -167,14 +170,11 @@ export class RecreationResourceController {
   })
   @ApiResponse({ status: 404, description: "Site operator not found" })
   async findSiteOperatos(@Param("id") id: string): Promise<SiteOperatorDto> {
-    return await Promise.resolve({
-      client_number: id,
-      client_name: "BAXTER",
-      legal_first_name: "JAMES",
-      legal_middle_name: "Canter",
-      client_status_code: "ACT",
-      client_type_code: "I",
-      acronym: "JAMES BAXTER",
-    });
+    try {
+      await sleep(10000);
+      return await this.fsaResourceService.findByClientNumber(id);
+    } catch (err) {
+      throw new HttpException(err.response.data, err.status);
+    }
   }
 }
