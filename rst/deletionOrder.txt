@@ -3,6 +3,7 @@ recreation_site_point_history
 recreation_site_point
 recreation_site_description_history
 recreation_driving_direction_history
+recreation_agreement_holder_history
 flyway_schema_history
 recreation_resource_history
 recreation_access_history
@@ -32,6 +33,7 @@ recreation_fee_code_history
 recreation_driving_direction
 recreation_district_code_history
 recreation_defined_campsite_history
+recreation_agreement_holder
 recreation_activity_code_history
 recreation_access_code_history
 recreation_map_feature

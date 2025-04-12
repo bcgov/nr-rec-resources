@@ -17,6 +17,7 @@ recreation_resource_images
 recreation_map_feature
 recreation_access_code_history
 recreation_activity_code_history
+recreation_agreement_holder
 recreation_defined_campsite_history
 recreation_district_code_history
 recreation_driving_direction
@@ -46,6 +47,7 @@ recreation_structure_history
 recreation_access_history
 recreation_resource_history
 flyway_schema_history
+recreation_agreement_holder_history
 recreation_driving_direction_history
 recreation_site_description_history
 recreation_site_point
