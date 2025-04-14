@@ -5,6 +5,7 @@ import {
   RecreationStructureDto,
 } from "src/recreation-resource/dto/recreation-resource.dto";
 import { RecreationResourceImageDto } from "src/recreation-resource/dto/recreation-resource-image.dto";
+import { OPEN_STATUS } from "src/recreation-resource/constants/service.constants";
 
 export type RecreationResourceSearchView = {
   rec_resource_id: string;
@@ -41,9 +42,11 @@ export const formatSearchResults = (
           recreation_activity_code: activity.recreation_activity_code,
         })) ?? [],
       recreation_status: {
-        description: resource.recreation_status?.description,
+        description:
+          resource.recreation_status?.description ?? OPEN_STATUS.DESCRIPTION,
         comment: resource.recreation_status?.comment,
-        status_code: resource.recreation_status?.status_code,
+        status_code:
+          resource.recreation_status?.status_code ?? OPEN_STATUS.STATUS_CODE,
       },
       recreation_resource_images: resource.recreation_resource_images ?? [],
     };
