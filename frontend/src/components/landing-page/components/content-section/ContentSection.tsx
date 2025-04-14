@@ -1,45 +1,67 @@
-import { FC, ReactNode } from 'react';
-import { Col, Container, Image, Row } from 'react-bootstrap';
+import { FC, ReactElement, useMemo } from 'react';
+import { Col, Image, Row } from 'react-bootstrap';
 import './ContentSection.scss';
+import { BOOTSTRAP_BREAKPOINTS } from '@/data/breakpoints';
+import { IMAGE_SIZES } from '@/components/landing-page/components/content-section/constants';
 
-interface ContentSectionProps {
-  content: ReactNode;
-  image: string;
+type ContentSectionProps = {
+  content: ReactElement;
+  imageBasePath: string;
   imageAlt: string;
   imageFirst?: boolean;
-  headingComponent: ReactNode;
-}
+  headingComponent: ReactElement;
+};
 
 export const ContentSection: FC<ContentSectionProps> = ({
   content,
-  image,
+  imageBasePath,
   imageAlt,
   imageFirst = false,
   headingComponent,
 }) => {
-  const imageOrder = imageFirst ? 'md-1' : 'md-2';
-  const contentOrder = imageFirst ? 'md-2' : 'md-1';
+  const imageOrder = imageFirst ? 'lg-1' : 'lg-2';
+  const contentOrder = imageFirst ? 'lg-2' : 'lg-1';
+
+  // Generate img srcSet like: "hero-sm.webp 576w, hero-md.webp 768w, etc"
+  const generateImageSrcSet = useMemo(() => {
+    return Object.entries(BOOTSTRAP_BREAKPOINTS)
+      .map(([size, width]) => `${imageBasePath}-${size}.webp ${width}w`)
+      .join(', ');
+  }, [imageBasePath]);
 
   return (
-    <section className="content-section">
-      <Container>
-        <Row className="flex-column flex-md-row align-items-center">
-          <Col md={6} className={`order-${imageOrder}`}>
-            <Image
-              src={image}
-              alt={imageAlt}
-              fluid
-              rounded
-              width={500}
-              height={300}
-            />
-          </Col>
-          <Col md={6} className={`order-${contentOrder}`}>
-            {headingComponent}
-            <div className="lh-lg my-4">{content}</div>
-          </Col>
-        </Row>
-      </Container>
+    <section
+      className="content-section"
+      data-testid="content-section"
+      aria-label="Content section"
+    >
+      <Row className="flex-column flex-lg-row align-items-center">
+        <Col
+          md={12}
+          lg={6}
+          className={`order-${imageOrder} d-flex justify-content-center align-items-center`}
+          data-testid="image-column"
+        >
+          <Image
+            srcSet={generateImageSrcSet}
+            sizes={IMAGE_SIZES}
+            alt={imageAlt}
+            fluid
+            rounded
+            loading="lazy"
+            data-testid="content-image"
+          />
+        </Col>
+        <Col
+          md={12}
+          lg={6}
+          className={`order-${contentOrder}`}
+          data-testid="content-column"
+        >
+          {headingComponent}
+          <div className="lh-lg">{content}</div>
+        </Col>
+      </Row>
     </section>
   );
 };
