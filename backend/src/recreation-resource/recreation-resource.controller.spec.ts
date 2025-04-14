@@ -5,16 +5,21 @@ import { RecreationResourceService } from "src/recreation-resource/service/recre
 import { RecreationResourceSearchService } from "src/recreation-resource/service/recreation-resource-search.service";
 import { PrismaService } from "src/prisma.service";
 import { RecreationResourceImageDto } from "./dto/recreation-resource-image.dto";
+import { FsaResourceService } from "./service/fsa-resource.service";
+import { ApiModule } from "src/service/fsa-resources";
 
 describe("RecreationResourceController", () => {
   let recService: RecreationResourceService;
+  let resourceService: FsaResourceService;
   let controller: RecreationResourceController;
   let app: INestApplication;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [ApiModule],
       controllers: [RecreationResourceController],
       providers: [
+        FsaResourceService,
         RecreationResourceService,
         RecreationResourceSearchService,
         {
@@ -27,6 +32,7 @@ describe("RecreationResourceController", () => {
     recService = module.get<RecreationResourceService>(
       RecreationResourceService,
     );
+    resourceService = module.get<FsaResourceService>(FsaResourceService);
     controller = module.get<RecreationResourceController>(
       RecreationResourceController,
     );
@@ -154,5 +160,29 @@ describe("RecreationResourceController", () => {
       const result = await controller.searchRecreationResources("", 10, 1);
       expect(result).toBe(mockResult);
     });
+  });
+
+  describe("findSiteOperator", () => {
+    it("should return a Site Operator object", async () => {
+      const result = {
+        clientNumber: "01",
+        clientName: "CLIENT 01",
+        clientStatusCode: "ACT",
+        clientTypeCode: "C",
+      };
+      vi.spyOn(recService, "findClientNumber").mockResolvedValue("01");
+      vi.spyOn(resourceService, "findByClientNumber").mockResolvedValue(result);
+      expect(await controller.findSiteOperator("REC0001")).toBe(result);
+    });
+
+    // it("should throw error if recreation resource not found", async () => {
+    //   vi.spyOn(recService, "findOne").mockResolvedValue(undefined);
+    //   try {
+    //     await controller.findOne("REC0001");
+    //   } catch (e) {
+    //     expect(e).toBeInstanceOf(HttpException);
+    //     expect(e.message).toBe("Recreation Resource not found.");
+    //   }
+    // });
   });
 });

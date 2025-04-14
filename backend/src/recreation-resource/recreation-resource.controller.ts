@@ -15,7 +15,6 @@ import {
   SiteOperatorDto,
 } from "./dto/recreation-resource.dto";
 import { FsaResourceService } from "./service/fsa-resource.service";
-import { sleep } from "@nestjs/terminus/dist/utils";
 
 @ApiTags("recreation-resource")
 @Controller({ path: "recreation-resource", version: "1" })
@@ -169,10 +168,13 @@ export class RecreationResourceController {
     type: SiteOperatorDto,
   })
   @ApiResponse({ status: 404, description: "Site operator not found" })
-  async findSiteOperatos(@Param("id") id: string): Promise<SiteOperatorDto> {
+  async findSiteOperator(@Param("id") id: string): Promise<SiteOperatorDto> {
     try {
-      await sleep(10000);
-      return await this.fsaResourceService.findByClientNumber(id);
+      const clientNumber =
+        await this.recreationResourceService.findClientNumber(id);
+      if (clientNumber)
+        return await this.fsaResourceService.findByClientNumber(clientNumber);
+      else return null;
     } catch (err) {
       throw new HttpException(err.response.data, err.status);
     }
