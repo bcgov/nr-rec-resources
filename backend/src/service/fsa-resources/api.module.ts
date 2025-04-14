@@ -1,3 +1,5 @@
+/* tslint:disable */
+/* eslint-disable */
 import { DynamicModule, Module, Global, Provider } from "@nestjs/common";
 import { HttpModule, HttpService } from "@nestjs/axios";
 import {

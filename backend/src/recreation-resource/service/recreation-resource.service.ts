@@ -44,6 +44,30 @@ export class RecreationResourceService {
     );
   }
 
+  async findClientNumber(id: string): Promise<string> {
+    const recResource = await this.prisma.recreation_resource.findUnique({
+      where: {
+        rec_resource_id: id,
+        AND: {
+          display_on_public_site: true,
+        },
+      },
+      select: {
+        recreation_agreement_holder: {
+          select: {
+            client_number: true,
+          },
+        },
+      },
+    });
+
+    if (!recResource) {
+      return null;
+    }
+
+    return recResource.recreation_agreement_holder.client_number;
+  }
+
   async searchRecreationResources(
     page: number = 1,
     filter: string = "",
