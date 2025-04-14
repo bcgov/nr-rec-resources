@@ -28,6 +28,7 @@ describe("RecreationResourceService", () => {
           useValue: {
             $transaction: vi.fn(),
             recreation_resource: { findUnique: vi.fn(), findMany: vi.fn() },
+            recreation_agreement_holder: { findUnique: vi.fn() },
             $queryRawTyped: vi.fn(),
           },
         },
@@ -59,6 +60,37 @@ describe("RecreationResourceService", () => {
         prismaService.recreation_resource.findUnique,
       ).mockResolvedValueOnce(null);
       const result = await service.findOne("NONEXISTENT");
+      expect(result).toBeNull();
+    });
+  });
+
+  describe("findClientNumber", () => {
+    it("should return an agreement holder", async () => {
+      const mockedAgreementHolder = {
+        rec_resource_id: "00033837",
+        client_number: "01",
+        agreement_end_date: new Date(),
+        agreement_start_date: new Date(),
+        revision_count: 0,
+        updated_at: undefined,
+        updated_by: "",
+        created_at: undefined,
+        created_by: "",
+      };
+      vi.mocked(
+        prismaService.recreation_agreement_holder.findUnique,
+      ).mockResolvedValueOnce(mockedAgreementHolder);
+
+      const result = await service.findClientNumber("REC0001");
+
+      expect(result).toMatch(mockedAgreementHolder.client_number);
+    });
+
+    it("should return null if resource not found", async () => {
+      vi.mocked(
+        prismaService.recreation_agreement_holder.findUnique,
+      ).mockResolvedValueOnce(null);
+      const result = await service.findClientNumber("NONEXISTENT");
       expect(result).toBeNull();
     });
   });
