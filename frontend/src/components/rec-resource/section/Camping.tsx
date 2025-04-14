@@ -10,12 +10,12 @@ interface CampingProps {
 }
 
 const Camping = forwardRef<HTMLElement, CampingProps>(
-  ({ id, campsite_count, fees = [] }, ref) => {
+  ({ id, campsite_count = 0, fees = [] }, ref) => {
     return (
       <section id={id} ref={ref}>
         <SectionHeading>Camping</SectionHeading>
 
-        {campsite_count ? (
+        {campsite_count > 0 ? (
           <>
             <strong>Number of campsites</strong>
             <p>{campsite_count} campsites</p>

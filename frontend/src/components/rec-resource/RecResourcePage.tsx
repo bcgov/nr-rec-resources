@@ -6,6 +6,7 @@ import PhotoGallery, {
   PhotoGalleryProps,
 } from '@/components/rec-resource/PhotoGallery';
 import {
+  AdditionalFees,
   Camping,
   Closures,
   Contact,
@@ -22,7 +23,6 @@ import { ROUTE_TITLES, SITE_TITLE } from '@/routes/constants';
 import '@/components/rec-resource/RecResource.scss';
 import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 import { useGetRecreationResourceById } from '@/service/queries/recreation-resource';
-import AdditionalFees from '@/components/rec-resource/section/AdditionalFees';
 
 const PREVIEW_SIZE_CODE = 'scr';
 const FULL_RESOLUTION_SIZE_CODE = 'original';
@@ -105,8 +105,7 @@ const RecResourcePage = () => {
   const isThingsToDo = recreation_activity && recreation_activity.length > 0;
   const isAccess = recreation_access && recreation_access.length > 0;
   const isCampingAvailable =
-    (campsite_count && campsite_count > 0) ||
-    (recreation_fee && recreation_fee.length > 0);
+    Boolean(campsite_count) || Boolean(recreation_fee?.length);
   const isAdditionalFeesAvailable =
     additional_fees && additional_fees.length > 0;
   const isSiteDescription = description || maintenance_standard_code;

@@ -3,14 +3,12 @@ import RecreationFee from './RecreationFee';
 import { SectionHeading } from '@/components/landing-page/components';
 import { RecreationFeeModel } from '@/service/custom-models';
 
-interface CampingProps {
+interface AdditionalFeesProps {
   id: string;
-  showCampsiteCount?: boolean;
-  campsite_count?: number;
   fees: RecreationFeeModel[];
 }
 
-const AdditionalFees = forwardRef<HTMLElement, CampingProps>(
+const AdditionalFees = forwardRef<HTMLElement, AdditionalFeesProps>(
   ({ id, fees = [] }, ref) => {
     return (
       <section id={id} ref={ref}>

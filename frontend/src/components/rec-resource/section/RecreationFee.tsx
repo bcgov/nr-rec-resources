@@ -1,4 +1,3 @@
-import { RecreationFeeDto } from '@/service/recreation-resource';
 import { Stack } from 'react-bootstrap';
 import { RecreationFeeModel } from '@/service/custom-models';
 
@@ -27,7 +26,7 @@ const RecreationFee: React.FC<RecreationFeeListProps> = ({ data }) => {
     });
   };
 
-  const formatDays = (fee: RecreationFeeDto) => {
+  const formatDays = (fee: RecreationFeeModel) => {
     const daysMap: Record<string, string> = {
       monday_ind: 'Monday',
       tuesday_ind: 'Tuesday',
@@ -39,7 +38,7 @@ const RecreationFee: React.FC<RecreationFeeListProps> = ({ data }) => {
     };
 
     const selectedDays = Object.keys(daysMap).filter((day) => {
-      const value = fee[day as keyof RecreationFeeDto];
+      const value = fee[day as keyof RecreationFeeModel];
       return typeof value === 'string' && value.toUpperCase() === 'Y';
     });
 

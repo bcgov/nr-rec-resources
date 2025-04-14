@@ -71,11 +71,11 @@ export const MOCK_RECREATION_SITE_IMAGES: RecreationResourceImageDto[] = [
   },
 ];
 
-export const MOCK_FEE_DATA = {
+export const MOCK_CAMPING_FEE_DATA = {
   fee_amount: 10,
   fee_start_date: new Date('2024-01-01'),
   fee_end_date: new Date(),
-  recreation_fee_code: 'H',
+  recreation_fee_code: 'C',
   monday_ind: 'Y',
   tuesday_ind: 'Y',
   wednesday_ind: 'Y',

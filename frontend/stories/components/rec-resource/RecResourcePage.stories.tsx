@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react';
 import { RecResourcePage } from '@/components/rec-resource';
 import { mockHandlers } from './mockHandlers';
 import {
-  MOCK_FEE_DATA,
+  MOCK_CAMPING_FEE_DATA,
   MOCK_RECREATION_SITE,
   MOCK_RECREATION_SITE_IMAGES,
 } from './mockData';
@@ -51,7 +51,7 @@ export default meta;
 type Story = StoryObj<typeof RecResourcePage>;
 
 // Story variants using shared mock handler creator
-const createStoryWithResponse = (
+const createStoryWithApiQueryResponse = (
   response: Partial<RecreationResourceDetailModel>,
 ): Story => ({
   parameters: {
@@ -66,30 +66,32 @@ const createStoryWithResponse = (
   },
 });
 
-export const WithPhotos: Story = createStoryWithResponse({
+export const WithPhotos: Story = createStoryWithApiQueryResponse({
   recreation_resource_images: MOCK_RECREATION_SITE_IMAGES,
 });
 
-export const WithZeroCampsitesAndNoFees: Story = createStoryWithResponse({
-  campsite_count: 0,
-});
+export const WithZeroCampsitesAndNoFees: Story =
+  createStoryWithApiQueryResponse({
+    campsite_count: 0,
+  });
 
-export const WithCampingAndFees: Story = createStoryWithResponse({
-  recreation_fee: [MOCK_FEE_DATA],
+export const WithCampingAndFees: Story = createStoryWithApiQueryResponse({
+  recreation_fee: [MOCK_CAMPING_FEE_DATA],
 } as any);
 
-export const WithOnlyCampingFees: Story = createStoryWithResponse({
+export const WithOnlyCampingFees: Story = createStoryWithApiQueryResponse({
   campsite_count: undefined,
-  recreation_fee: [MOCK_FEE_DATA],
+  recreation_fee: [MOCK_CAMPING_FEE_DATA],
 } as any);
 
-export const WithCampingAndAdditionalFees: Story = createStoryWithResponse({
-  campsite_count: 15,
-  recreation_fee: [MOCK_FEE_DATA],
-  additional_fees: [MOCK_FEE_DATA],
-} as any);
+export const WithCampingAndAdditionalFees: Story =
+  createStoryWithApiQueryResponse({
+    campsite_count: 15,
+    recreation_fee: [MOCK_CAMPING_FEE_DATA],
+    additional_fees: [MOCK_CAMPING_FEE_DATA],
+  } as any);
 
-export const WithOnlyAdditionalFees: Story = createStoryWithResponse({
+export const WithOnlyAdditionalFees: Story = createStoryWithApiQueryResponse({
   campsite_count: undefined,
-  additional_fees: [MOCK_FEE_DATA],
+  additional_fees: [MOCK_CAMPING_FEE_DATA],
 } as any);
