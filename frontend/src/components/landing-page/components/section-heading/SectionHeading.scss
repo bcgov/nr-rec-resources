@@ -1,6 +1,9 @@
+@import '@/styles/variables';
+
 .section-heading {
   position: relative;
   padding-bottom: 2rem;
+  color: $colorBlue;
 }
 
 // decorative underline for the heading

@@ -1,14 +1,36 @@
 @import '@/styles/variables';
+@import '@/styles/global';
 
 .search-banner-container {
-  $banner-height: clamp(50vh, 50vw, 900px);
+  $banner-height: clamp(50vh, 50vw, 600px);
 
   height: $banner-height;
-  background: {
-    image: url('/landing-page/search-banner-background.png');
-    size: cover;
-    repeat: no-repeat;
+
+  // Base styles (default for all sizes)
+  background-image: url('/images/landing-page/hero/hero-xl.webp');
+  background-size: cover;
+  background-repeat: no-repeat;
+
+  @include media-breakpoint-down(sm) {
+    background-image: url('/images/landing-page/hero/hero-sm.webp');
   }
+
+  @include media-breakpoint-up(md) {
+    background-image: url('/images/landing-page/hero/hero-md.webp');
+  }
+
+  @include media-breakpoint-up(lg) {
+    background-image: url('/images/landing-page/hero/hero-lg.webp');
+  }
+
+  @include media-breakpoint-up(xl) {
+    background-image: url('/images/landing-page/hero/hero-xl.webp');
+  }
+
+  @include media-breakpoint-up(xxl) {
+    background-image: url('/images/landing-page/hero/hero-xxl.webp');
+  }
+
   position: relative;
 
   .search-container {

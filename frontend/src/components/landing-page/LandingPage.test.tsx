@@ -11,10 +11,10 @@ vi.mock(
 );
 
 vi.mock('@/components/landing-page/components/content-section', () => ({
-  ContentSection: ({ heading, content }: any) => (
+  ContentSection: ({ heading, sectionContent }: any) => (
     <div data-testid="mock-content-section">
       <h2>{heading}</h2>
-      <div data-testid="mock-content-section-content">{content}</div>
+      <div data-testid="mock-content-section-content">{sectionContent}</div>
     </div>
   ),
 }));
