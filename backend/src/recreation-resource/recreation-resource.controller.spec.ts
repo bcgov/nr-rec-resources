@@ -175,14 +175,27 @@ describe("RecreationResourceController", () => {
       expect(await controller.findSiteOperator("REC0001")).toBe(result);
     });
 
-    // it("should throw error if recreation resource not found", async () => {
-    //   vi.spyOn(recService, "findOne").mockResolvedValue(undefined);
-    //   try {
-    //     await controller.findOne("REC0001");
-    //   } catch (e) {
-    //     expect(e).toBeInstanceOf(HttpException);
-    //     expect(e.message).toBe("Recreation Resource not found.");
-    //   }
-    // });
+    it("should return an error if the client number isn't found", async () => {
+      vi.spyOn(recService, "findClientNumber").mockResolvedValue(null);
+      try {
+        await controller.findSiteOperator("REC0001");
+      } catch (error) {
+        expect(error).toBeInstanceOf(HttpException);
+        expect((error as HttpException).getStatus()).toBe(400);
+      }
+    });
+
+    it("should return an error if the api call fails", async () => {
+      vi.spyOn(recService, "findClientNumber").mockResolvedValue("01");
+      vi.spyOn(resourceService, "findByClientNumber").mockRejectedValue(
+        new HttpException("error", 400),
+      );
+      try {
+        await controller.findSiteOperator("REC0001");
+      } catch (error) {
+        expect(error).toBeInstanceOf(HttpException);
+        expect((error as HttpException).getStatus()).toBe(400);
+      }
+    });
   });
 });
