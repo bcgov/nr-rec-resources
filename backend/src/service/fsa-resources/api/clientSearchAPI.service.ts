@@ -1,3 +1,5 @@
+/* tslint:disable */
+/* eslint-disable */
 /**
  * FSA Forest Client API
  * Forest Client API Application - Version 302
