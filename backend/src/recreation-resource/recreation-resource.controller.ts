@@ -174,7 +174,7 @@ export class RecreationResourceController {
         await this.recreationResourceService.findClientNumber(id);
       if (clientNumber)
         return await this.fsaResourceService.findByClientNumber(clientNumber);
-      else return null;
+      else throw new HttpException({ data: "Client Number not found" }, 400);
     } catch (err) {
       throw new HttpException(err.response.data, err.status);
     }

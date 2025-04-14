@@ -45,27 +45,21 @@ export class RecreationResourceService {
   }
 
   async findClientNumber(id: string): Promise<string> {
-    const recResource = await this.prisma.recreation_resource.findUnique({
-      where: {
-        rec_resource_id: id,
-        AND: {
-          display_on_public_site: true,
+    const agrementHolder =
+      await this.prisma.recreation_agreement_holder.findUnique({
+        where: {
+          rec_resource_id: id,
         },
-      },
-      select: {
-        recreation_agreement_holder: {
-          select: {
-            client_number: true,
-          },
+        select: {
+          client_number: true,
         },
-      },
-    });
+      });
 
-    if (!recResource) {
+    if (!agrementHolder) {
       return null;
     }
 
-    return recResource.recreation_agreement_holder.client_number;
+    return agrementHolder.client_number;
   }
 
   async searchRecreationResources(
