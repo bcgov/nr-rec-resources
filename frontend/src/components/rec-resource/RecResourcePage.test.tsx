@@ -11,6 +11,9 @@ import { AdditionalFees, Camping } from '@/components/rec-resource/section';
 vi.mock('@/service/queries/recreation-resource', () => ({
   useGetRecreationResourceById: vi.fn(),
 }));
+vi.mock('@/service/queries/recreation-resource', () => ({
+  useGetSiteOperatorById: vi.fn(),
+}));
 const mockNavigate = vi.fn();
 
 vi.mock('react-router-dom', async () => {
