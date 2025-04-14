@@ -1,0 +1,52 @@
+---
+data_management_roles:
+  product_owner: Airlia Hansen
+  data_custodian: Alex Kavadas
+product_external_dependencies:
+  common_components:
+    - Design-System
+product_information:
+  api_specifications:
+    - https://ouyd92mfod.execute-api.ca-central-1.amazonaws.com/api/docs
+  business_capabilities_standard:
+    - Other
+  ministry:
+    - Environment and Climate Change Strategy
+  product_acronym: RRS - RSTBC
+  product_description: >-
+    Product to support managing recreation resources across the province, within
+    the Parks & Recreation division. Focused on Rec Sites and Trails BC.
+  product_name: Recreation Resource Services - RSTBC
+  product_status: active
+  product_urls:
+    - https://beta.sitesandtrailsbc.ca
+  program_area: Parks and Recreation Program
+product_technology_information:
+  backend_frameworks:
+    - name: NestJS
+      version: 11.0.14
+  backend_languages_version:
+    - name: TypeScript
+      version: 5.7.3
+  ci_cd_tools:
+    - GitHub-Actions
+    - Helm
+    - Terraform
+    - Terragrunt
+  data_storage_platforms:
+    - Postgis
+    - Postgresql
+    - Dynamodb
+  frontend_frameworks:
+    - name: React
+      version: 19.0.0
+  frontend_languages:
+    - name: TypeScript
+      version: 5.7.3
+  hosting_platforms:
+    - Amazon-Web-Services
+    - Private-Cloud-Openshift
+  spatial_mapping_technologies:
+    - Openlayers
+    - ArcGIS
+version: 1
