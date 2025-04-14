@@ -31,3 +31,21 @@ variable "fta_dataload_bucket" {
   type        = string
   default     = "rst-fta-dataload-oracle"
 }
+
+variable "ha_enabled" {
+  description = "Whether to enable high availability mode of Aurora RDS cluster by adding a replica."
+  type        = bool
+  default     = false
+}
+
+variable "min_capacity" {
+  description = "Minimum capacity for Aurora Serverless v2"
+  type        = number
+  default     = 0.5
+}
+
+variable "max_capacity" {
+  description = "Maximum capacity for Aurora Serverless v2"
+  type        = string
+  default     = 1.0
+}
