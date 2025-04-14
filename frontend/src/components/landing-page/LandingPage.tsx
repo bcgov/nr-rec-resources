@@ -67,7 +67,18 @@ export const LandingPage: FC = () => {
                 with the people who use it. It will be an evolving,
                 collaborative work in progress.
               </p>
-              <p>Share in the adventure. We'd love for you to join us.</p>
+              <p>
+                Share in the adventure. We'd love for you to{' '}
+                <a
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="research-signup-link"
+                  href={EXTERNAL_LINKS.RESEARCH_PARTICIPANT_SIGN_UP}
+                >
+                  join us
+                </a>
+                .
+              </p>
             </>
           }
           image={LANDING_PAGE_IMAGE_LINKS.WELCOME}
