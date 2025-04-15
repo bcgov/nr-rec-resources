@@ -57,4 +57,16 @@ describe("formatSearchResults function", () => {
       "recResources?.map is not a function",
     );
   });
+
+  it("should return sites with status as 'Open' if no status is provided", () => {
+    const results = formatSearchResults([
+      { ...response[0], recreation_status: null },
+    ]);
+
+    expect(results[0].recreation_status).toEqual({
+      comment: undefined,
+      description: "Open",
+      status_code: 1,
+    });
+  });
 });
