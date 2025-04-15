@@ -16,3 +16,9 @@ variable "aws_region" {
   type = string
   default = "ca-central-1"
 }
+
+variable "custom_domain" {
+  description = "The custom domain name for the CloudFront distribution."
+  type        = string
+  default     = "beta.sitesandtrailsbc.ca"
+}
