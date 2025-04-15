@@ -49,10 +49,6 @@ const RecResourcePage = () => {
     id,
   });
 
-  useEffect(() => {
-    console.log('OPERATOR', isOperatorLoading, operatorError, siteOperator);
-  }, [isOperatorLoading, operatorError, siteOperator]);
-
   /**
    * Processes recreation resource images to extract the preview and full size image urls
    */

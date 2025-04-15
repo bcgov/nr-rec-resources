@@ -3,17 +3,19 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import RecResourcePage from '@/components/rec-resource/RecResourcePage';
 import * as routerDom from 'react-router-dom';
 import { BrowserRouter as Router } from 'react-router-dom';
-import { useGetRecreationResourceById } from '@/service/queries/recreation-resource';
+import {
+  useGetRecreationResourceById,
+  useGetSiteOperatorById,
+} from '@/service/queries/recreation-resource';
 import { ReactNode } from 'react';
 import { AdditionalFees, Camping } from '@/components/rec-resource/section';
 
 // Setup mocks
 vi.mock('@/service/queries/recreation-resource', () => ({
   useGetRecreationResourceById: vi.fn(),
-}));
-vi.mock('@/service/queries/recreation-resource', () => ({
   useGetSiteOperatorById: vi.fn(),
 }));
+
 const mockNavigate = vi.fn();
 
 vi.mock('react-router-dom', async () => {
@@ -85,6 +87,19 @@ describe('RecResourcePage', () => {
   const renderComponent = async (mockApiResponse: any, error?: any) => {
     (useGetRecreationResourceById as any).mockReturnValue({
       data: mockApiResponse,
+      error: error,
+    });
+
+    (useGetSiteOperatorById as any).mockReturnValue({
+      data: {
+        acronym: undefined,
+        clientName: 'SITE OPERATOR NAME',
+        clientNumber: '0001',
+        clientStatusCode: 'ACT',
+        clientTypeCode: 'C',
+        legalFirstName: undefined,
+        legalMiddleName: undefined,
+      },
       error: error,
     });
 
@@ -357,6 +372,15 @@ describe('RecResourcePage', () => {
         await renderComponent({
           ...mockResource,
           recreation_structure: { has_toilet: true, has_table: true },
+        });
+
+        expect(screen.getAllByText(/Facilities/i).length).toBeGreaterThan(0);
+      });
+
+      it('displays facilities when only one recreation structure exists', async () => {
+        await renderComponent({
+          ...mockResource,
+          recreation_structure: { has_toilet: false, has_table: true },
         });
 
         expect(screen.getAllByText(/Facilities/i).length).toBeGreaterThan(0);
