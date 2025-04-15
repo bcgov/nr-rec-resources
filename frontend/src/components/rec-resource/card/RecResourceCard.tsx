@@ -66,7 +66,7 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
           </div>
         </div>
         <div className="card-content-lower">
-          {hasActivities && <Activities activities={activities} />}
+          <span>{hasActivities && <Activities activities={activities} />}</span>
           <Status description={statusDescription} statusCode={status_code} />
         </div>
       </div>

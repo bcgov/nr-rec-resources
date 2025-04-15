@@ -106,14 +106,15 @@ module "aurora_postgresql_v2" {
   db_cluster_parameter_group_name = aws_rds_cluster_parameter_group.db_postgresql.id
 
   serverlessv2_scaling_configuration = {
-    min_capacity = 0.5
-    max_capacity = 1.0
+    min_capacity = var.min_capacity
+    max_capacity = var.max_capacity
   }
 
   instance_class = "db.serverless"
-  instances = {
+  instances = var.ha_enabled ? {
     one = {}
-  }
+    two = {}
+  }: {one = {}}
 
   tags = {
     managed-by = "terraform"

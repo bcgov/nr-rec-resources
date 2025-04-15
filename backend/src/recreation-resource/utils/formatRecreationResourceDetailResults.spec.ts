@@ -132,4 +132,17 @@ describe("formatRecreationResourceDetailResults function", () => {
       "Cannot read properties of undefined (reading 'map')",
     );
   });
+
+  it("should return result with status as 'Open' if no status is provided", () => {
+    const results = formatRecreationResourceDetailResults(
+      { ...mockResponse, recreation_status: null },
+      mockSpatialResponse,
+    );
+
+    expect(results.recreation_status).toEqual({
+      comment: undefined,
+      description: "Open",
+      status_code: 1,
+    });
+  });
 });

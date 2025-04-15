@@ -6,6 +6,7 @@ import { RecreationResourceImageDto } from "src/recreation-resource/dto/recreati
 import { RecreationResourceGetPayload } from "src/recreation-resource/service/types";
 import { getRecreationResourceSpatialFeatureGeometry } from "@prisma-generated-sql";
 import { RecreationResourceDocCode } from "src/recreation-resource/dto/recreation-resource-doc.dto";
+import { OPEN_STATUS } from "src/recreation-resource/constants/service.constants";
 
 // Format recreation resource detail results to match the RecreationResourceDetailDto
 export const formatRecreationResourceDetailResults = (
@@ -32,9 +33,12 @@ export const formatRecreationResourceDetailResults = (
         activity.recreation_activity.recreation_activity_code,
     })),
     recreation_status: {
-      description: result.recreation_status?.recreation_status_code.description,
+      description:
+        result.recreation_status?.recreation_status_code.description ??
+        OPEN_STATUS.DESCRIPTION,
       comment: result.recreation_status?.comment,
-      status_code: result.recreation_status?.status_code,
+      status_code:
+        result.recreation_status?.status_code ?? OPEN_STATUS.STATUS_CODE,
     },
     campsite_count: result._count?.recreation_defined_campsite,
     recreation_resource_images:
