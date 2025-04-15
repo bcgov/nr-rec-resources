@@ -6,6 +6,7 @@ import PhotoGallery, {
   PhotoGalleryProps,
 } from '@/components/rec-resource/PhotoGallery';
 import {
+  AdditionalFees,
   Camping,
   Closures,
   Contact,
@@ -103,6 +104,8 @@ const RecResourcePage = () => {
 
   const isThingsToDo = recreation_activity && recreation_activity.length > 0;
   const isAccess = recreation_access && recreation_access.length > 0;
+  const isCampingAvailable =
+    Boolean(campsite_count) || Boolean(recreation_fee?.length);
   const isAdditionalFeesAvailable =
     additional_fees && additional_fees.length > 0;
   const isSiteDescription = description || maintenance_standard_code;
@@ -155,7 +158,7 @@ const RecResourcePage = () => {
           href: `#${SectionIds.MAPS_AND_LOCATION}`,
           title: SectionTitles.MAPS_AND_LOCATION,
         },
-        {
+        isCampingAvailable && {
           href: `#${SectionIds.CAMPING}`,
           title: SectionTitles.CAMPING,
         },
@@ -186,6 +189,7 @@ const RecResourcePage = () => {
       isMapsAndLocation,
       isFacilitiesAvailable,
       isAdditionalFeesAvailable,
+      isCampingAvailable,
     ],
   );
 
@@ -281,20 +285,19 @@ const RecResourcePage = () => {
                 />
               )}
 
-              <Camping
-                id={SectionIds.CAMPING}
-                ref={campingRef}
-                title={SectionTitles.CAMPING}
-                campsite_count={campsite_count}
-                fees={recreation_fee}
-              />
+              {isCampingAvailable && (
+                <Camping
+                  id={SectionIds.CAMPING}
+                  ref={campingRef}
+                  campsite_count={campsite_count}
+                  fees={recreation_fee}
+                />
+              )}
 
               {isAdditionalFeesAvailable && (
-                <Camping
+                <AdditionalFees
                   id={SectionIds.ADDITIONAL_FEES}
                   ref={additionalFeesRef}
-                  title={SectionTitles.ADDITIONAL_FEES}
-                  showCampsiteCount={false}
                   fees={additional_fees}
                 />
               )}
