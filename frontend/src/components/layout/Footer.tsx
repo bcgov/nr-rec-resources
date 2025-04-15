@@ -100,7 +100,7 @@ const Footer = () => {
                 <img
                   src={RSTLogo}
                   alt="Recreation Sites and Trails BC Logo"
-                  style={{ height: 104 }}
+                  style={{ height: 125 }}
                 />
               </a>
               <span className="beta-button">BETA</span>
@@ -109,7 +109,7 @@ const Footer = () => {
               </p>
             </div>
           </div>
-          <div className="col col-12 col-md-6">
+          <div className="col col-12 col-md-6 links-container">
             <div className="row no-gutters">
               {linkColumns.map((item, index) => (
                 <FooterLinkColumn
