@@ -24,7 +24,7 @@ import { COLLECTION_FORMATS } from "../variables";
 
 @Injectable()
 export class ClientAPIService {
-  protected basePath = "https://nr-forest-client-api-prod.api.gov.bc.ca";
+  protected basePath = process.env.API_URL;
   public defaultHeaders: Record<string, string> = {};
   public configuration = new Configuration();
   protected httpClient: HttpService;
