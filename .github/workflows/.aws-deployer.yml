@@ -97,6 +97,8 @@ jobs:
           flyway_image: ghcr.io/${{github.repository}}/migrations/rst:${{ inputs.tag }}
           api_image: ghcr.io/${{github.repository}}/backend:${{ inputs.tag }}
           app_env: ${{inputs.app_env}}
+          forest_client_api_key: ${{ secrets.FOREST_CLIENT_API_KEY }}
+          forest_client_api_url: ${{ secrets.FOREST_CLIENT_API_URL }}
       run: |
           terragrunt output -json > outputs.json
           #print the output
