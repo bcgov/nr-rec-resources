@@ -49,9 +49,15 @@ describe("FsaResourceService", () => {
   });
 
   describe("findByClientNumber", () => {
-    it("should return formatted recreation resource with spatial data", async () => {
+    it("should return site operator object", async () => {
       const result = await service.findByClientNumber("0001");
       expect(result).toMatchObject(data);
     });
+
+    // it("should handle error", async () => {
+    //   const result = await service.findByClientNumber("0001");
+    //   console.log(result);
+    //   expect(result).toMatchObject(data);
+    // });
   });
 });
