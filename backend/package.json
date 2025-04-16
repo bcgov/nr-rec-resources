@@ -36,6 +36,7 @@
     "@nestjs/terminus": "^11.0.0",
     "@nestjs/testing": "^11.0.6",
     "@prisma/client": "6.6.0",
+    "aws-embedded-metrics": "^4.2.0",
     "axios": "^1.8.4",
     "dotenv": "^16.4.7",
     "express-prom-bundle": "^8.0.0",
