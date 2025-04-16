@@ -23,7 +23,7 @@ import { COLLECTION_FORMATS } from "../variables";
 
 @Injectable()
 export class ClientSearchAPIService {
-  protected basePath = process.env.API_URL;
+  protected basePath = process.env.FOREST_CLIENT_API_URL;
   public defaultHeaders: Record<string, string> = {};
   public configuration = new Configuration();
   protected httpClient: HttpService;
