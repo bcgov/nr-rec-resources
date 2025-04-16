@@ -135,6 +135,14 @@ resource "aws_ecs_task_definition" "node_api_task" {
         {
           name  = "PORT"
           value = "8000"
+        },
+        {
+          name = "FOREST_CLIENT_API_KEY"
+          value = var.forest_client_api_key
+        },
+        {
+          name  = "FOREST_CLIENT_API_SECRET"
+          value = var.forest_client_api_secret
         }
       ]
       portMappings = [
