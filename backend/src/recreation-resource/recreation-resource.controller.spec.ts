@@ -7,6 +7,7 @@ import { PrismaService } from "src/prisma.service";
 import { RecreationResourceImageDto } from "./dto/recreation-resource-image.dto";
 import { FsaResourceService } from "./service/fsa-resource.service";
 import { ApiModule } from "src/service/fsa-resources";
+import { SiteOperatorDto } from "./dto/recreation-resource.dto";
 
 describe("RecreationResourceController", () => {
   let recService: RecreationResourceService;
@@ -169,7 +170,10 @@ describe("RecreationResourceController", () => {
         clientName: "CLIENT 01",
         clientStatusCode: "ACT",
         clientTypeCode: "C",
-      };
+        legalFirstName: "FIRST NAME",
+        legalMiddleName: "MIDDLE NAME",
+        acronym: "ACR",
+      } as SiteOperatorDto;
       vi.spyOn(recService, "findClientNumber").mockResolvedValue("01");
       vi.spyOn(resourceService, "findByClientNumber").mockResolvedValue(result);
       expect(await controller.findSiteOperator("REC0001")).toBe(result);
