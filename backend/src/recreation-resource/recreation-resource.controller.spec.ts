@@ -176,7 +176,9 @@ describe("RecreationResourceController", () => {
       } as SiteOperatorDto;
       vi.spyOn(recService, "findClientNumber").mockResolvedValue("01");
       vi.spyOn(resourceService, "findByClientNumber").mockResolvedValue(result);
-      expect(await controller.findSiteOperator("REC0001")).toBe(result);
+      expect(await controller.findSiteOperator("REC0001")).toStrictEqual(
+        result,
+      );
     });
 
     it("should return an error if the client number isn't found", async () => {
