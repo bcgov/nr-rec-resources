@@ -141,8 +141,8 @@ resource "aws_ecs_task_definition" "node_api_task" {
           value = var.forest_client_api_key
         },
         {
-          name  = "FOREST_CLIENT_API_SECRET"
-          value = var.forest_client_api_secret
+          name  = "FOREST_CLIENT_API_URL"
+          value = var.forest_client_api_url
         }
       ]
       portMappings = [
