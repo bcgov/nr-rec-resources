@@ -172,9 +172,19 @@ export class RecreationResourceController {
     try {
       const clientNumber =
         await this.recreationResourceService.findClientNumber(id);
-      if (clientNumber)
-        return await this.fsaResourceService.findByClientNumber(clientNumber);
-      else throw new HttpException({ data: "Client Number not found" }, 400);
+      if (clientNumber) {
+        const r =
+          await this.fsaResourceService.findByClientNumber(clientNumber);
+        return {
+          clientName: r.clientName,
+          clientNumber: r.clientNumber,
+          clientStatusCode: r.clientStatusCode,
+          clientTypeCode: r.clientTypeCode,
+          legalFirstName: r.legalFirstName,
+          legalMiddleName: r.legalMiddleName,
+          acronym: r.acronym,
+        } as SiteOperatorDto;
+      } else throw new HttpException({ data: "Client Number not found" }, 400);
     } catch (err) {
       throw new HttpException(err.response.data, err.status);
     }

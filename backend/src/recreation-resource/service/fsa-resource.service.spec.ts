@@ -8,7 +8,6 @@ import { of } from "rxjs";
 
 describe("FsaResourceService", () => {
   let service: FsaResourceService;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let httpClient: HttpService;
 
   const data = {
@@ -32,16 +31,7 @@ describe("FsaResourceService", () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [ApiModule, HttpModule],
-      providers: [
-        FsaResourceService,
-        ClientAPIService,
-        {
-          provide: HttpService,
-          useValue: {
-            get: vi.fn(() => of(response)),
-          },
-        },
-      ],
+      providers: [FsaResourceService, ClientAPIService],
     }).compile();
 
     service = module.get<FsaResourceService>(FsaResourceService);
@@ -50,14 +40,18 @@ describe("FsaResourceService", () => {
 
   describe("findByClientNumber", () => {
     it("should return site operator object", async () => {
+      vi.spyOn(httpClient, "get").mockImplementationOnce(() => of(response));
       const result = await service.findByClientNumber("0001");
       expect(result).toMatchObject(data);
     });
 
-    // it("should handle error", async () => {
-    //   const result = await service.findByClientNumber("0001");
-    //   console.log(result);
-    //   expect(result).toMatchObject(data);
-    // });
+    it("should return an error when access the api", async () => {
+      vi.spyOn(httpClient, "get").mockRejectedValueOnce({ error: "error" });
+      try {
+        await service.findByClientNumber("0001");
+      } catch (err) {
+        expect(err).toBeDefined();
+      }
+    });
   });
 });
