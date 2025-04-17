@@ -11,24 +11,16 @@ interface SiteOperatorProps {
 
 const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
   ({ siteOperator, error, isLoading }, ref) => {
+    const formattedName = siteOperator?.clientName
+      ?.toLowerCase()
+      .replace(/(^\w|\s\w)/g, (m) => m.toUpperCase());
+
     return (
       <section id={SectionIds.CONTACT} ref={ref}>
         <h2 className="section-heading">{SectionTitles.CONTACT}</h2>
         <figure className="table">
           <table>
             <tbody>
-              <tr>
-                <th>Site operator</th>
-                <td>
-                  <p>
-                    {isLoading
-                      ? 'Loading ...'
-                      : error
-                        ? 'Not found'
-                        : siteOperator?.clientName}
-                  </p>
-                </td>
-              </tr>
               <tr>
                 <th>
                   General questions and feedback for Recreation Sites & Trails
@@ -43,6 +35,14 @@ const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
                   </p>
                 </td>
               </tr>
+              {!error && (
+                <tr>
+                  <th>Site operator</th>
+                  <td>
+                    <p>{isLoading ? 'Loading ...' : formattedName}</p>
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </figure>

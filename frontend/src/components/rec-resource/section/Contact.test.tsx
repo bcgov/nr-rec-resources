@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import Contact from './Contact';
 import { ResponseError } from '@/service/recreation-resource';
 
-describe('the Closures component', () => {
+describe('the Contact component', () => {
   const siteOperator = {
     acronym: '',
     clientName: 'SITE OPERATOR NAME',
@@ -16,9 +16,11 @@ describe('the Closures component', () => {
     render(
       <Contact siteOperator={siteOperator} error={null} isLoading={false} />,
     );
-    const element = screen.getByText(/SITE OPERATOR NAME/);
+    const operatorName = screen.getByText(/Site Operator Name/);
+    const operatorLabel = screen.getByText(/Site operator/);
 
-    expect(element).toBeInTheDocument();
+    expect(operatorName).toBeInTheDocument();
+    expect(operatorLabel).toBeInTheDocument();
   });
 
   it('renders component with loading state', async () => {
@@ -36,8 +38,8 @@ describe('the Closures component', () => {
         isLoading={false}
       />,
     );
-    const element = screen.getByText(/Not found/);
+    const operatorLabel = screen.queryByText(/Site operator/);
 
-    expect(element).toBeInTheDocument();
+    expect(operatorLabel).toBeNull();
   });
 });
