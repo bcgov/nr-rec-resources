@@ -15,14 +15,7 @@
   margin: 0px auto;
 
   .logo-column {
-    width: 430px;
-  }
-
-  .links-container {
-    margin-left: 55px;
-    @media (max-width: 1058px) {
-      margin-left: 0px;
-    }
+    width: 425px;
   }
 
   .icon {
@@ -32,7 +25,7 @@
   }
 
   .footer-heading {
-    font-size: 1.05rem;
+    font-size: 0.75rem;
     font-weight: bold;
     color: $colorWhite;
     margin-bottom: 18px;
@@ -42,26 +35,14 @@
   }
 
   .links-column {
-    width: 174px;
-    @media (max-width: 1052px) {
-      width: 164px;
-    }
-    @media (max-width: 992px) {
-      width: 152px;
-    }
-    @media (max-width: 950px) {
-      width: 130px;
-    }
-    @media (max-width: 900px) {
-      width: 300px;
-    }
-    @media (max-width: 767px) {
-      width: 390px;
+    width: 145px;
+    @media (max-width: $mdBreakpoint) {
+      width: 200px;
     }
   }
 
   .paragraph-links {
-    font-size: 1.05rem;
+    font-size: 0.75rem;
   }
 
   .back-original-link {
@@ -79,7 +60,7 @@
   }
 
   .footer-utility-link {
-    font-size: 1.05rem;
+    font-size: 0.8rem;
     margin-right: 26px;
     margin-bottom: 16px;
     &:last-of-type {
@@ -109,12 +90,12 @@
     position: relative;
     color: $colorGold;
     border: none;
-    font-size: 1rem;
+    font-size: 12px;
     font-weight: 500;
     cursor: pointer;
     border-radius: 4px;
     top: 20px;
-    left: -25px;
+    left: -20px;
     letter-spacing: 0.3em;
     &:hover {
       cursor: default;
