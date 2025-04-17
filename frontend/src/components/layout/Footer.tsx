@@ -100,10 +100,9 @@ const Footer = () => {
                 <img
                   src={RSTLogo}
                   alt="Recreation Sites and Trails BC Logo"
-                  style={{ height: 125 }}
+                  style={{ height: '64px' }}
                 />
               </a>
-              <span className="beta-button">BETA</span>
               <p className="paragraph-links back-original-link">
                 <a href={EXTERNAL_LINKS.ORIGINAL_SITE}>Back to original site</a>
               </p>
