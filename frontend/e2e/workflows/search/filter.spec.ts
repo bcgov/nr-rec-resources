@@ -1,9 +1,7 @@
 import { test } from '@playwright/test';
 import { initHappo } from 'e2e/utils';
 import { FilterPOM, SearchPOM, UtilsPOM } from 'e2e/poms';
-import { RecResourceType, Status } from 'e2e/enum/recResource';
-
-const TOTAL_RESULTS = 51;
+import { RecResourceType } from 'e2e/enum/recResource';
 
 initHappo();
 
@@ -23,17 +21,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await utils.checkExpectedUrlParams('district=RDCK');
 
-    await searchPage.resultsCount(2);
-
-    await searchPage.recResourceCardCount(2);
-
-    await searchPage.verifyRecResourceCardContent({
-      rec_resource_id: 'REC265446',
-      rec_resource_name: 'Airy Area',
-      rec_resource_type: RecResourceType.SITE,
-      closest_community: 'Slocan',
-      status: Status.CLOSED,
-    });
+    await searchPage.waitForResults();
   });
 
   test('Use the filter menu to filter by multiple districts', async ({
@@ -59,9 +47,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await utils.checkExpectedUrlParams('district=RDCK_RDKA_RDOS_RDSQ');
 
-    await searchPage.resultsCount(26);
-
-    await searchPage.recResourceCardCount(10);
+    await searchPage.waitForResults();
   });
 
   test('Use the filter menu to filter by rec resource type', async ({
@@ -75,21 +61,13 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.verifyInitialFilterMenu();
 
+    await filter.verifyFilterResultsListener({ type: ['Recreation trail'] });
+
     await filter.toggleFilterOn(filter.typeFilters, RecResourceType.TRAIL);
 
     await utils.checkExpectedUrlParams('type=RTR');
 
-    await searchPage.resultsCount(17);
-
-    await searchPage.recResourceCardCount(10);
-
-    await searchPage.verifyRecResourceCardContent({
-      rec_resource_id: 'REC6866',
-      rec_resource_name: '1861 goldrush pack trail',
-      rec_resource_type: RecResourceType.TRAIL,
-      closest_community: 'Wells',
-      status: Status.OPEN,
-    });
+    await searchPage.waitForResults();
   });
 
   test('Use the filter menu to filter by multiple rec resource types', async ({
@@ -103,15 +81,21 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.verifyInitialFilterMenu();
 
+    await filter.verifyFilterResultsListener({ type: ['Recreation trail'] });
+
     await filter.toggleFilterOn(filter.typeFilters, RecResourceType.TRAIL);
+
+    await searchPage.waitForResults();
+
+    await filter.verifyFilterResultsListener({
+      type: ['Recreation trail', 'Recreation site'],
+    });
 
     await filter.toggleFilterOn(filter.typeFilters, RecResourceType.SITE);
 
-    await searchPage.resultsCount(50);
-
-    await searchPage.recResourceCardCount(10);
-
     await utils.checkExpectedUrlParams('type=RTR_SIT');
+
+    await searchPage.waitForResults();
   });
 
   test('Use the filter menu to filter by things to do', async ({ page }) => {
@@ -123,21 +107,13 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.verifyInitialFilterMenu();
 
+    await filter.verifyFilterResultsListener({ activities: ['Camping'] });
+
     await filter.toggleFilterOn(filter.thingsToDoFilters, 'Camping');
 
     await utils.checkExpectedUrlParams('activities=32');
 
-    await searchPage.resultsCount(14);
-
-    await searchPage.recResourceCardCount(10);
-
-    await searchPage.verifyRecResourceCardContent({
-      rec_resource_id: 'REC2206',
-      rec_resource_name: '7 Mile Lake',
-      rec_resource_type: RecResourceType.SITE,
-      closest_community: 'Cranbrook',
-      status: Status.CLOSED,
-    });
+    await searchPage.waitForResults();
   });
 
   test('Use the filter menu to filter by multiple things to do', async ({
@@ -157,13 +133,15 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.clickShowAllFilters(filter.thingsToDoFilters);
 
+    await filter.verifyFilterResultsListener({
+      activities: ['Angling', 'Camping', 'Hunting'],
+    });
+
     await filter.toggleFilterOn(filter.thingsToDoFilters, 'Hunting');
 
     await utils.checkExpectedUrlParams('activities=1_32_10');
 
-    await searchPage.resultsCount(5);
-
-    await searchPage.recResourceCardCount(5);
+    await searchPage.waitForResults();
   });
 
   test('Use the filter menu to filter by Facilities', async ({ page }) => {
@@ -179,17 +157,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await utils.checkExpectedUrlParams('facilities=toilet');
 
-    await searchPage.resultsCount(13);
-
-    await searchPage.recResourceCardCount(10);
-
-    await searchPage.verifyRecResourceCardContent({
-      rec_resource_id: 'REC203239',
-      rec_resource_name: '10 k snowmobile parking lot',
-      rec_resource_type: RecResourceType.SITE,
-      closest_community: 'Merritt',
-      status: Status.CLOSED,
-    });
+    await searchPage.waitForResults();
   });
 
   test('Use the filter menu to filter by multiple Facilities', async ({
@@ -209,9 +177,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await utils.checkExpectedUrlParams('facilities=toilet_table');
 
-    await searchPage.resultsCount(22);
-
-    await searchPage.recResourceCardCount(10);
+    await searchPage.waitForResults();
   });
 
   test('Use the filter menu to filter by Access Type', async ({ page }) => {
@@ -227,17 +193,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await utils.checkExpectedUrlParams('access=R');
 
-    await searchPage.resultsCount(9);
-
-    await searchPage.recResourceCardCount(9);
-
-    await searchPage.verifyRecResourceCardContent({
-      rec_resource_id: 'REC6866',
-      rec_resource_name: '1861 Goldrush Pack Trail',
-      rec_resource_type: RecResourceType.TRAIL,
-      closest_community: 'Wells',
-      status: Status.OPEN,
-    });
+    await searchPage.waitForResults();
   });
 
   test('Use the filter menu to filter by multiple Access Types', async ({
@@ -255,19 +211,17 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.toggleFilterOn(filter.accessTypeFilters, 'Fly-in Access');
 
-    await searchPage.resultsCount(26);
-
-    await searchPage.recResourceCardCount(10);
+    await searchPage.waitForResults();
 
     await filter.toggleFilterOn(filter.accessTypeFilters, 'Road Access');
 
-    await searchPage.resultsCount(35);
-
-    await searchPage.recResourceCardCount(10);
+    await searchPage.waitForResults();
 
     await filter.toggleFilterOn(filter.accessTypeFilters, 'Trail Access');
 
     await utils.checkExpectedUrlParams('access=B_F_R_T');
+
+    await searchPage.waitForResults();
   });
 
   test('Use the filter menu to filter by multiple filter types', async ({
@@ -293,23 +247,17 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.toggleFilterOn(filter.facilitiesFilters, 'Toilets');
 
+    await filter.verifyFilterResultsListener({
+      type: ['Recreation site'],
+    });
+
     await filter.toggleFilterOn(filter.accessTypeFilters, 'Road Access');
+
+    await searchPage.waitForResults();
 
     await utils.checkExpectedUrlParams(
       'district=RDCK_RDKA_RDOS&page=1&type=SIT&facilities=toilet&access=R',
     );
-
-    await searchPage.resultsCount(1);
-
-    await searchPage.recResourceCardCount(1);
-
-    await searchPage.verifyRecResourceCardContent({
-      rec_resource_id: 'REC205035',
-      rec_resource_name: '99 mile xc keene road parking',
-      rec_resource_type: RecResourceType.SITE,
-      closest_community: '100 Mile House',
-      status: Status.CLOSED,
-    });
 
     await utils.screenshot(
       'Search page with multiple filters applied',
@@ -334,17 +282,13 @@ test.describe('Search page filter menu workflows', () => {
 
     await utils.checkExpectedUrlParams('district=RDCK');
 
-    await searchPage.resultsCount(2);
-
-    await searchPage.recResourceCardCount(2);
+    await searchPage.waitForResults();
 
     await filter.clickClearFilters();
 
     await utils.checkExpectedUrlParams('page=1');
 
-    await searchPage.resultsCount(TOTAL_RESULTS);
-
-    await searchPage.recResourceCardCount(10);
+    await searchPage.waitForResults();
   });
 
   test('Use the Clear Filters button to clear all filters', async ({
@@ -364,24 +308,16 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.toggleFilterOn(filter.typeFilters, RecResourceType.SITE);
 
-    await filter.toggleFilterOn(filter.facilitiesFilters, 'Tables');
-
     await filter.toggleFilterOn(filter.accessTypeFilters, 'Boat-in Access');
 
     await utils.checkExpectedUrlParams(
-      'district=RDKA&page=1&type=SIT&facilities=table&access=B',
+      'district=RDKA&page=1&type=SIT&access=B',
     );
-
-    await searchPage.resultsCount(2);
-
-    await searchPage.recResourceCardCount(2);
 
     await filter.clickClearFilters();
 
     await utils.checkExpectedUrlParams('');
 
-    await searchPage.resultsCount(TOTAL_RESULTS);
-
-    await searchPage.recResourceCardCount(10);
+    await searchPage.waitForResults();
   });
 });

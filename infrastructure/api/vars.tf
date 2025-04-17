@@ -106,7 +106,6 @@ variable "max_capacity" {
   default = 3
 }
 
-
 variable "fargate_base_capacity" {
   description = "value of the base capacity for the Fargate capacity provider, which is the minimum number of tasks to keep running and not interrupted"
   type = number

@@ -28,6 +28,7 @@ export default [
     ],
   },
   ...compat.extends('plugin:react/recommended'),
+  ...compat.extends('plugin:storybook/recommended'),
   {
     plugins: {
       react,
