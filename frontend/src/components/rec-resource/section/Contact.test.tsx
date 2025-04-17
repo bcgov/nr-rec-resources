@@ -5,7 +5,7 @@ import { ResponseError } from '@/service/recreation-resource';
 describe('the Closures component', () => {
   const siteOperator = {
     acronym: '',
-    clientName: 'SITE OPERATOR NAME',
+    clientName: 'SITE OPERATOR NAME1',
     clientNumber: '0001',
     clientStatusCode: 'ACT',
     clientTypeCode: 'C',
