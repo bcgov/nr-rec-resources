@@ -36,10 +36,8 @@ export const thingsToDoFilterOptions = [
   { label: 'Caving' },
   { label: 'Climbing' },
   { label: 'Four wheel driving' },
-  { label: 'Gathering & collecting' },
   { label: 'Hiking' },
   { label: 'Horseback riding' },
-  { label: 'Hunting' },
   { label: 'Icefishing' },
   { label: 'Kayaking' },
   { label: 'Mountain biking' },
@@ -68,8 +66,8 @@ export const facilitiesFilterOptions = [
 ];
 
 export const accessTypeFilterOptions = [
-  { label: 'Boat-in Access' },
-  { label: 'Fly-in Access' },
-  { label: 'Road Access' },
-  { label: 'Trail Access' },
+  { label: 'Boat-in access' },
+  { label: 'Fly-in access' },
+  { label: 'Road access' },
+  { label: 'Trail access' },
 ];
