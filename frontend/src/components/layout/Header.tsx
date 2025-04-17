@@ -1,4 +1,3 @@
-import BCLogo from '@/images/BC_nav_logo.svg';
 import RSTLogo from '@/images/RST_nav_logo.svg';
 import '@/components/layout/Header.scss';
 import BetaBanner from './BetaBanner';
@@ -17,17 +16,11 @@ const Header = () => {
           <div className="navbar-brand">
             <a href={ROUTE_PATHS.HOME}>
               <img
-                src={BCLogo}
-                alt="British Columbia Logo"
-                style={{ height: 64 }}
-              />
-              <img
                 src={RSTLogo}
                 alt="Recreation Sites and Trails BC Logo"
                 style={{ height: 64 }}
               />
             </a>
-            <span className="beta-button">BETA</span>
           </div>
         </nav>
       </div>
