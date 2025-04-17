@@ -24,6 +24,7 @@
     "copy-prisma-generated-sql": "prisma generate --sql && node build-scripts/copy-prisma-generated-sql.js && npm run prettier-fix"
   },
   "dependencies": {
+    "@nestjs/axios": "^4.0.0",
     "@nestjs/class-validator": "^0.13.4",
     "@nestjs/cli": "^11.0.2",
     "@nestjs/common": "^11.0.14",
@@ -35,6 +36,7 @@
     "@nestjs/terminus": "^11.0.0",
     "@nestjs/testing": "^11.0.6",
     "@prisma/client": "6.6.0",
+    "axios": "^1.8.4",
     "dotenv": "^16.4.7",
     "express-prom-bundle": "^8.0.0",
     "helmet": "^8.0.0",

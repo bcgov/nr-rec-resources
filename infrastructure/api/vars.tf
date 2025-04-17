@@ -126,3 +126,13 @@ variable "fta_dataload_bucket" {
   type        = string
   default     = "rst-fta-dataload-oracle"
 }
+
+variable "forest_client_api_key" {
+  description = "The API key for the Forest client"
+  type        = string
+}
+
+variable "forest_client_api_url" {
+  description = "The API URL for the Forest client"
+  type        = string
+}

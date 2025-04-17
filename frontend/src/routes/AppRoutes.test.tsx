@@ -24,6 +24,17 @@ vi.mock('@/service/queries/recreation-resource', () => ({
       name: '0 K SNOWMOBILE PARKING LOT',
     },
   })),
+  useGetSiteOperatorById: vi.fn(() => ({
+    data: {
+      acronym: undefined,
+      clientName: 'SITE OPERATOR NAME',
+      clientNumber: '0001',
+      clientStatusCode: 'ACT',
+      clientTypeCode: 'C',
+      legalFirstName: undefined,
+      legalMiddleName: undefined,
+    },
+  })),
 }));
 vi.mock('react-router-dom', async () => ({
   ...(await vi.importActual('react-router-dom')),

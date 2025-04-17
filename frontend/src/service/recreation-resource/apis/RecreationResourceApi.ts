@@ -16,17 +16,24 @@ import * as runtime from '../runtime';
 import type {
   PaginatedRecreationResourceDto,
   RecreationResourceDetailDto,
+  SiteOperatorDto,
 } from '../models/index';
 import {
   PaginatedRecreationResourceDtoFromJSON,
   PaginatedRecreationResourceDtoToJSON,
   RecreationResourceDetailDtoFromJSON,
   RecreationResourceDetailDtoToJSON,
+  SiteOperatorDtoFromJSON,
+  SiteOperatorDtoToJSON,
 } from '../models/index';
 
 export interface GetRecreationResourceByIdRequest {
   id: string;
   imageSizeCodes?: Array<GetRecreationResourceByIdImageSizeCodesEnum>;
+}
+
+export interface GetSiteOperatorByIdRequest {
+  id: string;
 }
 
 export interface SearchRecreationResourcesRequest {
@@ -92,6 +99,56 @@ export class RecreationResourceApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<RecreationResourceDetailDto> {
     const response = await this.getRecreationResourceByIdRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Find site operator by resource ID
+   */
+  async getSiteOperatorByIdRaw(
+    requestParameters: GetSiteOperatorByIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<SiteOperatorDto>> {
+    if (requestParameters['id'] == null) {
+      throw new runtime.RequiredError(
+        'id',
+        'Required parameter "id" was null or undefined when calling getSiteOperatorById().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resource/{id}/site-operator`.replace(
+          `{${'id'}}`,
+          encodeURIComponent(String(requestParameters['id'])),
+        ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      SiteOperatorDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Find site operator by resource ID
+   */
+  async getSiteOperatorById(
+    requestParameters: GetSiteOperatorByIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<SiteOperatorDto> {
+    const response = await this.getSiteOperatorByIdRaw(
       requestParameters,
       initOverrides,
     );

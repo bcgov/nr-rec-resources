@@ -17,7 +17,8 @@ locals {
   statelock_table_name    = "${local.tf_remote_state_prefix}-lock-${local.aws_license_plate}"
   flyway_image              = get_env("flyway_image")
   api_image          = get_env("api_image")
-
+  forest_client_api_key = get_env("forest_client_api_key")
+  forest_client_api_url = get_env("forest_client_api_url")
 }
 
 # Remote S3 state for Terraform.

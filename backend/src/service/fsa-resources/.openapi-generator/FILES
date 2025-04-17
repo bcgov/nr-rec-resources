@@ -1,0 +1,14 @@
+.gitignore
+.openapi-generator-ignore
+README.md
+api.module.ts
+api/api.ts
+api/clientAPI.service.ts
+api/clientSearchAPI.service.ts
+configuration.ts
+git_push.sh
+index.ts
+model/clientLocationDto.ts
+model/clientPublicViewDto.ts
+model/models.ts
+variables.ts
