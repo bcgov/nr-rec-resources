@@ -1,66 +1,127 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { describe, expect, it } from 'vitest';
 import Camping from './Camping';
-import RecreationFee from './RecreationFee';
-
-// Mock dependencies
-vi.mock('./RecreationFee', () => ({
-  default: vi.fn(() => <div data-testid="recreation-fee" />),
-}));
-
-vi.mock('@/components/landing-page/components', () => ({
-  SectionHeading: vi.fn(({ children }) => (
-    <h2 data-testid="section-heading-mock">{children}</h2>
-  )),
-}));
+import { RecreationFeeModel } from '@/service/custom-models';
 
 describe('Camping Component', () => {
-  const defaultProps = {
-    id: 'camping-section',
-  };
+  const mockFees: RecreationFeeModel[] = [
+    {
+      fee_amount: 30.0,
+      fee_start_date: new Date('2024-06-01'),
+      fee_end_date: new Date('2024-06-10'),
+      monday_ind: 'y',
+      tuesday_ind: 'y',
+      wednesday_ind: 'y',
+      thursday_ind: 'y',
+      friday_ind: 'y',
+      saturday_ind: 'n',
+      sunday_ind: 'n',
+      recreation_fee_code: 'C',
+    },
+    {
+      fee_amount: 15.0,
+      fee_start_date: new Date('2024-06-05'),
+      fee_end_date: new Date('2024-06-15'),
+      monday_ind: 'y',
+      tuesday_ind: 'y',
+      wednesday_ind: 'y',
+      thursday_ind: 'y',
+      friday_ind: 'y',
+      saturday_ind: 'y',
+      sunday_ind: 'n',
+      recreation_fee_code: 'D',
+    },
+    {
+      fee_amount: 12.0,
+      fee_start_date: new Date('2024-06-05'),
+      fee_end_date: new Date('2024-06-15'),
+      monday_ind: 'y',
+      tuesday_ind: 'y',
+      wednesday_ind: 'y',
+      thursday_ind: 'y',
+      friday_ind: 'y',
+      saturday_ind: 'y',
+      sunday_ind: 'y',
+      recreation_fee_code: 'P',
+    },
+  ];
 
-  beforeEach(() => {
-    vi.resetAllMocks();
-  });
+  const campsiteCount = 2;
 
-  it('renders with minimal props', () => {
-    render(<Camping {...defaultProps} />);
-    expect(screen.getByTestId('section-heading-mock')).toHaveTextContent(
-      'Camping',
+  it('renders the section title and campsite count correctly', () => {
+    render(
+      <Camping
+        id="camping"
+        title="Camping"
+        campsite_count={campsiteCount}
+        fees={mockFees}
+      />,
     );
-    expect(screen.queryByText('Number of campsites')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('recreation-fee')).not.toBeInTheDocument();
+
+    expect(
+      screen.getByRole('heading', { level: 2, name: /camping/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/2 campsites/)).toBeInTheDocument();
   });
 
-  it('displays campsite count when greater than 0', () => {
-    render(<Camping {...defaultProps} campsite_count={5} />);
-    expect(screen.getByText('Number of campsites')).toBeInTheDocument();
-    expect(screen.getByText('5 campsites')).toBeInTheDocument();
+  it('renders additional fees grouped by type correctly', () => {
+    render(
+      <Camping
+        id="camping"
+        title="Camping"
+        campsite_count={campsiteCount}
+        fees={mockFees}
+      />,
+    );
+
+    // Use regex or function matcher to handle spacing issues
+    expect(screen.getByText(/day use/i)).toBeInTheDocument();
+
+    expect(screen.getByText('$15.00')).toBeInTheDocument();
+
+    expect(screen.getByText(/parking\s+fee/i)).toBeInTheDocument();
+
+    expect(screen.getByText('$12.00')).toBeInTheDocument();
   });
 
-  it('does not display campsite count when 0', () => {
-    render(<Camping {...defaultProps} campsite_count={0} />);
-    expect(screen.queryByText('Number of campsites')).not.toBeInTheDocument();
+  it('renders fallback text when no fees are available', () => {
+    render(
+      <Camping
+        id="camping"
+        title="Camping"
+        campsite_count={campsiteCount}
+        fees={[]}
+      />,
+    );
+
+    expect(screen.getByText('No fees available.')).toBeInTheDocument();
   });
 
-  it('renders RecreationFee component when fees array is not empty', () => {
-    const mockFees = [{ id: 1, amount: 10 }] as any;
-    render(<Camping {...defaultProps} fees={mockFees} />);
-    expect(screen.getByTestId('recreation-fee')).toBeInTheDocument();
+  it('renders "All Days" when a fee applies to every day', () => {
+    render(
+      <Camping
+        id="camping"
+        title="Camping"
+        campsite_count={campsiteCount}
+        fees={mockFees}
+      />,
+    );
 
-    const recreationFeeProps = vi.mocked(RecreationFee).mock.calls[0][0];
-    expect(recreationFeeProps.data).toEqual(mockFees);
+    expect(screen.getByText('All Days')).toBeInTheDocument();
   });
 
-  it('does not render RecreationFee component when fees array is empty', () => {
-    render(<Camping {...defaultProps} fees={[]} />);
-    expect(RecreationFee).not.toHaveBeenCalled();
-    expect(screen.queryByTestId('recreation-fee')).not.toBeInTheDocument();
-  });
+  it('renders specific days when not all days apply', () => {
+    render(
+      <Camping
+        id="camping"
+        title="Camping"
+        campsite_count={campsiteCount}
+        fees={mockFees}
+      />,
+    );
 
-  it('forwards ref correctly', () => {
-    const ref = { current: null };
-    render(<Camping {...defaultProps} ref={ref} />);
-    expect(ref.current).toBeInstanceOf(HTMLElement);
+    expect(
+      screen.getByText('Monday, Tuesday, Wednesday, Thursday, Friday'),
+    ).toBeInTheDocument();
   });
 });

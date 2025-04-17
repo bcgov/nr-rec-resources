@@ -1,8 +1,20 @@
-import { Stack } from 'react-bootstrap';
-import { RecreationFeeModel } from '@/service/custom-models';
+interface RecreationFeeProps {
+  fee_amount: number;
+  fee_start_date: Date;
+  fee_end_date: Date;
+  monday_ind: string;
+  tuesday_ind: string;
+  wednesday_ind: string;
+  thursday_ind: string;
+  friday_ind: string;
+  saturday_ind: string;
+  sunday_ind: string;
+  recreation_fee_code: string;
+  fee_description?: string;
+}
 
 interface RecreationFeeListProps {
-  data: RecreationFeeModel[];
+  data: RecreationFeeProps[];
 }
 
 const feeTypeMap: Record<string, string> = {
@@ -26,7 +38,7 @@ const RecreationFee: React.FC<RecreationFeeListProps> = ({ data }) => {
     });
   };
 
-  const formatDays = (fee: RecreationFeeModel) => {
+  const formatDays = (fee: RecreationFeeProps) => {
     const daysMap: Record<string, string> = {
       monday_ind: 'Monday',
       tuesday_ind: 'Tuesday',
@@ -38,7 +50,7 @@ const RecreationFee: React.FC<RecreationFeeListProps> = ({ data }) => {
     };
 
     const selectedDays = Object.keys(daysMap).filter((day) => {
-      const value = fee[day as keyof RecreationFeeModel];
+      const value = fee[day as keyof RecreationFeeProps];
       return typeof value === 'string' && value.toUpperCase() === 'Y';
     });
 
@@ -52,26 +64,22 @@ const RecreationFee: React.FC<RecreationFeeListProps> = ({ data }) => {
   }
 
   return (
-    <Stack direction="vertical" gap={5}>
+    <>
       {data.map((fee, index) => (
-        <Stack key={index} direction="vertical" gap={3}>
-          <Stack direction="vertical">
-            <strong>
-              {feeTypeMap[fee.recreation_fee_code] || 'Unknown Fee Type'} fee
-            </strong>
-            <span>${fee.fee_amount.toFixed(2)}</span>
-          </Stack>
+        <div key={index} className="mb-5">
+          <p className="fw-bold">
+            {feeTypeMap[fee.recreation_fee_code] || 'Unknown Fee Type'} fee
+          </p>
+          <p className="mb-1">${fee.fee_amount.toFixed(2)}</p>
 
-          <Stack direction="vertical">
-            <strong>Fee applies</strong>
-            <span>
-              {formatDate(fee.fee_start_date)} - {formatDate(fee.fee_end_date)}
-            </span>
-            <span>{formatDays(fee)}</span>
-          </Stack>
-        </Stack>
+          <p className="fw-bold mb-1 mt-1 pt-4">Fee applies</p>
+          <p className="mb-1 mt-2">
+            {formatDate(fee.fee_start_date)} - {formatDate(fee.fee_end_date)}
+          </p>
+          <p className="mb-0">{formatDays(fee)}</p>
+        </div>
       ))}
-    </Stack>
+    </>
   );
 };
 

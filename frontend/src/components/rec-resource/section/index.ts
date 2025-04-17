@@ -6,4 +6,3 @@ export { default as MapsAndLocation } from './MapsAndLocation';
 export { default as RecreationFee } from './RecreationFee';
 export { default as SiteDescription } from './SiteDescription';
 export { default as ThingsToDo } from './ThingsToDo';
-export { default as AdditionalFees } from './AdditionalFees';

@@ -22,7 +22,6 @@
       "@": ["src"],
       "@/*": ["src/*"],
       "~/*": ["node_modules/*"],
-      "~bootstrap/*": ["node_modules/bootstrap/*"],
       "e2e/*": ["e2e/*"]
     }
   },

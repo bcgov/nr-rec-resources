@@ -102,7 +102,7 @@ const SearchPage = () => {
         direction="horizontal"
         className="page-container bg-brown-light justify-content-start"
       >
-        <Row className="page search-container mt-0">
+        <Row className="page search-container">
           <Col md={12} lg={3} className="ps-lg-0">
             <FilterMenu />
             <FilterMenuMobile

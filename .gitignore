@@ -257,5 +257,3 @@ backend-el/*.iml
 # sonarqube config/analysis files (local)
 /sonar-project.properties
 /.scannerwork/
-
-*storybook.log

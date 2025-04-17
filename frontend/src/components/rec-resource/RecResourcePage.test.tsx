@@ -8,7 +8,6 @@ import {
   useGetSiteOperatorById,
 } from '@/service/queries/recreation-resource';
 import { ReactNode } from 'react';
-import { AdditionalFees, Camping } from '@/components/rec-resource/section';
 
 // Setup mocks
 vi.mock('@/service/queries/recreation-resource', () => ({
@@ -30,28 +29,11 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-vi.mock('@/components/rec-resource/section', async () => ({
-  ...(await vi.importActual('@/components/rec-resource/section')),
-  MapsAndLocation: vi.fn(
-    (): ReactNode => (
-      <>
-        <h2 className="section-heading">Maps and Location</h2>
-      </>
-    ),
-  ),
-  Camping: vi.fn(
-    (): ReactNode => (
-      <>
-        <h2 className="section-heading">Camping</h2>
-      </>
-    ),
-  ),
-  AdditionalFees: vi.fn(
-    (): ReactNode => (
-      <>
-        <h2 className="section-heading">AdditionalFees</h2>
-      </>
-    ),
+vi.mock('@/components/rec-resource/section/MapsAndLocation', () => ({
+  default: (): ReactNode => (
+    <>
+      <h2 className="section-heading">Maps and Location</h2>
+    </>
   ),
 }));
 
@@ -283,90 +265,39 @@ describe('RecResourcePage', () => {
     });
   });
 
-  describe('Camping section', () => {
-    const mockCampsiteCount = 10;
-    const mockFees = [
-      {
-        fee_description: 'Hut Fee',
-        recreation_fee_code: 'P',
-        fee_amount: 10,
-      },
-    ];
-
-    beforeEach(() => {
-      vi.clearAllMocks();
-    });
-
-    test.each([
-      { recreation_fee: mockFees },
-      { campsite_count: mockCampsiteCount },
-      { recreation_fee: mockFees, campsite_count: mockCampsiteCount },
-    ])('displays camping section when %p', async (props) => {
-      await renderComponent({
-        ...mockResource,
-        ...props,
-      });
-      const args = vi.mocked(Camping).mock.calls[0][0];
-      if (props.recreation_fee) {
-        expect(args.fees).toEqual(mockFees);
-      }
-      if (props.campsite_count) {
-        expect(args.campsite_count).toEqual(mockCampsiteCount);
-      }
-    });
-
-    test.each([
-      { recreation_fee: undefined, campsite_count: undefined },
-      { recreation_fee: undefined, campsite_count: 0 },
-    ])(
-      'does not display camping section when %p',
-      async ({ recreation_fee, campsite_count }) => {
+  describe('RecResourcePage - Additional Features', () => {
+    describe('Additional Fees section', () => {
+      it('displays additional fees when available', async () => {
         await renderComponent({
           ...mockResource,
-          recreation_fee,
-          campsite_count,
+          recreation_fee: [
+            {
+              fee_description: 'Parking Fee',
+              recreation_fee_code: 'P',
+              fee_amount: 10,
+            },
+          ],
         });
-        expect(Camping).not.toHaveBeenCalled();
-      },
-    );
-  });
 
-  describe('Additional fees section', () => {
-    beforeEach(() => {
-      vi.clearAllMocks();
-    });
-
-    test('displays AdditionalFees section when additional fees are available', async () => {
-      const additional_fees = [
-        {
-          fee_description: 'Hut Fee',
-          recreation_fee_code: 'H',
-          fee_amount: 10,
-        },
-      ];
-      await renderComponent({
-        ...mockResource,
-        additional_fees,
+        expect(screen.getAllByText(/Parking Fee/i).length).toBeGreaterThan(0);
       });
-      const args = vi.mocked(AdditionalFees).mock.calls[0][0];
-      expect(args.fees).toEqual(additional_fees);
+
+      it('does not display additional fees when only camping fee exists', async () => {
+        await renderComponent({
+          ...mockResource,
+          recreation_fee: [
+            {
+              fee_description: 'Camping Fee',
+              recreation_fee_code: 'C',
+              fee_amount: 25,
+            },
+          ],
+        });
+
+        expect(screen.queryByText(/Parking Fee/i)).toBeNull();
+      });
     });
 
-    describe('when additional fees are missing', () => {
-      test.each([{ additional_fees: undefined }, { additional_fees: [] }])(
-        'does not display AdditionalFees section when %p',
-        async ({ additional_fees }) => {
-          await renderComponent({
-            ...mockResource,
-            additional_fees,
-          });
-          expect(Camping).not.toHaveBeenCalled();
-        },
-      );
-    });
-  });
-
-  describe('RecResourcePage - Additional Features', () => {
     describe('Facilities section', () => {
       it('displays facilities when recreation structure exists', async () => {
         await renderComponent({
