@@ -55,9 +55,6 @@
     @media (max-width: 900px) {
       width: 300px;
     }
-    @media (max-width: 900px) {
-      width: 300px;
-    }
     @media (max-width: 767px) {
       width: 390px;
     }
@@ -112,7 +109,7 @@
     position: relative;
     color: $colorGold;
     border: none;
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: 500;
     cursor: pointer;
     border-radius: 4px;
