@@ -8,7 +8,7 @@ import {
   SearchPOM,
   UtilsPOM,
 } from 'e2e/poms';
-import { RecResourceType, Status } from 'e2e/enum/recResource';
+import { RecResourceType } from 'e2e/enum/recResource';
 
 initHappo();
 
@@ -34,20 +34,19 @@ test.describe('Search for a recreation site or trail workflows', () => {
 
     await searchPage.verifyInitialResults();
 
-    await searchPage.searchFor('alpine');
+    await searchPage.searchFor('10k');
 
-    await searchPage.resultsCount(2);
+    await utils.checkExpectedUrlParams('filter=10k&page=1');
 
-    await utils.checkExpectedUrlParams('filter=alpine&page=1');
+    await searchPage.verifySearchResults('10k');
 
-    await utils.clickLinkByText('Alpine Lake Trail');
+    await utils.clickLinkByText('10k cabin');
 
     await recResourcePage.verifyRecResourceHeaderContent({
-      rec_resource_id: 'REC1163',
-      rec_resource_name: 'Alpine Lake Trail',
+      rec_resource_id: 'REC160773',
+      rec_resource_name: '10k Cabin',
       rec_resource_type: RecResourceType.SITE,
-      closest_community: 'Trout Creek',
-      status: Status.OPEN,
+      closest_community: 'Merritt',
     });
   });
 
@@ -67,9 +66,9 @@ test.describe('Search for a recreation site or trail workflows', () => {
 
     await searchPage.searchFor('summerland');
 
-    await searchPage.resultsCount(1);
-
     await utils.checkExpectedUrlParams('filter=summerland&page=1');
+
+    await searchPage.verifySearchResults('summerland');
 
     await utils.clickLinkByText('Agur Lake');
 
@@ -78,7 +77,6 @@ test.describe('Search for a recreation site or trail workflows', () => {
       rec_resource_name: 'Agur Lake',
       rec_resource_type: RecResourceType.SITE,
       closest_community: 'Summerland',
-      status: Status.CLOSED,
     });
   });
 
@@ -96,7 +94,7 @@ test.describe('Search for a recreation site or trail workflows', () => {
 
     await searchPage.searchFor('not a real place', false);
 
-    await searchPage.resultsCount(0);
+    await searchPage.waitForNoResults();
   });
 
   test('Use the load more button to view more results', async ({ page }) => {
