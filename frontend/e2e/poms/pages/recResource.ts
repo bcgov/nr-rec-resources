@@ -28,20 +28,23 @@ export class RecreationResourcePOM {
     closest_community,
     status,
   }: RecResource) {
-    await this.page.waitForLoadState('networkidle');
     const recResourceHeader = this.page
       .locator('h1')
       .locator('..')
       .locator('..');
-    const headerText = await recResourceHeader.textContent();
-    expect(await recResourceHeader.locator('h1').textContent()).toBe(
-      rec_resource_name,
+
+    const headerTitle = recResourceHeader.locator('h1');
+    await recResourceHeader.waitFor({ state: 'visible' });
+    await headerTitle.waitFor({ state: 'visible' });
+    await expect(headerTitle).toHaveText(rec_resource_name);
+    await expect(recResourceHeader).toContainText(rec_resource_type);
+    await expect(recResourceHeader).toContainText(
+      closest_community.toLowerCase(),
     );
-    expect(headerText).toContain(rec_resource_type);
-    expect(headerText).toContain(closest_community.toLowerCase());
-    expect(headerText).toContain(rec_resource_id);
+    await expect(recResourceHeader).toContainText(rec_resource_id);
+
     if (status) {
-      expect(headerText).toContain(status);
+      await expect(recResourceHeader).toContainText(status);
     }
   }
 
