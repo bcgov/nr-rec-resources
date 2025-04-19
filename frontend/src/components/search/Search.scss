@@ -29,11 +29,22 @@
 }
 
 .search-page-row {
+  --bs-gutter-x: 2rem;
+  --remove-padding: 0 !important;
+
+  // remove padding from horizontal edges
+  > [class*='col-']:first-child {
+    padding-left: var(--remove-padding);
+  }
+  > [class*='col-']:last-child {
+    padding-right: var(--remove-padding);
+  }
+
   @include media-breakpoint-down(lg) {
     // Remove horizontal padding from all columns
     > [class*='col-'] {
-      padding-left: 0 !important;
-      padding-right: 0 !important;
+      padding-left: var(--remove-padding);
+      padding-right: var(--remove-padding);
     }
   }
 }

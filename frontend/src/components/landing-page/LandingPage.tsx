@@ -9,13 +9,15 @@ import {
   RecreationSearchBanner,
   SectionHeading,
 } from '@/components/landing-page/components';
-import { LANDING_PAGE_IMAGE_LINKS } from '@/components/landing-page/constants';
+import {
+  LANDING_PAGE_IMAGE_BASE_PATHS,
+  SECTION_HEADING_LEVEL,
+} from '@/components/landing-page/constants';
 
 const LearnMoreLink: FC = () => (
   <div className="learn-more-link">
     <a
       href={EXTERNAL_LINKS.RST_GOV_BC_INFO}
-      target="_blank"
       rel="noopener noreferrer"
       aria-label="Learn more about Recreation Sites and Trails BC About Recreation Sites and Trails BC"
     >
@@ -31,7 +33,6 @@ const FeedbackButton: FC = () => (
   <Button
     variant="primary"
     href={EXTERNAL_LINKS.FEEDBACK_FORM}
-    target="_blank"
     rel="noopener noreferrer"
     aria-label="Share your feedback (opens in a new tab)"
   >
@@ -47,6 +48,7 @@ export const LandingPage: FC = () => {
         direction={'vertical'}
         className="info-section align-items-center my-5"
         aria-label="Information about Recreation Sites and Trails BC"
+        gap={5}
       >
         <ContentSection
           headingComponent={
@@ -70,7 +72,6 @@ export const LandingPage: FC = () => {
               <p>
                 Share in the adventure. We'd love for you to{' '}
                 <a
-                  target="_blank"
                   rel="noreferrer noopener"
                   className="research-signup-link"
                   href={EXTERNAL_LINKS.RESEARCH_PARTICIPANT_SIGN_UP}
@@ -81,13 +82,15 @@ export const LandingPage: FC = () => {
               </p>
             </>
           }
-          image={LANDING_PAGE_IMAGE_LINKS.WELCOME}
+          imageBasePath={LANDING_PAGE_IMAGE_BASE_PATHS.WELCOME}
           imageAlt="Research illustration"
         />
 
         <ContentSection
           headingComponent={
-            <SectionHeading>Human-centred, research-driven</SectionHeading>
+            <SectionHeading as={SECTION_HEADING_LEVEL}>
+              Human-centred, research-driven
+            </SectionHeading>
           }
           content={
             <>
@@ -101,28 +104,38 @@ export const LandingPage: FC = () => {
               <FeedbackButton />
             </>
           }
-          image={LANDING_PAGE_IMAGE_LINKS.RESEARCH}
+          imageBasePath={LANDING_PAGE_IMAGE_BASE_PATHS.HUMAN_CENTERED}
           imageAlt="Research process"
           imageFirst={true}
         />
 
         <ContentSection
           headingComponent={
-            <SectionHeading>New interactive map coming soon</SectionHeading>
+            <SectionHeading as={SECTION_HEADING_LEVEL}>
+              New interactive map coming soon
+            </SectionHeading>
           }
           content={
-            <p>
-              Look out for a new interactive map that will make it easier for
-              you to find recreation sites and trails near you.
-            </p>
+            <>
+              <p>
+                Look out for a new interactive map that will make it easier for
+                you to find recreation sites and trails near you, and on the way
+                to wherever you are headed.
+              </p>
+              <p className="mb-0">
+                In the meantime, you can still use our original interactive map
+                to explore places to go, road conditions, and important wildfire
+                information.
+              </p>
+            </>
           }
-          image={LANDING_PAGE_IMAGE_LINKS.MAP}
+          imageBasePath={LANDING_PAGE_IMAGE_BASE_PATHS.MAP}
           imageAlt="Site sign"
         />
 
         <ContentSection
           headingComponent={
-            <SectionHeading>
+            <SectionHeading as={SECTION_HEADING_LEVEL}>
               About Recreation Sites and Trails BC
             </SectionHeading>
           }
@@ -136,7 +149,7 @@ export const LandingPage: FC = () => {
               <LearnMoreLink />
             </>
           }
-          image={LANDING_PAGE_IMAGE_LINKS.SITE_SIGN}
+          imageBasePath={LANDING_PAGE_IMAGE_BASE_PATHS.SITE_SIGN}
           imageAlt="Recreation site sign"
           imageFirst={true}
         />
