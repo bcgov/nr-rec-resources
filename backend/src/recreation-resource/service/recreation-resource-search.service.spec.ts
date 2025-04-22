@@ -162,7 +162,7 @@ describe("RecreationResourceSearchService", () => {
       it.each([
         ["activities", "1", "Things to do"],
         ["district", "RDCS", "District"],
-        ["access", "B", "Access Type"],
+        ["access", "B", "Access type"],
         ["type", "IF", "Type"],
         ["facilities", "toilet", "Facilities"],
       ])(
