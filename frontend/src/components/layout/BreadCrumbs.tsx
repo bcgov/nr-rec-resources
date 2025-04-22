@@ -1,4 +1,7 @@
+import { Fragment } from 'react';
 import { useLocation } from 'react-router-dom';
+import HomeIcon from '@/images/icons/home.svg';
+import ChevronRightIcon from '@/images/icons/chevron-right.svg';
 import '@/components/layout/BreadCrumbs.scss';
 
 interface BreadCrumbsProps {
@@ -16,8 +19,10 @@ const BreadCrumbs = ({ customPaths }: BreadCrumbsProps) => {
 
   return (
     <div className="breadcrumbs">
-      <a href="/">Home</a>
-      <span className="spacer" />
+      <a href="/">
+        <img src={HomeIcon} alt="icon" />
+      </a>
+      <img src={ChevronRightIcon} alt="chevron" />
       {paths.length > 0 &&
         paths.map((name, index) => {
           const pathName = customPaths?.[index]?.name ?? name;
@@ -28,12 +33,12 @@ const BreadCrumbs = ({ customPaths }: BreadCrumbsProps) => {
               {pathName}
             </span>
           ) : (
-            <span key={pathName}>
+            <Fragment key={pathName}>
               <a href={routeTo} key={pathName}>
                 {pathName}
               </a>
-              <span className="spacer" />
-            </span>
+              <img src={ChevronRightIcon} alt="chevron" />
+            </Fragment>
           );
         })}
     </div>
