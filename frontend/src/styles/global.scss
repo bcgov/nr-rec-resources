@@ -311,3 +311,12 @@ figure.table {
     margin-bottom: 0;
   }
 }
+
+input[type='text'] {
+  border: 1px solid $colorGreyMed;
+
+  &::placeholder {
+    color: $colorGreyMed;
+    font-size: 1rem;
+  }
+}

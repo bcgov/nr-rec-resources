@@ -84,7 +84,7 @@ export const buildFilterMenu = ({
     },
     {
       type: "multi-select",
-      label: "Access Type",
+      label: "Access type",
       param: "access",
       options: recreationAccessFilters,
     },

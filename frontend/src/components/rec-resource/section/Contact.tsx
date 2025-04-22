@@ -20,9 +20,12 @@ const Contact = forwardRef<HTMLElement>((_, ref) => {
                 General questions and feedback for Recreation Sites & Trails BC
               </th>
               <td>
-                <p>We answer emails weekdays from 9 am to 5 pm Pacific Time.</p>
                 <p>
-                  <a href={EXTERNAL_LINKS.CONTACT}>Contact Us</a>
+                  We answer emails weekdays from 8:30 am to 4:30 pm Pacific
+                  Time.
+                </p>
+                <p>
+                  <a href={EXTERNAL_LINKS.CONTACT}>Contact us</a>
                 </p>
               </td>
             </tr>
