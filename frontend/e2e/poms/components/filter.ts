@@ -161,13 +161,13 @@ export class FilterPOM {
       // We can't use this to check district, facilities, or access type
       // because the API doesn't return data for those filters
       const url = response.url();
-      if (url.includes('type') && type) {
+      if (url.includes('type=') && type) {
         const json = await response.json();
         const results = json.data.map((item: any) => item.rec_resource_type);
         expect(results).toEqual(expect.arrayContaining(type));
       }
 
-      if (url.includes('activities') && activities) {
+      if (url.includes('activities=') && activities) {
         const json = await response.json();
         const results = json.data.map((item: any) => item.recreation_activity);
         results.forEach((activities: any) => {
