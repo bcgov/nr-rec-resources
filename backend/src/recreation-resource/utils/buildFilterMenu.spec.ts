@@ -59,7 +59,7 @@ describe("buildFilterMenu", () => {
       },
       {
         type: "multi-select",
-        label: "Access Type",
+        label: "Access type",
         param: "access",
         options: [{ id: "1", description: "Wheelchair access", count: 4 }],
       },
