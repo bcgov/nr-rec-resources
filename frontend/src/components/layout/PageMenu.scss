@@ -1,9 +1,9 @@
 @import '@/styles/variables.scss';
 
-.page-menu--desktop {
+.page-menu {
   padding-right: 20px;
   font-size: 0.875rem;
-  padding-left: 0px;
+  margin-top: 64px;
   margin-bottom: 80px;
   max-width: 260px;
   align-self: flex-start;
@@ -20,18 +20,15 @@
     max-width: 100%;
   }
 
-  .navbar {
-    padding: 0;
-  }
-
   a {
     width: 100%;
     color: $colorBlueMed;
     font-size: 1rem;
-    text-decoration: none;
+    text-decoration: underline;
     border-radius: 0px;
     margin-top: 15px;
-    padding: 6px 12px;
+    padding: 6px 12px 6px 0;
+
     &:hover,
     &:focus-visible {
       color: $colorBlue;
@@ -43,57 +40,34 @@
       outline-offset: 0px;
       border-radius: 4px;
     }
-    &:first-of-type {
-      margin-top: 64px;
+
+    @media (min-width: $mdBreakpoint) {
+      padding: 6px 12px;
+      text-decoration: none;
     }
   }
+
+  ul {
+    @media (min-width: $mdBreakpoint) {
+      list-style: none;
+      padding-left: 0;
+    }
+  }
+
+  .menu-header {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
 }
-.page-menu--desktop[section-count='1'] {
+.page-menu[section-count='1'] {
   display: none;
 }
 
-.page-menu--desktop .active {
+.page-menu .active {
   @media (min-width: $mdBreakpoint) {
     color: $colorBlue;
     font-weight: bold;
     box-sizing: border-box;
     border-left: $colorBlue solid 3px;
-  }
-}
-
-.page-menu--mobile {
-  top: 0px;
-  position: sticky;
-  position: -webkit-sticky;
-  z-index: 1024;
-  background: #fff;
-  width: 100%;
-  margin-top: 32px;
-
-  .section-select-container {
-    position: relative;
-    &::after {
-      position: absolute;
-      content: '\f078';
-      top: calc(50% - 8px);
-      right: 22px;
-      color: $colorBlue;
-      font-weight: 900;
-      font-size: 12px;
-      text-decoration: none;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    .section-select {
-      width: 100%;
-      height: 68px;
-      border-left: none;
-      border-right: none;
-      padding: 0px 20px;
-      color: $colorBlue;
-      background: #fff;
-      text-overflow: ellipsis;
-      appearance: none;
-    }
   }
 }

@@ -265,13 +265,10 @@ const RecResourcePage = () => {
             </div>
           )}
           <div className="row no-gutters">
-            <div className="page-menu--desktop">
-              <PageMenu
-                pageSections={pageSections}
-                activeSection={activeSection ?? 0}
-                menuStyle="nav"
-              />
-            </div>
+            <PageMenu
+              pageSections={pageSections}
+              activeSection={activeSection ?? 0}
+            />
             <div className="rec-content-container">
               {isClosures && (
                 <Closures
