@@ -187,20 +187,20 @@ describe("RecreationResourceController", () => {
         await controller.findSiteOperator("REC0001");
       } catch (error) {
         expect(error).toBeInstanceOf(HttpException);
-        expect((error as HttpException).getStatus()).toBe(400);
+        expect((error as HttpException).getStatus()).toBe(404);
       }
     });
 
     it("should return an error if the api call fails", async () => {
       vi.spyOn(recService, "findClientNumber").mockResolvedValue("01");
       vi.spyOn(resourceService, "findByClientNumber").mockRejectedValue(
-        new HttpException("error", 400),
+        new HttpException("error", 500),
       );
       try {
         await controller.findSiteOperator("REC0001");
       } catch (error) {
         expect(error).toBeInstanceOf(HttpException);
-        expect((error as HttpException).getStatus()).toBe(400);
+        expect((error as HttpException).getStatus()).toBe(500);
       }
     });
   });
