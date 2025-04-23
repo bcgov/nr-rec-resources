@@ -1,4 +1,4 @@
-import RSTLogo from '@/images/RST_nav_logo.svg';
+import RSTLogo from '@/images/RST_logo.svg';
 import { faFacebook } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { EXTERNAL_LINKS } from '@/data/urls';
@@ -100,10 +100,9 @@ const Footer = () => {
                 <img
                   src={RSTLogo}
                   alt="Recreation Sites and Trails BC Logo"
-                  style={{ height: 125 }}
+                  style={{ height: 96 }}
                 />
               </a>
-              <span className="beta-button">BETA</span>
               <p className="paragraph-links back-original-link">
                 <a href={EXTERNAL_LINKS.ORIGINAL_SITE}>Back to original site</a>
               </p>
