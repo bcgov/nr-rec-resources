@@ -47,3 +47,15 @@ reset_project:
 	cd backend && npm install && npx prisma generate
 	cd frontend && npm install
 	@echo "Project reset completed."
+
+.PHONY: load_test
+load_test: ## run performance tests with k6
+load_test: SERVER_HOST=http://localhost:8000
+load_test: SERVER_API_ROUTE=/api
+load_test: SERVER_ROUTE=$(SERVER_HOST)$(SERVER_API_ROUTE)
+load_test: SAVE_RESULTS=false
+load_test: OUT_OPTION=$(if $(filter true,$(SAVE_RESULTS)),--out csv=k6_results/load_test_results.csv)
+load_test:
+	@mkdir -p k6_results
+	@echo "Running backend performance tests with k6"
+	@k6 -e SERVER_HOST=$(SERVER_ROUTE) run tests/load/backend/main.js $(OUT_OPTION)
