@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, Injectable } from "@nestjs/common";
 import { ClientAPIService } from "src/service/fsa-resources";
 import { map, lastValueFrom, catchError } from "rxjs";
 
@@ -14,7 +14,7 @@ export class FsaResourceService {
       .pipe(
         map((response) => response.data),
         catchError((err) => {
-          throw err;
+          throw new HttpException(err.response.data, err.status);
         }),
       );
     return lastValueFrom(response);

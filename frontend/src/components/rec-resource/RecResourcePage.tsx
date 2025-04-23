@@ -45,6 +45,7 @@ const RecResourcePage = () => {
     data: siteOperator,
     isLoading: isOperatorLoading,
     error: operatorError,
+    refetch: refetchOperator,
   } = useGetSiteOperatorById({
     id,
   });
@@ -332,6 +333,7 @@ const RecResourcePage = () => {
                 error={operatorError}
                 isLoading={isOperatorLoading}
                 siteOperator={siteOperator}
+                refetchData={refetchOperator}
               />
             </div>
           </div>

@@ -84,7 +84,11 @@ export const useGetSiteOperatorById = ({
     // only retry on server errors (5xx)
     retry: (_failureCount, error) => {
       const status = error?.response?.status;
-      return status >= 500 && status < 600;
+      if (status >= 500 && status < 600 && _failureCount < 3) {
+        return true; // Retry up to 3 times for other errors
+      } else {
+        return false;
+      }
     },
   });
 };

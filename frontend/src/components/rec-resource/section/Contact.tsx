@@ -7,13 +7,18 @@ interface SiteOperatorProps {
   siteOperator?: SiteOperatorDto;
   error: ResponseError | null;
   isLoading: boolean;
+  refetchData: any;
 }
 
 const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
-  ({ siteOperator, error, isLoading }, ref) => {
+  ({ siteOperator, error, isLoading, refetchData }, ref) => {
     const formattedName = siteOperator?.clientName
       ?.toLowerCase()
       .replace(/(^\w|\s\w)/g, (m) => m.toUpperCase());
+
+    const callRefetch = () => {
+      refetchData();
+    };
 
     return (
       <section id={SectionIds.CONTACT} ref={ref}>
@@ -39,10 +44,31 @@ const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
                 <tr>
                   <th>Site operator</th>
                   <td>
-                    <p>{isLoading ? 'Loading ...' : formattedName}</p>
+                    <p>
+                      {isLoading ? (
+                        <span className="not-found-message">Loading ...</span>
+                      ) : (
+                        <span>{formattedName}</span>
+                      )}
+                    </p>
                   </td>
                 </tr>
               )}
+              {error?.response &&
+                error?.response.status >= 500 &&
+                error?.response.status < 600 && (
+                  <tr>
+                    <th>Site operator</th>
+                    <td>
+                      <p className="not-found-message">
+                        Error retrieving site operator.{' '}
+                        <a href="" onClick={() => callRefetch()}>
+                          Click here to retry
+                        </a>
+                      </p>
+                    </td>
+                  </tr>
+                )}
             </tbody>
           </table>
         </figure>

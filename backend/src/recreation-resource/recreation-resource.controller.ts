@@ -169,24 +169,20 @@ export class RecreationResourceController {
   })
   @ApiResponse({ status: 404, description: "Site operator not found" })
   async findSiteOperator(@Param("id") id: string): Promise<SiteOperatorDto> {
-    try {
-      const clientNumber =
-        await this.recreationResourceService.findClientNumber(id);
-      if (clientNumber) {
-        const r =
-          await this.fsaResourceService.findByClientNumber(clientNumber);
-        return {
-          clientName: r.clientName,
-          clientNumber: r.clientNumber,
-          clientStatusCode: r.clientStatusCode,
-          clientTypeCode: r.clientTypeCode,
-          legalFirstName: r.legalFirstName,
-          legalMiddleName: r.legalMiddleName,
-          acronym: r.acronym,
-        } as SiteOperatorDto;
-      } else throw new HttpException({ data: "Client Number not found" }, 400);
-    } catch (err) {
-      throw new HttpException(err.response.data, err.status);
-    }
+    const clientNumber =
+      await this.recreationResourceService.findClientNumber(id);
+    if (!clientNumber)
+      throw new HttpException({ data: "Site operator not found" }, 404);
+
+    const r = await this.fsaResourceService.findByClientNumber(clientNumber);
+    return {
+      clientName: r.clientName,
+      clientNumber: r.clientNumber,
+      clientStatusCode: r.clientStatusCode,
+      clientTypeCode: r.clientTypeCode,
+      legalFirstName: r.legalFirstName,
+      legalMiddleName: r.legalMiddleName,
+      acronym: r.acronym,
+    } as SiteOperatorDto;
   }
 }
