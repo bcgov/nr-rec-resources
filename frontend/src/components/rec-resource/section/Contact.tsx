@@ -63,7 +63,7 @@ const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
                       <p className="not-found-message">
                         Error retrieving site operator.{' '}
                         <a href="" onClick={() => callRefetch()}>
-                          Click here to retry
+                          Click here to retry.
                         </a>
                       </p>
                     </td>
