@@ -7,6 +7,24 @@
     <meta name="theme-color" content="#003366" />
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <link rel="icon" href="/favicon.ico" />
+
+    <script type="module">
+      var _paq = (window._paq = window._paq || []);
+      _paq.push(['trackPageView']);
+      _paq.push(['enableLinkTracking']);
+      (function () {
+        var u = import.meta.env.VITE_MATOMO_URL;
+        _paq.push(['setTrackerUrl', u + 'matomo.php']);
+        _paq.push(['setSiteId', import.meta.env.VITE_MATOMO_SITE_ID]);
+        var d = document,
+          g = d.createElement('script'),
+          s = d.getElementsByTagName('script')[0];
+        g.type = 'text/javascript';
+        g.async = true;
+        g.src = u + 'matomo.js';
+        s.parentNode.insertBefore(g, s);
+      })();
+    </script>
   </head>
 
   <body>

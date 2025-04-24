@@ -8,6 +8,7 @@ import {
 } from '@/service/recreation-resource';
 import { useRecreationResourceApi } from '@/service/hooks/useRecreationResourceApi';
 import { useInfiniteQuery, useQuery } from '~/@tanstack/react-query';
+import { useMatomo } from '@/hooks/useMatomo';
 import {
   transformRecreationResourceBase,
   transformRecreationResourceDetail,
@@ -104,6 +105,7 @@ export const useSearchRecreationResourcesPaginated = (
   params: SearchRecreationResourcesRequest,
 ) => {
   const api = useRecreationResourceApi();
+  const { trackSiteSearch } = useMatomo();
   // Default page number for initial load and fallback
   const DEFAULT_PAGE = 1;
 
@@ -182,14 +184,21 @@ export const useSearchRecreationResourcesPaginated = (
       PaginatedRecreationResourceDto,
       SearchRecreationResourcesRequest
     >,
-  ) => ({
-    pages: data.pages,
-    pageParams: data.pageParams,
-    totalCount: data.pages?.[0]?.total ?? 0,
-    currentPage:
-      data.pageParams[data.pageParams.length - 1]?.page ?? DEFAULT_PAGE,
-    filters: data.pages?.[0]?.filters ?? [],
-  });
+  ) => {
+    trackSiteSearch({
+      keyword: JSON.stringify(data.pageParams),
+      category: 'search-recreation-resources',
+      resultsCount: data.pages?.[0]?.total,
+    });
+    return {
+      pages: data.pages,
+      pageParams: data.pageParams,
+      totalCount: data.pages?.[0]?.total ?? 0,
+      currentPage:
+        data.pageParams[data.pageParams.length - 1]?.page ?? DEFAULT_PAGE,
+      filters: data.pages?.[0]?.filters ?? [],
+    };
+  };
 
   return useInfiniteQuery({
     queryKey: ['recreationResources', params],
