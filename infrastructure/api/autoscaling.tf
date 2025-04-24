@@ -77,7 +77,7 @@ resource "aws_cloudwatch_metric_alarm" "node_api_service_cpu_high" {
   namespace           = "AWS/ECS"
   period              = "30"
   statistic           = "Maximum"
-  threshold           = "80"
+  threshold           = "60"
 
   dimensions = {
     ClusterName = aws_ecs_cluster.ecs_cluster.name
