@@ -7,6 +7,7 @@ import {
 } from '@/service/queries/recreation-resource/helpers';
 import {
   useGetRecreationResourceById,
+  useGetSiteOperatorById,
   useSearchRecreationResourcesPaginated,
 } from '@/service/queries/recreation-resource/recreationResourceQueries';
 import { TestQueryClientProvider } from '@/test-utils';
@@ -90,6 +91,73 @@ describe('useGetRecreationResourceById', () => {
       expect(result.current.error).toBeDefined();
     });
     expect(transformRecreationResourceDetail).not.toHaveBeenCalled();
+  });
+});
+
+describe('useGetSiteOperatorById', () => {
+  const mockApi = {
+    getSiteOperatorById: vi.fn(),
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    (useRecreationResourceApi as any).mockReturnValue(mockApi);
+  });
+
+  it('should return undefined when no id is provided', async () => {
+    const { result } = renderHook(() => useGetSiteOperatorById({}), {
+      wrapper: TestQueryClientProvider,
+    });
+
+    expect(result.current.data).toBeUndefined();
+    expect(mockApi.getSiteOperatorById).not.toHaveBeenCalled();
+  });
+
+  it('should fetch site operator data', async () => {
+    const mockResponse = {
+      acronym: undefined,
+      clientName: 'SITE OPERATOR NAME',
+      clientNumber: '0001',
+      clientStatusCode: 'ACT',
+      clientTypeCode: 'C',
+      legalFirstName: undefined,
+      legalMiddleName: undefined,
+    };
+
+    mockApi.getSiteOperatorById.mockResolvedValueOnce(mockResponse);
+
+    const { result } = renderHook(
+      () =>
+        useGetSiteOperatorById({
+          id: '123',
+        }),
+      { wrapper: TestQueryClientProvider },
+    );
+
+    await waitFor(() => {
+      expect(result.current.data).toBeDefined();
+    });
+
+    expect(mockApi.getSiteOperatorById).toHaveBeenCalledWith({
+      id: '123',
+    });
+  });
+
+  it('should handle API errors', async () => {
+    const error = new Error('API Error');
+    mockApi.getSiteOperatorById.mockRejectedValueOnce(error);
+
+    const { result } = renderHook(
+      () =>
+        useGetSiteOperatorById({
+          id: '123',
+        }),
+      { wrapper: TestQueryClientProvider },
+    );
+
+    await waitFor(() => {
+      expect(result.current.error).toBeDefined();
+    });
   });
 });
 

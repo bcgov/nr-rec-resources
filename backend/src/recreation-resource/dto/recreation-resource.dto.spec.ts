@@ -4,6 +4,7 @@ import {
   RecreationResourceDetailDto,
   RecreationStatusDto,
   RecreationStructureDto,
+  SiteOperatorDto,
 } from "./recreation-resource.dto";
 
 describe("Recreation DTOs", () => {
@@ -294,6 +295,48 @@ describe("Recreation DTOs", () => {
 
       expect(structure.has_toilet).toBe(false);
       expect(structure.has_table).toBe(false);
+    });
+  });
+
+  describe("SiteOperatorDto", () => {
+    it("should create a valid SiteOperatorDto", () => {
+      const siteOperator = new SiteOperatorDto();
+
+      siteOperator.clientNumber = "";
+      siteOperator.clientName = "";
+      siteOperator.legalFirstName = "";
+      siteOperator.legalMiddleName = "";
+      siteOperator.clientStatusCode = "";
+      siteOperator.clientTypeCode = "";
+      siteOperator.acronym = "";
+
+      expect(siteOperator.clientNumber).toBeDefined();
+      expect(siteOperator.clientName).toBeDefined();
+      expect(siteOperator.legalFirstName).toBeDefined();
+      expect(siteOperator.legalMiddleName).toBeDefined();
+      expect(siteOperator.clientStatusCode).toBeDefined();
+      expect(siteOperator.clientTypeCode).toBeDefined();
+      expect(siteOperator.acronym).toBeDefined();
+    });
+
+    it("should allow null properties", () => {
+      const siteOperator = new SiteOperatorDto();
+
+      siteOperator.clientNumber = null;
+      siteOperator.clientName = null;
+      siteOperator.legalFirstName = null;
+      siteOperator.legalMiddleName = null;
+      siteOperator.clientStatusCode = null;
+      siteOperator.clientTypeCode = null;
+      siteOperator.acronym = null;
+
+      expect(siteOperator.clientNumber).toBeNull();
+      expect(siteOperator.clientName).toBeNull();
+      expect(siteOperator.legalFirstName).toBeNull();
+      expect(siteOperator.legalMiddleName).toBeNull();
+      expect(siteOperator.clientStatusCode).toBeNull();
+      expect(siteOperator.clientTypeCode).toBeNull();
+      expect(siteOperator.acronym).toBeNull();
     });
   });
 });

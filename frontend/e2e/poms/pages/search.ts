@@ -38,7 +38,6 @@ export class SearchPOM {
     await loadMoreBtn.waitFor({ state: 'visible' });
     const searchCardCount = await this.getRecResourceCardCount();
     await loadMoreBtn.click();
-    await this.page.waitForLoadState('networkidle');
     await this.page.waitForSelector('.rec-resource-card');
     await this.page.waitForFunction((prevCount) => {
       const newCount = document.querySelectorAll('.rec-resource-card').length;
@@ -80,7 +79,6 @@ export class SearchPOM {
     closest_community,
     status,
   }: RecResource) {
-    await this.page.waitForLoadState('networkidle');
     await this.page.waitForSelector('.rec-resource-card');
     const cardContainer = this.page.locator(`#${rec_resource_id}`);
     await cardContainer.waitFor({ state: 'attached' });

@@ -22,7 +22,10 @@ import PageTitle from '@/components/layout/PageTitle';
 import { ROUTE_TITLES, SITE_TITLE } from '@/routes/constants';
 import '@/components/rec-resource/RecResource.scss';
 import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
-import { useGetRecreationResourceById } from '@/service/queries/recreation-resource';
+import {
+  useGetRecreationResourceById,
+  useGetSiteOperatorById,
+} from '@/service/queries/recreation-resource';
 
 const PREVIEW_SIZE_CODE = 'scr';
 const FULL_RESOLUTION_SIZE_CODE = 'original';
@@ -36,6 +39,15 @@ const RecResourcePage = () => {
   const { data: recResource, error } = useGetRecreationResourceById({
     id,
     imageSizeCodes: [PREVIEW_SIZE_CODE, FULL_RESOLUTION_SIZE_CODE],
+  });
+
+  const {
+    data: siteOperator,
+    isLoading: isOperatorLoading,
+    error: operatorError,
+    refetch: refetchOperator,
+  } = useGetSiteOperatorById({
+    id,
   });
 
   /**
@@ -316,7 +328,13 @@ const RecResourcePage = () => {
                 />
               )}
 
-              <Contact ref={contactRef} />
+              <Contact
+                ref={contactRef}
+                error={operatorError}
+                isLoading={isOperatorLoading}
+                siteOperator={siteOperator}
+                refetchData={refetchOperator}
+              />
             </div>
           </div>
         </div>

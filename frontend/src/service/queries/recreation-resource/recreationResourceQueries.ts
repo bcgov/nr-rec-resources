@@ -1,8 +1,10 @@
 import {
   GetRecreationResourceByIdRequest,
+  GetSiteOperatorByIdRequest,
   PaginatedRecreationResourceDto,
   ResponseError,
   SearchRecreationResourcesRequest,
+  SiteOperatorDto,
 } from '@/service/recreation-resource';
 import { useRecreationResourceApi } from '@/service/hooks/useRecreationResourceApi';
 import { useInfiniteQuery, useQuery } from '~/@tanstack/react-query';
@@ -50,6 +52,43 @@ export const useGetRecreationResourceById = ({
     retry: (_failureCount, error) => {
       const status = error?.response?.status;
       return status >= 500 && status < 600;
+    },
+  });
+};
+
+/**
+ * Custom hook to fetch a site operator by ID.
+ *
+ * @param {Partial<GetSiteOperatorByIdRequest>} params - The parameters for the query
+ * @param {string} params.id - The unique identifier of the recreation resource
+ */
+export const useGetSiteOperatorById = ({
+  id,
+}: Partial<GetSiteOperatorByIdRequest>) => {
+  const api = useRecreationResourceApi();
+  return useQuery<SiteOperatorDto | undefined, ResponseError>({
+    queryKey: ['siteOperator', id],
+
+    // Fetch function that calls the API and returns the response
+    queryFn: async () => {
+      if (id) {
+        return await api.getSiteOperatorById({
+          id,
+        });
+      }
+    },
+
+    // Only execute query when ID is provided
+    enabled: !!id,
+
+    // only retry on server errors (5xx)
+    retry: (_failureCount, error) => {
+      const status = error?.response?.status;
+      if (status >= 500 && status < 600 && _failureCount < 3) {
+        return true; // Retry up to 3 times for other errors
+      } else {
+        return false;
+      }
     },
   });
 };

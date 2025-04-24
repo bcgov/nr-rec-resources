@@ -5,16 +5,22 @@ import { RecreationResourceService } from "src/recreation-resource/service/recre
 import { RecreationResourceSearchService } from "src/recreation-resource/service/recreation-resource-search.service";
 import { PrismaService } from "src/prisma.service";
 import { RecreationResourceImageDto } from "./dto/recreation-resource-image.dto";
+import { FsaResourceService } from "./service/fsa-resource.service";
+import { ApiModule } from "src/service/fsa-resources";
+import { SiteOperatorDto } from "./dto/recreation-resource.dto";
 
 describe("RecreationResourceController", () => {
   let recService: RecreationResourceService;
+  let resourceService: FsaResourceService;
   let controller: RecreationResourceController;
   let app: INestApplication;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [ApiModule],
       controllers: [RecreationResourceController],
       providers: [
+        FsaResourceService,
         RecreationResourceService,
         RecreationResourceSearchService,
         {
@@ -27,6 +33,7 @@ describe("RecreationResourceController", () => {
     recService = module.get<RecreationResourceService>(
       RecreationResourceService,
     );
+    resourceService = module.get<FsaResourceService>(FsaResourceService);
     controller = module.get<RecreationResourceController>(
       RecreationResourceController,
     );
@@ -153,6 +160,48 @@ describe("RecreationResourceController", () => {
 
       const result = await controller.searchRecreationResources("", 10, 1);
       expect(result).toBe(mockResult);
+    });
+  });
+
+  describe("findSiteOperator", () => {
+    it("should return a Site Operator object", async () => {
+      const result = {
+        clientNumber: "01",
+        clientName: "CLIENT 01",
+        clientStatusCode: "ACT",
+        clientTypeCode: "C",
+        legalFirstName: "FIRST NAME",
+        legalMiddleName: "MIDDLE NAME",
+        acronym: "ACR",
+      } as SiteOperatorDto;
+      vi.spyOn(recService, "findClientNumber").mockResolvedValue("01");
+      vi.spyOn(resourceService, "findByClientNumber").mockResolvedValue(result);
+      expect(await controller.findSiteOperator("REC0001")).toStrictEqual(
+        result,
+      );
+    });
+
+    it("should return an error if the client number isn't found", async () => {
+      vi.spyOn(recService, "findClientNumber").mockResolvedValue(null);
+      try {
+        await controller.findSiteOperator("REC0001");
+      } catch (error) {
+        expect(error).toBeInstanceOf(HttpException);
+        expect((error as HttpException).getStatus()).toBe(404);
+      }
+    });
+
+    it("should return an error if the api call fails", async () => {
+      vi.spyOn(recService, "findClientNumber").mockResolvedValue("01");
+      vi.spyOn(resourceService, "findByClientNumber").mockRejectedValue(
+        new HttpException("error", 500),
+      );
+      try {
+        await controller.findSiteOperator("REC0001");
+      } catch (error) {
+        expect(error).toBeInstanceOf(HttpException);
+        expect((error as HttpException).getStatus()).toBe(500);
+      }
     });
   });
 });

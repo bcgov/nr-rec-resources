@@ -10,13 +10,18 @@ import { RecreationResourceService } from "src/recreation-resource/service/recre
 import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resource.dto";
 import { RecreationResourceImageSize } from "./dto/recreation-resource-image.dto";
 import { ParseImageSizesPipe } from "./pipes/parse-image-sizes.pipe";
-import { RecreationResourceDetailDto } from "./dto/recreation-resource.dto";
+import {
+  RecreationResourceDetailDto,
+  SiteOperatorDto,
+} from "./dto/recreation-resource.dto";
+import { FsaResourceService } from "./service/fsa-resource.service";
 
 @ApiTags("recreation-resource")
 @Controller({ path: "recreation-resource", version: "1" })
 export class RecreationResourceController {
   constructor(
     private readonly recreationResourceService: RecreationResourceService,
+    private readonly fsaResourceService: FsaResourceService,
   ) {}
 
   @ApiOperation({
@@ -143,5 +148,41 @@ export class RecreationResourceController {
       throw new HttpException("Recreation Resource not found.", 404);
     }
     return recResource;
+  }
+
+  @Get(":id/site-operator")
+  @ApiOperation({
+    summary: "Find site operator by resource ID",
+    operationId: "getSiteOperatorById",
+  })
+  @ApiParam({
+    name: "id",
+    required: true,
+    description: "Resource identifier",
+    type: "string",
+    example: "REC204117",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Site operator found",
+    type: SiteOperatorDto,
+  })
+  @ApiResponse({ status: 404, description: "Site operator not found" })
+  async findSiteOperator(@Param("id") id: string): Promise<SiteOperatorDto> {
+    const clientNumber =
+      await this.recreationResourceService.findClientNumber(id);
+    if (!clientNumber)
+      throw new HttpException({ data: "Site operator not found" }, 404);
+
+    const r = await this.fsaResourceService.findByClientNumber(clientNumber);
+    return {
+      clientName: r.clientName,
+      clientNumber: r.clientNumber,
+      clientStatusCode: r.clientStatusCode,
+      clientTypeCode: r.clientTypeCode,
+      legalFirstName: r.legalFirstName,
+      legalMiddleName: r.legalMiddleName,
+      acronym: r.acronym,
+    } as SiteOperatorDto;
   }
 }
