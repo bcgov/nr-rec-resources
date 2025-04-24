@@ -19,36 +19,28 @@ jobs:
       schemaspy_schema: rst
       flyway_schema: rst
 
-  # Tests are run against dev application so we need to deploy first
-  # tests:
-  #   name: Tests
-  #   uses: ./.github/workflows/.tests.yml
-  #   with:
-  #     target: test
 
-  # Needs deployment to dev to have something to run against
-  # Run sequentially to reduce chances of rate limiting
-  # zap_scan:
-  #   runs-on: ubuntu-24.04
-  #   name: ZAP Scans
-  #   env:
-  #     DOMAIN: apps.silver.devops.gov.bc.ca
-  #     PREFIX: ${{ github.event.repository.name }}-test
-  #   steps:
-  #     - name: ZAP Scan
-  #       uses: zaproxy/action-full-scan@v0.11.0
-  #       with:
-  #         allow_issue_writing: true
-  #         artifact_name: "zap_backend"
-  #         cmd_options: "-a"
-  #         issue_title: "ZAP: Backend"
-  #         target: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}/api
-  #
-  #     - name: ZAP Scan - Frontend
-  #       uses: zaproxy/action-full-scan@v0.11.0
-  #       with:
-  #         allow_issue_writing: true
-  #         artifact_name: "zap_frontend"
-  #         cmd_options: "-a"
-  #         issue_title: "ZAP: Frontend"
-  #         target: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}
+  zap_scan:
+    runs-on: ubuntu-24.04
+    name: ZAP Scans
+    environment: test
+    permissions:
+      issues: write
+    steps:
+      - name: ZAP Scan - Backend
+        uses: zaproxy/action-full-scan@v0.12.0
+        with:
+          allow_issue_writing: true
+          artifact_name: "zap_backend"
+          cmd_options: "-a"
+          issue_title: "ZAP: Backend"
+          target: ${{ secrets.API_URL }}/api
+
+      - name: ZAP Scan - Frontend
+        uses: zaproxy/action-full-scan@v0.12.0
+        with:
+          allow_issue_writing: true
+          artifact_name: "zap_frontend"
+          cmd_options: "-a"
+          issue_title: "ZAP: Frontend"
+          target: ${{ secrets.APP_URL }}
