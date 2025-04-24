@@ -14,7 +14,12 @@ describe('the Contact component', () => {
   };
   it('renders component with site operator name', async () => {
     render(
-      <Contact siteOperator={siteOperator} error={null} isLoading={false} />,
+      <Contact
+        siteOperator={siteOperator}
+        error={null}
+        isLoading={false}
+        refetchData={null}
+      />,
     );
     const operatorName = screen.getByText(/Site Operator Name/);
     const operatorLabel = screen.getByText(/Site operator/);
@@ -24,21 +29,51 @@ describe('the Contact component', () => {
   });
 
   it('renders component with loading state', async () => {
-    render(<Contact siteOperator={undefined} error={null} isLoading={true} />);
+    render(
+      <Contact
+        siteOperator={undefined}
+        error={null}
+        isLoading={true}
+        refetchData={null}
+      />,
+    );
     const element = screen.getByText(/Loading .../);
 
     expect(element).toBeInTheDocument();
   });
 
-  it('renders component with error', async () => {
+  it('renders component with error 500', async () => {
+    const responseError = new ResponseError(
+      new Response(null, { status: 500, statusText: 'api error' }),
+      'error',
+    );
     render(
       <Contact
         siteOperator={undefined}
-        error={new ResponseError(new Response(null), 'not found')}
+        error={responseError}
         isLoading={false}
+        refetchData={null}
       />,
     );
-    const operatorLabel = screen.queryByText(/Site operator/);
+    const operatorLabel = screen.queryByTestId('error-message');
+
+    expect(operatorLabel).toBeInTheDocument();
+  });
+
+  it('renders component with error 404', async () => {
+    const responseError = new ResponseError(
+      new Response(null, { status: 404, statusText: 'not found' }),
+      'not found',
+    );
+    render(
+      <Contact
+        siteOperator={undefined}
+        error={responseError}
+        isLoading={false}
+        refetchData={null}
+      />,
+    );
+    const operatorLabel = screen.queryByTestId('operator-result');
 
     expect(operatorLabel).toBeNull();
   });

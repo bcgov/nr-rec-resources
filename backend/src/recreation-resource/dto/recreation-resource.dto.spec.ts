@@ -300,15 +300,15 @@ describe("Recreation DTOs", () => {
 
   describe("SiteOperatorDto", () => {
     it("should create a valid SiteOperatorDto", () => {
-      const siteOperator: SiteOperatorDto = {
-        clientNumber: "",
-        clientName: "",
-        legalFirstName: "",
-        legalMiddleName: "",
-        clientStatusCode: "",
-        clientTypeCode: "",
-        acronym: "",
-      };
+      const siteOperator = new SiteOperatorDto();
+
+      siteOperator.clientNumber = "";
+      siteOperator.clientName = "";
+      siteOperator.legalFirstName = "";
+      siteOperator.legalMiddleName = "";
+      siteOperator.clientStatusCode = "";
+      siteOperator.clientTypeCode = "";
+      siteOperator.acronym = "";
 
       expect(siteOperator.clientNumber).toBeDefined();
       expect(siteOperator.clientName).toBeDefined();
@@ -320,15 +320,15 @@ describe("Recreation DTOs", () => {
     });
 
     it("should allow null properties", () => {
-      const siteOperator: SiteOperatorDto = {
-        clientNumber: null,
-        clientName: null,
-        legalFirstName: null,
-        legalMiddleName: null,
-        clientStatusCode: null,
-        clientTypeCode: null,
-        acronym: null,
-      };
+      const siteOperator = new SiteOperatorDto();
+
+      siteOperator.clientNumber = null;
+      siteOperator.clientName = null;
+      siteOperator.legalFirstName = null;
+      siteOperator.legalMiddleName = null;
+      siteOperator.clientStatusCode = null;
+      siteOperator.clientTypeCode = null;
+      siteOperator.acronym = null;
 
       expect(siteOperator.clientNumber).toBeNull();
       expect(siteOperator.clientName).toBeNull();

@@ -44,7 +44,7 @@ const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
                 <tr>
                   <th>Site operator</th>
                   <td>
-                    <p>
+                    <p data-testid="operator-result">
                       {isLoading ? (
                         <span className="not-found-message">Loading ...</span>
                       ) : (
@@ -60,7 +60,10 @@ const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
                   <tr>
                     <th>Site operator</th>
                     <td>
-                      <p className="not-found-message">
+                      <p
+                        data-testid="error-message"
+                        className="not-found-message"
+                      >
                         Error retrieving site operator.{' '}
                         <a href="" onClick={() => callRefetch()}>
                           Click here to retry.

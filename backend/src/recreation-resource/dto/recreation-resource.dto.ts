@@ -272,7 +272,7 @@ export class RecreationResourceSearchDto extends BaseRecreationResourceDto {}
  * Base class containing common fields/properties for site operator
  * @abstract
  */
-export abstract class SiteOperatorDto implements ClientPublicViewDto {
+export class SiteOperatorDto implements ClientPublicViewDto {
   @ApiProperty({
     description: "Unique identifier of the Site Operator",
     example: "00000002",
