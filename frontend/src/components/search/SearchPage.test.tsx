@@ -141,7 +141,9 @@ describe('SearchPage', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText('No results found')).toBeInTheDocument();
+    expect(
+      screen.getByText('Sorry, no sites or trails matched your search.'),
+    ).toBeInTheDocument();
   });
 
   it('handles load previous button click', () => {
@@ -179,7 +181,9 @@ describe('SearchPage', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText('No results found')).toBeInTheDocument();
+    expect(
+      screen.getByText('Sorry, no sites or trails matched your search.'),
+    ).toBeInTheDocument();
 
     // Test case 2: data with undefined pages
     searchResultsStore.state = {
@@ -193,7 +197,9 @@ describe('SearchPage', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText('No results found')).toBeInTheDocument();
+    expect(
+      screen.getByText('Sorry, no sites or trails matched your search.'),
+    ).toBeInTheDocument();
   });
 
   it('should display the progress bar when fetching data', () => {
