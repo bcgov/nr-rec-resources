@@ -15,12 +15,12 @@ resource "aws_appautoscaling_policy" "api_up" {
 
   step_scaling_policy_configuration {
     adjustment_type         = "ChangeInCapacity"
-    cooldown                = 60
+    cooldown                = 30
     metric_aggregation_type = "Maximum"
 
     step_adjustment {
       metric_interval_lower_bound = 0
-      scaling_adjustment          = 1
+      scaling_adjustment          = var.scaling_adjustment_increase
     }
   }
 
@@ -35,7 +35,7 @@ resource "aws_appautoscaling_policy" "api_down" {
 
   step_scaling_policy_configuration {
     adjustment_type         = "ChangeInCapacity"
-    cooldown                = 60
+    cooldown                = 30
     metric_aggregation_type = "Maximum"
 
     step_adjustment {
@@ -72,12 +72,12 @@ resource "aws_cloudwatch_metric_alarm" "node_api_service_cpu_low" {
 resource "aws_cloudwatch_metric_alarm" "node_api_service_cpu_high" {
   alarm_name          = "${var.app_name}_cpu_utilization_high"
   comparison_operator = "GreaterThanOrEqualToThreshold"
-  evaluation_periods  = "2"
+  evaluation_periods  = "1"
   metric_name         = "CPUUtilization"
   namespace           = "AWS/ECS"
-  period              = "60"
+  period              = "30"
   statistic           = "Maximum"
-  threshold           = "90"
+  threshold           = "80"
 
   dimensions = {
     ClusterName = aws_ecs_cluster.ecs_cluster.name
