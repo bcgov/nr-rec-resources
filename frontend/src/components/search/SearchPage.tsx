@@ -7,6 +7,7 @@ import FilterChips from '@/components/search/filters/FilterChips';
 import FilterMenu from '@/components/search/filters/FilterMenu';
 import FilterMenuMobile from '@/components/search/filters/FilterMenuMobile';
 import filterChipStore from '@/store/filterChips';
+import NoResults from '@/components/search/NoResults';
 import searchResultsStore, { initialState } from '@/store/searchResults';
 import { useSearchRecreationResourcesPaginated } from '@/service/queries/recreation-resource';
 import { useInitialPageFromSearchParams } from '@/components/search/hooks/useInitialPageFromSearchParams';
@@ -131,7 +132,7 @@ const SearchPage = () => {
                       {` ${totalCount === 1 ? 'Result' : 'Results'}`}
                     </span>
                   ) : (
-                    'No results found'
+                    <NoResults />
                   )}
                 </div>
               )}
