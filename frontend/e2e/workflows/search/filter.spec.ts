@@ -134,12 +134,12 @@ test.describe('Search page filter menu workflows', () => {
     await filter.clickShowAllFilters(filter.thingsToDoFilters);
 
     await filter.verifyFilterResultsListener({
-      activities: ['Angling', 'Camping', 'Hunting'],
+      activities: ['Angling', 'Camping', 'Canoeing'],
     });
 
-    await filter.toggleFilterOn(filter.thingsToDoFilters, 'Hunting');
+    await filter.toggleFilterOn(filter.thingsToDoFilters, 'Canoeing');
 
-    await utils.checkExpectedUrlParams('activities=1_32_10');
+    await utils.checkExpectedUrlParams('activities=1_32_3');
 
     await searchPage.waitForResults();
   });

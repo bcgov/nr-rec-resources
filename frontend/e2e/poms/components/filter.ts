@@ -1,7 +1,6 @@
 // https://playwright.dev/docs/pom
 
 import { expect, Locator, Page } from '@playwright/test';
-import { MAX_VISIBLE_FILTERS } from 'e2e/constants';
 import {
   accessTypeFilterOptions,
   districtFilterOptions,
@@ -95,19 +94,22 @@ export class FilterPOM {
     filterGroup: Locator,
     filterOptions: { label: string }[],
   ) {
-    const showLessButton = filterGroup.getByRole('button', {
-      name: /Show less/,
-    });
-    const visibleFilters =
-      (await showLessButton.count()) > 0
-        ? filterOptions
-        : filterOptions.slice(0, MAX_VISIBLE_FILTERS);
+    const isShowMore = filterOptions.length > 5;
+    if (isShowMore) {
+      await this.clickShowAllFilters(filterGroup);
+    }
 
-    for (const filter of visibleFilters) {
+    for (const filter of filterOptions) {
       const { label } = filter;
+
       await filterGroup
-        .getByLabel(new RegExp(label, 'i'))
+        .locator('label', { hasText: label })
+        .first()
         .waitFor({ state: 'visible' });
+    }
+
+    if (isShowMore) {
+      await this.clickShowLessFilters(filterGroup);
     }
   }
 
@@ -159,13 +161,13 @@ export class FilterPOM {
       // We can't use this to check district, facilities, or access type
       // because the API doesn't return data for those filters
       const url = response.url();
-      if (url.includes('type') && type) {
+      if (url.includes('type=') && type) {
         const json = await response.json();
         const results = json.data.map((item: any) => item.rec_resource_type);
         expect(results).toEqual(expect.arrayContaining(type));
       }
 
-      if (url.includes('activities') && activities) {
+      if (url.includes('activities=') && activities) {
         const json = await response.json();
         const results = json.data.map((item: any) => item.recreation_activity);
         results.forEach((activities: any) => {

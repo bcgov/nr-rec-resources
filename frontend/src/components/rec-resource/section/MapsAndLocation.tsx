@@ -45,7 +45,7 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
 
         {accessTypes && accessTypes?.length > 0 && (
           <section className="mb-4">
-            <h3>Access Type{accessTypes.length > 1 && 's'}</h3>
+            <h3>Access type{accessTypes.length > 1 && 's'}</h3>
             <ul className="list-unstyled">
               {accessTypes.map((type) => (
                 <li key={type}>{type}</li>

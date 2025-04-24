@@ -18,7 +18,9 @@ describe('the Activities component', () => {
 
   it('does not render activity icons that are not in the activityMap', async () => {
     render(<Activities activities={mockActivities} />);
-    const activityElement = screen.queryByAltText(/Beach Activities icon/i);
+    const activityElement = screen.queryByAltText(
+      /Non existent activity icon/i,
+    );
 
     expect(activityElement).not.toBeInTheDocument();
   });

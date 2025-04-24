@@ -15,9 +15,8 @@ export const mockActivities = [
     recreation_activity_code: 12,
   },
   {
-    // This doesn't exist in the activityMap yet
-    description: 'Beach Activities',
-    recreation_activity_code: 8,
+    description: 'Non existent activity',
+    recreation_activity_code: 10,
   },
   {
     description: 'Camping',
@@ -54,14 +53,16 @@ describe('the ThingsToDo component', () => {
 
   it('does not render activity icons that are not in the activityMap', async () => {
     render(<ThingsToDo activities={mockActivities} />);
-    const activityElement = screen.queryByAltText(/Beach Activities icon/i);
+    const activityElement = screen.queryByAltText(
+      /Non existent activity icon/i,
+    );
 
     expect(activityElement).not.toBeInTheDocument();
   });
 
   it('does not render activity descriptions that are not in the activityMap', async () => {
     render(<ThingsToDo activities={mockActivities} />);
-    const activityElement = screen.queryByText('Beach Activities');
+    const activityElement = screen.queryByText('Non existent activity');
 
     expect(activityElement).not.toBeInTheDocument();
   });

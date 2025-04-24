@@ -4,25 +4,21 @@
   display: flex;
   align-items: center;
   color: $colorBlueMed;
+  font-size: 0.875rem;
   margin: 16px 0;
 
   & > * {
-    margin-right: 8px;
+    margin-right: 4px;
+    white-space: nowrap;
   }
 
   .current-path {
     color: $colorGreyMed;
-  }
-
-  .spacer {
-    cursor: default;
-
-    &::after {
-      content: '>';
-    }
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   a {
-    margin-right: 8px;
+    display: inline-flex;
   }
 }
