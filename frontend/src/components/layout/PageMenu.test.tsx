@@ -15,9 +15,9 @@ const s = [
 ];
 
 describe('the PageMenu component', () => {
-  it('renders the component correctly on mobile style', async () => {
+  it('renders the component correctly anc changes value', async () => {
     const c = (
-      <PageMenu activeSection={0} menuStyle="select" pageSections={s} />
+      <PageMenu activeSection={0} pageSections={s} />
     );
     const { queryByTitle } = render(c);
     const select = queryByTitle('mobile-navigation');
@@ -26,11 +26,5 @@ describe('the PageMenu component', () => {
     }
     const selectedOption = screen.getByText('title1');
     expect(selectedOption).toBeInTheDocument();
-  });
-
-  it('renders the component correctly on select style', () => {
-    render(<PageMenu activeSection={0} menuStyle="nav" pageSections={s} />);
-    const link = screen.getByText('title');
-    expect(link).toBeInTheDocument();
   });
 });
