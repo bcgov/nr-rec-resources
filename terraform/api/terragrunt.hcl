@@ -44,6 +44,8 @@ generate "tfvars" {
   if_exists         = "overwrite"
   disable_signature = true
   contents          = <<-EOF
+  forest_client_api_key="${local.forest_client_api_key}"
+  forest_client_api_url="${local.forest_client_api_url}"
 EOF
 }
 
