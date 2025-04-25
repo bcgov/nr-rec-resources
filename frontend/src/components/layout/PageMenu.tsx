@@ -80,8 +80,6 @@ const PageMenu: React.FC<PageMenuProps> = ({
       </div>
     );
   }
-
-  return null;
 };
 
 export default PageMenu;
