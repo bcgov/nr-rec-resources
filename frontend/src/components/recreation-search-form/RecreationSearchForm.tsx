@@ -1,4 +1,4 @@
-import { FC, FormEvent } from 'react';
+import { FC, FormEvent, useEffect } from 'react';
 import {
   Button,
   ButtonProps,
@@ -8,6 +8,7 @@ import {
   InputGroup,
   Row,
 } from 'react-bootstrap';
+import { useSearchParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import './RecreationSearchForm.scss';
@@ -28,6 +29,8 @@ export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
   searchButtonProps,
   showSearchIcon = false,
 }) => {
+  const [searchParams] = useSearchParams();
+  const filter = searchParams.get('filter');
   const { inputValue, setInputValue, handleSearch, handleClear } =
     useSearchInput({ initialValue });
 
@@ -35,6 +38,12 @@ export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
     e.preventDefault();
     handleSearch();
   };
+
+  useEffect(() => {
+    if (!filter) {
+      setInputValue('');
+    }
+  }, [filter, setInputValue]);
 
   return (
     <Form
