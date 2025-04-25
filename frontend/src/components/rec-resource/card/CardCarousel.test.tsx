@@ -1,7 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import CardCarousel from '@/components/rec-resource/card/CardCarousel';
 
-
 const imageList = [
   { imageUrl: 'url1' },
   { imageUrl: 'url2' },
@@ -31,8 +30,8 @@ describe('the CardCarousel component', () => {
     const { queryByTestId } = render(c);
     const image = queryByTestId(`image-${imageList[1].imageUrl}`);
     if (image) {
-      fireEvent.keyDown(image, { key: "ArrowRight" });
-      fireEvent.keyDown(image, { key: "ArrowLeft" });
+      fireEvent.keyDown(image, { key: 'ArrowRight' });
+      fireEvent.keyDown(image, { key: 'ArrowLeft' });
     }
     const resources = screen.queryAllByAltText('rec resource carousel');
     expect(resources.length).toEqual(6);

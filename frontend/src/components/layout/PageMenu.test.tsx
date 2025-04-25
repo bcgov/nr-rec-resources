@@ -16,9 +16,7 @@ const s = [
 
 describe('the PageMenu component', () => {
   it('renders the component correctly anc changes value', async () => {
-    const c = (
-      <PageMenu activeSection={0} pageSections={s} />
-    );
+    const c = <PageMenu activeSection={0} pageSections={s} />;
     const { queryByTitle } = render(c);
     const select = queryByTitle('mobile-navigation');
     if (select) {
