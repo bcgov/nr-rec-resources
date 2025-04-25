@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import Contact from './Contact';
 import { ResponseError } from '@/service/recreation-resource';
 
