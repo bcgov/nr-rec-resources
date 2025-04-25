@@ -21,8 +21,11 @@ generate "prod_tfvars" {
   app_env="${local.app_env}"
   app_name="node-api-${local.app_env}"
   fta_dataload_bucket = "rst-fta-dataload-oracle-prod"
+  api_cpu = 512
+  api_memory = 1024
   fargate_base_capacity = 2
+  scaling_adjustment_increase = 5
   min_capacity = 2
-  max_capacity = 10
+  max_capacity = 30
 EOF
 }

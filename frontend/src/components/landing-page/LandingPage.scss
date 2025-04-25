@@ -1,9 +1,8 @@
-@import '@/styles/variables';
+@import '@/styles/global';
 
 .info-section {
   .content-section {
-    max-width: $pageMaxWidth;
-    margin: calc(2rem + 0.7vw) 1rem;
+    @extend .page;
   }
 
   .learn-more-link {

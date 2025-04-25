@@ -20,5 +20,8 @@ generate "test_tfvars" {
   api_image="${local.api_image}"
   app_env="${local.app_env}"
   app_name="node-api-${local.app_env}"
+  fargate_base_capacity = 1
+  min_capacity = 1
+  max_capacity = 2
 EOF
 }

@@ -65,7 +65,7 @@
   }
 
   .back-original-link {
-    margin-top: 20px;
+    margin-top: 32px;
   }
 
   hr {
@@ -102,26 +102,6 @@
       outline: $colorBlueMed solid 2px;
       outline-offset: 0px;
       border-radius: 4px;
-    }
-  }
-
-  .beta-button {
-    position: relative;
-    color: $colorGold;
-    border: none;
-    font-size: 1rem;
-    font-weight: 500;
-    cursor: pointer;
-    border-radius: 4px;
-    top: 20px;
-    left: -25px;
-    letter-spacing: 0.3em;
-    &:hover {
-      cursor: default;
-    }
-
-    @media (max-width: 767px) {
-      display: none;
     }
   }
 }

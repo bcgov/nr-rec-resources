@@ -16,7 +16,7 @@ generate "prod_tfvars" {
   app_env="${local.app_env}"
   fta_dataload_bucket = "rst-fta-dataload-oracle-prod"
   ha_enabled = true
-  min_capacity = 1
-  max_capacity = 10
+  min_capacity = 2
+  max_capacity = 64
 EOF
 }

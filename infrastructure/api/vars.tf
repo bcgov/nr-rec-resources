@@ -121,6 +121,11 @@ variable "fargate_spot_weight" {
   type = number
   default = 80
 }
+variable "scaling_adjustment_increase" {
+  description = "value of the scaling adjustment for the Fargate capacity provider, which is the number of tasks to add or remove"
+  type = number
+  default = 1
+}
 variable "fta_dataload_bucket" {
   description = "The name of the S3 bucket for FTA CSV files"
   type        = string

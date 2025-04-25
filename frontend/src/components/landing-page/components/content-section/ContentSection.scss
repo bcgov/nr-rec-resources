@@ -1,9 +1,15 @@
-@import '@/styles/variables';
+@import '@/styles/global';
 
 .content-section {
+  width: 100%;
+
   .row {
-    flex-wrap: nowrap;
-    column-gap: calc(1rem + 2vw);
-    row-gap: 1.5rem;
+    @include media-breakpoint-up(lg) {
+      --bs-gutter-x: 5rem;
+    }
+
+    @include media-breakpoint-down(lg) {
+      --bs-gutter-y: 2rem;
+    }
   }
 }

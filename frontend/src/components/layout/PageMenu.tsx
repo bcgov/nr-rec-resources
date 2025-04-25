@@ -9,77 +9,36 @@ type PageSection = {
 type PageMenuProps = {
   pageSections: PageSection[];
   activeSection: number;
-  menuStyle: 'nav' | 'select';
 };
 
-const PageMenu: React.FC<PageMenuProps> = ({
-  pageSections,
-  activeSection,
-  menuStyle,
-}) => {
-  if (menuStyle === 'nav') {
-    return (
-      <nav
-        id="section-navbar"
-        aria-label="Page section navigation"
-        className="navbar"
-      >
+const PageMenu: React.FC<PageMenuProps> = ({ pageSections, activeSection }) => {
+  return (
+    <nav
+      id="section-navbar"
+      aria-label="Page section navigation"
+      className="page-menu"
+    >
+      <span className="menu-header">On this page</span>
+      <ul>
         {pageSections.map((section) => {
           const { href, sectionIndex, title } = section;
           return (
-            <a
-              className={`nav-link ${activeSection === sectionIndex ? 'active' : ''}`}
-              data-active-section={
-                activeSection === sectionIndex ? 'true' : 'false'
-              }
-              key={href}
-              href={href}
-            >
-              {title}
-            </a>
+            <li key={href}>
+              <a
+                className={`nav-link ${activeSection === sectionIndex ? 'active' : ''}`}
+                data-active-section={
+                  activeSection === sectionIndex ? 'true' : 'false'
+                }
+                href={href}
+              >
+                {title}
+              </a>
+            </li>
           );
         })}
-      </nav>
-    );
-  }
-
-  if (menuStyle === 'select') {
-    const handleSectionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-      const index = e.target.value;
-      const selectedSection = pageSections.find(
-        (section) => section.sectionIndex === Number(index),
-      );
-      if (
-        selectedSection?.href &&
-        window.location.hash !== `#${selectedSection.href}`
-      ) {
-        window.location.hash = encodeURIComponent(selectedSection.href);
-      }
-    };
-
-    return (
-      <div className="section-select-container">
-        <select
-          className="section-select"
-          value={activeSection}
-          onChange={handleSectionChange}
-          title="mobile-navigation"
-        >
-          <option value="" disabled>
-            Table of Contents
-          </option>
-          {pageSections.map((section) => {
-            const { title, sectionIndex } = section;
-            return (
-              <option key={title} value={sectionIndex}>
-                {title}
-              </option>
-            );
-          })}
-        </select>
-      </div>
-    );
-  }
+      </ul>
+    </nav>
+  );
 };
 
 export default PageMenu;
