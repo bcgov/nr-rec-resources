@@ -35,6 +35,7 @@
 - [Style Guide](#style-guide)
 - [Schemaspy Database Schema Documentation](#schemaspy-database-schema-documentation)
 - [Storybook Integration](#storybook-integration)
+- [API Metrics](#api-metrics)
 
 ### API
 
@@ -276,3 +277,78 @@ frontend/stories/          # Component stories - Folder structure mirrors src
     └── mockServiceWorker.js
 
 ```
+
+---
+
+## API Metrics
+
+This application uses AWS CloudWatch Embedded Metric Format (EMF) via the
+`aws-embedded-metrics` library to automatically capture and report key
+performance and usage metrics for API endpoints. This is primarily handled by
+the `MetricsInterceptor` located in
+`/backend/src/common/interceptors/metrics.interceptor.ts`.
+
+> ❗❗❗ When running locally make sure to include the environment variable
+> `AWS_EMF_ENVIRONMENT=Local`
+
+### How it Works
+
+1. **Interceptor:** The `MetricsInterceptor` intercepts incoming HTTP requests
+   and outgoing responses.
+2. **Timing:** It measures the latency (duration) of each request.
+3. **Data Collection:** It gathers information like HTTP method, status code,
+   path, client IP, and user agent.
+4. **Metric Logging:** Upon response completion, it uses `createMetricsLogger`
+   to format and log metrics and dimensions to standard output (stdout) in the
+   EMF specification.
+5. **CloudWatch Ingestion:** When running in an AWS environment (like ECS or
+   Lambda) with the CloudWatch agent or native integration configured, these EMF
+   logs are automatically parsed, and CloudWatch Metrics are generated in the
+   specified namespace (`RecreationSitesAndTrailsBCAPI`).
+
+### Metrics Captured
+
+For each request, the following metrics are potentially logged:
+
+- **Latency:** The time taken to process the request (Unit: Milliseconds).
+- **StatusCode\_`{statusCode}`:** A count of requests resulting in a specific
+  HTTP status code (e.g., `StatusCode_200`, `StatusCode_404`) (Unit: Count).
+- **ErrorCount:** A count of requests resulting in a 4xx or 5xx status code
+  (Unit: Count).
+
+### Dimensions
+
+Metrics are published with the following dimensions for filtering and
+aggregation in CloudWatch:
+
+- **Operation:** Identifies the specific API operation/endpoint being called.
+- **Method:** The HTTP request method (e.g., `GET`, `POST`).
+- **StatusCode:** The HTTP status code of the response (as a string).
+
+### Setting Up Metrics for a New Operation/Endpoint
+
+The `MetricsInterceptor` needs an `Operation` name to associate the metrics with
+a specific endpoint.
+
+1. **[Recommended] Custom Operation Name:** For better clarity or to decouple
+   the metric name from potential code refactoring (like renaming a class or
+   method), you can set an operation name using Swagger's `@ApiOperation`
+   decorator with an `operationId` property on your controller method.
+2. **Default Behavior:** If you do _not_ specify an operation name, the
+   interceptor will automatically generate one using the format:
+   `<ControllerClassName>.<handlerMethodName>`. For example, if you have a
+   `getRecreationSiteById` method in a `RecreationResourceController`, the
+   default operation name will be
+   `RecreationResourceController.getRecreationSiteById`.
+
+### Viewing Metrics
+
+Metrics can be viewed in:
+
+- AWS CloudWatch under the namespace `RecreationSitesAndTrailsBCAPI`
+- Filter metrics by dimensions:
+  - Operation
+  - Method
+  - StatusCode
+
+---
