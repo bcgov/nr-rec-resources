@@ -1,4 +1,5 @@
 import {
+  FilterDto,
   FilterOptionDto,
   PaginatedRecreationResourceDto,
 } from "./paginated-recreation-resource.dto";
@@ -13,25 +14,24 @@ const recResourceArrayResolved: RecreationResourceSearchDto[] = [
 
 describe("PaginatedRecreationResourceDto", () => {
   it("should validate the structure of paginated response", () => {
+    const filterDto = new FilterDto();
+    filterDto.type = "multi-select";
+    filterDto.label = "Activity";
+    filterDto.param = "activities";
+    filterDto.options = [
+      {
+        id: "1",
+        count: 42,
+        description: "Snowmobiling",
+      },
+    ];
+
     const paginatedResponse = new PaginatedRecreationResourceDto();
     paginatedResponse.data = recResourceArrayResolved;
     paginatedResponse.total = 4;
     paginatedResponse.page = 1;
     paginatedResponse.limit = 10;
-    paginatedResponse.filters = [
-      {
-        type: "multi-select",
-        label: "Activity",
-        param: "activities",
-        options: [
-          {
-            id: "1",
-            count: 42,
-            description: "Snowmobiling",
-          },
-        ],
-      },
-    ];
+    paginatedResponse.filters = [filterDto];
 
     expect(paginatedResponse).toHaveProperty("data");
     expect(paginatedResponse).toHaveProperty("total");
