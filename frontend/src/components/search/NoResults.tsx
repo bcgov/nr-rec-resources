@@ -1,9 +1,12 @@
 import { useSearchParams } from 'react-router-dom';
+import { useClearFilters } from '@/components/search/hooks/useClearFilters';
 
 const NoResults = () => {
   const [_, setSearchParams] = useSearchParams();
+  const clearFilters = useClearFilters();
 
   const handleClear = () => {
+    clearFilters();
     setSearchParams(() => new URLSearchParams());
   };
 

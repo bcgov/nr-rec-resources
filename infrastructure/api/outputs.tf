@@ -1,4 +1,4 @@
 output "apigw_url" {
-  description = "Base URL for API Gateway stage."
-  value       = aws_apigatewayv2_api.app.api_endpoint
+  description = "Public base URL to call the API through CloudFront"
+  value       = "https://${aws_cloudfront_distribution.api.domain_name}"
 }
