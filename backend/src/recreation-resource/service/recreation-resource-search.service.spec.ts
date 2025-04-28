@@ -136,6 +136,28 @@ describe("RecreationResourceSearchService", () => {
       });
     });
 
+    it("should return formatted search results with null limit", async () => {
+      setupSearchMocks();
+      const result = await service.searchRecreationResources(1, "");
+
+      expect(result).toMatchObject({
+        data: expect.arrayContaining([
+          expect.objectContaining({
+            rec_resource_id: "REC0001",
+          }),
+        ]),
+        filters: expect.arrayContaining([
+          expect.objectContaining({
+            label: expect.any(String),
+            options: expect.any(Array),
+          }),
+        ]),
+        page: 1,
+        limit: undefined,
+        total: 1,
+      });
+    });
+
     it("should handle empty search results", async () => {
       vi.mocked(prismaService.$transaction).mockResolvedValue([[], [], []]);
 

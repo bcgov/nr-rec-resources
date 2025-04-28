@@ -24,6 +24,7 @@ describe('MapsAndLocation', () => {
     name: 'Test Resource',
     latitude: 47.6062,
     longitude: -122.3321,
+    driving_directions: 'driving directions',
   } as any;
 
   const mockAccessTypes = ['Drive-up', 'Walk-in'];

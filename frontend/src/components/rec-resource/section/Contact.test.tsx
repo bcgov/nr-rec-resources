@@ -12,6 +12,11 @@ describe('the Contact component', () => {
     legalFirstName: '',
     legalMiddleName: '',
   };
+
+  const refetchDataMock = () => {
+    return;
+  };
+
   it('renders component with site operator name', async () => {
     render(
       <Contact
@@ -56,6 +61,28 @@ describe('the Contact component', () => {
       />,
     );
     const operatorLabel = screen.queryByTestId('error-message');
+
+    expect(operatorLabel).toBeInTheDocument();
+  });
+
+  it('renders component with error 500 and click on retry', async () => {
+    const responseError = new ResponseError(
+      new Response(null, { status: 500, statusText: 'api error' }),
+      'error',
+    );
+    render(
+      <Contact
+        siteOperator={undefined}
+        error={responseError}
+        isLoading={false}
+        refetchData={refetchDataMock}
+      />,
+    );
+    const operatorLabel = screen.queryByTestId('error-message');
+
+    const retryLink = screen.getByText(/Click here to retry./);
+
+    retryLink.click();
 
     expect(operatorLabel).toBeInTheDocument();
   });

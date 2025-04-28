@@ -1,7 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
 import filterChipStore from '@/store/filterChips';
 import setFilterChipsFromSearchParams from '@/components/search/utils/setFilterChipsFromSearchParams';
-import { mockSearchResultsData } from '@/components/search/test/mock-data';
+import {
+  mockSearchResultsData,
+  mockFilterMenuContent,
+} from '@/components/search/test/mock-data';
 
 vi.mock('react-router-dom', async () => {
   return {
@@ -23,9 +26,11 @@ describe('setFilterChipsFromSearchParams', () => {
   });
   it('should set filter chips from search params', () => {
     const searchParams = new URLSearchParams({
-      activities: 'hiking',
+      activities: '1',
       type: 'camping',
     });
+
+    mockSearchResultsData.filters = mockFilterMenuContent;
 
     setFilterChipsFromSearchParams([], mockSearchResultsData, searchParams);
 

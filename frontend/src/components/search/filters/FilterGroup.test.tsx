@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import FilterGroup from '@/components/search/filters/FilterGroup';
 import { activitiesOptions } from '@/components/search/test/mock-data';
 
@@ -26,6 +26,40 @@ describe('the FilterGroup component', () => {
     expect(screen.getByText('Angling (14)')).toBeVisible();
     expect(screen.getByText('Canoeing (5)')).toBeVisible();
     expect(screen.getByText('Camping (12)')).toBeVisible();
+  });
+
+  it('should render show all/less buttons click and use keyboard input', () => {
+    const newOptions = [
+      ...activitiesOptions,
+      {
+        id: 33,
+        count: 13,
+        description: 'New Activity',
+      },
+      {
+        id: 34,
+        count: 13,
+        description: 'New Activity 2',
+      },
+    ];
+    const c = (
+      <FilterGroup label="Activities" options={newOptions} param="activities" />
+    );
+    const { getByText } = render(c);
+
+    const showAllButton = getByText(/Show all/);
+
+    if (showAllButton) {
+      fireEvent.click(showAllButton);
+      fireEvent.keyDown(showAllButton, {
+        key: 'Enter',
+        code: 13,
+        charCode: 13,
+      });
+      fireEvent.keyDown(showAllButton, { key: ' ' });
+    }
+
+    expect(showAllButton).toBeVisible();
   });
 
   it('should not check any options by default', () => {

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  RecreationResourceImageDto,
   RecreationResourceImageSize,
   RecreationResourceImageVariantDto,
 } from "./recreation-resource-image.dto";
@@ -33,5 +34,25 @@ describe("RecreationResourceImageVariantDto", () => {
         extension: "png",
       });
     }).not.toThrow();
+  });
+
+  it("should create an instance of RecreationResourceImageDto", () => {
+    const recDto = new RecreationResourceImageVariantDto();
+    recDto.size_code = RecreationResourceImageSize.ORIGINAL;
+    recDto.url = "https://example.com/image.jpg";
+    recDto.width = 1920;
+    recDto.height = 1080;
+    recDto.extension = "jpg";
+
+    const dto = new RecreationResourceImageDto();
+    dto.ref_id = "001";
+    dto.caption = "caption";
+    dto.recreation_resource_image_variants = [recDto];
+
+    expect(dto.recreation_resource_image_variants[0]).toBeInstanceOf(
+      RecreationResourceImageVariantDto,
+    );
+    expect(dto.ref_id).toBe("001");
+    expect(dto.caption).toBe("caption");
   });
 });

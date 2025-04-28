@@ -101,6 +101,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
         {parkPhotos.length > 0 && (
           <div
             id="park-photo-gallery-container"
+            data-testid="park-photo-gallery-container"
             tabIndex={0}
             className="gallery-container"
             onClick={() => {
@@ -219,6 +220,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
         {parkPhotos.length > 0 && (
           <div
             id="park-photo-gallery-container-mobile"
+            data-testid="clickable-mobile-div"
             tabIndex={0}
             className="gallery-container"
             onClick={() => {
@@ -230,6 +232,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
           >
             <div
               className="photo-row"
+              data-testid="clickable-mobile-div-row"
               onClick={() => setOpen(true)}
               onKeyDown={handleKeyDownOpen}
             >
@@ -241,6 +244,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
                 />
                 <div className="show-photos">
                   <ShowPhotosBtn
+                    data-testid="show-photos-button-mobile"
                     text={parkPhotos.length}
                     setOpen={setOpen}
                     setShowPhotos={setShowPhoto}

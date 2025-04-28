@@ -19,7 +19,15 @@ export const mockResponse = {
     },
   ],
   recreation_access: [],
-  recreation_activity: [],
+  recreation_activity: [
+    {
+      recreation_activity: {
+        recreation_activity_code: 22,
+        description: "Snowmobiling",
+        updated_at: new Date(),
+      },
+    },
+  ],
   recreation_status: {
     recreation_status_code: { description: "Closed" },
     comment: "Closed status for REC203239",
@@ -38,6 +46,20 @@ export const mockResponse = {
       saturday_ind: "N",
       sunday_ind: "N",
       recreation_fee_code: "P",
+      with_description: { description: "Fee description" },
+    },
+    {
+      fee_amount: 7,
+      fee_start_date: new Date(),
+      fee_end_date: new Date(),
+      monday_ind: "Y",
+      tuesday_ind: "Y",
+      wednesday_ind: "Y",
+      thursday_ind: "Y",
+      friday_ind: "Y",
+      saturday_ind: "N",
+      sunday_ind: "N",
+      recreation_fee_code: "C",
       with_description: { description: "Fee description" },
     },
   ],
@@ -89,8 +111,28 @@ export const mockResults = {
   rec_resource_id: "REC203239",
   rec_resource_type: "Recreation Site",
   recreation_access: [],
-  recreation_activity: [],
-  recreation_fee: [],
+  recreation_activity: [
+    {
+      description: "Snowmobiling",
+      recreation_activity_code: 22,
+    },
+  ],
+  recreation_fee: [
+    {
+      fee_amount: 7,
+      fee_start_date: expect.any(Date),
+      fee_end_date: expect.any(Date),
+      monday_ind: "Y",
+      tuesday_ind: "Y",
+      wednesday_ind: "Y",
+      thursday_ind: "Y",
+      friday_ind: "Y",
+      saturday_ind: "N",
+      sunday_ind: "N",
+      recreation_fee_code: "C",
+      fee_description: "Fee description",
+    },
+  ],
   campsite_count: 1,
   recreation_resource_docs: [
     {
@@ -123,8 +165,29 @@ describe("formatRecreationResourceDetailResults function", () => {
       mockResponse,
       mockSpatialResponse,
     );
-
     expect(results).toEqual(mockResults);
+  });
+
+  it("should correctly format the results with toilet and table structures", () => {
+    const mockResponseCopy = {
+      ...mockResponse,
+      recreation_structure: [
+        { recreation_structure_code: { description: "Table - log" } },
+        { recreation_structure_code: { description: "Toilet - log" } },
+      ],
+    };
+    const mockResultsCopy = {
+      ...mockResults,
+      recreation_structure: {
+        has_table: true,
+        has_toilet: true,
+      },
+    };
+    const results = formatRecreationResourceDetailResults(
+      mockResponseCopy,
+      mockSpatialResponse,
+    );
+    expect(results).toEqual(mockResultsCopy);
   });
 
   it("should throw an error with garbage data", () => {
