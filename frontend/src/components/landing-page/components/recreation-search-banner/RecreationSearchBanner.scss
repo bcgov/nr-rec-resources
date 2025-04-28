@@ -7,13 +7,11 @@
   height: $banner-height;
 
   // Base styles (default for all sizes)
-  background-image: url('/images/landing-page/hero/hero-xl.webp');
+  background-image: url('/images/landing-page/hero/hero-sm.webp');
   background-size: cover;
-  background-repeat: no-repeat;
 
-  @include media-breakpoint-down(sm) {
-    background-image: url('/images/landing-page/hero/hero-sm.webp');
-  }
+  background-position: center 10%;
+  background-repeat: no-repeat;
 
   @include media-breakpoint-up(md) {
     background-image: url('/images/landing-page/hero/hero-md.webp');
@@ -30,8 +28,6 @@
   @include media-breakpoint-up(xxl) {
     background-image: url('/images/landing-page/hero/hero-xxl.webp');
   }
-
-  position: relative;
 
   .search-container {
     $container-max-height: 255px;
