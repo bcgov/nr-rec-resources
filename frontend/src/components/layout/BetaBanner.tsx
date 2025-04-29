@@ -2,6 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import '@/components/layout/BetaBanner.scss';
 import useMediaQuery from '@/hooks/useMediaQuery';
+import { trackClickEvent } from '@/utils/matomo';
 import { EXTERNAL_LINKS } from '@/data/urls';
 import { Button } from 'react-bootstrap';
 
@@ -45,6 +46,10 @@ const BetaBanner = () => {
         rel="noopener noreferrer"
         aria-label="Share your feedback (opens in a new tab)"
         className="py-4"
+        onClick={trackClickEvent({
+          category: 'Feedback',
+          name: 'Beta Banner Feedback Button',
+        })}
       >
         {isMobile ? 'Share feedback' : 'Share your feedback'}
       </Button>

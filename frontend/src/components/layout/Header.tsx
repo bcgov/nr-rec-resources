@@ -1,6 +1,7 @@
 import RSTLogo from '@/images/RST_nav_logo.svg';
 import '@/components/layout/Header.scss';
 import BetaBanner from './BetaBanner';
+import { trackClickEvent } from '@/utils/matomo';
 import { ROUTE_PATHS } from '@/routes';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLink } from '@fortawesome/free-solid-svg-icons';
@@ -35,6 +36,10 @@ const Header = () => {
               target="_blank"
               href={EXTERNAL_LINKS.RST_ARCGIS_MAP_FULL_SCREEN}
               rel="noreferrer"
+              onClick={trackClickEvent({
+                category: 'External link',
+                name: 'Interactive map',
+              })}
             >
               <Stack direction={'horizontal'} gap={1}>
                 Interactive map

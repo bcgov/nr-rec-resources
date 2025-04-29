@@ -86,6 +86,8 @@ jobs:
         env:
           VITE_RECREATION_RESOURCE_ASSETS_BASE_URL: "https://dam.lqc63d-prod.nimbus.cloud.gov.bc.ca"
           VITE_API_BASE_URL: ${{ needs.deploy-api.outputs.API_GW_URL }}/api
+          VITE_MATOMO_URL: ${{ secrets.VITE_MATOMO_URL }}
+          VITE_MATOMO_SITE_ID: ${{ secrets.VITE_MATOMO_SITE_ID }}
           S3_BUCKET_ARN: ${{ needs.deploy-cloudfront.outputs.S3_BUCKET_ARN }}
           CF_DISTRIBUTION_ID: ${{ needs.deploy-cloudfront.outputs.CF_DISTRIBUTION_ID }}
         run: |
