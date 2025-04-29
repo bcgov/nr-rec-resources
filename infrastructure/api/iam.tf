@@ -76,6 +76,22 @@ EOF
   tags = local.common_tags
 }
 
+resource "aws_iam_role_policy" "cloudwatch_metrics" {
+  name = "cloudwatch_metrics"
+  role = aws_iam_role.app_container_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = "cloudwatch:PutMetricData"
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role_policy" "app_container_cwlogs" {
   name = "${var.app_name}_container_cwlogs"
   role = aws_iam_role.app_container_role.id
@@ -90,6 +106,7 @@ resource "aws_iam_role_policy" "app_container_cwlogs" {
                   "logs:CreateLogGroup",
                   "logs:CreateLogStream",
                   "logs:PutLogEvents",
+                  "logs:DescribeLogStreams"
                   "logs:DescribeLogStreams"
               ],
               "Resource": [
