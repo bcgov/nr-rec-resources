@@ -282,38 +282,35 @@ frontend/stories/          # Component stories - Folder structure mirrors src
 
 ## API Metrics
 
-This application uses AWS CloudWatch Embedded Metric Format (EMF) via the
-`aws-embedded-metrics` library to automatically capture and report key
+This application uses AWS CloudWatch SDK to automatically capture and report key
 performance and usage metrics for API endpoints. This is primarily handled by
-the `MetricsInterceptor` located in
-`/backend/src/common/interceptors/metrics.interceptor.ts`.
+the `ApiMetricsInterceptor` located in
+`/backend/src/api-metrics/api-metrics.interceptor.ts`.
 
 > ❗❗❗ When running locally make sure to include the environment variable
-> `AWS_EMF_ENVIRONMENT=Local`
+> `NODE_ENV=Local`
 
-### How it Works
+## How it Works
 
-1. **Interceptor:** The `MetricsInterceptor` intercepts incoming HTTP requests
-   and outgoing responses.
-2. **Timing:** It measures the latency (duration) of each request.
-3. **Data Collection:** It gathers information like HTTP method, status code,
-   path, client IP, and user agent.
-4. **Metric Logging:** Upon response completion, it uses `createMetricsLogger`
-   to format and log metrics and dimensions to standard output (stdout) in the
-   EMF specification.
-5. **CloudWatch Ingestion:** When running in an AWS environment (like ECS or
-   Lambda) with the CloudWatch agent or native integration configured, these EMF
-   logs are automatically parsed, and CloudWatch Metrics are generated in the
-   specified namespace (`RecreationSitesAndTrailsBCAPI`).
+- **Interceptor:** The `ApiMetricsInterceptor` intercepts incoming HTTP requests
+  and outgoing responses.
+- **Timing:** It measures the latency (duration) of each request.
+- **Operation Identification:** `OperationNameUtil` determines the operation
+  name, preferring the operationId from `@ApiOperation` if available.
+- **Metric Construction:** `ApiMetricsService` constructs metric data points,
+  including latency, request count, and error count when applicable.
+- **Publishing:** If metrics are enabled (i.e., not running locally),
+  MetricsService publishes the metrics to AWS CloudWatch under the namespace
+  `RecreationSitesAndTrailsBCAPI`.
 
 ### Metrics Captured
 
 For each request, the following metrics are potentially logged:
 
-- **Latency:** The time taken to process the request (Unit: Milliseconds).
-- **StatusCode\_`{statusCode}`:** A count of requests resulting in a specific
-  HTTP status code (e.g., `StatusCode_200`, `StatusCode_404`) (Unit: Count).
-- **ErrorCount:** A count of requests resulting in a 4xx or 5xx status code
+- **RequestLatency**: The time taken to process the request (Unit:
+  Milliseconds).
+- **RequestCount**: A count of requests received (Unit: Count).
+- **ErrorCount**: A count of requests resulting in a 4xx or 5xx status code
   (Unit: Count).
 
 ### Dimensions
@@ -327,8 +324,8 @@ aggregation in CloudWatch:
 
 ### Setting Up Metrics for a New Operation/Endpoint
 
-The `MetricsInterceptor` needs an `Operation` name to associate the metrics with
-a specific endpoint.
+The `ApiMetricsInterceptor` needs an `Operation` name to associate the metrics
+with a specific endpoint.
 
 1. **[Recommended] Custom Operation Name:** For better clarity or to decouple
    the metric name from potential code refactoring (like renaming a class or
