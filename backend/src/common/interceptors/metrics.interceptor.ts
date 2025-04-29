@@ -74,7 +74,6 @@ export class MetricsInterceptor implements NestInterceptor {
           Timestamp: timestamp,
           Dimensions: [
             { Name: "Operation", Value: operationName },
-            { Name: "Path", Value: req.path },
             { Name: "StatusCode", Value: statusCode.toString() },
           ],
         },

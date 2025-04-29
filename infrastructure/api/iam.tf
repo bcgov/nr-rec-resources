@@ -107,7 +107,6 @@ resource "aws_iam_role_policy" "app_container_cwlogs" {
                   "logs:CreateLogStream",
                   "logs:PutLogEvents",
                   "logs:DescribeLogStreams"
-                  "logs:DescribeLogStreams"
               ],
               "Resource": [
                   "arn:aws:logs:*:*:*"
