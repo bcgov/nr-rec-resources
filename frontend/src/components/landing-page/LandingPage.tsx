@@ -3,6 +3,7 @@ import { Button, Stack } from 'react-bootstrap';
 import './LandingPage.scss';
 import { faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { trackClickEvent } from '@/utils/matomo';
 import { EXTERNAL_LINKS } from '@/data/urls';
 import {
   ContentSection,
@@ -19,6 +20,10 @@ const LearnMoreLink: FC = () => (
     <a
       href={EXTERNAL_LINKS.RST_GOV_BC_INFO}
       rel="noopener noreferrer"
+      onClick={trackClickEvent({
+        category: 'Learn More',
+        name: 'Learn more about Recreation Sites and Trails BC',
+      })}
       aria-label="Learn more about Recreation Sites and Trails BC"
     >
       <Stack direction="horizontal" gap={1} className="align-items-center">

@@ -8,7 +8,7 @@ import {
 } from '@/service/recreation-resource';
 import { useRecreationResourceApi } from '@/service/hooks/useRecreationResourceApi';
 import { useInfiniteQuery, useQuery } from '~/@tanstack/react-query';
-import { useMatomo } from '@/hooks/useMatomo';
+import { trackSiteSearch } from '@/utils/matomo';
 import {
   transformRecreationResourceBase,
   transformRecreationResourceDetail,
@@ -105,7 +105,6 @@ export const useSearchRecreationResourcesPaginated = (
   params: SearchRecreationResourcesRequest,
 ) => {
   const api = useRecreationResourceApi();
-  const { trackSiteSearch } = useMatomo();
   // Default page number for initial load and fallback
   const DEFAULT_PAGE = 1;
 
@@ -164,6 +163,12 @@ export const useSearchRecreationResourcesPaginated = (
         page: pageParam.page || DEFAULT_PAGE,
       });
 
+      trackSiteSearch({
+        keyword: JSON.stringify(pageParam),
+        category: 'search-recreation-resources',
+        resultsCount: response.total,
+      });
+
       // Transform each resource in the response to normalize image urls
       return {
         ...response,
@@ -185,11 +190,6 @@ export const useSearchRecreationResourcesPaginated = (
       SearchRecreationResourcesRequest
     >,
   ) => {
-    trackSiteSearch({
-      keyword: JSON.stringify(data.pageParams),
-      category: 'search-recreation-resources',
-      resultsCount: data.pages?.[0]?.total,
-    });
     return {
       pages: data.pages,
       pageParams: data.pageParams,

@@ -1,4 +1,5 @@
 import { FC } from 'react';
+import { trackEvent } from '@/utils/matomo';
 import { RecreationResourceDetailModel } from '@/service/custom-models';
 import { RecreationResourceDocDto } from '@/service/recreation-resource';
 
@@ -29,6 +30,13 @@ export const RecreationResourceDocsList: FC<
         href={doc.url}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() =>
+          trackEvent({
+            category: 'Recreation Resource page document download',
+            action: 'Click',
+            name: `Download ${recResource.name} -  ${doc.title} [${doc.extension.toUpperCase()}]`,
+          })
+        }
       >
         {docs.length === 1 ? `Map of ${recResource.name}` : doc.title} [
         {doc.extension.toUpperCase()}]

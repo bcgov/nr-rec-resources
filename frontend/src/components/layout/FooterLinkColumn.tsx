@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { trackClickEvent } from '@/utils/matomo';
 
 interface LinkProps {
   title: string;
@@ -20,7 +21,15 @@ const FooterLinkColumn = ({ title, links }: LinkColumnProps) => {
         {links.map((link, linkIndex) =>
           !link.component ? (
             <p key={linkIndex} className="paragraph-links">
-              <a href={link.url} target="_blank" rel="noreferrer">
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noreferrer"
+                onClick={trackClickEvent({
+                  category: 'Footer link',
+                  name: `Footer link - ${link.title}`,
+                })}
+              >
                 {link.title}
               </a>
             </p>
@@ -31,6 +40,10 @@ const FooterLinkColumn = ({ title, links }: LinkColumnProps) => {
               target="_blank"
               rel="noreferrer"
               title={link.title}
+              onClick={trackClickEvent({
+                category: 'Footer link',
+                name: `Footer link - ${link.title}`,
+              })}
             >
               {link.component}
             </a>

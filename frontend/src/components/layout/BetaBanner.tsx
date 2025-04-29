@@ -2,21 +2,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import '@/components/layout/BetaBanner.scss';
 import useMediaQuery from '@/hooks/useMediaQuery';
-import { useMatomo } from '@/hooks/useMatomo';
+import { trackClickEvent } from '@/utils/matomo';
 import { EXTERNAL_LINKS } from '@/data/urls';
 import { Button } from 'react-bootstrap';
 
 const BetaBanner = () => {
-  const { trackEvent } = useMatomo();
   const isMobile = useMediaQuery('(max-width: 767px)');
-
-  const handleFeedbackClick = () => {
-    trackEvent({
-      category: 'Feedback',
-      action: 'Click',
-      name: 'Beta Banner Feedback Button',
-    });
-  };
 
   return (
     <div className="banner">
@@ -55,7 +46,10 @@ const BetaBanner = () => {
         rel="noopener noreferrer"
         aria-label="Share your feedback (opens in a new tab)"
         className="py-4"
-        onClick={handleFeedbackClick}
+        onClick={trackClickEvent({
+          category: 'Feedback',
+          name: 'Beta Banner Feedback Button',
+        })}
       >
         {isMobile ? 'Share feedback' : 'Share your feedback'}
       </Button>
