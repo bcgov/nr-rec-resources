@@ -17,6 +17,12 @@ export const trackEvent = ({
   name,
   value,
 }: TrackEventParams) => {
+  console.log('Tracking event:', {
+    action,
+    category,
+    name,
+    value,
+  });
   if (window._paq) {
     window._paq.push(['trackEvent', category, action, name, value]);
   }
@@ -29,6 +35,12 @@ export const trackClickEvent = ({
   value,
 }: TrackEventParams) => {
   return () => {
+    console.log('Tracking click event:', {
+      action,
+      category,
+      name,
+      value,
+    });
     trackEvent({
       category,
       action,
