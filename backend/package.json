@@ -24,6 +24,7 @@
     "copy-prisma-generated-sql": "prisma generate --sql && node build-scripts/copy-prisma-generated-sql.js && npm run prettier-fix"
   },
   "dependencies": {
+    "@aws-sdk/client-cloudwatch": "^3.799.0",
     "@nestjs/axios": "^4.0.0",
     "@nestjs/class-validator": "^0.13.4",
     "@nestjs/cli": "^11.0.2",

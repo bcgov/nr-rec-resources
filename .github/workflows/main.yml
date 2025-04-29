@@ -51,7 +51,7 @@ jobs:
     secrets: inherit
 
   deploy-to-aws-dev:
-    if: github.ref_name == 'main' || github.head_ref == 'main'
+    #        if: github.ref_name == 'main' || github.head_ref == 'main'
     name: Deploys Application to AWS dev
     needs: tests-e2e-local
     uses: ./.github/workflows/.deploy-app.yml

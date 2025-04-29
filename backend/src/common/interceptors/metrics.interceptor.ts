@@ -6,9 +6,13 @@ import {
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { Observable, tap } from "rxjs";
-import { createMetricsLogger, Unit } from "aws-embedded-metrics";
 import { Request, Response } from "express";
 import { ApiOperationOptions } from "@nestjs/swagger";
+import {
+  CloudWatchClient,
+  PutMetricDataCommand,
+  StandardUnit,
+} from "@aws-sdk/client-cloudwatch";
 
 /**
  * Interceptor that captures and logs metrics for API operations to AWS CloudWatch.
@@ -18,8 +22,11 @@ import { ApiOperationOptions } from "@nestjs/swagger";
 @Injectable()
 export class MetricsInterceptor implements NestInterceptor {
   private readonly NAME_SPACE = "RecreationSitesAndTrailsBCAPI";
+  private cloudWatchClient: CloudWatchClient;
 
-  constructor(private readonly reflector: Reflector) {}
+  constructor(private readonly reflector: Reflector) {
+    this.cloudWatchClient = new CloudWatchClient();
+  }
 
   private getOperationName(context: ExecutionContext): string {
     const handler = context.getHandler();
@@ -39,35 +46,61 @@ export class MetricsInterceptor implements NestInterceptor {
     res: Response,
     latency: number,
   ): Promise<void> {
-    const metrics = createMetricsLogger();
-
-    const statusCode = res.statusCode;
-
-    metrics.setNamespace(this.NAME_SPACE);
-    metrics.putMetric("Latency", latency, Unit.Milliseconds);
-    metrics.putMetric(`StatusCode_${statusCode}`, 1, Unit.Count);
-
-    // Set dimensions and properties
-    metrics.setDimensions({
-      Operation: operationName,
-      Method: req.method,
-      StatusCode: statusCode.toString(),
-    });
-
-    metrics.setProperty("UserAgent", req.headers["user-agent"]);
-    metrics.setProperty("ClientIp", req.ip);
-    metrics.setProperty("Path", req.path);
-
-    // Track errors
-    if (statusCode >= 400) {
-      metrics.putMetric("ErrorCount", 1, Unit.Count);
-      metrics.setProperty("ErrorType", this.getErrorType(statusCode));
+    // Skip metrics during development
+    if (process.env.NODE_ENV !== "development") {
+      this.cloudWatchClient = new CloudWatchClient();
     }
 
     try {
-      await metrics.flush();
+      const timestamp = new Date();
+      const statusCode = res.statusCode;
+
+      const metricData = [
+        {
+          MetricName: "RequestLatency",
+          Value: latency,
+          Unit: StandardUnit.Milliseconds,
+          Timestamp: timestamp,
+          Dimensions: [
+            { Name: "Operation", Value: operationName },
+            { Name: "Method", Value: req.method },
+            { Name: "StatusCode", Value: statusCode.toString() },
+          ],
+        },
+        {
+          MetricName: "RequestCount",
+          Value: 1,
+          Unit: StandardUnit.Count,
+          Timestamp: timestamp,
+          Dimensions: [
+            { Name: "Operation", Value: operationName },
+            { Name: "Path", Value: req.path },
+            { Name: "StatusCode", Value: statusCode.toString() },
+          ],
+        },
+      ];
+
+      if (statusCode >= 400) {
+        metricData.push({
+          MetricName: "ErrorCount",
+          Value: 1,
+          Unit: StandardUnit.Count,
+          Timestamp: timestamp,
+          Dimensions: [
+            { Name: "Operation", Value: operationName },
+            { Name: "ErrorType", Value: this.getErrorType(statusCode) },
+          ],
+        });
+      }
+
+      const command = new PutMetricDataCommand({
+        Namespace: this.NAME_SPACE,
+        MetricData: metricData,
+      });
+
+      await this.cloudWatchClient.send(command);
     } catch (err) {
-      console.error("Failed to flush CloudWatch metrics:", err);
+      console.error("Failed to publish CloudWatch metrics:", err);
     }
   }
 
