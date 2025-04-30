@@ -13,40 +13,40 @@ import { OperationNameUtil } from "./operation-name.util";
 @Injectable()
 export class ApiMetricsInterceptor implements NestInterceptor {
   constructor(
-    private readonly metrics: ApiMetricsService,
-    private readonly nameUtil: OperationNameUtil,
+    private readonly apiMetricsService: ApiMetricsService,
+    private readonly operationNameUtil: OperationNameUtil,
   ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const start = Date.now();
     const req = context.switchToHttp().getRequest<Request>();
     const res = context.switchToHttp().getResponse<Response>();
-    const operation = this.nameUtil.get(context);
+    const operation = this.operationNameUtil.get(context);
 
     return next.handle().pipe(
       tap({
         next: async () => {
           const latency = Date.now() - start;
           const status = res.statusCode;
-          const datums = this.metrics.buildDatums(
+          const datums = this.apiMetricsService.buildMetricDatum(
             operation,
             req.method,
             status,
             latency,
           );
-          await this.metrics.publish(datums);
+          await this.apiMetricsService.publish(datums);
         },
         error: async (err) => {
           const latency = Date.now() - start;
           const status = err instanceof HttpException ? err.getStatus() : 500;
-          const datums = this.metrics.buildDatums(
+          const datums = this.apiMetricsService.buildMetricDatum(
             operation,
             req.method,
             status,
             latency,
           );
-          await this.metrics.publish(datums);
-          throw err;
+          await this.apiMetricsService.publish(datums);
+          next.handle();
         },
       }),
     );

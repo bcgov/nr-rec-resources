@@ -1,18 +1,11 @@
 import { Injectable, Logger } from "@nestjs/common";
 import {
   CloudWatchClient,
+  MetricDatum,
   PutMetricDataCommand,
   StandardUnit,
 } from "@aws-sdk/client-cloudwatch";
 import { ConfigService } from "@nestjs/config";
-
-export interface MetricDatum {
-  MetricName: string;
-  Value: number;
-  Unit: StandardUnit;
-  Timestamp: Date;
-  Dimensions: Array<{ Name: string; Value: string }>;
-}
 
 @Injectable()
 export class ApiMetricsService {
@@ -42,14 +35,14 @@ export class ApiMetricsService {
     }
   }
 
-  buildDatums(
+  buildMetricDatum(
     operation: string,
     method: string,
     status: number,
     latencyMs: number,
   ): MetricDatum[] {
     const timestamp = new Date();
-    const dimsBase = [
+    const baseDimensions = [
       { Name: "Operation", Value: operation },
       { Name: "StatusCode", Value: status.toString() },
     ];
@@ -60,14 +53,14 @@ export class ApiMetricsService {
         Value: latencyMs,
         Unit: StandardUnit.Milliseconds,
         Timestamp: timestamp,
-        Dimensions: [...dimsBase, { Name: "Method", Value: method }],
+        Dimensions: [...baseDimensions, { Name: "Method", Value: method }],
       },
       {
         MetricName: "RequestCount",
         Value: 1,
         Unit: StandardUnit.Count,
         Timestamp: timestamp,
-        Dimensions: dimsBase,
+        Dimensions: baseDimensions,
       },
     ];
 
@@ -78,7 +71,10 @@ export class ApiMetricsService {
         Value: 1,
         Unit: StandardUnit.Count,
         Timestamp: timestamp,
-        Dimensions: [...dimsBase, { Name: "ErrorType", Value: errorType }],
+        Dimensions: [
+          ...baseDimensions,
+          { Name: "ErrorType", Value: errorType },
+        ],
       });
     }
 
