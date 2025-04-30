@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Carousel from 'react-bootstrap/Carousel';
+import { trackClickEvent } from '@/utils/matomo';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCircleChevronLeft,
@@ -36,8 +37,24 @@ const CardCarousel = ({ imageList }: CardCarouselProps) => {
       <Carousel
         fade
         interval={null}
-        nextIcon={<FontAwesomeIcon icon={faCircleChevronRight} />}
-        prevIcon={<FontAwesomeIcon icon={faCircleChevronLeft} />}
+        nextIcon={
+          <FontAwesomeIcon
+            icon={faCircleChevronRight}
+            onClick={trackClickEvent({
+              category: 'Card image carousel',
+              name: 'Next image',
+            })}
+          />
+        }
+        prevIcon={
+          <FontAwesomeIcon
+            icon={faCircleChevronLeft}
+            onClick={trackClickEvent({
+              category: 'Card image carousel',
+              name: 'Previous image',
+            })}
+          />
+        }
         onSelect={handleSelect}
         activeIndex={index}
         className={`park-carousel tab-focus-${isTabFocused}`}

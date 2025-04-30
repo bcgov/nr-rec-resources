@@ -26,6 +26,7 @@ describe('RecreationSearchBanner', () => {
       {
         searchButtonProps: { variant: 'light', className: 'search-btn' },
         showSearchIcon: true,
+        location: 'Landing page',
       },
       undefined,
     );

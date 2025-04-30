@@ -32,6 +32,7 @@ vi.mock('@/components/StyledVectorFeatureMap/hooks', () => ({
   useMapBaseLayers: vi.fn(() => []),
   useMapInitialization: vi.fn(() => mockMap),
   useAddVectorLayerToMap: vi.fn(),
+  useOpenLayersTracking: vi.fn(),
 }));
 
 // Mock MapControls component
