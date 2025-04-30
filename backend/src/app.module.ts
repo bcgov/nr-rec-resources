@@ -9,9 +9,15 @@ import { MetricsController } from "./metrics.controller";
 import { TerminusModule } from "@nestjs/terminus";
 import { HealthController } from "./health.controller";
 import { RecreationResourceModule } from "./recreation-resource/recreation-resource.module";
+import { ApiMetricsModule } from "./api-metrics/api-metrics.module";
 
 @Module({
-  imports: [ConfigModule.forRoot(), TerminusModule, RecreationResourceModule],
+  imports: [
+    ConfigModule.forRoot(),
+    TerminusModule,
+    RecreationResourceModule,
+    ApiMetricsModule,
+  ],
   controllers: [AppController, MetricsController, HealthController],
   providers: [AppService, PrismaService],
 })
