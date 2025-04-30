@@ -12,7 +12,7 @@ resource "aws_cloudwatch_dashboard" "api_dashboard" {
         height = 6
         properties = {
           metrics = [
-            ["RecreationSitesAndTrailsBCAPI", "RequestLatency", "Operation", "*"]
+            ["RecreationSitesAndTrailsBCAPI", "RequestLatency", "Operation", "*", "Method", "*", "StatusCode", "*"]
           ]
           period = 300
           stat   = "Average"
@@ -28,12 +28,12 @@ resource "aws_cloudwatch_dashboard" "api_dashboard" {
         height = 6
         properties = {
           metrics = [
-            ["RecreationSitesAndTrailsBCAPI", "RequestCount", "Operation", "*"]
+            ["RecreationSitesAndTrailsBCAPI", "RequestCount", "Operation", "*", "StatusCode", "*"]
           ]
           period = 300
           stat   = "Sum"
           region = "ca-central-1"
-          title  = "Request Count by Path"
+          title  = "Request Count by Operation"
         }
       },
       {
