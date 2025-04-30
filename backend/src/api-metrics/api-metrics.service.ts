@@ -42,10 +42,7 @@ export class ApiMetricsService {
     latencyMs: number,
   ): MetricDatum[] {
     const timestamp = new Date();
-    const baseDimensions = [
-      { Name: "Operation", Value: operation },
-      { Name: "StatusCode", Value: status.toString() },
-    ];
+    const baseDimensions = [{ Name: "Operation", Value: operation }];
 
     const datums: MetricDatum[] = [
       {
@@ -61,6 +58,16 @@ export class ApiMetricsService {
         Unit: StandardUnit.Count,
         Timestamp: timestamp,
         Dimensions: baseDimensions,
+      },
+      {
+        MetricName: "ResponseHTTPCodeCount",
+        Value: 1,
+        Unit: StandardUnit.Count,
+        Timestamp: timestamp,
+        Dimensions: [
+          ...baseDimensions,
+          { Name: "StatusCode", Value: status.toString() },
+        ],
       },
     ];
 

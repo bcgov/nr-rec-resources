@@ -61,7 +61,7 @@ describe("ApiMetricsService", () => {
     it("should build basic metric datums", () => {
       const result = service.buildMetricDatum("TestOp", "GET", 200, 100);
 
-      expect(result).toHaveLength(2);
+      expect(result).toHaveLength(3);
       expect(result[0].MetricName).toBe("RequestLatency");
       expect(result[1].MetricName).toBe("RequestCount");
     });
@@ -69,20 +69,20 @@ describe("ApiMetricsService", () => {
     it("should include error metrics for 4xx status codes", () => {
       const result = service.buildMetricDatum("TestOp", "GET", 400, 100);
 
-      expect(result).toHaveLength(3);
-      expect(result[2].MetricName).toBe("ErrorCount");
+      expect(result).toHaveLength(4);
+      expect(result[3].MetricName).toBe("ErrorCount");
       expect(
-        result[2].Dimensions?.find((d) => d.Name === "ErrorType")?.Value,
+        result[3].Dimensions?.find((d) => d.Name === "ErrorType")?.Value,
       ).toBe("ClientError");
     });
 
     it("should include error metrics for 5xx status codes", () => {
       const result = service.buildMetricDatum("TestOp", "GET", 500, 100);
 
-      expect(result).toHaveLength(3);
-      expect(result[2].MetricName).toBe("ErrorCount");
+      expect(result).toHaveLength(4);
+      expect(result[3].MetricName).toBe("ErrorCount");
       expect(
-        result[2].Dimensions?.find((d) => d.Name === "ErrorType")?.Value,
+        result[3].Dimensions?.find((d) => d.Name === "ErrorType")?.Value,
       ).toBe("ServerError");
     });
   });
