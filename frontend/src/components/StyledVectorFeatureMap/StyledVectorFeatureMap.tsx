@@ -5,6 +5,7 @@ import {
   useAddVectorLayerToMap,
   useMapBaseLayers,
   useMapInitialization,
+  useOpenLayersTracking,
 } from '@/components/StyledVectorFeatureMap/hooks';
 import { Coordinate } from 'ol/coordinate';
 import { MapControls } from '@/components/StyledVectorFeatureMap/components/MapControls';
@@ -58,6 +59,9 @@ export const StyledVectorFeatureMap: React.FC<StyledVectorFeatureMapProps> = ({
       map.setTarget(targetElement);
     }
   }, [map]);
+
+  // track map interactions
+  useOpenLayersTracking(map);
 
   return (
     <div

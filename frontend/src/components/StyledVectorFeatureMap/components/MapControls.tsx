@@ -1,5 +1,6 @@
 import { Button, ButtonGroup } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { trackEvent } from '@/utils/matomo';
 import {
   faLocationCrosshairs,
   faMinus,
@@ -27,22 +28,49 @@ interface MapControlsProps {
 export const MapControls: FC<MapControlsProps> = memo(({ map, extent }) => {
   const view = map.getView();
 
-  const onZoomIn = useCallback(() => {
-    const zoom = view.getZoom() ?? 0;
-    view.animate({ zoom: zoom + 1, duration: 250 });
-  }, [view]);
+  const onZoomIn = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      const zoom = view.getZoom() ?? 0;
+      view.animate({ zoom: zoom + 1, duration: 250 });
+      trackEvent({
+        category: 'Map Controls',
+        action: 'Click',
+        name: 'Zoom In',
+      });
+    },
+    [view],
+  );
 
-  const onZoomOut = useCallback(() => {
-    const zoom = view.getZoom() ?? 0;
-    view.animate({ zoom: zoom - 1, duration: 250 });
-  }, [view]);
+  const onZoomOut = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      const zoom = view.getZoom() ?? 0;
+      view.animate({ zoom: zoom - 1, duration: 250 });
+      trackEvent({
+        category: 'Map Controls',
+        action: 'Click',
+        name: 'Zoom Out',
+      });
+    },
+    [view],
+  );
 
-  const onCenter = useCallback(() => {
-    view.fit(extent ?? view.getProjection().getExtent(), {
-      duration: 250,
-      padding: DEFAULT_MAP_PADDING,
-    });
-  }, [view, extent]);
+  const onCenter = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      view.fit(extent ?? view.getProjection().getExtent(), {
+        duration: 250,
+        padding: DEFAULT_MAP_PADDING,
+      });
+      trackEvent({
+        category: 'Map Controls',
+        action: 'Click',
+        name: 'Center Map',
+      });
+    },
+    [view, extent],
+  );
 
   return (
     <ButtonGroup vertical className="zoom-control rounded-1">
