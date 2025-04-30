@@ -165,7 +165,7 @@ export const useSearchRecreationResourcesPaginated = (
 
       trackSiteSearch({
         keyword: JSON.stringify(pageParam),
-        category: 'search-recreation-resources',
+        category: 'Search and filter query',
         resultsCount: response.total,
       });
 
