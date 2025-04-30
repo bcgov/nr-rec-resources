@@ -13,6 +13,7 @@ import {
   PutMetricDataCommand,
   StandardUnit,
 } from "@aws-sdk/client-cloudwatch";
+import { ConfigService } from "@nestjs/config";
 
 /**
  * Interceptor that captures and logs metrics for API operations to AWS CloudWatch.
@@ -22,10 +23,18 @@ import {
 @Injectable()
 export class MetricsInterceptor implements NestInterceptor {
   private readonly NAME_SPACE = "RecreationSitesAndTrailsBCAPI";
-  private cloudWatchClient: CloudWatchClient;
+  private readonly cloudWatchClient: CloudWatchClient;
+  private readonly metricsEnabled: boolean;
 
-  constructor(private readonly reflector: Reflector) {
+  constructor(
+    private readonly reflector: Reflector,
+    private readonly configService: ConfigService,
+  ) {
     this.cloudWatchClient = new CloudWatchClient();
+
+    // Skip metrics if running locally
+    this.metricsEnabled =
+      this.configService.get<string>("NODE_ENV") !== "local";
   }
 
   private getOperationName(context: ExecutionContext): string {
@@ -46,9 +55,8 @@ export class MetricsInterceptor implements NestInterceptor {
     res: Response,
     latency: number,
   ): Promise<void> {
-    // Skip metrics during development
-    if (process.env.NODE_ENV !== "development") {
-      this.cloudWatchClient = new CloudWatchClient();
+    if (!this.metricsEnabled) {
+      return;
     }
 
     try {
