@@ -143,6 +143,10 @@ resource "aws_ecs_task_definition" "node_api_task" {
         {
           name  = "FOREST_CLIENT_API_URL"
           value = var.forest_client_api_url
+        },
+        {
+          name  = "APP_ENV"
+          value = var.app_env
         }
       ]
       portMappings = [

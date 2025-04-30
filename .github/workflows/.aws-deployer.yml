@@ -86,6 +86,7 @@ jobs:
           app_env: ${{inputs.app_env}}
           forest_client_api_key: ${{ secrets.FOREST_CLIENT_API_KEY }}
           forest_client_api_url: ${{ secrets.FOREST_CLIENT_API_URL }}
+          alarm_alert_email_recipients: ${{ secrets.alarm_alert_email_recipients }}
       run: |
           # Run terraform
           terragrunt run-all ${{inputs.command}} --terragrunt-non-interactive
@@ -101,6 +102,7 @@ jobs:
           app_env: ${{inputs.app_env}}
           forest_client_api_key: ${{ secrets.FOREST_CLIENT_API_KEY }}
           forest_client_api_url: ${{ secrets.FOREST_CLIENT_API_URL }}
+          alarm_alert_email_recipients: ${{ secrets.ALARM_ALERT_EMAIL_RECIPIENTS }}
       run: |
           terragrunt output -json > outputs.json
           #print the output

@@ -10,9 +10,9 @@ import {
   ENV_VARS,
   EnvValues,
   ErrorTypes,
+  METRIC_NAMESPACE_NAME_PREFIX,
   MetricDimensions,
   MetricNames,
-  MetricNamespace,
 } from "./api-metrics.constants";
 
 @Injectable()
@@ -20,11 +20,13 @@ export class ApiMetricsService {
   private readonly logger = new Logger(ApiMetricsService.name);
   private readonly cloudWatch: CloudWatchClient;
   private readonly metricsEnabled: boolean;
+  private readonly metricNamespaceName: string;
 
   constructor(private readonly configService: ConfigService) {
     this.cloudWatch = new CloudWatchClient({});
-    this.metricsEnabled =
-      this.configService.get<string>(ENV_VARS.NODE_ENV) !== EnvValues.LOCAL;
+    const appEnv = this.configService.get<string>(ENV_VARS.APP_ENV);
+    this.metricsEnabled = appEnv !== EnvValues.LOCAL;
+    this.metricNamespaceName = `${METRIC_NAMESPACE_NAME_PREFIX}-${appEnv}`;
   }
 
   async publish(data: MetricDatum[]): Promise<void> {
@@ -35,7 +37,7 @@ export class ApiMetricsService {
     try {
       await this.cloudWatch.send(
         new PutMetricDataCommand({
-          Namespace: MetricNamespace,
+          Namespace: this.metricNamespaceName,
           MetricData: data,
         }),
       );
