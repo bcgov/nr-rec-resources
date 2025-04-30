@@ -9,20 +9,17 @@ import { MetricsController } from "./metrics.controller";
 import { TerminusModule } from "@nestjs/terminus";
 import { HealthController } from "./health.controller";
 import { RecreationResourceModule } from "./recreation-resource/recreation-resource.module";
-import { APP_INTERCEPTOR } from "@nestjs/core";
-import { MetricsInterceptor } from "./common/interceptors/metrics.interceptor";
+import { ApiMetricsModule } from "./api-metrics/api-metrics.module";
 
 @Module({
-  imports: [ConfigModule.forRoot(), TerminusModule, RecreationResourceModule],
-  controllers: [AppController, MetricsController, HealthController],
-  providers: [
-    AppService,
-    PrismaService,
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: MetricsInterceptor,
-    },
+  imports: [
+    ConfigModule.forRoot(),
+    TerminusModule,
+    RecreationResourceModule,
+    ApiMetricsModule,
   ],
+  controllers: [AppController, MetricsController, HealthController],
+  providers: [AppService, PrismaService],
 })
 export class AppModule {
   // let's add a middleware on all routes
