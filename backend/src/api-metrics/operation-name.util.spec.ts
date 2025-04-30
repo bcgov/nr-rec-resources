@@ -2,17 +2,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { OperationNameUtil } from "./operation-name.util";
 
 describe("OperationNameUtil", () => {
-  let reflector: any;
-  let operationNameUtil: OperationNameUtil;
-  let mockExecutionContext: any;
+  let reflector, operationNameUtil, mockExecutionContext;
 
   beforeEach(() => {
-    reflector = {
-      get: vi.fn(),
-    };
-
+    reflector = { get: vi.fn() };
     operationNameUtil = new OperationNameUtil(reflector);
-
     mockExecutionContext = {
       getHandler: vi.fn(),
       getClass: vi.fn(),
@@ -20,66 +14,49 @@ describe("OperationNameUtil", () => {
   });
 
   describe("get", () => {
-    it("should return operationId when specified in ApiOperationOptions", () => {
+    it("returns operationId from ApiOperationOptions", () => {
       const mockHandler = vi.fn();
-      const mockController = vi.fn();
-      const expectedOperationId = "customOperationId";
-
       mockExecutionContext.getHandler.mockReturnValue(mockHandler);
-      mockExecutionContext.getClass.mockReturnValue(mockController);
-      reflector.get.mockReturnValue({
-        operationId: expectedOperationId,
-        summary: "Test summary",
-      });
+      mockExecutionContext.getClass.mockReturnValue(vi.fn());
+      reflector.get.mockReturnValue({ operationId: "customOperationId" });
 
-      const result = operationNameUtil.get(mockExecutionContext);
-
-      expect(result).toBe(expectedOperationId);
+      expect(operationNameUtil.get(mockExecutionContext)).toBe(
+        "customOperationId",
+      );
       expect(reflector.get).toHaveBeenCalledWith(
         "swagger/apiOperation",
         mockHandler,
       );
     });
 
-    it("should return 'Controller.handler' format when ApiOperationOptions lacks operationId", () => {
-      const mockHandler = { name: "testHandler" };
-      const mockController = { name: "TestController" };
-      const expectedName = "TestController.testHandler";
-
-      mockExecutionContext.getHandler.mockReturnValue(mockHandler);
-      mockExecutionContext.getClass.mockReturnValue(mockController);
+    it("returns 'Controller.handler' when no operationId", () => {
+      mockExecutionContext.getHandler.mockReturnValue({ name: "testHandler" });
+      mockExecutionContext.getClass.mockReturnValue({ name: "TestController" });
       reflector.get.mockReturnValue({ summary: "Test summary" });
 
-      const result = operationNameUtil.get(mockExecutionContext);
-
-      expect(result).toBe(expectedName);
+      expect(operationNameUtil.get(mockExecutionContext)).toBe(
+        "TestController.testHandler",
+      );
     });
 
-    it("should return 'Controller.handler' format when ApiOperationOptions is missing", () => {
-      const mockHandler = { name: "testHandler" };
-      const mockController = { name: "TestController" };
-      const expectedName = "TestController.testHandler";
-
-      mockExecutionContext.getHandler.mockReturnValue(mockHandler);
-      mockExecutionContext.getClass.mockReturnValue(mockController);
+    it("returns 'Controller.handler' when no ApiOperationOptions", () => {
+      mockExecutionContext.getHandler.mockReturnValue({ name: "testHandler" });
+      mockExecutionContext.getClass.mockReturnValue({ name: "TestController" });
       reflector.get.mockReturnValue(undefined);
 
-      const result = operationNameUtil.get(mockExecutionContext);
-
-      expect(result).toBe(expectedName);
+      expect(operationNameUtil.get(mockExecutionContext)).toBe(
+        "TestController.testHandler",
+      );
     });
 
-    it("should handle missing handler or controller names gracefully", () => {
-      const mockHandler = {};
-      const mockController = {};
-
-      mockExecutionContext.getHandler.mockReturnValue(mockHandler);
-      mockExecutionContext.getClass.mockReturnValue(mockController);
+    it("handles missing names", () => {
+      mockExecutionContext.getHandler.mockReturnValue({});
+      mockExecutionContext.getClass.mockReturnValue({});
       reflector.get.mockReturnValue(undefined);
 
-      const result = operationNameUtil.get(mockExecutionContext);
-
-      expect(result).toBe("undefined.undefined");
+      expect(operationNameUtil.get(mockExecutionContext)).toBe(
+        "undefined.undefined",
+      );
     });
   });
 });
