@@ -101,10 +101,10 @@ jobs:
     needs: [deploy-api]
     if: ${{ inputs.command == 'apply' }}
     with:
-      app_env: ${{ inputs.app_env || 'dev' }}
-      environment_name: ${{ inputs.environment_name || 'dev' }}
+      app_env: ${{ inputs.app_env }}
+      environment_name: ${{ inputs.environment_name }}
       command: apply
-      flyway_image: ghcr.io/bcgov/nr-rec-resources/migrations/fta:${{ inputs.tag || 'latest' }}
+      flyway_image: ghcr.io/bcgov/nr-rec-resources/migrations/fta:${{ inputs.tag }}
       working_directory: migration
       tag: ${{ inputs.tag }}
     secrets: inherit
