@@ -33,7 +33,8 @@ const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
                 </th>
                 <td>
                   <p>
-                    We answer emails weekdays from 9 am to 5 pm Pacific Time.
+                    We answer emails weekdays from 8:30 am to 4:30 pm Pacific
+                    Time.
                   </p>
                   <p>
                     <a href={EXTERNAL_LINKS.CONTACT}>Contact Us</a>
