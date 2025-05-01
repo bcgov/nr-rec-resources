@@ -104,4 +104,20 @@ describe('the Contact component', () => {
 
     expect(operatorLabel).toBeNull();
   });
+
+  it('displays the correct contact hours', async () => {
+    render(
+      <Contact
+        siteOperator={siteOperator}
+        error={null}
+        isLoading={false}
+        refetchData={null}
+      />,
+    );
+    const contactHours = screen.getByText(
+      /We answer emails weekdays from 8:30 am to 4:30 pm Pacific Time./,
+    );
+
+    expect(contactHours).toBeVisible();
+  });
 });
