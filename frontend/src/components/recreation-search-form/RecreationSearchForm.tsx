@@ -13,6 +13,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
 import './RecreationSearchForm.scss';
 import { useSearchInput } from '@/components/recreation-search-form/useSearchInput';
+import { trackSiteSearch } from '@/utils/matomo';
 
 interface RecreationSearchFormProps {
   initialValue?: string;
@@ -20,6 +21,7 @@ interface RecreationSearchFormProps {
   placeholder?: string;
   searchButtonProps?: ButtonProps;
   showSearchIcon?: boolean;
+  location?: string;
 }
 
 export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
@@ -28,6 +30,7 @@ export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
   placeholder = 'Search by name or community',
   searchButtonProps,
   showSearchIcon = false,
+  location = 'Search page',
 }) => {
   const [searchParams] = useSearchParams();
   const filter = searchParams.get('filter');
@@ -37,6 +40,10 @@ export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
   const handleFormSubmit = (e: FormEvent) => {
     e.preventDefault();
     handleSearch();
+    trackSiteSearch({
+      category: `${location} search form`,
+      keyword: inputValue,
+    });
   };
 
   useEffect(() => {

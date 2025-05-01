@@ -2,6 +2,7 @@ import { useSearchParams } from 'react-router-dom';
 import removeFilter from '@/utils/removeFilter';
 import { FilterChip } from '@/components/search/types';
 import { filterChipStore } from '@/store';
+import { trackSiteSearch } from '@/utils/matomo';
 
 export const useFilterHandler = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -20,6 +21,10 @@ export const useFilterHandler = () => {
           { param, id, label },
         ]);
       }
+      trackSiteSearch({
+        category: 'Filter toggle on',
+        keyword: label,
+      });
     } else {
       filterChipStore.setState((prevState) =>
         prevState.filter((filter) => filter.id !== id),
@@ -30,6 +35,10 @@ export const useFilterHandler = () => {
         newSearchParams.set(param, updateFilters);
       }
       setSearchParams(newSearchParams);
+      trackSiteSearch({
+        category: 'Filter toggle off',
+        keyword: label,
+      });
     }
   };
 

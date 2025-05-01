@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImages } from '@fortawesome/free-solid-svg-icons';
+import { trackEvent } from '@/utils/matomo';
 import Lightbox from 'yet-another-react-lightbox';
 import Captions from 'yet-another-react-lightbox/plugins/captions';
 import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails';
@@ -22,23 +23,19 @@ interface Photo {
 
 interface ShowPhotosProps {
   text: string | number;
-  setShowPhotos: React.Dispatch<React.SetStateAction<boolean>>;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  onClick?: () => void;
 }
 
-const ShowPhotosBtn: React.FC<ShowPhotosProps> = ({
-  text,
-  setShowPhotos,
-  setOpen,
-}) => {
+const ShowPhotosBtn: React.FC<ShowPhotosProps> = ({ text, onClick }) => {
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onClick?.();
+  };
   return (
     <button
       aria-label="Show photos"
       className="btn show-photo-button"
-      onClick={() => {
-        setShowPhotos(true);
-        setOpen(true);
-      }}
+      onClick={handleClick}
     >
       <FontAwesomeIcon icon={faImages} className="photo-icon" />
       {text}
@@ -51,7 +48,6 @@ export interface PhotoGalleryProps {
 }
 
 const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
-  const [showPhoto, setShowPhoto] = useState(false);
   const [open, setOpen] = useState(false);
 
   const photoSlides = photos.map((photo) => ({
@@ -61,16 +57,25 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
     ),
   }));
 
-  const handleKeyDownShowPhotos = (e: React.KeyboardEvent) => {
+  const handleKeyDownOpen = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
-      setShowPhoto(true);
+      e.preventDefault();
+      setOpen(true);
+      trackEvent({
+        action: 'Keyboard navigation',
+        category: 'Photo gallery',
+        name: 'Open photo gallery',
+      });
     }
   };
 
-  const handleKeyDownOpen = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      setOpen(true);
-    }
+  const handleOpen = () => {
+    setOpen(true);
+    trackEvent({
+      action: 'Click',
+      category: 'Photo gallery',
+      name: 'Open photo gallery',
+    });
   };
 
   const parkPhotos = photos.map((photo, index) => ({
@@ -104,17 +109,11 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
             data-testid="park-photo-gallery-container"
             tabIndex={0}
             className="gallery-container"
-            onClick={() => {
-              if (!showPhoto) {
-                setShowPhoto(true);
-              }
-            }}
-            onKeyDown={handleKeyDownShowPhotos}
           >
             {parkPhotos.length === 1 && (
               <div
                 className="photo-row"
-                onClick={() => setOpen(true)}
+                onClick={handleOpen}
                 onKeyDown={handleKeyDownOpen}
               >
                 <div className="photo-col">
@@ -124,11 +123,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
                     alt={parkPhotos[0].altText}
                   />
                   <div className="show-photos">
-                    <ShowPhotosBtn
-                      text="Show photo"
-                      setShowPhotos={setShowPhoto}
-                      setOpen={setOpen}
-                    />
+                    <ShowPhotosBtn text="Show photo" onClick={handleOpen} />
                   </div>
                 </div>
               </div>
@@ -137,7 +132,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
             {isGalleryMed && (
               <div
                 className="photo-row"
-                onClick={() => setOpen(true)}
+                onClick={handleOpen}
                 onKeyDown={handleKeyDownOpen}
               >
                 <div className="photo-col">
@@ -154,11 +149,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
                     alt={parkPhotos[1].altText}
                   />
                   <div className="show-photos">
-                    <ShowPhotosBtn
-                      text="Show photos"
-                      setShowPhotos={setShowPhoto}
-                      setOpen={setOpen}
-                    />
+                    <ShowPhotosBtn text="Show photos" onClick={handleOpen} />
                   </div>
                 </div>
               </div>
@@ -167,7 +158,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
             {parkPhotos.length > 4 && (
               <div
                 className="photo-row"
-                onClick={() => setOpen(true)}
+                onClick={handleOpen}
                 onKeyDown={handleKeyDownOpen}
               >
                 <div className="photo-col">
@@ -202,11 +193,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
                       })}
                   </div>
                   <div className="show-photos">
-                    <ShowPhotosBtn
-                      text="Show photos"
-                      setShowPhotos={setShowPhoto}
-                      setOpen={setOpen}
-                    />
+                    <ShowPhotosBtn text="Show photos" onClick={handleOpen} />
                   </div>
                 </div>
               </div>
@@ -223,17 +210,11 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
             data-testid="clickable-mobile-div"
             tabIndex={0}
             className="gallery-container"
-            onClick={() => {
-              if (!showPhoto) {
-                setShowPhoto(true);
-              }
-            }}
-            onKeyDown={handleKeyDownShowPhotos}
           >
             <div
               className="photo-row"
               data-testid="clickable-mobile-div-row"
-              onClick={() => setOpen(true)}
+              onClick={handleOpen}
               onKeyDown={handleKeyDownOpen}
             >
               <div className="photo-col">
@@ -246,8 +227,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
                   <ShowPhotosBtn
                     data-testid="show-photos-button-mobile"
                     text={parkPhotos.length}
-                    setOpen={setOpen}
-                    setShowPhotos={setShowPhoto}
+                    onClick={handleOpen}
                   />
                 </div>
               </div>

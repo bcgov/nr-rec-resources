@@ -1,3 +1,4 @@
+import { trackClickEvent } from '@/utils/matomo';
 import '@/components/layout/PageMenu.scss';
 
 type PageSection = {
@@ -29,6 +30,10 @@ const PageMenu: React.FC<PageMenuProps> = ({ pageSections, activeSection }) => {
                 data-active-section={
                   activeSection === sectionIndex ? 'true' : 'false'
                 }
+                onClick={trackClickEvent({
+                  category: 'Section menu navigation',
+                  name: `Recreation Resource page section ${title}`,
+                })}
                 href={href}
               >
                 {title}

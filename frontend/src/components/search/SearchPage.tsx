@@ -16,6 +16,7 @@ import {
   PaginatedRecreationResourceModel,
   RecreationResourceSearchModel,
 } from '@/service/custom-models';
+import { trackEvent } from '@/utils/matomo';
 import { LoadingButton } from '@/components/LoadingButton';
 import { Col, ProgressBar, Row, Stack } from 'react-bootstrap';
 
@@ -83,14 +84,29 @@ const SearchPage = () => {
     setTimeout(() => {
       lastItem?.scrollIntoView({ behavior: 'smooth' });
     });
+    trackEvent({
+      category: 'Search',
+      action: 'Click',
+      name: 'Load more results',
+    });
   };
 
   const handleLoadPrevious = () => {
     fetchPreviousPage();
+    trackEvent({
+      category: 'Search',
+      action: 'Click',
+      name: 'Load previous results',
+    });
   };
 
   const handleOpenMobileFilter = () => {
     setIsMobileFilterOpen(true);
+    trackEvent({
+      category: 'Search',
+      action: 'Click',
+      name: 'Open mobile filter menu',
+    });
   };
 
   const isFetchingFirstPage =
