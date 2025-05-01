@@ -53,8 +53,9 @@ export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
     >
       <Row className="gy-3 gx-0 gx-lg-3">
         <Col md={12} lg="auto" className="flex-grow-0 flex-lg-grow-1">
-          <InputGroup className="search-input-group" role="group" aria-labelledby={placeholder}>
+          <InputGroup className="search-input-group">
             <FormControl
+              aria-label={placeholder}
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
