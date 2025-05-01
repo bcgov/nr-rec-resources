@@ -2,8 +2,6 @@ import { test } from '@playwright/test';
 import { initHappo } from 'e2e/utils';
 import {
   FilterPOM,
-  LandingPOM,
-  LayoutPOM,
   RecreationResourcePOM,
   SearchPOM,
   UtilsPOM,
@@ -13,43 +11,6 @@ import { RecResourceType } from 'e2e/enum/recResource';
 initHappo();
 
 test.describe('Search for a recreation site or trail workflows', () => {
-  test('Navigate to the search page, use the search bar to find a rec resource by name and navigate to that page', async ({
-    page,
-  }) => {
-    const filter = new FilterPOM(page);
-    const landingPage = new LandingPOM(page);
-    const layout = new LayoutPOM(page);
-    const recResourcePage = new RecreationResourcePOM(page);
-    const searchPage = new SearchPOM(page);
-    const utils = new UtilsPOM(page);
-
-    await landingPage.route();
-
-    await layout.verifyHeaderContent();
-    await layout.verifyFooterContent();
-
-    await layout.clickFindARecreationSiteOrTrail();
-
-    await filter.verifyInitialFilterMenu();
-
-    await searchPage.verifyInitialResults();
-
-    await searchPage.searchFor('10k');
-
-    await utils.checkExpectedUrlParams('filter=10k&page=1');
-
-    await searchPage.verifySearchResults('10k');
-
-    await utils.clickLinkByText('10k cabin');
-
-    await recResourcePage.verifyRecResourceHeaderContent({
-      rec_resource_id: 'REC160773',
-      rec_resource_name: '10k Cabin',
-      rec_resource_type: RecResourceType.SITE,
-      closest_community: 'Merritt',
-    });
-  });
-
   test('Use the search bar to find a rec resource by closest community and navigate to that page', async ({
     page,
   }) => {
@@ -78,6 +39,7 @@ test.describe('Search for a recreation site or trail workflows', () => {
       rec_resource_type: RecResourceType.SITE,
       closest_community: 'Summerland',
     });
+    await recResourcePage.verifyRecResourceSections();
   });
 
   test("Use the search bar to search for a rec resource that doesn't exist", async ({
@@ -140,5 +102,29 @@ test.describe('Search for a recreation site or trail workflows', () => {
     await utils.checkExpectedUrlParams('page=2');
 
     await searchPage.recResourceCardCount(20);
+  });
+
+  test('Search for a rec resource, and then click the clear search button', async ({
+    page,
+  }) => {
+    const filter = new FilterPOM(page);
+    const searchPage = new SearchPOM(page);
+    const utils = new UtilsPOM(page);
+
+    await searchPage.route();
+
+    await filter.verifyInitialFilterMenu();
+
+    await searchPage.verifyInitialResults();
+
+    await searchPage.searchFor('10k');
+
+    await utils.checkExpectedUrlParams('filter=10k&page=1');
+
+    await searchPage.clearSearchInput();
+
+    await searchPage.verifyInitialResults();
+
+    await utils.checkExpectedUrlParams('page=1');
   });
 });

@@ -174,7 +174,6 @@ const RecResourcePage = () => {
           href: `#${SectionIds.CAMPING}`,
           title: SectionTitles.CAMPING,
         },
-
         isAdditionalFeesAvailable && {
           href: `#${SectionIds.ADDITIONAL_FEES}`,
           title: SectionTitles.ADDITIONAL_FEES,
