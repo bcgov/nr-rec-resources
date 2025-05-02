@@ -14,13 +14,14 @@ test.describe('Recreation Resource page', () => {
 
     await layout.verifyHeaderContent();
     await layout.verifyFooterContent();
+    await recResourcePage.verifySectionsExistInPageMenu();
 
     await recResourcePage.removeRecreationResourceFeatureMap();
 
     await recResourcePage.verifyPdfDocLinks();
 
-    await utils.screenshot('Recreation Resource page', 'default');
-
     await utils.accessibility();
+
+    await utils.screenshot('Recreation Resource page', 'default');
   });
 });

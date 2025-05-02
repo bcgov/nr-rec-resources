@@ -16,12 +16,13 @@ test.describe('Recreation Sites and Trails landing page', () => {
 
     await layout.verifyHeaderContent();
     await layout.verifyFooterContent();
+    await landing.verifyLandingPageContent();
+
+    await utils.accessibility();
 
     await utils.screenshot(
       'Recreation Sites and Trails landing page',
       'default',
     );
-
-    await utils.accessibility();
   });
 });
