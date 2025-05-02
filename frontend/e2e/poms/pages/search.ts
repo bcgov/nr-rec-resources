@@ -31,6 +31,13 @@ export class SearchPOM {
     return await this.page.locator('.rec-resource-card').count();
   }
 
+  async clearSearchInput() {
+    const clearButton = this.page.getByRole('button', { name: 'Clear Search' });
+
+    await expect(clearButton).toBeVisible();
+    await clearButton.click();
+  }
+
   async clickLoadMore(btnLabel?: string) {
     const loadMoreBtn = this.page.getByRole('button', {
       name: btnLabel ? btnLabel : SearchEnum.LOAD_MORE_LABEL,

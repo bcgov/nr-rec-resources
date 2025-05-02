@@ -19,8 +19,8 @@ test.describe('Search page', () => {
     await filter.verifyInitialFilterMenu();
     await searchPage.verifyInitialResults();
 
-    await utils.screenshot('Search page', 'default');
-
     await utils.accessibility();
+
+    await utils.screenshot('Search page', 'default');
   });
 });

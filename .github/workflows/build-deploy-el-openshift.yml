@@ -68,7 +68,7 @@ jobs:
     steps:
       - name: Helm Deploy
         id: deploy
-        uses: bcgov/action-oc-runner@v1.1.0
+        uses: bcgov/action-oc-runner@v1.2.0
         env:
           DB_PASSWORD: ${{ secrets.DBPASSWORD }} # handle special characters.
         with:
@@ -110,7 +110,7 @@ jobs:
     steps:
       - name: Helm Uninstall on PR close
         id: helm-uninstall
-        uses: bcgov/action-oc-runner@v1.1.0
+        uses: bcgov/action-oc-runner@v1.2.0
         with:
           oc_namespace: ${{ secrets.OC_NAMESPACE }}
           oc_token: ${{ secrets.OC_TOKEN }}
