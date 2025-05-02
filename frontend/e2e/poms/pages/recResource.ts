@@ -4,6 +4,7 @@ import { expect, Page } from '@playwright/test';
 import { BASE_URL } from 'e2e/constants';
 import { waitForImagesToLoad } from 'e2e/utils';
 import { RecResource } from 'e2e/poms/pages/types';
+import { SectionTitles } from '@/components/rec-resource/enum';
 
 const MAP_CANVAS_SELECTOR = '#map-container';
 
@@ -74,5 +75,49 @@ export class RecreationResourcePOM {
   async verifyPdfDocLinks() {
     const pdfLink = this.page.getByRole('link', { name: /\[PDF\]/ });
     await expect(pdfLink).toHaveAttribute('href', /.*\.pdf$/);
+  }
+
+  async verifyPageMenuItemSectionsAreVisible() {
+    // Check if the section is in the page menu and verify that the section is visible on the page
+    const pageMenu = this.page.locator('#section-navbar');
+
+    for (const key in SectionTitles) {
+      const sectionTitle = SectionTitles[key as keyof typeof SectionTitles];
+
+      const navItem = pageMenu.getByRole('link', {
+        name: sectionTitle,
+      });
+      const isNavItemVisible = await navItem.isVisible().catch(() => false);
+
+      if (isNavItemVisible) {
+        const heading = this.page.locator('h2', { hasText: sectionTitle });
+        expect(heading).toBeVisible();
+      }
+    }
+  }
+
+  async verifySectionsExistInPageMenu() {
+    // Check if the section is visible on the page and verify that the section is in the page menu
+    const pageMenu = this.page.locator('#section-navbar');
+
+    for (const key in SectionTitles) {
+      const sectionTitle = SectionTitles[key as keyof typeof SectionTitles];
+
+      const heading = this.page.locator('h2', { hasText: sectionTitle });
+      const isSectionVisible = await heading.isVisible().catch(() => false);
+
+      if (isSectionVisible) {
+        const navItem = pageMenu.getByRole('link', {
+          name: sectionTitle,
+        });
+        expect(navItem).toBeVisible();
+      }
+    }
+  }
+
+  async verifyRecResourceSections() {
+    // verify the sections exist in the page menu and vice versa
+    await this.verifySectionsExistInPageMenu();
+    await this.verifyPageMenuItemSectionsAreVisible();
   }
 }

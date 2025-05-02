@@ -23,17 +23,21 @@ export class LayoutPOM {
 
   async verifyFooterContent() {
     const footer = this.page.locator('footer');
-    await expect(
-      footer.getByRole('link', { name: 'Disclaimer' }),
-    ).toBeVisible();
-    await expect(footer.getByRole('link', { name: 'Privacy' })).toBeVisible();
-    await expect(
-      footer.getByRole('link', { name: 'Accessibility' }),
-    ).toBeVisible();
-    await expect(footer.getByRole('link', { name: 'Copyright' })).toBeVisible();
-    await expect(
-      footer.getByRole('link', { name: 'Contact us' }),
-    ).toBeVisible();
+    [
+      'Disclaimer',
+      'Privacy',
+      'Accessibility',
+      'Copyright',
+      'Closures',
+      'Rules and etiquette',
+      'Authorizations',
+      'Partnering and volunteering',
+      'Research opportunities',
+      'ORV Trail Fund',
+      'Contact us',
+    ].forEach((link) => {
+      expect(footer.getByRole('link', { name: link })).toBeVisible();
+    });
   }
 
   async clickFindARecreationSiteOrTrail() {
