@@ -24,13 +24,19 @@ const ScrollToTop = () => {
 
   return (
     isScrollVisible && (
-      <Button data-testid="scroll-button" className="btn-scroll" aria-label="scroll to top" variant="link" onClick={scrollToTop}>
+      <Button
+        data-testid="scroll-button"
+        className="btn-scroll"
+        aria-label="scroll to top"
+        variant="link"
+        onClick={scrollToTop}
+      >
         <div className="btn-scroll--inner">
           <FontAwesomeIcon icon={faAngleUp} />
         </div>
       </Button>
     )
   );
-}
+};
 
 export default ScrollToTop;
