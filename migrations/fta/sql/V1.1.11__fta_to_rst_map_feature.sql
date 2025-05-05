@@ -65,12 +65,12 @@ select distinct on (rmf.map_feature_id)
     rmf.update_userid as updated_by,
     rmf.update_timestamp as updated_at
 from fta.recreation_map_feature_geom rmf
-join rst.recreation_map_feature r on r.rmf_skey = rmf.rmf_skey  -- ensure only existing records are referenced
+join rst.recreation_map_feature r on r.rmf_skey = rmf.rmf_skey
 order by rmf.map_feature_id, rmf.update_timestamp desc
-on conflict (map_feature_id)
+on conflict (rmf_skey)
 do update
 set
-    rmf_skey = excluded.rmf_skey,
+    map_feature_id = excluded.map_feature_id,
     geometry_type_code = excluded.geometry_type_code,
     geometry = excluded.geometry,
     feature_area = excluded.feature_area,
