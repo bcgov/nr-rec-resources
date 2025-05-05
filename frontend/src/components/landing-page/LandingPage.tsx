@@ -70,9 +70,17 @@ export const LandingPage: FC = () => {
                 deeply.
               </p>
               <p>
-                This new beta version of sitesandtrailsbc.ca is just the
-                beginning. We'll continue improving the site based on research
-                with the people who use it. It will be an evolving,
+                This new beta version of{' '}
+                <a
+                  href="https://www.sitesandtrailsbc.ca/"
+                  target="_blank"
+                  aria-label="Link to the current sites and trails BC web site"
+                  rel="noreferrer noopener"
+                >
+                  sitesandtrailsbc.ca
+                </a>{' '}
+                is just the beginning. We'll continue improving the site based
+                on research with the people who use it. It will be an evolving,
                 collaborative work in progress.
               </p>
               <p>
