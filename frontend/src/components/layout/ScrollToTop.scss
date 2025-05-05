@@ -1,0 +1,27 @@
+@import '@/styles/variables.scss';
+
+.btn-scroll {
+  background-color: transparent;
+  border: none;
+  bottom: 2vh;
+  padding: 0;
+  position: fixed;
+  right: 2%;
+  z-index: 100;
+  border-radius: 4px;
+}
+
+.btn-scroll--inner {
+  align-items: center;
+  background-color: $colorBlue;
+  border: 2px solid $colorWhite;
+  border-radius: 50%;
+  color: $colorWhite;
+  display: flex;
+  justify-content: center;
+  height: 44px;
+  width: 44px;
+  &:hover {
+    background-color: $colorBlueMed;
+  }
+}
