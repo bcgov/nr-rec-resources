@@ -5,6 +5,8 @@ import ScrollToTop from './components/layout/ScrollToTop';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '~/@tanstack/react-query';
 
+const MAIN_CONTENT_ID = 'main-content';
+
 const App = () => {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -17,11 +19,16 @@ const App = () => {
 
   return (
     <>
+      <a className="visually-hidden-focusable" href={`#${MAIN_CONTENT_ID}`}>
+        Skip to main content
+      </a>
       <Header />
       <main>
         <QueryClientProvider client={queryClient}>
           <BrowserRouter>
-            <AppRoutes />
+            <div id={MAIN_CONTENT_ID}>
+              <AppRoutes />
+            </div>
           </BrowserRouter>
         </QueryClientProvider>
       </main>
