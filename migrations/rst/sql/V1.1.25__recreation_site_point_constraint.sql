@@ -1,0 +1,2 @@
+alter table rst.recreation_site_point
+drop constraint recreation_site_point_rec_resource_id_geometry_key;
