@@ -76,6 +76,7 @@ export const LandingPage: FC = () => {
                   target="_blank"
                   aria-label="Link to the current sites and trails BC web site"
                   rel="noreferrer noopener"
+                  className="research-signup-link"
                 >
                   sitesandtrailsbc.ca
                 </a>{' '}
