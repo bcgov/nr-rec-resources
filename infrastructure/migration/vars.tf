@@ -44,7 +44,7 @@ variable "flyway_image" {
 variable "flyway_clean_disabled" {
   description = "Enable Flyway clean"
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "aws_region" {
