@@ -141,3 +141,9 @@ variable "forest_client_api_url" {
   description = "The API URL for the Forest client"
   type        = string
 }
+
+variable "alarm_alert_email_recipients" {
+  description = "List of emails to notify for CloudWatch alarms"
+  type        = string
+  default     = ""
+}
