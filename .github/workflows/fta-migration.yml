@@ -2,7 +2,7 @@ name: FTA Migration
 
 on:
   schedule: [cron: "0 3 * * *"] # Every day at 3 AM
-  workflow_call:
+  workflow_dispatch:
     inputs:
       tag:
         description: 'The tag of the containers to deploy'
@@ -19,7 +19,7 @@ jobs:
   run-fta-migration:
     strategy:
       matrix:
-        environment: [dev, test, prod]
+        environment: [test, prod]
     name: Run FTA ${{ matrix.app_env }} Migration
     uses: ./.github/workflows/.aws-deployer.yml
     with:
