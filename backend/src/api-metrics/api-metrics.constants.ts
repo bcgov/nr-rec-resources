@@ -18,7 +18,7 @@ export enum MetricDimensions {
 }
 
 export const ENV_VARS = {
-  NODE_ENV: "NODE_ENV",
+  APP_ENV: "APP_ENV",
 } as const;
 
 export enum EnvValues {
@@ -29,4 +29,4 @@ export const SWAGGER_CONSTANTS = {
   API_OPERATION: "swagger/apiOperation",
 } as const;
 
-export const MetricNamespace = "RecreationSitesAndTrailsBCAPI";
+export const METRIC_NAMESPACE_NAME_PREFIX = "RecreationSitesAndTrailsBCAPI";

@@ -19,6 +19,7 @@ locals {
   api_image          = get_env("api_image")
   forest_client_api_key = get_env("forest_client_api_key")
   forest_client_api_url = get_env("forest_client_api_url")
+  alarm_alert_email_recipients = get_env("alarm_alert_email_recipients")
 }
 
 # Remote S3 state for Terraform.
@@ -46,6 +47,7 @@ generate "tfvars" {
   contents          = <<-EOF
   forest_client_api_key="${local.forest_client_api_key}"
   forest_client_api_url="${local.forest_client_api_url}"
+  alarm_alert_email_recipients="${local.alarm_alert_email_recipients}"
 EOF
 }
 
