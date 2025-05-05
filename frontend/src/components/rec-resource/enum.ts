@@ -1,4 +1,4 @@
-export const enum SectionTitles {
+export enum SectionTitles {
   CLOSURES = 'Closures',
   SITE_DESCRIPTION = 'Site description',
   CAMPING = 'Camping',
@@ -9,7 +9,7 @@ export const enum SectionTitles {
   CONTACT = 'Contact',
 }
 
-export const enum SectionIds {
+export enum SectionIds {
   CLOSURES = 'closures',
   SITE_DESCRIPTION = 'site-description',
   CAMPING = 'camping',
