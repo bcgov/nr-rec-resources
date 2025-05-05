@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAngleUp } from '@fortawesome/free-solid-svg-icons';
 import '@/components/layout/ScrollToTop.scss';
@@ -24,17 +23,16 @@ const ScrollToTop = () => {
 
   return (
     isScrollVisible && (
-      <Button
+      <button
         data-testid="scroll-button"
         className="btn-scroll"
         aria-label="scroll to top"
-        variant="link"
         onClick={scrollToTop}
       >
         <div className="btn-scroll--inner">
           <FontAwesomeIcon icon={faAngleUp} />
         </div>
-      </Button>
+      </button>
     )
   );
 };
