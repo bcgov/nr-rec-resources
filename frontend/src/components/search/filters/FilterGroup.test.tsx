@@ -50,7 +50,6 @@ describe('the FilterGroup component', () => {
         hasFocus: false,
       },
     ];
-    console.log(newOptions);
     const c = (
       <FilterGroup label="Activities" options={newOptions} param="activities" />
     );
@@ -93,7 +92,6 @@ describe('the FilterGroup component', () => {
         hasFocus: false,
       },
     ];
-    console.log(newOptions);
     const c = (
       <FilterGroup label="Activities" options={newOptions} param="activities" />
     );
