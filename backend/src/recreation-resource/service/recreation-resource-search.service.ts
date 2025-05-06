@@ -30,6 +30,7 @@ export class RecreationResourceSearchService {
     facilities?: string,
     lat?: number,
     lon?: number,
+    radius?: number,
   ): Promise<PaginatedRecreationResourceDto> {
     // 10 page limit - max 100 records since if no limit we fetch page * limit
     if (page > 10 && !limit) {
@@ -55,6 +56,7 @@ export class RecreationResourceSearchService {
       facilities,
       lat,
       lon,
+      radius,
     });
 
     const [recreationResources, combinedRecordCounts, combinedStaticCounts] =

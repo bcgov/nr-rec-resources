@@ -9,10 +9,8 @@ export interface FilterOptions {
   facilities?: string;
   lat?: number;
   lon?: number;
+  radius?: number;
 }
-
-// const radiusInMeters = 50000; // 50 km radius
-const radiusInMeters = 1500000; // 2000 km radius
 
 // Build where clause for search filter query
 export const buildSearchFilterQuery = ({
@@ -24,6 +22,7 @@ export const buildSearchFilterQuery = ({
   facilities,
   lat,
   lon,
+  radius = 50000, // Default to 50 km if not provided
 }: FilterOptions): Prisma.Sql => {
   const activityFilter = activities?.split("_").map(Number) ?? [];
   const typeFilter = type?.split("_").map(String) ?? [];
@@ -78,10 +77,10 @@ export const buildSearchFilterQuery = ({
 
   const locationFilterQuery =
     typeof lat === "number" && typeof lon === "number"
-      ? Prisma.sql`and public.ST_DWithin(
-        public.ST_SetSRID(recreation_site_point, 4326),
-        public.ST_SetSRID(public.ST_MakePoint(${lon}, ${lat}), 4326),
-        ${radiusInMeters}
+      ? Prisma.sql`AND public.ST_DWithin(
+        public.ST_Transform(public.ST_SetSRID(recreation_site_point, 3005), 3005),
+        public.ST_Transform(public.ST_SetSRID(public.ST_MakePoint(${lon}, ${lat}), 4326), 3005),
+        ${radius}
       )`
       : Prisma.empty;
 

@@ -5,7 +5,7 @@ import {
   Menu,
   MenuItem,
 } from 'react-bootstrap-typeahead';
-import { Form } from 'react-bootstrap';
+import { Form, FormControl } from 'react-bootstrap';
 import { City } from '@/components/recreation-search-form/types';
 import { useSearchCitiesApi } from '@/components/recreation-search-form/hooks/useSearchCitiesApi';
 import { useSearchInput } from '@/components/recreation-search-form/hooks/useSearchInput';
@@ -185,7 +185,7 @@ const LocationSearch: React.FC<LocationSearchProps> = ({ currentLocation }) => {
       className={classes}
       renderInput={({ inputRef, referenceElementRef, ...inputProps }) => (
         <Form.Group controlId="city-search-typeahead">
-          <Form.Control
+          <FormControl
             {...inputProps}
             value={selectedCity?.[0]?.cityName ?? cityInputValue}
             ref={(node) => {
