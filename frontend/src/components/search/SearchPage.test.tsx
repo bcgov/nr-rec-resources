@@ -142,7 +142,7 @@ describe('SearchPage', () => {
     );
 
     expect(
-      screen.getByText('Sorry, no sites or trails matched your search.'),
+      screen.getByText('No sites or trails matched your search.'),
     ).toBeInTheDocument();
   });
 
@@ -182,7 +182,7 @@ describe('SearchPage', () => {
     );
 
     expect(
-      screen.getByText('Sorry, no sites or trails matched your search.'),
+      screen.getByText('No sites or trails matched your search.'),
     ).toBeInTheDocument();
 
     // Test case 2: data with undefined pages
@@ -198,7 +198,7 @@ describe('SearchPage', () => {
     );
 
     expect(
-      screen.getByText('Sorry, no sites or trails matched your search.'),
+      screen.getByText('No sites or trails matched your search.'),
     ).toBeInTheDocument();
   });
 

@@ -143,18 +143,23 @@ const SearchPage = () => {
               ) : (
                 <div>
                   {totalCount ? (
-                    <span>
-                      <strong>{totalCount.toLocaleString()}</strong>
-                      {` ${totalCount === 1 ? 'Result' : 'Results'}`}
-                    </span>
+                    <>
+                      <span>
+                        <strong>{totalCount.toLocaleString()}</strong>
+                        {` ${totalCount === 1 ? 'Result' : 'Results'}`}
+                      </span>
+                      <FilterChips />
+                    </>
                   ) : (
-                    <NoResults />
+                    <NoResults
+                      searchString={searchParams.get('filter') ?? ''}
+                      filterChips={<FilterChips />}
+                    />
                   )}
                 </div>
               )}
             </div>
 
-            <FilterChips />
             {isFetching && !isFetchingPreviousPage && !isFetchingNextPage ? (
               <ProgressBar animated now={100} className="mb-4" />
             ) : (

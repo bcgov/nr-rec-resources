@@ -30,7 +30,7 @@ describe('NoResults component', () => {
 
     render(
       <MemoryRouter initialEntries={['/search?filter=test']}>
-        <NoResults />
+        <NoResults searchString={'test'} filterChips={null} />
       </MemoryRouter>,
     );
 
@@ -56,7 +56,7 @@ describe('NoResults component', () => {
 
     render(
       <MemoryRouter initialEntries={['/search?filter=test']}>
-        <NoResults />
+        <NoResults searchString={'test'} filterChips={null} />
       </MemoryRouter>,
     );
 
