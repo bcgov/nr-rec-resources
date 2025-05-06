@@ -27,9 +27,7 @@ describe('SearchBanner', () => {
         <SearchBanner />
       </MemoryRouter>,
     );
-    expect(
-      screen.getByPlaceholderText('Search by name or community'),
-    ).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Search by name')).toBeInTheDocument();
     expect(screen.getByText('Find a site or trail')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Search' })).toBeInTheDocument();
   });

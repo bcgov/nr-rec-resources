@@ -1,0 +1,126 @@
+@import '@/styles/variables';
+
+.city-search-typeahead,
+#city-search-typeahead {
+  width: 100%;
+
+  input {
+    height: 48px;
+    width: 100%;
+    color: $colorGrey;
+    font-size: 1rem;
+    border-color: $colorGreyMed;
+    box-shadow: none;
+    border-radius: 0.375rem !important;
+
+    &:hover {
+      border-width: 2px;
+    }
+
+    &:focus,
+    &:focus-visible {
+      border-width: 3px;
+      box-shadow:
+        0 0 0 2px $colorWhite,
+        0 0 0 4px $colorBlueMed;
+      padding: 18px 48px 0 16px;
+    }
+
+    &:focus ~ label,
+    &:not(:placeholder-shown) ~ label {
+      font-size: 0.75rem;
+      opacity: 0.65;
+      transform: translateY(-0.5rem) translateX(0.15rem);
+    }
+  }
+
+  label {
+    position: absolute;
+    top: 12px;
+    left: 16px;
+    color: $colorGreyMed;
+    font-size: 1rem;
+    pointer-events: none;
+    transition:
+      opacity 0.1s ease-in-out,
+      transform 0.1s ease-in-out;
+    transform-origin: top left;
+  }
+
+  &.has-text--true input.form-control,
+  &.is-dropdown-open--true input.form-control {
+    padding: 18px 16px 0;
+  }
+
+  &.is-dropdown-open--true input.form-control {
+    border-width: 3px;
+    box-shadow:
+      0 0 0 2px $colorWhite,
+      0 0 0 4px $colorBlueMed;
+  }
+
+  .dropdown-menu {
+    width: 100%;
+    max-height: 360px;
+    top: 45px;
+    transform: none;
+    margin: 0;
+    padding: 16px;
+    border: 3px solid $colorGreyMed;
+    border-radius: 0 0 4px 4px;
+
+    a.dropdown-item {
+      color: $colorGrey;
+      white-space: normal;
+      text-decoration: none;
+      margin-top: 16px;
+      padding: 0;
+
+      &:first-of-type {
+        margin-top: 0;
+      }
+
+      &:hover,
+      &:focus,
+      &:active,
+      &.active {
+        background: transparent;
+        text-decoration: underline;
+      }
+
+      &.disabled {
+        color: $colorGreyMed;
+      }
+
+      &.no-suggestion-text {
+        cursor: default;
+        text-decoration: none;
+      }
+
+      &.current-location-text .location-icon {
+        font-size: 1.125rem;
+        color: $colorGreyMed;
+        vertical-align: -0.2rem;
+        margin-right: 8px;
+      }
+    }
+  }
+
+  .rbt-aux {
+    button {
+      position: absolute;
+      right: 4px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: $colorGreyMed;
+      font-size: 24px;
+
+      &:hover {
+        color: #333;
+      }
+    }
+  }
+}

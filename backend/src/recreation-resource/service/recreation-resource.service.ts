@@ -45,7 +45,7 @@ export class RecreationResourceService {
   }
 
   async findClientNumber(id: string): Promise<string> {
-    const agrementHolder =
+    const agreementHolder =
       await this.prisma.recreation_agreement_holder.findUnique({
         where: {
           rec_resource_id: id,
@@ -55,11 +55,11 @@ export class RecreationResourceService {
         },
       });
 
-    if (!agrementHolder) {
+    if (!agreementHolder) {
       return null;
     }
 
-    return agrementHolder.client_number;
+    return agreementHolder.client_number;
   }
 
   async searchRecreationResources(
@@ -71,6 +71,8 @@ export class RecreationResourceService {
     district?: string,
     access?: string,
     facilities?: string,
+    lat?: number,
+    lon?: number,
   ) {
     return this.recreationResourceSearchService.searchRecreationResources(
       page,
@@ -81,6 +83,8 @@ export class RecreationResourceService {
       district,
       access,
       facilities,
+      lat,
+      lon,
     );
   }
 }

@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { RecreationSearchForm } from './RecreationSearchForm';
 import userEvent from '@testing-library/user-event';
-import * as SearchHooks from './useSearchInput';
+import * as SearchHooks from '@/components/recreation-search-form/hooks/useSearchInput';
 import { vi } from 'vitest';
 
 import { MemoryRouter } from 'react-router-dom';
@@ -17,8 +17,8 @@ const renderWithRouter = (
 
 describe('RecreationSearchForm', () => {
   const mockHooks = {
-    inputValue: '',
-    setInputValue: vi.fn(),
+    nameInputValue: '',
+    setNameInputValue: vi.fn(),
     handleSearch: vi.fn(),
     handleClear: vi.fn(),
   };
@@ -36,19 +36,17 @@ describe('RecreationSearchForm', () => {
 
   afterEach(() => vi.restoreAllMocks());
 
-  it('renders default form', () => {
+  it('renders default form', async () => {
     renderWithRouter(<RecreationSearchForm />);
-    expect(
-      screen.getByPlaceholderText('Search by name or community'),
-    ).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Search by name')).toBeInTheDocument();
     expect(screen.getByText('Search')).toBeInTheDocument();
   });
 
-  it('renders with custom props', () => {
+  it('renders with custom props', async () => {
     setup({ inputValue: 'test' });
     renderWithRouter(
       <RecreationSearchForm
-        initialValue="test"
+        initialNameInputValue="test"
         buttonText="Find"
         placeholder="Custom placeholder"
         showSearchIcon={true}
@@ -63,14 +61,14 @@ describe('RecreationSearchForm', () => {
   });
 
   it('handles user interactions', async () => {
-    const { setInputValue, handleSearch, handleClear } = setup();
+    const { setNameInputValue, handleSearch, handleClear } = setup();
     renderWithRouter(<RecreationSearchForm />);
 
     // Test input change
     fireEvent.change(screen.getByTestId('search-input'), {
       target: { value: 'test' },
     });
-    expect(setInputValue).toHaveBeenCalledWith('test');
+    expect(setNameInputValue).toHaveBeenCalledWith('test');
 
     // Test search
     await userEvent.click(screen.getByText('Search'));
@@ -93,17 +91,17 @@ describe('RecreationSearchForm', () => {
     expect(handleSearch).toHaveBeenCalledTimes(1);
   });
 
-  it('clears the search input if no filter search params', () => {
-    const { setInputValue } = setup();
+  it('clears the search input if no filter search params', async () => {
+    const { setNameInputValue } = setup();
     renderWithRouter(<RecreationSearchForm />, ['/search']);
 
-    expect(setInputValue).toHaveBeenCalledWith('');
+    expect(setNameInputValue).toHaveBeenCalledWith('');
   });
 
-  it('does not clear the search input if filter search params exist', () => {
-    const { setInputValue } = setup();
+  it('does not clear the search input if filter search params exist', async () => {
+    const { setNameInputValue } = setup();
     renderWithRouter(<RecreationSearchForm />, ['/search?filter=test']);
 
-    expect(setInputValue).not.toHaveBeenCalled();
+    expect(setNameInputValue).not.toHaveBeenCalled();
   });
 });

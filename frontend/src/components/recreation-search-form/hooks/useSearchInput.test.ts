@@ -17,43 +17,43 @@ describe('useSearchInput', () => {
 
   it('should initialize with empty string when no initial value provided', () => {
     const { result } = renderHook(() => useSearchInput());
-    expect(result.current.inputValue).toBe('');
+    expect(result.current.nameInputValue).toBe('');
   });
 
   it('should initialize with provided initial value', () => {
     const { result } = renderHook(() =>
-      useSearchInput({ initialValue: 'test' }),
+      useSearchInput({ initialNameInputValue: 'test' }),
     );
-    expect(result.current.inputValue).toBe('test');
+    expect(result.current.nameInputValue).toBe('test');
   });
 
-  it('should update input value when setInputValue is called', () => {
+  it('should update input value when setNameInputValue is called', () => {
     const { result } = renderHook(() => useSearchInput());
 
     act(() => {
-      result.current.setInputValue('new value');
+      result.current.setNameInputValue('new value');
     });
 
-    expect(result.current.inputValue).toBe('new value');
+    expect(result.current.nameInputValue).toBe('new value');
   });
 
   it('should clear input value when handleClear is called', () => {
     const { result } = renderHook(() =>
-      useSearchInput({ initialValue: 'test' }),
+      useSearchInput({ initialNameInputValue: 'test' }),
     );
 
     act(() => {
       result.current.handleClear();
     });
 
-    expect(result.current.inputValue).toBe('');
+    expect(result.current.nameInputValue).toBe('');
   });
 
   it('should trim input value when performing search', () => {
     const { result } = renderHook(() => useSearchInput());
 
     act(() => {
-      result.current.setInputValue('  test  ');
+      result.current.setNameInputValue('  test  ');
     });
 
     result.current.handleSearch();

@@ -4,8 +4,13 @@
   position: relative;
 
   .search-input {
+    width: 100%;
     padding-right: 2.5rem;
     padding-left: 1rem;
+
+    @media (min-width: $mdBreakpoint) {
+      flex: 1;
+    }
 
     &.has-search-icon {
       padding-left: 2.5rem;
@@ -20,17 +25,21 @@
 
   .search-input,
   .search-button {
-    height: 50px;
+    height: 48px;
   }
 
-  .search-icon {
-    position: absolute;
-    left: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: $colorBlue;
-    pointer-events: none;
-    z-index: 10; // otherwise icon disappears when input is in focus
+  .search-input-container {
+    position: relative;
+
+    .search-icon {
+      position: relative;
+      left: 0.75rem;
+
+      top: 50%;
+      color: $colorBlue;
+      pointer-events: none;
+      z-index: 10; // otherwise icon disappears when input is in focus
+    }
   }
 
   .search-button {
@@ -52,6 +61,22 @@
 
     &:hover {
       color: #333;
+    }
+  }
+
+  .search-spacer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem 1rem;
+  }
+
+  .search-input-group {
+    display: flex;
+    flex-direction: column;
+
+    @media (min-width: $mdBreakpoint) {
+      flex-direction: row;
     }
   }
 }

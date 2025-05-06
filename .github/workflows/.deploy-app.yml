@@ -88,6 +88,7 @@ jobs:
           VITE_API_BASE_URL: ${{ needs.deploy-api.outputs.API_GW_URL }}/api
           VITE_MATOMO_URL: ${{ secrets.VITE_MATOMO_URL }}
           VITE_MATOMO_SITE_ID: ${{ secrets.VITE_MATOMO_SITE_ID }}
+          VITE_SEARCH_CITIES_API_URL: ${{ secrets.SEARCH_CITIES_API_URL }}
           S3_BUCKET_ARN: ${{ needs.deploy-cloudfront.outputs.S3_BUCKET_ARN }}
           CF_DISTRIBUTION_ID: ${{ needs.deploy-cloudfront.outputs.CF_DISTRIBUTION_ID }}
         run: |

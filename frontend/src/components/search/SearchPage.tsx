@@ -42,6 +42,8 @@ const SearchPage = () => {
     activities: searchParams.get('activities') ?? undefined,
     access: searchParams.get('access') ?? undefined,
     facilities: searchParams.get('facilities') ?? undefined,
+    lat: searchParams.get('lat') ? Number(searchParams.get('lat')) : undefined,
+    lon: searchParams.get('lon') ? Number(searchParams.get('lon')) : undefined,
     type: searchParams.get('type') ?? undefined,
     page: initialPage,
   });
