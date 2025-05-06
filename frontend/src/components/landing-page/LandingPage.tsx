@@ -51,7 +51,7 @@ export const LandingPage: FC = () => {
       <RecreationSearchBanner />
       <Stack
         direction="vertical"
-        className="info-section align-items-center my-5"
+        className="info-section align-items-center my-5 content-footer-spacing"
         aria-label="Information about Recreation Sites and Trails BC"
         gap={5}
       >

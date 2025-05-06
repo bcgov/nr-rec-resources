@@ -4,22 +4,19 @@
 @import '~bootstrap/scss/mixins/_breakpoints';
 
 #footer {
-  --land-ack-box-height: clamp(120px, calc(192px - 3.75vw), 180px);
-
-  padding-top: calc(var(--land-ack-box-height) / 2);
+  padding-top: calc($landAckBoxHeight / 2);
   position: relative;
   background-color: $colorBlue;
-  margin-top: 5vh;
 
   .land-acknowledgement-box {
     position: absolute;
     top: 0;
     left: 50%;
-    transform: translateX(-50%) translateY(-50%);
+    transform: translate(-50%, -50%);
     background-color: $colorBlueMed;
     z-index: 10;
     width: calc(100% - 2rem);
-    height: var(--land-ack-box-height);
+    height: $landAckBoxHeight;
     overflow-y: auto;
 
     p {
