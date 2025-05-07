@@ -17,6 +17,9 @@ import {
 
 @Injectable()
 export class RecreationResourceSearchService {
+  private static readonly MAX_PAGE_SIZE = 10;
+  private static readonly MAX_PAGE_NUMBER = 10;
+
   constructor(private readonly prisma: PrismaService) {}
 
   async searchRecreationResources(
@@ -29,21 +32,14 @@ export class RecreationResourceSearchService {
     access?: string,
     facilities?: string,
   ): Promise<PaginatedRecreationResourceDto> {
-    // 10 page limit - max 100 records since if no limit we fetch page * limit
-    if (page > 10 && !limit) {
-      throw new Error("Maximum page limit is 10 when no limit is provided");
-    }
+    // Validate pagination parameters
+    this.validatePaginationParams(page, limit);
 
-    // 10 is the maximum limit
-    if (limit && limit > 10) {
-      limit = 10;
-    }
+    // Normalize pagination values
+    const take = this.normalizeTake(limit);
+    const skip = this.calculateSkip(page, take);
 
-    // If only page is provided, we will return all records up to the end of that page
-    // If limit is provided, we will return that many paginated records for lazy loading
-    const take = limit ? limit : 10;
-    const skip = (page - 1) * take;
-
+    // Build the where clause for filtering
     const whereClause = buildSearchFilterQuery({
       filter,
       activities,
@@ -53,58 +49,125 @@ export class RecreationResourceSearchService {
       facilities,
     });
 
+    // Execute all queries in a transaction for consistency
     const [recreationResources, combinedRecordCounts, combinedStaticCounts] =
-      await this.prisma.$transaction([
-        this.prisma.$queryRaw<any[]>`
-        select * from recreation_resource_search_view
+      await this.executeQueries(whereClause, take, skip);
+
+    // Format and return the results
+    return this.formatResults(
+      recreationResources,
+      combinedRecordCounts,
+      combinedStaticCounts,
+      page,
+      limit,
+    );
+  }
+
+  private validatePaginationParams(page: number, limit?: number): void {
+    if (page > RecreationResourceSearchService.MAX_PAGE_NUMBER && !limit) {
+      throw new Error(
+        `Maximum page limit is ${RecreationResourceSearchService.MAX_PAGE_NUMBER} when no limit is provided`,
+      );
+    }
+  }
+
+  private normalizeTake(limit?: number): number {
+    if (!limit || limit > RecreationResourceSearchService.MAX_PAGE_SIZE) {
+      return RecreationResourceSearchService.MAX_PAGE_SIZE;
+    }
+    return limit;
+  }
+
+  private calculateSkip(page: number, take: number): number {
+    return (page - 1) * take;
+  }
+
+  private async executeQueries(
+    whereClause: Prisma.Sql,
+    take: number,
+    skip: number,
+  ) {
+    return this.prisma.$transaction([
+      this.getResourcesQuery(whereClause, take, skip),
+      this.getRecordCountsQuery(whereClause),
+      this.getStaticCountsQuery(),
+    ]);
+  }
+
+  private getResourcesQuery(
+    whereClause: Prisma.Sql,
+    take: number,
+    skip: number,
+  ) {
+    return this.prisma.$queryRaw<any[]>`
+      SELECT * FROM recreation_resource_search_view
+      ${whereClause}
+      ORDER BY name ASC
+      LIMIT ${take}
+      ${skip ? Prisma.sql`OFFSET ${skip}` : Prisma.empty}`;
+  }
+
+  private getRecordCountsQuery(whereClause: Prisma.Sql) {
+    return this.prisma.$queryRaw<CombinedRecordCount[]>`
+      WITH filtered_resources AS (
+        SELECT rec_resource_id, has_toilets, has_tables
+        FROM recreation_resource_search_view
         ${whereClause}
-        order by name asc
-        limit ${take}
-        ${skip ? Prisma.sql`OFFSET ${skip}` : Prisma.empty};`,
+      ),
+      total_resources AS (
+        SELECT COUNT(*) AS total_count FROM filtered_resources
+      ),
+      structure_counts AS (
+        SELECT
+          COUNT(CASE WHEN has_toilets = true THEN 1 END) AS total_toilet_count,
+          COUNT(CASE WHEN has_tables = true THEN 1 END) AS total_table_count
+        FROM filtered_resources
+      )
+      SELECT
+        rac.recreation_activity_code,
+        rac.description,
+        COUNT(DISTINCT fra.rec_resource_id)::INT AS recreation_activity_count,
+        sc.total_toilet_count::INT,
+        sc.total_table_count::INT,
+        tr.total_count::INT
+      FROM rst.recreation_activity_code rac
+      LEFT JOIN rst.recreation_activity ra ON ra.recreation_activity_code = rac.recreation_activity_code
+      LEFT JOIN filtered_resources fra ON fra.rec_resource_id = ra.rec_resource_id,
+      structure_counts sc,
+      total_resources tr
+      WHERE rac.recreation_activity_code NOT IN (${Prisma.join(EXCLUDED_ACTIVITY_CODES)})
+      GROUP BY rac.recreation_activity_code, rac.description, sc.total_toilet_count, sc.total_table_count, tr.total_count
+      ORDER BY rac.description ASC`;
+  }
 
-        // Query filter menu content and counts that change based on search results
-        this.prisma.$queryRaw<CombinedRecordCount[]>`
-        with filtered_resources as (
-          select rec_resource_id, has_toilets, has_tables
-          from recreation_resource_search_view
-          ${whereClause}
-        ),
-        structure_counts as (
-          select
-            cast(count(case when has_toilets = true then rec_resource_id end) as int) as total_toilet_count,
-            cast(count(case when has_tables = true then rec_resource_id end) as int) as total_table_count
-          from filtered_resources
-        )
-        select
-          rac.recreation_activity_code,
-          rac.description,
-          cast(count(distinct case when fra.rec_resource_id is not null then fra.rec_resource_id end) as int) as recreation_activity_count,
-          (select total_toilet_count from structure_counts) as total_toilet_count,
-          (select total_table_count from structure_counts) as total_table_count,
-          cast((select count(*) from filtered_resources) as int) as total_count
-        from rst.recreation_activity_code rac
-          left join rst.recreation_activity ra on ra.recreation_activity_code = rac.recreation_activity_code
-          left join filtered_resources fra on fra.rec_resource_id = ra.rec_resource_id
-        where rac.recreation_activity_code not in (${Prisma.join(EXCLUDED_ACTIVITY_CODES)})
-        group by rac.recreation_activity_code, rac.description
-        order by rac.description asc;`,
+  private getStaticCountsQuery() {
+    return this.prisma.$queryRaw<CombinedStaticCount[]>`
+      SELECT 'district' AS type, district_code AS code, description, resource_count::INTEGER AS count
+      FROM recreation_resource_district_count_view
+      WHERE district_code NOT IN (${Prisma.join(EXCLUDED_RECREATION_DISTRICTS)})
 
-        // Query filter menu content and counts that remain static
-        this.prisma.$queryRaw<CombinedStaticCount[]>`
-          (select 'district' as type, district_code as code, description, cast(resource_count as integer) as count
-          from recreation_resource_district_count_view
-          where district_code not in (${Prisma.join(EXCLUDED_RECREATION_DISTRICTS)}))
-        union all
-      (select 'access' as type, access_code as code, access_description as description, cast(count as integer) as count
-          from recreation_resource_access_count_view
-          where access_code not in (${Prisma.join(EXCLUDED_RESOURCE_TYPES)}))
-        union all
-      (select 'type' as type, rec_resource_type_code as code, description, cast(count as integer) as count
-          from recreation_resource_type_count_view
-          where rec_resource_type_code not in (${Prisma.join(EXCLUDED_RESOURCE_TYPES)}))
-        order by description asc; `,
-      ]);
+      UNION ALL
 
+      SELECT 'access' AS type, access_code AS code, access_description AS description, count::INTEGER AS count
+      FROM recreation_resource_access_count_view
+      WHERE access_code NOT IN (${Prisma.join(EXCLUDED_RESOURCE_TYPES)})
+
+      UNION ALL
+
+      SELECT 'type' AS type, rec_resource_type_code AS code, description, count::INTEGER AS count
+      FROM recreation_resource_type_count_view
+      WHERE rec_resource_type_code NOT IN (${Prisma.join(EXCLUDED_RESOURCE_TYPES)})
+
+      ORDER BY description ASC`;
+  }
+
+  private formatResults(
+    recreationResources: any[],
+    combinedRecordCounts: CombinedRecordCount[],
+    combinedStaticCounts: CombinedStaticCount[],
+    page: number,
+    limit?: number,
+  ): PaginatedRecreationResourceDto {
     return {
       data: formatSearchResults(recreationResources),
       page,
