@@ -141,15 +141,17 @@ const SearchPage = () => {
               {isFetchingFirstPage ? (
                 <div>Searching...</div>
               ) : (
-                <div>
-                  <div className="results-text">
-                    <strong>{totalCount.toLocaleString()}</strong>
-                    {` ${totalCount === 1 ? 'Result' : 'Results'} containing`}{' '}
-                    <strong>&apos;{searchParams.get('filter')}&apos;</strong>
+                totalCount !== undefined && (
+                  <div>
+                    <div className="results-text">
+                      <strong>{totalCount.toLocaleString()}</strong>
+                      {` ${totalCount === 1 ? 'Result' : 'Results'} containing`}{' '}
+                      <strong>&apos;{searchParams.get('filter')}&apos;</strong>
+                    </div>
+                    <FilterChips />
+                    {totalCount === 0 && <NoResults />}
                   </div>
-                  <FilterChips />
-                  {totalCount === 0 && <NoResults />}
-                </div>
+                )
               )}
             </div>
 
