@@ -90,7 +90,7 @@ export class RecreationResourceSearchService {
     return this.prisma.$transaction([
       this.getResourcesQuery(whereClause, take, skip),
       this.getRecordCountsQuery(whereClause),
-      this.getStaticCountsQuery(),
+      this.getStaticCountsQuery(whereClause),
     ]);
   }
 
@@ -140,23 +140,47 @@ export class RecreationResourceSearchService {
       ORDER BY rac.description ASC`;
   }
 
-  private getStaticCountsQuery() {
+  private getStaticCountsQuery(whereClause: Prisma.Sql) {
     return this.prisma.$queryRaw<CombinedStaticCount[]>`
-      SELECT 'district' AS type, district_code AS code, description, resource_count::INTEGER AS count
-      FROM recreation_resource_district_count_view
-      WHERE district_code NOT IN (${Prisma.join(EXCLUDED_RECREATION_DISTRICTS)})
+      WITH filtered_resources AS (SELECT rec_resource_id, recreation_resource_type_code, district_code, access_code
+                                  FROM recreation_resource_search_view ${whereClause})
+
+      SELECT 'district'       AS type,
+             rd.district_code AS code,
+             rd.description,
+             COUNT(DISTINCT fr.rec_resource_id) ::INTEGER AS count
+      FROM recreation_resource_district_count_view rd
+        LEFT JOIN filtered_resources fr
+      ON fr.district_code = rd.district_code
+      WHERE rd.district_code NOT IN (${Prisma.join(EXCLUDED_RECREATION_DISTRICTS)})
+      GROUP BY rd.district_code, rd.description
+      HAVING COUNT (DISTINCT fr.rec_resource_id) > 0
 
       UNION ALL
 
-      SELECT 'access' AS type, access_code AS code, access_description AS description, count::INTEGER AS count
-      FROM recreation_resource_access_count_view
-      WHERE access_code NOT IN (${Prisma.join(EXCLUDED_RESOURCE_TYPES)})
+      SELECT 'access'                  AS type,
+             ra.access_code AS code,
+             ra.access_description            AS description,
+             COUNT(DISTINCT fr.rec_resource_id) ::INTEGER AS count
+      FROM recreation_resource_access_count_view ra
+        LEFT JOIN filtered_resources fr
+      ON fr.access_code = ra.access_code
+      WHERE ra.access_code NOT IN (${Prisma.join(EXCLUDED_RESOURCE_TYPES)})
+      GROUP BY ra.access_code, ra.access_description
+      HAVING COUNT (DISTINCT fr.rec_resource_id) > 0
 
       UNION ALL
 
-      SELECT 'type' AS type, rec_resource_type_code AS code, description, count::INTEGER AS count
-      FROM recreation_resource_type_count_view
-      WHERE rec_resource_type_code NOT IN (${Prisma.join(EXCLUDED_RESOURCE_TYPES)})
+      SELECT 'type'                    AS type,
+             rt.rec_resource_type_code AS code,
+             rt.description,
+             COUNT(DISTINCT fr.rec_resource_id) ::INTEGER AS count
+      FROM recreation_resource_type_count_view rt
+        LEFT JOIN filtered_resources fr
+      ON fr.recreation_resource_type_code = rt.rec_resource_type_code
+      WHERE rt.rec_resource_type_code NOT IN (${Prisma.join(EXCLUDED_RESOURCE_TYPES)})
+      GROUP BY rt.rec_resource_type_code, rt.description
+      HAVING COUNT (DISTINCT fr.rec_resource_id) > 0
 
       ORDER BY description ASC`;
   }
