@@ -1,7 +1,8 @@
-@import '@/styles/variables.scss';
+@import '@/styles/global.scss';
 
 .rec-resource-container {
   width: 100%;
+  @include content-footer-spacing;
 
   section {
     margin-bottom: 64px;

@@ -92,6 +92,17 @@ const footerLinks = [
 const Footer = () => {
   return (
     <footer id="footer">
+      <div
+        className="land-acknowledgement-box text-white shadow d-flex align-items-center"
+        aria-label="Land Acknowledgement"
+      >
+        <p className="mb-0 small">
+          We acknowledge all First Nations on whose territories BC Parks were
+          established. We honour their connection to the land and respect the
+          importance of their diverse teachings, traditions, and practices
+          within these territories.
+        </p>
+      </div>
       <div className="home-footer" id="home-footer">
         <div className="row no-gutters">
           <div className="col col-12 col-md-4 logo-column">

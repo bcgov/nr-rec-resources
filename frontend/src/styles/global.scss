@@ -97,6 +97,7 @@ a {
   flex-direction: column;
   flex-grow: 1;
   width: 100%;
+  @extend .content-footer-spacing;
 
   &.bg-brown-light {
     background-color: $colorBrownLight;
@@ -319,4 +320,12 @@ input[type='text'] {
     color: $colorGreyMed;
     font-size: 1rem;
   }
+}
+
+@mixin content-footer-spacing {
+  padding-bottom: calc($landAckBoxHeight * 0.6);
+}
+
+.content-footer-spacing {
+  @include content-footer-spacing;
 }
