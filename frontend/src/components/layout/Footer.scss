@@ -4,15 +4,37 @@
 @import '~bootstrap/scss/mixins/_breakpoints';
 
 #footer {
+  padding-top: calc($landAckBoxHeight / 2);
+  position: relative;
   background-color: $colorBlue;
-  overflow-x: hidden;
+
+  .land-acknowledgement-box {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: $colorBlueMed;
+    z-index: 10;
+    width: calc(100% - 2rem);
+    height: $landAckBoxHeight;
+    overflow-y: auto;
+
+    p {
+      padding: clamp(1rem, 2vh, 2rem) clamp(1.25rem, 4vw, 4rem);
+      line-height: 1.75;
+    }
+
+    @include media-breakpoint-up(lg) {
+      width: 55%;
+    }
+  }
 }
 
 #home-footer {
   max-width: $pageMaxWidth;
   font-size: 0.8rem;
   padding: 48px $pagePadding;
-  margin: 0px auto;
+  margin: 0 auto;
 
   .logo-column {
     width: 430px;
@@ -21,7 +43,7 @@
   .links-container {
     margin-left: 55px;
     @media (max-width: 1058px) {
-      margin-left: 0px;
+      margin-left: 0;
     }
   }
 
@@ -100,7 +122,7 @@
     &:focus-visible {
       border: $colorWhite solid 2px;
       outline: $colorBlueMed solid 2px;
-      outline-offset: 0px;
+      outline-offset: 0;
       border-radius: 4px;
     }
   }
