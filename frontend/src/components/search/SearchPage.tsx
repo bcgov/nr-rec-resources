@@ -58,7 +58,6 @@ const SearchPage = () => {
   }, [searchResults]);
 
   const { pages: paginatedResults, totalCount } = searchResults;
-
   /**
    * Handles loading the next page of search results.
    *
@@ -141,17 +140,19 @@ const SearchPage = () => {
               {isFetchingFirstPage ? (
                 <div>Searching...</div>
               ) : (
-                totalCount !== undefined && (
-                  <div>
-                    <div className="results-text">
-                      <strong>{totalCount.toLocaleString()}</strong>
-                      {` ${totalCount === 1 ? 'Result' : 'Results'} containing`}{' '}
-                      <strong>&apos;{searchParams.get('filter')}&apos;</strong>
-                    </div>
-                    <FilterChips />
-                    {totalCount === 0 && <NoResults />}
+                <div>
+                  <div className="results-text">
+                    <strong>
+                      {totalCount !== undefined && totalCount.toLocaleString()}
+                    </strong>
+                    {` ${totalCount === 1 ? 'Result' : 'Results'} containing`}{' '}
+                    <strong>&apos;{searchParams.get('filter')}&apos;</strong>
                   </div>
-                )
+                  <FilterChips />
+                  {(totalCount === 0 || totalCount === undefined) && (
+                    <NoResults />
+                  )}
+                </div>
               )}
             </div>
 

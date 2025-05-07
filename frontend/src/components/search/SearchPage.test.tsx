@@ -64,7 +64,7 @@ describe('SearchPage', () => {
     );
 
     expect(screen.getByText('1')).toBeInTheDocument();
-    expect(screen.getByText('Result')).toBeInTheDocument();
+    expect(screen.getByText('Result containing')).toBeInTheDocument();
     expect(screen.getAllByTestId('mock-resource-card')).toHaveLength(1);
 
     searchResultsStore.state = { ...mockSearchResultsData, totalCount: 2 };
@@ -76,7 +76,7 @@ describe('SearchPage', () => {
     );
 
     expect(screen.getByText('2')).toBeInTheDocument();
-    expect(screen.getByText('Results')).toBeInTheDocument();
+    expect(screen.getByText('Results containing')).toBeInTheDocument();
     expect(screen.getAllByTestId('mock-resource-card')).toHaveLength(2);
   });
 
@@ -125,12 +125,13 @@ describe('SearchPage', () => {
 
   it('displays no results message when data is empty', () => {
     const mockSearchResults = {
-      ...mockQueryResult,
-      data: {
-        ...mockSearchResultsData,
-        totalCount: 0,
-        pages: [{ data: [], filters: [] }],
-      },
+      totalCount: 0,
+      pages: [
+        {
+          filters: [],
+          data: [],
+        },
+      ],
     };
 
     searchResultsStore.state = mockSearchResults as any;
