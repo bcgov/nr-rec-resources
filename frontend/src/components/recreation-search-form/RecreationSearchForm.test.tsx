@@ -1,17 +1,21 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { RecreationSearchForm } from './RecreationSearchForm';
 import userEvent from '@testing-library/user-event';
+import { QueryClient, QueryClientProvider } from '~/@tanstack/react-query';
 import * as SearchHooks from '@/components/recreation-search-form/hooks/useSearchInput';
 import { vi } from 'vitest';
-
 import { MemoryRouter } from 'react-router-dom';
+
+const queryClient = new QueryClient();
 
 const renderWithRouter = (
   component: React.ReactElement,
   initialEntries: string[] = ['/'],
 ) => {
   return render(
-    <MemoryRouter initialEntries={initialEntries}>{component}</MemoryRouter>,
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter initialEntries={initialEntries}>{component}</MemoryRouter>
+    </QueryClientProvider>,
   );
 };
 
@@ -20,7 +24,13 @@ describe('RecreationSearchForm', () => {
     nameInputValue: '',
     setNameInputValue: vi.fn(),
     handleSearch: vi.fn(),
-    handleClear: vi.fn(),
+    handleClearNameInput: vi.fn(),
+    cityInputValue: '',
+    setCityInputValue: vi.fn(),
+    selectedCity: undefined,
+    setSelectedCity: vi.fn(),
+    handleCityInputSearch: vi.fn(),
+    handleClearCityInput: vi.fn(),
   };
 
   const setup = (mockValues = {}) => {
@@ -38,47 +48,40 @@ describe('RecreationSearchForm', () => {
 
   it('renders default form', async () => {
     renderWithRouter(<RecreationSearchForm />);
-    expect(screen.getByPlaceholderText('Search by name')).toBeInTheDocument();
+    expect(screen.getByLabelText('Search by name')).toBeInTheDocument();
     expect(screen.getByText('Search')).toBeInTheDocument();
   });
 
   it('renders with custom props', async () => {
-    setup({ inputValue: 'test' });
+    setup({ nameInputValue: 'test' });
     renderWithRouter(
       <RecreationSearchForm
-        initialNameInputValue="test"
         buttonText="Find"
         placeholder="Custom placeholder"
-        showSearchIcon={true}
       />,
     );
 
-    expect(
-      screen.getByPlaceholderText('Custom placeholder'),
-    ).toBeInTheDocument();
+    expect(screen.getByLabelText('Custom placeholder')).toBeInTheDocument();
     expect(screen.getByText('Find')).toBeInTheDocument();
-    expect(screen.getByRole('textbox')).toHaveValue('test');
+    expect(screen.getByTestId('name-search-input')).toHaveValue('test');
   });
 
   it('handles user interactions', async () => {
-    const { setNameInputValue, handleSearch, handleClear } = setup();
+    const { setNameInputValue, handleSearch, handleClearNameInput } = setup();
     renderWithRouter(<RecreationSearchForm />);
 
-    // Test input change
-    fireEvent.change(screen.getByTestId('search-input'), {
+    fireEvent.change(screen.getByTestId('name-search-input'), {
       target: { value: 'test' },
     });
     expect(setNameInputValue).toHaveBeenCalledWith('test');
 
-    // Test search
     await userEvent.click(screen.getByText('Search'));
     expect(handleSearch).toHaveBeenCalled();
 
-    // Test clear
-    setup({ inputValue: 'test' });
+    setup({ nameInputValue: 'test' });
     renderWithRouter(<RecreationSearchForm />);
     await userEvent.click(screen.getByLabelText('Clear search'));
-    expect(handleClear).toHaveBeenCalled();
+    expect(handleClearNameInput).toHaveBeenCalled();
   });
 
   it('handles form submission', async () => {

@@ -73,7 +73,6 @@ export class RecreationResourceService {
     facilities?: string,
     lat?: number,
     lon?: number,
-    radius?: number,
   ) {
     return this.recreationResourceSearchService.searchRecreationResources(
       page,
@@ -86,7 +85,6 @@ export class RecreationResourceService {
       facilities,
       lat,
       lon,
-      radius,
     );
   }
 }

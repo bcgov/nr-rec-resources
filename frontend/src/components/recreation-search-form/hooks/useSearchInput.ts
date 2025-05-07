@@ -7,11 +7,6 @@ import {
 import { City } from '@/components/recreation-search-form/types';
 import { ROUTE_PATHS } from '@/routes';
 
-interface UseSearchInputProps {
-  initialCityInputValue?: string;
-  initialNameInputValue?: string;
-}
-
 interface UseSearchInputReturn {
   cityInputValue?: string;
   setCityInputValue: (value: string) => void;
@@ -30,16 +25,13 @@ const LATITUDE_PARAM_KEY = 'lat';
 const LONGITUDE_PARAM_KEY = 'lon';
 const COMMUNITY_PARAM_KEY = 'community';
 
-export const useSearchInput = ({
-  initialCityInputValue,
-  initialNameInputValue,
-}: UseSearchInputProps = {}): UseSearchInputReturn => {
+export const useSearchInput = (): UseSearchInputReturn => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [nameInputValue, setNameInputValue] = useState(
-    searchParams.get(NAME_INPUT_PARAM_KEY) ?? initialNameInputValue ?? '',
+    searchParams.get(NAME_INPUT_PARAM_KEY) ?? '',
   );
   const [cityInputValue, setCityInputValue] = useState<string>(
-    searchParams.get(COMMUNITY_PARAM_KEY) ?? initialCityInputValue ?? '',
+    searchParams.get(COMMUNITY_PARAM_KEY) ?? '',
   );
   const [selectedCity, setSelectedCity] = useState<City[] | []>([]);
   const navigate = useNavigate();

@@ -87,6 +87,7 @@ const LocationSearch: React.FC = () => {
       {({ onClear }) =>
         (!!selectedCity?.length || cityInputValue) && (
           <ClearButton
+            label="Clear search"
             className="clear-button"
             onClick={() => {
               onClear();

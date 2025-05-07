@@ -8,6 +8,7 @@ import {
   mockResults,
   mockSpatialResponse,
 } from "src/recreation-resource/utils/formatRecreationResourceDetailResults.spec";
+
 // Test fixtures
 const createMockRecResource = (overrides = {}) => ({
   ...mockResponse,
@@ -22,7 +23,6 @@ describe("RecreationResourceService", () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         RecreationResourceService,
-        RecreationResourceSearchService,
         {
           provide: PrismaService,
           useValue: {
@@ -30,6 +30,12 @@ describe("RecreationResourceService", () => {
             recreation_resource: { findUnique: vi.fn(), findMany: vi.fn() },
             recreation_agreement_holder: { findUnique: vi.fn() },
             $queryRawTyped: vi.fn(),
+          },
+        },
+        {
+          provide: RecreationResourceSearchService,
+          useValue: {
+            searchRecreationResources: vi.fn(),
           },
         },
       ],

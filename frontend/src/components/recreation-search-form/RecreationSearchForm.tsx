@@ -17,7 +17,6 @@ import { useSearchInput } from '@/components/recreation-search-form/hooks/useSea
 import { trackSiteSearch } from '@/utils/matomo';
 
 interface RecreationSearchFormProps {
-  initialNameInputValue?: string;
   buttonText?: string;
   placeholder?: string;
   searchButtonProps?: ButtonProps;
@@ -25,7 +24,6 @@ interface RecreationSearchFormProps {
 }
 
 export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
-  initialNameInputValue,
   buttonText = 'Search',
   placeholder = 'Search by name',
   searchButtonProps,
@@ -38,7 +36,7 @@ export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
     setNameInputValue,
     handleSearch,
     handleClearNameInput,
-  } = useSearchInput({ initialNameInputValue });
+  } = useSearchInput();
 
   const handleFormSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -77,14 +75,14 @@ export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
                   value={nameInputValue}
                   onChange={(e) => setNameInputValue(e.target.value)}
                   className="form-control"
-                  data-testid="search-input"
+                  data-testid="name-search-input"
                 />
                 <label htmlFor="name-search-input">{placeholder}</label>
                 {nameInputValue && (
                   <ClearButton
                     onClick={handleClearNameInput}
                     className="clear-button"
-                    aria-label="Clear search"
+                    label="Clear search"
                   />
                 )}
               </FormGroup>
@@ -99,7 +97,7 @@ export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
         </Col>
         <Col md={12} lg="auto">
           <Button
-            onClick={handleSearch}
+            type="submit"
             {...searchButtonProps}
             className={`search-button w-100 ${searchButtonProps?.className}`}
           >

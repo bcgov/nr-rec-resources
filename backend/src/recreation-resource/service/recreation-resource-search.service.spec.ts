@@ -222,5 +222,54 @@ describe("RecreationResourceSearchService", () => {
         },
       );
     });
+
+    describe("query param handling", () => {
+      beforeEach(() => {
+        setupSearchMocks();
+      });
+
+      it.each([
+        ["activities", "1"],
+        ["type", "IF"],
+        ["district", "RDCS"],
+        ["access", "B"],
+        ["facilities", "toilet"],
+        ["lat", 50.123],
+        ["lon", -122.456],
+      ])("should handle %s query param", async (paramName, value) => {
+        const queryParams: Record<string, any> = {
+          activities: undefined,
+          type: undefined,
+          district: undefined,
+          access: undefined,
+          facilities: undefined,
+          lat: undefined,
+          lon: undefined,
+        };
+
+        queryParams[paramName] = value;
+
+        const result = await service.searchRecreationResources(
+          1,
+          "",
+          10,
+          queryParams.activities,
+          queryParams.type,
+          queryParams.district,
+          queryParams.access,
+          queryParams.facilities,
+          queryParams.lat,
+          queryParams.lon,
+        );
+
+        expect(result).toMatchObject({
+          data: expect.any(Array),
+          filters: expect.any(Array),
+          page: 1,
+          limit: 10,
+          total: 1,
+        });
+      });
+    });
   });
 });

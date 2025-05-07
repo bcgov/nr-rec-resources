@@ -82,7 +82,7 @@ describe("RecreationResourceController", () => {
           },
         ],
       };
-      vi.spyOn(recService, "findOne").mockResolvedValue(result);
+      vi.spyOn(recService, "findOne").mockResolvedValue(result as any);
       expect(await controller.findOne("REC0001")).toBe(result);
     });
 

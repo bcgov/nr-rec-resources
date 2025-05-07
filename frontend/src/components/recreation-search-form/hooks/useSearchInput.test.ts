@@ -3,10 +3,9 @@ import { useSearchInput } from './useSearchInput';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ROUTE_PATHS } from '@/routes';
 
-// Mock dependencies
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', () => ({
-  useSearchParams: () => [new URLSearchParams(), vi.fn()],
+  useSearchParams: () => [new URLSearchParams({ filter: 'test' }), vi.fn()],
   useNavigate: () => mockNavigate,
 }));
 
@@ -15,15 +14,23 @@ describe('useSearchInput', () => {
     vi.clearAllMocks();
   });
 
-  it('should initialize with empty string when no initial value provided', () => {
+  it('should initialize with empty string when no filter search param is provided', () => {
+    vi.mock('react-router-dom', () => ({
+      useSearchParams: () => [new URLSearchParams(), vi.fn()],
+      useNavigate: () => mockNavigate,
+    }));
+
     const { result } = renderHook(() => useSearchInput());
     expect(result.current.nameInputValue).toBe('');
   });
 
-  it('should initialize with provided initial value', () => {
-    const { result } = renderHook(() =>
-      useSearchInput({ initialNameInputValue: 'test' }),
-    );
+  it('should initialize with filter search param value', () => {
+    const { result } = renderHook(() => useSearchInput());
+
+    act(() => {
+      result.current.setNameInputValue('test');
+    });
+
     expect(result.current.nameInputValue).toBe('test');
   });
 
@@ -37,13 +44,11 @@ describe('useSearchInput', () => {
     expect(result.current.nameInputValue).toBe('new value');
   });
 
-  it('should clear input value when handleClear is called', () => {
-    const { result } = renderHook(() =>
-      useSearchInput({ initialNameInputValue: 'test' }),
-    );
+  it('should clear input value when handleClearNameInput is called', () => {
+    const { result } = renderHook(() => useSearchInput());
 
     act(() => {
-      result.current.handleClear();
+      result.current.handleClearNameInput();
     });
 
     expect(result.current.nameInputValue).toBe('');
