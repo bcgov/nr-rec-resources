@@ -142,7 +142,7 @@ export class RecreationResourceSearchService {
       SELECT
         rac.recreation_activity_code,
         rac.description,
-        COUNT(DISTINCT ra.rec_resource_id)::INT AS recreation_activity_count
+        COUNT(DISTINCT fr.rec_resource_id)::INT AS recreation_activity_count
       FROM rst.recreation_activity_code rac
       LEFT JOIN rst.recreation_activity ra ON rac.recreation_activity_code = ra.recreation_activity_code
       LEFT JOIN filtered_resources fr ON fr.rec_resource_id = ra.rec_resource_id
