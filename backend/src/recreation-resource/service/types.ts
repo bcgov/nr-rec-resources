@@ -21,3 +21,10 @@ export interface CombinedStaticCount {
   description: string;
   count: number;
 }
+
+export interface AggregatedRecordCount {
+  type: "district" | "access" | "type";
+  code: string;
+  description: string;
+  count: number;
+}

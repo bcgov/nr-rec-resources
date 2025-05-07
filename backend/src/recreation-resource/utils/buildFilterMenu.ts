@@ -1,63 +1,56 @@
-import { FilterDto } from "src/recreation-resource/dto/paginated-recreation-resource.dto";
-import {
-  CombinedRecordCount,
-  CombinedStaticCount,
-} from "src/recreation-resource/service/types";
+import { AggregatedRecordCount } from "src/recreation-resource/service/types";
+import { FilterDto } from "../dto/paginated-recreation-resource.dto";
 
 // Build the filter menu based on the combined record and static counts
 export const buildFilterMenu = ({
   combinedRecordCounts,
-  combinedStaticCounts,
 }: {
-  combinedRecordCounts: CombinedRecordCount[];
-  combinedStaticCounts: CombinedStaticCount[];
-}) => {
-  const toiletCount = combinedRecordCounts[0]?.total_toilet_count ?? 0;
-  const tableCount = combinedRecordCounts[0]?.total_table_count ?? 0;
+  combinedRecordCounts: AggregatedRecordCount[];
+}): FilterDto[] => {
+  const getCounts = (type: string) =>
+    combinedRecordCounts.filter((item) => item.type === type);
 
-  const activityFilters = combinedRecordCounts.map((activity) => ({
-    id: activity.recreation_activity_code.toString(),
-    description: activity.description,
-    count: Number(activity.recreation_activity_count ?? 0),
+  const toiletCount =
+    getCounts("facilities").find((f) => f.code === "toilet")?.count ?? 0;
+  const tableCount =
+    getCounts("facilities").find((f) => f.code === "table")?.count ?? 0;
+
+  const activityFilters = getCounts("activity").map((item) => ({
+    id: item.code,
+    description: item.description,
+    count: item.count,
   }));
 
-  const recreationDistrictFilters = combinedStaticCounts
-    .filter((count) => count.type === "district")
-    .map((district) => ({
-      id: district.code,
-      description: district.description,
-      count: district.count ?? 0,
-    }));
+  const districtFilters = getCounts("district").map((item) => ({
+    id: item.code,
+    description: item.description,
+    count: item.count,
+  }));
 
-  const recreationAccessFilters = combinedStaticCounts
-    .filter((count) => count.type === "access")
-    .map((access) => ({
-      id: access.code,
-      description: `${access.description} access`,
-      count: access.count ?? 0,
-    }));
+  const accessFilters = getCounts("access").map((item) => ({
+    id: item.code,
+    description: `${item.description} access`,
+    count: item.count,
+  }));
 
-  const recResourceTypeFilters = combinedStaticCounts
-    .filter((count) => count.type === "type")
-    .map((resourceType) => ({
-      id: resourceType.code,
-      description: resourceType.description,
-      count: resourceType.count ?? 0,
-    }))
-    .reverse();
+  const typeFilters = getCounts("type").map((item) => ({
+    id: item.code,
+    description: item.description,
+    count: item.count,
+  }));
 
-  const filterMenu: FilterDto[] = [
+  return [
     {
       type: "multi-select",
       label: "District",
       param: "district",
-      options: recreationDistrictFilters,
+      options: districtFilters,
     },
     {
       type: "multi-select",
       label: "Type",
       param: "type",
-      options: recResourceTypeFilters,
+      options: typeFilters,
     },
     {
       type: "multi-select",
@@ -86,9 +79,7 @@ export const buildFilterMenu = ({
       type: "multi-select",
       label: "Access type",
       param: "access",
-      options: recreationAccessFilters,
+      options: accessFilters,
     },
   ];
-
-  return filterMenu;
 };
