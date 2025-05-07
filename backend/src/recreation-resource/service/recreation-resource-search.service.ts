@@ -32,6 +32,16 @@ export class RecreationResourceSearchService {
     const take = this.normalizeTake(limit);
     const skip = this.calculateSkip(page, take);
 
+    // Detect filter types
+    const filterTypes = {
+      isOnlyAccessFilter:
+        !!access && !activities && !type && !district && !facilities,
+      isOnlyDistrictFilter:
+        !!district && !activities && !type && !access && !facilities,
+      isOnlyTypeFilter:
+        !!type && !activities && !district && !access && !facilities,
+    };
+
     // Build the where clause for filtering
     const whereClause = buildSearchFilterQuery({
       filter,
@@ -47,6 +57,7 @@ export class RecreationResourceSearchService {
       whereClause,
       take,
       skip,
+      filterTypes,
     );
 
     // Format and return the results
@@ -81,10 +92,15 @@ export class RecreationResourceSearchService {
     whereClause: Prisma.Sql,
     take: number,
     skip: number,
+    filterTypes?: {
+      isOnlyAccessFilter: boolean;
+      isOnlyDistrictFilter: boolean;
+      isOnlyTypeFilter: boolean;
+    },
   ) {
     return this.prisma.$transaction([
       this.getResourcesQuery(whereClause, take, skip),
-      this.getAggregationsQuery(whereClause),
+      this.getAggregationsQuery(whereClause, filterTypes),
     ]);
   }
 
@@ -94,15 +110,21 @@ export class RecreationResourceSearchService {
     skip: number,
   ) {
     return this.prisma.$queryRaw<any[]>`
---       SELECT *, COUNT(*) OVER() AS total_count
-      SELECT *
+      SELECT *, COUNT(*) OVER()::INT AS total_count
       FROM recreation_resource_search_view
         ${whereClause}
       ORDER BY name ASC
         LIMIT ${take} ${skip ? Prisma.sql`OFFSET ${skip}` : Prisma.empty}`;
   }
 
-  private getAggregationsQuery(whereClause: Prisma.Sql) {
+  private getAggregationsQuery(
+    whereClause: Prisma.Sql,
+    filterTypes?: {
+      isOnlyAccessFilter: boolean;
+      isOnlyDistrictFilter: boolean;
+      isOnlyTypeFilter: boolean;
+    },
+  ) {
     return this.prisma.$queryRaw<AggregatedRecordCount[]>`
     WITH filtered_resources AS (
       SELECT *
@@ -130,7 +152,12 @@ export class RecreationResourceSearchService {
     district_counts AS (
       SELECT dcv.district_code    AS code,
              MAX(dcv.description) AS description,
-             COUNT(fr.district_code)::INT AS count
+             CASE
+               WHEN ${filterTypes?.isOnlyDistrictFilter ?? false} THEN
+                 (SELECT COUNT(*) FROM recreation_resource_search_view WHERE district_code = dcv.district_code)::INT
+            ELSE
+                COUNT(fr.district_code)::INT
+            END AS count
     FROM recreation_resource_district_count_view dcv
         LEFT JOIN filtered_resources fr
       ON fr.district_code = dcv.district_code
@@ -138,7 +165,13 @@ export class RecreationResourceSearchService {
       GROUP BY dcv.district_code, dcv.description
     ),
     access_counts AS (
-      SELECT acv.access_code AS code, acv.access_description AS description, COUNT (fr.access_code):: INT AS count
+      SELECT acv.access_code AS code, acv.access_description AS description,
+      CASE
+        WHEN ${filterTypes?.isOnlyAccessFilter ?? false} THEN
+            (SELECT COUNT(*) FROM recreation_resource_search_view WHERE access_code = acv.access_code)::INT
+        ELSE
+            COUNT(fr.access_code)::INT
+        END AS count
       FROM recreation_resource_access_count_view acv
         LEFT JOIN filtered_resources fr
       ON fr.access_code = acv.access_code
@@ -148,7 +181,12 @@ export class RecreationResourceSearchService {
     type_counts AS (
       SELECT acv.rec_resource_type_code AS code,
         MAX(acv.description) AS description,
-        COUNT(fr.recreation_activity)::INT                 AS count
+      CASE
+        WHEN ${filterTypes?.isOnlyTypeFilter ?? false} THEN
+            (SELECT COUNT(*) FROM recreation_resource_search_view WHERE recreation_resource_type_code = acv.rec_resource_type_code)::INT
+        ELSE
+            COUNT(fr.recreation_resource_type_code)::INT
+        END AS count
       FROM recreation_resource_type_count_view acv
         LEFT JOIN filtered_resources fr
       ON fr.recreation_resource_type_code = acv.rec_resource_type_code
