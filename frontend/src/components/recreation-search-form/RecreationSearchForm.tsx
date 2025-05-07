@@ -12,9 +12,7 @@ import {
 import { ClearButton } from 'react-bootstrap-typeahead';
 import LocationSearch from '@/components/recreation-search-form/LocationSearch';
 import { useSearchParams } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch } from '@fortawesome/free-solid-svg-icons';
-import './RecreationSearchForm.scss';
+import '@/components/recreation-search-form/RecreationSearchForm.scss';
 import { useSearchInput } from '@/components/recreation-search-form/hooks/useSearchInput';
 import { trackSiteSearch } from '@/utils/matomo';
 
@@ -23,7 +21,6 @@ interface RecreationSearchFormProps {
   buttonText?: string;
   placeholder?: string;
   searchButtonProps?: ButtonProps;
-  showSearchIcon?: boolean;
   location?: string;
 }
 
@@ -32,7 +29,6 @@ export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
   buttonText = 'Search',
   placeholder = 'Search by name',
   searchButtonProps,
-  showSearchIcon = false,
   location = 'Search page',
 }) => {
   const [searchParams] = useSearchParams();
@@ -67,34 +63,38 @@ export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
     >
       <Row className="gy-3 gx-0 gx-lg-3">
         <Col md={12} lg="auto" className="flex-grow-0 flex-lg-grow-1">
-          <InputGroup className="search-input-group">
-            <FormGroup
-              controlId="name-search-input"
-              className={`search-input-container ${nameInputValue ? 'has-text--true' : ''}`}
-            >
-              <FormControl
-                aria-label={placeholder}
-                type="text"
-                placeholder=" "
-                value={nameInputValue}
-                onChange={(e) => setNameInputValue(e.target.value)}
-                className={`form-control ${showSearchIcon ? 'has-search-icon' : ''}`}
-                data-testid="search-input"
-              />
-              <label htmlFor="name-search-input">{placeholder}</label>
-              {showSearchIcon && (
-                <FontAwesomeIcon icon={faSearch} className="search-icon" />
-              )}
-              {nameInputValue && (
-                <ClearButton
-                  onClick={handleClearNameInput}
-                  className="clear-button"
-                  aria-label="Clear search"
+          <InputGroup className="search-input-group limit-width">
+            <Col className="p-0 flex-grow-1">
+              <FormGroup
+                controlId="name-search-input"
+                className={`${nameInputValue ? 'has-text--true' : ''}`}
+                style={{ position: 'relative' }}
+              >
+                <FormControl
+                  aria-label={placeholder}
+                  type="text"
+                  placeholder=" "
+                  value={nameInputValue}
+                  onChange={(e) => setNameInputValue(e.target.value)}
+                  className="form-control"
+                  data-testid="search-input"
                 />
-              )}
-            </FormGroup>
+                <label htmlFor="name-search-input">{placeholder}</label>
+                {nameInputValue && (
+                  <ClearButton
+                    onClick={handleClearNameInput}
+                    className="clear-button"
+                    aria-label="Clear search"
+                  />
+                )}
+              </FormGroup>
+            </Col>
+
             <div className="search-spacer">or</div>
-            <LocationSearch />
+
+            <Col className="p-0 flex-grow-1">
+              <LocationSearch />
+            </Col>
           </InputGroup>
         </Col>
         <Col md={12} lg="auto">

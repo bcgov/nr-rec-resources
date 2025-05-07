@@ -4,6 +4,7 @@
   position: relative;
 
   input.form-control {
+    position: relative;
     height: 48px;
     width: 100%;
     color: $colorGrey;
@@ -36,19 +37,6 @@
   &.has-text--true,
   &.is-dropdown-open--true {
     padding: 18px 16px 0;
-  }
-
-  .search-input-container {
-    position: relative;
-
-    .search-icon {
-      position: relative;
-      left: 0.75rem;
-      top: 50%;
-      color: $colorBlue;
-      pointer-events: none;
-      z-index: 10;
-    }
   }
 
   .search-button,
@@ -103,10 +91,6 @@
       transform 0.1s ease;
     transform-origin: top left;
   }
-}
-
-.community-search-typeahead {
-  width: 100%;
 
   .dropdown-menu.show {
     border-width: 3px;

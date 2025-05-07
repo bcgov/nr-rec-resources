@@ -54,13 +54,6 @@ const LocationSearch: React.FC = () => {
     }
   };
 
-  const classes = [
-    'community-search-typeahead',
-    cityInputValue ? 'has-text--true' : '',
-  ]
-    .filter(Boolean)
-    .join(' ');
-
   return (
     <Typeahead
       ref={typeaheadRef}
@@ -73,7 +66,7 @@ const LocationSearch: React.FC = () => {
       onInputChange={handleInputChange}
       placeholder=" "
       emptyLabel="No suggestions, please check your spelling or try a larger city in B.C."
-      className={classes}
+      className={`${cityInputValue ? 'has-text--true' : ''}`}
       onFocus={handleFocus}
       renderInput={({ inputRef, referenceElementRef, ...inputProps }) => (
         <Form.Group controlId="community-search-typeahead">

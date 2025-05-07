@@ -30,6 +30,7 @@
   }
 
   .search-container {
+    color: $colorWhite;
     $container-max-height: 255px;
     $max-position-top: calc(($banner-height - $container-max-height) / 2);
 
@@ -45,6 +46,7 @@
     }
 
     .search-btn {
+      color: $colorBlue;
       &:hover {
         background-color: $colorGold;
       }
