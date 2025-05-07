@@ -128,30 +128,31 @@ export class RecreationResourceSearchService {
       GROUP BY rac.recreation_activity_code, rac.description
     ),
     district_counts AS (
-      SELECT
-        district_code AS code,
-        MAX(district_description) AS description,
-        COUNT(*)::INT AS count
-      FROM filtered_resources
-      WHERE district_code IS NOT NULL
-      GROUP BY district_code
+      SELECT dcv.district_code    AS code,
+             MAX(dcv.description) AS description,
+             COUNT(fr.district_code)::INT AS count
+    FROM recreation_resource_district_count_view dcv
+        LEFT JOIN filtered_resources fr
+      ON fr.district_code = dcv.district_code
+      WHERE dcv.district_code != 'NULL'
+      GROUP BY dcv.district_code, dcv.description
     ),
     access_counts AS (
-      SELECT
-        access_code AS code,
-        MAX(access_description) AS description,
-        COUNT(*)::INT AS count
-      FROM filtered_resources
-      WHERE access_code IS NOT NULL
-      GROUP BY access_code
+      SELECT acv.access_code AS code, acv.access_description AS description, COUNT (fr.access_code):: INT AS count
+      FROM recreation_resource_access_count_view acv
+        LEFT JOIN filtered_resources fr
+      ON fr.access_code = acv.access_code
+      WHERE acv.access_code != 'NULL'
+      GROUP BY acv.access_code, acv.access_description
     ),
     type_counts AS (
-      SELECT
-        recreation_resource_type_code AS code,
-        MAX(recreation_resource_type) AS description,
-        COUNT(*)::INT AS count
-      FROM filtered_resources
-      GROUP BY recreation_resource_type_code
+      SELECT acv.rec_resource_type_code AS code,
+        MAX(acv.description) AS description,
+        COUNT(fr.recreation_activity)::INT                 AS count
+      FROM recreation_resource_type_count_view acv
+        LEFT JOIN filtered_resources fr
+      ON fr.recreation_resource_type_code = acv.rec_resource_type_code
+      GROUP BY acv.rec_resource_type_code, acv.description
     )
 
     SELECT 
