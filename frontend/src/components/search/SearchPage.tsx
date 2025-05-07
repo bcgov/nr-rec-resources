@@ -25,6 +25,9 @@ const SearchPage = () => {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   const initialPage = useInitialPageFromSearchParams();
+  const lat = searchParams.get('lat');
+  const lon = searchParams.get('lon');
+  const community = searchParams.get('community');
 
   const {
     data,
@@ -42,8 +45,8 @@ const SearchPage = () => {
     activities: searchParams.get('activities') ?? undefined,
     access: searchParams.get('access') ?? undefined,
     facilities: searchParams.get('facilities') ?? undefined,
-    lat: searchParams.get('lat') ? Number(searchParams.get('lat')) : undefined,
-    lon: searchParams.get('lon') ? Number(searchParams.get('lon')) : undefined,
+    lat: lat ? Number(lat) : undefined,
+    lon: lon ? Number(lon) : undefined,
     type: searchParams.get('type') ?? undefined,
     page: initialPage,
   });
@@ -112,6 +115,9 @@ const SearchPage = () => {
 
   const isFetchingFirstPage =
     isFetching && !isFetchingPreviousPage && !isFetchingNextPage;
+  const isLocationSearchResults = lat && lon && community;
+
+  console.log('lat, lon, community', lat, lon, community);
 
   return (
     <>

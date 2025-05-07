@@ -1,6 +1,18 @@
+<<<<<<< HEAD
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter, useSearchParams } from 'react-router-dom';
+=======
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+>>>>>>> 7d57574b (chore: add location search results message)
 import searchResultsStore from '@/store/searchResults';
 import * as recreationResourceQueries from '@/service/queries/recreation-resource';
 import { QueryClient, QueryClientProvider } from '~/@tanstack/react-query';
@@ -14,10 +26,13 @@ vi.mock('@/components/rec-resource/card/RecResourceCard', () => ({
   default: vi.fn(() => <div data-testid="mock-resource-card" />),
 }));
 
-const renderWithQueryClient = (ui: React.ReactElement) =>
+const renderWithQueryClient = (
+  ui: React.ReactElement,
+  initialEntries = ['/search'],
+) =>
   render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter>{ui}</MemoryRouter>
+      <MemoryRouter initialEntries={initialEntries}>{ui}</MemoryRouter>
     </QueryClientProvider>,
   );
 
@@ -132,7 +147,6 @@ describe('SearchPage', () => {
   });
 
   it('handles load more button click and scrolls to last item', async () => {
-    // Mock DOM elements and scroll behavior
     const mockLastItem = document.createElement('div');
     const mockScrollIntoView = vi.fn();
     mockLastItem.scrollIntoView = mockScrollIntoView;
@@ -141,14 +155,13 @@ describe('SearchPage', () => {
       lastElementChild: mockLastItem,
     } as unknown as Element);
 
-    vi.useFakeTimers(); // for setTimeout
+    vi.useFakeTimers();
 
     renderWithQueryClient(<SearchPage />);
 
     const loadMoreButton = screen.getByText('Load More');
     fireEvent.click(loadMoreButton);
 
-    // Fast-forward timers
     await vi.runAllTimersAsync();
 
     expect(mockQueryResult.fetchNextPage).toHaveBeenCalled();
@@ -290,5 +303,40 @@ describe('SearchPage', () => {
     renderWithQueryClient(<SearchPage />);
 
     expect(screen.queryByText('Searching...')).not.toBeInTheDocument();
+  });
+
+  it('should display the results count', async () => {
+    searchResultsStore.state = {
+      ...mockQueryResult,
+      totalCount: 5,
+    } as any;
+
+    renderWithQueryClient(<SearchPage />);
+
+    await waitFor(() => {
+      const span = screen.getByText(/5/).closest('span') as HTMLSpanElement;
+      expect(span).toBeInTheDocument();
+      expect(within(span).getByText('Results')).toBeInTheDocument();
+    });
+  });
+
+  it('should display location in results count when lat, lon, and community are provided', async () => {
+    const mockSearchParams = '?lat=48.4284&lon=-123.3656&community=Victoria';
+
+    searchResultsStore.state = {
+      ...mockSearchResultsData,
+      totalCount: 5,
+    } as any;
+
+    renderWithQueryClient(<SearchPage />, [mockSearchParams]);
+
+    await waitFor(() => {
+      const resultMessage = screen.getByText(/Results/).closest('span');
+      expect(resultMessage).toBeInTheDocument();
+
+      expect(resultMessage?.textContent).toBe(
+        '5 Results within 50 km radius of Victoria',
+      );
+    });
   });
 });
