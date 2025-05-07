@@ -15,6 +15,12 @@ export interface CombinedRecordCount {
   total_count: number;
 }
 
+export interface FilterTypes {
+  isOnlyAccessFilter: boolean;
+  isOnlyDistrictFilter: boolean;
+  isOnlyTypeFilter: boolean;
+}
+
 export interface CombinedStaticCount {
   type: "district" | "access" | "type";
   code: string;

@@ -6,7 +6,10 @@ import { buildSearchFilterQuery } from "src/recreation-resource/utils/buildSearc
 import { formatSearchResults } from "src/recreation-resource/utils/formatSearchResults";
 import { PaginatedRecreationResourceDto } from "src/recreation-resource/dto/paginated-recreation-resource.dto";
 import { EXCLUDED_ACTIVITY_CODES } from "src/recreation-resource/constants/service.constants";
-import { AggregatedRecordCount } from "src/recreation-resource/service/types";
+import {
+  AggregatedRecordCount,
+  FilterTypes,
+} from "src/recreation-resource/service/types";
 
 @Injectable()
 export class RecreationResourceSearchService {
@@ -33,14 +36,13 @@ export class RecreationResourceSearchService {
     const skip = this.calculateSkip(page, take);
 
     // Detect filter types
-    const filterTypes = {
-      isOnlyAccessFilter:
-        !!access && !activities && !type && !district && !facilities,
-      isOnlyDistrictFilter:
-        !!district && !activities && !type && !access && !facilities,
-      isOnlyTypeFilter:
-        !!type && !activities && !district && !access && !facilities,
-    };
+    const filterTypes = this.getFilterTypes({
+      activities,
+      type,
+      district,
+      access,
+      facilities,
+    });
 
     // Build the where clause for filtering
     const whereClause = buildSearchFilterQuery({
@@ -251,6 +253,23 @@ export class RecreationResourceSearchService {
       filters: buildFilterMenu({
         combinedRecordCounts,
       }),
+    };
+  }
+
+  private getFilterTypes(params: {
+    activities?: string;
+    type?: string;
+    district?: string;
+    access?: string;
+    facilities?: string;
+  }): FilterTypes {
+    const { activities, type, district, access, facilities } = params;
+    const hasNoOtherFilters = !activities && !facilities;
+
+    return {
+      isOnlyAccessFilter: !!access && !type && !district && hasNoOtherFilters,
+      isOnlyDistrictFilter: !!district && !type && !access && hasNoOtherFilters,
+      isOnlyTypeFilter: !!type && !district && !access && hasNoOtherFilters,
     };
   }
 }
