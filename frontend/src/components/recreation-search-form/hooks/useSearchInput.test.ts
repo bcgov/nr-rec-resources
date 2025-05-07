@@ -1,11 +1,18 @@
 import { act, renderHook } from '@testing-library/react';
 import { useSearchInput } from './useSearchInput';
+import * as ReactRouterDom from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ROUTE_PATHS } from '@/routes';
+import { City } from '@/components/recreation-search-form/types';
 
 const mockNavigate = vi.fn();
+const mockSetSearchParams = vi.fn();
+
 vi.mock('react-router-dom', () => ({
-  useSearchParams: () => [new URLSearchParams({ filter: 'test' }), vi.fn()],
+  useSearchParams: () => [
+    new URLSearchParams({ filter: 'test' }),
+    mockSetSearchParams,
+  ],
   useNavigate: () => mockNavigate,
 }));
 
@@ -25,11 +32,15 @@ describe('useSearchInput', () => {
   });
 
   it('should initialize with filter search param value', () => {
-    const { result } = renderHook(() => useSearchInput());
+    const searchParams = new URLSearchParams({ filter: 'test' });
+    const mockSetSearchParams = vi.fn();
 
-    act(() => {
-      result.current.setNameInputValue('test');
-    });
+    vi.spyOn(ReactRouterDom, 'useSearchParams').mockReturnValue([
+      searchParams,
+      mockSetSearchParams,
+    ]);
+
+    const { result } = renderHook(() => useSearchInput());
 
     expect(result.current.nameInputValue).toBe('test');
   });
@@ -67,5 +78,73 @@ describe('useSearchInput', () => {
       pathname: ROUTE_PATHS.SEARCH,
       search: 'filter=test',
     });
+  });
+
+  it('should handle city input search and update params', () => {
+    const city: City = {
+      id: 1,
+      cityName: 'Vancouver',
+      latitude: 49.2827,
+      longitude: -123.1207,
+    };
+
+    const { result } = renderHook(() => useSearchInput());
+
+    act(() => {
+      result.current.handleCityInputSearch(city);
+    });
+
+    expect(mockNavigate).toHaveBeenCalledWith({
+      pathname: ROUTE_PATHS.SEARCH,
+      search: expect.stringContaining('community=Vancouver'),
+    });
+  });
+
+  it('should clear city input and remove location params', () => {
+    const searchParams = new URLSearchParams({ community: 'Victoria' });
+    const mockSetSearchParams = vi.fn();
+
+    vi.spyOn(ReactRouterDom, 'useSearchParams').mockReturnValue([
+      searchParams,
+      mockSetSearchParams,
+    ]);
+
+    const { result } = renderHook(() => useSearchInput());
+
+    expect(result.current.cityInputValue).toBe('Victoria');
+
+    act(() => {
+      result.current.handleClearCityInput();
+    });
+
+    expect(result.current.cityInputValue).toBe('');
+    expect(mockSetSearchParams).toHaveBeenCalled();
+  });
+
+  it('should update city input value when setCityInputValue is called', () => {
+    const { result } = renderHook(() => useSearchInput());
+
+    act(() => {
+      result.current.setCityInputValue('Victoria');
+    });
+
+    expect(result.current.cityInputValue).toBe('Victoria');
+  });
+
+  it('should update selectedCity when setSelectedCity is called', () => {
+    const { result } = renderHook(() => useSearchInput());
+
+    const city: City = {
+      id: 1,
+      cityName: 'Victoria',
+      latitude: 48.4284,
+      longitude: -123.3656,
+    };
+
+    act(() => {
+      result.current.setSelectedCity([city]);
+    });
+
+    expect(result.current.selectedCity).toEqual([city]);
   });
 });
