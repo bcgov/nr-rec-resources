@@ -145,8 +145,15 @@ const SearchPage = () => {
                     <strong>
                       {totalCount !== undefined && totalCount.toLocaleString()}
                     </strong>
-                    {` ${totalCount === 1 ? 'Result' : 'Results'} containing`}{' '}
-                    <strong>&apos;{searchParams.get('filter')}&apos;</strong>
+                    {` ${totalCount === 1 ? 'Result' : 'Results'}`}{' '}
+                    {searchParams.get('filter') && (
+                      <>
+                        containing{' '}
+                        <strong>
+                          &apos;{searchParams.get('filter')}&apos;
+                        </strong>
+                      </>
+                    )}
                   </div>
                   <FilterChips />
                   {(totalCount === 0 || totalCount === undefined) && (

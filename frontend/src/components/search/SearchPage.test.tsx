@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
+import { MemoryRouter, useSearchParams } from 'react-router-dom';
 import searchResultsStore from '@/store/searchResults';
 import * as recreationResourceQueries from '@/service/queries/recreation-resource';
 import SearchPage from './SearchPage';
@@ -25,6 +25,12 @@ vi.mock('@/store/searchResults', async () => ({
   },
 }));
 
+vi.mock('react-router-dom', () => ({
+  useSearchParams: vi.fn(),
+  useNavigate: vi.fn(),
+  MemoryRouter: vi.fn().mockImplementation((props) => props.children),
+}));
+
 describe('SearchPage', () => {
   const mockQueryResult = {
     data: mockSearchResultsData,
@@ -43,6 +49,11 @@ describe('SearchPage', () => {
   });
 
   it('displays correct singular/plural results text', async () => {
+    const setSearchParams = vi.fn();
+    const searchParams = new URLSearchParams({});
+
+    (useSearchParams as Mock).mockReturnValue([searchParams, setSearchParams]);
+
     // Test singular case
     const mockSingleResultData = {
       ...mockSearchResultsData,
@@ -64,7 +75,7 @@ describe('SearchPage', () => {
     );
 
     expect(screen.getByText('1')).toBeInTheDocument();
-    expect(screen.getByText('Result containing')).toBeInTheDocument();
+    expect(screen.getByText('Result')).toBeInTheDocument();
     expect(screen.getAllByTestId('mock-resource-card')).toHaveLength(1);
 
     searchResultsStore.state = { ...mockSearchResultsData, totalCount: 2 };
@@ -76,8 +87,40 @@ describe('SearchPage', () => {
     );
 
     expect(screen.getByText('2')).toBeInTheDocument();
-    expect(screen.getByText('Results containing')).toBeInTheDocument();
+    expect(screen.getByText('Results')).toBeInTheDocument();
     expect(screen.getAllByTestId('mock-resource-card')).toHaveLength(2);
+  });
+
+  it('displays "contains" string if the filter is set', async () => {
+    const setSearchParams = vi.fn();
+    const searchParams = new URLSearchParams({
+      filter: 'test',
+    });
+
+    (useSearchParams as Mock).mockReturnValue([searchParams, setSearchParams]);
+
+    const mockSingleResultData = {
+      ...mockSearchResultsData,
+      totalCount: 1,
+      pages: [
+        {
+          ...mockSearchResultsData.pages[0],
+          data: [mockSearchResultsData.pages[0].data[0]],
+        },
+      ],
+    };
+
+    searchResultsStore.state = { ...mockSingleResultData, totalCount: 1 };
+
+    render(
+      <MemoryRouter>
+        <SearchPage />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByText('1')).toBeInTheDocument();
+    expect(screen.getByText('Result containing')).toBeInTheDocument();
+    expect(screen.getAllByTestId('mock-resource-card')).toHaveLength(1);
   });
 
   it('handles load more button click and scrolls to last item', async () => {
