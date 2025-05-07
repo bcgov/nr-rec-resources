@@ -1,16 +1,10 @@
-import { ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useClearFilters } from '@/components/search/hooks/useClearFilters';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import '@/components/search/NoResults.scss';
 
-export interface NoResultProps {
-  searchString: string;
-  filterChips: ReactNode;
-}
-
-const NoResults = ({ searchString, filterChips }: NoResultProps) => {
+const NoResults = () => {
   const [_, setSearchParams] = useSearchParams();
   const clearFilters = useClearFilters();
 
@@ -21,11 +15,6 @@ const NoResults = ({ searchString, filterChips }: NoResultProps) => {
 
   return (
     <div>
-      <p>
-        <strong>0</strong> results containing{' '}
-        <strong>&apos;{searchString}&apos;</strong>
-      </p>
-      {filterChips && <div className="filter-chips">{filterChips}</div>}
       <div className="no-results-msg">
         <FontAwesomeIcon className="icon" icon={faMagnifyingGlass} />{' '}
         <div className="no-results-header--right">

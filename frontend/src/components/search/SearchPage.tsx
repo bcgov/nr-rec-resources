@@ -137,26 +137,21 @@ const SearchPage = () => {
               Filter
             </button>
 
-            <div className="d-flex align-items-center justify-content-between mb-4">
+            <div className="d-flex align-items-center justify-content-between">
               {isFetchingFirstPage ? (
                 <div>Searching...</div>
               ) : (
                 <div>
-                  {totalCount ? (
-                    <span>
-                      <strong>{totalCount.toLocaleString()}</strong>
-                      {` ${totalCount === 1 ? 'Result' : 'Results'}`}
-                    </span>
-                  ) : (
-                    <NoResults
-                      searchString={searchParams.get('filter') ?? ''}
-                      filterChips={<FilterChips />}
-                    />
-                  )}
+                  <div className="results-text">
+                    <strong>{totalCount.toLocaleString()}</strong>
+                    {` ${totalCount === 1 ? 'Result' : 'Results'} containing`}{' '}
+                    <strong>&apos;{searchParams.get('filter')}&apos;</strong>
+                  </div>
+                  <FilterChips />
+                  {totalCount === 0 && <NoResults />}
                 </div>
               )}
             </div>
-            {totalCount > 0 && <FilterChips />}
 
             {isFetching && !isFetchingPreviousPage && !isFetchingNextPage ? (
               <ProgressBar animated now={100} className="mb-4" />
