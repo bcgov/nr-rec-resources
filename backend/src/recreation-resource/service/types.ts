@@ -6,17 +6,14 @@ export type RecreationResourceGetPayload =
     select: ReturnType<typeof getRecreationResourceSelect>;
   }>;
 
-export interface CombinedRecordCount {
-  recreation_activity_code: number;
-  description: string;
-  recreation_activity_count: number;
-  total_toilet_count: number;
-  total_table_count: number;
-  total_count: number;
+export interface FilterTypes {
+  isOnlyAccessFilter: boolean;
+  isOnlyDistrictFilter: boolean;
+  isOnlyTypeFilter: boolean;
 }
 
-export interface CombinedStaticCount {
-  type: "district" | "access" | "type";
+export interface AggregatedRecordCount {
+  type: "district" | "access" | "type" | "facilities" | "activity";
   code: string;
   description: string;
   count: number;
