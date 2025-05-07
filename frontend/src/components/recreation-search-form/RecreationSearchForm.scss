@@ -3,29 +3,39 @@
 .search-form {
   position: relative;
 
-  .search-input {
+  input.form-control {
+    height: 48px;
     width: 100%;
-    padding-right: 2.5rem;
-    padding-left: 1rem;
+    color: $colorGrey;
+    font-size: 1rem;
+    border-color: $colorGreyMed;
+    border-radius: 0.375rem !important;
+    box-shadow: none;
+    padding: 18px 48px 0 16px !important;
 
-    @media (min-width: $mdBreakpoint) {
-      flex: 1;
+    &:hover {
+      border-width: 2px;
     }
 
-    &.has-search-icon {
-      padding-left: 2.5rem;
+    &:focus,
+    &:focus-visible {
+      border-width: 3px;
+      box-shadow:
+        0 0 0 2px $colorWhite,
+        0 0 0 4px $colorBlueMed;
     }
 
-    &:placeholder-shown {
-      text-overflow: ellipsis;
-      font-size: 0.9rem;
-      padding-right: 0;
+    &:focus ~ label,
+    &:not(:placeholder-shown) ~ label {
+      font-size: 0.75rem !important;
+      opacity: 0.85;
+      transform: translateY(-0.5rem) translateX(0.15rem);
     }
   }
 
-  .search-input,
-  .search-button {
-    height: 48px;
+  &.has-text--true,
+  &.is-dropdown-open--true {
+    padding: 18px 16px 0;
   }
 
   .search-input-container {
@@ -34,29 +44,30 @@
     .search-icon {
       position: relative;
       left: 0.75rem;
-
       top: 50%;
       color: $colorBlue;
       pointer-events: none;
-      z-index: 10; // otherwise icon disappears when input is in focus
+      z-index: 10;
     }
   }
 
-  .search-button {
-    min-width: 130px;
+  .search-button,
+  .search-input {
+    height: 48px;
   }
 
   .clear-button {
+    all: unset;
     position: absolute;
     right: 10px;
     top: 50%;
     transform: translateY(-50%);
     background: transparent;
     border: none;
-    cursor: pointer;
     padding: 5px;
     color: #999;
-    font-size: 16px;
+    font-size: 24px;
+    cursor: pointer;
     z-index: 10;
 
     &:hover {
@@ -77,6 +88,69 @@
 
     @media (min-width: $mdBreakpoint) {
       flex-direction: row;
+    }
+  }
+
+  label {
+    position: absolute;
+    top: 12px;
+    left: 16px;
+    color: $colorGreyMed;
+    font-size: 1rem;
+    pointer-events: none;
+    transition:
+      opacity 0.1s ease,
+      transform 0.1s ease;
+    transform-origin: top left;
+  }
+}
+
+.community-search-typeahead {
+  width: 100%;
+
+  .dropdown-menu.show {
+    border-width: 3px;
+    box-shadow:
+      0 0 0 2px $colorWhite,
+      0 0 0 4px $colorBlueMed;
+  }
+
+  .dropdown-menu {
+    width: 100%;
+    max-height: 360px;
+    top: 45px;
+    padding: 16px;
+    margin: 0;
+    border: 3px solid $colorGreyMed;
+    border-radius: 0 0 4px 4px;
+
+    a.dropdown-item {
+      color: $colorGrey;
+      white-space: normal;
+      text-decoration: none;
+      margin-top: 16px;
+      padding: 0;
+
+      &:first-of-type {
+        margin-top: 0;
+      }
+
+      &:hover,
+      &:focus,
+      &:active,
+      &.active {
+        background: transparent;
+        text-decoration: underline;
+      }
+
+      &.disabled {
+        color: $colorGreyMed;
+      }
+
+      &.no-suggestion-text {
+        cursor: default;
+        text-decoration: none;
+      }
     }
   }
 }

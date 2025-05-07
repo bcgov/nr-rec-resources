@@ -19,13 +19,16 @@ interface UseSearchInputReturn {
   setNameInputValue: (value: string) => void;
   selectedCity?: City[] | [];
   setSelectedCity: (city: City[] | []) => void;
-  handleSearch: (city?: City) => void;
-  handleClear: () => void;
+  handleSearch: () => void;
+  handleClearNameInput: () => void;
+  handleCityInputSearch: (city: City) => void;
+  handleClearCityInput: () => void;
 }
 
 const NAME_INPUT_PARAM_KEY = 'filter';
 const LATITUDE_PARAM_KEY = 'lat';
 const LONGITUDE_PARAM_KEY = 'lon';
+const COMMUNITY_PARAM_KEY = 'community';
 
 export const useSearchInput = ({
   initialCityInputValue,
@@ -33,32 +36,49 @@ export const useSearchInput = ({
 }: UseSearchInputProps = {}): UseSearchInputReturn => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [nameInputValue, setNameInputValue] = useState(
-    initialNameInputValue ?? searchParams.get(NAME_INPUT_PARAM_KEY) ?? '',
+    searchParams.get(NAME_INPUT_PARAM_KEY) ?? initialNameInputValue ?? '',
   );
   const [cityInputValue, setCityInputValue] = useState<string>(
-    initialCityInputValue ?? '',
+    searchParams.get(COMMUNITY_PARAM_KEY) ?? initialCityInputValue ?? '',
   );
   const [selectedCity, setSelectedCity] = useState<City[] | []>([]);
   const navigate = useNavigate();
 
-  const handleSearch = (city?: City) => {
+  const handleSearch = () => {
     const trimmedNameInputValue = nameInputValue.trim();
     const newParams = new URLSearchParams(searchParams);
     newParams.set(NAME_INPUT_PARAM_KEY, trimmedNameInputValue);
-    if (city?.latitude && city?.longitude) {
-      newParams.set(LATITUDE_PARAM_KEY, String(city.latitude));
-      newParams.set(LONGITUDE_PARAM_KEY, String(city.longitude));
-    }
+
     navigate({
       pathname: ROUTE_PATHS.SEARCH,
       search: newParams.toString(),
     });
   };
 
-  const handleClear = () => {
+  const handleCityInputSearch = (city: City) => {
+    if (!city) return;
+    const trimmedCityInputValue = city?.cityName.trim();
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set(LATITUDE_PARAM_KEY, String(city.latitude));
+    newParams.set(LONGITUDE_PARAM_KEY, String(city.longitude));
+    newParams.set(COMMUNITY_PARAM_KEY, trimmedCityInputValue);
+
+    navigate({
+      pathname: ROUTE_PATHS.SEARCH,
+      search: newParams.toString(),
+    });
+  };
+
+  const handleClearNameInput = () => {
     setNameInputValue('');
     const newParams = new URLSearchParams(searchParams);
     newParams.delete(NAME_INPUT_PARAM_KEY);
+    setSearchParams(newParams as URLSearchParamsInit);
+  };
+
+  const handleClearCityInput = () => {
+    setCityInputValue('');
+    const newParams = new URLSearchParams(searchParams);
     newParams.delete(LATITUDE_PARAM_KEY);
     newParams.delete(LONGITUDE_PARAM_KEY);
     setSearchParams(newParams as URLSearchParamsInit);
@@ -72,6 +92,8 @@ export const useSearchInput = ({
     selectedCity,
     setSelectedCity,
     handleSearch,
-    handleClear,
+    handleClearNameInput,
+    handleCityInputSearch,
+    handleClearCityInput,
   };
 };

@@ -5,13 +5,15 @@ import {
   Col,
   Form,
   FormControl,
+  FormGroup,
   InputGroup,
   Row,
 } from 'react-bootstrap';
+import { ClearButton } from 'react-bootstrap-typeahead';
 import LocationSearch from '@/components/recreation-search-form/LocationSearch';
 import { useSearchParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSearch, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
 import './RecreationSearchForm.scss';
 import { useSearchInput } from '@/components/recreation-search-form/hooks/useSearchInput';
 import { trackSiteSearch } from '@/utils/matomo';
@@ -35,8 +37,12 @@ export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
 }) => {
   const [searchParams] = useSearchParams();
   const filter = searchParams.get('filter');
-  const { nameInputValue, setNameInputValue, handleSearch, handleClear } =
-    useSearchInput({ initialNameInputValue });
+  const {
+    nameInputValue,
+    setNameInputValue,
+    handleSearch,
+    handleClearNameInput,
+  } = useSearchInput({ initialNameInputValue });
 
   const handleFormSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -62,30 +68,31 @@ export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
       <Row className="gy-3 gx-0 gx-lg-3">
         <Col md={12} lg="auto" className="flex-grow-0 flex-lg-grow-1">
           <InputGroup className="search-input-group">
-            <div className="search-input-container">
+            <FormGroup
+              controlId="name-search-input"
+              className={`search-input-container ${nameInputValue ? 'has-text--true' : ''}`}
+            >
               <FormControl
                 aria-label={placeholder}
                 type="text"
+                placeholder=" "
                 value={nameInputValue}
                 onChange={(e) => setNameInputValue(e.target.value)}
-                placeholder={placeholder}
-                className={`search-input rounded-2 ${showSearchIcon ? 'has-search-icon' : ''}`}
+                className={`form-control ${showSearchIcon ? 'has-search-icon' : ''}`}
                 data-testid="search-input"
               />
+              <label htmlFor="name-search-input">{placeholder}</label>
               {showSearchIcon && (
                 <FontAwesomeIcon icon={faSearch} className="search-icon" />
               )}
               {nameInputValue && (
-                <Button
-                  variant="link"
-                  onClick={handleClear}
+                <ClearButton
+                  onClick={handleClearNameInput}
                   className="clear-button"
                   aria-label="Clear search"
-                >
-                  <FontAwesomeIcon icon={faTimes} />
-                </Button>
+                />
               )}
-            </div>
+            </FormGroup>
             <div className="search-spacer">or</div>
             <LocationSearch />
           </InputGroup>
