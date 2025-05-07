@@ -50,13 +50,18 @@ export class RecreationResourceSearchService {
     });
 
     // Execute all queries in a transaction for consistency
-    const [recreationResources, combinedRecordCounts, combinedStaticCounts] =
-      await this.executeQueries(whereClause, take, skip);
+    const [
+      recreationResources,
+      combinedRecordCounts,
+      dynamicCounts,
+      combinedStaticCounts,
+    ] = await this.executeQueries(whereClause, take, skip);
 
     // Format and return the results
     return this.formatResults(
       recreationResources,
       combinedRecordCounts,
+      dynamicCounts,
       combinedStaticCounts,
       page,
       limit,
@@ -91,6 +96,7 @@ export class RecreationResourceSearchService {
       this.getResourcesQuery(whereClause, take, skip),
       this.getRecordCountsQuery(whereClause),
       this.getStaticCountsQuery(whereClause),
+      this.getStaticCountsQuery2(),
     ]);
   }
 
@@ -185,13 +191,43 @@ export class RecreationResourceSearchService {
       ORDER BY description ASC`;
   }
 
+  private getStaticCountsQuery2() {
+    return this.prisma.$queryRaw<CombinedStaticCount[]>`
+      SELECT 'district' AS type, district_code AS code, description, resource_count::INTEGER AS count
+      FROM recreation_resource_district_count_view
+      WHERE district_code NOT IN (${Prisma.join(EXCLUDED_RECREATION_DISTRICTS)})
+
+      UNION ALL
+
+      SELECT 'access' AS type, access_code AS code, access_description AS description, count::INTEGER AS count
+      FROM recreation_resource_access_count_view
+      WHERE access_code NOT IN (${Prisma.join(EXCLUDED_RESOURCE_TYPES)})
+
+      UNION ALL
+
+      SELECT 'type' AS type, rec_resource_type_code AS code, description, count::INTEGER AS count
+      FROM recreation_resource_type_count_view
+      WHERE rec_resource_type_code NOT IN (${Prisma.join(EXCLUDED_RESOURCE_TYPES)})
+
+      ORDER BY description ASC`;
+  }
+
   private formatResults(
     recreationResources: any[],
     combinedRecordCounts: CombinedRecordCount[],
+    dynamicCounts: CombinedStaticCount[],
     combinedStaticCounts: CombinedStaticCount[],
     page: number,
     limit?: number,
   ): PaginatedRecreationResourceDto {
+    const combinedArray = Array.from(
+      new Map(
+        [...combinedStaticCounts, ...dynamicCounts].map((item) => [
+          item.code,
+          item,
+        ]),
+      ).values(),
+    );
     return {
       data: formatSearchResults(recreationResources),
       page,
@@ -199,7 +235,7 @@ export class RecreationResourceSearchService {
       total: combinedRecordCounts?.[0]?.total_count ?? 0,
       filters: buildFilterMenu({
         combinedRecordCounts,
-        combinedStaticCounts,
+        combinedStaticCounts: combinedArray,
       }),
     };
   }
