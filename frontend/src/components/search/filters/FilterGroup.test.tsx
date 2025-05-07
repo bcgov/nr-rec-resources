@@ -35,11 +35,61 @@ describe('the FilterGroup component', () => {
         id: 33,
         count: 13,
         description: 'New Activity',
+        hasFocus: false,
       },
       {
         id: 34,
+        count: 0,
+        description: 'New Activity 2',
+        hasFocus: false,
+      },
+      {
+        id: 35,
         count: 13,
         description: 'New Activity 2',
+        hasFocus: false,
+      },
+    ];
+    const c = (
+      <FilterGroup label="Activities" options={newOptions} param="activities" />
+    );
+    const { getByText } = render(c);
+
+    const showAllButton = getByText(/Show all/);
+
+    if (showAllButton) {
+      fireEvent.click(showAllButton);
+      fireEvent.keyDown(showAllButton, {
+        key: 'Enter',
+        code: 13,
+        charCode: 13,
+      });
+      fireEvent.keyDown(showAllButton, { key: ' ' });
+    }
+
+    expect(showAllButton).toBeVisible();
+  });
+
+  it('should skip focus if all the options bellow are disabled', () => {
+    const newOptions = [
+      ...activitiesOptions,
+      {
+        id: 33,
+        count: 13,
+        description: 'New Activity',
+        hasFocus: false,
+      },
+      {
+        id: 34,
+        count: 0,
+        description: 'New Activity 2',
+        hasFocus: false,
+      },
+      {
+        id: 35,
+        count: 0,
+        description: 'New Activity 2',
+        hasFocus: false,
       },
     ];
     const c = (

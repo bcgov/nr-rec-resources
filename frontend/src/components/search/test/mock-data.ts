@@ -5,21 +5,25 @@ export const activitiesOptions = [
     id: 22,
     count: 9,
     description: 'Snowmobiling',
+    hasFocus: false,
   },
   {
     id: 1,
     count: 14,
     description: 'Angling',
+    hasFocus: false,
   },
   {
     id: 3,
     count: 5,
     description: 'Canoeing',
+    hasFocus: false,
   },
   {
     id: 32,
     count: 12,
     description: 'Camping',
+    hasFocus: false,
   },
 ];
 
