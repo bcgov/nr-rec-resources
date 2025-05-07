@@ -1,309 +1,254 @@
-import { Test, TestingModule } from "@nestjs/testing";
+import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
+import { RecreationResourceSearchService } from "./recreation-resource-search.service";
 import { PrismaService } from "src/prisma.service";
-import { beforeEach, describe, expect, it, Mocked, vi } from "vitest";
-import { RecreationResourceSearchService } from "src/recreation-resource/service/recreation-resource-search.service";
+import { buildFilterMenu } from "src/recreation-resource/utils/buildFilterMenu";
+import { buildSearchFilterQuery } from "src/recreation-resource/utils/buildSearchFilterQuery";
+import { formatSearchResults } from "src/recreation-resource/utils/formatSearchResults";
+import { buildFilterOptionCountsQuery } from "../utils/buildSearchFilterOptionCountsQuery";
+import { buildRecreationResourcePageQuery } from "../utils/buildRecreationResourcePageQuery";
 
-// Test fixtures
-const createMockRecResource = (overrides = {}) => ({
-  rec_resource_id: "REC0001",
-  name: "Test Recreation Site",
-  closest_community: "Test City",
-  display_on_public_site: true,
-  recreation_activity: [
-    {
-      recreation_activity: {
-        recreation_activity_code: 32,
-        description: "Camping",
-      },
-    },
-  ],
-  recreation_status: {
-    recreation_status_code: { description: "Open" },
-    comment: "Site is currently open",
-    status_code: 1,
-  },
-  recreation_resource_type: {
-    recreation_resource_type_code: {
-      rec_resource_type_code: "SIT",
-      description: "Recreation Site",
-    },
-  },
-  recreation_resource_images: [
-    {
-      ref_id: "1000",
-      caption: "Test Image",
-      recreation_resource_image_variants: [
-        {
-          width: 1920,
-          height: 1080,
-          url: "https://example.com/test.jpg",
-          size_code: "llc",
-          extension: "jpg",
-        },
-      ],
-    },
-  ],
-  ...overrides,
-});
+// Mock all dependencies
+vi.mock("src/recreation-resource/utils/buildFilterMenu", () => ({
+  buildFilterMenu: vi.fn().mockReturnValue({ filters: [] }),
+}));
 
-const combinedStaticCounts = [
-  { type: "access", code: "B", description: "Boat-in", count: 17 },
-  { type: "district", code: "RDCS", description: "Cascades", count: 0 },
-  {
-    type: "type",
-    code: "IF",
-    description: "Interpretive Forest",
-    count: 2,
-  },
-];
+vi.mock("src/recreation-resource/utils/buildSearchFilterQuery", () => ({
+  buildSearchFilterQuery: vi.fn().mockReturnValue({ sql: "WHERE 1=1" }),
+}));
 
-const combinedRecordCounts = [
-  {
-    recreation_activity_code: 1,
-    description: "Angling",
-    recreation_activity_count: 14,
-    total_toilet_count: 13,
-    total_table_count: 13,
-    total_count: 1,
-  },
-  {
-    recreation_activity_code: 2,
-    description: "Boating",
-    recreation_activity_count: 4,
-    total_toilet_count: 13,
-    total_table_count: 13,
-    total_count: 1,
-  },
-];
+vi.mock("src/recreation-resource/utils/formatSearchResults", () => ({
+  formatSearchResults: vi.fn().mockReturnValue([]),
+}));
+
+vi.mock("../utils/buildSearchFilterOptionCountsQuery", () => ({
+  buildFilterOptionCountsQuery: vi
+    .fn()
+    .mockReturnValue({ sql: "SELECT COUNT(*)" }),
+}));
+
+vi.mock("../utils/buildRecreationResourcePageQuery", () => ({
+  buildRecreationResourcePageQuery: vi
+    .fn()
+    .mockReturnValue({ sql: "SELECT *" }),
+}));
 
 describe("RecreationResourceSearchService", () => {
-  let prismaService: Mocked<PrismaService>;
   let service: RecreationResourceSearchService;
+  let prismaService: PrismaService;
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        RecreationResourceSearchService,
-        {
-          provide: PrismaService,
-          useValue: {
-            $transaction: vi.fn(),
-            $queryRaw: vi.fn(),
-            $queryRawTyped: vi.fn(),
-          },
-        },
-      ],
-    }).compile();
+  beforeEach(() => {
+    prismaService = {
+      $queryRaw: vi.fn(),
+    } as any;
+    service = new RecreationResourceSearchService(prismaService);
 
-    service = module.get<RecreationResourceSearchService>(
-      RecreationResourceSearchService,
-    );
-    prismaService = module.get(PrismaService);
+    // Reset all mocks before each test
+    vi.clearAllMocks();
   });
 
   describe("searchRecreationResources", () => {
-    const setupSearchMocks = () => {
-      const mockTransactionResponse = [
-        [createMockRecResource()],
-        combinedRecordCounts,
-        combinedStaticCounts,
-      ];
+    const mockResourcesResponse = [
+      { id: 1, name: "Resource 1", total_count: 10 },
+      { id: 2, name: "Resource 2", total_count: 10 },
+    ];
 
-      vi.mocked(prismaService.$transaction).mockResolvedValueOnce(
-        mockTransactionResponse,
+    const mockAggregatedCounts = [
+      { filter_type: "type", filter_value: "park", count: 5 },
+    ];
+
+    beforeEach(() => {
+      (prismaService.$queryRaw as Mock).mockImplementation((query) => {
+        if (query.sql.includes("COUNT")) {
+          return Promise.resolve(mockAggregatedCounts);
+        }
+        return Promise.resolve(mockResourcesResponse);
+      });
+    });
+
+    it("should call all utility functions with correct parameters", async () => {
+      await service.searchRecreationResources(
+        1,
+        "search",
+        10,
+        "hiking",
+        "park",
+        "north",
+        "public",
+        "restroom",
       );
-    };
 
-    it("should return formatted search results with filters", async () => {
-      setupSearchMocks();
-      const result = await service.searchRecreationResources(1, "", 10);
-
-      expect(result).toMatchObject({
-        data: expect.arrayContaining([
-          expect.objectContaining({
-            rec_resource_id: "REC0001",
-          }),
-        ]),
-        filters: expect.arrayContaining([
-          expect.objectContaining({
-            label: expect.any(String),
-            options: expect.any(Array),
-          }),
-        ]),
-        page: 1,
-        limit: 10,
-        total: 1,
+      expect(buildSearchFilterQuery).toHaveBeenCalledWith({
+        filter: "search",
+        activities: "hiking",
+        type: "park",
+        district: "north",
+        access: "public",
+        facilities: "restroom",
       });
+
+      expect(buildRecreationResourcePageQuery).toHaveBeenCalled();
+      expect(buildFilterOptionCountsQuery).toHaveBeenCalled();
+      expect(formatSearchResults).toHaveBeenCalled();
+      expect(buildFilterMenu).toHaveBeenCalled();
     });
 
-    it("should return formatted search results with null limit", async () => {
-      setupSearchMocks();
-      const result = await service.searchRecreationResources(1, "");
-
-      expect(result).toMatchObject({
-        data: expect.arrayContaining([
-          expect.objectContaining({
-            rec_resource_id: "REC0001",
-          }),
-        ]),
-        filters: expect.arrayContaining([
-          expect.objectContaining({
-            label: expect.any(String),
-            options: expect.any(Array),
-          }),
-        ]),
-        page: 1,
-        limit: undefined,
-        total: 1,
-      });
-    });
-
-    it("should handle empty search results", async () => {
-      vi.mocked(prismaService.$transaction).mockResolvedValue([[], [], []]);
-
-      const result = await service.searchRecreationResources(1, "nonexistent");
-      expect(result).toMatchObject({
-        data: expect.any(Array),
-        filters: expect.any(Array),
-        page: 1,
-        total: 0,
-      });
-    });
-
-    it("should throw error when page > 10 without limit", async () => {
+    it("should validate pagination parameters", async () => {
       await expect(service.searchRecreationResources(11)).rejects.toThrow(
         "Maximum page limit is 10 when no limit is provided",
       );
     });
 
-    describe("filter handling", () => {
-      beforeEach(() => {
-        setupSearchMocks();
+    it("should normalize take parameter", async () => {
+      await service.searchRecreationResources(1, "", 20);
+
+      expect(buildRecreationResourcePageQuery).toHaveBeenCalledWith(
+        expect.objectContaining({
+          take: 10,
+          skip: 0,
+        }),
+      );
+    });
+
+    it("should calculate skip correctly", async () => {
+      await service.searchRecreationResources(2, "", 5);
+
+      expect(buildRecreationResourcePageQuery).toHaveBeenCalledWith(
+        expect.objectContaining({
+          take: 5,
+          skip: 5,
+        }),
+      );
+    });
+
+    it("should return formatted results", async () => {
+      const result = await service.searchRecreationResources(1);
+
+      expect(result).toEqual({
+        data: [],
+        page: 1,
+        limit: 10,
+        total: 10,
+        filters: { filters: [] },
       });
+    });
 
-      it.each([
-        ["activities", "1", "Things to do"],
-        ["district", "RDCS", "District"],
-        ["access", "B", "Access type"],
-        ["type", "IF", "Type"],
-        ["facilities", "toilet", "Facilities"],
-      ])(
-        "should correctly apply %s filter",
-        async (filterType, value, label) => {
-          const filterParams = {
-            activities: filterType === "activities" ? value : undefined,
-            type: filterType === "type" ? value : undefined,
-            district: filterType === "district" ? value : undefined,
-            access: filterType === "access" ? value : undefined,
-            facilities: filterType === "facilities" ? value : undefined,
-          };
+    it("should handle empty results", async () => {
+      (prismaService.$queryRaw as Mock).mockResolvedValue([]);
 
-          const result = await service.searchRecreationResources(
-            1,
-            "",
-            10,
-            filterParams.activities,
-            filterParams.type,
-            filterParams.district,
-            filterParams.access,
-            filterParams.facilities,
-          );
-          expect(result.filters).toContainEqual(
-            expect.objectContaining({
-              label,
-              type: "multi-select",
-              options: expect.arrayContaining([
-                expect.objectContaining({
-                  id: value,
-                }),
-              ]),
-            }),
-          );
+      const result = await service.searchRecreationResources(1);
+
+      expect(result).toEqual({
+        data: [],
+        page: 1,
+        limit: 10,
+        total: 0,
+        filters: { filters: [] },
+      });
+    });
+
+    it("should determine filter types correctly", async () => {
+      await service.searchRecreationResources(1, "", 10, "", "", "", "public");
+
+      expect(buildFilterOptionCountsQuery).toHaveBeenCalledWith(
+        expect.anything(),
+        {
+          isOnlyAccessFilter: true,
+          isOnlyDistrictFilter: false,
+          isOnlyTypeFilter: false,
         },
       );
     });
 
-    describe("query param handling", () => {
-      beforeEach(() => {
-        setupSearchMocks();
-      });
+    it("should handle multiple filter types correctly", async () => {
+      await service.searchRecreationResources(
+        1,
+        "",
+        10,
+        "",
+        "park",
+        "north",
+        "",
+      );
 
-      it.each([
-        ["activities", "1"],
-        ["type", "IF"],
-        ["filter", "test"],
-        ["limit", 10],
-        ["district", "RDCS"],
-        ["access", "B"],
-        ["facilities", "toilet"],
-      ])("should handle %s query param", async (paramName, value) => {
-        const queryParams: Record<string, any> = {
-          activities: undefined,
-          type: undefined,
-          district: undefined,
-          access: undefined,
-          facilities: undefined,
-          lat: undefined,
-          lon: undefined,
-        };
+      expect(buildFilterOptionCountsQuery).toHaveBeenCalledWith(
+        expect.anything(),
+        {
+          isOnlyAccessFilter: false,
+          isOnlyDistrictFilter: false,
+          isOnlyTypeFilter: false,
+        },
+      );
+    });
 
-        queryParams[paramName] = value;
+    it("should correctly identify district-only filter", async () => {
+      await service.searchRecreationResources(1, "", 10, "", "", "north", "");
 
-        const result = await service.searchRecreationResources(
+      expect(buildFilterOptionCountsQuery).toHaveBeenCalledWith(
+        expect.anything(),
+        {
+          isOnlyAccessFilter: false,
+          isOnlyDistrictFilter: true,
+          isOnlyTypeFilter: false,
+        },
+      );
+    });
+
+    it("should correctly identify type-only filter", async () => {
+      await service.searchRecreationResources(1, "", 10, "", "park", "", "");
+
+      expect(buildFilterOptionCountsQuery).toHaveBeenCalledWith(
+        expect.anything(),
+        {
+          isOnlyAccessFilter: false,
+          isOnlyDistrictFilter: false,
+          isOnlyTypeFilter: true,
+        },
+      );
+    });
+
+    it("should handle activities and facilities with other filters", async () => {
+      await service.searchRecreationResources(
+        1,
+        "",
+        10,
+        "hiking",
+        "park",
+        "",
+        "",
+        "restroom",
+      );
+
+      expect(buildFilterOptionCountsQuery).toHaveBeenCalledWith(
+        expect.anything(),
+        {
+          isOnlyAccessFilter: false,
+          isOnlyDistrictFilter: false,
+          isOnlyTypeFilter: false,
+        },
+      );
+    });
+
+    it("should throw error when only latitude is provided", async () => {
+      await expect(
+        service.searchRecreationResources(1, "", 10, "", "", "", "", "", 10),
+      ).rejects.toThrow("Both lat and lon must be provided");
+    });
+
+    it("should throw error when only longitude is provided", async () => {
+      await expect(
+        service.searchRecreationResources(
           1,
           "",
           10,
-          queryParams.activities,
-          queryParams.type,
-          queryParams.district,
-          queryParams.access,
-          queryParams.facilities,
-          queryParams.lat,
-          queryParams.lon,
-        );
-
-        expect(result).toMatchObject({
-          data: expect.any(Array),
-          filters: expect.any(Array),
-          page: 1,
-          limit: 10,
-          total: 1,
-        });
-      });
+          "",
+          "",
+          "",
+          "",
+          "",
+          undefined,
+          20,
+        ),
+      ).rejects.toThrow("Both lat and lon must be provided");
     });
-  });
-
-  it("should throw error if lat is provided without lon", async () => {
-    await expect(
-      service.searchRecreationResources(
-        1,
-        "",
-        10,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        50.123, // lat
-        undefined, // lon
-      ),
-    ).rejects.toThrowError("Both lat and lon must be provided");
-  });
-
-  it("should throw error if lon is provided without lat", async () => {
-    await expect(
-      service.searchRecreationResources(
-        1,
-        "",
-        10,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined,
-        undefined, // lat
-        -123.456, // lon
-      ),
-    ).rejects.toThrowError("Both lat and lon must be provided");
   });
 });

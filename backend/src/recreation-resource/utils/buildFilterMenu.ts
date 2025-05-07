@@ -1,94 +1,98 @@
-import { FilterDto } from "src/recreation-resource/dto/paginated-recreation-resource.dto";
+import { AggregatedRecordCount } from "src/recreation-resource/service/types";
 import {
-  CombinedRecordCount,
-  CombinedStaticCount,
-} from "src/recreation-resource/service/types";
+  FilterDto,
+  FilterOptionDto,
+} from "../dto/paginated-recreation-resource.dto";
 
-// Build the filter menu based on the combined record and static counts
-export const buildFilterMenu = ({
-  combinedRecordCounts,
-  combinedStaticCounts,
-}: {
-  combinedRecordCounts: CombinedRecordCount[];
-  combinedStaticCounts: CombinedStaticCount[];
-}) => {
-  const toiletCount = combinedRecordCounts[0]?.total_toilet_count ?? 0;
-  const tableCount = combinedRecordCounts[0]?.total_table_count ?? 0;
+const FILTER_CONFIG = [
+  { type: "district", label: "District", param: "district" },
+  { type: "type", label: "Type", param: "type" },
+  { type: "activity", label: "Things to do", param: "activities" },
+  { type: "facilities", label: "Facilities", param: "facilities" },
+  { type: "access", label: "Access type", param: "access" },
+] as const;
 
-  const activityFilters = combinedRecordCounts.map((activity) => ({
-    id: activity.recreation_activity_code.toString(),
-    description: activity.description,
-    count: Number(activity.recreation_activity_count ?? 0),
-  }));
+/**
+ * Helper function to create a filter option.
+ * @param code - Unique identifier for the option
+ * @param description - Display text for the option
+ * @param count - Number of matching results
+ */
+const createFilterOption = (
+  code: string,
+  description: string,
+  count: number,
+): FilterOptionDto => ({
+  id: code,
+  description,
+  count,
+});
 
-  const recreationDistrictFilters = combinedStaticCounts
-    .filter((count) => count.type === "district")
-    .map((district) => ({
-      id: district.code,
-      description: district.description,
-      count: district.count ?? 0,
-    }));
+/**
+ * Creates filter options from aggregated records.
+ * @param aggregatedRecordCounts - Array of aggregated record counts
+ * @param type - Filter type to extract
+ * @param transform - Optional function to transform the description
+ */
+const createFilterOptions = (
+  aggregatedRecordCounts: AggregatedRecordCount[],
+  type: string,
+  transform?: (description: string) => string,
+): FilterOptionDto[] => {
+  const filtered = aggregatedRecordCounts.filter((item) => item.type === type);
+  return filtered.map((item) =>
+    createFilterOption(
+      item.code,
+      transform ? transform(item.description) : item.description,
+      item.count,
+    ),
+  );
+};
 
-  const recreationAccessFilters = combinedStaticCounts
-    .filter((count) => count.type === "access")
-    .map((access) => ({
-      id: access.code,
-      description: `${access.description} access`,
-      count: access.count ?? 0,
-    }));
+/**
+ * Creates facility filter options with predefined facilities.
+ * @param aggregatedRecordCounts - Array of aggregated record counts
+ */
+const createFacilityOptions = (
+  aggregatedRecordCounts: AggregatedRecordCount[],
+): FilterOptionDto[] => {
+  const facilities = aggregatedRecordCounts.filter(
+    (item) => item.type === "facilities",
+  );
+  const getCount = (code: string) =>
+    facilities.find((f) => f.code === code)?.count ?? 0;
 
-  const recResourceTypeFilters = combinedStaticCounts
-    .filter((count) => count.type === "type")
-    .map((resourceType) => ({
-      id: resourceType.code,
-      description: resourceType.description,
-      count: resourceType.count ?? 0,
-    }))
-    .reverse();
-
-  const filterMenu: FilterDto[] = [
-    {
-      type: "multi-select",
-      label: "District",
-      param: "district",
-      options: recreationDistrictFilters,
-    },
-    {
-      type: "multi-select",
-      label: "Type",
-      param: "type",
-      options: recResourceTypeFilters,
-    },
-    {
-      type: "multi-select",
-      label: "Things to do",
-      param: "activities",
-      options: activityFilters,
-    },
-    {
-      type: "multi-select",
-      label: "Facilities",
-      param: "facilities",
-      options: [
-        {
-          id: "table",
-          description: "Tables",
-          count: tableCount,
-        },
-        {
-          id: "toilet",
-          description: "Toilets",
-          count: toiletCount,
-        },
-      ],
-    },
-    {
-      type: "multi-select",
-      label: "Access type",
-      param: "access",
-      options: recreationAccessFilters,
-    },
+  return [
+    createFilterOption("table", "Tables", getCount("table")),
+    createFilterOption("toilet", "Toilets", getCount("toilet")),
   ];
+};
 
-  return filterMenu;
+/**
+ * Builds a filter menu based on aggregated record counts.
+ * This function generates a structured filter menu for the recreation resource search interface.
+ *
+ * @param aggregatedRecordCounts - Array of aggregated counts for different filter categories
+ */
+export const buildFilterMenu = (
+  aggregatedRecordCounts: AggregatedRecordCount[],
+): FilterDto[] => {
+  const filterOptions = {
+    facilities: createFacilityOptions(aggregatedRecordCounts),
+    access: createFilterOptions(
+      aggregatedRecordCounts,
+      "access",
+      (description) => `${description} access`,
+    ),
+    district: createFilterOptions(aggregatedRecordCounts, "district"),
+    type: createFilterOptions(aggregatedRecordCounts, "type"),
+    activity: createFilterOptions(aggregatedRecordCounts, "activity"),
+  };
+
+  return FILTER_CONFIG.map(({ type, label, param }) => ({
+    type: "multi-select",
+    label,
+    param,
+    options: filterOptions[type],
+  }));
 };

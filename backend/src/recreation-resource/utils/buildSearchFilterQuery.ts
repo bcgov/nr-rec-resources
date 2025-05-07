@@ -24,7 +24,7 @@ export const buildSearchFilterQuery = ({
   facilities,
   lat,
   lon,
-}: FilterOptions): Prisma.Sql => {
+}: FilterOptions) => {
   const activityFilter = activities?.split("_").map(Number) ?? [];
   const typeFilter = type?.split("_").map(String) ?? [];
   const districtFilter = district?.split("_").map(String) ?? [];
@@ -54,25 +54,33 @@ export const buildSearchFilterQuery = ({
         and (
           select count(*)
           from jsonb_array_elements(recreation_activity) AS activity
-          where (activity->>'recreation_activity_code')::bigint in (${Prisma.join(activityFilter)})
+          where (activity->>'recreation_activity_code')::bigint in (${Prisma.join(
+            activityFilter,
+          )})
         ) = ${activityFilter.length}
     `
       : Prisma.empty;
 
+  // uses AND to require all requested facilities to be present
   const facilityFilterQuery =
     Array.isArray(facilityFilter) && facilityFilter.length > 0
-      ? Prisma.sql`and (
-          select count(*)
-          from jsonb_array_elements(recreation_structure) AS facility
-          where (
-            ${Prisma.join(
-              facilityFilter.map(
-                (f) =>
-                  Prisma.sql`(facility->>'description') ilike ${"%" + f + "%"}`,
-              ),
-              " or ",
-            )}
-          )
+      ? Prisma.sql`AND (
+        SELECT COUNT(*)
+        FROM (
+          SELECT rec_resource_id
+          FROM jsonb_array_elements(recreation_structure) AS facility
+          GROUP BY rec_resource_id
+          HAVING ${Prisma.join(
+            facilityFilter.map(
+              (f) => Prisma.sql`
+                COUNT(*) FILTER (
+                  WHERE facility->>'description' ILIKE ${"%" + f + "%"}
+                ) > 0
+              `,
+            ),
+            " AND ",
+          )}
+        ) AS filtered_resources
       ) > 0`
       : Prisma.empty;
 
