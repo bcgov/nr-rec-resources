@@ -58,7 +58,6 @@ const SearchPage = () => {
   }, [searchResults]);
 
   const { pages: paginatedResults, totalCount } = searchResults;
-
   /**
    * Handles loading the next page of search results.
    *
@@ -137,24 +136,33 @@ const SearchPage = () => {
               Filter
             </button>
 
-            <div className="d-flex align-items-center justify-content-between mb-4">
+            <div className="d-flex align-items-center justify-content-between">
               {isFetchingFirstPage ? (
                 <div>Searching...</div>
               ) : (
                 <div>
-                  {totalCount ? (
-                    <span>
-                      <strong>{totalCount.toLocaleString()}</strong>
-                      {` ${totalCount === 1 ? 'Result' : 'Results'}`}
-                    </span>
-                  ) : (
+                  <div className="results-text">
+                    <strong>
+                      {totalCount !== undefined && totalCount.toLocaleString()}
+                    </strong>
+                    {` ${totalCount === 1 ? 'Result' : 'Results'}`}{' '}
+                    {searchParams.get('filter') && (
+                      <>
+                        containing{' '}
+                        <strong>
+                          &apos;{searchParams.get('filter')}&apos;
+                        </strong>
+                      </>
+                    )}
+                  </div>
+                  <FilterChips />
+                  {(totalCount === 0 || totalCount === undefined) && (
                     <NoResults />
                   )}
                 </div>
               )}
             </div>
 
-            <FilterChips />
             {isFetching && !isFetchingPreviousPage && !isFetchingNextPage ? (
               <ProgressBar animated now={100} className="mb-4" />
             ) : (

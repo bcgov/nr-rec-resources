@@ -1,5 +1,8 @@
 import { useSearchParams } from 'react-router-dom';
 import { useClearFilters } from '@/components/search/hooks/useClearFilters';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
+import '@/components/search/NoResults.scss';
 
 const NoResults = () => {
   const [_, setSearchParams] = useSearchParams();
@@ -12,7 +15,15 @@ const NoResults = () => {
 
   return (
     <div>
-      <p> Sorry, no sites or trails matched your search.</p>
+      <div className="no-results-msg">
+        <FontAwesomeIcon className="icon" icon={faMagnifyingGlass} />{' '}
+        <div className="no-results-header--right">
+          <h4>Sorry...</h4>
+          <p>
+            <b>No sites or trails matched your search.</b>
+          </p>
+        </div>
+      </div>
       <b>You could:</b>
       <ul>
         <li>Try a different search term</li>
