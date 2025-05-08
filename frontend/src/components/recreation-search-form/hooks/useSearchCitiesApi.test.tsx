@@ -91,9 +91,14 @@ describe('useSearchCitiesApi', () => {
       wrapper: TestQueryClientProvider,
     });
 
-    await waitFor(() => {
-      expect(result.current.isError).toBe(true);
-    });
+    await waitFor(
+      () => {
+        expect(result.current.isError).toBe(true);
+      },
+      {
+        timeout: 3000,
+      },
+    );
 
     expect(result.current.error).toBeDefined();
     expect(result.current.error?.message).toBe('Failed to fetch cities');

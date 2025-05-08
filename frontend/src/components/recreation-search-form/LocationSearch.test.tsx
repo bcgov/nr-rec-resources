@@ -113,4 +113,27 @@ describe('LocationSearch', () => {
     expect(setSelectedCity).toHaveBeenCalledWith([]);
     expect(handleClearCityInput).toHaveBeenCalled();
   });
+
+  it('shows error message and retry button when there is an error', async () => {
+    mockedUseSearchCitiesApi.mockReturnValue({
+      data: [],
+      isError: true,
+      refetch: vi.fn(),
+    });
+
+    render(<LocationSearch />);
+
+    const input = screen.getByLabelText(/Near a community/i);
+
+    fireEvent.change(input, { target: { value: 'Victoria' } });
+
+    expect(screen.getByText(/Failed to load cities./i)).toBeInTheDocument();
+
+    const retryButton = screen.getByRole('button', { name: /retry/i });
+    expect(retryButton).toBeInTheDocument();
+
+    await userEvent.click(retryButton);
+
+    expect(mockedUseSearchCitiesApi().refetch).toHaveBeenCalled();
+  });
 });

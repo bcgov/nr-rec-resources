@@ -3,7 +3,7 @@ import { City } from '@/components/recreation-search-form/types';
 
 const SEARCH_CITIES_API_URL = import.meta.env.VITE_SEARCH_CITIES_API_URL;
 const SEARCH_CITIES_API_PARAMS =
-  '?pagination[page]=1&pagination[pageSize]=10000&filters[rank][$ne]=5&sort=cityName:asc';
+  '?pagination[page]=1&pagination[pageSize]=1000&filters[rank][$ne]=5&sort=cityName:asc';
 
 interface RawCity {
   id: string;
@@ -38,5 +38,6 @@ export const useSearchCitiesApi = () => {
   return useQuery({
     queryKey: ['searchCities'],
     queryFn: fetchCities,
+    retry: 1,
   });
 };

@@ -1,5 +1,5 @@
 import { useMemo, useRef } from 'react';
-import { Typeahead, ClearButton } from 'react-bootstrap-typeahead';
+import { Typeahead, ClearButton, Menu } from 'react-bootstrap-typeahead';
 import { Form, FormControl } from 'react-bootstrap';
 import { City } from '@/components/recreation-search-form/types';
 import { Option } from 'react-bootstrap-typeahead/types/types';
@@ -18,7 +18,7 @@ const LocationSearch: React.FC = () => {
     handleClearCityInput,
   } = useSearchInput();
 
-  const { data } = useSearchCitiesApi();
+  const { data, isError, refetch } = useSearchCitiesApi();
   const cities = useMemo(() => data ?? [], [data]);
 
   const typeaheadRef = useRef<any>(null);
@@ -66,7 +66,11 @@ const LocationSearch: React.FC = () => {
       onChange={handleOnChange}
       onInputChange={handleInputChange}
       placeholder=" "
-      emptyLabel="No suggestions, please check your spelling or try a larger city in B.C."
+      emptyLabel={
+        isError
+          ? ''
+          : 'No suggestions, please check your spelling or try a larger city in B.C.'
+      }
       className={`${cityInputValue ? 'has-text' : ''}`}
       onFocus={handleFocus}
       renderInput={({ inputRef, referenceElementRef, ...inputProps }) => (
@@ -84,6 +88,18 @@ const LocationSearch: React.FC = () => {
           <label htmlFor="community-search-typeahead">Near a community</label>
         </Form.Group>
       )}
+      {...(isError && {
+        renderMenu: () => (
+          <Menu>
+            <div className="error-state">
+              Failed to load cities.
+              <button className="btn btn-link" onClick={() => refetch()}>
+                Retry
+              </button>
+            </div>
+          </Menu>
+        ),
+      })}
     >
       {({ onClear }: { onClear: () => void }) =>
         (!!selectedCity?.length || cityInputValue) && (

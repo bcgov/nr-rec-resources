@@ -134,4 +134,23 @@
       }
     }
   }
+
+  .error-state {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: $colorRed;
+    width: 100%;
+    max-height: 24px;
+    height: fit-content;
+
+    button {
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+        color: $colorBlueMed;
+      }
+    }
+  }
 }
