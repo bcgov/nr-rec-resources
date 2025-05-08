@@ -29,7 +29,7 @@ export interface CombinedStaticCount {
 }
 
 export interface AggregatedRecordCount {
-  type: "district" | "access" | "type";
+  type: "district" | "access" | "type" | "facilities" | "activity";
   code: string;
   description: string;
   count: number;

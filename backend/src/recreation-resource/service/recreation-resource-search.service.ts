@@ -120,7 +120,7 @@ export class RecreationResourceSearchService {
 
   private formatResults(
     recreationResources: any[],
-    combinedRecordCounts: AggregatedRecordCount[],
+    aggregatedRecordCounts: AggregatedRecordCount[],
     page: number,
     limit?: number,
   ): PaginatedRecreationResourceDto {
@@ -129,9 +129,7 @@ export class RecreationResourceSearchService {
       page,
       limit,
       total: recreationResources?.[0]?.total_count ?? 0,
-      filters: buildFilterMenu({
-        combinedRecordCounts,
-      }),
+      filters: buildFilterMenu(aggregatedRecordCounts),
     };
   }
 
