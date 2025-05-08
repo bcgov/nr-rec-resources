@@ -100,4 +100,54 @@ describe("RecreationResourceService", () => {
       expect(result).toBeNull();
     });
   });
+
+  describe("searchRecreationResources", () => {
+    it("should call searchRecreationResources with correct parameters", async () => {
+      const mockTransactionResponse = [[createMockRecResource()], [], []];
+
+      vi.mocked(prismaService.$transaction).mockResolvedValueOnce(
+        mockTransactionResponse,
+      );
+
+      const page = 1;
+      const filter = "test";
+      const limit = 10;
+      const activities = "activity1,activity2";
+      const type = "type1";
+      const district = "district1";
+      const access = "access1";
+      const facilities = "facility1,facility2";
+      const lat = 48.4284;
+      const lon = -123.3656;
+
+      const searchRecreationResourcesMock = vi.fn();
+      service.searchRecreationResources = searchRecreationResourcesMock;
+
+      await service.searchRecreationResources(
+        page,
+        filter,
+        limit,
+        activities,
+        type,
+        district,
+        access,
+        facilities,
+        lat,
+        lon,
+      );
+
+      expect(searchRecreationResourcesMock).toHaveBeenCalledWith(
+        page,
+        filter,
+        limit,
+        activities,
+        type,
+        district,
+        access,
+        facilities,
+        lat,
+        lon,
+      );
+    });
+  });
 });

@@ -9,6 +9,8 @@ const activityString =
   "where (activity->>'recreation_activity_code')::bigint in (?,?)";
 const facilityString =
   "select count(*) from jsonb_array_elements(recreation_structure) AS facility where ( (facility->>'description') ilike ? or (facility->>'description') ilike ? ) ";
+const locationString =
+  "where (name ilike ? or closest_community ilike ?) AND public.ST_DWithin( public.ST_Transform(public.ST_SetSRID(recreation_site_point, 3005), 3005), public.ST_Transform(public.ST_SetSRID(public.ST_MakePoint(?, ?), 4326), 3005), ? )";
 
 export const getQueryString = (query) => {
   return query.sql.replace(/\s+/g, " ").trim();
@@ -63,6 +65,17 @@ describe("buildSearchFilterQuery", () => {
     const queryString = getQueryString(result);
 
     expect(queryString).toContain(facilityString);
+  });
+
+  it("should add location filter correctly", () => {
+    const result = buildSearchFilterQuery({
+      filter: "",
+      lat: 1,
+      lon: 2,
+    });
+    const queryString = getQueryString(result);
+
+    expect(queryString).toContain(locationString);
   });
 
   it("should handle all filters", () => {

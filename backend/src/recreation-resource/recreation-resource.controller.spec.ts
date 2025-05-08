@@ -204,4 +204,48 @@ describe("RecreationResourceController", () => {
       }
     });
   });
+
+  it("should convert string lat/lon into numbers", async () => {
+    const mockResult = {
+      data: [],
+      total: 0,
+      page: 1,
+      limit: 10,
+      filters: [],
+    };
+
+    const spy = vi
+      .spyOn(recService, "searchRecreationResources")
+      .mockResolvedValue(mockResult);
+
+    const lat: any = "48.4284";
+    const lon: any = "-123.3656";
+
+    const result = await controller.searchRecreationResources(
+      "test",
+      10,
+      1,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      lat,
+      lon,
+    );
+
+    expect(result).toBe(mockResult);
+    expect(spy).toHaveBeenCalledWith(
+      1,
+      "test",
+      10,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      48.4284,
+      -123.3656,
+    );
+  });
 });

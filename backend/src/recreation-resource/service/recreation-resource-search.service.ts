@@ -41,6 +41,10 @@ export class RecreationResourceSearchService {
       limit = 10;
     }
 
+    if ((lat && !lon) || (lon && !lat)) {
+      throw new Error("Both lat and lon must be provided");
+    }
+
     // If only page is provided, we will return all records up to the end of that page
     // If limit is provided, we will return that many paginated records for lazy loading
     const take = limit ? limit : 10;
