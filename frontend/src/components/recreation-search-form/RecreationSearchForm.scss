@@ -61,9 +61,14 @@
     font-size: 24px;
     cursor: pointer;
     z-index: 10;
+    transition: font-size 0.2s ease;
 
     &:hover {
       color: #333;
+    }
+
+    &:focus {
+      font-size: 32px;
     }
   }
 
