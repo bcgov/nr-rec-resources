@@ -27,7 +27,7 @@ const SearchPage = () => {
   const initialPage = useInitialPageFromSearchParams();
   const lat = searchParams.get('lat');
   const lon = searchParams.get('lon');
-  const community = searchParams.get('community');
+  //const community = searchParams.get('community');
 
   const {
     data,
@@ -115,7 +115,15 @@ const SearchPage = () => {
 
   const isFetchingFirstPage =
     isFetching && !isFetchingPreviousPage && !isFetchingNextPage;
-  const isLocationSearchResults = lat && lon && community;
+  //const isLocationSearchResults = lat && lon && community;
+  //
+  // {
+  //   isLocationSearchResults && (
+  //     <span>
+  //       within <b>50 km</b> radius of <b>{community}</b>
+  //     </span>
+  //   );
+  // }
 
   return (
     <>
