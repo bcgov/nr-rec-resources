@@ -34,6 +34,21 @@ const FilterGroup = ({
     toggleFilter({ param, id, label }, checked);
   };
 
+  const focusCheckbox = (index: number) => {
+    let foundFocus = false;
+    while (!foundFocus) {
+      if (options[index].count > 0) {
+        options[index].hasFocus = true;
+        foundFocus = true;
+      } else {
+        index++;
+        if (index >= options.length) {
+          foundFocus = true;
+        }
+      }
+    }
+  };
+
   const filtersCount = options?.length;
   const isShowAllFilters =
     filtersCount > MAX_VISIBLE_OPTIONS && !showAllOptions && showMoreBtn;
@@ -48,7 +63,7 @@ const FilterGroup = ({
       <legend className="filter-group-title">{label}</legend>
       <Form.Group className="filter-options-container">
         {optionList?.map((option) => {
-          const { count, description, id } = option;
+          const { count, description, id, hasFocus } = option;
           const isDefaultChecked = filterParamsArray?.includes(String(id));
           const isDisabled = count === 0;
 
@@ -61,6 +76,7 @@ const FilterGroup = ({
               defaultChecked={isDefaultChecked}
               label={`${description} (${count})`}
               onChange={(e) => handleChange(e, description)}
+              autoFocus={hasFocus}
             />
           );
         })}
@@ -73,6 +89,7 @@ const FilterGroup = ({
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
               setShowAllOptions(!showAllOptions);
+              focusCheckbox(MAX_VISIBLE_OPTIONS);
             }
           }}
         >

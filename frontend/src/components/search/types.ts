@@ -2,6 +2,7 @@ export interface Filter {
   id: number | string;
   count: number;
   description: string;
+  hasFocus: boolean;
 }
 
 export interface FilterMenuContent {
