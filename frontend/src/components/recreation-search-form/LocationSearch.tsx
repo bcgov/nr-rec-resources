@@ -2,6 +2,7 @@ import { useMemo, useRef } from 'react';
 import { Typeahead, ClearButton } from 'react-bootstrap-typeahead';
 import { Form, FormControl } from 'react-bootstrap';
 import { City } from '@/components/recreation-search-form/types';
+import { Option } from 'react-bootstrap-typeahead/types/types';
 import { useSearchCitiesApi } from '@/components/recreation-search-form/hooks/useSearchCitiesApi';
 import { useSearchInput } from '@/components/recreation-search-form/hooks/useSearchInput';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
@@ -32,7 +33,7 @@ const LocationSearch: React.FC = () => {
     return filtered?.slice(0, 7) ?? [];
   }, [cityInputValue, cities]);
 
-  const handleOnChange = (selected: any[]) => {
+  const handleOnChange = (selected: Option[]) => {
     const selectedCities = selected as City[];
     setSelectedCity(selectedCities);
     handleSearch(selectedCities[0]);
@@ -61,12 +62,12 @@ const LocationSearch: React.FC = () => {
       labelKey="cityName"
       filterBy={() => true}
       options={cityOptions}
-      selected={selectedCity as City[]}
+      selected={selectedCity}
       onChange={handleOnChange}
       onInputChange={handleInputChange}
       placeholder=" "
       emptyLabel="No suggestions, please check your spelling or try a larger city in B.C."
-      className={`${cityInputValue ? 'has-text--true' : ''}`}
+      className={`${cityInputValue ? 'has-text' : ''}`}
       onFocus={handleFocus}
       renderInput={({ inputRef, referenceElementRef, ...inputProps }) => (
         <Form.Group controlId="community-search-typeahead">
@@ -84,7 +85,7 @@ const LocationSearch: React.FC = () => {
         </Form.Group>
       )}
     >
-      {({ onClear }) =>
+      {({ onClear }: { onClear: () => void }) =>
         (!!selectedCity?.length || cityInputValue) && (
           <ClearButton
             label="Clear search"

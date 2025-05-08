@@ -117,8 +117,6 @@ const SearchPage = () => {
     isFetching && !isFetchingPreviousPage && !isFetchingNextPage;
   const isLocationSearchResults = lat && lon && community;
 
-  console.log('lat, lon, community', lat, lon, community);
-
   return (
     <>
       <SearchBanner />
