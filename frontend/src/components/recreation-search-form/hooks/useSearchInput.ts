@@ -73,6 +73,7 @@ export const useSearchInput = (): UseSearchInputReturn => {
     const newParams = new URLSearchParams(searchParams);
     newParams.delete(LATITUDE_PARAM_KEY);
     newParams.delete(LONGITUDE_PARAM_KEY);
+    newParams.delete(COMMUNITY_PARAM_KEY);
     setSearchParams(newParams as URLSearchParamsInit);
   };
 

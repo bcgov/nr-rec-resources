@@ -1,18 +1,6 @@
-<<<<<<< HEAD
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, useSearchParams } from 'react-router-dom';
-=======
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-  within,
-} from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
->>>>>>> 7d57574b (chore: add location search results message)
 import searchResultsStore from '@/store/searchResults';
 import * as recreationResourceQueries from '@/service/queries/recreation-resource';
 import { QueryClient, QueryClientProvider } from '~/@tanstack/react-query';
@@ -26,13 +14,10 @@ vi.mock('@/components/rec-resource/card/RecResourceCard', () => ({
   default: vi.fn(() => <div data-testid="mock-resource-card" />),
 }));
 
-const renderWithQueryClient = (
-  ui: React.ReactElement,
-  initialEntries = ['/search'],
-) =>
+const renderWithQueryClient = (ui: React.ReactElement) =>
   render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={initialEntries}>{ui}</MemoryRouter>
+      <MemoryRouter>{ui}</MemoryRouter>
     </QueryClientProvider>,
   );
 
@@ -135,11 +120,7 @@ describe('SearchPage', () => {
 
     searchResultsStore.state = { ...mockSingleResultData, totalCount: 1 };
 
-    render(
-      <MemoryRouter>
-        <SearchPage />
-      </MemoryRouter>,
-    );
+    renderWithQueryClient(<SearchPage />);
 
     expect(screen.getByText('1')).toBeInTheDocument();
     expect(screen.getByText('Result containing')).toBeInTheDocument();
@@ -311,31 +292,38 @@ describe('SearchPage', () => {
       totalCount: 5,
     } as any;
 
-    renderWithQueryClient(<SearchPage />);
+    const { container } = renderWithQueryClient(<SearchPage />);
 
     await waitFor(() => {
-      const span = screen.getByText(/5/).closest('span') as HTMLSpanElement;
-      expect(span).toBeInTheDocument();
-      expect(within(span).getByText('Results')).toBeInTheDocument();
+      const resultsTextDiv = container.querySelector('.results-text');
+      expect(resultsTextDiv).toBeInTheDocument();
+      expect(resultsTextDiv?.textContent).toContain('5');
+      expect(resultsTextDiv?.textContent).toContain('Results');
     });
   });
 
   it('should display location in results count when lat, lon, and community are provided', async () => {
-    const mockSearchParams = '?lat=48.4284&lon=-123.3656&community=Victoria';
+    const setSearchParams = vi.fn();
+    const searchParams = new URLSearchParams({
+      lat: '48.4284',
+      lon: '-123.3656',
+      community: 'Victoria',
+    });
+
+    (useSearchParams as Mock).mockReturnValue([searchParams, setSearchParams]);
 
     searchResultsStore.state = {
       ...mockSearchResultsData,
       totalCount: 5,
     } as any;
 
-    renderWithQueryClient(<SearchPage />, [mockSearchParams]);
+    const { container } = renderWithQueryClient(<SearchPage />);
 
     await waitFor(() => {
-      const resultMessage = screen.getByText(/Results/).closest('span');
-      expect(resultMessage).toBeInTheDocument();
-
-      expect(resultMessage?.textContent).toBe(
-        '5 Results within 50 km radius of Victoria',
+      const resultsTextDiv = container.querySelector('.results-text');
+      expect(resultsTextDiv).toBeInTheDocument();
+      expect(resultsTextDiv?.textContent).toContain(
+        '5 Results  within 50 km radius of Victoria',
       );
     });
   });

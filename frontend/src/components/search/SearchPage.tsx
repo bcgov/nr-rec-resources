@@ -27,7 +27,8 @@ const SearchPage = () => {
   const initialPage = useInitialPageFromSearchParams();
   const lat = searchParams.get('lat');
   const lon = searchParams.get('lon');
-  //const community = searchParams.get('community');
+  const community = searchParams.get('community');
+  const searchFilter = searchParams.get('filter');
 
   const {
     data,
@@ -115,15 +116,7 @@ const SearchPage = () => {
 
   const isFetchingFirstPage =
     isFetching && !isFetchingPreviousPage && !isFetchingNextPage;
-  //const isLocationSearchResults = lat && lon && community;
-  //
-  // {
-  //   isLocationSearchResults && (
-  //     <span>
-  //       within <b>50 km</b> radius of <b>{community}</b>
-  //     </span>
-  //   );
-  // }
+  const isLocationSearchResults = lat && lon && community;
 
   return (
     <>
@@ -154,26 +147,29 @@ const SearchPage = () => {
               {isFetchingFirstPage ? (
                 <div>Searching...</div>
               ) : (
-                <div>
+                <>
                   <div className="results-text">
                     <strong>
                       {totalCount !== undefined && totalCount.toLocaleString()}
                     </strong>
                     {` ${totalCount === 1 ? 'Result' : 'Results'}`}{' '}
-                    {searchParams.get('filter') && (
+                    {searchFilter && (
                       <>
-                        containing{' '}
-                        <strong>
-                          &apos;{searchParams.get('filter')}&apos;
-                        </strong>
+                        containing <strong>&apos;{searchFilter}&apos;</strong>
                       </>
+                    )}
+                    {isLocationSearchResults && (
+                      <span>
+                        {' '}
+                        within <b>50 km</b> radius of <b>{community}</b>
+                      </span>
                     )}
                   </div>
                   <FilterChips />
                   {(totalCount === 0 || totalCount === undefined) && (
                     <NoResults />
                   )}
-                </div>
+                </>
               )}
             </div>
 
