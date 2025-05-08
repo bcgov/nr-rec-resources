@@ -68,7 +68,7 @@ export class RecreationResourceSearchService {
       recreationResources,
       aggregatedCounts,
       page,
-      limit,
+      take,
     );
   }
 
