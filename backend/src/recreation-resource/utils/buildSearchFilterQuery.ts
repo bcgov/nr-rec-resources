@@ -47,7 +47,9 @@ export const buildSearchFilterQuery = ({
         and (
           select count(*)
           from jsonb_array_elements(recreation_activity) AS activity
-          where (activity->>'recreation_activity_code')::bigint in (${Prisma.join(activityFilter)})
+          where (activity->>'recreation_activity_code')::bigint in (${Prisma.join(
+            activityFilter,
+          )})
         ) = ${activityFilter.length}
     `
       : Prisma.empty;

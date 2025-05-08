@@ -108,12 +108,14 @@ export class RecreationResourceSearchService {
       filterTypes,
     );
 
-    return this.prisma.$transaction([
+    const [recreationResources, aggregatedCounts] = await Promise.all([
       this.prisma.$queryRaw<any[]>(recreationResourcePageQuerySql),
       this.prisma.$queryRaw<AggregatedRecordCount[]>(
         filterOptionCountsQuerySql,
       ),
     ]);
+
+    return [recreationResources, aggregatedCounts];
   }
 
   private formatResults(
