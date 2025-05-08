@@ -17,14 +17,7 @@ export const buildSearchFilterQuery = ({
   district,
   access,
   facilities,
-}: {
-  filter: string;
-  activities?: string;
-  type?: string;
-  district?: string;
-  access?: string;
-  facilities?: string;
-}) => {
+}: FilterOptions) => {
   const activityFilter = activities?.split("_").map(Number) ?? [];
   const typeFilter = type?.split("_").map(String) ?? [];
   const districtFilter = district?.split("_").map(String) ?? [];
