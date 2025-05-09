@@ -2,21 +2,23 @@ name: Review and deploy
 
 on:
   workflow_call:
-    app:
-      description: Application name
-      required: true
-      type: string
     inputs:
-      tag:
+      app:
+        description: Application name
         required: true
         type: string
-    secrets:
-      inherit: true
+      tag:
+        description: The tag of the containers to deploy
+        required: true
+        type: string
 
 jobs:
   deploy-to-aws-dev:
     name: Deploy Application to AWS dev
     uses: ./.github/workflows/.deploy-app.yml
+    concurrency:
+      group: deploy-${{ inputs.app }}-to-aws-dev
+      cancel-in-progress: true
     with:
       app_env: dev
       command: apply
@@ -28,6 +30,9 @@ jobs:
     name: Run e2e tests on dev env
     needs: deploy-to-aws-dev
     uses: ./.github/workflows/.e2e.yml
+    concurrency:
+      group: e2e-tests-${{ inputs.app }}-dev
+      cancel-in-progress: true
     with:
       tag: ${{ inputs.tag }}
       environment: dev
@@ -38,9 +43,6 @@ jobs:
     name: Review Test Deployment
     needs: tests-e2e-dev-environment
     runs-on: ubuntu-24.04
-    concurrency:
-      group: review-test-deployment-${{ github.ref }}
-      cancel-in-progress: true
     environment: review-test-deployment
     steps:
       - name: Review Test Deployment
@@ -52,6 +54,9 @@ jobs:
     name: Deploy Application to AWS test
     needs: review-test-deployment
     uses: ./.github/workflows/.deploy-app.yml
+    concurrency:
+      group: deploy-${{ inputs.app }}-to-aws-test
+      cancel-in-progress: true
     with:
       app_env: test
       command: apply
@@ -63,6 +68,9 @@ jobs:
     name: Run e2e tests on test env
     needs: deploy-to-aws-test
     uses: ./.github/workflows/.e2e.yml
+    concurrency:
+      group: e2e-tests-${{ inputs.app }}-test
+      cancel-in-progress: true
     with:
       tag: ${{ inputs.tag }}
       environment: test
@@ -82,11 +90,8 @@ jobs:
   # Separate review job since we can't use GitHub environments in reusable workflows
   review-prod-deployment:
     name: Review Prod Deployment
-    needs: promote
+    needs: tests-e2e-test-environment
     runs-on: ubuntu-24.04
-    concurrency:
-      group: review-prod-deployment-${{ github.ref }}
-      cancel-in-progress: true
     environment: review-prod-deployment
     steps:
       - name: Review Prod Deployment
@@ -96,6 +101,9 @@ jobs:
     name: Deploy Application to AWS prod
     needs: review-prod-deployment
     uses: ./.github/workflows/.deploy-app.yml
+    concurrency:
+      group: deploy-${{ inputs.app }}-to-aws-prod
+      cancel-in-progress: true
     with:
       app_env: prod
       command: apply
