@@ -85,6 +85,11 @@ const FilterGroup = ({
         <button
           className="show-all-link"
           onClick={() => setShowAllOptions(!showAllOptions)}
+          aria-label={
+            showAllOptions
+              ? `Show less ${label} options`
+              : `Show all ${filtersCount} ${label} options`
+          }
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
