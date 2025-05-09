@@ -89,18 +89,6 @@ jobs:
         with:
           sarif_file: "trivy-results.sarif"
 
-  # Retry the workflow due to Trivy flaky sarif-upload issue
-  retry-trivy-on-failure:
-    needs: trivy
-    if: needs.trivy.result != 'success' && fromJSON(github.run_attempt) < 3 && !cancelled()
-    runs-on: ubuntu-latest
-    steps:
-      - env:
-          GH_REPO: ${{ github.repository }}
-          GH_TOKEN: ${{ github.token }}
-          GH_DEBUG: api
-        run: gh workflow run retry-workflow.yml -F run_id=${{ github.run_id }}
-
   pre-commit:
     name: Pre-Commit Validation
     runs-on: ubuntu-24.04
