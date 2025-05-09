@@ -409,7 +409,7 @@ describe('RecResourcePage', () => {
           },
         },
         {
-          name: 'Site description',
+          name: 'Description',
           description: 'Resource Description',
         },
         {
