@@ -9,15 +9,12 @@
   align-self: flex-start;
   top: 0px;
 
-  @media (min-width: $mdBreakpoint) {
+  @media (min-width: $lgBreakpoint) {
+    max-width: 260px;
     position: sticky;
     position: -webkit-sticky;
     background-color: #fff;
     z-index: 100;
-  }
-
-  @media (max-width: $lgBreakpoint) {
-    max-width: 100%;
   }
 
   a {
