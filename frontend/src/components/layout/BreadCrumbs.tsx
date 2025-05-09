@@ -19,8 +19,8 @@ const BreadCrumbs = ({ customPaths }: BreadCrumbsProps) => {
 
   return (
     <div className="breadcrumbs">
-      <a href="/">
-        <img src={HomeIcon} alt="icon" />
+      <a href="/" aria-label="Home">
+        <img src={HomeIcon} alt="Home icon" />
       </a>
       <img src={ChevronRightIcon} alt="chevron" />
       {paths.length > 0 &&
