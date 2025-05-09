@@ -156,4 +156,35 @@ describe('the FilterGroup component', () => {
     checkbox.click();
     expect(checkbox).not.toBeChecked();
   });
+
+  it('should update aria-label when toggling show all / show less', () => {
+    const newOptions = [
+      ...activitiesOptions,
+      {
+        id: 33,
+        count: 13,
+        description: 'District 1',
+        hasFocus: false,
+      },
+      {
+        id: 34,
+        count: 0,
+        description: 'District 2',
+        hasFocus: false,
+      },
+    ];
+
+    render(
+      <FilterGroup label="District" options={newOptions} param="district" />,
+    );
+
+    const button = screen.getByRole('button', { name: /show all/i });
+
+    expect(button).toHaveAttribute('aria-label', `Show all 6 District options`);
+
+    // Click to toggle
+    fireEvent.click(button);
+
+    expect(button).toHaveAttribute('aria-label', 'Show less District options');
+  });
 });
