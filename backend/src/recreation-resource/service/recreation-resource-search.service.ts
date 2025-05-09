@@ -61,6 +61,20 @@ export class RecreationResourceSearchService {
       lon,
     });
 
+    const hasLocation = typeof lat === "number" && typeof lon === "number";
+
+    // Distance is used for sorting and is only calculated if lat/lon are provided
+    const distanceSql = hasLocation
+      ? Prisma.sql`, public.ST_Distance(
+      public.ST_Transform(public.ST_SetSRID(recreation_site_point, 3005), 3005),
+      public.ST_Transform(public.ST_SetSRID(public.ST_MakePoint(${lon}, ${lat}), 4326), 3005)
+    ) as distance`
+      : Prisma.empty;
+
+    const orderBySql = hasLocation
+      ? Prisma.sql`order by distance asc, name asc`
+      : Prisma.sql`order by name asc`;
+
     const [recreationResources, combinedRecordCounts, combinedStaticCounts] =
       await this.prisma.$transaction([
         this.prisma.$queryRaw<any[]>`
@@ -81,11 +95,12 @@ export class RecreationResourceSearchService {
           recreation_structure,
           has_toilets,
           has_tables
+          ${distanceSql}
         from recreation_resource_search_view
         ${whereClause}
-        order by name asc
+        ${orderBySql}
         limit ${take}
-        ${skip ? Prisma.sql`OFFSET ${skip}` : Prisma.empty};`,
+        ${skip ? Prisma.sql`offset ${skip}` : Prisma.empty};`,
 
         // Query filter menu content and counts that change based on search results
         this.prisma.$queryRaw<CombinedRecordCount[]>`
