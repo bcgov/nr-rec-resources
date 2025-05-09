@@ -2,21 +2,23 @@ name: Review and deploy
 
 on:
   workflow_call:
-    app:
-      description: Application name
-      required: true
-      type: string
     inputs:
-      tag:
+      app:
+        description: Application name
         required: true
         type: string
-    secrets:
-      inherit: true
+      tag:
+        description: The tag of the containers to deploy
+        required: true
+        type: string
 
 jobs:
   deploy-to-aws-dev:
     name: Deploy Application to AWS dev
     uses: ./.github/workflows/.deploy-app.yml
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-deploy-to-aws-dev
+      cancel-in-progress: true
     with:
       app_env: dev
       command: apply
@@ -39,7 +41,7 @@ jobs:
     needs: tests-e2e-dev-environment
     runs-on: ubuntu-24.04
     concurrency:
-      group: review-test-deployment-${{ github.ref }}
+      group: review-${{ inputs.app }}-test-deployment-${{ github.ref }}
       cancel-in-progress: true
     environment: review-test-deployment
     steps:
@@ -82,7 +84,7 @@ jobs:
   # Separate review job since we can't use GitHub environments in reusable workflows
   review-prod-deployment:
     name: Review Prod Deployment
-    needs: promote
+    needs: tests-e2e-test-environment
     runs-on: ubuntu-24.04
     concurrency:
       group: review-prod-deployment-${{ github.ref }}
