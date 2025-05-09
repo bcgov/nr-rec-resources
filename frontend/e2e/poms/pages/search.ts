@@ -106,9 +106,7 @@ export class SearchPOM {
 
   // Pass false to expectResults if testing for no results
   async searchFor(searchTerm: string, expectResults: boolean = true) {
-    const input = this.page.locator(
-      `input[placeholder = "${SearchEnum.PLACEHOLDER}"]`,
-    );
+    const input = this.page.getByLabel(SearchEnum.PLACEHOLDER);
     await expect(input).toBeVisible();
     await input.fill(searchTerm);
     await input.press('Enter');

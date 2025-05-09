@@ -7,7 +7,12 @@ export interface FilterOptions {
   district?: string;
   access?: string;
   facilities?: string;
+  lat?: number;
+  lon?: number;
+  radius?: number;
 }
+
+const RADIUS = 50000; // 50 km
 
 // Build where clause for search filter query
 export const buildSearchFilterQuery = ({
@@ -17,14 +22,9 @@ export const buildSearchFilterQuery = ({
   district,
   access,
   facilities,
-}: {
-  filter: string;
-  activities?: string;
-  type?: string;
-  district?: string;
-  access?: string;
-  facilities?: string;
-}) => {
+  lat,
+  lon,
+}: FilterOptions): Prisma.Sql => {
   const activityFilter = activities?.split("_").map(Number) ?? [];
   const typeFilter = type?.split("_").map(String) ?? [];
   const districtFilter = district?.split("_").map(String) ?? [];
@@ -76,6 +76,15 @@ export const buildSearchFilterQuery = ({
       ) > 0`
       : Prisma.empty;
 
+  const locationFilterQuery =
+    typeof lat === "number" && typeof lon === "number"
+      ? Prisma.sql`AND public.ST_DWithin(
+        public.ST_Transform(public.ST_SetSRID(recreation_site_point, 3005), 3005),
+        public.ST_Transform(public.ST_SetSRID(public.ST_MakePoint(${lon}, ${lat}), 4326), 3005),
+        ${RADIUS}
+      )`
+      : Prisma.empty;
+
   return Prisma.sql`
     where
       ${filterQuery}
@@ -84,5 +93,6 @@ export const buildSearchFilterQuery = ({
       ${typeFilterQuery}
       ${activityFilterQuery}
       ${facilityFilterQuery}
+      ${locationFilterQuery}
   `;
 };

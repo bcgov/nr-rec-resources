@@ -1,7 +1,6 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { PrismaService } from "src/prisma.service";
 import { beforeEach, describe, expect, it, Mocked, vi } from "vitest";
-import { RecreationResourceService } from "src/recreation-resource/service/recreation-resource.service";
 import { RecreationResourceSearchService } from "src/recreation-resource/service/recreation-resource-search.service";
 
 // Test fixtures
@@ -79,12 +78,11 @@ const combinedRecordCounts = [
 
 describe("RecreationResourceSearchService", () => {
   let prismaService: Mocked<PrismaService>;
-  let service: RecreationResourceService;
+  let service: RecreationResourceSearchService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        RecreationResourceService,
         RecreationResourceSearchService,
         {
           provide: PrismaService,
@@ -97,7 +95,9 @@ describe("RecreationResourceSearchService", () => {
       ],
     }).compile();
 
-    service = module.get<RecreationResourceService>(RecreationResourceService);
+    service = module.get<RecreationResourceSearchService>(
+      RecreationResourceSearchService,
+    );
     prismaService = module.get(PrismaService);
   });
 
@@ -222,5 +222,88 @@ describe("RecreationResourceSearchService", () => {
         },
       );
     });
+
+    describe("query param handling", () => {
+      beforeEach(() => {
+        setupSearchMocks();
+      });
+
+      it.each([
+        ["activities", "1"],
+        ["type", "IF"],
+        ["filter", "test"],
+        ["limit", 10],
+        ["district", "RDCS"],
+        ["access", "B"],
+        ["facilities", "toilet"],
+      ])("should handle %s query param", async (paramName, value) => {
+        const queryParams: Record<string, any> = {
+          activities: undefined,
+          type: undefined,
+          district: undefined,
+          access: undefined,
+          facilities: undefined,
+          lat: undefined,
+          lon: undefined,
+        };
+
+        queryParams[paramName] = value;
+
+        const result = await service.searchRecreationResources(
+          1,
+          "",
+          10,
+          queryParams.activities,
+          queryParams.type,
+          queryParams.district,
+          queryParams.access,
+          queryParams.facilities,
+          queryParams.lat,
+          queryParams.lon,
+        );
+
+        expect(result).toMatchObject({
+          data: expect.any(Array),
+          filters: expect.any(Array),
+          page: 1,
+          limit: 10,
+          total: 1,
+        });
+      });
+    });
+  });
+
+  it("should throw error if lat is provided without lon", async () => {
+    await expect(
+      service.searchRecreationResources(
+        1,
+        "",
+        10,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        50.123, // lat
+        undefined, // lon
+      ),
+    ).rejects.toThrowError("Both lat and lon must be provided");
+  });
+
+  it("should throw error if lon is provided without lat", async () => {
+    await expect(
+      service.searchRecreationResources(
+        1,
+        "",
+        10,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined, // lat
+        -123.456, // lon
+      ),
+    ).rejects.toThrowError("Both lat and lon must be provided");
   });
 });

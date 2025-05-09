@@ -28,6 +28,8 @@ export class RecreationResourceSearchService {
     district?: string,
     access?: string,
     facilities?: string,
+    lat?: number,
+    lon?: number,
   ): Promise<PaginatedRecreationResourceDto> {
     // 10 page limit - max 100 records since if no limit we fetch page * limit
     if (page > 10 && !limit) {
@@ -37,6 +39,10 @@ export class RecreationResourceSearchService {
     // 10 is the maximum limit
     if (limit && limit > 10) {
       limit = 10;
+    }
+
+    if ((lat && !lon) || (lon && !lat)) {
+      throw new Error("Both lat and lon must be provided");
     }
 
     // If only page is provided, we will return all records up to the end of that page
@@ -51,12 +57,31 @@ export class RecreationResourceSearchService {
       district,
       access,
       facilities,
+      lat,
+      lon,
     });
 
     const [recreationResources, combinedRecordCounts, combinedStaticCounts] =
       await this.prisma.$transaction([
         this.prisma.$queryRaw<any[]>`
-        select * from recreation_resource_search_view
+        select
+          rec_resource_id,
+          name,
+          closest_community,
+          display_on_public_site,
+          recreation_resource_type,
+          recreation_resource_type_code,
+          recreation_activity,
+          recreation_status,
+          recreation_resource_images,
+          district_code,
+          district_description,
+          access_code,
+          access_description,
+          recreation_structure,
+          has_toilets,
+          has_tables
+        from recreation_resource_search_view
         ${whereClause}
         order by name asc
         limit ${take}

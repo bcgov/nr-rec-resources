@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, useSearchParams } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '~/@tanstack/react-query';
 import SearchBanner from './SearchBanner';
 
 vi.mock('react-router-dom', async () => {
@@ -10,6 +11,8 @@ vi.mock('react-router-dom', async () => {
     useSearchParams: vi.fn(() => [new URLSearchParams(), vi.fn()]),
   };
 });
+
+const queryClient = new QueryClient();
 
 describe('SearchBanner', () => {
   let searchParams: any;
@@ -23,13 +26,13 @@ describe('SearchBanner', () => {
 
   it('renders correctly', () => {
     render(
-      <MemoryRouter>
-        <SearchBanner />
-      </MemoryRouter>,
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <SearchBanner />
+        </MemoryRouter>
+      </QueryClientProvider>,
     );
-    expect(
-      screen.getByPlaceholderText('Search by name or community'),
-    ).toBeInTheDocument();
+    expect(screen.getByLabelText('Search by name')).toBeInTheDocument();
     expect(screen.getByText('Find a site or trail')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Search' })).toBeInTheDocument();
   });

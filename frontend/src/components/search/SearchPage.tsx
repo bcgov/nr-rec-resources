@@ -25,6 +25,10 @@ const SearchPage = () => {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   const initialPage = useInitialPageFromSearchParams();
+  const lat = searchParams.get('lat');
+  const lon = searchParams.get('lon');
+  const community = searchParams.get('community');
+  const searchFilter = searchParams.get('filter');
 
   const {
     data,
@@ -42,6 +46,8 @@ const SearchPage = () => {
     activities: searchParams.get('activities') ?? undefined,
     access: searchParams.get('access') ?? undefined,
     facilities: searchParams.get('facilities') ?? undefined,
+    lat: lat ? Number(lat) : undefined,
+    lon: lon ? Number(lon) : undefined,
     type: searchParams.get('type') ?? undefined,
     page: initialPage,
   });
@@ -110,6 +116,7 @@ const SearchPage = () => {
 
   const isFetchingFirstPage =
     isFetching && !isFetchingPreviousPage && !isFetchingNextPage;
+  const isLocationSearchResults = lat && lon && community;
 
   return (
     <>
@@ -140,26 +147,29 @@ const SearchPage = () => {
               {isFetchingFirstPage ? (
                 <div>Searching...</div>
               ) : (
-                <div>
+                <>
                   <div className="results-text">
                     <strong>
                       {totalCount !== undefined && totalCount.toLocaleString()}
                     </strong>
                     {` ${totalCount === 1 ? 'Result' : 'Results'}`}{' '}
-                    {searchParams.get('filter') && (
+                    {searchFilter && (
                       <>
-                        containing{' '}
-                        <strong>
-                          &apos;{searchParams.get('filter')}&apos;
-                        </strong>
+                        containing <strong>&apos;{searchFilter}&apos;</strong>
                       </>
+                    )}
+                    {isLocationSearchResults && (
+                      <span>
+                        {' '}
+                        within <b>50 km</b> radius of <b>{community}</b>
+                      </span>
                     )}
                   </div>
                   <FilterChips />
                   {(totalCount === 0 || totalCount === undefined) && (
                     <NoResults />
                   )}
-                </div>
+                </>
               )}
             </div>
 

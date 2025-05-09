@@ -76,6 +76,18 @@ export class RecreationResourceController {
     type: String,
     description: "Recreation resource facilities",
   })
+  @ApiQuery({
+    name: "lat",
+    required: false,
+    type: Number,
+    description: "Latitude for location-based search",
+  })
+  @ApiQuery({
+    name: "lon",
+    required: false,
+    type: Number,
+    description: "Longitude for location-based search",
+  })
   @ApiResponse({
     status: 200,
     description: "Resources found",
@@ -91,6 +103,8 @@ export class RecreationResourceController {
     @Query("district") district?: string,
     @Query("access") access?: string,
     @Query("facilities") facilities?: string,
+    @Query("lat") lat?: number,
+    @Query("lon") lon?: number,
   ): Promise<PaginatedRecreationResourceDto> {
     return await this.recreationResourceService.searchRecreationResources(
       page,
@@ -101,6 +115,8 @@ export class RecreationResourceController {
       district,
       access,
       facilities,
+      lat ? parseFloat(String(lat)) : undefined,
+      lon ? parseFloat(String(lon)) : undefined,
     );
   }
 
