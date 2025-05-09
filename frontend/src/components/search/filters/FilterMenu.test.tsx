@@ -2,6 +2,15 @@ import { render, screen } from '@testing-library/react';
 import FilterMenu from '@/components/search/filters/FilterMenu';
 import searchResultsStore from '@/store/searchResults';
 import { mockFilterMenuContent } from '@/components/search/test/mock-data';
+import { describe, it, vi } from 'vitest';
+
+vi.mock('react-router-dom', async () => {
+  const actual = (await vi.importActual('react-router-dom')) as any;
+  return {
+    ...actual,
+    useSearchParams: vi.fn().mockReturnValue([new URLSearchParams()]),
+  };
+});
 
 Object.defineProperty(searchResultsStore, 'state', {
   get: vi.fn(() => ({
@@ -12,13 +21,6 @@ Object.defineProperty(searchResultsStore, 'state', {
 
 describe('FilterMenu', () => {
   it('renders FilterMenu component', () => {
-    vi.mock('react-router-dom', async () => {
-      const actual = (await vi.importActual('react-router-dom')) as any;
-      return {
-        ...actual,
-        useSearchParams: vi.fn().mockReturnValue([new URLSearchParams()]),
-      };
-    });
     render(<FilterMenu />);
 
     // Renders titles
