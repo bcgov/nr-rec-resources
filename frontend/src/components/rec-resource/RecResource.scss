@@ -37,6 +37,12 @@
   margin-bottom: -112px;
 }
 
+.rec-resource-main {
+  @include media-breakpoint-up(md) {
+    margin-top: 4rem;
+  }
+}
+
 .rec-resource-content {
   padding: $pagePaddingLg;
   max-width: $pageMaxWidth;
@@ -46,7 +52,6 @@
 .rec-content-container {
   width: 100%;
   max-width: 740px;
-  margin-top: 64px;
 }
 
 .not-found-message {
