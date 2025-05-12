@@ -6,7 +6,7 @@ describe('SiteDescription Component', () => {
     render(<SiteDescription description="Test Description" />);
 
     expect(
-      screen.getByRole('heading', { name: /site description/i }),
+      screen.getByRole('heading', { name: /description/i }),
     ).toBeInTheDocument();
     expect(screen.getByText('Test Description')).toBeInTheDocument();
   });
