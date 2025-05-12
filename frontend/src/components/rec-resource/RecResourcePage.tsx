@@ -227,9 +227,7 @@ const RecResourcePage = () => {
       <div className="rec-resource-container">
         <div className={`bg-container ${isPhotoGallery ? 'with-gallery' : ''}`}>
           <div className="page">
-            <BreadCrumbs
-              customPaths={[{ name: 'Find a site or trail', route: 'search' }]}
-            />
+            <BreadCrumbs />
             <section>
               <div>
                 <h1>{formattedName}</h1>
