@@ -13,11 +13,11 @@ const BreadCrumbs = () => {
       <a href="/" aria-label="Home">
         <img src={HomeIcon} alt="Home icon" />
       </a>
-      <img src={ChevronRightIcon} alt="chevron" />
+      <img src={ChevronRightIcon} alt="chevron icon" />
       <a href={`/search${lastSearch ? lastSearch : ''}`}>
         Find a site or trail
       </a>
-      <img src={ChevronRightIcon} alt="chevron" />
+      <img src={ChevronRightIcon} alt="chevron icon" />
       <span className="current-path">{id}</span>
     </div>
   );
