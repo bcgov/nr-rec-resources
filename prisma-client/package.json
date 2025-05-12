@@ -1,0 +1,22 @@
+{
+  "name": "@orca/prisma-package",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "prepare": "npx prisma generate && tsc && cp src/index.d.ts dist/index.d.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "6.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.10",
+    "prisma": "6.7.0",
+    "typescript": "^5.7.3"
+  },
+  "bundledDependencies": [
+    "@prisma/client",
+    ".prisma"
+  ],
+  "license": "MIT"
+}
