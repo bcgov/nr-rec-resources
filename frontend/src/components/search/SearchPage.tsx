@@ -147,7 +147,7 @@ const SearchPage = () => {
               {isFetchingFirstPage ? (
                 <div>Searching...</div>
               ) : (
-                <>
+                <div className="no-results-container">
                   <div className="results-text">
                     <strong>
                       {totalCount !== undefined && totalCount.toLocaleString()}
@@ -167,9 +167,11 @@ const SearchPage = () => {
                   </div>
                   <FilterChips />
                   {(totalCount === 0 || totalCount === undefined) && (
-                    <NoResults />
+                    <>
+                      <NoResults />
+                    </>
                   )}
-                </>
+                </div>
               )}
             </div>
 
