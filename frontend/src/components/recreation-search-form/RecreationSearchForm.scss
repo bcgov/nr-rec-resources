@@ -14,10 +14,6 @@
     box-shadow: none;
     padding: 18px 48px 0 16px;
 
-    &:hover {
-      border-width: 2px;
-    }
-
     &:focus,
     &:focus-visible {
       border-width: 3px;
@@ -43,9 +39,11 @@
     padding: 18px 16px 0;
   }
 
-  .search-button,
-  .search-input {
-    height: 48px;
+  .search-button {
+    margin-top: 1rem;
+    @media (min-width: $mdBreakpoint) {
+      margin-top: 0;
+    }
   }
 
   .clear-button {
@@ -85,6 +83,7 @@
 
     @media (min-width: $mdBreakpoint) {
       flex-direction: row;
+      flex-grow: 1;
     }
   }
 

@@ -263,7 +263,7 @@ const RecResourcePage = () => {
               <PhotoGallery photos={photos} />
             </div>
           )}
-          <div className="row no-gutters">
+          <div className="row no-gutters rec-resource-main">
             <PageMenu
               pageSections={pageSections}
               activeSection={activeSection ?? 0}
