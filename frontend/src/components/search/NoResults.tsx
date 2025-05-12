@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useClearFilters } from '@/components/search/hooks/useClearFilters';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -8,10 +9,17 @@ const NoResults = () => {
   const [_, setSearchParams] = useSearchParams();
   const clearFilters = useClearFilters();
 
+  const buttonRef = useRef<HTMLButtonElement>(null);
+
   const handleClear = () => {
     clearFilters();
     setSearchParams(() => new URLSearchParams());
   };
+
+  useEffect(() => {
+    // Focus the button when there are no results
+    buttonRef.current?.focus();
+  }, []);
 
   return (
     <div>
@@ -36,6 +44,7 @@ const NoResults = () => {
           <button
             className="btn-link p-0 text-decoration-underline"
             onClick={handleClear}
+            ref={buttonRef}
           >
             Go back to the full list
           </button>
