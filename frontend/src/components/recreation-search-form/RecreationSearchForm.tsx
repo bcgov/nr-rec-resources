@@ -59,10 +59,10 @@ export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
       className="search-form"
       data-testid="search-form"
     >
-      <Row className="gy-3 gx-0 gx-lg-3">
-        <Col md={12} lg="auto" className="flex-grow-0 flex-lg-grow-1">
-          <InputGroup className="search-input-group limit-width">
-            <Col className="p-0 flex-grow-1">
+      <Row className="gy-3 gx-0 gx-md-3">
+        <Col md="auto" className="flex-grow-0 flex-lg-grow-1">
+          <InputGroup className="search-input-group">
+            <Col className="p-0">
               <FormGroup
                 controlId="name-search-input"
                 className={`${nameInputValue ? 'has-text--true' : ''}`}
@@ -90,12 +90,12 @@ export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
 
             <div className="search-spacer">or</div>
 
-            <Col className="p-0 flex-grow-1">
+            <Col>
               <LocationSearch />
             </Col>
           </InputGroup>
         </Col>
-        <Col md={12} lg="auto">
+        <Col md="auto">
           <Button
             type="submit"
             {...searchButtonProps}
