@@ -65,4 +65,34 @@ describe('getImageList', () => {
 
     expect(result).toEqual([]);
   });
+
+  it('should sort images with landscape orientation before portrait', () => {
+    const mockResource: RecreationResourceSearchModel = {
+      recreation_resource_images: [
+        {
+          recreation_resource_image_variants: [
+            {
+              size_code: IMAGE_SIZE_CODE_FOR_SEARCH_RESULTS_CARD,
+              url: 'portrait.jpg',
+              width: 600,
+              height: 800,
+            },
+            {
+              size_code: IMAGE_SIZE_CODE_FOR_SEARCH_RESULTS_CARD,
+              url: 'landscape.jpg',
+              width: 1200,
+              height: 800,
+            },
+          ],
+        },
+      ],
+    } as unknown as RecreationResourceSearchModel;
+
+    const result = getImageList(mockResource);
+
+    expect(result).toEqual([
+      { imageUrl: 'landscape.jpg' },
+      { imageUrl: 'portrait.jpg' },
+    ]);
+  });
 });
