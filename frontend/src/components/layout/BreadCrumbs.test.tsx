@@ -17,7 +17,7 @@ describe('BreadCrumbs', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByAltText('Home')).toBeInTheDocument();
+    expect(screen.getByAltText('Home icon')).toBeInTheDocument();
     expect(screen.getAllByAltText('chevron icon')).toHaveLength(2);
     expect(screen.getByText('Find a site or trail')).toHaveAttribute(
       'href',
