@@ -59,14 +59,13 @@ export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
       className="search-form"
       data-testid="search-form"
     >
-      <Row className="gy-3 gx-0 gx-md-3">
-        <Col md="auto" className="flex-grow-0 flex-lg-grow-1">
+      <Row className="gy-3 gx-0 gx-lg-3">
+        <Col md={10}>
           <InputGroup className="search-input-group">
-            <Col className="p-0">
+            <Col>
               <FormGroup
                 controlId="name-search-input"
                 className={`${nameInputValue ? 'has-text--true' : ''}`}
-                style={{ position: 'relative' }}
               >
                 <FormControl
                   aria-label={placeholder}
@@ -95,7 +94,7 @@ export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
             </Col>
           </InputGroup>
         </Col>
-        <Col md="auto">
+        <Col md={2}>
           <Button
             type="submit"
             {...searchButtonProps}
