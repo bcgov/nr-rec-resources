@@ -3,6 +3,10 @@ name: .Terraform Deployer
 on:
   workflow_call:
     inputs:
+      app:
+        description: 'The name of the application to deploy'
+        required: false
+        type: string
       app_env:
         required: false
         type: string
@@ -79,10 +83,11 @@ jobs:
     - name: Terragrunt ${{inputs.command}}
       working-directory: terraform/${{ inputs.working_directory }}/${{ inputs.environment_name }}
       env:
+          app: ${{ inputs.app }}
           target_env: ${{ inputs.environment_name }}
           aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
           flyway_image: ${{ inputs.flyway_image && inputs.flyway_image || env.FLYWAY_IMAGE }}
-          api_image: ghcr.io/${{github.repository}}/public/backend:${{ inputs.tag }}
+          api_image: ghcr.io/${{github.repository}}/${{ inputs.app }}/backend:${{ inputs.tag }}
           app_env: ${{inputs.app_env}}
           forest_client_api_key: ${{ secrets.FOREST_CLIENT_API_KEY }}
           forest_client_api_url: ${{ secrets.FOREST_CLIENT_API_URL }}
@@ -95,6 +100,7 @@ jobs:
       working-directory: terraform/${{ inputs.working_directory }}/${{ inputs.environment_name }}
       id: tg-outputs
       env:
+          app: ${{ inputs.app }}
           target_env: ${{ inputs.environment_name }}
           aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
           flyway_image: ghcr.io/${{github.repository}}/migrations/rst:${{ inputs.tag }}
@@ -114,6 +120,7 @@ jobs:
       working-directory: terraform/${{ inputs.working_directory }}/${{ inputs.environment_name }}
       id: tg-outputs-frontend
       env:
+          app: ${{ inputs.app }}
           target_env: ${{ inputs.environment_name }}
           aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
           flyway_image: ghcr.io/${{github.repository}}/migrations/rst:${{inputs.tag}}

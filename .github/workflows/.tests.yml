@@ -27,11 +27,16 @@ jobs:
           - 5432:5432
     strategy:
       matrix:
-        dir: [backend, frontend]
+        dir: ['admin/backend', 'admin/frontend', 'public/backend', 'public/frontend']
         include:
-          - dir: backend
+          - dir: admin/backend
+            #### ADD THESE TO SECRETS
+            token: SONAR_TOKEN_ADMIN_BACKEND
+          - dir: admin/frontend
+            token: SONAR_TOKEN_ADMIN_FRONTEND
+          - dir: public/backend
             token: SONAR_TOKEN_BACKEND
-          - dir: frontend
+          - dir: public/frontend
             token: SONAR_TOKEN_FRONTEND
     steps:
       - uses: bcgov-nr/action-test-and-analyse@v1.3.0
@@ -54,6 +59,7 @@ jobs:
     name: Verify Terraform
     uses: ./.github/workflows/.deploy-app.yml
     with:
+      app: ${{ inputs.app }}
       # event.number is only available in PRs, so we use github.ref_name as a fallback on main
       app_env: ${{ format('ephemeral-{0}', github.event.number || github.ref_name ) }}
       command: plan

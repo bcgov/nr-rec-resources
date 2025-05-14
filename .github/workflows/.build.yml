@@ -10,7 +10,8 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        package: ['public/backend', 'migrations/rst', 'migrations/fta', 'public/frontend']
+        # Only building frontend containers to run PR based e2e tests
+        package: ['admin/backend', 'admin/frontend', 'migrations/rst', 'migrations/fta', 'public/backend', 'public/frontend']
     timeout-minutes: 10
     steps:
       - uses: bcgov-nr/action-builder-ghcr@v2.3.0
