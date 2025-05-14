@@ -9,6 +9,7 @@ import {
 import { useRecreationResourceApi } from '@/service/hooks/useRecreationResourceApi';
 import { useInfiniteQuery, useQuery } from '~/@tanstack/react-query';
 import { trackSiteSearch } from '@/utils/matomo';
+import buildQueryString from '@/utils/buildQueryString';
 import {
   transformRecreationResourceBase,
   transformRecreationResourceDetail,
@@ -162,6 +163,8 @@ export const useSearchRecreationResourcesPaginated = (
         ...pageParam,
         page: pageParam.page || DEFAULT_PAGE,
       });
+
+      sessionStorage.setItem('lastSearch', buildQueryString(pageParam));
 
       trackSiteSearch({
         keyword: JSON.stringify(pageParam),

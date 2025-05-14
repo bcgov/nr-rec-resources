@@ -1,46 +1,24 @@
-import { Fragment } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import HomeIcon from '@/images/icons/home.svg';
 import ChevronRightIcon from '@/images/icons/chevron-right.svg';
 import '@/components/layout/BreadCrumbs.scss';
 
-interface BreadCrumbsProps {
-  customPaths?: { name: string; route: string }[];
-}
+const BreadCrumbs = () => {
+  const { id } = useParams();
 
-const BreadCrumbs = ({ customPaths }: BreadCrumbsProps) => {
-  const { pathname } = useLocation();
-  const paths = pathname
-    .split('/')
-    .filter((x) => x)
-    .map((path, index) => {
-      return customPaths?.[index]?.route ?? path;
-    });
+  const lastSearch = sessionStorage.getItem('lastSearch');
 
   return (
     <div className="breadcrumbs">
       <a href="/" aria-label="Home">
         <img src={HomeIcon} alt="Home icon" />
       </a>
-      <img src={ChevronRightIcon} alt="chevron" />
-      {paths.length > 0 &&
-        paths.map((name, index) => {
-          const pathName = customPaths?.[index]?.name ?? name;
-          const routeTo = `/${paths.slice(0, index + 1).join('/')}`;
-
-          return index === paths.length - 1 ? (
-            <span key={pathName} className="current-path">
-              {pathName}
-            </span>
-          ) : (
-            <Fragment key={pathName}>
-              <a href={routeTo} key={pathName}>
-                {pathName}
-              </a>
-              <img src={ChevronRightIcon} alt="chevron" />
-            </Fragment>
-          );
-        })}
+      <img src={ChevronRightIcon} alt="chevron icon" />
+      <a href={`/search${lastSearch ? lastSearch : ''}`}>
+        Find a site or trail
+      </a>
+      <img src={ChevronRightIcon} alt="chevron icon" />
+      <span className="current-path">{id}</span>
     </div>
   );
 };
