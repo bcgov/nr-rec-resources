@@ -11,19 +11,13 @@
       "schedule": ["* 21-23 * * 0"]
     },
     {
-      "matchManagers": [
-        "dockerfile"
-      ],
+      "matchManagers": ["dockerfile"],
       "pinDigests": false
     },
     {
       "description": "Exclude pinDigests from actions and bcgov domains",
       "pinDigests": false,
-      "matchPackageNames": [
-        "/^@actions//",
-        "/^@bcgov//",
-        "/^@github//"
-      ]
+      "matchPackageNames": ["/^@actions//", "/^@bcgov//", "/^@github//"]
     }
   ]
 }
