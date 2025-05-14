@@ -21,7 +21,8 @@
       "pinDigests": false,
       "matchPackageNames": [
         "/^@actions//",
-        "/^@bcgov//"
+        "/^@bcgov//",
+        "/^@github//"
       ]
     }
   ]
