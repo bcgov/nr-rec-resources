@@ -3,6 +3,10 @@ name: Deploy application to AWS
 on:
   workflow_call:
     inputs:
+      app:
+        description: 'The name of the application to deploy'
+        required: true
+        type: string
       app_env:
         required: true
         description: 'The APP env separates between AWS ENV and Actual APP, since AWS dev is where PR, and TEST is deployed'
@@ -45,6 +49,7 @@ jobs:
     needs: [deploy-db]
     uses: ./.github/workflows/.aws-deployer.yml
     with:
+      app: ${{ inputs.app }}
       environment_name: ${{ inputs.environment_name }}
       command: ${{ inputs.command }}
       working_directory: api
@@ -55,6 +60,7 @@ jobs:
     name: Deploys Cloudfront
     uses: ./.github/workflows/.aws-deployer.yml
     with:
+      app: ${{ inputs.app }}
       environment_name: ${{ inputs.environment_name }}
       command: ${{ inputs.command }}
       working_directory: frontend
@@ -84,6 +90,7 @@ jobs:
       - name: Build And Update UI (CF)
         working-directory: 'public/frontend'
         env:
+          app: ${{ inputs.app }}
           VITE_RECREATION_RESOURCE_ASSETS_BASE_URL: "https://dam.lqc63d-prod.nimbus.cloud.gov.bc.ca"
           VITE_API_BASE_URL: ${{ needs.deploy-api.outputs.API_GW_URL }}/api
           VITE_MATOMO_URL: ${{ secrets.VITE_MATOMO_URL }}
