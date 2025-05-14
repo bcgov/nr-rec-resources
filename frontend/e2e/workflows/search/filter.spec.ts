@@ -308,10 +308,10 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.toggleFilterOn(filter.typeFilters, RecResourceType.SITE);
 
-    await filter.toggleFilterOn(filter.accessTypeFilters, 'Boat-in Access');
+    await filter.toggleFilterOn(filter.accessTypeFilters, 'Road Access');
 
     await utils.checkExpectedUrlParams(
-      'district=RDKA&page=1&type=SIT&access=B',
+      'district=RDKA&page=1&type=SIT&access=R',
     );
 
     await filter.clickClearFilters();

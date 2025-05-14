@@ -92,7 +92,7 @@ test.describe('Filter chip workflows', () => {
     const filterChips = new FilterChipsPOM(page);
     const searchPage = new SearchPOM(page);
 
-    const ACCESS_TYPE = 'Boat-in access';
+    const ACCESS_TYPE = 'Road Access';
 
     await searchPage.route();
 
