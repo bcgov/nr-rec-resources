@@ -1,6 +1,6 @@
 import { test } from '@playwright/test';
 import { initHappo } from 'e2e/utils';
-import { FilterPOM, FilterChipsPOM, SearchPOM, UtilsPOM } from 'e2e/poms';
+import { FilterChipsPOM, FilterPOM, SearchPOM, UtilsPOM } from 'e2e/poms';
 
 initHappo();
 
@@ -92,6 +92,8 @@ test.describe('Filter chip workflows', () => {
     const filterChips = new FilterChipsPOM(page);
     const searchPage = new SearchPOM(page);
 
+    const ACCESS_TYPE = 'Boat-in access';
+
     await searchPage.route();
 
     await filter.verifyInitialFilterMenu();
@@ -104,9 +106,9 @@ test.describe('Filter chip workflows', () => {
 
     await filterChips.verifyFilterChips(['Recreation Trail']);
 
-    await filter.toggleFilterOn(filter.accessTypeFilters, 'Road Access');
+    await filter.toggleFilterOn(filter.accessTypeFilters, ACCESS_TYPE);
 
-    await filterChips.verifyFilterChips(['Road Access']);
+    await filterChips.verifyFilterChips([ACCESS_TYPE]);
 
     await filter.checkIsFilterToggledOn(
       filter.districtFilters,
@@ -115,16 +117,13 @@ test.describe('Filter chip workflows', () => {
 
     await filter.checkIsFilterToggledOn(filter.typeFilters, 'Recreation Trail');
 
-    await filter.checkIsFilterToggledOn(
-      filter.accessTypeFilters,
-      'Road Access',
-    );
+    await filter.checkIsFilterToggledOn(filter.accessTypeFilters, ACCESS_TYPE);
 
     await filter.toggleFilterOff(filter.districtFilters, '100 Mile-Chilcotin');
 
     await filter.toggleFilterOff(filter.typeFilters, 'Recreation Trail');
 
-    await filter.toggleFilterOff(filter.accessTypeFilters, 'Road Access');
+    await filter.toggleFilterOff(filter.accessTypeFilters, ACCESS_TYPE);
 
     await filter.checkIsFilterToggledOff(
       filter.districtFilters,
@@ -136,10 +135,7 @@ test.describe('Filter chip workflows', () => {
       'Recreation Trail',
     );
 
-    await filter.checkIsFilterToggledOff(
-      filter.accessTypeFilters,
-      'Road Access',
-    );
+    await filter.checkIsFilterToggledOff(filter.accessTypeFilters, ACCESS_TYPE);
 
     await filterChips.verifyFilterChips([]);
   });
