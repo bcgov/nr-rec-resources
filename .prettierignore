@@ -4,4 +4,4 @@
 migrations
 
 # this file is auto generated
-frontend/stories/mock/mockServiceWorker.js
+public/frontend/stories/mock/mockServiceWorker.js

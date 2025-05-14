@@ -29,7 +29,7 @@ export default [
       "**/migrations/",
       "**/node_modules/",
       "**/.happo.js",
-      "frontend/src/service/recreation-resource/**",
+      "public/frontend/src/service/recreation-resource/**",
     ],
   },
   ...compat.extends(
