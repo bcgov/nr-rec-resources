@@ -6,6 +6,7 @@ import {
   faCircleChevronLeft,
   faCircleChevronRight,
 } from '@fortawesome/free-solid-svg-icons';
+import '@/components/rec-resource/card/RecResourceCard.scss';
 
 type ImageList = { imageUrl: string }[];
 

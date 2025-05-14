@@ -60,7 +60,7 @@ export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
       data-testid="search-form"
     >
       <Row className="gy-3 gx-0 gx-lg-3">
-        <Col md={10}>
+        <Col md={10} className="pe-md-3 pe-lg-2">
           <InputGroup className="search-input-group">
             <Col>
               <FormGroup

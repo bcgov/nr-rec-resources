@@ -58,7 +58,7 @@ const FilterMenuMobile = ({ isOpen, setIsOpen }: FilterMenuMobileProps) => {
     >
       <Modal.Body className="mobile-filter-modal-content">
         <div className="mobile-filter-modal-content--header">
-          <h2>Filter</h2>
+          <h2 className="fs-4 mb-4">Filter</h2>
           <button
             aria-label="close"
             className="btn close-filter-btn"
@@ -67,7 +67,7 @@ const FilterMenuMobile = ({ isOpen, setIsOpen }: FilterMenuMobileProps) => {
             <FontAwesomeIcon icon={faXmark} />
           </button>
         </div>
-        <button className="btn btn-link expand-link" onClick={handleExpandAll}>
+        <button className="show-all-link p-0" onClick={handleExpandAll}>
           {expandAll ? 'Collapse' : 'Expand'} all
           {expandAll ? (
             <FontAwesomeIcon icon={faChevronUp} />
@@ -100,7 +100,7 @@ const FilterMenuMobile = ({ isOpen, setIsOpen }: FilterMenuMobileProps) => {
           Show {totalCount} {totalCount > 1 ? 'results' : 'result'}
         </button>
         <button
-          className="btn btn-link clear-filter-link w-100"
+          className="btn-link clear-filter-link w-100 fw-normal"
           onClick={clearFilters}
         >
           Clear filters
