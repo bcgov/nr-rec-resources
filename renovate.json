@@ -9,6 +9,20 @@
       "enabled": false,
       "description": "Schedule aws-sdk updates on Sunday nights (9 PM - 12 AM) and dont update patch versions, they are noisy",
       "schedule": ["* 21-23 * * 0"]
+    },
+    {
+      "matchManagers": [
+        "dockerfile"
+      ],
+      "pinDigests": false
+    },
+    {
+      "description": "Exclude pinDigests from actions and bcgov domains",
+      "pinDigests": false,
+      "matchPackageNames": [
+        "/^@actions//",
+        "/^@bcgov//"
+      ]
     }
   ]
 }
