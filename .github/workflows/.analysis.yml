@@ -37,7 +37,7 @@ jobs:
           - dir: frontend
             token: SONAR_TOKEN_FRONTEND
     steps:
-      - uses: bcgov-nr/action-test-and-analyse@v1.2.1
+      - uses: bcgov-nr/action-test-and-analyse@v1.3.0
         with:
           commands: |
             npm ci
@@ -45,7 +45,7 @@ jobs:
           dir: ${{ matrix.dir }}
           node_version: "22"
           sonar_args: >
-            -Dsonar.exclusions=**/coverage/**,**/node_modules/**,**/*spec.ts,**/*test.ts,**/*test.tsx,src/service/recreation-resource/**,src/service/custom-models/**,src/service/fsa-resources/**
+            -Dsonar.exclusions=**/coverage/**,**/node_modules/**,**/*spec.ts,**/*test.ts,**/*test.tsx,src/service/recreation-resource/**,src/service/custom-models/**,src/service/fsa-resources/**,**/recreation-resource.controller.ts
             -Dsonar.organization=bcgov-sonarcloud
             -Dsonar.projectKey=bcgov-sonarcloud_nr-rec-resources-${{ matrix.dir }}
             -Dsonar.sources=src

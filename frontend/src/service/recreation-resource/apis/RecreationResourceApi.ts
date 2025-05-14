@@ -45,6 +45,8 @@ export interface SearchRecreationResourcesRequest {
   district?: string;
   access?: string;
   facilities?: string;
+  lat?: number;
+  lon?: number;
 }
 
 /**
@@ -194,6 +196,14 @@ export class RecreationResourceApi extends runtime.BaseAPI {
 
     if (requestParameters['facilities'] != null) {
       queryParameters['facilities'] = requestParameters['facilities'];
+    }
+
+    if (requestParameters['lat'] != null) {
+      queryParameters['lat'] = requestParameters['lat'];
+    }
+
+    if (requestParameters['lon'] != null) {
+      queryParameters['lon'] = requestParameters['lon'];
     }
 
     const headerParameters: runtime.HTTPHeaders = {};

@@ -65,4 +65,23 @@ describe('NoResults component', () => {
 
     expect(filterChipStore.setState).toHaveBeenCalled();
   });
+
+  it('focuses the "Go back to the full list" button', () => {
+    const mockSetSearchParams = vi.fn();
+    const mockUseSearchParams = useSearchParams as any;
+
+    mockUseSearchParams.mockReturnValue([
+      new URLSearchParams(),
+      mockSetSearchParams,
+    ]);
+
+    render(
+      <MemoryRouter>
+        <NoResults />
+      </MemoryRouter>,
+    );
+
+    const clearButton = screen.getByText('Go back to the full list');
+    expect(document.activeElement).toBe(clearButton);
+  });
 });

@@ -6,10 +6,12 @@
 
   height: $banner-height;
 
-  // Base styles (default for all sizes)
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   background-image: url('/images/landing-page/hero/hero-sm.webp');
   background-size: cover;
-
   background-position: center 10%;
   background-repeat: no-repeat;
 
@@ -30,23 +32,30 @@
   }
 
   .search-container {
-    $container-max-height: 255px;
-    $max-position-top: calc(($banner-height - $container-max-height) / 2);
-
-    max-height: $container-max-height;
-    padding: 2rem;
+    color: $colorWhite;
+    padding: 1.5rem;
     background-color: $colorBlue;
     width: clamp(min(700px, 90vw), 50%, 888px);
-    position: relative;
-    top: clamp(15%, 25%, $max-position-top);
+    max-height: fit-content;
+
+    @include media-breakpoint-up(md) {
+      padding: 2rem;
+    }
 
     .search-title {
       color: $colorWhite;
     }
 
     .search-btn {
+      margin-top: 1rem;
+      color: $colorBlue;
+
       &:hover {
         background-color: $colorGold;
+      }
+
+      @include media-breakpoint-up(md) {
+        margin-top: 0;
       }
     }
   }

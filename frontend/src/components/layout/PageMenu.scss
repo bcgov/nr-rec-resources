@@ -1,23 +1,19 @@
 @import '@/styles/variables.scss';
 
 .page-menu {
+  margin-bottom: 1rem;
   padding-right: 20px;
   font-size: 0.875rem;
-  margin-top: 64px;
-  margin-bottom: 80px;
   max-width: 260px;
   align-self: flex-start;
   top: 0px;
 
-  @media (min-width: $mdBreakpoint) {
+  @media (min-width: $lgBreakpoint) {
+    max-width: 260px;
     position: sticky;
     position: -webkit-sticky;
     background-color: #fff;
     z-index: 100;
-  }
-
-  @media (max-width: $lgBreakpoint) {
-    max-width: 100%;
   }
 
   a {

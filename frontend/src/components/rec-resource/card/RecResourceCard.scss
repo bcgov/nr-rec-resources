@@ -93,8 +93,10 @@
 }
 
 .carousel-mobile-image {
-  max-height: 300px;
   display: block;
+  max-height: 300px;
+  min-width: 100%;
+  object-fit: cover;
 
   @include media-breakpoint-up(sm) {
     display: none;

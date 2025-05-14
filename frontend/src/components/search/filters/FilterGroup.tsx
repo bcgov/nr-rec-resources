@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Form } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronUp, faChevronDown } from '@fortawesome/free-solid-svg-icons';
+import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { useFilterHandler } from '@/components/search/hooks/useFilterHandler';
 import { Filter } from '@/components/search/types';
 import '@/components/search/filters/Filters.scss';
@@ -65,7 +65,12 @@ const FilterGroup = ({
         {optionList?.map((option) => {
           const { count, description, id, hasFocus } = option;
           const isDefaultChecked = filterParamsArray?.includes(String(id));
-          const isDisabled = count === 0;
+
+          /*
+           * Disable checkbox only when it's unchecked and count is 0.
+           * This ensures the checkbox can be unchecked when count is 0
+           */
+          const isDisabled = !isDefaultChecked && count === 0;
 
           return (
             <Form.Check
@@ -85,6 +90,11 @@ const FilterGroup = ({
         <button
           className="show-all-link"
           onClick={() => setShowAllOptions(!showAllOptions)}
+          aria-label={
+            showAllOptions
+              ? `Show less ${label} options`
+              : `Show all ${filtersCount} ${label} options`
+          }
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();

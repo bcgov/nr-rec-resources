@@ -1,6 +1,6 @@
 export enum SectionTitles {
   CLOSURES = 'Closures',
-  SITE_DESCRIPTION = 'Site description',
+  SITE_DESCRIPTION = 'Description',
   CAMPING = 'Camping',
   MAPS_AND_LOCATION = 'Maps and location',
   ADDITIONAL_FEES = 'Additional fees',
@@ -11,7 +11,7 @@ export enum SectionTitles {
 
 export enum SectionIds {
   CLOSURES = 'closures',
-  SITE_DESCRIPTION = 'site-description',
+  SITE_DESCRIPTION = 'description',
   CAMPING = 'camping',
   MAPS_AND_LOCATION = 'maps-and-location',
   ADDITIONAL_FEES = 'additional-fees',

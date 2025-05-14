@@ -1,22 +1,21 @@
 import { Injectable } from "@nestjs/common";
-import { Prisma } from "@prisma/client";
 import { PrismaService } from "src/prisma.service";
 import { buildFilterMenu } from "src/recreation-resource/utils/buildFilterMenu";
 import { buildSearchFilterQuery } from "src/recreation-resource/utils/buildSearchFilterQuery";
 import { formatSearchResults } from "src/recreation-resource/utils/formatSearchResults";
 import { PaginatedRecreationResourceDto } from "src/recreation-resource/dto/paginated-recreation-resource.dto";
 import {
-  EXCLUDED_ACTIVITY_CODES,
-  EXCLUDED_RECREATION_DISTRICTS,
-  EXCLUDED_RESOURCE_TYPES,
-} from "src/recreation-resource/constants/service.constants";
-import {
-  CombinedRecordCount,
-  CombinedStaticCount,
+  AggregatedRecordCount,
+  FilterTypes,
 } from "src/recreation-resource/service/types";
+import { buildFilterOptionCountsQuery } from "../utils/buildSearchFilterOptionCountsQuery";
+import { buildRecreationResourcePageQuery } from "../utils/buildRecreationResourcePageQuery";
 
 @Injectable()
 export class RecreationResourceSearchService {
+  private static readonly MAX_PAGE_SIZE = 10;
+  private static readonly MAX_PAGE_NUMBER = 10;
+
   constructor(private readonly prisma: PrismaService) {}
 
   async searchRecreationResources(
@@ -28,24 +27,18 @@ export class RecreationResourceSearchService {
     district?: string,
     access?: string,
     facilities?: string,
+    lat?: number,
+    lon?: number,
   ): Promise<PaginatedRecreationResourceDto> {
-    // 10 page limit - max 100 records since if no limit we fetch page * limit
-    if (page > 10 && !limit) {
-      throw new Error("Maximum page limit is 10 when no limit is provided");
-    }
+    // Validate pagination parameters
+    this.validatePaginationParams(page, limit);
 
-    // 10 is the maximum limit
-    if (limit && limit > 10) {
-      limit = 10;
-    }
+    // Normalize pagination values
+    const take = this.normalizeTake(limit);
+    const skip = this.calculateSkip(page, take);
 
-    // If only page is provided, we will return all records up to the end of that page
-    // If limit is provided, we will return that many paginated records for lazy loading
-    const take = limit ? limit : 10;
-    const skip = (page - 1) * take;
-
-    const whereClause = buildSearchFilterQuery({
-      filter,
+    // Detect filter types
+    const filterTypes = this.getFilterTypes({
       activities,
       type,
       district,
@@ -53,67 +46,101 @@ export class RecreationResourceSearchService {
       facilities,
     });
 
-    const [recreationResources, combinedRecordCounts, combinedStaticCounts] =
-      await this.prisma.$transaction([
-        this.prisma.$queryRaw<any[]>`
-        select * from recreation_resource_search_view
-        ${whereClause}
-        order by name asc
-        limit ${take}
-        ${skip ? Prisma.sql`OFFSET ${skip}` : Prisma.empty};`,
+    if ((lat && !lon) || (lon && !lat)) {
+      throw new Error("Both lat and lon must be provided");
+    }
 
-        // Query filter menu content and counts that change based on search results
-        this.prisma.$queryRaw<CombinedRecordCount[]>`
-        with filtered_resources as (
-          select rec_resource_id, has_toilets, has_tables
-          from recreation_resource_search_view
-          ${whereClause}
-        ),
-        structure_counts as (
-          select
-            cast(count(case when has_toilets = true then rec_resource_id end) as int) as total_toilet_count,
-            cast(count(case when has_tables = true then rec_resource_id end) as int) as total_table_count
-          from filtered_resources
-        )
-        select
-          rac.recreation_activity_code,
-          rac.description,
-          cast(count(distinct case when fra.rec_resource_id is not null then fra.rec_resource_id end) as int) as recreation_activity_count,
-          (select total_toilet_count from structure_counts) as total_toilet_count,
-          (select total_table_count from structure_counts) as total_table_count,
-          cast((select count(*) from filtered_resources) as int) as total_count
-        from rst.recreation_activity_code rac
-          left join rst.recreation_activity ra on ra.recreation_activity_code = rac.recreation_activity_code
-          left join filtered_resources fra on fra.rec_resource_id = ra.rec_resource_id
-        where rac.recreation_activity_code not in (${Prisma.join(EXCLUDED_ACTIVITY_CODES)})
-        group by rac.recreation_activity_code, rac.description
-        order by rac.description asc;`,
+    // Build the where clause for filtering
+    const whereClause = buildSearchFilterQuery({
+      filter,
+      activities,
+      type,
+      district,
+      access,
+      facilities,
+      lat,
+      lon,
+    });
 
-        // Query filter menu content and counts that remain static
-        this.prisma.$queryRaw<CombinedStaticCount[]>`
-          (select 'district' as type, district_code as code, description, cast(resource_count as integer) as count
-          from recreation_resource_district_count_view
-          where district_code not in (${Prisma.join(EXCLUDED_RECREATION_DISTRICTS)}))
-        union all
-      (select 'access' as type, access_code as code, access_description as description, cast(count as integer) as count
-          from recreation_resource_access_count_view
-          where access_code not in (${Prisma.join(EXCLUDED_RESOURCE_TYPES)}))
-        union all
-      (select 'type' as type, rec_resource_type_code as code, description, cast(count as integer) as count
-          from recreation_resource_type_count_view
-          where rec_resource_type_code not in (${Prisma.join(EXCLUDED_RESOURCE_TYPES)}))
-        order by description asc; `,
-      ]);
+    const recreationResourcePageQuerySql = buildRecreationResourcePageQuery({
+      whereClause,
+      take,
+      skip,
+      lat,
+      lon,
+    });
 
+    const filterOptionCountsQuerySql = buildFilterOptionCountsQuery(
+      whereClause,
+      filterTypes,
+    );
+
+    const [recreationResources, aggregatedCounts] = await Promise.all([
+      this.prisma.$queryRaw<any[]>(recreationResourcePageQuerySql),
+      this.prisma.$queryRaw<AggregatedRecordCount[]>(
+        filterOptionCountsQuerySql,
+      ),
+    ]);
+
+    return this.formatResults(
+      recreationResources,
+      aggregatedCounts,
+      page,
+      take,
+    );
+  }
+
+  private validatePaginationParams(page: number, limit?: number): void {
+    if (page > RecreationResourceSearchService.MAX_PAGE_NUMBER && !limit) {
+      throw new Error(
+        `Maximum page limit is ${RecreationResourceSearchService.MAX_PAGE_NUMBER} when no limit is provided`,
+      );
+    }
+  }
+
+  private normalizeTake(limit?: number): number {
+    if (!limit || limit > RecreationResourceSearchService.MAX_PAGE_SIZE) {
+      return RecreationResourceSearchService.MAX_PAGE_SIZE;
+    }
+    return limit;
+  }
+
+  private calculateSkip(page: number, take: number): number {
+    return (page - 1) * take;
+  }
+
+  private formatResults(
+    recreationResources: any[],
+    aggregatedRecordCounts: AggregatedRecordCount[],
+    page: number,
+    limit?: number,
+  ): PaginatedRecreationResourceDto {
     return {
       data: formatSearchResults(recreationResources),
       page,
       limit,
-      total: combinedRecordCounts?.[0]?.total_count ?? 0,
-      filters: buildFilterMenu({
-        combinedRecordCounts,
-        combinedStaticCounts,
-      }),
+      total: recreationResources?.[0]?.total_count ?? 0,
+      filters: buildFilterMenu(aggregatedRecordCounts),
+    };
+  }
+
+  private getFilterTypes(params: {
+    activities?: string;
+    type?: string;
+    district?: string;
+    access?: string;
+    facilities?: string;
+  }): FilterTypes {
+    const { activities, type, district, access, facilities } = params;
+    const hasNoOtherFilters = !activities && !facilities;
+
+    return {
+      isOnlyAccessFilter:
+        Boolean(access) && !type && !district && hasNoOtherFilters,
+      isOnlyDistrictFilter:
+        Boolean(district) && !type && !access && hasNoOtherFilters,
+      isOnlyTypeFilter:
+        Boolean(type) && !district && !access && hasNoOtherFilters,
     };
   }
 }

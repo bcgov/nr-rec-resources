@@ -41,9 +41,7 @@ export class LandingPOM {
   }
 
   async searchFor(searchTerm?: string) {
-    const input = this.page.locator(
-      `input[placeholder = "${SearchEnum.PLACEHOLDER}"]`,
-    );
+    const input = this.page.getByLabel(SearchEnum.PLACEHOLDER);
     if (searchTerm) {
       await input.fill(searchTerm);
     }

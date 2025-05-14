@@ -25,6 +25,10 @@ const SearchPage = () => {
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   const initialPage = useInitialPageFromSearchParams();
+  const lat = searchParams.get('lat');
+  const lon = searchParams.get('lon');
+  const community = searchParams.get('community');
+  const searchFilter = searchParams.get('filter');
 
   const {
     data,
@@ -42,6 +46,8 @@ const SearchPage = () => {
     activities: searchParams.get('activities') ?? undefined,
     access: searchParams.get('access') ?? undefined,
     facilities: searchParams.get('facilities') ?? undefined,
+    lat: lat ? Number(lat) : undefined,
+    lon: lon ? Number(lon) : undefined,
     type: searchParams.get('type') ?? undefined,
     page: initialPage,
   });
@@ -58,7 +64,6 @@ const SearchPage = () => {
   }, [searchResults]);
 
   const { pages: paginatedResults, totalCount } = searchResults;
-
   /**
    * Handles loading the next page of search results.
    *
@@ -111,6 +116,7 @@ const SearchPage = () => {
 
   const isFetchingFirstPage =
     isFetching && !isFetchingPreviousPage && !isFetchingNextPage;
+  const isLocationSearchResults = lat && lon && community;
 
   return (
     <>
@@ -137,24 +143,38 @@ const SearchPage = () => {
               Filter
             </button>
 
-            <div className="d-flex align-items-center justify-content-between mb-4">
+            <div className="d-flex align-items-center justify-content-between">
               {isFetchingFirstPage ? (
                 <div>Searching...</div>
               ) : (
-                <div>
-                  {totalCount ? (
-                    <span>
-                      <strong>{totalCount.toLocaleString()}</strong>
-                      {` ${totalCount === 1 ? 'Result' : 'Results'}`}
-                    </span>
-                  ) : (
-                    <NoResults />
+                <div className="no-results-container">
+                  <div className="results-text">
+                    <strong>
+                      {totalCount !== undefined && totalCount.toLocaleString()}
+                    </strong>
+                    {` ${totalCount === 1 ? 'Result' : 'Results'}`}{' '}
+                    {searchFilter && (
+                      <>
+                        containing <strong>&apos;{searchFilter}&apos;</strong>
+                      </>
+                    )}
+                    {isLocationSearchResults && (
+                      <span>
+                        {' '}
+                        within <b>50 km</b> radius of <b>{community}</b>
+                      </span>
+                    )}
+                  </div>
+                  <FilterChips />
+                  {(totalCount === 0 || totalCount === undefined) && (
+                    <>
+                      <NoResults />
+                    </>
                   )}
                 </div>
               )}
             </div>
 
-            <FilterChips />
             {isFetching && !isFetchingPreviousPage && !isFetchingNextPage ? (
               <ProgressBar animated now={100} className="mb-4" />
             ) : (

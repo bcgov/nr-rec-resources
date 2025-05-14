@@ -1,6 +1,8 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import FilterGroup from '@/components/search/filters/FilterGroup';
 import { activitiesOptions } from '@/components/search/test/mock-data';
+import { describe, expect, it, Mock, vi } from 'vitest';
+import { useSearchParams } from 'react-router-dom';
 
 vi.mock('react-router-dom', async () => {
   return {
@@ -155,5 +157,67 @@ describe('the FilterGroup component', () => {
     checkbox.click();
     checkbox.click();
     expect(checkbox).not.toBeChecked();
+  });
+
+  it('should have checkbox checked and enabled when defaultChecked is true and count is 0', () => {
+    const testOptions = [
+      { id: 22, count: 0, description: 'Snowmobiling', hasFocus: false },
+      { id: 2, count: 14, description: 'Angling', hasFocus: false },
+    ];
+
+    (useSearchParams as Mock).mockReturnValue([
+      new URLSearchParams({ activities: '22' }), // Snowmobiling
+      vi.fn(),
+    ]);
+
+    render(
+      <FilterGroup
+        label="Activities"
+        options={testOptions}
+        param="activities"
+      />,
+    );
+
+    const snowmobilingCheckbox = screen.getByLabelText('Snowmobiling (0)');
+    const anglingCheckbox = screen.getByLabelText('Angling (14)');
+
+    // Checkbox with ID 22 (Snowmobiling) should be checked and enabled because it's in the URL params
+    expect(snowmobilingCheckbox).toBeChecked();
+    expect(snowmobilingCheckbox).toBeEnabled();
+
+    // Checkbox with ID 2 (Angling) should not be checked, but enabled because count > 0
+    expect(anglingCheckbox).not.toBeChecked();
+    expect(anglingCheckbox).toBeEnabled();
+  });
+
+  it('should update aria-label when toggling show all / show less', () => {
+    const newOptions = [
+      ...activitiesOptions,
+      {
+        id: 33,
+        count: 13,
+        description: 'District 1',
+        hasFocus: false,
+      },
+      {
+        id: 34,
+        count: 0,
+        description: 'District 2',
+        hasFocus: false,
+      },
+    ];
+
+    render(
+      <FilterGroup label="District" options={newOptions} param="district" />,
+    );
+
+    const button = screen.getByRole('button', { name: /show all/i });
+
+    expect(button).toHaveAttribute('aria-label', `Show all 6 District options`);
+
+    // Click to toggle
+    fireEvent.click(button);
+
+    expect(button).toHaveAttribute('aria-label', 'Show less District options');
   });
 });

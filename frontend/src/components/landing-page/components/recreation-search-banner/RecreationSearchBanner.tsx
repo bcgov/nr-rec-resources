@@ -19,7 +19,6 @@ export const RecreationSearchBanner: FC = () => {
           </h2>
           <RecreationSearchForm
             searchButtonProps={{ variant: 'light', className: 'search-btn' }}
-            showSearchIcon={true}
             location="Landing page"
           />
         </Stack>
