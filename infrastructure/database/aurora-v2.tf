@@ -99,7 +99,7 @@ module "aurora_postgresql_v2" {
 
   deletion_protection = contains(["dev", "test"], local.rds_app_env) ? false : true
 
-  performance_insights_enabled	= true
+  performance_insights_enabled	= contains(["dev", "test"], local.rds_app_env) ? false : true
   performance_insights_kms_key_id = data.aws_kms_alias.rds_key.arn
 
   db_parameter_group_name         = aws_db_parameter_group.db_postgresql.id
@@ -108,6 +108,7 @@ module "aurora_postgresql_v2" {
   serverlessv2_scaling_configuration = {
     min_capacity = var.min_capacity
     max_capacity = var.max_capacity
+    seconds_until_auto_pause = var.seconds_until_auto_pause
   }
 
   instance_class = "db.serverless"
