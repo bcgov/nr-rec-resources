@@ -99,6 +99,11 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    margin: 32px;
+
+    @include media-breakpoint-up(sm) {
+      margin: 32px auto;
+    }
   }
   .modal-content {
     background-color: $colorBackgroundGrey;
@@ -118,6 +123,7 @@
         margin: 0;
         padding: 0;
         color: $colorBlue;
+        font-weight: normal;
 
         svg {
           font-size: 1rem;
@@ -143,6 +149,7 @@
           align-items: center;
           justify-content: space-between;
           border: none;
+          line-height: 1.125rem;
           background-color: inherit;
         }
       }
@@ -153,6 +160,7 @@
     .modal-footer {
       .clear-filter-link {
         margin: 0;
+        text-decoration: underline;
       }
     }
   }
