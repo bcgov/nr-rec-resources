@@ -93,47 +93,40 @@ test.describe('Filter chip workflows', () => {
     const searchPage = new SearchPOM(page);
 
     const ACCESS_TYPE = 'Boat-in access';
+    const DISTRICT = 'Chilliwack';
+    const TYPE = 'Recreation site';
 
     await searchPage.route();
 
     await filter.verifyInitialFilterMenu();
 
-    await filter.toggleFilterOn(filter.districtFilters, '100 Mile-Chilcotin');
+    await filter.toggleFilterOn(filter.districtFilters, DISTRICT);
 
-    await filterChips.verifyFilterChips(['100 Mile-Chilcotin']);
+    await filterChips.verifyFilterChips([DISTRICT]);
 
-    await filter.toggleFilterOn(filter.typeFilters, 'Recreation Trail');
+    await filter.toggleFilterOn(filter.typeFilters, TYPE);
 
-    await filterChips.verifyFilterChips(['Recreation Trail']);
+    await filterChips.verifyFilterChips([TYPE]);
 
     await filter.toggleFilterOn(filter.accessTypeFilters, ACCESS_TYPE);
 
     await filterChips.verifyFilterChips([ACCESS_TYPE]);
 
-    await filter.checkIsFilterToggledOn(
-      filter.districtFilters,
-      '100 Mile-Chilcotin',
-    );
+    await filter.checkIsFilterToggledOn(filter.districtFilters, DISTRICT);
 
-    await filter.checkIsFilterToggledOn(filter.typeFilters, 'Recreation Trail');
+    await filter.checkIsFilterToggledOn(filter.typeFilters, TYPE);
 
     await filter.checkIsFilterToggledOn(filter.accessTypeFilters, ACCESS_TYPE);
 
-    await filter.toggleFilterOff(filter.districtFilters, '100 Mile-Chilcotin');
+    await filter.toggleFilterOff(filter.districtFilters, DISTRICT);
 
-    await filter.toggleFilterOff(filter.typeFilters, 'Recreation Trail');
+    await filter.toggleFilterOff(filter.typeFilters, TYPE);
 
     await filter.toggleFilterOff(filter.accessTypeFilters, ACCESS_TYPE);
 
-    await filter.checkIsFilterToggledOff(
-      filter.districtFilters,
-      '100 Mile-Chilcotin',
-    );
+    await filter.checkIsFilterToggledOff(filter.districtFilters, DISTRICT);
 
-    await filter.checkIsFilterToggledOff(
-      filter.typeFilters,
-      'Recreation Trail',
-    );
+    await filter.checkIsFilterToggledOff(filter.typeFilters, TYPE);
 
     await filter.checkIsFilterToggledOff(filter.accessTypeFilters, ACCESS_TYPE);
 
