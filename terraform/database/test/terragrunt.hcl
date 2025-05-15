@@ -14,5 +14,6 @@ generate "test_tfvars" {
   target_env = "test"
   db_cluster_name = "qsawsc-aurora-cluster-${local.app_env}"
   app_env="${local.app_env}"
+  seconds_until_auto_pause = 3600
 EOF
 }
