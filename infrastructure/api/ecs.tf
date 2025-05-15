@@ -147,6 +147,22 @@ resource "aws_ecs_task_definition" "node_api_task" {
         {
           name  = "APP_ENV"
           value = var.app_env
+        },
+        {
+          name  = "KEYCLOAK_AUTH_SERVER_URL"
+          value = var.keycloak_config.auth_server_url
+        },
+        {
+          name  = "KEYCLOAK_REALM"
+          value = var.keycloak_config.realm
+        },
+        {
+          name  = "KEYCLOAK_CLIENT_ID"
+          value = var.keycloak_config.client_id
+        },
+        {
+          name  = "KEYCLOAK_ISSUER"
+          value = var.keycloak_config.issuer
         }
       ]
       portMappings = [

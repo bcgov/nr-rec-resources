@@ -10,7 +10,7 @@
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "module": "ESNext",
-    "moduleResolution": "Node",
+    "moduleResolution": "node",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "strictNullChecks": true,
@@ -23,7 +23,8 @@
       "@/*": ["src/*"],
       "~/*": ["node_modules/*"],
       "~bootstrap/*": ["node_modules/bootstrap/*"],
-      "e2e/*": ["e2e/*"]
+      "e2e/*": ["e2e/*"],
+      "@keycloak-lib/*": ["node_modules/keycloak-js/lib/*"]
     }
   },
   "include": [

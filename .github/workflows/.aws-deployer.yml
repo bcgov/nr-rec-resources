@@ -103,6 +103,10 @@ jobs:
           forest_client_api_key: ${{ secrets.FOREST_CLIENT_API_KEY }}
           forest_client_api_url: ${{ secrets.FOREST_CLIENT_API_URL }}
           alarm_alert_email_recipients: ${{ secrets.alarm_alert_email_recipients }}
+          keycloak_auth_server_url: ${{ secrets.KEYCLOAK_AUTH_SERVER_URL }}
+          keycloak_realm: ${{ secrets.KEYCLOAK_REALM }}
+          keycloak_client_id: ${{ secrets.KEYCLOAK_CLIENT_ID }}
+          keycloak_issuer: ${{ secrets.KEYCLOAK_ISSUER }}
         run: |
           terragrunt run-all ${{ inputs.command }} --terragrunt-non-interactive
 
@@ -120,6 +124,10 @@ jobs:
           forest_client_api_key: ${{ secrets.FOREST_CLIENT_API_KEY }}
           forest_client_api_url: ${{ secrets.FOREST_CLIENT_API_URL }}
           alarm_alert_email_recipients: ${{ secrets.ALARM_ALERT_EMAIL_RECIPIENTS }}
+          keycloak_auth_server_url: ${{ secrets.KEYCLOAK_AUTH_SERVER_URL }}
+          keycloak_realm: ${{ secrets.KEYCLOAK_REALM }}
+          keycloak_client_id: ${{ secrets.KEYCLOAK_CLIENT_ID }}
+          keycloak_issuer: ${{ secrets.KEYCLOAK_ISSUER }}
         run: |
           terragrunt output -json > outputs.json
           cat outputs.json
