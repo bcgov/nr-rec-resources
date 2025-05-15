@@ -107,4 +107,22 @@ describe('RecreationSearchForm', () => {
 
     expect(setNameInputValue).not.toHaveBeenCalled();
   });
+
+  it('should retain the search input value if filter search params exist', async () => {
+    vi.restoreAllMocks();
+
+    renderWithRouter(<RecreationSearchForm />, ['/search?filter=test']);
+
+    const nameInput = await screen.findByTestId('name-search-input');
+    expect(nameInput).toHaveValue('test');
+  });
+
+  it('should retain the location input value if community search params exist', async () => {
+    vi.restoreAllMocks();
+
+    renderWithRouter(<RecreationSearchForm />, ['/search?community=test']);
+
+    const locationInput = await screen.findByTestId('location-search-input');
+    expect(locationInput).toHaveValue('test');
+  });
 });
