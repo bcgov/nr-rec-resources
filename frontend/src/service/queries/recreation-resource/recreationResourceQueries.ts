@@ -17,6 +17,11 @@ import {
 import { InfiniteData } from '@tanstack/react-query';
 import { RecreationResourceDetailModel } from '@/service/custom-models';
 
+interface SearchParams extends SearchRecreationResourcesRequest {
+  // Extend generated request with additional params not used in the api
+  community?: string;
+}
+
 /**
  * Custom hook to fetch a recreation resource by ID.
  *
@@ -102,9 +107,7 @@ export const useGetSiteOperatorById = ({
  * @param {Object} params - Hook parameters
  * @param {Object} params.searchRecreationResourcesParams - Search parameters excluding page number
  */
-export const useSearchRecreationResourcesPaginated = (
-  params: SearchRecreationResourcesRequest,
-) => {
+export const useSearchRecreationResourcesPaginated = (params: SearchParams) => {
   const api = useRecreationResourceApi();
   // Default page number for initial load and fallback
   const DEFAULT_PAGE = 1;
@@ -153,18 +156,17 @@ export const useSearchRecreationResourcesPaginated = (
    * Fetches recreation resources for the specified page
    * Transforms the response data using transformRecreationResource
    */
-  const queryFn = async ({
-    pageParam,
-  }: {
-    pageParam: SearchRecreationResourcesRequest;
-  }) => {
+  const queryFn = async ({ pageParam }: { pageParam: SearchParams }) => {
     try {
       const response = await api.searchRecreationResources({
         ...pageParam,
         page: pageParam.page || DEFAULT_PAGE,
       });
 
-      sessionStorage.setItem('lastSearch', buildQueryString(pageParam));
+      sessionStorage.setItem(
+        'lastSearch',
+        buildQueryString(pageParam as { [key: string]: string | number }),
+      );
 
       trackSiteSearch({
         keyword: JSON.stringify(pageParam),

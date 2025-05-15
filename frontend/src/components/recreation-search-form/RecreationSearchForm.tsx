@@ -62,7 +62,7 @@ export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
       <Row className="gy-3 gx-0 gx-lg-3">
         <Col md={10} className="pe-md-3 pe-lg-2">
           <InputGroup className="search-input-group">
-            <Col>
+            <Col className="position-relative">
               <FormGroup
                 controlId="name-search-input"
                 className={`${nameInputValue ? 'has-text--true' : ''}`}

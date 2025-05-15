@@ -48,6 +48,7 @@ const SearchPage = () => {
     facilities: searchParams.get('facilities') ?? undefined,
     lat: lat ? Number(lat) : undefined,
     lon: lon ? Number(lon) : undefined,
+    community: community ?? undefined,
     type: searchParams.get('type') ?? undefined,
     page: initialPage,
   });

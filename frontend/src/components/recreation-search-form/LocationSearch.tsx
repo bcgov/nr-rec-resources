@@ -82,6 +82,7 @@ const LocationSearch: React.FC = () => {
               referenceElementRef(node);
             }}
             value={cityInputValue}
+            data-testid="location-search-input"
             className="form-control"
             enterKeyHint="search"
           />
