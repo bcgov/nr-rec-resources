@@ -26,7 +26,7 @@ jobs:
     environment: ${{ matrix.env_name }}
     steps:
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4
         with:
             role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
             role-session-name: openshift-oracle-s3-sync
@@ -48,7 +48,7 @@ jobs:
             echo "AWS_SECRET_ACCESS_KEY=$SECRET_KEY" >> $GITHUB_ENV
 
       - name: Update OpenShift Secret for ${{ matrix.environment }}
-        uses: bcgov/action-oc-runner@v1.2.0
+        uses: bcgov/action-oc-runner@8ae8e22ccc644c73041a3b3ca3f2e6afdddad845 # v1.2.1
         env:
           DB_PASSWORD: ${{ secrets.dbPassword }} # handle special characters.
         with:
