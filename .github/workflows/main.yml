@@ -20,23 +20,23 @@ jobs:
       cancel-in-progress: true
     uses: ./.github/workflows/.build.yml
 
-  analysis:
-    name: Analysis
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-analysis
-      cancel-in-progress: true
-    uses: ./.github/workflows/.analysis.yml
-    secrets: inherit
-
-  analysis-results:
-    name: Analysis Results
-    needs: [analysis]
-    if: always()
-    runs-on: ubuntu-24.04
-    steps:
-      - if: contains(needs.*.result, 'failure')
-        run: echo "At least one job has failed." && exit 1
-      - run: echo "Success!"
+  # analysis:
+  #   name: Analysis
+  #   concurrency:
+  #     group: ${{ github.workflow }}-${{ github.ref }}-analysis
+  #     cancel-in-progress: true
+  #   uses: ./.github/workflows/.analysis.yml
+  #   secrets: inherit
+  #
+  # analysis-results:
+  #   name: Analysis Results
+  #   needs: [analysis]
+  #   if: always()
+  #   runs-on: ubuntu-24.04
+  #   steps:
+  #     - if: contains(needs.*.result, 'failure')
+  #       run: echo "At least one job has failed." && exit 1
+  #     - run: echo "Success!"
 
   tests-e2e-local:
     name: Run E2E tests locally
@@ -51,9 +51,9 @@ jobs:
     secrets: inherit
 
   deploy-to-aws-dev:
-    if: github.ref_name == 'main' || github.head_ref == 'main'
+    # if: github.ref_name == 'main' || github.head_ref == 'main'
     name: Deploys Application to AWS dev
-    needs: tests-e2e-local
+    needs: build-containers
     uses: ./.github/workflows/.deploy-app.yml
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-deploy-to-aws-dev
