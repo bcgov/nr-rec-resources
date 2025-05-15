@@ -28,9 +28,9 @@ jobs:
     - name: Run Docker compose
       if: ${{ inputs.local }}
       env:
-        BACKEND_IMAGE: ghcr.io/bcgov/nr-rec-resources/backend:${{ inputs.tag }}
+        BACKEND_IMAGE: ghcr.io/bcgov/nr-rec-resources/public/backend:${{ inputs.tag }}
         FLYWAY_IMAGE: ghcr.io/bcgov/nr-rec-resources/migrations/rst:${{ inputs.tag }}
-        FRONTEND_IMAGE: ghcr.io/bcgov/nr-rec-resources/frontend:${{ inputs.tag }}
+        FRONTEND_IMAGE: ghcr.io/bcgov/nr-rec-resources/public/frontend:${{ inputs.tag }}
       run: docker compose up -d --wait
       continue-on-error: true
     - name: Cache Playwright Browsers
@@ -41,7 +41,7 @@ jobs:
           ~/.cache/ms-playwright
         key: ${{ runner.os }}-playwright-${{ hashFiles('**/package-lock.json') }}
     - name: Fix permissions
-      run: sudo chown -R $USER:$USER frontend
+      run: sudo chown -R $USER:$USER public/frontend
     - name: Setup node
       uses: actions/setup-node@v4
       with:

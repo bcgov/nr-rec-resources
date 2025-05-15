@@ -30,11 +30,11 @@ jobs:
           - 5432:5432
     strategy:
       matrix:
-        dir: [public/backend, public/frontend]
+        dir: [backend, frontend]
         include:
-          - dir: public/backend
+          - dir: backend
             token: SONAR_TOKEN_BACKEND
-          - dir: public/frontend
+          - dir: frontend
             token: SONAR_TOKEN_FRONTEND
     steps:
       - uses: bcgov-nr/action-test-and-analyse@v1.3.0
