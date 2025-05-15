@@ -32,9 +32,9 @@ jobs:
       matrix:
         dir: [backend, frontend]
         include:
-          - dir: backend
+          - dir: public/backend
             token: SONAR_TOKEN_BACKEND
-          - dir: frontend
+          - dir: public/frontend
             token: SONAR_TOKEN_FRONTEND
     steps:
       - uses: bcgov-nr/action-test-and-analyse@v1.3.0
