@@ -15,7 +15,7 @@ on:
 jobs:
   build-containers:
     # Don't run e2e on this pr as we need the project reorganized first
-    if: github.ref_name == 'main' || github.head_ref == 'main'
+    # if: github.ref_name == 'main' || github.head_ref == 'main'
     name: Build containers
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-build-containers
@@ -40,16 +40,16 @@ jobs:
         run: echo "At least one job has failed." && exit 1
       - run: echo "Success!"
 
-  # test-admin:
-  #   name: Run tests for admin app
-  #   needs: build-containers
-  #   concurrency:
-  #     group: ${{ github.workflow }}-${{ github.ref }}-tests-public-app
-  #     cancel-in-progress: true
-  #   uses: ./.github/workflows/.tests.yml
-  #   with:
-  #     app: admin
-  #   secrets: inherit
+  test-admin:
+    name: Run tests for admin app
+    needs: build-containers
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-tests-admin-app
+      cancel-in-progress: true
+    uses: ./.github/workflows/.tests.yml
+    with:
+      app: admin
+    secrets: inherit
 
   test-public:
     name: Run tests for public app
@@ -62,14 +62,15 @@ jobs:
       app: public
     secrets: inherit
 
-  # review-and-deploy-admin:
-  #   name: Review and Deploy Pipeline
-  #   needs: test-admin
-  #   uses: ./.github/workflows/.review-and-deploy.yml
-  #   with:
-  #     app: admin
-  #     tag: ${{ github.sha }}
-  #   secrets: inherit
+  review-and-deploy-admin:
+    if: github.ref_name == 'main' || github.head_ref == 'main'
+    name: Review and Deploy Pipeline
+    needs: test-admin
+    uses: ./.github/workflows/.review-and-deploy.yml
+    with:
+      app: admin
+      tag: ${{ github.sha }}
+    secrets: inherit
 
   review-and-deploy-public:
     if: github.ref_name == 'main' || github.head_ref == 'main'

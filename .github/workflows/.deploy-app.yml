@@ -88,7 +88,7 @@ jobs:
             role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
             aws-region: ${{ env.AWS_REGION }}
       - name: Build And Update UI (CF)
-        working-directory: 'public/frontend'
+        working-directory: ${{ inputs.app }}/frontend
         env:
           app: ${{ inputs.app }}
           VITE_RECREATION_RESOURCE_ASSETS_BASE_URL: "https://dam.lqc63d-prod.nimbus.cloud.gov.bc.ca"

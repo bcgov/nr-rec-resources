@@ -20,6 +20,7 @@ jobs:
       group: deploy-${{ inputs.app }}-to-aws-dev
       cancel-in-progress: true
     with:
+      app: ${{ inputs.app }}
       app_env: dev
       command: apply
       environment_name: dev
@@ -27,6 +28,8 @@ jobs:
     secrets: inherit
 
   tests-e2e-dev-environment:
+    # Admin e2e isn't set up yet
+    if: ${{ inputs.app == 'public' }}
     name: Run e2e tests on dev env
     needs: deploy-to-aws-dev
     uses: ./.github/workflows/.e2e.yml
@@ -39,42 +42,43 @@ jobs:
     secrets: inherit
 
   # Separate review job since we can't use GitHub environments in reusable workflows
-  review-test-deployment:
-    name: Review Test Deployment
-    needs: tests-e2e-dev-environment
-    runs-on: ubuntu-24.04
-    environment: review-test-deployment
-    steps:
-      - name: Review Test Deployment
-        run: echo "Reviewing Test Deployment"
+  # review-test-deployment:
+  #   name: Review Test Deployment
+  #   needs: tests-e2e-dev-environment
+  #   runs-on: ubuntu-24.04
+  #   environment: review-test-deployment
+  #   steps:
+  #     - name: Review Test Deployment
+  #       run: echo "Reviewing Test Deployment"
 
   # Deploys to test environment in the same AWS account as dev.
   # resources in test environment uses the same vpc as the dev (Dev_vpc)
-  deploy-to-aws-test:
-    name: Deploy Application to AWS test
-    needs: review-test-deployment
-    uses: ./.github/workflows/.deploy-app.yml
-    concurrency:
-      group: deploy-${{ inputs.app }}-to-aws-test
-      cancel-in-progress: true
-    with:
-      app_env: test
-      command: apply
-      environment_name: test
-      tag: ${{ inputs.tag }}
-    secrets: inherit
-
-  tests-e2e-test-environment:
-    name: Run e2e tests on test env
-    needs: deploy-to-aws-test
-    uses: ./.github/workflows/.e2e.yml
-    concurrency:
-      group: e2e-tests-${{ inputs.app }}-test
-      cancel-in-progress: true
-    with:
-      tag: ${{ inputs.tag }}
-      environment: test
-    secrets: inherit
+  # deploy-to-aws-test:
+  #   name: Deploy Application to AWS test
+  #   needs: review-test-deployment
+  #   uses: ./.github/workflows/.deploy-app.yml
+  #   concurrency:
+  #     group: deploy-${{ inputs.app }}-to-aws-test
+  #     cancel-in-progress: true
+  #   with:
+  #     app: ${{ inputs.app }}
+  #     app_env: test
+  #     command: apply
+  #     environment_name: test
+  #     tag: ${{ inputs.tag }}
+  #   secrets: inherit
+  #
+  # tests-e2e-test-environment:
+  #   name: Run e2e tests on test env
+  #   needs: deploy-to-aws-test
+  #   uses: ./.github/workflows/.e2e.yml
+  #   concurrency:
+  #     group: e2e-tests-${{ inputs.app }}-test
+  #     cancel-in-progress: true
+  #   with:
+  #     tag: ${{ inputs.tag }}
+  #     environment: test
+  #   secrets: inherit
 
   # release:
   #   name: Release
@@ -88,25 +92,26 @@ jobs:
   #   uses: ./.github/workflows/.promote.yml
 
   # Separate review job since we can't use GitHub environments in reusable workflows
-  review-prod-deployment:
-    name: Review Prod Deployment
-    needs: tests-e2e-test-environment
-    runs-on: ubuntu-24.04
-    environment: review-prod-deployment
-    steps:
-      - name: Review Prod Deployment
-        run: echo "Reviewing Prod Deployment"
-
-  deploy-to-aws-prod:
-    name: Deploy Application to AWS prod
-    needs: review-prod-deployment
-    uses: ./.github/workflows/.deploy-app.yml
-    concurrency:
-      group: deploy-${{ inputs.app }}-to-aws-prod
-      cancel-in-progress: true
-    with:
-      app_env: prod
-      command: apply
-      environment_name: prod
-      tag: ${{ inputs.tag }}
-    secrets: inherit
+  # review-prod-deployment:
+  #   name: Review Prod Deployment
+  #   needs: tests-e2e-test-environment
+  #   runs-on: ubuntu-24.04
+  #   environment: review-prod-deployment
+  #   steps:
+  #     - name: Review Prod Deployment
+  #       run: echo "Reviewing Prod Deployment"
+  #
+  # deploy-to-aws-prod:
+  #   name: Deploy Application to AWS prod
+  #   needs: review-prod-deployment
+  #   uses: ./.github/workflows/.deploy-app.yml
+  #   concurrency:
+  #     group: deploy-${{ inputs.app }}-to-aws-prod
+  #     cancel-in-progress: true
+  #   with:
+  #     app: ${{ inputs.app }}
+  #     app_env: prod
+  #     command: apply
+  #     environment_name: prod
+  #     tag: ${{ inputs.tag }}
+  #   secrets: inherit

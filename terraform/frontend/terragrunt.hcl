@@ -41,7 +41,7 @@ generate "tfvars" {
   disable_signature = true
   contents          = <<-EOF
   app_env="${local.app_env}"
-  app_name="frontend-${local.app}-${local.app_env}"
+  app_name="${local.app}-frontend-${local.app_env}"
 EOF
 }
 
