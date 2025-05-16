@@ -261,3 +261,5 @@ backend-el/*.iml
 *storybook.log
 
 k6_results/
+/public/backend/coverage
+/public/frontend/coverage
