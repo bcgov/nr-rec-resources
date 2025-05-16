@@ -15,7 +15,7 @@ repos:
       - id: eslint
         files: \.[jt]sx?$
         types: [file]
-        exclude: (^backend/src/prisma-generated-sql/) # includes prisma ORM generated files
+        exclude: (^public/backend/src/prisma-generated-sql/) # includes prisma ORM generated files
 
   - repo: https://github.com/rbubley/mirrors-prettier
     rev: v3.4.1
