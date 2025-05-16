@@ -14,14 +14,13 @@ locals {
   app                          = get_env("app")
   app_env                      = get_env("app_env")
   statefile_bucket_name        = "${local.tf_remote_state_prefix}-${local.aws_license_plate}-${local.target_env}"
-  statefile_key                = "${local.app_env}/api/terraform.tfstate"
+  statefile_key                = local.app == "public" ? "${local.app_env}/api/terraform.tfstate" : "${local.app_env}/api/${local.app}/terraform.tfstate"
   statelock_table_name         = "${local.tf_remote_state_prefix}-lock-${local.aws_license_plate}"
   flyway_image                 = get_env("flyway_image")
   api_image                    = get_env("api_image")
   forest_client_api_key        = get_env("forest_client_api_key")
   forest_client_api_url        = get_env("forest_client_api_url")
   alarm_alert_email_recipients = get_env("alarm_alert_email_recipients")
-  app
 }
 
 # Remote S3 state for Terraform.
@@ -40,7 +39,6 @@ terraform {
 }
 EOF
 }
-
 
 generate "tfvars" {
   path              = "terragrunt.auto.tfvars"
