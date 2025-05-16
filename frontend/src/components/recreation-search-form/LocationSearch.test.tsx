@@ -54,13 +54,13 @@ describe('LocationSearch', () => {
 
   it('renders input with label', () => {
     render(<LocationSearch />);
-    expect(screen.getByLabelText(/Near a community/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Near a city/i)).toBeInTheDocument();
   });
 
   it('shows and selects a suggestion', async () => {
     render(<LocationSearch />);
 
-    const input = screen.getByLabelText(/near a community/i);
+    const input = screen.getByLabelText(/near a city/i);
     await userEvent.type(input, 'Vic');
 
     const option = await within(document.body).findByRole('option', {
@@ -83,7 +83,7 @@ describe('LocationSearch', () => {
     });
 
     render(<LocationSearch />);
-    const input = screen.getByLabelText(/Near a community/i);
+    const input = screen.getByLabelText(/Near a city/i);
 
     fireEvent.change(input, { target: { value: 'Victoria' } });
     fireEvent.blur(input);
@@ -123,7 +123,7 @@ describe('LocationSearch', () => {
 
     render(<LocationSearch />);
 
-    const input = screen.getByLabelText(/Near a community/i);
+    const input = screen.getByLabelText(/Near a city/i);
 
     fireEvent.change(input, { target: { value: 'Victoria' } });
 

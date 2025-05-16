@@ -74,7 +74,7 @@ const LocationSearch: React.FC = () => {
       className={`${cityInputValue ? 'has-text' : ''}`}
       onFocus={handleFocus}
       renderInput={({ inputRef, referenceElementRef, ...inputProps }) => (
-        <Form.Group controlId="community-search-typeahead">
+        <Form.Group controlId="city-search-typeahead">
           <FormControl
             {...inputProps}
             ref={(node) => {
@@ -86,7 +86,7 @@ const LocationSearch: React.FC = () => {
             className="form-control"
             enterKeyHint="search"
           />
-          <label htmlFor="community-search-typeahead">Near a community</label>
+          <label htmlFor="city-search-typeahead">Near a city</label>
         </Form.Group>
       )}
       {...(isError && {
