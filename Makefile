@@ -44,8 +44,8 @@ reset_db: drop_db create_db migrate load_fixtures
 reset_project:
 	@echo "Resetting the project..."
 	make reset_db
-	cd backend && npm install && npx prisma generate
-	cd frontend && npm install
+	cd public/backend && npm install && npx prisma generate
+	cd public/frontend && npm install
 	@echo "Project reset completed."
 
 .PHONY: load_test

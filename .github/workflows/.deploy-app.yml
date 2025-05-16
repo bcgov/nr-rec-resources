@@ -75,14 +75,14 @@ jobs:
         with:
           node-version: '22'
           cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: public/frontend/package-lock.json
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
             role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
             aws-region: ${{ env.AWS_REGION }}
       - name: Build And Update UI (CF)
-        working-directory: frontend
+        working-directory: 'public/frontend'
         env:
           VITE_RECREATION_RESOURCE_ASSETS_BASE_URL: "https://dam.lqc63d-prod.nimbus.cloud.gov.bc.ca"
           VITE_API_BASE_URL: ${{ needs.deploy-api.outputs.API_GW_URL }}/api

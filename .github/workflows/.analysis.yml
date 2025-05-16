@@ -42,7 +42,7 @@ jobs:
           commands: |
             npm ci
             npm run test:cov
-          dir: ${{ matrix.dir }}
+          dir: public/${{ matrix.dir }}
           node_version: "22"
           sonar_args: >
             -Dsonar.exclusions=**/coverage/**,**/node_modules/**,**/*spec.ts,**/*test.ts,**/*test.tsx,src/service/recreation-resource/**,src/service/custom-models/**,src/service/fsa-resources/**,**/recreation-resource.controller.ts
