@@ -2,6 +2,11 @@ name: Analysis
 
 on:
   workflow_call:
+    inputs:
+      app:
+        description: Public Application
+        required: true
+        type: string
 
 permissions:
   actions: read
@@ -16,6 +21,8 @@ jobs:
     name: Tests
     runs-on: ubuntu-24.04
     timeout-minutes: 5
+    environment:
+      name: ${{ inputs.app }}
     services:
       postgres:
         image: postgres
@@ -30,11 +37,10 @@ jobs:
           - 5432:5432
     strategy:
       matrix:
-        dir: ['public/backend', 'public/frontend']
         include:
-          - dir: 'public/backend'
+          - dir: backend
             token: SONAR_TOKEN_BACKEND
-          - dir: 'public/frontend'
+          - dir: frontend
             token: SONAR_TOKEN_FRONTEND
     steps:
       - uses: bcgov-nr/action-test-and-analyse@v1.3.0
@@ -42,7 +48,7 @@ jobs:
           commands: |
             npm ci
             npm run test:cov
-          dir: ${{ matrix.dir }}
+          dir: ${{ inputs.app }}/${{ matrix.dir }}
           node_version: "22"
           sonar_args: >
             -Dsonar.exclusions=**/coverage/**,**/node_modules/**,**/*spec.ts,**/*test.ts,**/*test.tsx,src/service/recreation-resource/**,src/service/custom-models/**,src/service/fsa-resources/**,**/recreation-resource.controller.ts
@@ -57,6 +63,7 @@ jobs:
     name: Verify Terraform
     uses: ./.github/workflows/.deploy-app.yml
     with:
+      app: ${{ inputs.app }}
       # event.number is only available in PRs, so we use github.ref_name as a fallback on main
       app_env: ${{ format('ephemeral-{0}', github.event.number || github.ref_name ) }}
       command: plan
