@@ -2,7 +2,7 @@ data "aws_caller_identity" "current" {}
 
 
 resource "aws_s3_bucket" "frontend" {
-  bucket = "${var.app_name}-frontend-${data.aws_caller_identity.current.account_id}-${var.aws_region}"
+  bucket = "${var.app_name}-${data.aws_caller_identity.current.account_id}-${var.aws_region}"
   force_destroy = true
 }
 
