@@ -58,7 +58,7 @@ const CardCarousel = ({ imageList }: CardCarouselProps) => {
         }
         onSelect={handleSelect}
         activeIndex={index}
-        className={`park-carousel tab-focus-${isTabFocused}`}
+        className={`card-carousel tab-focus-${isTabFocused}`}
         data-testid={'card-carousel'}
       >
         {imageList.map((image) => {
