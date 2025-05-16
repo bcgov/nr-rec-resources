@@ -75,21 +75,46 @@ describe("RecreationResourceSearchService", () => {
         "north",
         "public",
         "restroom",
+        49.1,
+        -123.1,
       );
 
       expect(buildSearchFilterQuery).toHaveBeenCalledWith({
-        filter: "search",
+        searchText: "search",
         activities: "hiking",
         type: "park",
         district: "north",
         access: "public",
         facilities: "restroom",
+        lat: 49.1,
+        lon: -123.1,
       });
 
-      expect(buildRecreationResourcePageQuery).toHaveBeenCalled();
-      expect(buildFilterOptionCountsQuery).toHaveBeenCalled();
-      expect(formatSearchResults).toHaveBeenCalled();
-      expect(buildFilterMenu).toHaveBeenCalled();
+      expect(buildRecreationResourcePageQuery).toHaveBeenCalledWith(
+        expect.objectContaining({
+          whereClause: expect.anything(),
+          take: 10,
+          skip: 0,
+          lat: 49.1,
+          lon: -123.1,
+        }),
+      );
+      expect(buildFilterOptionCountsQuery).toHaveBeenCalledWith(
+        expect.objectContaining({
+          whereClause: expect.anything(),
+          searchText: "search",
+          filterTypes: expect.any(Object),
+          lat: 49.1,
+          lon: -123.1,
+        }),
+      );
+      expect(formatSearchResults).toHaveBeenCalledWith([
+        { id: 1, name: "Resource 1", total_count: 10 },
+        { id: 2, name: "Resource 2", total_count: 10 },
+      ]);
+      expect(buildFilterMenu).toHaveBeenCalledWith([
+        { filter_type: "type", filter_value: "park", count: 5 },
+      ]);
     });
 
     it("should validate pagination parameters", async () => {
@@ -130,6 +155,13 @@ describe("RecreationResourceSearchService", () => {
         total: 10,
         filters: { filters: [] },
       });
+      expect(formatSearchResults).toHaveBeenCalledWith([
+        { id: 1, name: "Resource 1", total_count: 10 },
+        { id: 2, name: "Resource 2", total_count: 10 },
+      ]);
+      expect(buildFilterMenu).toHaveBeenCalledWith([
+        { filter_type: "type", filter_value: "park", count: 5 },
+      ]);
     });
 
     it("should handle empty results", async () => {
@@ -144,69 +176,152 @@ describe("RecreationResourceSearchService", () => {
         total: 0,
         filters: { filters: [] },
       });
+      expect(formatSearchResults).toHaveBeenCalledWith([]);
+      expect(buildFilterMenu).toHaveBeenCalledWith([]);
     });
 
-    it("should determine filter types correctly", async () => {
-      await service.searchRecreationResources(1, "", 10, "", "", "", "public");
+    it("should determine filter types correctly and pass all params", async () => {
+      await service.searchRecreationResources(
+        1,
+        "foo",
+        10,
+        "",
+        "",
+        "",
+        "public",
+        undefined,
+        12,
+        34,
+      );
 
       expect(buildFilterOptionCountsQuery).toHaveBeenCalledWith(
-        expect.anything(),
-        {
-          isOnlyAccessFilter: true,
-          isOnlyDistrictFilter: false,
-          isOnlyTypeFilter: false,
-        },
+        expect.objectContaining({
+          filterTypes: {
+            isOnlyAccessFilter: true,
+            isOnlyDistrictFilter: false,
+            isOnlyTypeFilter: false,
+          },
+          searchText: "foo",
+          lat: 12,
+          lon: 34,
+        }),
+      );
+      expect(buildSearchFilterQuery).toHaveBeenCalledWith(
+        expect.objectContaining({
+          access: "public",
+          searchText: "foo",
+          lat: 12,
+          lon: 34,
+        }),
       );
     });
 
-    it("should handle multiple filter types correctly", async () => {
+    it("should handle multiple filter types correctly and pass all params", async () => {
+      await service.searchRecreationResources(
+        1,
+        "bar",
+        10,
+        "",
+        "park",
+        "north",
+        "",
+        undefined,
+        55,
+        66,
+      );
+
+      expect(buildFilterOptionCountsQuery).toHaveBeenCalledWith(
+        expect.objectContaining({
+          filterTypes: {
+            isOnlyAccessFilter: false,
+            isOnlyDistrictFilter: false,
+            isOnlyTypeFilter: false,
+          },
+          searchText: "bar",
+          lat: 55,
+          lon: 66,
+        }),
+      );
+      expect(buildSearchFilterQuery).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "park",
+          district: "north",
+          searchText: "bar",
+          lat: 55,
+          lon: 66,
+        }),
+      );
+    });
+
+    it("should correctly identify district-only filter and pass all params", async () => {
+      await service.searchRecreationResources(
+        1,
+        "",
+        10,
+        "",
+        "",
+        "north",
+        "",
+        undefined,
+        1,
+        2,
+      );
+
+      expect(buildFilterOptionCountsQuery).toHaveBeenCalledWith(
+        expect.objectContaining({
+          filterTypes: {
+            isOnlyAccessFilter: false,
+            isOnlyDistrictFilter: true,
+            isOnlyTypeFilter: false,
+          },
+          lat: 1,
+          lon: 2,
+        }),
+      );
+      expect(buildSearchFilterQuery).toHaveBeenCalledWith(
+        expect.objectContaining({
+          district: "north",
+          lat: 1,
+          lon: 2,
+        }),
+      );
+    });
+
+    it("should correctly identify type-only filter and pass all params", async () => {
       await service.searchRecreationResources(
         1,
         "",
         10,
         "",
         "park",
-        "north",
         "",
+        "",
+        undefined,
+        3,
+        4,
       );
 
       expect(buildFilterOptionCountsQuery).toHaveBeenCalledWith(
-        expect.anything(),
-        {
-          isOnlyAccessFilter: false,
-          isOnlyDistrictFilter: false,
-          isOnlyTypeFilter: false,
-        },
+        expect.objectContaining({
+          filterTypes: {
+            isOnlyAccessFilter: false,
+            isOnlyDistrictFilter: false,
+            isOnlyTypeFilter: true,
+          },
+          lat: 3,
+          lon: 4,
+        }),
+      );
+      expect(buildSearchFilterQuery).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: "park",
+          lat: 3,
+          lon: 4,
+        }),
       );
     });
 
-    it("should correctly identify district-only filter", async () => {
-      await service.searchRecreationResources(1, "", 10, "", "", "north", "");
-
-      expect(buildFilterOptionCountsQuery).toHaveBeenCalledWith(
-        expect.anything(),
-        {
-          isOnlyAccessFilter: false,
-          isOnlyDistrictFilter: true,
-          isOnlyTypeFilter: false,
-        },
-      );
-    });
-
-    it("should correctly identify type-only filter", async () => {
-      await service.searchRecreationResources(1, "", 10, "", "park", "", "");
-
-      expect(buildFilterOptionCountsQuery).toHaveBeenCalledWith(
-        expect.anything(),
-        {
-          isOnlyAccessFilter: false,
-          isOnlyDistrictFilter: false,
-          isOnlyTypeFilter: true,
-        },
-      );
-    });
-
-    it("should handle activities and facilities with other filters", async () => {
+    it("should handle activities and facilities with other filters and pass all params", async () => {
       await service.searchRecreationResources(
         1,
         "",
@@ -216,15 +331,29 @@ describe("RecreationResourceSearchService", () => {
         "",
         "",
         "restroom",
+        7,
+        8,
       );
 
       expect(buildFilterOptionCountsQuery).toHaveBeenCalledWith(
-        expect.anything(),
-        {
-          isOnlyAccessFilter: false,
-          isOnlyDistrictFilter: false,
-          isOnlyTypeFilter: false,
-        },
+        expect.objectContaining({
+          filterTypes: {
+            isOnlyAccessFilter: false,
+            isOnlyDistrictFilter: false,
+            isOnlyTypeFilter: false,
+          },
+          lat: 7,
+          lon: 8,
+        }),
+      );
+      expect(buildSearchFilterQuery).toHaveBeenCalledWith(
+        expect.objectContaining({
+          activities: "hiking",
+          type: "park",
+          facilities: "restroom",
+          lat: 7,
+          lon: 8,
+        }),
       );
     });
 
@@ -249,6 +378,44 @@ describe("RecreationResourceSearchService", () => {
           20,
         ),
       ).rejects.toThrow("Both lat and lon must be provided");
+    });
+
+    it("should pass undefined for optional filters if not provided", async () => {
+      await service.searchRecreationResources(1);
+
+      expect(buildSearchFilterQuery).toHaveBeenCalledWith(
+        expect.objectContaining({
+          searchText: "",
+          activities: undefined,
+          type: undefined,
+          district: undefined,
+          access: undefined,
+          facilities: undefined,
+          lat: undefined,
+          lon: undefined,
+        }),
+      );
+      expect(buildRecreationResourcePageQuery).toHaveBeenCalledWith(
+        expect.objectContaining({
+          lat: undefined,
+          lon: undefined,
+        }),
+      );
+      expect(buildFilterOptionCountsQuery).toHaveBeenCalledWith(
+        expect.objectContaining({
+          lat: undefined,
+          lon: undefined,
+        }),
+      );
+    });
+
+    it("should propagate errors from prisma.$queryRaw", async () => {
+      (prismaService.$queryRaw as Mock).mockRejectedValueOnce(
+        new Error("DB error"),
+      );
+      await expect(service.searchRecreationResources(1)).rejects.toThrow(
+        "DB error",
+      );
     });
   });
 });

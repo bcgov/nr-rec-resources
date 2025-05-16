@@ -20,7 +20,7 @@ export class RecreationResourceSearchService {
 
   async searchRecreationResources(
     page: number = 1,
-    filter: string = "",
+    searchText: string = "",
     limit?: number,
     activities?: string,
     type?: string,
@@ -52,7 +52,7 @@ export class RecreationResourceSearchService {
 
     // Build the where clause for filtering
     const whereClause = buildSearchFilterQuery({
-      filter,
+      searchText,
       activities,
       type,
       district,
@@ -70,10 +70,13 @@ export class RecreationResourceSearchService {
       lon,
     });
 
-    const filterOptionCountsQuerySql = buildFilterOptionCountsQuery(
+    const filterOptionCountsQuerySql = buildFilterOptionCountsQuery({
       whereClause,
+      searchText,
       filterTypes,
-    );
+      lat,
+      lon,
+    });
 
     const [recreationResources, aggregatedCounts] = await Promise.all([
       this.prisma.$queryRaw<any[]>(recreationResourcePageQuerySql),
