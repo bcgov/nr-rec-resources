@@ -37,6 +37,7 @@ jobs:
       group: e2e-tests-${{ inputs.app }}-dev
       cancel-in-progress: true
     with:
+      app: ${{ inputs.app }}
       tag: ${{ inputs.tag }}
       environment: dev
     secrets: inherit
@@ -76,6 +77,7 @@ jobs:
   #     group: e2e-tests-${{ inputs.app }}-test
   #     cancel-in-progress: true
   #   with:
+  #     app: ${{ inputs.app }}
   #     tag: ${{ inputs.tag }}
   #     environment: test
   #   secrets: inherit

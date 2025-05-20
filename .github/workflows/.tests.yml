@@ -58,7 +58,7 @@ jobs:
     name: Verify Terraform
     uses: ./.github/workflows/.deploy-app.yml
     concurrency:
-      group: verify-terraform
+      group: verify-terraform-${{ inputs.app }}
       cancel-in-progress: false
     with:
       app: ${{ inputs.app }}
@@ -78,6 +78,7 @@ jobs:
       cancel-in-progress: true
     uses: ./.github/workflows/.e2e.yml
     with:
+      app: ${{ inputs.app }}
       tag: ${{ github.sha }}
       local: true
     secrets: inherit
