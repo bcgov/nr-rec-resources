@@ -8,16 +8,14 @@ const getQueryString = (query: Prisma.Sql) => {
 
 describe("buildSearchFilterQuery", () => {
   it("should generate query with no filters", () => {
-    const result = buildSearchFilterQuery({ filter: "" });
+    const result = buildSearchFilterQuery({ searchText: "" });
     const queryString = getQueryString(result);
-    expect(queryString).toBe(
-      "where (name ilike ? or closest_community ilike ?)",
-    );
-    expect(result.values).toEqual(["%%", "%%"]);
+    expect(queryString).toBe("");
+    expect(result.values).toEqual([]);
   });
 
   it("should generate query with basic text filter", () => {
-    const result = buildSearchFilterQuery({ filter: "park" });
+    const result = buildSearchFilterQuery({ searchText: "park" });
     const queryString = getQueryString(result);
     expect(queryString).toBe(
       "where (name ilike ? or closest_community ilike ?)",
@@ -26,50 +24,55 @@ describe("buildSearchFilterQuery", () => {
   });
 
   it("should add access filter correctly", () => {
-    const result = buildSearchFilterQuery({ filter: "", access: "A1_A2" });
+    const result = buildSearchFilterQuery({ access: "A1_A2" });
     const queryString = getQueryString(result);
-    expect(queryString).toContain("and access_code in (?,?)");
-    expect(result.values.slice(2)).toEqual(["A1", "A2"]);
+    expect(queryString).toContain("access_code in (?,?)");
+    expect(result.values).toEqual(["A1", "A2"]);
   });
 
   it("should add district filter correctly", () => {
-    const result = buildSearchFilterQuery({ filter: "", district: "D1_D2" });
+    const result = buildSearchFilterQuery({
+      district: "D1_D2",
+    });
     const queryString = getQueryString(result);
-    expect(queryString).toContain("and district_code in (?,?)");
-    expect(result.values.slice(2)).toEqual(["D1", "D2"]);
+    expect(queryString).toContain("district_code in (?,?)");
+    expect(result.values).toEqual(["D1", "D2"]);
   });
 
   it("should add type filter correctly", () => {
-    const result = buildSearchFilterQuery({ filter: "", type: "T1_T2" });
+    const result = buildSearchFilterQuery({
+      type: "T1_T2",
+    });
     const queryString = getQueryString(result);
-    expect(queryString).toContain("and recreation_resource_type_code in (?,?)");
-    expect(result.values.slice(2)).toEqual(["T1", "T2"]);
+    expect(queryString).toContain("recreation_resource_type_code in (?,?)");
+    expect(result.values).toEqual(["T1", "T2"]);
   });
 
   it("should add activity filter correctly", () => {
     const result = buildSearchFilterQuery({
-      filter: "",
       activities: "101_102",
     });
     const queryString = getQueryString(result);
     expect(queryString).toContain(
-      "and ( select count(*) from jsonb_array_elements(recreation_activity) AS activity where (activity->>'recreation_activity_code')::bigint in (?,?) ) = ?",
+      "( select count(*) from jsonb_array_elements(recreation_activity) AS activity where (activity->>'recreation_activity_code')::bigint in (?,?) ) = ?",
     );
-    expect(result.values.slice(2)).toEqual([101, 102, 2]);
+    expect(result.values).toEqual([101, 102, 2]);
   });
 
   it("should add facility filter correctly", () => {
-    const result = buildSearchFilterQuery({ filter: "", facilities: "F1_F2" });
+    const result = buildSearchFilterQuery({
+      facilities: "F1_F2",
+    });
     const queryString = getQueryString(result);
     expect(queryString).toContain(
-      "AND ( SELECT COUNT(*) FROM ( SELECT rec_resource_id FROM jsonb_array_elements(recreation_structure) AS facility GROUP BY rec_resource_id HAVING COUNT(*) FILTER ( WHERE facility->>'description' ILIKE ? ) > 0 AND COUNT(*) FILTER ( WHERE facility->>'description' ILIKE ? ) > 0 ) AS filtered_resources ) > 0",
+      "( SELECT COUNT(*) FROM ( SELECT rec_resource_id FROM jsonb_array_elements(recreation_structure) AS facility GROUP BY rec_resource_id HAVING COUNT(*) FILTER ( WHERE facility->>'description' ILIKE ? ) > 0 AND COUNT(*) FILTER ( WHERE facility->>'description' ILIKE ? ) > 0 ) AS filtered_resources ) > 0",
     );
-    expect(result.values.slice(2)).toEqual(["%F1%", "%F2%"]);
+    expect(result.values).toEqual(["%F1%", "%F2%"]);
   });
 
   it("should handle all filters combined", () => {
     const result = buildSearchFilterQuery({
-      filter: "park",
+      searchText: "park",
       activities: "101_102",
       type: "T1_T2",
       district: "D1_D2",
@@ -110,9 +113,9 @@ describe("buildSearchFilterQuery", () => {
   it("should add location filter correctly", () => {
     const lat = 49.2;
     const lon = -123.1;
-    const result = buildSearchFilterQuery({ filter: "", lat, lon });
+    const result = buildSearchFilterQuery({ lat, lon });
     const queryString = getQueryString(result);
     expect(queryString).toContain("ST_DWithin");
-    expect(result.values).toEqual(["%%", "%%", lon, lat, 50000]);
+    expect(result.values).toEqual([lon, lat, 50000]);
   });
 });

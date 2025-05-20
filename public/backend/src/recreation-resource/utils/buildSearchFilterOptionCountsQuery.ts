@@ -2,21 +2,47 @@ import { Prisma } from "@prisma/client";
 import { FilterTypes } from "../service/types";
 import { EXCLUDED_ACTIVITY_CODES } from "../constants/service.constants";
 
-export function buildFilterOptionCountsQuery(
-  whereClause: Prisma.Sql,
-  filterTypes?: FilterTypes,
-): Prisma.Sql {
+export interface BuildFilterOptionCountsQueryOptions {
+  whereClause: Prisma.Sql;
+  searchText?: string;
+  filterTypes?: FilterTypes;
+  lat?: number;
+  lon?: number;
+}
+
+export function buildFilterOptionCountsQuery({
+  whereClause,
+  searchText = "",
+  filterTypes,
+  lat,
+  lon,
+}: BuildFilterOptionCountsQueryOptions): Prisma.Sql {
+  const textSearchCondition = searchText
+    ? Prisma.sql` AND (name ilike ${"%" + searchText + "%"} or closest_community ilike ${"%" + searchText + "%"})`
+    : Prisma.empty;
+  const locationFilter =
+    typeof lat === "number" && typeof lon === "number"
+      ? Prisma.sql`AND public.ST_DWithin(
+        recreation_site_point,
+        public.ST_Transform(public.ST_SetSRID(public.ST_MakePoint(${lon}, ${lat}), 4326), 3005),
+        50000
+      )`
+      : Prisma.empty;
+
+  const extraFilters = Prisma.sql`${textSearchCondition} ${locationFilter}`;
+
   return Prisma.sql`
   WITH filtered_resources AS (
-    SELECT
-      rec_resource_id,
-      district_code,
-      access_code,
-      recreation_resource_type_code,
-      has_toilets,
-      has_tables
+    SELECT rec_resource_id, district_code, access_code,
+           recreation_resource_type_code, has_toilets, has_tables
     FROM recreation_resource_search_view
     ${whereClause}
+  ),
+  facility_counts AS (
+   SELECT
+     SUM(has_toilets::int)::int AS total_toilet_count,
+     SUM(has_tables::int)::int AS total_table_count
+   FROM filtered_resources
   ),
   activity_counts AS (
     SELECT
@@ -37,7 +63,7 @@ export function buildFilterOptionCountsQuery(
       CASE
         WHEN ${
           filterTypes?.isOnlyDistrictFilter ?? false
-        } THEN (SELECT COUNT(*) FROM recreation_resource_search_view WHERE district_code = dcv.district_code)::INT
+        } THEN (SELECT COUNT(*) FROM recreation_resource_search_view WHERE district_code = dcv.district_code ${extraFilters})::INT
         ELSE COUNT(fr.district_code)::INT
       END AS count
     FROM recreation_resource_district_count_view dcv
@@ -53,7 +79,7 @@ export function buildFilterOptionCountsQuery(
       CASE
         WHEN ${
           filterTypes?.isOnlyAccessFilter ?? false
-        } THEN (SELECT COUNT(*) FROM recreation_resource_search_view WHERE access_code = acv.access_code)::INT
+        } THEN (SELECT COUNT(*) FROM recreation_resource_search_view WHERE access_code = acv.access_code ${extraFilters})::INT
         ELSE COUNT(fr.access_code)::INT
       END AS count
     FROM recreation_resource_access_count_view acv
@@ -69,20 +95,13 @@ export function buildFilterOptionCountsQuery(
       CASE
         WHEN ${
           filterTypes?.isOnlyTypeFilter ?? false
-        } THEN (SELECT COUNT(*) FROM recreation_resource_search_view WHERE recreation_resource_type_code = acv.rec_resource_type_code)::INT
+        } THEN (SELECT COUNT(*) FROM recreation_resource_search_view WHERE recreation_resource_type_code = acv.rec_resource_type_code ${extraFilters})::INT
         ELSE COUNT(fr.recreation_resource_type_code)::INT
       END AS count
     FROM recreation_resource_type_count_view acv
     LEFT JOIN filtered_resources fr ON fr.recreation_resource_type_code = acv.rec_resource_type_code
     GROUP BY acv.rec_resource_type_code, acv.description
     ORDER BY acv.rec_resource_type_code DESC
-  ),
-  facility_counts AS (
-    SELECT
-      COUNT(CASE WHEN has_toilets THEN 1 END)::INT AS total_toilet_count,
-      COUNT(CASE WHEN has_tables THEN 1 END)::INT AS total_table_count,
-      COUNT(*)::INT AS total_count
-    FROM filtered_resources
   )
   SELECT
     'activity' AS type,
@@ -111,14 +130,9 @@ export function buildFilterOptionCountsQuery(
 
   UNION ALL
 
-  SELECT
-    'facilities', 'toilet', 'Toilets', fc.total_toilet_count
-  FROM facility_counts fc
+  SELECT 'facilities', 'toilet', 'Toilets', total_toilet_count FROM facility_counts
 
   UNION ALL
 
-  SELECT
-    'facilities', 'table', 'Tables', fc.total_table_count
-  FROM facility_counts fc
-`;
+  SELECT 'facilities', 'table', 'Tables', total_table_count FROM facility_counts;`;
 }

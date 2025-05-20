@@ -20,7 +20,7 @@ export function buildRecreationResourcePageQuery({
   // Distance is used for sorting and is only calculated if lat/lon are provided
   const distanceSql = hasLocation
     ? Prisma.sql`, public.ST_Distance(
-      public.ST_Transform(public.ST_SetSRID(recreation_site_point, 3005), 3005),
+      recreation_site_point,
       public.ST_Transform(public.ST_SetSRID(public.ST_MakePoint(${lon}, ${lat}), 4326), 3005)
     ) as distance`
     : Prisma.empty;
