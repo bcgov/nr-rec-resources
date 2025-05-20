@@ -38,6 +38,9 @@ jobs:
   deploy-db:
     name: Deploys Database
     uses: ./.github/workflows/.aws-deployer.yml
+    concurrency:
+      group: deploy-db-${{ inputs.environment_name }}-${{ github.ref }}
+      cancel-in-progress: false
     with:
       app_env: ${{ inputs.app_env }}
       environment_name: ${{ inputs.environment_name }}
@@ -108,6 +111,9 @@ jobs:
     uses: ./.github/workflows/.aws-deployer.yml
     needs: [deploy-api]
     if: ${{ inputs.command == 'apply' }}
+    concurrency:
+      group: deploy-fta-migration-${{ inputs.environment_name }}
+      cancel-in-progress: false
     with:
       app_env: ${{ inputs.app_env || 'dev' }}
       environment_name: ${{ inputs.environment_name || 'dev' }}

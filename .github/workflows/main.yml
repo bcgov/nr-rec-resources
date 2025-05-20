@@ -43,9 +43,6 @@ jobs:
   test-admin:
     name: Run tests for admin app
     needs: build-containers
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-tests-admin-app
-      cancel-in-progress: true
     uses: ./.github/workflows/.tests.yml
     with:
       app: admin
@@ -54,16 +51,13 @@ jobs:
   test-public:
     name: Run tests for public app
     needs: build-containers
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-tests-public-app
-      cancel-in-progress: true
     uses: ./.github/workflows/.tests.yml
     with:
       app: public
     secrets: inherit
 
   review-and-deploy-admin:
-    if: github.ref_name == 'main' || github.head_ref == 'main'
+    # if: github.ref_name == 'main' || github.head_ref == 'main'
     name: Review and Deploy Pipeline
     needs: test-admin
     uses: ./.github/workflows/.review-and-deploy.yml
