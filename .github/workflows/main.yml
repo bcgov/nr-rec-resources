@@ -56,10 +56,20 @@ jobs:
       app: public
     secrets: inherit
 
+  test-results:
+    name: Test Results
+    needs: [test-admin, test-public]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+      - if: contains(needs.*.result, 'failure')
+        run: echo "At least one job has failed." && exit 1
+      - run: echo "Success!"
+
   review-and-deploy-admin:
     # if: github.ref_name == 'main' || github.head_ref == 'main'
-    name: Review and Deploy Pipeline
-    needs: test-admin
+    name: Review and deploy Admin app
+    needs: test-results
     uses: ./.github/workflows/.review-and-deploy.yml
     with:
       app: admin
@@ -67,21 +77,11 @@ jobs:
     secrets: inherit
 
   review-and-deploy-public:
-    if: github.ref_name == 'main' || github.head_ref == 'main'
-    name: Review and Deploy Pipeline
-    needs: test-public
+    # if: github.ref_name == 'main' || github.head_ref == 'main'
+    name: Review and deploy Public app
+    needs: test-results
     uses: ./.github/workflows/.review-and-deploy.yml
     with:
       app: public
       tag: ${{ github.sha }}
     secrets: inherit
-
-  # review-and-deploy-admin:
-  #   if: github.ref_name == 'main' || github.head_ref == 'main'
-  #   name: Review and Deploy Pipeline
-  #   needs: tests-e2e-local
-  #   uses: ./.github/workflows/.review-and-deploy.yml
-  #   with:
-  #     app: public
-  #     tag: ${{ github.sha }}
-  #   secrets: inherit
