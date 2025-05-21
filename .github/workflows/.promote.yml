@@ -2,8 +2,11 @@ name: Promote
 
 on:
   workflow_call:
-  workflow_dispatch:
     inputs:
+      app:
+        description: "The app to promote"
+        type: string
+        required: true
       tag:
         description: "Manually provide the tag of the containers to promote"
         type: number
@@ -17,8 +20,7 @@ jobs:
       packages: write
     strategy:
       matrix:
-        # Only building frontend for e2e testing
-        package: ['public/backend', 'public/frontend', 'migrations/rst', 'migrations/fta']
+        package: ['${{ inputs.app }}/backend', '${{ inputs.app }}/frontend', 'migrations/rst', 'migrations/fta']
     timeout-minutes: 1
     steps:
       - uses: shrink/actions-docker-registry-tag@v4
