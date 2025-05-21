@@ -2,7 +2,6 @@ include {
   path = find_in_parent_folders()
 }
 locals {
-  app              = get_env("app")
   app_env          = get_env("app_env")
   flyway_image     = get_env("flyway_image")
   api_image        = get_env("api_image")
@@ -19,6 +18,6 @@ generate "dev_tfvars" {
   flyway_image="${local.flyway_image}"
   api_image="${local.api_image}"
   app_env="${local.app_env}"
-  app_name="node-api-${local.app}-${local.app_env}"
+  app_name="node-api-${local.app_env}"
 EOF
 }
