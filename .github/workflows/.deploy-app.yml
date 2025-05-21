@@ -51,6 +51,9 @@ jobs:
     name: Deploys API
     needs: [deploy-db]
     uses: ./.github/workflows/.aws-deployer.yml
+    concurrency:
+      group: deploy-api-${{ inputs.environment_name }}-${{ github.ref }}
+      cancel-in-progress: false
     with:
       app: ${{ inputs.app }}
       environment_name: ${{ inputs.environment_name }}
@@ -62,6 +65,9 @@ jobs:
   deploy-cloudfront:
     name: Deploys Cloudfront
     uses: ./.github/workflows/.aws-deployer.yml
+    concurrency:
+      group: deploy-cloudfront-${{ inputs.environment_name }}-${{ github.ref }}
+      cancel-in-progress: false
     with:
       app: ${{ inputs.app }}
       environment_name: ${{ inputs.environment_name }}

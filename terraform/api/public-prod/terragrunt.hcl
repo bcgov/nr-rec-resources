@@ -2,6 +2,10 @@ include {
   path = find_in_parent_folders()
 }
 
+locals {
+  app_env          = get_env("app_env")
+}
+
 # Include the common terragrunt configuration for all modules
 generate "prod_tfvars" {
   path              = "prod.auto.tfvars"
@@ -16,5 +20,6 @@ generate "prod_tfvars" {
   scaling_adjustment_increase = 5
   min_capacity = 2
   max_capacity = 30
+  app_name="node-api-${local.app_env}"
 EOF
 }

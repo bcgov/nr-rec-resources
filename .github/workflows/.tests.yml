@@ -29,12 +29,12 @@ jobs:
           - 5432:5432
     strategy:
       matrix:
+        dir: [backend, frontend]
         include:
           - dir: backend
             token: SONAR_TOKEN_BACKEND
           - dir: frontend
             token: SONAR_TOKEN_FRONTEND
-
 
 
     steps:
@@ -48,7 +48,7 @@ jobs:
           sonar_args: >
             -Dsonar.exclusions=**/coverage/**,**/node_modules/**,**/*spec.ts,**/*test.ts,**/*test.tsx,src/service/recreation-resource/**,src/service/custom-models/**,src/service/fsa-resources/**
             -Dsonar.organization=bcgov-sonarcloud
-            -Dsonar.projectKey=bcgov-sonarcloud_nr-rec-resources-${{ matrix.dir }}
+            -Dsonar.projectKey=bcgov-sonarcloud_nr-rec-resources${{ format('{0}-{1}', inputs.app == 'admin' && '-admin' || '', matrix.dir) }}
             -Dsonar.sources=src
             -Dsonar.tests.inclusions=**/*spec.ts
             -Dsonar.javascript.lcov.reportPaths=./coverage/lcov.info
