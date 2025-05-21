@@ -4,5 +4,5 @@ import App from "./App";
 
 it("renders heading", () => {
   const { getByText } = render(<App />);
-  expect(getByText("Vite + React")).toBeTruthy();
+  expect(getByText("RST admin")).toBeInTheDocument();
 });
