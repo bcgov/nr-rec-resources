@@ -39,7 +39,7 @@ jobs:
     name: Deploys Database
     uses: ./.github/workflows/.aws-deployer.yml
     concurrency:
-      group: deploy-db-${{ inputs.environment_name }}-${{ github.ref }}
+      group: deploy-db-${{ inputs.environment_name }}
       cancel-in-progress: false
     with:
       app_env: ${{ inputs.app_env }}
@@ -52,7 +52,7 @@ jobs:
     needs: [deploy-db]
     uses: ./.github/workflows/.aws-deployer.yml
     concurrency:
-      group: deploy-api-${{ inputs.environment_name }}-${{ github.ref }}
+      group: deploy-api-${{ inputs.app }}-${{ inputs.environment_name }}
       cancel-in-progress: false
     with:
       app: ${{ inputs.app }}
@@ -66,7 +66,7 @@ jobs:
     name: Deploys Cloudfront
     uses: ./.github/workflows/.aws-deployer.yml
     concurrency:
-      group: deploy-cloudfront-${{ inputs.environment_name }}-${{ github.ref }}
+      group: deploy-cloudfront-${{ inputs.app }}-${{ inputs.environment_name }}
       cancel-in-progress: false
     with:
       app: ${{ inputs.app }}
@@ -121,6 +121,7 @@ jobs:
       group: deploy-fta-migration-${{ inputs.environment_name }}
       cancel-in-progress: false
     with:
+      app: ${{ inputs.app }}
       app_env: ${{ inputs.app_env || 'dev' }}
       environment_name: ${{ inputs.environment_name || 'dev' }}
       command: apply
