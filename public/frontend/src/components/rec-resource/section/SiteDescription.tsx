@@ -15,7 +15,7 @@ const getMaintenanceDescription = (
     case 'U':
       return 'Limited maintenance services are provided at this site. Please respect the environment and pack out what you pack in.';
     case 'M':
-      return 'This site is maintained to Recreation Sites & Trails BC standards by partners or contractors.';
+      return 'This site is maintained to Recreation Sites and Trails BC standards by partners or contractors.';
     default:
       return '';
   }

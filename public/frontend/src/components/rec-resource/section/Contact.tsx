@@ -28,7 +28,7 @@ const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
             <tbody>
               <tr>
                 <th>
-                  General questions and feedback for Recreation Sites & Trails
+                  General questions and feedback for Recreation Sites and Trails
                   BC
                 </th>
                 <td>
