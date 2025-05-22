@@ -21,6 +21,7 @@ locals {
   forest_client_api_key        = get_env("forest_client_api_key")
   forest_client_api_url        = get_env("forest_client_api_url")
   alarm_alert_email_recipients = get_env("alarm_alert_email_recipients")
+  app_name = local.app == "public" ? "node-api-${local.app_env}" : "node-api-${local.app}-${local.app_env}"
 }
 
 # Remote S3 state for Terraform.
@@ -37,6 +38,7 @@ terraform {
     encrypt        = true
   }
 }
+
 EOF
 }
 
@@ -48,10 +50,10 @@ generate "tfvars" {
   forest_client_api_key="${local.forest_client_api_key}"
   forest_client_api_url="${local.forest_client_api_url}"
   alarm_alert_email_recipients="${local.alarm_alert_email_recipients}"
-  app_name="node-api-${local.app}-${local.app_env}"
   app_env="${local.app_env}"
   flyway_image="${local.flyway_image}"
   api_image="${local.api_image}"
+  app_name="${local.app_name}"
 EOF
 }
 
