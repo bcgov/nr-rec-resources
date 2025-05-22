@@ -40,6 +40,7 @@ const CardCarousel = ({ imageList }: CardCarouselProps) => {
         interval={null}
         nextIcon={
           <FontAwesomeIcon
+            className="nav-icon"
             icon={faCircleChevronRight}
             onClick={trackClickEvent({
               category: 'Card image carousel',
@@ -49,6 +50,7 @@ const CardCarousel = ({ imageList }: CardCarouselProps) => {
         }
         prevIcon={
           <FontAwesomeIcon
+            className="nav-icon"
             icon={faCircleChevronLeft}
             onClick={trackClickEvent({
               category: 'Card image carousel',

@@ -84,7 +84,7 @@
 }
 
 .card-carousel {
-  min-height: 280px;
+  min-height: 190px;
   max-height: 280px;
   overflow: hidden;
 }
@@ -107,4 +107,21 @@
   @include media-breakpoint-up(sm) {
     display: none;
   }
+}
+
+.carousel .carousel-indicators button {
+  border: none;
+  border-radius: 6px;
+  height: 6px;
+  width: 6px;
+}
+
+.nav-icon {
+  font-size: 1.5rem;
+  display: none;
+  color: $white;
+}
+
+.card-carousel:hover .nav-icon {
+  display: block;
 }
