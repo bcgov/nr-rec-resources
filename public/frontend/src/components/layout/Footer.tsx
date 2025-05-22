@@ -97,10 +97,10 @@ const Footer = () => {
         aria-label="Land Acknowledgement"
       >
         <p className="mb-0 small">
-          We acknowledge all First Nations on whose territories BC Parks were
-          established. We honour their connection to the land and respect the
-          importance of their diverse teachings, traditions, and practices
-          within these territories.
+          We acknowledge all First Nations on whose territories Recreation Sites
+          and Trails were established. We honour their connection to the land
+          and respect the importance of their diverse teachings, traditions, and
+          practices within these territories.
         </p>
       </div>
       <div className="home-footer" id="home-footer">
