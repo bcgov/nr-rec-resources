@@ -84,7 +84,7 @@ describe('Page Titles', () => {
     vi.restoreAllMocks();
   });
 
-  const SITE_TITLE = 'Sites and trails BC';
+  const SITE_TITLE = 'Sites and Trails BC';
 
   it('should set title for Landing Page', () => {
     renderWithRouter(ROUTE_PATHS.HOME);
