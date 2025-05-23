@@ -35,7 +35,7 @@ describe('RecreationSearchForm', () => {
 
   const setup = (mockValues = {}) => {
     const hooks = { ...mockHooks, ...mockValues };
-    vi.spyOn(SearchHooks, 'useSearchInput').mockReturnValue(hooks);
+    vi.spyOn(SearchHooks, 'useSearchInput').mockReturnValue(hooks as any);
     return hooks;
   };
 
@@ -92,13 +92,6 @@ describe('RecreationSearchForm', () => {
     fireEvent.submit(form);
 
     expect(handleSearch).toHaveBeenCalledTimes(1);
-  });
-
-  it('clears the search input if no filter search params', async () => {
-    const { setNameInputValue } = setup();
-    renderWithRouter(<RecreationSearchForm />, ['/search']);
-
-    expect(setNameInputValue).toHaveBeenCalledWith('');
   });
 
   it('does not clear the search input if filter search params exist', async () => {

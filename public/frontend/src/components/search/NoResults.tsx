@@ -1,19 +1,19 @@
 import { useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { useClearFilters } from '@/components/search/hooks/useClearFilters';
+import { useSearchInput } from '@/components/recreation-search-form/hooks/useSearchInput';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import '@/components/search/NoResults.scss';
 
 const NoResults = () => {
-  const [_, setSearchParams] = useSearchParams();
   const clearFilters = useClearFilters();
+  const { handleClearSearch } = useSearchInput();
 
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const handleClear = () => {
     clearFilters();
-    setSearchParams(() => new URLSearchParams());
+    handleClearSearch();
   };
 
   useEffect(() => {
@@ -27,7 +27,7 @@ const NoResults = () => {
         <FontAwesomeIcon className="icon" icon={faMagnifyingGlass} />{' '}
         <div className="no-results-header--right">
           <h4>Sorry...</h4>
-          <p>
+          <p id="no-results">
             <b>No sites or trails matched your search.</b>
           </p>
         </div>
@@ -45,6 +45,8 @@ const NoResults = () => {
             className="btn-link p-0 text-decoration-underline"
             onClick={handleClear}
             ref={buttonRef}
+            aria-label="Go back to the full list"
+            aria-describedby="no-results"
           >
             Go back to the full list
           </button>

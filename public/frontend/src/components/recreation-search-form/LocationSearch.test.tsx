@@ -1,16 +1,11 @@
 import { vi } from 'vitest';
 import type { Mock } from 'vitest';
-import {
-  render,
-  screen,
-  fireEvent,
-  waitFor,
-  within,
-} from '@testing-library/react';
+import { screen, fireEvent, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import LocationSearch from '@/components/recreation-search-form/LocationSearch';
 import { useSearchInput } from '@/components/recreation-search-form/hooks/useSearchInput';
 import { useSearchCitiesApi } from '@/components/recreation-search-form/hooks/useSearchCitiesApi';
+import { renderWithRouter } from '@/test-utils';
 
 vi.mock('@/components/recreation-search-form/hooks/useSearchInput', () => ({
   useSearchInput: vi.fn(),
@@ -53,12 +48,12 @@ describe('LocationSearch', () => {
   });
 
   it('renders input with label', () => {
-    render(<LocationSearch />);
+    renderWithRouter(<LocationSearch />);
     expect(screen.getByLabelText(/Near a city/i)).toBeInTheDocument();
   });
 
   it('shows and selects a suggestion', async () => {
-    render(<LocationSearch />);
+    renderWithRouter(<LocationSearch />);
 
     const input = screen.getByLabelText(/near a city/i);
     await userEvent.type(input, 'Vic');
@@ -82,7 +77,7 @@ describe('LocationSearch', () => {
       handleClearCityInput,
     });
 
-    render(<LocationSearch />);
+    renderWithRouter(<LocationSearch />);
     const input = screen.getByLabelText(/Near a city/i);
 
     fireEvent.change(input, { target: { value: 'Victoria' } });
@@ -103,7 +98,7 @@ describe('LocationSearch', () => {
       handleClearCityInput,
     });
 
-    render(<LocationSearch />);
+    renderWithRouter(<LocationSearch />);
     const clearButton = await screen.findByRole('button', {
       name: /clear search/i,
     });
@@ -121,7 +116,7 @@ describe('LocationSearch', () => {
       refetch: vi.fn(),
     });
 
-    render(<LocationSearch />);
+    renderWithRouter(<LocationSearch />);
 
     const input = screen.getByLabelText(/Near a city/i);
 
