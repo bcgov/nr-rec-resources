@@ -34,7 +34,7 @@
     "dotenv": "^16.4.7",
     "html-react-parser": "^5.2.2",
     "ol": "^10.4.0",
-    "ol-mapbox-style": "^12.5.0",
+    "ol-mapbox-style": "^13.0.0",
     "proj4": "^2.15.0",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.7",
