@@ -19,7 +19,7 @@ export class AppController {
   @ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
   @UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
   @AuthRoles([AUTH_RST_ADMIN_ROLE], ROLE_MODE.ALL)
-  getHello(): string {
+  getHello(): Promise<string> {
     return this.appService.getHello();
   }
 }
