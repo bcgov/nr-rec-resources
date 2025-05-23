@@ -41,11 +41,17 @@ variable "ha_enabled" {
 variable "min_capacity" {
   description = "Minimum capacity for Aurora Serverless v2"
   type        = number
-  default     = 0.5
+  default     = 0
 }
 
 variable "max_capacity" {
   description = "Maximum capacity for Aurora Serverless v2"
   type        = string
   default     = 1.0
+}
+
+variable "seconds_until_auto_pause" {
+  description = "Seconds until auto pause for Aurora Serverless v2"
+  type        = number
+  default     = 300
 }
