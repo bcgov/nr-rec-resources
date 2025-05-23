@@ -62,7 +62,7 @@ const LocationSearch: React.FC = () => {
       labelKey="cityName"
       filterBy={() => true}
       options={cityOptions}
-      selected={selectedCity}
+      selected={selectedCity ?? []}
       onChange={handleOnChange}
       onInputChange={handleInputChange}
       placeholder=" "

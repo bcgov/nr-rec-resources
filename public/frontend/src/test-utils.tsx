@@ -1,7 +1,8 @@
-import { cleanup } from '@testing-library/react';
+import { cleanup, render } from '@testing-library/react';
 import { afterEach } from 'vitest';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode } from 'react';
+import { MemoryRouter } from 'react-router-dom';
 
 afterEach(() => {
   cleanup();
@@ -25,5 +26,11 @@ export const TestQueryClientProvider = ({
   const testClient = createTestQueryClient();
   return (
     <QueryClientProvider client={testClient}>{children}</QueryClientProvider>
+  );
+};
+
+export const renderWithRouter = (ui: ReactNode, initialEntry: string = '/') => {
+  return render(
+    <MemoryRouter initialEntries={[initialEntry]}>{ui}</MemoryRouter>,
   );
 };

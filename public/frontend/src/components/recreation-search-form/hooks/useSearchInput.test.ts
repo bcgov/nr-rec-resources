@@ -147,4 +147,21 @@ describe('useSearchInput', () => {
 
     expect(result.current.selectedCity).toEqual([city]);
   });
+
+  it('should initialize nameInputValue and cityInputValue from filter and community search params', () => {
+    const searchParams = new URLSearchParams({
+      filter: 'test',
+      community: 'Victoria',
+    });
+
+    vi.spyOn(ReactRouterDom, 'useSearchParams').mockReturnValue([
+      searchParams,
+      mockSetSearchParams,
+    ]);
+
+    const { result } = renderHook(() => useSearchInput());
+
+    expect(result.current.nameInputValue).toBe('test');
+    expect(result.current.cityInputValue).toBe('Victoria');
+  });
 });

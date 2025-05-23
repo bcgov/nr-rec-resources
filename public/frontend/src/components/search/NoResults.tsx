@@ -1,19 +1,19 @@
 import { useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { useClearFilters } from '@/components/search/hooks/useClearFilters';
+import { useSearchInput } from '@/components/recreation-search-form/hooks/useSearchInput';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import '@/components/search/NoResults.scss';
 
 const NoResults = () => {
-  const [_, setSearchParams] = useSearchParams();
   const clearFilters = useClearFilters();
+  const { handleClearSearch } = useSearchInput();
 
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const handleClear = () => {
     clearFilters();
-    setSearchParams(() => new URLSearchParams());
+    handleClearSearch();
   };
 
   useEffect(() => {

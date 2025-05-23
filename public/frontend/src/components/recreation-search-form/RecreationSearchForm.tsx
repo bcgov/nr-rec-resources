@@ -1,4 +1,4 @@
-import { FC, FormEvent, useEffect } from 'react';
+import { FC, FormEvent } from 'react';
 import {
   Button,
   ButtonProps,
@@ -11,7 +11,6 @@ import {
 } from 'react-bootstrap';
 import { ClearButton } from 'react-bootstrap-typeahead';
 import LocationSearch from '@/components/recreation-search-form/LocationSearch';
-import { useSearchParams } from 'react-router-dom';
 import '@/components/recreation-search-form/RecreationSearchForm.scss';
 import { useSearchInput } from '@/components/recreation-search-form/hooks/useSearchInput';
 import { trackSiteSearch } from '@/utils/matomo';
@@ -29,8 +28,6 @@ export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
   searchButtonProps,
   location = 'Search page',
 }) => {
-  const [searchParams] = useSearchParams();
-  const filter = searchParams.get('filter');
   const {
     nameInputValue,
     setNameInputValue,
@@ -46,12 +43,6 @@ export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({
       keyword: nameInputValue,
     });
   };
-
-  useEffect(() => {
-    if (!filter) {
-      setNameInputValue('');
-    }
-  }, [filter, setNameInputValue]);
 
   return (
     <Form

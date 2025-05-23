@@ -1,10 +1,8 @@
-import { useState } from 'react';
-import {
-  URLSearchParamsInit,
-  useNavigate,
-  useSearchParams,
-} from 'react-router-dom';
+import { useEffect } from 'react';
+import { useStore } from '@tanstack/react-store';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { City } from '@/components/recreation-search-form/types';
+import searchInputStore from '@/store/searchInputStore';
 import { ROUTE_PATHS } from '@/routes';
 
 interface UseSearchInputReturn {
@@ -15,6 +13,7 @@ interface UseSearchInputReturn {
   selectedCity?: City[] | [];
   setSelectedCity: (city: City[] | []) => void;
   handleSearch: () => void;
+  handleClearSearch: () => void;
   handleClearNameInput: () => void;
   handleCityInputSearch: (city: City) => void;
   handleClearCityInput: () => void;
@@ -27,19 +26,23 @@ const COMMUNITY_PARAM_KEY = 'community';
 
 export const useSearchInput = (): UseSearchInputReturn => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [nameInputValue, setNameInputValue] = useState(
-    searchParams.get(NAME_INPUT_PARAM_KEY) ?? '',
-  );
-  const [cityInputValue, setCityInputValue] = useState<string>(
-    searchParams.get(COMMUNITY_PARAM_KEY) ?? '',
-  );
-  const [selectedCity, setSelectedCity] = useState<City[] | []>([]);
+  const filter = searchParams.get(NAME_INPUT_PARAM_KEY);
+  const community = searchParams.get(COMMUNITY_PARAM_KEY);
   const navigate = useNavigate();
+  const state = useStore(searchInputStore);
+
+  const setNameInputValue = (val: string) =>
+    searchInputStore.setState((prev) => ({ ...prev, nameInputValue: val }));
+
+  const setCityInputValue = (val: string) =>
+    searchInputStore.setState((prev) => ({ ...prev, cityInputValue: val }));
+
+  const setSelectedCity = (city: City[]) =>
+    searchInputStore.setState((prev) => ({ ...prev, selectedCity: city }));
 
   const handleSearch = () => {
-    const trimmedNameInputValue = nameInputValue.trim();
     const newParams = new URLSearchParams(searchParams);
-    newParams.set(NAME_INPUT_PARAM_KEY, trimmedNameInputValue);
+    newParams.set(NAME_INPUT_PARAM_KEY, state.nameInputValue.trim());
 
     navigate({
       pathname: ROUTE_PATHS.SEARCH,
@@ -47,13 +50,29 @@ export const useSearchInput = (): UseSearchInputReturn => {
     });
   };
 
+  useEffect(() => {
+    if (filter) {
+      setNameInputValue(filter);
+    }
+    if (community) {
+      setCityInputValue(community);
+    }
+  }, []);
+
   const handleCityInputSearch = (city: City) => {
     if (!city) return;
-    const trimmedCityInputValue = city?.cityName.trim();
+
+    const trimmedCityInputValue = city.cityName.trim();
     const newParams = new URLSearchParams(searchParams);
     newParams.set(LATITUDE_PARAM_KEY, String(city.latitude));
     newParams.set(LONGITUDE_PARAM_KEY, String(city.longitude));
     newParams.set(COMMUNITY_PARAM_KEY, trimmedCityInputValue);
+
+    if (state.nameInputValue.trim()) {
+      newParams.set(NAME_INPUT_PARAM_KEY, state.nameInputValue.trim());
+    }
+
+    setSelectedCity([city]);
 
     navigate({
       pathname: ROUTE_PATHS.SEARCH,
@@ -65,26 +84,36 @@ export const useSearchInput = (): UseSearchInputReturn => {
     setNameInputValue('');
     const newParams = new URLSearchParams(searchParams);
     newParams.delete(NAME_INPUT_PARAM_KEY);
-    setSearchParams(newParams as URLSearchParamsInit);
+    setSearchParams(newParams);
   };
 
   const handleClearCityInput = () => {
     setCityInputValue('');
+    setSelectedCity([]);
     const newParams = new URLSearchParams(searchParams);
     newParams.delete(LATITUDE_PARAM_KEY);
     newParams.delete(LONGITUDE_PARAM_KEY);
     newParams.delete(COMMUNITY_PARAM_KEY);
-    setSearchParams(newParams as URLSearchParamsInit);
+    setSearchParams(newParams);
+  };
+
+  const handleClearSearch = () => {
+    setNameInputValue('');
+    setCityInputValue('');
+    setSelectedCity([]);
+    const newParams = new URLSearchParams();
+    setSearchParams(newParams);
   };
 
   return {
-    cityInputValue,
-    setCityInputValue,
-    nameInputValue,
+    nameInputValue: state.nameInputValue,
     setNameInputValue,
-    selectedCity,
+    cityInputValue: state.cityInputValue,
+    setCityInputValue,
+    selectedCity: state.selectedCity,
     setSelectedCity,
     handleSearch,
+    handleClearSearch,
     handleClearNameInput,
     handleCityInputSearch,
     handleClearCityInput,
