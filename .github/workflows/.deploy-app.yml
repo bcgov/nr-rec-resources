@@ -3,6 +3,10 @@ name: Deploy application to AWS
 on:
   workflow_call:
     inputs:
+      app:
+        description: 'The name of the application to deploy'
+        required: true
+        type: string
       app_env:
         required: true
         description: 'The APP env separates between AWS ENV and Actual APP, since AWS dev is where PR, and TEST is deployed'
@@ -34,6 +38,9 @@ jobs:
   deploy-db:
     name: Deploys Database
     uses: ./.github/workflows/.aws-deployer.yml
+    concurrency:
+      group: deploy-db-${{ inputs.environment_name }}
+      cancel-in-progress: false
     with:
       app_env: ${{ inputs.app_env }}
       environment_name: ${{ inputs.environment_name }}
@@ -44,7 +51,11 @@ jobs:
     name: Deploys API
     needs: [deploy-db]
     uses: ./.github/workflows/.aws-deployer.yml
+    concurrency:
+      group: deploy-api-${{ inputs.app }}-${{ inputs.environment_name }}
+      cancel-in-progress: false
     with:
+      app: ${{ inputs.app }}
       environment_name: ${{ inputs.environment_name }}
       command: ${{ inputs.command }}
       working_directory: api
@@ -54,7 +65,11 @@ jobs:
   deploy-cloudfront:
     name: Deploys Cloudfront
     uses: ./.github/workflows/.aws-deployer.yml
+    concurrency:
+      group: deploy-cloudfront-${{ inputs.app }}-${{ inputs.environment_name }}
+      cancel-in-progress: false
     with:
+      app: ${{ inputs.app }}
       environment_name: ${{ inputs.environment_name }}
       command: ${{ inputs.command }}
       working_directory: frontend
@@ -82,8 +97,9 @@ jobs:
             role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
             aws-region: ${{ env.AWS_REGION }}
       - name: Build And Update UI (CF)
-        working-directory: 'public/frontend'
+        working-directory: ${{ inputs.app }}/frontend
         env:
+          app: ${{ inputs.app }}
           VITE_RECREATION_RESOURCE_ASSETS_BASE_URL: "https://dam.lqc63d-prod.nimbus.cloud.gov.bc.ca"
           VITE_API_BASE_URL: ${{ needs.deploy-api.outputs.API_GW_URL }}/api
           VITE_MATOMO_URL: ${{ secrets.VITE_MATOMO_URL }}
@@ -101,7 +117,11 @@ jobs:
     uses: ./.github/workflows/.aws-deployer.yml
     needs: [deploy-api]
     if: ${{ inputs.command == 'apply' }}
+    concurrency:
+      group: deploy-fta-migration-${{ inputs.environment_name }}
+      cancel-in-progress: false
     with:
+      app: ${{ inputs.app }}
       app_env: ${{ inputs.app_env || 'dev' }}
       environment_name: ${{ inputs.environment_name || 'dev' }}
       command: apply

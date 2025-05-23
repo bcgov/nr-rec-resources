@@ -12,58 +12,6 @@ permissions:
   security-events: write # CodeQL
 
 jobs:
-  tests:
-    name: Tests
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-    strategy:
-      matrix:
-        dir: [backend, frontend]
-        include:
-          - dir: backend
-            token: SONAR_TOKEN_BACKEND
-          - dir: frontend
-            token: SONAR_TOKEN_FRONTEND
-    steps:
-      - uses: bcgov-nr/action-test-and-analyse@v1.3.0
-        with:
-          commands: |
-            npm ci
-            npm run test:cov
-          dir: public/${{ matrix.dir }}
-          node_version: "22"
-          sonar_args: >
-            -Dsonar.exclusions=**/coverage/**,**/node_modules/**,**/*spec.ts,**/*test.ts,**/*test.tsx,src/service/recreation-resource/**,src/service/custom-models/**,src/service/fsa-resources/**,**/recreation-resource.controller.ts
-            -Dsonar.organization=bcgov-sonarcloud
-            -Dsonar.projectKey=bcgov-sonarcloud_nr-rec-resources-${{ matrix.dir }}
-            -Dsonar.sources=src
-            -Dsonar.tests.inclusions=**/*spec.ts
-            -Dsonar.javascript.lcov.reportPaths=./coverage/lcov.info
-          sonar_token: ${{ secrets[matrix.token] }}
-
-  verify-terraform:
-    name: Verify Terraform
-    uses: ./.github/workflows/.deploy-app.yml
-    with:
-      # event.number is only available in PRs, so we use github.ref_name as a fallback on main
-      app_env: ${{ format('ephemeral-{0}', github.event.number || github.ref_name ) }}
-      command: plan
-      environment_name: dev
-      tag: ${{ github.sha }}
-    secrets: inherit
-
   codeql:
     uses: ./.github/workflows/.codeql.yml
 
@@ -88,18 +36,6 @@ jobs:
         uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: "trivy-results.sarif"
-
-  # Retry the workflow due to Trivy flaky sarif-upload issue
-  retry-trivy-on-failure:
-    needs: trivy
-    if: needs.trivy.result != 'success' && fromJSON(github.run_attempt) < 3 && !cancelled()
-    runs-on: ubuntu-latest
-    steps:
-      - env:
-          GH_REPO: ${{ github.repository }}
-          GH_TOKEN: ${{ github.token }}
-          GH_DEBUG: api
-        run: gh workflow run retry-workflow.yml -F run_id=${{ github.run_id }}
 
   pre-commit:
     name: Pre-Commit Validation

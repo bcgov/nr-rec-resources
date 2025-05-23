@@ -3,59 +3,82 @@ name: Tests
 on:
   workflow_call:
     inputs:
-      ### Required
-      target:
-        description: PR number, test or prod
+      app:
+        description: Application name
         required: true
         type: string
 
-      ### Typical / recommended
-      triggers:
-        description: Bash array to diff for build triggering; omit to always fire
-        required: false
-        type: string
-
-env:
-  DOMAIN: apps.silver.devops.gov.bc.ca
-  PREFIX: ${{ github.event.repository.name }}-${{ inputs.target }}
-
 jobs:
-  integration-tests:
-    name: Integration
+  tests:
+    name: Tests
     runs-on: ubuntu-24.04
-    timeout-minutes: 1
-    steps:
-      - uses: actions/checkout@v4
-      - id: cache-npm
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-cache-node-modules-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-cache-node-modules-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-
-      - env:
-          API_NAME: nest
-          BASE_URL: https://${{ github.event.repository.name }}-${{ inputs.target }}-frontend.${{ env.DOMAIN }}
-        run: |
-          cd tests/integration
-          npm ci
-          node src/main.js
-
-  load-tests:
-    name: Load
-    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    environment:
+      name: ${{ inputs.app }}
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
     strategy:
       matrix:
-        name: [backend, frontend]
+        dir: [backend, frontend]
+        include:
+          - dir: backend
+            token: SONAR_TOKEN_BACKEND
+          - dir: frontend
+            token: SONAR_TOKEN_FRONTEND
+
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: grafana/k6-action@v0.3.1
-        env:
-          BACKEND_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}/api
-          FRONTEND_URL: https://${{ env.PREFIX }}-frontend.${{ env.DOMAIN }}
+      - uses: bcgov-nr/action-test-and-analyse@v1.3.0
         with:
-          filename: ./tests/load/${{ matrix.name }}-test.js
-          flags: --vus 10 --duration 30s
+          commands: |
+            npm ci
+            npm run test:cov
+          dir: ${{ inputs.app }}/${{ matrix.dir }}
+          node_version: "22"
+          sonar_args: >
+            -Dsonar.exclusions=**/coverage/**,**/node_modules/**,**/*spec.ts,**/*test.ts,**/*test.tsx,src/service/recreation-resource/**,src/service/custom-models/**,src/service/fsa-resources/**
+            -Dsonar.organization=bcgov-sonarcloud
+            -Dsonar.projectKey=bcgov-sonarcloud_nr-rec-resources${{ format('{0}-{1}', inputs.app == 'admin' && '-admin' || '', matrix.dir) }}
+            -Dsonar.sources=src
+            -Dsonar.tests.inclusions=**/*spec.ts
+            -Dsonar.javascript.lcov.reportPaths=./coverage/lcov.info
+          sonar_token: ${{ secrets[matrix.token] }}
+
+  verify-terraform:
+    name: Verify Terraform
+    uses: ./.github/workflows/.deploy-app.yml
+    concurrency:
+      group: verify-terraform-${{ inputs.app }}
+      cancel-in-progress: false
+    with:
+      app: ${{ inputs.app }}
+      # event.number is only available in PRs, so we use github.ref_name as a fallback on main
+      app_env: ${{ format('ephemeral-{0}', github.event.number || github.ref_name ) }}
+      command: plan
+      environment_name: dev
+      tag: ${{ github.sha }}
+    secrets: inherit
+
+  tests-e2e-local:
+    # Admin e2e not setup yet
+    if: ${{ inputs.app == 'public' }}
+    name: Run E2E tests locally
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.app }}-e2e-local
+      cancel-in-progress: true
+    uses: ./.github/workflows/.e2e.yml
+    with:
+      app: ${{ inputs.app }}
+      tag: ${{ github.sha }}
+      local: true
+    secrets: inherit

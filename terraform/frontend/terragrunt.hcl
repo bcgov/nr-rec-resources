@@ -6,14 +6,16 @@ terraform {
 
 locals {
   region                  = "ca-central-1"
-  app_env          = get_env("app_env")
+  app                     = get_env("app")
+  app_env                 = get_env("app_env")
   # Terraform remote S3 config
   tf_remote_state_prefix  = "terraform-remote-state" # Do not change this, given by cloud.pathfinder.
   target_env              = get_env("target_env")
-  aws_license_plate          = get_env("aws_license_plate")
+  aws_license_plate       = get_env("aws_license_plate")
   statefile_bucket_name   = "${local.tf_remote_state_prefix}-${local.aws_license_plate}-${local.target_env}"
-  statefile_key           = "${local.app_env}/frontend/terraform.tfstate"
+  statefile_key           = local.app == "public" ? "${local.app_env}/frontend/terraform.tfstate" : "${local.app_env}/frontend/${local.app}/terraform.tfstate"
   statelock_table_name    = "${local.tf_remote_state_prefix}-lock-${local.aws_license_plate}"
+  app_name= local.app == "public" ? "frontend-${local.app_env}" : "${local.app}-frontend-${local.app_env}"
 }
 
 # Remote S3 state for Terraform.
@@ -39,6 +41,8 @@ generate "tfvars" {
   if_exists         = "overwrite"
   disable_signature = true
   contents          = <<-EOF
+  app_env="${local.app_env}"
+  app_name="${local.app_name}"
 EOF
 }
 

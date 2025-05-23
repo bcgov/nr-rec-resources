@@ -14,14 +14,16 @@ on:
 
 jobs:
   build-containers:
+    # Don't run e2e on this pr as we need the project reorganized first
+    # if: github.ref_name == 'main' || github.head_ref == 'main'
     name: Build containers
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-build-containers
       cancel-in-progress: true
     uses: ./.github/workflows/.build.yml
 
-  analysis:
-    name: Analysis
+  repo-analysis:
+    name: Repository analysis
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-analysis
       cancel-in-progress: true
@@ -30,7 +32,7 @@ jobs:
 
   analysis-results:
     name: Analysis Results
-    needs: [analysis]
+    needs: [repo-analysis]
     if: always()
     runs-on: ubuntu-24.04
     steps:
@@ -38,119 +40,38 @@ jobs:
         run: echo "At least one job has failed." && exit 1
       - run: echo "Success!"
 
-  tests-e2e-local:
-    name: Run E2E tests locally
+  test-admin:
+    name: Run tests for admin app
     needs: build-containers
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-e2e-local
-      cancel-in-progress: true
-    uses: ./.github/workflows/.e2e.yml
+    uses: ./.github/workflows/.tests.yml
     with:
-      tag: ${{ github.sha }}
-      local: true
+      app: admin
     secrets: inherit
 
-  deploy-to-aws-dev:
+  test-public:
+    name: Run tests for public app
+    needs: build-containers
+    uses: ./.github/workflows/.tests.yml
+    with:
+      app: public
+    secrets: inherit
+
+  review-and-deploy-admin:
     if: github.ref_name == 'main' || github.head_ref == 'main'
-    name: Deploys Application to AWS dev
-    needs: tests-e2e-local
-    uses: ./.github/workflows/.deploy-app.yml
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-deploy-to-aws-dev
-      cancel-in-progress: false
+    name: Review and deploy Admin app
+    needs: [test-admin, test-public]
+    uses: ./.github/workflows/.review-and-deploy.yml
     with:
-      app_env: dev
-      command: apply
-      environment_name: dev
+      app: admin
       tag: ${{ github.sha }}
     secrets: inherit
 
-  tests-e2e-dev-environment:
-    name: Run e2e tests on dev env
-    needs: deploy-to-aws-dev
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-e2e-dev-environment
-      cancel-in-progress: true
-    uses: ./.github/workflows/.e2e.yml
+  review-and-deploy-public:
+    if: github.ref_name == 'main' || github.head_ref == 'main'
+    name: Review and deploy Public app
+    needs: [test-admin, test-public]
+    uses: ./.github/workflows/.review-and-deploy.yml
     with:
-      tag: ${{ github.sha }}
-      environment: dev
-    secrets: inherit
-
-  # Separate review job since we can't use GitHub environments in reusable workflows
-  review-test-deployment:
-    name: Review Test Deployment
-    needs: tests-e2e-dev-environment
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-review-test-deployment
-      cancel-in-progress: true
-    environment: review-test-deployment
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Review Test Deployment
-        run: echo "Reviewing Test Deployment"
-
-  # Deploys to test environment in the same AWS account as dev.
-  # resources in test environment uses the same vpc as the dev (Dev_vpc)
-  deploy-to-aws-test:
-    name: Deploys Application to AWS test
-    needs: [review-test-deployment]
-    uses: ./.github/workflows/.deploy-app.yml
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-deploy-to-aws-test
-      cancel-in-progress: false
-    with:
-      app_env: test
-      command: apply
-      environment_name: test
-      tag: ${{ github.sha }}
-    secrets: inherit
-
-  tests-e2e-test-environment:
-    name: Run e2e tests on test env
-    needs: deploy-to-aws-test
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-e2e-test-environment
-      cancel-in-progress: true
-    uses: ./.github/workflows/.e2e.yml
-    with:
-      tag: ${{ github.sha }}
-      environment: test
-    secrets: inherit
-
-  release:
-    name: Release
-    needs: tests-e2e-test-environment
-    uses: ./.github/workflows/.release.yml
-
-  promote:
-    name: Promote
-    needs: release
-    uses: ./.github/workflows/.promote.yml
-
-  # Separate review job since we can't use GitHub environments in reusable workflows
-  review-prod-deployment:
-    name: Review Prod Deployment
-    needs: promote
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-review-prod-deployment
-      cancel-in-progress: true
-    environment: review-prod-deployment
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Review Prod Deployment
-        run: echo "Reviewing Prod Deployment"
-
-  deploy-to-aws-prod:
-    name: Deploys Application to AWS prod
-    needs: [review-prod-deployment]
-    uses: ./.github/workflows/.deploy-app.yml
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-deploy-to-aws-prod
-      cancel-in-progress: false
-    with:
-      app_env: prod
-      command: apply
-      environment_name: prod
+      app: public
       tag: ${{ github.sha }}
     secrets: inherit
