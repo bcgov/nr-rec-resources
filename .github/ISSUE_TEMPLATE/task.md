@@ -1,19 +1,26 @@
 ---
 name: Task
-about: Work for the team that cannot be written as a user story
+about: Task that isn't a user story or bug
 title: ''
-labels: 'needs refinement'
+labels: ''
 assignees: ''
+
 ---
 
-**Describe the task**
-A clear and concise description of what the task is.
+#### Description:
+[Description of the task]
 
-**Acceptance Criteria**
-- [ ] ...
+#### Acceptance Criteria:
 - [ ] ...
 - [ ] ...
 
-**Additional context**
-- Add any other context about the task here.
-- Or here
+#### Dev notes:
+- [ ] ...
+- [ ] ...
+
+#### Dependencies
+- Blocked by
+- Blocking
+
+**Relevant documentation as reference**
+- add here
