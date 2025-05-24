@@ -103,11 +103,11 @@
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td><a href="routines/setup_temporal_table_schema_nam_eef17ba5.html">setup_temporal_table(schema_name text, table_name text)</a></td>
+                                        <td><a href="routines/word_similarity_op_text__text__163738fb.html">word_similarity_op(text, text)</a></td>
                                         <td>FUNCTION</td>
-                                        <td>plpgsql</td>
+                                        <td>c</td>
                                         <td>false</td>
-                                        <td>void</td>
+                                        <td>boolean</td>
                                         <td>INVOKER</td>
                                         <td></td>
                                     </tr>
@@ -121,11 +121,65 @@
                                         <td></td>
                                     </tr>
                                     <tr>
-                                        <td><a href="routines/upsert_timestamp_columns_schema_e0d43492.html">upsert_timestamp_columns(schema_name text, table_name text, updated_at_only boolean DEFAULT false)</a></td>
+                                        <td><a href="routines/word_similarity_text__text__af8b7feb.html">word_similarity(text, text)</a></td>
                                         <td>FUNCTION</td>
-                                        <td>plpgsql</td>
+                                        <td>c</td>
+                                        <td>true</td>
+                                        <td>real</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/gtrgm_out_rst.gtrgm__22a420c7.html">gtrgm_out(rst.gtrgm)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>true</td>
+                                        <td>cstring</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/gtrgm_union_internal__internal__73f8e0ee.html">gtrgm_union(internal, internal)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>true</td>
+                                        <td>rst.gtrgm</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/gin_trgm_consistent_internal__s_c9fbc8c3.html">gin_trgm_consistent(internal, smallint, text, integer, internal, internal, internal, internal)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>true</td>
+                                        <td>boolean</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/strict_word_similarity_commutat_b5dcea55.html">strict_word_similarity_commutator_op(text, text)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
                                         <td>false</td>
-                                        <td>void</td>
+                                        <td>boolean</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/gtrgm_distance_internal__text___218d08fb.html">gtrgm_distance(internal, text, smallint, oid, internal)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>true</td>
+                                        <td>double precision</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/gtrgm_in_cstring__e710afa4.html">gtrgm_in(cstring)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>true</td>
+                                        <td>rst.gtrgm</td>
                                         <td>INVOKER</td>
                                         <td></td>
                                     </tr>
@@ -135,6 +189,231 @@
                                         <td>plpgsql</td>
                                         <td>false</td>
                                         <td>trigger</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/gtrgm_compress_internal__96f1b2ba.html">gtrgm_compress(internal)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>true</td>
+                                        <td>internal</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/gin_extract_query_trgm_text__in_d6e582af.html">gin_extract_query_trgm(text, internal, smallint, internal, internal, internal, internal)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>true</td>
+                                        <td>internal</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/word_similarity_dist_op_text__t_f9503946.html">word_similarity_dist_op(text, text)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>true</td>
+                                        <td>real</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/setup_temporal_table_schema_nam_eef17ba5.html">setup_temporal_table(schema_name text, table_name text)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>plpgsql</td>
+                                        <td>false</td>
+                                        <td>void</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/strict_word_similarity_op_text__987a9131.html">strict_word_similarity_op(text, text)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>false</td>
+                                        <td>boolean</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/word_similarity_commutator_op_t_7fae604b.html">word_similarity_commutator_op(text, text)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>false</td>
+                                        <td>boolean</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/gtrgm_penalty_internal__interna_1d2889d7.html">gtrgm_penalty(internal, internal, internal)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>true</td>
+                                        <td>internal</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/set_limit_real__6a809e41.html">set_limit(real)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>false</td>
+                                        <td>real</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/gtrgm_options_internal__aa66c8e.html">gtrgm_options(internal)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>true</td>
+                                        <td>void</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/strict_word_similarity_dist_op__ef8992d0.html">strict_word_similarity_dist_op(text, text)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>true</td>
+                                        <td>real</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/gtrgm_same_rst.gtrgm__rst.gtrgm_ed8aa1be.html">gtrgm_same(rst.gtrgm, rst.gtrgm, internal)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>true</td>
+                                        <td>internal</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/show_limit___606c82ba.html">show_limit()</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>false</td>
+                                        <td>real</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/strict_word_similarity_dist_com_2868ff56.html">strict_word_similarity_dist_commutator_op(text, text)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>true</td>
+                                        <td>real</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/gtrgm_consistent_internal__text_5b9f43fe.html">gtrgm_consistent(internal, text, smallint, oid, internal)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>true</td>
+                                        <td>boolean</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/similarity_dist_text__text__883c6b35.html">similarity_dist(text, text)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>true</td>
+                                        <td>real</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/gtrgm_decompress_internal__f2bad3fb.html">gtrgm_decompress(internal)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>true</td>
+                                        <td>internal</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/similarity_text__text__671bb316.html">similarity(text, text)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>true</td>
+                                        <td>real</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/show_trgm_text__b321dcda.html">show_trgm(text)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>true</td>
+                                        <td>text[]</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/gin_trgm_triconsistent_internal_fa180699.html">gin_trgm_triconsistent(internal, smallint, text, integer, internal, internal, internal)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>true</td>
+                                        <td>&quot;char&quot;</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/strict_word_similarity_text__te_bc140375.html">strict_word_similarity(text, text)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>true</td>
+                                        <td>real</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/similarity_op_text__text__8be9b1f0.html">similarity_op(text, text)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>false</td>
+                                        <td>boolean</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/upsert_timestamp_columns_schema_e0d43492.html">upsert_timestamp_columns(schema_name text, table_name text, updated_at_only boolean DEFAULT false)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>plpgsql</td>
+                                        <td>false</td>
+                                        <td>void</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/gin_extract_value_trgm_text__in_939db366.html">gin_extract_value_trgm(text, internal)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>true</td>
+                                        <td>internal</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/gtrgm_picksplit_internal__inter_270b22b8.html">gtrgm_picksplit(internal, internal)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>true</td>
+                                        <td>internal</td>
+                                        <td>INVOKER</td>
+                                        <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/word_similarity_dist_commutator_2400d320.html">word_similarity_dist_commutator_op(text, text)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>c</td>
+                                        <td>true</td>
+                                        <td>real</td>
                                         <td>INVOKER</td>
                                         <td></td>
                                     </tr>
