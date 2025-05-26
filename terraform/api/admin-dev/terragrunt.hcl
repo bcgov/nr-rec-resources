@@ -1,12 +1,6 @@
 include {
   path = find_in_parent_folders()
 }
-locals {
-  app_env          = get_env("app_env")
-  flyway_image     = get_env("flyway_image")
-  api_image        = get_env("api_image")
-  target_env       = get_env("target_env")
-}
 
 # Include the common terragrunt configuration for all modules
 generate "dev_tfvars" {
@@ -15,8 +9,5 @@ generate "dev_tfvars" {
   disable_signature = true
   contents          = <<-EOF
   target_env = "dev"
-  flyway_image="${local.flyway_image}"
-  api_image="${local.api_image}"
-  app_env="${local.app_env}"
 EOF
 }

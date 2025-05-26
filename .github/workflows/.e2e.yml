@@ -3,6 +3,10 @@ name: Playwright e2e tests
 on:
   workflow_call:
     inputs:
+      app:
+        description: 'The app to run tests on'
+        required: true
+        type: string
       environment:
         description: 'The GitHub environment to run the tests in'
         required: false
@@ -47,16 +51,16 @@ jobs:
       with:
         node-version: '22'
     - run: npm ci
-      working-directory: ./public/frontend
+      working-directory: ./${{ inputs.app }}/frontend
     - run: npx @playwright/test install --with-deps
       if: steps.playwright-cache.outputs.cache-hit != 'true'
-      working-directory: ./public/frontend
+      working-directory: ./${{ inputs.app }}/frontend
     - run: npx @playwright/test install-deps
       if: steps.playwright-cache.outputs.cache-hit == 'true'
-      working-directory: ./public/frontend
+      working-directory: ./${{ inputs.app }}/frontend
     - name: Run Playwright tests
       run: npx happo-e2e -- npx playwright test
-      working-directory: ./public/frontend
+      working-directory: ./${{ inputs.app }}/frontend
       env:
         HAPPO_API_KEY: ${{ secrets.HAPPO_API_KEY }}
         HAPPO_API_SECRET: ${{ secrets.HAPPO_API_SECRET }}
