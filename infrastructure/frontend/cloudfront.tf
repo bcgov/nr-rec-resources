@@ -1,22 +1,19 @@
 data "aws_caller_identity" "current" {}
 
-
 resource "aws_s3_bucket" "frontend" {
-  bucket = "${var.app_name}-frontend-${data.aws_caller_identity.current.account_id}-${var.aws_region}"
+  bucket        = "${var.app_name}-frontend-${data.aws_caller_identity.current.account_id}-${var.aws_region}"
   force_destroy = true
 }
 
 resource "aws_s3_bucket_public_access_block" "frontend_bucket_block" {
-  bucket            = aws_s3_bucket.frontend.id
-  block_public_acls = true
-  block_public_policy = true
+  bucket                  = aws_s3_bucket.frontend.id
+  block_public_acls       = true
+  block_public_policy     = true
   restrict_public_buckets = true
   ignore_public_acls      = true
-
 }
 
-
-# CloudFront distribution for the S3 bucket
+# CloudFront origin access identity for the S3 bucket
 resource "aws_cloudfront_origin_access_identity" "oai" {
   comment = "OAI for ${var.app_name} site."
 }
@@ -25,12 +22,12 @@ resource "aws_s3_bucket_policy" "site_policy" {
   bucket = aws_s3_bucket.frontend.bucket
 
   policy = jsonencode({
-    Version = "2012-10-17",
+    Version   = "2012-10-17",
     Statement = [
       {
-        Effect = "Allow",
+        Effect    = "Allow",
         Principal = {
-          "AWS" : "${aws_cloudfront_origin_access_identity.oai.iam_arn}"
+          AWS = "${aws_cloudfront_origin_access_identity.oai.iam_arn}"
         },
         Action   = "s3:GetObject",
         Resource = "arn:aws:s3:::${aws_s3_bucket.frontend.bucket}/*"
@@ -50,6 +47,39 @@ data "aws_acm_certificate" "primary_cert" {
   domain      = each.value
   statuses    = ["ISSUED"]
   most_recent = true
+}
+
+resource "aws_cloudfront_response_headers_policy" "security_headers" {
+  name = "${var.app_name}-security-headers"
+
+  security_headers_config {
+    content_security_policy {
+      content_security_policy = "frame-ancestors 'none'; default-src 'none'; img-src 'self'; script-src 'self'; style-src 'self'; object-src 'none'"
+      override                = true
+    }
+    content_type_options {
+      override = true
+    }
+    frame_options {
+      frame_option = "DENY"
+      override     = true
+    }
+    referrer_policy {
+      referrer_policy = "same-origin"
+      override        = true
+    }
+    strict_transport_security {
+      access_control_max_age_sec = 63072000
+      include_subdomains         = true
+      preload                    = true
+      override                   = true
+    }
+    xss_protection {
+      protection = true
+      mode_block = true
+      override   = true
+    }
+  }
 }
 
 resource "aws_cloudfront_distribution" "s3_distribution" {
@@ -77,32 +107,30 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
       origin_access_identity = aws_cloudfront_origin_access_identity.oai.cloudfront_access_identity_path
     }
   }
-  # Required for SPA application to redirect requests to deep links to root, which loads index.html, which loads the Vue app
-  # and then the Vue router properly resolves the deep link.
   custom_error_response {
-    error_code = 403
-    response_code = 200
+    error_code         = 403
+    response_code      = 200
     response_page_path = "/"
   }
 
-
   default_cache_behavior {
-    allowed_methods  = ["GET", "HEAD"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = aws_s3_bucket.frontend.bucket
+    allowed_methods        = ["GET", "HEAD"]
+    cached_methods         = ["GET", "HEAD"]
+    target_origin_id       = aws_s3_bucket.frontend.bucket
+    viewer_protocol_policy = "redirect-to-https"
+
+    min_ttl     = 0
+    default_ttl = 3600
+    max_ttl     = 86400
+
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.security_headers.id
 
     forwarded_values {
       query_string = false
-
       cookies {
         forward = "none"
       }
     }
-
-    viewer_protocol_policy = "redirect-to-https"
-    min_ttl                = 0
-    default_ttl            = 3600
-    max_ttl                = 86400
   }
 
   restrictions {
