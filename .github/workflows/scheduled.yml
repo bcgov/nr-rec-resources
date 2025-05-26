@@ -23,7 +23,7 @@ jobs:
   zap_scan:
     runs-on: ubuntu-24.04
     name: ZAP Scans
-    environment: test
+    environment: dev
     permissions:
       issues: write
     steps:
@@ -33,7 +33,7 @@ jobs:
           allow_issue_writing: true
           artifact_name: "zap_backend"
           cmd_options: "-a"
-          issue_title: "ZAP: Backend"
+          issue_title: "ZAP: Backend Scan"
           target: ${{ secrets.API_URL }}/api
 
       - name: ZAP Scan - Frontend
@@ -42,5 +42,5 @@ jobs:
           allow_issue_writing: true
           artifact_name: "zap_frontend"
           cmd_options: "-a"
-          issue_title: "ZAP: Frontend"
+          issue_title: "ZAP: Frontend Scan"
           target: ${{ secrets.APP_URL }}
