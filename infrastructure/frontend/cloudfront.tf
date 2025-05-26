@@ -53,10 +53,10 @@ resource "aws_cloudfront_response_headers_policy" "security_headers" {
   name = "${var.app_name}-security-headers"
 
   security_headers_config {
-    # content_security_policy {
-    #   content_security_policy = "frame-ancestors 'none'; default-src 'none'; img-src 'self'; script-src 'self'; style-src 'self'; object-src 'none'"
-    #   override                = true
-    # }
+    content_security_policy {
+      content_security_policy = "default-src 'self' https: data: blob: 'unsafe-inline' 'unsafe-eval'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; frame-ancestors 'none'; object-src 'none';"
+      override                = true
+    }
     content_type_options {
       override = true
     }
