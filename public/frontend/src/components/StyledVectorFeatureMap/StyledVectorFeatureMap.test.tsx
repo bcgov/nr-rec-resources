@@ -4,7 +4,6 @@ import { Feature } from 'ol';
 import { StyleLike } from 'ol/style/Style';
 import { StyledVectorFeatureMap } from '@/components/StyledVectorFeatureMap';
 import { useAddVectorLayerToMap } from '@/components/StyledVectorFeatureMap/hooks';
-import { DEFAULT_MAP_PADDING } from '@/components/StyledVectorFeatureMap/constants';
 
 // Mock constants
 const MOCK_EXTENT = [0, 0, 100, 100];
@@ -12,8 +11,9 @@ const MOCK_HEIGHT = '400px';
 
 // Mock functions
 const mockFit = vi.fn();
+const mockSetZoom = vi.fn();
 const mockSetTarget = vi.fn();
-const mockGetView = vi.fn(() => ({ fit: mockFit }));
+const mockGetView = vi.fn(() => ({ fit: mockFit, setZoom: mockSetZoom }));
 const mockMap = {
   getView: mockGetView,
   setTarget: mockSetTarget,
@@ -87,9 +87,7 @@ describe('StyledVectorFeatureMap', () => {
 
     await waitFor(() => {
       expect(mockMap.getView).toHaveBeenCalled();
-      expect(mockFit).toHaveBeenCalledWith(MOCK_EXTENT, {
-        padding: DEFAULT_MAP_PADDING,
-      });
+      expect(mockFit).toHaveBeenCalledWith(MOCK_EXTENT);
     });
   });
 });

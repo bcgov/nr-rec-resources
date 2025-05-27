@@ -31,6 +31,6 @@ export const MAP_URLS = {
 };
 
 /**
- * Default padding in pixels to apply when fitting the map view to an extent
+ * Default zoom level for the map
  */
-export const DEFAULT_MAP_PADDING = [50, 50, 50, 50];
+export const DEFAULT_MAP_ZOOM = 8;

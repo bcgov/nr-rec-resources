@@ -4,11 +4,12 @@ import { Coordinate } from 'ol/coordinate';
 import { MapControls } from './MapControls';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { DEFAULT_MAP_PADDING } from '@/components/StyledVectorFeatureMap/constants';
+import { DEFAULT_MAP_ZOOM } from '@/components/StyledVectorFeatureMap/constants';
 
 describe('MapControls', () => {
   const mockView = {
     getZoom: vi.fn(),
+    setZoom: vi.fn(),
     animate: vi.fn(),
     fit: vi.fn(),
     getProjection: vi.fn(() => ({
@@ -68,10 +69,8 @@ describe('MapControls', () => {
 
     fireEvent.click(screen.getByLabelText('Center map to full extent'));
 
-    expect(mockView.fit).toHaveBeenCalledWith([0, 0, 50, 50], {
-      duration: 250,
-      padding: DEFAULT_MAP_PADDING,
-    });
+    expect(mockView.fit).toHaveBeenCalledWith([0, 0, 50, 50]);
+    expect(mockView.setZoom).toHaveBeenCalledWith(DEFAULT_MAP_ZOOM);
   });
 
   it('handles center click with default projection extent', () => {
@@ -79,10 +78,8 @@ describe('MapControls', () => {
 
     fireEvent.click(screen.getByLabelText('Center map to full extent'));
 
-    expect(mockView.fit).toHaveBeenCalledWith([0, 0, 100, 100], {
-      padding: DEFAULT_MAP_PADDING,
-      duration: 250,
-    });
+    expect(mockView.fit).toHaveBeenCalledWith([0, 0, 100, 100]);
+    expect(mockView.setZoom).toHaveBeenCalledWith(DEFAULT_MAP_ZOOM);
   });
 
   it('handles null zoom value', () => {
