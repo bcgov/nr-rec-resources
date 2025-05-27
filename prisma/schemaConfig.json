@@ -1,0 +1,14 @@
+{
+  "apps": [
+    {
+      "name": "public",
+      "dbSchemas": ["rst"],
+      "appPath": "../public/backend/prisma/"
+    },
+    {
+      "name": "admin",
+      "dbSchemas": ["admin", "rst"],
+      "appPath": "../admin/backend/prisma/"
+    }
+  ]
+}
