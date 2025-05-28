@@ -147,3 +147,14 @@ variable "alarm_alert_email_recipients" {
   type        = string
   default     = ""
 }
+
+variable "keycloak_config" {
+  type = object({
+    auth_server_url = string
+    realm          = string
+    client_id      = string
+    issuer         = string
+  })
+  description = "Keycloak configuration for BC Gov Identity Service"
+  sensitive = true
+}

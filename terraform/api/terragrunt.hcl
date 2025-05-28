@@ -22,6 +22,12 @@ locals {
   forest_client_api_url        = get_env("forest_client_api_url")
   alarm_alert_email_recipients = get_env("alarm_alert_email_recipients")
   app_name = local.app == "public" ? "node-api-${local.app_env}" : "node-api-${local.app}-${local.app_env}"
+  keycloak_config = jsonencode({
+    auth_server_url = get_env("keycloak_auth_server_url")
+    realm          = get_env("keycloak_realm")
+    client_id      = get_env("keycloak_client_id")
+    issuer         = get_env("keycloak_issuer")
+  })
 }
 
 # Remote S3 state for Terraform.
@@ -54,6 +60,7 @@ generate "tfvars" {
   flyway_image="${local.flyway_image}"
   api_image="${local.api_image}"
   app_name="${local.app_name}"
+  keycloak_config = ${local.keycloak_config}
 EOF
 }
 

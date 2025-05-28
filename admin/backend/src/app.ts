@@ -5,6 +5,7 @@ import { customLogger } from "./common/logger.config";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import helmet from "helmet";
 import { VersioningType } from "@nestjs/common";
+import { AUTH_STRATEGY } from "./auth";
 
 /**
  *
@@ -28,6 +29,17 @@ export async function bootstrap() {
     .setDescription("RST Admin API documentation")
     .setVersion("1.0")
     .addTag("recreation-resource")
+    .addBearerAuth(
+      {
+        name: "Authorization",
+        description: "Enter JWT token",
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
+        in: "header",
+      },
+      AUTH_STRATEGY.KEYCLOAK,
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

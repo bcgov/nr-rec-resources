@@ -16,10 +16,7 @@ export default defineConfig({
       provider: "v8",
       reporter: ["lcov", "text"],
       include: ["src"],
-      exclude: [
-        "src/service/recreation-resource/**",
-        "src/service/custom-models/**",
-      ],
+      exclude: ["src/index.tsx"],
     },
   },
 });

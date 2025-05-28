@@ -5,14 +5,16 @@ import tsconfigPaths from "vite-tsconfig-paths";
 // https://vitejs.dev/config/
 export default defineConfig({
   test: {
-    include: ["**/*.e2e-spec.ts", "**/*.spec.ts"],
+    include: ["test/**/*.e2e-spec.ts", "test/**/*.spec.ts"],
     exclude: ["**/node_modules/**"],
     globals: true,
     environment: "node",
     setupFiles: "test/test-setup.ts",
     coverage: {
       provider: "v8",
-      reporter: ["lcov"],
+      reporter: ["lcov", "text"],
+      include: ["src/**/*.ts"],
+      exclude: ["src/main.ts", "src/app.ts"],
     },
   },
   plugins: [swc.vite(), tsconfigPaths()],
