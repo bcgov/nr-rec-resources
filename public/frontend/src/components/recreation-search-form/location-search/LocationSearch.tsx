@@ -69,7 +69,6 @@ const LocationSearch: React.FC = () => {
 
     if (newCityName === CURRENT_LOCATION_TITLE) {
       handleGetLocation();
-      typeaheadRef.current?.blur();
       return;
     }
 
@@ -96,6 +95,7 @@ const LocationSearch: React.FC = () => {
       handleCityInputSearch(currentLocationOption);
       setCityInputValue(CURRENT_LOCATION_TITLE);
       setIsGettingLocation(false);
+      typeaheadRef.current?.blur();
     }
   }, [
     latitude,
