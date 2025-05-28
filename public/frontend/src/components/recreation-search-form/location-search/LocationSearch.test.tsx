@@ -17,6 +17,9 @@ vi.mock('@/components/recreation-search-form/hooks/useSearchCitiesApi', () => ({
 
 const mockedUseSearchInput = useSearchInput as Mock;
 const mockedUseSearchCitiesApi = useSearchCitiesApi as Mock;
+const mockGeolocation = {
+  getCurrentPosition: vi.fn(),
+};
 
 describe('LocationSearch', () => {
   const setCityInputValue = vi.fn();
@@ -25,6 +28,8 @@ describe('LocationSearch', () => {
   const handleClearCityInput = vi.fn();
 
   beforeEach(() => {
+    // @ts-ignore
+    global.navigator.geolocation = mockGeolocation;
     mockedUseSearchInput.mockReturnValue({
       cityInputValue: '',
       setCityInputValue,
@@ -53,6 +58,14 @@ describe('LocationSearch', () => {
   });
 
   it('shows and selects a suggestion', async () => {
+    mockedUseSearchInput.mockReturnValue({
+      cityInputValue: 'V',
+      setCityInputValue,
+      selectedCity: [],
+      setSelectedCity,
+      handleCityInputSearch,
+      handleClearCityInput,
+    });
     renderWithRouter(<LocationSearch />);
 
     const input = screen.getByLabelText(/near a city/i);
@@ -130,5 +143,90 @@ describe('LocationSearch', () => {
     await userEvent.click(retryButton);
 
     expect(mockedUseSearchCitiesApi().refetch).toHaveBeenCalled();
+  });
+
+  it('requests and selects current location on user action', async () => {
+    const fakeCoords = { latitude: 49.2827, longitude: -123.1207 };
+
+    mockGeolocation.getCurrentPosition.mockImplementationOnce((success) => {
+      success({
+        coords: fakeCoords,
+      });
+    });
+
+    renderWithRouter(<LocationSearch />);
+
+    const input = screen.getByLabelText(/near a city/i);
+    await userEvent.type(input, 'Vic');
+
+    const option = await within(document.body).findByRole('option', {
+      name: /current/i,
+    });
+    expect(option).toBeVisible();
+
+    await userEvent.click(option);
+
+    expect(mockGeolocation.getCurrentPosition).toHaveBeenCalled();
+  });
+
+  it('searches by current location if geolocation is allowed', async () => {
+    const fakeCoords = { latitude: 49.2827, longitude: -123.1207 };
+
+    mockGeolocation.getCurrentPosition.mockImplementationOnce((success) => {
+      success({
+        coords: fakeCoords,
+      });
+    });
+
+    mockedUseSearchInput.mockReturnValue({
+      cityInputValue: '',
+      setCityInputValue,
+      selectedCity: [],
+      setSelectedCity,
+      handleCityInputSearch: vi.fn(),
+      handleClearCityInput,
+    });
+
+    renderWithRouter(<LocationSearch />);
+
+    const input = screen.getByLabelText(/near a city/i);
+    await userEvent.type(input, 'Current');
+
+    const option = await within(document.body).findByRole('option', {
+      name: /current location/i,
+    });
+    expect(option).toBeVisible();
+
+    await userEvent.click(option);
+
+    expect(setSelectedCity).toHaveBeenCalledWith([
+      {
+        cityName: 'Current location',
+        id: 0,
+        latitude: fakeCoords.latitude,
+        longitude: fakeCoords.longitude,
+        rank: 0,
+      },
+    ]);
+  });
+
+  it('does not select current location if geolocation is not allowed', async () => {
+    mockGeolocation.getCurrentPosition.mockImplementationOnce((_, error) => {
+      error({ message: 'Geolocation not allowed' });
+    });
+
+    renderWithRouter(<LocationSearch />);
+
+    const input = screen.getByLabelText(/near a city/i);
+    await userEvent.type(input, 'Current');
+
+    const option = await within(document.body).findByRole('option', {
+      name: /current location/i,
+    });
+    expect(option).toBeVisible();
+
+    await userEvent.click(option);
+
+    expect(setSelectedCity).not.toHaveBeenCalled();
   });
 });
