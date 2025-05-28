@@ -10,7 +10,7 @@ import {
   Row,
 } from 'react-bootstrap';
 import { ClearButton } from 'react-bootstrap-typeahead';
-import LocationSearch from '@/components/recreation-search-form/LocationSearch';
+import LocationSearch from '@/components/recreation-search-form/location-search/LocationSearch';
 import '@/components/recreation-search-form/RecreationSearchForm.scss';
 import { useSearchInput } from '@/components/recreation-search-form/hooks/useSearchInput';
 import { trackSiteSearch } from '@/utils/matomo';

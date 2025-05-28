@@ -2,7 +2,7 @@ import { vi } from 'vitest';
 import type { Mock } from 'vitest';
 import { screen, fireEvent, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import LocationSearch from '@/components/recreation-search-form/LocationSearch';
+import LocationSearch from '@/components/recreation-search-form/location-search/LocationSearch';
 import { useSearchInput } from '@/components/recreation-search-form/hooks/useSearchInput';
 import { useSearchCitiesApi } from '@/components/recreation-search-form/hooks/useSearchCitiesApi';
 import { renderWithRouter } from '@/test-utils';
