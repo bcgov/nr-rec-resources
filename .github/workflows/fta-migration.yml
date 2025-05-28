@@ -20,9 +20,10 @@ jobs:
     strategy:
       matrix:
         environment: [test, prod]
-    name: Run FTA ${{ matrix.app_env }} Migration
+    name: Run FTA ${{ matrix.environment }} Migration
     uses: ./.github/workflows/.aws-deployer.yml
     with:
+      app: public
       app_env: ${{ matrix.environment }}
       environment_name: ${{ matrix.environment }}
       command: apply
