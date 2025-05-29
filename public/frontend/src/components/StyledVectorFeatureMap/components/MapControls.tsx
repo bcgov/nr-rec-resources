@@ -10,7 +10,7 @@ import './MapControls.scss';
 import { FC, memo, useCallback } from 'react';
 import OlMap from 'ol/Map';
 import { Coordinate } from 'ol/coordinate';
-import { DEFAULT_MAP_PADDING } from '@/components/StyledVectorFeatureMap/constants';
+import { DEFAULT_MAP_ZOOM } from '@/components/StyledVectorFeatureMap/constants';
 
 interface MapControlsProps {
   map: OlMap;
@@ -59,10 +59,8 @@ export const MapControls: FC<MapControlsProps> = memo(({ map, extent }) => {
   const onCenter = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
-      view.fit(extent ?? view.getProjection().getExtent(), {
-        duration: 250,
-        padding: DEFAULT_MAP_PADDING,
-      });
+      view.fit(extent ?? view.getProjection().getExtent());
+      view.setZoom(DEFAULT_MAP_ZOOM);
       trackEvent({
         category: 'Map Controls',
         action: 'Click',

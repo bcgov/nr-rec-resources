@@ -9,7 +9,7 @@ import {
 } from '@/components/StyledVectorFeatureMap/hooks';
 import { Coordinate } from 'ol/coordinate';
 import { MapControls } from '@/components/StyledVectorFeatureMap/components/MapControls';
-import { DEFAULT_MAP_PADDING } from '@/components/StyledVectorFeatureMap/constants';
+import { DEFAULT_MAP_ZOOM } from '@/components/StyledVectorFeatureMap/constants';
 
 interface StyledVectorFeatureMapProps {
   /** Optional CSS styles to apply to the map container */
@@ -39,7 +39,9 @@ export const StyledVectorFeatureMap: React.FC<StyledVectorFeatureMapProps> = ({
   // centers the map on the given extent
   const handleCallback = useCallback(
     (extent: Coordinate) => {
-      map.getView().fit(extent, { padding: DEFAULT_MAP_PADDING });
+      const view = map.getView();
+      view.fit(extent);
+      view.setZoom(DEFAULT_MAP_ZOOM);
       setFeatureExtent(extent);
     },
     [map],
