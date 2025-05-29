@@ -1,7 +1,6 @@
 @import '@/styles/variables';
 
 .toast {
-  position: 'fixed';
   top: $pagePadding;
   width: 300px;
   min-height: 100px;
@@ -28,8 +27,8 @@
     background-color: $colorWhite;
     padding: 0 16px 16px;
 
-    div:first-of-type {
-      margin-bottom: 16px;
+    div:not(:first-of-type) {
+      margin-top: 16px;
     }
   }
 }

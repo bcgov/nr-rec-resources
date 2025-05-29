@@ -21,6 +21,7 @@ export const useCurrentLocation = () => {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
           error: undefined,
+          permissionDeniedCount: 0,
         }));
       },
       (err) => {

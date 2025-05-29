@@ -25,13 +25,8 @@ const LocationSearch: React.FC = () => {
   } = useSearchInput();
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const { data, isError, refetch } = useSearchCitiesApi();
-  const {
-    error: isLocationError,
-    getLocation,
-    latitude,
-    longitude,
-    permissionDeniedCount,
-  } = useCurrentLocation();
+  const { getLocation, latitude, longitude, permissionDeniedCount } =
+    useCurrentLocation();
 
   const currentLocationOption = useMemo<City>(
     () => ({
@@ -65,7 +60,6 @@ const LocationSearch: React.FC = () => {
   const selectedCityMemo = useMemo(() => selectedCity ?? [], [selectedCity]);
 
   const handleGetLocation = () => {
-    if (isGettingLocation) return;
     setIsGettingLocation(true);
     getLocation();
   };
@@ -75,7 +69,8 @@ const LocationSearch: React.FC = () => {
     const newCityName = newSelectedCity[0]?.cityName ?? '';
     const currentCityName = selectedCity?.[0]?.cityName ?? '';
 
-    if (newCityName === CURRENT_LOCATION_TITLE) {
+    if (!isGettingLocation && newCityName === CURRENT_LOCATION_TITLE) {
+      setIsGettingLocation(true);
       handleGetLocation();
       return;
     }
@@ -98,6 +93,7 @@ const LocationSearch: React.FC = () => {
   };
 
   const handleClear = () => {
+    setIsGettingLocation(false);
     setSelectedCity([]);
     handleClearCityInput();
   };
@@ -110,9 +106,9 @@ const LocationSearch: React.FC = () => {
   };
 
   useEffect(() => {
-    if (isGettingLocation && latitude !== null && longitude !== null) {
-      setSelectedCity([currentLocationOption]);
-      handleCityInputSearch(currentLocationOption);
+    if (isGettingLocation && latitude && longitude) {
+      setSelectedCity([{ ...currentLocationOption }]);
+      handleCityInputSearch({ ...currentLocationOption });
       setCityInputValue(CURRENT_LOCATION_TITLE);
       setIsGettingLocation(false);
       typeaheadRef.current?.blur();
@@ -120,18 +116,17 @@ const LocationSearch: React.FC = () => {
   }, [
     latitude,
     longitude,
-    isGettingLocation,
     currentLocationOption,
+    isGettingLocation,
     handleCityInputSearch,
     setCityInputValue,
     setSelectedCity,
+    selectedCity,
   ]);
 
   useEffect(() => {
-    if (isLocationError && isGettingLocation) {
-      setIsGettingLocation(false);
-    }
-  }, [isLocationError, isGettingLocation]);
+    console.log('permissionDeniedCount', permissionDeniedCount);
+  }, [permissionDeniedCount]);
 
   return (
     <>
@@ -173,8 +168,6 @@ const LocationSearch: React.FC = () => {
             results={results as City[]}
             isError={isError}
             refetch={refetch}
-            latitude={latitude}
-            longitude={longitude}
             onGetLocation={handleGetLocation}
           />
         )}
