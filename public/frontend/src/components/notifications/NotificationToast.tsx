@@ -6,7 +6,7 @@ type NotificationToastProps = {
   isOpen: boolean;
   onClose?: () => void;
   title?: string;
-  messages: string | string[];
+  messages?: string | string[];
   variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'warning' | 'info';
   autoHide?: boolean;
   delay?: number;
