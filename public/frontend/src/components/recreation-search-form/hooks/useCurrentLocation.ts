@@ -1,39 +1,39 @@
-import { useState } from 'react';
+import { useCallback } from 'react';
+import { useStore } from '@tanstack/react-store';
+import currentLocationStore from '@/store/currentLocationStore';
 
-interface Location {
-  error?: string;
-  getLocation: () => void;
-  latitude: number | null;
-  longitude: number | null;
-  permissionDeniedCount: number;
-}
+export const useCurrentLocation = () => {
+  const state = useStore(currentLocationStore);
 
-export const useCurrentLocation = (): Location => {
-  const [latitude, setLatitude] = useState<number | null>(null);
-  const [longitude, setLongitude] = useState<number | null>(null);
-  const [error, setError] = useState<string | undefined>(undefined);
-  const [permissionDeniedCount, setPermissionDeniedCount] = useState<number>(0);
-
-  const getLocation = () => {
+  const getLocation = useCallback(() => {
     if (!navigator.geolocation) {
-      setError('Geolocation not supported');
+      currentLocationStore.setState((prev) => ({
+        ...prev,
+        error: 'Geolocation not supported',
+      }));
       return;
     }
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setLatitude(position.coords.latitude);
-        setLongitude(position.coords.longitude);
-        setError(undefined);
+        currentLocationStore.setState((prev) => ({
+          ...prev,
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          error: undefined,
+        }));
       },
       (err) => {
-        setLatitude(null);
-        setLongitude(null);
-        setError(err.message);
-
-        if (err.code === err.PERMISSION_DENIED) {
-          setPermissionDeniedCount((prev) => prev + 1);
-        }
+        currentLocationStore.setState((prev) => ({
+          ...prev,
+          latitude: null,
+          longitude: null,
+          error: err.message,
+          permissionDeniedCount:
+            err.code === err.PERMISSION_DENIED
+              ? prev.permissionDeniedCount + 1
+              : prev.permissionDeniedCount,
+        }));
       },
       {
         enableHighAccuracy: true,
@@ -41,13 +41,10 @@ export const useCurrentLocation = (): Location => {
         maximumAge: 0,
       },
     );
-  };
+  }, []);
 
   return {
-    error,
+    ...state,
     getLocation,
-    latitude,
-    longitude,
-    permissionDeniedCount,
   };
 };
