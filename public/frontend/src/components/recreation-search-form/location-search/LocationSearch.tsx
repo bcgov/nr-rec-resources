@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useEffect } from 'react';
 import { Typeahead, ClearButton } from 'react-bootstrap-typeahead';
 import { Form, FormControl } from 'react-bootstrap';
 import LocationSearchMenu from '@/components/recreation-search-form/location-search/LocationSearchMenu';
+import NotificationToast from '@/components/notifications/NotificationToast';
 import { Option } from 'react-bootstrap-typeahead/types/types';
 import { City } from '@/components/recreation-search-form/types';
 import { useSearchCitiesApi } from '@/components/recreation-search-form/hooks/useSearchCitiesApi';
@@ -24,7 +25,13 @@ const LocationSearch: React.FC = () => {
   } = useSearchInput();
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const { data, isError, refetch } = useSearchCitiesApi();
-  const { latitude, longitude, getLocation } = useCurrentLocation();
+  const {
+    error: isLocationError,
+    getLocation,
+    latitude,
+    longitude,
+    permissionDeniedCount,
+  } = useCurrentLocation();
 
   const currentLocationOption = useMemo<City>(
     () => ({
@@ -58,6 +65,7 @@ const LocationSearch: React.FC = () => {
   const selectedCityMemo = useMemo(() => selectedCity ?? [], [selectedCity]);
 
   const handleGetLocation = () => {
+    if (isGettingLocation) return;
     setIsGettingLocation(true);
     getLocation();
   };
@@ -89,6 +97,18 @@ const LocationSearch: React.FC = () => {
     }
   };
 
+  const handleClear = () => {
+    setSelectedCity([]);
+    handleClearCityInput();
+  };
+
+  const handleFocus = () => {
+    if (!cityInputValue && selectedCity?.length) {
+      setSelectedCity([]);
+    }
+    typeaheadRef.current?.toggleMenu();
+  };
+
   useEffect(() => {
     if (isGettingLocation && latitude !== null && longitude !== null) {
       setSelectedCity([currentLocationOption]);
@@ -107,75 +127,83 @@ const LocationSearch: React.FC = () => {
     setSelectedCity,
   ]);
 
-  const handleClear = () => {
-    setSelectedCity([]);
-    handleClearCityInput();
-  };
-
-  const handleFocus = () => {
-    if (!cityInputValue && selectedCity?.length) {
-      setSelectedCity([]);
+  useEffect(() => {
+    if (isLocationError && isGettingLocation) {
+      setIsGettingLocation(false);
     }
-  };
+  }, [isLocationError, isGettingLocation]);
 
   return (
-    <Typeahead
-      ref={typeaheadRef}
-      minLength={1}
-      labelKey="cityName"
-      filterBy={() => true}
-      options={cityOptions}
-      selected={selectedCityMemo}
-      onChange={handleOnChange}
-      onInputChange={handleInputChange}
-      placeholder=" "
-      emptyLabel={
-        isError
-          ? ''
-          : 'No suggestions, please check your spelling or try a larger city in B.C.'
-      }
-      className={`location-search ${cityInputValue ? 'has-text' : ''}`}
-      onFocus={handleFocus}
-      renderInput={({ inputRef, referenceElementRef, ...inputProps }) => (
-        <Form.Group controlId="city-search-typeahead">
-          <FormControl
-            {...inputProps}
-            ref={(node) => {
-              inputRef(node);
-              referenceElementRef(node);
-            }}
-            value={cityInputValue}
-            data-testid="location-search-input"
-            className="form-control"
-            enterKeyHint="search"
+    <>
+      <Typeahead
+        ref={typeaheadRef}
+        minLength={0}
+        labelKey="cityName"
+        filterBy={() => true}
+        options={cityOptions}
+        selected={selectedCityMemo}
+        onChange={handleOnChange}
+        onInputChange={handleInputChange}
+        placeholder=" "
+        emptyLabel={
+          isError
+            ? ''
+            : 'No suggestions, please check your spelling or try a larger city in B.C.'
+        }
+        className={`location-search ${cityInputValue ? 'has-text' : ''}`}
+        onFocus={handleFocus}
+        renderInput={({ inputRef, referenceElementRef, ...inputProps }) => (
+          <Form.Group controlId="city-search-typeahead">
+            <FormControl
+              {...inputProps}
+              ref={(node) => {
+                inputRef(node);
+                referenceElementRef(node);
+              }}
+              value={cityInputValue}
+              data-testid="location-search-input"
+              className="form-control"
+              enterKeyHint="search"
+            />
+            <label htmlFor="city-search-typeahead">Near a city</label>
+          </Form.Group>
+        )}
+        renderMenu={(results) => (
+          <LocationSearchMenu
+            results={results as City[]}
+            isError={isError}
+            refetch={refetch}
+            latitude={latitude}
+            longitude={longitude}
+            onGetLocation={handleGetLocation}
           />
-          <label htmlFor="city-search-typeahead">Near a city</label>
-        </Form.Group>
-      )}
-      renderMenu={(results) => (
-        <LocationSearchMenu
-          results={results as City[]}
-          isError={isError}
-          refetch={refetch}
-          latitude={latitude}
-          longitude={longitude}
-          onGetLocation={handleGetLocation}
-        />
-      )}
-    >
-      {({ onClear }: { onClear: () => void }) =>
-        (!!selectedCityMemo.length || cityInputValue) && (
-          <ClearButton
-            label="Clear search"
-            className="clear-button"
-            onClick={() => {
-              onClear();
-              handleClear();
-            }}
-          />
-        )
-      }
-    </Typeahead>
+        )}
+      >
+        {({ onClear }: { onClear: () => void }) =>
+          (!!selectedCityMemo.length || cityInputValue) && (
+            <ClearButton
+              label="Clear search"
+              className="clear-button"
+              onClick={() => {
+                onClear();
+                handleClear();
+              }}
+            />
+          )
+        }
+      </Typeahead>
+      <NotificationToast
+        isOpen={permissionDeniedCount > 0}
+        title="Location permission blocked"
+        messages={[
+          'Recreation Sites and Trails does not have permission to show your location.',
+          permissionDeniedCount > 1
+            ? 'Please update your location permission and try again.'
+            : '',
+        ].filter(Boolean)}
+        variant="warning"
+      />
+    </>
   );
 };
 
