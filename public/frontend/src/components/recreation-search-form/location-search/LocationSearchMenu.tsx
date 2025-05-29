@@ -10,8 +10,6 @@ interface LocationSearchMenuProps {
   results: City[];
   isError: boolean;
   refetch: () => void;
-  latitude: number | null;
-  longitude: number | null;
   onGetLocation: () => void;
 }
 
@@ -40,7 +38,7 @@ const LocationSearchMenu = ({
         const isCurrentLocation = city.cityName === CURRENT_LOCATION_TITLE;
         return (
           <MenuItem
-            key={index}
+            key={city.id}
             option={city}
             position={index}
             className="location-search-item"

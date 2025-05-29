@@ -49,7 +49,7 @@ const NotificationToast: React.FC<NotificationToastProps> = ({
       </Toast.Header>
       <Toast.Body>
         {Array.isArray(messages) ? (
-          messages.map((msg, i) => <div key={i}>{msg}</div>)
+          messages.map((msg) => <div key={msg}>{msg}</div>)
         ) : (
           <div>{messages}</div>
         )}
