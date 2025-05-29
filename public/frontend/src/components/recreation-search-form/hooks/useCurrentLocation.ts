@@ -1,23 +1,22 @@
 import { useState } from 'react';
 
 interface Location {
-  latitude: number | null;
-  longitude: number | null;
-  isLocationAllowed: boolean;
   error?: string;
   getLocation: () => void;
+  latitude: number | null;
+  longitude: number | null;
+  permissionDeniedCount: number;
 }
 
 export const useCurrentLocation = (): Location => {
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
   const [error, setError] = useState<string | undefined>(undefined);
-  const [isLocationAllowed, setIsLocationAllowed] = useState<boolean>(false);
+  const [permissionDeniedCount, setPermissionDeniedCount] = useState<number>(0);
 
   const getLocation = () => {
     if (!navigator.geolocation) {
       setError('Geolocation not supported');
-      setIsLocationAllowed(false);
       return;
     }
 
@@ -25,14 +24,16 @@ export const useCurrentLocation = (): Location => {
       (position) => {
         setLatitude(position.coords.latitude);
         setLongitude(position.coords.longitude);
-        setIsLocationAllowed(true);
         setError(undefined);
       },
       (err) => {
         setLatitude(null);
         setLongitude(null);
-        setIsLocationAllowed(false);
         setError(err.message);
+
+        if (err.code === err.PERMISSION_DENIED) {
+          setPermissionDeniedCount((prev) => prev + 1);
+        }
       },
       {
         enableHighAccuracy: true,
@@ -43,10 +44,10 @@ export const useCurrentLocation = (): Location => {
   };
 
   return {
-    latitude,
-    longitude,
-    isLocationAllowed,
     error,
     getLocation,
+    latitude,
+    longitude,
+    permissionDeniedCount,
   };
 };

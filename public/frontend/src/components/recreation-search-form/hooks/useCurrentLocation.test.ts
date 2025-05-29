@@ -31,7 +31,6 @@ describe('useCurrentLocation', () => {
 
     expect(result.current.latitude).toBe(48.4284);
     expect(result.current.longitude).toBe(-123.3656);
-    expect(result.current.isLocationAllowed).toBe(true);
     expect(result.current.error).toBeUndefined();
   });
 
@@ -50,7 +49,6 @@ describe('useCurrentLocation', () => {
 
     expect(result.current.latitude).toBeNull();
     expect(result.current.longitude).toBeNull();
-    expect(result.current.isLocationAllowed).toBe(false);
     expect(result.current.error).toBe('User denied geolocation');
   });
 
@@ -64,6 +62,5 @@ describe('useCurrentLocation', () => {
     });
 
     expect(result.current.error).toBe('Geolocation not supported');
-    expect(result.current.isLocationAllowed).toBe(false);
   });
 });
