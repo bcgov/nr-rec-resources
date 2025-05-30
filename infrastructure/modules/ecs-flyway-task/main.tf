@@ -39,16 +39,39 @@ resource "aws_ecs_task_definition" "flyway_task" {
   }
 
   provisioner "local-exec" {
+    interpreter = ["bash", "-c"]
     command = <<-EOF
-      task_arn=$(aws ecs run-task \
-        --task-definition ${var.app_name}-flyway-task \
-        --cluster ${var.cluster_id} \
-        --count 1 \
-        --network-configuration awsvpcConfiguration={securityGroups=[${var.security_group}],subnets=${var.subnet},assignPublicIp=DISABLED} \
-        --query 'tasks[0].taskArn' \
-        --output text)
+      set -euo pipefail
 
-      echo "Flyway task started with ARN: $task_arn at $(date)."
+      max_attempts=5
+      attempt=1
+      task_arn=""
+
+      while [[ $attempt -le $max_attempts ]]; do
+        echo "Starting Flyway task (attempt $attempt)..."
+
+        task_arn=$(aws ecs run-task \
+          --task-definition ${var.app_name}-flyway-task \
+          --cluster ${var.cluster_id} \
+          --count 1 \
+          --network-configuration "{\"awsvpcConfiguration\":{\"subnets\":[\"${var.subnet}\"],\"securityGroups\":[\"${var.security_group}\"],\"assignPublicIp\":\"DISABLED\"}}" \
+          --query 'tasks[0].taskArn' \
+          --output text)
+
+        if [[ -n "$task_arn" && "$task_arn" != "None" ]]; then
+          echo "Flyway task started with ARN: $task_arn at $(date)."
+          break
+        fi
+
+        echo "No task ARN returned. Retrying in 5 seconds..."
+        sleep 5
+        ((attempt++))
+      done
+
+      if [[ -z "$task_arn" || "$task_arn" == "None" ]]; then
+        echo "ERROR: Failed to start ECS task after $max_attempts attempts."
+        exit 1
+      fi
 
       echo "Waiting for Flyway task to complete..."
       aws ecs wait tasks-stopped --cluster ${var.cluster_id} --tasks $task_arn
