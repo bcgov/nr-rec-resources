@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useStore } from '@tanstack/react-store';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { City } from '@/components/recreation-search-form/types';
@@ -31,16 +31,25 @@ export const useSearchInput = (): UseSearchInputReturn => {
   const navigate = useNavigate();
   const state = useStore(searchInputStore);
 
-  const setNameInputValue = (val: string) =>
-    searchInputStore.setState((prev) => ({ ...prev, nameInputValue: val }));
+  const setNameInputValue = useCallback(
+    (val: string) =>
+      searchInputStore.setState((prev) => ({ ...prev, nameInputValue: val })),
+    [],
+  );
 
-  const setCityInputValue = (val: string) =>
-    searchInputStore.setState((prev) => ({ ...prev, cityInputValue: val }));
+  const setCityInputValue = useCallback(
+    (val: string) =>
+      searchInputStore.setState((prev) => ({ ...prev, cityInputValue: val })),
+    [],
+  );
 
-  const setSelectedCity = (city: City[]) =>
-    searchInputStore.setState((prev) => ({ ...prev, selectedCity: city }));
+  const setSelectedCity = useCallback(
+    (city: City[]) =>
+      searchInputStore.setState((prev) => ({ ...prev, selectedCity: city })),
+    [],
+  );
 
-  const handleSearch = () => {
+  const handleSearch = useCallback(() => {
     const newParams = new URLSearchParams(searchParams);
     newParams.set(NAME_INPUT_PARAM_KEY, state.nameInputValue.trim());
 
@@ -48,7 +57,7 @@ export const useSearchInput = (): UseSearchInputReturn => {
       pathname: ROUTE_PATHS.SEARCH,
       search: newParams.toString(),
     });
-  };
+  }, [navigate, searchParams, state.nameInputValue]);
 
   useEffect(() => {
     if (filter) {
@@ -57,37 +66,41 @@ export const useSearchInput = (): UseSearchInputReturn => {
     if (community) {
       setCityInputValue(community);
     }
-  }, []);
+    // eslint-disable-next-line
+  }, [filter, community]);
 
-  const handleCityInputSearch = (city: City) => {
-    if (!city) return;
+  const handleCityInputSearch = useCallback(
+    (city: City) => {
+      if (!city) return;
 
-    const trimmedCityInputValue = city.cityName.trim();
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set(LATITUDE_PARAM_KEY, String(city.latitude));
-    newParams.set(LONGITUDE_PARAM_KEY, String(city.longitude));
-    newParams.set(COMMUNITY_PARAM_KEY, trimmedCityInputValue);
+      const trimmedCityInputValue = city.cityName.trim();
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set(LATITUDE_PARAM_KEY, String(city.latitude));
+      newParams.set(LONGITUDE_PARAM_KEY, String(city.longitude));
+      newParams.set(COMMUNITY_PARAM_KEY, trimmedCityInputValue);
 
-    if (state.nameInputValue.trim()) {
-      newParams.set(NAME_INPUT_PARAM_KEY, state.nameInputValue.trim());
-    }
+      if (state.nameInputValue.trim()) {
+        newParams.set(NAME_INPUT_PARAM_KEY, state.nameInputValue.trim());
+      }
 
-    setSelectedCity([city]);
+      setSelectedCity([city]);
 
-    navigate({
-      pathname: ROUTE_PATHS.SEARCH,
-      search: newParams.toString(),
-    });
-  };
+      navigate({
+        pathname: ROUTE_PATHS.SEARCH,
+        search: newParams.toString(),
+      });
+    },
+    [navigate, searchParams, setSelectedCity, state.nameInputValue],
+  );
 
-  const handleClearNameInput = () => {
+  const handleClearNameInput = useCallback(() => {
     setNameInputValue('');
     const newParams = new URLSearchParams(searchParams);
     newParams.delete(NAME_INPUT_PARAM_KEY);
     setSearchParams(newParams);
-  };
+  }, [searchParams, setNameInputValue, setSearchParams]);
 
-  const handleClearCityInput = () => {
+  const handleClearCityInput = useCallback(() => {
     setCityInputValue('');
     setSelectedCity([]);
     const newParams = new URLSearchParams(searchParams);
@@ -95,15 +108,15 @@ export const useSearchInput = (): UseSearchInputReturn => {
     newParams.delete(LONGITUDE_PARAM_KEY);
     newParams.delete(COMMUNITY_PARAM_KEY);
     setSearchParams(newParams);
-  };
+  }, [searchParams, setCityInputValue, setSelectedCity, setSearchParams]);
 
-  const handleClearSearch = () => {
+  const handleClearSearch = useCallback(() => {
     setNameInputValue('');
     setCityInputValue('');
     setSelectedCity([]);
     const newParams = new URLSearchParams();
     setSearchParams(newParams);
-  };
+  }, [setNameInputValue, setCityInputValue, setSelectedCity, setSearchParams]);
 
   return {
     nameInputValue: state.nameInputValue,

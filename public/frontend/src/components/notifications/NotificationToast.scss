@@ -1,0 +1,34 @@
+@import '@/styles/variables';
+
+.toast {
+  top: $pagePadding;
+  width: 300px;
+  min-height: 100px;
+  position: fixed;
+  right: calc(50% - 150px);
+  z-index: 1000;
+  border: none;
+  border-radius: 0;
+  box-shadow: 0px 4px 8px 0px rgba($colorBlack, 0.2);
+  @media screen and (min-width: $smBreakpoint) {
+    width: 360px;
+    right: 24px;
+  }
+  .toast-header {
+    border-radius: 0;
+    background-color: $colorWhite;
+    color: $colorGrey;
+    font-size: 1rem;
+    border: none;
+    padding: 16px;
+  }
+  .toast-body {
+    color: $colorGreyMed;
+    background-color: $colorWhite;
+    padding: 0 16px 16px;
+
+    div:not(:first-of-type) {
+      margin-top: 16px;
+    }
+  }
+}
