@@ -15,8 +15,8 @@ resource "aws_ecs_task_definition" "flyway_task" {
 
   container_definitions = jsonencode([
     {
-      name      = "${var.app_name}-flyway"
-      image     = var.flyway_image
+      name        = "${var.app_name}-flyway"
+      image       = var.flyway_image
       essential   = true
       environment = var.environment
       logConfiguration = {
@@ -35,27 +35,50 @@ resource "aws_ecs_task_definition" "flyway_task" {
 
   lifecycle {
     create_before_destroy = true
-    replace_triggered_by = [null_resource.trigger_deployment]
+    replace_triggered_by  = [null_resource.trigger_deployment]
   }
 
   provisioner "local-exec" {
+    interpreter = ["bash", "-c"]
     command = <<-EOF
-      task_arn=$(aws ecs run-task \
-        --task-definition ${var.app_name}-flyway-task \
-        --cluster ${var.cluster_id} \
-        --count 1 \
-        --network-configuration awsvpcConfiguration={securityGroups=[${var.security_group}],subnets=${var.subnet},assignPublicIp=DISABLED} \
-        --query 'tasks[0].taskArn' \
-        --output text)
+      set -euo pipefail
 
-      echo "Flyway task started with ARN: $task_arn at $(date)."
+      max_attempts=5
+      attempt=1
+      task_arn=""
+
+      while [[ $attempt -le $max_attempts ]]; do
+        echo "Starting Flyway task (attempt $attempt)..."
+
+        task_arn=$(aws ecs run-task \
+          --task-definition ${var.app_name}-flyway-task \
+          --cluster ${var.cluster_id} \
+          --count 1 \
+          --network-configuration awsvpcConfiguration={securityGroups=[${var.security_group}],subnets=${var.subnet},assignPublicIp=DISABLED} \
+          --query 'tasks[0].taskArn' \
+          --output text)
+
+        if [[ -n "$task_arn" && "$task_arn" != "None" ]]; then
+          echo "Flyway task started with ARN: $task_arn at $(date)."
+          break
+        fi
+
+        echo "No task ARN returned. Retrying in 5 seconds..."
+        sleep 5
+        ((attempt++))
+      done
+
+      if [[ -z "$task_arn" || "$task_arn" == "None" ]]; then
+        echo "ERROR: Failed to start ECS task after $max_attempts attempts."
+        exit 1
+      fi
 
       echo "Waiting for Flyway task to complete..."
-      aws ecs wait tasks-stopped --cluster ${var.cluster_id} --tasks $task_arn
+      aws ecs wait tasks-stopped --cluster "${var.cluster_id}" --tasks "$task_arn"
 
       echo "Flyway task completed at $(date)."
 
-      task_status=$(aws ecs describe-tasks --cluster ${var.cluster_id} --tasks $task_arn --query 'tasks[0].lastStatus' --output text)
+      task_status=$(aws ecs describe-tasks --cluster "${var.cluster_id}" --tasks "$task_arn" --query 'tasks[0].lastStatus' --output text)
       echo "Flyway task status: $task_status at $(date)."
 
       log_stream_name=$(aws logs describe-log-streams \
@@ -70,13 +93,13 @@ resource "aws_ecs_task_definition" "flyway_task" {
 
       aws logs get-log-events \
         --log-group-name "/ecs/${var.app_name}/flyway" \
-        --log-stream-name $log_stream_name \
+        --log-stream-name "$log_stream_name" \
         --limit 1000 \
         --no-cli-pager
 
       task_exit_code=$(aws ecs describe-tasks \
-        --cluster ${var.cluster_id} \
-        --tasks $task_arn \
+        --cluster "${var.cluster_id}" \
+        --tasks "$task_arn" \
         --query 'tasks[0].containers[0].exitCode' \
         --output text)
 
