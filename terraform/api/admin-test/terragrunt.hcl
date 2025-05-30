@@ -10,7 +10,5 @@ generate "test_tfvars" {
   contents          = <<-EOF
   target_env = "test"
   fargate_base_capacity = 1
-  min_capacity = 1
-  max_capacity = 2
 EOF
 }

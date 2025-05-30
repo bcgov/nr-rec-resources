@@ -103,7 +103,7 @@ variable "min_capacity" {
 }
 variable "max_capacity" {
   type = number
-  default = 3
+  default = 2
 }
 
 variable "fargate_base_capacity" {

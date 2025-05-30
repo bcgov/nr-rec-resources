@@ -9,5 +9,7 @@ generate "dev_tfvars" {
   disable_signature = true
   contents          = <<-EOF
   target_env = "dev"
+  min_capacity = 0
+  max_capacity = 1
 EOF
 }
