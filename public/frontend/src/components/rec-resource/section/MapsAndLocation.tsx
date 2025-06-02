@@ -29,8 +29,8 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
 
         <RecreationResourceMap
           recResource={recResource}
-          mapComponentCssStyles={{
-            position: 'relative',
+          style={{
+            width: '100%',
             height: '40vh',
             marginBottom: '4rem',
           }}

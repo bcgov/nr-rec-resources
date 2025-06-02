@@ -1,5 +1,5 @@
 import { CSSProperties, useMemo } from 'react';
-import { StyledVectorFeatureMap } from '@/components/StyledVectorFeatureMap';
+import { VectorFeatureMap } from '@bcgov-prp/map';
 import {
   getLayerStyleForRecResource,
   getMapFeaturesFromRecResource,
@@ -8,12 +8,12 @@ import { RecreationResourceDetailModel } from '@/service/custom-models';
 
 interface TrailMapProps {
   recResource?: RecreationResourceDetailModel;
-  mapComponentCssStyles?: CSSProperties;
+  style?: CSSProperties;
 }
 
 export const RecreationResourceMap = ({
   recResource,
-  mapComponentCssStyles,
+  style,
 }: TrailMapProps) => {
   const features = useMemo(
     () => getMapFeaturesFromRecResource(recResource),
@@ -30,8 +30,9 @@ export const RecreationResourceMap = ({
   }
 
   return (
-    <StyledVectorFeatureMap
-      mapComponentCssStyles={mapComponentCssStyles}
+    <VectorFeatureMap
+      enableMatomoTracking={true}
+      style={style}
       features={features}
       layerStyle={layerStyle}
     />
