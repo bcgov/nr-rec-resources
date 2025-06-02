@@ -32,7 +32,7 @@ export const MapControls: FC<MapControlsProps> = memo(({ map, extent }) => {
     (e: React.MouseEvent) => {
       e.stopPropagation();
       const zoom = view.getZoom() ?? 0;
-      view.animate({ zoom: zoom + 1, duration: 250 });
+      view.setZoom(zoom + 1);
       trackEvent({
         category: 'Map Controls',
         action: 'Click',
@@ -46,7 +46,7 @@ export const MapControls: FC<MapControlsProps> = memo(({ map, extent }) => {
     (e: React.MouseEvent) => {
       e.stopPropagation();
       const zoom = view.getZoom() ?? 0;
-      view.animate({ zoom: zoom - 1, duration: 250 });
+      view.setZoom(zoom - 1);
       trackEvent({
         category: 'Map Controls',
         action: 'Click',
