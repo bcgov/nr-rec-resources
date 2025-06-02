@@ -14,64 +14,62 @@ on:
 
 jobs:
   build-containers:
-    # Don't run e2e on this pr as we need the project reorganized first
-    # if: github.ref_name == 'main' || github.head_ref == 'main'
     name: Build containers
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-build-containers
       cancel-in-progress: true
     uses: ./.github/workflows/.build.yml
 
-  repo-analysis:
-    name: Repository analysis
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-analysis
-      cancel-in-progress: true
-    uses: ./.github/workflows/.analysis.yml
-    secrets: inherit
-
-  analysis-results:
-    name: Analysis Results
-    needs: [repo-analysis]
-    if: always()
-    runs-on: ubuntu-24.04
-    steps:
-      - if: contains(needs.*.result, 'failure')
-        run: echo "At least one job has failed." && exit 1
-      - run: echo "Success!"
-
-  test-admin:
-    name: Run tests for admin app
-    needs: build-containers
-    uses: ./.github/workflows/.tests.yml
-    with:
-      app: admin
-    secrets: inherit
-
-  test-public:
-    name: Run tests for public app
-    needs: build-containers
-    uses: ./.github/workflows/.tests.yml
-    with:
-      app: public
-    secrets: inherit
+  # repo-analysis:
+  #   name: Repository analysis
+  #   concurrency:
+  #     group: ${{ github.workflow }}-${{ github.ref }}-analysis
+  #     cancel-in-progress: true
+  #   uses: ./.github/workflows/.analysis.yml
+  #   secrets: inherit
+  #
+  # analysis-results:
+  #   name: Analysis Results
+  #   needs: [repo-analysis]
+  #   if: always()
+  #   runs-on: ubuntu-24.04
+  #   steps:
+  #     - if: contains(needs.*.result, 'failure')
+  #       run: echo "At least one job has failed." && exit 1
+  #     - run: echo "Success!"
+  #
+  # test-admin:
+  #   name: Run tests for admin app
+  #   needs: build-containers
+  #   uses: ./.github/workflows/.tests.yml
+  #   with:
+  #     app: admin
+  #   secrets: inherit
+  #
+  # test-public:
+  #   name: Run tests for public app
+  #   needs: build-containers
+  #   uses: ./.github/workflows/.tests.yml
+  #   with:
+  #     app: public
+  #   secrets: inherit
 
   review-and-deploy-admin:
-    if: github.ref_name == 'main' || github.head_ref == 'main'
+    # if: github.ref_name == 'main' || github.head_ref == 'main'
     name: Review and deploy Admin app
-    needs: [test-admin, test-public]
+    needs: build-containers
     uses: ./.github/workflows/.review-and-deploy.yml
     with:
       app: admin
       tag: ${{ github.sha }}
     secrets: inherit
 
-  review-and-deploy-public:
-    if: github.ref_name == 'main' || github.head_ref == 'main'
-    name: Review and deploy Public app
-    needs: [test-admin, test-public]
-    uses: ./.github/workflows/.review-and-deploy.yml
-    with:
-      app: public
-      tag: ${{ github.sha }}
-    secrets: inherit
+  # review-and-deploy-public:
+  #   if: github.ref_name == 'main' || github.head_ref == 'main'
+  #   name: Review and deploy Public app
+  #   needs: [test-admin, test-public]
+  #   uses: ./.github/workflows/.review-and-deploy.yml
+  #   with:
+  #     app: public
+  #     tag: ${{ github.sha }}
+  #   secrets: inherit

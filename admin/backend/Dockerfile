@@ -31,7 +31,7 @@ COPY --from=build /app/dist ./dist
 
 # Boilerplate, not used in OpenShift/Kubernetes
 EXPOSE 8000
-HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost:8001/api
+HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost:8000/api
 
 # Nonroot user, limit heap size to 300 MB since we have 512 MB limit
 USER nonroot
