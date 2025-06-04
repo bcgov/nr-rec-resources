@@ -15,4 +15,5 @@ RUN apt-get update && apt-get install -y --no-install-recommends
 RUN chmod -R 777 /opt && chmod -R 777 /etc/ca-certificates && chmod -R 777 "${JAVA_HOME}"/lib/security
 RUN useradd -ms /bin/bash appuser
 USER appuser
-ENTRYPOINT ["sh", "run_app.sh"]
+ENTRYPOINT ["sh", "run_app.sh", "${APP_ARGS}"]
+

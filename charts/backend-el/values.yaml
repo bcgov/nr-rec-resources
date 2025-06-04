@@ -19,3 +19,4 @@ successHistoryLimit: 7
 failedHistoryLimit: 7
 config:
   awsS3Bucket: "rst-fta-dataload-oracle" # default bucket for S3 uploads
+  appArgs: "" # additional arguments to pass to the application"

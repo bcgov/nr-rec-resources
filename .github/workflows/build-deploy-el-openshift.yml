@@ -102,6 +102,43 @@ jobs:
               oc create job $RELEASE_NAME-${{github.run_number}} --from=cronjob/$RELEASE_NAME
               oc wait --for=condition=complete --timeout=600s job/$RELEASE_NAME-${{github.run_number}}
             fi
+      - name: Helm Deploy Hourly Sync Job
+        id: deploy-hourly-sync
+        uses: bcgov/action-oc-runner@v1.2.0
+        env:
+          DB_PASSWORD: ${{ secrets.DBPASSWORD }} # handle special characters.
+        with:
+          oc_namespace: ${{ secrets.OC_NAMESPACE }}
+          oc_token: ${{ secrets.OC_TOKEN }}
+          oc_server: ${{ vars.oc_server }}
+          commands: |
+            # Deploy
+            cd charts/backend-el
+            # if event is PR then use a different bucket
+            if [ "${{ github.event_name }}" == "pull_request" ]; then
+              export AWS_S3_BUCKET="fta-rec-rst-uploads"
+              export RELEASE_NAME="backend-el-pr-${{ github.event.number }}"
+            else
+              export AWS_S3_BUCKET="${{ secrets.AWS_S3_BUCKET }}"
+              export RELEASE_NAME="backend-el"
+            fi
+            helm package -u . --app-version="${{ github.sha }}" --version=1.0.0
+            helm upgrade \
+              --set-string image.tag="${{ github.sha }}" \
+              --set-string secrets.dbHost="${{ secrets.DBHOST }}" \
+              --set-string secrets.dbName="${{ secrets.DBNAME }}" \
+              --set-string secrets.dbPassword="$DB_PASSWORD" \
+              --set-string secrets.dbUser="${{ secrets.DBUSER }}" \
+              --set-string config.awsS3Bucket="$AWS_S3_BUCKET" \
+              --set-string schedule="0 * * * *" \ # hourly 
+              --set-string config.appArgs="--hourly-sync" \ 
+              --install --wait \
+              --values values.yaml "$RELEASE_NAME"\
+              ./backend-el-1.0.0.tgz
+            if [ "${{ github.event_name }}" == "pull_request" ]; then
+              oc create job $RELEASE_NAME-${{github.run_number}} --from=cronjob/$RELEASE_NAME
+              oc wait --for=condition=complete --timeout=600s job/$RELEASE_NAME-${{github.run_number}}
+            fi
   clean_up:
     name: Clean up
     if: github.event_name=='pull_request' && github.event.action == 'closed'
