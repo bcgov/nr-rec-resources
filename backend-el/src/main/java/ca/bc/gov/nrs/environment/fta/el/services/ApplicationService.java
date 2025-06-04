@@ -215,10 +215,12 @@ public class ApplicationService {
     extractAndUploadRecreatnEvent();
   }
 
+  /**
+   * Extracts and uploads subset of data from the fta database to S3 for the hourly sync.
+   */
   public void extractAndUploadCSVToS3Hourly() {
-    extractAndUploadRecreationProject();
-    extractAndUploadRecreationStructure();
-
+    // for closures, driving directions, and descriptions
+    extractAndUploadRecreationComment();
     this.flywayTaskRunnerService.runFlywayTask();
   }
 

@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.ecs.EcsClient;
 import software.amazon.awssdk.services.ecs.model.*;
 
+/**
+ * Service responsible for executing Flyway database migration tasks in AWS ECS.
+ */
 @Service
 public class FlywayTaskRunnerService {
 
@@ -34,6 +37,9 @@ public class FlywayTaskRunnerService {
 
   @Retryable(maxAttempts = 5, backoff = @Backoff(multiplier = 2, delay = 2000))
   public void runFlywayTask() {
+    logger.info("Using Flyway ECS Cluster: {}", flywayEcsCluster);
+    logger.info("Using Flyway Task Definition: {}", flywayTaskDefinition);
+
     RunTaskRequest request = RunTaskRequest.builder()
         .cluster(flywayEcsCluster)
         .taskDefinition(flywayTaskDefinition)
@@ -45,7 +51,8 @@ public class FlywayTaskRunnerService {
                         .subnets(flywayTaskVpcSubnet)
                         .securityGroups(flywayTaskVpcSecurityGroup)
                         .build()
-                ).build()
+                )
+                .build()
         )
         .count(1)
         .build();
