@@ -20,7 +20,7 @@ failedHistoryLimit: 7
 config:
   awsS3Bucket: "rst-fta-dataload-oracle" # default bucket for S3 uploads
   jobMode: "" # "hourly" for hourly sync job, leave empty for main (daily) job
-  ecsCluster: ""
-  ecsTaskDefinition: ""
-  appSubnet: ""
-  appSecurityGroup: ""
+  flywayEcsCluster: ""
+  flywayTaskDefinition: ""
+  flywayTaskVpcSubnet: ""
+  flywayTaskVpcSecurityGroup: ""

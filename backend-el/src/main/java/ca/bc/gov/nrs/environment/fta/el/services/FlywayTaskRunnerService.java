@@ -12,17 +12,17 @@ public class FlywayTaskRunnerService {
 
   private static final Logger logger = LoggerFactory.getLogger(FlywayTaskRunnerService.class);
 
-  @Value("${cloud.aws.ecs.flyway.ecsCluster}")
+  @Value("${cloud.aws.ecs.flyway.flywayEcsCluster}")
   private String flywayEcsCluster;
 
-  @Value("${cloud.aws.ecs.flyway.taskDefinition}")
+  @Value("${cloud.aws.ecs.flyway.flywayTaskDefinition}")
   private String flywayTaskDefinition;
 
-  @Value("${cloud.aws.ecs.flyway.subnet}")
-  private String flywaySubnet;
+  @Value("${cloud.aws.ecs.flyway.flywayTaskVpcSubnet}")
+  private String flywayTaskVpcSubnet;
 
-  @Value("${cloud.aws.ecs.flyway.securityGroupId}")
-  private String flywaySecurityGroupId;
+  @Value("${cloud.aws.ecs.flyway.flywayTaskVpcSecurityGroup}")
+  private String flywayTaskVpcSecurityGroup;
 
   private final EcsClient ecsClient;
 
@@ -39,8 +39,8 @@ public class FlywayTaskRunnerService {
             NetworkConfiguration.builder()
                 .awsvpcConfiguration(
                     AwsVpcConfiguration.builder()
-                        .subnets(flywaySubnet)
-                        .securityGroups(flywaySecurityGroupId)
+                        .subnets(flywayTaskVpcSubnet)
+                        .securityGroups(flywayTaskVpcSecurityGroup)
                         .build()
                 ).build()
         )
@@ -48,6 +48,6 @@ public class FlywayTaskRunnerService {
         .build();
 
     RunTaskResponse response = ecsClient.runTask(request);
-    logger.info("Started ECS task: {}", response.tasks());
+    logger.info("Started Flyway ECS task: {}", response.tasks());
   }
 }

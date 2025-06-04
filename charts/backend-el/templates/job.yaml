@@ -42,14 +42,14 @@ spec:
               value: "{{ .Values.config.jobMode }}"
             - name: spring_profiles_active
               value: "openshift"
-            - name: ECS_CLUSTER
-              value: "{{ .Values.config.ecsCluster }}"
-            - name: ECS_TASK_DEFINITION
-              value: "{{ .Values.config.ecsTaskDefinition }}"
-            - name: APP_SUBNET
-              value: "{{ .Values.config.appSubnet }}"
-            - name: APP_SECURITY_GROUP
-              value: "{{ .Values.config.appSecurityGroup }}"
+            - name: FLYWAY_ECS_CLUSTER
+              value: "{{ .Values.config.flywayEcsCluster }}"
+            - name: FLYWAY_TASK_DEFINITION
+              value: "{{ .Values.config.flywayTaskDefinition }}"
+            - name: FLYWAY_TASK_VPC_SUBNET
+              value: "{{ .Values.config.flywayTaskVpcSubnet }}"
+            - name: FLYWAY_TASK_VPC_SECURITY_GROUP_ID
+              value: "{{ .Values.config.flywayTaskVpcSecurityGroup }}"
           volumeMounts:
             - name: {{ .Release.Name | replace "-hourly" "" }}-csv
               mountPath: /uploads
