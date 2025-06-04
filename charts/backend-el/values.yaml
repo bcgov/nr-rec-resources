@@ -3,17 +3,18 @@ secrets:
   dbName: ~
   dbPassword: ~
   dbUser: ~
+  flywayEcsCluster: ""
+  flywayTaskDefinition: ""
+  flywayTaskVpcSubnet: ""
+  flywayTaskVpcSecurityGroup: ""
 image:
   tag: ~
 resources:
   requests:
-    cpu: 400m
+    cpu: 250m
     memory: 1500Mi
-initContainerResources:
-  requests:
-    cpu: 400m
-    memory: 256Mi
 schedule: "0 8 * * *" # Daily at midnight PST
+hourlySchedule: "15 * * * *" # Hourly on the 15th minute
 backoffLimit: 3 # retry 3 times before giving up
 successHistoryLimit: 7
 failedHistoryLimit: 7
