@@ -7,7 +7,7 @@ image:
   tag: ~
 resources:
   requests:
-    cpu: 400m
+    cpu: 250m
     memory: 1500Mi
 initContainerResources:
   requests:
