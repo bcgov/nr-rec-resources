@@ -8,6 +8,7 @@ import { PassportModule } from "@nestjs/passport";
 import { AuthModule } from "./auth";
 import { PrismaService } from "./prisma.service";
 import { RecreationResourceModule } from "@/recreation-resource/recreation-resource.module";
+import { ResourceDocsModule } from "./resource-docs/resource-docs.module";
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { RecreationResourceModule } from "@/recreation-resource/recreation-resou
     AuthModule,
     TerminusModule,
     RecreationResourceModule,
+    ResourceDocsModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService, PrismaService],
