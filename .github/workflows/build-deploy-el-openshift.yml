@@ -75,6 +75,7 @@ jobs:
           oc_namespace: ${{ secrets.OC_NAMESPACE }}
           oc_token: ${{ secrets.OC_TOKEN }}
           oc_server: ${{ vars.oc_server }}
+          ref: ${{ github.head_ref }}
           commands: |
             # Deploy
             cd charts/backend-el
