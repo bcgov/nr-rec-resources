@@ -218,6 +218,8 @@ public class ApplicationService {
   public void extractAndUploadCSVToS3Hourly() {
     extractAndUploadRecreationProject();
     extractAndUploadRecreationStructure();
+
+    this.flywayTaskRunnerService.runFlywayTask();
   }
 
   private void extractAndUploadRecreationMapFeature() {
