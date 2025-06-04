@@ -21,7 +21,9 @@ spec:
         - name: {{ .Chart.Name }}
           image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/nr-rec-resources/backend-el:{{ .Values.image.tag | default .Chart.AppVersion }}"
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            requests:
+              cpu: 200m
+              memory: 1000Mi
           envFrom:
             - secretRef:
                 name: {{ .Release.Name | replace "-hourly" "" }}-backend-el
