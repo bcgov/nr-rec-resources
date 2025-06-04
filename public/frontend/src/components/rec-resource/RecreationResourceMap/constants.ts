@@ -23,3 +23,5 @@ export const MAP_STYLES = {
     COLOR: FILL_COLOR,
   },
 };
+
+export const MATOMO_TRACKING_CATEGORY_MAP = 'Map';

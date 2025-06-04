@@ -1,6 +1,6 @@
 SHELL := /usr/bin/env bash
 
-include ./backend/.env
+include ./public/backend/.env
 
 PSQL=psql -h localhost -U ${POSTGRES_USER}
 DB_NAME=${POSTGRES_DATABASE}

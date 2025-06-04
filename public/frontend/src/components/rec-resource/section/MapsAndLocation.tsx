@@ -4,6 +4,7 @@ import { RecreationResourceMap } from '@/components/rec-resource/RecreationResou
 import { RecreationResourceDetailModel } from '@/service/custom-models';
 import { RecreationResourceDocsList } from '@/components/rec-resource/RecreationResourceDocsList';
 import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
+import { Stack } from 'react-bootstrap';
 
 interface MapsAndLocationProps {
   accessTypes?: string[];
@@ -13,6 +14,8 @@ interface MapsAndLocationProps {
 const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
   ({ accessTypes, recResource }, ref) => {
     const { driving_directions } = recResource || {};
+    const showDocsList =
+      recResource && Boolean(recResource.recreation_resource_docs?.length);
     return (
       <section
         id={SectionIds.MAPS_AND_LOCATION}
@@ -21,38 +24,39 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
       >
         <h2 className="section-heading">{SectionTitles.MAPS_AND_LOCATION}</h2>
 
-        {recResource && (
-          <section className="mb-4">
-            <RecreationResourceDocsList recResource={recResource} />
-          </section>
-        )}
+        <Stack gap={5} direction="vertical">
+          {showDocsList && (
+            <div>
+              <RecreationResourceDocsList recResource={recResource} />
+            </div>
+          )}
 
-        <RecreationResourceMap
-          recResource={recResource}
-          mapComponentCssStyles={{
-            position: 'relative',
-            height: '40vh',
-            marginBottom: '4rem',
-          }}
-        />
+          <RecreationResourceMap
+            recResource={recResource}
+            mapComponentCssStyles={{
+              position: 'relative',
+              height: '40vh',
+            }}
+          />
 
-        {driving_directions && (
-          <article className="mb-4">
-            <h3>Getting there</h3>
-            <p>{parse(driving_directions)}</p>
-          </article>
-        )}
+          {driving_directions && (
+            <article>
+              <h3>Getting there</h3>
+              <p className="mb-0">{parse(driving_directions)}</p>
+            </article>
+          )}
 
-        {accessTypes && accessTypes?.length > 0 && (
-          <section className="mb-4">
-            <h3>Access type{accessTypes.length > 1 && 's'}</h3>
-            <ul className="list-unstyled">
-              {accessTypes.map((type) => (
-                <li key={type}>{type}</li>
-              ))}
-            </ul>
-          </section>
-        )}
+          {accessTypes && accessTypes?.length > 0 && (
+            <article>
+              <h3>Access type{accessTypes.length > 1 && 's'}</h3>
+              <ul className="list-unstyled">
+                {accessTypes.map((type) => (
+                  <li key={type}>{type}</li>
+                ))}
+              </ul>
+            </article>
+          )}
+        </Stack>
       </section>
     );
   },

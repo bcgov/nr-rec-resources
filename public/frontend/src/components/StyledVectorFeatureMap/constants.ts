@@ -1,6 +1,7 @@
 // Coordinate Reference System (CRS) projections
 export const MAP_PROJECTION_BC_ALBERS = 'EPSG:3005';
 export const MAP_PROJECTION_WEB_MERCATOR = 'EPSG:3857';
+export const MAP_PROJECTION_WGS84 = 'EPSG:4326';
 
 /**
  * Default map center coordinates in Web Mercator (EPSG:3857) projection

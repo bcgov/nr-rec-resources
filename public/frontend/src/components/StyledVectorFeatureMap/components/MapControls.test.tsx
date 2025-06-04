@@ -46,10 +46,7 @@ describe('MapControls', () => {
 
     fireEvent.click(screen.getByLabelText('Zoom in'));
 
-    expect(mockView.animate).toHaveBeenCalledWith({
-      zoom: 3,
-      duration: 250,
-    });
+    expect(mockView.setZoom).toHaveBeenCalledWith(3);
   });
 
   it('handles zoom out click', () => {
@@ -58,10 +55,7 @@ describe('MapControls', () => {
 
     fireEvent.click(screen.getByLabelText('Zoom out'));
 
-    expect(mockView.animate).toHaveBeenCalledWith({
-      zoom: 1,
-      duration: 250,
-    });
+    expect(mockView.setZoom).toHaveBeenCalledWith(1);
   });
 
   it('handles center click with provided extent', () => {
@@ -88,9 +82,6 @@ describe('MapControls', () => {
 
     fireEvent.click(screen.getByLabelText('Zoom in'));
 
-    expect(mockView.animate).toHaveBeenCalledWith({
-      zoom: 1,
-      duration: 250,
-    });
+    expect(mockView.setZoom).toHaveBeenCalledWith(1);
   });
 });

@@ -1,6 +1,5 @@
 import { ReactNode, useCallback, useEffect, useState } from 'react';
 import { Feature } from 'ol';
-import { StyleLike } from 'ol/style/Style';
 import {
   useAddVectorLayerToMap,
   useMapBaseLayers,
@@ -16,8 +15,6 @@ interface StyledVectorFeatureMapProps {
   mapComponentCssStyles?: React.CSSProperties;
   /** Array of OpenLayers features to display on the map as vector layers */
   features: Feature[];
-  /** Style configuration for the vector features */
-  layerStyle: StyleLike;
   /** Child components to render within the map context */
   children?: ReactNode;
 }
@@ -29,7 +26,6 @@ interface StyledVectorFeatureMapProps {
 export const StyledVectorFeatureMap: React.FC<StyledVectorFeatureMapProps> = ({
   mapComponentCssStyles,
   features,
-  layerStyle,
   children,
 }) => {
   const [featureExtent, setFeatureExtent] = useState<Coordinate>();
@@ -51,7 +47,6 @@ export const StyledVectorFeatureMap: React.FC<StyledVectorFeatureMapProps> = ({
   useAddVectorLayerToMap({
     map,
     features,
-    layerStyle,
     onLayerAdded: handleCallback,
   });
 

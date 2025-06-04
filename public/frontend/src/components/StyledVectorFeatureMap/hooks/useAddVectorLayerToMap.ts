@@ -4,15 +4,12 @@ import VectorLayer from 'ol/layer/Vector';
 import OlMap from 'ol/Map';
 import { Feature } from 'ol';
 import { Coordinate } from 'ol/coordinate';
-import { StyleLike } from 'ol/style/Style';
 
 interface UseVectorLayerProps {
   /** OpenLayers map instance */
   map: OlMap;
   /** Array of features to display */
   features: Feature[];
-  /** Style configuration for the layer */
-  layerStyle?: StyleLike;
   /** Callback fired when layer is added to map */
   onLayerAdded?: (extent: Coordinate) => void;
 }
@@ -25,7 +22,6 @@ interface UseVectorLayerProps {
 export const useAddVectorLayerToMap = ({
   map,
   features,
-  layerStyle,
   onLayerAdded,
 }: UseVectorLayerProps) => {
   const [vectorSource, setVectorSource] = useState<VectorSource>();
@@ -37,7 +33,6 @@ export const useAddVectorLayerToMap = ({
     const source = new VectorSource({ features });
     const layer = new VectorLayer({
       source,
-      style: layerStyle,
     });
 
     setVectorSource(source);
@@ -54,7 +49,7 @@ export const useAddVectorLayerToMap = ({
     return () => {
       map.removeLayer(layer);
     };
-  }, [map, features, layerStyle, onLayerAdded]);
+  }, [map, features, onLayerAdded]);
 
   return { vectorSource, vectorLayer };
 };
