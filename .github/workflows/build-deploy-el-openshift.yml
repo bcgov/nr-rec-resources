@@ -42,7 +42,7 @@ jobs:
   build:
     name: Build Spring Boot Oracle EL Containers
     needs: [triggers]
-    if: (always() && (needs.triggers.outputs.triggered == 'true' || github.event_name == 'workflow_dispatch') && (github.event.action != 'closed') && (!github.event.pull_request.draft))
+    # if: (always() && (needs.triggers.outputs.triggered == 'true' || github.event_name == 'workflow_dispatch') && (github.event.action != 'closed') && (!github.event.pull_request.draft))
     runs-on: ubuntu-24.04
     strategy:
       matrix:
