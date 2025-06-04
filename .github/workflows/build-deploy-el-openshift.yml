@@ -111,9 +111,10 @@ jobs:
               --set-string secrets.dbPassword="$DB_PASSWORD" \
               --set-string secrets.dbUser="${{ secrets.DBUSER }}" \
               --set-string config.awsS3Bucket="$AWS_S3_BUCKET" \
-              --set-string schedule="0 * * * *" \
+              --set-string schedule="15 * * * *" \
               --set-string config.appArgs="--hourly-sync" \
               --install --wait \
+              --no-hooks \
               --values values.yaml "$BASE_RELEASE_NAME-hourly" \
               ./backend-el-1.0.0.tgz
             
@@ -136,4 +137,5 @@ jobs:
           oc_server: ${{ vars.oc_server }}
           commands: |
             # Helm Uninstall
+            helm uninstall backend-el-pr-${{ github.event.number }}-hourly || true
             helm uninstall backend-el-pr-${{ github.event.number }} || true
