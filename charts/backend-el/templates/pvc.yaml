@@ -1,7 +1,8 @@
+{{- if not (hasSuffix "-hourly" .Release.Name) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Release.Name | replace "-hourly" "" }}-csv
+  name: {{ .Release.Name }}-csv
   labels: {{- include "labels" . | nindent 4 }}
 spec:
   accessModes:
@@ -10,3 +11,4 @@ spec:
     requests:
       storage: "500Mi"
   storageClassName: netapp-file-standard
+{{- end }}
