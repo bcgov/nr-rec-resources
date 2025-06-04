@@ -45,8 +45,8 @@ spec:
                   value: "false"
                 - name: AWS_S3_BUCKET
                   value: "{{ .Values.config.awsS3Bucket }}"
-                - name: APP_ARGS # additional arguments to pass to the application
-                  value: "{{ .Values.config.appArgs }}"
+                - name: JOB_MODE # additional arguments to pass to the application
+                  value: "{{ .Values.config.jobMode }}"
                 - name: spring_profiles_active
                   value: "openshift"
                 - name: ECS_CLUSTER

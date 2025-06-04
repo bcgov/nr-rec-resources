@@ -15,11 +15,13 @@ import ca.bc.gov.nrs.environment.fta.el.services.ApplicationService;
 public class FtaRstExporterApplication implements CommandLineRunner {
 
   private static final Logger logger = LoggerFactory.getLogger(FtaRstExporterApplication.class);
-  
+
+  private static final String JOB_MODE_HOURLY = "hourly";
+
   private final ApplicationService applicationService;
 
-  @Value("${app.args}")
-  private String appArgs;
+  @Value("${job.mode}")
+  private String jobMode;
 
   public FtaRstExporterApplication(ApplicationService applicationService) {
     this.applicationService = applicationService;
@@ -31,7 +33,7 @@ public class FtaRstExporterApplication implements CommandLineRunner {
 
   @Override
   public void run(String... args) {
-    if (appArgs.equals("--hourly-sync")) {
+    if (jobMode.equals(JOB_MODE_HOURLY)) {
       logger.info("Running hourly CSV extraction and upload");
       this.applicationService.extractAndUploadCSVToS3Hourly();
     } else {

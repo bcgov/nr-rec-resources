@@ -126,7 +126,7 @@ jobs:
               --set-string secrets.dbUser="${{ secrets.DBUSER }}" \
               --set-string config.awsS3Bucket="$AWS_S3_BUCKET" \
               --set-string schedule="15 * * * *" \
-              --set-string config.appArgs="--hourly-sync" \
+              --set-string config.jobMode="hourly" \
               --set-string config.ecsCluster="$ECS_CLUSTER" \
               --set-string config.ecsTaskDefinition="$ECS_TASK_DEFINITION" \
               --set-string config.appSubnet="$APP_SUBNET" \
