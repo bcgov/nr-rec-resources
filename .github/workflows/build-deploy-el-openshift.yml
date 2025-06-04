@@ -123,10 +123,10 @@ jobs:
               --debug \
               ./backend-el-1.0.0.tgz
             
-            if [ "${{ github.event_name }}" == "pull_request" ]; then
-              oc create job $BASE_RELEASE_NAME-${{github.run_number}} --from=cronjob/$BASE_RELEASE_NAME
-              oc wait --for=condition=complete --timeout=600s job/$BASE_RELEASE_NAME-${{github.run_number}}
-            fi
+#            if [ "${{ github.event_name }}" == "pull_request" ]; then
+            oc create job $BASE_RELEASE_NAME-${{github.run_number}} --from=cronjob/$BASE_RELEASE_NAME
+            oc wait --for=condition=complete --timeout=600s job/$BASE_RELEASE_NAME-${{github.run_number}}
+#            fi
   clean_up:
     name: Clean up
     if: github.event_name=='pull_request' && github.event.action == 'closed'
