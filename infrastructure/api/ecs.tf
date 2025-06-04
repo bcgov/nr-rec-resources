@@ -145,6 +145,22 @@ resource "aws_ecs_task_definition" "node_api_task" {
           value = var.forest_client_api_url
         },
         {
+          name  = "APP_SUBNET"
+          value = data.aws_subnets.app.ids[0]
+        },
+        {
+          name  = "APP_SECURITY_GROUP"
+          value = data.aws_security_group.app.id
+        },
+        {
+          name  = "ECS_TASK_DEFINITION"
+          value = "${var.app_name}-flyway-task"
+        },
+        {
+          name  = "ECS_CLUSTER"
+          value = aws_ecs_cluster.ecs_cluster.name
+        },
+        {
           name  = "APP_ENV"
           value = var.app_env
         },
