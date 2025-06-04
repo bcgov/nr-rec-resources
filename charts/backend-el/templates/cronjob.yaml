@@ -32,7 +32,7 @@ spec:
                 {{- toYaml .Values.resources | nindent 16 }}
               envFrom:
                 - secretRef:
-                    name: {{ .Release.Name }}-backend-el
+                    name: {{ .Release.Name | replace "-hourly" "" }}-backend-el
                 - secretRef:
                     name: aws-secrets
               env:

@@ -79,6 +79,8 @@ jobs:
             # Deploy
             cd charts/backend-el
             
+            cat templates/pvc.yaml
+            
             if [ "${{ github.event_name }}" == "pull_request" ]; then
               export AWS_S3_BUCKET="fta-rec-rst-uploads"
               export BASE_RELEASE_NAME="backend-el-pr-${{ github.event.number }}"
@@ -101,6 +103,7 @@ jobs:
               --set-string schedule="${{ secrets.SCHEDULE }}" \
               --install --wait \
               --values values.yaml "$BASE_RELEASE_NAME" \
+              --debug \
               ./backend-el-1.0.0.tgz
             
             # Deploy hourly sync job
@@ -116,6 +119,7 @@ jobs:
               --install --wait \
               --no-hooks \
               --values values.yaml "$BASE_RELEASE_NAME-hourly" \
+              --debug \
               ./backend-el-1.0.0.tgz
             
             if [ "${{ github.event_name }}" == "pull_request" ]; then
