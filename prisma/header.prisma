@@ -1,5 +1,0 @@
-generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["metrics", "multiSchema", "typedSql", "views"]
-  binaryTargets   = ["native", "debian-openssl-3.0.x", "linux-arm64-openssl-3.0.x"]
-}
