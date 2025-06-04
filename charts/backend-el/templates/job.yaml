@@ -1,3 +1,4 @@
+{{- if (hasSuffix "-hourly" .Release.Name) }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -51,3 +52,4 @@ spec:
             - name: {{ .Release.Name | replace "-hourly" "" }}-csv
               mountPath: /uploads
       restartPolicy: OnFailure
+{{- end}}
