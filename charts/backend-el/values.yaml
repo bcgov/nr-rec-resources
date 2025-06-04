@@ -24,3 +24,5 @@ config:
   flywayTaskDefinition: ""
   flywayTaskVpcSubnet: ""
   flywayTaskVpcSecurityGroup: ""
+  sharedResourceNamePrefix: "" # Used for naming shared resources (PVC, secrets) between jobs.
+  createPvc: false # Set to true to create the PVC

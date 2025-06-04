@@ -1,3 +1,9 @@
+{{- /*
+  CronJob template for backend-el.
+  This template schedules and manages recurring daily & hourly jobs for the backend-el service.
+  The PVC and secret names are derived from the shared resource name prefix which is shared across the jobs.
+*/ -}}
+{{- $sharedResourceNamePrefix := .Values.config.sharedResourceNamePrefix | default .Release.Name -}}
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -22,9 +28,9 @@ spec:
             {{- include "labels" . | nindent 12 }}
         spec:
           volumes:
-            - name: {{ .Release.Name | replace "-hourly" "" }}-csv
+            - name: {{ $sharedResourceNamePrefix }}-csv
               persistentVolumeClaim:
-                claimName: {{ .Release.Name | replace "-hourly" "" }}-csv
+                claimName: {{ $sharedResourceNamePrefix }}-csv
           containers:
             - name: {{ .Chart.Name }}
               image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/nr-rec-resources/backend-el:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -32,7 +38,7 @@ spec:
                 {{- toYaml .Values.resources | nindent 16 }}
               envFrom:
                 - secretRef:
-                    name: {{ .Release.Name | replace "-hourly" "" }}-backend-el
+                    name: {{ $sharedResourceNamePrefix }}-backend-el
                 - secretRef:
                     name: aws-secrets
               env:
@@ -57,6 +63,6 @@ spec:
                 - name: FLYWAY_TASK_VPC_SECURITY_GROUP_ID
                   value: "{{ .Values.config.flywayTaskVpcSecurityGroup }}"
               volumeMounts:
-                - name: {{ .Release.Name | replace "-hourly" "" }}-csv
+                - name: {{ $sharedResourceNamePrefix }}-csv
                   mountPath: /uploads
           restartPolicy: OnFailure

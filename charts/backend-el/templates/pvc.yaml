@@ -1,8 +1,8 @@
-{{- if not (hasSuffix "-hourly" .Release.Name) }}
+{{- if .Values.config.createPvc }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Release.Name }}-csv
+  name: {{ .Values.config.sharedResourceNamePrefix | default .Release.Name }}-csv
   labels: {{- include "labels" . | nindent 4 }}
 spec:
   accessModes:

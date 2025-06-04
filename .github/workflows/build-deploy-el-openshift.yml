@@ -105,6 +105,8 @@ jobs:
               --set-string secrets.dbUser="${{ secrets.DBUSER }}" \
               --set-string config.awsS3Bucket="$AWS_S3_BUCKET" \
               --set-string schedule="${{ secrets.SCHEDULE }}" \
+              --set-string config.sharedResourceNamePrefix="$BASE_RELEASE_NAME" \
+              --set-string config.createPvc=true \
               --install --wait \
               --values values.yaml "$BASE_RELEASE_NAME" \
               ./backend-el-1.0.0.tgz
@@ -123,6 +125,8 @@ jobs:
               --set-string config.flywayTaskDefinition="$FLYWAY_TASK_DEFINITION" \
               --set-string config.flywayTaskVpcSubnet="$FLYWAY_TASK_VPC_SUBNET" \
               --set-string config.flywayTaskVpcSecurityGroup="$FLYWAY_TASK_VPC_SECURITY_GROUP_ID" \
+              --set-string config.sharedResourceNamePrefix="$BASE_RELEASE_NAME" \
+              --set-string config.createPvc=false \
               --install --wait \
               --values values.yaml "$BASE_RELEASE_NAME-hourly" \
               ./backend-el-1.0.0.tgz
