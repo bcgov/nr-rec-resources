@@ -3,6 +3,8 @@ package ca.bc.gov.nrs.environment.fta.el.services;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.ecs.EcsClient;
 import software.amazon.awssdk.services.ecs.model.*;
@@ -30,6 +32,7 @@ public class FlywayTaskRunnerService {
     this.ecsClient = ecsClient;
   }
 
+  @Retryable(maxAttempts = 5, backoff = @Backoff(multiplier = 2, delay = 2000))
   public void runFlywayTask() {
     RunTaskRequest request = RunTaskRequest.builder()
         .cluster(flywayEcsCluster)
