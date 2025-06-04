@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Release.Name | replace "-hourly" "" }}-csv
+  name: backend-el-csv
   labels: {{- include "labels" . | nindent 4 }}
 spec:
   accessModes:
