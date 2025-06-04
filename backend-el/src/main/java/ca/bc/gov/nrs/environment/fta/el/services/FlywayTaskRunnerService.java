@@ -8,9 +8,9 @@ import software.amazon.awssdk.services.ecs.EcsClient;
 import software.amazon.awssdk.services.ecs.model.*;
 
 @Service
-public class EcsTaskService {
+public class FlywayTaskRunnerService {
 
-  private static final Logger logger = LoggerFactory.getLogger(EcsTaskService.class);
+  private static final Logger logger = LoggerFactory.getLogger(FlywayTaskRunnerService.class);
 
   @Value("${cloud.aws.ecs.flyway.ecsCluster}")
   private String flywayEcsCluster;
@@ -26,7 +26,7 @@ public class EcsTaskService {
 
   private final EcsClient ecsClient;
 
-  public EcsTaskService(EcsClient ecsClient) {
+  public FlywayTaskRunnerService(EcsClient ecsClient) {
     this.ecsClient = ecsClient;
   }
 

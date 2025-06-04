@@ -22,6 +22,7 @@ public class ApplicationService {
   @Value("${ca.bc.gov.nrs.environment.fta.el.file-base-path}")
   private String fileBasePath;
   private final S3UploaderService s3UploaderService;
+  private final FlywayTaskRunnerService flywayTaskRunnerService;
   // Add all the repositories as final members
   private final RecreationAccessCodeRepository recreationAccessCodeRepository;
   private final RecreationAccessRepository recreationAccessRepository;
@@ -70,6 +71,7 @@ public class ApplicationService {
   private final RecreatnEventRepository recreatnEventRepository;
 
   public ApplicationService(S3UploaderService s3UploaderService,
+                            FlywayTaskRunnerService flywayTaskRunnerService,
                             RecreationAccessRepository recreationAccessRepository,
                             RecreationAccessCodeRepository recreationAccessCodeRepository,
                             RecreationAccessXrefRepository recreationAccessXrefRepository,
@@ -117,6 +119,7 @@ public class ApplicationService {
                             RecreationUserDaysCodeRepository recreationUserDaysCodeRepository,
                             RecreatnEventRepository recreatnEventRepository) {
     this.s3UploaderService = s3UploaderService;
+    this.flywayTaskRunnerService = flywayTaskRunnerService;
     this.recreationAccessRepository = recreationAccessRepository;
     this.recreationAccessCodeRepository = recreationAccessCodeRepository;
     this.recreationAccessXrefRepository = recreationAccessXrefRepository;
@@ -210,6 +213,11 @@ public class ApplicationService {
     extractAndUploadRecreationTrailSegment();
     extractAndUploadRecreationUserDaysCode();
     extractAndUploadRecreatnEvent();
+  }
+
+  public void extractAndUploadCSVToS3Hourly() {
+    extractAndUploadRecreationProject();
+    extractAndUploadRecreationStructure();
   }
 
   private void extractAndUploadRecreationMapFeature() {
