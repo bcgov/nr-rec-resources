@@ -10,13 +10,6 @@ datasource db {
   schemas  = ["admin", "rst"]
 }
 
-model admin_rec_detail {
-  id   Int    @id
-  desc String @db.VarChar(100)
-
-  @@schema("admin")
-}
-
 model flyway_schema_history {
   installed_rank Int      @id(map: "flyway_schema_history_pk")
   version        String?  @db.VarChar(50)
@@ -403,7 +396,7 @@ model recreation_map_feature_geom {
   created_at             DateTime?                @default(now()) @db.Timestamp(6)
   created_by             String?
   sys_period             Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_map_feature recreation_map_feature   @relation(fields: [rmf_skey], references: [rmf_skey], onDelete: NoAction, onUpdate: NoAction)
+  recreation_map_feature recreation_map_feature   @relation(fields: [rmf_skey], references: [rmf_skey], onDelete: NoAction)
 
   @@index([map_feature_id], map: "idx_recreation_map_feature_geom_map_feature_id")
   @@schema("rst")
@@ -718,7 +711,6 @@ model recreation_site_point {
   created_by      String?
   sys_period      Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
 
-  @@unique([rec_resource_id, geometry])
   @@schema("rst")
 }
 
