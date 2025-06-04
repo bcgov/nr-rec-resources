@@ -1,20 +1,19 @@
 package ca.bc.gov.nrs.environment.fta.el;
 
+import ca.bc.gov.nrs.environment.fta.el.services.EcsTaskService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.retry.annotation.EnableRetry;
 
-import ca.bc.gov.nrs.environment.fta.el.services.ApplicationService;
-
 @SpringBootApplication
 @EnableRetry
 public class FtaRstExporterApplication implements CommandLineRunner {
 
-  private final ApplicationService applicationService;
+  private final EcsTaskService ecsTaskService;
 
-  public FtaRstExporterApplication(ApplicationService applicationService) {
-    this.applicationService = applicationService;
+  public FtaRstExporterApplication(EcsTaskService ecsTaskService) {
+    this.ecsTaskService = ecsTaskService;
   }
 
   public static void main(String[] args) {
@@ -23,7 +22,6 @@ public class FtaRstExporterApplication implements CommandLineRunner {
 
   @Override
   public void run(String... args) {
-    this.applicationService.extractAndUploadCSVToS3();
+    this.ecsTaskService.runFlywayTask();
   }
-
 }
