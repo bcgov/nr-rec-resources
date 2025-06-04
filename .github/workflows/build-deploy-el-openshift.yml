@@ -18,6 +18,14 @@ on:
         options:
           - dev
           - prod
+      subnet:
+        description: 'VPC Subnet to deploy the flyway task to'
+        required: true
+        default: 'subnet-0a663db91e3d61619'
+      securityGroupId:
+        description: 'VPC Security Group ID to deploy the flyway task to'
+        required: true
+        default: 'sg-068c11b49394f62f0'
   workflow_call:
     inputs:
       environment:
@@ -80,8 +88,6 @@ jobs:
             # Deploy
             cd charts/backend-el
             
-            cat templates/pvc.yaml
-            
             if [ "${{ github.event_name }}" == "pull_request" ]; then
               export AWS_S3_BUCKET="fta-rec-rst-uploads"
               export BASE_RELEASE_NAME="backend-el-pr-${{ github.event.number }}"
@@ -89,6 +95,11 @@ jobs:
               export AWS_S3_BUCKET="${{ secrets.AWS_S3_BUCKET }}"
               export BASE_RELEASE_NAME="backend-el"
             fi
+            
+            export ECS_CLUSTER="ecs-cluster-node-api-${{ github.event.inputs.environment }}"
+            export ECS_TASK_DEFINITION="node-api-${{ github.event.inputs.environment }}-flyway-task"
+            export APP_SUBNET="${{ github.event.inputs.subnet }}"
+            export APP_SECURITY_GROUP="${{ github.event.inputs.securityGroupId }}"
             
             # Package helm chart once
             helm package -u . --app-version="${{ github.sha }}" --version=1.0.0
@@ -104,7 +115,6 @@ jobs:
               --set-string schedule="${{ secrets.SCHEDULE }}" \
               --install --wait \
               --values values.yaml "$BASE_RELEASE_NAME" \
-              --debug \
               ./backend-el-1.0.0.tgz
             
             # Deploy hourly sync job
@@ -117,10 +127,12 @@ jobs:
               --set-string config.awsS3Bucket="$AWS_S3_BUCKET" \
               --set-string schedule="15 * * * *" \
               --set-string config.appArgs="--hourly-sync" \
+              --set-string config.ecsCluster="$ECS_CLUSTER" \
+              --set-string config.ecsTaskDefinition="$ECS_TASK_DEFINITION" \
+              --set-string config.appSubnet="$APP_SUBNET" \
+              --set-string config.appSecurityGroup="$APP_SECURITY_GROUP" \
               --install --wait \
-              --no-hooks \
               --values values.yaml "$BASE_RELEASE_NAME-hourly" \
-              --debug \
               ./backend-el-1.0.0.tgz
             
             if [ "${{ github.event_name }}" == "pull_request" ]; then

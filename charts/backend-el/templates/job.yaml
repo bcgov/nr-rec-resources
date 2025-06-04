@@ -39,6 +39,14 @@ spec:
               value: "{{ .Values.config.appArgs }}"
             - name: spring_profiles_active
               value: "openshift"
+            - name: ECS_CLUSTER
+              value: "{{ .Values.config.ecsCluster }}"
+            - name: ECS_TASK_DEFINITION
+              value: "{{ .Values.config.ecsTaskDefinition }}"
+            - name: APP_SUBNET
+              value: "{{ .Values.config.appSubnet }}"
+            - name: APP_SECURITY_GROUP
+              value: "{{ .Values.config.appSecurityGroup }}"
           volumeMounts:
             - name: {{ .Release.Name | replace "-hourly" "" }}-csv
               mountPath: /uploads
