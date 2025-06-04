@@ -146,7 +146,14 @@ resource "aws_iam_user_policy" "s3_upload_policy" {
           "s3:ListBucket",
           "s3:GetObject",
           "s3:ListObjects",
-          "s3:PutObject"
+          "s3:PutObject",
+
+          // Additional permissions for running Flyway migration ECS task
+          "iam:PassRole",
+          "ecs:RunTask",
+          "ecs:DescribeTasks",
+          "ec2:DescribeSubnets",
+          "ec2:DescribeSecurityGroups"
         ]
         Resource = [
           "arn:aws:s3:::${var.fta_dataload_bucket}",

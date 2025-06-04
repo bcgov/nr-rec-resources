@@ -78,15 +78,25 @@ jobs:
           commands: |
             # Deploy
             cd charts/backend-el
+
             # if event is PR then use a different bucket
             if [ "${{ github.event_name }}" == "pull_request" ]; then
               export AWS_S3_BUCKET="fta-rec-rst-uploads"
-              export RELEASE_NAME="backend-el-pr-${{ github.event.number }}"
+              export BASE_RELEASE_NAME="backend-el-pr-${{ github.event.number }}"
             else
               export AWS_S3_BUCKET="${{ secrets.AWS_S3_BUCKET }}"
-              export RELEASE_NAME="backend-el"
+              export BASE_RELEASE_NAME="backend-el"
             fi
+
+            export FLYWAY_ECS_CLUSTER="ecs-cluster-node-api-${{ github.event.inputs.environment }}"
+            export FLYWAY_TASK_DEFINITION="node-api-${{ github.event.inputs.environment }}-flyway-task"
+            export FLYWAY_TASK_VPC_SUBNET="${{ secrets.FLYWAY_TASK_VPC_SUBNET }}"
+            export FLYWAY_TASK_VPC_SECURITY_GROUP_ID="${{ secrets.FLYWAY_TASK_VPC_SECURITY_GROUP_ID }}"
+
+            # Package helm chart once
             helm package -u . --app-version="${{ github.sha }}" --version=1.0.0
+
+            # Deploy main job
             helm upgrade \
               --set-string image.tag="${{ github.sha }}" \
               --set-string secrets.dbHost="${{ secrets.DBHOST }}" \
@@ -95,12 +105,35 @@ jobs:
               --set-string secrets.dbUser="${{ secrets.DBUSER }}" \
               --set-string config.awsS3Bucket="$AWS_S3_BUCKET" \
               --set-string schedule="${{ secrets.SCHEDULE }}" \
+              --set-string config.sharedResourceNamePrefix="$BASE_RELEASE_NAME" \
+              --set-string config.createPvc=true \
               --install --wait \
-              --values values.yaml "$RELEASE_NAME"\
+              --values values.yaml "$BASE_RELEASE_NAME" \
               ./backend-el-1.0.0.tgz
+
+            # Deploy hourly sync job
+            helm upgrade \
+              --set-string image.tag="${{ github.sha }}" \
+              --set-string secrets.dbHost="${{ secrets.DBHOST }}" \
+              --set-string secrets.dbName="${{ secrets.DBNAME }}" \
+              --set-string secrets.dbPassword="$DB_PASSWORD" \
+              --set-string secrets.dbUser="${{ secrets.DBUSER }}" \
+              --set-string config.awsS3Bucket="$AWS_S3_BUCKET" \
+              --set-string schedule="15 * * * *" \
+              --set-string config.jobMode="hourly" \
+              --set-string config.flywayEcsCluster="$FLYWAY_ECS_CLUSTER" \
+              --set-string config.flywayTaskDefinition="$FLYWAY_TASK_DEFINITION" \
+              --set-string config.flywayTaskVpcSubnet="$FLYWAY_TASK_VPC_SUBNET" \
+              --set-string config.flywayTaskVpcSecurityGroup="$FLYWAY_TASK_VPC_SECURITY_GROUP_ID" \
+              --set-string config.sharedResourceNamePrefix="$BASE_RELEASE_NAME" \
+              --set-string config.createPvc=false \
+              --install --wait \
+              --values values.yaml "$BASE_RELEASE_NAME-hourly" \
+              ./backend-el-1.0.0.tgz
+
             if [ "${{ github.event_name }}" == "pull_request" ]; then
-              oc create job $RELEASE_NAME-${{github.run_number}} --from=cronjob/$RELEASE_NAME
-              oc wait --for=condition=complete --timeout=600s job/$RELEASE_NAME-${{github.run_number}}
+              oc create job $BASE_RELEASE_NAME-${{github.run_number}} --from=cronjob/$BASE_RELEASE_NAME
+              oc wait --for=condition=complete --timeout=600s job/$BASE_RELEASE_NAME-${{github.run_number}}
             fi
   clean_up:
     name: Clean up
@@ -117,4 +150,5 @@ jobs:
           oc_server: ${{ vars.oc_server }}
           commands: |
             # Helm Uninstall
+            helm uninstall backend-el-pr-${{ github.event.number }}-hourly || true
             helm uninstall backend-el-pr-${{ github.event.number }} || true

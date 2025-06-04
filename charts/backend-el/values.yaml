@@ -7,7 +7,7 @@ image:
   tag: ~
 resources:
   requests:
-    cpu: 400m
+    cpu: 250m
     memory: 1500Mi
 initContainerResources:
   requests:
@@ -19,3 +19,10 @@ successHistoryLimit: 7
 failedHistoryLimit: 7
 config:
   awsS3Bucket: "rst-fta-dataload-oracle" # default bucket for S3 uploads
+  jobMode: "" # "hourly" for hourly sync job, leave empty for main (daily) job
+  flywayEcsCluster: ""
+  flywayTaskDefinition: ""
+  flywayTaskVpcSubnet: ""
+  flywayTaskVpcSecurityGroup: ""
+  sharedResourceNamePrefix: "" # Used for naming shared resources (PVC, secrets) between jobs.
+  createPvc: false # Set to true to create the PVC

@@ -1,3 +1,9 @@
+{{- /*
+  CronJob template for backend-el.
+  This template schedules and manages recurring daily & hourly jobs for the backend-el service.
+  The PVC and secret names are derived from the shared resource name prefix which is shared across the jobs.
+*/ -}}
+{{- $sharedResourceNamePrefix := .Values.config.sharedResourceNamePrefix | default .Release.Name -}}
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -22,9 +28,9 @@ spec:
             {{- include "labels" . | nindent 12 }}
         spec:
           volumes:
-            - name: {{ .Release.Name }}-csv
+            - name: {{ $sharedResourceNamePrefix }}-csv
               persistentVolumeClaim:
-                claimName: {{ .Release.Name }}-csv
+                claimName: {{ $sharedResourceNamePrefix }}-csv
           containers:
             - name: {{ .Chart.Name }}
               image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/nr-rec-resources/backend-el:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -32,7 +38,7 @@ spec:
                 {{- toYaml .Values.resources | nindent 16 }}
               envFrom:
                 - secretRef:
-                    name: {{ .Release.Name }}-backend-el
+                    name: {{ $sharedResourceNamePrefix }}-backend-el
                 - secretRef:
                     name: aws-secrets
               env:
@@ -44,9 +50,19 @@ spec:
                   value: "false"
                 - name: AWS_S3_BUCKET
                   value: "{{ .Values.config.awsS3Bucket }}"
+                - name: JOB_MODE # additional arguments to pass to the application
+                  value: "{{ .Values.config.jobMode }}"
                 - name: spring_profiles_active
                   value: "openshift"
+                - name: FLYWAY_ECS_CLUSTER
+                  value: "{{ .Values.config.flywayEcsCluster }}"
+                - name: FLYWAY_TASK_DEFINITION
+                  value: "{{ .Values.config.flywayTaskDefinition }}"
+                - name: FLYWAY_TASK_VPC_SUBNET
+                  value: "{{ .Values.config.flywayTaskVpcSubnet }}"
+                - name: FLYWAY_TASK_VPC_SECURITY_GROUP_ID
+                  value: "{{ .Values.config.flywayTaskVpcSecurityGroup }}"
               volumeMounts:
-                - name: {{ .Release.Name }}-csv
+                - name: {{ $sharedResourceNamePrefix }}-csv
                   mountPath: /uploads
           restartPolicy: OnFailure
