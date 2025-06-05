@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "prisma-generate": "prisma generate",
-    "build": "nest build",
+    "build": "prisma generate && nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "deploy": "npm ci --ignore-scripts --no-update-notifier && npm run build",
     "start": "nest start",
