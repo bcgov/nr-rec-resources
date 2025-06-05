@@ -4,6 +4,7 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { PassportModule } from "@nestjs/passport";
 import { AuthModule } from "./auth";
+import { PrismaService } from "./prisma.service";
 
 @Module({
   imports: [
@@ -12,6 +13,6 @@ import { AuthModule } from "./auth";
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, PrismaService],
 })
 export class AppModule {}
