@@ -1,5 +1,5 @@
 import { CSSProperties, useMemo } from 'react';
-import { VectorFeatureMap } from '@bcgov/prp-map';
+import { VectorFeatureMap } from 'prp-map';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import {
