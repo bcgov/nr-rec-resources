@@ -152,6 +152,26 @@ resource "aws_iam_user_policy" "s3_upload_policy" {
           "arn:aws:s3:::${var.fta_dataload_bucket}",
           "arn:aws:s3:::${var.fta_dataload_bucket}/*"
         ]
+      },
+      {
+        Effect = "Allow",
+        Action = "iam:PassRole",
+        Resource = [
+           aws_iam_role.ecs_task_execution_role.arn,
+           aws_iam_role.app_container_role.arn
+        ]
+      },
+      {
+        Effect = "Allow",
+        Action = [
+          "ecs:RunTask",
+          "ecs:DescribeTasks",
+          "ec2:DescribeSubnets",
+          "ec2:DescribeSecurityGroups"
+        ],
+        Resource = [
+          "*"
+        ]
       }
     ]
   })

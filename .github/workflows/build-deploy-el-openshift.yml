@@ -78,6 +78,7 @@ jobs:
           commands: |
             # Deploy
             cd charts/backend-el
+
             # if event is PR then use a different bucket
             if [ "${{ github.event_name }}" == "pull_request" ]; then
               export AWS_S3_BUCKET="fta-rec-rst-uploads"
@@ -86,6 +87,12 @@ jobs:
               export AWS_S3_BUCKET="${{ secrets.AWS_S3_BUCKET }}"
               export RELEASE_NAME="backend-el"
             fi
+
+            export FLYWAY_ECS_CLUSTER="ecs-cluster-node-api-${{ github.event.inputs.environment }}"
+            export FLYWAY_TASK_DEFINITION="node-api-${{ github.event.inputs.environment }}-flyway-task"
+            export FLYWAY_TASK_VPC_SUBNET="${{ secrets.FLYWAY_TASK_VPC_SUBNET }}"
+            export FLYWAY_TASK_VPC_SECURITY_GROUP_ID="${{ secrets.FLYWAY_TASK_VPC_SECURITY_GROUP_ID }}"
+
             helm package -u . --app-version="${{ github.sha }}" --version=1.0.0
             helm upgrade \
               --set-string image.tag="${{ github.sha }}" \
@@ -95,9 +102,14 @@ jobs:
               --set-string secrets.dbUser="${{ secrets.DBUSER }}" \
               --set-string config.awsS3Bucket="$AWS_S3_BUCKET" \
               --set-string schedule="${{ secrets.SCHEDULE }}" \
+              --set-string config.flywayEcsCluster="$FLYWAY_ECS_CLUSTER" \
+              --set-string config.flywayTaskDefinition="$FLYWAY_TASK_DEFINITION" \
+              --set-string config.flywayTaskVpcSubnet="$FLYWAY_TASK_VPC_SUBNET" \
+              --set-string config.flywayTaskVpcSecurityGroup="$FLYWAY_TASK_VPC_SECURITY_GROUP_ID" \
               --install --wait \
               --values values.yaml "$RELEASE_NAME"\
               ./backend-el-1.0.0.tgz
+
             if [ "${{ github.event_name }}" == "pull_request" ]; then
               oc create job $RELEASE_NAME-${{github.run_number}} --from=cronjob/$RELEASE_NAME
               oc wait --for=condition=complete --timeout=600s job/$RELEASE_NAME-${{github.run_number}}
