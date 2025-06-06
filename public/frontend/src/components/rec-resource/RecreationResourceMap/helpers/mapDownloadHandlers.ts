@@ -4,7 +4,7 @@ import { Icon, Style } from 'ol/style';
 import {
   MAP_PROJECTION_WEB_MERCATOR,
   MAP_PROJECTION_WGS84,
-} from '@/components/StyledVectorFeatureMap/constants';
+} from '@/components/rec-resource/RecreationResourceMap/constants';
 import { triggerFileDownload } from '@/utils/fileUtils';
 
 // Import raw SVG content for KML export
