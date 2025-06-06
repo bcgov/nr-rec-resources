@@ -49,7 +49,7 @@ describe('RecreationResourceMap', () => {
     (getLayerStyleForRecResource as any).mockReturnValue(mockLayerStyle);
   });
 
-  it('renders map and download buttons when features exist', () => {
+  it('renders VectorFeatureMap with correct props when features exist', () => {
     render(
       <RecreationResourceMap
         recResource={mockRecResource}
