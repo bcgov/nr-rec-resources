@@ -1,5 +1,7 @@
 import { CSSProperties, useMemo } from 'react';
-import { StyledVectorFeatureMap } from '@/components/StyledVectorFeatureMap';
+import { VectorFeatureMap } from '@bcgov/prp-map';
+import VectorLayer from 'ol/layer/Vector';
+import VectorSource from 'ol/source/Vector';
 import {
   downloadGPX,
   downloadKML,
@@ -16,26 +18,35 @@ interface TrailMapProps {
   mapComponentCssStyles?: CSSProperties;
 }
 
-/**
- * Displays a styled map for a given recreation resource, with options to download GPX/KML.
- * Returns null if no features are available.
- */
 export const RecreationResourceMap = ({
   recResource,
   mapComponentCssStyles,
 }: TrailMapProps) => {
-  const styledFeatures = useMemo(() => {
-    const features = getMapFeaturesFromRecResource(recResource);
-    if (!features?.length) return [];
-    const layerStyle = getLayerStyleForRecResource(recResource);
-    return features.map((feature) => {
-      feature.setStyle(layerStyle);
-      return feature;
-    });
-  }, [recResource]);
+  const features = useMemo(
+    () => getMapFeaturesFromRecResource(recResource),
+    [recResource],
+  );
 
-  // Early return if there are no features to display or download
-  if (styledFeatures.length === 0) {
+  const layerStyle = useMemo(
+    () => getLayerStyleForRecResource(recResource),
+    [recResource],
+  );
+
+  const layers = useMemo(
+    () => [
+      {
+        id: 'rec-resource-layer',
+        layerInstance: new VectorLayer({
+          source: new VectorSource({ features }),
+          style: layerStyle,
+          visible: true,
+        }),
+      },
+    ],
+    [features, layerStyle],
+  );
+
+  if (!features || !features.length) {
     return null;
   }
 
@@ -65,16 +76,13 @@ export const RecreationResourceMap = ({
 
   return (
     <Stack direction="vertical" gap={3}>
-      <StyledVectorFeatureMap
-        mapComponentCssStyles={mapComponentCssStyles}
-        features={styledFeatures}
-      />
+      <VectorFeatureMap style={mapComponentCssStyles} layers={layers} />
       <Row className="g-md-5 g-2">
         {renderDownloadButton('Download GPX', () =>
-          downloadGPX(styledFeatures, recResourceName),
+          downloadGPX(features, recResourceName),
         )}
         {renderDownloadButton('Download KML', () =>
-          downloadKML(styledFeatures, recResourceName),
+          downloadKML(features, recResourceName),
         )}
       </Row>
     </Stack>
