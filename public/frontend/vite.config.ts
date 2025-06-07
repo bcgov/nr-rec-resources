@@ -51,6 +51,7 @@ export default defineConfig(({ mode }) => {
           },
         },
       },
+      assetsInlineLimit: 12288, // 12KB
     },
     css: {
       preprocessorOptions: {
