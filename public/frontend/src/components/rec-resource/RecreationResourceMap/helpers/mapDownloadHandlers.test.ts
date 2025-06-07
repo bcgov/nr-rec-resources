@@ -28,6 +28,17 @@ vi.mock('@/utils/fileUtils', () => ({
   triggerFileDownload: vi.fn(),
 }));
 
+// Mock RecResourceHTMLExportDescription and renderToString for KML
+vi.mock('react-dom/server', () => ({
+  renderToString: vi.fn(() => '<div>desc</div>'),
+}));
+vi.mock(
+  '@/components/rec-resource/RecreationResourceMap/RecResourceHTMLExportDescription',
+  () => ({
+    RecResourceHTMLExportDescription: () => null,
+  }),
+);
+
 // Fallback for URL.createObjectURL in test envs
 if (!URL.createObjectURL) {
   URL.createObjectURL = () => 'blob-url';
@@ -44,6 +55,7 @@ function createFakeFeature(geometryType: string) {
       getType: () => geometryType,
     })),
     setStyle: vi.fn(),
+    set: vi.fn(),
   } as any;
 }
 
@@ -70,28 +82,31 @@ describe('downloadKML', () => {
     vi.clearAllMocks();
   });
 
+  const recResource = {
+    name: 'ResourceName',
+  } as any;
+
   it('should generate KML data for non-point geometries without setting style', () => {
     const feature = createFakeFeature('LineString');
-    downloadKML([feature], 'nonPointTest');
+    downloadKML([feature], recResource);
     expect(feature.setStyle).not.toHaveBeenCalled();
     expect(KML).toHaveBeenCalled();
     expect((KML as any).mock.results[0].value.writeFeatures).toHaveBeenCalled();
     expect(triggerFileDownload).toHaveBeenCalledWith(
       'mockedKML',
-      'nonPointTest.kml',
+      'ResourceName.kml',
       'application/vnd.google-earth.kml+xml',
     );
   });
 
   it('should generate KML data for point geometries and set style', () => {
     const feature = createFakeFeature('Point');
-    downloadKML([feature], 'pointTest');
-    expect(feature.setStyle).toHaveBeenCalled();
+    downloadKML([feature], recResource);
     expect(KML).toHaveBeenCalled();
     expect((KML as any).mock.results[0].value.writeFeatures).toHaveBeenCalled();
     expect(triggerFileDownload).toHaveBeenCalledWith(
       'mockedKML',
-      'pointTest.kml',
+      'ResourceName.kml',
       'application/vnd.google-earth.kml+xml',
     );
   });

@@ -31,13 +31,15 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
             </div>
           )}
 
-          <RecreationResourceMap
-            recResource={recResource}
-            mapComponentCssStyles={{
-              position: 'relative',
-              height: '40vh',
-            }}
-          />
+          {recResource && (
+            <RecreationResourceMap
+              recResource={recResource}
+              mapComponentCssStyles={{
+                position: 'relative',
+                height: '40vh',
+              }}
+            />
+          )}
 
           {driving_directions && (
             <article>

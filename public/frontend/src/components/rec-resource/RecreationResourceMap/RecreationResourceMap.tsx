@@ -14,7 +14,7 @@ import { trackEvent } from '@/utils/matomo';
 import { MATOMO_TRACKING_CATEGORY_MAP } from '@/components/rec-resource/RecreationResourceMap/constants';
 
 interface TrailMapProps {
-  recResource?: RecreationResourceDetailModel;
+  recResource: RecreationResourceDetailModel;
   mapComponentCssStyles?: CSSProperties;
 }
 
@@ -22,31 +22,30 @@ export const RecreationResourceMap = ({
   recResource,
   mapComponentCssStyles,
 }: TrailMapProps) => {
-  const features = useMemo(
-    () => getMapFeaturesFromRecResource(recResource),
-    [recResource],
-  );
-
-  const layerStyle = useMemo(
-    () => getLayerStyleForRecResource(recResource),
-    [recResource],
-  );
+  const styledFeatures = useMemo(() => {
+    const features = getMapFeaturesFromRecResource(recResource);
+    if (!features?.length) return [];
+    const layerStyle = getLayerStyleForRecResource(recResource);
+    return features.map((feature) => {
+      feature.setStyle(layerStyle);
+      return feature;
+    });
+  }, [recResource]);
 
   const layers = useMemo(
     () => [
       {
         id: 'rec-resource-layer',
         layerInstance: new VectorLayer({
-          source: new VectorSource({ features }),
-          style: layerStyle,
+          source: new VectorSource({ features: styledFeatures }),
           visible: true,
         }),
       },
     ],
-    [features, layerStyle],
+    [styledFeatures],
   );
 
-  if (!features || !features.length) {
+  if (!styledFeatures || !styledFeatures.length) {
     return null;
   }
 
@@ -78,11 +77,11 @@ export const RecreationResourceMap = ({
     <Stack direction="vertical" gap={3}>
       <VectorFeatureMap style={mapComponentCssStyles} layers={layers} />
       <Row className="g-md-5 g-2">
-        {renderDownloadButton('Download GPX', () =>
-          downloadGPX(features, recResourceName),
-        )}
         {renderDownloadButton('Download KML', () =>
-          downloadKML(features, recResourceName),
+          downloadKML(styledFeatures, recResource),
+        )}
+        {renderDownloadButton('Download GPX', () =>
+          downloadGPX(styledFeatures, recResourceName),
         )}
       </Row>
     </Stack>

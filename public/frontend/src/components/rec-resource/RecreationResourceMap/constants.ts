@@ -1,21 +1,20 @@
 import { Fill, Stroke } from 'ol/style';
 
-export const STROKE_COLOR = '#42814A';
 export const FILL_COLOR = '#42814A66';
-export const TEXT_COLOR = '#000000';
-export const TEXT_STROKE_COLOR = '#FFFFFF';
+export const TEXT_STROKE_COLOR = '#000';
 
 export const TEXT_STYLE = {
-  fill: new Fill({ color: TEXT_COLOR }),
+  backgroundFill: new Fill({ color: '#000' }),
+  fill: new Fill({ color: '#FFF' }),
   stroke: new Stroke({
     color: TEXT_STROKE_COLOR,
-    width: 2,
   }),
 };
 
 export const MAP_STYLES = {
   STROKE: {
-    COLOR: STROKE_COLOR,
+    POLYGON_COLOR: '#42814A',
+    TRAIL_COLOR: '#FF00FF',
     WIDTH: 3,
     LINE_DASH: [6, 6],
   },
@@ -62,3 +61,10 @@ export const MAP_URLS = {
  * Default zoom level for the map
  */
 export const DEFAULT_MAP_ZOOM = 8;
+
+export const MAP_ICONS = {
+  RECREATION_SITE: `${import.meta.env.VITE_RECREATION_RESOURCE_ASSETS_BASE_URL}//filestore//8//9//4//3//3_5d2228bc2b3e1e8//33498_195d0e9aba87dc6.png?v=1750306156`,
+  INTERPRETIVE_FOREST: `${import.meta.env.VITE_RECREATION_RESOURCE_ASSETS_BASE_URL}//filestore//9//9//4//3//3_ee0d9750da75ce8//33499_0cbf3c3cf9fff51.png?v=1750309698`,
+  RECREATION_TRAIL_HEAD: `${import.meta.env.VITE_RECREATION_RESOURCE_ASSETS_BASE_URL}//filestore//7//9//4//3//3_56b000b2bec88d5//33497_321265ef48c7f82.png?v=1750305537`,
+  LOCATION_DOT_BLUE: `${import.meta.env.VITE_RECREATION_RESOURCE_ASSETS_BASE_URL}//filestore//1//0//5//3//3_66d79d1d23e2b87//33501_ee55d0165f33a02.png?v=1750312971`,
+};
