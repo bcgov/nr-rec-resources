@@ -11,7 +11,7 @@ const FilterChip = ({ param, id, label }: FilterChipProps) => {
   };
 
   return (
-    <Button onClick={handleFilterDelete} className="search-filter-chip">
+    <Button onClick={handleFilterDelete} className="search-chip">
       {label}
       <FontAwesomeIcon icon={faCircleXmark} className="close-icon" />
     </Button>
