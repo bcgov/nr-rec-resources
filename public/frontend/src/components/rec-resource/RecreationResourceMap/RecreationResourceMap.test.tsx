@@ -49,6 +49,35 @@ describe('RecreationResourceMap', () => {
     (getLayerStyleForRecResource as any).mockReturnValue(mockLayerStyle);
   });
 
+  it('renders map and download buttons when features exist', () => {
+    render(
+      <RecreationResourceMap
+        recResource={mockRecResource}
+        mapComponentCssStyles={mockMapStyles}
+      />,
+    );
+    expect(getMapFeaturesFromRecResource).toHaveBeenCalledWith(mockRecResource);
+    expect(getLayerStyleForRecResource).toHaveBeenCalledWith(mockRecResource);
+
+    expect(VectorFeatureMap).toHaveBeenCalledWith(
+      expect.objectContaining({
+        layers: [
+          expect.objectContaining({
+            id: 'rec-resource-layer',
+          }),
+        ],
+      }),
+      undefined,
+    );
+
+    expect(
+      screen.getByRole('button', { name: /Download GPX/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /Download KML/i }),
+    ).toBeInTheDocument();
+  });
+
   it('renders VectorFeatureMap with correct props when features exist', () => {
     render(
       <RecreationResourceMap
