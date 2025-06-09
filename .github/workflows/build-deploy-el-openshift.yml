@@ -111,8 +111,8 @@ jobs:
               ./backend-el-1.0.0.tgz
 
             if [ "${{ github.event_name }}" == "pull_request" ]; then
-              oc create job $RELEASE_NAME-${{github.run_number}} --from=cronjob/$RELEASE_NAME
-              oc wait --for=condition=complete --timeout=600s job/$RELEASE_NAME-${{github.run_number}}
+              oc create job $RELEASE_NAME-daily-${{github.run_number}} --from=cronjob/$RELEASE_NAME-daily
+              oc wait --for=condition=complete --timeout=600s job/$RELEASE_NAME-daily-${{github.run_number}}
             fi
   clean_up:
     name: Clean up
