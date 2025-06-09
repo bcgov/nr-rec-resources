@@ -75,17 +75,22 @@ jobs:
           oc_namespace: ${{ secrets.OC_NAMESPACE }}
           oc_token: ${{ secrets.OC_TOKEN }}
           oc_server: ${{ vars.oc_server }}
+          ref: ${{ github.head_ref}}
           commands: |
             # Deploy
             cd charts/backend-el
-
+            SECRET_PERSIST=true
+            PVC_SIZE="500Mi"
             # if event is PR then use a different bucket
             if [ "${{ github.event_name }}" == "pull_request" ]; then
               export AWS_S3_BUCKET="fta-rec-rst-uploads"
               export RELEASE_NAME="backend-el-pr-${{ github.event.number }}"
+              SECRET_PERSIST=false
+              PVC_SIZE="200Mi"
             else
               export AWS_S3_BUCKET="${{ secrets.AWS_S3_BUCKET }}"
               export RELEASE_NAME="backend-el"
+
             fi
 
             export FLYWAY_ECS_CLUSTER="ecs-cluster-node-api-${{ github.event.inputs.environment || 'dev' }}"
@@ -106,6 +111,8 @@ jobs:
               --set-string secrets.flywayTaskDefinition="$FLYWAY_TASK_DEFINITION" \
               --set-string secrets.flywayTaskVpcSubnet="$FLYWAY_TASK_VPC_SUBNET" \
               --set-string secrets.flywayTaskVpcSecurityGroup="$FLYWAY_TASK_VPC_SECURITY_GROUP_ID" \
+              --set secrets.persist=$SECRET_PERSIST \
+              --set-string pvc.size="$PVC_SIZE" \
               --install --wait \
               --values values.yaml "$RELEASE_NAME"\
               ./backend-el-1.0.0.tgz

@@ -21,3 +21,5 @@ successHistoryLimit: 7
 failedHistoryLimit: 7
 config:
   awsS3Bucket: "rst-fta-dataload-oracle" # default bucket for S3 uploads
+pvc:
+  size: ~ # Persistent volume claim size, e.g., "500Mi" given via GHA in build-deploy-el-openshift.yml
