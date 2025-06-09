@@ -1,11 +1,12 @@
+{{/* To run the hourly data extraction job */}}
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ .Release.Name }}-hourly
   labels:
     {{- include "labels" . | nindent 4 }}
 spec:
-  schedule: {{.Values.schedule | quote}}
+  schedule: {{.Values.hourlySchedule | quote}}
   concurrencyPolicy: "Replace"
   successfulJobsHistoryLimit: {{.Values.successHistoryLimit }}
   failedJobsHistoryLimit: {{.Values.failedHistoryLimit }}
@@ -46,6 +47,8 @@ spec:
                   value: "{{ .Values.config.awsS3Bucket }}"
                 - name: spring_profiles_active
                   value: "openshift"
+                - name: JOB_MODE # for backend-el app to run the hourly job
+                  value: "hourly"
               volumeMounts:
                 - name: {{ .Release.Name }}-csv
                   mountPath: /uploads

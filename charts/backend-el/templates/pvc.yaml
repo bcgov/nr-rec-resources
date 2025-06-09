@@ -8,5 +8,5 @@ spec:
     - ReadWriteMany
   resources:
     requests:
-      storage: "500Mi"
+      storage: {{ .Values.pvc.size | quote}}
   storageClassName: netapp-file-standard
