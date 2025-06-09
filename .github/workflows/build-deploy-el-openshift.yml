@@ -102,10 +102,10 @@ jobs:
               --set-string secrets.dbUser="${{ secrets.DBUSER }}" \
               --set-string config.awsS3Bucket="$AWS_S3_BUCKET" \
               --set-string schedule="${{ secrets.SCHEDULE }}" \
-              --set-string config.flywayEcsCluster="$FLYWAY_ECS_CLUSTER" \
-              --set-string config.flywayTaskDefinition="$FLYWAY_TASK_DEFINITION" \
-              --set-string config.flywayTaskVpcSubnet="$FLYWAY_TASK_VPC_SUBNET" \
-              --set-string config.flywayTaskVpcSecurityGroup="$FLYWAY_TASK_VPC_SECURITY_GROUP_ID" \
+              --set-string secrets.flywayEcsCluster="$FLYWAY_ECS_CLUSTER" \
+              --set-string secrets.flywayTaskDefinition="$FLYWAY_TASK_DEFINITION" \
+              --set-string secrets.flywayTaskVpcSubnet="$FLYWAY_TASK_VPC_SUBNET" \
+              --set-string secrets.flywayTaskVpcSecurityGroup="$FLYWAY_TASK_VPC_SECURITY_GROUP_ID" \
               --install --wait \
               --values values.yaml "$RELEASE_NAME"\
               ./backend-el-1.0.0.tgz
