@@ -1,13 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useStore } from '@tanstack/react-store';
+import { Col, ProgressBar, Row, Stack } from 'react-bootstrap';
 import RecResourceCard from '@/components/rec-resource/card/RecResourceCard';
-import SearchBanner from '@/components/search/SearchBanner';
-import FilterChips from '@/components/search/filters/FilterChips';
-import FilterMenu from '@/components/search/filters/FilterMenu';
-import FilterMenuMobile from '@/components/search/filters/FilterMenuMobile';
+import {
+  NoResults,
+  SearchBanner,
+  SearchMap,
+  SearchViewControls,
+} from '@/components/search';
+import {
+  FilterChips,
+  FilterMenu,
+  FilterMenuMobile,
+} from '@/components/search/filters';
 import filterChipStore from '@/store/filterChips';
-import NoResults from '@/components/search/NoResults';
 import searchResultsStore, { initialState } from '@/store/searchResults';
 import { useSearchRecreationResourcesPaginated } from '@/service/queries/recreation-resource';
 import { useInitialPageFromSearchParams } from '@/components/search/hooks/useInitialPageFromSearchParams';
@@ -18,7 +25,6 @@ import {
 } from '@/service/custom-models';
 import { trackEvent } from '@/utils/matomo';
 import { LoadingButton } from '@/components/LoadingButton';
-import { Col, ProgressBar, Row, Stack } from 'react-bootstrap';
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -55,6 +61,8 @@ const SearchPage = () => {
 
   const searchResults = useStore(searchResultsStore);
   const filterChips = useStore(filterChipStore);
+  const isMapFeature = searchParams.get('map-feature') === 'true';
+  const isMapView = searchParams.get('view') === 'map';
 
   useEffect(() => {
     searchResultsStore.setState(() => data ?? initialState);
@@ -122,6 +130,11 @@ const SearchPage = () => {
   return (
     <>
       <SearchBanner />
+      <SearchMap
+        style={{
+          visibility: isMapView ? 'visible' : 'hidden',
+        }}
+      />
       <Stack
         direction="horizontal"
         className="page-container bg-brown-light justify-content-start"
@@ -148,23 +161,27 @@ const SearchPage = () => {
               {isFetchingFirstPage ? (
                 <div>Searching...</div>
               ) : (
-                <div className="no-results-container">
+                <div className="w-100">
                   <div className="results-text">
-                    <strong>
-                      {totalCount !== undefined && totalCount.toLocaleString()}
-                    </strong>
-                    {` ${totalCount === 1 ? 'Result' : 'Results'}`}{' '}
-                    {searchFilter && (
-                      <>
-                        containing <strong>&apos;{searchFilter}&apos;</strong>
-                      </>
-                    )}
-                    {isLocationSearchResults && (
-                      <span>
-                        {' '}
-                        within <b>50 km</b> radius of <b>{community}</b>
-                      </span>
-                    )}
+                    <div>
+                      <strong>
+                        {totalCount !== undefined &&
+                          totalCount.toLocaleString()}
+                      </strong>
+                      {` ${totalCount === 1 ? 'Result' : 'Results'}`}{' '}
+                      {searchFilter && (
+                        <>
+                          containing <strong>&apos;{searchFilter}&apos;</strong>
+                        </>
+                      )}
+                      {isLocationSearchResults && (
+                        <span>
+                          {' '}
+                          within <b>50 km</b> radius of <b>{community}</b>
+                        </span>
+                      )}
+                    </div>
+                    {isMapFeature && <SearchViewControls />}
                   </div>
                   <FilterChips />
                   {(totalCount === 0 || totalCount === undefined) && (
