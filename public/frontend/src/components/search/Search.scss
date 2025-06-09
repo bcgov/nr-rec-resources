@@ -50,9 +50,8 @@
 }
 
 .results-text {
-  margin-bottom: 1.5rem;
-}
-
-.no-results-container {
-  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
 }
