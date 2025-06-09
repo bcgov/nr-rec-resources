@@ -4,7 +4,7 @@ import {
   VectorFeatureMap,
   createRecreationFeatureSource,
   createRecreationFeatureLayer,
-} from 'prp-map';
+} from '@bcgov/prp-map';
 import { SearchViewControls } from '@/components/search';
 import '@/components/search/SearchMap.scss';
 
