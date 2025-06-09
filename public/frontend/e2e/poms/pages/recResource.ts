@@ -6,8 +6,6 @@ import { waitForImagesToLoad } from 'e2e/utils';
 import { RecResource } from 'e2e/poms/pages/types';
 import { SectionTitles } from '@/components/rec-resource/enum';
 
-const MAP_CANVAS_SELECTOR = '#map-container';
-
 export class RecreationResourcePOM {
   readonly page: Page;
 
@@ -46,29 +44,6 @@ export class RecreationResourcePOM {
 
     if (status) {
       await expect(recResourceHeader).toContainText(status);
-    }
-  }
-
-  /**
-   * Remove the map canvas element
-   *
-   * @remarks
-   * Happo e2e automatically converts canvas elements to inline img elements
-   * with a URL that looks like  "_inlined/...png" without actually creating
-   * the file in the directory. When the tests are done, it then tries to
-   * package every URL in the asset bundle for the test review page and tries to
-   * resolve this non-existent url which ends up throwing the error.
-   */
-  async removeRecreationResourceFeatureMap() {
-    try {
-      await this.page
-        .locator(MAP_CANVAS_SELECTOR)
-        .waitFor({ state: 'visible', timeout: 5000 });
-      await this.page.evaluate((selector) => {
-        document.querySelector(selector)?.remove();
-      }, MAP_CANVAS_SELECTOR);
-    } catch (error) {
-      console.warn(`Map element not found: ${error}`);
     }
   }
 

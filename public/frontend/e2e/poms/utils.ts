@@ -7,7 +7,7 @@ import {
   waitForNetworkRequest,
   waitForNetworkResponse,
 } from 'e2e/utils';
-import { BASE_URL } from 'e2e/constants';
+import { BASE_URL, MAP_CANVAS_SELECTOR } from 'e2e/constants';
 
 export class UtilsPOM {
   readonly page: Page;
@@ -44,6 +44,8 @@ export class UtilsPOM {
   }
 
   async screenshot(component: string, variant: string) {
+    // Remove the map canvas element if it exists as it breaks Happo
+    await this.removeVectorFeatureMap();
     await happoPlaywright.screenshot(this.page, this.pageContent, {
       component,
       variant,
@@ -61,5 +63,24 @@ export class UtilsPOM {
   async waitForNetwork(url: string, statusCode?: number) {
     await this.waitForNetworkRequest(url);
     await this.waitForNetworkResponse(statusCode);
+  }
+
+  /**
+   * Remove the map canvas element
+   *
+   * @remarks
+   * Happo e2e automatically converts canvas elements to inline img elements
+   * with a URL that looks like  "_inlined/...png" without actually creating
+   * the file in the directory. When the tests are done, it then tries to
+   * package every URL in the asset bundle for the test review page and tries to
+   * resolve this non-existent url which ends up throwing the error.
+   */
+  async removeVectorFeatureMap() {
+    const canvas = this.page.locator(MAP_CANVAS_SELECTOR);
+    if ((await canvas.count()) > 0) {
+      await this.page.evaluate((selector) => {
+        document.querySelector(selector)?.remove();
+      }, MAP_CANVAS_SELECTOR);
+    }
   }
 }
