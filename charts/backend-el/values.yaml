@@ -7,6 +7,7 @@ secrets:
   flywayTaskDefinition: ""
   flywayTaskVpcSubnet: ""
   flywayTaskVpcSecurityGroup: ""
+  persist: true
 image:
   tag: ~
 resources:

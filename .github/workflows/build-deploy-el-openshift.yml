@@ -88,8 +88,8 @@ jobs:
               export RELEASE_NAME="backend-el"
             fi
 
-            export FLYWAY_ECS_CLUSTER="ecs-cluster-node-api-${{ github.event.inputs.environment }}"
-            export FLYWAY_TASK_DEFINITION="node-api-${{ github.event.inputs.environment }}-flyway-task"
+            export FLYWAY_ECS_CLUSTER="ecs-cluster-node-api-${{ github.event.inputs.environment || 'dev' }}"
+            export FLYWAY_TASK_DEFINITION="node-api-${{ github.event.inputs.environment || 'dev' }}-flyway-task"
             export FLYWAY_TASK_VPC_SUBNET="${{ secrets.FLYWAY_TASK_VPC_SUBNET }}"
             export FLYWAY_TASK_VPC_SECURITY_GROUP_ID="${{ secrets.FLYWAY_TASK_VPC_SECURITY_GROUP_ID }}"
 
