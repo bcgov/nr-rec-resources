@@ -37,7 +37,7 @@
     "ol": "^10.4.0",
     "ol-mapbox-style": "^12.5.0",
     "proj4": "^2.15.0",
-    "prp-map": "^0.0.3",
+    "prp-map": "^0.0.12",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.7",
     "react-bootstrap-typeahead": "^6.4.1",
