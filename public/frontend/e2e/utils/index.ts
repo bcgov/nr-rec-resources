@@ -37,22 +37,3 @@ export const waitForNetworkRequest = async (page: Page, url: string) => {
 export const waitForNetworkResponse = async (page: Page, statusCode = 200) => {
   await page.waitForResponse((response) => response.status() === statusCode);
 };
-
-/**
- * Remove the map canvas element
- *
- * @remarks
- * Happo e2e automatically converts canvas elements to inline img elements
- * with a URL that looks like  "_inlined/...png" without actually creating
- * the file in the directory. When the tests are done, it then tries to
- * package every URL in the asset bundle for the test review page and tries to
- * resolve this non-existent url which ends up throwing the error.
- */
-export const removeVectorFeatureMap = async () => {
-  const canvas = this.page.locator(MAP_CANVAS_SELECTOR);
-  if ((await canvas.count()) > 0) {
-    await this.page.evaluate((selector) => {
-      document.querySelector(selector)?.remove();
-    }, MAP_CANVAS_SELECTOR);
-  }
-};
