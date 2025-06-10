@@ -9,7 +9,6 @@ import {
 } from '@/components/search/SearchMap/layers/recreationFeatureLayer';
 import VectorLayer from 'ol/layer/Vector';
 import '@/components/search/SearchMap/SearchMap.scss';
-import { FILTERED_IDS } from '@/components/search/SearchMap/constants';
 
 const TILE_SIZE = 512;
 const MAX_TEXT_RESOLUTION = 900;
@@ -19,15 +18,19 @@ interface SearchableMapProps {
 }
 
 const SearchMap = ({ style }: SearchableMapProps) => {
-  const [filteredIds, setFilteredIds] = useState<string[]>([]);
+  // Setting a list filteredIds will dynamically filter the recreation feature layer
+  const [filteredIds] = useState<string[]>([]);
 
-  // Memoized source (constant across re-renders)
   const featureSource = useMemo(
-    () => createRecreationFeatureSource(TILE_SIZE),
+    () =>
+      createRecreationFeatureSource({
+        tileSize: TILE_SIZE,
+      }),
     [],
   );
 
-  // Layer refs (persistent across renders)
+  // Use same feature source but separate layers for icons and labels
+  // to allow decluttering of labels while keeping icons visible
   const iconLayerRef = useRef<VectorLayer>(
     new VectorLayer({
       source: featureSource,
@@ -47,7 +50,6 @@ const SearchMap = ({ style }: SearchableMapProps) => {
     }),
   );
 
-  // Set styles for the layers when filteredIds change
   useEffect(() => {
     iconLayerRef.current.setStyle(createRecreationIconStyle(filteredIds));
     labelLayerRef.current.setStyle(createRecreationLabelStyle(filteredIds));
@@ -83,18 +85,6 @@ const SearchMap = ({ style }: SearchableMapProps) => {
 
       <div className="search-map-view-controls">
         <SearchViewControls />
-        <button
-          className="btn btn-secondary"
-          onClick={() => {
-            if (filteredIds.length === 0) {
-              setFilteredIds(FILTERED_IDS);
-            } else {
-              setFilteredIds([]);
-            }
-          }}
-        >
-          Set id list
-        </button>
       </div>
     </div>
   );
