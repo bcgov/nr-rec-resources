@@ -9,7 +9,6 @@ import {
 } from '@/components/search/SearchMap/layers/recreationFeatureLayer';
 import VectorLayer from 'ol/layer/Vector';
 import '@/components/search/SearchMap/SearchMap.scss';
-import { FILTERED_IDS } from '@/components/search/SearchMap/constants';
 
 const TILE_SIZE = 512;
 const MAX_TEXT_RESOLUTION = 900;
@@ -86,18 +85,6 @@ const SearchMap = ({ style }: SearchableMapProps) => {
 
       <div className="search-map-view-controls">
         <SearchViewControls />
-        <button
-          className="btn btn-secondary"
-          onClick={() => {
-            if (filteredIds.length === 0) {
-              setFilteredIds(FILTERED_IDS);
-            } else {
-              setFilteredIds([]);
-            }
-          }}
-        >
-          Set id list
-        </button>
       </div>
     </div>
   );
