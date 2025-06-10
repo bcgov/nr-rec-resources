@@ -3,7 +3,6 @@ import VectorLayer from 'ol/layer/Vector';
 import EsriJSON from 'ol/format/EsriJSON';
 import { tile as tileStrategy } from 'ol/loadingstrategy';
 import { createXYZ } from 'ol/tilegrid';
-<<<<<<< HEAD
 import { Style } from 'ol/style';
 import { FeatureLike } from 'ol/Feature';
 import { capitalizeWords } from '@/utils/capitalizeWords';
@@ -12,12 +11,6 @@ import {
   locationDotBlueIcon,
   locationDotRedIcon,
 } from '@/components/search/SearchMap/mapStyles';
-=======
-import { Style, Fill, Icon, Stroke, Text } from 'ol/style';
-import { FeatureLike } from 'ol/Feature';
-import locationDotBlue from '@/assets/location-dot-blue.png';
-import locationDotRed from '@/assets/location-dot-red.png';
->>>>>>> e7adb2fc (refactor: organize search map components)
 import {
   MAP_LAYER_OPTIONS,
   RECREATION_FEATURE_LAYER,
@@ -27,7 +20,6 @@ import {
 // This file should be moved back to the shared map repo once map development has matured
 // https://github.com/bcgov/prp-map/blob/main/src/layers/recreationFeatureLayer.ts
 
-<<<<<<< HEAD
 const iconStyleCache = new Map<string, Style>();
 const labelTextCache = new Map<string, string>();
 const labelStyleCache = new Map<string, Style>();
@@ -86,98 +78,14 @@ export const createRecreationFeatureSource = (options?: {
   tileSize?: number;
   wrapX?: boolean;
 }) =>
-=======
-export const capitalizeWords = (str: string): string =>
-  str
-    .toLowerCase()
-    .split(' ')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-
-export function featureLabelText(text: string): Text {
-  return new Text({
-    text,
-    font: '14px BC Sans,sans-serif',
-    fill: new Fill({ color: '#000' }),
-    stroke: new Stroke({ color: '#fff', width: 2 }),
-    offsetY: -28,
-  });
-}
-
-export const locationDotBlueIcon = new Style({
-  image: new Icon({ src: locationDotBlue, scale: 0.3, anchor: [0.5, 1] }),
-});
-
-export const locationDotRedIcon = new Style({
-  image: new Icon({ src: locationDotRed, scale: 0.3, anchor: [0.5, 1] }),
-});
-
-// Cache for styles and names to avoid unnecessary recalculations
-const styleCache = new Map<string, Style>();
-const nameCache = new Map<string, string>();
-
-const getCapitalizedName = (name: string): string => {
-  if (!nameCache.has(name)) {
-    nameCache.set(name, capitalizeWords(name));
-  }
-  return nameCache.get(name)!;
-};
-
-export const createRecreationFeatureStyle = (
-  maxTextResolution: number = MAP_LAYER_OPTIONS.MAX_TEXT_RESOLUTION,
-) => {
-  return (feature: FeatureLike, resolution: number) => {
-    const isClosed = feature.get('CLOSURE_IND') === 'Y';
-    const name = feature.get('PROJECT_NAME');
-
-    const isLabelVisible = resolution < maxTextResolution;
-    const label = isLabelVisible ? getCapitalizedName(name) : '';
-    const key = `${isClosed}-${label}`;
-
-    if (!styleCache.has(key)) {
-      const icon = isClosed
-        ? locationDotRedIcon.getImage()
-        : locationDotBlueIcon.getImage();
-
-      const style = new Style({
-        image: icon ?? undefined,
-        text: label ? featureLabelText(label) : undefined,
-      });
-
-      styleCache.set(key, style);
-    }
-
-    return styleCache.get(key)!;
-  };
-};
-
-export const createRecreationFeatureSource = (
-  tileSize: number = MAP_LAYER_OPTIONS.TILE_SIZE,
-  recResourceIds?: string[], // Optional filter for specific recResourceIds
-) =>
->>>>>>> e7adb2fc (refactor: organize search map components)
   new VectorSource({
     format: new EsriJSON(),
     url: (extent) => {
       const geometry = extent.join(',');
-<<<<<<< HEAD
       return (
         `${RECREATION_FEATURE_LAYER}/query/?` +
         `f=json` +
         `&where=1=1` +
-=======
-      const baseWhere = '1=1';
-      let forestFilter = '';
-      if (recResourceIds && recResourceIds.length > 0) {
-        const quotedIds = recResourceIds.map((id) => `'${id}'`).join(',');
-        forestFilter = `AND FOREST_FILE_ID IN (${quotedIds})`;
-      }
-
-      return (
-        `${RECREATION_FEATURE_LAYER}/query/?` +
-        `f=json` +
-        `&where=${encodeURIComponent(`${baseWhere} ${forestFilter}`)}` +
->>>>>>> e7adb2fc (refactor: organize search map components)
         `&outFields=PROJECT_NAME,CLOSURE_IND,FOREST_FILE_ID` +
         `&geometry=${geometry}` +
         `&geometryType=esriGeometryEnvelope` +
@@ -185,26 +93,18 @@ export const createRecreationFeatureSource = (
         `&outSR=102100`
       );
     },
-<<<<<<< HEAD
     strategy: tileStrategy(
       createXYZ({ tileSize: options?.tileSize ?? MAP_LAYER_OPTIONS.TILE_SIZE }),
     ),
     wrapX: options?.wrapX ?? false,
-=======
-    strategy: tileStrategy(createXYZ({ tileSize })),
-    wrapX: false,
->>>>>>> e7adb2fc (refactor: organize search map components)
   });
 
 export const createRecreationFeatureLayer = (
   source: VectorSource,
-<<<<<<< HEAD
   style: (
     feature: FeatureLike,
     resolution?: number,
   ) => Style | Style[] | undefined,
-=======
->>>>>>> e7adb2fc (refactor: organize search map components)
   options?: {
     declutter?: boolean | string;
     maxTextResolution: number;
@@ -215,13 +115,7 @@ export const createRecreationFeatureLayer = (
 ) =>
   new VectorLayer({
     source,
-<<<<<<< HEAD
     style,
-=======
-    style: createRecreationFeatureStyle(
-      options?.maxTextResolution ?? MAP_LAYER_OPTIONS.MAX_TEXT_RESOLUTION,
-    ),
->>>>>>> e7adb2fc (refactor: organize search map components)
     declutter: options?.declutter ?? true,
     updateWhileInteracting: options?.updateWhileInteracting ?? true,
     updateWhileAnimating: options?.updateWhileAnimating ?? true,
