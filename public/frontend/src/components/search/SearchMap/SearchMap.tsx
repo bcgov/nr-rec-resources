@@ -1,15 +1,15 @@
 import { CSSProperties, useMemo } from 'react';
 import 'ol/ol.css';
+import { VectorFeatureMap } from '@bcgov/prp-map';
+import { SearchViewControls } from '@/components/search';
 import {
-  VectorFeatureMap,
   createRecreationFeatureSource,
   createRecreationFeatureLayer,
-} from '@bcgov/prp-map';
-import { SearchViewControls } from '@/components/search';
-import '@/components/search/SearchMap.scss';
+} from '@/components/search/SearchMap/layers/recreationFeatureLayer';
+import '@/components/search/SearchMap/SearchMap.scss';
 
 const TILE_SIZE = 512;
-const MAX_TEXT_RESOLUTION = 400;
+const MAX_TEXT_RESOLUTION = 900;
 
 interface SearchableMapProps {
   style?: CSSProperties;
@@ -22,7 +22,13 @@ const SearchMap = ({ style }: SearchableMapProps) => {
   );
 
   const featureLayer = useMemo(
-    () => createRecreationFeatureLayer(featureSource, MAX_TEXT_RESOLUTION),
+    () =>
+      createRecreationFeatureLayer(featureSource, {
+        maxTextResolution: MAX_TEXT_RESOLUTION,
+        declutter: true,
+        updateWhileInteracting: false,
+        updateWhileAnimating: false,
+      }),
     [featureSource],
   );
 
