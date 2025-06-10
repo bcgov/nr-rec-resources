@@ -11,7 +11,8 @@ export class ResourceDocsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async uploadFile(ref_id: string, filePath: string): Promise<any> {
-    return await uploadFile(ref_id, filePath);
+    console.log(filePath);
+    return await uploadFile(ref_id, "./uploads/1749246971273-test_doc.pdf");
   }
 
   async createResource(): Promise<any> {
