@@ -157,8 +157,7 @@ resource "aws_iam_user_policy" "s3_upload_policy" {
         Effect = "Allow",
         Action = "iam:PassRole",
         Resource = [
-           aws_iam_role.ecs_task_execution_role.arn,
-           aws_iam_role.app_container_role.arn
+           "*"
         ]
       },
       {

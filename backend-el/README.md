@@ -11,6 +11,8 @@
   1. Connecting to an Oracle database and executing queries to fetch data.
   2. Processing the fetched data and writing it into CSV files.
   3. Uploading the generated CSV files to a specified AWS S3 bucket.
+  4. Running Flyway database migrations by triggering ECS tasks which uses the
+     uploaded CSV files in S3.
 
 - Dependencies:
 
@@ -42,9 +44,9 @@ backend-el/
 │   │   │   └── ca/bc/gov/nrs/environment
 │   │   │       ├── entities/         # DB entities
 │   │   │       ├── repositories/     # DB repositories to do crud against entities
-│   │   │       ├── service/          # Main logic to go through each entity and process them
+│   │   │       ├── services/         # Main logic, S3 uploader, Flyway ECS runner, etc.
 │   │   │       ├── AWSConfig.java    # Contains the logic to provide a reusable s3 instance.
-|   |   |       └── FtaRstExporterApplication.java # main entry of applicaton
+│   │   │       └── FtaRstExporterApplication.java # main entry of application
 │   │   └── resources/
 │   │       ├── application.properties             # Main configuration file
 │   │       ├── application-local.properties       # Local configuration (gitignored)
@@ -54,6 +56,32 @@ backend-el/
 ├── pom.xml                                        # Maven project configuration
 └── README.md                                      # Project documentation
 ```
+
+- The `services/` package contains:
+  - `ApplicationService.java`: Orchestrates the workflow (extract, upload,
+    migrate).
+  - `FlywayTaskRunnerService.java`: Runs Flyway migrations via ECS tasks using
+    `FLYWAY_TASK_CONFIGS`.
+  - `S3UploaderService.java`: Handles S3 uploads.
+
+### Flyway ECS Task Runner Configuration
+
+- The Flyway migration task is triggered right after s3 upload. These tasks are
+  configured to run database migrations using Flyway which uses the uploaded CSV
+  files on S3.
+- The configuration for these tasks is provided via a single environment
+  variable: `FLYWAY_TASK_CONFIGS`.
+- **Format:** Each config is separated by `|` (pipe). Each config uses `::`
+  (double colon) to separate values:
+  ```
+  <ecs-cluster>::<task-definition>::<subnet-id>::<security-group-id>|<ecs-cluster>::<task-definition>::<subnet-id>::<security-group-id>
+  ```
+  **Example:**
+  ```
+  my-ecs-cluster::my-task-definition::subnet-12345678::sg-12345678|my-other-cluster::my-other-task-definition::subnet-87654321::sg-87654321
+  ```
+- The application will loop through each config and run the Flyway migration
+  task for each.
 
 ### Running Locally using docker
 
@@ -66,6 +94,12 @@ backend-el/
   read access to objects
 - Run this command to run the docker image
   `docker run -e spring_profiles_active=local -v ./uploads:/uploads backend-el:latest`
+- To test Flyway ECS task runner locally, set the `FLYWAY_TASK_CONFIGS`
+  environment variable:
+  ```
+  export FLYWAY_TASK_CONFIGS="my-ecs-cluster::my-task-definition::subnet-12345678::sg-12345678"
+  ```
+  Then run the application as usual.
 
 ### OpenShift Deployment.
 

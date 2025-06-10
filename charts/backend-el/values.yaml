@@ -3,10 +3,7 @@ secrets:
   dbName: ~
   dbPassword: ~
   dbUser: ~
-  flywayEcsCluster: ""
-  flywayTaskDefinition: ""
-  flywayTaskVpcSubnet: ""
-  flywayTaskVpcSecurityGroup: ""
+  flywayTaskConfigs: ""
   persist: true
 image:
   tag: ~

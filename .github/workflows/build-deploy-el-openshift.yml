@@ -93,10 +93,7 @@ jobs:
 
             fi
 
-            export FLYWAY_ECS_CLUSTER="ecs-cluster-node-api-${{ github.event.inputs.environment || 'dev' }}"
-            export FLYWAY_TASK_DEFINITION="node-api-${{ github.event.inputs.environment || 'dev' }}-flyway-task"
-            export FLYWAY_TASK_VPC_SUBNET="${{ secrets.FLYWAY_TASK_VPC_SUBNET }}"
-            export FLYWAY_TASK_VPC_SECURITY_GROUP_ID="${{ secrets.FLYWAY_TASK_VPC_SECURITY_GROUP_ID }}"
+            export FLYWAY_TASK_CONFIGS="${{ secrets.FLYWAY_TASK_CONFIGS }}"
 
             helm package -u . --app-version="${{ github.sha }}" --version=1.0.0
             helm upgrade \
@@ -107,10 +104,7 @@ jobs:
               --set-string secrets.dbUser="${{ secrets.DBUSER }}" \
               --set-string config.awsS3Bucket="$AWS_S3_BUCKET" \
               --set-string schedule="${{ secrets.SCHEDULE }}" \
-              --set-string secrets.flywayEcsCluster="$FLYWAY_ECS_CLUSTER" \
-              --set-string secrets.flywayTaskDefinition="$FLYWAY_TASK_DEFINITION" \
-              --set-string secrets.flywayTaskVpcSubnet="$FLYWAY_TASK_VPC_SUBNET" \
-              --set-string secrets.flywayTaskVpcSecurityGroup="$FLYWAY_TASK_VPC_SECURITY_GROUP_ID" \
+              --set-string secrets.flywayTaskConfigs="${FLYWAY_TASK_CONFIGS}" \
               --set secrets.persist=$SECRET_PERSIST \
               --set-string pvc.size="$PVC_SIZE" \
               --install --wait \
