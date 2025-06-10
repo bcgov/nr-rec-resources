@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import SearchViewControls from '@/components/search/SearchViewControls';
+import SearchViewControls from '@/components/search/SearchMap/SearchViewControls';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const renderWithRouter = (initialEntries: string[] = ['/']) => {
