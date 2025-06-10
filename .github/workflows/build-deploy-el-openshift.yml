@@ -75,17 +75,29 @@ jobs:
           oc_namespace: ${{ secrets.OC_NAMESPACE }}
           oc_token: ${{ secrets.OC_TOKEN }}
           oc_server: ${{ vars.oc_server }}
+          ref: ${{ github.head_ref}}
           commands: |
             # Deploy
             cd charts/backend-el
+            SECRET_PERSIST=true
+            PVC_SIZE="500Mi"
             # if event is PR then use a different bucket
             if [ "${{ github.event_name }}" == "pull_request" ]; then
               export AWS_S3_BUCKET="fta-rec-rst-uploads"
               export RELEASE_NAME="backend-el-pr-${{ github.event.number }}"
+              SECRET_PERSIST=false
+              PVC_SIZE="200Mi"
             else
               export AWS_S3_BUCKET="${{ secrets.AWS_S3_BUCKET }}"
               export RELEASE_NAME="backend-el"
+
             fi
+
+            export FLYWAY_ECS_CLUSTER="ecs-cluster-node-api-${{ github.event.inputs.environment || 'dev' }}"
+            export FLYWAY_TASK_DEFINITION="node-api-${{ github.event.inputs.environment || 'dev' }}-flyway-task"
+            export FLYWAY_TASK_VPC_SUBNET="${{ secrets.FLYWAY_TASK_VPC_SUBNET }}"
+            export FLYWAY_TASK_VPC_SECURITY_GROUP_ID="${{ secrets.FLYWAY_TASK_VPC_SECURITY_GROUP_ID }}"
+
             helm package -u . --app-version="${{ github.sha }}" --version=1.0.0
             helm upgrade \
               --set-string image.tag="${{ github.sha }}" \
@@ -95,12 +107,19 @@ jobs:
               --set-string secrets.dbUser="${{ secrets.DBUSER }}" \
               --set-string config.awsS3Bucket="$AWS_S3_BUCKET" \
               --set-string schedule="${{ secrets.SCHEDULE }}" \
+              --set-string secrets.flywayEcsCluster="$FLYWAY_ECS_CLUSTER" \
+              --set-string secrets.flywayTaskDefinition="$FLYWAY_TASK_DEFINITION" \
+              --set-string secrets.flywayTaskVpcSubnet="$FLYWAY_TASK_VPC_SUBNET" \
+              --set-string secrets.flywayTaskVpcSecurityGroup="$FLYWAY_TASK_VPC_SECURITY_GROUP_ID" \
+              --set secrets.persist=$SECRET_PERSIST \
+              --set-string pvc.size="$PVC_SIZE" \
               --install --wait \
               --values values.yaml "$RELEASE_NAME"\
               ./backend-el-1.0.0.tgz
+
             if [ "${{ github.event_name }}" == "pull_request" ]; then
-              oc create job $RELEASE_NAME-${{github.run_number}} --from=cronjob/$RELEASE_NAME
-              oc wait --for=condition=complete --timeout=600s job/$RELEASE_NAME-${{github.run_number}}
+              oc create job $RELEASE_NAME-daily-${{github.run_number}} --from=cronjob/$RELEASE_NAME-daily
+              oc wait --for=condition=complete --timeout=600s job/$RELEASE_NAME-daily-${{github.run_number}}
             fi
   clean_up:
     name: Clean up
