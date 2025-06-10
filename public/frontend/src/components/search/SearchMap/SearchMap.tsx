@@ -138,7 +138,13 @@ const SearchMap = ({ style }: SearchableMapProps) => {
         <SearchViewControls />
         <button
           className="btn btn-secondary"
-          onClick={() => setFilteredIds(FILTERED_IDS)}
+          onClick={() => {
+            if (filteredIds.length === 0) {
+              setFilteredIds(FILTERED_IDS);
+            } else {
+              setFilteredIds([]);
+            }
+          }}
         >
           Set id list
         </button>
