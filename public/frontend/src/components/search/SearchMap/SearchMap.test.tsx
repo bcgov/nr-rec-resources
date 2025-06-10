@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { vi } from 'vitest';
-import SearchMap from '@/components/search/SearchMap';
+import SearchMap from '@/components/search/SearchMap/SearchMap';
 
 vi.mock('@bcgov/prp-map', () => ({
   createRecreationFeatureSource: vi.fn(),
@@ -8,7 +8,7 @@ vi.mock('@bcgov/prp-map', () => ({
   VectorFeatureMap: vi.fn(() => <div data-testid="vector-feature-map" />),
 }));
 
-vi.mock('@/components/search/SearchViewControls', () => ({
+vi.mock('@/components/search/SearchMap/SearchViewControls', () => ({
   default: () => <div data-testid="search-view-controls" />,
 }));
 
