@@ -3,10 +3,14 @@ import VectorLayer from 'ol/layer/Vector';
 import EsriJSON from 'ol/format/EsriJSON';
 import { tile as tileStrategy } from 'ol/loadingstrategy';
 import { createXYZ } from 'ol/tilegrid';
-import { Style, Fill, Icon, Stroke, Text } from 'ol/style';
+import { Style } from 'ol/style';
 import { FeatureLike } from 'ol/Feature';
-import locationDotBlue from '@/assets/location-dot-blue.png';
-import locationDotRed from '@/assets/location-dot-red.png';
+import { capitalizeWords } from '@/utils/capitalizeWords';
+import {
+  featureLabelText,
+  locationDotBlueIcon,
+  locationDotRedIcon,
+} from '@/components/search/SearchMap/mapStyles';
 import {
   MAP_LAYER_OPTIONS,
   RECREATION_FEATURE_LAYER,
@@ -16,40 +20,15 @@ import {
 // This file should be moved back to the shared map repo once map development has matured
 // https://github.com/bcgov/prp-map/blob/main/src/layers/recreationFeatureLayer.ts
 
-export const capitalizeWords = (str: string): string =>
-  str
-    .toLowerCase()
-    .split(' ')
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
-
-export function featureLabelText(text: string): Text {
-  return new Text({
-    text,
-    font: '14px BC Sans,sans-serif',
-    fill: new Fill({ color: '#000' }),
-    stroke: new Stroke({ color: '#fff', width: 2 }),
-    offsetY: -28,
-  });
-}
-
-export const locationDotBlueIcon = new Style({
-  image: new Icon({ src: locationDotBlue, scale: 0.3, anchor: [0.5, 1] }),
-});
-
-export const locationDotRedIcon = new Style({
-  image: new Icon({ src: locationDotRed, scale: 0.3, anchor: [0.5, 1] }),
-});
-
-// Label + icon caches
 const iconStyleCache = new Map<string, Style>();
+const labelTextCache = new Map<string, string>();
 const labelStyleCache = new Map<string, Style>();
 
 export const getCapitalizedName = (name: string): string => {
-  if (!labelStyleCache.has(name)) {
-    labelStyleCache.set(name, capitalizeWords(name));
+  if (!labelTextCache.has(name)) {
+    labelTextCache.set(name, capitalizeWords(name));
   }
-  return labelStyleCache.get(name)!;
+  return labelTextCache.get(name)!;
 };
 
 export const createRecreationIconStyle = (filteredIds: string[] = []) => {
@@ -96,25 +75,18 @@ export const createRecreationLabelStyle = (filteredIds: string[] = []) => {
   };
 };
 
-export const createRecreationFeatureSource = (
-  tileSize: number = MAP_LAYER_OPTIONS.TILE_SIZE,
-  recResourceIds?: string[], // Optional filter for specific recResourceIds
-) =>
+export const createRecreationFeatureSource = (options?: {
+  tileSize?: number;
+  wrapX?: boolean;
+}) =>
   new VectorSource({
     format: new EsriJSON(),
     url: (extent) => {
       const geometry = extent.join(',');
-      const baseWhere = '1=1';
-      let forestFilter = '';
-      if (recResourceIds && recResourceIds.length > 0) {
-        const quotedIds = recResourceIds.map((id) => `'${id}'`).join(',');
-        forestFilter = `AND FOREST_FILE_ID IN (${quotedIds})`;
-      }
-
       return (
         `${RECREATION_FEATURE_LAYER}/query/?` +
         `f=json` +
-        `&where=${encodeURIComponent(`${baseWhere} ${forestFilter}`)}` +
+        `&where=1=1` +
         `&outFields=PROJECT_NAME,CLOSURE_IND,FOREST_FILE_ID` +
         `&geometry=${geometry}` +
         `&geometryType=esriGeometryEnvelope` +
@@ -122,8 +94,10 @@ export const createRecreationFeatureSource = (
         `&outSR=102100`
       );
     },
-    strategy: tileStrategy(createXYZ({ tileSize })),
-    wrapX: false,
+    strategy: tileStrategy(
+      createXYZ({ tileSize: options?.tileSize ?? MAP_LAYER_OPTIONS.TILE_SIZE }),
+    ),
+    wrapX: options?.wrapX ?? false,
   });
 
 export const createRecreationFeatureLayer = (
