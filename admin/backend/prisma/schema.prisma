@@ -7,7 +7,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-  schemas  = ["rst"]
+  schemas  = ["admin", "rst"]
 }
 
 model recreation_resource {
