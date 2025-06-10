@@ -41,42 +41,58 @@ export const locationDotRedIcon = new Style({
   image: new Icon({ src: locationDotRed, scale: 0.3, anchor: [0.5, 1] }),
 });
 
-// Cache for styles and names to avoid unnecessary recalculations
-const styleCache = new Map<string, Style>();
-const nameCache = new Map<string, string>();
+// Label + icon caches
+const iconStyleCache = new Map<string, Style>();
+const labelStyleCache = new Map<string, Style>();
 
-const getCapitalizedName = (name: string): string => {
-  if (!nameCache.has(name)) {
-    nameCache.set(name, capitalizeWords(name));
+export const getCapitalizedName = (name: string): string => {
+  if (!labelStyleCache.has(name)) {
+    labelStyleCache.set(name, capitalizeWords(name));
   }
-  return nameCache.get(name)!;
+  return labelStyleCache.get(name)!;
 };
 
-export const createRecreationFeatureStyle = (
-  maxTextResolution: number = MAP_LAYER_OPTIONS.MAX_TEXT_RESOLUTION,
-) => {
-  return (feature: FeatureLike, resolution: number) => {
+export const createRecreationIconStyle = (filteredIds: string[] = []) => {
+  const filteredSet = new Set(filteredIds);
+
+  return (feature: FeatureLike): Style | undefined => {
+    const id = feature.get('FOREST_FILE_ID');
+
+    if (filteredSet.size > 0 && !filteredSet.has(id)) return undefined;
+
     const isClosed = feature.get('CLOSURE_IND') === 'Y';
-    const name = feature.get('PROJECT_NAME');
+    const key = `icon-${isClosed}`;
 
-    const isLabelVisible = resolution < maxTextResolution;
-    const label = isLabelVisible ? getCapitalizedName(name) : '';
-    const key = `${isClosed}-${label}`;
-
-    if (!styleCache.has(key)) {
+    if (!iconStyleCache.has(key)) {
       const icon = isClosed
         ? locationDotRedIcon.getImage()
         : locationDotBlueIcon.getImage();
-
-      const style = new Style({
-        image: icon ?? undefined,
-        text: label ? featureLabelText(label) : undefined,
-      });
-
-      styleCache.set(key, style);
+      iconStyleCache.set(key, new Style({ image: icon ?? undefined }));
     }
 
-    return styleCache.get(key)!;
+    return iconStyleCache.get(key)!;
+  };
+};
+
+export const createRecreationLabelStyle = (filteredIds: string[] = []) => {
+  const filteredSet = new Set(filteredIds);
+
+  return (feature: FeatureLike): Style | undefined => {
+    const id = feature.get('FOREST_FILE_ID');
+
+    if (filteredSet.size > 0 && !filteredSet.has(id)) return undefined;
+
+    const name = feature.get('PROJECT_NAME');
+    if (!name) return;
+
+    const label = getCapitalizedName(name);
+    const key = `label-${label}`;
+
+    if (!labelStyleCache.has(key)) {
+      labelStyleCache.set(key, new Style({ text: featureLabelText(label) }));
+    }
+
+    return labelStyleCache.get(key);
   };
 };
 
@@ -112,6 +128,10 @@ export const createRecreationFeatureSource = (
 
 export const createRecreationFeatureLayer = (
   source: VectorSource,
+  style: (
+    feature: FeatureLike,
+    resolution?: number,
+  ) => Style | Style[] | undefined,
   options?: {
     declutter?: boolean | string;
     maxTextResolution: number;
@@ -122,9 +142,7 @@ export const createRecreationFeatureLayer = (
 ) =>
   new VectorLayer({
     source,
-    style: createRecreationFeatureStyle(
-      options?.maxTextResolution ?? MAP_LAYER_OPTIONS.MAX_TEXT_RESOLUTION,
-    ),
+    style,
     declutter: options?.declutter ?? true,
     updateWhileInteracting: options?.updateWhileInteracting ?? true,
     updateWhileAnimating: options?.updateWhileAnimating ?? true,
