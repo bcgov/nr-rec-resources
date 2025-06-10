@@ -92,7 +92,42 @@ export async function uploadFile(ref, filePath) {
       },
     })
     .then((res) => {
-      return res.data;
+      return res;
+    })
+    .catch((err) => {
+      console.log(err.response.data);
+      console.log(err.status);
+    });
+}
+
+export async function uploadFile2(ref, filePath) {
+  const params: any = {
+    user,
+    function: "upload_file",
+    ref,
+    no_exif: false,
+    revert: false,
+  };
+  const file = createReadStream(filePath);
+
+  const queryString = new URLSearchParams(params).toString();
+  const signature = sign(queryString);
+  const formData = new FormData();
+  formData.append("query", queryString);
+  formData.append("sign", signature);
+  formData.append("user", user);
+  formData.append("file", file);
+
+  console.log(formData);
+  // Use createReadStream
+  return await axios
+    .post(damUrl, formData, {
+      headers: {
+        "Content-Type": `multipart/form-data`, // Important: Set the correct Content-Type
+      },
+    })
+    .then((res) => {
+      return res;
     })
     .catch((err) => {
       console.log(err.response.data);
