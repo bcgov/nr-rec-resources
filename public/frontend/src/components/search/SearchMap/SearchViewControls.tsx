@@ -1,5 +1,5 @@
 import { useSearchParams } from 'react-router-dom';
-import '@/components/search/SearchViewControls.scss';
+import '@/components/search/SearchMap/SearchViewControls.scss';
 import '@/components/search/filters/Filters.scss';
 
 interface SearchViewControlsProps {
