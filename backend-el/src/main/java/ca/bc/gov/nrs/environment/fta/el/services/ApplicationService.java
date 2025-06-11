@@ -214,7 +214,7 @@ public class ApplicationService {
     extractAndUploadRecreationUserDaysCode();
     extractAndUploadRecreatnEvent();
 
-    this.flywayTaskRunnerService.runFlywayTask();
+    this.flywayTaskRunnerService.runFlywayTasks();
   }
 
   /**
@@ -224,7 +224,7 @@ public class ApplicationService {
     // for closures, driving directions, and descriptions
     extractAndUploadRecreationComment();
 
-    this.flywayTaskRunnerService.runFlywayTask();
+    this.flywayTaskRunnerService.runFlywayTasks();
   }
 
   private void extractAndUploadRecreationMapFeature() {
