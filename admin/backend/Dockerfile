@@ -23,10 +23,9 @@ ENV NODE_ENV=production
 # Copy app and dependencies
 WORKDIR /app
 COPY --from=dependencies /app/node_modules ./node_modules
-# UNCOMMENT THIS - currently broken until we solve the prisma issue
-# COPY --from=build /app/node_modules/@prisma ./node_modules/@prisma
-# COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
-# COPY --from=build /app/node_modules/prisma ./node_modules/prisma
+COPY --from=build /app/node_modules/@prisma ./node_modules/@prisma
+COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=build /app/node_modules/prisma ./node_modules/prisma
 COPY --from=build /app/dist ./dist
 
 # Boilerplate, not used in OpenShift/Kubernetes
