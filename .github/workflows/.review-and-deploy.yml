@@ -18,7 +18,7 @@ jobs:
     uses: ./.github/workflows/.deploy-app.yml
     concurrency:
       group: deploy-${{ inputs.app }}-to-aws-dev
-      cancel-in-progress: true
+      cancel-in-progress: false
     with:
       app: ${{ inputs.app }}
       app_env: dev
@@ -28,8 +28,6 @@ jobs:
     secrets: inherit
 
   tests-e2e-dev-environment:
-    # Admin e2e isn't set up yet
-    if: ${{ inputs.app == 'public' }}
     name: Run e2e tests on dev env
     needs: deploy-to-aws-dev
     uses: ./.github/workflows/.e2e.yml
@@ -59,7 +57,7 @@ jobs:
     uses: ./.github/workflows/.deploy-app.yml
     concurrency:
       group: deploy-${{ inputs.app }}-to-aws-test
-      cancel-in-progress: true
+      cancel-in-progress: false
     with:
       app: ${{ inputs.app }}
       app_env: test
