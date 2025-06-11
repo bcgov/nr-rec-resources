@@ -74,7 +74,7 @@
     "eslint-plugin-storybook": "^0.12.0",
     "happo-e2e": "^4.0.0",
     "happo-playwright": "^2.2.0",
-    "happo.io": "^12.0.0",
+    "happo.io": "^13.0.0",
     "jsdom": "^26.0.0",
     "less": "^4.2.2",
     "msw": "^2.7.4",
