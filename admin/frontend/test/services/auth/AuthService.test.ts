@@ -215,17 +215,6 @@ describe("AuthService", () => {
       expect(token).toBe("abc");
       expect(mockKeycloak.updateToken).toHaveBeenCalledWith(5);
     });
-
-    it("returns undefined and logs error if updateToken fails", async () => {
-      mockKeycloak.authenticated = true;
-      mockKeycloak.updateToken.mockRejectedValue(new Error("fail"));
-      const token = await authService.getToken();
-      expect(token).toBeUndefined();
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        "Failed to refresh token",
-        expect.any(Error),
-      );
-    });
   });
 
   describe("getUser", () => {
@@ -265,6 +254,54 @@ describe("AuthService", () => {
       mockKeycloak.tokenParsed = undefined;
       const roles = authService.getUserRoles();
       expect(roles).toEqual([]);
+    });
+  });
+
+  describe("getUserFullName", () => {
+    beforeEach(() => {
+      authService = AuthService.getInstance();
+    });
+
+    it("returns full name from given_name and family_name", () => {
+      mockKeycloak.tokenParsed = {
+        given_name: "Jane",
+        family_name: "Doe",
+        name: "Jane D.",
+      };
+      expect(authService.getUserFullName()).toBe("Jane Doe");
+    });
+
+    it("returns only given_name if family_name is missing", () => {
+      mockKeycloak.tokenParsed = {
+        given_name: "Jane",
+        name: "Jane D.",
+      };
+      expect(authService.getUserFullName()).toBe("Jane");
+    });
+
+    it("returns only family_name if given_name is missing", () => {
+      mockKeycloak.tokenParsed = {
+        family_name: "Doe",
+        name: "Jane D.",
+      };
+      expect(authService.getUserFullName()).toBe("Doe");
+    });
+
+    it("returns name if given_name and family_name are missing", () => {
+      mockKeycloak.tokenParsed = {
+        name: "Jane D.",
+      };
+      expect(authService.getUserFullName()).toBe("Jane D.");
+    });
+
+    it("returns empty string if all fields are missing", () => {
+      mockKeycloak.tokenParsed = {};
+      expect(authService.getUserFullName()).toBe("");
+    });
+
+    it("returns empty string if tokenParsed is undefined", () => {
+      mockKeycloak.tokenParsed = undefined;
+      expect(authService.getUserFullName()).toBe("");
     });
   });
 

@@ -1,0 +1,93 @@
+@import "../../styles/global";
+
+.dropdown-menu-item {
+  width: calc(100% - 2rem);
+  margin: auto;
+  border: 0 solid transparent;
+  border-radius: 1rem;
+
+  &.active,
+  &:active {
+    color: inherit;
+    background-color: $colorGreyLight;
+  }
+
+  @include media-breakpoint-down(sm) {
+    padding: unset;
+    margin: 1rem auto;
+  }
+}
+
+.rec-id-badge {
+  background: $colorIceBlue !important;
+  min-width: 100px;
+  color: $colorBlue;
+
+  // Set badge background to white when menu item is active or hovered
+  .active &,
+  .dropdown-menu-item:hover & {
+    background: $colorWhite !important;
+  }
+}
+
+.rec-name {
+  white-space: normal;
+
+  // Underline the text when the menu item is active or hovered
+  .active &,
+  .dropdown-menu-item:hover & {
+    text-decoration: underline;
+  }
+}
+
+@import "../../styles/variables";
+
+.suggestion-search-input-container {
+  border: 1px solid #ced4da;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  background-color: #fff;
+  padding: 0.35rem 0.875rem;
+
+  &:has(input[aria-expanded="true"]) {
+    border-radius: 0.375rem 0.375rem 0 0;
+  }
+
+  .input-group-text,
+  .form-control {
+    border: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .search-icon-wrapper {
+    padding-left: 0.75rem;
+    padding-right: 0.25rem;
+    color: $colorGrey;
+    display: flex;
+    align-items: center;
+  }
+
+  .form-control {
+    padding-left: 0.25rem;
+  }
+}
+
+.rbt-menu.dropdown-menu {
+  width: 100%;
+  margin-top: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Error state styles */
+.rbt.is-invalid {
+  border-color: var(--bs-danger);
+  box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+
+  .form-control,
+  .input-group-text {
+    border-color: var(--bs-danger);
+  }
+}

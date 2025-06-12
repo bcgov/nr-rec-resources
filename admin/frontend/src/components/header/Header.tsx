@@ -1,47 +1,58 @@
-import {
-  Button,
-  Header as BCGovHeader,
-} from "@bcgov/design-system-react-components";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars } from "@fortawesome/free-solid-svg-icons";
+import { Header as BCGovHeader } from "@bcgov/design-system-react-components";
 import {
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownToggle,
+  Image,
   Stack,
 } from "react-bootstrap";
-import React, { forwardRef } from "react";
-import { FocusableElement } from "@react-types/shared";
+import { forwardRef, KeyboardEvent, MouseEvent } from "react";
 import { useAuthContext } from "@/contexts/AuthContext";
+import "./Header.scss";
+import { Avatar } from "@/components/avatar/Avatar";
 
 /**
  * A custom menu toggle component for the header dropdown.
- *
- * @remarks
- * This component renders a Button with a "Menu" label (visible on md and up) and a FontAwesome bars icon.
  */
 const HeaderMenuToggle = forwardRef<
   HTMLDivElement,
   {
-    onClick: (event: React.MouseEvent<FocusableElement>) => void;
+    onClick: (event: MouseEvent | KeyboardEvent) => void;
     className?: string;
+    name: string;
   }
 >((props, ref) => (
-  <div ref={ref}>
-    <Button
-      data-testid="menu-toggle"
-      onClick={(event) => {
+  <div
+    ref={ref}
+    data-testid="menu-toggle"
+    tabIndex={0}
+    onClick={(event) => {
+      event.preventDefault();
+      props.onClick(event);
+    }}
+    onKeyDown={(event) => {
+      if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
         props.onClick(event);
-      }}
-      variant="secondary"
-    >
-      <span className="d-none d-md-inline">Menu</span>
-      <FontAwesomeIcon icon={faBars} />
-    </Button>
+      }
+    }}
+  >
+    <Avatar name={props.name} size={50} tooltip={false} />
   </div>
 ));
+
+/**
+ * Renders the HeaderMenuToggle with the user's full name.
+ */
+const renderMenuToggle = (fullName: string) =>
+  forwardRef<
+    HTMLDivElement,
+    {
+      onClick: (event: MouseEvent | KeyboardEvent) => void;
+      className?: string;
+    }
+  >((props, ref) => <HeaderMenuToggle {...props} ref={ref} name={fullName} />);
 
 /**
  * The Header component renders the top-level header with a welcome message and a dropdown menu.
@@ -52,36 +63,42 @@ const HeaderMenuToggle = forwardRef<
  */
 export const Header = () => {
   const { user, authService } = useAuthContext();
+  const fullName = authService.getUserFullName();
   return (
-    <BCGovHeader>
-      <Stack
-        direction={"horizontal"}
-        gap={3}
-        className="w-100 d-flex justify-content-end align-items-center"
+    <div className={"header-container"}>
+      <BCGovHeader
+        logoImage={
+          <Image width="200px" height="50px" src="/images/RST_nav_logo.svg" />
+        }
       >
-        {user && (
-          <div className="d-none d-md-block">
-            Welcome, {user?.idir_username}
-          </div>
-        )}
-        <Dropdown>
-          <DropdownToggle
-            as={HeaderMenuToggle} // for a custom bc gov design-based button
-            id="dropdown-basic"
-          />
-          <DropdownMenu>
-            {user && (
-              // Only show in mobile view (md and lower)
-              <DropdownItem disabled className="d-md-none">
-                Signed in as {user?.idir_username}
+        <Stack
+          direction={"horizontal"}
+          gap={3}
+          className="w-100 d-flex justify-content-end align-items-center"
+        >
+          {user && (
+            <div className="d-none d-md-block full-name">{fullName}</div>
+          )}
+
+          <Dropdown>
+            <DropdownToggle
+              as={renderMenuToggle(fullName)} // use the renderMenuToggle function
+              id="dropdown-basic"
+            />
+            <DropdownMenu>
+              {user && (
+                // Only show in mobile view (md and lower)
+                <DropdownItem disabled className="d-md-none">
+                  Signed in as {user?.idir_username}
+                </DropdownItem>
+              )}
+              <DropdownItem onClick={() => authService.logout()}>
+                Logout
               </DropdownItem>
-            )}
-            <DropdownItem onClick={() => authService.logout()}>
-              Logout
-            </DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
-      </Stack>
-    </BCGovHeader>
+            </DropdownMenu>
+          </Dropdown>
+        </Stack>
+      </BCGovHeader>
+    </div>
   );
 };

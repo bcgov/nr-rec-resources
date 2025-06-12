@@ -1,0 +1,21 @@
+@import "../styles/variables";
+
+.landing-page {
+  height: calc(100vh - $headerHeight);
+  background-image: url("/images/landing-page/hero/hero.jpg");
+  background-size: cover;
+  background-position: center 50%;
+  background-repeat: no-repeat;
+
+  .search-container {
+    margin: auto;
+    border-radius: 1rem;
+    color: $colorWhite;
+    background-color: $colorBlue;
+    width: clamp(min(700px, 90vw), 50%, 888px);
+    max-height: fit-content;
+    position: relative;
+    top: 25%;
+    letter-spacing: 0.02rem;
+  }
+}

@@ -16,6 +16,7 @@ export class SuggestionsQueryDto {
     maxLength: 50,
     type: String,
     example: "Tamihi All",
+    pattern: "^[A-Za-z0-9 \"'()#.&/]+$",
   })
   @Matches(/^[A-Za-z0-9 "'()#.&/]+$/, {
     message: "searchTerm can only contain alphanumeric characters and spaces",
