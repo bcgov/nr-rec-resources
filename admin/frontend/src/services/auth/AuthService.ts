@@ -79,13 +79,8 @@ export class AuthService {
 
   async getToken(): Promise<string | undefined> {
     if (!this.keycloak.authenticated) return undefined;
-    try {
-      await this.keycloak.updateToken(5);
-      return this.keycloak.token;
-    } catch (err) {
-      console.error("Failed to refresh token", err);
-      return undefined;
-    }
+    await this.keycloak.updateToken(5);
+    return this.keycloak.token;
   }
 
   async getUser(): Promise<UserInfo | undefined> {
