@@ -58,7 +58,7 @@ jobs:
     name: Verify Terraform
     uses: ./.github/workflows/.deploy-app.yml
     concurrency:
-      group: verify-terraform-${{ inputs.app }}
+      group: verify-terraform-${{ github.ref }}
       cancel-in-progress: false
     with:
       app: ${{ inputs.app }}

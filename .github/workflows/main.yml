@@ -14,8 +14,6 @@ on:
 
 jobs:
   build-containers:
-    # Don't run e2e on this pr as we need the project reorganized first
-    # if: github.ref_name == 'main' || github.head_ref == 'main'
     name: Build containers
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-build-containers
