@@ -1,28 +1,15 @@
 import axios from "axios";
 import { createHash } from "crypto";
-import { createReadStream } from "node:fs";
+import { createReadStream } from "fs";
 import * as FormData from "form-data";
 
-const damUrl = "https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca/api/?";
-const private_key =
-  "eadf5671b31c517524b7c737b7b84bd365f40f96caa076cfc61891bd51f31363";
-const user = "FBARRETA";
+const damUrl = `${process.env.DAM_URL}/api/?`;
+const private_key = process.env.DAM_PRIVATE_KEY;
+const user = process.env.DAM_USER;
+const pdfCollectionId = process.env.DAM_RST_PDF_COLLECTION_ID;
 
 function sign(query) {
   return createHash("sha256").update(`${private_key}${query}`).digest("hex");
-}
-
-export async function getAllResources() {
-  const searchParams = `${encodeURI("!collection739")}&restypes=${encodeURI("23,24,25,1,3,19,20,22,21")}`;
-  const query = `user=${user}&function=do_search&search=${searchParams}`;
-  return axios
-    .get(`${damUrl}${query}&sign=${sign(query)}`)
-    .then((res) => {
-      return res.data;
-    })
-    .catch((err) => {
-      console.log(err);
-    });
 }
 
 export async function getResourceFiles(resource) {
@@ -33,7 +20,7 @@ export async function getResourceFiles(resource) {
       return res.data;
     })
     .catch((err) => {
-      console.log(err);
+      throw err;
     });
 }
 
@@ -53,25 +40,74 @@ export async function createResource() {
 
   return await axios
     .post(damUrl, formData, {
-      headers: {
-        "Content-Type": `multipart/form-data`, // Important: Set the correct Content-Type
-      },
+      headers: formData.getHeaders(),
     })
     .then((res) => {
       return res.data;
     })
     .catch((err) => {
-      console.log(err);
+      throw err;
     });
 }
 
-export async function uploadFile(ref, filePath) {
+export async function getResourcePath(resource: string) {
+  const params: any = {
+    user,
+    function: "get_resource_all_image_sizes",
+    resource,
+  };
+  const queryString = new URLSearchParams(params).toString();
+  const signature = sign(queryString);
+  const formData = new FormData();
+  formData.append("query", queryString);
+  formData.append("sign", signature);
+  formData.append("user", user);
+
+  return await axios
+    .post(damUrl, formData, {
+      headers: formData.getHeaders(),
+    })
+    .then((res) => {
+      return res.data;
+    })
+    .catch((err) => {
+      throw err;
+    });
+}
+
+export async function addResourceToCollection(resource: string) {
+  const params: any = {
+    user,
+    function: "add_resource_to_collection",
+    resource,
+    collection: pdfCollectionId,
+  };
+  const queryString = new URLSearchParams(params).toString();
+  const signature = sign(queryString);
+  const formData = new FormData();
+  formData.append("query", queryString);
+  formData.append("sign", signature);
+  formData.append("user", user);
+
+  return await axios
+    .post(damUrl, formData, {
+      headers: formData.getHeaders(),
+    })
+    .then((res) => {
+      return res.data;
+    })
+    .catch((err) => {
+      throw err;
+    });
+}
+
+export async function uploadFile(ref: string, filePath: string) {
   const params: any = {
     user,
     function: "upload_multipart",
     ref,
-    no_exif: false,
-    revert: false,
+    no_exif: 1,
+    revert: 0,
   };
   const file = createReadStream(filePath);
 
@@ -83,54 +119,40 @@ export async function uploadFile(ref, filePath) {
   formData.append("user", user);
   formData.append("file", file);
 
-  console.log(formData);
   // Use createReadStream
   return await axios
     .post(damUrl, formData, {
-      headers: {
-        "Content-Type": `multipart/form-data`, // Important: Set the correct Content-Type
-      },
+      headers: formData.getHeaders(),
     })
     .then((res) => {
-      return res;
+      return res.data;
     })
     .catch((err) => {
-      console.log(err.response.data);
-      console.log(err.status);
+      throw err;
     });
 }
 
-export async function uploadFile2(ref, filePath) {
+export async function deleteResource(resource: string) {
   const params: any = {
     user,
-    function: "upload_file",
-    ref,
-    no_exif: false,
-    revert: false,
+    function: "delete_resource",
+    resource,
   };
-  const file = createReadStream(filePath);
-
   const queryString = new URLSearchParams(params).toString();
   const signature = sign(queryString);
   const formData = new FormData();
   formData.append("query", queryString);
   formData.append("sign", signature);
   formData.append("user", user);
-  formData.append("file", file);
 
-  console.log(formData);
-  // Use createReadStream
   return await axios
     .post(damUrl, formData, {
-      headers: {
-        "Content-Type": `multipart/form-data`, // Important: Set the correct Content-Type
-      },
+      headers: formData.getHeaders(),
     })
     .then((res) => {
-      return res;
+      return res.data;
     })
     .catch((err) => {
-      console.log(err.response.data);
-      console.log(err.status);
+      throw err;
     });
 }

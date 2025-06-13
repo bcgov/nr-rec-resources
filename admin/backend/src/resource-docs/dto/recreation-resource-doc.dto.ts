@@ -13,7 +13,7 @@ export class RecreationResourceDocDto {
     description: "Reference ID for the image",
     example: "1000",
   })
-  ref_id: string;
+  ref_id?: string;
 
   @ApiProperty({
     description: "Doc title",
@@ -29,7 +29,7 @@ export class RecreationResourceDocDto {
   @ApiProperty({
     description: "doc link",
   })
-  url: string | null;
+  url?: string;
 
   @ApiProperty({
     description: "Document code that indicates the type of document",
@@ -40,10 +40,27 @@ export class RecreationResourceDocDto {
   @ApiProperty({
     description: "Description of the document code",
   })
-  doc_code_description: string | null | undefined;
+  doc_code_description?: string;
 
   @ApiProperty({
     description: "File extension",
   })
   extension: string | null;
+}
+
+export class RecreationResourceDocBody {
+  @ApiProperty({
+    description: "Doc title",
+    example: "Campbell river site map",
+  })
+  title: string;
+}
+
+export class FileUploadDto {
+  @ApiProperty({
+    type: "string",
+    format: "binary",
+    description: "File to upload",
+  })
+  file: any;
 }
