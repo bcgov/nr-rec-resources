@@ -4,20 +4,18 @@ import {
   RecreationResourceDocCode,
   RecreationResourceDocDto,
 } from "../dto/recreation-resource-doc.dto";
-import { uploadFile, createResource } from "./dam-api/dam-api";
+import {
+  uploadFile,
+  createResource,
+  getResourcePath,
+  deleteResource,
+  addResourceToCollection,
+} from "./dam-api/dam-api";
+import { unlink } from "fs";
 
 @Injectable()
 export class ResourceDocsService {
   constructor(private readonly prisma: PrismaService) {}
-
-  async uploadFile(ref_id: string, filePath: string): Promise<any> {
-    console.log(filePath);
-    return await uploadFile(ref_id, "./uploads/1749246971273-test_doc.pdf");
-  }
-
-  async createResource(): Promise<any> {
-    return await createResource();
-  }
 
   async getAll(rec_resource_id: string): Promise<RecreationResourceDocDto[]> {
     const result = await this.prisma.recreation_resource_docs.findMany({
@@ -74,38 +72,57 @@ export class ResourceDocsService {
 
   async create(
     rec_resource_id: string,
-    document: RecreationResourceDocDto,
+    title: string,
+    filePath: string,
   ): Promise<RecreationResourceDocDto> {
+    const ref_id = await createResource();
+    await uploadFile(ref_id, filePath);
+    await addResourceToCollection(ref_id);
+    const files = await getResourcePath(ref_id);
+    const url = files
+      .find((f: any) => f.size_code === "original")
+      .url.replace(process.env.DAM_URL, "")
+      .replace(/\?.*$/, "");
     const result = await this.prisma.recreation_resource_docs.create({
       data: {
-        ref_id: document.ref_id,
-        doc_code: document.doc_code,
+        ref_id: ref_id.toString(),
+        doc_code: RecreationResourceDocCode.RM,
         rec_resource_id,
-        url: document.url,
-        title: document.title,
-        extension: document.extension,
+        url,
+        title,
+        extension: "pdf",
       },
     });
-
+    this.deleteFile(filePath);
     return this.mapResponse(result);
   }
 
   async update(
     rec_resource_id: string,
     ref_id: string,
-    document: RecreationResourceDocDto,
+    title: string,
+    file: Express.Multer.File | undefined,
   ): Promise<RecreationResourceDocDto> {
+    const docToUpdate = {
+      title,
+    };
+    let url = null;
+    if (file) {
+      await uploadFile(ref_id, file.path);
+      const files = await getResourcePath(ref_id);
+      url = files
+        .find((f: any) => f.size_code === "original")
+        .url.replace(process.env.DAM_URL, "")
+        .replace(/\?.*$/, "");
+      docToUpdate["url"] = url;
+      this.deleteFile(file.path);
+    }
     const result = await this.prisma.recreation_resource_docs.update({
       where: {
         rec_resource_id,
         ref_id: ref_id,
       },
-      data: {
-        doc_code: document.doc_code,
-        url: document.url,
-        title: document.title,
-        extension: document.extension,
-      },
+      data: docToUpdate,
     });
 
     return this.mapResponse(result);
@@ -115,6 +132,7 @@ export class ResourceDocsService {
     rec_resource_id: string,
     ref_id: string,
   ): Promise<RecreationResourceDocDto | null> {
+    await deleteResource(ref_id);
     const result = await this.prisma.recreation_resource_docs.delete({
       where: {
         rec_resource_id,
@@ -135,5 +153,13 @@ export class ResourceDocsService {
       doc_code: payload?.doc_code as RecreationResourceDocCode,
       doc_code_description: payload?.recreation_resource_doc_code?.description,
     };
+  }
+
+  private deleteFile(path: string) {
+    unlink(path, (err) => {
+      if (err) {
+        throw err;
+      }
+    });
   }
 }
