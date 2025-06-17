@@ -78,6 +78,10 @@ export const mockResponse = {
   _count: {
     recreation_defined_campsite: 1,
   },
+  recreation_district_code: {
+    district_code: "MERRITT",
+    description: "Merritt",
+  },
 };
 
 export const mockSpatialResponse = [
@@ -157,6 +161,10 @@ export const mockResults = {
   },
   site_point_geometry: "Point",
   spatial_feature_geometry: ['{"type":"Polygon","coordinates":"test"}'],
+  recreation_district: {
+    description: "Merritt",
+    district_code: "MERRITT",
+  },
 };
 
 describe("formatRecreationResourceDetailResults function", () => {
@@ -207,5 +215,17 @@ describe("formatRecreationResourceDetailResults function", () => {
       description: "Open",
       status_code: 1,
     });
+  });
+
+  it("should set recreation_district field to undefined when recreation_district_code is missing", () => {
+    const mockResponseNoDistrict = {
+      ...mockResponse,
+      recreation_district_code: undefined,
+    };
+    const results = formatRecreationResourceDetailResults(
+      mockResponseNoDistrict,
+      mockSpatialResponse,
+    );
+    expect(results.recreation_district).toBeUndefined();
   });
 });

@@ -2,6 +2,7 @@ import {
   RecreationActivityDto,
   RecreationFeeDto,
   RecreationResourceDetailDto,
+  RecreationResourceDistrictDto,
   RecreationStatusDto,
   RecreationStructureDto,
   SiteOperatorDto,
@@ -44,6 +45,10 @@ describe("Recreation DTOs", () => {
 
   describe("RecreationResourceDetailDto", () => {
     it("should create a valid RecreationResourceDetailDto", () => {
+      const district_code = new RecreationResourceDistrictDto();
+      district_code.district_code = "RDCK";
+      district_code.description = "Chilliwack";
+
       const resource = new RecreationResourceDetailDto();
       resource.recreation_access = [];
       resource.spatial_feature_geometry = [];
@@ -98,6 +103,7 @@ describe("Recreation DTOs", () => {
           sunday_ind: "Y",
         },
       ];
+      resource.recreation_district = district_code;
 
       expect(resource.rec_resource_id).toBeDefined();
       expect(resource.name.length).toBeGreaterThanOrEqual(1);
@@ -107,6 +113,9 @@ describe("Recreation DTOs", () => {
       expect(resource.description).toBeDefined();
       expect(resource.closest_community).toBeDefined();
       expect(resource.rec_resource_type).toBeDefined();
+      expect(resource.recreation_district).toBeDefined();
+      expect(resource.recreation_district.district_code).toBe("RDCK");
+      expect(resource.recreation_district.description).toBe("Chilliwack");
     });
 
     it("should allow null description", () => {

@@ -118,6 +118,12 @@ export const getRecreationResourceSelect = (
       },
     },
   },
+  recreation_district_code: {
+    select: {
+      district_code: true,
+      description: true,
+    },
+  },
   _count: {
     select: {
       recreation_defined_campsite: true,

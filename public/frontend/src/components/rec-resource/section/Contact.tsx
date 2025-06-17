@@ -1,17 +1,19 @@
 import { forwardRef } from 'react';
-import { EXTERNAL_LINKS } from '@/data/urls';
 import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 import { ResponseError, SiteOperatorDto } from '@/service/recreation-resource';
+import { RecreationResourceDetailModel } from '@/service/custom-models';
+import { getContactEmailLink } from '@/utils/getContactEmailLink';
 
 interface SiteOperatorProps {
   siteOperator?: SiteOperatorDto;
   error: ResponseError | null;
   isLoading: boolean;
   refetchData: any;
+  rec_resource?: RecreationResourceDetailModel;
 }
 
 const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
-  ({ siteOperator, error, isLoading, refetchData }, ref) => {
+  ({ siteOperator, error, isLoading, refetchData, rec_resource }, ref) => {
     const formattedName = siteOperator?.clientName
       ?.toLowerCase()
       .replace(/(^\w|\s\w)/g, (m) => m.toUpperCase());
@@ -37,7 +39,7 @@ const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
                     Time.
                   </p>
                   <p>
-                    <a href={EXTERNAL_LINKS.CONTACT}>Contact Us</a>
+                    <a href={getContactEmailLink(rec_resource)}>Contact Us</a>
                   </p>
                 </td>
               </tr>

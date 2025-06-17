@@ -10,10 +10,16 @@ import { OPEN_STATUS } from "src/recreation-resource/constants/service.constants
 
 // Format recreation resource detail results to match the RecreationResourceDetailDto
 export const formatRecreationResourceDetailResults = (
-  result: RecreationResourceGetPayload,
+  { recreation_district_code, ...result }: RecreationResourceGetPayload,
   recreationResourceSpatialFeatureGeometryResult: getRecreationResourceSpatialFeatureGeometry.Result[],
 ): RecreationResourceDetailDto => {
   const spatialFeatures = recreationResourceSpatialFeatureGeometryResult?.[0];
+  const recreationDistrict = recreation_district_code
+    ? {
+        description: recreation_district_code.description,
+        district_code: recreation_district_code.district_code,
+      }
+    : undefined;
 
   return {
     rec_resource_id: result.rec_resource_id,
@@ -97,5 +103,6 @@ export const formatRecreationResourceDetailResults = (
     })),
     spatial_feature_geometry: spatialFeatures?.spatial_feature_geometry,
     site_point_geometry: spatialFeatures?.site_point_geometry,
+    recreation_district: recreationDistrict,
   };
 };

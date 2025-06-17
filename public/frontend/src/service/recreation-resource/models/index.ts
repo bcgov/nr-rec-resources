@@ -9,6 +9,7 @@ export * from './PaginatedRecreationResourceDto';
 export * from './RecreationActivityDto';
 export * from './RecreationFeeDto';
 export * from './RecreationResourceDetailDto';
+export * from './RecreationResourceDistrictDto';
 export * from './RecreationResourceDocDto';
 export * from './RecreationResourceImageDto';
 export * from './RecreationResourceImageVariantDto';
