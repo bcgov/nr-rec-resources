@@ -33,6 +33,7 @@
     "class-validator": "^0.14.0",
     "axios": "^1.9.0",
     "@nestjs/terminus": "^11.0.0",
+    "form-data": "^4.0.3",
     "helmet": "^8.1.0",
     "nest-winston": "^1.10.2",
     "passport": "^0.7.0",

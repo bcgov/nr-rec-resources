@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { HttpException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma.service";
 import {
   RecreationResourceDocCode,
@@ -17,7 +17,9 @@ import { unlink } from "fs";
 export class ResourceDocsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getAll(rec_resource_id: string): Promise<RecreationResourceDocDto[]> {
+  async getAll(
+    rec_resource_id: string,
+  ): Promise<RecreationResourceDocDto[] | null> {
     const result = await this.prisma.recreation_resource_docs.findMany({
       where: {
         rec_resource_id,
@@ -64,7 +66,7 @@ export class ResourceDocsService {
     });
 
     if (result === null) {
-      return null;
+      throw new HttpException("Recreation Resource document not found", 404);
     }
 
     return this.mapResponse(result);
@@ -75,10 +77,20 @@ export class ResourceDocsService {
     title: string,
     filePath: string,
   ): Promise<RecreationResourceDocDto> {
+    const resource = await this.prisma.recreation_resource.findUnique({
+      where: {
+        rec_resource_id,
+      },
+    });
+    if (resource === null) {
+      this.deleteFile(filePath);
+      throw new HttpException("Recreation Resource not found", 404);
+    }
     const ref_id = await createResource();
     await uploadFile(ref_id, filePath);
     await addResourceToCollection(ref_id);
     const files = await getResourcePath(ref_id);
+    this.deleteFile(filePath);
     const url = files
       .find((f: any) => f.size_code === "original")
       .url.replace(process.env.DAM_URL, "")
@@ -93,7 +105,6 @@ export class ResourceDocsService {
         extension: "pdf",
       },
     });
-    this.deleteFile(filePath);
     return this.mapResponse(result);
   }
 
@@ -107,6 +118,18 @@ export class ResourceDocsService {
       title,
     };
     let url = null;
+    const resource = await this.prisma.recreation_resource_docs.findUnique({
+      where: {
+        rec_resource_id,
+        ref_id,
+      },
+    });
+    if (resource === null) {
+      if (file) {
+        this.deleteFile(file.path);
+      }
+      throw new HttpException("Recreation Resource not found", 404);
+    }
     if (file) {
       await uploadFile(ref_id, file.path);
       const files = await getResourcePath(ref_id);
@@ -117,13 +140,15 @@ export class ResourceDocsService {
       docToUpdate["url"] = url;
       this.deleteFile(file.path);
     }
-    const result = await this.prisma.recreation_resource_docs.update({
-      where: {
-        rec_resource_id,
-        ref_id: ref_id,
-      },
-      data: docToUpdate,
-    });
+    const result = await this.prisma.$transaction([
+      this.prisma.recreation_resource_docs.update({
+        where: {
+          rec_resource_id,
+          ref_id,
+        },
+        data: docToUpdate,
+      }),
+    ]);
 
     return this.mapResponse(result);
   }
@@ -140,10 +165,6 @@ export class ResourceDocsService {
       },
     });
 
-    if (result === null) {
-      return null;
-    }
-
     return this.mapResponse(result);
   }
 
@@ -156,10 +177,6 @@ export class ResourceDocsService {
   }
 
   private deleteFile(path: string) {
-    unlink(path, (err) => {
-      if (err) {
-        throw err;
-      }
-    });
+    unlink(path, () => {});
   }
 }

@@ -1,7 +1,10 @@
+import { describe, it, expect } from "vitest";
 import {
+  FileUploadDto,
+  RecreationResourceDocBodyDto,
   RecreationResourceDocCode,
   RecreationResourceDocDto,
-} from "./recreation-resource-doc.dto";
+} from "../../../src/resource-docs/dto/recreation-resource-doc.dto";
 
 describe("RecreationResourceDocDto", () => {
   it("should create a valid DTO instance", () => {
@@ -36,5 +39,25 @@ describe("RecreationResourceDocDto", () => {
     expect(dto.doc_code).toBeUndefined();
     expect(dto.doc_code_description).toBeUndefined();
     expect(dto.extension).toBeUndefined();
+  });
+});
+
+describe("RecreationResourceDocBody ", () => {
+  it("should create a valid DTO instance", () => {
+    const dto = new RecreationResourceDocBodyDto();
+    dto.title = "New File upload";
+
+    expect(dto).toBeDefined();
+    expect(dto.title).toBe("New File upload");
+  });
+});
+
+describe("FileUploadDto", () => {
+  it("should create a valid DTO instance", () => {
+    const dto = new FileUploadDto();
+    dto.file = "New File upload";
+
+    expect(dto).toBeDefined();
+    expect(dto.file).toBe("New File upload");
   });
 });
