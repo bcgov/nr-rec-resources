@@ -48,7 +48,7 @@ export class RecreationResourceDocDto {
   extension: string | null;
 }
 
-export class RecreationResourceDocBody {
+export class RecreationResourceDocBodyDto {
   @ApiProperty({
     description: "Doc title",
     example: "Campbell river site map",
