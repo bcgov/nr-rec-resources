@@ -17,7 +17,7 @@ const InfoBanner = () => {
             <img
               src={campingIcon}
               alt="Camping icon"
-              className="info-banner-icon d-block d-sm-none me-3"
+              className="d-block d-sm-none me-3"
               width={48}
               height={48}
             />
