@@ -1,7 +1,9 @@
 import axios from "axios";
 import { createHash } from "crypto";
 import { createReadStream } from "fs";
-import * as FormData from "form-data";
+import FormData from "form-data";
+
+declare const window: any;
 const NodeFormData =
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   typeof window === "undefined" ? require("form-data") : null;

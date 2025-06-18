@@ -29,7 +29,6 @@
       "@prisma-generated-sql": ["src/prisma-generated-sql"],
 	    "@": ["src"],
       "@/*": ["src/*"]
-    },
-	"include": ["src/**/*.ts", "e2e/**/*.ts", "**/*.ts", "**/*.mjs", "**/*.mts"]
+    }
   }
 }
