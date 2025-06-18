@@ -15,6 +15,7 @@ import {
   SiteDescription,
   ThingsToDo,
 } from '@/components/rec-resource/section';
+import InfoAlert from '@/components/notifications/InfoAlert';
 import Status from '@/components/rec-resource/Status';
 import PageMenu from '@/components/layout/PageMenu';
 import locationDot from '@/images/fontAwesomeIcons/location-dot.svg';
@@ -29,6 +30,7 @@ import {
 
 const PREVIEW_SIZE_CODE = 'scr';
 const FULL_RESOLUTION_SIZE_CODE = 'original';
+const RECREATION_SITE = 'Recreation site';
 
 const RecResourcePage = () => {
   const navigate = useNavigate();
@@ -121,6 +123,7 @@ const RecResourcePage = () => {
   const isAdditionalFeesAvailable =
     additional_fees && additional_fees.length > 0;
   const isSiteDescription = description || maintenance_standard_code;
+  const isRecreationSite = rec_resource_type === RECREATION_SITE;
 
   const isFacilitiesAvailable =
     recreation_structure?.has_toilet || recreation_structure?.has_table;
@@ -267,6 +270,14 @@ const RecResourcePage = () => {
               activeSection={activeSection ?? 0}
             />
             <div className="rec-content-container">
+              {isRecreationSite && (
+                <InfoAlert>
+                  Most recreation sites are available on a first-come,
+                  first-served basis and cannot be booked ahead of time. A
+                  limited number of fee-based sites may offer reservations,
+                  check below for details.
+                </InfoAlert>
+              )}
               {isClosures && (
                 <Closures
                   comment={statusComment}
