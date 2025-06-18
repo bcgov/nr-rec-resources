@@ -5,6 +5,7 @@ import { EXTERNAL_LINKS } from '@/data/urls';
 import '@/components/layout/Footer.scss';
 import FooterLinkColumn from './FooterLinkColumn';
 import FooterLink from './FooterLink';
+import { getContactEmailLink } from '@/utils/getContactEmailLink';
 
 const linkColumns = [
   {
@@ -52,7 +53,7 @@ const linkColumns = [
     links: [
       {
         title: 'Contact us',
-        url: EXTERNAL_LINKS.CONTACT,
+        url: getContactEmailLink(),
         component: null,
       },
       {

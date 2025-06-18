@@ -328,6 +328,7 @@ const RecResourcePage = () => {
                 isLoading={isOperatorLoading}
                 siteOperator={siteOperator}
                 refetchData={refetchOperator}
+                rec_resource={recResource}
               />
             </div>
           </div>

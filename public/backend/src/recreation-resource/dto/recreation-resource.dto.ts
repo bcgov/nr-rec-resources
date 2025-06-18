@@ -124,6 +124,20 @@ export class RecreationStructureDto {
   has_table: boolean;
 }
 
+export class RecreationResourceDistrictDto {
+  @ApiProperty({
+    description: "Unique identifier for the recreation district",
+    example: "RDCK",
+  })
+  district_code: string;
+
+  @ApiProperty({
+    description: "Name of the recreation district",
+    example: "Chilliwack",
+  })
+  description: string;
+}
+
 /**
  * Base class containing common fields/properties for recreation resources
  * @abstract
@@ -261,6 +275,13 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
     required: false,
   })
   recreation_resource_docs?: RecreationResourceDocDto[];
+
+  @ApiProperty({
+    description: "Recreation district",
+    type: RecreationResourceDistrictDto,
+    required: false,
+  })
+  recreation_district?: RecreationResourceDistrictDto;
 }
 
 /**

@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import Contact from './Contact';
 import { ResponseError } from '@/service/recreation-resource';
+import * as getContactEmailLinkModule from '@/utils/getContactEmailLink';
 
 describe('the Contact component', () => {
   const siteOperator = {
@@ -17,6 +18,16 @@ describe('the Contact component', () => {
     return;
   };
 
+  beforeEach(() => {
+    vi.spyOn(getContactEmailLinkModule, 'getContactEmailLink').mockReturnValue(
+      'mailto:test@example.com',
+    );
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('renders component with site operator name', async () => {
     render(
       <Contact
@@ -31,6 +42,7 @@ describe('the Contact component', () => {
 
     expect(operatorName).toBeInTheDocument();
     expect(operatorLabel).toBeInTheDocument();
+    expect(getContactEmailLinkModule.getContactEmailLink).toHaveBeenCalled();
   });
 
   it('renders component with loading state', async () => {
@@ -45,6 +57,7 @@ describe('the Contact component', () => {
     const element = screen.getByText(/Loading .../);
 
     expect(element).toBeInTheDocument();
+    expect(getContactEmailLinkModule.getContactEmailLink).toHaveBeenCalled();
   });
 
   it('renders component with error 500', async () => {
@@ -63,6 +76,7 @@ describe('the Contact component', () => {
     const operatorLabel = screen.queryByTestId('error-message');
 
     expect(operatorLabel).toBeInTheDocument();
+    expect(getContactEmailLinkModule.getContactEmailLink).toHaveBeenCalled();
   });
 
   it('renders component with error 500 and click on retry', async () => {
@@ -85,6 +99,7 @@ describe('the Contact component', () => {
     retryLink.click();
 
     expect(operatorLabel).toBeInTheDocument();
+    expect(getContactEmailLinkModule.getContactEmailLink).toHaveBeenCalled();
   });
 
   it('renders component with error 404', async () => {
@@ -103,6 +118,7 @@ describe('the Contact component', () => {
     const operatorLabel = screen.queryByTestId('operator-result');
 
     expect(operatorLabel).toBeNull();
+    expect(getContactEmailLinkModule.getContactEmailLink).toHaveBeenCalled();
   });
 
   it('displays the correct contact hours', async () => {
@@ -119,5 +135,6 @@ describe('the Contact component', () => {
     );
 
     expect(contactHours).toBeVisible();
+    expect(getContactEmailLinkModule.getContactEmailLink).toHaveBeenCalled();
   });
 });

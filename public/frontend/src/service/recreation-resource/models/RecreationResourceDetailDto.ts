@@ -20,6 +20,13 @@ import {
   RecreationResourceDocDtoToJSON,
   RecreationResourceDocDtoToJSONTyped,
 } from './RecreationResourceDocDto';
+import type { RecreationResourceDistrictDto } from './RecreationResourceDistrictDto';
+import {
+  RecreationResourceDistrictDtoFromJSON,
+  RecreationResourceDistrictDtoFromJSONTyped,
+  RecreationResourceDistrictDtoToJSON,
+  RecreationResourceDistrictDtoToJSONTyped,
+} from './RecreationResourceDistrictDto';
 import type { RecreationResourceImageDto } from './RecreationResourceImageDto';
 import {
   RecreationResourceImageDtoFromJSON,
@@ -170,6 +177,12 @@ export interface RecreationResourceDetailDto {
    * @memberof RecreationResourceDetailDto
    */
   recreation_resource_docs?: Array<RecreationResourceDocDto>;
+  /**
+   * Recreation district
+   * @type {RecreationResourceDistrictDto}
+   * @memberof RecreationResourceDetailDto
+   */
+  recreation_district?: RecreationResourceDistrictDto;
 }
 
 /**
@@ -298,6 +311,10 @@ export function RecreationResourceDetailDtoFromJSONTyped(
         : (json['recreation_resource_docs'] as Array<any>).map(
             RecreationResourceDocDtoFromJSON,
           ),
+    recreation_district:
+      json['recreation_district'] == null
+        ? undefined
+        : RecreationResourceDistrictDtoFromJSON(json['recreation_district']),
   };
 }
 
@@ -352,5 +369,8 @@ export function RecreationResourceDetailDtoToJSONTyped(
         : (value['recreation_resource_docs'] as Array<any>).map(
             RecreationResourceDocDtoToJSON,
           ),
+    recreation_district: RecreationResourceDistrictDtoToJSON(
+      value['recreation_district'],
+    ),
   };
 }
