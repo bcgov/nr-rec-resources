@@ -23,11 +23,11 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
-	  "lib": ["es2022"],
+    "lib": ["es2022"],
     "types": ["vitest/globals", "node"],
     "paths": {
       "@prisma-generated-sql": ["src/prisma-generated-sql"],
-	    "@": ["src"],
+      "@": ["src"],
       "@/*": ["src/*"]
     }
   }
