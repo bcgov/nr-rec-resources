@@ -69,13 +69,8 @@ resource "aws_cloudfront_distribution" "api" {
     min_ttl     = 0
     max_ttl     = 900
 
-    forwarded_values {
-      query_string = true
-
-      cookies {
-        forward = "all"
-      }
-    }
+    cache_policy_id = "658327ea-f89d-4fab-a63d-7e88639e58f6" # Managed-CachingOptimized
+    origin_request_policy_id = "216adef6-5c7f-47e4-b989-5492eafa07d3" # Managed-AllViewerExceptHostHeader
   }
 
   restrictions {

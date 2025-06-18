@@ -16,5 +16,6 @@ generate "prod_tfvars" {
   scaling_adjustment_increase = 5
   min_capacity = 2
   max_capacity = 30
+  enable_cors = false
 EOF
 }

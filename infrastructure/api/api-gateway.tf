@@ -1,3 +1,14 @@
+data "terraform_remote_state" "frontend" {
+  backend = "s3"
+  config = {
+    bucket         = var.frontend_remote_state.bucket
+    key            = var.frontend_remote_state.key
+    region         = var.frontend_remote_state.region
+    dynamodb_table = var.frontend_remote_state.dynamodb_table
+    encrypt        = true
+  }
+}
+
 resource "aws_apigatewayv2_vpc_link" "app" {
   name               = var.app_name
   subnet_ids         = data.aws_subnets.web.ids
@@ -7,6 +18,22 @@ resource "aws_apigatewayv2_vpc_link" "app" {
 resource "aws_apigatewayv2_api" "app" {
   name          = var.app_name
   protocol_type = "HTTP"
+
+  dynamic "cors_configuration" {
+    for_each = var.enable_cors ? [1] : []
+
+    content {
+      allow_origins     = [
+        "https://${data.terraform_remote_state.frontend.outputs.cloudfront.domain_name}",
+        "https://sitesandtrailsbc.ca",
+        "https://beta.sitesandtrailsbc.ca"
+      ]
+      allow_methods     = var.cors_allowed_methods
+      allow_headers     = var.cors_allowed_headers
+      allow_credentials = var.cors_allow_credentials
+      max_age           = 3600
+    }
+  }
 }
 
 resource "aws_apigatewayv2_integration" "app" {

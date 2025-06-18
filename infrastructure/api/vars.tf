@@ -16,7 +16,21 @@ variable "db_schema" {
   type        = string
   default     = "rst"
 }
-
+variable "frontend_remote_state" {
+  description = "Remote state configuration for the frontend module"
+  type = object({
+    bucket         = string
+    key            = string
+    dynamodb_table = string
+    region         = string
+  })
+  default = {
+    bucket         = "example-frontend-bucket"
+    key            = "example/frontend/terraform.tfstate"
+    dynamodb_table = "example-frontend-lock-table"
+    region         = "ca-central-1"
+  }
+}
 
 variable "subnet_app_a" {
   description = "Value of the name tag for a subnet in the APP security group"
@@ -157,4 +171,35 @@ variable "keycloak_config" {
   })
   description = "Keycloak configuration for BC Gov Identity Service"
   sensitive = true
+  default = {
+    auth_server_url = "https://keycloak.example.com/auth"
+    realm           = "example-realm"
+    client_id       = "example-client-id"
+    issuer          = "https://keycloak.example.com/auth/realms/example-realm"
+  }
+}
+
+## CORS Configuration Variables
+variable "enable_cors" {
+  description = "Enable CORS configuration for the API"
+  type        = bool
+  default     = true
+}
+
+variable "cors_allowed_methods" {
+  description = "Allowed methods for CORS configuration"
+  type        = list(string)
+  default     = ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"]
+}
+
+variable "cors_allowed_headers" {
+  description = "Allowed headers for CORS configuration"
+  type        = list(string)
+  default = ["Authorization", "Content-Type", "Accept", "Origin"]
+}
+
+variable "cors_allow_credentials" {
+  description = "Whether to allow credentials in CORS configuration"
+  type        = bool
+  default     = true
 }
