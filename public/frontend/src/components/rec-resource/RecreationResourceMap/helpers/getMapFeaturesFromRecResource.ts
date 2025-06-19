@@ -3,7 +3,7 @@ import { GeoJSON } from 'ol/format';
 import {
   MAP_PROJECTION_BC_ALBERS,
   MAP_PROJECTION_WEB_MERCATOR,
-} from '@/components/StyledVectorFeatureMap/constants';
+} from '@/components/rec-resource/RecreationResourceMap/constants';
 
 /**
  * Converts recreation resource geometries from BC Albers to Web Mercator projection

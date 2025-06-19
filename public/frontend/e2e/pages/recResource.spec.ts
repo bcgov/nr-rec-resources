@@ -16,8 +16,6 @@ test.describe('Recreation Resource page', () => {
     await layout.verifyFooterContent();
     await recResourcePage.verifySectionsExistInPageMenu();
 
-    await recResourcePage.removeRecreationResourceFeatureMap();
-
     await recResourcePage.verifyPdfDocLinks();
 
     await utils.accessibility();
