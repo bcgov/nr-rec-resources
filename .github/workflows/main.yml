@@ -22,6 +22,13 @@ permissions:
 jobs:
   build-containers:
     name: Build containers
+    permissions:
+      id-token: write
+      contents: write
+      packages: write
+      pull-requests: write
+      security-events: write
+      attestations: write
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-build-containers
       cancel-in-progress: true
