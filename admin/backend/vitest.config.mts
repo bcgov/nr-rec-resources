@@ -14,7 +14,11 @@ export default defineConfig({
       provider: "v8",
       reporter: ["lcov", "text"],
       include: ["src/**/*.ts"],
-      exclude: ["src/main.ts", "src/app.ts"],
+      exclude: [
+        "src/main.ts",
+        "src/app.ts",
+        "src/prisma-generated-sql/**/*.{ts,js}", // Prisma generated SQL files
+      ],
     },
   },
   plugins: [swc.vite(), tsconfigPaths()],
