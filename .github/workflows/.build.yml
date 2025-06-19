@@ -16,13 +16,6 @@ jobs:
   build-containers:
     name: Builds
     runs-on: ubuntu-24.04
-    permissions:
-      id-token: write
-      contents: write
-      packages: write
-      pull-requests: write
-      security-events: write
-      attestations: write
     strategy:
       matrix:
         # Only building frontend containers to run PR based e2e tests

@@ -11,14 +11,6 @@ on:
     paths-ignore:
       - docs/**
 
-permissions:
-  id-token: write
-  contents: write
-  packages: write
-  pull-requests: write
-  security-events: write
-  attestations: write
-
 jobs:
   build-containers:
     name: Build containers
