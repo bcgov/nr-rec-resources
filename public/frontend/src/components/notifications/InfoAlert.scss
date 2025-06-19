@@ -1,0 +1,13 @@
+@import '@/styles/variables';
+
+.info-alert {
+  display: flex;
+  border: 1px solid $colorBlue;
+}
+
+.info-alert-icon {
+  color: $colorBlue;
+  display: flex;
+  align-items: center;
+  margin-right: 8px;
+}
