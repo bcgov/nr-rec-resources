@@ -1,4 +1,4 @@
-import campingIcon from '@/images/activities/walk-in-camping.svg';
+import campingIcon from '@/images/icons/camping-info.svg';
 import './InfoBanner.scss';
 
 const InfoBanner = () => {
