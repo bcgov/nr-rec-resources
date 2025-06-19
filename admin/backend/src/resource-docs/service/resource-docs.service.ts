@@ -11,7 +11,6 @@ import {
   deleteResource,
   addResourceToCollection,
 } from "./dam-api/dam-api";
-import { unlink } from "fs";
 
 @Injectable()
 export class ResourceDocsService {
@@ -75,7 +74,7 @@ export class ResourceDocsService {
   async create(
     rec_resource_id: string,
     title: string,
-    filePath: string,
+    file: Express.Multer.File,
   ): Promise<RecreationResourceDocDto> {
     const resource = await this.prisma.recreation_resource.findUnique({
       where: {
@@ -83,14 +82,12 @@ export class ResourceDocsService {
       },
     });
     if (resource === null) {
-      this.deleteFile(filePath);
       throw new HttpException("Recreation Resource not found", 404);
     }
     const ref_id = await createResource();
-    await uploadFile(ref_id, filePath);
+    await uploadFile(ref_id, file);
     await addResourceToCollection(ref_id);
     const files = await getResourcePath(ref_id);
-    this.deleteFile(filePath);
     const url = files
       .find((f: any) => f.size_code === "original")
       .url.replace(process.env.DAM_URL, "")
@@ -125,20 +122,16 @@ export class ResourceDocsService {
       },
     });
     if (resource === null) {
-      if (file) {
-        this.deleteFile(file.path);
-      }
       throw new HttpException("Recreation Resource not found", 404);
     }
     if (file) {
-      await uploadFile(ref_id, file.path);
+      await uploadFile(ref_id, file);
       const files = await getResourcePath(ref_id);
       url = files
         .find((f: any) => f.size_code === "original")
         .url.replace(process.env.DAM_URL, "")
         .replace(/\?.*$/, "");
       docToUpdate["url"] = url;
-      this.deleteFile(file.path);
     }
     const result = await this.prisma.$transaction([
       this.prisma.recreation_resource_docs.update({
@@ -174,9 +167,5 @@ export class ResourceDocsService {
       doc_code: payload?.doc_code as RecreationResourceDocCode,
       doc_code_description: payload?.recreation_resource_doc_code?.description,
     };
-  }
-
-  private deleteFile(path: string) {
-    unlink(path, () => {});
   }
 }
