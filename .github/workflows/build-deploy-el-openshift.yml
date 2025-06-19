@@ -26,6 +26,10 @@ on:
         description: 'Environment to deploy to OpenShift'
         default: 'dev'
 
+permissions:
+  attestations: write
+  id-token: write
+  packages: write
 
 jobs:
   triggers:
