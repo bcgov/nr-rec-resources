@@ -129,11 +129,7 @@ export class ResourceDocsController {
     @Body() body: RecreationResourceDocBodyDto,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<RecreationResourceDocDto | null> {
-    return this.resourceDocsService.create(
-      rec_resource_id,
-      body.title,
-      file.path,
-    );
+    return this.resourceDocsService.create(rec_resource_id, body.title, file);
   }
 
   @Put(":rec_resource_id/docs/:ref_id")

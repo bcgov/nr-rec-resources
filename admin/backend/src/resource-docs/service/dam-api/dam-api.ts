@@ -1,6 +1,7 @@
 import axios from "axios";
 import { createHash } from "crypto";
-import { createReadStream } from "fs";
+// import { createReadStream } from "fs";
+import { Readable } from "stream";
 import FormData from "form-data";
 
 declare const window: any;
@@ -97,7 +98,7 @@ export async function addResourceToCollection(resource: string) {
     });
 }
 
-export async function uploadFile(ref: string, filePath: string) {
+export async function uploadFile(ref: string, file: Express.Multer.File) {
   const params: any = {
     user,
     function: "upload_multipart",
@@ -105,7 +106,7 @@ export async function uploadFile(ref: string, filePath: string) {
     no_exif: 1,
     revert: 0,
   };
-  const file = createReadStream(filePath);
+  const stream = Readable.from(file.buffer);
 
   const queryString = new URLSearchParams(params).toString();
   const signature = sign(queryString);
@@ -114,7 +115,10 @@ export async function uploadFile(ref: string, filePath: string) {
   formData.append("query", queryString);
   formData.append("sign", signature);
   formData.append("user", user);
-  formData.append("file", file);
+  formData.append("file", stream, {
+    filename: file.originalname,
+    contentType: file.mimetype,
+  });
 
   return await axios
     .post(damUrl, formData, {

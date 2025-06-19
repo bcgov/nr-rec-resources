@@ -7,6 +7,7 @@ import {
   getResourcePath,
   uploadFile,
 } from "../../../../src/resource-docs/service/dam-api/dam-api";
+import { Readable } from "stream";
 
 vi.mock("axios");
 
@@ -136,9 +137,22 @@ describe("uploadFile", () => {
     vi.clearAllMocks();
   });
 
+  const file = {
+    originalname: "sample.name",
+    mimetype: "sample.type",
+    path: "sample.url",
+    buffer: Buffer.from("file"),
+    fieldname: "",
+    encoding: "",
+    size: 0,
+    stream: Readable.from(["test content"]),
+    destination: "",
+    filename: "",
+  };
+
   it("should return true on success", async () => {
     (axios.post as any).mockResolvedValue({ data: true });
-    const result = await uploadFile("resource-id", "filepath");
+    const result = await uploadFile("resource-id", file);
     expect(result).toEqual(true);
   });
 
@@ -146,8 +160,6 @@ describe("uploadFile", () => {
     const error = new Error("API Error");
     (axios.post as any).mockRejectedValue(error);
 
-    await expect(uploadFile("resource-id", "filepath")).rejects.toThrow(
-      "API Error",
-    );
+    await expect(uploadFile("resource-id", file)).rejects.toThrow("API Error");
   });
 });

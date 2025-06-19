@@ -4,20 +4,14 @@ import { ResourceDocsController } from "./resource-docs.controller";
 import { PrismaModule } from "src/prisma.module";
 import { PrismaService } from "src/prisma.service";
 import { MulterModule } from "@nestjs/platform-express";
-import { diskStorage } from "multer";
+import { memoryStorage } from "multer";
 
 @Module({
   providers: [ResourceDocsService, PrismaService],
   controllers: [ResourceDocsController],
   imports: [
     MulterModule.register({
-      storage: diskStorage({
-        destination: "./uploads",
-        filename: (req, file, cb) => {
-          const filename = `${Date.now()}-${file.originalname}`;
-          cb(null, filename);
-        },
-      }),
+      storage: memoryStorage(),
     }),
     PrismaModule,
   ],

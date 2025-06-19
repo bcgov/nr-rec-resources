@@ -2,7 +2,6 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { beforeEach, describe, expect, it, Mock, Mocked, vi } from "vitest";
 import { ResourceDocsService } from "../../../src/resource-docs/service/resource-docs.service";
 import { PrismaService } from "src/prisma.service";
-import * as fs from "fs";
 import * as damClient from "../../../src/resource-docs/service/dam-api/dam-api";
 import { Readable } from "stream";
 
@@ -87,7 +86,6 @@ describe("ResourceDocsService", () => {
   const mockedUploadFile = damClient.uploadFile as Mock;
   const mockedGetResourcePath = damClient.getResourcePath as Mock;
   const addResourceToCollection = damClient.addResourceToCollection as Mock;
-  const mockedUnlink = fs.unlink as any as Mock;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -123,7 +121,7 @@ describe("ResourceDocsService", () => {
       ).mockResolvedValue(mockedResources[0] as any);
 
       const result = await service.getById("REC0001", "11535");
-      expect(result).toMatchObject(mockedResources[0]);
+      expect(result).toMatchObject(mockedResources[0] as any);
     });
 
     it("should return status 404 if resource not found", async () => {
@@ -161,7 +159,6 @@ describe("ResourceDocsService", () => {
     it("should return the created reource", async () => {
       mockedCreateResource.mockResolvedValueOnce("ref123");
       mockedUploadFile.mockResolvedValueOnce(undefined);
-      mockedUnlink.mockImplementation((_path, cb) => cb(null));
       addResourceToCollection.mockResolvedValueOnce(undefined);
       mockedGetResourcePath.mockResolvedValueOnce([
         {
@@ -176,14 +173,13 @@ describe("ResourceDocsService", () => {
         prismaService.recreation_resource_docs.create,
       ).mockResolvedValue(mockedResources[0] as any);
 
-      const result = await service.create("REC0001", "Title", "filePath");
-      expect(result).toMatchObject(mockedResources[0]);
+      const result = await service.create("REC0001", "Title", {} as any);
+      expect(result).toMatchObject(mockedResources[0] as any);
     });
 
     it("should return status 404 if resource not found", async () => {
       mockedCreateResource.mockResolvedValueOnce("ref123");
       mockedUploadFile.mockResolvedValueOnce(undefined);
-      mockedUnlink.mockImplementation((_path, cb) => cb(null));
       addResourceToCollection.mockResolvedValueOnce(undefined);
       mockedGetResourcePath.mockResolvedValueOnce([
         {
@@ -198,7 +194,7 @@ describe("ResourceDocsService", () => {
         prismaService.recreation_resource_docs.create,
       ).mockResolvedValueOnce(null as any);
       try {
-        await service.create("REC0001", "Title", "filePath");
+        await service.create("REC0001", "Title", {} as any);
       } catch (err) {
         expect(err.status).toBe(404);
       }
@@ -221,7 +217,6 @@ describe("ResourceDocsService", () => {
     it("should update and return the resource", async () => {
       mockedCreateResource.mockResolvedValueOnce("ref123");
       mockedUploadFile.mockResolvedValueOnce(undefined);
-      mockedUnlink.mockImplementation((path, cb) => cb(null));
       mockedGetResourcePath.mockResolvedValueOnce([
         {
           size_code: "original",
@@ -237,7 +232,6 @@ describe("ResourceDocsService", () => {
     });
 
     it("should return status 404 if resource not found", async () => {
-      mockedUnlink.mockImplementation((path, cb) => cb(null));
       vi.mocked(
         prismaService.recreation_resource_docs.findUnique,
       ).mockResolvedValueOnce(null);
@@ -257,7 +251,7 @@ describe("ResourceDocsService", () => {
       ).mockResolvedValue(mockedResources[0] as any);
 
       const result = await service.delete("REC0001", "11535");
-      expect(result).toMatchObject(mockedResources[0]);
+      expect(result).toMatchObject(mockedResources[0] as any);
     });
 
     it("should return null if resource not found", async () => {
