@@ -4,9 +4,12 @@ on:
   workflow_call:
 
 permissions:
-  attestations: write
-  id-token: write
+  id-token: write # This is required for requesting the JWT
+  contents: write # This is required for actions/checkout
   packages: write
+  pull-requests: write
+  security-events: write
+  attestations: write # This is required for uploading attestations to the Security tab
 
 jobs:
   # https://github.com/bcgov/action-builder-ghcr
