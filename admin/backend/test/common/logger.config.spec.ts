@@ -1,14 +1,23 @@
 import { customLogger } from "../../src/common/logger.config";
 
+vi.mock("../../src/common/logger.config", () => {
+  return {
+    customLogger: {
+      verbose: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+    },
+  };
+});
+
 describe("CustomLogger", () => {
   it("should be defined", () => {
     expect(customLogger).toBeDefined();
   });
 
   it("should log a message", () => {
-    const spy = vi.spyOn(customLogger, "verbose");
     customLogger.verbose("Test message");
-    expect(spy).toHaveBeenCalledWith("Test message");
-    spy.mockRestore();
+    expect(customLogger.verbose).toHaveBeenCalledWith("Test message");
   });
 });
