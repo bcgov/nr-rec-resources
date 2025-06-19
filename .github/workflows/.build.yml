@@ -4,9 +4,12 @@ on:
   workflow_call:
 
 permissions:
-  attestations: write
   id-token: write
+  contents: write
   packages: write
+  pull-requests: write
+  security-events: write
+  attestations: write
 
 jobs:
   # https://github.com/bcgov/action-builder-ghcr
