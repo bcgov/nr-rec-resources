@@ -4,12 +4,9 @@ on:
   workflow_call:
 
 permissions:
-  id-token: write # This is required for requesting the JWT
-  contents: write # This is required for actions/checkout
+  attestations: write
+  id-token: write
   packages: write
-  pull-requests: write
-  security-events: write
-  attestations: write # This is required for uploading attestations to the Security tab
 
 jobs:
   # https://github.com/bcgov/action-builder-ghcr
@@ -23,6 +20,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: bcgov/action-builder-ghcr@v4.0.0
+        permissions:
+          attestations: write
+          id-token: write
+          packages: write
         with:
           package: ${{ matrix.package }}
           tags: ${{ github.sha }}
