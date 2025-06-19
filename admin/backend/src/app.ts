@@ -6,9 +6,11 @@ import { NestExpressApplication } from "@nestjs/platform-express";
 import helmet from "helmet";
 import { VersioningType } from "@nestjs/common";
 import { AUTH_STRATEGY } from "./auth";
+import { AllExceptionsFilter } from "@/common/filters/all-exceptions.filter";
+import { globalValidationPipe } from "@/config/global-validation-pipe.config";
 
 /**
- *
+ * Bootstrap function to initialize the NestJS application.
  */
 export async function bootstrap() {
   const app: NestExpressApplication =
@@ -20,6 +22,11 @@ export async function bootstrap() {
   app.set("trust proxy", 1);
   app.enableShutdownHooks();
   app.setGlobalPrefix("api");
+  app.useGlobalPipes(globalValidationPipe);
+
+  // global filters
+  app.useGlobalFilters(new AllExceptionsFilter());
+
   app.enableVersioning({
     type: VersioningType.URI,
     prefix: "v",
@@ -28,7 +35,7 @@ export async function bootstrap() {
     .setTitle("Recreation Sites and Trails BC Admin API")
     .setDescription("RST Admin API documentation")
     .setVersion("1.0")
-    .addTag("recreation-resource")
+    .addTag("recreation-resource-admin")
     .addBearerAuth(
       {
         name: "Authorization",

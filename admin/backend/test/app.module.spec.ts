@@ -1,10 +1,10 @@
 import { Test, TestingModule } from "@nestjs/testing";
 import { ConfigModule } from "@nestjs/config";
 import { PassportModule } from "@nestjs/passport";
-import { AppModule } from "../src/app.module";
-import { AppController } from "../src/app.controller";
-import { AppService } from "../src/app.service";
-import { AuthModule } from "../src/auth";
+import { AppModule } from "@/app.module";
+import { AppController } from "@/app.controller";
+import { AppService } from "@/app.service";
+import { AuthModule } from "@/auth";
 
 describe("AppModule", () => {
   let module: TestingModule;
@@ -63,7 +63,7 @@ describe("AppModule", () => {
       const moduleFixture = AppModule;
       const metadata = Reflect.getMetadata("imports", moduleFixture);
 
-      expect(metadata).toHaveLength(4);
+      expect(metadata).toHaveLength(5);
       expect(metadata).toEqual(
         expect.arrayContaining([
           PassportModule,

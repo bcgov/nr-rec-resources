@@ -1,7 +1,13 @@
 // Metadata keys for decorators
 export const AUTH_ROLES_KEY = "roles";
 
-export const AUTH_RST_ADMIN_ROLE = "rst-admin";
+/**
+ * Enum for authentication roles.
+ */
+export enum RecreationResourceAuthRole {
+  RST_ADMIN = "rst-admin",
+  RST_VIEWER = "rst-viewer",
+}
 
 // Role validation modes
 export const ROLE_MODE = {

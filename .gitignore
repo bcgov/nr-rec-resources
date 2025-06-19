@@ -263,3 +263,5 @@ backend-el/*.iml
 k6_results/
 /public/backend/coverage
 /public/frontend/coverage
+admin/frontend/coverage/**/*
+admin/backend/coverage/**/*
