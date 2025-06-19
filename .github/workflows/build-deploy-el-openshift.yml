@@ -27,12 +27,12 @@ on:
         default: 'dev'
 
 permissions:
-  id-token: write # This is required for requesting the JWT
-  contents: write # This is required for actions/checkout
+  id-token: write
+  contents: write
   packages: write
   pull-requests: write
   security-events: write
-  attestations: write # This is required for uploading attestations to the Security tab
+  attestations: write
 
 jobs:
   triggers:
