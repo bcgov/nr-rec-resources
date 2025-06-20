@@ -58,23 +58,27 @@ const RecResourcePage = () => {
   useEffect(() => {
     if (recResource?.recreation_resource_images) {
       setPhotos(
-        recResource.recreation_resource_images.map((imageObj) => {
-          const photoObj = {
-            caption: imageObj.caption,
-            previewUrl: '',
-            fullResolutionUrl: '',
-          };
+        recResource.recreation_resource_images
+          .map((imageObj) => {
+            const variants = imageObj.recreation_resource_image_variants || [];
+            console.log('variants', variants);
 
-          imageObj.recreation_resource_image_variants?.forEach((variant) => {
-            if (variant.size_code === PREVIEW_SIZE_CODE) {
-              photoObj.previewUrl = variant.url;
-            } else if (variant.size_code === FULL_RESOLUTION_SIZE_CODE) {
-              photoObj.fullResolutionUrl = variant.url;
-            }
-          });
+            const previewVariant = variants.find(
+              (v) => v.size_code === PREVIEW_SIZE_CODE,
+            );
+            const fullVariant = variants.find(
+              (v) => v.size_code === FULL_RESOLUTION_SIZE_CODE,
+            );
 
-          return photoObj;
-        }),
+            const fallback = variants[0];
+
+            return {
+              caption: imageObj.caption,
+              previewUrl: previewVariant?.url || fallback?.url || '',
+              fullResolutionUrl: fullVariant?.url || fallback?.url || '',
+            };
+          })
+          .filter((photo) => photo.previewUrl),
       );
     }
   }, [recResource]);

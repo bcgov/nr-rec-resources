@@ -9,6 +9,6 @@ generate "dev_tfvars" {
   disable_signature = true
   contents          = <<-EOF
   target_env = "dev"
-  enable_cors = false
+  enable_cors = true
 EOF
 }

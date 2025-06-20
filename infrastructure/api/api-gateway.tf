@@ -23,13 +23,9 @@ resource "aws_apigatewayv2_api" "app" {
     for_each = var.enable_cors ? [1] : []
 
     content {
-      allow_origins     = [
-        "https://${data.terraform_remote_state.frontend.outputs.cloudfront.domain_name}",
-        "https://sitesandtrailsbc.ca",
-        "https://beta.sitesandtrailsbc.ca"
-      ]
+      allow_origins     = local.cors_allowed_origins
       allow_methods     = var.cors_allowed_methods
-      allow_headers     = var.cors_allowed_headers
+      allow_headers     = local.cors_headers
       allow_credentials = var.cors_allow_credentials
       max_age           = 3600
     }
