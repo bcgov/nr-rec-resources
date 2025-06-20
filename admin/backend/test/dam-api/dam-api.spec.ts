@@ -6,7 +6,7 @@ import {
   deleteResource,
   getResourcePath,
   uploadFile,
-} from "../../../../src/resource-docs/service/dam-api/dam-api";
+} from "../../src/dam-api/dam-api";
 import { Readable } from "stream";
 
 vi.mock("axios");

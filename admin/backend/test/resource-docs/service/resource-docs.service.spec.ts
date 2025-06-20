@@ -2,7 +2,7 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { beforeEach, describe, expect, it, Mock, Mocked, vi } from "vitest";
 import { ResourceDocsService } from "../../../src/resource-docs/service/resource-docs.service";
 import { PrismaService } from "src/prisma.service";
-import * as damClient from "../../../src/resource-docs/service/dam-api/dam-api";
+import * as damClient from "../../../src/dam-api/dam-api";
 import { Readable } from "stream";
 
 const mockedResources = [
@@ -68,7 +68,7 @@ const mockedResources = [
   },
 ];
 
-vi.mock("../../../src/resource-docs/service//dam-api/dam-api", () => ({
+vi.mock("../../../src/dam-api/dam-api", () => ({
   deleteResource: vi.fn(),
   createResource: vi.fn(),
   uploadFile: vi.fn(),
