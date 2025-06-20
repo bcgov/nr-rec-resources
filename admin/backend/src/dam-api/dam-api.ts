@@ -10,9 +10,9 @@ const NodeFormData =
   typeof window === "undefined" ? require("form-data") : null;
 
 const damUrl = `${process.env.DAM_URL}/api/?`;
-const private_key = process.env.DAM_PRIVATE_KEY;
-const user = process.env.DAM_USER;
-const pdfCollectionId = process.env.DAM_RST_PDF_COLLECTION_ID;
+const private_key = process.env.DAM_PRIVATE_KEY ?? "";
+const user = process.env.DAM_USER ?? "";
+const pdfCollectionId = process.env.DAM_RST_PDF_COLLECTION_ID ?? "";
 
 function sign(query) {
   return createHash("sha256").update(`${private_key}${query}`).digest("hex");

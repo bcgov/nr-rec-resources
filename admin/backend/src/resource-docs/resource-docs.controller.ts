@@ -124,11 +124,13 @@ export class ResourceDocsController {
     description: "Recreation Resource document not found",
   })
   @ApiResponse({ status: 500, description: "Error creating document" })
+  @ApiResponse({ status: 501, description: "File Type not allowed" })
   async create(
     @Param("rec_resource_id") rec_resource_id: string,
     @Body() body: RecreationResourceDocBodyDto,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<RecreationResourceDocDto | null> {
+    console.log(file.mimetype);
     return this.resourceDocsService.create(rec_resource_id, body.title, file);
   }
 

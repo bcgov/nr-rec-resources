@@ -10,7 +10,10 @@ import {
   getResourcePath,
   deleteResource,
   addResourceToCollection,
-} from "./dam-api/dam-api";
+} from "../../dam-api/dam-api";
+import path from "path";
+
+const allowedTypes = ["application/pdf"];
 
 @Injectable()
 export class ResourceDocsService {
@@ -76,6 +79,9 @@ export class ResourceDocsService {
     title: string,
     file: Express.Multer.File,
   ): Promise<RecreationResourceDocDto> {
+    if (!allowedTypes.includes(file.mimetype)) {
+      throw new HttpException("File Type not allowed", 501);
+    }
     const resource = await this.prisma.recreation_resource.findUnique({
       where: {
         rec_resource_id,
@@ -99,7 +105,7 @@ export class ResourceDocsService {
         rec_resource_id,
         url,
         title,
-        extension: "pdf",
+        extension: path.extname(file.originalname).replace(".", ""),
       },
     });
     return this.mapResponse(result);
@@ -125,6 +131,9 @@ export class ResourceDocsService {
       throw new HttpException("Recreation Resource not found", 404);
     }
     if (file) {
+      if (!allowedTypes.includes(file.mimetype)) {
+        throw new HttpException("File Type not allowed", 501);
+      }
       await uploadFile(ref_id, file);
       const files = await getResourcePath(ref_id);
       url = files
