@@ -7,6 +7,7 @@ import { HealthController } from "./health.controller";
 import { PassportModule } from "@nestjs/passport";
 import { AuthModule } from "./auth";
 import { PrismaService } from "./prisma.service";
+import { ResourceDocsModule } from "./resource-docs/resource-docs.module";
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { PrismaService } from "./prisma.service";
     PassportModule,
     AuthModule,
     TerminusModule,
+    ResourceDocsModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService, PrismaService],
