@@ -156,6 +156,18 @@ describe("ResourceDocsService", () => {
   });
 
   describe("create", () => {
+    const file = {
+      originalname: "sample.name",
+      mimetype: "application/pdf",
+      path: "sample.url",
+      buffer: Buffer.from("file"),
+      fieldname: "",
+      encoding: "",
+      size: 0,
+      stream: Readable.from(["test content"]),
+      destination: "",
+      filename: "",
+    };
     it("should return the created reource", async () => {
       mockedCreateResource.mockResolvedValueOnce("ref123");
       mockedUploadFile.mockResolvedValueOnce(undefined);
@@ -173,7 +185,7 @@ describe("ResourceDocsService", () => {
         prismaService.recreation_resource_docs.create,
       ).mockResolvedValue(mockedResources[0] as any);
 
-      const result = await service.create("REC0001", "Title", {} as any);
+      const result = await service.create("REC0001", "Title", file);
       expect(result).toMatchObject(mockedResources[0] as any);
     });
 
@@ -194,9 +206,33 @@ describe("ResourceDocsService", () => {
         prismaService.recreation_resource_docs.create,
       ).mockResolvedValueOnce(null as any);
       try {
-        await service.create("REC0001", "Title", {} as any);
+        await service.create("REC0001", "Title", file);
       } catch (err) {
         expect(err.status).toBe(404);
+      }
+    });
+
+    it("should return status 501 if the file type is invalid", async () => {
+      file.mimetype = "image/jpeg";
+      mockedCreateResource.mockResolvedValueOnce("ref123");
+      mockedUploadFile.mockResolvedValueOnce(undefined);
+      addResourceToCollection.mockResolvedValueOnce(undefined);
+      mockedGetResourcePath.mockResolvedValueOnce([
+        {
+          size_code: "original",
+          url: "https://dam-url.com/path/file.pdf?v=123",
+        },
+      ]);
+      vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue(
+        null,
+      );
+      vi.mocked(
+        prismaService.recreation_resource_docs.create,
+      ).mockResolvedValueOnce(null as any);
+      try {
+        await service.create("REC0001", "Title", file);
+      } catch (err) {
+        expect(err.status).toBe(501);
       }
     });
   });
@@ -204,7 +240,7 @@ describe("ResourceDocsService", () => {
   describe("update", () => {
     const file = {
       originalname: "sample.name",
-      mimetype: "sample.type",
+      mimetype: "application/pdf",
       path: "sample.url",
       buffer: Buffer.from("file"),
       fieldname: "",
@@ -239,6 +275,18 @@ describe("ResourceDocsService", () => {
         await service.update("REC0001", "11535", "Title", file);
       } catch (err) {
         expect(err.status).toBe(404);
+      }
+    });
+
+    it("should return status 501 if the file type is invalid", async () => {
+      file.mimetype = "image/jpeg";
+      vi.mocked(
+        prismaService.recreation_resource_docs.findUnique,
+      ).mockResolvedValueOnce(mockedResources[0] as any);
+      try {
+        await service.update("REC0001", "11535", "Title", file);
+      } catch (err) {
+        expect(err.status).toBe(501);
       }
     });
   });
