@@ -15,7 +15,33 @@ export async function bootstrap() {
     await NestFactory.create<NestExpressApplication>(AppModule, {
       logger: customLogger,
     });
-  app.use(helmet());
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", "https://www2.gov.bc.ca"],
+          styleSrc: [
+            "'self'",
+            "https://fonts.googleapis.com",
+            "https://use.fontawesome.com",
+          ],
+          fontSrc: ["'self'", "https://fonts.gstatic.com"],
+          imgSrc: [
+            "'self'",
+            "data:",
+            "https://fonts.googleapis.com",
+            "https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca",
+            "https://www.w3.org",
+            "https://www.sitesandtrailsbc.ca",
+          ],
+          objectSrc: ["'none'"],
+          connectSrc: ["'self'"],
+          frameSrc: ["'none'"],
+        },
+      },
+    }),
+  );
   app.enableCors();
   app.set("trust proxy", 1);
   app.enableShutdownHooks();

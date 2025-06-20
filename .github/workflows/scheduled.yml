@@ -23,7 +23,7 @@ jobs:
   zap_scan:
     runs-on: ubuntu-24.04
     name: ZAP Scans
-    environment: test
+    environment: dev
     permissions:
       issues: write
     steps:
