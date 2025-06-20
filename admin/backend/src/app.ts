@@ -19,7 +19,25 @@ export async function bootstrap() {
     helmet({
       contentSecurityPolicy: {
         directives: {
-          defaultSrc: ["'none'"],
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", "https://www2.gov.bc.ca"],
+          styleSrc: [
+            "'self'",
+            "https://fonts.googleapis.com",
+            "https://use.fontawesome.com",
+          ],
+          fontSrc: ["'self'", "https://fonts.gstatic.com"],
+          imgSrc: [
+            "'self'",
+            "data:",
+            "https://fonts.googleapis.com",
+            "https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca",
+            "https://www.w3.org",
+            "https://www.sitesandtrailsbc.ca",
+          ],
+          objectSrc: ["'none'"],
+          connectSrc: ["'self'"],
+          frameSrc: ["'none'"],
         },
       },
     }),
