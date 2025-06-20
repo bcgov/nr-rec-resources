@@ -3,6 +3,83 @@ provider "aws" {
   region = "us-east-1" # WAF is only available in us-east-1 for CloudFront
 }
 
+locals {
+  cors_allowed_origins = [
+    "https://${data.terraform_remote_state.frontend.outputs.cloudfront.domain_name}",
+    "https://dam.lqc63d-prod.nimbus.cloud.gov.bc.ca",
+    "https://sitesandtrailsbc.ca",
+    "https://beta.sitesandtrailsbc.ca"
+  ]
+
+  cors_headers = [
+    "Authorization",
+    "Content-Type",
+    "Origin",
+    "Access-Control-Request-Method",
+    "Access-Control-Request-Headers",
+    "Accept"
+  ]
+
+  headers = [
+    "Content-Type",
+    "Origin"
+  ]
+
+  allowed_headers = (
+    var.enable_cors
+    ? local.cors_headers
+    : local.headers
+  )
+}
+
+resource "aws_cloudfront_cache_policy" "custom_cache" {
+  name = "custom-cache-${var.app_name}-${var.enable_cors ? "disabled" : "enabled"}"
+
+  default_ttl = var.enable_cors ? 0 : 900
+  max_ttl     = var.enable_cors ? 0 : 3600
+  min_ttl     = 0
+
+  parameters_in_cache_key_and_forwarded_to_origin {
+    cookies_config {
+      cookie_behavior = "none"
+    }
+
+    headers_config {
+      header_behavior = var.enable_cors ? "none" : "whitelist"
+
+      dynamic "headers" {
+        for_each = var.enable_cors ? [] : [1]
+        content {
+          items = local.headers
+        }
+      }
+    }
+
+    query_strings_config {
+      query_string_behavior = var.enable_cors ? "none" : "all"
+    }
+  }
+}
+
+
+resource "aws_cloudfront_response_headers_policy" "api_cors" {
+  name = "api-cors-policy-${var.app_name}"
+
+  cors_config {
+    access_control_allow_credentials = var.enable_cors
+    access_control_allow_headers {
+      items = local.cors_headers
+    }
+    access_control_allow_methods {
+      items = ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"]
+    }
+    access_control_allow_origins {
+      items = local.cors_allowed_origins
+    }
+    origin_override = true
+  }
+}
+
 resource "aws_wafv2_web_acl" "cloudfront_acl" {
   provider = aws.cloudfront_waf
   name     = "api-web-acl-${var.app_name}"
@@ -44,7 +121,7 @@ resource "aws_wafv2_web_acl" "cloudfront_acl" {
 resource "aws_cloudfront_distribution" "api" {
   provider   = aws.cloudfront_waf
   web_acl_id = aws_wafv2_web_acl.cloudfront_acl.arn
-  comment             = "Distribution for ${var.app_name} api."
+  comment    = "Distribution for ${var.app_name} api."
 
   origin {
     domain_name = "${aws_apigatewayv2_api.app.id}.execute-api.${var.aws_region}.amazonaws.com"
@@ -60,23 +137,22 @@ resource "aws_cloudfront_distribution" "api" {
 
   enabled = true
 
+
   default_cache_behavior {
-    allowed_methods  = ["GET", "HEAD", "OPTIONS", "POST", "PUT", "DELETE", "PATCH"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "http-api-origin"
+    allowed_methods        = ["GET", "HEAD", "OPTIONS", "POST", "PUT", "DELETE", "PATCH"]
+    cached_methods         = ["GET", "HEAD"]
+    target_origin_id       = "http-api-origin"
     viewer_protocol_policy = "https-only"
-    default_ttl = 900 # 15 minutes
+
+    cache_policy_id            = aws_cloudfront_cache_policy.custom_cache.id
+    origin_request_policy_id   = "59781a5b-3903-41f3-afcb-af62929ccde1" # AWSManaged-OriginRequestPolicy-AllViewerExceptHostHeader
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.api_cors.id
+
+    default_ttl = var.enable_cors ? 0 : 900
     min_ttl     = 0
-    max_ttl     = 900
-
-    forwarded_values {
-      query_string = true
-
-      cookies {
-        forward = "all"
-      }
-    }
+    max_ttl     = var.enable_cors ? 0 : 900
   }
+
 
   restrictions {
     geo_restriction {
@@ -138,11 +214,17 @@ resource "aws_s3_bucket_policy" "cloudfront_log_policy" {
     Version = "2012-10-17",
     Statement = [
       {
+        Sid       = "AllowCloudFrontLogs",
         Effect    = "Allow",
-        Action    = "s3:PutObject",
-        Resource  = "arn:aws:s3:::${aws_s3_bucket.cloudfront_api_logs.bucket}/cloudfront/api/*",
         Principal = {
           Service = "cloudfront.amazonaws.com"
+        },
+        Action    = "s3:PutObject",
+        Resource  = "arn:aws:s3:::${aws_s3_bucket.cloudfront_api_logs.bucket}/cloudfront/api/*",
+        Condition = {
+          StringEquals = {
+            "AWS:SourceAccount" = data.aws_caller_identity.current.account_id
+          }
         }
       }
     ]

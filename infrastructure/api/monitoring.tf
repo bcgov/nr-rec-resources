@@ -43,8 +43,8 @@ locals {
   client_error_threshold = 20
 
   # Period and evaluation period for alarms
-  alarm_period = 60  # 1 minute
-  evaluation_periods = 2    # Check for 2 consecutive periods
+  alarm_period       = 60 # 1 minute
+  evaluation_periods = 2  # Check for 2 consecutive periods
 
   alarm_alert_email_recipients = split(",", var.alarm_alert_email_recipients)
 
@@ -194,7 +194,7 @@ resource "aws_cloudwatch_dashboard" "api_dashboard" {
           region  = local.region
           period  = local.period
           view    = "timeSeries"
-          yAxis = { left = { label = "ms" } }
+          yAxis   = { left = { label = "ms" } }
           metrics = local.latency_tm99_metrics
           annotations = {
             horizontal = [
@@ -218,7 +218,7 @@ resource "aws_cloudwatch_dashboard" "api_dashboard" {
           region  = local.region
           period  = local.period
           view    = "timeSeries"
-          yAxis = { left = { label = "ms" } }
+          yAxis   = { left = { label = "ms" } }
           metrics = local.latency_tm95_metrics
           annotations = {
             horizontal = [
@@ -251,7 +251,7 @@ resource "aws_cloudwatch_metric_alarm" "latency_alarms" {
   statistic           = "Average"
   threshold           = each.value
   alarm_description   = "Latency for ${each.key} exceeds ${each.value}ms in 2/${local.evaluation_periods} periods"
-  alarm_actions = [aws_sns_topic.alarm_topic.arn]
+  alarm_actions       = [aws_sns_topic.alarm_topic.arn]
   treat_missing_data  = "notBreaching"
 
   dimensions = {
@@ -277,7 +277,7 @@ resource "aws_cloudwatch_metric_alarm" "server_error_rate_alarm" {
   statistic           = "Sum"
   threshold           = local.server_error_threshold
   alarm_description   = "High server error rate (5xx) detected for operation ${each.value}."
-  alarm_actions = [aws_sns_topic.alarm_topic.arn]
+  alarm_actions       = [aws_sns_topic.alarm_topic.arn]
   treat_missing_data  = "notBreaching"
 
   dimensions = {
@@ -303,7 +303,7 @@ resource "aws_cloudwatch_metric_alarm" "client_error_rate_alarm" {
   statistic           = "Sum"
   threshold           = local.client_error_threshold
   alarm_description   = "High client error rate (4xx) detected for operation ${each.value}."
-  alarm_actions = [aws_sns_topic.alarm_topic.arn]
+  alarm_actions       = [aws_sns_topic.alarm_topic.arn]
   treat_missing_data  = "notBreaching"
 
   dimensions = {
@@ -324,7 +324,7 @@ resource "aws_kms_key" "alarm_topic_sns_key" {
 }
 
 resource "aws_sns_topic" "alarm_topic" {
-  name = "${var.app_env}-api-monitoring-alarms"
+  name              = "${var.app_env}-api-monitoring-alarms"
   kms_master_key_id = aws_kms_key.alarm_topic_sns_key.arn
 
   tags = merge(local.common_resource_tags, {
