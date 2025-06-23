@@ -7,9 +7,11 @@ import {
   Post,
   Put,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiParam,
@@ -24,8 +26,19 @@ import {
   RecreationResourceDocDto,
 } from "./dto/recreation-resource-doc.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
+import {
+  AUTH_STRATEGY,
+  AuthRoles,
+  AuthRolesGuard,
+  RecreationResourceAuthRole,
+  ROLE_MODE,
+} from "@/auth";
+import { AuthGuard } from "@nestjs/passport";
 
 @ApiTags("recreation-resource")
+@ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
+@UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
+@AuthRoles([RecreationResourceAuthRole.RST_VIEWER], ROLE_MODE.ALL)
 @Controller({ path: "recreation-resource", version: "1" })
 export class ResourceDocsController {
   constructor(private readonly resourceDocsService: ResourceDocsService) {}
