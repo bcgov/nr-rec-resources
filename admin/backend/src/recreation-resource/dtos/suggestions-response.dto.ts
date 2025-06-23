@@ -8,33 +8,33 @@ export class SuggestionDto {
     description: "Name of the recreation resource",
     example: "Tamihi Creek",
   })
-  name: string;
+  name: string | null;
 
   @ApiProperty({
     description: "Unique resource ID",
     example: "REC12345",
   })
-  rec_resource_id: string;
+  rec_resource_id: string | null;
 
   @ApiProperty({
     description:
       "Type of recreation resource (e.g., Recreation site, Recreation trail, etc.)",
     example: "RR",
   })
-  recreation_resource_type: string;
+  recreation_resource_type: string | null;
 
   @ApiProperty({
     description: "Resource type code (e.g., RR, IF, etc.)",
     example: "RR",
   })
-  recreation_resource_type_code: string;
+  recreation_resource_type_code: string | null;
 
   @ApiProperty({
     description:
       "Description of the district (e.g., Chilliwack, Okanagan, etc.)",
     example: "Chilliwack",
   })
-  district_description: string;
+  district_description: string | null;
 }
 
 /**
