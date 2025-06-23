@@ -158,3 +158,14 @@ variable "keycloak_config" {
   description = "Keycloak configuration for BC Gov Identity Service"
   sensitive = true
 }
+
+variable "dam_config" {
+  type = object({
+    dam_url = string
+    dam_private_key = string
+    dam_user = string
+    dam_rst_pdf_collection_id = string
+  })
+  description = "DAM configuration for BC Image and Documents storage"
+  sensitive = true
+}
