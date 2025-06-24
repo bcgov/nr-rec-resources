@@ -1,6 +1,5 @@
 import axios from "axios";
 import { createHash } from "crypto";
-// import { createReadStream } from "fs";
 import { Readable } from "stream";
 import FormData from "form-data";
 
@@ -18,13 +17,7 @@ function sign(query) {
   return createHash("sha256").update(`${private_key}${query}`).digest("hex");
 }
 
-export async function createResource() {
-  const params: any = {
-    user,
-    function: "create_resource",
-    resource_type: 1,
-    archive: 0,
-  };
+function createFormData(params) {
   const queryString = new URLSearchParams(params).toString();
   const signature = sign(queryString);
   const formData =
@@ -32,7 +25,10 @@ export async function createResource() {
   formData.append("query", queryString);
   formData.append("sign", signature);
   formData.append("user", user);
+  return formData;
+}
 
+async function axiosPost(formData) {
   return await axios
     .post(damUrl, formData, {
       headers: formData.getHeaders(),
@@ -45,30 +41,27 @@ export async function createResource() {
     });
 }
 
+export async function createResource() {
+  const params: any = {
+    user,
+    function: "create_resource",
+    resource_type: 1,
+    archive: 0,
+  };
+  const formData = createFormData(params);
+
+  return await axiosPost(formData);
+}
+
 export async function getResourcePath(resource: string) {
   const params: any = {
     user,
     function: "get_resource_all_image_sizes",
     resource,
   };
-  const queryString = new URLSearchParams(params).toString();
-  const signature = sign(queryString);
-  const formData =
-    typeof window === "undefined" ? new NodeFormData() : new FormData();
-  formData.append("query", queryString);
-  formData.append("sign", signature);
-  formData.append("user", user);
+  const formData = createFormData(params);
 
-  return await axios
-    .post(damUrl, formData, {
-      headers: formData.getHeaders(),
-    })
-    .then((res) => {
-      return res.data;
-    })
-    .catch((err) => {
-      throw err;
-    });
+  return await axiosPost(formData);
 }
 
 export async function addResourceToCollection(resource: string) {
@@ -78,24 +71,9 @@ export async function addResourceToCollection(resource: string) {
     resource,
     collection: pdfCollectionId,
   };
-  const queryString = new URLSearchParams(params).toString();
-  const signature = sign(queryString);
-  const formData =
-    typeof window === "undefined" ? new NodeFormData() : new FormData();
-  formData.append("query", queryString);
-  formData.append("sign", signature);
-  formData.append("user", user);
+  const formData = createFormData(params);
 
-  return await axios
-    .post(damUrl, formData, {
-      headers: formData.getHeaders(),
-    })
-    .then((res) => {
-      return res.data;
-    })
-    .catch((err) => {
-      throw err;
-    });
+  return await axiosPost(formData);
 }
 
 export async function uploadFile(ref: string, file: Express.Multer.File) {
@@ -108,28 +86,13 @@ export async function uploadFile(ref: string, file: Express.Multer.File) {
   };
   const stream = Readable.from(file.buffer);
 
-  const queryString = new URLSearchParams(params).toString();
-  const signature = sign(queryString);
-  const formData =
-    typeof window === "undefined" ? new NodeFormData() : new FormData();
-  formData.append("query", queryString);
-  formData.append("sign", signature);
-  formData.append("user", user);
+  const formData = createFormData(params);
   formData.append("file", stream, {
     filename: file.originalname,
     contentType: file.mimetype,
   });
 
-  return await axios
-    .post(damUrl, formData, {
-      headers: formData.getHeaders(),
-    })
-    .then((res) => {
-      return res.data;
-    })
-    .catch((err) => {
-      throw err;
-    });
+  return await axiosPost(formData);
 }
 
 export async function deleteResource(resource: string) {
@@ -138,22 +101,7 @@ export async function deleteResource(resource: string) {
     function: "delete_resource",
     resource,
   };
-  const queryString = new URLSearchParams(params).toString();
-  const signature = sign(queryString);
-  const formData =
-    typeof window === "undefined" ? new NodeFormData() : new FormData();
-  formData.append("query", queryString);
-  formData.append("sign", signature);
-  formData.append("user", user);
+  const formData = createFormData(params);
 
-  return await axios
-    .post(damUrl, formData, {
-      headers: formData.getHeaders(),
-    })
-    .then((res) => {
-      return res.data;
-    })
-    .catch((err) => {
-      throw err;
-    });
+  return await axiosPost(formData);
 }
