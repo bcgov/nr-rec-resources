@@ -18,16 +18,7 @@ export async function bootstrap() {
       logger: customLogger,
     });
 
-  app.use(
-    helmet({
-      contentSecurityPolicy: {
-        directives: {
-          defaultSrc: ["'none'"],
-          connectSrc: ["'self'"],
-        },
-      },
-    }),
-  );
+  app.use(helmet());
   app.enableCors();
   app.set("trust proxy", 1);
   app.enableShutdownHooks();
