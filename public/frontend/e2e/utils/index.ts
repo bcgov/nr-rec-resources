@@ -21,10 +21,13 @@ export const analyzeAccessibility = async (page: Page) => {
 };
 
 export const waitForImagesToLoad = async (page: Page) => {
-  await page.waitForFunction(() => {
-    const images = Array.from(document.querySelectorAll('img'));
-    return images.every((img) => img.complete);
-  });
+  while (true) {
+    const allLoaded = await page.evaluate(() =>
+      Array.from(document.images).every((img) => img.complete),
+    );
+    if (allLoaded) return;
+    await page.waitForTimeout(100);
+  }
 };
 
 export const waitForNetworkRequest = async (page: Page, url: string) => {

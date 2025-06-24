@@ -14,7 +14,16 @@ export async function bootstrap() {
     await NestFactory.create<NestExpressApplication>(AppModule, {
       logger: customLogger,
     });
-  app.use(helmet());
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'none'"],
+          connectSrc: ["'self'"],
+        },
+      },
+    }),
+  );
   app.enableCors();
   app.set("trust proxy", 1);
   app.enableShutdownHooks();

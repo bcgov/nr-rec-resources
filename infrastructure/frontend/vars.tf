@@ -22,3 +22,31 @@ variable "custom_domain" {
   type        = string
   default     = "beta.sitesandtrailsbc.ca"
 }
+
+variable "api_remote_state" {
+  description = "Remote state configuration for the api module"
+  type = object({
+    bucket         = string
+    key            = string
+    dynamodb_table = string
+    region         = string
+  })
+  default = {
+    bucket         = "example-api-bucket"
+    key            = "example/api/terraform.tfstate"
+    dynamodb_table = "example-api-lock-table"
+    region         = "ca-central-1"
+  }
+}
+
+variable "csp_urls" {
+  description = "List of URLs to be included in the Content Security Policy"
+  type        = object({
+    script_src = optional(string, "")
+    style_src  = optional(string, "")
+    connect_src = optional(string, "")
+    matomo_src = optional(string, "")
+    image_src = optional(string, "")
+  })
+  default = {}
+}

@@ -9,5 +9,9 @@ generate "dev_tfvars" {
   disable_signature = true
   contents          = <<-EOF
   target_env = "dev"
+  csp_urls = {
+      image_src = "https://dam.lqc63d-prod.nimbus.cloud.gov.bc.ca"
+      matomo_src = "https://iuqxrr50zl.execute-api.ca-central-1.amazonaws.com"
+  }
 EOF
 }

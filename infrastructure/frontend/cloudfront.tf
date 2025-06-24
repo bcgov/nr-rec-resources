@@ -1,5 +1,24 @@
 data "aws_caller_identity" "current" {}
 
+data "terraform_remote_state" "api" {
+  count = can(regex("ephemeral", var.app_env)) ? 0 : 1
+
+  backend = "s3"
+  config = {
+    bucket         = var.api_remote_state.bucket
+    key            = var.api_remote_state.key
+    dynamodb_table = var.api_remote_state.dynamodb_table
+    region         = "ca-central-1"
+  }
+}
+
+locals {
+  api_url = (
+    can(regex("ephemeral", var.app_env))
+    ? "https://placeholder-api-url"
+    : data.terraform_remote_state.api[0].outputs.apigw_url
+  )
+}
 
 resource "aws_s3_bucket" "frontend" {
   bucket = "${var.app_name}-${data.aws_caller_identity.current.account_id}-${var.aws_region}"
@@ -77,8 +96,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
       origin_access_identity = aws_cloudfront_origin_access_identity.oai.cloudfront_access_identity_path
     }
   }
-  # Required for SPA application to redirect requests to deep links to root, which loads index.html, which loads the Vue app
-  # and then the Vue router properly resolves the deep link.
+
   custom_error_response {
     error_code = 403
     response_code = 200
@@ -90,6 +108,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     allowed_methods  = ["GET", "HEAD"]
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = aws_s3_bucket.frontend.bucket
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.csp_policy.id
 
     forwarded_values {
       query_string = false
@@ -113,5 +132,54 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
 
   tags = {
     Name = "${var.app_name}-distribution"
+  }
+}
+
+
+resource "aws_cloudfront_response_headers_policy" "csp_policy" {
+  name = "${var.app_name}-csp-policy"
+
+  security_headers_config {
+    content_security_policy {
+      override = true
+      content_security_policy = join("; ", [
+        "default-src 'self'",
+        "script-src 'self' https://js.arcgis.com https://www2.gov.bc.ca ${var.csp_urls.matomo_src} ${var.csp_urls.script_src}",
+        "style-src 'self' 'unsafe-inline' https://js.arcgis.com https://fonts.googleapis.com https://use.fontawesome.com https://cdn.jsdelivr.net ${var.csp_urls.style_src}",
+        "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
+        "style-src-attr 'self' 'unsafe-inline'",
+        "font-src 'self' https://fonts.gstatic.com",
+        "img-src 'self' data: https://fonts.googleapis.com https://*.arcgis.com https://www.w3.org ${var.csp_urls.image_src} ${var.csp_urls.matomo_src}",
+        "connect-src 'self' ${local.api_url} https://${var.app_env}.loginproxy.gov.bc.ca https://www.arcgis.com https://services.arcgis.com https://tiles.arcgis.com https://maps.arcgis.com ${var.csp_urls.connect_src} ${var.csp_urls.matomo_src}",
+        "media-src 'self'",
+        "frame-src 'none'",
+        "worker-src 'self' blob: https://js.arcgis.com",
+        "object-src 'none'",
+        "base-uri 'self'",
+        "form-action 'self'",
+        "frame-ancestors 'none'"
+      ])
+    }
+
+    content_type_options {
+      override = true
+    }
+
+    frame_options {
+      override     = true
+      frame_option = "SAMEORIGIN"
+    }
+
+    referrer_policy {
+      override        = true
+      referrer_policy = "same-origin"
+    }
+
+    strict_transport_security {
+      override                    = true
+      access_control_max_age_sec = 31536000
+      include_subdomains          = true
+      preload                     = false
+    }
   }
 }
