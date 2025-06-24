@@ -17,6 +17,7 @@ export async function bootstrap() {
     await NestFactory.create<NestExpressApplication>(AppModule, {
       logger: customLogger,
     });
+
   app.use(helmet());
   app.enableCors();
   app.set("trust proxy", 1);
