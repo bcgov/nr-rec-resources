@@ -94,10 +94,7 @@ export class ResourceDocsService {
     await uploadFile(ref_id, file);
     await addResourceToCollection(ref_id);
     const files = await getResourcePath(ref_id);
-    const url = files
-      .find((f: any) => f.size_code === "original")
-      .url.replace(process.env.DAM_URL, "")
-      .replace(/\?.*?$/, "");
+    const url = this.getOriginalFilePath(files);
     const result = await this.prisma.recreation_resource_docs.create({
       data: {
         ref_id: ref_id.toString(),
@@ -136,10 +133,7 @@ export class ResourceDocsService {
       }
       await uploadFile(ref_id, file);
       const files = await getResourcePath(ref_id);
-      url = files
-        .find((f: any) => f.size_code === "original")
-        .url.replace(process.env.DAM_URL, "")
-        .replace(/\?.*?$/, "");
+      url = this.getOriginalFilePath(files);
       docToUpdate["url"] = url;
     }
     const result = await this.prisma.$transaction([
@@ -176,5 +170,15 @@ export class ResourceDocsService {
       doc_code: payload?.doc_code as RecreationResourceDocCode,
       doc_code_description: payload?.recreation_resource_doc_code?.description,
     };
+  }
+
+  private getOriginalFilePath(files: any[]) {
+    let originalUrl = files
+      .find((f: any) => f.size_code === "original")
+      .url.replace(process.env.DAM_URL, "");
+    originalUrl = originalUrl.includes("?")
+      ? originalUrl.split("?")[0]
+      : originalUrl;
+    return originalUrl;
   }
 }

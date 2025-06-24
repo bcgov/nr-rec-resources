@@ -13,7 +13,7 @@ import { memoryStorage } from "multer";
     MulterModule.register({
       storage: memoryStorage(),
       limits: {
-        fileSize: 10 * 1024 * 1024, // 10 MB limit, adjust as needed
+        fileSize: 5 * 1024 * 1024, // 5 MB limit, adjust as needed
       },
     }),
     PrismaModule,

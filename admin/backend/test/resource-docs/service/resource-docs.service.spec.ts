@@ -168,7 +168,7 @@ describe("ResourceDocsService", () => {
       destination: "",
       filename: "",
     };
-    it("should return the created reource", async () => {
+    it("should return the created resource", async () => {
       mockedCreateResource.mockResolvedValueOnce("ref123");
       mockedUploadFile.mockResolvedValueOnce(undefined);
       addResourceToCollection.mockResolvedValueOnce(undefined);
@@ -176,6 +176,27 @@ describe("ResourceDocsService", () => {
         {
           size_code: "original",
           url: "https://dam-url.com/path/file.pdf?v=123",
+        },
+      ]);
+      vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue(
+        mockedResources[0] as any,
+      );
+      vi.mocked(
+        prismaService.recreation_resource_docs.create,
+      ).mockResolvedValue(mockedResources[0] as any);
+
+      const result = await service.create("REC0001", "Title", file);
+      expect(result).toMatchObject(mockedResources[0] as any);
+    });
+
+    it("should return the created resource with no params on original path", async () => {
+      mockedCreateResource.mockResolvedValueOnce("ref123");
+      mockedUploadFile.mockResolvedValueOnce(undefined);
+      addResourceToCollection.mockResolvedValueOnce(undefined);
+      mockedGetResourcePath.mockResolvedValueOnce([
+        {
+          size_code: "original",
+          url: "https://dam-url.com/path/file.pdf",
         },
       ]);
       vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue(
@@ -256,7 +277,7 @@ describe("ResourceDocsService", () => {
       mockedGetResourcePath.mockResolvedValueOnce([
         {
           size_code: "original",
-          url: "https://dam-url.com/path/file.pdf?v=123",
+          url: "https://dam-url.com/path/file.pdf",
         },
       ]);
       vi.mocked(
@@ -292,7 +313,7 @@ describe("ResourceDocsService", () => {
   });
 
   describe("delete", () => {
-    it("should return the deleted reource", async () => {
+    it("should return the deleted resource", async () => {
       mockedDeleteResource.mockResolvedValueOnce(undefined);
       vi.mocked(
         prismaService.recreation_resource_docs.delete,
