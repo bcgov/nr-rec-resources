@@ -143,7 +143,6 @@ export class ResourceDocsController {
     @Body() body: RecreationResourceDocBodyDto,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<RecreationResourceDocDto | null> {
-    console.log(file.mimetype);
     return this.resourceDocsService.create(rec_resource_id, body.title, file);
   }
 

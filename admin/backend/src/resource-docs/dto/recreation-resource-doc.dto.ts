@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { IsNotEmpty } from "class-validator";
 
 /**
  * Enum representing available image size options for the recreation API
@@ -53,6 +54,7 @@ export class RecreationResourceDocBodyDto {
     description: "Doc title",
     example: "Campbell river site map",
   })
+  @IsNotEmpty()
   title: string;
 }
 
