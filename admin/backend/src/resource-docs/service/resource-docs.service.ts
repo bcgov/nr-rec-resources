@@ -97,7 +97,7 @@ export class ResourceDocsService {
     const url = files
       .find((f: any) => f.size_code === "original")
       .url.replace(process.env.DAM_URL, "")
-      .replace(/\?.*$/, "");
+      .replace(/\?.*?$/, "");
     const result = await this.prisma.recreation_resource_docs.create({
       data: {
         ref_id: ref_id.toString(),
@@ -139,7 +139,7 @@ export class ResourceDocsService {
       url = files
         .find((f: any) => f.size_code === "original")
         .url.replace(process.env.DAM_URL, "")
-        .replace(/\?.*$/, "");
+        .replace(/\?.*?$/, "");
       docToUpdate["url"] = url;
     }
     const result = await this.prisma.$transaction([
