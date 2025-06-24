@@ -81,12 +81,26 @@
     height: 200px;
     width: 250px;
   }
-}
 
-.card-carousel {
-  min-height: 190px;
-  max-height: 280px;
-  overflow: hidden;
+  .card-carousel {
+    min-height: 190px;
+    max-height: 280px;
+    overflow: hidden;
+
+    .nav-icon {
+      display: block;
+      font-size: 1.5rem;
+      color: $white;
+
+      @include media-breakpoint-up(sm) {
+        display: none;
+      }
+    }
+
+    &:hover .nav-icon {
+      display: block;
+    }
+  }
 }
 
 .carousel-desktop-image {
@@ -98,6 +112,13 @@
   }
 }
 
+.carousel .carousel-indicators button {
+  border: none;
+  border-radius: 6px;
+  height: 6px;
+  width: 6px;
+}
+
 .carousel-mobile-image {
   display: block;
   min-width: 100%;
@@ -107,21 +128,4 @@
   @include media-breakpoint-up(sm) {
     display: none;
   }
-}
-
-.carousel .carousel-indicators button {
-  border: none;
-  border-radius: 6px;
-  height: 6px;
-  width: 6px;
-}
-
-.nav-icon {
-  font-size: 1.5rem;
-  display: none;
-  color: $white;
-}
-
-.card-carousel:hover .nav-icon {
-  display: block;
 }
