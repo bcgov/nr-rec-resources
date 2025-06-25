@@ -78,18 +78,25 @@ export class RecreationResourceSearchService {
       lon,
     });
 
-    const [recreationResources, aggregatedCounts] = await Promise.all([
-      this.prisma.$queryRaw<any[]>(recreationResourcePageQuerySql),
-      this.prisma.$queryRaw<AggregatedRecordCount[]>(
-        filterOptionCountsQuerySql,
-      ),
-    ]);
+    const [recreationResources, aggregatedCounts, filteredIds] =
+      await Promise.all([
+        this.prisma.$queryRaw<any[]>(recreationResourcePageQuerySql),
+        this.prisma.$queryRaw<AggregatedRecordCount[]>(
+          filterOptionCountsQuerySql,
+        ),
+        this.prisma.$queryRaw<{ rec_resource_id: string }[]>`
+          SELECT rec_resource_id
+          FROM recreation_resource_search_view
+          ${whereClause}
+        `,
+      ]);
 
     return this.formatResults(
       recreationResources,
       aggregatedCounts,
       page,
       take,
+      filteredIds,
     );
   }
 
@@ -117,6 +124,7 @@ export class RecreationResourceSearchService {
     aggregatedRecordCounts: AggregatedRecordCount[],
     page: number,
     limit?: number,
+    filteredIds: { rec_resource_id: string }[] = [],
   ): PaginatedRecreationResourceDto {
     return {
       data: formatSearchResults(recreationResources),
@@ -124,6 +132,7 @@ export class RecreationResourceSearchService {
       limit,
       total: recreationResources?.[0]?.total_count ?? 0,
       filters: buildFilterMenu(aggregatedRecordCounts),
+      recResourceIds: filteredIds.map((record) => record.rec_resource_id),
     };
   }
 
