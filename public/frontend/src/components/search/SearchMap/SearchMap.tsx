@@ -8,6 +8,8 @@ import {
   createRecreationLabelStyle,
 } from '@/components/search/SearchMap/layers/recreationFeatureLayer';
 import VectorLayer from 'ol/layer/Vector';
+import Cluster from 'ol/source/Cluster';
+import { Circle as CircleStyle, Fill, Stroke, Style, Text } from 'ol/style';
 import '@/components/search/SearchMap/SearchMap.scss';
 
 const TILE_SIZE = 512;
@@ -29,11 +31,21 @@ const SearchMap = ({ style }: SearchableMapProps) => {
     [],
   );
 
+  const clusterSource = useMemo(
+    () =>
+      new Cluster({
+        distance: 40, // or your desired distance
+        minDistance: 1, // optional
+        source: featureSource,
+      }),
+    [featureSource],
+  );
+
   // Use same feature source but separate layers for icons and labels
   // to allow decluttering of labels while keeping icons visible
   const iconLayerRef = useRef<VectorLayer>(
     new VectorLayer({
-      source: featureSource,
+      source: clusterSource,
       declutter: false,
       updateWhileInteracting: true,
       updateWhileAnimating: true,
@@ -42,7 +54,7 @@ const SearchMap = ({ style }: SearchableMapProps) => {
 
   const labelLayerRef = useRef<VectorLayer>(
     new VectorLayer({
-      source: featureSource,
+      source: clusterSource,
       declutter: true,
       updateWhileInteracting: false,
       updateWhileAnimating: false,
@@ -50,8 +62,39 @@ const SearchMap = ({ style }: SearchableMapProps) => {
     }),
   );
 
+  const clusterStyle = (feature: any) => {
+    const size = feature.get('features')?.length || 1;
+    if (size === 1) {
+      // Single feature, use the existing icon style
+      return createRecreationIconStyle([])(feature);
+    }
+    return new Style({
+      image: new CircleStyle({
+        radius: 18,
+        stroke: new Stroke({
+          color: '#fff',
+          width: 2,
+        }),
+        fill: new Fill({
+          color: '#1976d2',
+        }),
+      }),
+      text: new Text({
+        text: size.toString(),
+        fill: new Fill({
+          color: '#fff',
+        }),
+        stroke: new Stroke({
+          color: '#333',
+          width: 2,
+        }),
+        font: 'bold 16px sans-serif',
+      }),
+    });
+  };
+
   useEffect(() => {
-    iconLayerRef.current.setStyle(createRecreationIconStyle(filteredIds));
+    iconLayerRef.current.setStyle(clusterStyle);
     labelLayerRef.current.setStyle(createRecreationLabelStyle(filteredIds));
   }, [filteredIds]);
 
