@@ -33,11 +33,12 @@ export const getCapitalizedName = (name: string): string => {
 
 export const createRecreationIconStyle = (filteredIds: string[] = []) => {
   const filteredSet = new Set(filteredIds);
+  console.log('filteredIds', filteredIds);
 
   return (feature: FeatureLike): Style | undefined => {
     const id = feature.get('FOREST_FILE_ID');
 
-    if (filteredSet.size > 0 && !filteredSet.has(id)) return undefined;
+    if (filteredSet.size === 0 || !filteredSet.has(id)) return undefined;
 
     const isClosed = feature.get('CLOSURE_IND') === 'Y';
     const key = `icon-${isClosed}`;
@@ -59,7 +60,7 @@ export const createRecreationLabelStyle = (filteredIds: string[] = []) => {
   return (feature: FeatureLike): Style | undefined => {
     const id = feature.get('FOREST_FILE_ID');
 
-    if (filteredSet.size > 0 && !filteredSet.has(id)) return undefined;
+    if (filteredSet.size === 0 || !filteredSet.has(id)) return undefined;
 
     const name = feature.get('PROJECT_NAME');
     if (!name) return;
