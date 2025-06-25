@@ -10,6 +10,8 @@ import {
 import VectorLayer from 'ol/layer/Vector';
 import Cluster from 'ol/source/Cluster';
 import { Circle as CircleStyle, Fill, Stroke, Style, Text } from 'ol/style';
+import Map from 'ol/Map';
+import { getCenter } from 'ol/extent';
 import '@/components/search/SearchMap/SearchMap.scss';
 
 const TILE_SIZE = 512;
@@ -35,7 +37,7 @@ const SearchMap = ({ style }: SearchableMapProps) => {
     () =>
       new Cluster({
         distance: 40, // or your desired distance
-        minDistance: 1, // optional
+        // minDistance: 20, // optional
         source: featureSource,
       }),
     [featureSource],
@@ -93,10 +95,44 @@ const SearchMap = ({ style }: SearchableMapProps) => {
     });
   };
 
+  // Add a ref to store the map instance
+  const mapRef = useRef<Map | null>(null);
+
   useEffect(() => {
     iconLayerRef.current.setStyle(clusterStyle);
     labelLayerRef.current.setStyle(createRecreationLabelStyle(filteredIds));
   }, [filteredIds]);
+
+  // Zoom in one level when a cluster is clicked
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const handleClick = (evt: any) => {
+      map.forEachFeatureAtPixel(evt.pixel, (feature: any) => {
+        const features = feature.get('features');
+        if (features && features.length > 1) {
+          // Cluster: zoom in to cluster center, one level closer
+          const extent = feature.getGeometry().getExtent();
+          const center = getCenter(extent);
+          const view = map.getView();
+          const currentZoom = view.getZoom() ?? 8;
+          view.animate({
+            center,
+            zoom: currentZoom + 1,
+            duration: 300,
+          });
+          return true; // Stop after first cluster found
+        }
+        return false;
+      });
+    };
+
+    map.on('click', handleClick);
+    return () => {
+      map.un('click', handleClick);
+    };
+  }, []);
 
   const layers = useMemo(
     () => [
@@ -124,6 +160,7 @@ const SearchMap = ({ style }: SearchableMapProps) => {
         }}
         layers={layers}
         defaultZoom={8}
+        ref={mapRef}
       />
 
       <div className="search-map-view-controls">
