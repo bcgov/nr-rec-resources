@@ -14,7 +14,6 @@ import { getCenter } from 'ol/extent';
 import '@/components/search/SearchMap/SearchMap.scss';
 
 const TILE_SIZE = 512;
-const MAX_TEXT_RESOLUTION = 900;
 
 interface SearchableMapProps {
   style?: CSSProperties;
@@ -48,8 +47,8 @@ const SearchMap = ({ style }: SearchableMapProps) => {
     new VectorLayer({
       source: clusterSource,
       declutter: false,
-      updateWhileInteracting: true,
-      updateWhileAnimating: true,
+      updateWhileInteracting: false,
+      updateWhileAnimating: false,
     }),
   );
 
@@ -57,7 +56,7 @@ const SearchMap = ({ style }: SearchableMapProps) => {
     const size = feature.get('features')?.length || 1;
     if (size === 1) {
       // Single feature, use the existing icon style
-      return createRecreationIconStyle([])(feature);
+      return createRecreationIconStyle([])(feature.get('features')[0]);
     }
     return new Style({
       image: new CircleStyle({

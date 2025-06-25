@@ -55,9 +55,22 @@ export const createRecreationFeatureSource = (options?: {
 }) =>
   new VectorSource({
     format: new EsriJSON(),
-    url: (extent) => {
+    // url: (extent) => {
+    //   const geometry = extent.join(',');
+    //   return (
+    //     `${RECREATION_FEATURE_LAYER}/query/?` +
+    //     `f=json` +
+    //     `&where=1=1` +
+    //     `&outFields=PROJECT_NAME,CLOSURE_IND,FOREST_FILE_ID` +
+    //     `&geometry=${geometry}` +
+    //     `&geometryType=esriGeometryEnvelope` +
+    //     `&spatialRel=esriSpatialRelIntersects` +
+    //     `&outSR=102100`
+    //   );
+    // },
+    loader: function (extent) {
       const geometry = extent.join(',');
-      return (
+      const url =
         `${RECREATION_FEATURE_LAYER}/query/?` +
         `f=json` +
         `&where=1=1` +
@@ -65,8 +78,21 @@ export const createRecreationFeatureSource = (options?: {
         `&geometry=${geometry}` +
         `&geometryType=esriGeometryEnvelope` +
         `&spatialRel=esriSpatialRelIntersects` +
-        `&outSR=102100`
-      );
+        `&outSR=102100`;
+
+      fetch(url)
+        .then((response) => response.json())
+        .then((data) => {
+          const format = new EsriJSON();
+          const features = format.readFeatures(data);
+          features.forEach((feature: any) => {
+            // Set unique ID from FOREST_FILE_ID
+            feature.setId(feature.get('FOREST_FILE_ID'));
+          });
+          (this as VectorSource).addFeatures(features);
+          return features;
+        })
+        .catch(console.log);
     },
     strategy: tileStrategy(
       createXYZ({ tileSize: options?.tileSize ?? MAP_LAYER_OPTIONS.TILE_SIZE }),
