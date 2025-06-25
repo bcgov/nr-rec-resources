@@ -13,6 +13,9 @@ import Map from 'ol/Map';
 import { getCenter } from 'ol/extent';
 import '@/components/search/SearchMap/SearchMap.scss';
 import { FeatureLike } from 'ol/Feature';
+import { Overlay } from 'ol';
+import { renderToString } from 'react-dom/server';
+import './SearchMap.scss';
 
 const TILE_SIZE = 512;
 
@@ -32,12 +35,55 @@ function getSpiderfyPositions(
   ]);
 }
 
+interface OverlayContentProps {
+  forestFileId: string;
+  projectName?: string;
+}
+
+const OverlayContent: React.FC<OverlayContentProps> = ({
+  forestFileId,
+  projectName,
+}) => {
+  return (
+    <div className="overlay-content">
+      <h3>Forest File ID:</h3>
+      <p>{forestFileId}</p>
+      {projectName && (
+        <>
+          <h3>Project Name:</h3>
+          <p>{projectName}</p>
+        </>
+      )}
+    </div>
+  );
+};
+
 const SearchMap = ({ style }: SearchableMapProps) => {
   // Setting a list filteredIds will dynamically filter the recreation feature layer
   const [filteredIds] = useState<string[]>([]);
 
   // Add a ref to store the map instance
   const mapRef = useRef<Map | null>(null);
+  const overlayRef = useRef<Overlay | null>(null);
+
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    // Create overlay element
+    const overlayElement = document.createElement('div');
+    overlayElement.className = 'forest-file-overlay';
+    overlayRef.current = new Overlay({
+      element: overlayElement,
+      positioning: 'bottom-center',
+      stopEvent: false,
+      offset: [0, -20],
+    });
+    mapRef.current.addOverlay(overlayRef.current);
+
+    return () => {
+      mapRef.current?.removeOverlay(overlayRef.current!);
+    };
+  }, []);
 
   const featureSource = useMemo(
     () =>
@@ -133,6 +179,70 @@ const SearchMap = ({ style }: SearchableMapProps) => {
     const map = mapRef.current;
     if (!map) return;
 
+    const handlePointerMove = (evt: any) => {
+      let foundFeature = false;
+      map.forEachFeatureAtPixel(evt.pixel, (feature: FeatureLike) => {
+        const features = feature.get('features');
+        if (features && features.length >= 1) {
+          // Cluster: zoom in to cluster center, one level closer
+          const extent = feature.getGeometry()?.getExtent() || [];
+          const center = getCenter(extent);
+          const view = map.getView();
+          const currentZoom = view.getZoom() ?? 8;
+
+          if (features && features.length === 1) {
+            // Single feature: show overlay with details
+            foundFeature = true;
+            const forestFileId = features[0].get('FOREST_FILE_ID');
+            const projectName = features[0].get('PROJECT_NAME');
+            const coordinate = features[0].getGeometry().getCoordinates();
+
+            // Calculate overlay position
+            const pixel = map.getPixelFromCoordinate(coordinate);
+            const mapSize = map.getSize();
+            const overlayElement = overlayRef.current!.getElement()!;
+
+            // Render the overlay content to measure its size
+            overlayElement.innerHTML = renderToString(
+              <OverlayContent
+                forestFileId={forestFileId}
+                projectName={projectName}
+              />,
+            );
+
+            // Get overlay size after rendering
+            const overlayWidth = overlayElement.offsetWidth;
+            const overlayHeight = overlayElement.offsetHeight;
+
+            let offsetX = 0;
+            let offsetY = -20; // Default offset
+
+            // Check if overlay goes beyond the right edge
+            if (pixel[0] + overlayWidth / 2 > mapSize[0]) {
+              offsetX = mapSize[0] - (pixel[0] + overlayWidth / 2);
+            }
+            // Check if overlay goes beyond the left edge
+            if (pixel[0] - overlayWidth / 2 < 0) {
+              offsetX = -(pixel[0] - overlayWidth / 2);
+            }
+            // Check if overlay goes beyond the bottom edge
+            if (pixel[1] + overlayHeight > mapSize[1]) {
+              offsetY = overlayHeight + 20;
+            }
+
+            overlayRef.current!.setPosition(coordinate);
+            overlayRef.current!.setOffset([offsetX, offsetY]);
+
+            return true; // Stop after first feature found
+          }
+          return false;
+        }
+      });
+      if (!foundFeature) {
+        overlayRef.current!.setPosition(undefined);
+      }
+    };
+
     const handleClick = (evt: any) => {
       map.forEachFeatureAtPixel(evt.pixel, (feature: FeatureLike) => {
         const features = feature.get('features');
@@ -143,18 +253,20 @@ const SearchMap = ({ style }: SearchableMapProps) => {
           const view = map.getView();
           const currentZoom = view.getZoom() ?? 8;
           view.animate({
-            center,
+            center: center,
             zoom: currentZoom + 1,
-            duration: 300,
+            duration: 250,
           });
-          return true; // Stop after first cluster found
+          return true; // Stop after first feature found
         }
         return false;
       });
     };
 
+    map.on('pointermove', handlePointerMove);
     map.on('click', handleClick);
     return () => {
+      map.un('pointermove', handlePointerMove);
       map.un('click', handleClick);
     };
   }, []);
