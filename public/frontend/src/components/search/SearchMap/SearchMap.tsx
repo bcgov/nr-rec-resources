@@ -5,7 +5,6 @@ import { SearchViewControls } from '@/components/search';
 import {
   createRecreationFeatureSource,
   createRecreationIconStyle,
-  createRecreationLabelStyle,
 } from '@/components/search/SearchMap/layers/recreationFeatureLayer';
 import VectorLayer from 'ol/layer/Vector';
 import Cluster from 'ol/source/Cluster';
@@ -54,16 +53,6 @@ const SearchMap = ({ style }: SearchableMapProps) => {
     }),
   );
 
-  const labelLayerRef = useRef<VectorLayer>(
-    new VectorLayer({
-      source: clusterSource,
-      declutter: true,
-      updateWhileInteracting: false,
-      updateWhileAnimating: false,
-      maxResolution: MAX_TEXT_RESOLUTION,
-    }),
-  );
-
   const clusterStyle = (feature: any) => {
     const size = feature.get('features')?.length || 1;
     if (size === 1) {
@@ -100,7 +89,6 @@ const SearchMap = ({ style }: SearchableMapProps) => {
 
   useEffect(() => {
     iconLayerRef.current.setStyle(clusterStyle);
-    labelLayerRef.current.setStyle(createRecreationLabelStyle(filteredIds));
   }, [filteredIds]);
 
   // Zoom in one level when a cluster is clicked
@@ -139,11 +127,6 @@ const SearchMap = ({ style }: SearchableMapProps) => {
       {
         id: 'recreation-icons',
         layerInstance: iconLayerRef.current,
-        visible: true,
-      },
-      {
-        id: 'recreation-labels',
-        layerInstance: labelLayerRef.current,
         visible: true,
       },
     ],

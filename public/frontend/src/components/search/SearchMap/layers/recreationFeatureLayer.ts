@@ -3,11 +3,9 @@ import VectorLayer from 'ol/layer/Vector';
 import EsriJSON from 'ol/format/EsriJSON';
 import { tile as tileStrategy } from 'ol/loadingstrategy';
 import { createXYZ } from 'ol/tilegrid';
-import { Style } from 'ol/style';
+import { Fill, Stroke, Style, Text } from 'ol/style';
 import { FeatureLike } from 'ol/Feature';
-import { capitalizeWords } from '@/utils/capitalizeWords';
 import {
-  featureLabelText,
   locationDotBlueIcon,
   locationDotRedIcon,
 } from '@/components/search/SearchMap/mapStyles';
@@ -20,16 +18,7 @@ import {
 // This file should be moved back to the shared map repo once map development has matured
 // https://github.com/bcgov/prp-map/blob/main/src/layers/recreationFeatureLayer.ts
 
-const iconStyleCache = new Map<string, Style>();
 const labelTextCache = new Map<string, string>();
-const labelStyleCache = new Map<string, Style>();
-
-export const getCapitalizedName = (name: string): string => {
-  if (!labelTextCache.has(name)) {
-    labelTextCache.set(name, capitalizeWords(name));
-  }
-  return labelTextCache.get(name)!;
-};
 
 export const createRecreationIconStyle = (filteredIds: string[] = []) => {
   const filteredSet = new Set(filteredIds);
@@ -39,39 +28,24 @@ export const createRecreationIconStyle = (filteredIds: string[] = []) => {
 
     if (filteredSet.size > 0 && !filteredSet.has(id)) return undefined;
 
-    const isClosed = feature.get('CLOSURE_IND') === 'Y';
-    const key = `icon-${isClosed}`;
-
-    if (!iconStyleCache.has(key)) {
-      const icon = isClosed
-        ? locationDotRedIcon.getImage()
-        : locationDotBlueIcon.getImage();
-      iconStyleCache.set(key, new Style({ image: icon ?? undefined }));
-    }
-
-    return iconStyleCache.get(key)!;
-  };
-};
-
-export const createRecreationLabelStyle = (filteredIds: string[] = []) => {
-  const filteredSet = new Set(filteredIds);
-
-  return (feature: FeatureLike): Style | undefined => {
-    const id = feature.get('FOREST_FILE_ID');
-
-    if (filteredSet.size > 0 && !filteredSet.has(id)) return undefined;
-
     const name = feature.get('PROJECT_NAME');
-    if (!name) return;
 
-    const label = getCapitalizedName(name);
-    const key = `label-${label}`;
+    const isClosed = feature.get('CLOSURE_IND') === 'Y';
 
-    if (!labelStyleCache.has(key)) {
-      labelStyleCache.set(key, new Style({ text: featureLabelText(label) }));
-    }
+    const icon = isClosed
+      ? locationDotRedIcon.getImage()
+      : locationDotBlueIcon.getImage();
 
-    return labelStyleCache.get(key);
+    return new Style({
+      image: icon ?? undefined,
+      text: new Text({
+        text: name,
+        font: '14px BC Sans,sans-serif',
+        fill: new Fill({ color: '#000' }),
+        stroke: new Stroke({ color: '#fff', width: 2 }),
+        offsetY: -28,
+      }),
+    });
   };
 };
 
