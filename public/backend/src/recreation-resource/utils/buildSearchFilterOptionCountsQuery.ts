@@ -38,6 +38,10 @@ export function buildFilterOptionCountsQuery({
     FROM recreation_resource_search_view
     ${whereClause}
   ),
+  filtered_ids AS (
+    SELECT ARRAY_AGG(rec_resource_id) AS rec_resource_ids
+    FROM filtered_resources
+  ),
   facility_counts AS (
    SELECT
      SUM(has_toilets::int)::int AS total_toilet_count,
@@ -107,32 +111,40 @@ export function buildFilterOptionCountsQuery({
     'activity' AS type,
     ac.recreation_activity_code::TEXT AS code,
     ac.description,
-    ac.recreation_activity_count AS count
+    ac.recreation_activity_count AS count,
+    NULL::TEXT[] AS rec_resource_ids
   FROM activity_counts ac
 
   UNION ALL
 
   SELECT
-    'district', dc.code, dc.description, dc.count
+    'district', dc.code, dc.description, dc.count, NULL::TEXT[] AS rec_resource_ids
   FROM district_counts dc
 
   UNION ALL
 
   SELECT
-    'access', ac.code, ac.description, ac.count
+    'access', ac.code, ac.description, ac.count, NULL::TEXT[] AS rec_resource_ids
   FROM access_counts ac
 
   UNION ALL
 
   SELECT
-    'type', tc.code, tc.description, tc.count
+    'type', tc.code, tc.description, tc.count, NULL::TEXT[] AS rec_resource_ids
   FROM type_counts tc
 
   UNION ALL
 
-  SELECT 'facilities', 'toilet', 'Toilets', total_toilet_count FROM facility_counts
+  SELECT 'facilities', 'toilet', 'Toilets', total_toilet_count, NULL::TEXT[] AS rec_resource_ids
+  FROM facility_counts
 
   UNION ALL
 
-  SELECT 'facilities', 'table', 'Tables', total_table_count FROM facility_counts;`;
+  SELECT 'facilities', 'table', 'Tables', total_table_count, NULL::TEXT[] AS rec_resource_ids
+  FROM facility_counts
+
+  UNION ALL
+
+  SELECT 'ids', NULL, NULL, NULL, rec_resource_ids
+  FROM filtered_ids;`;
 }
