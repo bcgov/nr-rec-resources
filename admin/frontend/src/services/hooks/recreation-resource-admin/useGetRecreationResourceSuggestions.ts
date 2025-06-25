@@ -1,6 +1,9 @@
 import { useRecreationResourceAdminApiClient } from "@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient";
 import { useQuery } from "@tanstack/react-query";
-import { ResponseError } from "@/services/recreation-resource-admin";
+import {
+  ResponseError,
+  SuggestionsResponseDto,
+} from "@/services/recreation-resource-admin";
 
 export function isValidRecreationResourceSearchTerm(
   searchTerm: unknown,
@@ -16,7 +19,7 @@ export const useGetRecreationResourceSuggestions = (searchTerm: string) => {
   const recreationResourceAdminApiClient =
     useRecreationResourceAdminApiClient();
 
-  return useQuery({
+  return useQuery<SuggestionsResponseDto, ResponseError>({
     queryKey: ["recreationResourceSuggestions", searchTerm],
     initialData: { total: 0, suggestions: [] },
     queryFn: () =>
@@ -25,11 +28,8 @@ export const useGetRecreationResourceSuggestions = (searchTerm: string) => {
       }),
     enabled: isValidRecreationResourceSearchTerm(searchTerm),
     retry: (_, error) => {
-      if (error instanceof ResponseError) {
-        const { status } = error.response;
-        return status >= 500 && status < 600;
-      }
-      return true;
+      const { status } = error.response;
+      return status >= 500 && status < 600;
     },
   });
 };

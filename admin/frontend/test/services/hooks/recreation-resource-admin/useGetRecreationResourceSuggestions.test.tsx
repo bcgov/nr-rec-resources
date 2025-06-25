@@ -119,15 +119,4 @@ describe("useGetRecreationResourceSuggestions", () => {
       searchTerm: "RetryTest",
     });
   });
-
-  it("retries for generic error", async () => {
-    await expectRetryBehavior({
-      error: new Error("GENERIC_ERROR"),
-      resolvedValue: {
-        total: 2,
-        suggestions: [{ id: "2", name: "Lake" }],
-      },
-      searchTerm: "RetryTest",
-    });
-  });
 });

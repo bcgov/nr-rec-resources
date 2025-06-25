@@ -33,10 +33,13 @@ export const RecreationResourceSuggestionForm = () => {
   };
 
   const getEmptyLabel = () => {
-    if (error) {
+    if (error?.response.status === 400) {
       return (
         <Form.Control.Feedback type="invalid" className="d-block">
-          {error.message}
+          Invalid search term. Only letters, numbers, spaces, and these
+          characters are allowed: &quot; &#39; ( ) # . &amp; /
+          <br />
+          Minimum 3 characters.
         </Form.Control.Feedback>
       );
     }

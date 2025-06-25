@@ -115,7 +115,7 @@ describe("RecreationResourceSuggestionForm", () => {
 
   it("shows error message when hook returns error", () => {
     mockUseGetSuggestions({
-      error: { message: "Something went wrong" },
+      error: { message: "Something went wrong", response: { status: 400 } },
     } as any);
     render(<RecreationResourceSuggestionForm />);
 
