@@ -1,5 +1,6 @@
-import { CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
+import { CSSProperties, useEffect, useMemo, useRef } from 'react';
 import 'ol/ol.css';
+import { useStore } from '@tanstack/react-store';
 import { VectorFeatureMap } from '@bcgov/prp-map';
 import { SearchViewControls } from '@/components/search';
 import {
@@ -8,6 +9,8 @@ import {
   createRecreationLabelStyle,
 } from '@/components/search/SearchMap/layers/recreationFeatureLayer';
 import VectorLayer from 'ol/layer/Vector';
+import searchResultsStore from '@/store/searchResults';
+import { RecreationSearchForm } from '@/components/recreation-search-form/RecreationSearchForm';
 import '@/components/search/SearchMap/SearchMap.scss';
 
 const TILE_SIZE = 512;
@@ -18,8 +21,7 @@ interface SearchableMapProps {
 }
 
 const SearchMap = ({ style }: SearchableMapProps) => {
-  // Setting a list filteredIds will dynamically filter the recreation feature layer
-  const [filteredIds] = useState<string[]>([]);
+  const { pages, recResourceIds } = useStore(searchResultsStore);
 
   const featureSource = useMemo(
     () =>
@@ -51,9 +53,10 @@ const SearchMap = ({ style }: SearchableMapProps) => {
   );
 
   useEffect(() => {
-    iconLayerRef.current.setStyle(createRecreationIconStyle(filteredIds));
-    labelLayerRef.current.setStyle(createRecreationLabelStyle(filteredIds));
-  }, [filteredIds]);
+    if (pages.length === 0) return;
+    iconLayerRef.current.setStyle(createRecreationIconStyle(recResourceIds));
+    labelLayerRef.current.setStyle(createRecreationLabelStyle(recResourceIds));
+  }, [recResourceIds, pages]);
 
   const layers = useMemo(
     () => [
@@ -84,6 +87,7 @@ const SearchMap = ({ style }: SearchableMapProps) => {
       />
 
       <div className="search-map-view-controls">
+        <RecreationSearchForm />
         <SearchViewControls />
       </div>
     </div>

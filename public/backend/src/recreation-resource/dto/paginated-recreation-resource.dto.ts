@@ -51,4 +51,7 @@ export class PaginatedRecreationResourceDto {
 
   @ApiProperty({ type: [FilterDto] })
   filters: FilterDto[];
+
+  @ApiProperty({ type: [String] })
+  recResourceIds: string[];
 }

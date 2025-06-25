@@ -64,6 +64,12 @@ export interface PaginatedRecreationResourceDto {
    * @memberof PaginatedRecreationResourceDto
    */
   filters: Array<FilterDto>;
+  /**
+   *
+   * @type {Array<string>}
+   * @memberof PaginatedRecreationResourceDto
+   */
+  recResourceIds: Array<string>;
 }
 
 /**
@@ -77,6 +83,8 @@ export function instanceOfPaginatedRecreationResourceDto(
   if (!('page' in value) || value['page'] === undefined) return false;
   if (!('limit' in value) || value['limit'] === undefined) return false;
   if (!('filters' in value) || value['filters'] === undefined) return false;
+  if (!('recResourceIds' in value) || value['recResourceIds'] === undefined)
+    return false;
   return true;
 }
 
@@ -99,6 +107,7 @@ export function PaginatedRecreationResourceDtoFromJSONTyped(
     page: json['page'],
     limit: json['limit'],
     filters: (json['filters'] as Array<any>).map(FilterDtoFromJSON),
+    recResourceIds: json['recResourceIds'],
   };
 }
 
@@ -122,5 +131,6 @@ export function PaginatedRecreationResourceDtoToJSONTyped(
     page: value['page'],
     limit: value['limit'],
     filters: (value['filters'] as Array<any>).map(FilterDtoToJSON),
+    recResourceIds: value['recResourceIds'],
   };
 }
