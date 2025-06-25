@@ -1,7 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { RecreationResourceMap } from './RecreationResourceMap';
-import { StyledVectorFeatureMap } from '@/components/StyledVectorFeatureMap';
+import { VectorFeatureMap } from '@bcgov/prp-map';
+import Feature from 'ol/Feature';
+import { Style, Fill } from 'ol/style';
 import {
   downloadGPX,
   downloadKML,
@@ -10,8 +12,9 @@ import {
 } from '@/components/rec-resource/RecreationResourceMap/helpers';
 import { trackEvent } from '@/utils/matomo';
 
-vi.mock('@/components/StyledVectorFeatureMap', () => ({
-  StyledVectorFeatureMap: vi.fn(() => <div data-testid="vector-map" />),
+// Mock the dependencies
+vi.mock('@bcgov/prp-map', () => ({
+  VectorFeatureMap: vi.fn(() => null),
 }));
 
 vi.mock('@/components/rec-resource/RecreationResourceMap/helpers', () => ({
@@ -32,18 +35,12 @@ describe('RecreationResourceMap', () => {
     site_point_geometry: {},
   } as any;
 
-  const mockFeatures = [
-    {
-      id: 'feature1',
-      clone: () => ({
-        id: 'feature1-clone',
-        setStyle: vi.fn(),
-        getGeometry: vi.fn(() => ({ getType: () => 'Point' })),
-      }),
-      setStyle: vi.fn(),
-    },
-  ];
-  const mockLayerStyle = { color: 'red' };
+  const mockFeatures = [new Feature({ id: 'feature1' })];
+  mockFeatures[0].setId('feature1');
+
+  const mockLayerStyle = new Style({
+    fill: new Fill({ color: 'rgba(255,0,0,0.4)' }),
+  });
   const mockMapStyles = { height: '100px' };
 
   beforeEach(() => {
@@ -61,19 +58,45 @@ describe('RecreationResourceMap', () => {
     );
     expect(getMapFeaturesFromRecResource).toHaveBeenCalledWith(mockRecResource);
     expect(getLayerStyleForRecResource).toHaveBeenCalledWith(mockRecResource);
-    expect(StyledVectorFeatureMap).toHaveBeenCalledWith(
+
+    expect(VectorFeatureMap).toHaveBeenCalledWith(
       expect.objectContaining({
-        features: mockFeatures,
-        mapComponentCssStyles: mockMapStyles,
+        layers: [
+          expect.objectContaining({
+            id: 'rec-resource-layer',
+          }),
+        ],
       }),
       undefined,
     );
+
     expect(
       screen.getByRole('button', { name: /Download GPX/i }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /Download KML/i }),
     ).toBeInTheDocument();
+  });
+
+  it('renders VectorFeatureMap with correct props when features exist', () => {
+    render(
+      <RecreationResourceMap
+        recResource={mockRecResource}
+        mapComponentCssStyles={mockMapStyles}
+      />,
+    );
+    expect(getMapFeaturesFromRecResource).toHaveBeenCalledWith(mockRecResource);
+    expect(getLayerStyleForRecResource).toHaveBeenCalledWith(mockRecResource);
+
+    expect.objectContaining({
+      mapComponentCssStyles: mockMapStyles,
+      layers: expect.arrayContaining([
+        expect.objectContaining({
+          id: 'rec-resource-layer',
+          layerInstance: expect.any(Object),
+        }),
+      ]),
+    });
   });
 
   it('returns null when features array is empty', () => {

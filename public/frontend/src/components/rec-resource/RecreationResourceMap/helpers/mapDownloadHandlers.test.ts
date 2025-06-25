@@ -18,6 +18,8 @@ vi.mock('ol/style', () => {
   return {
     Icon: vi.fn(),
     Style: vi.fn(),
+    Fill: vi.fn(),
+    Stroke: vi.fn(),
   };
 });
 
