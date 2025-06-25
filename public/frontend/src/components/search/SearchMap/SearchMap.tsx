@@ -128,7 +128,7 @@ const SearchMap = ({ style }: SearchableMapProps) => {
     // If all features share the same coordinates and zoom is high, spiderfy
     if (
       size > 1 &&
-      zoom >= 15 && // set your desired zoom threshold
+      zoom >= 8 &&
       features.every(
         (f: any) =>
           f.getGeometry().getCoordinates().toString() ===
@@ -136,7 +136,7 @@ const SearchMap = ({ style }: SearchableMapProps) => {
       )
     ) {
       const center = features[0].getGeometry().getCoordinates();
-      const positions = getSpiderfyPositions(center, size, 20); // 20 is the offset radius
+      const positions = getSpiderfyPositions(center, size, 50); // 20 is the offset radius
 
       // Move features and create icon styles
       features.map((f: any, i: number) => {
@@ -184,12 +184,6 @@ const SearchMap = ({ style }: SearchableMapProps) => {
       map.forEachFeatureAtPixel(evt.pixel, (feature: FeatureLike) => {
         const features = feature.get('features');
         if (features && features.length >= 1) {
-          // Cluster: zoom in to cluster center, one level closer
-          const extent = feature.getGeometry()?.getExtent() || [];
-          const center = getCenter(extent);
-          const view = map.getView();
-          const currentZoom = view.getZoom() ?? 8;
-
           if (features && features.length === 1) {
             // Single feature: show overlay with details
             foundFeature = true;
@@ -199,7 +193,7 @@ const SearchMap = ({ style }: SearchableMapProps) => {
 
             // Calculate overlay position
             const pixel = map.getPixelFromCoordinate(coordinate);
-            const mapSize = map.getSize();
+            const mapSize = map.getSize() ?? [0, 0];
             const overlayElement = overlayRef.current!.getElement()!;
 
             // Render the overlay content to measure its size
