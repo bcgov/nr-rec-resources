@@ -55,7 +55,7 @@ jobs:
   #   secrets: inherit
 
   review-and-deploy-admin:
-    if: github.ref_name == 'main' || github.head_ref == 'main'
+    # if: github.ref_name == 'main' || github.head_ref == 'main'
     name: Review and deploy Admin app
     needs: build-containers
     uses: ./.github/workflows/.review-and-deploy.yml
