@@ -120,7 +120,7 @@ describe("ResourceDocsService", () => {
         prismaService.recreation_resource_docs.findUnique,
       ).mockResolvedValue(mockedResources[0] as any);
 
-      const result = await service.getById("REC0001", "11535");
+      const result = await service.getDocumentByResourceId("REC0001", "11535");
       expect(result).toMatchObject(mockedResources[0] as any);
     });
 
@@ -129,7 +129,7 @@ describe("ResourceDocsService", () => {
         prismaService.recreation_resource_docs.findUnique,
       ).mockResolvedValueOnce(null);
       try {
-        await service.getById("REC0001", "11535");
+        await service.getDocumentByResourceId("REC0001", "11535");
       } catch (err) {
         expect(err.status).toBe(404);
       }
@@ -233,7 +233,7 @@ describe("ResourceDocsService", () => {
       }
     });
 
-    it("should return status 501 if the file type is invalid", async () => {
+    it("should return status 415 if the file type is invalid", async () => {
       file.mimetype = "image/jpeg";
       mockedCreateResource.mockResolvedValueOnce("ref123");
       mockedUploadFile.mockResolvedValueOnce(undefined);
@@ -253,7 +253,7 @@ describe("ResourceDocsService", () => {
       try {
         await service.create("REC0001", "Title", file);
       } catch (err) {
-        expect(err.status).toBe(501);
+        expect(err.status).toBe(415);
       }
     });
   });
@@ -299,7 +299,7 @@ describe("ResourceDocsService", () => {
       }
     });
 
-    it("should return status 501 if the file type is invalid", async () => {
+    it("should return status 415 if the file type is invalid", async () => {
       file.mimetype = "image/jpeg";
       vi.mocked(
         prismaService.recreation_resource_docs.findUnique,
@@ -307,7 +307,7 @@ describe("ResourceDocsService", () => {
       try {
         await service.update("REC0001", "11535", "Title", file);
       } catch (err) {
-        expect(err.status).toBe(501);
+        expect(err.status).toBe(415);
       }
     });
   });

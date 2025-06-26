@@ -5,9 +5,10 @@ import { PrismaModule } from "src/prisma.module";
 import { PrismaService } from "src/prisma.service";
 import { MulterModule } from "@nestjs/platform-express";
 import { memoryStorage } from "multer";
+import { ConfigService } from "@nestjs/config";
 
 @Module({
-  providers: [ResourceDocsService, PrismaService],
+  providers: [ResourceDocsService, PrismaService, ConfigService],
   controllers: [ResourceDocsController],
   imports: [
     MulterModule.register({

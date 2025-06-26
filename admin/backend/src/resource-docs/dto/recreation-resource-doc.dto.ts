@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty, Length, Matches } from "class-validator";
 
 /**
  * Enum representing available image size options for the recreation API
@@ -53,7 +53,15 @@ export class RecreationResourceDocBodyDto {
   @ApiProperty({
     description: "Doc title",
     example: "Campbell river site map",
+    minLength: 3,
+    maxLength: 100,
+    type: String,
   })
+  @Matches(/^[A-Za-z0-9 "'()#.&/]+$/, {
+    message:
+      "resource title can only contain alphanumeric characters and spaces",
+  })
+  @Length(3, 100)
   @IsNotEmpty()
   title: string;
 }

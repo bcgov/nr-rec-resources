@@ -43,10 +43,10 @@ export class ResourceDocsService {
     return result.map((i) => this.mapResponse(i));
   }
 
-  async getById(
+  async getDocumentByResourceId(
     rec_resource_id: string,
     ref_id: string,
-  ): Promise<RecreationResourceDocDto | null> {
+  ): Promise<RecreationResourceDocDto> {
     const result = await this.prisma.recreation_resource_docs.findUnique({
       where: {
         rec_resource_id,
@@ -80,7 +80,7 @@ export class ResourceDocsService {
     file: Express.Multer.File,
   ): Promise<RecreationResourceDocDto> {
     if (!allowedTypes.includes(file.mimetype)) {
-      throw new HttpException("File Type not allowed", 501);
+      throw new HttpException("File Type not allowed", 415);
     }
     const resource = await this.prisma.recreation_resource.findUnique({
       where: {
@@ -117,7 +117,6 @@ export class ResourceDocsService {
     const docToUpdate = {
       title,
     };
-    let url = null;
     const resource = await this.prisma.recreation_resource_docs.findUnique({
       where: {
         rec_resource_id,
@@ -129,22 +128,17 @@ export class ResourceDocsService {
     }
     if (file) {
       if (!allowedTypes.includes(file.mimetype)) {
-        throw new HttpException("File Type not allowed", 501);
+        throw new HttpException("File Type not allowed", 415);
       }
       await uploadFile(ref_id, file);
-      const files = await getResourcePath(ref_id);
-      url = this.getOriginalFilePath(files);
-      docToUpdate["url"] = url;
     }
-    const result = await this.prisma.$transaction([
-      this.prisma.recreation_resource_docs.update({
-        where: {
-          rec_resource_id,
-          ref_id,
-        },
-        data: docToUpdate,
-      }),
-    ]);
+    const result = await this.prisma.recreation_resource_docs.update({
+      where: {
+        rec_resource_id,
+        ref_id,
+      },
+      data: docToUpdate,
+    });
 
     return this.mapResponse(result);
   }

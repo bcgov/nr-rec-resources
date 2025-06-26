@@ -66,10 +66,12 @@ describe("getResourcePath", () => {
   });
 
   it("should throw error on failure", async () => {
-    const error = new Error("API Error");
+    const error = new Error();
     (axios.post as any).mockRejectedValue(error);
 
-    await expect(getResourcePath("bad-resource")).rejects.toThrow("API Error");
+    await expect(getResourcePath("bad-resource")).rejects.toThrow(
+      "Error getting resource images.",
+    );
   });
 });
 
@@ -85,10 +87,10 @@ describe("createResource", () => {
   });
 
   it("should throw error on failure", async () => {
-    const error = new Error("API Error");
+    const error = new Error();
     (axios.post as any).mockRejectedValue(error);
 
-    await expect(createResource()).rejects.toThrow("API Error");
+    await expect(createResource()).rejects.toThrow("Error creating resource.");
   });
 });
 
@@ -104,11 +106,11 @@ describe("addResourceToCollection", () => {
   });
 
   it("should throw error on failure", async () => {
-    const error = new Error("API Error");
+    const error = new Error();
     (axios.post as any).mockRejectedValue(error);
 
     await expect(addResourceToCollection("resource-id")).rejects.toThrow(
-      "API Error",
+      "Error adding resource to collection.",
     );
   });
 });
@@ -125,10 +127,12 @@ describe("deleteResource", () => {
   });
 
   it("should throw error on failure", async () => {
-    const error = new Error("API Error");
+    const error = new Error();
     (axios.post as any).mockRejectedValue(error);
 
-    await expect(deleteResource("resource-id")).rejects.toThrow("API Error");
+    await expect(deleteResource("resource-id")).rejects.toThrow(
+      "Error deleting resource.",
+    );
   });
 });
 
@@ -157,9 +161,11 @@ describe("uploadFile", () => {
   });
 
   it("should throw error on failure", async () => {
-    const error = new Error("API Error");
+    const error = new Error();
     (axios.post as any).mockRejectedValue(error);
 
-    await expect(uploadFile("resource-id", file)).rejects.toThrow("API Error");
+    await expect(uploadFile("resource-id", file)).rejects.toThrow(
+      "Error uploading file",
+    );
   });
 });

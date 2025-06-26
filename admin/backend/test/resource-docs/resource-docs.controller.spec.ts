@@ -52,14 +52,22 @@ describe("ResourceDocsController", () => {
         },
         doc_code_description: "Recreation Map",
       };
-      vi.spyOn(resourceDocsService, "getById").mockResolvedValue(result as any);
-      expect(await controller.getById("REC0001", "11535")).toBe(result);
+      vi.spyOn(
+        resourceDocsService,
+        "getDocumentByResourceId",
+      ).mockResolvedValue(result as any);
+      expect(await controller.getDocumentByResourceId("REC0001", "11535")).toBe(
+        result,
+      );
     });
 
     it("should throw error if recreation resource not found", async () => {
-      vi.spyOn(resourceDocsService, "getById").mockResolvedValue(null);
+      vi.spyOn(
+        resourceDocsService,
+        "getDocumentByResourceId",
+      ).mockResolvedValue(null as any);
       try {
-        await controller.getById("REC0001", "11535");
+        await controller.getDocumentByResourceId("REC0001", "11535");
       } catch (e) {
         expect(e).toBeInstanceOf(HttpException);
         expect(e.message).toBe("Recreation Resource not found.");

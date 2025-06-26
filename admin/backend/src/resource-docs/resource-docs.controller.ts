@@ -95,13 +95,16 @@ export class ResourceDocsController {
   })
   @ApiResponse({
     status: 404,
-    description: "Recreation Resource document not found",
+    description: "Recreation Resource not found",
   })
-  async getById(
+  async getDocumentByResourceId(
     @Param("rec_resource_id") rec_resource_id: string,
     @Param("ref_id") ref_id: string,
   ): Promise<RecreationResourceDocDto | null> {
-    return this.resourceDocsService.getById(rec_resource_id, ref_id);
+    return this.resourceDocsService.getDocumentByResourceId(
+      rec_resource_id,
+      ref_id,
+    );
   }
 
   @Post(":rec_resource_id/docs")
@@ -137,7 +140,14 @@ export class ResourceDocsController {
     description: "Recreation Resource document not found",
   })
   @ApiResponse({ status: 500, description: "Error creating document" })
-  @ApiResponse({ status: 501, description: "File Type not allowed" })
+  @ApiResponse({ status: 415, description: "File Type not allowed" })
+  @ApiResponse({ status: 416, description: "Error creating resource" })
+  @ApiResponse({ status: 417, description: "Error getting resource images" })
+  @ApiResponse({
+    status: 418,
+    description: "Error adding resource to collection",
+  })
+  @ApiResponse({ status: 419, description: "Error uploading file" })
   async create(
     @Param("rec_resource_id") rec_resource_id: string,
     @Body() body: RecreationResourceDocBodyDto,
@@ -186,6 +196,8 @@ export class ResourceDocsController {
     description: "Recreation Resource document not found",
   })
   @ApiResponse({ status: 500, description: "Error updating document" })
+  @ApiResponse({ status: 415, description: "File Type not allowed" })
+  @ApiResponse({ status: 419, description: "Error uploading file" })
   async update(
     @Param("rec_resource_id") rec_resource_id: string,
     @Param("ref_id") ref_id: string,
@@ -229,6 +241,7 @@ export class ResourceDocsController {
     description: "Recreation Resource document not found",
   })
   @ApiResponse({ status: 500, description: "Error deleting document" })
+  @ApiResponse({ status: 420, description: "Error deleting resource" })
   async delete(
     @Param("rec_resource_id") rec_resource_id: string,
     @Param("ref_id") ref_id: string,
