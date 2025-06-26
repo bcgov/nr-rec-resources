@@ -1,6 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { RecreationResourceRepository } from "./recreation-resource.repository";
-import { SuggestionsResponseDto } from "./dtos/suggestions-response.dto";
+import {
+  SuggestionDto,
+  SuggestionsResponseDto,
+} from "./dtos/suggestions-response.dto";
 import { getRecreationResourceSuggestions } from "@/prisma-generated-sql";
 
 @Injectable()
@@ -23,15 +26,30 @@ export class RecreationResourceService {
 
     return {
       total,
-      suggestions: data.map(
-        (item: getRecreationResourceSuggestions.Result) => ({
+      suggestions: data
+        .filter(this.isValidSuggestion)
+        .map((item: SuggestionDto) => ({
           name: item.name,
           rec_resource_id: item.rec_resource_id,
           recreation_resource_type: item.recreation_resource_type,
           recreation_resource_type_code: item.recreation_resource_type_code,
           district_description: item.district_description,
-        }),
-      ),
+        })),
     };
+  }
+
+  /**
+   * Checks if a suggestion has required fields.
+   */
+  private isValidSuggestion(
+    item: getRecreationResourceSuggestions.Result,
+  ): item is SuggestionDto {
+    return (
+      Boolean(item.rec_resource_id) &&
+      Boolean(item.name) &&
+      Boolean(item.recreation_resource_type) &&
+      Boolean(item.recreation_resource_type_code) &&
+      Boolean(item.district_description)
+    );
   }
 }
