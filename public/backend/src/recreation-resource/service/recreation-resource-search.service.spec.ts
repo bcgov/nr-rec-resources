@@ -150,9 +150,11 @@ describe("RecreationResourceSearchService", () => {
 
       expect(result).toEqual({
         data: [],
+        extent: undefined,
         page: 1,
         limit: 10,
         total: 10,
+        recResourceIds: [],
         filters: { filters: [] },
       });
       expect(formatSearchResults).toHaveBeenCalledWith([
@@ -171,9 +173,11 @@ describe("RecreationResourceSearchService", () => {
 
       expect(result).toEqual({
         data: [],
+        extent: undefined,
         page: 1,
         limit: 10,
         total: 0,
+        recResourceIds: [],
         filters: { filters: [] },
       });
       expect(formatSearchResults).toHaveBeenCalledWith([]);
