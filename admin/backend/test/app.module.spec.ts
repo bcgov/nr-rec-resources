@@ -63,7 +63,7 @@ describe("AppModule", () => {
       const moduleFixture = AppModule;
       const metadata = Reflect.getMetadata("imports", moduleFixture);
 
-      expect(metadata).toHaveLength(6);
+      expect(metadata).toHaveLength(5);
       expect(metadata).toEqual(
         expect.arrayContaining([
           PassportModule,
