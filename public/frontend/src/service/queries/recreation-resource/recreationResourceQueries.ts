@@ -203,6 +203,7 @@ export const useSearchRecreationResourcesPaginated = (params: SearchParams) => {
         data.pageParams[data.pageParams.length - 1]?.page ?? DEFAULT_PAGE,
       filters: data.pages?.[0]?.filters ?? [],
       recResourceIds: data.pages?.[0]?.recResourceIds ?? [],
+      extent: data.pages?.[0]?.extent ?? null,
     };
   };
 

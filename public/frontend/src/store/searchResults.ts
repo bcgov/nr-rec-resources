@@ -12,6 +12,7 @@ export const initialState = {
   pages: [],
   pageParams: [],
   recResourceIds: [],
+  extent: undefined,
 };
 
 export interface SearchResultsStore {
@@ -21,6 +22,7 @@ export interface SearchResultsStore {
   filters: FilterMenuContent[];
   pageParams: SearchRecreationResourcesRequest[];
   recResourceIds: string[];
+  extent?: string;
 }
 
 const searchResultsStore = new Store<SearchResultsStore>(initialState);
