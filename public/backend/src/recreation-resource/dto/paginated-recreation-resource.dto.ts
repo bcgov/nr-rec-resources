@@ -54,4 +54,7 @@ export class PaginatedRecreationResourceDto {
 
   @ApiProperty({ type: [String] })
   recResourceIds: string[];
+
+  @ApiProperty()
+  extent?: string;
 }

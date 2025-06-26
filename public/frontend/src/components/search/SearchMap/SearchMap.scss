@@ -7,10 +7,16 @@
   z-index: 9999;
   overflow: hidden;
   background-color: white;
+
+  .zoom-control {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+  }
 }
 
 .search-map-view-controls {
-  position: absolute;
+  position: fixed;
   top: 10px;
   left: 10px;
   z-index: 10000;

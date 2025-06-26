@@ -78,25 +78,29 @@ export class RecreationResourceSearchService {
       lon,
     });
 
-    const [recreationResources, aggregatedCounts, filteredIds] =
-      await Promise.all([
-        this.prisma.$queryRaw<any[]>(recreationResourcePageQuerySql),
-        this.prisma.$queryRaw<AggregatedRecordCount[]>(
-          filterOptionCountsQuerySql,
-        ),
-        this.prisma.$queryRaw<{ rec_resource_id: string }[]>`
-          SELECT rec_resource_id
-          FROM recreation_resource_search_view
-          ${whereClause}
-        `,
-      ]);
+    const [recreationResources, filterResults] = await Promise.all([
+      this.prisma.$queryRaw<any[]>(recreationResourcePageQuerySql),
+      this.prisma.$queryRaw<any[]>(filterOptionCountsQuerySql),
+    ]);
+
+    const unpaginatedIds =
+      filterResults.find((row) => row.type === "ids")?.rec_resource_ids ?? [];
+
+    const extentGeoJson = filterResults.find(
+      (row) => row.type === "extent",
+    )?.extent;
+
+    const aggregatedCounts: AggregatedRecordCount[] = filterResults.filter(
+      (row) => row.type !== "ids" && row.type !== "extent",
+    );
 
     return this.formatResults(
       recreationResources,
       aggregatedCounts,
       page,
       take,
-      filteredIds,
+      unpaginatedIds,
+      extentGeoJson,
     );
   }
 
@@ -124,7 +128,8 @@ export class RecreationResourceSearchService {
     aggregatedRecordCounts: AggregatedRecordCount[],
     page: number,
     limit?: number,
-    filteredIds: { rec_resource_id: string }[] = [],
+    unpaginatedIds: string[] = [],
+    extent?: string | null,
   ): PaginatedRecreationResourceDto {
     return {
       data: formatSearchResults(recreationResources),
@@ -132,7 +137,8 @@ export class RecreationResourceSearchService {
       limit,
       total: recreationResources?.[0]?.total_count ?? 0,
       filters: buildFilterMenu(aggregatedRecordCounts),
-      recResourceIds: filteredIds.map((record) => record.rec_resource_id),
+      recResourceIds: unpaginatedIds,
+      extent,
     };
   }
 

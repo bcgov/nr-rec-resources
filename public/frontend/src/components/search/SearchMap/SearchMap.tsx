@@ -1,5 +1,7 @@
 import { CSSProperties, useEffect, useMemo, useRef } from 'react';
 import 'ol/ol.css';
+import { transformExtent } from 'ol/proj';
+import GeoJSON from 'ol/format/GeoJSON';
 import { useStore } from '@tanstack/react-store';
 import { VectorFeatureMap } from '@bcgov/prp-map';
 import { SearchViewControls } from '@/components/search';
@@ -21,7 +23,11 @@ interface SearchableMapProps {
 }
 
 const SearchMap = ({ style }: SearchableMapProps) => {
-  const { pages, recResourceIds } = useStore(searchResultsStore);
+  const { extent, pages, recResourceIds } = useStore(searchResultsStore);
+
+  const mapRef = useRef<{ getMap: () => import('ol/Map').default } | null>(
+    null,
+  );
 
   const featureSource = useMemo(
     () =>
@@ -53,10 +59,48 @@ const SearchMap = ({ style }: SearchableMapProps) => {
   );
 
   useEffect(() => {
-    if (pages.length === 0) return;
+    if (!extent || !mapRef.current) return;
+
+    try {
+      const geojson = JSON.parse(extent);
+      const format = new GeoJSON();
+      const geometry = format.readGeometry(geojson);
+      const olExtent3005 = geometry.getExtent();
+
+      const olExtent3857 = transformExtent(
+        olExtent3005,
+        'EPSG:3005',
+        'EPSG:3857',
+      );
+
+      const map = mapRef.current.getMap();
+      const view = map.getView();
+
+      map.once('moveend', () => {
+        // Mitigate white tile issue after zooming to extent,
+        // we just give the zoom a slight nudge to render correctly
+        const zoom = view.getZoom();
+        if (zoom != null) {
+          view.setZoom(zoom + 0.01);
+        }
+      });
+
+      view.fit(olExtent3857, {
+        padding: [50, 50, 50, 50],
+        maxZoom: 16,
+        duration: 500,
+      });
+    } catch (err) {
+      console.error('Failed to parse or fit extent:', err);
+    }
+  }, [extent]);
+
+  useEffect(() => {
+    if (!pages || pages.length === 0) return;
     iconLayerRef.current.setStyle(createRecreationIconStyle(recResourceIds));
     labelLayerRef.current.setStyle(createRecreationLabelStyle(recResourceIds));
-  }, [recResourceIds, pages]);
+    featureSource.refresh();
+  }, [recResourceIds, pages, featureSource]);
 
   const layers = useMemo(
     () => [
@@ -77,13 +121,16 @@ const SearchMap = ({ style }: SearchableMapProps) => {
   return (
     <div className="search-map-container" style={style}>
       <VectorFeatureMap
+        ref={mapRef}
         style={{
           width: '100%',
           height: '100%',
           backgroundColor: 'white',
         }}
         layers={layers}
-        defaultZoom={8}
+        defaultZoom={6}
+        minZoom={5.5}
+        maxZoom={30}
       />
 
       <div className="search-map-view-controls">
