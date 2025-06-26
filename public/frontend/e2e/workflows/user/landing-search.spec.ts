@@ -54,8 +54,6 @@ test.describe('User flows from the landing page to searching for a rec resource'
 
     await utils.accessibility();
 
-    await recResourcePage.removeRecreationResourceFeatureMap();
-
     await utils.screenshot('Recreation Resource page', '10k cabin');
   });
 
@@ -95,8 +93,6 @@ test.describe('User flows from the landing page to searching for a rec resource'
     await recResourcePage.verifyRecResourceSections();
 
     await utils.accessibility();
-
-    await recResourcePage.removeRecreationResourceFeatureMap();
 
     await utils.screenshot(
       'Recreation Resource page',
