@@ -30,19 +30,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<AuthenticationError | null>(null);
 
-  const initAndSetupAuth = async () => {
-    try {
-      setIsLoading(true);
-      // Removed direct assignment of event handlers.
-      await authService.init();
-    } catch (err) {
-      setError(AuthenticationError.parse(err));
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
-    initAndSetupAuth();
+    setIsLoading(true);
+
+    // initialize the authService
+    authService
+      .init()
+      .then((didInitialize: boolean) => didInitialize)
+      .catch((err) => {
+        setError(AuthenticationError.parse(err));
+        setIsLoading(false);
+      });
 
     const handleAuthSuccess = async () => {
       const currentUser = await authService.getUser();
@@ -77,7 +75,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       );
       window.removeEventListener(AuthServiceEvent.AUTH_ERROR, handleAuthError);
     };
-  }, []);
+  }, [authService]);
 
   const contextValue: AuthContextValue = {
     user,

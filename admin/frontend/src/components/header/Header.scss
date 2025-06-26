@@ -1,0 +1,14 @@
+@import "../../styles/variables.scss";
+
+.bcds-header {
+  background-color: $colorBlue !important;
+  color: $colorWhite;
+  height: $headerHeight;
+}
+
+.header-container {
+  .full-name {
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+}

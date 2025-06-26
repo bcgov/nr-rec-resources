@@ -79,13 +79,8 @@ export class AuthService {
 
   async getToken(): Promise<string | undefined> {
     if (!this.keycloak.authenticated) return undefined;
-    try {
-      await this.keycloak.updateToken(5);
-      return this.keycloak.token;
-    } catch (err) {
-      console.error("Failed to refresh token", err);
-      return undefined;
-    }
+    await this.keycloak.updateToken(5);
+    return this.keycloak.token;
   }
 
   async getUser(): Promise<UserInfo | undefined> {
@@ -95,6 +90,22 @@ export class AuthService {
   getUserRoles(): string[] {
     const tokenParsed = this.keycloak.tokenParsed as UserInfo;
     return tokenParsed?.client_roles || [];
+  }
+
+  /**
+   * Returns the user's full name, constructed from given and family names if
+   * available, otherwise falls back to the 'name' field, or an empty string
+   * if none is available.
+   */
+  getUserFullName(): string {
+    const tokenParsed = this.keycloak.tokenParsed as UserInfo | undefined;
+    if (!tokenParsed) return "";
+
+    const { given_name = "", family_name = "", name = "" } = tokenParsed;
+
+    const fullName = [given_name, family_name].filter(Boolean).join(" ").trim();
+
+    return fullName || name || "";
   }
 
   get keycloakInstance(): Keycloak {

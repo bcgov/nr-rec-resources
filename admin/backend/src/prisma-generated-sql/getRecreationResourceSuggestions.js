@@ -5,5 +5,5 @@ const {
   makeTypedQueryFactory: $mkFactory,
 } = require("@prisma/client/runtime/library");
 exports.getRecreationResourceSuggestions = /*#__PURE__*/ $mkFactory(
-  "SELECT name, rec_resource_id,\nrecreation_resource_type,\nrecreation_resource_type_code,\ndistrict_description\nFROM recreation_resource_search_view\nWHERE similarity(name, $1) > 0.1\nOR similarity(rec_resource_id, $1) > 0.3\nORDER BY GREATEST(\nsimilarity(name, $1),\nsimilarity(rec_resource_id, $1)\n) DESC\nLIMIT 30;",
+  "SELECT name, rec_resource_id,\nrecreation_resource_type,\nrecreation_resource_type_code,\ndistrict_description\nFROM recreation_resource_search_view\nWHERE similarity(name, $1) > 0.1\nOR rec_resource_id ILIKE '%' || $1 || '%'\nORDER BY GREATEST(\nsimilarity(name, $1),\nsimilarity(rec_resource_id, $1)\n) DESC\nLIMIT 30;",
 );

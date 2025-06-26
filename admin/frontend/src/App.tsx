@@ -1,23 +1,39 @@
 import "./App.css";
-import { BrowserRouter, Route, Routes } from "~/react-router-dom";
+import { BrowserRouter, Route, Routes, useParams } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { Footer } from "~/@bcgov/design-system-react-components";
 import { Header } from "@/components/header";
 import { AuthGuard } from "@/components/auth";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { LandingPage } from "@/pages/LandingPage";
+import { ROUTES } from "./routes";
+
+const RecResourceFilesPage = () => {
+  const params = useParams();
+  return <div>{params.id}</div>;
+};
 
 function App() {
+  const queryClient = new QueryClient();
   return (
-    <AuthProvider>
-      <AuthGuard>
-        <Header />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<h1>RST Admin</h1>} />
-          </Routes>
-        </BrowserRouter>
-        <Footer />
-      </AuthGuard>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <AuthGuard>
+          <Header />
+          <BrowserRouter>
+            <Routes>
+              <Route path={ROUTES.LANDING} element={<LandingPage />} />
+              <Route
+                path={ROUTES.REC_RESOURCE_FILES}
+                element={<RecResourceFilesPage />}
+              />
+            </Routes>
+          </BrowserRouter>
+        </AuthGuard>
+      </AuthProvider>
+
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   );
 }
 
