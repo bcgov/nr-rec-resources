@@ -52,9 +52,18 @@ export class PaginatedRecreationResourceDto {
   @ApiProperty({ type: [FilterDto] })
   filters: FilterDto[];
 
-  @ApiProperty({ type: [String] })
+  @ApiProperty({
+    description: "Unpaginated list of recreation resource IDs from the results",
+    type: [String],
+  })
   recResourceIds: string[];
 
-  @ApiProperty()
-  extent?: string;
+  @ApiProperty({
+    description:
+      "GeoJSON representation of the extent of the search results to fit the map view",
+    type: String,
+    example:
+      '{"type":"Polygon","coordinates":[[[0,0],[100,0],[100,100],[0,100],[0,0]]]}',
+  })
+  extent: string;
 }
