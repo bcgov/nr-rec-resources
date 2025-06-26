@@ -100,7 +100,7 @@ describe('SearchMap', () => {
     expect(screen.getByTestId('recreation-search-form')).toBeInTheDocument();
   });
 
-  it('applies custom styles to the map container', () => {
+  it('renders the search fields', () => {
     (useStore as Mock).mockReturnValue({
       extent: null,
       pages: [],
