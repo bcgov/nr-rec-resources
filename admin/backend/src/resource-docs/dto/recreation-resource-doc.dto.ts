@@ -59,7 +59,7 @@ export class RecreationResourceDocBodyDto {
   })
   @Matches(/^[A-Za-z0-9 "'()#.&/]+$/, {
     message:
-      "resource title can only contain alphanumeric characters and spaces",
+      "document title can only contain alphanumeric characters and spaces",
   })
   @Length(3, 100)
   @IsNotEmpty()

@@ -4,11 +4,6 @@ import { Readable } from "stream";
 import FormData from "form-data";
 import { HttpException } from "@nestjs/common";
 
-declare const window: any;
-const NodeFormData =
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  typeof window === "undefined" ? require("form-data") : null;
-
 const damUrl = `${process.env.DAM_URL}/api/?`;
 const private_key = process.env.DAM_PRIVATE_KEY ?? "";
 const user = process.env.DAM_USER ?? "";
@@ -29,8 +24,7 @@ function sign(query) {
 function createFormData(params) {
   const queryString = new URLSearchParams(params).toString();
   const signature = sign(queryString);
-  const formData =
-    typeof window === "undefined" ? new NodeFormData() : new FormData();
+  const formData = new FormData();
   formData.append("query", queryString);
   formData.append("sign", signature);
   formData.append("user", user);
