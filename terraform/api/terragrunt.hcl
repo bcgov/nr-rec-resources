@@ -28,6 +28,12 @@ locals {
     client_id      = get_env("keycloak_client_id")
     issuer         = get_env("keycloak_issuer")
   })
+  dam_config = jsonencode({
+    dam_url = get_env("dam_url")
+    dam_private_key = get_env("dam_private_key")
+    dam_user = get_env("dam_user")
+    dam_rst_pdf_collection_id = get_env("dam_rst_pdf_collection_id")
+  })
 }
 
 # Remote S3 state for Terraform.
@@ -61,6 +67,7 @@ generate "tfvars" {
   api_image="${local.api_image}"
   app_name="${local.app_name}"
   keycloak_config = ${local.keycloak_config}
+  dam_config = ${local.dam_config}
 EOF
 }
 

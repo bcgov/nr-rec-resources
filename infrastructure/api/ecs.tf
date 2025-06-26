@@ -163,6 +163,22 @@ resource "aws_ecs_task_definition" "node_api_task" {
         {
           name  = "KEYCLOAK_ISSUER"
           value = var.keycloak_config.issuer
+        },
+        {
+          name  = "DAM_URL"
+          value = var.dam_config.dam_url
+        },
+        {
+          name  = "DAM_PRIVATE_KEY"
+          value = var.dam_config.dam_private_key
+        },
+        {
+          name  = "DAM_USER"
+          value = var.dam_config.dam_user
+        },
+        {
+          name  = "DAM_RST_PDF_COLLECTION_ID"
+          value = var.dam_config.dam_rst_pdf_collection_id
         }
       ]
       portMappings = [

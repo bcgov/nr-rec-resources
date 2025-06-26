@@ -107,6 +107,10 @@ jobs:
           keycloak_realm: ${{ secrets.KEYCLOAK_REALM }}
           keycloak_client_id: ${{ secrets.KEYCLOAK_CLIENT_ID }}
           keycloak_issuer: ${{ secrets.KEYCLOAK_ISSUER }}
+          dam_url: ${{ secrets.DAM_URL }}
+          dam_private_key: ${{ secrets.DAM_PRIVATE_KEY }}
+          dam_user: ${{ secrets.DAM_USER }}
+          dam_rst_pdf_collection_id: ${{ secrets.DAM_RST_PDF_COLLECTION_ID }}
         run: |
           terragrunt run-all ${{ inputs.command }} --terragrunt-non-interactive
 
@@ -128,6 +132,10 @@ jobs:
           keycloak_realm: ${{ secrets.KEYCLOAK_REALM }}
           keycloak_client_id: ${{ secrets.KEYCLOAK_CLIENT_ID }}
           keycloak_issuer: ${{ secrets.KEYCLOAK_ISSUER }}
+          dam_url: ${{ secrets.DAM_URL }}
+          dam_private_key: ${{ secrets.DAM_PRIVATE_KEY }}
+          dam_user: ${{ secrets.DAM_USER }}
+          dam_rst_pdf_collection_id: ${{ secrets.DAM_RST_PDF_COLLECTION_ID }}
         run: |
           terragrunt output -json > outputs.json
           cat outputs.json
