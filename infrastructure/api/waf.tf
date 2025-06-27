@@ -4,8 +4,14 @@ provider "aws" {
 }
 
 locals {
+  frontend_url = (
+    can(data.terraform_remote_state.frontend[0].outputs.cloudfront.domain_name)
+    ? data.terraform_remote_state.frontend[0].outputs.cloudfront.domain_name
+    : "ephemeral-placeholder-url"
+  )
+
   cors_allowed_origins = [
-    "https://${data.terraform_remote_state.frontend.outputs.cloudfront.domain_name}",
+    "https://${local.frontend_url}",
     "https://sitesandtrailsbc.ca",
     "https://beta.sitesandtrailsbc.ca"
   ]
@@ -28,6 +34,7 @@ locals {
     var.enable_cors ? local.cors_headers : local.headers
   )
 }
+
 
 resource "aws_cloudfront_response_headers_policy" "api_cors" {
   name = "api-cors-policy-${var.app_name}"

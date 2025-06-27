@@ -1,4 +1,6 @@
 data "terraform_remote_state" "frontend" {
+  count = can(regex("ephemeral", var.app_env)) ? 0 : 1
+
   backend = "s3"
   config = {
     bucket         = var.frontend_remote_state.bucket
