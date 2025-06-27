@@ -6,6 +6,7 @@ variable "app_env" {
   description = "The environment for the app, since multiple instances can be deployed to same dev environment of AWS, this represents whether it is PR or dev or test"
   type        = string
 }
+
 variable "db_name" {
   description = "The default database for Flyway"
   type        = string
@@ -16,42 +17,56 @@ variable "db_schema" {
   type        = string
   default     = "rst"
 }
-
+variable "frontend_remote_state" {
+  description = "Remote state configuration for the frontend module"
+  type = object({
+    bucket         = string
+    key            = string
+    dynamodb_table = string
+    region         = string
+  })
+  default = {
+    bucket         = "example-frontend-bucket"
+    key            = "example/frontend/terraform.tfstate"
+    dynamodb_table = "example-frontend-lock-table"
+    region         = "ca-central-1"
+  }
+}
 
 variable "subnet_app_a" {
   description = "Value of the name tag for a subnet in the APP security group"
-  type = string
-  default = "App_Dev_aza_net"
+  type        = string
+  default     = "App_Dev_aza_net"
 }
 variable "subnet_app_b" {
   description = "Value of the name tag for a subnet in the APP security group"
-  type = string
-  default = "App_Dev_azb_net"
+  type        = string
+  default     = "App_Dev_azb_net"
 }
 variable "subnet_web_a" {
   description = "Value of the name tag for a subnet in the APP security group"
-  type = string
-  default = "Web_Dev_aza_net"
+  type        = string
+  default     = "Web_Dev_aza_net"
 }
 
 variable "subnet_web_b" {
   description = "Value of the name tag for a subnet in the APP security group"
-  type = string
-  default = "Web_Dev_azb_net"
+  type        = string
+  default     = "Web_Dev_azb_net"
 }
 
 
 # Networking Variables
 variable "subnet_data_a" {
   description = "Value of the name tag for a subnet in the DATA security group"
-  type = string
-  default = "Data_Dev_aza_net"
+  type        = string
+  default     = "Data_Dev_aza_net"
 }
 
 variable "subnet_data_b" {
   description = "Value of the name tag for a subnet in the DATA security group"
-  type = string
-  default = "Data_Dev_azb_net"
+  type        = string
+  default     = "Data_Dev_azb_net"
 }
 
 variable "app_port" {
@@ -60,7 +75,7 @@ variable "app_port" {
   default     = 8000
 }
 variable "app_name" {
-  description  = " The APP name with environment (app_env)"
+  description = " The APP name with environment (app_env)"
   type        = string
 }
 variable "common_tags" {
@@ -85,46 +100,46 @@ variable "health_check_path" {
 
 
 variable "aws_region" {
-  type = string
+  type    = string
   default = "ca-central-1"
 }
 # Below vars can be manipulated to change the capacity of the ECS cluster based on app environment.
 variable "api_cpu" {
-  type = number
-  default     = "256"
+  type    = number
+  default = "256"
 }
 variable "api_memory" {
-  type = number
-  default     = "512"
+  type    = number
+  default = "512"
 }
 variable "min_capacity" {
-  type = number
+  type    = number
   default = 1
 }
 variable "max_capacity" {
-  type = number
+  type    = number
   default = 3
 }
 
 variable "fargate_base_capacity" {
   description = "value of the base capacity for the Fargate capacity provider, which is the minimum number of tasks to keep running and not interrupted"
-  type = number
-  default = 1
+  type        = number
+  default     = 1
 }
 variable "fargate_base_weight" {
   description = "value of the base weight for the Fargate capacity provider, which is the weight of the base capacity provider"
-  type = number
-  default = 20
+  type        = number
+  default     = 20
 }
 variable "fargate_spot_weight" {
   description = "value of the spot weight for the Fargate capacity provider, which is the weight of the spot capacity provider"
-  type = number
-  default = 80
+  type        = number
+  default     = 80
 }
 variable "scaling_adjustment_increase" {
   description = "value of the scaling adjustment for the Fargate capacity provider, which is the number of tasks to add or remove"
-  type = number
-  default = 1
+  type        = number
+  default     = 1
 }
 variable "fta_dataload_bucket" {
   description = "The name of the S3 bucket for FTA CSV files"
@@ -151,12 +166,37 @@ variable "alarm_alert_email_recipients" {
 variable "keycloak_config" {
   type = object({
     auth_server_url = string
-    realm          = string
-    client_id      = string
-    issuer         = string
+    realm           = string
+    client_id       = string
+    issuer          = string
   })
   description = "Keycloak configuration for BC Gov Identity Service"
-  sensitive = true
+  sensitive   = true
+  default = {
+    auth_server_url = "https://keycloak.example.com/auth"
+    realm           = "example-realm"
+    client_id       = "example-client-id"
+    issuer          = "https://keycloak.example.com/auth/realms/example-realm"
+  }
+}
+
+## CORS Configuration Variables
+variable "enable_cors" {
+  description = "Enable CORS configuration for the API Gateway. This disables caching since it's problematic to cache authorization headers."
+  type        = bool
+  default     = false
+}
+
+variable "cors_allowed_methods" {
+  description = "Allowed methods for CORS configuration"
+  type        = list(string)
+  default     = ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"]
+}
+
+variable "cors_allow_credentials" {
+  description = "Whether to allow credentials in CORS configuration"
+  type        = bool
+  default     = true
 }
 
 variable "dam_config" {

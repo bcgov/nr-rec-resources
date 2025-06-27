@@ -1,6 +1,6 @@
 locals {
-  container_name = "${var.app_name}"
-  rds_app_env = (contains(["dev", "test", "prod"], var.app_env) ? var.app_env : "dev") # if app_env is not dev, test, or prod, default to dev
+  container_name = var.app_name
+  rds_app_env    = (contains(["dev", "test", "prod"], var.app_env) ? var.app_env : "dev") # if app_env is not dev, test, or prod, default to dev
 }
 
 data "aws_secretsmanager_secret" "db_master_creds" {
@@ -42,7 +42,7 @@ resource "aws_ecs_cluster_capacity_providers" "ecs_cluster_capacity_providers" {
 }
 
 resource "terraform_data" "trigger_deployment" {
-  input = "${timestamp()}"
+  input = timestamp()
 }
 
 
@@ -56,45 +56,45 @@ module "flyway_task" {
   execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn      = aws_iam_role.app_container_role.arn
   environment = [
-      {
-        name = "APP_ENV"
-        value = local.rds_app_env
-      },
-      {
-        name  = "FLYWAY_URL"
-        value = "jdbc:postgresql://${data.aws_rds_cluster.rds_cluster.endpoint}/${var.db_name}"
-      },
-      {
-        name  = "FLYWAY_USER"
-        value = local.db_master_creds.username
-      },
-      {
-        name  = "FLYWAY_PASSWORD"
-        value = local.db_master_creds.password
-      },
-      {
-        name  = "FLYWAY_DEFAULT_SCHEMA"
-        value = "${var.db_schema}"
-      },
-      {
-        name  = "FLYWAY_CONNECT_RETRIES"
-        value = "2"
-      },
-      {
-        name  = "FLYWAY_GROUP"
-        value = "true"
-      },
-      {
-        # This defaults to true, though we want to enable it only in dev to reset the database
-        # also needs an update in migrations/rst/entrypoint.sh file for the flyaway ecs task to run correctly
-        name = "FLYWAY_CLEAN_DISABLED"
-        value = contains(["dev"], local.rds_app_env) ? "false" : "true"
-      }
+    {
+      name  = "APP_ENV"
+      value = local.rds_app_env
+    },
+    {
+      name  = "FLYWAY_URL"
+      value = "jdbc:postgresql://${data.aws_rds_cluster.rds_cluster.endpoint}/${var.db_name}"
+    },
+    {
+      name  = "FLYWAY_USER"
+      value = local.db_master_creds.username
+    },
+    {
+      name  = "FLYWAY_PASSWORD"
+      value = local.db_master_creds.password
+    },
+    {
+      name  = "FLYWAY_DEFAULT_SCHEMA"
+      value = "${var.db_schema}"
+    },
+    {
+      name  = "FLYWAY_CONNECT_RETRIES"
+      value = "2"
+    },
+    {
+      name  = "FLYWAY_GROUP"
+      value = "true"
+    },
+    {
+      # This defaults to true, though we want to enable it only in dev to reset the database
+      # also needs an update in migrations/rst/entrypoint.sh file for the flyaway ecs task to run correctly
+      name  = "FLYWAY_CLEAN_DISABLED"
+      value = contains(["dev"], local.rds_app_env) ? "false" : "true"
+    }
   ]
-  aws_region      = var.aws_region
-  cluster_id      = aws_ecs_cluster.ecs_cluster.id
-  security_group  = data.aws_security_group.app.id
-  subnet          = data.aws_subnets.app.ids[0]
+  aws_region     = var.aws_region
+  cluster_id     = aws_ecs_cluster.ecs_cluster.id
+  security_group = data.aws_security_group.app.id
+  subnet         = data.aws_subnets.app.ids[0]
 }
 
 
@@ -137,7 +137,7 @@ resource "aws_ecs_task_definition" "node_api_task" {
           value = "8000"
         },
         {
-          name = "FOREST_CLIENT_API_KEY"
+          name  = "FOREST_CLIENT_API_KEY"
           value = var.forest_client_api_key
         },
         {
@@ -209,23 +209,23 @@ resource "aws_ecs_task_definition" "node_api_task" {
 
 
 resource "aws_ecs_service" "node_api_service" {
-  name            = "${var.app_name}-service"
-  cluster         = aws_ecs_cluster.ecs_cluster.id
-  task_definition = aws_ecs_task_definition.node_api_task.arn
-  desired_count   = var.min_capacity
+  name                              = "${var.app_name}-service"
+  cluster                           = aws_ecs_cluster.ecs_cluster.id
+  task_definition                   = aws_ecs_task_definition.node_api_task.arn
+  desired_count                     = var.min_capacity
   health_check_grace_period_seconds = 60
 
   # fargate spot which may get interrupted
   #https://docs.aws.amazon.com/AmazonECS/latest/developerguide/fargate-capacity-providers.html
   capacity_provider_strategy {
     capacity_provider = "FARGATE_SPOT"
-    weight            = "${var.fargate_spot_weight}"
+    weight            = var.fargate_spot_weight
   }
   # non interrupted service by fargate, makes sure there is alaways minimum capacity
   capacity_provider_strategy {
     capacity_provider = "FARGATE"
-    weight            = "${var.fargate_base_weight}"
-    base              = "${var.fargate_base_capacity}"
+    weight            = var.fargate_base_weight
+    base              = var.fargate_base_capacity
   }
 
 
@@ -237,10 +237,10 @@ resource "aws_ecs_service" "node_api_service" {
 
   load_balancer {
     target_group_arn = aws_alb_target_group.app.id
-    container_name   = "${local.container_name}"
+    container_name   = local.container_name
     container_port   = var.app_port
   }
   wait_for_steady_state = true
-  depends_on = [aws_iam_role_policy_attachment.ecs_task_execution_role]
-  tags = local.common_tags
+  depends_on            = [aws_iam_role_policy_attachment.ecs_task_execution_role]
+  tags                  = local.common_tags
 }

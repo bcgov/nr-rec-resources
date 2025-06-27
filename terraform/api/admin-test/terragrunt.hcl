@@ -8,9 +8,10 @@ generate "test_tfvars" {
   if_exists         = "overwrite"
   disable_signature = true
   contents          = <<-EOF
-  target_env = "test"
+  target_env        = "test"
   fargate_base_capacity = 1
-  min_capacity = 1
-  max_capacity = 2
+  min_capacity      = 1
+  max_capacity      = 2
+  enable_cors       = true
 EOF
 }

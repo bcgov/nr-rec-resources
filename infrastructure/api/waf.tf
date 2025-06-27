@@ -1,6 +1,57 @@
 provider "aws" {
   alias  = "cloudfront_waf"
-  region = "us-east-1" # WAF is only available in us-east-1 for CloudFront
+  region = "us-east-1"  # WAF is only available in us-east-1 for CloudFront
+}
+
+locals {
+  frontend_url = (
+    can(data.terraform_remote_state.frontend[0].outputs.cloudfront.domain_name)
+    ? data.terraform_remote_state.frontend[0].outputs.cloudfront.domain_name
+    : "ephemeral-placeholder-url"
+  )
+
+  cors_allowed_origins = [
+    "https://${local.frontend_url}",
+    "https://sitesandtrailsbc.ca",
+    "https://beta.sitesandtrailsbc.ca"
+  ]
+
+  cors_headers = [
+    "Authorization",
+    "Content-Type",
+    "Origin",
+    "Access-Control-Request-Method",
+    "Access-Control-Request-Headers",
+    "Accept"
+  ]
+
+  headers = [
+    "Content-Type",
+    "Origin"
+  ]
+
+  allowed_headers = (
+    var.enable_cors ? local.cors_headers : local.headers
+  )
+}
+
+
+resource "aws_cloudfront_response_headers_policy" "api_cors" {
+  name = "api-cors-policy-${var.app_name}"
+
+  cors_config {
+    access_control_allow_credentials = var.enable_cors
+    access_control_allow_headers {
+      items = local.cors_headers
+    }
+    access_control_allow_methods {
+      items = ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"]
+    }
+    access_control_allow_origins {
+      items = local.cors_allowed_origins
+    }
+    origin_override = true
+  }
 }
 
 resource "aws_wafv2_web_acl" "cloudfront_acl" {
@@ -44,7 +95,7 @@ resource "aws_wafv2_web_acl" "cloudfront_acl" {
 resource "aws_cloudfront_distribution" "api" {
   provider   = aws.cloudfront_waf
   web_acl_id = aws_wafv2_web_acl.cloudfront_acl.arn
-  comment             = "Distribution for ${var.app_name} api."
+  comment    = "Distribution for ${var.app_name} api."
 
   origin {
     domain_name = "${aws_apigatewayv2_api.app.id}.execute-api.${var.aws_region}.amazonaws.com"
@@ -61,23 +112,26 @@ resource "aws_cloudfront_distribution" "api" {
   enabled = true
 
   default_cache_behavior {
-    allowed_methods  = ["GET", "HEAD", "OPTIONS", "POST", "PUT", "DELETE", "PATCH"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "http-api-origin"
+    allowed_methods        = ["GET", "HEAD", "OPTIONS", "POST", "PUT", "DELETE", "PATCH"]
+    cached_methods         = ["GET", "HEAD"]
+    target_origin_id       = "http-api-origin"
     viewer_protocol_policy = "https-only"
-    default_ttl = 900 # 15 minutes
-    min_ttl     = 0
-    max_ttl     = 900
 
     forwarded_values {
       query_string = true
 
-      headers = ["Authorization"]
+      headers = local.cors_headers
 
       cookies {
         forward = "all"
       }
     }
+
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.api_cors.id
+
+    default_ttl = var.enable_cors ? 0 : 900
+    min_ttl     = 0
+    max_ttl     = var.enable_cors ? 0 : 900
   }
 
   restrictions {
@@ -140,11 +194,17 @@ resource "aws_s3_bucket_policy" "cloudfront_log_policy" {
     Version = "2012-10-17",
     Statement = [
       {
+        Sid       = "AllowCloudFrontLogs",
         Effect    = "Allow",
-        Action    = "s3:PutObject",
-        Resource  = "arn:aws:s3:::${aws_s3_bucket.cloudfront_api_logs.bucket}/cloudfront/api/*",
         Principal = {
           Service = "cloudfront.amazonaws.com"
+        },
+        Action    = "s3:PutObject",
+        Resource  = "arn:aws:s3:::${aws_s3_bucket.cloudfront_api_logs.bucket}/cloudfront/api/*",
+        Condition = {
+          StringEquals = {
+            "AWS:SourceAccount" = data.aws_caller_identity.current.account_id
+          }
         }
       }
     ]
