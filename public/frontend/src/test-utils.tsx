@@ -34,3 +34,11 @@ export const renderWithRouter = (ui: ReactNode, initialEntry: string = '/') => {
     <MemoryRouter initialEntries={[initialEntry]}>{ui}</MemoryRouter>,
   );
 };
+
+export const renderWithQueryClient = (ui: ReactNode) => {
+  return render(
+    <TestQueryClientProvider>
+      <MemoryRouter>{ui}</MemoryRouter>
+    </TestQueryClientProvider>,
+  );
+};

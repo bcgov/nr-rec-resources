@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@bcgov/bc-sans": "^2.1.0",
-    "@bcgov/prp-map": "^0.0.4",
+    "@bcgov/prp-map": "^0.0.6",
     "@digitalspace/bcparks-bootstrap-theme": "^1.4.6",
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",

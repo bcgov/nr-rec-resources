@@ -29,17 +29,21 @@ vi.mock('@/store/searchResults', async () => ({
       totalCount: 0,
       pages: [],
       pageParams: [],
+      extent: undefined,
     },
     setState: vi.fn(),
     subscribe: vi.fn(),
   },
 }));
 
-vi.mock('react-router-dom', () => ({
-  useSearchParams: vi.fn(),
-  useNavigate: vi.fn(),
-  MemoryRouter: vi.fn().mockImplementation((props) => props.children),
-}));
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useSearchParams: vi.fn(),
+    useNavigate: vi.fn(),
+  };
+});
 
 describe('SearchPage', () => {
   const mockQueryResult = {

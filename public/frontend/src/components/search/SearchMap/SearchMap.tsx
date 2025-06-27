@@ -1,5 +1,9 @@
-import { CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
+import { CSSProperties, useEffect, useMemo, useRef } from 'react';
 import 'ol/ol.css';
+import type OLMap from 'ol/Map';
+import { transformExtent } from 'ol/proj';
+import GeoJSON from 'ol/format/GeoJSON';
+import { useStore } from '@tanstack/react-store';
 import { VectorFeatureMap } from '@bcgov/prp-map';
 import { SearchViewControls } from '@/components/search';
 import {
@@ -8,6 +12,8 @@ import {
   createRecreationLabelStyle,
 } from '@/components/search/SearchMap/layers/recreationFeatureLayer';
 import VectorLayer from 'ol/layer/Vector';
+import searchResultsStore from '@/store/searchResults';
+import { RecreationSearchForm } from '@/components/recreation-search-form/RecreationSearchForm';
 import '@/components/search/SearchMap/SearchMap.scss';
 
 const TILE_SIZE = 512;
@@ -18,8 +24,9 @@ interface SearchableMapProps {
 }
 
 const SearchMap = ({ style }: SearchableMapProps) => {
-  // Setting a list filteredIds will dynamically filter the recreation feature layer
-  const [filteredIds] = useState<string[]>([]);
+  const { extent, pages, recResourceIds } = useStore(searchResultsStore);
+
+  const mapRef = useRef<{ getMap: () => OLMap }>(null);
 
   const featureSource = useMemo(
     () =>
@@ -51,9 +58,48 @@ const SearchMap = ({ style }: SearchableMapProps) => {
   );
 
   useEffect(() => {
-    iconLayerRef.current.setStyle(createRecreationIconStyle(filteredIds));
-    labelLayerRef.current.setStyle(createRecreationLabelStyle(filteredIds));
-  }, [filteredIds]);
+    if (!extent || !mapRef.current) return;
+
+    try {
+      const geojson = JSON.parse(extent);
+      const format = new GeoJSON();
+      const geometry = format.readGeometry(geojson);
+      const olExtent3005 = geometry.getExtent();
+
+      const olExtent3857 = transformExtent(
+        olExtent3005,
+        'EPSG:3005',
+        'EPSG:3857',
+      );
+
+      const map = mapRef.current.getMap();
+      const view = map.getView();
+
+      map.once('moveend', () => {
+        // Mitigate white tile issue after zooming to extent,
+        // we just give the zoom a slight nudge to render correctly
+        const zoom = view.getZoom();
+        if (zoom != null) {
+          view.setZoom(zoom + 0.01);
+        }
+      });
+
+      view.fit(olExtent3857, {
+        padding: [50, 50, 50, 50],
+        maxZoom: 16,
+        duration: 500,
+      });
+    } catch (err) {
+      console.error('Failed to parse or fit extent:', err);
+    }
+  }, [extent]);
+
+  useEffect(() => {
+    if (!pages || pages.length === 0) return;
+    iconLayerRef.current.setStyle(createRecreationIconStyle(recResourceIds));
+    labelLayerRef.current.setStyle(createRecreationLabelStyle(recResourceIds));
+    featureSource.refresh();
+  }, [recResourceIds, pages, featureSource]);
 
   const layers = useMemo(
     () => [
@@ -74,16 +120,20 @@ const SearchMap = ({ style }: SearchableMapProps) => {
   return (
     <div className="search-map-container" style={style}>
       <VectorFeatureMap
+        ref={mapRef}
         style={{
           width: '100%',
           height: '100%',
           backgroundColor: 'white',
         }}
         layers={layers}
-        defaultZoom={8}
+        defaultZoom={6}
+        minZoom={5.5}
+        maxZoom={30}
       />
 
       <div className="search-map-view-controls">
+        <RecreationSearchForm />
         <SearchViewControls />
       </div>
     </div>
