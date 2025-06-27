@@ -1,9 +1,11 @@
 import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
 import EsriJSON from 'ol/format/EsriJSON';
-import { tile as tileStrategy } from 'ol/loadingstrategy';
-import { createXYZ } from 'ol/tilegrid';
+import { containsExtent } from 'ol/extent';
+import OLMap from 'ol/Map';
+import type { Extent } from 'ol/extent';
 import { Style } from 'ol/style';
+import { RECREATION_FEATURE_LAYER } from '@/components/search/SearchMap/constants';
 import { FeatureLike } from 'ol/Feature';
 import { capitalizeWords } from '@/utils/capitalizeWords';
 import {
@@ -11,10 +13,8 @@ import {
   locationDotBlueIcon,
   locationDotRedIcon,
 } from '@/components/search/SearchMap/mapStyles';
-import {
-  MAP_LAYER_OPTIONS,
-  RECREATION_FEATURE_LAYER,
-} from '@/components/search/SearchMap/constants';
+
+const loadedExtents: Extent[] = [];
 
 //
 // This file should be moved back to the shared map repo once map development has matured
@@ -74,30 +74,44 @@ export const createRecreationLabelStyle = (filteredIds: string[] = []) => {
   };
 };
 
-export const createRecreationFeatureSource = (options?: {
-  tileSize?: number;
-  wrapX?: boolean;
-}) =>
+export const createRecreationFeatureSource = () =>
   new VectorSource({
     format: new EsriJSON(),
-    url: (extent) => {
-      const geometry = extent.join(',');
-      return (
-        `${RECREATION_FEATURE_LAYER}/query/?` +
-        `f=json` +
-        `&where=1=1` +
-        `&outFields=PROJECT_NAME,CLOSURE_IND,FOREST_FILE_ID` +
-        `&geometry=${geometry}` +
-        `&geometryType=esriGeometryEnvelope` +
-        `&spatialRel=esriSpatialRelIntersects` +
-        `&outSR=102100`
-      );
-    },
-    strategy: tileStrategy(
-      createXYZ({ tileSize: options?.tileSize ?? MAP_LAYER_OPTIONS.TILE_SIZE }),
-    ),
-    wrapX: options?.wrapX ?? false,
+    wrapX: false,
   });
+
+export const fetchRecreationFeatures = (source: VectorSource, map: OLMap) => {
+  const extent = map.getView().calculateExtent(map.getSize());
+
+  if (loadedExtents.some((e) => containsExtent(e, extent))) return;
+  loadedExtents.push(extent);
+
+  const geometry = extent.join(',');
+  const url =
+    `${RECREATION_FEATURE_LAYER}/query/?` +
+    `f=json` +
+    `&where=1=1` +
+    `&outFields=PROJECT_NAME,CLOSURE_IND,FOREST_FILE_ID` +
+    `&geometry=${geometry}` +
+    `&geometryType=esriGeometryEnvelope` +
+    `&spatialRel=esriSpatialRelIntersects` +
+    `&outSR=102100`;
+
+  fetch(url)
+    .then((res) => {
+      if (!res.ok) throw new Error(`Fetch failed with status ${res.status}`);
+      return res.json();
+    })
+    .then((data) => {
+      const format = new EsriJSON();
+      const features = format.readFeatures(data, {
+        dataProjection: 'EPSG:102100',
+        featureProjection: map.getView().getProjection(),
+      });
+      return source.addFeatures(features);
+    })
+    .catch((err) => console.error('Feature load error', err));
+};
 
 export const createRecreationFeatureLayer = (
   source: VectorSource,
