@@ -150,9 +150,11 @@ describe("RecreationResourceSearchService", () => {
 
       expect(result).toEqual({
         data: [],
+        extent: undefined,
         page: 1,
         limit: 10,
         total: 10,
+        recResourceIds: [],
         filters: { filters: [] },
       });
       expect(formatSearchResults).toHaveBeenCalledWith([
@@ -171,9 +173,11 @@ describe("RecreationResourceSearchService", () => {
 
       expect(result).toEqual({
         data: [],
+        extent: undefined,
         page: 1,
         limit: 10,
         total: 0,
+        recResourceIds: [],
         filters: { filters: [] },
       });
       expect(formatSearchResults).toHaveBeenCalledWith([]);
@@ -417,5 +421,27 @@ describe("RecreationResourceSearchService", () => {
         "DB error",
       );
     });
+  });
+
+  it("should extract extentGeoJson from filterResults", async () => {
+    const mockExtent = '{"type":"Polygon","coordinates":[]}';
+
+    (prismaService.$queryRaw as Mock).mockImplementation((query) => {
+      if (query.sql.includes("COUNT")) {
+        return Promise.resolve([
+          { type: "ids", rec_resource_ids: ["1", "2"] },
+          { type: "extent", extent: mockExtent },
+          { type: "type", filter_value: "park", count: 5 },
+        ]);
+      }
+      return Promise.resolve([
+        { id: 1, name: "Resource 1", total_count: 10 },
+        { id: 2, name: "Resource 2", total_count: 10 },
+      ]);
+    });
+
+    const result = await service.searchRecreationResources(1);
+
+    expect(result.extent).toBe(mockExtent);
   });
 });
