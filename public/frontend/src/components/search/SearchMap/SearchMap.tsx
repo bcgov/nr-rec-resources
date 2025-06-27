@@ -1,5 +1,6 @@
 import { CSSProperties, useEffect, useMemo, useRef } from 'react';
 import 'ol/ol.css';
+import type OLMap from 'ol/Map';
 import { transformExtent } from 'ol/proj';
 import GeoJSON from 'ol/format/GeoJSON';
 import { useStore } from '@tanstack/react-store';
@@ -25,9 +26,7 @@ interface SearchableMapProps {
 const SearchMap = ({ style }: SearchableMapProps) => {
   const { extent, pages, recResourceIds } = useStore(searchResultsStore);
 
-  const mapRef = useRef<{ getMap: () => import('ol/Map').default } | null>(
-    null,
-  );
+  const mapRef = useRef<{ getMap: () => OLMap }>(null);
 
   const featureSource = useMemo(
     () =>

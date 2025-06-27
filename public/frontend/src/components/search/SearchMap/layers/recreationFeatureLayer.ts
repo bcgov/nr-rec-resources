@@ -33,7 +33,6 @@ export const getCapitalizedName = (name: string): string => {
 
 export const createRecreationIconStyle = (filteredIds: string[] = []) => {
   const filteredSet = new Set(filteredIds);
-  console.log('filteredIds', filteredIds);
 
   return (feature: FeatureLike): Style | undefined => {
     const id = feature.get('FOREST_FILE_ID');
