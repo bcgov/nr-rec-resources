@@ -8,6 +8,7 @@ generate "dev_tfvars" {
   if_exists         = "overwrite"
   disable_signature = true
   contents          = <<-EOF
-  target_env = "dev"
+  target_env        = "dev"
+  enable_cors       = true
 EOF
 }

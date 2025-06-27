@@ -1,5 +1,5 @@
 locals {
-  common_tags        = var.common_tags
+  common_tags = var.common_tags
 }
 
 resource "aws_alb" "app-alb" {

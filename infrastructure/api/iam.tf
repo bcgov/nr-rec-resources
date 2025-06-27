@@ -85,8 +85,8 @@ resource "aws_iam_role_policy" "cloudwatch_metrics" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect = "Allow"
-        Action = "cloudwatch:PutMetricData"
+        Effect   = "Allow"
+        Action   = "cloudwatch:PutMetricData"
         Resource = "*"
       }
     ]
@@ -157,7 +157,7 @@ resource "aws_iam_user_policy" "s3_upload_policy" {
         Effect = "Allow",
         Action = "iam:PassRole",
         Resource = [
-           "*"
+          "*"
         ]
       },
       {
