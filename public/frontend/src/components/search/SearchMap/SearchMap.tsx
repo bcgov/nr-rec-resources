@@ -224,6 +224,57 @@ const OverlayContent: React.FC<OverlayContentProps> = ({
 // Symbol to safely store the React root on the overlay element
 const OVERLAY_ROOT = Symbol('overlayReactRoot');
 
+// Add some CSS for overlay appearance
+const overlayStyle = document.createElement('style');
+overlayStyle.textContent = `
+  .forest-file-overlay {
+    transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+    transform-origin: center bottom;
+    opacity: 0;
+    animation: fadeIn 0.2s forwards;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  .ol-overlay-container {
+    will-change: transform;
+  }
+  
+  .overlay-content {
+    max-width: 350px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+`;
+document.head.appendChild(overlayStyle);
+
+// We no longer need this function as we're now using the handleOverlayVisibility function
+// to dynamically adjust positioning based on viewport constraints
+
+// Helper function to render overlay content
+const renderOverlayContent = (
+  overlayElement: HTMLElement,
+  data: any,
+  isLoading: boolean,
+  error: any,
+) => {
+  const content = (
+    <OverlayContent data={data} isLoading={isLoading} error={error} />
+  );
+
+  if (!(OVERLAY_ROOT in overlayElement)) {
+    const root = ReactDOM.createRoot(overlayElement);
+    root.render(content);
+    (overlayElement as any)[OVERLAY_ROOT] = root;
+  } else {
+    (overlayElement as any)[OVERLAY_ROOT].render(content);
+  }
+};
+
 const SearchMap = ({ style }: SearchableMapProps) => {
   // Setting a list filteredIds will dynamically filter the recreation feature layer
   const [filteredIds] = useState<string[]>([]);
@@ -248,16 +299,165 @@ const SearchMap = ({ style }: SearchableMapProps) => {
     // Create overlay element
     const overlayElement = document.createElement('div');
     overlayElement.className = 'forest-file-overlay';
+
+    // Use OpenLayers' overlay
     overlayRef.current = new Overlay({
       element: overlayElement,
-      positioning: 'bottom-center',
       stopEvent: false,
-      offset: [0, -20],
+      // autoPan: true,
     });
     mapInstance.addOverlay(overlayRef.current);
 
+    // Create a handler to ensure overlay stays visible within map viewport
+    const handleOverlayVisibility = () => {
+      const currentOverlay = overlayRef.current;
+      if (!currentOverlay || !currentOverlay.getPosition()) {
+        return; // Overlay is hidden or not initialized, no need to adjust
+      }
+
+      const overlayRect = overlayElement.getBoundingClientRect();
+      const mapViewport = mapInstance.getViewport().getBoundingClientRect();
+
+      // Get current overlay position in map coordinates
+      const position = currentOverlay.getPosition() as [number, number];
+      if (!position) return;
+
+      // Convert map position to pixel position
+      const pixelPosition = mapInstance.getPixelFromCoordinate(position);
+      if (!pixelPosition) return;
+
+      // Determine quadrant of the map where point is located
+      const isInLeftHalf = pixelPosition[0] < mapViewport.width / 2;
+      const isInTopHalf = pixelPosition[1] < mapViewport.height / 2;
+
+      // Calculate new positioning based on quadrant
+      // This gives us an ideal positioning direction
+      let idealPositioning: string;
+      if (isInTopHalf && isInLeftHalf) {
+        // Top-left quadrant - prefer right or below
+        idealPositioning = 'top-right';
+      } else if (isInTopHalf && !isInLeftHalf) {
+        // Top-right quadrant - prefer left or below
+        idealPositioning = 'top-left';
+      } else if (!isInTopHalf && isInLeftHalf) {
+        // Bottom-left quadrant - prefer right or above
+        idealPositioning = 'bottom-right';
+      } else {
+        // Bottom-right quadrant - prefer left or above
+        idealPositioning = 'bottom-left';
+      }
+
+      // Default offsets
+      let offsetX = 0;
+      const offsetY = 0;
+
+      // Start with ideal positioning from the quadrant determination
+      let newPositioning = idealPositioning;
+
+      // Check for viewport boundary violations
+      // First check vertical constraints
+      if (overlayRect.top < mapViewport.top) {
+        // Overlay goes off the top - adjust to be below the point
+        newPositioning = newPositioning.replace('top', 'bottom');
+      } else if (overlayRect.bottom > mapViewport.bottom) {
+        // Overlay goes off the bottom - adjust to be above the point
+        newPositioning = newPositioning.replace('bottom', 'top');
+      }
+
+      // Then check horizontal constraints
+      if (overlayRect.left < mapViewport.left) {
+        // Overlay goes off the left - try positioning to the right
+        newPositioning = newPositioning.replace('left', 'right');
+        // If still problematic, use center with offset
+        if (overlayRect.right > mapViewport.width) {
+          newPositioning = newPositioning.replace('right', 'center');
+          offsetX =
+            mapViewport.width / 2 - overlayRect.width / 2 - pixelPosition[0];
+        }
+      } else if (overlayRect.right > mapViewport.right) {
+        // Overlay goes off the right - try positioning to the left
+        newPositioning = newPositioning.replace('right', 'left');
+        // If still problematic, use center with offset
+        if (overlayRect.left < 0) {
+          newPositioning = newPositioning.replace('left', 'center');
+          offsetX =
+            mapViewport.width / 2 - overlayRect.width / 2 - pixelPosition[0];
+        }
+      }
+
+      // Calculate base offsets based on positioning
+      const baseOffsetX = newPositioning.includes('left')
+        ? -15
+        : newPositioning.includes('right')
+          ? 15
+          : 0;
+      const baseOffsetY = newPositioning.includes('top')
+        ? -15
+        : newPositioning.includes('bottom')
+          ? 15
+          : 0;
+
+      // Apply adjustments
+      currentOverlay.setPositioning(newPositioning as any);
+      currentOverlay.setOffset([baseOffsetX + offsetX, baseOffsetY + offsetY]);
+
+      // Optional: animate the map if the overlay is still partially offscreen
+      const newRect = overlayElement.getBoundingClientRect();
+      const marginNeeded = 10; // pixels of margin to ensure visibility
+
+      if (
+        newRect.left < mapViewport.left + marginNeeded ||
+        newRect.right > mapViewport.right - marginNeeded ||
+        newRect.top < mapViewport.top + marginNeeded ||
+        newRect.bottom > mapViewport.bottom - marginNeeded
+      ) {
+        // Calculate how much we need to pan the map
+        let panX = 0,
+          panY = 0;
+
+        if (newRect.left < mapViewport.left + marginNeeded) {
+          panX = newRect.left - (mapViewport.left + marginNeeded);
+        } else if (newRect.right > mapViewport.right - marginNeeded) {
+          panX = newRect.right - (mapViewport.right - marginNeeded);
+        }
+
+        if (newRect.top < mapViewport.top + marginNeeded) {
+          panY = newRect.top - (mapViewport.top + marginNeeded);
+        } else if (newRect.bottom > mapViewport.bottom - marginNeeded) {
+          panY = newRect.bottom - (mapViewport.bottom - marginNeeded);
+        }
+
+        // Only pan if needed
+        if (panX !== 0 || panY !== 0) {
+          const view = mapInstance.getView();
+          const currentCenter = view.getCenter();
+          if (currentCenter) {
+            // Convert pixel pan to map coordinates
+            const currentRes = view.getResolution() || 1;
+            view.animate({
+              center: [
+                currentCenter[0] + panX * currentRes,
+                currentCenter[1] - panY * currentRes, // Y is inverted in pixel space vs. map space
+              ],
+              duration: 200,
+            });
+          }
+        }
+      }
+    };
+
+    // Attach listener to map moveend and change events
+    mapInstance.on('moveend', handleOverlayVisibility);
+    mapInstance.on('change:size', handleOverlayVisibility);
+
+    // Also handle when user resizes the window
+    window.addEventListener('resize', handleOverlayVisibility);
+
     return () => {
       mapInstance?.removeOverlay(overlayRef.current!);
+      mapInstance.un('moveend', handleOverlayVisibility);
+      mapInstance.un('change:size', handleOverlayVisibility);
+      window.removeEventListener('resize', handleOverlayVisibility);
     };
   }, []);
 
@@ -372,54 +572,23 @@ const SearchMap = ({ style }: SearchableMapProps) => {
             setHoveredForestFileId(forestFileId); // update state
             const coordinate = features[0].getGeometry().getCoordinates();
 
-            // Calculate overlay position
+            // Get map and overlay elements
             const pixel = map.getPixelFromCoordinate(coordinate);
             const mapSize = map.getSize() ?? [0, 0];
             const overlayElement = overlayRef.current!.getElement()!;
 
-            // Render the overlay content using React 18+ createRoot
-            if (!(OVERLAY_ROOT in overlayElement)) {
-              const root = ReactDOM.createRoot(overlayElement);
-              root.render(
-                <OverlayContent
-                  data={data}
-                  isLoading={isLoading}
-                  error={error}
-                />,
-              );
-              (overlayElement as any)[OVERLAY_ROOT] = root;
-            } else {
-              (overlayElement as any)[OVERLAY_ROOT].render(
-                <OverlayContent
-                  data={data}
-                  isLoading={isLoading}
-                  error={error}
-                />,
-              );
-            }
+            // Render the overlay content
+            renderOverlayContent(overlayElement, data, isLoading, error);
 
-            // Get overlay size after rendering
-            const overlayWidth = overlayElement.offsetWidth;
-            const overlayHeight = overlayElement.offsetHeight;
-
-            let offsetX = 0;
-            let offsetY = -20; // Default offset
-
-            // Check if overlay goes beyond the right edge
-            if (pixel[0] + overlayWidth / 2 > mapSize[0]) {
-              offsetX = mapSize[0] - (pixel[0] + overlayWidth / 2);
-            }
-            // Check if overlay goes beyond the left edge
-            if (pixel[0] - overlayWidth / 2 < 0) {
-              offsetX = -(pixel[0] - overlayWidth / 2);
-            }
-            // Check if overlay goes beyond the bottom edge
-            if (pixel[1] + overlayHeight > mapSize[1]) {
-              offsetY = overlayHeight + 20;
-            }
-
+            // Simply set the position - our handleOverlayVisibility will take care of positioning
             overlayRef.current!.setPosition(coordinate);
-            overlayRef.current!.setOffset([offsetX, offsetY]);
+
+            // Let's set an initial positioning based on position on screen
+            const isTopHalf = pixel[1] < mapSize[1] / 2;
+            overlayRef.current!.setPositioning(
+              isTopHalf ? 'top-center' : 'bottom-center',
+            );
+            overlayRef.current!.setOffset([0, isTopHalf ? 15 : -15]);
 
             return true; // Stop after first feature found
           }
