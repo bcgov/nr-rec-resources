@@ -1,4 +1,11 @@
-import { CSSProperties, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  CSSProperties,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useCallback,
+} from 'react';
 import 'ol/ol.css';
 import { VectorFeatureMap } from '@bcgov/prp-map';
 import { SearchViewControls } from '@/components/search';
@@ -14,8 +21,8 @@ import { getCenter } from 'ol/extent';
 import '@/components/search/SearchMap/SearchMap.scss';
 import { FeatureLike } from 'ol/Feature';
 import { Overlay } from 'ol';
-import { renderToString } from 'react-dom/server';
 import './SearchMap.scss';
+import ReactDOM from 'react-dom/client';
 
 const TILE_SIZE = 512;
 
@@ -58,6 +65,9 @@ const OverlayContent: React.FC<OverlayContentProps> = ({
   );
 };
 
+// Symbol to safely store the React root on the overlay element
+const OVERLAY_ROOT = Symbol('overlayReactRoot');
+
 const SearchMap = ({ style }: SearchableMapProps) => {
   // Setting a list filteredIds will dynamically filter the recreation feature layer
   const [filteredIds] = useState<string[]>([]);
@@ -67,7 +77,8 @@ const SearchMap = ({ style }: SearchableMapProps) => {
   const overlayRef = useRef<Overlay | null>(null);
 
   useEffect(() => {
-    if (!mapRef.current) return;
+    const mapInstance = mapRef.current;
+    if (!mapInstance) return;
 
     // Create overlay element
     const overlayElement = document.createElement('div');
@@ -78,10 +89,10 @@ const SearchMap = ({ style }: SearchableMapProps) => {
       stopEvent: false,
       offset: [0, -20],
     });
-    mapRef.current.addOverlay(overlayRef.current);
+    mapInstance.addOverlay(overlayRef.current);
 
     return () => {
-      mapRef.current?.removeOverlay(overlayRef.current!);
+      mapInstance?.removeOverlay(overlayRef.current!);
     };
   }, []);
 
@@ -114,65 +125,70 @@ const SearchMap = ({ style }: SearchableMapProps) => {
     }),
   );
 
-  const clusterStyle = (feature: any) => {
-    const size = feature.get('features')?.length || 1;
-    const features = feature.get('features');
-    const view = mapRef.current?.getView();
-    const zoom = view?.getZoom() ?? 8;
+  const clusterStyle = useCallback(
+    (feature: any) => {
+      const size = feature.get('features')?.length || 1;
+      const features = feature.get('features');
+      const view = mapRef.current?.getView();
+      const zoom = view?.getZoom() ?? 8;
 
-    if (size === 1) {
-      // Single feature, use the existing icon style
-      return createRecreationIconStyle(filteredIds)(feature.get('features')[0]);
-    }
+      if (size === 1) {
+        // Single feature, use the existing icon style
+        return createRecreationIconStyle(filteredIds)(
+          feature.get('features')[0],
+        );
+      }
 
-    // If all features share the same coordinates and zoom is high, spiderfy
-    if (
-      size > 1 &&
-      zoom >= 8 &&
-      features.every(
-        (f: any) =>
-          f.getGeometry().getCoordinates().toString() ===
-          features[0].getGeometry().getCoordinates().toString(),
-      )
-    ) {
-      const center = features[0].getGeometry().getCoordinates();
-      const positions = getSpiderfyPositions(center, size, 50); // 20 is the offset radius
+      // If all features share the same coordinates and zoom is high, spiderfy
+      if (
+        size > 1 &&
+        zoom >= 8 &&
+        features.every(
+          (f: any) =>
+            f.getGeometry().getCoordinates().toString() ===
+            features[0].getGeometry().getCoordinates().toString(),
+        )
+      ) {
+        const center = features[0].getGeometry().getCoordinates();
+        const positions = getSpiderfyPositions(center, size, 50); // 20 is the offset radius
 
-      // Move features and create icon styles
-      features.map((f: any, i: number) => {
-        f.getGeometry().setCoordinates(positions[i]);
-        return createRecreationIconStyle(filteredIds)(f);
+        // Move features and create icon styles
+        features.map((f: any, i: number) => {
+          f.getGeometry().setCoordinates(positions[i]);
+          return createRecreationIconStyle(filteredIds)(f);
+        });
+      }
+
+      return new Style({
+        image: new CircleStyle({
+          radius: 18,
+          stroke: new Stroke({
+            color: '#fff',
+            width: 2,
+          }),
+          fill: new Fill({
+            color: '#1976d2',
+          }),
+        }),
+        text: new Text({
+          text: size.toString(),
+          fill: new Fill({
+            color: '#fff',
+          }),
+          stroke: new Stroke({
+            color: '#333',
+            width: 2,
+          }),
+          font: 'bold 16px sans-serif',
+        }),
       });
-    }
-
-    return new Style({
-      image: new CircleStyle({
-        radius: 18,
-        stroke: new Stroke({
-          color: '#fff',
-          width: 2,
-        }),
-        fill: new Fill({
-          color: '#1976d2',
-        }),
-      }),
-      text: new Text({
-        text: size.toString(),
-        fill: new Fill({
-          color: '#fff',
-        }),
-        stroke: new Stroke({
-          color: '#333',
-          width: 2,
-        }),
-        font: 'bold 16px sans-serif',
-      }),
-    });
-  };
+    },
+    [filteredIds],
+  );
 
   useEffect(() => {
     iconLayerRef.current.setStyle(clusterStyle);
-  }, [filteredIds]);
+  }, [filteredIds, clusterStyle]);
 
   // Zoom in one level when a cluster is clicked
   useEffect(() => {
@@ -196,13 +212,24 @@ const SearchMap = ({ style }: SearchableMapProps) => {
             const mapSize = map.getSize() ?? [0, 0];
             const overlayElement = overlayRef.current!.getElement()!;
 
-            // Render the overlay content to measure its size
-            overlayElement.innerHTML = renderToString(
-              <OverlayContent
-                forestFileId={forestFileId}
-                projectName={projectName}
-              />,
-            );
+            // Render the overlay content using React 18+ createRoot
+            if (!(OVERLAY_ROOT in overlayElement)) {
+              const root = ReactDOM.createRoot(overlayElement);
+              root.render(
+                <OverlayContent
+                  forestFileId={forestFileId}
+                  projectName={projectName}
+                />,
+              );
+              (overlayElement as any)[OVERLAY_ROOT] = root;
+            } else {
+              (overlayElement as any)[OVERLAY_ROOT].render(
+                <OverlayContent
+                  forestFileId={forestFileId}
+                  projectName={projectName}
+                />,
+              );
+            }
 
             // Get overlay size after rendering
             const overlayWidth = overlayElement.offsetWidth;
