@@ -23,6 +23,10 @@ import { FeatureLike } from 'ol/Feature';
 import { Overlay } from 'ol';
 import './SearchMap.scss';
 import ReactDOM from 'react-dom/client';
+import { useGetRecreationResourceById } from '@/service/queries/recreation-resource/recreationResourceQueries';
+import { Card, Spinner, Alert } from 'react-bootstrap';
+import type { RecreationResourceDetailModel } from '@/service/custom-models';
+import { ThingsToDo } from '@/components/rec-resource/section';
 
 const TILE_SIZE = 512;
 
@@ -43,25 +47,177 @@ function getSpiderfyPositions(
 }
 
 interface OverlayContentProps {
-  forestFileId: string;
-  projectName?: string;
+  data: any;
+  isLoading: boolean;
+  error: any;
 }
 
 const OverlayContent: React.FC<OverlayContentProps> = ({
-  forestFileId,
-  projectName,
+  data,
+  isLoading,
+  error,
 }) => {
+  if (isLoading)
+    return (
+      <Card
+        className="overlay-content shadow-lg border-0"
+        style={{ minWidth: 280, maxWidth: 350 }}
+      >
+        <Card.Body className="d-flex justify-content-center align-items-center py-4">
+          <div className="text-center">
+            <Spinner animation="border" variant="primary" size="sm" />
+            <div className="mt-2 text-muted small">Loading details...</div>
+          </div>
+        </Card.Body>
+      </Card>
+    );
+
+  if (error)
+    return (
+      <Card
+        className="overlay-content shadow-lg border-0"
+        style={{ minWidth: 280, maxWidth: 350 }}
+      >
+        <Card.Body className="py-3">
+          <Alert variant="danger" className="mb-0 small">
+            <i className="fas fa-exclamation-triangle me-2"></i>
+            Error loading details
+          </Alert>
+        </Card.Body>
+      </Card>
+    );
+
+  if (!data)
+    return (
+      <Card
+        className="overlay-content shadow-lg border-0"
+        style={{ minWidth: 280, maxWidth: 350 }}
+      >
+        <Card.Body className="py-3">
+          <Alert variant="warning" className="mb-0 small">
+            <i className="fas fa-info-circle me-2"></i>
+            No details found
+          </Alert>
+        </Card.Body>
+      </Card>
+    );
+
+  // Use RecResourcePage field logic for overlay
+  const resource = data as RecreationResourceDetailModel;
+
   return (
-    <div className="overlay-content">
-      <h3>Forest File ID:</h3>
-      <p>{forestFileId}</p>
-      {projectName && (
-        <>
-          <h3>Project Name:</h3>
-          <p>{projectName}</p>
-        </>
-      )}
-    </div>
+    <Card
+      className="overlay-content shadow-lg border-0"
+      style={{
+        minWidth: 280,
+        maxWidth: 350,
+        background: 'linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%)',
+      }}
+    >
+      <Card.Header className="bg-primary text-white border-0 py-2">
+        <h6 className="mb-0 fw-bold text-truncate">
+          <i className="fas fa-map-marker-alt me-2"></i>
+          {resource.name || 'Recreation Resource'}
+        </h6>
+      </Card.Header>
+
+      <Card.Body className="py-3">
+        {/* Resource Type & ID */}
+        <div className="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+          <small className="text-muted">
+            <i className="fas fa-tag me-1"></i>
+            {resource.rec_resource_type}
+          </small>
+          <small className="badge bg-secondary">
+            ID: {resource.rec_resource_id}
+          </small>
+        </div>
+
+        {/* Location */}
+        {resource.closest_community && (
+          <div className="mb-2 p-2 border-start border-primary border-3 bg-light">
+            <small className="text-primary fw-semibold">
+              <i className="fas fa-location-dot me-2"></i>
+              {resource.closest_community}
+            </small>
+          </div>
+        )}
+
+        {/* Status */}
+        {resource.recreation_status && (
+          <div className="mb-2">
+            <span
+              className={`badge ${
+                resource.recreation_status.status_code === 1
+                  ? 'bg-success'
+                  : resource.recreation_status.status_code === 2
+                    ? 'bg-warning text-dark'
+                    : 'bg-danger'
+              }`}
+            >
+              <i className="fas fa-info-circle me-1"></i>
+              {resource.recreation_status.description}
+            </span>
+          </div>
+        )}
+
+        {/* Description */}
+        {resource.description && (
+          <div className="mb-3">
+            <div className="text-muted small mb-1">
+              <i className="fas fa-info me-1"></i>
+              <strong>Description:</strong>
+            </div>
+            <p className="small mb-0 text-dark" style={{ lineHeight: '1.4' }}>
+              {resource.description.length > 120
+                ? `${resource.description.substring(0, 120)}...`
+                : resource.description}
+            </p>
+          </div>
+        )}
+
+        {/* Activities */}
+        {resource.recreation_activity &&
+          resource.recreation_activity.length > 0 && (
+            <div className="mb-2">
+              <div className="text-muted small mb-2">
+                <i className="fas fa-hiking me-1"></i>
+                <strong>Things To Do:</strong>
+              </div>
+              <div
+                style={{ transform: 'scale(0.8)', transformOrigin: 'left top' }}
+              >
+                <ThingsToDo activities={resource.recreation_activity} />
+              </div>
+            </div>
+          )}
+
+        {/* Access types */}
+        {resource.recreation_access &&
+          resource.recreation_access.length > 0 && (
+            <div className="mb-1">
+              <div className="text-muted small mb-2">
+                <i className="fas fa-road me-1"></i>
+                <strong>Access:</strong>
+              </div>
+              <div className="d-flex flex-wrap gap-1">
+                {resource.recreation_access.map((access: any, idx: number) => (
+                  <span key={idx} className="badge bg-outline-secondary small">
+                    {access.access_type}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+      </Card.Body>
+
+      <Card.Footer className="bg-transparent border-0 pt-0 pb-2">
+        <small className="text-muted">
+          <i className="fas fa-mouse-pointer me-1"></i>
+          Click for full details
+        </small>
+      </Card.Footer>
+    </Card>
   );
 };
 
@@ -71,10 +227,19 @@ const OVERLAY_ROOT = Symbol('overlayReactRoot');
 const SearchMap = ({ style }: SearchableMapProps) => {
   // Setting a list filteredIds will dynamically filter the recreation feature layer
   const [filteredIds] = useState<string[]>([]);
+  // State to track the currently hovered forestFileId
+  const [hoveredForestFileId, setHoveredForestFileId] = useState<
+    string | undefined
+  >(undefined);
 
   // Add a ref to store the map instance
   const mapRef = useRef<Map | null>(null);
   const overlayRef = useRef<Overlay | null>(null);
+
+  // Fetch resource details for the hovered forestFileId
+  const { data, isLoading, error } = useGetRecreationResourceById({
+    id: hoveredForestFileId,
+  });
 
   useEffect(() => {
     const mapInstance = mapRef.current;
@@ -204,7 +369,7 @@ const SearchMap = ({ style }: SearchableMapProps) => {
             // Single feature: show overlay with details
             foundFeature = true;
             const forestFileId = features[0].get('FOREST_FILE_ID');
-            const projectName = features[0].get('PROJECT_NAME');
+            setHoveredForestFileId(forestFileId); // update state
             const coordinate = features[0].getGeometry().getCoordinates();
 
             // Calculate overlay position
@@ -217,16 +382,18 @@ const SearchMap = ({ style }: SearchableMapProps) => {
               const root = ReactDOM.createRoot(overlayElement);
               root.render(
                 <OverlayContent
-                  forestFileId={forestFileId}
-                  projectName={projectName}
+                  data={data}
+                  isLoading={isLoading}
+                  error={error}
                 />,
               );
               (overlayElement as any)[OVERLAY_ROOT] = root;
             } else {
               (overlayElement as any)[OVERLAY_ROOT].render(
                 <OverlayContent
-                  forestFileId={forestFileId}
-                  projectName={projectName}
+                  data={data}
+                  isLoading={isLoading}
+                  error={error}
                 />,
               );
             }
@@ -261,6 +428,7 @@ const SearchMap = ({ style }: SearchableMapProps) => {
       });
       if (!foundFeature) {
         overlayRef.current!.setPosition(undefined);
+        setHoveredForestFileId(undefined); // clear state
       }
     };
 
@@ -290,7 +458,7 @@ const SearchMap = ({ style }: SearchableMapProps) => {
       map.un('pointermove', handlePointerMove);
       map.un('click', handleClick);
     };
-  }, []);
+  }, [data, isLoading, error]);
 
   const layers = useMemo(
     () => [
