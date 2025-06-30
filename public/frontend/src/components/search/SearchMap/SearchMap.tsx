@@ -4,7 +4,7 @@ import type OLMap from 'ol/Map';
 import { transformExtent } from 'ol/proj';
 import GeoJSON from 'ol/format/GeoJSON';
 import { useStore } from '@tanstack/react-store';
-import { VectorFeatureMap } from 'prp-map';
+import { VectorFeatureMap } from '@bcgov/prp-map';
 import { SearchViewControls } from '@/components/search';
 import {
   createClusteredRecreationFeatureSource,
