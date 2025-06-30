@@ -6,7 +6,6 @@ import SearchMap from '@/components/search/SearchMap/SearchMap';
 import { renderWithQueryClient } from '@/test-utils';
 
 const setStyleMock = vi.fn();
-const refreshMock = vi.fn();
 const fitMock = vi.fn();
 const getZoomMock = vi.fn(() => 8);
 const setZoomMock = vi.fn();
@@ -41,11 +40,11 @@ vi.mock('ol/layer/Vector', () => ({
 }));
 
 vi.mock('@/components/search/SearchMap/layers/recreationFeatureLayer', () => ({
-  createRecreationFeatureSource: () => ({
-    refresh: refreshMock,
-  }),
-  createRecreationIconStyle: vi.fn(() => 'mock-icon-style'),
-  createRecreationLabelStyle: vi.fn(() => 'mock-label-style'),
+  createClusteredRecreationFeatureSource: vi.fn(),
+  createClusteredRecreationFeatureStyle: vi.fn(() => 'mock-cluster-style'),
+  createClusteredRecreationFeatureLayer: vi.fn(() => ({
+    setStyle: setStyleMock,
+  })),
 }));
 
 vi.mock('@bcgov/prp-map', () => ({
@@ -113,7 +112,7 @@ describe('SearchMap', () => {
     expect(container).toHaveStyle('height: 400px');
   });
 
-  it('updates layer styles and refreshes feature source on recResourceIds/pages change', () => {
+  it('updates layer styles on recResourceIds/pages change', () => {
     (useStore as Mock).mockReturnValue({
       extent: null,
       pages: [{ id: 1 }],
@@ -122,8 +121,7 @@ describe('SearchMap', () => {
 
     renderWithQueryClient(<SearchMap />);
 
-    expect(setStyleMock).toHaveBeenCalledTimes(2);
-    expect(refreshMock).toHaveBeenCalled();
+    expect(setStyleMock).toHaveBeenCalledTimes(1);
   });
 
   it('zooms to extent when extent is provided', async () => {
