@@ -27,25 +27,21 @@ export const GalleryAccordion: React.FC<GalleryAccordionProps> = ({
           {title} ({items.length})
         </span>
       </Accordion.Header>
-      <Accordion.Body
-        style={{
-          background: '#fafbfc',
-          borderRadius: 12,
-          border: '1px solid #e0e0e0',
-          padding: 24,
-        }}
-      >
+      <Accordion.Body style={{ padding: 24 }}>
         <div
           style={{
-            marginBottom: '0.75rem',
-            color: '#1976d2',
-            fontSize: '0.98rem',
             display: 'flex',
             alignItems: 'center',
-            gap: 8,
+            background: '#eaf4fd',
+            color: '#1976d2',
+            borderRadius: 6,
+            padding: '10px 16px',
+            fontSize: 15,
+            marginBottom: '1.1rem',
+            gap: 10,
           }}
         >
-          <span style={{ fontSize: 18, marginRight: 6 }}>ⓘ</span>
+          <span style={{ fontSize: 18, color: '#1976d2' }}>ⓘ</span>
           {description}
         </div>
         <div
@@ -59,25 +55,42 @@ export const GalleryAccordion: React.FC<GalleryAccordionProps> = ({
           <div
             style={{
               width: 200,
-              height: 140,
-              border: '2px dashed #bdbdbd',
+              height: '100%',
+              border: '1.5px dashed #d3d3d3',
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              borderRadius: '10px',
+              borderRadius: '8px',
               cursor: 'pointer',
               background: '#fff',
+              color: '#bdbdbd',
+              fontSize: 22,
+              boxSizing: 'border-box',
+              transition: 'border-color 0.2s',
             }}
             onClick={onUploadClick}
           >
             <span
               style={{
-                color: '#1976d2',
-                fontWeight: 500,
-                fontSize: 18,
+                fontSize: 36,
+                lineHeight: 1,
+                marginBottom: 10,
+                color: '#bdbdbd',
+                fontWeight: 300,
               }}
             >
-              {uploadLabel}
+              +
+            </span>
+            <span
+              style={{
+                fontSize: 18,
+                color: '#757575',
+                fontWeight: 400,
+                marginTop: 2,
+              }}
+            >
+              Upload
             </span>
           </div>
           {items.map(renderItem)}
