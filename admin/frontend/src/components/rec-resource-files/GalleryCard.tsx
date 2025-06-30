@@ -3,6 +3,9 @@ import Card from 'react-bootstrap/Card';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Dropdown from 'react-bootstrap/Dropdown';
+import Button from 'react-bootstrap/Button';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faEye,
@@ -10,7 +13,7 @@ import {
   faTrash,
   faEllipsisH,
 } from '@fortawesome/free-solid-svg-icons';
-// import './Gallery.scss';
+import './Gallery.scss';
 
 interface GalleryCardProps {
   topContent: React.ReactNode;
@@ -47,11 +50,34 @@ export const GalleryCard: React.FC<GalleryCardProps> = ({
     </Dropdown>
   ),
 }) => (
-  <Card className="gallery-card p-0 h-100">
-    <Card.Body
-      className="gallery-card-top d-flex flex-column align-items-center justify-content-center p-0"
-      style={{ background: undefined, height: 140 }}
-    >
+  <Card className="gallery-card p-0">
+    <Card.Body className="gallery-card-top d-flex flex-column align-items-center justify-content-center p-0">
+      <div className="gallery-card-top-hover">
+        <OverlayTrigger
+          placement="bottom"
+          overlay={<Tooltip id="tooltip-view">View</Tooltip>}
+        >
+          <Button variant="link">
+            <FontAwesomeIcon icon={faEye} />
+          </Button>
+        </OverlayTrigger>
+        <OverlayTrigger
+          placement="bottom"
+          overlay={<Tooltip id="tooltip-download">Download</Tooltip>}
+        >
+          <Button variant="link">
+            <FontAwesomeIcon icon={faCloudDownload} />
+          </Button>
+        </OverlayTrigger>
+        <OverlayTrigger
+          placement="bottom"
+          overlay={<Tooltip id="tooltip-delete">Delete</Tooltip>}
+        >
+          <Button variant="link">
+            <FontAwesomeIcon icon={faTrash} />
+          </Button>
+        </OverlayTrigger>
+      </div>
       {topContent}
     </Card.Body>
     <Card.Body
