@@ -1,91 +1,64 @@
 @import '../../styles/variables.scss';
 
-.gallery-accordion-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 1.25rem;
-  align-items: start;
-}
+.gallery-accordion {
+  .accordion-item {
+    padding: 1rem;
 
-.gallery-card {
-  width: 200px;
-  border-radius: 10px;
-  background: $colorWhite;
-  box-shadow: 0 1px 2px $colorGreyLight;
-  border: 1px solid $colorGreyLight;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-
-  .gallery-card-top {
-    background: $colorBrownLight;
-    height: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    img {
-      width: 100%;
-      height: 100px;
-      object-fit: cover;
+    .accordion-header {
+      button {
+        box-shadow: unset;
+        background-color: unset;
+      }
     }
-  }
 
-  .gallery-card-body {
-    background: $colorWhite;
-    padding: 0.5rem 0.75rem;
-    border-top: 1px solid $colorGreyLight;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    .gallery-card-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    .gallery-card {
+      box-shadow: 0 1px 2px $colorGreyLight;
+      border-radius: 3px;
+
+      .gallery-card-top {
+        background: $colorBrownLight;
+        height: 140px;
+      }
+
       .gallery-card-filename {
-        font-weight: 700;
         font-size: 15px;
       }
+
       .gallery-card-menu {
         font-size: 20px;
         color: $colorGrey;
         opacity: 0.7;
         cursor: pointer;
       }
-    }
-    .gallery-card-date {
-      font-size: 0.92rem;
-      color: $colorGreyMed;
-    }
-  }
-}
 
-.gallery-upload-tile {
-  width: 200px;
-  height: 140px;
-  border: 1.5px dashed $colorGreyLight;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  cursor: pointer;
-  background: $colorWhite;
-  color: $colorGreyLight;
-  font-size: 22px;
-  box-sizing: border-box;
-  transition: border-color 0.2s;
-  .gallery-upload-plus {
-    font-size: 36px;
-    line-height: 1;
-    margin-bottom: 10px;
-    color: $colorGreyLight;
-    font-weight: 300;
-  }
-  .gallery-upload-label {
-    font-size: 18px;
-    color: $colorGreyMed;
-    font-weight: 400;
-    margin-top: 2px;
+      .gallery-card-date {
+        font-size: 0.92rem;
+        color: $colorGreyMed;
+      }
+    }
+
+    .gallery-alert-banner {
+      background: $colorWhite;
+      border: 1px solid $colorBlue;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+
+      .gallery-alert-icon {
+        font-size: 1.2rem;
+      }
+
+      .gallery-alert-text {
+        color: $colorBlack;
+        font-size: 1rem;
+      }
+    }
+
+    .upload-tile-dashed {
+      border: 1px dashed $colorGreyLight;
+      cursor: pointer;
+      border-radius: 3px;
+    }
   }
 }
