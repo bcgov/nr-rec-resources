@@ -5,6 +5,7 @@
     padding: 1rem;
 
     .accordion-header {
+      // Remove default styles set by React-Bootstrap
       button {
         box-shadow: unset;
         background-color: unset;
@@ -16,8 +17,42 @@
       border-radius: 3px;
 
       .gallery-card-top {
+        position: relative;
+        overflow: hidden;
         background: $colorBrownLight;
         height: 140px;
+
+        &:hover {
+          .gallery-card-top-hover {
+            opacity: 1;
+          }
+        }
+      }
+
+      .gallery-card-top-hover {
+        position: absolute;
+        height: 140px;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: $colorBlack;
+        opacity: 0;
+        transition: opacity 0.2s;
+        z-index: 2;
+        cursor: pointer;
+
+        .btn {
+          font-size: 2rem;
+          color: #fff;
+          background: transparent;
+          border: none;
+          box-shadow: none;
+
+          &:hover {
+            color: $colorGold;
+          }
+        }
       }
 
       .gallery-card-filename {
