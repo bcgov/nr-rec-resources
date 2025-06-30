@@ -29,6 +29,10 @@
         color: $colorGrey;
         opacity: 0.7;
         cursor: pointer;
+
+        &::after {
+          display: none;
+        }
       }
 
       .gallery-card-date {
