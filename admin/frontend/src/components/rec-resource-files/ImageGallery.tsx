@@ -12,13 +12,7 @@ export const ImageGallery = ({ images }: { images: any[] }) => (
     renderItem={(img, idx) => (
       <GalleryCard
         key={idx}
-        topContent={
-          <img
-            src={img.url}
-            alt={img.name}
-            style={{ width: '100%', height: 100, objectFit: 'cover' }}
-          />
-        }
+        topContent={<img src={img.url} alt={img.name} />}
         filename={img.name}
         date={img.date}
       />
