@@ -79,7 +79,7 @@ describe("AuthService", () => {
       await authService.init();
       expect(mockKeycloak.init).toHaveBeenCalledWith({
         onLoad: "login-required",
-        redirectUri: window.location.origin,
+        redirectUri: "http://localhost:3000/",
         scope: "openid profile email",
         pkceMethod: "S256",
         checkLoginIframe: false,

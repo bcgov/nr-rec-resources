@@ -1,0 +1,86 @@
+@import "../../../../styles/variables.scss";
+
+.resource-header-section {
+  width: 100%;
+
+  &__title-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    max-width: 320px;
+  }
+
+  &__title-text {
+    font-weight: bold;
+    font-size: 1.75rem;
+    margin: 0;
+    color: $colorBlack;
+  }
+
+  &__clamp-ellipsis {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
+    max-width: 320px;
+    cursor: pointer;
+    white-space: normal;
+  }
+
+  &__meta {
+    font-size: 1em;
+    color: $colorGrey;
+
+    &-type {
+      font-weight: 600;
+    }
+  }
+
+  &__action-buttons {
+    & .resource-header-section__action-button {
+      font-weight: normal;
+      border-color: $colorBlue;
+      color: $colorBlue;
+      height: 2.5rem;
+
+      & .resource-header-section__action-button-icon {
+        border: 1px solid $colorBlue;
+        border-radius: 3px;
+        padding: 0.2rem;
+        font-size: 0.75rem;
+      }
+      &:hover .resource-header-section__action-button-icon {
+        border-color: $colorWhite;
+      }
+    }
+  }
+
+  &__btn {
+    height: 2.5rem;
+    color: $colorBlue;
+    border-color: $colorBlue;
+    min-width: 110px;
+  }
+
+  &__ellipsis-toggle {
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    outline: none;
+    min-width: 0;
+
+    &::after {
+      display: none;
+    }
+  }
+
+  &__ellipsis-icon {
+    color: $colorBlue;
+    font-size: 2rem;
+  }
+}

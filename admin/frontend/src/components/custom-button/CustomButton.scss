@@ -1,0 +1,10 @@
+@import "../../styles/variables.scss";
+
+.custom-btn {
+  &:hover,
+  &:focus {
+    background-color: $colorBlue !important;
+    color: $colorWhite !important;
+    border-color: $colorBlue !important;
+  }
+}

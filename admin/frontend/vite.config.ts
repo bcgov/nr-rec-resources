@@ -2,6 +2,7 @@ import { defineConfig, loadEnv } from "vite";
 import { fileURLToPath, URL } from "node:url";
 import react from "@vitejs/plugin-react";
 import path from "path";
+import tsconfigPaths from "vite-tsconfig-paths";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -9,7 +10,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     base: "/",
-    plugins: [react()],
+    plugins: [react(), tsconfigPaths()],
     server: {
       port: parseInt(env.PORT || "3001"),
       fs: {
@@ -24,10 +25,26 @@ export default defineConfig(({ mode }) => {
         },
       },
     },
+    test: {
+      exclude: ["**/node_modules/**", "**/e2e/**"],
+      globals: true,
+      environment: "jsdom",
+      setupFiles: "src/test-setup.ts",
+      // you might want to disable it, if you don't have tests that rely on CSS
+      // since parsing CSS is slow
+      css: false,
+      coverage: {
+        provider: "v8",
+        reporter: ["lcov", "text"],
+        include: ["src"],
+        exclude: ["src/index.tsx", "src/services/recreation-resource-admin/**"],
+      },
+    },
     resolve: {
       // https://vitejs.dev/config/shared-options.html#resolve-alias
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),
+        "@test": path.resolve(__dirname, "test"),
         "~": fileURLToPath(new URL("./node_modules", import.meta.url)),
         "~bootstrap": path.resolve(__dirname, "node_modules/bootstrap"),
         "@keycloak-lib": path.resolve(

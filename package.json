@@ -5,6 +5,7 @@
     "generate-admin-api": "npx openapi-generator-cli generate -i http://localhost:8001/api/docs-json -g typescript-fetch -o admin/frontend/src/services/recreation-resource-admin --skip-validate-spec --additional-properties=modelPropertyNaming=original",
     "generate-fsa-api": "npx openapi-generator-cli generate -i https://nr-forest-client-api-prod.api.gov.bc.ca/v3/api-docs -g typescript-nestjs -o public/backend/src/service/fsa-resources --skip-validate-spec --additional-properties=modelPropertyNaming=original",
     "install-client-sdk": "npm run generate-api && npm run prettier-fix",
+    "install-admin-client-sdk": "npm run generate-admin-api && npm run prettier-fix",
     "install-client-sdk-fsa": "npm run generate-fsa-api && npm run prettier-fix"
   },
   "devDependencies": {
@@ -14,6 +15,7 @@
     "@types/k6": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^8.16.0",
     "@typescript-eslint/parser": "^8.16.0",
+    "@vitest/coverage-v8": "^3.2.4",
     "eslint": "^9.16.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.31.0",

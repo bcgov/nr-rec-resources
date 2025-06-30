@@ -1,0 +1,105 @@
+@import "@/styles/variables.scss";
+
+.gallery-file-card {
+  box-shadow: 0 1px 2px $colorGreyLight;
+  border-radius: 3px;
+  height: 100%;
+
+  &--error {
+    border: 1px solid $colorRed !important;
+  }
+
+  &__top {
+    position: relative;
+    overflow: hidden;
+    background: $colorBrownLight;
+    height: 140px;
+
+    &:hover {
+      .gallery-file-card__top-hover {
+        opacity: 1;
+      }
+    }
+
+    &--error {
+      background: $colorRedLight;
+      color: $colorRed;
+    }
+    &--pending {
+      background: $colorBackgroundGrey;
+    }
+  }
+
+  &__top-hover {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: $colorBlack;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 2;
+    cursor: pointer;
+
+    .gallery-file-card__action-button-container {
+      color: $colorWhite;
+      &:hover * {
+        color: $colorGold;
+      }
+    }
+
+    .btn {
+      font-size: 2rem;
+      color: $colorWhite;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+    }
+  }
+
+  &__filename {
+    font-size: 15px;
+    &--error {
+      color: $colorRed !important;
+      font-weight: bold;
+    }
+  }
+
+  &__filename-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  &__menu {
+    font-size: 20px;
+    color: $colorGrey;
+    opacity: 0.7;
+    cursor: pointer;
+    padding: 5px !important;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    &:hover,
+    &:focus {
+      background: $colorBackgroundGrey;
+    }
+    &::after {
+      display: none;
+    }
+  }
+
+  &__date {
+    font-size: 0.92rem;
+    color: $colorBackgroundGrey;
+    &--error {
+      color: $colorRed !important;
+    }
+  }
+}

@@ -10,10 +10,8 @@ import { RecreationResourceSuggestion } from "@/components/recreation-resource-s
 import "react-bootstrap-typeahead/css/Typeahead.css";
 import "./RecreationResourceSuggestionTypeahead.scss";
 import {
-  FilterByCallback,
   Option,
   TypeaheadInputProps,
-  TypeaheadPropsAndState,
 } from "react-bootstrap-typeahead/types/types";
 
 /**
@@ -75,31 +73,6 @@ export const RecreationResourceSuggestionTypeahead: FC<
   placeholder,
 }) => {
   /**
-   * Custom filter function for resource suggestions.
-   *
-   * Determines whether a suggestion should be shown in the dropdown
-   * based on the user's search term. It matches the search term against both the
-   * resource's name and its resource ID (case-insensitive).
-   *
-   * This allows users to search by either name or resource ID.
-   */
-  const filterBy: FilterByCallback = useCallback(
-    (option: Option, props: TypeaheadPropsAndState) => {
-      const customOption = option as RecreationResourceSuggestion;
-      const searchTerm = props.text.toLowerCase();
-
-      // Match by name or resource ID (case-insensitive)
-      return (
-        (Boolean(customOption.name) &&
-          customOption.name.toLowerCase().includes(searchTerm)) ||
-        (Boolean(customOption.rec_resource_id) &&
-          customOption.rec_resource_id.toLowerCase().includes(searchTerm))
-      );
-    },
-    [],
-  );
-
-  /**
    * Custom menu renderer for resource suggestions.
    */
   const renderMenu: TypeaheadComponentProps["renderMenu"] = useCallback(
@@ -131,7 +104,7 @@ export const RecreationResourceSuggestionTypeahead: FC<
       placeholder={placeholder}
       labelKey="name" // RecreationResourceSuggestion["name"]
       isInvalid={Boolean(error)}
-      filterBy={filterBy}
+      filterBy={Boolean} // show all the results
       renderMenu={renderMenu}
     />
   );

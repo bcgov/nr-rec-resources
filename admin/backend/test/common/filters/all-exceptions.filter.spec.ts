@@ -56,6 +56,23 @@ describe("AllExceptionsFilter", () => {
       expect.objectContaining({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         path: "/test-url",
+        message: "Something broke",
+      }),
+    );
+  });
+
+  it("should handle non-HttpException error with no message", () => {
+    const exception = {};
+
+    filter.catch(exception, mockHost);
+
+    expect(mockResponse.status).toHaveBeenCalledWith(
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
+    expect(mockResponse.json).toHaveBeenCalledWith(
+      expect.objectContaining({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        path: "/test-url",
         message: "Internal server error",
       }),
     );

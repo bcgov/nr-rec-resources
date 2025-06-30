@@ -5,6 +5,8 @@ import {
   SuggestionsResponseDto,
 } from "./dtos/suggestions-response.dto";
 import { getRecreationResourceSuggestions } from "@/prisma-generated-sql";
+import { RecreationResourceDetailDto } from "./dtos/recreation-resource-detail.dto";
+import { formatRecreationResourceDetailResults } from "./utils";
 
 @Injectable()
 export class RecreationResourceService {
@@ -36,6 +38,21 @@ export class RecreationResourceService {
           district_description: item.district_description,
         })),
     };
+  }
+
+  /**
+   * Finds a recreation resource by its ID.
+   * @param rec_resource_id - The resource ID
+   * @returns The resource detail DTO or null if not found
+   */
+  async findOne(
+    rec_resource_id: string,
+  ): Promise<RecreationResourceDetailDto | null> {
+    const resource =
+      await this.recreationResourceRepository.findOneById(rec_resource_id);
+    if (!resource) return null;
+
+    return formatRecreationResourceDetailResults(resource);
   }
 
   /**

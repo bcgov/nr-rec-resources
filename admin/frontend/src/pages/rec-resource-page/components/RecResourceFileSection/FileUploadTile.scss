@@ -1,0 +1,13 @@
+.upload-tile {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  min-height: 120px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  background: #fafbfc;
+}
+.upload-tile.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+  cursor: not-allowed;
+}

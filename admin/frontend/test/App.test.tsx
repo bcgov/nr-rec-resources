@@ -29,22 +29,21 @@ vi.mock("@/contexts/AuthContext", () => ({
   ),
 }));
 
-// Mock design system Footer
-vi.mock("~/@bcgov/design-system-react-components", () => ({
-  Footer: () => <footer>Footer</footer>,
-}));
-
-// Mock Header
-vi.mock("@/components/header", () => ({
-  Header: () => <header>Header</header>,
-}));
-
-// Mock AuthGuard
-vi.mock("@/components/auth", () => ({
-  AuthGuard: ({ children }: any) => (
-    <div data-testid="auth-guard">{children}</div>
-  ),
-}));
+// Mock NotificationBar, PageLayout, AuthGuard, and Header in @/components
+vi.mock("@/components", () => {
+  return {
+    NotificationBar: () => (
+      <div data-testid="notification-bar">NotificationBar</div>
+    ),
+    PageLayout: ({ children }: any) => (
+      <div data-testid="page-layout">{children}</div>
+    ),
+    AuthGuard: ({ children }: any) => (
+      <div data-testid="auth-guard">{children}</div>
+    ),
+    Header: () => <header>Header</header>,
+  };
+});
 
 // Mock ReactQueryDevtools
 vi.mock("@tanstack/react-query-devtools", () => ({
@@ -56,11 +55,18 @@ vi.mock("@/pages/LandingPage", () => ({
   LandingPage: () => <div data-testid="landing-page">LandingPage</div>,
 }));
 
-// Mock routes
+// Mock RecResourcePage
+vi.mock("@/pages/rec-resource-page/RecResourcePage", () => ({
+  RecResourcePage: () => (
+    <div data-testid="rec-resource-page">RecResourcePage</div>
+  ),
+}));
+
+// Fix routes mock to include REC_RESOURCE_PAGE
 vi.mock("@/routes", () => ({
   ROUTES: {
     LANDING: "/",
-    REC_RESOURCE_FILES: "/files/:id",
+    REC_RESOURCE_PAGE: "/rec-resource/:id",
   },
 }));
 
@@ -87,12 +93,11 @@ describe("App", () => {
     expect(screen.getByTestId("landing-page")).toBeInTheDocument();
   });
 
-  it("renders the RecResourceFilesPage route with params", () => {
+  it("renders the RecResourcePage route with params", () => {
     mockUseParams.mockReturnValue({ id: "abc123" });
     render(<App />);
-    expect(screen.getByTestId("route-/files/:id")).toBeInTheDocument();
-    // The RecResourceFilesPage just renders the id param
-    expect(screen.getByText("abc123")).toBeInTheDocument();
+    expect(screen.getByTestId("route-/rec-resource/:id")).toBeInTheDocument();
+    expect(screen.getByTestId("rec-resource-page")).toBeInTheDocument();
   });
 
   it("calls useNavigate when invoked", () => {

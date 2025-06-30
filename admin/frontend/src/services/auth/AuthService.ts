@@ -62,7 +62,7 @@ export class AuthService {
 
     return this.keycloak.init({
       onLoad: "login-required",
-      redirectUri: window.location.origin,
+      redirectUri: window.location.href,
       scope: "openid profile email",
       pkceMethod: "S256",
       checkLoginIframe: false,
@@ -70,7 +70,9 @@ export class AuthService {
   }
 
   async login(): Promise<void> {
-    await this.keycloak.login();
+    await this.keycloak.login({
+      redirectUri: window.location.href,
+    });
   }
 
   async logout(): Promise<void> {

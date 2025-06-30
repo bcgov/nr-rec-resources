@@ -1,6 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@/prisma.service";
 import { getRecreationResourceSuggestions } from "@/prisma-generated-sql";
+import { recreationResourceSelect } from "./recreation-resource.select";
+import { RecreationResourceGetPayload } from "./recreation-resource.types";
 
 /**
  * Repository for querying recreation resource data.
@@ -24,5 +26,20 @@ export class RecreationResourceRepository {
       getRecreationResourceSuggestions(searchTerm),
     );
     return { total: data.length, data };
+  }
+
+  /**
+   * Finds a recreation resource by its ID.
+   * @param rec_resource_id - The resource ID
+   * @returns The resource detail or null if not found
+   */
+  async findOneById(
+    rec_resource_id: string,
+  ): Promise<RecreationResourceGetPayload | null> {
+    const resource = await this.prisma.recreation_resource.findUnique({
+      where: { rec_resource_id },
+      select: recreationResourceSelect,
+    });
+    return resource;
   }
 }

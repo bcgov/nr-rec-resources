@@ -143,6 +143,6 @@ describe("RecreationResourceSuggestionForm", () => {
     const suggestionItem = await screen.findByText("Test Park");
     await userEvent.click(suggestionItem);
 
-    expect(mockNavigate).toHaveBeenCalledWith("/rec-resource/123/files");
+    expect(mockNavigate).toHaveBeenCalledWith("/rec-resource/123");
   });
 });
