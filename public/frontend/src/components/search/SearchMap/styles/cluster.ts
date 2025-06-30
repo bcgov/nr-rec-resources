@@ -8,7 +8,7 @@ const getClusterRadius = (size: number) => {
   return 14;
 };
 
-export function clusterStyle(size: number): Style[] {
+export const clusterStyle = (size: number): Style[] => {
   const radius = getClusterRadius(size);
   const strokeWidth = 2;
   const haloRadius = radius + strokeWidth;
@@ -45,4 +45,4 @@ export function clusterStyle(size: number): Style[] {
   });
 
   return [haloStyle, clusterStyle];
-}
+};
