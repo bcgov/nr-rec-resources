@@ -1,8 +1,7 @@
 import React from 'react';
-import { Button } from 'react-bootstrap';
+import { Button, Stack } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
-import styles from './ResourceHeaderSection.module.scss';
 
 export const ResourceHeaderSection = ({
   name,
@@ -11,20 +10,24 @@ export const ResourceHeaderSection = ({
   name: string;
   recId: string;
 }) => (
-  <div className={styles['resource-header-section']}>
-    <div className={styles['resource-header-title']}>
-      <h2>{name}</h2>
-      <span className={styles['resource-badge']}>{recId}</span>
+  <div className="resource-header-section">
+    <div className="resource-header-title">
+      <h1>{name}</h1>
+      <span className="resource-badge px-2">{recId}</span>
     </div>
-    <div className={styles['upload-buttons']}>
+    <Stack direction="horizontal" gap={3} className="py-2">
       <Button variant="outline-primary">
-        <FontAwesomeIcon icon={faPlus} />
-        Upload image
+        <Stack direction="horizontal" gap={2}>
+          <FontAwesomeIcon icon={faPlus} />
+          Upload image
+        </Stack>
       </Button>
       <Button variant="outline-primary">
-        <FontAwesomeIcon icon={faPlus} />
-        Upload document
+        <Stack direction="horizontal" gap={2}>
+          <FontAwesomeIcon icon={faPlus} />
+          Upload document
+        </Stack>
       </Button>
-    </div>
+    </Stack>
   </div>
 );

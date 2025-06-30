@@ -1,0 +1,58 @@
+@import '../../styles/variables.scss';
+
+.rec-resource-files-page {
+  width: 1100px;
+  margin: auto;
+}
+
+.resource-header-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 3rem;
+
+  .resource-header-title {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    h1 {
+      font-weight: 700;
+      font-size: 1.75rem;
+      margin: 0;
+      color: $colorBlack;
+    }
+
+    .resource-badge {
+      background: $colorBlueLight;
+      color: $colorBlue;
+      border-radius: 999px;
+      padding: 0.18em 1.1em;
+      font-weight: 500;
+      font-size: 1rem;
+      line-height: 1;
+      letter-spacing: 0.5px;
+      display: inline-block;
+    }
+  }
+
+  .btn {
+    height: 2.5rem;
+    color: $colorBlue;
+    border-color: $colorBlue;
+  }
+}
+
+.info-banner {
+  margin-bottom: unset;
+
+  .info-banner-icon {
+    color: $colorGold;
+  }
+
+  .info-banner-text {
+    font-weight: 700;
+    color: $colorBlack;
+    font-size: 1rem;
+  }
+}

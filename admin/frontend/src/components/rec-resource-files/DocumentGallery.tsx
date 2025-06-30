@@ -7,7 +7,7 @@ import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
 export const DocumentGallery = ({ documents }: { documents: any[] }) => (
   <GalleryAccordion
     eventKey="documents"
-    title="Documents"
+    title="Public documents"
     description="Document formats only accept PDF at max file size 1mb."
     items={documents}
     uploadLabel={'Upload'}
@@ -15,10 +15,7 @@ export const DocumentGallery = ({ documents }: { documents: any[] }) => (
       <GalleryCard
         key={idx}
         topContent={
-          <>
-            <FontAwesomeIcon icon={faFilePdf} size="2x" color="#d32f2f" />
-            <span className="pdf-label">PDF</span>
-          </>
+          <FontAwesomeIcon icon={faFilePdf} size="2x" color="#d32f2f" />
         }
         filename={doc.name}
         date={doc.date}

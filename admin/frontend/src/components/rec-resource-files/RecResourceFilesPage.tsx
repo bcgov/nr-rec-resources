@@ -3,6 +3,8 @@ import { ResourceHeaderSection } from './ResourceHeaderSection';
 import { InfoBanner } from './InfoBanner';
 import { ImageGallery } from './ImageGallery';
 import { DocumentGallery } from './DocumentGallery';
+import { Stack } from 'react-bootstrap';
+import './RecResourceFilesPage.scss';
 
 export const RecResourceFilesPage = () => {
   // Mock data for demonstration
@@ -18,7 +20,11 @@ export const RecResourceFilesPage = () => {
   });
 
   return (
-    <div className="rec-resource-files-page p-5">
+    <Stack
+      direction="vertical"
+      gap={4}
+      className="rec-resource-files-page py-4"
+    >
       <ResourceHeaderSection name="Snow Creek" recId="REC2214" />
       <InfoBanner>
         All images and documents will be published to the beta website
@@ -26,6 +32,6 @@ export const RecResourceFilesPage = () => {
       </InfoBanner>
       <ImageGallery images={images} />
       <DocumentGallery documents={documents} />
-    </div>
+    </Stack>
   );
 };
