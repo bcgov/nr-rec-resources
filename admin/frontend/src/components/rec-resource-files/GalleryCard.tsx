@@ -19,64 +19,33 @@ interface GalleryCardProps {
   topContent: React.ReactNode;
   filename: string;
   date: string;
-  menu?: React.ReactNode;
 }
+
+const cardActions = [
+  { key: 'view', icon: faEye, label: 'View', className: '' },
+  { key: 'download', icon: faCloudDownload, label: 'Download', className: '' },
+  { key: 'delete', icon: faTrash, label: 'Delete', className: 'text-danger' },
+];
 
 export const GalleryCard: React.FC<GalleryCardProps> = ({
   topContent,
   filename,
   date,
-  menu = (
-    <Dropdown align="end">
-      <Dropdown.Toggle
-        variant="link"
-        className="gallery-card-menu p-0 border-0 shadow-none"
-        style={{ color: 'inherit' }}
-        as="span"
-      >
-        <FontAwesomeIcon icon={faEllipsisH} />
-      </Dropdown.Toggle>
-      <Dropdown.Menu>
-        <Dropdown.Item eventKey="view">
-          <FontAwesomeIcon icon={faEye} className="me-2" /> View
-        </Dropdown.Item>
-        <Dropdown.Item eventKey="download">
-          <FontAwesomeIcon icon={faCloudDownload} className="me-2" /> Download
-        </Dropdown.Item>
-        <Dropdown.Item eventKey="delete">
-          <FontAwesomeIcon icon={faTrash} className="me-2 text-danger" /> Delete
-        </Dropdown.Item>
-      </Dropdown.Menu>
-    </Dropdown>
-  ),
 }) => (
   <Card className="gallery-card p-0">
     <Card.Body className="gallery-card-top d-flex flex-column align-items-center justify-content-center p-0">
       <div className="gallery-card-top-hover">
-        <OverlayTrigger
-          placement="bottom"
-          overlay={<Tooltip id="tooltip-view">View</Tooltip>}
-        >
-          <Button variant="link">
-            <FontAwesomeIcon icon={faEye} />
-          </Button>
-        </OverlayTrigger>
-        <OverlayTrigger
-          placement="bottom"
-          overlay={<Tooltip id="tooltip-download">Download</Tooltip>}
-        >
-          <Button variant="link">
-            <FontAwesomeIcon icon={faCloudDownload} />
-          </Button>
-        </OverlayTrigger>
-        <OverlayTrigger
-          placement="bottom"
-          overlay={<Tooltip id="tooltip-delete">Delete</Tooltip>}
-        >
-          <Button variant="link">
-            <FontAwesomeIcon icon={faTrash} />
-          </Button>
-        </OverlayTrigger>
+        {cardActions.map(({ key, icon, label }) => (
+          <OverlayTrigger
+            key={key}
+            placement="bottom"
+            overlay={<Tooltip id={`tooltip-${key}`}>{label}</Tooltip>}
+          >
+            <Button variant="link">
+              <FontAwesomeIcon icon={icon} />
+            </Button>
+          </OverlayTrigger>
+        ))}
       </div>
       {topContent}
     </Card.Body>
@@ -88,7 +57,29 @@ export const GalleryCard: React.FC<GalleryCardProps> = ({
         <Col className="gallery-card-filename fw-bold" xs="auto">
           {filename}
         </Col>
-        <Col xs="auto">{menu}</Col>
+        <Col xs="auto">
+          <Dropdown align="end">
+            <Dropdown.Toggle
+              variant="link"
+              className="gallery-card-menu p-0 border-0 shadow-none"
+              style={{ color: 'inherit' }}
+              as="span"
+            >
+              <FontAwesomeIcon icon={faEllipsisH} />
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              {cardActions.map(({ key, icon, label, className }) => (
+                <Dropdown.Item eventKey={key} key={key}>
+                  <FontAwesomeIcon
+                    icon={icon}
+                    className={`me-2 ${className}`}
+                  />{' '}
+                  {label}
+                </Dropdown.Item>
+              ))}
+            </Dropdown.Menu>
+          </Dropdown>
+        </Col>
       </Row>
       <div
         className="gallery-card-date text-muted"
