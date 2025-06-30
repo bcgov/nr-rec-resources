@@ -5,11 +5,7 @@ import {
   MAP_STYLES,
   TEXT_STYLE,
 } from '@/components/rec-resource/RecreationResourceMap/constants';
-import {
-  isInterpretiveForest,
-  isRecreationSite,
-  isRecreationTrail,
-} from '@/utils/recreationResourceUtils';
+import { isRecreationTrail } from '@/utils/recreationResourceUtils';
 
 const ICON_SCALE = 0.3;
 const TEXT_SCALE = 1.3;
@@ -24,9 +20,7 @@ export function getRecResourceIcon(
   recResource: RecreationResourceDetailModel,
 ): string {
   if (isRecreationTrail(recResource)) return MAP_ICONS.RECREATION_TRAIL_HEAD;
-  if (isRecreationSite(recResource)) return MAP_ICONS.RECREATION_SITE;
-  if (isInterpretiveForest(recResource)) return MAP_ICONS.INTERPRETIVE_FOREST;
-  return MAP_ICONS.LOCATION_DOT_BLUE;
+  return MAP_ICONS.LOCATION_PIN;
 }
 
 /**

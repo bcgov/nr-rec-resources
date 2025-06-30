@@ -170,7 +170,7 @@ describe('Map Style Functions', () => {
         recreationResourceUtils.isInterpretiveForest as ReturnType<any>
       ).mockReturnValue(false);
       const icon = getRecResourceIcon(mockRecResource);
-      expect(icon).toBe(MAP_ICONS.RECREATION_SITE);
+      expect(icon).toBe(MAP_ICONS.LOCATION_PIN);
     });
 
     it('returns INTERPRETIVE_FOREST icon for interpretive forest', () => {
@@ -184,7 +184,7 @@ describe('Map Style Functions', () => {
         recreationResourceUtils.isInterpretiveForest as ReturnType<any>
       ).mockReturnValue(true);
       const icon = getRecResourceIcon(mockRecResource);
-      expect(icon).toBe(MAP_ICONS.INTERPRETIVE_FOREST);
+      expect(icon).toBe(MAP_ICONS.LOCATION_PIN);
     });
 
     it('returns LOCATION_DOT_BLUE icon for unknown type', () => {
@@ -198,7 +198,7 @@ describe('Map Style Functions', () => {
         recreationResourceUtils.isInterpretiveForest as ReturnType<any>
       ).mockReturnValue(false);
       const icon = getRecResourceIcon(mockRecResource);
-      expect(icon).toBe(MAP_ICONS.LOCATION_DOT_BLUE);
+      expect(icon).toBe(MAP_ICONS.LOCATION_PIN);
     });
   });
 });
