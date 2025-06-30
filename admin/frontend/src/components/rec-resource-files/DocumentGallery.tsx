@@ -17,16 +17,7 @@ export const DocumentGallery = ({ documents }: { documents: any[] }) => (
         topContent={
           <>
             <FontAwesomeIcon icon={faFilePdf} size="2x" color="#d32f2f" />
-            <span
-              style={{
-                fontWeight: 600,
-                fontSize: 14,
-                color: '#222',
-                marginTop: 4,
-              }}
-            >
-              PDF
-            </span>
+            <span className="pdf-label">PDF</span>
           </>
         }
         filename={doc.name}
