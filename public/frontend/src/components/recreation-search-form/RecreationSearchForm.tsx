@@ -20,7 +20,6 @@ interface RecreationSearchFormProps {
   placeholder?: string;
   searchButtonProps?: ButtonProps;
   location?: string;
-  style?: React.CSSProperties;
 }
 
 export const RecreationSearchForm: FC<RecreationSearchFormProps> = ({

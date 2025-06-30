@@ -4,20 +4,16 @@ import type OLMap from 'ol/Map';
 import { transformExtent } from 'ol/proj';
 import GeoJSON from 'ol/format/GeoJSON';
 import { useStore } from '@tanstack/react-store';
-import { VectorFeatureMap } from '@bcgov/prp-map';
+import { VectorFeatureMap } from 'prp-map';
 import { SearchViewControls } from '@/components/search';
 import {
-  createRecreationFeatureSource,
-  createRecreationIconStyle,
-  createRecreationLabelStyle,
+  createClusteredRecreationFeatureSource,
+  createClusteredRecreationFeatureStyle,
+  createClusteredRecreationFeatureLayer,
 } from '@/components/search/SearchMap/layers/recreationFeatureLayer';
-import VectorLayer from 'ol/layer/Vector';
 import searchResultsStore from '@/store/searchResults';
 import { RecreationSearchForm } from '@/components/recreation-search-form/RecreationSearchForm';
 import '@/components/search/SearchMap/SearchMap.scss';
-
-const TILE_SIZE = 512;
-const MAX_TEXT_RESOLUTION = 900;
 
 interface SearchableMapProps {
   style?: CSSProperties;
@@ -28,32 +24,23 @@ const SearchMap = ({ style }: SearchableMapProps) => {
 
   const mapRef = useRef<{ getMap: () => OLMap }>(null);
 
-  const featureSource = useMemo(
-    () =>
-      createRecreationFeatureSource({
-        tileSize: TILE_SIZE,
-      }),
+  const clusteredSource = useMemo(
+    () => createClusteredRecreationFeatureSource(),
     [],
   );
 
-  // Use same feature source but separate layers for icons and labels
-  // to allow decluttering of labels while keeping icons visible
-  const iconLayerRef = useRef<VectorLayer>(
-    new VectorLayer({
-      source: featureSource,
-      declutter: false,
-      updateWhileInteracting: true,
-      updateWhileAnimating: true,
-    }),
+  const clusteredStyle = useMemo(
+    () => createClusteredRecreationFeatureStyle(filteredIds),
+    [filteredIds],
   );
 
-  const labelLayerRef = useRef<VectorLayer>(
-    new VectorLayer({
-      source: featureSource,
-      declutter: true,
-      updateWhileInteracting: false,
+  const featureRef = useRef(
+    createClusteredRecreationFeatureLayer(clusteredSource, clusteredStyle, {
+      animationDuration: 500,
+      declutter: false,
       updateWhileAnimating: false,
-      maxResolution: MAX_TEXT_RESOLUTION,
+      updateWhileInteracting: false,
+      renderBuffer: 300,
     }),
   );
 
@@ -96,21 +83,16 @@ const SearchMap = ({ style }: SearchableMapProps) => {
 
   useEffect(() => {
     if (!pages || pages.length === 0) return;
-    iconLayerRef.current.setStyle(createRecreationIconStyle(recResourceIds));
-    labelLayerRef.current.setStyle(createRecreationLabelStyle(recResourceIds));
-    featureSource.refresh();
-  }, [recResourceIds, pages, featureSource]);
+    featureRef.current.setStyle(
+      createClusteredRecreationFeatureStyle(recResourceIds),
+    );
+  }, [recResourceIds, pages]);
 
   const layers = useMemo(
     () => [
       {
-        id: 'recreation-icons',
-        layerInstance: iconLayerRef.current,
-        visible: true,
-      },
-      {
-        id: 'recreation-labels',
-        layerInstance: labelLayerRef.current,
+        id: 'recreation-features',
+        layerInstance: featureRef.current,
         visible: true,
       },
     ],
