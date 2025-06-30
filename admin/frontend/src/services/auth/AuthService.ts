@@ -1,6 +1,6 @@
-import Keycloak from "@keycloak-lib/keycloak";
-import { UserInfo } from "@/services/auth/AuthService.types";
-import { AuthServiceEvent } from "@/services/auth/AuthService.constants";
+import Keycloak from '@keycloak-lib/keycloak';
+import { UserInfo } from '@/services/auth/AuthService.types';
+import { AuthServiceEvent } from '@/services/auth/AuthService.constants';
 
 export class AuthService {
   private static _instance: AuthService;
@@ -27,8 +27,8 @@ export class AuthService {
       !keycloakConfig.clientId
     ) {
       throw new Error(
-        "Keycloak configuration is missing in the environment variables. " +
-          "Please verify that url, realm, and clientId values are defined.",
+        'Keycloak configuration is missing in the environment variables. ' +
+          'Please verify that url, realm, and clientId values are defined.',
       );
     }
     this.keycloak = new Keycloak(keycloakConfig);
@@ -41,7 +41,7 @@ export class AuthService {
 
     // Set up event handlers before initialization
     this.keycloak.onAuthSuccess = () => {
-      console.log("Auth success event fired");
+      console.log('Auth success event fired');
       if (this.keycloak.authenticated) {
         window.dispatchEvent(new CustomEvent(AuthServiceEvent.AUTH_SUCCESS));
       }
@@ -49,28 +49,30 @@ export class AuthService {
 
     // Add custom event dispatch for logout and error events
     this.keycloak.onAuthLogout = () => {
-      console.log("Auth logout event fired");
+      console.log('Auth logout event fired');
       window.dispatchEvent(new CustomEvent(AuthServiceEvent.AUTH_LOGOUT));
     };
 
     this.keycloak.onAuthError = (err) => {
-      console.error("Auth error event fired", err);
+      console.error('Auth error event fired', err);
       window.dispatchEvent(
         new CustomEvent(AuthServiceEvent.AUTH_ERROR, { detail: err }),
       );
     };
 
     return this.keycloak.init({
-      onLoad: "login-required",
-      redirectUri: window.location.origin,
-      scope: "openid profile email",
-      pkceMethod: "S256",
+      onLoad: 'login-required',
+      redirectUri: window.location.href,
+      scope: 'openid profile email',
+      pkceMethod: 'S256',
       checkLoginIframe: false,
     });
   }
 
   async login(): Promise<void> {
-    await this.keycloak.login();
+    await this.keycloak.login({
+      redirectUri: window.location.href,
+    });
   }
 
   async logout(): Promise<void> {
@@ -99,13 +101,13 @@ export class AuthService {
    */
   getUserFullName(): string {
     const tokenParsed = this.keycloak.tokenParsed as UserInfo | undefined;
-    if (!tokenParsed) return "";
+    if (!tokenParsed) return '';
 
-    const { given_name = "", family_name = "", name = "" } = tokenParsed;
+    const { given_name = '', family_name = '', name = '' } = tokenParsed;
 
-    const fullName = [given_name, family_name].filter(Boolean).join(" ").trim();
+    const fullName = [given_name, family_name].filter(Boolean).join(' ').trim();
 
-    return fullName || name || "";
+    return fullName || name || '';
   }
 
   get keycloakInstance(): Keycloak {
