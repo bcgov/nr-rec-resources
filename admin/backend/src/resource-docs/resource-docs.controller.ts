@@ -46,7 +46,7 @@ export class ResourceDocsController {
   @Get(":rec_resource_id/docs")
   @ApiOperation({
     summary: "Get all documents related to the resource",
-    operationId: "getAll",
+    operationId: "getAllDocumentResources",
   })
   @ApiParam({
     name: "rec_resource_id",

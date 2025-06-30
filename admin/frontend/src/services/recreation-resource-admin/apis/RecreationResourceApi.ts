@@ -15,23 +15,320 @@
 import * as runtime from "../runtime";
 import type {
   BadRequestResponseDto,
+  FileUploadDto,
+  RecreationResourceDocDto,
   SuggestionsResponseDto,
 } from "../models/index";
 import {
   BadRequestResponseDtoFromJSON,
   BadRequestResponseDtoToJSON,
+  FileUploadDtoFromJSON,
+  FileUploadDtoToJSON,
+  RecreationResourceDocDtoFromJSON,
+  RecreationResourceDocDtoToJSON,
   SuggestionsResponseDtoFromJSON,
   SuggestionsResponseDtoToJSON,
 } from "../models/index";
 
+export interface CreateDocumentResourceRequest {
+  recResourceId: string;
+  fileUploadDto: FileUploadDto;
+}
+
+export interface DeleteDocumentResourceRequest {
+  recResourceId: string;
+  refId: string;
+}
+
+export interface GetAllDocumentResourcesRequest {
+  recResourceId: string;
+}
+
+export interface GetDocumentResourceByIdRequest {
+  recResourceId: string;
+  refId: string;
+}
+
 export interface GetRecreationResourceSuggestionsRequest {
   searchTerm: string;
+}
+
+export interface UpdateDocumentResourceRequest {
+  recResourceId: string;
+  refId: string;
+  fileUploadDto?: FileUploadDto;
 }
 
 /**
  *
  */
 export class RecreationResourceApi extends runtime.BaseAPI {
+  /**
+   * Create a new Document Resource with a uploaded file
+   */
+  async createDocumentResourceRaw(
+    requestParameters: CreateDocumentResourceRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceDocDto>> {
+    if (requestParameters["recResourceId"] == null) {
+      throw new runtime.RequiredError(
+        "recResourceId",
+        'Required parameter "recResourceId" was null or undefined when calling createDocumentResource().',
+      );
+    }
+
+    if (requestParameters["fileUploadDto"] == null) {
+      throw new runtime.RequiredError(
+        "fileUploadDto",
+        'Required parameter "fileUploadDto" was null or undefined when calling createDocumentResource().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    headerParameters["Content-Type"] = "application/json";
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token("keycloak", []);
+
+      if (tokenString) {
+        headerParameters["Authorization"] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resource/{rec_resource_id}/docs`.replace(
+          `{${"rec_resource_id"}}`,
+          encodeURIComponent(String(requestParameters["recResourceId"])),
+        ),
+        method: "POST",
+        headers: headerParameters,
+        query: queryParameters,
+        body: FileUploadDtoToJSON(requestParameters["fileUploadDto"]),
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationResourceDocDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Create a new Document Resource with a uploaded file
+   */
+  async createDocumentResource(
+    requestParameters: CreateDocumentResourceRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationResourceDocDto> {
+    const response = await this.createDocumentResourceRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Delete a Document Resource
+   */
+  async deleteDocumentResourceRaw(
+    requestParameters: DeleteDocumentResourceRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceDocDto>> {
+    if (requestParameters["recResourceId"] == null) {
+      throw new runtime.RequiredError(
+        "recResourceId",
+        'Required parameter "recResourceId" was null or undefined when calling deleteDocumentResource().',
+      );
+    }
+
+    if (requestParameters["refId"] == null) {
+      throw new runtime.RequiredError(
+        "refId",
+        'Required parameter "refId" was null or undefined when calling deleteDocumentResource().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token("keycloak", []);
+
+      if (tokenString) {
+        headerParameters["Authorization"] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resource/{rec_resource_id}/docs/{ref_id}`
+          .replace(
+            `{${"rec_resource_id"}}`,
+            encodeURIComponent(String(requestParameters["recResourceId"])),
+          )
+          .replace(
+            `{${"ref_id"}}`,
+            encodeURIComponent(String(requestParameters["refId"])),
+          ),
+        method: "DELETE",
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationResourceDocDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Delete a Document Resource
+   */
+  async deleteDocumentResource(
+    requestParameters: DeleteDocumentResourceRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationResourceDocDto> {
+    const response = await this.deleteDocumentResourceRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Get all documents related to the resource
+   */
+  async getAllDocumentResourcesRaw(
+    requestParameters: GetAllDocumentResourcesRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<RecreationResourceDocDto>>> {
+    if (requestParameters["recResourceId"] == null) {
+      throw new runtime.RequiredError(
+        "recResourceId",
+        'Required parameter "recResourceId" was null or undefined when calling getAllDocumentResources().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token("keycloak", []);
+
+      if (tokenString) {
+        headerParameters["Authorization"] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resource/{rec_resource_id}/docs`.replace(
+          `{${"rec_resource_id"}}`,
+          encodeURIComponent(String(requestParameters["recResourceId"])),
+        ),
+        method: "GET",
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      jsonValue.map(RecreationResourceDocDtoFromJSON),
+    );
+  }
+
+  /**
+   * Get all documents related to the resource
+   */
+  async getAllDocumentResources(
+    requestParameters: GetAllDocumentResourcesRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<Array<RecreationResourceDocDto>> {
+    const response = await this.getAllDocumentResourcesRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Get one document resource by reference ID
+   */
+  async getDocumentResourceByIdRaw(
+    requestParameters: GetDocumentResourceByIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceDocDto>> {
+    if (requestParameters["recResourceId"] == null) {
+      throw new runtime.RequiredError(
+        "recResourceId",
+        'Required parameter "recResourceId" was null or undefined when calling getDocumentResourceById().',
+      );
+    }
+
+    if (requestParameters["refId"] == null) {
+      throw new runtime.RequiredError(
+        "refId",
+        'Required parameter "refId" was null or undefined when calling getDocumentResourceById().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token("keycloak", []);
+
+      if (tokenString) {
+        headerParameters["Authorization"] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resource/{rec_resource_id}/docs/{ref_id}`
+          .replace(
+            `{${"rec_resource_id"}}`,
+            encodeURIComponent(String(requestParameters["recResourceId"])),
+          )
+          .replace(
+            `{${"ref_id"}}`,
+            encodeURIComponent(String(requestParameters["refId"])),
+          ),
+        method: "GET",
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationResourceDocDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Get one document resource by reference ID
+   */
+  async getDocumentResourceById(
+    requestParameters: GetDocumentResourceByIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationResourceDocDto> {
+    const response = await this.getDocumentResourceByIdRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
   /**
    *
    */
@@ -85,6 +382,79 @@ export class RecreationResourceApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<SuggestionsResponseDto> {
     const response = await this.getRecreationResourceSuggestionsRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Update a Document Resource
+   */
+  async updateDocumentResourceRaw(
+    requestParameters: UpdateDocumentResourceRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceDocDto>> {
+    if (requestParameters["recResourceId"] == null) {
+      throw new runtime.RequiredError(
+        "recResourceId",
+        'Required parameter "recResourceId" was null or undefined when calling updateDocumentResource().',
+      );
+    }
+
+    if (requestParameters["refId"] == null) {
+      throw new runtime.RequiredError(
+        "refId",
+        'Required parameter "refId" was null or undefined when calling updateDocumentResource().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    headerParameters["Content-Type"] = "application/json";
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token("keycloak", []);
+
+      if (tokenString) {
+        headerParameters["Authorization"] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resource/{rec_resource_id}/docs/{ref_id}`
+          .replace(
+            `{${"rec_resource_id"}}`,
+            encodeURIComponent(String(requestParameters["recResourceId"])),
+          )
+          .replace(
+            `{${"ref_id"}}`,
+            encodeURIComponent(String(requestParameters["refId"])),
+          ),
+        method: "PUT",
+        headers: headerParameters,
+        query: queryParameters,
+        body: FileUploadDtoToJSON(requestParameters["fileUploadDto"]),
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationResourceDocDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Update a Document Resource
+   */
+  async updateDocumentResource(
+    requestParameters: UpdateDocumentResourceRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationResourceDocDto> {
+    const response = await this.updateDocumentResourceRaw(
       requestParameters,
       initOverrides,
     );

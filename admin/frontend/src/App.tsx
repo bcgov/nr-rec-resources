@@ -7,11 +7,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { LandingPage } from "@/pages/LandingPage";
 import { ROUTES } from "./routes";
-
-const RecResourceFilesPage = () => {
-  const params = useParams();
-  return <div>{params.id}</div>;
-};
+import { RecResourceFilesPage } from "./components/rec-resource-files/RecResourceFilesPage";
 
 function App() {
   const queryClient = new QueryClient();
