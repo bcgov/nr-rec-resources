@@ -43,10 +43,6 @@ export function buildFilterOptionCountsQuery({
     SELECT ARRAY_AGG(rec_resource_id) AS rec_resource_ids
     FROM filtered_resources
   ),
-  filtered_ids AS (
-    SELECT ARRAY_AGG(rec_resource_id) AS rec_resource_ids
-    FROM filtered_resources
-  ),
   facility_counts AS (
    SELECT
      SUM(has_toilets::int)::int AS total_toilet_count,

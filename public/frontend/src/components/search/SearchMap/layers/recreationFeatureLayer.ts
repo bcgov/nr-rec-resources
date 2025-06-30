@@ -7,11 +7,11 @@ import { Style } from 'ol/style';
 import { FeatureLike } from 'ol/Feature';
 import { capitalizeWords } from '@/utils/capitalizeWords';
 import {
-  clusterStyle,
   featureLabelText,
   locationDotBlueIcon,
   locationDotRedIcon,
-} from '@/components/search/SearchMap/mapStyles';
+} from '@/components/search/SearchMap/styles/feature';
+import { clusterStyle } from '@/components/search/SearchMap/styles/cluster';
 import { RECREATION_FEATURE_LAYER } from '@/components/search/SearchMap/constants';
 
 const iconStyleCache = new Map<string, Style>();

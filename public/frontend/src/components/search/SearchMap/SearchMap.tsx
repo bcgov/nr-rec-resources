@@ -15,11 +15,7 @@ import searchResultsStore from '@/store/searchResults';
 import { RecreationSearchForm } from '@/components/recreation-search-form/RecreationSearchForm';
 import '@/components/search/SearchMap/SearchMap.scss';
 
-interface SearchableMapProps {
-  style?: CSSProperties;
-}
-
-const SearchMap = ({ style }: SearchableMapProps) => {
+const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
   const { extent, pages, recResourceIds } = useStore(searchResultsStore);
 
   const mapRef = useRef<{ getMap: () => OLMap }>(null);
@@ -100,7 +96,7 @@ const SearchMap = ({ style }: SearchableMapProps) => {
   );
 
   return (
-    <div className="search-map-container" style={style}>
+    <div className="search-map-container" {...props}>
       <VectorFeatureMap
         ref={mapRef}
         style={{
