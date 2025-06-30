@@ -1,6 +1,6 @@
 import React from 'react';
-import { ResourceHeader } from './ResourceHeader';
-import { UploadSection } from './UploadSection';
+import { ResourceHeaderSection } from './ResourceHeaderSection';
+import { InfoBanner } from './InfoBanner';
 import { ImageGallery } from './ImageGallery';
 import { DocumentGallery } from './DocumentGallery';
 
@@ -18,9 +18,12 @@ export const RecResourceFilesPage = () => {
   });
 
   return (
-    <div className="rec-resource-files-page">
-      <ResourceHeader name="Snow Creek" recId="REC2214" />
-      <UploadSection />
+    <div className="rec-resource-files-page p-5">
+      <ResourceHeaderSection name="Snow Creek" recId="REC2214" />
+      <InfoBanner>
+        All images and documents will be published to the beta website
+        immediately.
+      </InfoBanner>
       <ImageGallery images={images} />
       <DocumentGallery documents={documents} />
     </div>
