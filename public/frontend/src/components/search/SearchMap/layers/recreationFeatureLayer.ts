@@ -14,6 +14,10 @@ import {
 import { clusterStyle } from '@/components/search/SearchMap/styles/cluster';
 import { RECREATION_FEATURE_LAYER } from '@/components/search/SearchMap/constants';
 
+//
+// This file should be moved back to the shared map repo once map development has matured
+// https://github.com/bcgov/prp-map/blob/main/src/layers/recreationFeatureLayer.ts
+
 const iconStyleCache = new Map<string, Style>();
 const labelTextCache = new Map<string, string>();
 const labelStyleCache = new Map<string, Style>();
