@@ -19,6 +19,16 @@ export const RecResourceFilesPage = () => {
     url: '#',
   });
 
+  const onView = (file: { name: string; date: string; url: string }) => {
+    console.log('View file:', file);
+  };
+  const onDownload = (file: { name: string; date: string; url: string }) => {
+    console.log('Download file:', file);
+  };
+  const onDelete = (file: { name: string; date: string; url: string }) => {
+    console.log('Delete file:', file);
+  };
+
   return (
     <Stack
       direction="vertical"
@@ -30,8 +40,18 @@ export const RecResourceFilesPage = () => {
         All images and documents will be published to the beta website
         immediately.
       </InfoBanner>
-      <ImageGallery images={images} />
-      <DocumentGallery documents={documents} />
+      <ImageGallery
+        images={images}
+        onView={onView}
+        onDownload={onDownload}
+        onDelete={onDelete}
+      />
+      <DocumentGallery
+        documents={documents}
+        onView={onView}
+        onDownload={onDownload}
+        onDelete={onDelete}
+      />
     </Stack>
   );
 };
