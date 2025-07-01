@@ -3,7 +3,19 @@ import { GalleryAccordion } from './GalleryAccordion';
 import { GalleryCard } from './GalleryCard';
 import { Image } from 'react-bootstrap';
 
-export const ImageGallery = ({ images }: { images: any[] }) => (
+export interface ImageGalleryProps {
+  images: { name: string; date: string; url: string }[];
+  onView: (file: { name: string; date: string; url: string }) => void;
+  onDownload: (file: { name: string; date: string; url: string }) => void;
+  onDelete: (file: { name: string; date: string; url: string }) => void;
+}
+
+export const ImageGallery: React.FC<ImageGalleryProps> = ({
+  images,
+  onView,
+  onDownload,
+  onDelete,
+}) => (
   <GalleryAccordion
     eventKey="images"
     title="Public images"
@@ -18,6 +30,9 @@ export const ImageGallery = ({ images }: { images: any[] }) => (
         }
         filename={img.name}
         date={img.date}
+        onView={() => onView(img)}
+        onDownload={() => onDownload(img)}
+        onDelete={() => onDelete(img)}
       />
     )}
   />
