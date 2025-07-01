@@ -15,13 +15,12 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import './Gallery.scss';
 
-export interface GalleryCardProps {
+export interface GalleryCardProps<T> {
   topContent?: React.ReactNode;
   filename: string;
   date: string;
-  onView: () => void;
-  onDownload: () => void;
-  onDelete: () => void;
+  file: T;
+  onAction: (action: 'view' | 'download' | 'delete', file: T) => void;
 }
 
 const cardActions = [
@@ -30,21 +29,13 @@ const cardActions = [
   { key: 'delete', icon: faTrash, label: 'Delete', className: 'text-danger' },
 ];
 
-export const GalleryCard: React.FC<GalleryCardProps> = ({
+export const GalleryCard = <T,>({
   topContent,
   filename,
   date,
-  onView,
-  onDownload,
-  onDelete,
-}) => {
-  // Map action keys to handlers
-  const actionHandlers: Record<string, (() => void) | undefined> = {
-    view: onView,
-    download: onDownload,
-    delete: onDelete,
-  };
-
+  file,
+  onAction,
+}: GalleryCardProps<T>) => {
   return (
     <Card className="gallery-card p-0">
       <Card.Body className="gallery-card-top d-flex flex-column align-items-center justify-content-center p-0">
@@ -55,7 +46,12 @@ export const GalleryCard: React.FC<GalleryCardProps> = ({
               placement="bottom"
               overlay={<Tooltip id={`tooltip-${key}`}>{label}</Tooltip>}
             >
-              <Button variant="link" onClick={actionHandlers[key]}>
+              <Button
+                variant="link"
+                onClick={() =>
+                  onAction(key as 'view' | 'download' | 'delete', file)
+                }
+              >
                 <FontAwesomeIcon icon={icon} />
               </Button>
             </OverlayTrigger>
@@ -86,7 +82,9 @@ export const GalleryCard: React.FC<GalleryCardProps> = ({
                   <Dropdown.Item
                     eventKey={key}
                     key={key}
-                    onClick={actionHandlers[key]}
+                    onClick={() =>
+                      onAction(key as 'view' | 'download' | 'delete', file)
+                    }
                   >
                     <FontAwesomeIcon
                       icon={icon}

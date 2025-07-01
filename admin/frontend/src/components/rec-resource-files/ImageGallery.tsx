@@ -5,16 +5,15 @@ import { Image } from 'react-bootstrap';
 
 export interface ImageGalleryProps {
   images: { name: string; date: string; url: string }[];
-  onView: (file: { name: string; date: string; url: string }) => void;
-  onDownload: (file: { name: string; date: string; url: string }) => void;
-  onDelete: (file: { name: string; date: string; url: string }) => void;
+  onAction: (
+    action: 'view' | 'download' | 'delete',
+    file: { name: string; date: string; url: string },
+  ) => void;
 }
 
 export const ImageGallery: React.FC<ImageGalleryProps> = ({
   images,
-  onView,
-  onDownload,
-  onDelete,
+  onAction,
 }) => (
   <GalleryAccordion
     eventKey="images"
@@ -23,16 +22,15 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
     items={images}
     uploadLabel={'Upload'}
     renderItem={(img, idx) => (
-      <GalleryCard
+      <GalleryCard<{ name: string; date: string; url: string }>
         key={idx}
         topContent={
           <Image src={img.url} alt={img.name} width={'100%'} height={'100%'} />
         }
         filename={img.name}
         date={img.date}
-        onView={() => onView(img)}
-        onDownload={() => onDownload(img)}
-        onDelete={() => onDelete(img)}
+        file={img}
+        onAction={onAction}
       />
     )}
   />

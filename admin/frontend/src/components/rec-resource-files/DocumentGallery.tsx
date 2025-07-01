@@ -6,16 +6,15 @@ import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
 
 export interface DocumentGalleryProps {
   documents: { name: string; date: string; url: string }[];
-  onView: (file: { name: string; date: string; url: string }) => void;
-  onDownload: (file: { name: string; date: string; url: string }) => void;
-  onDelete: (file: { name: string; date: string; url: string }) => void;
+  onAction: (
+    action: 'view' | 'download' | 'delete',
+    file: { name: string; date: string; url: string },
+  ) => void;
 }
 
 export const DocumentGallery: React.FC<DocumentGalleryProps> = ({
   documents,
-  onView,
-  onDownload,
-  onDelete,
+  onAction,
 }) => (
   <GalleryAccordion
     eventKey="documents"
@@ -24,16 +23,15 @@ export const DocumentGallery: React.FC<DocumentGalleryProps> = ({
     items={documents}
     uploadLabel={'Upload'}
     renderItem={(doc, idx) => (
-      <GalleryCard
+      <GalleryCard<{ name: string; date: string; url: string }>
         key={idx}
         topContent={
           <FontAwesomeIcon icon={faFilePdf} size="2x" color="#d32f2f" />
         }
         filename={doc.name}
         date={doc.date}
-        onView={() => onView(doc)}
-        onDownload={() => onDownload(doc)}
-        onDelete={() => onDelete(doc)}
+        file={doc}
+        onAction={onAction}
       />
     )}
   />
