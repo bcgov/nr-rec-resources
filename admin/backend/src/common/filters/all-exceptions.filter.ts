@@ -4,8 +4,8 @@ import {
   ExceptionFilter,
   HttpException,
   HttpStatus,
-} from "@nestjs/common";
-import { Request, Response } from "express";
+} from '@nestjs/common';
+import { Request, Response } from 'express';
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -25,14 +25,16 @@ export class AllExceptionsFilter implements ExceptionFilter {
       message:
         exception instanceof HttpException
           ? exception.getResponse()
-          : "Internal server error",
+          : exception instanceof Error
+            ? exception.message
+            : 'Internal server error',
     };
 
     // For validation errors handled by the exceptionFactory in ValidationPipe,
     // the response will already be formatted. We can check for that.
     if (
       exception instanceof HttpException &&
-      typeof exception.getResponse() === "object"
+      typeof exception.getResponse() === 'object'
     ) {
       Object.assign(errorResponse, exception.getResponse());
     }

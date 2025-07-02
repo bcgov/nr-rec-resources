@@ -9,11 +9,13 @@ export interface ImageGalleryProps {
     action: "view" | "download" | "delete",
     file: { name: string; date: string; url: string },
   ) => void;
+  isLoading?: boolean;
 }
 
 export const ImageGallery: React.FC<ImageGalleryProps> = ({
   images,
   onAction,
+  isLoading = false,
 }) => (
   <GalleryAccordion
     eventKey="images"
@@ -21,6 +23,7 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
     description="Image formats JPG, HEIC at max file size 10mb. Maximum 10 images."
     items={images}
     uploadLabel={"Upload"}
+    isLoading={isLoading}
     renderItem={(img, idx) => (
       <GalleryCard<{ name: string; date: string; url: string }>
         key={idx}
