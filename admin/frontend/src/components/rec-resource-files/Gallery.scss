@@ -1,4 +1,4 @@
-@import "../../styles/variables.scss";
+@import '../../styles/variables.scss';
 
 .gallery-accordion {
   .accordion-item {
@@ -13,7 +13,7 @@
     }
 
     .gallery-column {
-      height: 215px;
+      height: 232px;
     }
 
     .gallery-card {
@@ -61,6 +61,16 @@
 
       .gallery-card-filename {
         font-size: 15px;
+      }
+
+      .gallery-card-filename-ellipsis {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: normal;
+        display: -webkit-box;
+        line-clamp: 2;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
       }
 
       .gallery-card-menu {

@@ -64,7 +64,12 @@ export const GalleryCard = <T,>({
       >
         <Row className="gallery-card-row align-items-start">
           <Col className="gallery-card-filename fw-bold" xs="auto" md={10}>
-            {filename}
+            <OverlayTrigger
+              placement="top"
+              overlay={<Tooltip id={`tooltip-filename`}>{filename}</Tooltip>}
+            >
+              <span className="gallery-card-filename-ellipsis">{filename}</span>
+            </OverlayTrigger>
           </Col>
           <Col xs="auto">
             <Dropdown align="start">
