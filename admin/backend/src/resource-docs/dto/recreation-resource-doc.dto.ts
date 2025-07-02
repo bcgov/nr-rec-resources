@@ -18,6 +18,7 @@ export class RecreationResourceDocDto {
 
   @ApiProperty({
     description: "Doc title",
+    type: String,
     example: "Campbell river site map",
   })
   title: string | null;
@@ -40,13 +41,21 @@ export class RecreationResourceDocDto {
 
   @ApiProperty({
     description: "Description of the document code",
+    type: String,
   })
   doc_code_description?: string;
 
   @ApiProperty({
     description: "File extension",
+    type: String,
   })
   extension: string | null;
+
+  @ApiProperty({
+    description: "File extension",
+    type: String,
+  })
+  created_at: string | null;
 }
 
 export class RecreationResourceDocBodyDto {

@@ -33,6 +33,7 @@ export class ResourceDocsService {
         title: true,
         ref_id: true,
         extension: true,
+        created_at: true,
         recreation_resource_doc_code: {
           select: {
             description: true,
