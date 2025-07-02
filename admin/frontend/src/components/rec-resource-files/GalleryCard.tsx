@@ -1,31 +1,31 @@
-import Card from 'react-bootstrap/Card';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import Dropdown from 'react-bootstrap/Dropdown';
-import Button from 'react-bootstrap/Button';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Card from "react-bootstrap/Card";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
+import Dropdown from "react-bootstrap/Dropdown";
+import Button from "react-bootstrap/Button";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCloudDownload,
   faEllipsisV,
   faEye,
   faTrash,
-} from '@fortawesome/free-solid-svg-icons';
-import './Gallery.scss';
+} from "@fortawesome/free-solid-svg-icons";
+import "./Gallery.scss";
 
 export interface GalleryCardProps<T> {
   topContent?: React.ReactNode;
   filename: string;
   date: string;
   file: T;
-  onAction: (action: 'view' | 'download' | 'delete', file: T) => void;
+  onAction: (action: "view" | "download" | "delete", file: T) => void;
 }
 
 const cardActions = [
-  { key: 'view', icon: faEye, label: 'View', className: '' },
-  { key: 'download', icon: faCloudDownload, label: 'Download', className: '' },
-  { key: 'delete', icon: faTrash, label: 'Delete', className: 'text-danger' },
+  { key: "view", icon: faEye, label: "View", className: "" },
+  { key: "download", icon: faCloudDownload, label: "Download", className: "" },
+  { key: "delete", icon: faTrash, label: "Delete", className: "text-danger" },
 ];
 
 export const GalleryCard = <T,>({
@@ -48,7 +48,7 @@ export const GalleryCard = <T,>({
               <Button
                 variant="link"
                 onClick={() =>
-                  onAction(key as 'view' | 'download' | 'delete', file)
+                  onAction(key as "view" | "download" | "delete", file)
                 }
               >
                 <FontAwesomeIcon icon={icon} />
@@ -60,7 +60,7 @@ export const GalleryCard = <T,>({
       </Card.Body>
       <Card.Body
         className="gallery-card-body d-flex flex-column gap-1 pt-2 pb-2"
-        style={{ borderTop: '1px solid var(--bs-border-color-translucent)' }}
+        style={{ borderTop: "1px solid var(--bs-border-color-translucent)" }}
       >
         <Row className="gallery-card-row align-items-start">
           <Col className="gallery-card-filename fw-bold" xs="auto" md={10}>
@@ -76,7 +76,7 @@ export const GalleryCard = <T,>({
               <Dropdown.Toggle
                 variant="link"
                 className="gallery-card-menu p-0 border-0 shadow-none"
-                style={{ color: 'inherit' }}
+                style={{ color: "inherit" }}
                 as="span"
               >
                 <FontAwesomeIcon icon={faEllipsisV} />
@@ -87,7 +87,7 @@ export const GalleryCard = <T,>({
                     eventKey={key}
                     key={key}
                     onClick={() =>
-                      onAction(key as 'view' | 'download' | 'delete', file)
+                      onAction(key as "view" | "download" | "delete", file)
                     }
                   >
                     <FontAwesomeIcon
@@ -103,7 +103,7 @@ export const GalleryCard = <T,>({
         </Row>
         <div
           className="gallery-card-date text-muted"
-          style={{ fontSize: '0.92rem' }}
+          style={{ fontSize: "0.92rem" }}
         >
           {date}
         </div>

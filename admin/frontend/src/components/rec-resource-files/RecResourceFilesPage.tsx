@@ -16,17 +16,12 @@ export const RecResourceFilesPage = () => {
     error,
   } = useGetDocumentsByRecResourceId(`${params.id}`);
 
-  // Mock data for demonstration
+  // todo: replace mock data with api call
   const images = Array(10).fill({
     name: "File_Name.jpg",
     date: "06 Nov 2023, 02:45 PM",
     url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb", // Replace with your image URLs
   });
-  // const documents = Array(14).fill({
-  //   name: 'File_Name.jpg',
-  //   date: '06 Nov 2023, 02:45 PM',
-  //   url: '#',
-  // });
 
   const onImageAction = (
     action: "view" | "download" | "delete",
@@ -53,8 +48,16 @@ export const RecResourceFilesPage = () => {
         All images and documents will be published to the beta website
         immediately.
       </InfoBanner>
-      <ImageGallery images={images} onAction={onImageAction} />
-      <DocumentGallery documents={documents} onAction={onDocumentAction} />
+      <ImageGallery
+        images={images}
+        onAction={onImageAction}
+        isLoading={isFetching}
+      />
+      <DocumentGallery
+        documents={documents}
+        onAction={onDocumentAction}
+        isLoading={isFetching}
+      />
     </Stack>
   );
 };
