@@ -5,6 +5,7 @@ import {
   ResponseError,
 } from '@/services/recreation-resource-admin';
 import { showNotification } from '@/store/notificationStore';
+import { transformRecreationResourceDocs } from '../helpers';
 
 export const useGetDocumentsByRecResourceId = (recResourceId: string) => {
   const recreationResourceAdminApiClient =
@@ -13,10 +14,13 @@ export const useGetDocumentsByRecResourceId = (recResourceId: string) => {
   return useQuery<RecreationResourceDocDto[], ResponseError>({
     queryKey: ['getDocumentsByRecResourceId', recResourceId],
     initialData: [],
-    queryFn: () =>
-      recreationResourceAdminApiClient.getDocumentsByRecResourceId({
-        recResourceId,
-      }),
+    queryFn: async () => {
+      const docs =
+        await recreationResourceAdminApiClient.getDocumentsByRecResourceId({
+          recResourceId,
+        });
+      return transformRecreationResourceDocs(docs);
+    },
     retry: (retryCount, error) => {
       if (retryCount >= 2) {
         showNotification(
