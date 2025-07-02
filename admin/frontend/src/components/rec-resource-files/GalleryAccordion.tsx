@@ -43,7 +43,7 @@ export function GalleryAccordion<T>({
 
             <Row className="g-3">
               {/* Upload tile */}
-              <Col xs={12} sm={6} md={3}>
+              <Col xs={12} sm={6} md={3} className="gallery-column">
                 <div
                   className="upload-tile-dashed d-flex flex-column align-items-center justify-content-center h-100 w-100"
                   onClick={onUploadClick}

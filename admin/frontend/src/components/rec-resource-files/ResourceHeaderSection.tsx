@@ -1,7 +1,7 @@
-import React from "react";
-import { Button, Stack } from "react-bootstrap";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import React from 'react';
+import { Button, Stack } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 export const ResourceHeaderSection = ({
   name,
@@ -19,13 +19,13 @@ export const ResourceHeaderSection = ({
       <Button variant="outline-primary">
         <Stack direction="horizontal" gap={2}>
           <FontAwesomeIcon icon={faPlus} />
-          Upload image
+          Add image
         </Stack>
       </Button>
       <Button variant="outline-primary">
         <Stack direction="horizontal" gap={2}>
           <FontAwesomeIcon icon={faPlus} />
-          Upload document
+          Add document
         </Stack>
       </Button>
     </Stack>
