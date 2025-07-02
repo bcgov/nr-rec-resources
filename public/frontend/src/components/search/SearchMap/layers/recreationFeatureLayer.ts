@@ -2,9 +2,10 @@ import AnimatedCluster from 'ol-ext/layer/AnimatedCluster';
 import Cluster from 'ol/source/Cluster';
 import VectorSource from 'ol/source/Vector';
 import EsriJSON from 'ol/format/EsriJSON';
-import { bbox as bboxStrategy } from 'ol/loadingstrategy';
+// import { bbox as bboxStrategy } from 'ol/loadingstrategy';
 import { Style } from 'ol/style';
-import { FeatureLike } from 'ol/Feature';
+import Feature, { FeatureLike } from 'ol/Feature';
+import Geometry from 'ol/geom/Geometry';
 import { capitalizeWords } from '@/utils/capitalizeWords';
 import {
   featureLabelText,
@@ -45,91 +46,116 @@ export const createClusteredRecreationFeatureStyle = (
       return clusterStyle(features.length);
     }
 
-    const singleFeature = features?.[0] ?? feature;
+    const singleFeature = features[0] ?? feature;
+
     // const id = singleFeature.get('FOREST_FILE_ID');
     // if (filteredSet.size && !filteredSet.has(id)) return;
 
     const isClosed = singleFeature.get('CLOSURE_IND') === 'Y';
     const iconKey = `icon-${isClosed}`;
-    let iconStyle = iconStyleCache.get(iconKey);
 
-    if (!iconStyle) {
+    if (!iconStyleCache.has(iconKey)) {
       const icon = isClosed
         ? locationDotRedIcon.getImage()
         : locationDotBlueIcon.getImage();
-      iconStyle = new Style({ image: icon ?? undefined });
-      iconStyleCache.set(iconKey, iconStyle);
+      iconStyleCache.set(iconKey, new Style({ image: icon ?? undefined }));
     }
+
+    const iconStyle = iconStyleCache.get(iconKey)!;
 
     const name = singleFeature.get('PROJECT_NAME');
-    let labelStyle;
+    if (!name) return iconStyle;
 
-    if (name) {
-      const label = getCapitalizedName(name);
-      const labelKey = `label-${label}`;
-      labelStyle = labelStyleCache.get(labelKey);
+    const label = getCapitalizedName(name);
+    const labelKey = `label-${label}`;
 
-      if (!labelStyle) {
-        labelStyle = new Style({ text: featureLabelText(label) });
-        labelStyleCache.set(labelKey, labelStyle);
-      }
+    if (!labelStyleCache.has(labelKey)) {
+      labelStyleCache.set(
+        labelKey,
+        new Style({ text: featureLabelText(label) }),
+      );
     }
 
-    return labelStyle ? [iconStyle, labelStyle] : iconStyle;
+    const labelStyle = labelStyleCache.get(labelKey)!;
+
+    return [iconStyle, labelStyle];
   };
 };
 
-export const createRecreationFeatureSource = (options?: {
-  tileSize?: number;
-  wrapX?: boolean;
-}) => {
+export const createRecreationFeatureSource = (
+  filteredIds: string[],
+  options?: {
+    tileSize?: number;
+    wrapX?: boolean;
+  },
+) => {
   const format = new EsriJSON();
+  const batchSize = 1000;
+  const filteredSet = new Set(filteredIds);
 
   const source = new VectorSource({
     format,
-    strategy: bboxStrategy,
     wrapX: options?.wrapX ?? false,
     overlaps: false,
   });
 
-  source.setLoader((extent, _resolution, projection) => {
-    const geometry = extent.join(',');
-    const url =
-      `${RECREATION_FEATURE_LAYER}/query/?` +
-      `f=json` +
-      `&where=1=1` +
-      `&outFields=PROJECT_NAME,CLOSURE_IND,FOREST_FILE_ID,OBJECTID` +
-      `&geometry=${geometry}` +
-      `&geometryType=esriGeometryEnvelope` +
-      `&spatialRel=esriSpatialRelIntersects` +
-      `&outSR=102100`;
+  source.setLoader(async (_extent, _resolution, projection) => {
+    const allFeatures: Feature<Geometry>[] = [];
 
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => {
-        const features = format.readFeatures(data, {
+    let offset = 0;
+
+    while (true) {
+      const url =
+        `${RECREATION_FEATURE_LAYER}/query/?f=json&where=1=1` +
+        `&outFields=PROJECT_NAME,CLOSURE_IND,FOREST_FILE_ID,OBJECTID` +
+        `&resultRecordCount=${batchSize}&resultOffset=${offset}` +
+        `&orderByFields=OBJECTID` +
+        `&inSR=102100` +
+        `&outSR=102100`;
+
+      try {
+        const response = await fetch(url);
+        const data = await response.json();
+
+        let features = format.readFeatures(data, {
           featureProjection: projection,
         });
 
-        for (const feature of features) {
+        features.forEach((feature) => {
           const id = feature.get('FOREST_FILE_ID');
-          if (id) feature.setId(id);
+          if (id) feature.setId(String(id));
+        });
+
+        features = features.filter((feature) =>
+          filteredSet.has(String(feature.getId())),
+        );
+
+        allFeatures.push(...features);
+
+        if (data.features.length < batchSize) {
+          break;
         }
 
-        return source.addFeatures(features);
-      })
-      .catch((error) => {
-        console.error('Error loading recreation features:', error);
-      });
+        offset += batchSize;
+      } catch (error) {
+        console.error('Error fetching features:', error);
+        break;
+      }
+    }
+
+    source.addFeatures(allFeatures);
   });
 
   return source;
 };
-export const createClusteredRecreationFeatureSource = () => {
+
+export const createClusteredRecreationFeatureSource = (
+  filteredIds: string[],
+) => {
   return new Cluster({
     distance: 50,
     minDistance: 30,
-    source: createRecreationFeatureSource(),
+    source: createRecreationFeatureSource(filteredIds),
   });
 };
 

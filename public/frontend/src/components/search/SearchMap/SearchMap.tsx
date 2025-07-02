@@ -1,4 +1,4 @@
-import { CSSProperties, useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import 'ol/ol.css';
 import type OLMap from 'ol/Map';
 import { transformExtent } from 'ol/proj';
@@ -21,13 +21,13 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
   const mapRef = useRef<{ getMap: () => OLMap }>(null);
 
   const clusteredSource = useMemo(
-    () => createClusteredRecreationFeatureSource(),
-    [],
+    () => createClusteredRecreationFeatureSource(recResourceIds),
+    [recResourceIds],
   );
 
   const clusteredStyle = useMemo(
-    () => createClusteredRecreationFeatureStyle(filteredIds),
-    [filteredIds],
+    () => createClusteredRecreationFeatureStyle(recResourceIds),
+    [recResourceIds],
   );
 
   const featureRef = useRef(
@@ -39,6 +39,13 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
       renderBuffer: 300,
     }),
   );
+
+  useEffect(() => {
+    if (!featureRef.current) return;
+
+    const newSource = createClusteredRecreationFeatureSource(recResourceIds);
+    featureRef.current.setSource(newSource);
+  }, [recResourceIds]);
 
   useEffect(() => {
     if (!extent || !mapRef.current) return;

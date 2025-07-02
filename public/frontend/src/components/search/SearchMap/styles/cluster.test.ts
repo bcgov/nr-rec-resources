@@ -16,7 +16,7 @@ describe('clusterStyle', () => {
     const text = cluster.getText() as Text;
 
     expect(radius).toBe(14);
-    expect(fill.getColor()).toBe('rgb(36,100,164)');
+    expect(fill.getColor()).toBe('rgb(36,100,164, 0.85)');
     expect(stroke.getWidth()).toBe(2);
     expect(text.getText()).toBe('5');
   });

@@ -5,11 +5,12 @@ import { useStore } from '@tanstack/react-store';
 import SearchMap from '@/components/search/SearchMap/SearchMap';
 import { renderWithQueryClient } from '@/test-utils';
 
-const setStyleMock = vi.fn();
 const fitMock = vi.fn();
 const getZoomMock = vi.fn(() => 8);
 const setZoomMock = vi.fn();
 const getExtentMock = vi.fn(() => [0, 0, 100, 100]);
+const setStyleMock = vi.fn();
+const setSourceMock = vi.fn();
 
 vi.mock('@tanstack/react-store', async () => {
   const actual = await vi.importActual('@tanstack/react-store');
@@ -44,6 +45,7 @@ vi.mock('@/components/search/SearchMap/layers/recreationFeatureLayer', () => ({
   createClusteredRecreationFeatureStyle: vi.fn(() => 'mock-cluster-style'),
   createClusteredRecreationFeatureLayer: vi.fn(() => ({
     setStyle: setStyleMock,
+    setSource: setSourceMock,
   })),
 }));
 
@@ -122,6 +124,7 @@ describe('SearchMap', () => {
     renderWithQueryClient(<SearchMap />);
 
     expect(setStyleMock).toHaveBeenCalledTimes(1);
+    expect(setSourceMock).toHaveBeenCalledTimes(1);
   });
 
   it('zooms to extent when extent is provided', async () => {
@@ -162,5 +165,19 @@ describe('SearchMap', () => {
 
     expect(getZoomMock).toHaveBeenCalled();
     expect(setZoomMock).toHaveBeenCalledWith(8.01);
+    expect(setSourceMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not attempt to fit map when extent is null', () => {
+    (useStore as Mock).mockReturnValue({
+      extent: null,
+      pages: [],
+      recResourceIds: [],
+    });
+
+    renderWithQueryClient(<SearchMap />);
+
+    expect(fitMock).not.toHaveBeenCalled();
+    expect(setZoomMock).not.toHaveBeenCalled();
   });
 });
