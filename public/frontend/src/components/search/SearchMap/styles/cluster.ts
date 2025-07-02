@@ -34,7 +34,7 @@ export const clusterStyle = (size: number): Style[] => {
         width: strokeWidth,
       }),
       fill: new Fill({
-        color: `rgb(${CLUSTER_COLOR})`,
+        color: `rgb(${CLUSTER_COLOR}, 0.85)`,
       }),
     }),
     text: new Text({
