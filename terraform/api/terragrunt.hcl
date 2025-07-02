@@ -16,6 +16,12 @@ locals {
   statefile_bucket_name        = "${local.tf_remote_state_prefix}-${local.aws_license_plate}-${local.target_env}"
   statefile_key                = local.app == "public" ? "${local.app_env}/api/terraform.tfstate" : "${local.app_env}/api/${local.app}/terraform.tfstate"
   statelock_table_name         = "${local.tf_remote_state_prefix}-lock-${local.aws_license_plate}"
+  frontend_remote_state = {
+    bucket         = "${local.tf_remote_state_prefix}-${local.aws_license_plate}-${local.target_env}"
+    key            = local.app == "public" ? "${local.app_env}/frontend/terraform.tfstate" : "${local.app_env}/frontend/${local.app}/terraform.tfstate"
+    dynamodb_table = "${local.tf_remote_state_prefix}-lock-${local.aws_license_plate}"
+    region         = "ca-central-1"
+  }
   flyway_image                 = get_env("flyway_image")
   api_image                    = get_env("api_image")
   forest_client_api_key        = get_env("forest_client_api_key")
@@ -68,6 +74,13 @@ generate "tfvars" {
   app_name="${local.app_name}"
   keycloak_config = ${local.keycloak_config}
   dam_config = ${local.dam_config}
+
+  frontend_remote_state = {
+    bucket         = "${local.frontend_remote_state.bucket}"
+    key            = "${local.frontend_remote_state.key}"
+    dynamodb_table = "${local.frontend_remote_state.dynamodb_table}"
+    region         = "${local.frontend_remote_state.region}"
+  }
 EOF
 }
 
