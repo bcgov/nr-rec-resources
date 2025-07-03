@@ -16,10 +16,6 @@ import { clusterStyle } from '@/components/search/SearchMap/styles/cluster';
 import { RECREATION_FEATURE_LAYER } from '@/components/search/SearchMap/constants';
 import { AnimatedClusterOptions } from '@/components/search/SearchMap/types';
 
-//
-// This file should be moved back to the shared map repo once map development has matured
-// https://github.com/bcgov/prp-map/blob/main/src/layers/recreationFeatureLayer.ts
-
 const iconStyleCache = new Map<string, Style>();
 const labelTextCache = new Map<string, string>();
 const labelStyleCache = new Map<string, Style>();
@@ -38,7 +34,7 @@ export function createClusteredRecreationFeatureStyle(
   const features = feature.get('features') ?? [feature];
 
   if (features.length > 1) {
-    // If there are multiple features, render as a cluster
+    // If there are multiple features, return the cluster style
     return clusterStyle(features.length);
   }
 
@@ -71,17 +67,31 @@ export function createClusteredRecreationFeatureStyle(
   return [iconStyle, labelStyle];
 }
 
-export const recreationFeatureLoader = async (
+export const createRecreationFeatureSource = (
+  options?: VectorSourceOptions,
+) => {
+  const format = new EsriJSON();
+  return new VectorSource({
+    format,
+    overlaps: false,
+    ...options,
+  });
+};
+
+export const recreationSource = createRecreationFeatureSource();
+
+export const loadFeaturesForFilteredIds = async (
   filteredIds: string[],
-  format: EsriJSON,
   source: VectorSource,
   projection: any,
 ) => {
-  // arcgis api has a limit of 1000 feature records per request
-  // so we need to fetch in batches
+  source.clear();
+
   const batchSize = 1000;
   const filteredSet = new Set(filteredIds);
   const allFeatures: Feature<Geometry>[] = [];
+  const format = new EsriJSON();
+
   let offset = 0;
 
   while (true) {
@@ -109,9 +119,7 @@ export const recreationFeatureLoader = async (
 
       allFeatures.push(...features);
 
-      if (data.features.length < batchSize) {
-        break;
-      }
+      if (data.features.length < batchSize) break;
 
       offset += batchSize;
     } catch (error) {
@@ -123,30 +131,11 @@ export const recreationFeatureLoader = async (
   source.addFeatures(allFeatures);
 };
 
-export const createRecreationFeatureSource = (
-  filteredIds: string[],
-  options?: VectorSourceOptions,
-) => {
-  const format = new EsriJSON();
-  const source = new VectorSource({
-    format,
-    overlaps: false,
-    ...options,
-  });
-
-  source.setLoader((_extent, _resolution, projection) =>
-    recreationFeatureLoader(filteredIds, format, source, projection),
-  );
-
-  return source;
-};
-
 export const createClusteredRecreationFeatureSource = (
-  filteredIds: string[],
   options?: ClusterOptions,
 ) => {
   return new Cluster({
-    source: createRecreationFeatureSource(filteredIds),
+    source: recreationSource,
     ...options,
   });
 };
