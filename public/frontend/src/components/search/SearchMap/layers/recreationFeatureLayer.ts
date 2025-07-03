@@ -2,7 +2,6 @@ import AnimatedCluster from 'ol-ext/layer/AnimatedCluster';
 import Cluster from 'ol/source/Cluster';
 import VectorSource from 'ol/source/Vector';
 import EsriJSON from 'ol/format/EsriJSON';
-// import { bbox as bboxStrategy } from 'ol/loadingstrategy';
 import { Style } from 'ol/style';
 import Feature, { FeatureLike } from 'ol/Feature';
 import Geometry from 'ol/geom/Geometry';
@@ -107,9 +106,9 @@ export const createRecreationFeatureSource = (
     while (true) {
       const url =
         `${RECREATION_FEATURE_LAYER}/query/?f=json&where=1=1` +
-        `&outFields=PROJECT_NAME,CLOSURE_IND,FOREST_FILE_ID,OBJECTID` +
+        `&outFields=PROJECT_NAME,CLOSURE_IND,FOREST_FILE_ID` +
         `&resultRecordCount=${batchSize}&resultOffset=${offset}` +
-        `&orderByFields=OBJECTID` +
+        `&orderByFields=PROJECT_NAME` +
         `&inSR=102100` +
         `&outSR=102100`;
 
