@@ -1,43 +1,48 @@
 import { useEffect, useMemo, useRef } from 'react';
+import { Options as ClusterOptions } from 'ol/source/Cluster';
 import {
   createClusteredRecreationFeatureSource,
   createClusteredRecreationFeatureStyle,
   createClusteredRecreationFeatureLayer,
 } from '@/components/search/SearchMap/layers/recreationFeatureLayer';
+import { AnimatedClusterOptions } from '@/components/search/SearchMap/types';
 
 export const useClusteredRecreationFeatureLayer = (
   recResourceIds: string[],
   options?: {
-    animationDuration?: number;
-    declutter?: boolean;
-    updateWhileAnimating?: boolean;
-    updateWhileInteracting?: boolean;
-    renderBuffer?: number;
+    clusterOptions?: ClusterOptions;
+    animatedClusterOptions?: AnimatedClusterOptions;
   },
 ) => {
   const clusteredSource = useMemo(
-    () => createClusteredRecreationFeatureSource(recResourceIds),
-    [recResourceIds],
+    () =>
+      createClusteredRecreationFeatureSource(
+        recResourceIds,
+        options?.clusterOptions,
+      ),
+    [options, recResourceIds],
   );
 
   const clusteredStyle = useMemo(
-    () => createClusteredRecreationFeatureStyle(recResourceIds),
-    [recResourceIds],
+    () => createClusteredRecreationFeatureStyle(),
+    [],
   );
 
   const layerRef = useRef(
     createClusteredRecreationFeatureLayer(
       clusteredSource,
       clusteredStyle,
-      options,
+      options?.animatedClusterOptions,
     ),
   );
 
-  // Update source when filtered IDs change
   useEffect(() => {
-    const newSource = createClusteredRecreationFeatureSource(recResourceIds);
+    const newSource = createClusteredRecreationFeatureSource(
+      recResourceIds,
+      options?.clusterOptions,
+    );
     layerRef.current.setSource(newSource);
-  }, [recResourceIds]);
+  }, [options, recResourceIds]);
 
   return {
     layer: layerRef.current,

@@ -1,5 +1,5 @@
 import { describe, it, vi, expect } from 'vitest';
-import { render } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 import OLMap from 'ol/Map';
 import { useZoomToExtent } from '@/components/search/SearchMap/hooks/useZoomToExtent';
 import { transformExtent } from 'ol/proj';
@@ -48,12 +48,7 @@ describe('useZoomToExtent', () => {
       ],
     });
 
-    const TestComponent = () => {
-      useZoomToExtent(mapRef, extentGeoJSON);
-      return null;
-    };
-
-    render(<TestComponent />);
+    renderHook(() => useZoomToExtent(mapRef, extentGeoJSON));
 
     expect(fit).toHaveBeenCalledWith([0, 0, 100, 100], {
       padding: [50, 50, 50, 50],
@@ -77,12 +72,7 @@ describe('useZoomToExtent', () => {
       .mockImplementation(() => {});
     const mapRef = { current: { getMap: () => ({}) as unknown as OLMap } };
 
-    const TestComponent = () => {
-      useZoomToExtent(mapRef, 'invalid-json');
-      return null;
-    };
-
-    render(<TestComponent />);
+    renderHook(() => useZoomToExtent(mapRef, 'invalid-json'));
 
     expect(consoleError).toHaveBeenCalled();
     consoleError.mockRestore();

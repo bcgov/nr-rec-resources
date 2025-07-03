@@ -1,6 +1,6 @@
 import AnimatedCluster from 'ol-ext/layer/AnimatedCluster';
-import Cluster from 'ol/source/Cluster';
-import VectorSource from 'ol/source/Vector';
+import Cluster, { Options as ClusterOptions } from 'ol/source/Cluster';
+import VectorSource, { Options as VectorSourceOptions } from 'ol/source/Vector';
 import EsriJSON from 'ol/format/EsriJSON';
 import { Style } from 'ol/style';
 import Feature, { FeatureLike } from 'ol/Feature';
@@ -13,6 +13,7 @@ import {
 } from '@/components/search/SearchMap/styles/feature';
 import { clusterStyle } from '@/components/search/SearchMap/styles/cluster';
 import { RECREATION_FEATURE_LAYER } from '@/components/search/SearchMap/constants';
+import { AnimatedClusterOptions } from '@/components/search/SearchMap/types';
 
 //
 // This file should be moved back to the shared map repo once map development has matured
@@ -29,14 +30,10 @@ const getCapitalizedName = (name: string): string => {
   return labelTextCache.get(name)!;
 };
 
-export const createClusteredRecreationFeatureStyle = (
-  _filteredIds: string[] = [],
-) => {
-  // const filteredSet = new Set(filteredIds);
-
+export const createClusteredRecreationFeatureStyle = () => {
   return (
     feature: FeatureLike,
-    _resolution?: number,
+    _resolution: number,
   ): Style | Style[] | undefined => {
     const features = feature.get('features') ?? [feature];
 
@@ -46,9 +43,6 @@ export const createClusteredRecreationFeatureStyle = (
     }
 
     const singleFeature = features[0] ?? feature;
-
-    // const id = singleFeature.get('FOREST_FILE_ID');
-    // if (filteredSet.size && !filteredSet.has(id)) return;
 
     const isClosed = singleFeature.get('CLOSURE_IND') === 'Y';
     const iconKey = `icon-${isClosed}`;
@@ -83,25 +77,25 @@ export const createClusteredRecreationFeatureStyle = (
 
 export const createRecreationFeatureSource = (
   filteredIds: string[],
-  options?: {
-    tileSize?: number;
-    wrapX?: boolean;
-  },
+  options?: VectorSourceOptions,
 ) => {
   const format = new EsriJSON();
-  const batchSize = 1000; // arcgis api has a limit of 1000 records per request
+  const batchSize = 1000;
   const filteredSet = new Set(filteredIds);
 
   const source = new VectorSource({
     format,
-    wrapX: options?.wrapX ?? false,
     overlaps: false,
+    ...options,
   });
 
   source.setLoader(async (_extent, _resolution, projection) => {
     const allFeatures: Feature<Geometry>[] = [];
 
     let offset = 0;
+
+    // arcgis api has a limit of 1000 feature records per request
+    // so we need to fetch in batches
 
     while (true) {
       const url =
@@ -120,14 +114,11 @@ export const createRecreationFeatureSource = (
           featureProjection: projection,
         });
 
-        features.forEach((feature) => {
+        features = features.filter((feature) => {
           const id = feature.get('FOREST_FILE_ID');
-          if (id) feature.setId(String(id));
+          feature.setId(String(id));
+          return filteredSet.has(String(id));
         });
-
-        features = features.filter((feature) =>
-          filteredSet.has(String(feature.getId())),
-        );
 
         allFeatures.push(...features);
 
@@ -150,31 +141,21 @@ export const createRecreationFeatureSource = (
 
 export const createClusteredRecreationFeatureSource = (
   filteredIds: string[],
+  options?: ClusterOptions,
 ) => {
   return new Cluster({
-    distance: 50,
-    minDistance: 30,
     source: createRecreationFeatureSource(filteredIds),
+    ...options,
   });
 };
 
 export const createClusteredRecreationFeatureLayer = (
   source: Cluster,
   style: ReturnType<typeof createClusteredRecreationFeatureStyle>,
-  options?: {
-    animationDuration?: number;
-    declutter?: boolean;
-    updateWhileInteracting?: boolean;
-    updateWhileAnimating?: boolean;
-    renderBuffer?: number;
-  },
+  options?: AnimatedClusterOptions,
 ) =>
   new AnimatedCluster({
     source,
-    animationDuration: options?.animationDuration ?? 500,
     style,
-    declutter: options?.declutter ?? true,
-    updateWhileAnimating: options?.updateWhileAnimating ?? true,
-    updateWhileInteracting: options?.updateWhileInteracting ?? true,
-    renderBuffer: options?.renderBuffer ?? 300,
+    ...options,
   });
