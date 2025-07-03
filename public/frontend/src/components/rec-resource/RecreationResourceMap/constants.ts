@@ -1,21 +1,20 @@
 import { Fill, Stroke } from 'ol/style';
 
-export const STROKE_COLOR = '#42814A';
 export const FILL_COLOR = '#42814A66';
-export const TEXT_COLOR = '#000000';
-export const TEXT_STROKE_COLOR = '#FFFFFF';
+export const TEXT_STROKE_COLOR = '#000';
 
 export const TEXT_STYLE = {
-  fill: new Fill({ color: TEXT_COLOR }),
+  backgroundFill: new Fill({ color: '#000' }),
+  fill: new Fill({ color: '#FFF' }),
   stroke: new Stroke({
     color: TEXT_STROKE_COLOR,
-    width: 2,
   }),
 };
 
 export const MAP_STYLES = {
   STROKE: {
-    COLOR: STROKE_COLOR,
+    POLYGON_COLOR: '#42814A',
+    TRAIL_COLOR: '#FF00FF',
     WIDTH: 3,
     LINE_DASH: [6, 6],
   },
@@ -62,3 +61,8 @@ export const MAP_URLS = {
  * Default zoom level for the map
  */
 export const DEFAULT_MAP_ZOOM = 8;
+
+export const MAP_ICONS = {
+  RECREATION_TRAIL_HEAD: `${import.meta.env.VITE_RECREATION_RESOURCE_ASSETS_BASE_URL}/filestore/6/7/5/3/3_e7d99d5ae52c547/33576_df328d469fcc6f1.png`,
+  LOCATION_PIN: `${import.meta.env.VITE_RECREATION_RESOURCE_ASSETS_BASE_URL}/filestore/7/7/5/3/3_b5139e0c4037f17/33577_98ddab6962d1ca4.png`,
+};

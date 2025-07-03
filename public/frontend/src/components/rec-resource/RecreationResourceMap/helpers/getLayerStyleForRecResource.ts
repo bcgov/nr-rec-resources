@@ -21,7 +21,7 @@ import {
  * @returns StyleFunction for OpenLayers features
  */
 export const getLayerStyleForRecResource = (
-  recResource?: RecreationResourceDetailModel,
+  recResource: RecreationResourceDetailModel,
 ): StyleFunction => {
   const label = recResource?.name ?? '';
   const hasSitePoint = Boolean(recResource?.site_point_geometry);
@@ -36,7 +36,7 @@ export const getLayerStyleForRecResource = (
     const showText = isPolygonOrMultiPolygon ? !hasSitePoint : true;
 
     return new Style({
-      image: createImageStyle(isPoint),
+      image: createImageStyle(isPoint, recResource),
       stroke: createStrokeStyle(isLineOrMultiLineString),
       fill: createFillStyle(isPolygonOrMultiPolygon),
       text: showText

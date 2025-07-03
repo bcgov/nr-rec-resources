@@ -126,12 +126,6 @@ describe('RecreationResourceMap', () => {
     expect(getLayerStyleForRecResource).toHaveBeenCalledTimes(1);
   });
 
-  it('handles undefined recResource prop correctly', () => {
-    render(<RecreationResourceMap />);
-    expect(getMapFeaturesFromRecResource).toHaveBeenCalledWith(undefined);
-    expect(getLayerStyleForRecResource).toHaveBeenCalledWith(undefined);
-  });
-
   it('calls downloadGPX with recResource.name if defined', () => {
     render(
       <RecreationResourceMap
@@ -149,14 +143,15 @@ describe('RecreationResourceMap', () => {
   });
 
   it('calls downloadKML with recResource.name if defined', () => {
+    const recResourceWithName = { ...mockRecResource, name: 'Special Name' };
     render(
       <RecreationResourceMap
-        recResource={{ ...mockRecResource, name: 'Special Name' }}
+        recResource={recResourceWithName}
         mapComponentCssStyles={mockMapStyles}
       />,
     );
     fireEvent.click(screen.getByRole('button', { name: /Download KML/i }));
-    expect(downloadKML).toHaveBeenCalledWith(mockFeatures, 'Special Name');
+    expect(downloadKML).toHaveBeenCalledWith(mockFeatures, recResourceWithName);
     expect(trackEvent).toHaveBeenCalledWith({
       category: 'Map',
       action: 'Download KML',
@@ -180,7 +175,7 @@ describe('RecreationResourceMap', () => {
       name: 'map-123-Download GPX',
     });
     fireEvent.click(screen.getByRole('button', { name: /Download KML/i }));
-    expect(downloadKML).toHaveBeenCalledWith(mockFeatures, 'map');
+    expect(downloadKML).toHaveBeenCalledWith(mockFeatures, resourceWithoutName);
     expect(trackEvent).toHaveBeenCalledWith({
       category: 'Map',
       action: 'Download KML',

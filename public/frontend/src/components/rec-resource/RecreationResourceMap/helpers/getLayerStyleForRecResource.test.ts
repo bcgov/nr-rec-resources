@@ -32,6 +32,10 @@ vi.mock(
   }),
 );
 
+vi.mock('@/utils/recreationResourceUtils', () => ({
+  isRecreationTrail: vi.fn(),
+}));
+
 describe('getLayerStyleForRecResource', () => {
   const mockRecResource = {
     name: 'Test Resource',
@@ -59,7 +63,7 @@ describe('getLayerStyleForRecResource', () => {
     const style = styleFunction(pointFeature, 1);
 
     expect(isPointGeometry).toHaveBeenCalledWith(pointFeature.getGeometry());
-    expect(createImageStyle).toHaveBeenCalledWith(true);
+    expect(createImageStyle).toHaveBeenCalledWith(true, mockRecResource);
     expect(createTextStyle).toHaveBeenCalledWith('Test Resource', false, true);
     expect(style).toBeInstanceOf(Style);
   });
