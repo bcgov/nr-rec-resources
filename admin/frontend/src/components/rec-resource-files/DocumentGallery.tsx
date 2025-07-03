@@ -4,12 +4,13 @@ import { GalleryCard } from "./GalleryCard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
 import { RecreationResourceDocDto } from "@/services/recreation-resource-admin";
+import { PendingRecreationResourceDocDto } from "./types";
 
 export interface DocumentGalleryProps {
-  documents: RecreationResourceDocDto[];
+  documents: PendingRecreationResourceDocDto[];
   onAction: (
     action: "view" | "download" | "delete" | "add",
-    file: RecreationResourceDocDto,
+    file: PendingRecreationResourceDocDto,
   ) => void;
   isLoading?: boolean;
   onUploadClick?: () => void;
@@ -30,21 +31,24 @@ export const DocumentGallery: React.FC<DocumentGalleryProps> = ({
     isLoading={isLoading}
     onUploadClick={onUploadClick}
     renderItem={(doc, idx) => (
-      <GalleryCard<RecreationResourceDocDto>
-        key={idx}
+      <GalleryCard<PendingRecreationResourceDocDto>
+        key={(doc as any).ref_id || idx}
         topContent={
           <FontAwesomeIcon icon={faFilePdf} size="2x" color="#d32f2f" />
         }
         filename={doc.title}
-        // todo: fix the date
-        date={new Date(doc.created_at).toLocaleString("en-CA", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-        })}
+        date={
+          doc.created_at
+            ? new Date(doc.created_at).toLocaleString("en-CA", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+              })
+            : ""
+        }
         file={doc}
         onAction={onAction}
       />

@@ -1,7 +1,7 @@
 import { useGetDocumentsByRecResourceId } from "@/services/hooks/recreation-resource-admin/useGetDocumentsByRecResourceId";
 import { RecreationResourceDocDto } from "@/services/recreation-resource-admin";
 import { downloadUrlAsFile } from "@/utils/fileUtils";
-import { Stack } from "react-bootstrap";
+import { Stack, Spinner } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import { DocumentGallery } from "./DocumentGallery";
 import { ImageGallery } from "./ImageGallery";
@@ -11,6 +11,7 @@ import { ResourceHeaderSection } from "./ResourceHeaderSection";
 import { useState } from "react";
 import { UploadFileModal } from "./UploadFileModal";
 import { useUploadResourceDocument } from "@/services/hooks/recreation-resource-admin/useUploadResourceDocument";
+import { PendingRecreationResourceDocDto } from "./types";
 
 // Reusable file input handler
 function openFilePicker(accept: string, onFile: (file: File) => void) {
@@ -43,6 +44,33 @@ export const RecResourceFilesPage = () => {
   const [showUploadOverlay, setShowUploadOverlay] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadTitle, setUploadTitle] = useState<string>("");
+  const [pendingUploads, setPendingUploads] = useState<
+    Array<PendingRecreationResourceDocDto>
+  >([
+    {
+      ref_id: "temp-123",
+      title: "Pending Upload",
+      rec_resource_id: { id: params.id || "" },
+      url: "",
+      doc_code: "RM",
+      doc_code_description: "Pending Upload",
+      extension: "jpg",
+      created_at: new Date().toISOString(),
+      isDownlading: true,
+    },
+    {
+      ref_id: "temp-123",
+      title: "Pending Upload 2",
+      rec_resource_id: { id: params.id || "" },
+      url: "",
+      doc_code: "RM",
+      doc_code_description: "Pending Upload",
+      extension: "jpg",
+      created_at: new Date().toISOString(),
+      isDownlading: true,
+      isDownloadError: true,
+    },
+  ]);
 
   // Upload mutation
   const uploadMutation = useUploadResourceDocument();
@@ -70,6 +98,45 @@ export const RecResourceFilesPage = () => {
 
   const handleUpload = () => {
     if (!selectedFile || !params.id || !uploadTitle) return;
+    // Generate a tempId for the pending upload
+    const tempId = `${Date.now()}-${Math.random()}`;
+    const isImage = /\.(jpg|jpeg|png|webp|gif|bmp|tiff)$/i.test(
+      selectedFile.name,
+    );
+    if (isImage) {
+      setPendingUploads((prev) => [
+        ...prev,
+        {
+          ref_id: tempId,
+          title: uploadTitle,
+          rec_resource_id: { id: params.id || "" },
+          url: URL.createObjectURL(selectedFile),
+          doc_code: "RM",
+          doc_code_description: "Pending Upload",
+          extension: selectedFile.name.split(".").pop() || "",
+          created_at: new Date().toISOString(),
+          isDownlading: true,
+        },
+      ]);
+    } else {
+      setPendingUploads((prev) => [
+        ...prev,
+        {
+          ref_id: tempId,
+          title: uploadTitle,
+          rec_resource_id: { id: params.id || "" },
+          url: "",
+          doc_code: "RM",
+          doc_code_description: "Pending Upload",
+          extension: selectedFile.name.split(".").pop() || "",
+          created_at: new Date().toISOString(),
+          isDownlading: true,
+        },
+      ]);
+    }
+    setShowUploadOverlay(false); // Close modal immediately
+    setSelectedFile(null);
+    setUploadTitle("");
     uploadMutation.mutate(
       {
         recResourceId: params.id,
@@ -77,17 +144,38 @@ export const RecResourceFilesPage = () => {
         title: uploadTitle,
       },
       {
-        onSuccess: () => {
-          setShowUploadOverlay(false);
-          setSelectedFile(null);
-          setUploadTitle("");
+        onSuccess: (data) => {
+          setPendingUploads((prev) => prev.filter((u) => u.ref_id !== tempId));
         },
         onError: () => {
-          // Optionally show error UI
+          setPendingUploads((prev) => prev.filter((u) => u.ref_id !== tempId));
         },
       },
     );
   };
+
+  const pendingImages = pendingUploads
+    .filter((u) => u.url && u.isDownlading)
+    .map((u) => ({
+      name: u.title,
+      date: new Date(u.created_at).toLocaleString("en-CA", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }),
+      url: u.url,
+      tempId: u.ref_id,
+      isPending: true,
+    }));
+  const allImages = [...pendingImages, ...images];
+
+  const allDocuments: PendingRecreationResourceDocDto[] = [
+    ...pendingUploads.filter((u) => !u.url && u.isDownlading),
+    ...(documents || []),
+  ];
 
   const onImageAction = (
     action: "view" | "download" | "delete" | "add",
@@ -124,13 +212,13 @@ export const RecResourceFilesPage = () => {
         immediately.
       </InfoBanner>
       <ImageGallery
-        images={images}
+        images={allImages}
         onAction={onImageAction}
         isLoading={isFetching}
         onUploadClick={handleImageUploadTileClick}
       />
       <DocumentGallery
-        documents={documents}
+        documents={allDocuments}
         onAction={onDocumentAction}
         isLoading={isFetching}
         onUploadClick={handleDocumentUploadTileClick}

@@ -11,6 +11,7 @@ import {
   faEllipsisV,
   faEye,
   faTrash,
+  faFilePdf,
 } from "@fortawesome/free-solid-svg-icons";
 import "./Gallery.scss";
 
@@ -26,46 +27,99 @@ const cardActions = [
   { key: "view", icon: faEye, label: "View", className: "" },
   { key: "download", icon: faCloudDownload, label: "Download", className: "" },
   { key: "delete", icon: faTrash, label: "Delete", className: "text-danger" },
-  // Optionally add an 'add' action here if you want a button for it:
-  // { key: "add", icon: faPlus, label: "Add", className: "text-success" },
 ];
 
-export const GalleryCard = <T,>({
+export const GalleryCard = <
+  T extends { isDownlading?: boolean; isDownloadError?: boolean },
+>({
   topContent,
   filename,
   date,
   file,
   onAction,
 }: GalleryCardProps<T>) => {
+  const isFileUploadError = file.isDownloadError;
+  const isFileDownloadPending = file.isDownlading;
   return (
-    <Card className="gallery-card p-0">
-      <Card.Body className="gallery-card-top d-flex flex-column align-items-center justify-content-center p-0">
-        <div className="gallery-card-top-hover">
-          {cardActions.map(({ key, icon, label }) => (
-            <OverlayTrigger
-              key={key}
-              placement="bottom"
-              overlay={<Tooltip id={`tooltip-${key}`}>{label}</Tooltip>}
-            >
-              <Button
-                variant="link"
-                onClick={() =>
-                  onAction(key as "view" | "download" | "delete" | "add", file)
-                }
-              >
-                <FontAwesomeIcon icon={icon} />
-              </Button>
-            </OverlayTrigger>
-          ))}
-        </div>
-        {topContent}
+    <Card
+      className={[
+        "gallery-card p-0",
+        isFileUploadError ? "gallery-card-error" : "",
+      ].join(" ")}
+    >
+      <Card.Body
+        className={[
+          "gallery-card-top d-flex flex-column align-items-center justify-content-center p-0",
+          isFileUploadError
+            ? "gallery-card-top-error"
+            : isFileDownloadPending
+              ? "gallery-card-top-pending"
+              : "",
+        ].join(" ")}
+        style={{
+          minHeight: 120,
+          position: "relative",
+        }}
+      >
+        {isFileUploadError ? (
+          <div className="gallery-card-upload-error">
+            <FontAwesomeIcon
+              icon={faFilePdf}
+              size="2x"
+              className="fa-file-pdf"
+            />
+            <div className="gallery-card-upload-failed">Upload Failed</div>
+          </div>
+        ) : isFileDownloadPending ? (
+          <div className="gallery-card-upload-pending">
+            <span
+              className="spinner-border text-dark mb-2"
+              style={{ width: 36, height: 36 }}
+              role="status"
+              aria-hidden="true"
+            />
+            <div style={{ fontWeight: 500, marginBottom: 8 }}>Uploading</div>
+          </div>
+        ) : (
+          <>
+            <div className="gallery-card-top-hover">
+              {cardActions.map(({ key, icon, label }) => (
+                <OverlayTrigger
+                  key={key}
+                  placement="bottom"
+                  overlay={<Tooltip id={`tooltip-${key}`}>{label}</Tooltip>}
+                >
+                  <Button
+                    variant="link"
+                    onClick={() =>
+                      onAction(
+                        key as "view" | "download" | "delete" | "add",
+                        file,
+                      )
+                    }
+                  >
+                    <FontAwesomeIcon icon={icon} />
+                  </Button>
+                </OverlayTrigger>
+              ))}
+            </div>
+            {topContent}
+          </>
+        )}
       </Card.Body>
       <Card.Body
         className="gallery-card-body d-flex flex-column gap-1 pt-2 pb-2"
         style={{ borderTop: "1px solid var(--bs-border-color-translucent)" }}
       >
-        <Row className="gallery-card-row align-items-start">
-          <Col className="gallery-card-filename fw-bold" xs="auto" md={10}>
+        <Row className="gallery-card-row align-items-center">
+          <Col
+            className={[
+              "gallery-card-filename fw-bold",
+              isFileUploadError ? "gallery-card-filename-error" : "",
+            ].join(" ")}
+            xs="auto"
+            md={10}
+          >
             <OverlayTrigger
               placement="top"
               overlay={<Tooltip id={`tooltip-filename`}>{filename}</Tooltip>}
@@ -79,7 +133,7 @@ export const GalleryCard = <T,>({
                 variant="link"
                 className="gallery-card-menu p-0 border-0 shadow-none"
                 style={{ color: "inherit" }}
-                as="span"
+                disabled={isFileDownloadPending || isFileUploadError}
               >
                 <FontAwesomeIcon icon={faEllipsisV} />
               </Dropdown.Toggle>
@@ -107,7 +161,10 @@ export const GalleryCard = <T,>({
           </Col>
         </Row>
         <div
-          className="gallery-card-date text-muted"
+          className={[
+            "gallery-card-date",
+            isFileUploadError ? "gallery-card-date-error" : "text-muted",
+          ].join(" ")}
           style={{ fontSize: "0.92rem" }}
         >
           {date}
