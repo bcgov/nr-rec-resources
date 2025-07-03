@@ -37,6 +37,7 @@ export function buildFilterOptionCountsQuery({
            recreation_resource_type_code, has_toilets, has_tables
     FROM recreation_resource_search_view
     ${whereClause}
+    LIMIT 5000
   ),
   filtered_ids AS (
     SELECT ARRAY_AGG(rec_resource_id) AS rec_resource_ids
