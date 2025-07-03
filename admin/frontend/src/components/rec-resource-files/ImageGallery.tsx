@@ -3,11 +3,18 @@ import { GalleryAccordion } from "./GalleryAccordion";
 import { GalleryCard } from "./GalleryCard";
 import { Image } from "react-bootstrap";
 
+export interface ImageGalleryImage {
+  name: string;
+  date: string;
+  url: string;
+  tempId?: string;
+}
+
 export interface ImageGalleryProps {
-  images: { name: string; date: string; url: string }[];
+  images: ImageGalleryImage[];
   onAction: (
     action: "view" | "download" | "delete" | "add",
-    file: { name: string; date: string; url: string },
+    file: ImageGalleryImage,
   ) => void;
   isLoading?: boolean;
   onUploadClick?: () => void;
@@ -28,8 +35,15 @@ export const ImageGallery: React.FC<ImageGalleryProps> = ({
     isLoading={isLoading}
     onUploadClick={onUploadClick}
     renderItem={(img, idx) => (
-      <GalleryCard<{ name: string; date: string; url: string }>
-        key={idx}
+      <GalleryCard<{
+        name: string;
+        date: string;
+        url: string;
+        tempId?: string;
+        isDownlading?: boolean;
+        isDownloadError?: boolean;
+      }>
+        key={img.tempId || idx}
         topContent={
           <Image src={img.url} alt={img.name} width={"100%"} height={"100%"} />
         }

@@ -32,6 +32,14 @@
             opacity: 1;
           }
         }
+
+        &.gallery-card-top-error {
+          background: #fcf0f0;
+          color: $colorRed;
+        }
+        &.gallery-card-top-pending {
+          background: #f5f5f5;
+        }
       }
 
       .gallery-card-top-hover {
@@ -88,6 +96,49 @@
       .gallery-card-date {
         font-size: 0.92rem;
         color: $colorGreyMed;
+      }
+
+      .gallery-card-upload-error {
+        width: 100%;
+        text-align: center;
+        padding: 24px 0 8px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: $colorRed;
+        font-weight: 500;
+
+        .fa-file-pdf {
+          margin-bottom: 8px;
+        }
+
+        .gallery-card-upload-failed {
+          margin-bottom: 8px;
+        }
+      }
+
+      .gallery-card-upload-pending {
+        width: 100%;
+        text-align: center;
+        padding: 24px 0 8px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      &.gallery-card-error {
+        border: 1px solid $colorRed !important;
+      }
+
+      .gallery-card-filename-error {
+        color: $colorRed !important;
+        font-weight: bold;
+      }
+
+      .gallery-card-date-error {
+        color: $colorRed !important;
       }
     }
 
