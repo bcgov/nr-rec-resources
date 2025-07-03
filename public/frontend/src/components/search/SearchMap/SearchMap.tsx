@@ -17,11 +17,17 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
 
   const { layer: clusteredRecreationFeatureLayer } =
     useClusteredRecreationFeatureLayer(recResourceIds, {
-      animationDuration: 500,
-      declutter: false,
-      updateWhileAnimating: false,
-      updateWhileInteracting: false,
-      renderBuffer: 300,
+      clusterOptions: {
+        distance: 50,
+        minDistance: 30,
+      },
+      animatedClusterOptions: {
+        animationDuration: 500,
+        declutter: false,
+        updateWhileAnimating: false,
+        updateWhileInteracting: false,
+        renderBuffer: 300,
+      },
     });
 
   useZoomToExtent(mapRef, extent);
