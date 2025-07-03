@@ -91,7 +91,7 @@ export class ResourceDocsService {
     if (resource === null) {
       throw new HttpException("Recreation Resource not found", 404);
     }
-    const ref_id = await createResource();
+    const ref_id = await createResource(title);
     await uploadFile(ref_id, file);
     await addResourceToCollection(ref_id);
     const files = await getResourcePath(ref_id);

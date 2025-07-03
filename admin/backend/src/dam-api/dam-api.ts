@@ -44,19 +44,23 @@ async function axiosPost(formData) {
     });
 }
 
-export async function createResource() {
+/**
+ * Creates a new resource in the Digital Asset Management (DAM) system.
+ * @param title The title of the resource to create.
+ */
+export async function createResource(title: string) {
   try {
     const params: any = {
       user,
       function: "create_resource",
+      metadata: JSON.stringify({ title }),
       resource_type: 1,
       archive: 0,
     };
     const formData = createFormData(params);
 
     return await axiosPost(formData);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (ex) {
+  } catch (ex: unknown) {
     throw new HttpException(
       "Error creating resource.",
       DamErrors.ERR_CREATING_RESOURCE,
