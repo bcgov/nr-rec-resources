@@ -4,8 +4,6 @@ import * as recreationLayer from '@/components/search/SearchMap/layers/recreatio
 import { useClusteredRecreationFeatureLayer } from '@/components/search/SearchMap/hooks/useClusteredRecreationFeatureLayer';
 
 describe('useClusteredRecreationFeatureLayer', () => {
-  const mockSetSource = vi.fn();
-
   beforeEach(() => {
     vi.spyOn(
       recreationLayer,
@@ -14,34 +12,30 @@ describe('useClusteredRecreationFeatureLayer', () => {
     vi.spyOn(
       recreationLayer,
       'createClusteredRecreationFeatureLayer',
-    ).mockImplementation(
-      () => ({ layer: 'mockLayer', setSource: mockSetSource }) as any,
-    );
+    ).mockImplementation(() => ({ layer: 'mockLayer' }) as any);
   });
 
   it('returns clustered layer, source, and style', () => {
     const { result } = renderHook(() =>
-      useClusteredRecreationFeatureLayer(['1', '2']),
+      useClusteredRecreationFeatureLayer(['1', '2'], 'EPSG:3857'),
     );
 
     expect(
       recreationLayer.createClusteredRecreationFeatureSource,
-    ).toHaveBeenCalledTimes(2);
+    ).toHaveBeenCalledTimes(1);
     expect(
       recreationLayer.createClusteredRecreationFeatureLayer,
     ).toHaveBeenCalledTimes(1);
-    expect(mockSetSource).toHaveBeenCalled();
 
     expect(result.current.source).toEqual({ source: 'mockSource' });
     expect(result.current.layer).toEqual({
       layer: 'mockLayer',
-      setSource: mockSetSource,
     });
   });
 
   it('recreates source when recResourceIds change', () => {
     const { rerender } = renderHook(
-      ({ ids }) => useClusteredRecreationFeatureLayer(ids),
+      ({ ids }) => useClusteredRecreationFeatureLayer(ids, 'EPSG:3857'),
       {
         initialProps: { ids: ['1', '2'] },
       },
@@ -51,6 +45,6 @@ describe('useClusteredRecreationFeatureLayer', () => {
 
     expect(
       recreationLayer.createClusteredRecreationFeatureSource,
-    ).toHaveBeenCalledTimes(4);
+    ).toHaveBeenCalledTimes(2);
   });
 });
