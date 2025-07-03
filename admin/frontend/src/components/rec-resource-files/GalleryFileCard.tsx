@@ -14,25 +14,30 @@ import {
   faFilePdf,
 } from "@fortawesome/free-solid-svg-icons";
 import "./Gallery.scss";
-import { GalleryFile } from "./types";
+import { GalleryFile, GalleryAction } from "./types";
 
-export interface GalleryCardProps<T extends GalleryFile> {
+export interface GalleryFileCardProps<T extends GalleryFile> {
   topContent?: React.ReactNode;
   file: T;
-  onAction: (action: "view" | "download" | "delete" | "add", file: T) => void;
+  onAction: (action: GalleryAction, file: T) => void;
 }
 
-const cardActions = [
+const cardActions: {
+  key: GalleryAction;
+  icon: any;
+  label: string;
+  className: string;
+}[] = [
   { key: "view", icon: faEye, label: "View", className: "" },
   { key: "download", icon: faCloudDownload, label: "Download", className: "" },
   { key: "delete", icon: faTrash, label: "Delete", className: "text-danger" },
 ];
 
-export const GalleryCard = <T extends GalleryFile>({
+export const GalleryFileCard = <T extends GalleryFile>({
   topContent,
   file,
   onAction,
-}: GalleryCardProps<T>) => {
+}: GalleryFileCardProps<T>) => {
   const isFileUploadError = file.uploadFailed;
   const isFileDownloadPending = file.isUploading;
   const filename = file.name || "Untitled";
@@ -86,15 +91,7 @@ export const GalleryCard = <T extends GalleryFile>({
                   placement="bottom"
                   overlay={<Tooltip id={`tooltip-${key}`}>{label}</Tooltip>}
                 >
-                  <Button
-                    variant="link"
-                    onClick={() =>
-                      onAction(
-                        key as "view" | "download" | "delete" | "add",
-                        file,
-                      )
-                    }
-                  >
+                  <Button variant="link" onClick={() => onAction(key, file)}>
                     <FontAwesomeIcon icon={icon} />
                   </Button>
                 </OverlayTrigger>
@@ -139,12 +136,7 @@ export const GalleryCard = <T extends GalleryFile>({
                   <Dropdown.Item
                     eventKey={key}
                     key={key}
-                    onClick={() =>
-                      onAction(
-                        key as "view" | "download" | "delete" | "add",
-                        file,
-                      )
-                    }
+                    onClick={() => onAction(key, file)}
                   >
                     <FontAwesomeIcon
                       icon={icon}

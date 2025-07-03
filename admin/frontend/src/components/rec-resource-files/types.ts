@@ -22,3 +22,5 @@ export interface GalleryDocument extends GalleryFile {
   doc_code_description?: string;
   rec_resource_id: string;
 }
+
+export type GalleryAction = "view" | "download" | "delete" | "add";

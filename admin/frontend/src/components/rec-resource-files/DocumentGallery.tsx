@@ -1,16 +1,13 @@
 import React from "react";
 import { GalleryAccordion } from "./GalleryAccordion";
-import { GalleryCard } from "./GalleryCard";
+import { GalleryFileCard } from "./GalleryFileCard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
-import { GalleryDocument } from "./types";
+import { GalleryDocument, GalleryAction } from "./types";
 
 export interface DocumentGalleryProps {
   documents: GalleryDocument[];
-  onAction: (
-    action: "view" | "download" | "delete" | "add",
-    file: GalleryDocument,
-  ) => void;
+  onAction: (action: GalleryAction, file: GalleryDocument) => void;
   isLoading?: boolean;
   onUploadClick?: () => void;
 }
@@ -30,7 +27,7 @@ export const DocumentGallery: React.FC<DocumentGalleryProps> = ({
     isLoading={isLoading}
     onUploadClick={onUploadClick}
     renderItem={(doc) => (
-      <GalleryCard<GalleryDocument>
+      <GalleryFileCard<GalleryDocument>
         key={doc.id}
         topContent={
           <FontAwesomeIcon icon={faFilePdf} size="2x" color="#d32f2f" />
