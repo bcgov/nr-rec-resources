@@ -3,13 +3,13 @@ import { screen } from '@testing-library/react';
 import { vi, Mock } from 'vitest';
 import { useStore } from '@tanstack/react-store';
 import SearchMap from '@/components/search/SearchMap/SearchMap';
+import { useZoomToExtent } from '@/components/search/SearchMap/hooks/useZoomToExtent';
 import { renderWithQueryClient } from '@/test-utils';
 
 const fitMock = vi.fn();
 const getZoomMock = vi.fn(() => 8);
 const setZoomMock = vi.fn();
 const getExtentMock = vi.fn(() => [0, 0, 100, 100]);
-const setStyleMock = vi.fn();
 const setSourceMock = vi.fn();
 
 vi.mock('@tanstack/react-store', async () => {
@@ -34,17 +34,14 @@ vi.mock('ol/format/GeoJSON', () => ({
   })),
 }));
 
-vi.mock('ol/layer/Vector', () => ({
-  default: vi.fn().mockImplementation(() => ({
-    setStyle: setStyleMock,
-  })),
+vi.mock('@/components/search/SearchMap/hooks/useZoomToExtent', () => ({
+  useZoomToExtent: vi.fn(),
 }));
 
 vi.mock('@/components/search/SearchMap/layers/recreationFeatureLayer', () => ({
   createClusteredRecreationFeatureSource: vi.fn(),
   createClusteredRecreationFeatureStyle: vi.fn(() => 'mock-cluster-style'),
   createClusteredRecreationFeatureLayer: vi.fn(() => ({
-    setStyle: setStyleMock,
     setSource: setSourceMock,
   })),
 }));
@@ -114,7 +111,7 @@ describe('SearchMap', () => {
     expect(container).toHaveStyle('height: 400px');
   });
 
-  it('updates layer styles on recResourceIds/pages change', () => {
+  it('updates layer source on recResourceIds/pages change', () => {
     (useStore as Mock).mockReturnValue({
       extent: null,
       pages: [{ id: 1 }],
@@ -123,11 +120,10 @@ describe('SearchMap', () => {
 
     renderWithQueryClient(<SearchMap />);
 
-    expect(setStyleMock).toHaveBeenCalledTimes(1);
     expect(setSourceMock).toHaveBeenCalledTimes(1);
   });
 
-  it('zooms to extent when extent is provided', async () => {
+  it('calls useZoomToExtent with correct args', () => {
     const mockExtent = JSON.stringify({
       type: 'Polygon',
       coordinates: [
@@ -147,37 +143,11 @@ describe('SearchMap', () => {
       recResourceIds: [],
     });
 
-    const { transformExtent } = await import('ol/proj');
-
     renderWithQueryClient(<SearchMap />);
 
-    expect(transformExtent).toHaveBeenCalledWith(
-      [0, 0, 100, 100],
-      'EPSG:3005',
-      'EPSG:3857',
+    expect(useZoomToExtent).toHaveBeenCalledWith(
+      expect.any(Object),
+      mockExtent,
     );
-
-    expect(fitMock).toHaveBeenCalledWith([0, 0, 100, 100], {
-      padding: [50, 50, 50, 50],
-      maxZoom: 16,
-      duration: 500,
-    });
-
-    expect(getZoomMock).toHaveBeenCalled();
-    expect(setZoomMock).toHaveBeenCalledWith(8.01);
-    expect(setSourceMock).toHaveBeenCalledTimes(1);
-  });
-
-  it('does not attempt to fit map when extent is null', () => {
-    (useStore as Mock).mockReturnValue({
-      extent: null,
-      pages: [],
-      recResourceIds: [],
-    });
-
-    renderWithQueryClient(<SearchMap />);
-
-    expect(fitMock).not.toHaveBeenCalled();
-    expect(setZoomMock).not.toHaveBeenCalled();
   });
 });
