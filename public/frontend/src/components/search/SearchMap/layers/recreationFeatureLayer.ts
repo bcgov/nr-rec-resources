@@ -89,7 +89,7 @@ export const createRecreationFeatureSource = (
   },
 ) => {
   const format = new EsriJSON();
-  const batchSize = 1000;
+  const batchSize = 1000; // arcgis api has a limit of 1000 records per request
   const filteredSet = new Set(filteredIds);
 
   const source = new VectorSource({
