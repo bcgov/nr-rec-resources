@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Options as ClusterOptions } from 'ol/source/Cluster';
 import {
+  recreationSource,
+  loadFeaturesForFilteredIds,
   createClusteredRecreationFeatureSource,
   createClusteredRecreationFeatureStyle,
   createClusteredRecreationFeatureLayer,
@@ -9,39 +11,32 @@ import { AnimatedClusterOptions } from '@/components/search/SearchMap/types';
 
 export const useClusteredRecreationFeatureLayer = (
   recResourceIds: string[],
+  mapProjection: string,
   options?: {
     clusterOptions?: ClusterOptions;
     animatedClusterOptions?: AnimatedClusterOptions;
   },
 ) => {
-  const clusteredSource = useMemo(
-    () =>
-      createClusteredRecreationFeatureSource(
-        recResourceIds,
-        options?.clusterOptions,
-      ),
-    [options, recResourceIds],
+  const clusterSourceRef = useRef(
+    createClusteredRecreationFeatureSource(options?.clusterOptions),
   );
 
   const layerRef = useRef(
     createClusteredRecreationFeatureLayer(
-      clusteredSource,
+      clusterSourceRef.current,
       createClusteredRecreationFeatureStyle,
       options?.animatedClusterOptions,
     ),
   );
 
   useEffect(() => {
-    const newSource = createClusteredRecreationFeatureSource(
-      recResourceIds,
-      options?.clusterOptions,
-    );
-    layerRef.current.setSource(newSource);
-  }, [options, recResourceIds]);
+    if (!mapProjection) return;
+    loadFeaturesForFilteredIds(recResourceIds, recreationSource, mapProjection);
+  }, [recResourceIds, mapProjection]);
 
   return {
     layer: layerRef.current,
-    source: clusteredSource,
+    source: clusterSourceRef.current,
     style: createClusteredRecreationFeatureStyle,
   };
 };

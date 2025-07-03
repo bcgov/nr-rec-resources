@@ -10,7 +10,6 @@ const fitMock = vi.fn();
 const getZoomMock = vi.fn(() => 8);
 const setZoomMock = vi.fn();
 const getExtentMock = vi.fn(() => [0, 0, 100, 100]);
-const setSourceMock = vi.fn();
 
 vi.mock('@tanstack/react-store', async () => {
   const actual = await vi.importActual('@tanstack/react-store');
@@ -41,9 +40,12 @@ vi.mock('@/components/search/SearchMap/hooks/useZoomToExtent', () => ({
 vi.mock('@/components/search/SearchMap/layers/recreationFeatureLayer', () => ({
   createClusteredRecreationFeatureSource: vi.fn(),
   createClusteredRecreationFeatureStyle: vi.fn(() => 'mock-cluster-style'),
-  createClusteredRecreationFeatureLayer: vi.fn(() => ({
-    setSource: setSourceMock,
-  })),
+  createClusteredRecreationFeatureLayer: vi.fn(),
+  loadFeaturesForFilteredIds: vi.fn(() => Promise.resolve()),
+  recreationSource: {
+    clear: vi.fn(),
+    addFeatures: vi.fn(),
+  },
 }));
 
 vi.mock('@bcgov/prp-map', () => ({
@@ -109,18 +111,6 @@ describe('SearchMap', () => {
 
     const container = document.querySelector('.search-map-container');
     expect(container).toHaveStyle('height: 400px');
-  });
-
-  it('updates layer source on recResourceIds/pages change', () => {
-    (useStore as Mock).mockReturnValue({
-      extent: null,
-      pages: [{ id: 1 }],
-      recResourceIds: ['rec1', 'rec2'],
-    });
-
-    renderWithQueryClient(<SearchMap />);
-
-    expect(setSourceMock).toHaveBeenCalledTimes(1);
   });
 
   it('calls useZoomToExtent with correct args', () => {
