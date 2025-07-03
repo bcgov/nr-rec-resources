@@ -1,4 +1,4 @@
-import { RecreationResourceDocDto } from '../recreation-resource-admin';
+import { RecreationResourceDocDto } from "../recreation-resource-admin";
 
 /**
  * Gets the base URL for asset storage.
@@ -6,7 +6,7 @@ import { RecreationResourceDocDto } from '../recreation-resource-admin';
  */
 export const getBasePathForAssets = (): string =>
   import.meta.env.VITE_RECREATION_RESOURCE_ASSETS_BASE_URL ||
-  'https://dam.lqc63d-prod.nimbus.cloud.gov.bc.ca';
+  "https://dam.lqc63d-prod.nimbus.cloud.gov.bc.ca";
 
 /**
  * Transforms recreation resource data by updating image URLs with full asset paths.

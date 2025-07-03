@@ -7,7 +7,7 @@
 export function downloadBlobAsFile(blob: Blob, fileName: string) {
   try {
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
     link.download = fileName;
     document.body.appendChild(link);
@@ -15,7 +15,7 @@ export function downloadBlobAsFile(blob: Blob, fileName: string) {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   } catch (error) {
-    console.error('Download failed:', error);
+    console.error("Download failed:", error);
   }
 }
 
@@ -27,11 +27,11 @@ export function downloadBlobAsFile(blob: Blob, fileName: string) {
  */
 export async function downloadUrlAsFile(url: string, fileName: string) {
   try {
-    const response = await fetch(url, { mode: 'cors' });
-    if (!response.ok) throw new Error('Failed to fetch file');
+    const response = await fetch(url, { mode: "cors" });
+    if (!response.ok) throw new Error("Failed to fetch file");
     const blob = await response.blob();
     downloadBlobAsFile(blob, fileName);
   } catch (error) {
-    console.error('Download failed:', error);
+    console.error("Download failed:", error);
   }
 }

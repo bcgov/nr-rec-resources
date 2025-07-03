@@ -15,15 +15,15 @@
 import * as runtime from "../runtime";
 import type {
   BadRequestResponseDto,
-  FileUploadDto,
+  RecreationResourceDocBodyDto,
   RecreationResourceDocDto,
   SuggestionsResponseDto,
 } from "../models/index";
 import {
   BadRequestResponseDtoFromJSON,
   BadRequestResponseDtoToJSON,
-  FileUploadDtoFromJSON,
-  FileUploadDtoToJSON,
+  RecreationResourceDocBodyDtoFromJSON,
+  RecreationResourceDocBodyDtoToJSON,
   RecreationResourceDocDtoFromJSON,
   RecreationResourceDocDtoToJSON,
   SuggestionsResponseDtoFromJSON,
@@ -32,7 +32,8 @@ import {
 
 export interface CreateDocumentResourceRequest {
   recResourceId: string;
-  fileUploadDto: FileUploadDto;
+  title: string;
+  file: Blob;
 }
 
 export interface DeleteDocumentResourceRequest {
@@ -56,7 +57,7 @@ export interface GetRecreationResourceSuggestionsRequest {
 export interface UpdateDocumentResourceRequest {
   recResourceId: string;
   refId: string;
-  fileUploadDto?: FileUploadDto;
+  recreationResourceDocBodyDto: RecreationResourceDocBodyDto;
 }
 
 /**
@@ -77,18 +78,23 @@ export class RecreationResourceApi extends runtime.BaseAPI {
       );
     }
 
-    if (requestParameters["fileUploadDto"] == null) {
+    if (requestParameters["title"] == null) {
       throw new runtime.RequiredError(
-        "fileUploadDto",
-        'Required parameter "fileUploadDto" was null or undefined when calling createDocumentResource().',
+        "title",
+        'Required parameter "title" was null or undefined when calling createDocumentResource().',
+      );
+    }
+
+    if (requestParameters["file"] == null) {
+      throw new runtime.RequiredError(
+        "file",
+        'Required parameter "file" was null or undefined when calling createDocumentResource().',
       );
     }
 
     const queryParameters: any = {};
 
     const headerParameters: runtime.HTTPHeaders = {};
-
-    headerParameters["Content-Type"] = "application/json";
 
     if (this.configuration && this.configuration.accessToken) {
       const token = this.configuration.accessToken;
@@ -98,6 +104,30 @@ export class RecreationResourceApi extends runtime.BaseAPI {
         headerParameters["Authorization"] = `Bearer ${tokenString}`;
       }
     }
+    const consumes: runtime.Consume[] = [
+      { contentType: "multipart/form-data" },
+    ];
+    // @ts-ignore: canConsumeForm may be unused
+    const canConsumeForm = runtime.canConsumeForm(consumes);
+
+    let formParams: { append(param: string, value: any): any };
+    let useForm = false;
+    // use FormData to transmit files using content-type "multipart/form-data"
+    useForm = canConsumeForm;
+    if (useForm) {
+      formParams = new FormData();
+    } else {
+      formParams = new URLSearchParams();
+    }
+
+    if (requestParameters["title"] != null) {
+      formParams.append("title", requestParameters["title"] as any);
+    }
+
+    if (requestParameters["file"] != null) {
+      formParams.append("file", requestParameters["file"] as any);
+    }
+
     const response = await this.request(
       {
         path: `/api/v1/recreation-resource/{rec_resource_id}/docs`.replace(
@@ -107,7 +137,7 @@ export class RecreationResourceApi extends runtime.BaseAPI {
         method: "POST",
         headers: headerParameters,
         query: queryParameters,
-        body: FileUploadDtoToJSON(requestParameters["fileUploadDto"]),
+        body: formParams,
       },
       initOverrides,
     );
@@ -409,6 +439,13 @@ export class RecreationResourceApi extends runtime.BaseAPI {
       );
     }
 
+    if (requestParameters["recreationResourceDocBodyDto"] == null) {
+      throw new runtime.RequiredError(
+        "recreationResourceDocBodyDto",
+        'Required parameter "recreationResourceDocBodyDto" was null or undefined when calling updateDocumentResource().',
+      );
+    }
+
     const queryParameters: any = {};
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -437,7 +474,9 @@ export class RecreationResourceApi extends runtime.BaseAPI {
         method: "PUT",
         headers: headerParameters,
         query: queryParameters,
-        body: FileUploadDtoToJSON(requestParameters["fileUploadDto"]),
+        body: RecreationResourceDocBodyDtoToJSON(
+          requestParameters["recreationResourceDocBodyDto"],
+        ),
       },
       initOverrides,
     );
