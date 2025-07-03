@@ -58,7 +58,7 @@ export class RecreationResourceDocDto {
   created_at: string | null;
 }
 
-export class RecreationResourceDocBodyDto {
+export class CreateRecreationResourceDocBodyDto {
   @ApiProperty({
     description: "Doc title",
     example: "Campbell river site map",
@@ -66,7 +66,7 @@ export class RecreationResourceDocBodyDto {
     maxLength: 100,
     type: String,
   })
-  @Matches(/^[A-Za-z0-9 "'()#.&/]+$/, {
+  @Matches(/^[A-Za-z0-9-_'(). ]+$/, {
     message:
       "document title can only contain alphanumeric characters and spaces",
   })
@@ -75,7 +75,27 @@ export class RecreationResourceDocBodyDto {
   title: string;
 }
 
+// todo: remove this class and associated tests
 export class FileUploadDto {
+  @ApiProperty({
+    type: "string",
+    format: "binary",
+    description: "File to upload",
+  })
+  file: any;
+}
+
+export class CreateRecreationResourceDocFormDto {
+  @ApiProperty({
+    description: "Document title",
+    example: "Campbell river site map",
+    minLength: 3,
+    maxLength: 100,
+    pattern: "^[A-Za-z0-9-_'(). ]+$",
+    type: String,
+  })
+  title: string;
+
   @ApiProperty({
     type: "string",
     format: "binary",

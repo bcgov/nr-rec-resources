@@ -1,18 +1,18 @@
-import { useRecreationResourceAdminApiClient } from '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient';
-import { useQuery } from '@tanstack/react-query';
+import { useRecreationResourceAdminApiClient } from "@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient";
+import { useQuery } from "@tanstack/react-query";
 import {
   RecreationResourceDocDto,
   ResponseError,
-} from '@/services/recreation-resource-admin';
-import { showNotification } from '@/store/notificationStore';
-import { transformRecreationResourceDocs } from '../helpers';
+} from "@/services/recreation-resource-admin";
+import { showNotification } from "@/store/notificationStore";
+import { transformRecreationResourceDocs } from "../helpers";
 
 export const useGetDocumentsByRecResourceId = (recResourceId: string) => {
   const recreationResourceAdminApiClient =
     useRecreationResourceAdminApiClient();
 
   return useQuery<RecreationResourceDocDto[], ResponseError>({
-    queryKey: ['getDocumentsByRecResourceId', recResourceId],
+    queryKey: ["getDocumentsByRecResourceId", recResourceId],
     initialData: [],
     queryFn: async () => {
       const docs =
@@ -24,9 +24,9 @@ export const useGetDocumentsByRecResourceId = (recResourceId: string) => {
     retry: (retryCount, error) => {
       if (retryCount >= 2) {
         showNotification(
-          'Failed to load documents after multiple attempts. Please try again later.',
-          'danger',
-          'getDocumentsByRecResourceId-error',
+          "Failed to load documents after multiple attempts. Please try again later.",
+          "danger",
+          "getDocumentsByRecResourceId-error",
         );
         return false; // Stop retrying after 3 attempts
       }

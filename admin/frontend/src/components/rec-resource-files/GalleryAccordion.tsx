@@ -1,8 +1,8 @@
-import React from 'react';
-import { Accordion, Row, Col, Stack, Spinner } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
-import './Gallery.scss';
+import React from "react";
+import { Accordion, Row, Col, Stack, Spinner } from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
+import "./Gallery.scss";
 
 interface GalleryAccordionProps<T> {
   eventKey: string;
@@ -22,14 +22,14 @@ export function GalleryAccordion<T>({
   items,
   renderItem,
   onUploadClick,
-  uploadLabel = 'Upload',
+  uploadLabel = "Upload",
   isLoading = false,
 }: GalleryAccordionProps<T>) {
   return (
     <Accordion defaultActiveKey={eventKey} className="gallery-accordion">
       <Accordion.Item eventKey={eventKey}>
         <Accordion.Header>
-          <span style={{ fontWeight: 600, fontSize: '1.15rem' }}>
+          <span style={{ fontWeight: 600, fontSize: "1.15rem" }}>
             {title} ({items.length})
           </span>
         </Accordion.Header>
