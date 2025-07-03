@@ -124,10 +124,6 @@ const LocationSearch: React.FC = () => {
     selectedCity,
   ]);
 
-  useEffect(() => {
-    console.log('permissionDeniedCount', permissionDeniedCount);
-  }, [permissionDeniedCount]);
-
   return (
     <>
       <Typeahead

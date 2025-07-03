@@ -27,6 +27,10 @@ export class RecreationResourceController {
   @ApiOperation({
     summary: "Search recreation resources",
     operationId: "searchRecreationResources",
+    description: `
+      Returns a paginated list of recreation resources and related data (result counts, filters, extent).
+      The unpaginated summary data (counts, filters, extent) is based on the first 5000 matching records only, due
+      to internal limits for performance reasons. This limit does not affect the main paginated resource list.`,
   })
   @ApiQuery({
     name: "filter",

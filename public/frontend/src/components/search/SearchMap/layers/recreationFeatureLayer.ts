@@ -36,8 +36,7 @@ export const createRecreationIconStyle = (filteredIds: string[] = []) => {
 
   return (feature: FeatureLike): Style | undefined => {
     const id = feature.get('FOREST_FILE_ID');
-
-    if (filteredSet.size > 0 && !filteredSet.has(id)) return undefined;
+    if (filteredSet.size === 0 || !filteredSet.has(id)) return undefined;
 
     const isClosed = feature.get('CLOSURE_IND') === 'Y';
     const key = `icon-${isClosed}`;
@@ -49,7 +48,7 @@ export const createRecreationIconStyle = (filteredIds: string[] = []) => {
       iconStyleCache.set(key, new Style({ image: icon ?? undefined }));
     }
 
-    return iconStyleCache.get(key)!;
+    return iconStyleCache.get(key);
   };
 };
 
@@ -59,7 +58,7 @@ export const createRecreationLabelStyle = (filteredIds: string[] = []) => {
   return (feature: FeatureLike): Style | undefined => {
     const id = feature.get('FOREST_FILE_ID');
 
-    if (filteredSet.size > 0 && !filteredSet.has(id)) return undefined;
+    if (filteredSet.size === 0 || !filteredSet.has(id)) return undefined;
 
     const name = feature.get('PROJECT_NAME');
     if (!name) return;

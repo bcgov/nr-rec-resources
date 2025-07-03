@@ -11,6 +11,8 @@ export const initialState = {
   totalCount: 0,
   pages: [],
   pageParams: [],
+  recResourceIds: [],
+  extent: undefined,
 };
 
 export interface SearchResultsStore {
@@ -19,6 +21,8 @@ export interface SearchResultsStore {
   totalCount: number;
   filters: FilterMenuContent[];
   pageParams: SearchRecreationResourcesRequest[];
+  recResourceIds: string[];
+  extent?: string;
 }
 
 const searchResultsStore = new Store<SearchResultsStore>(initialState);
