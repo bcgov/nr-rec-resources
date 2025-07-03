@@ -1,10 +1,13 @@
-import Card from "react-bootstrap/Card";
-import Row from "react-bootstrap/Row";
-import Col from "react-bootstrap/Col";
-import Dropdown from "react-bootstrap/Dropdown";
-import Button from "react-bootstrap/Button";
-import OverlayTrigger from "react-bootstrap/OverlayTrigger";
-import Tooltip from "react-bootstrap/Tooltip";
+import {
+  Card,
+  Row,
+  Col,
+  Dropdown,
+  Button,
+  OverlayTrigger,
+  Tooltip,
+  Stack,
+} from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faCloudDownload,
@@ -26,11 +29,10 @@ const cardActions: {
   key: GalleryAction;
   icon: any;
   label: string;
-  className: string;
 }[] = [
-  { key: "view", icon: faEye, label: "View", className: "" },
-  { key: "download", icon: faCloudDownload, label: "Download", className: "" },
-  { key: "delete", icon: faTrash, label: "Delete", className: "text-danger" },
+  { key: "view", icon: faEye, label: "View" },
+  { key: "download", icon: faCloudDownload, label: "Download" },
+  { key: "delete", icon: faTrash, label: "Delete" },
 ];
 
 export const GalleryFileCard = <T extends GalleryFile>({
@@ -132,17 +134,20 @@ export const GalleryFileCard = <T extends GalleryFile>({
                 <FontAwesomeIcon icon={faEllipsisV} />
               </Dropdown.Toggle>
               <Dropdown.Menu>
-                {cardActions.map(({ key, icon, label, className }) => (
+                {cardActions.map(({ key, icon, label }) => (
                   <Dropdown.Item
                     eventKey={key}
                     key={key}
                     onClick={() => onAction(key, file)}
                   >
-                    <FontAwesomeIcon
-                      icon={icon}
-                      className={`me-2 ${className}`}
-                    />
-                    {label}
+                    <Stack
+                      direction="horizontal"
+                      gap={2}
+                      className="align-items-center"
+                    >
+                      <FontAwesomeIcon icon={icon} />
+                      <span>{label}</span>
+                    </Stack>
                   </Dropdown.Item>
                 ))}
               </Dropdown.Menu>
