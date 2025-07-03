@@ -3,6 +3,7 @@ import Cluster, { Options as ClusterOptions } from 'ol/source/Cluster';
 import VectorSource, { Options as VectorSourceOptions } from 'ol/source/Vector';
 import EsriJSON from 'ol/format/EsriJSON';
 import { Style } from 'ol/style';
+import type { StyleFunction } from 'ol/style/Style';
 import Feature, { FeatureLike } from 'ol/Feature';
 import Geometry from 'ol/geom/Geometry';
 import { capitalizeWords } from '@/utils/capitalizeWords';
@@ -30,49 +31,96 @@ const getCapitalizedName = (name: string): string => {
   return labelTextCache.get(name)!;
 };
 
-export const createClusteredRecreationFeatureStyle = () => {
-  return (
-    feature: FeatureLike,
-    _resolution: number,
-  ): Style | Style[] | undefined => {
-    const features = feature.get('features') ?? [feature];
+export function createClusteredRecreationFeatureStyle(
+  feature: FeatureLike,
+  _resolution: number,
+): Style | Style[] | undefined {
+  const features = feature.get('features') ?? [feature];
 
-    if (features.length > 1) {
-      // If there are multiple features, render as a cluster
-      return clusterStyle(features.length);
+  if (features.length > 1) {
+    // If there are multiple features, render as a cluster
+    return clusterStyle(features.length);
+  }
+
+  const singleFeature = features[0] ?? feature;
+
+  const isClosed = singleFeature.get('CLOSURE_IND') === 'Y';
+  const iconKey = `icon-${isClosed}`;
+
+  if (!iconStyleCache.has(iconKey)) {
+    const icon = isClosed
+      ? locationDotRedIcon.getImage()
+      : locationDotBlueIcon.getImage();
+    iconStyleCache.set(iconKey, new Style({ image: icon ?? undefined }));
+  }
+
+  const iconStyle = iconStyleCache.get(iconKey)!;
+
+  const name = singleFeature.get('PROJECT_NAME');
+  if (!name) return iconStyle;
+
+  const label = getCapitalizedName(name);
+  const labelKey = `label-${label}`;
+
+  if (!labelStyleCache.has(labelKey)) {
+    labelStyleCache.set(labelKey, new Style({ text: featureLabelText(label) }));
+  }
+
+  const labelStyle = labelStyleCache.get(labelKey)!;
+
+  return [iconStyle, labelStyle];
+}
+
+export const recreationFeatureLoader = async (
+  filteredIds: string[],
+  format: EsriJSON,
+  source: VectorSource,
+  projection: any,
+) => {
+  // arcgis api has a limit of 1000 feature records per request
+  // so we need to fetch in batches
+  const batchSize = 1000;
+  const filteredSet = new Set(filteredIds);
+  const allFeatures: Feature<Geometry>[] = [];
+  let offset = 0;
+
+  while (true) {
+    const url =
+      `${RECREATION_FEATURE_LAYER}/query/?f=json&where=1=1` +
+      `&outFields=PROJECT_NAME,CLOSURE_IND,FOREST_FILE_ID` +
+      `&resultRecordCount=${batchSize}&resultOffset=${offset}` +
+      `&orderByFields=PROJECT_NAME` +
+      `&inSR=102100` +
+      `&outSR=102100`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      let features = format.readFeatures(data, {
+        featureProjection: projection,
+      });
+
+      features = features.filter((feature) => {
+        const id = feature.get('FOREST_FILE_ID');
+        feature.setId(String(id));
+        return filteredSet.has(String(id));
+      });
+
+      allFeatures.push(...features);
+
+      if (data.features.length < batchSize) {
+        break;
+      }
+
+      offset += batchSize;
+    } catch (error) {
+      console.error('Error fetching features:', error);
+      break;
     }
+  }
 
-    const singleFeature = features[0] ?? feature;
-
-    const isClosed = singleFeature.get('CLOSURE_IND') === 'Y';
-    const iconKey = `icon-${isClosed}`;
-
-    if (!iconStyleCache.has(iconKey)) {
-      const icon = isClosed
-        ? locationDotRedIcon.getImage()
-        : locationDotBlueIcon.getImage();
-      iconStyleCache.set(iconKey, new Style({ image: icon ?? undefined }));
-    }
-
-    const iconStyle = iconStyleCache.get(iconKey)!;
-
-    const name = singleFeature.get('PROJECT_NAME');
-    if (!name) return iconStyle;
-
-    const label = getCapitalizedName(name);
-    const labelKey = `label-${label}`;
-
-    if (!labelStyleCache.has(labelKey)) {
-      labelStyleCache.set(
-        labelKey,
-        new Style({ text: featureLabelText(label) }),
-      );
-    }
-
-    const labelStyle = labelStyleCache.get(labelKey)!;
-
-    return [iconStyle, labelStyle];
-  };
+  source.addFeatures(allFeatures);
 };
 
 export const createRecreationFeatureSource = (
@@ -80,61 +128,15 @@ export const createRecreationFeatureSource = (
   options?: VectorSourceOptions,
 ) => {
   const format = new EsriJSON();
-  const batchSize = 1000;
-  const filteredSet = new Set(filteredIds);
-
   const source = new VectorSource({
     format,
     overlaps: false,
     ...options,
   });
 
-  source.setLoader(async (_extent, _resolution, projection) => {
-    const allFeatures: Feature<Geometry>[] = [];
-
-    let offset = 0;
-
-    // arcgis api has a limit of 1000 feature records per request
-    // so we need to fetch in batches
-
-    while (true) {
-      const url =
-        `${RECREATION_FEATURE_LAYER}/query/?f=json&where=1=1` +
-        `&outFields=PROJECT_NAME,CLOSURE_IND,FOREST_FILE_ID` +
-        `&resultRecordCount=${batchSize}&resultOffset=${offset}` +
-        `&orderByFields=PROJECT_NAME` +
-        `&inSR=102100` +
-        `&outSR=102100`;
-
-      try {
-        const response = await fetch(url);
-        const data = await response.json();
-
-        let features = format.readFeatures(data, {
-          featureProjection: projection,
-        });
-
-        features = features.filter((feature) => {
-          const id = feature.get('FOREST_FILE_ID');
-          feature.setId(String(id));
-          return filteredSet.has(String(id));
-        });
-
-        allFeatures.push(...features);
-
-        if (data.features.length < batchSize) {
-          break;
-        }
-
-        offset += batchSize;
-      } catch (error) {
-        console.error('Error fetching features:', error);
-        break;
-      }
-    }
-
-    source.addFeatures(allFeatures);
-  });
+  source.setLoader((_extent, _resolution, projection) =>
+    recreationFeatureLoader(filteredIds, format, source, projection),
+  );
 
   return source;
 };
@@ -151,7 +153,7 @@ export const createClusteredRecreationFeatureSource = (
 
 export const createClusteredRecreationFeatureLayer = (
   source: Cluster,
-  style: ReturnType<typeof createClusteredRecreationFeatureStyle>,
+  style: StyleFunction,
   options?: AnimatedClusterOptions,
 ) =>
   new AnimatedCluster({
