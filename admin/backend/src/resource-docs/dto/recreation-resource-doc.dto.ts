@@ -12,6 +12,7 @@ export enum RecreationResourceDocCode {
 export class RecreationResourceDocDto {
   @ApiProperty({
     description: "Reference ID for the image",
+    type: String,
     example: "1000",
   })
   ref_id?: string;
@@ -25,11 +26,13 @@ export class RecreationResourceDocDto {
 
   @ApiProperty({
     description: "rec_resource_id",
+    type: String,
   })
   rec_resource_id: string | null;
 
   @ApiProperty({
     description: "doc link",
+    type: String,
   })
   url?: string;
 

@@ -4,10 +4,10 @@ apis/RecreationResourceApi.ts
 apis/index.ts
 index.ts
 models/BadRequestResponseDto.ts
+models/CreateRecreationResourceDocBodyDto.ts
 models/HealthControllerCheck200Response.ts
 models/HealthControllerCheck200ResponseInfoValue.ts
 models/HealthControllerCheck503Response.ts
-models/RecreationResourceDocBodyDto.ts
 models/RecreationResourceDocDto.ts
 models/SuggestionDto.ts
 models/SuggestionsResponseDto.ts

@@ -1,5 +1,4 @@
 import { useGetDocumentsByRecResourceId } from "@/services/hooks/recreation-resource-admin/useGetDocumentsByRecResourceId";
-import { RecreationResourceDocDto } from "@/services/recreation-resource-admin";
 import { downloadUrlAsFile } from "@/utils/fileUtils";
 import { Stack, Spinner } from "react-bootstrap";
 import { useParams } from "react-router-dom";
@@ -11,7 +10,7 @@ import { ResourceHeaderSection } from "./ResourceHeaderSection";
 import { useState } from "react";
 import { UploadFileModal } from "./UploadFileModal";
 import { useUploadResourceDocument } from "@/services/hooks/recreation-resource-admin/useUploadResourceDocument";
-import { PendingRecreationResourceDocDto } from "./types";
+import { GalleryImage, GalleryDocument, GalleryFile } from "./types";
 
 // Reusable file input handler
 function openFilePicker(accept: string, onFile: (file: File) => void) {
@@ -44,31 +43,31 @@ export const RecResourceFilesPage = () => {
   const [showUploadOverlay, setShowUploadOverlay] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadTitle, setUploadTitle] = useState<string>("");
-  const [pendingUploads, setPendingUploads] = useState<
-    Array<PendingRecreationResourceDocDto>
+  const [pendingImageUploads, setPendingImageUploads] = useState<
+    GalleryImage[]
+  >([]);
+  const [pendingDocumentUploads, setPendingDocumentUploads] = useState<
+    GalleryDocument[]
   >([
+    // todo: remove mock data
     {
-      ref_id: "temp-123",
-      title: "Pending Upload",
-      rec_resource_id: { id: params.id || "" },
+      id: "1",
+      name: "Pending Document",
       url: "",
-      doc_code: "RM",
-      doc_code_description: "Pending Upload",
-      extension: "jpg",
-      created_at: new Date().toISOString(),
-      isDownlading: true,
+      extension: "",
+      date: new Date().toISOString(),
+      isUploading: true,
+      rec_resource_id: "",
     },
     {
-      ref_id: "temp-123",
-      title: "Pending Upload 2",
-      rec_resource_id: { id: params.id || "" },
+      id: "1",
+      name: "Pending Document",
       url: "",
-      doc_code: "RM",
-      doc_code_description: "Pending Upload",
-      extension: "jpg",
-      created_at: new Date().toISOString(),
-      isDownlading: true,
-      isDownloadError: true,
+      extension: "",
+      date: new Date().toISOString(),
+      isUploading: true,
+      uploadFailed: true,
+      rec_resource_id: "",
     },
   ]);
 
@@ -98,39 +97,36 @@ export const RecResourceFilesPage = () => {
 
   const handleUpload = () => {
     if (!selectedFile || !params.id || !uploadTitle) return;
-    // Generate a tempId for the pending upload
     const tempId = `${Date.now()}-${Math.random()}`;
     const isImage = /\.(jpg|jpeg|png|webp|gif|bmp|tiff)$/i.test(
       selectedFile.name,
     );
     if (isImage) {
-      setPendingUploads((prev) => [
+      setPendingImageUploads((prev) => [
         ...prev,
         {
-          ref_id: tempId,
-          title: uploadTitle,
-          rec_resource_id: { id: params.id || "" },
+          id: tempId,
+          name: uploadTitle,
+          rec_resource_id: params.id!,
           url: URL.createObjectURL(selectedFile),
-          doc_code: "RM",
-          doc_code_description: "Pending Upload",
           extension: selectedFile.name.split(".").pop() || "",
-          created_at: new Date().toISOString(),
-          isDownlading: true,
+          date: new Date().toISOString(),
+          isUploading: true,
         },
       ]);
     } else {
-      setPendingUploads((prev) => [
+      setPendingDocumentUploads((prev) => [
         ...prev,
         {
-          ref_id: tempId,
-          title: uploadTitle,
-          rec_resource_id: { id: params.id || "" },
+          id: tempId,
+          name: uploadTitle,
+          rec_resource_id: params.id!,
           url: "",
           doc_code: "RM",
           doc_code_description: "Pending Upload",
           extension: selectedFile.name.split(".").pop() || "",
-          created_at: new Date().toISOString(),
-          isDownlading: true,
+          date: new Date().toISOString(),
+          isUploading: true,
         },
       ]);
     }
@@ -145,41 +141,96 @@ export const RecResourceFilesPage = () => {
       },
       {
         onSuccess: (data) => {
-          setPendingUploads((prev) => prev.filter((u) => u.ref_id !== tempId));
+          setPendingImageUploads((prev) => prev.filter((u) => u.id !== tempId));
+          setPendingDocumentUploads((prev) =>
+            prev.filter((u) => u.id !== tempId),
+          );
         },
         onError: () => {
-          setPendingUploads((prev) => prev.filter((u) => u.ref_id !== tempId));
+          setPendingImageUploads((prev) => prev.filter((u) => u.id !== tempId));
+          setPendingDocumentUploads((prev) =>
+            prev.filter((u) => u.id !== tempId),
+          );
         },
       },
     );
   };
 
-  const pendingImages = pendingUploads
-    .filter((u) => u.url && u.isDownlading)
-    .map((u) => ({
-      name: u.title,
-      date: new Date(u.created_at).toLocaleString("en-CA", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
+  const pendingImages: GalleryFile[] = pendingImageUploads
+    .filter((u) => u.url && u.isUploading)
+    .map(
+      (u): GalleryImage => ({
+        id: u.id,
+        name: u.name,
+        date: new Date(u.date).toLocaleString("en-CA", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }),
+        url: u.url,
+        isUploading: u.isUploading,
+        uploadFailed: u.uploadFailed,
+        extension: u.extension,
+        rec_resource_id: "",
       }),
-      url: u.url,
-      tempId: u.ref_id,
-      isPending: true,
-    }));
-  const allImages = [...pendingImages, ...images];
+    );
+  const allImages: GalleryImage[] = [...pendingImages, ...images];
 
-  const allDocuments: PendingRecreationResourceDocDto[] = [
-    ...pendingUploads.filter((u) => !u.url && u.isDownlading),
-    ...(documents || []),
+  const allDocuments: GalleryDocument[] = [
+    ...pendingDocumentUploads
+      .filter((u) => !u.url && u.isUploading)
+      .map(
+        (u): GalleryDocument => ({
+          id: u.id,
+          name: u.name,
+          date: new Date(u.date).toLocaleString("en-CA", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          }),
+          url: "", // or u.url if available
+          isUploading: u.isUploading,
+          uploadFailed: u.uploadFailed,
+          extension: u.extension,
+          rec_resource_id: "",
+        }),
+      ),
+    ...(documents
+      ? documents.map(
+          (doc): GalleryDocument => ({
+            id: doc.ref_id,
+            name: doc.title,
+            date: doc.created_at
+              ? new Date(doc.created_at).toLocaleString("en-CA", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: true,
+                })
+              : "",
+            url: doc.url || "",
+            isUploading: (doc as any).isUploading,
+            uploadFailed: (doc as any).uploadFailed,
+            doc_code: doc.doc_code,
+            doc_code_description: doc.doc_code_description,
+            rec_resource_id: doc.rec_resource_id,
+            extension: doc.extension,
+          }),
+        )
+      : []),
   ];
 
   const onImageAction = (
     action: "view" | "download" | "delete" | "add",
-    file: { name: string; date: string; url: string },
+    file: GalleryImage,
   ) => {
     console.log(`${action} image:`, file);
     if (action === "download" && file.url) {
@@ -189,13 +240,13 @@ export const RecResourceFilesPage = () => {
 
   const onDocumentAction = (
     action: "view" | "download" | "delete" | "add",
-    file: RecreationResourceDocDto,
+    file: GalleryDocument,
   ) => {
     if (action === "view" && file.url) {
       window.open(file.url, "_blank");
     }
     if (action === "download" && file.url) {
-      downloadUrlAsFile(file.url, file.title || "document");
+      downloadUrlAsFile(file.url, file.name || "document");
     }
     // handle 'add' and 'delete' as needed
   };
