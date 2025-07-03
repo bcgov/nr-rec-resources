@@ -15,22 +15,22 @@
 import * as runtime from "../runtime";
 import type {
   BadRequestResponseDto,
-  RecreationResourceDocBodyDto,
+  CreateRecreationResourceDocBodyDto,
   RecreationResourceDocDto,
   SuggestionsResponseDto,
 } from "../models/index";
 import {
   BadRequestResponseDtoFromJSON,
   BadRequestResponseDtoToJSON,
-  RecreationResourceDocBodyDtoFromJSON,
-  RecreationResourceDocBodyDtoToJSON,
+  CreateRecreationResourceDocBodyDtoFromJSON,
+  CreateRecreationResourceDocBodyDtoToJSON,
   RecreationResourceDocDtoFromJSON,
   RecreationResourceDocDtoToJSON,
   SuggestionsResponseDtoFromJSON,
   SuggestionsResponseDtoToJSON,
 } from "../models/index";
 
-export interface CreateDocumentResourceRequest {
+export interface CreateRecreationresourceDocumentRequest {
   recResourceId: string;
   title: string;
   file: Blob;
@@ -57,7 +57,7 @@ export interface GetRecreationResourceSuggestionsRequest {
 export interface UpdateDocumentResourceRequest {
   recResourceId: string;
   refId: string;
-  recreationResourceDocBodyDto: RecreationResourceDocBodyDto;
+  createRecreationResourceDocBodyDto: CreateRecreationResourceDocBodyDto;
 }
 
 /**
@@ -65,30 +65,30 @@ export interface UpdateDocumentResourceRequest {
  */
 export class RecreationResourceApi extends runtime.BaseAPI {
   /**
-   * Create a new Document Resource with a uploaded file
+   * Create a new Document Resource with an uploaded file
    */
-  async createDocumentResourceRaw(
-    requestParameters: CreateDocumentResourceRequest,
+  async createRecreationresourceDocumentRaw(
+    requestParameters: CreateRecreationresourceDocumentRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<runtime.ApiResponse<RecreationResourceDocDto>> {
     if (requestParameters["recResourceId"] == null) {
       throw new runtime.RequiredError(
         "recResourceId",
-        'Required parameter "recResourceId" was null or undefined when calling createDocumentResource().',
+        'Required parameter "recResourceId" was null or undefined when calling createRecreationresourceDocument().',
       );
     }
 
     if (requestParameters["title"] == null) {
       throw new runtime.RequiredError(
         "title",
-        'Required parameter "title" was null or undefined when calling createDocumentResource().',
+        'Required parameter "title" was null or undefined when calling createRecreationresourceDocument().',
       );
     }
 
     if (requestParameters["file"] == null) {
       throw new runtime.RequiredError(
         "file",
-        'Required parameter "file" was null or undefined when calling createDocumentResource().',
+        'Required parameter "file" was null or undefined when calling createRecreationresourceDocument().',
       );
     }
 
@@ -148,13 +148,13 @@ export class RecreationResourceApi extends runtime.BaseAPI {
   }
 
   /**
-   * Create a new Document Resource with a uploaded file
+   * Create a new Document Resource with an uploaded file
    */
-  async createDocumentResource(
-    requestParameters: CreateDocumentResourceRequest,
+  async createRecreationresourceDocument(
+    requestParameters: CreateRecreationresourceDocumentRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<RecreationResourceDocDto> {
-    const response = await this.createDocumentResourceRaw(
+    const response = await this.createRecreationresourceDocumentRaw(
       requestParameters,
       initOverrides,
     );
@@ -439,10 +439,10 @@ export class RecreationResourceApi extends runtime.BaseAPI {
       );
     }
 
-    if (requestParameters["recreationResourceDocBodyDto"] == null) {
+    if (requestParameters["createRecreationResourceDocBodyDto"] == null) {
       throw new runtime.RequiredError(
-        "recreationResourceDocBodyDto",
-        'Required parameter "recreationResourceDocBodyDto" was null or undefined when calling updateDocumentResource().',
+        "createRecreationResourceDocBodyDto",
+        'Required parameter "createRecreationResourceDocBodyDto" was null or undefined when calling updateDocumentResource().',
       );
     }
 
@@ -474,8 +474,8 @@ export class RecreationResourceApi extends runtime.BaseAPI {
         method: "PUT",
         headers: headerParameters,
         query: queryParameters,
-        body: RecreationResourceDocBodyDtoToJSON(
-          requestParameters["recreationResourceDocBodyDto"],
+        body: CreateRecreationResourceDocBodyDtoToJSON(
+          requestParameters["createRecreationResourceDocBodyDto"],
         ),
       },
       initOverrides,

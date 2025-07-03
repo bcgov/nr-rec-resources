@@ -13,7 +13,7 @@ export function useUploadResourceDocument() {
 
   return useMutation({
     mutationFn: async (params: UploadResourceDocumentParams) => {
-      return api.createDocumentResource({
+      return api.createRecreationresourceDocument({
         recResourceId: params.recResourceId,
         title: params.title,
         file: params.file,

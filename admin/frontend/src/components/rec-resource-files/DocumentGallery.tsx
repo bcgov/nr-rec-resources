@@ -3,14 +3,13 @@ import { GalleryAccordion } from "./GalleryAccordion";
 import { GalleryCard } from "./GalleryCard";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
-import { RecreationResourceDocDto } from "@/services/recreation-resource-admin";
-import { PendingRecreationResourceDocDto } from "./types";
+import { GalleryDocument } from "./types";
 
 export interface DocumentGalleryProps {
-  documents: PendingRecreationResourceDocDto[];
+  documents: GalleryDocument[];
   onAction: (
     action: "view" | "download" | "delete" | "add",
-    file: PendingRecreationResourceDocDto,
+    file: GalleryDocument,
   ) => void;
   isLoading?: boolean;
   onUploadClick?: () => void;
@@ -30,24 +29,11 @@ export const DocumentGallery: React.FC<DocumentGalleryProps> = ({
     uploadLabel={"Upload"}
     isLoading={isLoading}
     onUploadClick={onUploadClick}
-    renderItem={(doc, idx) => (
-      <GalleryCard<PendingRecreationResourceDocDto>
-        key={(doc as any).ref_id || idx}
+    renderItem={(doc) => (
+      <GalleryCard<GalleryDocument>
+        key={doc.id}
         topContent={
           <FontAwesomeIcon icon={faFilePdf} size="2x" color="#d32f2f" />
-        }
-        filename={doc.title}
-        date={
-          doc.created_at
-            ? new Date(doc.created_at).toLocaleString("en-CA", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: true,
-              })
-            : ""
         }
         file={doc}
         onAction={onAction}

@@ -33,10 +33,10 @@ export interface RecreationResourceDocDto {
   title: string;
   /**
    * rec_resource_id
-   * @type {object}
+   * @type {string}
    * @memberof RecreationResourceDocDto
    */
-  rec_resource_id: object;
+  rec_resource_id: string;
   /**
    * doc link
    * @type {string}

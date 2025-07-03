@@ -14,11 +14,10 @@ import {
   faFilePdf,
 } from "@fortawesome/free-solid-svg-icons";
 import "./Gallery.scss";
+import { GalleryFile } from "./types";
 
-export interface GalleryCardProps<T> {
+export interface GalleryCardProps<T extends GalleryFile> {
   topContent?: React.ReactNode;
-  filename: string;
-  date: string;
   file: T;
   onAction: (action: "view" | "download" | "delete" | "add", file: T) => void;
 }
@@ -29,17 +28,15 @@ const cardActions = [
   { key: "delete", icon: faTrash, label: "Delete", className: "text-danger" },
 ];
 
-export const GalleryCard = <
-  T extends { isDownlading?: boolean; isDownloadError?: boolean },
->({
+export const GalleryCard = <T extends GalleryFile>({
   topContent,
-  filename,
-  date,
   file,
   onAction,
 }: GalleryCardProps<T>) => {
-  const isFileUploadError = file.isDownloadError;
-  const isFileDownloadPending = file.isDownlading;
+  const isFileUploadError = file.uploadFailed;
+  const isFileDownloadPending = file.isUploading;
+  const filename = file.name || "Untitled";
+  const date = file.date || "-";
   return (
     <Card
       className={[
