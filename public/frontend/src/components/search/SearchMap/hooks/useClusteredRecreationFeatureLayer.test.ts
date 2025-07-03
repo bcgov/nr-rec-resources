@@ -1,37 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
-import { useClusteredRecreationFeatureLayer } from '@/components/search/SearchMap/hooks/useClusteredRecreationFeatureLayer';
 import * as recreationLayer from '@/components/search/SearchMap/layers/recreationFeatureLayer';
+import { useClusteredRecreationFeatureLayer } from '@/components/search/SearchMap/hooks/useClusteredRecreationFeatureLayer';
 
 describe('useClusteredRecreationFeatureLayer', () => {
   const mockSetSource = vi.fn();
-  const mockStyleFn = vi.fn();
 
   beforeEach(() => {
     vi.spyOn(
       recreationLayer,
       'createClusteredRecreationFeatureSource',
-    ).mockImplementation(
-      () =>
-        ({
-          source: 'mockSource',
-        }) as any,
-    );
-
-    vi.spyOn(
-      recreationLayer,
-      'createClusteredRecreationFeatureStyle',
-    ).mockImplementation(() => mockStyleFn);
-
+    ).mockImplementation(() => ({ source: 'mockSource' }) as any);
     vi.spyOn(
       recreationLayer,
       'createClusteredRecreationFeatureLayer',
     ).mockImplementation(
-      () =>
-        ({
-          layer: 'mockLayer',
-          setSource: mockSetSource,
-        }) as any,
+      () => ({ layer: 'mockLayer', setSource: mockSetSource }) as any,
     );
   });
 
@@ -42,17 +26,13 @@ describe('useClusteredRecreationFeatureLayer', () => {
 
     expect(
       recreationLayer.createClusteredRecreationFeatureSource,
-    ).toHaveBeenCalledTimes(2); // useMemo + useEffect
-    expect(
-      recreationLayer.createClusteredRecreationFeatureStyle,
-    ).toHaveBeenCalledTimes(1);
+    ).toHaveBeenCalledTimes(2);
     expect(
       recreationLayer.createClusteredRecreationFeatureLayer,
     ).toHaveBeenCalledTimes(1);
     expect(mockSetSource).toHaveBeenCalled();
 
     expect(result.current.source).toEqual({ source: 'mockSource' });
-    expect(result.current.style).toBe(mockStyleFn);
     expect(result.current.layer).toEqual({
       layer: 'mockLayer',
       setSource: mockSetSource,
@@ -69,7 +49,6 @@ describe('useClusteredRecreationFeatureLayer', () => {
 
     rerender({ ids: ['3', '4'] });
 
-    // 2 calls initially (useMemo + useEffect) + 2 more on rerender
     expect(
       recreationLayer.createClusteredRecreationFeatureSource,
     ).toHaveBeenCalledTimes(4);

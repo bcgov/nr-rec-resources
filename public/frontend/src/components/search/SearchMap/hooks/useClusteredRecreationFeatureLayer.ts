@@ -23,15 +23,10 @@ export const useClusteredRecreationFeatureLayer = (
     [options, recResourceIds],
   );
 
-  const clusteredStyle = useMemo(
-    () => createClusteredRecreationFeatureStyle(),
-    [],
-  );
-
   const layerRef = useRef(
     createClusteredRecreationFeatureLayer(
       clusteredSource,
-      clusteredStyle,
+      createClusteredRecreationFeatureStyle,
       options?.animatedClusterOptions,
     ),
   );
@@ -47,6 +42,6 @@ export const useClusteredRecreationFeatureLayer = (
   return {
     layer: layerRef.current,
     source: clusteredSource,
-    style: clusteredStyle,
+    style: createClusteredRecreationFeatureStyle,
   };
 };
