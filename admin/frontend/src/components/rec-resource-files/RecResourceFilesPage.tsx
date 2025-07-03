@@ -2,20 +2,18 @@ import { useGetDocumentsByRecResourceId } from "@/services/hooks/recreation-reso
 import { downloadUrlAsFile } from "@/utils/fileUtils";
 import { Stack, Spinner } from "react-bootstrap";
 import { useParams } from "react-router-dom";
-import { DocumentGallery } from "./DocumentGallery";
-import { ImageGallery } from "./ImageGallery";
 import { InfoBanner } from "./InfoBanner";
 import "./RecResourceFilesPage.scss";
 import { ResourceHeaderSection } from "./ResourceHeaderSection";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { UploadFileModal } from "./UploadFileModal";
 import { useUploadResourceDocument } from "@/services/hooks/recreation-resource-admin/useUploadResourceDocument";
-import {
-  GalleryImage,
-  GalleryDocument,
-  GalleryAction,
-  GalleryFile,
-} from "./types";
+import { GalleryImage, GalleryDocument, GalleryAction } from "./types";
+import { GalleryAccordion } from "./GalleryAccordion";
+import { GalleryFileCard } from "./GalleryFileCard";
+import { Image } from "react-bootstrap";
+import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 // Reusable file input handler
 function openFilePicker(accept: string, onFile: (file: File) => void) {
@@ -161,36 +159,13 @@ export const RecResourceFilesPage = () => {
     );
   };
 
-  const pendingImages: GalleryFile[] = pendingImageUploads
-    .filter((u) => u.url && u.isUploading)
-    .map(
-      (u): GalleryImage => ({
-        id: u.id,
-        name: u.name,
-        date: new Date(u.date).toLocaleString("en-CA", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-        }),
-        url: u.url,
-        isUploading: u.isUploading,
-        uploadFailed: u.uploadFailed,
-        extension: u.extension,
-        rec_resource_id: "",
-      }),
-    );
-  const allImages: GalleryImage[] = [...pendingImages, ...images];
-
-  const allDocuments: GalleryDocument[] = [
-    ...pendingDocumentUploads
-      .filter((u) => !u.url && u.isUploading)
-      .map(
-        (u): GalleryDocument => ({
-          id: u.id,
-          name: u.name,
+  // Memoize gallery data to avoid unnecessary recalculations
+  const allImages: GalleryImage[] = useMemo(
+    () => [
+      ...pendingImageUploads
+        .filter((u) => u.url && u.isUploading)
+        .map((u) => ({
+          ...u,
           date: new Date(u.date).toLocaleString("en-CA", {
             day: "2-digit",
             month: "short",
@@ -199,16 +174,29 @@ export const RecResourceFilesPage = () => {
             minute: "2-digit",
             hour12: true,
           }),
-          url: "", // or u.url if available
-          isUploading: u.isUploading,
-          uploadFailed: u.uploadFailed,
-          extension: u.extension,
-          rec_resource_id: "",
-        }),
-      ),
-    ...(documents
-      ? documents.map(
-          (doc): GalleryDocument => ({
+        })),
+      ...images,
+    ],
+    [pendingImageUploads, images],
+  );
+
+  const allDocuments: GalleryDocument[] = useMemo(
+    () => [
+      ...pendingDocumentUploads
+        .filter((u) => !u.url && u.isUploading)
+        .map((u) => ({
+          ...u,
+          date: new Date(u.date).toLocaleString("en-CA", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          }),
+        })),
+      ...(documents
+        ? documents.map((doc) => ({
             id: doc.ref_id,
             name: doc.title,
             date: doc.created_at
@@ -228,10 +216,11 @@ export const RecResourceFilesPage = () => {
             doc_code_description: doc.doc_code_description,
             rec_resource_id: doc.rec_resource_id,
             extension: doc.extension,
-          }),
-        )
-      : []),
-  ];
+          }))
+        : []),
+    ],
+    [pendingDocumentUploads, documents],
+  );
 
   const onImageAction = (action: GalleryAction, file: GalleryImage) => {
     console.log(`${action} image:`, file);
@@ -261,17 +250,43 @@ export const RecResourceFilesPage = () => {
         All images and documents will be published to the beta website
         immediately.
       </InfoBanner>
-      <ImageGallery
-        images={allImages}
-        onAction={onImageAction}
+      <GalleryAccordion<GalleryImage>
+        eventKey="images"
+        title="Public images"
+        description="Image formats JPG, HEIC at max file size 10mb. Maximum 10 images."
+        items={allImages}
+        uploadLabel="Upload"
         isLoading={isFetching}
         onUploadClick={handleImageUploadTileClick}
+        renderItem={(img) => (
+          <GalleryFileCard<GalleryImage>
+            key={img.id}
+            topContent={
+              <Image src={img.url} alt={img.name} width="100%" height="100%" />
+            }
+            file={img}
+            onAction={onImageAction}
+          />
+        )}
       />
-      <DocumentGallery
-        documents={allDocuments}
-        onAction={onDocumentAction}
+      <GalleryAccordion<GalleryDocument>
+        eventKey="documents"
+        title="Public documents"
+        description="Document formats only accept PDF at max file size 1mb."
+        items={allDocuments}
+        uploadLabel="Upload"
         isLoading={isFetching}
         onUploadClick={handleDocumentUploadTileClick}
+        renderItem={(doc) => (
+          <GalleryFileCard<GalleryDocument>
+            key={doc.id}
+            topContent={
+              <FontAwesomeIcon icon={faFilePdf} size="2x" color="#d32f2f" />
+            }
+            file={doc}
+            onAction={onDocumentAction}
+          />
+        )}
       />
       <UploadFileModal
         open={showUploadOverlay && !!selectedFile}
@@ -281,12 +296,6 @@ export const RecResourceFilesPage = () => {
         onCancel={handleCancelUpload}
         onUpload={handleUpload}
       />
-      {uploadMutation.isPending && (
-        <div className="text-info">Uploading...</div>
-      )}
-      {uploadMutation.isError && (
-        <div className="text-danger">Upload failed. Please try again.</div>
-      )}
     </Stack>
   );
 };
