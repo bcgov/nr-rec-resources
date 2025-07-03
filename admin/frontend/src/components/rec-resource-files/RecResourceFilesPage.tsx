@@ -14,6 +14,11 @@ import { GalleryFileCard } from "./GalleryFileCard";
 import { Image } from "react-bootstrap";
 import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  isImageFile,
+  getImagePreviewUrl,
+  validateImageFile,
+} from "@/utils/imageUtils";
 
 // Reusable file input handler
 function openFilePicker(accept: string, onFile: (file: File) => void) {
@@ -101,23 +106,33 @@ export const RecResourceFilesPage = () => {
   const handleUpload = () => {
     if (!selectedFile || !params.id || !uploadTitle) return;
     const tempId = `${Date.now()}-${Math.random()}`;
-    const isImage = /\.(jpg|jpeg|png|webp|gif|bmp|tiff)$/i.test(
-      selectedFile.name,
-    );
-    if (isImage) {
+    if (isImageFile(selectedFile)) {
+      // Validate image file
+      const validationError = validateImageFile(selectedFile);
+      if (validationError) {
+        alert(validationError);
+        return;
+      }
+
+      const previewUrl = getImagePreviewUrl(selectedFile);
       setPendingImageUploads((prev) => [
         ...prev,
         {
           id: tempId,
           name: uploadTitle,
           rec_resource_id: params.id!,
-          url: URL.createObjectURL(selectedFile),
+          url: previewUrl,
           extension: selectedFile.name.split(".").pop() || "",
           date: new Date().toISOString(),
           isUploading: true,
         },
       ]);
     } else {
+      // Validate document (PDF)
+      if (selectedFile.type !== "application/pdf") {
+        alert("Only PDF documents are allowed.");
+        return;
+      }
       setPendingDocumentUploads((prev) => [
         ...prev,
         {
@@ -177,7 +192,7 @@ export const RecResourceFilesPage = () => {
         })),
       ...images,
     ],
-    [pendingImageUploads, images],
+    [pendingImageUploads],
   );
 
   const allDocuments: GalleryDocument[] = useMemo(
