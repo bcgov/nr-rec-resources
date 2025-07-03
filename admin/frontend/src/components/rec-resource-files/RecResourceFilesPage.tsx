@@ -10,7 +10,12 @@ import { ResourceHeaderSection } from "./ResourceHeaderSection";
 import { useState } from "react";
 import { UploadFileModal } from "./UploadFileModal";
 import { useUploadResourceDocument } from "@/services/hooks/recreation-resource-admin/useUploadResourceDocument";
-import { GalleryImage, GalleryDocument, GalleryFile } from "./types";
+import {
+  GalleryImage,
+  GalleryDocument,
+  GalleryAction,
+  GalleryFile,
+} from "./types";
 
 // Reusable file input handler
 function openFilePicker(accept: string, onFile: (file: File) => void) {
@@ -228,20 +233,14 @@ export const RecResourceFilesPage = () => {
       : []),
   ];
 
-  const onImageAction = (
-    action: "view" | "download" | "delete" | "add",
-    file: GalleryImage,
-  ) => {
+  const onImageAction = (action: GalleryAction, file: GalleryImage) => {
     console.log(`${action} image:`, file);
     if (action === "download" && file.url) {
       downloadUrlAsFile(file.url, file.name || "document");
     }
   };
 
-  const onDocumentAction = (
-    action: "view" | "download" | "delete" | "add",
-    file: GalleryDocument,
-  ) => {
+  const onDocumentAction = (action: GalleryAction, file: GalleryDocument) => {
     if (action === "view" && file.url) {
       window.open(file.url, "_blank");
     }
