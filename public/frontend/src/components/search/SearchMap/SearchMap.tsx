@@ -18,6 +18,7 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
   const { layer: clusteredRecreationFeatureLayer } =
     useClusteredRecreationFeatureLayer(recResourceIds, mapRef, {
       clusterOptions: {
+        clusterZoomThreshold: 16,
         distance: 50,
         minDistance: 10,
       },
