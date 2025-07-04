@@ -7,9 +7,6 @@
 }
 
 .resource-header-section {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   height: 3rem;
 
   .resource-header-title {
@@ -34,6 +31,14 @@
       line-height: 1;
       letter-spacing: 0.5px;
       display: inline-block;
+    }
+  }
+
+  .action-buttons {
+    .action-button-icon {
+      border: 1px solid $colorBlue;
+      border-radius: 3px;
+      padding: 0.1rem;
     }
   }
 

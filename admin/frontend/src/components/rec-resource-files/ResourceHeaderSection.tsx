@@ -3,31 +3,45 @@ import { Button, Stack } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 
-export const ResourceHeaderSection = ({
-  name,
-  recId,
-}: {
+interface ResourceHeaderSectionProps {
   name: string;
   recId: string;
+  onAddImage?: () => void;
+  onAddDocument?: () => void;
+}
+
+const ActionButton = ({
+  label,
+  onClick,
+}: {
+  label: string;
+  onClick?: () => void;
 }) => (
-  <div className="resource-header-section">
+  <Button variant="outline-primary" onClick={onClick}>
+    <Stack direction="horizontal" gap={2}>
+      <FontAwesomeIcon className="action-button-icon" icon={faPlus} />
+      {label}
+    </Stack>
+  </Button>
+);
+
+export const ResourceHeaderSection: React.FC<ResourceHeaderSectionProps> = ({
+  name,
+  recId,
+  onAddImage,
+  onAddDocument,
+}) => (
+  <Stack
+    direction="horizontal"
+    className="justify-content-between resource-header-section"
+  >
     <div className="resource-header-title">
       <h1>{name}</h1>
       <span className="resource-badge px-2">{recId}</span>
     </div>
-    <Stack direction="horizontal" gap={3} className="py-2">
-      <Button variant="outline-primary">
-        <Stack direction="horizontal" gap={2}>
-          <FontAwesomeIcon icon={faPlus} />
-          Add image
-        </Stack>
-      </Button>
-      <Button variant="outline-primary">
-        <Stack direction="horizontal" gap={2}>
-          <FontAwesomeIcon icon={faPlus} />
-          Add document
-        </Stack>
-      </Button>
+    <Stack direction="horizontal" gap={3} className="py-2 action-buttons">
+      <ActionButton label="Add image" onClick={onAddImage} />
+      <ActionButton label="Add document" onClick={onAddDocument} />
     </Stack>
-  </div>
+  </Stack>
 );

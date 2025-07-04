@@ -1,5 +1,10 @@
 import { useState, useCallback } from "react";
 import { GalleryDocument } from "./types";
+import { useUploadResourceDocument } from "@/services/hooks/recreation-resource-admin/useUploadResourceDocument";
+import {
+  addSuccessNotification,
+  addErrorNotification,
+} from "@/store/notificationStore";
 
 export function usePendingUploads(initial: GalleryDocument[] = []) {
   const [pendingUploads, setPendingUploads] =
@@ -8,16 +13,15 @@ export function usePendingUploads(initial: GalleryDocument[] = []) {
   const [uploadTitle, setUploadTitle] = useState<string>("");
   const [showUploadOverlay, setShowUploadOverlay] = useState(false);
 
+  // Move uploadMutation inside the hook
+  const uploadMutation = useUploadResourceDocument();
+
   const addPendingUpload = useCallback((doc: GalleryDocument) => {
     setPendingUploads((prev) => [...prev, doc]);
   }, []);
 
   const removePendingUpload = useCallback((id: string) => {
     setPendingUploads((prev) => prev.filter((u) => u.id !== id));
-  }, []);
-
-  const resetPendingUploads = useCallback(() => {
-    setPendingUploads([]);
   }, []);
 
   const handleDocumentUploadTileClick = useCallback(() => {
@@ -44,21 +48,13 @@ export function usePendingUploads(initial: GalleryDocument[] = []) {
   const handleUpload = useCallback(
     ({
       rec_resource_id,
-      uploadMutation,
-      showNotification,
       refetch,
     }: {
       rec_resource_id: string;
-      uploadMutation: any;
-      showNotification: (msg: string) => void;
       refetch: () => void;
     }) => {
       if (!selectedFile || !uploadTitle) return;
       const tempId = `${Date.now()}-${Math.random()}`;
-      if (selectedFile.type !== "application/pdf") {
-        showNotification("Only PDF documents are allowed.");
-        return;
-      }
       addPendingUpload({
         id: tempId,
         name: uploadTitle,
@@ -82,31 +78,34 @@ export function usePendingUploads(initial: GalleryDocument[] = []) {
         {
           onSuccess: () => {
             removePendingUpload(tempId);
+
+            addSuccessNotification("Document uploaded successfully.");
             refetch();
           },
           onError: () => {
             removePendingUpload(tempId);
+            addErrorNotification("Failed to upload document.", "error");
           },
         },
       );
     },
-    [selectedFile, uploadTitle, addPendingUpload, removePendingUpload],
+    [
+      selectedFile,
+      uploadTitle,
+      addPendingUpload,
+      removePendingUpload,
+      uploadMutation,
+    ],
   );
 
   return {
     pendingUploads,
-    setPendingUploads,
-    addPendingUpload,
-    removePendingUpload,
-    resetPendingUploads,
     selectedFile,
-    setSelectedFile,
     uploadTitle,
-    setUploadTitle,
     showUploadOverlay,
-    setShowUploadOverlay,
     handleDocumentUploadTileClick,
     handleCancelUpload,
     handleUpload,
+    setUploadTitle,
   };
 }

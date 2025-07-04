@@ -4,7 +4,7 @@ import {
   RecreationResourceDocDto,
   ResponseError,
 } from "@/services/recreation-resource-admin";
-import { showNotification } from "@/store/notificationStore";
+import { addErrorNotification } from "@/store/notificationStore";
 import { transformRecreationResourceDocs } from "../helpers";
 
 export const useGetDocumentsByRecResourceId = (recResourceId: string) => {
@@ -23,9 +23,8 @@ export const useGetDocumentsByRecResourceId = (recResourceId: string) => {
     },
     retry: (retryCount, error) => {
       if (retryCount >= 2) {
-        showNotification(
+        addErrorNotification(
           "Failed to load documents after multiple attempts. Please try again later.",
-          "danger",
           "getDocumentsByRecResourceId-error",
         );
         return false; // Stop retrying after 3 attempts

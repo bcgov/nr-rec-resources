@@ -1,6 +1,4 @@
 import { useGetDocumentsByRecResourceId } from "@/services/hooks/recreation-resource-admin/useGetDocumentsByRecResourceId";
-import { useUploadResourceDocument } from "@/services/hooks/recreation-resource-admin/useUploadResourceDocument";
-import { showNotification } from "@/store/notificationStore";
 import { downloadUrlAsFile } from "@/utils/fileUtils";
 import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -25,17 +23,13 @@ export const RecResourceFilesPage = () => {
 
   const {
     pendingUploads,
-    addPendingUpload,
-    removePendingUpload,
     selectedFile,
-    setSelectedFile,
     uploadTitle,
-    setUploadTitle,
     showUploadOverlay,
-    setShowUploadOverlay,
     handleDocumentUploadTileClick,
     handleCancelUpload,
     handleUpload,
+    setUploadTitle,
   } = usePendingUploads([]);
 
   const {
@@ -44,13 +38,9 @@ export const RecResourceFilesPage = () => {
     refetch,
   } = useGetDocumentsByRecResourceId(rec_resource_id);
 
-  const uploadMutation = useUploadResourceDocument();
-
   const onUpload = () =>
     handleUpload({
       rec_resource_id,
-      uploadMutation,
-      showNotification,
       refetch,
     });
 
@@ -67,9 +57,7 @@ export const RecResourceFilesPage = () => {
             id: doc.ref_id,
             name: doc.title,
             date: doc.created_at ? formatDocumentDate(doc.created_at) : "",
-            url: doc.url || "",
-            isUploading: (doc as any).isUploading,
-            uploadFailed: (doc as any).uploadFailed,
+            url: doc.url,
             doc_code: doc.doc_code,
             doc_code_description: doc.doc_code_description,
             rec_resource_id: doc.rec_resource_id,
@@ -96,7 +84,11 @@ export const RecResourceFilesPage = () => {
       gap={4}
       className="rec-resource-files-page py-4"
     >
-      <ResourceHeaderSection name="Snow Creek" recId="REC2214" />
+      <ResourceHeaderSection
+        name="Snow Creek"
+        recId="REC2214"
+        onAddDocument={handleDocumentUploadTileClick}
+      />
       <InfoBanner>
         All images and documents will be published to the beta website
         immediately.
