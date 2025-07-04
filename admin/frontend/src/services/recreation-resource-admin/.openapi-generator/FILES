@@ -4,9 +4,11 @@ apis/RecreationResourceApi.ts
 apis/index.ts
 index.ts
 models/BadRequestResponseDto.ts
+models/FileUploadDto.ts
 models/HealthControllerCheck200Response.ts
 models/HealthControllerCheck200ResponseInfoValue.ts
 models/HealthControllerCheck503Response.ts
+models/RecreationResourceDocDto.ts
 models/SuggestionDto.ts
 models/SuggestionsResponseDto.ts
 models/ValidationErrorDetailDto.ts

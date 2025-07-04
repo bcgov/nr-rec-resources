@@ -21,34 +21,34 @@ import { mapValues } from "../runtime";
 export interface SuggestionDto {
   /**
    * Name of the recreation resource
-   * @type {string}
+   * @type {object}
    * @memberof SuggestionDto
    */
-  name: string;
+  name: object;
   /**
    * Unique resource ID
-   * @type {string}
+   * @type {object}
    * @memberof SuggestionDto
    */
-  rec_resource_id: string;
+  rec_resource_id: object;
   /**
    * Type of recreation resource (e.g., Recreation site, Recreation trail, etc.)
-   * @type {string}
+   * @type {object}
    * @memberof SuggestionDto
    */
-  recreation_resource_type: string;
+  recreation_resource_type: object;
   /**
    * Resource type code (e.g., RR, IF, etc.)
-   * @type {string}
+   * @type {object}
    * @memberof SuggestionDto
    */
-  recreation_resource_type_code: string;
+  recreation_resource_type_code: object;
   /**
    * Description of the district (e.g., Chilliwack, Okanagan, etc.)
-   * @type {string}
+   * @type {object}
    * @memberof SuggestionDto
    */
-  district_description: string;
+  district_description: object;
 }
 
 /**
