@@ -15,13 +15,11 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
 
   const mapRef = useRef<{ getMap: () => OLMap }>(null);
 
-  const mapProjection = mapRef.current?.getMap().getView().getProjection();
-
   const { layer: clusteredRecreationFeatureLayer } =
-    useClusteredRecreationFeatureLayer(recResourceIds, String(mapProjection), {
+    useClusteredRecreationFeatureLayer(recResourceIds, mapRef, {
       clusterOptions: {
         distance: 50,
-        minDistance: 30,
+        minDistance: 10,
       },
       animatedClusterOptions: {
         animationDuration: 500,
