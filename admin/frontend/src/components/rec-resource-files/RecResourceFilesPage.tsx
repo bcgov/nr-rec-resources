@@ -4,7 +4,7 @@ import { showNotification } from "@/store/notificationStore";
 import { downloadUrlAsFile } from "@/utils/fileUtils";
 import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Stack } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import { GalleryAccordion } from "./GalleryAccordion";
@@ -14,54 +14,29 @@ import "./RecResourceFilesPage.scss";
 import { ResourceHeaderSection } from "./ResourceHeaderSection";
 import { GalleryAction, GalleryDocument } from "./types";
 import { UploadFileModal } from "./UploadFileModal";
-
-// Reusable file input handler
-function openFilePicker(accept: string, onFile: (file: File) => void) {
-  const input = document.createElement("input");
-  input.type = "file";
-  input.accept = accept;
-  input.onchange = (e: any) => {
-    const file = e.target.files && e.target.files[0];
-    if (file) onFile(file);
-  };
-  input.click();
-}
+import { usePendingUploads } from "./usePendingUploads";
+import { formatDocumentDate } from "./helpers";
 
 export const RecResourceFilesPage = () => {
   const { id: rec_resource_id } = useParams();
-
-  // Inline type guard for rec_resource_id
   if (!rec_resource_id) {
     return <div>Error: Recreation Resource ID is required.</div>;
   }
 
-  const [showUploadOverlay, setShowUploadOverlay] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploadTitle, setUploadTitle] = useState<string>("");
-  const [pendingDocumentUploads, setPendingDocumentUploads] = useState<
-    GalleryDocument[]
-  >([
-    // todo: remove mock data
-    {
-      id: "1",
-      name: "Pending Document",
-      url: "",
-      extension: "",
-      date: new Date().toISOString(),
-      isUploading: true,
-      rec_resource_id: "",
-    },
-    {
-      id: "1",
-      name: "Pending Document",
-      url: "",
-      extension: "",
-      date: new Date().toISOString(),
-      isUploading: true,
-      uploadFailed: true,
-      rec_resource_id: "",
-    },
-  ]);
+  const {
+    pendingUploads,
+    addPendingUpload,
+    removePendingUpload,
+    selectedFile,
+    setSelectedFile,
+    uploadTitle,
+    setUploadTitle,
+    showUploadOverlay,
+    setShowUploadOverlay,
+    handleDocumentUploadTileClick,
+    handleCancelUpload,
+    handleUpload,
+  } = usePendingUploads([]);
 
   const {
     data: documents,
@@ -69,104 +44,29 @@ export const RecResourceFilesPage = () => {
     refetch,
   } = useGetDocumentsByRecResourceId(rec_resource_id);
 
-  // Upload mutation
   const uploadMutation = useUploadResourceDocument();
 
-  // Handlers
-  const handleDocumentUploadTileClick = () => {
-    openFilePicker("application/pdf", (file) => {
-      setSelectedFile(file);
-      setShowUploadOverlay(true);
+  const onUpload = () =>
+    handleUpload({
+      rec_resource_id,
+      uploadMutation,
+      showNotification,
+      refetch,
     });
-  };
-
-  const handleCancelUpload = () => {
-    setShowUploadOverlay(false);
-    setSelectedFile(null);
-    setUploadTitle("");
-  };
-
-  const handleUpload = () => {
-    if (!selectedFile || !uploadTitle) return;
-    const tempId = `${Date.now()}-${Math.random()}`;
-
-    // Validate document (PDF)
-    if (selectedFile.type !== "application/pdf") {
-      showNotification("Only PDF documents are allowed.");
-      return;
-    }
-
-    setPendingDocumentUploads((prev) => [
-      ...prev,
-      {
-        id: tempId,
-        name: uploadTitle,
-        rec_resource_id,
-        url: "",
-        doc_code: "RM",
-        doc_code_description: "Pending Upload",
-        extension: selectedFile.name.split(".").pop() || "",
-        date: new Date().toISOString(),
-        isUploading: true,
-      },
-    ]);
-
-    setShowUploadOverlay(false); // Close modal immediately
-    setSelectedFile(null);
-    setUploadTitle("");
-    uploadMutation.mutate(
-      {
-        recResourceId: rec_resource_id,
-        file: selectedFile,
-        title: uploadTitle,
-      },
-      {
-        onSuccess: () => {
-          setPendingDocumentUploads((prev) =>
-            prev.filter((u) => u.id !== tempId),
-          );
-          refetch(); // Refresh documents after upload
-        },
-        onError: () => {
-          setPendingDocumentUploads((prev) =>
-            prev.filter((u) => u.id !== tempId),
-          );
-        },
-      },
-    );
-  };
-
-  // Memoize gallery data to avoid unnecessary recalculations
 
   const allDocuments: GalleryDocument[] = useMemo(
     () => [
-      ...pendingDocumentUploads
+      ...pendingUploads
         .filter((u) => !u.url && u.isUploading)
         .map((u) => ({
           ...u,
-          date: new Date(u.date).toLocaleString("en-CA", {
-            day: "2-digit",
-            month: "short",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          }),
+          date: formatDocumentDate(u.date),
         })),
       ...(documents
         ? documents.map((doc) => ({
             id: doc.ref_id,
             name: doc.title,
-            date: doc.created_at
-              ? new Date(doc.created_at).toLocaleString("en-CA", {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: true,
-                })
-              : "",
+            date: doc.created_at ? formatDocumentDate(doc.created_at) : "",
             url: doc.url || "",
             isUploading: (doc as any).isUploading,
             uploadFailed: (doc as any).uploadFailed,
@@ -177,7 +77,7 @@ export const RecResourceFilesPage = () => {
           }))
         : []),
     ],
-    [pendingDocumentUploads, documents],
+    [pendingUploads, documents],
   );
 
   const onDocumentAction = (action: GalleryAction, file: GalleryDocument) => {
@@ -226,7 +126,7 @@ export const RecResourceFilesPage = () => {
         title={uploadTitle}
         onTitleChange={setUploadTitle}
         onCancel={handleCancelUpload}
-        onUpload={handleUpload}
+        onUpload={onUpload}
       />
     </Stack>
   );
