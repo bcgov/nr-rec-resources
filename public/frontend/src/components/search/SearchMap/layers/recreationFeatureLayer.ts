@@ -20,6 +20,8 @@ const iconStyleCache = new Map<string, Style>();
 const labelTextCache = new Map<string, string>();
 const labelStyleCache = new Map<string, Style>();
 
+const MIN_CLUSTER_RESOLUTION = 90;
+
 const getCapitalizedName = (name: string): string => {
   if (!labelTextCache.has(name)) {
     labelTextCache.set(name, capitalizeWords(name));
@@ -29,11 +31,11 @@ const getCapitalizedName = (name: string): string => {
 
 export function createClusteredRecreationFeatureStyle(
   feature: FeatureLike,
-  _resolution: number,
+  resolution: number,
 ): Style | Style[] | undefined {
   const features = feature.get('features') ?? [feature];
 
-  if (features.length > 1) {
+  if (features.length > 1 && resolution > MIN_CLUSTER_RESOLUTION) {
     // If there are multiple features, return the cluster style
     return clusterStyle(features.length);
   }
