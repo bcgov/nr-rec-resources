@@ -1,123 +1,152 @@
-import VectorSource from 'ol/source/Vector';
-import VectorLayer from 'ol/layer/Vector';
+import AnimatedCluster from 'ol-ext/layer/AnimatedCluster';
+import Cluster, { Options as ClusterOptions } from 'ol/source/Cluster';
+import VectorSource, { Options as VectorSourceOptions } from 'ol/source/Vector';
 import EsriJSON from 'ol/format/EsriJSON';
-import { tile as tileStrategy } from 'ol/loadingstrategy';
-import { createXYZ } from 'ol/tilegrid';
 import { Style } from 'ol/style';
-import { FeatureLike } from 'ol/Feature';
+import type { StyleFunction } from 'ol/style/Style';
+import Feature, { FeatureLike } from 'ol/Feature';
+import Geometry from 'ol/geom/Geometry';
 import { capitalizeWords } from '@/utils/capitalizeWords';
 import {
   featureLabelText,
   locationDotBlueIcon,
   locationDotRedIcon,
-} from '@/components/search/SearchMap/mapStyles';
-import {
-  MAP_LAYER_OPTIONS,
-  RECREATION_FEATURE_LAYER,
-} from '@/components/search/SearchMap/constants';
-
-//
-// This file should be moved back to the shared map repo once map development has matured
-// https://github.com/bcgov/prp-map/blob/main/src/layers/recreationFeatureLayer.ts
+} from '@/components/search/SearchMap/styles/feature';
+import { clusterStyle } from '@/components/search/SearchMap/styles/cluster';
+import { RECREATION_FEATURE_LAYER } from '@/components/search/SearchMap/constants';
+import { AnimatedClusterOptions } from '@/components/search/SearchMap/types';
 
 const iconStyleCache = new Map<string, Style>();
 const labelTextCache = new Map<string, string>();
 const labelStyleCache = new Map<string, Style>();
 
-export const getCapitalizedName = (name: string): string => {
+const getCapitalizedName = (name: string): string => {
   if (!labelTextCache.has(name)) {
     labelTextCache.set(name, capitalizeWords(name));
   }
   return labelTextCache.get(name)!;
 };
 
-export const createRecreationIconStyle = (filteredIds: string[] = []) => {
-  const filteredSet = new Set(filteredIds);
+export function createClusteredRecreationFeatureStyle(
+  feature: FeatureLike,
+  _resolution: number,
+): Style | Style[] | undefined {
+  const features = feature.get('features') ?? [feature];
 
-  return (feature: FeatureLike): Style | undefined => {
-    const id = feature.get('FOREST_FILE_ID');
-    if (filteredSet.size === 0 || !filteredSet.has(id)) return undefined;
+  if (features.length > 1) {
+    // If there are multiple features, return the cluster style
+    return clusterStyle(features.length);
+  }
 
-    const isClosed = feature.get('CLOSURE_IND') === 'Y';
-    const key = `icon-${isClosed}`;
+  const singleFeature = features[0] ?? feature;
 
-    if (!iconStyleCache.has(key)) {
-      const icon = isClosed
-        ? locationDotRedIcon.getImage()
-        : locationDotBlueIcon.getImage();
-      iconStyleCache.set(key, new Style({ image: icon ?? undefined }));
-    }
+  const isClosed = singleFeature.get('CLOSURE_IND') === 'Y';
+  const iconKey = `icon-${isClosed}`;
 
-    return iconStyleCache.get(key);
-  };
-};
+  if (!iconStyleCache.has(iconKey)) {
+    const icon = isClosed
+      ? locationDotRedIcon.getImage()
+      : locationDotBlueIcon.getImage();
+    iconStyleCache.set(iconKey, new Style({ image: icon ?? undefined }));
+  }
 
-export const createRecreationLabelStyle = (filteredIds: string[] = []) => {
-  const filteredSet = new Set(filteredIds);
+  const iconStyle = iconStyleCache.get(iconKey)!;
 
-  return (feature: FeatureLike): Style | undefined => {
-    const id = feature.get('FOREST_FILE_ID');
+  const name = singleFeature.get('PROJECT_NAME');
+  if (!name) return iconStyle;
 
-    if (filteredSet.size === 0 || !filteredSet.has(id)) return undefined;
+  const label = getCapitalizedName(name);
+  const labelKey = `label-${label}`;
 
-    const name = feature.get('PROJECT_NAME');
-    if (!name) return;
+  if (!labelStyleCache.has(labelKey)) {
+    labelStyleCache.set(labelKey, new Style({ text: featureLabelText(label) }));
+  }
 
-    const label = getCapitalizedName(name);
-    const key = `label-${label}`;
+  const labelStyle = labelStyleCache.get(labelKey)!;
 
-    if (!labelStyleCache.has(key)) {
-      labelStyleCache.set(key, new Style({ text: featureLabelText(label) }));
-    }
+  return [iconStyle, labelStyle];
+}
 
-    return labelStyleCache.get(key);
-  };
-};
-
-export const createRecreationFeatureSource = (options?: {
-  tileSize?: number;
-  wrapX?: boolean;
-}) =>
-  new VectorSource({
-    format: new EsriJSON(),
-    url: (extent) => {
-      const geometry = extent.join(',');
-      return (
-        `${RECREATION_FEATURE_LAYER}/query/?` +
-        `f=json` +
-        `&where=1=1` +
-        `&outFields=PROJECT_NAME,CLOSURE_IND,FOREST_FILE_ID` +
-        `&geometry=${geometry}` +
-        `&geometryType=esriGeometryEnvelope` +
-        `&spatialRel=esriSpatialRelIntersects` +
-        `&outSR=102100`
-      );
-    },
-    strategy: tileStrategy(
-      createXYZ({ tileSize: options?.tileSize ?? MAP_LAYER_OPTIONS.TILE_SIZE }),
-    ),
-    wrapX: options?.wrapX ?? false,
+export const createRecreationFeatureSource = (
+  options?: VectorSourceOptions,
+) => {
+  const format = new EsriJSON();
+  return new VectorSource({
+    format,
+    overlaps: false,
+    ...options,
   });
+};
 
-export const createRecreationFeatureLayer = (
+export const recreationSource = createRecreationFeatureSource();
+
+export const loadFeaturesForFilteredIds = async (
+  filteredIds: string[],
   source: VectorSource,
-  style: (
-    feature: FeatureLike,
-    resolution?: number,
-  ) => Style | Style[] | undefined,
-  options?: {
-    declutter?: boolean | string;
-    maxTextResolution: number;
-    updateWhileInteracting?: boolean;
-    updateWhileAnimating?: boolean;
-    renderBuffer?: number;
-  },
+  projection: any,
+) => {
+  source.clear();
+
+  const batchSize = 1000;
+  const filteredSet = new Set(filteredIds);
+  const allFeatures: Feature<Geometry>[] = [];
+  const format = new EsriJSON();
+
+  let offset = 0;
+
+  while (true) {
+    const url =
+      `${RECREATION_FEATURE_LAYER}/query/?f=json&where=1=1` +
+      `&outFields=PROJECT_NAME,CLOSURE_IND,FOREST_FILE_ID` +
+      `&resultRecordCount=${batchSize}&resultOffset=${offset}` +
+      `&orderByFields=PROJECT_NAME` +
+      `&inSR=102100` +
+      `&outSR=102100`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      let features = format.readFeatures(data, {
+        featureProjection: projection,
+      });
+
+      features = features.filter((feature) => {
+        const id = feature.get('FOREST_FILE_ID');
+        feature.setId(String(id));
+        return filteredSet.has(String(id));
+      });
+
+      allFeatures.push(...features);
+
+      if (data.features.length < batchSize) break;
+
+      offset += batchSize;
+    } catch (error) {
+      console.error('Error fetching features:', error);
+      break;
+    }
+  }
+
+  source.addFeatures(allFeatures);
+};
+
+export const createClusteredRecreationFeatureSource = (
+  options?: ClusterOptions,
+) => {
+  return new Cluster({
+    source: recreationSource,
+    ...options,
+  });
+};
+
+export const createClusteredRecreationFeatureLayer = (
+  source: Cluster,
+  style: StyleFunction,
+  options?: AnimatedClusterOptions,
 ) =>
-  new VectorLayer({
+  new AnimatedCluster({
     source,
     style,
-    declutter: options?.declutter ?? true,
-    updateWhileInteracting: options?.updateWhileInteracting ?? true,
-    updateWhileAnimating: options?.updateWhileAnimating ?? true,
-    renderBuffer: options?.renderBuffer ?? 300,
+    ...options,
   });
