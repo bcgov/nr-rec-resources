@@ -2,38 +2,7 @@
 [![Lifecycle](https://img.shields.io/badge/Lifecycle-Experimental-339999)](https://github.com/bcgov/repomountie/blob/master/doc/lifecycle-badges.md)
 
 [![Merge](https://github.com/bcgov/quickstart-openshift/actions/workflows/merge.yml/badge.svg)](https://github.com/bcgov/nr-rec-resources/actions/workflows/main.yml)
-[![Analysis](https://github.com/bcgov/quickstart-openshift/actions/workflows/analysis.yml/badge.svg)](https://github.com/bcgov/nr-rec-resources/actions/workflows/analysis.yml)
-[![Scheduled](https://github.com/bcgov/quickstart-openshift/actions/workflows/scheduled.yml/badge.svg)](https://github.com/bcgov/nr-rec-resources/actions/workflows/scheduled.yml)
-
-# Recreation Resource Services - RSTBC
-
-- [Contributing](CONTRIBUTING.md)
-- [Code of Conduct](CODE_OF_CONDUCT.md)
-- [License](LICENSE)
-- [Security](SECURITY.md)
-
-## Table of Contents
-
-### Project Setup
-
-- [Local Development](#local-development)
-  - [Prerequisites](#prerequisites)
-  - [Docker Compose](#docker-compose)
-  - [Installing and running the application locally](#installing-and-running-the-application-locally)
-  - [Database](#database)
-    - [Flyway](#flyway)
-    - [Running migrations](#running-migrations)
-  - [Backend](#backend)
-  - [Frontend](#frontend)
-  - [Generate API Client Library](#generate-api-client-library)
-    - [Prerequisites](#client-library-prerequisites)
-    - [Generate TypeScript Axios Client](#generate-typescript-axios-client)
-  - [Generating Prisma Schema and Client](#generating-prisma-schema-and-client)
-- [Pre-commit hooks](#pre-commit-hooks)
-  - [Skipping pre-commit hooks](#skipping-pre-commit-hooks)
-  - [Running pre-commit on all files](#running-pre-commit-on-all-files)
-- [Style Guide](#style-guide)
-- [Schemaspy Database Schema Documentation](#schemaspy-database-schema-documentation)
+[![Analysis](https://github.com/bcgov/quickstart-openshift/actions/workflows/analysis.yml/badge.svg)](https://ge-schema-documentation)
 - [Storybook Integration](#storybook-integration)
 - [API Metrics](#api-metrics)
 
