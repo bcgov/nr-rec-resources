@@ -13,6 +13,7 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiParam,
   ApiResponse,
@@ -21,8 +22,8 @@ import {
 } from "@nestjs/swagger";
 import { ResourceDocsService } from "./service/resource-docs.service";
 import {
-  FileUploadDto,
-  RecreationResourceDocBodyDto,
+  CreateRecreationResourceDocBodyDto,
+  CreateRecreationResourceDocFormDto,
   RecreationResourceDocDto,
 } from "./dto/recreation-resource-doc.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -46,7 +47,7 @@ export class ResourceDocsController {
   @Get(":rec_resource_id/docs")
   @ApiOperation({
     summary: "Get all documents related to the resource",
-    operationId: "getAll",
+    operationId: "getDocumentsByRecResourceId",
   })
   @ApiParam({
     name: "rec_resource_id",
@@ -109,9 +110,10 @@ export class ResourceDocsController {
 
   @Post(":rec_resource_id/docs")
   @UseInterceptors(FileInterceptor("file"))
+  @ApiConsumes("multipart/form-data")
   @ApiOperation({
-    summary: "Create a new Document Resource with a uploaded file",
-    operationId: "createDocumentResource",
+    summary: "Create a new Document Resource with an uploaded file",
+    operationId: "createRecreationresourceDocument",
   })
   @ApiParam({
     name: "rec_resource_id",
@@ -123,12 +125,7 @@ export class ResourceDocsController {
   @ApiBody({
     required: true,
     description: "Document Resource properties",
-    type: RecreationResourceDocBodyDto,
-  })
-  @ApiBody({
-    required: true,
-    description: "PDF File",
-    type: FileUploadDto,
+    type: CreateRecreationResourceDocFormDto,
   })
   @ApiResponse({
     status: 200,
@@ -148,9 +145,9 @@ export class ResourceDocsController {
     description: "Error adding resource to collection",
   })
   @ApiResponse({ status: 419, description: "Error uploading file" })
-  async create(
+  async createRecreationResourceDocument(
     @Param("rec_resource_id") rec_resource_id: string,
-    @Body() body: RecreationResourceDocBodyDto,
+    @Body() body: CreateRecreationResourceDocBodyDto,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<RecreationResourceDocDto | null> {
     return this.resourceDocsService.create(rec_resource_id, body.title, file);
@@ -176,16 +173,6 @@ export class ResourceDocsController {
     type: "string",
     example: "11714",
   })
-  @ApiBody({
-    required: true,
-    description: "Document Resource properties",
-    type: RecreationResourceDocBodyDto,
-  })
-  @ApiBody({
-    required: false,
-    description: "PDF File",
-    type: FileUploadDto,
-  })
   @ApiResponse({
     status: 200,
     description: "Document Updated",
@@ -201,7 +188,7 @@ export class ResourceDocsController {
   async update(
     @Param("rec_resource_id") rec_resource_id: string,
     @Param("ref_id") ref_id: string,
-    @Body() body: RecreationResourceDocBodyDto,
+    @Body() body: CreateRecreationResourceDocBodyDto,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<RecreationResourceDocDto | null> {
     return this.resourceDocsService.update(
