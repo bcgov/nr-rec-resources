@@ -1,0 +1,13 @@
+.page-layout {
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1200px) {
+  .page-layout {
+    max-width: 100%;
+    padding: 1rem;
+  }
+}

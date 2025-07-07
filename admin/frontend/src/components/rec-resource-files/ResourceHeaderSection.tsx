@@ -37,8 +37,10 @@ export const ResourceHeaderSection: React.FC<ResourceHeaderSectionProps> = ({
     className="justify-content-between resource-header-section"
   >
     <div className="resource-header-title">
-      <h1>{name}</h1>
-      <span className="resource-badge px-2">{recId}</span>
+      <Stack direction="horizontal" gap={2}>
+        <h1>{name}</h1>
+        <span className="resource-badge px-2">{recId}</span>
+      </Stack>
     </div>
     <Stack direction="horizontal" gap={3} className="py-2 action-buttons">
       <ActionButton label="Add image" onClick={onAddImage} />

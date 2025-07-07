@@ -1,11 +1,12 @@
 import "./App.css";
-import { BrowserRouter, Route, Routes, useParams } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import {
   Header,
   AuthGuard,
   RecResourceFilesPage,
   NotificationBar,
+  PageLayout,
 } from "@/components";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -53,7 +54,11 @@ function App() {
               <Route path={ROUTES.LANDING} element={<LandingPage />} />
               <Route
                 path={ROUTES.REC_RESOURCE_FILES}
-                element={<RecResourceFilesPage />}
+                element={
+                  <PageLayout>
+                    <RecResourceFilesPage />
+                  </PageLayout>
+                }
               />
             </Routes>
           </BrowserRouter>
