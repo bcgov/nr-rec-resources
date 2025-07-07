@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@bcgov/bc-sans": "^2.1.0",
-    "@bcgov/prp-map": "^0.0.7",
+    "@bcgov/prp-map": "^0.0.9",
     "@digitalspace/bcparks-bootstrap-theme": "^1.4.6",
     "@fortawesome/fontawesome-free": "^6.7.2",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
@@ -35,6 +35,7 @@
     "dotenv": "^16.4.7",
     "html-react-parser": "^5.2.2",
     "ol": "^10.4.0",
+    "ol-ext": "^4.0.33",
     "ol-mapbox-style": "^12.5.0",
     "proj4": "^2.15.0",
     "react": "^19.0.0",
