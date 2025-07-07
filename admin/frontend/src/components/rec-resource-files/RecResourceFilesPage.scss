@@ -1,38 +1,37 @@
 @import "../../styles/global.scss";
 
 .resource-header-section {
-  height: 3rem;
+  width: 100%;
 
-  .resource-header-title {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+  .resource-header-title-text {
+    font-weight: bold;
+    font-size: 1.75rem;
+    margin: 0;
+    color: $colorBlack;
+  }
 
-    h1 {
-      font-weight: 700;
-      font-size: 1.75rem;
-      margin: 0;
-      color: $colorBlack;
-    }
+  .resource-header-meta {
+    font-size: 1em;
+    color: $colorGrey;
 
-    .resource-badge {
-      background: $colorBlueLight;
-      color: $colorBlue;
-      border-radius: 999px;
-      padding: 0.18em 1.1em;
-      font-weight: 500;
-      font-size: 1rem;
-      line-height: 1;
-      letter-spacing: 0.5px;
-      display: inline-block;
+    .resource-header-type {
+      font-weight: 600;
     }
   }
 
   .action-buttons {
-    .action-button-icon {
-      border: 1px solid $colorBlue;
-      border-radius: 3px;
-      padding: 0.1rem;
+    .btn {
+      font-weight: normal;
+
+      .action-button-icon {
+        border: 1px solid $colorBlue;
+        border-radius: 3px;
+        padding: 0.2rem;
+        font-size: 0.75rem;
+      }
+      &:hover .action-button-icon {
+        border-color: $colorWhite;
+      }
     }
   }
 
@@ -40,6 +39,7 @@
     height: 2.5rem;
     color: $colorBlue;
     border-color: $colorBlue;
+    min-width: 110px;
   }
 }
 

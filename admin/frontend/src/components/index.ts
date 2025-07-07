@@ -5,3 +5,4 @@ export * from "./rec-resource-files";
 export * from "./avatar";
 export * from "./custom-button";
 export * from "./page-layout";
+export * from "./custom-badge";
