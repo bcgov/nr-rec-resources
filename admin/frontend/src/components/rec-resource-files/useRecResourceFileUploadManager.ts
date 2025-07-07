@@ -6,14 +6,15 @@ import {
   addErrorNotification,
 } from "@/store/notificationStore";
 
-export function usePendingUploads(initial: GalleryDocument[] = []) {
+export function useRecResourceFileUploadManager(
+  initial: GalleryDocument[] = [],
+) {
   const [pendingUploads, setPendingUploads] =
     useState<GalleryDocument[]>(initial);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadTitle, setUploadTitle] = useState<string>("");
   const [showUploadOverlay, setShowUploadOverlay] = useState(false);
 
-  // Move uploadMutation inside the hook
   const uploadMutation = useUploadResourceDocument();
 
   const addPendingUpload = useCallback((doc: GalleryDocument) => {
@@ -24,7 +25,7 @@ export function usePendingUploads(initial: GalleryDocument[] = []) {
     setPendingUploads((prev) => prev.filter((u) => u.id !== id));
   }, []);
 
-  const handleDocumentUploadTileClick = useCallback(() => {
+  const handleAddFileClick = useCallback(() => {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = "application/pdf";
@@ -103,7 +104,7 @@ export function usePendingUploads(initial: GalleryDocument[] = []) {
     selectedFile,
     uploadTitle,
     showUploadOverlay,
-    handleDocumentUploadTileClick,
+    handleAddFileClick,
     handleCancelUpload,
     handleUpload,
     setUploadTitle,

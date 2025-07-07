@@ -12,8 +12,13 @@ import "./RecResourceFilesPage.scss";
 import { ResourceHeaderSection } from "./ResourceHeaderSection";
 import { GalleryAction, GalleryDocument } from "./types";
 import { UploadFileModal } from "./UploadFileModal";
-import { usePendingUploads } from "./usePendingUploads";
+import { useRecResourceFileUploadManager } from "./useRecResourceFileUploadManager";
 import { formatDocumentDate } from "./helpers";
+import {
+  addErrorNotification,
+  addNotification,
+  addSuccessNotification,
+} from "@/store/notificationStore";
 
 export const RecResourceFilesPage = () => {
   const { id: rec_resource_id } = useParams();
@@ -26,11 +31,11 @@ export const RecResourceFilesPage = () => {
     selectedFile,
     uploadTitle,
     showUploadOverlay,
-    handleDocumentUploadTileClick,
+    handleAddFileClick,
     handleCancelUpload,
     handleUpload,
     setUploadTitle,
-  } = usePendingUploads([]);
+  } = useRecResourceFileUploadManager([]);
 
   const {
     data: documents,
@@ -73,9 +78,17 @@ export const RecResourceFilesPage = () => {
       window.open(file.url, "_blank");
     }
     if (action === "download" && file.url) {
-      downloadUrlAsFile(file.url, file.name || "document");
+      downloadUrlAsFile(file.url, file.name || "document")
+        .then(() => {
+          addSuccessNotification(
+            `File "${file.name}" downloaded successfully.`,
+          );
+        })
+        .catch((error) => {
+          console.error("Failed to download file:", error);
+          addErrorNotification(`Failed to download file "${file.name}".`);
+        });
     }
-    // handle 'add' and 'delete' as needed
   };
 
   return (
@@ -87,7 +100,7 @@ export const RecResourceFilesPage = () => {
       <ResourceHeaderSection
         name="Snow Creek"
         recId="REC2214"
-        onAddDocument={handleDocumentUploadTileClick}
+        onAddDocument={handleAddFileClick}
       />
       <InfoBanner>
         All images and documents will be published to the beta website
@@ -100,7 +113,7 @@ export const RecResourceFilesPage = () => {
         items={allDocuments}
         uploadLabel="Upload"
         isLoading={isFetching}
-        onUploadClick={handleDocumentUploadTileClick}
+        onUploadClick={handleAddFileClick}
         renderItem={(doc) => (
           <GalleryFileCard<GalleryDocument>
             key={doc.id}

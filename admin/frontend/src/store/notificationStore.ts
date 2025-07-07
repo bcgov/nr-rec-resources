@@ -3,11 +3,12 @@
  * Provides global notification management as a collection of messages.
  */
 import { Store } from "@tanstack/store";
+import { AlertProps } from "react-bootstrap";
 
 export interface NotificationMessage {
   id: string | number;
   message: string;
-  variant: string;
+  variant: AlertProps["variant"];
   autoDismiss?: boolean;
   timeout?: number;
 }

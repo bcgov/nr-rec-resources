@@ -26,12 +26,7 @@ export function downloadBlobAsFile(blob: Blob, fileName: string) {
  * @param fileName - The name for the downloaded file.
  */
 export async function downloadUrlAsFile(url: string, fileName: string) {
-  try {
-    const response = await fetch(url, { mode: "cors" });
-    if (!response.ok) throw new Error("Failed to fetch file");
-    const blob = await response.blob();
-    downloadBlobAsFile(blob, fileName);
-  } catch (error) {
-    console.error("Download failed:", error);
-  }
+  const response = await fetch(url, { mode: "cors" });
+  const blob = await response.blob();
+  downloadBlobAsFile(blob, fileName);
 }
