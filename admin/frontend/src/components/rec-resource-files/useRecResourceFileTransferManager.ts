@@ -1,19 +1,21 @@
 import { useState, useCallback } from "react";
-import { GalleryDocument, GalleryFile } from "./types";
+import { useMutation } from "@tanstack/react-query";
+import { GalleryDocument } from "./types";
 import { useUploadResourceDocument } from "@/services/hooks/recreation-resource-admin/useUploadResourceDocument";
+import { downloadUrlAsFile } from "@/utils/fileUtils";
 import {
   addSuccessNotification,
   addErrorNotification,
 } from "@/store/notificationStore";
 
 /**
- * Custom React hook to manage file uploads for a recreation resource.
- * Handles file selection, upload overlay state, and pending uploads.
+ * Custom React hook to manage file uploads and downloads for a recreation resource.
+ * Handles file selection, upload overlay state, pending uploads, and download state.
  *
  * @param initial - Initial list of GalleryDocument objects to populate pending uploads.
- * @returns Object containing state and handlers for file upload management.
+ * @returns Object containing state and handlers for file upload and download management.
  */
-export function useRecResourceFileUploadManager(
+export function useRecResourceFileTransferManager(
   initial: GalleryDocument[] = [],
 ) {
   /**
@@ -33,14 +35,8 @@ export function useRecResourceFileUploadManager(
    */
   const [showUploadOverlay, setShowUploadOverlay] = useState(false);
 
-  /**
-   * Mutation hook for uploading a resource document.
-   */
   const uploadMutation = useUploadResourceDocument();
 
-  /**
-   * Handler for the 'Add File' button click. Opens a file picker for PDF files.
-   */
   const handleAddFileClick = useCallback(() => {
     const input = document.createElement("input");
     input.type = "file";
@@ -55,21 +51,12 @@ export function useRecResourceFileUploadManager(
     input.click();
   }, []);
 
-  /**
-   * Handler to cancel the upload process and reset related state.
-   */
   const handleCancelUpload = useCallback(() => {
     setShowUploadOverlay(false);
     setSelectedFile(null);
     setUploadTitle("");
   }, []);
 
-  /**
-   * Handler to perform the file upload. Adds a pending upload, calls the upload mutation, and handles notifications.
-   *
-   * @param params.rec_resource_id - The ID of the recreation resource.
-   * @param params.onSuccess - Callback to run after successful upload.
-   */
   const handleUpload = useCallback(
     ({
       rec_resource_id,
@@ -80,8 +67,6 @@ export function useRecResourceFileUploadManager(
     }) => {
       if (!selectedFile || !uploadTitle) return;
       const tempId = `${Date.now()}-${Math.random()}`;
-
-      // Add a temporary entry to pending uploads
       const tempEntry: GalleryDocument = {
         id: tempId,
         name: uploadTitle,
@@ -106,13 +91,11 @@ export function useRecResourceFileUploadManager(
         {
           onSuccess: () => {
             addSuccessNotification("Document uploaded successfully.");
-            // Remove the pending upload entry
             setNewUploads((prev) => prev.filter((u) => u.id !== tempId));
             onSuccess();
           },
           onError: () => {
             addErrorNotification("Failed to upload document.", "error");
-            // Update the pending upload entry to indicate failure
             tempEntry.isUploading = false;
             tempEntry.uploadFailed = true;
             setNewUploads((prev) => [...prev]);
@@ -121,6 +104,33 @@ export function useRecResourceFileUploadManager(
       );
     },
     [selectedFile, uploadTitle, uploadMutation],
+  );
+
+  // Download mutation logic
+  const downloadMutation = useMutation<
+    void,
+    unknown,
+    { url: string; fileName: string }
+  >({
+    mutationFn: async ({ url, fileName }) => {
+      await downloadUrlAsFile(url, fileName || "document");
+    },
+    onSuccess: (_data, variables) => {
+      addSuccessNotification(
+        `File "${variables.fileName}" downloaded successfully.`,
+      );
+    },
+    onError: (error, variables) => {
+      console.error("Failed to download file:", error);
+      addErrorNotification(`Failed to download file "${variables.fileName}".`);
+    },
+  });
+
+  const handleDownload = useCallback(
+    (url: string, fileName: string) => {
+      downloadMutation.mutate({ url, fileName });
+    },
+    [downloadMutation],
   );
 
   return {
@@ -132,5 +142,7 @@ export function useRecResourceFileUploadManager(
     handleCancelUpload,
     handleUpload,
     setUploadTitle,
+    handleDownload,
+    downloadMutation,
   };
 }

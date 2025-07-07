@@ -1,5 +1,4 @@
 import { useGetDocumentsByRecResourceId } from "@/services/hooks/recreation-resource-admin/useGetDocumentsByRecResourceId";
-import { downloadUrlAsFile } from "@/utils/fileUtils";
 import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useMemo } from "react";
@@ -12,12 +11,8 @@ import "./RecResourceFilesPage.scss";
 import { ResourceHeaderSection } from "./ResourceHeaderSection";
 import { GalleryAction, GalleryDocument } from "./types";
 import { UploadFileModal } from "./UploadFileModal";
-import { useRecResourceFileUploadManager } from "./useRecResourceFileUploadManager";
+import { useRecResourceFileTransferManager } from "./useRecResourceFileTransferManager";
 import { formatDocumentDate } from "./helpers";
-import {
-  addErrorNotification,
-  addSuccessNotification,
-} from "@/store/notificationStore";
 import { MAX_DOCUMENTS_PER_REC_RESOURCE } from "./constants";
 import { COLOR_RED } from "@/styles/colors";
 
@@ -36,11 +31,13 @@ export const RecResourceFilesPage = () => {
     handleCancelUpload,
     handleUpload,
     setUploadTitle,
-  } = useRecResourceFileUploadManager([]);
+    handleDownload,
+    downloadMutation,
+  } = useRecResourceFileTransferManager([]);
 
   const {
     data: documents,
-    isFetching,
+    isFetching: isFetchingDocuments,
     refetch,
   } = useGetDocumentsByRecResourceId(rec_resource_id);
 
@@ -81,16 +78,7 @@ export const RecResourceFilesPage = () => {
       window.open(file.url, "_blank");
     }
     if (action === "download" && file.url) {
-      downloadUrlAsFile(file.url, file.name || "document")
-        .then(() => {
-          addSuccessNotification(
-            `File "${file.name}" downloaded successfully.`,
-          );
-        })
-        .catch((error) => {
-          console.error("Failed to download file:", error);
-          addErrorNotification(`Failed to download file "${file.name}".`);
-        });
+      handleDownload(file.url, file.name || "document");
     }
   };
 
@@ -117,7 +105,7 @@ export const RecResourceFilesPage = () => {
         description="Document formats only accept PDF at max file size 1mb."
         items={allDocuments}
         uploadLabel="Upload"
-        isLoading={isFetching}
+        isLoading={isFetchingDocuments}
         onUploadClick={handleAddFileClick}
         uploadDisabled={isDocumentUploadDisabled}
         renderItem={(doc) => (
