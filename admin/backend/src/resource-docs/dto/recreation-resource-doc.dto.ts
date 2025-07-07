@@ -12,23 +12,27 @@ export enum RecreationResourceDocCode {
 export class RecreationResourceDocDto {
   @ApiProperty({
     description: "Reference ID for the image",
+    type: String,
     example: "1000",
   })
   ref_id?: string;
 
   @ApiProperty({
     description: "Doc title",
+    type: String,
     example: "Campbell river site map",
   })
   title: string | null;
 
   @ApiProperty({
     description: "rec_resource_id",
+    type: String,
   })
   rec_resource_id: string | null;
 
   @ApiProperty({
     description: "doc link",
+    type: String,
   })
   url?: string;
 
@@ -40,16 +44,24 @@ export class RecreationResourceDocDto {
 
   @ApiProperty({
     description: "Description of the document code",
+    type: String,
   })
   doc_code_description?: string;
 
   @ApiProperty({
     description: "File extension",
+    type: String,
   })
   extension: string | null;
+
+  @ApiProperty({
+    description: "File upload date",
+    type: String,
+  })
+  created_at: string | null;
 }
 
-export class RecreationResourceDocBodyDto {
+export class CreateRecreationResourceDocBodyDto {
   @ApiProperty({
     description: "Doc title",
     example: "Campbell river site map",
@@ -57,7 +69,7 @@ export class RecreationResourceDocBodyDto {
     maxLength: 100,
     type: String,
   })
-  @Matches(/^[A-Za-z0-9 "'()#.&/]+$/, {
+  @Matches(/^[A-Za-z0-9-_'(). ]+$/, {
     message:
       "document title can only contain alphanumeric characters and spaces",
   })
@@ -66,7 +78,17 @@ export class RecreationResourceDocBodyDto {
   title: string;
 }
 
-export class FileUploadDto {
+export class CreateRecreationResourceDocFormDto {
+  @ApiProperty({
+    description: "Document title",
+    example: "Campbell river site map",
+    minLength: 3,
+    maxLength: 100,
+    pattern: "^[A-Za-z0-9-_'(). ]+$",
+    type: String,
+  })
+  title: string;
+
   @ApiProperty({
     type: "string",
     format: "binary",

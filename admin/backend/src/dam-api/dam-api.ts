@@ -44,19 +44,23 @@ async function axiosPost(formData) {
     });
 }
 
-export async function createResource() {
+/**
+ * Creates a new resource in the Digital Asset Management (DAM) system.
+ * @param title The title of the resource to create.
+ */
+export async function createResource(title: string) {
   try {
     const params: any = {
       user,
       function: "create_resource",
+      metadata: JSON.stringify({ title }),
       resource_type: 1,
       archive: 0,
     };
     const formData = createFormData(params);
 
     return await axiosPost(formData);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (ex) {
+  } catch {
     throw new HttpException(
       "Error creating resource.",
       DamErrors.ERR_CREATING_RESOURCE,
@@ -74,8 +78,7 @@ export async function getResourcePath(resource: string) {
     const formData = createFormData(params);
 
     return await axiosPost(formData);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (ex) {
+  } catch {
     throw new HttpException(
       "Error getting resource images.",
       DamErrors.ERR_GETTING_RESOURCE_IMAGES,
@@ -94,8 +97,7 @@ export async function addResourceToCollection(resource: string) {
     const formData = createFormData(params);
 
     return await axiosPost(formData);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (ex) {
+  } catch {
     throw new HttpException(
       "Error adding resource to collection.",
       DamErrors.ERR_ADDING_RESOURCE_TO_COLLECTION,
@@ -121,8 +123,7 @@ export async function uploadFile(ref: string, file: Express.Multer.File) {
     });
 
     return await axiosPost(formData);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (ex) {
+  } catch {
     throw new HttpException(
       "Error uploading file.",
       DamErrors.ERR_UPLOADING_FILE,
@@ -140,8 +141,7 @@ export async function deleteResource(resource: string) {
     const formData = createFormData(params);
 
     return await axiosPost(formData);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  } catch (ex) {
+  } catch {
     throw new HttpException(
       "Error deleting resource.",
       DamErrors.ERR_DELETING_RESOURCE,

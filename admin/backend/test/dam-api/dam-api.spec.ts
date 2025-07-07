@@ -82,7 +82,7 @@ describe("createResource", () => {
 
   it("should return new resource id", async () => {
     (axios.post as any).mockResolvedValue({ data: 123 });
-    const result = await createResource();
+    const result = await createResource("Test Resource");
     expect(result).toEqual(123);
   });
 
@@ -90,7 +90,9 @@ describe("createResource", () => {
     const error = new Error();
     (axios.post as any).mockRejectedValue(error);
 
-    await expect(createResource()).rejects.toThrow("Error creating resource.");
+    await expect(createResource("Test Resource")).rejects.toThrow(
+      "Error creating resource.",
+    );
   });
 });
 

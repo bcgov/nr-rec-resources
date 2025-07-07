@@ -65,12 +65,15 @@ describe("ResourceDocsController", () => {
       vi.spyOn(
         resourceDocsService,
         "getDocumentByResourceId",
-      ).mockResolvedValue(null as any);
+      ).mockRejectedValue(
+        new HttpException("Recreation Resource document not found", 404),
+      );
       try {
         await controller.getDocumentByResourceId("REC0001", "11535");
       } catch (e) {
         expect(e).toBeInstanceOf(HttpException);
-        expect(e.message).toBe("Recreation Resource not found.");
+        expect(e.message).toBe("Recreation Resource document not found");
+        expect(e.getStatus()).toBe(404);
       }
     });
   });
@@ -108,12 +111,15 @@ describe("ResourceDocsController", () => {
     });
 
     it("should throw error if recreation resource not found", async () => {
-      vi.spyOn(resourceDocsService, "getAll").mockResolvedValue(null);
+      vi.spyOn(resourceDocsService, "getAll").mockRejectedValue(
+        new HttpException("Recreation Resource document not found", 404),
+      );
       try {
         await controller.getAll("REC0001");
       } catch (e) {
         expect(e).toBeInstanceOf(HttpException);
-        expect(e.message).toBe("Recreation Resource not found.");
+        expect(e.message).toBe("Recreation Resource document not found");
+        expect(e.getStatus()).toBe(404);
       }
     });
   });
@@ -134,12 +140,12 @@ describe("ResourceDocsController", () => {
       };
       vi.spyOn(resourceDocsService, "create").mockResolvedValue(result as any);
       expect(
-        await controller.create(
+        await controller.createRecreationResourceDocument(
           "REC0001",
           { title: "title" },
           {
             originalname: "sample.name",
-            mimetype: "sample.type",
+            mimetype: "application/pdf",
             path: "sample.url",
             buffer: Buffer.from("file"),
             fieldname: "",
@@ -155,15 +161,15 @@ describe("ResourceDocsController", () => {
 
     it("should throw error if recreation resource not found", async () => {
       vi.spyOn(resourceDocsService, "create").mockRejectedValue(
-        new HttpException("Recreation Resource not found.", 500),
+        new HttpException("Recreation Resource not found", 404),
       );
       try {
-        await controller.create(
+        await controller.createRecreationResourceDocument(
           "REC0001",
           { title: "title" },
           {
             originalname: "sample.name",
-            mimetype: "sample.type",
+            mimetype: "application/pdf",
             path: "sample.url",
             buffer: Buffer.from("file"),
             fieldname: "",
@@ -176,7 +182,36 @@ describe("ResourceDocsController", () => {
         );
       } catch (e) {
         expect(e).toBeInstanceOf(HttpException);
-        expect(e.message).toBe("Recreation Resource not found.");
+        expect(e.message).toBe("Recreation Resource not found");
+        expect(e.getStatus()).toBe(404);
+      }
+    });
+
+    it("should throw error if file type not allowed", async () => {
+      vi.spyOn(resourceDocsService, "create").mockRejectedValue(
+        new HttpException("File Type not allowed", 415),
+      );
+      try {
+        await controller.createRecreationResourceDocument(
+          "REC0001",
+          { title: "title" },
+          {
+            originalname: "sample.name",
+            mimetype: "application/zip",
+            path: "sample.url",
+            buffer: Buffer.from("file"),
+            fieldname: "",
+            encoding: "",
+            size: 0,
+            stream: Readable.from(["test content"]),
+            destination: "",
+            filename: "",
+          },
+        );
+      } catch (e) {
+        expect(e).toBeInstanceOf(HttpException);
+        expect(e.message).toBe("File Type not allowed");
+        expect(e.getStatus()).toBe(415);
       }
     });
   });
@@ -203,7 +238,7 @@ describe("ResourceDocsController", () => {
           { title: "title" },
           {
             originalname: "sample.name",
-            mimetype: "sample.type",
+            mimetype: "application/pdf",
             path: "sample.url",
             buffer: Buffer.from("file"),
             fieldname: "",
@@ -219,7 +254,7 @@ describe("ResourceDocsController", () => {
 
     it("should throw error if recreation resource not found", async () => {
       vi.spyOn(resourceDocsService, "update").mockRejectedValue(
-        new HttpException("Recreation Resource not found.", 500),
+        new HttpException("Recreation Resource not found", 404),
       );
       try {
         await controller.update(
@@ -228,7 +263,7 @@ describe("ResourceDocsController", () => {
           { title: "title" },
           {
             originalname: "sample.name",
-            mimetype: "sample.type",
+            mimetype: "application/pdf",
             path: "sample.url",
             buffer: Buffer.from("file"),
             fieldname: "",
@@ -241,7 +276,37 @@ describe("ResourceDocsController", () => {
         );
       } catch (e) {
         expect(e).toBeInstanceOf(HttpException);
-        expect(e.message).toBe("Recreation Resource not found.");
+        expect(e.message).toBe("Recreation Resource not found");
+        expect(e.getStatus()).toBe(404);
+      }
+    });
+
+    it("should throw error if file type not allowed", async () => {
+      vi.spyOn(resourceDocsService, "update").mockRejectedValue(
+        new HttpException("File Type not allowed", 415),
+      );
+      try {
+        await controller.update(
+          "REC0001",
+          "11535",
+          { title: "title" },
+          {
+            originalname: "sample.name",
+            mimetype: "application/zip",
+            path: "sample.url",
+            buffer: Buffer.from("file"),
+            fieldname: "",
+            encoding: "",
+            size: 0,
+            stream: Readable.from(["test content"]),
+            destination: "",
+            filename: "",
+          },
+        );
+      } catch (e) {
+        expect(e).toBeInstanceOf(HttpException);
+        expect(e.message).toBe("File Type not allowed");
+        expect(e.getStatus()).toBe(415);
       }
     });
   });
@@ -265,12 +330,15 @@ describe("ResourceDocsController", () => {
     });
 
     it("should throw error if recreation resource not found", async () => {
-      vi.spyOn(resourceDocsService, "delete").mockResolvedValue(null);
+      vi.spyOn(resourceDocsService, "delete").mockRejectedValue(
+        new HttpException("Recreation Resource not found", 404),
+      );
       try {
         await controller.delete("REC0001", "11535");
       } catch (e) {
         expect(e).toBeInstanceOf(HttpException);
-        expect(e.message).toBe("Recreation Resource not found.");
+        expect(e.message).toBe("Recreation Resource not found");
+        expect(e.getStatus()).toBe(404);
       }
     });
   });
