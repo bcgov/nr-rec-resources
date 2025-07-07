@@ -3,6 +3,7 @@ import { Accordion, Row, Col, Stack, Spinner } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import "./Gallery.scss";
+import { UploadTile } from "./UploadTile";
 
 interface GalleryAccordionProps<T> {
   eventKey: string;
@@ -13,6 +14,7 @@ interface GalleryAccordionProps<T> {
   onUploadClick?: () => void;
   uploadLabel?: string;
   isLoading?: boolean;
+  uploadDisabled?: boolean;
 }
 
 export function GalleryAccordion<T>({
@@ -24,6 +26,7 @@ export function GalleryAccordion<T>({
   onUploadClick,
   uploadLabel = "Upload",
   isLoading = false,
+  uploadDisabled = false,
 }: GalleryAccordionProps<T>) {
   return (
     <Accordion defaultActiveKey={eventKey} className="gallery-accordion">
@@ -53,20 +56,11 @@ export function GalleryAccordion<T>({
               <Row className="g-3">
                 {/* Upload tile */}
                 <Col xs={12} sm={6} md={3} className="gallery-column">
-                  <div
-                    className="upload-tile-dashed d-flex flex-column align-items-center justify-content-center h-100 w-100"
+                  <UploadTile
+                    disabled={uploadDisabled}
+                    label={uploadLabel}
                     onClick={onUploadClick}
-                  >
-                    <span
-                      className="fs-1 fw-light text-muted"
-                      style={{ lineHeight: 1 }}
-                    >
-                      +
-                    </span>
-                    <span className="fs-6 fw-normal text-muted mt-1">
-                      {uploadLabel}
-                    </span>
-                  </div>
+                  />
                 </Col>
 
                 {items.map((item, idx) => (

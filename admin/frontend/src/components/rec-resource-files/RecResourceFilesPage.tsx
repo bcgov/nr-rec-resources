@@ -106,6 +106,8 @@ export const RecResourceFilesPage = () => {
         All images and documents will be published to the beta website
         immediately.
       </InfoBanner>
+
+      {/* Document gallery */}
       <GalleryAccordion<GalleryDocument>
         eventKey="documents"
         title="Public documents"
@@ -114,6 +116,7 @@ export const RecResourceFilesPage = () => {
         uploadLabel="Upload"
         isLoading={isFetching}
         onUploadClick={handleAddFileClick}
+        uploadDisabled={allDocuments.length > 30}
         renderItem={(doc) => (
           <GalleryFileCard<GalleryDocument>
             key={doc.id}
