@@ -15,7 +15,6 @@ import { CustomBadge } from "../custom-badge";
 interface ResourceHeaderSectionProps {
   name: string;
   recId: string;
-  status?: string; // e.g., "Open"
   onAddImage?: () => void;
   onAddDocument?: () => void;
 }
@@ -40,7 +39,6 @@ const ActionButton = ({
 export const ResourceHeaderSection: React.FC<ResourceHeaderSectionProps> = ({
   name,
   recId,
-  status = "Open",
   onAddImage,
   onAddDocument,
 }) => (
@@ -54,11 +52,6 @@ export const ResourceHeaderSection: React.FC<ResourceHeaderSectionProps> = ({
           label={recId}
           bgColor={COLOR_BLUE_LIGHT}
           textColor={COLOR_BLUE}
-        />
-        <CustomBadge
-          label={status}
-          bgColor={COLOR_GREEN}
-          textColor={COLOR_WHITE}
         />
       </Stack>
 
@@ -75,13 +68,6 @@ export const ResourceHeaderSection: React.FC<ResourceHeaderSectionProps> = ({
           icon={faPlus}
         />
       </Stack>
-    </Stack>
-    <Stack
-      direction="horizontal"
-      gap={3}
-      className="align-items-center resource-header-meta"
-    >
-      <span className="resource-header-type">Recreation Site</span>
     </Stack>
   </Stack>
 );

@@ -19,6 +19,8 @@ import {
   addNotification,
   addSuccessNotification,
 } from "@/store/notificationStore";
+import { MAX_DOCUMENTS_PER_REC_RESOURCE } from "./constants";
+import { COLOR_RED } from "@/styles/colors";
 
 export const RecResourceFilesPage = () => {
   const { id: rec_resource_id } = useParams();
@@ -73,6 +75,9 @@ export const RecResourceFilesPage = () => {
     [pendingUploads, documents],
   );
 
+  const isDocumentUploadDisabled =
+    allDocuments.length >= MAX_DOCUMENTS_PER_REC_RESOURCE;
+
   const onDocumentAction = (action: GalleryAction, file: GalleryDocument) => {
     if (action === "view" && file.url) {
       window.open(file.url, "_blank");
@@ -116,12 +121,12 @@ export const RecResourceFilesPage = () => {
         uploadLabel="Upload"
         isLoading={isFetching}
         onUploadClick={handleAddFileClick}
-        uploadDisabled={allDocuments.length > 30}
+        uploadDisabled={isDocumentUploadDisabled}
         renderItem={(doc) => (
           <GalleryFileCard<GalleryDocument>
             key={doc.id}
             topContent={
-              <FontAwesomeIcon icon={faFilePdf} size="2x" color="#d32f2f" />
+              <FontAwesomeIcon icon={faFilePdf} size="2x" color={COLOR_RED} />
             }
             file={doc}
             onAction={onDocumentAction}
