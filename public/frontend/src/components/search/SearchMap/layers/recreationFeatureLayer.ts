@@ -7,11 +7,12 @@ import type { StyleFunction } from 'ol/style/Style';
 import Feature, { FeatureLike } from 'ol/Feature';
 import Geometry from 'ol/geom/Geometry';
 import { capitalizeWords } from '@/utils/capitalizeWords';
+import { featureLabelText } from '@/components/search/SearchMap/styles/feature';
 import {
-  featureLabelText,
   locationDotBlueIcon,
+  locationDotOrangeIcon,
   locationDotRedIcon,
-} from '@/components/search/SearchMap/styles/feature';
+} from '@/components/search/SearchMap/styles/icons';
 import { clusterStyle } from '@/components/search/SearchMap/styles/cluster';
 import { RECREATION_FEATURE_LAYER } from '@/components/search/SearchMap/constants';
 import { AnimatedClusterOptions } from '@/components/search/SearchMap/types';
@@ -34,11 +35,19 @@ export function createClusteredRecreationFeatureStyle(
   const features = feature.get('features') ?? [feature];
 
   if (features.length > 1) {
-    // If there are multiple features, return the cluster style
+    // features.forEach((feature: Feature) => feature.set('selected', false));
     return clusterStyle(features.length);
   }
 
   const singleFeature = features[0] ?? feature;
+
+  const isSelected = singleFeature.get('selected');
+
+  if (isSelected) {
+    return new Style({
+      image: locationDotOrangeIcon.getImage() ?? undefined,
+    });
+  }
 
   const isClosed = singleFeature.get('CLOSURE_IND') === 'Y';
   const iconKey = `icon-${isClosed}`;
@@ -114,6 +123,7 @@ export const loadFeaturesForFilteredIds = async (
       features = features.filter((feature) => {
         const id = feature.get('FOREST_FILE_ID');
         feature.setId(String(id));
+        feature.set('type', 'recreation-resource');
         return filteredSet.has(String(id));
       });
 

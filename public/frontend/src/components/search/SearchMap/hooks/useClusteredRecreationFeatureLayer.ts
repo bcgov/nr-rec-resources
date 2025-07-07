@@ -49,9 +49,9 @@ export const useClusteredRecreationFeatureLayer = (
   useEffect(() => {
     if (!map || !layerRef.current || !clusterZoomThreshold) return;
 
-    // Disable clustering based on zoom level
     const view = map.getView();
 
+    // Disable clustering based on zoom level
     const updateClusterDistance = () => {
       const zoom = view.getZoom();
       if (zoom == null) return;
@@ -64,13 +64,35 @@ export const useClusteredRecreationFeatureLayer = (
     };
 
     updateClusterDistance();
-
     view.on('change:resolution', updateClusterDistance);
 
     return () => {
       view.un('change:resolution', updateClusterDistance);
     };
   }, [clusterZoomThreshold, distance, map]);
+
+  useEffect(() => {
+    // Change cursor style on feature hover
+    if (!map || !layerRef.current) return;
+
+    const onPointerMove = (evt: any) => {
+      const pointerPosition = map.getEventPixel(evt.originalEvent);
+      const feature = map.forEachFeatureAtPixel(
+        pointerPosition,
+        (feat) => feat,
+        {
+          layerFilter: (layer) => layer === layerRef.current,
+        },
+      );
+      map.getTargetElement().style.cursor = feature ? 'pointer' : '';
+    };
+
+    map.on('pointermove', onPointerMove);
+
+    return () => {
+      map.un('pointermove', onPointerMove);
+    };
+  }, [map]);
 
   useEffect(() => {
     // Add cluster zoom-to-extent on click interaction

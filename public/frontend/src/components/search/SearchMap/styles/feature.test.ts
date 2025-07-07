@@ -1,12 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import {
-  featureLabelText,
-  locationDotBlueIcon,
-  locationDotRedIcon,
-} from '@/components/search/SearchMap/styles/feature';
-import { Text, Icon } from 'ol/style';
-import locationDotBlue from '@/assets/location-dot-blue.png';
-import locationDotRed from '@/assets/location-dot-red.png';
+import { featureLabelText } from '@/components/search/SearchMap/styles/feature';
+import { Text } from 'ol/style';
 
 describe('featureLabelText', () => {
   it('creates a Text style with correct properties', () => {
@@ -23,23 +17,5 @@ describe('featureLabelText', () => {
     expect(fill?.getColor()).toBe('#000');
     expect(stroke?.getColor()).toBe('#fff');
     expect(stroke?.getWidth()).toBe(2);
-  });
-});
-
-describe('locationDot icons', () => {
-  it('locationDotBlueIcon uses the correct image and settings', () => {
-    const image = locationDotBlueIcon.getImage() as Icon;
-
-    expect(image).toBeInstanceOf(Icon);
-    expect(image.getSrc()).toBe(locationDotBlue);
-    expect(image.getScale()).toBe(0.5);
-  });
-
-  it('locationDotRedIcon uses the correct image and settings', () => {
-    const image = locationDotRedIcon.getImage() as Icon;
-
-    expect(image).toBeInstanceOf(Icon);
-    expect(image.getSrc()).toBe(locationDotRed);
-    expect(image.getScale()).toBe(0.5);
   });
 });
