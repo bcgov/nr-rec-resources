@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { GalleryDocument } from "./types";
+import { GalleryDocument, GalleryFile } from "./types";
 import { useUploadResourceDocument } from "@/services/hooks/recreation-resource-admin/useUploadResourceDocument";
 import {
   addSuccessNotification,
@@ -19,8 +19,7 @@ export function useRecResourceFileUploadManager(
   /**
    * State for documents currently pending upload.
    */
-  const [pendingUploads, setPendingUploads] =
-    useState<GalleryDocument[]>(initial);
+  const [newUploads, setNewUploads] = useState<GalleryDocument[]>(initial);
   /**
    * currently selected file to upload.
    */
@@ -83,20 +82,18 @@ export function useRecResourceFileUploadManager(
       const tempId = `${Date.now()}-${Math.random()}`;
 
       // Add a temporary entry to pending uploads
-      setPendingUploads((prev) => [
-        ...prev,
-        {
-          id: tempId,
-          name: uploadTitle,
-          rec_resource_id,
-          url: "",
-          doc_code: "RM",
-          doc_code_description: "Pending Upload",
-          extension: selectedFile.name.split(".").pop() || "",
-          date: new Date().toISOString(),
-          isUploading: true,
-        },
-      ]);
+      const tempEntry: GalleryDocument = {
+        id: tempId,
+        name: uploadTitle,
+        rec_resource_id,
+        url: "",
+        doc_code: "RM",
+        doc_code_description: "Pending Upload",
+        extension: selectedFile.name.split(".").pop() || "",
+        date: new Date().toISOString(),
+        isUploading: true,
+      };
+      setNewUploads((prev) => [...prev, tempEntry]);
       setShowUploadOverlay(false);
       setSelectedFile(null);
       setUploadTitle("");
@@ -109,14 +106,16 @@ export function useRecResourceFileUploadManager(
         {
           onSuccess: () => {
             addSuccessNotification("Document uploaded successfully.");
+            // Remove the pending upload entry
+            setNewUploads((prev) => prev.filter((u) => u.id !== tempId));
             onSuccess();
           },
           onError: () => {
             addErrorNotification("Failed to upload document.", "error");
-          },
-          onSettled: () => {
-            // Remove the pending upload entry
-            setPendingUploads((prev) => prev.filter((u) => u.id !== tempId));
+            // Update the pending upload entry to indicate failure
+            tempEntry.isUploading = false;
+            tempEntry.uploadFailed = true;
+            setNewUploads((prev) => [...prev]);
           },
         },
       );
@@ -125,7 +124,7 @@ export function useRecResourceFileUploadManager(
   );
 
   return {
-    pendingUploads,
+    newUploads,
     selectedFile,
     uploadTitle,
     showUploadOverlay,

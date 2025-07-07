@@ -13,6 +13,12 @@ export function useUploadResourceDocument() {
 
   return useMutation({
     mutationFn: async (params: UploadResourceDocumentParams) => {
+      // todo: remove the error simulation after testing
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      if (params.title) {
+        throw new Error("File is required for upload");
+      }
+
       return api.createRecreationresourceDocument({
         recResourceId: params.recResourceId,
         title: params.title,

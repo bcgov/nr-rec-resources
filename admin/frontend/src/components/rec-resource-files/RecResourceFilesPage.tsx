@@ -16,7 +16,6 @@ import { useRecResourceFileUploadManager } from "./useRecResourceFileUploadManag
 import { formatDocumentDate } from "./helpers";
 import {
   addErrorNotification,
-  addNotification,
   addSuccessNotification,
 } from "@/store/notificationStore";
 import { MAX_DOCUMENTS_PER_REC_RESOURCE } from "./constants";
@@ -29,7 +28,7 @@ export const RecResourceFilesPage = () => {
   }
 
   const {
-    pendingUploads,
+    newUploads,
     selectedFile,
     uploadTitle,
     showUploadOverlay,
@@ -53,30 +52,29 @@ export const RecResourceFilesPage = () => {
 
   const allDocuments: GalleryDocument[] = useMemo(
     () => [
-      ...pendingUploads
-        .filter((u) => !u.url && u.isUploading)
-        .map((u) => ({
-          ...u,
-          date: formatDocumentDate(u.date),
-        })),
+      ...newUploads.map((u) => ({
+        ...u,
+        date: formatDocumentDate(u.date),
+      })),
       ...(documents
         ? documents.map((doc) => ({
+            ...doc,
             id: doc.ref_id,
             name: doc.title,
             date: doc.created_at ? formatDocumentDate(doc.created_at) : "",
-            url: doc.url,
-            doc_code: doc.doc_code,
-            doc_code_description: doc.doc_code_description,
-            rec_resource_id: doc.rec_resource_id,
-            extension: doc.extension,
           }))
         : []),
     ],
-    [pendingUploads, documents],
+    [newUploads, documents],
   );
 
+  /*
+   * Disable upload if the maximum number of documents has been reached.
+   * Exclude documents that have failed to upload
+   */
   const isDocumentUploadDisabled =
-    allDocuments.length >= MAX_DOCUMENTS_PER_REC_RESOURCE;
+    allDocuments.filter((doc) => !doc.uploadFailed).length >=
+    MAX_DOCUMENTS_PER_REC_RESOURCE;
 
   const onDocumentAction = (action: GalleryAction, file: GalleryDocument) => {
     if (action === "view" && file.url) {
