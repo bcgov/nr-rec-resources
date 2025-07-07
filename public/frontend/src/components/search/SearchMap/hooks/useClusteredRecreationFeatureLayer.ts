@@ -11,6 +11,9 @@ import {
   AnimatedClusterOptions,
   ExtendedClusterOptions,
 } from '@/components/search/SearchMap/types';
+import { click } from 'ol/events/condition';
+import Select from 'ol/interaction/Select';
+import { extend, createEmpty } from 'ol/extent';
 
 export const useClusteredRecreationFeatureLayer = (
   recResourceIds: string[],
@@ -51,7 +54,6 @@ export const useClusteredRecreationFeatureLayer = (
 
     const updateClusterDistance = () => {
       const zoom = view.getZoom();
-      console.log('Current zoom level:', zoom);
       if (zoom == null) return;
 
       if (zoom >= clusterZoomThreshold) {
@@ -69,6 +71,45 @@ export const useClusteredRecreationFeatureLayer = (
       view.un('change:resolution', updateClusterDistance);
     };
   }, [clusterZoomThreshold, distance, map]);
+
+  useEffect(() => {
+    // Add cluster zoom-to-extent on click interaction
+    if (!map || !layerRef.current) return;
+
+    const select = new Select({
+      condition: click,
+      layers: [layerRef.current],
+      style: null,
+    });
+
+    const handleSelect = (e: any) => {
+      const selected = e.selected[0];
+      if (!selected) return;
+
+      const features = selected.get('features');
+      if (Array.isArray(features) && features.length > 1) {
+        const extent = features.reduce((acc, feature) => {
+          return extend(acc, feature.getGeometry().getExtent());
+        }, createEmpty());
+
+        map.getView().fit(extent, {
+          padding: [100, 100, 100, 100],
+          duration: 500,
+          maxZoom: 16,
+        });
+
+        select.getFeatures().clear();
+      }
+    };
+
+    select.on('select', handleSelect);
+    map.addInteraction(select);
+
+    return () => {
+      select.un('select', handleSelect);
+      map.removeInteraction(select);
+    };
+  }, [map]);
 
   return {
     layer: layerRef.current,
