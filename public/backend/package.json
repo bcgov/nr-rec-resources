@@ -39,7 +39,7 @@
     "@prisma/client": "6.10.1",
     "aws-embedded-metrics": "^4.2.0",
     "axios": "^1.8.4",
-    "dotenv": "^16.4.7",
+    "dotenv": "^17.0.0",
     "express-prom-bundle": "^8.0.0",
     "helmet": "^8.0.0",
     "nest-winston": "^1.10.2",
