@@ -1,7 +1,8 @@
 import React from "react";
-import { Button, Stack } from "react-bootstrap";
+import { Stack } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
+import { CustomButton } from "../custom-button";
 
 interface ResourceHeaderSectionProps {
   name: string;
@@ -17,12 +18,12 @@ const ActionButton = ({
   label: string;
   onClick?: () => void;
 }) => (
-  <Button variant="outline-primary" onClick={onClick}>
+  <CustomButton variant="outline-primary" onClick={onClick}>
     <Stack direction="horizontal" gap={2}>
       <FontAwesomeIcon className="action-button-icon" icon={faPlus} />
       {label}
     </Stack>
-  </Button>
+  </CustomButton>
 );
 
 export const ResourceHeaderSection: React.FC<ResourceHeaderSectionProps> = ({
