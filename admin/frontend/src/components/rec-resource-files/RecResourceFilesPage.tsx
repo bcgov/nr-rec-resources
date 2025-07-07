@@ -46,7 +46,7 @@ export const RecResourceFilesPage = () => {
   const onUpload = () =>
     handleUpload({
       rec_resource_id,
-      refetch,
+      onSuccess: refetch,
     });
 
   const allDocuments: GalleryDocument[] = useMemo(
