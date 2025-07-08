@@ -177,18 +177,18 @@ export class ResourceImagesController {
     type: "string",
     example: "11719",
   })
+  @ApiResponse({ status: 500, description: "Error updating Image" })
+  @ApiResponse({ status: 415, description: "File Type not allowed" })
+  @ApiResponse({ status: 419, description: "Error uploading file" })
+  @ApiResponse({
+    status: 404,
+    description: "Recreation Resource Image not found",
+  })
   @ApiResponse({
     status: 200,
     description: "Image Updated",
     type: RecreationResourceImageDto,
   })
-  @ApiResponse({
-    status: 404,
-    description: "Recreation Resource Image not found",
-  })
-  @ApiResponse({ status: 500, description: "Error updating Image" })
-  @ApiResponse({ status: 415, description: "File Type not allowed" })
-  @ApiResponse({ status: 419, description: "Error uploading file" })
   async update(
     @Param("rec_resource_id") rec_resource_id: string,
     @Param("ref_id") ref_id: string,
@@ -222,17 +222,17 @@ export class ResourceImagesController {
     type: "string",
     example: "11719",
   })
+  @ApiResponse({ status: 500, description: "Error deleting image" })
+  @ApiResponse({ status: 420, description: "Error deleting resource" })
+  @ApiResponse({
+    status: 404,
+    description: "Recreation Resource image not found",
+  })
   @ApiResponse({
     status: 200,
     description: "Image Deleted",
     type: RecreationResourceImageDto,
   })
-  @ApiResponse({
-    status: 404,
-    description: "Recreation Resource image not found",
-  })
-  @ApiResponse({ status: 500, description: "Error deleting image" })
-  @ApiResponse({ status: 420, description: "Error deleting resource" })
   async delete(
     @Param("rec_resource_id") rec_resource_id: string,
     @Param("ref_id") ref_id: string,
