@@ -13,17 +13,18 @@ import {
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiParam,
   ApiResponse,
   ApiTags,
   getSchemaPath,
 } from "@nestjs/swagger";
-import { ResourceDocsService } from "./service/resource-docs.service";
+import { ResourceImagesService } from "./service/resource-images.service";
 import {
-  FileUploadDto,
-  RecreationResourceDocBodyDto,
-  RecreationResourceDocDto,
+  CreateRecreationResourceImageBodyDto,
+  CreateRecreationResourceImageFormDto,
+  RecreationResourceImageDto,
 } from "./dto/recreation-resource-image.dto";
 import { FileInterceptor } from "@nestjs/platform-express";
 import {
@@ -40,13 +41,13 @@ import { AuthGuard } from "@nestjs/passport";
 @UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
 @AuthRoles([RecreationResourceAuthRole.RST_VIEWER], ROLE_MODE.ALL)
 @Controller({ path: "recreation-resource", version: "1" })
-export class ResourceDocsController {
-  constructor(private readonly resourceDocsService: ResourceDocsService) {}
+export class ResourceImagesController {
+  constructor(private readonly resourceImagesService: ResourceImagesService) {}
 
-  @Get(":rec_resource_id/docs")
+  @Get(":rec_resource_id/images")
   @ApiOperation({
-    summary: "Get all documents related to the resource",
-    operationId: "getAll",
+    summary: "Get all images related to the resource",
+    operationId: "getImagesByRecResourceId",
   })
   @ApiParam({
     name: "rec_resource_id",
@@ -57,22 +58,22 @@ export class ResourceDocsController {
   })
   @ApiResponse({
     status: 200,
-    description: "Documents Found",
+    description: "Images Found",
     schema: {
       type: "array",
-      items: { $ref: getSchemaPath(RecreationResourceDocDto) },
+      items: { $ref: getSchemaPath(RecreationResourceImageDto) },
     },
   })
   async getAll(
     @Param("rec_resource_id") rec_resource_id: string,
-  ): Promise<RecreationResourceDocDto[] | null> {
-    return this.resourceDocsService.getAll(rec_resource_id);
+  ): Promise<RecreationResourceImageDto[] | null> {
+    return this.resourceImagesService.getAll(rec_resource_id);
   }
 
-  @Get(":rec_resource_id/docs/:ref_id")
+  @Get(":rec_resource_id/images/:ref_id")
   @ApiOperation({
-    summary: "Get one document resource by reference ID",
-    operationId: "getDocumentResourceById",
+    summary: "Get one image resource by reference ID",
+    operationId: "getImageResourceById",
   })
   @ApiParam({
     name: "rec_resource_id",
@@ -84,34 +85,35 @@ export class ResourceDocsController {
   @ApiParam({
     name: "ref_id",
     required: true,
-    description: "Document Resource identifier",
+    description: "Image Resource identifier",
     type: "string",
     example: "11714",
   })
   @ApiResponse({
     status: 200,
-    description: "Document Found",
-    type: RecreationResourceDocDto,
+    description: "Image Found",
+    type: RecreationResourceImageDto,
   })
   @ApiResponse({
     status: 404,
     description: "Recreation Resource not found",
   })
-  async getDocumentByResourceId(
+  async getImageByResourceId(
     @Param("rec_resource_id") rec_resource_id: string,
     @Param("ref_id") ref_id: string,
-  ): Promise<RecreationResourceDocDto | null> {
-    return this.resourceDocsService.getDocumentByResourceId(
+  ): Promise<RecreationResourceImageDto | null> {
+    return this.resourceImagesService.getImageByResourceId(
       rec_resource_id,
       ref_id,
     );
   }
 
-  @Post(":rec_resource_id/docs")
+  @Post(":rec_resource_id/images")
   @UseInterceptors(FileInterceptor("file"))
+  @ApiConsumes("multipart/form-data")
   @ApiOperation({
-    summary: "Create a new Document Resource with a uploaded file",
-    operationId: "createDocumentResource",
+    summary: "Create a new Image Resource with an uploaded file",
+    operationId: "createRecreationresourceImage",
   })
   @ApiParam({
     name: "rec_resource_id",
@@ -122,24 +124,19 @@ export class ResourceDocsController {
   })
   @ApiBody({
     required: true,
-    description: "Document Resource properties",
-    type: RecreationResourceDocBodyDto,
-  })
-  @ApiBody({
-    required: true,
-    description: "PDF File",
-    type: FileUploadDto,
+    description: "Image Resource properties",
+    type: CreateRecreationResourceImageFormDto,
   })
   @ApiResponse({
     status: 200,
-    description: "Document Created",
-    type: RecreationResourceDocDto,
+    description: "Image Created",
+    type: RecreationResourceImageDto,
   })
   @ApiResponse({
     status: 404,
-    description: "Recreation Resource document not found",
+    description: "Recreation Resource Image not found",
   })
-  @ApiResponse({ status: 500, description: "Error creating document" })
+  @ApiResponse({ status: 500, description: "Error creating image" })
   @ApiResponse({ status: 415, description: "File Type not allowed" })
   @ApiResponse({ status: 416, description: "Error creating resource" })
   @ApiResponse({ status: 417, description: "Error getting resource images" })
@@ -148,19 +145,23 @@ export class ResourceDocsController {
     description: "Error adding resource to collection",
   })
   @ApiResponse({ status: 419, description: "Error uploading file" })
-  async create(
+  async createRecreationResourceImage(
     @Param("rec_resource_id") rec_resource_id: string,
-    @Body() body: RecreationResourceDocBodyDto,
+    @Body() body: CreateRecreationResourceImageBodyDto,
     @UploadedFile() file: Express.Multer.File,
-  ): Promise<RecreationResourceDocDto | null> {
-    return this.resourceDocsService.create(rec_resource_id, body.title, file);
+  ): Promise<RecreationResourceImageDto | null> {
+    return this.resourceImagesService.create(
+      rec_resource_id,
+      body.caption,
+      file,
+    );
   }
 
-  @Put(":rec_resource_id/docs/:ref_id")
+  @Put(":rec_resource_id/images/:ref_id")
   @UseInterceptors(FileInterceptor("file"))
   @ApiOperation({
-    summary: "Update a Document Resource",
-    operationId: "updateDocumentResource",
+    summary: "Update a Image Resource",
+    operationId: "updateImageResource",
   })
   @ApiParam({
     name: "rec_resource_id",
@@ -172,50 +173,40 @@ export class ResourceDocsController {
   @ApiParam({
     name: "ref_id",
     required: true,
-    description: "Document Resource identifier",
+    description: "Image Resource identifier",
     type: "string",
     example: "11714",
   })
-  @ApiBody({
-    required: true,
-    description: "Document Resource properties",
-    type: RecreationResourceDocBodyDto,
-  })
-  @ApiBody({
-    required: false,
-    description: "PDF File",
-    type: FileUploadDto,
-  })
   @ApiResponse({
     status: 200,
-    description: "Document Updated",
-    type: RecreationResourceDocDto,
+    description: "Image Updated",
+    type: RecreationResourceImageDto,
   })
   @ApiResponse({
     status: 404,
-    description: "Recreation Resource document not found",
+    description: "Recreation Resource image not found",
   })
-  @ApiResponse({ status: 500, description: "Error updating document" })
+  @ApiResponse({ status: 500, description: "Error updating image" })
   @ApiResponse({ status: 415, description: "File Type not allowed" })
   @ApiResponse({ status: 419, description: "Error uploading file" })
   async update(
     @Param("rec_resource_id") rec_resource_id: string,
     @Param("ref_id") ref_id: string,
-    @Body() body: RecreationResourceDocBodyDto,
+    @Body() body: CreateRecreationResourceImageBodyDto,
     @UploadedFile() file: Express.Multer.File,
-  ): Promise<RecreationResourceDocDto | null> {
-    return this.resourceDocsService.update(
+  ): Promise<RecreationResourceImageDto | null> {
+    return this.resourceImagesService.update(
       rec_resource_id,
       ref_id,
-      body.title,
+      body.caption,
       file,
     );
   }
 
-  @Delete(":rec_resource_id/docs/:ref_id")
+  @Delete(":rec_resource_id/images/:ref_id")
   @ApiOperation({
-    summary: "Delete a Document Resource",
-    operationId: "deleteDocumentResource",
+    summary: "Delete a Image Resource",
+    operationId: "deleteImageResource",
   })
   @ApiParam({
     name: "rec_resource_id",
@@ -227,25 +218,25 @@ export class ResourceDocsController {
   @ApiParam({
     name: "ref_id",
     required: true,
-    description: "Document Resource identifier",
+    description: "Image Resource identifier",
     type: "string",
     example: "11714",
   })
   @ApiResponse({
     status: 200,
-    description: "Document Deleted",
-    type: RecreationResourceDocDto,
+    description: "Image Deleted",
+    type: RecreationResourceImageDto,
   })
   @ApiResponse({
     status: 404,
-    description: "Recreation Resource document not found",
+    description: "Recreation Resource image not found",
   })
-  @ApiResponse({ status: 500, description: "Error deleting document" })
+  @ApiResponse({ status: 500, description: "Error deleting image" })
   @ApiResponse({ status: 420, description: "Error deleting resource" })
   async delete(
     @Param("rec_resource_id") rec_resource_id: string,
     @Param("ref_id") ref_id: string,
-  ): Promise<RecreationResourceDocDto | null> {
-    return this.resourceDocsService.delete(rec_resource_id, ref_id);
+  ): Promise<RecreationResourceImageDto | null> {
+    return this.resourceImagesService.delete(rec_resource_id, ref_id);
   }
 }

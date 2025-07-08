@@ -1,9 +1,6 @@
 import { HttpException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma.service";
-import {
-  RecreationResourceDocCode,
-  RecreationResourceDocDto,
-} from "../dto/recreation-resource-image.dto";
+import { RecreationResourceImageDto } from "../dto/recreation-resource-image.dto";
 import {
   uploadFile,
   createResource,
@@ -11,31 +8,41 @@ import {
   deleteResource,
   addResourceToCollection,
 } from "../../dam-api/dam-api";
-import path from "path";
 
-const allowedTypes = ["application/pdf"];
+const allowedTypes = [
+  "image/apng",
+  "image/avif",
+  "image/gif",
+  "image/jpeg",
+  "image/png",
+  "image/svg+xml",
+  "image/webp",
+];
 
 @Injectable()
-export class ResourceDocsService {
+export class ResourceImagesService {
   constructor(private readonly prisma: PrismaService) {}
 
   async getAll(
     rec_resource_id: string,
-  ): Promise<RecreationResourceDocDto[] | null> {
-    const result = await this.prisma.recreation_resource_docs.findMany({
+  ): Promise<RecreationResourceImageDto[] | null> {
+    const result = await this.prisma.recreation_resource_images.findMany({
       where: {
         rec_resource_id,
       },
       select: {
-        doc_code: true,
         rec_resource_id: true,
-        url: true,
-        title: true,
+        caption: true,
         ref_id: true,
-        extension: true,
-        recreation_resource_doc_code: {
+        created_at: true,
+        recreation_resource_image_variants: {
           select: {
-            description: true,
+            url: true,
+            extension: true,
+            width: true,
+            height: true,
+            size_code: true,
+            created_at: true,
           },
         },
       },
@@ -43,32 +50,35 @@ export class ResourceDocsService {
     return result.map((i) => this.mapResponse(i));
   }
 
-  async getDocumentByResourceId(
+  async getImageByResourceId(
     rec_resource_id: string,
     ref_id: string,
-  ): Promise<RecreationResourceDocDto> {
-    const result = await this.prisma.recreation_resource_docs.findUnique({
+  ): Promise<RecreationResourceImageDto> {
+    const result = await this.prisma.recreation_resource_images.findUnique({
       where: {
         rec_resource_id,
         ref_id,
       },
       select: {
-        doc_code: true,
         rec_resource_id: true,
-        url: true,
-        title: true,
+        caption: true,
         ref_id: true,
-        extension: true,
-        recreation_resource_doc_code: {
+        created_at: true,
+        recreation_resource_image_variants: {
           select: {
-            description: true,
+            url: true,
+            extension: true,
+            width: true,
+            height: true,
+            size_code: true,
+            created_at: true,
           },
         },
       },
     });
 
     if (result === null) {
-      throw new HttpException("Recreation Resource document not found", 404);
+      throw new HttpException("Recreation Resource image not found", 404);
     }
 
     return this.mapResponse(result);
@@ -76,9 +86,9 @@ export class ResourceDocsService {
 
   async create(
     rec_resource_id: string,
-    title: string,
+    caption: string,
     file: Express.Multer.File,
-  ): Promise<RecreationResourceDocDto> {
+  ): Promise<RecreationResourceImageDto> {
     if (!allowedTypes.includes(file.mimetype)) {
       throw new HttpException("File Type not allowed", 415);
     }
@@ -88,21 +98,28 @@ export class ResourceDocsService {
       },
     });
     if (resource === null) {
-      throw new HttpException("Recreation Resource not found", 404);
+      throw new HttpException("Recreation image not found", 404);
     }
-    const ref_id = await createResource();
+    const ref_id = await createResource(caption);
     await uploadFile(ref_id, file);
     await addResourceToCollection(ref_id);
     const files = await getResourcePath(ref_id);
-    const url = this.getOriginalFilePath(files);
-    const result = await this.prisma.recreation_resource_docs.create({
+    const result = await this.prisma.recreation_resource_images.create({
       data: {
         ref_id: ref_id.toString(),
-        doc_code: RecreationResourceDocCode.RM,
         rec_resource_id,
-        url,
-        title,
-        extension: path.extname(file.originalname).replace(".", ""),
+        caption,
+        recreation_resource_image_variants: {
+          create: files.map((f: any) => {
+            return {
+              size_code: f.size_code,
+              url: this.getFilePath(f.url),
+              width: f.width,
+              height: f.height,
+              extension: f.extension,
+            };
+          }),
+        },
       },
     });
     return this.mapResponse(result);
@@ -111,20 +128,20 @@ export class ResourceDocsService {
   async update(
     rec_resource_id: string,
     ref_id: string,
-    title: string,
+    caption: string,
     file: Express.Multer.File | undefined,
-  ): Promise<RecreationResourceDocDto> {
+  ): Promise<RecreationResourceImageDto> {
     const docToUpdate = {
-      title,
+      caption,
     };
-    const resource = await this.prisma.recreation_resource_docs.findUnique({
+    const resource = await this.prisma.recreation_resource_images.findUnique({
       where: {
         rec_resource_id,
         ref_id,
       },
     });
     if (resource === null) {
-      throw new HttpException("Recreation Resource not found", 404);
+      throw new HttpException("Recreation image not found", 404);
     }
     if (file) {
       if (!allowedTypes.includes(file.mimetype)) {
@@ -132,7 +149,7 @@ export class ResourceDocsService {
       }
       await uploadFile(ref_id, file);
     }
-    const result = await this.prisma.recreation_resource_docs.update({
+    const result = await this.prisma.recreation_resource_images.update({
       where: {
         rec_resource_id,
         ref_id,
@@ -146,9 +163,14 @@ export class ResourceDocsService {
   async delete(
     rec_resource_id: string,
     ref_id: string,
-  ): Promise<RecreationResourceDocDto | null> {
+  ): Promise<RecreationResourceImageDto | null> {
     await deleteResource(ref_id);
-    const result = await this.prisma.recreation_resource_docs.delete({
+    await this.prisma.recreation_resource_image_variants.deleteMany({
+      where: {
+        ref_id,
+      },
+    });
+    const result = await this.prisma.recreation_resource_images.delete({
       where: {
         rec_resource_id,
         ref_id,
@@ -158,21 +180,13 @@ export class ResourceDocsService {
     return this.mapResponse(result);
   }
 
+  private getFilePath(originalUrl: string) {
+    return originalUrl.replace(`${process.env.DAM_URL}`, "");
+  }
+
   private mapResponse(payload: any) {
     return {
       ...payload,
-      doc_code: payload?.doc_code as RecreationResourceDocCode,
-      doc_code_description: payload?.recreation_resource_doc_code?.description,
     };
-  }
-
-  private getOriginalFilePath(files: any[]) {
-    let originalUrl = files
-      .find((f: any) => f.size_code === "original")
-      .url.replace(process.env.DAM_URL, "");
-    originalUrl = originalUrl.includes("?")
-      ? originalUrl.split("?")[0]
-      : originalUrl;
-    return originalUrl;
   }
 }

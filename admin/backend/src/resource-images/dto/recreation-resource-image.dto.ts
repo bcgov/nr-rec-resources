@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Length, Matches } from "class-validator";
+import { IsNotEmpty, Length, Matches } from "class-validator";
 
 /**
  * Enum representing available image size options for the recreation API
@@ -104,9 +104,10 @@ export class RecreationResourceImageDto {
   })
   @Matches(/^[A-Za-z0-9 "'()#.&/]+$/, {
     message:
-      "document title can only contain alphanumeric characters and spaces",
+      "image caption can only contain alphanumeric characters and spaces",
   })
   @Length(3, 100)
+  @IsNotEmpty()
   caption: string;
 
   @ApiProperty({
@@ -117,7 +118,34 @@ export class RecreationResourceImageDto {
   recreation_resource_image_variants?: RecreationResourceImageVariantDto[];
 }
 
-export class FileUploadDto {
+export class CreateRecreationResourceImageBodyDto {
+  @ApiProperty({
+    description: "Image caption",
+    example: "Scenic mountain view",
+    minLength: 3,
+    maxLength: 100,
+    type: String,
+  })
+  @Matches(/^[A-Za-z0-9-_'(). ]+$/, {
+    message:
+      "image caption can only contain alphanumeric characters and spaces",
+  })
+  @Length(3, 100)
+  @IsNotEmpty()
+  caption: string;
+}
+
+export class CreateRecreationResourceImageFormDto {
+  @ApiProperty({
+    description: "Image caption",
+    example: "Scenic mountain view",
+    minLength: 3,
+    maxLength: 100,
+    pattern: "^[A-Za-z0-9-_'(). ]+$",
+    type: String,
+  })
+  caption: string;
+
   @ApiProperty({
     type: "string",
     format: "binary",

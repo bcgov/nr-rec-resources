@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
-import { ResourceDocsService } from "./service/resource-docs.service";
-import { ResourceDocsController } from "./resource-docs.controller";
+import { ResourceImagesService } from "./service/resource-images.service";
+import { ResourceImagesController } from "./resource-images.controller";
 import { PrismaModule } from "src/prisma.module";
 import { PrismaService } from "src/prisma.service";
 import { MulterModule } from "@nestjs/platform-express";
@@ -8,8 +8,8 @@ import { memoryStorage } from "multer";
 import { ConfigService } from "@nestjs/config";
 
 @Module({
-  providers: [ResourceDocsService, PrismaService, ConfigService],
-  controllers: [ResourceDocsController],
+  providers: [ResourceImagesService, PrismaService, ConfigService],
+  controllers: [ResourceImagesController],
   imports: [
     MulterModule.register({
       storage: memoryStorage(),
@@ -20,4 +20,4 @@ import { ConfigService } from "@nestjs/config";
     PrismaModule,
   ],
 })
-export class ResourceDocsModule {}
+export class ResourceImagesModule {}
