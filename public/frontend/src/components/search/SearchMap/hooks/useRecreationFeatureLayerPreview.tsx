@@ -97,6 +97,7 @@ export function useRecreationFeatureLayerPreview({
     };
 
     const handleMoveEnd = () => {
+      // If the selected feature is now part of a cluster, hide the popup
       const feature = selectedFeatureRef.current;
       if (!feature) return;
 

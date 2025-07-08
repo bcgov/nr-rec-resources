@@ -69,7 +69,7 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
         <RecreationSearchForm />
         <SearchViewControls />
       </div>
-      <div ref={featurePreviewPopupRef}>
+      <div ref={featurePreviewPopupRef} className="search-map-feature-preview">
         {selectedFeature && (
           <RecreationResourcePreview
             rec_resource_id={selectedFeature.get('FOREST_FILE_ID')}
