@@ -52,7 +52,8 @@ export const useClusteredRecreationFeatureLayer = (
 
     const view = map.getView();
 
-    // Disable clustering based on zoom level
+    // Disable clustering based on zoom level by setting the distance to zero
+    // *NOTE*: This doesn't appear to be working for the edge cases of features with identical coordinates
     const updateClusterDistance = () => {
       const zoom = view.getZoom();
       if (zoom == null) return;

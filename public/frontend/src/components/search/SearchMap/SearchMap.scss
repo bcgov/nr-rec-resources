@@ -24,4 +24,12 @@
   .search-form {
     margin-bottom: 1em;
   }
+
+  // Prevent issue where features aren't clickable under the controls container
+  pointer-events: none;
+
+  input,
+  button {
+    pointer-events: auto;
+  }
 }
