@@ -7,6 +7,10 @@
   z-index: 9999;
   overflow: hidden;
   background-color: white;
+
+  .search-map-feature-preview {
+    max-width: 800px;
+  }
 }
 
 .search-map-view-controls {
