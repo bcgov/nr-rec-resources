@@ -54,7 +54,7 @@ export class ResourceImagesController {
     required: true,
     description: "Resource identifier",
     type: "string",
-    example: "REC204117",
+    example: "REC204118",
   })
   @ApiResponse({
     status: 200,
@@ -80,14 +80,14 @@ export class ResourceImagesController {
     required: true,
     description: "Resource identifier",
     type: "string",
-    example: "REC204117",
+    example: "REC204118",
   })
   @ApiParam({
     name: "ref_id",
     required: true,
     description: "Image Resource identifier",
     type: "string",
-    example: "11714",
+    example: "11719",
   })
   @ApiResponse({
     status: 200,
@@ -120,7 +120,7 @@ export class ResourceImagesController {
     required: true,
     description: "Resource identifier",
     type: "string",
-    example: "REC204117",
+    example: "REC204118",
   })
   @ApiBody({
     required: true,
@@ -160,7 +160,7 @@ export class ResourceImagesController {
   @Put(":rec_resource_id/images/:ref_id")
   @UseInterceptors(FileInterceptor("file"))
   @ApiOperation({
-    summary: "Update a Image Resource",
+    summary: "Update an Image Resource",
     operationId: "updateImageResource",
   })
   @ApiParam({
@@ -168,14 +168,14 @@ export class ResourceImagesController {
     required: true,
     description: "Resource identifier",
     type: "string",
-    example: "REC204117",
+    example: "REC204118",
   })
   @ApiParam({
     name: "ref_id",
     required: true,
     description: "Image Resource identifier",
     type: "string",
-    example: "11714",
+    example: "11719",
   })
   @ApiResponse({
     status: 200,
@@ -184,9 +184,9 @@ export class ResourceImagesController {
   })
   @ApiResponse({
     status: 404,
-    description: "Recreation Resource image not found",
+    description: "Recreation Resource Image not found",
   })
-  @ApiResponse({ status: 500, description: "Error updating image" })
+  @ApiResponse({ status: 500, description: "Error updating Image" })
   @ApiResponse({ status: 415, description: "File Type not allowed" })
   @ApiResponse({ status: 419, description: "Error uploading file" })
   async update(
@@ -205,7 +205,7 @@ export class ResourceImagesController {
 
   @Delete(":rec_resource_id/images/:ref_id")
   @ApiOperation({
-    summary: "Delete a Image Resource",
+    summary: "Delete an image Resource",
     operationId: "deleteImageResource",
   })
   @ApiParam({
@@ -213,14 +213,14 @@ export class ResourceImagesController {
     required: true,
     description: "Resource identifier",
     type: "string",
-    example: "REC204117",
+    example: "REC204118",
   })
   @ApiParam({
     name: "ref_id",
     required: true,
     description: "Image Resource identifier",
     type: "string",
-    example: "11714",
+    example: "11719",
   })
   @ApiResponse({
     status: 200,
