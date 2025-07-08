@@ -9,9 +9,9 @@ import Geometry from 'ol/geom/Geometry';
 import { capitalizeWords } from '@/utils/capitalizeWords';
 import { featureLabelText } from '@/components/search/SearchMap/styles/feature';
 import {
-  locationDotBlueIcon,
-  locationDotOrangeIcon,
-  locationDotRedIcon,
+  createLocationDotBlueIcon,
+  createLocationDotRedIcon,
+  createLocationDotOrangeIcon,
 } from '@/components/search/SearchMap/styles/icons';
 import { clusterStyle } from '@/components/search/SearchMap/styles/cluster';
 import { RECREATION_FEATURE_LAYER } from '@/components/search/SearchMap/constants';
@@ -31,32 +31,43 @@ const getCapitalizedName = (name: string): string => {
 export function createClusteredRecreationFeatureStyle(
   feature: FeatureLike,
   _resolution: number,
+  options?: {
+    iconOpacity?: number;
+    clusterOpacity?: number;
+    haloOpacity?: number;
+  },
 ): Style | Style[] | undefined {
+  const {
+    iconOpacity = 1,
+    clusterOpacity = 0.85,
+    haloOpacity = 0.7,
+  } = options || {};
+
   const features = feature.get('features') ?? [feature];
 
   if (features.length > 1) {
-    // features.forEach((feature: Feature) => feature.set('selected', false));
-    return clusterStyle(features.length);
-  }
-
-  const singleFeature = features[0] ?? feature;
-
-  const isSelected = singleFeature.get('selected');
-
-  if (isSelected) {
-    return new Style({
-      image: locationDotOrangeIcon.getImage() ?? undefined,
+    return clusterStyle({
+      size: features.length,
+      clusterOpacity,
+      haloOpacity,
     });
   }
 
+  const singleFeature = features[0] ?? feature;
+  const isSelected = singleFeature.get('selected');
+
+  if (isSelected) {
+    return createLocationDotOrangeIcon({ opacity: iconOpacity });
+  }
+
   const isClosed = singleFeature.get('CLOSURE_IND') === 'Y';
-  const iconKey = `icon-${isClosed}`;
+  const iconKey = `icon-${isClosed}-${iconOpacity}`;
 
   if (!iconStyleCache.has(iconKey)) {
-    const icon = isClosed
-      ? locationDotRedIcon.getImage()
-      : locationDotBlueIcon.getImage();
-    iconStyleCache.set(iconKey, new Style({ image: icon ?? undefined }));
+    const iconStyle = isClosed
+      ? createLocationDotRedIcon({ opacity: iconOpacity })
+      : createLocationDotBlueIcon({ opacity: iconOpacity });
+    iconStyleCache.set(iconKey, iconStyle);
   }
 
   const iconStyle = iconStyleCache.get(iconKey)!;

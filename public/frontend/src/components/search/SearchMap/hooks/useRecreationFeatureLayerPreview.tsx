@@ -2,10 +2,10 @@ import { useEffect, useRef } from 'react';
 import Select from 'ol/interaction/Select';
 import Overlay from 'ol/Overlay';
 import { click } from 'ol/events/condition';
+import { locationDotOrangeIcon } from '@/components/search/SearchMap/styles/icons';
 import type OLMap from 'ol/Map';
 import type Feature from 'ol/Feature';
 import type { SelectEvent } from 'ol/interaction/Select';
-import { locationDotOrangeIcon } from '@/components/search/SearchMap/styles/icons';
 
 interface UseRecreationFeatureLayerPreviewParams {
   mapRef: React.RefObject<{ getMap: () => OLMap } | null>;
@@ -13,6 +13,8 @@ interface UseRecreationFeatureLayerPreviewParams {
   onFeatureSelect: (feature: Feature | null) => void;
 }
 
+// Hook that returns a ref to that must be attached to an HTML container element
+// which will be used to display a popup with feature details when a feature is selected on the map.
 export function useRecreationFeatureLayerPreview({
   mapRef,
   layer,

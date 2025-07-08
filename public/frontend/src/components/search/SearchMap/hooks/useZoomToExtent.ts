@@ -27,6 +27,7 @@ export const useZoomToExtent = (
       const view = map.getView();
 
       map.once('moveend', () => {
+        // Nudge the zoom level slightly to fix white tile rendering issue
         const zoom = view.getZoom();
         if (zoom != null) {
           view.setZoom(zoom + 0.01);

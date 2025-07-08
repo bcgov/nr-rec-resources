@@ -14,3 +14,31 @@ export const locationDotRedIcon = new Style({
 export const locationDotOrangeIcon = new Style({
   image: new Icon({ src: locationDotOrange, scale: 0.5, anchor: [0.5, 1] }),
 });
+
+interface LocationDotIconOptions {
+  opacity?: number;
+  scale?: number;
+}
+
+function createLocationDotIcon(
+  src: string,
+  { opacity = 1, scale = 0.5 }: LocationDotIconOptions = {},
+): Style {
+  return new Style({
+    image: new Icon({
+      src,
+      scale,
+      anchor: [0.5, 1],
+      opacity,
+    }),
+  });
+}
+
+export const createLocationDotBlueIcon = (options?: LocationDotIconOptions) =>
+  createLocationDotIcon(locationDotBlue, options);
+
+export const createLocationDotRedIcon = (options?: LocationDotIconOptions) =>
+  createLocationDotIcon(locationDotRed, options);
+
+export const createLocationDotOrangeIcon = (options?: LocationDotIconOptions) =>
+  createLocationDotIcon(locationDotOrange, options);

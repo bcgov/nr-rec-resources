@@ -4,7 +4,7 @@ import { Circle as CircleStyle, Fill, Stroke, Text } from 'ol/style';
 
 describe('clusterStyle', () => {
   it('returns two styles for a small cluster (size = 5)', () => {
-    const styles = clusterStyle(5);
+    const styles = clusterStyle({ size: 5 });
     expect(styles).toHaveLength(2);
 
     const [, cluster] = styles;
@@ -22,7 +22,7 @@ describe('clusterStyle', () => {
   });
 
   it('returns larger radius for medium cluster (size = 20)', () => {
-    const styles = clusterStyle(20);
+    const styles = clusterStyle({ size: 20 });
     const [, cluster] = styles;
     const image = cluster.getImage() as CircleStyle;
 
@@ -30,7 +30,7 @@ describe('clusterStyle', () => {
   });
 
   it('returns largest radius for large cluster (size = 100)', () => {
-    const styles = clusterStyle(100);
+    const styles = clusterStyle({ size: 100 });
     const [, cluster] = styles;
     const image = cluster.getImage() as CircleStyle;
 

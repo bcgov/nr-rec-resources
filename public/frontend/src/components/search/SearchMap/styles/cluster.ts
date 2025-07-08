@@ -8,7 +8,17 @@ const getClusterRadius = (size: number) => {
   return 14;
 };
 
-export const clusterStyle = (size: number): Style[] => {
+interface ClusterStyleOptions {
+  size: number;
+  haloOpacity?: number;
+  clusterOpacity?: number;
+}
+
+export const clusterStyle = ({
+  size,
+  clusterOpacity = 0.85,
+  haloOpacity = 0.7,
+}: ClusterStyleOptions): Style[] => {
   const radius = getClusterRadius(size);
   const strokeWidth = 2;
   const haloRadius = radius + strokeWidth;
@@ -17,7 +27,7 @@ export const clusterStyle = (size: number): Style[] => {
     image: new Circle({
       radius: haloRadius,
       stroke: new Stroke({
-        color: 'rgba(255, 255, 255, 0.7)',
+        color: `rgba(255, 255, 255, ${haloOpacity})`,
         width: 6,
       }),
       fill: new Fill({
@@ -34,7 +44,7 @@ export const clusterStyle = (size: number): Style[] => {
         width: strokeWidth,
       }),
       fill: new Fill({
-        color: `rgb(${CLUSTER_COLOR}, 0.85)`,
+        color: `rgba(${CLUSTER_COLOR}, ${clusterOpacity})`,
       }),
     }),
     text: new Text({
