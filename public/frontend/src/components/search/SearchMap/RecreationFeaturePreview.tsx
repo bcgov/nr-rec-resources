@@ -18,7 +18,7 @@ const RecreationFeaturePreview: React.FC<RecreationFeaturePreviewProps> = ({
   return (
     <>
       {!recreationResource ? (
-        <Spinner animation="border" role="status" className="mb-2" />
+        <Spinner animation="border" role="output" className="mb-2" />
       ) : (
         <RecResourceCard recreationResource={recreationResource} />
       )}

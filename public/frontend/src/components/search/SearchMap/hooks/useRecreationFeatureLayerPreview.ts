@@ -49,7 +49,7 @@ export function useRecreationFeatureLayerPreview({
       const feature = selectedFeatureRef.current;
       if (feature) {
         feature.set('selected', false);
-        feature.setStyle(undefined);
+        feature.setStyle();
       }
       overlay.setPosition(undefined);
       selectedFeatureRef.current = null;
@@ -60,9 +60,9 @@ export function useRecreationFeatureLayerPreview({
       e.deselected.forEach((clusterFeature) => {
         (clusterFeature.get('features') || []).forEach((feature: Feature) => {
           feature.set('selected', false);
-          feature.setStyle(undefined);
+          feature.setStyle();
         });
-        clusterFeature.setStyle(undefined);
+        clusterFeature.setStyle();
       });
 
       const selected = e.selected[0];
