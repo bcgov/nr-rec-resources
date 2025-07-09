@@ -15,7 +15,6 @@ interface RecResourceCardProps {
 const RecResourceCard: React.FC<RecResourceCardProps> = ({
   recreationResource,
 }) => {
-  if (!recreationResource) return;
   const {
     rec_resource_id,
     name,

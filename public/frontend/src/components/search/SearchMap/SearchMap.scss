@@ -1,3 +1,8 @@
+@import '@/styles/variables.scss';
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins/_breakpoints';
+
 .search-map-container {
   position: fixed;
   top: 0;
@@ -9,7 +14,11 @@
   background-color: white;
 
   .search-map-feature-preview {
-    max-width: 800px;
+    max-width: 250px;
+
+    @include media-breakpoint-up(sm) {
+      max-width: 800px;
+    }
   }
 }
 
@@ -29,7 +38,8 @@
   pointer-events: none;
 
   input,
-  button {
+  button,
+  .clear-button {
     pointer-events: auto;
   }
 }
