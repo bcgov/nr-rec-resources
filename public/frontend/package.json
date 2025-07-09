@@ -32,7 +32,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "axios": "^1.8.2",
     "bootstrap": "^5.3.3",
-    "dotenv": "^16.4.7",
+    "dotenv": "^17.0.0",
     "html-react-parser": "^5.2.2",
     "ol": "^10.4.0",
     "ol-ext": "^4.0.33",
