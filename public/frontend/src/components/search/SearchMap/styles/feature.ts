@@ -1,6 +1,4 @@
-import { Fill, Icon, Stroke, Style, Text } from 'ol/style';
-import locationDotBlue from '@/assets/location-dot-blue.png';
-import locationDotRed from '@/assets/location-dot-red.png';
+import { Fill, Stroke, Text } from 'ol/style';
 
 export function featureLabelText(text: string): Text {
   return new Text({
@@ -11,11 +9,3 @@ export function featureLabelText(text: string): Text {
     offsetY: -42,
   });
 }
-
-export const locationDotBlueIcon = new Style({
-  image: new Icon({ src: locationDotBlue, scale: 0.5, anchor: [0.5, 1] }),
-});
-
-export const locationDotRedIcon = new Style({
-  image: new Icon({ src: locationDotRed, scale: 0.5, anchor: [0.5, 1] }),
-});
