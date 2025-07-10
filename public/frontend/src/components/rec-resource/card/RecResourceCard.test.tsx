@@ -122,4 +122,40 @@ describe('RecResourceCard', () => {
     const link = screen.getByRole('link');
     expect(link).toHaveAttribute('href', '/resource/123');
   });
+
+  it('renders the see all activities link when there are more than MAX_ACTIVITIES_TO_DISPLAY activities', () => {
+    (getImageList as Mock).mockReturnValue(['image1.jpg']);
+
+    const resourceWithManyActivities = {
+      ...mockRecreationResource,
+      recreation_activity: Array.from({ length: 5 }, (_, i) => ({
+        id: `${i + 1}`,
+        name: `Activity ${i + 1}`,
+      })),
+    } as unknown as RecreationResourceSearchModel;
+
+    render(<RecResourceCard recreationResource={resourceWithManyActivities} />);
+
+    expect(screen.getByRole('link', { name: 'see all' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'see all' })).toHaveAttribute(
+      'href',
+      '/resource/123#things-to-do',
+    );
+  });
+
+  it('does not render the see all activities link when there are fewer than or equal to MAX_ACTIVITIES_TO_DISPLAY activities', () => {
+    (getImageList as Mock).mockReturnValue(['image1.jpg']);
+
+    const resourceWithFewActivities = {
+      ...mockRecreationResource,
+      recreation_activity: Array.from({ length: 4 }, (_, i) => ({
+        id: `${i + 1}`,
+        name: `Activity ${i + 1}`,
+      })),
+    } as unknown as RecreationResourceSearchModel;
+
+    render(<RecResourceCard recreationResource={resourceWithFewActivities} />);
+
+    expect(screen.queryByText('see all')).not.toBeInTheDocument();
+  });
 });
