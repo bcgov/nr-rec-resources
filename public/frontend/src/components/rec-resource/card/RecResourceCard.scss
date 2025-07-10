@@ -61,6 +61,7 @@
             display: none;
           }
         }
+        // Show all activities above medium breakpoint
         @include media-breakpoint-up(md) {
           &:nth-of-type(n + 4) {
             display: block;
