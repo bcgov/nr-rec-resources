@@ -8,13 +8,9 @@
   display: flex;
   flex-wrap: wrap;
   padding: 0;
-  margin-bottom: 16px;
+  margin: 0;
 
   li {
     margin-right: 8px;
-  }
-
-  @include media-breakpoint-up(sm) {
-    margin: 0;
   }
 }

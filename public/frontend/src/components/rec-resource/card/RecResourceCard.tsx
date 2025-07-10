@@ -51,13 +51,13 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
             </h2>
           </a>
 
-          <div className="d-flex flex-column flex-md-row align-items-md-center align-items-start mb-2 mb-md-0">
+          <div className="d-flex flex-column flex-sm-row align-items-sm-center align-items-start mb-2 mb-sm-0">
             <span className="fs-6 fw-normal capitalize">
               {closest_community.toLowerCase()}
             </span>
             {rec_resource_type && (
               <>
-                <span className="fs-5 fw-normal mx-2 d-none d-md-inline">
+                <span className="fs-5 fw-normal mx-2 d-none d-sm-inline">
                   |
                 </span>
                 <span className="fs-6 fw-normal fst-italic">
