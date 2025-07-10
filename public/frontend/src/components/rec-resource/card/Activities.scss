@@ -14,7 +14,7 @@
     margin-right: 8px;
   }
 
-  @include media-breakpoint-up(md) {
+  @include media-breakpoint-up(sm) {
     margin: 0;
   }
 }

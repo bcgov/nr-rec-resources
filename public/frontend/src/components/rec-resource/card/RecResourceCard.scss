@@ -47,11 +47,33 @@
     justify-content: space-between;
     align-items: flex-start;
 
+    & .card-activities {
+      a {
+        font-size: 0.875rem;
+        text-decoration: underline;
+        white-space: nowrap;
+      }
+
+      li {
+        // Only show the first 3 activities above small but below medium breakpoints
+        @include media-breakpoint-up(sm) {
+          &:nth-of-type(n + 4) {
+            display: none;
+          }
+        }
+        @include media-breakpoint-up(md) {
+          &:nth-of-type(n + 4) {
+            display: block;
+          }
+        }
+      }
+    }
+
     & .icon-container {
       width: 85px;
     }
 
-    @include media-breakpoint-up(md) {
+    @include media-breakpoint-up(sm) {
       flex-direction: row;
       align-items: center;
     }
