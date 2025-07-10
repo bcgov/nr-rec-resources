@@ -47,7 +47,13 @@
     justify-content: space-between;
     align-items: flex-start;
 
-    & .card-activities {
+    .card-activities {
+      margin-bottom: 16px;
+
+      @include media-breakpoint-up(sm) {
+        margin-bottom: 0;
+      }
+
       a {
         font-size: 0.875rem;
         text-decoration: underline;
@@ -70,7 +76,7 @@
       }
     }
 
-    & .icon-container {
+    .icon-container {
       width: 85px;
     }
 
