@@ -24,4 +24,16 @@ describe('the Activities component', () => {
 
     expect(activityElement).not.toBeInTheDocument();
   });
+
+  it('renders no more than MAX_ACTIVITIES_TO_DISPLAY activities', () => {
+    const activities = Array.from({ length: 10 }, (_, i) => ({
+      description: `Activity ${i + 1}`,
+      recreation_activity_code: 1 + i,
+    }));
+
+    render(<Activities activities={activities} />);
+
+    const renderedActivities = screen.getAllByRole('img');
+    expect(renderedActivities).toHaveLength(4);
+  });
 });
