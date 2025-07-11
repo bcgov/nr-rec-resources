@@ -5,9 +5,11 @@ FROM node:22-slim AS build
 WORKDIR /app
 COPY . ./
 
-# Switch to frontend folder and build static files
-WORKDIR /app/admin/frontend
+# Install all dependencies at the root (npm workspaces)
 RUN npm install
+
+# Change to admin frontend folder and build static files
+WORKDIR /app/admin/frontend
 RUN npm run deploy
 
 # Deploy using Caddy to host static files
@@ -20,8 +22,8 @@ COPY admin/frontend/Caddyfile /etc/caddy/Caddyfile
 RUN caddy fmt /etc/caddy/Caddyfile
 
 # Boilerplate, not used in OpenShift/Kubernetes
-EXPOSE 3001 3002
-HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost:3002/health
+EXPOSE 3000 3001
+HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost:3001/health
 
 # Nonroot user
 USER 1001

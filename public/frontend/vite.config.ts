@@ -29,7 +29,7 @@ export default defineConfig(({ mode }) => {
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
         '~': fileURLToPath(new URL('./node_modules', import.meta.url)),
-        '~bootstrap': path.resolve(__dirname, 'node_modules/bootstrap'),
+        bootstrap: path.resolve(__dirname, 'node_modules/bootstrap'),
       },
       extensions: ['.js', '.json', '.jsx', '.mjs', '.ts', '.tsx', '.vue'],
     },

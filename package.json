@@ -1,4 +1,9 @@
 {
+  "private": true,
+  "workspaces": [
+    "admin/frontend",
+    "admin/backend"
+  ],
   "scripts": {
     "prettier-fix": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "generate-api": "npx openapi-generator-cli generate -i http://localhost:8000/api/docs-json -g typescript-fetch -o public/frontend/src/service/recreation-resource --skip-validate-spec --additional-properties=modelPropertyNaming=original",
@@ -24,6 +29,8 @@
     "prettier": "^3.4.1"
   },
   "dependencies": {
-    "react-bootstrap": "^2.10.7"
+    "bootstrap": "^5.3.7",
+    "react-bootstrap": "^2.10.10",
+    "react-bootstrap-typeahead": "^6.4.1"
   }
 }
