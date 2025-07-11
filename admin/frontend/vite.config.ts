@@ -14,8 +14,11 @@ export default defineConfig(({ mode }) => {
     server: {
       port: parseInt(env.PORT || "3001"),
       fs: {
-        // Allow serving files from one level up to the project root
-        allow: [".."],
+        // Allow serving files from two levels up to the project root
+        allow: [
+          path.resolve(__dirname, "../.."),
+          path.resolve(__dirname, "../../shared"),
+        ],
       },
       proxy: {
         // Proxy API requests to the backend
@@ -45,6 +48,8 @@ export default defineConfig(({ mode }) => {
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),
         "@test": path.resolve(__dirname, "test"),
+        "@shared": fileURLToPath(new URL("../../shared", import.meta.url)),
+        "@/*": fileURLToPath(new URL("./src/*", import.meta.url)),
         "~": fileURLToPath(new URL("./node_modules", import.meta.url)),
         "~bootstrap": path.resolve(__dirname, "node_modules/bootstrap"),
         "@keycloak-lib": path.resolve(

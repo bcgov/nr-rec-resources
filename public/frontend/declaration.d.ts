@@ -7,3 +7,7 @@ declare global {
     _paq?: Array<string | any[]>;
   }
 }
+declare module '*.svg' {
+  const content: string;
+  export default content;
+}
