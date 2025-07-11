@@ -1,7 +1,7 @@
 # Build
 FROM node:22-slim AS build
 
-# Copy entire repo and set working directory
+# Copy, build static files; see .dockerignore for exclusions
 WORKDIR /app
 COPY . ./
 
