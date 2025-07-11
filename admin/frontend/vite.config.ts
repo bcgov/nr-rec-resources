@@ -3,6 +3,8 @@ import { fileURLToPath, URL } from "node:url";
 import react from "@vitejs/plugin-react";
 import path from "path";
 
+const rootNodeModules = path.resolve(__dirname, "../../node_modules");
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
@@ -13,8 +15,11 @@ export default defineConfig(({ mode }) => {
     server: {
       port: parseInt(env.PORT || "3001"),
       fs: {
-        // Allow serving files from one level up to the project root
-        allow: [".."],
+        // Allow serving files from two levels up to the project root
+        allow: [
+          path.resolve(__dirname, "../.."),
+          path.resolve(__dirname, "../../shared"),
+        ],
       },
       proxy: {
         // Proxy API requests to the backend
@@ -28,12 +33,11 @@ export default defineConfig(({ mode }) => {
       // https://vitejs.dev/config/shared-options.html#resolve-alias
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),
+        "@shared": fileURLToPath(new URL("../../shared", import.meta.url)),
+        "@/*": fileURLToPath(new URL("./src/*", import.meta.url)),
         "~": fileURLToPath(new URL("./node_modules", import.meta.url)),
+        "@keycloak-lib": path.resolve(rootNodeModules, "keycloak-js/lib"),
         "~bootstrap": path.resolve(__dirname, "node_modules/bootstrap"),
-        "@keycloak-lib": path.resolve(
-          __dirname,
-          "node_modules/keycloak-js/lib",
-        ),
       },
       extensions: [".js", ".json", ".jsx", ".mjs", ".ts", ".tsx", ".vue"],
     },

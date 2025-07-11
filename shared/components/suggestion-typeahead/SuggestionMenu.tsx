@@ -1,8 +1,8 @@
 import { Menu, MenuItem, RenderMenuProps } from "react-bootstrap-typeahead";
-import { SuggestionListItem } from "@/components/recreation-resource-suggestion-typeahead/SuggestionListItem";
-import { RecreationResourceSuggestion } from "@/components/recreation-resource-suggestion-typeahead/types";
+import { SuggestionListItem } from "@shared/components/suggestion-typeahead/SuggestionListItem";
+import { RecreationResourceSuggestion } from "@shared/components/suggestion-typeahead/types";
 import { Image } from "react-bootstrap";
-import { RESOURCE_TYPE_ICONS } from "@/components/recreation-resource-suggestion-typeahead/constants";
+import { RESOURCE_TYPE_ICONS } from "@shared/components/suggestion-typeahead/constants";
 
 /**
  * Props for the SuggestionMenu component.

@@ -4,11 +4,11 @@ import {
   RenderMenuProps,
   TypeaheadComponentProps,
 } from "react-bootstrap-typeahead";
-import { SuggestionSearchInput } from "@/components/recreation-resource-suggestion-typeahead/SuggestionSearchInput";
-import { SuggestionMenu } from "@/components/recreation-resource-suggestion-typeahead/SuggestionMenu";
-import { RecreationResourceSuggestion } from "@/components/recreation-resource-suggestion-typeahead/types";
+import { SuggestionSearchInput } from "@shared/components/suggestion-typeahead/SuggestionSearchInput";
+import { SuggestionMenu } from "@shared/components/suggestion-typeahead/SuggestionMenu";
+import { RecreationResourceSuggestion } from "@shared/components/suggestion-typeahead/types";
 import "react-bootstrap-typeahead/css/Typeahead.css";
-import "./RecreationResourceSuggestionTypeahead.scss";
+import "./SuggestionTypeahead.scss";
 import {
   FilterByCallback,
   Option,
@@ -17,9 +17,9 @@ import {
 } from "react-bootstrap-typeahead/types/types";
 
 /**
- * Props for {@link RecreationResourceSuggestionTypeahead}.
+ * Props for {@link SuggestionTypeahead}.
  */
-interface RecreationResourceSuggestionTypeaheadProps {
+interface SuggestionTypeaheadProps {
   /**
    * Whether the typeahead is loading suggestions.
    */
@@ -60,11 +60,9 @@ interface RecreationResourceSuggestionTypeaheadProps {
  * A typeahead input component for searching and selecting recreation resources.
  * Integrates with react-bootstrap-typeahead and displays custom menu and input.
  *
- * @param props {@link RecreationResourceSuggestionTypeaheadProps}
+ * @param props {@link SuggestionTypeaheadProps}
  */
-export const RecreationResourceSuggestionTypeahead: FC<
-  RecreationResourceSuggestionTypeaheadProps
-> = ({
+export const SuggestionTypeahead: FC<SuggestionTypeaheadProps> = ({
   isLoading,
   suggestions,
   onSearch,
@@ -129,7 +127,7 @@ export const RecreationResourceSuggestionTypeahead: FC<
       minLength={1}
       emptyLabel={emptyLabel}
       placeholder={placeholder}
-      labelKey="name" // RecreationResourceSuggestion["name"]
+      labelKey="name" // Suggestion["name"]
       isInvalid={Boolean(error)}
       filterBy={filterBy}
       renderMenu={renderMenu}

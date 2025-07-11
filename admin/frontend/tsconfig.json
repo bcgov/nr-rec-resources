@@ -22,9 +22,10 @@
       "@": ["src"],
       "@/*": ["src/*"],
       "~/*": ["node_modules/*"],
-      "~bootstrap/*": ["node_modules/bootstrap/*"],
+      "@shared/*": ["../../shared/*"],
+      "bootstrap/*": ["node_modules/bootstrap/*"],
       "e2e/*": ["e2e/*"],
-      "@keycloak-lib/*": ["node_modules/keycloak-js/lib/*"]
+      "@keycloak-lib/*": ["../../node_modules/keycloak-js/lib/*"]
     }
   },
   "include": [

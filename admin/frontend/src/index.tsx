@@ -1,6 +1,9 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import "./index.scss";
+import "@digitalspace/bcparks-bootstrap-theme/dist/css/bootstrap-theme.min.css";
+import "@bcgov/bc-sans/css/BC_Sans.css";
+import "@fortawesome/fontawesome-free/css/all.min.css";
+
 import App from "@/App";
 
 const element = document.getElementById("root");
