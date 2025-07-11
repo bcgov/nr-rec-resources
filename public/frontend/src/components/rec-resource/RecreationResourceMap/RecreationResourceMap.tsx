@@ -1,10 +1,8 @@
-import { CSSProperties, useMemo } from 'react';
+import { CSSProperties, useMemo, useState } from 'react';
 import { VectorFeatureMap } from '@bcgov/prp-map';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
 import {
-  downloadGPX,
-  downloadKML,
   getLayerStyleForRecResource,
   getMapFeaturesFromRecResource,
 } from '@/components/rec-resource/RecreationResourceMap/helpers';
@@ -12,6 +10,9 @@ import { RecreationResourceDetailModel } from '@/service/custom-models';
 import { Button, Col, Row, Stack } from 'react-bootstrap';
 import { trackEvent } from '@/utils/matomo';
 import { MATOMO_TRACKING_CATEGORY_MAP } from '@/components/rec-resource/RecreationResourceMap/constants';
+import DownloadMapModal from '@/components/rec-resource/RecreationResourceMap/DownloadMapModal';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faDownload } from '@fortawesome/free-solid-svg-icons';
 
 interface TrailMapProps {
   recResource: RecreationResourceDetailModel;
@@ -22,6 +23,7 @@ export const RecreationResourceMap = ({
   recResource,
   mapComponentCssStyles,
 }: TrailMapProps) => {
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const styledFeatures = useMemo(() => {
     const features = getMapFeaturesFromRecResource(recResource);
     if (!features?.length) return [];
@@ -67,6 +69,8 @@ export const RecreationResourceMap = ({
           onClick={onClick}
           className="w-100 p-0 bc-color-blue-dk"
         >
+          <FontAwesomeIcon icon={faDownload} />
+          &nbsp;
           {label}
         </Button>
       </Col>
@@ -77,13 +81,16 @@ export const RecreationResourceMap = ({
     <Stack direction="vertical" gap={3}>
       <VectorFeatureMap style={mapComponentCssStyles} layers={layers} />
       <Row className="g-md-5 g-2">
-        {renderDownloadButton('Download KML', () =>
-          downloadKML(styledFeatures, recResource),
-        )}
-        {renderDownloadButton('Download GPX', () =>
-          downloadGPX(styledFeatures, recResourceName),
+        {renderDownloadButton('Export map file', () =>
+          setIsDownloadModalOpen(true),
         )}
       </Row>
+      <DownloadMapModal
+        isOpen={isDownloadModalOpen}
+        setIsOpen={setIsDownloadModalOpen}
+        styledFeatures={styledFeatures}
+        recResource={recResource}
+      />
     </Stack>
   );
 };
