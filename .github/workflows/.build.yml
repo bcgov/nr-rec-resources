@@ -3,18 +3,44 @@ name: Build Containers
 on:
   workflow_call:
 
+permissions:
+  id-token: write
+  contents: write
+  packages: write
+  pull-requests: write
+  security-events: write
+  attestations: write
+
 jobs:
   # https://github.com/bcgov/action-builder-ghcr
   build-containers:
     name: Builds
     runs-on: ubuntu-24.04
+
     strategy:
       matrix:
-        # Only building frontend containers to run PR based e2e tests
-        package: ['admin/backend', 'admin/frontend', 'migrations/rst', 'migrations/fta', 'public/backend', 'public/frontend']
+        include:
+          # Frontend packages — need repo root as context for shared folder access
+          - package: 'admin/frontend'
+            build_context: '.'
+          - package: 'public/frontend'
+            build_context: '.'
+
+          # Backend and migrations — use their own directory as build context
+          - package: 'admin/backend'
+            build_context: 'admin/backend'
+          - package: 'migrations/rst'
+            build_context: 'migrations/rst'
+          - package: 'migrations/fta'
+            build_context: 'migrations/fta'
+          - package: 'public/backend'
+            build_context: 'public/backend'
+
     timeout-minutes: 10
     steps:
-      - uses: bcgov/action-builder-ghcr@v3.0.1
+      - uses: bcgov/action-builder-ghcr@v4.0.0
         with:
           package: ${{ matrix.package }}
           tags: ${{ github.sha }}
+          build_context: ${{ matrix.build_context }}
+          build_file: ${{ matrix.package }}/Dockerfile

@@ -22,6 +22,7 @@
       "@": ["src"],
       "@/*": ["src/*"],
       "~/*": ["node_modules/*"],
+      "@shared/*": ["../../shared/*"],
       "~bootstrap/*": ["node_modules/bootstrap/*"],
       "e2e/*": ["e2e/*"],
       "@keycloak-lib/*": ["node_modules/keycloak-js/lib/*"]

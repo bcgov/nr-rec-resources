@@ -1,22 +1,22 @@
-import { useState } from "react";
-import Form from "react-bootstrap/Form";
-import "react-bootstrap-typeahead/css/Typeahead.css";
+import { useState } from 'react';
+import Form from 'react-bootstrap/Form';
+import 'react-bootstrap-typeahead/css/Typeahead.css';
 import {
   isValidRecreationResourceSearchTerm,
   useGetRecreationResourceSuggestions,
-} from "@/services/hooks/recreation-resource-admin/useGetRecreationResourceSuggestions";
-import { SuggestionTypeahead } from "@shared/components/suggestion-typeahead/SuggestionTypeahead";
-import { RecreationResourceSuggestion } from "@shared/components/suggestion-typeahead/types";
-import { useNavigate } from "react-router";
-import "./RecreationResourceSuggestionForm.scss";
-import { Stack } from "react-bootstrap";
-import { ROUTES } from "@/routes";
+} from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceSuggestions';
+import { RecreationResourceSuggestionTypeahead } from '@/components/recreation-resource-suggestion-typeahead/RecreationResourceSuggestionTypeahead';
+import { RecreationResourceSuggestion } from '@/components/recreation-resource-suggestion-typeahead/types';
+import { useNavigate } from 'react-router';
+import './RecreationResourceSuggestionForm.scss';
+import { Stack } from 'react-bootstrap';
+import { ROUTES } from '@/routes';
 
 /**
  * RecreationResourceSuggestionForm provides a search form for recreation resources.
  */
 export const RecreationResourceSuggestionForm = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
 
   const navigate = useNavigate();
 
@@ -28,7 +28,7 @@ export const RecreationResourceSuggestionForm = () => {
 
   const handleSuggestionChange = (suggestion: RecreationResourceSuggestion) => {
     navigate(
-      ROUTES.REC_RESOURCE_FILES.replace(":id", suggestion.rec_resource_id),
+      ROUTES.REC_RESOURCE_FILES.replace(':id', suggestion.rec_resource_id),
     );
   };
 
@@ -44,9 +44,9 @@ export const RecreationResourceSuggestionForm = () => {
       );
     }
     if (!isValidRecreationResourceSearchTerm(searchTerm)) {
-      return "Please enter at least 3 characters to search";
+      return 'Please enter at least 3 characters to search';
     }
-    return "No results found";
+    return 'No results found';
   };
 
   return (
@@ -61,7 +61,7 @@ export const RecreationResourceSuggestionForm = () => {
               Search by name or number
             </span>
           </Form.Label>
-          <SuggestionTypeahead
+          <RecreationResourceSuggestionTypeahead
             onChange={handleSuggestionChange}
             isLoading={isFetching}
             error={error}

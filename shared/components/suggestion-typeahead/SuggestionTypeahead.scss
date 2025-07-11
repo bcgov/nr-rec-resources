@@ -1,4 +1,7 @@
-@import "../../styles/global";
+@import "../../styles/variables";
+@import "~bootstrap/scss/functions";
+@import "~bootstrap/scss/variables";
+@import "~bootstrap/scss/mixins/_breakpoints";
 
 .dropdown-menu-item {
   width: calc(100% - 2rem);
@@ -39,8 +42,6 @@
     text-decoration: underline;
   }
 }
-
-@import "../../styles/variables";
 
 .suggestion-search-input-container {
   border: 1px solid #ced4da;
