@@ -1,0 +1,135 @@
+@import '@/styles/variables.scss';
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+
+// modal
+.modal.map-download-modal {
+  .modal-dialog {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 375px;
+  }
+  .modal-content {
+    background-color: $colorBackgroundGrey;
+    .map-download-modal-content {
+      &--header {
+        display: flex;
+        justify-content: space-between;
+        button.btn {
+          color: $colorGrey;
+          height: 24px;
+          width: 24px;
+          font-size: 1.25rem;
+          padding: 0;
+        }
+      }
+      .expand-link {
+        margin: 0;
+        padding: 0;
+        color: $colorBlue;
+        font-weight: normal;
+
+        svg {
+          font-size: 1rem;
+          margin-left: 6px;
+        }
+
+        &:focus {
+          box-shadow: none;
+          color: $colorBlue;
+        }
+      }
+      .map-download-options {
+        background-color: $colorWhite;
+        border: 1px solid $colorGreyMed;
+        border-radius: 4px;
+        margin-top: 16px;
+        width: 100%;
+
+        .map-download-option-label {
+          margin: 1px 0; // optical
+          display: flex;
+          width: 100%;
+          align-items: center;
+          justify-content: space-between;
+          border: none;
+          line-height: 1.125rem;
+          background-color: inherit;
+        }
+      }
+      .filter-group-container {
+        margin-top: 0;
+      }
+    }
+    .modal-footer {
+      .clear-filter-link {
+        margin: 0;
+        text-decoration: underline;
+      }
+    }
+    .content-options {
+      background-color: $colorWhite;
+      width: 324;
+      border-radius: 4px;
+      border-width: 1px;
+      padding-top: 16px;
+      padding-right: 19px;
+      padding-bottom: 16px;
+      padding-left: 19px;
+      gap: 10px;
+      border: 1px solid $colorBlue;
+    }
+
+    input[type='checkbox'] {
+      cursor: pointer;
+      margin: 4px 0 0;
+      line-height: normal;
+      width: 32px;
+      height: 32px;
+      accent-color: $colorBlue;
+    }
+
+    .download-button:disabled {
+      background-color: $colorGreyLight;
+      border: none;
+    }
+
+    .content-option {
+      margin-bottom: 20px;
+      display: flex;
+      .check-box-container {
+        float: left;
+        padding-right: 12px;
+        height: 100%;
+      }
+      .option-label {
+        width: 238;
+        height: 120px;
+        opacity: 1;
+        margin-bottom: 20px;
+        .header {
+          font-weight: 400;
+          font-size: 19.2px;
+          line-height: 27.6px;
+          letter-spacing: 0px;
+          vertical-align: middle;
+          margin-bottom: 5px;
+        }
+        .description {
+          font-weight: 400;
+          font-size: 13.33px;
+          line-height: 21.3px;
+          letter-spacing: 0px;
+        }
+      }
+    }
+  }
+}
+
+.close-filter-btn {
+  svg {
+    vertical-align: 1px; // optical
+  }
+}

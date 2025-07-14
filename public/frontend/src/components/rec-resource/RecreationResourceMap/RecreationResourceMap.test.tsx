@@ -5,8 +5,6 @@ import { VectorFeatureMap } from '@bcgov/prp-map';
 import Feature from 'ol/Feature';
 import { Style, Fill } from 'ol/style';
 import {
-  downloadGPX,
-  downloadKML,
   getLayerStyleForRecResource,
   getMapFeaturesFromRecResource,
 } from '@/components/rec-resource/RecreationResourceMap/helpers';
@@ -71,10 +69,7 @@ describe('RecreationResourceMap', () => {
     );
 
     expect(
-      screen.getByRole('button', { name: /Download GPX/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /Download KML/i }),
+      screen.getByRole('button', { name: /Export map file/i }),
     ).toBeInTheDocument();
   });
 
@@ -100,10 +95,7 @@ describe('RecreationResourceMap', () => {
     );
 
     expect(
-      screen.getByRole('button', { name: /Download GPX/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /Download KML/i }),
+      screen.getByRole('button', { name: /Export map file/i }),
     ).toBeInTheDocument();
   });
 
@@ -129,10 +121,7 @@ describe('RecreationResourceMap', () => {
     );
 
     expect(
-      screen.getByRole('button', { name: /Download GPX/i }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /Download KML/i }),
+      screen.getByRole('button', { name: /Export map file/i }),
     ).toBeInTheDocument();
   });
 
@@ -184,60 +173,18 @@ describe('RecreationResourceMap', () => {
     expect(getLayerStyleForRecResource).toHaveBeenCalledTimes(1);
   });
 
-  it('calls downloadGPX with recResource.name if defined', () => {
+  it('calls modal Export map file with recResource if defined', () => {
     render(
       <RecreationResourceMap
         recResource={{ ...mockRecResource, name: 'Special Name' }}
         mapComponentCssStyles={mockMapStyles}
       />,
     );
-    fireEvent.click(screen.getByRole('button', { name: /Download GPX/i }));
-    expect(downloadGPX).toHaveBeenCalledWith(mockFeatures, 'Special Name');
+    fireEvent.click(screen.getByRole('button', { name: /Export map file/i }));
     expect(trackEvent).toHaveBeenCalledWith({
       category: 'Map',
-      action: 'Download GPX',
-      name: 'Special Name-123-Download GPX',
-    });
-  });
-
-  it('calls downloadKML with recResource.name if defined', () => {
-    const recResourceWithName = { ...mockRecResource, name: 'Special Name' };
-    render(
-      <RecreationResourceMap
-        recResource={recResourceWithName}
-        mapComponentCssStyles={mockMapStyles}
-      />,
-    );
-    fireEvent.click(screen.getByRole('button', { name: /Download KML/i }));
-    expect(downloadKML).toHaveBeenCalledWith(mockFeatures, recResourceWithName);
-    expect(trackEvent).toHaveBeenCalledWith({
-      category: 'Map',
-      action: 'Download KML',
-      name: 'Special Name-123-Download KML',
-    });
-  });
-
-  it('uses "map" as name if recResource.name is undefined', () => {
-    const resourceWithoutName = { ...mockRecResource, name: undefined };
-    render(
-      <RecreationResourceMap
-        recResource={resourceWithoutName}
-        mapComponentCssStyles={mockMapStyles}
-      />,
-    );
-    fireEvent.click(screen.getByRole('button', { name: /Download GPX/i }));
-    expect(downloadGPX).toHaveBeenCalledWith(mockFeatures, 'map');
-    expect(trackEvent).toHaveBeenCalledWith({
-      category: 'Map',
-      action: 'Download GPX',
-      name: 'map-123-Download GPX',
-    });
-    fireEvent.click(screen.getByRole('button', { name: /Download KML/i }));
-    expect(downloadKML).toHaveBeenCalledWith(mockFeatures, resourceWithoutName);
-    expect(trackEvent).toHaveBeenCalledWith({
-      category: 'Map',
-      action: 'Download KML',
-      name: 'map-123-Download KML',
+      action: 'Export map file',
+      name: 'Special Name-123-Export map file',
     });
   });
 });
