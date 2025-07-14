@@ -11,7 +11,7 @@ generate "prod_tfvars" {
   target_env = "prod"
   csp_urls = {
       image_src = "https://dam.lqc63d-prod.nimbus.cloud.gov.bc.ca https://beta.sitesandtrailsbc.ca https://sitesandtrailsbc.ca"
-      connect_src = "https://bcparks.api.gov.bc.ca"
+      connect_src = "https://dam.lqc63d-prod.nimbus.cloud.gov.bc.ca https://bcparks.api.gov.bc.ca"
       matomo_src = "https://iuqxrr50zl.execute-api.ca-central-1.amazonaws.com"
     }
 EOF
