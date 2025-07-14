@@ -11,8 +11,7 @@ import { Button, Col, Row, Stack } from 'react-bootstrap';
 import { trackEvent } from '@/utils/matomo';
 import { MATOMO_TRACKING_CATEGORY_MAP } from '@/components/rec-resource/RecreationResourceMap/constants';
 import DownloadMapModal from '@/components/rec-resource/RecreationResourceMap/DownloadMapModal';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faDownload } from '@fortawesome/free-solid-svg-icons';
+import DownloadIcon from '@/images/icons/download.svg';
 
 interface TrailMapProps {
   recResource: RecreationResourceDetailModel;
@@ -69,7 +68,7 @@ export const RecreationResourceMap = ({
           onClick={onClick}
           className="w-100 p-0 bc-color-blue-dk"
         >
-          <FontAwesomeIcon icon={faDownload} />
+          <img src={DownloadIcon} alt="download icon" width={16} height={16} />
           &nbsp;
           {label}
         </Button>
