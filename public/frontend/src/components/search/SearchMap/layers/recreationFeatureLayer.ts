@@ -7,11 +7,12 @@ import type { StyleFunction } from 'ol/style/Style';
 import Feature, { FeatureLike } from 'ol/Feature';
 import Geometry from 'ol/geom/Geometry';
 import { capitalizeWords } from '@/utils/capitalizeWords';
+import { featureLabelText } from '@/components/search/SearchMap/styles/feature';
 import {
-  featureLabelText,
-  locationDotBlueIcon,
-  locationDotRedIcon,
-} from '@/components/search/SearchMap/styles/feature';
+  createLocationDotBlueIcon,
+  createLocationDotRedIcon,
+  createLocationDotOrangeIcon,
+} from '@/components/search/SearchMap/styles/icons';
 import { clusterStyle } from '@/components/search/SearchMap/styles/cluster';
 import { RECREATION_FEATURE_LAYER } from '@/components/search/SearchMap/constants';
 import { AnimatedClusterOptions } from '@/components/search/SearchMap/types';
@@ -30,24 +31,43 @@ const getCapitalizedName = (name: string): string => {
 export function createClusteredRecreationFeatureStyle(
   feature: FeatureLike,
   _resolution: number,
+  options?: {
+    iconOpacity?: number;
+    clusterOpacity?: number;
+    haloOpacity?: number;
+  },
 ): Style | Style[] | undefined {
+  const {
+    iconOpacity = 1,
+    clusterOpacity = 0.85,
+    haloOpacity = 0.7,
+  } = options || {};
+
   const features = feature.get('features') ?? [feature];
 
   if (features.length > 1) {
-    // If there are multiple features, return the cluster style
-    return clusterStyle(features.length);
+    return clusterStyle({
+      size: features.length,
+      clusterOpacity,
+      haloOpacity,
+    });
   }
 
   const singleFeature = features[0] ?? feature;
+  const isSelected = singleFeature.get('selected');
+
+  if (isSelected) {
+    return createLocationDotOrangeIcon({ opacity: iconOpacity });
+  }
 
   const isClosed = singleFeature.get('CLOSURE_IND') === 'Y';
-  const iconKey = `icon-${isClosed}`;
+  const iconKey = `icon-${isClosed}-${iconOpacity}`;
 
   if (!iconStyleCache.has(iconKey)) {
-    const icon = isClosed
-      ? locationDotRedIcon.getImage()
-      : locationDotBlueIcon.getImage();
-    iconStyleCache.set(iconKey, new Style({ image: icon ?? undefined }));
+    const iconStyle = isClosed
+      ? createLocationDotRedIcon({ opacity: iconOpacity })
+      : createLocationDotBlueIcon({ opacity: iconOpacity });
+    iconStyleCache.set(iconKey, iconStyle);
   }
 
   const iconStyle = iconStyleCache.get(iconKey)!;
@@ -114,6 +134,7 @@ export const loadFeaturesForFilteredIds = async (
       features = features.filter((feature) => {
         const id = feature.get('FOREST_FILE_ID');
         feature.setId(String(id));
+        feature.set('type', 'recreation-resource');
         return filteredSet.has(String(id));
       });
 
