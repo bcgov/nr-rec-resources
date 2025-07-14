@@ -12,3 +12,32 @@
     font-size: 1.05rem;
   }
 }
+
+.logo {
+  width: 200px;
+  height: 50px;
+  @media (max-width: $smBreakpoint) {
+    display: none;
+  }
+}
+
+.logo-mobile {
+  width: 200px;
+  height: 50px;
+  @media (min-width: $smBreakpoint) {
+    display: none;
+  }
+}
+
+.admin-title {
+  width: 400px;
+  font-weight: 700;
+  font-style: Bold;
+  font-size: 27.65px;
+  line-height: 39.82px;
+  vertical-align: bottom;
+  margin-left: 20px;
+  @media (min-width: $lgBreakpoint) {
+    padding: $pagePaddingLg;
+  }
+}

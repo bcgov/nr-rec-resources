@@ -9,6 +9,7 @@ import {
 } from "react-bootstrap";
 import { forwardRef, KeyboardEvent, MouseEvent } from "react";
 import { useAuthContext } from "@/contexts/AuthContext";
+import useMediaQuery from "@/hooks/useMediaQuery";
 import "./Header.scss";
 import { Avatar } from "@/components/avatar/Avatar";
 
@@ -64,13 +65,17 @@ const renderMenuToggle = (fullName: string) =>
 export const Header = () => {
   const { user, authService } = useAuthContext();
   const fullName = authService.getUserFullName();
+  const isMobile = useMediaQuery("(max-width: 767px)");
   return (
     <div className={"header-container"}>
       <BCGovHeader
         logoImage={
-          <Image width="200px" height="50px" src="/images/RST_nav_logo.svg" />
+          isMobile ? null : (
+            <Image src="/images/RST_nav_logo.svg" className="logo" />
+          )
         }
       >
+        <div className="admin-title">Admin Tool</div>
         <Stack
           direction={"horizontal"}
           gap={3}
@@ -79,7 +84,6 @@ export const Header = () => {
           {user && (
             <div className="d-none d-md-block full-name">{fullName}</div>
           )}
-
           <Dropdown>
             <DropdownToggle
               as={renderMenuToggle(fullName)} // use the renderMenuToggle function
