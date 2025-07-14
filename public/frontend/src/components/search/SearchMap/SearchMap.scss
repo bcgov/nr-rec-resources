@@ -1,3 +1,8 @@
+@import '@/styles/variables.scss';
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins/_breakpoints';
+
 .search-map-container {
   position: fixed;
   top: 0;
@@ -7,6 +12,14 @@
   z-index: 9999;
   overflow: hidden;
   background-color: white;
+
+  .search-map-feature-preview {
+    max-width: 250px;
+
+    @include media-breakpoint-up(sm) {
+      max-width: 800px;
+    }
+  }
 }
 
 .search-map-view-controls {
@@ -19,5 +32,14 @@
 
   .search-form {
     margin-bottom: 1em;
+  }
+
+  // Prevent issue where features aren't clickable under the controls container
+  pointer-events: none;
+
+  input,
+  button,
+  .clear-button {
+    pointer-events: auto;
   }
 }
