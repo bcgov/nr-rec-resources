@@ -1,31 +1,35 @@
-import "./App.css";
-import { BrowserRouter, Route, Routes, useParams } from "react-router-dom";
+import { AuthGuard, Header, NotificationBar, PageLayout } from "@/components";
 import { AuthProvider } from "@/contexts/AuthContext";
-import { Header } from "@/components/header";
-import { AuthGuard } from "@/components/auth";
+import { LandingPage } from "@/pages/LandingPage";
+import { RecResourcePage } from "@/pages/rec-resource-page/RecResourcePage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { LandingPage } from "@/pages/LandingPage";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./routes";
+import { useGlobalQueryErrorHandler } from "./services/hooks/useGlobalQueryErrorHandler";
+import "./App.css";
 
-const RecResourceFilesPage = () => {
-  const params = useParams();
-  return <div>{params.id}</div>;
-};
+const queryClient = new QueryClient();
 
 function App() {
-  const queryClient = new QueryClient();
+  useGlobalQueryErrorHandler(queryClient);
+
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <AuthGuard>
           <Header />
+          <NotificationBar />
           <BrowserRouter>
             <Routes>
               <Route path={ROUTES.LANDING} element={<LandingPage />} />
               <Route
-                path={ROUTES.REC_RESOURCE_FILES}
-                element={<RecResourceFilesPage />}
+                path={ROUTES.REC_RESOURCE_PAGE}
+                element={
+                  <PageLayout>
+                    <RecResourcePage />
+                  </PageLayout>
+                }
               />
             </Routes>
           </BrowserRouter>

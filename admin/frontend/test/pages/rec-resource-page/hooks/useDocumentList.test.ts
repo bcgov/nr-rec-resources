@@ -1,0 +1,79 @@
+import { renderHook } from "@testing-library/react";
+import { useDocumentList } from "@/pages/rec-resource-page/hooks/useDocumentList";
+
+const mockUseGetDocumentsByRecResourceId = vi.fn();
+
+vi.mock(
+  "@/services/hooks/recreation-resource-admin/useGetDocumentsByRecResourceId",
+  () => ({
+    useGetDocumentsByRecResourceId: (...args: any[]) =>
+      mockUseGetDocumentsByRecResourceId(...args),
+  }),
+);
+vi.mock("@/pages/rec-resource-page/helpers", () => ({
+  formatDocumentDate: (date: string) => `formatted-${date}`,
+}));
+
+const baseDoc = {
+  ref_id: "1",
+  title: "Doc 1",
+  created_at: "2024-01-01",
+  url: "url1",
+  extension: "pdf",
+  doc_code: "A",
+  doc_code_description: "desc",
+  rec_resource_id: "abc",
+};
+
+describe("useDocumentList", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns mapped documents and correct state", () => {
+    mockUseGetDocumentsByRecResourceId.mockReturnValue({
+      data: [baseDoc],
+      isFetching: false,
+      refetch: vi.fn(),
+    });
+    const { result } = renderHook(() => useDocumentList("abc"));
+    expect(result.current.documents[0]).toMatchObject({
+      id: "1",
+      name: "Doc 1",
+      date: "formatted-2024-01-01",
+      url: "url1",
+      extension: "pdf",
+      doc_code: "A",
+      doc_code_description: "desc",
+      rec_resource_id: "abc",
+    });
+    expect(result.current.isDocumentUploadDisabled).toBe(false);
+    expect(result.current.isFetching).toBe(false);
+    expect(typeof result.current.refetch).toBe("function");
+  });
+
+  it("returns empty array and not disabled if no documents", () => {
+    mockUseGetDocumentsByRecResourceId.mockReturnValue({
+      data: [],
+      isFetching: false,
+      refetch: vi.fn(),
+    });
+    const { result } = renderHook(() => useDocumentList("abc"));
+    expect(result.current.documents).toEqual([]);
+    expect(result.current.isDocumentUploadDisabled).toBe(false);
+  });
+
+  it("disables upload if max documents reached", () => {
+    const docs = Array.from({ length: 30 }, (_, i) => ({
+      ...baseDoc,
+      ref_id: String(i),
+    }));
+    mockUseGetDocumentsByRecResourceId.mockReturnValue({
+      data: docs,
+      isFetching: false,
+      refetch: vi.fn(),
+    });
+    const { result } = renderHook(() => useDocumentList("abc"));
+    expect(result.current.isDocumentUploadDisabled).toBe(true);
+  });
+});

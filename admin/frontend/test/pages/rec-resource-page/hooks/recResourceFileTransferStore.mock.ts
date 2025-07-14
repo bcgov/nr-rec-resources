@@ -1,0 +1,10 @@
+export const setSelectedFile = vi.fn();
+export const setUploadFileName = vi.fn();
+export const setShowUploadOverlay = vi.fn();
+export const addPendingDoc = vi.fn();
+export const removePendingDoc = vi.fn();
+export const updatePendingDoc = vi.fn();
+export const addErrorNotification = vi.fn();
+export const addSuccessNotification = vi.fn();
+export const mutateAsync = vi.fn();
+export const downloadMutate = vi.fn();

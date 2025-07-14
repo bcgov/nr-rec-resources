@@ -17,6 +17,7 @@ describe("RecreationResourceController", () => {
           provide: RecreationResourceService,
           useValue: {
             getSuggestions: vi.fn(),
+            findOne: vi.fn(),
           },
         },
       ],
@@ -33,12 +34,13 @@ describe("RecreationResourceController", () => {
   it("should call service.getSuggestions and return its result", async () => {
     const mockResponse: SuggestionsResponseDto = {
       total: 1,
-      data: [
+      suggestions: [
         {
           name: "Test Resource",
           rec_resource_id: "REC123",
           recreation_resource_type: "RR",
           recreation_resource_type_code: "RR",
+          district_description: "Test District",
         },
       ],
     };
@@ -48,5 +50,34 @@ describe("RecreationResourceController", () => {
     const result = await controller.getSuggestions(query);
     expect(service.getSuggestions).toHaveBeenCalledWith("Test");
     expect(result).toEqual(mockResponse);
+  });
+
+  it("should call service.findOne and return its result", async () => {
+    const mockResource = {
+      rec_resource_id: "REC123",
+      name: "Test Resource",
+      closest_community: "",
+      description: undefined,
+      driving_directions: undefined,
+      maintenance_standard_code: undefined,
+      rec_resource_type: "",
+      recreation_access: [],
+      recreation_activity: [],
+      recreation_status: { description: "", comment: "", status_code: 1 },
+      campsite_count: 0,
+      recreation_structure: { has_toilet: false, has_table: false },
+      recreation_district: undefined,
+    };
+    (service.findOne as any) = vi.fn().mockResolvedValue(mockResource);
+    const result = await controller.findOne("REC123");
+    expect(service.findOne).toHaveBeenCalledWith("REC123");
+    expect(result).toEqual(mockResource);
+  });
+
+  it("should throw 404 if resource not found", async () => {
+    (service.findOne as any) = vi.fn().mockResolvedValue(null);
+    await expect(controller.findOne("NOT_FOUND")).rejects.toThrowError(
+      "Recreation Resource not found.",
+    );
   });
 });

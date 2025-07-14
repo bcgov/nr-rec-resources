@@ -28,7 +28,7 @@ export const RecreationResourceSuggestionForm = () => {
 
   const handleSuggestionChange = (suggestion: RecreationResourceSuggestion) => {
     navigate(
-      ROUTES.REC_RESOURCE_FILES.replace(":id", suggestion.rec_resource_id),
+      ROUTES.REC_RESOURCE_PAGE.replace(":id", suggestion.rec_resource_id),
     );
   };
 

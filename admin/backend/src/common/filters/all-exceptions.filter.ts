@@ -25,7 +25,9 @@ export class AllExceptionsFilter implements ExceptionFilter {
       message:
         exception instanceof HttpException
           ? exception.getResponse()
-          : "Internal server error",
+          : exception instanceof Error
+            ? exception.message
+            : "Internal server error",
     };
 
     // For validation errors handled by the exceptionFactory in ValidationPipe,

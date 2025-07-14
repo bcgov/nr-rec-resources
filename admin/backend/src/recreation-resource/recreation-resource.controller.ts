@@ -1,4 +1,11 @@
-import { Controller, Get, Query, UseGuards } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Query,
+  UseGuards,
+  Param,
+  HttpException,
+} from "@nestjs/common";
 import { SuggestionsQueryDto } from "./dtos/suggestions-query.dto";
 import { RecreationResourceService } from "./recreation-resource.service";
 import {
@@ -6,6 +13,7 @@ import {
   ApiBearerAuth,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiQuery,
   ApiTags,
 } from "@nestjs/swagger";
@@ -19,6 +27,7 @@ import {
 } from "@/auth";
 import { AuthGuard } from "@nestjs/passport";
 import { BadRequestResponseDto } from "@/common/dtos/bad-request-response.dto";
+import { RecreationResourceDetailDto } from "./dtos/recreation-resource-detail.dto";
 
 /**
  * Controller for recreation resource endpoints.
@@ -63,5 +72,44 @@ export class RecreationResourceController {
     return await this.recreationResourceService.getSuggestions(
       query.searchTerm,
     );
+  }
+
+  /**
+   * GET /recreation-resource/:id
+   *
+   * Returns a recreation resource by its ID.
+   *
+   * @param rec_resource_id - The ID of the recreation resource
+   * @returns The recreation resource detail DTO
+   */
+  @Get(":rec_resource_id")
+  @ApiOperation({
+    summary: "Find recreation resource by ID",
+    operationId: "getRecreationResourceById",
+  })
+  @ApiParam({
+    name: "rec_resource_id",
+    required: true,
+    description: "Resource identifier",
+    type: "string",
+    example: "REC0002",
+  })
+  @ApiOkResponse({
+    description: "Resource found",
+    type: RecreationResourceDetailDto,
+  })
+  @ApiBadRequestResponse({
+    description: "Bad Request - invalid ID",
+    type: BadRequestResponseDto,
+  })
+  async findOne(
+    @Param("rec_resource_id") rec_resource_id: string,
+  ): Promise<RecreationResourceDetailDto> {
+    const recResource =
+      await this.recreationResourceService.findOne(rec_resource_id);
+    if (!recResource) {
+      throw new HttpException("Recreation Resource not found.", 404);
+    }
+    return recResource;
   }
 }

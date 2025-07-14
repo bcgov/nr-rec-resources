@@ -4,6 +4,7 @@ import {
   ResponseError,
   SuggestionsResponseDto,
 } from "@/services/recreation-resource-admin";
+import { createRetryHandler } from "./helpers";
 
 export function isValidRecreationResourceSearchTerm(
   searchTerm: unknown,
@@ -27,9 +28,6 @@ export const useGetRecreationResourceSuggestions = (searchTerm: string) => {
         searchTerm,
       }),
     enabled: isValidRecreationResourceSearchTerm(searchTerm),
-    retry: (_, error) => {
-      const { status } = error.response;
-      return status >= 500 && status < 600;
-    },
+    retry: createRetryHandler(),
   });
 };

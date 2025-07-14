@@ -1,0 +1,17 @@
+@import "@/styles/variables.scss";
+
+.rec-resource-files-page__info-banner {
+  margin-bottom: unset;
+
+  &-icon {
+    color: $colorGold;
+    font-size: 1rem;
+    font-style: italic;
+  }
+
+  &-text {
+    font-weight: 700;
+    color: $colorGrey;
+    font-size: 1rem;
+  }
+}
