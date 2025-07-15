@@ -1,26 +1,29 @@
-import { useCallback } from "react";
-import {
-  recResourceFileTransferStore,
-  setSelectedFile,
-  setUploadFileName,
-  setShowUploadOverlay,
-  addPendingDoc,
-  removePendingDoc,
-  updatePendingDoc,
-} from "../store/recResourceFileTransferStore";
-import { useStore } from "@tanstack/react-store";
 import { useUploadResourceDocument } from "@/services/hooks/recreation-resource-admin/useUploadResourceDocument";
-import { GalleryAction, GalleryDocument } from "../types";
-import { useDownloadFileMutation } from "./useDownloadFileMutation";
 import {
   addErrorNotification,
   addSuccessNotification,
 } from "@/store/notificationStore";
+import { useStore } from "@tanstack/react-store";
+import { useCallback } from "react";
+import { recResourceDetailStore } from "../store/recResourceDetailStore";
+import {
+  addPendingDoc,
+  recResourceFileTransferStore,
+  removePendingDoc,
+  setDocToDelete,
+  setSelectedFile,
+  setShowDeleteModal,
+  setShowUploadOverlay,
+  setUploadFileName,
+  updatePendingDoc,
+} from "../store/recResourceFileTransferStore";
+import { GalleryAction, GalleryDocument, GalleryFile } from "../types";
+import { useDownloadFileMutation } from "./useDownloadFileMutation";
 
 /**
- * Custom React hook to manage file picker and modal UI state for file uploads.
+ * Custom React hook to manage file picker and modal UI state for file uploads and deletes.
  * All document data is managed by React Query, not the store.
- * @returns Object containing state and handlers for file picker and modal.
+ * @returns Object containing state and handlers for file picker, upload modal, and delete modal.
  */
 export function useRecResourceFileTransferState() {
   const {
@@ -28,11 +31,16 @@ export function useRecResourceFileTransferState() {
     uploadFileName,
     showUploadOverlay,
     pendingDocs,
+    showDeleteModal,
+    docToDelete,
   } = useStore(recResourceFileTransferStore);
 
-  const uploadResourceDocumentMutation = useUploadResourceDocument();
+  const { recResource } = useStore(recResourceDetailStore);
 
-  // Open file picker for PDF
+  const uploadResourceDocumentMutation = useUploadResourceDocument();
+  const downloadMutation = useDownloadFileMutation();
+
+  // File picker handler
   const handleAddFileClick = useCallback(() => {
     const input = document.createElement("input");
     input.type = "file";
@@ -94,7 +102,7 @@ export function useRecResourceFileTransferState() {
 
   // Handle upload (with pending doc)
   const handleUpload = useCallback(
-    async (rec_resource_id: string, onSuccess: () => void) => {
+    async (onSuccess: () => void) => {
       if (!selectedFile || !uploadFileName) return;
       const tempId = `pending-${Date.now()}`;
       const tempDoc: GalleryDocument = {
@@ -104,13 +112,12 @@ export function useRecResourceFileTransferState() {
         url: "",
         extension: selectedFile.name.split(".").pop()!,
         isUploading: true,
-        rec_resource_id,
         pendingFile: selectedFile,
       };
       addPendingDoc(tempDoc);
       setShowUploadOverlay(false);
       await doUpload({
-        rec_resource_id,
+        rec_resource_id: recResource?.rec_resource_id!,
         file: selectedFile,
         title: uploadFileName,
         tempId,
@@ -120,9 +127,9 @@ export function useRecResourceFileTransferState() {
     [selectedFile, uploadFileName, doUpload],
   );
 
-  // Handle upload retry (for failed uploads, if needed)
+  // Handle upload retry (for failed uploads)
   const handleUploadRetry = useCallback(
-    async (pendingDoc: GalleryDocument, onSuccess: () => void) => {
+    async (pendingDoc: GalleryFile, onSuccess: () => void) => {
       if (!pendingDoc.pendingFile) {
         return;
       }
@@ -131,7 +138,7 @@ export function useRecResourceFileTransferState() {
         uploadFailed: false,
       });
       await doUpload({
-        rec_resource_id: pendingDoc.rec_resource_id,
+        rec_resource_id: recResource?.rec_resource_id!,
         file: pendingDoc.pendingFile,
         title: pendingDoc.name,
         tempId: pendingDoc.id,
@@ -141,9 +148,7 @@ export function useRecResourceFileTransferState() {
     [doUpload],
   );
 
-  // Download mutation logic
-  const downloadMutation = useDownloadFileMutation();
-
+  // Download handler
   const handleDownload = useCallback(
     (url: string, fileName: string) => {
       downloadMutation.mutate({ url, fileName });
@@ -151,17 +156,41 @@ export function useRecResourceFileTransferState() {
     [downloadMutation],
   );
 
-  // Handles all document actions (view, download, retry)
-  const handleDocumentAction = useCallback(
-    (action: GalleryAction, file: GalleryDocument, refetch: () => void) => {
-      if (action === "view" && file.url) {
-        window.open(file.url, "_blank");
-      }
-      if (action === "download" && file.url) {
-        handleDownload(file.url, file.name);
-      }
-      if (action === "retry") {
-        handleUploadRetry(file, refetch);
+  // Centralized document action handler
+  const handleGalleryAction = useCallback(
+    (action: GalleryAction, file: GalleryFile, refetch: () => void) => {
+      switch (action) {
+        case "view":
+          if (file && file.url) window.open(file.url, "_blank");
+          break;
+        case "download":
+          if (file && file.url) handleDownload(file.url, file.name);
+          break;
+        case "retry":
+          if (file) handleUploadRetry(file, refetch);
+          break;
+        case "delete":
+          if (file) {
+            setDocToDelete(file);
+            setShowDeleteModal(true);
+          }
+          break;
+        case "confirm-delete":
+          if (file) {
+            // Actual delete logic here
+            console.log("Delete confirmed for:", file);
+            // TODO: Add mutation or API call to delete document
+          }
+          setShowDeleteModal(false);
+          setDocToDelete(undefined);
+          refetch();
+          break;
+        case "cancel-delete":
+          setShowDeleteModal(false);
+          setDocToDelete(undefined);
+          break;
+        default:
+          break;
       }
     },
     [handleDownload, handleUploadRetry],
@@ -170,21 +199,22 @@ export function useRecResourceFileTransferState() {
   const getUploadHandler = useCallback(
     (rec_resource_id: string, onSuccess: () => void) => {
       return async () => {
-        await handleUpload(rec_resource_id, onSuccess);
+        await handleUpload(onSuccess);
       };
     },
     [handleUpload],
   );
 
-  const getDocumentActionHandler = useCallback(
+  const getActionHandler = useCallback(
     (onSuccess: () => void) => {
-      return (action: GalleryAction, file: GalleryDocument) => {
-        handleDocumentAction(action, file, onSuccess);
+      return (action: GalleryAction, file: GalleryFile) => {
+        handleGalleryAction(action, file, onSuccess);
       };
     },
-    [handleDocumentAction],
+    [handleGalleryAction],
   );
 
+  // Return all state and handlers
   return {
     selectedFile,
     uploadFileName,
@@ -194,6 +224,10 @@ export function useRecResourceFileTransferState() {
     handleCancelUpload,
     setUploadFileName,
     getUploadHandler,
-    getDocumentActionHandler,
+    getActionHandler,
+    showDeleteModal,
+    setShowDeleteModal,
+    docToDelete,
+    setDocToDelete,
   };
 }

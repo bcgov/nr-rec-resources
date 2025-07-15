@@ -1,0 +1,25 @@
+.delete-file-modal {
+  &__title {
+    font-weight: 600;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+  }
+
+  &__alert-icon {
+    font-size: 1.5rem;
+    color: #d32f2f;
+  }
+
+  &__alert-text {
+    font-size: 1rem;
+    color: #333;
+    font-weight: 500;
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+  }
+}

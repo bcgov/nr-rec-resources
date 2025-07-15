@@ -1,12 +1,13 @@
-import { useDocumentList } from "../../hooks/useDocumentList";
-import { useRecResourceFileTransferState } from "../../hooks/useRecResourceFileTransferState";
+import { DeleteFileModal } from "@/pages/rec-resource-page/components/RecResourceFileSection/DeleteFileModal";
 import { FileUploadModal } from "@/pages/rec-resource-page/components/RecResourceFileSection/FileUploadModal";
 import { GalleryDocument } from "@/pages/rec-resource-page/types";
-import { GalleryFileCard } from "./GalleryFileCard";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
 import { COLOR_RED } from "@/styles/colors";
+import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useDocumentList } from "../../hooks/useDocumentList";
+import { useRecResourceFileTransferState } from "../../hooks/useRecResourceFileTransferState";
 import { GalleryAccordion } from "./GalleryAccordion";
+import { GalleryFileCard } from "./GalleryFileCard";
 
 interface RecResourceFileSectionProps {
   rec_resource_id: string;
@@ -31,14 +32,16 @@ export const RecResourceFileSection = ({
     handleCancelUpload,
     setUploadFileName,
     getUploadHandler,
-    getDocumentActionHandler,
+    getActionHandler,
+    showDeleteModal,
+    docToDelete,
   } = useRecResourceFileTransferState();
 
   const galleryDocuments = [...pendingDocs, ...galleryDocumentsFromServer];
 
   // Handlers
   const onUploadConfirmation = getUploadHandler(rec_resource_id, refetch);
-  const onDocumentAction = getDocumentActionHandler(refetch);
+  const onAction = getActionHandler(refetch);
 
   // Render a single document card
   const renderGalleryFileCard = (doc: GalleryDocument) => (
@@ -48,7 +51,7 @@ export const RecResourceFileSection = ({
         <FontAwesomeIcon icon={faFilePdf} size="2x" color={COLOR_RED} />
       }
       file={doc}
-      onAction={onDocumentAction}
+      onAction={onAction}
     />
   );
 
@@ -73,6 +76,13 @@ export const RecResourceFileSection = ({
         onCancel={handleCancelUpload}
         onUploadConfirmation={onUploadConfirmation}
       />
+      {docToDelete && (
+        <DeleteFileModal
+          open={showDeleteModal}
+          file={docToDelete}
+          onAction={onAction}
+        />
+      )}
     </>
   );
 };

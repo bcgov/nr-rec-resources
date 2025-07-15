@@ -1,15 +1,15 @@
 import { beforeEach, vi } from "vitest";
 import {
-  setSelectedFile,
-  setUploadFileName,
-  setShowUploadOverlay,
-  addPendingDoc,
-  removePendingDoc,
-  updatePendingDoc,
   addErrorNotification,
+  addPendingDoc,
   addSuccessNotification,
-  mutateAsync,
   downloadMutate,
+  mutateAsync,
+  removePendingDoc,
+  setSelectedFile,
+  setShowUploadOverlay,
+  setUploadFileName,
+  updatePendingDoc,
 } from "./recResourceFileTransferStore.mock";
 
 vi.mock("@/pages/rec-resource-page/store/recResourceFileTransferStore", () => ({
@@ -60,12 +60,12 @@ vi.mock("@/pages/rec-resource-page/hooks/useDownloadFileMutation", () => ({
   useDownloadFileMutation: () => ({ mutate: downloadMutate }),
 }));
 
-import { act, renderHook } from "@testing-library/react";
+import * as download from "@/pages/rec-resource-page/hooks/useDownloadFileMutation";
 import { useRecResourceFileTransferState } from "@/pages/rec-resource-page/hooks/useRecResourceFileTransferState";
 import * as store from "@/pages/rec-resource-page/store/recResourceFileTransferStore";
-import * as notif from "@/store/notificationStore";
 import * as upload from "@/services/hooks/recreation-resource-admin/useUploadResourceDocument";
-import * as download from "@/pages/rec-resource-page/hooks/useDownloadFileMutation";
+import * as notif from "@/store/notificationStore";
+import { act, renderHook } from "@testing-library/react";
 
 // Use the real File if available, otherwise a minimal mock
 const RealFile = globalThis.File;
@@ -193,7 +193,7 @@ describe("useRecResourceFileTransferState", () => {
     };
     const { result } = renderHook(() => useRecResourceFileTransferState());
     await act(() =>
-      result.current.getDocumentActionHandler(vi.fn())("retry", pendingDoc),
+      result.current.getActionHandler(vi.fn())("retry", pendingDoc),
     );
     expect(store.updatePendingDoc).toHaveBeenCalledWith("id1", {
       isUploading: true,
@@ -213,7 +213,7 @@ describe("useRecResourceFileTransferState", () => {
     };
     const { result } = renderHook(() => useRecResourceFileTransferState());
     await act(() =>
-      result.current.getDocumentActionHandler(vi.fn())("retry", pendingDoc),
+      result.current.getActionHandler(vi.fn())("retry", pendingDoc),
     );
     expect(mutateAsync).not.toHaveBeenCalled();
     expect(updatePendingDoc).not.toHaveBeenCalledWith("id1", {
@@ -233,7 +233,7 @@ describe("useRecResourceFileTransferState", () => {
       extension: "pdf",
     };
     const { result } = renderHook(() => useRecResourceFileTransferState());
-    result.current.getDocumentActionHandler(vi.fn())("view", file);
+    result.current.getActionHandler(vi.fn())("view", file);
     expect(open).toHaveBeenCalledWith("http://test", "_blank");
     open.mockRestore();
   });
@@ -248,7 +248,7 @@ describe("useRecResourceFileTransferState", () => {
       extension: "pdf",
     };
     const { result } = renderHook(() => useRecResourceFileTransferState());
-    result.current.getDocumentActionHandler(vi.fn())("download", file);
+    result.current.getActionHandler(vi.fn())("download", file);
     expect(download.useDownloadFileMutation().mutate).toHaveBeenCalledWith({
       url: "http://test",
       fileName: "Test",
@@ -267,7 +267,7 @@ describe("useRecResourceFileTransferState", () => {
 
   it("getDocumentActionHandler returns a function that calls handleDocumentAction", () => {
     const { result } = renderHook(() => useRecResourceFileTransferState());
-    const fn = result.current.getDocumentActionHandler(vi.fn());
+    const fn = result.current.getActionHandler(vi.fn());
     expect(typeof fn).toBe("function");
     fn("view", {
       url: "http://test",

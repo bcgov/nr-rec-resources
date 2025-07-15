@@ -1,11 +1,13 @@
 import { Store } from "@tanstack/store";
-import { GalleryDocument } from "../types";
+import { GalleryDocument, GalleryFile } from "../types";
 
 export interface RecResourceFileTransferState {
   selectedFileForUpload: File | null;
   uploadFileName: string;
   showUploadOverlay: boolean;
   pendingDocs: GalleryDocument[];
+  showDeleteModal: boolean;
+  docToDelete?: GalleryFile;
 }
 
 export const recResourceFileTransferStore =
@@ -14,6 +16,8 @@ export const recResourceFileTransferStore =
     uploadFileName: "",
     showUploadOverlay: false,
     pendingDocs: [],
+    showDeleteModal: false,
+    docToDelete: undefined,
   });
 
 export function setSelectedFile(file: File | null) {
@@ -34,6 +38,20 @@ export function setShowUploadOverlay(show: boolean) {
   recResourceFileTransferStore.setState((prev) => ({
     ...prev,
     showUploadOverlay: show,
+  }));
+}
+
+export function setShowDeleteModal(show: boolean) {
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    showDeleteModal: show,
+  }));
+}
+
+export function setDocToDelete(doc?: GalleryFile) {
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    docToDelete: doc,
   }));
 }
 
