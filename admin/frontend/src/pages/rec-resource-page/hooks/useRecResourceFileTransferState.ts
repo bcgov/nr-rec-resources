@@ -4,13 +4,14 @@ import {
   addSuccessNotification,
 } from "@/store/notificationStore";
 import { useStore } from "@tanstack/react-store";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { recResourceDetailStore } from "../store/recResourceDetailStore";
 import {
   addPendingDoc,
   recResourceFileTransferStore,
   removePendingDoc,
   setDocToDelete,
+  setGalleryDocuments,
   setSelectedFile,
   setShowDeleteModal,
   setShowUploadOverlay,
@@ -18,6 +19,7 @@ import {
   updatePendingDoc,
 } from "../store/recResourceFileTransferStore";
 import { GalleryAction, GalleryDocument, GalleryFile } from "../types";
+import { useDocumentList } from "./useDocumentList";
 import { useDownloadFileMutation } from "./useDownloadFileMutation";
 
 /**
@@ -33,12 +35,26 @@ export function useRecResourceFileTransferState() {
     pendingDocs,
     showDeleteModal,
     docToDelete,
+    galleryDocuments,
   } = useStore(recResourceFileTransferStore);
 
   const { recResource } = useStore(recResourceDetailStore);
 
   const uploadResourceDocumentMutation = useUploadResourceDocument();
   const downloadMutation = useDownloadFileMutation();
+
+  // fetch documents
+  const {
+    documents: galleryDocumentsFromServer,
+    isDocumentUploadDisabled,
+    isFetching,
+    refetch,
+  } = useDocumentList(recResource?.rec_resource_id);
+
+  // Sync galleryDocumentsFromServer to store
+  useEffect(() => {
+    setGalleryDocuments([...pendingDocs, ...galleryDocumentsFromServer]);
+  }, [pendingDocs, galleryDocumentsFromServer]);
 
   // File picker handler
   const handleAddFileClick = useCallback(() => {
@@ -148,39 +164,28 @@ export function useRecResourceFileTransferState() {
     [doUpload],
   );
 
-  // Download handler
-  const handleDownload = useCallback(
-    (url: string, fileName: string) => {
-      downloadMutation.mutate({ url, fileName });
-    },
-    [downloadMutation],
-  );
-
   // Centralized document action handler
   const handleGalleryAction = useCallback(
     (action: GalleryAction, file: GalleryFile, refetch: () => void) => {
       switch (action) {
         case "view":
-          if (file && file.url) window.open(file.url, "_blank");
+          window.open(file.url, "_blank");
           break;
         case "download":
-          if (file && file.url) handleDownload(file.url, file.name);
+          downloadMutation.mutate({ file });
           break;
         case "retry":
-          if (file) handleUploadRetry(file, refetch);
+          handleUploadRetry(file, refetch);
           break;
         case "delete":
-          if (file) {
-            setDocToDelete(file);
-            setShowDeleteModal(true);
-          }
+          setDocToDelete(file);
+          setShowDeleteModal(true);
           break;
         case "confirm-delete":
-          if (file) {
-            // Actual delete logic here
-            console.log("Delete confirmed for:", file);
-            // TODO: Add mutation or API call to delete document
-          }
+          // Actual delete logic here
+          console.log("Delete confirmed for:", file);
+          // TODO: Add mutation or API call to delete document
+
           setShowDeleteModal(false);
           setDocToDelete(undefined);
           refetch();
@@ -193,7 +198,7 @@ export function useRecResourceFileTransferState() {
           break;
       }
     },
-    [handleDownload, handleUploadRetry],
+    [handleUploadRetry, downloadMutation],
   );
 
   const getUploadHandler = useCallback(
@@ -229,5 +234,9 @@ export function useRecResourceFileTransferState() {
     setShowDeleteModal,
     docToDelete,
     setDocToDelete,
+    isDocumentUploadDisabled,
+    isFetching,
+    refetch,
+    galleryDocuments,
   };
 }

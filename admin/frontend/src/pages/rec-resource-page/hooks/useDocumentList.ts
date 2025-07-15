@@ -1,15 +1,15 @@
-import { useMemo } from "react";
 import { useGetDocumentsByRecResourceId } from "@/services/hooks/recreation-resource-admin/useGetDocumentsByRecResourceId";
-import { MAX_DOCUMENTS_PER_REC_RESOURCE } from "../constants";
-import { GalleryDocument } from "../types";
 import { RecreationResourceDocDto } from "@/services/recreation-resource-admin";
+import { useMemo } from "react";
+import { MAX_DOCUMENTS_PER_REC_RESOURCE } from "../constants";
 import { formatDocumentDate } from "../helpers";
+import { GalleryDocument } from "../types";
 
 /**
  * Hook to fetch documents for a resource and determine if upload is allowed.
  * Returns the documents, upload-disabled status, and loading state.
  */
-export function useDocumentList(rec_resource_id: string) {
+export function useDocumentList(rec_resource_id?: string) {
   const {
     data: documentsFromServer = [],
     isFetching,

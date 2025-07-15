@@ -1,13 +1,10 @@
 import { CustomButton } from "@/components";
 import { GalleryAction, GalleryFile } from "@/pages/rec-resource-page/types";
 import { COLOR_RED } from "@/styles/colors";
-import {
-  faExclamationTriangle,
-  faTrash,
-} from "@fortawesome/free-solid-svg-icons";
+import { faTrash, faWarning } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FC } from "react";
-import { Modal, Stack } from "react-bootstrap";
+import { Alert, Modal, Stack } from "react-bootstrap";
 import "./DeleteFileModal.scss";
 
 interface DeleteFileModalProps {
@@ -31,22 +28,22 @@ export const DeleteFileModal: FC<DeleteFileModalProps> = ({
     >
       <Modal.Header closeButton>
         <Modal.Title className="delete-file-modal__title">
-          <FontAwesomeIcon icon={faTrash} className="me-2" />
           Delete File
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Stack direction="horizontal" gap={2} className="mb-3">
-          <FontAwesomeIcon
-            icon={faExclamationTriangle}
-            className="delete-file-modal__alert-icon me-2"
-            color={COLOR_RED}
-          />
-          <span className="delete-file-modal__alert-text">
-            Are you sure you want to delete <b>{file.name}</b>? This action
-            cannot be undone.
-          </span>
-        </Stack>
+        <Alert variant="danger" className="delete-file-modal__alert">
+          <Stack direction="horizontal" gap={2} className="align-items-center">
+            <FontAwesomeIcon icon={faWarning} color={COLOR_RED} />
+            <span className="delete-file-modal__alert-text">
+              Deleting this image will remove it from the public site. This
+              action cannot be undone.
+            </span>
+          </Stack>
+        </Alert>
+        <span className="delete-file-modal__alert-text">
+          Are you sure you want to delete file: <b>{file.name}</b>?
+        </span>
       </Modal.Body>
       <Modal.Footer>
         <CustomButton
@@ -58,8 +55,9 @@ export const DeleteFileModal: FC<DeleteFileModalProps> = ({
         <CustomButton
           variant="danger"
           onClick={() => onAction("confirm-delete", file)}
+          leftIcon={<FontAwesomeIcon icon={faTrash} />}
         >
-          Yes, Delete
+          Delete
         </CustomButton>
       </Modal.Footer>
     </Modal>

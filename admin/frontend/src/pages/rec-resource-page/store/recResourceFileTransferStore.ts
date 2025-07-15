@@ -6,6 +6,7 @@ export interface RecResourceFileTransferState {
   uploadFileName: string;
   showUploadOverlay: boolean;
   pendingDocs: GalleryDocument[];
+  galleryDocuments: GalleryDocument[];
   showDeleteModal: boolean;
   docToDelete?: GalleryFile;
 }
@@ -16,6 +17,7 @@ export const recResourceFileTransferStore =
     uploadFileName: "",
     showUploadOverlay: false,
     pendingDocs: [],
+    galleryDocuments: [],
     showDeleteModal: false,
     docToDelete: undefined,
   });
@@ -82,4 +84,24 @@ export function removePendingDoc(id: string) {
     ...prev,
     pendingDocs: prev.pendingDocs.filter((doc) => doc.id !== id),
   }));
+}
+
+export function setGalleryDocuments(docs: GalleryDocument[]) {
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    galleryDocuments: docs,
+  }));
+}
+
+export function updateGalleryDocument(
+  id: string,
+  updates: Partial<GalleryDocument>,
+) {
+  recResourceFileTransferStore.setState((prev) => {
+    const idx = prev.galleryDocuments.findIndex((d) => d.id === id);
+    if (idx === -1) return prev;
+    const updatedDocs = [...prev.galleryDocuments];
+    updatedDocs[idx] = { ...updatedDocs[idx], ...updates };
+    return { ...prev, galleryDocuments: updatedDocs };
+  });
 }

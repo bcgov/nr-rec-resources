@@ -4,7 +4,6 @@ import { GalleryDocument } from "@/pages/rec-resource-page/types";
 import { COLOR_RED } from "@/styles/colors";
 import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useDocumentList } from "../../hooks/useDocumentList";
 import { useRecResourceFileTransferState } from "../../hooks/useRecResourceFileTransferState";
 import { GalleryAccordion } from "./GalleryAccordion";
 import { GalleryFileCard } from "./GalleryFileCard";
@@ -17,13 +16,6 @@ export const RecResourceFileSection = ({
   rec_resource_id,
 }: RecResourceFileSectionProps) => {
   const {
-    documents: galleryDocumentsFromServer,
-    isDocumentUploadDisabled,
-    isFetching,
-    refetch,
-  } = useDocumentList(rec_resource_id);
-
-  const {
     selectedFile,
     uploadFileName,
     showUploadOverlay,
@@ -35,9 +27,11 @@ export const RecResourceFileSection = ({
     getActionHandler,
     showDeleteModal,
     docToDelete,
+    galleryDocuments,
+    isDocumentUploadDisabled,
+    isFetching,
+    refetch,
   } = useRecResourceFileTransferState();
-
-  const galleryDocuments = [...pendingDocs, ...galleryDocumentsFromServer];
 
   // Handlers
   const onUploadConfirmation = getUploadHandler(rec_resource_id, refetch);

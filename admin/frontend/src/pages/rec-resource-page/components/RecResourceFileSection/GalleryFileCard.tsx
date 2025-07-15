@@ -1,25 +1,25 @@
-import clsx from "clsx";
-import {
-  Card,
-  Row,
-  Col,
-  Dropdown,
-  Button,
-  Stack,
-  Spinner,
-} from "react-bootstrap";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ClampLines } from "@/components/clamp-lines";
 import {
   faCloudDownload,
   faEllipsisV,
   faEye,
-  faTrash,
   faFilePdf,
   faRedo,
+  faTrash,
 } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import clsx from "clsx";
+import {
+  Button,
+  Card,
+  Col,
+  Dropdown,
+  Row,
+  Spinner,
+  Stack,
+} from "react-bootstrap";
+import { GalleryAction, GalleryFile } from "../../types";
 import "./GalleryFileCard.scss";
-import { GalleryFile, GalleryAction } from "../../types";
-import { ClampLines } from "@/components/clamp-lines";
 
 export interface GalleryFileCardProps<T extends GalleryFile> {
   /** Optional content to display at the top of the card */
@@ -57,7 +57,8 @@ export const GalleryFileCard = <T extends GalleryFile>({
 }: GalleryFileCardProps<T>) => {
   // Determine error and pending states for the file
   const isFileUploadError = Boolean(file.uploadFailed);
-  const isFileDownloadPending = Boolean(file.isUploading);
+  const isFileUploading = Boolean(file.isUploading);
+  const isFileDownloading = Boolean(file.isDownloading);
 
   // Fallbacks for missing file data
   const filename = file.name || "Untitled";
@@ -77,7 +78,7 @@ export const GalleryFileCard = <T extends GalleryFile>({
             // Show error or pending style as needed
             "gallery-file-card__top--error": isFileUploadError,
             "gallery-file-card__top--pending":
-              !isFileUploadError && isFileDownloadPending,
+              !isFileUploadError && (isFileUploading || isFileDownloading),
           },
         )}
       >
@@ -112,7 +113,7 @@ export const GalleryFileCard = <T extends GalleryFile>({
               </Stack>
             </div>
           </Stack>
-        ) : isFileDownloadPending ? (
+        ) : isFileUploading ? (
           // Pending state: show spinner and uploading message
           <Stack
             direction="vertical"
@@ -121,6 +122,16 @@ export const GalleryFileCard = <T extends GalleryFile>({
           >
             <Spinner />
             <span>Uploading</span>
+          </Stack>
+        ) : isFileDownloading ? (
+          // Downloading state: show spinner and downloading message
+          <Stack
+            direction="vertical"
+            gap={2}
+            className="align-items-center justify-content-center"
+          >
+            <Spinner />
+            <span>Downloading</span>
           </Stack>
         ) : (
           // Normal state: show action buttons and top content
@@ -171,7 +182,7 @@ export const GalleryFileCard = <T extends GalleryFile>({
                 variant="link"
                 className="gallery-file-card__menu p-0 border-0 shadow-none"
                 aria-label="File actions menu"
-                disabled={isFileDownloadPending}
+                disabled={isFileUploading}
               >
                 <FontAwesomeIcon icon={faEllipsisV} />
               </Dropdown.Toggle>
