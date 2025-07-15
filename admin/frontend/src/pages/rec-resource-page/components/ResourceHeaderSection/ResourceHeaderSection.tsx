@@ -1,14 +1,14 @@
-import { FC } from "react";
-import { Dropdown, Stack } from "react-bootstrap";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEllipsisH, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { CustomBadge, CustomButton } from "@/components";
 import { ClampLines } from "@/components/clamp-lines";
-import { COLOR_BLUE, COLOR_BLUE_LIGHT } from "@/styles/colors";
-import { useRecResourceFileTransferState } from "../../hooks/useRecResourceFileTransferState";
-import { useDocumentList } from "../../hooks/useDocumentList";
-import "./ResourceHeaderSection.scss";
 import { RecreationResourceDetailModel } from "@/custom-models";
+import { handleAddPdfFileClick } from "@/pages/rec-resource-page/helpers";
+import { useRecResourceFileTransferState } from "@/pages/rec-resource-page/hooks/useRecResourceFileTransferState";
+import { COLOR_BLUE, COLOR_BLUE_LIGHT } from "@/styles/colors";
+import { faEllipsisH, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { FC } from "react";
+import { Dropdown, Stack } from "react-bootstrap";
+import "./ResourceHeaderSection.scss";
 
 interface ResourceHeaderSectionProps {
   recResource: RecreationResourceDetailModel;
@@ -48,10 +48,7 @@ const ActionButton: FC<ActionButtonProps> = ({
 export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
   recResource,
 }) => {
-  const { handleAddFileClick } = useRecResourceFileTransferState();
-  const { isDocumentUploadDisabled } = useDocumentList(
-    recResource.rec_resource_id,
-  );
+  const { isDocumentUploadDisabled } = useRecResourceFileTransferState();
 
   return (
     <Stack direction="vertical" className="resource-header-section" gap={2}>
@@ -90,7 +87,7 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
               />
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <Dropdown.Item onClick={handleAddFileClick}>
+              <Dropdown.Item onClick={handleAddPdfFileClick}>
                 <FontAwesomeIcon
                   icon={faPlus}
                   className="me-2 resource-header-section__action-button-icon"
@@ -98,7 +95,7 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
                 Add image
               </Dropdown.Item>
               <Dropdown.Item
-                onClick={handleAddFileClick}
+                onClick={handleAddPdfFileClick}
                 disabled={isDocumentUploadDisabled}
               >
                 <FontAwesomeIcon
@@ -118,12 +115,12 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
         >
           <ActionButton
             label="Add image"
-            onClick={handleAddFileClick}
+            onClick={handleAddPdfFileClick}
             icon={faPlus}
           />
           <ActionButton
             label="Add document"
-            onClick={handleAddFileClick}
+            onClick={handleAddPdfFileClick}
             icon={faPlus}
             disabled={isDocumentUploadDisabled}
           />

@@ -1,6 +1,10 @@
 # Build
 FROM node:22-slim AS build
 
+# Set environment variable for build
+# DAM assets are served from dam-prod
+ENV VITE_RECREATION_RESOURCE_ASSETS_BASE_URL="https://dam.lqc63d-prod.nimbus.cloud.gov.bc.ca"
+
 # Copy, build static files; see .dockerignore for exclusions
 WORKDIR /app
 
