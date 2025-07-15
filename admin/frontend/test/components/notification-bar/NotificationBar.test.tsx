@@ -1,64 +1,59 @@
-import { render, screen, fireEvent, act } from "@testing-library/react";
-import { NotificationBar } from "@/components/notification-bar/NotificationBar";
+import { NotificationBar } from "@/components/notification-bar";
 import * as notificationStoreModule from "@/store/notificationStore";
-import React from "react";
+import { useStore } from "@tanstack/react-store";
+import { render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// Helper to update the store
-function setMessages(messages: any[]) {
-  notificationStoreModule.notificationStore.setState({ messages });
-}
+// Mock NotificationToast
+vi.mock("@/components/notification-bar/NotificationToast", () => ({
+  NotificationToast: ({ msg, onClose }: any) => (
+    <div data-testid="notification-toast" onClick={onClose}>
+      {msg.text}
+    </div>
+  ),
+}));
+
+// Mock useStore from @tanstack/react-store
+vi.mock("@tanstack/react-store", () => ({
+  useStore: vi.fn(),
+}));
+
+const mockMessages = [
+  { id: "1", text: "Test message 1" },
+  { id: "2", text: "Test message 2" },
+];
+
+// Mock removeNotification
+const removeNotificationMock = vi.spyOn(
+  notificationStoreModule,
+  "removeNotification",
+);
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 describe("NotificationBar", () => {
-  beforeEach(() => {
-    setMessages([]);
-  });
-
   it("renders nothing when there are no messages", () => {
-    render(<NotificationBar />);
-    expect(screen.queryByRole("alert")).toBeNull();
+    (useStore as any).mockReturnValue({ messages: [] });
+    const { container } = render(<NotificationBar />);
+    expect(container.firstChild).toBeNull();
   });
 
-  it("renders a notification message", () => {
-    setMessages([{ id: 1, message: "Test message", variant: "success" }]);
+  it("renders notification toasts when messages exist", () => {
+    (useStore as any).mockReturnValue({ messages: mockMessages });
     render(<NotificationBar />);
-    expect(screen.getByText("Test message")).toBeInTheDocument();
-    expect(screen.getByRole("alert")).toHaveClass("alert");
+    const toasts = screen.getAllByTestId("notification-toast");
+    expect(toasts).toHaveLength(mockMessages.length);
+    expect(toasts[0]).toHaveTextContent("Test message 1");
+    expect(toasts[1]).toHaveTextContent("Test message 2");
   });
 
-  it("calls removeNotification when close button is clicked", () => {
-    const spy = vi.spyOn(notificationStoreModule, "removeNotification");
-    setMessages([{ id: 2, message: "Dismiss me", variant: "danger" }]);
+  it("calls removeNotification when a toast is closed", () => {
+    (useStore as any).mockReturnValue({ messages: mockMessages });
     render(<NotificationBar />);
-    const closeBtn = screen.getByRole("button", { name: /close/i });
-    fireEvent.click(closeBtn);
-    expect(spy).toHaveBeenCalledWith(2);
-  });
-
-  it("auto-dismisses a message after timeout", () => {
-    vi.useFakeTimers();
-    const spy = vi.spyOn(notificationStoreModule, "removeNotification");
-    setMessages([
-      { id: 3, message: "Auto-dismiss", variant: "info", timeout: 1000 },
-    ]);
-    render(<NotificationBar />);
-    act(() => {
-      vi.advanceTimersByTime(1000);
-    });
-    expect(spy).toHaveBeenCalledWith(3);
-    vi.useRealTimers();
-  });
-
-  it("does not auto-dismiss if autoDismiss is false", () => {
-    vi.useFakeTimers();
-    const spy = vi.spyOn(notificationStoreModule, "removeNotification");
-    setMessages([
-      { id: 4, message: "Persistent", variant: "warning", autoDismiss: false },
-    ]);
-    render(<NotificationBar />);
-    act(() => {
-      vi.advanceTimersByTime(5000);
-    });
-    expect(spy).not.toHaveBeenCalled();
-    vi.useRealTimers();
+    const toasts = screen.getAllByTestId("notification-toast");
+    toasts[0].click();
+    expect(removeNotificationMock).toHaveBeenCalledWith("1");
   });
 });

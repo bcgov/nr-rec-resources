@@ -1,23 +1,20 @@
-import { useMemo } from "react";
 import { useGetDocumentsByRecResourceId } from "@/services/hooks/recreation-resource-admin/useGetDocumentsByRecResourceId";
-import { MAX_DOCUMENTS_PER_REC_RESOURCE } from "../constants";
-import { GalleryDocument } from "../types";
 import { RecreationResourceDocDto } from "@/services/recreation-resource-admin";
+import { useMemo } from "react";
 import { formatDocumentDate } from "../helpers";
+import { GalleryDocument } from "../types";
 
 /**
- * Hook to fetch documents for a resource and determine if upload is allowed.
- * Returns the documents, upload-disabled status, and loading state.
+ * Hook to manage document list state and syncing.
+ * Handles fetching documents from server and syncing with pending documents.
  */
-export function useDocumentList(rec_resource_id: string) {
-  const {
-    data: documentsFromServer = [],
-    isFetching,
-    refetch,
-  } = useGetDocumentsByRecResourceId(rec_resource_id);
+export function useDocumentList(rec_resource_id?: string) {
+  // fetch documents from server
+  const { data: documentsFromServer = [], ...other } =
+    useGetDocumentsByRecResourceId(rec_resource_id);
 
   // Map DTO to GalleryDocument
-  const documents: GalleryDocument[] = useMemo(
+  const galleryDocumentsFromServer: GalleryDocument[] = useMemo(
     () =>
       documentsFromServer.map((doc: RecreationResourceDocDto) => ({
         id: doc.ref_id,
@@ -32,7 +29,8 @@ export function useDocumentList(rec_resource_id: string) {
     [documentsFromServer],
   );
 
-  const isDocumentUploadDisabled =
-    documents.length >= MAX_DOCUMENTS_PER_REC_RESOURCE;
-  return { documents, isDocumentUploadDisabled, isFetching, refetch };
+  return {
+    galleryDocumentsFromServer,
+    ...other,
+  };
 }

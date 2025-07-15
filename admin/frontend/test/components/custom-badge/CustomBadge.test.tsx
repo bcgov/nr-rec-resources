@@ -1,6 +1,5 @@
+import { CustomBadge } from "@/components/custom-badge";
 import { render, screen } from "@testing-library/react";
-import { CustomBadge } from "@/components/custom-badge/CustomBadge";
-import React from "react";
 
 describe("CustomBadge", () => {
   it("renders the label with correct styles", () => {

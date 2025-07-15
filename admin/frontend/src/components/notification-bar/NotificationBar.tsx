@@ -1,11 +1,11 @@
-import Alert from "react-bootstrap/Alert";
-import { useStore } from "@tanstack/react-store";
 import {
   notificationStore,
   removeNotification,
 } from "@/store/notificationStore";
-import { useEffect } from "react";
+import { useStore } from "@tanstack/react-store";
+import { Stack, ToastContainer } from "react-bootstrap";
 import "./NotificationBar.scss";
+import { NotificationToast } from "./NotificationToast";
 
 /**
  * NotificationBar displays a stack of notification messages below the header.
@@ -17,34 +17,22 @@ import "./NotificationBar.scss";
 export function NotificationBar() {
   const { messages } = useStore(notificationStore);
 
-  useEffect(() => {
-    if (!messages.length) return;
-    // Set up a timer for each message that should auto-dismiss
-    const timers = messages
-      .filter((msg) => msg.autoDismiss !== false)
-      .map(({ id, timeout = 3000 }) =>
-        setTimeout(() => removeNotification(id), timeout),
-      );
-    return () => {
-      timers.forEach(clearTimeout);
-    };
-  }, [messages]);
-
   if (!messages.length) return null;
 
   return (
-    <div className="notification-bar">
-      {messages.map(({ id, message, variant }) => (
-        <Alert
-          key={id}
-          variant={variant}
-          dismissible
-          onClose={() => removeNotification(id)}
-          className="alert"
-        >
-          {message}
-        </Alert>
-      ))}
-    </div>
+    <ToastContainer
+      containerPosition="sticky"
+      className="notification-bar-container"
+    >
+      <Stack direction="vertical" gap={1}>
+        {messages.map((msg) => (
+          <NotificationToast
+            key={msg.id}
+            msg={msg}
+            onClose={() => removeNotification(msg.id)}
+          />
+        ))}
+      </Stack>
+    </ToastContainer>
   );
 }
