@@ -5,9 +5,9 @@ import { RecResourcePage } from "@/pages/rec-resource-page/RecResourcePage";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import "./App.css";
 import { ROUTES } from "./routes";
 import { useGlobalQueryErrorHandler } from "./services/hooks/useGlobalQueryErrorHandler";
-import "./App.css";
 
 const queryClient = new QueryClient();
 
@@ -19,7 +19,9 @@ function App() {
       <AuthProvider>
         <AuthGuard>
           <Header />
-          <NotificationBar />
+          <PageLayout>
+            <NotificationBar />
+          </PageLayout>
           <BrowserRouter>
             <Routes>
               <Route path={ROUTES.LANDING} element={<LandingPage />} />

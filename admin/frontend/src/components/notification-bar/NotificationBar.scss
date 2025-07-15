@@ -1,14 +1,11 @@
-.notification-bar {
-  position: absolute;
-  top: 95px;
-  left: 0;
-  width: calc(100% - 10px);
+.notification-bar-container {
+  position: relative;
+  top: 5px;
   z-index: 9999;
-  margin: 5px;
   float: none;
-}
 
-.alert {
-  border-radius: 12px;
-  margin-bottom: 5px;
+  &__alert {
+    border-radius: 12px;
+    margin-bottom: unset;
+  }
 }

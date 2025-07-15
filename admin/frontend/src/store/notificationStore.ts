@@ -5,10 +5,15 @@
 import { Store } from "@tanstack/store";
 import { AlertProps } from "react-bootstrap";
 
+export type NotificationMessageVariant = Extract<
+  AlertProps["variant"],
+  "success" | "danger" | "warning" | "info"
+>;
+
 export interface NotificationMessage {
   id: string | number;
   message: string;
-  variant: AlertProps["variant"];
+  variant: NotificationMessageVariant;
   autoDismiss?: boolean;
   timeout?: number;
 }
@@ -31,7 +36,7 @@ export const notificationStore = new Store<NotificationState>({
  */
 export function addNotification(
   message: string,
-  variant: string = "danger",
+  variant: NotificationMessageVariant = "danger",
   id?: string | number,
   autoDismiss: boolean = true,
   timeout: number = 3000,
@@ -74,6 +79,22 @@ export function addSuccessNotification(
   timeout: number = 3000,
 ): void {
   addNotification(message, "success", id, autoDismiss, timeout);
+}
+
+/**
+ * Add an info notification. Variant is always 'info'.
+ * @param message - The notification message.
+ * @param id - Optional unique id for deduplication.
+ * @param autoDismiss - Whether this notification should auto-dismiss (default: true).
+ * @param timeout - Auto-dismiss timeout in ms (default: 3000).
+ */
+export function addInfoNotification(
+  message: string,
+  id?: string | number,
+  autoDismiss: boolean = true,
+  timeout: number = 3000,
+): void {
+  addNotification(message, "info", id, autoDismiss, timeout);
 }
 
 /**
