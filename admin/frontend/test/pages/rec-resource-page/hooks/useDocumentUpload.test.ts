@@ -28,7 +28,12 @@ vi.mock("@/store/notificationStore", () => ({
   addSuccessNotification: vi.fn(),
 }));
 
+vi.mock("@/pages/rec-resource-page/helpers", () => ({
+  formatDocumentDate: vi.fn(),
+}));
+
 // Import mocked modules for type safety
+import * as helpers from "@/pages/rec-resource-page/helpers";
 import { useUploadResourceDocument } from "@/services/hooks/recreation-resource-admin/useUploadResourceDocument";
 import { useStore } from "@tanstack/react-store";
 
@@ -48,6 +53,11 @@ describe("useDocumentUpload", () => {
     vi.mocked(useUploadResourceDocument).mockReturnValue({
       mutateAsync: mockUploadMutation,
     } as any);
+
+    // Mock formatDocumentDate to return predictable date
+    vi.mocked(helpers.formatDocumentDate).mockReturnValue(
+      "Jan 15, 2025, 10:30 AM",
+    );
   });
 
   it("returns upload handlers", () => {
@@ -85,10 +95,16 @@ describe("useDocumentUpload", () => {
       expect(store.addPendingDoc).toHaveBeenCalledWith(
         expect.objectContaining({
           name: uploadFileName,
+          date: "Jan 15, 2025, 10:30 AM",
           extension: "pdf",
           isUploading: true,
           pendingFile: file,
         }),
+      );
+
+      // Verify date formatting was called
+      expect(helpers.formatDocumentDate).toHaveBeenCalledWith(
+        expect.any(String),
       );
 
       // Verify upload was called
@@ -119,6 +135,17 @@ describe("useDocumentUpload", () => {
       await act(async () => {
         await result.current.handleUpload(file, uploadFileName, onSuccess);
       });
+
+      // Verify pending doc was added initially with formatted date
+      expect(store.addPendingDoc).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: uploadFileName,
+          date: "Jan 15, 2025, 10:30 AM",
+          extension: "pdf",
+          isUploading: true,
+          pendingFile: file,
+        }),
+      );
 
       // Verify error flow
       expect(notificationStore.addErrorNotification).toHaveBeenCalledWith(
