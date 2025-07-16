@@ -6,8 +6,8 @@ import { faEllipsisH, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FC } from "react";
 import { Dropdown, Stack } from "react-bootstrap";
+import { handleAddFileClick } from "../../helpers";
 import { useDocumentListState } from "../../hooks/useDocumentListState";
-import { useRecResourceFileTransferState } from "../../hooks/useRecResourceFileTransferState";
 import "./ResourceHeaderSection.scss";
 
 interface ResourceHeaderSectionProps {
@@ -48,7 +48,6 @@ const ActionButton: FC<ActionButtonProps> = ({
 export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
   recResource,
 }) => {
-  const { handleAddFileClick } = useRecResourceFileTransferState();
   const { isDocumentUploadDisabled } = useDocumentListState(
     recResource.rec_resource_id,
   );

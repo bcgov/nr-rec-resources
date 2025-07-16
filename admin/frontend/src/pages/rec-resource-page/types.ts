@@ -24,4 +24,7 @@ export type GalleryAction =
   | "retry"
   | "delete"
   | "confirm-delete"
-  | "cancel-delete";
+  | "cancel-delete"
+  | "upload"
+  | "confirm-upload"
+  | "cancel-upload";

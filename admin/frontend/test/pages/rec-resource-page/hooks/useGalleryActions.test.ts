@@ -20,21 +20,53 @@ vi.mock("@/pages/rec-resource-page/hooks/useDocumentDelete", () => ({
   useDocumentDelete: vi.fn(),
 }));
 
+vi.mock("@/pages/rec-resource-page/hooks/useFilePickerState", () => ({
+  useFilePickerState: vi.fn(),
+}));
+
+vi.mock("@tanstack/react-store", () => ({
+  useStore: vi.fn(),
+}));
+
+vi.mock("@/pages/rec-resource-page/store/recResourceFileTransferStore", () => ({
+  recResourceFileTransferStore: {},
+  setSelectedFile: vi.fn(),
+  setShowUploadOverlay: vi.fn(),
+  setUploadFileName: vi.fn(),
+}));
+
 // Import mocked modules for type safety
 import { useDeleteModalState } from "@/pages/rec-resource-page/hooks/useDeleteModalState";
 import { useDocumentDelete } from "@/pages/rec-resource-page/hooks/useDocumentDelete";
 import { useDocumentUpload } from "@/pages/rec-resource-page/hooks/useDocumentUpload";
 import { useDownloadFileMutation } from "@/pages/rec-resource-page/hooks/useDownloadFileMutation";
+import { useFilePickerState } from "@/pages/rec-resource-page/hooks/useFilePickerState";
 
 const mockDownloadMutation = vi.fn();
 const mockHandleUploadRetry = vi.fn();
+const mockHandleUpload = vi.fn();
 const mockHandleDelete = vi.fn();
 const mockShowDeleteModalForDoc = vi.fn();
 const mockHideDeleteModal = vi.fn();
+const mockHandleAddFileClick = vi.fn();
+const mockHandleCancelUpload = vi.fn();
+const mockSetUploadFileName = vi.fn();
+
+const mockFilePickerState = {
+  selectedFile: null,
+  uploadFileName: "",
+  showUploadOverlay: false,
+  handleAddFileClick: mockHandleAddFileClick,
+  handleCancelUpload: mockHandleCancelUpload,
+  setUploadFileName: mockSetUploadFileName,
+};
 
 describe("useGalleryActions", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Mock the file picker state
+    vi.mocked(useFilePickerState).mockReturnValue(mockFilePickerState);
 
     // Mock the hook returns
     vi.mocked(useDownloadFileMutation).mockReturnValue({
@@ -43,6 +75,7 @@ describe("useGalleryActions", () => {
 
     vi.mocked(useDocumentUpload).mockReturnValue({
       handleUploadRetry: mockHandleUploadRetry,
+      handleUpload: mockHandleUpload,
     } as any);
 
     vi.mocked(useDocumentDelete).mockReturnValue({
@@ -56,11 +89,17 @@ describe("useGalleryActions", () => {
     } as any);
   });
 
-  it("returns action handler", () => {
+  it("returns action handler and upload modal state", () => {
     const { result } = renderHook(() => useGalleryActions());
 
     expect(result.current).toMatchObject({
       getActionHandler: expect.any(Function),
+      uploadModalState: {
+        showUploadModal: false,
+        selectedFile: null,
+        uploadFileName: "",
+        setUploadFileName: expect.any(Function),
+      },
     });
   });
 
@@ -139,6 +178,51 @@ describe("useGalleryActions", () => {
       expect(mockHideDeleteModal).toHaveBeenCalled();
     });
 
+    it("handles upload action by triggering file picker", () => {
+      const { result } = renderHook(() => useGalleryActions());
+      const refetch = vi.fn();
+
+      const actionHandler = result.current.getActionHandler(refetch);
+      actionHandler("upload", testFile);
+
+      expect(mockHandleAddFileClick).toHaveBeenCalled();
+    });
+
+    it("handles confirm-upload action when file and filename are present", () => {
+      // Update file picker state to have selected file and filename
+      const mockFile = new File(["test"], "test.pdf", {
+        type: "application/pdf",
+      });
+      vi.mocked(useFilePickerState).mockReturnValue({
+        ...mockFilePickerState,
+        selectedFile: mockFile,
+        uploadFileName: "test-file",
+      });
+
+      const { result } = renderHook(() => useGalleryActions());
+      const refetch = vi.fn();
+
+      const actionHandler = result.current.getActionHandler(refetch);
+      actionHandler("confirm-upload", testFile);
+
+      expect(mockHandleUpload).toHaveBeenCalledWith(
+        mockFile,
+        "test-file",
+        refetch,
+        expect.any(Function),
+      );
+    });
+
+    it("handles cancel-upload action by hiding upload modal", () => {
+      const { result } = renderHook(() => useGalleryActions());
+      const refetch = vi.fn();
+
+      const actionHandler = result.current.getActionHandler(refetch);
+      actionHandler("cancel-upload", testFile);
+
+      expect(mockHandleCancelUpload).toHaveBeenCalled();
+    });
+
     it("handles unknown action gracefully", () => {
       const { result } = renderHook(() => useGalleryActions());
       const refetch = vi.fn();
@@ -153,8 +237,11 @@ describe("useGalleryActions", () => {
       // Should not call any handlers
       expect(mockDownloadMutation).not.toHaveBeenCalled();
       expect(mockHandleUploadRetry).not.toHaveBeenCalled();
+      expect(mockHandleUpload).not.toHaveBeenCalled();
       expect(mockShowDeleteModalForDoc).not.toHaveBeenCalled();
       expect(mockHideDeleteModal).not.toHaveBeenCalled();
+      expect(mockHandleAddFileClick).not.toHaveBeenCalled();
+      expect(mockHandleCancelUpload).not.toHaveBeenCalled();
       expect(refetch).not.toHaveBeenCalled();
     });
   });

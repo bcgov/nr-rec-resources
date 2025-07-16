@@ -1,11 +1,14 @@
+import { useGetDocumentsByRecResourceId } from "@/services/hooks/recreation-resource-admin/useGetDocumentsByRecResourceId";
+import { RecreationResourceDocDto } from "@/services/recreation-resource-admin";
 import { useStore } from "@tanstack/react-store";
 import { useEffect, useMemo } from "react";
 import { MAX_DOCUMENTS_PER_REC_RESOURCE } from "../constants";
+import { formatDocumentDate } from "../helpers";
 import {
   recResourceFileTransferStore,
   setGalleryDocuments,
 } from "../store/recResourceFileTransferStore";
-import { useDocumentList } from "./useDocumentList";
+import { GalleryDocument } from "../types";
 
 /**
  * Hook to manage document list state and syncing.
@@ -16,12 +19,25 @@ export function useDocumentListState(rec_resource_id?: string) {
     recResourceFileTransferStore,
   );
 
-  // fetch documents
-  const {
-    documents: galleryDocumentsFromServer,
-    isFetching,
-    refetch,
-  } = useDocumentList(rec_resource_id);
+  // fetch documents from server
+  const { data: documentsFromServer = [], ...other } =
+    useGetDocumentsByRecResourceId(rec_resource_id);
+
+  // Map DTO to GalleryDocument
+  const galleryDocumentsFromServer: GalleryDocument[] = useMemo(
+    () =>
+      documentsFromServer.map((doc: RecreationResourceDocDto) => ({
+        id: doc.ref_id,
+        name: doc.title,
+        date: formatDocumentDate(doc.created_at),
+        url: doc.url,
+        extension: doc.extension,
+        doc_code: doc.doc_code,
+        doc_code_description: doc.doc_code_description,
+        rec_resource_id: doc.rec_resource_id,
+      })),
+    [documentsFromServer],
+  );
 
   // Calculate upload disabled state based on total documents (server + pending)
   const isDocumentUploadDisabled = useMemo(() => {
@@ -39,7 +55,6 @@ export function useDocumentListState(rec_resource_id?: string) {
     pendingDocs,
     galleryDocuments,
     isDocumentUploadDisabled,
-    isFetching,
-    refetch,
+    ...other,
   };
 }

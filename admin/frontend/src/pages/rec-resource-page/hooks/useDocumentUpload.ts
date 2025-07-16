@@ -44,8 +44,8 @@ export function useDocumentUpload() {
           title,
         });
         addSuccessNotification(`File "${title}" uploaded successfully.`);
-        onSuccess();
         removePendingDoc(tempId);
+        onSuccess();
       } catch {
         addErrorNotification(
           `Failed to upload file "${title}". Please try again.`,

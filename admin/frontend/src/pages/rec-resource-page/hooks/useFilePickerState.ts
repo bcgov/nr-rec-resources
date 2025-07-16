@@ -18,21 +18,6 @@ export function useFilePickerState() {
     showUploadOverlay,
   } = useStore(recResourceFileTransferStore);
 
-  // File picker handler
-  const handleAddFileClick = useCallback(() => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "application/pdf";
-    input.onchange = (e: any) => {
-      const file = e.target.files && e.target.files[0];
-      if (file) {
-        setSelectedFile(file);
-        setShowUploadOverlay(true);
-      }
-    };
-    input.click();
-  }, []);
-
   // Cancel upload and reset state
   const handleCancelUpload = useCallback(() => {
     setShowUploadOverlay(false);
@@ -44,7 +29,6 @@ export function useFilePickerState() {
     selectedFile,
     uploadFileName,
     showUploadOverlay,
-    handleAddFileClick,
     handleCancelUpload,
     setUploadFileName,
   };

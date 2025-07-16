@@ -8,21 +8,8 @@ import { useRecResourceFileTransferState } from "../../hooks/useRecResourceFileT
 import { GalleryAccordion } from "./GalleryAccordion";
 import { GalleryFileCard } from "./GalleryFileCard";
 
-interface RecResourceFileSectionProps {
-  rec_resource_id: string;
-}
-
-export const RecResourceFileSection = ({
-  rec_resource_id,
-}: RecResourceFileSectionProps) => {
+export const RecResourceFileSection = () => {
   const {
-    selectedFile,
-    uploadFileName,
-    showUploadOverlay,
-    handleAddFileClick,
-    handleCancelUpload,
-    setUploadFileName,
-    getUploadHandler,
     getActionHandler,
     showDeleteModal,
     docToDelete,
@@ -30,10 +17,10 @@ export const RecResourceFileSection = ({
     isDocumentUploadDisabled,
     isFetching,
     refetch,
+    uploadModalState,
   } = useRecResourceFileTransferState();
 
   // Handlers
-  const onUploadConfirmation = getUploadHandler(rec_resource_id, refetch);
   const onAction = getActionHandler(refetch);
 
   // Render a single document card
@@ -57,17 +44,22 @@ export const RecResourceFileSection = ({
         items={galleryDocuments}
         uploadLabel="Upload"
         isLoading={isFetching}
-        onFileUploadTileClick={handleAddFileClick}
+        onFileUploadTileClick={() => onAction("upload", {} as GalleryDocument)}
         uploadDisabled={isDocumentUploadDisabled}
         renderItem={renderGalleryFileCard}
       />
+      {/* Upload modal from gallery actions */}
       <FileUploadModal
-        open={showUploadOverlay && !!selectedFile}
-        file={selectedFile}
-        fileName={uploadFileName}
-        onFileNameChange={setUploadFileName}
-        onCancel={handleCancelUpload}
-        onUploadConfirmation={onUploadConfirmation}
+        open={
+          uploadModalState.showUploadModal && !!uploadModalState.selectedFile
+        }
+        file={uploadModalState.selectedFile}
+        fileName={uploadModalState.uploadFileName}
+        onFileNameChange={uploadModalState.setUploadFileName}
+        onCancel={() => onAction("cancel-upload", {} as GalleryDocument)}
+        onUploadConfirmation={() =>
+          onAction("confirm-upload", {} as GalleryDocument)
+        }
       />
       {docToDelete && (
         <DeleteFileModal
