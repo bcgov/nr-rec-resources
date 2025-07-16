@@ -9,6 +9,7 @@ export interface GalleryFile {
   uploadFailed?: boolean;
   pendingFile?: File; // for pending uploads and retry
   isDownloading?: boolean;
+  isDeleting?: boolean;
 }
 
 // Specialized type for documents

@@ -40,7 +40,8 @@ export const GalleryFileCard = <T extends GalleryFile>({
   const isUploadError = Boolean(file.uploadFailed);
   const isUploading = Boolean(file.isUploading);
   const isDownloading = Boolean(file.isDownloading);
-  const isPending = isUploading || isDownloading;
+  const isDeleting = Boolean(file.isDeleting);
+  const isPending = isUploading || isDownloading || isDeleting;
 
   const renderTopContent = () => {
     if (isUploadError) {
@@ -69,7 +70,17 @@ export const GalleryFileCard = <T extends GalleryFile>({
     }
 
     if (isPending) {
-      return <LoadingState label={isUploading ? "Uploading" : "Downloading"} />;
+      return (
+        <LoadingState
+          label={
+            isUploading
+              ? "Uploading"
+              : isDownloading
+                ? "Downloading"
+                : "Deleting"
+          }
+        />
+      );
     }
 
     return (

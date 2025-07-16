@@ -1,6 +1,7 @@
 import { useCallback } from "react";
 import { GalleryAction, GalleryFile } from "../types";
 import { useDeleteModalState } from "./useDeleteModalState";
+import { useDocumentDelete } from "./useDocumentDelete";
 import { useDocumentUpload } from "./useDocumentUpload";
 import { useDownloadFileMutation } from "./useDownloadFileMutation";
 
@@ -11,6 +12,7 @@ import { useDownloadFileMutation } from "./useDownloadFileMutation";
 export function useGalleryActions() {
   const downloadMutation = useDownloadFileMutation();
   const { handleUploadRetry } = useDocumentUpload();
+  const { handleDelete } = useDocumentDelete();
   const { showDeleteModalForDoc, hideDeleteModal } = useDeleteModalState();
 
   // Centralized document action handler
@@ -30,9 +32,7 @@ export function useGalleryActions() {
           showDeleteModalForDoc(file);
           break;
         case "confirm-delete":
-          // Actual delete logic here
-          console.log("Delete confirmed for:", file);
-          // TODO: Add mutation or API call to delete document
+          handleDelete(file, refetch);
           hideDeleteModal();
           refetch();
           break;
