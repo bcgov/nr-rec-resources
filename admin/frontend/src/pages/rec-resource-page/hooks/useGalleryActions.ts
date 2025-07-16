@@ -46,6 +46,7 @@ export function useGalleryActions() {
     [
       handleUploadRetry,
       downloadMutation,
+      handleDelete,
       showDeleteModalForDoc,
       hideDeleteModal,
     ],

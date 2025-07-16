@@ -16,13 +16,19 @@ vi.mock("@/pages/rec-resource-page/hooks/useDeleteModalState", () => ({
   useDeleteModalState: vi.fn(),
 }));
 
+vi.mock("@/pages/rec-resource-page/hooks/useDocumentDelete", () => ({
+  useDocumentDelete: vi.fn(),
+}));
+
 // Import mocked modules for type safety
 import { useDeleteModalState } from "@/pages/rec-resource-page/hooks/useDeleteModalState";
+import { useDocumentDelete } from "@/pages/rec-resource-page/hooks/useDocumentDelete";
 import { useDocumentUpload } from "@/pages/rec-resource-page/hooks/useDocumentUpload";
 import { useDownloadFileMutation } from "@/pages/rec-resource-page/hooks/useDownloadFileMutation";
 
 const mockDownloadMutation = vi.fn();
 const mockHandleUploadRetry = vi.fn();
+const mockHandleDelete = vi.fn();
 const mockShowDeleteModalForDoc = vi.fn();
 const mockHideDeleteModal = vi.fn();
 
@@ -37,6 +43,11 @@ describe("useGalleryActions", () => {
 
     vi.mocked(useDocumentUpload).mockReturnValue({
       handleUploadRetry: mockHandleUploadRetry,
+    } as any);
+
+    vi.mocked(useDocumentDelete).mockReturnValue({
+      handleDelete: mockHandleDelete,
+      isDeleting: false,
     } as any);
 
     vi.mocked(useDeleteModalState).mockReturnValue({
@@ -106,22 +117,16 @@ describe("useGalleryActions", () => {
       expect(mockShowDeleteModalForDoc).toHaveBeenCalledWith(testFile);
     });
 
-    it("handles confirm-delete action by hiding modal and refetching", () => {
-      const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    it("handles confirm-delete action by calling handleDelete, hiding modal and refetching", () => {
       const { result } = renderHook(() => useGalleryActions());
       const refetch = vi.fn();
 
       const actionHandler = result.current.getActionHandler(refetch);
       actionHandler("confirm-delete", testFile);
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        "Delete confirmed for:",
-        testFile,
-      );
+      expect(mockHandleDelete).toHaveBeenCalledWith(testFile, refetch);
       expect(mockHideDeleteModal).toHaveBeenCalled();
       expect(refetch).toHaveBeenCalled();
-
-      consoleSpy.mockRestore();
     });
 
     it("handles cancel-delete action by hiding modal", () => {

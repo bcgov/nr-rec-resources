@@ -214,6 +214,13 @@ describe("GalleryFileCard", () => {
       expect(document.querySelector('[role="status"]')).toBeInTheDocument();
     });
 
+    it("shows deleting state", () => {
+      renderCard({ isDeleting: true });
+
+      expect(screen.getByText("Deleting")).toBeInTheDocument();
+      expect(document.querySelector('[role="status"]')).toBeInTheDocument();
+    });
+
     it("prioritizes uploading over downloading", () => {
       renderCard({ isUploading: true, isDownloading: true });
 
