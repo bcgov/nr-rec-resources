@@ -1,167 +1,190 @@
 import { useRecResourceFileTransferState } from "@/pages/rec-resource-page/hooks/useRecResourceFileTransferState";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook } from "@testing-library/react";
+import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// Mock all the smaller hooks that the main hook now depends on
-const mockFilePickerState = {
-  handleAddFileClick: vi.fn(),
-};
-
 const mockDocumentListState = {
-  galleryDocuments: [] as any[],
-  isDocumentUploadDisabled: false,
+  galleryDocumentsFromServer: [] as any[],
   isFetching: false,
   refetch: vi.fn(),
 };
 
 const mockGalleryActions = {
-  getActionHandler: vi.fn(() => vi.fn()),
-  uploadModalState: {
-    showUploadModal: false,
-    resetUploadModal: vi.fn(),
-  },
+  handleFileAction: vi.fn(),
+  handleGeneralAction: vi.fn(),
 };
 
-const mockDeleteModalState = {
-  showDeleteModal: false,
-  docToDelete: undefined as any,
-  setShowDeleteModal: vi.fn(),
-  setDocToDelete: vi.fn(),
-};
-
-vi.mock("@/pages/rec-resource-page/hooks/useFilePickerState", () => ({
-  useFilePickerState: () => mockFilePickerState,
+vi.mock("@/contexts/AuthContext", () => ({
+  useAuthContext: () => ({
+    authService: {
+      getAccessToken: vi.fn().mockReturnValue("mock-token"),
+    },
+  }),
 }));
 
-vi.mock("@/pages/rec-resource-page/hooks/useDocumentListState", () => ({
-  useDocumentListState: () => mockDocumentListState,
+vi.mock("@/pages/rec-resource-page/hooks/useDocumentList", () => ({
+  useDocumentList: () => mockDocumentListState,
 }));
 
 vi.mock("@/pages/rec-resource-page/hooks/useGalleryActions", () => ({
   useGalleryActions: () => mockGalleryActions,
 }));
 
-vi.mock("@/pages/rec-resource-page/hooks/useDeleteModalState", () => ({
-  useDeleteModalState: () => mockDeleteModalState,
+vi.mock("@/pages/rec-resource-page/store/recResourceFileTransferStore", () => ({
+  recResourceFileTransferStore: {
+    state: {
+      showUploadOverlay: false,
+      showDeleteModal: false,
+      docToDelete: null,
+      uploadFileName: "",
+      selectedFileForUpload: null,
+      pendingDocs: [],
+      galleryDocuments: [],
+    },
+  },
+  setGalleryDocuments: vi.fn(),
+}));
+
+vi.mock("@/pages/rec-resource-page/store/recResourceDetailStore", () => ({
+  recResourceDetailStore: {
+    state: {
+      recResource: { rec_resource_id: "test-id" },
+    },
+  },
 }));
 
 vi.mock("@tanstack/react-store", () => ({
-  useStore: () => ({ recResource: { rec_resource_id: "abc" } }),
+  useStore: (store: any) => {
+    if (store.state && store.state.recResource) {
+      // Mock for recResourceDetailStore
+      return { recResource: { rec_resource_id: "test-id" } };
+    }
+    // Mock for recResourceFileTransferStore
+    return {
+      showUploadOverlay: false,
+      showDeleteModal: false,
+      docToDelete: null,
+      uploadFileName: "",
+      selectedFileForUpload: null,
+      pendingDocs: [],
+      galleryDocuments: [],
+    };
+  },
 }));
 
-beforeEach(() => {
-  vi.clearAllMocks();
+// Create a wrapper with QueryClient for tests
+const createWrapper = () => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+      },
+    },
+  });
 
-  // Reset mock functions
-  mockFilePickerState.handleAddFileClick.mockReset();
-
-  mockDocumentListState.galleryDocuments = [];
-  mockDocumentListState.isDocumentUploadDisabled = false;
-  mockDocumentListState.isFetching = false;
-  mockDocumentListState.refetch.mockReset();
-
-  mockGalleryActions.getActionHandler.mockReset();
-  mockGalleryActions.getActionHandler.mockReturnValue(vi.fn());
-  mockGalleryActions.uploadModalState = {
-    showUploadModal: false,
-    resetUploadModal: vi.fn(),
-  };
-
-  mockDeleteModalState.showDeleteModal = false;
-  mockDeleteModalState.docToDelete = undefined;
-  mockDeleteModalState.setShowDeleteModal.mockReset();
-  mockDeleteModalState.setDocToDelete.mockReset();
-});
+  return ({ children }: { children: React.ReactNode }) =>
+    React.createElement(QueryClientProvider, { client: queryClient }, children);
+};
 
 describe("useRecResourceFileTransferState", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // Reset mock functions
+    mockDocumentListState.galleryDocumentsFromServer = [];
+    mockDocumentListState.isFetching = false;
+    mockDocumentListState.refetch.mockReset();
+
+    mockGalleryActions.handleFileAction.mockReset();
+    mockGalleryActions.handleGeneralAction.mockReset();
+  });
+
   it("returns state and handlers from composed hooks", () => {
-    const { result } = renderHook(() => useRecResourceFileTransferState());
+    const { result } = renderHook(() => useRecResourceFileTransferState(), {
+      wrapper: createWrapper(),
+    });
 
     expect(result.current).toMatchObject({
-      // From useGalleryActions
-      getActionHandler: expect.any(Function),
-      uploadModalState: expect.objectContaining({
-        showUploadModal: false,
-        resetUploadModal: expect.any(Function),
-      }),
+      // Gallery action handlers
+      getDocumentFileActionHandler: expect.any(Function),
+      getDocumentGeneralActionHandler: expect.any(Function),
 
-      // From useDocumentListState
-      galleryDocuments: [],
-      isDocumentUploadDisabled: false,
-      isFetching: false,
-      refetch: expect.any(Function),
+      // Document list
+      galleryDocuments: expect.any(Array),
+      isDocumentUploadDisabled: expect.any(Boolean),
+      isFetching: expect.any(Boolean),
 
-      // From useDeleteModalState
-      showDeleteModal: false,
-      docToDelete: undefined,
-      setShowDeleteModal: expect.any(Function),
-      setDocToDelete: expect.any(Function),
+      // Upload modal state
+      uploadModalState: {
+        showUploadOverlay: expect.any(Boolean),
+        uploadFileName: expect.any(String),
+        selectedFileForUpload: null,
+      },
 
-      // From useFilePickerState
-      handleAddFileClick: expect.any(Function),
+      // Delete modal state
+      deleteModalState: {
+        showDeleteModal: expect.any(Boolean),
+        docToDelete: null,
+      },
     });
   });
 
-  it("delegates handleAddFileClick to file picker hook", () => {
-    const { result } = renderHook(() => useRecResourceFileTransferState());
+  it("delegates document file actions to gallery actions hook", () => {
+    const { result } = renderHook(() => useRecResourceFileTransferState(), {
+      wrapper: createWrapper(),
+    });
 
-    result.current.handleAddFileClick();
+    const testFile = { id: "1", name: "test.pdf" } as any;
+    const actionHandler = result.current.getDocumentFileActionHandler(
+      "view",
+      testFile,
+    );
 
-    expect(mockFilePickerState.handleAddFileClick).toHaveBeenCalled();
+    actionHandler();
+
+    expect(mockGalleryActions.handleFileAction).toHaveBeenCalledWith(
+      "view",
+      testFile,
+      mockDocumentListState.refetch,
+    );
   });
 
-  it("getActionHandler delegates to gallery actions hook", () => {
-    const { result } = renderHook(() => useRecResourceFileTransferState());
-    const refetch = vi.fn();
+  it("delegates document general actions to gallery actions hook", () => {
+    const { result } = renderHook(() => useRecResourceFileTransferState(), {
+      wrapper: createWrapper(),
+    });
 
-    result.current.getActionHandler(refetch);
+    const actionHandler =
+      result.current.getDocumentGeneralActionHandler("upload");
 
-    expect(mockGalleryActions.getActionHandler).toHaveBeenCalledWith(refetch);
-  });
+    actionHandler();
 
-  it("delegates delete modal methods to delete modal hook", () => {
-    const { result } = renderHook(() => useRecResourceFileTransferState());
-    const testDoc = {
-      id: "1",
-      name: "test.pdf",
-      date: "2023-01-01",
-      url: "http://test",
-      extension: "pdf",
-    };
-
-    result.current.setShowDeleteModal(true);
-    expect(mockDeleteModalState.setShowDeleteModal).toHaveBeenCalledWith(true);
-
-    result.current.setDocToDelete(testDoc);
-    expect(mockDeleteModalState.setDocToDelete).toHaveBeenCalledWith(testDoc);
+    expect(mockGalleryActions.handleGeneralAction).toHaveBeenCalledWith(
+      "upload",
+      mockDocumentListState.refetch,
+    );
   });
 
   it("returns values from all composed hooks", () => {
-    // Update mock states to test different values
-    mockDocumentListState.galleryDocuments = [{ id: "1", name: "Gallery Doc" }];
-    mockDocumentListState.isDocumentUploadDisabled = true;
-    mockDocumentListState.isFetching = true;
+    const { result } = renderHook(() => useRecResourceFileTransferState(), {
+      wrapper: createWrapper(),
+    });
 
-    mockGalleryActions.uploadModalState = {
-      showUploadModal: true,
-      resetUploadModal: vi.fn(),
-    };
+    // Verify it includes properties from document list hook
+    expect(result.current.galleryDocuments).toEqual([]);
+    expect(result.current.isFetching).toBe(false);
 
-    mockDeleteModalState.showDeleteModal = true;
-    mockDeleteModalState.docToDelete = { id: "delete-me", name: "To Delete" };
+    // Verify upload modal state structure
+    expect(result.current.uploadModalState).toEqual({
+      showUploadOverlay: false,
+      uploadFileName: "",
+      selectedFileForUpload: null,
+    });
 
-    const { result } = renderHook(() => useRecResourceFileTransferState());
-
-    expect(result.current.galleryDocuments).toEqual([
-      { id: "1", name: "Gallery Doc" },
-    ]);
-    expect(result.current.isDocumentUploadDisabled).toBe(true);
-    expect(result.current.isFetching).toBe(true);
-    expect(result.current.uploadModalState.showUploadModal).toBe(true);
-    expect(result.current.showDeleteModal).toBe(true);
-    expect(result.current.docToDelete).toEqual({
-      id: "delete-me",
-      name: "To Delete",
+    // Verify delete modal state structure
+    expect(result.current.deleteModalState).toEqual({
+      showDeleteModal: false,
+      docToDelete: null,
     });
   });
 });

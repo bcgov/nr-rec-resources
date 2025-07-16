@@ -21,7 +21,7 @@ vi.mock("@fortawesome/react-fontawesome", () => ({
 vi.mock(
   "@/pages/rec-resource-page/components/RecResourceFileSection/GalleryFileCard/ActionButton",
   () => ({
-    ActionButton: ({ icon, label, onClick }: any) => (
+    ActionButton: ({ label, onClick }: any) => (
       <div
         className="gallery-file-card__action-button-container"
         onClick={onClick}
@@ -79,13 +79,13 @@ describe("GalleryFileCard", () => {
 
   const renderCard = (
     file: Partial<GalleryFile> = {},
-    onAction = vi.fn(),
+    getFileActionHandler = vi.fn(() => vi.fn()),
     props = {},
   ) =>
     render(
       <GalleryFileCard
         file={{ ...mockFile, ...file }}
-        onAction={onAction}
+        getFileActionHandler={getFileActionHandler}
         {...props}
       />,
     );
@@ -119,16 +119,22 @@ describe("GalleryFileCard", () => {
       ["Download", "download"],
       ["Delete", "delete"],
     ])("handles %s action via button", (label, action) => {
-      const onAction = vi.fn();
-      renderCard({}, onAction);
+      const mockHandler = vi.fn();
+      const getFileActionHandler = vi.fn(() => mockHandler);
+      renderCard({}, getFileActionHandler);
 
       fireEvent.click(screen.getByLabelText(label));
-      expect(onAction).toHaveBeenCalledWith(action, expect.any(Object));
+      expect(getFileActionHandler).toHaveBeenCalledWith(
+        action,
+        expect.any(Object),
+      );
+      expect(mockHandler).toHaveBeenCalled();
     });
 
     it("handles actions via dropdown menu", () => {
-      const onAction = vi.fn();
-      renderCard({}, onAction);
+      const mockHandler = vi.fn();
+      const getFileActionHandler = vi.fn(() => mockHandler);
+      renderCard({}, getFileActionHandler);
 
       const menuButton = screen.getByLabelText("File actions menu");
       fireEvent.click(menuButton);
@@ -139,36 +145,51 @@ describe("GalleryFileCard", () => {
       );
       fireEvent.click(dropdownView!);
 
-      expect(onAction).toHaveBeenCalledWith("view", expect.any(Object));
+      expect(getFileActionHandler).toHaveBeenCalledWith(
+        "view",
+        expect.any(Object),
+      );
+      expect(mockHandler).toHaveBeenCalled();
     });
 
     it("handles keyboard navigation on action buttons", async () => {
       const user = userEvent.setup();
-      const onAction = vi.fn();
-      renderCard({}, onAction);
+      const mockHandler = vi.fn();
+      const getFileActionHandler = vi.fn(() => mockHandler);
+      renderCard({}, getFileActionHandler);
 
       const actionButton = screen.getByLabelText("View");
       actionButton.focus();
       await user.keyboard("{Enter}");
 
-      expect(onAction).toHaveBeenCalledWith("view", expect.any(Object));
+      expect(getFileActionHandler).toHaveBeenCalledWith(
+        "view",
+        expect.any(Object),
+      );
+      expect(mockHandler).toHaveBeenCalled();
     });
   });
 
   describe("Error State", () => {
     it("displays error state with retry option", () => {
-      const onAction = vi.fn();
-      renderCard({ uploadFailed: true }, onAction);
+      const mockHandler = vi.fn();
+      const getFileActionHandler = vi.fn(() => mockHandler);
+      renderCard({ uploadFailed: true }, getFileActionHandler);
 
       expect(screen.getByText("Upload Failed")).toBeInTheDocument();
 
       fireEvent.click(screen.getByLabelText("Retry"));
-      expect(onAction).toHaveBeenCalledWith("retry", expect.any(Object));
+      expect(getFileActionHandler).toHaveBeenCalledWith(
+        "retry",
+        expect.any(Object),
+      );
+      expect(mockHandler).toHaveBeenCalled();
     });
 
     it("shows retry in dropdown for failed uploads", () => {
-      const onAction = vi.fn();
-      renderCard({ uploadFailed: true }, onAction);
+      const mockHandler = vi.fn();
+      const getFileActionHandler = vi.fn(() => mockHandler);
+      renderCard({ uploadFailed: true }, getFileActionHandler);
 
       const menuButton = screen.getByLabelText("File actions menu");
       fireEvent.click(menuButton);
@@ -178,7 +199,11 @@ describe("GalleryFileCard", () => {
         .find((el) => el.closest(".dropdown-item"));
       fireEvent.click(retryItem!);
 
-      expect(onAction).toHaveBeenCalledWith("retry", expect.any(Object));
+      expect(getFileActionHandler).toHaveBeenCalledWith(
+        "retry",
+        expect.any(Object),
+      );
+      expect(mockHandler).toHaveBeenCalled();
     });
 
     it("applies error styling", () => {
@@ -274,7 +299,7 @@ describe("GalleryFileCard", () => {
       rerender(
         <GalleryFileCard
           file={{ ...mockFile, uploadFailed: true }}
-          onAction={vi.fn()}
+          getFileActionHandler={vi.fn(() => vi.fn())}
         />,
       );
       expect(

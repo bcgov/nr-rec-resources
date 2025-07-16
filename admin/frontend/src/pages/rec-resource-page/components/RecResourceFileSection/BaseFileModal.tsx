@@ -4,7 +4,7 @@ import { isImageFile } from "@/utils/imageUtils";
 import { faFilePdf, IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FC, ReactNode } from "react";
-import { Alert, Modal, Stack } from "react-bootstrap";
+import { Alert, AlertProps, Modal, Stack } from "react-bootstrap";
 import "./BaseFileModal.scss";
 
 interface BaseFileModalProps {
@@ -15,8 +15,8 @@ interface BaseFileModalProps {
   fileUrl?: string;
   fileName?: string;
   alertConfig?: {
-    variant: "warning" | "danger" | "info" | "success";
-    icon: any;
+    variant: AlertProps["variant"];
+    icon: IconDefinition;
     text: string;
     iconColor?: string;
   };

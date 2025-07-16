@@ -1,4 +1,4 @@
-import { ClampLines } from "@/components/clamp-lines/ClampLines";
+import { ClampLines } from "@/components/clamp-lines";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";

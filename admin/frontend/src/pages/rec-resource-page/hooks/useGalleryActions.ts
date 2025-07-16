@@ -21,7 +21,7 @@ export function useGalleryActions() {
   const { handleUploadRetry, handleUpload } = useDocumentUpload();
   const { handleDelete } = useDocumentDelete();
 
-  const { selectedFileForUpload, uploadFileName, docToDelete } = useStore(
+  const { selectedFileForUpload, uploadFileName } = useStore(
     recResourceFileTransferStore,
   );
 

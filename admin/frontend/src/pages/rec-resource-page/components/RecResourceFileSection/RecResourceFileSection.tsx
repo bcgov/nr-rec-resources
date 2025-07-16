@@ -5,7 +5,6 @@ import { COLOR_RED } from "@/styles/colors";
 import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRecResourceFileTransferState } from "../../hooks/useRecResourceFileTransferState";
-import { setUploadFileName } from "../../store/recResourceFileTransferStore";
 import { GalleryAccordion } from "./GalleryAccordion";
 import { GalleryFileCard } from "./GalleryFileCard";
 
@@ -16,11 +15,6 @@ export const RecResourceFileSection = () => {
     galleryDocuments,
     isDocumentUploadDisabled,
     isFetching,
-    uploadModalState: {
-      showUploadOverlay,
-      uploadFileName,
-      selectedFileForUpload,
-    },
   } = useRecResourceFileTransferState();
 
   // Render a single document card
@@ -48,15 +42,8 @@ export const RecResourceFileSection = () => {
         uploadDisabled={isDocumentUploadDisabled}
         renderItem={renderGalleryFileCard}
       />
-      {/* Upload modal from gallery actions */}
-      <FileUploadModal
-        open={showUploadOverlay && Boolean(selectedFileForUpload)}
-        file={selectedFileForUpload}
-        fileName={uploadFileName}
-        onFileNameChange={setUploadFileName}
-        onCancel={getDocumentGeneralActionHandler("cancel-upload")}
-        onUploadConfirmation={getDocumentGeneralActionHandler("confirm-upload")}
-      />
+
+      <FileUploadModal />
       <DeleteFileModal />
     </>
   );

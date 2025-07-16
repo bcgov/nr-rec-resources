@@ -5,54 +5,54 @@ import {
   faUpload,
 } from "@fortawesome/free-solid-svg-icons";
 import { FC, useEffect } from "react";
+import { useRecResourceFileTransferState } from "../../hooks/useRecResourceFileTransferState";
+import { setUploadFileName } from "../../store/recResourceFileTransferStore";
 import { BaseFileModal } from "./BaseFileModal";
 import "./FileUploadModal.scss";
 
-interface UploadFileModalProps {
-  open: boolean;
-  file: File | null;
-  fileName: string;
-  onFileNameChange: (newFileName: string) => void;
-  onCancel: () => void;
-  onUploadConfirmation: () => void;
-}
+export const FileUploadModal: FC = () => {
+  const {
+    uploadModalState: {
+      showUploadOverlay,
+      selectedFileForUpload,
+      uploadFileName,
+    },
+    getDocumentGeneralActionHandler,
+  } = useRecResourceFileTransferState();
 
-export const FileUploadModal: FC<UploadFileModalProps> = ({
-  open,
-  file,
-  fileName,
-  onFileNameChange,
-  onCancel,
-  onUploadConfirmation,
-}) => {
   // Set default file name
   useEffect(() => {
-    if (file && !fileName) {
-      const defaultTitle = getFileNameWithoutExtension(file);
-      onFileNameChange(defaultTitle);
+    if (selectedFileForUpload) {
+      const defaultTitle = getFileNameWithoutExtension(selectedFileForUpload);
+      setUploadFileName(defaultTitle);
     }
-  }, [file, fileName]);
+  }, [selectedFileForUpload]);
 
-  if (!open || !file) return null;
+  if (!showUploadOverlay || !selectedFileForUpload) return null;
 
-  const modalTitle = isImageFile(file) ? "Upload image" : "Upload file";
+  const modalTitle = isImageFile(selectedFileForUpload)
+    ? "Upload image"
+    : "Upload file";
+
+  const handleCancel = getDocumentGeneralActionHandler("cancel-upload");
+  const handleConfirm = getDocumentGeneralActionHandler("confirm-upload");
 
   const alertConfig = {
-    variant: "warning" as const,
+    variant: "warning",
     icon: faExclamationTriangle,
     text: "Uploading images will directly publish to the public website.",
   };
 
   return (
     <BaseFileModal
-      show={open}
-      onHide={onCancel}
+      show={showUploadOverlay}
+      onHide={handleCancel}
       title={modalTitle}
-      file={file}
+      file={selectedFileForUpload}
       alertConfig={alertConfig}
       className="upload-file-modal"
-      onCancel={onCancel}
-      onConfirm={onUploadConfirmation}
+      onCancel={handleCancel}
+      onConfirm={handleConfirm}
       confirmButtonText="Upload"
       confirmButtonIcon={faUpload}
     >
@@ -61,8 +61,8 @@ export const FileUploadModal: FC<UploadFileModalProps> = ({
           <span>Name</span>
           <input
             type="text"
-            value={fileName}
-            onChange={(e) => onFileNameChange(e.target.value)}
+            value={uploadFileName}
+            onChange={(e) => setUploadFileName(e.target.value)}
             className="upload-file-modal__input"
             maxLength={100}
             placeholder="Enter document title"

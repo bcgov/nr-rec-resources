@@ -17,6 +17,12 @@ vi.mock(
   }),
 );
 
+vi.mock("@/pages/rec-resource-page/store/recResourceDetailStore", () => ({
+  recResourceDetailStore: {
+    state: { recResource: null },
+  },
+}));
+
 vi.mock("@/pages/rec-resource-page/store/recResourceFileTransferStore", () => ({
   addPendingDoc: vi.fn(),
   removePendingDoc: vi.fn(),
@@ -45,8 +51,8 @@ describe("useDocumentUpload", () => {
     vi.clearAllMocks();
 
     // Mock useStore to return test resource
-    vi.mocked(useStore).mockReturnValue({
-      recResource: mockRecResource,
+    vi.mocked(useStore).mockImplementation(() => {
+      return { recResource: mockRecResource };
     });
 
     // Mock upload mutation
@@ -76,19 +82,13 @@ describe("useDocumentUpload", () => {
       });
       const uploadFileName = "Test Document";
       const onSuccess = vi.fn();
-      const onCancel = vi.fn();
 
       mockUploadMutation.mockResolvedValueOnce({ success: true });
 
       const { result } = renderHook(() => useDocumentUpload());
 
       await act(async () => {
-        await result.current.handleUpload(
-          file,
-          uploadFileName,
-          onSuccess,
-          onCancel,
-        );
+        await result.current.handleUpload(file, uploadFileName, onSuccess);
       });
 
       // Verify pending doc was added
@@ -119,7 +119,6 @@ describe("useDocumentUpload", () => {
         `File "${uploadFileName}" uploaded successfully.`,
       );
       expect(onSuccess).toHaveBeenCalled();
-      expect(onCancel).toHaveBeenCalled();
       expect(store.removePendingDoc).toHaveBeenCalled();
     });
 

@@ -29,9 +29,9 @@ vi.mock(
 vi.mock(
   "@/pages/rec-resource-page/components/RecResourceFileSection/GalleryFileCard",
   () => ({
-    GalleryFileCard: ({ file, onAction }: any) => (
+    GalleryFileCard: ({ file, getFileActionHandler }: any) => (
       <div data-testid="gallery-file-card">
-        <button onClick={() => onAction("view", file)}>View</button>
+        <button onClick={() => getFileActionHandler("view")(file)}>View</button>
         <span>{file.name}</span>
       </div>
     ),
@@ -50,34 +50,34 @@ vi.mock(
 vi.mock(
   "@/pages/rec-resource-page/components/RecResourceFileSection/FileUploadModal",
   () => ({
-    FileUploadModal: ({ open, file }: any) =>
-      open && file ? <div data-testid="upload-file-modal" /> : null,
+    FileUploadModal: () => {
+      const { uploadModalState } = mockUseRecResourceFileTransferState();
+      return uploadModalState.showUploadOverlay &&
+        uploadModalState.selectedFileForUpload ? (
+        <div data-testid="upload-file-modal" />
+      ) : null;
+    },
   }),
 );
 vi.mock(
   "@/pages/rec-resource-page/components/RecResourceFileSection/DeleteFileModal",
   () => ({
-    DeleteFileModal: ({ open, file }: any) =>
-      open && file ? <div data-testid="delete-file-modal" /> : null,
+    DeleteFileModal: () => <div data-testid="delete-file-modal" />,
   }),
 );
 
 describe("RecResourceFileSection", () => {
   const defaultState = {
-    getActionHandler: vi.fn(() => vi.fn()),
+    getDocumentGeneralActionHandler: vi.fn(() => vi.fn()),
+    getDocumentFileActionHandler: vi.fn(() => vi.fn()),
     uploadModalState: {
-      showUploadModal: false,
-      resetUploadModal: vi.fn(),
+      showUploadOverlay: false,
+      uploadFileName: "",
+      selectedFileForUpload: null,
     },
     galleryDocuments: [],
     isDocumentUploadDisabled: false,
     isFetching: false,
-    refetch: vi.fn(),
-    showDeleteModal: false,
-    docToDelete: null,
-    setShowDeleteModal: vi.fn(),
-    setDocToDelete: vi.fn(),
-    handleAddFileClick: vi.fn(),
   };
   const defaultList = {
     documents: [{ id: 1, name: "Doc1" }],
@@ -103,22 +103,22 @@ describe("RecResourceFileSection", () => {
   });
 
   it("calls action handler when upload tile is clicked", () => {
-    const getActionHandler = vi.fn(() => vi.fn());
+    const getDocumentGeneralActionHandler = vi.fn(() => vi.fn());
     mockUseRecResourceFileTransferState.mockReturnValue({
       ...defaultState,
-      getActionHandler,
+      getDocumentGeneralActionHandler,
     });
     render(<RecResourceFileSection />);
     fireEvent.click(screen.getByTestId("upload-label"));
-    expect(getActionHandler).toHaveBeenCalled();
+    expect(getDocumentGeneralActionHandler).toHaveBeenCalledWith("upload");
   });
 
   it("does not trigger onClick when upload is disabled", () => {
     const actionHandler = vi.fn();
-    const getActionHandler = vi.fn(() => actionHandler);
+    const getDocumentGeneralActionHandler = vi.fn(() => actionHandler);
     mockUseRecResourceFileTransferState.mockReturnValue({
       ...defaultState,
-      getActionHandler,
+      getDocumentGeneralActionHandler,
       isDocumentUploadDisabled: true,
     });
     render(<RecResourceFileSection />);
@@ -130,23 +130,16 @@ describe("RecResourceFileSection", () => {
     mockUseRecResourceFileTransferState.mockReturnValue({
       ...defaultState,
       uploadModalState: {
-        showUploadModal: true,
-        selectedFile: { name: "file.pdf" },
+        showUploadOverlay: true,
+        selectedFileForUpload: { name: "file.pdf" },
         uploadFileName: "test.pdf",
-        setUploadFileName: vi.fn(),
-        resetUploadModal: vi.fn(),
       },
     });
     render(<RecResourceFileSection />);
     expect(screen.getByTestId("upload-file-modal")).toBeInTheDocument();
   });
 
-  it("shows delete modal when showDeleteModal and docToDelete are set", () => {
-    mockUseRecResourceFileTransferState.mockReturnValue({
-      ...defaultState,
-      showDeleteModal: true,
-      docToDelete: { id: 2, name: "DeleteMe.pdf" },
-    });
+  it("shows delete modal", () => {
     render(<RecResourceFileSection />);
     expect(screen.getByTestId("delete-file-modal")).toBeInTheDocument();
   });
@@ -156,7 +149,7 @@ describe("RecResourceFileSection", () => {
     mockUseRecResourceFileTransferState.mockReturnValue({
       ...defaultState,
       galleryDocuments: [{ id: 1, name: "Doc1" }],
-      getActionHandler: vi.fn(() => docActionHandler),
+      getDocumentFileActionHandler: vi.fn(() => docActionHandler),
     });
     render(<RecResourceFileSection />);
     fireEvent.click(screen.getByText("View"));

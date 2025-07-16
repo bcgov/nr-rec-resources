@@ -1,7 +1,49 @@
 import { DeleteFileModal } from "@/pages/rec-resource-page/components/RecResourceFileSection/DeleteFileModal";
+import * as fileTransferState from "@/pages/rec-resource-page/hooks/useRecResourceFileTransferState";
 import { GalleryFile } from "@/pages/rec-resource-page/types";
+import { reactQueryWrapper } from "@test/test-utils/reactQueryWrapper";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+// Mock BaseFileModal
+vi.mock(
+  "@/pages/rec-resource-page/components/RecResourceFileSection/BaseFileModal",
+  () => ({
+    BaseFileModal: ({
+      show,
+      title,
+      children,
+      onCancel,
+      onConfirm,
+      confirmButtonText,
+      alertConfig,
+    }: any) =>
+      show ? (
+        <div data-testid="base-file-modal">
+          <div data-testid="modal-title">{title}</div>
+          {alertConfig && (
+            <div role="alert" data-testid="alert">
+              {alertConfig.text}
+            </div>
+          )}
+          <div data-testid="modal-body">{children}</div>
+          <button onClick={onCancel}>Cancel</button>
+          <button onClick={onConfirm} className="btn-danger">
+            {confirmButtonText}
+          </button>
+          <button aria-label="Close" onClick={onCancel}></button>
+        </div>
+      ) : null,
+  }),
+);
+
+// Mock the hook
+vi.mock(
+  "@/pages/rec-resource-page/hooks/useRecResourceFileTransferState",
+  () => ({
+    useRecResourceFileTransferState: vi.fn(),
+  }),
+);
 
 const mockFile: GalleryFile = {
   id: "test-file-1",
@@ -11,117 +53,186 @@ const mockFile: GalleryFile = {
   extension: "pdf",
 };
 
-const mockOnAction = vi.fn();
+const mockHandleGeneralAction = vi.fn();
+const mockUseRecResourceFileTransferState = vi.mocked(
+  fileTransferState.useRecResourceFileTransferState,
+);
 
 describe("DeleteFileModal", () => {
+  const renderModal = () =>
+    render(<DeleteFileModal />, { wrapper: reactQueryWrapper });
+
+  const setMockState = (state: {
+    showDeleteModal?: boolean;
+    docToDelete?: GalleryFile | null;
+  }) => {
+    mockUseRecResourceFileTransferState.mockReturnValue({
+      deleteModalState: {
+        showDeleteModal: state.showDeleteModal ?? false,
+        docToDelete: state.docToDelete ?? null,
+      },
+      getDocumentGeneralActionHandler: vi.fn(
+        (action) => () => mockHandleGeneralAction(action),
+      ),
+    } as any);
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
+    setMockState({}); // Default empty state
   });
 
-  it("renders modal when open is true", () => {
-    render(
-      <DeleteFileModal open={true} file={mockFile} onAction={mockOnAction} />,
-    );
+  describe("Modal Visibility", () => {
+    it("renders modal when showDeleteModal is true and docToDelete exists", () => {
+      setMockState({
+        showDeleteModal: true,
+        docToDelete: mockFile,
+      });
 
-    expect(screen.getByText("Delete File")).toBeInTheDocument();
-    expect(
-      screen.getByText(/Deleting this image will remove it/),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/Are you sure you want to delete file:/),
-    ).toBeInTheDocument();
-    expect(screen.getByText("test-document.pdf")).toBeInTheDocument();
+      renderModal();
+
+      expect(screen.getByTestId("modal-title")).toHaveTextContent(
+        "Delete File",
+      );
+      expect(
+        screen.getByText(/Deleting this image will remove it/),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/Are you sure you want to delete file:/),
+      ).toBeInTheDocument();
+      expect(screen.getByText("test-document.pdf")).toBeInTheDocument();
+    });
+
+    it("returns null when showDeleteModal is false", () => {
+      setMockState({
+        showDeleteModal: false,
+        docToDelete: mockFile,
+      });
+
+      const { container } = renderModal();
+      expect(container.firstChild).toBeNull();
+    });
+
+    it("returns null when docToDelete is null", () => {
+      setMockState({
+        showDeleteModal: true,
+        docToDelete: null,
+      });
+
+      const { container } = renderModal();
+      expect(container.firstChild).toBeNull();
+    });
   });
 
-  it("does not render modal when open is false", () => {
-    render(
-      <DeleteFileModal open={false} file={mockFile} onAction={mockOnAction} />,
-    );
+  describe("User Interactions", () => {
+    beforeEach(() => {
+      setMockState({
+        showDeleteModal: true,
+        docToDelete: mockFile,
+      });
+    });
 
-    expect(screen.queryByText("Delete File")).not.toBeInTheDocument();
+    it("calls cancel handler when Cancel button is clicked", () => {
+      renderModal();
+
+      const cancelButton = screen.getByRole("button", { name: /cancel/i });
+      fireEvent.click(cancelButton);
+
+      expect(mockHandleGeneralAction).toHaveBeenCalledWith("cancel-delete");
+    });
+
+    it("calls confirm handler when Delete button is clicked", () => {
+      renderModal();
+
+      const deleteButton = screen.getByRole("button", { name: /delete/i });
+      fireEvent.click(deleteButton);
+
+      expect(mockHandleGeneralAction).toHaveBeenCalledWith("confirm-delete");
+    });
+
+    it("calls cancel handler when modal is closed via close button", () => {
+      renderModal();
+
+      const closeButton = screen.getByRole("button", { name: /close/i });
+      fireEvent.click(closeButton);
+
+      expect(mockHandleGeneralAction).toHaveBeenCalledWith("cancel-delete");
+    });
   });
 
-  it("calls onAction with cancel-delete when Cancel button is clicked", () => {
-    render(
-      <DeleteFileModal open={true} file={mockFile} onAction={mockOnAction} />,
-    );
+  describe("Content Display", () => {
+    it("displays correct file name in confirmation message", () => {
+      const fileWithLongName: GalleryFile = {
+        ...mockFile,
+        name: "very-long-document-name-with-special-characters.pdf",
+      };
 
-    const cancelButton = screen.getByText("Cancel");
-    fireEvent.click(cancelButton);
+      setMockState({
+        showDeleteModal: true,
+        docToDelete: fileWithLongName,
+      });
 
-    expect(mockOnAction).toHaveBeenCalledWith("cancel-delete", mockFile);
+      renderModal();
+
+      expect(
+        screen.getByText("very-long-document-name-with-special-characters.pdf"),
+      ).toBeInTheDocument();
+    });
+
+    it("renders warning alert message", () => {
+      setMockState({
+        showDeleteModal: true,
+        docToDelete: mockFile,
+      });
+
+      renderModal();
+
+      expect(screen.getByRole("alert")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /Deleting this image will remove it from the public site/,
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/This action cannot be undone/),
+      ).toBeInTheDocument();
+    });
+
+    it("renders delete button with correct styling", () => {
+      setMockState({
+        showDeleteModal: true,
+        docToDelete: mockFile,
+      });
+
+      renderModal();
+
+      const deleteButton = screen.getByRole("button", { name: /delete/i });
+      expect(deleteButton).toBeInTheDocument();
+      expect(deleteButton).toHaveClass("btn-danger");
+    });
   });
 
-  it("calls onAction with confirm-delete when Delete button is clicked", () => {
-    render(
-      <DeleteFileModal open={true} file={mockFile} onAction={mockOnAction} />,
-    );
+  describe("Integration with Hook", () => {
+    it("uses hook state correctly", () => {
+      const customFile: GalleryFile = {
+        id: "custom-file",
+        name: "custom.jpg",
+        date: "2023-12-01",
+        url: "http://example.com/custom.jpg",
+        extension: "jpg",
+      };
 
-    const deleteButton = screen.getByText("Delete");
-    fireEvent.click(deleteButton);
+      setMockState({
+        showDeleteModal: true,
+        docToDelete: customFile,
+      });
 
-    expect(mockOnAction).toHaveBeenCalledWith("confirm-delete", mockFile);
-  });
+      renderModal();
 
-  it("calls onAction with cancel-delete when modal is closed via close button", () => {
-    render(
-      <DeleteFileModal open={true} file={mockFile} onAction={mockOnAction} />,
-    );
-
-    // Find and click the close button (X button in modal header)
-    const closeButton = screen.getByRole("button", { name: /close/i });
-    fireEvent.click(closeButton);
-
-    expect(mockOnAction).toHaveBeenCalledWith("cancel-delete", mockFile);
-  });
-
-  it("displays correct file name in confirmation message", () => {
-    const fileWithLongName: GalleryFile = {
-      ...mockFile,
-      name: "very-long-document-name-with-special-characters.pdf",
-    };
-
-    render(
-      <DeleteFileModal
-        open={true}
-        file={fileWithLongName}
-        onAction={mockOnAction}
-      />,
-    );
-
-    expect(
-      screen.getByText("very-long-document-name-with-special-characters.pdf"),
-    ).toBeInTheDocument();
-  });
-
-  it("renders warning icon and alert message", () => {
-    render(
-      <DeleteFileModal open={true} file={mockFile} onAction={mockOnAction} />,
-    );
-
-    // Check that the alert is rendered
-    expect(screen.getByRole("alert")).toBeInTheDocument();
-
-    // Check that the warning text is present
-    expect(
-      screen.getByText(
-        /Deleting this image will remove it from the public site/,
-      ),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/This action cannot be undone/),
-    ).toBeInTheDocument();
-  });
-
-  it("renders delete button with trash icon", () => {
-    render(
-      <DeleteFileModal open={true} file={mockFile} onAction={mockOnAction} />,
-    );
-
-    const deleteButton = screen.getByText("Delete");
-    expect(deleteButton).toBeInTheDocument();
-
-    // Check that the button has the danger variant styling
-    expect(deleteButton.closest("button")).toHaveClass("btn-danger");
+      expect(screen.getByText("custom.jpg")).toBeInTheDocument();
+      expect(
+        screen.getByText(/Are you sure you want to delete file:/),
+      ).toBeInTheDocument();
+    });
   });
 });

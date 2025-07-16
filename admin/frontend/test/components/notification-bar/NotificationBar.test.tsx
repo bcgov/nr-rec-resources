@@ -1,4 +1,4 @@
-import { NotificationBar } from "@/components/notification-bar/NotificationBar";
+import { NotificationBar } from "@/components/notification-bar";
 import * as notificationStoreModule from "@/store/notificationStore";
 import { useStore } from "@tanstack/react-store";
 import { render, screen } from "@testing-library/react";

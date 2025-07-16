@@ -87,7 +87,7 @@ export function useDocumentUpload() {
         onSuccess,
       });
     },
-    [doUpload, recResource?.rec_resource_id],
+    [doUpload, recResource],
   );
 
   // Handle upload retry (for failed uploads)
@@ -108,7 +108,7 @@ export function useDocumentUpload() {
         onSuccess,
       });
     },
-    [doUpload, recResource?.rec_resource_id],
+    [doUpload, recResource],
   );
 
   return {

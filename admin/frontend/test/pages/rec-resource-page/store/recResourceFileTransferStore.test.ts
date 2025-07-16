@@ -1,14 +1,17 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import {
   addPendingDoc,
+  hideDeleteModal,
   recResourceFileTransferStore,
   removePendingDoc,
+  resetUploadState,
   setDocToDelete,
   setGalleryDocuments,
   setSelectedFile,
   setShowDeleteModal,
   setShowUploadOverlay,
   setUploadFileName,
+  showDeleteModalForDoc,
   updateGalleryDocument,
   updatePendingDoc,
 } from "../../../../src/pages/rec-resource-page/store/recResourceFileTransferStore";
@@ -61,6 +64,29 @@ describe("recResourceFileTransferStore", () => {
     setShowUploadOverlay(true);
     expect(recResourceFileTransferStore.state.showUploadOverlay).toBe(true);
     setShowUploadOverlay(false);
+    expect(recResourceFileTransferStore.state.showUploadOverlay).toBe(false);
+  });
+
+  it("resets upload state", () => {
+    // Set some initial state
+    const file = new File(["content"], "test.pdf");
+    setSelectedFile(file);
+    setUploadFileName("test-file.pdf");
+    setShowUploadOverlay(true);
+
+    // Verify state is set
+    expect(recResourceFileTransferStore.state.selectedFileForUpload).toBe(file);
+    expect(recResourceFileTransferStore.state.uploadFileName).toBe(
+      "test-file.pdf",
+    );
+    expect(recResourceFileTransferStore.state.showUploadOverlay).toBe(true);
+
+    // Reset upload state
+    resetUploadState();
+
+    // Verify all upload-related state is reset
+    expect(recResourceFileTransferStore.state.selectedFileForUpload).toBeNull();
+    expect(recResourceFileTransferStore.state.uploadFileName).toBe("");
     expect(recResourceFileTransferStore.state.showUploadOverlay).toBe(false);
   });
 
@@ -134,6 +160,42 @@ describe("recResourceFileTransferStore", () => {
     setDocToDelete(doc);
     expect(recResourceFileTransferStore.state.docToDelete).toBe(doc);
     setDocToDelete(undefined);
+    expect(recResourceFileTransferStore.state.docToDelete).toBeUndefined();
+  });
+
+  it("shows delete modal for doc", () => {
+    const doc = {
+      id: "1",
+      name: "test.pdf",
+      date: "2024-01-01",
+      url: "http://example.com",
+      extension: "pdf",
+    };
+
+    showDeleteModalForDoc(doc);
+
+    expect(recResourceFileTransferStore.state.showDeleteModal).toBe(true);
+    expect(recResourceFileTransferStore.state.docToDelete).toBe(doc);
+  });
+
+  it("hides delete modal", () => {
+    const doc = {
+      id: "1",
+      name: "test.pdf",
+      date: "2024-01-01",
+      url: "http://example.com",
+      extension: "pdf",
+    };
+
+    // First set up the modal as shown
+    showDeleteModalForDoc(doc);
+    expect(recResourceFileTransferStore.state.showDeleteModal).toBe(true);
+    expect(recResourceFileTransferStore.state.docToDelete).toBe(doc);
+
+    // Now hide the modal
+    hideDeleteModal();
+
+    expect(recResourceFileTransferStore.state.showDeleteModal).toBe(false);
     expect(recResourceFileTransferStore.state.docToDelete).toBeUndefined();
   });
 

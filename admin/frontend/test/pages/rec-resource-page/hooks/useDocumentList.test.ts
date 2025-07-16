@@ -37,7 +37,7 @@ describe("useDocumentList", () => {
       refetch: vi.fn(),
     });
     const { result } = renderHook(() => useDocumentList("abc"));
-    expect(result.current.documents[0]).toMatchObject({
+    expect(result.current.galleryDocumentsFromServer[0]).toMatchObject({
       id: "1",
       name: "Doc 1",
       date: "formatted-2024-01-01",
@@ -58,7 +58,7 @@ describe("useDocumentList", () => {
       refetch: vi.fn(),
     });
     const { result } = renderHook(() => useDocumentList("abc"));
-    expect(result.current.documents).toEqual([]);
+    expect(result.current.galleryDocumentsFromServer).toEqual([]);
   });
 
   it("handles many documents", () => {
@@ -72,6 +72,6 @@ describe("useDocumentList", () => {
       refetch: vi.fn(),
     });
     const { result } = renderHook(() => useDocumentList("abc"));
-    expect(result.current.documents).toHaveLength(30);
+    expect(result.current.galleryDocumentsFromServer).toHaveLength(30);
   });
 });

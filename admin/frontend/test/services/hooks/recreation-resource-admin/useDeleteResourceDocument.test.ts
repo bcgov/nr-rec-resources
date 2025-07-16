@@ -54,7 +54,7 @@ describe("useDeleteResourceDocument", () => {
       recResourceId: "test-resource-123",
       refId: "test-document-456",
     };
-    
+
     mockDeleteDocumentResource.mockResolvedValueOnce({
       success: true,
     });
@@ -76,7 +76,7 @@ describe("useDeleteResourceDocument", () => {
       recResourceId: "test-resource-123",
       refId: "test-document-456",
     };
-    
+
     const mockResponse = { success: true, id: "test-document-456" };
     mockDeleteDocumentResource.mockResolvedValueOnce(mockResponse);
 
@@ -97,7 +97,7 @@ describe("useDeleteResourceDocument", () => {
       recResourceId: "test-resource-123",
       refId: "test-document-456",
     };
-    
+
     const mockError = new Error("Delete failed");
     mockDeleteDocumentResource.mockRejectedValueOnce(mockError);
 
@@ -106,7 +106,9 @@ describe("useDeleteResourceDocument", () => {
     });
 
     await act(async () => {
-      await expect(result.current.mutateAsync(params)).rejects.toThrow("Delete failed");
+      await expect(result.current.mutateAsync(params)).rejects.toThrow(
+        "Delete failed",
+      );
     });
   });
 
@@ -131,7 +133,7 @@ describe("useDeleteResourceDocument", () => {
       recResourceId: "test-resource-123",
       refId: "test-document-456",
     };
-    
+
     const networkError = new Error("Network Error");
     networkError.name = "NetworkError";
     mockDeleteDocumentResource.mockRejectedValueOnce(networkError);
@@ -141,7 +143,9 @@ describe("useDeleteResourceDocument", () => {
     });
 
     await act(async () => {
-      await expect(result.current.mutateAsync(params)).rejects.toThrow("Network Error");
+      await expect(result.current.mutateAsync(params)).rejects.toThrow(
+        "Network Error",
+      );
     });
   });
 });

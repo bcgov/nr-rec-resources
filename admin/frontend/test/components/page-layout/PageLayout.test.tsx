@@ -1,6 +1,5 @@
+import { PageLayout } from "@/components/page-layout";
 import { render, screen } from "@testing-library/react";
-import { PageLayout } from "@/components/page-layout/PageLayout";
-import React from "react";
 
 describe("PageLayout", () => {
   it("renders children and applies the correct class", () => {

@@ -1,4 +1,4 @@
-import { CustomButton } from "@/components/custom-button/CustomButton";
+import { CustomButton } from "@/components/custom-button";
 import { faHome, faSearch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { fireEvent, render, screen } from "@testing-library/react";
