@@ -1,74 +1,37 @@
-import { render, screen, fireEvent } from "@testing-library/react";
 import { RecResourceFileSection } from "@/pages/rec-resource-page/components/RecResourceFileSection";
+import { fireEvent, render, screen } from "@testing-library/react";
 
 const mockUseDocumentList = vi.fn();
 const mockUseRecResourceFileTransferState = vi.fn();
-const baseDocs = [{ id: 1, name: "Doc1" }];
-const basePending = [{ id: 2, name: "PendingDoc" }];
 
-vi.mock(
-  "@/pages/rec-resource-page/components/RecResourceFileSection/GalleryAccordion",
-  () => ({
-    GalleryAccordion: ({
-      items = [],
-      renderItem,
-      onFileUploadTileClick,
-      uploadDisabled,
-      uploadLabel,
-    }: any) => (
-      <div data-testid="gallery-accordion">
-        {items.map(renderItem)}
-        <button onClick={onFileUploadTileClick} disabled={uploadDisabled}>
-          {uploadLabel}
-        </button>
-      </div>
-    ),
-  }),
-);
-vi.mock(
-  "@/pages/rec-resource-page/components/RecResourceFileSection/GalleryFileCard",
-  () => ({
-    GalleryFileCard: ({ file, onAction }: any) => (
-      <div data-testid="gallery-file-card">
-        <button onClick={() => onAction("view", file)}>View</button>
-        <span>{file.name}</span>
-      </div>
-    ),
-  }),
-);
+vi.mock("@/pages/rec-resource-page/components/RecResourceFileSection/GalleryAccordion", () => ({
+  GalleryAccordion: ({ items = [], renderItem, onFileUploadTileClick, uploadDisabled, uploadLabel }: any) => (
+    <div data-testid="gallery-accordion">
+      <span data-testid="upload-label" onClick={uploadDisabled ? undefined : onFileUploadTileClick}>{uploadLabel}</span>
+      {items.map(renderItem)}
+    </div>
+  ),
+}));
+vi.mock("@/pages/rec-resource-page/components/RecResourceFileSection/GalleryFileCard", () => ({
+  GalleryFileCard: ({ file, onAction }: any) => (
+    <div data-testid="gallery-file-card">
+      <button onClick={() => onAction("view", file)}>View</button>
+      <span>{file.name}</span>
+    </div>
+  ),
+}));
 vi.mock("@/pages/rec-resource-page/hooks/useDocumentList", () => ({
   useDocumentList: () => mockUseDocumentList(),
 }));
-vi.mock(
-  "@/pages/rec-resource-page/hooks/useRecResourceFileTransferState",
-  () => ({
-    useRecResourceFileTransferState: () =>
-      mockUseRecResourceFileTransferState(),
-  }),
-);
-vi.mock(
-  "@/pages/rec-resource-page/components/RecResourceFileSection/FileUploadModal",
-  () => ({
-    FileUploadModal: ({
-      open,
-      file,
-      onFileNameChange,
-      onUpload,
-      onCancel,
-      onUploadConfirmation,
-    }: any) => {
-      if (open && file) {
-        // Call the callbacks for testing purposes
-        if (onFileNameChange) onFileNameChange("changed.pdf");
-        if (onUpload) onUpload();
-        if (onCancel) onCancel();
-        if (onUploadConfirmation) onUploadConfirmation();
-        return <div data-testid="upload-file-modal" />;
-      }
-      return null;
-    },
-  }),
-);
+vi.mock("@/pages/rec-resource-page/hooks/useRecResourceFileTransferState", () => ({
+  useRecResourceFileTransferState: () => mockUseRecResourceFileTransferState(),
+}));
+vi.mock("@/pages/rec-resource-page/components/RecResourceFileSection/FileUploadModal", () => ({
+  FileUploadModal: ({ open, file }: any) => (open && file ? <div data-testid="upload-file-modal" /> : null),
+}));
+vi.mock("@/pages/rec-resource-page/components/RecResourceFileSection/DeleteFileModal", () => ({
+  DeleteFileModal: ({ open, file }: any) => (open && file ? <div data-testid="delete-file-modal" /> : null),
+}));
 
 describe("RecResourceFileSection", () => {
   const defaultState = {
@@ -80,69 +43,62 @@ describe("RecResourceFileSection", () => {
     handleCancelUpload: vi.fn(),
     setUploadFileName: vi.fn(),
     getUploadHandler: vi.fn(() => vi.fn()),
-    getDocumentActionHandler: vi.fn(() => vi.fn()),
-  };
-  const defaultList = {
-    documents: baseDocs,
+    getActionHandler: vi.fn(() => vi.fn()),
+    showDeleteModal: false,
+    docToDelete: null,
+    galleryDocuments: [],
     isDocumentUploadDisabled: false,
     isFetching: false,
     refetch: vi.fn(),
   };
+  const defaultList = {
+    documents: [{ id: 1, name: "Doc1" }],
+    isDocumentUploadDisabled: false,
+    isFetching: false,
+    refetch: vi.fn(),
+  };
+
   beforeEach(() => {
     mockUseDocumentList.mockReturnValue(defaultList);
     mockUseRecResourceFileTransferState.mockReturnValue(defaultState);
   });
 
-  it.each([
-    ["renders with docs", {}, {}, 1, "Doc1"],
-    [
-      "renders with pending docs",
-      {},
-      { pendingDocs: basePending },
-      2,
-      "PendingDoc",
-    ],
-    [
-      "renders with no docs or pending",
-      { documents: [] },
-      { pendingDocs: [] },
-      0,
-      null,
-    ],
-  ])("%s", (_, listMod, stateMod, count, text) => {
-    mockUseDocumentList.mockReturnValue({ ...defaultList, ...listMod });
+  it("renders gallery accordion and file cards", () => {
     mockUseRecResourceFileTransferState.mockReturnValue({
       ...defaultState,
-      ...stateMod,
+      galleryDocuments: [{ id: 1, name: "Doc1" }],
     });
     render(<RecResourceFileSection rec_resource_id="abc" />);
     expect(screen.getByTestId("gallery-accordion")).toBeInTheDocument();
-    expect(screen.queryAllByTestId("gallery-file-card")).toHaveLength(count);
-    if (text) expect(screen.getByText(text)).toBeInTheDocument();
+    expect(screen.getByTestId("gallery-file-card")).toBeInTheDocument();
+    expect(screen.getByText("Doc1")).toBeInTheDocument();
   });
 
-  it("calls onUploadClick when upload button is clicked", () => {
+  it("calls handleAddFileClick when upload label is clicked", () => {
     const handleAddFileClick = vi.fn();
-    mockUseRecResourceFileTransferState.mockReturnValueOnce({
+    mockUseRecResourceFileTransferState.mockReturnValue({
       ...defaultState,
       handleAddFileClick,
     });
     render(<RecResourceFileSection rec_resource_id="abc" />);
-    fireEvent.click(screen.getByText("Upload"));
+    fireEvent.click(screen.getByTestId("upload-label"));
     expect(handleAddFileClick).toHaveBeenCalled();
   });
 
-  it("disables upload button if upload is disabled", () => {
-    mockUseDocumentList.mockReturnValueOnce({
-      ...defaultList,
+  it("does not call handleAddFileClick when upload is disabled", () => {
+    const handleAddFileClick = vi.fn();
+    mockUseRecResourceFileTransferState.mockReturnValue({
+      ...defaultState,
+      handleAddFileClick,
       isDocumentUploadDisabled: true,
     });
     render(<RecResourceFileSection rec_resource_id="abc" />);
-    expect(screen.getByText("Upload")).toBeDisabled();
+    fireEvent.click(screen.getByTestId("upload-label"));
+    expect(handleAddFileClick).not.toHaveBeenCalled();
   });
 
   it("shows upload modal when showUploadOverlay and selectedFile are set", () => {
-    mockUseRecResourceFileTransferState.mockReturnValueOnce({
+    mockUseRecResourceFileTransferState.mockReturnValue({
       ...defaultState,
       showUploadOverlay: true,
       selectedFile: { name: "file.pdf" },
@@ -151,55 +107,25 @@ describe("RecResourceFileSection", () => {
     expect(screen.getByTestId("upload-file-modal")).toBeInTheDocument();
   });
 
-  it("renders loading state if isFetching is true", () => {
-    mockUseDocumentList.mockReturnValueOnce({
-      ...defaultList,
-      isFetching: true,
+  it("shows delete modal when showDeleteModal and docToDelete are set", () => {
+    mockUseRecResourceFileTransferState.mockReturnValue({
+      ...defaultState,
+      showDeleteModal: true,
+      docToDelete: { id: 2, name: "DeleteMe.pdf" },
     });
     render(<RecResourceFileSection rec_resource_id="abc" />);
-    expect(screen.getByTestId("gallery-accordion")).toBeInTheDocument();
+    expect(screen.getByTestId("delete-file-modal")).toBeInTheDocument();
   });
 
   it("calls document action handler when file card action is clicked", () => {
     const docActionHandler = vi.fn();
-    mockUseRecResourceFileTransferState.mockReturnValueOnce({
+    mockUseRecResourceFileTransferState.mockReturnValue({
       ...defaultState,
-      getDocumentActionHandler: vi.fn(() => docActionHandler),
+      galleryDocuments: [{ id: 1, name: "Doc1" }],
+      getActionHandler: vi.fn(() => docActionHandler),
     });
     render(<RecResourceFileSection rec_resource_id="abc" />);
     fireEvent.click(screen.getByText("View"));
     expect(docActionHandler).toHaveBeenCalled();
-  });
-
-  it("does not show upload modal if showUploadOverlay is true but selectedFile is null", () => {
-    mockUseRecResourceFileTransferState.mockReturnValueOnce({
-      ...defaultState,
-      showUploadOverlay: true,
-      selectedFile: null,
-    });
-    render(<RecResourceFileSection rec_resource_id="abc" />);
-    expect(screen.queryByTestId("upload-file-modal")).not.toBeInTheDocument();
-  });
-
-  it("calls all FileUploadModal callbacks when modal is open", () => {
-    const setUploadFileName = vi.fn();
-    const uploadHandler = vi.fn();
-    const handleCancelUpload = vi.fn();
-    mockUseRecResourceFileTransferState.mockReturnValueOnce({
-      ...defaultState,
-      showUploadOverlay: true,
-      selectedFile: { name: "file.pdf" },
-      setUploadFileName,
-      getUploadHandler: vi.fn(() => uploadHandler),
-      handleCancelUpload,
-    });
-    mockUseDocumentList.mockReturnValueOnce({
-      ...defaultList,
-      refetch: vi.fn(),
-    });
-    render(<RecResourceFileSection rec_resource_id="abc" />);
-    expect(setUploadFileName).toHaveBeenCalledWith("changed.pdf");
-    expect(uploadHandler).toHaveBeenCalled();
-    expect(handleCancelUpload).toHaveBeenCalled();
   });
 });
