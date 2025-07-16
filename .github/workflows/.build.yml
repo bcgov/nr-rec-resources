@@ -20,21 +20,18 @@ jobs:
     strategy:
       matrix:
         include:
-          # Frontend packages — need repo root as context for shared folder access
           - package: 'admin/frontend'
             build_context: '.'
           - package: 'public/frontend'
             build_context: '.'
-
-          # Backend and migrations — use their own directory as build context
           - package: 'admin/backend'
             build_context: 'admin/backend'
+          - package: 'public/backend'
+            build_context: 'public/backend'
           - package: 'migrations/rst'
             build_context: 'migrations/rst'
           - package: 'migrations/fta'
             build_context: 'migrations/fta'
-          - package: 'public/backend'
-            build_context: 'public/backend'
 
     timeout-minutes: 10
     steps:
@@ -44,3 +41,4 @@ jobs:
           tags: ${{ github.sha }}
           build_context: ${{ matrix.build_context }}
           build_file: ${{ matrix.package }}/Dockerfile
+          sbom: 'false'

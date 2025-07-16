@@ -1,34 +1,31 @@
 import { render, screen } from "@testing-library/react";
-import { SuggestionMenu } from "@/components/recreation-resource-suggestion-typeahead/SuggestionMenu";
+import { SuggestionMenu } from "@shared/components/suggestion-typeahead/SuggestionMenu";
 import type { RenderMenuProps } from "react-bootstrap-typeahead";
-import { RESOURCE_TYPE_ICONS } from "@/components/recreation-resource-suggestion-typeahead/constants";
+import { RESOURCE_TYPE_ICONS } from "@shared/components/suggestion-typeahead/constants";
 
 // Mock SuggestionListItem
-vi.mock(
-  "@/components/recreation-resource-suggestion-typeahead/SuggestionListItem",
-  () => ({
-    SuggestionListItem: ({
-      searchTerm,
-      district,
-      icon,
-      rec_resource_id,
-      resourceType,
-      title,
-    }: any) => {
-      // If icon is a React element (Image), extract its src prop for test output
-      let iconSrc = "";
-      if (icon && icon.props && icon.props.src) {
-        iconSrc = icon.props.src;
-      }
-      return (
-        <div data-testid="suggestion-item">
-          {title} | {district} | {resourceType} | {iconSrc} | {searchTerm} |{" "}
-          {rec_resource_id}
-        </div>
-      );
-    },
-  }),
-);
+vi.mock("@shared/components/suggestion-typeahead/SuggestionListItem", () => ({
+  SuggestionListItem: ({
+    searchTerm,
+    district,
+    icon,
+    rec_resource_id,
+    resourceType,
+    title,
+  }: any) => {
+    // If icon is a React element (Image), extract its src prop for test output
+    let iconSrc = "";
+    if (icon && icon.props && icon.props.src) {
+      iconSrc = icon.props.src;
+    }
+    return (
+      <div data-testid="suggestion-item">
+        {title} | {district} | {resourceType} | {iconSrc} | {searchTerm} |{" "}
+        {rec_resource_id}
+      </div>
+    );
+  },
+}));
 
 describe("SuggestionMenu", () => {
   const mockResults = [

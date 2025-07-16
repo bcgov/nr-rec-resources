@@ -22,7 +22,7 @@
       "@": ["src"],
       "@/*": ["src/*"],
       "~/*": ["node_modules/*"],
-      "@shared/*": ["../../shared/*"],
+      "@shared/*": ["../../shared/src/*"],
       "~bootstrap/*": ["node_modules/bootstrap/*"],
       "e2e/*": ["e2e/*"],
       "@keycloak-lib/*": ["node_modules/keycloak-js/lib/*"],
@@ -30,6 +30,7 @@
     }
   },
   "include": [
+    "vite.config.ts",
     "**/*.d.ts",
     "**/*.spec.ts",
     "**/*.test.ts",

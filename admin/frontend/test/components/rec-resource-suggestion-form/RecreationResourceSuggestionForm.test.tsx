@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { RecreationResourceSuggestionForm } from "@/components/rec-resource-suggestion-form/RecreationResourceSuggestionForm";
 import { useNavigate } from "react-router";
 import * as suggestionHook from "@/services/hooks/recreation-resource-admin/useGetRecreationResourceSuggestions";
-import { RecreationResourceSuggestion } from "@/components/recreation-resource-suggestion-typeahead/types";
+import { RecreationResourceSuggestion } from "@shared/components/suggestion-typeahead/types";
 
 vi.mock("react-router", async () => {
   const actual = await vi.importActual("react-router");
@@ -14,48 +14,45 @@ vi.mock("react-router", async () => {
   };
 });
 
-vi.mock(
-  "@/components/recreation-resource-suggestion-typeahead/RecreationResourceSuggestionTypeahead",
-  () => ({
-    RecreationResourceSuggestionTypeahead: ({
-      onChange,
-      onSearch,
-      searchTerm,
-      suggestions,
-      emptyLabel,
-      placeholder,
-      error,
-    }: any) => (
-      <div>
-        <input
-          data-testid="typeahead-input"
-          placeholder={placeholder}
-          value={searchTerm}
-          onChange={(e) => onSearch(e.target.value)}
-        />
-        <ul data-testid="typeahead-suggestions">
-          {suggestions?.map((s: RecreationResourceSuggestion) => (
-            <li
-              key={s.rec_resource_id}
-              onClick={() => onChange(s)}
-              data-testid="typeahead-item"
-            >
-              {s.name}
-            </li>
-          ))}
-        </ul>
-        {typeof emptyLabel === "string" && (
-          <div data-testid="empty-label">{emptyLabel}</div>
-        )}
-        {error && (
-          <div data-testid="error-message" className="text-danger">
-            {error.message}
-          </div>
-        )}
-      </div>
-    ),
-  }),
-);
+vi.mock("@shared/components/suggestion-typeahead/SuggestionTypeahead", () => ({
+  SuggestionTypeahead: ({
+    onChange,
+    onSearch,
+    searchTerm,
+    suggestions,
+    emptyLabel,
+    placeholder,
+    error,
+  }: any) => (
+    <div>
+      <input
+        data-testid="typeahead-input"
+        placeholder={placeholder}
+        value={searchTerm}
+        onChange={(e) => onSearch(e.target.value)}
+      />
+      <ul data-testid="typeahead-suggestions">
+        {suggestions?.map((s: RecreationResourceSuggestion) => (
+          <li
+            key={s.rec_resource_id}
+            onClick={() => onChange(s)}
+            data-testid="typeahead-item"
+          >
+            {s.name}
+          </li>
+        ))}
+      </ul>
+      {typeof emptyLabel === "string" && (
+        <div data-testid="empty-label">{emptyLabel}</div>
+      )}
+      {error && (
+        <div data-testid="error-message" className="text-danger">
+          {error.message}
+        </div>
+      )}
+    </div>
+  ),
+}));
 
 describe("RecreationResourceSuggestionForm", () => {
   const mockNavigate = vi.fn();

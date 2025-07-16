@@ -7,7 +7,13 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "jsx": "react-jsx",
-    "types": ["node"]
+    "types": ["node", "vitest/globals"],
+    "baseUrl": "./",
+    "paths": {
+      "@shared": ["shared/src"],
+      "@shared/*": ["shared/src/*"],
+      "~bootstrap/*": ["shared/node_modules/bootstrap/*"]
+    }
   },
   "include": [
     "**/*.d.ts",

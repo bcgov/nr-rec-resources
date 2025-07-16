@@ -28,7 +28,8 @@ export default defineConfig(({ mode }) => {
       // https://vitejs.dev/config/shared-options.html#resolve-alias
       alias: {
         '@': fileURLToPath(new URL('./src', import.meta.url)),
-        '~': fileURLToPath(new URL('./node_modules', import.meta.url)),
+        '~': fileURLToPath(new URL('node_modules', import.meta.url)),
+        '@shared': fileURLToPath(new URL('../../shared/src', import.meta.url)),
         '~bootstrap': path.resolve(__dirname, 'node_modules/bootstrap'),
       },
       extensions: ['.js', '.json', '.jsx', '.mjs', '.ts', '.tsx', '.vue'],
@@ -65,6 +66,10 @@ export default defineConfig(({ mode }) => {
             'global-builtin',
             'import',
             'legacy-js-api',
+          ],
+          includePaths: [
+            path.resolve(__dirname, 'src'),
+            path.resolve(__dirname, '../../shared'),
           ],
         },
       },

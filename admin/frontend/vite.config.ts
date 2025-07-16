@@ -48,14 +48,10 @@ export default defineConfig(({ mode }) => {
       alias: {
         "@": fileURLToPath(new URL("./src", import.meta.url)),
         "@test": path.resolve(__dirname, "test"),
-        "@shared": fileURLToPath(new URL("../../shared", import.meta.url)),
-        "@/*": fileURLToPath(new URL("./src/*", import.meta.url)),
-        "~": fileURLToPath(new URL("./node_modules", import.meta.url)),
+        "@shared": fileURLToPath(new URL("../../shared/src", import.meta.url)),
+        "~": fileURLToPath(new URL("node_modules", import.meta.url)),
+        "@keycloak-lib": path.resolve("node_modules", "keycloak-js/lib"),
         "~bootstrap": path.resolve(__dirname, "node_modules/bootstrap"),
-        "@keycloak-lib": path.resolve(
-          __dirname,
-          "node_modules/keycloak-js/lib",
-        ),
       },
       extensions: [".js", ".json", ".jsx", ".mjs", ".ts", ".tsx", ".vue"],
     },
@@ -89,6 +85,10 @@ export default defineConfig(({ mode }) => {
             "global-builtin",
             "import",
             "legacy-js-api",
+          ],
+          includePaths: [
+            path.resolve(__dirname, "src"),
+            path.resolve(__dirname, "../../shared"),
           ],
         },
       },

@@ -97,7 +97,6 @@ jobs:
             role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
             aws-region: ${{ env.AWS_REGION }}
       - name: Build And Update UI (CF)
-        working-directory: ${{ inputs.app }}/frontend
         env:
           app: ${{ inputs.app }}
           VITE_RECREATION_RESOURCE_ASSETS_BASE_URL: ${{ secrets.VITE_RECREATION_RESOURCE_ASSETS_BASE_URL }}
@@ -112,6 +111,8 @@ jobs:
           VITE_KEYCLOAK_CLIENT_ID: ${{ secrets.KEYCLOAK_CLIENT_ID }}
         run: |
           echo "VITE_RECREATION_RESOURCE_ASSETS_BASE_URL: $VITE_RECREATION_RESOURCE_ASSETS_BASE_URL"
+          cd shared && npm ci
+          cd ../${app}/frontend
           npm run deploy
           aws s3 sync --delete ./dist s3://$(echo "$S3_BUCKET_ARN" | cut -d: -f6)
           aws cloudfront create-invalidation --distribution-id $CF_DISTRIBUTION_ID --paths "/*"

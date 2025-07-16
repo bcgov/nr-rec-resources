@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { RecreationResourceSuggestion } from "@/components/recreation-resource-suggestion-typeahead/types";
-import { RecreationResourceSuggestionTypeahead } from "@/components/recreation-resource-suggestion-typeahead/RecreationResourceSuggestionTypeahead";
+import { RecreationResourceSuggestion } from "@shared/components/suggestion-typeahead/types";
+import { SuggestionTypeahead } from "@shared/components/suggestion-typeahead/SuggestionTypeahead";
 import { Menu, MenuItem } from "react-bootstrap-typeahead";
 
 vi.mock(
-  "@/components/recreation-resource-suggestion-typeahead/SuggestionSearchInput",
+  "@shared/components/suggestion-typeahead/SuggestionSearchInput",
   () => ({
     SuggestionSearchInput: ({ ...props }: any) => (
       <input
@@ -18,22 +18,19 @@ vi.mock(
   }),
 );
 
-vi.mock(
-  "@/components/recreation-resource-suggestion-typeahead/SuggestionMenu",
-  () => {
-    return {
-      SuggestionMenu: ({ results, menuProps }: any) => (
-        <Menu {...menuProps} data-testid="custom-menu">
-          {results.map((r: any, idx: number) => (
-            <MenuItem option={r} position={idx} key={r.rec_resource_id}>
-              {r.name}
-            </MenuItem>
-          ))}
-        </Menu>
-      ),
-    };
-  },
-);
+vi.mock("@shared/components/suggestion-typeahead/SuggestionMenu", () => {
+  return {
+    SuggestionMenu: ({ results, menuProps }: any) => (
+      <Menu {...menuProps} data-testid="custom-menu">
+        {results.map((r: any, idx: number) => (
+          <MenuItem option={r} position={idx} key={r.rec_resource_id}>
+            {r.name}
+          </MenuItem>
+        ))}
+      </Menu>
+    ),
+  };
+});
 
 describe("RecreationResourceSuggestionTypeahead", () => {
   const suggestions: RecreationResourceSuggestion[] = [
@@ -57,13 +54,13 @@ describe("RecreationResourceSuggestionTypeahead", () => {
   });
 
   it("renders input and custom menu", async () => {
-    render(<RecreationResourceSuggestionTypeahead {...defaultProps} />);
+    render(<SuggestionTypeahead {...defaultProps} />);
     const input = screen.getByTestId("custom-input");
     expect(input).toBeInTheDocument();
   });
 
   it("calls onSearch when user types", async () => {
-    render(<RecreationResourceSuggestionTypeahead {...defaultProps} />);
+    render(<SuggestionTypeahead {...defaultProps} />);
     const input = screen.getByTestId("custom-input");
     await userEvent.type(input, "Park");
     await waitFor(() => {
@@ -72,18 +69,13 @@ describe("RecreationResourceSuggestionTypeahead", () => {
   });
 
   it("renders loading spinner when isLoading is true", () => {
-    render(
-      <RecreationResourceSuggestionTypeahead
-        {...defaultProps}
-        isLoading={true}
-      />,
-    );
+    render(<SuggestionTypeahead {...defaultProps} isLoading={true} />);
     const input = screen.getByTestId("custom-input");
     expect(input).toBeInTheDocument();
   });
 
   it("calls onChange when an option is selected", async () => {
-    render(<RecreationResourceSuggestionTypeahead {...defaultProps} />);
+    render(<SuggestionTypeahead {...defaultProps} />);
     const input = screen.getByTestId("custom-input");
 
     fireEvent.change(input, { target: { value: "Park" } });
@@ -97,14 +89,14 @@ describe("RecreationResourceSuggestionTypeahead", () => {
   });
 
   it("displays custom placeholder", () => {
-    render(<RecreationResourceSuggestionTypeahead {...defaultProps} />);
+    render(<SuggestionTypeahead {...defaultProps} />);
     const input = screen.getByPlaceholderText("Search resources...");
     expect(input).toBeInTheDocument();
   });
 
   it("shows validation error styling when error is passed", () => {
     render(
-      <RecreationResourceSuggestionTypeahead
+      <SuggestionTypeahead
         {...defaultProps}
         error={new Error("Invalid input")}
       />,
@@ -114,9 +106,7 @@ describe("RecreationResourceSuggestionTypeahead", () => {
   });
 
   it("filters results by name and resource ID", async () => {
-    const { container } = render(
-      <RecreationResourceSuggestionTypeahead {...defaultProps} />,
-    );
+    const { container } = render(<SuggestionTypeahead {...defaultProps} />);
     const instance = container.querySelector("input");
 
     await userEvent.type(instance as HTMLInputElement, "park");
@@ -129,12 +119,7 @@ describe("RecreationResourceSuggestionTypeahead", () => {
 
   it("filters results and selects the first option from the dropdown", async () => {
     const onChange = vi.fn();
-    render(
-      <RecreationResourceSuggestionTypeahead
-        {...defaultProps}
-        onChange={onChange}
-      />,
-    );
+    render(<SuggestionTypeahead {...defaultProps} onChange={onChange} />);
     const input = screen.getByTestId("custom-input");
 
     // Type to filter
