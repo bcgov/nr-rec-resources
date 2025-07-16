@@ -1,9 +1,9 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { ResourceHeaderSection } from "@/pages/rec-resource-page/components/ResourceHeaderSection";
 import { RecreationResourceDetailModel } from "@/custom-models";
+import { ResourceHeaderSection } from "@/pages/rec-resource-page/components/ResourceHeaderSection";
+import { fireEvent, render, screen } from "@testing-library/react";
 
 const mockUseRecResourceFileTransferState = vi.fn();
-const mockUseDocumentList = vi.fn();
+const mockUseDocumentListState = vi.fn();
 
 vi.mock(
   "@/pages/rec-resource-page/hooks/useRecResourceFileTransferState",
@@ -12,8 +12,8 @@ vi.mock(
       mockUseRecResourceFileTransferState(),
   }),
 );
-vi.mock("@/pages/rec-resource-page/hooks/useDocumentList", () => ({
-  useDocumentList: () => mockUseDocumentList(),
+vi.mock("@/pages/rec-resource-page/hooks/useDocumentListState", () => ({
+  useDocumentListState: () => mockUseDocumentListState(),
 }));
 vi.mock("@/components", () => ({
   CustomBadge: ({ label }: any) => (
@@ -46,7 +46,7 @@ describe("ResourceHeaderSection", () => {
 
   beforeEach(() => {
     mockUseRecResourceFileTransferState.mockReturnValue(defaultState);
-    mockUseDocumentList.mockReturnValue(defaultList);
+    mockUseDocumentListState.mockReturnValue(defaultList);
   });
 
   it("renders resource name, id, and type", () => {
@@ -67,7 +67,9 @@ describe("ResourceHeaderSection", () => {
   });
 
   it("disables Add document button if upload is disabled", () => {
-    mockUseDocumentList.mockReturnValueOnce({ isDocumentUploadDisabled: true });
+    mockUseDocumentListState.mockReturnValueOnce({
+      isDocumentUploadDisabled: true,
+    });
     render(<ResourceHeaderSection recResource={baseResource} />);
     const buttons = screen.getAllByRole("button");
     expect(buttons[1]).toBeDisabled();

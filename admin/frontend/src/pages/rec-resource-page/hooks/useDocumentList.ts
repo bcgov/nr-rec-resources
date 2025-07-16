@@ -1,7 +1,6 @@
 import { useGetDocumentsByRecResourceId } from "@/services/hooks/recreation-resource-admin/useGetDocumentsByRecResourceId";
 import { RecreationResourceDocDto } from "@/services/recreation-resource-admin";
 import { useMemo } from "react";
-import { MAX_DOCUMENTS_PER_REC_RESOURCE } from "../constants";
 import { formatDocumentDate } from "../helpers";
 import { GalleryDocument } from "../types";
 
@@ -32,7 +31,5 @@ export function useDocumentList(rec_resource_id?: string) {
     [documentsFromServer],
   );
 
-  const isDocumentUploadDisabled =
-    documents.length >= MAX_DOCUMENTS_PER_REC_RESOURCE;
-  return { documents, isDocumentUploadDisabled, isFetching, refetch };
+  return { documents, isFetching, refetch };
 }

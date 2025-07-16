@@ -1,26 +1,12 @@
-import { useUploadResourceDocument } from "@/services/hooks/recreation-resource-admin/useUploadResourceDocument";
-import {
-  addErrorNotification,
-  addSuccessNotification,
-} from "@/store/notificationStore";
 import { useStore } from "@tanstack/react-store";
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { recResourceDetailStore } from "../store/recResourceDetailStore";
-import {
-  addPendingDoc,
-  recResourceFileTransferStore,
-  removePendingDoc,
-  setDocToDelete,
-  setGalleryDocuments,
-  setSelectedFile,
-  setShowDeleteModal,
-  setShowUploadOverlay,
-  setUploadFileName,
-  updatePendingDoc,
-} from "../store/recResourceFileTransferStore";
-import { GalleryAction, GalleryDocument, GalleryFile } from "../types";
-import { useDocumentList } from "./useDocumentList";
-import { useDownloadFileMutation } from "./useDownloadFileMutation";
+import { setShowUploadOverlay } from "../store/recResourceFileTransferStore";
+import { useDeleteModalState } from "./useDeleteModalState";
+import { useDocumentListState } from "./useDocumentListState";
+import { useDocumentUpload } from "./useDocumentUpload";
+import { useFilePickerState } from "./useFilePickerState";
+import { useGalleryActions } from "./useGalleryActions";
 
 /**
  * Custom React hook to manage file picker and modal UI state for file uploads and deletes.
@@ -28,195 +14,51 @@ import { useDownloadFileMutation } from "./useDownloadFileMutation";
  * @returns Object containing state and handlers for file picker, upload modal, and delete modal.
  */
 export function useRecResourceFileTransferState() {
-  const {
-    selectedFileForUpload: selectedFile,
-    uploadFileName,
-    showUploadOverlay,
-    pendingDocs,
-    showDeleteModal,
-    docToDelete,
-    galleryDocuments,
-  } = useStore(recResourceFileTransferStore);
-
   const { recResource } = useStore(recResourceDetailStore);
 
-  const uploadResourceDocumentMutation = useUploadResourceDocument();
-  const downloadMutation = useDownloadFileMutation();
-
-  // fetch documents
+  // File picker state and handlers
   const {
-    documents: galleryDocumentsFromServer,
+    selectedFile,
+    uploadFileName,
+    showUploadOverlay,
+    handleAddFileClick,
+    handleCancelUpload,
+    setUploadFileName,
+  } = useFilePickerState();
+
+  // Document list state and syncing
+  const {
+    pendingDocs,
+    galleryDocuments,
     isDocumentUploadDisabled,
     isFetching,
     refetch,
-  } = useDocumentList(recResource?.rec_resource_id);
+  } = useDocumentListState(recResource?.rec_resource_id);
 
-  // Sync galleryDocumentsFromServer to store
-  useEffect(() => {
-    setGalleryDocuments([...pendingDocs, ...galleryDocumentsFromServer]);
-  }, [pendingDocs, galleryDocumentsFromServer]);
+  // Upload operations
+  const { handleUpload } = useDocumentUpload();
 
-  // File picker handler
-  const handleAddFileClick = useCallback(() => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "application/pdf";
-    input.onchange = (e: any) => {
-      const file = e.target.files && e.target.files[0];
-      if (file) {
-        setSelectedFile(file);
-        setShowUploadOverlay(true);
-      }
-    };
-    input.click();
-  }, []);
+  // Gallery actions
+  const { getActionHandler } = useGalleryActions();
 
-  // Cancel upload and reset state
-  const handleCancelUpload = useCallback(() => {
-    setShowUploadOverlay(false);
-    setSelectedFile(null);
-    setUploadFileName("");
-  }, []);
+  // Delete modal state
+  const { showDeleteModal, docToDelete, setShowDeleteModal, setDocToDelete } =
+    useDeleteModalState();
 
-  // Shared upload logic for both new and retry uploads
-  const doUpload = useCallback(
-    async ({
-      rec_resource_id,
-      file,
-      title,
-      tempId,
-      onSuccess,
-    }: {
-      rec_resource_id: string;
-      file: File;
-      title: string;
-      tempId: string;
-      onSuccess: () => void;
-    }) => {
-      try {
-        await uploadResourceDocumentMutation.mutateAsync({
-          recResourceId: rec_resource_id,
-          file,
-          title,
-        });
-        addSuccessNotification(`File "${title}" uploaded successfully.`);
-        onSuccess();
-        handleCancelUpload();
-        removePendingDoc(tempId);
-      } catch {
-        addErrorNotification(
-          `Failed to upload file "${title}". Please try again.`,
-        );
-        updatePendingDoc(tempId, {
-          isUploading: false,
-          uploadFailed: true,
-        });
-      }
-    },
-    [uploadResourceDocumentMutation, handleCancelUpload],
-  );
-
-  // Handle upload (with pending doc)
-  const handleUpload = useCallback(
-    async (onSuccess: () => void) => {
-      if (!selectedFile || !uploadFileName) return;
-      const tempId = `pending-${Date.now()}`;
-      const tempDoc: GalleryDocument = {
-        id: tempId,
-        name: uploadFileName,
-        date: new Date().toISOString(),
-        url: "",
-        extension: selectedFile.name.split(".").pop()!,
-        isUploading: true,
-        pendingFile: selectedFile,
-      };
-      addPendingDoc(tempDoc);
-      setShowUploadOverlay(false);
-      await doUpload({
-        rec_resource_id: recResource?.rec_resource_id!,
-        file: selectedFile,
-        title: uploadFileName,
-        tempId,
-        onSuccess,
-      });
-    },
-    [selectedFile, uploadFileName, doUpload],
-  );
-
-  // Handle upload retry (for failed uploads)
-  const handleUploadRetry = useCallback(
-    async (pendingDoc: GalleryFile, onSuccess: () => void) => {
-      if (!pendingDoc.pendingFile) {
-        return;
-      }
-      updatePendingDoc(pendingDoc.id, {
-        isUploading: true,
-        uploadFailed: false,
-      });
-      await doUpload({
-        rec_resource_id: recResource?.rec_resource_id!,
-        file: pendingDoc.pendingFile,
-        title: pendingDoc.name,
-        tempId: pendingDoc.id,
-        onSuccess,
-      });
-    },
-    [doUpload],
-  );
-
-  // Centralized document action handler
-  const handleGalleryAction = useCallback(
-    (action: GalleryAction, file: GalleryFile, refetch: () => void) => {
-      switch (action) {
-        case "view":
-          window.open(file.url, "_blank");
-          break;
-        case "download":
-          downloadMutation.mutate({ file });
-          break;
-        case "retry":
-          handleUploadRetry(file, refetch);
-          break;
-        case "delete":
-          setDocToDelete(file);
-          setShowDeleteModal(true);
-          break;
-        case "confirm-delete":
-          // Actual delete logic here
-          console.log("Delete confirmed for:", file);
-          // TODO: Add mutation or API call to delete document
-
-          setShowDeleteModal(false);
-          setDocToDelete(undefined);
-          refetch();
-          break;
-        case "cancel-delete":
-          setShowDeleteModal(false);
-          setDocToDelete(undefined);
-          break;
-        default:
-          break;
-      }
-    },
-    [handleUploadRetry, downloadMutation],
-  );
-
+  // Enhanced upload handler that integrates with file picker state
   const getUploadHandler = useCallback(
     (rec_resource_id: string, onSuccess: () => void) => {
       return async () => {
-        await handleUpload(onSuccess);
+        setShowUploadOverlay(false);
+        await handleUpload(
+          selectedFile,
+          uploadFileName,
+          onSuccess,
+          handleCancelUpload,
+        );
       };
     },
-    [handleUpload],
-  );
-
-  const getActionHandler = useCallback(
-    (onSuccess: () => void) => {
-      return (action: GalleryAction, file: GalleryFile) => {
-        handleGalleryAction(action, file, onSuccess);
-      };
-    },
-    [handleGalleryAction],
+    [handleUpload, selectedFile, uploadFileName, handleCancelUpload],
   );
 
   // Return all state and handlers

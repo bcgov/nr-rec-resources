@@ -1,281 +1,234 @@
-import { beforeEach, vi } from "vitest";
-import {
-  addErrorNotification,
-  addPendingDoc,
-  addSuccessNotification,
-  downloadMutate,
-  mutateAsync,
-  removePendingDoc,
-  setSelectedFile,
-  setShowUploadOverlay,
-  setUploadFileName,
-  updatePendingDoc,
-} from "./recResourceFileTransferStore.mock";
+import { useRecResourceFileTransferState } from "@/pages/rec-resource-page/hooks/useRecResourceFileTransferState";
+import { act, renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("@/pages/rec-resource-page/store/recResourceFileTransferStore", () => ({
-  recResourceFileTransferStore: {},
-  setSelectedFile,
-  setUploadFileName,
-  setShowUploadOverlay,
-  addPendingDoc,
-  removePendingDoc,
-  updatePendingDoc,
-}));
-
-// Type for mockState
-interface MockState {
-  selectedFile: File | null;
-  uploadFileName: string;
-  showUploadOverlay: boolean;
-  pendingDocs: any[];
-}
-
-const mockState: MockState = {
-  selectedFile: null,
+// Mock all the smaller hooks that the main hook now depends on
+const mockFilePickerState = {
+  selectedFile: null as File | null,
   uploadFileName: "",
   showUploadOverlay: false,
-  pendingDocs: [],
+  handleAddFileClick: vi.fn(),
+  handleCancelUpload: vi.fn(),
+  setUploadFileName: vi.fn(),
 };
 
+const mockDocumentListState = {
+  pendingDocs: [] as any[],
+  galleryDocuments: [] as any[],
+  isDocumentUploadDisabled: false,
+  isFetching: false,
+  refetch: vi.fn(),
+};
+
+const mockDocumentUpload = {
+  handleUpload: vi.fn(),
+};
+
+const mockGalleryActions = {
+  getActionHandler: vi.fn(() => vi.fn()),
+};
+
+const mockDeleteModalState = {
+  showDeleteModal: false,
+  docToDelete: undefined as any,
+  setShowDeleteModal: vi.fn(),
+  setDocToDelete: vi.fn(),
+};
+
+vi.mock("@/pages/rec-resource-page/hooks/useFilePickerState", () => ({
+  useFilePickerState: () => mockFilePickerState,
+}));
+
+vi.mock("@/pages/rec-resource-page/hooks/useDocumentListState", () => ({
+  useDocumentListState: () => mockDocumentListState,
+}));
+
+vi.mock("@/pages/rec-resource-page/hooks/useDocumentUpload", () => ({
+  useDocumentUpload: () => mockDocumentUpload,
+}));
+
+vi.mock("@/pages/rec-resource-page/hooks/useGalleryActions", () => ({
+  useGalleryActions: () => mockGalleryActions,
+}));
+
+vi.mock("@/pages/rec-resource-page/hooks/useDeleteModalState", () => ({
+  useDeleteModalState: () => mockDeleteModalState,
+}));
+
 vi.mock("@tanstack/react-store", () => ({
-  useStore: () => ({
-    selectedFileForUpload: mockState.selectedFile,
-    uploadFileName: mockState.uploadFileName,
-    showUploadOverlay: mockState.showUploadOverlay,
-    pendingDocs: mockState.pendingDocs,
-  }),
+  useStore: () => ({ recResource: { rec_resource_id: "abc" } }),
 }));
 
-vi.mock(
-  "@/services/hooks/recreation-resource-admin/useUploadResourceDocument",
-  () => ({
-    useUploadResourceDocument: () => ({ mutateAsync }),
-  }),
-);
-vi.mock("@/store/notificationStore", () => ({
-  addErrorNotification,
-  addSuccessNotification,
+vi.mock("@/pages/rec-resource-page/store/recResourceFileTransferStore", () => ({
+  setShowUploadOverlay: vi.fn(),
 }));
-vi.mock("@/pages/rec-resource-page/hooks/useDownloadFileMutation", () => ({
-  useDownloadFileMutation: () => ({ mutate: downloadMutate }),
-}));
-
-import * as download from "@/pages/rec-resource-page/hooks/useDownloadFileMutation";
-import { useRecResourceFileTransferState } from "@/pages/rec-resource-page/hooks/useRecResourceFileTransferState";
-import * as store from "@/pages/rec-resource-page/store/recResourceFileTransferStore";
-import * as upload from "@/services/hooks/recreation-resource-admin/useUploadResourceDocument";
-import * as notif from "@/store/notificationStore";
-import { act, renderHook } from "@testing-library/react";
-
-// Use the real File if available, otherwise a minimal mock
-const RealFile = globalThis.File;
-if (!RealFile) {
-  globalThis.File = class {
-    name: string;
-    constructor(_: any[], name: string) {
-      this.name = name;
-    }
-  } as any;
-}
 
 beforeEach(() => {
-  setSelectedFile.mockReset();
-  setUploadFileName.mockReset();
-  setShowUploadOverlay.mockReset();
-  addPendingDoc.mockReset();
-  removePendingDoc.mockReset();
-  updatePendingDoc.mockReset();
-  addErrorNotification.mockReset();
-  addSuccessNotification.mockReset();
-  mutateAsync.mockReset();
-  downloadMutate.mockReset();
-  mockState.selectedFile = null;
-  mockState.uploadFileName = "";
-  mockState.showUploadOverlay = false;
-  mockState.pendingDocs = [];
+  vi.clearAllMocks();
+
+  // Reset all mock states
+  mockFilePickerState.selectedFile = null;
+  mockFilePickerState.uploadFileName = "";
+  mockFilePickerState.showUploadOverlay = false;
+  mockFilePickerState.handleAddFileClick.mockReset();
+  mockFilePickerState.handleCancelUpload.mockReset();
+  mockFilePickerState.setUploadFileName.mockReset();
+
+  mockDocumentListState.pendingDocs = [];
+  mockDocumentListState.galleryDocuments = [];
+  mockDocumentListState.isDocumentUploadDisabled = false;
+  mockDocumentListState.isFetching = false;
+  mockDocumentListState.refetch.mockReset();
+
+  mockDocumentUpload.handleUpload.mockReset();
+
+  mockGalleryActions.getActionHandler.mockReset();
+  mockGalleryActions.getActionHandler.mockReturnValue(vi.fn());
+
+  mockDeleteModalState.showDeleteModal = false;
+  mockDeleteModalState.docToDelete = undefined;
+  mockDeleteModalState.setShowDeleteModal.mockReset();
+  mockDeleteModalState.setDocToDelete.mockReset();
 });
 
 describe("useRecResourceFileTransferState", () => {
-  it("returns state and handlers", () => {
+  it("returns state and handlers from composed hooks", () => {
     const { result } = renderHook(() => useRecResourceFileTransferState());
+
     expect(result.current).toMatchObject({
+      // From useFilePickerState
       selectedFile: null,
       uploadFileName: "",
       showUploadOverlay: false,
-      pendingDocs: [],
       handleAddFileClick: expect.any(Function),
       handleCancelUpload: expect.any(Function),
       setUploadFileName: expect.any(Function),
+
+      // From useDocumentListState
+      pendingDocs: [],
+      galleryDocuments: [],
+      isDocumentUploadDisabled: false,
+      isFetching: false,
+      refetch: expect.any(Function),
+
+      // From useDeleteModalState
+      showDeleteModal: false,
+      docToDelete: undefined,
+      setShowDeleteModal: expect.any(Function),
+      setDocToDelete: expect.any(Function),
+
+      // Composed handlers
       getUploadHandler: expect.any(Function),
-      getDocumentActionHandler: expect.any(Function),
+      getActionHandler: expect.any(Function),
     });
   });
 
-  it("handleAddFileClick sets file and overlay", () => {
+  it("delegates handleAddFileClick to file picker hook", () => {
     const { result } = renderHook(() => useRecResourceFileTransferState());
-    const file = new File([""], "test.pdf", { type: "application/pdf" });
-    const input = {
-      click: vi.fn(),
-      type: "",
-      accept: "",
-      onchange: (_: any) => {},
-    } as any;
-    const origCreateElement = document.createElement;
-    document.createElement = vi.fn(() => input) as any;
+
     result.current.handleAddFileClick();
-    expect(input.click).toHaveBeenCalled();
-    input.onchange({ target: { files: [file] } });
-    expect(store.setSelectedFile).toHaveBeenCalledWith(file);
-    expect(store.setShowUploadOverlay).toHaveBeenCalledWith(true);
-    document.createElement = origCreateElement;
+
+    expect(mockFilePickerState.handleAddFileClick).toHaveBeenCalled();
   });
 
-  it("handleCancelUpload resets state", () => {
+  it("delegates handleCancelUpload to file picker hook", () => {
     const { result } = renderHook(() => useRecResourceFileTransferState());
+
     result.current.handleCancelUpload();
-    expect(store.setShowUploadOverlay).toHaveBeenCalledWith(false);
-    expect(store.setSelectedFile).toHaveBeenCalledWith(null);
-    expect(store.setUploadFileName).toHaveBeenCalledWith("");
+
+    expect(mockFilePickerState.handleCancelUpload).toHaveBeenCalled();
   });
 
-  it("handleUpload adds pending doc and uploads", async () => {
-    mockState.selectedFile = new File(["file"], "test.pdf", {
-      type: "application/pdf",
-    });
-    mockState.uploadFileName = "Test";
-    const onSuccess = vi.fn();
+  it("delegates setUploadFileName to file picker hook", () => {
     const { result } = renderHook(() => useRecResourceFileTransferState());
-    await act(() => result.current.getUploadHandler("abc", onSuccess)());
-    expect(addPendingDoc).toHaveBeenCalled();
-    expect(mutateAsync).toHaveBeenCalledWith({
-      recResourceId: "abc",
-      file: mockState.selectedFile,
-      title: "Test",
-    });
-    expect(addSuccessNotification).toHaveBeenCalled();
-    expect(onSuccess).toHaveBeenCalled();
-  });
 
-  it("handleUpload does nothing if no file or name", async () => {
-    mockState.selectedFile = null;
-    mockState.uploadFileName = "";
-    const onSuccess = vi.fn();
-    const { result } = renderHook(() => useRecResourceFileTransferState());
-    await act(() => result.current.getUploadHandler("abc", onSuccess)());
-    expect(addPendingDoc).not.toHaveBeenCalled();
-    expect(mutateAsync).not.toHaveBeenCalled();
-  });
+    result.current.setUploadFileName("test.pdf");
 
-  it("handleUpload handles upload error", async () => {
-    mockState.selectedFile = new File([""], "test.pdf");
-    mockState.uploadFileName = "Test";
-    const mutateAsync = upload.useUploadResourceDocument().mutateAsync as any;
-    mutateAsync.mockRejectedValueOnce(new Error("fail"));
-    const { result } = renderHook(() => useRecResourceFileTransferState());
-    const onSuccess = vi.fn();
-    await act(() => result.current.getUploadHandler("abc", onSuccess)());
-    expect(notif.addErrorNotification).toHaveBeenCalled();
-    expect(store.updatePendingDoc).toHaveBeenCalledWith(
-      expect.stringContaining("pending-"),
-      { isUploading: false, uploadFailed: true },
+    expect(mockFilePickerState.setUploadFileName).toHaveBeenCalledWith(
+      "test.pdf",
     );
   });
 
-  it("handleUploadRetry uploads again and updates doc", async () => {
-    const pendingDoc = {
-      id: "id1",
-      name: "Test",
-      rec_resource_id: "abc",
-      pendingFile: new File([""], "test.pdf"),
-      date: new Date().toISOString(),
-      url: "",
-      extension: "pdf",
-    };
+  it("getUploadHandler calls document upload hook and resets overlay", async () => {
+    mockFilePickerState.selectedFile = new File(["content"], "test.pdf");
+    mockFilePickerState.uploadFileName = "Test Document";
+
     const { result } = renderHook(() => useRecResourceFileTransferState());
-    await act(() =>
-      result.current.getActionHandler(vi.fn())("retry", pendingDoc),
+    const onSuccess = vi.fn();
+
+    const uploadHandler = result.current.getUploadHandler(
+      "resource-123",
+      onSuccess,
     );
-    expect(store.updatePendingDoc).toHaveBeenCalledWith("id1", {
-      isUploading: true,
-      uploadFailed: false,
-    });
-    expect(mutateAsync).toHaveBeenCalled();
+    await act(() => uploadHandler());
+
+    expect(mockDocumentUpload.handleUpload).toHaveBeenCalledWith(
+      mockFilePickerState.selectedFile,
+      mockFilePickerState.uploadFileName,
+      onSuccess,
+      mockFilePickerState.handleCancelUpload,
+    );
   });
 
-  it("handleUploadRetry does nothing if no pendingFile", async () => {
-    const pendingDoc = {
-      id: "id1",
-      rec_resource_id: "abc",
-      name: "Test",
+  it("getActionHandler delegates to gallery actions hook", () => {
+    const { result } = renderHook(() => useRecResourceFileTransferState());
+    const refetch = vi.fn();
+
+    result.current.getActionHandler(refetch);
+
+    expect(mockGalleryActions.getActionHandler).toHaveBeenCalledWith(refetch);
+  });
+
+  it("delegates delete modal methods to delete modal hook", () => {
+    const { result } = renderHook(() => useRecResourceFileTransferState());
+    const testDoc = {
+      id: "1",
+      name: "test.pdf",
       date: "2023-01-01",
-      url: "",
+      url: "http://test",
       extension: "pdf",
     };
-    const { result } = renderHook(() => useRecResourceFileTransferState());
-    await act(() =>
-      result.current.getActionHandler(vi.fn())("retry", pendingDoc),
-    );
-    expect(mutateAsync).not.toHaveBeenCalled();
-    expect(updatePendingDoc).not.toHaveBeenCalledWith("id1", {
-      isUploading: true,
-      uploadFailed: false,
-    });
+
+    result.current.setShowDeleteModal(true);
+    expect(mockDeleteModalState.setShowDeleteModal).toHaveBeenCalledWith(true);
+
+    result.current.setDocToDelete(testDoc);
+    expect(mockDeleteModalState.setDocToDelete).toHaveBeenCalledWith(testDoc);
   });
 
-  it("handleDocumentAction view opens window", () => {
-    const open = vi.spyOn(window, "open").mockImplementation(() => null);
-    const file = {
-      url: "http://test",
-      name: "Test",
-      id: "id1",
-      rec_resource_id: "abc",
-      date: new Date().toISOString(),
-      extension: "pdf",
-    };
-    const { result } = renderHook(() => useRecResourceFileTransferState());
-    result.current.getActionHandler(vi.fn())("view", file);
-    expect(open).toHaveBeenCalledWith("http://test", "_blank");
-    open.mockRestore();
-  });
+  it("returns values from all composed hooks", () => {
+    // Update mock states to test different values
+    mockFilePickerState.selectedFile = new File(["test"], "test.pdf");
+    mockFilePickerState.uploadFileName = "Test File";
+    mockFilePickerState.showUploadOverlay = true;
 
-  it("handleDocumentAction download calls downloadMutation", () => {
-    const file = {
-      url: "http://test",
-      name: "Test",
-      id: "id1",
-      rec_resource_id: "abc",
-      date: new Date().toISOString(),
-      extension: "pdf",
-    };
-    const { result } = renderHook(() => useRecResourceFileTransferState());
-    result.current.getActionHandler(vi.fn())("download", file);
-    expect(download.useDownloadFileMutation().mutate).toHaveBeenCalledWith({
-      url: "http://test",
-      fileName: "Test",
-    });
-  });
+    mockDocumentListState.pendingDocs = [
+      { id: "pending-1", name: "Pending Doc" },
+    ];
+    mockDocumentListState.galleryDocuments = [{ id: "1", name: "Gallery Doc" }];
+    mockDocumentListState.isDocumentUploadDisabled = true;
+    mockDocumentListState.isFetching = true;
 
-  it("getUploadHandler returns a function that calls handleUpload", async () => {
-    mockState.selectedFile = new File([""], "test.pdf");
-    mockState.uploadFileName = "Test";
-    const { result } = renderHook(() => useRecResourceFileTransferState());
-    const fn = result.current.getUploadHandler("abc", vi.fn());
-    expect(typeof fn).toBe("function");
-    await act(() => fn());
-    expect(store.addPendingDoc).toHaveBeenCalled();
-  });
+    mockDeleteModalState.showDeleteModal = true;
+    mockDeleteModalState.docToDelete = { id: "delete-me", name: "To Delete" };
 
-  it("getDocumentActionHandler returns a function that calls handleDocumentAction", () => {
     const { result } = renderHook(() => useRecResourceFileTransferState());
-    const fn = result.current.getActionHandler(vi.fn());
-    expect(typeof fn).toBe("function");
-    fn("view", {
-      url: "http://test",
-      name: "Test",
-      id: "id1",
-      rec_resource_id: "abc",
-      date: new Date().toISOString(),
-      extension: "pdf",
+
+    expect(result.current.selectedFile).toBe(mockFilePickerState.selectedFile);
+    expect(result.current.uploadFileName).toBe("Test File");
+    expect(result.current.showUploadOverlay).toBe(true);
+    expect(result.current.pendingDocs).toEqual([
+      { id: "pending-1", name: "Pending Doc" },
+    ]);
+    expect(result.current.galleryDocuments).toEqual([
+      { id: "1", name: "Gallery Doc" },
+    ]);
+    expect(result.current.isDocumentUploadDisabled).toBe(true);
+    expect(result.current.isFetching).toBe(true);
+    expect(result.current.showDeleteModal).toBe(true);
+    expect(result.current.docToDelete).toEqual({
+      id: "delete-me",
+      name: "To Delete",
     });
   });
 });

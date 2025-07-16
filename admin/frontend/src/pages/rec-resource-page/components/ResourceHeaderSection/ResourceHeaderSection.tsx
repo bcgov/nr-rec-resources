@@ -1,14 +1,14 @@
-import { FC } from "react";
-import { Dropdown, Stack } from "react-bootstrap";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEllipsisH, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { CustomBadge, CustomButton } from "@/components";
 import { ClampLines } from "@/components/clamp-lines";
-import { COLOR_BLUE, COLOR_BLUE_LIGHT } from "@/styles/colors";
-import { useRecResourceFileTransferState } from "../../hooks/useRecResourceFileTransferState";
-import { useDocumentList } from "../../hooks/useDocumentList";
-import "./ResourceHeaderSection.scss";
 import { RecreationResourceDetailModel } from "@/custom-models";
+import { COLOR_BLUE, COLOR_BLUE_LIGHT } from "@/styles/colors";
+import { faEllipsisH, faPlus } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { FC } from "react";
+import { Dropdown, Stack } from "react-bootstrap";
+import { useDocumentListState } from "../../hooks/useDocumentListState";
+import { useRecResourceFileTransferState } from "../../hooks/useRecResourceFileTransferState";
+import "./ResourceHeaderSection.scss";
 
 interface ResourceHeaderSectionProps {
   recResource: RecreationResourceDetailModel;
@@ -49,7 +49,7 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
   recResource,
 }) => {
   const { handleAddFileClick } = useRecResourceFileTransferState();
-  const { isDocumentUploadDisabled } = useDocumentList(
+  const { isDocumentUploadDisabled } = useDocumentListState(
     recResource.rec_resource_id,
   );
 

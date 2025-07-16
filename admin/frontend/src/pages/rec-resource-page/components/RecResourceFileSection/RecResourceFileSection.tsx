@@ -19,7 +19,6 @@ export const RecResourceFileSection = ({
     selectedFile,
     uploadFileName,
     showUploadOverlay,
-    pendingDocs,
     handleAddFileClick,
     handleCancelUpload,
     setUploadFileName,
