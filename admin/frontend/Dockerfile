@@ -5,9 +5,12 @@ FROM node:22-slim AS build
 WORKDIR /app
 
 COPY shared/package.json shared/package-lock.json ./shared/
-RUN cd shared && npm ci
+WORKDIR /app/shared
+RUN npm ci
 
+WORKDIR /app
 COPY admin/frontend/package.json admin/frontend/package-lock.json ./admin/frontend/
+
 WORKDIR /app/admin/frontend
 RUN npm ci
 
