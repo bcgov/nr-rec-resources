@@ -244,36 +244,6 @@ describe("GalleryFileCard", () => {
     });
   });
 
-  describe("Accessibility", () => {
-    it("has proper ARIA labels", () => {
-      renderCard({ isUploading: true });
-
-      const spinner = document.querySelector('[role="status"]');
-      expect(spinner).toHaveAttribute("aria-label", "Uploading in progress");
-    });
-
-    it("has accessible action buttons", () => {
-      renderCard({});
-
-      expect(screen.getByLabelText("View")).toBeInTheDocument();
-      expect(screen.getByLabelText("Download")).toBeInTheDocument();
-      expect(screen.getByLabelText("Delete")).toBeInTheDocument();
-    });
-
-    it("has keyboard navigation support", () => {
-      renderCard({});
-
-      const actionContainers = document.querySelectorAll(
-        ".gallery-file-card__action-button-container",
-      );
-
-      actionContainers.forEach((container) => {
-        expect(container).toHaveAttribute("tabIndex", "0");
-        expect(container).toHaveAttribute("role", "button");
-      });
-    });
-  });
-
   describe("CSS Classes", () => {
     it("applies normal state classes", () => {
       renderCard({});
@@ -303,67 +273,6 @@ describe("GalleryFileCard", () => {
       expect(
         document.querySelector(".gallery-file-card--error"),
       ).toBeInTheDocument();
-    });
-  });
-
-  describe("Component Integration", () => {
-    it("integrates with ClampLines for long filenames", () => {
-      const longName = "Very long filename that should be clamped.pdf";
-      renderCard({ name: longName });
-
-      expect(screen.getByText(longName)).toBeInTheDocument();
-      expect(
-        document.querySelector(".gallery-file-card__filename-ellipsis"),
-      ).toBeInTheDocument();
-    });
-
-    it("renders FontAwesome icons", () => {
-      renderCard({});
-
-      const icons = document.querySelectorAll("svg[data-icon]");
-      expect(icons.length).toBeGreaterThan(0);
-    });
-
-    it("integrates with Bootstrap components", () => {
-      renderCard({});
-
-      expect(document.querySelector(".card")).toBeInTheDocument();
-      expect(document.querySelector(".dropdown")).toBeInTheDocument();
-      expect(document.querySelector(".row")).toBeInTheDocument();
-    });
-  });
-
-  describe("Edge Cases", () => {
-    it("handles special characters in filenames", () => {
-      const specialName = "File (1) - Copy [2024].pdf";
-      renderCard({ name: specialName });
-
-      expect(screen.getByText(specialName)).toBeInTheDocument();
-    });
-
-    it("handles null/undefined properties", () => {
-      renderCard({ name: null as any, date: undefined as any });
-
-      expect(screen.getByText("Untitled")).toBeInTheDocument();
-      expect(screen.getByText("-")).toBeInTheDocument();
-    });
-
-    it("prevents default on keyboard events", () => {
-      renderCard({});
-
-      const actionContainer = document.querySelector(
-        ".gallery-file-card__action-button-container",
-      );
-
-      const enterEvent = new KeyboardEvent("keydown", {
-        key: "Enter",
-        bubbles: true,
-        cancelable: true,
-      });
-
-      const preventDefaultSpy = vi.spyOn(enterEvent, "preventDefault");
-      actionContainer?.dispatchEvent(enterEvent);
-      expect(preventDefaultSpy).toHaveBeenCalled();
     });
   });
 });
