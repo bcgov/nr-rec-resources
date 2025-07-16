@@ -11,7 +11,7 @@ export function useDeleteResourceDocument() {
   const api = useRecreationResourceAdminApiClient();
 
   return useMutation({
-    mutationFn: async (params: DeleteResourceDocumentParams) => {
+    mutationFn: (params: DeleteResourceDocumentParams) => {
       return api.deleteDocumentResource(params);
     },
     retry: createRetryHandler(),

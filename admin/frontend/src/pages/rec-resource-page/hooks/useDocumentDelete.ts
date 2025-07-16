@@ -47,6 +47,10 @@ export function useDocumentDelete() {
         addErrorNotification(
           `Failed to delete document "${document.name}". Please try again.`,
         );
+        updateGalleryDocument(document.id, {
+          isDeleting: false,
+          deleteFailed: true,
+        });
       }
     },
     [deleteResourceDocumentMutation, recResource?.rec_resource_id, docToDelete],
