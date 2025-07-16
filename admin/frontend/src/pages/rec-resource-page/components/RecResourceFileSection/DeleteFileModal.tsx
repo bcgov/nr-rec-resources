@@ -1,27 +1,24 @@
 import { CustomButton } from "@/components";
-import { GalleryAction, GalleryFile } from "@/pages/rec-resource-page/types";
 import { COLOR_RED } from "@/styles/colors";
 import { faTrash, faWarning } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FC } from "react";
 import { Alert, Modal, Stack } from "react-bootstrap";
+import { useRecResourceFileTransferState } from "../../hooks/useRecResourceFileTransferState";
 import "./DeleteFileModal.scss";
 
-interface DeleteFileModalProps {
-  open: boolean;
-  file: GalleryFile;
-  onAction: (action: GalleryAction, file: GalleryFile) => void;
-}
+export const DeleteFileModal: FC = () => {
+  const {
+    getDocumentGeneralActionHandler,
+    deleteModalState: { docToDelete, showDeleteModal },
+  } = useRecResourceFileTransferState();
 
-export const DeleteFileModal: FC<DeleteFileModalProps> = ({
-  open,
-  file,
-  onAction,
-}) => {
+  if (!showDeleteModal || !docToDelete) return null;
+
   return (
     <Modal
-      show={open}
-      onHide={() => onAction("cancel-delete", file)}
+      show={showDeleteModal}
+      onHide={getDocumentGeneralActionHandler("cancel-delete")}
       centered
       size="lg"
       className="delete-file-modal"
@@ -42,19 +39,19 @@ export const DeleteFileModal: FC<DeleteFileModalProps> = ({
           </Stack>
         </Alert>
         <span className="delete-file-modal__alert-text">
-          Are you sure you want to delete file: <b>{file.name}</b>?
+          Are you sure you want to delete file: <b>{docToDelete.name}</b>?
         </span>
       </Modal.Body>
       <Modal.Footer>
         <CustomButton
           variant="tertiary"
-          onClick={() => onAction("cancel-delete", file)}
+          onClick={getDocumentGeneralActionHandler("cancel-delete")}
         >
           Cancel
         </CustomButton>
         <CustomButton
           variant="danger"
-          onClick={() => onAction("confirm-delete", file)}
+          onClick={getDocumentGeneralActionHandler("confirm-delete")}
           leftIcon={<FontAwesomeIcon icon={faTrash} />}
         >
           Delete

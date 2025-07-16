@@ -1,5 +1,8 @@
 import { useGalleryActions } from "@/pages/rec-resource-page/hooks/useGalleryActions";
-import { GalleryAction, GalleryFile } from "@/pages/rec-resource-page/types";
+import {
+  GalleryFile,
+  GalleryFileAction,
+} from "@/pages/rec-resource-page/types";
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -39,7 +42,7 @@ vi.mock("@/pages/rec-resource-page/store/recResourceFileTransferStore", () => ({
 import { useDeleteModalState } from "@/pages/rec-resource-page/hooks/useDeleteModalState";
 import { useDocumentDelete } from "@/pages/rec-resource-page/hooks/useDocumentDelete";
 import { useDocumentUpload } from "@/pages/rec-resource-page/hooks/useDocumentUpload";
-import { useDownloadFileMutation } from "@/pages/rec-resource-page/hooks/useDownloadFileMutation";
+import { useFileDownload } from "@/pages/rec-resource-page/hooks/useFileDownload";
 import { useFilePickerState } from "@/pages/rec-resource-page/hooks/useFilePickerState";
 
 const mockDownloadMutation = vi.fn();
@@ -69,7 +72,7 @@ describe("useGalleryActions", () => {
     vi.mocked(useFilePickerState).mockReturnValue(mockFilePickerState);
 
     // Mock the hook returns
-    vi.mocked(useDownloadFileMutation).mockReturnValue({
+    vi.mocked(useFileDownload).mockReturnValue({
       mutate: mockDownloadMutation,
     } as any);
 
@@ -231,7 +234,7 @@ describe("useGalleryActions", () => {
 
       // Should not throw for unknown action
       expect(() => {
-        actionHandler("unknown-action" as GalleryAction, testFile);
+        actionHandler("unknown-action" as GalleryFileAction, testFile);
       }).not.toThrow();
 
       // Should not call any handlers

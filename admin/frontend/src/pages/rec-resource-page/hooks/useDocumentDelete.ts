@@ -6,8 +6,11 @@ import {
 import { useStore } from "@tanstack/react-store";
 import { useCallback } from "react";
 import { recResourceDetailStore } from "../store/recResourceDetailStore";
-import { updateGalleryDocument } from "../store/recResourceFileTransferStore";
-import { GalleryDocument } from "../types";
+import {
+  recResourceFileTransferStore,
+  setDocToDelete,
+  updateGalleryDocument,
+} from "../store/recResourceFileTransferStore";
 
 /**
  * Hook to manage document delete operations.
@@ -15,12 +18,14 @@ import { GalleryDocument } from "../types";
  */
 export function useDocumentDelete() {
   const { recResource } = useStore(recResourceDetailStore);
+  const { docToDelete } = useStore(recResourceFileTransferStore);
   const deleteResourceDocumentMutation = useDeleteResourceDocument();
 
   // Handle document deletion
   const handleDelete = useCallback(
-    async (document: GalleryDocument, onSuccess?: () => void) => {
-      if (!recResource?.rec_resource_id || !document.id) {
+    async (onSuccess?: () => void) => {
+      const document = docToDelete;
+      if (!recResource?.rec_resource_id || !document?.id) {
         addErrorNotification(
           "Unable to delete document: missing required information.",
         );
@@ -36,6 +41,7 @@ export function useDocumentDelete() {
         addSuccessNotification(
           `Document "${document.name}" deleted successfully.`,
         );
+        setDocToDelete(undefined); // Clear the document to delete
         onSuccess?.();
       } catch {
         addErrorNotification(
@@ -43,7 +49,7 @@ export function useDocumentDelete() {
         );
       }
     },
-    [deleteResourceDocumentMutation, recResource?.rec_resource_id],
+    [deleteResourceDocumentMutation, recResource?.rec_resource_id, docToDelete],
   );
 
   return {

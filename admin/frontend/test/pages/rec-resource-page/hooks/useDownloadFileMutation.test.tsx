@@ -10,7 +10,7 @@ vi.mock("@/store/notificationStore", () => ({
   removeNotification: vi.fn(),
 }));
 
-import { useDownloadFileMutation } from "@/pages/rec-resource-page/hooks/useDownloadFileMutation";
+import { useFileDownload } from "@/pages/rec-resource-page/hooks/useFileDownload";
 import * as notificationStore from "@/store/notificationStore";
 import * as fileUtils from "@/utils/fileUtils";
 
@@ -26,7 +26,7 @@ const createWrapper = () => {
 };
 
 const getMutation = () => {
-  const { result } = renderHook(() => useDownloadFileMutation(), {
+  const { result } = renderHook(() => useFileDownload(), {
     wrapper: createWrapper(),
   });
   return result.current;

@@ -1,7 +1,13 @@
 import { useStore } from "@tanstack/react-store";
+import { useCallback, useEffect, useMemo } from "react";
+import { MAX_DOCUMENTS_PER_REC_RESOURCE } from "../constants";
 import { recResourceDetailStore } from "../store/recResourceDetailStore";
-import { useDeleteModalState } from "./useDeleteModalState";
-import { useDocumentListState } from "./useDocumentListState";
+import {
+  recResourceFileTransferStore,
+  setGalleryDocuments,
+} from "../store/recResourceFileTransferStore";
+import { GalleryFile, GalleryFileAction, GalleryGeneralAction } from "../types";
+import { useDocumentList } from "./useDocumentList";
 import { useGalleryActions } from "./useGalleryActions";
 
 /**
@@ -12,33 +18,77 @@ import { useGalleryActions } from "./useGalleryActions";
 export function useRecResourceFileTransferState() {
   const { recResource } = useStore(recResourceDetailStore);
 
+  const {
+    showUploadOverlay,
+    showDeleteModal,
+    docToDelete,
+    uploadFileName,
+    selectedFileForUpload,
+    pendingDocs,
+    galleryDocuments,
+  } = useStore(recResourceFileTransferStore);
+
   // Document list state and syncing
-  const { galleryDocuments, isDocumentUploadDisabled, isFetching, refetch } =
-    useDocumentListState(recResource?.rec_resource_id);
+  const {
+    galleryDocumentsFromServer,
+    isFetching,
+    refetch: refetchDocuments,
+  } = useDocumentList(recResource?.rec_resource_id);
+
+  // Sync galleryDocumentsFromServer to store
+  useEffect(() => {
+    setGalleryDocuments([...pendingDocs, ...galleryDocumentsFromServer]);
+  }, [pendingDocs, galleryDocumentsFromServer]);
 
   // Gallery actions (includes upload modal state)
-  const { getActionHandler, uploadModalState } = useGalleryActions();
+  const { handleFileAction, handleGeneralAction } = useGalleryActions();
 
-  // Delete modal state
-  const { showDeleteModal, docToDelete, setShowDeleteModal, setDocToDelete } =
-    useDeleteModalState();
+  // Document action handlers
+  const getDocumentFileActionHandler = useCallback(
+    (action: GalleryFileAction, file: GalleryFile) => {
+      return () => {
+        handleFileAction(action, file, refetchDocuments);
+      };
+    },
+    [handleFileAction],
+  );
+  const getDocumentGeneralActionHandler = useCallback(
+    (action: GalleryGeneralAction) => {
+      return () => {
+        handleGeneralAction(action, refetchDocuments);
+      };
+    },
+    [handleGeneralAction],
+  );
+
+  // Calculate upload disabled state based on total documents (server + pending)
+  const isDocumentUploadDisabled = useMemo(() => {
+    const totalDocCount = galleryDocuments.length;
+    return totalDocCount >= MAX_DOCUMENTS_PER_REC_RESOURCE;
+  }, [galleryDocuments.length]);
 
   // Return only the essential exports
   return {
     // Gallery actions and upload modal
-    getActionHandler,
-    uploadModalState,
+    getDocumentFileActionHandler,
+    getDocumentGeneralActionHandler,
 
     // Document list
     galleryDocuments,
     isDocumentUploadDisabled,
     isFetching,
-    refetch,
+
+    // Upload modal state
+    uploadModalState: {
+      showUploadOverlay,
+      uploadFileName,
+      selectedFileForUpload,
+    },
 
     // Delete modal
-    showDeleteModal,
-    docToDelete,
-    setShowDeleteModal,
-    setDocToDelete,
+    deleteModalState: {
+      showDeleteModal,
+      docToDelete,
+    },
   };
 }

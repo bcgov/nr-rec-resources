@@ -5,23 +5,23 @@ import { COLOR_RED } from "@/styles/colors";
 import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useRecResourceFileTransferState } from "../../hooks/useRecResourceFileTransferState";
+import { setUploadFileName } from "../../store/recResourceFileTransferStore";
 import { GalleryAccordion } from "./GalleryAccordion";
 import { GalleryFileCard } from "./GalleryFileCard";
 
 export const RecResourceFileSection = () => {
   const {
-    getActionHandler,
-    showDeleteModal,
-    docToDelete,
+    getDocumentFileActionHandler,
+    getDocumentGeneralActionHandler,
     galleryDocuments,
     isDocumentUploadDisabled,
     isFetching,
-    refetch,
-    uploadModalState,
+    uploadModalState: {
+      showUploadOverlay,
+      uploadFileName,
+      selectedFileForUpload,
+    },
   } = useRecResourceFileTransferState();
-
-  // Handlers
-  const onAction = getActionHandler(refetch);
 
   // Render a single document card
   const renderGalleryFileCard = (doc: GalleryDocument) => (
@@ -31,7 +31,7 @@ export const RecResourceFileSection = () => {
         <FontAwesomeIcon icon={faFilePdf} size="2x" color={COLOR_RED} />
       }
       file={doc}
-      onAction={onAction}
+      getFileActionHandler={getDocumentFileActionHandler}
     />
   );
 
@@ -44,30 +44,20 @@ export const RecResourceFileSection = () => {
         items={galleryDocuments}
         uploadLabel="Upload"
         isLoading={isFetching}
-        onFileUploadTileClick={() => onAction("upload", {} as GalleryDocument)}
+        onFileUploadTileClick={getDocumentGeneralActionHandler("upload")}
         uploadDisabled={isDocumentUploadDisabled}
         renderItem={renderGalleryFileCard}
       />
       {/* Upload modal from gallery actions */}
       <FileUploadModal
-        open={
-          uploadModalState.showUploadModal && !!uploadModalState.selectedFile
-        }
-        file={uploadModalState.selectedFile}
-        fileName={uploadModalState.uploadFileName}
-        onFileNameChange={uploadModalState.setUploadFileName}
-        onCancel={() => onAction("cancel-upload", {} as GalleryDocument)}
-        onUploadConfirmation={() =>
-          onAction("confirm-upload", {} as GalleryDocument)
-        }
+        open={showUploadOverlay && Boolean(selectedFileForUpload)}
+        file={selectedFileForUpload}
+        fileName={uploadFileName}
+        onFileNameChange={setUploadFileName}
+        onCancel={getDocumentGeneralActionHandler("cancel-upload")}
+        onUploadConfirmation={getDocumentGeneralActionHandler("confirm-upload")}
       />
-      {docToDelete && (
-        <DeleteFileModal
-          open={showDeleteModal}
-          file={docToDelete}
-          onAction={onAction}
-        />
-      )}
+      <DeleteFileModal />
     </>
   );
 };

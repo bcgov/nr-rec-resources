@@ -6,8 +6,8 @@ import { faEllipsisH, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FC } from "react";
 import { Dropdown, Stack } from "react-bootstrap";
-import { handleAddFileClick } from "../../helpers";
-import { useDocumentListState } from "../../hooks/useDocumentListState";
+import { handleAddPdfFileClick } from "../../helpers";
+import { useRecResourceFileTransferState } from "../../hooks/useRecResourceFileTransferState";
 import "./ResourceHeaderSection.scss";
 
 interface ResourceHeaderSectionProps {
@@ -48,9 +48,7 @@ const ActionButton: FC<ActionButtonProps> = ({
 export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
   recResource,
 }) => {
-  const { isDocumentUploadDisabled } = useDocumentListState(
-    recResource.rec_resource_id,
-  );
+  const { isDocumentUploadDisabled } = useRecResourceFileTransferState();
 
   return (
     <Stack direction="vertical" className="resource-header-section" gap={2}>
@@ -89,7 +87,7 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
               />
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <Dropdown.Item onClick={handleAddFileClick}>
+              <Dropdown.Item onClick={handleAddPdfFileClick}>
                 <FontAwesomeIcon
                   icon={faPlus}
                   className="me-2 resource-header-section__action-button-icon"
@@ -97,7 +95,7 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
                 Add image
               </Dropdown.Item>
               <Dropdown.Item
-                onClick={handleAddFileClick}
+                onClick={handleAddPdfFileClick}
                 disabled={isDocumentUploadDisabled}
               >
                 <FontAwesomeIcon
@@ -117,12 +115,12 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
         >
           <ActionButton
             label="Add image"
-            onClick={handleAddFileClick}
+            onClick={handleAddPdfFileClick}
             icon={faPlus}
           />
           <ActionButton
             label="Add document"
-            onClick={handleAddFileClick}
+            onClick={handleAddPdfFileClick}
             icon={faPlus}
             disabled={isDocumentUploadDisabled}
           />

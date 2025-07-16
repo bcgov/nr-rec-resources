@@ -15,7 +15,7 @@ import { GalleryFile } from "../types";
  * This hook provides a mutation that downloads a file from a given URL and filename,
  * and displays a success or error notification based on the result.
  */
-export function useDownloadFileMutation() {
+export function useFileDownload() {
   return useMutation<void, unknown, { file: GalleryFile }>({
     mutationFn: async ({ file }) => {
       addSpinnerNotification(`Downloading file "${file.name}"...`, file.id);

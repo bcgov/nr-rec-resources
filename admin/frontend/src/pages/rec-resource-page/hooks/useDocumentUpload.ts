@@ -35,7 +35,7 @@ export function useDocumentUpload() {
       file: File;
       title: string;
       tempId: string;
-      onSuccess: () => void;
+      onSuccess?: () => void;
     }) => {
       try {
         await uploadResourceDocumentMutation.mutateAsync({
@@ -45,7 +45,7 @@ export function useDocumentUpload() {
         });
         addSuccessNotification(`File "${title}" uploaded successfully.`);
         removePendingDoc(tempId);
-        onSuccess();
+        onSuccess?.();
       } catch {
         addErrorNotification(
           `Failed to upload file "${title}". Please try again.`,
@@ -64,8 +64,7 @@ export function useDocumentUpload() {
     async (
       selectedFile: File | null,
       uploadFileName: string,
-      onSuccess: () => void,
-      onCancel?: () => void,
+      onSuccess?: () => void,
     ) => {
       if (!selectedFile || !uploadFileName) return;
       const tempId = `pending-${Date.now()}`;
@@ -80,17 +79,12 @@ export function useDocumentUpload() {
       };
       addPendingDoc(tempDoc);
 
-      const enhancedOnSuccess = () => {
-        onSuccess();
-        onCancel?.(); // Reset upload state
-      };
-
       await doUpload({
         rec_resource_id: recResource?.rec_resource_id!,
         file: selectedFile,
         title: uploadFileName,
         tempId,
-        onSuccess: enhancedOnSuccess,
+        onSuccess,
       });
     },
     [doUpload, recResource?.rec_resource_id],
@@ -98,7 +92,7 @@ export function useDocumentUpload() {
 
   // Handle upload retry (for failed uploads)
   const handleUploadRetry = useCallback(
-    async (pendingDoc: GalleryFile, onSuccess: () => void) => {
+    async (pendingDoc: GalleryFile, onSuccess?: () => void) => {
       if (!pendingDoc.pendingFile) {
         return;
       }

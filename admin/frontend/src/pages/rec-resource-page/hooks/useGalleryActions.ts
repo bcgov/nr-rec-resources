@@ -1,34 +1,33 @@
+import { useStore } from "@tanstack/react-store";
 import { useCallback } from "react";
-import { handleAddFileClick } from "../helpers";
-import { GalleryAction, GalleryFile } from "../types";
-import { useDeleteModalState } from "./useDeleteModalState";
+import { handleAddFileClick, handleAddPdfFileClick } from "../helpers";
+import {
+  hideDeleteModal,
+  recResourceFileTransferStore,
+  resetUploadState,
+  showDeleteModalForDoc,
+} from "../store/recResourceFileTransferStore";
+import { GalleryFile, GalleryFileAction, GalleryGeneralAction } from "../types";
 import { useDocumentDelete } from "./useDocumentDelete";
 import { useDocumentUpload } from "./useDocumentUpload";
-import { useDownloadFileMutation } from "./useDownloadFileMutation";
-import { useFilePickerState } from "./useFilePickerState";
+import { useFileDownload } from "./useFileDownload";
 
 /**
  * Hook to manage document gallery actions.
  * Handles view, download, retry, delete, and upload document operations.
  */
 export function useGalleryActions() {
-  const downloadMutation = useDownloadFileMutation();
+  const downloadMutation = useFileDownload();
   const { handleUploadRetry, handleUpload } = useDocumentUpload();
   const { handleDelete } = useDocumentDelete();
-  const { showDeleteModalForDoc, hideDeleteModal } = useDeleteModalState();
 
-  // Use the centralized file picker state for upload functionality
-  const {
-    selectedFile,
-    uploadFileName,
-    showUploadOverlay,
-    handleCancelUpload,
-    setUploadFileName,
-  } = useFilePickerState();
+  const { selectedFileForUpload, uploadFileName, docToDelete } = useStore(
+    recResourceFileTransferStore,
+  );
 
-  // Centralized document action handler
-  const handleGalleryAction = useCallback(
-    (action: GalleryAction, file: GalleryFile, onSuccess: () => void) => {
+  // Handler for gallery actions that require a file
+  const handleFileAction = useCallback(
+    (action: GalleryFileAction, file: GalleryFile, onSuccess?: () => void) => {
       switch (action) {
         case "view":
           window.open(file.url, "_blank");
@@ -42,65 +41,52 @@ export function useGalleryActions() {
         case "delete":
           showDeleteModalForDoc(file);
           break;
-        case "confirm-delete":
-          handleDelete(file, onSuccess);
-          hideDeleteModal();
-          onSuccess();
+
+        default:
           break;
+      }
+    },
+    [handleUploadRetry, downloadMutation, handleDelete, showDeleteModalForDoc],
+  );
+
+  // Handler for gallery actions that do not require a file
+  const handleGeneralAction = useCallback(
+    (action: GalleryGeneralAction, onSuccess?: () => void) => {
+      switch (action) {
         case "cancel-delete":
           hideDeleteModal();
           break;
         case "upload":
-          handleAddFileClick();
+          handleAddPdfFileClick();
           break;
         case "confirm-upload":
-          if (selectedFile && uploadFileName) {
-            handleCancelUpload();
-            handleUpload(
-              selectedFile,
-              uploadFileName,
-              onSuccess,
-              handleCancelUpload,
-            );
+          if (selectedFileForUpload && uploadFileName) {
+            resetUploadState();
+            handleUpload(selectedFileForUpload, uploadFileName, onSuccess);
           }
           break;
         case "cancel-upload":
-          handleCancelUpload();
+          resetUploadState();
+          break;
+        case "confirm-delete":
+          handleDelete(onSuccess);
+          hideDeleteModal();
           break;
         default:
           break;
       }
     },
     [
-      handleUploadRetry,
-      downloadMutation,
-      handleDelete,
-      showDeleteModalForDoc,
       hideDeleteModal,
-      handleCancelUpload,
-      selectedFile,
+      handleAddFileClick,
+      selectedFileForUpload,
       uploadFileName,
       handleUpload,
     ],
   );
 
-  const getActionHandler = useCallback(
-    (onSuccess: () => void) => {
-      return (action: GalleryAction, file: GalleryFile) => {
-        handleGalleryAction(action, file, onSuccess);
-      };
-    },
-    [handleGalleryAction],
-  );
-
   return {
-    getActionHandler,
-    // Upload modal state for components that need to render the modal
-    uploadModalState: {
-      showUploadModal: showUploadOverlay,
-      selectedFile,
-      uploadFileName,
-      setUploadFileName,
-    },
+    handleFileAction,
+    handleGeneralAction,
   };
 }

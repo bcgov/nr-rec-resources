@@ -18,13 +18,11 @@ export interface GalleryDocument extends GalleryFile {
   doc_code_description?: string;
 }
 
-export type GalleryAction =
-  | "view"
-  | "download"
-  | "retry"
-  | "delete"
-  | "confirm-delete"
-  | "cancel-delete"
+export type GalleryFileAction = "view" | "download" | "retry" | "delete";
+
+export type GalleryGeneralAction =
   | "upload"
   | "confirm-upload"
+  | "confirm-delete"
+  | "cancel-delete"
   | "cancel-upload";

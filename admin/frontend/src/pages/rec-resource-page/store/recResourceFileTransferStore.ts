@@ -43,6 +43,12 @@ export function setShowUploadOverlay(show: boolean) {
   }));
 }
 
+export const resetUploadState = () => {
+  setShowUploadOverlay(false);
+  setSelectedFile(null);
+  setUploadFileName("");
+};
+
 export function setShowDeleteModal(show: boolean) {
   recResourceFileTransferStore.setState((prev) => ({
     ...prev,
@@ -56,6 +62,16 @@ export function setDocToDelete(doc?: GalleryFile) {
     docToDelete: doc,
   }));
 }
+
+export const showDeleteModalForDoc = (doc: GalleryFile) => {
+  setDocToDelete(doc);
+  setShowDeleteModal(true);
+};
+
+export const hideDeleteModal = () => {
+  setShowDeleteModal(false);
+  setDocToDelete(undefined);
+};
 
 export function addPendingDoc(doc: GalleryDocument) {
   recResourceFileTransferStore.setState((prev) => ({

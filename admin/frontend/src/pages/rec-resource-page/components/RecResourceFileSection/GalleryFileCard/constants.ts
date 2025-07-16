@@ -4,13 +4,13 @@ import {
   faTrash,
   IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
-import { GalleryAction } from "../../../types";
+import { GalleryFileAction } from "../../../types";
 
 /**
  * Available file actions configuration
  */
 export const CARD_ACTIONS: ReadonlyArray<{
-  key: Extract<GalleryAction, "view" | "download" | "delete">;
+  key: Extract<GalleryFileAction, "view" | "download" | "delete">;
   icon: IconDefinition;
   label: string;
 }> = [

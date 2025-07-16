@@ -6,22 +6,28 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import clsx from "clsx";
-import { useCallback } from "react";
 import { Card, Col, Dropdown, Row, Stack } from "react-bootstrap";
-import { GalleryAction, GalleryFile } from "../../../types";
+import { GalleryFile, GalleryFileAction } from "../../../types";
 import { ActionButton } from "./ActionButton";
 import { CARD_ACTIONS } from "./constants";
 import { DropdownActionItem } from "./DropdownActionItem";
 import "./GalleryFileCard.scss";
 import { LoadingState } from "./LoadingState";
 
+/**
+ * Props for the `GalleryFileCard` component.
+ *
+ * @typeParam T - The type of the file, extending `GalleryFile`.
+ *
+ * @property {React.ReactNode} [topContent] - Optional content to display at the top of the card.
+ * @property {T} file - File object to display.
+ * @property {(action: GalleryFileAction, file: T) => () => void} getFileActionHandler -
+ *   Function that returns an event handler for a given file action and file.
+ */
 export interface GalleryFileCardProps<T extends GalleryFile> {
-  /** Optional content to display at the top of the card */
   topContent?: React.ReactNode;
-  /** File object to display */
   file: T;
-  /** Callback for when an action is triggered */
-  onAction: (action: GalleryAction, file: T) => void;
+  getFileActionHandler: (action: GalleryFileAction, file: T) => () => void;
 }
 
 /**
@@ -30,13 +36,8 @@ export interface GalleryFileCardProps<T extends GalleryFile> {
 export const GalleryFileCard = <T extends GalleryFile>({
   topContent,
   file,
-  onAction,
+  getFileActionHandler,
 }: GalleryFileCardProps<T>) => {
-  const handleAction = useCallback(
-    (action: GalleryAction) => onAction(action, file),
-    [onAction, file],
-  );
-
   const isUploadError = Boolean(file.uploadFailed);
   const isUploading = Boolean(file.isUploading);
   const isDownloading = Boolean(file.isDownloading);
@@ -62,7 +63,7 @@ export const GalleryFileCard = <T extends GalleryFile>({
             <ActionButton
               icon={faRedo}
               label="Retry"
-              onClick={() => handleAction("retry")}
+              onClick={getFileActionHandler("retry", file)}
             />
           </div>
         </Stack>
@@ -91,7 +92,7 @@ export const GalleryFileCard = <T extends GalleryFile>({
               key={key}
               icon={icon}
               label={label}
-              onClick={() => handleAction(key)}
+              onClick={getFileActionHandler(key, file)}
             />
           ))}
         </Stack>
@@ -151,7 +152,7 @@ export const GalleryFileCard = <T extends GalleryFile>({
                   <DropdownActionItem
                     icon={faRedo}
                     label="Retry"
-                    onClick={() => handleAction("retry")}
+                    onClick={getFileActionHandler("retry", file)}
                   />
                 ) : (
                   CARD_ACTIONS.map(({ key, icon, label }) => (
@@ -159,7 +160,7 @@ export const GalleryFileCard = <T extends GalleryFile>({
                       key={key}
                       icon={icon}
                       label={label}
-                      onClick={() => handleAction(key)}
+                      onClick={getFileActionHandler(key, file)}
                     />
                   ))
                 )}

@@ -1,4 +1,4 @@
-import { useDocumentListState } from "@/pages/rec-resource-page/hooks/useDocumentListState";
+import { useDocumentList } from "@/pages/rec-resource-page/hooks/useDocumentList";
 import * as store from "@/pages/rec-resource-page/store/recResourceFileTransferStore";
 import { renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -23,10 +23,11 @@ vi.mock("@/pages/rec-resource-page/store/recResourceFileTransferStore", () => ({
 
 // Get references to the mocked functions
 const mockUseStore = vi.mocked(
-  (await import("@tanstack/react-store")).useStore
+  (await import("@tanstack/react-store")).useStore,
 );
 const mockUseDocumentListHook = vi.mocked(
-  (await import("@/pages/rec-resource-page/hooks/useDocumentList")).useDocumentList
+  (await import("@/pages/rec-resource-page/hooks/useDocumentList"))
+    .useDocumentList,
 );
 
 const mockStoreState = {
@@ -80,9 +81,7 @@ describe("useDocumentListState", () => {
       refetch: vi.fn(),
     });
 
-    const { result } = renderHook(() =>
-      useDocumentListState("test-resource-id"),
-    );
+    const { result } = renderHook(() => useDocumentList("test-resource-id"));
 
     expect(result.current).toMatchObject({
       pendingDocs,
@@ -96,13 +95,13 @@ describe("useDocumentListState", () => {
   it("calls useDocumentList with provided resource ID", () => {
     const resourceId = "test-resource-123";
 
-    renderHook(() => useDocumentListState(resourceId));
+    renderHook(() => useDocumentList(resourceId));
 
     expect(mockUseDocumentListHook).toHaveBeenCalledWith(resourceId);
   });
 
   it("calls useDocumentList with undefined when no resource ID provided", () => {
-    renderHook(() => useDocumentListState());
+    renderHook(() => useDocumentList());
 
     expect(mockUseDocumentListHook).toHaveBeenCalledWith(undefined);
   });
@@ -134,7 +133,7 @@ describe("useDocumentListState", () => {
       refetch: vi.fn(),
     });
 
-    renderHook(() => useDocumentListState("test-resource-id"));
+    renderHook(() => useDocumentList("test-resource-id"));
 
     // Verify setGalleryDocuments was called with combined docs
     expect(store.setGalleryDocuments).toHaveBeenCalledWith([
@@ -161,16 +160,14 @@ describe("useDocumentListState", () => {
       refetch: vi.fn(),
     });
 
-    renderHook(() => useDocumentListState("test-resource-id"));
+    renderHook(() => useDocumentList("test-resource-id"));
 
     // Should handle empty array gracefully
     expect(store.setGalleryDocuments).toHaveBeenCalledWith([...pendingDocs]);
   });
 
   it("updates store when pendingDocs change", () => {
-    const { rerender } = renderHook(() =>
-      useDocumentListState("test-resource-id"),
-    );
+    const { rerender } = renderHook(() => useDocumentList("test-resource-id"));
 
     // Update pending docs
     const newPendingDocs = [
@@ -190,9 +187,7 @@ describe("useDocumentListState", () => {
   });
 
   it("updates store when server documents change", () => {
-    const { rerender } = renderHook(() =>
-      useDocumentListState("test-resource-id"),
-    );
+    const { rerender } = renderHook(() => useDocumentList("test-resource-id"));
 
     // Update server docs
     const newServerDocs = [
@@ -227,7 +222,7 @@ describe("useDocumentListState", () => {
       url: `http://example.com/${i + 1}`,
       extension: "pdf",
     }));
-    
+
     const pendingDocs = [
       {
         id: "pending-1",
@@ -245,9 +240,7 @@ describe("useDocumentListState", () => {
       refetch: vi.fn(),
     });
 
-    const { result } = renderHook(() =>
-      useDocumentListState("test-resource-id"),
-    );
+    const { result } = renderHook(() => useDocumentList("test-resource-id"));
 
     expect(result.current.isDocumentUploadDisabled).toBe(true);
   });
