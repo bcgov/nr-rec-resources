@@ -1,7 +1,8 @@
 import {
   addErrorNotification,
-  addInfoNotification,
+  addSpinnerNotification,
   addSuccessNotification,
+  removeNotification,
 } from "@/store/notificationStore";
 import { downloadUrlAsFile } from "@/utils/fileUtils";
 import { useMutation } from "@tanstack/react-query";
@@ -17,7 +18,7 @@ import { GalleryFile } from "../types";
 export function useDownloadFileMutation() {
   return useMutation<void, unknown, { file: GalleryFile }>({
     mutationFn: async ({ file }) => {
-      addInfoNotification(`Downloading file "${file.name}"...`);
+      addSpinnerNotification(`Downloading file "${file.name}"...`, file.id);
       updateGalleryDocument(file.id, { isDownloading: true });
       await downloadUrlAsFile(file.url, file.name);
     },
@@ -31,6 +32,7 @@ export function useDownloadFileMutation() {
     },
     onSettled: (_data, _error, variables) => {
       updateGalleryDocument(variables.file.id, { isDownloading: false });
+      removeNotification(variables.file.id);
     },
   });
 }
