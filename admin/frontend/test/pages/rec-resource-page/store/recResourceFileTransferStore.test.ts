@@ -1,13 +1,17 @@
+import { beforeEach, describe, expect, it } from "vitest";
 import {
-  recResourceFileTransferStore,
-  setSelectedFile,
-  setUploadFileName,
-  setShowUploadOverlay,
   addPendingDoc,
-  updatePendingDoc,
+  recResourceFileTransferStore,
   removePendingDoc,
+  setDocToDelete,
+  setGalleryDocuments,
+  setSelectedFile,
+  setShowDeleteModal,
+  setShowUploadOverlay,
+  setUploadFileName,
+  updateGalleryDocument,
+  updatePendingDoc,
 } from "../../../../src/pages/rec-resource-page/store/recResourceFileTransferStore";
-import { describe, it, expect, beforeEach } from "vitest";
 
 const baseDoc = {
   id: "1",
@@ -34,6 +38,9 @@ describe("recResourceFileTransferStore", () => {
       uploadFileName: "",
       showUploadOverlay: false,
       pendingDocs: [],
+      galleryDocuments: [],
+      showDeleteModal: false,
+      docToDelete: undefined,
     });
   });
 
@@ -107,5 +114,47 @@ describe("recResourceFileTransferStore", () => {
     expect(recResourceFileTransferStore.state.pendingDocs).toEqual([
       anotherDoc,
     ]);
+  });
+
+  it("sets show delete modal", () => {
+    setShowDeleteModal(true);
+    expect(recResourceFileTransferStore.state.showDeleteModal).toBe(true);
+    setShowDeleteModal(false);
+    expect(recResourceFileTransferStore.state.showDeleteModal).toBe(false);
+  });
+
+  it("sets doc to delete", () => {
+    const doc = {
+      id: "1",
+      name: "test.pdf",
+      date: "2024-01-01",
+      url: "http://example.com",
+      extension: "pdf",
+    };
+    setDocToDelete(doc);
+    expect(recResourceFileTransferStore.state.docToDelete).toBe(doc);
+    setDocToDelete(undefined);
+    expect(recResourceFileTransferStore.state.docToDelete).toBeUndefined();
+  });
+
+  it("sets gallery documents", () => {
+    const docs = [baseDoc, anotherDoc];
+    setGalleryDocuments(docs);
+    expect(recResourceFileTransferStore.state.galleryDocuments).toEqual(docs);
+  });
+
+  it("updates gallery document when id exists", () => {
+    setGalleryDocuments([baseDoc, anotherDoc]);
+    updateGalleryDocument("1", { name: "updated-gallery.pdf" });
+    expect(recResourceFileTransferStore.state.galleryDocuments[0].name).toBe(
+      "updated-gallery.pdf",
+    );
+  });
+
+  it("does not update gallery document when id does not exist", () => {
+    setGalleryDocuments([baseDoc]);
+    const prevState = { ...recResourceFileTransferStore.state };
+    updateGalleryDocument("non-existent", { name: "should-not-update.pdf" });
+    expect(recResourceFileTransferStore.state).toEqual(prevState);
   });
 });

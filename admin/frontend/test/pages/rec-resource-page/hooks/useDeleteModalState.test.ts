@@ -1,20 +1,19 @@
 import { useDeleteModalState } from "@/pages/rec-resource-page/hooks/useDeleteModalState";
 import * as store from "@/pages/rec-resource-page/store/recResourceFileTransferStore";
 import { GalleryFile } from "@/pages/rec-resource-page/types";
+import { useStore } from "@tanstack/react-store";
 import { renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// Mock the store
-const mockUseStore = vi.fn();
-vi.mock("@tanstack/react-store", () => ({
-  useStore: mockUseStore,
-}));
-
+// Mock the store modules
+vi.mock("@tanstack/react-store");
 vi.mock("@/pages/rec-resource-page/store/recResourceFileTransferStore", () => ({
   recResourceFileTransferStore: {},
   setDocToDelete: vi.fn(),
   setShowDeleteModal: vi.fn(),
 }));
+
+const mockUseStore = vi.mocked(useStore);
 
 const mockStoreState = {
   showDeleteModal: false,
