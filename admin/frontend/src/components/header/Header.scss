@@ -16,17 +16,22 @@
 .logo {
   width: 200px;
   height: 50px;
-  @media (max-width: $smBreakpoint) {
-    display: none;
-  }
 }
 
 .logo-mobile {
-  width: 200px;
-  height: 50px;
-  @media (min-width: $smBreakpoint) {
-    display: none;
-  }
+  width: 44px;
+  height: 52px;
+}
+
+.btn-outline-primary,
+.btn-outline-primary:hover,
+.btn-outline-primary:active,
+.btn-outline-primary:visited {
+  color: $colorWhite;
+  border-color: $colorWhite;
+  width: 44px;
+  height: 42px;
+  background-color: transparent;
 }
 
 .admin-title {
@@ -37,7 +42,7 @@
   line-height: 39.82px;
   vertical-align: bottom;
   margin-left: 20px;
-  @media (min-width: $lgBreakpoint) {
-    padding: $pagePaddingLg;
+  @media (max-width: 767px) {
+    width: 200px;
   }
 }
