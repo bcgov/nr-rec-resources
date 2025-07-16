@@ -19,9 +19,11 @@ function App() {
       <AuthProvider>
         <AuthGuard>
           <Header />
-          <PageLayout>
-            <NotificationBar />
-          </PageLayout>
+
+          {/* spacer for the notification bar */}
+          <div className="mt-1" />
+
+          <NotificationBar />
           <BrowserRouter>
             <Routes>
               <Route path={ROUTES.LANDING} element={<LandingPage />} />

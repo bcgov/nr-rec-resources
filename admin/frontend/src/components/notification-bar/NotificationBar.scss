@@ -1,8 +1,11 @@
+@import "@/styles/global.scss";
+
 .notification-bar-container {
   position: relative;
   top: 5px;
   z-index: 9999;
   float: none;
+  @include page-container-base;
 
   $border-radius: 12px;
 

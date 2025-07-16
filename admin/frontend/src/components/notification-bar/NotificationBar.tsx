@@ -3,7 +3,7 @@ import {
   removeNotification,
 } from "@/store/notificationStore";
 import { useStore } from "@tanstack/react-store";
-import { Stack } from "react-bootstrap";
+import { Stack, ToastContainer } from "react-bootstrap";
 import "./NotificationBar.scss";
 import { NotificationToast } from "./NotificationToast";
 
@@ -20,14 +20,19 @@ export function NotificationBar() {
   if (!messages.length) return null;
 
   return (
-    <Stack direction="vertical" className="notification-bar-container" gap={1}>
-      {messages.map((msg) => (
-        <NotificationToast
-          key={msg.id}
-          msg={msg}
-          onClose={() => removeNotification(msg.id)}
-        />
-      ))}
-    </Stack>
+    <ToastContainer
+      containerPosition="sticky"
+      className="notification-bar-container"
+    >
+      <Stack direction="vertical" gap={1}>
+        {messages.map((msg) => (
+          <NotificationToast
+            key={msg.id}
+            msg={msg}
+            onClose={() => removeNotification(msg.id)}
+          />
+        ))}
+      </Stack>
+    </ToastContainer>
   );
 }
