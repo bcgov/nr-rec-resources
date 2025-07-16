@@ -5,6 +5,7 @@ import {
 } from "@/store/notificationStore";
 import { useStore } from "@tanstack/react-store";
 import { useCallback } from "react";
+import { formatDocumentDate } from "../helpers";
 import { recResourceDetailStore } from "../store/recResourceDetailStore";
 import {
   addPendingDoc,
@@ -71,7 +72,7 @@ export function useDocumentUpload() {
       const tempDoc: GalleryDocument = {
         id: tempId,
         name: uploadFileName,
-        date: new Date().toISOString(),
+        date: formatDocumentDate(new Date().toISOString()),
         url: "",
         extension: selectedFile.name.split(".").pop()!,
         isUploading: true,
