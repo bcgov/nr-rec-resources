@@ -4,8 +4,21 @@
   z-index: 9999;
   float: none;
 
+  $border-radius: 12px;
+
+  &__toast {
+    width: 100%;
+    border-radius: $border-radius;
+    border: none;
+    box-shadow: none;
+  }
+
+  &__toast-body {
+    padding: unset;
+  }
+
   &__alert {
-    border-radius: 12px;
+    border-radius: $border-radius;
     margin-bottom: unset;
   }
 }

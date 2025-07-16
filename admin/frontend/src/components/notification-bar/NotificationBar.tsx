@@ -12,8 +12,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useStore } from "@tanstack/react-store";
-import { useEffect } from "react";
-import { Alert, Stack } from "react-bootstrap";
+import { Alert, Stack, Toast } from "react-bootstrap";
 import "./NotificationBar.scss";
 
 // Map message variants to FontAwesome icon
@@ -34,38 +33,36 @@ const VARIANT_ICON_MAP: Record<NotificationMessageVariant, IconDefinition> = {
 export function NotificationBar() {
   const { messages } = useStore(notificationStore);
 
-  useEffect(() => {
-    if (!messages.length) return;
-    // Set up a timer for each message that should auto-dismiss
-    const timers = messages
-      .filter((msg) => msg.autoDismiss !== false)
-      .map(({ id, timeout = 3000 }) =>
-        setTimeout(() => removeNotification(id), timeout),
-      );
-    return () => {
-      timers.forEach(clearTimeout);
-    };
-  }, [messages]);
-
   if (!messages.length) return null;
 
   return (
     <Stack direction="vertical" className="notification-bar-container" gap={1}>
-      {messages.map(({ id, message, variant }) => {
+      {messages.map(({ id, message, variant, timeout }) => {
         const icon = VARIANT_ICON_MAP[variant];
+        const onClose = () => removeNotification(id);
         return (
-          <Alert
+          <Toast
+            autohide
+            delay={timeout}
             key={id}
-            variant={variant}
-            dismissible
-            onClose={() => removeNotification(id)}
-            className="notification-bar-container__alert"
+            onClose={onClose}
+            className="notification-bar-container__toast"
           >
-            <Stack direction="horizontal" gap={2}>
-              <FontAwesomeIcon icon={icon} />
-              <span>{message}</span>
-            </Stack>
-          </Alert>
+            <Toast.Body className="notification-bar-container__toast-body">
+              <Alert
+                key={id}
+                variant={variant}
+                dismissible
+                onClose={onClose}
+                className="notification-bar-container__alert"
+              >
+                <Stack direction="horizontal" gap={2}>
+                  <FontAwesomeIcon icon={icon} />
+                  <span>{message}</span>
+                </Stack>
+              </Alert>
+            </Toast.Body>
+          </Toast>
         );
       })}
     </Stack>
