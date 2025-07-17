@@ -29,6 +29,7 @@
     - [Prerequisites](#client-library-prerequisites)
     - [Generate TypeScript Axios Client](#generate-typescript-axios-client)
   - [Generating Prisma Schema and Client](#generating-prisma-schema-and-client)
+  - [Shared Library](shared/README.md)
 - [Pre-commit hooks](#pre-commit-hooks)
   - [Skipping pre-commit hooks](#skipping-pre-commit-hooks)
   - [Running pre-commit on all files](#running-pre-commit-on-all-files)

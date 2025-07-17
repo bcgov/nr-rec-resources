@@ -1,5 +1,5 @@
 {
-  "author": "BC Government Forestry Suite of Applications Starter Template",
+  "name": "public-backend",
   "license": "Apache-2.0",
   "main": "index.js",
   "scripts": {
@@ -31,7 +31,7 @@
     "@nestjs/common": "^11.0.14",
     "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^11.0.6",
-    "@nestjs/platform-express": "^11.0.6",
+    "@nestjs/platform-express": "^11.1.3",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/swagger": "^11.0.3",
     "@nestjs/terminus": "^11.0.0",

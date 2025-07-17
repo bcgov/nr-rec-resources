@@ -54,10 +54,15 @@ jobs:
       app: public
     secrets: inherit
 
+  test-shared:
+    name: Run shared tests
+    needs: build-containers
+    uses: ./.github/workflows/.shared.yml
+
   review-and-deploy-admin:
     if: github.ref_name == 'main' || github.head_ref == 'main'
     name: Review and deploy Admin app
-    needs: [test-admin, test-public]
+    needs: [test-admin, test-public, test-shared]
     uses: ./.github/workflows/.review-and-deploy.yml
     with:
       app: admin
@@ -67,7 +72,7 @@ jobs:
   review-and-deploy-public:
     if: github.ref_name == 'main' || github.head_ref == 'main'
     name: Review and deploy Public app
-    needs: [test-admin, test-public]
+    needs: [test-admin, test-public, test-shared]
     uses: ./.github/workflows/.review-and-deploy.yml
     with:
       app: public

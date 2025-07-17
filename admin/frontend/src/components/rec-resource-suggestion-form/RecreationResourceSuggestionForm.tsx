@@ -5,8 +5,8 @@ import {
   isValidRecreationResourceSearchTerm,
   useGetRecreationResourceSuggestions,
 } from "@/services/hooks/recreation-resource-admin/useGetRecreationResourceSuggestions";
-import { RecreationResourceSuggestionTypeahead } from "@/components/recreation-resource-suggestion-typeahead/RecreationResourceSuggestionTypeahead";
-import { RecreationResourceSuggestion } from "@/components/recreation-resource-suggestion-typeahead/types";
+import { SuggestionTypeahead } from "@shared/components/suggestion-typeahead/SuggestionTypeahead";
+import { RecreationResourceSuggestion } from "@shared/components/suggestion-typeahead/types";
 import { useNavigate } from "react-router";
 import "./RecreationResourceSuggestionForm.scss";
 import { Stack } from "react-bootstrap";
@@ -61,7 +61,7 @@ export const RecreationResourceSuggestionForm = () => {
               Search by name or number
             </span>
           </Form.Label>
-          <RecreationResourceSuggestionTypeahead
+          <SuggestionTypeahead
             onChange={handleSuggestionChange}
             isLoading={isFetching}
             error={error}

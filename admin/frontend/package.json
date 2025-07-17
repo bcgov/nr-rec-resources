@@ -1,5 +1,5 @@
 {
-  "name": "frontend",
+  "name": "admin-frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -30,7 +30,8 @@
     "react-bootstrap": "^2.10.10",
     "react-bootstrap-typeahead": "^6.4.1",
     "react-dom": "^19.1.0",
-    "react-router-dom": "^6.22.3"
+    "react-router-dom": "^6.22.3",
+    "@rst/shared": "file:../../shared"
   },
   "devDependencies": {
     "@eslint/compat": "^1.2.4",
