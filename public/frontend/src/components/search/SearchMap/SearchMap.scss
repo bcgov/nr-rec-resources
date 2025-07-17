@@ -26,12 +26,19 @@
   position: fixed;
   top: 10px;
   left: 10px;
+  right: 10px;
   z-index: 10000;
   padding: 0.5rem;
   border-radius: 4px;
 
   .search-form {
     margin-bottom: 1em;
+  }
+
+  @include media-breakpoint-up(sm) {
+    min-width: fit-content;
+    max-width: fit-content;
+    right: unset;
   }
 
   // Prevent issue where features aren't clickable under the controls container
