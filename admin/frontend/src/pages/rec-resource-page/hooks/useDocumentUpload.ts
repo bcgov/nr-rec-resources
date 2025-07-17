@@ -66,7 +66,9 @@ export function useDocumentUpload() {
       uploadFileName: string,
       onSuccess?: () => void,
     ) => {
-      if (!selectedFile || !uploadFileName) return;
+      if (!recResource?.rec_resource_id || !selectedFile || !uploadFileName) {
+        return;
+      }
       const tempId = `pending-${Date.now()}`;
       const tempDoc: GalleryDocument = {
         id: tempId,
@@ -80,7 +82,7 @@ export function useDocumentUpload() {
       addPendingDoc(tempDoc);
 
       await doUpload({
-        rec_resource_id: recResource?.rec_resource_id!,
+        rec_resource_id: recResource.rec_resource_id,
         file: selectedFile,
         title: uploadFileName,
         tempId,
@@ -93,7 +95,7 @@ export function useDocumentUpload() {
   // Handle upload retry (for failed uploads)
   const handleUploadRetry = useCallback(
     async (pendingDoc: GalleryFile, onSuccess?: () => void) => {
-      if (!pendingDoc.pendingFile) {
+      if (!recResource?.rec_resource_id || !pendingDoc.pendingFile) {
         return;
       }
       updatePendingDoc(pendingDoc.id, {
@@ -101,7 +103,7 @@ export function useDocumentUpload() {
         uploadFailed: false,
       });
       await doUpload({
-        rec_resource_id: recResource?.rec_resource_id!,
+        rec_resource_id: recResource.rec_resource_id,
         file: pendingDoc.pendingFile,
         title: pendingDoc.name,
         tempId: pendingDoc.id,

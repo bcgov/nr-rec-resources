@@ -274,7 +274,7 @@ describe("useDocumentUpload", () => {
     });
   });
 
-  it("works with undefined recResource", async () => {
+  it("does nothing when recResource is undefined", async () => {
     // Mock useStore to return undefined recResource
     vi.mocked(useStore).mockReturnValue({
       recResource: undefined,
@@ -290,10 +290,7 @@ describe("useDocumentUpload", () => {
       await result.current.handleUpload(file, "test", onSuccess);
     });
 
-    expect(mockUploadMutation).toHaveBeenCalledWith({
-      recResourceId: undefined,
-      file,
-      title: "test",
-    });
+    expect(mockUploadMutation).not.toHaveBeenCalled();
+    expect(store.addPendingDoc).not.toHaveBeenCalled();
   });
 });

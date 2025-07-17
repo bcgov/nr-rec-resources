@@ -44,7 +44,7 @@ vi.mock(
 vi.mock(
   "@/pages/rec-resource-page/components/RecResourceFileSection/GalleryFileCard/DropdownActionItem",
   () => ({
-    DropdownActionItem: ({ icon, label, onClick }: any) => (
+    DropdownActionItem: ({ label, onClick }: any) => (
       <div className="dropdown-item" onClick={onClick}>
         {label}
       </div>
