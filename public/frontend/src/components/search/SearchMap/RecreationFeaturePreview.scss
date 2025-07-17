@@ -1,0 +1,37 @@
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins/breakpoints';
+
+.recreation-feature-preview {
+  position: relative;
+
+  .rec-resource-card {
+    position: absolute;
+    top: calc(100% + 2.5rem);
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 90vw;
+    max-width: 90vw;
+    max-height: 48vh;
+
+    .activities-list {
+      display: none;
+    }
+
+    .card-image-container {
+      overflow: hidden;
+    }
+  }
+
+  @include media-breakpoint-up(sm) {
+    .rec-resource-card {
+      position: static;
+      left: auto;
+      transform: none;
+      min-width: auto;
+      max-width: none;
+      width: auto;
+      z-index: auto;
+    }
+  }
+}
