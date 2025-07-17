@@ -1,4 +1,5 @@
 {
+  "private": true,
   "scripts": {
     "prettier-fix": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "generate-api": "npx openapi-generator-cli generate -i http://localhost:8000/api/docs-json -g typescript-fetch -o public/frontend/src/service/recreation-resource --skip-validate-spec --additional-properties=modelPropertyNaming=original",
@@ -11,7 +12,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.15.0",
-    "@openapitools/openapi-generator-cli": "^2.16.3",
+    "@openapitools/openapi-generator-cli": "^2.21.1",
     "@types/k6": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^8.16.0",
     "@typescript-eslint/parser": "^8.16.0",
@@ -23,9 +24,8 @@
     "eslint-plugin-promise": "^7.2.1",
     "globals": "^16.0.0",
     "k6": "^0.0.0",
-    "prettier": "^3.4.1"
-  },
-  "dependencies": {
-    "react-bootstrap": "^2.10.7"
+    "prettier": "^3.4.1",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.2.4"
   }
 }

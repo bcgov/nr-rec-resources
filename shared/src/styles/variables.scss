@@ -1,0 +1,41 @@
+// typography
+$globalFont: "BC Sans", "Noto Sans", Verdana, Arial, sans-serif;
+$fontAwesome: "Font Awesome 5 Free"; // icon font
+$bodyFont: 1rem;
+$headingFont: 2rem;
+
+// colours
+$colorBlack: #000;
+$colorWhite: #fff;
+$colorGold: #fcba19;
+$colorGoldDark: #a5792b;
+$colorRed: #d8292f;
+$colorRedLight: #fcf0f0;
+$colorBlue: #003366;
+$colorBlueMed: #2464a4;
+$colorBlueLight: #c7e3fd;
+$colorIceBlue: #ecf6ff;
+$colorGrey: #1a1a1a;
+$colorGreyMed: #656565;
+$colorGreyLight: #c7c7c7;
+$colorBackgroundGrey: #f2f2f2;
+$colorBrown: #c1b59b;
+$colorBrownDark: #736c5d;
+$colorBrownMed: #e6e1d7;
+$colorBrownLight: #f2f0eb;
+$colorAmber: #f8bb47;
+$colorGreen: #0f3c08;
+$colorGreenLight: #4f8747;
+
+// breakpoints
+$smBreakpoint: 576px;
+$mdBreakpoint: 768px;
+$lgBreakpoint: 992px;
+$xlBreakpoint: 1200px;
+$xxlBreakpoint: 1400px;
+
+$pagePadding: 1rem;
+$pagePaddingLg: 1rem;
+$pageMaxWidth: 1080px;
+
+$landAckBoxHeight: clamp(120px, calc(192px - 3.75vw), 180px);

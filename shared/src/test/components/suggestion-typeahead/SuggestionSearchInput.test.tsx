@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { SuggestionSearchInput } from "@/components/recreation-resource-suggestion-typeahead/SuggestionSearchInput";
+import { SuggestionSearchInput } from "@shared/components/suggestion-typeahead/SuggestionSearchInput";
 
 describe("SuggestionSearchInput", () => {
   it("renders input and search icon", () => {
