@@ -11,13 +11,14 @@ import {
 import searchResultsStore from '@/store/searchResults';
 import FilterGroupMobile from '@/components/search/filters/FilterGroupMobile';
 import '@/components/search/filters/Filters.scss';
+import '@/components/search/SearchMap/SearchMapFilterMenu.scss';
 
 interface FilterMenuMobileProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }
 
-const FilterMenuMobile = ({ isOpen, setIsOpen }: FilterMenuMobileProps) => {
+const SearchMapFilterMenu = ({ isOpen, setIsOpen }: FilterMenuMobileProps) => {
   const clearFilters = useClearFilters();
   const { filters: menuContent, totalCount } = useStore(searchResultsStore);
 
@@ -52,8 +53,8 @@ const FilterMenuMobile = ({ isOpen, setIsOpen }: FilterMenuMobileProps) => {
     <Modal
       show={isOpen}
       onHide={handleCloseFilter}
-      aria-labelledby="filter-modal"
-      className="filter-modal d-block d-lg-none"
+      aria-labelledby="search-map-filter-modal"
+      className="filter-modal"
       scrollable
     >
       <Modal.Body className="filter-modal-content">
@@ -110,4 +111,4 @@ const FilterMenuMobile = ({ isOpen, setIsOpen }: FilterMenuMobileProps) => {
   );
 };
 
-export default FilterMenuMobile;
+export default SearchMapFilterMenu;

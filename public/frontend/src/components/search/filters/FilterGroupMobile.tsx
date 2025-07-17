@@ -23,9 +23,9 @@ const FilterGroupMobile = ({
 }: FilterGroupMobileProps) => {
   const handleOpen = () => onOpen(param);
   return (
-    <div key={label} className="mobile-filter-options">
+    <div key={label} className="filter-options">
       <button
-        className="mobile-filter-option-label pointer p-3"
+        className="filter-option-label pointer p-3"
         onClick={handleOpen}
         tabIndex={tabIndex}
         onKeyDown={handleOpen}
