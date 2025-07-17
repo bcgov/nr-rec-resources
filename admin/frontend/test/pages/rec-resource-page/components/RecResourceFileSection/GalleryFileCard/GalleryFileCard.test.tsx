@@ -171,22 +171,31 @@ describe("GalleryFileCard", () => {
   });
 
   describe("Error State", () => {
-    it("displays error state with retry option", () => {
+    it("displays error state with retry and dismiss options", () => {
       const mockHandler = vi.fn();
       const getFileActionHandler = vi.fn(() => mockHandler);
       renderCard({ uploadFailed: true }, getFileActionHandler);
 
       expect(screen.getByText("Upload Failed")).toBeInTheDocument();
 
+      // Test retry button
       fireEvent.click(screen.getByLabelText("Retry"));
       expect(getFileActionHandler).toHaveBeenCalledWith(
         "retry",
         expect.any(Object),
       );
-      expect(mockHandler).toHaveBeenCalled();
+
+      // Test dismiss button
+      fireEvent.click(screen.getByLabelText("Dismiss"));
+      expect(getFileActionHandler).toHaveBeenCalledWith(
+        "dismiss",
+        expect.any(Object),
+      );
+
+      expect(mockHandler).toHaveBeenCalledTimes(2);
     });
 
-    it("shows retry in dropdown for failed uploads", () => {
+    it("shows retry and dismiss in dropdown for failed uploads", () => {
       const mockHandler = vi.fn();
       const getFileActionHandler = vi.fn(() => mockHandler);
       renderCard({ uploadFailed: true }, getFileActionHandler);
@@ -194,6 +203,7 @@ describe("GalleryFileCard", () => {
       const menuButton = screen.getByLabelText("File actions menu");
       fireEvent.click(menuButton);
 
+      // Test retry dropdown item
       const retryItem = screen
         .getAllByText("Retry")
         .find((el) => el.closest(".dropdown-item"));
@@ -203,9 +213,20 @@ describe("GalleryFileCard", () => {
         "retry",
         expect.any(Object),
       );
-      expect(mockHandler).toHaveBeenCalled();
-    });
 
+      // Test dismiss dropdown item
+      const dismissItem = screen
+        .getAllByText("Dismiss")
+        .find((el) => el.closest(".dropdown-item"));
+      fireEvent.click(dismissItem!);
+
+      expect(getFileActionHandler).toHaveBeenCalledWith(
+        "dismiss",
+        expect.any(Object),
+      );
+
+      expect(mockHandler).toHaveBeenCalledTimes(2);
+    });
     it("applies error styling", () => {
       renderCard({ uploadFailed: true });
 

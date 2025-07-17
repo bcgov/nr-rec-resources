@@ -16,6 +16,7 @@ const mockShowDeleteModalForDoc = vi.fn();
 const mockHideDeleteModal = vi.fn();
 const mockHandleAddPdfFileClick = vi.fn();
 const mockResetUploadState = vi.fn();
+const mockRemovePendingDoc = vi.fn();
 
 // Mock store state - will be updated in tests
 const mockStoreState: {
@@ -66,6 +67,7 @@ vi.mock("@/pages/rec-resource-page/store/recResourceFileTransferStore", () => ({
   hideDeleteModal: () => mockHideDeleteModal(),
   showDeleteModalForDoc: (file: any) => mockShowDeleteModalForDoc(file),
   resetUploadState: () => mockResetUploadState(),
+  removePendingDoc: (id: string) => mockRemovePendingDoc(id),
 }));
 
 vi.mock("@tanstack/react-store", () => ({
@@ -98,6 +100,10 @@ describe("useGalleryActions", () => {
       url: "http://example.com/test.pdf",
       extension: "pdf",
     };
+
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
 
     it("handles view action by opening window", () => {
       const mockOpen = vi.spyOn(window, "open").mockImplementation(() => null);
@@ -136,6 +142,16 @@ describe("useGalleryActions", () => {
       expect(mockShowDeleteModalForDoc).toHaveBeenCalledWith(testFile);
     });
 
+    it("handles dismiss action by removing pending doc", () => {
+      const { result } = renderHook(() => useGalleryActions());
+      const onSuccess = vi.fn();
+
+      result.current.handleFileAction("dismiss", testFile, onSuccess);
+
+      expect(mockRemovePendingDoc).toHaveBeenCalledWith(testFile.id);
+      expect(onSuccess).not.toHaveBeenCalled();
+    });
+
     it("handles unknown action gracefully", () => {
       const { result } = renderHook(() => useGalleryActions());
 
@@ -150,6 +166,7 @@ describe("useGalleryActions", () => {
       expect(mockDownloadMutation).not.toHaveBeenCalled();
       expect(mockHandleUploadRetry).not.toHaveBeenCalled();
       expect(mockShowDeleteModalForDoc).not.toHaveBeenCalled();
+      expect(mockRemovePendingDoc).not.toHaveBeenCalled();
     });
   });
 

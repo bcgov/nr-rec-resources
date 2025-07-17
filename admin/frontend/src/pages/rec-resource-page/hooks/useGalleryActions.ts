@@ -4,6 +4,7 @@ import { handleAddFileClick, handleAddPdfFileClick } from "../helpers";
 import {
   hideDeleteModal,
   recResourceFileTransferStore,
+  removePendingDoc,
   resetUploadState,
   showDeleteModalForDoc,
 } from "../store/recResourceFileTransferStore";
@@ -40,6 +41,9 @@ export function useGalleryActions() {
           break;
         case "delete":
           showDeleteModalForDoc(file);
+          break;
+        case "dismiss":
+          removePendingDoc(file.id);
           break;
 
         default:

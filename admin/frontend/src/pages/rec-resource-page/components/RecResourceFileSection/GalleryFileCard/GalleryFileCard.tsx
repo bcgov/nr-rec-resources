@@ -1,8 +1,10 @@
 import { ClampLines } from "@/components/clamp-lines";
 import {
+  faCancel,
   faEllipsisV,
   faFilePdf,
   faRedo,
+  faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import clsx from "clsx";
@@ -64,6 +66,11 @@ export const GalleryFileCard = <T extends GalleryFile>({
               icon={faRedo}
               label="Retry"
               onClick={getFileActionHandler("retry", file)}
+            />
+            <ActionButton
+              icon={faCancel}
+              label="Dismiss"
+              onClick={getFileActionHandler("dismiss", file)}
             />
           </div>
         </Stack>
@@ -149,11 +156,18 @@ export const GalleryFileCard = <T extends GalleryFile>({
 
               <Dropdown.Menu>
                 {isUploadError ? (
-                  <DropdownActionItem
-                    icon={faRedo}
-                    label="Retry"
-                    onClick={getFileActionHandler("retry", file)}
-                  />
+                  <>
+                    <DropdownActionItem
+                      icon={faRedo}
+                      label="Retry"
+                      onClick={getFileActionHandler("retry", file)}
+                    />
+                    <DropdownActionItem
+                      icon={faTimes}
+                      label="Dismiss"
+                      onClick={getFileActionHandler("dismiss", file)}
+                    />
+                  </>
                 ) : (
                   CARD_ACTIONS.map(({ key, icon, label }) => (
                     <DropdownActionItem

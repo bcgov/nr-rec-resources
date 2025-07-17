@@ -19,7 +19,12 @@ export interface GalleryDocument extends GalleryFile {
   doc_code_description?: string;
 }
 
-export type GalleryFileAction = "view" | "download" | "retry" | "delete";
+export type GalleryFileAction =
+  | "view"
+  | "download"
+  | "retry"
+  | "delete"
+  | "dismiss";
 
 export type GalleryGeneralAction =
   | "upload"

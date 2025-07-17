@@ -15,7 +15,7 @@ export async function handleApiError(error: unknown): Promise<ApiErrorInfo> {
   // Handle ResponseError (from your API client)
   if (error instanceof ResponseError) {
     let message = "An error occurred";
-    let statusCode = error.response.status;
+    const statusCode = error.response.status;
 
     try {
       // Try to extract message from response body
