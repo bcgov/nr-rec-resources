@@ -12,6 +12,8 @@ import { useAuthContext } from "@/contexts/AuthContext";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import "./Header.scss";
 import { Avatar } from "@/components/avatar/Avatar";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBars } from "@fortawesome/free-solid-svg-icons";
 
 /**
  * A custom menu toggle component for the header dropdown.
@@ -42,19 +44,7 @@ const HeaderMenuToggle = forwardRef<
   >
     {props.isMobile ? (
       <button type="button" className="btn btn-outline-primary">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          fill="currentColor"
-          className="bi bi-list"
-          viewBox="0 0 16 16"
-        >
-          <path
-            fillRule="evenodd"
-            d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"
-          ></path>
-        </svg>
+        <FontAwesomeIcon icon={faBars} />
       </button>
     ) : (
       <Avatar name={props.name} size={50} tooltip={false} />
