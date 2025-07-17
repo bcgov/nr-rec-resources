@@ -9,8 +9,11 @@ import {
 } from "react-bootstrap";
 import { forwardRef, KeyboardEvent, MouseEvent } from "react";
 import { useAuthContext } from "@/contexts/AuthContext";
+import useMediaQuery from "@/hooks/useMediaQuery";
 import "./Header.scss";
 import { Avatar } from "@/components/avatar/Avatar";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBars } from "@fortawesome/free-solid-svg-icons";
 
 /**
  * A custom menu toggle component for the header dropdown.
@@ -21,6 +24,7 @@ const HeaderMenuToggle = forwardRef<
     onClick: (event: MouseEvent | KeyboardEvent) => void;
     className?: string;
     name: string;
+    isMobile: boolean;
   }
 >((props, ref) => (
   <div
@@ -38,21 +42,34 @@ const HeaderMenuToggle = forwardRef<
       }
     }}
   >
-    <Avatar name={props.name} size={50} tooltip={false} />
+    {props.isMobile ? (
+      <button type="button" className="btn btn-outline-primary">
+        <FontAwesomeIcon icon={faBars} />
+      </button>
+    ) : (
+      <Avatar name={props.name} size={50} tooltip={false} />
+    )}
   </div>
 ));
 
 /**
  * Renders the HeaderMenuToggle with the user's full name.
  */
-const renderMenuToggle = (fullName: string) =>
+const renderMenuToggle = (fullName: string, isMobile: boolean) =>
   forwardRef<
     HTMLDivElement,
     {
       onClick: (event: MouseEvent | KeyboardEvent) => void;
       className?: string;
     }
-  >((props, ref) => <HeaderMenuToggle {...props} ref={ref} name={fullName} />);
+  >((props, ref) => (
+    <HeaderMenuToggle
+      {...props}
+      ref={ref}
+      name={fullName}
+      isMobile={isMobile}
+    />
+  ));
 
 /**
  * The Header component renders the top-level header with a welcome message and a dropdown menu.
@@ -64,25 +81,30 @@ const renderMenuToggle = (fullName: string) =>
 export const Header = () => {
   const { user, authService } = useAuthContext();
   const fullName = authService.getUserFullName();
+  const isMobile = useMediaQuery("(max-width: 767px)");
   return (
     <div className={"header-container"}>
       <BCGovHeader
         logoImage={
-          <Image width="200px" height="50px" src="/images/RST_nav_logo.svg" />
+          isMobile ? (
+            <Image src="/images/rst-mobile.svg" className="logo-mobile" />
+          ) : (
+            <Image src="/images/RST_nav_logo.svg" className="logo" />
+          )
         }
       >
+        <div className="admin-title">Admin Tool</div>
         <Stack
           direction={"horizontal"}
           gap={3}
-          className="w-100 d-flex justify-content-end align-items-center"
+          className={`${isMobile ? "w-25" : "w-100"} d-flex justify-content-end align-items-center`}
         >
           {user && (
             <div className="d-none d-md-block full-name">{fullName}</div>
           )}
-
           <Dropdown>
             <DropdownToggle
-              as={renderMenuToggle(fullName)} // use the renderMenuToggle function
+              as={renderMenuToggle(fullName, isMobile)} // use the renderMenuToggle function
               id="dropdown-basic"
             />
             <DropdownMenu>
