@@ -1,4 +1,5 @@
 import { useUploadResourceDocument } from "@/services/hooks/recreation-resource-admin/useUploadResourceDocument";
+import { handleApiError } from "@/services/utils/errorHandler";
 import {
   addErrorNotification,
   addSuccessNotification,
@@ -46,9 +47,10 @@ export function useDocumentUpload() {
         addSuccessNotification(`File "${title}" uploaded successfully.`);
         removePendingDoc(tempId);
         onSuccess?.();
-      } catch {
+      } catch (error: unknown) {
+        const errorInfo = await handleApiError(error);
         addErrorNotification(
-          `Failed to upload file "${title}". Please try again.`,
+          `${errorInfo.statusCode} - Failed to upload file "${title}": ${errorInfo.message}. Please try again.`,
         );
         updatePendingDoc(tempId, {
           isUploading: false,

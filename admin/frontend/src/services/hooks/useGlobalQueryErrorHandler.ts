@@ -1,7 +1,7 @@
-import { useEffect } from "react";
-import { QueryClient } from "@tanstack/react-query";
-import { ResponseError } from "@/services/recreation-resource-admin";
+import { handleApiError } from "@/services/utils/errorHandler";
 import { addErrorNotification } from "@/store/notificationStore";
+import { QueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 
 /**
  * Global error handler for React Query errors.
@@ -10,24 +10,18 @@ import { addErrorNotification } from "@/store/notificationStore";
  */
 export function useGlobalQueryErrorHandler(queryClient: QueryClient) {
   useEffect(() => {
-    const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
+    const unsubscribe = queryClient.getQueryCache().subscribe(async (event) => {
       if (
         event.query.state.status === "error" &&
-        event.query.state.fetchStatus === "idle" &&
-        event.query.state.error instanceof ResponseError
+        event.query.state.fetchStatus === "idle"
       ) {
-        const status = event.query.state.error.response.status;
-        const toastId = `${status}-error-${JSON.stringify(event.query.queryKey)}`;
-        if (status === 401) {
-          addErrorNotification(
-            "401 -  Unauthorized access. Please log in again or contact support.",
-            toastId,
-          );
-        } else if (status === 403) {
-          addErrorNotification(
-            "403 - Forbidden. You do not have permission to perform this action.",
-            toastId,
-          );
+        const { statusCode, message, isAuthError } = await handleApiError(
+          event.query.state.error,
+        );
+
+        // Only show notifications for auth errors in global handler
+        if (isAuthError) {
+          addErrorNotification(`${statusCode} - ${message}`);
         }
       }
     });

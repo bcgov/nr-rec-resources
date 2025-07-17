@@ -260,6 +260,7 @@ describe("BaseFileModal", () => {
           {...defaultProps}
           confirmButtonText="Delete"
           confirmButtonIcon={faTrash}
+          confirmButtonVariant="danger"
         />,
         { wrapper: reactQueryWrapper },
       );

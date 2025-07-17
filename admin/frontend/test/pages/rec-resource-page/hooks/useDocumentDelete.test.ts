@@ -49,8 +49,13 @@ vi.mock("@/store/notificationStore", () => ({
   addSuccessNotification: vi.fn(),
 }));
 
+vi.mock("@/services/utils/errorHandler", () => ({
+  handleApiError: vi.fn(),
+}));
+
 // Import mocked modules for type safety
 import { useDeleteResourceDocument } from "@/services/hooks/recreation-resource-admin/useDeleteResourceDocument";
+import { handleApiError } from "@/services/utils/errorHandler";
 import { useStore } from "@tanstack/react-store";
 
 const mockDeleteMutation = vi.fn();
@@ -86,6 +91,14 @@ describe("useDocumentDelete", () => {
       mutateAsync: mockDeleteMutation,
       isPending: false,
     } as any);
+
+    // Mock handleApiError to return expected error format
+    vi.mocked(handleApiError).mockResolvedValue({
+      statusCode: 500,
+      message: "Delete failed",
+      isResponseError: false,
+      isAuthError: false,
+    });
   });
 
   it("returns delete handlers and pending state", () => {
@@ -165,7 +178,7 @@ describe("useDocumentDelete", () => {
 
       // Verify error notification was shown
       expect(notificationStore.addErrorNotification).toHaveBeenCalledWith(
-        `Failed to delete document "${mockDocument.name}". Please try again.`,
+        `500 - Failed to delete document "${mockDocument.name}": Delete failed. Please try again.`,
       );
 
       // Verify success callback was not called

@@ -4,7 +4,7 @@ import { isImageFile } from "@/utils/imageUtils";
 import { faFilePdf, IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FC, ReactNode } from "react";
-import { Alert, AlertProps, Modal, Stack } from "react-bootstrap";
+import { Alert, AlertProps, ButtonProps, Modal, Stack } from "react-bootstrap";
 import "./BaseFileModal.scss";
 
 interface BaseFileModalProps {
@@ -26,6 +26,7 @@ interface BaseFileModalProps {
   onConfirm?: () => void;
   confirmButtonText: string;
   confirmButtonIcon: IconDefinition;
+  confirmButtonVariant?: ButtonProps["variant"];
 }
 
 export const BaseFileModal: FC<BaseFileModalProps> = ({
@@ -41,6 +42,7 @@ export const BaseFileModal: FC<BaseFileModalProps> = ({
   onConfirm,
   confirmButtonIcon,
   confirmButtonText,
+  confirmButtonVariant,
   className = "",
 }) => {
   if (!show) return null;
@@ -132,7 +134,7 @@ export const BaseFileModal: FC<BaseFileModalProps> = ({
           Cancel
         </CustomButton>
         <CustomButton
-          variant="danger"
+          variant={confirmButtonVariant}
           onClick={onConfirm}
           leftIcon={<FontAwesomeIcon icon={confirmButtonIcon} />}
         >

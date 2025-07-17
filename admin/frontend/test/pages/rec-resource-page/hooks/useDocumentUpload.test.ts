@@ -38,9 +38,14 @@ vi.mock("@/pages/rec-resource-page/helpers", () => ({
   formatDocumentDate: vi.fn(),
 }));
 
+vi.mock("@/services/utils/errorHandler", () => ({
+  handleApiError: vi.fn(),
+}));
+
 // Import mocked modules for type safety
 import * as helpers from "@/pages/rec-resource-page/helpers";
 import { useUploadResourceDocument } from "@/services/hooks/recreation-resource-admin/useUploadResourceDocument";
+import { handleApiError } from "@/services/utils/errorHandler";
 import { useStore } from "@tanstack/react-store";
 
 const mockUploadMutation = vi.fn();
@@ -64,6 +69,14 @@ describe("useDocumentUpload", () => {
     vi.mocked(helpers.formatDocumentDate).mockReturnValue(
       "Jan 15, 2025, 10:30 AM",
     );
+
+    // Mock handleApiError to return expected error format
+    vi.mocked(handleApiError).mockResolvedValue({
+      statusCode: 500,
+      message: "Upload failed",
+      isResponseError: false,
+      isAuthError: false,
+    });
   });
 
   it("returns upload handlers", () => {
@@ -148,7 +161,7 @@ describe("useDocumentUpload", () => {
 
       // Verify error flow
       expect(notificationStore.addErrorNotification).toHaveBeenCalledWith(
-        `Failed to upload file "${uploadFileName}". Please try again.`,
+        `500 - Failed to upload file "${uploadFileName}": Upload failed. Please try again.`,
       );
       expect(store.updatePendingDoc).toHaveBeenCalledWith(expect.any(String), {
         isUploading: false,
@@ -266,7 +279,9 @@ describe("useDocumentUpload", () => {
       });
 
       // Verify error flow
-      expect(notificationStore.addErrorNotification).toHaveBeenCalled();
+      expect(notificationStore.addErrorNotification).toHaveBeenCalledWith(
+        `500 - Failed to upload file "Test Document": Upload failed. Please try again.`,
+      );
       expect(store.updatePendingDoc).toHaveBeenCalledWith("pending-123", {
         isUploading: false,
         uploadFailed: true,

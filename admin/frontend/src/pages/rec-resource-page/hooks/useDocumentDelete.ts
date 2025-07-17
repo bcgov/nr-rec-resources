@@ -1,4 +1,5 @@
 import { useDeleteResourceDocument } from "@/services/hooks/recreation-resource-admin/useDeleteResourceDocument";
+import { handleApiError } from "@/services/utils/errorHandler";
 import {
   addErrorNotification,
   addSuccessNotification,
@@ -43,9 +44,11 @@ export function useDocumentDelete() {
         );
         setDocToDelete(undefined); // Clear the document to delete
         onSuccess?.();
-      } catch {
+      } catch (error: unknown) {
+        const errorInfo = await handleApiError(error);
+
         addErrorNotification(
-          `Failed to delete document "${document.name}". Please try again.`,
+          `${errorInfo.statusCode} - Failed to delete document "${document.name}": ${errorInfo.message}. Please try again.`,
         );
         updateGalleryDocument(document.id, {
           isDeleting: false,
