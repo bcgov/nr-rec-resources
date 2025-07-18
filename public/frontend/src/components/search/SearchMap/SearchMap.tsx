@@ -68,21 +68,21 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
         minZoom={5.5}
         maxZoom={30}
       />
-      <div className="search-map-view-controls">
+      <div className="search-map-controls">
         <RecreationSearchForm />
-        <SearchViewControls />
-        <FilterMenuSearchMap
-          isOpen={isFilterMenuOpen}
-          setIsOpen={setIsFilterMenuOpen}
-        />
         <Button
-          variant="primary"
-          className="btn filter-menu-button"
+          variant="secondary"
+          className="btn filter-menu-button ml-2"
           onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
           aria-label="Toggle filter menu"
         >
           Filters
         </Button>
+        <SearchViewControls variant="list" />
+        <FilterMenuSearchMap
+          isOpen={isFilterMenuOpen}
+          setIsOpen={setIsFilterMenuOpen}
+        />
       </div>
       <div ref={featurePreviewPopupRef} className="search-map-feature-preview">
         {selectedFeature && (

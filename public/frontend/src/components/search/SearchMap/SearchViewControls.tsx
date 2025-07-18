@@ -1,14 +1,15 @@
 import { useSearchParams } from 'react-router-dom';
-import '@/components/search/SearchMap/SearchViewControls.scss';
+import { Button } from 'react-bootstrap';
 import '@/components/search/filters/Filters.scss';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faList, faMap } from '@fortawesome/free-solid-svg-icons';
 
 interface SearchViewControlsProps {
-  style?: React.CSSProperties;
+  variant: 'list' | 'map';
 }
 
-const SearchViewControls = ({ style }: SearchViewControlsProps) => {
+const SearchViewControls = ({ variant }: SearchViewControlsProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const view = searchParams.get('view') || 'list';
 
   const handleViewChange = (newView: string) => {
     searchParams.set('view', newView);
@@ -16,20 +17,17 @@ const SearchViewControls = ({ style }: SearchViewControlsProps) => {
   };
 
   return (
-    <div className={`search-view-controls d-flex align-items-center ${style}`}>
-      <button
-        className={`search-chip btn me-2 ${view === 'list' ? 'btn-primary' : 'btn-secondary'}`}
-        onClick={() => handleViewChange('list')}
-      >
-        List View
-      </button>
-      <button
-        className={`search-chip btn me-0 ${view === 'map' ? 'btn-primary' : 'btn-secondary'}`}
-        onClick={() => handleViewChange('map')}
-      >
-        Map View
-      </button>
-    </div>
+    <Button
+      className="search-chip btn capitalize h-2 m-0"
+      variant="secondary"
+      onClick={() => handleViewChange(variant)}
+    >
+      <FontAwesomeIcon
+        icon={variant === 'list' ? faList : faMap}
+        className="me-2"
+      />
+      {variant} View
+    </Button>
   );
 };
 

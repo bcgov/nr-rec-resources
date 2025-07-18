@@ -22,8 +22,11 @@
   }
 }
 
-.search-map-view-controls {
+.search-map-controls {
   position: fixed;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
   top: 10px;
   left: 10px;
   right: 10px;
@@ -31,8 +34,9 @@
   padding: 0.5rem;
   border-radius: 4px;
 
-  .search-form {
-    margin-bottom: 1em;
+  @include media-breakpoint-up(md) {
+    flex-direction: row;
+    align-items: center;
   }
 
   @include media-breakpoint-up(sm) {
