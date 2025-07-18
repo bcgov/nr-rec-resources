@@ -11,6 +11,8 @@ import { useZoomToExtent } from '@/components/search/SearchMap/hooks/useZoomToEx
 import searchResultsStore from '@/store/searchResults';
 import RecreationResourcePreview from '@/components/search/SearchMap/RecreationFeaturePreview';
 import FilterMenuSearchMap from '@/components/search/filters/FilterMenuSearchMap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSliders } from '@fortawesome/free-solid-svg-icons';
 import { Button } from 'react-bootstrap';
 import { RecreationSearchForm } from '@/components/recreation-search-form/RecreationSearchForm';
 import '@/components/search/SearchMap/SearchMap.scss';
@@ -70,20 +72,24 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
       />
       <div className="search-map-controls">
         <RecreationSearchForm />
-        <Button
-          variant="secondary"
-          className="btn filter-menu-button ml-2"
-          onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
-          aria-label="Toggle filter menu"
-        >
-          Filters
-        </Button>
-        <SearchViewControls variant="list" />
-        <FilterMenuSearchMap
-          isOpen={isFilterMenuOpen}
-          setIsOpen={setIsFilterMenuOpen}
-        />
+        <div className="d-flex flex-col flex-lg-row align-items-center gap-2">
+          <Button
+            variant={isFilterMenuOpen ? 'primary' : 'secondary'}
+            className="search-chip"
+            onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
+            aria-label="Toggle filter menu"
+          >
+            <FontAwesomeIcon icon={faSliders} className="me-2" />
+            Filters
+          </Button>
+          <SearchViewControls variant="list" />
+          <FilterMenuSearchMap
+            isOpen={isFilterMenuOpen}
+            setIsOpen={setIsFilterMenuOpen}
+          />
+        </div>
       </div>
+
       <div ref={featurePreviewPopupRef} className="search-map-feature-preview">
         {selectedFeature && (
           <RecreationResourcePreview

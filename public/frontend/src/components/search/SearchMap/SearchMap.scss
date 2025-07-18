@@ -26,6 +26,8 @@
   position: fixed;
   display: flex;
   flex-direction: column;
+  margin: auto;
+  max-width: $pageMaxWidth;
   gap: 0.75rem;
   top: 10px;
   left: 10px;
@@ -35,8 +37,10 @@
   border-radius: 4px;
 
   @include media-breakpoint-up(md) {
+    width: 100%;
     flex-direction: row;
     align-items: center;
+    justify-content: space-between;
   }
 
   @include media-breakpoint-up(sm) {
@@ -52,5 +56,10 @@
   button,
   .clear-button {
     pointer-events: auto;
+  }
+
+  .search-chip {
+    max-width: fit-content;
+    margin: 0;
   }
 }
