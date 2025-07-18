@@ -1,17 +1,22 @@
+import { Modal } from 'react-bootstrap';
 import { useStore } from '@tanstack/react-store';
 import { useClearFilters } from '@/components/search/hooks/useClearFilters';
 import searchResultsStore from '@/store/searchResults';
 import FilterGroupAccordion from '@/components/search/filters/FilterGroupAccordion';
 import FilterGroup from '@/components/search/filters/FilterGroup';
 import FilterModal from '@/components/search/filters/FilterModal';
-import { Modal } from 'react-bootstrap';
+import '@/components/search/filters/Filters.scss';
+import '@/components/search/filters/FilterMenuSearchMap.scss';
 
-interface FilterMenuMobileProps {
+interface FilterMenuSearchMapProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
 }
 
-const FilterMenuMobile = ({ isOpen, setIsOpen }: FilterMenuMobileProps) => {
+const FilterMenuSearchMap = ({
+  isOpen,
+  setIsOpen,
+}: FilterMenuSearchMapProps) => {
   const clearFilters = useClearFilters();
   const { filters: menuContent, totalCount } = useStore(searchResultsStore);
   const params = menuContent?.map(({ param }) => param) ?? [];
@@ -19,12 +24,7 @@ const FilterMenuMobile = ({ isOpen, setIsOpen }: FilterMenuMobileProps) => {
   const handleClose = () => setIsOpen(false);
 
   return (
-    <FilterModal
-      isOpen={isOpen}
-      onClose={handleClose}
-      params={params}
-      className="d-block d-lg-none"
-    >
+    <FilterModal isOpen={isOpen} onClose={handleClose} params={params}>
       {({ isGroupOpen, toggleGroup }) => (
         <>
           {menuContent?.map(({ label, options, param }, index) => (
@@ -64,4 +64,4 @@ const FilterMenuMobile = ({ isOpen, setIsOpen }: FilterMenuMobileProps) => {
   );
 };
 
-export default FilterMenuMobile;
+export default FilterMenuSearchMap;

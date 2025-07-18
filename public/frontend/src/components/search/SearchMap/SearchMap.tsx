@@ -10,7 +10,7 @@ import { useRecreationFeatureLayerPreview } from '@/components/search/SearchMap/
 import { useZoomToExtent } from '@/components/search/SearchMap/hooks/useZoomToExtent';
 import searchResultsStore from '@/store/searchResults';
 import RecreationResourcePreview from '@/components/search/SearchMap/RecreationFeaturePreview';
-import SearchMapFilterMenu from '@/components/search/SearchMap/SearchMapFilterMenu';
+import FilterMenuSearchMap from '@/components/search/filters/FilterMenuSearchMap';
 import { Button } from 'react-bootstrap';
 import { RecreationSearchForm } from '@/components/recreation-search-form/RecreationSearchForm';
 import '@/components/search/SearchMap/SearchMap.scss';
@@ -71,7 +71,7 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
       <div className="search-map-view-controls">
         <RecreationSearchForm />
         <SearchViewControls />
-        <SearchMapFilterMenu
+        <FilterMenuSearchMap
           isOpen={isFilterMenuOpen}
           setIsOpen={setIsFilterMenuOpen}
         />
