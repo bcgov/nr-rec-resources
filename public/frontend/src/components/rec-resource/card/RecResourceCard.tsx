@@ -7,6 +7,7 @@ import { getImageList } from '@/components/rec-resource/card/helpers';
 import { RSTSVGLogo } from '@/components/RSTSVGLogo/RSTSVGLogo';
 import CardCarousel from '@/components/rec-resource/card/CardCarousel';
 import { RecreationResourceSearchModel } from '@/service/custom-models';
+import { MAX_ACTIVITIES_TO_DISPLAY } from '@/components/rec-resource/card/constants';
 
 interface RecResourceCardProps {
   recreationResource: RecreationResourceSearchModel;
@@ -27,6 +28,7 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
   const imageList = getImageList(recreationResource);
   const hasActivities = activities.length > 0;
   const hasImages = imageList.length > 0;
+  const isSeeAllActivities = activities.length > MAX_ACTIVITIES_TO_DISPLAY;
 
   return (
     <div
@@ -49,13 +51,13 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
             </h2>
           </a>
 
-          <div className="d-flex flex-column flex-md-row align-items-md-center align-items-start mb-2 mb-md-0">
+          <div className="d-flex flex-column flex-sm-row align-items-sm-center align-items-start mb-2 mb-sm-0">
             <span className="fs-6 fw-normal capitalize">
               {closest_community.toLowerCase()}
             </span>
             {rec_resource_type && (
               <>
-                <span className="fs-5 fw-normal mx-2 d-none d-md-inline">
+                <span className="fs-5 fw-normal mx-2 d-none d-sm-inline">
                   |
                 </span>
                 <span className="fs-6 fw-normal fst-italic">
@@ -66,7 +68,12 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
           </div>
         </div>
         <div className="card-content-lower">
-          <span>{hasActivities && <Activities activities={activities} />}</span>
+          <span className="card-activities d-flex d-row align-items-end">
+            {hasActivities && <Activities activities={activities} />}{' '}
+            {isSeeAllActivities && (
+              <a href={`/resource/${rec_resource_id}#things-to-do`}>see all</a>
+            )}
+          </span>
           <Status description={statusDescription} statusCode={status_code} />
         </div>
       </div>

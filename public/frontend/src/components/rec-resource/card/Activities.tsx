@@ -1,4 +1,5 @@
 import activityIconMap from '@/data/activityIconMap';
+import { MAX_ACTIVITIES_TO_DISPLAY } from '@/components/rec-resource/card/constants';
 import { Activity } from '@/components/rec-resource/types';
 
 import '@/components/rec-resource/card/Activities.scss';
@@ -10,7 +11,7 @@ interface ActivityProps {
 const Activities = ({ activities }: ActivityProps) => {
   return (
     <ul className="activities-list">
-      {activities.map((activity) => {
+      {activities.slice(0, MAX_ACTIVITIES_TO_DISPLAY).map((activity) => {
         const { description, recreation_activity_code } = activity;
         const activityIcon = activityIconMap?.[recreation_activity_code];
         if (!activityIcon) return null;
