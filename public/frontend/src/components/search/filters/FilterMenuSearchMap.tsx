@@ -49,7 +49,7 @@ const FilterMenuSearchMap = ({
               onClick={handleClose}
               className="btn btn-primary w-100 mx-0 mb-2"
             >
-              Show {totalCount} {totalCount === 1 ? 'result' : 'results'}
+              Apply {totalCount} {totalCount === 1 ? 'result' : 'results'}
             </button>
             <button
               className="btn-link clear-filter-link w-100 fw-normal"
