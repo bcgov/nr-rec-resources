@@ -1,5 +1,5 @@
-import { renderHook } from "@testing-library/react";
 import { useDocumentList } from "@/pages/rec-resource-page/hooks/useDocumentList";
+import { renderHook } from "@testing-library/react";
 
 const mockUseGetDocumentsByRecResourceId = vi.fn();
 
@@ -37,7 +37,7 @@ describe("useDocumentList", () => {
       refetch: vi.fn(),
     });
     const { result } = renderHook(() => useDocumentList("abc"));
-    expect(result.current.documents[0]).toMatchObject({
+    expect(result.current.galleryDocumentsFromServer[0]).toMatchObject({
       id: "1",
       name: "Doc 1",
       date: "formatted-2024-01-01",
@@ -47,23 +47,21 @@ describe("useDocumentList", () => {
       doc_code_description: "desc",
       rec_resource_id: "abc",
     });
-    expect(result.current.isDocumentUploadDisabled).toBe(false);
     expect(result.current.isFetching).toBe(false);
     expect(typeof result.current.refetch).toBe("function");
   });
 
-  it("returns empty array and not disabled if no documents", () => {
+  it("returns empty array if no documents", () => {
     mockUseGetDocumentsByRecResourceId.mockReturnValue({
       data: [],
       isFetching: false,
       refetch: vi.fn(),
     });
     const { result } = renderHook(() => useDocumentList("abc"));
-    expect(result.current.documents).toEqual([]);
-    expect(result.current.isDocumentUploadDisabled).toBe(false);
+    expect(result.current.galleryDocumentsFromServer).toEqual([]);
   });
 
-  it("disables upload if max documents reached", () => {
+  it("handles many documents", () => {
     const docs = Array.from({ length: 30 }, (_, i) => ({
       ...baseDoc,
       ref_id: String(i),
@@ -74,6 +72,6 @@ describe("useDocumentList", () => {
       refetch: vi.fn(),
     });
     const { result } = renderHook(() => useDocumentList("abc"));
-    expect(result.current.isDocumentUploadDisabled).toBe(true);
+    expect(result.current.galleryDocumentsFromServer).toHaveLength(30);
   });
 });

@@ -1,7 +1,7 @@
+import { Avatar } from "@/components";
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
 import userEvent from "@testing-library/user-event";
-import { Avatar } from "@/components/avatar/Avatar";
+import { describe, expect, it } from "vitest";
 
 describe("Avatar", () => {
   it("renders initials from full name", () => {

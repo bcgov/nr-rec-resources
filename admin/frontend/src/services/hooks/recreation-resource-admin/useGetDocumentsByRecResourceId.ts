@@ -1,14 +1,14 @@
 import { useRecreationResourceAdminApiClient } from "@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient";
-import { QueryOptions, useQuery } from "@tanstack/react-query";
 import {
   RecreationResourceDocDto,
   ResponseError,
 } from "@/services/recreation-resource-admin";
 import { addErrorNotification } from "@/store/notificationStore";
-import { transformRecreationResourceDocs, createRetryHandler } from "./helpers";
+import { QueryOptions, useQuery } from "@tanstack/react-query";
+import { createRetryHandler, transformRecreationResourceDocs } from "./helpers";
 
 export const useGetDocumentsByRecResourceId = (
-  recResourceId: string,
+  recResourceId?: string,
   queryOptions: QueryOptions<RecreationResourceDocDto[], ResponseError> = {},
 ) => {
   const recreationResourceAdminApiClient =
@@ -20,10 +20,11 @@ export const useGetDocumentsByRecResourceId = (
     queryFn: async () => {
       const docs =
         await recreationResourceAdminApiClient.getDocumentsByRecResourceId({
-          recResourceId,
+          recResourceId: recResourceId!,
         });
       return transformRecreationResourceDocs(docs);
     },
+    enabled: Boolean(recResourceId),
     retry: createRetryHandler({
       onFail: () =>
         addErrorNotification(

@@ -1,6 +1,6 @@
-import { defineConfig } from "vitest/config";
 import swc from "unplugin-swc";
 import tsconfigPaths from "vite-tsconfig-paths";
+import { defineConfig } from "vitest/config";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -20,6 +20,7 @@ export default defineConfig({
         "src/prisma-generated-sql/**/*.{ts,js}", // Prisma generated SQL files
       ],
     },
+    watch: false,
   },
   plugins: [swc.vite(), tsconfigPaths()],
 });
