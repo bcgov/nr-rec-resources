@@ -2,6 +2,7 @@ import { Spinner } from 'react-bootstrap';
 import RecResourceCard from '@/components/rec-resource/card/RecResourceCard';
 import { useGetRecreationResourceById } from '@/service/queries/recreation-resource';
 import { IMAGE_SIZE_CODE_FOR_SEARCH_RESULTS_CARD } from '@/components/rec-resource/card/constants';
+import '@/components/search/SearchMap/RecreationFeaturePreview.scss';
 
 interface RecreationFeaturePreviewProps {
   rec_resource_id: string;
@@ -16,13 +17,13 @@ const RecreationFeaturePreview: React.FC<RecreationFeaturePreviewProps> = ({
   });
 
   return (
-    <>
+    <div className="recreation-feature-preview">
       {!recreationResource ? (
         <Spinner animation="border" role="output" className="mb-2" />
       ) : (
         <RecResourceCard recreationResource={recreationResource} />
       )}
-    </>
+    </div>
   );
 };
 
