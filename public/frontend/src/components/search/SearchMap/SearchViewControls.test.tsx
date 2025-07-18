@@ -1,67 +1,50 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import SearchViewControls from '@/components/search/SearchMap/SearchViewControls';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-const renderWithRouter = (initialEntries: string[] = ['/']) => {
-  return render(
-    <MemoryRouter initialEntries={initialEntries}>
-      <Routes>
-        <Route path="/" element={<SearchViewControls />} />
-      </Routes>
-    </MemoryRouter>,
-  );
+const mockSetSearchParams = vi.fn();
+const mockSearchParams = {
+  set: vi.fn(),
 };
+
+vi.mock('react-router-dom', () => ({
+  useSearchParams: () => [mockSearchParams, mockSetSearchParams],
+}));
 
 describe('SearchViewControls', () => {
   beforeEach(() => {
-    vi.resetAllMocks();
+    vi.clearAllMocks();
   });
 
-  it('renders both view buttons', () => {
-    renderWithRouter();
-
-    expect(screen.getByText('List View')).toBeInTheDocument();
-    expect(screen.getByText('Map View')).toBeInTheDocument();
+  it('renders List View button correctly', () => {
+    render(<SearchViewControls variant="list" />);
+    const button = screen.getByRole('button', { name: /list view/i });
+    expect(button).toBeInTheDocument();
   });
 
-  it('defaults to list view when no search param is set', () => {
-    renderWithRouter();
-
-    const listBtn = screen.getByText('List View');
-    const mapBtn = screen.getByText('Map View');
-
-    expect(listBtn).toHaveClass('btn-primary');
-    expect(mapBtn).toHaveClass('btn-secondary');
+  it('renders Map View button correctly', () => {
+    render(<SearchViewControls variant="map" />);
+    const button = screen.getByRole('button', { name: /map view/i });
+    expect(button).toBeInTheDocument();
   });
 
-  it('applies map view when search param is view=map', () => {
-    renderWithRouter(['/?view=map']);
+  it('clicking List View button sets view= list in search params', () => {
+    render(<SearchViewControls variant="list" />);
+    const button = screen.getByRole('button', { name: /list view/i });
 
-    const listBtn = screen.getByText('List View');
-    const mapBtn = screen.getByText('Map View');
+    fireEvent.click(button);
 
-    expect(listBtn).toHaveClass('btn-secondary');
-    expect(mapBtn).toHaveClass('btn-primary');
+    expect(mockSearchParams.set).toHaveBeenCalledWith('view', 'list');
+    expect(mockSetSearchParams).toHaveBeenCalledWith(mockSearchParams);
   });
 
-  it('clicking Map View updates the search param and active class', () => {
-    renderWithRouter();
+  it('clicking Map View button sets view= map in search params', () => {
+    render(<SearchViewControls variant="map" />);
+    const button = screen.getByRole('button', { name: /map view/i });
 
-    const mapBtn = screen.getByText('Map View');
-    fireEvent.click(mapBtn);
+    fireEvent.click(button);
 
-    expect(mapBtn).toHaveClass('btn-primary');
-    expect(screen.getByText('List View')).toHaveClass('btn-secondary');
-  });
-
-  it('clicking List View updates the search param and active class', () => {
-    renderWithRouter(['/?view=map']);
-
-    const listBtn = screen.getByText('List View');
-    fireEvent.click(listBtn);
-
-    expect(listBtn).toHaveClass('btn-primary');
-    expect(screen.getByText('Map View')).toHaveClass('btn-secondary');
+    expect(mockSearchParams.set).toHaveBeenCalledWith('view', 'map');
+    expect(mockSetSearchParams).toHaveBeenCalledWith(mockSearchParams);
   });
 });
