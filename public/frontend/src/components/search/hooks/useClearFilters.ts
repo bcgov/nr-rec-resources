@@ -2,13 +2,15 @@ import { useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { filterChipStore } from '@/store';
 
+const PRESERVED_SEARCH_PARAMS = ['page', 'filter', 'map-feature', 'view'];
+
 export const useClearFilters = () => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const clearFilters = useCallback(() => {
     const newSearchParams = new URLSearchParams();
 
-    ['page', 'filter'].forEach((key) => {
+    PRESERVED_SEARCH_PARAMS.forEach((key) => {
       if (searchParams.has(key)) {
         newSearchParams.set(key, searchParams.get(key)!);
       }
