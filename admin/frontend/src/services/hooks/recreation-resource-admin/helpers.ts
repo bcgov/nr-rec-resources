@@ -1,4 +1,4 @@
-import { RecreationResourceDocDto } from "../../recreation-resource-admin";
+import { RecreationResourceDocDto } from "@/services/recreation-resource-admin";
 
 /**
  * Gets the base URL for asset storage.

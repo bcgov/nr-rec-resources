@@ -5,89 +5,101 @@
 import { Store } from "@tanstack/store";
 import { AlertProps } from "react-bootstrap";
 
-export interface NotificationMessage {
-  id: string | number;
-  message: string;
-  variant: AlertProps["variant"];
-  autoDismiss?: boolean;
-  timeout?: number;
-}
+export type NotificationMessage =
+  | {
+      id: string | number;
+      type: "status";
+      message: string;
+      variant: Extract<
+        AlertProps["variant"],
+        "success" | "danger" | "warning" | "info"
+      >;
+      autoDismiss?: boolean;
+      timeout?: number;
+    }
+  | {
+      id: string | number;
+      type: "spinner";
+      message: string;
+      autoDismiss?: false;
+    };
 
 interface NotificationState {
   messages: NotificationMessage[];
 }
 
-export const notificationStore = new Store<NotificationState>({
-  messages: [],
-});
+export const notificationStore = new Store<NotificationState>({ messages: [] });
 
-/**
- * Add a notification. Deduplicates by id if provided.
- * @param message - The notification message.
- * @param variant - The Bootstrap variant (default: 'danger').
- * @param id - Optional unique id for deduplication.
- * @param autoDismiss - Whether this notification should auto-dismiss (default: true).
- * @param timeout - Auto-dismiss timeout in ms (default: 3000).
- */
-export function addNotification(
+const getId = (id?: string | number) => id ?? crypto.randomUUID();
+
+export const addStatusNotification = (
   message: string,
-  variant: string = "danger",
+  variant: Extract<
+    AlertProps["variant"],
+    "success" | "danger" | "warning" | "info"
+  > = "danger",
   id?: string | number,
-  autoDismiss: boolean = true,
-  timeout: number = 3000,
-): void {
-  notificationStore.setState((prev) => {
-    if (id && prev.messages.some((msg) => msg.id === id)) {
-      return prev;
-    }
-    const msgId = id ?? Date.now() + Math.random();
-    return {
-      messages: [
-        ...prev.messages,
-        { id: msgId, message, variant, autoDismiss, timeout },
-      ],
-    };
-  });
-}
+  autoDismiss = true,
+  timeout = 3000,
+): void => {
+  notificationStore.setState((prev) =>
+    id && prev.messages.some((msg) => msg.id === id)
+      ? prev
+      : {
+          messages: [
+            ...prev.messages,
+            {
+              id: getId(id),
+              type: "status",
+              message,
+              variant,
+              autoDismiss,
+              timeout,
+            },
+          ],
+        },
+  );
+};
 
-/**
- * Remove a notification by id.
- * @param id - The id of the notification to remove.
- */
-export function removeNotification(id: string | number): void {
+export const addSpinnerNotification = (
+  message: string,
+  id?: string | number,
+): void => {
+  notificationStore.setState((prev) =>
+    id && prev.messages.some((msg) => msg.id === id)
+      ? prev
+      : {
+          messages: [
+            ...prev.messages,
+            { id: getId(id), type: "spinner", message, autoDismiss: false },
+          ],
+        },
+  );
+};
+
+export const removeNotification = (id: string | number): void => {
   notificationStore.setState((prev) => ({
     messages: prev.messages.filter((msg) => msg.id !== id),
   }));
-}
+};
 
-/**
- * Add a success notification. Variant is always 'success'.
- * @param message - The notification message.
- * @param id - Optional unique id for deduplication.
- * @param autoDismiss - Whether this notification should auto-dismiss (default: true).
- * @param timeout - Auto-dismiss timeout in ms (default: 3000).
- */
-export function addSuccessNotification(
+export const addSuccessNotification = (
   message: string,
   id?: string | number,
-  autoDismiss: boolean = true,
-  timeout: number = 3000,
-): void {
-  addNotification(message, "success", id, autoDismiss, timeout);
-}
+  autoDismiss = true,
+  timeout = 3000,
+): void => addStatusNotification(message, "success", id, autoDismiss, timeout);
 
-/**
- * Add an error notification. Variant is always 'danger'.
- * @param message - The notification message.
- * @param id - Optional unique id for deduplication.
- * @param autoDismiss - Whether this notification should auto-dismiss (default: true).
- * @param timeout - Auto-dismiss timeout in ms (default: 3000).
- */
-export function addErrorNotification(
+export const addInfoNotification = (
   message: string,
   id?: string | number,
-  autoDismiss: boolean = true,
-  timeout: number = 3000,
-): void {
-  addNotification(message, "danger", id, autoDismiss, timeout);
-}
+  autoDismiss = true,
+  timeout = 3000,
+): void => addStatusNotification(message, "info", id, autoDismiss, timeout);
+
+export const addErrorNotification = (
+  message: string,
+  id?: string | number,
+  autoDismiss = true,
+  timeout = 3000,
+): void => addStatusNotification(message, "danger", id, autoDismiss, timeout);

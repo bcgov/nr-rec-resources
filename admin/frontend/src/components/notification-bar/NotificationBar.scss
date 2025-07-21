@@ -1,14 +1,27 @@
-.notification-bar {
-  position: absolute;
-  top: 95px;
-  left: 0;
-  width: calc(100% - 10px);
-  z-index: 9999;
-  margin: 5px;
-  float: none;
-}
+@import "@/styles/mixins.scss";
 
-.alert {
-  border-radius: 12px;
-  margin-bottom: 5px;
+.notification-bar-container {
+  position: relative;
+  top: 5px;
+  z-index: 9999;
+  float: none;
+  @include page-container-base;
+
+  $border-radius: 12px;
+
+  &__toast {
+    width: 100%;
+    border-radius: $border-radius;
+    border: none;
+    box-shadow: none;
+  }
+
+  &__toast-body {
+    padding: unset;
+  }
+
+  &__alert {
+    border-radius: $border-radius;
+    margin-bottom: unset;
+  }
 }

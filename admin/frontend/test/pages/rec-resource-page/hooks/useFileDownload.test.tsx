@@ -1,16 +1,18 @@
-import { renderHook, act } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { act, renderHook } from "@testing-library/react";
 import React from "react";
 
 vi.mock("@/utils/fileUtils", () => ({ downloadUrlAsFile: vi.fn() }));
 vi.mock("@/store/notificationStore", () => ({
   addSuccessNotification: vi.fn(),
   addErrorNotification: vi.fn(),
+  addSpinnerNotification: vi.fn(),
+  removeNotification: vi.fn(),
 }));
 
-import * as fileUtils from "@/utils/fileUtils";
+import { useFileDownload } from "@/pages/rec-resource-page/hooks/useFileDownload";
 import * as notificationStore from "@/store/notificationStore";
-import { useDownloadFileMutation } from "@/pages/rec-resource-page/hooks/useDownloadFileMutation";
+import * as fileUtils from "@/utils/fileUtils";
 
 const createWrapper = () => {
   const queryClient = new QueryClient();
@@ -24,7 +26,7 @@ const createWrapper = () => {
 };
 
 const getMutation = () => {
-  const { result } = renderHook(() => useDownloadFileMutation(), {
+  const { result } = renderHook(() => useFileDownload(), {
     wrapper: createWrapper(),
   });
   return result.current;
@@ -38,8 +40,15 @@ describe("useDownloadFileMutation", () => {
   it("calls downloadUrlAsFile and shows success notification on success", async () => {
     (fileUtils.downloadUrlAsFile as any).mockResolvedValueOnce(undefined);
     const mutation = getMutation();
+    const file = {
+      id: "1",
+      name: "file.pdf",
+      url: "test-url",
+      date: "2025-07-15",
+      extension: "pdf",
+    };
     await act(async () => {
-      await mutation.mutateAsync({ url: "test-url", fileName: "file.pdf" });
+      await mutation.mutateAsync({ file });
     });
     expect(fileUtils.downloadUrlAsFile).toHaveBeenCalledWith(
       "test-url",
@@ -56,10 +65,15 @@ describe("useDownloadFileMutation", () => {
       new Error("fail"),
     );
     const mutation = getMutation();
+    const file = {
+      id: "2",
+      name: "bad.pdf",
+      url: "bad-url",
+      date: "2025-07-15",
+      extension: "pdf",
+    };
     await act(async () => {
-      await expect(
-        mutation.mutateAsync({ url: "bad-url", fileName: "bad.pdf" }),
-      ).rejects.toThrow();
+      await expect(mutation.mutateAsync({ file })).rejects.toThrow();
     });
     expect(fileUtils.downloadUrlAsFile).toHaveBeenCalledWith(
       "bad-url",

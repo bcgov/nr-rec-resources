@@ -1,6 +1,6 @@
+import { RecreationResourceApi } from "@/services/recreation-resource-admin";
 import { useQuery } from "@tanstack/react-query";
 import { useRecreationResourceAdminApiClient } from "./useRecreationResourceAdminApiClient";
-import { RecreationResourceApi } from "../../recreation-resource-admin/apis/RecreationResourceApi";
 
 export function useGetRecreationResourceById(rec_resource_id?: string) {
   const api = useRecreationResourceAdminApiClient() as RecreationResourceApi;

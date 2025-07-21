@@ -1,11 +1,14 @@
 import { Store } from "@tanstack/store";
-import { GalleryDocument } from "../types";
+import { GalleryDocument, GalleryFile } from "../types";
 
 export interface RecResourceFileTransferState {
   selectedFileForUpload: File | null;
   uploadFileName: string;
   showUploadOverlay: boolean;
   pendingDocs: GalleryDocument[];
+  galleryDocuments: GalleryDocument[];
+  showDeleteModal: boolean;
+  docToDelete?: GalleryFile;
 }
 
 export const recResourceFileTransferStore =
@@ -14,6 +17,9 @@ export const recResourceFileTransferStore =
     uploadFileName: "",
     showUploadOverlay: false,
     pendingDocs: [],
+    galleryDocuments: [],
+    showDeleteModal: false,
+    docToDelete: undefined,
   });
 
 export function setSelectedFile(file: File | null) {
@@ -36,6 +42,36 @@ export function setShowUploadOverlay(show: boolean) {
     showUploadOverlay: show,
   }));
 }
+
+export const resetUploadState = () => {
+  setShowUploadOverlay(false);
+  setSelectedFile(null);
+  setUploadFileName("");
+};
+
+export function setShowDeleteModal(show: boolean) {
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    showDeleteModal: show,
+  }));
+}
+
+export function setDocToDelete(doc?: GalleryFile) {
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    docToDelete: doc,
+  }));
+}
+
+export const showDeleteModalForDoc = (doc: GalleryFile) => {
+  setDocToDelete(doc);
+  setShowDeleteModal(true);
+};
+
+export const hideDeleteModal = () => {
+  setShowDeleteModal(false);
+  setDocToDelete(undefined);
+};
 
 export function addPendingDoc(doc: GalleryDocument) {
   recResourceFileTransferStore.setState((prev) => ({
@@ -64,4 +100,24 @@ export function removePendingDoc(id: string) {
     ...prev,
     pendingDocs: prev.pendingDocs.filter((doc) => doc.id !== id),
   }));
+}
+
+export function setGalleryDocuments(docs: GalleryDocument[]) {
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    galleryDocuments: docs,
+  }));
+}
+
+export function updateGalleryDocument(
+  id: string,
+  updates: Partial<GalleryDocument>,
+) {
+  recResourceFileTransferStore.setState((prev) => {
+    const idx = prev.galleryDocuments.findIndex((d) => d.id === id);
+    if (idx === -1) return prev;
+    const updatedDocs = [...prev.galleryDocuments];
+    updatedDocs[idx] = { ...updatedDocs[idx], ...updates };
+    return { ...prev, galleryDocuments: updatedDocs };
+  });
 }
