@@ -1,3 +1,41 @@
+@import '@/styles/variables.scss';
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins/_breakpoints';
+
 .filter-modal {
   z-index: 3000;
+}
+
+.modal-dialog {
+  @include media-breakpoint-up(lg) {
+    max-width: 700px;
+  }
+}
+
+.filter-option-columns {
+  @include media-breakpoint-up(md) {
+    column-count: 2;
+    column-gap: 1rem;
+  }
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  padding-top: 1rem;
+
+  @include media-breakpoint-up(lg) {
+    flex-direction: row-reverse;
+  }
+
+  button {
+    width: 100%;
+    @include media-breakpoint-up(lg) {
+      width: fit-content;
+      padding: 0.5rem 3rem;
+    }
+  }
 }
