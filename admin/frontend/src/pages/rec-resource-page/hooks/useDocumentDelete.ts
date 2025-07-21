@@ -1,3 +1,4 @@
+import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
 import { useDeleteResourceDocument } from "@/services/hooks/recreation-resource-admin/useDeleteResourceDocument";
 import { handleApiError } from "@/services/utils/errorHandler";
 import {
@@ -6,7 +7,6 @@ import {
 } from "@/store/notificationStore";
 import { useStore } from "@tanstack/react-store";
 import { useCallback } from "react";
-import { recResourceDetailStore } from "../store/recResourceDetailStore";
 import {
   recResourceFileTransferStore,
   setDocToDelete,
@@ -18,7 +18,7 @@ import {
  * Handles deletion of documents with proper error handling and notifications.
  */
 export function useDocumentDelete() {
-  const { recResource } = useStore(recResourceDetailStore);
+  const { recResource } = useRecResource();
   const { docToDelete } = useStore(recResourceFileTransferStore);
   const deleteResourceDocumentMutation = useDeleteResourceDocument();
 

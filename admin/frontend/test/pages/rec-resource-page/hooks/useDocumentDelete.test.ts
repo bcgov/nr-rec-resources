@@ -1,7 +1,12 @@
 import { useDocumentDelete } from "@/pages/rec-resource-page/hooks/useDocumentDelete";
+import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
 import * as store from "@/pages/rec-resource-page/store/recResourceFileTransferStore";
 import { GalleryDocument } from "@/pages/rec-resource-page/types";
+import { useDeleteResourceDocument } from "@/services/hooks/recreation-resource-admin/useDeleteResourceDocument";
+import { RecreationResourceDetailDto } from "@/services/recreation-resource-admin";
+import { handleApiError } from "@/services/utils/errorHandler";
 import * as notificationStore from "@/store/notificationStore";
+import { useStore } from "@tanstack/react-store";
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -17,10 +22,8 @@ vi.mock(
   }),
 );
 
-vi.mock("@/pages/rec-resource-page/store/recResourceDetailStore", () => ({
-  recResourceDetailStore: {
-    state: { recResource: null },
-  },
+vi.mock("@/pages/rec-resource-page/hooks/useRecResource", () => ({
+  useRecResource: vi.fn(),
 }));
 
 vi.mock("@/pages/rec-resource-page/store/recResourceFileTransferStore", () => ({
@@ -53,13 +56,10 @@ vi.mock("@/services/utils/errorHandler", () => ({
   handleApiError: vi.fn(),
 }));
 
-// Import mocked modules for type safety
-import { useDeleteResourceDocument } from "@/services/hooks/recreation-resource-admin/useDeleteResourceDocument";
-import { handleApiError } from "@/services/utils/errorHandler";
-import { useStore } from "@tanstack/react-store";
-
 const mockDeleteMutation = vi.fn();
-const mockRecResource = { rec_resource_id: "test-resource-123" };
+const mockRecResource = {
+  rec_resource_id: "test-resource-123",
+} as RecreationResourceDetailDto;
 const mockDocument: GalleryDocument = {
   id: "test-doc-123",
   name: "test-document.pdf",
@@ -72,19 +72,16 @@ describe("useDocumentDelete", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Mock useStore to return different values based on call order
-    // First call is for recResourceDetailStore, second is for recResourceFileTransferStore
-    let callCount = 0;
-    vi.mocked(useStore).mockImplementation(() => {
-      callCount++;
-      if (callCount === 1) {
-        return { recResource: mockRecResource };
-      }
-      if (callCount === 2) {
-        return { docToDelete: mockDocument };
-      }
-      return {};
+    // Mock useRecResource hook
+    vi.mocked(useRecResource).mockReturnValue({
+      rec_resource_id: "test-resource-123",
+      recResource: mockRecResource,
+      isLoading: false,
+      error: null,
     });
+
+    // Mock useStore for recResourceFileTransferStore
+    vi.mocked(useStore).mockReturnValue({ docToDelete: mockDocument });
 
     // Mock delete mutation
     vi.mocked(useDeleteResourceDocument).mockReturnValue({
@@ -191,17 +188,12 @@ describe("useDocumentDelete", () => {
     it("handles missing rec resource ID", async () => {
       const onSuccess = vi.fn();
 
-      // Mock store with no rec resource
-      let callCount = 0;
-      vi.mocked(useStore).mockImplementation(() => {
-        callCount++;
-        if (callCount === 1) {
-          return { recResource: null };
-        }
-        if (callCount === 2) {
-          return { docToDelete: mockDocument };
-        }
-        return {};
+      // Mock useRecResource with no rec resource
+      vi.mocked(useRecResource).mockReturnValue({
+        rec_resource_id: "test-resource-123",
+        recResource: undefined,
+        isLoading: false,
+        error: null,
       });
 
       const { result } = renderHook(() => useDocumentDelete());
@@ -232,18 +224,8 @@ describe("useDocumentDelete", () => {
         id: "",
       };
 
-      // Mock store to return document without ID
-      let callCount = 0;
-      vi.mocked(useStore).mockImplementation(() => {
-        callCount++;
-        if (callCount === 1) {
-          return { recResource: mockRecResource };
-        }
-        if (callCount === 2) {
-          return { docToDelete: documentWithoutId };
-        }
-        return {};
-      });
+      // Mock useStore to return document without ID
+      vi.mocked(useStore).mockReturnValue({ docToDelete: documentWithoutId });
 
       const { result } = renderHook(() => useDocumentDelete());
 
@@ -269,17 +251,12 @@ describe("useDocumentDelete", () => {
     it("handles missing rec resource with undefined rec_resource_id", async () => {
       const onSuccess = vi.fn();
 
-      // Mock store with rec resource but no ID
-      let callCount = 0;
-      vi.mocked(useStore).mockImplementation(() => {
-        callCount++;
-        if (callCount === 1) {
-          return { recResource: { rec_resource_id: undefined } };
-        }
-        if (callCount === 2) {
-          return { docToDelete: mockDocument };
-        }
-        return {};
+      // Mock useRecResource with rec resource but no ID
+      vi.mocked(useRecResource).mockReturnValue({
+        rec_resource_id: "test-resource-123",
+        recResource: { ...mockRecResource, rec_resource_id: undefined as any },
+        isLoading: false,
+        error: null,
       });
 
       const { result } = renderHook(() => useDocumentDelete());
@@ -390,16 +367,14 @@ describe("useDocumentDelete", () => {
       const initialHandleDelete = result.current.handleDelete;
 
       // Change the rec resource
-      let callCount = 0;
-      vi.mocked(useStore).mockImplementation(() => {
-        callCount++;
-        if (callCount === 1) {
-          return { recResource: { rec_resource_id: "different-resource-456" } };
-        }
-        if (callCount === 2) {
-          return { docToDelete: mockDocument };
-        }
-        return {};
+      vi.mocked(useRecResource).mockReturnValue({
+        rec_resource_id: "different-resource-456",
+        recResource: {
+          ...mockRecResource,
+          rec_resource_id: "different-resource-456",
+        },
+        isLoading: false,
+        error: null,
       });
 
       rerender();

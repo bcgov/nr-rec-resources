@@ -33,11 +33,11 @@ export function createRetryHandler({
   onFail,
 }: {
   maxRetries?: number;
-  onFail?: () => void;
+  onFail?: (error: unknown) => void;
 } = {}) {
   return (retryCount: number, error: unknown) => {
     if (retryCount >= maxRetries) {
-      if (onFail) onFail();
+      if (onFail) onFail(error);
       return false;
     }
     const status =

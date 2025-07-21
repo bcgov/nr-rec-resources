@@ -17,10 +17,8 @@ vi.mock(
   }),
 );
 
-vi.mock("@/pages/rec-resource-page/store/recResourceDetailStore", () => ({
-  recResourceDetailStore: {
-    state: { recResource: null },
-  },
+vi.mock("@/pages/rec-resource-page/hooks/useRecResource", () => ({
+  useRecResource: vi.fn(),
 }));
 
 vi.mock("@/pages/rec-resource-page/store/recResourceFileTransferStore", () => ({
@@ -44,20 +42,36 @@ vi.mock("@/services/utils/errorHandler", () => ({
 
 // Import mocked modules for type safety
 import * as helpers from "@/pages/rec-resource-page/helpers";
+import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
 import { useUploadResourceDocument } from "@/services/hooks/recreation-resource-admin/useUploadResourceDocument";
 import { handleApiError } from "@/services/utils/errorHandler";
-import { useStore } from "@tanstack/react-store";
 
 const mockUploadMutation = vi.fn();
-const mockRecResource = { rec_resource_id: "test-resource-123" };
+const mockRecResource = {
+  rec_resource_id: "test-resource-123",
+  name: "Test Resource",
+  closest_community: "Test Community",
+  recreation_activity: [],
+  recreation_status: { status_code: 1, comment: "", description: "Open" },
+  rec_resource_type: "RR",
+  description: "Test description",
+  driving_directions: "Test directions",
+  maintenance_standard_code: "U" as const,
+  campsite_count: 0,
+  recreation_access: [],
+  recreation_structure: { has_toilet: false, has_table: false },
+};
 
 describe("useDocumentUpload", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Mock useStore to return test resource
-    vi.mocked(useStore).mockImplementation(() => {
-      return { recResource: mockRecResource };
+    // Mock useRecResource hook
+    vi.mocked(useRecResource).mockReturnValue({
+      rec_resource_id: "test-resource-123",
+      recResource: mockRecResource,
+      isLoading: false,
+      error: null,
     });
 
     // Mock upload mutation
@@ -290,9 +304,12 @@ describe("useDocumentUpload", () => {
   });
 
   it("does nothing when recResource is undefined", async () => {
-    // Mock useStore to return undefined recResource
-    vi.mocked(useStore).mockReturnValue({
+    // Mock useRecResource to return undefined recResource
+    vi.mocked(useRecResource).mockReturnValue({
+      rec_resource_id: "test-resource-123",
       recResource: undefined,
+      isLoading: false,
+      error: null,
     });
 
     const file = new File(["content"], "test.pdf");
