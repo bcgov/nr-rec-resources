@@ -22,11 +22,11 @@ const FilterMenuSearchMap = ({
   setIsOpen,
 }: FilterMenuSearchMapProps) => {
   const clearFilters = useClearFilters();
-  const { filters: searchStoreFilters } = useStore(searchResultsStore);
+  const { filters: searchStoreFilters, totalCount: searchStoreTotalCount } =
+    useStore(searchResultsStore);
   const [menuContent, setMenuContent] = useState(searchStoreFilters);
   const [searchParams, setSearchParams] = useSearchParams();
   const params = menuContent?.map(({ param }) => param) ?? [];
-
   const [localFilters, setLocalFilters] = useState<Record<string, string[]>>(
     {},
   );
@@ -35,13 +35,13 @@ const FilterMenuSearchMap = ({
     return {
       limit: 10,
       page: 1,
-      filter: searchParams.get('filter') ?? undefined,
+      filter: searchParams.get('filter') || undefined,
       district: localFilters.district?.join('_') || undefined,
       activities: localFilters.activities?.join('_') || undefined,
       access: localFilters.access?.join('_') || undefined,
       facilities: localFilters.facilities?.join('_') || undefined,
-      type: localFilters.type?.join('_') ?? undefined,
-      community: searchParams.get('community') ?? undefined,
+      type: localFilters.type?.join('_') || undefined,
+      community: searchParams.get('community') || undefined,
       lat: searchParams.get('lat')
         ? Number(searchParams.get('lat'))
         : undefined,
@@ -52,26 +52,20 @@ const FilterMenuSearchMap = ({
   }, [localFilters, searchParams]);
 
   const { data } = useSearchRecreationResourcesPaginated(previewQueryParams);
-  const totalCount = data?.totalCount ?? 0;
+  const totalCount = (data?.totalCount || searchStoreTotalCount) ?? 0;
 
   useEffect(() => {
-    // Initialize localFilters from URL params on component mount
-    if (!menuContent) return;
-    const initialFilters: Record<string, string[]> = {};
-    menuContent.forEach(({ param }) => {
-      const value = searchParams.get(param);
-      initialFilters[param] = value ? value.split('_') : [];
-    });
-    setLocalFilters(initialFilters);
-    // eslint-disable-next-line
-  }, []);
-
-  useEffect(() => {
-    // Initialize menu content or update when search store filters change
+    // Initialize menu content and local filters or update when search store filters change
     if (searchStoreFilters) {
       setMenuContent(searchStoreFilters);
+      const initialFilters: Record<string, string[]> = {};
+      searchStoreFilters.forEach(({ param }) => {
+        const value = searchParams.get(param);
+        initialFilters[param] = value ? value.split('_') : [];
+      });
+      setLocalFilters(initialFilters);
     }
-  }, [searchStoreFilters]);
+  }, [searchStoreFilters, searchParams]);
 
   useEffect(() => {
     // Update menu content when preview data changes
