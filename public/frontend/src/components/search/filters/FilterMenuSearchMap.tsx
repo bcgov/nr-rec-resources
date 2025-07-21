@@ -22,8 +22,8 @@ const FilterMenuSearchMap = ({
   setIsOpen,
 }: FilterMenuSearchMapProps) => {
   const clearFilters = useClearFilters();
-  const { filters } = useStore(searchResultsStore);
-  const [menuContent, setMenuContent] = useState(filters);
+  const { filters: searchStoreFilters } = useStore(searchResultsStore);
+  const [menuContent, setMenuContent] = useState(searchStoreFilters);
   const [searchParams, setSearchParams] = useSearchParams();
   const params = menuContent?.map(({ param }) => param) ?? [];
 
@@ -67,11 +67,11 @@ const FilterMenuSearchMap = ({
   }, []);
 
   useEffect(() => {
-    // Initialize menu content
-    if (filters) {
-      setMenuContent(filters);
+    // Initialize menu content or update when search store filters change
+    if (searchStoreFilters) {
+      setMenuContent(searchStoreFilters);
     }
-  }, [filters]);
+  }, [searchStoreFilters]);
 
   useEffect(() => {
     // Update menu content when preview data changes
