@@ -1,13 +1,12 @@
+import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
 import { useUploadResourceDocument } from "@/services/hooks/recreation-resource-admin/useUploadResourceDocument";
 import { handleApiError } from "@/services/utils/errorHandler";
 import {
   addErrorNotification,
   addSuccessNotification,
 } from "@/store/notificationStore";
-import { useStore } from "@tanstack/react-store";
 import { useCallback } from "react";
 import { formatDocumentDate } from "../helpers";
-import { recResourceDetailStore } from "../store/recResourceDetailStore";
 import {
   addPendingDoc,
   removePendingDoc,
@@ -20,7 +19,7 @@ import { GalleryDocument, GalleryFile } from "../types";
  * Handles both new uploads and retry operations for failed uploads.
  */
 export function useDocumentUpload() {
-  const { recResource } = useStore(recResourceDetailStore);
+  const { recResource } = useRecResource();
   const uploadResourceDocumentMutation = useUploadResourceDocument();
 
   // Shared upload logic for both new and retry uploads

@@ -1,7 +1,7 @@
+import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
 import { useStore } from "@tanstack/react-store";
 import { useCallback, useEffect, useMemo } from "react";
 import { MAX_DOCUMENTS_PER_REC_RESOURCE } from "../constants";
-import { recResourceDetailStore } from "../store/recResourceDetailStore";
 import {
   recResourceFileTransferStore,
   setGalleryDocuments,
@@ -16,7 +16,7 @@ import { useGalleryActions } from "./useGalleryActions";
  * @returns Object containing essential state and handlers for file operations.
  */
 export function useRecResourceFileTransferState() {
-  const { recResource } = useStore(recResourceDetailStore);
+  const { recResource } = useRecResource();
 
   const {
     showUploadOverlay,

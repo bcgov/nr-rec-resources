@@ -1,3 +1,4 @@
+import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
 import { useRecResourceFileTransferState } from "@/pages/rec-resource-page/hooks/useRecResourceFileTransferState";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook } from "@testing-library/react";
@@ -31,6 +32,10 @@ vi.mock("@/pages/rec-resource-page/hooks/useGalleryActions", () => ({
   useGalleryActions: () => mockGalleryActions,
 }));
 
+vi.mock("@/pages/rec-resource-page/hooks/useRecResource", () => ({
+  useRecResource: vi.fn(),
+}));
+
 vi.mock("@/pages/rec-resource-page/store/recResourceFileTransferStore", () => ({
   recResourceFileTransferStore: {
     state: {
@@ -46,31 +51,16 @@ vi.mock("@/pages/rec-resource-page/store/recResourceFileTransferStore", () => ({
   setGalleryDocuments: vi.fn(),
 }));
 
-vi.mock("@/pages/rec-resource-page/store/recResourceDetailStore", () => ({
-  recResourceDetailStore: {
-    state: {
-      recResource: { rec_resource_id: "test-id" },
-    },
-  },
-}));
-
 vi.mock("@tanstack/react-store", () => ({
-  useStore: (store: any) => {
-    if (store.state && store.state.recResource) {
-      // Mock for recResourceDetailStore
-      return { recResource: { rec_resource_id: "test-id" } };
-    }
-    // Mock for recResourceFileTransferStore
-    return {
-      showUploadOverlay: false,
-      showDeleteModal: false,
-      docToDelete: null,
-      uploadFileName: "",
-      selectedFileForUpload: null,
-      pendingDocs: [],
-      galleryDocuments: [],
-    };
-  },
+  useStore: () => ({
+    showUploadOverlay: false,
+    showDeleteModal: false,
+    docToDelete: null,
+    uploadFileName: "",
+    selectedFileForUpload: null,
+    pendingDocs: [],
+    galleryDocuments: [],
+  }),
 }));
 
 // Create a wrapper with QueryClient for tests
@@ -90,6 +80,15 @@ const createWrapper = () => {
 describe("useRecResourceFileTransferState", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+
+    // Mock useRecResource
+    vi.mocked(useRecResource).mockReturnValue({
+      rec_resource_id: "test-id",
+      recResource: { rec_resource_id: "test-id" } as any,
+      isLoading: false,
+      error: null,
+    });
+
     // Reset mock functions
     mockDocumentListState.galleryDocumentsFromServer = [];
     mockDocumentListState.isFetching = false;
