@@ -1,9 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
-import "@testing-library/jest-dom";
-import { useAuthContext } from "@/contexts/AuthContext";
 import { Header } from "@/components/header";
-import useMediaQuery from "@/hooks/useMediaQuery";
+import { useAuthContext } from "@/contexts/AuthContext";
+import "@testing-library/jest-dom";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockLogout = vi.fn();
 const mockGetUserFullName = vi.fn(() => "TEST USER");
@@ -93,7 +92,6 @@ describe("Header", () => {
       value: 500,
     });
     window.dispatchEvent(new Event("resize"));
-    vi.mocked(useMediaQuery).mockReturnValue(true);
 
     renderHeader();
 

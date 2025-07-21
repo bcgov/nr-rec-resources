@@ -18,7 +18,6 @@ function App() {
       <AuthProvider>
         <AuthGuard>
           <Header />
-          <div className="mt-1" />
           <NotificationBar />
           <BrowserRouter>
             <Routes>

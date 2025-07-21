@@ -1,11 +1,11 @@
 import { Module } from "@nestjs/common";
-import { ResourceDocsService } from "./service/resource-docs.service";
-import { ResourceDocsController } from "./resource-docs.controller";
-import { PrismaModule } from "src/prisma.module";
-import { PrismaService } from "src/prisma.service";
+import { ConfigService } from "@nestjs/config";
 import { MulterModule } from "@nestjs/platform-express";
 import { memoryStorage } from "multer";
-import { ConfigService } from "@nestjs/config";
+import { PrismaModule } from "src/prisma.module";
+import { PrismaService } from "src/prisma.service";
+import { ResourceDocsController } from "./resource-docs.controller";
+import { ResourceDocsService } from "./service/resource-docs.service";
 
 @Module({
   providers: [ResourceDocsService, PrismaService, ConfigService],
@@ -13,9 +13,7 @@ import { ConfigService } from "@nestjs/config";
   imports: [
     MulterModule.register({
       storage: memoryStorage(),
-      limits: {
-        fileSize: 5 * 1024 * 1024, // 5 MB limit, adjust as needed
-      },
+      limits: { fileSize: 1.5 * 1024 * 1024 }, // ~1 MB limit
     }),
     PrismaModule,
   ],

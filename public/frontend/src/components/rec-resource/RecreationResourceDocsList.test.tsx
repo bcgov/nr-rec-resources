@@ -44,7 +44,7 @@ describe('RecreationResourceDocsList', () => {
     expect(link).toHaveAttribute('href', mockSingleDoc.url);
     expect(link).toHaveAttribute('target', '_blank');
     expect(link).toHaveAttribute('rel', 'noopener noreferrer');
-    expect(link).toHaveTextContent(`Map of ${mockResource.name} [PDF]`);
+    expect(link).toHaveTextContent(`Document 1 [PDF]`);
   });
 
   test('renders multiple documents with individual titles', () => {

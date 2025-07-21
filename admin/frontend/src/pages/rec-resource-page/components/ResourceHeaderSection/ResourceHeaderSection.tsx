@@ -17,14 +17,12 @@ interface ResourceHeaderSectionProps {
 interface ActionButtonProps {
   label: string;
   onClick?: () => void;
-  icon?: any;
   disabled?: boolean;
 }
 
 const ActionButton: FC<ActionButtonProps> = ({
   label,
   onClick,
-  icon,
   disabled = false,
 }) => (
   <CustomButton
@@ -32,16 +30,14 @@ const ActionButton: FC<ActionButtonProps> = ({
     onClick={onClick}
     className="resource-header-section__action-button"
     disabled={disabled}
+    leftIcon={
+      <FontAwesomeIcon
+        className="resource-header-section__action-button-icon"
+        icon={faPlus}
+      />
+    }
   >
-    <Stack direction="horizontal" gap={2} className="align-items-center">
-      {icon && (
-        <FontAwesomeIcon
-          className="resource-header-section__action-button-icon"
-          icon={icon}
-        />
-      )}
-      {label}
-    </Stack>
+    {label}
   </CustomButton>
 );
 
@@ -113,15 +109,10 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
           gap={2}
           className="py-2 resource-header-section__action-buttons align-items-center d-none d-md-flex"
         >
-          <ActionButton
-            label="Add image"
-            onClick={handleAddPdfFileClick}
-            icon={faPlus}
-          />
+          <ActionButton label="Add image" onClick={handleAddPdfFileClick} />
           <ActionButton
             label="Add document"
             onClick={handleAddPdfFileClick}
-            icon={faPlus}
             disabled={isDocumentUploadDisabled}
           />
         </Stack>

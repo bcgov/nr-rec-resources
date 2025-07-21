@@ -46,6 +46,13 @@
       color: $colorBlue;
       height: 2.5rem;
 
+      &:hover,
+      &:focus {
+        background-color: $colorBlue;
+        color: $colorWhite;
+        border-color: $colorBlue;
+      }
+
       & .resource-header-section__action-button-icon {
         border: 1px solid $colorBlue;
         border-radius: 3px;
@@ -73,6 +80,7 @@
     box-shadow: none;
     outline: none;
     min-width: 0;
+    cursor: pointer;
 
     &::after {
       display: none;

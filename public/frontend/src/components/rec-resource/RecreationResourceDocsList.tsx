@@ -38,8 +38,7 @@ export const RecreationResourceDocsList: FC<
           })
         }
       >
-        {docs.length === 1 ? `Map of ${recResource.name}` : doc.title} [
-        {doc.extension.toUpperCase()}]
+        {doc.title} [{doc.extension.toUpperCase()}]
       </a>
     </li>
   );

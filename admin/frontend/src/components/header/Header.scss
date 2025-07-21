@@ -4,45 +4,34 @@
   background-color: $colorBlue !important;
   color: $colorWhite;
   height: $headerHeight;
-}
 
-.header-container {
-  .full-name {
-    font-weight: 700;
-    font-size: 1.05rem;
+  &--title {
+    color: $colorWhite !important;
   }
 }
 
-.logo {
-  width: 200px;
-  height: 50px;
-}
-
-.logo-mobile {
-  width: 44px;
-  height: 52px;
-}
-
-.btn-outline-primary,
-.btn-outline-primary:hover,
-.btn-outline-primary:active,
-.btn-outline-primary:visited {
-  color: $colorWhite;
-  border-color: $colorWhite;
-  width: 44px;
-  height: 42px;
-  background-color: transparent;
-}
-
-.admin-title {
-  width: 400px;
-  font-weight: 700;
-  font-style: Bold;
-  font-size: 27.65px;
-  line-height: 39.82px;
-  vertical-align: bottom;
-  margin-left: 20px;
-  @media (max-width: 767px) {
+.header {
+  &__logo {
     width: 200px;
+    height: 50px;
+
+    &--mobile {
+      width: 44px;
+      height: 52px;
+    }
+  }
+
+  &__avatar {
+    cursor: pointer;
+  }
+
+  &__menu-button {
+    &,
+    &:hover,
+    &:focus {
+      border-color: $colorWhite;
+      width: 44px;
+      height: 42px;
+    }
   }
 }

@@ -1,11 +1,12 @@
+import { FC, HtmlHTMLAttributes } from "react";
 import { OverlayTrigger, OverlayTriggerProps, Tooltip } from "react-bootstrap";
 import "./Avatar.scss";
-import { FC } from "react";
 
 /**
  * Props for the Avatar component.
  */
-export interface AvatarProps {
+export interface AvatarProps
+  extends Pick<HtmlHTMLAttributes<HTMLDivElement>, "className"> {
   /**
    * The full name to display as initials in the avatar.
    */
@@ -36,6 +37,7 @@ export const Avatar: FC<AvatarProps> = ({
   size = 50,
   tooltip = false,
   tooltipPlacement = "bottom",
+  className,
 }) => {
   // Get up to two initials from the name
   const initials = name
@@ -47,7 +49,7 @@ export const Avatar: FC<AvatarProps> = ({
 
   const avatar = (
     <div
-      className="rounded-circle d-flex align-items-center justify-content-center avatar"
+      className={`rounded-circle d-flex align-items-center justify-content-center avatar ${className}`}
       style={{
         width: size,
         height: size,
