@@ -1,5 +1,6 @@
 import { forwardRef } from 'react';
 import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { vi, Mock } from 'vitest';
 import { useStore } from '@tanstack/react-store';
 import SearchMap from '@/components/search/SearchMap/SearchMap';
@@ -55,6 +56,7 @@ vi.mock('@bcgov/prp-map', () => ({
         fit: fitMock,
         getZoom: getZoomMock,
         setZoom: setZoomMock,
+        getProjection: vi.fn(),
       }),
       once: vi.fn((event, callback) => {
         if (event === 'moveend') {
@@ -139,5 +141,34 @@ describe('SearchMap', () => {
       expect.any(Object),
       mockExtent,
     );
+  });
+
+  it('renders filter toggle button and toggles filter menu open/close', async () => {
+    (useStore as Mock).mockReturnValue({
+      extent: null,
+      pages: [],
+      recResourceIds: [],
+    });
+
+    renderWithQueryClient(<SearchMap />);
+
+    const toggleBtn = screen.getByRole('button', {
+      name: /toggle filter menu/i,
+    });
+    expect(toggleBtn).toBeInTheDocument();
+    expect(toggleBtn).toHaveClass('btn-secondary');
+    expect(
+      screen.queryByRole('button', { name: /apply/i }),
+    ).not.toBeInTheDocument();
+
+    await userEvent.click(toggleBtn);
+    expect(toggleBtn).toHaveClass('btn-primary');
+    expect(await screen.findByRole('button', { name: /apply/i })).toBeVisible();
+
+    await userEvent.click(toggleBtn);
+    expect(toggleBtn).toHaveClass('btn-secondary');
+    expect(
+      screen.queryByRole('button', { name: /apply/i }),
+    ).not.toBeInTheDocument();
   });
 });
