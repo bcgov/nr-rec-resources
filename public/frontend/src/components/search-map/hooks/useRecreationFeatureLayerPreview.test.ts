@@ -3,7 +3,7 @@ import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { useRecreationFeatureLayerPreview } from './useRecreationFeatureLayerPreview';
 import Feature from 'ol/Feature';
 import Point from 'ol/geom/Point';
-import { locationDotOrangeIcon } from '@/components/search/SearchMap/styles/icons';
+import { locationDotOrangeIcon } from '@/components/search-map/styles/icons';
 
 const mockAddOverlay = vi.fn();
 const mockRemoveOverlay = vi.fn();

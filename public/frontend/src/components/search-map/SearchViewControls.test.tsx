@@ -1,5 +1,5 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import SearchViewControls from '@/components/search/SearchMap/SearchViewControls';
+import SearchViewControls from '@/components/search-map/SearchViewControls';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockSetSearchParams = vi.fn();

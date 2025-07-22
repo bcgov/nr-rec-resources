@@ -3,8 +3,8 @@ import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi, Mock } from 'vitest';
 import { useStore } from '@tanstack/react-store';
-import SearchMap from '@/components/search/SearchMap/SearchMap';
-import { useZoomToExtent } from '@/components/search/SearchMap/hooks/useZoomToExtent';
+import SearchMap from '@/components/search-map/SearchMap';
+import { useZoomToExtent } from '@/components/search-map/hooks/useZoomToExtent';
 import { renderWithQueryClient } from '@/test-utils';
 
 const fitMock = vi.fn();
@@ -34,11 +34,11 @@ vi.mock('ol/format/GeoJSON', () => ({
   })),
 }));
 
-vi.mock('@/components/search/SearchMap/hooks/useZoomToExtent', () => ({
+vi.mock('@/components/search-map/hooks/useZoomToExtent', () => ({
   useZoomToExtent: vi.fn(),
 }));
 
-vi.mock('@/components/search/SearchMap/layers/recreationFeatureLayer', () => ({
+vi.mock('@/components/search-map/layers/recreationFeatureLayer', () => ({
   createClusteredRecreationFeatureSource: vi.fn(),
   createClusteredRecreationFeatureStyle: vi.fn(() => 'mock-cluster-style'),
   createClusteredRecreationFeatureLayer: vi.fn(),
@@ -75,7 +75,7 @@ vi.mock('@bcgov/prp-map', () => ({
   }),
 }));
 
-vi.mock('@/components/search/SearchMap/SearchViewControls', () => ({
+vi.mock('@/components/search-map/SearchViewControls', () => ({
   default: () => <div data-testid="search-view-controls" />,
 }));
 

@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import Select from 'ol/interaction/Select';
 import Overlay from 'ol/Overlay';
 import { click } from 'ol/events/condition';
-import { locationDotOrangeIcon } from '@/components/search/SearchMap/styles/icons';
+import { locationDotOrangeIcon } from '@/components/search-map/styles/icons';
 import Point from 'ol/geom/Point';
 import type OLMap from 'ol/Map';
 import type Feature from 'ol/Feature';

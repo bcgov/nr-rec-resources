@@ -5,17 +5,17 @@ import OLMap from 'ol/Map';
 import { useStore } from '@tanstack/react-store';
 import { VectorFeatureMap } from '@bcgov/prp-map';
 import { SearchViewControls } from '@/components/search';
-import { useClusteredRecreationFeatureLayer } from '@/components/search/SearchMap/hooks/useClusteredRecreationFeatureLayer';
-import { useRecreationFeatureLayerPreview } from '@/components/search/SearchMap/hooks/useRecreationFeatureLayerPreview';
-import { useZoomToExtent } from '@/components/search/SearchMap/hooks/useZoomToExtent';
+import { useClusteredRecreationFeatureLayer } from '@/components/search-map/hooks/useClusteredRecreationFeatureLayer';
+import { useRecreationFeatureLayerPreview } from '@/components/search-map/hooks/useRecreationFeatureLayerPreview';
+import { useZoomToExtent } from '@/components/search-map/hooks/useZoomToExtent';
 import searchResultsStore from '@/store/searchResults';
-import RecreationResourcePreview from '@/components/search/SearchMap/RecreationFeaturePreview';
+import RecreationResourcePreview from '@/components/search-map/RecreationFeaturePreview';
 import FilterMenuSearchMap from '@/components/search/filters/FilterMenuSearchMap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSliders } from '@fortawesome/free-solid-svg-icons';
 import { Button } from 'react-bootstrap';
 import { RecreationSearchForm } from '@/components/recreation-search-form/RecreationSearchForm';
-import '@/components/search/SearchMap/SearchMap.scss';
+import '@/components/search-map/SearchMap.scss';
 import type Feature from 'ol/Feature';
 
 const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {

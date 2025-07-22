@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { clusterStyle } from '@/components/search/SearchMap/styles/cluster';
+import { clusterStyle } from '@/components/search-map/styles/cluster';
 import { Circle as CircleStyle, Text } from 'ol/style';
 
 describe('clusterStyle', () => {
