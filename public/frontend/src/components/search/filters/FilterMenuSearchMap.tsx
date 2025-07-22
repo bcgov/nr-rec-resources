@@ -103,47 +103,56 @@ const FilterMenuSearchMap = ({
   };
 
   return (
-    <FilterModal isOpen={isOpen} onClose={handleClose} params={params}>
+    <FilterModal
+      className="filter-menu-search-map"
+      isOpen={isOpen}
+      onClose={handleClose}
+      params={params}
+    >
       {({ isGroupOpen, toggleGroup }) => (
         <>
-          {menuContent?.map(({ label, options, param }, index) => {
-            const selected = localFilters[param] ?? [];
-            const isColumns = options.length > COLUMN_BREAK_THRESHOLD;
+          <div className="filter-menu-content">
+            {menuContent?.map(({ label, options, param }, index) => {
+              const selected = localFilters[param] ?? [];
+              const isColumns = options.length > COLUMN_BREAK_THRESHOLD;
 
-            return (
-              <FilterGroupAccordion
-                key={param}
-                label={label}
-                param={param}
-                isOpen={isGroupOpen(param)}
-                onOpen={toggleGroup}
-                tabIndex={index}
-              >
-                <fieldset className="filter-group-container">
-                  <legend className="filter-group-title">{label}</legend>
-                  <Form.Group
-                    className={`filter-options-container ${isColumns ? 'filter-option-columns' : ''}`}
-                  >
-                    {options.map(({ id, description, count }) => {
-                      const isChecked = selected.includes(String(id));
-                      const isDisabled = !isChecked && count === 0;
-                      return (
-                        <Form.Check
-                          key={id}
-                          type="checkbox"
-                          id={String(id)}
-                          label={`${description} (${count})`}
-                          checked={isChecked}
-                          disabled={isDisabled}
-                          onChange={() => handleToggleFilter(param, String(id))}
-                        />
-                      );
-                    })}
-                  </Form.Group>
-                </fieldset>
-              </FilterGroupAccordion>
-            );
-          })}
+              return (
+                <FilterGroupAccordion
+                  key={param}
+                  label={label}
+                  param={param}
+                  isOpen={isGroupOpen(param)}
+                  onOpen={toggleGroup}
+                  tabIndex={index}
+                >
+                  <fieldset className="filter-group-container">
+                    <legend className="filter-group-title">{label}</legend>
+                    <Form.Group
+                      className={`filter-options-container ${isColumns ? 'filter-option-columns' : ''}`}
+                    >
+                      {options.map(({ id, description, count }) => {
+                        const isChecked = selected.includes(String(id));
+                        const isDisabled = !isChecked && count === 0;
+                        return (
+                          <Form.Check
+                            key={id}
+                            type="checkbox"
+                            id={String(id)}
+                            label={`${description} (${count})`}
+                            checked={isChecked}
+                            disabled={isDisabled}
+                            onChange={() =>
+                              handleToggleFilter(param, String(id))
+                            }
+                          />
+                        );
+                      })}
+                    </Form.Group>
+                  </fieldset>
+                </FilterGroupAccordion>
+              );
+            })}
+          </div>
 
           <Modal.Footer>
             <button
