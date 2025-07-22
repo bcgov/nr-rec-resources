@@ -1,7 +1,7 @@
+import { RecreationResourceApi } from "@/services/recreation-resource-admin";
 import { useMutation } from "@tanstack/react-query";
-import { useRecreationResourceAdminApiClient } from "./useRecreationResourceAdminApiClient";
-import { RecreationResourceApi } from "../../recreation-resource-admin/apis/RecreationResourceApi";
 import { createRetryHandler } from "./helpers";
+import { useRecreationResourceAdminApiClient } from "./useRecreationResourceAdminApiClient";
 
 export interface UploadResourceDocumentParams {
   recResourceId: string;

@@ -1,1 +1,2 @@
-export * from "./RecResourcePageContent";
+export * from "./RecResourceFileSection";
+export * from "./ResourceHeaderSection";

@@ -1,38 +1,6 @@
 @import "@/styles/variables.scss";
 
 .upload-file-modal {
-  &__alert {
-    border-radius: 4px;
-    padding: 8px;
-    font-size: clamp(0.65rem, 3.5vw, 1rem);
-    font-weight: 700;
-
-    &-icon {
-      color: $colorAmber;
-    }
-
-    &-text {
-      color: $colorGrey;
-    }
-  }
-
-  &__preview-img {
-    width: 100%;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 4px;
-    margin-bottom: 16px;
-  }
-
-  &__preview-pdf {
-    width: 100%;
-    height: 120px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 16px;
-  }
-
   &__input-row {
     display: flex;
     justify-content: space-between;
@@ -42,7 +10,7 @@
 
   &__input {
     font-weight: 600;
-    border: 1px solid #ccc;
+    border: 1px solid $colorGrey;
     border-radius: 4px;
     padding: 2px 8px;
     min-width: 0;
@@ -52,12 +20,10 @@
   &__input-label {
     font-size: 15px;
     margin-bottom: 8px;
-  }
 
-  &__title {
-    width: 100%;
-    text-align: center;
-    font-weight: 600;
-    font-size: 1.25rem;
+    span {
+      font-weight: 700;
+      color: $colorGrey;
+    }
   }
 }

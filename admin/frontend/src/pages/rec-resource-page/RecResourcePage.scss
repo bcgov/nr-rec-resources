@@ -1,0 +1,39 @@
+@import "@/styles/variables.scss";
+
+.rec-resource-page {
+  &__loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 200px;
+  }
+
+  &__loading-spinner {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  &__error-icon {
+    color: $colorRed;
+    font-size: 1.25rem;
+    margin-top: 0.125rem;
+    flex-shrink: 0;
+  }
+
+  &__info-banner {
+    margin-bottom: unset;
+
+    &-icon {
+      color: $colorGold;
+      font-size: 1rem;
+      font-style: italic;
+      flex-shrink: 0;
+    }
+
+    &-text {
+      font-weight: 700;
+      color: $colorGrey;
+      font-size: 1rem;
+    }
+  }
+}

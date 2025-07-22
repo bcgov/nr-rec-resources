@@ -62,32 +62,40 @@ export class FilterPOM {
     await filterGroup.getByRole('button', { name: /Show all/ }).click();
   }
 
-  async toggleFilterOn(filterGroup: Locator, filterOption: string) {
-    const checkbox = filterGroup.getByRole('checkbox', { name: filterOption });
+  async toggleFilterOn(filterGroup: Locator, filterPrefix: string) {
+    const checkbox = filterGroup.getByRole('checkbox', {
+      name: new RegExp(`^${filterPrefix}`),
+    });
     await checkbox.waitFor({ state: 'visible' });
     expect(checkbox).not.toBeChecked();
     await checkbox.check();
     await expect(checkbox).toBeChecked();
   }
 
-  async toggleFilterOff(filterGroup: Locator, filterOption: string) {
-    const checkbox = filterGroup.getByRole('checkbox', { name: filterOption });
+  async toggleFilterOff(filterGroup: Locator, filterPrefix: string) {
+    const checkbox = filterGroup.getByRole('checkbox', {
+      name: new RegExp(`^${filterPrefix}`),
+    });
     await checkbox.waitFor({ state: 'visible' });
     expect(checkbox).toBeChecked();
     await checkbox.uncheck();
-    expect(checkbox).not.toBeChecked();
+    await expect(checkbox).not.toBeChecked();
   }
 
-  async checkIsFilterToggledOn(filterGroup: Locator, filterOption: string) {
-    const checkbox = filterGroup.getByRole('checkbox', { name: filterOption });
+  async checkIsFilterToggledOn(filterGroup: Locator, filterPrefix: string) {
+    const checkbox = filterGroup.getByRole('checkbox', {
+      name: new RegExp(`^${filterPrefix}`),
+    });
     await checkbox.waitFor({ state: 'visible' });
-    await expect(checkbox).toBeChecked({ checked: true });
+    await expect(checkbox).toBeChecked();
   }
 
-  async checkIsFilterToggledOff(filterGroup: Locator, filterOption: string) {
-    const checkbox = filterGroup.getByRole('checkbox', { name: filterOption });
+  async checkIsFilterToggledOff(filterGroup: Locator, filterPrefix: string) {
+    const checkbox = filterGroup.getByRole('checkbox', {
+      name: new RegExp(`^${filterPrefix}`),
+    });
     await checkbox.waitFor({ state: 'visible' });
-    await expect(checkbox).toBeChecked({ checked: false });
+    await expect(checkbox).not.toBeChecked();
   }
 
   async verifyFilterGroup(

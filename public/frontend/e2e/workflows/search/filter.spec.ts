@@ -189,7 +189,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.verifyInitialFilterMenu();
 
-    await filter.toggleFilterOn(filter.accessTypeFilters, 'Road Access');
+    await filter.toggleFilterOn(filter.accessTypeFilters, 'Road access');
 
     await utils.checkExpectedUrlParams('access=R');
 
@@ -207,17 +207,17 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.verifyInitialFilterMenu();
 
-    await filter.toggleFilterOn(filter.accessTypeFilters, 'Boat-in Access');
+    await filter.toggleFilterOn(filter.accessTypeFilters, 'Boat-in access');
 
-    await filter.toggleFilterOn(filter.accessTypeFilters, 'Fly-in Access');
-
-    await searchPage.waitForResults();
-
-    await filter.toggleFilterOn(filter.accessTypeFilters, 'Road Access');
+    await filter.toggleFilterOn(filter.accessTypeFilters, 'Fly-in access');
 
     await searchPage.waitForResults();
 
-    await filter.toggleFilterOn(filter.accessTypeFilters, 'Trail Access');
+    await filter.toggleFilterOn(filter.accessTypeFilters, 'Road access');
+
+    await searchPage.waitForResults();
+
+    await filter.toggleFilterOn(filter.accessTypeFilters, 'Trail access');
 
     await utils.checkExpectedUrlParams('access=B_F_R_T');
 
@@ -251,7 +251,7 @@ test.describe('Search page filter menu workflows', () => {
       type: ['Recreation site'],
     });
 
-    await filter.toggleFilterOn(filter.accessTypeFilters, 'Road Access');
+    await filter.toggleFilterOn(filter.accessTypeFilters, 'Road access');
 
     await searchPage.waitForResults();
 
@@ -308,7 +308,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.toggleFilterOn(filter.typeFilters, RecResourceType.SITE);
 
-    await filter.toggleFilterOn(filter.accessTypeFilters, 'Road Access');
+    await filter.toggleFilterOn(filter.accessTypeFilters, 'Road access');
 
     await utils.checkExpectedUrlParams(
       'district=RDKA&page=1&type=SIT&access=R',
