@@ -2,6 +2,8 @@ import { renderHook, act } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach } from 'vitest';
 import { useRecreationFeatureLayerPreview } from './useRecreationFeatureLayerPreview';
 import Feature from 'ol/Feature';
+import Point from 'ol/geom/Point';
+import { locationDotOrangeIcon } from '@/components/search/SearchMap/styles/icons';
 
 const mockAddOverlay = vi.fn();
 const mockRemoveOverlay = vi.fn();
@@ -19,6 +21,10 @@ const mockClusterFeature = { get: vi.fn(), setStyle: vi.fn() };
 const mockLayer = {
   getSource: () => ({
     getFeatures: () => [mockClusterFeature],
+    getSource: () => ({
+      on: vi.fn(),
+      un: vi.fn(),
+    }),
   }),
   setStyle: vi.fn(),
 };
@@ -26,7 +32,7 @@ const mockLayer = {
 vi.mock('ol/interaction/Select', () => ({
   default: vi.fn().mockImplementation(() => ({
     on: mockSelectOn,
-    getFeatures: () => ({ clear: mockClear }),
+    getFeatures: () => ({ clear: mockClear, push: vi.fn() }),
   })),
 }));
 
@@ -122,9 +128,7 @@ describe('useRecreationFeatureLayerPreview hook', () => {
 
   it('styles a feature and centers it on the map on selection', () => {
     const singleFeature = new Feature();
-    singleFeature.getGeometry = vi.fn().mockReturnValue({
-      getCoordinates: () => [10, 20],
-    });
+    singleFeature.getGeometry = vi.fn().mockReturnValue(new Point([10, 20]));
     singleFeature.set = vi.fn();
     singleFeature.setStyle = vi.fn();
 
@@ -165,7 +169,7 @@ describe('useRecreationFeatureLayerPreview hook', () => {
     });
   });
 
-  it('clears selection when selecting a cluster', () => {
+  it('clears selection when selecting a cluster with multiple features', () => {
     const cluster = {
       get: vi.fn().mockReturnValue([new Feature(), new Feature()]),
       setStyle: vi.fn(),
@@ -197,7 +201,7 @@ describe('useRecreationFeatureLayerPreview hook', () => {
     expect(onFeatureSelect).toHaveBeenCalledWith(null);
   });
 
-  it('clears selection on moveend when selected feature is part of a cluster', () => {
+  it('clears selection on moveend when selected feature is part of a cluster with multiple features', () => {
     const singleFeature = new Feature();
 
     const clusterWithMultipleFeatures = {
@@ -249,6 +253,46 @@ describe('useRecreationFeatureLayerPreview hook', () => {
     });
 
     expect(onFeatureSelect).toHaveBeenCalledWith(null);
+  });
+
+  it('auto-selects and focuses the only feature when the layer contains only one feature', () => {
+    const singleFeature = new Feature();
+    singleFeature.getGeometry = vi.fn().mockReturnValue(new Point([30, 40]));
+    singleFeature.set = vi.fn();
+    singleFeature.setStyle = vi.fn();
+
+    const singleClusterFeature = {
+      get: vi.fn().mockReturnValue([singleFeature]),
+      setStyle: vi.fn(),
+    };
+
+    const layerWithSingleFeature = {
+      getSource: () => ({
+        getFeatures: () => [singleClusterFeature],
+        getSource: () => ({
+          on: vi.fn(),
+          un: vi.fn(),
+        }),
+      }),
+      setStyle: vi.fn(),
+    };
+
+    renderHook(() => {
+      const ref = useRecreationFeatureLayerPreview({
+        mapRef,
+        layer: layerWithSingleFeature,
+        onFeatureSelect,
+      });
+      ref.current = popupRef.current;
+      return ref;
+    });
+
+    expect(singleClusterFeature.setStyle).toHaveBeenCalledWith(
+      locationDotOrangeIcon,
+    );
+    expect(singleFeature.set).toHaveBeenCalledWith('selected', true);
+    expect(mockSetPosition).toHaveBeenCalledWith([30, 40]);
+    expect(onFeatureSelect).toHaveBeenCalledWith(singleFeature);
   });
 
   it('adjusts cluster source distance based on zoom level threshold', () => {
