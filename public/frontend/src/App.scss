@@ -1,0 +1,14 @@
+@import '@/styles/variables.scss';
+
+.skip-link {
+  text-decoration: none;
+  width: 200px;
+  &:hover,
+  &:focus-visible {
+    text-decoration: underline;
+    border: $colorBlue solid 2px;
+    outline: $colorBlueMed solid 2px;
+    outline-offset: 0;
+    border-radius: 4px;
+  }
+}

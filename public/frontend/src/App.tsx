@@ -4,6 +4,7 @@ import Header from '@/components/layout/Header';
 import ScrollToTop from './components/layout/ScrollToTop';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '~/@tanstack/react-query';
+import './App.scss';
 
 const MAIN_CONTENT_ID = 'main-content';
 
@@ -19,7 +20,10 @@ const App = () => {
 
   return (
     <>
-      <a className="visually-hidden-focusable" href={`#${MAIN_CONTENT_ID}`}>
+      <a
+        className="visually-hidden-focusable skip-link"
+        href={`#${MAIN_CONTENT_ID}`}
+      >
         Skip to main content
       </a>
       <Header />

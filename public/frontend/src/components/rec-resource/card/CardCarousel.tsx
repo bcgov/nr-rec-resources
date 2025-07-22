@@ -69,7 +69,7 @@ const CardCarousel = ({ imageList }: CardCarouselProps) => {
             <Carousel.Item
               key={imageUrl}
               data-testid={`image-${imageUrl}`}
-              tabIndex={0}
+              tabIndex={-1}
               onFocus={() => setIsTabFocused(true)}
               onBlur={() => setIsTabFocused(false)}
               onKeyDown={(e) => handleKeyDown(e, imageList)}
