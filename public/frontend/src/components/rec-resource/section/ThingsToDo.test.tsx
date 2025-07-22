@@ -15,12 +15,16 @@ export const mockActivities = [
     recreation_activity_code: 12,
   },
   {
+    description: 'Camping',
+    recreation_activity_code: 32,
+  },
+  {
     description: 'Non existent activity',
     recreation_activity_code: 10,
   },
   {
-    description: 'Camping',
-    recreation_activity_code: 32,
+    description: 'Caving',
+    recreation_activity_code: 11,
   },
 ];
 

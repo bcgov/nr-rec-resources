@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Camping } from '@/components/rec-resource/section';
 
 import '@/components/rec-resource/RecResource.scss';

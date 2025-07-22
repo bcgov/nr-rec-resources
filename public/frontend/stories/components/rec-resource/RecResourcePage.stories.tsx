@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { RecResourcePage } from '@/components/rec-resource';
 import { mockHandlers } from './mockHandlers';
 import {

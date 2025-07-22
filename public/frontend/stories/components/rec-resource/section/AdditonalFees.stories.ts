@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import AdditionalFees from '@/components/rec-resource/section/AdditionalFees';
 
 import '@/components/rec-resource/RecResource.scss';
