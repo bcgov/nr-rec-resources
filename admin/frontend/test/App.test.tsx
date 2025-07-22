@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
 import App from "@/App";
+import { render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock react-router-dom and its hooks/components
 const mockNavigate = vi.fn();
@@ -56,7 +56,7 @@ vi.mock("@/pages/LandingPage", () => ({
 }));
 
 // Mock RecResourcePage
-vi.mock("@/pages/rec-resource-page/RecResourcePage", () => ({
+vi.mock("@/pages/rec-resource-page", () => ({
   RecResourcePage: () => (
     <div data-testid="rec-resource-page">RecResourcePage</div>
   ),

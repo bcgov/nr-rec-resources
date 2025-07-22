@@ -1,17 +1,62 @@
-import { useParams } from "react-router-dom";
-import { RecResourcePageContent } from "@/pages/rec-resource-page/components";
-import { useGetRecreationResourceById } from "@/services/hooks/recreation-resource-admin/useGetRecreationResourceById";
-import { useEffect } from "react";
-import { setRecResourceDetail } from "@/pages/rec-resource-page/store/recResourceDetailStore";
+import {
+  RecResourceFileSection,
+  ResourceHeaderSection,
+} from "@/pages/rec-resource-page/components";
+import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
+import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Alert, Spinner, Stack } from "react-bootstrap";
+import "./RecResourcePage.scss";
+
+const InfoBanner = () => (
+  <Alert variant="warning" className="rec-resource-page__info-banner">
+    <Stack direction="horizontal" gap={2}>
+      <FontAwesomeIcon
+        className="rec-resource-page__info-banner-icon"
+        icon={faInfoCircle}
+        aria-label="Information"
+      />
+      <span className="rec-resource-page__info-banner-text">
+        All images and documents will be published to the beta website
+        immediately.
+      </span>
+    </Stack>
+  </Alert>
+);
+
+const LoadingSpinner = () => (
+  <div className="rec-resource-page__loading-container">
+    <Spinner
+      animation="border"
+      className="rec-resource-page__loading-spinner"
+      role="status"
+      aria-label="Loading recreation resource"
+    />
+  </div>
+);
 
 export const RecResourcePage = () => {
-  const { id: rec_resource_id } = useParams();
+  const { recResource, isLoading, error } = useRecResource();
 
-  const { data: recResource } = useGetRecreationResourceById(rec_resource_id);
+  if (error) {
+    return null;
+  }
 
-  useEffect(() => {
-    setRecResourceDetail(recResource);
-  }, [recResource]);
+  if (isLoading || !recResource) {
+    return <LoadingSpinner />;
+  }
 
-  return <RecResourcePageContent />;
+  return (
+    <Stack
+      direction="vertical"
+      gap={4}
+      className="rec-resource-page py-4"
+      role="main"
+      aria-label="Recreation resource content"
+    >
+      <ResourceHeaderSection recResource={recResource} />
+      <InfoBanner />
+      <RecResourceFileSection />
+    </Stack>
+  );
 };

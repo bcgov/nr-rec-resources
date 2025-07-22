@@ -1,8 +1,9 @@
-import { renderHook, waitFor } from "@testing-library/react";
+import * as HelpersModule from "@/services/hooks/recreation-resource-admin/helpers";
 import { useGetRecreationResourceById } from "@/services/hooks/recreation-resource-admin/useGetRecreationResourceById";
-import { reactQueryWrapper } from "@test/test-utils/reactQueryWrapper";
-import { vi, Mock } from "vitest";
 import * as ApiClientModule from "@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient";
+import { reactQueryWrapper } from "@test/test-utils/reactQueryWrapper";
+import { renderHook, waitFor } from "@testing-library/react";
+import { Mock, vi } from "vitest";
 
 // Mock the API client hook and the API itself
 vi.mock(
@@ -12,15 +13,23 @@ vi.mock(
   }),
 );
 
+// Mock the helper functions
+vi.mock("@/services/hooks/recreation-resource-admin/helpers", () => ({
+  createRetryHandler: vi.fn(),
+}));
+
 describe("useGetRecreationResourceById", () => {
   const mockGetRecreationResourceById = vi.fn();
   const mockApi = { getRecreationResourceById: mockGetRecreationResourceById };
   const useRecreationResourceAdminApiClient =
     ApiClientModule.useRecreationResourceAdminApiClient as Mock;
+  const createRetryHandler = HelpersModule.createRetryHandler as Mock;
 
   beforeEach(() => {
     vi.clearAllMocks();
     useRecreationResourceAdminApiClient.mockReturnValue(mockApi);
+    // Mock createRetryHandler to return a simple retry function
+    createRetryHandler.mockReturnValue(() => false); // No retries for simplicity in tests
   });
 
   it("should not run query if no id is provided", () => {
@@ -46,5 +55,12 @@ describe("useGetRecreationResourceById", () => {
     expect(mockGetRecreationResourceById).toHaveBeenCalledWith({
       recResourceId: "123",
     });
+  });
+
+  it("should use createRetryHandler for retry logic", () => {
+    renderHook(() => useGetRecreationResourceById("123"), {
+      wrapper: reactQueryWrapper,
+    });
+    expect(createRetryHandler).toHaveBeenCalledWith();
   });
 });

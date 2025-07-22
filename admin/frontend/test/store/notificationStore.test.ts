@@ -1,60 +1,100 @@
 import {
-  notificationStore,
-  addNotification,
-  removeNotification,
-  addSuccessNotification,
   addErrorNotification,
+  addInfoNotification,
+  addSpinnerNotification,
+  addStatusNotification,
+  addSuccessNotification,
+  notificationStore,
+  removeNotification,
 } from "@/store/notificationStore";
 
 describe("notificationStore", () => {
-  beforeEach(() => {
-    notificationStore.setState({ messages: [] });
+  beforeEach(() => notificationStore.setState({ messages: [] }));
+
+  it("adds a status notification", () => {
+    addStatusNotification("Test", "success", "id1", true, 1000);
+    expect(notificationStore.state.messages).toEqual([
+      {
+        id: "id1",
+        type: "status",
+        message: "Test",
+        variant: "success",
+        autoDismiss: true,
+        timeout: 1000,
+      },
+    ]);
   });
 
-  it("adds a notification", () => {
-    addNotification("Test message", "info", 1, false, 5000);
-    const { messages } = notificationStore.state;
-    expect(messages).toHaveLength(1);
-    expect(messages[0]).toMatchObject({
-      id: 1,
-      message: "Test message",
-      variant: "info",
-      autoDismiss: false,
-      timeout: 5000,
-    });
+  it("does not add duplicate status notification with same id", () => {
+    addStatusNotification("Test", "success", "id1");
+    addStatusNotification("Test2", "danger", "id1");
+    expect(notificationStore.state.messages).toEqual([
+      expect.objectContaining({ message: "Test" }),
+    ]);
   });
 
-  it("deduplicates notifications by id", () => {
-    addNotification("First", "info", 2);
-    addNotification("Second", "info", 2);
-    const { messages } = notificationStore.state;
-    expect(messages).toHaveLength(1);
-    expect(messages[0].message).toBe("First");
+  it("adds a spinner notification", () => {
+    addSpinnerNotification("Loading", "spin1");
+    expect(notificationStore.state.messages).toEqual([
+      {
+        id: "spin1",
+        type: "spinner",
+        message: "Loading",
+        autoDismiss: false,
+      },
+    ]);
+  });
+
+  it("adds a spinner notification without id and generates unique id", () => {
+    addSpinnerNotification("Loading");
+    const msg = notificationStore.state.messages[0];
+    expect(msg.type).toBe("spinner");
+    expect(msg.message).toBe("Loading");
+    expect(msg.autoDismiss).toBe(false);
+    expect(["string", "number"]).toContain(typeof msg.id);
   });
 
   it("removes a notification by id", () => {
-    addNotification("To remove", "info", 3);
-    removeNotification(3);
+    addStatusNotification("Test", "success", "id1");
+    removeNotification("id1");
     expect(notificationStore.state.messages).toHaveLength(0);
   });
 
-  it("addSuccessNotification sets variant to success", () => {
-    addSuccessNotification("Success!", 4);
-    const msg = notificationStore.state.messages.find((m) => m.id === 4);
-    expect(msg).toBeTruthy();
-    expect(msg?.variant).toBe("success");
+  it.each([
+    [addSuccessNotification, "success"],
+    [addInfoNotification, "info"],
+    [addErrorNotification, "danger"],
+  ])("adds a %s notification", (fn, variant) => {
+    fn("Msg", "id");
+    const msg = notificationStore.state.messages[0];
+    expect(msg.type).toBe("status");
+    if (msg.type === "status") {
+      expect(msg.variant).toBe(variant);
+    }
   });
 
-  it("addErrorNotification sets variant to danger", () => {
-    addErrorNotification("Error!", 5);
-    const msg = notificationStore.state.messages.find((m) => m.id === 5);
-    expect(msg).toBeTruthy();
-    expect(msg?.variant).toBe("danger");
-  });
+  it.each([
+    [addSpinnerNotification, "Loading", "spin1"],
+    [addSpinnerNotification, "Loading again", "spin1"],
+  ])(
+    "does not add duplicate spinner notification with same id",
+    (fn, msg, id) => {
+      fn(msg, id);
+      fn(msg + " again", id);
+      const messages = notificationStore.state.messages;
+      expect(messages).toHaveLength(1);
+      expect(messages[0].message).toBe(msg);
+    },
+  );
 
-  it("generates a unique id if not provided", () => {
-    addNotification("No id");
-    const { messages } = notificationStore.state;
-    expect(messages[0].id).toBeDefined();
+  it("does not add status notification if id already exists (early return branch)", () => {
+    addStatusNotification("First", "success", "id1");
+    addStatusNotification("Second", "danger", "id1");
+    const msg = notificationStore.state.messages[0];
+    expect(notificationStore.state.messages).toHaveLength(1);
+    expect(msg.message).toBe("First");
+    if (msg.type === "status") {
+      expect(msg.variant).toBe("success");
+    }
   });
 });
