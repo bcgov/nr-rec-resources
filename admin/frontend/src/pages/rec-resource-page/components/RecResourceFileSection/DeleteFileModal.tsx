@@ -30,7 +30,7 @@ export const DeleteFileModal: FC<DeleteFileModalProps> = () => {
     variant: "danger" as const,
     icon: faWarning,
     iconColor: COLOR_RED,
-    text: "Deleting this file will remove it from the public site. This action cannot be undone.",
+    text: "Deleting this document will remove it from the public site. This action cannot be undone.",
   };
 
   return (
