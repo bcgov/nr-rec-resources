@@ -126,7 +126,8 @@
       }
     }
 
-    &:hover .nav-icon {
+    &:hover .nav-icon,
+    &:focus-within .nav-icon {
       display: block;
     }
   }
