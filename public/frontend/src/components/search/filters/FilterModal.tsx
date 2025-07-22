@@ -57,21 +57,22 @@ const FilterModal = ({
       scrollable
     >
       <Modal.Body className="filter-modal-content">
-        <div className="filter-modal-content--header">
-          <h2 className="fs-4 mb-4">{title}</h2>
-          <button
-            aria-label="close"
-            className="btn close-filter-btn"
-            onClick={onClose}
-          >
-            <FontAwesomeIcon icon={faXmark} />
+        <div className="w-100">
+          <div className="filter-modal-content--header">
+            <h2 className="fs-4 mb-4">{title}</h2>
+            <button
+              aria-label="close"
+              className="btn close-filter-btn"
+              onClick={onClose}
+            >
+              <FontAwesomeIcon icon={faXmark} />
+            </button>
+          </div>
+          <button className="show-all-link p-0" onClick={handleExpandAll}>
+            {expandAll ? 'Collapse' : 'Expand'} all{' '}
+            <FontAwesomeIcon icon={expandAll ? faChevronUp : faChevronDown} />
           </button>
         </div>
-
-        <button className="show-all-link p-0" onClick={handleExpandAll}>
-          {expandAll ? 'Collapse' : 'Expand'} all{' '}
-          <FontAwesomeIcon icon={expandAll ? faChevronUp : faChevronDown} />
-        </button>
 
         {children({ isGroupOpen, toggleGroup })}
       </Modal.Body>
