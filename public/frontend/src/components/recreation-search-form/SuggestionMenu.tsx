@@ -1,9 +1,11 @@
 import { Menu, MenuItem, RenderMenuProps } from 'react-bootstrap-typeahead';
 import { SuggestionListCity } from '@/components/recreation-search-form/SuggestionListCity';
 import { SuggestionListItem } from '@/components/recreation-search-form/SuggestionListItem';
-import { RecreationResourceSuggestion } from '@shared/components/suggestion-typeahead/types';
 import { Image } from 'react-bootstrap';
-import { City } from '@/components/recreation-search-form/types';
+import {
+  City,
+  RecreationSuggestion,
+} from '@/components/recreation-search-form/types';
 import { RESOURCE_TYPE_ICONS } from '@shared/components/suggestion-typeahead/constants';
 import '@/components/recreation-search-form/SuggestionMenu.scss';
 
@@ -12,7 +14,7 @@ import '@/components/recreation-search-form/SuggestionMenu.scss';
  */
 interface SuggestionMenuProps {
   /** Array of recreation resource suggestions to display. */
-  results: RecreationResourceSuggestion[];
+  results: RecreationSuggestion[];
   /** The current search term to highlight in suggestions. */
   searchTerm: string;
   /**
@@ -42,7 +44,7 @@ export const SuggestionMenu = ({
       {isResults && (
         <div className="suggestion-menu-label">Sites and trails</div>
       )}
-      {results.map((option: RecreationResourceSuggestion, index: number) => {
+      {results.map((option: RecreationSuggestion, index: number) => {
         const {
           rec_resource_id,
           recreation_resource_type_code,

@@ -1,4 +1,4 @@
-import { FC, ReactNode } from "react";
+import { FC, ReactNode, useRef } from "react";
 import {
   AsyncTypeahead,
   TypeaheadComponentProps,
@@ -48,6 +48,11 @@ interface SuggestionTypeaheadProps {
    * Allows for custom rendering of the suggestion menu.
    */
   renderMenu?: TypeaheadComponentProps["renderMenu"];
+  /**
+   * Callback fired when the clear button is clicked.
+   * Allows for custom handling of the clear action.
+   */
+  onClear?: () => void;
 }
 
 /**
@@ -59,6 +64,7 @@ interface SuggestionTypeaheadProps {
 export const SuggestionTypeahead: FC<SuggestionTypeaheadProps> = ({
   isLoading,
   suggestions,
+  onClear,
   onSearch,
   error,
   onChange,
@@ -66,18 +72,29 @@ export const SuggestionTypeahead: FC<SuggestionTypeaheadProps> = ({
   placeholder,
   renderMenu,
 }) => {
+  const typeaheadRef = useRef(null);
   return (
     <AsyncTypeahead
+      ref={typeaheadRef}
       id="recreation-resource-suggestion"
       useCache={false}
       onSearch={onSearch}
       onChange={(selected) => {
-        onChange(selected[0] as RecreationResourceSuggestion);
+        onChange(selected[0] as any);
       }}
       options={suggestions}
       isLoading={isLoading}
       renderInput={(inputProps: TypeaheadInputProps) => (
-        <SuggestionSearchInput {...inputProps} isLoading={isLoading} />
+        <SuggestionSearchInput
+          {...inputProps}
+          isLoading={isLoading}
+          onClear={() => {
+            onClear?.();
+            if (typeaheadRef.current) {
+              (typeaheadRef.current as any).clear();
+            }
+          }}
+        />
       )}
       minLength={1}
       emptyLabel={emptyLabel}

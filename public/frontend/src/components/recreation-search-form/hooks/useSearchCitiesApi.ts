@@ -1,4 +1,5 @@
 import { useQuery } from '~/@tanstack/react-query';
+import { OPTION_TYPE } from '@/components/recreation-search-form/constants';
 import { City } from '@/components/recreation-search-form/types';
 
 const SEARCH_CITIES_API_URL = import.meta.env.VITE_SEARCH_CITIES_API_URL;
@@ -31,7 +32,7 @@ const fetchCities = async (): Promise<City[]> => {
       latitude: city.attributes.latitude,
       longitude: city.attributes.longitude,
       rank: city.attributes.rank,
-      option_type: 'city',
+      option_type: OPTION_TYPE.CITY,
     }),
   );
 
