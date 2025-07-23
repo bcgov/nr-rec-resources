@@ -46,4 +46,12 @@ export class RecreationSuggestionDto {
     required: false,
   })
   recreation_resource_type_code?: string;
+
+  @ApiProperty({
+    description: "Option type to differentiate in the suggestion list",
+    example: "rec_resource",
+    type: String,
+    required: true,
+  })
+  option_type: "recreation_resource";
 }

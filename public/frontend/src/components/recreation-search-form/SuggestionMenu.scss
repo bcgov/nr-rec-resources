@@ -1,4 +1,13 @@
+@import '@/styles/variables.scss';
+@import '~bootstrap/scss/functions';
+@import '~bootstrap/scss/variables';
+@import '~bootstrap/scss/mixins/_breakpoints';
+
 .suggestion-menu-label {
   font-size: 0.9rem;
-  padding: 0.5rem 2rem;
+  padding: 0.5rem 1rem;
+
+  @include media-breakpoint-up(md) {
+    padding: 0.5rem 2rem;
+  }
 }

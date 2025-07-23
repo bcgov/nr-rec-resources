@@ -27,7 +27,11 @@ const fetchCities = async (): Promise<City[]> => {
   const cities = json.data.map(
     (city: RawCity): City => ({
       id: Number(city.id),
-      ...city.attributes,
+      name: city.attributes.cityName,
+      latitude: city.attributes.lat,
+      longitude: city.attributes.lon,
+      rank: city.attributes.rank,
+      option_type: 'city',
     }),
   );
 
