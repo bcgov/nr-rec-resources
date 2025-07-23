@@ -1,6 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma.service";
 import { RecreationResourceSearchService } from "src/recreation-resource/service/recreation-resource-search.service";
+import { RecreationResourceSuggestionsService } from "src/recreation-resource/service/recreation-resource-suggestion.service";
+import { RecreationSuggestionDto } from "src/recreation-resource/dto/recreation-resource-suggestion.dto";
 import { formatRecreationResourceDetailResults } from "src/recreation-resource/utils/formatRecreationResourceDetailResults";
 import { getRecreationResourceSelect } from "src/recreation-resource/utils/getRecreationResourceSelect";
 import { RecreationResourceDetailDto } from "src/recreation-resource/dto/recreation-resource.dto";
@@ -12,6 +14,7 @@ export class RecreationResourceService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly recreationResourceSearchService: RecreationResourceSearchService,
+    private readonly recreationResourceSuggestionsService: RecreationResourceSuggestionsService,
   ) {}
 
   async findOne(
@@ -86,5 +89,9 @@ export class RecreationResourceService {
       lat,
       lon,
     );
+  }
+
+  async getSuggestions(query: string): Promise<RecreationSuggestionDto[]> {
+    return this.recreationResourceSuggestionsService.getSuggestions(query);
   }
 }

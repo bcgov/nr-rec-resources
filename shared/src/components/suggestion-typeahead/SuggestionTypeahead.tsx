@@ -1,18 +1,13 @@
-import { FC, ReactNode, useCallback } from "react";
+import { FC, ReactNode } from "react";
 import {
   AsyncTypeahead,
-  RenderMenuProps,
   TypeaheadComponentProps,
 } from "react-bootstrap-typeahead";
 import { SuggestionSearchInput } from "@shared/components/suggestion-typeahead/SuggestionSearchInput";
-import { SuggestionMenu } from "@shared/components/suggestion-typeahead/SuggestionMenu";
 import { RecreationResourceSuggestion } from "@shared/components/suggestion-typeahead/types";
 import "react-bootstrap-typeahead/css/Typeahead.css";
 import "./SuggestionTypeahead.scss";
-import {
-  Option,
-  TypeaheadInputProps,
-} from "react-bootstrap-typeahead/types/types";
+import { TypeaheadInputProps } from "react-bootstrap-typeahead/types/types";
 
 /**
  * Props for {@link SuggestionTypeahead}.
@@ -32,10 +27,6 @@ interface SuggestionTypeaheadProps {
    */
   onSearch: (searchTerm: string) => void;
   /**
-   * The current search term.
-   */
-  searchTerm: string;
-  /**
    * Error object, if any, to display validation feedback.
    */
   error?: Error | null;
@@ -52,6 +43,11 @@ interface SuggestionTypeaheadProps {
    * Placeholder text for the input.
    */
   placeholder?: string;
+  /**
+   * Custom render function for the menu.
+   * Allows for custom rendering of the suggestion menu.
+   */
+  renderMenu?: TypeaheadComponentProps["renderMenu"];
 }
 
 /**
@@ -65,25 +61,11 @@ export const SuggestionTypeahead: FC<SuggestionTypeaheadProps> = ({
   suggestions,
   onSearch,
   error,
-  searchTerm,
   onChange,
   emptyLabel,
   placeholder,
+  renderMenu,
 }) => {
-  /**
-   * Custom menu renderer for resource suggestions.
-   */
-  const renderMenu: TypeaheadComponentProps["renderMenu"] = useCallback(
-    (results: Option[], menuProps: RenderMenuProps) => (
-      <SuggestionMenu
-        results={results as RecreationResourceSuggestion[]}
-        searchTerm={searchTerm}
-        menuProps={menuProps}
-      />
-    ),
-    [searchTerm],
-  );
-
   return (
     <AsyncTypeahead
       id="recreation-resource-suggestion"

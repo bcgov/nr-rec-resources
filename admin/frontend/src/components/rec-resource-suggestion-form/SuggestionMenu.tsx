@@ -1,5 +1,5 @@
 import { Menu, MenuItem, RenderMenuProps } from "react-bootstrap-typeahead";
-import { SuggestionListItem } from "@shared/components/suggestion-typeahead/SuggestionListItem";
+import { SuggestionListItem } from "@/components/rec-resource-suggestion-form/SuggestionListItem";
 import { RecreationResourceSuggestion } from "@shared/components/suggestion-typeahead/types";
 import { Image } from "react-bootstrap";
 import { RESOURCE_TYPE_ICONS } from "@shared/components/suggestion-typeahead/constants";

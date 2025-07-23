@@ -16,6 +16,7 @@ import * as runtime from '../runtime';
 import type {
   PaginatedRecreationResourceDto,
   RecreationResourceDetailDto,
+  RecreationSuggestionDto,
   SiteOperatorDto,
 } from '../models/index';
 import {
@@ -23,6 +24,8 @@ import {
   PaginatedRecreationResourceDtoToJSON,
   RecreationResourceDetailDtoFromJSON,
   RecreationResourceDetailDtoToJSON,
+  RecreationSuggestionDtoFromJSON,
+  RecreationSuggestionDtoToJSON,
   SiteOperatorDtoFromJSON,
   SiteOperatorDtoToJSON,
 } from '../models/index';
@@ -30,6 +33,10 @@ import {
 export interface GetRecreationResourceByIdRequest {
   id: string;
   imageSizeCodes?: Array<GetRecreationResourceByIdImageSizeCodesEnum>;
+}
+
+export interface GetRecreationSuggestionsRequest {
+  query: string;
 }
 
 export interface GetSiteOperatorByIdRequest {
@@ -108,6 +115,59 @@ export class RecreationResourceApi extends runtime.BaseAPI {
   }
 
   /**
+   * Returns a list of suggested recreation resources based on a partial search term.
+   * Get search suggestions
+   */
+  async getRecreationSuggestionsRaw(
+    requestParameters: GetRecreationSuggestionsRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<RecreationSuggestionDto>>> {
+    if (requestParameters['query'] == null) {
+      throw new runtime.RequiredError(
+        'query',
+        'Required parameter "query" was null or undefined when calling getRecreationSuggestions().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    if (requestParameters['query'] != null) {
+      queryParameters['query'] = requestParameters['query'];
+    }
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resource/suggestions`,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      jsonValue.map(RecreationSuggestionDtoFromJSON),
+    );
+  }
+
+  /**
+   * Returns a list of suggested recreation resources based on a partial search term.
+   * Get search suggestions
+   */
+  async getRecreationSuggestions(
+    requestParameters: GetRecreationSuggestionsRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<Array<RecreationSuggestionDto>> {
+    const response = await this.getRecreationSuggestionsRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
    * Find site operator by resource ID
    */
   async getSiteOperatorByIdRaw(
@@ -158,6 +218,7 @@ export class RecreationResourceApi extends runtime.BaseAPI {
   }
 
   /**
+   *        Returns a paginated list of recreation resources and related data (result counts, filters, extent).       The unpaginated summary data (counts, filters, extent) is based on the first 5000 matching records only, due       to internal limits for performance reasons. This limit does not affect the main paginated resource list.
    * Search recreation resources
    */
   async searchRecreationResourcesRaw(
@@ -224,6 +285,7 @@ export class RecreationResourceApi extends runtime.BaseAPI {
   }
 
   /**
+   *        Returns a paginated list of recreation resources and related data (result counts, filters, extent).       The unpaginated summary data (counts, filters, extent) is based on the first 5000 matching records only, due       to internal limits for performance reasons. This limit does not affect the main paginated resource list.
    * Search recreation resources
    */
   async searchRecreationResources(

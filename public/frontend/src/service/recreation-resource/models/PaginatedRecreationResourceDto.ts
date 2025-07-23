@@ -65,13 +65,13 @@ export interface PaginatedRecreationResourceDto {
    */
   filters: Array<FilterDto>;
   /**
-   *
+   * Unpaginated list of recreation resource IDs from the results
    * @type {Array<string>}
    * @memberof PaginatedRecreationResourceDto
    */
   recResourceIds: Array<string>;
   /**
-   *
+   * GeoJSON representation of the extent of the search results to fit the map view
    * @type {string}
    * @memberof PaginatedRecreationResourceDto
    */

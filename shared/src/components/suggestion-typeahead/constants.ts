@@ -1,7 +1,6 @@
-/* eslint-disable import/no-relative-parent-imports */
-import SIT_ICON from "../../assets/icons/recreation_site.svg";
-import RTR_ICON from "../../assets/icons/recreation_trail.svg";
-import IF_ICON from "../../assets/icons/interpretive_forest.svg";
+import SIT_ICON from "@shared/assets/icons/recreation_site.svg";
+import RTR_ICON from "@shared/assets/icons/recreation_trail.svg";
+import IF_ICON from "@shared/assets/icons/interpretive_forest.svg";
 
 export const RESOURCE_TYPE_ICONS: Record<string, string> = {
   SIT: SIT_ICON,
