@@ -15,7 +15,6 @@ export const MAX_LOCATION_OPTIONS = 6;
 export const CURRENT_LOCATION_TITLE = 'Current location';
 
 const LocationSearch: React.FC = () => {
-  return;
   const {
     cityInputValue,
     setCityInputValue,

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import Form from 'react-bootstrap/Form';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import { useRecreationSuggestions } from '@/service/queries/recreation-resource';
@@ -6,30 +6,30 @@ import { SuggestionMenu } from '@/components/recreation-search-form/SuggestionMe
 import { SuggestionTypeahead } from '@shared/components/suggestion-typeahead/SuggestionTypeahead';
 import { useSearchCitiesApi } from '@/components/recreation-search-form/hooks/useSearchCitiesApi';
 import { useCurrentLocation } from '@/components/recreation-search-form/hooks/useCurrentLocation';
+import { useSearchInput } from '@/components/recreation-search-form/hooks/useSearchInput';
 import NotificationToast from '@/components/notifications/NotificationToast';
 import { RecreationResourceSuggestion } from '@shared/components/suggestion-typeahead/types';
 import { City as CitySuggestion } from '@/components/recreation-search-form/types';
 import { useNavigate } from 'react-router';
-import './RecreationResourceSuggestionForm.scss';
-import { ROUTE_PATHS } from '@/routes/constants';
+import '@/components/recreation-search-form/RecreationSuggestionForm.scss';
 import {
   RenderMenuProps,
   TypeaheadComponentProps,
 } from 'react-bootstrap-typeahead';
 import { Option } from 'react-bootstrap-typeahead/types/types';
+import { ROUTE_PATHS } from '@/routes/constants';
 
 const MAX_LOCATION_OPTIONS = 4;
 const CURRENT_LOCATION_TITLE = 'Current location';
 
-/**
- * RecreationResourceSuggestionForm provides a search form for recreation resources.
- */
-export const RecreationResourceSuggestionForm = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+export const RecreationSuggestionForm = () => {
   const navigate = useNavigate();
   const { data: citiesList } = useSearchCitiesApi();
   const { getLocation, latitude, longitude, permissionDeniedCount } =
     useCurrentLocation();
+  const { searchInputValue, setSearchInputValue, handleCityOptionSearch } =
+    useSearchInput();
+
   const isPermissionDenied = useMemo(
     () => permissionDeniedCount > 0,
     [permissionDeniedCount],
@@ -48,9 +48,10 @@ export const RecreationResourceSuggestionForm = () => {
   );
 
   const cityOptions = useMemo(() => {
-    const searchText = searchTerm?.toLowerCase() ?? '';
+    const searchText = searchInputValue?.toLowerCase() ?? '';
+    console.log('citiesList:', citiesList);
 
-    const cities = (citiesList ?? [currentLocationOption])
+    const cities = (citiesList ?? [])
       .filter(
         (city) =>
           city.name.toLowerCase().startsWith(searchText) ||
@@ -61,30 +62,27 @@ export const RecreationResourceSuggestionForm = () => {
     cities.push(currentLocationOption);
 
     return cities;
-  }, [searchTerm, currentLocationOption, citiesList]);
-
-  /**
-   * Custom menu renderer for resource suggestions.
-   */
-  const renderMenu: TypeaheadComponentProps['renderMenu'] = useCallback(
-    (results: Option[], menuProps: RenderMenuProps) => (
-      <SuggestionMenu
-        results={results as RecreationResourceSuggestion[]}
-        searchTerm={searchTerm}
-        menuProps={menuProps}
-        cityOptions={cityOptions}
-      />
-    ),
-    [searchTerm, cityOptions],
-  );
+  }, [searchInputValue, currentLocationOption, citiesList]);
 
   const {
     data: suggestions,
     error,
     isFetching,
   } = useRecreationSuggestions({
-    query: searchTerm,
+    query: searchInputValue,
   });
+
+  const renderMenu: TypeaheadComponentProps['renderMenu'] = useCallback(
+    (results: Option[], menuProps: RenderMenuProps) => (
+      <SuggestionMenu
+        results={results as RecreationResourceSuggestion[]}
+        searchTerm={searchInputValue}
+        menuProps={menuProps}
+        cityOptions={cityOptions}
+      />
+    ),
+    [searchInputValue, cityOptions],
+  );
 
   const handleSuggestionChange = (
     suggestion: RecreationResourceSuggestion | CitySuggestion,
@@ -93,8 +91,8 @@ export const RecreationResourceSuggestionForm = () => {
 
     switch (suggestionType) {
       case 'current_location':
-        getLocation();
-        return;
+        if (!latitude || !longitude) return getLocation();
+        return handleCityOptionSearch(currentLocationOption);
 
       case 'recreation_resource':
         navigate(
@@ -103,8 +101,7 @@ export const RecreationResourceSuggestionForm = () => {
         return;
 
       case 'city':
-        // Optional: handle 'city' suggestions
-        console.log('City selected:', suggestion.name);
+        handleCityOptionSearch(suggestion);
         return;
 
       default:
@@ -113,19 +110,6 @@ export const RecreationResourceSuggestionForm = () => {
   };
 
   const getEmptyLabel = () => {
-    // if (error?.response.status === 400) {
-    //   return (
-    //     <Form.Control.Feedback type="invalid" className="d-block">
-    //       Invalid search term. Only letters, numbers, spaces, and these
-    //       characters are allowed: &quot; &#39; ( ) # . &amp; /
-    //       <br />
-    //       Minimum 3 characters.
-    //     </Form.Control.Feedback>
-    //   );
-    // }
-    // if (!isValidRecreationResourceSearchTerm(searchTerm)) {
-    //   return 'Please enter at least 3 characters to search';
-    // }
     return 'No results found';
   };
 
@@ -138,7 +122,7 @@ export const RecreationResourceSuggestionForm = () => {
             isLoading={isFetching}
             error={error}
             suggestions={suggestions as RecreationResourceSuggestion[]}
-            onSearch={setSearchTerm}
+            onSearch={setSearchInputValue}
             emptyLabel={getEmptyLabel()}
             renderMenu={renderMenu}
             placeholder="By name or community"

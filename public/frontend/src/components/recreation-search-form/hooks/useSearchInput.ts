@@ -1,86 +1,74 @@
 import { useCallback, useEffect } from 'react';
 import { useStore } from '@tanstack/react-store';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { City } from '@/components/recreation-search-form/types';
 import searchInputStore from '@/store/searchInputStore';
 import { ROUTE_PATHS } from '@/routes';
+import { City } from '@/components/recreation-search-form/types';
 
-interface UseSearchInputReturn {
-  cityInputValue?: string;
-  setCityInputValue: (value: string) => void;
-  nameInputValue: string;
-  setNameInputValue: (value: string) => void;
-  selectedCity?: City[] | [];
-  setSelectedCity: (city: City[] | []) => void;
-  handleSearch: () => void;
-  handleClearSearch: () => void;
-  handleClearNameInput: () => void;
-  handleCityInputSearch: (city: City) => void;
-  handleClearCityInput: () => void;
-}
-
-const NAME_INPUT_PARAM_KEY = 'filter';
-const LATITUDE_PARAM_KEY = 'lat';
-const LONGITUDE_PARAM_KEY = 'lon';
+const FILTER_PARAM_KEY = 'filter';
+const LAT_PARAM_KEY = 'lat';
+const LON_PARAM_KEY = 'lon';
 const COMMUNITY_PARAM_KEY = 'community';
 
-export const useSearchInput = (): UseSearchInputReturn => {
+export const useSearchInput = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const filter = searchParams.get(NAME_INPUT_PARAM_KEY);
-  const community = searchParams.get(COMMUNITY_PARAM_KEY);
   const navigate = useNavigate();
   const state = useStore(searchInputStore);
 
-  const setNameInputValue = useCallback(
+  const setSearchInputValue = useCallback(
     (val: string) =>
-      searchInputStore.setState((prev) => ({ ...prev, nameInputValue: val })),
-    [],
-  );
-
-  const setCityInputValue = useCallback(
-    (val: string) =>
-      searchInputStore.setState((prev) => ({ ...prev, cityInputValue: val })),
+      searchInputStore.setState((prev) => ({
+        ...prev,
+        searchInputValue: val,
+      })),
     [],
   );
 
   const setSelectedCity = useCallback(
-    (city: City[]) =>
-      searchInputStore.setState((prev) => ({ ...prev, selectedCity: city })),
+    (city: City[] | []) =>
+      searchInputStore.setState((prev) => ({
+        ...prev,
+        selectedCity: city,
+      })),
     [],
   );
 
   const handleSearch = useCallback(() => {
+    const trimmedValue = state.searchInputValue.trim();
     const newParams = new URLSearchParams(searchParams);
-    newParams.set(NAME_INPUT_PARAM_KEY, state.nameInputValue.trim());
+
+    if (trimmedValue) {
+      newParams.set(FILTER_PARAM_KEY, trimmedValue);
+    } else {
+      newParams.delete(FILTER_PARAM_KEY);
+    }
 
     navigate({
       pathname: ROUTE_PATHS.SEARCH,
       search: newParams.toString(),
     });
-  }, [navigate, searchParams, state.nameInputValue]);
+  }, [navigate, searchParams, state.searchInputValue]);
 
-  useEffect(() => {
-    if (filter) {
-      setNameInputValue(filter);
-    }
-    if (community) {
-      setCityInputValue(community);
-    }
-    // eslint-disable-next-line
-  }, [filter, community]);
+  const handleClearSearch = useCallback(() => {
+    setSearchInputValue('');
+    setSelectedCity([]);
 
-  const handleCityInputSearch = useCallback(
+    const newParams = new URLSearchParams();
+    setSearchParams(newParams);
+  }, [setSearchInputValue, setSelectedCity, setSearchParams]);
+
+  const handleCityOptionSearch = useCallback(
     (city: City) => {
       if (!city) return;
 
-      const trimmedCityInputValue = city.name.trim();
       const newParams = new URLSearchParams(searchParams);
-      newParams.set(LATITUDE_PARAM_KEY, String(city.latitude));
-      newParams.set(LONGITUDE_PARAM_KEY, String(city.longitude));
-      newParams.set(COMMUNITY_PARAM_KEY, trimmedCityInputValue);
+      newParams.set(LAT_PARAM_KEY, String(city.latitude));
+      newParams.set(LON_PARAM_KEY, String(city.longitude));
+      newParams.set(COMMUNITY_PARAM_KEY, city.name.trim());
 
-      if (state.nameInputValue.trim()) {
-        newParams.set(NAME_INPUT_PARAM_KEY, state.nameInputValue.trim());
+      const trimmedFilter = state.searchInputValue.trim();
+      if (trimmedFilter) {
+        newParams.set(FILTER_PARAM_KEY, trimmedFilter);
       }
 
       setSelectedCity([city]);
@@ -90,45 +78,24 @@ export const useSearchInput = (): UseSearchInputReturn => {
         search: newParams.toString(),
       });
     },
-    [navigate, searchParams, setSelectedCity, state.nameInputValue],
+    [navigate, searchParams, state.searchInputValue, setSelectedCity],
   );
 
-  const handleClearNameInput = useCallback(() => {
-    setNameInputValue('');
-    const newParams = new URLSearchParams(searchParams);
-    newParams.delete(NAME_INPUT_PARAM_KEY);
-    setSearchParams(newParams);
-  }, [searchParams, setNameInputValue, setSearchParams]);
-
-  const handleClearCityInput = useCallback(() => {
-    setCityInputValue('');
-    setSelectedCity([]);
-    const newParams = new URLSearchParams(searchParams);
-    newParams.delete(LATITUDE_PARAM_KEY);
-    newParams.delete(LONGITUDE_PARAM_KEY);
-    newParams.delete(COMMUNITY_PARAM_KEY);
-    setSearchParams(newParams);
-  }, [searchParams, setCityInputValue, setSelectedCity, setSearchParams]);
-
-  const handleClearSearch = useCallback(() => {
-    setNameInputValue('');
-    setCityInputValue('');
-    setSelectedCity([]);
-    const newParams = new URLSearchParams();
-    setSearchParams(newParams);
-  }, [setNameInputValue, setCityInputValue, setSelectedCity, setSearchParams]);
+  // Initialize state from query params
+  useEffect(() => {
+    const filter = searchParams.get(FILTER_PARAM_KEY);
+    if (filter) {
+      setSearchInputValue(filter);
+    }
+  }, [searchParams, setSearchInputValue]);
 
   return {
-    nameInputValue: state.nameInputValue,
-    setNameInputValue,
-    cityInputValue: state.cityInputValue,
-    setCityInputValue,
+    searchInputValue: state.searchInputValue,
+    setSearchInputValue,
     selectedCity: state.selectedCity,
     setSelectedCity,
     handleSearch,
     handleClearSearch,
-    handleClearNameInput,
-    handleCityInputSearch,
-    handleClearCityInput,
+    handleCityOptionSearch,
   };
 };
