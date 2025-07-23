@@ -7,15 +7,16 @@ import { SuggestionTypeahead } from '@shared/components/suggestion-typeahead/Sug
 import { useSearchCitiesApi } from '@/components/recreation-search-form/hooks/useSearchCitiesApi';
 import { useCurrentLocation } from '@/components/recreation-search-form/hooks/useCurrentLocation';
 import { useSearchInput } from '@/components/recreation-search-form/hooks/useSearchInput';
+import {
+  ClearButton,
+  RenderMenuProps,
+  TypeaheadComponentProps,
+} from 'react-bootstrap-typeahead';
 import NotificationToast from '@/components/notifications/NotificationToast';
 import { RecreationResourceSuggestion } from '@shared/components/suggestion-typeahead/types';
 import { City as CitySuggestion } from '@/components/recreation-search-form/types';
 import { useNavigate } from 'react-router';
 import '@/components/recreation-search-form/RecreationSuggestionForm.scss';
-import {
-  RenderMenuProps,
-  TypeaheadComponentProps,
-} from 'react-bootstrap-typeahead';
 import { Option } from 'react-bootstrap-typeahead/types/types';
 import { ROUTE_PATHS } from '@/routes/constants';
 
@@ -27,8 +28,12 @@ export const RecreationSuggestionForm = () => {
   const { data: citiesList } = useSearchCitiesApi();
   const { getLocation, latitude, longitude, permissionDeniedCount } =
     useCurrentLocation();
-  const { searchInputValue, setSearchInputValue, handleCityOptionSearch } =
-    useSearchInput();
+  const {
+    searchInputValue,
+    setSearchInputValue,
+    handleCityOptionSearch,
+    handleClearSearch,
+  } = useSearchInput();
 
   const isPermissionDenied = useMemo(
     () => permissionDeniedCount > 0,
@@ -127,6 +132,13 @@ export const RecreationSuggestionForm = () => {
             renderMenu={renderMenu}
             placeholder="By name or community"
           />
+          {searchInputValue && (
+            <ClearButton
+              onClick={handleClearSearch}
+              className="clear-button"
+              label="Clear search"
+            />
+          )}
         </Form.Group>
       </Form>
       <NotificationToast
