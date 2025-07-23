@@ -10,7 +10,7 @@ import { useRecreationFeatureLayerPreview } from '@/components/search/SearchMap/
 import { useZoomToExtent } from '@/components/search/SearchMap/hooks/useZoomToExtent';
 import searchResultsStore from '@/store/searchResults';
 import RecreationResourcePreview from '@/components/search/SearchMap/RecreationFeaturePreview';
-import { RecreationSearchForm } from '@/components/recreation-search-form/RecreationSearchForm';
+import { RecreationSuggestionForm } from '@/components/recreation-search-form/RecreationSuggestionForm';
 import '@/components/search/SearchMap/SearchMap.scss';
 import type Feature from 'ol/Feature';
 
@@ -66,7 +66,7 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
         maxZoom={30}
       />
       <div className="search-map-view-controls">
-        <RecreationSearchForm />
+        <RecreationSuggestionForm />
         <SearchViewControls />
       </div>
       <div ref={featurePreviewPopupRef} className="search-map-feature-preview">

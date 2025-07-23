@@ -2,14 +2,12 @@ import { Store } from '@tanstack/store';
 import { City } from '@/components/recreation-search-form/types';
 
 interface SearchInputState {
-  nameInputValue: string;
-  cityInputValue: string;
+  searchInputValue: string;
   selectedCity?: City[];
 }
 
 const initialSearchInputState: SearchInputState = {
-  nameInputValue: '',
-  cityInputValue: '',
+  searchInputValue: '',
   selectedCity: undefined,
 };
 
