@@ -1,11 +1,8 @@
 @import "@/styles/mixins.scss";
 
 .notification-bar-container {
-  position: relative;
-  top: 5px;
-  z-index: 9999;
-  float: none;
   @include page-container-base;
+  margin-top: 0.5rem;
 
   $border-radius: 12px;
 

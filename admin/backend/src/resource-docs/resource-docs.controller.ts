@@ -1,4 +1,11 @@
 import {
+  AUTH_STRATEGY,
+  AuthRoles,
+  AuthRolesGuard,
+  RecreationResourceAuthRole,
+  ROLE_MODE,
+} from "@/auth";
+import {
   Body,
   Controller,
   Delete,
@@ -10,6 +17,8 @@ import {
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
+import { AuthGuard } from "@nestjs/passport";
+import { FileInterceptor } from "@nestjs/platform-express";
 import {
   ApiBearerAuth,
   ApiBody,
@@ -20,21 +29,12 @@ import {
   ApiTags,
   getSchemaPath,
 } from "@nestjs/swagger";
-import { ResourceDocsService } from "./service/resource-docs.service";
 import {
   CreateRecreationResourceDocBodyDto,
   CreateRecreationResourceDocFormDto,
   RecreationResourceDocDto,
 } from "./dto/recreation-resource-doc.dto";
-import { FileInterceptor } from "@nestjs/platform-express";
-import {
-  AUTH_STRATEGY,
-  AuthRoles,
-  AuthRolesGuard,
-  RecreationResourceAuthRole,
-  ROLE_MODE,
-} from "@/auth";
-import { AuthGuard } from "@nestjs/passport";
+import { ResourceDocsService } from "./service/resource-docs.service";
 
 @ApiTags("recreation-resource")
 @ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
@@ -136,6 +136,7 @@ export class ResourceDocsController {
     status: 404,
     description: "Recreation Resource document not found",
   })
+  @ApiResponse({ status: 413, description: "File too large" })
   @ApiResponse({ status: 500, description: "Error creating document" })
   @ApiResponse({ status: 415, description: "File Type not allowed" })
   @ApiResponse({ status: 416, description: "Error creating resource" })
@@ -182,6 +183,7 @@ export class ResourceDocsController {
     status: 404,
     description: "Recreation Resource document not found",
   })
+  @ApiResponse({ status: 413, description: "File too large" })
   @ApiResponse({ status: 500, description: "Error updating document" })
   @ApiResponse({ status: 415, description: "File Type not allowed" })
   @ApiResponse({ status: 419, description: "Error uploading file" })

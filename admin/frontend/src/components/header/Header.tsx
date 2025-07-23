@@ -1,4 +1,10 @@
+import { CustomButton } from "@/components";
+import { Avatar } from "@/components/avatar/Avatar";
+import { useAuthContext } from "@/contexts/AuthContext";
 import { Header as BCGovHeader } from "@bcgov/design-system-react-components";
+import { faBars } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { forwardRef, KeyboardEvent, MouseEvent } from "react";
 import {
   Dropdown,
   DropdownItem,
@@ -7,13 +13,7 @@ import {
   Image,
   Stack,
 } from "react-bootstrap";
-import { forwardRef, KeyboardEvent, MouseEvent } from "react";
-import { useAuthContext } from "@/contexts/AuthContext";
-import useMediaQuery from "@/hooks/useMediaQuery";
 import "./Header.scss";
-import { Avatar } from "@/components/avatar/Avatar";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBars } from "@fortawesome/free-solid-svg-icons";
 
 /**
  * A custom menu toggle component for the header dropdown.
@@ -24,7 +24,6 @@ const HeaderMenuToggle = forwardRef<
     onClick: (event: MouseEvent | KeyboardEvent) => void;
     className?: string;
     name: string;
-    isMobile: boolean;
   }
 >((props, ref) => (
   <div
@@ -42,34 +41,31 @@ const HeaderMenuToggle = forwardRef<
       }
     }}
   >
-    {props.isMobile ? (
-      <button type="button" className="btn btn-outline-primary">
-        <FontAwesomeIcon icon={faBars} />
-      </button>
-    ) : (
-      <Avatar name={props.name} size={50} tooltip={false} />
-    )}
+    <CustomButton
+      className={"d-lg-none d-sm-block header__menu-button"}
+      leftIcon={<FontAwesomeIcon icon={faBars} />}
+    />
+
+    <Avatar
+      name={props.name}
+      size={50}
+      tooltip={false}
+      className="d-none d-lg-flex header__avatar"
+    />
   </div>
 ));
 
 /**
  * Renders the HeaderMenuToggle with the user's full name.
  */
-const renderMenuToggle = (fullName: string, isMobile: boolean) =>
+const renderMenuToggle = (fullName: string) =>
   forwardRef<
     HTMLDivElement,
     {
       onClick: (event: MouseEvent | KeyboardEvent) => void;
       className?: string;
     }
-  >((props, ref) => (
-    <HeaderMenuToggle
-      {...props}
-      ref={ref}
-      name={fullName}
-      isMobile={isMobile}
-    />
-  ));
+  >((props, ref) => <HeaderMenuToggle {...props} ref={ref} name={fullName} />);
 
 /**
  * The Header component renders the top-level header with a welcome message and a dropdown menu.
@@ -81,30 +77,33 @@ const renderMenuToggle = (fullName: string, isMobile: boolean) =>
 export const Header = () => {
   const { user, authService } = useAuthContext();
   const fullName = authService.getUserFullName();
-  const isMobile = useMediaQuery("(max-width: 767px)");
   return (
-    <div className={"header-container"}>
+    <div className={"header"}>
       <BCGovHeader
+        title={"Admin Tool"}
         logoImage={
-          isMobile ? (
-            <Image src="/images/rst-mobile.svg" className="logo-mobile" />
-          ) : (
-            <Image src="/images/RST_nav_logo.svg" className="logo" />
-          )
+          <>
+            <Image
+              src="/images/rst-mobile.svg"
+              className="d-lg-none d-sm-block header__logo header__logo--mobile"
+            />
+
+            <Image
+              src="/images/RST_nav_logo.svg"
+              className="d-none d-lg-block header__logo"
+            />
+          </>
         }
       >
-        <div className="admin-title">Admin Tool</div>
         <Stack
           direction={"horizontal"}
           gap={3}
-          className={`${isMobile ? "w-25" : "w-100"} d-flex justify-content-end align-items-center`}
+          className={`d-flex justify-content-end align-items-center`}
         >
-          {user && (
-            <div className="d-none d-md-block full-name">{fullName}</div>
-          )}
+          {user && <div className="d-none d-lg-block fw-bold">{fullName}</div>}
           <Dropdown>
             <DropdownToggle
-              as={renderMenuToggle(fullName, isMobile)} // use the renderMenuToggle function
+              as={renderMenuToggle(fullName)} // use the renderMenuToggle function
               id="dropdown-basic"
             />
             <DropdownMenu>
