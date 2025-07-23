@@ -10,6 +10,7 @@ import { RecreationResourceService } from "src/recreation-resource/service/recre
 import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resource.dto";
 import { RecreationResourceImageSize } from "./dto/recreation-resource-image.dto";
 import { ParseImageSizesPipe } from "./pipes/parse-image-sizes.pipe";
+import { RecreationSuggestionDto } from "src/recreation-resource/dto/recreation-resource-suggestion.dto";
 import {
   RecreationResourceDetailDto,
   SiteOperatorDto,
@@ -122,6 +123,34 @@ export class RecreationResourceController {
       lat ? parseFloat(String(lat)) : undefined,
       lon ? parseFloat(String(lon)) : undefined,
     );
+  }
+
+  @Get("suggestions")
+  @ApiOperation({
+    summary: "Get search suggestions",
+    operationId: "getRecreationSuggestions",
+    description:
+      "Returns a list of suggested recreation resources based on a partial search term.",
+  })
+  @ApiQuery({
+    name: "query",
+    required: true,
+    type: String,
+    description: "Partial name or keyword to suggest resources for",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "List of suggested resources",
+    type: [RecreationSuggestionDto],
+  })
+  async getSuggestions(
+    @Query("query") query: string,
+  ): Promise<RecreationSuggestionDto[]> {
+    if (!query || query.trim().length === 0) {
+      throw new HttpException("Query parameter 'query' is required", 400);
+    }
+
+    return this.recreationResourceService.getSuggestions(query);
   }
 
   @Get(":id")

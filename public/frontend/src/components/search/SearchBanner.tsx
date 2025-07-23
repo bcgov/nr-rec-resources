@@ -1,6 +1,6 @@
 import '@/components/search/Search.scss';
 import { Col, Row, Stack } from 'react-bootstrap';
-import { RecreationSearchForm } from '@/components/recreation-search-form';
+import { RecreationResourceSuggestionForm } from '@/components/recreation-search-form/RecreationResourceSuggestionForm';
 
 const SearchBanner = () => {
   return (
@@ -16,7 +16,7 @@ const SearchBanner = () => {
           <h1 className="fs-3 mb-lg-0">Find a site or trail</h1>
         </Col>
         <Col md={12} lg={9} className="mb-3 mb-md-0">
-          <RecreationSearchForm searchButtonProps={{ variant: 'primary' }} />
+          <RecreationResourceSuggestionForm />
         </Col>
       </Row>
     </Stack>

@@ -1,6 +1,7 @@
 import {
   GetRecreationResourceByIdRequest,
   GetSiteOperatorByIdRequest,
+  RecreationSuggestionDto,
   PaginatedRecreationResourceDto,
   ResponseError,
   SearchRecreationResourcesRequest,
@@ -215,5 +216,16 @@ export const useSearchRecreationResourcesPaginated = (params: SearchParams) => {
     queryFn,
     select,
     placeholderData: (previousData) => previousData,
+  });
+};
+
+export const useRecreationSuggestions = ({ query }: { query: string }) => {
+  const api = useRecreationResourceApi();
+
+  return useQuery<RecreationSuggestionDto[]>({
+    queryKey: ['recreationSuggestions', query],
+    queryFn: () => api.getRecreationSuggestions({ query }),
+    enabled: !!query?.trim(),
+    staleTime: 5 * 60 * 1000,
   });
 };
