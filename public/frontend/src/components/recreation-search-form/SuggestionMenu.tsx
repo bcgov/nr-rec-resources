@@ -1,7 +1,9 @@
 import { Menu, MenuItem, RenderMenuProps } from 'react-bootstrap-typeahead';
+import { SuggestionListCity } from '@/components/recreation-search-form/SuggestionListCity';
 import { SuggestionListItem } from '@/components/recreation-search-form/SuggestionListItem';
 import { RecreationResourceSuggestion } from '@shared/components/suggestion-typeahead/types';
 import { Image } from 'react-bootstrap';
+import { City } from '@/components/recreation-search-form/types';
 import { RESOURCE_TYPE_ICONS } from '@shared/components/suggestion-typeahead/constants';
 import '@/components/recreation-search-form/SuggestionMenu.scss';
 
@@ -18,6 +20,8 @@ interface SuggestionMenuProps {
    * These are important for rendering the menu correctly and handling interactions.
    */
   menuProps: RenderMenuProps;
+  /** Array of city options for location-based suggestions. */
+  cityOptions: City[];
 }
 
 /**
@@ -25,11 +29,13 @@ interface SuggestionMenuProps {
  * recreation resource suggestions.
  */
 export const SuggestionMenu = ({
+  cityOptions,
+  menuProps,
   results,
   searchTerm,
-  menuProps,
 }: SuggestionMenuProps) => {
   const isResults = results && results.length > 0;
+  const isCityOptions = cityOptions && cityOptions.length > 0;
 
   return (
     <Menu {...menuProps}>
@@ -62,6 +68,19 @@ export const SuggestionMenu = ({
               resourceType={recreation_resource_type}
               title={name}
             />
+          </MenuItem>
+        );
+      })}
+      {isCityOptions && <div className="suggestion-menu-label">Location</div>}
+      {cityOptions.map((option: City, index: number) => {
+        return (
+          <MenuItem
+            key={option.name}
+            option={option}
+            position={index + results.length} // Offset by the number of results
+            className="dropdown-menu-item"
+          >
+            <SuggestionListCity searchTerm={searchTerm} city={option.name} />
           </MenuItem>
         );
       })}

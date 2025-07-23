@@ -1,7 +1,8 @@
 export interface City {
   id: number;
-  cityName: string;
+  name: string;
   latitude?: number;
   longitude?: number;
   rank?: number;
+  option_type: 'city' | 'current_location';
 }

@@ -73,7 +73,7 @@ export const useSearchInput = (): UseSearchInputReturn => {
     (city: City) => {
       if (!city) return;
 
-      const trimmedCityInputValue = city.cityName.trim();
+      const trimmedCityInputValue = city.name.trim();
       const newParams = new URLSearchParams(searchParams);
       newParams.set(LATITUDE_PARAM_KEY, String(city.latitude));
       newParams.set(LONGITUDE_PARAM_KEY, String(city.longitude));

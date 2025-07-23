@@ -19,7 +19,8 @@ export class RecreationResourceSuggestionsService {
         closest_community,
         district_description,
         recreation_resource_type,
-        recreation_resource_type_code
+        recreation_resource_type_code,
+        'recreation_resource' AS option_type
       FROM recreation_resource_search_view
       WHERE name ILIKE ${`%${term}%`} OR closest_community ILIKE ${`%${term}%`}
       ORDER BY
