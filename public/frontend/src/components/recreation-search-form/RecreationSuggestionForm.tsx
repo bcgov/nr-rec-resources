@@ -8,20 +8,23 @@ import { useSearchCitiesApi } from '@/components/recreation-search-form/hooks/us
 import { useCurrentLocation } from '@/components/recreation-search-form/hooks/useCurrentLocation';
 import { useSearchInput } from '@/components/recreation-search-form/hooks/useSearchInput';
 import {
-  ClearButton,
   RenderMenuProps,
   TypeaheadComponentProps,
 } from 'react-bootstrap-typeahead';
 import NotificationToast from '@/components/notifications/NotificationToast';
-import { RecreationResourceSuggestion } from '@shared/components/suggestion-typeahead/types';
-import { City as CitySuggestion } from '@/components/recreation-search-form/types';
+import {
+  City as CitySuggestion,
+  RecreationSuggestion,
+} from '@/components/recreation-search-form/types';
 import { useNavigate } from 'react-router';
 import '@/components/recreation-search-form/RecreationSuggestionForm.scss';
 import { Option } from 'react-bootstrap-typeahead/types/types';
 import { ROUTE_PATHS } from '@/routes/constants';
-
-const MAX_LOCATION_OPTIONS = 4;
-const CURRENT_LOCATION_TITLE = 'Current location';
+import {
+  CURRENT_LOCATION_TITLE,
+  MAX_LOCATION_OPTIONS,
+  OPTION_TYPE,
+} from '@/components/recreation-search-form/constants';
 
 export const RecreationSuggestionForm = () => {
   const navigate = useNavigate();
@@ -32,7 +35,7 @@ export const RecreationSuggestionForm = () => {
     searchInputValue,
     setSearchInputValue,
     handleCityOptionSearch,
-    handleClearSearch,
+    handleClearTypeaheadSearch,
   } = useSearchInput();
 
   const isPermissionDenied = useMemo(
@@ -47,7 +50,7 @@ export const RecreationSuggestionForm = () => {
       latitude: latitude ?? 0,
       longitude: longitude ?? 0,
       rank: 0,
-      option_type: 'current_location',
+      option_type: OPTION_TYPE.CURRENT_LOCATION,
     }),
     [latitude, longitude],
   );
@@ -80,7 +83,7 @@ export const RecreationSuggestionForm = () => {
   const renderMenu: TypeaheadComponentProps['renderMenu'] = useCallback(
     (results: Option[], menuProps: RenderMenuProps) => (
       <SuggestionMenu
-        results={results as RecreationResourceSuggestion[]}
+        results={results as RecreationSuggestion[]}
         searchTerm={searchInputValue}
         menuProps={menuProps}
         cityOptions={cityOptions}
@@ -90,22 +93,22 @@ export const RecreationSuggestionForm = () => {
   );
 
   const handleSuggestionChange = (
-    suggestion: RecreationResourceSuggestion | CitySuggestion,
+    suggestion: RecreationSuggestion | CitySuggestion,
   ) => {
     const suggestionType = suggestion.option_type;
 
     switch (suggestionType) {
-      case 'current_location':
+      case OPTION_TYPE.CURRENT_LOCATION:
         if (!latitude || !longitude) return getLocation();
         return handleCityOptionSearch(currentLocationOption);
 
-      case 'recreation_resource':
+      case OPTION_TYPE.RECREATION_RESOURCE:
         navigate(
           ROUTE_PATHS.REC_RESOURCE.replace(':id', suggestion.rec_resource_id),
         );
         return;
 
-      case 'city':
+      case OPTION_TYPE.CITY:
         handleCityOptionSearch(suggestion);
         return;
 
@@ -114,31 +117,21 @@ export const RecreationSuggestionForm = () => {
     }
   };
 
-  const getEmptyLabel = () => {
-    return 'No results found';
-  };
-
   return (
     <>
       <Form className="w-100 recreation-resource-suggestion-form">
         <Form.Group controlId="recreation-resource-suggestion">
           <SuggestionTypeahead
             onChange={handleSuggestionChange}
+            onClear={handleClearTypeaheadSearch}
             isLoading={isFetching}
             error={error}
-            suggestions={suggestions as RecreationResourceSuggestion[]}
+            suggestions={suggestions as RecreationSuggestion[]}
             onSearch={setSearchInputValue}
-            emptyLabel={getEmptyLabel()}
+            emptyLabel="No results found"
             renderMenu={renderMenu}
             placeholder="By name or community"
           />
-          {searchInputValue && (
-            <ClearButton
-              onClick={handleClearSearch}
-              className="clear-button"
-              label="Clear search"
-            />
-          )}
         </Form.Group>
       </Form>
       <NotificationToast
