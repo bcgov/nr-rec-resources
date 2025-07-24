@@ -32,6 +32,7 @@ export const RecreationSuggestionForm = () => {
   const { getLocation, latitude, longitude, permissionDeniedCount } =
     useCurrentLocation();
   const {
+    defaultSearchInputValue,
     searchInputValue,
     setSearchInputValue,
     handleCityOptionSearch,
@@ -57,9 +58,8 @@ export const RecreationSuggestionForm = () => {
 
   const cityOptions = useMemo(() => {
     const searchText = searchInputValue?.toLowerCase() ?? '';
-    console.log('citiesList:', citiesList);
 
-    const cities = (citiesList ?? [])
+    const filteredCities = (citiesList ?? [])
       .filter(
         (city) =>
           city.name.toLowerCase().startsWith(searchText) ||
@@ -67,10 +67,8 @@ export const RecreationSuggestionForm = () => {
       )
       .slice(0, MAX_LOCATION_OPTIONS);
 
-    cities.push(currentLocationOption);
-
-    return cities;
-  }, [searchInputValue, currentLocationOption, citiesList]);
+    return [...filteredCities, currentLocationOption];
+  }, [currentLocationOption, searchInputValue, citiesList]);
 
   const {
     data: suggestions,
@@ -126,6 +124,7 @@ export const RecreationSuggestionForm = () => {
             onClear={handleClearTypeaheadSearch}
             isLoading={isFetching}
             error={error}
+            defaultValue={defaultSearchInputValue}
             suggestions={suggestions as RecreationSuggestion[]}
             onSearch={setSearchInputValue}
             emptyLabel="No results found"

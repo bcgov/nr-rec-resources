@@ -12,8 +12,8 @@ interface RawCity {
     cityName: string;
     rank: number;
     provinceCode: string;
-    latitude: number;
-    longitude: number;
+    lat: number;
+    lon: number;
   };
 }
 
@@ -29,8 +29,8 @@ const fetchCities = async (): Promise<City[]> => {
     (city: RawCity): City => ({
       id: Number(city.id),
       name: city.attributes.cityName,
-      latitude: city.attributes.latitude,
-      longitude: city.attributes.longitude,
+      latitude: city.attributes.lat,
+      longitude: city.attributes.lon,
       rank: city.attributes.rank,
       option_type: OPTION_TYPE.CITY,
     }),

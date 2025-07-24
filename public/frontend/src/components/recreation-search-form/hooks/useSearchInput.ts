@@ -5,7 +5,7 @@ import searchInputStore from '@/store/searchInputStore';
 import { ROUTE_PATHS } from '@/routes';
 import { City } from '@/components/recreation-search-form/types';
 
-const FILTER_PARAM_KEY = 'filter';
+export const FILTER_PARAM_KEY = 'filter';
 const LAT_PARAM_KEY = 'lat';
 const LON_PARAM_KEY = 'lon';
 const COMMUNITY_PARAM_KEY = 'community';
@@ -103,7 +103,10 @@ export const useSearchInput = () => {
     }
   }, [searchParams, setSearchInputValue]);
 
+  const defaultSearchInputValue = searchParams.get(FILTER_PARAM_KEY) || '';
+
   return {
+    defaultSearchInputValue,
     searchInputValue: state.searchInputValue,
     setSearchInputValue,
     selectedCity: state.selectedCity,

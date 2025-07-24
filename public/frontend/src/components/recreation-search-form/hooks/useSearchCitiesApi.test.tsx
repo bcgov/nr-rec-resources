@@ -56,19 +56,19 @@ describe('useSearchCitiesApi', () => {
     expect(result.current.data).toEqual([
       {
         id: 1,
-        cityName: 'Vancouver',
+        name: 'Vancouver',
         rank: 1,
-        provinceCode: 'BC',
-        lat: 49.2827,
-        lon: -123.1207,
+        latitude: 49.2827,
+        longitude: -123.1207,
+        option_type: 'city',
       },
       {
         id: 2,
-        cityName: 'Victoria',
+        name: 'Victoria',
         rank: 2,
-        provinceCode: 'BC',
-        lat: 48.4284,
-        lon: -123.3656,
+        latitude: 48.4284,
+        longitude: -123.3656,
+        option_type: 'city',
       },
     ]);
 
