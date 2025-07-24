@@ -1,4 +1,5 @@
 import { useCallback, useMemo } from 'react';
+import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import { useRecreationSuggestions } from '@/service/queries/recreation-resource';
@@ -26,17 +27,23 @@ import {
   OPTION_TYPE,
 } from '@/components/recreation-search-form/constants';
 
-export const RecreationSuggestionForm = () => {
+interface RecreationSuggestionFormProps {
+  searchBtnVariant?: 'primary' | 'secondary';
+}
+
+export const RecreationSuggestionForm = ({
+  searchBtnVariant = 'primary',
+}: RecreationSuggestionFormProps) => {
   const navigate = useNavigate();
   const { data: citiesList } = useSearchCitiesApi();
-  const { getLocation, latitude, longitude, permissionDeniedCount } =
-    useCurrentLocation();
+  const { getLocation, permissionDeniedCount } = useCurrentLocation();
   const {
     defaultSearchInputValue,
     searchInputValue,
     setSearchInputValue,
     handleCityOptionSearch,
     handleClearTypeaheadSearch,
+    handleSearch,
   } = useSearchInput();
 
   const isPermissionDenied = useMemo(
@@ -48,12 +55,12 @@ export const RecreationSuggestionForm = () => {
     () => ({
       id: 0,
       name: CURRENT_LOCATION_TITLE,
-      latitude: latitude ?? 0,
-      longitude: longitude ?? 0,
+      latitude: undefined,
+      longitude: undefined,
       rank: 0,
       option_type: OPTION_TYPE.CURRENT_LOCATION,
     }),
-    [latitude, longitude],
+    [],
   );
 
   const cityOptions = useMemo(() => {
@@ -90,15 +97,47 @@ export const RecreationSuggestionForm = () => {
     [searchInputValue, cityOptions],
   );
 
-  const handleSuggestionChange = (
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchInputValue.trim()) {
+      handleSearch();
+    }
+  };
+
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (searchInputValue.trim()) {
+        handleSearch();
+      }
+    }
+  };
+
+  const handleSuggestionChange = async (
     suggestion: RecreationSuggestion | CitySuggestion,
   ) => {
     const suggestionType = suggestion.option_type;
 
     switch (suggestionType) {
-      case OPTION_TYPE.CURRENT_LOCATION:
-        if (!latitude || !longitude) return getLocation();
-        return handleCityOptionSearch(currentLocationOption);
+      case OPTION_TYPE.CURRENT_LOCATION: {
+        try {
+          const { latitude, longitude } = await getLocation();
+          if (latitude == null || longitude == null) {
+            console.warn('Current location not available');
+            return;
+          }
+          const updatedCurrentLocation = {
+            ...currentLocationOption,
+            latitude,
+            longitude,
+          };
+
+          handleCityOptionSearch(updatedCurrentLocation);
+        } catch (err) {
+          console.warn('Failed to get current location:', err);
+        }
+        return;
+      }
 
       case OPTION_TYPE.RECREATION_RESOURCE:
         navigate(
@@ -118,20 +157,27 @@ export const RecreationSuggestionForm = () => {
   return (
     <>
       <Form className="w-100 recreation-resource-suggestion-form">
-        <Form.Group controlId="recreation-resource-suggestion">
-          <SuggestionTypeahead
-            onChange={handleSuggestionChange}
-            onClear={handleClearTypeaheadSearch}
-            isLoading={isFetching}
-            error={error}
-            defaultValue={defaultSearchInputValue}
-            suggestions={suggestions as RecreationSuggestion[]}
-            onSearch={setSearchInputValue}
-            emptyLabel="No results found"
-            renderMenu={renderMenu}
-            placeholder="By name or community"
-          />
-        </Form.Group>
+        <SuggestionTypeahead
+          onChange={handleSuggestionChange}
+          onClear={handleClearTypeaheadSearch}
+          onKeyDown={handleInputKeyDown}
+          isLoading={isFetching}
+          error={error}
+          defaultValue={defaultSearchInputValue}
+          suggestions={suggestions as RecreationSuggestion[]}
+          onSearch={setSearchInputValue}
+          emptyLabel="No results found"
+          renderMenu={renderMenu}
+          placeholder="By name or community"
+        />
+        <Button
+          variant={searchBtnVariant}
+          type="submit"
+          onClick={handleSubmit}
+          className="submit-btn"
+        >
+          Search
+        </Button>
       </Form>
       <NotificationToast
         isOpen={isPermissionDenied}

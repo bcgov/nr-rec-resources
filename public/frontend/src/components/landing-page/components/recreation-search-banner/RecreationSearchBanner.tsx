@@ -12,7 +12,7 @@ export const RecreationSearchBanner: FC = () => {
             Find a recreation{' '}
             <span className="d-inline-block">site or trail</span>
           </h2>
-          <RecreationSuggestionForm />
+          <RecreationSuggestionForm searchBtnVariant="secondary" />
         </Stack>
       </section>
     </section>

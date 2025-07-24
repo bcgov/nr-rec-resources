@@ -36,6 +36,11 @@ interface SuggestionTypeaheadProps {
    */
   onChange: (selected: RecreationResourceSuggestion) => void;
   /**
+   * Callback fired when the input value changes.
+   * @param event The change event from the input.
+   */
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
+  /**
    * The label to display when there are no results or an error.
    */
   emptyLabel?: ReactNode;
@@ -69,10 +74,11 @@ export const SuggestionTypeahead: FC<SuggestionTypeaheadProps> = ({
   defaultValue,
   isLoading,
   suggestions,
+  onChange,
   onClear,
+  onKeyDown,
   onSearch,
   error,
-  onChange,
   emptyLabel,
   placeholder,
   renderMenu,
@@ -83,6 +89,12 @@ export const SuggestionTypeahead: FC<SuggestionTypeaheadProps> = ({
       <SuggestionSearchInput
         {...inputProps}
         isLoading={isLoading}
+        onKeyDown={(event) => {
+          onKeyDown?.(event);
+          if (onKeyDown && event.key === "Enter" && typeaheadRef.current) {
+            (typeaheadRef.current as any).blur();
+          }
+        }}
         onClear={() => {
           onClear?.();
           if (typeaheadRef.current) {
@@ -103,6 +115,7 @@ export const SuggestionTypeahead: FC<SuggestionTypeaheadProps> = ({
       onChange={(selected) => {
         onChange(selected[0] as any);
       }}
+      onKeyDown={onKeyDown}
       options={suggestions}
       isLoading={isLoading}
       renderInput={renderInput}
