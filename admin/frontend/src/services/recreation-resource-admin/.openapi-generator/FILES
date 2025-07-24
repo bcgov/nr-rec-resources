@@ -5,6 +5,7 @@ apis/index.ts
 index.ts
 models/BadRequestResponseDto.ts
 models/CreateRecreationResourceDocBodyDto.ts
+models/CreateRecreationResourceImageBodyDto.ts
 models/HealthControllerCheck200Response.ts
 models/HealthControllerCheck200ResponseInfoValue.ts
 models/HealthControllerCheck503Response.ts
@@ -12,6 +13,8 @@ models/RecreationActivityDto.ts
 models/RecreationResourceDetailDto.ts
 models/RecreationResourceDistrictDto.ts
 models/RecreationResourceDocDto.ts
+models/RecreationResourceImageDto.ts
+models/RecreationResourceImageVariantDto.ts
 models/RecreationStatusDto.ts
 models/RecreationStructureDto.ts
 models/SuggestionDto.ts

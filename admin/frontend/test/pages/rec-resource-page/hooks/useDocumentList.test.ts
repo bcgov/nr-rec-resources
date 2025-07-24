@@ -11,7 +11,7 @@ vi.mock(
   }),
 );
 vi.mock("@/pages/rec-resource-page/helpers", () => ({
-  formatDocumentDate: (date: string) => `formatted-${date}`,
+  formatGalleryFileDate: (date: string) => `formatted-${date}`,
 }));
 
 const baseDoc = {

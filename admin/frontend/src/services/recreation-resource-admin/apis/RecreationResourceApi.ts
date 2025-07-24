@@ -16,8 +16,10 @@ import * as runtime from "../runtime";
 import type {
   BadRequestResponseDto,
   CreateRecreationResourceDocBodyDto,
+  CreateRecreationResourceImageBodyDto,
   RecreationResourceDetailDto,
   RecreationResourceDocDto,
+  RecreationResourceImageDto,
   SuggestionsResponseDto,
 } from "../models/index";
 import {
@@ -25,10 +27,14 @@ import {
   BadRequestResponseDtoToJSON,
   CreateRecreationResourceDocBodyDtoFromJSON,
   CreateRecreationResourceDocBodyDtoToJSON,
+  CreateRecreationResourceImageBodyDtoFromJSON,
+  CreateRecreationResourceImageBodyDtoToJSON,
   RecreationResourceDetailDtoFromJSON,
   RecreationResourceDetailDtoToJSON,
   RecreationResourceDocDtoFromJSON,
   RecreationResourceDocDtoToJSON,
+  RecreationResourceImageDtoFromJSON,
+  RecreationResourceImageDtoToJSON,
   SuggestionsResponseDtoFromJSON,
   SuggestionsResponseDtoToJSON,
 } from "../models/index";
@@ -39,7 +45,18 @@ export interface CreateRecreationresourceDocumentRequest {
   file: Blob;
 }
 
+export interface CreateRecreationresourceImageRequest {
+  recResourceId: string;
+  caption: string;
+  file: Blob;
+}
+
 export interface DeleteDocumentResourceRequest {
+  recResourceId: string;
+  refId: string;
+}
+
+export interface DeleteImageResourceRequest {
   recResourceId: string;
   refId: string;
 }
@@ -50,6 +67,15 @@ export interface GetDocumentResourceByIdRequest {
 }
 
 export interface GetDocumentsByRecResourceIdRequest {
+  recResourceId: string;
+}
+
+export interface GetImageResourceByIdRequest {
+  recResourceId: string;
+  refId: string;
+}
+
+export interface GetImagesByRecResourceIdRequest {
   recResourceId: string;
 }
 
@@ -65,6 +91,12 @@ export interface UpdateDocumentResourceRequest {
   recResourceId: string;
   refId: string;
   createRecreationResourceDocBodyDto: CreateRecreationResourceDocBodyDto;
+}
+
+export interface UpdateImageResourceRequest {
+  recResourceId: string;
+  refId: string;
+  createRecreationResourceImageBodyDto: CreateRecreationResourceImageBodyDto;
 }
 
 /**
@@ -169,6 +201,103 @@ export class RecreationResourceApi extends runtime.BaseAPI {
   }
 
   /**
+   * Create a new Image Resource with an uploaded file
+   */
+  async createRecreationresourceImageRaw(
+    requestParameters: CreateRecreationresourceImageRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceImageDto>> {
+    if (requestParameters["recResourceId"] == null) {
+      throw new runtime.RequiredError(
+        "recResourceId",
+        'Required parameter "recResourceId" was null or undefined when calling createRecreationresourceImage().',
+      );
+    }
+
+    if (requestParameters["caption"] == null) {
+      throw new runtime.RequiredError(
+        "caption",
+        'Required parameter "caption" was null or undefined when calling createRecreationresourceImage().',
+      );
+    }
+
+    if (requestParameters["file"] == null) {
+      throw new runtime.RequiredError(
+        "file",
+        'Required parameter "file" was null or undefined when calling createRecreationresourceImage().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token("keycloak", []);
+
+      if (tokenString) {
+        headerParameters["Authorization"] = `Bearer ${tokenString}`;
+      }
+    }
+    const consumes: runtime.Consume[] = [
+      { contentType: "multipart/form-data" },
+    ];
+    // @ts-ignore: canConsumeForm may be unused
+    const canConsumeForm = runtime.canConsumeForm(consumes);
+
+    let formParams: { append(param: string, value: any): any };
+    let useForm = false;
+    // use FormData to transmit files using content-type "multipart/form-data"
+    useForm = canConsumeForm;
+    if (useForm) {
+      formParams = new FormData();
+    } else {
+      formParams = new URLSearchParams();
+    }
+
+    if (requestParameters["caption"] != null) {
+      formParams.append("caption", requestParameters["caption"] as any);
+    }
+
+    if (requestParameters["file"] != null) {
+      formParams.append("file", requestParameters["file"] as any);
+    }
+
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resource/{rec_resource_id}/images`.replace(
+          `{${"rec_resource_id"}}`,
+          encodeURIComponent(String(requestParameters["recResourceId"])),
+        ),
+        method: "POST",
+        headers: headerParameters,
+        query: queryParameters,
+        body: formParams,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationResourceImageDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Create a new Image Resource with an uploaded file
+   */
+  async createRecreationresourceImage(
+    requestParameters: CreateRecreationresourceImageRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationResourceImageDto> {
+    const response = await this.createRecreationresourceImageRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
    * Delete a Document Resource
    */
   async deleteDocumentResourceRaw(
@@ -232,6 +361,76 @@ export class RecreationResourceApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<RecreationResourceDocDto> {
     const response = await this.deleteDocumentResourceRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Delete an image Resource
+   */
+  async deleteImageResourceRaw(
+    requestParameters: DeleteImageResourceRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceImageDto>> {
+    if (requestParameters["recResourceId"] == null) {
+      throw new runtime.RequiredError(
+        "recResourceId",
+        'Required parameter "recResourceId" was null or undefined when calling deleteImageResource().',
+      );
+    }
+
+    if (requestParameters["refId"] == null) {
+      throw new runtime.RequiredError(
+        "refId",
+        'Required parameter "refId" was null or undefined when calling deleteImageResource().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token("keycloak", []);
+
+      if (tokenString) {
+        headerParameters["Authorization"] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resource/{rec_resource_id}/images/{ref_id}`
+          .replace(
+            `{${"rec_resource_id"}}`,
+            encodeURIComponent(String(requestParameters["recResourceId"])),
+          )
+          .replace(
+            `{${"ref_id"}}`,
+            encodeURIComponent(String(requestParameters["refId"])),
+          ),
+        method: "DELETE",
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationResourceImageDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Delete an image Resource
+   */
+  async deleteImageResource(
+    requestParameters: DeleteImageResourceRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationResourceImageDto> {
+    const response = await this.deleteImageResourceRaw(
       requestParameters,
       initOverrides,
     );
@@ -360,6 +559,134 @@ export class RecreationResourceApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<Array<RecreationResourceDocDto>> {
     const response = await this.getDocumentsByRecResourceIdRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Get one image resource by reference ID
+   */
+  async getImageResourceByIdRaw(
+    requestParameters: GetImageResourceByIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceImageDto>> {
+    if (requestParameters["recResourceId"] == null) {
+      throw new runtime.RequiredError(
+        "recResourceId",
+        'Required parameter "recResourceId" was null or undefined when calling getImageResourceById().',
+      );
+    }
+
+    if (requestParameters["refId"] == null) {
+      throw new runtime.RequiredError(
+        "refId",
+        'Required parameter "refId" was null or undefined when calling getImageResourceById().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token("keycloak", []);
+
+      if (tokenString) {
+        headerParameters["Authorization"] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resource/{rec_resource_id}/images/{ref_id}`
+          .replace(
+            `{${"rec_resource_id"}}`,
+            encodeURIComponent(String(requestParameters["recResourceId"])),
+          )
+          .replace(
+            `{${"ref_id"}}`,
+            encodeURIComponent(String(requestParameters["refId"])),
+          ),
+        method: "GET",
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationResourceImageDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Get one image resource by reference ID
+   */
+  async getImageResourceById(
+    requestParameters: GetImageResourceByIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationResourceImageDto> {
+    const response = await this.getImageResourceByIdRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Get all images related to the resource
+   */
+  async getImagesByRecResourceIdRaw(
+    requestParameters: GetImagesByRecResourceIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<RecreationResourceImageDto>>> {
+    if (requestParameters["recResourceId"] == null) {
+      throw new runtime.RequiredError(
+        "recResourceId",
+        'Required parameter "recResourceId" was null or undefined when calling getImagesByRecResourceId().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token("keycloak", []);
+
+      if (tokenString) {
+        headerParameters["Authorization"] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resource/{rec_resource_id}/images`.replace(
+          `{${"rec_resource_id"}}`,
+          encodeURIComponent(String(requestParameters["recResourceId"])),
+        ),
+        method: "GET",
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      jsonValue.map(RecreationResourceImageDtoFromJSON),
+    );
+  }
+
+  /**
+   * Get all images related to the resource
+   */
+  async getImagesByRecResourceId(
+    requestParameters: GetImagesByRecResourceIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<Array<RecreationResourceImageDto>> {
+    const response = await this.getImagesByRecResourceIdRaw(
       requestParameters,
       initOverrides,
     );
@@ -559,6 +886,88 @@ export class RecreationResourceApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<RecreationResourceDocDto> {
     const response = await this.updateDocumentResourceRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Update an Image Resource
+   */
+  async updateImageResourceRaw(
+    requestParameters: UpdateImageResourceRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceImageDto>> {
+    if (requestParameters["recResourceId"] == null) {
+      throw new runtime.RequiredError(
+        "recResourceId",
+        'Required parameter "recResourceId" was null or undefined when calling updateImageResource().',
+      );
+    }
+
+    if (requestParameters["refId"] == null) {
+      throw new runtime.RequiredError(
+        "refId",
+        'Required parameter "refId" was null or undefined when calling updateImageResource().',
+      );
+    }
+
+    if (requestParameters["createRecreationResourceImageBodyDto"] == null) {
+      throw new runtime.RequiredError(
+        "createRecreationResourceImageBodyDto",
+        'Required parameter "createRecreationResourceImageBodyDto" was null or undefined when calling updateImageResource().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    headerParameters["Content-Type"] = "application/json";
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token("keycloak", []);
+
+      if (tokenString) {
+        headerParameters["Authorization"] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resource/{rec_resource_id}/images/{ref_id}`
+          .replace(
+            `{${"rec_resource_id"}}`,
+            encodeURIComponent(String(requestParameters["recResourceId"])),
+          )
+          .replace(
+            `{${"ref_id"}}`,
+            encodeURIComponent(String(requestParameters["refId"])),
+          ),
+        method: "PUT",
+        headers: headerParameters,
+        query: queryParameters,
+        body: CreateRecreationResourceImageBodyDtoToJSON(
+          requestParameters["createRecreationResourceImageBodyDto"],
+        ),
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationResourceImageDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Update an Image Resource
+   */
+  async updateImageResource(
+    requestParameters: UpdateImageResourceRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationResourceImageDto> {
+    const response = await this.updateImageResourceRaw(
       requestParameters,
       initOverrides,
     );

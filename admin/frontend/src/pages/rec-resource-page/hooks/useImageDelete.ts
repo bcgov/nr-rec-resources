@@ -1,5 +1,5 @@
 import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
-import { useDeleteResourceDocument } from "@/services/hooks/recreation-resource-admin/useDeleteResourceDocument";
+import { useDeleteResourceImage } from "@/services/hooks/recreation-resource-admin/useDeleteResourceImage";
 import { handleApiError } from "@/services/utils/errorHandler";
 import {
   addErrorNotification,
@@ -10,65 +10,59 @@ import { useCallback } from "react";
 import {
   recResourceFileTransferStore,
   setFileToDelete,
-  updateGalleryDocument,
+  updateGalleryImage,
 } from "../store/recResourceFileTransferStore";
 
 /**
- * Hook to manage document delete operations.
- * Handles deletion of documents with proper error handling and notifications.
+ * Hook to manage image delete operations.
+ * Handles deletion of images with proper error handling and notifications.
  */
-export function useDocumentDelete() {
+export function useImageDelete() {
   const { recResource } = useRecResource();
   const { fileToDelete } = useStore(recResourceFileTransferStore);
-  const deleteResourceDocumentMutation = useDeleteResourceDocument();
+  const deleteResourceImageMutation = useDeleteResourceImage();
 
-  // Handle document deletion
+  // Handle image deletion
   const handleDelete = useCallback(
     async (onSuccess?: () => void) => {
-      const document = fileToDelete;
+      const image = fileToDelete;
       if (
         !recResource?.rec_resource_id ||
-        !document?.id ||
-        document.type !== "document"
+        !image?.id ||
+        image.type !== "image"
       ) {
         addErrorNotification(
-          "Unable to delete document: missing required information.",
+          "Unable to delete image: missing required information.",
         );
         return;
       }
 
       try {
-        updateGalleryDocument(document.id, { isDeleting: true });
-        await deleteResourceDocumentMutation.mutateAsync({
+        updateGalleryImage(image.id, { isDeleting: true });
+        await deleteResourceImageMutation.mutateAsync({
           recResourceId: recResource.rec_resource_id,
-          refId: document.id,
+          refId: image.id,
         });
-        addSuccessNotification(
-          `Document "${document.name}" deleted successfully.`,
-        );
+        addSuccessNotification(`Image "${image.name}" deleted successfully.`);
         setFileToDelete(undefined); // Clear the file to delete
         onSuccess?.();
       } catch (error: unknown) {
         const errorInfo = await handleApiError(error);
 
         addErrorNotification(
-          `${errorInfo.statusCode} - Failed to delete document "${document.name}": ${errorInfo.message}. Please try again.`,
+          `${errorInfo.statusCode} - Failed to delete image "${image.name}": ${errorInfo.message}. Please try again.`,
         );
-        updateGalleryDocument(document.id, {
+        updateGalleryImage(image.id, {
           isDeleting: false,
           deleteFailed: true,
         });
       }
     },
-    [
-      deleteResourceDocumentMutation,
-      recResource?.rec_resource_id,
-      fileToDelete,
-    ],
+    [deleteResourceImageMutation, recResource?.rec_resource_id, fileToDelete],
   );
 
   return {
     handleDelete,
-    isDeleting: deleteResourceDocumentMutation.isPending,
+    isDeleting: deleteResourceImageMutation.isPending,
   };
 }

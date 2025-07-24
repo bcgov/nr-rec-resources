@@ -1,3 +1,4 @@
+import { ClampLines } from "@/components";
 import { useRecResourceFileTransferState } from "@/pages/rec-resource-page/hooks/useRecResourceFileTransferState";
 import {
   GalleryFile,
@@ -17,20 +18,28 @@ interface DeleteFileModalProps {
 
 export const DeleteFileModal: FC<DeleteFileModalProps> = () => {
   const {
-    deleteModalState: { showDeleteModal, docToDelete },
+    deleteModalState: { showDeleteModal, fileToDelete },
     getDocumentGeneralActionHandler,
+    getImageGeneralActionHandler,
   } = useRecResourceFileTransferState();
 
-  if (!showDeleteModal || !docToDelete) return null;
+  if (!showDeleteModal || !fileToDelete) return null;
 
-  const handleCancel = getDocumentGeneralActionHandler("cancel-delete");
-  const handleConfirm = getDocumentGeneralActionHandler("confirm-delete");
+  // Determine which handler to use based on file type
+  const isImageDelete = fileToDelete.type === "image";
 
+  const handleCancel = isImageDelete
+    ? getImageGeneralActionHandler("cancel-delete")
+    : getDocumentGeneralActionHandler("cancel-delete");
+
+  const handleConfirm = isImageDelete
+    ? getImageGeneralActionHandler("confirm-delete")
+    : getDocumentGeneralActionHandler("confirm-delete");
   const alertConfig = {
     variant: "danger" as const,
     icon: faWarning,
     iconColor: COLOR_RED,
-    text: "Deleting this document will remove it from the public site. This action cannot be undone.",
+    text: "Deleting this file will remove it from the public site. This action cannot be undone.",
   };
 
   return (
@@ -38,8 +47,7 @@ export const DeleteFileModal: FC<DeleteFileModalProps> = () => {
       show={showDeleteModal}
       onHide={handleCancel}
       title="Delete File"
-      fileUrl={docToDelete.url}
-      fileName={docToDelete.name}
+      galleryFile={fileToDelete}
       alertConfig={alertConfig}
       className="delete-file-modal"
       onCancel={handleCancel}
@@ -49,8 +57,10 @@ export const DeleteFileModal: FC<DeleteFileModalProps> = () => {
       confirmButtonVariant="danger"
     >
       <div className="delete-file-modal__confirmation-text">
-        Are you sure you want to delete file:{" "}
-        <strong>{docToDelete.name}</strong>?
+        Are you sure you want to delete file?
+        <strong>
+          <ClampLines lines={3} text={fileToDelete.name} />
+        </strong>
       </div>
     </BaseFileModal>
   );

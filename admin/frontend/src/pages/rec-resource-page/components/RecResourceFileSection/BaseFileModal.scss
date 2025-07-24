@@ -21,10 +21,10 @@
   &__preview-img {
     width: 100%;
     max-height: 300px;
-    object-fit: contain;
+    object-fit: cover;
     border-radius: 8px;
     margin-bottom: 1rem;
-    border: 1px solid $colorGrey;
+    border: 1px solid $colorGreyLight;
   }
 
   &__preview-pdf {

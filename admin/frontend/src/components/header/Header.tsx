@@ -1,5 +1,5 @@
-import { CustomButton } from "@/components";
 import { Avatar } from "@/components/avatar/Avatar";
+import { IconButton } from "@/components/IconButton";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { Header as BCGovHeader } from "@bcgov/design-system-react-components";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
@@ -41,9 +41,9 @@ const HeaderMenuToggle = forwardRef<
       }
     }}
   >
-    <CustomButton
+    <IconButton
       className={"d-lg-none d-sm-block header__menu-button"}
-      leftIcon={<FontAwesomeIcon icon={faBars} />}
+      icon={<FontAwesomeIcon icon={faBars} />}
     />
 
     <Avatar

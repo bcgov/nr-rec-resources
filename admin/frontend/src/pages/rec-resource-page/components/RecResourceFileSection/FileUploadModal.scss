@@ -1,29 +1,8 @@
 @import "@/styles/variables.scss";
 
 .upload-file-modal {
-  &__input-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 8px;
-  }
-
-  &__input {
-    font-weight: 600;
-    border: 1px solid $colorGrey;
-    border-radius: 4px;
-    padding: 2px 8px;
-    min-width: 0;
-    width: 180px;
-  }
-
-  &__input-label {
-    font-size: 15px;
-    margin-bottom: 8px;
-
-    span {
-      font-weight: 700;
-      color: $colorGrey;
-    }
+  &__form-label {
+    font-weight: 700;
+    color: $colorGrey;
   }
 }

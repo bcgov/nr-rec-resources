@@ -31,7 +31,8 @@
     "react-bootstrap": "^2.10.10",
     "react-bootstrap-typeahead": "^6.4.1",
     "react-router-dom": "^7.0.0",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "zod": "^4.0.8"
   },
   "devDependencies": {
     "@eslint/compat": "^1.2.4",

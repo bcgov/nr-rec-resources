@@ -1,5 +1,5 @@
 import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
-import { useUploadResourceDocument } from "@/services/hooks/recreation-resource-admin/useUploadResourceDocument";
+import { useUploadResourceImage } from "@/services/hooks/recreation-resource-admin/useUploadResourceImage";
 import { handleApiError } from "@/services/utils/errorHandler";
 import {
   addErrorNotification,
@@ -7,59 +7,59 @@ import {
 } from "@/store/notificationStore";
 import { useCallback } from "react";
 import {
-  addPendingDoc,
-  removePendingDoc,
-  updatePendingDoc,
+  addPendingImage,
+  removePendingImage,
+  updatePendingImage,
 } from "../store/recResourceFileTransferStore";
-import { GalleryDocument, GalleryFile } from "../types";
+import { GalleryFile, GalleryImage } from "../types";
 
 /**
- * Hook to manage document upload operations.
+ * Hook to manage image upload operations.
  * Handles both new uploads and retry operations for failed uploads.
  */
-export function useDocumentUpload() {
+export function useImageUpload() {
   const { recResource } = useRecResource();
-  const uploadResourceDocumentMutation = useUploadResourceDocument();
+  const uploadResourceImageMutation = useUploadResourceImage();
 
   // Shared upload logic for both new and retry uploads
   const doUpload = useCallback(
     async ({
       rec_resource_id,
       file,
-      title,
+      caption,
       tempId,
       onSuccess,
     }: {
       rec_resource_id: string;
       file: File;
-      title: string;
+      caption: string;
       tempId: string;
       onSuccess?: () => void;
     }) => {
       try {
-        await uploadResourceDocumentMutation.mutateAsync({
+        await uploadResourceImageMutation.mutateAsync({
           recResourceId: rec_resource_id,
           file,
-          title,
+          caption,
         });
-        addSuccessNotification(`File "${title}" uploaded successfully.`);
-        removePendingDoc(tempId);
+        addSuccessNotification(`Image "${caption}" uploaded successfully.`);
+        removePendingImage(tempId);
         onSuccess?.();
       } catch (error: unknown) {
         const errorInfo = await handleApiError(error);
         addErrorNotification(
-          `${errorInfo.statusCode} - Failed to upload file "${title}": ${errorInfo.message}. Please try again.`,
+          `${errorInfo.statusCode} - Failed to upload image "${caption}": ${errorInfo.message}. Please try again.`,
         );
-        updatePendingDoc(tempId, {
+        updatePendingImage(tempId, {
           isUploading: false,
           uploadFailed: true,
         });
       }
     },
-    [uploadResourceDocumentMutation],
+    [uploadResourceImageMutation],
   );
 
-  // Handle upload (with pending doc)
+  // Handle upload (with pending image)
   const handleUpload = useCallback(
     async (galleryFile: GalleryFile, onSuccess?: () => void) => {
       if (
@@ -69,18 +69,19 @@ export function useDocumentUpload() {
       ) {
         return;
       }
-      const tempDoc: GalleryDocument = {
+      const tempImage: GalleryImage = {
         ...galleryFile,
+        variants: [],
+        previewUrl: "",
+        type: "image",
         isUploading: true,
-        pendingFile: galleryFile.pendingFile,
-        type: "document",
       };
-      addPendingDoc(tempDoc);
+      addPendingImage(tempImage);
 
       await doUpload({
         rec_resource_id: recResource.rec_resource_id,
         file: galleryFile.pendingFile,
-        title: galleryFile.name,
+        caption: galleryFile.name,
         tempId: galleryFile.id,
         onSuccess,
       });
@@ -90,19 +91,19 @@ export function useDocumentUpload() {
 
   // Handle upload retry (for failed uploads)
   const handleUploadRetry = useCallback(
-    async (pendingDoc: GalleryFile, onSuccess?: () => void) => {
-      if (!recResource?.rec_resource_id || !pendingDoc.pendingFile) {
+    async (pendingImage: GalleryFile, onSuccess?: () => void) => {
+      if (!recResource?.rec_resource_id || !pendingImage.pendingFile) {
         return;
       }
-      updatePendingDoc(pendingDoc.id, {
+      updatePendingImage(pendingImage.id, {
         isUploading: true,
         uploadFailed: false,
       });
       await doUpload({
         rec_resource_id: recResource.rec_resource_id,
-        file: pendingDoc.pendingFile,
-        title: pendingDoc.name,
-        tempId: pendingDoc.id,
+        file: pendingImage.pendingFile,
+        caption: pendingImage.name,
+        tempId: pendingImage.id,
         onSuccess,
       });
     },
