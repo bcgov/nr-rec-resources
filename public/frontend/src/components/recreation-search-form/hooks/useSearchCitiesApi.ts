@@ -12,8 +12,8 @@ interface RawCity {
     cityName: string;
     rank: number;
     provinceCode: string;
-    lat: number;
-    lon: number;
+    latitude: number;
+    longitude: number;
   };
 }
 
@@ -24,17 +24,18 @@ const fetchCities = async (): Promise<City[]> => {
     throw new Error('Failed to fetch cities');
   }
   const json = await response.json();
-
   const cities = json.data.map(
     (city: RawCity): City => ({
       id: Number(city.id),
       name: city.attributes.cityName,
-      latitude: city.attributes.lat,
-      longitude: city.attributes.lon,
+      latitude: city.attributes.latitude,
+      longitude: city.attributes.longitude,
       rank: city.attributes.rank,
       option_type: OPTION_TYPE.CITY,
     }),
   );
+
+  console.log('Fetched cities:', cities);
 
   return cities;
 };

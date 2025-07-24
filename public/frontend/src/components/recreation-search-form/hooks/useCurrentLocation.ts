@@ -5,7 +5,10 @@ import currentLocationStore from '@/store/currentLocationStore';
 export const useCurrentLocation = () => {
   const state = useStore(currentLocationStore);
 
-  const getLocation = useCallback((): Promise<void> => {
+  const getLocation = useCallback((): Promise<{
+    latitude: number;
+    longitude: number;
+  }> => {
     // eslint-disable-next-line promise/avoid-new
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
@@ -20,14 +23,17 @@ export const useCurrentLocation = () => {
 
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          const { latitude, longitude } = position.coords;
+
           currentLocationStore.setState((prev) => ({
             ...prev,
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
+            latitude,
+            longitude,
             error: undefined,
             permissionDeniedCount: 0,
           }));
-          resolve();
+
+          resolve({ latitude, longitude }); // ✅ Return coordinates here
         },
         (err) => {
           currentLocationStore.setState((prev) => ({

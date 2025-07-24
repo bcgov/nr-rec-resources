@@ -74,16 +74,12 @@ export const useSearchInput = () => {
   const handleCityOptionSearch = useCallback(
     (city: City) => {
       if (!city) return;
+      console.log('handleCityOptionSearch', city);
 
       const newParams = new URLSearchParams(searchParams);
       newParams.set(LAT_PARAM_KEY, String(city.latitude));
       newParams.set(LON_PARAM_KEY, String(city.longitude));
       newParams.set(COMMUNITY_PARAM_KEY, city.name.trim());
-
-      const trimmedFilter = state.searchInputValue.trim();
-      if (trimmedFilter) {
-        newParams.set(FILTER_PARAM_KEY, trimmedFilter);
-      }
 
       setSelectedCity([city]);
 
@@ -92,7 +88,7 @@ export const useSearchInput = () => {
         search: newParams.toString(),
       });
     },
-    [navigate, searchParams, state.searchInputValue, setSelectedCity],
+    [navigate, searchParams, setSelectedCity],
   );
 
   // Initialize state from query params
@@ -103,7 +99,10 @@ export const useSearchInput = () => {
     }
   }, [searchParams, setSearchInputValue]);
 
-  const defaultSearchInputValue = searchParams.get(FILTER_PARAM_KEY) || '';
+  const defaultSearchInputValue =
+    searchParams.get(FILTER_PARAM_KEY) ||
+    searchParams.get(COMMUNITY_PARAM_KEY) ||
+    '';
 
   return {
     defaultSearchInputValue,
