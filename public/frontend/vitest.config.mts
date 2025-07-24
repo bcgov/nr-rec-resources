@@ -1,9 +1,17 @@
 import { defineConfig } from 'vitest/config';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import { resolve } from 'node:path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [tsconfigPaths()],
+  resolve: {
+    alias: {
+      // Configure @shared to point to your shared folder
+      '@shared': resolve(__dirname, '../../shared/src'),
+    },
+  },
+  assetsInclude: ['**/*.svg'],
   test: {
     exclude: ['**/node_modules/**', '**/e2e/**'],
     globals: true,

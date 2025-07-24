@@ -1,10 +1,10 @@
 import { render, screen } from "@testing-library/react";
-import { SuggestionMenu } from "@shared/components/suggestion-typeahead/SuggestionMenu";
+import { SuggestionMenu } from "@/components/rec-resource-suggestion-form/SuggestionMenu";
 import type { RenderMenuProps } from "react-bootstrap-typeahead";
 import { RESOURCE_TYPE_ICONS } from "@shared/components/suggestion-typeahead/constants";
 
 // Mock SuggestionListItem
-vi.mock("@shared/components/suggestion-typeahead/SuggestionListItem", () => ({
+vi.mock("@/components/rec-resource-suggestion-form/SuggestionListItem", () => ({
   SuggestionListItem: ({
     searchTerm,
     district,
