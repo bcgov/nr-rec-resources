@@ -13,24 +13,26 @@ export class RecreationResourceSuggestionsService {
     const term = query.trim();
     try {
       const sql = Prisma.sql`
-      SELECT
-        rec_resource_id,
-        name,
-        closest_community,
-        district_description,
-        recreation_resource_type,
-        recreation_resource_type_code,
-        'recreation_resource' AS option_type
-      FROM recreation_resource_search_view
-      WHERE name ILIKE ${`%${term}%`} OR closest_community ILIKE ${`%${term}%`}
-      ORDER BY
-        CASE
-          WHEN name ILIKE ${`%${term}%`} THEN 0
-          ELSE 1
-        END,
-        name ASC
-      LIMIT ${RESULTS_LIMIT}
-    `;
+SELECT
+  rec_resource_id,
+  name,
+  closest_community,
+  district_description,
+  recreation_resource_type,
+  recreation_resource_type_code,
+  'recreation_resource' AS option_type
+FROM recreation_resource_search_view
+WHERE name ILIKE ${`%${term}%`} OR closest_community ILIKE ${`%${term}%`}
+ORDER BY
+  CASE
+    WHEN name ILIKE ${`${term}%`} THEN 0  -- prefix match in name
+    WHEN name ILIKE ${`%${term}%`} THEN 1 -- partial match in name
+    WHEN closest_community ILIKE ${`%${term}%`} THEN 2 -- match in community
+    ELSE 3
+  END,
+  name ASC
+LIMIT ${RESULTS_LIMIT}
+`;
 
       const results =
         await this.prisma.$queryRaw<RecreationSuggestionDto[]>(sql);

@@ -90,8 +90,9 @@ export const SuggestionTypeahead: FC<SuggestionTypeaheadProps> = ({
         {...inputProps}
         isLoading={isLoading}
         onKeyDown={(event) => {
-          onKeyDown?.(event);
-          if (onKeyDown && event.key === "Enter" && typeaheadRef.current) {
+          inputProps.onKeyDown?.(event); // Call the original onKeyDown handler
+          onKeyDown?.(event); // Call the custom onKeyDown handler
+          if (event.key === "Enter" && typeaheadRef.current) {
             (typeaheadRef.current as any).blur();
           }
         }}
