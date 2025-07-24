@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { SuggestionListItem } from "@shared/components/suggestion-typeahead/SuggestionListItem";
-
+import { SuggestionListItem } from "@/components/rec-resource-suggestion-form/SuggestionListItem";
 // Mock react-bootstrap-typeahead Highlighter
 vi.mock("react-bootstrap-typeahead", () => ({
   Highlighter: ({ children }: any) => (
