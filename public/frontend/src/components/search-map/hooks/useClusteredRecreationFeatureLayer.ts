@@ -6,7 +6,7 @@ import {
   createClusteredRecreationFeatureSource,
   createClusteredRecreationFeatureStyle,
   createClusteredRecreationFeatureLayer,
-} from '@/components/search/SearchMap/layers/recreationFeatureLayer';
+} from '@/components/search-map/layers/recreationFeatureLayer';
 import Feature from 'ol/Feature';
 import { click } from 'ol/events/condition';
 import Select from 'ol/interaction/Select';
@@ -14,7 +14,7 @@ import { extend, createEmpty } from 'ol/extent';
 import {
   AnimatedClusterOptions,
   ExtendedClusterOptions,
-} from '@/components/search/SearchMap/types';
+} from '@/components/search-map/types';
 
 export const useClusteredRecreationFeatureLayer = (
   recResourceIds: string[],

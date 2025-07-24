@@ -7,15 +7,15 @@ import type { StyleFunction } from 'ol/style/Style';
 import Feature, { FeatureLike } from 'ol/Feature';
 import Geometry from 'ol/geom/Geometry';
 import { capitalizeWords } from '@/utils/capitalizeWords';
-import { featureLabelText } from '@/components/search/SearchMap/styles/feature';
+import { featureLabelText } from '@/components/search-map/styles/feature';
 import {
   createLocationDotBlueIcon,
   createLocationDotRedIcon,
   createLocationDotOrangeIcon,
-} from '@/components/search/SearchMap/styles/icons';
-import { clusterStyle } from '@/components/search/SearchMap/styles/cluster';
-import { RECREATION_FEATURE_LAYER } from '@/components/search/SearchMap/constants';
-import { AnimatedClusterOptions } from '@/components/search/SearchMap/types';
+} from '@/components/search-map/styles/icons';
+import { clusterStyle } from '@/components/search-map/styles/cluster';
+import { RECREATION_FEATURE_LAYER } from '@/components/search-map/constants';
+import { AnimatedClusterOptions } from '@/components/search-map/types';
 
 const iconStyleCache = new Map<string, Style>();
 const labelTextCache = new Map<string, string>();

@@ -1,7 +1,7 @@
 import { describe, it, vi, expect } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import OLMap from 'ol/Map';
-import { useZoomToExtent } from '@/components/search/SearchMap/hooks/useZoomToExtent';
+import { useZoomToExtent } from '@/components/search-map/hooks/useZoomToExtent';
 import { transformExtent } from 'ol/proj';
 
 vi.mock('ol/proj', () => ({

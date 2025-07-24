@@ -2,7 +2,8 @@ import { useEffect, useRef } from 'react';
 import Select from 'ol/interaction/Select';
 import Overlay from 'ol/Overlay';
 import { click } from 'ol/events/condition';
-import { locationDotOrangeIcon } from '@/components/search/SearchMap/styles/icons';
+import { locationDotOrangeIcon } from '@/components/search-map/styles/icons';
+import Point from 'ol/geom/Point';
 import type OLMap from 'ol/Map';
 import type Feature from 'ol/Feature';
 import type { SelectEvent } from 'ol/interaction/Select';
@@ -46,80 +47,103 @@ export function useRecreationFeatureLayerPreview({
     map.addInteraction(select);
 
     const clearSelection = () => {
-      const feature = selectedFeatureRef.current;
-      if (feature) {
-        feature.set('selected', false);
-        feature.setStyle();
-      }
+      selectedFeatureRef.current?.set('selected', false);
+      selectedFeatureRef.current?.setStyle();
       overlay.setPosition(undefined);
       selectedFeatureRef.current = null;
       onFeatureSelect(null);
     };
 
+    const focusFeature = (feature: Feature, clusterFeature: Feature) => {
+      clusterFeature.setStyle(locationDotOrangeIcon);
+      feature.set('selected', true);
+      selectedFeatureRef.current = feature;
+
+      const geometry = feature.getGeometry();
+      if (geometry instanceof Point) {
+        const coordinate = geometry.getCoordinates();
+        overlay.setPosition(coordinate);
+
+        requestAnimationFrame(() => {
+          map.getView().animate({ center: coordinate, duration: 400 });
+        });
+      }
+
+      onFeatureSelect(feature);
+    };
+
     const handleSelect = (e: SelectEvent) => {
       e.deselected.forEach((clusterFeature) => {
-        (clusterFeature.get('features') || []).forEach((feature: Feature) => {
-          feature.set('selected', false);
-          feature.setStyle();
+        (clusterFeature.get('features') || []).forEach((f: Feature) => {
+          f.set('selected', false);
+          f.setStyle();
         });
         clusterFeature.setStyle();
       });
 
       const selected = e.selected[0];
+      if (!selected) return clearSelection();
 
-      if (selected) {
-        const features = selected.get('features') ?? [];
-        if (features.length === 1) {
-          const feature = features[0];
-          selected.setStyle(locationDotOrangeIcon);
-          feature.set('selected', true);
-          selectedFeatureRef.current = feature;
-
-          const coordinate = feature.getGeometry()?.getCoordinates();
-          overlayRef.current?.setPosition(coordinate);
-          onFeatureSelect(feature);
-
-          if (coordinate) {
-            requestAnimationFrame(() => {
-              mapRef.current?.getMap().getView().animate({
-                center: coordinate,
-                duration: 400,
-              });
-            });
-          }
-        } else {
-          select.getFeatures().clear();
-          clearSelection();
-        }
+      const features = selected.get('features') ?? [];
+      if (features.length === 1) {
+        focusFeature(features[0], selected);
       } else {
+        select.getFeatures().clear();
         clearSelection();
       }
     };
 
     const handleMoveEnd = () => {
-      // If the selected feature is now part of a cluster, hide the popup
       const feature = selectedFeatureRef.current;
       if (!feature) return;
 
-      const clusteredFeature = layer
+      const cluster = layer
         .getSource()
         .getFeatures()
         .find((f: Feature) => (f.get('features') || []).includes(feature));
 
-      const clusterSize = clusteredFeature?.get('features')?.length ?? 0;
-
-      if (!clusteredFeature || clusterSize > 1) {
+      if (!cluster || (cluster.get('features')?.length ?? 0) > 1) {
         clearSelection();
+      }
+    };
+
+    const checkSingleFeature = () => {
+      const clusters = layer.getSource().getFeatures();
+      if (clusters.length !== 1) return;
+
+      const clusterFeature = clusters[0];
+      const features = clusterFeature.get('features') ?? [];
+      if (features.length === 1) {
+        focusFeature(features[0], clusterFeature);
+        select.getFeatures().push(clusterFeature);
       }
     };
 
     select.on('select', handleSelect);
     map.on('moveend', handleMoveEnd);
 
+    const vectorSource = layer.getSource()?.getSource?.();
+    let debounce: NodeJS.Timeout;
+
+    const onFeatureAdd = () => {
+      clearTimeout(debounce);
+      debounce = setTimeout(checkSingleFeature, 50);
+    };
+
+    if (vectorSource) {
+      vectorSource.on('addfeature', onFeatureAdd);
+      checkSingleFeature();
+    }
+
     return () => {
       map.removeInteraction(select);
       map.removeOverlay(overlay);
       overlayRef.current = null;
+
+      if (vectorSource) {
+        vectorSource.un('addfeature', onFeatureAdd);
+        clearTimeout(debounce);
+      }
     };
   }, [layer, mapRef, onFeatureSelect]);
 

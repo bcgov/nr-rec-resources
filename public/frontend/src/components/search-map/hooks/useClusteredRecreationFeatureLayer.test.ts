@@ -1,8 +1,8 @@
 import { renderHook } from '@testing-library/react';
 import Feature from 'ol/Feature';
 import Select from 'ol/interaction/Select';
-import { useClusteredRecreationFeatureLayer } from '@/components/search/SearchMap/hooks/useClusteredRecreationFeatureLayer';
-import * as recreationLayer from '@/components/search/SearchMap/layers/recreationFeatureLayer';
+import { useClusteredRecreationFeatureLayer } from '@/components/search-map/hooks/useClusteredRecreationFeatureLayer';
+import * as recreationLayer from '@/components/search-map/layers/recreationFeatureLayer';
 import { Style } from 'ol/style';
 
 vi.mock('ol/interaction/Select');
