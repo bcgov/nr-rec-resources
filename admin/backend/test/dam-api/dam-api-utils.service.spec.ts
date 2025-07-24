@@ -1,9 +1,8 @@
+import { DamApiConfig, DamApiUtilsService } from "@/dam-api";
 import { Test, TestingModule } from "@nestjs/testing";
 import { createHash } from "crypto";
 import FormData from "form-data";
 import { beforeEach, describe, expect, it } from "vitest";
-import { DamApiUtilsService } from "../../src/dam-api/dam-api-utils.service";
-import { DamApiConfig } from "../../src/dam-api/dam-api.types";
 
 describe("DamApiUtilsService", () => {
   let service: DamApiUtilsService;

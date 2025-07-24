@@ -1,16 +1,16 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import { Stack } from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FC } from "react";
+import { Stack } from "react-bootstrap";
 import "./FileUploadTile.scss";
 
-interface UploadTileProps {
+interface FileUploadTileProps {
   disabled?: boolean;
   label: string;
   onClick?: () => void;
 }
 
-export const FileUploadTile: FC<UploadTileProps> = ({
+export const FileUploadTile: FC<FileUploadTileProps> = ({
   disabled = false,
   label,
   onClick,

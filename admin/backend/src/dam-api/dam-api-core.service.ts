@@ -1,4 +1,5 @@
 import { HttpException, Injectable, Logger } from "@nestjs/common";
+import pRetry, { FailedAttemptError } from "p-retry";
 import { Readable } from "stream";
 import { DamApiHttpService } from "./dam-api-http.service";
 import { DamApiUtilsService } from "./dam-api-utils.service";
@@ -250,81 +251,62 @@ export class DamApiCoreService {
     resource: string,
     config: DamApiConfig,
   ): Promise<DamFile[]> {
+    const startTime = Date.now();
     this.logger.debug(
-      `Getting DAM resource path with retry - Resource: ${resource}, User: ${config.user}`,
+      `Getting DAM resource path with retry - Resource: ${resource}`,
     );
-
-    // First try with the main service
-    let files = await this.getResourcePath(resource, config);
-    if (
-      this.utilsService.validateFileTypes(files, DAM_CONFIG.REQUIRED_SIZE_CODES)
-    ) {
-      this.logger.debug(
-        `Resource files ready on first attempt - Resource: ${resource}, File count: ${files.length}`,
-      );
-      return files;
-    }
-
-    this.logger.debug(
-      `Resource files not ready, using retry logic - Resource: ${resource}`,
-    );
-
-    // Use specialized validation client
-    const validationClient = this.httpService.createValidationClient();
 
     try {
-      const params = {
-        user: config.user,
-        function: "get_resource_all_image_sizes",
-        resource,
-      };
-      const formData = this.utilsService.createFormData(params, config);
+      return await pRetry(
+        async () => {
+          const files = await this.getResourcePath(resource, config);
 
-      const response = await validationClient.post(config.damUrl, formData, {
-        headers: formData.getHeaders(),
-        validateStatus: (status) => status < 500,
-      });
+          if (
+            !this.utilsService.validateFileTypes(
+              files,
+              DAM_CONFIG.REQUIRED_SIZE_CODES,
+            )
+          ) {
+            throw new Error("Required file variants not processed");
+          }
 
-      files = response.data;
+          this.logger.debug(
+            `Resource files ready - Resource: ${resource}, File count: ${files.length}, Time elapsed: ${Date.now() - startTime}ms`,
+          );
+          return files;
+        },
+        {
+          retries: DAM_CONFIG.RETRY_ATTEMPTS,
+          factor: 2,
+          minTimeout: 1000,
+          maxTimeout: DAM_CONFIG.IMAGE_VALIDATION_TIMEOUT,
+          randomize: true,
+          onFailedAttempt: ({ attemptNumber, message }: FailedAttemptError) => {
+            this.logger.debug(
+              `Attempt ${attemptNumber}/${DAM_CONFIG.RETRY_ATTEMPTS + 1} failed - Resource: ${resource}, Error: ${message}`,
+            );
+          },
+        },
+      );
+    } catch (error) {
+      const elapsedTime = Date.now() - startTime;
 
-      // Check if files are ready after each request
-      if (
-        !this.utilsService.validateFileTypes(
-          files,
-          DAM_CONFIG.REQUIRED_SIZE_CODES,
-        )
-      ) {
-        this.logger.debug(
-          `Files not ready, triggering retry - Resource: ${resource}, File count: ${files.length}`,
-        );
-        const error = new Error("FILES_NOT_READY");
-        error.message = "FILES_NOT_READY";
-        throw error;
-      }
-
-      this.logger.debug(
-        `Resource files ready after retry - Resource: ${resource}, File count: ${files.length}`,
+      // Check if it's a file validation timeout vs other errors
+      const isFileValidationError = error.message.includes(
+        "Required file variants not processed",
       );
 
-      return files;
-    } catch (error) {
-      if (error.message === "FILES_NOT_READY") {
-        this.logger.error(
-          `File validation failed after all retries - Resource: ${resource}, Max retries: ${DAM_CONFIG.RETRY_ATTEMPTS}, Reason: Required file variants not processed within timeout`,
-        );
-        throw new HttpException(
-          "File processing timeout: Image variants not ready",
-          DamErrors.ERR_FILE_PROCESSING_TIMEOUT,
-        );
-      }
-
       this.logger.error(
-        `Error getting resource images with retry - Resource: ${resource}, Error: ${error.message}, Error type: ${error.constructor.name}`,
+        `${isFileValidationError ? "File validation failed" : "All retry attempts failed"} - Resource: ${resource}, Error: ${error.message}, Time elapsed: ${elapsedTime}ms`,
       );
 
       throw new HttpException(
-        "Error getting resource images with retry.",
-        DamErrors.ERR_GETTING_RESOURCE_IMAGES,
+        isFileValidationError
+          ? "File processing timeout: Image variants not ready"
+          : "Error getting resource images with retry.",
+        isFileValidationError
+          ? DamErrors.ERR_FILE_PROCESSING_TIMEOUT
+          : DamErrors.ERR_GETTING_RESOURCE_IMAGES,
       );
     }
   }

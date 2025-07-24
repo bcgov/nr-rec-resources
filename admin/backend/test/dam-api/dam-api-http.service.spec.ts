@@ -1,10 +1,9 @@
+import { DamApiHttpService, DamErrors } from "@/dam-api";
 import { HttpException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import axios from "axios";
 import axiosRetry from "axios-retry";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DamApiHttpService } from "../../src/dam-api/dam-api-http.service";
-import { DamErrors } from "../../src/dam-api/dam-api.types";
 
 // Mock axios and related modules
 vi.mock("axios", () => ({
@@ -62,7 +61,7 @@ describe("DamApiHttpService", () => {
 
     it("should create axios instance with correct configuration", () => {
       expect(mockedAxios.create).toHaveBeenCalledWith({
-        timeout: 30000,
+        timeout: 900000,
       });
     });
 
@@ -70,7 +69,7 @@ describe("DamApiHttpService", () => {
       expect(mockedAxiosRetry).toHaveBeenCalledWith(
         mockAxiosInstance,
         expect.objectContaining({
-          retries: 3,
+          retries: 5,
           retryDelay: axiosRetry.exponentialDelay,
           retryCondition: expect.any(Function),
           onRetry: expect.any(Function),
@@ -255,97 +254,6 @@ describe("DamApiHttpService", () => {
       await expect(service.makeRequest(mockUrl, mockFormData)).rejects.toThrow(
         "Unknown error",
       );
-    });
-  });
-
-  describe("createValidationClient", () => {
-    it("should create validation axios instance", () => {
-      const validationClient = service.createValidationClient();
-      expect(validationClient).toBeDefined();
-      expect(mockedAxios.create).toHaveBeenCalledWith({
-        timeout: 30000,
-      });
-    });
-
-    it("should configure validation client with custom retry logic", () => {
-      service.createValidationClient();
-
-      // Should be called twice - once for main instance, once for validation client
-      expect(mockedAxiosRetry).toHaveBeenCalledTimes(2);
-
-      // Check the validation client retry configuration
-      const validationRetryConfig = mockedAxiosRetry.mock.calls[1]?.[1];
-      expect(validationRetryConfig).toBeDefined();
-      expect(validationRetryConfig?.retries).toBe(3);
-      expect(validationRetryConfig?.retryDelay).toBe(
-        axiosRetry.exponentialDelay,
-      );
-    });
-
-    it("should have custom retry condition for validation client", () => {
-      service.createValidationClient();
-
-      const validationRetryConfig = mockedAxiosRetry.mock.calls[1]?.[1];
-      expect(validationRetryConfig).toBeDefined();
-      const retryCondition = validationRetryConfig?.retryCondition;
-
-      // Create mock implementations for the retry functions
-      const mockIsNetworkOrIdempotentRequestError = vi.fn();
-      const mockIsRetryableError = vi.fn();
-
-      // Mock the axios-retry functions that are used in the retry condition
-      vi.mocked(axiosRetry).isNetworkOrIdempotentRequestError =
-        mockIsNetworkOrIdempotentRequestError;
-      vi.mocked(axiosRetry).isRetryableError = mockIsRetryableError;
-
-      // Create proper error objects
-      const filesNotReadyError = new Error("FILES_NOT_READY") as any;
-      const networkError = new Error("Network Error") as any;
-      networkError.code = "ENOTFOUND";
-      const timeoutError = new Error("Timeout Error") as any;
-      timeoutError.code = "ETIMEDOUT";
-      const otherError = new Error("Other error") as any;
-
-      // Test with FILES_NOT_READY error
-      mockIsNetworkOrIdempotentRequestError.mockReturnValue(false);
-      mockIsRetryableError.mockReturnValue(false);
-      expect(retryCondition?.(filesNotReadyError)).toBe(true);
-
-      // Test with network error
-      mockIsNetworkOrIdempotentRequestError.mockReturnValue(true);
-      mockIsRetryableError.mockReturnValue(false);
-      expect(retryCondition?.(networkError)).toBe(true);
-
-      // Test with retryable error
-      mockIsNetworkOrIdempotentRequestError.mockReturnValue(false);
-      mockIsRetryableError.mockReturnValue(true);
-      expect(retryCondition?.(timeoutError)).toBe(true);
-
-      // Test with non-retryable error
-      mockIsNetworkOrIdempotentRequestError.mockReturnValue(false);
-      mockIsRetryableError.mockReturnValue(false);
-      expect(retryCondition?.(otherError)).toBe(false);
-    });
-
-    it("should trigger onRetry callback for validation client", () => {
-      service.createValidationClient();
-
-      const validationRetryConfig = mockedAxiosRetry.mock.calls[1]?.[1];
-      expect(validationRetryConfig).toBeDefined();
-      const onRetry = validationRetryConfig?.onRetry;
-      expect(onRetry).toBeDefined();
-
-      // Create a mock error and request config with proper AxiosError properties
-      const mockError = new Error("FILES_NOT_READY") as any;
-      mockError.isAxiosError = true;
-      mockError.toJSON = () => ({});
-      const mockRequestConfig = { url: "https://validation.example.com" };
-
-      // Trigger the onRetry callback
-      onRetry?.(1, mockError, mockRequestConfig);
-
-      // This will trigger the logger.debug call on lines 96-100
-      expect(onRetry).toBeDefined();
     });
   });
 });

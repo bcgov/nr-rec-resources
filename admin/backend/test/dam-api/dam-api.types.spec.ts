@@ -1,4 +1,3 @@
-import { describe, expect, it } from "vitest";
 import {
   DamApiConfig,
   DamCollectionRequest,
@@ -7,7 +6,8 @@ import {
   DamFile,
   DamResource,
   DamUploadFileRequest,
-} from "../../src/dam-api/dam-api.types";
+} from "@/dam-api";
+import { describe, expect, it } from "vitest";
 
 describe("DAM API Types", () => {
   describe("DamFile interface", () => {

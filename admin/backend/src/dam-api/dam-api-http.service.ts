@@ -74,33 +74,4 @@ export class DamApiHttpService {
       throw error;
     }
   }
-
-  /**
-   * Creates a specialized axios instance for file validation with custom retry logic
-   */
-  createValidationClient(): AxiosInstance {
-    const validationAxios = axios.create({
-      timeout: DAM_CONFIG.HTTP_TIMEOUT,
-    });
-
-    axiosRetry(validationAxios, {
-      retries: DAM_CONFIG.RETRY_ATTEMPTS,
-      retryDelay: axiosRetry.exponentialDelay,
-      retryCondition: (error) => {
-        return !!(
-          axiosRetry.isNetworkOrIdempotentRequestError(error) ||
-          axiosRetry.isRetryableError(error) ||
-          error.message === "FILES_NOT_READY"
-        );
-      },
-      onRetry: (retryCount) => {
-        this.logger.debug(`Retrying file validation`, {
-          attempt: `${retryCount}/${DAM_CONFIG.RETRY_ATTEMPTS}`,
-          reason: "waiting for files to be processed",
-        });
-      },
-    });
-
-    return validationAxios;
-  }
 }

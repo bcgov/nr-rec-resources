@@ -11,9 +11,22 @@ const mockDocumentListState = {
   refetch: vi.fn(),
 };
 
+const mockImageListState = {
+  galleryImagesFromServer: [] as any[],
+  isFetching: false,
+  refetch: vi.fn(),
+};
+
 const mockGalleryActions = {
   handleFileAction: vi.fn(),
   handleGeneralAction: vi.fn(),
+};
+
+const mockFileNameValidation = {
+  fileNameError: undefined as string | undefined,
+  validateFileName: vi.fn(),
+  hasError: false,
+  isValid: false,
 };
 
 vi.mock("@/contexts/AuthContext", () => ({
@@ -28,8 +41,20 @@ vi.mock("@/pages/rec-resource-page/hooks/useDocumentList", () => ({
   useDocumentList: () => mockDocumentListState,
 }));
 
+vi.mock("@/pages/rec-resource-page/hooks/useImageList", () => ({
+  useImageList: () => mockImageListState,
+}));
+
 vi.mock("@/pages/rec-resource-page/hooks/useGalleryActions", () => ({
   useGalleryActions: () => mockGalleryActions,
+}));
+
+vi.mock("@/pages/rec-resource-page/hooks/useFileNameValidation", () => ({
+  useFileNameValidation: () => mockFileNameValidation,
+}));
+
+vi.mock("@/pages/rec-resource-page/helpers", () => ({
+  getMaxFilesByFileType: vi.fn().mockReturnValue(5),
 }));
 
 vi.mock("@/pages/rec-resource-page/hooks/useRecResource", () => ({
@@ -46,9 +71,12 @@ vi.mock("@/pages/rec-resource-page/store/recResourceFileTransferStore", () => ({
       selectedFileForUpload: null,
       pendingDocs: [],
       galleryDocuments: [],
+      pendingImages: [],
+      galleryImages: [],
     },
   },
   setGalleryDocuments: vi.fn(),
+  setGalleryImages: vi.fn(),
 }));
 
 vi.mock("@tanstack/react-store", () => ({
@@ -60,6 +88,8 @@ vi.mock("@tanstack/react-store", () => ({
     selectedFileForUpload: null,
     pendingDocs: [],
     galleryDocuments: [],
+    pendingImages: [],
+    galleryImages: [],
   }),
 }));
 
@@ -94,8 +124,18 @@ describe("useRecResourceFileTransferState", () => {
     mockDocumentListState.isFetching = false;
     mockDocumentListState.refetch.mockReset();
 
+    mockImageListState.galleryImagesFromServer = [];
+    mockImageListState.isFetching = false;
+    mockImageListState.refetch.mockReset();
+
     mockGalleryActions.handleFileAction.mockReset();
     mockGalleryActions.handleGeneralAction.mockReset();
+
+    // Reset file name validation mock
+    mockFileNameValidation.fileNameError = undefined;
+    mockFileNameValidation.hasError = false;
+    mockFileNameValidation.isValid = false;
+    mockFileNameValidation.validateFileName.mockReset();
   });
 
   it("returns state and handlers from composed hooks", () => {
@@ -107,23 +147,31 @@ describe("useRecResourceFileTransferState", () => {
       // Gallery action handlers
       getDocumentFileActionHandler: expect.any(Function),
       getDocumentGeneralActionHandler: expect.any(Function),
+      getImageFileActionHandler: expect.any(Function),
+      getImageGeneralActionHandler: expect.any(Function),
 
       // Document list
       galleryDocuments: expect.any(Array),
       isDocumentUploadDisabled: expect.any(Boolean),
       isFetching: expect.any(Boolean),
 
+      // Image list
+      galleryImages: expect.any(Array),
+      isImageUploadDisabled: expect.any(Boolean),
+      isFetchingImages: expect.any(Boolean),
+
       // Upload modal state
       uploadModalState: {
         showUploadOverlay: expect.any(Boolean),
         uploadFileName: expect.any(String),
         selectedFileForUpload: null,
+        fileNameError: undefined,
       },
 
       // Delete modal state
       deleteModalState: {
         showDeleteModal: expect.any(Boolean),
-        docToDelete: null,
+        fileToDelete: undefined,
       },
     });
   });
@@ -160,7 +208,44 @@ describe("useRecResourceFileTransferState", () => {
 
     expect(mockGalleryActions.handleGeneralAction).toHaveBeenCalledWith(
       "upload",
+      "document",
       mockDocumentListState.refetch,
+    );
+  });
+
+  it("delegates image file actions to gallery actions hook", () => {
+    const { result } = renderHook(() => useRecResourceFileTransferState(), {
+      wrapper: createWrapper(),
+    });
+
+    const testFile = { id: "1", name: "test.jpg" } as any;
+    const actionHandler = result.current.getImageFileActionHandler(
+      "view",
+      testFile,
+    );
+
+    actionHandler();
+
+    expect(mockGalleryActions.handleFileAction).toHaveBeenCalledWith(
+      "view",
+      testFile,
+      mockImageListState.refetch,
+    );
+  });
+
+  it("delegates image general actions to gallery actions hook", () => {
+    const { result } = renderHook(() => useRecResourceFileTransferState(), {
+      wrapper: createWrapper(),
+    });
+
+    const actionHandler = result.current.getImageGeneralActionHandler("upload");
+
+    actionHandler();
+
+    expect(mockGalleryActions.handleGeneralAction).toHaveBeenCalledWith(
+      "upload",
+      "image",
+      mockImageListState.refetch,
     );
   });
 
@@ -173,17 +258,59 @@ describe("useRecResourceFileTransferState", () => {
     expect(result.current.galleryDocuments).toEqual([]);
     expect(result.current.isFetching).toBe(false);
 
+    // Verify it includes properties from image list hook
+    expect(result.current.galleryImages).toEqual([]);
+    expect(result.current.isFetchingImages).toBe(false);
+
     // Verify upload modal state structure
     expect(result.current.uploadModalState).toEqual({
       showUploadOverlay: false,
       uploadFileName: "",
       selectedFileForUpload: null,
+      fileNameError: undefined,
     });
 
     // Verify delete modal state structure
     expect(result.current.deleteModalState).toEqual({
       showDeleteModal: false,
-      docToDelete: null,
+      fileToDelete: undefined,
     });
+  });
+
+  it("calculates document upload disabled state based on max files", () => {
+    // Mock getMaxFilesByFileType to return 2 for this test
+    const mockGetMaxFiles = vi.fn().mockReturnValue(2);
+    vi.doMock("@/pages/rec-resource-page/helpers", () => ({
+      getMaxFilesByFileType: mockGetMaxFiles,
+    }));
+
+    const { result } = renderHook(() => useRecResourceFileTransferState(), {
+      wrapper: createWrapper(),
+    });
+
+    // With 0 documents, should not be disabled
+    expect(result.current.isDocumentUploadDisabled).toBe(false);
+  });
+
+  it("calculates image upload disabled state based on max files", () => {
+    const { result } = renderHook(() => useRecResourceFileTransferState(), {
+      wrapper: createWrapper(),
+    });
+
+    // With 0 images and max of 5, should not be disabled
+    expect(result.current.isImageUploadDisabled).toBe(false);
+  });
+
+  it("includes file name validation properties in upload modal state", () => {
+    // Set up mock with validation error
+    mockFileNameValidation.fileNameError = "Test error";
+    mockFileNameValidation.hasError = true;
+    mockFileNameValidation.isValid = false;
+
+    const { result } = renderHook(() => useRecResourceFileTransferState(), {
+      wrapper: createWrapper(),
+    });
+
+    expect(result.current.uploadModalState.fileNameError).toBe("Test error");
   });
 });

@@ -57,23 +57,39 @@ const mockUseRecResourceFileTransferState = vi.mocked(
 const mockSetUploadFileName = vi.mocked(setUploadFileName);
 
 describe("FileUploadModal", () => {
-  const createFile = (name = "test.png", type = "image/png") =>
-    new File(["test content"], name, { type });
+  const createFile = (
+    name = "test.png",
+    fileType = "image/png",
+    galleryType: "image" | "document" = "image",
+  ) => ({
+    id: "test-id",
+    name: name,
+    date: "2023-01-01",
+    url: "",
+    extension: name.split(".").pop() || "png",
+    type: galleryType,
+    pendingFile: new File(["test content"], name, { type: fileType }),
+  });
   const renderModal = () =>
     render(<FileUploadModal />, { wrapper: reactQueryWrapper });
 
   const setMockState = (state: {
     showUploadOverlay?: boolean;
-    selectedFileForUpload?: File | null;
+    selectedFileForUpload?: any;
     uploadFileName?: string;
+    fileNameError?: string | null;
   }) => {
     mockUseRecResourceFileTransferState.mockReturnValue({
       uploadModalState: {
         showUploadOverlay: state.showUploadOverlay ?? false,
         selectedFileForUpload: state.selectedFileForUpload ?? null,
         uploadFileName: state.uploadFileName ?? "",
+        fileNameError: state.fileNameError ?? null,
       },
       getDocumentGeneralActionHandler: vi.fn(
+        (action) => () => mockHandleGeneralAction(action),
+      ),
+      getImageGeneralActionHandler: vi.fn(
         (action) => () => mockHandleGeneralAction(action),
       ),
     } as any);
@@ -108,7 +124,7 @@ describe("FileUploadModal", () => {
     it("renders modal when both showUploadOverlay is true and file is selected", () => {
       setMockState({
         showUploadOverlay: true,
-        selectedFileForUpload: createFile(),
+        selectedFileForUpload: createFile("test.jpg", "image/jpeg", "image"),
       });
 
       renderModal();
@@ -120,7 +136,7 @@ describe("FileUploadModal", () => {
     it("displays 'Upload image' for image files", () => {
       setMockState({
         showUploadOverlay: true,
-        selectedFileForUpload: createFile("test.jpg", "image/jpeg"),
+        selectedFileForUpload: createFile("test.jpg", "image/jpeg", "image"),
       });
 
       renderModal();
@@ -130,7 +146,11 @@ describe("FileUploadModal", () => {
     it("displays 'Upload file' for non-image files", () => {
       setMockState({
         showUploadOverlay: true,
-        selectedFileForUpload: createFile("test.pdf", "application/pdf"),
+        selectedFileForUpload: createFile(
+          "test.pdf",
+          "application/pdf",
+          "document",
+        ),
       });
 
       renderModal();
@@ -175,7 +195,7 @@ describe("FileUploadModal", () => {
       });
 
       renderModal();
-      const nameInput = screen.getByPlaceholderText("Enter document title");
+      const nameInput = screen.getByPlaceholderText("Enter file name");
       expect(nameInput).toBeInTheDocument();
     });
 
@@ -188,6 +208,23 @@ describe("FileUploadModal", () => {
       renderModal();
       const nameInput = screen.getByRole("textbox");
       expect(nameInput).toHaveAttribute("maxLength", "100");
+    });
+
+    it("displays error message when fileNameError is present", () => {
+      setMockState({
+        showUploadOverlay: true,
+        selectedFileForUpload: createFile(),
+        uploadFileName: "duplicate-name",
+        fileNameError:
+          "A file with this name already exists. Please choose a different name",
+      });
+
+      renderModal();
+      expect(
+        screen.getByText(
+          "A file with this name already exists. Please choose a different name",
+        ),
+      ).toBeInTheDocument();
     });
   });
 

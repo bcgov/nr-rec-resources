@@ -37,6 +37,7 @@
     "form-data": "^4.0.3",
     "helmet": "^8.1.0",
     "nest-winston": "^1.10.2",
+    "p-retry": "^6.2.1",
     "passport": "^0.7.0",
     "passport-keycloak-bearer": "^2.4.1",
     "reflect-metadata": "^0.2.2",
