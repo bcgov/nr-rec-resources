@@ -1,4 +1,7 @@
-import { RecreationResourceDocDto } from "@/services/recreation-resource-admin";
+import {
+  RecreationResourceDocDto,
+  RecreationResourceImageDto,
+} from "@/services/recreation-resource-admin";
 
 /**
  * Gets the base URL for asset storage.
@@ -20,6 +23,25 @@ export const transformRecreationResourceDocs = (
   return docs.map((doc) => ({
     ...doc,
     url: `${basePath}/${doc.url}`,
+  }));
+};
+
+/**
+ * Transforms recreation resource images by updating image URLs with full asset paths.
+ * @param docs - The recreation resource images to transform
+ * @returns Transformed images with complete URLs
+ */
+export const transformRecreationResourceImages = (
+  docs: RecreationResourceImageDto[],
+): RecreationResourceImageDto[] => {
+  const basePath = getBasePathForAssets();
+  return docs.map((doc) => ({
+    ...doc,
+    recreation_resource_image_variants:
+      doc.recreation_resource_image_variants?.map((v) => ({
+        ...v,
+        url: `${basePath}/${v.url}`,
+      })),
   }));
 };
 

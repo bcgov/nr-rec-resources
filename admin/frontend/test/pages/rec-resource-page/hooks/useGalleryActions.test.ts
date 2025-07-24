@@ -4,7 +4,9 @@ import {
   GalleryFileAction,
   GalleryGeneralAction,
 } from "@/pages/rec-resource-page/types";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { act, renderHook } from "@testing-library/react";
+import React, { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock dependencies
@@ -14,19 +16,28 @@ const mockHandleUpload = vi.fn();
 const mockHandleDelete = vi.fn();
 const mockShowDeleteModalForDoc = vi.fn();
 const mockHideDeleteModal = vi.fn();
+const mockHandleAddFileByType = vi.fn();
 const mockHandleAddPdfFileClick = vi.fn();
 const mockResetUploadState = vi.fn();
 const mockRemovePendingDoc = vi.fn();
+const mockRemovePendingImage = vi.fn();
+
+// Image upload/delete mocks
+const mockHandleImageUploadRetry = vi.fn();
+const mockHandleImageUpload = vi.fn();
+const mockHandleImageDelete = vi.fn();
 
 // Mock store state - will be updated in tests
 const mockStoreState: {
   selectedFileForUpload: File | null;
   uploadFileName: string;
   docToDelete: any;
+  fileToDelete: any;
 } = {
   selectedFileForUpload: null,
   uploadFileName: "",
   docToDelete: null,
+  fileToDelete: null,
 };
 
 const mockUseStore = vi.fn(() => mockStoreState);
@@ -44,6 +55,13 @@ vi.mock("@/pages/rec-resource-page/hooks/useDocumentUpload", () => ({
   }),
 }));
 
+vi.mock("@/pages/rec-resource-page/hooks/useImageUpload", () => ({
+  useImageUpload: () => ({
+    handleUploadRetry: mockHandleImageUploadRetry,
+    handleUpload: mockHandleImageUpload,
+  }),
+}));
+
 vi.mock("@/pages/rec-resource-page/hooks/useDocumentDelete", () => ({
   useDocumentDelete: () => ({
     handleDelete: mockHandleDelete,
@@ -51,8 +69,16 @@ vi.mock("@/pages/rec-resource-page/hooks/useDocumentDelete", () => ({
   }),
 }));
 
+vi.mock("@/pages/rec-resource-page/hooks/useImageDelete", () => ({
+  useImageDelete: () => ({
+    handleDelete: mockHandleImageDelete,
+    isDeleting: false,
+  }),
+}));
+
 vi.mock("@/pages/rec-resource-page/helpers", () => ({
   handleAddFileClick: vi.fn(),
+  handleAddFileByType: (fileType: any) => mockHandleAddFileByType(fileType),
   handleAddPdfFileClick: () => mockHandleAddPdfFileClick(),
 }));
 
@@ -62,12 +88,15 @@ vi.mock("@/pages/rec-resource-page/store/recResourceFileTransferStore", () => ({
       selectedFileForUpload: null,
       uploadFileName: "",
       docToDelete: null,
+      fileToDelete: null,
     },
   },
   hideDeleteModal: () => mockHideDeleteModal(),
+  showDeleteModalForFile: (file: any) => mockShowDeleteModalForDoc(file),
   showDeleteModalForDoc: (file: any) => mockShowDeleteModalForDoc(file),
   resetUploadState: () => mockResetUploadState(),
   removePendingDoc: (id: string) => mockRemovePendingDoc(id),
+  removePendingImage: (id: string) => mockRemovePendingImage(id),
 }));
 
 vi.mock("@tanstack/react-store", () => ({
@@ -75,16 +104,36 @@ vi.mock("@tanstack/react-store", () => ({
 }));
 
 describe("useGalleryActions", () => {
+  let queryClient: QueryClient;
+
   beforeEach(() => {
     vi.clearAllMocks();
+    queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+        mutations: { retry: false },
+      },
+    });
     // Reset store state to default values
     mockStoreState.selectedFileForUpload = null;
     mockStoreState.uploadFileName = "";
     mockStoreState.docToDelete = null;
+    mockStoreState.fileToDelete = null;
   });
 
+  const createWrapper = () => {
+    return ({ children }: { children: ReactNode }) =>
+      React.createElement(
+        QueryClientProvider,
+        { client: queryClient },
+        children,
+      );
+  };
+
   it("returns action handlers", () => {
-    const { result } = renderHook(() => useGalleryActions());
+    const { result } = renderHook(() => useGalleryActions(), {
+      wrapper: createWrapper(),
+    });
 
     expect(result.current).toMatchObject({
       handleFileAction: expect.any(Function),
@@ -99,6 +148,7 @@ describe("useGalleryActions", () => {
       date: "2023-01-01",
       url: "http://example.com/test.pdf",
       extension: "pdf",
+      type: "document",
     };
 
     beforeEach(() => {
@@ -107,7 +157,9 @@ describe("useGalleryActions", () => {
 
     it("handles view action by opening window", () => {
       const mockOpen = vi.spyOn(window, "open").mockImplementation(() => null);
-      const { result } = renderHook(() => useGalleryActions());
+      const { result } = renderHook(() => useGalleryActions(), {
+        wrapper: createWrapper(),
+      });
 
       result.current.handleFileAction("view", testFile);
 
@@ -116,7 +168,9 @@ describe("useGalleryActions", () => {
     });
 
     it("handles download action by calling download mutation", () => {
-      const { result } = renderHook(() => useGalleryActions());
+      const { result } = renderHook(() => useGalleryActions(), {
+        wrapper: createWrapper(),
+      });
 
       result.current.handleFileAction("download", testFile);
 
@@ -124,7 +178,9 @@ describe("useGalleryActions", () => {
     });
 
     it("handles retry action by calling upload retry", async () => {
-      const { result } = renderHook(() => useGalleryActions());
+      const { result } = renderHook(() => useGalleryActions(), {
+        wrapper: createWrapper(),
+      });
       const onSuccess = vi.fn();
 
       await act(async () => {
@@ -134,8 +190,35 @@ describe("useGalleryActions", () => {
       expect(mockHandleUploadRetry).toHaveBeenCalledWith(testFile, onSuccess);
     });
 
+    it("handles retry action for image files by calling image upload retry", async () => {
+      const imageFile: GalleryFile = {
+        id: "image-1",
+        name: "test.jpg",
+        date: "2023-01-01",
+        url: "http://example.com/test.jpg",
+        extension: "jpg",
+        type: "image",
+      };
+
+      const { result } = renderHook(() => useGalleryActions(), {
+        wrapper: createWrapper(),
+      });
+      const onSuccess = vi.fn();
+
+      await act(async () => {
+        result.current.handleFileAction("retry", imageFile, onSuccess);
+      });
+
+      expect(mockHandleImageUploadRetry).toHaveBeenCalledWith(
+        imageFile,
+        onSuccess,
+      );
+    });
+
     it("handles delete action by showing delete modal", () => {
-      const { result } = renderHook(() => useGalleryActions());
+      const { result } = renderHook(() => useGalleryActions(), {
+        wrapper: createWrapper(),
+      });
 
       result.current.handleFileAction("delete", testFile);
 
@@ -143,7 +226,9 @@ describe("useGalleryActions", () => {
     });
 
     it("handles dismiss action by removing pending doc", () => {
-      const { result } = renderHook(() => useGalleryActions());
+      const { result } = renderHook(() => useGalleryActions(), {
+        wrapper: createWrapper(),
+      });
       const onSuccess = vi.fn();
 
       result.current.handleFileAction("dismiss", testFile, onSuccess);
@@ -152,8 +237,31 @@ describe("useGalleryActions", () => {
       expect(onSuccess).not.toHaveBeenCalled();
     });
 
+    it("handles dismiss action by removing pending image", () => {
+      const imageFile: GalleryFile = {
+        id: "image-1",
+        name: "test.jpg",
+        date: "2023-01-01",
+        url: "http://example.com/test.jpg",
+        extension: "jpg",
+        type: "image",
+      };
+
+      const { result } = renderHook(() => useGalleryActions(), {
+        wrapper: createWrapper(),
+      });
+      const onSuccess = vi.fn();
+
+      result.current.handleFileAction("dismiss", imageFile, onSuccess);
+
+      expect(mockRemovePendingImage).toHaveBeenCalledWith(imageFile.id);
+      expect(onSuccess).not.toHaveBeenCalled();
+    });
+
     it("handles unknown action gracefully", () => {
-      const { result } = renderHook(() => useGalleryActions());
+      const { result } = renderHook(() => useGalleryActions(), {
+        wrapper: createWrapper(),
+      });
 
       expect(() => {
         result.current.handleFileAction(
@@ -172,29 +280,39 @@ describe("useGalleryActions", () => {
 
   describe("handleGeneralAction", () => {
     it("handles cancel-delete action by hiding modal", () => {
-      const { result } = renderHook(() => useGalleryActions());
+      const { result } = renderHook(() => useGalleryActions(), {
+        wrapper: createWrapper(),
+      });
 
-      result.current.handleGeneralAction("cancel-delete");
+      result.current.handleGeneralAction("cancel-delete", "document");
 
       expect(mockHideDeleteModal).toHaveBeenCalled();
     });
 
     it("handles upload action by triggering file picker", () => {
-      const { result } = renderHook(() => useGalleryActions());
+      const { result } = renderHook(() => useGalleryActions(), {
+        wrapper: createWrapper(),
+      });
 
-      result.current.handleGeneralAction("upload");
+      result.current.handleGeneralAction("upload", "document");
 
-      expect(mockHandleAddPdfFileClick).toHaveBeenCalled();
+      expect(mockHandleAddFileByType).toHaveBeenCalledWith("document");
     });
 
     it("handles confirm-upload action when file and filename are present", () => {
       // This test verifies the logic but can't easily test conditional behavior
       // without complex mock setup. The core logic is tested in integration.
-      const { result } = renderHook(() => useGalleryActions());
+      const { result } = renderHook(() => useGalleryActions(), {
+        wrapper: createWrapper(),
+      });
       const onSuccess = vi.fn();
 
       // This will call the function but with null values (default mock)
-      result.current.handleGeneralAction("confirm-upload", onSuccess);
+      result.current.handleGeneralAction(
+        "confirm-upload",
+        "document",
+        onSuccess,
+      );
 
       // With null values, neither resetUploadState nor handleUpload should be called
       expect(mockResetUploadState).not.toHaveBeenCalled();
@@ -208,29 +326,75 @@ describe("useGalleryActions", () => {
       });
       const mockFileName = "test-file.pdf";
 
-      // Update the mock store state
-      mockStoreState.selectedFileForUpload = mockFile;
+      // Update the mock store state - needs pendingFile property
+      mockStoreState.selectedFileForUpload = {
+        pendingFile: mockFile,
+      } as any;
       mockStoreState.uploadFileName = mockFileName;
 
-      const { result } = renderHook(() => useGalleryActions());
+      const { result } = renderHook(() => useGalleryActions(), {
+        wrapper: createWrapper(),
+      });
       const onSuccess = vi.fn();
 
-      result.current.handleGeneralAction("confirm-upload", onSuccess);
+      result.current.handleGeneralAction(
+        "confirm-upload",
+        "document",
+        onSuccess,
+      );
 
       expect(mockResetUploadState).toHaveBeenCalled();
       expect(mockHandleUpload).toHaveBeenCalledWith(
-        mockFile,
-        mockFileName,
+        expect.objectContaining({
+          name: mockFileName,
+          pendingFile: mockFile,
+        }),
+        onSuccess,
+      );
+    });
+
+    it("handles confirm-upload action with image file and filename present", () => {
+      // Mock the store to return truthy values for image upload
+      const mockFile = new File(["test"], "test.jpg", {
+        type: "image/jpeg",
+      });
+      const mockFileName = "test-image.jpg";
+
+      // Update the mock store state - needs pendingFile property
+      mockStoreState.selectedFileForUpload = {
+        pendingFile: mockFile,
+      } as any;
+      mockStoreState.uploadFileName = mockFileName;
+
+      const { result } = renderHook(() => useGalleryActions(), {
+        wrapper: createWrapper(),
+      });
+      const onSuccess = vi.fn();
+
+      result.current.handleGeneralAction("confirm-upload", "image", onSuccess);
+
+      expect(mockResetUploadState).toHaveBeenCalled();
+      expect(mockHandleImageUpload).toHaveBeenCalledWith(
+        expect.objectContaining({
+          name: mockFileName,
+          pendingFile: mockFile,
+        }),
         onSuccess,
       );
     });
 
     it("does not handle confirm-upload when no file is selected", () => {
       // Default mock returns null for selectedFileForUpload
-      const { result } = renderHook(() => useGalleryActions());
+      const { result } = renderHook(() => useGalleryActions(), {
+        wrapper: createWrapper(),
+      });
       const onSuccess = vi.fn();
 
-      result.current.handleGeneralAction("confirm-upload", onSuccess);
+      result.current.handleGeneralAction(
+        "confirm-upload",
+        "document",
+        onSuccess,
+      );
 
       expect(mockResetUploadState).not.toHaveBeenCalled();
       expect(mockHandleUpload).not.toHaveBeenCalled();
@@ -239,45 +403,88 @@ describe("useGalleryActions", () => {
     it("does not handle confirm-upload when no filename is provided", () => {
       // This test case is covered by the default behavior since our mock
       // returns empty string for uploadFileName
-      const { result } = renderHook(() => useGalleryActions());
+      const { result } = renderHook(() => useGalleryActions(), {
+        wrapper: createWrapper(),
+      });
       const onSuccess = vi.fn();
 
-      result.current.handleGeneralAction("confirm-upload", onSuccess);
+      result.current.handleGeneralAction(
+        "confirm-upload",
+        "document",
+        onSuccess,
+      );
 
       expect(mockResetUploadState).not.toHaveBeenCalled();
       expect(mockHandleUpload).not.toHaveBeenCalled();
     });
 
     it("handles cancel-upload action by resetting upload state", () => {
-      const { result } = renderHook(() => useGalleryActions());
+      const { result } = renderHook(() => useGalleryActions(), {
+        wrapper: createWrapper(),
+      });
 
-      result.current.handleGeneralAction("cancel-upload");
+      result.current.handleGeneralAction("cancel-upload", "document");
 
       expect(mockResetUploadState).toHaveBeenCalled();
     });
 
     it("handles confirm-delete action by calling handleDelete and hiding modal", () => {
-      const { result } = renderHook(() => useGalleryActions());
+      // Set up fileToDelete in the mock store state
+      mockStoreState.fileToDelete = {
+        id: "file-1",
+        name: "test.pdf",
+        type: "document",
+      };
+
+      const { result } = renderHook(() => useGalleryActions(), {
+        wrapper: createWrapper(),
+      });
       const onSuccess = vi.fn();
 
-      result.current.handleGeneralAction("confirm-delete", onSuccess);
+      result.current.handleGeneralAction(
+        "confirm-delete",
+        "document",
+        onSuccess,
+      );
 
       expect(mockHandleDelete).toHaveBeenCalledWith(onSuccess);
       expect(mockHideDeleteModal).toHaveBeenCalled();
     });
 
+    it("handles confirm-delete action for image files by calling handleImageDelete and hiding modal", () => {
+      // Set up fileToDelete as an image in the mock store state
+      mockStoreState.fileToDelete = {
+        id: "image-1",
+        name: "test.jpg",
+        type: "image",
+      };
+
+      const { result } = renderHook(() => useGalleryActions(), {
+        wrapper: createWrapper(),
+      });
+      const onSuccess = vi.fn();
+
+      result.current.handleGeneralAction("confirm-delete", "image", onSuccess);
+
+      expect(mockHandleImageDelete).toHaveBeenCalledWith(onSuccess);
+      expect(mockHideDeleteModal).toHaveBeenCalled();
+    });
+
     it("handles unknown action gracefully", () => {
-      const { result } = renderHook(() => useGalleryActions());
+      const { result } = renderHook(() => useGalleryActions(), {
+        wrapper: createWrapper(),
+      });
 
       expect(() => {
         result.current.handleGeneralAction(
           "unknown-action" as GalleryGeneralAction,
+          "document",
         );
       }).not.toThrow();
 
       // Should not call any handlers
       expect(mockHideDeleteModal).not.toHaveBeenCalled();
-      expect(mockHandleAddPdfFileClick).not.toHaveBeenCalled();
+      expect(mockHandleAddFileByType).not.toHaveBeenCalled();
       expect(mockResetUploadState).not.toHaveBeenCalled();
       expect(mockHandleUpload).not.toHaveBeenCalled();
       expect(mockHandleDelete).not.toHaveBeenCalled();
@@ -285,7 +492,9 @@ describe("useGalleryActions", () => {
   });
 
   it("action handlers are stable functions", () => {
-    const { result, rerender } = renderHook(() => useGalleryActions());
+    const { result, rerender } = renderHook(() => useGalleryActions(), {
+      wrapper: createWrapper(),
+    });
 
     const handleFileAction1 = result.current.handleFileAction;
     const handleGeneralAction1 = result.current.handleGeneralAction;

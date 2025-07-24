@@ -1,19 +1,17 @@
-import { CustomButton } from "@/components";
+import { ClampLines, CustomButton } from "@/components";
 import { COLOR_RED } from "@/styles/colors";
-import { isImageFile } from "@/utils/imageUtils";
 import { faFilePdf, IconDefinition } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FC, ReactNode } from "react";
 import { Alert, AlertProps, ButtonProps, Modal, Stack } from "react-bootstrap";
+import { GalleryFile } from "../../types";
 import "./BaseFileModal.scss";
 
 interface BaseFileModalProps {
   show: boolean;
   onHide: () => void;
   title: string;
-  file?: File | null;
-  fileUrl?: string;
-  fileName?: string;
+  galleryFile: GalleryFile;
   alertConfig?: {
     variant: AlertProps["variant"];
     icon: IconDefinition;
@@ -27,15 +25,14 @@ interface BaseFileModalProps {
   confirmButtonText: string;
   confirmButtonIcon: IconDefinition;
   confirmButtonVariant?: ButtonProps["variant"];
+  confirmButtonDisabled?: boolean;
 }
 
 export const BaseFileModal: FC<BaseFileModalProps> = ({
   show,
   onHide,
   title,
-  file,
-  fileUrl,
-  fileName,
+  galleryFile,
   alertConfig,
   children,
   onCancel,
@@ -43,33 +40,20 @@ export const BaseFileModal: FC<BaseFileModalProps> = ({
   confirmButtonIcon,
   confirmButtonText,
   confirmButtonVariant,
+  confirmButtonDisabled = false,
   className = "",
 }) => {
   if (!show) return null;
 
   // Determine if we're dealing with an image
-  const isImage = file
-    ? isImageFile(file)
-    : fileUrl
-      ? /\.(jpg|jpeg|png|heic|webp|gif|bmp|tiff)$/i.test(fileUrl)
-      : false;
+  const isImage = galleryFile.type === "image";
 
   // Create preview component
   const filePreview = (() => {
-    if (file && isImage) {
+    if (isImage) {
       return (
         <img
-          src={URL.createObjectURL(file)}
-          alt="preview"
-          className={`${className}__preview-img base-file-modal__preview-img`}
-        />
-      );
-    }
-
-    if (fileUrl && isImage) {
-      return (
-        <img
-          src={fileUrl}
+          src={galleryFile.url}
           alt="preview"
           className={`${className}__preview-img base-file-modal__preview-img`}
         />
@@ -80,13 +64,11 @@ export const BaseFileModal: FC<BaseFileModalProps> = ({
     return (
       <div className={`${className}__preview-pdf base-file-modal__preview-pdf`}>
         <FontAwesomeIcon icon={faFilePdf} size="3x" color={COLOR_RED} />
-        {fileName && (
-          <div
-            className={`${className}__file-name base-file-modal__file-name mt-2`}
-          >
-            {fileName}
-          </div>
-        )}
+        <div
+          className={`${className}__file-name base-file-modal__file-name mt-2`}
+        >
+          <ClampLines text={galleryFile.name} />
+        </div>
       </div>
     );
   })();
@@ -137,6 +119,7 @@ export const BaseFileModal: FC<BaseFileModalProps> = ({
           variant={confirmButtonVariant}
           onClick={onConfirm}
           leftIcon={<FontAwesomeIcon icon={confirmButtonIcon} />}
+          disabled={confirmButtonDisabled}
         >
           {confirmButtonText}
         </CustomButton>

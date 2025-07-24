@@ -1,11 +1,11 @@
 import { Module } from "@nestjs/common";
-import { ResourceImagesService } from "./service/resource-images.service";
-import { ResourceImagesController } from "./resource-images.controller";
-import { PrismaModule } from "src/prisma.module";
-import { PrismaService } from "src/prisma.service";
+import { ConfigService } from "@nestjs/config";
 import { MulterModule } from "@nestjs/platform-express";
 import { memoryStorage } from "multer";
-import { ConfigService } from "@nestjs/config";
+import { PrismaModule } from "src/prisma.module";
+import { PrismaService } from "src/prisma.service";
+import { ResourceImagesController } from "./resource-images.controller";
+import { ResourceImagesService } from "./service/resource-images.service";
 
 @Module({
   providers: [ResourceImagesService, PrismaService, ConfigService],
@@ -14,7 +14,7 @@ import { ConfigService } from "@nestjs/config";
     MulterModule.register({
       storage: memoryStorage(),
       limits: {
-        fileSize: 5 * 1024 * 1024, // 5 MB limit, adjust as needed
+        fileSize: 10.5 * 1024 * 1024, // 10 MB limit, adjust as needed
       },
     }),
     PrismaModule,

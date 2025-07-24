@@ -1,7 +1,6 @@
 import { CustomBadge, CustomButton } from "@/components";
 import { ClampLines } from "@/components/clamp-lines";
 import { RecreationResourceDetailModel } from "@/custom-models";
-import { handleAddPdfFileClick } from "@/pages/rec-resource-page/helpers";
 import { useRecResourceFileTransferState } from "@/pages/rec-resource-page/hooks/useRecResourceFileTransferState";
 import { COLOR_BLUE, COLOR_BLUE_LIGHT } from "@/styles/colors";
 import { faEllipsisH, faPlus } from "@fortawesome/free-solid-svg-icons";
@@ -44,7 +43,12 @@ const ActionButton: FC<ActionButtonProps> = ({
 export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
   recResource,
 }) => {
-  const { isDocumentUploadDisabled } = useRecResourceFileTransferState();
+  const {
+    isDocumentUploadDisabled,
+    isImageUploadDisabled,
+    getDocumentGeneralActionHandler,
+    getImageGeneralActionHandler,
+  } = useRecResourceFileTransferState();
 
   return (
     <Stack direction="vertical" className="resource-header-section" gap={2}>
@@ -68,7 +72,7 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
 
         {/* Responsive actions: dropdown on mobile, buttons on desktop */}
         {/* Mobile: show dropdown */}
-        <div className="d-flex d-md-none align-items-center">
+        <div className="d-flex d-lg-none align-items-center">
           <Dropdown align="end">
             <Dropdown.Toggle
               as="span"
@@ -83,7 +87,7 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
               />
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <Dropdown.Item onClick={handleAddPdfFileClick}>
+              <Dropdown.Item onClick={getImageGeneralActionHandler("upload")}>
                 <FontAwesomeIcon
                   icon={faPlus}
                   className="me-2 resource-header-section__action-button-icon"
@@ -91,7 +95,7 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
                 Add image
               </Dropdown.Item>
               <Dropdown.Item
-                onClick={handleAddPdfFileClick}
+                onClick={getDocumentGeneralActionHandler("upload")}
                 disabled={isDocumentUploadDisabled}
               >
                 <FontAwesomeIcon
@@ -107,12 +111,16 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
         <Stack
           direction="horizontal"
           gap={2}
-          className="py-2 resource-header-section__action-buttons align-items-center d-none d-md-flex"
+          className="py-2 resource-header-section__action-buttons align-items-center d-none d-lg-flex"
         >
-          <ActionButton label="Add image" onClick={handleAddPdfFileClick} />
+          <ActionButton
+            label="Add image"
+            onClick={getImageGeneralActionHandler("upload")}
+            disabled={isImageUploadDisabled}
+          />
           <ActionButton
             label="Add document"
-            onClick={handleAddPdfFileClick}
+            onClick={getDocumentGeneralActionHandler("upload")}
             disabled={isDocumentUploadDisabled}
           />
         </Stack>

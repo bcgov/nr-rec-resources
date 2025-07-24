@@ -8,7 +8,13 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { ROUTES } from "./routes";
 import { useGlobalQueryErrorHandler } from "./services/hooks/useGlobalQueryErrorHandler";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function App() {
   useGlobalQueryErrorHandler(queryClient);

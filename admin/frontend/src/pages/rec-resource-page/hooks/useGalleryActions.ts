@@ -1,28 +1,39 @@
 import { useStore } from "@tanstack/react-store";
 import { useCallback } from "react";
-import { handleAddFileClick, handleAddPdfFileClick } from "../helpers";
+import { handleAddFileByType, handleAddFileClick } from "../helpers";
 import {
   hideDeleteModal,
   recResourceFileTransferStore,
   removePendingDoc,
+  removePendingImage,
   resetUploadState,
-  showDeleteModalForDoc,
+  showDeleteModalForFile,
 } from "../store/recResourceFileTransferStore";
 import { GalleryFile, GalleryFileAction, GalleryGeneralAction } from "../types";
 import { useDocumentDelete } from "./useDocumentDelete";
 import { useDocumentUpload } from "./useDocumentUpload";
 import { useFileDownload } from "./useFileDownload";
+import { useImageDelete } from "./useImageDelete";
+import { useImageUpload } from "./useImageUpload";
 
 /**
- * Hook to manage document gallery actions.
- * Handles view, download, retry, delete, and upload document operations.
+ * Hook to manage gallery actions for both documents and images.
+ * Handles view, download, retry, delete, and upload operations.
  */
 export function useGalleryActions() {
   const downloadMutation = useFileDownload();
-  const { handleUploadRetry, handleUpload } = useDocumentUpload();
-  const { handleDelete } = useDocumentDelete();
+  const {
+    handleUploadRetry: handleDocumentUploadRetry,
+    handleUpload: handleDocumentUpload,
+  } = useDocumentUpload();
+  const {
+    handleUploadRetry: handleImageUploadRetry,
+    handleUpload: handleImageUpload,
+  } = useImageUpload();
+  const { handleDelete: handleDocumentDelete } = useDocumentDelete();
+  const { handleDelete: handleImageDelete } = useImageDelete();
 
-  const { selectedFileForUpload, uploadFileName } = useStore(
+  const { selectedFileForUpload, uploadFileName, fileToDelete } = useStore(
     recResourceFileTransferStore,
   );
 
@@ -36,44 +47,78 @@ export function useGalleryActions() {
         case "download":
           downloadMutation.mutate({ file });
           break;
-        case "retry":
-          handleUploadRetry(file, onSuccess);
+        case "retry": {
+          const isImageRetry = file.type === "image";
+          if (isImageRetry) {
+            handleImageUploadRetry(file, onSuccess);
+          } else {
+            handleDocumentUploadRetry(file, onSuccess);
+          }
           break;
+        }
         case "delete":
-          showDeleteModalForDoc(file);
+          showDeleteModalForFile(file);
           break;
-        case "dismiss":
-          removePendingDoc(file.id);
+        case "dismiss": {
+          if (file.type === "image") {
+            removePendingImage(file.id);
+          } else {
+            removePendingDoc(file.id);
+          }
           break;
-
+        }
         default:
           break;
       }
     },
-    [handleUploadRetry, downloadMutation, handleDelete, showDeleteModalForDoc],
+    [
+      handleDocumentUploadRetry,
+      handleImageUploadRetry,
+      downloadMutation,
+      showDeleteModalForFile,
+    ],
   );
 
   // Handler for gallery actions that do not require a file
   const handleGeneralAction = useCallback(
-    (action: GalleryGeneralAction, onSuccess?: () => void) => {
+    (
+      action: GalleryGeneralAction,
+      fileType: GalleryFile["type"],
+      onSuccess?: () => void,
+    ) => {
       switch (action) {
         case "cancel-delete":
           hideDeleteModal();
           break;
         case "upload":
-          handleAddPdfFileClick();
+          handleAddFileByType(fileType);
           break;
         case "confirm-upload":
-          if (selectedFileForUpload && uploadFileName) {
+          if (selectedFileForUpload?.pendingFile && uploadFileName) {
             resetUploadState();
-            handleUpload(selectedFileForUpload, uploadFileName, onSuccess);
+            // Create updated gallery file with the user-entered filename
+            const updatedGalleryFile = {
+              ...selectedFileForUpload,
+              name: uploadFileName,
+            };
+
+            if (fileType === "image") {
+              handleImageUpload(updatedGalleryFile, onSuccess);
+            } else {
+              handleDocumentUpload(updatedGalleryFile, onSuccess);
+            }
           }
           break;
         case "cancel-upload":
           resetUploadState();
           break;
         case "confirm-delete":
-          handleDelete(onSuccess);
+          // Determine which delete function to use based on the file type
+          if (fileToDelete?.type === "image") {
+            handleImageDelete(onSuccess);
+          } else if (fileToDelete?.type === "document") {
+            handleDocumentDelete(onSuccess);
+          }
           hideDeleteModal();
           break;
         default:
@@ -85,7 +130,11 @@ export function useGalleryActions() {
       handleAddFileClick,
       selectedFileForUpload,
       uploadFileName,
-      handleUpload,
+      handleDocumentUpload,
+      handleImageUpload,
+      handleDocumentDelete,
+      handleImageDelete,
+      fileToDelete,
     ],
   );
 

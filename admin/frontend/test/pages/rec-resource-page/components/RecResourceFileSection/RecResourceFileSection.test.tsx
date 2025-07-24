@@ -70,14 +70,19 @@ describe("RecResourceFileSection", () => {
   const defaultState = {
     getDocumentGeneralActionHandler: vi.fn(() => vi.fn()),
     getDocumentFileActionHandler: vi.fn(() => vi.fn()),
+    getImageGeneralActionHandler: vi.fn(() => vi.fn()),
+    getImageFileActionHandler: vi.fn(() => vi.fn()),
     uploadModalState: {
       showUploadOverlay: false,
       uploadFileName: "",
       selectedFileForUpload: null,
     },
     galleryDocuments: [],
+    galleryImages: [],
     isDocumentUploadDisabled: false,
+    isImageUploadDisabled: false,
     isFetching: false,
+    isFetchingImages: false,
   };
   const defaultList = {
     documents: [{ id: 1, name: "Doc1" }],
@@ -97,7 +102,7 @@ describe("RecResourceFileSection", () => {
       galleryDocuments: [{ id: 1, name: "Doc1" }],
     });
     render(<RecResourceFileSection />);
-    expect(screen.getByTestId("gallery-accordion")).toBeInTheDocument();
+    expect(screen.getAllByTestId("gallery-accordion")).toHaveLength(2); // One for documents, one for images
     expect(screen.getByTestId("gallery-file-card")).toBeInTheDocument();
     expect(screen.getByText("Doc1")).toBeInTheDocument();
   });
@@ -109,7 +114,7 @@ describe("RecResourceFileSection", () => {
       getDocumentGeneralActionHandler,
     });
     render(<RecResourceFileSection />);
-    fireEvent.click(screen.getByTestId("upload-label"));
+    fireEvent.click(screen.getAllByTestId("upload-label")[0]); // Click first upload button
     expect(getDocumentGeneralActionHandler).toHaveBeenCalledWith("upload");
   });
 
@@ -122,7 +127,7 @@ describe("RecResourceFileSection", () => {
       isDocumentUploadDisabled: true,
     });
     render(<RecResourceFileSection />);
-    fireEvent.click(screen.getByTestId("upload-label"));
+    fireEvent.click(screen.getAllByTestId("upload-label")[0]); // Click first upload button
     expect(actionHandler).not.toHaveBeenCalled(); // Upload action should not be called
   });
 
@@ -154,5 +159,28 @@ describe("RecResourceFileSection", () => {
     render(<RecResourceFileSection />);
     fireEvent.click(screen.getByText("View"));
     expect(docActionHandler).toHaveBeenCalled();
+  });
+
+  it("renders image cards and calls image action handler", () => {
+    const imageActionHandler = vi.fn();
+    mockUseRecResourceFileTransferState.mockReturnValue({
+      ...defaultState,
+      galleryImages: [
+        {
+          id: 1,
+          name: "Image1.jpg",
+          previewUrl: "http://example.com/image.jpg",
+        },
+      ],
+      getImageFileActionHandler: vi.fn(() => imageActionHandler),
+    });
+    render(<RecResourceFileSection />);
+
+    // Check that image is rendered
+    expect(screen.getByText("Image1.jpg")).toBeInTheDocument();
+
+    // Click the view action on image card
+    fireEvent.click(screen.getByText("View"));
+    expect(imageActionHandler).toHaveBeenCalled();
   });
 });

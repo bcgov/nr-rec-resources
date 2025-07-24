@@ -9,7 +9,7 @@ import { useStore } from "@tanstack/react-store";
 import { useCallback } from "react";
 import {
   recResourceFileTransferStore,
-  setDocToDelete,
+  setFileToDelete,
   updateGalleryDocument,
 } from "../store/recResourceFileTransferStore";
 
@@ -19,14 +19,18 @@ import {
  */
 export function useDocumentDelete() {
   const { recResource } = useRecResource();
-  const { docToDelete } = useStore(recResourceFileTransferStore);
+  const { fileToDelete } = useStore(recResourceFileTransferStore);
   const deleteResourceDocumentMutation = useDeleteResourceDocument();
 
   // Handle document deletion
   const handleDelete = useCallback(
     async (onSuccess?: () => void) => {
-      const document = docToDelete;
-      if (!recResource?.rec_resource_id || !document?.id) {
+      const document = fileToDelete;
+      if (
+        !recResource?.rec_resource_id ||
+        !document?.id ||
+        document.type !== "document"
+      ) {
         addErrorNotification(
           "Unable to delete document: missing required information.",
         );
@@ -42,7 +46,7 @@ export function useDocumentDelete() {
         addSuccessNotification(
           `Document "${document.name}" deleted successfully.`,
         );
-        setDocToDelete(undefined); // Clear the document to delete
+        setFileToDelete(undefined); // Clear the file to delete
         onSuccess?.();
       } catch (error: unknown) {
         const errorInfo = await handleApiError(error);
@@ -56,7 +60,11 @@ export function useDocumentDelete() {
         });
       }
     },
-    [deleteResourceDocumentMutation, recResource?.rec_resource_id, docToDelete],
+    [
+      deleteResourceDocumentMutation,
+      recResource?.rec_resource_id,
+      fileToDelete,
+    ],
   );
 
   return {

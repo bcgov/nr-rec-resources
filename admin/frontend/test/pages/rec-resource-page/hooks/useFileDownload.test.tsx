@@ -11,6 +11,7 @@ vi.mock("@/store/notificationStore", () => ({
 }));
 
 import { useFileDownload } from "@/pages/rec-resource-page/hooks/useFileDownload";
+import { GalleryFile } from "@/pages/rec-resource-page/types";
 import * as notificationStore from "@/store/notificationStore";
 import * as fileUtils from "@/utils/fileUtils";
 
@@ -40,12 +41,13 @@ describe("useDownloadFileMutation", () => {
   it("calls downloadUrlAsFile and shows success notification on success", async () => {
     (fileUtils.downloadUrlAsFile as any).mockResolvedValueOnce(undefined);
     const mutation = getMutation();
-    const file = {
+    const file: GalleryFile = {
       id: "1",
       name: "file.pdf",
       url: "test-url",
       date: "2025-07-15",
       extension: "pdf",
+      type: "document",
     };
     await act(async () => {
       await mutation.mutateAsync({ file });
@@ -71,6 +73,7 @@ describe("useDownloadFileMutation", () => {
       url: "bad-url",
       date: "2025-07-15",
       extension: "pdf",
+      type: "document" as const,
     };
     await act(async () => {
       await expect(mutation.mutateAsync({ file })).rejects.toThrow();
