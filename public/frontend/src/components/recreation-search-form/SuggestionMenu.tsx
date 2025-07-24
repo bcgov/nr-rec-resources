@@ -38,6 +38,7 @@ export const SuggestionMenu = ({
 }: SuggestionMenuProps) => {
   const isResults = results && results.length > 0;
   const isCityOptions = cityOptions && cityOptions.length > 0;
+  const resultsLength = results?.length ?? 0;
 
   return (
     <Menu {...menuProps}>
@@ -74,18 +75,16 @@ export const SuggestionMenu = ({
         );
       })}
       {isCityOptions && <div className="suggestion-menu-label">Location</div>}
-      {cityOptions.map((option: City, index: number) => {
-        return (
-          <MenuItem
-            key={option.name}
-            option={option}
-            position={index + results.length} // Offset by the number of results
-            className="dropdown-menu-item"
-          >
-            <SuggestionListCity searchTerm={searchTerm} city={option.name} />
-          </MenuItem>
-        );
-      })}
+      {cityOptions.map((option, index) => (
+        <MenuItem
+          key={option.name}
+          option={option}
+          position={index + resultsLength}
+          className="dropdown-menu-item"
+        >
+          <SuggestionListCity searchTerm={searchTerm} city={option.name} />
+        </MenuItem>
+      ))}
     </Menu>
   );
 };

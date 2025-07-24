@@ -1,4 +1,4 @@
-import { FC, ReactNode, useRef } from "react";
+import { FC, ReactNode, useMemo, useRef } from "react";
 import {
   AsyncTypeahead,
   TypeaheadComponentProps,
@@ -53,6 +53,10 @@ interface SuggestionTypeaheadProps {
    * Allows for custom handling of the clear action.
    */
   onClear?: () => void;
+  /**
+   * Default value for the input when it is first rendered.
+   */
+  defaultValue?: string;
 }
 
 /**
@@ -62,6 +66,7 @@ interface SuggestionTypeaheadProps {
  * @param props {@link SuggestionTypeaheadProps}
  */
 export const SuggestionTypeahead: FC<SuggestionTypeaheadProps> = ({
+  defaultValue,
   isLoading,
   suggestions,
   onClear,
@@ -73,9 +78,25 @@ export const SuggestionTypeahead: FC<SuggestionTypeaheadProps> = ({
   renderMenu,
 }) => {
   const typeaheadRef = useRef(null);
+  const renderInput = useMemo(
+    () => (inputProps: TypeaheadInputProps) => (
+      <SuggestionSearchInput
+        {...inputProps}
+        isLoading={isLoading}
+        onClear={() => {
+          onClear?.();
+          if (typeaheadRef.current) {
+            (typeaheadRef.current as any).clear();
+          }
+        }}
+      />
+    ),
+    [defaultValue, isLoading, onClear],
+  );
   return (
     <AsyncTypeahead
       ref={typeaheadRef}
+      defaultInputValue={defaultValue}
       id="recreation-resource-suggestion"
       useCache={false}
       onSearch={onSearch}
@@ -84,18 +105,7 @@ export const SuggestionTypeahead: FC<SuggestionTypeaheadProps> = ({
       }}
       options={suggestions}
       isLoading={isLoading}
-      renderInput={(inputProps: TypeaheadInputProps) => (
-        <SuggestionSearchInput
-          {...inputProps}
-          isLoading={isLoading}
-          onClear={() => {
-            onClear?.();
-            if (typeaheadRef.current) {
-              (typeaheadRef.current as any).clear();
-            }
-          }}
-        />
-      )}
+      renderInput={renderInput}
       minLength={1}
       emptyLabel={emptyLabel}
       placeholder={placeholder}

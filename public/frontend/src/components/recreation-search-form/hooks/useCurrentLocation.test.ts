@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import { useCurrentLocation } from './useCurrentLocation';
 
 describe('useCurrentLocation', () => {
@@ -25,17 +25,19 @@ describe('useCurrentLocation', () => {
 
     const { result } = renderHook(() => useCurrentLocation());
 
-    act(() => {
-      result.current.getLocation();
+    await act(async () => {
+      await result.current.getLocation();
     });
 
-    expect(result.current.latitude).toBe(48.4284);
-    expect(result.current.longitude).toBe(-123.3656);
-    expect(result.current.error).toBeUndefined();
+    await waitFor(() => {
+      expect(result.current.latitude).toBe(48.4284);
+      expect(result.current.longitude).toBe(-123.3656);
+      expect(result.current.error).toBeUndefined();
+    });
   });
 
-  it('should set error and disable location on failure', () => {
-    const mockError = { message: 'User denied geolocation' };
+  it('should set error and reset location on failure', async () => {
+    const mockError = { message: 'User denied geolocation', code: 1 };
 
     mockGeolocation.getCurrentPosition.mockImplementationOnce((_, error) =>
       error(mockError),
@@ -43,24 +45,32 @@ describe('useCurrentLocation', () => {
 
     const { result } = renderHook(() => useCurrentLocation());
 
-    act(() => {
-      result.current.getLocation();
+    await act(async () => {
+      try {
+        await result.current.getLocation();
+      } catch {}
     });
 
-    expect(result.current.latitude).toBeNull();
-    expect(result.current.longitude).toBeNull();
-    expect(result.current.error).toBe('User denied geolocation');
+    await waitFor(() => {
+      expect(result.current.latitude).toBeNull();
+      expect(result.current.longitude).toBeNull();
+      expect(result.current.error).toBe('User denied geolocation');
+    });
   });
 
-  it('should handle geolocation not supported', () => {
+  it('should handle geolocation not supported', async () => {
     vi.stubGlobal('navigator', { geolocation: undefined });
 
     const { result } = renderHook(() => useCurrentLocation());
 
-    act(() => {
-      result.current.getLocation();
+    await act(async () => {
+      try {
+        await result.current.getLocation();
+      } catch {}
     });
 
-    expect(result.current.error).toBe('Geolocation not supported');
+    await waitFor(() => {
+      expect(result.current.error).toBe('Geolocation not supported');
+    });
   });
 });

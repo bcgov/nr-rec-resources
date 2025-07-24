@@ -17,6 +17,8 @@ export const SuggestionSearchInput: FC<SuggestionSearchInputProps> = ({
   onClear,
   ...inputProps
 }) => {
+  const isClearButtonVisible = !!inputProps.value && !isLoading;
+
   return (
     <InputGroup
       className="suggestion-search-input-container"
@@ -37,7 +39,7 @@ export const SuggestionSearchInput: FC<SuggestionSearchInputProps> = ({
           referenceElementRef(node);
         }}
       />
-      {!!inputProps.value && (
+      {isClearButtonVisible && (
         <ClearButton
           label="Clear search"
           className="clear-button"
@@ -47,7 +49,7 @@ export const SuggestionSearchInput: FC<SuggestionSearchInputProps> = ({
 
       {/* Show spinner when loading */}
       {isLoading && (
-        <InputGroup.Text className="search-spinner-wrapper">
+        <InputGroup.Text className="m-0 p-0">
           <Spinner role="status" animation="border" size="sm" />
         </InputGroup.Text>
       )}
