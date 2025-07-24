@@ -1,0 +1,35 @@
+{
+  "name": "matomo-cdk",
+  "version": "0.1.0",
+  "bin": {
+    "matomo-cdk": "bin/matomo-cdk.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk",
+    "deploy:dev": "cdk deploy --context stage=dev --all",
+    "deploy:prod": "cdk deploy --context stage=prod --all",
+    "diff:dev": "cdk diff --context stage=dev",
+    "diff:prod": "cdk diff --context stage=prod",
+    "destroy:dev": "cdk destroy --context stage=dev --all",
+    "destroy:prod": "cdk destroy --context stage=prod --all"
+  },
+  "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "22.7.9",
+    "aws-cdk": "2.1010.0",
+    "jest": "^29.7.0",
+    "prettier": "^3.5.3",
+    "ts-jest": "^29.2.5",
+    "ts-node": "^10.9.2",
+    "typescript": "~5.6.3"
+  },
+  "dependencies": {
+    "@aws-sdk/client-ec2": "^3.787.0",
+    "@aws-sdk/client-rds": "^3.787.0",
+    "aws-cdk-lib": "2.189.0",
+    "constructs": "^10.0.0"
+  }
+}
