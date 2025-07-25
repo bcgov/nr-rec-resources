@@ -250,4 +250,41 @@ describe("RecreationResourceController", () => {
       -123.3656,
     );
   });
+
+  describe("getSuggestions", () => {
+    it("should throw 400 if query param is missing or empty", async () => {
+      await expect(controller.getSuggestions("")).rejects.toThrowError(
+        /Query parameter 'query' is required/,
+      );
+      await expect(controller.getSuggestions("   ")).rejects.toThrowError(
+        /Query parameter 'query' is required/,
+      );
+      await expect(controller.getSuggestions(null as any)).rejects.toThrowError(
+        /Query parameter 'query' is required/,
+      );
+    });
+
+    it("should call service.getSuggestions and return the suggestions", async () => {
+      const mockSuggestions = [
+        {
+          rec_resource_id: "REC204117",
+          name: "Aileen Lake",
+          closest_community: "Winfield",
+          district_description: "Columbia-Shuswap",
+          recreation_resource_type: "Recreation Site",
+          recreation_resource_type_code: "SIT",
+          option_type: "recreation_resource",
+        },
+      ];
+
+      vi.spyOn(recService, "getSuggestions").mockResolvedValueOnce(
+        mockSuggestions as any,
+      );
+
+      const result = await controller.getSuggestions("aileen");
+
+      expect(result).toEqual(mockSuggestions);
+      expect(recService.getSuggestions).toHaveBeenCalledWith("aileen");
+    });
+  });
 });
