@@ -1,6 +1,7 @@
 import { Badge, Col, ListGroup, Row } from "react-bootstrap";
 import { FC, ReactNode } from "react";
 import { Highlighter } from "react-bootstrap-typeahead";
+import "@shared/components/suggestion-typeahead/SuggestionListItem.scss";
 
 /**
  * Props for the SuggestionListItem component.
@@ -36,49 +37,46 @@ export const SuggestionListItem: FC<SearchItemData> = ({
   district,
 }) => {
   return (
-    <ListGroup.Item action className={`py-2 px-2 d-flex align-items-center`}>
-      <Row className="flex-grow-1 align-items-center w-100 g-3">
+    <ListGroup.Item action className="suggestion-list-item px-2 py-2">
+      <Row className="suggestion-list-row">
         {/* Left Section: Icon */}
-        <Col
-          xs="auto"
-          className="d-flex align-items-center justify-content-center flex-shrink-0"
-        >
+        <Col xs="auto" className="icon-col flex-shrink-0">
           <div
-            className={`rounded-circle d-flex align-items-center justify-content-center`}
-            style={{ width: "40px", height: "40px", flexShrink: 0 }}
+            className="icon-wrapper"
+            style={{ width: "40px", height: "40px" }}
           >
             {icon}
           </div>
         </Col>
 
-        {/* Middle Section: Title and Description (desktop/tablet) */}
-        <Col className="ms-2 me-auto d-none d-sm-block">
+        {/* Middle Section (Desktop/Tablet) */}
+        <Col className="desktop-col">
           <span className="rec-name">
             <Highlighter search={searchTerm}>{title}</Highlighter>
           </span>
-          <div className="text-muted" style={{ fontSize: "0.9em" }}>
+          <div className="description-text">
             {resourceType} &bull; {district}
           </div>
         </Col>
 
-        {/* Middle Section: Title and Rec ID (mobile) */}
-        <Col className="ms-2 me-auto d-block d-sm-none">
-          <div className="d-flex flex-column">
+        {/* Middle Section (Mobile) */}
+        <Col className="mobile-col">
+          <div className="mobile-inner">
             <span className="rec-name mb-1">
               <Highlighter search={searchTerm}>{title}</Highlighter>
             </span>
-            <Badge className="px-3 py-2 rounded-pill rec-id-badge align-self-start">
+            <Badge className="rec-id-badge px-3 py-2 rounded-pill align-self-start">
               {rec_resource_id}
             </Badge>
           </div>
         </Col>
 
-        {/* Right Section: Record ID Badge (desktop/tablet) */}
+        {/* Right Section (Desktop/Tablet) */}
         <Col
           xs="auto"
-          className="d-flex align-items-center d-none d-sm-flex flex-shrink-0"
+          className="d-none d-sm-flex align-items-center flex-shrink-0"
         >
-          <Badge className="px-3 py-2 rounded-pill rec-id-badge">
+          <Badge className="rec-id-badge px-3 py-2 rounded-pill">
             {rec_resource_id}
           </Badge>
         </Col>

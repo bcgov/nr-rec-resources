@@ -97,21 +97,27 @@ export const RecreationSuggestionForm = ({
     [searchInputValue, cityOptions],
   );
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchInputValue.trim()) {
-      handleSearch();
-    }
-  };
-
-  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+  const handleSubmit = useCallback(
+    (e: React.FormEvent) => {
       e.preventDefault();
       if (searchInputValue.trim()) {
         handleSearch();
       }
-    }
-  };
+    },
+    [searchInputValue, handleSearch],
+  );
+
+  const handleInputKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (searchInputValue.trim()) {
+          handleSearch();
+        }
+      }
+    },
+    [searchInputValue, handleSearch],
+  );
 
   const handleSuggestionChange = async (
     suggestion: RecreationSuggestion | CitySuggestion,

@@ -30,23 +30,23 @@
   max-width: $pageMaxWidth;
   gap: 0.75rem;
   top: 10px;
-  left: 10px;
-  right: 10px;
   z-index: 10000;
   padding: 0.5rem;
   border-radius: 4px;
-
-  @include media-breakpoint-up(md) {
-    width: 100%;
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
+  width: 100%;
 
   @include media-breakpoint-up(sm) {
-    min-width: fit-content;
-    max-width: fit-content;
-    right: unset;
+    max-width: 400px;
+    left: 10px;
+  }
+
+  @include media-breakpoint-up(md) {
+    max-width: 600px;
+  }
+
+  .recreation-resource-suggestion-form {
+    width: 100%;
+    margin-bottom: 1rem;
   }
 
   // Prevent issue where features aren't clickable under the controls container
