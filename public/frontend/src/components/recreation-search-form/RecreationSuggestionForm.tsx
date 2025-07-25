@@ -28,10 +28,12 @@ import {
 } from '@/components/recreation-search-form/constants';
 
 interface RecreationSuggestionFormProps {
+  allowEmptySearch?: boolean;
   searchBtnVariant?: 'primary' | 'secondary';
 }
 
 export const RecreationSuggestionForm = ({
+  allowEmptySearch,
   searchBtnVariant = 'primary',
 }: RecreationSuggestionFormProps) => {
   const navigate = useNavigate();
@@ -100,7 +102,7 @@ export const RecreationSuggestionForm = ({
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
       e.preventDefault();
-      if (searchInputValue.trim()) {
+      if (searchInputValue.trim() || allowEmptySearch) {
         handleSearch();
       }
     },
@@ -111,12 +113,12 @@ export const RecreationSuggestionForm = ({
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        if (searchInputValue.trim()) {
+        if (searchInputValue.trim() || allowEmptySearch) {
           handleSearch();
         }
       }
     },
-    [searchInputValue, handleSearch],
+    [allowEmptySearch, handleSearch, searchInputValue],
   );
 
   const handleSuggestionChange = async (
