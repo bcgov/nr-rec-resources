@@ -46,30 +46,6 @@
     }
   }
 
-  .clear-button {
-    all: unset;
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: transparent;
-    border: none;
-    padding: 5px;
-    color: #999;
-    font-size: 24px;
-    cursor: pointer;
-    z-index: 10;
-    transition: font-size 0.2s ease;
-
-    &:hover {
-      color: #333;
-    }
-
-    &:focus {
-      font-size: 32px;
-    }
-  }
-
   .search-spacer {
     display: flex;
     align-items: center;

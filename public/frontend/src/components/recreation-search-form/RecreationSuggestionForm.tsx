@@ -157,7 +157,7 @@ export const RecreationSuggestionForm = ({
   return (
     <>
       <Form className="w-100 recreation-resource-suggestion-form">
-        <SuggestionTypeahead
+        <SuggestionTypeahead<RecreationSuggestion | CitySuggestion>
           onChange={handleSuggestionChange}
           onClear={handleClearTypeaheadSearch}
           onKeyDown={handleInputKeyDown}
@@ -166,7 +166,6 @@ export const RecreationSuggestionForm = ({
           defaultValue={defaultSearchInputValue}
           suggestions={suggestions as RecreationSuggestion[]}
           onSearch={setSearchInputValue}
-          emptyLabel="No results found"
           renderMenu={renderMenu}
           placeholder="By name or community"
         />
