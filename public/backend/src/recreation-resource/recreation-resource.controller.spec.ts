@@ -3,6 +3,7 @@ import { HttpException, INestApplication } from "@nestjs/common";
 import { RecreationResourceController } from "./recreation-resource.controller";
 import { RecreationResourceService } from "src/recreation-resource/service/recreation-resource.service";
 import { RecreationResourceSearchService } from "src/recreation-resource/service/recreation-resource-search.service";
+import { RecreationResourceSuggestionsService } from "src/recreation-resource/service/recreation-resource-suggestion.service";
 import { PrismaService } from "src/prisma.service";
 import { RecreationResourceImageDto } from "./dto/recreation-resource-image.dto";
 import { FsaResourceService } from "./service/fsa-resource.service";
@@ -23,6 +24,7 @@ describe("RecreationResourceController", () => {
         FsaResourceService,
         RecreationResourceService,
         RecreationResourceSearchService,
+        RecreationResourceSuggestionsService,
         {
           provide: PrismaService,
           useValue: {},
@@ -138,7 +140,7 @@ describe("RecreationResourceController", () => {
       };
 
       vi.spyOn(recService, "searchRecreationResources").mockResolvedValue(
-        mockResult,
+        mockResult as any,
       );
 
       const result = await controller.searchRecreationResources("test", 10, 1);
@@ -155,7 +157,7 @@ describe("RecreationResourceController", () => {
       };
 
       vi.spyOn(recService, "searchRecreationResources").mockResolvedValue(
-        mockResult,
+        mockResult as any,
       );
 
       const result = await controller.searchRecreationResources("", 10, 1);
