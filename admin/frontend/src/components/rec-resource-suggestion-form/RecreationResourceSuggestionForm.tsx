@@ -81,11 +81,11 @@ export const RecreationResourceSuggestionForm = () => {
               Search by name or number
             </span>
           </Form.Label>
-          <SuggestionTypeahead
+          <SuggestionTypeahead<RecreationResourceSuggestion>
             onChange={handleSuggestionChange}
             isLoading={isFetching}
             error={error}
-            suggestions={suggestions as RecreationResourceSuggestion[]}
+            suggestions={suggestions}
             onSearch={setSearchTerm}
             emptyLabel={getEmptyLabel()}
             placeholder="By name or number"

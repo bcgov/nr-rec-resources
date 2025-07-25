@@ -1,10 +1,9 @@
-import { FC, ReactNode, useMemo, useRef } from "react";
+import { ReactNode, useMemo, useRef } from "react";
 import {
   AsyncTypeahead,
   TypeaheadComponentProps,
 } from "react-bootstrap-typeahead";
 import { SuggestionSearchInput } from "@shared/components/suggestion-typeahead/SuggestionSearchInput";
-import { RecreationResourceSuggestion } from "@shared/components/suggestion-typeahead/types";
 import "react-bootstrap-typeahead/css/Typeahead.css";
 import "./SuggestionTypeahead.scss";
 import { TypeaheadInputProps } from "react-bootstrap-typeahead/types/types";
@@ -12,7 +11,8 @@ import { TypeaheadInputProps } from "react-bootstrap-typeahead/types/types";
 /**
  * Props for {@link SuggestionTypeahead}.
  */
-interface SuggestionTypeaheadProps {
+
+export interface SuggestionTypeaheadProps<T> {
   /**
    * Whether the typeahead is loading suggestions.
    */
@@ -20,7 +20,7 @@ interface SuggestionTypeaheadProps {
   /**
    * Array of resource suggestions to display.
    */
-  suggestions: RecreationResourceSuggestion[];
+  suggestions: T[];
   /**
    * Callback fired when a search is performed.
    * @param searchTerm The search term entered by the user.
@@ -34,7 +34,7 @@ interface SuggestionTypeaheadProps {
    * Callback fired when a suggestion is selected.
    * @param selected The selected suggestion.
    */
-  onChange: (selected: RecreationResourceSuggestion) => void;
+  onChange: (selected: T) => void;
   /**
    * Callback fired when the input value changes.
    * @param event The change event from the input.
@@ -62,15 +62,20 @@ interface SuggestionTypeaheadProps {
    * Default value for the input when it is first rendered.
    */
   defaultValue?: string;
+  /**
+   * The key used to extract the label from a suggestion, or a function to generate one.
+   */
+
+  labelKey?: string;
 }
 
 /**
- * A typeahead input component for searching and selecting recreation resources.
+ * A typeahead input component for searching and selecting generic suggestions.
  * Integrates with react-bootstrap-typeahead and displays custom menu and input.
  *
  * @param props {@link SuggestionTypeaheadProps}
  */
-export const SuggestionTypeahead: FC<SuggestionTypeaheadProps> = ({
+export const SuggestionTypeahead = <T extends object>({
   defaultValue,
   isLoading,
   suggestions,
@@ -82,16 +87,18 @@ export const SuggestionTypeahead: FC<SuggestionTypeaheadProps> = ({
   emptyLabel,
   placeholder,
   renderMenu,
-}) => {
+  labelKey = "name",
+}: SuggestionTypeaheadProps<T>) => {
   const typeaheadRef = useRef(null);
+
   const renderInput = useMemo(
     () => (inputProps: TypeaheadInputProps) => (
       <SuggestionSearchInput
         {...inputProps}
         isLoading={isLoading}
         onKeyDown={(event) => {
-          inputProps.onKeyDown?.(event); // Call the original onKeyDown handler
-          onKeyDown?.(event); // Call the custom onKeyDown handler
+          inputProps.onKeyDown?.(event); // Call internal onKeyDown handler
+          onKeyDown?.(event); // Call the parent onKeyDown handler
           if (event.key === "Enter" && typeaheadRef.current) {
             (typeaheadRef.current as any).blur();
           }
@@ -104,17 +111,20 @@ export const SuggestionTypeahead: FC<SuggestionTypeaheadProps> = ({
         }}
       />
     ),
-    [defaultValue, isLoading, onClear],
+    [isLoading, onClear, onKeyDown],
   );
+
   return (
     <AsyncTypeahead
       ref={typeaheadRef}
       defaultInputValue={defaultValue}
-      id="recreation-resource-suggestion"
+      id="suggestion-typeahead"
       useCache={false}
       onSearch={onSearch}
       onChange={(selected) => {
-        onChange(selected[0] as any);
+        if (selected.length > 0) {
+          onChange(selected[0] as T);
+        }
       }}
       onKeyDown={onKeyDown}
       options={suggestions}
@@ -123,9 +133,9 @@ export const SuggestionTypeahead: FC<SuggestionTypeaheadProps> = ({
       minLength={1}
       emptyLabel={emptyLabel}
       placeholder={placeholder}
-      labelKey="name" // Suggestion["name"]
+      labelKey={labelKey}
       isInvalid={Boolean(error)}
-      filterBy={Boolean} // show all the results
+      filterBy={() => true} // show all the results
       renderMenu={renderMenu}
     />
   );
