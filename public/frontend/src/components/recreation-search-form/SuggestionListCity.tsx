@@ -3,6 +3,7 @@ import { Highlighter } from 'react-bootstrap-typeahead';
 import CURRENT_LOCATION_ICON from '@shared/assets/icons/current_location.svg';
 import LOCATION_ICON from '@shared/assets/icons/location.svg';
 import { CURRENT_LOCATION_TITLE } from '@/components/recreation-search-form/location-search/LocationSearch';
+import '@shared/components/suggestion-typeahead/SuggestionListItem.scss';
 
 /**
  * Props for the SuggestionListCity component.
@@ -27,16 +28,10 @@ export const SuggestionListCity: React.FC<SearchItemData> = ({
 }) => {
   const isCurrentLocation = city === CURRENT_LOCATION_TITLE;
   return (
-    <ListGroup.Item action className={`d-flex align-items-center`}>
-      <Row className="flex-grow-1 align-items-center w-100 g-3">
-        {/* Left Section: Icon */}
-        <Col
-          xs="auto"
-          className="d-flex align-items-center justify-content-center"
-        >
-          <div
-            className={`rounded-circle d-flex align-items-center justify-content-center`}
-          >
+    <ListGroup.Item action className="suggestion-list-item">
+      <Row className="suggestion-list-row">
+        <Col xs="auto" className="icon-col">
+          <div className="icon-wrapper">
             {isCurrentLocation ? (
               <Image src={CURRENT_LOCATION_ICON} alt="Current location icon" />
             ) : (
@@ -45,19 +40,17 @@ export const SuggestionListCity: React.FC<SearchItemData> = ({
           </div>
         </Col>
 
-        {/* Middle Section: Title and Description (desktop/tablet) */}
-        <Col className="ms-1 me-auto d-none d-sm-block">
+        <Col className="desktop-col">
           <span className="rec-name">
             <Highlighter search={searchTerm}>{city}</Highlighter>
           </span>
-          <div className="text-muted" style={{ fontSize: '0.9em' }}>
+          <div className="description-text">
             {isCurrentLocation ? 'Find whats around you' : 'Region'}
           </div>
         </Col>
 
-        {/* Middle Section: Title and Rec ID (mobile) */}
-        <Col className="ms-1 me-auto d-block d-sm-none">
-          <div className="d-flex flex-column">
+        <Col className="mobile-col">
+          <div className="mobile-inner">
             <span className="rec-name mb-1">
               <Highlighter search={searchTerm}>{city}</Highlighter>
             </span>

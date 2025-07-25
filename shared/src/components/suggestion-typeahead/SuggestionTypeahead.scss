@@ -4,10 +4,12 @@
 @import "~bootstrap/scss/mixins/_breakpoints";
 
 .dropdown-menu-item {
-  width: calc(100% - 2rem);
+  width: calc(100% - 1.5rem);
   margin: auto;
   border: 0 solid transparent;
   border-radius: 1rem;
+  padding: unset;
+  margin: 1rem auto;
 
   &.active,
   &:active {
@@ -15,9 +17,8 @@
     background-color: $colorGreyLight;
   }
 
-  @include media-breakpoint-down(sm) {
-    padding: unset;
-    margin: 1rem auto;
+  @include media-breakpoint-up(sm) {
+    width: calc(100% - 2rem);
   }
 }
 
