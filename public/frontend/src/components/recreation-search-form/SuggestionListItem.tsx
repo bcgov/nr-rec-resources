@@ -15,8 +15,8 @@ interface SearchItemData {
   title: string;
   /** Type of the recreation resource (e.g.: Recreation site, Recreation trail, etc). */
   resourceType: string;
-  /** District where the resource is located (e.g.: Chilliwack, Squamish, etc). */
-  district: string;
+  /** Closest community where the resource is located (e.g.: Chilliwack, Squamish, etc). */
+  community: string;
 }
 
 /**
@@ -32,8 +32,10 @@ export const SuggestionListItem: FC<SearchItemData> = ({
   icon,
   title,
   resourceType,
-  district,
+  community,
 }) => {
+  const lowerCaseTitle = title.toLowerCase();
+  const lowerCaseCommunity = community.toLowerCase();
   return (
     <ListGroup.Item action className="suggestion-list-item">
       <Row className="suggestion-list-row">
@@ -43,17 +45,18 @@ export const SuggestionListItem: FC<SearchItemData> = ({
 
         <Col className="desktop-col">
           <span className="rec-name">
-            <Highlighter search={searchTerm}>{title}</Highlighter>
+            <Highlighter search={searchTerm}>{lowerCaseTitle}</Highlighter>
           </span>
           <div className="description-text">
-            {resourceType} &bull; {district}
+            {resourceType} &bull;{' '}
+            <span className="capitalize">{lowerCaseCommunity}</span>
           </div>
         </Col>
 
         <Col className="mobile-col">
           <div className="mobile-inner">
             <span className="rec-name mb-1">
-              <Highlighter search={searchTerm}>{title}</Highlighter>
+              <Highlighter search={searchTerm}>{lowerCaseTitle}</Highlighter>
             </span>
           </div>
         </Col>
