@@ -50,7 +50,7 @@ export const SuggestionMenu = ({
           rec_resource_id,
           recreation_resource_type_code,
           recreation_resource_type,
-          district_description,
+          closest_community,
           name,
         } = option;
         return (
@@ -62,7 +62,7 @@ export const SuggestionMenu = ({
           >
             <SuggestionListItem
               searchTerm={searchTerm}
-              district={district_description}
+              community={closest_community}
               icon={
                 <Image
                   src={RESOURCE_TYPE_ICONS[recreation_resource_type_code]}
