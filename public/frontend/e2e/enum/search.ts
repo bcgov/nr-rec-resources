@@ -1,5 +1,5 @@
 export enum SearchEnum {
-  PLACEHOLDER = 'Search by name',
+  PLACEHOLDER = 'By name or community',
   SEARCH_BTN_LABEL = 'Search',
   SEARCHING_LABEL = 'Searching...',
   NO_RESULTS_LABEL = 'No sites or trails matched your search.',

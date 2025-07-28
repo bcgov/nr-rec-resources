@@ -1,10 +1,11 @@
 import { defineConfig } from 'vitest/config';
 import tsconfigPaths from 'vite-tsconfig-paths';
+import react from '@vitejs/plugin-react';
 import { resolve } from 'node:path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [tsconfigPaths()],
+  plugins: [tsconfigPaths(), react()],
   resolve: {
     alias: {
       // Configure @shared to point to your shared folder

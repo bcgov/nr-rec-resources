@@ -7,7 +7,6 @@ export default defineConfig({
   resolve: {
     alias: {
       "@shared": path.resolve(__dirname, "./src"),
-      "~bootstrap": path.resolve(__dirname, "node_modules/bootstrap"),
     },
     preserveSymlinks: false,
   },

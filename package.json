@@ -1,5 +1,10 @@
 {
   "private": true,
+  "workspaces": [
+    "admin/frontend",
+    "public/frontend",
+    "shared"
+  ],
   "scripts": {
     "prettier-fix": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "generate-api": "npx openapi-generator-cli generate -i http://localhost:8000/api/docs-json -g typescript-fetch -o public/frontend/src/service/recreation-resource --skip-validate-spec --additional-properties=modelPropertyNaming=original",

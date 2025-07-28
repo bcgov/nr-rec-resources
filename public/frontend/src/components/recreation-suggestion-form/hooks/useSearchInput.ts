@@ -33,21 +33,24 @@ export const useSearchInput = () => {
     [],
   );
 
-  const handleSearch = useCallback(() => {
-    const trimmedValue = state.searchInputValue.trim();
-    const newParams = new URLSearchParams(searchParams);
+  const handleSearch = useCallback(
+    (inputValue?: string) => {
+      const trimmedValue = (inputValue ?? state.searchInputValue).trim();
+      const newParams = new URLSearchParams(searchParams);
 
-    if (trimmedValue) {
-      newParams.set(FILTER_PARAM_KEY, trimmedValue);
-    } else {
-      newParams.delete(FILTER_PARAM_KEY);
-    }
+      if (trimmedValue) {
+        newParams.set(FILTER_PARAM_KEY, trimmedValue);
+      } else {
+        newParams.delete(FILTER_PARAM_KEY);
+      }
 
-    navigate({
-      pathname: ROUTE_PATHS.SEARCH,
-      search: newParams.toString(),
-    });
-  }, [navigate, searchParams, state.searchInputValue]);
+      navigate({
+        pathname: ROUTE_PATHS.SEARCH,
+        search: newParams.toString(),
+      });
+    },
+    [navigate, searchParams, state.searchInputValue],
+  );
 
   const handleClearSearch = useCallback(() => {
     setSearchInputValue('');

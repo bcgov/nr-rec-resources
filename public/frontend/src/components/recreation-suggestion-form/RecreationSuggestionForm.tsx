@@ -25,6 +25,7 @@ import {
   CURRENT_LOCATION_TITLE,
   MAX_LOCATION_OPTIONS,
   OPTION_TYPE,
+  SEARCH_PLACEHOLDER,
 } from '@/components/recreation-suggestion-form/constants';
 
 interface RecreationSuggestionFormProps {
@@ -100,25 +101,30 @@ const RecreationSuggestionForm = ({
   );
 
   const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
+    (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      if (searchInputValue.trim() || allowEmptySearch) {
-        handleSearch();
+      const input = e.currentTarget.querySelector('input') as HTMLInputElement;
+      const inputValue = input?.value ?? '';
+
+      if (inputValue.trim() || allowEmptySearch) {
+        handleSearch(inputValue);
       }
     },
-    [allowEmptySearch, handleSearch, searchInputValue],
+    [allowEmptySearch, handleSearch],
   );
 
   const handleInputKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        if (searchInputValue.trim() || allowEmptySearch) {
-          handleSearch();
+        const inputValue = (e.target as HTMLInputElement).value;
+
+        if (inputValue.trim() || allowEmptySearch) {
+          handleSearch(inputValue);
         }
       }
     },
-    [allowEmptySearch, handleSearch, searchInputValue],
+    [allowEmptySearch, handleSearch],
   );
 
   const handleSuggestionChange = async (
@@ -164,7 +170,10 @@ const RecreationSuggestionForm = ({
 
   return (
     <>
-      <Form className="w-100 recreation-resource-suggestion-form">
+      <Form
+        className="w-100 recreation-resource-suggestion-form"
+        onSubmit={handleSubmit}
+      >
         <SuggestionTypeahead<RecreationSuggestion | CitySuggestion>
           onChange={handleSuggestionChange}
           onClear={handleClearTypeaheadSearch}
@@ -175,14 +184,9 @@ const RecreationSuggestionForm = ({
           suggestions={suggestions as RecreationSuggestion[]}
           onSearch={setSearchInputValue}
           renderMenu={renderMenu}
-          placeholder="By name or community"
+          placeholder={SEARCH_PLACEHOLDER}
         />
-        <Button
-          variant={searchBtnVariant}
-          type="submit"
-          onClick={handleSubmit}
-          className="submit-btn"
-        >
+        <Button variant={searchBtnVariant} type="submit" className="submit-btn">
           Search
         </Button>
       </Form>

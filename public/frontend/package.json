@@ -16,8 +16,7 @@
     "test": "vitest --mode test",
     "test:cov": "npx vitest run --mode test --coverage",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build",
-    "postinstall": "cd ../../shared && npm link || true && cd - && npm link @rst/shared || true"
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@bcgov/bc-sans": "^2.1.0",
@@ -38,10 +37,10 @@
     "ol-ext": "^4.0.33",
     "ol-mapbox-style": "^12.5.0",
     "proj4": "^2.15.0",
-    "react": "^19.1.0",
+    "react": "^19.1.1",
     "react-bootstrap": "^2.10.7",
     "react-bootstrap-typeahead": "^6.4.1",
-    "react-dom": "^19.1.0",
+    "react-dom": "^19.1.1",
     "react-router": "^7.1.1",
     "react-router-dom": "^7.1.1",
     "react-use-scrollspy": "^3.1.1",
@@ -86,7 +85,9 @@
     "vitest": "^3.2.4"
   },
   "overrides": {
-    "rollup@<4.22.4": "^4.22.4"
+    "rollup@<4.22.4": "^4.22.4",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
   },
   "optionalDependencies": {
     "sass-embedded-linux-x64": "^1.83.1"

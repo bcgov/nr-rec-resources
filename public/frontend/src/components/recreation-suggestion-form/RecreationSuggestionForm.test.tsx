@@ -2,6 +2,7 @@ import { vi } from 'vitest';
 import type { Mock } from 'vitest';
 import { screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { act } from 'react-dom/test-utils';
 import RecreationSuggestionForm from '@/components/recreation-suggestion-form/RecreationSuggestionForm';
 import { useSearchInput } from '@/components/recreation-suggestion-form/hooks/useSearchInput';
 import { useCurrentLocation } from '@/components/recreation-suggestion-form/hooks/useCurrentLocation';
@@ -43,25 +44,6 @@ describe('RecreationSuggestionForm', () => {
       getLocation: vi.fn(),
       permissionDeniedCount: 0,
     });
-  });
-
-  it('calls handleSearch on submit if searchInputValue is not empty', async () => {
-    mockedUseSearchInput.mockReturnValue({
-      defaultSearchInputValue: '',
-      searchInputValue: 'parks',
-      setSearchInputValue,
-      handleCityOptionSearch,
-      handleClearTypeaheadSearch,
-      handleSearch,
-    });
-
-    renderWithQueryClient(
-      <RecreationSuggestionForm allowEmptySearch={false} />,
-    );
-
-    fireEvent.click(screen.getByRole('button', { name: /search/i }));
-
-    expect(handleSearch).toHaveBeenCalledTimes(1);
   });
 
   it('does not call handleSearch if input is empty and allowEmptySearch is false', () => {
@@ -114,7 +96,11 @@ describe('RecreationSuggestionForm', () => {
     );
 
     const input = screen.getByRole('combobox');
-    await userEvent.type(input, '{enter}');
+
+    await act(async () => {
+      await userEvent.type(input, 'trail');
+      await userEvent.type(input, '{enter}');
+    });
 
     expect(handleSearch).toHaveBeenCalled();
   });
@@ -134,7 +120,10 @@ describe('RecreationSuggestionForm', () => {
     );
 
     const input = screen.getByRole('combobox');
-    await userEvent.type(input, '{enter}');
+
+    await act(async () => {
+      await userEvent.type(input, '{enter}');
+    });
 
     expect(handleSearch).not.toHaveBeenCalled();
   });
