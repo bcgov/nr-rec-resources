@@ -9,6 +9,7 @@ export default defineConfig({
       "@shared": path.resolve(__dirname, "./src"),
       "~bootstrap": path.resolve(__dirname, "node_modules/bootstrap"),
     },
+    preserveSymlinks: false,
   },
   build: {
     lib: {
