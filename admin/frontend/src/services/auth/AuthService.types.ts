@@ -1,6 +1,4 @@
-import { KeycloakTokenParsed } from "@keycloak-lib/keycloak";
-
-export interface UserInfo extends KeycloakTokenParsed {
+export interface UserInfo extends Keycloak.KeycloakTokenParsed {
   idir_username: string;
   email_verified: boolean;
   preferred_username: string;

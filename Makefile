@@ -47,7 +47,6 @@ reset_project:
 	npm install
 	cd public/backend && npm install && npx prisma generate
 	cd admin/backend && npm install && npx prisma generate
-	cd admin/frontend && npm install
 	@echo "Project reset completed."
 
 .PHONY: load_test

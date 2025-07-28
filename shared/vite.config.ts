@@ -8,7 +8,6 @@ export default defineConfig({
     alias: {
       "@shared": path.resolve(__dirname, "./src"),
     },
-    preserveSymlinks: false,
   },
   build: {
     lib: {

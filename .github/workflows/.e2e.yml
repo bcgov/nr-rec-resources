@@ -52,7 +52,7 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '22'
-    - run: npm ci
+    - run: npm install
       working-directory: ./${{ inputs.app }}/frontend
     - run: npx @playwright/test install --with-deps
       if: steps.playwright-cache.outputs.cache-hit != 'true'

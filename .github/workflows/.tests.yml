@@ -41,7 +41,7 @@ jobs:
       - uses: bcgov/action-test-and-analyse@v1.3.0
         with:
           commands: |
-            npm ci
+            npm install
             npm run test:cov
           dir: ${{ inputs.app }}/${{ matrix.dir }}
           node_version: "22"

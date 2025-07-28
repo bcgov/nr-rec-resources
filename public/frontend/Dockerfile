@@ -13,12 +13,12 @@ COPY package.json package-lock.json ./
 COPY shared/package.json shared/
 COPY public/frontend/package.json public/frontend/
 
-# Install all dependencies from root (npm workspace install)
-RUN npm ci
-
-# Copy full source code after install to leverage caching
+# Copy full source code before install to leverage caching and workspace linking
 COPY shared/ shared/
 COPY public/frontend/ public/frontend/
+
+# Install all dependencies from root (npm workspace install)
+RUN npm install
 
 # Run deploy/build inside the frontend workspace
 WORKDIR /app/public/frontend
