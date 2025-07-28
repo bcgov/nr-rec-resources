@@ -21,7 +21,10 @@ const RecreationFeaturePreview: React.FC<RecreationFeaturePreviewProps> = ({
       {!recreationResource ? (
         <Spinner animation="border" role="output" className="mb-2" />
       ) : (
-        <RecResourceCard recreationResource={recreationResource} />
+        <RecResourceCard
+          className="rec-resource-preview-card"
+          recreationResource={recreationResource}
+        />
       )}
     </div>
   );
