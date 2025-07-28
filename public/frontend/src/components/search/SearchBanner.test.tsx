@@ -34,7 +34,7 @@ describe('SearchBanner', () => {
       </QueryClientProvider>,
     );
     expect(
-      screen.getByLabelText('Search by name or community'),
+      screen.getByPlaceholderText('By name or community'),
     ).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Search' })).toBeInTheDocument();
   });

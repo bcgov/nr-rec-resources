@@ -7,7 +7,6 @@ import { useSearchInput } from '@/components/recreation-suggestion-form/hooks/us
 import { useCurrentLocation } from '@/components/recreation-suggestion-form/hooks/useCurrentLocation';
 import { renderWithQueryClient } from '@/test-utils';
 
-// Mock the hooks once at the top
 vi.mock('@/components/recreation-suggestion-form/hooks/useSearchInput', () => ({
   useSearchInput: vi.fn(),
 }));
@@ -24,30 +23,35 @@ const mockedUseCurrentLocation = useCurrentLocation as Mock;
 
 describe('RecreationSuggestionForm', () => {
   const handleSearch = vi.fn();
+  const setSearchInputValue = vi.fn();
+  const handleClearTypeaheadSearch = vi.fn();
+  const handleCityOptionSearch = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Default mock implementation - can be overridden per test
     mockedUseSearchInput.mockReturnValue({
-      inputValue: '',
-      setInputValue: vi.fn(),
+      defaultSearchInputValue: '',
+      searchInputValue: '',
+      setSearchInputValue,
+      handleCityOptionSearch,
+      handleClearTypeaheadSearch,
       handleSearch,
     });
 
     mockedUseCurrentLocation.mockReturnValue({
-      latitude: null,
-      longitude: null,
-      error: null,
       getLocation: vi.fn(),
       permissionDeniedCount: 0,
     });
   });
 
-  it('calls handleSearch on submit if input is not empty', async () => {
+  it('calls handleSearch on submit if searchInputValue is not empty', async () => {
     mockedUseSearchInput.mockReturnValue({
-      inputValue: 'some input',
-      setInputValue: vi.fn(),
+      defaultSearchInputValue: '',
+      searchInputValue: 'parks',
+      setSearchInputValue,
+      handleCityOptionSearch,
+      handleClearTypeaheadSearch,
       handleSearch,
     });
 
@@ -55,18 +59,18 @@ describe('RecreationSuggestionForm', () => {
       <RecreationSuggestionForm allowEmptySearch={false} />,
     );
 
-    const form = screen.getByTestId('recreation-suggestion-form'); // adjust selector as needed
-
-    await userEvent.type(screen.getByRole('textbox'), 'some input');
-    fireEvent.submit(form);
+    fireEvent.click(screen.getByRole('button', { name: /search/i }));
 
     expect(handleSearch).toHaveBeenCalledTimes(1);
   });
 
-  it('does not call handleSearch on submit if input is empty and allowEmptySearch is false', async () => {
+  it('does not call handleSearch if input is empty and allowEmptySearch is false', () => {
     mockedUseSearchInput.mockReturnValue({
-      inputValue: '',
-      setInputValue: vi.fn(),
+      defaultSearchInputValue: '',
+      searchInputValue: '',
+      setSearchInputValue,
+      handleCityOptionSearch,
+      handleClearTypeaheadSearch,
       handleSearch,
     });
 
@@ -74,30 +78,64 @@ describe('RecreationSuggestionForm', () => {
       <RecreationSuggestionForm allowEmptySearch={false} />,
     );
 
-    const form = screen.getByTestId('recreation-suggestion-form'); // adjust selector as needed
-
-    fireEvent.submit(form);
+    fireEvent.click(screen.getByRole('button', { name: /search/i }));
 
     expect(handleSearch).not.toHaveBeenCalled();
   });
 
-  it('shows NotificationToast if permissionDeniedCount > 0', () => {
+  it('shows NotificationToast when location permission is denied', () => {
     mockedUseCurrentLocation.mockReturnValue({
-      latitude: null,
-      longitude: null,
-      error: 'Permission denied',
       getLocation: vi.fn(),
-      permissionDeniedCount: 1,
+      permissionDeniedCount: 2,
+    });
+
+    renderWithQueryClient(<RecreationSuggestionForm />);
+
+    expect(
+      screen.getByText(/Location permission blocked/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Please update your location permission and try again/i),
+    ).toBeInTheDocument();
+  });
+
+  it('calls handleSearch on Enter key press when input is not empty', async () => {
+    mockedUseSearchInput.mockReturnValue({
+      defaultSearchInputValue: '',
+      searchInputValue: 'trail',
+      setSearchInputValue,
+      handleCityOptionSearch,
+      handleClearTypeaheadSearch,
+      handleSearch,
     });
 
     renderWithQueryClient(
       <RecreationSuggestionForm allowEmptySearch={false} />,
     );
 
-    expect(
-      screen.getByText(/Location permission blocked/i),
-    ).toBeInTheDocument();
+    const input = screen.getByRole('combobox');
+    await userEvent.type(input, '{enter}');
+
+    expect(handleSearch).toHaveBeenCalled();
   });
 
-  // Add more tests here...
+  it('does not call handleSearch on Enter if input is empty and allowEmptySearch is false', async () => {
+    mockedUseSearchInput.mockReturnValue({
+      defaultSearchInputValue: '',
+      searchInputValue: '',
+      setSearchInputValue,
+      handleCityOptionSearch,
+      handleClearTypeaheadSearch,
+      handleSearch,
+    });
+
+    renderWithQueryClient(
+      <RecreationSuggestionForm allowEmptySearch={false} />,
+    );
+
+    const input = screen.getByRole('combobox');
+    await userEvent.type(input, '{enter}');
+
+    expect(handleSearch).not.toHaveBeenCalled();
+  });
 });

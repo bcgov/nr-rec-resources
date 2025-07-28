@@ -16,7 +16,8 @@
     "test": "vitest --mode test",
     "test:cov": "npx vitest run --mode test --coverage",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "postinstall": "cd ../../shared && npm link || true && cd - && npm link @rst/shared || true"
   },
   "dependencies": {
     "@bcgov/bc-sans": "^2.1.0",
