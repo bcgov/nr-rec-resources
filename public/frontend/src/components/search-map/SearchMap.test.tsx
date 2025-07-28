@@ -79,9 +79,12 @@ vi.mock('@/components/search-map/SearchViewControls', () => ({
   default: () => <div data-testid="search-view-controls" />,
 }));
 
-vi.mock('@/components/recreation-search-form/RecreationSearchForm', () => ({
-  RecreationSearchForm: () => <div data-testid="recreation-search-form" />,
-}));
+vi.mock(
+  '@/components/recreation-suggestion-form/RecreationSuggestionForm',
+  () => ({
+    default: () => <div data-testid="recreation-suggestion-form" />,
+  }),
+);
 
 describe('SearchMap', () => {
   beforeEach(() => {
@@ -99,7 +102,9 @@ describe('SearchMap', () => {
 
     expect(screen.getByTestId('vector-feature-map')).toBeInTheDocument();
     expect(screen.getByTestId('search-view-controls')).toBeInTheDocument();
-    expect(screen.getByTestId('recreation-search-form')).toBeInTheDocument();
+    expect(
+      screen.getByTestId('recreation-suggestion-form'),
+    ).toBeInTheDocument();
   });
 
   it('renders the search fields', () => {

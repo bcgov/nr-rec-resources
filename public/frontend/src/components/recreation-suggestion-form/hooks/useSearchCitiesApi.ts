@@ -1,6 +1,6 @@
-import { useQuery } from '~/@tanstack/react-query';
-import { OPTION_TYPE } from '@/components/recreation-search-form/constants';
-import { City } from '@/components/recreation-search-form/types';
+import { useQuery } from '@tanstack/react-query';
+import { OPTION_TYPE } from '@/components/recreation-suggestion-form/constants';
+import { City } from '@/components/recreation-suggestion-form/types';
 
 const SEARCH_CITIES_API_URL = import.meta.env.VITE_SEARCH_CITIES_API_URL;
 const SEARCH_CITIES_API_PARAMS =

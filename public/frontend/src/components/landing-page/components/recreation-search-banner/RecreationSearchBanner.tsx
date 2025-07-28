@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { Stack } from 'react-bootstrap';
 import './RecreationSearchBanner.scss';
-import { RecreationSuggestionForm } from '@/components/recreation-search-form/RecreationSuggestionForm';
+import RecreationSuggestionForm from '@/components/recreation-suggestion-form/RecreationSuggestionForm';
 
 export const RecreationSearchBanner: FC = () => {
   return (

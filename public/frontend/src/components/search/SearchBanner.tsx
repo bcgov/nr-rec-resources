@@ -1,6 +1,6 @@
 import '@/components/search/Search.scss';
 import { Col, Row, Stack } from 'react-bootstrap';
-import { RecreationSuggestionForm } from '@/components/recreation-search-form/RecreationSuggestionForm';
+import RecreationSuggestionForm from '@/components/recreation-suggestion-form/RecreationSuggestionForm';
 
 const SearchBanner = () => {
   return (

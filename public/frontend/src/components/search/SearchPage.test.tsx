@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, useSearchParams } from 'react-router-dom';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter, useSearchParams, useNavigate } from 'react-router-dom';
 import searchResultsStore from '@/store/searchResults';
 import * as recreationResourceQueries from '@/service/queries/recreation-resource';
-import { QueryClient, QueryClientProvider } from '~/@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import SearchPage from './SearchPage';
+import { renderWithQueryClient } from '@/test-utils';
 import { mockSearchResultsData } from '@/components/search/test/mock-data';
 
 const queryClient = new QueryClient();
@@ -14,12 +15,28 @@ vi.mock('@/components/rec-resource/card/RecResourceCard', () => ({
   default: vi.fn(() => <div data-testid="mock-resource-card" />),
 }));
 
-const renderWithQueryClient = (ui: React.ReactElement) =>
-  render(
-    <QueryClientProvider client={queryClient}>
-      <MemoryRouter>{ui}</MemoryRouter>
-    </QueryClientProvider>,
-  );
+vi.mock('@/components/search/SearchMap/SearchMap', () => ({
+  default: vi.fn(() => <div data-testid="mock-search-map" />),
+}));
+
+vi.mock(
+  '@/components/recreation-suggestion-form/RecreationSuggestionForm',
+  () => ({
+    default: vi.fn(() => <div data-testid="mock-recreation-suggestion-form" />),
+  }),
+);
+
+vi.mock('react-router-dom', async () => {
+  const actual =
+    await vi.importActual<typeof import('react-router-dom')>(
+      'react-router-dom',
+    );
+  return {
+    ...actual,
+    useSearchParams: vi.fn(),
+    useNavigate: vi.fn(),
+  };
+});
 
 vi.mock('@/store/searchResults', async () => ({
   default: {
@@ -36,15 +53,6 @@ vi.mock('@/store/searchResults', async () => ({
   },
 }));
 
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
-  return {
-    ...actual,
-    useSearchParams: vi.fn(),
-    useNavigate: vi.fn(),
-  };
-});
-
 describe('SearchPage', () => {
   const mockQueryResult = {
     data: mockSearchResultsData,
@@ -59,7 +67,12 @@ describe('SearchPage', () => {
       recreationResourceQueries,
       'useSearchRecreationResourcesPaginated',
     ).mockReturnValue(mockQueryResult as any);
+
     vi.clearAllMocks();
+
+    // Mock hooks to avoid errors
+    (useNavigate as Mock).mockReturnValue(vi.fn());
+    (useSearchParams as Mock).mockReturnValue([new URLSearchParams(), vi.fn()]);
   });
 
   it('displays correct singular/plural results text', async () => {
@@ -206,7 +219,7 @@ describe('SearchPage', () => {
   });
 
   it('handles null or undefined data gracefully', () => {
-    // Test case 1: undefined data
+    // Test case 1: undefined pages
     searchResultsStore.state = { ...mockQueryResult, pages: undefined } as any;
 
     const { rerender } = renderWithQueryClient(<SearchPage />);
@@ -215,7 +228,7 @@ describe('SearchPage', () => {
       screen.getByText('No sites or trails matched your search.'),
     ).toBeInTheDocument();
 
-    // Test case 2: data with undefined pages
+    // Test case 2: data with undefined pages and totalCount
     searchResultsStore.state = {
       ...mockQueryResult,
       data: { pages: undefined, totalCount: undefined },
@@ -330,5 +343,13 @@ describe('SearchPage', () => {
         '5 Results  within 50 km radius of Victoria',
       );
     });
+  });
+
+  it('should render the suggestion form', () => {
+    renderWithQueryClient(<SearchPage />);
+
+    expect(
+      screen.getByTestId('mock-recreation-suggestion-form'),
+    ).toBeInTheDocument();
   });
 });

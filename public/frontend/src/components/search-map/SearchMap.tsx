@@ -71,9 +71,9 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
         minZoom={5.5}
         maxZoom={30}
       />
-<<<<<<< HEAD:public/frontend/src/components/search-map/SearchMap.tsx
       <div className="search-map-controls">
-        <RecreationSearchForm />
+           <RecreationSuggestionForm />
+
         <div className="d-flex flex-col flex-lg-row align-items-center gap-2">
           <Button
             variant={isFilterMenuOpen ? 'primary' : 'secondary'}
@@ -90,12 +90,6 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
             setIsOpen={setIsFilterMenuOpen}
           />
         </div>
-=======
-      <div className="search-map-view-controls">
-        <RecreationSuggestionForm />
-        <SearchViewControls />
->>>>>>> 5bcddd54 (chore: stash):public/frontend/src/components/search/SearchMap/SearchMap.tsx
-      </div>
 
       <div ref={featurePreviewPopupRef} className="search-map-feature-preview">
         {selectedFeature && (

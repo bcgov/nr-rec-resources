@@ -3,7 +3,7 @@ import { useStore } from '@tanstack/react-store';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import searchInputStore from '@/store/searchInputStore';
 import { ROUTE_PATHS } from '@/routes';
-import { City } from '@/components/recreation-search-form/types';
+import { City } from '@/components/recreation-suggestion-form/types';
 
 export const FILTER_PARAM_KEY = 'filter';
 const LAT_PARAM_KEY = 'lat';

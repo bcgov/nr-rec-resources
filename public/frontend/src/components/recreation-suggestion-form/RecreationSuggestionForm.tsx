@@ -1,13 +1,14 @@
 import { useCallback, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import { useRecreationSuggestions } from '@/service/queries/recreation-resource';
-import { SuggestionMenu } from '@/components/recreation-search-form/SuggestionMenu';
+import { SuggestionMenu } from '@/components/recreation-suggestion-form/SuggestionMenu';
 import { SuggestionTypeahead } from '@shared/components/suggestion-typeahead/SuggestionTypeahead';
-import { useSearchCitiesApi } from '@/components/recreation-search-form/hooks/useSearchCitiesApi';
-import { useCurrentLocation } from '@/components/recreation-search-form/hooks/useCurrentLocation';
-import { useSearchInput } from '@/components/recreation-search-form/hooks/useSearchInput';
+import { useSearchCitiesApi } from '@/components/recreation-suggestion-form/hooks/useSearchCitiesApi';
+import { useCurrentLocation } from '@/components/recreation-suggestion-form/hooks/useCurrentLocation';
+import { useSearchInput } from '@/components/recreation-suggestion-form/hooks/useSearchInput';
 import {
   RenderMenuProps,
   TypeaheadComponentProps,
@@ -16,23 +17,22 @@ import NotificationToast from '@/components/notifications/NotificationToast';
 import {
   City as CitySuggestion,
   RecreationSuggestion,
-} from '@/components/recreation-search-form/types';
-import { useNavigate } from 'react-router';
-import '@/components/recreation-search-form/RecreationSuggestionForm.scss';
+} from '@/components/recreation-suggestion-form/types';
+import '@/components/recreation-suggestion-form/RecreationSuggestionForm.scss';
 import { Option } from 'react-bootstrap-typeahead/types/types';
 import { ROUTE_PATHS } from '@/routes/constants';
 import {
   CURRENT_LOCATION_TITLE,
   MAX_LOCATION_OPTIONS,
   OPTION_TYPE,
-} from '@/components/recreation-search-form/constants';
+} from '@/components/recreation-suggestion-form/constants';
 
 interface RecreationSuggestionFormProps {
   allowEmptySearch?: boolean;
   searchBtnVariant?: 'primary' | 'secondary';
 }
 
-export const RecreationSuggestionForm = ({
+const RecreationSuggestionForm = ({
   allowEmptySearch,
   searchBtnVariant = 'primary',
 }: RecreationSuggestionFormProps) => {
@@ -106,7 +106,7 @@ export const RecreationSuggestionForm = ({
         handleSearch();
       }
     },
-    [searchInputValue, handleSearch],
+    [allowEmptySearch, handleSearch, searchInputValue],
   );
 
   const handleInputKeyDown = useCallback(
@@ -200,3 +200,5 @@ export const RecreationSuggestionForm = ({
     </>
   );
 };
+
+export default RecreationSuggestionForm;

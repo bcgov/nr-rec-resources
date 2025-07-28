@@ -157,4 +157,33 @@ describe("RecreationResourceService", () => {
       );
     });
   });
+
+  describe("getSuggestions", () => {
+    it("should delegate to RecreationResourceSuggestionsService and return results", async () => {
+      const mockSuggestions = [
+        {
+          rec_resource_id: "REC204117",
+          name: "Aileen Lake",
+          closest_community: "Winfield",
+          district_description: "Columbia-Shuswap",
+          recreation_resource_type: "Recreation Site",
+          recreation_resource_type_code: "SIT",
+          option_type: "recreation_resource",
+        },
+      ];
+
+      const query = "aileen";
+
+      vi.mocked(
+        (service as any).recreationResourceSuggestionsService.getSuggestions,
+      ).mockResolvedValueOnce(mockSuggestions);
+
+      const result = await service.getSuggestions(query);
+
+      expect(result).toEqual(mockSuggestions);
+      expect(
+        (service as any).recreationResourceSuggestionsService.getSuggestions,
+      ).toHaveBeenCalledWith(query);
+    });
+  });
 });

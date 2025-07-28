@@ -6,7 +6,7 @@ import {
   MOCK_RECREATION_SITE,
   MOCK_RECREATION_SITE_IMAGES,
 } from './mockData';
-import { QueryClient, QueryClientProvider } from '~/@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { RecreationResourceDetailModel } from '@/service/custom-models';
 

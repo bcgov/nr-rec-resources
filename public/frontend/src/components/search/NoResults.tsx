@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useClearFilters } from '@/components/search/hooks/useClearFilters';
-import { useSearchInput } from '@/components/recreation-search-form/hooks/useSearchInput';
+import { useSearchInput } from '@/components/recreation-suggestion-form/hooks/useSearchInput';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons';
 import '@/components/search/NoResults.scss';

@@ -1,4 +1,4 @@
-import { OPTION_TYPE } from '@/components/recreation-search-form/constants';
+import { OPTION_TYPE } from '@/components/recreation-suggestion-form/constants';
 
 export interface City {
   id: number;

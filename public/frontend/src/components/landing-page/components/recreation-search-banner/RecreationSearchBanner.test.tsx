@@ -1,12 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { RecreationSearchBanner } from './RecreationSearchBanner';
-import { RecreationSearchForm } from '@/components/recreation-search-form';
+import RecreationSuggestionForm from '@/components/recreation-suggestion-form/RecreationSuggestionForm';
+import { renderWithQueryClient } from '@/test-utils';
 
-// Mock dependencies
-vi.mock('@/components/recreation-search-form', () => ({
-  RecreationSearchForm: vi.fn(() => null),
-}));
+vi.mock(
+  '@/components/recreation-suggestion-form/RecreationSuggestionForm',
+  () => ({
+    default: vi.fn(() => <div data-testid="mock-recreation-suggestion-form" />),
+  }),
+);
 
 describe('RecreationSearchBanner', () => {
   beforeEach(() => {
@@ -14,7 +17,7 @@ describe('RecreationSearchBanner', () => {
   });
 
   it('renders search title and recreation search form with correct props', () => {
-    render(<RecreationSearchBanner />);
+    renderWithQueryClient(<RecreationSearchBanner />);
     const titleH2 = screen.getByText('Find a recreation');
     expect(titleH2).toBeInTheDocument();
     expect(titleH2.className).toContain('search-title fs-4');
@@ -22,10 +25,10 @@ describe('RecreationSearchBanner', () => {
     const workBreak = screen.getByText('site or trail');
     expect(workBreak).toBeInTheDocument();
 
-    expect(RecreationSearchForm).toHaveBeenCalledWith(
+    expect(RecreationSuggestionForm).toHaveBeenCalledWith(
       {
-        searchButtonProps: { variant: 'light', className: 'search-btn' },
-        location: 'Landing page',
+        allowEmptySearch: true,
+        searchBtnVariant: 'secondary',
       },
       undefined,
     );

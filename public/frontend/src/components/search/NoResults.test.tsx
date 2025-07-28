@@ -3,10 +3,10 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import NoResults from 'src/components/search/NoResults';
 
 import { useClearFilters } from '@/components/search/hooks/useClearFilters';
-import { useSearchInput } from '@/components/recreation-search-form/hooks/useSearchInput';
+import { useSearchInput } from '@/components/recreation-suggestion-form/hooks/useSearchInput';
 
 vi.mock('@/components/search/hooks/useClearFilters');
-vi.mock('@/components/recreation-search-form/hooks/useSearchInput');
+vi.mock('@/components/recreation-suggestion-form/hooks/useSearchInput');
 
 describe('NoResults component', () => {
   const clearFiltersMock = vi.fn();

@@ -1,13 +1,13 @@
 import { Menu, MenuItem, RenderMenuProps } from 'react-bootstrap-typeahead';
-import { SuggestionListCity } from '@/components/recreation-search-form/SuggestionListCity';
-import { SuggestionListItem } from '@/components/recreation-search-form/SuggestionListItem';
+import { SuggestionListCity } from '@/components/recreation-suggestion-form/SuggestionListCity';
+import { SuggestionListItem } from '@/components/recreation-suggestion-form/SuggestionListItem';
 import { Image } from 'react-bootstrap';
 import {
   City,
   RecreationSuggestion,
-} from '@/components/recreation-search-form/types';
+} from '@/components/recreation-suggestion-form/types';
 import { RESOURCE_TYPE_ICONS } from '@shared/components/suggestion-typeahead/constants';
-import '@/components/recreation-search-form/SuggestionMenu.scss';
+import '@/components/recreation-suggestion-form/SuggestionMenu.scss';
 
 /**
  * Props for the SuggestionMenu component.

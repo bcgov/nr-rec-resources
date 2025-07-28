@@ -8,14 +8,17 @@ import {
   SiteOperatorDto,
 } from '@/service/recreation-resource';
 import { useRecreationResourceApi } from '@/service/hooks/useRecreationResourceApi';
-import { useInfiniteQuery, useQuery } from '~/@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useQuery,
+  InfiniteData,
+} from '@tanstack/react-query';
 import { trackSiteSearch } from '@/utils/matomo';
 import buildQueryString from '@/utils/buildQueryString';
 import {
   transformRecreationResourceBase,
   transformRecreationResourceDetail,
 } from '@/service/queries/recreation-resource/helpers';
-import { InfiniteData } from '@tanstack/react-query';
 import { RecreationResourceDetailModel } from '@/service/custom-models';
 
 interface SearchParams extends SearchRecreationResourcesRequest {

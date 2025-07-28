@@ -1,5 +1,5 @@
 import { Store } from '@tanstack/store';
-import { City } from '@/components/recreation-search-form/types';
+import { City } from '@/components/recreation-suggestion-form/types';
 
 interface SearchInputState {
   searchInputValue: string;

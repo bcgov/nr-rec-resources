@@ -2,7 +2,7 @@ import { Col, ListGroup, Row, Image } from 'react-bootstrap';
 import { Highlighter } from 'react-bootstrap-typeahead';
 import CURRENT_LOCATION_ICON from '@shared/assets/icons/current_location.svg';
 import LOCATION_ICON from '@shared/assets/icons/location.svg';
-import { CURRENT_LOCATION_TITLE } from '@/components/recreation-search-form/location-search/LocationSearch';
+import { CURRENT_LOCATION_TITLE } from '@/components/recreation-suggestion-form/constants';
 import '@shared/components/suggestion-typeahead/SuggestionListItem.scss';
 
 /**

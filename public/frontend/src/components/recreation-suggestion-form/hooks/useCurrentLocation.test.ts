@@ -1,6 +1,7 @@
 import { vi } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useCurrentLocation } from './useCurrentLocation';
+import currentLocationStore from '@/store/currentLocationStore';
 
 describe('useCurrentLocation', () => {
   const mockGeolocation = {
@@ -9,6 +10,14 @@ describe('useCurrentLocation', () => {
 
   beforeEach(() => {
     vi.stubGlobal('navigator', { geolocation: mockGeolocation });
+
+    currentLocationStore.setState((prev) => ({
+      ...prev,
+      latitude: null,
+      longitude: null,
+      error: undefined,
+      permissionDeniedCount: 0,
+    }));
   });
 
   afterEach(() => {
@@ -36,11 +45,12 @@ describe('useCurrentLocation', () => {
       expect(result.current.latitude).toBe(48.4284);
       expect(result.current.longitude).toBe(-123.3656);
       expect(result.current.error).toBeUndefined();
+      expect(result.current.permissionDeniedCount).toBe(0);
     });
   });
 
-  it('should set error and reset location on failure', async () => {
-    const mockError = { message: 'User denied geolocation', code: 1 };
+  it('should set error and reset location on general error', async () => {
+    const mockError = { message: 'Something went wrong', code: 2 }; // Not PERMISSION_DENIED
 
     mockGeolocation.getCurrentPosition.mockImplementationOnce((_, error) =>
       error(mockError),
@@ -57,7 +67,8 @@ describe('useCurrentLocation', () => {
     await waitFor(() => {
       expect(result.current.latitude).toBeNull();
       expect(result.current.longitude).toBeNull();
-      expect(result.current.error).toBe('User denied geolocation');
+      expect(result.current.error).toBe('Something went wrong');
+      expect(result.current.permissionDeniedCount).toBe(0);
     });
   });
 
@@ -74,11 +85,17 @@ describe('useCurrentLocation', () => {
 
     await waitFor(() => {
       expect(result.current.error).toBe('Geolocation not supported');
+      expect(result.current.latitude).toBeNull();
+      expect(result.current.longitude).toBeNull();
     });
   });
 
   it('should increment permissionDeniedCount on PERMISSION_DENIED error', async () => {
-    const deniedError = { message: 'Permission denied', code: 1 }; // code 1 = PERMISSION_DENIED
+    const deniedError = {
+      message: 'Permission denied',
+      code: 1,
+      PERMISSION_DENIED: 1,
+    };
 
     mockGeolocation.getCurrentPosition.mockImplementationOnce((_, error) =>
       error(deniedError),
@@ -93,7 +110,8 @@ describe('useCurrentLocation', () => {
     });
 
     await waitFor(() => {
-      expect(result.current.permissionDeniedCount).toBeGreaterThan(0);
+      expect(result.current.permissionDeniedCount).toBe(1);
+      expect(result.current.error).toBe('Permission denied');
     });
   });
 });
