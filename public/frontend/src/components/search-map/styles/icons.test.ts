@@ -6,7 +6,7 @@ import {
   createLocationDotBlueIcon,
   createLocationDotRedIcon,
   createLocationDotOrangeIcon,
-} from '@/components/search/SearchMap/styles/icons';
+} from '@/components/search-map/styles/icons';
 import locationDotBlue from '@/assets/location-dot-blue.png';
 import locationDotRed from '@/assets/location-dot-red.png';
 import locationDotOrange from '@/assets/location-dot-orange.png';

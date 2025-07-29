@@ -93,7 +93,7 @@
 }
 
 // modal
-.modal.mobile-filter-modal {
+.modal.filter-modal {
   .modal-dialog {
     display: flex;
     flex-direction: column;
@@ -107,7 +107,7 @@
   }
   .modal-content {
     background-color: $colorBackgroundGrey;
-    .mobile-filter-modal-content {
+    .filter-modal-content {
       &--header {
         display: flex;
         justify-content: space-between;
@@ -135,14 +135,14 @@
           color: $colorBlue;
         }
       }
-      .mobile-filter-options {
+      .filter-options {
         background-color: $colorWhite;
         border: 1px solid $colorGreyMed;
         border-radius: 4px;
         margin-top: 16px;
         width: 100%;
 
-        .mobile-filter-option-label {
+        .filter-option-label {
           margin: 1px 0; // optical
           display: flex;
           width: 100%;

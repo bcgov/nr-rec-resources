@@ -11,9 +11,11 @@ import { MAX_ACTIVITIES_TO_DISPLAY } from '@/components/rec-resource/card/consta
 
 interface RecResourceCardProps {
   recreationResource: RecreationResourceSearchModel;
+  className?: string;
 }
 
 const RecResourceCard: React.FC<RecResourceCardProps> = ({
+  className = 'rec-resource-card',
   recreationResource,
 }) => {
   const {
@@ -31,11 +33,7 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
   const isSeeAllActivities = activities.length > MAX_ACTIVITIES_TO_DISPLAY;
 
   return (
-    <div
-      className="rec-resource-card"
-      key={rec_resource_id}
-      id={rec_resource_id}
-    >
+    <div className={className} key={rec_resource_id} id={rec_resource_id}>
       <div className={'card-image-container'}>
         {hasImages ? <CardCarousel imageList={imageList} /> : <RSTSVGLogo />}
       </div>

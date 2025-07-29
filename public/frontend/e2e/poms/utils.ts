@@ -31,7 +31,9 @@ export class UtilsPOM {
   }
 
   async clickLinkByText(text: string) {
-    const link = this.page.locator(`a:has-text("${text}")`);
+    const link = this.page
+      .locator(`a:has-text("${text}")`)
+      .filter({ hasText: text, hasNotText: '', visible: true });
     const href = await link.getAttribute('href');
     await link.click();
 

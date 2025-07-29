@@ -3,7 +3,8 @@
 @import '~bootstrap/scss/variables';
 @import '~bootstrap/scss/mixins/_breakpoints';
 
-.rec-resource-card {
+.rec-resource-card,
+.rec-resource-preview-card {
   display: flex;
   flex-direction: column;
   border-radius: 10px;

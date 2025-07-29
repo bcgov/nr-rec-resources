@@ -115,7 +115,7 @@ export class SearchPOM {
     await this.searchBtn.waitFor({ state: 'visible' });
     await this.searchBtn.click();
     if (expectResults) {
-      await this.page.waitForSelector('.rec-resource-card');
+      await this.page.waitForSelector('.rec-resource-card:visible');
     }
   }
 
