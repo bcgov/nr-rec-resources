@@ -30,11 +30,13 @@ import {
 
 interface RecreationSuggestionFormProps {
   allowEmptySearch?: boolean;
+  disableNavigation?: boolean;
   searchBtnVariant?: 'primary' | 'secondary';
 }
 
 const RecreationSuggestionForm = ({
   allowEmptySearch,
+  disableNavigation = false,
   searchBtnVariant = 'primary',
 }: RecreationSuggestionFormProps) => {
   const navigate = useNavigate();
@@ -154,6 +156,9 @@ const RecreationSuggestionForm = ({
       }
 
       case OPTION_TYPE.RECREATION_RESOURCE:
+        if (disableNavigation) {
+          return handleSearch(suggestion.name);
+        }
         navigate(
           ROUTE_PATHS.REC_RESOURCE.replace(':id', suggestion.rec_resource_id),
         );

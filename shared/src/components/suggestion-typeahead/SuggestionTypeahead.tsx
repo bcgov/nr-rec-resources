@@ -96,6 +96,11 @@ export const SuggestionTypeahead = <T extends object>({
       <SuggestionSearchInput
         {...inputProps}
         isLoading={isLoading}
+        onBlur={() => {
+          if (typeaheadRef.current) {
+            (typeaheadRef.current as any).blur();
+          }
+        }}
         onKeyDown={(event) => {
           inputProps.onKeyDown?.(event); // Call internal onKeyDown handler
           onKeyDown?.(event); // Call the parent onKeyDown handler

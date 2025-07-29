@@ -34,7 +34,7 @@ export const useSearchInput = () => {
   );
 
   const handleSearch = useCallback(
-    (inputValue?: string) => {
+    (inputValue: string) => {
       const trimmedValue = (inputValue ?? state.searchInputValue).trim();
       const newParams = new URLSearchParams(searchParams);
 
@@ -77,7 +77,6 @@ export const useSearchInput = () => {
   const handleCityOptionSearch = useCallback(
     (city: City) => {
       if (!city) return;
-      console.log('handleCityOptionSearch', city);
 
       const newParams = new URLSearchParams(searchParams);
       newParams.set(LAT_PARAM_KEY, String(city.latitude));

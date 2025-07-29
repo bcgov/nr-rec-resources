@@ -15,16 +15,17 @@ vi.mock('@/components/rec-resource/card/RecResourceCard', () => ({
   default: vi.fn(() => <div data-testid="mock-resource-card" />),
 }));
 
-vi.mock('@/components/search/SearchMap/SearchMap', () => ({
+vi.mock('@/components/search-map/SearchMap', () => ({
   default: vi.fn(() => <div data-testid="mock-search-map" />),
 }));
 
-vi.mock(
-  '@/components/recreation-suggestion-form/RecreationSuggestionForm',
-  () => ({
-    default: vi.fn(() => <div data-testid="mock-recreation-suggestion-form" />),
-  }),
-);
+vi.mock('@/service/queries/recreation-resource', () => ({
+  useSearchRecreationResourcesPaginated: vi.fn(),
+  useRecreationSuggestions: vi.fn(() => ({
+    data: [],
+    isLoading: false,
+  })),
+}));
 
 vi.mock('react-router-dom', async () => {
   const actual =
@@ -349,7 +350,7 @@ describe('SearchPage', () => {
     renderWithQueryClient(<SearchPage />);
 
     expect(
-      screen.getByTestId('mock-recreation-suggestion-form'),
+      screen.getByPlaceholderText('By name or community'),
     ).toBeInTheDocument();
   });
 });
