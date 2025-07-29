@@ -20,6 +20,7 @@ import {
 } from '@/components/recreation-suggestion-form/types';
 import '@/components/recreation-suggestion-form/RecreationSuggestionForm.scss';
 import { Option } from 'react-bootstrap-typeahead/types/types';
+import { trackEvent, trackClickEvent } from '@/utils/matomo';
 import { ROUTE_PATHS } from '@/routes/constants';
 import {
   CURRENT_LOCATION_TITLE,
@@ -111,6 +112,10 @@ const RecreationSuggestionForm = ({
       if (inputValue.trim() || allowEmptySearch) {
         handleSearch(inputValue);
       }
+      trackClickEvent({
+        category: 'Recreation Resource search',
+        name: 'Search button clicked',
+      })();
     },
     [allowEmptySearch, handleSearch],
   );
@@ -125,6 +130,11 @@ const RecreationSuggestionForm = ({
           handleSearch(inputValue);
         }
       }
+      trackEvent({
+        category: 'Recreation Resource search',
+        action: 'Search input key down',
+        name: e.key,
+      });
     },
     [allowEmptySearch, handleSearch],
   );
@@ -149,6 +159,10 @@ const RecreationSuggestionForm = ({
           };
 
           handleCityOptionSearch(updatedCurrentLocation);
+          trackClickEvent({
+            category: 'Recreation Resource search',
+            name: `Current location selected`,
+          })();
         } catch (err) {
           console.warn('Failed to get current location:', err);
         }
@@ -159,12 +173,20 @@ const RecreationSuggestionForm = ({
         if (disableNavigation) {
           return handleSearch(suggestion.name);
         }
+        trackClickEvent({
+          category: 'Recreation Resource search',
+          name: `Recreation resource selected: ${suggestion.name}`,
+        })();
         navigate(
           ROUTE_PATHS.REC_RESOURCE.replace(':id', suggestion.rec_resource_id),
         );
         return;
 
       case OPTION_TYPE.CITY:
+        trackClickEvent({
+          category: 'Recreation Resource search',
+          name: `City selected: ${suggestion.name}`,
+        })();
         handleCityOptionSearch(suggestion);
         return;
 
