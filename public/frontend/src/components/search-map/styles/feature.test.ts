@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { featureLabelText } from '@/components/search/SearchMap/styles/feature';
+import { featureLabelText } from '@/components/search-map/styles/feature';
 import { Text } from 'ol/style';
 
 describe('featureLabelText', () => {

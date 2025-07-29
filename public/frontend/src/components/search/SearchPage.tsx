@@ -181,7 +181,7 @@ const SearchPage = () => {
                         </span>
                       )}
                     </div>
-                    {isMapFeature && <SearchViewControls />}
+                    {isMapFeature && <SearchViewControls variant="map" />}
                   </div>
                   <FilterChips />
                   {(totalCount === 0 || totalCount === undefined) && (
