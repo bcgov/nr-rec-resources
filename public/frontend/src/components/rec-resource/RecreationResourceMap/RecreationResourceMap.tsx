@@ -1,4 +1,4 @@
-import { CSSProperties, useMemo, useState } from 'react';
+import { CSSProperties, useEffect, useMemo, useState } from 'react';
 import { VectorFeatureMap } from '@bcgov/prp-map';
 import VectorLayer from 'ol/layer/Vector';
 import VectorSource from 'ol/source/Vector';
@@ -11,6 +11,7 @@ import { Button, Col, Row, Stack } from 'react-bootstrap';
 import { trackEvent } from '@/utils/matomo';
 import { MATOMO_TRACKING_CATEGORY_MAP } from '@/components/rec-resource/RecreationResourceMap/constants';
 import DownloadMapModal from '@/components/rec-resource/RecreationResourceMap/DownloadMapModal';
+import MapDisclaimerModal from '@/components/rec-resource/RecreationResourceMap/MapDisclaimerModal';
 import DownloadIcon from '@/images/icons/download.svg';
 
 interface TrailMapProps {
@@ -23,6 +24,7 @@ export const RecreationResourceMap = ({
   mapComponentCssStyles,
 }: TrailMapProps) => {
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+  const [isDisclaimerModalOpen, setIsDisclaimerModalOpen] = useState(false);
   const styledFeatures = useMemo(() => {
     const features = getMapFeaturesFromRecResource(recResource);
     if (!features?.length) return [];
@@ -45,6 +47,10 @@ export const RecreationResourceMap = ({
     ],
     [styledFeatures],
   );
+
+  useEffect(() => {
+    setIsDisclaimerModalOpen(true);
+  }, []);
 
   if (!styledFeatures || !styledFeatures.length) {
     return null;
@@ -89,6 +95,10 @@ export const RecreationResourceMap = ({
         setIsOpen={setIsDownloadModalOpen}
         styledFeatures={styledFeatures}
         recResource={recResource}
+      />
+      <MapDisclaimerModal
+        isOpen={isDisclaimerModalOpen}
+        setIsOpen={setIsDisclaimerModalOpen}
       />
     </Stack>
   );
