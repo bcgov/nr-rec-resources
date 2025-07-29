@@ -7,6 +7,7 @@ import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Alert, Spinner, Stack } from "react-bootstrap";
 import "./RecResourcePage.scss";
+import BreadCrumbs from "@/components/breadcrumbs/BreadCrumbs";
 
 const InfoBanner = () => (
   <Alert variant="warning" className="rec-resource-page__info-banner">
@@ -54,6 +55,7 @@ export const RecResourcePage = () => {
       role="main"
       aria-label="Recreation resource content"
     >
+      <BreadCrumbs recResourceName={recResource.name} />
       <ResourceHeaderSection recResource={recResource} />
       <InfoBanner />
       <RecResourceFileSection />
