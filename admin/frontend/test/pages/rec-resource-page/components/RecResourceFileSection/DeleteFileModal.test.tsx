@@ -95,7 +95,7 @@ describe("DeleteFileModal", () => {
         "Delete File",
       );
       expect(
-        screen.getByText(/Deleting this file will remove it/),
+        screen.getByText(/Deleting this document will remove it/),
       ).toBeInTheDocument();
       expect(
         screen.getByText(/Are you sure you want to delete file:/),
@@ -190,7 +190,7 @@ describe("DeleteFileModal", () => {
       expect(screen.getByRole("alert")).toBeInTheDocument();
       expect(
         screen.getByText(
-          /Deleting this file will remove it from the public site/,
+          /Deleting this document will remove it from the public site/,
         ),
       ).toBeInTheDocument();
       expect(
