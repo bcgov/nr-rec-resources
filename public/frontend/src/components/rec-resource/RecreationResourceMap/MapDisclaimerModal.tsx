@@ -1,6 +1,7 @@
 import { Button, Modal } from 'react-bootstrap';
 import RSTLogo from '@/images/RST_nav_logo.svg';
 import '@/components/rec-resource/RecreationResourceMap/MapDisclaimerModal.scss';
+import Cookies from 'js-cookie';
 
 interface MapDisclaimerModalProps {
   isOpen: boolean;
@@ -8,6 +9,13 @@ interface MapDisclaimerModalProps {
 }
 
 const MapDisclaimerModal = ({ isOpen, setIsOpen }: MapDisclaimerModalProps) => {
+  const handleCookie = (checked: boolean) => {
+    if (checked) {
+      Cookies.set('hidemap-disclaimer-dialog', 'true', { expires: 180 }); // expires in 6 months
+    } else {
+      Cookies.remove('hidemap-disclaimer-dialog');
+    }
+  };
   const handleCloseModal = () => {
     setIsOpen(false);
   };
@@ -63,7 +71,11 @@ const MapDisclaimerModal = ({ isOpen, setIsOpen }: MapDisclaimerModalProps) => {
       </Modal.Body>
       <Modal.Footer className="modal-footer d-flex justify-content-between">
         <div>
-          <input type="checkbox" /> Don&apos;t show again
+          <input
+            type="checkbox"
+            onChange={(e) => handleCookie(e.target.checked)}
+          />{' '}
+          Don&apos;t show again
         </div>
         <Button className="py-4" onClick={handleCloseModal}>
           OK

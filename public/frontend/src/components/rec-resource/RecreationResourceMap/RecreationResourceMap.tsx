@@ -13,6 +13,7 @@ import { MATOMO_TRACKING_CATEGORY_MAP } from '@/components/rec-resource/Recreati
 import DownloadMapModal from '@/components/rec-resource/RecreationResourceMap/DownloadMapModal';
 import MapDisclaimerModal from '@/components/rec-resource/RecreationResourceMap/MapDisclaimerModal';
 import DownloadIcon from '@/images/icons/download.svg';
+import Cookies from 'js-cookie';
 
 interface TrailMapProps {
   recResource: RecreationResourceDetailModel;
@@ -49,7 +50,10 @@ export const RecreationResourceMap = ({
   );
 
   useEffect(() => {
-    setIsDisclaimerModalOpen(true);
+    const hideDialog = Cookies.get('hidemap-disclaimer-dialog');
+    if (!hideDialog) {
+      setIsDisclaimerModalOpen(true);
+    }
   }, []);
 
   if (!styledFeatures || !styledFeatures.length) {
