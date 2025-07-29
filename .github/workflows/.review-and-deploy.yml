@@ -42,10 +42,10 @@ jobs:
 
   # Separate review job since we can't use GitHub environments in reusable workflows
   review-test-deployment:
-    name: Review Test Deployment
+    name: Review ${{ inputs.app }} test deployment
     needs: tests-e2e-dev-environment
     runs-on: ubuntu-24.04
-    environment: review-test-deployment
+    environment: review-${{ inputs.app}}-test-deployment
     steps:
       - name: Review Test Deployment
         run: echo "Reviewing Test Deployment"
@@ -95,10 +95,10 @@ jobs:
 
   # Separate review job since we can't use GitHub environments in reusable workflows
   review-prod-deployment:
-    name: Review Prod Deployment
+    name: Review ${{ inputs.app }} prod deployment
     needs: tests-e2e-test-environment
     runs-on: ubuntu-24.04
-    environment: review-prod-deployment
+    environment: review-${{inputs.app}}-prod-deployment
     steps:
       - name: Review Prod Deployment
         run: echo "Reviewing Prod Deployment"
