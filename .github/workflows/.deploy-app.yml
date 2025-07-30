@@ -111,10 +111,17 @@ jobs:
           VITE_KEYCLOAK_CLIENT_ID: ${{ secrets.KEYCLOAK_CLIENT_ID }}
         run: |
           echo "VITE_RECREATION_RESOURCE_ASSETS_BASE_URL: $VITE_RECREATION_RESOURCE_ASSETS_BASE_URL"
+          BUCKET=$(echo "$S3_BUCKET_ARN" | cut -d: -f6)
           cd shared && npm ci
           cd ../${app}/frontend
           npm run deploy
-          aws s3 sync --delete ./dist s3://$(echo "$S3_BUCKET_ARN" | cut -d: -f6)
+          aws s3 cp ./dist/index.html s3://$BUCKET/index.html \
+            --cache-control "no-cache, must-revalidate" \
+            --content-type "text/html"
+          aws s3 sync ./dist s3://$BUCKET \
+            --exclude "index.html" \
+            --cache-control "public, max-age=31536000, immutable" \
+            --delete
           aws cloudfront create-invalidation --distribution-id $CF_DISTRIBUTION_ID --paths "/*"
   fta-migration:
     name: FTA migration
