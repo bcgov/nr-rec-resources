@@ -7,7 +7,7 @@ locals {
   frontend_url = (
     can(data.terraform_remote_state.frontend[0].outputs.cloudfront.domain_name)
     ? data.terraform_remote_state.frontend[0].outputs.cloudfront.domain_name
-    : "ephemeral-placeholder-url"
+    : "example.com" # Placeholder for ephemeral environments
   )
 
   cors_allowed_origins = [
