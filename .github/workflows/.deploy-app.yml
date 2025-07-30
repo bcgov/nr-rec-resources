@@ -112,7 +112,7 @@ jobs:
         run: |
           echo "VITE_RECREATION_RESOURCE_ASSETS_BASE_URL: $VITE_RECREATION_RESOURCE_ASSETS_BASE_URL"
           BUCKET=$(echo "$S3_BUCKET_ARN" | cut -d: -f6)
-          cd shared && npm ci
+          cd shared && npm install
           cd ../${app}/frontend
           npm run deploy
           aws s3 cp ./dist/index.html s3://$BUCKET/index.html \

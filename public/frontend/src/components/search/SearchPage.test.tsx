@@ -39,6 +39,12 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
+vi.mock('@bcgov/prp-map', async () => ({
+  ...(await vi.importActual('@bcgov/prp-map')),
+  // Mock useGetMapStyles as it was causing flakey window is not defined errors in ci
+  useGetMapStyles: vi.fn(),
+}));
+
 vi.mock('@/store/searchResults', async () => ({
   default: {
     state: {
