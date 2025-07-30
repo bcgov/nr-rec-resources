@@ -25,10 +25,13 @@ import {
 } from '@/service/custom-models';
 import { trackEvent } from '@/utils/matomo';
 import { LoadingButton } from '@/components/LoadingButton';
+import MapDisclaimerModal from '@/components/rec-resource/RecreationResourceMap/MapDisclaimerModal';
+import Cookies from 'js-cookie';
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [isDisclaimerModalOpen, setIsDisclaimerModalOpen] = useState(false);
 
   const initialPage = useInitialPageFromSearchParams();
   const lat = searchParams.get('lat');
@@ -71,6 +74,15 @@ const SearchPage = () => {
   useEffect(() => {
     setFilterChipsFromSearchParams(filterChips, searchResults, searchParams);
   }, [searchResults]);
+
+  useEffect(() => {
+    if (isMapView) {
+      const hideDialog = Cookies.get('hidemap-disclaimer-dialog');
+      if (!hideDialog) {
+        setIsDisclaimerModalOpen(true);
+      }
+    }
+  }, [isMapView]);
 
   const { pages: paginatedResults, totalCount } = searchResults;
   /**
@@ -129,10 +141,15 @@ const SearchPage = () => {
 
   return (
     <>
+      <MapDisclaimerModal
+        isOpen={isDisclaimerModalOpen}
+        setIsOpen={setIsDisclaimerModalOpen}
+      />
       <SearchBanner />
       <SearchMap
         style={{
-          visibility: isMapView ? 'visible' : 'hidden',
+          visibility:
+            isMapView && !isDisclaimerModalOpen ? 'visible' : 'hidden',
         }}
       />
       <Stack

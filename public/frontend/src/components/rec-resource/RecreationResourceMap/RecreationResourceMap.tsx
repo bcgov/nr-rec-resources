@@ -11,9 +11,7 @@ import { Button, Col, Row, Stack } from 'react-bootstrap';
 import { trackEvent } from '@/utils/matomo';
 import { MATOMO_TRACKING_CATEGORY_MAP } from '@/components/rec-resource/RecreationResourceMap/constants';
 import DownloadMapModal from '@/components/rec-resource/RecreationResourceMap/DownloadMapModal';
-import MapDisclaimerModal from '@/components/rec-resource/RecreationResourceMap/MapDisclaimerModal';
 import DownloadIcon from '@/images/icons/download.svg';
-import Cookies from 'js-cookie';
 
 interface TrailMapProps {
   recResource: RecreationResourceDetailModel;
@@ -25,7 +23,6 @@ export const RecreationResourceMap = ({
   mapComponentCssStyles,
 }: TrailMapProps) => {
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
-  const [isDisclaimerModalOpen, setIsDisclaimerModalOpen] = useState(false);
   const styledFeatures = useMemo(() => {
     const features = getMapFeaturesFromRecResource(recResource);
     if (!features?.length) return [];
@@ -48,13 +45,6 @@ export const RecreationResourceMap = ({
     ],
     [styledFeatures],
   );
-
-  useEffect(() => {
-    const hideDialog = Cookies.get('hidemap-disclaimer-dialog');
-    if (!hideDialog) {
-      setIsDisclaimerModalOpen(true);
-    }
-  }, []);
 
   if (!styledFeatures || !styledFeatures.length) {
     return null;
@@ -99,10 +89,6 @@ export const RecreationResourceMap = ({
         setIsOpen={setIsDownloadModalOpen}
         styledFeatures={styledFeatures}
         recResource={recResource}
-      />
-      <MapDisclaimerModal
-        isOpen={isDisclaimerModalOpen}
-        setIsOpen={setIsDisclaimerModalOpen}
       />
     </Stack>
   );
