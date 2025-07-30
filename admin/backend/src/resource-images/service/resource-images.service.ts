@@ -103,7 +103,15 @@ export class ResourceImagesService {
     const ref_id = await createResource(caption);
     await uploadFile(ref_id, file);
     await addResourceToCollection(ref_id);
-    const files = await getResourcePath(ref_id);
+    let files = await getResourcePath(ref_id);
+    if (!this.checkFileTypes(files)) {
+      try {
+        files = await this.retryGetResourcePath(ref_id);
+      } catch (err) {
+        await deleteResource(ref_id);
+        throw err;
+      }
+    }
     const result = await this.prisma.recreation_resource_images.create({
       data: {
         ref_id: ref_id.toString(),
@@ -188,5 +196,26 @@ export class ResourceImagesService {
     return {
       ...payload,
     };
+  }
+
+  private checkFileTypes(files: any[]) {
+    return (
+      files.filter(
+        (f: any) =>
+          f.size_code === "original" ||
+          f.size_code === "thm" ||
+          f.size_code === "pre",
+      ).length >= 3
+    );
+  }
+
+  private async retryGetResourcePath(ref_id: string) {
+    for (let tries = 0; tries < 3; tries++) {
+      const files = await getResourcePath(ref_id);
+      if (this.checkFileTypes(files)) {
+        return files;
+      }
+    }
+    throw new HttpException("Server error: File images not found", 500);
   }
 }

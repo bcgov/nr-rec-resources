@@ -568,6 +568,14 @@ describe("ResourceImagesDocsService", () => {
           size_code: "original",
           url: "https://dam-url.com/path/file.jpg?v=123",
         },
+        {
+          size_code: "thm",
+          url: "https://dam-url.com/path/file.jpg?v=123",
+        },
+        {
+          size_code: "pre",
+          url: "https://dam-url.com/path/file.jpg?v=123",
+        },
       ]);
       vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue(
         mockedResources[0] as any,
@@ -587,7 +595,15 @@ describe("ResourceImagesDocsService", () => {
       mockedGetResourcePath.mockResolvedValueOnce([
         {
           size_code: "original",
-          url: "https://dam-url.com/path/file.jpg",
+          url: "https://dam-url.com/path/file.jpg?v=123",
+        },
+        {
+          size_code: "thm",
+          url: "https://dam-url.com/path/file.jpg?v=123",
+        },
+        {
+          size_code: "pre",
+          url: "https://dam-url.com/path/file.jpg?v=123",
         },
       ]);
       vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue(
@@ -621,6 +637,105 @@ describe("ResourceImagesDocsService", () => {
         await service.create("REC0001", "Title", file);
       } catch (err) {
         expect(err.status).toBe(404);
+      }
+    });
+
+    it("should return the created resource retrying to get resource path", async () => {
+      mockedCreateResource.mockResolvedValueOnce("ref123");
+      mockedUploadFile.mockResolvedValueOnce(undefined);
+      addResourceToCollection.mockResolvedValueOnce(undefined);
+      mockedGetResourcePath
+        .mockResolvedValue([
+          {
+            size_code: "original",
+            url: "https://dam-url.com/path/file.jpg?v=123",
+          },
+          {
+            size_code: "thm",
+            url: "https://dam-url.com/path/file.jpg?v=123",
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            size_code: "original",
+            url: "https://dam-url.com/path/file.jpg?v=123",
+          },
+          {
+            size_code: "thm",
+            url: "https://dam-url.com/path/file.jpg?v=123",
+          },
+          {
+            size_code: "pre",
+            url: "https://dam-url.com/path/file.jpg?v=123",
+          },
+        ]);
+      vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue(
+        mockedResources[0] as any,
+      );
+      vi.mocked(
+        prismaService.recreation_resource_images.create,
+      ).mockResolvedValue(mockedResources[0] as any);
+
+      const result = await service.create("REC0001", "Title", file);
+      expect(result).toMatchObject(mockedResources[0] as any);
+    });
+
+    it("should return server error 500 after retrying to get resource path 3 times", async () => {
+      mockedCreateResource.mockResolvedValueOnce("ref123");
+      mockedUploadFile.mockResolvedValueOnce(undefined);
+      addResourceToCollection.mockResolvedValueOnce(undefined);
+      mockedGetResourcePath
+        .mockResolvedValue([
+          {
+            size_code: "original",
+            url: "https://dam-url.com/path/file.jpg?v=123",
+          },
+          {
+            size_code: "thm",
+            url: "https://dam-url.com/path/file.jpg?v=123",
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            size_code: "original",
+            url: "https://dam-url.com/path/file.jpg?v=123",
+          },
+          {
+            size_code: "thm",
+            url: "https://dam-url.com/path/file.jpg?v=123",
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            size_code: "original",
+            url: "https://dam-url.com/path/file.jpg?v=123",
+          },
+          {
+            size_code: "thm",
+            url: "https://dam-url.com/path/file.jpg?v=123",
+          },
+        ])
+        .mockResolvedValueOnce([
+          {
+            size_code: "original",
+            url: "https://dam-url.com/path/file.jpg?v=123",
+          },
+          {
+            size_code: "thm",
+            url: "https://dam-url.com/path/file.jpg?v=123",
+          },
+        ]);
+      vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue(
+        mockedResources[0] as any,
+      );
+      vi.mocked(
+        prismaService.recreation_resource_images.create,
+      ).mockResolvedValue(mockedResources[0] as any);
+
+      try {
+        await service.create("REC0001", "Title", file);
+      } catch (err) {
+        expect(err.status).toBe(500);
       }
     });
 
