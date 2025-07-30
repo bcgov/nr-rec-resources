@@ -113,7 +113,9 @@ describe("RecreationResourceSuggestionTypeahead", () => {
 
     await waitFor(() => {
       expect(defaultProps.onSearch).toHaveBeenCalledWith("park");
-      expect(screen.getByText("Park Trail")).toBeInTheDocument();
+      expect(
+        screen.getByRole("option", { name: /Park Trail/i }),
+      ).toBeInTheDocument();
     });
   });
 
@@ -127,11 +129,13 @@ describe("RecreationResourceSuggestionTypeahead", () => {
 
     await waitFor(() => {
       expect(defaultProps.onSearch).toHaveBeenCalledWith("park");
-      expect(screen.getByText("Park Trail")).toBeInTheDocument();
+      expect(
+        screen.getByRole("option", { name: /Park Trail/i }),
+      ).toBeInTheDocument();
     });
 
     // Simulate selecting the first option from the dropdown
-    fireEvent.click(screen.getByText("Park Trail"));
+    fireEvent.click(screen.getByRole("option", { name: /Park Trail/i }));
 
     // The component's onChange should be called with the first suggestion
     await waitFor(() => {

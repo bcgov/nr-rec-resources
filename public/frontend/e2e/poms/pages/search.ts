@@ -107,7 +107,7 @@ export class SearchPOM {
   // Pass false to expectResults if testing for no results
   async searchFor(searchTerm: string, expectResults: boolean = true) {
     const input = this.page.locator(
-      'input[aria-label="' + SearchEnum.PLACEHOLDER + '"]:visible',
+      'input[placeholder="' + SearchEnum.PLACEHOLDER + '"]:visible',
     );
     await expect(input).toBeVisible();
     await input.fill(searchTerm);

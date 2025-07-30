@@ -3,6 +3,7 @@ import { HttpException, INestApplication } from "@nestjs/common";
 import { RecreationResourceController } from "./recreation-resource.controller";
 import { RecreationResourceService } from "src/recreation-resource/service/recreation-resource.service";
 import { RecreationResourceSearchService } from "src/recreation-resource/service/recreation-resource-search.service";
+import { RecreationResourceSuggestionsService } from "src/recreation-resource/service/recreation-resource-suggestion.service";
 import { PrismaService } from "src/prisma.service";
 import { RecreationResourceImageDto } from "./dto/recreation-resource-image.dto";
 import { FsaResourceService } from "./service/fsa-resource.service";
@@ -23,6 +24,7 @@ describe("RecreationResourceController", () => {
         FsaResourceService,
         RecreationResourceService,
         RecreationResourceSearchService,
+        RecreationResourceSuggestionsService,
         {
           provide: PrismaService,
           useValue: {},
@@ -138,7 +140,7 @@ describe("RecreationResourceController", () => {
       };
 
       vi.spyOn(recService, "searchRecreationResources").mockResolvedValue(
-        mockResult,
+        mockResult as any,
       );
 
       const result = await controller.searchRecreationResources("test", 10, 1);
@@ -155,7 +157,7 @@ describe("RecreationResourceController", () => {
       };
 
       vi.spyOn(recService, "searchRecreationResources").mockResolvedValue(
-        mockResult,
+        mockResult as any,
       );
 
       const result = await controller.searchRecreationResources("", 10, 1);
@@ -247,5 +249,42 @@ describe("RecreationResourceController", () => {
       48.4284,
       -123.3656,
     );
+  });
+
+  describe("getSuggestions", () => {
+    it("should throw 400 if query param is missing or empty", async () => {
+      await expect(controller.getSuggestions("")).rejects.toThrowError(
+        /Query parameter 'query' is required/,
+      );
+      await expect(controller.getSuggestions("   ")).rejects.toThrowError(
+        /Query parameter 'query' is required/,
+      );
+      await expect(controller.getSuggestions(null as any)).rejects.toThrowError(
+        /Query parameter 'query' is required/,
+      );
+    });
+
+    it("should call service.getSuggestions and return the suggestions", async () => {
+      const mockSuggestions = [
+        {
+          rec_resource_id: "REC204117",
+          name: "Aileen Lake",
+          closest_community: "Winfield",
+          district_description: "Columbia-Shuswap",
+          recreation_resource_type: "Recreation Site",
+          recreation_resource_type_code: "SIT",
+          option_type: "recreation_resource",
+        },
+      ];
+
+      vi.spyOn(recService, "getSuggestions").mockResolvedValueOnce(
+        mockSuggestions as any,
+      );
+
+      const result = await controller.getSuggestions("aileen");
+
+      expect(result).toEqual(mockSuggestions);
+      expect(recService.getSuggestions).toHaveBeenCalledWith("aileen");
+    });
   });
 });

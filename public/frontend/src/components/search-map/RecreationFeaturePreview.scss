@@ -1,6 +1,6 @@
-@import '~bootstrap/scss/functions';
-@import '~bootstrap/scss/variables';
-@import '~bootstrap/scss/mixins/breakpoints';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins/breakpoints';
 
 .recreation-feature-preview {
   position: relative;
@@ -14,17 +14,7 @@
     max-width: 90vw;
     max-height: 48vh;
 
-    .activities-list {
-      display: none;
-    }
-
-    .card-image-container {
-      overflow: hidden;
-    }
-  }
-
-  @include media-breakpoint-up(sm) {
-    .rec-resource-card {
+    @include media-breakpoint-up(sm) {
       position: static;
       left: auto;
       transform: none;
@@ -32,6 +22,14 @@
       max-width: none;
       width: auto;
       z-index: auto;
+    }
+
+    .activities-list {
+      display: none;
+    }
+
+    .card-image-container {
+      overflow: hidden;
     }
   }
 }

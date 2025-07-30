@@ -12,7 +12,7 @@
     "paths": {
       "@shared": ["shared/src"],
       "@shared/*": ["shared/src/*"],
-      "~bootstrap/*": ["shared/node_modules/bootstrap/*"]
+      "bootstrap/*": ["shared/node_modules/bootstrap/*"]
     }
   },
   "include": [

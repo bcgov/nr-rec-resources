@@ -1,4 +1,4 @@
-import Keycloak from "@keycloak-lib/keycloak";
+import Keycloak from "keycloak-js";
 import { UserInfo } from "@/services/auth/AuthService.types";
 import { AuthServiceEvent } from "@/services/auth/AuthService.constants";
 

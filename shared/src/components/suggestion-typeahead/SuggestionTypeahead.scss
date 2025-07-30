@@ -1,13 +1,15 @@
 @import "@shared/styles/variables";
-@import "~bootstrap/scss/functions";
-@import "~bootstrap/scss/variables";
-@import "~bootstrap/scss/mixins/_breakpoints";
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/mixins/_breakpoints";
 
 .dropdown-menu-item {
-  width: calc(100% - 2rem);
+  width: calc(100% - 1.5rem);
   margin: auto;
   border: 0 solid transparent;
   border-radius: 1rem;
+  padding: unset;
+  margin: 1rem auto;
 
   &.active,
   &:active {
@@ -15,9 +17,8 @@
     background-color: $colorGreyLight;
   }
 
-  @include media-breakpoint-down(sm) {
-    padding: unset;
-    margin: 1rem auto;
+  @include media-breakpoint-up(sm) {
+    width: calc(100% - 2rem);
   }
 }
 
@@ -40,6 +41,30 @@
   .active &,
   .dropdown-menu-item:hover & {
     text-decoration: underline;
+  }
+}
+
+.clear-button {
+  all: unset;
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  padding: 5px;
+  color: #999;
+  font-size: 24px;
+  cursor: pointer;
+  z-index: 10;
+  transition: font-size 0.2s ease;
+
+  &:hover {
+    color: #333;
+  }
+
+  &:focus {
+    font-size: 32px;
   }
 }
 

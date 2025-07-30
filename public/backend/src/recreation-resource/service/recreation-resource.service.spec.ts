@@ -3,6 +3,7 @@ import { PrismaService } from "src/prisma.service";
 import { beforeEach, describe, expect, it, Mocked, vi } from "vitest";
 import { RecreationResourceService } from "./recreation-resource.service";
 import { RecreationResourceSearchService } from "./recreation-resource-search.service";
+import { RecreationResourceSuggestionsService } from "src/recreation-resource/service/recreation-resource-suggestion.service";
 import {
   mockResponse,
   mockResults,
@@ -36,6 +37,12 @@ describe("RecreationResourceService", () => {
           provide: RecreationResourceSearchService,
           useValue: {
             searchRecreationResources: vi.fn(),
+          },
+        },
+        {
+          provide: RecreationResourceSuggestionsService,
+          useValue: {
+            getSuggestions: vi.fn(),
           },
         },
       ],
@@ -148,6 +155,35 @@ describe("RecreationResourceService", () => {
         lat,
         lon,
       );
+    });
+  });
+
+  describe("getSuggestions", () => {
+    it("should delegate to RecreationResourceSuggestionsService and return results", async () => {
+      const mockSuggestions = [
+        {
+          rec_resource_id: "REC204117",
+          name: "Aileen Lake",
+          closest_community: "Winfield",
+          district_description: "Columbia-Shuswap",
+          recreation_resource_type: "Recreation Site",
+          recreation_resource_type_code: "SIT",
+          option_type: "recreation_resource",
+        },
+      ];
+
+      const query = "aileen";
+
+      vi.mocked(
+        (service as any).recreationResourceSuggestionsService.getSuggestions,
+      ).mockResolvedValueOnce(mockSuggestions);
+
+      const result = await service.getSuggestions(query);
+
+      expect(result).toEqual(mockSuggestions);
+      expect(
+        (service as any).recreationResourceSuggestionsService.getSuggestions,
+      ).toHaveBeenCalledWith(query);
     });
   });
 });

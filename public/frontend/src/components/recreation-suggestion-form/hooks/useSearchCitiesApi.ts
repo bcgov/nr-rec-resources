@@ -1,5 +1,6 @@
-import { useQuery } from '~/@tanstack/react-query';
-import { City } from '@/components/recreation-search-form/types';
+import { useQuery } from '@tanstack/react-query';
+import { OPTION_TYPE } from '@/components/recreation-suggestion-form/constants';
+import { City } from '@/components/recreation-suggestion-form/types';
 
 const SEARCH_CITIES_API_URL = import.meta.env.VITE_SEARCH_CITIES_API_URL;
 const SEARCH_CITIES_API_PARAMS =
@@ -11,8 +12,8 @@ interface RawCity {
     cityName: string;
     rank: number;
     provinceCode: string;
-    lat: number;
-    lon: number;
+    latitude: number;
+    longitude: number;
   };
 }
 
@@ -23,13 +24,18 @@ const fetchCities = async (): Promise<City[]> => {
     throw new Error('Failed to fetch cities');
   }
   const json = await response.json();
-
   const cities = json.data.map(
     (city: RawCity): City => ({
       id: Number(city.id),
-      ...city.attributes,
+      name: city.attributes.cityName,
+      latitude: city.attributes.latitude,
+      longitude: city.attributes.longitude,
+      rank: city.attributes.rank,
+      option_type: OPTION_TYPE.CITY,
     }),
   );
+
+  console.log('Fetched cities:', cities);
 
   return cities;
 };

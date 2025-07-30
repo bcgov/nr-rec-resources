@@ -1,10 +1,8 @@
-import { KeycloakError } from "@keycloak-lib/keycloak";
-
 /**
  * Checks if the provided value is a valid Keycloak error.\
  * @returns True if the error has valid Keycloak error properties.
  */
-export function isKeycloakError(err: unknown): err is KeycloakError {
+export function isKeycloakError(err: unknown): err is Keycloak.KeycloakError {
   return (
     !!err &&
     typeof err === "object" &&
@@ -19,7 +17,7 @@ export function isKeycloakError(err: unknown): err is KeycloakError {
  * Extracts and returns a human-readable message from a Keycloak error.
  * @returns The error description message if available, otherwise a default string.
  */
-export function getKeycloakErrorMessage(err: KeycloakError): string {
+export function getKeycloakErrorMessage(err: Keycloak.KeycloakError): string {
   if (err.error_description.trim()) {
     return err.error_description.trim();
   }

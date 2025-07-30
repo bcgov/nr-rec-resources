@@ -1,20 +1,24 @@
 import {
   GetRecreationResourceByIdRequest,
   GetSiteOperatorByIdRequest,
+  RecreationSuggestionDto,
   PaginatedRecreationResourceDto,
   ResponseError,
   SearchRecreationResourcesRequest,
   SiteOperatorDto,
 } from '@/service/recreation-resource';
 import { useRecreationResourceApi } from '@/service/hooks/useRecreationResourceApi';
-import { useInfiniteQuery, useQuery } from '~/@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useQuery,
+  InfiniteData,
+} from '@tanstack/react-query';
 import { trackSiteSearch } from '@/utils/matomo';
 import buildQueryString from '@/utils/buildQueryString';
 import {
   transformRecreationResourceBase,
   transformRecreationResourceDetail,
 } from '@/service/queries/recreation-resource/helpers';
-import { InfiniteData } from '@tanstack/react-query';
 import { RecreationResourceDetailModel } from '@/service/custom-models';
 
 interface SearchParams extends SearchRecreationResourcesRequest {
@@ -215,5 +219,16 @@ export const useSearchRecreationResourcesPaginated = (params: SearchParams) => {
     queryFn,
     select,
     placeholderData: (previousData) => previousData,
+  });
+};
+
+export const useRecreationSuggestions = ({ query }: { query: string }) => {
+  const api = useRecreationResourceApi();
+
+  return useQuery<RecreationSuggestionDto[]>({
+    queryKey: ['recreationSuggestions', query],
+    queryFn: () => api.getRecreationSuggestions({ query }),
+    enabled: !!query?.trim(),
+    staleTime: 5 * 60 * 1000,
   });
 };

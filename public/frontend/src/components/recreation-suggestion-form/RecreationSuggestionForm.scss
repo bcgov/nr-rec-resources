@@ -1,0 +1,57 @@
+@import '@/styles/variables.scss';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins/_breakpoints';
+
+.recreation-resource-suggestion-form {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  color: $colorWhite;
+
+  @include media-breakpoint-up(md) {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .form-label {
+    font-size: 1.5rem;
+  }
+
+  .rbt {
+    width: 100%;
+  }
+
+  .submit-btn {
+    padding: 0.5rem 2rem;
+    margin-top: 1rem;
+    @include media-breakpoint-up(md) {
+      margin-top: 0;
+      margin-left: 1rem;
+    }
+  }
+
+  .clear-button {
+    all: unset;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    padding: 5px;
+    color: #999;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 10;
+    transition: font-size 0.2s ease;
+
+    &:hover {
+      color: #333;
+    }
+
+    &:focus {
+      font-size: 32px;
+    }
+  }
+}

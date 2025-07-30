@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Form from "react-bootstrap/Form";
 import "react-bootstrap-typeahead/css/Typeahead.css";
 import {
@@ -11,12 +11,32 @@ import { useNavigate } from "react-router";
 import "./RecreationResourceSuggestionForm.scss";
 import { Stack } from "react-bootstrap";
 import { ROUTES } from "@/routes";
+import {
+  RenderMenuProps,
+  TypeaheadComponentProps,
+} from "react-bootstrap-typeahead";
+import { SuggestionMenu } from "@/components/rec-resource-suggestion-form/SuggestionMenu";
+import { Option } from "react-bootstrap-typeahead/types/types";
 
 /**
  * RecreationResourceSuggestionForm provides a search form for recreation resources.
  */
 export const RecreationResourceSuggestionForm = () => {
   const [searchTerm, setSearchTerm] = useState("");
+
+  /**
+   * Custom menu renderer for resource suggestions.
+   */
+  const renderMenu: TypeaheadComponentProps["renderMenu"] = useCallback(
+    (results: Option[], menuProps: RenderMenuProps) => (
+      <SuggestionMenu
+        results={results as RecreationResourceSuggestion[]}
+        searchTerm={searchTerm}
+        menuProps={menuProps}
+      />
+    ),
+    [searchTerm],
+  );
 
   const navigate = useNavigate();
 
@@ -61,15 +81,15 @@ export const RecreationResourceSuggestionForm = () => {
               Search by name or number
             </span>
           </Form.Label>
-          <SuggestionTypeahead
+          <SuggestionTypeahead<RecreationResourceSuggestion>
             onChange={handleSuggestionChange}
             isLoading={isFetching}
             error={error}
-            suggestions={suggestions as RecreationResourceSuggestion[]}
+            suggestions={suggestions}
             onSearch={setSearchTerm}
-            searchTerm={searchTerm}
             emptyLabel={getEmptyLabel()}
             placeholder="By name or number"
+            renderMenu={renderMenu}
           />
         </Stack>
       </Form.Group>

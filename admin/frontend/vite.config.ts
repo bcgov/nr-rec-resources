@@ -50,8 +50,6 @@ export default defineConfig(({ mode }) => {
         "@test": path.resolve(__dirname, "test"),
         "@shared": fileURLToPath(new URL("../../shared/src", import.meta.url)),
         "~": fileURLToPath(new URL("node_modules", import.meta.url)),
-        "@keycloak-lib": path.resolve("node_modules", "keycloak-js/lib"),
-        "~bootstrap": path.resolve(__dirname, "node_modules/bootstrap"),
       },
       extensions: [".js", ".json", ".jsx", ".mjs", ".ts", ".tsx", ".vue"],
     },

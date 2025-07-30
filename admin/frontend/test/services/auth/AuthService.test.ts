@@ -1,9 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import Keycloak from "@keycloak-lib/keycloak";
+import Keycloak from "keycloak-js";
 import { AuthService, UserInfo } from "@/services/auth";
 import { AuthServiceEvent } from "@/services/auth/AuthService.constants";
 
-vi.mock("@keycloak-lib/keycloak");
+vi.mock("keycloak-js");
 
 describe("AuthService", () => {
   let authService: AuthService;

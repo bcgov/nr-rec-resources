@@ -23,8 +23,8 @@
       "@/*": ["src/*"],
       "@shared/*": ["../../shared/src/*"],
       "~/*": ["node_modules/*"],
-      "~bootstrap/*": ["node_modules/bootstrap/*"],
-      "e2e/*": ["e2e/*"]
+      "e2e/*": ["e2e/*"],
+      "react-bootstrap-typeahead": ["node_modules/react-bootstrap-typeahead"]
     }
   },
   "include": [

@@ -14,8 +14,8 @@ import FilterMenuSearchMap from '@/components/search/filters/FilterMenuSearchMap
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSliders } from '@fortawesome/free-solid-svg-icons';
 import { Button } from 'react-bootstrap';
-import { RecreationSearchForm } from '@/components/recreation-search-form/RecreationSearchForm';
 import '@/components/search-map/SearchMap.scss';
+import RecreationSuggestionForm from '@/components/recreation-suggestion-form/RecreationSuggestionForm';
 import type Feature from 'ol/Feature';
 
 const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
@@ -71,7 +71,8 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
         maxZoom={30}
       />
       <div className="search-map-controls">
-        <RecreationSearchForm />
+        <RecreationSuggestionForm disableNavigation={true} />
+
         <div className="d-flex flex-col flex-lg-row align-items-center gap-2">
           <Button
             variant={isFilterMenuOpen ? 'primary' : 'secondary'}

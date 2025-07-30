@@ -19,17 +19,15 @@
     "types": ["vite/client", "vitest/globals", "node"],
     "baseUrl": "./",
     "paths": {
-      "@": ["src"],
       "@/*": ["src/*"],
       "~/*": ["node_modules/*"],
       "@shared/*": ["../../shared/src/*"],
-      "~bootstrap/*": ["node_modules/bootstrap/*"],
       "e2e/*": ["e2e/*"],
-      "@keycloak-lib/*": ["node_modules/keycloak-js/lib/*"],
       "@test/*": ["test/*"]
     }
   },
   "include": [
+    "declarations.d.ts",
     "vite.config.ts",
     "**/*.d.ts",
     "**/*.spec.ts",

@@ -1,23 +1,18 @@
-import { FC, ReactNode, useCallback } from "react";
+import { ReactNode, useMemo, useRef } from "react";
 import {
   AsyncTypeahead,
-  RenderMenuProps,
   TypeaheadComponentProps,
 } from "react-bootstrap-typeahead";
 import { SuggestionSearchInput } from "@shared/components/suggestion-typeahead/SuggestionSearchInput";
-import { SuggestionMenu } from "@shared/components/suggestion-typeahead/SuggestionMenu";
-import { RecreationResourceSuggestion } from "@shared/components/suggestion-typeahead/types";
 import "react-bootstrap-typeahead/css/Typeahead.css";
 import "./SuggestionTypeahead.scss";
-import {
-  Option,
-  TypeaheadInputProps,
-} from "react-bootstrap-typeahead/types/types";
+import { TypeaheadInputProps } from "react-bootstrap-typeahead/types/types";
 
 /**
  * Props for {@link SuggestionTypeahead}.
  */
-interface SuggestionTypeaheadProps {
+
+export interface SuggestionTypeaheadProps<T> {
   /**
    * Whether the typeahead is loading suggestions.
    */
@@ -25,16 +20,12 @@ interface SuggestionTypeaheadProps {
   /**
    * Array of resource suggestions to display.
    */
-  suggestions: RecreationResourceSuggestion[];
+  suggestions: T[];
   /**
    * Callback fired when a search is performed.
    * @param searchTerm The search term entered by the user.
    */
   onSearch: (searchTerm: string) => void;
-  /**
-   * The current search term.
-   */
-  searchTerm: string;
   /**
    * Error object, if any, to display validation feedback.
    */
@@ -43,7 +34,12 @@ interface SuggestionTypeaheadProps {
    * Callback fired when a suggestion is selected.
    * @param selected The selected suggestion.
    */
-  onChange: (selected: RecreationResourceSuggestion) => void;
+  onChange: (selected: T) => void;
+  /**
+   * Callback fired when the input value changes.
+   * @param event The change event from the input.
+   */
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
   /**
    * The label to display when there are no results or an error.
    */
@@ -52,57 +48,99 @@ interface SuggestionTypeaheadProps {
    * Placeholder text for the input.
    */
   placeholder?: string;
+  /**
+   * Custom render function for the menu.
+   * Allows for custom rendering of the suggestion menu.
+   */
+  renderMenu?: TypeaheadComponentProps["renderMenu"];
+  /**
+   * Callback fired when the clear button is clicked.
+   * Allows for custom handling of the clear action.
+   */
+  onClear?: () => void;
+  /**
+   * Default value for the input when it is first rendered.
+   */
+  defaultValue?: string;
+  /**
+   * The key used to extract the label from a suggestion, or a function to generate one.
+   */
+
+  labelKey?: string;
 }
 
 /**
- * A typeahead input component for searching and selecting recreation resources.
+ * A typeahead input component for searching and selecting generic suggestions.
  * Integrates with react-bootstrap-typeahead and displays custom menu and input.
  *
  * @param props {@link SuggestionTypeaheadProps}
  */
-export const SuggestionTypeahead: FC<SuggestionTypeaheadProps> = ({
+export const SuggestionTypeahead = <T extends object>({
+  defaultValue,
   isLoading,
   suggestions,
+  onChange,
+  onClear,
+  onKeyDown,
   onSearch,
   error,
-  searchTerm,
-  onChange,
   emptyLabel,
   placeholder,
-}) => {
-  /**
-   * Custom menu renderer for resource suggestions.
-   */
-  const renderMenu: TypeaheadComponentProps["renderMenu"] = useCallback(
-    (results: Option[], menuProps: RenderMenuProps) => (
-      <SuggestionMenu
-        results={results as RecreationResourceSuggestion[]}
-        searchTerm={searchTerm}
-        menuProps={menuProps}
+  renderMenu,
+  labelKey = "name",
+}: SuggestionTypeaheadProps<T>) => {
+  const typeaheadRef = useRef(null);
+
+  const renderInput = useMemo(
+    () => (inputProps: TypeaheadInputProps) => (
+      <SuggestionSearchInput
+        {...inputProps}
+        isLoading={isLoading}
+        onBlur={() => {
+          if (typeaheadRef.current) {
+            (typeaheadRef.current as any).blur();
+          }
+        }}
+        onKeyDown={(event) => {
+          inputProps.onKeyDown?.(event); // Call internal onKeyDown handler
+          onKeyDown?.(event); // Call the parent onKeyDown handler
+          if (event.key === "Enter" && typeaheadRef.current) {
+            (typeaheadRef.current as any).blur();
+          }
+        }}
+        onClear={() => {
+          onClear?.();
+          if (typeaheadRef.current) {
+            (typeaheadRef.current as any).clear();
+          }
+        }}
       />
     ),
-    [searchTerm],
+    [isLoading, onClear, onKeyDown],
   );
 
   return (
     <AsyncTypeahead
-      id="recreation-resource-suggestion"
+      ref={typeaheadRef}
+      defaultInputValue={defaultValue}
+      id="suggestion-typeahead"
       useCache={false}
       onSearch={onSearch}
       onChange={(selected) => {
-        onChange(selected[0] as RecreationResourceSuggestion);
+        if (selected.length > 0) {
+          onChange(selected[0] as T);
+        }
       }}
+      onKeyDown={onKeyDown}
       options={suggestions}
       isLoading={isLoading}
-      renderInput={(inputProps: TypeaheadInputProps) => (
-        <SuggestionSearchInput {...inputProps} isLoading={isLoading} />
-      )}
+      renderInput={renderInput}
       minLength={1}
       emptyLabel={emptyLabel}
       placeholder={placeholder}
-      labelKey="name" // Suggestion["name"]
+      labelKey={labelKey}
       isInvalid={Boolean(error)}
-      filterBy={Boolean} // show all the results
+      filterBy={() => true} // show all the results
       renderMenu={renderMenu}
     />
   );
