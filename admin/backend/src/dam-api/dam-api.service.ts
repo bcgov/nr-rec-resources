@@ -250,7 +250,7 @@ export class DamApiService {
         // Retry if we get a "files not ready" error, network error, 5xx, or 429 (Too Many Requests)
         return !!(
           axiosRetry.isNetworkOrIdempotentRequestError(error) ||
-          axiosRetry.isRetryableError ||
+          axiosRetry.isRetryableError(error) ||
           error.message === "FILES_NOT_READY"
         );
       },

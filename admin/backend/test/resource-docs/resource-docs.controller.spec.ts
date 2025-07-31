@@ -1,4 +1,5 @@
 import { AppConfigModule } from "@/app-config/app-config.module";
+import { DamApiService } from "@/dam-api/dam-api.service";
 import { ResourceDocsController } from "@/resource-docs/resource-docs.controller";
 import { ResourceDocsService } from "@/resource-docs/service/resource-docs.service";
 import { HttpException, INestApplication } from "@nestjs/common";
@@ -22,6 +23,14 @@ describe("ResourceDocsController", () => {
           provide: PrismaService,
           useValue: {},
         },
+        {
+          provide: DamApiService,
+          useValue: {
+            createAndUploadDocument: vi.fn(),
+            uploadFile: vi.fn(),
+            deleteResource: vi.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -33,7 +42,9 @@ describe("ResourceDocsController", () => {
 
   // Close the app after each test
   afterEach(async () => {
-    await app.close();
+    if (app) {
+      await app.close();
+    }
   });
 
   it("should be defined", () => {

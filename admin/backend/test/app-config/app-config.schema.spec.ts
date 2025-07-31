@@ -1,6 +1,6 @@
+import { EnvironmentVariables, validate } from "@/app-config/app-config.schema";
 import "reflect-metadata";
 import { describe, expect, it, vi } from "vitest";
-import { EnvironmentVariables, validate } from "@/app-config/app-config.schema";
 
 // Mock class-validator
 vi.mock("class-validator", async () => {
@@ -16,6 +16,8 @@ describe("AppConfigSchema", () => {
     DAM_RST_PDF_COLLECTION_ID: "test-pdf-collection",
     DAM_RST_IMAGE_COLLECTION_ID: "test-image-collection",
     DAM_URL: "http://localhost:3001",
+    DAM_USER: "test-dam-user",
+    DAM_PRIVATE_KEY: "test-dam-private-key",
     POSTGRES_HOST: "localhost",
     POSTGRES_PORT: "5432",
     POSTGRES_USER: "testuser",

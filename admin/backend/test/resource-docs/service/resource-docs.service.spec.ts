@@ -4,7 +4,7 @@ import { ResourceDocsService } from "@/resource-docs/service/resource-docs.servi
 import { Test, TestingModule } from "@nestjs/testing";
 import { PrismaService } from "src/prisma.service";
 import { Readable } from "stream";
-import { beforeEach, describe, expect, it, Mock, Mocked, vi } from "vitest";
+import { beforeEach, describe, expect, it, Mocked, vi } from "vitest";
 
 const mockedResources = [
   {
@@ -67,6 +67,8 @@ const mockedResources = [
     },
     doc_code_description: "Recreation Map",
   },
+];
+
 vi.mock("fs");
 
 describe("ResourceDocsService", () => {
@@ -103,6 +105,7 @@ describe("ResourceDocsService", () => {
             addResourceToCollection: vi.fn(),
             getResourcePath: vi.fn(),
             deleteResource: vi.fn(),
+            createAndUploadDocument: vi.fn(),
           },
         },
       ],
@@ -168,15 +171,15 @@ describe("ResourceDocsService", () => {
       filename: "",
     };
     it("should return the created resource", async () => {
-      vi.mocked(damApiService.createResource).mockResolvedValueOnce("ref123");
-      vi.mocked(damApiService.uploadFile).mockResolvedValueOnce(undefined);
-      vi.mocked(damApiService.addResourceToCollection).mockResolvedValueOnce(undefined);
-      vi.mocked(damApiService.getResourcePath).mockResolvedValueOnce([
-        {
-          size_code: "original",
-          url: "https://dam-url.com/path/file.pdf?v=123",
-        },
-      ]);
+      vi.mocked(damApiService.createAndUploadDocument).mockResolvedValueOnce({
+        ref_id: "ref123",
+        files: [
+          {
+            size_code: "original",
+            url: "https://dam-url.com/path/file.pdf?v=123",
+          },
+        ],
+      });
       vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue(
         mockedResources[0] as any,
       );
@@ -189,15 +192,15 @@ describe("ResourceDocsService", () => {
     });
 
     it("should return the created resource with no params on original path", async () => {
-      mockedCreateResource.mockResolvedValueOnce("ref123");
-      mockedUploadFile.mockResolvedValueOnce(undefined);
-      addResourceToCollection.mockResolvedValueOnce(undefined);
-      mockedGetResourcePath.mockResolvedValueOnce([
-        {
-          size_code: "original",
-          url: "https://dam-url.com/path/file.pdf",
-        },
-      ]);
+      vi.mocked(damApiService.createAndUploadDocument).mockResolvedValueOnce({
+        ref_id: "ref123",
+        files: [
+          {
+            size_code: "original",
+            url: "https://dam-url.com/path/file.pdf",
+          },
+        ],
+      });
       vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue(
         mockedResources[0] as any,
       );
@@ -210,15 +213,15 @@ describe("ResourceDocsService", () => {
     });
 
     it("should return status 404 if resource not found", async () => {
-      mockedCreateResource.mockResolvedValueOnce("ref123");
-      mockedUploadFile.mockResolvedValueOnce(undefined);
-      addResourceToCollection.mockResolvedValueOnce(undefined);
-      mockedGetResourcePath.mockResolvedValueOnce([
-        {
-          size_code: "original",
-          url: "https://dam-url.com/path/file.pdf?v=123",
-        },
-      ]);
+      vi.mocked(damApiService.createAndUploadDocument).mockResolvedValueOnce({
+        ref_id: "ref123",
+        files: [
+          {
+            size_code: "original",
+            url: "https://dam-url.com/path/file.pdf?v=123",
+          },
+        ],
+      });
       vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue(
         null,
       );
@@ -234,15 +237,15 @@ describe("ResourceDocsService", () => {
 
     it("should return status 415 if the file type is invalid", async () => {
       file.mimetype = "image/jpeg";
-      mockedCreateResource.mockResolvedValueOnce("ref123");
-      mockedUploadFile.mockResolvedValueOnce(undefined);
-      addResourceToCollection.mockResolvedValueOnce(undefined);
-      mockedGetResourcePath.mockResolvedValueOnce([
-        {
-          size_code: "original",
-          url: "https://dam-url.com/path/file.pdf?v=123",
-        },
-      ]);
+      vi.mocked(damApiService.createAndUploadDocument).mockResolvedValueOnce({
+        ref_id: "ref123",
+        files: [
+          {
+            size_code: "original",
+            url: "https://dam-url.com/path/file.pdf?v=123",
+          },
+        ],
+      });
       vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue(
         null,
       );
@@ -271,16 +274,12 @@ describe("ResourceDocsService", () => {
       filename: "",
     };
     it("should update and return the resource", async () => {
-      mockedCreateResource.mockResolvedValueOnce("ref123");
-      mockedUploadFile.mockResolvedValueOnce(undefined);
-      mockedGetResourcePath.mockResolvedValueOnce([
-        {
-          size_code: "original",
-          url: "https://dam-url.com/path/file.pdf",
-        },
-      ]);
+      vi.mocked(damApiService.uploadFile).mockResolvedValueOnce(undefined);
       vi.mocked(
-        prismaService.recreation_resource_docs.create,
+        prismaService.recreation_resource_docs.findUnique,
+      ).mockResolvedValue(mockedResources[0] as any);
+      vi.mocked(
+        prismaService.recreation_resource_docs.update,
       ).mockResolvedValue(mockedResources[0] as any);
 
       const result = await service.update("REC0001", "11535", "Title", file);
@@ -313,7 +312,7 @@ describe("ResourceDocsService", () => {
 
   describe("delete", () => {
     it("should return the deleted resource", async () => {
-      mockedDeleteResource.mockResolvedValueOnce(undefined);
+      vi.mocked(damApiService.deleteResource).mockResolvedValueOnce(undefined);
       vi.mocked(
         prismaService.recreation_resource_docs.delete,
       ).mockResolvedValue(mockedResources[0] as any);
