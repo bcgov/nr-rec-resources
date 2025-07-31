@@ -5,7 +5,7 @@ import {
   OnModuleInit,
 } from "@nestjs/common";
 import { Prisma, PrismaClient } from "@prisma/client";
-import { ConfigService } from "@nestjs/config";
+import { AppConfigService } from "./app-config/app-config.service";
 
 @Injectable()
 class PrismaService
@@ -16,20 +16,12 @@ class PrismaService
   private logger = new Logger("PRISMA");
   databaseUrl: string;
 
-  constructor(private configService: ConfigService) {
+  constructor(private appConfig: AppConfigService) {
     if (PrismaService.instance) {
       return PrismaService.instance;
     }
 
-    const DB_HOST = configService.get<string>("POSTGRES_HOST", "localhost");
-    const DB_USER = configService.get<string>("POSTGRES_USER", "postgres");
-    const DB_PWD = encodeURIComponent(
-      configService.get<string>("POSTGRES_PASSWORD", "default"),
-    );
-    const DB_PORT = configService.get<number>("POSTGRES_PORT", 5432);
-    const DB_NAME = configService.get<string>("POSTGRES_DATABASE", "postgres");
-    const DB_SCHEMA = configService.get<string>("POSTGRES_SCHEMA", "rst");
-    const dataSourceURL = `postgresql://${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}&connection_limit=10`;
+    const dataSourceURL = appConfig.databaseUrl;
 
     super({
       errorFormat: "pretty",

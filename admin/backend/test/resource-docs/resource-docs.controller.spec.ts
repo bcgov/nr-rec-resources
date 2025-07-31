@@ -1,10 +1,14 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ResourceDocsController } from "../../src/resource-docs/resource-docs.controller";
-import { ResourceDocsService } from "../../src/resource-docs/service/resource-docs.service";
-import { PrismaService } from "src/prisma.service";
 import { HttpException, INestApplication } from "@nestjs/common";
+import { Test, TestingModule } from "@nestjs/testing";
+import { PrismaService } from "src/prisma.service";
 import { Readable } from "stream";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { ResourceDocsController } from "@/resource-docs/resource-docs.controller";
+import { ResourceDocsService } from "@/resource-docs/service/resource-docs.service";
+import {
+  createMockAppConfigService,
+  mockAppConfigServiceProvider,
+} from "../test-utils/mock-app-config.service";
 
 describe("ResourceDocsController", () => {
   let controller: ResourceDocsController;
@@ -12,10 +16,16 @@ describe("ResourceDocsController", () => {
   let app: INestApplication;
 
   beforeEach(async () => {
+    const mockConfig = createMockAppConfigService();
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ResourceDocsController],
       providers: [
         ResourceDocsService,
+        {
+          provide: mockAppConfigServiceProvider.provide,
+          useValue: mockConfig,
+        },
         {
           provide: PrismaService,
           useValue: {},

@@ -1,9 +1,13 @@
 import { Test, TestingModule } from "@nestjs/testing";
-import { beforeEach, describe, expect, it, Mock, Mocked, vi } from "vitest";
-import { ResourceImagesService } from "../../../src/resource-images/service/resource-images.service";
 import { PrismaService } from "src/prisma.service";
-import * as damClient from "../../../src/dam-api/dam-api";
 import { Readable } from "stream";
+import { beforeEach, describe, expect, it, Mock, Mocked, vi } from "vitest";
+import * as damClient from "@/dam-api/dam-api";
+import { ResourceImagesService } from "@/resource-images/service/resource-images.service";
+import {
+  createMockAppConfigService,
+  mockAppConfigServiceProvider,
+} from "../../test-utils/mock-app-config.service";
 
 const mockedResources = [
   {
@@ -476,9 +480,15 @@ describe("ResourceImagesDocsService", () => {
   const addResourceToCollection = damClient.addResourceToCollection as Mock;
 
   beforeEach(async () => {
+    const mockConfig = createMockAppConfigService();
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ResourceImagesService,
+        {
+          provide: mockAppConfigServiceProvider.provide,
+          useValue: mockConfig,
+        },
         {
           provide: PrismaService,
           useValue: {

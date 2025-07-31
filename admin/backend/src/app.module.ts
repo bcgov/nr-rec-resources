@@ -1,17 +1,17 @@
+import { RecreationResourceModule } from "@/recreation-resource/recreation-resource.module";
 import { Module } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
+import { PassportModule } from "@nestjs/passport";
+import { TerminusModule } from "@nestjs/terminus";
+import { AppConfigModule } from "./app-config/app-config.module";
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
-import { TerminusModule } from "@nestjs/terminus";
-import { HealthController } from "./health.controller";
-import { PassportModule } from "@nestjs/passport";
 import { AuthModule } from "./auth";
+import { HealthController } from "./health.controller";
 import { PrismaService } from "./prisma.service";
-import { RecreationResourceModule } from "@/recreation-resource/recreation-resource.module";
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    AppConfigModule,
     PassportModule,
     AuthModule,
     TerminusModule,

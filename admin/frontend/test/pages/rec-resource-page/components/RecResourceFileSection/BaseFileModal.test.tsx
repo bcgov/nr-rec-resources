@@ -104,12 +104,12 @@ describe("BaseFileModal", () => {
         wrapper: reactQueryWrapper,
       });
 
-      let preview = screen.getByAltText("preview");
+      const preview = screen.getByAltText("preview");
       expect(preview).toHaveAttribute("src", imageFile.url);
       expect(preview).toHaveClass("base-file-modal__preview-img");
 
       // Test document preview
-      const { rerender } = render(
+      render(
         <BaseFileModal
           {...defaultProps}
           galleryFile={{ ...documentFile, name: "doc.pdf" }}
@@ -187,7 +187,7 @@ describe("BaseFileModal", () => {
         { wrapper: reactQueryWrapper },
       );
 
-      let title = screen.getByText("Test Modal");
+      const title = screen.getByText("Test Modal");
       expect(title).toHaveClass("custom__title", "base-file-modal__title");
 
       // Test modal styling

@@ -1,5 +1,4 @@
 import { Module } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import { MulterModule } from "@nestjs/platform-express";
 import { memoryStorage } from "multer";
 import { PrismaModule } from "src/prisma.module";
@@ -8,7 +7,7 @@ import { ResourceDocsController } from "./resource-docs.controller";
 import { ResourceDocsService } from "./service/resource-docs.service";
 
 @Module({
-  providers: [ResourceDocsService, PrismaService, ConfigService],
+  providers: [ResourceDocsService, PrismaService],
   controllers: [ResourceDocsController],
   imports: [
     MulterModule.register({

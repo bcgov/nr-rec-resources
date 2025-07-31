@@ -1,7 +1,8 @@
-import { Test } from "@nestjs/testing";
-import { describe, expect, it } from "vitest";
-import { AuthModule, AuthPassportKeycloakStrategy } from "../../src/auth";
 import { ConfigModule } from "@nestjs/config";
+import { Test } from "@nestjs/testing";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
+import { AppConfigModule } from "@/app-config/app-config.module";
+import { AuthModule, AuthPassportKeycloakStrategy } from "@/auth";
 
 describe("AuthModule", () => {
   beforeAll(() => {
@@ -22,6 +23,7 @@ describe("AuthModule", () => {
         await ConfigModule.forRoot({
           isGlobal: true,
         }),
+        AppConfigModule,
         AuthModule,
       ],
     }).compile();
@@ -37,6 +39,7 @@ describe("AuthModule", () => {
         await ConfigModule.forRoot({
           isGlobal: true,
         }),
+        AppConfigModule,
         AuthModule,
       ],
     }).compile();

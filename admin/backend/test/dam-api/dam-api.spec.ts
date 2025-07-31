@@ -1,13 +1,13 @@
 import axios from "axios";
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { Readable } from "stream";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   addResourceToCollection,
   createResource,
   deleteResource,
   getResourcePath,
   uploadFile,
-} from "../../src/dam-api/dam-api";
-import { Readable } from "stream";
+} from "@/dam-api/dam-api";
 
 vi.mock("axios");
 
@@ -103,7 +103,7 @@ describe("addResourceToCollection", () => {
 
   it("should return true on success", async () => {
     (axios.post as any).mockResolvedValue({ data: true });
-    const result = await addResourceToCollection("resource-id");
+    const result = await addResourceToCollection("resource-id", "123");
     expect(result).toEqual(true);
   });
 
@@ -111,7 +111,7 @@ describe("addResourceToCollection", () => {
     const error = new Error();
     (axios.post as any).mockRejectedValue(error);
 
-    await expect(addResourceToCollection("resource-id")).rejects.toThrow(
+    await expect(addResourceToCollection("resource-id", "123")).rejects.toThrow(
       "Error adding resource to collection.",
     );
   });

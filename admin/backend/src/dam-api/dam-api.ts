@@ -1,13 +1,12 @@
+import { HttpException } from "@nestjs/common";
 import axios from "axios";
 import { createHash } from "crypto";
-import { Readable } from "stream";
 import FormData from "form-data";
-import { HttpException } from "@nestjs/common";
+import { Readable } from "stream";
 
 const damUrl = `${process.env.DAM_URL}/api/?`;
 const private_key = process.env.DAM_PRIVATE_KEY ?? "";
 const user = process.env.DAM_USER ?? "";
-const pdfCollectionId = process.env.DAM_RST_PDF_COLLECTION_ID ?? "";
 
 enum DamErrors {
   ERR_CREATING_RESOURCE = 416,
@@ -86,13 +85,16 @@ export async function getResourcePath(resource: string) {
   }
 }
 
-export async function addResourceToCollection(resource: string) {
+export async function addResourceToCollection(
+  resource: string,
+  collectionId: string,
+) {
   try {
     const params: any = {
       user,
       function: "add_resource_to_collection",
       resource,
-      collection: pdfCollectionId,
+      collection: collectionId,
     };
     const formData = createFormData(params);
 
