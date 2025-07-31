@@ -1,25 +1,13 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { ConfigModule } from "@nestjs/config";
-import { PassportModule } from "@nestjs/passport";
-import { AppModule } from "@/app.module";
 import { AppController } from "@/app.controller";
+import { AppModule } from "@/app.module";
 import { AppService } from "@/app.service";
 import { AuthModule } from "@/auth";
+import { ConfigModule } from "@nestjs/config";
+import { PassportModule } from "@nestjs/passport";
+import { Test, TestingModule } from "@nestjs/testing";
 
 describe("AppModule", () => {
   let module: TestingModule;
-
-  beforeAll(() => {
-    vi.stubEnv("KEYCLOAK_REALM", "my-test-realm");
-    vi.stubEnv("KEYCLOAK_AUTH_SERVER_URL", "http://localhost/auth");
-    vi.stubEnv("KEYCLOAK_ISSUER", "http://localhost/auth/issuer");
-    vi.stubEnv("KEYCLOAK_CLIENT_ID", "my-test-client-id");
-    vi.stubEnv("NODE_ENV", "local");
-  });
-
-  afterAll(() => {
-    vi.unstubAllEnvs();
-  });
 
   beforeEach(async () => {
     module = await Test.createTestingModule({

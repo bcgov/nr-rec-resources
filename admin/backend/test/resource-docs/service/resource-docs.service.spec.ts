@@ -1,9 +1,10 @@
+import { AppConfigModule } from "@/app-config/app-config.module";
+import * as damClient from "@/dam-api/dam-api";
+import { ResourceDocsService } from "@/resource-docs/service/resource-docs.service";
 import { Test, TestingModule } from "@nestjs/testing";
-import { beforeEach, describe, expect, it, Mock, Mocked, vi } from "vitest";
-import { ResourceDocsService } from "../../../src/resource-docs/service/resource-docs.service";
 import { PrismaService } from "src/prisma.service";
-import * as damClient from "../../../src/dam-api/dam-api";
 import { Readable } from "stream";
+import { beforeEach, describe, expect, it, Mock, Mocked, vi } from "vitest";
 
 const mockedResources = [
   {
@@ -68,7 +69,7 @@ const mockedResources = [
   },
 ];
 
-vi.mock("../../../src/dam-api/dam-api", () => ({
+vi.mock("@/dam-api/dam-api", () => ({
   deleteResource: vi.fn(),
   createResource: vi.fn(),
   uploadFile: vi.fn(),
@@ -89,6 +90,7 @@ describe("ResourceDocsService", () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [AppConfigModule],
       providers: [
         ResourceDocsService,
         {

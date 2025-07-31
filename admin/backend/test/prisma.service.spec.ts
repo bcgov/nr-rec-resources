@@ -1,44 +1,15 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { AppConfigModule } from "@/app-config/app-config.module";
 import { PrismaService } from "@/prisma.service";
-import { ConfigService } from "@nestjs/config";
+import { Test, TestingModule } from "@nestjs/testing";
 import { Prisma } from "@prisma/client";
-
-// Create mock for ConfigService
-const createMockConfigService = (customValues = {}) => {
-  const defaultConfig = {
-    POSTGRES_HOST: "localhost",
-    POSTGRES_USER: "postgres",
-    POSTGRES_PASSWORD: "default",
-    POSTGRES_PORT: 5432,
-    POSTGRES_DATABASE: "postgres",
-    POSTGRES_SCHEMA: "rst",
-    ...customValues,
-  };
-
-  return {
-    get: vi.fn((key: string, defaultValue: any) => {
-      return defaultConfig[key] !== undefined
-        ? defaultConfig[key]
-        : defaultValue;
-    }),
-  };
-};
-
-// Helper to clear PrismaService singleton
-function clearPrismaSingleton() {
-  // @ts-ignore - Access private static property for testing
-  PrismaService.instance = undefined;
-}
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("PrismaService", () => {
   let prismaService: PrismaService;
-  let mockConfigService: ConfigService;
+  let module: TestingModule;
 
-  beforeEach(() => {
-    clearPrismaSingleton();
-    mockConfigService = createMockConfigService() as unknown as ConfigService;
-
-    // Mock PrismaClient methods
+  beforeEach(async () => {
+    // Mock PrismaClient methods to prevent actual database connections
     vi.spyOn(PrismaService.prototype, "$connect").mockResolvedValue(undefined);
     vi.spyOn(PrismaService.prototype, "$disconnect").mockResolvedValue(
       undefined,
@@ -47,12 +18,19 @@ describe("PrismaService", () => {
       () => PrismaService.prototype,
     );
 
-    // Create PrismaService instance with mocked ConfigService
-    prismaService = new PrismaService(mockConfigService);
-  });
+    // Create NestJS testing module with AppConfigModule
+    module = await Test.createTestingModule({
+      imports: [AppConfigModule],
+      providers: [PrismaService],
+    }).compile();
 
-  afterEach(() => {
+    prismaService = module.get<PrismaService>(PrismaService);
+  });
+  afterEach(async () => {
     vi.restoreAllMocks();
+    if (module) {
+      await module.close();
+    }
   });
 
   it("should be defined", () => {
@@ -69,68 +47,23 @@ describe("PrismaService", () => {
     expect(prismaService.$disconnect).toHaveBeenCalled();
   });
 
-  it("should enforce singleton pattern", () => {
-    const secondInstance = new PrismaService(mockConfigService);
+  it("should be managed as singleton by NestJS", async () => {
+    // Verify that NestJS provides the same instance when requested multiple times
+    const secondInstance = module.get<PrismaService>(PrismaService);
     expect(secondInstance).toBe(prismaService);
   });
 
-  describe("configuration via ConfigService", () => {
-    beforeEach(() => {
-      clearPrismaSingleton();
-    });
-
-    it("should use values from ConfigService", () => {
-      const customConfig = createMockConfigService({
-        POSTGRES_HOST: "testhost",
-        POSTGRES_USER: "testuser",
-        POSTGRES_PASSWORD: "testpass",
-        POSTGRES_PORT: 6543,
-        POSTGRES_DATABASE: "testdb",
-        POSTGRES_SCHEMA: "testschema",
-      }) as unknown as ConfigService;
-
-      new PrismaService(customConfig);
-
-      expect(customConfig.get).toHaveBeenCalledWith(
-        "POSTGRES_HOST",
-        "localhost",
-      );
-      expect(customConfig.get).toHaveBeenCalledWith(
-        "POSTGRES_USER",
-        "postgres",
-      );
-      expect(customConfig.get).toHaveBeenCalledWith(
-        "POSTGRES_PASSWORD",
-        "default",
-      );
-      expect(customConfig.get).toHaveBeenCalledWith("POSTGRES_PORT", 5432);
-      expect(customConfig.get).toHaveBeenCalledWith(
-        "POSTGRES_DATABASE",
-        "postgres",
-      );
-      expect(customConfig.get).toHaveBeenCalledWith("POSTGRES_SCHEMA", "rst");
-    });
-
-    it("should handle special characters in password", () => {
-      const configWithSpecialChars = createMockConfigService({
-        POSTGRES_PASSWORD: "pass@word!#$%",
-      }) as unknown as ConfigService;
-
-      new PrismaService(configWithSpecialChars);
-
-      // Verify password encoding by checking super call's argument
-      // This is indirect since we can't easily access the constructed URL
-      expect(configWithSpecialChars.get).toHaveBeenCalledWith(
-        "POSTGRES_PASSWORD",
-        "default",
-      );
+  describe("configuration", () => {
+    it("should be configured with database URL from AppConfigService", () => {
+      expect(prismaService.databaseUrl).toMatch(/^postgresql:\/\//);
+      expect(prismaService.databaseUrl).toContain("test_user"); // From test-setup.ts
+      expect(prismaService.databaseUrl).toContain("test_db"); // From test-setup.ts
     });
   });
 
   describe("query logging", () => {
     let logSpy: any;
     let queryCallback: any;
-
     beforeEach(() => {
       // Mock the logger
       logSpy = vi.fn();
@@ -149,6 +82,13 @@ describe("PrismaService", () => {
 
       // Initialize and capture the callback
       prismaService.onModuleInit();
+    });
+
+    it("should initialize query logging on module init", async () => {
+      const onSpy = vi.spyOn(prismaService, "$on");
+      await prismaService.onModuleInit();
+
+      expect(onSpy).toHaveBeenCalledWith("query", expect.any(Function));
     });
 
     it("should log non-health check queries", () => {
@@ -184,8 +124,6 @@ describe("PrismaService", () => {
 
     it("should handle missing query properties gracefully", () => {
       queryCallback({});
-      // expect(logSpy).not.toHaveBeenCalled();
-
       queryCallback({ query: "SELECT *" });
       expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("SELECT *"));
     });

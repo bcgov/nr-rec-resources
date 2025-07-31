@@ -39,6 +39,7 @@ locals {
     dam_private_key = get_env("dam_private_key")
     dam_user = get_env("dam_user")
     dam_rst_pdf_collection_id = get_env("dam_rst_pdf_collection_id")
+    dam_rst_image_collection_id = get_env("dam_rst_image_collection_id")
   })
 }
 
