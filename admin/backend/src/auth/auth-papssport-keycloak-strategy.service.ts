@@ -1,15 +1,8 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import KeycloakBearerStrategy from "passport-keycloak-bearer";
-import { ConfigService } from "@nestjs/config";
-import {
-  AUTH_STRATEGY,
-  ENV_KEYS,
-  ENV_VALUES,
-  ERROR_MESSAGES,
-  LOG_LEVEL,
-  LOG_MESSAGES,
-} from "./auth.constants";
+import { AppConfigService } from "@/app-config/app-config.service";
+import { AUTH_STRATEGY, LOG_MESSAGES } from "./auth.constants";
 import { KeycloakUserToken } from "./auth.types";
 
 /**
@@ -22,59 +15,22 @@ export class AuthPassportKeycloakStrategy extends PassportStrategy(
 ) {
   private readonly logger = new Logger(AuthPassportKeycloakStrategy.name);
 
-  constructor(private readonly configService: ConfigService) {
-    const config =
-      AuthPassportKeycloakStrategy.buildKeycloakConfig(configService);
+  constructor(private readonly appConfig: AppConfigService) {
+    const config = AuthPassportKeycloakStrategy.buildKeycloakConfig(appConfig);
     super(config);
     this.logger.log(LOG_MESSAGES.KEYCLOAK_INITIALIZED);
   }
 
   private static buildKeycloakConfig(
-    configService: ConfigService,
+    appConfigService: AppConfigService,
   ): KeycloakBearerStrategy.Options {
-    const config: Partial<KeycloakBearerStrategy.Options> = {
-      realm: configService.get<string>(ENV_KEYS.KEYCLOAK_REALM),
-      url: configService.get<string>(ENV_KEYS.KEYCLOAK_AUTH_SERVER_URL),
-      issuer: configService.get<string>(ENV_KEYS.KEYCLOAK_ISSUER),
-      audience: configService.get<string>(ENV_KEYS.KEYCLOAK_CLIENT_ID),
-      loggingLevel:
-        configService.get(ENV_KEYS.NODE_ENV) === ENV_VALUES.LOCAL
-          ? LOG_LEVEL.DEBUG
-          : LOG_LEVEL.WARN,
+    return {
+      realm: appConfigService.keycloakRealm,
+      url: appConfigService.keycloakAuthServerUrl,
+      issuer: appConfigService.keycloakIssuer,
+      audience: appConfigService.keycloakClientId,
+      loggingLevel: "warn",
     };
-
-    return AuthPassportKeycloakStrategy.validateConfig(config);
-  }
-
-  private static validateConfig(
-    config: Partial<KeycloakBearerStrategy.Options>,
-  ): KeycloakBearerStrategy.Options {
-    const missingConfigs: string[] = [];
-
-    if (!config.realm) missingConfigs.push(ENV_KEYS.KEYCLOAK_REALM);
-    if (!config.issuer) missingConfigs.push(ENV_KEYS.KEYCLOAK_ISSUER);
-    if (!config.audience) missingConfigs.push(ENV_KEYS.KEYCLOAK_CLIENT_ID);
-
-    if (!config.url) {
-      missingConfigs.push(ENV_KEYS.KEYCLOAK_AUTH_SERVER_URL);
-    } else {
-      try {
-        new URL(config.url);
-      } catch {
-        throw new Error(
-          `${ERROR_MESSAGES.INVALID_URL}: ${config.url}. ${ERROR_MESSAGES.PROVIDE_VALID_URL}`,
-        );
-      }
-    }
-
-    if (missingConfigs.length > 0) {
-      throw new Error(
-        `${ERROR_MESSAGES.MISSING_CONFIG}: ${missingConfigs.join(", ")}. ` +
-          ERROR_MESSAGES.CONFIG_CHECK_INSTRUCTION,
-      );
-    }
-
-    return config as KeycloakBearerStrategy.Options;
   }
 
   /**

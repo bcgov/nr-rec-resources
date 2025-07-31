@@ -5,37 +5,25 @@ import {
   OnModuleInit,
 } from "@nestjs/common";
 import { Prisma, PrismaClient } from "@prisma/client";
-import { ConfigService } from "@nestjs/config";
+import { AppConfigService } from "./app-config/app-config.service";
 
 @Injectable()
 class PrismaService
   extends PrismaClient<Prisma.PrismaClientOptions, "query">
   implements OnModuleInit, OnModuleDestroy
 {
-  private static instance: PrismaService;
-  private logger = new Logger("PRISMA");
-  databaseUrl: string;
+  private readonly logger = new Logger(PrismaService.name);
+  public readonly databaseUrl: string;
 
-  constructor(private configService: ConfigService) {
-    if (PrismaService.instance) {
-      return PrismaService.instance;
-    }
+  constructor(private readonly appConfigService: AppConfigService) {
+    const databaseUrl = appConfigService.databaseUrl;
 
-    const DB_HOST = configService.get<string>("POSTGRES_HOST", "localhost");
-    const DB_USER = configService.get<string>("POSTGRES_USER", "postgres");
-    const DB_PWD = encodeURIComponent(
-      configService.get<string>("POSTGRES_PASSWORD", "default"),
-    );
-    const DB_PORT = configService.get<number>("POSTGRES_PORT", 5432);
-    const DB_NAME = configService.get<string>("POSTGRES_DATABASE", "postgres");
-    const DB_SCHEMA = configService.get<string>("POSTGRES_SCHEMA", "rst");
-    const dataSourceURL = `postgresql://${DB_USER}:${DB_PWD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=${DB_SCHEMA}&connection_limit=10`;
-
+    // Initialize PrismaClient with configuration
     super({
       errorFormat: "pretty",
       datasources: {
         db: {
-          url: dataSourceURL,
+          url: databaseUrl,
         },
       },
       log: [
@@ -45,7 +33,10 @@ class PrismaService
         { emit: "stdout", level: "error" },
       ],
     });
-    PrismaService.instance = this;
+
+    this.databaseUrl = databaseUrl;
+
+    this.logger.log("PrismaService initialized successfully");
   }
 
   async onModuleInit() {

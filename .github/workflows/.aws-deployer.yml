@@ -111,6 +111,7 @@ jobs:
           dam_private_key: ${{ secrets.DAM_PRIVATE_KEY }}
           dam_user: ${{ secrets.DAM_USER }}
           dam_rst_pdf_collection_id: ${{ secrets.DAM_RST_PDF_COLLECTION_ID }}
+          dam_rst_image_collection_id: ${{ secrets.DAM_RST_IMAGE_COLLECTION_ID }}
         run: |
           terragrunt run-all ${{ inputs.command }} --terragrunt-non-interactive
 
@@ -136,6 +137,7 @@ jobs:
           dam_private_key: ${{ secrets.DAM_PRIVATE_KEY }}
           dam_user: ${{ secrets.DAM_USER }}
           dam_rst_pdf_collection_id: ${{ secrets.DAM_RST_PDF_COLLECTION_ID }}
+          dam_rst_image_collection_id: ${{ secrets.DAM_RST_IMAGE_COLLECTION_ID }}
         run: |
           terragrunt output -json > outputs.json
           cat outputs.json

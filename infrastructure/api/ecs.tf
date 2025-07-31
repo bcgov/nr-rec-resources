@@ -179,7 +179,11 @@ resource "aws_ecs_task_definition" "node_api_task" {
         {
           name  = "DAM_RST_PDF_COLLECTION_ID"
           value = var.dam_config.dam_rst_pdf_collection_id
-        }
+        },
+        {
+          name  = "DAM_RST_IMAGE_COLLECTION_ID"
+          value = var.dam_config.dam_rst_image_collection_id
+        },
       ]
       portMappings = [
         {

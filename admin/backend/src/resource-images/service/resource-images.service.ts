@@ -1,13 +1,14 @@
 import { HttpException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma.service";
-import { RecreationResourceImageDto } from "../dto/recreation-resource-image.dto";
+import { AppConfigService } from "@/app-config/app-config.service";
 import {
-  uploadFile,
-  createResource,
-  getResourcePath,
-  deleteResource,
   addResourceToCollection,
-} from "../../dam-api/dam-api";
+  createResource,
+  deleteResource,
+  getResourcePath,
+  uploadFile,
+} from "@/dam-api/dam-api";
+import { RecreationResourceImageDto } from "../dto/recreation-resource-image.dto";
 
 const allowedTypes = [
   "image/apng",
@@ -21,7 +22,14 @@ const allowedTypes = [
 
 @Injectable()
 export class ResourceImagesService {
-  constructor(private readonly prisma: PrismaService) {}
+  imagecollectionId: string;
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly appConfig: AppConfigService,
+  ) {
+    this.imagecollectionId = this.appConfig.damRstImageCollectionId;
+  }
 
   async getAll(
     rec_resource_id: string,
@@ -102,7 +110,7 @@ export class ResourceImagesService {
     }
     const ref_id = await createResource(caption);
     await uploadFile(ref_id, file);
-    await addResourceToCollection(ref_id);
+    await addResourceToCollection(ref_id, this.imagecollectionId);
     const files = await getResourcePath(ref_id);
     const result = await this.prisma.recreation_resource_images.create({
       data: {
@@ -181,7 +189,7 @@ export class ResourceImagesService {
   }
 
   private getFilePath(originalUrl: string) {
-    return originalUrl.replace(`${process.env.DAM_URL}`, "");
+    return originalUrl.replace(`${this.appConfig.damUrl}`, "");
   }
 
   private mapResponse(payload: any) {
