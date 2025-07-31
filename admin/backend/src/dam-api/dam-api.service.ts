@@ -1,3 +1,4 @@
+import { AppConfigService } from "@/app-config/app-config.service";
 import { HttpException, Injectable } from "@nestjs/common";
 import axios, { AxiosInstance } from "axios";
 import axiosRetry from "axios-retry";
@@ -19,13 +20,19 @@ export class DamApiService {
   private readonly privateKey: string;
   private readonly user: string;
   private readonly pdfCollectionId: string;
+  private readonly imageCollectionId: string;
+  private readonly pdfResourceType: number;
+  private readonly imageResourceType: number;
   private readonly axiosInstance: AxiosInstance;
 
-  constructor() {
-    this.damUrl = `${process.env.DAM_URL}/api/?`;
-    this.privateKey = process.env.DAM_PRIVATE_KEY ?? "";
-    this.user = process.env.DAM_USER ?? "";
-    this.pdfCollectionId = process.env.DAM_RST_PDF_COLLECTION_ID ?? "";
+  constructor(private readonly appConfig: AppConfigService) {
+    this.damUrl = `${this.appConfig.damUrl}/api/?`;
+    this.privateKey = this.appConfig.damPrivateKey;
+    this.user = this.appConfig.damUser;
+    this.pdfCollectionId = this.appConfig.damRstPdfCollectionId;
+    this.imageCollectionId = this.appConfig.damRstImageCollectionId;
+    this.pdfResourceType = this.appConfig.damResourceTypePdf;
+    this.imageResourceType = this.appConfig.damResourceTypeImage;
 
     // Create axios instance with retry configuration
     this.axiosInstance = axios.create({
@@ -82,14 +89,22 @@ export class DamApiService {
   /**
    * Creates a new resource in the Digital Asset Management (DAM) system.
    * @param title The title of the resource to create.
+   * @param resourceType The type of resource ('pdf' or 'image').
    */
-  async createResource(title: string): Promise<string> {
+  async createResource(
+    title: string,
+    resourceType: "pdf" | "image" = "pdf",
+  ): Promise<string> {
     try {
+      const resource_type =
+        resourceType === "image"
+          ? this.imageResourceType
+          : this.pdfResourceType;
       const params = {
         user: this.user,
         function: "create_resource",
         metadata: JSON.stringify({ title }),
-        resource_type: 1,
+        resource_type,
         archive: 0,
       };
       const formData = this.createFormData(params);
@@ -127,15 +142,11 @@ export class DamApiService {
    * Gets all image sizes for a resource with built-in retry logic for file validation.
    * This method retries the getResourcePath call until all required file types are available.
    * @param resource The resource ID to get images for.
-   * @param checkFileTypes Function to validate if all required file types are present.
    */
-  async getResourcePathWithRetry(
-    resource: string,
-    checkFileTypes: (files: any[]) => boolean,
-  ): Promise<any[]> {
+  async getResourcePathWithRetry(resource: string): Promise<any[]> {
     // First try with the main axios retry configuration
     let files = await this.getResourcePath(resource);
-    if (checkFileTypes(files)) {
+    if (this.checkFileTypes(files)) {
       return files;
     }
 
@@ -182,7 +193,7 @@ export class DamApiService {
       files = response.data;
 
       // Check if files are ready after each request
-      if (!checkFileTypes(files)) {
+      if (!this.checkFileTypes(files)) {
         // Create a custom error that will trigger retry
         const error = new Error("FILES_NOT_READY");
         error.message = "FILES_NOT_READY";
@@ -204,14 +215,22 @@ export class DamApiService {
   /**
    * Adds a resource to a collection.
    * @param resource The resource ID to add to collection.
+   * @param collectionType The type of collection ('pdf' or 'image').
    */
-  async addResourceToCollection(resource: string): Promise<any> {
+  async addResourceToCollection(
+    resource: string,
+    collectionType: "pdf" | "image" = "pdf",
+  ): Promise<any> {
     try {
+      const collectionId =
+        collectionType === "image"
+          ? this.imageCollectionId
+          : this.pdfCollectionId;
       const params = {
         user: this.user,
         function: "add_resource_to_collection",
         resource,
-        collection: this.pdfCollectionId,
+        collection: collectionId,
       };
       const formData = this.createFormData(params);
       return await this.makeRequest(formData);
@@ -272,5 +291,99 @@ export class DamApiService {
         DamErrors.ERR_DELETING_RESOURCE,
       );
     }
+  }
+
+  /**
+   * Creates a resource, uploads a file, adds to collection and returns the processed files.
+   * This is a high-level method that encapsulates the complete workflow for uploading documents.
+   * @param title The title of the resource to create.
+   * @param file The file to upload.
+   * @returns Promise containing an object with ref_id and files array.
+   */
+  async createAndUploadDocument(
+    title: string,
+    file: Express.Multer.File,
+  ): Promise<{ ref_id: string; files: any[] }> {
+    try {
+      const ref_id = await this.createResource(title, "pdf");
+      await this.uploadFile(ref_id, file);
+      await this.addResourceToCollection(ref_id, "pdf");
+      const files = await this.getResourcePath(ref_id);
+      return { ref_id, files };
+    } catch (error) {
+      throw new HttpException(
+        "Error creating and uploading document.",
+        DamErrors.ERR_UPLOADING_FILE,
+      );
+    }
+  }
+
+  /**
+   * Creates a resource, uploads an image file, adds to collection and returns the processed files with variants.
+   * This is a high-level method that encapsulates the complete workflow for uploading images.
+   * @param caption The caption/title of the image resource to create.
+   * @param file The image file to upload.
+   * @returns Promise containing an object with ref_id and files array.
+   */
+  async createAndUploadImage(
+    caption: string,
+    file: Express.Multer.File,
+  ): Promise<{ ref_id: string; files: any[] }> {
+    try {
+      const ref_id = await this.createResource(caption, "image");
+      await this.uploadFile(ref_id, file);
+      await this.addResourceToCollection(ref_id, "image");
+      const files = await this.getResourcePath(ref_id);
+      return { ref_id, files };
+    } catch (error) {
+      throw new HttpException(
+        "Error creating and uploading image.",
+        DamErrors.ERR_UPLOADING_FILE,
+      );
+    }
+  }
+
+  /**
+   * Creates a resource, uploads an image file with retry logic for file processing,
+   * adds to collection and returns the processed files with variants.
+   * This method includes built-in retry logic to wait for all image variants to be processed.
+   * @param caption The caption/title of the image resource to create.
+   * @param file The image file to upload.
+   * @returns Promise containing an object with ref_id and files array.
+   */
+  async createAndUploadImageWithRetry(
+    caption: string,
+    file: Express.Multer.File,
+  ): Promise<{ ref_id: string; files: any[] }> {
+    try {
+      const ref_id = await this.createResource(caption, "image");
+      await this.uploadFile(ref_id, file);
+      await this.addResourceToCollection(ref_id, "image");
+      const files = await this.getResourcePathWithRetry(ref_id);
+      return { ref_id, files };
+    } catch (error) {
+      throw new HttpException(
+        "Error creating and uploading image with retry.",
+        DamErrors.ERR_UPLOADING_FILE,
+      );
+    }
+  }
+
+  /**
+   * Validates if all required file types are present after DAM processing.
+   * Checks for original, thumbnail, screen, and preview variants.
+   * @param files Array of file objects from DAM API response.
+   * @returns boolean indicating if all required file types are available.
+   */
+  private checkFileTypes(files: any[]): boolean {
+    return (
+      files.filter(
+        (f: any) =>
+          f.size_code === "original" ||
+          f.size_code === "thm" ||
+          f.size_code === "scr" ||
+          f.size_code === "pre",
+      ).length >= 3
+    );
   }
 }

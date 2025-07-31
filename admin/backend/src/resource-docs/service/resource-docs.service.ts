@@ -1,14 +1,8 @@
+import { AppConfigService } from "@/app-config/app-config.service";
+import { DamApiService } from "@/dam-api/dam-api.service";
 import { HttpException, Injectable } from "@nestjs/common";
 import path from "path";
 import { PrismaService } from "src/prisma.service";
-import { AppConfigService } from "@/app-config/app-config.service";
-import {
-  addResourceToCollection,
-  createResource,
-  deleteResource,
-  getResourcePath,
-  uploadFile,
-} from "@/dam-api/dam-api";
 import {
   RecreationResourceDocCode,
   RecreationResourceDocDto,
@@ -22,6 +16,7 @@ export class ResourceDocsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly appConfig: AppConfigService,
+    private readonly damApiService: DamApiService,
   ) {
     this.docsCollectionId = this.appConfig.damRstPdfCollectionId;
   }
@@ -98,10 +93,10 @@ export class ResourceDocsService {
     if (resource === null) {
       throw new HttpException("Recreation Resource not found", 404);
     }
-    const ref_id = await createResource(title);
-    await uploadFile(ref_id, file);
-    await addResourceToCollection(ref_id, this.docsCollectionId);
-    const files = await getResourcePath(ref_id);
+    const { ref_id, files } = await this.damApiService.createAndUploadDocument(
+      title,
+      file,
+    );
     const url = this.getOriginalFilePath(files);
     const result = await this.prisma.recreation_resource_docs.create({
       data: {
@@ -138,7 +133,7 @@ export class ResourceDocsService {
       if (!allowedTypes.includes(file.mimetype)) {
         throw new HttpException("File Type not allowed", 415);
       }
-      await uploadFile(ref_id, file);
+      await this.damApiService.uploadFile(ref_id, file);
     }
     const result = await this.prisma.recreation_resource_docs.update({
       where: {
@@ -155,7 +150,7 @@ export class ResourceDocsService {
     rec_resource_id: string,
     ref_id: string,
   ): Promise<RecreationResourceDocDto | null> {
-    await deleteResource(ref_id);
+    await this.damApiService.deleteResource(ref_id);
     const result = await this.prisma.recreation_resource_docs.delete({
       where: {
         rec_resource_id,

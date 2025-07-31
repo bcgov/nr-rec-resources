@@ -14,6 +14,20 @@ export class EnvironmentVariables {
   @IsNotEmpty()
   DAM_URL: string;
 
+  @IsString()
+  @IsNotEmpty()
+  DAM_USER: string;
+
+  @IsString()
+  @IsNotEmpty()
+  DAM_PRIVATE_KEY: string;
+
+  @Transform(({ value }) => parseInt(value, 10) || 1) // Default to 1 if not provided
+  DAM_RESOURCE_TYPE_PDF: number;
+
+  @Transform(({ value }) => parseInt(value, 10) || 1) // Default to 1 if not provided
+  DAM_RESOURCE_TYPE_IMAGE: number;
+
   // Database configuration
   @IsString()
   @IsNotEmpty()

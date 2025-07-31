@@ -1,5 +1,5 @@
 import { AppConfigModule } from "@/app-config/app-config.module";
-import * as damClient from "@/dam-api/dam-api";
+import { DamApiService } from "@/dam-api/dam-api.service";
 import { ResourceDocsService } from "@/resource-docs/service/resource-docs.service";
 import { Test, TestingModule } from "@nestjs/testing";
 import { PrismaService } from "src/prisma.service";
@@ -67,26 +67,12 @@ const mockedResources = [
     },
     doc_code_description: "Recreation Map",
   },
-];
-
-vi.mock("@/dam-api/dam-api", () => ({
-  deleteResource: vi.fn(),
-  createResource: vi.fn(),
-  uploadFile: vi.fn(),
-  getResourcePath: vi.fn(),
-  addResourceToCollection: vi.fn(),
-}));
-
 vi.mock("fs");
 
 describe("ResourceDocsService", () => {
   let prismaService: Mocked<PrismaService>;
   let service: ResourceDocsService;
-  const mockedDeleteResource = damClient.deleteResource as Mock;
-  const mockedCreateResource = damClient.createResource as Mock;
-  const mockedUploadFile = damClient.uploadFile as Mock;
-  const mockedGetResourcePath = damClient.getResourcePath as Mock;
-  const addResourceToCollection = damClient.addResourceToCollection as Mock;
+  let damApiService: Mocked<DamApiService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -109,11 +95,22 @@ describe("ResourceDocsService", () => {
             },
           },
         },
+        {
+          provide: DamApiService,
+          useValue: {
+            createResource: vi.fn(),
+            uploadFile: vi.fn(),
+            addResourceToCollection: vi.fn(),
+            getResourcePath: vi.fn(),
+            deleteResource: vi.fn(),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<ResourceDocsService>(ResourceDocsService);
     prismaService = module.get(PrismaService);
+    damApiService = module.get(DamApiService);
   });
 
   describe("getById", () => {
@@ -171,10 +168,10 @@ describe("ResourceDocsService", () => {
       filename: "",
     };
     it("should return the created resource", async () => {
-      mockedCreateResource.mockResolvedValueOnce("ref123");
-      mockedUploadFile.mockResolvedValueOnce(undefined);
-      addResourceToCollection.mockResolvedValueOnce(undefined);
-      mockedGetResourcePath.mockResolvedValueOnce([
+      vi.mocked(damApiService.createResource).mockResolvedValueOnce("ref123");
+      vi.mocked(damApiService.uploadFile).mockResolvedValueOnce(undefined);
+      vi.mocked(damApiService.addResourceToCollection).mockResolvedValueOnce(undefined);
+      vi.mocked(damApiService.getResourcePath).mockResolvedValueOnce([
         {
           size_code: "original",
           url: "https://dam-url.com/path/file.pdf?v=123",

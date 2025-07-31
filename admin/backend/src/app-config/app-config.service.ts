@@ -23,6 +23,26 @@ export class AppConfigService {
     return this.configService.get("DAM_URL", { infer: true })!;
   }
 
+  get damUser(): string {
+    return this.configService.get("DAM_USER", { infer: true })!;
+  }
+
+  get damPrivateKey(): string {
+    return this.configService.get("DAM_PRIVATE_KEY", { infer: true })!;
+  }
+
+  get damResourceTypePdf(): number {
+    return (
+      this.configService.get("DAM_RESOURCE_TYPE_PDF", { infer: true }) || 1
+    );
+  }
+
+  get damResourceTypeImage(): number {
+    return (
+      this.configService.get("DAM_RESOURCE_TYPE_IMAGE", { infer: true }) || 1
+    );
+  }
+
   // Database Configuration
   get databaseHost(): string {
     return this.configService.get("POSTGRES_HOST", { infer: true })!;
