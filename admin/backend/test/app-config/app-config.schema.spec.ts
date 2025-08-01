@@ -18,6 +18,8 @@ describe("AppConfigSchema", () => {
     DAM_URL: "http://localhost:3001",
     DAM_USER: "test-dam-user",
     DAM_PRIVATE_KEY: "test-dam-private-key",
+    DAM_RESOURCE_TYPE_PDF: "2",
+    DAM_RESOURCE_TYPE_IMAGE: "3",
     POSTGRES_HOST: "localhost",
     POSTGRES_PORT: "5432",
     POSTGRES_USER: "testuser",
@@ -43,6 +45,42 @@ describe("AppConfigSchema", () => {
       const result = validate(validConfig);
       expect(result.POSTGRES_PORT).toBe(5432);
       expect(typeof result.POSTGRES_PORT).toBe("number");
+    });
+
+    it("should use default value 1 for DAM_RESOURCE_TYPE_PDF when not provided", () => {
+      const configWithoutPdfType = {
+        ...validConfig,
+        DAM_RESOURCE_TYPE_PDF: undefined,
+      };
+      const result = validate(configWithoutPdfType);
+      expect(result.DAM_RESOURCE_TYPE_PDF).toBe(1);
+    });
+
+    it("should use default value 1 for DAM_RESOURCE_TYPE_IMAGE when not provided", () => {
+      const configWithoutImageType = {
+        ...validConfig,
+        DAM_RESOURCE_TYPE_IMAGE: undefined,
+      };
+      const result = validate(configWithoutImageType);
+      expect(result.DAM_RESOURCE_TYPE_IMAGE).toBe(1);
+    });
+
+    it("should use default value 1 for DAM_RESOURCE_TYPE_PDF when invalid value provided", () => {
+      const configWithInvalidPdfType = {
+        ...validConfig,
+        DAM_RESOURCE_TYPE_PDF: "invalid",
+      };
+      const result = validate(configWithInvalidPdfType);
+      expect(result.DAM_RESOURCE_TYPE_PDF).toBe(1);
+    });
+
+    it("should use default value 1 for DAM_RESOURCE_TYPE_IMAGE when invalid value provided", () => {
+      const configWithInvalidImageType = {
+        ...validConfig,
+        DAM_RESOURCE_TYPE_IMAGE: "invalid",
+      };
+      const result = validate(configWithInvalidImageType);
+      expect(result.DAM_RESOURCE_TYPE_IMAGE).toBe(1);
     });
 
     it("should throw error when required field is missing", () => {

@@ -158,7 +158,7 @@ describe("ResourceDocsService", () => {
   });
 
   describe("create", () => {
-    const file = {
+    const baseFile = {
       originalname: "sample.name",
       mimetype: "application/pdf",
       path: "sample.url",
@@ -170,13 +170,18 @@ describe("ResourceDocsService", () => {
       destination: "",
       filename: "",
     };
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
     it("should return the created resource", async () => {
+      const file = { ...baseFile };
       vi.mocked(damApiService.createAndUploadDocument).mockResolvedValueOnce({
         ref_id: "ref123",
         files: [
           {
             size_code: "original",
             url: "https://dam-url.com/path/file.pdf?v=123",
+            path: "file.pdf",
           },
         ],
       });
@@ -192,12 +197,14 @@ describe("ResourceDocsService", () => {
     });
 
     it("should return the created resource with no params on original path", async () => {
+      const file = { ...baseFile };
       vi.mocked(damApiService.createAndUploadDocument).mockResolvedValueOnce({
         ref_id: "ref123",
         files: [
           {
             size_code: "original",
             url: "https://dam-url.com/path/file.pdf",
+            path: "file.pdf",
           },
         ],
       });
@@ -213,12 +220,14 @@ describe("ResourceDocsService", () => {
     });
 
     it("should return status 404 if resource not found", async () => {
+      const file = { ...baseFile };
       vi.mocked(damApiService.createAndUploadDocument).mockResolvedValueOnce({
         ref_id: "ref123",
         files: [
           {
             size_code: "original",
             url: "https://dam-url.com/path/file.pdf?v=123",
+            path: "file.pdf",
           },
         ],
       });
@@ -236,13 +245,14 @@ describe("ResourceDocsService", () => {
     });
 
     it("should return status 415 if the file type is invalid", async () => {
-      file.mimetype = "image/jpeg";
+      const file = { ...baseFile, mimetype: "image/jpeg" };
       vi.mocked(damApiService.createAndUploadDocument).mockResolvedValueOnce({
         ref_id: "ref123",
         files: [
           {
             size_code: "original",
             url: "https://dam-url.com/path/file.pdf?v=123",
+            path: "file.pdf",
           },
         ],
       });
@@ -261,7 +271,7 @@ describe("ResourceDocsService", () => {
   });
 
   describe("update", () => {
-    const file = {
+    const baseFile = {
       originalname: "sample.name",
       mimetype: "application/pdf",
       path: "sample.url",
@@ -273,7 +283,11 @@ describe("ResourceDocsService", () => {
       destination: "",
       filename: "",
     };
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
     it("should update and return the resource", async () => {
+      const file = { ...baseFile };
       vi.mocked(damApiService.uploadFile).mockResolvedValueOnce(undefined);
       vi.mocked(
         prismaService.recreation_resource_docs.findUnique,
@@ -287,6 +301,7 @@ describe("ResourceDocsService", () => {
     });
 
     it("should return status 404 if resource not found", async () => {
+      const file = { ...baseFile };
       vi.mocked(
         prismaService.recreation_resource_docs.findUnique,
       ).mockResolvedValueOnce(null);
@@ -298,7 +313,7 @@ describe("ResourceDocsService", () => {
     });
 
     it("should return status 415 if the file type is invalid", async () => {
-      file.mimetype = "image/jpeg";
+      const file = { ...baseFile, mimetype: "image/jpeg" };
       vi.mocked(
         prismaService.recreation_resource_docs.findUnique,
       ).mockResolvedValueOnce(mockedResources[0] as any);

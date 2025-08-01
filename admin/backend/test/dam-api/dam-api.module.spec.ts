@@ -1,71 +1,76 @@
-import { AppConfigModule } from "@/app-config/app-config.module";
-import { DamApiModule } from "@/dam-api/dam-api.module";
-import { DamApiService } from "@/dam-api/dam-api.service";
 import { Test, TestingModule } from "@nestjs/testing";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-
-// Mock axios to prevent actual HTTP calls during module testing
-vi.mock("axios");
-vi.mock("axios-retry", () => ({
-  default: vi.fn(),
-  isNetworkOrIdempotentRequestError: vi.fn(),
-  isRetryableError: vi.fn(),
-  exponentialDelay: vi.fn(),
-}));
+import { beforeEach, describe, expect, it } from "vitest";
+import { AppConfigService } from "../../src/app-config/app-config.service";
+import { DamApiCoreService } from "../../src/dam-api/dam-api-core.service";
+import { DamApiHttpService } from "../../src/dam-api/dam-api-http.service";
+import { DamApiUtilsService } from "../../src/dam-api/dam-api-utils.service";
+import { DamApiModule } from "../../src/dam-api/dam-api.module";
+import { DamApiService } from "../../src/dam-api/dam-api.service";
 
 describe("DamApiModule", () => {
   let module: TestingModule;
-  let damApiService: DamApiService;
 
   beforeEach(async () => {
+    const mockAppConfigService = {
+      damUrl: "https://test-dam.example.com",
+      damPrivateKey: "test-private-key",
+      damUser: "test-user",
+      damRstPdfCollectionId: "pdf-collection-123",
+      damRstImageCollectionId: "image-collection-123",
+      damResourceTypePdf: 1,
+      damResourceTypeImage: 2,
+    };
+
     module = await Test.createTestingModule({
       imports: [DamApiModule],
-    }).compile();
-
-    damApiService = module.get<DamApiService>(DamApiService);
+    })
+      .overrideProvider(AppConfigService)
+      .useValue(mockAppConfigService)
+      .compile();
   });
 
-  afterEach(async () => {
-    if (module) {
-      await module.close();
-    }
+  it("should be defined", () => {
+    expect(module).toBeDefined();
   });
 
-  describe("module configuration", () => {
-    it("should be defined", () => {
-      expect(module).toBeDefined();
-    });
-
-    it("should provide DamApiService", () => {
-      expect(damApiService).toBeDefined();
-      expect(damApiService).toBeInstanceOf(DamApiService);
-    });
-
-    it("should import AppConfigModule", () => {
-      const appConfigModule = module.get(AppConfigModule);
-      expect(appConfigModule).toBeDefined();
-    });
+  it("should provide DamApiService", () => {
+    const service = module.get<DamApiService>(DamApiService);
+    expect(service).toBeDefined();
+    expect(service).toBeInstanceOf(DamApiService);
   });
 
-  describe("service availability", () => {
-    it("should export DamApiService for other modules", () => {
-      // Test that the service can be retrieved, indicating it's properly exported
-      const retrievedService = module.get<DamApiService>(DamApiService);
-      expect(retrievedService).toBe(damApiService);
-    });
+  it("should provide DamApiCoreService", () => {
+    const service = module.get<DamApiCoreService>(DamApiCoreService);
+    expect(service).toBeDefined();
+    expect(service).toBeInstanceOf(DamApiCoreService);
+  });
 
-    it("should have all required methods available", () => {
-      expect(typeof damApiService.createResource).toBe("function");
-      expect(typeof damApiService.getResourcePath).toBe("function");
-      expect(typeof damApiService.getResourcePathWithRetry).toBe("function");
-      expect(typeof damApiService.addResourceToCollection).toBe("function");
-      expect(typeof damApiService.uploadFile).toBe("function");
-      expect(typeof damApiService.deleteResource).toBe("function");
-      expect(typeof damApiService.createAndUploadDocument).toBe("function");
-      expect(typeof damApiService.createAndUploadImage).toBe("function");
-      expect(typeof damApiService.createAndUploadImageWithRetry).toBe(
-        "function",
-      );
-    });
+  it("should provide DamApiHttpService", () => {
+    const service = module.get<DamApiHttpService>(DamApiHttpService);
+    expect(service).toBeDefined();
+    expect(service).toBeInstanceOf(DamApiHttpService);
+  });
+
+  it("should provide DamApiUtilsService", () => {
+    const service = module.get<DamApiUtilsService>(DamApiUtilsService);
+    expect(service).toBeDefined();
+    expect(service).toBeInstanceOf(DamApiUtilsService);
+  });
+
+  it("should export DamApiService", () => {
+    const exportedService = module.get<DamApiService>(DamApiService);
+    expect(exportedService).toBeDefined();
+  });
+
+  it("should have all required dependencies injected", () => {
+    const damApiService = module.get<DamApiService>(DamApiService);
+    const coreService = module.get<DamApiCoreService>(DamApiCoreService);
+    const httpService = module.get<DamApiHttpService>(DamApiHttpService);
+    const utilsService = module.get<DamApiUtilsService>(DamApiUtilsService);
+
+    expect(damApiService).toBeDefined();
+    expect(coreService).toBeDefined();
+    expect(httpService).toBeDefined();
+    expect(utilsService).toBeDefined();
   });
 });
