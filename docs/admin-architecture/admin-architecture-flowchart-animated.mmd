@@ -1,0 +1,67 @@
+flowchart TD
+  subgraph Container[" "]
+    direction TB
+    classDef container fill:#f5f5f5,stroke:#bdbdbd,stroke-width:4px
+    class Container container;
+    subgraph subGraph0["Admin Frontend"]
+      UI["Admin UI"]
+      UI@{ icon: "azure:users", pos: "b" }
+    end
+    subgraph subGraphAssets["Frontend Assets (CDN)"]
+      S3["AWS S3"]
+      S3@{ icon: "aws:arch-amazon-simple-storage-service", pos: "b" }
+      CFAssets["CloudFront CDN (Assets)"]
+      CFAssets@{ icon: "aws:arch-amazon-cloudfront", pos: "b" }
+    end
+    subgraph subGraph1["Admin Backend"]
+      CDN["CloudFront CDN"]
+      CDN@{ icon: "aws:arch-amazon-cloudfront", pos: "b" }
+      ALB["App Load Balancer"]
+      ALB@{ icon: "aws:arch-elastic-load-balancing", pos: "b" }
+      Gateway["API Gateway"]
+      Gateway@{ icon: "aws:arch-amazon-api-gateway", pos: "b" }
+      API["Admin API"]
+      API@{ icon: "aws:arch-aws-fargate", pos: "b" }
+    end
+    subgraph Database["Database"]
+      DB[("AWS Aurora PostgreSQL<br>PostGIS")]
+      DB@{ icon: "aws:arch-amazon-aurora", pos: "b" }
+    end
+    subgraph subGraph4["External Services"]
+      KeycloakExt["BcGov SSO"]
+      KeycloakExt@{ icon: "azure:multifactor-authentication", pos: "b" }
+      DAMExt["ResourceSpace DAM"]
+    end
+    UI e1@-->|"SSO Auth"| KeycloakExt
+    UI e2@-->|"API Call"| CDN
+    CDN e5@-->|"API Routing"| Gateway
+    Gateway e6@-->|"Load Balancing"| ALB
+    ALB e7@--> API
+    API e13@-->|"DB Query"| DB
+    API e14@-->|"User Info"| KeycloakExt
+    API e15@-.->|"Media Fetch (images/docs)"| DAMExt
+    UI e16@-->|"Asset Fetch"| CFAssets
+    CFAssets e17@--> |"Asset Origin"| S3
+    UI:::frontend
+    API:::backend
+    DB:::database
+    CDN:::aws
+    ALB:::aws
+    Gateway:::aws
+    KeycloakExt:::external
+    DAMExt:::external
+    S3:::aws
+    CFAssets:::aws
+  end
+
+  class Container container;
+  e1@{ animation: fast }
+  e2@{ animation: fast }
+  e5@{ animation: slow }
+  e6@{ animation: slow }
+  e7@{ animation: slow }
+  e13@{ animation: fast }
+  e14@{ animation: fast }
+  e15@{ animation: fast }
+  e16@{ animation: fast }
+  e17@{ animation: fast }
