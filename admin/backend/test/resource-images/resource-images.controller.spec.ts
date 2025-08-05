@@ -1,4 +1,5 @@
 import { AppConfigModule } from "@/app-config/app-config.module";
+import { DamApiService } from "@/dam-api/dam-api.service";
 import { PrismaService } from "@/prisma.service";
 import { ResourceImagesController } from "@/resource-images/resource-images.controller";
 import { ResourceImagesService } from "@/resource-images/service/resource-images.service";
@@ -20,6 +21,10 @@ describe("ResourceImagesController", () => {
         ResourceImagesService,
         {
           provide: PrismaService,
+          useValue: {},
+        },
+        {
+          provide: DamApiService,
           useValue: {},
         },
       ],

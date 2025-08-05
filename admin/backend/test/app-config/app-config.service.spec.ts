@@ -1,36 +1,20 @@
+import { validate } from "@/app-config/app-config.schema";
+import { AppConfigService } from "@/app-config/app-config.service";
 import { ConfigModule } from "@nestjs/config";
 import { Test, TestingModule } from "@nestjs/testing";
 import "reflect-metadata";
-import { beforeEach, describe, expect, it } from "vitest";
-import { validate } from "@/app-config/app-config.schema";
-import { AppConfigService } from "@/app-config/app-config.service";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("AppConfigService", () => {
   let service: AppConfigService;
-
-  const mockConfig = {
-    DAM_RST_PDF_COLLECTION_ID: "test-pdf-collection",
-    DAM_RST_IMAGE_COLLECTION_ID: "test-image-collection",
-    DAM_URL: "http://localhost:3001",
-    POSTGRES_HOST: "localhost",
-    POSTGRES_PORT: 5432, // Provide as number directly
-    POSTGRES_USER: "testuser",
-    POSTGRES_PASSWORD: "testpass",
-    POSTGRES_DATABASE: "testdb",
-    POSTGRES_SCHEMA: "public",
-    KEYCLOAK_AUTH_SERVER_URL: "http://localhost:8080/auth",
-    KEYCLOAK_REALM: "test-realm",
-    KEYCLOAK_CLIENT_ID: "test-client",
-    KEYCLOAK_ISSUER: "http://localhost:8080/auth/realms/test-realm",
-  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
           isGlobal: true,
-          load: [() => mockConfig],
           validate,
+          ignoreEnvFile: true, // Use vitest env variables
         }),
       ],
       providers: [AppConfigService],
@@ -53,7 +37,80 @@ describe("AppConfigService", () => {
     });
 
     it("should return DAM URL", () => {
-      expect(service.damUrl).toBe("http://localhost:3001");
+      expect(service.damUrl).toBe("https://test-dam.example.com");
+    });
+
+    it("should return DAM resource type PDF with default value when not configured", async () => {
+      // Use vi.stubEnv to test default values
+      vi.stubEnv("DAM_RESOURCE_TYPE_PDF", undefined);
+      vi.stubEnv("DAM_RESOURCE_TYPE_IMAGE", undefined);
+
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [
+          ConfigModule.forRoot({
+            isGlobal: true,
+            validate,
+            ignoreEnvFile: true,
+          }),
+        ],
+        providers: [AppConfigService],
+      }).compile();
+
+      const serviceWithoutTypes =
+        module.get<AppConfigService>(AppConfigService);
+      expect(serviceWithoutTypes.damResourceTypePdf).toBe(1);
+
+      // Restore original values
+      vi.unstubAllEnvs();
+    });
+
+    it("should return DAM resource type image with default value when not configured", async () => {
+      // Use vi.stubEnv to test default values
+      vi.stubEnv("DAM_RESOURCE_TYPE_PDF", undefined);
+      vi.stubEnv("DAM_RESOURCE_TYPE_IMAGE", undefined);
+
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [
+          ConfigModule.forRoot({
+            isGlobal: true,
+            validate,
+            ignoreEnvFile: true,
+          }),
+        ],
+        providers: [AppConfigService],
+      }).compile();
+
+      const serviceWithoutTypes =
+        module.get<AppConfigService>(AppConfigService);
+      expect(serviceWithoutTypes.damResourceTypeImage).toBe(1);
+
+      // Restore original values
+      vi.unstubAllEnvs();
+    });
+
+    it("should return configured DAM resource type values when provided", async () => {
+      // Use vi.stubEnv to test specific values
+      vi.stubEnv("DAM_RESOURCE_TYPE_PDF", "3");
+      vi.stubEnv("DAM_RESOURCE_TYPE_IMAGE", "5");
+
+      const module: TestingModule = await Test.createTestingModule({
+        imports: [
+          ConfigModule.forRoot({
+            isGlobal: true,
+            validate,
+            ignoreEnvFile: true,
+          }),
+        ],
+        providers: [AppConfigService],
+      }).compile();
+
+      const serviceWithResourceTypes =
+        module.get<AppConfigService>(AppConfigService);
+      expect(serviceWithResourceTypes.damResourceTypePdf).toBe(3);
+      expect(serviceWithResourceTypes.damResourceTypeImage).toBe(5);
+
+      // Restore original values
+      vi.unstubAllEnvs();
     });
   });
 
@@ -68,40 +125,37 @@ describe("AppConfigService", () => {
     });
 
     it("should return database user", () => {
-      expect(service.databaseUser).toBe("testuser");
+      expect(service.databaseUser).toBe("test_user");
     });
 
     it("should return database password", () => {
-      expect(service.databasePassword).toBe("testpass");
+      expect(service.databasePassword).toBe("test_password");
     });
 
     it("should return database name", () => {
-      expect(service.databaseName).toBe("testdb");
+      expect(service.databaseName).toBe("test_db");
     });
 
     it("should return database schema", () => {
-      expect(service.databaseSchema).toBe("public");
+      expect(service.databaseSchema).toBe("test_schema");
     });
 
     it("should construct database URL correctly", () => {
       const expectedUrl =
-        "postgresql://testuser:testpass@localhost:5432/testdb?schema=public&connection_limit=10";
+        "postgresql://test_user:test_password@localhost:5432/test_db?schema=test_schema&connection_limit=10";
       expect(service.databaseUrl).toBe(expectedUrl);
     });
 
     it("should encode special characters in password", async () => {
-      // Create a new module with special characters in password
-      const specialConfig = {
-        ...mockConfig,
-        POSTGRES_PASSWORD: "test@pass#123",
-      };
+      // Use vi.stubEnv to test password encoding
+      vi.stubEnv("POSTGRES_PASSWORD", "test@pass#123");
 
       const module: TestingModule = await Test.createTestingModule({
         imports: [
           ConfigModule.forRoot({
             isGlobal: true,
-            load: [() => specialConfig],
             validate,
+            ignoreEnvFile: true,
           }),
         ],
         providers: [AppConfigService],
@@ -110,14 +164,19 @@ describe("AppConfigService", () => {
       const serviceWithSpecialPass =
         module.get<AppConfigService>(AppConfigService);
       const expectedUrl =
-        "postgresql://testuser:test%40pass%23123@localhost:5432/testdb?schema=public&connection_limit=10";
+        "postgresql://test_user:test%40pass%23123@localhost:5432/test_db?schema=test_schema&connection_limit=10";
       expect(serviceWithSpecialPass.databaseUrl).toBe(expectedUrl);
+
+      // Restore original value
+      vi.unstubAllEnvs();
     });
   });
 
   describe("Keycloak Configuration", () => {
     it("should return Keycloak auth server URL", () => {
-      expect(service.keycloakAuthServerUrl).toBe("http://localhost:8080/auth");
+      expect(service.keycloakAuthServerUrl).toBe(
+        "https://test-keycloak.example.com/auth",
+      );
     });
 
     it("should return Keycloak realm", () => {
@@ -130,7 +189,7 @@ describe("AppConfigService", () => {
 
     it("should return Keycloak issuer", () => {
       expect(service.keycloakIssuer).toBe(
-        "http://localhost:8080/auth/realms/test-realm",
+        "https://test-keycloak.example.com/auth/realms/test-realm",
       );
     });
   });

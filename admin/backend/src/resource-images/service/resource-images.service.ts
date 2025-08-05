@@ -1,13 +1,7 @@
+import { AppConfigService } from "@/app-config/app-config.service";
+import { DamApiService } from "@/dam-api/dam-api.service";
 import { HttpException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma.service";
-import { AppConfigService } from "@/app-config/app-config.service";
-import {
-  addResourceToCollection,
-  createResource,
-  deleteResource,
-  getResourcePath,
-  uploadFile,
-} from "@/dam-api/dam-api";
 import { RecreationResourceImageDto } from "../dto/recreation-resource-image.dto";
 
 const allowedTypes = [
@@ -27,6 +21,7 @@ export class ResourceImagesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly appConfig: AppConfigService,
+    private readonly damApiService: DamApiService,
   ) {
     this.imagecollectionId = this.appConfig.damRstImageCollectionId;
   }
@@ -108,10 +103,8 @@ export class ResourceImagesService {
     if (resource === null) {
       throw new HttpException("Recreation image not found", 404);
     }
-    const ref_id = await createResource(caption);
-    await uploadFile(ref_id, file);
-    await addResourceToCollection(ref_id, this.imagecollectionId);
-    const files = await getResourcePath(ref_id);
+    const { ref_id, files } =
+      await this.damApiService.createAndUploadImageWithRetry(caption, file);
     const result = await this.prisma.recreation_resource_images.create({
       data: {
         ref_id: ref_id.toString(),
@@ -155,7 +148,7 @@ export class ResourceImagesService {
       if (!allowedTypes.includes(file.mimetype)) {
         throw new HttpException("File Type not allowed", 415);
       }
-      await uploadFile(ref_id, file);
+      await this.damApiService.uploadFile(ref_id, file);
     }
     const result = await this.prisma.recreation_resource_images.update({
       where: {
@@ -172,7 +165,7 @@ export class ResourceImagesService {
     rec_resource_id: string,
     ref_id: string,
   ): Promise<RecreationResourceImageDto | null> {
-    await deleteResource(ref_id);
+    await this.damApiService.deleteResource(ref_id);
     await this.prisma.recreation_resource_image_variants.deleteMany({
       where: {
         ref_id,
