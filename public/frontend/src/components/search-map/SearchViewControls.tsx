@@ -18,7 +18,7 @@ const SearchViewControls = ({ variant }: SearchViewControlsProps) => {
 
   return (
     <Button
-      className="search-chip btn capitalize h-2"
+      className="search-chip btn h-2"
       variant="secondary"
       onClick={() => handleViewChange(variant)}
     >
@@ -26,7 +26,7 @@ const SearchViewControls = ({ variant }: SearchViewControlsProps) => {
         icon={variant === 'list' ? faList : faMap}
         className="me-2"
       />
-      {variant} View
+      Show {variant}
     </Button>
   );
 };

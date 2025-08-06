@@ -16,21 +16,21 @@ describe('SearchViewControls', () => {
     vi.clearAllMocks();
   });
 
-  it('renders List View button correctly', () => {
+  it('renders "Show list" button correctly', () => {
     render(<SearchViewControls variant="list" />);
-    const button = screen.getByRole('button', { name: /list view/i });
+    const button = screen.getByRole('button', { name: /show list/i });
     expect(button).toBeInTheDocument();
   });
 
-  it('renders Map View button correctly', () => {
+  it('renders "Show map" button correctly', () => {
     render(<SearchViewControls variant="map" />);
-    const button = screen.getByRole('button', { name: /map view/i });
+    const button = screen.getByRole('button', { name: /show map/i });
     expect(button).toBeInTheDocument();
   });
 
-  it('clicking List View button sets view= list in search params', () => {
+  it('clicking "Show list" button sets view=list in search params', () => {
     render(<SearchViewControls variant="list" />);
-    const button = screen.getByRole('button', { name: /list view/i });
+    const button = screen.getByRole('button', { name: /show list/i });
 
     fireEvent.click(button);
 
@@ -38,9 +38,9 @@ describe('SearchViewControls', () => {
     expect(mockSetSearchParams).toHaveBeenCalledWith(mockSearchParams);
   });
 
-  it('clicking Map View button sets view= map in search params', () => {
+  it('clicking "Show map" button sets view=map in search params', () => {
     render(<SearchViewControls variant="map" />);
-    const button = screen.getByRole('button', { name: /map view/i });
+    const button = screen.getByRole('button', { name: /show map/i });
 
     fireEvent.click(button);
 

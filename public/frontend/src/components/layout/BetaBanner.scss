@@ -1,12 +1,12 @@
 @import '@/styles/variables.scss';
 
-.banner {
+.beta-banner {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   background-color: $colorGold;
-  padding: 16px;
+  padding: 0.25rem;
   font-size: 16px;
   color: $colorBlue;
   text-align: center;

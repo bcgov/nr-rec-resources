@@ -4,6 +4,7 @@ import { useMemo, useRef, useState } from 'react';
 import OLMap from 'ol/Map';
 import { useStore } from '@tanstack/react-store';
 import { VectorFeatureMap } from '@bcgov/prp-map';
+import Header from '@/components/layout/Header';
 import { SearchViewControls } from '@/components/search';
 import {
   useClusteredRecreationFeatureLayer,
@@ -91,7 +92,7 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
     popupRef,
     featureLayers: featureSelectionLayers,
     options: {
-      featureOffsetY: 100,
+      featureOffsetY: 150,
     },
   });
   useZoomToExtent(mapRef, extent);
@@ -123,6 +124,7 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
 
   return (
     <div className="search-map-container" {...props}>
+      <Header />
       <VectorFeatureMap
         ref={mapRef}
         style={{ width: '100%', height: '100%' }}
@@ -146,7 +148,6 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
             Filters
           </Button>
         </div>
-
         <div className="d-flex flex-col flex-lg-row align-items-center gap-2">
           <Button
             variant={isFilterMenuOpen ? 'primary' : 'secondary'}
