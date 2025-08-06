@@ -248,7 +248,13 @@ Schedule job runs every saturday and keep schema documentation upto date in
 
 ## Architecture
 
-![RST Architecture](docs/rst-arch.drawio.svg)
+#### Public App
+
+![RST Public App Architecture](docs/rst-arch.drawio.svg)
+
+#### Admin App
+
+![RST Admin App Architecture](docs/admin-architecture/rst-admin-arch.mermaid.svg)
 
 ## Storybook Integration
 
