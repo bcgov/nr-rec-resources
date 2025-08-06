@@ -12,6 +12,12 @@ const getZoomMock = vi.fn(() => 8);
 const setZoomMock = vi.fn();
 const getExtentMock = vi.fn(() => [0, 0, 100, 100]);
 
+vi.mock('@/components/search-map/hooks/useFeatureSelection', () => ({
+  useFeatureSelection: vi.fn(() => ({
+    clearSelection: vi.fn(),
+  })),
+}));
+
 vi.mock('@tanstack/react-store', async () => {
   const actual = await vi.importActual('@tanstack/react-store');
   return {
@@ -49,6 +55,20 @@ vi.mock('@/components/search-map/layers/recreationFeatureLayer', () => ({
   },
 }));
 
+vi.mock('@/components/search-map/layers/wildfireLocationLayer', () => ({
+  createWildfireLocationSource: vi.fn(),
+  createWildfireLocationStyle: vi.fn(() => 'mock-cluster-style'),
+  createWildfireLocationLayer: vi.fn(() => ({
+    setVisible: vi.fn(),
+    setStyle: vi.fn(),
+    changed: vi.fn(),
+    set: vi.fn(),
+    getSource: vi.fn(() => ({
+      getFeatures: vi.fn(() => []),
+    })),
+  })),
+}));
+
 vi.mock('@bcgov/prp-map', () => ({
   VectorFeatureMap: forwardRef((_, ref: any) => {
     const mapStub = {
@@ -58,6 +78,13 @@ vi.mock('@bcgov/prp-map', () => ({
         setZoom: setZoomMock,
         getProjection: vi.fn(),
       }),
+      on: vi.fn(),
+      un: vi.fn(),
+      addOverlay: vi.fn(),
+      addInteraction: vi.fn(),
+      getTargetElement: vi.fn(() => ({
+        style: { cursor: '' },
+      })),
       once: vi.fn((event, callback) => {
         if (event === 'moveend') {
           callback();
@@ -158,7 +185,7 @@ describe('SearchMap', () => {
     renderWithQueryClient(<SearchMap />);
 
     const toggleBtn = screen.getByRole('button', {
-      name: /toggle filter menu/i,
+      name: /toggle filter menu desktop/i,
     });
     expect(toggleBtn).toBeInTheDocument();
     expect(toggleBtn).toHaveClass('btn-secondary');

@@ -6,6 +6,6 @@ export function featureLabelText(text: string): Text {
     font: '14px BC Sans,sans-serif',
     fill: new Fill({ color: '#000' }),
     stroke: new Stroke({ color: '#fff', width: 2 }),
-    offsetY: -42,
+    offsetY: -28,
   });
 }

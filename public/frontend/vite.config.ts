@@ -13,8 +13,11 @@ export default defineConfig(({ mode }) => {
     server: {
       port: parseInt(env.PORT || '3000'),
       fs: {
-        // Allow serving files from one level up to the project root
-        allow: ['..'],
+        // Allow serving files from two levels up to the project root
+        allow: [
+          path.resolve(__dirname, '../..'),
+          path.resolve(__dirname, '../../shared'),
+        ],
       },
       proxy: {
         // Proxy API requests to the backend

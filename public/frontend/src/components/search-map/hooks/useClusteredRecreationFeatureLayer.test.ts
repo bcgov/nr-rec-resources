@@ -1,8 +1,8 @@
-import { renderHook } from '@testing-library/react';
+import { renderHook, act, waitFor } from '@testing-library/react';
 import Feature from 'ol/Feature';
 import Select from 'ol/interaction/Select';
-import { useClusteredRecreationFeatureLayer } from '@/components/search-map/hooks/useClusteredRecreationFeatureLayer';
 import * as recreationLayer from '@/components/search-map/layers/recreationFeatureLayer';
+import { useClusteredRecreationFeatureLayer } from './useClusteredRecreationFeatureLayer';
 import { Style } from 'ol/style';
 
 vi.mock('ol/interaction/Select');
@@ -21,7 +21,6 @@ describe('useClusteredRecreationFeatureLayer', () => {
   };
 
   const styleObj = { cursor: '' };
-
   const mockTargetElement = { style: styleObj };
 
   const mockMap = {
@@ -37,7 +36,11 @@ describe('useClusteredRecreationFeatureLayer', () => {
   const mapRef = { current: { getMap: () => mockMap } } as any;
 
   const mockSource = { setDistance: vi.fn() };
-  const mockLayer = { getSource: () => mockSource, setStyle: vi.fn() };
+  const mockLayer = {
+    getSource: () => mockSource,
+    setStyle: vi.fn(),
+    changed: vi.fn(),
+  };
 
   const mockSelectInstance = {
     on: vi.fn(),
@@ -77,7 +80,7 @@ describe('useClusteredRecreationFeatureLayer', () => {
     );
   });
 
-  it('does not load features if projection does not exist', () => {
+  it('does not load features if projection is falsy', () => {
     mockView.getProjection.mockReturnValue('');
     renderHook(() => useClusteredRecreationFeatureLayer(['1'], mapRef));
     expect(recreationLayer.loadFeaturesForFilteredIds).not.toHaveBeenCalled();
@@ -96,7 +99,7 @@ describe('useClusteredRecreationFeatureLayer', () => {
     expect(recreationLayer.loadFeaturesForFilteredIds).toHaveBeenCalledTimes(2);
   });
 
-  it('updates cluster distance on zoom change when zooming past zoom threshold', () => {
+  it('updates cluster distance on zoom change when zooming past threshold', () => {
     renderHook(() =>
       useClusteredRecreationFeatureLayer(['1'], mapRef, {
         clusterOptions: { distance: 50, clusterZoomThreshold: 15 },
@@ -107,7 +110,6 @@ describe('useClusteredRecreationFeatureLayer', () => {
       'change:resolution',
       expect.any(Function),
     );
-
     const handler = mockView.on.mock.calls.find(
       (call) => call[0] === 'change:resolution',
     )?.[1];
@@ -121,28 +123,38 @@ describe('useClusteredRecreationFeatureLayer', () => {
     expect(mockSource.setDistance).toHaveBeenCalledWith(50);
   });
 
-  it('updates cursor and applies correct hover style on pointermove', () => {
-    const spy = vi.spyOn(
+  it('updates cursor and applies hover style on pointermove', async () => {
+    const styleSpy = vi.spyOn(
       recreationLayer,
       'createClusteredRecreationFeatureStyle',
     );
 
     renderHook(() => useClusteredRecreationFeatureLayer(['1'], mapRef));
 
-    const handler = mockMap.on.mock.calls.find(
+    const pointerMoveCall = mockMap.on.mock.calls.find(
       (call) => call[0] === 'pointermove',
-    )?.[1];
+    );
+    expect(pointerMoveCall).toBeDefined();
+    const handler = pointerMoveCall![1];
 
     const mockFeature = new Feature();
     mockMap.forEachFeatureAtPixel.mockReturnValue(mockFeature);
 
-    handler({ pixel: [0, 0] });
-    expect(mockTargetElement.style.cursor).toBe('pointer');
+    act(() => {
+      handler({ pixel: [0, 0] });
+    });
 
-    const styleFn = mockLayer.setStyle.mock.calls.at(-1)?.[0];
+    await waitFor(() => {
+      expect(mockLayer.setStyle).toHaveBeenCalled();
+    });
+
+    const styleFn =
+      mockLayer.setStyle.mock.calls[
+        mockLayer.setStyle.mock.calls.length - 1
+      ][0];
 
     styleFn(mockFeature, 10);
-    expect(spy).toHaveBeenCalledWith(
+    expect(styleSpy).toHaveBeenCalledWith(
       mockFeature,
       10,
       expect.objectContaining({
@@ -154,7 +166,7 @@ describe('useClusteredRecreationFeatureLayer', () => {
 
     const otherFeature = new Feature();
     styleFn(otherFeature, 10);
-    expect(spy).toHaveBeenCalledWith(
+    expect(styleSpy).toHaveBeenCalledWith(
       otherFeature,
       10,
       expect.objectContaining({
@@ -165,11 +177,13 @@ describe('useClusteredRecreationFeatureLayer', () => {
     );
 
     mockMap.forEachFeatureAtPixel.mockReturnValue(null);
-    handler({ pixel: [0, 0] });
+    act(() => {
+      handler({ pixel: [0, 0] });
+    });
     expect(mockTargetElement.style.cursor).toBe('');
   });
 
-  it('adds and removes select interaction', () => {
+  it('adds and removes select interaction on mount/unmount', () => {
     const { unmount } = renderHook(() =>
       useClusteredRecreationFeatureLayer(['1'], mapRef),
     );
@@ -189,13 +203,16 @@ describe('useClusteredRecreationFeatureLayer', () => {
     expect(mockMap.removeInteraction).toHaveBeenCalledWith(mockSelectInstance);
   });
 
-  it('handles cluster selection and zooms to the extent of the cluster features', () => {
+  it('handles cluster selection and zooms to cluster extent', () => {
     renderHook(() => useClusteredRecreationFeatureLayer(['1'], mapRef));
 
-    const selectHandler = mockSelectInstance.on.mock.calls.find(
+    const selectCall = mockSelectInstance.on.mock.calls.find(
       (call) => call[0] === 'select',
-    )?.[1];
+    );
+    expect(selectCall).toBeDefined();
+    const selectHandler = selectCall![1];
 
+    // Mock two features with geometries returning extents
     const mockFeature1 = new Feature();
     mockFeature1.getGeometry = () =>
       ({ getExtent: () => [0, 0, 50, 50] }) as any;

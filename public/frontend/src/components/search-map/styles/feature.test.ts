@@ -9,7 +9,7 @@ describe('featureLabelText', () => {
     expect(text).toBeInstanceOf(Text);
     expect(text.getText()).toBe('Hello');
     expect(text.getFont()).toBe('14px BC Sans,sans-serif');
-    expect(text.getOffsetY()).toBe(-42);
+    expect(text.getOffsetY()).toBe(-28);
 
     const fill = text.getFill();
     const stroke = text.getStroke();

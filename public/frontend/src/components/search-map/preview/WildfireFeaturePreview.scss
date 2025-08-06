@@ -1,0 +1,101 @@
+@import '@shared/styles/variables';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins/breakpoints';
+
+.map-feature-preview-card.wildfire-preview-card {
+  display: flex;
+  flex-direction: column;
+
+  @include media-breakpoint-up(sm) {
+    flex-direction: row;
+    height: 190px;
+    min-width: 540px;
+    max-width: 540px;
+
+    p {
+      margin-bottom: 0.25rem;
+    }
+  }
+
+  .wildfire-preview-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    color: $colorRed;
+    background-color: $colorRedLight;
+    font-weight: 700;
+    font-size: 1.4rem;
+
+    img {
+      width: 32px;
+      height: 32px;
+      margin-right: 0.5rem;
+    }
+
+    .preview-close-btn {
+      background: none;
+      border: none;
+      color: inherit;
+
+      &:focus {
+        opacity: 0.8;
+      }
+    }
+  }
+
+  .wildfire-preview-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1rem;
+    width: 100%;
+    max-width: 340px;
+
+    p {
+      margin-bottom: 0.5rem;
+    }
+
+    a {
+      color: $colorBlueMed;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+
+      svg {
+        margin-left: 0.25rem;
+        color: $colorBlueMed;
+      }
+    }
+
+    svg {
+      color: $colorBlue;
+    }
+
+    .fire-number {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+
+      svg {
+        margin-left: 0.25rem;
+      }
+
+      @include media-breakpoint-up(sm) {
+        margin-bottom: 0;
+      }
+    }
+
+    .fire-url-btn {
+      color: $colorWhite;
+
+      svg {
+        color: $colorWhite;
+      }
+    }
+  }
+}
