@@ -130,13 +130,11 @@ const SearchPage = () => {
   return (
     <>
       <SearchBanner />
-      {isMapView && (
-        <SearchMap
-          style={{
-            visibility: isMapView ? 'visible' : 'hidden',
-          }}
-        />
-      )}
+      <SearchMap
+        style={{
+          visibility: isMapView ? 'visible' : 'hidden',
+        }}
+      />
       <Stack
         direction="horizontal"
         className="page-container bg-brown-light justify-content-start"

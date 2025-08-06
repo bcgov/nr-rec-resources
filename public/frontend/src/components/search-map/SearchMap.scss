@@ -28,6 +28,20 @@
       display: flex;
     }
   }
+
+  .zoom-control {
+    bottom: 0.5rem;
+    right: 0.5rem;
+
+    button {
+      height: 30px;
+    }
+
+    @include media-breakpoint-up(sm) {
+      bottom: 1rem;
+      right: 1rem;
+    }
+  }
 }
 
 .search-map-controls {
