@@ -32,6 +32,7 @@
   .desktop-col {
     display: none;
     margin-right: auto;
+    padding: 0;
 
     @include media-breakpoint-up(sm) {
       display: block;
@@ -51,6 +52,7 @@
   .mobile-col {
     display: block;
     margin-right: auto;
+    padding: 0;
 
     @include media-breakpoint-up(sm) {
       display: none;

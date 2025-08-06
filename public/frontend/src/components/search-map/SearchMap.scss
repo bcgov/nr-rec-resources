@@ -24,32 +24,33 @@
 
 .search-map-controls {
   position: fixed;
+  top: 10px;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  padding: 0.5rem;
+  width: 100%;
+  max-width: none;
   display: flex;
   flex-direction: column;
-  margin: auto;
-  max-width: $pageMaxWidth;
-  gap: 0.75rem;
-  top: 10px;
   z-index: 10000;
-  padding: 0.5rem;
   border-radius: 4px;
-  width: 100%;
+  transform: none;
 
-  @include media-breakpoint-up(sm) {
-    max-width: 400px;
-    left: 10px;
+  // Collapse and center on larger screens
+  @include media-breakpoint-up(md) {
+    left: 50%;
+    transform: translateX(-50%);
+    flex-direction: row;
+    max-width: 100%;
   }
 
   @include media-breakpoint-up(md) {
-    max-width: 600px;
+    max-width: $pageMaxWidth;
+    justify-content: space-between;
   }
 
-  .recreation-resource-suggestion-form {
-    width: 100%;
-    margin-bottom: 1rem;
-  }
-
-  // Prevent issue where features aren't clickable under the controls container
+  // Ensure interactivity inside
   pointer-events: none;
 
   input,
@@ -60,6 +61,55 @@
 
   .search-chip {
     max-width: fit-content;
+    max-height: 32px;
     margin: 0;
+    white-space: nowrap;
+
+    @include media-breakpoint-up(md) {
+      padding: 1.25rem 0.5rem;
+    }
+  }
+
+  .map-search-form {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    width: 100%;
+
+    @include media-breakpoint-up(sm) {
+      max-width: 100%;
+    }
+
+    .filter-btn {
+      display: none;
+      margin-left: 1rem;
+
+      @include media-breakpoint-up(sm) {
+        display: block;
+      }
+    }
+
+    .recreation-resource-suggestion-form {
+      width: 100%;
+      margin-bottom: 1rem;
+
+      @include media-breakpoint-up(md) {
+        max-width: 500px;
+        margin-bottom: 0;
+      }
+
+      .suggestion-search-input-container {
+        border: 1px solid $colorBlue;
+      }
+
+      .rbt-menu {
+        border: 1px solid $colorBlue;
+        border-top: none;
+      }
+
+      .submit-btn {
+        padding: 0.5rem 1rem;
+      }
+    }
   }
 }

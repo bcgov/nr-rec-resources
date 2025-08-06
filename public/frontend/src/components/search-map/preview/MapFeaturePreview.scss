@@ -2,29 +2,29 @@
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/mixins/breakpoints';
 
-.recreation-feature-preview {
+.map-feature-preview {
   position: relative;
 
-  .rec-resource-preview-card {
+  .map-feature-preview-card,
+  .map-feature-preview-spinner {
     position: absolute;
-    top: calc(100% + 2.5rem);
+    top: 3.5rem;
     left: 50%;
     transform: translateX(-50%);
+  }
+
+  .map-feature-preview-card {
     min-width: 90vw;
     max-width: 90vw;
     max-height: 48vh;
 
     @include media-breakpoint-up(sm) {
-      position: static;
-      left: auto;
-      transform: none;
-      min-width: auto;
+      min-width: 600px;
       max-width: none;
-      width: auto;
-      z-index: auto;
     }
 
-    .activities-list {
+    .activities-list,
+    .card-activities.a {
       display: none;
     }
 

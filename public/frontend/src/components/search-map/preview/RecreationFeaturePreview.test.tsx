@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import RecreationFeaturePreview from '@/components/search-map/RecreationFeaturePreview';
+import RecreationFeaturePreview from '@/components/search-map/preview/RecreationFeaturePreview';
 import { useGetRecreationResourceById } from '@/service/queries/recreation-resource';
 
 vi.mock('@/service/queries/recreation-resource', () => ({

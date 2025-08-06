@@ -35,8 +35,6 @@ const fetchCities = async (): Promise<City[]> => {
     }),
   );
 
-  console.log('Fetched cities:', cities);
-
   return cities;
 };
 

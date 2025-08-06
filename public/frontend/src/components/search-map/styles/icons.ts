@@ -4,15 +4,16 @@ import locationDotRed from '@/assets/location-dot-red.png';
 import locationDotOrange from '@/assets/location-dot-orange.png';
 
 export const locationDotBlueIcon = new Style({
-  image: new Icon({ src: locationDotBlue, scale: 0.5, anchor: [0.5, 1] }),
+  image: new Icon({ src: locationDotBlue, scale: 0.5 }),
 });
 
 export const locationDotRedIcon = new Style({
-  image: new Icon({ src: locationDotRed, scale: 0.5, anchor: [0.5, 1] }),
+  image: new Icon({ src: locationDotRed, scale: 0.5 }),
 });
 
 export const locationDotOrangeIcon = new Style({
-  image: new Icon({ src: locationDotOrange, scale: 0.5, anchor: [0.5, 1] }),
+  image: new Icon({ src: locationDotOrange, scale: 0.5 }),
+  zIndex: 10,
 });
 
 interface LocationDotIconOptions {
@@ -28,7 +29,6 @@ function createLocationDotIcon(
     image: new Icon({
       src,
       scale,
-      anchor: [0.5, 1],
       opacity,
     }),
   });

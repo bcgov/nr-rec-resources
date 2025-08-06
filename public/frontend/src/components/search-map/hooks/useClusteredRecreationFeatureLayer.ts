@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import OLMap from 'ol/Map';
 import {
   recreationSource,
@@ -16,20 +16,27 @@ import {
   ExtendedClusterOptions,
 } from '@/components/search-map/types';
 
+interface UseClusteredRecreationFeatureLayerOptions {
+  clusterOptions?: ExtendedClusterOptions;
+  animatedClusterOptions?: AnimatedClusterOptions;
+  applyHoverStyles?: boolean;
+}
+
 export const useClusteredRecreationFeatureLayer = (
   recResourceIds: string[],
   mapRef: React.RefObject<{
     getMap: () => OLMap;
   } | null>,
-  options?: {
-    clusterOptions?: ExtendedClusterOptions;
-    animatedClusterOptions?: AnimatedClusterOptions;
-  },
+  options?: UseClusteredRecreationFeatureLayerOptions,
 ) => {
+  const { applyHoverStyles = true } = options || {};
+  const [hoveredFeature, setHoveredFeature] = useState<Feature | null>(null);
+
   const map = mapRef.current?.getMap();
   const mapProjection = map?.getView().getProjection();
   const distance = options?.clusterOptions?.distance || 30;
   const clusterZoomThreshold = options?.clusterOptions?.clusterZoomThreshold;
+
   const clusterSourceRef = useRef(
     createClusteredRecreationFeatureSource(options?.clusterOptions),
   );
@@ -74,26 +81,25 @@ export const useClusteredRecreationFeatureLayer = (
   }, [clusterZoomThreshold, distance, map]);
 
   useEffect(() => {
-    // Add hover styling to clusters and features
+    if (!applyHoverStyles) return;
+
+    const map = mapRef.current?.getMap();
     if (!map || !layerRef.current) return;
 
-    const hoveredFeatureRef = { current: null as Feature | null };
-
     const onPointerMove = (evt: any) => {
-      const feature =
-        map.forEachFeatureAtPixel(evt.pixel, (feat) => feat as Feature, {
-          layerFilter: (layer) => layer === layerRef.current,
-        }) ?? null;
+      const pixel = evt.pixel;
+      const featureAtPixel = map.forEachFeatureAtPixel(
+        pixel,
+        (feat) => feat as Feature,
+        {
+          layerFilter: (candidateLayer) => candidateLayer === layerRef.current,
+        },
+      );
 
-      if (hoveredFeatureRef.current !== feature) {
-        hoveredFeatureRef.current = feature;
-        layerRef.current?.setStyle((feature: Feature, resolution: number) =>
-          createClusteredRecreationFeatureStyle(feature, resolution, {
-            iconOpacity: feature === hoveredFeatureRef.current ? 0.7 : 1,
-            clusterOpacity: feature === hoveredFeatureRef.current ? 0.7 : 0.85,
-            haloOpacity: feature === hoveredFeatureRef.current ? 0.5 : 0.7,
-          }),
-        );
+      const feature = featureAtPixel || null;
+
+      if (feature !== hoveredFeature) {
+        setHoveredFeature(feature);
       }
 
       map.getTargetElement().style.cursor = feature ? 'pointer' : '';
@@ -104,7 +110,21 @@ export const useClusteredRecreationFeatureLayer = (
     return () => {
       map.un('pointermove', onPointerMove);
     };
-  }, [map]);
+  }, [mapRef, hoveredFeature, applyHoverStyles]);
+
+  useEffect(() => {
+    if (!applyHoverStyles || !layerRef.current) return;
+
+    layerRef.current.setStyle((feature: Feature, resolution: number) =>
+      createClusteredRecreationFeatureStyle(feature, resolution, {
+        iconOpacity: feature === hoveredFeature ? 0.7 : 1,
+        clusterOpacity: feature === hoveredFeature ? 0.7 : 0.85,
+        haloOpacity: feature === hoveredFeature ? 0.5 : 0.7,
+      }),
+    );
+
+    layerRef.current.changed();
+  }, [hoveredFeature, applyHoverStyles]);
 
   useEffect(() => {
     // Add cluster zoom-to-extent on click interaction
