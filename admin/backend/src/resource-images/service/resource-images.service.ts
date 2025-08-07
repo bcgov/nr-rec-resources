@@ -3,6 +3,7 @@ import { DamApiService } from "@/dam-api/dam-api.service";
 import { HttpException, Injectable } from "@nestjs/common";
 import { PrismaService } from "src/prisma.service";
 import { RecreationResourceImageDto } from "../dto/recreation-resource-image.dto";
+import { DamMetadataDto } from "@/dam-api/dto/dam-metadata.dto";
 
 const allowedTypes = [
   "image/apng",
@@ -103,8 +104,14 @@ export class ResourceImagesService {
     if (resource === null) {
       throw new HttpException("Recreation image not found", 404);
     }
+    const metadata: DamMetadataDto = {
+      caption,
+      closestCommunity: resource.closest_community,
+      recreationName: `${resource.name} - ${resource.rec_resource_id}`,
+      recreationdistrict: resource.district_code,
+    };
     const { ref_id, files } =
-      await this.damApiService.createAndUploadImageWithRetry(caption, file);
+      await this.damApiService.createAndUploadImageWithRetry(metadata, file);
     const result = await this.prisma.recreation_resource_images.create({
       data: {
         ref_id: ref_id.toString(),
