@@ -98,7 +98,7 @@ export class ResourceDocsService {
       title,
       closestCommunity: resource.closest_community,
       recreationName: `${resource.name} - ${resource.rec_resource_id}`,
-      recreationdistrict: resource.district_code,
+      recreationDistrict: resource.district_code,
     };
     const { ref_id, files } = await this.damApiService.createAndUploadDocument(
       metadata,
