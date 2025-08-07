@@ -2,6 +2,7 @@ import { AppConfigService } from "@/app-config/app-config.service";
 import { Injectable, Logger } from "@nestjs/common";
 import { DamApiCoreService } from "./dam-api-core.service";
 import { DamApiConfig, DamFile, DamResource } from "./dam-api.types";
+import { DamMetadataDto } from "./dto/dam-metadata.dto";
 
 /**
  * Main DAM API Service - provides a clean interface and maintains backward compatibility
@@ -34,10 +35,10 @@ export class DamApiService {
   // Core Operations (delegate to core service)
 
   async createResource(
-    title: string,
+    metadata: DamMetadataDto,
     resourceType: "pdf" | "image" = "pdf",
   ): Promise<string> {
-    return this.coreService.createResource(title, resourceType, this.config);
+    return this.coreService.createResource(metadata, resourceType, this.config);
   }
 
   async getResourcePath(resource: string): Promise<DamFile[]> {
@@ -74,15 +75,17 @@ export class DamApiService {
    * For PDF documents
    */
   async createAndUploadDocument(
-    title: string,
+    metadata: DamMetadataDto,
     file: Express.Multer.File,
   ): Promise<DamResource> {
-    this.logger.log(
-      `Creating and uploading document: ${title}, file: ${file.originalname}, size: ${file.size}`,
-    );
+    this.logger.log(`Creating and uploading document`, {
+      title: metadata.title,
+      fileName: file.originalname,
+      fileSize: file.size,
+    });
 
     const ref_id = await this.coreService.createResource(
-      title,
+      metadata,
       "pdf",
       this.config,
     );
@@ -91,7 +94,7 @@ export class DamApiService {
     const files = await this.coreService.getResourcePath(ref_id, this.config);
 
     this.logger.log(`Document created and uploaded successfully`, {
-      title,
+      title: metadata.title,
       ref_id,
       fileName: file.originalname,
       fileCount: files.length,
@@ -105,17 +108,17 @@ export class DamApiService {
    * For image files (standard processing)
    */
   async createAndUploadImage(
-    caption: string,
+    metadata: DamMetadataDto,
     file: Express.Multer.File,
   ): Promise<DamResource> {
     this.logger.log(`Creating and uploading image`, {
-      caption,
+      caption: metadata.caption,
       fileName: file.originalname,
       fileSize: file.size,
     });
 
     const ref_id = await this.coreService.createResource(
-      caption,
+      metadata,
       "image",
       this.config,
     );
@@ -128,7 +131,7 @@ export class DamApiService {
     const files = await this.coreService.getResourcePath(ref_id, this.config);
 
     this.logger.log(`Image created and uploaded successfully`, {
-      caption,
+      caption: metadata.caption,
       ref_id,
       fileName: file.originalname,
       fileCount: files.length,
@@ -143,15 +146,15 @@ export class DamApiService {
    * For image files (with processing validation)
    */
   async createAndUploadImageWithRetry(
-    caption: string,
+    metadata: DamMetadataDto,
     file: Express.Multer.File,
   ): Promise<DamResource> {
     this.logger.log(
-      `Creating and uploading image with retry - Caption: "${caption}", File: ${file.originalname} (${file.size} bytes)`,
+      `Creating and uploading image with retry - Caption: "${metadata.caption}", File: ${file.originalname} (${file.size} bytes)`,
     );
 
     const ref_id = await this.coreService.createResource(
-      caption,
+      metadata,
       "image",
       this.config,
     );
@@ -167,7 +170,7 @@ export class DamApiService {
     );
 
     this.logger.log(
-      `Image created and uploaded with retry successfully - Caption: "${caption}", ID: ${ref_id}, File: ${file.originalname}, Variants: ${files.length}`,
+      `Image created and uploaded with retry successfully - Caption: "${metadata.caption}", ID: ${ref_id}, File: ${file.originalname}, Variants: ${files.length}`,
     );
 
     return { ref_id, files };

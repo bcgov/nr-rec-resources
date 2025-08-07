@@ -3,6 +3,7 @@ import { Readable } from "stream";
 import { DamApiHttpService } from "./dam-api-http.service";
 import { DamApiUtilsService } from "./dam-api-utils.service";
 import { DAM_CONFIG, DamApiConfig, DamErrors, DamFile } from "./dam-api.types";
+import { DamMetadataDto } from "./dto/dam-metadata.dto";
 
 /**
  * Core DAM API operations service - handles basic CRUD operations
@@ -20,27 +21,52 @@ export class DamApiCoreService {
    * Creates a new resource in the Digital Asset Management system
    */
   async createResource(
-    title: string,
+    metadata: DamMetadataDto,
     resourceType: "pdf" | "image",
     config: DamApiConfig,
   ): Promise<string> {
-    const params = {
-      user: config.user,
-      function: "create_resource",
-      metadata: JSON.stringify({ title }),
-      resource_type: this.getResourceTypeId(resourceType, config),
-      archive: 0,
-    };
-
-    const logContext = `Title: "${title}", Type: ${resourceType}, User: ${config.user}`;
-
-    return this.executeRequest(
-      params,
-      config,
-      "Creating DAM resource",
-      DamErrors.ERR_CREATING_RESOURCE,
-      logContext,
+    this.logger.log(
+      `Creating DAM resource - ${metadata.title ? "Title" : "Caption"}: "${metadata.title ? metadata.title : metadata.caption}", Type: ${resourceType}, User: ${config.user}`,
     );
+
+    try {
+      const resource_type =
+        resourceType === "image"
+          ? config.imageResourceType
+          : config.pdfResourceType;
+
+      const params = {
+        user: config.user,
+        function: "create_resource",
+        metadata: JSON.stringify(metadata),
+        resource_type,
+        archive: 0,
+      };
+
+      this.logger.debug(
+        `DAM resource creation parameters - ${metadata.title ? "Title" : "Caption"}: "${metadata.title ? metadata.title : metadata.caption}", Type: ${resourceType}, Resource Type: ${resource_type}, User: ${config.user}`,
+      );
+
+      const formData = this.utilsService.createFormData(params, config);
+      const result = await this.httpService.makeRequest(
+        config.damUrl,
+        formData,
+      );
+
+      this.logger.log(
+        `DAM resource created successfully - ${metadata.title ? "Title" : "Caption"}: "${metadata.title ? metadata.title : metadata.caption}", Type: ${resourceType}, Resource ID: ${result}`,
+      );
+
+      return result;
+    } catch (error) {
+      this.logger.error(
+        `Failed to create DAM resource - ${metadata.title ? "Title" : "Caption"}: "${metadata.title ? metadata.title : metadata.caption}", Type: ${resourceType}, Error: ${error.message}`,
+      );
+      throw new HttpException(
+        "Error creating resource.",
+        DamErrors.ERR_CREATING_RESOURCE,
+      );
+    }
   }
 
   /**
