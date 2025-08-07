@@ -31,7 +31,7 @@ const Header = () => {
             className="header-feedback-btn"
             onClick={trackClickEvent({
               category: 'Feedback',
-              name: 'Beta Banner Feedback Button',
+              name: 'Beta Banner Feedback Button - mobile',
             })}
           >
             Share feedback

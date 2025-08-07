@@ -18,7 +18,7 @@ const BetaBanner = () => {
             <>
               This site is in Beta
               <br className="d-none d-sm-inline" />
-              <span className="d-inline d-sm-none"> - </span>
+              <span className="d-inline d-sm-none"> | </span>
               <a
                 href="https://www.sitesandtrailsbc.ca"
                 rel="noreferrer"
@@ -52,7 +52,7 @@ const BetaBanner = () => {
           name: 'Beta Banner Feedback Button',
         })}
       >
-        {isMobile ? 'Share feedback' : 'Share your feedback'}
+        Share your feedback
       </Button>
     </div>
   );
