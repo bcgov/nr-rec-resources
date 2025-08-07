@@ -3,5 +3,5 @@ export class DamMetadataDto {
   caption?: string | null;
   closestCommunity?: string | null;
   recreationName?: string | null;
-  recreationdistrict?: string | null;
+  recreationDistrict?: string | null;
 }
