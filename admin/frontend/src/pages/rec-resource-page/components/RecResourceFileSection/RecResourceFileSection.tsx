@@ -69,7 +69,7 @@ export const RecResourceFileSection = () => {
       <GalleryAccordion<GalleryDocument>
         eventKey="documents"
         title="Public documents"
-        description="Documents are only accepted in PDF format with a 5MB file size limit. Maximum 30 documents."
+        description="Documents are only accepted in PDF format with a 20MB file size limit. Maximum 30 documents."
         items={galleryDocuments}
         uploadLabel="Upload"
         isLoading={isFetching}

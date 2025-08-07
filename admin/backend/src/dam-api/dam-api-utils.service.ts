@@ -71,4 +71,33 @@ export class DamApiUtilsService {
 
     return isValid;
   }
+
+  /**
+   * Converts FormData to Buffer to avoid stream consumption issues during retries
+   */
+  async formDataToBuffer(formData: FormData): Promise<Buffer> {
+    return new Promise((resolve, reject) => {
+      const chunks: Buffer[] = [];
+
+      formData.on("data", (chunk) => {
+        // Ensure chunk is converted to Buffer if it's not already
+        if (Buffer.isBuffer(chunk)) {
+          chunks.push(chunk);
+        } else {
+          chunks.push(Buffer.from(chunk));
+        }
+      });
+
+      formData.on("end", () => {
+        resolve(Buffer.concat(chunks));
+      });
+
+      formData.on("error", (error) => {
+        reject(error);
+      });
+
+      // Start reading the stream
+      formData.resume();
+    });
+  }
 }

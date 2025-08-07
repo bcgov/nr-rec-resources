@@ -56,7 +56,7 @@ export const FileUploadModal: FC = () => {
       confirmButtonIcon={faUpload}
       confirmButtonDisabled={isFilenameInvalid}
     >
-      <Form>
+      <Form onSubmit={handleConfirm}>
         <Form.Group as={Row}>
           <Form.Label column sm={4} className="fw-bold">
             Name
