@@ -9,6 +9,7 @@ import {
   DamErrors,
   DamFile,
 } from "../../src/dam-api/dam-api.types";
+import { DamMetadataDto } from "@/dam-api/dto/dam-metadata.dto";
 
 describe("DamApiCoreService", () => {
   let service: DamApiCoreService;
@@ -67,18 +68,16 @@ describe("DamApiCoreService", () => {
       (mockHttpService.makeRequest as any).mockResolvedValue(
         expectedResourceId,
       );
-
-      const result = await service.createResource(
-        "Test PDF",
-        "pdf",
-        mockConfig,
-      );
+      const metadata: DamMetadataDto = {
+        title: "Test PDF",
+      };
+      const result = await service.createResource(metadata, "pdf", mockConfig);
 
       expect(mockUtilsService.createFormData).toHaveBeenCalledWith(
         {
           user: mockConfig.user,
           function: "create_resource",
-          metadata: JSON.stringify({ title: "Test PDF" }),
+          metadata: JSON.stringify(metadata),
           resource_type: mockConfig.pdfResourceType,
           archive: 0,
         },
@@ -100,8 +99,12 @@ describe("DamApiCoreService", () => {
         expectedResourceId,
       );
 
+      const metadata: DamMetadataDto = {
+        title: "Test PDF",
+      };
+
       const result = await service.createResource(
-        "Test Image",
+        metadata,
         "image",
         mockConfig,
       );
@@ -110,7 +113,7 @@ describe("DamApiCoreService", () => {
         {
           user: mockConfig.user,
           function: "create_resource",
-          metadata: JSON.stringify({ title: "Test Image" }),
+          metadata: JSON.stringify(metadata),
           resource_type: mockConfig.imageResourceType,
           archive: 0,
         },
@@ -122,16 +125,19 @@ describe("DamApiCoreService", () => {
     it("should throw HttpException on error", async () => {
       const mockFormData = { append: vi.fn() } as any;
       const error = new Error("Network error");
+      const metadata: DamMetadataDto = {
+        title: "Test",
+      };
 
       (mockUtilsService.createFormData as any).mockReturnValue(mockFormData);
       (mockHttpService.makeRequest as any).mockRejectedValue(error);
 
       await expect(
-        service.createResource("Test", "pdf", mockConfig),
+        service.createResource(metadata, "pdf", mockConfig),
       ).rejects.toThrow(HttpException);
 
       try {
-        await service.createResource("Test", "pdf", mockConfig);
+        await service.createResource(metadata, "pdf", mockConfig);
       } catch (err) {
         expect(err).toBeInstanceOf(HttpException);
         expect((err as HttpException).getStatus()).toBe(
