@@ -133,6 +133,14 @@ resource "aws_ecs_task_definition" "node_api_task" {
           value = "${var.db_schema}"
         },
         {
+          name = "POSTGRES_SCHEMA"
+          value = "${var.db_schema}"
+        },
+        {
+          name = "POSTGRES_PORT"
+          value = "5432"
+        },
+        {
           name  = "PORT"
           value = "8000"
         },
