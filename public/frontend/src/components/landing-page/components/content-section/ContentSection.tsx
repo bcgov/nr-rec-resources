@@ -19,8 +19,8 @@ export const ContentSection: FC<ContentSectionProps> = ({
   imageFirst = false,
   headingComponent,
 }) => {
-  const imageOrder = imageFirst ? 'lg-1' : 'lg-2';
-  const contentOrder = imageFirst ? 'lg-2' : 'lg-1';
+  const imageOrderClass = imageFirst ? 'order-lg-1' : 'order-lg-2';
+  const contentOrderClass = imageFirst ? 'order-lg-2' : 'order-lg-1';
 
   // Generate img srcSet like: "hero-sm.webp 576w, hero-md.webp 768w, etc"
   const generateImageSrcSet = useMemo(() => {
@@ -30,12 +30,15 @@ export const ContentSection: FC<ContentSectionProps> = ({
   }, [imageBasePath]);
 
   return (
-    <section className="content-section" data-testid="content-section">
+    <section
+      className={`content-section ${imageFirst ? 'image-first' : 'image-last'}`}
+      data-testid="content-section"
+    >
       <Row className="flex-column flex-lg-row align-items-center">
         <Col
           md={12}
           lg={6}
-          className={`order-${imageOrder} d-flex justify-content-center align-items-center`}
+          className={`image-col ${imageOrderClass} d-flex justify-content-center align-items-center`}
           data-testid="image-column"
         >
           <Image
@@ -47,10 +50,11 @@ export const ContentSection: FC<ContentSectionProps> = ({
             data-testid="content-image"
           />
         </Col>
+
         <Col
           md={12}
           lg={6}
-          className={`order-${contentOrder}`}
+          className={`content-col ${contentOrderClass}`}
           data-testid="content-column"
         >
           {headingComponent}
