@@ -7,6 +7,7 @@ import { ROUTE_PATHS } from '@/routes';
 import { EXTERNAL_LINKS } from '@/data/urls';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLink } from '@fortawesome/free-solid-svg-icons';
+import { INTERNAL_LINKS } from '@/data/urls';
 
 const Header = () => {
   return (
@@ -45,15 +46,7 @@ const Header = () => {
         >
           <Stack direction="horizontal" gap={3}>
             <a href="/search">Find a site or trail</a>
-            <a
-              target="_blank"
-              href={EXTERNAL_LINKS.RST_ARCGIS_MAP_FULL_SCREEN}
-              rel="noreferrer"
-              onClick={trackClickEvent({
-                category: 'External link',
-                name: 'Interactive map',
-              })}
-            >
+            <a href={INTERNAL_LINKS.SEARCH_MAP}>
               <Stack direction={'horizontal'} gap={1}>
                 Interactive map
                 <FontAwesomeIcon icon={faExternalLink} />

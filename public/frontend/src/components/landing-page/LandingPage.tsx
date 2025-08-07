@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { Button, Stack } from 'react-bootstrap';
 import './LandingPage.scss';
 import { trackClickEvent } from '@/utils/matomo';
-import { EXTERNAL_LINKS } from '@/data/urls';
+import { EXTERNAL_LINKS, INTERNAL_LINKS } from '@/data/urls';
 import {
   ContentSection,
   InfoBanner,
@@ -37,6 +37,20 @@ const FeedbackButton: FC = () => (
     aria-label="Share your feedback (opens in a new tab)"
   >
     Share your feedback
+  </Button>
+);
+
+const SearchMapButton: FC = () => (
+  <Button
+    variant="primary"
+    href={INTERNAL_LINKS.SEARCH_MAP}
+    onClick={trackClickEvent({
+      category: 'Internal link',
+      name: 'Search map',
+    })}
+    aria-label="Open the interactive map"
+  >
+    View interactive map
   </Button>
 );
 
@@ -101,7 +115,7 @@ export const LandingPage: FC = () => {
               <p>
                 We’re continuously improving them through real-world research
                 and user testing. Want to help shape the future of these
-                services? Share your feedback on the new site-we’d love to hear
+                services? Share your feedback on the new site—we’d love to hear
                 from you.
               </p>
               <FeedbackButton />
@@ -116,18 +130,18 @@ export const LandingPage: FC = () => {
           aria-label="New interactive map"
           headingComponent={
             <SectionHeading as={SECTION_HEADING_LEVEL}>
-              New interactive map coming soon
+              New interactive map launched
             </SectionHeading>
           }
           sectionContent={
             <>
               <p>
-                Look out for a new interactive map that will make it easier for
-                you to find recreation sites and trails near you, and on the way
-                to wherever you are headed.
+                Our new interactive map helps you easily find recreation sites
+                and trails near you—or along your journey.
               </p>
               <p>
-                In the meantime, you can still use our{' '}
+                While we work to continuously improve this map, you can still
+                use the{' '}
                 <a
                   rel="noreferrer noopener"
                   className="research-signup-link"
@@ -135,10 +149,10 @@ export const LandingPage: FC = () => {
                 >
                   original interactive map
                 </a>{' '}
-                to explore places to go, road conditions, and important wildfire
-                information.
+                to explore destinations, check road conditions, and stay
+                informed about wildfire updates.
               </p>
-              <FeedbackButton />
+              <SearchMapButton />
             </>
           }
           imageBasePath={LANDING_PAGE_IMAGE_BASE_PATHS.MAP}
