@@ -116,6 +116,12 @@ export class RecreationResourceImageDto {
     required: false,
   })
   recreation_resource_image_variants?: RecreationResourceImageVariantDto[];
+
+  @ApiProperty({
+    description: "File upload date",
+    type: String,
+  })
+  created_at: string | null;
 }
 
 export class CreateRecreationResourceImageBodyDto {

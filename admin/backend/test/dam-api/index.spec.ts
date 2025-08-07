@@ -1,4 +1,3 @@
-import { describe, expect, it } from "vitest";
 import {
   DAM_CONFIG,
   DamApiCoreService,
@@ -7,7 +6,8 @@ import {
   DamApiService,
   DamApiUtilsService,
   DamErrors,
-} from "../../src/dam-api/index";
+} from "@/dam-api";
+import { describe, expect, it } from "vitest";
 
 describe("DAM API Index Exports", () => {
   it("should export all service classes", () => {
@@ -30,8 +30,8 @@ describe("DAM API Index Exports", () => {
     expect(DamErrors.ERR_CREATING_RESOURCE).toBe(416);
 
     expect(DAM_CONFIG).toBeDefined();
-    expect(DAM_CONFIG.HTTP_TIMEOUT).toBe(30000);
-    expect(DAM_CONFIG.RETRY_ATTEMPTS).toBe(3);
+    expect(DAM_CONFIG.HTTP_TIMEOUT).toBe(900000); // 15 * 60 * 1000
+    expect(DAM_CONFIG.RETRY_ATTEMPTS).toBe(5);
   });
 
   it("should allow importing service classes from index", () => {
@@ -59,7 +59,7 @@ describe("DAM API Index Exports", () => {
     expect(DAM_CONFIG.REQUIRED_SIZE_CODES).toEqual([
       "original",
       "thm",
-      "scr",
+      "col",
       "pre",
     ]);
   });

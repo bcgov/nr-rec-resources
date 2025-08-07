@@ -1,28 +1,36 @@
 import { Store } from "@tanstack/store";
-import { GalleryDocument, GalleryFile } from "../types";
+import { GalleryDocument, GalleryFile, GalleryImage } from "../types";
 
 export interface RecResourceFileTransferState {
-  selectedFileForUpload: File | null;
+  selectedFileForUpload: GalleryFile | null;
   uploadFileName: string;
   showUploadOverlay: boolean;
   pendingDocs: GalleryDocument[];
   galleryDocuments: GalleryDocument[];
+  pendingImages: GalleryImage[];
+  galleryImages: GalleryImage[];
   showDeleteModal: boolean;
-  docToDelete?: GalleryFile;
+  fileToDelete?: GalleryFile;
 }
+
+const INITIAL_REC_RESOURCE_FILE_TRANSFER_STATE: RecResourceFileTransferState = {
+  selectedFileForUpload: null,
+  uploadFileName: "",
+  showUploadOverlay: false,
+  pendingDocs: [],
+  galleryDocuments: [],
+  pendingImages: [],
+  galleryImages: [],
+  showDeleteModal: false,
+  fileToDelete: undefined,
+};
 
 export const recResourceFileTransferStore =
   new Store<RecResourceFileTransferState>({
-    selectedFileForUpload: null,
-    uploadFileName: "",
-    showUploadOverlay: false,
-    pendingDocs: [],
-    galleryDocuments: [],
-    showDeleteModal: false,
-    docToDelete: undefined,
+    ...INITIAL_REC_RESOURCE_FILE_TRANSFER_STATE,
   });
 
-export function setSelectedFile(file: File | null) {
+export function setSelectedFile(file: GalleryFile | null) {
   recResourceFileTransferStore.setState((prev) => ({
     ...prev,
     selectedFileForUpload: file,
@@ -56,21 +64,21 @@ export function setShowDeleteModal(show: boolean) {
   }));
 }
 
-export function setDocToDelete(doc?: GalleryFile) {
+export function setFileToDelete(file?: GalleryFile) {
   recResourceFileTransferStore.setState((prev) => ({
     ...prev,
-    docToDelete: doc,
+    fileToDelete: file,
   }));
 }
 
-export const showDeleteModalForDoc = (doc: GalleryFile) => {
-  setDocToDelete(doc);
+export const showDeleteModalForFile = (file: GalleryFile) => {
+  setFileToDelete(file);
   setShowDeleteModal(true);
 };
 
 export const hideDeleteModal = () => {
   setShowDeleteModal(false);
-  setDocToDelete(undefined);
+  setFileToDelete(undefined);
 };
 
 export function addPendingDoc(doc: GalleryDocument) {
@@ -119,5 +127,55 @@ export function updateGalleryDocument(
     const updatedDocs = [...prev.galleryDocuments];
     updatedDocs[idx] = { ...updatedDocs[idx], ...updates };
     return { ...prev, galleryDocuments: updatedDocs };
+  });
+}
+
+// Image-related functions
+export function addPendingImage(image: GalleryImage) {
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    pendingImages: [...prev.pendingImages, image],
+  }));
+}
+
+export function updatePendingImage(id: string, updates: Partial<GalleryImage>) {
+  recResourceFileTransferStore.setState((prev) => {
+    const idx = prev.pendingImages.findIndex((img) => img.id === id);
+    if (idx === -1) {
+      return prev;
+    }
+    const updatedImages = [...prev.pendingImages];
+    updatedImages[idx] = { ...updatedImages[idx], ...updates };
+    return { ...prev, pendingImages: updatedImages };
+  });
+}
+
+export function removePendingImage(id: string) {
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    pendingImages: prev.pendingImages.filter((img) => img.id !== id),
+  }));
+}
+
+export function setGalleryImages(images: GalleryImage[]) {
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    galleryImages: images,
+  }));
+}
+
+export function updateGalleryImage(id: string, updates: Partial<GalleryImage>) {
+  recResourceFileTransferStore.setState((prev) => {
+    const idx = prev.galleryImages.findIndex((img) => img.id === id);
+    if (idx === -1) return prev;
+    const updatedImages = [...prev.galleryImages];
+    updatedImages[idx] = { ...updatedImages[idx], ...updates };
+    return { ...prev, galleryImages: updatedImages };
+  });
+}
+
+export function resetRecResourceFileTransferStore() {
+  recResourceFileTransferStore.setState({
+    ...INITIAL_REC_RESOURCE_FILE_TRANSFER_STATE,
   });
 }

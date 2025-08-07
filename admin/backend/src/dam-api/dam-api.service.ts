@@ -77,11 +77,9 @@ export class DamApiService {
     title: string,
     file: Express.Multer.File,
   ): Promise<DamResource> {
-    this.logger.log(`Creating and uploading document`, {
-      title,
-      fileName: file.originalname,
-      fileSize: file.size,
-    });
+    this.logger.log(
+      `Creating and uploading document: ${title}, file: ${file.originalname}, size: ${file.size}`,
+    );
 
     const ref_id = await this.coreService.createResource(
       title,

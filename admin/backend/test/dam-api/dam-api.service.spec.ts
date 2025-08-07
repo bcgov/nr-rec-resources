@@ -1,8 +1,7 @@
+import { AppConfigService } from "@/app-config/app-config.service";
+import { DamApiCoreService, DamApiService } from "@/dam-api";
 import { Test, TestingModule } from "@nestjs/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { AppConfigService } from "../../src/app-config/app-config.service";
-import { DamApiCoreService } from "../../src/dam-api/dam-api-core.service";
-import { DamApiService } from "../../src/dam-api/dam-api.service";
 
 describe("DamApiService", () => {
   let service: DamApiService;

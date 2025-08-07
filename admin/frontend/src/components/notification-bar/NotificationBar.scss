@@ -3,6 +3,7 @@
 .notification-bar-container {
   @include page-container-base;
   margin-top: 0.5rem;
+  top: 0.25rem;
 
   $border-radius: 12px;
 

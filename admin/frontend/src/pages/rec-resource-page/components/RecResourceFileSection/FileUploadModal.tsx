@@ -1,12 +1,11 @@
 import { useRecResourceFileTransferState } from "@/pages/rec-resource-page/hooks/useRecResourceFileTransferState";
 import { setUploadFileName } from "@/pages/rec-resource-page/store/recResourceFileTransferStore";
-import { getFileNameWithoutExtension } from "@/utils/fileUtils";
-import { isImageFile } from "@/utils/imageUtils";
 import {
   faExclamationTriangle,
   faUpload,
 } from "@fortawesome/free-solid-svg-icons";
-import { FC, useEffect } from "react";
+import { FC } from "react";
+import { Col, Form, Row } from "react-bootstrap";
 import { BaseFileModal } from "./BaseFileModal";
 import "./FileUploadModal.scss";
 
@@ -16,59 +15,67 @@ export const FileUploadModal: FC = () => {
       showUploadOverlay,
       selectedFileForUpload,
       uploadFileName,
+      fileNameError,
     },
     getDocumentGeneralActionHandler,
+    getImageGeneralActionHandler,
   } = useRecResourceFileTransferState();
-
-  // Set default file name
-  useEffect(() => {
-    if (selectedFileForUpload) {
-      const defaultTitle = getFileNameWithoutExtension(selectedFileForUpload);
-      setUploadFileName(defaultTitle);
-    }
-  }, [selectedFileForUpload]);
 
   if (!showUploadOverlay || !selectedFileForUpload) return null;
 
-  const modalTitle = isImageFile(selectedFileForUpload)
-    ? "Upload image"
-    : "Upload file";
+  const isImage = selectedFileForUpload.type === "image";
+  const modalTitle = isImage ? "Upload image" : "Upload file";
 
-  const handleCancel = getDocumentGeneralActionHandler("cancel-upload");
-  const handleConfirm = getDocumentGeneralActionHandler("confirm-upload");
+  // Use the appropriate action handler based on file type
+  const getGeneralActionHandler = isImage
+    ? getImageGeneralActionHandler
+    : getDocumentGeneralActionHandler;
+
+  const handleCancel = getGeneralActionHandler("cancel-upload");
+  const handleConfirm = getGeneralActionHandler("confirm-upload");
 
   const alertConfig = {
     variant: "warning",
     icon: faExclamationTriangle,
-    text: "Uploading images will directly publish to the public website.",
+    text: "Uploading files will directly publish to the public website.",
   };
+
+  const isFilenameInvalid = !!fileNameError;
 
   return (
     <BaseFileModal
       show={showUploadOverlay}
       onHide={handleCancel}
       title={modalTitle}
-      file={selectedFileForUpload}
+      galleryFile={selectedFileForUpload}
       alertConfig={alertConfig}
       className="upload-file-modal"
       onCancel={handleCancel}
       onConfirm={handleConfirm}
       confirmButtonText="Upload"
       confirmButtonIcon={faUpload}
+      confirmButtonDisabled={isFilenameInvalid}
     >
-      <div className="upload-file-modal__input-label">
-        <div className="upload-file-modal__input-row">
-          <span>Name</span>
-          <input
-            type="text"
-            value={uploadFileName}
-            onChange={(e) => setUploadFileName(e.target.value)}
-            className="upload-file-modal__input"
-            maxLength={100}
-            placeholder="Enter document title"
-          />
-        </div>
-      </div>
+      <Form onSubmit={handleConfirm}>
+        <Form.Group as={Row}>
+          <Form.Label column sm={4} className="fw-bold">
+            Name
+          </Form.Label>
+          <Col sm={8}>
+            <Form.Control
+              type="text"
+              value={uploadFileName}
+              onChange={(e) => setUploadFileName(e.target.value)}
+              maxLength={100}
+              placeholder="Enter file name"
+              isInvalid={isFilenameInvalid}
+            />
+            <Form.Control.Feedback type="invalid">
+              {fileNameError}
+            </Form.Control.Feedback>
+          </Col>
+        </Form.Group>
+      </Form>
     </BaseFileModal>
   );
 };

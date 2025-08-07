@@ -49,7 +49,9 @@ export class AppConfigService {
   }
 
   get databasePort(): number {
-    return this.configService.get("POSTGRES_PORT", { infer: true })!;
+    return this.configService.get("POSTGRES_PORT", 5432, {
+      infer: true,
+    })!;
   }
 
   get databaseUser(): string {

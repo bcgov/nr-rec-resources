@@ -34,7 +34,6 @@ export class EnvironmentVariables {
   POSTGRES_HOST: string;
 
   @Transform(({ value }) => parseInt(value, 10))
-  @IsNotEmpty()
   POSTGRES_PORT: number;
 
   @IsString()

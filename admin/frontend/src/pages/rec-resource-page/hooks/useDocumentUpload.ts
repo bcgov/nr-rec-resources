@@ -6,7 +6,6 @@ import {
   addSuccessNotification,
 } from "@/store/notificationStore";
 import { useCallback } from "react";
-import { formatDocumentDate } from "../helpers";
 import {
   addPendingDoc,
   removePendingDoc,
@@ -62,31 +61,27 @@ export function useDocumentUpload() {
 
   // Handle upload (with pending doc)
   const handleUpload = useCallback(
-    async (
-      selectedFile: File | null,
-      uploadFileName: string,
-      onSuccess?: () => void,
-    ) => {
-      if (!recResource?.rec_resource_id || !selectedFile || !uploadFileName) {
+    async (galleryFile: GalleryFile, onSuccess?: () => void) => {
+      if (
+        !recResource?.rec_resource_id ||
+        !galleryFile.pendingFile ||
+        !galleryFile.name
+      ) {
         return;
       }
-      const tempId = `pending-${Date.now()}`;
       const tempDoc: GalleryDocument = {
-        id: tempId,
-        name: uploadFileName,
-        date: formatDocumentDate(new Date().toISOString()),
-        url: "",
-        extension: selectedFile.name.split(".").pop()!,
+        ...galleryFile,
         isUploading: true,
-        pendingFile: selectedFile,
+        pendingFile: galleryFile.pendingFile,
+        type: "document",
       };
       addPendingDoc(tempDoc);
 
       await doUpload({
         rec_resource_id: recResource.rec_resource_id,
-        file: selectedFile,
-        title: uploadFileName,
-        tempId,
+        file: galleryFile.pendingFile,
+        title: galleryFile.name,
+        tempId: galleryFile.id,
         onSuccess,
       });
     },

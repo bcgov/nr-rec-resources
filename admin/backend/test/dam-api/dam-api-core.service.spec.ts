@@ -1,14 +1,14 @@
+import {
+  DamApiConfig,
+  DamApiCoreService,
+  DamApiHttpService,
+  DamApiUtilsService,
+  DamErrors,
+  DamFile,
+} from "@/dam-api";
 import { HttpException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { DamApiCoreService } from "../../src/dam-api/dam-api-core.service";
-import { DamApiHttpService } from "../../src/dam-api/dam-api-http.service";
-import { DamApiUtilsService } from "../../src/dam-api/dam-api-utils.service";
-import {
-  DamApiConfig,
-  DamErrors,
-  DamFile,
-} from "../../src/dam-api/dam-api.types";
 
 describe("DamApiCoreService", () => {
   let service: DamApiCoreService;
@@ -19,7 +19,7 @@ describe("DamApiCoreService", () => {
   beforeEach(async () => {
     mockHttpService = {
       makeRequest: vi.fn(),
-      createValidationClient: vi.fn(),
+      makeRequestWithValidation: vi.fn(),
     };
 
     mockUtilsService = {
@@ -43,6 +43,8 @@ describe("DamApiCoreService", () => {
 
     service = module.get<DamApiCoreService>(DamApiCoreService);
 
+    vi.clearAllMocks();
+
     mockConfig = {
       damUrl: "https://test-dam.example.com",
       privateKey: "test-private-key",
@@ -56,6 +58,13 @@ describe("DamApiCoreService", () => {
 
   it("should be defined", () => {
     expect(service).toBeDefined();
+  });
+
+  it("should instantiate with correct dependencies", () => {
+    expect(service).toBeInstanceOf(DamApiCoreService);
+    expect(service["httpService"]).toBeDefined();
+    expect(service["utilsService"]).toBeDefined();
+    expect(service["logger"]).toBeDefined();
   });
 
   describe("createResource", () => {
@@ -399,114 +408,41 @@ describe("DamApiCoreService", () => {
   });
 
   describe("getResourcePathWithRetry", () => {
-    it("should return files immediately if validation passes on first try", async () => {
+    it("should return files when validation passes", async () => {
       const mockFiles: DamFile[] = [
         { size_code: "original", path: "/path/original.jpg" },
         { size_code: "thm", path: "/path/thumb.jpg" },
-        { size_code: "scr", path: "/path/screen.jpg" },
+        { size_code: "col", path: "/path/col.jpg" },
+        { size_code: "pre", path: "/path/preview.jpg" },
       ];
 
-      // Mock getResourcePath to return files
-      vi.spyOn(service, "getResourcePath").mockResolvedValue(mockFiles);
-      (mockUtilsService.validateFileTypes as any).mockReturnValue(true);
+      const mockFormData = { append: vi.fn() } as any;
+      (mockUtilsService.createFormData as any).mockReturnValue(mockFormData);
+
+      // Mock makeRequestWithValidation to return files
+      (mockHttpService.makeRequestWithValidation as any).mockResolvedValue(
+        mockFiles,
+      );
 
       const result = await service.getResourcePathWithRetry(
         "resource-123",
         mockConfig,
       );
 
-      expect(service.getResourcePath).toHaveBeenCalledWith(
-        "resource-123",
-        mockConfig,
+      expect(mockHttpService.makeRequestWithValidation).toHaveBeenCalledWith(
+        mockConfig.damUrl,
+        mockFormData,
+        expect.any(Function), // validation function
       );
       expect(result).toEqual(mockFiles);
     });
 
-    it("should use validation client when files not ready on first try", async () => {
-      const initialFiles: DamFile[] = [
-        { size_code: "thm", path: "/path/thumb.jpg" },
-      ];
-      const finalFiles: DamFile[] = [
-        { size_code: "original", path: "/path/original.jpg" },
-        { size_code: "thm", path: "/path/thumb.jpg" },
-        { size_code: "scr", path: "/path/screen.jpg" },
-      ];
-
-      const mockValidationClient = {
-        post: vi.fn().mockResolvedValue({ data: finalFiles }),
-      };
-      const mockFormData = {
-        append: vi.fn(),
-        getHeaders: vi
-          .fn()
-          .mockReturnValue({ "content-type": "multipart/form-data" }),
-      } as any;
-
-      // Mock getResourcePath to return insufficient files
-      vi.spyOn(service, "getResourcePath").mockResolvedValue(initialFiles);
-
-      // Mock validation sequence: first false (insufficient), then true (sufficient)
-      (mockUtilsService.validateFileTypes as any)
-        .mockReturnValueOnce(false) // First validation fails
-        .mockReturnValueOnce(true); // Second validation passes
-
-      (mockHttpService.createValidationClient as any).mockReturnValue(
-        mockValidationClient,
+    it("should throw file processing timeout error when validation fails", async () => {
+      // Mock makeRequestWithValidation to throw error indicating validation failure
+      const validationError = new Error("Custom validation failed");
+      (mockHttpService.makeRequestWithValidation as any).mockRejectedValue(
+        validationError,
       );
-      (mockUtilsService.createFormData as any).mockReturnValue(mockFormData);
-
-      const result = await service.getResourcePathWithRetry(
-        "resource-123",
-        mockConfig,
-      );
-
-      expect(service.getResourcePath).toHaveBeenCalled();
-      expect(mockHttpService.createValidationClient).toHaveBeenCalled();
-
-      // Test that the validateStatus function was called correctly
-      const postCall = mockValidationClient.post.mock.calls[0];
-      expect(postCall).toBeDefined();
-      const config = postCall![2];
-      expect(config.validateStatus).toBeDefined();
-      expect(config.validateStatus(400)).toBe(true); // Should return true for status < 500
-      expect(config.validateStatus(500)).toBe(false); // Should return false for status >= 500
-
-      expect(mockValidationClient.post).toHaveBeenCalledWith(
-        mockConfig.damUrl,
-        mockFormData,
-        expect.objectContaining({
-          headers: { "content-type": "multipart/form-data" },
-          validateStatus: expect.any(Function),
-        }),
-      );
-      expect(result).toEqual(finalFiles);
-    });
-
-    it("should throw timeout error when files not ready after validation", async () => {
-      const initialFiles: DamFile[] = [
-        { size_code: "thm", path: "/path/thumb.jpg" },
-      ];
-
-      const mockValidationClient = {
-        post: vi.fn().mockResolvedValue({ data: initialFiles }),
-      };
-      const mockFormData = {
-        append: vi.fn(),
-        getHeaders: vi
-          .fn()
-          .mockReturnValue({ "content-type": "multipart/form-data" }),
-      } as any;
-
-      // Mock getResourcePath to return insufficient files
-      vi.spyOn(service, "getResourcePath").mockResolvedValue(initialFiles);
-
-      // Mock validation to always return false (insufficient files)
-      (mockUtilsService.validateFileTypes as any).mockReturnValue(false);
-
-      (mockHttpService.createValidationClient as any).mockReturnValue(
-        mockValidationClient,
-      );
-      (mockUtilsService.createFormData as any).mockReturnValue(mockFormData);
 
       await expect(
         service.getResourcePathWithRetry("resource-123", mockConfig),
@@ -525,31 +461,12 @@ describe("DamApiCoreService", () => {
       }
     });
 
-    it("should handle validation client errors", async () => {
-      const initialFiles: DamFile[] = [
-        { size_code: "thm", path: "/path/thumb.jpg" },
-      ];
-
-      const mockValidationClient = {
-        post: vi.fn().mockRejectedValue(new Error("Validation request failed")),
-      };
-      const mockFormData = {
-        append: vi.fn(),
-        getHeaders: vi
-          .fn()
-          .mockReturnValue({ "content-type": "multipart/form-data" }),
-      } as any;
-
-      // Mock getResourcePath to return insufficient files
-      vi.spyOn(service, "getResourcePath").mockResolvedValue(initialFiles);
-
-      // Mock validation to return false (insufficient files)
-      (mockUtilsService.validateFileTypes as any).mockReturnValue(false);
-
-      (mockHttpService.createValidationClient as any).mockReturnValue(
-        mockValidationClient,
+    it("should throw generic error for non-validation failures", async () => {
+      // Mock makeRequestWithValidation to throw a different error (network, auth, etc.)
+      const networkError = new Error("Network error");
+      (mockHttpService.makeRequestWithValidation as any).mockRejectedValue(
+        networkError,
       );
-      (mockUtilsService.createFormData as any).mockReturnValue(mockFormData);
 
       await expect(
         service.getResourcePathWithRetry("resource-123", mockConfig),
@@ -561,6 +478,43 @@ describe("DamApiCoreService", () => {
         expect(err).toBeInstanceOf(HttpException);
         expect((err as HttpException).getStatus()).toBe(
           DamErrors.ERR_GETTING_RESOURCE_IMAGES,
+        );
+        expect((err as HttpException).message).toContain(
+          "Error getting dam resource path with retry",
+        );
+      }
+    });
+
+    it("should use correct validation function that checks file types", async () => {
+      const mockFiles: DamFile[] = [
+        { size_code: "original", path: "/path/original.jpg" },
+        { size_code: "thm", path: "/path/thumb.jpg" },
+      ];
+
+      // Mock makeRequestWithValidation to capture the validation function
+      let capturedValidationFunction: ((data: any) => boolean) | undefined;
+      (mockHttpService.makeRequestWithValidation as any).mockImplementation(
+        (url: string, formData: any, validateFn: (data: any) => boolean) => {
+          capturedValidationFunction = validateFn;
+          return Promise.resolve(mockFiles);
+        },
+      );
+
+      // Mock the utils service validateFileTypes
+      (mockUtilsService.validateFileTypes as any).mockReturnValue(true);
+
+      await service.getResourcePathWithRetry("resource-123", mockConfig);
+
+      // Verify that the validation function was captured
+      expect(capturedValidationFunction).toBeDefined();
+
+      // Test the validation function directly
+      if (capturedValidationFunction) {
+        const result = capturedValidationFunction(mockFiles);
+        expect(result).toBe(true);
+        expect(mockUtilsService.validateFileTypes).toHaveBeenCalledWith(
+          mockFiles,
+          ["original", "thm", "col", "pre"],
         );
       }
     });
