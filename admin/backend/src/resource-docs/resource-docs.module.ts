@@ -13,7 +13,7 @@ import { ResourceDocsService } from "./service/resource-docs.service";
   imports: [
     MulterModule.register({
       storage: memoryStorage(),
-      limits: { fileSize: 1.5 * 1024 * 1024 }, // ~1 MB limit
+      limits: { fileSize: 20.5 * 1024 * 1024 }, // ~20 MB limit
     }),
     PrismaModule,
     DamApiModule,

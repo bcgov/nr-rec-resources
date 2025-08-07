@@ -1,4 +1,5 @@
 import { BaseFileModal } from "@/pages/rec-resource-page/components/RecResourceFileSection/BaseFileModal";
+import { GalleryFile } from "@/pages/rec-resource-page/types";
 import { faTrash, faUpload } from "@fortawesome/free-solid-svg-icons";
 import { reactQueryWrapper } from "@test/test-utils/reactQueryWrapper";
 import { fireEvent, render, screen } from "@testing-library/react";
@@ -9,11 +10,6 @@ Object.defineProperty(URL, "createObjectURL", {
   writable: true,
   value: vi.fn(() => "mocked-object-url"),
 });
-
-// Mock utility functions
-vi.mock("@/utils/imageUtils", () => ({
-  isImageFile: vi.fn(),
-}));
 
 // Mock FontAwesome icons
 vi.mock("@fortawesome/react-fontawesome", () => ({
@@ -36,169 +32,102 @@ vi.mock("@/components", () => ({
       {children}
     </button>
   ),
+  ClampLines: ({ text }: any) => <div>{text}</div>,
 }));
 
-import { isImageFile } from "@/utils/imageUtils";
-
-const mockIsImageFile = vi.mocked(isImageFile);
-
 describe("BaseFileModal", () => {
-  const defaultProps = {
-    show: true,
+  const mockHandlers = {
     onHide: vi.fn(),
-    title: "Test Modal",
     onCancel: vi.fn(),
     onConfirm: vi.fn(),
-    confirmButtonText: "Confirm",
-    confirmButtonIcon: faUpload,
   };
 
-  const createFile = (name = "test.pdf", type = "application/pdf") =>
-    new File(["test content"], name, { type });
+  const documentFile: GalleryFile = {
+    id: "doc-1",
+    name: "test.pdf",
+    date: "2023-01-01",
+    url: "https://example.com/test.pdf",
+    extension: "pdf",
+    type: "document",
+  };
 
-  const createImageFile = (name = "test.jpg", type = "image/jpeg") =>
-    new File(["test image content"], name, { type });
+  const imageFile: GalleryFile = {
+    id: "img-1",
+    name: "test.jpg",
+    date: "2023-01-01",
+    url: "https://example.com/test.jpg",
+    extension: "jpg",
+    type: "image",
+  };
+
+  const defaultProps = {
+    show: true,
+    title: "Test Modal",
+    galleryFile: documentFile,
+    confirmButtonText: "Confirm",
+    confirmButtonIcon: faUpload,
+    ...mockHandlers,
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockIsImageFile.mockImplementation((file) =>
-      file.type.startsWith("image/"),
-    );
   });
 
-  describe("Modal Visibility", () => {
-    it("renders when show is true", () => {
-      render(<BaseFileModal {...defaultProps} />, {
-        wrapper: reactQueryWrapper,
-      });
-
-      expect(screen.getByRole("dialog")).toBeInTheDocument();
-      expect(screen.getByText("Test Modal")).toBeInTheDocument();
-    });
-
-    it("returns null when show is false", () => {
-      const { container } = render(
-        <BaseFileModal {...defaultProps} show={false} />,
-        { wrapper: reactQueryWrapper },
-      );
-
-      expect(container.firstChild).toBeNull();
-    });
-  });
-
-  describe("Modal Structure", () => {
-    it("renders title correctly", () => {
-      render(<BaseFileModal {...defaultProps} title="Custom Title" />, {
-        wrapper: reactQueryWrapper,
-      });
-
-      expect(screen.getByText("Custom Title")).toBeInTheDocument();
-    });
-
-    it("renders children when provided", () => {
-      render(
-        <BaseFileModal {...defaultProps}>
-          <div data-testid="custom-content">Custom Content</div>
+  describe("Rendering and Visibility", () => {
+    it("shows/hides modal and renders content correctly", () => {
+      const { rerender } = render(
+        <BaseFileModal {...defaultProps} title="Custom" className="custom">
+          <div data-testid="content">Content</div>
         </BaseFileModal>,
         { wrapper: reactQueryWrapper },
       );
 
-      expect(screen.getByTestId("custom-content")).toBeInTheDocument();
-      expect(screen.getByText("Custom Content")).toBeInTheDocument();
-    });
+      // Modal visibility and content
+      expect(screen.getByRole("dialog")).toBeInTheDocument();
+      expect(screen.getByText("Custom")).toBeInTheDocument();
+      expect(screen.getByTestId("content")).toBeInTheDocument();
+      expect(screen.getByRole("dialog")).toHaveClass(
+        "base-file-modal",
+        "custom",
+      );
 
-    it("applies custom className correctly", () => {
-      render(<BaseFileModal {...defaultProps} className="custom-modal" />, {
-        wrapper: reactQueryWrapper,
-      });
-
-      const modal = screen.getByRole("dialog");
-      expect(modal).toHaveClass("base-file-modal", "custom-modal");
+      // Hide modal
+      rerender(<BaseFileModal {...defaultProps} show={false} />);
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
   });
 
-  describe("File Preview", () => {
-    it("shows image preview for image file", () => {
-      const imageFile = createImageFile();
-      render(<BaseFileModal {...defaultProps} file={imageFile} />, {
+  describe("File Previews", () => {
+    it("renders correct preview based on file type", () => {
+      // Test image preview
+      render(<BaseFileModal {...defaultProps} galleryFile={imageFile} />, {
         wrapper: reactQueryWrapper,
       });
 
       const preview = screen.getByAltText("preview");
-      expect(preview).toBeInTheDocument();
-      expect(preview).toHaveAttribute("src");
+      expect(preview).toHaveAttribute("src", imageFile.url);
       expect(preview).toHaveClass("base-file-modal__preview-img");
-    });
 
-    it("shows image preview for image URL", () => {
+      // Test document preview
       render(
         <BaseFileModal
           {...defaultProps}
-          fileUrl="https://example.com/image.jpg"
+          galleryFile={{ ...documentFile, name: "doc.pdf" }}
         />,
         { wrapper: reactQueryWrapper },
       );
 
-      const preview = screen.getByAltText("preview");
-      expect(preview).toBeInTheDocument();
-      expect(preview).toHaveAttribute("src", "https://example.com/image.jpg");
-    });
+      const pdfIcon = screen
+        .getAllByTestId("font-awesome-icon")
+        .find((icon) => icon.getAttribute("data-icon") === "file-pdf");
 
-    it("shows PDF icon for non-image file", () => {
-      const pdfFile = createFile();
-      render(<BaseFileModal {...defaultProps} file={pdfFile} />, {
-        wrapper: reactQueryWrapper,
-      });
-
-      // Get PDF icon specifically (not the one in the confirm button)
-      const pdfIcons = screen.getAllByTestId("font-awesome-icon");
-      const pdfIcon = pdfIcons.find(
-        (icon) => icon.getAttribute("data-icon") === "file-pdf",
-      );
-      expect(pdfIcon).toBeDefined();
       expect(pdfIcon).toHaveAttribute("data-size", "3x");
-    });
-
-    it("shows file name with PDF icon for non-image file", () => {
-      const pdfFile = createFile("document.pdf");
-      render(
-        <BaseFileModal
-          {...defaultProps}
-          file={pdfFile}
-          fileName="document.pdf"
-        />,
-        { wrapper: reactQueryWrapper },
-      );
-
-      expect(screen.getByText("document.pdf")).toBeInTheDocument();
-    });
-
-    it("detects image file types correctly from URL", () => {
-      const imageExtensions = [
-        "jpg",
-        "jpeg",
-        "png",
-        "heic",
-        "webp",
-        "gif",
-        "bmp",
-        "tiff",
-      ];
-
-      imageExtensions.forEach((ext) => {
-        const { unmount } = render(
-          <BaseFileModal {...defaultProps} fileUrl={`test.${ext}`} />,
-          { wrapper: reactQueryWrapper },
-        );
-
-        expect(screen.getByAltText("preview")).toBeInTheDocument();
-        unmount();
-      });
+      expect(screen.getByText("doc.pdf")).toBeInTheDocument();
     });
   });
 
-  describe("Alert Configuration", () => {
-    it("renders alert when alertConfig is provided", () => {
+  describe("Alerts and Interactions", () => {
+    it("handles alerts and button interactions", () => {
       const alertConfig = {
         variant: "warning" as const,
         icon: faTrash,
@@ -206,58 +135,10 @@ describe("BaseFileModal", () => {
         iconColor: "red",
       };
 
-      render(<BaseFileModal {...defaultProps} alertConfig={alertConfig} />, {
-        wrapper: reactQueryWrapper,
-      });
-
-      expect(screen.getByText("Warning message")).toBeInTheDocument();
-
-      const alertIcon = screen
-        .getAllByTestId("font-awesome-icon")
-        .find((icon) => icon.getAttribute("data-icon") === "trash");
-      expect(alertIcon).toBeInTheDocument();
-      expect(alertIcon).toHaveAttribute("data-color", "red");
-    });
-
-    it("does not render alert when alertConfig is not provided", () => {
-      render(<BaseFileModal {...defaultProps} />, {
-        wrapper: reactQueryWrapper,
-      });
-
-      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-    });
-
-    it("applies correct alert variant class", () => {
-      const alertConfig = {
-        variant: "danger" as const,
-        icon: faTrash,
-        text: "Danger message",
-      };
-
-      render(<BaseFileModal {...defaultProps} alertConfig={alertConfig} />, {
-        wrapper: reactQueryWrapper,
-      });
-
-      const alert = screen.getByRole("alert");
-      expect(alert).toHaveClass("alert-danger");
-    });
-  });
-
-  describe("Action Buttons", () => {
-    it("renders Cancel button", () => {
-      render(<BaseFileModal {...defaultProps} />, {
-        wrapper: reactQueryWrapper,
-      });
-
-      const cancelButton = screen.getByRole("button", { name: /cancel/i });
-      expect(cancelButton).toBeInTheDocument();
-      expect(cancelButton).toHaveAttribute("data-variant", "tertiary");
-    });
-
-    it("renders Confirm button with custom text and icon", () => {
       render(
         <BaseFileModal
           {...defaultProps}
+          alertConfig={alertConfig}
           confirmButtonText="Delete"
           confirmButtonIcon={faTrash}
           confirmButtonVariant="danger"
@@ -265,119 +146,71 @@ describe("BaseFileModal", () => {
         { wrapper: reactQueryWrapper },
       );
 
-      const confirmButton = screen.getByRole("button", { name: /delete/i });
-      expect(confirmButton).toBeInTheDocument();
-      expect(confirmButton).toHaveAttribute("data-variant", "danger");
-    });
+      // Alert rendering
+      expect(screen.getByText("Warning message")).toBeInTheDocument();
+      expect(screen.getByRole("alert")).toHaveClass("alert-warning");
+      const alertIcon = screen
+        .getAllByTestId("font-awesome-icon")
+        .find((icon) => icon.getAttribute("data-icon") === "trash");
+      expect(alertIcon).toHaveAttribute("data-color", "red");
 
-    it("calls onCancel when Cancel button is clicked", () => {
-      const mockOnCancel = vi.fn();
-      render(<BaseFileModal {...defaultProps} onCancel={mockOnCancel} />, {
-        wrapper: reactQueryWrapper,
-      });
-
+      // Button interactions
       const cancelButton = screen.getByRole("button", { name: /cancel/i });
-      fireEvent.click(cancelButton);
-
-      expect(mockOnCancel).toHaveBeenCalledTimes(1);
-    });
-
-    it("calls onConfirm when Confirm button is clicked", () => {
-      const mockOnConfirm = vi.fn();
-      render(<BaseFileModal {...defaultProps} onConfirm={mockOnConfirm} />, {
-        wrapper: reactQueryWrapper,
-      });
-
-      const confirmButton = screen.getByRole("button", { name: /confirm/i });
-      fireEvent.click(confirmButton);
-
-      expect(mockOnConfirm).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe("Modal Behavior", () => {
-    it("calls onHide when close button is clicked", () => {
-      const mockOnHide = vi.fn();
-      render(<BaseFileModal {...defaultProps} onHide={mockOnHide} />, {
-        wrapper: reactQueryWrapper,
-      });
-
+      const confirmButton = screen.getByRole("button", { name: /delete/i });
       const closeButton = screen.getByRole("button", { name: /close/i });
+
+      expect(cancelButton).toHaveAttribute("data-variant", "tertiary");
+      expect(confirmButton).toHaveAttribute("data-variant", "danger");
+
+      fireEvent.click(cancelButton);
+      fireEvent.click(confirmButton);
       fireEvent.click(closeButton);
 
-      expect(mockOnHide).toHaveBeenCalledTimes(1);
+      expect(mockHandlers.onCancel).toHaveBeenCalledTimes(1);
+      expect(mockHandlers.onConfirm).toHaveBeenCalledTimes(1);
+      expect(mockHandlers.onHide).toHaveBeenCalledTimes(1);
     });
 
-    it("has correct modal size and centering", () => {
+    it("works without alert config", () => {
       render(<BaseFileModal {...defaultProps} />, {
         wrapper: reactQueryWrapper,
       });
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    });
+  });
 
+  describe("Styling and Edge Cases", () => {
+    it("applies CSS classes and handles edge cases", () => {
+      // Test CSS classes
+      const { rerender } = render(
+        <BaseFileModal {...defaultProps} className="custom" />,
+        { wrapper: reactQueryWrapper },
+      );
+
+      const title = screen.getByText("Test Modal");
+      expect(title).toHaveClass("custom__title", "base-file-modal__title");
+
+      // Test modal styling
       const modalDialog = screen
         .getByRole("dialog")
         .querySelector(".modal-dialog");
-      expect(modalDialog).toHaveClass("modal-lg");
-      expect(modalDialog).toHaveClass("modal-dialog-centered");
-    });
-  });
+      expect(modalDialog).toHaveClass("modal-lg", "modal-dialog-centered");
 
-  describe("CSS Classes", () => {
-    it("applies correct CSS classes with custom className", () => {
-      render(<BaseFileModal {...defaultProps} className="upload-modal" />, {
-        wrapper: reactQueryWrapper,
-      });
+      // Test edge cases: empty filename and minimal props
+      const emptyNameFile = { ...documentFile, name: "" };
+      rerender(<BaseFileModal {...defaultProps} galleryFile={emptyNameFile} />);
 
-      const title = screen.getByText("Test Modal");
-      expect(title).toHaveClass(
-        "upload-modal__title",
-        "base-file-modal__title",
-      );
-    });
-
-    it("applies default classes when no custom className provided", () => {
-      render(<BaseFileModal {...defaultProps} />, {
-        wrapper: reactQueryWrapper,
-      });
-
-      const title = screen.getByText("Test Modal");
-      expect(title).toHaveClass("__title", "base-file-modal__title");
-    });
-  });
-
-  describe("Edge Cases", () => {
-    it("handles undefined file gracefully", () => {
-      render(<BaseFileModal {...defaultProps} file={undefined} />, {
-        wrapper: reactQueryWrapper,
-      });
-
-      // Should show PDF icon as fallback (not the one in the confirm button)
-      const pdfIcons = screen.getAllByTestId("font-awesome-icon");
-      const pdfIcon = pdfIcons.find(
-        (icon) => icon.getAttribute("data-icon") === "file-pdf",
-      );
+      const pdfIcon = screen
+        .getAllByTestId("font-awesome-icon")
+        .find((icon) => icon.getAttribute("data-icon") === "file-pdf");
       expect(pdfIcon).toBeDefined();
-    });
 
-    it("handles empty fileName gracefully", () => {
-      render(<BaseFileModal {...defaultProps} fileName="" />, {
-        wrapper: reactQueryWrapper,
-      });
-
-      // Should not render a file name element for empty string
-      const previewSection = screen
-        .getByRole("dialog")
-        .querySelector(".base-file-modal__preview-pdf");
-      const fileNameElement = previewSection?.querySelector(
-        ".base-file-modal__file-name",
-      );
-      expect(fileNameElement).toBeNull();
-    });
-
-    it("handles missing optional props gracefully", () => {
+      // Test minimal props don't throw
       const minimalProps = {
         show: true,
         onHide: vi.fn(),
-        title: "Minimal Modal",
+        title: "Minimal",
+        galleryFile: documentFile,
         confirmButtonText: "OK",
         confirmButtonIcon: faUpload,
       };

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
 import * as helpersModule from "@/services/hooks/recreation-resource-admin/helpers";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 beforeEach(() => {
   vi.resetModules();
@@ -33,6 +33,74 @@ describe("transformRecreationResourceDocs", () => {
 
   it("should return empty array if input is empty", () => {
     expect(helpersModule.transformRecreationResourceDocs([])).toEqual([]);
+  });
+});
+
+describe("transformRecreationResourceImages", () => {
+  it("should prepend base path to each image variant url", () => {
+    vi.stubEnv("VITE_RECREATION_RESOURCE_ASSETS_BASE_URL", undefined);
+    const images = [
+      {
+        id: 1,
+        recreation_resource_image_variants: [
+          { id: 1, url: "image1-small.jpg" },
+          { id: 2, url: "image1-large.jpg" },
+        ],
+      },
+      {
+        id: 2,
+        recreation_resource_image_variants: [
+          { id: 3, url: "image2-small.jpg" },
+        ],
+      },
+    ];
+
+    const result = helpersModule.transformRecreationResourceImages(
+      images as any,
+    );
+    expect(result).toEqual([
+      {
+        id: 1,
+        recreation_resource_image_variants: [
+          {
+            id: 1,
+            url: "https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca/image1-small.jpg",
+          },
+          {
+            id: 2,
+            url: "https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca/image1-large.jpg",
+          },
+        ],
+      },
+      {
+        id: 2,
+        recreation_resource_image_variants: [
+          {
+            id: 3,
+            url: "https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca/image2-small.jpg",
+          },
+        ],
+      },
+    ]);
+  });
+
+  it("should handle images without variants", () => {
+    const images = [
+      { id: 1, recreation_resource_image_variants: undefined },
+      { id: 2, recreation_resource_image_variants: null },
+    ];
+
+    const result = helpersModule.transformRecreationResourceImages(
+      images as any,
+    );
+    expect(result).toEqual([
+      { id: 1, recreation_resource_image_variants: undefined },
+      { id: 2, recreation_resource_image_variants: undefined }, // null becomes undefined due to optional chaining
+    ]);
+  });
+
+  it("should return empty array if input is empty", () => {
+    expect(helpersModule.transformRecreationResourceImages([])).toEqual([]);
   });
 });
 

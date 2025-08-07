@@ -2,6 +2,8 @@
 
 .landing-page {
   height: calc(100vh - $headerHeight);
+  position: absolute;
+  top: $headerHeight;
   background-image: url("/images/landing-page/hero/hero.jpg");
   background-size: cover;
   background-position: center 50%;

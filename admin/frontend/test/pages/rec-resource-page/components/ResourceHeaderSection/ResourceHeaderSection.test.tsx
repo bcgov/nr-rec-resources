@@ -4,10 +4,12 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mockUseRecResourceFileTransferState = vi.fn();
+const mockGetImageGeneralActionHandler = vi.fn();
+const mockGetDocumentGeneralActionHandler = vi.fn();
 
 // Mock the helpers
 vi.mock("@/pages/rec-resource-page/helpers", () => ({
-  handleAddPdfFileClick: vi.fn(),
+  handleAddFileByType: vi.fn(),
 }));
 
 vi.mock(
@@ -56,16 +58,19 @@ const baseResource = {
   },
 } as unknown as RecreationResourceDetailModel;
 
-// Import the mocked function to access it in tests
-import { handleAddPdfFileClick } from "@/pages/rec-resource-page/helpers";
-const mockHandleAddPdfFileClick = vi.mocked(handleAddPdfFileClick);
-
 describe("ResourceHeaderSection", () => {
-  const defaultState = { isDocumentUploadDisabled: false };
+  const defaultState = {
+    isDocumentUploadDisabled: false,
+    isImageUploadDisabled: false,
+    getDocumentGeneralActionHandler: mockGetDocumentGeneralActionHandler,
+    getImageGeneralActionHandler: mockGetImageGeneralActionHandler,
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
     mockUseRecResourceFileTransferState.mockReturnValue(defaultState);
+    mockGetImageGeneralActionHandler.mockReturnValue(vi.fn());
+    mockGetDocumentGeneralActionHandler.mockReturnValue(vi.fn());
   });
 
   it("renders resource name, id, and type", () => {
@@ -78,6 +83,12 @@ describe("ResourceHeaderSection", () => {
   });
 
   it("calls handleAddPdfFileClick for Add image and Add document (desktop)", () => {
+    const mockImageHandler = vi.fn();
+    const mockDocumentHandler = vi.fn();
+
+    mockGetImageGeneralActionHandler.mockReturnValue(mockImageHandler);
+    mockGetDocumentGeneralActionHandler.mockReturnValue(mockDocumentHandler);
+
     render(<ResourceHeaderSection recResource={baseResource} />);
 
     // Get the desktop action buttons (they have d-none d-md-flex classes)
@@ -89,11 +100,15 @@ describe("ResourceHeaderSection", () => {
     fireEvent.click(addImageButton);
     fireEvent.click(addDocumentButton);
 
-    expect(mockHandleAddPdfFileClick).toHaveBeenCalledTimes(2);
+    expect(mockGetImageGeneralActionHandler).toHaveBeenCalledWith("upload");
+    expect(mockGetDocumentGeneralActionHandler).toHaveBeenCalledWith("upload");
+    expect(mockImageHandler).toHaveBeenCalledTimes(1);
+    expect(mockDocumentHandler).toHaveBeenCalledTimes(1);
   });
 
   it("disables Add document button if upload is disabled", () => {
     mockUseRecResourceFileTransferState.mockReturnValue({
+      ...defaultState,
       isDocumentUploadDisabled: true,
     });
 

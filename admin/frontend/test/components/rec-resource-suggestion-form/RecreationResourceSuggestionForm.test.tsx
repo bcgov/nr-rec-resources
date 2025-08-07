@@ -1,18 +1,29 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { RecreationResourceSuggestionForm } from "@/components/rec-resource-suggestion-form/RecreationResourceSuggestionForm";
-import { useNavigate } from "react-router";
 import * as suggestionHook from "@/services/hooks/recreation-resource-admin/useGetRecreationResourceSuggestions";
 import { RecreationResourceSuggestion } from "@shared/components/suggestion-typeahead/types";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { useNavigate } from "react-router";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("react-router", async () => {
-  const actual = await vi.importActual("react-router");
-  return {
-    ...actual,
-    useNavigate: vi.fn(),
-  };
-});
+// Mock dependencies
+vi.mock("react-router", async () => ({
+  ...(await vi.importActual("react-router")),
+  useNavigate: vi.fn(),
+}));
+
+vi.mock("@/components/rec-resource-suggestion-form/SuggestionMenu", () => ({
+  SuggestionMenu: ({ results, searchTerm }: any) => (
+    <div data-testid="suggestion-menu">
+      <div data-testid="menu-search-term">{searchTerm}</div>
+      {results?.map((result: any) => (
+        <div key={result.rec_resource_id} data-testid="menu-item">
+          {result.name}
+        </div>
+      ))}
+    </div>
+  ),
+}));
 
 vi.mock("@shared/components/suggestion-typeahead/SuggestionTypeahead", () => ({
   SuggestionTypeahead: ({
@@ -23,6 +34,7 @@ vi.mock("@shared/components/suggestion-typeahead/SuggestionTypeahead", () => ({
     emptyLabel,
     placeholder,
     error,
+    renderMenu,
   }: any) => (
     <div>
       <input
@@ -31,6 +43,11 @@ vi.mock("@shared/components/suggestion-typeahead/SuggestionTypeahead", () => ({
         value={searchTerm}
         onChange={(e) => onSearch(e.target.value)}
       />
+      {renderMenu && suggestions?.length > 0 && (
+        <div data-testid="custom-menu">
+          {renderMenu(suggestions, { id: "test-menu" })}
+        </div>
+      )}
       <ul data-testid="typeahead-suggestions">
         {suggestions?.map((s: RecreationResourceSuggestion) => (
           <li
@@ -57,15 +74,21 @@ vi.mock("@shared/components/suggestion-typeahead/SuggestionTypeahead", () => ({
 describe("RecreationResourceSuggestionForm", () => {
   const mockNavigate = vi.fn();
 
+  // Reusable test data
+  const testSuggestion: RecreationResourceSuggestion = {
+    rec_resource_id: "123",
+    name: "Test Park",
+    recreation_resource_type_code: "",
+    recreation_resource_type: "",
+    district_description: "",
+  };
+
   beforeEach(() => {
     vi.mocked(useNavigate).mockReturnValue(mockNavigate);
+    vi.clearAllMocks();
   });
 
-  const mockUseGetSuggestions = (
-    result: Partial<
-      ReturnType<typeof suggestionHook.useGetRecreationResourceSuggestions>
-    >,
-  ) => {
+  const mockSuggestionHook = (overrides = {}) => {
     vi.spyOn(
       suggestionHook,
       "useGetRecreationResourceSuggestions",
@@ -73,12 +96,12 @@ describe("RecreationResourceSuggestionForm", () => {
       data: { suggestions: [] },
       isFetching: false,
       error: null,
-      ...result,
+      ...overrides,
     } as any);
   };
 
   it("renders with default state", () => {
-    mockUseGetSuggestions({});
+    mockSuggestionHook();
     render(<RecreationResourceSuggestionForm />);
 
     expect(
@@ -86,50 +109,38 @@ describe("RecreationResourceSuggestionForm", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows empty label for short input", async () => {
-    mockUseGetSuggestions({});
+  it("handles empty states correctly", async () => {
+    mockSuggestionHook();
     render(<RecreationResourceSuggestionForm />);
 
     const input = screen.getByTestId("typeahead-input");
-    await userEvent.type(input, "ab");
 
+    // Test short input (< 3 characters)
+    await userEvent.type(input, "ab");
     expect(screen.getByTestId("empty-label")).toHaveTextContent(
       "Please enter at least 3 characters to search",
     );
-  });
 
-  it("shows 'no results' when valid input but no suggestions", async () => {
-    mockUseGetSuggestions({});
-    render(<RecreationResourceSuggestionForm />);
-
-    const input = screen.getByTestId("typeahead-input");
+    // Test valid input with no results
+    await userEvent.clear(input);
     await userEvent.type(input, "park");
-
     expect(screen.getByTestId("empty-label")).toHaveTextContent(
       "No results found",
     );
   });
 
   it("shows error message when hook returns error", () => {
-    mockUseGetSuggestions({
+    mockSuggestionHook({
       error: { message: "Something went wrong", response: { status: 400 } },
-    } as any);
+    });
     render(<RecreationResourceSuggestionForm />);
 
     expect(screen.getByText("Something went wrong")).toBeInTheDocument();
   });
 
-  it("renders suggestions and navigates on selection", async () => {
-    const suggestion: RecreationResourceSuggestion = {
-      rec_resource_id: "123",
-      name: "Test Park",
-      recreation_resource_type_code: "",
-      recreation_resource_type: "",
-      district_description: "",
-    };
-
-    mockUseGetSuggestions({
-      data: { total: 1, suggestions: [suggestion] },
+  it("handles suggestions and navigation", async () => {
+    mockSuggestionHook({
+      data: { total: 1, suggestions: [testSuggestion] },
     });
 
     render(<RecreationResourceSuggestionForm />);
@@ -137,9 +148,15 @@ describe("RecreationResourceSuggestionForm", () => {
     const input = screen.getByTestId("typeahead-input");
     await userEvent.type(input, "test");
 
-    const suggestionItem = await screen.findByText("Test Park");
+    // Test navigation on selection
+    const suggestionItem = screen.getByTestId("typeahead-item");
     await userEvent.click(suggestionItem);
-
     expect(mockNavigate).toHaveBeenCalledWith("/rec-resource/123");
+
+    // Test custom menu rendering (renderMenu callback)
+    expect(screen.getByTestId("custom-menu")).toBeInTheDocument();
+    expect(screen.getByTestId("suggestion-menu")).toBeInTheDocument();
+    expect(screen.getByTestId("menu-search-term")).toHaveTextContent("test");
+    expect(screen.getByTestId("menu-item")).toHaveTextContent("Test Park");
   });
 });

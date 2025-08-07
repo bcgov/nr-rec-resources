@@ -50,7 +50,8 @@ export enum DamErrors {
 }
 
 export const DAM_CONFIG = {
-  HTTP_TIMEOUT: 30000,
-  RETRY_ATTEMPTS: 3,
-  REQUIRED_SIZE_CODES: ["original", "thm", "scr", "pre"] as const,
+  HTTP_TIMEOUT: 15 * 60 * 1000,
+  IMAGE_VALIDATION_TIMEOUT: 5 * 60 * 1000,
+  RETRY_ATTEMPTS: 5,
+  REQUIRED_SIZE_CODES: ["original", "thm", "col", "pre"] as const,
 } as const;

@@ -30,7 +30,7 @@ vi.mock("@/pages/rec-resource-page/store/recResourceFileTransferStore", () => ({
   recResourceFileTransferStore: {
     setState: vi.fn(),
     getState: vi.fn(),
-    state: { galleryDocuments: [], docToDelete: null },
+    state: { galleryDocuments: [], fileToDelete: null },
   },
   updateGalleryDocument: vi.fn(),
   setSelectedFile: vi.fn(),
@@ -38,7 +38,7 @@ vi.mock("@/pages/rec-resource-page/store/recResourceFileTransferStore", () => ({
   setShowUploadOverlay: vi.fn(),
   resetUploadState: vi.fn(),
   setShowDeleteModal: vi.fn(),
-  setDocToDelete: vi.fn(),
+  setFileToDelete: vi.fn(),
   showDeleteModalForDoc: vi.fn(),
   hideDeleteModal: vi.fn(),
   addPendingDoc: vi.fn(),
@@ -66,6 +66,7 @@ const mockDocument: GalleryDocument = {
   date: "2025-01-01",
   url: "http://example.com/test.pdf",
   extension: "pdf",
+  type: "document",
 };
 
 describe("useDocumentDelete", () => {
@@ -81,7 +82,7 @@ describe("useDocumentDelete", () => {
     });
 
     // Mock useStore for recResourceFileTransferStore
-    vi.mocked(useStore).mockReturnValue({ docToDelete: mockDocument });
+    vi.mocked(useStore).mockReturnValue({ fileToDelete: mockDocument });
 
     // Mock delete mutation
     vi.mocked(useDeleteResourceDocument).mockReturnValue({
@@ -114,6 +115,7 @@ describe("useDocumentDelete", () => {
       date: "2025-01-01",
       url: "http://example.com/test.pdf",
       extension: "pdf",
+      type: "document",
     };
 
     it("deletes document successfully", async () => {
@@ -225,7 +227,7 @@ describe("useDocumentDelete", () => {
       };
 
       // Mock useStore to return document without ID
-      vi.mocked(useStore).mockReturnValue({ docToDelete: documentWithoutId });
+      vi.mocked(useStore).mockReturnValue({ fileToDelete: documentWithoutId });
 
       const { result } = renderHook(() => useDocumentDelete());
 

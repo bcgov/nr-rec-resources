@@ -31,7 +31,7 @@ export const CustomButton: FC<CustomButtonProps> = ({
     <BootstrapButton {...props} className={clsx("custom-btn", className)}>
       <Stack direction="horizontal" gap={2} className="custom-btn__stack">
         {leftIcon && (
-          <span className="d-flex custom-btn__icon custom-btn__icon--left">
+          <span className="d-flex custom-btn__icon custom-btn__icon--left flex-grow-1">
             {leftIcon}
           </span>
         )}
@@ -40,7 +40,7 @@ export const CustomButton: FC<CustomButtonProps> = ({
         ) : null}
 
         {rightIcon && (
-          <span className="d-flex custom-btn__icon custom-btn__icon--right">
+          <span className="d-flex custom-btn__icon custom-btn__icon--right flex-grow-1">
             {rightIcon}
           </span>
         )}

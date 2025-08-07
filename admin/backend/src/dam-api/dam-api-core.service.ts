@@ -24,48 +24,23 @@ export class DamApiCoreService {
     resourceType: "pdf" | "image",
     config: DamApiConfig,
   ): Promise<string> {
-    this.logger.log(
-      `Creating DAM resource - Title: "${title}", Type: ${resourceType}, User: ${config.user}`,
+    const params = {
+      user: config.user,
+      function: "create_resource",
+      metadata: JSON.stringify({ title }),
+      resource_type: this.getResourceTypeId(resourceType, config),
+      archive: 0,
+    };
+
+    const logContext = `Title: "${title}", Type: ${resourceType}, User: ${config.user}`;
+
+    return this.executeRequest(
+      params,
+      config,
+      "Creating DAM resource",
+      DamErrors.ERR_CREATING_RESOURCE,
+      logContext,
     );
-
-    try {
-      const resource_type =
-        resourceType === "image"
-          ? config.imageResourceType
-          : config.pdfResourceType;
-
-      const params = {
-        user: config.user,
-        function: "create_resource",
-        metadata: JSON.stringify({ title }),
-        resource_type,
-        archive: 0,
-      };
-
-      this.logger.debug(
-        `DAM resource creation parameters - Title: "${title}", Type: ${resourceType}, Resource Type: ${resource_type}, User: ${config.user}`,
-      );
-
-      const formData = this.utilsService.createFormData(params, config);
-      const result = await this.httpService.makeRequest(
-        config.damUrl,
-        formData,
-      );
-
-      this.logger.log(
-        `DAM resource created successfully - Title: "${title}", Type: ${resourceType}, Resource ID: ${result}`,
-      );
-
-      return result;
-    } catch (error) {
-      this.logger.error(
-        `Failed to create DAM resource - Title: "${title}", Type: ${resourceType}, Error: ${error.message}`,
-      );
-      throw new HttpException(
-        "Error creating resource.",
-        DamErrors.ERR_CREATING_RESOURCE,
-      );
-    }
   }
 
   /**
@@ -75,37 +50,21 @@ export class DamApiCoreService {
     resource: string,
     config: DamApiConfig,
   ): Promise<DamFile[]> {
-    this.logger.debug(
-      `Getting DAM resource path - Resource: ${resource}, User: ${config.user}`,
+    const params = {
+      user: config.user,
+      function: "get_resource_all_image_sizes",
+      resource,
+    };
+
+    const logContext = `Resource: ${resource}, User: ${config.user}`;
+
+    return this.executeRequest(
+      params,
+      config,
+      "Getting DAM resource path",
+      DamErrors.ERR_GETTING_RESOURCE_IMAGES,
+      logContext,
     );
-
-    try {
-      const params = {
-        user: config.user,
-        function: "get_resource_all_image_sizes",
-        resource,
-      };
-
-      const formData = this.utilsService.createFormData(params, config);
-      const result = await this.httpService.makeRequest(
-        config.damUrl,
-        formData,
-      );
-
-      this.logger.debug(
-        `DAM resource path retrieved - Resource: ${resource}, Path count: ${Array.isArray(result) ? result.length : "unknown"}`,
-      );
-
-      return result;
-    } catch (error) {
-      this.logger.error(
-        `Failed to get DAM resource path - Resource: ${resource}, Error: ${error.message}`,
-      );
-      throw new HttpException(
-        "Error getting resource images.",
-        DamErrors.ERR_GETTING_RESOURCE_IMAGES,
-      );
-    }
   }
 
   /**
@@ -116,47 +75,22 @@ export class DamApiCoreService {
     collectionType: "pdf" | "image",
     config: DamApiConfig,
   ): Promise<any> {
-    this.logger.debug(
-      `Adding resource to collection - Resource: ${resource}, Collection Type: ${collectionType}, User: ${config.user}`,
+    const params = {
+      user: config.user,
+      function: "add_resource_to_collection",
+      resource,
+      collection: this.getCollectionId(collectionType, config),
+    };
+
+    const logContext = `Resource: ${resource}, Collection Type: ${collectionType}, User: ${config.user}`;
+
+    return this.executeRequest(
+      params,
+      config,
+      "Adding resource to collection",
+      DamErrors.ERR_ADDING_RESOURCE_TO_COLLECTION,
+      logContext,
     );
-
-    try {
-      const collectionId =
-        collectionType === "image"
-          ? config.imageCollectionId
-          : config.pdfCollectionId;
-
-      this.logger.debug(
-        `Collection mapping - Type: ${collectionType}, ID: ${collectionId}`,
-      );
-
-      const params = {
-        user: config.user,
-        function: "add_resource_to_collection",
-        resource,
-        collection: collectionId,
-      };
-
-      const formData = this.utilsService.createFormData(params, config);
-      const result = await this.httpService.makeRequest(
-        config.damUrl,
-        formData,
-      );
-
-      this.logger.log(
-        `Resource added to collection successfully - Resource: ${resource}, Collection Type: ${collectionType}, Collection ID: ${collectionId}`,
-      );
-
-      return result;
-    } catch (error) {
-      this.logger.error(
-        `Failed to add resource to collection - Resource: ${resource}, Collection Type: ${collectionType}, Error: ${error.message}`,
-      );
-      throw new HttpException(
-        "Error adding resource to collection.",
-        DamErrors.ERR_ADDING_RESOURCE_TO_COLLECTION,
-      );
-    }
   }
 
   /**
@@ -167,9 +101,8 @@ export class DamApiCoreService {
     file: Express.Multer.File,
     config: DamApiConfig,
   ): Promise<any> {
-    this.logger.debug(
-      `Uploading file to resource - Resource ID: ${ref}, File: "${file.originalname}", Size: ${file.size} bytes, Type: ${file.mimetype}, User: ${config.user}`,
-    );
+    const logContext = `Resource ID: ${ref}, File: "${file.originalname}", Size: ${file.size} bytes, Type: ${file.mimetype}, User: ${config.user}`;
+    this.logger.debug(`Uploading file to resource - ${logContext}`);
 
     try {
       const params = {
@@ -191,15 +124,11 @@ export class DamApiCoreService {
         config.damUrl,
         formData,
       );
-
-      this.logger.log(
-        `File uploaded successfully - Resource ID: ${ref}, File: "${file.originalname}", Size: ${file.size} bytes`,
-      );
-
+      this.logger.log(`File uploaded successfully - ${logContext}`);
       return result;
     } catch (error) {
       this.logger.error(
-        `Failed to upload file - Resource ID: ${ref}, File: "${file.originalname}", Error: ${error.message}`,
+        `Failed to upload file - ${logContext}, Error: ${error.message}`,
       );
       throw new HttpException(
         "Error uploading file.",
@@ -212,35 +141,21 @@ export class DamApiCoreService {
    * Deletes a resource from the DAM system
    */
   async deleteResource(resource: string, config: DamApiConfig): Promise<any> {
-    this.logger.log(
-      `Deleting DAM resource - Resource: ${resource}, User: ${config.user}`,
+    const params = {
+      user: config.user,
+      function: "delete_resource",
+      resource,
+    };
+
+    const logContext = `Resource: ${resource}, User: ${config.user}`;
+
+    return this.executeRequest(
+      params,
+      config,
+      "Deleting DAM resource",
+      DamErrors.ERR_DELETING_RESOURCE,
+      logContext,
     );
-
-    try {
-      const params = {
-        user: config.user,
-        function: "delete_resource",
-        resource,
-      };
-
-      const formData = this.utilsService.createFormData(params, config);
-      const result = await this.httpService.makeRequest(
-        config.damUrl,
-        formData,
-      );
-
-      this.logger.log(`Resource deleted successfully - Resource: ${resource}`);
-
-      return result;
-    } catch (error) {
-      this.logger.error(
-        `Failed to delete resource - Resource: ${resource}, Error: ${error.message}`,
-      );
-      throw new HttpException(
-        "Error deleting resource.",
-        DamErrors.ERR_DELETING_RESOURCE,
-      );
-    }
   }
 
   /**
@@ -250,82 +165,127 @@ export class DamApiCoreService {
     resource: string,
     config: DamApiConfig,
   ): Promise<DamFile[]> {
-    this.logger.debug(
-      `Getting DAM resource path with retry - Resource: ${resource}, User: ${config.user}`,
-    );
+    const params = {
+      user: config.user,
+      function: "get_resource_all_image_sizes",
+      resource,
+    };
 
-    // First try with the main service
-    let files = await this.getResourcePath(resource, config);
-    if (
-      this.utilsService.validateFileTypes(files, DAM_CONFIG.REQUIRED_SIZE_CODES)
-    ) {
-      this.logger.debug(
-        `Resource files ready on first attempt - Resource: ${resource}, File count: ${files.length}`,
+    const validateFileTypes = (data: DamFile[]): boolean => {
+      return this.utilsService.validateFileTypes(
+        data,
+        DAM_CONFIG.REQUIRED_SIZE_CODES,
       );
-      return files;
-    }
+    };
 
-    this.logger.debug(
-      `Resource files not ready, using retry logic - Resource: ${resource}`,
+    const logContext = `Resource: ${resource}`;
+
+    return this.executeRequestWithValidation(
+      params,
+      config,
+      validateFileTypes,
+      "Getting DAM resource path",
+      DamErrors.ERR_GETTING_RESOURCE_IMAGES,
+      DamErrors.ERR_FILE_PROCESSING_TIMEOUT,
+      logContext,
     );
+  }
 
-    // Use specialized validation client
-    const validationClient = this.httpService.createValidationClient();
+  /**
+   * Executes a DAM API request with standardized error handling
+   */
+  private async executeRequest<T = any>(
+    params: Record<string, any>,
+    config: DamApiConfig,
+    operation: string,
+    errorCode: DamErrors,
+    logContext?: string,
+  ): Promise<T> {
+    this.logger.debug(`Executing ${operation} - ${logContext}`);
 
     try {
-      const params = {
-        user: config.user,
-        function: "get_resource_all_image_sizes",
-        resource,
-      };
       const formData = this.utilsService.createFormData(params, config);
+      const result = await this.httpService.makeRequest(
+        config.damUrl,
+        formData,
+      );
 
-      const response = await validationClient.post(config.damUrl, formData, {
-        headers: formData.getHeaders(),
-        validateStatus: (status) => status < 500,
-      });
+      this.logger.log(`${operation} completed successfully - ${logContext}`);
+      return result;
+    } catch (error) {
+      this.logger.error(
+        `${operation} failed - ${logContext}, Error: ${error.message}`,
+      );
+      throw new HttpException(`Error ${operation.toLowerCase()}.`, errorCode);
+    }
+  }
 
-      files = response.data;
+  /**
+   * Executes a DAM API request with validation and retry logic
+   */
+  private async executeRequestWithValidation<T = any>(
+    params: Record<string, any>,
+    config: DamApiConfig,
+    validateFn: (data: T) => boolean,
+    operation: string,
+    errorCode: DamErrors,
+    timeoutErrorCode: DamErrors,
+    logContext?: string,
+  ): Promise<T> {
+    this.logger.debug(`Executing ${operation} with validation - ${logContext}`);
 
-      // Check if files are ready after each request
-      if (
-        !this.utilsService.validateFileTypes(
-          files,
-          DAM_CONFIG.REQUIRED_SIZE_CODES,
-        )
-      ) {
-        this.logger.debug(
-          `Files not ready, triggering retry - Resource: ${resource}, File count: ${files.length}`,
-        );
-        const error = new Error("FILES_NOT_READY");
-        error.message = "FILES_NOT_READY";
-        throw error;
-      }
+    try {
+      const formData = this.utilsService.createFormData(params, config);
+      const result = await this.httpService.makeRequestWithValidation<T>(
+        config.damUrl,
+        formData,
+        validateFn,
+      );
 
       this.logger.debug(
-        `Resource files ready after retry - Resource: ${resource}, File count: ${files.length}`,
+        `${operation} with validation completed - ${logContext}`,
       );
-
-      return files;
+      return result;
     } catch (error) {
-      if (error.message === "FILES_NOT_READY") {
-        this.logger.error(
-          `File validation failed after all retries - Resource: ${resource}, Max retries: ${DAM_CONFIG.RETRY_ATTEMPTS}, Reason: Required file variants not processed within timeout`,
-        );
-        throw new HttpException(
-          "File processing timeout: Image variants not ready",
-          DamErrors.ERR_FILE_PROCESSING_TIMEOUT,
-        );
-      }
-
       this.logger.error(
-        `Error getting resource images with retry - Resource: ${resource}, Error: ${error.message}, Error type: ${error.constructor.name}`,
+        `${operation} with validation failed - ${logContext}, Error: ${error.message}`,
       );
+
+      // Check if it's a file validation timeout vs other errors
+      const isFileValidationError =
+        error.message.includes("Custom validation failed") ||
+        error.message.includes("required variants not ready");
 
       throw new HttpException(
-        "Error getting resource images with retry.",
-        DamErrors.ERR_GETTING_RESOURCE_IMAGES,
+        isFileValidationError
+          ? "File processing timeout: Image variants not ready"
+          : `Error ${operation.toLowerCase()} with retry.`,
+        isFileValidationError ? timeoutErrorCode : errorCode,
       );
     }
+  }
+
+  /**
+   * Gets the appropriate resource type ID based on type
+   */
+  private getResourceTypeId(
+    resourceType: "pdf" | "image",
+    config: DamApiConfig,
+  ): number {
+    return resourceType === "image"
+      ? config.imageResourceType
+      : config.pdfResourceType;
+  }
+
+  /**
+   * Gets the appropriate collection ID based on type
+   */
+  private getCollectionId(
+    collectionType: "pdf" | "image",
+    config: DamApiConfig,
+  ): string {
+    return collectionType === "image"
+      ? config.imageCollectionId
+      : config.pdfCollectionId;
   }
 }

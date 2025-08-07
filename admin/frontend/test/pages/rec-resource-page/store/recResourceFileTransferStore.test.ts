@@ -1,37 +1,70 @@
 import {
   addPendingDoc,
+  addPendingImage,
   hideDeleteModal,
   recResourceFileTransferStore,
   removePendingDoc,
+  removePendingImage,
+  resetRecResourceFileTransferStore,
   resetUploadState,
-  setDocToDelete,
+  setFileToDelete,
   setGalleryDocuments,
+  setGalleryImages,
   setSelectedFile,
   setShowDeleteModal,
   setShowUploadOverlay,
   setUploadFileName,
-  showDeleteModalForDoc,
+  showDeleteModalForFile,
   updateGalleryDocument,
+  updateGalleryImage,
   updatePendingDoc,
+  updatePendingImage,
 } from "@/pages/rec-resource-page/store/recResourceFileTransferStore";
+import {
+  GalleryDocument,
+  GalleryFile,
+  GalleryImage,
+} from "@/pages/rec-resource-page/types";
 import { beforeEach, describe, expect, it } from "vitest";
 
-const baseDoc = {
+const baseDoc: GalleryDocument = {
   id: "1",
   name: "doc1.pdf",
   date: "2024-01-01",
   url: "http://example.com/doc1.pdf",
   extension: "pdf",
-  rec_resource_id: "res1",
+  type: "document",
 };
 
-const anotherDoc = {
+const anotherDoc: GalleryDocument = {
   id: "2",
   name: "doc2.pdf",
   date: "2024-01-02",
   url: "http://example.com/doc2.pdf",
   extension: "pdf",
-  rec_resource_id: "res1",
+  type: "document",
+};
+
+const baseImage: GalleryImage = {
+  id: "img1",
+  name: "image1.jpg",
+  date: "2024-01-01",
+  url: "http://example.com/image1.jpg",
+  extension: "jpg",
+  type: "image",
+  variants: [],
+  previewUrl: "http://example.com/preview1.jpg",
+};
+
+const anotherImage: GalleryImage = {
+  id: "img2",
+  name: "image2.png",
+  date: "2024-01-02",
+  url: "http://example.com/image2.png",
+  extension: "png",
+  type: "image",
+  variants: [],
+  previewUrl: "http://example.com/preview2.png",
 };
 
 describe("recResourceFileTransferStore", () => {
@@ -42,13 +75,23 @@ describe("recResourceFileTransferStore", () => {
       showUploadOverlay: false,
       pendingDocs: [],
       galleryDocuments: [],
+      pendingImages: [],
+      galleryImages: [],
       showDeleteModal: false,
-      docToDelete: undefined,
+      fileToDelete: undefined,
     });
   });
 
   it("sets selected file", () => {
-    const file = new File(["content"], "test.pdf");
+    const file: GalleryFile = {
+      id: "test-file",
+      name: "test.pdf",
+      date: "2024-01-01",
+      url: "http://example.com/test.pdf",
+      extension: "pdf",
+      type: "document",
+      pendingFile: new File(["content"], "test.pdf"),
+    };
     setSelectedFile(file);
     expect(recResourceFileTransferStore.state.selectedFileForUpload).toBe(file);
     setSelectedFile(null);
@@ -69,7 +112,15 @@ describe("recResourceFileTransferStore", () => {
 
   it("resets upload state", () => {
     // Set some initial state
-    const file = new File(["content"], "test.pdf");
+    const file: GalleryFile = {
+      id: "test-file",
+      name: "test.pdf",
+      date: "2024-01-01",
+      url: "http://example.com/test.pdf",
+      extension: "pdf",
+      type: "document",
+      pendingFile: new File(["content"], "test.pdf"),
+    };
     setSelectedFile(file);
     setUploadFileName("test-file.pdf");
     setShowUploadOverlay(true);
@@ -150,57 +201,60 @@ describe("recResourceFileTransferStore", () => {
   });
 
   it("sets doc to delete", () => {
-    const doc = {
+    const doc: GalleryDocument = {
       id: "1",
       name: "test.pdf",
       date: "2024-01-01",
       url: "http://example.com",
       extension: "pdf",
+      type: "document",
     };
-    setDocToDelete(doc);
-    expect(recResourceFileTransferStore.state.docToDelete).toBe(doc);
-    setDocToDelete(undefined);
-    expect(recResourceFileTransferStore.state.docToDelete).toBeUndefined();
+    setFileToDelete(doc);
+    expect(recResourceFileTransferStore.state.fileToDelete).toBe(doc);
+    setFileToDelete(undefined);
+    expect(recResourceFileTransferStore.state.fileToDelete).toBeUndefined();
   });
 
   it("shows delete modal for doc", () => {
-    const doc = {
+    const doc: GalleryDocument = {
       id: "1",
       name: "test.pdf",
       date: "2024-01-01",
       url: "http://example.com",
       extension: "pdf",
+      type: "document",
     };
 
-    showDeleteModalForDoc(doc);
+    showDeleteModalForFile(doc);
 
     expect(recResourceFileTransferStore.state.showDeleteModal).toBe(true);
-    expect(recResourceFileTransferStore.state.docToDelete).toBe(doc);
+    expect(recResourceFileTransferStore.state.fileToDelete).toBe(doc);
   });
 
   it("hides delete modal", () => {
-    const doc = {
+    const doc: GalleryDocument = {
       id: "1",
       name: "test.pdf",
       date: "2024-01-01",
       url: "http://example.com",
       extension: "pdf",
+      type: "document",
     };
 
     // First set up the modal as shown
-    showDeleteModalForDoc(doc);
+    showDeleteModalForFile(doc);
     expect(recResourceFileTransferStore.state.showDeleteModal).toBe(true);
-    expect(recResourceFileTransferStore.state.docToDelete).toBe(doc);
+    expect(recResourceFileTransferStore.state.fileToDelete).toBe(doc);
 
     // Now hide the modal
     hideDeleteModal();
 
     expect(recResourceFileTransferStore.state.showDeleteModal).toBe(false);
-    expect(recResourceFileTransferStore.state.docToDelete).toBeUndefined();
+    expect(recResourceFileTransferStore.state.fileToDelete).toBeUndefined();
   });
 
   it("sets gallery documents", () => {
-    const docs = [baseDoc, anotherDoc];
+    const docs: GalleryDocument[] = [baseDoc, anotherDoc];
     setGalleryDocuments(docs);
     expect(recResourceFileTransferStore.state.galleryDocuments).toEqual(docs);
   });
@@ -218,5 +272,120 @@ describe("recResourceFileTransferStore", () => {
     const prevState = { ...recResourceFileTransferStore.state };
     updateGalleryDocument("non-existent", { name: "should-not-update.pdf" });
     expect(recResourceFileTransferStore.state).toEqual(prevState);
+  });
+
+  it("removes a pending image", () => {
+    recResourceFileTransferStore.setState((prev) => ({
+      ...prev,
+      pendingImages: [baseImage, anotherImage],
+    }));
+    removePendingImage("img1");
+    expect(recResourceFileTransferStore.state.pendingImages).toEqual([
+      anotherImage,
+    ]);
+  });
+
+  it("adds a pending image", () => {
+    addPendingImage(baseImage);
+    expect(recResourceFileTransferStore.state.pendingImages).toEqual([
+      baseImage,
+    ]);
+  });
+
+  it("updates a pending image (existing id)", () => {
+    recResourceFileTransferStore.setState((prev) => ({
+      ...prev,
+      pendingImages: [baseImage, anotherImage],
+    }));
+    updatePendingImage("img1", { name: "updated-image.jpg" });
+    expect(recResourceFileTransferStore.state.pendingImages[0].name).toBe(
+      "updated-image.jpg",
+    );
+  });
+
+  it("does not update pending image if id not found", () => {
+    recResourceFileTransferStore.setState((prev) => ({
+      ...prev,
+      pendingImages: [baseImage],
+    }));
+    const prevState = { ...recResourceFileTransferStore.state };
+    updatePendingImage("non-existent", { name: "should-not-update.jpg" });
+    expect(recResourceFileTransferStore.state).toEqual(prevState);
+  });
+
+  it("sets gallery images", () => {
+    const images: GalleryImage[] = [baseImage, anotherImage];
+    setGalleryImages(images);
+    expect(recResourceFileTransferStore.state.galleryImages).toEqual(images);
+  });
+
+  it("updates gallery image when id exists", () => {
+    setGalleryImages([baseImage, anotherImage]);
+    updateGalleryImage("img1", { name: "updated-image.jpg" });
+    expect(recResourceFileTransferStore.state.galleryImages[0].name).toBe(
+      "updated-image.jpg",
+    );
+  });
+
+  it("does not update gallery image when id does not exist", () => {
+    setGalleryImages([baseImage]);
+    const prevState = { ...recResourceFileTransferStore.state };
+    updateGalleryImage("non-existent", { name: "should-not-update.jpg" });
+    expect(recResourceFileTransferStore.state).toEqual(prevState);
+  });
+
+  it("resets the entire store to initial state", () => {
+    // Set up some state that should be reset
+    const file: GalleryFile = {
+      id: "test-file",
+      name: "test.pdf",
+      date: "2024-01-01",
+      url: "http://example.com/test.pdf",
+      extension: "pdf",
+      type: "document",
+      pendingFile: new File(["content"], "test.pdf"),
+    };
+
+    setSelectedFile(file);
+    setUploadFileName("test-upload.pdf");
+    setShowUploadOverlay(true);
+    addPendingDoc(baseDoc);
+    setGalleryDocuments([anotherDoc]);
+    addPendingImage(baseImage);
+    setGalleryImages([anotherImage]);
+    showDeleteModalForFile(baseDoc);
+
+    // Verify state is set
+    expect(recResourceFileTransferStore.state.selectedFileForUpload).toBe(file);
+    expect(recResourceFileTransferStore.state.uploadFileName).toBe(
+      "test-upload.pdf",
+    );
+    expect(recResourceFileTransferStore.state.showUploadOverlay).toBe(true);
+    expect(recResourceFileTransferStore.state.pendingDocs).toEqual([baseDoc]);
+    expect(recResourceFileTransferStore.state.galleryDocuments).toEqual([
+      anotherDoc,
+    ]);
+    expect(recResourceFileTransferStore.state.pendingImages).toEqual([
+      baseImage,
+    ]);
+    expect(recResourceFileTransferStore.state.galleryImages).toEqual([
+      anotherImage,
+    ]);
+    expect(recResourceFileTransferStore.state.showDeleteModal).toBe(true);
+    expect(recResourceFileTransferStore.state.fileToDelete).toBe(baseDoc);
+
+    // Reset the entire store
+    resetRecResourceFileTransferStore();
+
+    // Verify all state is reset to initial values
+    expect(recResourceFileTransferStore.state.selectedFileForUpload).toBeNull();
+    expect(recResourceFileTransferStore.state.uploadFileName).toBe("");
+    expect(recResourceFileTransferStore.state.showUploadOverlay).toBe(false);
+    expect(recResourceFileTransferStore.state.pendingDocs).toEqual([]);
+    expect(recResourceFileTransferStore.state.galleryDocuments).toEqual([]);
+    expect(recResourceFileTransferStore.state.pendingImages).toEqual([]);
+    expect(recResourceFileTransferStore.state.galleryImages).toEqual([]);
+    expect(recResourceFileTransferStore.state.showDeleteModal).toBe(false);
+    expect(recResourceFileTransferStore.state.fileToDelete).toBeUndefined();
   });
 });

@@ -1,9 +1,8 @@
+import { DamApiConfig, DamApiUtilsService } from "@/dam-api";
 import { Test, TestingModule } from "@nestjs/testing";
 import { createHash } from "crypto";
 import FormData from "form-data";
 import { beforeEach, describe, expect, it } from "vitest";
-import { DamApiUtilsService } from "../../src/dam-api/dam-api-utils.service";
-import { DamApiConfig } from "../../src/dam-api/dam-api.types";
 
 describe("DamApiUtilsService", () => {
   let service: DamApiUtilsService;
@@ -74,6 +73,32 @@ describe("DamApiUtilsService", () => {
       expect(typeof result).toBe("string");
       expect(result.length).toBe(64); // SHA256 hex string length
     });
+
+    it("should handle empty private key", () => {
+      const query = "function=test";
+      const result = service.sign(query, "");
+      expect(result).toBeDefined();
+      expect(typeof result).toBe("string");
+      expect(result.length).toBe(64); // SHA256 hex string length
+    });
+
+    it("should handle special characters in query", () => {
+      const query = "function=test&special=!@#$%^&*()";
+      const privateKey = "key";
+      const result = service.sign(query, privateKey);
+      expect(result).toBeDefined();
+      expect(typeof result).toBe("string");
+      expect(result.length).toBe(64);
+    });
+
+    it("should handle special characters in private key", () => {
+      const query = "function=test";
+      const privateKey = "key!@#$%^&*()";
+      const result = service.sign(query, privateKey);
+      expect(result).toBeDefined();
+      expect(typeof result).toBe("string");
+      expect(result.length).toBe(64);
+    });
   });
 
   describe("createFormData", () => {
@@ -127,6 +152,48 @@ describe("DamApiUtilsService", () => {
       const params = {
         title: "Test & Special Characters",
         description: 'Test with quotes "and" apostrophes\'',
+      };
+
+      const formData = service.createFormData(params, mockConfig);
+
+      expect(formData).toBeInstanceOf(FormData);
+      const formDataBuffer = formData.getBuffer().toString();
+      expect(formDataBuffer).toContain("query");
+    });
+
+    it("should handle empty parameters object", () => {
+      const params = {};
+
+      const formData = service.createFormData(params, mockConfig);
+
+      expect(formData).toBeInstanceOf(FormData);
+      const formDataBuffer = formData.getBuffer().toString();
+      expect(formDataBuffer).toContain("query");
+      expect(formDataBuffer).toContain("sign");
+      expect(formDataBuffer).toContain("user");
+    });
+
+    it("should handle numeric parameters", () => {
+      const params = {
+        id: 123,
+        price: 45.67,
+        active: true,
+      };
+
+      const formData = service.createFormData(params, mockConfig);
+
+      expect(formData).toBeInstanceOf(FormData);
+      const formDataBuffer = formData.getBuffer().toString();
+      expect(formDataBuffer).toContain("id=123");
+      expect(formDataBuffer).toContain("price=45.67");
+      expect(formDataBuffer).toContain("active=true");
+    });
+
+    it("should handle null and undefined parameters", () => {
+      const params = {
+        nullValue: null,
+        undefinedValue: undefined,
+        emptyString: "",
       };
 
       const formData = service.createFormData(params, mockConfig);
@@ -234,6 +301,155 @@ describe("DamApiUtilsService", () => {
       const result = service.validateFileTypes(files, requiredSizes);
 
       expect(result).toBe(false); // Should return false as none of the required sizes are present
+    });
+
+    it("should handle duplicate file types correctly", () => {
+      const files = [
+        { size_code: "thm", path: "/path/thumb1.jpg" },
+        { size_code: "thm", path: "/path/thumb2.jpg" }, // Duplicate size_code
+        { size_code: "scr", path: "/path/screen.jpg" },
+        { size_code: "orig", path: "/path/original.jpg" },
+      ];
+
+      const result = service.validateFileTypes(files, requiredSizes);
+
+      expect(result).toBe(true); // Should still return true as all required types are present
+    });
+
+    it("should handle files with missing size_code property", () => {
+      const files = [
+        { size_code: "thm", path: "/path/thumb.jpg" },
+        { path: "/path/nosizecode.jpg" }, // Missing size_code
+        { size_code: "scr", path: "/path/screen.jpg" },
+        { size_code: "orig", path: "/path/original.jpg" },
+      ] as any;
+
+      const result = service.validateFileTypes(files, requiredSizes);
+
+      expect(result).toBe(true); // Should still return true as all required types are present
+    });
+  });
+
+  describe("formDataToBuffer", () => {
+    it("should convert FormData to Buffer successfully", async () => {
+      const mockFormData = new FormData();
+      mockFormData.append("test", "data");
+
+      const result = await service.formDataToBuffer(mockFormData);
+
+      expect(result).toBeInstanceOf(Buffer);
+      expect(result.length).toBeGreaterThan(0);
+    });
+
+    it("should handle FormData error events", async () => {
+      const mockFormData = {
+        on: vi.fn(),
+        resume: vi.fn(),
+      } as any;
+
+      // Set up the mock to simulate an error
+      mockFormData.on.mockImplementation(
+        (event: string, callback: (error?: Error) => void) => {
+          if (event === "error") {
+            // Simulate an error being emitted
+            setTimeout(() => callback(new Error("FormData error")), 0);
+          }
+        },
+      );
+
+      await expect(service.formDataToBuffer(mockFormData)).rejects.toThrow(
+        "FormData error",
+      );
+
+      expect(mockFormData.on).toHaveBeenCalledWith(
+        "data",
+        expect.any(Function),
+      );
+      expect(mockFormData.on).toHaveBeenCalledWith("end", expect.any(Function));
+      expect(mockFormData.on).toHaveBeenCalledWith(
+        "error",
+        expect.any(Function),
+      );
+      expect(mockFormData.resume).toHaveBeenCalled();
+    });
+
+    it("should handle non-Buffer chunks", async () => {
+      const mockFormData = {
+        on: vi.fn(),
+        resume: vi.fn(),
+      } as any;
+
+      const testData = "test string data";
+
+      mockFormData.on.mockImplementation(
+        (event: string, callback: (chunk?: string) => void) => {
+          if (event === "data") {
+            // Simulate non-Buffer data being emitted
+            setTimeout(() => callback(testData), 0);
+          } else if (event === "end") {
+            setTimeout(() => callback(), 10);
+          }
+        },
+      );
+
+      const result = await service.formDataToBuffer(mockFormData);
+
+      expect(result).toBeInstanceOf(Buffer);
+      expect(result.toString()).toBe(testData);
+    });
+
+    it("should handle Buffer chunks", async () => {
+      const mockFormData = {
+        on: vi.fn(),
+        resume: vi.fn(),
+      } as any;
+
+      const testBuffer = Buffer.from("test buffer data");
+
+      mockFormData.on.mockImplementation(
+        (event: string, callback: (chunk?: Buffer) => void) => {
+          if (event === "data") {
+            // Simulate Buffer data being emitted
+            setTimeout(() => callback(testBuffer), 0);
+          } else if (event === "end") {
+            setTimeout(() => callback(), 10);
+          }
+        },
+      );
+
+      const result = await service.formDataToBuffer(mockFormData);
+
+      expect(result).toBeInstanceOf(Buffer);
+      expect(result.toString()).toBe("test buffer data");
+    });
+
+    it("should handle multiple chunks of mixed types", async () => {
+      const mockFormData = {
+        on: vi.fn(),
+        resume: vi.fn(),
+      } as any;
+
+      const stringChunk = "string ";
+      const bufferChunk = Buffer.from("buffer ");
+      const anotherStringChunk = "data";
+
+      mockFormData.on.mockImplementation(
+        (event: string, callback: (chunk?: string | Buffer) => void) => {
+          if (event === "data") {
+            // Simulate multiple chunks being emitted
+            setTimeout(() => callback(stringChunk), 0);
+            setTimeout(() => callback(bufferChunk), 5);
+            setTimeout(() => callback(anotherStringChunk), 10);
+          } else if (event === "end") {
+            setTimeout(() => callback(), 15);
+          }
+        },
+      );
+
+      const result = await service.formDataToBuffer(mockFormData);
+
+      expect(result).toBeInstanceOf(Buffer);
+      expect(result.toString()).toBe("string buffer data");
     });
   });
 });
