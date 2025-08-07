@@ -1,4 +1,7 @@
 data "terraform_remote_state" "frontend" {
+  // The api and frontend remote states have circular dependencies due to these data sources
+  // On first deployment, one of these data sources will have to be commented out and dummy data used
+  // in any resources that depend on it.
   count = can(regex("ephemeral", var.app_env)) ? 0 : 1
 
   backend = "s3"
