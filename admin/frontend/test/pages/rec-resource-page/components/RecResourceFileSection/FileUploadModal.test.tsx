@@ -25,27 +25,26 @@ vi.mock(
       onCancel,
       onConfirm,
       confirmButtonText,
+      confirmButtonDisabled,
     }: any) =>
       show ? (
         <div data-testid="base-file-modal">
           <div data-testid="modal-title">{title}</div>
           <div data-testid="modal-body">{children}</div>
           <button onClick={onCancel}>Cancel</button>
-          <button onClick={onConfirm}>{confirmButtonText}</button>
+          <button onClick={onConfirm} disabled={confirmButtonDisabled}>
+            {confirmButtonText}
+          </button>
         </div>
       ) : null,
   }),
 );
 
-// Mock the main hook
 vi.mock(
   "@/pages/rec-resource-page/hooks/useRecResourceFileTransferState",
-  () => ({
-    useRecResourceFileTransferState: vi.fn(),
-  }),
+  () => ({ useRecResourceFileTransferState: vi.fn() }),
 );
 
-// Mock store action
 vi.mock("@/pages/rec-resource-page/store/recResourceFileTransferStore", () => ({
   setUploadFileName: vi.fn(),
 }));
@@ -63,15 +62,13 @@ describe("FileUploadModal", () => {
     galleryType: "image" | "document" = "image",
   ) => ({
     id: "test-id",
-    name: name,
+    name,
     date: "2023-01-01",
     url: "",
     extension: name.split(".").pop() || "png",
     type: galleryType,
     pendingFile: new File(["test content"], name, { type: fileType }),
   });
-  const renderModal = () =>
-    render(<FileUploadModal />, { wrapper: reactQueryWrapper });
 
   const setMockState = (state: {
     showUploadOverlay?: boolean;
@@ -95,55 +92,34 @@ describe("FileUploadModal", () => {
     } as any);
   };
 
+  const renderModal = () =>
+    render(<FileUploadModal />, { wrapper: reactQueryWrapper });
+
   beforeEach(() => {
     vi.clearAllMocks();
-    setMockState({}); // Default empty state
+    setMockState({});
   });
 
-  describe("Modal Visibility", () => {
-    it("returns null when showUploadOverlay is false", () => {
+  describe("Modal Visibility and Content", () => {
+    it("returns null when not shown or no file selected", () => {
       setMockState({
         showUploadOverlay: false,
         selectedFileForUpload: createFile(),
       });
+      expect(renderModal().container.firstChild).toBeNull();
 
-      const { container } = renderModal();
-      expect(container.firstChild).toBeNull();
+      setMockState({ showUploadOverlay: true, selectedFileForUpload: null });
+      expect(renderModal().container.firstChild).toBeNull();
     });
 
-    it("returns null when selectedFileForUpload is null", () => {
-      setMockState({
-        showUploadOverlay: true,
-        selectedFileForUpload: null,
-      });
-
-      const { container } = renderModal();
-      expect(container.firstChild).toBeNull();
-    });
-
-    it("renders modal when both showUploadOverlay is true and file is selected", () => {
+    it("renders with correct title based on file type", () => {
       setMockState({
         showUploadOverlay: true,
         selectedFileForUpload: createFile("test.jpg", "image/jpeg", "image"),
       });
-
       renderModal();
       expect(screen.getByText("Upload image")).toBeInTheDocument();
-    });
-  });
 
-  describe("Modal Title", () => {
-    it("displays 'Upload image' for image files", () => {
-      setMockState({
-        showUploadOverlay: true,
-        selectedFileForUpload: createFile("test.jpg", "image/jpeg", "image"),
-      });
-
-      renderModal();
-      expect(screen.getByText("Upload image")).toBeInTheDocument();
-    });
-
-    it("displays 'Upload file' for non-image files", () => {
       setMockState({
         showUploadOverlay: true,
         selectedFileForUpload: createFile(
@@ -152,83 +128,64 @@ describe("FileUploadModal", () => {
           "document",
         ),
       });
-
       renderModal();
       expect(screen.getByText("Upload file")).toBeInTheDocument();
     });
   });
 
   describe("File Name Input", () => {
-    it("displays the current upload file name", () => {
+    beforeEach(() => {
       setMockState({
         showUploadOverlay: true,
         selectedFileForUpload: createFile(),
-        uploadFileName: "test",
+        uploadFileName: "test-file",
       });
-
-      renderModal();
-      // The input should show the filename from the mock state
-      expect(screen.getByDisplayValue("test")).toBeInTheDocument();
     });
 
-    it("updates file name when input changes", () => {
+    it("displays filename, has correct attributes, and handles changes", () => {
+      renderModal();
+      const nameInput = screen.getByRole("textbox");
+
+      expect(nameInput).toHaveValue("test-file");
+      expect(nameInput).toHaveAttribute("maxLength", "100");
+      expect(nameInput).toHaveAttribute("placeholder", "Enter file name");
+
+      fireEvent.change(nameInput, { target: { value: "New Name" } });
+      expect(mockSetUploadFileName).toHaveBeenCalledWith("New Name");
+    });
+
+    it("shows validation states correctly", () => {
       setMockState({
         showUploadOverlay: true,
         selectedFileForUpload: createFile(),
-        uploadFileName: "Original Name",
+        uploadFileName: "invalid",
+        fileNameError: "Error message",
       });
 
       renderModal();
       const nameInput = screen.getByRole("textbox");
 
-      fireEvent.change(nameInput, { target: { value: "New Name" } });
-
-      // Verify store action was called
-      expect(mockSetUploadFileName).toHaveBeenCalledWith("New Name");
+      expect(nameInput).toHaveClass("is-invalid");
+      expect(screen.getByText("Error message")).toBeInTheDocument();
     });
 
-    it("has correct placeholder text", () => {
+    it("handles edge cases (empty/falsy errors)", () => {
       setMockState({
         showUploadOverlay: true,
         selectedFileForUpload: createFile(),
         uploadFileName: "",
-      });
-
-      renderModal();
-      const nameInput = screen.getByPlaceholderText("Enter file name");
-      expect(nameInput).toBeInTheDocument();
-    });
-
-    it("has maxLength of 100 characters", () => {
-      setMockState({
-        showUploadOverlay: true,
-        selectedFileForUpload: createFile(),
+        fileNameError: null,
       });
 
       renderModal();
       const nameInput = screen.getByRole("textbox");
-      expect(nameInput).toHaveAttribute("maxLength", "100");
-    });
 
-    it("displays error message when fileNameError is present", () => {
-      setMockState({
-        showUploadOverlay: true,
-        selectedFileForUpload: createFile(),
-        uploadFileName: "duplicate-name",
-        fileNameError:
-          "A file with this name already exists. Please choose a different name",
-      });
-
-      renderModal();
-      expect(
-        screen.getByText(
-          "A file with this name already exists. Please choose a different name",
-        ),
-      ).toBeInTheDocument();
+      expect(nameInput).toHaveValue("");
+      expect(nameInput).not.toHaveClass("is-invalid");
     });
   });
 
-  describe("Action Buttons", () => {
+  describe("Actions and Form Submission", () => {
     beforeEach(() => {
       setMockState({
         showUploadOverlay: true,
@@ -237,45 +194,57 @@ describe("FileUploadModal", () => {
       });
     });
 
-    it("calls cancel handler when Cancel button is clicked", () => {
+    it("handles button clicks correctly", () => {
       renderModal();
-      const cancelButton = screen.getByRole("button", { name: /cancel/i });
 
-      fireEvent.click(cancelButton);
-
+      fireEvent.click(screen.getByRole("button", { name: /cancel/i }));
       expect(mockHandleGeneralAction).toHaveBeenCalledWith("cancel-upload");
-    });
 
-    it("calls confirm handler when Upload button is clicked", () => {
-      renderModal();
-      const uploadButton = screen.getByRole("button", { name: /upload/i });
-
-      fireEvent.click(uploadButton);
-
+      fireEvent.click(screen.getByRole("button", { name: /upload/i }));
       expect(mockHandleGeneralAction).toHaveBeenCalledWith("confirm-upload");
     });
-  });
 
-  describe("Integration with Store", () => {
-    it("renders based on hook state", () => {
-      setMockState({
-        showUploadOverlay: false,
-        selectedFileForUpload: createFile(),
-      });
-
-      const { container } = renderModal();
-      expect(container.firstChild).toBeNull();
-
-      // Update state and render again
+    it("disables confirm button when filename is invalid", () => {
       setMockState({
         showUploadOverlay: true,
         selectedFileForUpload: createFile(),
+        uploadFileName: "invalid",
+        fileNameError: "Invalid filename",
       });
 
       renderModal();
-      expect(screen.getByTestId("modal-title")).toHaveTextContent(
-        "Upload image",
-      );
+      expect(screen.getByRole("button", { name: /upload/i })).toBeDisabled();
+    });
+
+    it("handles form submission", () => {
+      renderModal();
+      const form = screen.getByTestId("modal-body").querySelector("form");
+
+      if (form) {
+        fireEvent.submit(form);
+        expect(mockHandleGeneralAction).toHaveBeenCalledWith("confirm-upload");
+      }
+    });
+
+    it("prevents form submission when filename is invalid", () => {
+      setMockState({
+        showUploadOverlay: true,
+        selectedFileForUpload: createFile(),
+        uploadFileName: "invalid",
+        fileNameError: "Error",
+      });
+
+      renderModal();
+      const invalidForm = screen
+        .getByTestId("modal-body")
+        .querySelector("form");
+
+      if (invalidForm) {
+        fireEvent.submit(invalidForm);
+        expect(mockHandleGeneralAction).not.toHaveBeenCalledWith(
+          "confirm-upload",
+        );
+      }
     });
   });
 });
