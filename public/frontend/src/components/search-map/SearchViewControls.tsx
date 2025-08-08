@@ -3,6 +3,7 @@ import { Button } from 'react-bootstrap';
 import '@/components/search/filters/Filters.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faList, faMap } from '@fortawesome/free-solid-svg-icons';
+import { trackClickEvent } from '@/utils/matomo';
 
 interface SearchViewControlsProps {
   variant: 'list' | 'map';
@@ -14,6 +15,10 @@ const SearchViewControls = ({ variant }: SearchViewControlsProps) => {
   const handleViewChange = (newView: string) => {
     searchParams.set('view', newView);
     setSearchParams(searchParams);
+    trackClickEvent({
+      category: 'Search view button',
+      name: `Change to ${newView} view`,
+    });
   };
 
   return (

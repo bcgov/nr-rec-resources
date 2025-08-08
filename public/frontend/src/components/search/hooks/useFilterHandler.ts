@@ -22,7 +22,7 @@ export const useFilterHandler = () => {
         ]);
       }
       trackSiteSearch({
-        category: 'Filter toggle on',
+        category: 'Search page list view | Filter toggle on',
         keyword: label,
       });
     } else {
@@ -36,7 +36,7 @@ export const useFilterHandler = () => {
       }
       setSearchParams(newSearchParams);
       trackSiteSearch({
-        category: 'Filter toggle off',
+        category: 'Search page list view | Filter toggle off',
         keyword: label,
       });
     }
