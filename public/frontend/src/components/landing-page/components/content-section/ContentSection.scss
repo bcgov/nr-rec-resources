@@ -12,4 +12,41 @@
       --bs-gutter-y: 2rem;
     }
   }
+
+  @include media-breakpoint-up(lg) {
+    .image-col img {
+      max-width: 90%;
+    }
+
+    &.image-first {
+      .image-col img {
+        margin-left: 0;
+        margin-right: auto;
+        padding-right: 0;
+      }
+
+      .content-col {
+        padding-left: 0;
+      }
+    }
+
+    &.image-last {
+      .image-col img {
+        margin-right: 0;
+        margin-left: auto;
+        padding-left: 0;
+      }
+
+      .content-col {
+        padding-right: 0;
+      }
+    }
+  }
+
+  @include media-breakpoint-down(lg) {
+    .image-col img {
+      max-width: 100%;
+      margin: 0;
+    }
+  }
 }
