@@ -20,11 +20,33 @@
       max-width: 800px;
     }
   }
+
+  .beta-banner {
+    display: none;
+
+    @include media-breakpoint-up(sm) {
+      display: flex;
+    }
+  }
+
+  .zoom-control {
+    bottom: 0.5rem;
+    right: 0.5rem;
+
+    button {
+      height: 30px;
+    }
+
+    @include media-breakpoint-up(sm) {
+      bottom: 1rem;
+      right: 1rem;
+    }
+  }
 }
 
 .search-map-controls {
   position: fixed;
-  top: 10px;
+  top: 106px;
   left: 0;
   right: 0;
   margin: 0 auto;
@@ -37,15 +59,17 @@
   border-radius: 4px;
   transform: none;
 
+  @include media-breakpoint-up(sm) {
+    top: 220px;
+  }
+
   // Collapse and center on larger screens
   @include media-breakpoint-up(md) {
+    top: 220px;
     left: 50%;
     transform: translateX(-50%);
     flex-direction: row;
     max-width: 100%;
-  }
-
-  @include media-breakpoint-up(md) {
     max-width: $pageMaxWidth;
     justify-content: space-between;
   }
@@ -91,7 +115,7 @@
 
     .recreation-resource-suggestion-form {
       width: 100%;
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
 
       @include media-breakpoint-up(md) {
         max-width: 500px;

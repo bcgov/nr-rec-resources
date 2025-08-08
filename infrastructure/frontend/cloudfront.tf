@@ -1,6 +1,9 @@
 data "aws_caller_identity" "current" {}
 
 data "terraform_remote_state" "api" {
+  // The api and frontend remote states have circular dependencies due to these data sources
+  // On first deployment, one of these data sources will have to be commented out and dummy data used
+  // in any resources that depend on it.
   count = can(regex("ephemeral", var.app_env)) ? 0 : 1
 
   backend = "s3"
@@ -15,7 +18,7 @@ data "terraform_remote_state" "api" {
 locals {
   api_url = (
     can(regex("ephemeral", var.app_env))
-    ? "https://placeholder-api-url"
+    ? "https://example.com" # Placeholder for ephemeral environments
     : data.terraform_remote_state.api[0].outputs.apigw_url
   )
 }
@@ -79,13 +82,22 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   price_class         = "PriceClass_100"
   web_acl_id          = "${aws_wafv2_web_acl.waf_cloudfront.arn}"
 
-  aliases = var.app_env == "prod" ? [var.custom_domain] : []
-
+  // Temporary fix for admin-prod deployment. Once we have a custom domain for admin-prod, we can uncomment the line below
+  // aliases = var.app_env == "prod" ? [var.custom_domain] : []
+  // Public prod app_name is "frontend-prod", admin is "admin-frontend-prod"
+  aliases = var.app_name == "frontend-prod" ? [var.custom_domain] : []
+  # viewer_certificate {
+  #   acm_certificate_arn            = var.app_env == "prod" ? data.aws_acm_certificate.primary_cert["primary_cert"].arn : null
+  #   ssl_support_method             = "sni-only"
+  #   minimum_protocol_version       = "TLSv1.2_2021"
+  #   cloudfront_default_certificate = var.app_env != "prod"
+  # }
   viewer_certificate {
-    acm_certificate_arn            = var.app_env == "prod" ? data.aws_acm_certificate.primary_cert["primary_cert"].arn : null
+    // Remove this and uncomment the above block when we have a custom domain for admin-prod
+    acm_certificate_arn            = var.app_name == "frontend-prod" ? data.aws_acm_certificate.primary_cert["primary_cert"].arn : null
     ssl_support_method             = "sni-only"
     minimum_protocol_version       = "TLSv1.2_2021"
-    cloudfront_default_certificate = var.app_env != "prod"
+    cloudfront_default_certificate = var.app_name != "frontend-prod"
   }
 
   origin {
@@ -150,7 +162,7 @@ resource "aws_cloudfront_response_headers_policy" "csp_policy" {
         "style-src-attr 'self' 'unsafe-inline'",
         "font-src 'self' https://fonts.gstatic.com",
         "img-src 'self' data: https://fonts.googleapis.com https://*.arcgis.com https://www.w3.org ${var.csp_urls.image_src} ${var.csp_urls.matomo_src}",
-        "connect-src 'self' ${local.api_url} https://${var.app_env}.loginproxy.gov.bc.ca https://services6.arcgis.com https://www.arcgis.com https://services.arcgis.com https://tiles.arcgis.com https://maps.arcgis.com ${var.csp_urls.connect_src} ${var.csp_urls.matomo_src}",
+        "connect-src 'self' ${local.api_url} https://${var.app_env}.loginproxy.gov.bc.ca https://loginproxy.gov.bc.ca https://services6.arcgis.com https://www.arcgis.com https://services.arcgis.com https://tiles.arcgis.com https://maps.arcgis.com ${var.csp_urls.connect_src} ${var.csp_urls.matomo_src}",
         "media-src 'self'",
         "frame-src 'none'",
         "worker-src 'self' blob: https://js.arcgis.com",

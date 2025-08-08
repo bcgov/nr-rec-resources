@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import type { RefObject } from 'react';
 import type OLMap from 'ol/Map';
 import GeoJSON from 'ol/format/GeoJSON';
@@ -8,8 +9,24 @@ export const useZoomToExtent = (
   mapRef: RefObject<{ getMap: () => OLMap } | null>,
   extent?: string,
 ) => {
+  const [searchParams] = useSearchParams();
+  const filterParam = searchParams.get('filter') ?? '';
+
+  // Keep track of previous filter param to detect clearing
+  const prevFilterRef = useRef<string>('');
+
   useEffect(() => {
     if (!extent || !mapRef.current) return;
+
+    const map = mapRef.current.getMap();
+    if (!map) return;
+
+    const wasCleared = prevFilterRef.current && !filterParam;
+    prevFilterRef.current = filterParam;
+
+    if (wasCleared) {
+      return;
+    }
 
     try {
       const geojson = JSON.parse(extent);
@@ -23,7 +40,6 @@ export const useZoomToExtent = (
         'EPSG:3857',
       );
 
-      const map = mapRef.current.getMap();
       const view = map.getView();
 
       map.once('moveend', () => {
@@ -42,5 +58,6 @@ export const useZoomToExtent = (
     } catch (err) {
       console.error('Failed to parse or fit extent:', err);
     }
+    // eslint-disable-next-line
   }, [extent, mapRef]);
 };

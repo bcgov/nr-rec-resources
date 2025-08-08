@@ -6,15 +6,19 @@
 
 .header-nav {
   @extend .page;
-  height: 96px;
   position: relative;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   margin: 0px auto;
+  padding: 0.5rem 1rem;
   justify-content: space-between;
-  padding-top: 0;
-  padding-bottom: 0;
+
+  @include media-breakpoint-up(sm) {
+    height: 96px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
 
   &.main {
     background-color: $colorBlue;
@@ -22,8 +26,11 @@
 
   &.sub {
     background-color: $colorBlueMed;
-    height: 64px;
     justify-content: flex-start;
+
+    @include media-breakpoint-up(sm) {
+      height: 64px;
+    }
 
     & a {
       color: $colorWhite;
@@ -31,6 +38,29 @@
       &:hover {
         text-decoration: underline;
       }
+    }
+  }
+
+  .header-logo {
+    height: 48px;
+
+    @include media-breakpoint-up(sm) {
+      height: 64px;
+    }
+  }
+
+  .header-feedback-btn {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem;
+    height: 40px;
+    background-color: $colorWhite;
+    color: $colorBlue;
+    border-radius: 20px;
+    font-size: 0.875rem;
+
+    @include media-breakpoint-up(sm) {
+      display: none;
     }
   }
 }
