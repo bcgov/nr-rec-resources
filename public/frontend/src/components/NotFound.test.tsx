@@ -19,13 +19,22 @@ describe('NotFound', () => {
       useNavigate: useNavigateMock,
     }));
     render(<NotFound />);
-    const headingElement = screen.getByRole('heading', { name: /404/i });
-    expect(headingElement).toBeInTheDocument();
+    const title = screen.getByText('404 - Uh oh ! Page not found.');
+    expect(title).toBeInTheDocument();
   });
 
-  it('should navigate to the previous page when the back button is clicked', () => {
+  it('should navigate to the home page when the Return to home button is clicked', () => {
     render(<NotFound />);
-    const backButton = screen.getByRole('button', { name: /back/i });
+    const backButton = screen.getByRole('button', { name: /Return to home/i });
+    backButton.click();
+    expect(useNavigateMock).toHaveBeenCalled();
+  });
+
+  it('should navigate to the search page when the Find a rec site or trail button is clicked', () => {
+    render(<NotFound />);
+    const backButton = screen.getByRole('button', {
+      name: /Find a rec site or trail/i,
+    });
     backButton.click();
     expect(useNavigateMock).toHaveBeenCalled();
   });
