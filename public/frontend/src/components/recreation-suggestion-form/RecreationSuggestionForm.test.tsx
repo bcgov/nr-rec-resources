@@ -28,6 +28,8 @@ vi.mock('@/utils/matomo', () => ({
 const mockedUseSearchInput = useSearchInput as Mock;
 const mockedUseCurrentLocation = useCurrentLocation as Mock;
 
+const SEARCH_CATEGORY = 'Recreation Resource Test page search';
+
 describe('RecreationSuggestionForm', () => {
   const handleSearch = vi.fn();
   const setSearchInputValue = vi.fn();
@@ -55,7 +57,10 @@ describe('RecreationSuggestionForm', () => {
 
   it('does not call handleSearch if input is empty and allowEmptySearch is false', () => {
     renderWithQueryClient(
-      <RecreationSuggestionForm allowEmptySearch={false} />,
+      <RecreationSuggestionForm
+        allowEmptySearch={false}
+        trackingSource="Test"
+      />,
     );
 
     fireEvent.click(screen.getByRole('button', { name: /search/i }));
@@ -64,13 +69,18 @@ describe('RecreationSuggestionForm', () => {
   });
 
   it('calls handleSearch if input is empty but allowEmptySearch is true', () => {
-    renderWithQueryClient(<RecreationSuggestionForm allowEmptySearch={true} />);
+    renderWithQueryClient(
+      <RecreationSuggestionForm
+        allowEmptySearch={true}
+        trackingSource="Test page"
+      />,
+    );
 
     fireEvent.click(screen.getByRole('button', { name: /search/i }));
 
     expect(handleSearch).toHaveBeenCalledWith('');
     expect(trackClickEvent).toHaveBeenCalledWith({
-      category: 'Recreation Resource search',
+      category: SEARCH_CATEGORY,
       name: 'Search button clicked',
     });
   });
@@ -81,7 +91,7 @@ describe('RecreationSuggestionForm', () => {
       permissionDeniedCount: 2,
     });
 
-    renderWithQueryClient(<RecreationSuggestionForm />);
+    renderWithQueryClient(<RecreationSuggestionForm trackingSource="Test" />);
 
     expect(
       screen.getByText(/Location permission blocked/i),
@@ -102,7 +112,10 @@ describe('RecreationSuggestionForm', () => {
     });
 
     renderWithQueryClient(
-      <RecreationSuggestionForm allowEmptySearch={false} />,
+      <RecreationSuggestionForm
+        allowEmptySearch={false}
+        trackingSource="Test page"
+      />,
     );
 
     const input = screen.getByRole('combobox');
@@ -113,7 +126,7 @@ describe('RecreationSuggestionForm', () => {
 
     expect(handleSearch).toHaveBeenCalledWith('trail');
     expect(trackEvent).toHaveBeenCalledWith({
-      category: 'Recreation Resource search',
+      category: SEARCH_CATEGORY,
       action: 'Search input key down',
       name: 'Enter',
     });
@@ -130,7 +143,10 @@ describe('RecreationSuggestionForm', () => {
     });
 
     renderWithQueryClient(
-      <RecreationSuggestionForm allowEmptySearch={false} />,
+      <RecreationSuggestionForm
+        allowEmptySearch={false}
+        trackingSource="Test page"
+      />,
     );
 
     const input = screen.getByRole('combobox');
@@ -141,7 +157,7 @@ describe('RecreationSuggestionForm', () => {
 
     expect(handleSearch).not.toHaveBeenCalled();
     expect(trackEvent).toHaveBeenCalledWith({
-      category: 'Recreation Resource search',
+      category: SEARCH_CATEGORY,
       action: 'Search input key down',
       name: 'Enter',
     });
@@ -157,13 +173,18 @@ describe('RecreationSuggestionForm', () => {
       handleSearch,
     });
 
-    renderWithQueryClient(<RecreationSuggestionForm allowEmptySearch={true} />);
+    renderWithQueryClient(
+      <RecreationSuggestionForm
+        allowEmptySearch={true}
+        trackingSource="Test page"
+      />,
+    );
 
     fireEvent.click(screen.getByRole('button', { name: /search/i }));
 
     expect(handleSearch).toHaveBeenCalled();
     expect(trackClickEvent).toHaveBeenCalledWith({
-      category: 'Recreation Resource search',
+      category: SEARCH_CATEGORY,
       name: 'Search button clicked',
     });
   });
@@ -178,7 +199,12 @@ describe('RecreationSuggestionForm', () => {
       handleSearch,
     });
 
-    renderWithQueryClient(<RecreationSuggestionForm allowEmptySearch={true} />);
+    renderWithQueryClient(
+      <RecreationSuggestionForm
+        allowEmptySearch={true}
+        trackingSource="Test page"
+      />,
+    );
 
     const input = screen.getByRole('combobox');
 
@@ -188,7 +214,7 @@ describe('RecreationSuggestionForm', () => {
 
     expect(trackEvent).toHaveBeenCalledWith(
       expect.objectContaining({
-        category: 'Recreation Resource search',
+        category: SEARCH_CATEGORY,
         action: 'Search input key down',
         name: 'Enter',
       }),
