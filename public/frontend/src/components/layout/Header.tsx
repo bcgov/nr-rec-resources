@@ -4,10 +4,9 @@ import BetaBanner from './BetaBanner';
 import { Button, Stack } from 'react-bootstrap';
 import { trackClickEvent } from '@/utils/matomo';
 import { ROUTE_PATHS } from '@/routes';
-import { EXTERNAL_LINKS } from '@/data/urls';
+import { EXTERNAL_LINKS, INTERNAL_LINKS } from '@/data/urls';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLink } from '@fortawesome/free-solid-svg-icons';
-import { INTERNAL_LINKS } from '@/data/urls';
 
 const Header = () => {
   return (
