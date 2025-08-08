@@ -16,7 +16,7 @@ const SearchBanner = () => {
           <h1 className="fs-3 mb-lg-0">Find a site or trail</h1>
         </Col>
         <Col md={12} lg={9} className="mb-3 mb-md-0">
-          <RecreationSuggestionForm />
+          <RecreationSuggestionForm trackingSource="Search page list view" />
         </Col>
       </Row>
     </Stack>
