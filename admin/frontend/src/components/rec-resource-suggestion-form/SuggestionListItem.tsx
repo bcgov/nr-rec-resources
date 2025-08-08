@@ -49,26 +49,21 @@ export const SuggestionListItem: FC<SearchItemData> = ({
           </div>
         </Col>
 
-        {/* Middle Section (Desktop/Tablet) */}
-        <Col className="desktop-col">
-          <span className="rec-name">
-            <Highlighter search={searchTerm}>{title}</Highlighter>
+        {/* Combined Middle Section */}
+        <Col className="content-col d-flex flex-column">
+          <span className="rec-name mb-1 capitalize">
+            <Highlighter search={searchTerm}>{title.toLowerCase()}</Highlighter>
           </span>
-          <div className="description-text">
+
+          {/* Desktop / Tablet description */}
+          <div className="description-text d-none d-sm-block">
             {resourceType} &bull; {district}
           </div>
-        </Col>
 
-        {/* Middle Section (Mobile) */}
-        <Col className="mobile-col">
-          <div className="mobile-inner">
-            <span className="rec-name mb-1">
-              <Highlighter search={searchTerm}>{title}</Highlighter>
-            </span>
-            <Badge className="rec-id-badge px-3 py-2 rounded-pill align-self-start">
-              {rec_resource_id}
-            </Badge>
-          </div>
+          {/* Mobile badge */}
+          <Badge className="rec-id-badge px-3 py-2 rounded-pill align-self-start d-sm-none">
+            {rec_resource_id}
+          </Badge>
         </Col>
 
         {/* Right Section (Desktop/Tablet) */}
