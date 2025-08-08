@@ -21,6 +21,13 @@ const iconStyleCache = new Map<string, Style>();
 const labelTextCache = new Map<string, string>();
 const labelStyleCache = new Map<string, Style>();
 
+const RECREATION_FIELDS = [
+  'PROJECT_NAME',
+  'PROJECT_TYPE',
+  'CLOSURE_IND',
+  'FOREST_FILE_ID',
+];
+
 const getCapitalizedName = (name: string): string => {
   if (!labelTextCache.has(name)) {
     labelTextCache.set(name, capitalizeWords(name));
@@ -117,7 +124,7 @@ export const loadFeaturesForFilteredIds = async (
   while (true) {
     const url =
       `${RECREATION_FEATURE_LAYER}/query/?f=json&where=1=1` +
-      `&outFields=PROJECT_NAME,CLOSURE_IND,FOREST_FILE_ID` +
+      `&outFields=${RECREATION_FIELDS.join(',')}` +
       `&resultRecordCount=${batchSize}&resultOffset=${offset}` +
       `&orderByFields=PROJECT_NAME` +
       `&inSR=102100` +

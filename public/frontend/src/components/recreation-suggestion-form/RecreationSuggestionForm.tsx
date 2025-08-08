@@ -33,12 +33,14 @@ interface RecreationSuggestionFormProps {
   allowEmptySearch?: boolean;
   disableNavigation?: boolean;
   searchBtnVariant?: 'primary' | 'secondary';
+  trackingSource: string; // Used for tracking which page the search is initiated from ie 'Landing page', 'Search map'
 }
 
 const RecreationSuggestionForm = ({
   allowEmptySearch,
   disableNavigation = false,
   searchBtnVariant = 'primary',
+  trackingSource,
 }: RecreationSuggestionFormProps) => {
   const navigate = useNavigate();
   const { data: citiesList } = useSearchCitiesApi();
@@ -51,6 +53,8 @@ const RecreationSuggestionForm = ({
     handleClearTypeaheadSearch,
     handleSearch,
   } = useSearchInput();
+
+  const trackingName = `Recreation Resource ${trackingSource} search`;
 
   const isPermissionDenied = useMemo(
     () => permissionDeniedCount > 0,
@@ -113,11 +117,11 @@ const RecreationSuggestionForm = ({
         handleSearch(inputValue);
       }
       trackClickEvent({
-        category: 'Recreation Resource search',
+        category: trackingName,
         name: 'Search button clicked',
       })();
     },
-    [allowEmptySearch, handleSearch],
+    [allowEmptySearch, handleSearch, trackingName],
   );
 
   const handleInputKeyDown = useCallback(
@@ -131,12 +135,12 @@ const RecreationSuggestionForm = ({
         }
       }
       trackEvent({
-        category: 'Recreation Resource search',
+        category: trackingName,
         action: 'Search input key down',
         name: e.key,
       });
     },
-    [allowEmptySearch, handleSearch],
+    [allowEmptySearch, handleSearch, trackingName],
   );
 
   const handleSuggestionChange = async (
@@ -160,7 +164,7 @@ const RecreationSuggestionForm = ({
 
           handleCityOptionSearch(updatedCurrentLocation);
           trackClickEvent({
-            category: 'Recreation Resource search',
+            category: trackingName,
             name: `Current location selected`,
           })();
         } catch (err) {
@@ -174,7 +178,7 @@ const RecreationSuggestionForm = ({
           return handleSearch(suggestion.name);
         }
         trackClickEvent({
-          category: 'Recreation Resource search',
+          category: trackingName,
           name: `Recreation resource selected: ${suggestion.name}`,
         })();
         navigate(
@@ -184,7 +188,7 @@ const RecreationSuggestionForm = ({
 
       case OPTION_TYPE.CITY:
         trackClickEvent({
-          category: 'Recreation Resource search',
+          category: trackingName,
           name: `City selected: ${suggestion.name}`,
         })();
         handleCityOptionSearch(suggestion);

@@ -24,6 +24,7 @@ import FilterMenuSearchMap from '@/components/search/filters/FilterMenuSearchMap
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSliders } from '@fortawesome/free-solid-svg-icons';
 import { Button } from 'react-bootstrap';
+import { trackClickEvent } from '@/utils/matomo';
 import '@/components/search-map/SearchMap.scss';
 import { WILDFIRE_LOCATION_MIN_ZOOM } from '@/components/search-map/constants';
 import RecreationSuggestionForm from '@/components/recreation-suggestion-form/RecreationSuggestionForm';
@@ -72,13 +73,31 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
       {
         id: 'recreation-features',
         layer: clusteredRecreationFeatureLayer,
-        onFeatureSelect: setSelectedFeature,
+        onFeatureSelect: (feature: Feature | null) => {
+          setSelectedFeature(feature);
+          trackClickEvent({
+            category: 'Search Map',
+            action: 'Recreation feature selected',
+            name: feature
+              ? `${feature.get('FOREST_FILE_ID')} | ${feature.get(`PROJECT_NAME`)} | ${feature.get(`PROJECT_TYPE`)}`
+              : 'None',
+          });
+        },
         selectedStyle: locationDotOrangeIcon,
       },
       {
         id: 'wildfire-locations',
         layer: wildfireLocationsLayer,
-        onFeatureSelect: setSelectedWildfireFeature,
+        onFeatureSelect: (feature: Feature | null) => {
+          setSelectedWildfireFeature(feature);
+          trackClickEvent({
+            category: 'Search Map',
+            action: 'Wildfire feature selected',
+            name: feature
+              ? `Wildfire id: ${feature.get('FIRE_NUMBER')}`
+              : 'None',
+          });
+        },
         selectedStyle: locationDotOrangeIcon,
       },
     ],
@@ -154,6 +173,7 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
           <RecreationSuggestionForm
             disableNavigation={true}
             searchBtnVariant="secondary"
+            trackingSource="Search page map view"
           />
           <Button
             variant={isFilterMenuOpen ? 'primary' : 'secondary'}
