@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { SuggestionListItem } from "@/components/rec-resource-suggestion-form/SuggestionListItem";
-// Mock react-bootstrap-typeahead Highlighter
+
 vi.mock("react-bootstrap-typeahead", () => ({
   Highlighter: ({ children }: any) => (
     <mark data-testid="highlighter">{children}</mark>
@@ -25,10 +25,13 @@ describe("SuggestionListItem", () => {
   it("renders icon, title, resourceType, district, and rec_resource_id badges", () => {
     render(<SuggestionListItem {...defaultProps} />);
     expect(screen.getByTestId("icon")).toBeInTheDocument();
+
     const highlighters = screen.getAllByTestId("highlighter");
-    expect(highlighters.length).toBe(2);
-    highlighters.forEach((h) => expect(h).toHaveTextContent("Riverfront Park"));
+    expect(highlighters.length).toBe(1);
+    expect(highlighters[0]).toHaveTextContent("riverfront park");
+
     expect(screen.getByText("Urban Park • Downtown")).toBeInTheDocument();
+
     const badges = screen.getAllByText("R-1234");
     expect(badges.length).toBe(2);
     badges.forEach((badge) =>
@@ -47,6 +50,7 @@ describe("SuggestionListItem", () => {
   it("renders mobile and desktop badge locations", () => {
     render(<SuggestionListItem {...defaultProps} />);
     const badges = screen.getAllByText("R-1234");
+    expect(badges.length).toBe(2);
     // First badge is mobile, second is desktop
     expect(badges[0].className).toContain("rec-id-badge");
     expect(badges[1].className).toContain("rec-id-badge");
@@ -55,8 +59,8 @@ describe("SuggestionListItem", () => {
   it("renders Highlighter with correct children and search term", () => {
     render(<SuggestionListItem {...defaultProps} />);
     const marks = screen.getAllByTestId("highlighter");
-    expect(marks.length).toBe(2);
-    marks.forEach((mark) => expect(mark).toHaveTextContent("Riverfront Park"));
+    expect(marks.length).toBe(1);
+    expect(marks[0]).toHaveTextContent("riverfront park");
   });
 
   it("renders correct resourceType and district", () => {
@@ -75,10 +79,13 @@ describe("SuggestionListItem", () => {
     };
     render(<SuggestionListItem {...props} />);
     expect(screen.getByTestId("icon2")).toBeInTheDocument();
+
     const highlighters = screen.getAllByTestId("highlighter");
-    expect(highlighters.length).toBe(2);
-    highlighters.forEach((h) => expect(h).toHaveTextContent("Crystal Lake"));
+    expect(highlighters.length).toBe(1);
+    expect(highlighters[0]).toHaveTextContent("crystal lake");
+
     expect(screen.getByText("Lake • Northside")).toBeInTheDocument();
+
     expect(screen.getAllByText("R-9999").length).toBe(2);
   });
 });

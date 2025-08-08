@@ -31,7 +31,7 @@ export class LandingPOM {
       'Welcome to the new Recreation Sites and Trails BC beta site',
       'Find a recreation site or trail',
       'Human-centred, research-driven',
-      'New interactive map coming soon',
+      'New interactive map launched',
       'About Recreation Sites and Trails BC',
     ].forEach(async (heading) => {
       await expect(

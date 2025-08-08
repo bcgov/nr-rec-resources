@@ -14,10 +14,10 @@ describe('SuggestionListCity', () => {
       expect(el.tagName.toLowerCase()).toBe('mark');
     }
 
-    const fullCityInstances = screen.getAllByText(
-      (_content, element) => element?.textContent === 'Vancouver',
-    );
-    expect(fullCityInstances.length).toBeGreaterThanOrEqual(2); // mobile + desktop
+    const city = screen.getByText((_content, element) => {
+      return element?.textContent === 'Vancouver';
+    });
+    expect(city).toBeInTheDocument();
   });
 
   it('shows LOCATION_ICON and "Region" description for regular city', () => {
@@ -42,14 +42,12 @@ describe('SuggestionListCity', () => {
     expect(description).toBeInTheDocument();
   });
 
-  it('renders both desktop and mobile versions of the city name', () => {
+  it('renders the city name', () => {
     render(<SuggestionListCity city="Vancouver" searchTerm="couv" />);
 
-    const fullTextSpans = screen.getAllByText(
-      (_text, el) => el?.textContent === 'Vancouver',
-    );
-
-    // Expect desktop and mobile each render 'Vancouver'
-    expect(fullTextSpans.length).toBeGreaterThanOrEqual(2);
+    const city = screen.getByText((_content, element) => {
+      return element?.textContent === 'Vancouver';
+    });
+    expect(city).toBeInTheDocument();
   });
 });

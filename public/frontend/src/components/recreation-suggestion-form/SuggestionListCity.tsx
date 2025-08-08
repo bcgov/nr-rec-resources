@@ -40,20 +40,12 @@ export const SuggestionListCity: React.FC<SearchItemData> = ({
           </div>
         </Col>
 
-        <Col className="desktop-col">
+        <Col className="content-col">
           <span className="rec-name">
             <Highlighter search={searchTerm}>{city}</Highlighter>
           </span>
           <div className="description-text">
             {isCurrentLocation ? 'Find whats around you' : 'Region'}
-          </div>
-        </Col>
-
-        <Col className="mobile-col">
-          <div className="mobile-inner">
-            <span className="rec-name mb-1">
-              <Highlighter search={searchTerm}>{city}</Highlighter>
-            </span>
           </div>
         </Col>
       </Row>
