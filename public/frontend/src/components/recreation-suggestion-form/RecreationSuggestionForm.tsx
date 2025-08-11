@@ -20,7 +20,7 @@ import {
 } from '@/components/recreation-suggestion-form/types';
 import '@/components/recreation-suggestion-form/RecreationSuggestionForm.scss';
 import { Option } from 'react-bootstrap-typeahead/types/types';
-import { trackEvent, trackClickEvent } from '@/utils/matomo';
+import { trackClickEvent } from '@/utils/matomo';
 import { ROUTE_PATHS } from '@/routes/constants';
 import {
   CURRENT_LOCATION_TITLE,
@@ -134,13 +134,8 @@ const RecreationSuggestionForm = ({
           handleSearch(inputValue);
         }
       }
-      trackEvent({
-        category: trackingName,
-        action: 'Search input key down',
-        name: e.key,
-      });
     },
-    [allowEmptySearch, handleSearch, trackingName],
+    [allowEmptySearch, handleSearch],
   );
 
   const handleSuggestionChange = async (
