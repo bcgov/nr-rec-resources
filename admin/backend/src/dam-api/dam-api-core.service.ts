@@ -39,7 +39,7 @@ export class DamApiCoreService {
         user: config.user,
         function: "create_resource",
         metadata: JSON.stringify(metadata),
-        resource_type,
+        resource_type: this.getResourceTypeId(resourceType, config),
         archive: 0,
       };
 
