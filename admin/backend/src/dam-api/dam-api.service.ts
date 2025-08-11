@@ -112,7 +112,7 @@ export class DamApiService {
     file: Express.Multer.File,
   ): Promise<DamResource> {
     this.logger.log(`Creating and uploading image`, {
-      caption: metadata.caption,
+      title: metadata.title,
       fileName: file.originalname,
       fileSize: file.size,
     });
@@ -131,7 +131,7 @@ export class DamApiService {
     const files = await this.coreService.getResourcePath(ref_id, this.config);
 
     this.logger.log(`Image created and uploaded successfully`, {
-      caption: metadata.caption,
+      title: metadata.title,
       ref_id,
       fileName: file.originalname,
       fileCount: files.length,
@@ -150,7 +150,7 @@ export class DamApiService {
     file: Express.Multer.File,
   ): Promise<DamResource> {
     this.logger.log(
-      `Creating and uploading image with retry - Caption: "${metadata.caption}", File: ${file.originalname} (${file.size} bytes)`,
+      `Creating and uploading image with retry - Title: "${metadata.title}", File: ${file.originalname} (${file.size} bytes)`,
     );
 
     const ref_id = await this.coreService.createResource(
@@ -170,7 +170,7 @@ export class DamApiService {
     );
 
     this.logger.log(
-      `Image created and uploaded with retry successfully - Caption: "${metadata.caption}", ID: ${ref_id}, File: ${file.originalname}, Variants: ${files.length}`,
+      `Image created and uploaded with retry successfully - Title: "${metadata.title}", ID: ${ref_id}, File: ${file.originalname}, Variants: ${files.length}`,
     );
 
     return { ref_id, files };

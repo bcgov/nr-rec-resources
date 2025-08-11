@@ -90,7 +90,7 @@ export class ResourceImagesService {
 
   async create(
     rec_resource_id: string,
-    caption: string,
+    title: string,
     file: Express.Multer.File,
   ): Promise<RecreationResourceImageDto> {
     if (!allowedTypes.includes(file.mimetype)) {
@@ -105,7 +105,7 @@ export class ResourceImagesService {
       throw new HttpException("Recreation image not found", 404);
     }
     const metadata: DamMetadataDto = {
-      caption,
+      title,
       closestCommunity: resource.closest_community,
       recreationName: `${resource.name} - ${resource.rec_resource_id}`,
       recreationDistrict: resource.district_code,
@@ -116,7 +116,7 @@ export class ResourceImagesService {
       data: {
         ref_id: ref_id.toString(),
         rec_resource_id,
-        caption,
+        caption: title,
         recreation_resource_image_variants: {
           create: files.map((f: any) => {
             return {

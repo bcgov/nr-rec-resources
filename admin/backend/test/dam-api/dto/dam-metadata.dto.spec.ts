@@ -4,14 +4,12 @@ import { describe, it, expect } from "vitest";
 describe("RecreationResourceDocDto", () => {
   it("should create a valid DTO instance", () => {
     const dto = new DamMetadataDto();
-    dto.caption = "caption";
     dto.title = "title";
     dto.closestCommunity = "Closest community";
     dto.recreationName = "Recreation name";
     dto.recreationDistrict = "Rec District";
 
     expect(dto).toBeDefined();
-    expect(dto.caption).toBe("caption");
     expect(dto.title).toBe("title");
     expect(dto.closestCommunity).toBe("Closest community");
     expect(dto.recreationName).toBe("Recreation name");
@@ -22,7 +20,6 @@ describe("RecreationResourceDocDto", () => {
     const dto = new DamMetadataDto();
 
     expect(dto).toBeDefined();
-    expect(dto.caption).toBeUndefined();
     expect(dto.title).toBeUndefined();
     expect(dto.closestCommunity).toBeUndefined();
     expect(dto.recreationName).toBeUndefined();

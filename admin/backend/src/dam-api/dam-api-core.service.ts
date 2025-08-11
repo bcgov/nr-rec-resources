@@ -26,7 +26,7 @@ export class DamApiCoreService {
     config: DamApiConfig,
   ): Promise<string> {
     this.logger.log(
-      `Creating DAM resource - ${metadata.title ? "Title" : "Caption"}: "${metadata.title ? metadata.title : metadata.caption}", Type: ${resourceType}, User: ${config.user}`,
+      `Creating DAM resource - Title: "${metadata.title}", Type: ${resourceType}, User: ${config.user}`,
     );
 
     try {
@@ -44,7 +44,7 @@ export class DamApiCoreService {
       };
 
       this.logger.debug(
-        `DAM resource creation parameters - ${metadata.title ? "Title" : "Caption"}: "${metadata.title ? metadata.title : metadata.caption}", Type: ${resourceType}, Resource Type: ${resource_type}, User: ${config.user}`,
+        `DAM resource creation parameters - Title: "${metadata.title}", Type: ${resourceType}, Resource Type: ${resource_type}, User: ${config.user}`,
       );
 
       const formData = this.utilsService.createFormData(params, config);
@@ -54,13 +54,13 @@ export class DamApiCoreService {
       );
 
       this.logger.log(
-        `DAM resource created successfully - ${metadata.title ? "Title" : "Caption"}: "${metadata.title ? metadata.title : metadata.caption}", Type: ${resourceType}, Resource ID: ${result}`,
+        `DAM resource created successfully - Title: "${metadata.title}", Type: ${resourceType}, Resource ID: ${result}`,
       );
 
       return result;
     } catch (error) {
       this.logger.error(
-        `Failed to create DAM resource - ${metadata.title ? "Title" : "Caption"}: "${metadata.title ? metadata.title : metadata.caption}", Type: ${resourceType}, Error: ${error.message}`,
+        `Failed to create DAM resource - Title: "${metadata.title}", Type: ${resourceType}, Error: ${error.message}`,
       );
       throw new HttpException(
         "Error creating resource.",
