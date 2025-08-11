@@ -29,13 +29,11 @@ describe('the BetaBanner component', () => {
     render(<BetaBanner />);
 
     const mobileText = screen.getByText(/This site is in Beta/i);
-    const feedbackButton = screen.getByText(/Share feedback/i);
     const originalSiteLink = screen.getByRole('link', {
       name: /Visit original site/i,
     });
 
     expect(mobileText).toBeInTheDocument();
-    expect(feedbackButton).toBeInTheDocument();
     expect(originalSiteLink).toHaveAttribute(
       'href',
       'https://www.sitesandtrailsbc.ca',

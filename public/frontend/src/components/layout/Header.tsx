@@ -1,12 +1,12 @@
 import RSTLogo from '@/images/RST_nav_logo.svg';
 import '@/components/layout/Header.scss';
 import BetaBanner from './BetaBanner';
+import { Button, Stack } from 'react-bootstrap';
 import { trackClickEvent } from '@/utils/matomo';
 import { ROUTE_PATHS } from '@/routes';
+import { EXTERNAL_LINKS, INTERNAL_LINKS } from '@/data/urls';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLink } from '@fortawesome/free-solid-svg-icons';
-import { Stack } from 'react-bootstrap';
-import { EXTERNAL_LINKS } from '@/data/urls';
 
 const Header = () => {
   return (
@@ -18,11 +18,24 @@ const Header = () => {
             <a href={ROUTE_PATHS.HOME}>
               <img
                 src={RSTLogo}
+                className="header-logo"
                 alt="Recreation Sites and Trails BC Logo"
-                style={{ height: 64 }}
               />
             </a>
           </div>
+          <Button
+            href={EXTERNAL_LINKS.FEEDBACK_FORM}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Share your feedback (opens in a new tab)"
+            className="header-feedback-btn"
+            onClick={trackClickEvent({
+              category: 'Feedback',
+              name: 'Beta Banner Feedback Button - mobile',
+            })}
+          >
+            Share feedback
+          </Button>
         </nav>
       </div>
       <div className="page-nav-container sub">
@@ -32,15 +45,7 @@ const Header = () => {
         >
           <Stack direction="horizontal" gap={3}>
             <a href="/search">Find a site or trail</a>
-            <a
-              target="_blank"
-              href={EXTERNAL_LINKS.RST_ARCGIS_MAP_FULL_SCREEN}
-              rel="noreferrer"
-              onClick={trackClickEvent({
-                category: 'External link',
-                name: 'Interactive map',
-              })}
-            >
+            <a href={INTERNAL_LINKS.SEARCH_MAP}>
               <Stack direction={'horizontal'} gap={1}>
                 Interactive map
                 <FontAwesomeIcon icon={faExternalLink} />

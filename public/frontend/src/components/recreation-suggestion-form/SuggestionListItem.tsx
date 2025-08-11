@@ -43,21 +43,13 @@ export const SuggestionListItem: FC<SearchItemData> = ({
           <div className="icon-wrapper">{icon}</div>
         </Col>
 
-        <Col className="desktop-col">
+        <Col className="content-col">
           <span className="rec-name">
             <Highlighter search={searchTerm}>{lowerCaseTitle}</Highlighter>
           </span>
           <div className="description-text">
             {resourceType} &bull;{' '}
             <span className="capitalize">{lowerCaseCommunity}</span>
-          </div>
-        </Col>
-
-        <Col className="mobile-col">
-          <div className="mobile-inner">
-            <span className="rec-name mb-1">
-              <Highlighter search={searchTerm}>{lowerCaseTitle}</Highlighter>
-            </span>
           </div>
         </Col>
       </Row>

@@ -4,22 +4,22 @@
 @import "bootstrap/scss/mixins/_breakpoints";
 
 .suggestion-list-item {
+  width: 100%;
   display: flex;
   align-items: center;
 
   .suggestion-list-row {
+    width: 100%;
     display: flex;
-    flex-grow: 1;
     flex-wrap: nowrap;
     align-items: center;
-    width: 100%;
   }
 
   .icon-col {
+    flex: 0 0 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex: 0 0 auto;
 
     .icon-wrapper {
       border-radius: 50%;
@@ -29,38 +29,33 @@
     }
   }
 
-  .desktop-col {
-    display: none;
+  .content-col {
+    flex: 1 1 auto;
+    min-width: 0;
     margin-right: auto;
     padding: 0;
-
-    @include media-breakpoint-up(sm) {
-      display: block;
-    }
 
     .rec-name {
       text-transform: capitalize;
-      margin-bottom: 0.25rem;
     }
 
     .description-text {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: block;
+      min-width: 0;
       color: $text-muted;
       font-size: 0.9em;
     }
-  }
-
-  .mobile-col {
-    display: block;
-    margin-right: auto;
-    padding: 0;
 
     @include media-breakpoint-up(sm) {
-      display: none;
-    }
-
-    .mobile-inner {
       display: flex;
       flex-direction: column;
+
+      .description-text {
+        white-space: normal;
+      }
     }
   }
 }

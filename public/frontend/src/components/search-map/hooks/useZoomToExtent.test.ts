@@ -1,4 +1,4 @@
-import { describe, it, vi, expect } from 'vitest';
+import { describe, it, vi, expect, beforeEach, afterEach } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import OLMap from 'ol/Map';
 import { useZoomToExtent } from '@/components/search-map/hooks/useZoomToExtent';
@@ -18,11 +18,46 @@ vi.mock('ol/format/GeoJSON', () => {
   };
 });
 
+const mockUseSearchParams = vi.fn();
+
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useSearchParams: () => [new URLSearchParams(mockUseSearchParams())],
+  };
+});
+
 describe('useZoomToExtent', () => {
-  it('zooms to the provided extent', () => {
-    const fit = vi.fn();
-    const setZoom = vi.fn();
-    const onMoveEnd = vi.fn((_event: string, cb: () => void) => cb());
+  const extentGeoJSON = JSON.stringify({
+    type: 'Polygon',
+    coordinates: [
+      [
+        [0, 0],
+        [1, 0],
+        [1, 1],
+        [0, 1],
+        [0, 0],
+      ],
+    ],
+  });
+
+  let fit: ReturnType<typeof vi.fn>;
+  let setZoom: ReturnType<typeof vi.fn>;
+  let onMoveEnd: ReturnType<typeof vi.fn>;
+
+  beforeEach(() => {
+    fit = vi.fn();
+    setZoom = vi.fn();
+    onMoveEnd = vi.fn((_event: string, cb: () => void) => cb());
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('zooms to the provided extent when filter is set', () => {
+    mockUseSearchParams.mockReturnValue('filter=abc');
 
     const mapMock = {
       getView: () => ({
@@ -34,19 +69,6 @@ describe('useZoomToExtent', () => {
     } as unknown as OLMap;
 
     const mapRef = { current: { getMap: () => mapMock } };
-
-    const extentGeoJSON = JSON.stringify({
-      type: 'Polygon',
-      coordinates: [
-        [
-          [0, 0],
-          [1, 0],
-          [1, 1],
-          [0, 1],
-          [0, 0],
-        ],
-      ],
-    });
 
     renderHook(() => useZoomToExtent(mapRef, extentGeoJSON));
 
@@ -67,14 +89,47 @@ describe('useZoomToExtent', () => {
   });
 
   it('does not crash on invalid extent', () => {
+    mockUseSearchParams.mockReturnValue('filter=abc');
+
     const consoleError = vi
       .spyOn(console, 'error')
       .mockImplementation(() => {});
+
     const mapRef = { current: { getMap: () => ({}) as unknown as OLMap } };
 
     renderHook(() => useZoomToExtent(mapRef, 'invalid-json'));
 
     expect(consoleError).toHaveBeenCalled();
     consoleError.mockRestore();
+  });
+
+  it('skips zoom if filter was cleared', () => {
+    mockUseSearchParams.mockReturnValue('filter=abc');
+
+    const mapMock = {
+      getView: () => ({
+        fit,
+        getZoom: () => 10,
+        setZoom,
+      }),
+      once: onMoveEnd,
+    } as unknown as OLMap;
+
+    const mapRef = { current: { getMap: () => mapMock } };
+
+    const { rerender } = renderHook(() =>
+      useZoomToExtent(mapRef, extentGeoJSON),
+    );
+
+    expect(fit).toHaveBeenCalled();
+
+    vi.clearAllMocks();
+
+    mockUseSearchParams.mockReturnValue('');
+
+    rerender();
+
+    expect(fit).not.toHaveBeenCalled();
+    expect(setZoom).not.toHaveBeenCalled();
   });
 });

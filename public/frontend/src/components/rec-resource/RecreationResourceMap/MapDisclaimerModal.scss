@@ -1,0 +1,52 @@
+@import '@/styles/variables.scss';
+@import 'bootstrap/scss/functions';
+
+// modal
+.modal.map-disclaimer-modal {
+  .p-title {
+    font-size: 1.1rem;
+    font-weight: bold;
+  }
+  .modal-dialog {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  .modal-body {
+    padding: 0;
+  }
+  .navbar-brand {
+    margin-left: 30px;
+    margin-top: 17px;
+  }
+  .modal-content {
+    background-color: $colorWhite;
+    width: 599px;
+    @media (max-width: $mdBreakpoint) {
+      width: 327px;
+    }
+    .map-disclaimer-modal-content {
+      &--header {
+        display: flex;
+        justify-content: space-between;
+        background-color: $colorBlue;
+        height: 73.5px;
+        border-bottom: solid 3px $colorGold;
+      }
+      .content {
+        padding: 32px;
+        h4 {
+          margin-bottom: 20px;
+        }
+      }
+    }
+    .modal-footer {
+      background-color: $colorBackgroundGrey;
+      button.btn {
+        align-self: self-start;
+      }
+    }
+  }
+}

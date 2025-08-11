@@ -61,7 +61,6 @@ const SearchPage = () => {
 
   const searchResults = useStore(searchResultsStore);
   const filterChips = useStore(filterChipStore);
-  const isMapFeature = searchParams.get('map-feature') === 'true';
   const isMapView = searchParams.get('view') === 'map';
 
   useEffect(() => {
@@ -70,6 +69,7 @@ const SearchPage = () => {
 
   useEffect(() => {
     setFilterChipsFromSearchParams(filterChips, searchResults, searchParams);
+    // eslint-disable-next-line
   }, [searchResults]);
 
   const { pages: paginatedResults, totalCount } = searchResults;
@@ -181,7 +181,7 @@ const SearchPage = () => {
                         </span>
                       )}
                     </div>
-                    {isMapFeature && <SearchViewControls variant="map" />}
+                    <SearchViewControls variant="map" />
                   </div>
                   <FilterChips />
                   {(totalCount === 0 || totalCount === undefined) && (

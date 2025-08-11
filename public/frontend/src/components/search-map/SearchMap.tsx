@@ -1,9 +1,11 @@
 import 'ol/ol.css';
 import 'ol-ext/dist/ol-ext.css';
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState, useEffect } from 'react';
 import OLMap from 'ol/Map';
+import Cookies from 'js-cookie';
 import { useStore } from '@tanstack/react-store';
 import { VectorFeatureMap } from '@bcgov/prp-map';
+import Header from '@/components/layout/Header';
 import { SearchViewControls } from '@/components/search';
 import {
   useClusteredRecreationFeatureLayer,
@@ -26,6 +28,7 @@ import '@/components/search-map/SearchMap.scss';
 import { WILDFIRE_LOCATION_MIN_ZOOM } from '@/components/search-map/constants';
 import RecreationSuggestionForm from '@/components/recreation-suggestion-form/RecreationSuggestionForm';
 import type Feature from 'ol/Feature';
+import MapDisclaimerModal from '../rec-resource/RecreationResourceMap/MapDisclaimerModal';
 
 const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
   const { extent, recResourceIds } = useStore(searchResultsStore);
@@ -33,6 +36,7 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
   const [selectedWildfireFeature, setSelectedWildfireFeature] =
     useState<Feature | null>(null);
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
+  const [isDisclaimerModalOpen, setIsDisclaimerModalOpen] = useState(false);
 
   const mapRef = useRef<{ getMap: () => OLMap }>(null);
   const popupRef = useRef<HTMLDivElement | null>(null);
@@ -91,7 +95,7 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
     popupRef,
     featureLayers: featureSelectionLayers,
     options: {
-      featureOffsetY: 100,
+      featureOffsetY: 150,
     },
   });
   useZoomToExtent(mapRef, extent);
@@ -121,8 +125,22 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
     ],
   );
 
+  useEffect(() => {
+    if (props.style?.visibility === 'visible') {
+      const hideDialog = Cookies.get('hidemap-disclaimer-dialog');
+      if (!hideDialog) {
+        setIsDisclaimerModalOpen(true);
+      }
+    }
+  }, [props, props.style]);
+
   return (
     <div className="search-map-container" {...props}>
+      <MapDisclaimerModal
+        isOpen={isDisclaimerModalOpen}
+        setIsOpen={setIsDisclaimerModalOpen}
+      />
+      <Header />
       <VectorFeatureMap
         ref={mapRef}
         style={{ width: '100%', height: '100%' }}
@@ -146,7 +164,6 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
             Filters
           </Button>
         </div>
-
         <div className="d-flex flex-col flex-lg-row align-items-center gap-2">
           <Button
             variant={isFilterMenuOpen ? 'primary' : 'secondary'}
