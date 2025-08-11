@@ -4,6 +4,7 @@ import { useStore } from '@tanstack/react-store';
 import { useSearchParams } from 'react-router-dom';
 import FilterMenuSearchMap from '@/components/search/filters/FilterMenuSearchMap';
 import { useSearchRecreationResourcesPaginated } from '@/service/queries/recreation-resource';
+import { trackSiteSearch } from '@/utils/matomo';
 
 vi.mock('@tanstack/react-store', async () => {
   const mod = await import('@tanstack/react-store');
@@ -25,13 +26,20 @@ vi.mock('@/service/queries/recreation-resource', () => ({
   useSearchRecreationResourcesPaginated: vi.fn(),
 }));
 
+vi.mock('@/utils/matomo', () => ({
+  trackSiteSearch: vi.fn(),
+}));
+
 describe('FilterMenuSearchMap', () => {
+  const setIsOpenMock = vi.fn();
+  const setSearchParamsMock = vi.fn();
+
   beforeEach(() => {
     vi.resetAllMocks();
 
     (useSearchParams as Mock).mockReturnValue([
       new URLSearchParams({ district: 'ok' }),
-      vi.fn(),
+      setSearchParamsMock,
     ]);
 
     (useStore as Mock).mockReturnValue({
@@ -65,13 +73,13 @@ describe('FilterMenuSearchMap', () => {
   });
 
   it('renders filters from store with initial selected state and counts', async () => {
-    render(<FilterMenuSearchMap isOpen={true} setIsOpen={vi.fn()} />);
+    render(<FilterMenuSearchMap isOpen={true} setIsOpen={setIsOpenMock} />);
     expect(await screen.findByLabelText('Okanagan (2)')).toBeChecked();
     expect(await screen.findByLabelText('Chilliwack (3)')).not.toBeChecked();
   });
 
   it('updates filters when a checkbox is toggled', async () => {
-    render(<FilterMenuSearchMap isOpen={true} setIsOpen={vi.fn()} />);
+    render(<FilterMenuSearchMap isOpen={true} setIsOpen={setIsOpenMock} />);
     const chilliwack = await screen.findByLabelText('Chilliwack (3)');
     fireEvent.click(chilliwack);
     await waitFor(() => expect(chilliwack).toBeChecked());
@@ -99,16 +107,60 @@ describe('FilterMenuSearchMap', () => {
       },
     });
 
-    render(<FilterMenuSearchMap isOpen={true} setIsOpen={vi.fn()} />);
+    render(<FilterMenuSearchMap isOpen={true} setIsOpen={setIsOpenMock} />);
 
     expect(await screen.findByLabelText('Okanagan (0)')).toBeDisabled();
     expect(await screen.findByLabelText('Chilliwack (3)')).not.toBeDisabled();
   });
 
   it('shows total count on apply button', async () => {
-    render(<FilterMenuSearchMap isOpen={true} setIsOpen={vi.fn()} />);
+    render(<FilterMenuSearchMap isOpen={true} setIsOpen={setIsOpenMock} />);
     expect(
       await screen.findByRole('button', { name: /apply 5 results/i }),
     ).toBeInTheDocument();
+  });
+
+  it('calls trackSiteSearch with correct params when Apply is clicked', async () => {
+    render(<FilterMenuSearchMap isOpen={true} setIsOpen={setIsOpenMock} />);
+
+    const chilliwackCheckbox = await screen.findByLabelText('Chilliwack (3)');
+    fireEvent.click(chilliwackCheckbox);
+    await waitFor(() => expect(chilliwackCheckbox).toBeChecked());
+
+    const applyButton = await screen.findByRole('button', { name: /apply/i });
+    fireEvent.click(applyButton);
+
+    expect(setSearchParamsMock).toHaveBeenCalled();
+
+    expect(setIsOpenMock).toHaveBeenCalledWith(false);
+
+    expect(trackSiteSearch).toHaveBeenCalledTimes(1);
+    const callArg = (trackSiteSearch as Mock).mock.calls[0][0];
+    expect(callArg).toMatchObject({
+      category: 'Search map filter menu | Apply filters',
+      keyword: expect.stringContaining('district=ok_cw'),
+    });
+  });
+
+  it('clears filters and resets localFilters when Clear filters is clicked', async () => {
+    render(<FilterMenuSearchMap isOpen={true} setIsOpen={setIsOpenMock} />);
+
+    const clearButton = await screen.findByText(/clear filters/i);
+    fireEvent.click(clearButton);
+
+    const okCheckbox = await screen.findByLabelText('Okanagan (2)');
+    const cwCheckbox = await screen.findByLabelText('Chilliwack (3)');
+
+    expect(okCheckbox).not.toBeChecked();
+    expect(cwCheckbox).not.toBeChecked();
+  });
+
+  it('calls setIsOpen(false) when modal is closed', async () => {
+    render(<FilterMenuSearchMap isOpen={true} setIsOpen={setIsOpenMock} />);
+
+    const applyButton = await screen.findByRole('button', { name: /apply/i });
+    fireEvent.click(applyButton);
+
+    expect(setIsOpenMock).toHaveBeenCalledWith(false);
   });
 });

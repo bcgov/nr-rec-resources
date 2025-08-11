@@ -15,6 +15,7 @@ export const RecreationSearchBanner: FC = () => {
           <RecreationSuggestionForm
             allowEmptySearch={true}
             searchBtnVariant="secondary"
+            trackingSource="Landing page"
           />
         </Stack>
       </section>

@@ -29,6 +29,7 @@ describe('RecreationSearchBanner', () => {
       {
         allowEmptySearch: true,
         searchBtnVariant: 'secondary',
+        trackingSource: 'Landing page',
       },
       undefined,
     );

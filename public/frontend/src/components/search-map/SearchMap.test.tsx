@@ -5,16 +5,19 @@ import { vi, Mock } from 'vitest';
 import { useStore } from '@tanstack/react-store';
 import SearchMap from '@/components/search-map/SearchMap';
 import { useZoomToExtent } from '@/components/search-map/hooks/useZoomToExtent';
+import { useFeatureSelection } from '@/components/search-map/hooks/useFeatureSelection';
+import { trackClickEvent } from '@/utils/matomo';
 import { renderWithQueryClient } from '@/test-utils';
 
 const fitMock = vi.fn();
 const getZoomMock = vi.fn(() => 8);
 const setZoomMock = vi.fn();
 const getExtentMock = vi.fn(() => [0, 0, 100, 100]);
+const mockClearSelection = vi.fn();
 
 vi.mock('@/components/search-map/hooks/useFeatureSelection', () => ({
   useFeatureSelection: vi.fn(() => ({
-    clearSelection: vi.fn(),
+    clearSelection: mockClearSelection,
   })),
 }));
 
@@ -25,6 +28,10 @@ vi.mock('@tanstack/react-store', async () => {
     useStore: vi.fn(),
   };
 });
+
+vi.mock('@/utils/matomo', () => ({
+  trackClickEvent: vi.fn(),
+}));
 
 vi.mock('ol/proj', () => ({
   transformExtent: vi.fn((extent) => {
@@ -202,5 +209,68 @@ describe('SearchMap', () => {
     expect(
       screen.queryByRole('button', { name: /apply/i }),
     ).not.toBeInTheDocument();
+  });
+
+  it('tracks recreation feature selection events', () => {
+    (useStore as Mock).mockReturnValue({
+      extent: null,
+      pages: [],
+      recResourceIds: ['rec-1', 'rec-2'],
+    });
+
+    renderWithQueryClient(<SearchMap />);
+
+    const mockUseFeatureSelection = useFeatureSelection as Mock;
+    const { featureLayers } = mockUseFeatureSelection.mock.calls[0][0];
+
+    const recreationLayer = featureLayers.find(
+      (layer: any) => layer.id === 'recreation-features',
+    );
+    const mockFeature = {
+      get: vi.fn((key: string) => {
+        const values = {
+          FOREST_FILE_ID: 'TEST-123',
+          PROJECT_NAME: 'Test Project',
+          PROJECT_TYPE: 'Campground',
+        };
+        return values[key as keyof typeof values];
+      }),
+    };
+
+    recreationLayer.onFeatureSelect(mockFeature);
+
+    expect(trackClickEvent).toHaveBeenCalledWith({
+      category: 'Search Map',
+      action: 'Recreation feature selected',
+      name: 'TEST-123 | Test Project | Campground',
+    });
+  });
+
+  it('tracks wildfire feature selection events', () => {
+    (useStore as Mock).mockReturnValue({
+      extent: null,
+      pages: [],
+      recResourceIds: [],
+    });
+
+    renderWithQueryClient(<SearchMap />);
+
+    const mockUseFeatureSelection = useFeatureSelection as Mock;
+    const { featureLayers } = mockUseFeatureSelection.mock.calls[0][0];
+
+    const wildfireLayer = featureLayers.find(
+      (layer: any) => layer.id === 'wildfire-locations',
+    );
+    const mockWildfireFeature = {
+      get: vi.fn(() => 'WF-2024-001'),
+    };
+
+    wildfireLayer.onFeatureSelect(mockWildfireFeature);
+
+    expect(trackClickEvent).toHaveBeenCalledWith({
+      category: 'Search Map',
+      action: 'Wildfire feature selected',
+      name: 'Wildfire id: WF-2024-001',
+    });
   });
 });
