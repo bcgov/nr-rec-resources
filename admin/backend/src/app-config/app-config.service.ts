@@ -67,7 +67,7 @@ export class AppConfigService {
   }
 
   get databaseSchema(): string {
-    return this.configService.get("POSTGRES_SCHEMA", { infer: true })!;
+    return this.configService.get("POSTGRES_SCHEMA", "rst", { infer: true })!;
   }
 
   // Database URL helper

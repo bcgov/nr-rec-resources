@@ -129,7 +129,7 @@ resource "aws_ecs_task_definition" "node_api_task" {
           value = var.db_name
         },
         {
-          name  = "DB_SCHEMA"
+          name  = "POSTGRES_SCHEMA"
           value = "${var.db_schema}"
         },
         {
