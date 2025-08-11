@@ -4,6 +4,7 @@ import { memoryStorage } from "multer";
 import { DamApiModule } from "src/dam-api/dam-api.module";
 import { PrismaModule } from "src/prisma.module";
 import { PrismaService } from "src/prisma.service";
+import { PresignedUploadModule } from "src/upload/presigned-upload.module";
 import { ResourceImagesController } from "./resource-images.controller";
 import { ResourceImagesService } from "./service/resource-images.service";
 
@@ -19,6 +20,7 @@ import { ResourceImagesService } from "./service/resource-images.service";
     }),
     PrismaModule,
     DamApiModule,
+    PresignedUploadModule,
   ],
 })
 export class ResourceImagesModule {}

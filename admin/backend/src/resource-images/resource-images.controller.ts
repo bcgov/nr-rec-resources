@@ -1,4 +1,11 @@
 import {
+  AUTH_STRATEGY,
+  AuthRoles,
+  AuthRolesGuard,
+  RecreationResourceAuthRole,
+  ROLE_MODE,
+} from "@/auth";
+import {
   Body,
   Controller,
   Delete,
@@ -10,6 +17,8 @@ import {
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
+import { AuthGuard } from "@nestjs/passport";
+import { FileInterceptor } from "@nestjs/platform-express";
 import {
   ApiBearerAuth,
   ApiBody,
@@ -20,21 +29,17 @@ import {
   ApiTags,
   getSchemaPath,
 } from "@nestjs/swagger";
-import { ResourceImagesService } from "./service/resource-images.service";
+import {
+  CompleteUploadRequestDto,
+  PresignedUploadRequestDto,
+  PresignedUploadResponseDto,
+} from "../resource-docs/dto/recreation-resource-doc.dto";
 import {
   CreateRecreationResourceImageBodyDto,
   CreateRecreationResourceImageFormDto,
   RecreationResourceImageDto,
 } from "./dto/recreation-resource-image.dto";
-import { FileInterceptor } from "@nestjs/platform-express";
-import {
-  AUTH_STRATEGY,
-  AuthRoles,
-  AuthRolesGuard,
-  RecreationResourceAuthRole,
-  ROLE_MODE,
-} from "@/auth";
-import { AuthGuard } from "@nestjs/passport";
+import { ResourceImagesService } from "./service/resource-images.service";
 
 @ApiTags("recreation-resource")
 @ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
@@ -238,5 +243,90 @@ export class ResourceImagesController {
     @Param("ref_id") ref_id: string,
   ): Promise<RecreationResourceImageDto | null> {
     return this.resourceImagesService.delete(rec_resource_id, ref_id);
+  }
+
+  @Post(":rec_resource_id/images/presigned-url")
+  @ApiOperation({
+    summary: "Generate presigned URL for direct image upload to S3",
+    operationId: "getImageS3UploadUrl",
+  })
+  @ApiParam({
+    name: "rec_resource_id",
+    required: true,
+    description: "Resource identifier",
+    type: "string",
+    example: "REC204117",
+  })
+  @ApiBody({
+    required: true,
+    description: "Presigned upload request for image",
+    type: PresignedUploadRequestDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Presigned URL generated successfully",
+    type: PresignedUploadResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: "Bad request - invalid file size or parameters",
+  })
+  @ApiResponse({
+    status: 500,
+    description: "Internal server error",
+  })
+  async getPresignedImageUploadUrl(
+    @Param("rec_resource_id") rec_resource_id: string,
+    @Body() body: PresignedUploadRequestDto,
+  ): Promise<PresignedUploadResponseDto> {
+    return this.resourceImagesService.generatePresignedUploadUrl(
+      rec_resource_id,
+      body.fileName,
+      body.fileSize,
+      body.contentType || "image/jpeg", // Default to JPEG for images
+    );
+  }
+
+  @Post(":rec_resource_id/images/complete-direct-upload")
+  @ApiOperation({
+    summary: "Complete direct S3 image upload and process through DAM",
+    operationId: "completeImageS3Upload",
+  })
+  @ApiParam({
+    name: "rec_resource_id",
+    required: true,
+    description: "Resource identifier",
+    type: "string",
+    example: "REC204117",
+  })
+  @ApiBody({
+    required: true,
+    description: "Complete upload request for image",
+    type: CompleteUploadRequestDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Upload completed successfully and image created",
+    type: RecreationResourceImageDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: "Bad request - invalid upload ID or file not found",
+  })
+  @ApiResponse({
+    status: 500,
+    description: "Internal server error during DAM upload",
+  })
+  async completeDirectImageUpload(
+    @Param("rec_resource_id") rec_resource_id: string,
+    @Body() body: CompleteUploadRequestDto,
+  ): Promise<RecreationResourceImageDto> {
+    // Use the domain service to handle the complete workflow
+    return this.resourceImagesService.completeUploadWorkflow(
+      rec_resource_id,
+      body.uploadId,
+      body.title, // Using title as caption for images
+      body.originalFileName,
+    );
   }
 }

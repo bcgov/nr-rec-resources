@@ -3,6 +3,7 @@ import { DamApiService } from "@/dam-api/dam-api.service";
 import { PrismaService } from "@/prisma.service";
 import { ResourceImagesController } from "@/resource-images/resource-images.controller";
 import { ResourceImagesService } from "@/resource-images/service/resource-images.service";
+import { PresignedUploadService } from "@/upload/services/presigned-upload.service";
 import { HttpException, INestApplication } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { Readable } from "stream";
@@ -26,6 +27,13 @@ describe("ResourceImagesController", () => {
         {
           provide: DamApiService,
           useValue: {},
+        },
+        {
+          provide: PresignedUploadService,
+          useValue: {
+            generatePresignedUploadUrl: vi.fn(),
+            completeDirectUpload: vi.fn(),
+          },
         },
       ],
     }).compile();

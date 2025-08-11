@@ -15,8 +15,11 @@
 import * as runtime from "../runtime";
 import type {
   BadRequestResponseDto,
+  CompleteUploadRequestDto,
   CreateRecreationResourceDocBodyDto,
   CreateRecreationResourceImageBodyDto,
+  PresignedUploadRequestDto,
+  PresignedUploadResponseDto,
   RecreationResourceDetailDto,
   RecreationResourceDocDto,
   RecreationResourceImageDto,
@@ -25,10 +28,16 @@ import type {
 import {
   BadRequestResponseDtoFromJSON,
   BadRequestResponseDtoToJSON,
+  CompleteUploadRequestDtoFromJSON,
+  CompleteUploadRequestDtoToJSON,
   CreateRecreationResourceDocBodyDtoFromJSON,
   CreateRecreationResourceDocBodyDtoToJSON,
   CreateRecreationResourceImageBodyDtoFromJSON,
   CreateRecreationResourceImageBodyDtoToJSON,
+  PresignedUploadRequestDtoFromJSON,
+  PresignedUploadRequestDtoToJSON,
+  PresignedUploadResponseDtoFromJSON,
+  PresignedUploadResponseDtoToJSON,
   RecreationResourceDetailDtoFromJSON,
   RecreationResourceDetailDtoToJSON,
   RecreationResourceDocDtoFromJSON,
@@ -38,6 +47,16 @@ import {
   SuggestionsResponseDtoFromJSON,
   SuggestionsResponseDtoToJSON,
 } from "../models/index";
+
+export interface CompleteDocumentS3UploadRequest {
+  recResourceId: string;
+  completeUploadRequestDto: CompleteUploadRequestDto;
+}
+
+export interface CompleteImageS3UploadRequest {
+  recResourceId: string;
+  completeUploadRequestDto: CompleteUploadRequestDto;
+}
 
 export interface CreateRecreationresourceDocumentRequest {
   recResourceId: string;
@@ -66,6 +85,11 @@ export interface GetDocumentResourceByIdRequest {
   refId: string;
 }
 
+export interface GetDocumentS3UploadUrlRequest {
+  recResourceId: string;
+  presignedUploadRequestDto: PresignedUploadRequestDto;
+}
+
 export interface GetDocumentsByRecResourceIdRequest {
   recResourceId: string;
 }
@@ -73,6 +97,11 @@ export interface GetDocumentsByRecResourceIdRequest {
 export interface GetImageResourceByIdRequest {
   recResourceId: string;
   refId: string;
+}
+
+export interface GetImageS3UploadUrlRequest {
+  recResourceId: string;
+  presignedUploadRequestDto: PresignedUploadRequestDto;
 }
 
 export interface GetImagesByRecResourceIdRequest {
@@ -103,6 +132,146 @@ export interface UpdateImageResourceRequest {
  *
  */
 export class RecreationResourceApi extends runtime.BaseAPI {
+  /**
+   * Complete direct S3 upload and process through DAM
+   */
+  async completeDocumentS3UploadRaw(
+    requestParameters: CompleteDocumentS3UploadRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceDocDto>> {
+    if (requestParameters["recResourceId"] == null) {
+      throw new runtime.RequiredError(
+        "recResourceId",
+        'Required parameter "recResourceId" was null or undefined when calling completeDocumentS3Upload().',
+      );
+    }
+
+    if (requestParameters["completeUploadRequestDto"] == null) {
+      throw new runtime.RequiredError(
+        "completeUploadRequestDto",
+        'Required parameter "completeUploadRequestDto" was null or undefined when calling completeDocumentS3Upload().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    headerParameters["Content-Type"] = "application/json";
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token("keycloak", []);
+
+      if (tokenString) {
+        headerParameters["Authorization"] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resource/{rec_resource_id}/docs/complete-direct-upload`.replace(
+          `{${"rec_resource_id"}}`,
+          encodeURIComponent(String(requestParameters["recResourceId"])),
+        ),
+        method: "POST",
+        headers: headerParameters,
+        query: queryParameters,
+        body: CompleteUploadRequestDtoToJSON(
+          requestParameters["completeUploadRequestDto"],
+        ),
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationResourceDocDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Complete direct S3 upload and process through DAM
+   */
+  async completeDocumentS3Upload(
+    requestParameters: CompleteDocumentS3UploadRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationResourceDocDto> {
+    const response = await this.completeDocumentS3UploadRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Complete direct S3 image upload and process through DAM
+   */
+  async completeImageS3UploadRaw(
+    requestParameters: CompleteImageS3UploadRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceImageDto>> {
+    if (requestParameters["recResourceId"] == null) {
+      throw new runtime.RequiredError(
+        "recResourceId",
+        'Required parameter "recResourceId" was null or undefined when calling completeImageS3Upload().',
+      );
+    }
+
+    if (requestParameters["completeUploadRequestDto"] == null) {
+      throw new runtime.RequiredError(
+        "completeUploadRequestDto",
+        'Required parameter "completeUploadRequestDto" was null or undefined when calling completeImageS3Upload().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    headerParameters["Content-Type"] = "application/json";
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token("keycloak", []);
+
+      if (tokenString) {
+        headerParameters["Authorization"] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resource/{rec_resource_id}/images/complete-direct-upload`.replace(
+          `{${"rec_resource_id"}}`,
+          encodeURIComponent(String(requestParameters["recResourceId"])),
+        ),
+        method: "POST",
+        headers: headerParameters,
+        query: queryParameters,
+        body: CompleteUploadRequestDtoToJSON(
+          requestParameters["completeUploadRequestDto"],
+        ),
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationResourceImageDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Complete direct S3 image upload and process through DAM
+   */
+  async completeImageS3Upload(
+    requestParameters: CompleteImageS3UploadRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationResourceImageDto> {
+    const response = await this.completeImageS3UploadRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
   /**
    * Create a new Document Resource with an uploaded file
    */
@@ -508,6 +677,76 @@ export class RecreationResourceApi extends runtime.BaseAPI {
   }
 
   /**
+   * Get presigned URL for direct S3 upload (files > 9MB)
+   */
+  async getDocumentS3UploadUrlRaw(
+    requestParameters: GetDocumentS3UploadUrlRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<PresignedUploadResponseDto>> {
+    if (requestParameters["recResourceId"] == null) {
+      throw new runtime.RequiredError(
+        "recResourceId",
+        'Required parameter "recResourceId" was null or undefined when calling getDocumentS3UploadUrl().',
+      );
+    }
+
+    if (requestParameters["presignedUploadRequestDto"] == null) {
+      throw new runtime.RequiredError(
+        "presignedUploadRequestDto",
+        'Required parameter "presignedUploadRequestDto" was null or undefined when calling getDocumentS3UploadUrl().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    headerParameters["Content-Type"] = "application/json";
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token("keycloak", []);
+
+      if (tokenString) {
+        headerParameters["Authorization"] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resource/{rec_resource_id}/docs/presigned-url`.replace(
+          `{${"rec_resource_id"}}`,
+          encodeURIComponent(String(requestParameters["recResourceId"])),
+        ),
+        method: "POST",
+        headers: headerParameters,
+        query: queryParameters,
+        body: PresignedUploadRequestDtoToJSON(
+          requestParameters["presignedUploadRequestDto"],
+        ),
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      PresignedUploadResponseDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Get presigned URL for direct S3 upload (files > 9MB)
+   */
+  async getDocumentS3UploadUrl(
+    requestParameters: GetDocumentS3UploadUrlRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<PresignedUploadResponseDto> {
+    const response = await this.getDocumentS3UploadUrlRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
    * Get all documents related to the resource
    */
   async getDocumentsByRecResourceIdRaw(
@@ -629,6 +868,76 @@ export class RecreationResourceApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<RecreationResourceImageDto> {
     const response = await this.getImageResourceByIdRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Generate presigned URL for direct image upload to S3
+   */
+  async getImageS3UploadUrlRaw(
+    requestParameters: GetImageS3UploadUrlRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<PresignedUploadResponseDto>> {
+    if (requestParameters["recResourceId"] == null) {
+      throw new runtime.RequiredError(
+        "recResourceId",
+        'Required parameter "recResourceId" was null or undefined when calling getImageS3UploadUrl().',
+      );
+    }
+
+    if (requestParameters["presignedUploadRequestDto"] == null) {
+      throw new runtime.RequiredError(
+        "presignedUploadRequestDto",
+        'Required parameter "presignedUploadRequestDto" was null or undefined when calling getImageS3UploadUrl().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    headerParameters["Content-Type"] = "application/json";
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token("keycloak", []);
+
+      if (tokenString) {
+        headerParameters["Authorization"] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resource/{rec_resource_id}/images/presigned-url`.replace(
+          `{${"rec_resource_id"}}`,
+          encodeURIComponent(String(requestParameters["recResourceId"])),
+        ),
+        method: "POST",
+        headers: headerParameters,
+        query: queryParameters,
+        body: PresignedUploadRequestDtoToJSON(
+          requestParameters["presignedUploadRequestDto"],
+        ),
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      PresignedUploadResponseDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Generate presigned URL for direct image upload to S3
+   */
+  async getImageS3UploadUrl(
+    requestParameters: GetImageS3UploadUrlRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<PresignedUploadResponseDto> {
+    const response = await this.getImageS3UploadUrlRaw(
       requestParameters,
       initOverrides,
     );

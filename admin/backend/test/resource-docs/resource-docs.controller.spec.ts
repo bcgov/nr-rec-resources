@@ -2,6 +2,7 @@ import { AppConfigModule } from "@/app-config/app-config.module";
 import { DamApiService } from "@/dam-api/dam-api.service";
 import { ResourceDocsController } from "@/resource-docs/resource-docs.controller";
 import { ResourceDocsService } from "@/resource-docs/service/resource-docs.service";
+import { PresignedUploadService } from "@/upload/services/presigned-upload.service";
 import { HttpException, INestApplication } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { PrismaService } from "src/prisma.service";
@@ -29,6 +30,13 @@ describe("ResourceDocsController", () => {
             createAndUploadDocument: vi.fn(),
             uploadFile: vi.fn(),
             deleteResource: vi.fn(),
+          },
+        },
+        {
+          provide: PresignedUploadService,
+          useValue: {
+            generatePresignedUploadUrl: vi.fn(),
+            completeDirectUpload: vi.fn(),
           },
         },
       ],

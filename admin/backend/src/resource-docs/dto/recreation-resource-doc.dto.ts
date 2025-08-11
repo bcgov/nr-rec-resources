@@ -1,5 +1,12 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, Length, Matches } from "class-validator";
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Length,
+  Matches,
+} from "class-validator";
 
 /**
  * Enum representing available image size options for the recreation API
@@ -95,4 +102,140 @@ export class CreateRecreationResourceDocFormDto {
     description: "File to upload",
   })
   file: any;
+}
+
+// DTOs for Presigned Upload
+export class PresignedUploadRequestDto {
+  @ApiProperty({
+    description: "Recreation resource ID",
+    example: "REC204117",
+    type: String,
+  })
+  @IsString()
+  @IsNotEmpty()
+  recResourceId: string;
+
+  @ApiProperty({
+    description: "File name",
+    example: "document.pdf",
+    type: String,
+  })
+  @IsString()
+  @IsNotEmpty()
+  fileName: string;
+
+  @ApiProperty({
+    description: "File size in bytes",
+    example: 25000000,
+    type: Number,
+  })
+  @IsNumber()
+  fileSize: number;
+
+  @ApiProperty({
+    description: "Content type",
+    example: "application/pdf",
+    type: String,
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  contentType?: string;
+}
+
+export class PresignedUploadResponseDto {
+  @ApiProperty({
+    description: "Presigned upload URL",
+    example: "https://bucket.s3.region.amazonaws.com/path?presigned=true",
+    type: String,
+  })
+  uploadUrl: string;
+
+  @ApiProperty({
+    description: "Upload ID for tracking",
+    example: "uuid-string",
+    type: String,
+  })
+  uploadId: string;
+
+  @ApiProperty({
+    description: "Maximum file size allowed",
+    example: 104857600,
+    type: Number,
+  })
+  maxFileSize: number;
+
+  @ApiProperty({
+    description: "URL expiration time in seconds",
+    example: 3600,
+    type: Number,
+  })
+  expiresIn: number;
+
+  @ApiProperty({
+    description: "S3 key for the uploaded file",
+    example: "uploads/REC204117/uuid/document.pdf",
+    type: String,
+  })
+  key: string;
+}
+
+export class CompleteUploadRequestDto {
+  @ApiProperty({
+    description: "Upload ID from presigned URL response",
+    example: "uuid-string",
+    type: String,
+  })
+  @IsString()
+  @IsNotEmpty()
+  uploadId: string;
+
+  @ApiProperty({
+    description: "Document title",
+    example: "Campbell river site map",
+    type: String,
+  })
+  @IsString()
+  @IsNotEmpty()
+  title: string;
+
+  @ApiProperty({
+    description: "Original file name",
+    example: "document.pdf",
+    type: String,
+  })
+  @IsString()
+  @IsNotEmpty()
+  originalFileName: string;
+
+  @ApiProperty({
+    description: "File size in bytes",
+    example: 25000000,
+    type: Number,
+  })
+  @IsNumber()
+  fileSize: number;
+}
+
+export class CompleteUploadResponseDto {
+  @ApiProperty({
+    description: "Upload success status",
+    example: true,
+    type: Boolean,
+  })
+  success: boolean;
+
+  @ApiProperty({
+    description: "Document ID from DAM service",
+    example: "dam-doc-id-123",
+    type: String,
+  })
+  documentId: string;
+
+  @ApiProperty({
+    description: "File size in bytes",
+    example: 25000000,
+    type: Number,
+  })
+  fileSize: number;
 }

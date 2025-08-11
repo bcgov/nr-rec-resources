@@ -4,11 +4,14 @@ apis/RecreationResourceApi.ts
 apis/index.ts
 index.ts
 models/BadRequestResponseDto.ts
+models/CompleteUploadRequestDto.ts
 models/CreateRecreationResourceDocBodyDto.ts
 models/CreateRecreationResourceImageBodyDto.ts
 models/HealthControllerCheck200Response.ts
 models/HealthControllerCheck200ResponseInfoValue.ts
 models/HealthControllerCheck503Response.ts
+models/PresignedUploadRequestDto.ts
+models/PresignedUploadResponseDto.ts
 models/RecreationActivityDto.ts
 models/RecreationResourceDetailDto.ts
 models/RecreationResourceDistrictDto.ts

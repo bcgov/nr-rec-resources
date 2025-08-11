@@ -4,6 +4,7 @@ import { ResourceImagesService } from "@/resource-images/service/resource-images
 import { HttpException } from "@nestjs/common";
 import { Test, TestingModule } from "@nestjs/testing";
 import { PrismaService } from "src/prisma.service";
+import { PresignedUploadService } from "src/upload/services/presigned-upload.service";
 import { Readable } from "stream";
 import { beforeEach, describe, expect, it, Mocked, vi } from "vitest";
 
@@ -499,6 +500,13 @@ describe("ResourceImagesDocsService", () => {
             deleteResource: vi.fn(),
             createAndUploadImage: vi.fn(),
             createAndUploadImageWithRetry: vi.fn(),
+          },
+        },
+        {
+          provide: PresignedUploadService,
+          useValue: {
+            generatePresignedUploadUrl: vi.fn(),
+            completeDirectUpload: vi.fn(),
           },
         },
       ],

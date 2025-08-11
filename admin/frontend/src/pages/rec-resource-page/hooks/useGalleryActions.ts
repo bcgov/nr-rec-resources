@@ -1,3 +1,5 @@
+import { useDocumentSmartUpload } from "@/pages/rec-resource-page/hooks/useDocumentUploads";
+import { useImageSmartUpload } from "@/pages/rec-resource-page/hooks/useImageUploads";
 import { useStore } from "@tanstack/react-store";
 import { useCallback } from "react";
 import { handleAddFileByType, handleAddFileClick } from "../helpers";
@@ -11,10 +13,8 @@ import {
 } from "../store/recResourceFileTransferStore";
 import { GalleryFile, GalleryFileAction, GalleryGeneralAction } from "../types";
 import { useDocumentDelete } from "./useDocumentDelete";
-import { useDocumentUpload } from "./useDocumentUpload";
 import { useFileDownload } from "./useFileDownload";
 import { useImageDelete } from "./useImageDelete";
-import { useImageUpload } from "./useImageUpload";
 
 /**
  * Hook to manage gallery actions for both documents and images.
@@ -25,11 +25,11 @@ export function useGalleryActions() {
   const {
     handleUploadRetry: handleDocumentUploadRetry,
     handleUpload: handleDocumentUpload,
-  } = useDocumentUpload();
+  } = useDocumentSmartUpload();
   const {
     handleUploadRetry: handleImageUploadRetry,
     handleUpload: handleImageUpload,
-  } = useImageUpload();
+  } = useImageSmartUpload();
   const { handleDelete: handleDocumentDelete } = useDocumentDelete();
   const { handleDelete: handleImageDelete } = useImageDelete();
 

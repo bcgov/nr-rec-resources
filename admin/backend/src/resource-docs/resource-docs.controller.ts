@@ -30,8 +30,11 @@ import {
   getSchemaPath,
 } from "@nestjs/swagger";
 import {
+  CompleteUploadRequestDto,
   CreateRecreationResourceDocBodyDto,
   CreateRecreationResourceDocFormDto,
+  PresignedUploadRequestDto,
+  PresignedUploadResponseDto,
   RecreationResourceDocDto,
 } from "./dto/recreation-resource-doc.dto";
 import { ResourceDocsService } from "./service/resource-docs.service";
@@ -236,5 +239,90 @@ export class ResourceDocsController {
     @Param("ref_id") ref_id: string,
   ): Promise<RecreationResourceDocDto | null> {
     return this.resourceDocsService.delete(rec_resource_id, ref_id);
+  }
+
+  @Post(":rec_resource_id/docs/presigned-url")
+  @ApiOperation({
+    summary: "Get presigned URL for direct S3 upload (files > 9MB)",
+    operationId: "getDocumentS3UploadUrl",
+  })
+  @ApiParam({
+    name: "rec_resource_id",
+    required: true,
+    description: "Resource identifier",
+    type: "string",
+    example: "REC204117",
+  })
+  @ApiBody({
+    required: true,
+    description: "Presigned upload request",
+    type: PresignedUploadRequestDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Presigned URL generated successfully",
+    type: PresignedUploadResponseDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: "Bad request - invalid file size or parameters",
+  })
+  @ApiResponse({
+    status: 500,
+    description: "Internal server error",
+  })
+  async getPresignedUploadUrl(
+    @Param("rec_resource_id") rec_resource_id: string,
+    @Body() body: PresignedUploadRequestDto,
+  ): Promise<PresignedUploadResponseDto> {
+    return this.resourceDocsService.generatePresignedUploadUrl(
+      rec_resource_id,
+      body.fileName,
+      body.fileSize,
+      body.contentType || "application/pdf", // Default to PDF for documents
+    );
+  }
+
+  @Post(":rec_resource_id/docs/complete-direct-upload")
+  @ApiOperation({
+    summary: "Complete direct S3 upload and process through DAM",
+    operationId: "completeDocumentS3Upload",
+  })
+  @ApiParam({
+    name: "rec_resource_id",
+    required: true,
+    description: "Resource identifier",
+    type: "string",
+    example: "REC204117",
+  })
+  @ApiBody({
+    required: true,
+    description: "Complete upload request",
+    type: CompleteUploadRequestDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Upload completed successfully and document created",
+    type: RecreationResourceDocDto,
+  })
+  @ApiResponse({
+    status: 400,
+    description: "Bad request - invalid upload ID or file not found",
+  })
+  @ApiResponse({
+    status: 500,
+    description: "Internal server error during DAM upload",
+  })
+  async completeDirectUpload(
+    @Param("rec_resource_id") rec_resource_id: string,
+    @Body() body: CompleteUploadRequestDto,
+  ): Promise<RecreationResourceDocDto> {
+    // Use the domain service to handle the complete workflow
+    return this.resourceDocsService.completeUploadWorkflow(
+      rec_resource_id,
+      body.uploadId,
+      body.title,
+      body.originalFileName,
+    );
   }
 }
