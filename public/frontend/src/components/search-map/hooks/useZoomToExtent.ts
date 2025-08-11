@@ -14,6 +14,7 @@ export const useZoomToExtent = (
 
   // Keep track of previous filter param to detect clearing
   const prevFilterRef = useRef<string>('');
+  const prevExtentRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     if (!extent || !mapRef.current) return;
@@ -21,10 +22,15 @@ export const useZoomToExtent = (
     const map = mapRef.current.getMap();
     if (!map) return;
 
-    const wasCleared = prevFilterRef.current && !filterParam;
+    const prevFilter = prevFilterRef.current;
+    const prevExtent = prevExtentRef.current;
+    const filterWasCleared = prevFilter && !filterParam;
+    const filterChanged = prevFilter !== filterParam;
+    const extentChanged = prevExtent !== extent;
     prevFilterRef.current = filterParam;
+    prevExtentRef.current = extent;
 
-    if (wasCleared) {
+    if (filterWasCleared || (!filterChanged && !extentChanged)) {
       return;
     }
 
