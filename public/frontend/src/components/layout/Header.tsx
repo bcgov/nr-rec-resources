@@ -47,7 +47,7 @@ const Header = () => {
             <a href="/search">Find a site or trail</a>
             <a href={EXTERNAL_LINKS.ORIGINAL_SITE} rel="noopener noreferrer">
               <Stack direction={'horizontal'} gap={1}>
-                Legacy Rec Sites and Trails
+                Legacy site
                 <FontAwesomeIcon icon={faExternalLink} />
               </Stack>
             </a>
