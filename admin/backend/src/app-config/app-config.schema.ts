@@ -49,7 +49,6 @@ export class EnvironmentVariables {
   POSTGRES_DATABASE: string;
 
   @IsString()
-  @IsNotEmpty()
   POSTGRES_SCHEMA: string;
 
   // Keycloak configuration
