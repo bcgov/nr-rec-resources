@@ -54,7 +54,7 @@ const RecreationSuggestionForm = ({
     handleSearch,
   } = useSearchInput();
 
-  const trackingName = `Recreation Resource ${trackingSource} search`;
+  const trackingName = `${trackingSource} search`;
 
   const isPermissionDenied = useMemo(
     () => permissionDeniedCount > 0,
@@ -174,7 +174,7 @@ const RecreationSuggestionForm = ({
         }
         trackClickEvent({
           category: trackingName,
-          name: `Recreation resource selected: ${suggestion.name}`,
+          name: `Suggestion selected: ${suggestion.name}`,
         })();
         navigate(
           ROUTE_PATHS.REC_RESOURCE.replace(':id', suggestion.rec_resource_id),
