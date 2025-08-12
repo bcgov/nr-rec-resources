@@ -61,8 +61,12 @@ export const useSearchInput = () => {
   }, [setSearchInputValue, setSelectedCity, setSearchParams]);
 
   const handleClearTypeaheadSearch = useCallback(() => {
-    setSearchInputValue('');
-    setSelectedCity([]);
+    searchInputStore.setState((prev) => ({
+      ...prev,
+      searchInputValue: '',
+      selectedCity: [],
+      wasCleared: true,
+    }));
 
     const newParams = new URLSearchParams(searchParams.toString());
     // Remove only params that get set during typeahead search
@@ -72,7 +76,7 @@ export const useSearchInput = () => {
     newParams.delete(COMMUNITY_PARAM_KEY);
 
     setSearchParams(Object.fromEntries(newParams.entries()));
-  }, [searchParams, setSearchInputValue, setSelectedCity, setSearchParams]);
+  }, [searchParams, setSearchParams]);
 
   const handleCityOptionSearch = useCallback(
     (city: City) => {

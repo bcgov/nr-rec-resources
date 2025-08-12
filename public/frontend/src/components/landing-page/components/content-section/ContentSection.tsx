@@ -47,6 +47,7 @@ export const ContentSection: FC<ContentSectionProps> = ({
             alt={imageAlt}
             fluid
             rounded
+            className="w-100"
             data-testid="content-image"
           />
         </Col>

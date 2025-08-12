@@ -1,20 +1,16 @@
-import { useEffect, useRef } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useEffect } from 'react';
 import type { RefObject } from 'react';
 import type OLMap from 'ol/Map';
 import GeoJSON from 'ol/format/GeoJSON';
+import searchInputStore from '@/store/searchInputStore';
+import { useStore } from '@tanstack/react-store';
 import { transformExtent } from 'ol/proj';
 
 export const useZoomToExtent = (
   mapRef: RefObject<{ getMap: () => OLMap } | null>,
   extent?: string,
 ) => {
-  const [searchParams] = useSearchParams();
-  const filterParam = searchParams.get('filter') ?? '';
-
-  // Keep track of previous filter param to detect clearing
-  const prevFilterRef = useRef<string>('');
-  const prevExtentRef = useRef<string | undefined>(undefined);
+  const { wasCleared } = useStore(searchInputStore);
 
   useEffect(() => {
     if (!extent || !mapRef.current) return;
@@ -22,15 +18,12 @@ export const useZoomToExtent = (
     const map = mapRef.current.getMap();
     if (!map) return;
 
-    const prevFilter = prevFilterRef.current;
-    const prevExtent = prevExtentRef.current;
-    const filterWasCleared = prevFilter && !filterParam;
-    const filterChanged = prevFilter !== filterParam;
-    const extentChanged = prevExtent !== extent;
-    prevFilterRef.current = filterParam;
-    prevExtentRef.current = extent;
-
-    if (filterWasCleared || (!filterChanged && !extentChanged)) {
+    // If the search input was cleared, do not zoom to extent
+    if (wasCleared) {
+      searchInputStore.setState((prev) => ({
+        ...prev,
+        wasCleared: false,
+      }));
       return;
     }
 

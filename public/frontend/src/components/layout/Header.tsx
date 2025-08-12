@@ -4,7 +4,7 @@ import BetaBanner from './BetaBanner';
 import { Button, Stack } from 'react-bootstrap';
 import { trackClickEvent } from '@/utils/matomo';
 import { ROUTE_PATHS } from '@/routes';
-import { EXTERNAL_LINKS, INTERNAL_LINKS } from '@/data/urls';
+import { EXTERNAL_LINKS } from '@/data/urls';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLink } from '@fortawesome/free-solid-svg-icons';
 
@@ -45,9 +45,9 @@ const Header = () => {
         >
           <Stack direction="horizontal" gap={3}>
             <a href="/search">Find a site or trail</a>
-            <a href={INTERNAL_LINKS.SEARCH_MAP}>
+            <a href={EXTERNAL_LINKS.ORIGINAL_SITE} rel="noopener noreferrer">
               <Stack direction={'horizontal'} gap={1}>
-                Interactive map
+                Legacy site
                 <FontAwesomeIcon icon={faExternalLink} />
               </Stack>
             </a>
