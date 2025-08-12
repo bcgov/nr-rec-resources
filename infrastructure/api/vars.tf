@@ -210,3 +210,21 @@ variable "dam_config" {
   description = "DAM configuration for BC Image and Documents storage"
   sensitive = true
 }
+
+variable "s3_upload_retention_days" {
+  description = "Number of days to retain temporary files in S3 uploads folder"
+  type        = number
+  default     = 1
+}
+
+variable "s3_upload_max_file_size" {
+  description = "Maximum file size for uploads in bytes (default 100MB)"
+  type        = number
+  default     = 104857600
+}
+
+variable "enable_s3_upload_monitoring" {
+  description = "Enable CloudWatch monitoring for S3 uploads"
+  type        = bool
+  default     = true
+}

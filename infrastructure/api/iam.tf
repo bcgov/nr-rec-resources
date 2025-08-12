@@ -93,6 +93,41 @@ resource "aws_iam_role_policy" "cloudwatch_metrics" {
   })
 }
 
+# IAM policy for S3 recreation resource uploads
+resource "aws_iam_role_policy" "s3_recreation_uploads" {
+  name = "${var.app_name}_s3_recreation_uploads"
+  role = aws_iam_role.app_container_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:PutObjectAcl"
+        ]
+        Resource = "${aws_s3_bucket.recreation_resource_uploads.arn}/uploads/*"
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:ListBucket",
+          "s3:GetBucketLocation"
+        ]
+        Resource = aws_s3_bucket.recreation_resource_uploads.arn
+        Condition = {
+          StringLike = {
+            "s3:prefix" = ["uploads/*"]
+          }
+        }
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role_policy" "app_container_cwlogs" {
   name = "${var.app_name}_container_cwlogs"
   role = aws_iam_role.app_container_role.id

@@ -6,44 +6,39 @@ upload paths.
 
 ```mermaid
 sequenceDiagram
-    participant User as 👤 User
-    participant UI as 🖥️ Frontend UI
-    participant SmartUpload as 🧠 Smart Upload
-    participant AdminAPI as 🔧 Admin API
-    participant S3 as 🗃️ AWS S3
-    participant DAM as 📚 DAM API
-    participant Database as 💾 Database
+  participant User as User
+  participant UI as Frontend UI
+  participant AdminAPI as Admin API
+  participant S3 as AWS S3
+  participant DAM as DAM API
+  participant Database as Database
 
-    Note over User,Database: Recreation Resource File Upload Flow
+  Note over User,Database: Recreation Resource File Upload Flow
 
-    User->>UI: Select file & enter caption/title
-    UI->>SmartUpload: Upload file (smart logic)
-    SmartUpload->>SmartUpload: Check file size
-    alt File size < 9MB (Small)
-        SmartUpload->>AdminAPI: POST /recreation-resource/{id}/images or /docs
-        AdminAPI->>DAM: Upload to DAM
-        DAM-->>AdminAPI: ref_id & variants
-        AdminAPI->>Database: Create record
-        Database-->>AdminAPI: Success
-        AdminAPI-->>SmartUpload: Upload complete
-    else File size ≥ 9MB (Large)
-        SmartUpload->>AdminAPI: Get presigned S3 URL
-        AdminAPI->>S3: Generate presigned URL
-        S3-->>AdminAPI: Presigned URL
-        AdminAPI-->>SmartUpload: Return presigned URL
-        SmartUpload->>S3: PUT file to S3
-        S3-->>SmartUpload: Upload complete
-        SmartUpload->>AdminAPI: Complete upload workflow
-        AdminAPI->>S3: Download file
-        S3-->>AdminAPI: File buffer
-        AdminAPI->>DAM: Upload to DAM
-        DAM-->>AdminAPI: ref_id & variants
-        AdminAPI->>Database: Create record
-        Database-->>AdminAPI: Success
-        AdminAPI-->>SmartUpload: Upload complete
-    end
-    SmartUpload->>UI: Show success or error
-    UI-->>User: Display result
+  User->>UI: Select file & enter caption/title
+  UI->>AdminAPI: Upload file (decision logic)
+  alt File size < 9MB (Small)
+    AdminAPI->>DAM: Upload to DAM
+    DAM-->>AdminAPI: ref_id & variants
+    AdminAPI->>Database: Create record
+    Database-->>AdminAPI: Success
+    AdminAPI-->>UI: Upload complete
+  else File size ≥ 9MB (Large)
+    AdminAPI->>S3: Generate presigned URL
+    S3-->>AdminAPI: Presigned URL
+    AdminAPI-->>UI: Return presigned URL
+    UI->>S3: PUT file to S3
+    S3-->>UI: Upload complete
+    UI->>AdminAPI: Complete upload workflow
+    AdminAPI->>S3: Download file
+    S3-->>AdminAPI: File buffer
+    AdminAPI->>DAM: Upload to DAM
+    DAM-->>AdminAPI: ref_id & variants
+    AdminAPI->>Database: Create record
+    Database-->>AdminAPI: Success
+    AdminAPI-->>UI: Upload complete
+  end
+  UI-->>User: Display result
 ```
 
 ## Flow Description
