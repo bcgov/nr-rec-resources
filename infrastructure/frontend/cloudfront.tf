@@ -188,10 +188,18 @@ resource "aws_cloudfront_response_headers_policy" "csp_policy" {
     }
 
     strict_transport_security {
-      override                    = true
+      override                   = true
       access_control_max_age_sec = 31536000
-      include_subdomains          = true
-      preload                     = false
+      include_subdomains         = true
+      preload                    = false
+    }
+  }
+
+  custom_headers_config {
+    items {
+      header   = "Permissions-Policy"
+      override = true
+      value    = "camera=(), microphone=(), geolocation=(self), fullscreen=(self), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()"
     }
   }
 }
