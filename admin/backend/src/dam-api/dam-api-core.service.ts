@@ -25,48 +25,23 @@ export class DamApiCoreService {
     resourceType: "pdf" | "image",
     config: DamApiConfig,
   ): Promise<string> {
-    this.logger.log(
-      `Creating DAM resource - Title: "${metadata.title}", Type: ${resourceType}, User: ${config.user}`,
+    const params = {
+      user: config.user,
+      function: "create_resource",
+      metadata: JSON.stringify(metadata),
+      resource_type: this.getResourceTypeId(resourceType, config),
+      archive: 0,
+    };
+
+    const logContext = `DAM resource creation parameters - Title: "${metadata.title}", Type: ${resourceType}, Resource Type: ${resourceType}, User: ${config.user}`;
+
+    return this.executeRequest(
+      params,
+      config,
+      "Creating DAM resource",
+      DamErrors.ERR_CREATING_RESOURCE,
+      logContext,
     );
-
-    try {
-      const resource_type =
-        resourceType === "image"
-          ? config.imageResourceType
-          : config.pdfResourceType;
-
-      const params = {
-        user: config.user,
-        function: "create_resource",
-        metadata: JSON.stringify(metadata),
-        resource_type: this.getResourceTypeId(resourceType, config),
-        archive: 0,
-      };
-
-      this.logger.debug(
-        `DAM resource creation parameters - Title: "${metadata.title}", Type: ${resourceType}, Resource Type: ${resource_type}, User: ${config.user}`,
-      );
-
-      const formData = this.utilsService.createFormData(params, config);
-      const result = await this.httpService.makeRequest(
-        config.damUrl,
-        formData,
-      );
-
-      this.logger.log(
-        `DAM resource created successfully - Title: "${metadata.title}", Type: ${resourceType}, Resource ID: ${result}`,
-      );
-
-      return result;
-    } catch (error) {
-      this.logger.error(
-        `Failed to create DAM resource - Title: "${metadata.title}", Type: ${resourceType}, Error: ${error.message}`,
-      );
-      throw new HttpException(
-        "Error creating resource.",
-        DamErrors.ERR_CREATING_RESOURCE,
-      );
-    }
   }
 
   /**
