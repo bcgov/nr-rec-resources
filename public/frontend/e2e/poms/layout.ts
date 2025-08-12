@@ -17,7 +17,7 @@ export class LayoutPOM {
     ).toBeVisible();
 
     await expect(
-      header.getByRole('link', { name: 'Interactive map' }),
+      header.getByRole('link', { name: 'Legacy site' }),
     ).toBeVisible();
   }
 

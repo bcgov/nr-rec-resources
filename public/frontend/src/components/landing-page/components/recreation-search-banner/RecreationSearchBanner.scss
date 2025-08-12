@@ -33,17 +33,38 @@
 
   .search-container {
     color: $colorWhite;
-    padding: 1.5rem;
+    padding: 1.5rem 1.5rem 0.5rem 1.5rem;
     background-color: $colorBlue;
     width: clamp(min(700px, 90vw), 50%, 888px);
     max-height: fit-content;
 
-    @include media-breakpoint-up(md) {
+    @include media-breakpoint-up(sm) {
       padding: 2rem;
+    }
+
+    .search-header {
+      display: flex;
+      flex-direction: column;
+
+      @include media-breakpoint-up(sm) {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
     }
 
     .search-title {
       color: $colorWhite;
+    }
+
+    .search-by-map-link {
+      color: $colorWhite;
+      text-decoration: none;
+      font-size: 1rem;
+
+      &:hover {
+        color: $colorGold;
+      }
     }
 
     .search-btn {

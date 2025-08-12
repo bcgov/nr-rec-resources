@@ -7,6 +7,7 @@ import { useSearchRecreationResourcesPaginated } from '@/service/queries/recreat
 import searchResultsStore from '@/store/searchResults';
 import FilterGroupAccordion from '@/components/search/filters/FilterGroupAccordion';
 import FilterModal from '@/components/search/filters/FilterModal';
+import { trackSiteSearch } from '@/utils/matomo';
 import '@/components/search/filters/Filters.scss';
 import '@/components/search/filters/FilterMenuSearchMap.scss';
 
@@ -95,6 +96,10 @@ const FilterMenuSearchMap = ({
     });
     setSearchParams(newParams);
     setIsOpen(false);
+    trackSiteSearch({
+      category: 'Search map filter menu | Apply filters',
+      keyword: newParams.toString(),
+    });
   };
 
   const handleClear = () => {
