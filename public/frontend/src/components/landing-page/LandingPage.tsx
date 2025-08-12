@@ -145,7 +145,7 @@ export const LandingPage: FC = () => {
                 <a
                   rel="noreferrer noopener"
                   className="research-signup-link"
-                  href={EXTERNAL_LINKS.ORIGINAL_SITE}
+                  href={EXTERNAL_LINKS.LEGACY_SITE}
                 >
                   original interactive map
                 </a>{' '}

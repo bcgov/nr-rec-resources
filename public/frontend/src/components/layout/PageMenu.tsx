@@ -32,7 +32,7 @@ const PageMenu: React.FC<PageMenuProps> = ({ pageSections, activeSection }) => {
                 }
                 onClick={trackClickEvent({
                   category: 'Section menu navigation',
-                  name: `Recreation Resource page section ${title}`,
+                  name: `${title} section`,
                 })}
                 href={href}
               >

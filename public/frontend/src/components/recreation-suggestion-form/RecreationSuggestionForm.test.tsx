@@ -134,7 +134,7 @@ describe('RecreationSuggestionForm', () => {
 
     expect(handleSearch).toHaveBeenCalledWith('');
     expect(trackClickEvent).toHaveBeenCalledWith({
-      category: 'Recreation Resource Test page search',
+      category: 'Test page search',
       name: 'Search button clicked',
     });
   });
@@ -225,7 +225,7 @@ describe('RecreationSuggestionForm', () => {
 
     expect(handleSearch).toHaveBeenCalled();
     expect(trackClickEvent).toHaveBeenCalledWith({
-      category: 'Recreation Resource Test page search',
+      category: 'Test page search',
       name: 'Search button clicked',
     });
   });
@@ -286,7 +286,7 @@ describe('RecreationSuggestionForm', () => {
       option_type: 'CURRENT_LOCATION',
     });
     expect(trackClickEvent).toHaveBeenCalledWith({
-      category: 'Recreation Resource Test page search',
+      category: 'Test page search',
       name: 'Current location selected',
     });
   });
@@ -372,8 +372,8 @@ describe('RecreationSuggestionForm', () => {
     });
 
     expect(trackClickEvent).toHaveBeenCalledWith({
-      category: 'Recreation Resource Test page search',
-      name: 'Recreation resource selected: Test Resource',
+      category: 'Test page search',
+      name: 'Suggestion selected: Test Resource',
     });
     expect(mockNavigate).toHaveBeenCalledWith('/recreation-resource/456');
   });
@@ -421,7 +421,7 @@ describe('RecreationSuggestionForm', () => {
     });
 
     expect(trackClickEvent).toHaveBeenCalledWith({
-      category: 'Recreation Resource Test page search',
+      category: 'Test page search',
       name: 'City selected: Victoria',
     });
     expect(handleCityOptionSearch).toHaveBeenCalledWith({

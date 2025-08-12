@@ -32,7 +32,7 @@ export const RecreationResourceDocsList: FC<
         rel="noopener noreferrer"
         onClick={() =>
           trackEvent({
-            category: 'Recreation Resource page document download',
+            category: 'Document download',
             action: 'Click',
             name: `Download ${recResource.name} -  ${doc.title} [${doc.extension.toUpperCase()}]`,
           })

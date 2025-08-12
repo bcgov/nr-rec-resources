@@ -2,7 +2,7 @@ import { useSearchParams } from 'react-router-dom';
 import removeFilter from '@/utils/removeFilter';
 import { FilterChip } from '@/components/search/types';
 import { filterChipStore } from '@/store';
-import { trackSiteSearch } from '@/utils/matomo';
+import { trackEvent } from '@/utils/matomo';
 
 export const useFilterHandler = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -21,9 +21,10 @@ export const useFilterHandler = () => {
           { param, id, label },
         ]);
       }
-      trackSiteSearch({
-        category: 'Search page list view | Filter toggle on',
-        keyword: label,
+      trackEvent({
+        action: 'Filter toggle on',
+        category: 'Search page list view',
+        name: label,
       });
     } else {
       filterChipStore.setState((prevState) =>
@@ -35,9 +36,10 @@ export const useFilterHandler = () => {
         newSearchParams.set(param, updateFilters);
       }
       setSearchParams(newSearchParams);
-      trackSiteSearch({
-        category: 'Search page list view | Filter toggle off',
-        keyword: label,
+      trackEvent({
+        action: 'Filter toggle off',
+        category: 'Search page list view',
+        name: label,
       });
     }
   };
