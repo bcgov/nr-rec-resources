@@ -115,8 +115,8 @@ const Footer = () => {
                   style={{ height: 96 }}
                 />
               </a>
-              <p className="paragraph-links back-original-link">
-                <a href={EXTERNAL_LINKS.ORIGINAL_SITE}>Back to original site</a>
+              <p className="paragraph-links back-legacy-link">
+                <a href={EXTERNAL_LINKS.LEGACY_SITE}>Back to legacy site</a>
               </p>
             </div>
           </div>

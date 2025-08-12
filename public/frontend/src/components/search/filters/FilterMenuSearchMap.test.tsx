@@ -4,7 +4,7 @@ import { useStore } from '@tanstack/react-store';
 import { useSearchParams } from 'react-router-dom';
 import FilterMenuSearchMap from '@/components/search/filters/FilterMenuSearchMap';
 import { useSearchRecreationResourcesPaginated } from '@/service/queries/recreation-resource';
-import { trackSiteSearch } from '@/utils/matomo';
+import { trackEvent } from '@/utils/matomo';
 
 vi.mock('@tanstack/react-store', async () => {
   const mod = await import('@tanstack/react-store');
@@ -27,7 +27,7 @@ vi.mock('@/service/queries/recreation-resource', () => ({
 }));
 
 vi.mock('@/utils/matomo', () => ({
-  trackSiteSearch: vi.fn(),
+  trackEvent: vi.fn(),
 }));
 
 describe('FilterMenuSearchMap', () => {
@@ -120,7 +120,7 @@ describe('FilterMenuSearchMap', () => {
     ).toBeInTheDocument();
   });
 
-  it('calls trackSiteSearch with correct params when Apply is clicked', async () => {
+  it('calls trackEvent with correct params when Apply is clicked', async () => {
     render(<FilterMenuSearchMap isOpen={true} setIsOpen={setIsOpenMock} />);
 
     const chilliwackCheckbox = await screen.findByLabelText('Chilliwack (3)');
@@ -134,11 +134,12 @@ describe('FilterMenuSearchMap', () => {
 
     expect(setIsOpenMock).toHaveBeenCalledWith(false);
 
-    expect(trackSiteSearch).toHaveBeenCalledTimes(1);
-    const callArg = (trackSiteSearch as Mock).mock.calls[0][0];
+    expect(trackEvent).toHaveBeenCalledTimes(1);
+    const callArg = (trackEvent as Mock).mock.calls[0][0];
     expect(callArg).toMatchObject({
-      category: 'Search map filter menu | Apply filters',
-      keyword: expect.stringContaining('district=ok_cw'),
+      action: 'Apply filters',
+      category: 'Search map filter menu',
+      name: 'Applied filters: district',
     });
   });
 

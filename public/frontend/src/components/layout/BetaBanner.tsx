@@ -24,7 +24,7 @@ const BetaBanner = () => {
                 rel="noreferrer"
                 className="banner-link"
               >
-                Visit original site
+                Visit legacy site
               </a>
             </>
           ) : (
@@ -35,7 +35,7 @@ const BetaBanner = () => {
                 rel="noreferrer"
                 className="banner-link"
               >
-                original site here
+                legacy site here
               </a>
             </>
           )}

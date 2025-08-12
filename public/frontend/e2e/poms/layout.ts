@@ -12,13 +12,12 @@ export class LayoutPOM {
 
   async verifyHeaderContent() {
     const header = this.page.locator('header');
+    const nav = header.locator('nav');
     await expect(
-      header.getByRole('link', { name: 'Find a site or trail' }),
+      nav.getByRole('link', { name: 'Find a site or trail' }),
     ).toBeVisible();
 
-    await expect(
-      header.getByRole('link', { name: 'Legacy site' }),
-    ).toBeVisible();
+    await expect(nav.getByRole('link', { name: 'Legacy site' })).toBeVisible();
   }
 
   async verifyFooterContent() {
