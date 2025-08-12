@@ -2,7 +2,6 @@ import { RecreationResourceDetailModel } from '@/service/custom-models';
 
 /**
  * Generates a mailto link for contacting Recreation Sites and Trails BC.
- *
  * If a recreation resource is provided, the email body will be pre-filled with
  * details about the resource and placeholders for user information.
  *
@@ -15,33 +14,43 @@ export function getContactEmailLink(
   const email = 'recinfo@gov.bc.ca';
   const subject = 'Recreation Sites and Trails BC - Contact Us Message';
 
-  if (!rec_resource) {
-    return `mailto:${email}?subject=${encodeURIComponent(subject)}`;
-  }
-
-  const {
-    name = '',
-    rec_resource_id = '',
-    recreation_district,
-    closest_community = '',
-  } = rec_resource;
-
-  const districtDescription = recreation_district?.description?.trim();
-  const districtLine = districtDescription
-    ? `District: ${districtDescription}\n`
-    : '';
-
-  const body = [
+  const baseFields = [
     'Full Name: [Your Name]',
     'Email Address: [your@email.com]',
     'Phone Number: [123-456-7890]',
-    `Location: ${name.trim()}${rec_resource_id ? ` - ${rec_resource_id.trim()}` : ''}`,
-    districtLine ? districtLine.trim() : '',
-    `Closest Community: ${closest_community}`,
-    'Message: [Please provide your message here.]',
-  ]
-    .filter(Boolean)
-    .join('\n');
+  ];
+
+  const getResourceFields = (resource: RecreationResourceDetailModel) => {
+    const {
+      name = '',
+      rec_resource_id = '',
+      recreation_district,
+      closest_community = '',
+    } = resource;
+    const location =
+      name.trim() + (rec_resource_id ? ` - ${rec_resource_id.trim()}` : '');
+    const district = recreation_district?.description?.trim();
+    return [
+      `Location: ${location}`,
+      district ? `District: ${district}` : '',
+      `Closest Community: ${closest_community}`,
+    ];
+  };
+
+  const bodyFields = rec_resource
+    ? [
+        ...baseFields,
+        ...getResourceFields(rec_resource),
+        'Message: [Please provide your message here.]',
+      ]
+    : [
+        ...baseFields,
+        'Location: [Location]',
+        'Message: [Please provide your message here.]',
+      ];
+
+  // Remove any empty fields and join with newlines
+  const body = bodyFields.filter(Boolean).join('\n');
 
   return `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }

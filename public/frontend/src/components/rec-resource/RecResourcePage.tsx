@@ -1,7 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import useScrollSpy from 'react-use-scrollspy';
-import BreadCrumbs from '@/components/layout/BreadCrumbs';
+import { Breadcrumbs, useBreadcrumbs } from '@/components/breadcrumbs';
 import PhotoGallery, {
   PhotoGalleryProps,
 } from '@/components/rec-resource/PhotoGallery';
@@ -17,7 +16,10 @@ import {
 } from '@/components/rec-resource/section';
 import InfoAlert from '@/components/notifications/InfoAlert';
 import Status from '@/components/rec-resource/Status';
-import PageMenu from '@/components/layout/PageMenu';
+import {
+  PageSection,
+  PageWithScrollMenu,
+} from '@/components/layout/PageWithScrollMenu';
 import locationDot from '@/images/fontAwesomeIcons/location-dot.svg';
 import PageTitle from '@/components/layout/PageTitle';
 import { ROUTE_TITLES, SITE_TITLE } from '@/routes/constants';
@@ -107,14 +109,10 @@ const RecResourcePage = () => {
     ?.toLowerCase()
     .replace(/(^\w|\s\w)/g, (m) => m.toUpperCase());
 
-  const closuresRef = useRef<HTMLElement>(null!);
-  const siteDescriptionRef = useRef<HTMLElement>(null!);
-  const mapLocationRef = useRef<HTMLElement>(null!);
-  const campingRef = useRef<HTMLElement>(null!);
-  const thingsToDoRef = useRef<HTMLElement>(null!);
-  const contactRef = useRef<HTMLElement>(null!);
-  const facilitiesRef = useRef<HTMLElement>(null!);
-  const additionalFeesRef = useRef<HTMLElement>(null!);
+  // Set up breadcrumbs for this resource page
+  useBreadcrumbs({
+    context: { resourceName: name, resourceId: rec_resource_id },
+  });
 
   const isThingsToDo = recreation_activity && recreation_activity.length > 0;
   const isAccess = recreation_access && recreation_access.length > 0;
@@ -136,81 +134,57 @@ const RecResourcePage = () => {
     Boolean(recreation_resource_docs?.length) ||
     driving_directions;
 
-  const sectionRefs: React.RefObject<HTMLElement>[] = useMemo(
-    () =>
-      [
-        isClosures ? closuresRef : null,
-        isSiteDescription ? siteDescriptionRef : null,
-        isMapsAndLocation ? mapLocationRef : null,
-        campingRef,
-        isAdditionalFeesAvailable ? additionalFeesRef : null,
-        isThingsToDo ? thingsToDoRef : null,
-        isFacilitiesAvailable ? facilitiesRef : null,
-        contactRef,
-      ].filter((ref) => !!ref),
-    [
-      isSiteDescription,
-      isClosures,
-      isThingsToDo,
-      isMapsAndLocation,
-      isFacilitiesAvailable,
-      isAdditionalFeesAvailable,
-    ],
-  );
-
-  const pageSections = useMemo(
-    () =>
-      [
-        isClosures && {
-          href: `#${SectionIds.CLOSURES}`,
-          title: SectionTitles.CLOSURES,
-        },
-        isSiteDescription && {
-          href: `#${SectionIds.SITE_DESCRIPTION}`,
-          title: SectionTitles.SITE_DESCRIPTION,
-        },
-        isMapsAndLocation && {
-          href: `#${SectionIds.MAPS_AND_LOCATION}`,
-          title: SectionTitles.MAPS_AND_LOCATION,
-        },
-        isCampingAvailable && {
-          href: `#${SectionIds.CAMPING}`,
-          title: SectionTitles.CAMPING,
-        },
-        isAdditionalFeesAvailable && {
-          href: `#${SectionIds.ADDITIONAL_FEES}`,
-          title: SectionTitles.ADDITIONAL_FEES,
-        },
-        isThingsToDo && {
-          href: `#${SectionIds.THINGS_TO_DO}`,
-          title: SectionTitles.THINGS_TO_DO,
-        },
-        isFacilitiesAvailable && {
-          href: `#${SectionIds.FACILITIES}`,
-          title: SectionTitles.FACILITIES,
-        },
-        {
-          href: `#${SectionIds.CONTACT}`,
-          title: SectionTitles.CONTACT,
-        },
-      ]
-        .filter((section) => !!section)
-        .map((section, i) => ({ ...section, sectionIndex: i })),
-    [
-      isSiteDescription,
-      isClosures,
-      isThingsToDo,
-      isMapsAndLocation,
-      isFacilitiesAvailable,
-      isAdditionalFeesAvailable,
-      isCampingAvailable,
-    ],
-  );
-
-  const activeSection = useScrollSpy({
-    sectionElementRefs: sectionRefs,
-    offsetPx: -100,
-  });
+  // Create page sections for PageWithScrollMenu
+  const pageSections: PageSection[] = [
+    {
+      id: SectionIds.CLOSURES,
+      href: `#${SectionIds.CLOSURES}`,
+      title: SectionTitles.CLOSURES,
+      isVisible: Boolean(isClosures),
+    },
+    {
+      id: SectionIds.SITE_DESCRIPTION,
+      href: `#${SectionIds.SITE_DESCRIPTION}`,
+      title: SectionTitles.SITE_DESCRIPTION,
+      isVisible: Boolean(isSiteDescription),
+    },
+    {
+      id: SectionIds.MAPS_AND_LOCATION,
+      href: `#${SectionIds.MAPS_AND_LOCATION}`,
+      title: SectionTitles.MAPS_AND_LOCATION,
+      isVisible: Boolean(isMapsAndLocation),
+    },
+    {
+      id: SectionIds.CAMPING,
+      href: `#${SectionIds.CAMPING}`,
+      title: SectionTitles.CAMPING,
+      isVisible: Boolean(isCampingAvailable),
+    },
+    {
+      id: SectionIds.ADDITIONAL_FEES,
+      href: `#${SectionIds.ADDITIONAL_FEES}`,
+      title: SectionTitles.ADDITIONAL_FEES,
+      isVisible: Boolean(isAdditionalFeesAvailable),
+    },
+    {
+      id: SectionIds.THINGS_TO_DO,
+      href: `#${SectionIds.THINGS_TO_DO}`,
+      title: SectionTitles.THINGS_TO_DO,
+      isVisible: Boolean(isThingsToDo),
+    },
+    {
+      id: SectionIds.FACILITIES,
+      href: `#${SectionIds.FACILITIES}`,
+      title: SectionTitles.FACILITIES,
+      isVisible: Boolean(isFacilitiesAvailable),
+    },
+    {
+      id: SectionIds.CONTACT,
+      href: `#${SectionIds.CONTACT}`,
+      title: SectionTitles.CONTACT,
+      isVisible: true,
+    },
+  ];
 
   const resourceNotFound = error?.response.status === 404;
 
@@ -230,7 +204,7 @@ const RecResourcePage = () => {
       <div className="rec-resource-container">
         <div className={`bg-container ${isPhotoGallery ? 'with-gallery' : ''}`}>
           <div className="page">
-            <BreadCrumbs />
+            <Breadcrumbs />
             <section>
               <div>
                 <h1>{formattedName}</h1>
@@ -264,85 +238,91 @@ const RecResourcePage = () => {
               <PhotoGallery photos={photos} />
             </div>
           )}
-          <div className="row no-gutters rec-resource-main">
-            <PageMenu
-              pageSections={pageSections}
-              activeSection={activeSection ?? 0}
-            />
-            <div className="rec-content-container">
-              {isRecreationSite && (
-                <InfoAlert>
-                  Most recreation sites are available on a first-come,
-                  first-served basis and cannot be booked ahead of time. A
-                  limited number of fee-based sites may offer reservations,
-                  check below for details.
-                </InfoAlert>
-              )}
-              {isClosures && (
-                <Closures
-                  comment={statusComment}
-                  siteName={formattedName}
-                  ref={closuresRef}
-                />
-              )}
+          <PageWithScrollMenu
+            sections={pageSections}
+            className="rec-resource-main"
+          >
+            {(sectionRefs) => {
+              let refIndex = 0; // Track which ref to use for each visible section
+              return (
+                <div className="rec-content-container">
+                  {isRecreationSite && (
+                    <InfoAlert>
+                      Most recreation sites are available on a first-come,
+                      first-served basis and cannot be booked ahead of time. A
+                      limited number of fee-based sites may offer reservations,
+                      check below for details.
+                    </InfoAlert>
+                  )}
+                  {isClosures && (
+                    <Closures
+                      comment={statusComment}
+                      siteName={formattedName}
+                      ref={sectionRefs[refIndex++]}
+                    />
+                  )}
 
-              {isSiteDescription && (
-                <SiteDescription
-                  description={description}
-                  maintenanceCode={maintenance_standard_code}
-                  ref={siteDescriptionRef}
-                />
-              )}
+                  {isSiteDescription && (
+                    <SiteDescription
+                      description={description}
+                      maintenanceCode={maintenance_standard_code}
+                      ref={sectionRefs[refIndex++]}
+                    />
+                  )}
 
-              {isMapsAndLocation && (
-                <MapsAndLocation
-                  accessTypes={recreation_access}
-                  recResource={recResource}
-                  ref={mapLocationRef}
-                />
-              )}
+                  {isMapsAndLocation && (
+                    <MapsAndLocation
+                      accessTypes={recreation_access}
+                      recResource={recResource}
+                      ref={sectionRefs[refIndex++]}
+                    />
+                  )}
 
-              {isCampingAvailable && (
-                <Camping
-                  id={SectionIds.CAMPING}
-                  ref={campingRef}
-                  campsite_count={campsite_count}
-                  fees={recreation_fee}
-                />
-              )}
+                  {isCampingAvailable && (
+                    <Camping
+                      id={SectionIds.CAMPING}
+                      ref={sectionRefs[refIndex++]}
+                      campsite_count={campsite_count}
+                      fees={recreation_fee}
+                    />
+                  )}
 
-              {isAdditionalFeesAvailable && (
-                <AdditionalFees
-                  id={SectionIds.ADDITIONAL_FEES}
-                  ref={additionalFeesRef}
-                  fees={additional_fees}
-                />
-              )}
+                  {isAdditionalFeesAvailable && (
+                    <AdditionalFees
+                      id={SectionIds.ADDITIONAL_FEES}
+                      ref={sectionRefs[refIndex++]}
+                      fees={additional_fees}
+                    />
+                  )}
 
-              {isThingsToDo && (
-                <ThingsToDo
-                  activities={recreation_activity}
-                  ref={thingsToDoRef}
-                />
-              )}
+                  {isThingsToDo && (
+                    <ThingsToDo
+                      activities={recreation_activity}
+                      ref={sectionRefs[refIndex++]}
+                    />
+                  )}
 
-              {isFacilitiesAvailable && (
-                <Facilities
-                  recreation_structure={recreation_structure}
-                  ref={facilitiesRef}
-                />
-              )}
+                  {isFacilitiesAvailable && (
+                    <Facilities
+                      recreation_structure={recreation_structure}
+                      ref={sectionRefs[refIndex++]}
+                    />
+                  )}
 
-              <Contact
-                ref={contactRef}
-                error={operatorError}
-                isLoading={isOperatorLoading}
-                siteOperator={siteOperator}
-                refetchData={refetchOperator}
-                rec_resource={recResource}
-              />
-            </div>
-          </div>
+                  {rec_resource_id && (
+                    <Contact
+                      ref={sectionRefs[refIndex++]}
+                      error={operatorError}
+                      isLoading={isOperatorLoading}
+                      siteOperator={siteOperator}
+                      refetchData={refetchOperator}
+                      rec_resource_id={rec_resource_id}
+                    />
+                  )}
+                </div>
+              );
+            }}
+          </PageWithScrollMenu>
         </div>
       </div>
     </>

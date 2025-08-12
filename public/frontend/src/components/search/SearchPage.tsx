@@ -25,6 +25,8 @@ import {
 } from '@/service/custom-models';
 import { trackEvent } from '@/utils/matomo';
 import { LoadingButton } from '@/components/LoadingButton';
+import PageTitle from '@/components/layout/PageTitle';
+import { ROUTE_TITLES } from '@/routes/constants';
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -129,6 +131,7 @@ const SearchPage = () => {
 
   return (
     <>
+      <PageTitle title={ROUTE_TITLES.SEARCH} />
       <SearchBanner />
       <SearchMap
         style={{

@@ -4,17 +4,28 @@ import * as ReactRouterDom from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ROUTE_PATHS } from '@/routes';
 import { City } from '@/components/recreation-suggestion-form/types';
+import { OPTION_TYPE } from '@/components/recreation-suggestion-form/constants';
+import React from 'react';
 
 const mockNavigate = vi.fn();
 const mockSetSearchParams = vi.fn();
 
-vi.mock('react-router-dom', () => ({
-  useSearchParams: () => [
-    new URLSearchParams({ filter: 'test' }),
-    mockSetSearchParams,
-  ],
-  useNavigate: () => mockNavigate,
-}));
+vi.mock('react-router-dom', async () => {
+  const actual =
+    await vi.importActual<typeof import('react-router-dom')>(
+      'react-router-dom',
+    );
+  return {
+    ...actual,
+    useSearchParams: () => [
+      new URLSearchParams({ filter: 'test' }),
+      mockSetSearchParams,
+    ],
+    useNavigate: () => mockNavigate,
+    Link: ({ children, to, ...props }: any) =>
+      React.createElement('a', { href: to, ...props }, children),
+  };
+});
 
 describe('useSearchInput', () => {
   beforeEach(() => {
@@ -63,12 +74,18 @@ describe('useSearchInput', () => {
     act(() => {
       result.current.setSearchInputValue('some value');
       result.current.setSelectedCity([
-        { id: 1, name: 'City1', latitude: 1, longitude: 2 },
+        {
+          id: 1,
+          name: 'City1',
+          latitude: 1,
+          longitude: 2,
+          option_type: OPTION_TYPE.CITY,
+        },
       ]);
     });
 
     expect(result.current.searchInputValue).toBe('some value');
-    expect(result.current.selectedCity.length).toBe(1);
+    expect(result.current.selectedCity?.length).toBe(1);
 
     act(() => {
       result.current.handleClearSearch();
@@ -87,7 +104,7 @@ describe('useSearchInput', () => {
     });
 
     act(() => {
-      result.current.handleSearch();
+      result.current.handleSearch('test');
     });
 
     expect(mockNavigate).toHaveBeenCalledWith({
@@ -102,6 +119,7 @@ describe('useSearchInput', () => {
       name: 'Vancouver',
       latitude: 49.2827,
       longitude: -123.1207,
+      option_type: OPTION_TYPE.CITY,
     };
 
     const { result } = renderHook(() => useSearchInput());
@@ -135,7 +153,13 @@ describe('useSearchInput', () => {
     act(() => {
       result.current.setSearchInputValue('some');
       result.current.setSelectedCity([
-        { id: 1, name: 'Vancouver', latitude: 49, longitude: -123 },
+        {
+          id: 1,
+          name: 'Vancouver',
+          latitude: 49,
+          longitude: -123,
+          option_type: OPTION_TYPE.CITY,
+        },
       ]);
     });
 

@@ -1,5 +1,5 @@
-import { trackClickEvent } from '@/utils/matomo';
 import '@/components/layout/PageMenu.scss';
+import { trackClickEvent } from '@/utils/matomo';
 
 type PageSection = {
   sectionIndex: number;
@@ -9,10 +9,15 @@ type PageSection = {
 
 type PageMenuProps = {
   pageSections: PageSection[];
-  activeSection: number;
+  activeSection?: number;
+  onMenuClick?: (sectionIndex: number) => void; // Added optional prop for click handler
 };
 
-const PageMenu: React.FC<PageMenuProps> = ({ pageSections, activeSection }) => {
+const PageMenu: React.FC<PageMenuProps> = ({
+  pageSections,
+  activeSection = 0,
+  onMenuClick,
+}) => {
   return (
     <nav
       id="section-navbar"
@@ -30,10 +35,14 @@ const PageMenu: React.FC<PageMenuProps> = ({ pageSections, activeSection }) => {
                 data-active-section={
                   activeSection === sectionIndex ? 'true' : 'false'
                 }
-                onClick={trackClickEvent({
-                  category: 'Section menu navigation',
-                  name: `${title} section`,
-                })}
+                onClick={() => {
+                  const trackClickEventHandler = trackClickEvent({
+                    category: 'Section menu navigation',
+                    name: `${title} section`,
+                  });
+                  trackClickEventHandler();
+                  onMenuClick?.(sectionIndex);
+                }}
                 href={href}
               >
                 {title}

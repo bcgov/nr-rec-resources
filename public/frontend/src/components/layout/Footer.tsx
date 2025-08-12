@@ -5,7 +5,8 @@ import { EXTERNAL_LINKS } from '@/data/urls';
 import '@/components/layout/Footer.scss';
 import FooterLinkColumn from './FooterLinkColumn';
 import FooterLink from './FooterLink';
-import { getContactEmailLink } from '@/utils/getContactEmailLink';
+import { Link } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/routes';
 
 const linkColumns = [
   {
@@ -52,19 +53,27 @@ const linkColumns = [
     title: 'Stay connected',
     links: [
       {
-        title: 'Contact us',
-        url: getContactEmailLink(),
-        component: null,
+        component: (
+          <Link to={{ pathname: ROUTE_PATHS.CONTACT_US, hash: '#contact-us' }}>
+            Contact us
+          </Link>
+        ),
       },
       {
         title: 'Facebook BC Recreation Sites and Trails',
         url: EXTERNAL_LINKS.FACEBOOK_BC_REC,
         component: (
-          <FontAwesomeIcon
-            className="icon"
-            icon={faFacebook}
-            aria-hidden={true}
-          />
+          <a
+            href={EXTERNAL_LINKS.FACEBOOK_BC_REC}
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            <FontAwesomeIcon
+              className="icon"
+              icon={faFacebook}
+              aria-hidden={true}
+            />
+          </a>
         ),
       },
     ],
