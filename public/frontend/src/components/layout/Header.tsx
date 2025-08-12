@@ -7,6 +7,7 @@ import { ROUTE_PATHS } from '@/routes';
 import { EXTERNAL_LINKS } from '@/data/urls';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLink } from '@fortawesome/free-solid-svg-icons';
+import { Link } from 'react-router';
 
 const Header = () => {
   return (
@@ -15,13 +16,13 @@ const Header = () => {
       <div className="page-nav-container main">
         <nav aria-label="Main header navigation" className="header-nav main">
           <div className="navbar-brand">
-            <a href={ROUTE_PATHS.HOME}>
+            <Link to={ROUTE_PATHS.HOME}>
               <img
                 src={RSTLogo}
                 className="header-logo"
                 alt="Recreation Sites and Trails BC Logo"
               />
-            </a>
+            </Link>
           </div>
           <Button
             href={EXTERNAL_LINKS.FEEDBACK_FORM}
@@ -44,7 +45,7 @@ const Header = () => {
           className="header-nav sub"
         >
           <Stack direction="horizontal" gap={3}>
-            <a href="/search">Find a site or trail</a>
+            <Link to="/search">Find a site or trail</Link>
             <a
               href={EXTERNAL_LINKS.LEGACY_SITE}
               rel="noopener noreferrer"
