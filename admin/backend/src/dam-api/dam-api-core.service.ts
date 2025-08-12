@@ -3,6 +3,7 @@ import { Readable } from "stream";
 import { DamApiHttpService } from "./dam-api-http.service";
 import { DamApiUtilsService } from "./dam-api-utils.service";
 import { DAM_CONFIG, DamApiConfig, DamErrors, DamFile } from "./dam-api.types";
+import { DamMetadataDto } from "./dto/dam-metadata.dto";
 
 /**
  * Core DAM API operations service - handles basic CRUD operations
@@ -20,19 +21,19 @@ export class DamApiCoreService {
    * Creates a new resource in the Digital Asset Management system
    */
   async createResource(
-    title: string,
+    metadata: DamMetadataDto,
     resourceType: "pdf" | "image",
     config: DamApiConfig,
   ): Promise<string> {
     const params = {
       user: config.user,
       function: "create_resource",
-      metadata: JSON.stringify({ title }),
+      metadata: JSON.stringify(metadata),
       resource_type: this.getResourceTypeId(resourceType, config),
       archive: 0,
     };
 
-    const logContext = `Title: "${title}", Type: ${resourceType}, User: ${config.user}`;
+    const logContext = `DAM resource creation parameters - Title: "${metadata.title}", Type: ${resourceType}, Resource Type: ${resourceType}, User: ${config.user}`;
 
     return this.executeRequest(
       params,
