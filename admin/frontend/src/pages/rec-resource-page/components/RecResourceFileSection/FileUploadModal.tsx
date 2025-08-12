@@ -42,6 +42,14 @@ export const FileUploadModal: FC = () => {
 
   const isFilenameInvalid = !!fileNameError;
 
+  // Prevent form submission if filename is invalid
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!isFilenameInvalid) {
+      handleConfirm();
+    }
+  };
+
   return (
     <BaseFileModal
       show={showUploadOverlay}
@@ -56,7 +64,7 @@ export const FileUploadModal: FC = () => {
       confirmButtonIcon={faUpload}
       confirmButtonDisabled={isFilenameInvalid}
     >
-      <Form onSubmit={handleConfirm}>
+      <Form onSubmit={handleFormSubmit}>
         <Form.Group as={Row}>
           <Form.Label column sm={4} className="fw-bold">
             Name
