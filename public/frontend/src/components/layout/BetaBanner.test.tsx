@@ -13,7 +13,7 @@ describe('the BetaBanner component', () => {
     const desktopText = screen.getByText(/This site is in development/i);
     const feedbackButton = screen.getByText(/Share your feedback/i);
     const originalSiteLink = screen.getByRole('link', {
-      name: /original site here/i,
+      name: /legacy site here/i,
     });
 
     expect(desktopText).toBeInTheDocument();
@@ -30,7 +30,7 @@ describe('the BetaBanner component', () => {
 
     const mobileText = screen.getByText(/This site is in Beta/i);
     const originalSiteLink = screen.getByRole('link', {
-      name: /Visit original site/i,
+      name: /Visit legacy site/i,
     });
 
     expect(mobileText).toBeInTheDocument();
