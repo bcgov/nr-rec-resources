@@ -1,0 +1,103 @@
+@import '@shared/styles/variables.scss';
+
+.contact-page {
+  a {
+    text-decoration: underline;
+  }
+
+  &__title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: $colorBlue;
+    margin-bottom: 1.5rem;
+  }
+
+  &__sidebar {
+    background: none;
+    padding-top: 2rem;
+
+    &-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: $colorGrey;
+    }
+    &-nav {
+      margin-left: 0;
+    }
+    &-link {
+      color: $colorBlueMed;
+      font-size: 1.1rem;
+      margin-bottom: 0.75rem;
+      &:hover {
+        text-decoration: underline;
+        color: $colorBlue;
+      }
+    }
+  }
+
+  &__main {
+    padding-top: 2rem;
+  }
+
+  &__section {
+    margin-bottom: 2rem;
+    &-desc {
+      font-size: 1.15rem;
+      color: $colorGrey;
+      margin-bottom: 1.5rem;
+    }
+  }
+
+  &__form {
+    margin-bottom: 2rem;
+    &-group {
+      margin-bottom: 1.5rem;
+    }
+    &-label {
+      font-weight: bold;
+      &::after {
+        content: '*';
+        color: $colorRed;
+      }
+    }
+    &-select {
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+  }
+
+  &__details {
+    margin-top: 2rem;
+    &-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: $colorGrey;
+    }
+    &-desc {
+      font-size: 1rem;
+      color: $colorGrey;
+      margin-bottom: 0.75rem;
+      strong {
+        font-weight: 700;
+      }
+    }
+  }
+
+  &__topics-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: $colorGrey;
+    margin-bottom: 1.5rem;
+  }
+
+  &__topics-list {
+    list-style: none;
+    padding: unset;
+    font-size: 1rem;
+  }
+}
