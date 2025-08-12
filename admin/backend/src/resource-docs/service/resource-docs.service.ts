@@ -7,6 +7,7 @@ import {
   RecreationResourceDocCode,
   RecreationResourceDocDto,
 } from "../dto/recreation-resource-doc.dto";
+import { DamMetadataDto } from "@/dam-api/dto/dam-metadata.dto";
 
 const allowedTypes = ["application/pdf"];
 
@@ -93,8 +94,14 @@ export class ResourceDocsService {
     if (resource === null) {
       throw new HttpException("Recreation Resource not found", 404);
     }
-    const { ref_id, files } = await this.damApiService.createAndUploadDocument(
+    const metadata: DamMetadataDto = {
       title,
+      closestCommunity: resource.closest_community,
+      recreationName: `${resource.name} - ${resource.rec_resource_id}`,
+      recreationDistrict: resource.district_code,
+    };
+    const { ref_id, files } = await this.damApiService.createAndUploadDocument(
+      metadata,
       file,
     );
     const url = this.getOriginalFilePath(files);
