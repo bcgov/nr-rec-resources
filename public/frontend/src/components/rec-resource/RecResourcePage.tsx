@@ -333,14 +333,16 @@ const RecResourcePage = () => {
                 />
               )}
 
-              <Contact
-                ref={contactRef}
-                error={operatorError}
-                isLoading={isOperatorLoading}
-                siteOperator={siteOperator}
-                refetchData={refetchOperator}
-                rec_resource={recResource}
-              />
+              {rec_resource_id && (
+                <Contact
+                  ref={contactRef}
+                  error={operatorError}
+                  isLoading={isOperatorLoading}
+                  siteOperator={siteOperator}
+                  refetchData={refetchOperator}
+                  rec_resource_id={rec_resource_id}
+                />
+              )}
             </div>
           </div>
         </div>

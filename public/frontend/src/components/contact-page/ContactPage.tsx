@@ -7,11 +7,23 @@ import { Form, Stack, Container, Row, Col, Image } from 'react-bootstrap';
 import rapp_logo from './assets/rapp_logo.jpg';
 import bc_wildfire_app_logo from './assets/bc_wildfire_app_logo.png';
 import { getContactEmailLink } from '@/utils/getContactEmailLink';
+import { useParams } from 'react-router';
+import { useGetRecreationResourceById } from '@/service/queries/recreation-resource/recreationResourceQueries';
+import PageTitle from '@/components/layout/PageTitle';
+import { ROUTE_TITLES } from '@/routes';
 
 export const ContactPage = () => {
   const [selectedTopic, setSelectedTopic] = useState(
     'Reservations, fees, and discounts',
   );
+
+  const { id: rec_resource_id } = useParams();
+
+  const { data: recResource } = useGetRecreationResourceById({
+    id: rec_resource_id,
+  });
+
+  const emailLink = getContactEmailLink(recResource);
 
   const renderContactDetails = () => {
     switch (selectedTopic) {
@@ -47,11 +59,11 @@ export const ContactPage = () => {
                 make every effort to respond within a week, but it may take
                 longer during peak summer season.
               </p>
-              <a href={getContactEmailLink()}>recinfo@gov.bc.ca</a>
+              <a href={emailLink}>recinfo@gov.bc.ca</a>
             </Stack>
           </section>
         );
-      case 'I cannot find what I’m looking for':
+      case "I cannot find what I'm looking for":
         return (
           <section className="contact-page__section contact-page__details">
             <Stack gap={3}>
@@ -61,7 +73,7 @@ export const ContactPage = () => {
                 make every effort to respond within a week, but it may take
                 longer during peak summer season.
               </p>
-              <a href={getContactEmailLink()}>recinfo@gov.bc.ca</a>
+              <a href={emailLink}>recinfo@gov.bc.ca</a>
             </Stack>
           </section>
         );
@@ -187,8 +199,33 @@ export const ContactPage = () => {
     }
   };
 
+  let popularTopicLinks = [
+    {
+      text: 'Reservations, fees, and discounts',
+      url: 'https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/planning/fees',
+    },
+    {
+      text: 'Rules and etiquette',
+      url: 'https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/planning/rules',
+    },
+    {
+      text: 'Campfires',
+      url: 'https://www2.gov.bc.ca/gov/content/safety/wildfire-status/prevention/fire-bans-and-restrictions',
+    },
+    {
+      text: 'Planning your trip',
+      url: 'https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/planning',
+    },
+  ];
+
   return (
     <div className="page-container">
+      {recResource && (
+        <PageTitle
+          title={ROUTE_TITLES.REC_RESOURCE_CONTACT(recResource.name)}
+        />
+      )}
+
       <Container className="page contact-page">
         <h1 className="contact-page__title">
           Contact Recreation Sites and Trails
@@ -214,10 +251,11 @@ export const ContactPage = () => {
               </p>
               <h3 className="contact-page__topics-title">Popular topics</h3>
               <Stack gap={3} className="contact-page__topics-list">
-                <a href="#">Reservations, fees, and discounts</a>
-                <a href="#">Rules and etiquette</a>
-                <a href="#">Campfires</a>
-                <a href="#">Planning your trip</a>
+                {popularTopicLinks.map(({ text, url }) => (
+                  <a target="_blank" href={url} rel="noopener noreferrer">
+                    {text}
+                  </a>
+                ))}
               </Stack>
             </section>
             <section
@@ -249,7 +287,7 @@ export const ContactPage = () => {
                     <optgroup label="General">
                       <option>Reservations, fees, and discounts</option>
                       <option>Site or Trail</option>
-                      <option>I cannot find what I’m looking for</option>
+                      <option>I cannot find what I'm looking for</option>
                       <option>Wildfires and Campfire Bans</option>
                     </optgroup>
                     <optgroup label="Report a violation">
