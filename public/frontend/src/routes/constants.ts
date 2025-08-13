@@ -4,6 +4,7 @@ export const ROUTE_PATHS = {
   REC_RESOURCE: '/resource/:id',
   NOT_FOUND: '*',
   CONTACT: '/contact',
+  REC_RESOURCE_CONTACT: '/resource/:id/contact',
 };
 
 export const SITE_TITLE = 'Sites and Trails BC';
@@ -14,4 +15,6 @@ export const ROUTE_TITLES = {
   REC_RESOURCE: (name: string) => `${name} | ${SITE_TITLE}`,
   NOT_FOUND: `404 | ${SITE_TITLE}`,
   CONTACT: `Contact Us | ${SITE_TITLE}`,
+  REC_RESOURCE_CONTACT: (name: string) =>
+    `Contact Us - ${name} | ${SITE_TITLE}`,
 };
