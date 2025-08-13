@@ -28,7 +28,7 @@ import {
   useGetSiteOperatorById,
 } from '@/service/queries/recreation-resource';
 
-const PREVIEW_SIZE_CODE = 'scr';
+const PREVIEW_SIZE_CODE = 'pre';
 const FULL_RESOLUTION_SIZE_CODE = 'original';
 const RECREATION_SITE = 'Recreation site';
 
