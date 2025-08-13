@@ -48,6 +48,14 @@ export default function AppRoutes() {
           </>
         }
       />
+      <Route
+        path={ROUTE_PATHS.REC_RESOURCE_CONTACT}
+        element={
+          <>
+            <ContactPage />
+          </>
+        }
+      />
     </Routes>
   );
 }

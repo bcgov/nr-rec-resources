@@ -1,19 +1,19 @@
 import { forwardRef } from 'react';
 import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 import { ResponseError, SiteOperatorDto } from '@/service/recreation-resource';
-import { RecreationResourceDetailModel } from '@/service/custom-models';
-import { getContactEmailLink } from '@/utils/getContactEmailLink';
+import { Link } from 'react-router';
+import { ROUTE_PATHS } from '@/routes';
 
 interface SiteOperatorProps {
   siteOperator?: SiteOperatorDto;
   error: ResponseError | null;
   isLoading: boolean;
   refetchData: any;
-  rec_resource?: RecreationResourceDetailModel;
+  rec_resource_id: string;
 }
 
 const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
-  ({ siteOperator, error, isLoading, refetchData, rec_resource }, ref) => {
+  ({ siteOperator, error, isLoading, refetchData, rec_resource_id }, ref) => {
     const formattedName = siteOperator?.clientName
       ?.toLowerCase()
       .replace(/(^\w|\s\w)/g, (m) => m.toUpperCase());
@@ -39,7 +39,20 @@ const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
                     Time.
                   </p>
                   <p>
-                    <a href={getContactEmailLink(rec_resource)}>Contact Us</a>
+                    <Link
+                      to={{
+                        pathname: ROUTE_PATHS.REC_RESOURCE_CONTACT.replace(
+                          ':id',
+                          rec_resource_id,
+                        ),
+                        hash: '#contact-us',
+                      }}
+                      onClick={() =>
+                        window.scrollTo({ top: 0, behavior: 'smooth' })
+                      }
+                    >
+                      Contact Us
+                    </Link>
                   </p>
                 </td>
               </tr>
