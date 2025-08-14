@@ -1,5 +1,5 @@
 import { test } from '@playwright/test';
-import { initHappo } from 'e2e/utils';
+import { initHappo } from '@shared/e2e/utils';
 import { FilterChipsPOM, FilterPOM, SearchPOM, UtilsPOM } from 'e2e/poms';
 
 initHappo();
