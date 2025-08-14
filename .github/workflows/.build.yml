@@ -42,3 +42,8 @@ jobs:
           build_context: ${{ matrix.build_context }}
           build_file: ${{ matrix.package }}/Dockerfile
           sbom: 'false'
+        env:
+          # Keycloak vite vars need to be built in frontend containers which are only used for e2e
+          VITE_KEYCLOAK_AUTH_SERVER_URL: ${{ contains(matrix.package, 'frontend') && secrets.KEYCLOAK_AUTH_SERVER_URL }}
+          VITE_KEYCLOAK_REALM: ${{ contains(matrix.package, 'frontend') && secrets.KEYCLOAK_REALM }}
+          VITE_KEYCLOAK_CLIENT_ID: ${{ contains(matrix.package, 'frontend') && secrets.KEYCLOAK_CLIENT_ID }}
