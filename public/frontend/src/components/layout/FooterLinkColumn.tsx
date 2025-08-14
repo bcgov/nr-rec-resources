@@ -1,9 +1,10 @@
 import { ReactNode } from 'react';
 import { trackClickEvent } from '@/utils/matomo';
+import { Stack } from 'react-bootstrap';
 
 interface LinkProps {
   title: string;
-  url: string;
+  url?: string;
   component: ReactNode;
 }
 
@@ -18,37 +19,41 @@ const FooterLinkColumn = ({ title, links }: LinkColumnProps) => {
       <div>
         <p className="footer-heading">{title}</p>
         <hr />
-        {links.map((link, linkIndex) =>
-          !link.component ? (
-            <p key={linkIndex} className="paragraph-links">
-              <a
-                href={link.url}
-                target="_blank"
-                rel="noreferrer"
-                onClick={trackClickEvent({
-                  category: 'Footer link',
-                  name: `Footer link - ${link.title}`,
-                })}
-              >
-                {link.title}
-              </a>
-            </p>
-          ) : (
-            <a
-              key={linkIndex}
-              href={link.url}
-              target="_blank"
-              rel="noreferrer"
-              title={link.title}
-              onClick={trackClickEvent({
-                category: 'Footer link',
-                name: `Footer link - ${link.title}`,
-              })}
-            >
-              {link.component}
-            </a>
-          ),
-        )}
+        <Stack gap={3}>
+          {links.map((link, linkIndex) =>
+            !link.component ? (
+              <p key={linkIndex} className="paragraph-links mb-0">
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={trackClickEvent({
+                    category: 'Footer link',
+                    name: `Footer link - ${link.title}`,
+                  })}
+                >
+                  {link.title}
+                </a>
+              </p>
+            ) : (
+              <p key={linkIndex} className="paragraph-links mb-0">
+                <a
+                  key={linkIndex}
+                  href={link.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  title={link.title}
+                  onClick={trackClickEvent({
+                    category: 'Footer link',
+                    name: `Footer link - ${link.title}`,
+                  })}
+                >
+                  {link.component}
+                </a>
+              </p>
+            ),
+          )}
+        </Stack>
       </div>
     </div>
   );
