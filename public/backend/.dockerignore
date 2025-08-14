@@ -1,3 +1,7 @@
+# Ignore all hidden files and folders
+**/.*
+
+
 # Standard exclusions
 *.md
 .git
