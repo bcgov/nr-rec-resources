@@ -25,19 +25,21 @@ function App() {
         <AuthGuard>
           <Header />
           <NotificationBar />
-          <BrowserRouter>
-            <Routes>
-              <Route path={ROUTES.LANDING} element={<LandingPage />} />
-              <Route
-                path={ROUTES.REC_RESOURCE_PAGE}
-                element={
-                  <PageLayout>
-                    <RecResourcePage />
-                  </PageLayout>
-                }
-              />
-            </Routes>
-          </BrowserRouter>
+          <main>
+            <BrowserRouter>
+              <Routes>
+                <Route path={ROUTES.LANDING} element={<LandingPage />} />
+                <Route
+                  path={ROUTES.REC_RESOURCE_PAGE}
+                  element={
+                    <PageLayout>
+                      <RecResourcePage />
+                    </PageLayout>
+                  }
+                />
+              </Routes>
+            </BrowserRouter>
+          </main>
         </AuthGuard>
       </AuthProvider>
 
