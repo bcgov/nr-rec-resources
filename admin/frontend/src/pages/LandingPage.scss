@@ -1,8 +1,8 @@
 @import "@/styles/variables";
 
 .landing-page {
-  height: calc(100vh - $headerHeight);
   position: absolute;
+  height: calc(100vh - $headerHeight);
   top: $headerHeight;
   background-image: url("/images/landing-page/admin-bg-dt.jpg");
   @media (max-width: $mdBreakpoint) {
