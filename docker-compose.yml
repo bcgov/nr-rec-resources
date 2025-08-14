@@ -86,13 +86,13 @@ services:
       context: ./frontend
     environment:
       BACKEND_URL: http://backend:8000
-      PORT: 3000
+      PORT: ${FRONTEND_PORT:-3000}
       NODE_ENV: development
       LOG_LEVEL: debug
     image: ${FRONTEND_IMAGE:-frontend}
-    ports: ["3000:3000"]
+    ports: ["${FRONTEND_PORT:-3000}:${FRONTEND_PORT:-3000}"]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      test: ["CMD", "curl", "-f", "http://localhost:${FRONTEND_PORT:-3000}"]
     working_dir: "/app"
     depends_on:
       backend:
