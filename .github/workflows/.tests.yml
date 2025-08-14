@@ -70,8 +70,6 @@ jobs:
     secrets: inherit
 
   tests-e2e-local:
-    # Admin e2e not setup yet
-    if: ${{ inputs.app == 'public' }}
     name: Run E2E tests locally
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.app }}-e2e-local
