@@ -3,7 +3,7 @@
 import { expect, Locator, Page } from '@playwright/test';
 import { BASE_URL } from 'e2e/constants';
 import { SearchEnum } from 'e2e/enum/search';
-import { waitForImagesToLoad } from 'e2e/utils';
+import { waitForImagesToLoad } from '@shared/e2e/utils';
 
 export class LandingPOM {
   readonly page: Page;

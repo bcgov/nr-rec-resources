@@ -81,15 +81,18 @@ export const Header = () => {
     <div className={'header'}>
       <BCGovHeader
         title={'Admin Tool'}
+        titleElement="h1"
         logoImage={
           <>
             <Image
               src="/images/rst-mobile.svg"
+              alt="Recreation Sites and Trails BC Logo"
               className="d-lg-none d-sm-block header__logo header__logo--mobile"
             />
 
             <Image
               src="/images/RST_nav_logo.svg"
+              alt="Recreation Sites and Trails BC Logo mobile"
               className="d-none d-lg-block header__logo"
             />
           </>
