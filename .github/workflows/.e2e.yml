@@ -36,10 +36,11 @@ jobs:
         FLYWAY_IMAGE: ghcr.io/bcgov/nr-rec-resources/migrations/rst:${{ inputs.tag }}
         FRONTEND_IMAGE: ghcr.io/bcgov/nr-rec-resources/${{ inputs.app }}/frontend:${{ inputs.tag }}
         FRONTEND_PORT: "${{ inputs.app == 'admin' && '3001' || '3000' }}"
-    - name: Dump docker logs for debugging
-      if: ${{ inputs.local }}
       run: docker compose up -d --wait
       continue-on-error: true
+    - name: Dump docker logs for debugging
+      if: ${{ inputs.local }}
+      uses: jwalton/gh-docker-logs@v2
     - name: Cache Playwright Browsers
       uses: actions/cache@v4
       id: playwright-cache
