@@ -31,14 +31,16 @@
 		header_up X-Forwarded-For {remote_host}
 	}
 	header {
-		X-Frame-Options "SAMEORIGIN"
-		X-XSS-Protection "1;mode=block"
-		Cache-Control "no-store, no-cache, must-revalidate, proxy-revalidate"
-		X-Content-Type-Options "nosniff"
-		Strict-Transport-Security "max-age=31536000"
-		Content-Security-Policy "default-src 'self' https://spt.apps.gov.bc.ca https://*.arcgis.com data:; script-src 'self' 'unsafe-eval' https://www2.gov.bc.ca; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://use.fontawesome.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://fonts.googleapis.com http://www.w3.org https://*.gov.bc.ca http://www.sitesandtrailsbc.ca"
-		Referrer-Policy "same-origin"
-		Feature-Policy "fullscreen 'self'; camera 'none'; microphone 'none'"
+		Content-Security-Policy "
+			default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;
+			script-src * 'unsafe-inline' 'unsafe-eval' data: blob:;
+			style-src * 'unsafe-inline' data:;
+			img-src * data: blob:;
+			connect-src *;
+			font-src * data:;
+			media-src *;
+			frame-src *;
+		"
 	}
 }
 :3001 {
