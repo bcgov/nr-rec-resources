@@ -53,27 +53,27 @@ const linkColumns = [
     title: 'Stay connected',
     links: [
       {
-        title: 'Contact us',
-        // url: getContactEmailLink(),
         component: (
-          <div>
-            <Link
-              to={{ pathname: ROUTE_PATHS.CONTACT_US, hash: '#contact-us' }}
-            >
-              Contact us
-            </Link>
-          </div>
+          <Link to={{ pathname: ROUTE_PATHS.CONTACT_US, hash: '#contact-us' }}>
+            Contact us
+          </Link>
         ),
       },
       {
         title: 'Facebook BC Recreation Sites and Trails',
         url: EXTERNAL_LINKS.FACEBOOK_BC_REC,
         component: (
-          <FontAwesomeIcon
-            className="icon"
-            icon={faFacebook}
-            aria-hidden={true}
-          />
+          <a
+            href={EXTERNAL_LINKS.FACEBOOK_BC_REC}
+            target="_blank"
+            rel="noreferrer noopener"
+          >
+            <FontAwesomeIcon
+              className="icon"
+              icon={faFacebook}
+              aria-hidden={true}
+            />
+          </a>
         ),
       },
     ],
