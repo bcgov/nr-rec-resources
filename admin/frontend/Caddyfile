@@ -5,7 +5,7 @@
 		metrics
 	}
 }
-:${PORT:=3001} {
+:3001 {
 	log {
 		output stdout
 		format console {
@@ -43,7 +43,7 @@
 		"
 	}
 }
-:${PORT:=3002} {
+:3002 {
 	handle /health {
 		respond "OK"
 	}
