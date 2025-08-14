@@ -1,10 +1,13 @@
 @import "@/styles/variables";
 
 .landing-page {
-  height: calc(100vh - $headerHeight);
   position: absolute;
+  height: calc(100vh - $headerHeight);
   top: $headerHeight;
-  background-image: url("/images/landing-page/hero/hero.jpg");
+  background-image: url("/images/landing-page/admin-bg-dt.jpg");
+  @media (max-width: $mdBreakpoint) {
+    background-image: url("/images/landing-page/admin-bg-mb.jpg");
+  }
   background-size: cover;
   background-position: center 50%;
   background-repeat: no-repeat;
