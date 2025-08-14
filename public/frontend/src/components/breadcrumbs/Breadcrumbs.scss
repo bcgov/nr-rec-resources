@@ -1,0 +1,38 @@
+@import '@/styles/variables.scss';
+
+.breadcrumb {
+  background-color: transparent;
+  font-size: 0.875rem;
+  margin-bottom: 0;
+  padding: 0.75rem 0;
+
+  // Breadcrumb separator: override the default separator ("/") with Font Awesome chevron-right
+  &-item + &-item::before {
+    content: '\f054';
+    font-family: 'Font Awesome 5 Free';
+    font-weight: bold;
+    padding: 0 0.5rem;
+  }
+
+  // Ensure proper spacing and styling for links
+  &-item {
+    a {
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    // Current/active item styling
+    &.active {
+      font-weight: 500;
+    }
+  }
+
+  // Home icon styling
+  .fa-home {
+    font-size: 0.875rem;
+    color: inherit;
+  }
+}

@@ -2,7 +2,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import RecResourcePage from '@/components/rec-resource/RecResourcePage';
 import * as routerDom from 'react-router-dom';
-import { BrowserRouter as Router } from 'react-router-dom';
+import { MemoryRouter } from 'react-router';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   useGetRecreationResourceById,
   useGetSiteOperatorById,
@@ -10,10 +11,34 @@ import {
 import { ReactNode } from 'react';
 import { AdditionalFees, Camping } from '@/components/rec-resource/section';
 
+// Create a wrapper component with all necessary providers
+const createWrapper = () => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        gcTime: 0,
+      },
+    },
+  });
+
+  return ({ children }: { children: React.ReactNode }) => (
+    <MemoryRouter>
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    </MemoryRouter>
+  );
+};
+
 // Setup mocks
 vi.mock('@/service/queries/recreation-resource', () => ({
   useGetRecreationResourceById: vi.fn(),
   useGetSiteOperatorById: vi.fn(),
+}));
+
+// Mock breadcrumb hooks
+vi.mock('@/components/breadcrumbs', () => ({
+  Breadcrumbs: () => <nav aria-label="breadcrumb">Breadcrumbs</nav>,
+  useResourceBreadcrumbs: vi.fn(),
 }));
 
 const mockNavigate = vi.fn();
@@ -104,10 +129,11 @@ describe('RecResourcePage', () => {
     });
 
     await act(async () => {
+      const Wrapper = createWrapper();
       render(
-        <Router>
+        <Wrapper>
           <RecResourcePage />
-        </Router>,
+        </Wrapper>,
       );
     });
   };
