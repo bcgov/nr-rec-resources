@@ -5,7 +5,7 @@
 		metrics
 	}
 }
-:3000 {
+:${PORT:=3000} {
 	log {
 		output stdout
 		format console {

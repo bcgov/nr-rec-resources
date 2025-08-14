@@ -35,6 +35,7 @@ jobs:
         BACKEND_IMAGE: ghcr.io/bcgov/nr-rec-resources/${{ inputs.app }}/backend:${{ inputs.tag }}
         FLYWAY_IMAGE: ghcr.io/bcgov/nr-rec-resources/migrations/rst:${{ inputs.tag }}
         FRONTEND_IMAGE: ghcr.io/bcgov/nr-rec-resources/${{ inputs.app }}/frontend:${{ inputs.tag }}
+        FRONTEND_PORT: "${{ inputs.app == 'admin' && '3001' || '3000' }}"
       run: docker compose up -d --wait
       continue-on-error: true
     - name: Cache Playwright Browsers
@@ -65,7 +66,11 @@ jobs:
         HAPPO_API_KEY: ${{ secrets.HAPPO_API_KEY }}
         HAPPO_API_SECRET: ${{ secrets.HAPPO_API_SECRET }}
         HAPPO_PROJECT: ${{ secrets.HAPPO_PROJECT }}
-        E2E_BASE_URL: ${{ inputs.local && 'http://localhost:3000' || secrets.E2E_BASE_URL }}
+        E2E_BASE_URL: "${{
+            inputs.local && inputs.app == 'admin' && 'http://localhost:3001' ||
+            inputs.local && inputs.app != 'admin' && 'http://localhost:3000' ||
+            secrets.E2E_BASE_URL
+          }}"
     - name: Dump docker logs on failure
       if: failure() && ${{ inputs.local }}
       uses: jwalton/gh-docker-logs@v2
