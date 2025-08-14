@@ -1,0 +1,79 @@
+@import '@/styles/variables.scss';
+
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  color: $colorBlueMed;
+  font-size: 0.875rem;
+  margin: 16px 0;
+  flex-wrap: wrap;
+  gap: 4px;
+
+  .breadcrumb-item {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+
+    &:not(:last-child) {
+      margin-right: 4px;
+    }
+  }
+
+  .breadcrumb-separator {
+    margin: 0 4px;
+    flex-shrink: 0;
+  }
+
+  .breadcrumb-link,
+  .breadcrumb-text {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .home-icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .home-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .current-path {
+    color: $colorGreyMed;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 500;
+  }
+
+  // Legacy support for existing breadcrumb structure
+  & > a,
+  & > img,
+  & > span:not(.breadcrumb-item) {
+    margin-right: 4px;
+    white-space: nowrap;
+  }
+
+  & > a {
+    display: inline-flex;
+  }
+}
