@@ -12,6 +12,10 @@ import { useParams } from 'react-router';
 import { useGetRecreationResourceById } from '@/service/queries/recreation-resource/recreationResourceQueries';
 import PageTitle from '@/components/layout/PageTitle';
 import { ROUTE_TITLES } from '@/routes';
+import {
+  BreadCrumbs,
+  useBreadcrumbManagement,
+} from '@/components/bread-crumbs';
 
 export const ContactPage = () => {
   const [selectedTopic, setSelectedTopic] = useState(
@@ -22,6 +26,12 @@ export const ContactPage = () => {
 
   const { data: recResource } = useGetRecreationResourceById({
     id: rec_resource_id,
+  });
+
+  // Set up breadcrumbs based on context
+  useBreadcrumbManagement({
+    resourceName: recResource?.name,
+    resourceId: rec_resource_id,
   });
 
   const emailLink = getContactEmailLink(recResource);
@@ -213,6 +223,7 @@ export const ContactPage = () => {
       )}
 
       <Container className="page contact-page">
+        <BreadCrumbs />
         <h1 className="contact-page__title">
           Contact Recreation Sites and Trails
         </h1>
