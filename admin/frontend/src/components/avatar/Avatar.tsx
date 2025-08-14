@@ -49,6 +49,7 @@ export const Avatar: FC<AvatarProps> = ({
 
   const avatar = (
     <div
+      role="img"
       className={`rounded-circle d-flex align-items-center justify-content-center avatar ${className}`}
       style={{
         width: size,
