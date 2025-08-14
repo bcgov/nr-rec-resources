@@ -72,5 +72,5 @@ jobs:
             secrets.E2E_BASE_URL
           }}"
     - name: Dump docker logs on failure
-      if: failure() && ${{ inputs.local }}
+      if: ${{ inputs.local }}
       uses: jwalton/gh-docker-logs@v2
