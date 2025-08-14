@@ -67,6 +67,11 @@ export interface SuggestionTypeaheadProps<T> {
    */
 
   labelKey?: string;
+  /**
+   * Minimum length of input before suggestions are fetched.
+   * Defaults to 1.
+   */
+  minLength?: number;
 }
 
 /**
@@ -88,6 +93,7 @@ export const SuggestionTypeahead = <T extends object>({
   placeholder,
   renderMenu,
   labelKey = "name",
+  minLength = 1,
 }: SuggestionTypeaheadProps<T>) => {
   const typeaheadRef = useRef(null);
 
@@ -135,7 +141,7 @@ export const SuggestionTypeahead = <T extends object>({
       options={suggestions}
       isLoading={isLoading}
       renderInput={renderInput}
-      minLength={1}
+      minLength={minLength}
       emptyLabel={emptyLabel}
       placeholder={placeholder}
       labelKey={labelKey}
