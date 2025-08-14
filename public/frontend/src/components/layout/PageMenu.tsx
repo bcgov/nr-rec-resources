@@ -38,7 +38,7 @@ const PageMenu: React.FC<PageMenuProps> = ({
                 onClick={() => {
                   const trackClickEventHandler = trackClickEvent({
                     category: 'Section menu navigation',
-                    name: `Recreation Resource page section ${title}`,
+                    name: `${title} section`,
                   });
                   trackClickEventHandler();
                   onMenuClick?.(sectionIndex);

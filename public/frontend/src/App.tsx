@@ -33,11 +33,11 @@ const App = () => {
             <div id={MAIN_CONTENT_ID}>
               <AppRoutes />
             </div>
+            <Footer />
           </BrowserRouter>
         </QueryClientProvider>
       </main>
       <ScrollToTop />
-      <Footer />
     </>
   );
 };
