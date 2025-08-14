@@ -3,7 +3,7 @@ export const ROUTE_PATHS = {
   SEARCH: '/search',
   REC_RESOURCE: '/resource/:id',
   NOT_FOUND: '*',
-  CONTACT: '/contact',
+  CONTACT_US: '/contact',
   REC_RESOURCE_CONTACT: '/resource/:id/contact',
 };
 

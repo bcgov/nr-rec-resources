@@ -47,9 +47,6 @@ const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
                         ),
                         hash: '#contact-us',
                       }}
-                      onClick={() =>
-                        window.scrollTo({ top: 0, behavior: 'smooth' })
-                      }
                     >
                       Contact Us
                     </Link>
