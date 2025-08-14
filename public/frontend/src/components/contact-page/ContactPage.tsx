@@ -1,9 +1,10 @@
 import { SectionHeading } from '@/components/landing-page/components';
-import PageMenu from '@/components/layout/PageMenu';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import useScrollSpy from 'react-use-scrollspy';
+import PageWithScrollMenu, {
+  PageSection,
+} from '@/components/layout/PageWithScrollMenu';
+import { useState } from 'react';
 import './ContactPage.scss';
-import { Form, Stack, Container, Row, Col, Image } from 'react-bootstrap';
+import { Form, Stack, Container, Image } from 'react-bootstrap';
 import rapp_logo from './assets/rapp_logo.jpg';
 import bc_wildfire_app_logo from './assets/bc_wildfire_app_logo.png';
 import { getContactEmailLink } from '@/utils/getContactEmailLink';
@@ -168,36 +169,21 @@ export const ContactPage = () => {
     }
   };
 
-  // Page sections for PageMenu
-  const pageSections = [
-    { sectionIndex: 0, href: '#popular-inquiries', title: 'Popular inquiries' },
-    { sectionIndex: 1, href: '#contact-us', title: 'Contact us' },
+  // Page sections for PageWithScrollMenu
+  const pageSections: PageSection[] = [
+    {
+      id: 'popular-inquiries',
+      href: '#popular-inquiries',
+      title: 'Popular inquiries',
+      isVisible: true,
+    },
+    {
+      id: 'contact-us',
+      href: '#contact-us',
+      title: 'Contact us',
+      isVisible: true,
+    },
   ];
-
-  // Refs for scroll spy
-  const popularInquiriesRef = useRef<HTMLElement>(null!);
-  const contactUsRef = useRef<HTMLElement>(null!);
-  const sectionRefs = useMemo(() => [popularInquiriesRef, contactUsRef], []);
-  const activeScrollSection = useScrollSpy({
-    sectionElementRefs: sectionRefs,
-    offsetPx: -100,
-  });
-
-  // todo: move all this logic into pageview
-  const [activeSection, setActiveSection] = useState(0);
-
-  useEffect(() => {
-    setActiveSection(activeScrollSection ?? 0);
-  }, [activeScrollSection]);
-
-  const handleMenuClick = (sectionIndex: number) => {
-    setActiveSection(sectionIndex);
-    const sectionRef = sectionRefs[sectionIndex];
-    console.log(`Navigating to section: ${sectionIndex}`);
-    if (sectionRef.current) {
-      sectionRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
 
   let popularTopicLinks = [
     {
@@ -230,77 +216,77 @@ export const ContactPage = () => {
         <h1 className="contact-page__title">
           Contact Recreation Sites and Trails
         </h1>
-        <Row>
-          <Col md={3} className="contact-page__sidebar">
-            <PageMenu
-              pageSections={pageSections}
-              activeSection={activeSection}
-              onMenuClick={handleMenuClick}
-            />
-          </Col>
-          <Col md={9} className="contact-page__main">
-            <section
-              id="popular-inquiries"
-              className="contact-page__section"
-              ref={popularInquiriesRef}
-            >
-              <SectionHeading>Popular inquiries</SectionHeading>
-              <p className="contact-page__section-desc">
-                If you have a quick question, these links might provide your
-                answer.
-              </p>
-              <h3 className="contact-page__topics-title">Popular topics</h3>
-              <Stack gap={3} className="contact-page__topics-list">
-                {popularTopicLinks.map(({ text, url }) => (
-                  <a target="_blank" href={url} rel="noopener noreferrer">
-                    {text}
-                  </a>
-                ))}
-              </Stack>
-            </section>
-            <section
-              id="contact-us"
-              className="contact-page__section"
-              ref={contactUsRef}
-            >
-              <SectionHeading>Contact us</SectionHeading>
+        <PageWithScrollMenu sections={pageSections}>
+          {(sectionRefs) => (
+            <>
+              <section
+                id="popular-inquiries"
+                className="contact-page__section"
+                ref={sectionRefs[0]}
+              >
+                <SectionHeading>Popular inquiries</SectionHeading>
+                <p className="contact-page__section-desc">
+                  If you have a quick question, these links might provide your
+                  answer.
+                </p>
+                <h3 className="contact-page__topics-title">Popular topics</h3>
+                <Stack gap={3} className="contact-page__topics-list">
+                  {popularTopicLinks.map(({ text, url }) => (
+                    <a
+                      key={text}
+                      target="_blank"
+                      href={url}
+                      rel="noopener noreferrer"
+                    >
+                      {text}
+                    </a>
+                  ))}
+                </Stack>
+              </section>
+              <section
+                id="contact-us"
+                className="contact-page__section"
+                ref={sectionRefs[1]}
+              >
+                <SectionHeading>Contact us</SectionHeading>
 
-              <p className="contact-page__section-desc">
-                If you're unable to find the answer to your questions, or if you
-                have a specific question or comment, please fill out the
-                following information.
-              </p>
-              <Form className="contact-page__form">
-                <Form.Group
-                  controlId="topic"
-                  className="contact-page__form-group"
-                >
-                  <Form.Label className="contact-page__form-label">
-                    Topic
-                  </Form.Label>
-                  <Form.Select
-                    className="contact-page__form-select"
-                    value={selectedTopic}
-                    onChange={(e) => setSelectedTopic(e.target.value)}
-                    required
+                <p className="contact-page__section-desc">
+                  If you're unable to find the answer to your questions, or if
+                  you have a specific question or comment, please fill out the
+                  following information.
+                </p>
+                <Form className="contact-page__form">
+                  <Form.Group
+                    controlId="topic"
+                    className="contact-page__form-group"
                   >
-                    <optgroup label="General">
-                      <option>Reservations, fees, and discounts</option>
-                      <option>Site or Trail</option>
-                      <option>I cannot find what I'm looking for</option>
-                      <option>Wildfires and Campfire Bans</option>
-                    </optgroup>
-                    <optgroup label="Report a violation">
-                      <option>Report All Poachers and Polluters</option>
-                      <option>Report a Natural Resource Violation</option>
-                    </optgroup>
-                  </Form.Select>
-                </Form.Group>
-              </Form>
-              {renderContactDetails()}
-            </section>
-          </Col>
-        </Row>
+                    <Form.Label className="contact-page__form-label">
+                      Topic
+                    </Form.Label>
+                    <Form.Select
+                      className="contact-page__form-select"
+                      value={selectedTopic}
+                      onChange={(e) => setSelectedTopic(e.target.value)}
+                      required
+                    >
+                      <optgroup label="General">
+                        <option>Reservations, fees, and discounts</option>
+                        <option>Site or Trail</option>
+                        <option>I cannot find what I'm looking for</option>
+                        <option>Wildfires and Campfire Bans</option>
+                      </optgroup>
+                      <optgroup label="Report a violation">
+                        <option>Report All Poachers and Polluters</option>
+                        <option>Report a Natural Resource Violation</option>
+                      </optgroup>
+                    </Form.Select>
+                  </Form.Group>
+                </Form>
+                {renderContactDetails()}
+              </section>
+            </>
+          )}
+        </PageWithScrollMenu>
       </Container>
     </div>
   );

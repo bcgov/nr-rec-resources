@@ -5,7 +5,7 @@ import { EXTERNAL_LINKS } from '@/data/urls';
 import '@/components/layout/Footer.scss';
 import FooterLinkColumn from './FooterLinkColumn';
 import FooterLink from './FooterLink';
-import { Link } from 'react-router';
+import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/routes';
 
 const linkColumns = [
