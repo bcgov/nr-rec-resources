@@ -3,7 +3,7 @@ import { trackClickEvent } from '@/utils/matomo';
 import { Stack } from 'react-bootstrap';
 
 interface LinkProps {
-  title: string;
+  title?: string;
   url?: string;
   component: ReactNode;
 }
@@ -22,7 +22,7 @@ const FooterLinkColumn = ({ title, links }: LinkColumnProps) => {
         <Stack gap={3}>
           {links.map((link, linkIndex) =>
             !link.component ? (
-              <p key={linkIndex} className="paragraph-links mb-0">
+              <span key={linkIndex} className="paragraph-links mb-0">
                 <a
                   href={link.url}
                   target="_blank"
@@ -34,23 +34,18 @@ const FooterLinkColumn = ({ title, links }: LinkColumnProps) => {
                 >
                   {link.title}
                 </a>
-              </p>
+              </span>
             ) : (
-              <p key={linkIndex} className="paragraph-links mb-0">
-                <a
-                  key={linkIndex}
-                  href={link.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  title={link.title}
-                  onClick={trackClickEvent({
-                    category: 'Footer link',
-                    name: `Footer link - ${link.title}`,
-                  })}
-                >
-                  {link.component}
-                </a>
-              </p>
+              <span
+                key={linkIndex}
+                className="paragraph-links mb-0"
+                onClick={trackClickEvent({
+                  category: 'Footer link',
+                  name: `Footer link - ${link.title}`,
+                })}
+              >
+                {link.component}
+              </span>
             ),
           )}
         </Stack>
