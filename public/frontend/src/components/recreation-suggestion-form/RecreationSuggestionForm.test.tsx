@@ -5,6 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { act } from 'react-dom/test-utils';
 import { renderWithQueryClient } from '@/test-utils';
 import { trackClickEvent } from '@/utils/matomo';
+import { useSearchCitiesApi } from '@/components/recreation-suggestion-form/hooks/useSearchCitiesApi';
 import { useSearchInput } from '@/components/recreation-suggestion-form/hooks/useSearchInput';
 import { useCurrentLocation } from '@/components/recreation-suggestion-form/hooks/useCurrentLocation';
 import RecreationSuggestionForm from '@/components/recreation-suggestion-form/RecreationSuggestionForm';
@@ -106,8 +107,6 @@ describe('RecreationSuggestionForm', () => {
       permissionDeniedCount: 0,
     });
   });
-
-  // --- Non-tracking tests ---
 
   it('does not call handleSearch if input is empty and allowEmptySearch is false', () => {
     renderWithQueryClient(
@@ -458,5 +457,27 @@ describe('RecreationSuggestionForm', () => {
     );
 
     consoleWarnSpy.mockRestore();
+  });
+
+  it('calls handleCityOptionSearch when input matches a city exactly', () => {
+    const citiesList = [{ id: 1, name: 'Victoria', option_type: 'CITY' }];
+
+    (useSearchCitiesApi as Mock).mockReturnValue({ data: citiesList });
+
+    renderWithQueryClient(
+      <RecreationSuggestionForm allowEmptySearch trackingSource="Test page" />,
+    );
+
+    const input = screen.getByRole('textbox') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: 'Victoria' } });
+
+    fireEvent.click(screen.getByRole('button', { name: /search/i }));
+
+    expect(handleCityOptionSearch).toHaveBeenCalledWith(citiesList[0]);
+    expect(trackClickEvent).toHaveBeenCalledWith({
+      category: 'Test page search',
+      name: 'Exact city match selected: Victoria',
+    });
+    expect(handleSearch).not.toHaveBeenCalled();
   });
 });
