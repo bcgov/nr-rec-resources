@@ -37,7 +37,7 @@ export const FileUploadModal: FC = () => {
   const alertConfig = {
     variant: "warning",
     icon: faExclamationTriangle,
-    text: "Uploading files will directly publish to the public website.",
+    text: "Uploading files will directly publish to the public website within 15 minutess.",
   };
 
   const isFilenameInvalid = !!fileNameError;
