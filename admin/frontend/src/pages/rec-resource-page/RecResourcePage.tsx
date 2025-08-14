@@ -1,3 +1,4 @@
+import BreadCrumbs from "@/components/breadcrumbs/BreadCrumbs";
 import {
   RecResourceFileSection,
   ResourceHeaderSection,
@@ -7,7 +8,6 @@ import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Alert, Spinner, Stack } from "react-bootstrap";
 import "./RecResourcePage.scss";
-import BreadCrumbs from "@/components/breadcrumbs/BreadCrumbs";
 
 const InfoBanner = () => (
   <Alert variant="warning" className="rec-resource-page__info-banner">
@@ -18,8 +18,8 @@ const InfoBanner = () => (
         aria-label="Information"
       />
       <span className="rec-resource-page__info-banner-text">
-        All images and documents will be published to the beta website
-        immediately.
+        All images and documents will be published to the beta website within 15
+        minutes.
       </span>
     </Stack>
   </Alert>

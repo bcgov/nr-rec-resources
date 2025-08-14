@@ -93,7 +93,7 @@ describe("RecResourcePage", () => {
     expect(screen.getByTestId("fa-icon")).toBeInTheDocument();
     expect(
       screen.getByText(
-        /All images and documents will be published to the beta website immediately\./,
+        /All images and documents will be published to the beta website within 15 minutes\./,
       ),
     ).toBeInTheDocument();
     expect(screen.getByTestId("rec-resource-file-section")).toHaveTextContent(

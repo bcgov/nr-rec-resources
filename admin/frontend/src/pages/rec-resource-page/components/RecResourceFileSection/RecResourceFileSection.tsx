@@ -58,7 +58,7 @@ export const RecResourceFileSection = () => {
       <GalleryAccordion<GalleryImage>
         eventKey="images"
         title="Public images"
-        description="Upload up to 20 JPG, PNG, or WEBP images (max 10MB each)."
+        description="Upload up to 20 JPG, PNG, or WEBP images (max 9.5MB each)."
         items={galleryImages}
         uploadLabel="Upload"
         isLoading={isFetchingImages}
@@ -69,7 +69,7 @@ export const RecResourceFileSection = () => {
       <GalleryAccordion<GalleryDocument>
         eventKey="documents"
         title="Public documents"
-        description="Documents are only accepted in PDF format with a 20MB file size limit. Maximum 30 documents."
+        description="Documents are only accepted in PDF format with a 9.5MB file size limit. Maximum 30 documents."
         items={galleryDocuments}
         uploadLabel="Upload"
         isLoading={isFetching}
