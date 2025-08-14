@@ -33,7 +33,7 @@
     "@tanstack/react-store": "^0.7.0",
     "axios": "^1.8.2",
     "bootstrap": "^5.3.3",
-    "dotenv": "^17.0.0",
+    "dotenv": "^17.2.1",
     "html-react-parser": "^5.2.2",
     "js-cookie": "^3.0.5",
     "ol": "^10.4.0",
