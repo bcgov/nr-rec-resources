@@ -34,6 +34,7 @@ interface RecreationSuggestionFormProps {
   disableNavigation?: boolean;
   searchBtnVariant?: 'primary' | 'secondary';
   trackingSource: string; // Used for tracking which page the search is initiated from ie 'Landing page', 'Search map'
+  onMenuToggle?: (isOpen: boolean) => void;
 }
 
 const RecreationSuggestionForm = ({
@@ -41,6 +42,7 @@ const RecreationSuggestionForm = ({
   disableNavigation = false,
   searchBtnVariant = 'primary',
   trackingSource,
+  onMenuToggle,
 }: RecreationSuggestionFormProps) => {
   const navigate = useNavigate();
   const { data: citiesList } = useSearchCitiesApi();
@@ -225,6 +227,7 @@ const RecreationSuggestionForm = ({
         <SuggestionTypeahead<RecreationSuggestion | CitySuggestion>
           onChange={handleSuggestionChange}
           onClear={handleClearTypeaheadSearch}
+          onMenuToggle={onMenuToggle}
           onKeyDown={handleInputKeyDown}
           isLoading={isFetching}
           error={error}

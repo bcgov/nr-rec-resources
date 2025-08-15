@@ -38,6 +38,8 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
     useState<Feature | null>(null);
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
   const [isDisclaimerModalOpen, setIsDisclaimerModalOpen] = useState(false);
+  const [isSuggestionDropdownOpen, setIsSuggestionDropdownOpen] =
+    useState(false);
 
   const mapRef = useRef<{ getMap: () => OLMap }>(null);
   const popupRef = useRef<HTMLDivElement | null>(null);
@@ -57,6 +59,18 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
         renderBuffer: 300,
       },
     });
+
+  useEffect(() => {
+    // Disable map interactions when the suggestion dropdown is open
+    if (!mapRef.current) return;
+
+    const map = mapRef.current.getMap();
+    if (isSuggestionDropdownOpen) {
+      map.getInteractions().forEach((i) => i.setActive(false));
+    } else {
+      map.getInteractions().forEach((i) => i.setActive(true));
+    }
+  }, [isSuggestionDropdownOpen]);
 
   const { layer: wildfireLocationsLayer } = useWildfireLocationLayer(mapRef, {
     applyHoverStyles: true,
@@ -174,6 +188,7 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
             disableNavigation={true}
             searchBtnVariant="secondary"
             trackingSource="Search page map view"
+            onMenuToggle={setIsSuggestionDropdownOpen}
           />
           <Button
             variant={isFilterMenuOpen ? 'primary' : 'secondary'}

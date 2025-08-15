@@ -77,6 +77,11 @@ export interface SuggestionTypeaheadProps<T> {
    * Allows for custom handling of input changes.
    */
   onInputChange?: (input: string) => void;
+  /**
+   * Callback fired when the menu is toggled.
+   * Allows for custom handling of menu open/close events.
+   */
+  onMenuToggle?: (isOpen: boolean) => void;
 }
 
 /**
@@ -100,6 +105,7 @@ export const SuggestionTypeahead = <T extends object>({
   labelKey = "name",
   minLength = 1,
   onInputChange,
+  onMenuToggle,
 }: SuggestionTypeaheadProps<T>) => {
   const typeaheadRef = useRef(null);
 
@@ -147,6 +153,7 @@ export const SuggestionTypeahead = <T extends object>({
       onKeyDown={onKeyDown}
       options={suggestions}
       isLoading={isLoading}
+      onMenuToggle={onMenuToggle}
       renderInput={renderInput}
       minLength={minLength}
       emptyLabel={emptyLabel}
