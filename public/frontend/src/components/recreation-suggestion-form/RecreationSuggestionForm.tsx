@@ -223,7 +223,6 @@ const RecreationSuggestionForm = ({
         onSubmit={handleSubmit}
       >
         <SuggestionTypeahead<RecreationSuggestion | CitySuggestion>
-          onSearch={(text) => setSearchInputValue(text)}
           onChange={handleSuggestionChange}
           onClear={handleClearTypeaheadSearch}
           onKeyDown={handleInputKeyDown}
@@ -231,6 +230,7 @@ const RecreationSuggestionForm = ({
           error={error}
           defaultValue={defaultSearchInputValue}
           suggestions={suggestions as RecreationSuggestion[]}
+          onSearch={setSearchInputValue}
           renderMenu={renderMenu}
           minLength={0}
           placeholder={SEARCH_PLACEHOLDER}
