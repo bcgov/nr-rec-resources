@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Menu, MenuItem, RenderMenuProps } from 'react-bootstrap-typeahead';
 import { SuggestionListCity } from '@/components/recreation-suggestion-form/SuggestionListCity';
 import { SuggestionListItem } from '@/components/recreation-suggestion-form/SuggestionListItem';
@@ -40,9 +41,43 @@ export const SuggestionMenu = ({
   const isCityOptions = cityOptions && cityOptions.length > 0;
   const resultsLength = results?.length ?? 0;
 
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  const handleMouseOver = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    const originalTouchAction = document.body.style.touchAction;
+
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none'; // stops touch scroll
+    document.documentElement.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.touchAction = originalTouchAction;
+      document.documentElement.style.overflow = '';
+    };
+  }, []);
+
   return (
-    <Menu {...menuProps}>
-      {isCityOptions && <div className="suggestion-menu-label">Location</div>}
+    <Menu
+      {...menuProps}
+      className="suggestion-menu"
+      onTouchMove={handleTouchMove}
+      onTouchStart={handleTouchMove}
+      onMouseOver={handleMouseOver}
+      onWheel={handleMouseOver}
+    >
+      {isCityOptions && (
+        <div className="suggestion-menu-label" onTouchMove={handleTouchMove}>
+          Location
+        </div>
+      )}
       {cityOptions.map((option, index) => (
         <MenuItem
           key={option.name}
