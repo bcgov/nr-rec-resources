@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Menu, MenuItem, RenderMenuProps } from 'react-bootstrap-typeahead';
 import { SuggestionListCity } from '@/components/recreation-suggestion-form/SuggestionListCity';
 import { SuggestionListItem } from '@/components/recreation-suggestion-form/SuggestionListItem';
@@ -40,8 +41,66 @@ export const SuggestionMenu = ({
   const isCityOptions = cityOptions && cityOptions.length > 0;
   const resultsLength = results?.length ?? 0;
 
+  const lastYRef = useRef(0);
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    const scrollTop = target.scrollTop;
+    const scrollHeight = target.scrollHeight;
+    const clientHeight = target.clientHeight;
+    const isAtTop = scrollTop <= 0;
+    const isAtBottom = scrollTop + clientHeight >= scrollHeight;
+
+    const touch = e.touches[0];
+    const deltaY = lastYRef.current - touch.clientY;
+    lastYRef.current = touch.clientY;
+
+    if ((isAtTop && deltaY < 0) || (isAtBottom && deltaY > 0)) {
+      e.preventDefault();
+    }
+  };
+
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    lastYRef.current = e.touches[0].clientY;
+  };
+
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    const originalTouchAction = document.body.style.touchAction;
+
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
+    document.documentElement.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.touchAction = originalTouchAction;
+      document.documentElement.style.overflow = '';
+    };
+  }, []);
+
   return (
-    <Menu {...menuProps}>
+    <Menu
+      {...menuProps}
+      className="suggestion-menu"
+      onTouchMove={handleTouchMove}
+      onTouchStart={handleTouchStart}
+    >
+      {isCityOptions && (
+        <div className="suggestion-menu-label" onTouchMove={handleTouchMove}>
+          Location
+        </div>
+      )}
+      {cityOptions.map((option, index) => (
+        <MenuItem
+          key={option.name}
+          option={option}
+          position={index + resultsLength}
+          className="dropdown-menu-item"
+        >
+          <SuggestionListCity searchTerm={searchTerm} city={option.name} />
+        </MenuItem>
+      ))}
+
       {isResults && (
         <div className="suggestion-menu-label">Sites and trails</div>
       )}
@@ -74,17 +133,6 @@ export const SuggestionMenu = ({
           </MenuItem>
         );
       })}
-      {isCityOptions && <div className="suggestion-menu-label">Location</div>}
-      {cityOptions.map((option, index) => (
-        <MenuItem
-          key={option.name}
-          option={option}
-          position={index + resultsLength}
-          className="dropdown-menu-item"
-        >
-          <SuggestionListCity searchTerm={searchTerm} city={option.name} />
-        </MenuItem>
-      ))}
     </Menu>
   );
 };

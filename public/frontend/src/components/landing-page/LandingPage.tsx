@@ -147,7 +147,7 @@ export const LandingPage: FC = () => {
                   className="research-signup-link"
                   href={EXTERNAL_LINKS.LEGACY_SITE}
                 >
-                  original interactive map
+                  legacy interactive map
                 </a>{' '}
                 to explore destinations, check road conditions, and stay
                 informed about wildfire updates.

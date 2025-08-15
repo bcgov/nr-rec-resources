@@ -67,6 +67,21 @@ export interface SuggestionTypeaheadProps<T> {
    */
 
   labelKey?: string;
+  /**
+   * Minimum length of input before suggestions are fetched.
+   * Defaults to 1.
+   */
+  minLength?: number;
+  /**
+   * Callback fired when the input value changes.
+   * Allows for custom handling of input changes.
+   */
+  onInputChange?: (input: string) => void;
+  /**
+   * Callback fired when the menu is toggled.
+   * Allows for custom handling of menu open/close events.
+   */
+  onMenuToggle?: (isOpen: boolean) => void;
 }
 
 /**
@@ -88,6 +103,9 @@ export const SuggestionTypeahead = <T extends object>({
   placeholder,
   renderMenu,
   labelKey = "name",
+  minLength = 1,
+  onInputChange,
+  onMenuToggle,
 }: SuggestionTypeaheadProps<T>) => {
   const typeaheadRef = useRef(null);
 
@@ -131,11 +149,13 @@ export const SuggestionTypeahead = <T extends object>({
           onChange(selected[0] as T);
         }
       }}
+      onInputChange={onInputChange}
       onKeyDown={onKeyDown}
       options={suggestions}
       isLoading={isLoading}
+      onMenuToggle={onMenuToggle}
       renderInput={renderInput}
-      minLength={1}
+      minLength={minLength}
       emptyLabel={emptyLabel}
       placeholder={placeholder}
       labelKey={labelKey}

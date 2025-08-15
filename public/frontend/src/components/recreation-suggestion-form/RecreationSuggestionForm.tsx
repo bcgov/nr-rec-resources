@@ -34,6 +34,7 @@ interface RecreationSuggestionFormProps {
   disableNavigation?: boolean;
   searchBtnVariant?: 'primary' | 'secondary';
   trackingSource: string; // Used for tracking which page the search is initiated from ie 'Landing page', 'Search map'
+  onMenuToggle?: (isOpen: boolean) => void;
 }
 
 const RecreationSuggestionForm = ({
@@ -41,6 +42,7 @@ const RecreationSuggestionForm = ({
   disableNavigation = false,
   searchBtnVariant = 'primary',
   trackingSource,
+  onMenuToggle,
 }: RecreationSuggestionFormProps) => {
   const navigate = useNavigate();
   const { data: citiesList } = useSearchCitiesApi();
@@ -76,6 +78,8 @@ const RecreationSuggestionForm = ({
   const cityOptions = useMemo(() => {
     const searchText = searchInputValue?.toLowerCase() ?? '';
 
+    if (!searchText) return [currentLocationOption];
+
     const filteredCities = (citiesList ?? [])
       .filter(
         (city) =>
@@ -107,35 +111,55 @@ const RecreationSuggestionForm = ({
     [searchInputValue, cityOptions],
   );
 
+  const performSearch = useCallback(
+    (inputValue: string) => {
+      const trimmed = inputValue.trim();
+      if (!trimmed && !allowEmptySearch) return;
+
+      const exactCityMatch = (citiesList ?? []).find(
+        (city) => city.name.toLowerCase() === trimmed.toLowerCase(),
+      );
+
+      if (exactCityMatch) {
+        handleCityOptionSearch(exactCityMatch);
+        trackClickEvent({
+          category: trackingName,
+          name: `Exact city match selected: ${exactCityMatch.name}`,
+        })();
+      } else {
+        handleSearch(trimmed);
+        trackClickEvent({
+          category: trackingName,
+          name: 'Search button clicked',
+        })();
+      }
+    },
+    [
+      allowEmptySearch,
+      citiesList,
+      handleCityOptionSearch,
+      handleSearch,
+      trackingName,
+    ],
+  );
+
   const handleSubmit = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       const input = e.currentTarget.querySelector('input') as HTMLInputElement;
-      const inputValue = input?.value ?? '';
-
-      if (inputValue.trim() || allowEmptySearch) {
-        handleSearch(inputValue);
-      }
-      trackClickEvent({
-        category: trackingName,
-        name: 'Search button clicked',
-      })();
+      performSearch(input?.value ?? '');
     },
-    [allowEmptySearch, handleSearch, trackingName],
+    [performSearch],
   );
 
   const handleInputKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        const inputValue = (e.target as HTMLInputElement).value;
-
-        if (inputValue.trim() || allowEmptySearch) {
-          handleSearch(inputValue);
-        }
+        performSearch((e.target as HTMLInputElement).value);
       }
     },
-    [allowEmptySearch, handleSearch],
+    [performSearch],
   );
 
   const handleSuggestionChange = async (
@@ -203,13 +227,16 @@ const RecreationSuggestionForm = ({
         <SuggestionTypeahead<RecreationSuggestion | CitySuggestion>
           onChange={handleSuggestionChange}
           onClear={handleClearTypeaheadSearch}
+          onMenuToggle={onMenuToggle}
           onKeyDown={handleInputKeyDown}
           isLoading={isFetching}
           error={error}
           defaultValue={defaultSearchInputValue}
           suggestions={suggestions as RecreationSuggestion[]}
-          onSearch={setSearchInputValue}
+          onSearch={(text) => setSearchInputValue(text)}
+          onInputChange={(text) => setSearchInputValue(text)}
           renderMenu={renderMenu}
+          minLength={0}
           placeholder={SEARCH_PLACEHOLDER}
         />
         <Button variant={searchBtnVariant} type="submit" className="submit-btn">
