@@ -230,7 +230,8 @@ const RecreationSuggestionForm = ({
           error={error}
           defaultValue={defaultSearchInputValue}
           suggestions={suggestions as RecreationSuggestion[]}
-          onSearch={setSearchInputValue}
+          onSearch={(text) => setSearchInputValue(text)}
+          onInputChange={(text) => setSearchInputValue(text)}
           renderMenu={renderMenu}
           minLength={0}
           placeholder={SEARCH_PLACEHOLDER}
