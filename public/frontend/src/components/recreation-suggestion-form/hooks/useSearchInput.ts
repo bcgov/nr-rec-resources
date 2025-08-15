@@ -83,6 +83,7 @@ export const useSearchInput = () => {
       if (!city) return;
 
       const newParams = new URLSearchParams(searchParams);
+      newParams.delete(FILTER_PARAM_KEY);
       newParams.set(LAT_PARAM_KEY, String(city.latitude));
       newParams.set(LON_PARAM_KEY, String(city.longitude));
       newParams.set(COMMUNITY_PARAM_KEY, city.name.trim());
