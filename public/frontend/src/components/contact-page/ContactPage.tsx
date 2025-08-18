@@ -12,7 +12,7 @@ import { useParams } from 'react-router';
 import { useGetRecreationResourceById } from '@/service/queries/recreation-resource/recreationResourceQueries';
 import PageTitle from '@/components/layout/PageTitle';
 import { ROUTE_TITLES } from '@/routes';
-import { Breadcrumbs, useContactBreadcrumbs } from '@/components/breadcrumbs';
+import { Breadcrumbs, useBreadcrumbs } from '@/components/breadcrumbs';
 
 export const ContactPage = () => {
   const [selectedTopic, setSelectedTopic] = useState(
@@ -26,7 +26,7 @@ export const ContactPage = () => {
   });
 
   // Set up breadcrumbs based on context
-  useContactBreadcrumbs(recResource?.name);
+  useBreadcrumbs({ resourceName: recResource?.name });
 
   const emailLink = getContactEmailLink(recResource);
 
