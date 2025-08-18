@@ -1,74 +1,89 @@
 /**
- * Primary hook for breadcrumb management
- * Provides a simple interface for managing breadcrumbs in components
+ * Simplified breadcrumb hook
  */
 
 import { useLocation } from 'react-router-dom';
 import { useStore } from '@tanstack/react-store';
-import { useCallback, useEffect, useMemo } from 'react';
-import { breadcrumbService } from '../core/BreadcrumbService';
-import { BreadcrumbGeneratorConfig, BreadcrumbItem } from '../types';
+import { useCallback, useEffect } from 'react';
+import { breadcrumbStore } from '../store/breadcrumbStore';
+import {
+  generateBreadcrumbs,
+  setBreadcrumbs,
+  setPreviousRoute,
+} from '../utils/breadcrumbUtils';
+import { BreadcrumbItem } from '../types';
 
-interface UseBreadcrumbsOptions extends BreadcrumbGeneratorConfig {
-  /** Whether to automatically generate breadcrumbs on mount and route changes */
+export interface UseBreadcrumbsOptions {
+  /** Resource ID for dynamic breadcrumbs */
+  resourceId?: string;
+  /** Resource name for dynamic breadcrumbs */
+  resourceName?: string;
+  /** Custom breadcrumb items to override generation */
+  customItems?: BreadcrumbItem[];
+  /** Whether to automatically generate breadcrumbs on route changes */
   autoGenerate?: boolean;
 }
 
 /**
- * Main hook for breadcrumb management
- * Provides access to breadcrumb state and management functions
+ * Simple breadcrumb hook
  */
 export function useBreadcrumbs(options: UseBreadcrumbsOptions = {}) {
   const location = useLocation();
-  const state = useStore(breadcrumbService.getStore());
-  const { autoGenerate = true, ...config } = options;
-
-  // Memoize config to prevent unnecessary re-generations
-  const memoizedConfig = useMemo(
-    () => config,
-    [config.resourceId, config.resourceName, config.customItems],
-  );
+  const state = useStore(breadcrumbStore);
+  const { autoGenerate = true, customItems, ...config } = options;
 
   /**
    * Manually set breadcrumb items
    */
-  const setBreadcrumbs = useCallback((items: BreadcrumbItem[]) => {
-    breadcrumbService.setBreadcrumbs(items);
+  const setBreadcrumbItems = useCallback((items: BreadcrumbItem[]) => {
+    setBreadcrumbs(items, breadcrumbStore);
   }, []);
 
   /**
    * Set previous route for context-aware navigation
    */
-  const setPreviousRoute = useCallback((route: string) => {
-    breadcrumbService.setPreviousRoute(route);
+  const setPreviousRouteValue = useCallback((route: string) => {
+    setPreviousRoute(route, breadcrumbStore);
   }, []);
 
   /**
-   * Generate breadcrumbs based on current route and config
+   * Generate and set breadcrumbs
    */
-  const generateBreadcrumbs = useCallback(() => {
-    const context = {
-      currentPath: location.pathname,
+  const generateAndSetBreadcrumbs = useCallback(() => {
+    if (customItems) {
+      setBreadcrumbs(customItems, breadcrumbStore);
+      return;
+    }
+
+    const breadcrumbs = generateBreadcrumbs(location.pathname, {
+      ...config,
       previousRoute: state.previousRoute,
       searchParams: new URLSearchParams(location.search),
-    };
+    });
 
-    breadcrumbService.generateAndSetBreadcrumbs(memoizedConfig, context);
-  }, [location.pathname, location.search, state.previousRoute, memoizedConfig]);
+    setBreadcrumbs(breadcrumbs, breadcrumbStore);
+  }, [
+    location.pathname,
+    location.search,
+    config.resourceId,
+    config.resourceName,
+    customItems,
+    state.previousRoute,
+  ]);
 
   /**
    * Clear all breadcrumbs
    */
   const clearBreadcrumbs = useCallback(() => {
-    breadcrumbService.clearBreadcrumbs();
+    setBreadcrumbs([], breadcrumbStore);
   }, []);
 
   // Auto-generate breadcrumbs when route changes
   useEffect(() => {
     if (autoGenerate) {
-      generateBreadcrumbs();
+      generateAndSetBreadcrumbs();
     }
-  }, [autoGenerate, generateBreadcrumbs]);
+  }, [autoGenerate, generateAndSetBreadcrumbs]);
 
   return {
     // State
@@ -76,9 +91,9 @@ export function useBreadcrumbs(options: UseBreadcrumbsOptions = {}) {
     previousRoute: state.previousRoute,
 
     // Actions
-    setBreadcrumbs,
-    setPreviousRoute,
-    generateBreadcrumbs,
+    setBreadcrumbs: setBreadcrumbItems,
+    setPreviousRoute: setPreviousRouteValue,
+    generateBreadcrumbs: generateAndSetBreadcrumbs,
     clearBreadcrumbs,
   };
 }

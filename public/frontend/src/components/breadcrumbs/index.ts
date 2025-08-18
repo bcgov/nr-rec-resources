@@ -1,11 +1,12 @@
 /**
- * Main export file for breadcrumb components and utilities
+ * Simplified breadcrumb exports
  */
 
 export { default as Breadcrumbs } from './Breadcrumbs';
 export type { BreadcrumbsProps } from './Breadcrumbs';
-export * from './hooks';
+export { useBreadcrumbs } from './hooks/useBreadcrumbs';
+export { breadcrumbStore } from './store/breadcrumbStore';
 export * from './types';
+export * from './utils/breadcrumbUtils';
 export * from './config/routeConfigs';
-export { breadcrumbService, breadcrumbStore } from './core/BreadcrumbService';
 export * from './utils/renderUtils';
