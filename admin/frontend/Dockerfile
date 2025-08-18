@@ -30,5 +30,3 @@ RUN caddy fmt /etc/caddy/Caddyfile
 
 EXPOSE 3001 3002
 HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost:3001/health
-
-USER 1001
