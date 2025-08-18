@@ -5,12 +5,13 @@
 import { useLocation } from 'react-router-dom';
 import { useStore } from '@tanstack/react-store';
 import { useCallback, useEffect } from 'react';
-import { breadcrumbStore } from '../store/breadcrumbStore';
 import {
-  generateBreadcrumbs,
+  breadcrumbStore,
   setBreadcrumbs,
   setPreviousRoute,
-} from '../utils/breadcrumbUtils';
+  clearBreadcrumbs,
+} from '../store/breadcrumbStore';
+import { generateBreadcrumbs } from '../utils/breadcrumbUtils';
 import { BreadcrumbItem } from '../types';
 
 export interface UseBreadcrumbsOptions {
@@ -36,14 +37,14 @@ export function useBreadcrumbs(options: UseBreadcrumbsOptions = {}) {
    * Manually set breadcrumb items
    */
   const setBreadcrumbItems = useCallback((items: BreadcrumbItem[]) => {
-    setBreadcrumbs(items, breadcrumbStore);
+    setBreadcrumbs(items);
   }, []);
 
   /**
    * Set previous route for context-aware navigation
    */
   const setPreviousRouteValue = useCallback((route: string) => {
-    setPreviousRoute(route, breadcrumbStore);
+    setPreviousRoute(route);
   }, []);
 
   /**
@@ -51,7 +52,7 @@ export function useBreadcrumbs(options: UseBreadcrumbsOptions = {}) {
    */
   const generateAndSetBreadcrumbs = useCallback(() => {
     if (customItems) {
-      setBreadcrumbs(customItems, breadcrumbStore);
+      setBreadcrumbs(customItems);
       return;
     }
 
@@ -61,7 +62,7 @@ export function useBreadcrumbs(options: UseBreadcrumbsOptions = {}) {
       searchParams: new URLSearchParams(location.search),
     });
 
-    setBreadcrumbs(breadcrumbs, breadcrumbStore);
+    setBreadcrumbs(breadcrumbs);
   }, [
     location.pathname,
     location.search,
@@ -74,8 +75,8 @@ export function useBreadcrumbs(options: UseBreadcrumbsOptions = {}) {
   /**
    * Clear all breadcrumbs
    */
-  const clearBreadcrumbs = useCallback(() => {
-    setBreadcrumbs([], breadcrumbStore);
+  const clearBreadcrumbItems = useCallback(() => {
+    clearBreadcrumbs();
   }, []);
 
   // Auto-generate breadcrumbs when route changes
@@ -91,9 +92,9 @@ export function useBreadcrumbs(options: UseBreadcrumbsOptions = {}) {
     previousRoute: state.previousRoute,
 
     // Actions
-    setBreadcrumbs: setBreadcrumbItems,
-    setPreviousRoute: setPreviousRouteValue,
-    generateBreadcrumbs: generateAndSetBreadcrumbs,
-    clearBreadcrumbs,
+    setBreadcrumbItems,
+    setPreviousRouteValue,
+    generateAndSetBreadcrumbs,
+    clearBreadcrumbItems,
   };
 }
