@@ -6,7 +6,8 @@
  */
 
 import { Breadcrumb } from 'react-bootstrap';
-import { useBreadcrumbState } from './hooks/useBreadcrumbState';
+import { useStore } from '@tanstack/react-store';
+import { breadcrumbStore } from './store/breadcrumbStore';
 import { BreadcrumbItem } from './types';
 import {
   getBreadcrumbItemProps,
@@ -52,10 +53,10 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
   showHomeIcon = true,
   ariaLabel = 'Breadcrumb navigation',
 }) => {
-  const { breadcrumbs: storeItems } = useBreadcrumbState();
+  const state = useStore(breadcrumbStore);
 
   // Use provided items or fall back to store items
-  const breadcrumbItems = items || storeItems;
+  const breadcrumbItems = items || state.items;
 
   // Don't render if no breadcrumb items
   if (!breadcrumbItems?.length) {
@@ -68,7 +69,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
       aria-label={ariaLabel}
       data-testid="breadcrumbs"
     >
-      {breadcrumbItems.map((item, index) => {
+      {breadcrumbItems.map((item: BreadcrumbItem, index: number) => {
         const isFirst = index === 0;
         const isLast = index === breadcrumbItems.length - 1;
         const key = getBreadcrumbKey(item, index);

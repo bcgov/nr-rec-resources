@@ -1,10 +1,11 @@
 /**
  * Route-specific breadcrumb configurations
- * Integrates with the route constants to provide consistent breadcrumb generation
+ * Uses React Router's built-in route matching for better reliability
  */
 
 import { BreadcrumbItem } from '../types';
 import { ROUTE_PATHS } from '@/routes/constants';
+import { matchPath } from 'react-router-dom';
 
 export interface RouteBreadcrumbConfig {
   /** Route pattern (from ROUTE_PATHS) */
@@ -13,27 +14,25 @@ export interface RouteBreadcrumbConfig {
   breadcrumbs?: BreadcrumbItem[];
   /** Function to generate dynamic breadcrumbs */
   generateBreadcrumbs?: (
-    params: Record<string, string>,
-    context?: any,
+    params: Record<string, string | undefined>,
+    context?: {
+      resourceName?: string;
+      previousRoute?: string;
+      searchParams?: URLSearchParams;
+    },
   ) => BreadcrumbItem[];
-  /** Whether this route requires previous route context */
-  usesPreviousRoute?: boolean;
-  /** Whether this route should include search breadcrumb */
-  includesSearch?: boolean;
-  /** Parent route for hierarchical breadcrumbs */
-  parentRoute?: string;
 }
 
 /**
  * Predefined route configurations for breadcrumb generation
  */
-export const ROUTE_BREADCRUMB_CONFIGS: Record<string, RouteBreadcrumbConfig> = {
-  [ROUTE_PATHS.HOME]: {
+export const ROUTE_BREADCRUMB_CONFIGS: RouteBreadcrumbConfig[] = [
+  {
     route: ROUTE_PATHS.HOME,
     breadcrumbs: [{ label: 'Home', href: ROUTE_PATHS.HOME, isCurrent: true }],
   },
 
-  [ROUTE_PATHS.SEARCH]: {
+  {
     route: ROUTE_PATHS.SEARCH,
     breadcrumbs: [
       { label: 'Home', href: ROUTE_PATHS.HOME },
@@ -41,7 +40,7 @@ export const ROUTE_BREADCRUMB_CONFIGS: Record<string, RouteBreadcrumbConfig> = {
     ],
   },
 
-  [ROUTE_PATHS.CONTACT_US]: {
+  {
     route: ROUTE_PATHS.CONTACT_US,
     breadcrumbs: [
       { label: 'Home', href: ROUTE_PATHS.HOME },
@@ -49,10 +48,8 @@ export const ROUTE_BREADCRUMB_CONFIGS: Record<string, RouteBreadcrumbConfig> = {
     ],
   },
 
-  [ROUTE_PATHS.REC_RESOURCE]: {
+  {
     route: ROUTE_PATHS.REC_RESOURCE,
-    usesPreviousRoute: true,
-    includesSearch: true,
     generateBreadcrumbs: (params, context) => {
       const { id } = params;
       const { resourceName, previousRoute } = context || {};
@@ -73,7 +70,7 @@ export const ROUTE_BREADCRUMB_CONFIGS: Record<string, RouteBreadcrumbConfig> = {
 
       // Add resource breadcrumb
       breadcrumbs.push({
-        label: resourceName,
+        label: resourceName || id || 'Resource',
         isCurrent: true,
       });
 
@@ -81,11 +78,8 @@ export const ROUTE_BREADCRUMB_CONFIGS: Record<string, RouteBreadcrumbConfig> = {
     },
   },
 
-  [ROUTE_PATHS.REC_RESOURCE_CONTACT]: {
+  {
     route: ROUTE_PATHS.REC_RESOURCE_CONTACT,
-    parentRoute: ROUTE_PATHS.REC_RESOURCE,
-    usesPreviousRoute: true,
-    includesSearch: true,
     generateBreadcrumbs: (params, context) => {
       const { id } = params;
       const { resourceName, previousRoute } = context || {};
@@ -105,9 +99,9 @@ export const ROUTE_BREADCRUMB_CONFIGS: Record<string, RouteBreadcrumbConfig> = {
       }
 
       // Add resource breadcrumb
-      const resourcePath = ROUTE_PATHS.REC_RESOURCE.replace(':id', id);
+      const resourcePath = ROUTE_PATHS.REC_RESOURCE.replace(':id', id || '');
       breadcrumbs.push({
-        label: resourceName || id,
+        label: resourceName || id || 'Resource',
         href: resourcePath,
       });
 
@@ -120,7 +114,7 @@ export const ROUTE_BREADCRUMB_CONFIGS: Record<string, RouteBreadcrumbConfig> = {
       return breadcrumbs;
     },
   },
-};
+];
 
 /**
  * Helper function to get search breadcrumb with preserved state
@@ -158,11 +152,13 @@ function generatePreviousRouteBreadcrumb(
     return routeMap[path];
   }
 
-  // Handle resource routes
-  const resourceMatch = path.match(/^\/resource\/([^/]+)$/);
+  // Handle resource routes using React Router's matchPath
+  const resourceMatch = matchPath(
+    { path: ROUTE_PATHS.REC_RESOURCE, end: true },
+    path,
+  );
   if (resourceMatch) {
-    const resourceId = resourceMatch[1];
-    return { label: resourceId, href: path };
+    return { label: resourceMatch.params.id || 'Resource', href: path };
   }
 
   // Default fallback
@@ -170,53 +166,21 @@ function generatePreviousRouteBreadcrumb(
 }
 
 /**
- * Extract route parameters from a path using a route pattern
+ * Find the matching route configuration for a given path using React Router's matchPath
  */
-export function extractRouteParams(
-  path: string,
-  routePattern: string,
-): Record<string, string> {
-  const pathParts = path.split('/').filter(Boolean);
-  const patternParts = routePattern.split('/').filter(Boolean);
-  const params: Record<string, string> = {};
-
-  patternParts.forEach((part, index) => {
-    if (part.startsWith(':') && pathParts[index]) {
-      const paramName = part.slice(1);
-      params[paramName] = pathParts[index];
+export function findRouteConfig(path: string):
+  | {
+      config: RouteBreadcrumbConfig;
+      params: Record<string, string | undefined>;
     }
-  });
-
-  return params;
-}
-
-/**
- * Check if a path matches a route pattern
- */
-export function matchesRoutePattern(
-  path: string,
-  routePattern: string,
-): boolean {
-  const pathParts = path.split('/').filter(Boolean);
-  const patternParts = routePattern.split('/').filter(Boolean);
-
-  if (pathParts.length !== patternParts.length) {
-    return false;
+  | undefined {
+  for (const config of ROUTE_BREADCRUMB_CONFIGS) {
+    const match = matchPath({ path: config.route, end: true }, path);
+    if (match) {
+      return {
+        config,
+        params: match.params,
+      };
+    }
   }
-
-  return patternParts.every((part, index) => {
-    return part.startsWith(':') || part === pathParts[index];
-  });
-}
-
-/**
- * Find the matching route configuration for a given path
- */
-export function findRouteConfig(
-  path: string,
-): RouteBreadcrumbConfig | undefined {
-  return Object.values(ROUTE_BREADCRUMB_CONFIGS).find(
-    (config) =>
-      path === config.route || matchesRoutePattern(path, config.route),
-  );
 }
