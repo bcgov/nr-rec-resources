@@ -6,6 +6,7 @@ import {
 import {
   faCancel,
   faEllipsisV,
+  faFileImage,
   faFilePdf,
   faRedo,
   faTimes,
@@ -58,7 +59,7 @@ export const GalleryFileCard = <T extends GalleryFile>({
           className="align-items-center justify-content-center"
         >
           <FontAwesomeIcon
-            icon={faFilePdf}
+            icon={file.type === "document" ? faFilePdf : faFileImage}
             size="2x"
             className="fa-file-pdf"
             aria-hidden="true"
