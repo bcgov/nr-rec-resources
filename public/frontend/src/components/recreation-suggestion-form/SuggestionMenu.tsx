@@ -1,4 +1,4 @@
-import { Menu, MenuItem, RenderMenuProps } from 'react-bootstrap-typeahead';
+import { Menu, MenuItem } from 'react-bootstrap-typeahead';
 import { SuggestionListCity } from '@/components/recreation-suggestion-form/SuggestionListCity';
 import { SuggestionListItem } from '@/components/recreation-suggestion-form/SuggestionListItem';
 import { Image } from 'react-bootstrap';
@@ -17,11 +17,6 @@ interface SuggestionMenuProps {
   results: RecreationSuggestion[];
   /** The current search term to highlight in suggestions. */
   searchTerm: string;
-  /**
-   * Props that will be passed to the Menu component within the Typeahead.
-   * These are important for rendering the menu correctly and handling interactions.
-   */
-  menuProps: RenderMenuProps;
   /** Array of city options for location-based suggestions. */
   cityOptions: City[];
 }
@@ -32,14 +27,13 @@ interface SuggestionMenuProps {
  */
 export const SuggestionMenu = ({
   cityOptions,
-  menuProps,
   results,
   searchTerm,
 }: SuggestionMenuProps) => {
   const showResultsLabel = results.length > 0;
 
   return (
-    <Menu {...menuProps} className="suggestion-menu">
+    <Menu className="suggestion-menu">
       <div className="suggestion-menu-label">Location</div>
       {cityOptions.map((option, index) => (
         <MenuItem

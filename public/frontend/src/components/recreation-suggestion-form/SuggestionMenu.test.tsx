@@ -26,18 +26,12 @@ describe('SuggestionMenu', () => {
 
   const defaultCities: City[] = [{ name: 'Vancouver' }] as any;
 
-  const menuProps = {
-    id: 'test-menu',
-    labelledBy: 'test-label',
-  };
-
   it('renders results and city options with labels', () => {
     render(
       <SuggestionMenu
         results={defaultResults}
         cityOptions={defaultCities}
         searchTerm="river"
-        menuProps={menuProps}
       />,
     );
 
@@ -56,7 +50,6 @@ describe('SuggestionMenu', () => {
         results={[]}
         cityOptions={defaultCities}
         searchTerm="river"
-        menuProps={menuProps}
       />,
     );
 
@@ -65,18 +58,17 @@ describe('SuggestionMenu', () => {
     expect(screen.getByText('Vancouver')).toBeInTheDocument();
   });
 
-  it('does not render location label or items when cityOptions are empty', () => {
+  it('Renders the current location label even when cityOptions are empty', () => {
     render(
       <SuggestionMenu
         results={defaultResults}
         cityOptions={[]}
         searchTerm="river"
-        menuProps={menuProps}
       />,
     );
 
     expect(screen.getByText('Sites and trails')).toBeInTheDocument();
     expect(screen.getByText('River Walk')).toBeInTheDocument();
-    expect(screen.queryByText('Location')).not.toBeInTheDocument();
+    expect(screen.queryByText('Current location')).not.toBeInTheDocument();
   });
 });

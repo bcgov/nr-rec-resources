@@ -3,16 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
+import {
+  RenderMenuProps,
+  TypeaheadComponentProps,
+} from 'react-bootstrap-typeahead';
 import { useRecreationSuggestions } from '@/service/queries/recreation-resource';
 import { SuggestionMenu } from '@/components/recreation-suggestion-form/SuggestionMenu';
 import { SuggestionTypeahead } from '@shared/components/suggestion-typeahead/SuggestionTypeahead';
 import { useSearchCitiesApi } from '@/components/recreation-suggestion-form/hooks/useSearchCitiesApi';
 import { useCurrentLocation } from '@/components/recreation-suggestion-form/hooks/useCurrentLocation';
 import { useSearchInput } from '@/components/recreation-suggestion-form/hooks/useSearchInput';
-import {
-  RenderMenuProps,
-  TypeaheadComponentProps,
-} from 'react-bootstrap-typeahead';
 import NotificationToast from '@/components/notifications/NotificationToast';
 import {
   City as CitySuggestion,
@@ -100,9 +100,9 @@ const RecreationSuggestionForm = ({
   const renderMenu: TypeaheadComponentProps['renderMenu'] = useCallback(
     (results: Option[], menuProps: RenderMenuProps) => (
       <SuggestionMenu
+        {...menuProps}
         results={results as RecreationSuggestion[]}
         searchTerm={searchInputValue}
-        menuProps={menuProps}
         cityOptions={cityOptions}
       />
     ),
