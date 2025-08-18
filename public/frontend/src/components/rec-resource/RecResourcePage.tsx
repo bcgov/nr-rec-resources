@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Breadcrumbs, useResourceBreadcrumbs } from '@/components/breadcrumbs';
+import { Breadcrumbs, useBreadcrumbs } from '@/components/breadcrumbs';
 import PhotoGallery, {
   PhotoGalleryProps,
 } from '@/components/rec-resource/PhotoGallery';
@@ -109,7 +109,7 @@ const RecResourcePage = () => {
     .replace(/(^\w|\s\w)/g, (m) => m.toUpperCase());
 
   // Set up breadcrumbs for this resource page
-  useResourceBreadcrumbs(name);
+  useBreadcrumbs({ resourceName: name });
 
   const isThingsToDo = recreation_activity && recreation_activity.length > 0;
   const isAccess = recreation_access && recreation_access.length > 0;
