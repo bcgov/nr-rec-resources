@@ -24,7 +24,10 @@ export function useBreadcrumbs(options: UseBreadcrumbsOptions = {}) {
   const { autoGenerate = true, ...config } = options;
 
   // Memoize config to prevent unnecessary re-generations
-  const memoizedConfig = useMemo(() => config, [config]);
+  const memoizedConfig = useMemo(
+    () => config,
+    [config.resourceId, config.resourceName, config.customItems],
+  );
 
   /**
    * Manually set breadcrumb items
