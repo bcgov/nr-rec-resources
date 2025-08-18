@@ -35,8 +35,22 @@ jobs:
         BACKEND_IMAGE: ghcr.io/bcgov/nr-rec-resources/${{ inputs.app }}/backend:${{ inputs.tag }}
         FLYWAY_IMAGE: ghcr.io/bcgov/nr-rec-resources/migrations/rst:${{ inputs.tag }}
         FRONTEND_IMAGE: ghcr.io/bcgov/nr-rec-resources/${{ inputs.app }}/frontend:${{ inputs.tag }}
+        FRONTEND_PORT: "${{ inputs.app == 'admin' && '3001' || '3000' }}"
+        KEYCLOAK_AUTH_SERVER_URL: ${{ secrets.KEYCLOAK_AUTH_SERVER_URL }}
+        KEYCLOAK_REALM: ${{ secrets.KEYCLOAK_REALM }}
+        KEYCLOAK_CLIENT_ID: ${{ secrets.KEYCLOAK_CLIENT_ID }}
+        DAM_URL: ${{ secrets.DAM_URL }}
+        DAM_PRIVATE_KEY: ${{ secrets.DAM_PRIVATE_KEY }}
+        DAM_USER: ${{ secrets.DAM_USER }}
+        DAM_RST_PDF_COLLECTION_ID: ${{ secrets.DAM_RST_PDF_COLLECTION_ID }}
+        DAM_RST_IMAGE_COLLECTION_ID: ${{ secrets.DAM_RST_IMAGE_COLLECTION_ID }}
+        DAM_RESOURCE_TYPE_PDF: ${{ secrets.DAM_RESOURCE_TYPE_PDF }}
+        DAM_RESOURCE_TYPE_IMAGE: ${{ secrets.DAM_RESOURCE_TYPE_IMAGE }}
       run: docker compose up -d --wait
       continue-on-error: true
+    - name: Dump docker logs for debugging
+      if: ${{ inputs.local }}
+      uses: jwalton/gh-docker-logs@v2
     - name: Cache Playwright Browsers
       uses: actions/cache@v4
       id: playwright-cache
@@ -65,7 +79,11 @@ jobs:
         HAPPO_API_KEY: ${{ secrets.HAPPO_API_KEY }}
         HAPPO_API_SECRET: ${{ secrets.HAPPO_API_SECRET }}
         HAPPO_PROJECT: ${{ secrets.HAPPO_PROJECT }}
-        E2E_BASE_URL: ${{ inputs.local && 'http://localhost:3000' || secrets.E2E_BASE_URL }}
+        E2E_BASE_URL: "${{
+            inputs.local && inputs.app == 'admin' && 'http://localhost:3001' ||
+            inputs.local && inputs.app != 'admin' && 'http://localhost:3000' ||
+            secrets.E2E_BASE_URL
+          }}"
     - name: Dump docker logs on failure
       if: failure() && ${{ inputs.local }}
       uses: jwalton/gh-docker-logs@v2
