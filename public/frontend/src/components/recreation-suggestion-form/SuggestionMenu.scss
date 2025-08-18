@@ -3,3 +3,11 @@
   margin-top: 0.5rem;
   padding: 0rem 1rem;
 }
+
+.suggestion-menu {
+  max-height: 300px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  touch-action: pan-y;
+}

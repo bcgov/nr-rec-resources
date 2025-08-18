@@ -36,25 +36,23 @@ export const SuggestionMenu = ({
   results,
   searchTerm,
 }: SuggestionMenuProps) => {
-  const isResults = results && results.length > 0;
-  const isCityOptions = cityOptions && cityOptions.length > 0;
-  const resultsLength = results?.length ?? 0;
+  const showResultsLabel = results.length > 0;
 
   return (
-    <Menu {...menuProps}>
-      {isCityOptions && <div className="suggestion-menu-label">Location</div>}
+    <Menu {...menuProps} className="suggestion-menu">
+      <div className="suggestion-menu-label">Location</div>
       {cityOptions.map((option, index) => (
         <MenuItem
-          key={option.name}
+          key={`city-${option.name}`}
           option={option}
-          position={index + resultsLength}
+          position={index}
           className="dropdown-menu-item"
         >
           <SuggestionListCity searchTerm={searchTerm} city={option.name} />
         </MenuItem>
       ))}
 
-      {isResults && (
+      {showResultsLabel && (
         <div className="suggestion-menu-label">Sites and trails</div>
       )}
       {results.map((option: RecreationSuggestion, index: number) => {
@@ -69,7 +67,7 @@ export const SuggestionMenu = ({
           <MenuItem
             key={rec_resource_id}
             option={option}
-            position={index}
+            position={index + cityOptions.length}
             className="dropdown-menu-item"
           >
             <SuggestionListItem
