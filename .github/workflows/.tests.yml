@@ -78,5 +78,6 @@ jobs:
     with:
       app: ${{ inputs.app }}
       tag: ${{ github.sha }}
+      environment: dev
       local: true
     secrets: inherit
