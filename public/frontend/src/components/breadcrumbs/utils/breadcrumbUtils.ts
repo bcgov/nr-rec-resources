@@ -45,23 +45,3 @@ export function generateBreadcrumbs(
   // Default fallback - just home
   return [{ label: 'Home', href: ROUTE_PATHS.HOME, isCurrent: true }];
 }
-
-/**
- * Set breadcrumbs in the store
- */
-export function setBreadcrumbs(items: BreadcrumbItem[], store: any): void {
-  store.setState((prev: any) => ({
-    ...prev,
-    items,
-  }));
-}
-
-/**
- * Set previous route in the store
- */
-export function setPreviousRoute(route: string, store: any): void {
-  store.setState((prev: any) => ({
-    ...prev,
-    previousRoute: route,
-  }));
-}
