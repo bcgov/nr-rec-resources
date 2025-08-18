@@ -1,5 +1,6 @@
 import { GalleryFileCard } from "@/pages/rec-resource-page/components/RecResourceFileSection/GalleryFileCard";
 import type { GalleryFile } from "@/pages/rec-resource-page/types";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { vi } from "vitest";
@@ -12,9 +13,9 @@ vi.mock("@/components/clamp-lines", () => ({
 }));
 
 vi.mock("@fortawesome/react-fontawesome", () => ({
-  FontAwesomeIcon: ({ icon, ...props }: any) => (
+  FontAwesomeIcon: vi.fn(({ icon, ...props }: any) => (
     <svg {...props} data-icon={icon.iconName} />
-  ),
+  )),
 }));
 
 // Mock internal components
@@ -75,6 +76,7 @@ describe("GalleryFileCard", () => {
     date: "2025-01-01",
     url: "http://example.com/test.pdf",
     extension: "pdf",
+    type: "document",
   };
 
   const renderCard = (
@@ -193,6 +195,15 @@ describe("GalleryFileCard", () => {
       );
 
       expect(mockHandler).toHaveBeenCalledTimes(2);
+    });
+
+    it("displays faFileImage icon for image file upload error", () => {
+      renderCard({ uploadFailed: true, type: "image" });
+      const FontAwesomeIconCalls = (FontAwesomeIcon as any).mock.calls;
+      const found = FontAwesomeIconCalls.some(
+        ([props]: any[]) => props.icon && props.icon.iconName === "file-image", // icon name for faFileImage
+      );
+      expect(found).toBe(true);
     });
 
     it("shows retry and dismiss in dropdown for failed uploads", () => {
