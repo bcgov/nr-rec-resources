@@ -43,7 +43,7 @@ jobs:
         build_context: ${{ matrix.build_context }}
         build_file: ${{ matrix.package }}/Dockerfile
         sbom: 'false'
-        secrets: |
+        build_args: |
           VITE_KEYCLOAK_AUTH_SERVER_URL=${{ secrets.KEYCLOAK_AUTH_SERVER_URL }}
           VITE_KEYCLOAK_REALM=${{ secrets.KEYCLOAK_REALM }}
           VITE_KEYCLOAK_CLIENT_ID=${{ secrets.KEYCLOAK_CLIENT_ID }}
