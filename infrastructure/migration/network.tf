@@ -8,8 +8,8 @@ locals {
   }
   environment = local.env_map[lower(var.target_env) == "test" ? "dev" : lower(var.target_env)]
   vpc_name           = "${local.environment}"
-  availability_zones = ["a", "b"]
-  app_subnet_names   = [for az in local.availability_zones : "App_${local.environment}_az${az}_net"]
+  availability_zones = ["A", "B"]
+  app_subnet_names  = [for az in local.availability_zones : "${local.environment}-App-${az}"]
 
   app_security_group_name  = "App"
 }
