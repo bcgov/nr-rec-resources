@@ -3,6 +3,7 @@ x-var:
   - &POSTGRES_USER postgres
   - &POSTGRES_PASSWORD default
   - &POSTGRES_DATABASE postgres
+  - &POSTGRES_SCHEMA rst
 
 # Reusable envars for postgres
 x-postgres-vars: &postgres-vars
@@ -10,6 +11,7 @@ x-postgres-vars: &postgres-vars
   POSTGRES_USER: *POSTGRES_USER
   POSTGRES_PASSWORD: *POSTGRES_PASSWORD
   POSTGRES_DATABASE: *POSTGRES_DATABASE
+  POSTGRES_SCHEMA: *POSTGRES_SCHEMA
 
 services:
   database:
@@ -72,16 +74,18 @@ services:
       <<: *postgres-vars
       NODE_ENV: development
       PORT: 8000
-      KEYCLOAK_AUTH_SERVER_URL: ${KEYCLOAK_AUTH_SERVER_URL:-http://keycloak:8080/auth}
-      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-nr-rec-resources}
-      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-nr-rec-resources}
-      DAM_URL: ${DAM_URL:-http://dam:8080}
+      KEYCLOAK_AUTH_SERVER_URL: ${KEYCLOAK_AUTH_SERVER_URL:-}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-}
+      KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER:-}
+      DAM_URL: ${DAM_URL:-}
       DAM_PRIVATE_KEY: ${DAM_PRIVATE_KEY:-}
       DAM_USER: ${DAM_USER:-}
       DAM_RST_PDF_COLLECTION_ID: ${DAM_RST_PDF_COLLECTION_ID:-}
       DAM_RST_IMAGE_COLLECTION_ID: ${DAM_RST_IMAGE_COLLECTION_ID:-}
       DAM_RESOURCE_TYPE_PDF: ${DAM_RESOURCE_TYPE_PDF:-}
       DAM_RESOURCE_TYPE_IMAGE: ${DAM_RESOURCE_TYPE_IMAGE:-}
+      POSTGRES_SCHEMA: *POSTGRES_SCHEMA
     image: ${BACKEND_IMAGE:-backend}
     build:
       context: ./backend

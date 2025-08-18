@@ -31,22 +31,23 @@ jobs:
     - uses: actions/checkout@v5
     - name: Run Docker compose
       if: ${{ inputs.local }}
-      env:
-        BACKEND_IMAGE: ghcr.io/bcgov/nr-rec-resources/${{ inputs.app }}/backend:${{ inputs.tag }}
-        FLYWAY_IMAGE: ghcr.io/bcgov/nr-rec-resources/migrations/rst:${{ inputs.tag }}
-        FRONTEND_IMAGE: ghcr.io/bcgov/nr-rec-resources/${{ inputs.app }}/frontend:${{ inputs.tag }}
-        FRONTEND_PORT: "${{ inputs.app == 'admin' && '3001' || '3000' }}"
-        KEYCLOAK_AUTH_SERVER_URL: ${{ secrets.KEYCLOAK_AUTH_SERVER_URL }}
-        KEYCLOAK_REALM: ${{ secrets.KEYCLOAK_REALM }}
-        KEYCLOAK_CLIENT_ID: ${{ secrets.KEYCLOAK_CLIENT_ID }}
-        DAM_URL: ${{ secrets.DAM_URL }}
-        DAM_PRIVATE_KEY: ${{ secrets.DAM_PRIVATE_KEY }}
-        DAM_USER: ${{ secrets.DAM_USER }}
-        DAM_RST_PDF_COLLECTION_ID: ${{ secrets.DAM_RST_PDF_COLLECTION_ID }}
-        DAM_RST_IMAGE_COLLECTION_ID: ${{ secrets.DAM_RST_IMAGE_COLLECTION_ID }}
-        DAM_RESOURCE_TYPE_PDF: ${{ secrets.DAM_RESOURCE_TYPE_PDF }}
-        DAM_RESOURCE_TYPE_IMAGE: ${{ secrets.DAM_RESOURCE_TYPE_IMAGE }}
-      run: docker compose up -d --wait
+      run: |
+        export BACKEND_IMAGE=ghcr.io/bcgov/nr-rec-resources/${{ inputs.app }}/backend:${{ inputs.tag }}
+        export FRONTEND_IMAGE=ghcr.io/bcgov/nr-rec-resources/${{ inputs.app }}/frontend:${{ inputs.tag }}
+        export FLYWAY_IMAGE=ghcr.io/bcgov/nr-rec-resources/migrations/rst:${{ inputs.tag }}
+        export FRONTEND_PORT=$([ "${{ inputs.app }}" = "admin" ] && echo 3001 || echo 3000)
+        export KEYCLOAK_AUTH_SERVER_URL=${{ secrets.KEYCLOAK_AUTH_SERVER_URL }}
+        export KEYCLOAK_REALM=${{ secrets.KEYCLOAK_REALM }}
+        export KEYCLOAK_CLIENT_ID=${{ secrets.KEYCLOAK_CLIENT_ID }}
+        export KEYCLOAK_ISSUER=${{ secrets.KEYCLOAK_ISSUER }}
+        export DAM_URL=${{ secrets.DAM_URL }}
+        export DAM_PRIVATE_KEY=${{ secrets.DAM_PRIVATE_KEY }}
+        export DAM_USER=${{ secrets.DAM_USER }}
+        export DAM_RST_PDF_COLLECTION_ID=${{ secrets.DAM_RST_PDF_COLLECTION_ID }}
+        export DAM_RST_IMAGE_COLLECTION_ID=${{ secrets.DAM_RST_IMAGE_COLLECTION_ID }}
+        export DAM_RESOURCE_TYPE_PDF=${{ secrets.DAM_RESOURCE_TYPE_PDF }}
+        export DAM_RESOURCE_TYPE_IMAGE=${{ secrets.DAM_RESOURCE_TYPE_IMAGE }}
+        docker compose up -d --wait
       continue-on-error: true
     - name: Dump docker logs for debugging
       if: ${{ inputs.local }}
