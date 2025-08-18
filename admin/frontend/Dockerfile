@@ -7,6 +7,10 @@ ARG VITE_KEYCLOAK_AUTH_SERVER_URL
 ARG VITE_KEYCLOAK_REALM
 ARG VITE_KEYCLOAK_CLIENT_ID
 
+ENV VITE_KEYCLOAK_AUTH_SERVER_URL=$VITE_KEYCLOAK_AUTH_SERVER_URL
+ENV VITE_KEYCLOAK_REALM=$VITE_KEYCLOAK_REALM
+ENV VITE_KEYCLOAK_CLIENT_ID=$VITE_KEYCLOAK_CLIENT_ID
+
 # Copy root package.json and package-lock.json first (workspace root)
 COPY package.json package-lock.json ./
 
@@ -22,10 +26,7 @@ RUN npm install
 
 # Build your frontend (runs in admin/frontend folder)
 WORKDIR /app/admin/frontend
-RUN VITE_KEYCLOAK_AUTH_SERVER_URL=$VITE_KEYCLOAK_AUTH_SERVER_URL \
-    VITE_KEYCLOAK_REALM=$VITE_KEYCLOAK_REALM \
-    VITE_KEYCLOAK_CLIENT_ID=$VITE_KEYCLOAK_CLIENT_ID \
-    npm run deploy
+RUN npm run deploy
 
 # Deploy using Caddy to host static files
 FROM caddy:2.10.2-alpine
