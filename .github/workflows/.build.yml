@@ -17,6 +17,7 @@ jobs:
   build-containers:
     name: Builds
     runs-on: ubuntu-24.04
+    environment: dev
 
     strategy:
       matrix:
@@ -36,10 +37,14 @@ jobs:
 
     timeout-minutes: 10
     steps:
-      - uses: bcgov/action-builder-ghcr@v4.1.0
-        with:
-          package: ${{ matrix.package }}
-          tags: ${{ github.sha }}
-          build_context: ${{ matrix.build_context }}
-          build_file: ${{ matrix.package }}/Dockerfile
-          sbom: 'false'
+    - uses: bcgov/action-builder-ghcr@v4.1.0
+      with:
+        package: ${{ matrix.package }}
+        tags: ${{ github.sha }}
+        build_context: ${{ matrix.build_context }}
+        build_file: ${{ matrix.package }}/Dockerfile
+        sbom: 'false'
+        secrets: |
+          VITE_KEYCLOAK_AUTH_SERVER_URL=${{ secrets.KEYCLOAK_AUTH_SERVER_URL }}
+          VITE_KEYCLOAK_REALM=${{ secrets.KEYCLOAK_REALM }}
+          VITE_KEYCLOAK_CLIENT_ID=${{ secrets.KEYCLOAK_CLIENT_ID }}

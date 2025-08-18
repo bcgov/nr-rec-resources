@@ -72,6 +72,16 @@ services:
       <<: *postgres-vars
       NODE_ENV: development
       PORT: 8000
+      KEYCLOAK_AUTH_SERVER_URL: ${KEYCLOAK_AUTH_SERVER_URL:-http://keycloak:8080/auth}
+      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-nr-rec-resources}
+      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-nr-rec-resources}
+      DAM_URL: ${DAM_URL:-http://dam:8080}
+      DAM_PRIVATE_KEY: ${DAM_PRIVATE_KEY:-}
+      DAM_USER: ${DAM_USER:-}
+      DAM_RST_PDF_COLLECTION_ID: ${DAM_RST_PDF_COLLECTION_ID:-}
+      DAM_RST_IMAGE_COLLECTION_ID: ${DAM_RST_IMAGE_COLLECTION_ID:-}
+      DAM_RESOURCE_TYPE_PDF: ${DAM_RESOURCE_TYPE_PDF:-}
+      DAM_RESOURCE_TYPE_IMAGE: ${DAM_RESOURCE_TYPE_IMAGE:-}
     image: ${BACKEND_IMAGE:-backend}
     build:
       context: ./backend
@@ -86,14 +96,14 @@ services:
       context: ./frontend
     environment:
       BACKEND_URL: http://backend:8000
-      PORT: 3000
+      PORT: ${FRONTEND_PORT:-3000}
       NODE_ENV: development
       LOG_LEVEL: debug
     image: ${FRONTEND_IMAGE:-frontend}
-    ports: ['3000:3000']
+    ports: ["${FRONTEND_PORT:-3000}:${FRONTEND_PORT:-3000}"]
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:3000']
-    working_dir: '/app'
+      test: ["CMD", "curl", "-f", "http://localhost:${FRONTEND_PORT:-3000}"]
+    working_dir: "/app"
     depends_on:
       backend:
         condition: service_started
