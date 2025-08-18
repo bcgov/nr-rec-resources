@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHouse } from '@fortawesome/free-solid-svg-icons';
 import { BreadcrumbItem } from '../types';
+import { BreadcrumbItemProps } from 'react-bootstrap';
 
 /**
  * Render breadcrumb label with optional home icon
@@ -27,7 +28,7 @@ export function renderBreadcrumbLabel(
 export function getBreadcrumbItemProps(
   item: BreadcrumbItem,
   isLast: boolean,
-): Record<string, any> {
+): BreadcrumbItemProps {
   const isActive = item.isCurrent || isLast;
 
   return {
