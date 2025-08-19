@@ -2,6 +2,8 @@
  * Core breadcrumb types and interfaces
  */
 
+import { UIMatch } from 'react-router-dom';
+
 export interface BreadcrumbItem {
   /** Display label for the breadcrumb item */
   label: string;
@@ -13,6 +15,21 @@ export interface BreadcrumbItem {
   icon?: string;
 }
 
+// Type for breadcrumb function in handle
+export type BreadcrumbFunction = (
+  match: UIMatch,
+  context?: {
+    resourceName?: string;
+    [key: string]: any;
+  },
+) => BreadcrumbItem[];
+
+// Extend handle to include breadcrumb function
+export interface RouteHandle {
+  breadcrumb?: BreadcrumbFunction;
+}
+
+// Legacy interface for backward compatibility during migration
 export interface RouteBreadcrumbConfig {
   /** Route pattern (from ROUTE_PATHS) */
   route: string;
