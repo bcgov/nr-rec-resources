@@ -74,12 +74,12 @@ describe('Route Constants', () => {
 
     it('should generate correct recreation resource contact title with empty name', () => {
       const result = ROUTE_TITLES.REC_RESOURCE_CONTACT('');
-      expect(result).toBe(`Contact Us -  | ${SITE_TITLE}`);
+      expect(result).toBe(`Contact Us | ${SITE_TITLE}`);
     });
 
     it('should generate correct recreation resource contact title with undefined name', () => {
       const result = ROUTE_TITLES.REC_RESOURCE_CONTACT(undefined as any);
-      expect(result).toBe(`Contact Us - undefined | ${SITE_TITLE}`);
+      expect(result).toBe(`Contact Us | ${SITE_TITLE}`);
     });
   });
 });

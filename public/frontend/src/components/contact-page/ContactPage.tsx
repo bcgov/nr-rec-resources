@@ -10,6 +10,7 @@ import {
   CONTACT_PAGE_PAGE_SECTIONS,
   CONTACT_PAGE_POPULAR_TOPIC_LINKS,
   CONTACT_TOPICS,
+  CONTACT_TOPIC_LABELS,
 } from '@/components/contact-page/constants';
 
 export const ContactPage = () => {
@@ -85,26 +86,30 @@ export const ContactPage = () => {
                     >
                       <optgroup label="General">
                         <option value={CONTACT_TOPICS.RESERVATIONS}>
-                          Reservations, fees, and discounts
+                          {CONTACT_TOPIC_LABELS[CONTACT_TOPICS.RESERVATIONS]}
                         </option>
                         <option value={CONTACT_TOPICS.SITE_OR_TRAIL}>
-                          Site or Trail
+                          {CONTACT_TOPIC_LABELS[CONTACT_TOPICS.SITE_OR_TRAIL]}
                         </option>
                         <option value={CONTACT_TOPICS.CANNOT_FIND}>
-                          I cannot find what I'm looking for
+                          {CONTACT_TOPIC_LABELS[CONTACT_TOPICS.CANNOT_FIND]}
                         </option>
                         <option value={CONTACT_TOPICS.WILDFIRES}>
-                          Wildfires and Campfire Bans
+                          {CONTACT_TOPIC_LABELS[CONTACT_TOPICS.WILDFIRES]}
                         </option>
                       </optgroup>
                       <optgroup label="Report a violation">
                         <option value={CONTACT_TOPICS.RAPP}>
-                          Report All Poachers and Polluters
+                          {CONTACT_TOPIC_LABELS[CONTACT_TOPICS.RAPP]}
                         </option>
                         <option
                           value={CONTACT_TOPICS.NATURAL_RESOURCE_VIOLATION}
                         >
-                          Report a Natural Resource Violation
+                          {
+                            CONTACT_TOPIC_LABELS[
+                              CONTACT_TOPICS.NATURAL_RESOURCE_VIOLATION
+                            ]
+                          }
                         </option>
                       </optgroup>
                     </Form.Select>

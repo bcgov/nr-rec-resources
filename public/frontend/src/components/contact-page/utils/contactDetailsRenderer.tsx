@@ -2,14 +2,9 @@ import React from 'react';
 import { Stack, Image } from 'react-bootstrap';
 import rapp_logo from '../assets/rapp_logo.jpg';
 import bc_wildfire_app_logo from '../assets/bc_wildfire_app_logo.png';
+import { CONTACT_TOPICS } from '@/components/contact-page/constants';
 
-export type ContactTopic =
-  | 'Reservations, fees, and discounts'
-  | 'Site or Trail'
-  | "I cannot find what I'm looking for"
-  | 'Wildfires and Campfire Bans'
-  | 'Report All Poachers and Polluters'
-  | 'Report a Natural Resource Violation';
+export type ContactTopic = (typeof CONTACT_TOPICS)[keyof typeof CONTACT_TOPICS];
 
 interface ContactDetailsProps {
   topic: ContactTopic;
@@ -139,16 +134,16 @@ export const renderContactDetails = ({
   emailLink,
 }: ContactDetailsProps): React.ReactNode => {
   switch (topic) {
-    case 'Reservations, fees, and discounts':
+    case CONTACT_TOPICS.RESERVATIONS:
       return <ReservationsSection />;
-    case 'Site or Trail':
-    case "I cannot find what I'm looking for":
+    case CONTACT_TOPICS.SITE_OR_TRAIL:
+    case CONTACT_TOPICS.CANNOT_FIND:
       return <EmailSection emailLink={emailLink} />;
-    case 'Wildfires and Campfire Bans':
+    case CONTACT_TOPICS.WILDFIRES:
       return <WildfiresSection />;
-    case 'Report All Poachers and Polluters':
+    case CONTACT_TOPICS.RAPP:
       return <RAPPSection />;
-    case 'Report a Natural Resource Violation':
+    case CONTACT_TOPICS.NATURAL_RESOURCE_VIOLATION:
       return <NaturalResourceViolationSection />;
   }
 };

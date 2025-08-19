@@ -1,12 +1,24 @@
 import { PageSection } from '@/components/layout/PageWithScrollMenu';
 
+// Shorter, more manageable contact topic identifiers
 export const CONTACT_TOPICS = {
-  RESERVATIONS: 'Reservations, fees, and discounts',
-  SITE_OR_TRAIL: 'Site or Trail',
-  CANNOT_FIND: "I cannot find what I'm looking for",
-  WILDFIRES: 'Wildfires and Campfire Bans',
-  RAPP: 'Report All Poachers and Polluters',
-  NATURAL_RESOURCE_VIOLATION: 'Report a Natural Resource Violation',
+  RESERVATIONS: 'reservations',
+  SITE_OR_TRAIL: 'site-trail',
+  CANNOT_FIND: 'cannot-find',
+  WILDFIRES: 'wildfires',
+  RAPP: 'rapp',
+  NATURAL_RESOURCE_VIOLATION: 'resource-violation',
+} as const;
+
+// Display labels for dropdown options
+export const CONTACT_TOPIC_LABELS = {
+  [CONTACT_TOPICS.RESERVATIONS]: 'Reservations, fees, and discounts',
+  [CONTACT_TOPICS.SITE_OR_TRAIL]: 'Site or Trail',
+  [CONTACT_TOPICS.CANNOT_FIND]: "I cannot find what I'm looking for",
+  [CONTACT_TOPICS.WILDFIRES]: 'Wildfires and Campfire Bans',
+  [CONTACT_TOPICS.RAPP]: 'Report All Poachers and Polluters',
+  [CONTACT_TOPICS.NATURAL_RESOURCE_VIOLATION]:
+    'Report a Natural Resource Violation',
 } as const;
 
 export const CONTACT_PAGE_POPULAR_TOPIC_LINKS = [

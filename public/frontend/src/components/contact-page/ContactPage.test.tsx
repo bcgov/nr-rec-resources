@@ -2,6 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { ContactPage } from './ContactPage';
 import React from 'react';
 import { vi } from 'vitest';
+import { CONTACT_TOPICS } from '@/components/contact-page/constants';
 
 vi.mock('@/components/landing-page/components', () => ({
   SectionHeading: (props: any) => <div>{props.children}</div>,
@@ -66,7 +67,7 @@ describe('ContactPage', () => {
     ).toBeInTheDocument();
     // Change topic
     fireEvent.change(screen.getByLabelText('Topic'), {
-      target: { value: 'Site or Trail' },
+      target: { value: CONTACT_TOPICS.SITE_OR_TRAIL },
     });
     expect(
       screen.getByText(
@@ -79,7 +80,7 @@ describe('ContactPage', () => {
   it('renders wildfire section', () => {
     render(<ContactPage />);
     fireEvent.change(screen.getByLabelText('Topic'), {
-      target: { value: 'Wildfires and Campfire Bans' },
+      target: { value: CONTACT_TOPICS.WILDFIRES },
     });
     expect(
       screen.getAllByText('Wildfires and Campfire Bans')[0],
@@ -94,7 +95,7 @@ describe('ContactPage', () => {
   it('renders RAPP section', () => {
     render(<ContactPage />);
     fireEvent.change(screen.getByLabelText('Topic'), {
-      target: { value: 'Report All Poachers and Polluters' },
+      target: { value: CONTACT_TOPICS.RAPP },
     });
     expect(
       screen.getByText('Report All Poachers and Polluters (RAPP)'),
@@ -105,7 +106,7 @@ describe('ContactPage', () => {
   it('renders Natural Resource Violation section', () => {
     render(<ContactPage />);
     fireEvent.change(screen.getByLabelText('Topic'), {
-      target: { value: 'Report a Natural Resource Violation' },
+      target: { value: CONTACT_TOPICS.NATURAL_RESOURCE_VIOLATION },
     });
     expect(
       screen.getAllByText('Report a Natural Resource Violation')[0],
