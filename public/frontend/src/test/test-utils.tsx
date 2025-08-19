@@ -1,5 +1,4 @@
-import React, { ReactElement } from 'react';
-import { render, RenderOptions } from '@testing-library/react';
+import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
@@ -16,23 +15,6 @@ const createTestQueryClient = () =>
       },
     },
   });
-
-// Custom wrapper that includes all necessary providers
-const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
-  const queryClient = createTestQueryClient();
-
-  return (
-    <BrowserRouter>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </BrowserRouter>
-  );
-};
-
-// Custom render function that includes all providers
-const customRender = (
-  ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>,
-) => render(ui, { wrapper: AllTheProviders, ...options });
 
 // Wrapper for components that need only Router context
 const RouterWrapper = ({ children }: { children: React.ReactNode }) => (
@@ -132,5 +114,4 @@ export const mockApiError = (error: any) => ({
 
 // Export everything including the original render function
 export * from '@testing-library/react';
-export { customRender as render };
-export { RouterWrapper, QueryWrapper, AllTheProviders, createTestQueryClient };
+export { RouterWrapper, QueryWrapper, createTestQueryClient };

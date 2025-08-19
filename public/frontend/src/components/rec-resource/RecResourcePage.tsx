@@ -16,8 +16,9 @@ import {
 } from '@/components/rec-resource/section';
 import InfoAlert from '@/components/notifications/InfoAlert';
 import Status from '@/components/rec-resource/Status';
-import PageWithScrollMenu, {
+import {
   PageSection,
+  PageWithScrollMenu,
 } from '@/components/layout/PageWithScrollMenu';
 import locationDot from '@/images/fontAwesomeIcons/location-dot.svg';
 import PageTitle from '@/components/layout/PageTitle';
@@ -109,7 +110,9 @@ const RecResourcePage = () => {
     .replace(/(^\w|\s\w)/g, (m) => m.toUpperCase());
 
   // Set up breadcrumbs for this resource page
-  useBreadcrumbs({ resourceName: name });
+  useBreadcrumbs({
+    context: { resourceName: name, resourceId: rec_resource_id },
+  });
 
   const isThingsToDo = recreation_activity && recreation_activity.length > 0;
   const isAccess = recreation_access && recreation_access.length > 0;

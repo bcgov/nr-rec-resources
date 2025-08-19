@@ -25,27 +25,3 @@ export function setBreadcrumbs(items: BreadcrumbItem[]): void {
     items,
   }));
 }
-
-/**
- * Set previous route in the store
- */
-export function setPreviousRoute(route: string): void {
-  breadcrumbStore.setState((prev) => ({
-    ...prev,
-    previousRoute: route,
-  }));
-}
-
-/**
- * Clear all breadcrumbs
- */
-export function clearBreadcrumbs(): void {
-  setBreadcrumbs([]);
-}
-
-/**
- * Get current breadcrumb state
- */
-export function getBreadcrumbState(): BreadcrumbState {
-  return breadcrumbStore.state;
-}

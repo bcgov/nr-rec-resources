@@ -9,6 +9,11 @@ import { useFeatureSelection } from '@/components/search-map/hooks/useFeatureSel
 import { trackClickEvent } from '@/utils/matomo';
 import { renderWithQueryClient } from '@/test-utils';
 
+// Mock Header component that uses Link
+vi.mock('@/components/layout/Header', () => ({
+  default: () => <div data-testid="mock-header">Header</div>,
+}));
+
 const fitMock = vi.fn();
 const getZoomMock = vi.fn(() => 8);
 const setZoomMock = vi.fn();

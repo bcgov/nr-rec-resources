@@ -28,7 +28,7 @@ interface PageWithScrollMenuProps {
  * A wrapper component that handles scroll behavior and page menu functionality.
  * It manages section refs, scroll spy, and active section state automatically.
  */
-const PageWithScrollMenu: React.FC<PageWithScrollMenuProps> = ({
+export const PageWithScrollMenu: React.FC<PageWithScrollMenuProps> = ({
   sections,
   children,
   className = '',
@@ -91,5 +91,3 @@ const PageWithScrollMenu: React.FC<PageWithScrollMenuProps> = ({
     </Row>
   );
 };
-
-export default PageWithScrollMenu;

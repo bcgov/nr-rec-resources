@@ -6,6 +6,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { Breadcrumbs, BreadcrumbItem } from './index';
+import { setBreadcrumbs } from './store/breadcrumbStore';
 
 describe('Breadcrumb System', () => {
   beforeEach(() => {
@@ -26,6 +27,16 @@ describe('Breadcrumb System', () => {
     it('renders nothing when no breadcrumb items are provided', () => {
       renderWithRouter(<Breadcrumbs items={[]} />);
       expect(screen.queryByTestId('breadcrumbs')).not.toBeInTheDocument();
+    });
+
+    it('renders breadcrumbs from store when items prop is not provided', () => {
+      setBreadcrumbs([
+        { label: 'Store Home', href: '/' },
+        { label: 'Store Page', isCurrent: true },
+      ]);
+      renderWithRouter(<Breadcrumbs />);
+      expect(screen.getByTestId('breadcrumbs')).toBeInTheDocument();
+      expect(screen.getByText('Store Page')).toBeInTheDocument();
     });
 
     it('renders custom breadcrumb items when provided', () => {

@@ -1,8 +1,9 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import { useEffect } from 'react';
-import PageWithScrollMenu, {
+import {
   PageSection,
+  PageWithScrollMenu,
 } from '@/components/layout/PageWithScrollMenu';
 
 // Mock react-use-scrollspy

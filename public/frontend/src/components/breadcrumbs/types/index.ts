@@ -13,6 +13,10 @@ export interface BreadcrumbItem {
   icon?: string;
 }
 
+// Type for breadcrumb function in handle
+export type BreadcrumbFunction<T> = (context?: T) => BreadcrumbItem[];
+
+// Legacy interface for backward compatibility during migration
 export interface RouteBreadcrumbConfig {
   /** Route pattern (from ROUTE_PATHS) */
   route: string;

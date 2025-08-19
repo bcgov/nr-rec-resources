@@ -1,10 +1,11 @@
 import { SectionHeading } from '@/components/landing-page/components';
-import PageWithScrollMenu, {
+import {
   PageSection,
+  PageWithScrollMenu,
 } from '@/components/layout/PageWithScrollMenu';
 import { useState } from 'react';
 import './ContactPage.scss';
-import { Form, Stack, Container, Image } from 'react-bootstrap';
+import { Form, Stack, Image } from 'react-bootstrap';
 import rapp_logo from './assets/rapp_logo.jpg';
 import bc_wildfire_app_logo from './assets/bc_wildfire_app_logo.png';
 import { getContactEmailLink } from '@/utils/getContactEmailLink';
@@ -26,7 +27,9 @@ export const ContactPage = () => {
   });
 
   // Set up breadcrumbs based on context
-  useBreadcrumbs({ resourceName: recResource?.name });
+  useBreadcrumbs({
+    context: { resourceName: recResource?.name, resourceId: rec_resource_id },
+  });
 
   const emailLink = getContactEmailLink(recResource);
 
@@ -216,11 +219,9 @@ export const ContactPage = () => {
         />
       )}
 
-      <Container className="page contact-page">
+      <Stack gap={4} direction="vertical" className="page contact-page">
         <Breadcrumbs />
-        <h1 className="contact-page__title">
-          Contact Recreation Sites and Trails
-        </h1>
+        <h1>Contact Recreation Sites and Trails</h1>
         <PageWithScrollMenu sections={pageSections}>
           {(sectionRefs) => (
             <>
@@ -292,7 +293,7 @@ export const ContactPage = () => {
             </>
           )}
         </PageWithScrollMenu>
-      </Container>
+      </Stack>
     </div>
   );
 };

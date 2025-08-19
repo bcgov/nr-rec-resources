@@ -1,6 +1,19 @@
 import { render, screen, within } from '@testing-library/react';
 import Header from './Header';
 
+// Mock the Link component from react-router to avoid router context issues
+vi.mock('react-router', async () => {
+  const actual = await vi.importActual('react-router');
+  return {
+    ...actual,
+    Link: ({ children, to, ...props }: any) => (
+      <a href={to} {...props}>
+        {children}
+      </a>
+    ),
+  };
+});
+
 describe('the Header component', () => {
   it('renders the component correctly', () => {
     render(<Header />);
