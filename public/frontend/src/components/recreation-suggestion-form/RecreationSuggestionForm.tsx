@@ -3,16 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
+import {
+  RenderMenuProps,
+  TypeaheadComponentProps,
+} from 'react-bootstrap-typeahead';
 import { useRecreationSuggestions } from '@/service/queries/recreation-resource';
 import { SuggestionMenu } from '@/components/recreation-suggestion-form/SuggestionMenu';
 import { SuggestionTypeahead } from '@shared/components/suggestion-typeahead/SuggestionTypeahead';
 import { useSearchCitiesApi } from '@/components/recreation-suggestion-form/hooks/useSearchCitiesApi';
 import { useCurrentLocation } from '@/components/recreation-suggestion-form/hooks/useCurrentLocation';
 import { useSearchInput } from '@/components/recreation-suggestion-form/hooks/useSearchInput';
-import {
-  RenderMenuProps,
-  TypeaheadComponentProps,
-} from 'react-bootstrap-typeahead';
 import NotificationToast from '@/components/notifications/NotificationToast';
 import {
   City as CitySuggestion,
@@ -76,6 +76,8 @@ const RecreationSuggestionForm = ({
   const cityOptions = useMemo(() => {
     const searchText = searchInputValue?.toLowerCase() ?? '';
 
+    if (!searchText) return [currentLocationOption];
+
     const filteredCities = (citiesList ?? [])
       .filter(
         (city) =>
@@ -98,44 +100,64 @@ const RecreationSuggestionForm = ({
   const renderMenu: TypeaheadComponentProps['renderMenu'] = useCallback(
     (results: Option[], menuProps: RenderMenuProps) => (
       <SuggestionMenu
+        {...menuProps}
         results={results as RecreationSuggestion[]}
         searchTerm={searchInputValue}
-        menuProps={menuProps}
         cityOptions={cityOptions}
       />
     ),
     [searchInputValue, cityOptions],
   );
 
+  const performSearch = useCallback(
+    (inputValue: string) => {
+      const trimmed = inputValue.trim();
+      if (!trimmed && !allowEmptySearch) return;
+
+      const exactCityMatch = (citiesList ?? []).find(
+        (city) => city.name.toLowerCase() === trimmed.toLowerCase(),
+      );
+
+      if (exactCityMatch) {
+        handleCityOptionSearch(exactCityMatch);
+        trackClickEvent({
+          category: trackingName,
+          name: `Exact city match selected: ${exactCityMatch.name}`,
+        })();
+      } else {
+        handleSearch(trimmed);
+        trackClickEvent({
+          category: trackingName,
+          name: 'Search button clicked',
+        })();
+      }
+    },
+    [
+      allowEmptySearch,
+      citiesList,
+      handleCityOptionSearch,
+      handleSearch,
+      trackingName,
+    ],
+  );
+
   const handleSubmit = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
       const input = e.currentTarget.querySelector('input') as HTMLInputElement;
-      const inputValue = input?.value ?? '';
-
-      if (inputValue.trim() || allowEmptySearch) {
-        handleSearch(inputValue);
-      }
-      trackClickEvent({
-        category: trackingName,
-        name: 'Search button clicked',
-      })();
+      performSearch(input?.value ?? '');
     },
-    [allowEmptySearch, handleSearch, trackingName],
+    [performSearch],
   );
 
   const handleInputKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        const inputValue = (e.target as HTMLInputElement).value;
-
-        if (inputValue.trim() || allowEmptySearch) {
-          handleSearch(inputValue);
-        }
+        performSearch((e.target as HTMLInputElement).value);
       }
     },
-    [allowEmptySearch, handleSearch],
+    [performSearch],
   );
 
   const handleSuggestionChange = async (
@@ -208,8 +230,10 @@ const RecreationSuggestionForm = ({
           error={error}
           defaultValue={defaultSearchInputValue}
           suggestions={suggestions as RecreationSuggestion[]}
-          onSearch={setSearchInputValue}
+          onSearch={(text) => setSearchInputValue(text)}
+          onInputChange={(text) => setSearchInputValue(text)}
           renderMenu={renderMenu}
+          minLength={0}
           placeholder={SEARCH_PLACEHOLDER}
         />
         <Button variant={searchBtnVariant} type="submit" className="submit-btn">

@@ -1,4 +1,4 @@
-import { Menu, MenuItem, RenderMenuProps } from 'react-bootstrap-typeahead';
+import { Menu, MenuItem } from 'react-bootstrap-typeahead';
 import { SuggestionListCity } from '@/components/recreation-suggestion-form/SuggestionListCity';
 import { SuggestionListItem } from '@/components/recreation-suggestion-form/SuggestionListItem';
 import { Image } from 'react-bootstrap';
@@ -17,11 +17,6 @@ interface SuggestionMenuProps {
   results: RecreationSuggestion[];
   /** The current search term to highlight in suggestions. */
   searchTerm: string;
-  /**
-   * Props that will be passed to the Menu component within the Typeahead.
-   * These are important for rendering the menu correctly and handling interactions.
-   */
-  menuProps: RenderMenuProps;
   /** Array of city options for location-based suggestions. */
   cityOptions: City[];
 }
@@ -32,17 +27,26 @@ interface SuggestionMenuProps {
  */
 export const SuggestionMenu = ({
   cityOptions,
-  menuProps,
   results,
   searchTerm,
 }: SuggestionMenuProps) => {
-  const isResults = results && results.length > 0;
-  const isCityOptions = cityOptions && cityOptions.length > 0;
-  const resultsLength = results?.length ?? 0;
+  const showResultsLabel = results.length > 0;
 
   return (
-    <Menu {...menuProps}>
-      {isResults && (
+    <Menu className="suggestion-menu">
+      <div className="suggestion-menu-label">Location</div>
+      {cityOptions.map((option, index) => (
+        <MenuItem
+          key={`city-${option.name}`}
+          option={option}
+          position={index}
+          className="dropdown-menu-item"
+        >
+          <SuggestionListCity searchTerm={searchTerm} city={option.name} />
+        </MenuItem>
+      ))}
+
+      {showResultsLabel && (
         <div className="suggestion-menu-label">Sites and trails</div>
       )}
       {results.map((option: RecreationSuggestion, index: number) => {
@@ -57,7 +61,7 @@ export const SuggestionMenu = ({
           <MenuItem
             key={rec_resource_id}
             option={option}
-            position={index}
+            position={index + cityOptions.length}
             className="dropdown-menu-item"
           >
             <SuggestionListItem
@@ -74,17 +78,6 @@ export const SuggestionMenu = ({
           </MenuItem>
         );
       })}
-      {isCityOptions && <div className="suggestion-menu-label">Location</div>}
-      {cityOptions.map((option, index) => (
-        <MenuItem
-          key={option.name}
-          option={option}
-          position={index + resultsLength}
-          className="dropdown-menu-item"
-        >
-          <SuggestionListCity searchTerm={searchTerm} city={option.name} />
-        </MenuItem>
-      ))}
     </Menu>
   );
 };
