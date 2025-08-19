@@ -112,7 +112,7 @@ describe('ContactPage', () => {
       screen.getAllByText('Report a Natural Resource Violation')[0],
     ).toBeInTheDocument();
     expect(
-      screen.getByText((content, element) => {
+      screen.getByText((content) => {
         return content.includes(
           'if you wish to report an unauthorized activity',
         );

@@ -1,8 +1,8 @@
-import React from 'react';
-import { Stack, Image } from 'react-bootstrap';
-import rapp_logo from '../assets/rapp_logo.jpg';
-import bc_wildfire_app_logo from '../assets/bc_wildfire_app_logo.png';
+import { Image, Stack } from 'react-bootstrap';
 import { CONTACT_TOPICS } from '@/components/contact-page/constants';
+import rapp_logo from '@/components/contact-page/assets/rapp_logo.jpg';
+import bc_wildfire_app_logo from '@/components/contact-page/assets/bc_wildfire_app_logo.png';
+import { FC } from 'react';
 
 export type ContactTopic = (typeof CONTACT_TOPICS)[keyof typeof CONTACT_TOPICS];
 
@@ -11,7 +11,7 @@ interface ContactDetailsProps {
   emailLink: string;
 }
 
-const ReservationsSection: React.FC = () => (
+const ReservationsSection: FC = () => (
   <section className="contact-page__section contact-page__details">
     <h4 className="contact-page__details-title">
       Reservations, fees, and discounts

@@ -15,7 +15,6 @@ import {
 
 export const ContactPage = () => {
   const {
-    recResource,
     selectedTopic,
     setSelectedTopic,
     contactDetailsComponent,
@@ -29,7 +28,10 @@ export const ContactPage = () => {
       <Stack gap={4} direction="vertical" className="page contact-page">
         <Breadcrumbs />
         <h1>Contact Recreation Sites and Trails</h1>
-        <PageWithScrollMenu sections={CONTACT_PAGE_PAGE_SECTIONS}>
+        <PageWithScrollMenu
+          sections={CONTACT_PAGE_PAGE_SECTIONS}
+          className="contact-page__page-menu"
+        >
           {(sectionRefs) => (
             <>
               <section

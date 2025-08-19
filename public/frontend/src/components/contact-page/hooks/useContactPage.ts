@@ -11,10 +11,6 @@ import { CONTACT_TOPICS } from '../constants';
 import { ROUTE_TITLES } from '@/routes';
 
 interface UseContactPageReturn {
-  // Resource data
-  recResource: any;
-  isLoading: boolean;
-
   // Contact form state
   selectedTopic: ContactTopic;
   setSelectedTopic: (topic: ContactTopic) => void;
@@ -34,7 +30,7 @@ export const useContactPage = (): UseContactPageReturn => {
   const { id: rec_resource_id } = useParams();
 
   // Fetch resource data
-  const { data: recResource, isLoading } = useGetRecreationResourceById({
+  const { data: recResource } = useGetRecreationResourceById({
     id: rec_resource_id,
   });
 
@@ -72,10 +68,6 @@ export const useContactPage = (): UseContactPageReturn => {
   );
 
   return {
-    // Resource data
-    recResource,
-    isLoading,
-
     // Contact form state
     selectedTopic,
     setSelectedTopic: handleTopicChange,

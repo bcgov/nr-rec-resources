@@ -1,51 +1,77 @@
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
-import { MemoryRouter, useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import searchResultsStore from '@/store/searchResults';
 import * as recreationResourceQueries from '@/service/queries/recreation-resource';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import SearchPage from './SearchPage';
 import { renderWithQueryClient } from '@/test-utils';
 import { mockSearchResultsData } from '@/components/search/test/mock-data';
-
-const queryClient = new QueryClient();
 
 vi.mock('@/service/queries/recreation-resource');
 vi.mock('@/components/rec-resource/card/RecResourceCard', () => ({
   default: vi.fn(() => <div data-testid="mock-resource-card" />),
 }));
-
 vi.mock('@/components/search-map/SearchMap', () => ({
   default: vi.fn(() => <div data-testid="mock-search-map" />),
 }));
-
-vi.mock('@/service/queries/recreation-resource', () => ({
-  useSearchRecreationResourcesPaginated: vi.fn(),
-  useRecreationSuggestions: vi.fn(() => ({
-    data: [],
-    isLoading: false,
-  })),
+vi.mock('@/components/search/filters', () => ({
+  FilterChips: vi.fn(() => <div data-testid="mock-filter-chips" />),
+  FilterMenu: vi.fn(() => <div data-testid="mock-filter-menu" />),
+  FilterMenuMobile: vi.fn(({ isOpen }) =>
+    isOpen ? <div role="dialog" data-testid="mock-filter-menu-mobile" /> : null,
+  ),
 }));
-
-vi.mock('react-router-dom', async () => {
-  const actual =
-    await vi.importActual<typeof import('react-router-dom')>(
-      'react-router-dom',
-    );
-  return {
-    ...actual,
-    useSearchParams: vi.fn(),
-    useNavigate: vi.fn(),
-  };
-});
-
-vi.mock('@bcgov/prp-map', async () => ({
-  ...(await vi.importActual('@bcgov/prp-map')),
-  // Mock useGetMapStyles as it was causing flakey window is not defined errors in ci
-  useGetMapStyles: vi.fn(),
+vi.mock('@/components/search', () => ({
+  NoResults: vi.fn(() => (
+    <div data-testid="mock-no-results">
+      No sites or trails matched your search.
+    </div>
+  )),
+  SearchBanner: vi.fn(() => (
+    <div data-testid="mock-search-banner">
+      <input
+        placeholder="By name or community"
+        data-testid="mock-search-input"
+      />
+    </div>
+  )),
+  SearchMap: vi.fn(() => <div data-testid="mock-search-map" />),
+  SearchViewControls: vi.fn(() => (
+    <div data-testid="mock-search-view-controls" />
+  )),
 }));
-
-vi.mock('@/store/searchResults', async () => ({
+vi.mock('react-router-dom', async () => ({
+  ...(await vi.importActual<typeof import('react-router-dom')>(
+    'react-router-dom',
+  )),
+  useSearchParams: vi.fn(),
+  useNavigate: vi.fn(),
+}));
+vi.mock('@/components/LoadingButton', () => ({
+  LoadingButton: vi.fn(
+    ({ children, onClick, className, disabled, loading }) => (
+      <button
+        onClick={onClick}
+        className={className}
+        disabled={disabled}
+        data-loading={loading}
+      >
+        {children}
+      </button>
+    ),
+  ),
+}));
+vi.mock('@/components/layout/PageTitle', () => ({
+  default: vi.fn(() => null),
+}));
+vi.mock('@/store/filterChips', () => ({
+  default: {
+    state: { filterChips: [] },
+    setState: vi.fn(),
+    subscribe: vi.fn(),
+  },
+}));
+vi.mock('@/store/searchResults', () => ({
   default: {
     state: {
       currentPage: 1,
@@ -59,304 +85,329 @@ vi.mock('@/store/searchResults', async () => ({
     subscribe: vi.fn(),
   },
 }));
+vi.mock('@/components/search/hooks/useInitialPageFromSearchParams', () => ({
+  useInitialPageFromSearchParams: vi.fn(() => 1),
+}));
+vi.mock('@/components/search/utils/setFilterChipsFromSearchParams', () => ({
+  default: vi.fn(),
+}));
+vi.mock('@/utils/matomo', () => ({ trackEvent: vi.fn() }));
 
 describe('SearchPage', () => {
-  const mockQueryResult = {
+  const mockQueryResult = (overrides = {}) => ({
     data: mockSearchResultsData,
     fetchNextPage: vi.fn().mockResolvedValue({}),
     fetchPreviousPage: vi.fn(),
     hasNextPage: true,
     hasPreviousPage: false,
+    isFetching: false,
+    isFetchingNextPage: false,
+    isFetchingPreviousPage: false,
+    ...overrides,
+  });
+
+  const mockSearchParams = (params = {}) => {
+    const searchParams = new URLSearchParams(params);
+    const setSearchParams = vi.fn();
+    (useSearchParams as Mock).mockReturnValue([searchParams, setSearchParams]);
+    return setSearchParams;
+  };
+
+  const mockStoreState = (state = {}) => {
+    searchResultsStore.state = { ...mockSearchResultsData, ...state };
   };
 
   beforeEach(() => {
+    vi.clearAllMocks();
+    (useNavigate as Mock).mockReturnValue(vi.fn());
+    mockSearchParams();
+    mockStoreState();
+
+    // Mock scroll functionality
+    vi.spyOn(document, 'querySelector').mockImplementation((selector) => {
+      if (selector === '.search-container section') {
+        return { lastElementChild: { scrollIntoView: vi.fn() } } as any;
+      }
+      return null;
+    });
+
     vi.spyOn(
       recreationResourceQueries,
       'useSearchRecreationResourcesPaginated',
-    ).mockReturnValue(mockQueryResult as any);
-
-    vi.clearAllMocks();
-
-    // Mock hooks to avoid errors
-    (useNavigate as Mock).mockReturnValue(vi.fn());
-    (useSearchParams as Mock).mockReturnValue([new URLSearchParams(), vi.fn()]);
+    ).mockReturnValue(mockQueryResult() as any);
   });
 
-  it('displays correct singular/plural results text', async () => {
-    const setSearchParams = vi.fn();
-    const searchParams = new URLSearchParams({});
+  it('renders all main components', () => {
+    renderWithQueryClient(<SearchPage />);
+    expect(screen.getByTestId('mock-search-banner')).toBeInTheDocument();
+    expect(screen.getByTestId('mock-search-map')).toBeInTheDocument();
+    expect(screen.getByTestId('mock-filter-menu')).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('Open mobile filter menu'),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('mock-search-view-controls')).toBeInTheDocument();
+    expect(screen.getByTestId('mock-filter-chips')).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText('By name or community'),
+    ).toBeInTheDocument();
+  });
 
-    (useSearchParams as Mock).mockReturnValue([searchParams, setSearchParams]);
-
-    // Test singular case
-    const mockSingleResultData = {
-      ...mockSearchResultsData,
+  it('displays singular result count correctly', () => {
+    mockStoreState({
       totalCount: 1,
-      pages: [
-        {
-          ...mockSearchResultsData.pages[0],
-          data: [mockSearchResultsData.pages[0].data[0]],
-        },
-      ],
-    };
-
-    searchResultsStore.state = { ...mockSingleResultData, totalCount: 1 };
-
-    const { rerender } = renderWithQueryClient(<SearchPage />);
-
+      pages: [{ data: [mockSearchResultsData.pages[0].data[0]] }],
+    });
+    renderWithQueryClient(<SearchPage />);
     expect(screen.getByText('1')).toBeInTheDocument();
     expect(screen.getByText('Result')).toBeInTheDocument();
     expect(screen.getAllByTestId('mock-resource-card')).toHaveLength(1);
+  });
 
-    searchResultsStore.state = { ...mockSearchResultsData, totalCount: 2 };
-
-    rerender(
-      <QueryClientProvider client={queryClient}>
-        <MemoryRouter>
-          <SearchPage />
-        </MemoryRouter>
-      </QueryClientProvider>,
-    );
-
+  it('displays plural results count correctly', () => {
+    mockStoreState({ totalCount: 2 });
+    renderWithQueryClient(<SearchPage />);
     expect(screen.getByText('2')).toBeInTheDocument();
     expect(screen.getByText('Results')).toBeInTheDocument();
-    expect(screen.getAllByTestId('mock-resource-card')).toHaveLength(2);
   });
 
-  it('displays "contains" string if the filter is set', async () => {
-    const setSearchParams = vi.fn();
-    const searchParams = new URLSearchParams({
-      filter: 'test',
-    });
-
-    (useSearchParams as Mock).mockReturnValue([searchParams, setSearchParams]);
-
-    const mockSingleResultData = {
-      ...mockSearchResultsData,
-      totalCount: 1,
-      pages: [
-        {
-          ...mockSearchResultsData.pages[0],
-          data: [mockSearchResultsData.pages[0].data[0]],
-        },
-      ],
-    };
-
-    searchResultsStore.state = { ...mockSingleResultData, totalCount: 1 };
-
+  it('displays filter text when filter is set', () => {
+    mockSearchParams({ filter: 'test' });
+    mockStoreState({ totalCount: 1 });
     renderWithQueryClient(<SearchPage />);
-
-    expect(screen.getByText('1')).toBeInTheDocument();
     expect(screen.getByText('Result containing')).toBeInTheDocument();
-    expect(screen.getAllByTestId('mock-resource-card')).toHaveLength(1);
+    expect(screen.getByText("'test'")).toBeInTheDocument();
   });
 
-  it('handles load more button click and scrolls to last item', async () => {
-    const mockLastItem = document.createElement('div');
-    const mockScrollIntoView = vi.fn();
-    mockLastItem.scrollIntoView = mockScrollIntoView;
-
-    vi.spyOn(document, 'querySelector').mockReturnValue({
-      lastElementChild: mockLastItem,
-    } as unknown as Element);
-
-    vi.useFakeTimers();
-
-    renderWithQueryClient(<SearchPage />);
-
-    const loadMoreButton = screen.getByText('Load More');
-    fireEvent.click(loadMoreButton);
-
-    await vi.runAllTimersAsync();
-
-    expect(mockQueryResult.fetchNextPage).toHaveBeenCalled();
-    expect(mockScrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth' });
-
-    vi.useRealTimers();
-  });
-
-  it('handles mobile filter menu', () => {
-    renderWithQueryClient(<SearchPage />);
-
-    const filterButton = screen.getByLabelText('Open mobile filter menu');
-    fireEvent.click(filterButton);
-
-    expect(screen.getByRole('dialog')).toBeInTheDocument();
-  });
-
-  it('displays no results message when data is empty', () => {
-    const mockSearchResults = {
-      totalCount: 0,
-      pages: [
-        {
-          filters: [],
-          data: [],
-        },
-      ],
-    };
-
-    searchResultsStore.state = mockSearchResults as any;
-
-    renderWithQueryClient(<SearchPage />);
-
-    expect(
-      screen.getByText('No sites or trails matched your search.'),
-    ).toBeInTheDocument();
-  });
-
-  it('handles load previous button click', () => {
-    const mockQueryResultWithPrevious = {
-      ...mockQueryResult,
-      hasPreviousPage: true,
-    };
-
-    vi.spyOn(
-      recreationResourceQueries,
-      'useSearchRecreationResourcesPaginated',
-    ).mockReturnValue(mockQueryResultWithPrevious as any);
-
-    searchResultsStore.state = mockQueryResultWithPrevious as any;
-
-    renderWithQueryClient(<SearchPage />);
-
-    const loadPreviousButton = screen.getByText('Load Previous');
-    fireEvent.click(loadPreviousButton);
-
-    expect(mockQueryResultWithPrevious.fetchPreviousPage).toHaveBeenCalled();
-  });
-
-  it('handles null or undefined data gracefully', () => {
-    // Test case 1: undefined pages
-    searchResultsStore.state = { ...mockQueryResult, pages: undefined } as any;
-
-    const { rerender } = renderWithQueryClient(<SearchPage />);
-
-    expect(
-      screen.getByText('No sites or trails matched your search.'),
-    ).toBeInTheDocument();
-
-    // Test case 2: data with undefined pages and totalCount
-    searchResultsStore.state = {
-      ...mockQueryResult,
-      data: { pages: undefined, totalCount: undefined },
-    } as any;
-
-    rerender(
-      <QueryClientProvider client={queryClient}>
-        <MemoryRouter>
-          <SearchPage />
-        </MemoryRouter>
-      </QueryClientProvider>,
-    );
-
-    expect(
-      screen.getByText('No sites or trails matched your search.'),
-    ).toBeInTheDocument();
-  });
-
-  it('should display the progress bar when fetching data', () => {
-    vi.spyOn(
-      recreationResourceQueries,
-      'useSearchRecreationResourcesPaginated',
-    ).mockReturnValue({
-      ...mockQueryResult,
-      isFetching: true,
-    } as any);
-
-    renderWithQueryClient(<SearchPage />);
-
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
-  });
-
-  it('should not display the progress bar when not fetching data', () => {
-    vi.spyOn(
-      recreationResourceQueries,
-      'useSearchRecreationResourcesPaginated',
-    ).mockReturnValue({
-      ...mockQueryResult,
-      isFetching: false,
-    } as any);
-
-    renderWithQueryClient(<SearchPage />);
-
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
-  });
-
-  it('should display "Loading..." text when fetching data', () => {
-    vi.spyOn(
-      recreationResourceQueries,
-      'useSearchRecreationResourcesPaginated',
-    ).mockReturnValue({
-      ...mockQueryResult,
-      isFetching: true,
-    } as any);
-
-    renderWithQueryClient(<SearchPage />);
-
-    expect(screen.getByText('Searching...')).toBeInTheDocument();
-  });
-
-  it('should not display "Loading..." text when not fetching data', () => {
-    vi.spyOn(
-      recreationResourceQueries,
-      'useSearchRecreationResourcesPaginated',
-    ).mockReturnValue({
-      ...mockQueryResult,
-      isFetching: false,
-    } as any);
-
-    renderWithQueryClient(<SearchPage />);
-
-    expect(screen.queryByText('Searching...')).not.toBeInTheDocument();
-  });
-
-  it('should display the results count', async () => {
-    searchResultsStore.state = {
-      ...mockQueryResult,
-      totalCount: 5,
-    } as any;
-
-    const { container } = renderWithQueryClient(<SearchPage />);
-
-    await waitFor(() => {
-      const resultsTextDiv = container.querySelector('.results-text');
-      expect(resultsTextDiv).toBeInTheDocument();
-      expect(resultsTextDiv?.textContent).toContain('5');
-      expect(resultsTextDiv?.textContent).toContain('Results');
-    });
-  });
-
-  it('should display location in results count when lat, lon, and community are provided', async () => {
-    const setSearchParams = vi.fn();
-    const searchParams = new URLSearchParams({
+  it('displays location context when coordinates provided', async () => {
+    mockSearchParams({
       lat: '48.4284',
       lon: '-123.3656',
       community: 'Victoria',
     });
-
-    (useSearchParams as Mock).mockReturnValue([searchParams, setSearchParams]);
-
-    searchResultsStore.state = {
-      ...mockSearchResultsData,
-      totalCount: 5,
-    } as any;
-
+    mockStoreState({ totalCount: 5 });
     const { container } = renderWithQueryClient(<SearchPage />);
-
     await waitFor(() => {
       const resultsTextDiv = container.querySelector('.results-text');
-      expect(resultsTextDiv).toBeInTheDocument();
       expect(resultsTextDiv?.textContent).toContain(
         '5 Results  within 50 km radius of Victoria',
       );
     });
   });
 
-  it('should render the suggestion form', () => {
+  it('displays no results when data is empty', () => {
+    mockStoreState({ totalCount: 0, pages: [{ filters: [], data: [] }] });
     renderWithQueryClient(<SearchPage />);
+    expect(screen.getByTestId('mock-no-results')).toBeInTheDocument();
+  });
 
-    expect(
-      screen.getByPlaceholderText('By name or community'),
-    ).toBeInTheDocument();
+  it('handles null/undefined data gracefully', () => {
+    mockStoreState({ totalCount: undefined, pages: undefined });
+    renderWithQueryClient(<SearchPage />);
+    expect(screen.getByTestId('mock-no-results')).toBeInTheDocument();
+  });
+
+  it('handles zero count with data', () => {
+    mockStoreState({ totalCount: 0, pages: [{ data: [] }] });
+    renderWithQueryClient(<SearchPage />);
+    expect(screen.getByText('0')).toBeInTheDocument();
+    expect(screen.getByTestId('mock-no-results')).toBeInTheDocument();
+  });
+
+  it('handles undefined totalCount', () => {
+    mockStoreState({ totalCount: undefined, pages: [{ data: [] }] });
+    renderWithQueryClient(<SearchPage />);
+    expect(screen.getByText('Results')).toBeInTheDocument();
+    expect(screen.getByTestId('mock-no-results')).toBeInTheDocument();
+  });
+
+  it('handles empty pages array', () => {
+    mockStoreState({ totalCount: 0, pages: [] });
+    renderWithQueryClient(<SearchPage />);
+    expect(screen.getByTestId('mock-no-results')).toBeInTheDocument();
+  });
+
+  it('renders results when data is available', () => {
+    mockStoreState({
+      totalCount: 2,
+      pages: [{ data: mockSearchResultsData.pages[0].data }],
+    });
+    renderWithQueryClient(<SearchPage />);
+    expect(screen.queryByTestId('mock-no-results')).not.toBeInTheDocument();
+    expect(screen.getAllByTestId('mock-resource-card')).toHaveLength(2);
+  });
+
+  it('shows loading state when fetching first page', () => {
+    vi.spyOn(
+      recreationResourceQueries,
+      'useSearchRecreationResourcesPaginated',
+    ).mockReturnValue(mockQueryResult({ isFetching: true }) as any);
+    renderWithQueryClient(<SearchPage />);
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.getByText('Searching...')).toBeInTheDocument();
+  });
+
+  it('does not show progress bar when not fetching', () => {
+    renderWithQueryClient(<SearchPage />);
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(screen.queryByText('Searching...')).not.toBeInTheDocument();
+  });
+
+  it('hides progress bar during next page fetching', () => {
+    vi.spyOn(
+      recreationResourceQueries,
+      'useSearchRecreationResourcesPaginated',
+    ).mockReturnValue(
+      mockQueryResult({ isFetching: true, isFetchingNextPage: true }) as any,
+    );
+    renderWithQueryClient(<SearchPage />);
+    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+  });
+
+  it('handles load more with scroll behavior', async () => {
+    const queryResult = mockQueryResult();
+    const mockScrollIntoView = vi.fn();
+    vi.spyOn(
+      recreationResourceQueries,
+      'useSearchRecreationResourcesPaginated',
+    ).mockReturnValue(queryResult as any);
+    vi.spyOn(document, 'querySelector').mockReturnValue({
+      lastElementChild: { scrollIntoView: mockScrollIntoView },
+    } as any);
+    vi.useFakeTimers();
+
+    renderWithQueryClient(<SearchPage />);
+    fireEvent.click(screen.getByText('Load More'));
+    await vi.runAllTimersAsync();
+
+    expect(queryResult.fetchNextPage).toHaveBeenCalled();
+    expect(mockScrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth' });
+    vi.useRealTimers();
+  });
+
+  it('handles load previous button', () => {
+    const prevQueryResult = mockQueryResult({ hasPreviousPage: true });
+    vi.spyOn(
+      recreationResourceQueries,
+      'useSearchRecreationResourcesPaginated',
+    ).mockReturnValue(prevQueryResult as any);
+    renderWithQueryClient(<SearchPage />);
+    fireEvent.click(screen.getByText('Load Previous'));
+    expect(prevQueryResult.fetchPreviousPage).toHaveBeenCalled();
+  });
+
+  it('hides pagination buttons when unavailable', () => {
+    vi.spyOn(
+      recreationResourceQueries,
+      'useSearchRecreationResourcesPaginated',
+    ).mockReturnValue(
+      mockQueryResult({ hasNextPage: false, hasPreviousPage: false }) as any,
+    );
+    renderWithQueryClient(<SearchPage />);
+    expect(screen.queryByText('Load More')).not.toBeInTheDocument();
+    expect(screen.queryByText('Load Previous')).not.toBeInTheDocument();
+  });
+
+  it('handles undefined currentPage in pagination', async () => {
+    const setSearchParams = mockSearchParams({});
+    const queryResult = mockQueryResult({
+      data: { ...mockSearchResultsData, currentPage: undefined },
+    });
+    vi.spyOn(
+      recreationResourceQueries,
+      'useSearchRecreationResourcesPaginated',
+    ).mockReturnValue(queryResult as any);
+    vi.useFakeTimers();
+
+    renderWithQueryClient(<SearchPage />);
+    fireEvent.click(screen.getByText('Load More'));
+    await vi.runAllTimersAsync();
+
+    expect(setSearchParams).toHaveBeenCalledWith({ page: '2' });
+    vi.useRealTimers();
+  });
+
+  it('handles mobile filter menu interactions', () => {
+    renderWithQueryClient(<SearchPage />);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByLabelText('Open mobile filter menu'));
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+  });
+
+  it('handles map view parameter', () => {
+    mockSearchParams({ view: 'map' });
+    renderWithQueryClient(<SearchPage />);
+    expect(screen.getByTestId('mock-search-map')).toBeInTheDocument();
+  });
+
+  it('handles list view parameter', () => {
+    mockSearchParams({ view: 'list' });
+    renderWithQueryClient(<SearchPage />);
+    expect(screen.getByTestId('mock-search-map')).toBeInTheDocument();
+  });
+
+  it('handles all search parameters', () => {
+    const params = {
+      filter: 'campground',
+      district: 'Peace',
+      activities: '1,2,3',
+      access: 'boat',
+      facilities: 'tent',
+      lat: '49.2827',
+      lon: '-123.1207',
+      community: 'Vancouver',
+      type: 'recreation_site',
+      page: '2',
+    };
+    mockSearchParams(params);
+    renderWithQueryClient(<SearchPage />);
+    expect(screen.getByTestId('mock-search-banner')).toBeInTheDocument();
+  });
+
+  it('handles missing search parameters', () => {
+    mockSearchParams({});
+    renderWithQueryClient(<SearchPage />);
+    expect(screen.getByTestId('mock-search-banner')).toBeInTheDocument();
+  });
+
+  it('handles invalid parameters', () => {
+    mockSearchParams({ lat: 'invalid', lon: 'invalid' });
+    renderWithQueryClient(<SearchPage />);
+    expect(screen.getByTestId('mock-search-banner')).toBeInTheDocument();
+  });
+
+  it('updates store when data changes', () => {
+    const mockSetState = vi.fn();
+    searchResultsStore.setState = mockSetState;
+
+    renderWithQueryClient(<SearchPage />);
+    expect(mockSetState).toHaveBeenCalled();
+  });
+
+  it('disables load more when fetching next page', () => {
+    vi.spyOn(
+      recreationResourceQueries,
+      'useSearchRecreationResourcesPaginated',
+    ).mockReturnValue(mockQueryResult({ isFetchingNextPage: true }) as any);
+    renderWithQueryClient(<SearchPage />);
+    const loadMoreButton = screen.getByText('Load More');
+    expect(loadMoreButton).toBeDisabled();
+    expect(loadMoreButton).toHaveAttribute('data-loading', 'true');
+  });
+
+  it('disables load previous when fetching previous page', () => {
+    vi.spyOn(
+      recreationResourceQueries,
+      'useSearchRecreationResourcesPaginated',
+    ).mockReturnValue(
+      mockQueryResult({
+        hasPreviousPage: true,
+        isFetchingPreviousPage: true,
+      }) as any,
+    );
+    renderWithQueryClient(<SearchPage />);
+    const loadPreviousButton = screen.getByText('Load Previous');
+    expect(loadPreviousButton).toBeDisabled();
+    expect(loadPreviousButton).toHaveAttribute('data-loading', 'true');
   });
 });

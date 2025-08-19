@@ -9,13 +9,13 @@ type PageSection = {
 
 type PageMenuProps = {
   pageSections: PageSection[];
-  activeSection: number;
+  activeSection?: number;
   onMenuClick?: (sectionIndex: number) => void; // Added optional prop for click handler
 };
 
 const PageMenu: React.FC<PageMenuProps> = ({
   pageSections,
-  activeSection,
+  activeSection = 0,
   onMenuClick,
 }) => {
   return (

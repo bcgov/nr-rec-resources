@@ -1,36 +1,12 @@
 @import '@shared/styles/variables.scss';
 
 .contact-page {
-  a {
-    text-decoration: underline;
-  }
-
-  &__sidebar {
-    background: none;
-    padding-top: 2rem;
-
-    &-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      margin-bottom: 1rem;
-      color: $colorGrey;
-    }
-    &-nav {
-      margin-left: 0;
-    }
-    &-link {
-      color: $colorBlueMed;
-      font-size: 1.1rem;
-      margin-bottom: 0.75rem;
-      &:hover {
+  &__page-menu {
+    &-content {
+      a {
         text-decoration: underline;
-        color: $colorBlue;
       }
     }
-  }
-
-  &__main {
-    padding-top: 2rem;
   }
 
   &__section {

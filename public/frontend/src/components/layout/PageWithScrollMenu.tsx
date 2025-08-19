@@ -64,10 +64,10 @@ export const PageWithScrollMenu: React.FC<PageWithScrollMenuProps> = ({
     offsetPx,
   });
 
-  const [activeSection, setActiveSection] = useState(0);
+  const [activeSection, setActiveSection] = useState<number | undefined>(0);
 
   useEffect(() => {
-    setActiveSection(activeScrollSection ?? 0);
+    setActiveSection(activeScrollSection);
   }, [activeScrollSection]);
 
   const handleMenuClick = (sectionIndex: number) => {
@@ -80,14 +80,16 @@ export const PageWithScrollMenu: React.FC<PageWithScrollMenuProps> = ({
 
   return (
     <Row className={className}>
-      <Col md={3}>
+      <Col className={`${className}-side-bar`} md={3}>
         <PageMenu
           pageSections={pageSections}
           activeSection={activeSection}
           onMenuClick={handleMenuClick}
         />
       </Col>
-      <Col md={9}>{children(sectionRefs.current)}</Col>
+      <Col className={`${className}-content`} md={9}>
+        {children(sectionRefs.current)}
+      </Col>
     </Row>
   );
 };

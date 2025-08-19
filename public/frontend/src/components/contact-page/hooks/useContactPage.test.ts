@@ -13,7 +13,6 @@ vi.mock(
   () => ({
     useGetRecreationResourceById: () => ({
       data: { name: 'Test Resource' },
-      isLoading: false,
     }),
   }),
 );
@@ -37,12 +36,15 @@ vi.mock('@/routes', () => ({
   },
 }));
 
-describe('useContactPageLogic', () => {
+describe('useContactPage', () => {
   it('should return all necessary data and functions', () => {
     const { result } = renderHook(() => useContactPage());
 
-    expect(result.current).toHaveProperty('recResource');
-    expect(result.current).toHaveProperty('isLoading');
+    expect(result.current).toHaveProperty('selectedTopic');
+    expect(result.current).toHaveProperty('setSelectedTopic');
+    expect(result.current).toHaveProperty('contactDetailsComponent');
+    expect(result.current).toHaveProperty('emailLink');
+    expect(result.current).toHaveProperty('pageTitle');
     expect(result.current).toHaveProperty('selectedTopic');
     expect(result.current).toHaveProperty('setSelectedTopic');
     expect(result.current).toHaveProperty('contactDetailsComponent');
