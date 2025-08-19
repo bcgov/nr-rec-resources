@@ -1,0 +1,154 @@
+import React from 'react';
+import { Stack, Image } from 'react-bootstrap';
+import rapp_logo from '../assets/rapp_logo.jpg';
+import bc_wildfire_app_logo from '../assets/bc_wildfire_app_logo.png';
+
+export type ContactTopic =
+  | 'Reservations, fees, and discounts'
+  | 'Site or Trail'
+  | "I cannot find what I'm looking for"
+  | 'Wildfires and Campfire Bans'
+  | 'Report All Poachers and Polluters'
+  | 'Report a Natural Resource Violation';
+
+interface ContactDetailsProps {
+  topic: ContactTopic;
+  emailLink: string;
+}
+
+const ReservationsSection: React.FC = () => (
+  <section className="contact-page__section contact-page__details">
+    <h4 className="contact-page__details-title">
+      Reservations, fees, and discounts
+    </h4>
+    <p className="contact-page__details-desc">
+      <strong>
+        The majority of recreation sites are on a "first come, first served"
+        basis and cannot be booked ahead of time.
+      </strong>
+    </p>
+    <p className="contact-page__details-desc">
+      Check the description section of the site you're interested in to get more
+      details about fees and reservations.
+    </p>
+    <Stack gap={3}>
+      <a href="#">Reservations, fees, and discounts</a>
+      <a href="#">Search for a site or trail</a>
+    </Stack>
+  </section>
+);
+
+const EmailSection: React.FC<{ emailLink: string }> = ({ emailLink }) => (
+  <section className="contact-page__section contact-page__details">
+    <Stack gap={3}>
+      <h4 className="contact-page__email-title">Email</h4>
+      <p className="mb-0">
+        We answer emails weekdays from 8:30am to 4:30pm Pacific Time. We make
+        every effort to respond within a week, but it may take longer during
+        peak summer season.
+      </p>
+      <a href={emailLink}>recinfo@gov.bc.ca</a>
+    </Stack>
+  </section>
+);
+
+const WildfiresSection: React.FC = () => (
+  <section className="contact-page__section contact-page__details">
+    <h3 className="contact-page__details-title">Wildfires and Campfire Bans</h3>
+    <div className="contact-page__details-desc">
+      <Stack gap={3}>
+        <Image src={bc_wildfire_app_logo} width={78} height={78} />
+        <div>
+          <strong>WildfireBC</strong>
+          <div>
+            Visit{' '}
+            <a
+              href="https://wildfiresituation.nrs.gov.bc.ca/map"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              WildfireBC
+            </a>{' '}
+            for more information.
+          </div>
+        </div>
+        <div>
+          <strong>Report a Wildfire</strong>
+          <br />
+          <a href="tel:18006635555">1 800 663-5555</a> or{' '}
+          <a href="tel:*5555">*5555 on a cell</a>
+        </div>
+        <div>
+          <strong>Wildfire Information Line</strong>
+          <br />
+          <a href="tel:18883367378">1 888 336-7378</a>
+        </div>
+        <div>
+          <strong>Burn Registration Line</strong>
+          <br />
+          <a href="tel:18887971717">1 888 797-1717</a>
+        </div>
+        <div>
+          <strong>Campfire Bans</strong>
+          <br />
+          <a
+            href="https://www2.gov.bc.ca/gov/content/safety/wildfire-status/prevention/fire-bans-and-restrictions"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Learn more about fire prohibitions and restrictions
+          </a>
+        </div>
+      </Stack>
+    </div>
+  </section>
+);
+
+const RAPPSection: React.FC = () => (
+  <section className="contact-page__section contact-page__details">
+    <h3 className="contact-page__details-title">
+      Report All Poachers and Polluters (RAPP)
+    </h3>
+    <p className="contact-page__details-desc">
+      Use the <a href="https://forms.gov.bc.ca/environment/rapp/">RAPP form</a>{' '}
+      to report known or suspected violations of fisheries, wildlife, or
+      environmental protection laws, except salmon-related violations.
+    </p>
+    <Image src={rapp_logo} />
+  </section>
+);
+
+const NaturalResourceViolationSection: React.FC = () => (
+  <section className="contact-page__section contact-page__details">
+    <h3 className="contact-page__details-title">
+      Report a Natural Resource Violation
+    </h3>
+    <p className="contact-page__details-desc">
+      Use the{' '}
+      <a href="https://forms.gov.bc.ca/industry/report-a-natural-resource-violation">
+        Natural Resource Violation form
+      </a>{' '}
+      if you wish to report an unauthorized activity (a contravention of the
+      law) or a contravention of an authorization (licence, lease, etc.).
+    </p>
+  </section>
+);
+
+export const renderContactDetails = ({
+  topic,
+  emailLink,
+}: ContactDetailsProps): React.ReactNode => {
+  switch (topic) {
+    case 'Reservations, fees, and discounts':
+      return <ReservationsSection />;
+    case 'Site or Trail':
+    case "I cannot find what I'm looking for":
+      return <EmailSection emailLink={emailLink} />;
+    case 'Wildfires and Campfire Bans':
+      return <WildfiresSection />;
+    case 'Report All Poachers and Polluters':
+      return <RAPPSection />;
+    case 'Report a Natural Resource Violation':
+      return <NaturalResourceViolationSection />;
+  }
+};

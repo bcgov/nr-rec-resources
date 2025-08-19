@@ -20,7 +20,7 @@ describe('RouteChangeScrollReset', () => {
         <RouteChangeScrollReset>
           <div>Test Content</div>
         </RouteChangeScrollReset>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(getByText('Test Content')).toBeInTheDocument();
@@ -32,7 +32,7 @@ describe('RouteChangeScrollReset', () => {
         <RouteChangeScrollReset>
           <div>Test Content</div>
         </RouteChangeScrollReset>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(window.scrollTo).toHaveBeenCalledWith(0, 0);
@@ -65,7 +65,7 @@ describe('RouteChangeScrollReset', () => {
           <div>First Child</div>
           <div>Second Child</div>
         </RouteChangeScrollReset>
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     expect(getByText('First Child')).toBeInTheDocument();
@@ -76,7 +76,7 @@ describe('RouteChangeScrollReset', () => {
     const { container } = render(
       <MemoryRouter>
         <RouteChangeScrollReset children={null} />
-      </MemoryRouter>
+      </MemoryRouter>,
     );
 
     // The component should still render without errors
