@@ -41,9 +41,6 @@ export class LayoutPOM {
 
   async clickFindARecreationSiteOrTrail() {
     await this.page.click('header a[href="/search"]');
-
-    await this.page.waitForNavigation();
-
     expect(this.page.url()).toBe(`${BASE_URL}/search`);
   }
 }

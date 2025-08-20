@@ -67,6 +67,7 @@ const linkColumns = [
             href={EXTERNAL_LINKS.FACEBOOK_BC_REC}
             target="_blank"
             rel="noreferrer noopener"
+            aria-label="Facebook BC Recreation Sites and Trails"
           >
             <FontAwesomeIcon
               className="icon"
@@ -114,7 +115,7 @@ const Footer = () => {
         </p>
       </div>
       <div className="home-footer" id="home-footer">
-        <div className="row no-gutters">
+        <div className="row no-gutters pb-2">
           <div className="col col-12 col-md-4 logo-column">
             <div className="mb-5">
               <a className="d-inline-block" href="/">
@@ -141,7 +142,7 @@ const Footer = () => {
             </div>
           </div>
         </div>
-        <div className="text-left pt-4 mt-3 border-top border-white">
+        <div className="text-left pt-4 mt-4 border-top border-white">
           {footerLinks.map((item, index) => (
             <FooterLink key={index} title={item.title} url={item.url} />
           ))}

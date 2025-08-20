@@ -1,11 +1,11 @@
-import { ReactNode } from 'react';
+import { ReactNode, memo, useCallback } from 'react';
 import { trackClickEvent } from '@/utils/matomo';
 import { Stack } from 'react-bootstrap';
 
 interface LinkProps {
-  title?: string;
+  title: string;
   url?: string;
-  component: ReactNode;
+  component?: ReactNode;
 }
 
 interface LinkColumnProps {
@@ -13,16 +13,33 @@ interface LinkColumnProps {
   links: LinkProps[];
 }
 
-const FooterLinkColumn = ({ title, links }: LinkColumnProps) => {
+const FooterLinkColumn = memo(({ title, links }: LinkColumnProps) => {
+  const handleButtonClick = useCallback((linkTitle: string) => {
+    trackClickEvent({
+      category: 'Footer link',
+      name: `Footer link - ${linkTitle}`,
+    })();
+  }, []);
+
+  const handleButtonKeyDown = useCallback(
+    (linkTitle: string, e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        handleButtonClick(linkTitle);
+      }
+    },
+    [handleButtonClick],
+  );
+
   return (
     <div className="col-md-4 links-column">
       <div>
         <p className="footer-heading">{title}</p>
         <hr />
         <Stack gap={3}>
-          {links.map((link, linkIndex) =>
+          {links.map((link) =>
             !link.component ? (
-              <span key={linkIndex} className="paragraph-links mb-0">
+              <span key={link.title} className="paragraph-links mb-0">
                 <a
                   href={link.url}
                   target="_blank"
@@ -36,22 +53,21 @@ const FooterLinkColumn = ({ title, links }: LinkColumnProps) => {
                 </a>
               </span>
             ) : (
-              <span
-                key={linkIndex}
+              <div
+                key={link.title}
                 className="paragraph-links mb-0"
-                onClick={trackClickEvent({
-                  category: 'Footer link',
-                  name: `Footer link - ${link.title}`,
-                })}
+                onClick={() => handleButtonClick(link.title)}
+                onKeyDown={(e) => handleButtonKeyDown(link.title, e)}
+                tabIndex={0}
               >
                 {link.component}
-              </span>
+              </div>
             ),
           )}
         </Stack>
       </div>
     </div>
   );
-};
+});
 
 export default FooterLinkColumn;

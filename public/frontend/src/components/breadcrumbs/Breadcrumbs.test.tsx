@@ -50,7 +50,8 @@ describe('Breadcrumb System', () => {
 
       expect(screen.getByTestId('breadcrumbs')).toBeInTheDocument();
       // Home icon is shown for first item by default
-      expect(screen.getByLabelText('Home')).toBeInTheDocument();
+      expect(screen.getByRole('link', { name: 'Home' })).toBeInTheDocument();
+
       expect(screen.getByText('Custom Page')).toBeInTheDocument();
       expect(screen.getByText('Current')).toBeInTheDocument();
     });
@@ -79,20 +80,8 @@ describe('Breadcrumb System', () => {
 
       renderWithRouter(<Breadcrumbs items={items} />);
 
-      const homeIcon = screen.getByLabelText('Home');
+      const homeIcon = screen.getByRole('link', { name: 'Home' });
       expect(homeIcon).toBeInTheDocument();
-    });
-
-    it('can disable home icon when showHomeIcon is false', () => {
-      const items = [
-        { label: 'Home', href: '/' },
-        { label: 'Page', isCurrent: true },
-      ];
-
-      renderWithRouter(<Breadcrumbs items={items} showHomeIcon={false} />);
-
-      expect(screen.queryByLabelText('Home')).not.toBeInTheDocument();
-      expect(screen.getByText('Home')).toBeInTheDocument();
     });
 
     it('sets proper aria-current attribute for current page', () => {

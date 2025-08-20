@@ -33,6 +33,7 @@ const ReservationsSection: FC = () => (
         href="https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/planning/fees"
         target="_blank"
         rel="noopener noreferrer"
+        aria-label="Reservations, fees, and discounts information (opens in new window)"
       >
         Reservations, fees, and discounts
       </a>
@@ -50,7 +51,9 @@ const EmailSection: React.FC<{ emailLink: string }> = ({ emailLink }) => (
         every effort to respond within a week, but it may take longer during
         peak summer season.
       </p>
-      <a href={emailLink}>recinfo@gov.bc.ca</a>
+      <a href={emailLink} aria-label="Send email to recreation information">
+        recinfo@gov.bc.ca
+      </a>
     </Stack>
   </section>
 );
@@ -60,7 +63,12 @@ const WildfiresSection: React.FC = () => (
     <h3 className="contact-page__details-title">Wildfires and Campfire Bans</h3>
     <div className="contact-page__details-desc">
       <Stack gap={3}>
-        <Image src={bc_wildfire_app_logo} width={78} height={78} />
+        <Image
+          src={bc_wildfire_app_logo}
+          width={78}
+          height={78}
+          alt="BC Wildfire Service logo"
+        />
         <div>
           <strong>WildfireBC</strong>
           <div>
@@ -69,6 +77,7 @@ const WildfiresSection: React.FC = () => (
               href="https://wildfiresituation.nrs.gov.bc.ca/map"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="WildfireBC interactive map (opens in new window)"
             >
               WildfireBC
             </a>{' '}
@@ -78,18 +87,39 @@ const WildfiresSection: React.FC = () => (
         <div>
           <strong>Report a Wildfire</strong>
           <br />
-          <a href="tel:18006635555">1 800 663-5555</a> or{' '}
-          <a href="tel:*5555">*5555 on a cell</a>
+          <a
+            href="tel:+18006635555"
+            aria-label="Call 1 800 663-5555 to report a wildfire"
+          >
+            1 800 663-5555
+          </a>{' '}
+          or{' '}
+          <a
+            href="tel:*5555"
+            aria-label="Call *5555 from cell phone to report a wildfire"
+          >
+            *5555 on a cell
+          </a>
         </div>
         <div>
           <strong>Wildfire Information Line</strong>
           <br />
-          <a href="tel:18883367378">1 888 336-7378</a>
+          <a
+            href="tel:+18883367378"
+            aria-label="Call 1 888 336-7378 for wildfire information"
+          >
+            1 888 336-7378
+          </a>
         </div>
         <div>
           <strong>Burn Registration Line</strong>
           <br />
-          <a href="tel:18887971717">1 888 797-1717</a>
+          <a
+            href="tel:+18887971717"
+            aria-label="Call 1 888 797-1717 for burn registration"
+          >
+            1 888 797-1717
+          </a>
         </div>
         <div>
           <strong>Campfire Bans</strong>
@@ -98,6 +128,7 @@ const WildfiresSection: React.FC = () => (
             href="https://www2.gov.bc.ca/gov/content/safety/wildfire-status/prevention/fire-bans-and-restrictions"
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="Learn more about fire prohibitions and restrictions (opens in new window)"
           >
             Learn more about fire prohibitions and restrictions
           </a>
@@ -118,13 +149,17 @@ const RAPPSection: React.FC = () => (
         href="https://forms.gov.bc.ca/environment/rapp/"
         target="_blank"
         rel="noopener noreferrer"
+        aria-label="RAPP online reporting form (opens in new window)"
       >
         RAPP form
       </a>{' '}
       to report known or suspected violations of fisheries, wildlife, or
       environmental protection laws, except salmon-related violations.
     </p>
-    <Image src={rapp_logo} />
+    <Image
+      src={rapp_logo}
+      alt="Report All Poachers and Polluters (RAPP) program logo"
+    />
   </section>
 );
 
@@ -139,6 +174,7 @@ const NaturalResourceViolationSection: React.FC = () => (
         href="https://forms.gov.bc.ca/industry/report-a-natural-resource-violation"
         target="_blank"
         rel="noopener noreferrer"
+        aria-label="Natural Resource Violation reporting form (opens in new window)"
       >
         Natural Resource Violation form
       </a>{' '}

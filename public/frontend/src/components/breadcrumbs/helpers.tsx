@@ -14,7 +14,7 @@ export function renderBreadcrumbLabel(
   isFirst: boolean = false,
 ): ReactNode {
   if (isFirst && showHomeIcon) {
-    return <FontAwesomeIcon icon={faHouse} aria-label="Home" />;
+    return <FontAwesomeIcon icon={faHouse} aria-label="Home" title="Home" />;
   }
   return item.label;
 }
@@ -30,7 +30,8 @@ export function getBreadcrumbItemProps(
 
   return {
     linkAs: item.href && !isActive ? Link : 'span',
-    linkProps: item.href && !isActive ? { to: item.href } : {},
+    linkProps:
+      item.href && !isActive ? { to: item.href, 'aria-label': item.label } : {},
     active: isActive,
     ...(isActive && { 'aria-current': 'page' }),
   };
