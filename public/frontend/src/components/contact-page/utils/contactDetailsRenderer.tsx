@@ -15,9 +15,9 @@ interface ContactDetailsProps {
 
 const ReservationsSection: FC = () => (
   <section className="contact-page__section contact-page__details">
-    <h4 className="contact-page__details-title">
+    <h3 className="contact-page__details-title">
       Reservations, fees, and discounts
-    </h4>
+    </h3>
     <p className="contact-page__details-desc">
       <strong>
         The majority of recreation sites are on a "first come, first served"
@@ -45,7 +45,7 @@ const ReservationsSection: FC = () => (
 const EmailSection: React.FC<{ emailLink: string }> = ({ emailLink }) => (
   <section className="contact-page__section contact-page__details">
     <Stack gap={3}>
-      <h4 className="contact-page__email-title">Email</h4>
+      <h3 className="contact-page__email-title">Email</h3>
       <p className="mb-0">
         We answer emails weekdays from 8:30am to 4:30pm Pacific Time. We make
         every effort to respond within a week, but it may take longer during
