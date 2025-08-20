@@ -25,11 +25,11 @@ test.describe('Search for a recreation site or trail workflows', () => {
 
     await searchPage.verifyInitialResults();
 
-    await searchPage.searchFor('summerland');
+    await searchPage.searchFor('summer');
 
-    await utils.checkExpectedUrlParams('filter=summerland&page=1');
+    await utils.checkExpectedUrlParams('filter=summer&page=1');
 
-    await searchPage.verifySearchResults('summerland');
+    await searchPage.verifySearchResults('summer');
 
     await utils.clickLinkByText('Agur Lake');
 
