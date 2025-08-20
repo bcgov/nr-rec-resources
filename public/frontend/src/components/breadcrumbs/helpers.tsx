@@ -14,7 +14,14 @@ export function renderBreadcrumbLabel(
   isFirst: boolean = false,
 ): ReactNode {
   if (isFirst && showHomeIcon) {
-    return <FontAwesomeIcon icon={faHouse} aria-label="Home" title="Home" />;
+    return (
+      <FontAwesomeIcon
+        className="h-100"
+        icon={faHouse}
+        aria-label="Home"
+        title="Home"
+      />
+    );
   }
   return item.label;
 }
