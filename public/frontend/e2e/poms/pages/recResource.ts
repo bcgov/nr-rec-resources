@@ -2,7 +2,7 @@
 
 import { expect, Page } from '@playwright/test';
 import { BASE_URL } from 'e2e/constants';
-import { waitForImagesToLoad } from 'e2e/utils';
+import { waitForImagesToLoad } from '@shared/e2e/utils';
 import { RecResource } from 'e2e/poms/pages/types';
 import { SectionTitles } from '@/components/rec-resource/enum';
 
