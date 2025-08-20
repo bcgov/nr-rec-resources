@@ -1,9 +1,7 @@
-import { AppRoutes } from '@/routes';
-import Footer from '@/components/layout/Footer';
-import Header from '@/components/layout/Header';
 import ScrollToTop from './components/layout/ScrollToTop';
-import { BrowserRouter } from 'react-router-dom';
+import { RouterProvider } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { dataRouter } from '@/routes';
 import './App.scss';
 
 const MAIN_CONTENT_ID = 'main-content';
@@ -26,18 +24,12 @@ const App = () => {
       >
         Skip to main content
       </a>
-      <Header />
-      <main>
-        <QueryClientProvider client={queryClient}>
-          <BrowserRouter>
-            <div id={MAIN_CONTENT_ID}>
-              <AppRoutes />
-            </div>
-          </BrowserRouter>
-        </QueryClientProvider>
-      </main>
+
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={dataRouter} />
+      </QueryClientProvider>
+
       <ScrollToTop />
-      <Footer />
     </>
   );
 };

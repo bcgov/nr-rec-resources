@@ -2,11 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { getContactEmailLink } from './getContactEmailLink';
 
 describe('getContactEmailLink', () => {
-  it('returns mailto link with subject only when no rec_resource is provided', () => {
+  it('returns mailto link with subject and default body when no rec_resource is provided', () => {
     const link = getContactEmailLink();
-    expect(link).toBe(
-      'mailto:recinfo@gov.bc.ca?subject=Recreation%20Sites%20and%20Trails%20BC%20-%20Contact%20Us%20Message',
+    expect(link).toContain('mailto:recinfo@gov.bc.ca');
+    expect(link).toContain(
+      'subject=Recreation%20Sites%20and%20Trails%20BC%20-%20Contact%20Us%20Message',
     );
+    expect(link).toContain('body=');
+    expect(link).toContain('Full%20Name%3A%20%5BYour%20Name%5D');
+    expect(link).toContain('Location%3A%20%5BLocation%5D');
   });
 
   it('returns mailto link with subject and body when rec_resource is provided', () => {

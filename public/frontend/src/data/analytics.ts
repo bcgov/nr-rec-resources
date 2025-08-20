@@ -1,0 +1,1 @@
+export const MATOMO_TRACKING_CATEGORY_CONTACT_PAGE = 'ContactPage';
