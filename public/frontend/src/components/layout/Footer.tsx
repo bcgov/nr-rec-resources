@@ -53,6 +53,7 @@ const linkColumns = [
     title: 'Stay connected',
     links: [
       {
+        title: 'Contact us',
         component: (
           <Link to={{ pathname: ROUTE_PATHS.CONTACT_US, hash: '#contact-us' }}>
             Contact us

@@ -3,6 +3,8 @@ import { CONTACT_TOPICS } from '@/components/contact-page/constants';
 import rapp_logo from '@/components/contact-page/assets/rapp_logo.jpg';
 import bc_wildfire_app_logo from '@/components/contact-page/assets/bc_wildfire_app_logo.png';
 import { FC } from 'react';
+import { trackClickEvent } from '@/utils/matomo';
+import { MATOMO_TRACKING_CATEGORY_CONTACT_PAGE } from '@/data/analytics';
 import { Link } from 'react-router';
 import { ROUTE_PATHS } from '@/routes';
 
@@ -51,7 +53,15 @@ const EmailSection: React.FC<{ emailLink: string }> = ({ emailLink }) => (
         every effort to respond within a week, but it may take longer during
         peak summer season.
       </p>
-      <a href={emailLink} aria-label="Send email to recreation information">
+      <a
+        href={emailLink}
+        aria-label="Send email to recreation information"
+        onClick={trackClickEvent({
+          category: MATOMO_TRACKING_CATEGORY_CONTACT_PAGE,
+          action: 'Email Link Click',
+          name: 'recinfo@gov.bc.ca',
+        })}
+      >
         recinfo@gov.bc.ca
       </a>
     </Stack>

@@ -2,6 +2,9 @@ import { SectionHeading } from '@/components/landing-page/components';
 import { PageWithScrollMenu } from '@/components/layout/PageWithScrollMenu';
 import './ContactPage.scss';
 import { Form, Stack } from 'react-bootstrap';
+import { useEffect } from 'react';
+import { trackEvent } from '@/utils/matomo';
+import { MATOMO_TRACKING_CATEGORY_CONTACT_PAGE } from '@/data/analytics';
 import PageTitle from '@/components/layout/PageTitle';
 import { Breadcrumbs } from '@/components/breadcrumbs';
 import { type ContactTopic } from './utils/contactDetailsRenderer';
@@ -20,6 +23,13 @@ export const ContactPage = () => {
     contactDetailsComponent,
     pageTitle,
   } = useContactPage();
+
+  useEffect(() => {
+    trackEvent({
+      category: MATOMO_TRACKING_CATEGORY_CONTACT_PAGE,
+      action: `${MATOMO_TRACKING_CATEGORY_CONTACT_PAGE} - Page Load`,
+    });
+  }, []);
 
   return (
     <div className="page-container">
@@ -81,9 +91,14 @@ export const ContactPage = () => {
                     <Form.Select
                       className="contact-page__form-select"
                       value={selectedTopic}
-                      onChange={(e) =>
-                        setSelectedTopic(e.target.value as ContactTopic)
-                      }
+                      onChange={(e) => {
+                        setSelectedTopic(e.target.value as ContactTopic);
+                        trackEvent({
+                          category: MATOMO_TRACKING_CATEGORY_CONTACT_PAGE,
+                          action: `${MATOMO_TRACKING_CATEGORY_CONTACT_PAGE} - Dropdown Selection`,
+                          name: e.target.value,
+                        });
+                      }}
                       required
                     >
                       <optgroup label="General">

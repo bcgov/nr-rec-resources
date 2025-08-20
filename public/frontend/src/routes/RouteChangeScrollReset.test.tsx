@@ -35,7 +35,10 @@ describe('RouteChangeScrollReset', () => {
       </MemoryRouter>,
     );
 
-    expect(window.scrollTo).toHaveBeenCalledWith(0, 0);
+    expect(window.scrollTo).toHaveBeenCalledWith({
+      top: 0,
+      behavior: 'instant',
+    });
   });
 
   it('should scroll to top when location changes', () => {
@@ -55,7 +58,10 @@ describe('RouteChangeScrollReset', () => {
     // Re-render with different location - the key prop will force a re-mount
     rerender(<TestComponent pathname="/search" />);
 
-    expect(window.scrollTo).toHaveBeenCalledWith(0, 0);
+    expect(window.scrollTo).toHaveBeenCalledWith({
+      top: 0,
+      behavior: 'instant',
+    });
   });
 
   it('should handle multiple children', () => {

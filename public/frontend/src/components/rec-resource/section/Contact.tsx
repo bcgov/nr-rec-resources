@@ -2,6 +2,8 @@ import { forwardRef } from 'react';
 import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 import { ResponseError, SiteOperatorDto } from '@/service/recreation-resource';
 import { Link } from 'react-router';
+import { trackClickEvent } from '@/utils/matomo';
+import { MATOMO_TRACKING_CATEGORY_CONTACT_PAGE } from '@/data/analytics';
 import { ROUTE_PATHS } from '@/routes';
 
 interface SiteOperatorProps {
@@ -47,6 +49,10 @@ const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
                         ),
                         hash: '#contact-us',
                       }}
+                      onClick={trackClickEvent({
+                        category: MATOMO_TRACKING_CATEGORY_CONTACT_PAGE,
+                        name: `${MATOMO_TRACKING_CATEGORY_CONTACT_PAGE} - ${rec_resource_id}`,
+                      })}
                     >
                       Contact Us
                     </Link>
