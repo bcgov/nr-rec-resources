@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { initHappo } from 'e2e/utils';
+import { initHappo } from '@shared/e2e/utils';
 import { ContactPOM, LayoutPOM, UtilsPOM } from 'e2e/poms';
 
 initHappo();
