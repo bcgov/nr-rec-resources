@@ -111,7 +111,7 @@ const RecResourcePage = () => {
 
   // Set up breadcrumbs for this resource page
   useBreadcrumbs({
-    context: { resourceName: name, resourceId: rec_resource_id },
+    context: { resourceName: formattedName, resourceId: rec_resource_id },
   });
 
   const isThingsToDo = recreation_activity && recreation_activity.length > 0;
