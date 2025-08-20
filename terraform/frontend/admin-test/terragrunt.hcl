@@ -12,7 +12,7 @@ generate "test_tfvars" {
   csp_urls = {
       image_src = "https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca https://dam.lqc63d-prod.nimbus.cloud.gov.bc.ca"
       connect_src = "https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca https://dam.lqc63d-prod.nimbus.cloud.gov.bc.ca"
-      matomo_src = "https://iuqxrr50zl.execute-api.ca-central-1.amazonaws.com"
+      matomo_src = "https://iuqxrr50zl.execute-api.ca-central-1.amazonaws.com https://y09s3hx8j6.execute-api.ca-central-1.amazonaws.com"
   }
 EOF
 }
