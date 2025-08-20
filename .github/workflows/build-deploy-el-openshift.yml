@@ -42,7 +42,7 @@ jobs:
   build:
     name: Build Spring Boot Oracle EL Containers
     needs: [triggers]
-    if: (always() && (needs.triggers.outputs.triggered == 'true' || github.event_name == 'workflow_dispatch') && (github.event.action != 'closed') && (!github.event.pull_request.draft))
+    # if: (always() && (needs.triggers.outputs.triggered == 'true' || github.event_name == 'workflow_dispatch') && (github.event.action != 'closed') && (!github.event.pull_request.draft))
     runs-on: ubuntu-24.04
     strategy:
       matrix:
@@ -83,8 +83,9 @@ jobs:
             PVC_SIZE="500Mi"
             # if event is PR then use a different bucket
             if [ "${{ github.event_name }}" == "pull_request" ]; then
-              export AWS_LZA_S3_BUCKET="fta-rec-rst-uploads"
+              export AWS_LZA_S3_BUCKET="${{ secrets.AWS_LZA_S3_BUCKET }}"
               export RELEASE_NAME="backend-el-pr-${{ github.event.number }}"
+              echo "Using S3 bucket for PR: $AWS_LZA_S3_BUCKET"
               SECRET_PERSIST=false
               PVC_SIZE="200Mi"
             else
@@ -93,7 +94,7 @@ jobs:
 
             fi
 
-            export FLYWAY_TASK_CONFIGS="${{ secrets.FLYWAY_TASK_CONFIGS }}"
+            export FLYWAY_TASK_LZA_CONFIGS="${{ secrets.FLYWAY_TASK_LZA_CONFIGS }}"
 
             helm package -u . --app-version="${{ github.sha }}" --version=1.0.0
             helm upgrade \
@@ -104,7 +105,7 @@ jobs:
               --set-string secrets.dbUser="${{ secrets.DBUSER }}" \
               --set-string config.awsS3Bucket="$AWS_LZA_S3_BUCKET" \
               --set-string schedule="${{ secrets.SCHEDULE }}" \
-              --set-string secrets.flywayTaskConfigs="${FLYWAY_TASK_CONFIGS}" \
+              --set-string secrets.flywayTaskConfigs="${FLYWAY_TASK_LZA_CONFIGS}" \
               --set secrets.persist=$SECRET_PERSIST \
               --set-string pvc.size="$PVC_SIZE" \
               --install --wait \

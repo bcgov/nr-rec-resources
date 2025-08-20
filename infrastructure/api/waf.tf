@@ -4,11 +4,13 @@ provider "aws" {
 }
 
 locals {
-  frontend_url = (
-    can(data.terraform_remote_state.frontend[0].outputs.cloudfront.domain_name)
-    ? data.terraform_remote_state.frontend[0].outputs.cloudfront.domain_name
-    : "example.com" # Placeholder for ephemeral environments
-  )
+  # frontend_url = (
+  #   can(data.terraform_remote_state.frontend[0].outputs.cloudfront.domain_name)
+  #   ? data.terraform_remote_state.frontend[0].outputs.cloudfront.domain_name
+  #   : "example.com" # Placeholder for ephemeral environments
+  # )
+  frontend_url = "example.com" # Placeholder for ephemeral environments
+
 
   cors_allowed_origins = [
     "https://${local.frontend_url}",

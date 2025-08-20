@@ -1,18 +1,18 @@
-data "terraform_remote_state" "frontend" {
-  // The api and frontend remote states have circular dependencies due to these data sources
-  // On first deployment, one of these data sources will have to be commented out and dummy data used
-  // in any resources that depend on it.
-  count = can(regex("ephemeral", var.app_env)) ? 0 : 1
-
-  backend = "s3"
-  config = {
-    bucket         = var.frontend_remote_state.bucket
-    key            = var.frontend_remote_state.key
-    region         = var.frontend_remote_state.region
-    dynamodb_table = var.frontend_remote_state.dynamodb_table
-    encrypt        = true
-  }
-}
+# data "terraform_remote_state" "frontend" {
+#   // The api and frontend remote states have circular dependencies due to these data sources
+#   // On first deployment, one of these data sources will have to be commented out and dummy data used
+#   // in any resources that depend on it.
+#   count = can(regex("ephemeral", var.app_env)) ? 0 : 1
+#
+#   backend = "s3"
+#   config = {
+#     bucket         = var.frontend_remote_state.bucket
+#     key            = var.frontend_remote_state.key
+#     region         = var.frontend_remote_state.region
+#     dynamodb_table = var.frontend_remote_state.dynamodb_table
+#     encrypt        = true
+#   }
+# }
 
 resource "aws_apigatewayv2_vpc_link" "app" {
   name               = var.app_name
