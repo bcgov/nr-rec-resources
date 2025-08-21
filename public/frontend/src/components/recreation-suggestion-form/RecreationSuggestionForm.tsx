@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
@@ -30,10 +30,26 @@ import {
 } from '@/components/recreation-suggestion-form/constants';
 
 interface RecreationSuggestionFormProps {
+  /**
+   * Whether to allow searching with an empty input.
+   * If true, the search will be performed even if the input is empty.
+   */
   allowEmptySearch?: boolean;
+  /**
+   * Whether to disable navigation when a suggestion is selected.
+   * If true, the search will be performed instead of navigating to the resource page.
+   */
   disableNavigation?: boolean;
+  /**
+   * Variant of the search button.
+   * Can be 'primary' or 'secondary'.
+   */
   searchBtnVariant?: 'primary' | 'secondary';
-  trackingSource: string; // Used for tracking which page the search is initiated from ie 'Landing page', 'Search map'
+  /**
+   * The source of the search, used for tracking purposes.
+   * This should be a descriptive string indicating where the search was initiated.
+   */
+  trackingSource: string;
 }
 
 const RecreationSuggestionForm = ({
@@ -43,6 +59,10 @@ const RecreationSuggestionForm = ({
   trackingSource,
 }: RecreationSuggestionFormProps) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const filter = searchParams.get('filter');
+  const community = searchParams.get('community');
+  const isSearchParams = filter || community;
   const { data: citiesList } = useSearchCitiesApi();
   const { getLocation, permissionDeniedCount } = useCurrentLocation();
   const {
@@ -160,6 +180,17 @@ const RecreationSuggestionForm = ({
     [performSearch],
   );
 
+  const selectedValue = useMemo(() => {
+    if (!isSearchParams || !searchInputValue) return undefined;
+    // If search params are present, we will persist the search input value between instances of this component
+    // ie the Search list view and the Search map view
+    return [
+      {
+        name: searchInputValue,
+      } as CitySuggestion,
+    ];
+  }, [isSearchParams, searchInputValue]);
+
   const handleSuggestionChange = async (
     suggestion: RecreationSuggestion | CitySuggestion,
   ) => {
@@ -179,6 +210,7 @@ const RecreationSuggestionForm = ({
             longitude,
           };
 
+          setSearchInputValue(CURRENT_LOCATION_TITLE);
           handleCityOptionSearch(updatedCurrentLocation);
           trackClickEvent({
             category: trackingName,
@@ -208,6 +240,7 @@ const RecreationSuggestionForm = ({
           category: trackingName,
           name: `City selected: ${suggestion.name}`,
         })();
+        setSearchInputValue(suggestion.name);
         handleCityOptionSearch(suggestion);
         return;
 
@@ -228,6 +261,7 @@ const RecreationSuggestionForm = ({
           onKeyDown={handleInputKeyDown}
           isLoading={isFetching}
           error={error}
+          selected={selectedValue}
           defaultValue={defaultSearchInputValue}
           suggestions={suggestions as RecreationSuggestion[]}
           onSearch={(text) => setSearchInputValue(text)}

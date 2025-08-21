@@ -45,7 +45,7 @@ export const SuggestionListCity: React.FC<SearchItemData> = ({
             <Highlighter search={searchTerm}>{city}</Highlighter>
           </span>
           <div className="description-text">
-            {isCurrentLocation ? 'Find whats around you' : 'Region'}
+            {isCurrentLocation ? `Find what's around you` : 'Community'}
           </div>
         </Col>
       </Row>

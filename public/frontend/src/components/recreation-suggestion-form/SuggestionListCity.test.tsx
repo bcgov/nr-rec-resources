@@ -20,11 +20,11 @@ describe('SuggestionListCity', () => {
     expect(city).toBeInTheDocument();
   });
 
-  it('shows LOCATION_ICON and "Region" description for regular city', () => {
+  it('shows LOCATION_ICON and "Community" description for regular city', () => {
     render(<SuggestionListCity city="Victoria" searchTerm="vic" />);
 
     const icon = screen.getByAltText(/location icon/i);
-    const description = screen.getByText(/region/i);
+    const description = screen.getByText(/community/i);
 
     expect(icon).toBeInTheDocument();
     expect(description).toBeInTheDocument();
@@ -36,7 +36,7 @@ describe('SuggestionListCity', () => {
     );
 
     const icon = screen.getByAltText(/current location icon/i);
-    const description = screen.getByText(/find whats around you/i);
+    const description = screen.getByText(/find what's around you/i);
 
     expect(icon).toBeInTheDocument();
     expect(description).toBeInTheDocument();
