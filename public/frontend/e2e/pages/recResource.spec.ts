@@ -22,7 +22,7 @@ test.describe('Recreation Resource page', () => {
 
     await utils.canvasScreenshotWithVectorMap(
       'Recreation Resource page',
-      'test canvas screenshot with vector map',
+      'default',
     );
   });
 });

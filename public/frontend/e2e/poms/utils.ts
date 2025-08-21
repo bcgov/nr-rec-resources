@@ -37,7 +37,7 @@ export class UtilsPOM {
     const href = await link.getAttribute('href');
     await link.click();
 
-    await this.page.waitForURL(`${BASE_URL}${href}`);
+    await this.page.waitForNavigation();
     expect(this.page.url()).toBe(`${BASE_URL}${href}`);
   }
 
@@ -46,7 +46,6 @@ export class UtilsPOM {
   }
 
   async screenshot(component: string, variant: string) {
-    // Remove the map canvas element if it exists as it breaks Happo
     await happoPlaywright.screenshot(this.page, this.pageContent, {
       component,
       variant,
@@ -97,6 +96,14 @@ export class UtilsPOM {
     const canvas = this.page.locator(MAP_CANVAS_SELECTOR);
 
     if ((await canvas.count()) === 0) return;
+
+    // Ensure header is above the map
+    await this.page.evaluate(() => {
+      const header = document.querySelector('#header');
+      if (header instanceof HTMLElement) {
+        header.style.zIndex = '999999';
+      }
+    });
 
     // Wait for OpenLayers map to finish rendering
     await this.page.evaluate(() => {
