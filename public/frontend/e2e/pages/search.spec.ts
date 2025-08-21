@@ -21,6 +21,8 @@ test.describe('Search page', () => {
 
     await utils.accessibility();
 
+    // The search map is in the DOM on the search page which causes Happo screenshots to fail
+    await utils.removeVectorFeatureMap();
     await utils.screenshot('Search page', 'default');
   });
 });

@@ -20,6 +20,9 @@ test.describe('Recreation Resource page', () => {
 
     await utils.accessibility();
 
-    await utils.screenshot('Recreation Resource page', 'default');
+    await utils.canvasScreenshotWithVectorMap(
+      'Recreation Resource page',
+      'test canvas screenshot with vector map',
+    );
   });
 });

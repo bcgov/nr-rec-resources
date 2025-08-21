@@ -47,7 +47,14 @@ export class UtilsPOM {
 
   async screenshot(component: string, variant: string) {
     // Remove the map canvas element if it exists as it breaks Happo
-    await this.removeVectorFeatureMap();
+    await happoPlaywright.screenshot(this.page, this.pageContent, {
+      component,
+      variant,
+    });
+  }
+
+  async canvasScreenshotWithVectorMap(component: string, variant: string) {
+    await this.captureVectorMapForHappo();
     await happoPlaywright.screenshot(this.page, this.pageContent, {
       component,
       variant,
@@ -84,5 +91,41 @@ export class UtilsPOM {
         document.querySelector(selector)?.remove();
       }, MAP_CANVAS_SELECTOR);
     }
+  }
+
+  async captureVectorMapForHappo() {
+    const canvas = this.page.locator(MAP_CANVAS_SELECTOR);
+
+    if ((await canvas.count()) === 0) return;
+
+    // Wait for OpenLayers map to finish rendering
+    await this.page.evaluate(() => {
+      // eslint-disable-next-line
+      return new Promise<void>((resolve) => {
+        const map = (window as any).olMap;
+        if (!map) return resolve();
+        map.once('rendercomplete', () => resolve());
+      });
+    });
+
+    // Capture the canvas as a screenshot buffer
+    const buffer = await canvas.screenshot();
+
+    // Replace the canvas with an <img> containing the screenshot for Happo
+    await this.page.evaluate(
+      ([selector, imgData]) => {
+        const canvasEl = document.querySelector<HTMLCanvasElement>(selector);
+        if (!canvasEl) return;
+        const img = document.createElement('img');
+        img.style.width = canvasEl.width + 'px';
+        img.style.height = canvasEl.height + 'px';
+        img.src = imgData;
+        canvasEl.replaceWith(img);
+      },
+      [
+        MAP_CANVAS_SELECTOR,
+        `data:image/png;base64,${buffer.toString('base64')}`,
+      ],
+    );
   }
 }
