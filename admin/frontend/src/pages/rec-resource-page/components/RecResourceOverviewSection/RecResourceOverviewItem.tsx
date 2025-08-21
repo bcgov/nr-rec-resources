@@ -24,7 +24,7 @@ export const RecResourceOverviewItem = ({
   return (
     <Col {...colProps} className="mb-3">
       <Stack gap={1}>
-        <span className="fw-bold text-dark small">{label}</span>
+        <span className="fw-bold text-dark">{label}</span>
         {isHtml ? (
           <span dangerouslySetInnerHTML={{ __html: value }} />
         ) : (
