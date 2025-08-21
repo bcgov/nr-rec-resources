@@ -5,7 +5,7 @@ import {
   updateGalleryImage,
 } from "@/pages/rec-resource-page/store/recResourceFileTransferStore";
 import { GalleryImage } from "@/pages/rec-resource-page/types";
-import { useDeleteResourceImage } from "@/services/hooks/recreation-resource-admin/useDeleteResourceImage";
+import { useDeleteResourceImage } from "@/services/recreation-resource-admin";
 import { handleApiError } from "@/services/utils/errorHandler";
 import {
   addErrorNotification,
@@ -19,12 +19,9 @@ vi.mock("@/pages/rec-resource-page/hooks/useRecResource", () => ({
   useRecResource: vi.fn(),
 }));
 
-vi.mock(
-  "@/services/hooks/recreation-resource-admin/useDeleteResourceImage",
-  () => ({
-    useDeleteResourceImage: vi.fn(),
-  }),
-);
+vi.mock("@/services/recreation-resource-admin", () => ({
+  useDeleteResourceImage: vi.fn(),
+}));
 
 vi.mock("@/store/notificationStore", () => ({
   addErrorNotification: vi.fn(),

@@ -1,4 +1,4 @@
-import { useGetRecreationResourceById } from "@/services/hooks/recreation-resource-admin/useGetRecreationResourceById";
+import { useGetRecreationResourceById } from "@/services/recreation-resource-admin";
 import { handleApiError } from "@/services/utils/errorHandler";
 import { addErrorNotification } from "@/store/notificationStore";
 import { useEffect } from "react";

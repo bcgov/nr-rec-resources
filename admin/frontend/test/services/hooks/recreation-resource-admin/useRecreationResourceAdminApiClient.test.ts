@@ -1,7 +1,9 @@
-import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
+import {
+  useRecreationResourceAdminApiClient,
+  RecreationResourceApi,
+} from "@/services/recreation-resource-admin";
 import { renderHook } from "@testing-library/react";
-import { useRecreationResourceAdminApiClient } from "@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient";
-import { RecreationResourceApi } from "@/services/recreation-resource-admin";
+import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
 
 vi.mock("@/contexts/AuthContext", () => ({
   useAuthContext: vi.fn(),

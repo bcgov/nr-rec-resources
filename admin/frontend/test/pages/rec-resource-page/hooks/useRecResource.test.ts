@@ -1,5 +1,5 @@
 import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
-import { useGetRecreationResourceById } from "@/services/hooks/recreation-resource-admin/useGetRecreationResourceById";
+import { useGetRecreationResourceById } from "@/services/recreation-resource-admin";
 import { handleApiError } from "@/services/utils/errorHandler";
 import * as notificationStore from "@/store/notificationStore";
 import { renderHook } from "@testing-library/react";
@@ -10,12 +10,9 @@ vi.mock("react-router-dom", () => ({
   useParams: vi.fn(),
 }));
 
-vi.mock(
-  "@/services/hooks/recreation-resource-admin/useGetRecreationResourceById",
-  () => ({
-    useGetRecreationResourceById: vi.fn(),
-  }),
-);
+vi.mock("@/services/recreation-resource-admin", () => ({
+  useGetRecreationResourceById: vi.fn(),
+}));
 
 vi.mock("@/services/utils/errorHandler", () => ({
   handleApiError: vi.fn(),

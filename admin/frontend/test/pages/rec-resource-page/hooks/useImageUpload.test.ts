@@ -1,6 +1,6 @@
 import { useImageUpload } from "@/pages/rec-resource-page/hooks/useImageUpload";
 import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
-import { useUploadResourceImage } from "@/services/hooks/recreation-resource-admin/useUploadResourceImage";
+import { useUploadResourceImage } from "@/services/recreation-resource-admin";
 import { handleApiError } from "@/services/utils/errorHandler";
 import {
   addErrorNotification,
@@ -13,7 +13,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock the dependencies
 vi.mock("@/pages/rec-resource-page/hooks/useRecResource");
-vi.mock("@/services/hooks/recreation-resource-admin/useUploadResourceImage");
+vi.mock("@/services/recreation-resource-admin");
 vi.mock("@/services/utils/errorHandler");
 vi.mock("@/store/notificationStore");
 vi.mock("@/pages/rec-resource-page/store/recResourceFileTransferStore", () => ({

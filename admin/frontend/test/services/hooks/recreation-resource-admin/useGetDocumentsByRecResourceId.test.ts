@@ -1,11 +1,10 @@
 import { describe, it, beforeEach, vi, expect } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
-import { useGetDocumentsByRecResourceId } from "@/services/hooks/recreation-resource-admin/useGetDocumentsByRecResourceId";
 import { reactQueryWrapper } from "@test/test-utils/reactQueryWrapper";
-import * as apiClientModule from "@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient";
-import * as helpers from "@/services/hooks/recreation-resource-admin/helpers";
+import * as helpers from "@/services/recreation-resource-admin/hooks/helpers";
 import * as notificationStore from "@/store/notificationStore";
-
+import { useGetDocumentsByRecResourceId } from "@/services/recreation-resource-admin";
+import * as useRecreationResourceAdminApiClientModule from "@/services/recreation-resource-admin/hooks/useRecreationResourceAdminApiClient";
 const mockGetDocumentsByRecResourceId = vi.fn();
 const mockTransformDocs = vi.fn();
 const mockAddErrorNotification = vi.fn();
@@ -18,7 +17,7 @@ describe("useGetDocumentsByRecResourceId", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.spyOn(
-      apiClientModule,
+      useRecreationResourceAdminApiClientModule,
       "useRecreationResourceAdminApiClient",
     ).mockReturnValue(mockApi as any);
     vi.spyOn(helpers, "transformRecreationResourceDocs").mockImplementation(

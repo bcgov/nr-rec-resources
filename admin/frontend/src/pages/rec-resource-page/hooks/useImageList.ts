@@ -1,5 +1,5 @@
-import { useGetImagesByRecResourceId } from "@/services/hooks/recreation-resource-admin/useGetImagesByRecResourceId";
 import { RecreationResourceImageDto } from "@/services/recreation-resource-admin";
+import { useGetImagesByRecResourceId } from "@/services/recreation-resource-admin";
 import { useMemo } from "react";
 import { formatGalleryFileDate } from "../helpers";
 import { GalleryImage } from "../types";

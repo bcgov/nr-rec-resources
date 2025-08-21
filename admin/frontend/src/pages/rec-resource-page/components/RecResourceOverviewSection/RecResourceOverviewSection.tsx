@@ -1,4 +1,4 @@
-import type { RecreationResourceDetailDto } from "@/services/recreation-resource-admin/models/RecreationResourceDetailDto";
+import type { RecreationResourceDetailDto } from "@/services/recreation-resource-admin";
 import { Row } from "react-bootstrap";
 import { StyledAccordion } from "../StyledAccordion/StyledAccordion";
 import { RecResourceOverviewItem } from "./RecResourceOverviewItem";

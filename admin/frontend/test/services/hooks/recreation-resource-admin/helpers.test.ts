@@ -1,4 +1,4 @@
-import * as helpersModule from "@/services/hooks/recreation-resource-admin/helpers";
+import * as helpersModule from "@/services/recreation-resource-admin/hooks/helpers";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 beforeEach(() => {

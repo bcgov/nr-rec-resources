@@ -10,7 +10,9 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest --mode test",
-    "test:cov": "vitest run --mode test --coverage"
+    "test:cov": "vitest run --mode test --coverage",
+    "generate-admin-api": "npx openapi-generator-cli generate -i http://localhost:8001/api/docs-json -g typescript-fetch -o src/services/recreation-resource-admin/sdk --skip-validate-spec --additional-properties=modelPropertyNaming=original",
+    "install-admin-client-sdk": "npm run generate-admin-api && npm run prettier-fix"
   },
   "dependencies": {
     "@bcgov/bc-sans": "^2.1.0",
