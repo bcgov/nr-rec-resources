@@ -5,7 +5,7 @@ resource "null_resource" "trigger_deployment" {
 }
 
 resource "aws_ecs_task_definition" "flyway_task" {
-  family                   = "${var.app_name}-flyway-task"
+  family                   = "${var.app_name}-${var.db_schema}-flyway-task"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = var.cpu

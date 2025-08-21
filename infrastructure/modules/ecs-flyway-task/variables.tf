@@ -57,3 +57,9 @@ variable "subnet" {
   description = "Subnet ID for the task"
   type        = string
 }
+
+variable "db_schema" {
+  description = "Database schema for Flyway migrations"
+  type        = string
+  default     = "fta"
+}
