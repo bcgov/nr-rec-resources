@@ -10,6 +10,47 @@ afterEach(() => {
   vi.resetModules();
 });
 
+describe("mapRecreationResourceDetail", () => {
+  it("should map descriptions correctly for maintained resource", () => {
+    const input = {
+      id: 1,
+      maintenance_standard_code: "U",
+      recreation_district: { description: "District A" },
+      recreation_status: { description: "Open" },
+    };
+    const result = helpersModule.mapRecreationResourceDetail(input as any);
+    expect(result.maintenance_standard_description).toBe("Maintained");
+    expect(result.recreation_district_description).toBe("District A");
+    expect(result.recreation_status_description).toBe("Open");
+  });
+
+  it("should map descriptions correctly for user maintained resource", () => {
+    const input = {
+      id: 2,
+      maintenance_standard_code: "X",
+      recreation_district: { description: "District B" },
+      recreation_status: { description: "Closed" },
+    };
+    const result = helpersModule.mapRecreationResourceDetail(input as any);
+    expect(result.maintenance_standard_description).toBe("User Maintained");
+    expect(result.recreation_district_description).toBe("District B");
+    expect(result.recreation_status_description).toBe("Closed");
+  });
+
+  it("should handle missing nested descriptions", () => {
+    const input = {
+      id: 3,
+      maintenance_standard_code: "U",
+      recreation_district: undefined,
+      recreation_status: null,
+    };
+    const result = helpersModule.mapRecreationResourceDetail(input as any);
+    expect(result.maintenance_standard_description).toBe("Maintained");
+    expect(result.recreation_district_description).toBeUndefined();
+    expect(result.recreation_status_description).toBeUndefined();
+  });
+});
+
 describe("transformRecreationResourceDocs", () => {
   it("should prepend base path to each doc url", () => {
     vi.stubEnv("VITE_RECREATION_RESOURCE_ASSETS_BASE_URL", undefined);

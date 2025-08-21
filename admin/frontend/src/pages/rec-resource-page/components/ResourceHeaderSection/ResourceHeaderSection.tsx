@@ -1,16 +1,21 @@
 import { CustomBadge, CustomButton } from "@/components";
 import { ClampLines } from "@/components/clamp-lines";
-import { RecreationResourceDetailModel } from "@/custom-models";
 import { useRecResourceFileTransferState } from "@/pages/rec-resource-page/hooks/useRecResourceFileTransferState";
-import { COLOR_BLUE, COLOR_BLUE_LIGHT } from "@/styles/colors";
+import {
+  COLOR_BLUE,
+  COLOR_BLUE_LIGHT,
+  COLOR_GREEN,
+  COLOR_WHITE,
+} from "@/styles/colors";
 import { faEllipsisH, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FC } from "react";
 import { Dropdown, Stack } from "react-bootstrap";
 import "./ResourceHeaderSection.scss";
+import { RecreationResourceDetailUIModel } from "@/services/recreation-resource-admin";
 
 interface ResourceHeaderSectionProps {
-  recResource: RecreationResourceDetailModel;
+  recResource: RecreationResourceDetailUIModel;
 }
 
 interface ActionButtonProps {
@@ -68,6 +73,13 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
             bgColor={COLOR_BLUE_LIGHT}
             textColor={COLOR_BLUE}
           />
+          {recResource.recreation_status_description && (
+            <CustomBadge
+              label={recResource.recreation_status_description!}
+              bgColor={COLOR_GREEN}
+              textColor={COLOR_WHITE}
+            />
+          )}
         </Stack>
 
         {/* Responsive actions: dropdown on mobile, buttons on desktop */}

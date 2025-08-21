@@ -53,7 +53,7 @@ export const RecreationResourceSuggestionForm = () => {
   };
 
   const getEmptyLabel = () => {
-    if (error?.response.status === 400) {
+    if (error?.response?.status === 400) {
       return (
         <Form.Control.Feedback type="invalid" className="d-block">
           Invalid search term. Only letters, numbers, spaces, and these
