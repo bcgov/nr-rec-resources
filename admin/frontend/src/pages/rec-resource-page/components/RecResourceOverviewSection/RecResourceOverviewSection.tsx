@@ -13,18 +13,31 @@ export const RecResourceOverviewSection = ({
   return (
     <StyledAccordion eventKey="overview" title="Overview">
       <Row>
-        <RecResourceOverviewItem label="Name" value={recResource.name} />
-        <RecResourceOverviewItem
-          label="ID"
-          value={recResource.rec_resource_id}
-        />
         <RecResourceOverviewItem
           label="Closest Community"
           value={recResource.closest_community}
         />
         <RecResourceOverviewItem
-          label="Type"
+          label="Recreation District"
+          value={recResource.recreation_district?.description}
+        />
+        <RecResourceOverviewItem
+          label="Access Type"
           value={recResource.rec_resource_type}
+        />
+        <RecResourceOverviewItem
+          label="Maintenance Type"
+          value={
+            recResource.maintenance_standard_code === "M"
+              ? "Maintained"
+              : recResource.maintenance_standard_code === "U"
+                ? "User Maintained"
+                : recResource.maintenance_standard_code
+          }
+        />
+        <RecResourceOverviewItem
+          label="Status"
+          value={recResource.recreation_status?.description}
         />
         <RecResourceOverviewItem
           label="Description"
