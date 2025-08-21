@@ -1,12 +1,12 @@
-import { describe, it, beforeEach, vi, expect } from "vitest";
-import { renderHook, act } from "@testing-library/react";
-import { useUploadResourceDocument } from "@/services/hooks/recreation-resource-admin/useUploadResourceDocument";
-import { RecreationResourceApi } from "@/services/recreation-resource-admin/apis/RecreationResourceApi";
-import * as apiClientModule from "@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient";
+import { RecreationResourceApi } from "@/services/recreation-resource-admin";
+import * as apiClientModule from "@/services/recreation-resource-admin";
+import { useUploadResourceDocument } from "@/services/recreation-resource-admin";
 import { reactQueryWrapper } from "@test/test-utils/reactQueryWrapper";
+import { act, renderHook } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock(
-  "@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient",
+  "@/services/recreation-resource-admin/hooks/useRecreationResourceAdminApiClient",
   () => ({
     useRecreationResourceAdminApiClient: vi.fn(),
   }),

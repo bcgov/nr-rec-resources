@@ -1,20 +1,22 @@
 import { Mock, vi } from "vitest";
 
-import { createRetryHandler } from "@/services/hooks/recreation-resource-admin/helpers";
-import { useDeleteResourceImage } from "@/services/hooks/recreation-resource-admin/useDeleteResourceImage";
-import { useRecreationResourceAdminApiClient } from "@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient";
+import { createRetryHandler } from "@/services/recreation-resource-admin/hooks/helpers";
+import {
+  useDeleteResourceImage,
+  useRecreationResourceAdminApiClient,
+} from "@/services/recreation-resource-admin";
 import { reactQueryWrapper } from "@test/test-utils/reactQueryWrapper";
 import { renderHook } from "@testing-library/react";
 
 // Mock dependencies first - this needs to be before imports
 vi.mock(
-  "@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient",
+  "@/services/recreation-resource-admin/hooks/useRecreationResourceAdminApiClient",
   () => ({
     useRecreationResourceAdminApiClient: vi.fn(),
   }),
 );
 
-vi.mock("@/services/hooks/recreation-resource-admin/helpers", () => ({
+vi.mock("@/services/recreation-resource-admin/hooks/helpers", () => ({
   createRetryHandler: vi.fn(),
 }));
 

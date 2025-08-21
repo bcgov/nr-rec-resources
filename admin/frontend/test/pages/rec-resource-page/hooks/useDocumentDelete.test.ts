@@ -2,8 +2,8 @@ import { useDocumentDelete } from "@/pages/rec-resource-page/hooks/useDocumentDe
 import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
 import * as store from "@/pages/rec-resource-page/store/recResourceFileTransferStore";
 import { GalleryDocument } from "@/pages/rec-resource-page/types";
-import { useDeleteResourceDocument } from "@/services/hooks/recreation-resource-admin/useDeleteResourceDocument";
 import { RecreationResourceDetailDto } from "@/services/recreation-resource-admin";
+import { useDeleteResourceDocument } from "@/services/recreation-resource-admin";
 import { handleApiError } from "@/services/utils/errorHandler";
 import * as notificationStore from "@/store/notificationStore";
 import { useStore } from "@tanstack/react-store";
@@ -15,12 +15,9 @@ vi.mock("@tanstack/react-store", () => ({
   useStore: vi.fn(),
 }));
 
-vi.mock(
-  "@/services/hooks/recreation-resource-admin/useDeleteResourceDocument",
-  () => ({
-    useDeleteResourceDocument: vi.fn(),
-  }),
-);
+vi.mock("@/services/recreation-resource-admin", () => ({
+  useDeleteResourceDocument: vi.fn(),
+}));
 
 vi.mock("@/pages/rec-resource-page/hooks/useRecResource", () => ({
   useRecResource: vi.fn(),

@@ -1,22 +1,22 @@
-import { useState, useCallback } from "react";
-import Form from "react-bootstrap/Form";
-import "react-bootstrap-typeahead/css/Typeahead.css";
+import { SuggestionMenu } from "@/components/rec-resource-suggestion-form/SuggestionMenu";
+import { ROUTES } from "@/routes";
 import {
   isValidRecreationResourceSearchTerm,
   useGetRecreationResourceSuggestions,
-} from "@/services/hooks/recreation-resource-admin/useGetRecreationResourceSuggestions";
+} from "@/services/recreation-resource-admin";
 import { SuggestionTypeahead } from "@shared/components/suggestion-typeahead/SuggestionTypeahead";
 import { RecreationResourceSuggestion } from "@shared/components/suggestion-typeahead/types";
-import { useNavigate } from "react-router";
-import "./RecreationResourceSuggestionForm.scss";
+import { useCallback, useState } from "react";
 import { Stack } from "react-bootstrap";
-import { ROUTES } from "@/routes";
 import {
   RenderMenuProps,
   TypeaheadComponentProps,
 } from "react-bootstrap-typeahead";
-import { SuggestionMenu } from "@/components/rec-resource-suggestion-form/SuggestionMenu";
+import "react-bootstrap-typeahead/css/Typeahead.css";
 import { Option } from "react-bootstrap-typeahead/types/types";
+import Form from "react-bootstrap/Form";
+import { useNavigate } from "react-router";
+import "./RecreationResourceSuggestionForm.scss";
 
 /**
  * RecreationResourceSuggestionForm provides a search form for recreation resources.

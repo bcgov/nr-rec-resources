@@ -10,12 +10,9 @@ vi.mock("@tanstack/react-store", () => ({
   useStore: vi.fn(),
 }));
 
-vi.mock(
-  "@/services/hooks/recreation-resource-admin/useUploadResourceDocument",
-  () => ({
-    useUploadResourceDocument: vi.fn(),
-  }),
-);
+vi.mock("@/services/recreation-resource-admin", () => ({
+  useUploadResourceDocument: vi.fn(),
+}));
 
 vi.mock("@/pages/rec-resource-page/hooks/useRecResource", () => ({
   useRecResource: vi.fn(),
@@ -43,7 +40,7 @@ vi.mock("@/services/utils/errorHandler", () => ({
 
 // Import mocked modules for type safety
 import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
-import { useUploadResourceDocument } from "@/services/hooks/recreation-resource-admin/useUploadResourceDocument";
+import { useUploadResourceDocument } from "@/services/recreation-resource-admin";
 import { handleApiError } from "@/services/utils/errorHandler";
 
 const mockUploadMutation = vi.fn();

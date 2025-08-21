@@ -1,18 +1,20 @@
+import {
+  useGetRecreationResourceSuggestions,
+  useRecreationResourceAdminApiClient,
+} from "@/services/recreation-resource-admin";
+import { reactQueryWrapper } from "@test/test-utils/reactQueryWrapper";
 import { renderHook, waitFor } from "@testing-library/react";
 import { Mock, vi } from "vitest";
-import { useGetRecreationResourceSuggestions } from "@/services/hooks/recreation-resource-admin/useGetRecreationResourceSuggestions";
-import { useRecreationResourceAdminApiClient } from "@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient";
-import { reactQueryWrapper } from "@test/test-utils/reactQueryWrapper";
 
 // --- Mocks ---
 vi.mock(
-  "@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient",
+  "@/services/recreation-resource-admin/hooks/useRecreationResourceAdminApiClient",
   () => ({
     useRecreationResourceAdminApiClient: vi.fn(),
   }),
 );
 
-vi.mock("@/services/hooks/recreation-resource-admin/helpers", () => ({
+vi.mock("@/services/recreation-resource-admin/hooks/helpers", () => ({
   createRetryHandler: vi.fn(() => vi.fn()), // mock as a function returning a function
 }));
 

@@ -3,13 +3,10 @@ import { renderHook } from "@testing-library/react";
 
 const mockUseGetDocumentsByRecResourceId = vi.fn();
 
-vi.mock(
-  "@/services/hooks/recreation-resource-admin/useGetDocumentsByRecResourceId",
-  () => ({
-    useGetDocumentsByRecResourceId: (...args: any[]) =>
-      mockUseGetDocumentsByRecResourceId(...args),
-  }),
-);
+vi.mock("@/services/recreation-resource-admin", () => ({
+  useGetDocumentsByRecResourceId: (...args: any[]) =>
+    mockUseGetDocumentsByRecResourceId(...args),
+}));
 vi.mock("@/pages/rec-resource-page/helpers", () => ({
   formatGalleryFileDate: (date: string) => `formatted-${date}`,
 }));

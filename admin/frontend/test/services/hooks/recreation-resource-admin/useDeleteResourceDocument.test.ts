@@ -1,19 +1,19 @@
-import * as helpersModule from "@/services/hooks/recreation-resource-admin/helpers";
-import { useDeleteResourceDocument } from "@/services/hooks/recreation-resource-admin/useDeleteResourceDocument";
-import * as apiClientModule from "@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient";
-import { RecreationResourceApi } from "@/services/recreation-resource-admin/apis/RecreationResourceApi";
+import { RecreationResourceApi } from "@/services/recreation-resource-admin";
+import * as helpersModule from "@/services/recreation-resource-admin/hooks/helpers";
+import { useDeleteResourceDocument } from "@/services/recreation-resource-admin";
+import * as apiClientModule from "@/services/recreation-resource-admin";
 import { reactQueryWrapper } from "@test/test-utils/reactQueryWrapper";
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock(
-  "@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient",
+  "@/services/recreation-resource-admin/hooks/useRecreationResourceAdminApiClient",
   () => ({
     useRecreationResourceAdminApiClient: vi.fn(),
   }),
 );
 
-vi.mock("@/services/hooks/recreation-resource-admin/helpers", () => ({
+vi.mock("@/services/recreation-resource-admin/hooks/helpers", () => ({
   createRetryHandler: vi.fn(),
 }));
 

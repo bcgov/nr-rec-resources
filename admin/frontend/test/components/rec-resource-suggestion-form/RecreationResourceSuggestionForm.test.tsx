@@ -1,5 +1,5 @@
 import { RecreationResourceSuggestionForm } from "@/components/rec-resource-suggestion-form/RecreationResourceSuggestionForm";
-import * as suggestionHook from "@/services/hooks/recreation-resource-admin/useGetRecreationResourceSuggestions";
+import * as suggestionHook from "@/services/recreation-resource-admin";
 import { RecreationResourceSuggestion } from "@shared/components/suggestion-typeahead/types";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";

@@ -1,5 +1,7 @@
-import { useGetDocumentsByRecResourceId } from "@/services/hooks/recreation-resource-admin/useGetDocumentsByRecResourceId";
-import { RecreationResourceDocDto } from "@/services/recreation-resource-admin";
+import {
+  RecreationResourceDocDto,
+  useGetDocumentsByRecResourceId,
+} from "@/services/recreation-resource-admin";
 import { useMemo } from "react";
 import { formatGalleryFileDate } from "../helpers";
 import { GalleryDocument } from "../types";
