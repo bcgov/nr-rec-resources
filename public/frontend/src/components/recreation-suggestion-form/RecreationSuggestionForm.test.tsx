@@ -28,11 +28,15 @@ vi.mock('@/components/recreation-suggestion-form/constants', () => ({
 }));
 
 const mockNavigate = vi.fn();
+const mockSearchParams = new URLSearchParams();
+const mockUseSearchParams = vi.fn(() => [mockSearchParams]);
+
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
   return {
     ...actual,
     useNavigate: () => mockNavigate,
+    useSearchParams: () => mockUseSearchParams(),
   };
 });
 
@@ -70,8 +74,9 @@ vi.mock('@/components/notifications/NotificationToast', () => ({
 }));
 
 vi.mock('@shared/components/suggestion-typeahead/SuggestionTypeahead', () => ({
-  SuggestionTypeahead: ({ onChange, ...props }: any) => {
+  SuggestionTypeahead: ({ onChange, selected, ...props }: any) => {
     (window as any).testOnChangeHandler = onChange;
+    (window as any).testSelectedValue = selected;
     return (
       <div data-testid="suggestion-typeahead">
         <input {...props} />
@@ -92,6 +97,8 @@ describe('RecreationSuggestionForm', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockSearchParams.delete('filter');
+    mockSearchParams.delete('community');
 
     mockedUseSearchInput.mockReturnValue({
       defaultSearchInputValue: '',
@@ -479,5 +486,52 @@ describe('RecreationSuggestionForm', () => {
       name: 'Exact city match selected: Victoria',
     });
     expect(handleSearch).not.toHaveBeenCalled();
+  });
+
+  it('sets selectedValue to undefined when no search params are present', () => {
+    renderWithQueryClient(
+      <RecreationSuggestionForm allowEmptySearch trackingSource="Test page" />,
+    );
+
+    expect((window as any).testSelectedValue).toBeUndefined();
+  });
+
+  it('sets selectedValue when search params are present and searchInputValue exists', () => {
+    mockSearchParams.set('filter', 'camping');
+
+    mockedUseSearchInput.mockReturnValue({
+      defaultSearchInputValue: '',
+      searchInputValue: 'Test Search',
+      setSearchInputValue,
+      handleCityOptionSearch,
+      handleClearTypeaheadSearch,
+      handleSearch,
+    });
+
+    renderWithQueryClient(
+      <RecreationSuggestionForm allowEmptySearch trackingSource="Test page" />,
+    );
+
+    const selectedValue = (window as any).testSelectedValue;
+    expect(selectedValue).toEqual([{ name: 'Test Search' }]);
+  });
+
+  it('sets selectedValue to undefined when search params are present but searchInputValue is empty', () => {
+    mockSearchParams.set('community', 'victoria');
+
+    mockedUseSearchInput.mockReturnValue({
+      defaultSearchInputValue: '',
+      searchInputValue: '',
+      setSearchInputValue,
+      handleCityOptionSearch,
+      handleClearTypeaheadSearch,
+      handleSearch,
+    });
+
+    renderWithQueryClient(
+      <RecreationSuggestionForm allowEmptySearch trackingSource="Test page" />,
+    );
+
+    expect((window as any).testSelectedValue).toBeUndefined();
   });
 });

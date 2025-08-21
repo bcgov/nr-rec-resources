@@ -77,6 +77,10 @@ export interface SuggestionTypeaheadProps<T> {
    * Allows for custom handling of input changes.
    */
   onInputChange?: (input: string) => void;
+  /**
+   * The currently selected suggestion(s).
+   */
+  selected?: T[];
 }
 
 /**
@@ -100,6 +104,7 @@ export const SuggestionTypeahead = <T extends object>({
   labelKey = "name",
   minLength = 1,
   onInputChange,
+  selected,
 }: SuggestionTypeaheadProps<T>) => {
   const typeaheadRef = useRef(null);
 
@@ -143,6 +148,7 @@ export const SuggestionTypeahead = <T extends object>({
           onChange(selected[0] as T);
         }
       }}
+      selected={selected}
       onInputChange={onInputChange}
       onKeyDown={onKeyDown}
       options={suggestions}
