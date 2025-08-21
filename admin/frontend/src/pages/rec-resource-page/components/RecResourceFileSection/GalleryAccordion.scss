@@ -5,19 +5,6 @@
     padding: 1rem;
   }
 
-  &__header {
-    // Remove default styles set by React-Bootstrap
-    .accordion-button {
-      box-shadow: unset;
-      background-color: unset;
-    }
-  }
-
-  &__title {
-    font-weight: 600;
-    font-size: 1.15rem;
-  }
-
   &__alert-banner {
     background: $colorWhite;
     border: 1px solid $colorBlue;

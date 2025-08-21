@@ -1,8 +1,7 @@
 import BreadCrumbs from "@/components/breadcrumbs/BreadCrumbs";
-import {
-  RecResourceFileSection,
-  ResourceHeaderSection,
-} from "@/pages/rec-resource-page/components";
+import { RecResourceFileSection } from "@/pages/rec-resource-page/components/RecResourceFileSection";
+import { RecResourceOverviewSection } from "@/pages/rec-resource-page/components/RecResourceOverviewSection";
+import { ResourceHeaderSection } from "@/pages/rec-resource-page/components/ResourceHeaderSection";
 import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
 import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -51,12 +50,13 @@ export const RecResourcePage = () => {
     <Stack
       direction="vertical"
       gap={4}
-      className="rec-resource-page py-4"
+      className="rec-resource-page"
       role="main"
       aria-label="Recreation resource content"
     >
       <BreadCrumbs recResourceName={recResource.name} />
       <ResourceHeaderSection recResource={recResource} />
+      <RecResourceOverviewSection recResource={recResource} />
       <InfoBanner />
       <RecResourceFileSection />
     </Stack>
