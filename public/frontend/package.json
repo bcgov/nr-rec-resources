@@ -74,7 +74,7 @@
     "eslint-plugin-react": "^7.37.3",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-storybook": "^9.0.17",
-    "happo-e2e": "^4.0.0",
+    "happo-e2e": "^5.0.0",
     "happo-playwright": "^2.2.0",
     "happo.io": "^13.0.0",
     "jsdom": "^26.0.0",
