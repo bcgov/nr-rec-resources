@@ -37,7 +37,7 @@ export class UtilsPOM {
     const href = await link.getAttribute('href');
     await link.click();
 
-    await this.page.waitForNavigation();
+    await this.page.waitForURL(`${BASE_URL}${href}`);
     expect(this.page.url()).toBe(`${BASE_URL}${href}`);
   }
 
