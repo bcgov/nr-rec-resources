@@ -47,6 +47,11 @@
       button.btn {
         align-self: self-start;
       }
+
+      input,
+      label {
+        cursor: pointer;
+      }
     }
   }
 }
