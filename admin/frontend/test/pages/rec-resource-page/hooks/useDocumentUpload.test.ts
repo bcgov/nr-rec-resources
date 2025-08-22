@@ -1,6 +1,12 @@
 import { useDocumentUpload } from "@/pages/rec-resource-page/hooks/useDocumentUpload";
+import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
 import * as store from "@/pages/rec-resource-page/store/recResourceFileTransferStore";
 import { GalleryFile } from "@/pages/rec-resource-page/types";
+import {
+  handleApiError,
+  RecreationResourceDetailModel,
+  useUploadResourceDocument,
+} from "@/services";
 import * as notificationStore from "@/store/notificationStore";
 import { act, renderHook } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -38,11 +44,6 @@ vi.mock("@/services/utils/errorHandler", () => ({
   handleApiError: vi.fn(),
 }));
 
-// Import mocked modules for type safety
-import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
-import { useUploadResourceDocument } from "@/services/recreation-resource-admin";
-import { handleApiError } from "@/services/utils/errorHandler";
-
 const mockUploadMutation = vi.fn();
 const mockRecResource = {
   rec_resource_id: "test-resource-123",
@@ -57,7 +58,7 @@ const mockRecResource = {
   campsite_count: 0,
   recreation_access: [],
   recreation_structure: { has_toilet: false, has_table: false },
-};
+} as unknown as RecreationResourceDetailModel;
 
 describe("useDocumentUpload", () => {
   beforeEach(() => {

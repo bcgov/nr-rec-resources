@@ -1,4 +1,4 @@
-import { RecreationResourceImageVariantDto } from "@/services/recreation-resource-admin";
+import { RecreationResourceImageVariantDto } from "@/services";
 
 export type FileType = "image" | "document";
 

@@ -3,7 +3,7 @@ import { ROUTES } from "@/routes";
 import {
   isValidRecreationResourceSearchTerm,
   useGetRecreationResourceSuggestions,
-} from "@/services/recreation-resource-admin";
+} from "@/services";
 import { SuggestionTypeahead } from "@shared/components/suggestion-typeahead/SuggestionTypeahead";
 import { RecreationResourceSuggestion } from "@shared/components/suggestion-typeahead/types";
 import { useCallback, useState } from "react";

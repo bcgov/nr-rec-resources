@@ -1,6 +1,5 @@
 import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
-import { useUploadResourceImage } from "@/services/recreation-resource-admin";
-import { handleApiError } from "@/services/utils/errorHandler";
+import { handleApiError, useUploadResourceImage } from "@/services";
 import {
   addErrorNotification,
   addSuccessNotification,

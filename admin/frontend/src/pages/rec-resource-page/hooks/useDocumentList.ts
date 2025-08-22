@@ -1,7 +1,7 @@
 import {
   RecreationResourceDocDto,
   useGetDocumentsByRecResourceId,
-} from "@/services/recreation-resource-admin";
+} from "@/services";
 import { useMemo } from "react";
 import { formatGalleryFileDate } from "../helpers";
 import { GalleryDocument } from "../types";

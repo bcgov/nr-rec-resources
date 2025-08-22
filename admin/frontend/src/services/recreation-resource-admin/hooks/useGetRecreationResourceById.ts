@@ -9,7 +9,7 @@ export function useGetRecreationResourceById(rec_resource_id?: string) {
   return useQuery<
     import("@/services/recreation-resource-admin").RecreationResourceDetailDto,
     unknown,
-    import("@/services/recreation-resource-admin").RecreationResourceDetail
+    import("@/services/recreation-resource-admin").RecreationResourceDetailModel
   >({
     queryKey: ["recreation-resource", rec_resource_id],
     queryFn: () =>

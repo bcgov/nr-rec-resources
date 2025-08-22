@@ -1,9 +1,9 @@
 import {
-  RecreationResourceDetail,
   RecreationResourceDetailDto,
+  RecreationResourceDetailModel,
   RecreationResourceDocDto,
   RecreationResourceImageDto,
-} from "@/services/recreation-resource-admin";
+} from "@/services";
 
 /**
  * Maps a RecreationResourceDetailDto to RecreationResourceDetail with additional derived descriptions.
@@ -12,7 +12,7 @@ import {
  */
 export function mapRecreationResourceDetail(
   data: RecreationResourceDetailDto,
-): RecreationResourceDetail {
+): RecreationResourceDetailModel {
   return {
     ...data,
     maintenance_standard_description:

@@ -1,3 +1,6 @@
+import { formatGalleryFileDate } from "@/pages/rec-resource-page/helpers";
+import { useImageList } from "@/pages/rec-resource-page/hooks/useImageList";
+import { useGetImagesByRecResourceId } from "@/services";
 import { renderHook } from "@testing-library/react";
 
 // Mock dependencies
@@ -8,10 +11,6 @@ vi.mock("@/services/recreation-resource-admin", () => ({
 vi.mock("@/pages/rec-resource-page/helpers", () => ({
   formatGalleryFileDate: vi.fn(),
 }));
-
-import { formatGalleryFileDate } from "@/pages/rec-resource-page/helpers";
-import { useImageList } from "@/pages/rec-resource-page/hooks/useImageList";
-import { useGetImagesByRecResourceId } from "@/services/recreation-resource-admin";
 
 describe("useImageList", () => {
   beforeEach(() => {

@@ -1,5 +1,5 @@
 import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
-import { useGetRecreationResourceById } from "@/services/recreation-resource-admin";
+import { useGetRecreationResourceById } from "@/services";
 import { handleApiError } from "@/services/utils/errorHandler";
 import * as notificationStore from "@/store/notificationStore";
 import { renderHook } from "@testing-library/react";

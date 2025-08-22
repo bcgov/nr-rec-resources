@@ -2,9 +2,11 @@ import { useDocumentDelete } from "@/pages/rec-resource-page/hooks/useDocumentDe
 import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
 import * as store from "@/pages/rec-resource-page/store/recResourceFileTransferStore";
 import { GalleryDocument } from "@/pages/rec-resource-page/types";
-import { RecreationResourceDetailDto } from "@/services/recreation-resource-admin";
-import { useDeleteResourceDocument } from "@/services/recreation-resource-admin";
-import { handleApiError } from "@/services/utils/errorHandler";
+import {
+  handleApiError,
+  RecreationResourceDetailModel,
+  useDeleteResourceDocument,
+} from "@/services";
 import * as notificationStore from "@/store/notificationStore";
 import { useStore } from "@tanstack/react-store";
 import { act, renderHook } from "@testing-library/react";
@@ -56,7 +58,7 @@ vi.mock("@/services/utils/errorHandler", () => ({
 const mockDeleteMutation = vi.fn();
 const mockRecResource = {
   rec_resource_id: "test-resource-123",
-} as RecreationResourceDetailDto;
+} as RecreationResourceDetailModel;
 const mockDocument: GalleryDocument = {
   id: "test-doc-123",
   name: "test-document.pdf",

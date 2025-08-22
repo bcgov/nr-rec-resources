@@ -1,5 +1,5 @@
 import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
-import { useDeleteResourceDocument } from "@/services/recreation-resource-admin";
+import { useDeleteResourceDocument } from "@/services";
 import { handleApiError } from "@/services/utils/errorHandler";
 import {
   addErrorNotification,

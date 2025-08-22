@@ -5,7 +5,7 @@ import {
   updateGalleryImage,
 } from "@/pages/rec-resource-page/store/recResourceFileTransferStore";
 import { GalleryImage } from "@/pages/rec-resource-page/types";
-import { useDeleteResourceImage } from "@/services/recreation-resource-admin";
+import { useDeleteResourceImage } from "@/services";
 import { handleApiError } from "@/services/utils/errorHandler";
 import {
   addErrorNotification,
