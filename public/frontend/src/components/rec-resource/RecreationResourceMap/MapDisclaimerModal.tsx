@@ -73,9 +73,12 @@ const MapDisclaimerModal = ({ isOpen, setIsOpen }: MapDisclaimerModalProps) => {
         <div>
           <input
             type="checkbox"
+            id="dont-show-again"
+            className="me-2"
             onChange={(e) => handleCookie(e.target.checked)}
-          />{' '}
-          Don&apos;t show again
+          />
+          <label htmlFor="dont-show-again">Don&apos;t show again</label> 1Code
+          has comments. Press enter to view.
         </div>
         <Button className="py-4" onClick={handleCloseModal}>
           OK
