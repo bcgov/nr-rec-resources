@@ -1,7 +1,26 @@
 import {
+  RecreationResourceDetail,
+  RecreationResourceDetailDto,
   RecreationResourceDocDto,
   RecreationResourceImageDto,
 } from "@/services/recreation-resource-admin";
+
+/**
+ * Maps a RecreationResourceDetailDto to RecreationResourceDetail with additional derived descriptions.
+ * @param data The original RecreationResourceDetailDto object
+ * @returns RecreationResourceDetail with mapped descriptions
+ */
+export function mapRecreationResourceDetail(
+  data: RecreationResourceDetailDto,
+): RecreationResourceDetail {
+  return {
+    ...data,
+    maintenance_standard_description:
+      data.maintenance_standard_code === "U" ? "Maintained" : "User Maintained",
+    recreation_district_description: data.recreation_district?.description,
+    recreation_status_description: data.recreation_status?.description,
+  };
+}
 
 /**
  * Gets the base URL for asset storage.

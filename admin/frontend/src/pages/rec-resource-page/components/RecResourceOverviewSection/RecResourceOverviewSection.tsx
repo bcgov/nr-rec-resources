@@ -1,10 +1,10 @@
-import type { RecreationResourceDetailDto } from "@/services/recreation-resource-admin";
+import type { RecreationResourceDetail } from "@/services/recreation-resource-admin";
 import { Row } from "react-bootstrap";
 import { StyledAccordion } from "../StyledAccordion/StyledAccordion";
 import { RecResourceOverviewItem } from "./RecResourceOverviewItem";
 
 type RecResourceOverviewSectionProps = {
-  recResource: RecreationResourceDetailDto;
+  recResource: RecreationResourceDetail;
 };
 
 export const RecResourceOverviewSection = ({
@@ -27,13 +27,7 @@ export const RecResourceOverviewSection = ({
         />
         <RecResourceOverviewItem
           label="Maintenance Type"
-          value={
-            recResource.maintenance_standard_code === "M"
-              ? "Maintained"
-              : recResource.maintenance_standard_code === "U"
-                ? "User Maintained"
-                : recResource.maintenance_standard_code
-          }
+          value={recResource.maintenance_standard_description}
         />
         <RecResourceOverviewItem
           label="Status"
