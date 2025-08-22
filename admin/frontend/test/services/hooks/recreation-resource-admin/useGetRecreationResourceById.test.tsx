@@ -1,6 +1,6 @@
-import * as HelpersModule from "@/services/recreation-resource-admin/hooks/helpers";
-import { useGetRecreationResourceById } from "@/services/recreation-resource-admin";
 import * as ApiClientModule from "@/services/recreation-resource-admin";
+import { useGetRecreationResourceById } from "@/services/recreation-resource-admin";
+import * as HelpersModule from "@/services/recreation-resource-admin/hooks/helpers";
 import { reactQueryWrapper } from "@test/test-utils/reactQueryWrapper";
 import { renderHook, waitFor } from "@testing-library/react";
 import { Mock, vi } from "vitest";
@@ -16,6 +16,7 @@ vi.mock(
 // Mock the helper functions
 vi.mock("@/services/recreation-resource-admin/hooks/helpers", () => ({
   createRetryHandler: vi.fn(),
+  mapRecreationResourceDetail: (x: any) => x,
 }));
 
 describe("useGetRecreationResourceById", () => {
