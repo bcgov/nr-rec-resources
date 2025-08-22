@@ -21,6 +21,8 @@ spec:
         metadata:
           labels:
             {{- include "labels" . | nindent 12 }}
+          annotations:
+            redeploy-timestamp: "{{ .Values.image.tag | default .Chart.AppVersion }}"
         spec:
           volumes:
             - name: {{ .Release.Name }}-csv
@@ -29,6 +31,7 @@ spec:
           containers:
             - name: {{ .Chart.Name }}
               image: "artifacts.developer.gov.bc.ca/github-docker-remote/bcgov/nr-rec-resources/backend-el:{{ .Values.image.tag | default .Chart.AppVersion }}"
+              imagePullPolicy: Always
               resources:
                 {{- toYaml .Values.resources | nindent 16 }}
               envFrom:
