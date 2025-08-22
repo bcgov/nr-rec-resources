@@ -32,13 +32,14 @@ data "aws_ecs_cluster" "ecs_cluster" {
   cluster_name = "ecs-cluster-${var.app_name}"
 }
 
-module "flyway_task" {
+module "flyway_fta_migration_task" {
   source = "../modules/ecs-flyway-task"
 
   app_name           = var.app_name
   flyway_image       = var.flyway_image
   cpu                = "512"
   memory             = "1024"
+  db_schema          = "fta"
   execution_role_arn = data.aws_iam_role.ecs_task_execution_role.arn
   task_role_arn      = data.aws_iam_role.app_container_role.arn
   environment = [
