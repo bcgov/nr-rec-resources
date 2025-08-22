@@ -22,7 +22,7 @@ export const RecResourceOverviewItem = ({
 }: RecResourceOverviewItemProps) => {
   if (!value) return null;
   return (
-    <Col {...colProps} className="mb-3">
+    <Col {...colProps}>
       <Stack gap={1}>
         <span className="fw-bold text-dark">{label}</span>
         {isHtml ? (
