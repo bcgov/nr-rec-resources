@@ -46,13 +46,14 @@ resource "terraform_data" "trigger_deployment" {
 }
 
 
-module "flyway_task" {
+module "flyway_rst_migration_task" {
   source = "../modules/ecs-flyway-task"
 
   app_name           = var.app_name
   flyway_image       = var.flyway_image
   cpu                = "512"
   memory             = "1024"
+  db_schema          = "rst"
   execution_role_arn = aws_iam_role.ecs_task_execution_role.arn
   task_role_arn      = aws_iam_role.app_container_role.arn
   environment = [
