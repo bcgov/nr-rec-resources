@@ -14,51 +14,37 @@ export const RecResourceOverviewSection = (
   return (
     <StyledAccordion eventKey="overview" title="Overview">
       <Stack direction="vertical" gap={4}>
-        {/* Description - full width */}
-        <Row>
+        <Row xs={12}>
           <RecResourceOverviewItem
             label="Description"
             value={recResource.description}
-            colProps={{ xs: 12 }}
             isHtml
           />
         </Row>
 
-        {/* Key attributes grouped in a card */}
-        <Row className="gy-3">
+        <Row className="gy-3" xs={12} md={2} lg={3}>
           <RecResourceOverviewItem
             label="Closest Community"
             value={recResource.closest_community}
-            colProps={{ xs: 12, md: 6 }}
           />
           <RecResourceOverviewItem
             label="Recreation District"
-            value={recResource.recreation_district?.description}
-            colProps={{ xs: 12, md: 6 }}
+            value={recResource.recreation_district_description}
           />
           <RecResourceOverviewItem
             label="Access Type"
             value={recResource.rec_resource_type}
-            colProps={{ xs: 12, md: 6 }}
           />
           <RecResourceOverviewItem
             label="Maintenance Type"
             value={recResource.maintenance_standard_description}
-            colProps={{ xs: 12, md: 6 }}
-          />
-          <RecResourceOverviewItem
-            label="Status"
-            value={recResource.recreation_status?.description}
-            colProps={{ xs: 12, md: 6 }}
           />
         </Row>
 
-        {/* Driving Directions - full width */}
-        <Row>
+        <Row xs={12}>
           <RecResourceOverviewItem
             label="Driving Directions"
             value={recResource.driving_directions}
-            colProps={{ xs: 12 }}
             isHtml
           />
         </Row>

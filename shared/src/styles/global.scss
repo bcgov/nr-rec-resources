@@ -3,6 +3,18 @@
 @import "bootstrap/scss/variables";
 @import "bootstrap/scss/mixins/_breakpoints";
 
+@function color-rgb($color) {
+  @return "#{red($color)}, #{green($color)}, #{blue($color)}";
+}
+
+:root {
+  // override Bootstrap variables
+  --bs-primary: #{$colorBlue};
+  --bs-primary-rgb: #{color-rgb($colorBlue)};
+  --bs-secondary: #{$colorGrey};
+  --bs-secondary-rgb: #{color-rgb($colorGrey)};
+}
+
 .bc-bg-yellow {
   background: $colorGold;
 }
