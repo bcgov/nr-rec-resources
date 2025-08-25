@@ -1,9 +1,17 @@
-name: Scheduled FTA Migration
+name: FTA Migration
 
 on:
-  schedule:
-    - cron: '0 * * * *' # Runs every hour on the hour
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to AWS'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - test
+          - prod
 
 env:
   AWS_REGION: ca-central-1
@@ -14,31 +22,16 @@ permissions:
   packages: write
 
 jobs:
-  fta-migration-dev:
-    name: FTA migration dev
+  fta-migration:
+    name: FTA migration (${{ github.event.inputs.environment }})
     uses: ./.github/workflows/.aws-deployer.yml
     concurrency:
-      group: scheduled-fta-migration-dev
+      group: deploy-fta-migration-${{ inputs.environment_name }}
       cancel-in-progress: false
     with:
       app: public
-      app_env: dev
-      environment_name: dev
-      command: apply
-      flyway_image: ghcr.io/bcgov/nr-rec-resources/migrations/fta:latest
-      working_directory: migration
-      tag: latest
-    secrets: inherit
-  fta-migration-prod:
-    name: FTA migration prod
-    uses: ./.github/workflows/.aws-deployer.yml
-    concurrency:
-      group: scheduled-fta-migration-prod
-      cancel-in-progress: false
-    with:
-      app: public
-      app_env: prod
-      environment_name: prod
+      app_env: ${{ github.event.inputs.environment }}
+      environment_name: ${{ github.event.inputs.environment }}
       command: apply
       flyway_image: ghcr.io/bcgov/nr-rec-resources/migrations/fta:latest
       working_directory: migration
