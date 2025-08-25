@@ -1,7 +1,7 @@
 import { CustomBadge, CustomButton } from "@/components";
 import { ClampLines } from "@/components/clamp-lines";
 import { useRecResourceFileTransferState } from "@/pages/rec-resource-page/hooks/useRecResourceFileTransferState";
-import { RecreationResourceDetailModel } from "@/services";
+import { RecreationResourceDetailUIModel } from "@/services";
 import {
   COLOR_BLUE,
   COLOR_BLUE_LIGHT,
@@ -15,7 +15,7 @@ import { Dropdown, Stack } from "react-bootstrap";
 import "./ResourceHeaderSection.scss";
 
 interface ResourceHeaderSectionProps {
-  recResource: RecreationResourceDetailModel;
+  recResource: RecreationResourceDetailUIModel;
 }
 
 interface ActionButtonProps {

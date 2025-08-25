@@ -1,10 +1,10 @@
-import type { RecreationResourceDetailModel } from "@/services";
+import type { RecreationResourceDetailUIModel } from "@/services";
 import { Row, Stack } from "react-bootstrap";
 import { StyledAccordion } from "../StyledAccordion/StyledAccordion";
 import { RecResourceOverviewItem } from "./RecResourceOverviewItem";
 
 type RecResourceOverviewSectionProps = {
-  recResource: RecreationResourceDetailModel;
+  recResource: RecreationResourceDetailUIModel;
 };
 
 export const RecResourceOverviewSection = (

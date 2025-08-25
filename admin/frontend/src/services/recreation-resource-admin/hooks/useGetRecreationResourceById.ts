@@ -1,4 +1,8 @@
-import { RecreationResourceApi } from "@/services/recreation-resource-admin";
+import {
+  RecreationResourceApi,
+  RecreationResourceDetailDto,
+  RecreationResourceDetailUIModel,
+} from "@/services/recreation-resource-admin";
 import { useQuery } from "@tanstack/react-query";
 import { createRetryHandler, mapRecreationResourceDetail } from "./helpers";
 import { useRecreationResourceAdminApiClient } from "./useRecreationResourceAdminApiClient";
@@ -7,9 +11,9 @@ export function useGetRecreationResourceById(rec_resource_id?: string) {
   const api = useRecreationResourceAdminApiClient() as RecreationResourceApi;
 
   return useQuery<
-    import("@/services/recreation-resource-admin").RecreationResourceDetailDto,
+    RecreationResourceDetailDto,
     unknown,
-    import("@/services/recreation-resource-admin").RecreationResourceDetailModel
+    RecreationResourceDetailUIModel
   >({
     queryKey: ["recreation-resource", rec_resource_id],
     queryFn: () =>

@@ -4,7 +4,7 @@ import * as store from "@/pages/rec-resource-page/store/recResourceFileTransferS
 import { GalleryFile } from "@/pages/rec-resource-page/types";
 import {
   handleApiError,
-  RecreationResourceDetailModel,
+  RecreationResourceDetailUIModel,
   useUploadResourceDocument,
 } from "@/services";
 import * as notificationStore from "@/store/notificationStore";
@@ -58,7 +58,7 @@ const mockRecResource = {
   campsite_count: 0,
   recreation_access: [],
   recreation_structure: { has_toilet: false, has_table: false },
-} as unknown as RecreationResourceDetailModel;
+} as unknown as RecreationResourceDetailUIModel;
 
 describe("useDocumentUpload", () => {
   beforeEach(() => {

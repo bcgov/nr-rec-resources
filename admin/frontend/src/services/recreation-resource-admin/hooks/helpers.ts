@@ -1,6 +1,6 @@
 import {
   RecreationResourceDetailDto,
-  RecreationResourceDetailModel,
+  RecreationResourceDetailUIModel,
   RecreationResourceDocDto,
   RecreationResourceImageDto,
 } from "@/services";
@@ -12,7 +12,7 @@ import {
  */
 export function mapRecreationResourceDetail(
   data: RecreationResourceDetailDto,
-): RecreationResourceDetailModel {
+): RecreationResourceDetailUIModel {
   return {
     ...data,
     maintenance_standard_description:

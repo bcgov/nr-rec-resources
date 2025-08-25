@@ -1,5 +1,5 @@
 import { ResourceHeaderSection } from "@/pages/rec-resource-page/components/ResourceHeaderSection";
-import { RecreationResourceDetailModel } from "@/services";
+import { RecreationResourceDetailUIModel } from "@/services";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -56,7 +56,7 @@ const baseResource = {
     comment: "",
     description: "",
   },
-} as unknown as RecreationResourceDetailModel;
+} as unknown as RecreationResourceDetailUIModel;
 
 describe("ResourceHeaderSection", () => {
   const defaultState = {

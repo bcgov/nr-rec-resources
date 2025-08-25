@@ -4,7 +4,7 @@ import * as store from "@/pages/rec-resource-page/store/recResourceFileTransferS
 import { GalleryDocument } from "@/pages/rec-resource-page/types";
 import {
   handleApiError,
-  RecreationResourceDetailModel,
+  RecreationResourceDetailUIModel,
   useDeleteResourceDocument,
 } from "@/services";
 import * as notificationStore from "@/store/notificationStore";
@@ -58,7 +58,7 @@ vi.mock("@/services/utils/errorHandler", () => ({
 const mockDeleteMutation = vi.fn();
 const mockRecResource = {
   rec_resource_id: "test-resource-123",
-} as RecreationResourceDetailModel;
+} as RecreationResourceDetailUIModel;
 const mockDocument: GalleryDocument = {
   id: "test-doc-123",
   name: "test-document.pdf",
