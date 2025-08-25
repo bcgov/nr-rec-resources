@@ -21,8 +21,8 @@ export const RecResourceOverviewItem = ({
   if (!value) return null;
   return (
       <Stack gap={1} className="border-start border-2 border-primary">
-        <span className="text-dark fw-bold">{label}</span>
-        <span className="text-dark">
+        <span className="text-primary fw-bold">{label}</span>
+        <span className="text-secondary">
           {isHtml ? (
             <span dangerouslySetInnerHTML={{ __html: value }} />
           ) : (
