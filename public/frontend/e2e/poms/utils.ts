@@ -7,7 +7,7 @@ import {
   waitForNetworkRequest,
   waitForNetworkResponse,
 } from 'e2e/utils';
-import { BASE_URL, MAP_CANVAS_SELECTOR } from 'e2e/constants';
+import { BASE_URL, MAP_CANVAS_SELECTOR, VIEWPORT } from 'e2e/constants';
 
 export class UtilsPOM {
   readonly page: Page;
@@ -52,11 +52,25 @@ export class UtilsPOM {
     });
   }
 
-  async canvasScreenshotWithVectorMap(component: string, variant: string) {
+  async screenshotWithMapCanvas(component: string, variant: string) {
     await this.captureVectorMapForHappo();
     await happoPlaywright.screenshot(this.page, this.pageContent, {
       component,
       variant,
+    });
+  }
+
+  async screenshotWithSearchMapView(component: string, variant: string) {
+    await this.captureVectorMapForHappo();
+    await happoPlaywright.screenshot(this.page, this.pageContent, {
+      component,
+      variant,
+      targets: [
+        { name: 'chromium', browser: 'chromium', viewport: VIEWPORT },
+        { name: 'edge', browser: 'chromium', viewport: VIEWPORT },
+        { name: 'firefox', browser: 'firefox', viewport: VIEWPORT },
+        { name: 'safari', browser: 'safari', viewport: VIEWPORT },
+      ],
     });
   }
 
@@ -94,20 +108,19 @@ export class UtilsPOM {
 
   async captureVectorMapForHappo() {
     const canvas = this.page.locator(MAP_CANVAS_SELECTOR);
-
     if ((await canvas.count()) === 0) return;
 
-    // Ensure header is above the map
+    // Hide controls that overlay the map (search, zoom, etc.)
     await this.page.evaluate(() => {
-      const header = document.querySelector('#header');
-      if (header instanceof HTMLElement) {
-        header.style.zIndex = '999999';
-      }
+      document
+        .querySelectorAll('.zoom-control, .search-map-controls')
+        .forEach((el) => {
+          if (el instanceof HTMLElement) el.style.visibility = 'hidden';
+        });
     });
 
-    // Wait for OpenLayers map to finish rendering
+    // Wait for OpenLayers to finish rendering
     await this.page.evaluate(() => {
-      // eslint-disable-next-line
       return new Promise<void>((resolve) => {
         const map = (window as any).olMap;
         if (!map) return resolve();
@@ -115,17 +128,17 @@ export class UtilsPOM {
       });
     });
 
-    // Capture the canvas as a screenshot buffer
+    // Capture screenshot buffer of the canvas
     const buffer = await canvas.screenshot();
 
-    // Replace the canvas with an <img> containing the screenshot for Happo
+    // Replace the canvas with an <img>
     await this.page.evaluate(
       ([selector, imgData]) => {
         const canvasEl = document.querySelector<HTMLCanvasElement>(selector);
         if (!canvasEl) return;
         const img = document.createElement('img');
-        img.style.width = canvasEl.width + 'px';
-        img.style.height = canvasEl.height + 'px';
+        img.style.width = `${canvasEl.width}px`;
+        img.style.height = `${canvasEl.height}px`;
         img.src = imgData;
         canvasEl.replaceWith(img);
       },
@@ -134,5 +147,22 @@ export class UtilsPOM {
         `data:image/png;base64,${buffer.toString('base64')}`,
       ],
     );
+
+    // Restore the controls
+    await this.page.evaluate(() => {
+      document
+        .querySelectorAll('.zoom-control, .search-map-controls')
+        .forEach((el) => {
+          if (el instanceof HTMLElement) el.style.visibility = '';
+        });
+    });
+
+    // Ensure header is above the map
+    await this.page.evaluate(() => {
+      const header = document.querySelector('#header');
+      if (header instanceof HTMLElement) {
+        header.style.zIndex = '999999';
+      }
+    });
   }
 }

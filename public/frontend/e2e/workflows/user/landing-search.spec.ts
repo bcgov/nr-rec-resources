@@ -54,7 +54,10 @@ test.describe('User flows from the landing page to searching for a rec resource'
 
     await utils.accessibility();
 
-    await utils.screenshot('Recreation Resource page', '10k cabin');
+    await utils.screenshotWithMapCanvas(
+      'Recreation Resource page',
+      '10k cabin',
+    );
   });
 
   test('Navigate to the landing page and use the landing page search bar to find a rec resource by name and navigate to that page', async ({
@@ -94,7 +97,7 @@ test.describe('User flows from the landing page to searching for a rec resource'
 
     await utils.accessibility();
 
-    await utils.screenshot(
+    await utils.screenshotWithMapCanvas(
       'Recreation Resource page',
       '24 mile snowmobile area',
     );

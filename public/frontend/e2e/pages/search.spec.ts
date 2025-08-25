@@ -45,6 +45,6 @@ test.describe('Search page', () => {
 
     await searchMap.hideMapDisclaimer();
 
-    await utils.canvasScreenshotWithVectorMap('Search map', 'default');
+    await utils.screenshotWithSearchMapView('Search map', 'default');
   });
 });
