@@ -23,7 +23,7 @@ const SearchViewControls = ({ variant }: SearchViewControlsProps) => {
 
   return (
     <Button
-      className="search-chip btn h-2"
+      className="search-chip btn h-2 text-nowrap"
       variant="secondary"
       onClick={() => handleViewChange(variant)}
     >

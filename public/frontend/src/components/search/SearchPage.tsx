@@ -187,11 +187,7 @@ const SearchPage = () => {
                     <SearchViewControls variant="map" />
                   </div>
                   <FilterChips />
-                  {(totalCount === 0 || totalCount === undefined) && (
-                    <>
-                      <NoResults />
-                    </>
-                  )}
+                  {totalCount === 0 && <NoResults />}
                 </div>
               )}
             </div>
