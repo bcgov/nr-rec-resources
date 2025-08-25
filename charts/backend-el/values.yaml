@@ -3,7 +3,7 @@ secrets:
   dbName: ~
   dbPassword: ~
   dbUser: ~
-  flywayTaskConfigs: ""
+  flywayTaskConfigs: ''
   persist: true
 image:
   tag: ~
@@ -11,12 +11,12 @@ resources:
   requests:
     cpu: 250m
     memory: 1500Mi
-schedule: "0 8 * * *" # Daily at midnight PST
-hourlySchedule: "15 * * * *" # Hourly on the 15th minute
+schedule: '0 8 * * *' # Daily at midnight PST
+hourlySchedule: '15 * * * *' # Hourly on the 15th minute
 backoffLimit: 3 # retry 3 times before giving up
 successHistoryLimit: 7
 failedHistoryLimit: 7
 config:
-  awsS3Bucket: "rst-fta-dataload-oracle" # default bucket for S3 uploads
+  awsS3Bucket: 'rst-fta-dataload-oracle' # default bucket for S3 uploads
 pvc:
   size: ~ # Persistent volume claim size, e.g., "500Mi" given via GHA in build-deploy-el-openshift.yml

@@ -1,8 +1,8 @@
-import { AuthenticationError } from "@/errors";
+import { AuthenticationError } from '@/errors';
 import {
   ResponseError,
   ValidationErrorDetailDto,
-} from "@/services/recreation-resource-admin";
+} from '@/services/recreation-resource-admin';
 
 export interface ApiErrorInfo {
   statusCode: number;
@@ -17,7 +17,7 @@ export interface ApiErrorInfo {
 export async function handleApiError(error: unknown): Promise<ApiErrorInfo> {
   // Handle ResponseError (from your API client)
   if (error instanceof ResponseError) {
-    let message = "An error occurred";
+    let message = 'An error occurred';
     const statusCode = error.response.status;
 
     try {
@@ -36,15 +36,15 @@ export async function handleApiError(error: unknown): Promise<ApiErrorInfo> {
           .filter(
             (detail: ValidationErrorDetailDto) =>
               detail &&
-              typeof detail === "object" &&
+              typeof detail === 'object' &&
               detail.field &&
               Array.isArray(detail.messages),
           )
           .map(
             (detail: ValidationErrorDetailDto) =>
-              `${detail.field}: ${detail.messages.join(", ")}`,
+              `${detail.field}: ${detail.messages.join(', ')}`,
           )
-          .join("; ");
+          .join('; ');
 
         if (validationMessages) {
           message = `Validation Error: ${validationMessages}`;
@@ -84,7 +84,7 @@ export async function handleApiError(error: unknown): Promise<ApiErrorInfo> {
   }
 
   // Handle string errors
-  if (typeof error === "string") {
+  if (typeof error === 'string') {
     return {
       statusCode: 500,
       message: error,
@@ -96,7 +96,7 @@ export async function handleApiError(error: unknown): Promise<ApiErrorInfo> {
   // Handle unknown errors
   return {
     statusCode: 500,
-    message: "An unknown error occurred",
+    message: 'An unknown error occurred',
     isResponseError: false,
     isAuthError: false,
   };
@@ -105,17 +105,17 @@ export async function handleApiError(error: unknown): Promise<ApiErrorInfo> {
 function getDefaultErrorMessage(statusCode: number): string {
   switch (statusCode) {
     case 400:
-      return "Bad Request - Invalid input provided";
+      return 'Bad Request - Invalid input provided';
     case 401:
-      return "Unauthorized - Please log in again";
+      return 'Unauthorized - Please log in again';
     case 403:
       return "Forbidden - You don't have permission to perform this action";
     case 404:
-      return "Not Found - The requested resource was not found";
+      return 'Not Found - The requested resource was not found';
     case 415:
-      return "Unsupported Media Type - File type not allowed";
+      return 'Unsupported Media Type - File type not allowed';
     case 500:
-      return "Internal Server Error - Please try again later";
+      return 'Internal Server Error - Please try again later';
     default:
       return `HTTP ${statusCode} Error`;
   }

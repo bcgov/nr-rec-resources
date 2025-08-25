@@ -1,67 +1,67 @@
-import { useDocumentList } from "@/pages/rec-resource-page/hooks/useDocumentList";
-import { renderHook } from "@testing-library/react";
+import { useDocumentList } from '@/pages/rec-resource-page/hooks/useDocumentList';
+import { renderHook } from '@testing-library/react';
 
 const mockUseGetDocumentsByRecResourceId = vi.fn();
 
 vi.mock(
-  "@/services/hooks/recreation-resource-admin/useGetDocumentsByRecResourceId",
+  '@/services/hooks/recreation-resource-admin/useGetDocumentsByRecResourceId',
   () => ({
     useGetDocumentsByRecResourceId: (...args: any[]) =>
       mockUseGetDocumentsByRecResourceId(...args),
   }),
 );
-vi.mock("@/pages/rec-resource-page/helpers", () => ({
+vi.mock('@/pages/rec-resource-page/helpers', () => ({
   formatGalleryFileDate: (date: string) => `formatted-${date}`,
 }));
 
 const baseDoc = {
-  ref_id: "1",
-  title: "Doc 1",
-  created_at: "2024-01-01",
-  url: "url1",
-  extension: "pdf",
-  doc_code: "A",
-  doc_code_description: "desc",
-  rec_resource_id: "abc",
+  ref_id: '1',
+  title: 'Doc 1',
+  created_at: '2024-01-01',
+  url: 'url1',
+  extension: 'pdf',
+  doc_code: 'A',
+  doc_code_description: 'desc',
+  rec_resource_id: 'abc',
 };
 
-describe("useDocumentList", () => {
+describe('useDocumentList', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("returns mapped documents and correct state", () => {
+  it('returns mapped documents and correct state', () => {
     mockUseGetDocumentsByRecResourceId.mockReturnValue({
       data: [baseDoc],
       isFetching: false,
       refetch: vi.fn(),
     });
-    const { result } = renderHook(() => useDocumentList("abc"));
+    const { result } = renderHook(() => useDocumentList('abc'));
     expect(result.current.galleryDocumentsFromServer[0]).toMatchObject({
-      id: "1",
-      name: "Doc 1",
-      date: "formatted-2024-01-01",
-      url: "url1",
-      extension: "pdf",
-      doc_code: "A",
-      doc_code_description: "desc",
-      rec_resource_id: "abc",
+      id: '1',
+      name: 'Doc 1',
+      date: 'formatted-2024-01-01',
+      url: 'url1',
+      extension: 'pdf',
+      doc_code: 'A',
+      doc_code_description: 'desc',
+      rec_resource_id: 'abc',
     });
     expect(result.current.isFetching).toBe(false);
-    expect(typeof result.current.refetch).toBe("function");
+    expect(typeof result.current.refetch).toBe('function');
   });
 
-  it("returns empty array if no documents", () => {
+  it('returns empty array if no documents', () => {
     mockUseGetDocumentsByRecResourceId.mockReturnValue({
       data: [],
       isFetching: false,
       refetch: vi.fn(),
     });
-    const { result } = renderHook(() => useDocumentList("abc"));
+    const { result } = renderHook(() => useDocumentList('abc'));
     expect(result.current.galleryDocumentsFromServer).toEqual([]);
   });
 
-  it("handles many documents", () => {
+  it('handles many documents', () => {
     const docs = Array.from({ length: 30 }, (_, i) => ({
       ...baseDoc,
       ref_id: String(i),
@@ -71,7 +71,7 @@ describe("useDocumentList", () => {
       isFetching: false,
       refetch: vi.fn(),
     });
-    const { result } = renderHook(() => useDocumentList("abc"));
+    const { result } = renderHook(() => useDocumentList('abc'));
     expect(result.current.galleryDocumentsFromServer).toHaveLength(30);
   });
 });

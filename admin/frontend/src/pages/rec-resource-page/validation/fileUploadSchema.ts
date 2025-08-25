@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 /**
  * Schema for validating file upload names
@@ -6,11 +6,11 @@ import { z } from "zod";
 export const fileUploadSchema = z.object({
   fileName: z
     .string()
-    .min(1, "File name is required")
-    .max(100, "File name cannot exceed 100 characters")
+    .min(1, 'File name is required')
+    .max(100, 'File name cannot exceed 100 characters')
     .refine(
       (name) => /^[a-zA-Z0-9\s\-_.()]+$/.test(name),
-      "File name contains invalid characters. Only letters, numbers, spaces, hyphens, underscores, periods, and parentheses are allowed",
+      'File name contains invalid characters. Only letters, numbers, spaces, hyphens, underscores, periods, and parentheses are allowed',
     ),
 });
 
@@ -30,6 +30,6 @@ export const createFileUploadValidator = (existingFileNames: string[]) => {
     fileName: fileUploadSchema.shape.fileName.refine((name) => {
       const normalizedName = name.toLowerCase();
       return !normalizedExistingNames.has(normalizedName);
-    }, "A file with this name already exists. Please choose a different name"),
+    }, 'A file with this name already exists. Please choose a different name'),
   });
 };

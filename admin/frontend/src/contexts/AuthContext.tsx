@@ -4,10 +4,10 @@ import {
   useContext,
   useEffect,
   useState,
-} from "react";
-import { AuthService, UserInfo } from "@/services/auth";
-import { AuthenticationError } from "@/errors";
-import { AuthServiceEvent } from "@/services/auth/AuthService.constants";
+} from 'react';
+import { AuthService, UserInfo } from '@/services/auth';
+import { AuthenticationError } from '@/errors';
+import { AuthServiceEvent } from '@/services/auth/AuthService.constants';
 
 interface AuthContextValue {
   user?: UserInfo;
@@ -93,7 +93,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 export const useAuthContext = (): AuthContextValue => {
   const context = useContext(AuthContext);
   if (context === null) {
-    throw new Error("useAuthContext must be used within an AuthProvider");
+    throw new Error('useAuthContext must be used within an AuthProvider');
   }
   return context;
 };

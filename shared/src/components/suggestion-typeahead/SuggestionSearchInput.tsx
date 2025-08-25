@@ -1,9 +1,9 @@
-import { FC } from "react";
-import { ClearButton } from "react-bootstrap-typeahead";
-import { TypeaheadInputProps } from "react-bootstrap-typeahead/types/types";
-import { Form, InputGroup, Spinner } from "react-bootstrap";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import { FC } from 'react';
+import { ClearButton } from 'react-bootstrap-typeahead';
+import { TypeaheadInputProps } from 'react-bootstrap-typeahead/types/types';
+import { Form, InputGroup, Spinner } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
 interface SuggestionSearchInputProps extends TypeaheadInputProps {
   isLoading?: boolean;

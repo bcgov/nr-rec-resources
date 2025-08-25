@@ -1,13 +1,13 @@
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "src/prisma.service";
-import { RecreationResourceSearchService } from "src/recreation-resource/service/recreation-resource-search.service";
-import { RecreationResourceSuggestionsService } from "src/recreation-resource/service/recreation-resource-suggestion.service";
-import { RecreationSuggestionDto } from "src/recreation-resource/dto/recreation-resource-suggestion.dto";
-import { formatRecreationResourceDetailResults } from "src/recreation-resource/utils/formatRecreationResourceDetailResults";
-import { getRecreationResourceSelect } from "src/recreation-resource/utils/getRecreationResourceSelect";
-import { RecreationResourceDetailDto } from "src/recreation-resource/dto/recreation-resource.dto";
-import { RecreationResourceImageSize } from "src/recreation-resource/dto/recreation-resource-image.dto";
-import { getRecreationResourceSpatialFeatureGeometry } from "@prisma-generated-sql";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma.service';
+import { RecreationResourceSearchService } from 'src/recreation-resource/service/recreation-resource-search.service';
+import { RecreationResourceSuggestionsService } from 'src/recreation-resource/service/recreation-resource-suggestion.service';
+import { RecreationSuggestionDto } from 'src/recreation-resource/dto/recreation-resource-suggestion.dto';
+import { formatRecreationResourceDetailResults } from 'src/recreation-resource/utils/formatRecreationResourceDetailResults';
+import { getRecreationResourceSelect } from 'src/recreation-resource/utils/getRecreationResourceSelect';
+import { RecreationResourceDetailDto } from 'src/recreation-resource/dto/recreation-resource.dto';
+import { RecreationResourceImageSize } from 'src/recreation-resource/dto/recreation-resource-image.dto';
+import { getRecreationResourceSpatialFeatureGeometry } from '@prisma-generated-sql';
 
 @Injectable()
 export class RecreationResourceService {
@@ -67,7 +67,7 @@ export class RecreationResourceService {
 
   async searchRecreationResources(
     page: number = 1,
-    filter: string = "",
+    filter: string = '',
     limit?: number,
     activities?: string,
     type?: string,

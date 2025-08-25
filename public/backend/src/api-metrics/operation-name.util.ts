@@ -1,7 +1,7 @@
-import { ExecutionContext, Injectable } from "@nestjs/common";
-import { Reflector } from "@nestjs/core";
-import { ApiOperationOptions } from "@nestjs/swagger";
-import { SWAGGER_CONSTANTS } from "./api-metrics.constants";
+import { ExecutionContext, Injectable } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { ApiOperationOptions } from '@nestjs/swagger';
+import { SWAGGER_CONSTANTS } from './api-metrics.constants';
 
 @Injectable()
 export class OperationNameUtil {

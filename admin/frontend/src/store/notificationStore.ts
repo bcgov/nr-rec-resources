@@ -2,24 +2,24 @@
  * Notification store using TanStack Store.
  * Provides global notification management as a collection of messages.
  */
-import { Store } from "@tanstack/store";
-import { AlertProps } from "react-bootstrap";
+import { Store } from '@tanstack/store';
+import { AlertProps } from 'react-bootstrap';
 
 export type NotificationMessage =
   | {
       id: string | number;
-      type: "status";
+      type: 'status';
       message: string;
       variant: Extract<
-        AlertProps["variant"],
-        "success" | "danger" | "warning" | "info"
+        AlertProps['variant'],
+        'success' | 'danger' | 'warning' | 'info'
       >;
       autoDismiss?: boolean;
       timeout?: number;
     }
   | {
       id: string | number;
-      type: "spinner";
+      type: 'spinner';
       message: string;
       autoDismiss?: false;
     };
@@ -35,9 +35,9 @@ const getId = (id?: string | number) => id ?? crypto.randomUUID();
 export const addStatusNotification = (
   message: string,
   variant: Extract<
-    AlertProps["variant"],
-    "success" | "danger" | "warning" | "info"
-  > = "danger",
+    AlertProps['variant'],
+    'success' | 'danger' | 'warning' | 'info'
+  > = 'danger',
   id?: string | number,
   autoDismiss = true,
   timeout = 3000,
@@ -50,7 +50,7 @@ export const addStatusNotification = (
             ...prev.messages,
             {
               id: getId(id),
-              type: "status",
+              type: 'status',
               message,
               variant,
               autoDismiss,
@@ -71,7 +71,7 @@ export const addSpinnerNotification = (
       : {
           messages: [
             ...prev.messages,
-            { id: getId(id), type: "spinner", message, autoDismiss: false },
+            { id: getId(id), type: 'spinner', message, autoDismiss: false },
           ],
         },
   );
@@ -88,18 +88,18 @@ export const addSuccessNotification = (
   id?: string | number,
   autoDismiss = true,
   timeout = 3000,
-): void => addStatusNotification(message, "success", id, autoDismiss, timeout);
+): void => addStatusNotification(message, 'success', id, autoDismiss, timeout);
 
 export const addInfoNotification = (
   message: string,
   id?: string | number,
   autoDismiss = true,
   timeout = 3000,
-): void => addStatusNotification(message, "info", id, autoDismiss, timeout);
+): void => addStatusNotification(message, 'info', id, autoDismiss, timeout);
 
 export const addErrorNotification = (
   message: string,
   id?: string | number,
   autoDismiss = true,
   timeout = 3000,
-): void => addStatusNotification(message, "danger", id, autoDismiss, timeout);
+): void => addStatusNotification(message, 'danger', id, autoDismiss, timeout);

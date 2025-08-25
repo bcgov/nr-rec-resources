@@ -18,14 +18,14 @@ services:
     environment:
       <<: *postgres-vars
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", *POSTGRES_USER]
-    ports: ["5432:5432"]
+      test: ['CMD', 'pg_isready', '-U', *POSTGRES_USER]
+    ports: ['5432:5432']
 
   migrations:
     image: ${FLYWAY_IMAGE:-flyway/flyway:10-alpine}
     container_name: migrations
     command: info migrate info
-    volumes: ["./migrations/rst/sql:/flyway/sql:ro"]
+    volumes: ['./migrations/rst/sql:/flyway/sql:ro']
     environment:
       FLYWAY_URL: jdbc:postgresql://database:5432/postgres
       FLYWAY_USER: *POSTGRES_USER
@@ -40,7 +40,7 @@ services:
     image: ${FLYWAY_FIXTURES_IMAGE:-flyway/flyway:10-alpine}
     container_name: fixtures
     command: info migrate info
-    volumes: ["./migrations/fixtures/sql:/flyway/sql:ro"]
+    volumes: ['./migrations/fixtures/sql:/flyway/sql:ro']
     environment:
       FLYWAY_URL: jdbc:postgresql://database:5432/postgres
       FLYWAY_USER: *POSTGRES_USER
@@ -53,7 +53,7 @@ services:
 
   schemaspy:
     image: schemaspy/schemaspy:6.2.4
-    profiles: ["schemaspy"]
+    profiles: ['schemaspy']
     container_name: schemaspy
     command:
       -t pgsql11 -db postgres -host database -port 5432 -u postgres -p default
@@ -61,7 +61,7 @@ services:
     depends_on:
       migrations:
         condition: service_completed_successfully
-    volumes: ["./output:/output"]
+    volumes: ['./output:/output']
 
   backend:
     container_name: backend
@@ -75,10 +75,10 @@ services:
     image: ${BACKEND_IMAGE:-backend}
     build:
       context: ./backend
-    ports: ["8000:8000"]
+    ports: ['8000:8000']
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/api"]
-    working_dir: "/app"
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000/api']
+    working_dir: '/app'
 
   frontend:
     container_name: frontend
@@ -90,10 +90,10 @@ services:
       NODE_ENV: development
       LOG_LEVEL: debug
     image: ${FRONTEND_IMAGE:-frontend}
-    ports: ["3000:3000"]
+    ports: ['3000:3000']
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
-    working_dir: "/app"
+      test: ['CMD', 'curl', '-f', 'http://localhost:3000']
+    working_dir: '/app'
     depends_on:
       backend:
         condition: service_started

@@ -1,7 +1,7 @@
 import {
   RecreationResourceDocDto,
   RecreationResourceImageDto,
-} from "@/services/recreation-resource-admin";
+} from '@/services/recreation-resource-admin';
 
 /**
  * Gets the base URL for asset storage.
@@ -9,7 +9,7 @@ import {
  */
 export const getBasePathForAssets = (): string =>
   import.meta.env.VITE_RECREATION_RESOURCE_ASSETS_BASE_URL ||
-  "https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca";
+  'https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca';
 
 /**
  * Transforms recreation resource data by updating image URLs with full asset paths.
@@ -64,10 +64,10 @@ export function createRetryHandler({
     }
     const status =
       (error &&
-        typeof error === "object" &&
-        "response" in error &&
+        typeof error === 'object' &&
+        'response' in error &&
         (error as any).response?.status) ||
       undefined;
-    return typeof status === "number" && status >= 500 && status < 600;
+    return typeof status === 'number' && status >= 500 && status < 600;
   };
 }

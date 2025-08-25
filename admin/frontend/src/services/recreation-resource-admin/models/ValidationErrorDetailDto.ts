@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from "../runtime";
+import { mapValues } from '../runtime';
 /**
  *
  * @export
@@ -39,8 +39,8 @@ export interface ValidationErrorDetailDto {
 export function instanceOfValidationErrorDetailDto(
   value: object,
 ): value is ValidationErrorDetailDto {
-  if (!("field" in value) || value["field"] === undefined) return false;
-  if (!("messages" in value) || value["messages"] === undefined) return false;
+  if (!('field' in value) || value['field'] === undefined) return false;
+  if (!('messages' in value) || value['messages'] === undefined) return false;
   return true;
 }
 
@@ -58,8 +58,8 @@ export function ValidationErrorDetailDtoFromJSONTyped(
     return json;
   }
   return {
-    field: json["field"],
-    messages: json["messages"],
+    field: json['field'],
+    messages: json['messages'],
   };
 }
 
@@ -78,7 +78,7 @@ export function ValidationErrorDetailDtoToJSONTyped(
   }
 
   return {
-    field: value["field"],
-    messages: value["messages"],
+    field: value['field'],
+    messages: value['messages'],
   };
 }

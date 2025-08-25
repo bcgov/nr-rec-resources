@@ -1,7 +1,7 @@
-import { Badge, Col, ListGroup, Row } from "react-bootstrap";
-import { FC, ReactNode } from "react";
-import { Highlighter } from "react-bootstrap-typeahead";
-import "@shared/components/suggestion-typeahead/SuggestionListItem.scss";
+import { Badge, Col, ListGroup, Row } from 'react-bootstrap';
+import { FC, ReactNode } from 'react';
+import { Highlighter } from 'react-bootstrap-typeahead';
+import '@shared/components/suggestion-typeahead/SuggestionListItem.scss';
 
 /**
  * Props for the SuggestionListItem component.
@@ -43,7 +43,7 @@ export const SuggestionListItem: FC<SearchItemData> = ({
         <Col xs="auto" className="icon-col flex-shrink-0">
           <div
             className="icon-wrapper"
-            style={{ width: "40px", height: "40px" }}
+            style={{ width: '40px', height: '40px' }}
           >
             {icon}
           </div>

@@ -1,7 +1,7 @@
-import { useStore } from "@tanstack/react-store";
-import { useMemo } from "react";
-import { recResourceFileTransferStore } from "../store/recResourceFileTransferStore";
-import { createFileUploadValidator } from "../validation";
+import { useStore } from '@tanstack/react-store';
+import { useMemo } from 'react';
+import { recResourceFileTransferStore } from '../store/recResourceFileTransferStore';
+import { createFileUploadValidator } from '../validation';
 
 /**
  * Custom hook for managing file name validation logic.
@@ -19,7 +19,7 @@ export function useFileNameValidation() {
   const existingFileNames = useMemo(() => {
     if (!selectedFileForUpload) return [];
 
-    return selectedFileForUpload.type === "image"
+    return selectedFileForUpload.type === 'image'
       ? galleryImages.map((img) => img.name)
       : galleryDocuments.map((doc) => doc.name);
   }, [selectedFileForUpload?.type, galleryImages, galleryDocuments]);

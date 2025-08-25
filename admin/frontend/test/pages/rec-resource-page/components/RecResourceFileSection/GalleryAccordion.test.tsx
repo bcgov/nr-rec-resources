@@ -1,14 +1,14 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi } from "vitest";
-import { GalleryAccordion } from "@/pages/rec-resource-page/components/RecResourceFileSection/GalleryAccordion";
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { GalleryAccordion } from '@/pages/rec-resource-page/components/RecResourceFileSection/GalleryAccordion';
 
 const items = [
-  { id: 1, name: "File 1" },
-  { id: 2, name: "File 2" },
+  { id: 1, name: 'File 1' },
+  { id: 2, name: 'File 2' },
 ];
 
-describe("GalleryAccordion", () => {
-  it("renders title and item count", () => {
+describe('GalleryAccordion', () => {
+  it('renders title and item count', () => {
     render(
       <GalleryAccordion
         eventKey="test"
@@ -21,7 +21,7 @@ describe("GalleryAccordion", () => {
     expect(screen.getByText(/Test Files \(2\)/)).toBeInTheDocument();
   });
 
-  it("renders description banner", () => {
+  it('renders description banner', () => {
     render(
       <GalleryAccordion
         eventKey="test"
@@ -31,10 +31,10 @@ describe("GalleryAccordion", () => {
         renderItem={(item) => <div>{item.name}</div>}
       />,
     );
-    expect(screen.getByText("Test description")).toBeInTheDocument();
+    expect(screen.getByText('Test description')).toBeInTheDocument();
   });
 
-  it("renders all items using renderItem", () => {
+  it('renders all items using renderItem', () => {
     render(
       <GalleryAccordion
         eventKey="test"
@@ -44,11 +44,11 @@ describe("GalleryAccordion", () => {
         renderItem={(item) => <div>{item.name}</div>}
       />,
     );
-    expect(screen.getByText("File 1")).toBeInTheDocument();
-    expect(screen.getByText("File 2")).toBeInTheDocument();
+    expect(screen.getByText('File 1')).toBeInTheDocument();
+    expect(screen.getByText('File 2')).toBeInTheDocument();
   });
 
-  it("renders upload tile with label and triggers onUploadClick", () => {
+  it('renders upload tile with label and triggers onUploadClick', () => {
     const onFileUploadTileClick = vi.fn();
     render(
       <GalleryAccordion
@@ -61,13 +61,13 @@ describe("GalleryAccordion", () => {
         onFileUploadTileClick={onFileUploadTileClick}
       />,
     );
-    const uploadBtn = screen.getByText("Upload Here");
+    const uploadBtn = screen.getByText('Upload Here');
     expect(uploadBtn).toBeInTheDocument();
     fireEvent.click(uploadBtn);
     expect(onFileUploadTileClick).toHaveBeenCalled();
   });
 
-  it("shows spinner when loading", () => {
+  it('shows spinner when loading', () => {
     render(
       <GalleryAccordion
         eventKey="test"
@@ -78,6 +78,6 @@ describe("GalleryAccordion", () => {
         isLoading={true}
       />,
     );
-    expect(screen.getByRole("status")).toBeInTheDocument();
+    expect(screen.getByRole('status')).toBeInTheDocument();
   });
 });

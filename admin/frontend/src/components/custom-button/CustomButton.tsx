@@ -1,10 +1,10 @@
-import clsx from "clsx";
-import { FC, ReactNode } from "react";
+import clsx from 'clsx';
+import { FC, ReactNode } from 'react';
 import {
   Button as BootstrapButton,
   ButtonProps as BootstrapButtonProps,
   Stack,
-} from "react-bootstrap";
+} from 'react-bootstrap';
 
 export interface CustomButtonProps extends BootstrapButtonProps {
   leftIcon?: ReactNode;
@@ -28,7 +28,7 @@ export const CustomButton: FC<CustomButtonProps> = ({
   ...props
 }) => {
   return (
-    <BootstrapButton {...props} className={clsx("custom-btn", className)}>
+    <BootstrapButton {...props} className={clsx('custom-btn', className)}>
       <Stack direction="horizontal" gap={2} className="custom-btn__stack">
         {leftIcon && (
           <span className="d-flex custom-btn__icon custom-btn__icon--left flex-grow-1">

@@ -1,19 +1,19 @@
-import * as helpersModule from "@/services/hooks/recreation-resource-admin/helpers";
-import { useDeleteResourceDocument } from "@/services/hooks/recreation-resource-admin/useDeleteResourceDocument";
-import * as apiClientModule from "@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient";
-import { RecreationResourceApi } from "@/services/recreation-resource-admin/apis/RecreationResourceApi";
-import { reactQueryWrapper } from "@test/test-utils/reactQueryWrapper";
-import { act, renderHook } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import * as helpersModule from '@/services/hooks/recreation-resource-admin/helpers';
+import { useDeleteResourceDocument } from '@/services/hooks/recreation-resource-admin/useDeleteResourceDocument';
+import * as apiClientModule from '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient';
+import { RecreationResourceApi } from '@/services/recreation-resource-admin/apis/RecreationResourceApi';
+import { reactQueryWrapper } from '@test/test-utils/reactQueryWrapper';
+import { act, renderHook } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock(
-  "@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient",
+  '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient',
   () => ({
     useRecreationResourceAdminApiClient: vi.fn(),
   }),
 );
 
-vi.mock("@/services/hooks/recreation-resource-admin/helpers", () => ({
+vi.mock('@/services/hooks/recreation-resource-admin/helpers', () => ({
   createRetryHandler: vi.fn(),
 }));
 
@@ -24,7 +24,7 @@ const mockApi: Partial<RecreationResourceApi> = {
   deleteDocumentResource: mockDeleteDocumentResource,
 };
 
-describe("useDeleteResourceDocument", () => {
+describe('useDeleteResourceDocument', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (
@@ -33,7 +33,7 @@ describe("useDeleteResourceDocument", () => {
     (helpersModule.createRetryHandler as any).mockReturnValue(mockRetryHandler);
   });
 
-  it("returns a mutation object with expected properties", () => {
+  it('returns a mutation object with expected properties', () => {
     const { result } = renderHook(() => useDeleteResourceDocument(), {
       wrapper: reactQueryWrapper,
     });
@@ -49,10 +49,10 @@ describe("useDeleteResourceDocument", () => {
     });
   });
 
-  it("calls deleteDocumentResource with correct params", async () => {
+  it('calls deleteDocumentResource with correct params', async () => {
     const params = {
-      recResourceId: "test-resource-123",
-      refId: "test-document-456",
+      recResourceId: 'test-resource-123',
+      refId: 'test-document-456',
     };
 
     mockDeleteDocumentResource.mockResolvedValueOnce({
@@ -71,13 +71,13 @@ describe("useDeleteResourceDocument", () => {
     expect(mockDeleteDocumentResource).toHaveBeenCalledTimes(1);
   });
 
-  it("returns response from deleteDocumentResource", async () => {
+  it('returns response from deleteDocumentResource', async () => {
     const params = {
-      recResourceId: "test-resource-123",
-      refId: "test-document-456",
+      recResourceId: 'test-resource-123',
+      refId: 'test-document-456',
     };
 
-    const mockResponse = { success: true, id: "test-document-456" };
+    const mockResponse = { success: true, id: 'test-document-456' };
     mockDeleteDocumentResource.mockResolvedValueOnce(mockResponse);
 
     const { result } = renderHook(() => useDeleteResourceDocument(), {
@@ -92,13 +92,13 @@ describe("useDeleteResourceDocument", () => {
     expect(response).toEqual(mockResponse);
   });
 
-  it("throws error when deleteDocumentResource fails", async () => {
+  it('throws error when deleteDocumentResource fails', async () => {
     const params = {
-      recResourceId: "test-resource-123",
-      refId: "test-document-456",
+      recResourceId: 'test-resource-123',
+      refId: 'test-document-456',
     };
 
-    const mockError = new Error("Delete failed");
+    const mockError = new Error('Delete failed');
     mockDeleteDocumentResource.mockRejectedValueOnce(mockError);
 
     const { result } = renderHook(() => useDeleteResourceDocument(), {
@@ -107,12 +107,12 @@ describe("useDeleteResourceDocument", () => {
 
     await act(async () => {
       await expect(result.current.mutateAsync(params)).rejects.toThrow(
-        "Delete failed",
+        'Delete failed',
       );
     });
   });
 
-  it("configures retry handler", () => {
+  it('configures retry handler', () => {
     renderHook(() => useDeleteResourceDocument(), {
       wrapper: reactQueryWrapper,
     });
@@ -120,7 +120,7 @@ describe("useDeleteResourceDocument", () => {
     expect(helpersModule.createRetryHandler).toHaveBeenCalled();
   });
 
-  it("starts with isPending false", () => {
+  it('starts with isPending false', () => {
     const { result } = renderHook(() => useDeleteResourceDocument(), {
       wrapper: reactQueryWrapper,
     });
@@ -128,14 +128,14 @@ describe("useDeleteResourceDocument", () => {
     expect(result.current.isPending).toBe(false);
   });
 
-  it("handles network errors gracefully", async () => {
+  it('handles network errors gracefully', async () => {
     const params = {
-      recResourceId: "test-resource-123",
-      refId: "test-document-456",
+      recResourceId: 'test-resource-123',
+      refId: 'test-document-456',
     };
 
-    const networkError = new Error("Network Error");
-    networkError.name = "NetworkError";
+    const networkError = new Error('Network Error');
+    networkError.name = 'NetworkError';
     mockDeleteDocumentResource.mockRejectedValueOnce(networkError);
 
     const { result } = renderHook(() => useDeleteResourceDocument(), {
@@ -144,7 +144,7 @@ describe("useDeleteResourceDocument", () => {
 
     await act(async () => {
       await expect(result.current.mutateAsync(params)).rejects.toThrow(
-        "Network Error",
+        'Network Error',
       );
     });
   });

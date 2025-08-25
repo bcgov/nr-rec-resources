@@ -1,7 +1,7 @@
-@import "variables.scss";
-@import "bootstrap/scss/functions";
-@import "bootstrap/scss/variables";
-@import "bootstrap/scss/mixins/_breakpoints";
+@import 'variables.scss';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins/_breakpoints';
 
 .bc-bg-yellow {
   background: $colorGold;
@@ -170,7 +170,7 @@ h2.section-heading {
 
   &:after {
     position: absolute;
-    content: "";
+    content: '';
     height: 3px;
     bottom: 9px;
     margin: 0;
@@ -308,7 +308,7 @@ figure.table {
   }
 }
 
-input[type="text"] {
+input[type='text'] {
   border: 1px solid $colorGreyMed;
 
   &::placeholder {

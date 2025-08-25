@@ -1,32 +1,32 @@
-import { useDocumentDelete } from "@/pages/rec-resource-page/hooks/useDocumentDelete";
-import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
-import * as store from "@/pages/rec-resource-page/store/recResourceFileTransferStore";
-import { GalleryDocument } from "@/pages/rec-resource-page/types";
-import { useDeleteResourceDocument } from "@/services/hooks/recreation-resource-admin/useDeleteResourceDocument";
-import { RecreationResourceDetailDto } from "@/services/recreation-resource-admin";
-import { handleApiError } from "@/services/utils/errorHandler";
-import * as notificationStore from "@/store/notificationStore";
-import { useStore } from "@tanstack/react-store";
-import { act, renderHook } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { useDocumentDelete } from '@/pages/rec-resource-page/hooks/useDocumentDelete';
+import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
+import * as store from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
+import { GalleryDocument } from '@/pages/rec-resource-page/types';
+import { useDeleteResourceDocument } from '@/services/hooks/recreation-resource-admin/useDeleteResourceDocument';
+import { RecreationResourceDetailDto } from '@/services/recreation-resource-admin';
+import { handleApiError } from '@/services/utils/errorHandler';
+import * as notificationStore from '@/store/notificationStore';
+import { useStore } from '@tanstack/react-store';
+import { act, renderHook } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock dependencies
-vi.mock("@tanstack/react-store", () => ({
+vi.mock('@tanstack/react-store', () => ({
   useStore: vi.fn(),
 }));
 
 vi.mock(
-  "@/services/hooks/recreation-resource-admin/useDeleteResourceDocument",
+  '@/services/hooks/recreation-resource-admin/useDeleteResourceDocument',
   () => ({
     useDeleteResourceDocument: vi.fn(),
   }),
 );
 
-vi.mock("@/pages/rec-resource-page/hooks/useRecResource", () => ({
+vi.mock('@/pages/rec-resource-page/hooks/useRecResource', () => ({
   useRecResource: vi.fn(),
 }));
 
-vi.mock("@/pages/rec-resource-page/store/recResourceFileTransferStore", () => ({
+vi.mock('@/pages/rec-resource-page/store/recResourceFileTransferStore', () => ({
   recResourceFileTransferStore: {
     setState: vi.fn(),
     getState: vi.fn(),
@@ -47,35 +47,35 @@ vi.mock("@/pages/rec-resource-page/store/recResourceFileTransferStore", () => ({
   setGalleryDocuments: vi.fn(),
 }));
 
-vi.mock("@/store/notificationStore", () => ({
+vi.mock('@/store/notificationStore', () => ({
   addErrorNotification: vi.fn(),
   addSuccessNotification: vi.fn(),
 }));
 
-vi.mock("@/services/utils/errorHandler", () => ({
+vi.mock('@/services/utils/errorHandler', () => ({
   handleApiError: vi.fn(),
 }));
 
 const mockDeleteMutation = vi.fn();
 const mockRecResource = {
-  rec_resource_id: "test-resource-123",
+  rec_resource_id: 'test-resource-123',
 } as RecreationResourceDetailDto;
 const mockDocument: GalleryDocument = {
-  id: "test-doc-123",
-  name: "test-document.pdf",
-  date: "2025-01-01",
-  url: "http://example.com/test.pdf",
-  extension: "pdf",
-  type: "document",
+  id: 'test-doc-123',
+  name: 'test-document.pdf',
+  date: '2025-01-01',
+  url: 'http://example.com/test.pdf',
+  extension: 'pdf',
+  type: 'document',
 };
 
-describe("useDocumentDelete", () => {
+describe('useDocumentDelete', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
     // Mock useRecResource hook
     vi.mocked(useRecResource).mockReturnValue({
-      rec_resource_id: "test-resource-123",
+      rec_resource_id: 'test-resource-123',
       recResource: mockRecResource,
       isLoading: false,
       error: null,
@@ -93,13 +93,13 @@ describe("useDocumentDelete", () => {
     // Mock handleApiError to return expected error format
     vi.mocked(handleApiError).mockResolvedValue({
       statusCode: 500,
-      message: "Delete failed",
+      message: 'Delete failed',
       isResponseError: false,
       isAuthError: false,
     });
   });
 
-  it("returns delete handlers and pending state", () => {
+  it('returns delete handlers and pending state', () => {
     const { result } = renderHook(() => useDocumentDelete());
 
     expect(result.current).toMatchObject({
@@ -108,17 +108,17 @@ describe("useDocumentDelete", () => {
     });
   });
 
-  describe("handleDelete", () => {
+  describe('handleDelete', () => {
     const mockDocument: GalleryDocument = {
-      id: "test-doc-123",
-      name: "test-document.pdf",
-      date: "2025-01-01",
-      url: "http://example.com/test.pdf",
-      extension: "pdf",
-      type: "document",
+      id: 'test-doc-123',
+      name: 'test-document.pdf',
+      date: '2025-01-01',
+      url: 'http://example.com/test.pdf',
+      extension: 'pdf',
+      type: 'document',
     };
 
-    it("deletes document successfully", async () => {
+    it('deletes document successfully', async () => {
       const onSuccess = vi.fn();
       mockDeleteMutation.mockResolvedValueOnce({ success: true });
 
@@ -136,7 +136,7 @@ describe("useDocumentDelete", () => {
 
       // Verify delete was called with correct params
       expect(mockDeleteMutation).toHaveBeenCalledWith({
-        recResourceId: "test-resource-123",
+        recResourceId: 'test-resource-123',
         refId: mockDocument.id,
       });
 
@@ -152,9 +152,9 @@ describe("useDocumentDelete", () => {
       expect(notificationStore.addErrorNotification).not.toHaveBeenCalled();
     });
 
-    it("handles delete failure", async () => {
+    it('handles delete failure', async () => {
       const onSuccess = vi.fn();
-      const deleteError = new Error("Delete failed");
+      const deleteError = new Error('Delete failed');
       mockDeleteMutation.mockRejectedValueOnce(deleteError);
 
       const { result } = renderHook(() => useDocumentDelete());
@@ -171,7 +171,7 @@ describe("useDocumentDelete", () => {
 
       // Verify delete was attempted
       expect(mockDeleteMutation).toHaveBeenCalledWith({
-        recResourceId: "test-resource-123",
+        recResourceId: 'test-resource-123',
         refId: mockDocument.id,
       });
 
@@ -187,12 +187,12 @@ describe("useDocumentDelete", () => {
       expect(notificationStore.addSuccessNotification).not.toHaveBeenCalled();
     });
 
-    it("handles missing rec resource ID", async () => {
+    it('handles missing rec resource ID', async () => {
       const onSuccess = vi.fn();
 
       // Mock useRecResource with no rec resource
       vi.mocked(useRecResource).mockReturnValue({
-        rec_resource_id: "test-resource-123",
+        rec_resource_id: 'test-resource-123',
         recResource: undefined,
         isLoading: false,
         error: null,
@@ -206,7 +206,7 @@ describe("useDocumentDelete", () => {
 
       // Verify error notification was shown
       expect(notificationStore.addErrorNotification).toHaveBeenCalledWith(
-        "Unable to delete document: missing required information.",
+        'Unable to delete document: missing required information.',
       );
 
       // Verify delete was not attempted
@@ -219,11 +219,11 @@ describe("useDocumentDelete", () => {
       expect(store.updateGalleryDocument).not.toHaveBeenCalled();
     });
 
-    it("handles missing document ID", async () => {
+    it('handles missing document ID', async () => {
       const onSuccess = vi.fn();
       const documentWithoutId: GalleryDocument = {
         ...mockDocument,
-        id: "",
+        id: '',
       };
 
       // Mock useStore to return document without ID
@@ -237,7 +237,7 @@ describe("useDocumentDelete", () => {
 
       // Verify error notification was shown
       expect(notificationStore.addErrorNotification).toHaveBeenCalledWith(
-        "Unable to delete document: missing required information.",
+        'Unable to delete document: missing required information.',
       );
 
       // Verify delete was not attempted
@@ -250,12 +250,12 @@ describe("useDocumentDelete", () => {
       expect(store.updateGalleryDocument).not.toHaveBeenCalled();
     });
 
-    it("handles missing rec resource with undefined rec_resource_id", async () => {
+    it('handles missing rec resource with undefined rec_resource_id', async () => {
       const onSuccess = vi.fn();
 
       // Mock useRecResource with rec resource but no ID
       vi.mocked(useRecResource).mockReturnValue({
-        rec_resource_id: "test-resource-123",
+        rec_resource_id: 'test-resource-123',
         recResource: { ...mockRecResource, rec_resource_id: undefined as any },
         isLoading: false,
         error: null,
@@ -269,7 +269,7 @@ describe("useDocumentDelete", () => {
 
       // Verify error notification was shown
       expect(notificationStore.addErrorNotification).toHaveBeenCalledWith(
-        "Unable to delete document: missing required information.",
+        'Unable to delete document: missing required information.',
       );
 
       // Verify delete was not attempted
@@ -282,7 +282,7 @@ describe("useDocumentDelete", () => {
       expect(store.updateGalleryDocument).not.toHaveBeenCalled();
     });
 
-    it("works without onSuccess callback", async () => {
+    it('works without onSuccess callback', async () => {
       mockDeleteMutation.mockResolvedValueOnce({ success: true });
 
       const { result } = renderHook(() => useDocumentDelete());
@@ -293,7 +293,7 @@ describe("useDocumentDelete", () => {
 
       // Verify delete was successful
       expect(mockDeleteMutation).toHaveBeenCalledWith({
-        recResourceId: "test-resource-123",
+        recResourceId: 'test-resource-123',
         refId: mockDocument.id,
       });
 
@@ -303,7 +303,7 @@ describe("useDocumentDelete", () => {
       );
     });
 
-    it("updates document state before attempting delete", async () => {
+    it('updates document state before attempting delete', async () => {
       const onSuccess = vi.fn();
 
       // Create a slow promise to test the order of operations
@@ -332,14 +332,14 @@ describe("useDocumentDelete", () => {
 
       // Verify the mutation was called
       expect(mockDeleteMutation).toHaveBeenCalledWith({
-        recResourceId: "test-resource-123",
+        recResourceId: 'test-resource-123',
         refId: mockDocument.id,
       });
     });
   });
 
-  describe("isDeleting state", () => {
-    it("returns isPending state from mutation", () => {
+  describe('isDeleting state', () => {
+    it('returns isPending state from mutation', () => {
       vi.mocked(useDeleteResourceDocument).mockReturnValue({
         mutateAsync: mockDeleteMutation,
         isPending: true,
@@ -350,7 +350,7 @@ describe("useDocumentDelete", () => {
       expect(result.current.isDeleting).toBe(true);
     });
 
-    it("returns false when mutation is not pending", () => {
+    it('returns false when mutation is not pending', () => {
       vi.mocked(useDeleteResourceDocument).mockReturnValue({
         mutateAsync: mockDeleteMutation,
         isPending: false,
@@ -362,18 +362,18 @@ describe("useDocumentDelete", () => {
     });
   });
 
-  describe("dependency updates", () => {
-    it("re-creates handleDelete when recResource changes", () => {
+  describe('dependency updates', () => {
+    it('re-creates handleDelete when recResource changes', () => {
       const { result, rerender } = renderHook(() => useDocumentDelete());
 
       const initialHandleDelete = result.current.handleDelete;
 
       // Change the rec resource
       vi.mocked(useRecResource).mockReturnValue({
-        rec_resource_id: "different-resource-456",
+        rec_resource_id: 'different-resource-456',
         recResource: {
           ...mockRecResource,
-          rec_resource_id: "different-resource-456",
+          rec_resource_id: 'different-resource-456',
         },
         isLoading: false,
         error: null,
@@ -385,7 +385,7 @@ describe("useDocumentDelete", () => {
       expect(result.current.handleDelete).not.toBe(initialHandleDelete);
     });
 
-    it("re-creates handleDelete when deleteResourceDocumentMutation changes", () => {
+    it('re-creates handleDelete when deleteResourceDocumentMutation changes', () => {
       const { result, rerender } = renderHook(() => useDocumentDelete());
 
       const initialHandleDelete = result.current.handleDelete;

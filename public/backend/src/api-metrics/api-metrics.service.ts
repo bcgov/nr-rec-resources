@@ -1,11 +1,11 @@
-import { HttpStatus, Injectable, Logger } from "@nestjs/common";
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import {
   CloudWatchClient,
   MetricDatum,
   PutMetricDataCommand,
   StandardUnit,
-} from "@aws-sdk/client-cloudwatch";
-import { ConfigService } from "@nestjs/config";
+} from '@aws-sdk/client-cloudwatch';
+import { ConfigService } from '@nestjs/config';
 import {
   ENV_VARS,
   EnvValues,
@@ -13,7 +13,7 @@ import {
   METRIC_NAMESPACE_NAME_PREFIX,
   MetricDimensions,
   MetricNames,
-} from "./api-metrics.constants";
+} from './api-metrics.constants';
 
 @Injectable()
 export class ApiMetricsService {
@@ -42,7 +42,7 @@ export class ApiMetricsService {
         }),
       );
     } catch (error) {
-      this.logger.error("CloudWatch publish failed", error as any);
+      this.logger.error('CloudWatch publish failed', error as any);
     }
   }
 

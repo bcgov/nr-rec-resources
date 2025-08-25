@@ -1,6 +1,6 @@
-import { useMutation } from "@tanstack/react-query";
-import { createRetryHandler } from "./helpers";
-import { useRecreationResourceAdminApiClient } from "./useRecreationResourceAdminApiClient";
+import { useMutation } from '@tanstack/react-query';
+import { createRetryHandler } from './helpers';
+import { useRecreationResourceAdminApiClient } from './useRecreationResourceAdminApiClient';
 
 export interface DeleteResourceDocumentParams {
   recResourceId: string;

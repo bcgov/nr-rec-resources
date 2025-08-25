@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import * as runtime from "../runtime";
+import * as runtime from '../runtime';
 
 /**
  *
@@ -29,16 +29,16 @@ export class AppApi extends runtime.BaseAPI {
 
     if (this.configuration && this.configuration.accessToken) {
       const token = this.configuration.accessToken;
-      const tokenString = await token("keycloak", []);
+      const tokenString = await token('keycloak', []);
 
       if (tokenString) {
-        headerParameters["Authorization"] = `Bearer ${tokenString}`;
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
     const response = await this.request(
       {
         path: `/api`,
-        method: "GET",
+        method: 'GET',
         headers: headerParameters,
         query: queryParameters,
       },
