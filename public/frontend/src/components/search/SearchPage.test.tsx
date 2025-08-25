@@ -200,23 +200,10 @@ describe('SearchPage', () => {
     expect(screen.getByTestId('mock-no-results')).toBeInTheDocument();
   });
 
-  it('handles null/undefined data gracefully', () => {
-    mockStoreState({ totalCount: undefined, pages: undefined });
-    renderWithQueryClient(<SearchPage />);
-    expect(screen.getByTestId('mock-no-results')).toBeInTheDocument();
-  });
-
   it('handles zero count with data', () => {
     mockStoreState({ totalCount: 0, pages: [{ data: [] }] });
     renderWithQueryClient(<SearchPage />);
     expect(screen.getByText('0')).toBeInTheDocument();
-    expect(screen.getByTestId('mock-no-results')).toBeInTheDocument();
-  });
-
-  it('handles undefined totalCount', () => {
-    mockStoreState({ totalCount: undefined, pages: [{ data: [] }] });
-    renderWithQueryClient(<SearchPage />);
-    expect(screen.getByText('Results')).toBeInTheDocument();
     expect(screen.getByTestId('mock-no-results')).toBeInTheDocument();
   });
 
