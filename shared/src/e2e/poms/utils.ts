@@ -5,7 +5,6 @@ import {
   waitForNetworkRequest,
   waitForNetworkResponse,
 } from "@shared/e2e/utils";
-import { BASE_URL } from 'e2e/constants';
 import { MAP_CANVAS_SELECTOR } from "@shared/e2e/constants";
 
 export class UtilsPOM {
@@ -36,8 +35,8 @@ export class UtilsPOM {
     const href = await link.getAttribute("href");
     await link.click();
 
-    await this.page.waitForURL(`${BASE_URL}${href}`);
-    expect(this.page.url()).toBe(`${BASE_URL}${href}`);
+    await this.page.waitForURL(`${this.baseUrl}${href}`);
+    expect(this.page.url()).toBe(`${this.baseUrl}${href}`);
   }
 
   async accessibility() {
