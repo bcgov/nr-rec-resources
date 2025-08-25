@@ -3,6 +3,10 @@ import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("@shared/index", () => ({
+  Breadcrumbs: () => <nav data-testid="breadcrumbs">Breadcrumbs</nav>,
+  useBreadcrumbs: () => {},
+}));
 vi.mock("@/pages/rec-resource-page/hooks/useRecResource", () => ({
   useRecResource: vi.fn(),
 }));
@@ -30,6 +34,7 @@ const baseResource = {
   description: "Test description",
   driving_directions: "Test directions",
   maintenance_standard_code: "U" as const,
+  maintenance_standard_description: "User Maintained",
   campsite_count: 0,
   recreation_access: [],
   recreation_structure: { has_toilet: false, has_table: false },

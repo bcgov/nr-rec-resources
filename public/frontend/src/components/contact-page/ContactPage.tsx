@@ -6,14 +6,14 @@ import { useEffect } from 'react';
 import { trackEvent } from '@/utils/matomo';
 import { MATOMO_TRACKING_CATEGORY_CONTACT_PAGE } from '@/data/analytics';
 import PageTitle from '@/components/layout/PageTitle';
-import { Breadcrumbs } from '@/components/breadcrumbs';
+import { Breadcrumbs } from '@shared/components/breadcrumbs';
 import { type ContactTopic } from './utils/contactDetailsRenderer';
 import { useContactPage } from './hooks/useContactPage';
 import {
   CONTACT_PAGE_PAGE_SECTIONS,
   CONTACT_PAGE_POPULAR_TOPIC_LINKS,
-  CONTACT_TOPICS,
   CONTACT_TOPIC_LABELS,
+  CONTACT_TOPICS,
 } from '@/components/contact-page/constants';
 
 export const ContactPage = () => {

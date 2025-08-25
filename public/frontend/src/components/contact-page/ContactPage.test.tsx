@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { ContactPage } from './ContactPage';
 import React from 'react';
 import { vi } from 'vitest';
@@ -21,7 +21,7 @@ vi.mock('@/components/layout/PageMenu', () => ({
 vi.mock('@/components/layout/PageTitle', () => ({
   default: (props: any) => <div data-testid="page-title">{props.title}</div>,
 }));
-vi.mock('@/components/breadcrumbs', () => ({
+vi.mock('@shared/components/breadcrumbs', () => ({
   Breadcrumbs: () => <nav data-testid="breadcrumbs" />,
   useBreadcrumbs: () => {},
 }));

@@ -5,16 +5,16 @@
  * store-driven and manually provided breadcrumb items.
  */
 
-import { Breadcrumb } from 'react-bootstrap';
-import { useStore } from '@tanstack/react-store';
-import { breadcrumbStore } from './store/breadcrumbStore';
-import { BreadcrumbItem } from './types';
+import { Breadcrumb } from "react-bootstrap";
+import { useState, useEffect } from "react";
+import { breadcrumbStore } from "./store/breadcrumbStore";
+import { BreadcrumbItem } from "./types";
 import {
   getBreadcrumbItemProps,
   getBreadcrumbKey,
   renderBreadcrumbLabel,
-} from './helpers';
-import './Breadcrumbs.scss';
+} from "./helpers";
+import "./Breadcrumbs.scss";
 
 export interface BreadcrumbsProps {
   /**
@@ -49,19 +49,21 @@ export interface BreadcrumbsProps {
  */
 export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
   items,
-  className = '',
+  className = "",
   showHomeIcon = true,
-  ariaLabel = 'Breadcrumb navigation',
+  ariaLabel = "Breadcrumb navigation",
 }) => {
-  const state = useStore(breadcrumbStore);
+  const [state, setState] = useState(breadcrumbStore.getState());
+
+  useEffect(() => {
+    const unsubscribe = breadcrumbStore.subscribe(setState);
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   // Use provided items or fall back to store items
   const breadcrumbItems = items || state.items;
-
-  // Don't render if no breadcrumb items
-  if (!breadcrumbItems?.length) {
-    return null;
-  }
 
   return (
     <Breadcrumb
@@ -69,17 +71,21 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
       aria-label={ariaLabel}
       data-testid="breadcrumbs"
     >
-      {breadcrumbItems.map((item: BreadcrumbItem, index: number) => {
-        const isFirst = index === 0;
-        const isLast = index === breadcrumbItems.length - 1;
-        const key = getBreadcrumbKey(item, index);
+      {breadcrumbItems?.length > 0 &&
+        breadcrumbItems.map((item: BreadcrumbItem, index: number) => {
+          const isFirst = index === 0;
+          const isLast = index === breadcrumbItems.length - 1;
+          const key = getBreadcrumbKey(item, index);
 
-        return (
-          <Breadcrumb.Item key={key} {...getBreadcrumbItemProps(item, isLast)}>
-            {renderBreadcrumbLabel(item, showHomeIcon, isFirst)}
-          </Breadcrumb.Item>
-        );
-      })}
+          return (
+            <Breadcrumb.Item
+              key={key}
+              {...getBreadcrumbItemProps(item, isLast)}
+            >
+              {renderBreadcrumbLabel(item, showHomeIcon, isFirst)}
+            </Breadcrumb.Item>
+          );
+        })}
     </Breadcrumb>
   );
 };

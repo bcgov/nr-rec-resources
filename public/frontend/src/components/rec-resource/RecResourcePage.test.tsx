@@ -36,7 +36,7 @@ vi.mock('@/service/queries/recreation-resource', () => ({
 }));
 
 // Mock breadcrumb hooks
-vi.mock('@/components/breadcrumbs', () => ({
+vi.mock('@shared/components/breadcrumbs', () => ({
   Breadcrumbs: () => <nav aria-label="breadcrumb">Breadcrumbs</nav>,
   useBreadcrumbs: vi.fn(),
 }));

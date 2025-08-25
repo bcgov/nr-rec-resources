@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { useContactPage } from './useContactPage';
 import { CONTACT_TOPICS } from '../constants';
 import { vi } from 'vitest';
@@ -17,7 +17,7 @@ vi.mock(
   }),
 );
 
-vi.mock('@/components/breadcrumbs', () => ({
+vi.mock('@shared/components/breadcrumbs', () => ({
   useBreadcrumbs: vi.fn(),
 }));
 

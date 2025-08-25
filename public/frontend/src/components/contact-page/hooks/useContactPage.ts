@@ -1,11 +1,11 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useParams } from 'react-router';
 import { useGetRecreationResourceById } from '@/service/queries/recreation-resource/recreationResourceQueries';
-import { useBreadcrumbs } from '@/components/breadcrumbs';
+import { useBreadcrumbs } from '@shared/components/breadcrumbs';
 import { getContactEmailLink } from '@/utils/getContactEmailLink';
 import {
-  renderContactDetails,
   type ContactTopic,
+  renderContactDetails,
 } from '../utils/contactDetailsRenderer';
 import { CONTACT_TOPICS } from '../constants';
 import { ROUTE_TITLES } from '@/routes';
