@@ -66,7 +66,7 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
           </div>
         </div>
         <div className="card-content-lower">
-          <span className="card-activities d-flex d-row align-items-end">
+          <span className="card-activities">
             {hasActivities && <Activities activities={activities} />}{' '}
             {isSeeAllActivities && (
               <a href={`/resource/${rec_resource_id}#things-to-do`}>see all</a>

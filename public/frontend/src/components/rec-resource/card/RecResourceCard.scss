@@ -49,6 +49,9 @@
     align-items: flex-start;
 
     .card-activities {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-end;
       margin-bottom: 16px;
 
       @include media-breakpoint-up(sm) {
