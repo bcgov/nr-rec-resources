@@ -4,11 +4,13 @@ provider "aws" {
 }
 
 locals {
-  frontend_url = (
-    can(data.terraform_remote_state.frontend[0].outputs.cloudfront.domain_name)
-    ? data.terraform_remote_state.frontend[0].outputs.cloudfront.domain_name
-    : "example.com" # Placeholder for ephemeral environments
-  )
+  # frontend_url = (
+  #   can(data.terraform_remote_state.frontend[0].outputs.cloudfront.domain_name)
+  #   ? data.terraform_remote_state.frontend[0].outputs.cloudfront.domain_name
+  #   : "example.com" # Placeholder for ephemeral environments
+  # )
+  frontend_url = "example.com" # Placeholder for ephemeral environments
+
 
   cors_allowed_origins = [
     "https://${local.frontend_url}",
@@ -154,7 +156,7 @@ resource "aws_cloudfront_distribution" "api" {
 }
 
 resource "aws_s3_bucket" "cloudfront_api_logs" {
-  bucket        = "cloudfront-api-logs-${var.app_name}"
+  bucket        = "cloudfront-api-logs-lza-${var.app_name}"
   force_destroy = true
 }
 
