@@ -7,7 +7,10 @@ import { getImageList } from '@/components/rec-resource/card/helpers';
 import { RSTSVGLogo } from '@/components/RSTSVGLogo/RSTSVGLogo';
 import CardCarousel from '@/components/rec-resource/card/CardCarousel';
 import { RecreationResourceSearchModel } from '@/service/custom-models';
-import { MAX_ACTIVITIES_TO_DISPLAY } from '@/components/rec-resource/card/constants';
+import {
+  MAX_ACTIVITIES_TO_DISPLAY,
+  MAX_PHOTOS_TO_DISPLAY,
+} from '@/components/rec-resource/card/constants';
 
 interface RecResourceCardProps {
   recreationResource: RecreationResourceSearchModel;
@@ -27,7 +30,11 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
     rec_resource_type,
   } = recreationResource;
 
-  const imageList = getImageList(recreationResource);
+  // display only the first 6 images for layout purposes
+  const imageList = getImageList(recreationResource).splice(
+    0,
+    MAX_PHOTOS_TO_DISPLAY,
+  );
   const hasActivities = activities.length > 0;
   const hasImages = imageList.length > 0;
   const isSeeAllActivities = activities.length > MAX_ACTIVITIES_TO_DISPLAY;
