@@ -53,7 +53,7 @@ jobs:
             build_context: ./backend-el
     timeout-minutes: 10
     steps:
-      - uses: bcgov/action-builder-ghcr@v4.0.0
+      - uses: bcgov/action-builder-ghcr@v4.1.0
         with:
           package: ${{ matrix.package }}
           tags: ${{ github.sha }}
