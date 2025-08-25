@@ -5,7 +5,7 @@ import NotFound from '@/components/NotFound';
 import RecResourcePage from '@/components/rec-resource/RecResourcePage';
 import SearchPage from '@/components/search/SearchPage';
 import { ROUTE_PATHS } from '@/routes/constants';
-import { BreadcrumbItem } from '@/components/breadcrumbs/types';
+import { BreadcrumbItem } from '@shared/components/breadcrumbs';
 import { RouteWrapper } from '@/routes/RouteWrapper';
 
 const breadcrumbHelpers = {

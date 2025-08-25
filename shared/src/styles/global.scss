@@ -4,10 +4,6 @@
 @import "bootstrap/scss/mixins/_breakpoints";
 @import "@bcgov/design-tokens/css/variables"; // Import BC Gov design tokens
 
-@function color-rgb($color) {
-  @return "#{red($color)}, #{green($color)}, #{blue($color)}";
-}
-
 :root {
   // override Bootstrap variables with BC Gov design tokens
   --bs-primary: var(--surface-color-primary-default);
@@ -42,10 +38,14 @@
   --bs-btn-primary-disabled-bg: var(--surface-color-primary-button-disabled);
   --bs-btn-secondary-bg: var(--surface-color-secondary-button-default);
   --bs-btn-secondary-hover-bg: var(--surface-color-secondary-button-hover);
-  --bs-btn-secondary-disabled-bg: var(--surface-color-secondary-button-disabled);
+  --bs-btn-secondary-disabled-bg: var(
+    --surface-color-secondary-button-disabled
+  );
   --bs-btn-danger-bg: var(--surface-color-primary-danger-button-default);
   --bs-btn-danger-hover-bg: var(--surface-color-primary-danger-button-hover);
-  --bs-btn-danger-disabled-bg: var(--surface-color-primary-danger-button-disabled);
+  --bs-btn-danger-disabled-bg: var(
+    --surface-color-primary-danger-button-disabled
+  );
 }
 
 // Typography color overrides for Bootstrap utility classes using BC Gov typography design tokens

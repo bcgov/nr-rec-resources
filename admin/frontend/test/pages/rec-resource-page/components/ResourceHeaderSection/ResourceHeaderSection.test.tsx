@@ -82,6 +82,31 @@ describe("ResourceHeaderSection", () => {
     expect(screen.getByText("Park")).toBeInTheDocument();
   });
 
+  it("renders recreation status description when provided", () => {
+    const resourceWithStatus = {
+      ...baseResource,
+      recreation_status_description: "Currently Open",
+    } as unknown as RecreationResourceDetailUIModel;
+
+    render(<ResourceHeaderSection recResource={resourceWithStatus} />);
+
+    const badges = screen.getAllByTestId("custom-badge");
+    expect(badges).toHaveLength(2); // ID badge and status badge
+    expect(badges[1]).toHaveTextContent("Currently Open");
+  });
+
+  it("does not render recreation status badge when description is not provided", () => {
+    const resourceWithoutStatus = {
+      ...baseResource,
+      recreation_status_description: null,
+    } as unknown as RecreationResourceDetailUIModel;
+
+    render(<ResourceHeaderSection recResource={resourceWithoutStatus} />);
+
+    const badges = screen.getAllByTestId("custom-badge");
+    expect(badges).toHaveLength(1); // Only ID badge
+  });
+
   it("calls handleAddPdfFileClick for Add image and Add document (desktop)", () => {
     const mockImageHandler = vi.fn();
     const mockDocumentHandler = vi.fn();

@@ -2,6 +2,11 @@
  * Core breadcrumb types and interfaces
  */
 
+export interface RouteHandle<T> {
+  breadcrumb?: BreadcrumbFunction<T>;
+  [key: string]: any;
+}
+
 export interface BreadcrumbItem {
   /** Display label for the breadcrumb item */
   label: string;

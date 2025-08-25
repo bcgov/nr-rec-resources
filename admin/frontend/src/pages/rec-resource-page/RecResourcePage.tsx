@@ -1,4 +1,3 @@
-import BreadCrumbs from "@/components/breadcrumbs/BreadCrumbs";
 import { ResourceHeaderSection } from "@/pages/rec-resource-page/components/";
 import { RecResourceFileSection } from "@/pages/rec-resource-page/components/RecResourceFileSection";
 import { RecResourceOverviewSection } from "@/pages/rec-resource-page/components/RecResourceOverviewSection";
@@ -7,6 +6,7 @@ import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Alert, Spinner, Stack } from "react-bootstrap";
 import "./RecResourcePage.scss";
+import { Breadcrumbs, useBreadcrumbs } from "@shared/index";
 
 const InfoBanner = () => (
   <Alert variant="warning" className="rec-resource-page__info-banner">
@@ -38,6 +38,13 @@ const LoadingSpinner = () => (
 export const RecResourcePage = () => {
   const { recResource, isLoading, error } = useRecResource();
 
+  useBreadcrumbs({
+    context: {
+      resourceName: recResource?.name,
+      resourceId: recResource?.rec_resource_id,
+    },
+  });
+
   if (error) {
     return null;
   }
@@ -54,7 +61,7 @@ export const RecResourcePage = () => {
       role="main"
       aria-label="Recreation resource content"
     >
-      <BreadCrumbs recResourceName={recResource.name} />
+      <Breadcrumbs />
       <ResourceHeaderSection recResource={recResource} />
       <RecResourceOverviewSection recResource={recResource} />
       <InfoBanner />
