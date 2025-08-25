@@ -1,110 +1,110 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
 
 /**
  * Enum representing available image size options for the recreation API
  */
 export enum RecreationResourceImageSize {
   /** Original upload size */
-  ORIGINAL = "original",
+  ORIGINAL = 'original',
 
   /** Collection view thumbnail (100x75) */
-  COLLECTION = "col",
+  COLLECTION = 'col',
 
   /** Content page header image (1110x740) */
-  CONTENT_HEADER = "con",
+  CONTENT_HEADER = 'con',
 
   /** Content page link card image (377x251) */
-  CONTENT_CARD = "pcs",
+  CONTENT_CARD = 'pcs',
 
   /** High resolution print quality image (999999x999999) */
-  HIGH_RES_PRINT = "hpr",
+  HIGH_RES_PRINT = 'hpr',
 
   /** Inline content image (788x525) */
-  INLINE = "ili",
+  INLINE = 'ili',
 
   /** Landing page header image (720x780) */
-  LANDING_HEADER = "lan",
+  LANDING_HEADER = 'lan',
 
   /** Landing page link card image (630x380) */
-  LANDING_CARD = "llc",
+  LANDING_CARD = 'llc',
 
   /** Low resolution print image (1000x1000) */
-  LOW_RES_PRINT = "lpr",
+  LOW_RES_PRINT = 'lpr',
 
   /** Park photo gallery image (1734x1156) */
-  GALLERY = "gal",
+  GALLERY = 'gal',
 
   /** Presentation slide image (1920x1080) */
-  PRESENTATION = "ppp",
+  PRESENTATION = 'ppp',
 
   /** Preview image (900x480) */
-  PREVIEW = "pre",
+  PREVIEW = 'pre',
 
   /** Search result image (525x394) */
-  SEARCH = "rsr",
+  SEARCH = 'rsr',
 
   /** RST thumbnail image (75x56) */
-  RST_THUMB = "rth",
+  RST_THUMB = 'rth',
 
   /** Screen resolution image (1400x800) */
-  SCREEN = "scr",
+  SCREEN = 'scr',
 
   /** Standard thumbnail image (175x175) */
-  THUMBNAIL = "thm",
+  THUMBNAIL = 'thm',
 }
 
 export class RecreationResourceImageVariantDto {
   @ApiProperty({
-    description: "Size code of the image as defined in BCGov DAM",
+    description: 'Size code of the image as defined in BCGov DAM',
     enum: RecreationResourceImageSize,
     example: RecreationResourceImageSize.ORIGINAL,
     externalDocs: {
-      description: "Learn more about image size codes used (need admin access)",
-      url: "https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca/pages/admin/admin_size_management.php",
+      description: 'Learn more about image size codes used (need admin access)',
+      url: 'https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca/pages/admin/admin_size_management.php',
     },
   })
   size_code: RecreationResourceImageSize;
 
   @ApiProperty({
-    description: "Image URL",
-    example: "https://example.com/image.jpg",
+    description: 'Image URL',
+    example: 'https://example.com/image.jpg',
   })
   url: string;
 
   @ApiProperty({
-    description: "Width of the image in pixels",
+    description: 'Width of the image in pixels',
     example: 1920,
   })
   width: number;
 
   @ApiProperty({
-    description: "Height of the image in pixels",
+    description: 'Height of the image in pixels',
     example: 1080,
   })
   height: number;
 
   @ApiProperty({
-    description: "File extension",
-    example: "jpg",
+    description: 'File extension',
+    example: 'jpg',
   })
   extension: string;
 }
 
 export class RecreationResourceImageDto {
   @ApiProperty({
-    description: "Reference ID for the image",
-    example: "1000",
+    description: 'Reference ID for the image',
+    example: '1000',
   })
   ref_id: string;
 
   @ApiProperty({
-    description: "Image caption",
-    example: "Scenic mountain view",
+    description: 'Image caption',
+    example: 'Scenic mountain view',
   })
   caption: string;
 
   @ApiProperty({
-    description: "Available image variants",
+    description: 'Available image variants',
     type: [RecreationResourceImageVariantDto],
     required: false,
   })

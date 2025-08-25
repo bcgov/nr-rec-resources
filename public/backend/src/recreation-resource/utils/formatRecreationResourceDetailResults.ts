@@ -1,12 +1,12 @@
 import {
   RecreationResourceDetailDto,
   RecreationResourceMaintenanceStandardCode,
-} from "src/recreation-resource/dto/recreation-resource.dto";
-import { RecreationResourceImageDto } from "src/recreation-resource/dto/recreation-resource-image.dto";
-import { RecreationResourceGetPayload } from "src/recreation-resource/service/types";
-import { getRecreationResourceSpatialFeatureGeometry } from "@prisma-generated-sql";
-import { RecreationResourceDocCode } from "src/recreation-resource/dto/recreation-resource-doc.dto";
-import { OPEN_STATUS } from "src/recreation-resource/constants/service.constants";
+} from 'src/recreation-resource/dto/recreation-resource.dto';
+import { RecreationResourceImageDto } from 'src/recreation-resource/dto/recreation-resource-image.dto';
+import { RecreationResourceGetPayload } from 'src/recreation-resource/service/types';
+import { getRecreationResourceSpatialFeatureGeometry } from '@prisma-generated-sql';
+import { RecreationResourceDocCode } from 'src/recreation-resource/dto/recreation-resource-doc.dto';
+import { OPEN_STATUS } from 'src/recreation-resource/constants/service.constants';
 
 // Format recreation resource detail results to match the RecreationResourceDetailDto
 export const formatRecreationResourceDetailResults = (
@@ -51,7 +51,7 @@ export const formatRecreationResourceDetailResults = (
       result.recreation_resource_images as RecreationResourceImageDto[],
     recreation_fee: result.recreation_fee
       ? result.recreation_fee
-          ?.filter((fee) => fee.recreation_fee_code === "C")
+          ?.filter((fee) => fee.recreation_fee_code === 'C')
           .map((fee) => ({
             fee_amount: fee.fee_amount,
             fee_start_date: fee.fee_start_date,
@@ -71,18 +71,18 @@ export const formatRecreationResourceDetailResults = (
       has_toilet: result.recreation_structure?.some((s) =>
         s.recreation_structure_code.description
           .toLowerCase()
-          .includes("toilet"),
+          .includes('toilet'),
       )
         ? true
         : false,
       has_table: result.recreation_structure?.some((s) =>
-        s.recreation_structure_code.description.toLowerCase().includes("table"),
+        s.recreation_structure_code.description.toLowerCase().includes('table'),
       )
         ? true
         : false,
     },
     additional_fees: result.recreation_fee
-      ?.filter((fee) => fee.recreation_fee_code !== "C")
+      ?.filter((fee) => fee.recreation_fee_code !== 'C')
       .map((fee) => ({
         fee_amount: fee.fee_amount,
         fee_start_date: fee.fee_start_date,

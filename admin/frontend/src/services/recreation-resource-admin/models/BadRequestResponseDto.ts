@@ -12,14 +12,14 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from "../runtime";
-import type { ValidationErrorDetailDto } from "./ValidationErrorDetailDto";
+import { mapValues } from '../runtime';
+import type { ValidationErrorDetailDto } from './ValidationErrorDetailDto';
 import {
   ValidationErrorDetailDtoFromJSON,
   ValidationErrorDetailDtoFromJSONTyped,
   ValidationErrorDetailDtoToJSON,
   ValidationErrorDetailDtoToJSONTyped,
-} from "./ValidationErrorDetailDto";
+} from './ValidationErrorDetailDto';
 
 /**
  *
@@ -80,13 +80,13 @@ export type BadRequestResponseDtoStatusCodeEnum =
 export function instanceOfBadRequestResponseDto(
   value: object,
 ): value is BadRequestResponseDto {
-  if (!("statusCode" in value) || value["statusCode"] === undefined)
+  if (!('statusCode' in value) || value['statusCode'] === undefined)
     return false;
-  if (!("message" in value) || value["message"] === undefined) return false;
-  if (!("error" in value) || value["error"] === undefined) return false;
-  if (!("timestamp" in value) || value["timestamp"] === undefined) return false;
-  if (!("path" in value) || value["path"] === undefined) return false;
-  if (!("details" in value) || value["details"] === undefined) return false;
+  if (!('message' in value) || value['message'] === undefined) return false;
+  if (!('error' in value) || value['error'] === undefined) return false;
+  if (!('timestamp' in value) || value['timestamp'] === undefined) return false;
+  if (!('path' in value) || value['path'] === undefined) return false;
+  if (!('details' in value) || value['details'] === undefined) return false;
   return true;
 }
 
@@ -104,12 +104,12 @@ export function BadRequestResponseDtoFromJSONTyped(
     return json;
   }
   return {
-    statusCode: json["statusCode"],
-    message: json["message"],
-    error: json["error"],
-    timestamp: json["timestamp"],
-    path: json["path"],
-    details: (json["details"] as Array<any>).map(
+    statusCode: json['statusCode'],
+    message: json['message'],
+    error: json['error'],
+    timestamp: json['timestamp'],
+    path: json['path'],
+    details: (json['details'] as Array<any>).map(
       ValidationErrorDetailDtoFromJSON,
     ),
   };
@@ -128,12 +128,12 @@ export function BadRequestResponseDtoToJSONTyped(
   }
 
   return {
-    statusCode: value["statusCode"],
-    message: value["message"],
-    error: value["error"],
-    timestamp: value["timestamp"],
-    path: value["path"],
-    details: (value["details"] as Array<any>).map(
+    statusCode: value['statusCode'],
+    message: value['message'],
+    error: value['error'],
+    timestamp: value['timestamp'],
+    path: value['path'],
+    details: (value['details'] as Array<any>).map(
       ValidationErrorDetailDtoToJSON,
     ),
   };

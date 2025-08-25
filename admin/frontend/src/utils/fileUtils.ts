@@ -7,7 +7,7 @@
 export function downloadBlobAsFile(blob: Blob, fileName: string) {
   try {
     const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
+    const link = document.createElement('a');
     link.href = url;
     link.download = fileName;
     document.body.appendChild(link);
@@ -15,7 +15,7 @@ export function downloadBlobAsFile(blob: Blob, fileName: string) {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   } catch (error) {
-    console.error("Download failed:", error);
+    console.error('Download failed:', error);
   }
 }
 
@@ -26,7 +26,7 @@ export function downloadBlobAsFile(blob: Blob, fileName: string) {
  * @param fileName - The name for the downloaded file.
  */
 export async function downloadUrlAsFile(url: string, fileName: string) {
-  const response = await fetch(url, { mode: "cors" });
+  const response = await fetch(url, { mode: 'cors' });
   const blob = await response.blob();
   downloadBlobAsFile(blob, fileName);
 }
@@ -37,5 +37,5 @@ export async function downloadUrlAsFile(url: string, fileName: string) {
  * @returns The file name without extension.
  */
 export function getFileNameWithoutExtension(file: File): string {
-  return file.name.replace(/\.[^/.]+$/, "");
+  return file.name.replace(/\.[^/.]+$/, '');
 }

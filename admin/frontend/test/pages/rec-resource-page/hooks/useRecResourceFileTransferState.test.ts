@@ -1,9 +1,9 @@
-import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
-import { useRecResourceFileTransferState } from "@/pages/rec-resource-page/hooks/useRecResourceFileTransferState";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { renderHook } from "@testing-library/react";
-import React from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
+import { useRecResourceFileTransferState } from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { renderHook } from '@testing-library/react';
+import React from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockDocumentListState = {
   galleryDocumentsFromServer: [] as any[],
@@ -29,45 +29,45 @@ const mockFileNameValidation = {
   isValid: false,
 };
 
-vi.mock("@/contexts/AuthContext", () => ({
+vi.mock('@/contexts/AuthContext', () => ({
   useAuthContext: () => ({
     authService: {
-      getAccessToken: vi.fn().mockReturnValue("mock-token"),
+      getAccessToken: vi.fn().mockReturnValue('mock-token'),
     },
   }),
 }));
 
-vi.mock("@/pages/rec-resource-page/hooks/useDocumentList", () => ({
+vi.mock('@/pages/rec-resource-page/hooks/useDocumentList', () => ({
   useDocumentList: () => mockDocumentListState,
 }));
 
-vi.mock("@/pages/rec-resource-page/hooks/useImageList", () => ({
+vi.mock('@/pages/rec-resource-page/hooks/useImageList', () => ({
   useImageList: () => mockImageListState,
 }));
 
-vi.mock("@/pages/rec-resource-page/hooks/useGalleryActions", () => ({
+vi.mock('@/pages/rec-resource-page/hooks/useGalleryActions', () => ({
   useGalleryActions: () => mockGalleryActions,
 }));
 
-vi.mock("@/pages/rec-resource-page/hooks/useFileNameValidation", () => ({
+vi.mock('@/pages/rec-resource-page/hooks/useFileNameValidation', () => ({
   useFileNameValidation: () => mockFileNameValidation,
 }));
 
-vi.mock("@/pages/rec-resource-page/helpers", () => ({
+vi.mock('@/pages/rec-resource-page/helpers', () => ({
   getMaxFilesByFileType: vi.fn().mockReturnValue(5),
 }));
 
-vi.mock("@/pages/rec-resource-page/hooks/useRecResource", () => ({
+vi.mock('@/pages/rec-resource-page/hooks/useRecResource', () => ({
   useRecResource: vi.fn(),
 }));
 
-vi.mock("@/pages/rec-resource-page/store/recResourceFileTransferStore", () => ({
+vi.mock('@/pages/rec-resource-page/store/recResourceFileTransferStore', () => ({
   recResourceFileTransferStore: {
     state: {
       showUploadOverlay: false,
       showDeleteModal: false,
       docToDelete: null,
-      uploadFileName: "",
+      uploadFileName: '',
       selectedFileForUpload: null,
       pendingDocs: [],
       galleryDocuments: [],
@@ -79,12 +79,12 @@ vi.mock("@/pages/rec-resource-page/store/recResourceFileTransferStore", () => ({
   setGalleryImages: vi.fn(),
 }));
 
-vi.mock("@tanstack/react-store", () => ({
+vi.mock('@tanstack/react-store', () => ({
   useStore: () => ({
     showUploadOverlay: false,
     showDeleteModal: false,
     docToDelete: null,
-    uploadFileName: "",
+    uploadFileName: '',
     selectedFileForUpload: null,
     pendingDocs: [],
     galleryDocuments: [],
@@ -107,14 +107,14 @@ const createWrapper = () => {
     React.createElement(QueryClientProvider, { client: queryClient }, children);
 };
 
-describe("useRecResourceFileTransferState", () => {
+describe('useRecResourceFileTransferState', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
     // Mock useRecResource
     vi.mocked(useRecResource).mockReturnValue({
-      rec_resource_id: "test-id",
-      recResource: { rec_resource_id: "test-id" } as any,
+      rec_resource_id: 'test-id',
+      recResource: { rec_resource_id: 'test-id' } as any,
       isLoading: false,
       error: null,
     });
@@ -138,7 +138,7 @@ describe("useRecResourceFileTransferState", () => {
     mockFileNameValidation.validateFileName.mockReset();
   });
 
-  it("returns state and handlers from composed hooks", () => {
+  it('returns state and handlers from composed hooks', () => {
     const { result } = renderHook(() => useRecResourceFileTransferState(), {
       wrapper: createWrapper(),
     });
@@ -176,80 +176,80 @@ describe("useRecResourceFileTransferState", () => {
     });
   });
 
-  it("delegates document file actions to gallery actions hook", () => {
+  it('delegates document file actions to gallery actions hook', () => {
     const { result } = renderHook(() => useRecResourceFileTransferState(), {
       wrapper: createWrapper(),
     });
 
-    const testFile = { id: "1", name: "test.pdf" } as any;
+    const testFile = { id: '1', name: 'test.pdf' } as any;
     const actionHandler = result.current.getDocumentFileActionHandler(
-      "view",
+      'view',
       testFile,
     );
 
     actionHandler();
 
     expect(mockGalleryActions.handleFileAction).toHaveBeenCalledWith(
-      "view",
+      'view',
       testFile,
       mockDocumentListState.refetch,
     );
   });
 
-  it("delegates document general actions to gallery actions hook", () => {
+  it('delegates document general actions to gallery actions hook', () => {
     const { result } = renderHook(() => useRecResourceFileTransferState(), {
       wrapper: createWrapper(),
     });
 
     const actionHandler =
-      result.current.getDocumentGeneralActionHandler("upload");
+      result.current.getDocumentGeneralActionHandler('upload');
 
     actionHandler();
 
     expect(mockGalleryActions.handleGeneralAction).toHaveBeenCalledWith(
-      "upload",
-      "document",
+      'upload',
+      'document',
       mockDocumentListState.refetch,
     );
   });
 
-  it("delegates image file actions to gallery actions hook", () => {
+  it('delegates image file actions to gallery actions hook', () => {
     const { result } = renderHook(() => useRecResourceFileTransferState(), {
       wrapper: createWrapper(),
     });
 
-    const testFile = { id: "1", name: "test.jpg" } as any;
+    const testFile = { id: '1', name: 'test.jpg' } as any;
     const actionHandler = result.current.getImageFileActionHandler(
-      "view",
+      'view',
       testFile,
     );
 
     actionHandler();
 
     expect(mockGalleryActions.handleFileAction).toHaveBeenCalledWith(
-      "view",
+      'view',
       testFile,
       mockImageListState.refetch,
     );
   });
 
-  it("delegates image general actions to gallery actions hook", () => {
+  it('delegates image general actions to gallery actions hook', () => {
     const { result } = renderHook(() => useRecResourceFileTransferState(), {
       wrapper: createWrapper(),
     });
 
-    const actionHandler = result.current.getImageGeneralActionHandler("upload");
+    const actionHandler = result.current.getImageGeneralActionHandler('upload');
 
     actionHandler();
 
     expect(mockGalleryActions.handleGeneralAction).toHaveBeenCalledWith(
-      "upload",
-      "image",
+      'upload',
+      'image',
       mockImageListState.refetch,
     );
   });
 
-  it("returns values from all composed hooks", () => {
+  it('returns values from all composed hooks', () => {
     const { result } = renderHook(() => useRecResourceFileTransferState(), {
       wrapper: createWrapper(),
     });
@@ -265,7 +265,7 @@ describe("useRecResourceFileTransferState", () => {
     // Verify upload modal state structure
     expect(result.current.uploadModalState).toEqual({
       showUploadOverlay: false,
-      uploadFileName: "",
+      uploadFileName: '',
       selectedFileForUpload: null,
       fileNameError: undefined,
     });
@@ -277,10 +277,10 @@ describe("useRecResourceFileTransferState", () => {
     });
   });
 
-  it("calculates document upload disabled state based on max files", () => {
+  it('calculates document upload disabled state based on max files', () => {
     // Mock getMaxFilesByFileType to return 2 for this test
     const mockGetMaxFiles = vi.fn().mockReturnValue(2);
-    vi.doMock("@/pages/rec-resource-page/helpers", () => ({
+    vi.doMock('@/pages/rec-resource-page/helpers', () => ({
       getMaxFilesByFileType: mockGetMaxFiles,
     }));
 
@@ -292,7 +292,7 @@ describe("useRecResourceFileTransferState", () => {
     expect(result.current.isDocumentUploadDisabled).toBe(false);
   });
 
-  it("calculates image upload disabled state based on max files", () => {
+  it('calculates image upload disabled state based on max files', () => {
     const { result } = renderHook(() => useRecResourceFileTransferState(), {
       wrapper: createWrapper(),
     });
@@ -301,9 +301,9 @@ describe("useRecResourceFileTransferState", () => {
     expect(result.current.isImageUploadDisabled).toBe(false);
   });
 
-  it("includes file name validation properties in upload modal state", () => {
+  it('includes file name validation properties in upload modal state', () => {
     // Set up mock with validation error
-    mockFileNameValidation.fileNameError = "Test error";
+    mockFileNameValidation.fileNameError = 'Test error';
     mockFileNameValidation.hasError = true;
     mockFileNameValidation.isValid = false;
 
@@ -311,6 +311,6 @@ describe("useRecResourceFileTransferState", () => {
       wrapper: createWrapper(),
     });
 
-    expect(result.current.uploadModalState.fileNameError).toBe("Test error");
+    expect(result.current.uploadModalState.fileNameError).toBe('Test error');
   });
 });

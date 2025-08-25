@@ -1,8 +1,8 @@
-import { useGetRecreationResourceById } from "@/services/hooks/recreation-resource-admin/useGetRecreationResourceById";
-import { handleApiError } from "@/services/utils/errorHandler";
-import { addErrorNotification } from "@/store/notificationStore";
-import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useGetRecreationResourceById } from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceById';
+import { handleApiError } from '@/services/utils/errorHandler';
+import { addErrorNotification } from '@/store/notificationStore';
+import { useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 
 /**
  * Hook to manage recreation resource state and syncing.

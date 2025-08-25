@@ -1,17 +1,17 @@
-import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
-import { useDeleteResourceImage } from "@/services/hooks/recreation-resource-admin/useDeleteResourceImage";
-import { handleApiError } from "@/services/utils/errorHandler";
+import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
+import { useDeleteResourceImage } from '@/services/hooks/recreation-resource-admin/useDeleteResourceImage';
+import { handleApiError } from '@/services/utils/errorHandler';
 import {
   addErrorNotification,
   addSuccessNotification,
-} from "@/store/notificationStore";
-import { useStore } from "@tanstack/react-store";
-import { useCallback } from "react";
+} from '@/store/notificationStore';
+import { useStore } from '@tanstack/react-store';
+import { useCallback } from 'react';
 import {
   recResourceFileTransferStore,
   setFileToDelete,
   updateGalleryImage,
-} from "../store/recResourceFileTransferStore";
+} from '../store/recResourceFileTransferStore';
 
 /**
  * Hook to manage image delete operations.
@@ -29,10 +29,10 @@ export function useImageDelete() {
       if (
         !recResource?.rec_resource_id ||
         !image?.id ||
-        image.type !== "image"
+        image.type !== 'image'
       ) {
         addErrorNotification(
-          "Unable to delete image: missing required information.",
+          'Unable to delete image: missing required information.',
         );
         return;
       }

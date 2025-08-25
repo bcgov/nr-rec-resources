@@ -1,8 +1,8 @@
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { FC } from "react";
-import { Stack } from "react-bootstrap";
-import "./FileUploadTile.scss";
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FC } from 'react';
+import { Stack } from 'react-bootstrap';
+import './FileUploadTile.scss';
 
 interface FileUploadTileProps {
   disabled?: boolean;
@@ -20,7 +20,7 @@ export const FileUploadTile: FC<FileUploadTileProps> = ({
     gap={0}
     data-testid="upload-tile"
     onClick={disabled ? undefined : onClick}
-    className={`upload-tile align-items-center justify-content-center w-100 h-100 ${disabled ? "disabled" : ""}`}
+    className={`upload-tile align-items-center justify-content-center w-100 h-100 ${disabled ? 'disabled' : ''}`}
   >
     <span className="fs-2 text-muted">
       <FontAwesomeIcon icon={faPlus} />

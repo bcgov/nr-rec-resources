@@ -1,2 +1,2 @@
-export * from "./authentication-error/AuthenticationError";
-export * from "./authentication-error/AuthenticationError.helpers";
+export * from './authentication-error/AuthenticationError';
+export * from './authentication-error/AuthenticationError.helpers';

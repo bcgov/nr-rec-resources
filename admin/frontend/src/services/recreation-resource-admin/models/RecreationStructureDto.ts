@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from "../runtime";
+import { mapValues } from '../runtime';
 /**
  *
  * @export
@@ -39,9 +39,9 @@ export interface RecreationStructureDto {
 export function instanceOfRecreationStructureDto(
   value: object,
 ): value is RecreationStructureDto {
-  if (!("has_toilet" in value) || value["has_toilet"] === undefined)
+  if (!('has_toilet' in value) || value['has_toilet'] === undefined)
     return false;
-  if (!("has_table" in value) || value["has_table"] === undefined) return false;
+  if (!('has_table' in value) || value['has_table'] === undefined) return false;
   return true;
 }
 
@@ -59,8 +59,8 @@ export function RecreationStructureDtoFromJSONTyped(
     return json;
   }
   return {
-    has_toilet: json["has_toilet"],
-    has_table: json["has_table"],
+    has_toilet: json['has_toilet'],
+    has_table: json['has_table'],
   };
 }
 
@@ -79,7 +79,7 @@ export function RecreationStructureDtoToJSONTyped(
   }
 
   return {
-    has_toilet: value["has_toilet"],
-    has_table: value["has_table"],
+    has_toilet: value['has_toilet'],
+    has_table: value['has_table'],
   };
 }

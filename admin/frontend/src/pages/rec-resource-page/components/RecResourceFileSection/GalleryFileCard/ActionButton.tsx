@@ -1,5 +1,5 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button, Stack } from "react-bootstrap";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Button, Stack } from 'react-bootstrap';
 
 interface ActionButtonProps {
   icon: any;
@@ -20,7 +20,7 @@ export const ActionButton = ({ icon, label, onClick }: ActionButtonProps) => (
     tabIndex={0}
     aria-label={label}
     onKeyDown={(e) => {
-      if (e.key === "Enter" || e.key === " ") {
+      if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         onClick();
       }

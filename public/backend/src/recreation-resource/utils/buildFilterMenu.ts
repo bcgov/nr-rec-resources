@@ -1,15 +1,15 @@
-import { AggregatedRecordCount } from "src/recreation-resource/service/types";
+import { AggregatedRecordCount } from 'src/recreation-resource/service/types';
 import {
   FilterDto,
   FilterOptionDto,
-} from "../dto/paginated-recreation-resource.dto";
+} from '../dto/paginated-recreation-resource.dto';
 
 const FILTER_CONFIG = [
-  { type: "district", label: "District", param: "district" },
-  { type: "type", label: "Type", param: "type" },
-  { type: "activity", label: "Things to do", param: "activities" },
-  { type: "facilities", label: "Facilities", param: "facilities" },
-  { type: "access", label: "Access type", param: "access" },
+  { type: 'district', label: 'District', param: 'district' },
+  { type: 'type', label: 'Type', param: 'type' },
+  { type: 'activity', label: 'Things to do', param: 'activities' },
+  { type: 'facilities', label: 'Facilities', param: 'facilities' },
+  { type: 'access', label: 'Access type', param: 'access' },
 ] as const;
 
 /**
@@ -57,14 +57,14 @@ const createFacilityOptions = (
   aggregatedRecordCounts: AggregatedRecordCount[],
 ): FilterOptionDto[] => {
   const facilities = aggregatedRecordCounts.filter(
-    (item) => item.type === "facilities",
+    (item) => item.type === 'facilities',
   );
   const getCount = (code: string) =>
     facilities.find((f) => f.code === code)?.count ?? 0;
 
   return [
-    createFilterOption("table", "Tables", getCount("table")),
-    createFilterOption("toilet", "Toilets", getCount("toilet")),
+    createFilterOption('table', 'Tables', getCount('table')),
+    createFilterOption('toilet', 'Toilets', getCount('toilet')),
   ];
 };
 
@@ -81,16 +81,16 @@ export const buildFilterMenu = (
     facilities: createFacilityOptions(aggregatedRecordCounts),
     access: createFilterOptions(
       aggregatedRecordCounts,
-      "access",
+      'access',
       (description) => `${description} access`,
     ),
-    district: createFilterOptions(aggregatedRecordCounts, "district"),
-    type: createFilterOptions(aggregatedRecordCounts, "type"),
-    activity: createFilterOptions(aggregatedRecordCounts, "activity"),
+    district: createFilterOptions(aggregatedRecordCounts, 'district'),
+    type: createFilterOptions(aggregatedRecordCounts, 'type'),
+    activity: createFilterOptions(aggregatedRecordCounts, 'activity'),
   };
 
   return FILTER_CONFIG.map(({ type, label, param }) => ({
-    type: "multi-select",
+    type: 'multi-select',
     label,
     param,
     options: filterOptions[type],

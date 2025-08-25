@@ -1,13 +1,13 @@
-import BreadCrumbs from "@/components/breadcrumbs/BreadCrumbs";
+import BreadCrumbs from '@/components/breadcrumbs/BreadCrumbs';
 import {
   RecResourceFileSection,
   ResourceHeaderSection,
-} from "@/pages/rec-resource-page/components";
-import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
-import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Alert, Spinner, Stack } from "react-bootstrap";
-import "./RecResourcePage.scss";
+} from '@/pages/rec-resource-page/components';
+import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Alert, Spinner, Stack } from 'react-bootstrap';
+import './RecResourcePage.scss';
 
 const InfoBanner = () => (
   <Alert variant="warning" className="rec-resource-page__info-banner">

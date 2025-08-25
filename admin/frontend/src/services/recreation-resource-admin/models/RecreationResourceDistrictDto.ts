@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from "../runtime";
+import { mapValues } from '../runtime';
 /**
  *
  * @export
@@ -39,9 +39,9 @@ export interface RecreationResourceDistrictDto {
 export function instanceOfRecreationResourceDistrictDto(
   value: object,
 ): value is RecreationResourceDistrictDto {
-  if (!("district_code" in value) || value["district_code"] === undefined)
+  if (!('district_code' in value) || value['district_code'] === undefined)
     return false;
-  if (!("description" in value) || value["description"] === undefined)
+  if (!('description' in value) || value['description'] === undefined)
     return false;
   return true;
 }
@@ -60,8 +60,8 @@ export function RecreationResourceDistrictDtoFromJSONTyped(
     return json;
   }
   return {
-    district_code: json["district_code"],
-    description: json["description"],
+    district_code: json['district_code'],
+    description: json['description'],
   };
 }
 
@@ -80,7 +80,7 @@ export function RecreationResourceDistrictDtoToJSONTyped(
   }
 
   return {
-    district_code: value["district_code"],
-    description: value["description"],
+    district_code: value['district_code'],
+    description: value['description'],
   };
 }

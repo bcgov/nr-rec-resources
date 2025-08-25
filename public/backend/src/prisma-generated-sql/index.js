@@ -1,3 +1,3 @@
-"use strict";
+'use strict';
 exports.getRecreationResourceSpatialFeatureGeometry =
-  require("./getRecreationResourceSpatialFeatureGeometry.js").getRecreationResourceSpatialFeatureGeometry;
+  require('./getRecreationResourceSpatialFeatureGeometry.js').getRecreationResourceSpatialFeatureGeometry;

@@ -1,12 +1,12 @@
-import { ReactNode, useMemo, useRef } from "react";
+import { ReactNode, useMemo, useRef } from 'react';
 import {
   AsyncTypeahead,
   TypeaheadComponentProps,
-} from "react-bootstrap-typeahead";
-import { SuggestionSearchInput } from "@shared/components/suggestion-typeahead/SuggestionSearchInput";
-import "react-bootstrap-typeahead/css/Typeahead.css";
-import "./SuggestionTypeahead.scss";
-import { TypeaheadInputProps } from "react-bootstrap-typeahead/types/types";
+} from 'react-bootstrap-typeahead';
+import { SuggestionSearchInput } from '@shared/components/suggestion-typeahead/SuggestionSearchInput';
+import 'react-bootstrap-typeahead/css/Typeahead.css';
+import './SuggestionTypeahead.scss';
+import { TypeaheadInputProps } from 'react-bootstrap-typeahead/types/types';
 
 /**
  * Props for {@link SuggestionTypeahead}.
@@ -52,7 +52,7 @@ export interface SuggestionTypeaheadProps<T> {
    * Custom render function for the menu.
    * Allows for custom rendering of the suggestion menu.
    */
-  renderMenu?: TypeaheadComponentProps["renderMenu"];
+  renderMenu?: TypeaheadComponentProps['renderMenu'];
   /**
    * Callback fired when the clear button is clicked.
    * Allows for custom handling of the clear action.
@@ -101,7 +101,7 @@ export const SuggestionTypeahead = <T extends object>({
   emptyLabel,
   placeholder,
   renderMenu,
-  labelKey = "name",
+  labelKey = 'name',
   minLength = 1,
   onInputChange,
   selected,
@@ -121,7 +121,7 @@ export const SuggestionTypeahead = <T extends object>({
         onKeyDown={(event) => {
           inputProps.onKeyDown?.(event); // Call internal onKeyDown handler
           onKeyDown?.(event); // Call the parent onKeyDown handler
-          if (event.key === "Enter" && typeaheadRef.current) {
+          if (event.key === 'Enter' && typeaheadRef.current) {
             (typeaheadRef.current as any).blur();
           }
         }}

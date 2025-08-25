@@ -1,5 +1,5 @@
-import React from "react";
-import "./CustomBadge.scss";
+import React from 'react';
+import './CustomBadge.scss';
 
 export interface CustomBadgeProps {
   label: string;

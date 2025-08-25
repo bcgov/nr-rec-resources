@@ -1,17 +1,17 @@
-import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
-import { useUploadResourceDocument } from "@/services/hooks/recreation-resource-admin/useUploadResourceDocument";
-import { handleApiError } from "@/services/utils/errorHandler";
+import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
+import { useUploadResourceDocument } from '@/services/hooks/recreation-resource-admin/useUploadResourceDocument';
+import { handleApiError } from '@/services/utils/errorHandler';
 import {
   addErrorNotification,
   addSuccessNotification,
-} from "@/store/notificationStore";
-import { useCallback } from "react";
+} from '@/store/notificationStore';
+import { useCallback } from 'react';
 import {
   addPendingDoc,
   removePendingDoc,
   updatePendingDoc,
-} from "../store/recResourceFileTransferStore";
-import { GalleryDocument, GalleryFile } from "../types";
+} from '../store/recResourceFileTransferStore';
+import { GalleryDocument, GalleryFile } from '../types';
 
 /**
  * Hook to manage document upload operations.
@@ -73,7 +73,7 @@ export function useDocumentUpload() {
         ...galleryFile,
         isUploading: true,
         pendingFile: galleryFile.pendingFile,
-        type: "document",
+        type: 'document',
       };
       addPendingDoc(tempDoc);
 

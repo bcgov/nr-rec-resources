@@ -1,1 +1,1 @@
-export { ResourceHeaderSection } from "./ResourceHeaderSection";
+export { ResourceHeaderSection } from './ResourceHeaderSection';

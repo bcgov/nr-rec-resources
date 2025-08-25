@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from '@prisma/client';
 
 interface RecreationResourcePageQueryParams {
   whereClause: Prisma.Sql;
@@ -15,7 +15,7 @@ export function buildRecreationResourcePageQuery({
   lat,
   lon,
 }: RecreationResourcePageQueryParams): Prisma.Sql {
-  const hasLocation = typeof lat === "number" && typeof lon === "number";
+  const hasLocation = typeof lat === 'number' && typeof lon === 'number';
 
   // Distance is used for sorting and is only calculated if lat/lon are provided
   const distanceSql = hasLocation

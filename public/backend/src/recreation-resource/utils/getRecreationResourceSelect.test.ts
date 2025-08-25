@@ -1,10 +1,10 @@
-import { describe, it, expect } from "vitest";
-import { getRecreationResourceSelect } from "src/recreation-resource/utils/getRecreationResourceSelect";
-import { EXCLUDED_ACTIVITY_CODES } from "src/recreation-resource/constants/service.constants";
-import { RecreationResourceImageSize } from "src/recreation-resource/dto/recreation-resource-image.dto";
+import { describe, it, expect } from 'vitest';
+import { getRecreationResourceSelect } from 'src/recreation-resource/utils/getRecreationResourceSelect';
+import { EXCLUDED_ACTIVITY_CODES } from 'src/recreation-resource/constants/service.constants';
+import { RecreationResourceImageSize } from 'src/recreation-resource/dto/recreation-resource-image.dto';
 
-describe("getRecreationResourceSelect", () => {
-  it("should return the correct default selection structure", () => {
+describe('getRecreationResourceSelect', () => {
+  it('should return the correct default selection structure', () => {
     const select = getRecreationResourceSelect();
 
     expect(select).toMatchObject({
@@ -129,7 +129,7 @@ describe("getRecreationResourceSelect", () => {
     });
   });
 
-  it("should filter image variants by provided size codes", () => {
+  it('should filter image variants by provided size codes', () => {
     const imageSizeCodes: RecreationResourceImageSize[] = [
       RecreationResourceImageSize.ORIGINAL,
     ];
@@ -141,7 +141,7 @@ describe("getRecreationResourceSelect", () => {
     ).toEqual(imageSizeCodes);
   });
 
-  it("should handle empty imageSizeCodes by defaulting to an empty array", () => {
+  it('should handle empty imageSizeCodes by defaulting to an empty array', () => {
     const select = getRecreationResourceSelect();
     expect(
       select.recreation_resource_images.select
@@ -149,7 +149,7 @@ describe("getRecreationResourceSelect", () => {
     ).toEqual([]);
   });
 
-  it("should exclude activities with excluded activity codes", () => {
+  it('should exclude activities with excluded activity codes', () => {
     const select = getRecreationResourceSelect();
     expect(
       select.recreation_activity.where.recreation_activity_code.notIn,

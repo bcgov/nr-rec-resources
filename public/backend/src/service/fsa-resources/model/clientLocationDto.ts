@@ -98,14 +98,14 @@ export interface ClientLocationDto {
   comment?: string;
 }
 export namespace ClientLocationDto {
-  export type ExpiredEnum = "Y" | "N";
+  export type ExpiredEnum = 'Y' | 'N';
   export const ExpiredEnum = {
-    Y: "Y" as ExpiredEnum,
-    N: "N" as ExpiredEnum,
+    Y: 'Y' as ExpiredEnum,
+    N: 'N' as ExpiredEnum,
   };
-  export type TrustedEnum = "Y" | "N";
+  export type TrustedEnum = 'Y' | 'N';
   export const TrustedEnum = {
-    Y: "Y" as TrustedEnum,
-    N: "N" as TrustedEnum,
+    Y: 'Y' as TrustedEnum,
+    N: 'N' as TrustedEnum,
   };
 }

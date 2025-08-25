@@ -1,5 +1,5 @@
-import { Store } from "@tanstack/store";
-import { GalleryDocument, GalleryFile, GalleryImage } from "../types";
+import { Store } from '@tanstack/store';
+import { GalleryDocument, GalleryFile, GalleryImage } from '../types';
 
 export interface RecResourceFileTransferState {
   selectedFileForUpload: GalleryFile | null;
@@ -15,7 +15,7 @@ export interface RecResourceFileTransferState {
 
 const INITIAL_REC_RESOURCE_FILE_TRANSFER_STATE: RecResourceFileTransferState = {
   selectedFileForUpload: null,
-  uploadFileName: "",
+  uploadFileName: '',
   showUploadOverlay: false,
   pendingDocs: [],
   galleryDocuments: [],
@@ -54,7 +54,7 @@ export function setShowUploadOverlay(show: boolean) {
 export const resetUploadState = () => {
   setShowUploadOverlay(false);
   setSelectedFile(null);
-  setUploadFileName("");
+  setUploadFileName('');
 };
 
 export function setShowDeleteModal(show: boolean) {

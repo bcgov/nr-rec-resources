@@ -1,6 +1,6 @@
-import HomeIcon from "@/assets/icons/home.svg";
-import ChevronRightIcon from "@/assets/icons/chevron-right.svg";
-import "./BreadCrumbs.scss";
+import HomeIcon from '@/assets/icons/home.svg';
+import ChevronRightIcon from '@/assets/icons/chevron-right.svg';
+import './BreadCrumbs.scss';
 
 export interface BreadCrumbsProps {
   recResourceName: string;

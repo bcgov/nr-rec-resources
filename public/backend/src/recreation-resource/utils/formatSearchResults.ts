@@ -3,9 +3,9 @@ import {
   RecreationActivityDto,
   RecreationStatusDto,
   RecreationStructureDto,
-} from "src/recreation-resource/dto/recreation-resource.dto";
-import { RecreationResourceImageDto } from "src/recreation-resource/dto/recreation-resource-image.dto";
-import { OPEN_STATUS } from "src/recreation-resource/constants/service.constants";
+} from 'src/recreation-resource/dto/recreation-resource.dto';
+import { RecreationResourceImageDto } from 'src/recreation-resource/dto/recreation-resource-image.dto';
+import { OPEN_STATUS } from 'src/recreation-resource/constants/service.constants';
 
 export type RecreationResourceSearchView = {
   rec_resource_id: string;

@@ -1,5 +1,5 @@
-import { RecreationResourceImageSize } from "src/recreation-resource/dto/recreation-resource-image.dto";
-import { EXCLUDED_ACTIVITY_CODES } from "src/recreation-resource/constants/service.constants";
+import { RecreationResourceImageSize } from 'src/recreation-resource/dto/recreation-resource-image.dto';
+import { EXCLUDED_ACTIVITY_CODES } from 'src/recreation-resource/constants/service.constants';
 
 export const getRecreationResourceSelect = (
   imageSizeCodes?: RecreationResourceImageSize[],

@@ -1,8 +1,8 @@
-import { Module } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
-import { ApiMetricsInterceptor } from "./api-metrics.interceptor";
-import { ApiMetricsService } from "./api-metrics.service";
-import { OperationNameUtil } from "./operation-name.util";
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { ApiMetricsInterceptor } from './api-metrics.interceptor';
+import { ApiMetricsService } from './api-metrics.service';
+import { OperationNameUtil } from './operation-name.util';
 
 @Module({
   imports: [ConfigModule],
@@ -10,7 +10,7 @@ import { OperationNameUtil } from "./operation-name.util";
     ApiMetricsService,
     OperationNameUtil,
     {
-      provide: "APP_INTERCEPTOR",
+      provide: 'APP_INTERCEPTOR',
       useClass: ApiMetricsInterceptor,
     },
   ],

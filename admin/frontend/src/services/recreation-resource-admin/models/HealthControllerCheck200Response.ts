@@ -12,14 +12,14 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from "../runtime";
-import type { HealthControllerCheck200ResponseInfoValue } from "./HealthControllerCheck200ResponseInfoValue";
+import { mapValues } from '../runtime';
+import type { HealthControllerCheck200ResponseInfoValue } from './HealthControllerCheck200ResponseInfoValue';
 import {
   HealthControllerCheck200ResponseInfoValueFromJSON,
   HealthControllerCheck200ResponseInfoValueFromJSONTyped,
   HealthControllerCheck200ResponseInfoValueToJSON,
   HealthControllerCheck200ResponseInfoValueToJSONTyped,
-} from "./HealthControllerCheck200ResponseInfoValue";
+} from './HealthControllerCheck200ResponseInfoValue';
 
 /**
  *
@@ -76,26 +76,26 @@ export function HealthControllerCheck200ResponseFromJSONTyped(
     return json;
   }
   return {
-    status: json["status"] == null ? undefined : json["status"],
+    status: json['status'] == null ? undefined : json['status'],
     info:
-      json["info"] == null
+      json['info'] == null
         ? undefined
         : mapValues(
-            json["info"],
+            json['info'],
             HealthControllerCheck200ResponseInfoValueFromJSON,
           ),
     error:
-      json["error"] == null
+      json['error'] == null
         ? undefined
         : mapValues(
-            json["error"],
+            json['error'],
             HealthControllerCheck200ResponseInfoValueFromJSON,
           ),
     details:
-      json["details"] == null
+      json['details'] == null
         ? undefined
         : mapValues(
-            json["details"],
+            json['details'],
             HealthControllerCheck200ResponseInfoValueFromJSON,
           ),
   };
@@ -116,26 +116,26 @@ export function HealthControllerCheck200ResponseToJSONTyped(
   }
 
   return {
-    status: value["status"],
+    status: value['status'],
     info:
-      value["info"] == null
+      value['info'] == null
         ? undefined
         : mapValues(
-            value["info"],
+            value['info'],
             HealthControllerCheck200ResponseInfoValueToJSON,
           ),
     error:
-      value["error"] == null
+      value['error'] == null
         ? undefined
         : mapValues(
-            value["error"],
+            value['error'],
             HealthControllerCheck200ResponseInfoValueToJSON,
           ),
     details:
-      value["details"] == null
+      value['details'] == null
         ? undefined
         : mapValues(
-            value["details"],
+            value['details'],
             HealthControllerCheck200ResponseInfoValueToJSON,
           ),
   };

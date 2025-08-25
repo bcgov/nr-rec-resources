@@ -1,7 +1,7 @@
-import { Injectable } from "@nestjs/common";
-import { Prisma } from "@prisma/client";
-import { PrismaService } from "src/prisma.service";
-import { RecreationSuggestionDto } from "src/recreation-resource/dto/recreation-resource-suggestion.dto";
+import { Injectable } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
+import { PrismaService } from 'src/prisma.service';
+import { RecreationSuggestionDto } from 'src/recreation-resource/dto/recreation-resource-suggestion.dto';
 
 const RESULTS_LIMIT = 5;
 
@@ -39,7 +39,7 @@ export class RecreationResourceSuggestionsService {
 
       return results ?? [];
     } catch (error) {
-      console.error("Error fetching suggestions:", error);
+      console.error('Error fetching suggestions:', error);
       return [];
     }
   }

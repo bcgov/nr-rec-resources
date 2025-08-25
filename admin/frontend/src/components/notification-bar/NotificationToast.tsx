@@ -1,6 +1,6 @@
-import { NotificationMessage } from "@/store/notificationStore";
-import { Alert, Stack, Toast } from "react-bootstrap";
-import { NotificationBarIcon } from "./NotificationBarIcon";
+import { NotificationMessage } from '@/store/notificationStore';
+import { Alert, Stack, Toast } from 'react-bootstrap';
+import { NotificationBarIcon } from './NotificationBarIcon';
 
 interface NotificationToastProps {
   msg: NotificationMessage;
@@ -8,12 +8,12 @@ interface NotificationToastProps {
 }
 
 export function NotificationToast({ msg, onClose }: NotificationToastProps) {
-  const isSpinner = msg.type === "spinner";
+  const isSpinner = msg.type === 'spinner';
   const alertVariant = isSpinner
-    ? "info"
-    : msg.type === "status"
+    ? 'info'
+    : msg.type === 'status'
       ? msg.variant
-      : "info";
+      : 'info';
 
   return (
     <Toast

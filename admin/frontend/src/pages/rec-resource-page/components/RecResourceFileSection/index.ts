@@ -1,1 +1,1 @@
-export { RecResourceFileSection } from "./RecResourceFileSection";
+export { RecResourceFileSection } from './RecResourceFileSection';

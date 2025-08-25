@@ -1,8 +1,8 @@
-import { useGetImagesByRecResourceId } from "@/services/hooks/recreation-resource-admin/useGetImagesByRecResourceId";
-import { RecreationResourceImageDto } from "@/services/recreation-resource-admin";
-import { useMemo } from "react";
-import { formatGalleryFileDate } from "../helpers";
-import { GalleryImage } from "../types";
+import { useGetImagesByRecResourceId } from '@/services/hooks/recreation-resource-admin/useGetImagesByRecResourceId';
+import { RecreationResourceImageDto } from '@/services/recreation-resource-admin';
+import { useMemo } from 'react';
+import { formatGalleryFileDate } from '../helpers';
+import { GalleryImage } from '../types';
 
 /**
  * Hook to manage image list state and syncing.
@@ -18,10 +18,10 @@ export function useImageList(rec_resource_id?: string) {
     return imagesFromServer.map((img: RecreationResourceImageDto) => {
       // original required for image download option
       const original = img.recreation_resource_image_variants?.find(
-        (v) => v.size_code === "original",
+        (v) => v.size_code === 'original',
       );
       const preview = img.recreation_resource_image_variants?.find(
-        (v) => v.size_code === "pre",
+        (v) => v.size_code === 'pre',
       );
       return <GalleryImage>{
         id: img.ref_id,
@@ -31,7 +31,7 @@ export function useImageList(rec_resource_id?: string) {
         extension: original?.extension,
         previewUrl: preview?.url,
         variants: img.recreation_resource_image_variants || [],
-        type: "image",
+        type: 'image',
       };
     });
   }, [imagesFromServer]);

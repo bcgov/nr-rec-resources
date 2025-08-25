@@ -1,6 +1,6 @@
-import { Injectable, PipeTransform } from "@nestjs/common";
-import { RecreationResourceImageSize } from "../dto/recreation-resource-image.dto";
-import { VALID_IMAGE_SIZES_CODES } from "../constants/image.constants";
+import { Injectable, PipeTransform } from '@nestjs/common';
+import { RecreationResourceImageSize } from '../dto/recreation-resource-image.dto';
+import { VALID_IMAGE_SIZES_CODES } from '../constants/image.constants';
 
 /**
  * A pipe that transforms and validates image size query parameters.
@@ -30,7 +30,7 @@ export class ParseImageSizesPipe implements PipeTransform {
 
     const requestedSizes = Array.isArray(rawImageSizes)
       ? rawImageSizes
-      : rawImageSizes.split(",");
+      : rawImageSizes.split(',');
 
     // Validate each size is a valid enum value
     const validatedSizes = requestedSizes.filter(

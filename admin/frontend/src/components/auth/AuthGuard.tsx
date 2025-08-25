@@ -1,6 +1,6 @@
-import { ReactNode } from "react";
-import { useAuthContext } from "@/contexts/AuthContext";
-import { Spinner } from "react-bootstrap";
+import { ReactNode } from 'react';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { Spinner } from 'react-bootstrap';
 
 interface AuthGuardProps {
   children: ReactNode;

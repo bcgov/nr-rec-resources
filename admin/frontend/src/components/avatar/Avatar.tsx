@@ -1,12 +1,12 @@
-import { FC, HtmlHTMLAttributes } from "react";
-import { OverlayTrigger, OverlayTriggerProps, Tooltip } from "react-bootstrap";
-import "./Avatar.scss";
+import { FC, HtmlHTMLAttributes } from 'react';
+import { OverlayTrigger, OverlayTriggerProps, Tooltip } from 'react-bootstrap';
+import './Avatar.scss';
 
 /**
  * Props for the Avatar component.
  */
 export interface AvatarProps
-  extends Pick<HtmlHTMLAttributes<HTMLDivElement>, "className"> {
+  extends Pick<HtmlHTMLAttributes<HTMLDivElement>, 'className'> {
   /**
    * The full name to display as initials in the avatar.
    */
@@ -25,7 +25,7 @@ export interface AvatarProps
    * Placement of the tooltip.
    * @default "bottom"
    */
-  tooltipPlacement?: OverlayTriggerProps["placement"];
+  tooltipPlacement?: OverlayTriggerProps['placement'];
 }
 
 /**
@@ -36,16 +36,16 @@ export const Avatar: FC<AvatarProps> = ({
   name,
   size = 50,
   tooltip = false,
-  tooltipPlacement = "bottom",
+  tooltipPlacement = 'bottom',
   className,
 }) => {
   // Get up to two initials from the name
   const initials = name
-    .split(" ")
+    .split(' ')
     .map((n) => n[0]?.toUpperCase())
     .filter(Boolean)
     .slice(0, 2)
-    .join("");
+    .join('');
 
   const avatar = (
     <div
@@ -54,9 +54,9 @@ export const Avatar: FC<AvatarProps> = ({
         width: size,
         height: size,
         fontSize: size * 0.4,
-        fontWeight: "bold",
-        textTransform: "uppercase",
-        userSelect: "none",
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
+        userSelect: 'none',
       }}
       aria-label={`Avatar for ${name}`}
     >

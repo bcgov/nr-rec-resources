@@ -1,8 +1,8 @@
-import { HttpException, Injectable } from "@nestjs/common";
-import { ClientAPIService } from "src/service/fsa-resources";
-import { map, lastValueFrom, catchError } from "rxjs";
+import { HttpException, Injectable } from '@nestjs/common';
+import { ClientAPIService } from 'src/service/fsa-resources';
+import { map, lastValueFrom, catchError } from 'rxjs';
 
-const FOREST_CLIENT_API_KEY = process.env.FOREST_CLIENT_API_KEY || "";
+const FOREST_CLIENT_API_KEY = process.env.FOREST_CLIENT_API_KEY || '';
 
 @Injectable()
 export class FsaResourceService {

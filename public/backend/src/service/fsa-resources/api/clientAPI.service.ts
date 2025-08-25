@@ -13,14 +13,14 @@
  */
 /* tslint:disable:no-unused-variable member-ordering */
 
-import { Injectable, Optional } from "@nestjs/common";
-import { HttpService } from "@nestjs/axios";
-import { AxiosResponse } from "axios";
-import { Observable, from, of, switchMap } from "rxjs";
-import { ClientLocationDto } from "../model/clientLocationDto";
-import { ClientPublicViewDto } from "../model/clientPublicViewDto";
-import { Configuration } from "../configuration";
-import { COLLECTION_FORMATS } from "../variables";
+import { Injectable, Optional } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import { AxiosResponse } from 'axios';
+import { Observable, from, of, switchMap } from 'rxjs';
+import { ClientLocationDto } from '../model/clientLocationDto';
+import { ClientPublicViewDto } from '../model/clientPublicViewDto';
+import { Configuration } from '../configuration';
+import { COLLECTION_FORMATS } from '../variables';
 
 @Injectable()
 export class ClientAPIService {
@@ -43,7 +43,7 @@ export class ClientAPIService {
    * @return true: consumes contains 'multipart/form-data', false: otherwise
    */
   private canConsumeForm(consumes: string[]): boolean {
-    const form = "multipart/form-data";
+    const form = 'multipart/form-data';
     return consumes.includes(form);
   }
 
@@ -71,34 +71,34 @@ export class ClientAPIService {
   ): Observable<any> {
     if (xAPIKEY === null || xAPIKEY === undefined) {
       throw new Error(
-        "Required parameter xAPIKEY was null or undefined when calling findAllNonIndividuals.",
+        'Required parameter xAPIKEY was null or undefined when calling findAllNonIndividuals.',
       );
     }
 
     let queryParameters = new URLSearchParams();
     if (page !== undefined && page !== null) {
-      queryParameters.append("page", <any>page);
+      queryParameters.append('page', <any>page);
     }
     if (size !== undefined && size !== null) {
-      queryParameters.append("size", <any>size);
+      queryParameters.append('size', <any>size);
     }
     if (sortedColumnName !== undefined && sortedColumnName !== null) {
-      queryParameters.append("sortedColumnName", <any>sortedColumnName);
+      queryParameters.append('sortedColumnName', <any>sortedColumnName);
     }
 
     let headers = { ...this.defaultHeaders };
     if (xAPIKEY !== undefined && xAPIKEY !== null) {
-      headers["X-API-KEY"] = String(xAPIKEY);
+      headers['X-API-KEY'] = String(xAPIKEY);
     }
 
     let accessTokenObservable: Observable<any> = of(null);
 
     // to determine the Accept header
-    let httpHeaderAccepts: string[] = ["application/json"];
+    let httpHeaderAccepts: string[] = ['application/json'];
     const httpHeaderAcceptSelected: string | undefined =
       this.configuration.selectHeaderAccept(httpHeaderAccepts);
     if (httpHeaderAcceptSelected != undefined) {
-      headers["Accept"] = httpHeaderAcceptSelected;
+      headers['Accept'] = httpHeaderAcceptSelected;
     }
 
     // to determine the Content-Type header
@@ -106,7 +106,7 @@ export class ClientAPIService {
     return accessTokenObservable.pipe(
       switchMap((accessToken) => {
         if (accessToken) {
-          headers["Authorization"] = `Bearer ${accessToken}`;
+          headers['Authorization'] = `Bearer ${accessToken}`;
         }
 
         return this.httpClient.get<Array<ClientPublicViewDto>>(
@@ -135,34 +135,34 @@ export class ClientAPIService {
   public findByAcronym(acronym: string, xAPIKEY: string): Observable<any> {
     if (acronym === null || acronym === undefined) {
       throw new Error(
-        "Required parameter acronym was null or undefined when calling findByAcronym.",
+        'Required parameter acronym was null or undefined when calling findByAcronym.',
       );
     }
 
     if (xAPIKEY === null || xAPIKEY === undefined) {
       throw new Error(
-        "Required parameter xAPIKEY was null or undefined when calling findByAcronym.",
+        'Required parameter xAPIKEY was null or undefined when calling findByAcronym.',
       );
     }
 
     let queryParameters = new URLSearchParams();
     if (acronym !== undefined && acronym !== null) {
-      queryParameters.append("acronym", <any>acronym);
+      queryParameters.append('acronym', <any>acronym);
     }
 
     let headers = { ...this.defaultHeaders };
     if (xAPIKEY !== undefined && xAPIKEY !== null) {
-      headers["X-API-KEY"] = String(xAPIKEY);
+      headers['X-API-KEY'] = String(xAPIKEY);
     }
 
     let accessTokenObservable: Observable<any> = of(null);
 
     // to determine the Accept header
-    let httpHeaderAccepts: string[] = ["application/json"];
+    let httpHeaderAccepts: string[] = ['application/json'];
     const httpHeaderAcceptSelected: string | undefined =
       this.configuration.selectHeaderAccept(httpHeaderAccepts);
     if (httpHeaderAcceptSelected != undefined) {
-      headers["Accept"] = httpHeaderAcceptSelected;
+      headers['Accept'] = httpHeaderAcceptSelected;
     }
 
     // to determine the Content-Type header
@@ -170,7 +170,7 @@ export class ClientAPIService {
     return accessTokenObservable.pipe(
       switchMap((accessToken) => {
         if (accessToken) {
-          headers["Authorization"] = `Bearer ${accessToken}`;
+          headers['Authorization'] = `Bearer ${accessToken}`;
         }
 
         return this.httpClient.get<Array<ClientPublicViewDto>>(
@@ -202,29 +202,29 @@ export class ClientAPIService {
   ): Observable<any> {
     if (clientNumber === null || clientNumber === undefined) {
       throw new Error(
-        "Required parameter clientNumber was null or undefined when calling findByClientNumber.",
+        'Required parameter clientNumber was null or undefined when calling findByClientNumber.',
       );
     }
 
     if (xAPIKEY === null || xAPIKEY === undefined) {
       throw new Error(
-        "Required parameter xAPIKEY was null or undefined when calling findByClientNumber.",
+        'Required parameter xAPIKEY was null or undefined when calling findByClientNumber.',
       );
     }
 
     let headers = { ...this.defaultHeaders };
     if (xAPIKEY !== undefined && xAPIKEY !== null) {
-      headers["X-API-KEY"] = String(xAPIKEY);
+      headers['X-API-KEY'] = String(xAPIKEY);
     }
 
     let accessTokenObservable: Observable<any> = of(null);
 
     // to determine the Accept header
-    let httpHeaderAccepts: string[] = ["application/json"];
+    let httpHeaderAccepts: string[] = ['application/json'];
     const httpHeaderAcceptSelected: string | undefined =
       this.configuration.selectHeaderAccept(httpHeaderAccepts);
     if (httpHeaderAcceptSelected != undefined) {
-      headers["Accept"] = httpHeaderAcceptSelected;
+      headers['Accept'] = httpHeaderAcceptSelected;
     }
 
     // to determine the Content-Type header
@@ -232,7 +232,7 @@ export class ClientAPIService {
     return accessTokenObservable.pipe(
       switchMap((accessToken) => {
         if (accessToken) {
-          headers["Authorization"] = `Bearer ${accessToken}`;
+          headers['Authorization'] = `Bearer ${accessToken}`;
         }
 
         return this.httpClient.get<ClientPublicViewDto>(
@@ -269,37 +269,37 @@ export class ClientAPIService {
   ): Observable<any> {
     if (clientNumberOrName === null || clientNumberOrName === undefined) {
       throw new Error(
-        "Required parameter clientNumberOrName was null or undefined when calling findByClientNumberOrName.",
+        'Required parameter clientNumberOrName was null or undefined when calling findByClientNumberOrName.',
       );
     }
 
     if (xAPIKEY === null || xAPIKEY === undefined) {
       throw new Error(
-        "Required parameter xAPIKEY was null or undefined when calling findByClientNumberOrName.",
+        'Required parameter xAPIKEY was null or undefined when calling findByClientNumberOrName.',
       );
     }
 
     let queryParameters = new URLSearchParams();
     if (page !== undefined && page !== null) {
-      queryParameters.append("page", <any>page);
+      queryParameters.append('page', <any>page);
     }
     if (size !== undefined && size !== null) {
-      queryParameters.append("size", <any>size);
+      queryParameters.append('size', <any>size);
     }
 
     let headers = { ...this.defaultHeaders };
     if (xAPIKEY !== undefined && xAPIKEY !== null) {
-      headers["X-API-KEY"] = String(xAPIKEY);
+      headers['X-API-KEY'] = String(xAPIKEY);
     }
 
     let accessTokenObservable: Observable<any> = of(null);
 
     // to determine the Accept header
-    let httpHeaderAccepts: string[] = ["application/json"];
+    let httpHeaderAccepts: string[] = ['application/json'];
     const httpHeaderAcceptSelected: string | undefined =
       this.configuration.selectHeaderAccept(httpHeaderAccepts);
     if (httpHeaderAcceptSelected != undefined) {
-      headers["Accept"] = httpHeaderAcceptSelected;
+      headers['Accept'] = httpHeaderAcceptSelected;
     }
 
     // to determine the Content-Type header
@@ -307,7 +307,7 @@ export class ClientAPIService {
     return accessTokenObservable.pipe(
       switchMap((accessToken) => {
         if (accessToken) {
-          headers["Authorization"] = `Bearer ${accessToken}`;
+          headers['Authorization'] = `Bearer ${accessToken}`;
         }
 
         return this.httpClient.get<ClientPublicViewDto>(
@@ -354,45 +354,45 @@ export class ClientAPIService {
   ): Observable<any> {
     if (xAPIKEY === null || xAPIKEY === undefined) {
       throw new Error(
-        "Required parameter xAPIKEY was null or undefined when calling findByNames.",
+        'Required parameter xAPIKEY was null or undefined when calling findByNames.',
       );
     }
 
     let queryParameters = new URLSearchParams();
     if (page !== undefined && page !== null) {
-      queryParameters.append("page", <any>page);
+      queryParameters.append('page', <any>page);
     }
     if (size !== undefined && size !== null) {
-      queryParameters.append("size", <any>size);
+      queryParameters.append('size', <any>size);
     }
     if (clientName !== undefined && clientName !== null) {
-      queryParameters.append("clientName", <any>clientName);
+      queryParameters.append('clientName', <any>clientName);
     }
     if (clientFirstName !== undefined && clientFirstName !== null) {
-      queryParameters.append("clientFirstName", <any>clientFirstName);
+      queryParameters.append('clientFirstName', <any>clientFirstName);
     }
     if (clientMiddleName !== undefined && clientMiddleName !== null) {
-      queryParameters.append("clientMiddleName", <any>clientMiddleName);
+      queryParameters.append('clientMiddleName', <any>clientMiddleName);
     }
     if (clientTypeCodes) {
       clientTypeCodes.forEach((element) => {
-        queryParameters.append("clientTypeCodes", <any>element);
+        queryParameters.append('clientTypeCodes', <any>element);
       });
     }
 
     let headers = { ...this.defaultHeaders };
     if (xAPIKEY !== undefined && xAPIKEY !== null) {
-      headers["X-API-KEY"] = String(xAPIKEY);
+      headers['X-API-KEY'] = String(xAPIKEY);
     }
 
     let accessTokenObservable: Observable<any> = of(null);
 
     // to determine the Accept header
-    let httpHeaderAccepts: string[] = ["application/json"];
+    let httpHeaderAccepts: string[] = ['application/json'];
     const httpHeaderAcceptSelected: string | undefined =
       this.configuration.selectHeaderAccept(httpHeaderAccepts);
     if (httpHeaderAcceptSelected != undefined) {
-      headers["Accept"] = httpHeaderAcceptSelected;
+      headers['Accept'] = httpHeaderAcceptSelected;
     }
 
     // to determine the Content-Type header
@@ -400,7 +400,7 @@ export class ClientAPIService {
     return accessTokenObservable.pipe(
       switchMap((accessToken) => {
         if (accessToken) {
-          headers["Authorization"] = `Bearer ${accessToken}`;
+          headers['Authorization'] = `Bearer ${accessToken}`;
         }
 
         return this.httpClient.get<Array<ClientPublicViewDto>>(
@@ -435,35 +435,35 @@ export class ClientAPIService {
   ): Observable<any> {
     if (clientNumber === null || clientNumber === undefined) {
       throw new Error(
-        "Required parameter clientNumber was null or undefined when calling getClientLocationDetails.",
+        'Required parameter clientNumber was null or undefined when calling getClientLocationDetails.',
       );
     }
 
     if (locationNumber === null || locationNumber === undefined) {
       throw new Error(
-        "Required parameter locationNumber was null or undefined when calling getClientLocationDetails.",
+        'Required parameter locationNumber was null or undefined when calling getClientLocationDetails.',
       );
     }
 
     if (xAPIKEY === null || xAPIKEY === undefined) {
       throw new Error(
-        "Required parameter xAPIKEY was null or undefined when calling getClientLocationDetails.",
+        'Required parameter xAPIKEY was null or undefined when calling getClientLocationDetails.',
       );
     }
 
     let headers = { ...this.defaultHeaders };
     if (xAPIKEY !== undefined && xAPIKEY !== null) {
-      headers["X-API-KEY"] = String(xAPIKEY);
+      headers['X-API-KEY'] = String(xAPIKEY);
     }
 
     let accessTokenObservable: Observable<any> = of(null);
 
     // to determine the Accept header
-    let httpHeaderAccepts: string[] = ["application/json"];
+    let httpHeaderAccepts: string[] = ['application/json'];
     const httpHeaderAcceptSelected: string | undefined =
       this.configuration.selectHeaderAccept(httpHeaderAccepts);
     if (httpHeaderAcceptSelected != undefined) {
-      headers["Accept"] = httpHeaderAcceptSelected;
+      headers['Accept'] = httpHeaderAcceptSelected;
     }
 
     // to determine the Content-Type header
@@ -471,7 +471,7 @@ export class ClientAPIService {
     return accessTokenObservable.pipe(
       switchMap((accessToken) => {
         if (accessToken) {
-          headers["Authorization"] = `Bearer ${accessToken}`;
+          headers['Authorization'] = `Bearer ${accessToken}`;
         }
 
         return this.httpClient.get<ClientLocationDto>(
@@ -508,37 +508,37 @@ export class ClientAPIService {
   ): Observable<any> {
     if (clientNumber === null || clientNumber === undefined) {
       throw new Error(
-        "Required parameter clientNumber was null or undefined when calling listClientLocations.",
+        'Required parameter clientNumber was null or undefined when calling listClientLocations.',
       );
     }
 
     if (xAPIKEY === null || xAPIKEY === undefined) {
       throw new Error(
-        "Required parameter xAPIKEY was null or undefined when calling listClientLocations.",
+        'Required parameter xAPIKEY was null or undefined when calling listClientLocations.',
       );
     }
 
     let queryParameters = new URLSearchParams();
     if (page !== undefined && page !== null) {
-      queryParameters.append("page", <any>page);
+      queryParameters.append('page', <any>page);
     }
     if (size !== undefined && size !== null) {
-      queryParameters.append("size", <any>size);
+      queryParameters.append('size', <any>size);
     }
 
     let headers = { ...this.defaultHeaders };
     if (xAPIKEY !== undefined && xAPIKEY !== null) {
-      headers["X-API-KEY"] = String(xAPIKEY);
+      headers['X-API-KEY'] = String(xAPIKEY);
     }
 
     let accessTokenObservable: Observable<any> = of(null);
 
     // to determine the Accept header
-    let httpHeaderAccepts: string[] = ["application/json"];
+    let httpHeaderAccepts: string[] = ['application/json'];
     const httpHeaderAcceptSelected: string | undefined =
       this.configuration.selectHeaderAccept(httpHeaderAccepts);
     if (httpHeaderAcceptSelected != undefined) {
-      headers["Accept"] = httpHeaderAcceptSelected;
+      headers['Accept'] = httpHeaderAcceptSelected;
     }
 
     // to determine the Content-Type header
@@ -546,7 +546,7 @@ export class ClientAPIService {
     return accessTokenObservable.pipe(
       switchMap((accessToken) => {
         if (accessToken) {
-          headers["Authorization"] = `Bearer ${accessToken}`;
+          headers['Authorization'] = `Bearer ${accessToken}`;
         }
 
         return this.httpClient.get<Array<ClientLocationDto>>(

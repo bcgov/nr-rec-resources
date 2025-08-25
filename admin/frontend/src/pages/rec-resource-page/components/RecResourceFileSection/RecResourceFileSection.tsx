@@ -1,14 +1,14 @@
-import { DeleteFileModal } from "@/pages/rec-resource-page/components/RecResourceFileSection/DeleteFileModal";
-import { FileUploadModal } from "@/pages/rec-resource-page/components/RecResourceFileSection/FileUploadModal";
-import { useRecResourceFileTransferState } from "@/pages/rec-resource-page/hooks/useRecResourceFileTransferState";
-import { resetRecResourceFileTransferStore } from "@/pages/rec-resource-page/store/recResourceFileTransferStore";
-import { GalleryDocument, GalleryImage } from "@/pages/rec-resource-page/types";
-import { COLOR_RED } from "@/styles/colors";
-import { faFilePdf } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useEffect } from "react";
-import { GalleryAccordion } from "./GalleryAccordion";
-import { GalleryFileCard } from "./GalleryFileCard";
+import { DeleteFileModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/DeleteFileModal';
+import { FileUploadModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/FileUploadModal';
+import { useRecResourceFileTransferState } from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
+import { resetRecResourceFileTransferStore } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
+import { GalleryDocument, GalleryImage } from '@/pages/rec-resource-page/types';
+import { COLOR_RED } from '@/styles/colors';
+import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useEffect } from 'react';
+import { GalleryAccordion } from './GalleryAccordion';
+import { GalleryFileCard } from './GalleryFileCard';
 
 export const RecResourceFileSection = () => {
   const {
@@ -62,7 +62,7 @@ export const RecResourceFileSection = () => {
         items={galleryImages}
         uploadLabel="Upload"
         isLoading={isFetchingImages}
-        onFileUploadTileClick={getImageGeneralActionHandler("upload")}
+        onFileUploadTileClick={getImageGeneralActionHandler('upload')}
         uploadDisabled={isImageUploadDisabled}
         renderItem={renderGalleryImageCard}
       />
@@ -73,7 +73,7 @@ export const RecResourceFileSection = () => {
         items={galleryDocuments}
         uploadLabel="Upload"
         isLoading={isFetching}
-        onFileUploadTileClick={getDocumentGeneralActionHandler("upload")}
+        onFileUploadTileClick={getDocumentGeneralActionHandler('upload')}
         uploadDisabled={isDocumentUploadDisabled}
         renderItem={renderGalleryDocumentCard}
       />

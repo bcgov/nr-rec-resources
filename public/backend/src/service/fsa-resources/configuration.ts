@@ -1,7 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
-import type { HttpService } from "@nestjs/axios";
-import { ModuleMetadata, Type } from "@nestjs/common/interfaces";
+import type { HttpService } from '@nestjs/axios';
+import { ModuleMetadata, Type } from '@nestjs/common/interfaces';
 
 export interface ConfigurationParameters {
   apiKeys?: { [key: string]: string };
@@ -82,13 +82,13 @@ export class Configuration {
    */
   public isJsonMime(mime: string): boolean {
     const jsonMime: RegExp = new RegExp(
-      "^(application\/json|[^;/ \t]+\/[^;/ \t]+[+]json)[ \t]*(;.*)?$",
-      "i",
+      '^(application\/json|[^;/ \t]+\/[^;/ \t]+[+]json)[ \t]*(;.*)?$',
+      'i',
     );
     return (
       mime != null &&
       (jsonMime.test(mime) ||
-        mime.toLowerCase() === "application/json-patch+json")
+        mime.toLowerCase() === 'application/json-patch+json')
     );
   }
 }
@@ -97,7 +97,7 @@ export interface ConfigurationFactory {
   createConfiguration(): Promise<Configuration> | Configuration;
 }
 
-export interface AsyncConfiguration extends Pick<ModuleMetadata, "imports"> {
+export interface AsyncConfiguration extends Pick<ModuleMetadata, 'imports'> {
   /**
    * The `useExisting` syntax allows you to create aliases for existing providers.
    */

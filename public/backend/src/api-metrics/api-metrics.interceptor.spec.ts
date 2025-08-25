@@ -1,17 +1,17 @@
-import { Test } from "@nestjs/testing";
+import { Test } from '@nestjs/testing';
 import {
   CallHandler,
   ExecutionContext,
   HttpException,
   HttpStatus,
-} from "@nestjs/common";
-import { of, throwError } from "rxjs";
-import { ApiMetricsInterceptor } from "./api-metrics.interceptor";
-import { ApiMetricsService } from "./api-metrics.service";
-import { OperationNameUtil } from "./operation-name.util";
-import { Mocked } from "vitest";
+} from '@nestjs/common';
+import { of, throwError } from 'rxjs';
+import { ApiMetricsInterceptor } from './api-metrics.interceptor';
+import { ApiMetricsService } from './api-metrics.service';
+import { OperationNameUtil } from './operation-name.util';
+import { Mocked } from 'vitest';
 
-describe("ApiMetricsInterceptor", () => {
+describe('ApiMetricsInterceptor', () => {
   let interceptor: ApiMetricsInterceptor;
   let apiMetricsService: ApiMetricsService;
   let operationNameUtil: OperationNameUtil;
@@ -19,7 +19,7 @@ describe("ApiMetricsInterceptor", () => {
   // Mock data
   const mockContext = {
     switchToHttp: vi.fn().mockReturnValue({
-      getRequest: vi.fn().mockReturnValue({ method: "GET" }),
+      getRequest: vi.fn().mockReturnValue({ method: 'GET' }),
       getResponse: vi.fn().mockReturnValue({ statusCode: 200 }),
     }),
   } as unknown as ExecutionContext;
@@ -28,7 +28,7 @@ describe("ApiMetricsInterceptor", () => {
     handle: vi.fn(),
   } as Mocked<CallHandler>;
 
-  const mockMetricDatum = [{ name: "test", value: 1 }];
+  const mockMetricDatum = [{ name: 'test', value: 1 }];
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
@@ -44,7 +44,7 @@ describe("ApiMetricsInterceptor", () => {
         {
           provide: OperationNameUtil,
           useValue: {
-            get: vi.fn().mockReturnValue("testOperation"),
+            get: vi.fn().mockReturnValue('testOperation'),
           },
         },
       ],
@@ -59,13 +59,13 @@ describe("ApiMetricsInterceptor", () => {
     vi.clearAllMocks();
   });
 
-  it("should be defined", () => {
+  it('should be defined', () => {
     expect(interceptor).toBeDefined();
   });
 
-  it("should handle successful requests", () => {
-    mockCallHandler.handle.mockReturnValue(of("test"));
-    vi.spyOn(Date, "now")
+  it('should handle successful requests', () => {
+    mockCallHandler.handle.mockReturnValue(of('test'));
+    vi.spyOn(Date, 'now')
       .mockReturnValueOnce(1000) // Start time
       .mockReturnValueOnce(1500); // End time
 
@@ -73,8 +73,8 @@ describe("ApiMetricsInterceptor", () => {
       next: () => {
         // Assert
         expect(apiMetricsService.buildMetricDatum).toHaveBeenCalledWith(
-          "testOperation",
-          "GET",
+          'testOperation',
+          'GET',
           200,
           500,
         );
@@ -83,16 +83,16 @@ describe("ApiMetricsInterceptor", () => {
     });
   });
 
-  it("should handle HttpException errors", () => {
-    const httpError = new HttpException("Test error", HttpStatus.BAD_REQUEST);
+  it('should handle HttpException errors', () => {
+    const httpError = new HttpException('Test error', HttpStatus.BAD_REQUEST);
     mockCallHandler.handle.mockReturnValue(throwError(() => httpError));
-    vi.spyOn(Date, "now").mockReturnValueOnce(1000).mockReturnValueOnce(1500);
+    vi.spyOn(Date, 'now').mockReturnValueOnce(1000).mockReturnValueOnce(1500);
 
     interceptor.intercept(mockContext, mockCallHandler).subscribe({
       error: (error) => {
         expect(apiMetricsService.buildMetricDatum).toHaveBeenCalledWith(
-          "testOperation",
-          "GET",
+          'testOperation',
+          'GET',
           400,
           500,
         );
@@ -102,16 +102,16 @@ describe("ApiMetricsInterceptor", () => {
     });
   });
 
-  it("should handle non-HttpException errors", () => {
-    const error = new Error("Test error");
+  it('should handle non-HttpException errors', () => {
+    const error = new Error('Test error');
     mockCallHandler.handle.mockReturnValue(throwError(() => error));
-    vi.spyOn(Date, "now").mockReturnValueOnce(1000).mockReturnValueOnce(1500);
+    vi.spyOn(Date, 'now').mockReturnValueOnce(1000).mockReturnValueOnce(1500);
 
     interceptor.intercept(mockContext, mockCallHandler).subscribe({
       error: (err) => {
         expect(apiMetricsService.buildMetricDatum).toHaveBeenCalledWith(
-          "testOperation",
-          "GET",
+          'testOperation',
+          'GET',
           500,
           500,
         );
@@ -121,8 +121,8 @@ describe("ApiMetricsInterceptor", () => {
     });
   });
 
-  it("should get operation name from util", () => {
-    mockCallHandler.handle.mockReturnValue(of("test"));
+  it('should get operation name from util', () => {
+    mockCallHandler.handle.mockReturnValue(of('test'));
     interceptor.intercept(mockContext, mockCallHandler).subscribe();
     expect(operationNameUtil.get).toHaveBeenCalledWith(mockContext);
   });

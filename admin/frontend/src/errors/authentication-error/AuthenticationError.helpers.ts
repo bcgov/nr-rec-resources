@@ -5,11 +5,11 @@
 export function isKeycloakError(err: unknown): err is Keycloak.KeycloakError {
   return (
     !!err &&
-    typeof err === "object" &&
-    "error" in err &&
-    "error_description" in err &&
-    typeof (err as any).error === "string" &&
-    typeof (err as any).error_description === "string"
+    typeof err === 'object' &&
+    'error' in err &&
+    'error_description' in err &&
+    typeof (err as any).error === 'string' &&
+    typeof (err as any).error_description === 'string'
   );
 }
 
@@ -24,7 +24,7 @@ export function getKeycloakErrorMessage(err: Keycloak.KeycloakError): string {
   if (err.error.trim()) {
     return err.error.trim();
   }
-  return "Keycloak error";
+  return 'Keycloak error';
 }
 
 /**
@@ -34,8 +34,8 @@ export function getKeycloakErrorMessage(err: Keycloak.KeycloakError): string {
 export function isObjectWithMessage(err: unknown): err is { message: string } {
   return (
     !!err &&
-    typeof err === "object" &&
-    "message" in err &&
-    typeof (err as any).message === "string"
+    typeof err === 'object' &&
+    'message' in err &&
+    typeof (err as any).message === 'string'
   );
 }

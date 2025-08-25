@@ -1,4 +1,4 @@
-import * as $runtime from "@prisma/client/runtime/library";
+import * as $runtime from '@prisma/client/runtime/library';
 
 /**
  * @param text

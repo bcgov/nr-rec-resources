@@ -1,1 +1,1 @@
-export * from "./fileUploadSchema";
+export * from './fileUploadSchema';

@@ -1,13 +1,13 @@
-import { CustomBadge, CustomButton } from "@/components";
-import { ClampLines } from "@/components/clamp-lines";
-import { RecreationResourceDetailModel } from "@/custom-models";
-import { useRecResourceFileTransferState } from "@/pages/rec-resource-page/hooks/useRecResourceFileTransferState";
-import { COLOR_BLUE, COLOR_BLUE_LIGHT } from "@/styles/colors";
-import { faEllipsisH, faPlus } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { FC } from "react";
-import { Dropdown, Stack } from "react-bootstrap";
-import "./ResourceHeaderSection.scss";
+import { CustomBadge, CustomButton } from '@/components';
+import { ClampLines } from '@/components/clamp-lines';
+import { RecreationResourceDetailModel } from '@/custom-models';
+import { useRecResourceFileTransferState } from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
+import { COLOR_BLUE, COLOR_BLUE_LIGHT } from '@/styles/colors';
+import { faEllipsisH, faPlus } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FC } from 'react';
+import { Dropdown, Stack } from 'react-bootstrap';
+import './ResourceHeaderSection.scss';
 
 interface ResourceHeaderSectionProps {
   recResource: RecreationResourceDetailModel;
@@ -87,7 +87,7 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
               />
             </Dropdown.Toggle>
             <Dropdown.Menu>
-              <Dropdown.Item onClick={getImageGeneralActionHandler("upload")}>
+              <Dropdown.Item onClick={getImageGeneralActionHandler('upload')}>
                 <FontAwesomeIcon
                   icon={faPlus}
                   className="me-2 resource-header-section__action-button-icon"
@@ -95,7 +95,7 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
                 Add image
               </Dropdown.Item>
               <Dropdown.Item
-                onClick={getDocumentGeneralActionHandler("upload")}
+                onClick={getDocumentGeneralActionHandler('upload')}
                 disabled={isDocumentUploadDisabled}
               >
                 <FontAwesomeIcon
@@ -115,12 +115,12 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
         >
           <ActionButton
             label="Add image"
-            onClick={getImageGeneralActionHandler("upload")}
+            onClick={getImageGeneralActionHandler('upload')}
             disabled={isImageUploadDisabled}
           />
           <ActionButton
             label="Add document"
-            onClick={getDocumentGeneralActionHandler("upload")}
+            onClick={getDocumentGeneralActionHandler('upload')}
             disabled={isDocumentUploadDisabled}
           />
         </Stack>

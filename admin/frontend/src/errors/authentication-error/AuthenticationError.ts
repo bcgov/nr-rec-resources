@@ -2,7 +2,7 @@ import {
   getKeycloakErrorMessage,
   isKeycloakError,
   isObjectWithMessage,
-} from "@/errors";
+} from '@/errors';
 
 /**
  * Custom error class for authentication-related errors.
@@ -10,8 +10,8 @@ import {
  */
 export class AuthenticationError extends Error {
   constructor(message?: string) {
-    super(message || "Authentication error");
-    this.name = "AuthenticationError";
+    super(message || 'Authentication error');
+    this.name = 'AuthenticationError';
   }
 
   /**
@@ -30,7 +30,7 @@ export class AuthenticationError extends Error {
       return new AuthenticationError(err.message);
     }
 
-    if (typeof err === "string") {
+    if (typeof err === 'string') {
       return new AuthenticationError(err);
     }
 
@@ -38,7 +38,7 @@ export class AuthenticationError extends Error {
       return new AuthenticationError((err as any).message);
     }
 
-    return new AuthenticationError("Unknown authentication error");
+    return new AuthenticationError('Unknown authentication error');
   }
 
   getMessage(): string {

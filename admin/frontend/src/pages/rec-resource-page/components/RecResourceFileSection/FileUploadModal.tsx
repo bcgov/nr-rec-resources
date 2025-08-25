@@ -1,13 +1,13 @@
-import { useRecResourceFileTransferState } from "@/pages/rec-resource-page/hooks/useRecResourceFileTransferState";
-import { setUploadFileName } from "@/pages/rec-resource-page/store/recResourceFileTransferStore";
+import { useRecResourceFileTransferState } from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
+import { setUploadFileName } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
 import {
   faExclamationTriangle,
   faUpload,
-} from "@fortawesome/free-solid-svg-icons";
-import { FC } from "react";
-import { Col, Form, Row } from "react-bootstrap";
-import { BaseFileModal } from "./BaseFileModal";
-import "./FileUploadModal.scss";
+} from '@fortawesome/free-solid-svg-icons';
+import { FC } from 'react';
+import { Col, Form, Row } from 'react-bootstrap';
+import { BaseFileModal } from './BaseFileModal';
+import './FileUploadModal.scss';
 
 export const FileUploadModal: FC = () => {
   const {
@@ -23,21 +23,21 @@ export const FileUploadModal: FC = () => {
 
   if (!showUploadOverlay || !selectedFileForUpload) return null;
 
-  const isImage = selectedFileForUpload.type === "image";
-  const modalTitle = isImage ? "Upload image" : "Upload file";
+  const isImage = selectedFileForUpload.type === 'image';
+  const modalTitle = isImage ? 'Upload image' : 'Upload file';
 
   // Use the appropriate action handler based on file type
   const getGeneralActionHandler = isImage
     ? getImageGeneralActionHandler
     : getDocumentGeneralActionHandler;
 
-  const handleCancel = getGeneralActionHandler("cancel-upload");
-  const handleConfirm = getGeneralActionHandler("confirm-upload");
+  const handleCancel = getGeneralActionHandler('cancel-upload');
+  const handleConfirm = getGeneralActionHandler('confirm-upload');
 
   const alertConfig = {
-    variant: "warning",
+    variant: 'warning',
     icon: faExclamationTriangle,
-    text: "Uploading files will directly publish to the public website within 15 minutess.",
+    text: 'Uploading files will directly publish to the public website within 15 minutess.',
   };
 
   const isFilenameInvalid = !!fileNameError;

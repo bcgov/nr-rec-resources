@@ -1,4 +1,4 @@
-import { Spinner, Stack } from "react-bootstrap";
+import { Spinner, Stack } from 'react-bootstrap';
 
 interface LoadingStateProps {
   label: string;

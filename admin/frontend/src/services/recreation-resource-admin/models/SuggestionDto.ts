@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from "../runtime";
+import { mapValues } from '../runtime';
 /**
  *
  * @export
@@ -55,22 +55,22 @@ export interface SuggestionDto {
  * Check if a given object implements the SuggestionDto interface.
  */
 export function instanceOfSuggestionDto(value: object): value is SuggestionDto {
-  if (!("name" in value) || value["name"] === undefined) return false;
-  if (!("rec_resource_id" in value) || value["rec_resource_id"] === undefined)
+  if (!('name' in value) || value['name'] === undefined) return false;
+  if (!('rec_resource_id' in value) || value['rec_resource_id'] === undefined)
     return false;
   if (
-    !("recreation_resource_type" in value) ||
-    value["recreation_resource_type"] === undefined
+    !('recreation_resource_type' in value) ||
+    value['recreation_resource_type'] === undefined
   )
     return false;
   if (
-    !("recreation_resource_type_code" in value) ||
-    value["recreation_resource_type_code"] === undefined
+    !('recreation_resource_type_code' in value) ||
+    value['recreation_resource_type_code'] === undefined
   )
     return false;
   if (
-    !("district_description" in value) ||
-    value["district_description"] === undefined
+    !('district_description' in value) ||
+    value['district_description'] === undefined
   )
     return false;
   return true;
@@ -88,11 +88,11 @@ export function SuggestionDtoFromJSONTyped(
     return json;
   }
   return {
-    name: json["name"],
-    rec_resource_id: json["rec_resource_id"],
-    recreation_resource_type: json["recreation_resource_type"],
-    recreation_resource_type_code: json["recreation_resource_type_code"],
-    district_description: json["district_description"],
+    name: json['name'],
+    rec_resource_id: json['rec_resource_id'],
+    recreation_resource_type: json['recreation_resource_type'],
+    recreation_resource_type_code: json['recreation_resource_type_code'],
+    district_description: json['district_description'],
   };
 }
 
@@ -109,10 +109,10 @@ export function SuggestionDtoToJSONTyped(
   }
 
   return {
-    name: value["name"],
-    rec_resource_id: value["rec_resource_id"],
-    recreation_resource_type: value["recreation_resource_type"],
-    recreation_resource_type_code: value["recreation_resource_type_code"],
-    district_description: value["district_description"],
+    name: value['name'],
+    rec_resource_id: value['rec_resource_id'],
+    recreation_resource_type: value['recreation_resource_type'],
+    recreation_resource_type_code: value['recreation_resource_type_code'],
+    district_description: value['district_description'],
   };
 }

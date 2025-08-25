@@ -1,8 +1,8 @@
-import { DropdownActionItem } from "@/pages/rec-resource-page/components/RecResourceFileSection/GalleryFileCard/DropdownActionItem";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
-import { fireEvent, render, screen } from "@testing-library/react";
-import { Dropdown } from "react-bootstrap";
-import { vi } from "vitest";
+import { DropdownActionItem } from '@/pages/rec-resource-page/components/RecResourceFileSection/GalleryFileCard/DropdownActionItem';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
+import { fireEvent, render, screen } from '@testing-library/react';
+import { Dropdown } from 'react-bootstrap';
+import { vi } from 'vitest';
 
 // Helper wrapper for Dropdown context
 const DropdownWrapper = ({ children }: { children: React.ReactNode }) => (
@@ -12,10 +12,10 @@ const DropdownWrapper = ({ children }: { children: React.ReactNode }) => (
   </Dropdown>
 );
 
-describe("DropdownActionItem", () => {
+describe('DropdownActionItem', () => {
   const defaultProps = {
     icon: faTrash,
-    label: "Delete Item",
+    label: 'Delete Item',
     onClick: vi.fn(),
   };
 
@@ -23,17 +23,17 @@ describe("DropdownActionItem", () => {
     vi.clearAllMocks();
   });
 
-  it("renders with correct label and icon", () => {
+  it('renders with correct label and icon', () => {
     render(
       <DropdownWrapper>
         <DropdownActionItem {...defaultProps} />
       </DropdownWrapper>,
     );
 
-    expect(screen.getByText("Delete Item")).toBeInTheDocument();
+    expect(screen.getByText('Delete Item')).toBeInTheDocument();
   });
 
-  it("calls onClick when clicked", () => {
+  it('calls onClick when clicked', () => {
     const onClick = vi.fn();
     render(
       <DropdownWrapper>
@@ -42,13 +42,13 @@ describe("DropdownActionItem", () => {
     );
 
     const dropdownItem = screen
-      .getByText("Delete Item")
-      .closest(".dropdown-item");
+      .getByText('Delete Item')
+      .closest('.dropdown-item');
     fireEvent.click(dropdownItem!);
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 
-  it("renders FontAwesome icon correctly", () => {
+  it('renders FontAwesome icon correctly', () => {
     render(
       <DropdownWrapper>
         <DropdownActionItem {...defaultProps} />
@@ -56,29 +56,29 @@ describe("DropdownActionItem", () => {
     );
 
     // Check that SVG icon is rendered
-    const icon = document.querySelector("svg");
+    const icon = document.querySelector('svg');
     expect(icon).toBeInTheDocument();
   });
 
-  it("has correct layout structure", () => {
+  it('has correct layout structure', () => {
     render(
       <DropdownWrapper>
         <DropdownActionItem {...defaultProps} />
       </DropdownWrapper>,
     );
 
-    const stack = document.querySelector(".align-items-center");
+    const stack = document.querySelector('.align-items-center');
     expect(stack).toBeInTheDocument();
-    expect(stack).toHaveClass("align-items-center");
+    expect(stack).toHaveClass('align-items-center');
 
-    const dropdownItem = document.querySelector(".dropdown-item");
+    const dropdownItem = document.querySelector('.dropdown-item');
     expect(dropdownItem).toBeInTheDocument();
   });
 
-  it("supports different icons and labels", () => {
+  it('supports different icons and labels', () => {
     const customProps = {
       icon: faTrash,
-      label: "Remove File",
+      label: 'Remove File',
       onClick: vi.fn(),
     };
 
@@ -88,10 +88,10 @@ describe("DropdownActionItem", () => {
       </DropdownWrapper>,
     );
 
-    expect(screen.getByText("Remove File")).toBeInTheDocument();
+    expect(screen.getByText('Remove File')).toBeInTheDocument();
   });
 
-  it("can be rendered multiple times in same dropdown", () => {
+  it('can be rendered multiple times in same dropdown', () => {
     render(
       <DropdownWrapper>
         <DropdownActionItem icon={faTrash} label="Item 1" onClick={vi.fn()} />
@@ -99,18 +99,18 @@ describe("DropdownActionItem", () => {
       </DropdownWrapper>,
     );
 
-    expect(screen.getByText("Item 1")).toBeInTheDocument();
-    expect(screen.getByText("Item 2")).toBeInTheDocument();
+    expect(screen.getByText('Item 1')).toBeInTheDocument();
+    expect(screen.getByText('Item 2')).toBeInTheDocument();
   });
 
-  it("maintains Bootstrap dropdown styling", () => {
+  it('maintains Bootstrap dropdown styling', () => {
     render(
       <DropdownWrapper>
         <DropdownActionItem {...defaultProps} />
       </DropdownWrapper>,
     );
 
-    const dropdownItem = document.querySelector(".dropdown-item");
-    expect(dropdownItem).toHaveClass("dropdown-item");
+    const dropdownItem = document.querySelector('.dropdown-item');
+    expect(dropdownItem).toHaveClass('dropdown-item');
   });
 });

@@ -1,14 +1,14 @@
-import React from "react";
-import clsx from "clsx";
-import { OverlayTrigger, Tooltip } from "react-bootstrap";
-import "./ClampLines.scss";
+import React from 'react';
+import clsx from 'clsx';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
+import './ClampLines.scss';
 
 export interface ClampLinesProps {
   text: string;
   lines?: number;
   className?: string;
   style?: React.CSSProperties;
-  placement?: "top" | "bottom" | "left" | "right";
+  placement?: 'top' | 'bottom' | 'left' | 'right';
   as?: React.ElementType;
 }
 
@@ -17,8 +17,8 @@ export const ClampLines: React.FC<ClampLinesProps> = ({
   lines = 2,
   className,
   style,
-  placement = "top",
-  as: Component = "span",
+  placement = 'top',
+  as: Component = 'span',
 }) => {
   return (
     <OverlayTrigger
@@ -26,7 +26,7 @@ export const ClampLines: React.FC<ClampLinesProps> = ({
       overlay={<Tooltip id={`tooltip-clamp`}>{text}</Tooltip>}
     >
       <Component
-        className={clsx("clamp-ellipsis", className)}
+        className={clsx('clamp-ellipsis', className)}
         style={{
           WebkitLineClamp: lines,
           ...style,

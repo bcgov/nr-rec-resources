@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from "../runtime";
+import { mapValues } from '../runtime';
 /**
  *
  * @export
@@ -31,7 +31,7 @@ export interface FileUploadDto {
  * Check if a given object implements the FileUploadDto interface.
  */
 export function instanceOfFileUploadDto(value: object): value is FileUploadDto {
-  if (!("file" in value) || value["file"] === undefined) return false;
+  if (!('file' in value) || value['file'] === undefined) return false;
   return true;
 }
 
@@ -47,7 +47,7 @@ export function FileUploadDtoFromJSONTyped(
     return json;
   }
   return {
-    file: json["file"],
+    file: json['file'],
   };
 }
 
@@ -64,6 +64,6 @@ export function FileUploadDtoToJSONTyped(
   }
 
   return {
-    file: value["file"],
+    file: value['file'],
   };
 }

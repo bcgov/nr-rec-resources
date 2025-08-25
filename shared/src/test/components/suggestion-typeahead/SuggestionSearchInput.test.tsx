@@ -1,9 +1,9 @@
-import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
-import { SuggestionSearchInput } from "@shared/components/suggestion-typeahead/SuggestionSearchInput";
+import { describe, expect, it, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { SuggestionSearchInput } from '@shared/components/suggestion-typeahead/SuggestionSearchInput';
 
-describe("SuggestionSearchInput", () => {
-  it("renders input and search icon", () => {
+describe('SuggestionSearchInput', () => {
+  it('renders input and search icon', () => {
     const inputRef = vi.fn();
     const referenceElementRef = vi.fn();
     render(
@@ -14,10 +14,10 @@ describe("SuggestionSearchInput", () => {
         onChange={() => {}}
       />,
     );
-    expect(screen.getByRole("textbox")).toBeInTheDocument();
+    expect(screen.getByRole('textbox')).toBeInTheDocument();
   });
 
-  it("calls refs with input element", () => {
+  it('calls refs with input element', () => {
     const inputRef = vi.fn();
     const referenceElementRef = vi.fn();
     render(
@@ -30,7 +30,7 @@ describe("SuggestionSearchInput", () => {
       />,
     );
     // Simulate ref assignment
-    const input = screen.getByRole("textbox");
+    const input = screen.getByRole('textbox');
     inputRef.mockClear();
     referenceElementRef.mockClear();
     inputRef(input);
@@ -38,7 +38,7 @@ describe("SuggestionSearchInput", () => {
     expect(inputRef).toHaveBeenCalledWith(input);
     expect(referenceElementRef).toHaveBeenCalledWith(input);
 
-    const spinner = screen.getByRole("status");
+    const spinner = screen.getByRole('status');
     expect(spinner).toBeInTheDocument();
   });
 });

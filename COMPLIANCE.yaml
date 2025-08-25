@@ -5,7 +5,7 @@ description: |
 spec:
   - name: PIA
     status: not-required
-    last-updated: "2022-01-26T23:07:19.992Z"
+    last-updated: '2022-01-26T23:07:19.992Z'
   - name: STRA
     status: not-required
-    last-updated: "2022-01-26T23:07:19.992Z"
+    last-updated: '2022-01-26T23:07:19.992Z'

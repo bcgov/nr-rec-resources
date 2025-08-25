@@ -1,11 +1,11 @@
 import {
   notificationStore,
   removeNotification,
-} from "@/store/notificationStore";
-import { useStore } from "@tanstack/react-store";
-import { Stack, ToastContainer } from "react-bootstrap";
-import "./NotificationBar.scss";
-import { NotificationToast } from "./NotificationToast";
+} from '@/store/notificationStore';
+import { useStore } from '@tanstack/react-store';
+import { Stack, ToastContainer } from 'react-bootstrap';
+import './NotificationBar.scss';
+import { NotificationToast } from './NotificationToast';
 
 /**
  * NotificationBar displays a stack of notification messages below the header.

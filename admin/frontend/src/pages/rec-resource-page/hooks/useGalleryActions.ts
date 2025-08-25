@@ -1,6 +1,6 @@
-import { useStore } from "@tanstack/react-store";
-import { useCallback } from "react";
-import { handleAddFileByType, handleAddFileClick } from "../helpers";
+import { useStore } from '@tanstack/react-store';
+import { useCallback } from 'react';
+import { handleAddFileByType, handleAddFileClick } from '../helpers';
 import {
   hideDeleteModal,
   recResourceFileTransferStore,
@@ -8,13 +8,13 @@ import {
   removePendingImage,
   resetUploadState,
   showDeleteModalForFile,
-} from "../store/recResourceFileTransferStore";
-import { GalleryFile, GalleryFileAction, GalleryGeneralAction } from "../types";
-import { useDocumentDelete } from "./useDocumentDelete";
-import { useDocumentUpload } from "./useDocumentUpload";
-import { useFileDownload } from "./useFileDownload";
-import { useImageDelete } from "./useImageDelete";
-import { useImageUpload } from "./useImageUpload";
+} from '../store/recResourceFileTransferStore';
+import { GalleryFile, GalleryFileAction, GalleryGeneralAction } from '../types';
+import { useDocumentDelete } from './useDocumentDelete';
+import { useDocumentUpload } from './useDocumentUpload';
+import { useFileDownload } from './useFileDownload';
+import { useImageDelete } from './useImageDelete';
+import { useImageUpload } from './useImageUpload';
 
 /**
  * Hook to manage gallery actions for both documents and images.
@@ -41,14 +41,14 @@ export function useGalleryActions() {
   const handleFileAction = useCallback(
     (action: GalleryFileAction, file: GalleryFile, onSuccess?: () => void) => {
       switch (action) {
-        case "view":
-          window.open(file.url, "_blank");
+        case 'view':
+          window.open(file.url, '_blank');
           break;
-        case "download":
+        case 'download':
           downloadMutation.mutate({ file });
           break;
-        case "retry": {
-          const isImageRetry = file.type === "image";
+        case 'retry': {
+          const isImageRetry = file.type === 'image';
           if (isImageRetry) {
             handleImageUploadRetry(file, onSuccess);
           } else {
@@ -56,11 +56,11 @@ export function useGalleryActions() {
           }
           break;
         }
-        case "delete":
+        case 'delete':
           showDeleteModalForFile(file);
           break;
-        case "dismiss": {
-          if (file.type === "image") {
+        case 'dismiss': {
+          if (file.type === 'image') {
             removePendingImage(file.id);
           } else {
             removePendingDoc(file.id);
@@ -83,17 +83,17 @@ export function useGalleryActions() {
   const handleGeneralAction = useCallback(
     (
       action: GalleryGeneralAction,
-      fileType: GalleryFile["type"],
+      fileType: GalleryFile['type'],
       onSuccess?: () => void,
     ) => {
       switch (action) {
-        case "cancel-delete":
+        case 'cancel-delete':
           hideDeleteModal();
           break;
-        case "upload":
+        case 'upload':
           handleAddFileByType(fileType);
           break;
-        case "confirm-upload":
+        case 'confirm-upload':
           if (selectedFileForUpload?.pendingFile && uploadFileName) {
             resetUploadState();
             // Create updated gallery file with the user-entered filename
@@ -102,21 +102,21 @@ export function useGalleryActions() {
               name: uploadFileName,
             };
 
-            if (fileType === "image") {
+            if (fileType === 'image') {
               handleImageUpload(updatedGalleryFile, onSuccess);
             } else {
               handleDocumentUpload(updatedGalleryFile, onSuccess);
             }
           }
           break;
-        case "cancel-upload":
+        case 'cancel-upload':
           resetUploadState();
           break;
-        case "confirm-delete":
+        case 'confirm-delete':
           // Determine which delete function to use based on the file type
-          if (fileToDelete?.type === "image") {
+          if (fileToDelete?.type === 'image') {
             handleImageDelete(onSuccess);
-          } else if (fileToDelete?.type === "document") {
+          } else if (fileToDelete?.type === 'document') {
             handleDocumentDelete(onSuccess);
           }
           hideDeleteModal();

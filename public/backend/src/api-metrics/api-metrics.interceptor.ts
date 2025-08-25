@@ -5,12 +5,12 @@ import {
   HttpStatus,
   Injectable,
   NestInterceptor,
-} from "@nestjs/common";
-import { from, Observable, throwError } from "rxjs";
-import { catchError, switchMap } from "rxjs/operators";
-import { Request, Response } from "express";
-import { ApiMetricsService } from "./api-metrics.service";
-import { OperationNameUtil } from "./operation-name.util";
+} from '@nestjs/common';
+import { from, Observable, throwError } from 'rxjs';
+import { catchError, switchMap } from 'rxjs/operators';
+import { Request, Response } from 'express';
+import { ApiMetricsService } from './api-metrics.service';
+import { OperationNameUtil } from './operation-name.util';
 
 /**
  * Interceptor that captures API call metrics and publishes them to CloudWatch.

@@ -12,35 +12,35 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from "../runtime";
-import type { RecreationResourceDistrictDto } from "./RecreationResourceDistrictDto";
+import { mapValues } from '../runtime';
+import type { RecreationResourceDistrictDto } from './RecreationResourceDistrictDto';
 import {
   RecreationResourceDistrictDtoFromJSON,
   RecreationResourceDistrictDtoFromJSONTyped,
   RecreationResourceDistrictDtoToJSON,
   RecreationResourceDistrictDtoToJSONTyped,
-} from "./RecreationResourceDistrictDto";
-import type { RecreationStructureDto } from "./RecreationStructureDto";
+} from './RecreationResourceDistrictDto';
+import type { RecreationStructureDto } from './RecreationStructureDto';
 import {
   RecreationStructureDtoFromJSON,
   RecreationStructureDtoFromJSONTyped,
   RecreationStructureDtoToJSON,
   RecreationStructureDtoToJSONTyped,
-} from "./RecreationStructureDto";
-import type { RecreationStatusDto } from "./RecreationStatusDto";
+} from './RecreationStructureDto';
+import type { RecreationStatusDto } from './RecreationStatusDto';
 import {
   RecreationStatusDtoFromJSON,
   RecreationStatusDtoFromJSONTyped,
   RecreationStatusDtoToJSON,
   RecreationStatusDtoToJSONTyped,
-} from "./RecreationStatusDto";
-import type { RecreationActivityDto } from "./RecreationActivityDto";
+} from './RecreationStatusDto';
+import type { RecreationActivityDto } from './RecreationActivityDto';
 import {
   RecreationActivityDtoFromJSON,
   RecreationActivityDtoFromJSONTyped,
   RecreationActivityDtoToJSON,
   RecreationActivityDtoToJSONTyped,
-} from "./RecreationActivityDto";
+} from './RecreationActivityDto';
 
 /**
  *
@@ -144,8 +144,8 @@ export interface RecreationResourceDetailDto {
  * @export
  */
 export const RecreationResourceDetailDtoMaintenanceStandardCodeEnum = {
-  U: "U",
-  M: "M",
+  U: 'U',
+  M: 'M',
 } as const;
 export type RecreationResourceDetailDtoMaintenanceStandardCodeEnum =
   (typeof RecreationResourceDetailDtoMaintenanceStandardCodeEnum)[keyof typeof RecreationResourceDetailDtoMaintenanceStandardCodeEnum];
@@ -156,51 +156,51 @@ export type RecreationResourceDetailDtoMaintenanceStandardCodeEnum =
 export function instanceOfRecreationResourceDetailDto(
   value: object,
 ): value is RecreationResourceDetailDto {
-  if (!("rec_resource_id" in value) || value["rec_resource_id"] === undefined)
+  if (!('rec_resource_id' in value) || value['rec_resource_id'] === undefined)
     return false;
-  if (!("name" in value) || value["name"] === undefined) return false;
+  if (!('name' in value) || value['name'] === undefined) return false;
   if (
-    !("closest_community" in value) ||
-    value["closest_community"] === undefined
+    !('closest_community' in value) ||
+    value['closest_community'] === undefined
   )
     return false;
   if (
-    !("recreation_activity" in value) ||
-    value["recreation_activity"] === undefined
+    !('recreation_activity' in value) ||
+    value['recreation_activity'] === undefined
   )
     return false;
   if (
-    !("recreation_status" in value) ||
-    value["recreation_status"] === undefined
+    !('recreation_status' in value) ||
+    value['recreation_status'] === undefined
   )
     return false;
   if (
-    !("rec_resource_type" in value) ||
-    value["rec_resource_type"] === undefined
+    !('rec_resource_type' in value) ||
+    value['rec_resource_type'] === undefined
   )
     return false;
-  if (!("description" in value) || value["description"] === undefined)
+  if (!('description' in value) || value['description'] === undefined)
     return false;
   if (
-    !("driving_directions" in value) ||
-    value["driving_directions"] === undefined
-  )
-    return false;
-  if (
-    !("maintenance_standard_code" in value) ||
-    value["maintenance_standard_code"] === undefined
-  )
-    return false;
-  if (!("campsite_count" in value) || value["campsite_count"] === undefined)
-    return false;
-  if (
-    !("recreation_access" in value) ||
-    value["recreation_access"] === undefined
+    !('driving_directions' in value) ||
+    value['driving_directions'] === undefined
   )
     return false;
   if (
-    !("recreation_structure" in value) ||
-    value["recreation_structure"] === undefined
+    !('maintenance_standard_code' in value) ||
+    value['maintenance_standard_code'] === undefined
+  )
+    return false;
+  if (!('campsite_count' in value) || value['campsite_count'] === undefined)
+    return false;
+  if (
+    !('recreation_access' in value) ||
+    value['recreation_access'] === undefined
+  )
+    return false;
+  if (
+    !('recreation_structure' in value) ||
+    value['recreation_structure'] === undefined
   )
     return false;
   return true;
@@ -220,34 +220,34 @@ export function RecreationResourceDetailDtoFromJSONTyped(
     return json;
   }
   return {
-    rec_resource_id: json["rec_resource_id"],
-    name: json["name"],
-    closest_community: json["closest_community"],
-    recreation_activity: (json["recreation_activity"] as Array<any>).map(
+    rec_resource_id: json['rec_resource_id'],
+    name: json['name'],
+    closest_community: json['closest_community'],
+    recreation_activity: (json['recreation_activity'] as Array<any>).map(
       RecreationActivityDtoFromJSON,
     ),
-    recreation_status: RecreationStatusDtoFromJSON(json["recreation_status"]),
-    rec_resource_type: json["rec_resource_type"],
-    description: json["description"],
-    driving_directions: json["driving_directions"],
-    maintenance_standard_code: json["maintenance_standard_code"],
-    campsite_count: json["campsite_count"],
-    recreation_access: json["recreation_access"],
+    recreation_status: RecreationStatusDtoFromJSON(json['recreation_status']),
+    rec_resource_type: json['rec_resource_type'],
+    description: json['description'],
+    driving_directions: json['driving_directions'],
+    maintenance_standard_code: json['maintenance_standard_code'],
+    campsite_count: json['campsite_count'],
+    recreation_access: json['recreation_access'],
     recreation_structure: RecreationStructureDtoFromJSON(
-      json["recreation_structure"],
+      json['recreation_structure'],
     ),
     spatial_feature_geometry:
-      json["spatial_feature_geometry"] == null
+      json['spatial_feature_geometry'] == null
         ? undefined
-        : json["spatial_feature_geometry"],
+        : json['spatial_feature_geometry'],
     site_point_geometry:
-      json["site_point_geometry"] == null
+      json['site_point_geometry'] == null
         ? undefined
-        : json["site_point_geometry"],
+        : json['site_point_geometry'],
     recreation_district:
-      json["recreation_district"] == null
+      json['recreation_district'] == null
         ? undefined
-        : RecreationResourceDistrictDtoFromJSON(json["recreation_district"]),
+        : RecreationResourceDistrictDtoFromJSON(json['recreation_district']),
   };
 }
 
@@ -266,26 +266,26 @@ export function RecreationResourceDetailDtoToJSONTyped(
   }
 
   return {
-    rec_resource_id: value["rec_resource_id"],
-    name: value["name"],
-    closest_community: value["closest_community"],
-    recreation_activity: (value["recreation_activity"] as Array<any>).map(
+    rec_resource_id: value['rec_resource_id'],
+    name: value['name'],
+    closest_community: value['closest_community'],
+    recreation_activity: (value['recreation_activity'] as Array<any>).map(
       RecreationActivityDtoToJSON,
     ),
-    recreation_status: RecreationStatusDtoToJSON(value["recreation_status"]),
-    rec_resource_type: value["rec_resource_type"],
-    description: value["description"],
-    driving_directions: value["driving_directions"],
-    maintenance_standard_code: value["maintenance_standard_code"],
-    campsite_count: value["campsite_count"],
-    recreation_access: value["recreation_access"],
+    recreation_status: RecreationStatusDtoToJSON(value['recreation_status']),
+    rec_resource_type: value['rec_resource_type'],
+    description: value['description'],
+    driving_directions: value['driving_directions'],
+    maintenance_standard_code: value['maintenance_standard_code'],
+    campsite_count: value['campsite_count'],
+    recreation_access: value['recreation_access'],
     recreation_structure: RecreationStructureDtoToJSON(
-      value["recreation_structure"],
+      value['recreation_structure'],
     ),
-    spatial_feature_geometry: value["spatial_feature_geometry"],
-    site_point_geometry: value["site_point_geometry"],
+    spatial_feature_geometry: value['spatial_feature_geometry'],
+    site_point_geometry: value['site_point_geometry'],
     recreation_district: RecreationResourceDistrictDtoToJSON(
-      value["recreation_district"],
+      value['recreation_district'],
     ),
   };
 }

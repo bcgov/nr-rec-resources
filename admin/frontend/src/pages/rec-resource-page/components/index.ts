@@ -1,2 +1,2 @@
-export * from "./RecResourceFileSection";
-export * from "./ResourceHeaderSection";
+export * from './RecResourceFileSection';
+export * from './ResourceHeaderSection';

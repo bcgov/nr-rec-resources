@@ -1,1 +1,1 @@
-export type * from "./recreation-resource";
+export type * from './recreation-resource';

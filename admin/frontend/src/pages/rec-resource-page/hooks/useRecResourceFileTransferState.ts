@@ -1,17 +1,17 @@
-import { getMaxFilesByFileType } from "@/pages/rec-resource-page/helpers";
-import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
-import { useStore } from "@tanstack/react-store";
-import { useCallback, useEffect, useMemo } from "react";
+import { getMaxFilesByFileType } from '@/pages/rec-resource-page/helpers';
+import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
+import { useStore } from '@tanstack/react-store';
+import { useCallback, useEffect, useMemo } from 'react';
 import {
   recResourceFileTransferStore,
   setGalleryDocuments,
   setGalleryImages,
-} from "../store/recResourceFileTransferStore";
-import { GalleryFile, GalleryFileAction, GalleryGeneralAction } from "../types";
-import { useDocumentList } from "./useDocumentList";
-import { useFileNameValidation } from "./useFileNameValidation";
-import { useGalleryActions } from "./useGalleryActions";
-import { useImageList } from "./useImageList";
+} from '../store/recResourceFileTransferStore';
+import { GalleryFile, GalleryFileAction, GalleryGeneralAction } from '../types';
+import { useDocumentList } from './useDocumentList';
+import { useFileNameValidation } from './useFileNameValidation';
+import { useGalleryActions } from './useGalleryActions';
+import { useImageList } from './useImageList';
 
 /**
  * Custom React hook to manage file transfer state for recreation resource pages.
@@ -72,7 +72,7 @@ export function useRecResourceFileTransferState() {
   const getDocumentGeneralActionHandler = useCallback(
     (action: GalleryGeneralAction) => {
       return () => {
-        handleGeneralAction(action, "document", refetchDocuments);
+        handleGeneralAction(action, 'document', refetchDocuments);
       };
     },
     [handleGeneralAction, refetchDocuments],
@@ -90,7 +90,7 @@ export function useRecResourceFileTransferState() {
   const getImageGeneralActionHandler = useCallback(
     (action: GalleryGeneralAction) => {
       return () => {
-        handleGeneralAction(action, "image", refetchImages);
+        handleGeneralAction(action, 'image', refetchImages);
       };
     },
     [handleGeneralAction, refetchImages],
@@ -99,13 +99,13 @@ export function useRecResourceFileTransferState() {
   // Calculate upload disabled state based on total documents (server + pending)
   const isDocumentUploadDisabled = useMemo(() => {
     const totalDocCount = galleryDocuments.length;
-    return totalDocCount >= getMaxFilesByFileType("document");
+    return totalDocCount >= getMaxFilesByFileType('document');
   }, [galleryDocuments.length]);
 
   // Calculate upload disabled state based on total images (server + pending)
   const isImageUploadDisabled = useMemo(() => {
     const totalImageCount = galleryImages.length;
-    return totalImageCount >= getMaxFilesByFileType("image");
+    return totalImageCount >= getMaxFilesByFileType('image');
   }, [galleryImages.length]);
 
   // File name validation

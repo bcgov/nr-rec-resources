@@ -1,13 +1,13 @@
-import { ClampLines } from "@/components";
-import { useRecResourceFileTransferState } from "@/pages/rec-resource-page/hooks/useRecResourceFileTransferState";
+import { ClampLines } from '@/components';
+import { useRecResourceFileTransferState } from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
 import {
   GalleryFile,
   GalleryGeneralAction,
-} from "@/pages/rec-resource-page/types";
-import { COLOR_RED } from "@/styles/colors";
-import { faTrash, faWarning } from "@fortawesome/free-solid-svg-icons";
-import { FC } from "react";
-import { BaseFileModal } from "./BaseFileModal";
+} from '@/pages/rec-resource-page/types';
+import { COLOR_RED } from '@/styles/colors';
+import { faTrash, faWarning } from '@fortawesome/free-solid-svg-icons';
+import { FC } from 'react';
+import { BaseFileModal } from './BaseFileModal';
 
 // Props interface for testing
 interface DeleteFileModalProps {
@@ -26,20 +26,20 @@ export const DeleteFileModal: FC<DeleteFileModalProps> = () => {
   if (!showDeleteModal || !fileToDelete) return null;
 
   // Determine which handler to use based on file type
-  const isImageDelete = fileToDelete.type === "image";
+  const isImageDelete = fileToDelete.type === 'image';
 
   const handleCancel = isImageDelete
-    ? getImageGeneralActionHandler("cancel-delete")
-    : getDocumentGeneralActionHandler("cancel-delete");
+    ? getImageGeneralActionHandler('cancel-delete')
+    : getDocumentGeneralActionHandler('cancel-delete');
 
   const handleConfirm = isImageDelete
-    ? getImageGeneralActionHandler("confirm-delete")
-    : getDocumentGeneralActionHandler("confirm-delete");
+    ? getImageGeneralActionHandler('confirm-delete')
+    : getDocumentGeneralActionHandler('confirm-delete');
   const alertConfig = {
-    variant: "danger" as const,
+    variant: 'danger' as const,
     icon: faWarning,
     iconColor: COLOR_RED,
-    text: "Deleting this file will remove it from the public site within 15 minutes. This action cannot be undone.",
+    text: 'Deleting this file will remove it from the public site within 15 minutes. This action cannot be undone.',
   };
 
   return (

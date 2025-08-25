@@ -12,17 +12,17 @@
  * Do not edit the class manually.
  */
 
-import * as runtime from "../runtime";
+import * as runtime from '../runtime';
 import type {
   HealthControllerCheck200Response,
   HealthControllerCheck503Response,
-} from "../models/index";
+} from '../models/index';
 import {
   HealthControllerCheck200ResponseFromJSON,
   HealthControllerCheck200ResponseToJSON,
   HealthControllerCheck503ResponseFromJSON,
   HealthControllerCheck503ResponseToJSON,
-} from "../models/index";
+} from '../models/index';
 
 /**
  *
@@ -40,7 +40,7 @@ export class HealthApi extends runtime.BaseAPI {
     const response = await this.request(
       {
         path: `/api/health`,
-        method: "GET",
+        method: 'GET',
         headers: headerParameters,
         query: queryParameters,
       },

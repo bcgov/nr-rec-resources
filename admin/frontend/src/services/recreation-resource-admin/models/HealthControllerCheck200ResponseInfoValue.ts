@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from "../runtime";
+import { mapValues } from '../runtime';
 /**
  *
  * @export
@@ -34,7 +34,7 @@ export interface HealthControllerCheck200ResponseInfoValue {
 export function instanceOfHealthControllerCheck200ResponseInfoValue(
   value: object,
 ): value is HealthControllerCheck200ResponseInfoValue {
-  if (!("status" in value) || value["status"] === undefined) return false;
+  if (!('status' in value) || value['status'] === undefined) return false;
   return true;
 }
 
@@ -53,7 +53,7 @@ export function HealthControllerCheck200ResponseInfoValueFromJSONTyped(
   }
   return {
     ...json,
-    status: json["status"],
+    status: json['status'],
   };
 }
 
@@ -73,6 +73,6 @@ export function HealthControllerCheck200ResponseInfoValueToJSONTyped(
 
   return {
     ...value,
-    status: value["status"],
+    status: value['status'],
   };
 }

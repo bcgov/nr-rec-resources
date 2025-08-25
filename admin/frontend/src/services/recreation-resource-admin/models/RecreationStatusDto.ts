@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from "../runtime";
+import { mapValues } from '../runtime';
 /**
  *
  * @export
@@ -45,10 +45,10 @@ export interface RecreationStatusDto {
 export function instanceOfRecreationStatusDto(
   value: object,
 ): value is RecreationStatusDto {
-  if (!("status_code" in value) || value["status_code"] === undefined)
+  if (!('status_code' in value) || value['status_code'] === undefined)
     return false;
-  if (!("comment" in value) || value["comment"] === undefined) return false;
-  if (!("description" in value) || value["description"] === undefined)
+  if (!('comment' in value) || value['comment'] === undefined) return false;
+  if (!('description' in value) || value['description'] === undefined)
     return false;
   return true;
 }
@@ -65,9 +65,9 @@ export function RecreationStatusDtoFromJSONTyped(
     return json;
   }
   return {
-    status_code: json["status_code"],
-    comment: json["comment"],
-    description: json["description"],
+    status_code: json['status_code'],
+    comment: json['comment'],
+    description: json['description'],
   };
 }
 
@@ -84,8 +84,8 @@ export function RecreationStatusDtoToJSONTyped(
   }
 
   return {
-    status_code: value["status_code"],
-    comment: value["comment"],
-    description: value["description"],
+    status_code: value['status_code'],
+    comment: value['comment'],
+    description: value['description'],
   };
 }

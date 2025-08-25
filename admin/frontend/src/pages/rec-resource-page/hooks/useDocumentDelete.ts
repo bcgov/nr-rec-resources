@@ -1,17 +1,17 @@
-import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
-import { useDeleteResourceDocument } from "@/services/hooks/recreation-resource-admin/useDeleteResourceDocument";
-import { handleApiError } from "@/services/utils/errorHandler";
+import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
+import { useDeleteResourceDocument } from '@/services/hooks/recreation-resource-admin/useDeleteResourceDocument';
+import { handleApiError } from '@/services/utils/errorHandler';
 import {
   addErrorNotification,
   addSuccessNotification,
-} from "@/store/notificationStore";
-import { useStore } from "@tanstack/react-store";
-import { useCallback } from "react";
+} from '@/store/notificationStore';
+import { useStore } from '@tanstack/react-store';
+import { useCallback } from 'react';
 import {
   recResourceFileTransferStore,
   setFileToDelete,
   updateGalleryDocument,
-} from "../store/recResourceFileTransferStore";
+} from '../store/recResourceFileTransferStore';
 
 /**
  * Hook to manage document delete operations.
@@ -29,10 +29,10 @@ export function useDocumentDelete() {
       if (
         !recResource?.rec_resource_id ||
         !document?.id ||
-        document.type !== "document"
+        document.type !== 'document'
       ) {
         addErrorNotification(
-          "Unable to delete document: missing required information.",
+          'Unable to delete document: missing required information.',
         );
         return;
       }

@@ -1,17 +1,17 @@
-import { NotificationMessage } from "@/store/notificationStore";
+import { NotificationMessage } from '@/store/notificationStore';
 import {
   IconDefinition,
   faCheckCircle,
   faExclamationTriangle,
   faInfoCircle,
   faTimesCircle,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Spinner } from "react-bootstrap";
-import "./NotificationBar.scss";
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Spinner } from 'react-bootstrap';
+import './NotificationBar.scss';
 
 const VARIANT_ICON_MAP: Record<
-  "success" | "danger" | "warning" | "info",
+  'success' | 'danger' | 'warning' | 'info',
   IconDefinition
 > = {
   success: faCheckCircle,
@@ -21,7 +21,7 @@ const VARIANT_ICON_MAP: Record<
 };
 
 export function NotificationBarIcon({ msg }: { msg: NotificationMessage }) {
-  if (msg.type === "spinner") {
+  if (msg.type === 'spinner') {
     return (
       <span
         className="notification-bar-container__spinner"
@@ -32,7 +32,7 @@ export function NotificationBarIcon({ msg }: { msg: NotificationMessage }) {
     );
   }
 
-  if (msg.type === "status") {
+  if (msg.type === 'status') {
     const icon = VARIANT_ICON_MAP[msg.variant];
     return <FontAwesomeIcon icon={icon} data-testid="notification-icon" />;
   }

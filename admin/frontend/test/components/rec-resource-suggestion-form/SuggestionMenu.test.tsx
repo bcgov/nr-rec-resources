@@ -1,10 +1,10 @@
-import { render, screen } from "@testing-library/react";
-import { SuggestionMenu } from "@/components/rec-resource-suggestion-form/SuggestionMenu";
-import type { RenderMenuProps } from "react-bootstrap-typeahead";
-import { RESOURCE_TYPE_ICONS } from "@shared/components/suggestion-typeahead/constants";
+import { render, screen } from '@testing-library/react';
+import { SuggestionMenu } from '@/components/rec-resource-suggestion-form/SuggestionMenu';
+import type { RenderMenuProps } from 'react-bootstrap-typeahead';
+import { RESOURCE_TYPE_ICONS } from '@shared/components/suggestion-typeahead/constants';
 
 // Mock SuggestionListItem
-vi.mock("@/components/rec-resource-suggestion-form/SuggestionListItem", () => ({
+vi.mock('@/components/rec-resource-suggestion-form/SuggestionListItem', () => ({
   SuggestionListItem: ({
     searchTerm,
     district,
@@ -14,45 +14,45 @@ vi.mock("@/components/rec-resource-suggestion-form/SuggestionListItem", () => ({
     title,
   }: any) => {
     // If icon is a React element (Image), extract its src prop for test output
-    let iconSrc = "";
+    let iconSrc = '';
     if (icon && icon.props && icon.props.src) {
       iconSrc = icon.props.src;
     }
     return (
       <div data-testid="suggestion-item">
-        {title} | {district} | {resourceType} | {iconSrc} | {searchTerm} |{" "}
+        {title} | {district} | {resourceType} | {iconSrc} | {searchTerm} |{' '}
         {rec_resource_id}
       </div>
     );
   },
 }));
 
-describe("SuggestionMenu", () => {
+describe('SuggestionMenu', () => {
   const mockResults = [
     {
-      rec_resource_id: "abc123",
-      recreation_resource_type_code: "RTR",
-      recreation_resource_type: "Trail",
-      district_description: "Mountain District",
-      name: "Alpine Loop",
+      rec_resource_id: 'abc123',
+      recreation_resource_type_code: 'RTR',
+      recreation_resource_type: 'Trail',
+      district_description: 'Mountain District',
+      name: 'Alpine Loop',
     },
     {
-      rec_resource_id: "def456",
-      recreation_resource_type_code: "SIT",
-      recreation_resource_type: "Campground",
-      district_description: "Valley District",
-      name: "Sunset Camp",
+      rec_resource_id: 'def456',
+      recreation_resource_type_code: 'SIT',
+      recreation_resource_type: 'Campground',
+      district_description: 'Valley District',
+      name: 'Sunset Camp',
     },
   ];
 
   const mockMenuProps: RenderMenuProps = {
     innerRef: vi.fn(),
     style: {},
-    className: "custom-class",
-    role: "listbox",
+    className: 'custom-class',
+    role: 'listbox',
   };
 
-  it("renders a Menu with the correct number of MenuItems", () => {
+  it('renders a Menu with the correct number of MenuItems', () => {
     render(
       <SuggestionMenu
         results={mockResults}
@@ -61,15 +61,15 @@ describe("SuggestionMenu", () => {
       />,
     );
 
-    const menuItems = screen.getAllByTestId("suggestion-item");
+    const menuItems = screen.getAllByTestId('suggestion-item');
     expect(menuItems).toHaveLength(mockResults.length);
 
     // Basic content check
-    expect(menuItems[0]).toHaveTextContent("Alpine Loop");
-    expect(menuItems[1]).toHaveTextContent("Sunset Camp");
+    expect(menuItems[0]).toHaveTextContent('Alpine Loop');
+    expect(menuItems[1]).toHaveTextContent('Sunset Camp');
   });
 
-  it("renders each MenuItem with correct props", () => {
+  it('renders each MenuItem with correct props', () => {
     render(
       <SuggestionMenu
         results={mockResults}
@@ -78,7 +78,7 @@ describe("SuggestionMenu", () => {
       />,
     );
 
-    const items = screen.getAllByTestId("suggestion-item");
+    const items = screen.getAllByTestId('suggestion-item');
     expect(items[0]).toHaveTextContent(
       `Alpine Loop | Mountain District | Trail | ${RESOURCE_TYPE_ICONS.RTR} | camp | abc123`,
     );
@@ -87,17 +87,17 @@ describe("SuggestionMenu", () => {
     );
   });
 
-  it("passes down menuProps to Menu component", () => {
+  it('passes down menuProps to Menu component', () => {
     const { container } = render(
       <SuggestionMenu results={[]} searchTerm="" menuProps={mockMenuProps} />,
     );
 
-    const menu = container.querySelector(".custom-class");
+    const menu = container.querySelector('.custom-class');
     expect(menu).toBeInTheDocument();
-    expect(menu?.getAttribute("role")).toBe("listbox");
+    expect(menu?.getAttribute('role')).toBe('listbox');
   });
 
-  it("renders empty Menu when results are empty", () => {
+  it('renders empty Menu when results are empty', () => {
     render(
       <SuggestionMenu
         results={[]}
@@ -105,6 +105,6 @@ describe("SuggestionMenu", () => {
         menuProps={mockMenuProps}
       />,
     );
-    expect(screen.queryByTestId("suggestion-item")).not.toBeInTheDocument();
+    expect(screen.queryByTestId('suggestion-item')).not.toBeInTheDocument();
   });
 });
