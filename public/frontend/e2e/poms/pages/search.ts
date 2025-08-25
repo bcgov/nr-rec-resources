@@ -13,12 +13,24 @@ export class SearchPOM {
 
   readonly searchBtn: Locator;
 
+  readonly showListBtn: Locator;
+
+  readonly showMapBtn: Locator;
+
   constructor(page: Page) {
     this.page = page;
 
     this.searchBtn = page.getByRole('button', {
       name: SearchEnum.SEARCH_BTN_LABEL,
       exact: true,
+    });
+
+    this.showListBtn = page.getByRole('button', {
+      name: SearchEnum.SHOW_LIST_BTN_LABEL,
+    });
+
+    this.showMapBtn = page.getByRole('button', {
+      name: SearchEnum.SHOW_MAP_BTN_LABEL,
     });
   }
 
@@ -129,5 +141,17 @@ export class SearchPOM {
       const cardText = await card.textContent();
       expect(cardText).toContain(searchTerm);
     }
+  }
+
+  async showMapView() {
+    await this.showMapBtn.waitFor({ state: 'visible' });
+    await this.showMapBtn.click();
+    await this.page.waitForSelector('.search-map-container');
+  }
+
+  async showListView() {
+    await this.showListBtn.waitFor({ state: 'visible' });
+    await this.showListBtn.click();
+    await this.page.waitForSelector('.search-container');
   }
 }

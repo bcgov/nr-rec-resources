@@ -7,7 +7,7 @@ import {
   waitForNetworkRequest,
   waitForNetworkResponse,
 } from 'e2e/utils';
-import { BASE_URL, MAP_CANVAS_SELECTOR } from 'e2e/constants';
+import { BASE_URL, MAP_CANVAS_SELECTOR, VIEWPORT } from 'e2e/constants';
 
 export class UtilsPOM {
   readonly page: Page;
@@ -37,7 +37,7 @@ export class UtilsPOM {
     const href = await link.getAttribute('href');
     await link.click();
 
-    await this.page.waitForURL(`${BASE_URL}${href}`);
+    await this.page.waitForNavigation();
     expect(this.page.url()).toBe(`${BASE_URL}${href}`);
   }
 
@@ -46,11 +46,31 @@ export class UtilsPOM {
   }
 
   async screenshot(component: string, variant: string) {
-    // Remove the map canvas element if it exists as it breaks Happo
-    await this.removeVectorFeatureMap();
     await happoPlaywright.screenshot(this.page, this.pageContent, {
       component,
       variant,
+    });
+  }
+
+  async screenshotWithMapCanvas(component: string, variant: string) {
+    await this.captureVectorMapForHappo();
+    await happoPlaywright.screenshot(this.page, this.pageContent, {
+      component,
+      variant,
+    });
+  }
+
+  async screenshotWithSearchMapView(component: string, variant: string) {
+    await this.captureVectorMapForHappo();
+    await happoPlaywright.screenshot(this.page, this.pageContent, {
+      component,
+      variant,
+      targets: [
+        { name: 'chromium', browser: 'chromium', viewport: VIEWPORT },
+        { name: 'edge', browser: 'chromium', viewport: VIEWPORT },
+        { name: 'firefox', browser: 'firefox', viewport: VIEWPORT },
+        { name: 'safari', browser: 'safari', viewport: VIEWPORT },
+      ],
     });
   }
 
@@ -84,5 +104,65 @@ export class UtilsPOM {
         document.querySelector(selector)?.remove();
       }, MAP_CANVAS_SELECTOR);
     }
+  }
+
+  async captureVectorMapForHappo() {
+    const canvas = this.page.locator(MAP_CANVAS_SELECTOR);
+    if ((await canvas.count()) === 0) return;
+
+    // Hide controls that overlay the map (search, zoom, etc.)
+    await this.page.evaluate(() => {
+      document
+        .querySelectorAll('.zoom-control, .search-map-controls')
+        .forEach((el) => {
+          if (el instanceof HTMLElement) el.style.visibility = 'hidden';
+        });
+    });
+
+    // Wait for OpenLayers to finish rendering
+    await this.page.evaluate(() => {
+      return new Promise<void>((resolve) => {
+        const map = (window as any).olMap;
+        if (!map) return resolve();
+        map.once('rendercomplete', () => resolve());
+      });
+    });
+
+    // Capture screenshot buffer of the canvas
+    const buffer = await canvas.screenshot();
+
+    // Replace the canvas with an <img>
+    await this.page.evaluate(
+      ([selector, imgData]) => {
+        const canvasEl = document.querySelector<HTMLCanvasElement>(selector);
+        if (!canvasEl) return;
+        const img = document.createElement('img');
+        img.style.width = `${canvasEl.width}px`;
+        img.style.height = `${canvasEl.height}px`;
+        img.src = imgData;
+        canvasEl.replaceWith(img);
+      },
+      [
+        MAP_CANVAS_SELECTOR,
+        `data:image/png;base64,${buffer.toString('base64')}`,
+      ],
+    );
+
+    // Restore the controls
+    await this.page.evaluate(() => {
+      document
+        .querySelectorAll('.zoom-control, .search-map-controls')
+        .forEach((el) => {
+          if (el instanceof HTMLElement) el.style.visibility = '';
+        });
+    });
+
+    // Ensure header is above the map
+    await this.page.evaluate(() => {
+      const header = document.querySelector('#header');
+      if (header instanceof HTMLElement) {
+        header.style.zIndex = '999999';
+      }
+    });
   }
 }
