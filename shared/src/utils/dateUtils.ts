@@ -26,23 +26,41 @@ const parseDate = (date: DateInput): Date | null => {
 /**
  * Pacific timezone constant for consistent formatting
  */
-const PACIFIC_TIMEZONE = 'America/Vancouver';
+const PACIFIC_TIMEZONE = "America/Vancouver";
 
 /**
  * Default locale for formatting
  */
-const DEFAULT_LOCALE = 'en-CA';
+const DEFAULT_LOCALE = "en-CA";
 
 /**
  * Predefined format configurations for common date formats
  */
 const DATE_FORMAT_CONFIGS = {
-  iso: { locale: DEFAULT_LOCALE, options: { year: 'numeric', month: '2-digit', day: '2-digit' } as const },
-  readable: { locale: DEFAULT_LOCALE, options: { year: 'numeric', month: 'short', day: 'numeric' } as const },
-  full: { locale: DEFAULT_LOCALE, options: { year: 'numeric', month: 'long', day: 'numeric' } as const },
-  short: { locale: DEFAULT_LOCALE, options: { year: '2-digit', month: '2-digit', day: '2-digit' } as const },
-  yearMonth: { locale: DEFAULT_LOCALE, options: { year: 'numeric', month: '2-digit' } as const },
-  monthYear: { locale: DEFAULT_LOCALE, options: { year: 'numeric', month: 'short' } as const },
+  iso: {
+    locale: DEFAULT_LOCALE,
+    options: { year: "numeric", month: "2-digit", day: "2-digit" } as const,
+  },
+  readable: {
+    locale: DEFAULT_LOCALE,
+    options: { year: "numeric", month: "short", day: "numeric" } as const,
+  },
+  full: {
+    locale: DEFAULT_LOCALE,
+    options: { year: "numeric", month: "long", day: "numeric" } as const,
+  },
+  short: {
+    locale: DEFAULT_LOCALE,
+    options: { year: "2-digit", month: "2-digit", day: "2-digit" } as const,
+  },
+  yearMonth: {
+    locale: DEFAULT_LOCALE,
+    options: { year: "numeric", month: "2-digit" } as const,
+  },
+  monthYear: {
+    locale: DEFAULT_LOCALE,
+    options: { year: "numeric", month: "short" } as const,
+  },
 } as const;
 
 /**
@@ -55,7 +73,7 @@ const DATE_FORMAT_CONFIGS = {
 const formatDateWithOptions = (
   date: DateInput,
   locale: string,
-  options: Intl.DateTimeFormatOptions
+  options: Intl.DateTimeFormatOptions,
 ): string | null => {
   const parsedDate = parseDate(date);
   if (!parsedDate) return null;
@@ -70,7 +88,10 @@ const formatDateWithOptions = (
  * @param config - Configuration with locale and options
  * @returns Date formatter function
  */
-const createDateFormatter = (config: { locale: string; options: Intl.DateTimeFormatOptions }) => {
+const createDateFormatter = (config: {
+  locale: string;
+  options: Intl.DateTimeFormatOptions;
+}) => {
   return (date: DateInput): string | null => {
     return formatDateWithOptions(date, config.locale, config.options);
   };
@@ -88,7 +109,9 @@ export const formatDateISO = createDateFormatter(DATE_FORMAT_CONFIGS.iso);
  * @param date - Date to format (treated as UTC input)
  * @returns Formatted date string or null if invalid
  */
-export const formatDateReadable = createDateFormatter(DATE_FORMAT_CONFIGS.readable);
+export const formatDateReadable = createDateFormatter(
+  DATE_FORMAT_CONFIGS.readable,
+);
 
 /**
  * Formats a date in full format (MMMM DD, YYYY) using Pacific timezone
@@ -109,14 +132,18 @@ export const formatDateShort = createDateFormatter(DATE_FORMAT_CONFIGS.short);
  * @param date - Date to format (treated as UTC input)
  * @returns Formatted date string or null if invalid
  */
-export const formatYearMonth = createDateFormatter(DATE_FORMAT_CONFIGS.yearMonth);
+export const formatYearMonth = createDateFormatter(
+  DATE_FORMAT_CONFIGS.yearMonth,
+);
 
 /**
  * Formats a date showing month and year (MMM YYYY) using Pacific timezone
  * @param date - Date to format (treated as UTC input)
  * @returns Formatted date string or null if invalid
  */
-export const formatMonthYear = createDateFormatter(DATE_FORMAT_CONFIGS.monthYear);
+export const formatMonthYear = createDateFormatter(
+  DATE_FORMAT_CONFIGS.monthYear,
+);
 
 /**
  * Generic date formatter with custom options using Pacific timezone
@@ -128,7 +155,7 @@ export const formatMonthYear = createDateFormatter(DATE_FORMAT_CONFIGS.monthYear
 export const formatDateCustom = (
   date: DateInput,
   locale: string = DEFAULT_LOCALE,
-  options: Intl.DateTimeFormatOptions
+  options: Intl.DateTimeFormatOptions,
 ): string | null => {
   return formatDateWithOptions(date, locale, options);
 };

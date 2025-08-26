@@ -1,4 +1,5 @@
-import { adminDataRouter, ROUTE_PATHS } from "@/routes/dataRouter";
+import { RecResourceNavKey } from "@/pages/rec-resource-page";
+import { adminDataRouter, ROUTE_PATHS } from "@/routes";
 import { describe, expect, it, vi } from "vitest";
 
 // Mock components
@@ -6,9 +7,27 @@ vi.mock("@/pages/LandingPage", () => ({
   LandingPage: () => <div data-testid="landing-page">Landing Page</div>,
 }));
 
-vi.mock("@/pages/rec-resource-page", () => ({
+vi.mock("@/pages/rec-resource-page/RecResourcePage", () => ({
   RecResourcePage: () => (
     <div data-testid="rec-resource-page">Rec Resource Page</div>
+  ),
+}));
+
+vi.mock("@/pages/rec-resource-page/RecResourceFilesPage", () => ({
+  RecResourceFilesPage: () => (
+    <div data-testid="rec-resource-files-page">Files Page</div>
+  ),
+}));
+
+vi.mock("@/pages/rec-resource-page/RecResourceOverviewPage", () => ({
+  RecResourceOverviewPage: () => (
+    <div data-testid="rec-resource-overview-page">Overview Page</div>
+  ),
+}));
+
+vi.mock("@/pages/rec-resource-page/RecResourcePageLayout", () => ({
+  RecResourcePageLayout: () => (
+    <div data-testid="rec-resource-page-layout">Resource Layout</div>
   ),
 }));
 
@@ -58,12 +77,44 @@ describe("dataRouter", () => {
     it("configures rec resource page route", () => {
       const rootRoute = adminDataRouter.routes[0];
       const recResourceRoute = rootRoute.children?.find(
-        (route) => route.path === ROUTE_PATHS.REC_RESOURCE_PAGE,
+        (route) => route.path === "/rec-resource/:id",
       );
 
       expect(recResourceRoute).toBeDefined();
       expect(recResourceRoute).toHaveProperty("element");
       expect(recResourceRoute?.handle?.breadcrumb).toBeDefined();
+      expect(recResourceRoute?.handle?.tab).toBe(RecResourceNavKey.OVERVIEW);
+    });
+
+    it("configures rec resource overview child route", () => {
+      const rootRoute = adminDataRouter.routes[0];
+      const recResourceRoute = rootRoute.children?.find(
+        (route) => route.path === "/rec-resource/:id",
+      );
+
+      const overviewRoute = recResourceRoute?.children?.find(
+        (route) => route.index === true,
+      );
+
+      expect(overviewRoute).toBeDefined();
+      expect(overviewRoute).toHaveProperty("element");
+      expect(overviewRoute?.handle?.tab).toBe(RecResourceNavKey.OVERVIEW);
+    });
+
+    it("configures rec resource files child route", () => {
+      const rootRoute = adminDataRouter.routes[0];
+      const recResourceRoute = rootRoute.children?.find(
+        (route) => route.path === "/rec-resource/:id",
+      );
+
+      const filesRoute = recResourceRoute?.children?.find(
+        (route) => route.path === "files",
+      );
+
+      expect(filesRoute).toBeDefined();
+      expect(filesRoute).toHaveProperty("element");
+      expect(filesRoute?.handle?.tab).toBe(RecResourceNavKey.FILES);
+      expect(filesRoute?.handle?.breadcrumb).toBeDefined();
     });
   });
 
@@ -100,7 +151,6 @@ describe("dataRouter", () => {
       expect(breadcrumbs?.[1]).toEqual({
         label: "Test Resource",
         href: "/rec-resource/123",
-        isCurrent: true,
       });
     });
 
@@ -116,14 +166,13 @@ describe("dataRouter", () => {
       expect(breadcrumbs?.[1]).toEqual({
         label: "123",
         href: "/rec-resource/123",
-        isCurrent: true,
       });
     });
 
     it("rec resource page breadcrumb handles empty context", () => {
       const rootRoute = adminDataRouter.routes[0];
       const recResourceRoute = rootRoute.children?.find(
-        (route) => route.path === ROUTE_PATHS.REC_RESOURCE_PAGE,
+        (route) => route.path === "/rec-resource/:id",
       );
       const breadcrumbs = recResourceRoute?.handle?.breadcrumb?.();
 
@@ -131,7 +180,55 @@ describe("dataRouter", () => {
       expect(breadcrumbs?.[1]).toEqual({
         label: "",
         href: "/rec-resource/",
-        isCurrent: true,
+      });
+    });
+
+    it("files page breadcrumb returns home, resource, and files", () => {
+      const rootRoute = adminDataRouter.routes[0];
+      const recResourceRoute = rootRoute.children?.find(
+        (route) => route.path === "/rec-resource/:id",
+      );
+
+      const filesRoute = recResourceRoute?.children?.find(
+        (route) => route.path === "files",
+      );
+
+      const breadcrumbs = filesRoute?.handle?.breadcrumb?.({
+        resourceId: "123",
+        resourceName: "Test Resource",
+      });
+
+      expect(breadcrumbs).toHaveLength(3);
+      expect(breadcrumbs?.[0]).toEqual({
+        label: "Home",
+        href: ROUTE_PATHS.LANDING,
+      });
+      expect(breadcrumbs?.[1]).toEqual({
+        label: "Test Resource",
+        href: "/rec-resource/123",
+      });
+      expect(breadcrumbs?.[2]).toEqual({
+        label: "Files",
+        href: "/rec-resource/123/files",
+      });
+    });
+
+    it("files page breadcrumb handles missing context", () => {
+      const rootRoute = adminDataRouter.routes[0];
+      const recResourceRoute = rootRoute.children?.find(
+        (route) => route.path === "/rec-resource/:id",
+      );
+
+      const filesRoute = recResourceRoute?.children?.find(
+        (route) => route.path === "files",
+      );
+
+      const breadcrumbs = filesRoute?.handle?.breadcrumb?.();
+
+      expect(breadcrumbs).toHaveLength(3);
+      expect(breadcrumbs?.[2]).toEqual({
+        label: "Files",
+        href: "/rec-resource//files",
       });
     });
   });

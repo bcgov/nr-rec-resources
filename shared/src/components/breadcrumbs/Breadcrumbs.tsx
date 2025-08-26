@@ -63,21 +63,17 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
       aria-label={ariaLabel}
       data-testid="breadcrumbs"
     >
-      {breadcrumbItems?.length > 0 &&
-        breadcrumbItems.map((item: BreadcrumbItem, index: number) => {
-          const isFirst = index === 0;
-          const isLast = index === breadcrumbItems.length - 1;
-          const key = getBreadcrumbKey(item, index);
+      {breadcrumbItems.map((item: BreadcrumbItem, index: number) => {
+        const isFirst = index === 0;
+        const isLast = index === breadcrumbItems.length - 1;
+        const key = getBreadcrumbKey(item, index);
 
-          return (
-            <Breadcrumb.Item
-              key={key}
-              {...getBreadcrumbItemProps(item, isLast)}
-            >
-              {renderBreadcrumbLabel(item, showHomeIcon, isFirst)}
-            </Breadcrumb.Item>
-          );
-        })}
+        return (
+          <Breadcrumb.Item key={key} {...getBreadcrumbItemProps(item, isLast)}>
+            {renderBreadcrumbLabel(item, showHomeIcon, isFirst)}
+          </Breadcrumb.Item>
+        );
+      })}
     </Breadcrumb>
   );
 };

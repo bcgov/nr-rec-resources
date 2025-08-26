@@ -3,7 +3,7 @@ import {
   RecreationResourceDetailUIModel,
   RecreationResourceDocDto,
   RecreationResourceImageDto,
-} from "@/services/recreation-resource-admin";
+} from "@/services";
 
 /**
  * Maps a RecreationResourceDetailDto to RecreationResourceDetail with additional derived descriptions.

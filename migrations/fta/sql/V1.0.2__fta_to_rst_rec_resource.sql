@@ -51,4 +51,5 @@ set
     updated_by = excluded.updated_by,
     description = excluded.description,
     district_code = excluded.district_code,
-    maintenance_standard_code = excluded.maintenance_standard_code;
+    maintenance_standard_code = excluded.maintenance_standard_code,
+    project_established_date = excluded.project_established_date;
