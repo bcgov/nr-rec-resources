@@ -15,16 +15,26 @@ type RecResourceOverviewItemProps =
 export const RecResourceOverviewItem = ({
   label,
   value,
-
   isHtml,
 }: RecResourceOverviewItemProps) => {
   if (!value) return null;
+
   return (
-    <Stack gap={1} className="border-start border-2 border-primary">
+    <Stack
+      gap={1}
+      className="border-start border-2 border-primary ps-3 h-100"
+      as="section"
+      role="region"
+      aria-labelledby={`overview-${label.toLowerCase()}`}
+    >
       <span className="text-primary fw-bold">{label}</span>
-      <span className="text-secondary">
-        {isHtml ? <span dangerouslySetInnerHTML={{ __html: value }} /> : value}
-      </span>
+      <div className="text-secondary">
+        {isHtml ? (
+          <div dangerouslySetInnerHTML={{ __html: value as string }} />
+        ) : (
+          value
+        )}
+      </div>
     </Stack>
   );
 };

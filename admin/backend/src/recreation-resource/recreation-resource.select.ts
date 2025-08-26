@@ -3,6 +3,7 @@ export const recreationResourceSelect = {
   name: true,
   closest_community: true,
   maintenance_standard_code: true,
+  project_established_date: true,
   recreation_site_description: {
     select: {
       description: true,

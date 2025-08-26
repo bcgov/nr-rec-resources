@@ -138,6 +138,12 @@ export interface RecreationResourceDetailDto {
    * @memberof RecreationResourceDetailDto
    */
   recreation_district?: RecreationResourceDistrictDto;
+  /**
+   * Date when the project was established
+   * @type {Date}
+   * @memberof RecreationResourceDetailDto
+   */
+  project_established_date?: Date;
 }
 
 /**
@@ -248,6 +254,10 @@ export function RecreationResourceDetailDtoFromJSONTyped(
       json["recreation_district"] == null
         ? undefined
         : RecreationResourceDistrictDtoFromJSON(json["recreation_district"]),
+    project_established_date:
+      json["project_established_date"] == null
+        ? undefined
+        : new Date(json["project_established_date"]),
   };
 }
 
@@ -287,5 +297,9 @@ export function RecreationResourceDetailDtoToJSONTyped(
     recreation_district: RecreationResourceDistrictDtoToJSON(
       value["recreation_district"],
     ),
+    project_established_date:
+      value["project_established_date"] == null
+        ? undefined
+        : value["project_established_date"].toISOString(),
   };
 }

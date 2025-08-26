@@ -251,4 +251,12 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
     required: false,
   })
   recreation_district?: RecreationResourceDistrictDto;
+
+  @ApiProperty({
+    description: "Date when the project was established",
+    example: "2020-01-01",
+    required: false,
+    type: Date,
+  })
+  project_established_date?: Date;
 }
