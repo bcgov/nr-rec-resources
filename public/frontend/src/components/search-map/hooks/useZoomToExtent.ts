@@ -49,11 +49,25 @@ export const useZoomToExtent = (
         }
       });
 
-      view.fit(olExtent3857, {
-        padding: [50, 50, 50, 50],
-        maxZoom: 16,
-        duration: 500,
-      });
+      const mapSize = map.getSize(); // [width, height]
+      if (mapSize) {
+        const [width] = mapSize;
+
+        let padding;
+        // [top, right, bottom, left]
+        if (width >= 1200) {
+          // Desktop
+          padding = [150, 250, 300, 250];
+        } else if (width >= 576) {
+          // Tablet / small desktop
+          padding = [150, 200, 250, 200];
+        } else {
+          // Mobile (small padding)
+          padding = [50, 50, 50, 50];
+        }
+
+        view.fit(olExtent3857, { padding, maxZoom: 16, duration: 500 });
+      }
     } catch (err) {
       console.error('Failed to parse or fit extent:', err);
     }
