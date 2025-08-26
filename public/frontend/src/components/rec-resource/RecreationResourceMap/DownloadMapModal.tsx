@@ -27,23 +27,13 @@ const DownloadMapModal = ({
   const [isKml, setIsKml] = useState(false);
   const [isGpx, setIsGpx] = useState(false);
 
-  const handleSelect = (type: string) => {
+  const handleSelect = (checked: boolean, type: string) => {
     switch (type) {
       case 'kml':
-        if (!isKml) {
-          setIsKml(true);
-          setIsGpx(false);
-        } else {
-          setIsKml(false);
-        }
+        setIsKml(checked);
         break;
       case 'gpx':
-        if (!isGpx) {
-          setIsGpx(true);
-          setIsKml(false);
-        } else {
-          setIsGpx(false);
-        }
+        setIsGpx(checked);
         break;
     }
   };
@@ -87,7 +77,7 @@ const DownloadMapModal = ({
                   type="checkbox"
                   className="map-option"
                   checked={isKml}
-                  onChange={() => handleSelect('kml')}
+                  onChange={(e) => handleSelect(e.target.checked, 'kml')}
                 />
               </div>
               <div className="option-label">
@@ -107,7 +97,7 @@ const DownloadMapModal = ({
                   type="checkbox"
                   className="map-option"
                   checked={isGpx}
-                  onChange={() => handleSelect('gpx')}
+                  onChange={(e) => handleSelect(e.target.checked, 'gpx')}
                 />
               </div>
               <div className="option-label">
