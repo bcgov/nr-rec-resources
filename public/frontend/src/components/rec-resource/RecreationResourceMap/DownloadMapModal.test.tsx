@@ -68,33 +68,24 @@ describe('DownloadMapModal', () => {
     // Select KML
     fireEvent.click(kmlCheckbox);
     expect(kmlCheckbox).toBeChecked();
-    expect(gpxCheckbox).not.toBeChecked();
 
     // Deselect KML
     fireEvent.click(kmlCheckbox);
     expect(kmlCheckbox).not.toBeChecked();
-    expect(gpxCheckbox).not.toBeChecked();
 
-    // Select GPX (deselects KML)
-    fireEvent.click(kmlCheckbox);
+    // Select GPX
     fireEvent.click(gpxCheckbox);
     expect(gpxCheckbox).toBeChecked();
-    expect(kmlCheckbox).not.toBeChecked();
 
     // Deselect GPX
     fireEvent.click(gpxCheckbox);
     expect(gpxCheckbox).not.toBeChecked();
-    expect(kmlCheckbox).not.toBeChecked();
 
-    // Download GPX
+    // Download GPX and KML
     fireEvent.click(gpxCheckbox);
-    fireEvent.click(screen.getByText('Download'));
-    expect(downloadGPX).toHaveBeenCalledWith(styledFeatures, 'Test Resource');
-    expect(downloadKML).not.toHaveBeenCalled();
-
-    // Toggle KML back on and download
     fireEvent.click(kmlCheckbox);
     fireEvent.click(screen.getByText('Download'));
+    expect(downloadGPX).toHaveBeenCalledWith(styledFeatures, 'Test Resource');
     expect(downloadKML).toHaveBeenCalledWith(styledFeatures, recResource);
   });
 
