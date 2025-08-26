@@ -34,50 +34,52 @@ export const SuggestionMenu = ({
 
   return (
     <Menu className="suggestion-menu">
-      <div className="suggestion-menu-label">Location</div>
-      {cityOptions.map((option, index) => (
-        <MenuItem
-          key={`city-${option.name}`}
-          option={option}
-          position={index}
-          className="dropdown-menu-item"
-        >
-          <SuggestionListCity searchTerm={searchTerm} city={option.name} />
-        </MenuItem>
-      ))}
-
-      {showResultsLabel && (
-        <div className="suggestion-menu-label">Sites and trails</div>
-      )}
-      {results.map((option: RecreationSuggestion, index: number) => {
-        const {
-          rec_resource_id,
-          recreation_resource_type_code,
-          recreation_resource_type,
-          closest_community,
-          name,
-        } = option;
-        return (
+      <div className="suggestion-menu-scroll">
+        <div className="suggestion-menu-label">Location</div>
+        {cityOptions.map((option, index) => (
           <MenuItem
-            key={rec_resource_id}
+            key={`city-${option.name}`}
             option={option}
-            position={index + cityOptions.length}
+            position={index}
             className="dropdown-menu-item"
           >
-            <SuggestionListItem
-              searchTerm={searchTerm}
-              community={closest_community}
-              icon={
-                <Image
-                  src={RESOURCE_TYPE_ICONS[recreation_resource_type_code]}
-                />
-              }
-              resourceType={recreation_resource_type}
-              title={name}
-            />
+            <SuggestionListCity searchTerm={searchTerm} city={option.name} />
           </MenuItem>
-        );
-      })}
+        ))}
+
+        {showResultsLabel && (
+          <div className="suggestion-menu-label">Sites and trails</div>
+        )}
+        {results.map((option: RecreationSuggestion, index: number) => {
+          const {
+            rec_resource_id,
+            recreation_resource_type_code,
+            recreation_resource_type,
+            closest_community,
+            name,
+          } = option;
+          return (
+            <MenuItem
+              key={rec_resource_id}
+              option={option}
+              position={index + cityOptions.length}
+              className="dropdown-menu-item"
+            >
+              <SuggestionListItem
+                searchTerm={searchTerm}
+                community={closest_community}
+                icon={
+                  <Image
+                    src={RESOURCE_TYPE_ICONS[recreation_resource_type_code]}
+                  />
+                }
+                resourceType={recreation_resource_type}
+                title={name}
+              />
+            </MenuItem>
+          );
+        })}
+      </div>
     </Menu>
   );
 };

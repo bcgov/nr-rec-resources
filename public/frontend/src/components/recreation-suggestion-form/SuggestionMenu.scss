@@ -1,3 +1,8 @@
+@import '@/styles/variables.scss';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins/_breakpoints';
+
 .suggestion-menu-label {
   font-size: 0.9rem;
   margin-top: 0.5rem;
@@ -5,9 +10,16 @@
 }
 
 .suggestion-menu {
-  max-height: 300px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
   touch-action: pan-y;
+
+  .suggestion-menu-scroll {
+    max-height: 18vh;
+
+    @include media-breakpoint-up(sm) {
+      max-height: 300px;
+    }
+  }
 }
