@@ -5,7 +5,11 @@
 @import "@bcgov/design-tokens/css/variables"; // Import BC Gov design tokens
 
 :root {
-  // override Bootstrap variables with BC Gov design tokens
+  /**
+   * Override Bootstrap variables with BC Gov design tokens
+   * Github: https://github.com/bcgov/design-system
+   * Figma link: https://www.figma.com/design/5cUBaBzdMv3hqq7LudDbcF/B.C.-Design-System--Community-?node-id=3675-22281&t=eXb6K7pmLURf7qmc-0
+   */
   --bs-primary: var(--surface-color-primary-default);
   --bs-primary-rgb: 1, 51, 102;
   --bs-primary-hover: var(--surface-color-primary-hover);
@@ -24,7 +28,7 @@
   --bs-info: var(--support-surface-color-info);
 
   --bs-border-color: var(--surface-color-border-default);
-  --bs-border-radius: var(--layout-border-radius-medium);
+  --bs-border-radius: var(--layout-border-radius-large);
   --bs-body-bg: var(--surface-color-background-white);
   --bs-body-color: var(--typography-color-primary);
   --bs-font-sans-serif: var(--typography-font-families-bc-sans);

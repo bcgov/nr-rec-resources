@@ -2,7 +2,7 @@ import {
   RecreationResourceApi,
   RecreationResourceDetailDto,
   RecreationResourceDetailUIModel,
-} from "@/services/recreation-resource-admin";
+} from "@/services";
 import { useQuery } from "@tanstack/react-query";
 import { createRetryHandler, mapRecreationResourceDetail } from "./helpers";
 import { useRecreationResourceAdminApiClient } from "./useRecreationResourceAdminApiClient";

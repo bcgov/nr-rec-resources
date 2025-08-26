@@ -7,7 +7,7 @@ import { FileUploadTile } from "./FileUploadTile";
 import "./GalleryAccordion.scss";
 
 const GalleryColumn = ({ children }: { children: ReactNode }) => (
-  <Col sm={12} md={6} lg={3} className="gallery-accordion__column">
+  <Col sm={12} md={4} className="gallery-accordion__column">
     {children}
   </Col>
 );

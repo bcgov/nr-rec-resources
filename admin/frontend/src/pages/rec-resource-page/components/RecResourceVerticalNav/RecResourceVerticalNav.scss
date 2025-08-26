@@ -1,0 +1,28 @@
+.rec-resource-vertical-nav {
+  // Mobile trigger button styling
+  &__mobile-trigger {
+    &:after {
+      display: none;
+    }
+  }
+
+  .nav-link {
+    text-align: left;
+    border-radius: 0.375rem;
+    margin-bottom: 0.25rem;
+
+    &:hover {
+      background-color: var(--bs-light);
+    }
+
+    &.active {
+      background-color: var(--bs-primary);
+      color: white;
+
+      &:hover {
+        background-color: var(--bs-primary);
+        color: white;
+      }
+    }
+  }
+}

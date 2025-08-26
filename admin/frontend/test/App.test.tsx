@@ -74,7 +74,7 @@ vi.mock("@/pages/LandingPage", () => ({
   LandingPage: () => <div data-testid="landing-page">Landing Page</div>,
 }));
 
-vi.mock("@/pages/rec-resource-page", () => ({
+vi.mock("@/pages/rec-resource-page/RecResourcePage", () => ({
   RecResourcePage: () => (
     <div data-testid="rec-resource-page">Rec Resource Page</div>
   ),

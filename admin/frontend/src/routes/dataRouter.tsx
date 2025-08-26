@@ -1,15 +1,17 @@
-import { createBrowserRouter } from "react-router-dom";
-import { LandingPage } from "@/pages/LandingPage";
-import { RecResourcePage } from "@/pages/rec-resource-page";
 import { PageLayout } from "@/components";
-import { BreadcrumbItem } from "@shared/components/breadcrumbs";
+import { LandingPage } from "@/pages/LandingPage";
+import { RecResourceNavKey } from "@/pages/rec-resource-page";
+import { RecResourceFilesPage } from "@/pages/rec-resource-page/RecResourceFilesPage";
+import { RecResourceOverviewPage } from "@/pages/rec-resource-page/RecResourceOverviewPage";
+import { RecResourcePageLayout } from "@/pages/rec-resource-page/RecResourcePageLayout";
 import { AdminRouteWrapper } from "@/routes/AdminRouteWrapper";
-
-// Define route paths
-export const ROUTE_PATHS = {
-  LANDING: "/",
-  REC_RESOURCE_PAGE: "/rec-resource/:id",
-};
+import { ROUTE_PATHS } from "@/routes/constants";
+import {
+  RecResourcePageRouteHandle,
+  RecResourceRouteContext,
+} from "@/routes/types";
+import { BreadcrumbItem } from "@shared/components/breadcrumbs";
+import { createBrowserRouter } from "react-router-dom";
 
 // Breadcrumb helper functions
 const breadcrumbHelpers = {
@@ -20,17 +22,12 @@ const breadcrumbHelpers = {
   resource: (id: string, name?: string): BreadcrumbItem => ({
     label: name || id,
     href: ROUTE_PATHS.REC_RESOURCE_PAGE.replace(":id", id),
-    isCurrent: true,
+  }),
+  files: (id: string): BreadcrumbItem => ({
+    label: "Files",
+    href: ROUTE_PATHS.REC_RESOURCE_FILES.replace(":id", id),
   }),
 };
-
-// Route handle type for admin context
-export interface AdminRouteHandle {
-  breadcrumb?: (context?: {
-    resourceName?: string;
-    resourceId?: string;
-  }) => BreadcrumbItem[];
-}
 
 export const adminDataRouter = createBrowserRouter([
   {
@@ -42,24 +39,49 @@ export const adminDataRouter = createBrowserRouter([
         element: <LandingPage />,
         handle: {
           breadcrumb: () => [breadcrumbHelpers.home()],
-        } as AdminRouteHandle,
+        },
       },
       {
-        path: ROUTE_PATHS.REC_RESOURCE_PAGE,
+        path: "/rec-resource/:id",
         element: (
           <PageLayout>
-            <RecResourcePage />
+            <RecResourcePageLayout />
           </PageLayout>
         ),
         handle: {
-          breadcrumb: (context) => [
+          tab: RecResourceNavKey.OVERVIEW,
+          breadcrumb: (context?: RecResourceRouteContext) => [
             breadcrumbHelpers.home(),
             breadcrumbHelpers.resource(
               context?.resourceId || "",
               context?.resourceName,
             ),
           ],
-        } as AdminRouteHandle,
+        } satisfies RecResourcePageRouteHandle<RecResourceRouteContext>,
+        children: [
+          {
+            index: true,
+            element: <RecResourceOverviewPage />,
+            handle: {
+              tab: RecResourceNavKey.OVERVIEW,
+            } as RecResourcePageRouteHandle<RecResourceRouteContext>,
+          },
+          {
+            path: "files",
+            element: <RecResourceFilesPage />,
+            handle: {
+              tab: RecResourceNavKey.FILES,
+              breadcrumb: (context?: RecResourceRouteContext) => [
+                breadcrumbHelpers.home(),
+                breadcrumbHelpers.resource(
+                  context?.resourceId || "",
+                  context?.resourceName,
+                ),
+                breadcrumbHelpers.files(context?.resourceId || ""),
+              ],
+            } satisfies RecResourcePageRouteHandle<RecResourceRouteContext>,
+          },
+        ],
       },
     ],
   },
