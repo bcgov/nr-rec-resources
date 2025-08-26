@@ -48,3 +48,5 @@ export const WILDFIRE_PERIMETER_LAYER =
 export enum SearchMapFocusModes {
   REC_RESOURCE_ID = 'recResourceId',
 }
+export const RECREATION_LINES_LAYER =
+  'https://maps.gov.bc.ca/arcgis/rest/services/whse/bcgw_pub_whse_forest_tenure/MapServer/3';

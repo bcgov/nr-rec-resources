@@ -10,6 +10,7 @@ import { SearchViewControls } from '@/components/search';
 import {
   useClusteredRecreationFeatureLayer,
   useFeatureSelection,
+  useRecreationLinesLayer,
   useWildfireLocationLayer,
   useWildfirePerimeterLayer,
   useZoomToExtent,
@@ -93,6 +94,8 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
     hideBelowZoom: WILDFIRE_LOCATION_MIN_ZOOM,
   });
 
+  const { layer: recreationLinesLayer } = useRecreationLinesLayer(mapRef);
+
   const featureSelectionLayers = useMemo(
     () => [
       {
@@ -167,9 +170,15 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
         layerInstance: clusteredRecreationFeatureLayer,
         visible: true,
       },
+      {
+        id: 'recreation-lines',
+        layerInstance: recreationLinesLayer,
+        visible: true,
+      },
     ],
     [
       clusteredRecreationFeatureLayer,
+      recreationLinesLayer,
       wildfireLocationsLayer,
       wildfirePerimeterLayer,
     ],
