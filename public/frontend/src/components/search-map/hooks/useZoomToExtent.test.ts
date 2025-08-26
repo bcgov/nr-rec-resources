@@ -56,24 +56,26 @@ describe('useZoomToExtent', () => {
     vi.clearAllMocks();
   });
 
-  it('zooms to the provided extent when filter is set', () => {
-    mockUseSearchParams.mockReturnValue('filter=abc');
-
-    const mapMock = {
+  const createMapMock = (width: number, height: number) =>
+    ({
       getView: () => ({
         fit,
         getZoom: () => 10,
         setZoom,
       }),
       once: onMoveEnd,
-    } as unknown as OLMap;
+      getSize: () => [width, height],
+    }) as unknown as OLMap;
 
-    const mapRef = { current: { getMap: () => mapMock } };
+  it('zooms to the provided extent on desktop', () => {
+    mockUseSearchParams.mockReturnValue('filter=abc');
+
+    const mapRef = { current: { getMap: () => createMapMock(1200, 800) } };
 
     renderHook(() => useZoomToExtent(mapRef, extentGeoJSON));
 
     expect(fit).toHaveBeenCalledWith([0, 0, 100, 100], {
-      padding: [50, 50, 50, 50],
+      padding: [150, 250, 300, 250],
       maxZoom: 16,
       duration: 500,
     });
@@ -86,6 +88,34 @@ describe('useZoomToExtent', () => {
 
     expect(setZoom).toHaveBeenCalledWith(10.01);
     expect(onMoveEnd).toHaveBeenCalled();
+  });
+
+  it('zooms to the provided extent on tablet', () => {
+    mockUseSearchParams.mockReturnValue('filter=abc');
+
+    const mapRef = { current: { getMap: () => createMapMock(800, 600) } };
+
+    renderHook(() => useZoomToExtent(mapRef, extentGeoJSON));
+
+    expect(fit).toHaveBeenCalledWith([0, 0, 100, 100], {
+      padding: [150, 200, 250, 200],
+      maxZoom: 16,
+      duration: 500,
+    });
+  });
+
+  it('zooms to the provided extent on mobile', () => {
+    mockUseSearchParams.mockReturnValue('filter=abc');
+
+    const mapRef = { current: { getMap: () => createMapMock(375, 667) } };
+
+    renderHook(() => useZoomToExtent(mapRef, extentGeoJSON));
+
+    expect(fit).toHaveBeenCalledWith([0, 0, 100, 100], {
+      padding: [50, 50, 50, 50],
+      maxZoom: 16,
+      duration: 500,
+    });
   });
 
   it('does not crash on invalid extent', () => {
@@ -106,16 +136,7 @@ describe('useZoomToExtent', () => {
   it('skips zoom if filter was cleared', () => {
     mockUseSearchParams.mockReturnValue('filter=abc');
 
-    const mapMock = {
-      getView: () => ({
-        fit,
-        getZoom: () => 10,
-        setZoom,
-      }),
-      once: onMoveEnd,
-    } as unknown as OLMap;
-
-    const mapRef = { current: { getMap: () => mapMock } };
+    const mapRef = { current: { getMap: () => createMapMock(1200, 800) } };
 
     const { rerender } = renderHook(() =>
       useZoomToExtent(mapRef, extentGeoJSON),
@@ -125,6 +146,7 @@ describe('useZoomToExtent', () => {
 
     vi.clearAllMocks();
 
+    // simulate filter cleared
     mockUseSearchParams.mockReturnValue('');
 
     rerender();
