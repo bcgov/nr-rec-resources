@@ -2,8 +2,8 @@ import {
   RecreationResourceDetailDto,
   RecreationResourceMaintenanceStandardCode,
 } from "../dtos/recreation-resource-detail.dto";
-import { RecreationResourceGetPayload } from "../recreation-resource.types";
 import { OPEN_STATUS } from "../recreation-resource.constants";
+import { RecreationResourceGetPayload } from "../recreation-resource.types";
 
 /**
  * Formats recreation resource detail results to match the RecreationResourceDetailDto.
@@ -65,5 +65,6 @@ export function formatRecreationResourceDetailResults({
         : false,
     },
     recreation_district: recreationDistrict,
+    project_established_date: result.project_established_date ?? undefined,
   };
 }
