@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@bcgov/bc-sans": "^2.1.0",
-    "@bcgov/prp-map": "^0.0.11",
+    "@bcgov/prp-map": "^0.0.12",
     "@digitalspace/bcparks-bootstrap-theme": "^1.4.6",
     "@fortawesome/fontawesome-free": "^7.0.0",
     "@fortawesome/fontawesome-svg-core": "^7.0.0",
@@ -56,7 +56,7 @@
     "@playwright/test": "^1.51.0",
     "@storybook/addon-docs": "^9.0.17",
     "@storybook/addon-onboarding": "^9.0.17",
-    "@storybook/addon-vitest": "9.1.1",
+    "@storybook/addon-vitest": "9.1.2",
     "@storybook/react-vite": "^9.0.17",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
