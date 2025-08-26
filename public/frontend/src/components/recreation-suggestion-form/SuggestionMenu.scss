@@ -16,7 +16,6 @@
   touch-action: pan-y;
 
   .suggestion-menu-scroll {
-    // min-height: 120px;
     max-height: 18vh;
 
     @include media-breakpoint-up(sm) {
