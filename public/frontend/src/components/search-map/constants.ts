@@ -44,3 +44,6 @@ export const WILDFIRE_LOCATION_LAYER =
 
 export const WILDFIRE_PERIMETER_LAYER =
   'https://services6.arcgis.com/ubm4tcTYICKBpist/arcgis/rest/services/BCWS_FirePerimeters_PublicView/FeatureServer/0';
+
+export const RECREATION_LINES_LAYER =
+  'https://maps.gov.bc.ca/arcgis/rest/services/whse/bcgw_pub_whse_forest_tenure/MapServer/3';
