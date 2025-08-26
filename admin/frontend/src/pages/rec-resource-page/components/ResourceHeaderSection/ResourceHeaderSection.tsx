@@ -1,6 +1,7 @@
 import { CustomBadge, CustomButton } from "@/components";
 import { ClampLines } from "@/components/clamp-lines";
 import { useRecResourceFileTransferState } from "@/pages/rec-resource-page/hooks/useRecResourceFileTransferState";
+import { RecreationResourceDetailUIModel } from "@/services";
 import {
   COLOR_BLUE,
   COLOR_BLUE_LIGHT,
@@ -12,7 +13,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { FC } from "react";
 import { Dropdown, Stack } from "react-bootstrap";
 import "./ResourceHeaderSection.scss";
-import { RecreationResourceDetailUIModel } from "@/services/recreation-resource-admin";
 
 interface ResourceHeaderSectionProps {
   recResource: RecreationResourceDetailUIModel;

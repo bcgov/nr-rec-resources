@@ -1,5 +1,5 @@
 import { ResourceHeaderSection } from "@/pages/rec-resource-page/components/ResourceHeaderSection";
-import { RecreationResourceDetailUIModel } from "@/services/recreation-resource-admin";
+import { RecreationResourceDetailUIModel } from "@/services";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 

@@ -24,14 +24,6 @@ const breadcrumbHelpers = {
   }),
 };
 
-// Route handle type for admin context
-export interface AdminRouteHandle {
-  breadcrumb?: (context?: {
-    resourceName?: string;
-    resourceId?: string;
-  }) => BreadcrumbItem[];
-}
-
 export const adminDataRouter = createBrowserRouter([
   {
     path: "/",
@@ -42,7 +34,7 @@ export const adminDataRouter = createBrowserRouter([
         element: <LandingPage />,
         handle: {
           breadcrumb: () => [breadcrumbHelpers.home()],
-        } as AdminRouteHandle,
+        },
       },
       {
         path: ROUTE_PATHS.REC_RESOURCE_PAGE,
@@ -52,14 +44,17 @@ export const adminDataRouter = createBrowserRouter([
           </PageLayout>
         ),
         handle: {
-          breadcrumb: (context) => [
+          breadcrumb: (context: {
+            resourceId: string;
+            resourceName?: string;
+          }) => [
             breadcrumbHelpers.home(),
             breadcrumbHelpers.resource(
               context?.resourceId || "",
               context?.resourceName,
             ),
           ],
-        } as AdminRouteHandle,
+        },
       },
     ],
   },

@@ -1,4 +1,4 @@
-import { RecreationResourceDetailUIModel } from "@/services/recreation-resource-admin";
+import { RecreationResourceDetailUIModel } from "@/services";
 import { formatDateReadable } from "@shared/utils";
 import { Col, Row, Stack } from "react-bootstrap";
 import { StyledAccordion } from "../StyledAccordion/StyledAccordion";
