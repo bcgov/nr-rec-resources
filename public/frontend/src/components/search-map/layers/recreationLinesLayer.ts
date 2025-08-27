@@ -4,42 +4,31 @@ import EsriJSON from 'ol/format/EsriJSON';
 import { bbox as bboxStrategy } from 'ol/loadingstrategy';
 import { Style, Stroke } from 'ol/style';
 import { FeatureLike } from 'ol/Feature';
+import { RECREATION_LINES_LAYER } from '@/components/search-map/constants';
 
-export const RECREATION_LINES_LAYER =
-  'https://maps.gov.bc.ca/arcgis/rest/services/whse/bcgw_pub_whse_forest_tenure/MapServer/3';
+const RECREATION_LINE_FIELDS = ['OBJECTID', 'LIFE_CYCLE_STATUS_CODE'];
 
-// Fields we want to fetch
-const RECREATION_LINE_FIELDS = [
-  'OBJECTID',
-  'TENURE_TYPE',
-  'TENURE_NAME',
-  'LIFE_CYCLE_STATUS_CODE',
-];
-
-// Line style for active recreation lines
 export const createRecreationLineStyle = (
-  feature: FeatureLike,
+  _feature: FeatureLike,
   isHovered = false,
 ) => {
-  const color = 'rgba(255, 0, 255, 1)'; // magenta
+  const color = '#7BC371';
 
   return new Style({
     stroke: new Stroke({
       color: isHovered ? 'rgba(255, 0, 255, 1)' : color,
-      //  width: isHovered ? 4 : 2,
-      width: 6,
-
-      lineDash: [10, 5], // dashed for debug
+      width: isHovered ? 4 : 2,
+      lineDash: [10, 5],
     }),
   });
 };
 
-// Vector source fetching only active lines
 export const createRecreationLinesSource = () =>
   new VectorSource({
     format: new EsriJSON(),
     url: (extent) => {
       const geometry = extent.join(',');
+
       return (
         `${RECREATION_LINES_LAYER}/query/?` +
         `f=json` +
@@ -47,16 +36,20 @@ export const createRecreationLinesSource = () =>
         `&geometry=${geometry}` +
         `&geometryType=esriGeometryEnvelope` +
         `&spatialRel=esriSpatialRelIntersects` +
-        `&outSR=102100`
+        `&inSR=102100` +
+        `&outSR=102100` +
+        `&where=LIFE_CYCLE_STATUS_CODE='ACTIVE'`
       );
     },
     strategy: bboxStrategy,
     wrapX: false,
   });
 
-// The actual vector layer
 export const createRecreationLinesLayer = (source: VectorSource) =>
   new VectorLayer({
     source,
-    style: (feature) => createRecreationLineStyle(feature),
+    style: (feature, resolution) => {
+      console.log('Current resolution:', resolution);
+      return resolution < 500 ? createRecreationLineStyle(feature) : undefined;
+    },
   });
