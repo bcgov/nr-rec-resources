@@ -1,10 +1,15 @@
 import { PageLayout } from "@/components";
 import { LandingPage } from "@/pages/LandingPage";
-import { RecResourcePage } from "@/pages/rec-resource-page";
+import { RecResourceOverviewPage } from "@/pages/rec-resource-page";
 import { RecResourceFilesPage } from "@/pages/rec-resource-page/RecResourceFilesPage";
 import { RecResourceLayout } from "@/pages/rec-resource-page/RecResourceLayout";
+import { RecResourceTabKey } from "@/pages/rec-resource-page/constants";
 import { AdminRouteWrapper } from "@/routes/AdminRouteWrapper";
 import { ROUTE_PATHS } from "@/routes/constants";
+import {
+  RecResourcePageRouteHandle,
+  RecResourceRouteContext,
+} from "@/routes/types";
 import { BreadcrumbItem } from "@shared/components/breadcrumbs";
 import { createBrowserRouter } from "react-router-dom";
 
@@ -45,30 +50,29 @@ export const adminDataRouter = createBrowserRouter([
           </PageLayout>
         ),
         handle: {
-          breadcrumb: (context: {
-            resourceId: string;
-            resourceName?: string;
-          }) => [
+          tab: RecResourceTabKey.OVERVIEW,
+          breadcrumb: (context?: RecResourceRouteContext) => [
             breadcrumbHelpers.home(),
             breadcrumbHelpers.resource(
               context?.resourceId || "",
               context?.resourceName,
             ),
           ],
-        },
+        } satisfies RecResourcePageRouteHandle<RecResourceRouteContext>,
         children: [
           {
             index: true,
-            element: <RecResourcePage />,
+            element: <RecResourceOverviewPage />,
+            handle: {
+              tab: RecResourceTabKey.OVERVIEW,
+            } as RecResourcePageRouteHandle<RecResourceRouteContext>,
           },
           {
             path: "files",
             element: <RecResourceFilesPage />,
             handle: {
-              breadcrumb: (context: {
-                resourceId: string;
-                resourceName?: string;
-              }) => [
+              tab: RecResourceTabKey.FILES,
+              breadcrumb: (context?: RecResourceRouteContext) => [
                 breadcrumbHelpers.home(),
                 breadcrumbHelpers.resource(
                   context?.resourceId || "",
@@ -76,7 +80,7 @@ export const adminDataRouter = createBrowserRouter([
                 ),
                 breadcrumbHelpers.files(context?.resourceId || ""),
               ],
-            },
+            } satisfies RecResourcePageRouteHandle<RecResourceRouteContext>,
           },
         ],
       },

@@ -19,3 +19,19 @@ export const FILE_TYPE_CONFIGS: Record<
     maxFiles: 20,
   },
 } as const;
+
+export enum RecResourceTabKey {
+  OVERVIEW = "overview",
+  FILES = "files",
+}
+
+export const REC_RESOURCE_PAGE_TABS = {
+  [RecResourceTabKey.OVERVIEW]: {
+    title: "Overview",
+    route: (id: string) => `/rec-resource/${id}`,
+  },
+  [RecResourceTabKey.FILES]: {
+    title: "Files",
+    route: (id: string) => `/rec-resource/${id}/files`,
+  },
+};

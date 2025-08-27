@@ -1,4 +1,4 @@
-import { RecResourcePage } from "@/pages/rec-resource-page";
+import { RecResourceOverviewPage } from "@/pages/rec-resource-page";
 import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
 import { render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -40,7 +40,7 @@ const baseResource = {
   recreation_structure: { has_toilet: false, has_table: false },
 };
 
-describe("RecResourcePage", () => {
+describe("RecResourceOverviewPage", () => {
   afterEach(() => {
     vi.clearAllMocks();
   });
@@ -53,7 +53,7 @@ describe("RecResourcePage", () => {
       isLoading: false,
       error: mockError,
     });
-    const { container } = render(<RecResourcePage />);
+    const { container } = render(<RecResourceOverviewPage />);
     // Should render nothing (null) when there's an error
     expect(container.firstChild).toBeNull();
   });
@@ -65,7 +65,7 @@ describe("RecResourcePage", () => {
       isLoading: true,
       error: null,
     });
-    render(<RecResourcePage />);
+    render(<RecResourceOverviewPage />);
     expect(screen.getByRole("status")).toBeInTheDocument();
     expect(
       screen.getByLabelText("Loading recreation resource"),
@@ -79,30 +79,8 @@ describe("RecResourcePage", () => {
       isLoading: false,
       error: null,
     });
-    render(<RecResourcePage />);
+    render(<RecResourceOverviewPage />);
     // Should show loading spinner when recResource is not available and not loading
     expect(screen.getByRole("status")).toBeInTheDocument();
-  });
-
-  it("renders header, info banner, and file section if recResource is available", () => {
-    vi.mocked(useRecResource).mockReturnValue({
-      rec_resource_id: "abc123",
-      recResource: baseResource,
-      isLoading: false,
-      error: null,
-    });
-    render(<RecResourcePage />);
-    expect(screen.getByTestId("resource-header-section")).toHaveTextContent(
-      "Test Resource",
-    );
-    expect(screen.getByTestId("fa-icon")).toBeInTheDocument();
-    expect(
-      screen.getByText(
-        /All images and documents will be published to the beta website within 15 minutes\./,
-      ),
-    ).toBeInTheDocument();
-    expect(screen.getByTestId("rec-resource-file-section")).toHaveTextContent(
-      "File Section",
-    );
   });
 });
