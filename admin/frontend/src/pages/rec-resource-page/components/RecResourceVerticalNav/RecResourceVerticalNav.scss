@@ -1,5 +1,10 @@
 .rec-resource-vertical-nav {
-  min-width: 200px;
+  // Mobile trigger button styling
+  &__mobile-trigger {
+    &:after {
+      display: none;
+    }
+  }
 
   .nav-link {
     text-align: left;

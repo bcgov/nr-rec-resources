@@ -60,7 +60,11 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
       {/* section: name, rec id, status, and action buttons */}
       <Stack direction="horizontal" gap={2} className="justify-content-between">
         {/* name, rec id, and badge */}
-        <Stack direction="horizontal" gap={2} className="flex-wrap">
+        <Stack
+          direction="horizontal"
+          gap={2}
+          className="flex-wrap align-items-start"
+        >
           <div className="resource-header-section__title-wrapper">
             <ClampLines
               text={recResource.name}

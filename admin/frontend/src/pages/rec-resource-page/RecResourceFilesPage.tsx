@@ -2,6 +2,7 @@ import { RecResourceFileSection } from "@/pages/rec-resource-page/components/Rec
 import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Alert, Stack } from "react-bootstrap";
+import "./RecResourcePageLayout.scss";
 
 const InfoBanner = () => (
   <Alert variant="warning" className="rec-resource-page__info-banner">
