@@ -2,9 +2,9 @@
  * Generic breadcrumb hook that can be used across different projects
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useEffect, useCallback } from "react";
 import { useLocation, useMatches, Location } from "react-router-dom";
-import { breadcrumbStore, setBreadcrumbs } from "../store/breadcrumbStore";
+import { setBreadcrumbs, useBreadcrumbState } from "../store/breadcrumbStore";
 import { BreadcrumbItem, RouteHandle } from "../types";
 
 export interface UseBreadcrumbsOptions<T = Record<string, any>> {
@@ -28,15 +28,8 @@ export function useBreadcrumbs<T = Record<string, any>>({
   breadcrumbGenerator,
 }: UseBreadcrumbsOptions<T> = {}) {
   const location = useLocation();
-  const [state, setState] = useState(breadcrumbStore.getState());
+  const state = useBreadcrumbState();
   const matches = useMatches();
-
-  useEffect(() => {
-    const unsubscribe = breadcrumbStore.subscribe(setState);
-    return () => {
-      unsubscribe();
-    };
-  }, []);
 
   /**
    * Generate breadcrumbs using route handles, custom generator, or provided items

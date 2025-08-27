@@ -6,8 +6,7 @@
  */
 
 import { Breadcrumb } from "react-bootstrap";
-import { useState, useEffect } from "react";
-import { breadcrumbStore } from "./store/breadcrumbStore";
+import { useBreadcrumbItems } from "./store/breadcrumbStore";
 import { BreadcrumbItem } from "./types";
 import {
   getBreadcrumbItemProps,
@@ -53,17 +52,10 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
   showHomeIcon = true,
   ariaLabel = "Breadcrumb navigation",
 }) => {
-  const [state, setState] = useState(breadcrumbStore.getState());
-
-  useEffect(() => {
-    const unsubscribe = breadcrumbStore.subscribe(setState);
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+  const storeItems = useBreadcrumbItems();
 
   // Use provided items or fall back to store items
-  const breadcrumbItems = items || state.items;
+  const breadcrumbItems = items || storeItems;
 
   return (
     <Breadcrumb

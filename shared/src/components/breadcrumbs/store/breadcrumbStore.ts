@@ -1,7 +1,8 @@
 /**
- * Simple breadcrumb store using React context and state
+ * Breadcrumb store using TanStack Store
  */
 
+import { Store, useStore } from "@tanstack/react-store";
 import { BreadcrumbItem } from "../types";
 
 export interface BreadcrumbState {
@@ -9,38 +10,57 @@ export interface BreadcrumbState {
   previousRoute?: string;
 }
 
-// Simple global store without external dependencies
-let globalBreadcrumbState: BreadcrumbState = {
+const initialState: BreadcrumbState = {
   items: [],
   previousRoute: undefined,
 };
 
-type BreadcrumbListener = (state: BreadcrumbState) => void;
-const listeners: Set<BreadcrumbListener> = new Set();
-
-/**
- * Simple store implementation
- */
-export const breadcrumbStore = {
-  getState: () => globalBreadcrumbState,
-
-  setState: (updater: (prev: BreadcrumbState) => BreadcrumbState) => {
-    globalBreadcrumbState = updater(globalBreadcrumbState);
-    listeners.forEach((listener) => listener(globalBreadcrumbState));
-  },
-
-  subscribe: (listener: BreadcrumbListener) => {
-    listeners.add(listener);
-    return () => listeners.delete(listener);
-  },
-};
+export const breadcrumbStore = new Store(initialState);
 
 /**
  * Set breadcrumbs in the store
  */
 export function setBreadcrumbs(items: BreadcrumbItem[]): void {
-  breadcrumbStore.setState((prev) => ({
-    ...prev,
+  breadcrumbStore.setState((state) => ({
+    ...state,
     items,
   }));
 }
+
+/**
+ * Set previous route in the store
+ */
+export function setPreviousRoute(route: string): void {
+  breadcrumbStore.setState((state) => ({
+    ...state,
+    previousRoute: route,
+  }));
+}
+
+/**
+ * Get current breadcrumb state
+ */
+export function getBreadcrumbState(): BreadcrumbState {
+  return breadcrumbStore.state;
+}
+
+/**
+ * Hook to use breadcrumb items in components
+ */
+export const useBreadcrumbItems = () => {
+  return useStore(breadcrumbStore, (state) => state.items);
+};
+
+/**
+ * Hook to use previous route in components
+ */
+export const usePreviousRoute = () => {
+  return useStore(breadcrumbStore, (state) => state.previousRoute);
+};
+
+/**
+ * Hook to use entire breadcrumb state in components
+ */
+export const useBreadcrumbState = () => {
+  return useStore(breadcrumbStore, (state) => state);
+};
