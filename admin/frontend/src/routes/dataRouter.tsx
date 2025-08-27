@@ -1,8 +1,8 @@
 import { PageLayout } from "@/components";
 import { LandingPage } from "@/pages/LandingPage";
-import { RecResourceOverviewPage } from "@/pages/rec-resource-page";
 import { RecResourceFilesPage } from "@/pages/rec-resource-page/RecResourceFilesPage";
-import { RecResourceLayout } from "@/pages/rec-resource-page/RecResourceLayout";
+import { RecResourceOverviewPage } from "@/pages/rec-resource-page/RecResourceOverviewPage";
+import { RecResourcePageLayout } from "@/pages/rec-resource-page/RecResourcePageLayout";
 import { RecResourceTabKey } from "@/pages/rec-resource-page/constants";
 import { AdminRouteWrapper } from "@/routes/AdminRouteWrapper";
 import { ROUTE_PATHS } from "@/routes/constants";
@@ -46,7 +46,7 @@ export const adminDataRouter = createBrowserRouter([
         path: "/rec-resource/:id",
         element: (
           <PageLayout>
-            <RecResourceLayout />
+            <RecResourcePageLayout />
           </PageLayout>
         ),
         handle: {

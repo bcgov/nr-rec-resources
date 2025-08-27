@@ -1,4 +1,4 @@
-import { adminDataRouter, ROUTE_PATHS } from "@/routes/dataRouter";
+import { adminDataRouter, ROUTE_PATHS } from "@/routes";
 import { describe, expect, it, vi } from "vitest";
 
 // Mock components

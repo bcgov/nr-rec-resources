@@ -1,0 +1,1 @@
+export { RecResourceVerticalNav } from "./RecResourceVerticalNav";

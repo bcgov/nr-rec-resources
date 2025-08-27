@@ -1,8 +1,8 @@
-import { ResourceHeaderSection } from "@/pages/rec-resource-page/components/";
 import {
-  REC_RESOURCE_PAGE_TABS,
-  RecResourceTabKey,
-} from "@/pages/rec-resource-page/constants";
+  RecResourceVerticalNav,
+  ResourceHeaderSection,
+} from "@/pages/rec-resource-page/components/";
+import { RecResourceTabKey } from "@/pages/rec-resource-page/constants";
 import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
 import {
   RecResourcePageRouteHandle,
@@ -10,15 +10,9 @@ import {
 } from "@/routes/types";
 import { Breadcrumbs, useBreadcrumbs } from "@shared/index";
 import { useEffect, useState } from "react";
-import { Spinner, Stack, Tab, Tabs } from "react-bootstrap";
-import {
-  Outlet,
-  UIMatch,
-  useMatches,
-  useNavigate,
-  useParams,
-} from "react-router-dom";
-import "./RecResourcePage.scss";
+import { Col, Row, Spinner, Stack } from "react-bootstrap";
+import { Outlet, UIMatch, useMatches, useParams } from "react-router-dom";
+import "./RecResourcePageLayout.scss";
 
 const LoadingSpinner = () => (
   <div className="rec-resource-page__loading-container">
@@ -31,10 +25,9 @@ const LoadingSpinner = () => (
   </div>
 );
 
-export const RecResourceLayout = () => {
+export const RecResourcePageLayout = () => {
   const { recResource, isLoading, error } = useRecResource();
   const { id: rec_resource_id } = useParams();
-  const navigate = useNavigate();
   const matches = useMatches() as UIMatch<
     unknown,
     RecResourcePageRouteHandle<RecResourceRouteContext>
@@ -65,13 +58,6 @@ export const RecResourceLayout = () => {
     return <LoadingSpinner />;
   }
 
-  // Handle tab change and navigate to corresponding route
-  const handleTabSelect = (key: string | null) => {
-    const tabKey = key as RecResourceTabKey;
-    const route = REC_RESOURCE_PAGE_TABS[tabKey].route(rec_resource_id);
-    navigate(route);
-  };
-
   return (
     <Stack
       direction="vertical"
@@ -83,13 +69,17 @@ export const RecResourceLayout = () => {
       <Breadcrumbs />
       <ResourceHeaderSection recResource={recResource} />
 
-      <Tabs activeKey={activeTab} onSelect={handleTabSelect}>
-        {Object.entries(REC_RESOURCE_PAGE_TABS).map(([key, { title }]) => (
-          <Tab key={key} eventKey={key} title={title} />
-        ))}
-      </Tabs>
-
-      <Outlet />
+      <Row>
+        <Col md={3}>
+          <RecResourceVerticalNav
+            activeTab={activeTab}
+            resourceId={rec_resource_id}
+          />
+        </Col>
+        <Col md={9}>
+          <Outlet />
+        </Col>
+      </Row>
     </Stack>
   );
 };

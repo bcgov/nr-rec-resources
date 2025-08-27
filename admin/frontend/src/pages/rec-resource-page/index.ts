@@ -1,3 +1,3 @@
 export { RecResourceFilesPage } from "./RecResourceFilesPage";
-export { RecResourceLayout } from "./RecResourceLayout";
 export { RecResourceOverviewPage } from "./RecResourceOverviewPage";
+export { RecResourcePageLayout as RecResourceLayout } from "./RecResourcePageLayout";
