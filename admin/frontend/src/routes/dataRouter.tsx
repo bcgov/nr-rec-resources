@@ -1,9 +1,9 @@
 import { PageLayout } from "@/components";
 import { LandingPage } from "@/pages/LandingPage";
+import { RecResourceNavKey } from "@/pages/rec-resource-page";
 import { RecResourceFilesPage } from "@/pages/rec-resource-page/RecResourceFilesPage";
 import { RecResourceOverviewPage } from "@/pages/rec-resource-page/RecResourceOverviewPage";
 import { RecResourcePageLayout } from "@/pages/rec-resource-page/RecResourcePageLayout";
-import { RecResourceTabKey } from "@/pages/rec-resource-page/constants";
 import { AdminRouteWrapper } from "@/routes/AdminRouteWrapper";
 import { ROUTE_PATHS } from "@/routes/constants";
 import {
@@ -26,7 +26,6 @@ const breadcrumbHelpers = {
   files: (id: string): BreadcrumbItem => ({
     label: "Files",
     href: ROUTE_PATHS.REC_RESOURCE_FILES.replace(":id", id),
-    isCurrent: true,
   }),
 };
 
@@ -50,7 +49,7 @@ export const adminDataRouter = createBrowserRouter([
           </PageLayout>
         ),
         handle: {
-          tab: RecResourceTabKey.OVERVIEW,
+          tab: RecResourceNavKey.OVERVIEW,
           breadcrumb: (context?: RecResourceRouteContext) => [
             breadcrumbHelpers.home(),
             breadcrumbHelpers.resource(
@@ -64,14 +63,14 @@ export const adminDataRouter = createBrowserRouter([
             index: true,
             element: <RecResourceOverviewPage />,
             handle: {
-              tab: RecResourceTabKey.OVERVIEW,
+              tab: RecResourceNavKey.OVERVIEW,
             } as RecResourcePageRouteHandle<RecResourceRouteContext>,
           },
           {
             path: "files",
             element: <RecResourceFilesPage />,
             handle: {
-              tab: RecResourceTabKey.FILES,
+              tab: RecResourceNavKey.FILES,
               breadcrumb: (context?: RecResourceRouteContext) => [
                 breadcrumbHelpers.home(),
                 breadcrumbHelpers.resource(

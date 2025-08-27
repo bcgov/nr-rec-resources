@@ -1,8 +1,8 @@
 import {
+  RecResourceNavKey,
   RecResourceVerticalNav,
   ResourceHeaderSection,
-} from "@/pages/rec-resource-page/components/";
-import { RecResourceTabKey } from "@/pages/rec-resource-page/constants";
+} from "@/pages/rec-resource-page";
 import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
 import {
   RecResourcePageRouteHandle,
@@ -32,8 +32,8 @@ export const RecResourcePageLayout = () => {
     unknown,
     RecResourcePageRouteHandle<RecResourceRouteContext>
   >[];
-  const [activeTab, setActiveTab] = useState<RecResourceTabKey>(
-    RecResourceTabKey.OVERVIEW,
+  const [activeTab, setActiveTab] = useState<RecResourceNavKey>(
+    RecResourceNavKey.OVERVIEW,
   );
 
   // Update store based on current route handle

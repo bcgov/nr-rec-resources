@@ -1,9 +1,9 @@
-import { RecResourceTabKey } from "@/pages/rec-resource-page/constants";
+import { RecResourceNavKey } from "@/pages/rec-resource-page";
 import { RouteHandle } from "@shared/index";
 
 export interface RecResourcePageRouteHandle<TContext>
   extends RouteHandle<TContext> {
-  tab: RecResourceTabKey;
+  tab: RecResourceNavKey;
 }
 
 export interface RecResourceRouteContext {

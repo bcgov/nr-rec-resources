@@ -1,5 +1,5 @@
+import { RecResourceNavKey } from "@/pages/rec-resource-page";
 import { RecResourceVerticalNav } from "@/pages/rec-resource-page/components/RecResourceVerticalNav";
-import { RecResourceTabKey } from "@/pages/rec-resource-page/constants";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router-dom";
@@ -36,7 +36,7 @@ const renderWithRouter = (component: React.ReactElement) => {
 
 describe("RecResourceVerticalNav", () => {
   const defaultProps = {
-    activeTab: RecResourceTabKey.OVERVIEW,
+    activeTab: RecResourceNavKey.OVERVIEW,
     resourceId: "test-resource-123",
   };
 
@@ -94,28 +94,11 @@ describe("RecResourceVerticalNav", () => {
     );
   });
 
-  it("opens offcanvas when mobile trigger is clicked", async () => {
-    const user = userEvent.setup();
-    renderWithRouter(<RecResourceVerticalNav {...defaultProps} />);
-
-    // Click mobile trigger button to open offcanvas
-    const mobileContainer = document.querySelector(".d-md-none");
-    const triggerButton = mobileContainer?.querySelector("button");
-
-    if (triggerButton) {
-      await user.click(triggerButton);
-
-      // Should show offcanvas navigation
-      expect(screen.getByText("Navigation")).toBeInTheDocument();
-      expect(screen.getByRole("dialog")).toBeInTheDocument();
-    }
-  });
-
   it("shows files tab as active in mobile trigger", () => {
     renderWithRouter(
       <RecResourceVerticalNav
         {...defaultProps}
-        activeTab={RecResourceTabKey.FILES}
+        activeTab={RecResourceNavKey.FILES}
       />,
     );
 

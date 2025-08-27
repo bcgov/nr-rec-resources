@@ -1,8 +1,8 @@
 import { CustomButton } from "@/components";
 import {
-  REC_RESOURCE_PAGE_TABS,
-  RecResourceTabKey,
-} from "@/pages/rec-resource-page/constants";
+  REC_RESOURCE_PAGE_NAV_SECTIONS,
+  RecResourceNavKey,
+} from "@/pages/rec-resource-page";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dropdown, Nav } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
@@ -10,7 +10,7 @@ import { faBars } from "~/@fortawesome/free-solid-svg-icons";
 import "./RecResourceVerticalNav.scss";
 
 interface RecResourceVerticalNavProps {
-  activeTab: RecResourceTabKey;
+  activeTab: RecResourceNavKey;
   resourceId: string;
 }
 
@@ -22,14 +22,13 @@ export const RecResourceVerticalNav = ({
 
   const handleNavSelect = (eventKey: string | null) => {
     if (eventKey) {
-      const tabKey = eventKey as RecResourceTabKey;
-      const route = REC_RESOURCE_PAGE_TABS[tabKey].route(resourceId);
+      const tabKey = eventKey as RecResourceNavKey;
+      const route = REC_RESOURCE_PAGE_NAV_SECTIONS[tabKey].route(resourceId);
       navigate(route);
     }
   };
 
-  const activeTabTitle =
-    REC_RESOURCE_PAGE_TABS[activeTab].title || "Navigation";
+  const activeTabTitle = REC_RESOURCE_PAGE_NAV_SECTIONS[activeTab].title;
 
   return (
     <>
@@ -45,11 +44,13 @@ export const RecResourceVerticalNav = ({
           </Dropdown.Toggle>
 
           <Dropdown.Menu>
-            {Object.entries(REC_RESOURCE_PAGE_TABS).map(([key, { title }]) => (
-              <Dropdown.Item eventKey={key} key={key}>
-                {title}
-              </Dropdown.Item>
-            ))}
+            {Object.entries(REC_RESOURCE_PAGE_NAV_SECTIONS).map(
+              ([key, { title }]) => (
+                <Dropdown.Item eventKey={key} key={key}>
+                  {title}
+                </Dropdown.Item>
+              ),
+            )}
           </Dropdown.Menu>
         </Dropdown>
       </div>
@@ -61,11 +62,13 @@ export const RecResourceVerticalNav = ({
         activeKey={activeTab}
         onSelect={handleNavSelect}
       >
-        {Object.entries(REC_RESOURCE_PAGE_TABS).map(([key, { title }]) => (
-          <Nav.Item key={key}>
-            <Nav.Link eventKey={key}>{title}</Nav.Link>
-          </Nav.Item>
-        ))}
+        {Object.entries(REC_RESOURCE_PAGE_NAV_SECTIONS).map(
+          ([key, { title }]) => (
+            <Nav.Item key={key}>
+              <Nav.Link eventKey={key}>{title}</Nav.Link>
+            </Nav.Item>
+          ),
+        )}
       </Nav>
     </>
   );

@@ -15,11 +15,14 @@ vi.mock("@/pages/rec-resource-page/components/ResourceHeaderSection", () => ({
     <div data-testid="resource-header-section">{recResource?.name}</div>
   ),
 }));
-vi.mock("@/pages/rec-resource-page/components/RecResourceFileSection", () => ({
-  RecResourceFileSection: () => (
-    <div data-testid="rec-resource-file-section">File Section</div>
-  ),
-}));
+vi.mock(
+  "@/pages/rec-resource-page/components/RecResourceOverviewSection",
+  () => ({
+    RecResourceOverviewSection: ({ recResource }: any) => (
+      <div data-testid="rec-resource-overview-section">{recResource?.name}</div>
+    ),
+  }),
+);
 vi.mock("@fortawesome/react-fontawesome", () => ({
   FontAwesomeIcon: (props: any) => <svg data-testid="fa-icon" {...props} />,
 }));
@@ -74,7 +77,7 @@ describe("RecResourceOverviewPage", () => {
 
   it("renders loading spinner when recResource is not available and not loading", () => {
     vi.mocked(useRecResource).mockReturnValue({
-      rec_resource_id: undefined,
+      rec_resource_id: "abc123",
       recResource: undefined,
       isLoading: false,
       error: null,
@@ -82,5 +85,19 @@ describe("RecResourceOverviewPage", () => {
     render(<RecResourceOverviewPage />);
     // Should show loading spinner when recResource is not available and not loading
     expect(screen.getByRole("status")).toBeInTheDocument();
+  });
+
+  it("renders overview section when recResource is loaded", () => {
+    vi.mocked(useRecResource).mockReturnValue({
+      rec_resource_id: "abc123",
+      recResource: baseResource,
+      isLoading: false,
+      error: null,
+    });
+    render(<RecResourceOverviewPage />);
+    // Should render the overview section component
+    expect(
+      screen.getByTestId("rec-resource-overview-section"),
+    ).toBeInTheDocument();
   });
 });
