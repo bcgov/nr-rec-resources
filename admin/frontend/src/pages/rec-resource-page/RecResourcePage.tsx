@@ -1,28 +1,7 @@
-import { ResourceHeaderSection } from "@/pages/rec-resource-page/components/";
-import { RecResourceFileSection } from "@/pages/rec-resource-page/components/RecResourceFileSection";
 import { RecResourceOverviewSection } from "@/pages/rec-resource-page/components/RecResourceOverviewSection";
 import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
-import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Alert, Spinner, Stack } from "react-bootstrap";
+import { Spinner } from "react-bootstrap";
 import "./RecResourcePage.scss";
-import { Breadcrumbs, useBreadcrumbs } from "@shared/index";
-
-const InfoBanner = () => (
-  <Alert variant="warning" className="rec-resource-page__info-banner">
-    <Stack direction="horizontal" gap={2}>
-      <FontAwesomeIcon
-        className="rec-resource-page__info-banner-icon"
-        icon={faInfoCircle}
-        aria-label="Information"
-      />
-      <span className="rec-resource-page__info-banner-text">
-        All images and documents will be published to the beta website within 15
-        minutes.
-      </span>
-    </Stack>
-  </Alert>
-);
 
 const LoadingSpinner = () => (
   <div className="rec-resource-page__loading-container">
@@ -38,13 +17,6 @@ const LoadingSpinner = () => (
 export const RecResourcePage = () => {
   const { recResource, isLoading, error } = useRecResource();
 
-  useBreadcrumbs({
-    context: {
-      resourceName: recResource?.name,
-      resourceId: recResource?.rec_resource_id,
-    },
-  });
-
   if (error) {
     return null;
   }
@@ -53,19 +25,5 @@ export const RecResourcePage = () => {
     return <LoadingSpinner />;
   }
 
-  return (
-    <Stack
-      direction="vertical"
-      gap={4}
-      className="rec-resource-page"
-      role="main"
-      aria-label="Recreation resource content"
-    >
-      <Breadcrumbs />
-      <ResourceHeaderSection recResource={recResource} />
-      <RecResourceOverviewSection recResource={recResource} />
-      <InfoBanner />
-      <RecResourceFileSection />
-    </Stack>
-  );
+  return <RecResourceOverviewSection recResource={recResource} />;
 };
