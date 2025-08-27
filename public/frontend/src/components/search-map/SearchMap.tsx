@@ -10,6 +10,7 @@ import { SearchViewControls } from '@/components/search';
 import {
   useClusteredRecreationFeatureLayer,
   useFeatureSelection,
+  useRecreationSiteBoundaryLayer,
   useRecreationLinesLayer,
   useWildfireLocationLayer,
   useWildfirePerimeterLayer,
@@ -84,6 +85,11 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
       animatedClusterOptions: ANIMATED_CLUSTER_OPTIONS,
     });
 
+  const { layer: recreationLinesLayer } = useRecreationLinesLayer(mapRef);
+
+  const { layer: recreationSiteBoundaryLayer } =
+    useRecreationSiteBoundaryLayer(mapRef);
+
   const { layer: wildfireLocationsLayer } = useWildfireLocationLayer(mapRef, {
     applyHoverStyles: true,
     hideBelowZoom: WILDFIRE_LOCATION_MIN_ZOOM,
@@ -93,8 +99,6 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
     applyHoverStyles: false,
     hideBelowZoom: WILDFIRE_LOCATION_MIN_ZOOM,
   });
-
-  const { layer: recreationLinesLayer } = useRecreationLinesLayer(mapRef);
 
   const featureSelectionLayers = useMemo(
     () => [
@@ -156,16 +160,6 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
   const layers = useMemo(
     () => [
       {
-        id: 'wildfire-perimeters',
-        layerInstance: wildfirePerimeterLayer,
-        visible: true,
-      },
-      {
-        id: 'wildfire-locations',
-        layerInstance: wildfireLocationsLayer,
-        visible: true,
-      },
-      {
         id: 'recreation-features',
         layerInstance: clusteredRecreationFeatureLayer,
         visible: true,
@@ -175,10 +169,26 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
         layerInstance: recreationLinesLayer,
         visible: true,
       },
+      {
+        id: 'recreation-site-boundaries',
+        layerInstance: recreationSiteBoundaryLayer,
+        visible: true,
+      },
+      {
+        id: 'wildfire-perimeters',
+        layerInstance: wildfirePerimeterLayer,
+        visible: true,
+      },
+      {
+        id: 'wildfire-locations',
+        layerInstance: wildfireLocationsLayer,
+        visible: true,
+      },
     ],
     [
       clusteredRecreationFeatureLayer,
       recreationLinesLayer,
+      recreationSiteBoundaryLayer,
       wildfireLocationsLayer,
       wildfirePerimeterLayer,
     ],
