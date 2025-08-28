@@ -154,6 +154,8 @@ test.describe('Filter chip workflows', () => {
       'Trail Access',
     ]);
 
+    // The search map is in the DOM on the search page which causes Happo screenshots to fail
+    await utils.removeVectorFeatureMap();
     await utils.screenshot('Search page with filter chips', 'default');
 
     await utils.accessibility();

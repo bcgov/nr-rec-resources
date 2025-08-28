@@ -259,6 +259,7 @@ test.describe('Search page filter menu workflows', () => {
       'district=RDCK_RDKA_RDOS&page=1&type=SIT&facilities=toilet&access=R',
     );
 
+    await utils.removeVectorFeatureMap();
     await utils.screenshot(
       'Search page with multiple filters applied',
       'default',

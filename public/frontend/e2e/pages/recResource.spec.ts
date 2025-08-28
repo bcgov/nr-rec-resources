@@ -20,6 +20,6 @@ test.describe('Recreation Resource page', () => {
 
     await utils.accessibility();
 
-    await utils.screenshot('Recreation Resource page', 'default');
+    await utils.screenshotWithMapCanvas('Recreation Resource page', 'default');
   });
 });
