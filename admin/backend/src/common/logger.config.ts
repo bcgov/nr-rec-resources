@@ -25,15 +25,13 @@ export const customLogger: LoggerService = WinstonModule.createLogger({
         globalLoggerFormat,
         localLoggerFormat,
         winston.format.colorize({ level: true }),
-        winston.format.printf(
-          ({ level, message, timestamp, context, ...meta }) => {
-            // Access CLS request ID
-            const cls = ClsServiceManager.getClsService();
-            const requestId = cls?.getId?.() || "no-reqid";
+        winston.format.printf(({ level, message, timestamp, context }) => {
+          // Access CLS request ID
+          const cls = ClsServiceManager.getClsService();
+          const requestId = cls?.getId?.() || "no-reqid";
 
-            return `[${timestamp}] [${level}] [req:${requestId}] ${message} ${JSON.stringify(meta)}`;
-          },
-        ),
+          return `[${timestamp}] [${level}] [req:${requestId}] ${message}`;
+        }),
       ),
     }),
   ],
