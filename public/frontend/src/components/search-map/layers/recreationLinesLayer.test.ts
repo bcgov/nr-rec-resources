@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import Feature from 'ol/Feature';
 import VectorSource from 'ol/source/Vector';
-import Style from 'ol/style/Style';
 import {
   createRecreationLineStyle,
   createRecreationLinesSource,
@@ -20,12 +19,15 @@ describe('createRecreationLineStyle', () => {
     expect(stroke.getLineDash()).toEqual([10, 5]);
   });
 
-  it('applies hover stroke width and color', () => {
+  it('returns a Style with correct stroke when hovered', () => {
     const feature = new Feature({});
     const style: any = createRecreationLineStyle(feature, true);
+    expect(style).toBeDefined();
     const stroke = style.getStroke();
+    expect(stroke).toBeDefined();
     expect(stroke.getColor()).toBe('rgba(255, 0, 255, 1)');
-    expect(stroke.getWidth()).toBe(4);
+    expect(stroke.getWidth()).toBe(2);
+    expect(stroke.getLineDash()).toEqual([10, 5]);
   });
 });
 
@@ -37,19 +39,26 @@ describe('createRecreationLinesSource', () => {
 });
 
 describe('createRecreationLinesLayer', () => {
-  it('returns a VectorLayer with provided source and resolution-based style', () => {
-    const source = createRecreationLinesSource();
-    const layer = createRecreationLinesLayer(source);
-    expect(layer.getSource()).toBe(source);
+  it('returns a VectorLayer with correct configuration', () => {
+    const layer = createRecreationLinesLayer();
+    expect(layer).toBeDefined();
+    expect(layer.getSource()).toBeDefined();
+    expect(layer.getStyle()).toBeDefined();
+  });
 
-    const styleFn = layer.getStyleFunction();
-    expect(typeof styleFn).toBe('function');
+  it('applies style function based on resolution', () => {
+    const layer = createRecreationLinesLayer();
+    const styleFunction = layer.getStyle();
+    expect(typeof styleFunction).toBe('function');
 
-    const feature = new Feature({});
-    const styleHidden = styleFn && styleFn(feature as any, 600);
-    expect(styleHidden).toBeUndefined();
+    if (typeof styleFunction === 'function') {
+      // Test at fine resolution (should show features)
+      const fineResolutionStyle = styleFunction(new Feature(), 100);
+      expect(fineResolutionStyle).toBeDefined();
 
-    const styleShown = styleFn && styleFn(feature as any, 400);
-    expect(styleShown instanceof Style || Array.isArray(styleShown)).toBe(true);
+      // Test at coarse resolution (should hide features)
+      const coarseResolutionStyle = styleFunction(new Feature(), 600);
+      expect(coarseResolutionStyle).toBeUndefined();
+    }
   });
 });

@@ -1,29 +1,56 @@
-import { describe, it, expect, vi } from 'vitest';
+import { renderHook } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useRecreationSiteBoundaryLayer } from '@/components/search-map/hooks/useRecreationSiteBoundaryLayer';
 import * as recSiteBoundaryLayer from '@/components/search-map/layers/recreationSiteBoundaryLayer';
 import * as useLayerModule from '@/components/search-map/hooks/useLayer';
 
+vi.mock('react', () => ({
+  ...vi.importActual('react'),
+  useEffect: vi.fn(),
+}));
+
+vi.mock('@/components/search-map/hooks/useLayer', () => ({
+  useLayer: vi.fn(),
+}));
+
 describe('useRecreationSiteBoundaryLayer', () => {
+  const mockUseLayer = vi.mocked(useLayerModule.useLayer);
+  const mapRef = { current: { getMap: () => ({}) } } as any;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUseLayer.mockReturnValue({ layer: 'mockLayer' } as any);
+  });
+
   it('calls useLayer with the correct arguments', () => {
-    const mapRef = { current: {} } as any;
-    const options = { someOption: true } as any;
+    const recResourceIds = ['REC123', 'REC456'];
+    const options = { hideBelowZoom: 10 };
 
-    const useLayerSpy = vi
-      .spyOn(useLayerModule, 'useLayer')
-      .mockReturnValue('hookReturnValue' as any);
+    const { result } = renderHook(() =>
+      useRecreationSiteBoundaryLayer(recResourceIds, mapRef, options),
+    );
 
-    const result = useRecreationSiteBoundaryLayer(mapRef, options);
-
-    expect(useLayerSpy).toHaveBeenCalledOnce();
-    expect(useLayerSpy).toHaveBeenCalledWith(
+    expect(mockUseLayer).toHaveBeenCalledWith(
       mapRef,
       recSiteBoundaryLayer.createRecreationSiteBoundarySource,
       recSiteBoundaryLayer.createRecreationSiteBoundaryLayer,
       recSiteBoundaryLayer.createRecreationSiteBoundaryStyle,
       options,
     );
-    expect(result).toBe('hookReturnValue');
+    expect(result.current).toEqual({ layer: 'mockLayer' });
+  });
 
-    useLayerSpy.mockRestore();
+  it('calls useLayer with default options when none provided', () => {
+    const recResourceIds = ['REC123'];
+
+    renderHook(() => useRecreationSiteBoundaryLayer(recResourceIds, mapRef));
+
+    expect(mockUseLayer).toHaveBeenCalledWith(
+      mapRef,
+      recSiteBoundaryLayer.createRecreationSiteBoundarySource,
+      recSiteBoundaryLayer.createRecreationSiteBoundaryLayer,
+      recSiteBoundaryLayer.createRecreationSiteBoundaryStyle,
+      undefined,
+    );
   });
 });
