@@ -85,10 +85,15 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
       animatedClusterOptions: ANIMATED_CLUSTER_OPTIONS,
     });
 
-  const { layer: recreationLinesLayer } = useRecreationLinesLayer(mapRef);
+  const { layer: recreationLinesLayer } = useRecreationLinesLayer(
+    recResourceIds,
+    mapRef,
+  );
 
-  const { layer: recreationSiteBoundaryLayer } =
-    useRecreationSiteBoundaryLayer(mapRef);
+  const { layer: recreationSiteBoundaryLayer } = useRecreationSiteBoundaryLayer(
+    recResourceIds,
+    mapRef,
+  );
 
   const { layer: wildfireLocationsLayer } = useWildfireLocationLayer(mapRef, {
     applyHoverStyles: true,
