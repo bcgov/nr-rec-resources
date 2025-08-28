@@ -21,26 +21,32 @@ locals {
     admin = {
       namespace = "RecreationSitesAndTrailsBCAdminAPI-${var.app_env}"
       operations = [
-        "createRecreationResource",
-        "updateRecreationResource",
-        "deleteRecreationResource",
-        "getAdminRecreationResourceById",
-        "searchAdminRecreationResources",
-        "createSiteOperator",
-        "updateSiteOperator",
-        "deleteSiteOperator",
-        "getAdminSiteOperatorById"
+        "getRecreationResourceSuggestions",
+        "getRecreationResourceById",
+        "getImagesByRecResourceId",
+        "getImageResourceById",
+        "createRecreationresourceImage",
+        "updateImageResource",
+        "deleteImageResource",
+        "getDocumentsByRecResourceId",
+        "getDocumentResourceById",
+        "createRecreationresourceDocument",
+        "updateDocumentResource",
+        "deleteDocumentResource"
       ]
       latency_thresholds = {
-        createRecreationResource        = 2000
-        updateRecreationResource        = 1500
-        deleteRecreationResource        = 1000
-        getAdminRecreationResourceById  = 600
-        searchAdminRecreationResources  = 2000
-        createSiteOperator              = 1500
-        updateSiteOperator              = 1200
-        deleteSiteOperator              = 800
-        getAdminSiteOperatorById        = 500
+        getRecreationResourceSuggestions     = 1500
+        getRecreationResourceById            = 600
+        getImagesByRecResourceId             = 800
+        getImageResourceById                 = 500
+        createRecreationresourceImage        = 3000
+        updateImageResource                  = 2500
+        deleteImageResource                  = 1000
+        getDocumentsByRecResourceId          = 800
+        getDocumentResourceById              = 500
+        createRecreationresourceDocument     = 4000
+        updateDocumentResource               = 3000
+        deleteDocumentResource               = 1500
       }
     }
   }
@@ -181,6 +187,7 @@ resource "aws_cloudwatch_dashboard" "public_api_dashboard" {
           period  = local.period
           view    = "timeSeries"
           stacked = false
+          yAxis   = { left = { label = "Count" } }
           metrics = [
             for op_config in local.all_operations : 
             [op_config.namespace, "ErrorCount", "Operation", op_config.operation, "ErrorType", "ClientError"]
@@ -210,6 +217,7 @@ resource "aws_cloudwatch_dashboard" "public_api_dashboard" {
           period  = local.period
           view    = "timeSeries"
           stacked = false
+          yAxis   = { left = { label = "Count" } }
           metrics = [
             for op_config in local.all_operations : 
             [op_config.namespace, "ErrorCount", "Operation", op_config.operation, "ErrorType", "ServerError"]
@@ -239,29 +247,48 @@ resource "aws_cloudwatch_dashboard" "public_api_dashboard" {
         }
       },
 
-      # Latency TM99 and TM95 side by side
+      # Combined Latency Overview - All Operations
       {
         type   = "metric"
         x      = 0
         y      = 24
-        width  = 12
+        width  = 24
         height = 6
         properties = {
-          title   = "⏱️ Latency TM99 (99th Percentile, ms)"
+          title   = "⏱️ Public API Latency Overview - All Operations (TM99)"
           region  = local.region
           period  = local.period
           view    = "timeSeries"
-          yAxis   = { left = { label = "ms" } }
+          yAxis   = { left = { label = "Milliseconds" } }
           metrics = [
             for op_config in local.all_operations :
             [op_config.namespace, "RequestLatency", "Operation", op_config.operation, "Method", "GET", { stat = "tm99" }]
             if op_config.api_type == "public"
           ]
+        }
+      },
+
+      # Individual operation widgets with specific thresholds
+      {
+        type   = "metric"
+        x      = 0
+        y      = 30
+        width  = 8
+        height = 6
+        properties = {
+          title   = "⏱️ searchRecreationResources - Latency (TM99)"
+          region  = local.region
+          period  = local.period
+          view    = "timeSeries"
+          yAxis   = { left = { label = "Milliseconds" } }
+          metrics = [
+            [local.api_configs.public.namespace, "RequestLatency", "Operation", "searchRecreationResources", "Method", "GET", { stat = "tm99" }]
+          ]
           annotations = {
             horizontal = [
-              for op in local.api_configs.public.operations : {
-                value = local.api_configs.public.latency_thresholds[op]
-                label = "${op} Threshold (${local.api_configs.public.latency_thresholds[op]}ms)"
+              {
+                value = local.api_configs.public.latency_thresholds["searchRecreationResources"]
+                label = "Threshold: ${local.api_configs.public.latency_thresholds["searchRecreationResources"]}ms"
                 color = "#FF9900"
               }
             ]
@@ -270,26 +297,50 @@ resource "aws_cloudwatch_dashboard" "public_api_dashboard" {
       },
       {
         type   = "metric"
-        x      = 12
-        y      = 24
-        width  = 12
+        x      = 8
+        y      = 30
+        width  = 8
         height = 6
         properties = {
-          title   = "⏱️ Latency TM95 (95th Percentile, ms)"
+          title   = "⏱️ getRecreationResourceById - Latency (TM99)"
           region  = local.region
           period  = local.period
           view    = "timeSeries"
-          yAxis   = { left = { label = "ms" } }
+          yAxis   = { left = { label = "Milliseconds" } }
           metrics = [
-            for op_config in local.all_operations :
-            [op_config.namespace, "RequestLatency", "Operation", op_config.operation, "Method", "GET", { stat = "tm95" }]
-            if op_config.api_type == "public"
+            [local.api_configs.public.namespace, "RequestLatency", "Operation", "getRecreationResourceById", "Method", "GET", { stat = "tm99" }]
           ]
           annotations = {
             horizontal = [
-              for op in local.api_configs.public.operations : {
-                value = local.api_configs.public.latency_thresholds[op]
-                label = "${op} Threshold (${local.api_configs.public.latency_thresholds[op]}ms)"
+              {
+                value = local.api_configs.public.latency_thresholds["getRecreationResourceById"]
+                label = "Threshold: ${local.api_configs.public.latency_thresholds["getRecreationResourceById"]}ms"
+                color = "#FF9900"
+              }
+            ]
+          }
+        }
+      },
+      {
+        type   = "metric"
+        x      = 16
+        y      = 30
+        width  = 8
+        height = 6
+        properties = {
+          title   = "⏱️ getSiteOperatorById - Latency (TM99)"
+          region  = local.region
+          period  = local.period
+          view    = "timeSeries"
+          yAxis   = { left = { label = "Milliseconds" } }
+          metrics = [
+            [local.api_configs.public.namespace, "RequestLatency", "Operation", "getSiteOperatorById", "Method", "GET", { stat = "tm99" }]
+          ]
+          annotations = {
+            horizontal = [
+              {
+                value = local.api_configs.public.latency_thresholds["getSiteOperatorById"]
+                label = "Threshold: ${local.api_configs.public.latency_thresholds["getSiteOperatorById"]}ms"
                 color = "#FF9900"
               }
             ]
@@ -382,6 +433,7 @@ resource "aws_cloudwatch_dashboard" "admin_api_dashboard" {
           period  = local.period
           view    = "timeSeries"
           stacked = false
+          yAxis   = { left = { label = "Count" } }
           metrics = [
             for op_config in local.all_operations : 
             [op_config.namespace, "ErrorCount", "Operation", op_config.operation, "ErrorType", "ClientError"]
@@ -411,6 +463,7 @@ resource "aws_cloudwatch_dashboard" "admin_api_dashboard" {
           period  = local.period
           view    = "timeSeries"
           stacked = false
+          yAxis   = { left = { label = "Count" } }
           metrics = [
             for op_config in local.all_operations : 
             [op_config.namespace, "ErrorCount", "Operation", op_config.operation, "ErrorType", "ServerError"]
@@ -440,29 +493,48 @@ resource "aws_cloudwatch_dashboard" "admin_api_dashboard" {
         }
       },
 
-      # Latency TM99 and TM95 side by side
+      # Combined Latency Overview - All Operations
       {
         type   = "metric"
         x      = 0
         y      = 24
-        width  = 12
+        width  = 24
         height = 6
         properties = {
-          title   = "⏱️ Latency TM99 (99th Percentile, ms)"
+          title   = "⏱️ Admin API Latency Overview - All Operations (TM99)"
           region  = local.region
           period  = local.period
           view    = "timeSeries"
-          yAxis   = { left = { label = "ms" } }
+          yAxis   = { left = { label = "Milliseconds" } }
           metrics = [
             for op_config in local.all_operations :
             [op_config.namespace, "RequestLatency", "Operation", op_config.operation, "Method", "GET", { stat = "tm99" }]
             if op_config.api_type == "admin"
           ]
+        }
+      },
+
+      # Individual operation widgets with specific thresholds - Row 1
+      {
+        type   = "metric"
+        x      = 0
+        y      = 30
+        width  = 8
+        height = 6
+        properties = {
+          title   = "⏱️ getRecreationResourceSuggestions - Latency (TM99)"
+          region  = local.region
+          period  = local.period
+          view    = "timeSeries"
+          yAxis   = { left = { label = "Milliseconds" } }
+          metrics = [
+            [local.api_configs.admin.namespace, "RequestLatency", "Operation", "getRecreationResourceSuggestions", "Method", "GET", { stat = "tm99" }]
+          ]
           annotations = {
             horizontal = [
-              for op in local.api_configs.admin.operations : {
-                value = local.api_configs.admin.latency_thresholds[op]
-                label = "${op} Threshold (${local.api_configs.admin.latency_thresholds[op]}ms)"
+              {
+                value = local.api_configs.admin.latency_thresholds["getRecreationResourceSuggestions"]
+                label = "Threshold: ${local.api_configs.admin.latency_thresholds["getRecreationResourceSuggestions"]}ms"
                 color = "#FF9900"
               }
             ]
@@ -471,26 +543,290 @@ resource "aws_cloudwatch_dashboard" "admin_api_dashboard" {
       },
       {
         type   = "metric"
-        x      = 12
-        y      = 24
-        width  = 12
+        x      = 8
+        y      = 30
+        width  = 8
         height = 6
         properties = {
-          title   = "⏱️ Latency TM95 (95th Percentile, ms)"
+          title   = "⏱️ getRecreationResourceById - Latency (TM99)"
           region  = local.region
           period  = local.period
           view    = "timeSeries"
-          yAxis   = { left = { label = "ms" } }
+          yAxis   = { left = { label = "Milliseconds" } }
           metrics = [
-            for op_config in local.all_operations :
-            [op_config.namespace, "RequestLatency", "Operation", op_config.operation, "Method", "GET", { stat = "tm95" }]
-            if op_config.api_type == "admin"
+            [local.api_configs.admin.namespace, "RequestLatency", "Operation", "getRecreationResourceById", "Method", "GET", { stat = "tm99" }]
           ]
           annotations = {
             horizontal = [
-              for op in local.api_configs.admin.operations : {
-                value = local.api_configs.admin.latency_thresholds[op]
-                label = "${op} Threshold (${local.api_configs.admin.latency_thresholds[op]}ms)"
+              {
+                value = local.api_configs.admin.latency_thresholds["getRecreationResourceById"]
+                label = "Threshold: ${local.api_configs.admin.latency_thresholds["getRecreationResourceById"]}ms"
+                color = "#FF9900"
+              }
+            ]
+          }
+        }
+      },
+      {
+        type   = "metric"
+        x      = 16
+        y      = 30
+        width  = 8
+        height = 6
+        properties = {
+          title   = "⏱️ getImagesByRecResourceId - Latency (TM99)"
+          region  = local.region
+          period  = local.period
+          view    = "timeSeries"
+          yAxis   = { left = { label = "Milliseconds" } }
+          metrics = [
+            [local.api_configs.admin.namespace, "RequestLatency", "Operation", "getImagesByRecResourceId", "Method", "GET", { stat = "tm99" }]
+          ]
+          annotations = {
+            horizontal = [
+              {
+                value = local.api_configs.admin.latency_thresholds["getImagesByRecResourceId"]
+                label = "Threshold: ${local.api_configs.admin.latency_thresholds["getImagesByRecResourceId"]}ms"
+                color = "#FF9900"
+              }
+            ]
+          }
+        }
+      },
+
+      # Row 2
+      {
+        type   = "metric"
+        x      = 0
+        y      = 36
+        width  = 8
+        height = 6
+        properties = {
+          title   = "⏱️ getImageResourceById - Latency (TM99)"
+          region  = local.region
+          period  = local.period
+          view    = "timeSeries"
+          yAxis   = { left = { label = "Milliseconds" } }
+          metrics = [
+            [local.api_configs.admin.namespace, "RequestLatency", "Operation", "getImageResourceById", "Method", "GET", { stat = "tm99" }]
+          ]
+          annotations = {
+            horizontal = [
+              {
+                value = local.api_configs.admin.latency_thresholds["getImageResourceById"]
+                label = "Threshold: ${local.api_configs.admin.latency_thresholds["getImageResourceById"]}ms"
+                color = "#FF9900"
+              }
+            ]
+          }
+        }
+      },
+      {
+        type   = "metric"
+        x      = 8
+        y      = 36
+        width  = 8
+        height = 6
+        properties = {
+          title   = "⏱️ createRecreationresourceImage - Latency (TM99)"
+          region  = local.region
+          period  = local.period
+          view    = "timeSeries"
+          yAxis   = { left = { label = "Milliseconds" } }
+          metrics = [
+            [local.api_configs.admin.namespace, "RequestLatency", "Operation", "createRecreationresourceImage", "Method", "GET", { stat = "tm99" }]
+          ]
+          annotations = {
+            horizontal = [
+              {
+                value = local.api_configs.admin.latency_thresholds["createRecreationresourceImage"]
+                label = "Threshold: ${local.api_configs.admin.latency_thresholds["createRecreationresourceImage"]}ms"
+                color = "#FF9900"
+              }
+            ]
+          }
+        }
+      },
+      {
+        type   = "metric"
+        x      = 16
+        y      = 36
+        width  = 8
+        height = 6
+        properties = {
+          title   = "⏱️ updateImageResource - Latency (TM99)"
+          region  = local.region
+          period  = local.period
+          view    = "timeSeries"
+          yAxis   = { left = { label = "Milliseconds" } }
+          metrics = [
+            [local.api_configs.admin.namespace, "RequestLatency", "Operation", "updateImageResource", "Method", "GET", { stat = "tm99" }]
+          ]
+          annotations = {
+            horizontal = [
+              {
+                value = local.api_configs.admin.latency_thresholds["updateImageResource"]
+                label = "Threshold: ${local.api_configs.admin.latency_thresholds["updateImageResource"]}ms"
+                color = "#FF9900"
+              }
+            ]
+          }
+        }
+      },
+
+      # Row 3
+      {
+        type   = "metric"
+        x      = 0
+        y      = 42
+        width  = 8
+        height = 6
+        properties = {
+          title   = "⏱️ deleteImageResource - Latency (TM99)"
+          region  = local.region
+          period  = local.period
+          view    = "timeSeries"
+          yAxis   = { left = { label = "Milliseconds" } }
+          metrics = [
+            [local.api_configs.admin.namespace, "RequestLatency", "Operation", "deleteImageResource", "Method", "GET", { stat = "tm99" }]
+          ]
+          annotations = {
+            horizontal = [
+              {
+                value = local.api_configs.admin.latency_thresholds["deleteImageResource"]
+                label = "Threshold: ${local.api_configs.admin.latency_thresholds["deleteImageResource"]}ms"
+                color = "#FF9900"
+              }
+            ]
+          }
+        }
+      },
+      {
+        type   = "metric"
+        x      = 8
+        y      = 42
+        width  = 8
+        height = 6
+        properties = {
+          title   = "⏱️ getDocumentsByRecResourceId - Latency (TM99)"
+          region  = local.region
+          period  = local.period
+          view    = "timeSeries"
+          yAxis   = { left = { label = "Milliseconds" } }
+          metrics = [
+            [local.api_configs.admin.namespace, "RequestLatency", "Operation", "getDocumentsByRecResourceId", "Method", "GET", { stat = "tm99" }]
+          ]
+          annotations = {
+            horizontal = [
+              {
+                value = local.api_configs.admin.latency_thresholds["getDocumentsByRecResourceId"]
+                label = "Threshold: ${local.api_configs.admin.latency_thresholds["getDocumentsByRecResourceId"]}ms"
+                color = "#FF9900"
+              }
+            ]
+          }
+        }
+      },
+      {
+        type   = "metric"
+        x      = 16
+        y      = 42
+        width  = 8
+        height = 6
+        properties = {
+          title   = "⏱️ getDocumentResourceById - Latency (TM99)"
+          region  = local.region
+          period  = local.period
+          view    = "timeSeries"
+          yAxis   = { left = { label = "Milliseconds" } }
+          metrics = [
+            [local.api_configs.admin.namespace, "RequestLatency", "Operation", "getDocumentResourceById", "Method", "GET", { stat = "tm99" }]
+          ]
+          annotations = {
+            horizontal = [
+              {
+                value = local.api_configs.admin.latency_thresholds["getDocumentResourceById"]
+                label = "Threshold: ${local.api_configs.admin.latency_thresholds["getDocumentResourceById"]}ms"
+                color = "#FF9900"
+              }
+            ]
+          }
+        }
+      },
+
+      # Row 4
+      {
+        type   = "metric"
+        x      = 0
+        y      = 48
+        width  = 8
+        height = 6
+        properties = {
+          title   = "⏱️ createRecreationresourceDocument - Latency (TM99)"
+          region  = local.region
+          period  = local.period
+          view    = "timeSeries"
+          yAxis   = { left = { label = "Milliseconds" } }
+          metrics = [
+            [local.api_configs.admin.namespace, "RequestLatency", "Operation", "createRecreationresourceDocument", "Method", "GET", { stat = "tm99" }]
+          ]
+          annotations = {
+            horizontal = [
+              {
+                value = local.api_configs.admin.latency_thresholds["createRecreationresourceDocument"]
+                label = "Threshold: ${local.api_configs.admin.latency_thresholds["createRecreationresourceDocument"]}ms"
+                color = "#FF9900"
+              }
+            ]
+          }
+        }
+      },
+      {
+        type   = "metric"
+        x      = 8
+        y      = 48
+        width  = 8
+        height = 6
+        properties = {
+          title   = "⏱️ updateDocumentResource - Latency (TM99)"
+          region  = local.region
+          period  = local.period
+          view    = "timeSeries"
+          yAxis   = { left = { label = "Milliseconds" } }
+          metrics = [
+            [local.api_configs.admin.namespace, "RequestLatency", "Operation", "updateDocumentResource", "Method", "GET", { stat = "tm99" }]
+          ]
+          annotations = {
+            horizontal = [
+              {
+                value = local.api_configs.admin.latency_thresholds["updateDocumentResource"]
+                label = "Threshold: ${local.api_configs.admin.latency_thresholds["updateDocumentResource"]}ms"
+                color = "#FF9900"
+              }
+            ]
+          }
+        }
+      },
+      {
+        type   = "metric"
+        x      = 16
+        y      = 48
+        width  = 8
+        height = 6
+        properties = {
+          title   = "⏱️ deleteDocumentResource - Latency (TM99)"
+          region  = local.region
+          period  = local.period
+          view    = "timeSeries"
+          yAxis   = { left = { label = "Milliseconds" } }
+          metrics = [
+            [local.api_configs.admin.namespace, "RequestLatency", "Operation", "deleteDocumentResource", "Method", "GET", { stat = "tm99" }]
+          ]
+          annotations = {
+            horizontal = [
+              {
+                value = local.api_configs.admin.latency_thresholds["deleteDocumentResource"]
+                label = "Threshold: ${local.api_configs.admin.latency_thresholds["deleteDocumentResource"]}ms"
                 color = "#FF9900"
               }
             ]
