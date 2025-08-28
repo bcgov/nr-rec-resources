@@ -8,6 +8,7 @@ import { AppService } from "./app.service";
 import { AuthModule } from "./auth";
 import { HealthController } from "./health.controller";
 import { PrismaService } from "./prisma.service";
+import { ApiMetricsModule } from "./api-metrics/api-metrics.module";
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { PrismaService } from "./prisma.service";
     AuthModule,
     TerminusModule,
     RecreationResourceModule,
+    ApiMetricsModule,
   ],
   controllers: [AppController, HealthController],
   providers: [AppService, PrismaService],
