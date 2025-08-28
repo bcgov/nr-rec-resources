@@ -1,0 +1,19 @@
+@import "@/styles/variables.scss";
+
+.styled-accordion {
+  &__item {
+    padding: 1rem;
+  }
+
+  &__header {
+    .accordion-button {
+      box-shadow: unset;
+      background-color: unset;
+    }
+  }
+
+  &__title {
+    font-weight: 600;
+    font-size: 1.15rem;
+  }
+}

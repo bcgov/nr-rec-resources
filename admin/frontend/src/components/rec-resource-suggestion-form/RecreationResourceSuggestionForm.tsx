@@ -1,21 +1,22 @@
-import { useState, useCallback } from "react";
-import Form from "react-bootstrap/Form";
-import "react-bootstrap-typeahead/css/Typeahead.css";
 import {
   isValidRecreationResourceSearchTerm,
   useGetRecreationResourceSuggestions,
 } from "@/services/hooks/recreation-resource-admin/useGetRecreationResourceSuggestions";
 import { SuggestionTypeahead } from "@shared/components/suggestion-typeahead/SuggestionTypeahead";
 import { RecreationResourceSuggestion } from "@shared/components/suggestion-typeahead/types";
+import { useCallback, useState } from "react";
+import { Stack } from "react-bootstrap";
+import "react-bootstrap-typeahead/css/Typeahead.css";
+import Form from "react-bootstrap/Form";
 import { useNavigate } from "react-router";
 import "./RecreationResourceSuggestionForm.scss";
-import { Stack } from "react-bootstrap";
-import { ROUTES } from "@/routes";
+
+import { SuggestionMenu } from "@/components/rec-resource-suggestion-form/SuggestionMenu";
+import { ROUTE_PATHS } from "@/routes/constants";
 import {
   RenderMenuProps,
   TypeaheadComponentProps,
 } from "react-bootstrap-typeahead";
-import { SuggestionMenu } from "@/components/rec-resource-suggestion-form/SuggestionMenu";
 import { Option } from "react-bootstrap-typeahead/types/types";
 
 /**
@@ -48,12 +49,12 @@ export const RecreationResourceSuggestionForm = () => {
 
   const handleSuggestionChange = (suggestion: RecreationResourceSuggestion) => {
     navigate(
-      ROUTES.REC_RESOURCE_PAGE.replace(":id", suggestion.rec_resource_id),
+      ROUTE_PATHS.REC_RESOURCE_PAGE.replace(":id", suggestion.rec_resource_id),
     );
   };
 
   const getEmptyLabel = () => {
-    if (error?.response.status === 400) {
+    if (error?.response?.status === 400) {
       return (
         <Form.Control.Feedback type="invalid" className="d-block">
           Invalid search term. Only letters, numbers, spaces, and these

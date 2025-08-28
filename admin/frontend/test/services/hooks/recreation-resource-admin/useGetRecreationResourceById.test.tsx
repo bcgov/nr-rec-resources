@@ -16,6 +16,7 @@ vi.mock(
 // Mock the helper functions
 vi.mock("@/services/hooks/recreation-resource-admin/helpers", () => ({
   createRetryHandler: vi.fn(),
+  mapRecreationResourceDetail: (x: any) => x,
 }));
 
 describe("useGetRecreationResourceById", () => {

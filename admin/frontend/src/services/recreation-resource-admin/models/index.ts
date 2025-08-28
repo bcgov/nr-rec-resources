@@ -6,6 +6,7 @@ export * from "./CreateRecreationResourceImageBodyDto";
 export * from "./HealthControllerCheck200Response";
 export * from "./HealthControllerCheck200ResponseInfoValue";
 export * from "./HealthControllerCheck503Response";
+export * from "./RecreationAccessDto";
 export * from "./RecreationActivityDto";
 export * from "./RecreationResourceDetailDto";
 export * from "./RecreationResourceDistrictDto";

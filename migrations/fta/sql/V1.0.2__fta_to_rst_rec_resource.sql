@@ -9,7 +9,8 @@ insert into rst.recreation_resource (
     created_by,
     description,
     district_code,
-    maintenance_standard_code
+    maintenance_standard_code,
+    project_established_date
 )
 select
     rp.forest_file_id as rec_resource_id,
@@ -25,7 +26,8 @@ select
     rp.entry_userid as created_by,
     rp.site_description as description,
     xref.recreation_district_code as district_code,
-    rp.recreation_maintain_std_code as maintenance_standard_code
+    rp.recreation_maintain_std_code as maintenance_standard_code,
+    rp.project_established_date as project_established_date
 from
     fta.recreation_project rp
 left join
@@ -49,4 +51,5 @@ set
     updated_by = excluded.updated_by,
     description = excluded.description,
     district_code = excluded.district_code,
-    maintenance_standard_code = excluded.maintenance_standard_code;
+    maintenance_standard_code = excluded.maintenance_standard_code,
+    project_established_date = excluded.project_established_date;

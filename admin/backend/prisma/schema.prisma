@@ -23,6 +23,7 @@ model recreation_resource {
   created_at                           DateTime?                             @default(now()) @db.Timestamp(6)
   created_by                           String?
   sys_period                           Unsupported("tstzrange")              @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  project_established_date             DateTime?                             @db.Date
   recreation_access                    recreation_access[]
   recreation_activity                  recreation_activity[]
   recreation_agreement_holder          recreation_agreement_holder?
