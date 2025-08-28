@@ -1,26 +1,31 @@
-import { Test } from "@nestjs/testing";
+import { ApiMetricsInterceptor } from "@/api-metrics/api-metrics.interceptor";
+import { ApiMetricsService } from "@/api-metrics/api-metrics.service";
+import { OperationNameUtil } from "@/api-metrics/operation-name.util";
 import {
   CallHandler,
   ExecutionContext,
   HttpException,
   HttpStatus,
 } from "@nestjs/common";
+import { Test } from "@nestjs/testing";
+import { ClsModule } from "nestjs-cls";
 import { of, throwError } from "rxjs";
 import { Mocked } from "vitest";
-import { ApiMetricsInterceptor } from "@/api-metrics/api-metrics.interceptor";
-import { ApiMetricsService } from "@/api-metrics/api-metrics.service";
-import { OperationNameUtil } from "@/api-metrics/operation-name.util";
 
 describe("ApiMetricsInterceptor", () => {
   let interceptor: ApiMetricsInterceptor;
   let apiMetricsService: ApiMetricsService;
   let operationNameUtil: OperationNameUtil;
 
+  const mockSetResHeader = vi.fn();
+
   // Mock data
   const mockContext = {
     switchToHttp: vi.fn().mockReturnValue({
       getRequest: vi.fn().mockReturnValue({ method: "GET" }),
-      getResponse: vi.fn().mockReturnValue({ statusCode: 200 }),
+      getResponse: vi
+        .fn()
+        .mockReturnValue({ statusCode: 200, setHeader: mockSetResHeader }),
     }),
   } as unknown as ExecutionContext;
 
@@ -32,6 +37,7 @@ describe("ApiMetricsInterceptor", () => {
 
   beforeEach(async () => {
     const moduleRef = await Test.createTestingModule({
+      imports: [ClsModule],
       providers: [
         ApiMetricsInterceptor,
         {
@@ -79,6 +85,10 @@ describe("ApiMetricsInterceptor", () => {
           500,
         );
         expect(apiMetricsService.publish).toHaveBeenCalledWith(mockMetricDatum);
+        expect(mockSetResHeader).toHaveBeenCalledWith(
+          "X-RST-Request-ID",
+          expect.any(String),
+        );
       },
     });
   });
@@ -125,5 +135,111 @@ describe("ApiMetricsInterceptor", () => {
     mockCallHandler.handle.mockReturnValue(of("test"));
     interceptor.intercept(mockContext, mockCallHandler).subscribe();
     expect(operationNameUtil.get).toHaveBeenCalledWith(mockContext);
+  });
+
+  it("should log and not throw if recordMetrics fails", async () => {
+    // Arrange
+    const error = new Error("publish failed");
+    (apiMetricsService.publish as any).mockRejectedValueOnce(error);
+    mockCallHandler.handle.mockReturnValue(of("test"));
+    vi.spyOn(Date, "now").mockReturnValueOnce(1000).mockReturnValueOnce(1500);
+    const loggerErrorSpy = vi.spyOn(interceptor["logger"], "error");
+
+    // Act
+    await new Promise((resolve) => {
+      interceptor.intercept(mockContext, mockCallHandler).subscribe({
+        next: () => {
+          // Assert
+          expect(apiMetricsService.buildMetricDatum).toHaveBeenCalled();
+          expect(apiMetricsService.publish).toHaveBeenCalled();
+          expect(loggerErrorSpy).toHaveBeenCalledWith(
+            expect.stringContaining("Failed to record metrics"),
+            error,
+          );
+          resolve(true);
+        },
+      });
+    });
+  });
+
+  it("should set X-RST-Request-ID header with value from cls.getId", () => {
+    // Arrange
+    const fakeId = "fake-request-id";
+    // Patch the interceptor's cls.getId method
+    interceptor["cls"].getId = vi.fn().mockReturnValue(fakeId);
+    mockCallHandler.handle.mockReturnValue(of("test"));
+
+    // Act
+    interceptor.intercept(mockContext, mockCallHandler).subscribe({
+      next: () => {
+        // Assert
+        expect(mockSetResHeader).toHaveBeenCalledWith(
+          "X-RST-Request-ID",
+          fakeId,
+        );
+      },
+    });
+  });
+
+  it("should log error and rethrow on error in catchError", async () => {
+    const error = new Error("fail");
+    mockCallHandler.handle.mockReturnValue(throwError(() => error));
+    vi.spyOn(Date, "now").mockReturnValueOnce(1000).mockReturnValueOnce(1500);
+    const loggerErrorSpy = vi.spyOn(interceptor["logger"], "error");
+
+    await new Promise((resolve) => {
+      interceptor.intercept(mockContext, mockCallHandler).subscribe({
+        error: (err) => {
+          expect(loggerErrorSpy).toHaveBeenCalledWith(
+            expect.stringContaining("Request failed"),
+          );
+          expect(err).toBe(error);
+          resolve(true);
+        },
+      });
+    });
+  });
+
+  it("should log request start and completion", async () => {
+    const loggerLogSpy = vi.spyOn(interceptor["logger"], "log");
+    mockCallHandler.handle.mockReturnValue(of("test"));
+    vi.spyOn(Date, "now").mockReturnValueOnce(1000).mockReturnValueOnce(1500);
+
+    await new Promise((resolve) => {
+      interceptor.intercept(mockContext, mockCallHandler).subscribe({
+        next: () => {
+          expect(loggerLogSpy).toHaveBeenCalledWith(
+            expect.stringContaining("Starting request"),
+          );
+          expect(loggerLogSpy).toHaveBeenCalledWith(
+            expect.stringContaining("Request completed successfully"),
+          );
+          resolve(true);
+        },
+      });
+    });
+  });
+
+  it("should log debug messages in recordMetrics", async () => {
+    const loggerDebugSpy = vi.spyOn(interceptor["logger"], "debug");
+    mockCallHandler.handle.mockReturnValue(of("test"));
+    vi.spyOn(Date, "now").mockReturnValueOnce(1000).mockReturnValueOnce(1500);
+
+    await new Promise((resolve) => {
+      interceptor.intercept(mockContext, mockCallHandler).subscribe({
+        next: () => {
+          expect(loggerDebugSpy).toHaveBeenCalledWith(
+            expect.stringContaining("Recording metrics"),
+          );
+          expect(loggerDebugSpy).toHaveBeenCalledWith(
+            expect.stringContaining("Built"),
+          );
+          expect(loggerDebugSpy).toHaveBeenCalledWith(
+            expect.stringContaining("Successfully published metrics"),
+          );
+          resolve(true);
+        },
+      });
+    });
   });
 });

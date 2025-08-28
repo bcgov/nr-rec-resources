@@ -4,11 +4,13 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  Logger,
   NestInterceptor,
 } from "@nestjs/common";
-import { from, Observable, throwError } from "rxjs";
-import { catchError, switchMap } from "rxjs/operators";
 import { Request, Response } from "express";
+import { ClsService } from "nestjs-cls";
+import { from, Observable, throwError } from "rxjs";
+import { catchError, switchMap, tap } from "rxjs/operators";
 import { ApiMetricsService } from "./api-metrics.service";
 import { OperationNameUtil } from "./operation-name.util";
 
@@ -17,9 +19,12 @@ import { OperationNameUtil } from "./operation-name.util";
  */
 @Injectable()
 export class ApiMetricsInterceptor implements NestInterceptor {
+  private readonly logger = new Logger(ApiMetricsInterceptor.name);
+
   constructor(
     private readonly apiMetricsService: ApiMetricsService,
     private readonly operationNameUtil: OperationNameUtil,
+    private readonly cls: ClsService,
   ) {}
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
@@ -27,8 +32,21 @@ export class ApiMetricsInterceptor implements NestInterceptor {
     const req = context.switchToHttp().getRequest<Request>();
     const res = context.switchToHttp().getResponse<Response>();
     const operation = this.operationNameUtil.get(context);
+    const requestId = this.cls.getId();
+
+    this.logger.log(
+      `[API Metrics] Starting request: ${req.method} ${req.url} - Operation: ${operation}`,
+    );
+
+    // set request ID headers
+    res.setHeader("X-RST-Request-ID", requestId);
 
     return next.handle().pipe(
+      tap(() => {
+        this.logger.log(
+          `[API Metrics] Request completed successfully: ${req.method} ${req.url} - Status: ${res.statusCode}`,
+        );
+      }),
       switchMap((data) =>
         from(
           this.recordMetrics(operation, req.method, res.statusCode, start),
@@ -41,6 +59,10 @@ export class ApiMetricsInterceptor implements NestInterceptor {
           err instanceof HttpException
             ? err.getStatus()
             : HttpStatus.INTERNAL_SERVER_ERROR;
+
+        this.logger.error(
+          `[API Metrics] Request failed: ${req.method} ${req.url} - Status: ${status} - Error: ${err.message}`,
+        );
 
         return from(
           this.recordMetrics(operation, req.method, status, start),
@@ -56,12 +78,34 @@ export class ApiMetricsInterceptor implements NestInterceptor {
     start: number,
   ): Promise<void> {
     const latency = Date.now() - start;
-    const datums = this.apiMetricsService.buildMetricDatum(
-      operation,
-      method,
-      status,
-      latency,
+
+    this.logger.debug(
+      `[API Metrics] Recording metrics - Operation: ${operation}, Method: ${method}, Status: ${status}, Latency: ${latency}ms`,
     );
-    await this.apiMetricsService.publish(datums);
+
+    try {
+      const datums = this.apiMetricsService.buildMetricDatum(
+        operation,
+        method,
+        status,
+        latency,
+      );
+
+      this.logger.debug(
+        `[API Metrics] Built ${datums.length} metric datums for operation: ${operation}`,
+      );
+
+      await this.apiMetricsService.publish(datums);
+
+      this.logger.debug(
+        `[API Metrics] Successfully published metrics for operation: ${operation}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `[API Metrics] Failed to record metrics for operation: ${operation}`,
+        error,
+      );
+      // Don't rethrow - we don't want metrics failures to break the API
+    }
   }
 }

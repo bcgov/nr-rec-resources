@@ -1,11 +1,12 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
+import { ClsModule } from "nestjs-cls";
 import { ApiMetricsInterceptor } from "./api-metrics.interceptor";
 import { ApiMetricsService } from "./api-metrics.service";
 import { OperationNameUtil } from "./operation-name.util";
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, ClsModule],
   providers: [
     ApiMetricsService,
     OperationNameUtil,
