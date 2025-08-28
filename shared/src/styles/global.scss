@@ -2,6 +2,84 @@
 @import "bootstrap/scss/functions";
 @import "bootstrap/scss/variables";
 @import "bootstrap/scss/mixins/_breakpoints";
+@import "@bcgov/design-tokens/css/variables"; // Import BC Gov design tokens
+
+:root {
+  /**
+   * Override Bootstrap variables with BC Gov design tokens
+   * Github: https://github.com/bcgov/design-system
+   * Figma link: https://www.figma.com/design/5cUBaBzdMv3hqq7LudDbcF/B.C.-Design-System--Community-?node-id=3675-22281&t=eXb6K7pmLURf7qmc-0
+   */
+  --bs-primary: var(--surface-color-primary-default);
+  --bs-primary-rgb: 1, 51, 102;
+  --bs-primary-hover: var(--surface-color-primary-hover);
+  --bs-primary-pressed: var(--surface-color-primary-pressed);
+  --bs-primary-disabled: var(--surface-color-primary-disabled);
+
+  --bs-secondary: var(--surface-color-secondary-default);
+  --bs-secondary-rgb: 255, 255, 255;
+  --bs-secondary-hover: var(--surface-color-secondary-hover);
+  --bs-secondary-pressed: var(--surface-color-secondary-pressed);
+  --bs-secondary-disabled: var(--surface-color-secondary-disabled);
+
+  --bs-success: var(--support-surface-color-success);
+  --bs-danger: var(--support-surface-color-danger);
+  --bs-warning: var(--support-surface-color-warning);
+  --bs-info: var(--support-surface-color-info);
+
+  --bs-border-color: var(--surface-color-border-default);
+  --bs-border-radius: var(--layout-border-radius-large);
+  --bs-body-bg: var(--surface-color-background-white);
+  --bs-body-color: var(--typography-color-primary);
+  --bs-font-sans-serif: var(--typography-font-families-bc-sans);
+  --bs-font-family-base: var(--typography-font-families-bc-sans);
+  --bs-font-weight-bold: var(--typography-font-weights-bold);
+  --bs-font-weight-normal: var(--typography-font-weights-regular);
+  --bs-link-color: var(--icons-color-link);
+  --bs-link-hover-color: var(--surface-color-primary-hover);
+  --bs-btn-primary-bg: var(--surface-color-primary-button-default);
+  --bs-btn-primary-hover-bg: var(--surface-color-primary-button-hover);
+  --bs-btn-primary-disabled-bg: var(--surface-color-primary-button-disabled);
+  --bs-btn-secondary-bg: var(--surface-color-secondary-button-default);
+  --bs-btn-secondary-hover-bg: var(--surface-color-secondary-button-hover);
+  --bs-btn-secondary-disabled-bg: var(
+    --surface-color-secondary-button-disabled
+  );
+  --bs-btn-danger-bg: var(--surface-color-primary-danger-button-default);
+  --bs-btn-danger-hover-bg: var(--surface-color-primary-danger-button-hover);
+  --bs-btn-danger-disabled-bg: var(
+    --surface-color-primary-danger-button-disabled
+  );
+}
+
+// Typography color overrides for Bootstrap utility classes using BC Gov typography design tokens
+.text-primary {
+  color: var(--typography-color-primary) !important;
+}
+.text-secondary {
+  color: var(--typography-color-secondary) !important;
+}
+.text-danger {
+  color: var(--typography-color-danger) !important;
+}
+.text-success {
+  color: var(--icons-color-success) !important;
+}
+.text-warning {
+  color: var(--icons-color-warning) !important;
+}
+.text-info {
+  color: var(--icons-color-info) !important;
+}
+.text-muted {
+  color: var(--typography-color-placeholder) !important;
+}
+.text-dark {
+  color: var(--theme-gray-100) !important;
+}
+.text-light {
+  color: var(--typography-color-primary-invert) !important;
+}
 
 .bc-bg-yellow {
   background: $colorGold;

@@ -2,8 +2,8 @@ import {
   RecreationResourceDetailDto,
   RecreationResourceMaintenanceStandardCode,
 } from "../dtos/recreation-resource-detail.dto";
-import { RecreationResourceGetPayload } from "../recreation-resource.types";
 import { OPEN_STATUS } from "../recreation-resource.constants";
+import { RecreationResourceGetPayload } from "../recreation-resource.types";
 
 /**
  * Formats recreation resource detail results to match the RecreationResourceDetailDto.
@@ -32,8 +32,13 @@ export function formatRecreationResourceDetailResults({
     rec_resource_type:
       result?.recreation_resource_type_view?.[0]?.description ?? "",
     recreation_access: (result.recreation_access ?? [])
-      .map((access) => access.recreation_access_code.description ?? "")
-      .filter((desc): desc is string => !!desc),
+      .map((access) => ({
+        description: access.recreation_access_code.description ?? "",
+        sub_access_code: access.recreation_sub_access_code?.sub_access_code,
+        sub_access_description:
+          access.recreation_sub_access_code?.description ?? undefined,
+      }))
+      .filter((access) => !!access.description),
     recreation_activity: (result.recreation_activity ?? []).map((activity) => ({
       description: activity.recreation_activity.description ?? "",
       recreation_activity_code:
@@ -65,5 +70,6 @@ export function formatRecreationResourceDetailResults({
         : false,
     },
     recreation_district: recreationDistrict,
+    project_established_date: result.project_established_date ?? undefined,
   };
 }

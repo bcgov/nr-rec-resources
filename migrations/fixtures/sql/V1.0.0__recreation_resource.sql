@@ -6,7 +6,8 @@ insert into
     closest_community,
     display_on_public_site,
     district_code,
-    maintenance_standard_code
+    maintenance_standard_code,
+    project_established_date
   )
 values
   (
@@ -16,7 +17,8 @@ values
     'MERRITT',
     true,
     'RDKA',
-    'M'
+    'M',
+    '2015-03-15'
   ),
   (
     'REC1222',
@@ -25,7 +27,8 @@ values
     'PRINCE GEORGE',
     true,
     'RDPG',
-    null
+    null,
+    '2008-01-15'
   ),
   (
     'REC160773',
@@ -34,7 +37,8 @@ values
     'MERRITT',
     true,
     'RDKA',
-    'U'
+    'U',
+    '2012-07-22'
   ),
   (
     'REC203239',
@@ -43,7 +47,8 @@ values
     'MERRITT',
     true,
     'RDKA',
-    'M'
+    'M',
+    '2014-11-08'
   ),
   (
     'REC6866',
@@ -52,7 +57,8 @@ values
     'WELLS',
     true,
     'RDVA',
-    'M'
+    'M',
+    '1998-05-12'
   ),
   (
     'REC203900',
@@ -61,7 +67,8 @@ values
     'REVELSTOKE',
     true,
     'RDRM',
-    'M'
+    'M',
+    '2016-09-30'
   ),
   (
     'REC160432',
@@ -70,7 +77,8 @@ values
     'MERRITT',
     true,
     'RDKA',
-    null
+    null,
+    '2011-02-14'
   ),
   (
     'REC6739',
@@ -79,7 +87,8 @@ values
     'CASTLEGAR',
     true,
     'RDKB',
-    'M'
+    'M',
+    '2007-12-03'
   ),
   (
     'REC16158',
@@ -88,7 +97,8 @@ values
     'WHISTLER',
     true,
     'RDSQ',
-    'U'
+    'U',
+    '2013-06-18'
   ),
   (
     'REC2094',
@@ -97,7 +107,8 @@ values
     'FERNIE',
     true,
     'RDKB',
-    'M'
+    'M',
+    '2009-04-25'
   ),
   (
     'REC6897',
@@ -106,7 +117,8 @@ values
     '70 MILE HOUSE',
     true,
     'RDMH',
-    'M'
+    'M',
+    '2005-08-16'
   ),
   (
     'REC2206',
@@ -115,7 +127,8 @@ values
     'CRANBROOK',
     true,
     'RDKB',
-    null
+    null,
+    '2010-03-07'
   ),
   (
     'REC206043',
@@ -124,7 +137,8 @@ values
     'Bob Quinn Lake',
     true,
     'RDSI',
-    'M'
+    'M',
+    '2017-10-14'
   ),
   (
     'REC166903',
@@ -133,7 +147,8 @@ values
     '100 MILE HOUSE',
     true,
     'RDOS',
-    'M'
+    'M',
+    '2006-01-28'
   ),
   (
     'REC32013',
@@ -142,7 +157,8 @@ values
     '100 MILE HOUSE',
     true,
     'RDOS',
-    'M'
+    'M',
+    '2004-11-19'
   ),
   (
     'REC261475',
@@ -151,7 +167,8 @@ values
     '100 MILE HOUSE',
     true,
     'RDOS',
-    null
+    null,
+    '2018-07-01'
   ),
   (
     'REC166942',
@@ -160,7 +177,8 @@ values
     '100 Mile House',
     true,
     'RDOS',
-    'M'
+    'M',
+    '2003-09-12'
   ),
   (
     'REC2792',
@@ -169,7 +187,8 @@ values
     '100 Mile House',
     true,
     'RDOS',
-    'U'
+    'U',
+    '2001-12-05'
   ),
   (
     'REC230522',
@@ -178,7 +197,8 @@ values
     '100 MILE HOUSE',
     true,
     'RDOS',
-    'M'
+    'M',
+    '2019-02-15'
   ),
   (
     'REC205035',
@@ -187,7 +207,8 @@ values
     '100 Mile House',
     true,
     'RDOS',
-    null
+    null,
+    '2016-04-20'
   ),
   (
     'REC2566',
@@ -196,7 +217,8 @@ values
     'LIKELY',
     true,
     'RDPG',
-    'M'
+    'M',
+    '2002-06-08'
   ),
   (
     'REC1735',
@@ -205,7 +227,8 @@ values
     'MERRITT',
     true,
     'RDKA',
-    'M'
+    'M',
+    '2008-10-11'
   ),
   (
     'REC2978',
@@ -214,7 +237,8 @@ values
     'HORSEFLY',
     true,
     'RDPG',
-    'U'
+    'U',
+    '2000-05-20'
   ),
   (
     'REC136003',
@@ -223,7 +247,8 @@ values
     'LAVINGTON',
     true,
     'RDKA',
-    'U'
+    'U',
+    '2014-08-03'
   ),
   (
     'REC265901',
@@ -232,7 +257,8 @@ values
     'LAVINGTON',
     true,
     'RDKA',
-    null
+    null,
+    '2011-09-27'
   ),
   (
     'REC1585',
@@ -241,7 +267,8 @@ values
     'LAVINGTON',
     true,
     'RDKA',
-    null
+    null,
+    '2007-03-14'
   ),
   (
     'REC262200',
@@ -250,7 +277,8 @@ values
     'LAVINGTON',
     true,
     'RDKA',
-    null
+    null,
+    '2015-12-01'
   ),
   (
     'REC265549',
@@ -259,7 +287,8 @@ values
     'LUMBY',
     true,
     'RDCC',
-    'U'
+    'U',
+    '2012-01-18'
   ),
   (
     'REC270155',
@@ -268,7 +297,8 @@ values
     'SILVERTON',
     true,
     'RDCC',
-    'U'
+    'U',
+    '2009-07-09'
   ),
   (
     'REC0587',
@@ -277,7 +307,8 @@ values
     'BURNS LAKE',
     true,
     'RDCC',
-    'U'
+    'U',
+    '2006-04-22'
   ),
   (
     'REC166367',
@@ -286,7 +317,8 @@ values
     'TATLA LAKE',
     true,
     'RDCC',
-    'M'
+    'M',
+    '2003-11-30'
   ),
   (
     'REC1621',
@@ -295,7 +327,8 @@ values
     'SUMMERLAND',
     true,
     'RDOS',
-    'M'
+    'M',
+    '2013-02-26'
   ),
   (
     'REC1164',
@@ -304,7 +337,8 @@ values
     'QUESNEL',
     true,
     'RDCO',
-    null
+    null,
+    '2010-08-17'
   ),
   (
     'REC5763',
@@ -313,7 +347,8 @@ values
     'FORT ST. JAMES',
     true,
     'RDCO',
-    'M'
+    'M',
+    '2005-12-04'
   ),
   (
     'REC4519',
@@ -322,7 +357,8 @@ values
     'WINFIELD',
     true,
     'RDCO',
-    'U'
+    'U',
+    null
   ),
   (
     'REC265446',
@@ -331,7 +367,8 @@ values
     'SLOCAN',
     true,
     'RDCK',
-    'U'
+    'U',
+    null
   ),
   (
     'REC262362',
@@ -340,7 +377,8 @@ values
     'HOUSTON',
     true,
     'RDCK',
-    'U'
+    'U',
+    null
   ),
   (
     'REC192109',
@@ -349,7 +387,8 @@ values
     'NEW DENVER',
     true,
     'RDCR',
-    'M'
+    'M',
+    null
   ),
   (
     'REC204480',
@@ -358,6 +397,7 @@ values
     'Tumbler Ridge',
     true,
     'RDPG',
+    null,
     null
   ),
   (
@@ -367,6 +407,7 @@ values
     'CAMPBELL RIVER',
     true,
     'RDPG',
+    null,
     null
   ),
   (
@@ -376,7 +417,8 @@ values
     'ELKFORD',
     true,
     'RDKM',
-    'M'
+    'M',
+    null
   ),
   (
     'REC2047',
@@ -385,7 +427,8 @@ values
     'ELKFORD',
     true,
     'RDKM',
-    'U'
+    'U',
+    null
   ),
   (
     'REC2054',
@@ -394,7 +437,8 @@ values
     'SPARWOOD',
     true,
     'RDKM',
-    'U'
+    'U',
+    null
   ),
   (
     'REC0108',
@@ -403,6 +447,7 @@ values
     'SPARWOOD',
     true,
     'RDKM',
+    null,
     null
   ),
   (
@@ -412,6 +457,7 @@ values
     'POWELL RIVER',
     true,
     'RDSI',
+    null,
     null
   ),
   (
@@ -421,7 +467,8 @@ values
     'PENTICTON',
     true,
     'RDKA',
-    'U'
+    'U',
+    null
   ),
   (
     'REC1163',
@@ -430,7 +477,8 @@ values
     'TROUT CREEK',
     true,
     'RDKA',
-    'M'
+    'M',
+    null
   ),
   (
     'REC5973',
@@ -439,7 +487,8 @@ values
     'WHISTLER',
     true,
     'RDSQ',
-    'U'
+    'U',
+    null
   ),
   (
     'REC1298',
@@ -448,7 +497,8 @@ values
     'WHISTLER',
     true,
     'RDSQ',
-    'M'
+    'M',
+    null
   ),
   (
     'REC5951',
@@ -457,7 +507,8 @@ values
     'WHISTLER',
     true,
     'RDSQ',
-    'M'
+    'M',
+    null
   ),
   (
     'REC3176',
@@ -466,5 +517,6 @@ values
     'WHISTLER',
     true,
     'RDSQ',
-    'M'
+    'M',
+    null
   );

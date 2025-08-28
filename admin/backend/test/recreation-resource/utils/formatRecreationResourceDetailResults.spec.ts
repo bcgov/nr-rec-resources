@@ -1,7 +1,7 @@
 import { RecreationResourceMaintenanceStandardCode } from "@/recreation-resource/dtos/recreation-resource-detail.dto";
 import { OPEN_STATUS } from "@/recreation-resource/recreation-resource.constants";
 import { formatRecreationResourceDetailResults } from "@/recreation-resource/utils";
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 const baseResource = {
   rec_resource_id: "123",
@@ -12,8 +12,17 @@ const baseResource = {
   maintenance_standard_code: "A" as RecreationResourceMaintenanceStandardCode,
   recreation_resource_type_view: [{ description: "Campground" }],
   recreation_access: [
-    { recreation_access_code: { description: "Road" } },
-    { recreation_access_code: { description: "Trail" } },
+    {
+      recreation_access_code: { description: "Road" },
+      recreation_sub_access_code: {
+        sub_access_code: "4W",
+        description: "4 wheel drive",
+      },
+    },
+    {
+      recreation_access_code: { description: "Trail" },
+      recreation_sub_access_code: null,
+    },
   ],
   recreation_activity: [
     {
@@ -52,7 +61,18 @@ describe("formatRecreationResourceDetailResults", () => {
     expect(result.driving_directions).toBe("Turn left");
     expect(result.maintenance_standard_code).toBe("A");
     expect(result.rec_resource_type).toBe("Campground");
-    expect(result.recreation_access).toEqual(["Road", "Trail"]);
+    expect(result.recreation_access).toEqual([
+      {
+        description: "Road",
+        sub_access_code: "4W",
+        sub_access_description: "4 wheel drive",
+      },
+      {
+        description: "Trail",
+        sub_access_code: undefined,
+        sub_access_description: undefined,
+      },
+    ]);
     expect(result.recreation_activity).toEqual([
       { description: "Hiking", recreation_activity_code: "HIKE" },
     ]);
@@ -114,20 +134,41 @@ describe("formatRecreationResourceDetailResults", () => {
     const input = {
       ...baseResource,
       recreation_access: [
-        { recreation_access_code: { description: "Road" } },
-        { recreation_access_code: { description: undefined } },
+        {
+          recreation_access_code: { description: "Road" },
+          recreation_sub_access_code: {
+            sub_access_code: "2W",
+            description: "2 wheel drive",
+          },
+        },
+        {
+          recreation_access_code: { description: undefined },
+          recreation_sub_access_code: null,
+        },
       ],
     };
     const result = formatRecreationResourceDetailResults(input as any);
-    expect(result.recreation_access).toEqual(["Road"]);
+    expect(result.recreation_access).toEqual([
+      {
+        description: "Road",
+        sub_access_code: "2W",
+        sub_access_description: "2 wheel drive",
+      },
+    ]);
   });
 
   it("should return an empty array if all recreation_access descriptions are falsy", () => {
     const input = {
       ...baseResource,
       recreation_access: [
-        { recreation_access_code: { description: undefined } },
-        { recreation_access_code: { description: null } },
+        {
+          recreation_access_code: { description: undefined },
+          recreation_sub_access_code: null,
+        },
+        {
+          recreation_access_code: { description: null },
+          recreation_sub_access_code: null,
+        },
       ],
     };
     const result = formatRecreationResourceDetailResults(input as any);
@@ -175,6 +216,61 @@ describe("formatRecreationResourceDetailResults", () => {
     const result = formatRecreationResourceDetailResults(input as any);
     expect(result.recreation_activity).toEqual([
       { description: "", recreation_activity_code: "HIKE" },
+    ]);
+  });
+
+  it("should handle recreation access with sub access codes", () => {
+    const input = {
+      ...baseResource,
+      recreation_access: [
+        {
+          recreation_access_code: { description: "Road" },
+          recreation_sub_access_code: {
+            sub_access_code: "4W",
+            description: "4 wheel drive",
+          },
+        },
+        {
+          recreation_access_code: { description: "Boat-in" },
+          recreation_sub_access_code: {
+            sub_access_code: "BM",
+            description: "Motorized",
+          },
+        },
+      ],
+    };
+    const result = formatRecreationResourceDetailResults(input as any);
+    expect(result.recreation_access).toEqual([
+      {
+        description: "Road",
+        sub_access_code: "4W",
+        sub_access_description: "4 wheel drive",
+      },
+      {
+        description: "Boat-in",
+        sub_access_code: "BM",
+        sub_access_description: "Motorized",
+      },
+    ]);
+  });
+
+  it("should handle recreation access without sub access codes", () => {
+    const input = {
+      ...baseResource,
+      recreation_access: [
+        {
+          recreation_access_code: { description: "Trail" },
+          recreation_sub_access_code: null,
+        },
+      ],
+    };
+    const result = formatRecreationResourceDetailResults(input as any);
+    expect(result.recreation_access).toEqual([
+      {
+        description: "Trail",
+        sub_access_code: undefined,
+        sub_access_description: undefined,
+      },
     ]);
   });
 });

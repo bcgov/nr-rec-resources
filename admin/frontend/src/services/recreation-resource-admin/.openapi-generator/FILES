@@ -9,6 +9,7 @@ models/CreateRecreationResourceImageBodyDto.ts
 models/HealthControllerCheck200Response.ts
 models/HealthControllerCheck200ResponseInfoValue.ts
 models/HealthControllerCheck503Response.ts
+models/RecreationAccessDto.ts
 models/RecreationActivityDto.ts
 models/RecreationResourceDetailDto.ts
 models/RecreationResourceDistrictDto.ts

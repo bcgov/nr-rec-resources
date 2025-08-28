@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { RecreationResourceService } from "@/recreation-resource/recreation-resource.service";
 import { RecreationResourceRepository } from "@/recreation-resource/recreation-resource.repository";
+import { RecreationResourceService } from "@/recreation-resource/recreation-resource.service";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("RecreationResourceService", () => {
   let service: RecreationResourceService;
@@ -136,7 +136,18 @@ describe("RecreationResourceService - findOne", () => {
       driving_directions: "drive",
       maintenance_standard_code: "U",
       rec_resource_type: "TypeDesc",
-      recreation_access: ["Road", "Boat-in"],
+      recreation_access: [
+        {
+          description: "Road",
+          sub_access_code: undefined,
+          sub_access_description: undefined,
+        },
+        {
+          description: "Boat-in",
+          sub_access_code: undefined,
+          sub_access_description: undefined,
+        },
+      ],
       recreation_activity: [
         { description: "Hiking", recreation_activity_code: 1 },
       ],

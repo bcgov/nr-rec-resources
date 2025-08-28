@@ -22,9 +22,9 @@ export const FileUploadTile: FC<FileUploadTileProps> = ({
     onClick={disabled ? undefined : onClick}
     className={`upload-tile align-items-center justify-content-center w-100 h-100 ${disabled ? "disabled" : ""}`}
   >
-    <span className="fs-2 text-muted">
+    <span className="fs-2">
       <FontAwesomeIcon icon={faPlus} />
     </span>
-    <span className="fs-6 text-muted mt-1">{label}</span>
+    <span className="fs-6 mt-1">{label}</span>
   </Stack>
 );

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Breadcrumbs, useBreadcrumbs } from '@/components/breadcrumbs';
+import { Breadcrumbs, useBreadcrumbs } from '@shared/components/breadcrumbs';
 import PhotoGallery, {
   PhotoGalleryProps,
 } from '@/components/rec-resource/PhotoGallery';
@@ -204,7 +204,7 @@ const RecResourcePage = () => {
       <div className="rec-resource-container">
         <div className={`bg-container ${isPhotoGallery ? 'with-gallery' : ''}`}>
           <div className="page">
-            <Breadcrumbs />
+            <Breadcrumbs className="mb-4" />
             <section>
               <div>
                 <h1>{formattedName}</h1>
