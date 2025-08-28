@@ -22,17 +22,6 @@ describe("dateUtils", () => {
       expect(formatDateISO(testDate)).toBe("2023-12-25");
     });
 
-    it("should handle string date input", () => {
-      // Test with date-only string that gets converted to UTC, displayed in Pacific
-      expect(formatDateISO("2023-12-25")).toBe("2023-12-24"); // UTC midnight becomes Dec 24 in PST
-    });
-
-    it("should handle edge case dates", () => {
-      // These will show the Pacific timezone dates
-      expect(formatDateISO("2024-01-01")).toBe("2023-12-31"); // UTC midnight becomes Dec 31 in PST
-      expect(formatDateISO("2024-07-01")).toBe("2024-06-30"); // UTC midnight becomes Jun 30 in PDT
-    });
-
     it("should return null for invalid date", () => {
       expect(formatDateISO(invalidDate)).toBeNull();
       expect(formatDateISO(null)).toBeNull();

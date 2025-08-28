@@ -4,6 +4,7 @@ import {
   RecreationResourceDocDto,
   RecreationResourceImageDto,
 } from "@/services";
+import { formatDateReadable } from "@shared/index";
 
 /**
  * Maps a RecreationResourceDetailDto to RecreationResourceDetail with additional derived descriptions.
@@ -19,6 +20,12 @@ export function mapRecreationResourceDetail(
       data.maintenance_standard_code === "U" ? "Maintained" : "User Maintained",
     recreation_district_description: data.recreation_district?.description,
     recreation_status_description: data.recreation_status?.description,
+    project_established_date_readable_utc: formatDateReadable(
+      data.project_established_date,
+      {
+        timeZone: "UTC", // this date is stored in PST timezone in database
+      },
+    ),
   };
 }
 

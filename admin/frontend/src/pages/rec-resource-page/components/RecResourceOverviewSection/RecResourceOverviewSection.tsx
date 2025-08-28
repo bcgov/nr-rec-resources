@@ -1,6 +1,5 @@
 import { formatRecreationAccess } from "@/pages/rec-resource-page/components/RecResourceOverviewSection/helpers";
 import { RecreationResourceDetailUIModel } from "@/services";
-import { formatDateReadable } from "@shared/utils";
 import { Col, Row, Stack } from "react-bootstrap";
 import { RecResourceOverviewItem } from "./RecResourceOverviewItem";
 
@@ -37,7 +36,7 @@ export const RecResourceOverviewSection = (
     {
       key: "project-established-date",
       label: "Project Established Date",
-      value: formatDateReadable(recResource.project_established_date),
+      value: recResource.project_established_date_readable_utc,
     },
   ];
 

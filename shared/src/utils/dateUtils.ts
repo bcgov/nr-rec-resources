@@ -24,14 +24,9 @@ const parseDate = (date: DateInput): Date | null => {
 };
 
 /**
- * Pacific timezone constant for consistent formatting
- */
-const PACIFIC_TIMEZONE = "America/Vancouver";
-
-/**
  * Default locale for formatting
  */
-const DEFAULT_LOCALE = "en-CA";
+export const DEFAULT_LOCALE = "en-CA";
 
 /**
  * Predefined format configurations for common date formats
@@ -78,9 +73,7 @@ const formatDateWithOptions = (
   const parsedDate = parseDate(date);
   if (!parsedDate) return null;
 
-  // Always use Pacific timezone for output
-  const pacificOptions = { ...options, timeZone: PACIFIC_TIMEZONE };
-  return new Intl.DateTimeFormat(locale, pacificOptions).format(parsedDate);
+  return new Intl.DateTimeFormat(locale, options).format(parsedDate);
 };
 
 /**
@@ -92,8 +85,14 @@ const createDateFormatter = (config: {
   locale: string;
   options: Intl.DateTimeFormatOptions;
 }) => {
-  return (date: DateInput): string | null => {
-    return formatDateWithOptions(date, config.locale, config.options);
+  return (
+    date: DateInput,
+    dateTimeFormatOptions?: Intl.DateTimeFormatOptions,
+  ): string | null => {
+    return formatDateWithOptions(date, config.locale, {
+      ...config.options,
+      ...dateTimeFormatOptions,
+    });
   };
 };
 
