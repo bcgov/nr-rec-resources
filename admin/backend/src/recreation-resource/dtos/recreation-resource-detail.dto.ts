@@ -19,6 +19,37 @@ export class RecreationActivityDto {
   description: string;
 }
 
+export class RecreationAccessDto {
+  @ApiProperty({
+    description: "Unique code identifying the recreation access",
+    example: "R", // Road
+    required: false,
+  })
+  access_code?: string;
+
+  @ApiProperty({
+    description: "Primary access method description",
+    example: "Road",
+    required: false,
+  })
+  description?: string;
+
+  @ApiProperty({
+    description: "Sub access code providing more specific access details",
+    example: "4W",
+    required: false,
+  })
+  sub_access_code?: string;
+
+  @ApiProperty({
+    description:
+      "Sub access description providing more specific access details",
+    example: "4 wheel drive",
+    required: false,
+  })
+  sub_access_description?: string;
+}
+
 export class RecreationFeeDto {
   @ApiProperty({
     description: "Amount charged for the recreation resource",
@@ -213,11 +244,10 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
   campsite_count: number;
 
   @ApiProperty({
-    description: "Recreation Access Types",
-    example: ["Road", "Boat-in"],
-    type: [String],
+    description: "Recreation Access Types with optional sub access details",
+    type: [RecreationAccessDto],
   })
-  recreation_access: string[];
+  recreation_access: RecreationAccessDto[];
 
   @ApiProperty({
     description:

@@ -1,3 +1,4 @@
+import { formatRecreationAccess } from "@/pages/rec-resource-page/components/RecResourceOverviewSection/helpers";
 import { RecreationResourceDetailUIModel } from "@/services";
 import { formatDateReadable } from "@shared/utils";
 import { Col, Row, Stack } from "react-bootstrap";
@@ -26,7 +27,7 @@ export const RecResourceOverviewSection = (
     {
       key: "access-type",
       label: "Access Type",
-      value: recResource.rec_resource_type,
+      value: formatRecreationAccess(recResource.recreation_access),
     },
     {
       key: "maintenance-type",

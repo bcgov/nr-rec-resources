@@ -1,13 +1,14 @@
 import {
-  RecreationResourceDetailDto,
-  RecreationResourceMaintenanceStandardCode,
+  RecreationAccessDto,
   RecreationActivityDto,
   RecreationFeeDto,
+  RecreationResourceDetailDto,
+  RecreationResourceDistrictDto,
+  RecreationResourceMaintenanceStandardCode,
   RecreationStatusDto,
   RecreationStructureDto,
-  RecreationResourceDistrictDto,
 } from "@/recreation-resource/dtos/recreation-resource-detail.dto";
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 
 describe("RecreationResourceDetailDto", () => {
   it("should create an instance", () => {
@@ -31,7 +32,14 @@ describe("RecreationResourceDetailDto", () => {
     dto.driving_directions = "Take exit 123";
     dto.maintenance_standard_code = RecreationResourceMaintenanceStandardCode.U;
     dto.campsite_count = 10;
-    dto.recreation_access = ["Road", "Boat-in"];
+
+    const recreationAccessDto = new RecreationAccessDto();
+    recreationAccessDto.access_code = "R";
+    recreationAccessDto.description = "Road";
+    recreationAccessDto.sub_access_code = "4W";
+    recreationAccessDto.sub_access_description = "4 wheel drive";
+    dto.recreation_access = [recreationAccessDto];
+
     dto.recreation_structure = { has_toilet: true, has_table: false };
     dto.spatial_feature_geometry = ["geojson1", "geojson2"];
     dto.site_point_geometry = '{"type":"Point","coordinates":[1,2]}';
@@ -52,7 +60,7 @@ describe("RecreationResourceDetailDto", () => {
       RecreationResourceMaintenanceStandardCode.U,
     );
     expect(dto.campsite_count).toBe(10);
-    expect(dto.recreation_access).toEqual(["Road", "Boat-in"]);
+    expect(dto.recreation_access).toEqual([recreationAccessDto]);
     expect(dto.recreation_structure.has_toilet).toBe(true);
     expect(dto.recreation_structure.has_table).toBe(false);
     expect(dto.spatial_feature_geometry).toEqual(["geojson1", "geojson2"]);

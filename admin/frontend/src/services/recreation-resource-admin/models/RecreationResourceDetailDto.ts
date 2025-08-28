@@ -34,6 +34,13 @@ import {
   RecreationStatusDtoToJSON,
   RecreationStatusDtoToJSONTyped,
 } from "./RecreationStatusDto";
+import type { RecreationAccessDto } from "./RecreationAccessDto";
+import {
+  RecreationAccessDtoFromJSON,
+  RecreationAccessDtoFromJSONTyped,
+  RecreationAccessDtoToJSON,
+  RecreationAccessDtoToJSONTyped,
+} from "./RecreationAccessDto";
 import type { RecreationActivityDto } from "./RecreationActivityDto";
 import {
   RecreationActivityDtoFromJSON,
@@ -109,11 +116,11 @@ export interface RecreationResourceDetailDto {
    */
   campsite_count: number;
   /**
-   * Recreation Access Types
-   * @type {Array<string>}
+   * Recreation Access Types with optional sub access details
+   * @type {Array<RecreationAccessDto>}
    * @memberof RecreationResourceDetailDto
    */
-  recreation_access: Array<string>;
+  recreation_access: Array<RecreationAccessDto>;
   /**
    * Structure-related facilities available at the recreation resource (e.g., toilets, tables)
    * @type {RecreationStructureDto}
@@ -238,7 +245,9 @@ export function RecreationResourceDetailDtoFromJSONTyped(
     driving_directions: json["driving_directions"],
     maintenance_standard_code: json["maintenance_standard_code"],
     campsite_count: json["campsite_count"],
-    recreation_access: json["recreation_access"],
+    recreation_access: (json["recreation_access"] as Array<any>).map(
+      RecreationAccessDtoFromJSON,
+    ),
     recreation_structure: RecreationStructureDtoFromJSON(
       json["recreation_structure"],
     ),
@@ -288,7 +297,9 @@ export function RecreationResourceDetailDtoToJSONTyped(
     driving_directions: value["driving_directions"],
     maintenance_standard_code: value["maintenance_standard_code"],
     campsite_count: value["campsite_count"],
-    recreation_access: value["recreation_access"],
+    recreation_access: (value["recreation_access"] as Array<any>).map(
+      RecreationAccessDtoToJSON,
+    ),
     recreation_structure: RecreationStructureDtoToJSON(
       value["recreation_structure"],
     ),

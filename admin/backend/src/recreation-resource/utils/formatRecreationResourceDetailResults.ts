@@ -32,8 +32,13 @@ export function formatRecreationResourceDetailResults({
     rec_resource_type:
       result?.recreation_resource_type_view?.[0]?.description ?? "",
     recreation_access: (result.recreation_access ?? [])
-      .map((access) => access.recreation_access_code.description ?? "")
-      .filter((desc): desc is string => !!desc),
+      .map((access) => ({
+        description: access.recreation_access_code.description ?? "",
+        sub_access_code: access.recreation_sub_access_code?.sub_access_code,
+        sub_access_description:
+          access.recreation_sub_access_code?.description ?? undefined,
+      }))
+      .filter((access) => !!access.description),
     recreation_activity: (result.recreation_activity ?? []).map((activity) => ({
       description: activity.recreation_activity.description ?? "",
       recreation_activity_code:

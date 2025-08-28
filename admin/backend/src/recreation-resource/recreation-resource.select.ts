@@ -24,6 +24,13 @@ export const recreationResourceSelect = {
     select: {
       recreation_access_code: {
         select: {
+          access_code: true,
+          description: true,
+        },
+      },
+      recreation_sub_access_code: {
+        select: {
+          sub_access_code: true,
           description: true,
         },
       },
