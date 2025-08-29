@@ -140,28 +140,28 @@ export class RecreationResourceDistrictDto {
 
 export class RecreationResourceReservationInfoDto {
   @ApiProperty({
-    description: "Reservation instructions of designed resource",
-    example: "All reservations through partner, not RSTBC",
+    description: 'Reservation instructions of designed resource',
+    example: 'All reservations through partner, not RSTBC',
   })
   reservation_instructions: string;
   @ApiProperty({
-    description: "Reservation website of designed resource",
-    example: "www.firesidecamping.ca",
+    description: 'Reservation website of designed resource',
+    example: 'www.firesidecamping.ca',
   })
   reservation_website?: string;
   @ApiProperty({
-    description: "Reservation phone number of designed resource",
-    example: "(999)999-9999",
+    description: 'Reservation phone number of designed resource',
+    example: '(999)999-9999',
   })
   reservation_phone_number?: string;
   @ApiProperty({
-    description: "Reservation email of designed resource",
-    example: "reservation@email.com",
+    description: 'Reservation email of designed resource',
+    example: 'reservation@email.com',
   })
   reservation_email?: string;
   @ApiProperty({
-    description: "Reservation comments of designed resource",
-    example: "Membership required to reserve",
+    description: 'Reservation comments of designed resource',
+    example: 'Membership required to reserve',
   })
   reservation_comments?: string;
 }
@@ -312,7 +312,7 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
   recreation_district?: RecreationResourceDistrictDto;
 
   @ApiProperty({
-    description: "Recreation resource reservation info",
+    description: 'Recreation resource reservation info',
     type: RecreationResourceReservationInfoDto,
     required: false,
   })
