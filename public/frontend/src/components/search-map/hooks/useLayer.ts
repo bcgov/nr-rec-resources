@@ -16,7 +16,7 @@ export function useLayer(
   createStyle: (feature: Feature, isHovered: boolean) => any,
   options: UseLayerOptions = {},
 ) {
-  const { hideBelowZoom, applyHoverStyles = false } = options;
+  const { applyHoverStyles = false } = options;
   const [hoveredFeature, setHoveredFeature] = useState<Feature | null>(null);
 
   const source = useMemo(() => createSource(), [createSource]);
@@ -24,21 +24,12 @@ export function useLayer(
   const layerRef = useRef<VectorLayer | null>(null);
   if (!layerRef.current) {
     layerRef.current = createLayer(source);
-    if (hideBelowZoom) {
-      layerRef.current.set('hideBelowZoom', hideBelowZoom);
-    }
   }
 
   useEffect(() => {
     if (!mapRef.current || !layerRef.current) return;
 
     const map = mapRef.current.getMap();
-
-    const updateVisibility = () => {
-      if (!hideBelowZoom) return;
-      const zoom = map.getView().getZoom() ?? 0;
-      layerRef.current?.setVisible(zoom >= hideBelowZoom);
-    };
 
     const onPointerMove = (evt: any) => {
       if (!applyHoverStyles) return;
@@ -58,25 +49,17 @@ export function useLayer(
       map.getTargetElement().style.cursor = feature ? 'pointer' : '';
     };
 
-    if (hideBelowZoom) {
-      map.on('moveend', updateVisibility);
-      updateVisibility();
-    }
-
     if (applyHoverStyles) {
       map.on('pointermove', onPointerMove);
     }
 
     return () => {
-      if (hideBelowZoom) {
-        map.un('moveend', updateVisibility);
-      }
       if (applyHoverStyles) {
         map.un('pointermove', onPointerMove);
         map.getTargetElement().style.cursor = '';
       }
     };
-  }, [mapRef, hoveredFeature, hideBelowZoom, applyHoverStyles]);
+  }, [mapRef, hoveredFeature, applyHoverStyles]);
 
   useEffect(() => {
     if (!applyHoverStyles || !layerRef.current) return;

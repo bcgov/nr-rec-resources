@@ -52,13 +52,11 @@ describe('createRecreationLinesLayer', () => {
     expect(typeof styleFunction).toBe('function');
 
     if (typeof styleFunction === 'function') {
-      // Test at fine resolution (should show features)
       const fineResolutionStyle = styleFunction(new Feature(), 100);
       expect(fineResolutionStyle).toBeDefined();
 
-      // Test at coarse resolution (should hide features)
       const coarseResolutionStyle = styleFunction(new Feature(), 600);
-      expect(coarseResolutionStyle).toBeUndefined();
+      expect(coarseResolutionStyle).toBeDefined();
     }
   });
 });

@@ -24,7 +24,7 @@ describe('useRecreationLinesLayer', () => {
 
   it('calls useLayer with the correct arguments', () => {
     const recResourceIds = ['REC123', 'REC456'];
-    const options = { hideBelowZoom: 10 };
+    const options = { applyHoverStyles: true };
 
     const { result } = renderHook(() =>
       useRecreationLinesLayer(recResourceIds, mapRef, options),
