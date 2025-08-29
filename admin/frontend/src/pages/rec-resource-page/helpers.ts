@@ -1,22 +1,22 @@
-import { getFileNameWithoutExtension } from "@/utils/fileUtils";
-import { FILE_TYPE_CONFIGS } from "./constants";
+import { getFileNameWithoutExtension } from '@/utils/fileUtils';
+import { FILE_TYPE_CONFIGS } from './constants';
 import {
   setSelectedFile,
   setShowUploadOverlay,
   setUploadFileName,
-} from "./store/recResourceFileTransferStore";
-import { FileType, GalleryFile } from "./types";
+} from './store/recResourceFileTransferStore';
+import { FileType, GalleryFile } from './types';
 
 /**
  * Formats the date string for display.
  */
 export function formatGalleryFileDate(date: string): string {
-  return new Date(date).toLocaleString("en-CA", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+  return new Date(date).toLocaleString('en-CA', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
     hour12: true,
   });
 }
@@ -25,7 +25,7 @@ export function formatGalleryFileDate(date: string): string {
  * Creates a temporary GalleryFile object from a File for upload purposes.
  */
 export function createTempGalleryFile(file: File, type: FileType): GalleryFile {
-  const extension = file.name.split(".").pop()?.toLowerCase() || "";
+  const extension = file.name.split('.').pop()?.toLowerCase() || '';
   const now = new Date();
 
   return {
@@ -69,10 +69,10 @@ export function getMaxFilesByFileType(fileType: FileType): number {
  * @param type - The type of file being uploaded ("document" or "image").
  */
 export function handleAddFileClick(accept: string, type: FileType): void {
-  const input = document.createElement("input");
-  input.type = "file";
+  const input = document.createElement('input');
+  input.type = 'file';
   input.accept = accept;
-  input.style.display = "none";
+  input.style.display = 'none';
 
   const cleanup = () => {
     document.body.removeChild(input);

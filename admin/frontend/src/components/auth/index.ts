@@ -1,1 +1,1 @@
-export * from "./AuthGuard";
+export * from './AuthGuard';

@@ -1,5 +1,5 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Dropdown, Stack } from "react-bootstrap";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Dropdown, Stack } from 'react-bootstrap';
 
 interface DropdownActionItemProps {
   icon: any;

@@ -12,14 +12,14 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from "../runtime";
-import type { SuggestionDto } from "./SuggestionDto";
+import { mapValues } from '../runtime';
+import type { SuggestionDto } from './SuggestionDto';
 import {
   SuggestionDtoFromJSON,
   SuggestionDtoFromJSONTyped,
   SuggestionDtoToJSON,
   SuggestionDtoToJSONTyped,
-} from "./SuggestionDto";
+} from './SuggestionDto';
 
 /**
  *
@@ -47,8 +47,8 @@ export interface SuggestionsResponseDto {
 export function instanceOfSuggestionsResponseDto(
   value: object,
 ): value is SuggestionsResponseDto {
-  if (!("total" in value) || value["total"] === undefined) return false;
-  if (!("suggestions" in value) || value["suggestions"] === undefined)
+  if (!('total' in value) || value['total'] === undefined) return false;
+  if (!('suggestions' in value) || value['suggestions'] === undefined)
     return false;
   return true;
 }
@@ -67,8 +67,8 @@ export function SuggestionsResponseDtoFromJSONTyped(
     return json;
   }
   return {
-    total: json["total"],
-    suggestions: (json["suggestions"] as Array<any>).map(SuggestionDtoFromJSON),
+    total: json['total'],
+    suggestions: (json['suggestions'] as Array<any>).map(SuggestionDtoFromJSON),
   };
 }
 
@@ -87,7 +87,7 @@ export function SuggestionsResponseDtoToJSONTyped(
   }
 
   return {
-    total: value["total"],
-    suggestions: (value["suggestions"] as Array<any>).map(SuggestionDtoToJSON),
+    total: value['total'],
+    suggestions: (value['suggestions'] as Array<any>).map(SuggestionDtoToJSON),
   };
 }

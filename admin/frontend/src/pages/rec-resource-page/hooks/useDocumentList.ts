@@ -1,8 +1,8 @@
-import { useGetDocumentsByRecResourceId } from "@/services/hooks/recreation-resource-admin/useGetDocumentsByRecResourceId";
-import { RecreationResourceDocDto } from "@/services/recreation-resource-admin";
-import { useMemo } from "react";
-import { formatGalleryFileDate } from "../helpers";
-import { GalleryDocument } from "../types";
+import { useGetDocumentsByRecResourceId } from '@/services/hooks/recreation-resource-admin/useGetDocumentsByRecResourceId';
+import { RecreationResourceDocDto } from '@/services/recreation-resource-admin';
+import { useMemo } from 'react';
+import { formatGalleryFileDate } from '../helpers';
+import { GalleryDocument } from '../types';
 
 /**
  * Hook to manage document list state and syncing.
@@ -25,7 +25,7 @@ export function useDocumentList(rec_resource_id?: string) {
         doc_code: doc.doc_code,
         doc_code_description: doc.doc_code_description,
         rec_resource_id: doc.rec_resource_id,
-        type: "document",
+        type: 'document',
       })),
     [documentsFromServer],
   );

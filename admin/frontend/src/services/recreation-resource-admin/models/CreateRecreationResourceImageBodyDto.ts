@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from "../runtime";
+import { mapValues } from '../runtime';
 /**
  *
  * @export
@@ -33,7 +33,7 @@ export interface CreateRecreationResourceImageBodyDto {
 export function instanceOfCreateRecreationResourceImageBodyDto(
   value: object,
 ): value is CreateRecreationResourceImageBodyDto {
-  if (!("caption" in value) || value["caption"] === undefined) return false;
+  if (!('caption' in value) || value['caption'] === undefined) return false;
   return true;
 }
 
@@ -51,7 +51,7 @@ export function CreateRecreationResourceImageBodyDtoFromJSONTyped(
     return json;
   }
   return {
-    caption: json["caption"],
+    caption: json['caption'],
   };
 }
 
@@ -70,6 +70,6 @@ export function CreateRecreationResourceImageBodyDtoToJSONTyped(
   }
 
   return {
-    caption: value["caption"],
+    caption: value['caption'],
   };
 }

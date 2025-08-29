@@ -1,15 +1,15 @@
 /* tslint:disable */
 /* eslint-disable */
-import { DynamicModule, Module, Global, Provider } from "@nestjs/common";
-import { HttpModule, HttpService } from "@nestjs/axios";
+import { DynamicModule, Module, Global, Provider } from '@nestjs/common';
+import { HttpModule, HttpService } from '@nestjs/axios';
 import {
   AsyncConfiguration,
   Configuration,
   ConfigurationFactory,
-} from "./configuration";
+} from './configuration';
 
-import { ClientAPIService } from "./api/clientAPI.service";
-import { ClientSearchAPIService } from "./api/clientSearchAPI.service";
+import { ClientAPIService } from './api/clientAPI.service';
+import { ClientSearchAPIService } from './api/clientSearchAPI.service';
 
 @Global()
 @Module({

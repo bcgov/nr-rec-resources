@@ -1,2 +1,2 @@
-export * from "./recreation-resource-admin";
-export * from "./useGlobalQueryErrorHandler";
+export * from './recreation-resource-admin';
+export * from './useGlobalQueryErrorHandler';

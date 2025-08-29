@@ -1,2 +1,2 @@
-export * from "./navConfigs";
-export { RecResourceVerticalNav } from "./RecResourceVerticalNav";
+export * from './navConfigs';
+export { RecResourceVerticalNav } from './RecResourceVerticalNav';

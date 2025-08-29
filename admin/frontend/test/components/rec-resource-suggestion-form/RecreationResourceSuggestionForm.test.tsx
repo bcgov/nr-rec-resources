@@ -1,18 +1,18 @@
-import { RecreationResourceSuggestionForm } from "@/components/rec-resource-suggestion-form/RecreationResourceSuggestionForm";
-import * as suggestionHook from "@/services/hooks/recreation-resource-admin/useGetRecreationResourceSuggestions";
-import { RecreationResourceSuggestion } from "@shared/components/suggestion-typeahead/types";
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { useNavigate } from "react-router";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { RecreationResourceSuggestionForm } from '@/components/rec-resource-suggestion-form/RecreationResourceSuggestionForm';
+import * as suggestionHook from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceSuggestions';
+import { RecreationResourceSuggestion } from '@shared/components/suggestion-typeahead/types';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { useNavigate } from 'react-router';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock dependencies
-vi.mock("react-router", async () => ({
-  ...(await vi.importActual("react-router")),
+vi.mock('react-router', async () => ({
+  ...(await vi.importActual('react-router')),
   useNavigate: vi.fn(),
 }));
 
-vi.mock("@/components/rec-resource-suggestion-form/SuggestionMenu", () => ({
+vi.mock('@/components/rec-resource-suggestion-form/SuggestionMenu', () => ({
   SuggestionMenu: ({ results, searchTerm }: any) => (
     <div data-testid="suggestion-menu">
       <div data-testid="menu-search-term">{searchTerm}</div>
@@ -25,7 +25,7 @@ vi.mock("@/components/rec-resource-suggestion-form/SuggestionMenu", () => ({
   ),
 }));
 
-vi.mock("@shared/components/suggestion-typeahead/SuggestionTypeahead", () => ({
+vi.mock('@shared/components/suggestion-typeahead/SuggestionTypeahead', () => ({
   SuggestionTypeahead: ({
     onChange,
     onSearch,
@@ -45,7 +45,7 @@ vi.mock("@shared/components/suggestion-typeahead/SuggestionTypeahead", () => ({
       />
       {renderMenu && suggestions?.length > 0 && (
         <div data-testid="custom-menu">
-          {renderMenu(suggestions, { id: "test-menu" })}
+          {renderMenu(suggestions, { id: 'test-menu' })}
         </div>
       )}
       <ul data-testid="typeahead-suggestions">
@@ -59,7 +59,7 @@ vi.mock("@shared/components/suggestion-typeahead/SuggestionTypeahead", () => ({
           </li>
         ))}
       </ul>
-      {typeof emptyLabel === "string" && (
+      {typeof emptyLabel === 'string' && (
         <div data-testid="empty-label">{emptyLabel}</div>
       )}
       {error && (
@@ -71,16 +71,16 @@ vi.mock("@shared/components/suggestion-typeahead/SuggestionTypeahead", () => ({
   ),
 }));
 
-describe("RecreationResourceSuggestionForm", () => {
+describe('RecreationResourceSuggestionForm', () => {
   const mockNavigate = vi.fn();
 
   // Reusable test data
   const testSuggestion: RecreationResourceSuggestion = {
-    rec_resource_id: "123",
-    name: "Test Park",
-    recreation_resource_type_code: "",
-    recreation_resource_type: "",
-    district_description: "",
+    rec_resource_id: '123',
+    name: 'Test Park',
+    recreation_resource_type_code: '',
+    recreation_resource_type: '',
+    district_description: '',
   };
 
   beforeEach(() => {
@@ -91,7 +91,7 @@ describe("RecreationResourceSuggestionForm", () => {
   const mockSuggestionHook = (overrides = {}) => {
     vi.spyOn(
       suggestionHook,
-      "useGetRecreationResourceSuggestions",
+      'useGetRecreationResourceSuggestions',
     ).mockReturnValue({
       data: { suggestions: [] },
       isFetching: false,
@@ -100,7 +100,7 @@ describe("RecreationResourceSuggestionForm", () => {
     } as any);
   };
 
-  it("renders with default state", () => {
+  it('renders with default state', () => {
     mockSuggestionHook();
     render(<RecreationResourceSuggestionForm />);
 
@@ -109,54 +109,54 @@ describe("RecreationResourceSuggestionForm", () => {
     ).toBeInTheDocument();
   });
 
-  it("handles empty states correctly", async () => {
+  it('handles empty states correctly', async () => {
     mockSuggestionHook();
     render(<RecreationResourceSuggestionForm />);
 
-    const input = screen.getByTestId("typeahead-input");
+    const input = screen.getByTestId('typeahead-input');
 
     // Test short input (< 3 characters)
-    await userEvent.type(input, "ab");
-    expect(screen.getByTestId("empty-label")).toHaveTextContent(
-      "Please enter at least 3 characters to search",
+    await userEvent.type(input, 'ab');
+    expect(screen.getByTestId('empty-label')).toHaveTextContent(
+      'Please enter at least 3 characters to search',
     );
 
     // Test valid input with no results
     await userEvent.clear(input);
-    await userEvent.type(input, "park");
-    expect(screen.getByTestId("empty-label")).toHaveTextContent(
-      "No results found",
+    await userEvent.type(input, 'park');
+    expect(screen.getByTestId('empty-label')).toHaveTextContent(
+      'No results found',
     );
   });
 
-  it("shows error message when hook returns error", () => {
+  it('shows error message when hook returns error', () => {
     mockSuggestionHook({
-      error: { message: "Something went wrong", response: { status: 400 } },
+      error: { message: 'Something went wrong', response: { status: 400 } },
     });
     render(<RecreationResourceSuggestionForm />);
 
-    expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+    expect(screen.getByText('Something went wrong')).toBeInTheDocument();
   });
 
-  it("handles suggestions and navigation", async () => {
+  it('handles suggestions and navigation', async () => {
     mockSuggestionHook({
       data: { total: 1, suggestions: [testSuggestion] },
     });
 
     render(<RecreationResourceSuggestionForm />);
 
-    const input = screen.getByTestId("typeahead-input");
-    await userEvent.type(input, "test");
+    const input = screen.getByTestId('typeahead-input');
+    await userEvent.type(input, 'test');
 
     // Test navigation on selection
-    const suggestionItem = screen.getByTestId("typeahead-item");
+    const suggestionItem = screen.getByTestId('typeahead-item');
     await userEvent.click(suggestionItem);
-    expect(mockNavigate).toHaveBeenCalledWith("/rec-resource/123");
+    expect(mockNavigate).toHaveBeenCalledWith('/rec-resource/123');
 
     // Test custom menu rendering (renderMenu callback)
-    expect(screen.getByTestId("custom-menu")).toBeInTheDocument();
-    expect(screen.getByTestId("suggestion-menu")).toBeInTheDocument();
-    expect(screen.getByTestId("menu-search-term")).toHaveTextContent("test");
-    expect(screen.getByTestId("menu-item")).toHaveTextContent("Test Park");
+    expect(screen.getByTestId('custom-menu')).toBeInTheDocument();
+    expect(screen.getByTestId('suggestion-menu')).toBeInTheDocument();
+    expect(screen.getByTestId('menu-search-term')).toHaveTextContent('test');
+    expect(screen.getByTestId('menu-item')).toHaveTextContent('Test Park');
   });
 });

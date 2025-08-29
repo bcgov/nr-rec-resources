@@ -1,11 +1,11 @@
-import { ClampLines, CustomButton } from "@/components";
-import { COLOR_RED } from "@/styles/colors";
-import { faFilePdf, IconDefinition } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { FC, ReactNode } from "react";
-import { Alert, AlertProps, ButtonProps, Modal, Stack } from "react-bootstrap";
-import { GalleryFile } from "../../types";
-import "./BaseFileModal.scss";
+import { ClampLines, CustomButton } from '@/components';
+import { COLOR_RED } from '@/styles/colors';
+import { faFilePdf, IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FC, ReactNode } from 'react';
+import { Alert, AlertProps, ButtonProps, Modal, Stack } from 'react-bootstrap';
+import { GalleryFile } from '../../types';
+import './BaseFileModal.scss';
 
 interface BaseFileModalProps {
   show: boolean;
@@ -13,7 +13,7 @@ interface BaseFileModalProps {
   title: string;
   galleryFile: GalleryFile;
   alertConfig?: {
-    variant: AlertProps["variant"];
+    variant: AlertProps['variant'];
     icon: IconDefinition;
     text: string;
     iconColor?: string;
@@ -24,7 +24,7 @@ interface BaseFileModalProps {
   onConfirm?: () => void;
   confirmButtonText: string;
   confirmButtonIcon: IconDefinition;
-  confirmButtonVariant?: ButtonProps["variant"];
+  confirmButtonVariant?: ButtonProps['variant'];
   confirmButtonDisabled?: boolean;
 }
 
@@ -41,12 +41,12 @@ export const BaseFileModal: FC<BaseFileModalProps> = ({
   confirmButtonText,
   confirmButtonVariant,
   confirmButtonDisabled = false,
-  className = "",
+  className = '',
 }) => {
   if (!show) return null;
 
   // Determine if we're dealing with an image
-  const isImage = galleryFile.type === "image";
+  const isImage = galleryFile.type === 'image';
 
   // Create preview component
   const filePreview = (() => {

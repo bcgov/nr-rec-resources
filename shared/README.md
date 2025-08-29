@@ -16,7 +16,7 @@ applications. For example, to use a shared component in the admin app, you can
 do:
 
 ```typescript
-import { SharedComponent } from "@shared/components/SharedComponent";
+import { SharedComponent } from '@shared/components/SharedComponent';
 ```
 
 ## Creating new components

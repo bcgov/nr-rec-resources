@@ -1,6 +1,6 @@
-import { RecResourceOverviewSection } from "@/pages/rec-resource-page/components/RecResourceOverviewSection";
-import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
-import { Spinner } from "react-bootstrap";
+import { RecResourceOverviewSection } from '@/pages/rec-resource-page/components/RecResourceOverviewSection';
+import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
+import { Spinner } from 'react-bootstrap';
 
 const LoadingSpinner = () => (
   <div className="rec-resource-page__loading-container">

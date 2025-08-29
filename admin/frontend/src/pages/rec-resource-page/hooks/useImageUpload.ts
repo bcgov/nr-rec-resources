@@ -1,17 +1,17 @@
-import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
-import { useUploadResourceImage } from "@/services/hooks/recreation-resource-admin/useUploadResourceImage";
-import { handleApiError } from "@/services/utils/errorHandler";
+import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
+import { useUploadResourceImage } from '@/services/hooks/recreation-resource-admin/useUploadResourceImage';
+import { handleApiError } from '@/services/utils/errorHandler';
 import {
   addErrorNotification,
   addSuccessNotification,
-} from "@/store/notificationStore";
-import { useCallback } from "react";
+} from '@/store/notificationStore';
+import { useCallback } from 'react';
 import {
   addPendingImage,
   removePendingImage,
   updatePendingImage,
-} from "../store/recResourceFileTransferStore";
-import { GalleryFile, GalleryImage } from "../types";
+} from '../store/recResourceFileTransferStore';
+import { GalleryFile, GalleryImage } from '../types';
 
 /**
  * Hook to manage image upload operations.
@@ -72,8 +72,8 @@ export function useImageUpload() {
       const tempImage: GalleryImage = {
         ...galleryFile,
         variants: [],
-        previewUrl: "",
-        type: "image",
+        previewUrl: '',
+        type: 'image',
         isUploading: true,
       };
       addPendingImage(tempImage);

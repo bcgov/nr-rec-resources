@@ -1,11 +1,11 @@
-import dotenv from "dotenv";
-import axios from "axios";
-import * as fs from "fs";
-import * as path from "path";
-import { fileURLToPath } from "url";
-import assert from "node:assert/strict";
+import dotenv from 'dotenv';
+import axios from 'axios';
+import * as fs from 'fs';
+import * as path from 'path';
+import { fileURLToPath } from 'url';
+import assert from 'node:assert/strict';
 
-import pkg from "lodash";
+import pkg from 'lodash';
 
 dotenv.config();
 
@@ -21,23 +21,23 @@ async function performEachMethod(BASE_URL, testCase, method, id) {
   let url = BASE_URL + testCase.path;
   if (
     id &&
-    (method === "GET" ||
-      method === "PUT" ||
-      method === "PATCH" ||
-      method === "DELETE")
+    (method === 'GET' ||
+      method === 'PUT' ||
+      method === 'PATCH' ||
+      method === 'DELETE')
   ) {
-    if (url.endsWith("/") === false) {
-      url = url + "/" + id;
+    if (url.endsWith('/') === false) {
+      url = url + '/' + id;
     } else {
       url = url + id;
     }
   }
   let payload;
-  if (method === "POST") {
+  if (method === 'POST') {
     payload = testCase.data?.post_payload;
-  } else if (method === "PUT") {
+  } else if (method === 'PUT') {
     payload = testCase.data?.put_payload;
-  } else if (method === "PATCH") {
+  } else if (method === 'PATCH') {
     payload = testCase.data?.patch_payload;
   }
   const response = await axios({
@@ -66,7 +66,7 @@ async function performEachMethod(BASE_URL, testCase, method, id) {
       );
     }
   }
-  if (method === "POST") {
+  if (method === 'POST') {
     return responseData[testCase.data.id_field];
   }
 }
@@ -75,7 +75,7 @@ async function performTesting(testSuitesDir, testSuiteFile) {
   console.info(`Running test suite for : ${testSuiteFile}`);
   const testSuitePath = path.join(testSuitesDir, testSuiteFile);
   const testSuite = JSON.parse(
-    await fs.promises.readFile(testSuitePath, "utf-8"),
+    await fs.promises.readFile(testSuitePath, 'utf-8'),
   );
   for (const testCase of testSuite.tests) {
     let id = null;
@@ -94,7 +94,7 @@ async function performTesting(testSuitesDir, testSuiteFile) {
 }
 
 const main = async () => {
-  const testSuitesDir = path.join(__dirname, "test_suites");
+  const testSuitesDir = path.join(__dirname, 'test_suites');
   const testSuiteFiles = await fs.promises.readdir(testSuitesDir);
   const testFile = testSuiteFiles.find((file) => file.includes(apiName));
   await performTesting(testSuitesDir, testFile);

@@ -1,21 +1,21 @@
-import { formatRecreationResourceDetailResults } from "src/recreation-resource/utils/formatRecreationResourceDetailResults";
+import { formatRecreationResourceDetailResults } from 'src/recreation-resource/utils/formatRecreationResourceDetailResults';
 
 export const mockResponse = {
-  rec_resource_id: "REC203239",
-  name: "10 K SNOWMOBILE PARKING LOT",
-  closest_community: "MERRITT",
+  rec_resource_id: 'REC203239',
+  name: '10 K SNOWMOBILE PARKING LOT',
+  closest_community: 'MERRITT',
   display_on_public_site: true,
-  maintenance_standard_code: "M",
+  maintenance_standard_code: 'M',
   recreation_site_description: {
-    description: "Test description",
+    description: 'Test description',
   },
   recreation_driving_direction: {
-    description: "Test driving direction",
+    description: 'Test driving direction',
   },
   recreation_resource_type_view: [
     {
-      description: "Recreation Site",
-      rec_resource_type_code: "RS",
+      description: 'Recreation Site',
+      rec_resource_type_code: 'RS',
     },
   ],
   recreation_access: [],
@@ -23,14 +23,14 @@ export const mockResponse = {
     {
       recreation_activity: {
         recreation_activity_code: 22,
-        description: "Snowmobiling",
+        description: 'Snowmobiling',
         updated_at: new Date(),
       },
     },
   ],
   recreation_status: {
-    recreation_status_code: { description: "Closed" },
-    comment: "Closed status for REC203239",
+    recreation_status_code: { description: 'Closed' },
+    comment: 'Closed status for REC203239',
     status_code: 2,
   },
   recreation_fee: [
@@ -38,40 +38,40 @@ export const mockResponse = {
       fee_amount: 8,
       fee_start_date: new Date(),
       fee_end_date: new Date(),
-      monday_ind: "Y",
-      tuesday_ind: "Y",
-      wednesday_ind: "Y",
-      thursday_ind: "Y",
-      friday_ind: "Y",
-      saturday_ind: "N",
-      sunday_ind: "N",
-      recreation_fee_code: "P",
-      with_description: { description: "Fee description" },
+      monday_ind: 'Y',
+      tuesday_ind: 'Y',
+      wednesday_ind: 'Y',
+      thursday_ind: 'Y',
+      friday_ind: 'Y',
+      saturday_ind: 'N',
+      sunday_ind: 'N',
+      recreation_fee_code: 'P',
+      with_description: { description: 'Fee description' },
     },
     {
       fee_amount: 7,
       fee_start_date: new Date(),
       fee_end_date: new Date(),
-      monday_ind: "Y",
-      tuesday_ind: "Y",
-      wednesday_ind: "Y",
-      thursday_ind: "Y",
-      friday_ind: "Y",
-      saturday_ind: "N",
-      sunday_ind: "N",
-      recreation_fee_code: "C",
-      with_description: { description: "Fee description" },
+      monday_ind: 'Y',
+      tuesday_ind: 'Y',
+      wednesday_ind: 'Y',
+      thursday_ind: 'Y',
+      friday_ind: 'Y',
+      saturday_ind: 'N',
+      sunday_ind: 'N',
+      recreation_fee_code: 'C',
+      with_description: { description: 'Fee description' },
     },
   ],
   recreation_resource_images: [] as any,
   recreation_structure: [],
   recreation_resource_docs: [
     {
-      doc_code: "RM",
-      url: "/filestore/0/6/5/1/1_e6add31b6192a01/11560_d8bbba4218445a6.pdf",
-      title: "French Creek Map",
-      ref_id: "11560",
-      extension: "pdf",
+      doc_code: 'RM',
+      url: '/filestore/0/6/5/1/1_e6add31b6192a01/11560_d8bbba4218445a6.pdf',
+      title: 'French Creek Map',
+      ref_id: '11560',
+      extension: 'pdf',
       recreation_resource_doc_code: {} as any,
     },
   ],
@@ -79,15 +79,15 @@ export const mockResponse = {
     recreation_defined_campsite: 1,
   },
   recreation_district_code: {
-    district_code: "MERRITT",
-    description: "Merritt",
+    district_code: 'MERRITT',
+    description: 'Merritt',
   },
 };
 
 export const mockSpatialResponse = [
   {
     spatial_feature_geometry: ['{"type":"Polygon","coordinates":"test"}'],
-    site_point_geometry: "Point",
+    site_point_geometry: 'Point',
   } as any,
 ];
 
@@ -97,27 +97,27 @@ export const mockResults = {
       fee_amount: 8,
       fee_end_date: expect.any(Date),
       fee_start_date: expect.any(Date),
-      friday_ind: "Y",
-      monday_ind: "Y",
-      recreation_fee_code: "P",
-      saturday_ind: "N",
-      sunday_ind: "N",
-      thursday_ind: "Y",
-      tuesday_ind: "Y",
-      wednesday_ind: "Y",
+      friday_ind: 'Y',
+      monday_ind: 'Y',
+      recreation_fee_code: 'P',
+      saturday_ind: 'N',
+      sunday_ind: 'N',
+      thursday_ind: 'Y',
+      tuesday_ind: 'Y',
+      wednesday_ind: 'Y',
     },
   ],
-  closest_community: "MERRITT",
-  description: "Test description",
-  driving_directions: "Test driving direction",
-  maintenance_standard_code: "M",
-  name: "10 K SNOWMOBILE PARKING LOT",
-  rec_resource_id: "REC203239",
-  rec_resource_type: "Recreation Site",
+  closest_community: 'MERRITT',
+  description: 'Test description',
+  driving_directions: 'Test driving direction',
+  maintenance_standard_code: 'M',
+  name: '10 K SNOWMOBILE PARKING LOT',
+  rec_resource_id: 'REC203239',
+  rec_resource_type: 'Recreation Site',
   recreation_access: [],
   recreation_activity: [
     {
-      description: "Snowmobiling",
+      description: 'Snowmobiling',
       recreation_activity_code: 22,
     },
   ],
@@ -126,49 +126,49 @@ export const mockResults = {
       fee_amount: 7,
       fee_start_date: expect.any(Date),
       fee_end_date: expect.any(Date),
-      monday_ind: "Y",
-      tuesday_ind: "Y",
-      wednesday_ind: "Y",
-      thursday_ind: "Y",
-      friday_ind: "Y",
-      saturday_ind: "N",
-      sunday_ind: "N",
-      recreation_fee_code: "C",
-      fee_description: "Fee description",
+      monday_ind: 'Y',
+      tuesday_ind: 'Y',
+      wednesday_ind: 'Y',
+      thursday_ind: 'Y',
+      friday_ind: 'Y',
+      saturday_ind: 'N',
+      sunday_ind: 'N',
+      recreation_fee_code: 'C',
+      fee_description: 'Fee description',
     },
   ],
   campsite_count: 1,
   recreation_resource_docs: [
     {
-      doc_code: "RM",
+      doc_code: 'RM',
       doc_code_description: undefined,
-      extension: "pdf",
+      extension: 'pdf',
       recreation_resource_doc_code: {},
-      ref_id: "11560",
-      title: "French Creek Map",
-      url: "/filestore/0/6/5/1/1_e6add31b6192a01/11560_d8bbba4218445a6.pdf",
+      ref_id: '11560',
+      title: 'French Creek Map',
+      url: '/filestore/0/6/5/1/1_e6add31b6192a01/11560_d8bbba4218445a6.pdf',
     },
   ],
   recreation_resource_images: [],
   recreation_status: {
-    comment: "Closed status for REC203239",
-    description: "Closed",
+    comment: 'Closed status for REC203239',
+    description: 'Closed',
     status_code: 2,
   },
   recreation_structure: {
     has_table: false,
     has_toilet: false,
   },
-  site_point_geometry: "Point",
+  site_point_geometry: 'Point',
   spatial_feature_geometry: ['{"type":"Polygon","coordinates":"test"}'],
   recreation_district: {
-    description: "Merritt",
-    district_code: "MERRITT",
+    description: 'Merritt',
+    district_code: 'MERRITT',
   },
 };
 
-describe("formatRecreationResourceDetailResults function", () => {
-  it("should correctly format the results", () => {
+describe('formatRecreationResourceDetailResults function', () => {
+  it('should correctly format the results', () => {
     const results = formatRecreationResourceDetailResults(
       mockResponse,
       mockSpatialResponse,
@@ -176,12 +176,12 @@ describe("formatRecreationResourceDetailResults function", () => {
     expect(results).toEqual(mockResults);
   });
 
-  it("should correctly format the results with toilet and table structures", () => {
+  it('should correctly format the results with toilet and table structures', () => {
     const mockResponseCopy = {
       ...mockResponse,
       recreation_structure: [
-        { recreation_structure_code: { description: "Table - log" } },
-        { recreation_structure_code: { description: "Toilet - log" } },
+        { recreation_structure_code: { description: 'Table - log' } },
+        { recreation_structure_code: { description: 'Toilet - log' } },
       ],
     };
     const mockResultsCopy = {
@@ -198,7 +198,7 @@ describe("formatRecreationResourceDetailResults function", () => {
     expect(results).toEqual(mockResultsCopy);
   });
 
-  it("should throw an error with garbage data", () => {
+  it('should throw an error with garbage data', () => {
     expect(() => formatRecreationResourceDetailResults({} as any, [])).toThrow(
       "Cannot read properties of undefined (reading 'map')",
     );
@@ -212,12 +212,12 @@ describe("formatRecreationResourceDetailResults function", () => {
 
     expect(results.recreation_status).toEqual({
       comment: undefined,
-      description: "Open",
+      description: 'Open',
       status_code: 1,
     });
   });
 
-  it("should set recreation_district field to undefined when recreation_district_code is missing", () => {
+  it('should set recreation_district field to undefined when recreation_district_code is missing', () => {
     const mockResponseNoDistrict = {
       ...mockResponse,
       recreation_district_code: undefined,

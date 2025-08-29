@@ -16,14 +16,14 @@ documentation:
 Example usage in a controller:
 
 ```tsx
-@ApiTags("parks")
-@Controller("parks")
+@ApiTags('parks')
+@Controller('parks')
 export class ParksController {
   @Get()
-  @ApiOperation({ summary: "Get all parks" })
+  @ApiOperation({ summary: 'Get all parks' })
   @ApiResponse({
     status: 200,
-    description: "List of parks returned",
+    description: 'List of parks returned',
     type: [ParkDto],
   })
   findAll(): Promise<ParkDto[]> {

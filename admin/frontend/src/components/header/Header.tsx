@@ -1,10 +1,10 @@
-import { Avatar } from "@/components/avatar/Avatar";
-import { IconButton } from "@/components/IconButton";
-import { useAuthContext } from "@/contexts/AuthContext";
-import { Header as BCGovHeader } from "@bcgov/design-system-react-components";
-import { faBars } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { forwardRef, KeyboardEvent, MouseEvent } from "react";
+import { Avatar } from '@/components/avatar/Avatar';
+import { IconButton } from '@/components/IconButton';
+import { useAuthContext } from '@/contexts/AuthContext';
+import { Header as BCGovHeader } from '@bcgov/design-system-react-components';
+import { faBars } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { forwardRef, KeyboardEvent, MouseEvent } from 'react';
 import {
   Dropdown,
   DropdownItem,
@@ -12,8 +12,8 @@ import {
   DropdownToggle,
   Image,
   Stack,
-} from "react-bootstrap";
-import "./Header.scss";
+} from 'react-bootstrap';
+import './Header.scss';
 
 /**
  * A custom menu toggle component for the header dropdown.
@@ -35,14 +35,14 @@ const HeaderMenuToggle = forwardRef<
       props.onClick(event);
     }}
     onKeyDown={(event) => {
-      if (event.key === "Enter" || event.key === " ") {
+      if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
         props.onClick(event);
       }
     }}
   >
     <IconButton
-      className={"d-lg-none d-sm-block header__menu-button"}
+      className={'d-lg-none d-sm-block header__menu-button'}
       icon={<FontAwesomeIcon icon={faBars} />}
     />
 
@@ -78,9 +78,9 @@ export const Header = () => {
   const { user, authService } = useAuthContext();
   const fullName = authService.getUserFullName();
   return (
-    <div className={"header"}>
+    <div className={'header'}>
       <BCGovHeader
-        title={"Admin Tool"}
+        title={'Admin Tool'}
         logoImage={
           <>
             <Image
@@ -96,7 +96,7 @@ export const Header = () => {
         }
       >
         <Stack
-          direction={"horizontal"}
+          direction={'horizontal'}
           gap={3}
           className={`d-flex justify-content-end align-items-center`}
         >

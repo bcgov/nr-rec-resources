@@ -1,34 +1,34 @@
 import {
   isValidRecreationResourceSearchTerm,
   useGetRecreationResourceSuggestions,
-} from "@/services/hooks/recreation-resource-admin/useGetRecreationResourceSuggestions";
-import { SuggestionTypeahead } from "@shared/components/suggestion-typeahead/SuggestionTypeahead";
-import { RecreationResourceSuggestion } from "@shared/components/suggestion-typeahead/types";
-import { useCallback, useState } from "react";
-import { Stack } from "react-bootstrap";
-import "react-bootstrap-typeahead/css/Typeahead.css";
-import Form from "react-bootstrap/Form";
-import { useNavigate } from "react-router";
-import "./RecreationResourceSuggestionForm.scss";
+} from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceSuggestions';
+import { SuggestionTypeahead } from '@shared/components/suggestion-typeahead/SuggestionTypeahead';
+import { RecreationResourceSuggestion } from '@shared/components/suggestion-typeahead/types';
+import { useCallback, useState } from 'react';
+import { Stack } from 'react-bootstrap';
+import 'react-bootstrap-typeahead/css/Typeahead.css';
+import Form from 'react-bootstrap/Form';
+import { useNavigate } from 'react-router';
+import './RecreationResourceSuggestionForm.scss';
 
-import { SuggestionMenu } from "@/components/rec-resource-suggestion-form/SuggestionMenu";
-import { ROUTE_PATHS } from "@/routes/constants";
+import { SuggestionMenu } from '@/components/rec-resource-suggestion-form/SuggestionMenu';
+import { ROUTE_PATHS } from '@/routes/constants';
 import {
   RenderMenuProps,
   TypeaheadComponentProps,
-} from "react-bootstrap-typeahead";
-import { Option } from "react-bootstrap-typeahead/types/types";
+} from 'react-bootstrap-typeahead';
+import { Option } from 'react-bootstrap-typeahead/types/types';
 
 /**
  * RecreationResourceSuggestionForm provides a search form for recreation resources.
  */
 export const RecreationResourceSuggestionForm = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
 
   /**
    * Custom menu renderer for resource suggestions.
    */
-  const renderMenu: TypeaheadComponentProps["renderMenu"] = useCallback(
+  const renderMenu: TypeaheadComponentProps['renderMenu'] = useCallback(
     (results: Option[], menuProps: RenderMenuProps) => (
       <SuggestionMenu
         results={results as RecreationResourceSuggestion[]}
@@ -49,7 +49,7 @@ export const RecreationResourceSuggestionForm = () => {
 
   const handleSuggestionChange = (suggestion: RecreationResourceSuggestion) => {
     navigate(
-      ROUTE_PATHS.REC_RESOURCE_PAGE.replace(":id", suggestion.rec_resource_id),
+      ROUTE_PATHS.REC_RESOURCE_PAGE.replace(':id', suggestion.rec_resource_id),
     );
   };
 
@@ -65,9 +65,9 @@ export const RecreationResourceSuggestionForm = () => {
       );
     }
     if (!isValidRecreationResourceSearchTerm(searchTerm)) {
-      return "Please enter at least 3 characters to search";
+      return 'Please enter at least 3 characters to search';
     }
-    return "No results found";
+    return 'No results found';
   };
 
   return (

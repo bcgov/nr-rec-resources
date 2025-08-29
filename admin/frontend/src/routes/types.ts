@@ -1,5 +1,5 @@
-import { RecResourceNavKey } from "@/pages/rec-resource-page";
-import { RouteHandle } from "@shared/index";
+import { RecResourceNavKey } from '@/pages/rec-resource-page';
+import { RouteHandle } from '@shared/index';
 
 export interface RecResourcePageRouteHandle<TContext>
   extends RouteHandle<TContext> {

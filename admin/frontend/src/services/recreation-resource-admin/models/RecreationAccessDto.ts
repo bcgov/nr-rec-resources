@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from "../runtime";
+import { mapValues } from '../runtime';
 /**
  *
  * @export
@@ -66,14 +66,14 @@ export function RecreationAccessDtoFromJSONTyped(
     return json;
   }
   return {
-    access_code: json["access_code"] == null ? undefined : json["access_code"],
-    description: json["description"] == null ? undefined : json["description"],
+    access_code: json['access_code'] == null ? undefined : json['access_code'],
+    description: json['description'] == null ? undefined : json['description'],
     sub_access_code:
-      json["sub_access_code"] == null ? undefined : json["sub_access_code"],
+      json['sub_access_code'] == null ? undefined : json['sub_access_code'],
     sub_access_description:
-      json["sub_access_description"] == null
+      json['sub_access_description'] == null
         ? undefined
-        : json["sub_access_description"],
+        : json['sub_access_description'],
   };
 }
 
@@ -90,9 +90,9 @@ export function RecreationAccessDtoToJSONTyped(
   }
 
   return {
-    access_code: value["access_code"],
-    description: value["description"],
-    sub_access_code: value["sub_access_code"],
-    sub_access_description: value["sub_access_description"],
+    access_code: value['access_code'],
+    description: value['description'],
+    sub_access_code: value['sub_access_code'],
+    sub_access_description: value['sub_access_description'],
   };
 }

@@ -1,6 +1,6 @@
-import { Prisma } from "@prisma/client";
-import { FilterTypes } from "../service/types";
-import { EXCLUDED_ACTIVITY_CODES } from "../constants/service.constants";
+import { Prisma } from '@prisma/client';
+import { FilterTypes } from '../service/types';
+import { EXCLUDED_ACTIVITY_CODES } from '../constants/service.constants';
 
 export interface BuildFilterOptionCountsQueryOptions {
   whereClause: Prisma.Sql;
@@ -12,16 +12,16 @@ export interface BuildFilterOptionCountsQueryOptions {
 
 export function buildFilterOptionCountsQuery({
   whereClause,
-  searchText = "",
+  searchText = '',
   filterTypes,
   lat,
   lon,
 }: BuildFilterOptionCountsQueryOptions): Prisma.Sql {
   const textSearchCondition = searchText
-    ? Prisma.sql` AND (name ilike ${"%" + searchText + "%"} or closest_community ilike ${"%" + searchText + "%"})`
+    ? Prisma.sql` AND (name ilike ${'%' + searchText + '%'} or closest_community ilike ${'%' + searchText + '%'})`
     : Prisma.empty;
   const locationFilter =
-    typeof lat === "number" && typeof lon === "number"
+    typeof lat === 'number' && typeof lon === 'number'
       ? Prisma.sql`AND public.ST_DWithin(
         recreation_site_point,
         public.ST_Transform(public.ST_SetSRID(public.ST_MakePoint(${lon}, ${lat}), 4326), 3005),

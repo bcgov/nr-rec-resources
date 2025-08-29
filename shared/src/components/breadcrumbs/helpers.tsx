@@ -1,9 +1,9 @@
-import { Link } from "react-router-dom";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHouse } from "@fortawesome/free-solid-svg-icons";
-import { BreadcrumbItem } from "./types";
-import { BreadcrumbItemProps } from "react-bootstrap";
-import { ReactNode } from "react";
+import { Link } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faHouse } from '@fortawesome/free-solid-svg-icons';
+import { BreadcrumbItem } from './types';
+import { BreadcrumbItemProps } from 'react-bootstrap';
+import { ReactNode } from 'react';
 
 /**
  * Render breadcrumb label with optional home icon
@@ -36,11 +36,11 @@ export function getBreadcrumbItemProps(
   const isActive = item.isCurrent || isLast;
 
   return {
-    linkAs: item.href && !isActive ? Link : "span",
+    linkAs: item.href && !isActive ? Link : 'span',
     linkProps:
-      item.href && !isActive ? { to: item.href, "aria-label": item.label } : {},
+      item.href && !isActive ? { to: item.href, 'aria-label': item.label } : {},
     active: isActive,
-    ...(isActive && { "aria-current": "page" }),
+    ...(isActive && { 'aria-current': 'page' }),
   };
 }
 

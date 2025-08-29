@@ -13,13 +13,13 @@
  */
 /* tslint:disable:no-unused-variable member-ordering */
 
-import { Injectable, Optional } from "@nestjs/common";
-import { HttpService } from "@nestjs/axios";
-import { AxiosResponse } from "axios";
-import { Observable, from, of, switchMap } from "rxjs";
-import { ClientPublicViewDto } from "../model/clientPublicViewDto";
-import { Configuration } from "../configuration";
-import { COLLECTION_FORMATS } from "../variables";
+import { Injectable, Optional } from '@nestjs/common';
+import { HttpService } from '@nestjs/axios';
+import { AxiosResponse } from 'axios';
+import { Observable, from, of, switchMap } from 'rxjs';
+import { ClientPublicViewDto } from '../model/clientPublicViewDto';
+import { Configuration } from '../configuration';
+import { COLLECTION_FORMATS } from '../variables';
 
 @Injectable()
 export class ClientSearchAPIService {
@@ -42,7 +42,7 @@ export class ClientSearchAPIService {
    * @return true: consumes contains 'multipart/form-data', false: otherwise
    */
   private canConsumeForm(consumes: string[]): boolean {
-    const form = "multipart/form-data";
+    const form = 'multipart/form-data';
     return consumes.includes(form);
   }
 
@@ -76,40 +76,40 @@ export class ClientSearchAPIService {
   ): Observable<any> {
     if (xAPIKEY === null || xAPIKEY === undefined) {
       throw new Error(
-        "Required parameter xAPIKEY was null or undefined when calling searchByAcronymNameNumber.",
+        'Required parameter xAPIKEY was null or undefined when calling searchByAcronymNameNumber.',
       );
     }
 
     let queryParameters = new URLSearchParams();
     if (page !== undefined && page !== null) {
-      queryParameters.append("page", <any>page);
+      queryParameters.append('page', <any>page);
     }
     if (size !== undefined && size !== null) {
-      queryParameters.append("size", <any>size);
+      queryParameters.append('size', <any>size);
     }
     if (name !== undefined && name !== null) {
-      queryParameters.append("name", <any>name);
+      queryParameters.append('name', <any>name);
     }
     if (acronym !== undefined && acronym !== null) {
-      queryParameters.append("acronym", <any>acronym);
+      queryParameters.append('acronym', <any>acronym);
     }
     if (number !== undefined && number !== null) {
-      queryParameters.append("number", <any>number);
+      queryParameters.append('number', <any>number);
     }
 
     let headers = { ...this.defaultHeaders };
     if (xAPIKEY !== undefined && xAPIKEY !== null) {
-      headers["X-API-KEY"] = String(xAPIKEY);
+      headers['X-API-KEY'] = String(xAPIKEY);
     }
 
     let accessTokenObservable: Observable<any> = of(null);
 
     // to determine the Accept header
-    let httpHeaderAccepts: string[] = ["application/json"];
+    let httpHeaderAccepts: string[] = ['application/json'];
     const httpHeaderAcceptSelected: string | undefined =
       this.configuration.selectHeaderAccept(httpHeaderAccepts);
     if (httpHeaderAcceptSelected != undefined) {
-      headers["Accept"] = httpHeaderAcceptSelected;
+      headers['Accept'] = httpHeaderAcceptSelected;
     }
 
     // to determine the Content-Type header
@@ -117,7 +117,7 @@ export class ClientSearchAPIService {
     return accessTokenObservable.pipe(
       switchMap((accessToken) => {
         if (accessToken) {
-          headers["Authorization"] = `Bearer ${accessToken}`;
+          headers['Authorization'] = `Bearer ${accessToken}`;
         }
 
         return this.httpClient.get<Array<ClientPublicViewDto>>(
@@ -155,36 +155,36 @@ export class ClientSearchAPIService {
   ): Observable<any> {
     if (xAPIKEY === null || xAPIKEY === undefined) {
       throw new Error(
-        "Required parameter xAPIKEY was null or undefined when calling searchClients.",
+        'Required parameter xAPIKEY was null or undefined when calling searchClients.',
       );
     }
 
     let queryParameters = new URLSearchParams();
     if (page !== undefined && page !== null) {
-      queryParameters.append("page", <any>page);
+      queryParameters.append('page', <any>page);
     }
     if (size !== undefined && size !== null) {
-      queryParameters.append("size", <any>size);
+      queryParameters.append('size', <any>size);
     }
     if (id) {
       id.forEach((element) => {
-        queryParameters.append("id", <any>element);
+        queryParameters.append('id', <any>element);
       });
     }
 
     let headers = { ...this.defaultHeaders };
     if (xAPIKEY !== undefined && xAPIKEY !== null) {
-      headers["X-API-KEY"] = String(xAPIKEY);
+      headers['X-API-KEY'] = String(xAPIKEY);
     }
 
     let accessTokenObservable: Observable<any> = of(null);
 
     // to determine the Accept header
-    let httpHeaderAccepts: string[] = ["application/json"];
+    let httpHeaderAccepts: string[] = ['application/json'];
     const httpHeaderAcceptSelected: string | undefined =
       this.configuration.selectHeaderAccept(httpHeaderAccepts);
     if (httpHeaderAcceptSelected != undefined) {
-      headers["Accept"] = httpHeaderAcceptSelected;
+      headers['Accept'] = httpHeaderAcceptSelected;
     }
 
     // to determine the Content-Type header
@@ -192,7 +192,7 @@ export class ClientSearchAPIService {
     return accessTokenObservable.pipe(
       switchMap((accessToken) => {
         if (accessToken) {
-          headers["Authorization"] = `Bearer ${accessToken}`;
+          headers['Authorization'] = `Bearer ${accessToken}`;
         }
 
         return this.httpClient.get<Array<ClientPublicViewDto>>(

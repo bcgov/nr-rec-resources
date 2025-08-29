@@ -1,6 +1,6 @@
-import { createRetryHandler } from "@/services/hooks/recreation-resource-admin/helpers";
-import { useMutation } from "@tanstack/react-query";
-import { useRecreationResourceAdminApiClient } from "./useRecreationResourceAdminApiClient";
+import { createRetryHandler } from '@/services/hooks/recreation-resource-admin/helpers';
+import { useMutation } from '@tanstack/react-query';
+import { useRecreationResourceAdminApiClient } from './useRecreationResourceAdminApiClient';
 
 export interface UploadResourceImageParams {
   recResourceId: string;

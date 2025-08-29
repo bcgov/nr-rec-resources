@@ -1,6 +1,6 @@
-import { ReactNode } from "react";
-import { Accordion } from "react-bootstrap";
-import "./StyledAccordion.scss";
+import { ReactNode } from 'react';
+import { Accordion } from 'react-bootstrap';
+import './StyledAccordion.scss';
 
 export interface StyledAccordionProps {
   eventKey: string;
@@ -13,7 +13,7 @@ export const StyledAccordion = ({
   eventKey,
   title,
   children,
-  className = "",
+  className = '',
 }: StyledAccordionProps) => (
   <Accordion
     defaultActiveKey={eventKey}

@@ -3,11 +3,11 @@ import {
   addSpinnerNotification,
   addSuccessNotification,
   removeNotification,
-} from "@/store/notificationStore";
-import { downloadUrlAsFile } from "@/utils/fileUtils";
-import { useMutation } from "@tanstack/react-query";
-import { updateGalleryDocument } from "../store/recResourceFileTransferStore";
-import { GalleryFile } from "../types";
+} from '@/store/notificationStore';
+import { downloadUrlAsFile } from '@/utils/fileUtils';
+import { useMutation } from '@tanstack/react-query';
+import { updateGalleryDocument } from '../store/recResourceFileTransferStore';
+import { GalleryFile } from '../types';
 
 /**
  * React hook for downloading a file and showing notifications for success or error.

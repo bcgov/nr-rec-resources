@@ -116,7 +116,7 @@ metadata:
   name: pipeline-token-<name>
   namespace: <ns>-<env>
   annotations:
-    kubernetes.io/service-account.name: "pipeline"
+    kubernetes.io/service-account.name: 'pipeline'
 type: kubernetes.io/service-account-token
 ```
 

@@ -1,1 +1,1 @@
-export * from "./RecResourceOverviewSection";
+export * from './RecResourceOverviewSection';
