@@ -104,5 +104,7 @@ export const formatRecreationResourceDetailResults = (
     spatial_feature_geometry: spatialFeatures?.spatial_feature_geometry,
     site_point_geometry: spatialFeatures?.site_point_geometry,
     recreation_district: recreationDistrict,
+    recreation_resource_reservation_info:
+      result.recreation_resource_reservation_info,
   };
 };

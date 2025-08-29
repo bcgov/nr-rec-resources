@@ -103,6 +103,7 @@ const RecResourcePage = () => {
     site_point_geometry,
     recreation_resource_docs,
     spatial_feature_geometry,
+    recreation_resource_reservation_info,
   } = recResource || {};
 
   const formattedName = name
@@ -228,6 +229,21 @@ const RecResourcePage = () => {
                   description={statusDescription}
                   statusCode={statusCode}
                 />
+              )}
+              {recreation_resource_reservation_info && (
+                <div className="icon-container mb-4">
+                  <img
+                    alt="Location dot icon"
+                    src={locationDot}
+                    height={24}
+                    width={24}
+                  />{' '}
+                  <span>
+                    {
+                      recreation_resource_reservation_info?.reservation_instructions
+                    }
+                  </span>
+                </div>
               )}
             </section>
           </div>
