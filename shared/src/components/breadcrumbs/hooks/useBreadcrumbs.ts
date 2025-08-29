@@ -2,10 +2,10 @@
  * Generic breadcrumb hook that can be used across different projects
  */
 
-import { useEffect, useCallback } from "react";
-import { useLocation, useMatches, Location } from "react-router-dom";
-import { setBreadcrumbs, useBreadcrumbState } from "../store/breadcrumbStore";
-import { BreadcrumbItem, RouteHandle } from "../types";
+import { useEffect, useCallback } from 'react';
+import { useLocation, useMatches, Location } from 'react-router-dom';
+import { setBreadcrumbs, useBreadcrumbState } from '../store/breadcrumbStore';
+import { BreadcrumbItem, RouteHandle } from '../types';
 
 export interface UseBreadcrumbsOptions<T = Record<string, any>> {
   context?: T;
@@ -47,12 +47,12 @@ export function useBreadcrumbs<T = Record<string, any>>({
         .reverse()
         .find((match) => {
           const handle = match.handle as RouteHandle<T>;
-          return handle?.breadcrumb && typeof handle.breadcrumb === "function";
+          return handle?.breadcrumb && typeof handle.breadcrumb === 'function';
         });
 
       if (lastMatchWithBreadcrumb) {
         const handle = lastMatchWithBreadcrumb.handle as RouteHandle<T>;
-        if (handle?.breadcrumb && typeof handle.breadcrumb === "function") {
+        if (handle?.breadcrumb && typeof handle.breadcrumb === 'function') {
           const breadcrumbs = handle.breadcrumb(context);
           setBreadcrumbs(breadcrumbs);
           return;
@@ -70,7 +70,7 @@ export function useBreadcrumbs<T = Record<string, any>>({
       setBreadcrumbs([]);
     } catch (error) {
       // Handle errors gracefully by setting empty breadcrumbs
-      console.warn("Error generating breadcrumbs:", error);
+      console.warn('Error generating breadcrumbs:', error);
       setBreadcrumbs([]);
     }
   }, [

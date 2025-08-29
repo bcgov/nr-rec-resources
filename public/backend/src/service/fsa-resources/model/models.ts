@@ -1,2 +1,2 @@
-export * from "./clientLocationDto";
-export * from "./clientPublicViewDto";
+export * from './clientLocationDto';
+export * from './clientPublicViewDto';

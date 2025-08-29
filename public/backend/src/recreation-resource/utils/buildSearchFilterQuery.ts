@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from '@prisma/client';
 
 export interface FilterOptions {
   searchText?: string;
@@ -25,15 +25,15 @@ export const buildSearchFilterQuery = ({
   lat,
   lon,
 }: FilterOptions) => {
-  const activityFilter = activities?.split("_").map(Number) ?? [];
-  const typeFilter = type?.split("_").map(String) ?? [];
-  const districtFilter = district?.split("_").map(String) ?? [];
-  const accessFilter = access?.split("_").map(String) ?? [];
-  const facilityFilter = facilities?.split("_").map(String) ?? [];
+  const activityFilter = activities?.split('_').map(Number) ?? [];
+  const typeFilter = type?.split('_').map(String) ?? [];
+  const districtFilter = district?.split('_').map(String) ?? [];
+  const accessFilter = access?.split('_').map(String) ?? [];
+  const facilityFilter = facilities?.split('_').map(String) ?? [];
 
   // Conditional filter for searchText
   const textSearchFilterQuery = searchText
-    ? Prisma.sql`(name ilike ${"%" + searchText + "%"} or closest_community ilike ${"%" + searchText + "%"})`
+    ? Prisma.sql`(name ilike ${'%' + searchText + '%'} or closest_community ilike ${'%' + searchText + '%'})`
     : Prisma.empty;
 
   const accessFilterQuery =
@@ -77,18 +77,18 @@ export const buildSearchFilterQuery = ({
             facilityFilter.map(
               (f) => Prisma.sql`
                 COUNT(*) FILTER (
-                  WHERE facility->>'description' ILIKE ${"%" + f + "%"}
+                  WHERE facility->>'description' ILIKE ${'%' + f + '%'}
                 ) > 0
               `,
             ),
-            " AND ",
+            ' AND ',
           )}
         ) AS filtered_resources
       ) > 0`
       : Prisma.empty;
 
   const locationFilterQuery =
-    typeof lat === "number" && typeof lon === "number"
+    typeof lat === 'number' && typeof lon === 'number'
       ? Prisma.sql`public.ST_DWithin(
         recreation_site_point,
         public.ST_Transform(public.ST_SetSRID(public.ST_MakePoint(${lon}, ${lat}), 4326), 3005),
@@ -107,6 +107,6 @@ export const buildSearchFilterQuery = ({
   ].filter((sql) => sql !== Prisma.empty); // Remove empty conditions
 
   return conditions.length
-    ? Prisma.sql`where ${Prisma.join(conditions, " and ")}`
+    ? Prisma.sql`where ${Prisma.join(conditions, ' and ')}`
     : Prisma.empty;
 };

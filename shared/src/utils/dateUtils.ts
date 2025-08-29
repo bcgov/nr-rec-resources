@@ -26,7 +26,7 @@ const parseDate = (date: DateInput): Date | null => {
 /**
  * Default locale for formatting
  */
-export const DEFAULT_LOCALE = "en-CA";
+export const DEFAULT_LOCALE = 'en-CA';
 
 /**
  * Predefined format configurations for common date formats
@@ -34,27 +34,27 @@ export const DEFAULT_LOCALE = "en-CA";
 const DATE_FORMAT_CONFIGS = {
   iso: {
     locale: DEFAULT_LOCALE,
-    options: { year: "numeric", month: "2-digit", day: "2-digit" } as const,
+    options: { year: 'numeric', month: '2-digit', day: '2-digit' } as const,
   },
   readable: {
     locale: DEFAULT_LOCALE,
-    options: { year: "numeric", month: "short", day: "numeric" } as const,
+    options: { year: 'numeric', month: 'short', day: 'numeric' } as const,
   },
   full: {
     locale: DEFAULT_LOCALE,
-    options: { year: "numeric", month: "long", day: "numeric" } as const,
+    options: { year: 'numeric', month: 'long', day: 'numeric' } as const,
   },
   short: {
     locale: DEFAULT_LOCALE,
-    options: { year: "2-digit", month: "2-digit", day: "2-digit" } as const,
+    options: { year: '2-digit', month: '2-digit', day: '2-digit' } as const,
   },
   yearMonth: {
     locale: DEFAULT_LOCALE,
-    options: { year: "numeric", month: "2-digit" } as const,
+    options: { year: 'numeric', month: '2-digit' } as const,
   },
   monthYear: {
     locale: DEFAULT_LOCALE,
-    options: { year: "numeric", month: "short" } as const,
+    options: { year: 'numeric', month: 'short' } as const,
   },
 } as const;
 

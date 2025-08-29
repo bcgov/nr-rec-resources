@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from "../runtime";
+import { mapValues } from '../runtime';
 /**
  *
  * @export
@@ -40,11 +40,11 @@ export function instanceOfRecreationActivityDto(
   value: object,
 ): value is RecreationActivityDto {
   if (
-    !("recreation_activity_code" in value) ||
-    value["recreation_activity_code"] === undefined
+    !('recreation_activity_code' in value) ||
+    value['recreation_activity_code'] === undefined
   )
     return false;
-  if (!("description" in value) || value["description"] === undefined)
+  if (!('description' in value) || value['description'] === undefined)
     return false;
   return true;
 }
@@ -63,8 +63,8 @@ export function RecreationActivityDtoFromJSONTyped(
     return json;
   }
   return {
-    recreation_activity_code: json["recreation_activity_code"],
-    description: json["description"],
+    recreation_activity_code: json['recreation_activity_code'],
+    description: json['description'],
   };
 }
 
@@ -81,7 +81,7 @@ export function RecreationActivityDtoToJSONTyped(
   }
 
   return {
-    recreation_activity_code: value["recreation_activity_code"],
-    description: value["description"],
+    recreation_activity_code: value['recreation_activity_code'],
+    description: value['description'],
   };
 }

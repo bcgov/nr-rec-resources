@@ -1,4 +1,4 @@
-import { Stack } from "react-bootstrap";
+import { Stack } from 'react-bootstrap';
 
 type RecResourceOverviewItemProps =
   | {

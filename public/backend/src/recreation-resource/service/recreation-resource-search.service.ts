@@ -1,15 +1,15 @@
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "src/prisma.service";
-import { buildFilterMenu } from "src/recreation-resource/utils/buildFilterMenu";
-import { buildSearchFilterQuery } from "src/recreation-resource/utils/buildSearchFilterQuery";
-import { formatSearchResults } from "src/recreation-resource/utils/formatSearchResults";
-import { PaginatedRecreationResourceDto } from "src/recreation-resource/dto/paginated-recreation-resource.dto";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma.service';
+import { buildFilterMenu } from 'src/recreation-resource/utils/buildFilterMenu';
+import { buildSearchFilterQuery } from 'src/recreation-resource/utils/buildSearchFilterQuery';
+import { formatSearchResults } from 'src/recreation-resource/utils/formatSearchResults';
+import { PaginatedRecreationResourceDto } from 'src/recreation-resource/dto/paginated-recreation-resource.dto';
 import {
   AggregatedRecordCount,
   FilterTypes,
-} from "src/recreation-resource/service/types";
-import { buildFilterOptionCountsQuery } from "../utils/buildSearchFilterOptionCountsQuery";
-import { buildRecreationResourcePageQuery } from "../utils/buildRecreationResourcePageQuery";
+} from 'src/recreation-resource/service/types';
+import { buildFilterOptionCountsQuery } from '../utils/buildSearchFilterOptionCountsQuery';
+import { buildRecreationResourcePageQuery } from '../utils/buildRecreationResourcePageQuery';
 
 @Injectable()
 export class RecreationResourceSearchService {
@@ -20,7 +20,7 @@ export class RecreationResourceSearchService {
 
   async searchRecreationResources(
     page: number = 1,
-    searchText: string = "",
+    searchText: string = '',
     limit?: number,
     activities?: string,
     type?: string,
@@ -47,7 +47,7 @@ export class RecreationResourceSearchService {
     });
 
     if ((lat && !lon) || (lon && !lat)) {
-      throw new Error("Both lat and lon must be provided");
+      throw new Error('Both lat and lon must be provided');
     }
 
     // Build the where clause for filtering
@@ -84,14 +84,14 @@ export class RecreationResourceSearchService {
     ]);
 
     const unpaginatedIds =
-      filterResults.find((row) => row.type === "ids")?.rec_resource_ids ?? [];
+      filterResults.find((row) => row.type === 'ids')?.rec_resource_ids ?? [];
 
     const extentGeoJson = filterResults.find(
-      (row) => row.type === "extent",
+      (row) => row.type === 'extent',
     )?.extent;
 
     const aggregatedCounts: AggregatedRecordCount[] = filterResults.filter(
-      (row) => row.type !== "ids" && row.type !== "extent",
+      (row) => row.type !== 'ids' && row.type !== 'extent',
     );
 
     return this.formatResults(

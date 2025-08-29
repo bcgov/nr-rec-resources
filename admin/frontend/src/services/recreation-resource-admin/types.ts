@@ -1,4 +1,4 @@
-import { RecreationResourceDetailDto } from "@/services/recreation-resource-admin/models";
+import { RecreationResourceDetailDto } from '@/services/recreation-resource-admin/models';
 
 /**
  * Extended detail for a recreation resource.

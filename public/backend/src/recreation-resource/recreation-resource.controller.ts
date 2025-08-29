@@ -1,24 +1,24 @@
-import { Controller, Get, HttpException, Param, Query } from "@nestjs/common";
+import { Controller, Get, HttpException, Param, Query } from '@nestjs/common';
 import {
   ApiOperation,
   ApiParam,
   ApiQuery,
   ApiResponse,
   ApiTags,
-} from "@nestjs/swagger";
-import { RecreationResourceService } from "src/recreation-resource/service/recreation-resource.service";
-import { PaginatedRecreationResourceDto } from "./dto/paginated-recreation-resource.dto";
-import { RecreationResourceImageSize } from "./dto/recreation-resource-image.dto";
-import { ParseImageSizesPipe } from "./pipes/parse-image-sizes.pipe";
-import { RecreationSuggestionDto } from "src/recreation-resource/dto/recreation-resource-suggestion.dto";
+} from '@nestjs/swagger';
+import { RecreationResourceService } from 'src/recreation-resource/service/recreation-resource.service';
+import { PaginatedRecreationResourceDto } from './dto/paginated-recreation-resource.dto';
+import { RecreationResourceImageSize } from './dto/recreation-resource-image.dto';
+import { ParseImageSizesPipe } from './pipes/parse-image-sizes.pipe';
+import { RecreationSuggestionDto } from 'src/recreation-resource/dto/recreation-resource-suggestion.dto';
 import {
   RecreationResourceDetailDto,
   SiteOperatorDto,
-} from "./dto/recreation-resource.dto";
-import { FsaResourceService } from "./service/fsa-resource.service";
+} from './dto/recreation-resource.dto';
+import { FsaResourceService } from './service/fsa-resource.service';
 
-@ApiTags("recreation-resource")
-@Controller({ path: "recreation-resource", version: "1" })
+@ApiTags('recreation-resource')
+@Controller({ path: 'recreation-resource', version: '1' })
 export class RecreationResourceController {
   constructor(
     private readonly recreationResourceService: RecreationResourceService,
@@ -26,94 +26,94 @@ export class RecreationResourceController {
   ) {}
 
   @ApiOperation({
-    summary: "Search recreation resources",
-    operationId: "searchRecreationResources",
+    summary: 'Search recreation resources',
+    operationId: 'searchRecreationResources',
     description: `
       Returns a paginated list of recreation resources and related data (result counts, filters, extent).
       The unpaginated summary data (counts, filters, extent) is based on the first 5000 matching records only, due
       to internal limits for performance reasons. This limit does not affect the main paginated resource list.`,
   })
   @ApiQuery({
-    name: "filter",
+    name: 'filter',
     required: false,
     type: String,
-    description: "Search filter",
+    description: 'Search filter',
   })
   @ApiQuery({
-    name: "limit",
+    name: 'limit',
     required: false,
     type: Number,
-    description: "Number of items per page",
+    description: 'Number of items per page',
   })
   @ApiQuery({
-    name: "page",
+    name: 'page',
     required: false,
     type: Number,
-    description: "Page number",
+    description: 'Page number',
   })
   @ApiQuery({
-    name: "activities",
+    name: 'activities',
     required: false,
     type: String,
-    description: "Recreation activities",
+    description: 'Recreation activities',
   })
   @ApiQuery({
-    name: "type",
+    name: 'type',
     required: false,
     type: String,
-    description: "Recreation resource type",
+    description: 'Recreation resource type',
   })
   @ApiQuery({
-    name: "district",
+    name: 'district',
     required: false,
     type: String,
-    description: "Recreation district",
+    description: 'Recreation district',
   })
   @ApiQuery({
-    name: "access",
+    name: 'access',
     required: false,
     type: String,
-    description: "Recreation resource access type",
+    description: 'Recreation resource access type',
   })
   @ApiQuery({
-    name: "facilities",
+    name: 'facilities',
     required: false,
     type: String,
-    description: "Recreation resource facilities",
+    description: 'Recreation resource facilities',
   })
   @ApiQuery({
-    name: "lat",
+    name: 'lat',
     required: false,
     type: Number,
-    description: "Latitude for location-based search",
+    description: 'Latitude for location-based search',
   })
   @ApiQuery({
-    name: "lon",
+    name: 'lon',
     required: false,
     type: Number,
-    description: "Longitude for location-based search",
+    description: 'Longitude for location-based search',
   })
   @ApiResponse({
     status: 200,
-    description: "Resources found",
+    description: 'Resources found',
     type: PaginatedRecreationResourceDto,
   })
-  @Get("search") // it must be ahead Get(":id") to avoid conflict
+  @Get('search') // it must be ahead Get(":id") to avoid conflict
   async searchRecreationResources(
-    @Query("filter") filter: string = "",
-    @Query("limit") limit?: number,
-    @Query("page") page: number = 1,
-    @Query("activities") activities?: string,
-    @Query("type") type?: string,
-    @Query("district") district?: string,
-    @Query("access") access?: string,
-    @Query("facilities") facilities?: string,
-    @Query("lat") lat?: number,
-    @Query("lon") lon?: number,
+    @Query('filter') filter: string = '',
+    @Query('limit') limit?: number,
+    @Query('page') page: number = 1,
+    @Query('activities') activities?: string,
+    @Query('type') type?: string,
+    @Query('district') district?: string,
+    @Query('access') access?: string,
+    @Query('facilities') facilities?: string,
+    @Query('lat') lat?: number,
+    @Query('lon') lon?: number,
   ): Promise<PaginatedRecreationResourceDto> {
     return await this.recreationResourceService.searchRecreationResources(
       page,
-      filter ?? "",
+      filter ?? '',
       limit ? parseInt(String(limit)) : undefined,
       activities,
       type,
@@ -125,26 +125,26 @@ export class RecreationResourceController {
     );
   }
 
-  @Get("suggestions")
+  @Get('suggestions')
   @ApiOperation({
-    summary: "Get search suggestions",
-    operationId: "getRecreationSuggestions",
+    summary: 'Get search suggestions',
+    operationId: 'getRecreationSuggestions',
     description:
-      "Returns a list of suggested recreation resources based on a partial search term.",
+      'Returns a list of suggested recreation resources based on a partial search term.',
   })
   @ApiQuery({
-    name: "query",
+    name: 'query',
     required: true,
     type: String,
-    description: "Partial name or keyword to suggest resources for",
+    description: 'Partial name or keyword to suggest resources for',
   })
   @ApiResponse({
     status: 200,
-    description: "List of suggested resources",
+    description: 'List of suggested resources',
     type: [RecreationSuggestionDto],
   })
   async getSuggestions(
-    @Query("query") query: string,
+    @Query('query') query: string,
   ): Promise<RecreationSuggestionDto[]> {
     if (!query || query.trim().length === 0) {
       throw new HttpException("Query parameter 'query' is required", 400);
@@ -153,38 +153,38 @@ export class RecreationResourceController {
     return this.recreationResourceService.getSuggestions(query);
   }
 
-  @Get(":id")
+  @Get(':id')
   @ApiOperation({
-    summary: "Find recreation resource by ID",
-    operationId: "getRecreationResourceById",
+    summary: 'Find recreation resource by ID',
+    operationId: 'getRecreationResourceById',
   })
   @ApiParam({
-    name: "id",
+    name: 'id',
     required: true,
-    description: "Resource identifier",
-    type: "string",
-    example: "REC204117",
+    description: 'Resource identifier',
+    type: 'string',
+    example: 'REC204117',
   })
   @ApiQuery({
-    name: "imageSizeCodes",
+    name: 'imageSizeCodes',
     required: false,
     enum: RecreationResourceImageSize,
     type: () => RecreationResourceImageSize,
     isArray: true,
     description:
-      "Comma separated list of image sizes codes to be returned for the " +
-      "recreation resource. You can pass a single status or multiple size codes separated by commas.",
+      'Comma separated list of image sizes codes to be returned for the ' +
+      'recreation resource. You can pass a single status or multiple size codes separated by commas.',
   })
   @ApiResponse({
     status: 200,
-    description: "Resource found",
+    description: 'Resource found',
     type: RecreationResourceDetailDto,
   })
-  @ApiResponse({ status: 404, description: "Resource not found" })
+  @ApiResponse({ status: 404, description: 'Resource not found' })
   async findOne(
-    @Param("id") id: string,
+    @Param('id') id: string,
     @Query(
-      "imageSizeCodes",
+      'imageSizeCodes',
       new ParseImageSizesPipe([RecreationResourceImageSize.HIGH_RES_PRINT]),
     )
     imageSizeCodes?: RecreationResourceImageSize[],
@@ -194,34 +194,34 @@ export class RecreationResourceController {
       imageSizeCodes,
     );
     if (!recResource) {
-      throw new HttpException("Recreation Resource not found.", 404);
+      throw new HttpException('Recreation Resource not found.', 404);
     }
     return recResource;
   }
 
-  @Get(":id/site-operator")
+  @Get(':id/site-operator')
   @ApiOperation({
-    summary: "Find site operator by resource ID",
-    operationId: "getSiteOperatorById",
+    summary: 'Find site operator by resource ID',
+    operationId: 'getSiteOperatorById',
   })
   @ApiParam({
-    name: "id",
+    name: 'id',
     required: true,
-    description: "Resource identifier",
-    type: "string",
-    example: "REC204117",
+    description: 'Resource identifier',
+    type: 'string',
+    example: 'REC204117',
   })
   @ApiResponse({
     status: 200,
-    description: "Site operator found",
+    description: 'Site operator found',
     type: SiteOperatorDto,
   })
-  @ApiResponse({ status: 404, description: "Site operator not found" })
-  async findSiteOperator(@Param("id") id: string): Promise<SiteOperatorDto> {
+  @ApiResponse({ status: 404, description: 'Site operator not found' })
+  async findSiteOperator(@Param('id') id: string): Promise<SiteOperatorDto> {
     const clientNumber =
       await this.recreationResourceService.findClientNumber(id);
     if (!clientNumber)
-      throw new HttpException({ data: "Site operator not found" }, 404);
+      throw new HttpException({ data: 'Site operator not found' }, 404);
 
     const r = await this.fsaResourceService.findByClientNumber(clientNumber);
     return {

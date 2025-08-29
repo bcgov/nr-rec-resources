@@ -1,77 +1,77 @@
-import * as recreationResourceAdminIndex from "@/services/hooks/recreation-resource-admin/index";
-import { describe, expect, it } from "vitest";
+import * as recreationResourceAdminIndex from '@/services/hooks/recreation-resource-admin/index';
+import { describe, expect, it } from 'vitest';
 
-describe("services/hooks/recreation-resource-admin/index", () => {
-  it("exports all recreation resource admin hooks", () => {
+describe('services/hooks/recreation-resource-admin/index', () => {
+  it('exports all recreation resource admin hooks', () => {
     expect(recreationResourceAdminIndex).toHaveProperty(
-      "useDeleteResourceDocument",
+      'useDeleteResourceDocument',
     );
     expect(recreationResourceAdminIndex).toHaveProperty(
-      "useDeleteResourceImage",
+      'useDeleteResourceImage',
     );
     expect(recreationResourceAdminIndex).toHaveProperty(
-      "useGetDocumentsByRecResourceId",
+      'useGetDocumentsByRecResourceId',
     );
     expect(recreationResourceAdminIndex).toHaveProperty(
-      "useGetImagesByRecResourceId",
+      'useGetImagesByRecResourceId',
     );
     expect(recreationResourceAdminIndex).toHaveProperty(
-      "useGetRecreationResourceById",
+      'useGetRecreationResourceById',
     );
     expect(recreationResourceAdminIndex).toHaveProperty(
-      "useGetRecreationResourceSuggestions",
+      'useGetRecreationResourceSuggestions',
     );
     expect(recreationResourceAdminIndex).toHaveProperty(
-      "useRecreationResourceAdminApiClient",
+      'useRecreationResourceAdminApiClient',
     );
     expect(recreationResourceAdminIndex).toHaveProperty(
-      "useUploadResourceDocument",
+      'useUploadResourceDocument',
     );
     expect(recreationResourceAdminIndex).toHaveProperty(
-      "useUploadResourceImage",
+      'useUploadResourceImage',
     );
   });
 
-  it("exports helpers", () => {
-    expect(recreationResourceAdminIndex).toHaveProperty("createRetryHandler");
+  it('exports helpers', () => {
+    expect(recreationResourceAdminIndex).toHaveProperty('createRetryHandler');
     expect(recreationResourceAdminIndex).toHaveProperty(
-      "mapRecreationResourceDetail",
+      'mapRecreationResourceDetail',
     );
   });
 
-  it("all exports are functions", () => {
+  it('all exports are functions', () => {
     expect(typeof recreationResourceAdminIndex.useDeleteResourceDocument).toBe(
-      "function",
+      'function',
     );
     expect(typeof recreationResourceAdminIndex.useDeleteResourceImage).toBe(
-      "function",
+      'function',
     );
     expect(
       typeof recreationResourceAdminIndex.useGetDocumentsByRecResourceId,
-    ).toBe("function");
+    ).toBe('function');
     expect(
       typeof recreationResourceAdminIndex.useGetImagesByRecResourceId,
-    ).toBe("function");
+    ).toBe('function');
     expect(
       typeof recreationResourceAdminIndex.useGetRecreationResourceById,
-    ).toBe("function");
+    ).toBe('function');
     expect(
       typeof recreationResourceAdminIndex.useGetRecreationResourceSuggestions,
-    ).toBe("function");
+    ).toBe('function');
     expect(
       typeof recreationResourceAdminIndex.useRecreationResourceAdminApiClient,
-    ).toBe("function");
+    ).toBe('function');
     expect(typeof recreationResourceAdminIndex.useUploadResourceDocument).toBe(
-      "function",
+      'function',
     );
     expect(typeof recreationResourceAdminIndex.useUploadResourceImage).toBe(
-      "function",
+      'function',
     );
     expect(typeof recreationResourceAdminIndex.createRetryHandler).toBe(
-      "function",
+      'function',
     );
     expect(
       typeof recreationResourceAdminIndex.mapRecreationResourceDetail,
-    ).toBe("function");
+    ).toBe('function');
   });
 });

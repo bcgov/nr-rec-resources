@@ -1,46 +1,46 @@
-import { useImageDelete } from "@/pages/rec-resource-page/hooks/useImageDelete";
-import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
+import { useImageDelete } from '@/pages/rec-resource-page/hooks/useImageDelete';
+import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import {
   recResourceFileTransferStore,
   updateGalleryImage,
-} from "@/pages/rec-resource-page/store/recResourceFileTransferStore";
-import { GalleryImage } from "@/pages/rec-resource-page/types";
-import { useDeleteResourceImage } from "@/services/hooks/recreation-resource-admin/useDeleteResourceImage";
-import { handleApiError } from "@/services/utils/errorHandler";
+} from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
+import { GalleryImage } from '@/pages/rec-resource-page/types';
+import { useDeleteResourceImage } from '@/services/hooks/recreation-resource-admin/useDeleteResourceImage';
+import { handleApiError } from '@/services/utils/errorHandler';
 import {
   addErrorNotification,
   addSuccessNotification,
-} from "@/store/notificationStore";
-import { renderHook, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+} from '@/store/notificationStore';
+import { renderHook, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock dependencies
-vi.mock("@/pages/rec-resource-page/hooks/useRecResource", () => ({
+vi.mock('@/pages/rec-resource-page/hooks/useRecResource', () => ({
   useRecResource: vi.fn(),
 }));
 
 vi.mock(
-  "@/services/hooks/recreation-resource-admin/useDeleteResourceImage",
+  '@/services/hooks/recreation-resource-admin/useDeleteResourceImage',
   () => ({
     useDeleteResourceImage: vi.fn(),
   }),
 );
 
-vi.mock("@/store/notificationStore", () => ({
+vi.mock('@/store/notificationStore', () => ({
   addErrorNotification: vi.fn(),
   addSuccessNotification: vi.fn(),
 }));
 
-vi.mock("@/services/utils/errorHandler", () => ({
+vi.mock('@/services/utils/errorHandler', () => ({
   handleApiError: vi.fn(),
 }));
 
 vi.mock(
-  "@/pages/rec-resource-page/store/recResourceFileTransferStore",
+  '@/pages/rec-resource-page/store/recResourceFileTransferStore',
   async (importOriginal) => {
     const actual =
       await importOriginal<
-        typeof import("@/pages/rec-resource-page/store/recResourceFileTransferStore")
+        typeof import('@/pages/rec-resource-page/store/recResourceFileTransferStore')
       >();
     return {
       ...actual,
@@ -56,20 +56,20 @@ const mockAddSuccessNotification = vi.mocked(addSuccessNotification);
 const mockUpdateGalleryImage = vi.mocked(updateGalleryImage);
 const mockHandleApiError = vi.mocked(handleApiError);
 
-describe("useImageDelete", () => {
+describe('useImageDelete', () => {
   const mockMutateAsync = vi.fn();
   const mockRecResource = {
-    rec_resource_id: "test-resource-id",
+    rec_resource_id: 'test-resource-id',
   };
   const mockImage: GalleryImage = {
-    id: "test-image-id",
-    name: "test-image.jpg",
-    date: "2024-01-01",
-    url: "https://example.com/test-image.jpg",
-    extension: "jpg",
-    type: "image" as const,
+    id: 'test-image-id',
+    name: 'test-image.jpg',
+    date: '2024-01-01',
+    url: 'https://example.com/test-image.jpg',
+    extension: 'jpg',
+    type: 'image' as const,
     variants: [],
-    previewUrl: "https://example.com/test-image-preview.jpg",
+    previewUrl: 'https://example.com/test-image-preview.jpg',
     pendingFile: undefined,
   };
 
@@ -88,7 +88,7 @@ describe("useImageDelete", () => {
     // Set up store state
     recResourceFileTransferStore.setState({
       selectedFileForUpload: null,
-      uploadFileName: "",
+      uploadFileName: '',
       showUploadOverlay: false,
       pendingDocs: [],
       galleryDocuments: [],
@@ -99,7 +99,7 @@ describe("useImageDelete", () => {
     });
   });
 
-  it("should handle successful image deletion", async () => {
+  it('should handle successful image deletion', async () => {
     mockMutateAsync.mockResolvedValue(undefined);
 
     const { result } = renderHook(() => useImageDelete());
@@ -120,7 +120,7 @@ describe("useImageDelete", () => {
     });
   });
 
-  it("should handle successful image deletion with onSuccess callback", async () => {
+  it('should handle successful image deletion with onSuccess callback', async () => {
     mockMutateAsync.mockResolvedValue(undefined);
     const onSuccessMock = vi.fn();
 
@@ -143,14 +143,14 @@ describe("useImageDelete", () => {
     });
   });
 
-  it("should handle deletion error", async () => {
-    const mockError = new Error("Deletion failed");
+  it('should handle deletion error', async () => {
+    const mockError = new Error('Deletion failed');
     mockMutateAsync.mockRejectedValue(mockError);
 
     // Mock handleApiError to return expected error format
     mockHandleApiError.mockResolvedValue({
       statusCode: 500,
-      message: "Delete failed",
+      message: 'Delete failed',
       isResponseError: false,
       isAuthError: false,
     });
@@ -164,7 +164,7 @@ describe("useImageDelete", () => {
         isDeleting: true,
       });
       expect(mockAddErrorNotification).toHaveBeenCalledWith(
-        expect.stringContaining("Failed to delete image"),
+        expect.stringContaining('Failed to delete image'),
       );
       expect(mockUpdateGalleryImage).toHaveBeenCalledWith(mockImage.id, {
         isDeleting: false,
@@ -173,7 +173,7 @@ describe("useImageDelete", () => {
     });
   });
 
-  it("should not proceed if no resource id", async () => {
+  it('should not proceed if no resource id', async () => {
     mockUseRecResource.mockReturnValue({
       recResource: null,
     } as any);
@@ -184,11 +184,11 @@ describe("useImageDelete", () => {
 
     expect(mockMutateAsync).not.toHaveBeenCalled();
     expect(mockAddErrorNotification).toHaveBeenCalledWith(
-      "Unable to delete image: missing required information.",
+      'Unable to delete image: missing required information.',
     );
   });
 
-  it("should not proceed if no image to delete", async () => {
+  it('should not proceed if no image to delete', async () => {
     recResourceFileTransferStore.setState((prev) => ({
       ...prev,
       fileToDelete: undefined,
@@ -200,11 +200,11 @@ describe("useImageDelete", () => {
 
     expect(mockMutateAsync).not.toHaveBeenCalled();
     expect(mockAddErrorNotification).toHaveBeenCalledWith(
-      "Unable to delete image: missing required information.",
+      'Unable to delete image: missing required information.',
     );
   });
 
-  it("should return correct loading state", () => {
+  it('should return correct loading state', () => {
     mockUseDeleteResourceImage.mockReturnValue({
       mutateAsync: mockMutateAsync,
       isPending: true,

@@ -1,8 +1,8 @@
-import { ClampLines } from "@/components/clamp-lines";
+import { ClampLines } from '@/components/clamp-lines';
 import {
   GalleryFile,
   GalleryFileAction,
-} from "@/pages/rec-resource-page/types";
+} from '@/pages/rec-resource-page/types';
 import {
   faCancel,
   faEllipsisV,
@@ -10,15 +10,15 @@ import {
   faFilePdf,
   faRedo,
   faTimes,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import clsx from "clsx";
-import { Card, Col, Dropdown, Row, Stack } from "react-bootstrap";
-import { ActionButton } from "./ActionButton";
-import { CARD_ACTIONS } from "./constants";
-import { DropdownActionItem } from "./DropdownActionItem";
-import "./GalleryFileCard.scss";
-import { LoadingState } from "./LoadingState";
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import clsx from 'clsx';
+import { Card, Col, Dropdown, Row, Stack } from 'react-bootstrap';
+import { ActionButton } from './ActionButton';
+import { CARD_ACTIONS } from './constants';
+import { DropdownActionItem } from './DropdownActionItem';
+import './GalleryFileCard.scss';
+import { LoadingState } from './LoadingState';
 
 /**
  * Props for the `GalleryFileCard` component.
@@ -59,7 +59,7 @@ export const GalleryFileCard = <T extends GalleryFile>({
           className="align-items-center justify-content-center"
         >
           <FontAwesomeIcon
-            icon={file.type === "document" ? faFilePdf : faFileImage}
+            icon={file.type === 'document' ? faFilePdf : faFileImage}
             size="2x"
             className="fa-file-pdf"
             aria-hidden="true"
@@ -69,12 +69,12 @@ export const GalleryFileCard = <T extends GalleryFile>({
             <ActionButton
               icon={faRedo}
               label="Retry"
-              onClick={getFileActionHandler("retry", file)}
+              onClick={getFileActionHandler('retry', file)}
             />
             <ActionButton
               icon={faCancel}
               label="Dismiss"
-              onClick={getFileActionHandler("dismiss", file)}
+              onClick={getFileActionHandler('dismiss', file)}
             />
           </div>
         </Stack>
@@ -86,10 +86,10 @@ export const GalleryFileCard = <T extends GalleryFile>({
         <LoadingState
           label={
             isUploading
-              ? "Uploading"
+              ? 'Uploading'
               : isDownloading
-                ? "Downloading"
-                : "Deleting"
+                ? 'Downloading'
+                : 'Deleting'
           }
         />
       );
@@ -114,16 +114,16 @@ export const GalleryFileCard = <T extends GalleryFile>({
 
   return (
     <Card
-      className={clsx("gallery-file-card p-0", {
-        "gallery-file-card--error": isUploadError,
+      className={clsx('gallery-file-card p-0', {
+        'gallery-file-card--error': isUploadError,
       })}
     >
       <Card.Body
         className={clsx(
-          "gallery-file-card__top d-flex flex-column align-items-center justify-content-center p-0",
+          'gallery-file-card__top d-flex flex-column align-items-center justify-content-center p-0',
           {
-            "gallery-file-card__top--error": isUploadError,
-            "gallery-file-card__top--pending": !isUploadError && isPending,
+            'gallery-file-card__top--error': isUploadError,
+            'gallery-file-card__top--pending': !isUploadError && isPending,
           },
         )}
       >
@@ -133,13 +133,13 @@ export const GalleryFileCard = <T extends GalleryFile>({
       <Card.Body className="gallery-file-card__body d-flex flex-column gap-1 pt-2 pb-2">
         <Row className="gallery-file-card__row align-items-center">
           <Col
-            className={clsx("gallery-file-card__filename fw-bold", {
-              "gallery-file-card__filename--error": isUploadError,
+            className={clsx('gallery-file-card__filename fw-bold', {
+              'gallery-file-card__filename--error': isUploadError,
             })}
             xs={8}
           >
             <ClampLines
-              text={file.name || "Untitled"}
+              text={file.name || 'Untitled'}
               lines={2}
               as="span"
               className="gallery-file-card__filename-ellipsis"
@@ -164,12 +164,12 @@ export const GalleryFileCard = <T extends GalleryFile>({
                     <DropdownActionItem
                       icon={faRedo}
                       label="Retry"
-                      onClick={getFileActionHandler("retry", file)}
+                      onClick={getFileActionHandler('retry', file)}
                     />
                     <DropdownActionItem
                       icon={faTimes}
                       label="Dismiss"
-                      onClick={getFileActionHandler("dismiss", file)}
+                      onClick={getFileActionHandler('dismiss', file)}
                     />
                   </>
                 ) : (
@@ -189,11 +189,11 @@ export const GalleryFileCard = <T extends GalleryFile>({
 
         <div
           className={clsx(
-            "gallery-file-card__date",
-            isUploadError ? "gallery-file-card__date--error" : "text-muted",
+            'gallery-file-card__date',
+            isUploadError ? 'gallery-file-card__date--error' : 'text-muted',
           )}
         >
-          {file.date || "-"}
+          {file.date || '-'}
         </div>
       </Card.Body>
     </Card>

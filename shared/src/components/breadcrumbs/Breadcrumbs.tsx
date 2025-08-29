@@ -5,15 +5,15 @@
  * store-driven and manually provided breadcrumb items.
  */
 
-import { Breadcrumb } from "react-bootstrap";
-import { useBreadcrumbItems } from "./store/breadcrumbStore";
-import { BreadcrumbItem } from "./types";
+import { Breadcrumb } from 'react-bootstrap';
+import { useBreadcrumbItems } from './store/breadcrumbStore';
+import { BreadcrumbItem } from './types';
 import {
   getBreadcrumbItemProps,
   getBreadcrumbKey,
   renderBreadcrumbLabel,
-} from "./helpers";
-import "./Breadcrumbs.scss";
+} from './helpers';
+import './Breadcrumbs.scss';
 
 export interface BreadcrumbsProps {
   /**
@@ -48,9 +48,9 @@ export interface BreadcrumbsProps {
  */
 export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
   items,
-  className = "",
+  className = '',
   showHomeIcon = true,
-  ariaLabel = "Breadcrumb navigation",
+  ariaLabel = 'Breadcrumb navigation',
 }) => {
   const storeItems = useBreadcrumbItems();
 

@@ -1,14 +1,14 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
-import { BrowserRouter } from "react-router-dom";
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
 import {
   setBreadcrumbs,
   Breadcrumbs,
   BreadcrumbItem,
-} from "@shared/components/breadcrumbs";
+} from '@shared/components/breadcrumbs';
 
 // Mock FontAwesome components
-vi.mock("@fortawesome/react-fontawesome", () => ({
+vi.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: ({ icon, ...props }: any) => (
     <span
       data-testid="font-awesome-icon"
@@ -19,7 +19,7 @@ vi.mock("@fortawesome/react-fontawesome", () => ({
 }));
 
 // Mock React Bootstrap components
-vi.mock("react-bootstrap", () => {
+vi.mock('react-bootstrap', () => {
   const BreadcrumbComponent = ({ children, ...props }: any) => (
     <nav data-testid="breadcrumbs" {...props}>
       {children}
@@ -42,123 +42,123 @@ const renderWithRouter = (component: React.ReactElement) => {
   return render(<BrowserRouter>{component}</BrowserRouter>);
 };
 
-describe("Breadcrumbs Component", () => {
+describe('Breadcrumbs Component', () => {
   beforeEach(() => {
     // Clear breadcrumbs before each test
     setBreadcrumbs([]);
   });
 
-  it("renders without breadcrumb items", () => {
+  it('renders without breadcrumb items', () => {
     renderWithRouter(<Breadcrumbs />);
-    const breadcrumbs = screen.getByTestId("breadcrumbs");
+    const breadcrumbs = screen.getByTestId('breadcrumbs');
     expect(breadcrumbs).toBeInTheDocument();
   });
 
-  it("renders with single breadcrumb item", () => {
-    const items: BreadcrumbItem[] = [{ label: "Home", href: "/" }];
+  it('renders with single breadcrumb item', () => {
+    const items: BreadcrumbItem[] = [{ label: 'Home', href: '/' }];
 
     setBreadcrumbs(items);
     renderWithRouter(<Breadcrumbs showHomeIcon={false} />);
 
-    expect(screen.getByText("Home")).toBeInTheDocument();
+    expect(screen.getByText('Home')).toBeInTheDocument();
   });
 
-  it("renders with multiple breadcrumb items", () => {
+  it('renders with multiple breadcrumb items', () => {
     const items: BreadcrumbItem[] = [
-      { label: "Home", href: "/" },
-      { label: "Search", href: "/search" },
-      { label: "Current Page", isCurrent: true },
+      { label: 'Home', href: '/' },
+      { label: 'Search', href: '/search' },
+      { label: 'Current Page', isCurrent: true },
     ];
 
     setBreadcrumbs(items);
     renderWithRouter(<Breadcrumbs showHomeIcon={false} />);
 
-    expect(screen.getByText("Home")).toBeInTheDocument();
-    expect(screen.getByText("Search")).toBeInTheDocument();
-    expect(screen.getByText("Current Page")).toBeInTheDocument();
+    expect(screen.getByText('Home')).toBeInTheDocument();
+    expect(screen.getByText('Search')).toBeInTheDocument();
+    expect(screen.getByText('Current Page')).toBeInTheDocument();
   });
 
-  it("renders home icon for first item when showHomeIcon is true", () => {
+  it('renders home icon for first item when showHomeIcon is true', () => {
     const items: BreadcrumbItem[] = [
-      { label: "Home", href: "/" },
-      { label: "Current", isCurrent: true },
+      { label: 'Home', href: '/' },
+      { label: 'Current', isCurrent: true },
     ];
 
     setBreadcrumbs(items);
     renderWithRouter(<Breadcrumbs showHomeIcon />);
 
-    const homeIcon = screen.getByTestId("font-awesome-icon");
-    expect(homeIcon).toHaveAttribute("data-icon", "house");
+    const homeIcon = screen.getByTestId('font-awesome-icon');
+    expect(homeIcon).toHaveAttribute('data-icon', 'house');
   });
 
-  it("renders label text for first item when showHomeIcon is false", () => {
+  it('renders label text for first item when showHomeIcon is false', () => {
     const items: BreadcrumbItem[] = [
-      { label: "Home", href: "/" },
-      { label: "Current", isCurrent: true },
+      { label: 'Home', href: '/' },
+      { label: 'Current', isCurrent: true },
     ];
 
     setBreadcrumbs(items);
     renderWithRouter(<Breadcrumbs showHomeIcon={false} />);
 
-    expect(screen.getByText("Home")).toBeInTheDocument();
-    expect(screen.queryByTestId("font-awesome-icon")).not.toBeInTheDocument();
+    expect(screen.getByText('Home')).toBeInTheDocument();
+    expect(screen.queryByTestId('font-awesome-icon')).not.toBeInTheDocument();
   });
 
-  it("handles breadcrumb items without href", () => {
+  it('handles breadcrumb items without href', () => {
     const items: BreadcrumbItem[] = [
-      { label: "Home", href: "/" },
-      { label: "Current Page" },
+      { label: 'Home', href: '/' },
+      { label: 'Current Page' },
     ];
 
     setBreadcrumbs(items);
     renderWithRouter(<Breadcrumbs showHomeIcon={false} />);
 
-    expect(screen.getByText("Home")).toBeInTheDocument();
-    expect(screen.getByText("Current Page")).toBeInTheDocument();
+    expect(screen.getByText('Home')).toBeInTheDocument();
+    expect(screen.getByText('Current Page')).toBeInTheDocument();
   });
 
-  it("handles empty breadcrumb items array", () => {
+  it('handles empty breadcrumb items array', () => {
     setBreadcrumbs([]);
     renderWithRouter(<Breadcrumbs />);
 
-    const breadcrumbs = screen.getByTestId("breadcrumbs");
+    const breadcrumbs = screen.getByTestId('breadcrumbs');
     expect(breadcrumbs).toBeInTheDocument();
     expect(breadcrumbs).toBeEmptyDOMElement();
   });
 
-  it("applies custom className when provided", () => {
-    const customClassName = "custom-breadcrumb-class";
+  it('applies custom className when provided', () => {
+    const customClassName = 'custom-breadcrumb-class';
     renderWithRouter(<Breadcrumbs className={customClassName} />);
 
-    const breadcrumbs = screen.getByTestId("breadcrumbs");
+    const breadcrumbs = screen.getByTestId('breadcrumbs');
     expect(breadcrumbs).toHaveClass(customClassName);
   });
 
-  it("marks current item as active", () => {
+  it('marks current item as active', () => {
     const items: BreadcrumbItem[] = [
-      { label: "Home", href: "/" },
-      { label: "Current", isCurrent: true },
+      { label: 'Home', href: '/' },
+      { label: 'Current', isCurrent: true },
     ];
 
     setBreadcrumbs(items);
     renderWithRouter(<Breadcrumbs />);
 
     // The active item should be rendered differently (implementation depends on React Bootstrap mock)
-    expect(screen.getByText("Current")).toBeInTheDocument();
+    expect(screen.getByText('Current')).toBeInTheDocument();
   });
 
-  it("handles breadcrumb items with special characters in labels", () => {
+  it('handles breadcrumb items with special characters in labels', () => {
     const items: BreadcrumbItem[] = [
-      { label: "Home & Garden", href: "/" },
-      { label: "Café & Restaurant", href: "/cafe" },
+      { label: 'Home & Garden', href: '/' },
+      { label: 'Café & Restaurant', href: '/cafe' },
       { label: 'Current "Page"', isCurrent: true },
     ];
 
     setBreadcrumbs(items);
     renderWithRouter(<Breadcrumbs showHomeIcon={false} />);
 
-    expect(screen.getByText("Home & Garden")).toBeInTheDocument();
-    expect(screen.getByText("Café & Restaurant")).toBeInTheDocument();
+    expect(screen.getByText('Home & Garden')).toBeInTheDocument();
+    expect(screen.getByText('Café & Restaurant')).toBeInTheDocument();
     expect(screen.getByText('Current "Page"')).toBeInTheDocument();
   });
 });

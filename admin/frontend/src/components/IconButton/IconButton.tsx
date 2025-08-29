@@ -1,8 +1,8 @@
 import {
   CustomButton,
   CustomButtonProps,
-} from "@/components/custom-button/CustomButton";
-import { FC, ReactNode } from "react";
+} from '@/components/custom-button/CustomButton';
+import { FC, ReactNode } from 'react';
 
 /**
  * IconButton is a wrapper around CustomButton that only uses the leftIcon prop.
@@ -12,7 +12,7 @@ import { FC, ReactNode } from "react";
  * @returns A button displaying only the leftIcon.
  */
 export interface IconButtonProps
-  extends Omit<CustomButtonProps, "children" | "rightIcon" | "leftIcon"> {
+  extends Omit<CustomButtonProps, 'children' | 'rightIcon' | 'leftIcon'> {
   icon: ReactNode;
 }
 

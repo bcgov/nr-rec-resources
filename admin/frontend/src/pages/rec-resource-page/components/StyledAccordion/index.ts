@@ -1,1 +1,1 @@
-export * from "./StyledAccordion";
+export * from './StyledAccordion';

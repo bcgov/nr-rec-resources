@@ -1,65 +1,65 @@
-import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
-import { useGetRecreationResourceById } from "@/services/hooks/recreation-resource-admin/useGetRecreationResourceById";
-import { handleApiError } from "@/services/utils/errorHandler";
-import * as notificationStore from "@/store/notificationStore";
-import { renderHook } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
+import { useGetRecreationResourceById } from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceById';
+import { handleApiError } from '@/services/utils/errorHandler';
+import * as notificationStore from '@/store/notificationStore';
+import { renderHook } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock dependencies
-vi.mock("react-router-dom", () => ({
+vi.mock('react-router-dom', () => ({
   useParams: vi.fn(),
 }));
 
 vi.mock(
-  "@/services/hooks/recreation-resource-admin/useGetRecreationResourceById",
+  '@/services/hooks/recreation-resource-admin/useGetRecreationResourceById',
   () => ({
     useGetRecreationResourceById: vi.fn(),
   }),
 );
 
-vi.mock("@/services/utils/errorHandler", () => ({
+vi.mock('@/services/utils/errorHandler', () => ({
   handleApiError: vi.fn(),
 }));
 
-vi.mock("@/store/notificationStore", () => ({
+vi.mock('@/store/notificationStore', () => ({
   addErrorNotification: vi.fn(),
 }));
 
 // Import mocked modules for type safety
-import { useParams } from "react-router-dom";
+import { useParams } from 'react-router-dom';
 
 const mockRecResource = {
-  rec_resource_id: "test-resource-123",
-  name: "Test Resource",
-  closest_community: "Test Community",
+  rec_resource_id: 'test-resource-123',
+  name: 'Test Resource',
+  closest_community: 'Test Community',
   recreation_activity: [],
-  recreation_status: { status_code: 1, comment: "", description: "Open" },
-  rec_resource_type: "RR",
-  description: "Test description",
-  driving_directions: "Test directions",
-  maintenance_standard_code: "U" as const,
+  recreation_status: { status_code: 1, comment: '', description: 'Open' },
+  rec_resource_type: 'RR',
+  description: 'Test description',
+  driving_directions: 'Test directions',
+  maintenance_standard_code: 'U' as const,
   campsite_count: 0,
   recreation_access: [],
   recreation_structure: { has_toilet: false, has_table: false },
 };
 
-describe("useRecResource", () => {
+describe('useRecResource', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
     // Mock useParams to return a test ID
-    vi.mocked(useParams).mockReturnValue({ id: "test-resource-123" });
+    vi.mocked(useParams).mockReturnValue({ id: 'test-resource-123' });
 
     // Mock handleApiError to return expected error format
     vi.mocked(handleApiError).mockResolvedValue({
       statusCode: 500,
-      message: "Failed to load resource",
+      message: 'Failed to load resource',
       isResponseError: false,
       isAuthError: false,
     });
   });
 
-  it("returns the correct data structure when resource is loaded successfully", () => {
+  it('returns the correct data structure when resource is loaded successfully', () => {
     vi.mocked(useGetRecreationResourceById).mockReturnValue({
       data: mockRecResource,
       isLoading: false,
@@ -69,14 +69,14 @@ describe("useRecResource", () => {
     const { result } = renderHook(() => useRecResource());
 
     expect(result.current).toEqual({
-      rec_resource_id: "test-resource-123",
+      rec_resource_id: 'test-resource-123',
       recResource: mockRecResource,
       isLoading: false,
       error: null,
     });
   });
 
-  it("returns loading state when data is being fetched", () => {
+  it('returns loading state when data is being fetched', () => {
     vi.mocked(useGetRecreationResourceById).mockReturnValue({
       data: undefined,
       isLoading: true,
@@ -86,15 +86,15 @@ describe("useRecResource", () => {
     const { result } = renderHook(() => useRecResource());
 
     expect(result.current).toEqual({
-      rec_resource_id: "test-resource-123",
+      rec_resource_id: 'test-resource-123',
       recResource: undefined,
       isLoading: true,
       error: null,
     });
   });
 
-  it("returns error state when fetch fails", () => {
-    const mockError = new Error("Network error");
+  it('returns error state when fetch fails', () => {
+    const mockError = new Error('Network error');
     vi.mocked(useGetRecreationResourceById).mockReturnValue({
       data: undefined,
       isLoading: false,
@@ -104,14 +104,14 @@ describe("useRecResource", () => {
     const { result } = renderHook(() => useRecResource());
 
     expect(result.current).toEqual({
-      rec_resource_id: "test-resource-123",
+      rec_resource_id: 'test-resource-123',
       recResource: undefined,
       isLoading: false,
       error: mockError,
     });
   });
 
-  it("handles undefined rec_resource_id from useParams", () => {
+  it('handles undefined rec_resource_id from useParams', () => {
     vi.mocked(useParams).mockReturnValue({ id: undefined });
     vi.mocked(useGetRecreationResourceById).mockReturnValue({
       data: undefined,
@@ -125,7 +125,7 @@ describe("useRecResource", () => {
     expect(useGetRecreationResourceById).toHaveBeenCalledWith(undefined);
   });
 
-  it("calls useGetRecreationResourceById with the correct resource ID", () => {
+  it('calls useGetRecreationResourceById with the correct resource ID', () => {
     vi.mocked(useGetRecreationResourceById).mockReturnValue({
       data: undefined,
       isLoading: false,
@@ -135,13 +135,13 @@ describe("useRecResource", () => {
     renderHook(() => useRecResource());
 
     expect(useGetRecreationResourceById).toHaveBeenCalledWith(
-      "test-resource-123",
+      'test-resource-123',
     );
   });
 
-  describe("error handling", () => {
-    it("shows error notification when there is an error", async () => {
-      const mockError = new Error("Network error");
+  describe('error handling', () => {
+    it('shows error notification when there is an error', async () => {
+      const mockError = new Error('Network error');
       vi.mocked(useGetRecreationResourceById).mockReturnValue({
         data: undefined,
         isLoading: false,
@@ -154,12 +154,12 @@ describe("useRecResource", () => {
       await vi.waitFor(() => {
         expect(handleApiError).toHaveBeenCalledWith(mockError);
         expect(notificationStore.addErrorNotification).toHaveBeenCalledWith(
-          "Failed to load resource",
+          'Failed to load resource',
         );
       });
     });
 
-    it("does not show error notification when there is no error", async () => {
+    it('does not show error notification when there is no error', async () => {
       vi.mocked(useGetRecreationResourceById).mockReturnValue({
         data: mockRecResource,
         isLoading: false,
@@ -175,8 +175,8 @@ describe("useRecResource", () => {
       expect(notificationStore.addErrorNotification).not.toHaveBeenCalled();
     });
 
-    it("handles error that becomes null (error resolution)", async () => {
-      const mockError = new Error("Network error");
+    it('handles error that becomes null (error resolution)', async () => {
+      const mockError = new Error('Network error');
 
       // Initial render with error
       vi.mocked(useGetRecreationResourceById).mockReturnValue({
@@ -190,7 +190,7 @@ describe("useRecResource", () => {
       await vi.waitFor(() => {
         expect(handleApiError).toHaveBeenCalledWith(mockError);
         expect(notificationStore.addErrorNotification).toHaveBeenCalledWith(
-          "Failed to load resource",
+          'Failed to load resource',
         );
       });
 
@@ -213,8 +213,8 @@ describe("useRecResource", () => {
       expect(notificationStore.addErrorNotification).not.toHaveBeenCalled();
     });
 
-    it("handles multiple different errors", async () => {
-      const firstError = new Error("First error");
+    it('handles multiple different errors', async () => {
+      const firstError = new Error('First error');
 
       // Initial render with first error
       vi.mocked(useGetRecreationResourceById).mockReturnValue({
@@ -232,12 +232,12 @@ describe("useRecResource", () => {
       // Mock different error response for second error
       vi.mocked(handleApiError).mockResolvedValue({
         statusCode: 404,
-        message: "Resource not found",
+        message: 'Resource not found',
         isResponseError: true,
         isAuthError: false,
       });
 
-      const secondError = new Error("Second error");
+      const secondError = new Error('Second error');
 
       // Re-render with second error
       vi.mocked(useGetRecreationResourceById).mockReturnValue({
@@ -251,14 +251,14 @@ describe("useRecResource", () => {
       await vi.waitFor(() => {
         expect(handleApiError).toHaveBeenCalledWith(secondError);
         expect(notificationStore.addErrorNotification).toHaveBeenCalledWith(
-          "Resource not found",
+          'Resource not found',
         );
       });
     });
   });
 
-  describe("integration scenarios", () => {
-    it("handles complete loading to success flow", async () => {
+  describe('integration scenarios', () => {
+    it('handles complete loading to success flow', async () => {
       // Start with loading
       vi.mocked(useGetRecreationResourceById).mockReturnValue({
         data: undefined,
@@ -285,7 +285,7 @@ describe("useRecResource", () => {
       expect(result.current.error).toBeNull();
     });
 
-    it("handles complete loading to error flow", async () => {
+    it('handles complete loading to error flow', async () => {
       // Start with loading
       vi.mocked(useGetRecreationResourceById).mockReturnValue({
         data: undefined,
@@ -298,7 +298,7 @@ describe("useRecResource", () => {
       expect(result.current.isLoading).toBe(true);
 
       // Transition to error
-      const mockError = new Error("Load failed");
+      const mockError = new Error('Load failed');
       vi.mocked(useGetRecreationResourceById).mockReturnValue({
         data: undefined,
         isLoading: false,
@@ -312,7 +312,7 @@ describe("useRecResource", () => {
 
       await vi.waitFor(() => {
         expect(notificationStore.addErrorNotification).toHaveBeenCalledWith(
-          "Failed to load resource",
+          'Failed to load resource',
         );
       });
     });

@@ -2,17 +2,17 @@ import {
   RecResourceNavKey,
   RecResourceVerticalNav,
   ResourceHeaderSection,
-} from "@/pages/rec-resource-page";
-import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
+} from '@/pages/rec-resource-page';
+import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import {
   RecResourcePageRouteHandle,
   RecResourceRouteContext,
-} from "@/routes/types";
-import { Breadcrumbs, useBreadcrumbs } from "@shared/index";
-import { useEffect, useState } from "react";
-import { Col, Row, Spinner, Stack } from "react-bootstrap";
-import { Outlet, UIMatch, useMatches, useParams } from "react-router-dom";
-import "./RecResourcePageLayout.scss";
+} from '@/routes/types';
+import { Breadcrumbs, useBreadcrumbs } from '@shared/index';
+import { useEffect, useState } from 'react';
+import { Col, Row, Spinner, Stack } from 'react-bootstrap';
+import { Outlet, UIMatch, useMatches, useParams } from 'react-router-dom';
+import './RecResourcePageLayout.scss';
 
 const LoadingSpinner = () => (
   <div className="rec-resource-page__loading-container">

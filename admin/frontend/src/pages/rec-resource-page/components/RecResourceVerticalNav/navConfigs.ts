@@ -1,6 +1,6 @@
 export enum RecResourceNavKey {
-  OVERVIEW = "overview",
-  FILES = "files",
+  OVERVIEW = 'overview',
+  FILES = 'files',
 }
 
 /**
@@ -11,11 +11,11 @@ export enum RecResourceNavKey {
  */
 export const REC_RESOURCE_PAGE_NAV_SECTIONS = {
   [RecResourceNavKey.OVERVIEW]: {
-    title: "Overview",
+    title: 'Overview',
     route: (id: string) => `/rec-resource/${id}`,
   },
   [RecResourceNavKey.FILES]: {
-    title: "Files",
+    title: 'Files',
     route: (id: string) => `/rec-resource/${id}/files`,
   },
 };

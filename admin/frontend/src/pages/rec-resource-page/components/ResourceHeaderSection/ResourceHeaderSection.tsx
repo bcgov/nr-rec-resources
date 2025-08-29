@@ -1,15 +1,15 @@
-import { CustomBadge } from "@/components";
-import { ClampLines } from "@/components/clamp-lines";
-import { RecreationResourceDetailUIModel } from "@/services";
+import { CustomBadge } from '@/components';
+import { ClampLines } from '@/components/clamp-lines';
+import { RecreationResourceDetailUIModel } from '@/services';
 import {
   COLOR_BLUE,
   COLOR_BLUE_LIGHT,
   COLOR_GREEN,
   COLOR_WHITE,
-} from "@/styles/colors";
-import { FC } from "react";
-import { Stack } from "react-bootstrap";
-import "./ResourceHeaderSection.scss";
+} from '@/styles/colors';
+import { FC } from 'react';
+import { Stack } from 'react-bootstrap';
+import './ResourceHeaderSection.scss';
 
 interface ResourceHeaderSectionProps {
   recResource: RecreationResourceDetailUIModel;

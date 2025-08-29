@@ -1,16 +1,16 @@
-import { RecResourceNavKey } from "@/pages/rec-resource-page";
-import { useRecResource } from "@/pages/rec-resource-page/hooks/useRecResource";
-import { RecResourcePageLayout } from "@/pages/rec-resource-page/RecResourcePageLayout";
-import { RecResourceRouteContext } from "@/routes/types";
-import { useBreadcrumbs } from "@shared/index";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen, waitFor } from "@testing-library/react";
-import { MemoryRouter, useMatches, useParams } from "react-router-dom";
-import { beforeEach, describe, expect, it, Mock, vi } from "vitest";
+import { RecResourceNavKey } from '@/pages/rec-resource-page';
+import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
+import { RecResourcePageLayout } from '@/pages/rec-resource-page/RecResourcePageLayout';
+import { RecResourceRouteContext } from '@/routes/types';
+import { useBreadcrumbs } from '@shared/index';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { render, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter, useMatches, useParams } from 'react-router-dom';
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
 // Mock all the child components
 vi.mock(
-  "@/pages/rec-resource-page/components/RecResourceVerticalNav/RecResourceVerticalNav",
+  '@/pages/rec-resource-page/components/RecResourceVerticalNav/RecResourceVerticalNav',
   () => ({
     RecResourceVerticalNav: ({
       activeTab,
@@ -30,7 +30,7 @@ vi.mock(
   }),
 );
 
-vi.mock("@/pages/rec-resource-page/components/ResourceHeaderSection", () => {
+vi.mock('@/pages/rec-resource-page/components/ResourceHeaderSection', () => {
   return {
     ResourceHeaderSection: ({ recResource }: { recResource: any }) => (
       <div
@@ -43,17 +43,17 @@ vi.mock("@/pages/rec-resource-page/components/ResourceHeaderSection", () => {
   };
 });
 
-vi.mock("@/pages/rec-resource-page/hooks/useRecResource", () => ({
+vi.mock('@/pages/rec-resource-page/hooks/useRecResource', () => ({
   useRecResource: vi.fn(),
 }));
 
-vi.mock("@shared/index", () => ({
+vi.mock('@shared/index', () => ({
   Breadcrumbs: () => <div data-testid="breadcrumbs">Mock Breadcrumbs</div>,
   useBreadcrumbs: vi.fn(),
 }));
 
-vi.mock("react-router-dom", async () => {
-  const actual = await vi.importActual("react-router-dom");
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
   return {
     ...actual,
     useParams: vi.fn(),
@@ -67,7 +67,7 @@ const mockUseParams = useParams as Mock;
 const mockUseMatches = useMatches as Mock;
 const mockUseBreadcrumbs = useBreadcrumbs as Mock;
 
-const createWrapper = (initialEntries = ["/rec-resource/123"]) => {
+const createWrapper = (initialEntries = ['/rec-resource/123']) => {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -82,10 +82,10 @@ const createWrapper = (initialEntries = ["/rec-resource/123"]) => {
   );
 };
 
-describe("RecResourcePageLayout", () => {
+describe('RecResourcePageLayout', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUseParams.mockReturnValue({ id: "123" });
+    mockUseParams.mockReturnValue({ id: '123' });
     mockUseMatches.mockReturnValue([
       {
         handle: { tab: RecResourceNavKey.OVERVIEW },
@@ -94,7 +94,7 @@ describe("RecResourcePageLayout", () => {
     mockUseBreadcrumbs.mockImplementation(() => {});
   });
 
-  it("renders loading spinner when data is loading", () => {
+  it('renders loading spinner when data is loading', () => {
     mockUseRecResource.mockReturnValue({
       recResource: null,
       isLoading: true,
@@ -103,17 +103,17 @@ describe("RecResourcePageLayout", () => {
 
     render(<RecResourcePageLayout />, { wrapper: createWrapper() });
 
-    expect(screen.getByRole("status")).toBeInTheDocument();
+    expect(screen.getByRole('status')).toBeInTheDocument();
     expect(
-      screen.getByLabelText("Loading recreation resource"),
+      screen.getByLabelText('Loading recreation resource'),
     ).toBeInTheDocument();
   });
 
-  it("renders null when there is an error", () => {
+  it('renders null when there is an error', () => {
     mockUseRecResource.mockReturnValue({
       recResource: null,
       isLoading: false,
-      error: new Error("Test error"),
+      error: new Error('Test error'),
     });
 
     const { container } = render(<RecResourcePageLayout />, {
@@ -123,10 +123,10 @@ describe("RecResourcePageLayout", () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it("renders null when rec_resource_id is not provided", () => {
+  it('renders null when rec_resource_id is not provided', () => {
     mockUseParams.mockReturnValue({ id: undefined });
     mockUseRecResource.mockReturnValue({
-      recResource: { name: "Test Resource", rec_resource_id: "123" },
+      recResource: { name: 'Test Resource', rec_resource_id: '123' },
       isLoading: false,
       error: null,
     });
@@ -138,10 +138,10 @@ describe("RecResourcePageLayout", () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it("renders full layout when data is loaded successfully", async () => {
+  it('renders full layout when data is loaded successfully', async () => {
     const mockResource = {
-      name: "Test Resource",
-      rec_resource_id: "123",
+      name: 'Test Resource',
+      rec_resource_id: '123',
     };
 
     mockUseRecResource.mockReturnValue({
@@ -153,19 +153,19 @@ describe("RecResourcePageLayout", () => {
     render(<RecResourcePageLayout />, { wrapper: createWrapper() });
 
     await waitFor(() => {
-      expect(screen.getByTestId("breadcrumbs")).toBeInTheDocument();
-      expect(screen.getByTestId("resource-header-section")).toBeInTheDocument();
+      expect(screen.getByTestId('breadcrumbs')).toBeInTheDocument();
+      expect(screen.getByTestId('resource-header-section')).toBeInTheDocument();
       expect(
-        screen.getByTestId("rec-resource-vertical-nav"),
+        screen.getByTestId('rec-resource-vertical-nav'),
       ).toBeInTheDocument();
-      expect(screen.getByTestId("outlet")).toBeInTheDocument();
+      expect(screen.getByTestId('outlet')).toBeInTheDocument();
     });
   });
 
-  it("calls useBreadcrumbs with correct context", () => {
+  it('calls useBreadcrumbs with correct context', () => {
     const mockResource = {
-      name: "Test Resource",
-      rec_resource_id: "123",
+      name: 'Test Resource',
+      rec_resource_id: '123',
     };
 
     mockUseRecResource.mockReturnValue({
@@ -178,16 +178,16 @@ describe("RecResourcePageLayout", () => {
 
     expect(mockUseBreadcrumbs).toHaveBeenCalledWith({
       context: {
-        resourceName: "Test Resource",
-        resourceId: "123",
+        resourceName: 'Test Resource',
+        resourceId: '123',
       } as RecResourceRouteContext,
     });
   });
 
-  it("updates active tab based on route matches", async () => {
+  it('updates active tab based on route matches', async () => {
     const mockResource = {
-      name: "Test Resource",
-      rec_resource_id: "123",
+      name: 'Test Resource',
+      rec_resource_id: '123',
     };
 
     mockUseRecResource.mockReturnValue({
@@ -205,18 +205,18 @@ describe("RecResourcePageLayout", () => {
     render(<RecResourcePageLayout />, { wrapper: createWrapper() });
 
     await waitFor(() => {
-      const verticalNav = screen.getByTestId("rec-resource-vertical-nav");
+      const verticalNav = screen.getByTestId('rec-resource-vertical-nav');
       expect(verticalNav).toHaveAttribute(
-        "data-active-tab",
+        'data-active-tab',
         RecResourceNavKey.FILES,
       );
     });
   });
 
-  it("passes correct props to RecResourceVerticalNav", async () => {
+  it('passes correct props to RecResourceVerticalNav', async () => {
     const mockResource = {
-      name: "Test Resource",
-      rec_resource_id: "123",
+      name: 'Test Resource',
+      rec_resource_id: '123',
     };
 
     mockUseRecResource.mockReturnValue({
@@ -228,19 +228,19 @@ describe("RecResourcePageLayout", () => {
     render(<RecResourcePageLayout />, { wrapper: createWrapper() });
 
     await waitFor(() => {
-      const verticalNav = screen.getByTestId("rec-resource-vertical-nav");
+      const verticalNav = screen.getByTestId('rec-resource-vertical-nav');
       expect(verticalNav).toHaveAttribute(
-        "data-active-tab",
+        'data-active-tab',
         RecResourceNavKey.OVERVIEW,
       );
-      expect(verticalNav).toHaveAttribute("data-resource-id", "123");
+      expect(verticalNav).toHaveAttribute('data-resource-id', '123');
     });
   });
 
-  it("passes correct props to ResourceHeaderSection", async () => {
+  it('passes correct props to ResourceHeaderSection', async () => {
     const mockResource = {
-      name: "Test Resource",
-      rec_resource_id: "123",
+      name: 'Test Resource',
+      rec_resource_id: '123',
     };
 
     mockUseRecResource.mockReturnValue({
@@ -252,18 +252,18 @@ describe("RecResourcePageLayout", () => {
     render(<RecResourcePageLayout />, { wrapper: createWrapper() });
 
     await waitFor(() => {
-      const headerSection = screen.getByTestId("resource-header-section");
+      const headerSection = screen.getByTestId('resource-header-section');
       expect(headerSection).toHaveAttribute(
-        "data-resource-name",
-        "Test Resource",
+        'data-resource-name',
+        'Test Resource',
       );
     });
   });
 
-  it("has correct layout structure and accessibility attributes", async () => {
+  it('has correct layout structure and accessibility attributes', async () => {
     const mockResource = {
-      name: "Test Resource",
-      rec_resource_id: "123",
+      name: 'Test Resource',
+      rec_resource_id: '123',
     };
 
     mockUseRecResource.mockReturnValue({
@@ -275,16 +275,16 @@ describe("RecResourcePageLayout", () => {
     render(<RecResourcePageLayout />, { wrapper: createWrapper() });
 
     await waitFor(() => {
-      const mainContainer = screen.getByRole("main");
+      const mainContainer = screen.getByRole('main');
       expect(mainContainer).toHaveAttribute(
-        "aria-label",
-        "Recreation resource content",
+        'aria-label',
+        'Recreation resource content',
       );
-      expect(mainContainer).toHaveClass("rec-resource-page");
+      expect(mainContainer).toHaveClass('rec-resource-page');
     });
   });
 
-  it("renders loading spinner with correct accessibility attributes", () => {
+  it('renders loading spinner with correct accessibility attributes', () => {
     mockUseRecResource.mockReturnValue({
       recResource: null,
       isLoading: true,
@@ -293,15 +293,15 @@ describe("RecResourcePageLayout", () => {
 
     render(<RecResourcePageLayout />, { wrapper: createWrapper() });
 
-    const spinner = screen.getByRole("status");
+    const spinner = screen.getByRole('status');
     expect(spinner).toHaveAttribute(
-      "aria-label",
-      "Loading recreation resource",
+      'aria-label',
+      'Loading recreation resource',
     );
-    expect(spinner).toHaveClass("rec-resource-page__loading-spinner");
+    expect(spinner).toHaveClass('rec-resource-page__loading-spinner');
   });
 
-  it("loading container has correct CSS class", () => {
+  it('loading container has correct CSS class', () => {
     mockUseRecResource.mockReturnValue({
       recResource: null,
       isLoading: true,
@@ -313,15 +313,15 @@ describe("RecResourcePageLayout", () => {
     });
 
     const loadingContainer = container.querySelector(
-      ".rec-resource-page__loading-container",
+      '.rec-resource-page__loading-container',
     );
     expect(loadingContainer).toBeInTheDocument();
   });
 
-  it("handles multiple route matches correctly", async () => {
+  it('handles multiple route matches correctly', async () => {
     const mockResource = {
-      name: "Test Resource",
-      rec_resource_id: "123",
+      name: 'Test Resource',
+      rec_resource_id: '123',
     };
 
     mockUseRecResource.mockReturnValue({
@@ -342,18 +342,18 @@ describe("RecResourcePageLayout", () => {
     render(<RecResourcePageLayout />, { wrapper: createWrapper() });
 
     await waitFor(() => {
-      const verticalNav = screen.getByTestId("rec-resource-vertical-nav");
+      const verticalNav = screen.getByTestId('rec-resource-vertical-nav');
       // Should use the last match
       expect(verticalNav).toHaveAttribute(
-        "data-active-tab",
+        'data-active-tab',
         RecResourceNavKey.FILES,
       );
     });
   });
 
-  it("handles resource with undefined name in breadcrumbs", () => {
+  it('handles resource with undefined name in breadcrumbs', () => {
     const mockResource = {
-      rec_resource_id: "123",
+      rec_resource_id: '123',
       // name is undefined
     };
 
@@ -368,15 +368,15 @@ describe("RecResourcePageLayout", () => {
     expect(mockUseBreadcrumbs).toHaveBeenCalledWith({
       context: {
         resourceName: undefined,
-        resourceId: "123",
+        resourceId: '123',
       } as RecResourceRouteContext,
     });
   });
 
-  it("updates activeTab when matches change", async () => {
+  it('updates activeTab when matches change', async () => {
     const mockResource = {
-      name: "Test Resource",
-      rec_resource_id: "123",
+      name: 'Test Resource',
+      rec_resource_id: '123',
     };
 
     mockUseRecResource.mockReturnValue({
@@ -399,9 +399,9 @@ describe("RecResourcePageLayout", () => {
     rerender(<RecResourcePageLayout />);
 
     await waitFor(() => {
-      const verticalNav = screen.getByTestId("rec-resource-vertical-nav");
+      const verticalNav = screen.getByTestId('rec-resource-vertical-nav');
       expect(verticalNav).toHaveAttribute(
-        "data-active-tab",
+        'data-active-tab',
         RecResourceNavKey.FILES,
       );
     });

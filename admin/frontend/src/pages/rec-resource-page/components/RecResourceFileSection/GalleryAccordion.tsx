@@ -1,10 +1,10 @@
-import { StyledAccordion } from "@/pages/rec-resource-page/components/StyledAccordion";
-import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ReactNode } from "react";
-import { Col, Row, Spinner, Stack } from "react-bootstrap";
-import { FileUploadTile } from "./FileUploadTile";
-import "./GalleryAccordion.scss";
+import { StyledAccordion } from '@/pages/rec-resource-page/components/StyledAccordion';
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { ReactNode } from 'react';
+import { Col, Row, Spinner, Stack } from 'react-bootstrap';
+import { FileUploadTile } from './FileUploadTile';
+import './GalleryAccordion.scss';
 
 const GalleryColumn = ({ children }: { children: ReactNode }) => (
   <Col sm={12} md={4} className="gallery-accordion__column">
@@ -31,7 +31,7 @@ export function GalleryAccordion<T>({
   items,
   renderItem,
   onFileUploadTileClick,
-  uploadLabel = "Upload",
+  uploadLabel = 'Upload',
   isLoading = false,
   uploadDisabled = false,
 }: GalleryAccordionProps<T>) {

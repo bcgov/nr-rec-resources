@@ -1,15 +1,15 @@
-import { CustomButton } from "@/components";
-import { RecResourceFileSection } from "@/pages/rec-resource-page/components/RecResourceFileSection";
-import { useRecResourceFileTransferState } from "@/pages/rec-resource-page/hooks/useRecResourceFileTransferState";
+import { CustomButton } from '@/components';
+import { RecResourceFileSection } from '@/pages/rec-resource-page/components/RecResourceFileSection';
+import { useRecResourceFileTransferState } from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
 import {
   faEllipsisH,
   faInfoCircle,
   faPlus,
-} from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { FC } from "react";
-import { Alert, Dropdown, Stack } from "react-bootstrap";
-import "./RecResourceFilesPage.scss";
+} from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FC } from 'react';
+import { Alert, Dropdown, Stack } from 'react-bootstrap';
+import './RecResourceFilesPage.scss';
 
 const InfoBanner = () => (
   <Alert variant="warning" className="rec-resource-page__info-banner">
@@ -87,7 +87,7 @@ const ActionButtonsSection = () => {
             />
           </Dropdown.Toggle>
           <Dropdown.Menu>
-            <Dropdown.Item onClick={getImageGeneralActionHandler("upload")}>
+            <Dropdown.Item onClick={getImageGeneralActionHandler('upload')}>
               <FontAwesomeIcon
                 icon={faPlus}
                 className="me-2 rec-resource-files-page__action-button-icon"
@@ -95,7 +95,7 @@ const ActionButtonsSection = () => {
               Add image
             </Dropdown.Item>
             <Dropdown.Item
-              onClick={getDocumentGeneralActionHandler("upload")}
+              onClick={getDocumentGeneralActionHandler('upload')}
               disabled={isDocumentUploadDisabled}
             >
               <FontAwesomeIcon
@@ -115,12 +115,12 @@ const ActionButtonsSection = () => {
       >
         <ActionButton
           label="Add image"
-          onClick={getImageGeneralActionHandler("upload")}
+          onClick={getImageGeneralActionHandler('upload')}
           disabled={isImageUploadDisabled}
         />
         <ActionButton
           label="Add document"
-          onClick={getDocumentGeneralActionHandler("upload")}
+          onClick={getDocumentGeneralActionHandler('upload')}
           disabled={isDocumentUploadDisabled}
         />
       </Stack>

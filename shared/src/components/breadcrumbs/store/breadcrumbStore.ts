@@ -2,8 +2,8 @@
  * Breadcrumb store using TanStack Store
  */
 
-import { Store, useStore } from "@tanstack/react-store";
-import { BreadcrumbItem } from "../types";
+import { Store, useStore } from '@tanstack/react-store';
+import { BreadcrumbItem } from '../types';
 
 export interface BreadcrumbState {
   items: BreadcrumbItem[];

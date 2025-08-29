@@ -1,6 +1,6 @@
-import { RecreationResourceImageVariantDto } from "@/services/recreation-resource-admin";
+import { RecreationResourceImageVariantDto } from '@/services/recreation-resource-admin';
 
-export type FileType = "image" | "document";
+export type FileType = 'image' | 'document';
 
 // Generic file type for gallery
 export interface GalleryFile {
@@ -22,25 +22,25 @@ export interface GalleryFile {
 export interface GalleryDocument extends GalleryFile {
   doc_code?: string;
   doc_code_description?: string;
-  type: "document";
+  type: 'document';
 }
 
 export interface GalleryImage extends GalleryFile {
   variants: Array<RecreationResourceImageVariantDto>;
   previewUrl: string;
-  type: "image";
+  type: 'image';
 }
 
 export type GalleryFileAction =
-  | "view"
-  | "download"
-  | "retry"
-  | "delete"
-  | "dismiss";
+  | 'view'
+  | 'download'
+  | 'retry'
+  | 'delete'
+  | 'dismiss';
 
 export type GalleryGeneralAction =
-  | "upload"
-  | "confirm-upload"
-  | "confirm-delete"
-  | "cancel-delete"
-  | "cancel-upload";
+  | 'upload'
+  | 'confirm-upload'
+  | 'confirm-delete'
+  | 'cancel-delete'
+  | 'cancel-upload';

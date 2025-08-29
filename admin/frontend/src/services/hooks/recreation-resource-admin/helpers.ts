@@ -3,8 +3,8 @@ import {
   RecreationResourceDetailUIModel,
   RecreationResourceDocDto,
   RecreationResourceImageDto,
-} from "@/services";
-import { formatDateReadable } from "@shared/index";
+} from '@/services';
+import { formatDateReadable } from '@shared/index';
 
 /**
  * Maps a RecreationResourceDetailDto to RecreationResourceDetail with additional derived descriptions.
@@ -17,13 +17,13 @@ export function mapRecreationResourceDetail(
   return {
     ...data,
     maintenance_standard_description:
-      data.maintenance_standard_code === "U" ? "Maintained" : "User Maintained",
+      data.maintenance_standard_code === 'U' ? 'Maintained' : 'User Maintained',
     recreation_district_description: data.recreation_district?.description,
     recreation_status_description: data.recreation_status?.description,
     project_established_date_readable_utc: formatDateReadable(
       data.project_established_date,
       {
-        timeZone: "UTC", // this date is stored in PST timezone in database
+        timeZone: 'UTC', // this date is stored in PST timezone in database
       },
     ),
   };
@@ -35,7 +35,7 @@ export function mapRecreationResourceDetail(
  */
 export const getBasePathForAssets = (): string =>
   import.meta.env.VITE_RECREATION_RESOURCE_ASSETS_BASE_URL ||
-  "https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca";
+  'https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca';
 
 /**
  * Transforms recreation resource data by updating image URLs with full asset paths.
@@ -90,10 +90,10 @@ export function createRetryHandler({
     }
     const status =
       (error &&
-        typeof error === "object" &&
-        "response" in error &&
+        typeof error === 'object' &&
+        'response' in error &&
         (error as any).response?.status) ||
       undefined;
-    return typeof status === "number" && status >= 500 && status < 600;
+    return typeof status === 'number' && status >= 500 && status < 600;
   };
 }

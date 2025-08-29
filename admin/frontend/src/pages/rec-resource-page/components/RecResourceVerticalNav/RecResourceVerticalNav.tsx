@@ -1,13 +1,13 @@
-import { CustomButton } from "@/components";
+import { CustomButton } from '@/components';
 import {
   REC_RESOURCE_PAGE_NAV_SECTIONS,
   RecResourceNavKey,
-} from "@/pages/rec-resource-page";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Dropdown, Nav } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
-import { faBars } from "~/@fortawesome/free-solid-svg-icons";
-import "./RecResourceVerticalNav.scss";
+} from '@/pages/rec-resource-page';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Dropdown, Nav } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import { faBars } from '~/@fortawesome/free-solid-svg-icons';
+import './RecResourceVerticalNav.scss';
 
 interface RecResourceVerticalNavProps {
   activeTab: RecResourceNavKey;

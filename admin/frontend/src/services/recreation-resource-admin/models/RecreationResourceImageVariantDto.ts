@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from "../runtime";
+import { mapValues } from '../runtime';
 /**
  *
  * @export
@@ -55,22 +55,22 @@ export interface RecreationResourceImageVariantDto {
  * @export
  */
 export const RecreationResourceImageVariantDtoSizeCodeEnum = {
-  Original: "original",
-  Col: "col",
-  Con: "con",
-  Pcs: "pcs",
-  Hpr: "hpr",
-  Ili: "ili",
-  Lan: "lan",
-  Llc: "llc",
-  Lpr: "lpr",
-  Gal: "gal",
-  Ppp: "ppp",
-  Pre: "pre",
-  Rsr: "rsr",
-  Rth: "rth",
-  Scr: "scr",
-  Thm: "thm",
+  Original: 'original',
+  Col: 'col',
+  Con: 'con',
+  Pcs: 'pcs',
+  Hpr: 'hpr',
+  Ili: 'ili',
+  Lan: 'lan',
+  Llc: 'llc',
+  Lpr: 'lpr',
+  Gal: 'gal',
+  Ppp: 'ppp',
+  Pre: 'pre',
+  Rsr: 'rsr',
+  Rth: 'rth',
+  Scr: 'scr',
+  Thm: 'thm',
 } as const;
 export type RecreationResourceImageVariantDtoSizeCodeEnum =
   (typeof RecreationResourceImageVariantDtoSizeCodeEnum)[keyof typeof RecreationResourceImageVariantDtoSizeCodeEnum];
@@ -81,11 +81,11 @@ export type RecreationResourceImageVariantDtoSizeCodeEnum =
 export function instanceOfRecreationResourceImageVariantDto(
   value: object,
 ): value is RecreationResourceImageVariantDto {
-  if (!("size_code" in value) || value["size_code"] === undefined) return false;
-  if (!("url" in value) || value["url"] === undefined) return false;
-  if (!("width" in value) || value["width"] === undefined) return false;
-  if (!("height" in value) || value["height"] === undefined) return false;
-  if (!("extension" in value) || value["extension"] === undefined) return false;
+  if (!('size_code' in value) || value['size_code'] === undefined) return false;
+  if (!('url' in value) || value['url'] === undefined) return false;
+  if (!('width' in value) || value['width'] === undefined) return false;
+  if (!('height' in value) || value['height'] === undefined) return false;
+  if (!('extension' in value) || value['extension'] === undefined) return false;
   return true;
 }
 
@@ -103,11 +103,11 @@ export function RecreationResourceImageVariantDtoFromJSONTyped(
     return json;
   }
   return {
-    size_code: json["size_code"],
-    url: json["url"],
-    width: json["width"],
-    height: json["height"],
-    extension: json["extension"],
+    size_code: json['size_code'],
+    url: json['url'],
+    width: json['width'],
+    height: json['height'],
+    extension: json['extension'],
   };
 }
 
@@ -126,10 +126,10 @@ export function RecreationResourceImageVariantDtoToJSONTyped(
   }
 
   return {
-    size_code: value["size_code"],
-    url: value["url"],
-    width: value["width"],
-    height: value["height"],
-    extension: value["extension"],
+    size_code: value['size_code'],
+    url: value['url'],
+    width: value['width'],
+    height: value['height'],
+    extension: value['extension'],
   };
 }

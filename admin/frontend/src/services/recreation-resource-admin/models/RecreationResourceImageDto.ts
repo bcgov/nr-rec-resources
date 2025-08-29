@@ -12,14 +12,14 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from "../runtime";
-import type { RecreationResourceImageVariantDto } from "./RecreationResourceImageVariantDto";
+import { mapValues } from '../runtime';
+import type { RecreationResourceImageVariantDto } from './RecreationResourceImageVariantDto';
 import {
   RecreationResourceImageVariantDtoFromJSON,
   RecreationResourceImageVariantDtoFromJSONTyped,
   RecreationResourceImageVariantDtoToJSON,
   RecreationResourceImageVariantDtoToJSONTyped,
-} from "./RecreationResourceImageVariantDto";
+} from './RecreationResourceImageVariantDto';
 
 /**
  *
@@ -59,9 +59,9 @@ export interface RecreationResourceImageDto {
 export function instanceOfRecreationResourceImageDto(
   value: object,
 ): value is RecreationResourceImageDto {
-  if (!("ref_id" in value) || value["ref_id"] === undefined) return false;
-  if (!("caption" in value) || value["caption"] === undefined) return false;
-  if (!("created_at" in value) || value["created_at"] === undefined)
+  if (!('ref_id' in value) || value['ref_id'] === undefined) return false;
+  if (!('caption' in value) || value['caption'] === undefined) return false;
+  if (!('created_at' in value) || value['created_at'] === undefined)
     return false;
   return true;
 }
@@ -80,15 +80,15 @@ export function RecreationResourceImageDtoFromJSONTyped(
     return json;
   }
   return {
-    ref_id: json["ref_id"],
-    caption: json["caption"],
+    ref_id: json['ref_id'],
+    caption: json['caption'],
     recreation_resource_image_variants:
-      json["recreation_resource_image_variants"] == null
+      json['recreation_resource_image_variants'] == null
         ? undefined
-        : (json["recreation_resource_image_variants"] as Array<any>).map(
+        : (json['recreation_resource_image_variants'] as Array<any>).map(
             RecreationResourceImageVariantDtoFromJSON,
           ),
-    created_at: json["created_at"],
+    created_at: json['created_at'],
   };
 }
 
@@ -107,14 +107,14 @@ export function RecreationResourceImageDtoToJSONTyped(
   }
 
   return {
-    ref_id: value["ref_id"],
-    caption: value["caption"],
+    ref_id: value['ref_id'],
+    caption: value['caption'],
     recreation_resource_image_variants:
-      value["recreation_resource_image_variants"] == null
+      value['recreation_resource_image_variants'] == null
         ? undefined
-        : (value["recreation_resource_image_variants"] as Array<any>).map(
+        : (value['recreation_resource_image_variants'] as Array<any>).map(
             RecreationResourceImageVariantDtoToJSON,
           ),
-    created_at: value["created_at"],
+    created_at: value['created_at'],
   };
 }

@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { mapValues } from "../runtime";
+import { mapValues } from '../runtime';
 /**
  *
  * @export
@@ -73,7 +73,7 @@ export interface RecreationResourceDocDto {
  * @export
  */
 export const RecreationResourceDocDtoDocCodeEnum = {
-  Rm: "RM",
+  Rm: 'RM',
 } as const;
 export type RecreationResourceDocDtoDocCodeEnum =
   (typeof RecreationResourceDocDtoDocCodeEnum)[keyof typeof RecreationResourceDocDtoDocCodeEnum];
@@ -84,19 +84,19 @@ export type RecreationResourceDocDtoDocCodeEnum =
 export function instanceOfRecreationResourceDocDto(
   value: object,
 ): value is RecreationResourceDocDto {
-  if (!("ref_id" in value) || value["ref_id"] === undefined) return false;
-  if (!("title" in value) || value["title"] === undefined) return false;
-  if (!("rec_resource_id" in value) || value["rec_resource_id"] === undefined)
+  if (!('ref_id' in value) || value['ref_id'] === undefined) return false;
+  if (!('title' in value) || value['title'] === undefined) return false;
+  if (!('rec_resource_id' in value) || value['rec_resource_id'] === undefined)
     return false;
-  if (!("url" in value) || value["url"] === undefined) return false;
-  if (!("doc_code" in value) || value["doc_code"] === undefined) return false;
+  if (!('url' in value) || value['url'] === undefined) return false;
+  if (!('doc_code' in value) || value['doc_code'] === undefined) return false;
   if (
-    !("doc_code_description" in value) ||
-    value["doc_code_description"] === undefined
+    !('doc_code_description' in value) ||
+    value['doc_code_description'] === undefined
   )
     return false;
-  if (!("extension" in value) || value["extension"] === undefined) return false;
-  if (!("created_at" in value) || value["created_at"] === undefined)
+  if (!('extension' in value) || value['extension'] === undefined) return false;
+  if (!('created_at' in value) || value['created_at'] === undefined)
     return false;
   return true;
 }
@@ -115,14 +115,14 @@ export function RecreationResourceDocDtoFromJSONTyped(
     return json;
   }
   return {
-    ref_id: json["ref_id"],
-    title: json["title"],
-    rec_resource_id: json["rec_resource_id"],
-    url: json["url"],
-    doc_code: json["doc_code"],
-    doc_code_description: json["doc_code_description"],
-    extension: json["extension"],
-    created_at: json["created_at"],
+    ref_id: json['ref_id'],
+    title: json['title'],
+    rec_resource_id: json['rec_resource_id'],
+    url: json['url'],
+    doc_code: json['doc_code'],
+    doc_code_description: json['doc_code_description'],
+    extension: json['extension'],
+    created_at: json['created_at'],
   };
 }
 
@@ -141,13 +141,13 @@ export function RecreationResourceDocDtoToJSONTyped(
   }
 
   return {
-    ref_id: value["ref_id"],
-    title: value["title"],
-    rec_resource_id: value["rec_resource_id"],
-    url: value["url"],
-    doc_code: value["doc_code"],
-    doc_code_description: value["doc_code_description"],
-    extension: value["extension"],
-    created_at: value["created_at"],
+    ref_id: value['ref_id'],
+    title: value['title'],
+    rec_resource_id: value['rec_resource_id'],
+    url: value['url'],
+    doc_code: value['doc_code'],
+    doc_code_description: value['doc_code_description'],
+    extension: value['extension'],
+    created_at: value['created_at'],
   };
 }

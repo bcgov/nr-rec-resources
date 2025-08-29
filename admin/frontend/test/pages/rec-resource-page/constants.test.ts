@@ -1,38 +1,38 @@
 import {
   FILE_TYPE_CONFIGS,
   RecResourceNavKey,
-} from "@/pages/rec-resource-page";
-import { describe, expect, it } from "vitest";
+} from '@/pages/rec-resource-page';
+import { describe, expect, it } from 'vitest';
 
-describe("rec-resource-page constants", () => {
-  describe("FILE_TYPE_CONFIGS", () => {
-    it("has correct configuration for document type", () => {
+describe('rec-resource-page constants', () => {
+  describe('FILE_TYPE_CONFIGS', () => {
+    it('has correct configuration for document type', () => {
       expect(FILE_TYPE_CONFIGS.document).toEqual({
-        accept: "application/pdf",
+        accept: 'application/pdf',
         maxFiles: 30,
       });
     });
 
-    it("has correct configuration for image type", () => {
+    it('has correct configuration for image type', () => {
       expect(FILE_TYPE_CONFIGS.image).toEqual({
-        accept: "image/png,image/jpg,image/jpeg,image/webp",
+        accept: 'image/png,image/jpg,image/jpeg,image/webp',
         maxFiles: 20,
       });
     });
 
-    it("has all required file type configurations", () => {
-      expect(Object.keys(FILE_TYPE_CONFIGS)).toEqual(["document", "image"]);
+    it('has all required file type configurations', () => {
+      expect(Object.keys(FILE_TYPE_CONFIGS)).toEqual(['document', 'image']);
     });
   });
 
-  describe("RecResourceTabKey", () => {
-    it("has correct enum values", () => {
-      expect(RecResourceNavKey.OVERVIEW).toBe("overview");
-      expect(RecResourceNavKey.FILES).toBe("files");
+  describe('RecResourceTabKey', () => {
+    it('has correct enum values', () => {
+      expect(RecResourceNavKey.OVERVIEW).toBe('overview');
+      expect(RecResourceNavKey.FILES).toBe('files');
     });
 
-    it("has all expected tab keys", () => {
-      expect(Object.values(RecResourceNavKey)).toEqual(["overview", "files"]);
+    it('has all expected tab keys', () => {
+      expect(Object.values(RecResourceNavKey)).toEqual(['overview', 'files']);
     });
   });
 });

@@ -1,7 +1,7 @@
-import { formatRecreationAccess } from "@/pages/rec-resource-page/components/RecResourceOverviewSection/helpers";
-import { RecreationResourceDetailUIModel } from "@/services";
-import { Col, Row, Stack } from "react-bootstrap";
-import { RecResourceOverviewItem } from "./RecResourceOverviewItem";
+import { formatRecreationAccess } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/helpers';
+import { RecreationResourceDetailUIModel } from '@/services';
+import { Col, Row, Stack } from 'react-bootstrap';
+import { RecResourceOverviewItem } from './RecResourceOverviewItem';
 
 type RecResourceOverviewSectionProps = {
   recResource: RecreationResourceDetailUIModel;
@@ -14,28 +14,28 @@ export const RecResourceOverviewSection = (
 
   const overviewItems = [
     {
-      key: "closest-community",
-      label: "Closest Community",
+      key: 'closest-community',
+      label: 'Closest Community',
       value: recResource.closest_community,
     },
     {
-      key: "recreation-district",
-      label: "Recreation District",
+      key: 'recreation-district',
+      label: 'Recreation District',
       value: recResource.recreation_district_description,
     },
     {
-      key: "access-type",
-      label: "Access Type",
+      key: 'access-type',
+      label: 'Access Type',
       value: formatRecreationAccess(recResource.recreation_access),
     },
     {
-      key: "maintenance-type",
-      label: "Maintenance Type",
+      key: 'maintenance-type',
+      label: 'Maintenance Type',
       value: recResource.maintenance_standard_description,
     },
     {
-      key: "project-established-date",
-      label: "Project Established Date",
+      key: 'project-established-date',
+      label: 'Project Established Date',
       value: recResource.project_established_date_readable_utc,
     },
   ];

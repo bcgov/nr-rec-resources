@@ -1,5 +1,5 @@
-import { RecreationAccessDto } from "@/services";
-import { Stack } from "react-bootstrap";
+import { RecreationAccessDto } from '@/services';
+import { Stack } from 'react-bootstrap';
 
 // Helper function to format recreation access with sub access information
 export const formatRecreationAccess = (
