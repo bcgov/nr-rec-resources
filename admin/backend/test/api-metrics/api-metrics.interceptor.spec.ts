@@ -1,3 +1,6 @@
+import { ApiMetricsInterceptor } from "@/api-metrics/api-metrics.interceptor";
+import { ApiMetricsService } from "@/api-metrics/api-metrics.service";
+import { OperationNameUtil } from "@/api-metrics/operation-name.util";
 import {
   CallHandler,
   ExecutionContext,
@@ -7,9 +10,6 @@ import {
 import { Test } from "@nestjs/testing";
 import { ClsModule } from "nestjs-cls";
 import { of, throwError } from "rxjs";
-import { ApiMetricsInterceptor } from "./api-metrics.interceptor";
-import { ApiMetricsService } from "./api-metrics.service";
-import { OperationNameUtil } from "./operation-name.util";
 import { Mocked } from "vitest";
 
 describe("ApiMetricsInterceptor", () => {

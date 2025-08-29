@@ -1,13 +1,13 @@
-import { NestFactory } from "@nestjs/core";
-import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
-import { AppModule } from "./app.module";
-import { customLogger } from "./common/logger.config";
-import { NestExpressApplication } from "@nestjs/platform-express";
-import helmet from "helmet";
-import { VersioningType } from "@nestjs/common";
-import { AUTH_STRATEGY } from "./auth";
 import { AllExceptionsFilter } from "@/common/filters/all-exceptions.filter";
 import { globalValidationPipe } from "@/config/global-validation-pipe.config";
+import { VersioningType } from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
+import { NestExpressApplication } from "@nestjs/platform-express";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import helmet from "helmet";
+import { AppModule } from "./app.module";
+import { AUTH_STRATEGY } from "./auth";
+import { customLogger } from "./common/logger.config";
 
 /**
  * Bootstrap function to initialize the NestJS application.

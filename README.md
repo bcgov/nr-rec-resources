@@ -295,7 +295,7 @@ the `ApiMetricsInterceptor` located in
 `/backend/src/api-metrics/api-metrics.interceptor.ts`.
 
 > ❗❗❗ When running locally make sure to include the environment variable
-> `NODE_ENV=Local`
+> `APP_ENV=Local`. This disables the metric emission.
 
 ## How it Works
 

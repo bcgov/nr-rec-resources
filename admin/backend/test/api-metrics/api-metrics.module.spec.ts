@@ -1,7 +1,7 @@
+import { ApiMetricsModule } from "@/api-metrics/api-metrics.module";
+import { ApiMetricsService } from "@/api-metrics/api-metrics.service";
 import { Test } from "@nestjs/testing";
 import { ClsModule } from "nestjs-cls";
-import { ApiMetricsModule } from "./api-metrics.module";
-import { ApiMetricsService } from "./api-metrics.service";
 
 describe("ApiMetricsModule", () => {
   let module;
