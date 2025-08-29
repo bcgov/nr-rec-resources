@@ -3,6 +3,7 @@ import {
   RecreationFeeDto,
   RecreationResourceDetailDto,
   RecreationResourceDistrictDto,
+  RecreationResourceReservationInfoDto,
   RecreationStatusDto,
   RecreationStructureDto,
   SiteOperatorDto,
@@ -105,6 +106,23 @@ describe('Recreation DTOs', () => {
       ];
       resource.recreation_district = district_code;
 
+      const recreation_resource_reservation_info =
+        new RecreationResourceReservationInfoDto();
+
+      recreation_resource_reservation_info.reservation_instructions =
+        "All reservations through partner, not RSTBC";
+      recreation_resource_reservation_info.reservation_website =
+        "https://accwhistler.ca/WendyThompson.html";
+      recreation_resource_reservation_info.reservation_phone_number =
+        "1-999-999-9999";
+      recreation_resource_reservation_info.reservation_email =
+        "email@email.com";
+      recreation_resource_reservation_info.reservation_comments =
+        "this is a huge comment";
+
+      resource.recreation_resource_reservation_info =
+        recreation_resource_reservation_info;
+
       expect(resource.rec_resource_id).toBeDefined();
       expect(resource.name.length).toBeGreaterThanOrEqual(1);
       expect(resource.name.length).toBeLessThanOrEqual(100);
@@ -116,6 +134,9 @@ describe('Recreation DTOs', () => {
       expect(resource.recreation_district).toBeDefined();
       expect(resource.recreation_district.district_code).toBe('RDCK');
       expect(resource.recreation_district.description).toBe('Chilliwack');
+      expect(
+        resource.recreation_resource_reservation_info.reservation_email,
+      ).toBe('email@email.com');
     });
 
     it('should allow null description', () => {
