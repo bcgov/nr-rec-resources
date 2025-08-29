@@ -1,0 +1,126 @@
+import { ROUTE_PATHS } from '@/routes';
+import {
+  RecreationResourceDetailUIModel,
+  UpdateRecreationResourceDto,
+  useUpdateRecreationResource,
+} from '@/services';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useNavigateWithQueryParams } from '@shared/hooks';
+import { useMemo } from 'react';
+import { useForm, useWatch, type Resolver } from 'react-hook-form';
+import type { GroupedOption } from '../components/GroupedMultiSelectField';
+import { EditResourceFormData, editResourceSchema } from '../schemas';
+
+/**
+ * Custom hook for managing edit resource form logic
+ * Handles form state, validation, submission, and complex interactions
+ */
+export const useEditResourceForm = (
+  recResource: RecreationResourceDetailUIModel,
+) => {
+  const navigate = useNavigateWithQueryParams();
+  const updateMutation = useUpdateRecreationResource();
+
+  // Get default values from resource data
+  const defaultValues: EditResourceFormData = useMemo(() => {
+    const selectedAccessOptions: GroupedOption[] = [];
+
+    if (recResource.accessCodes && Array.isArray(recResource.accessCodes)) {
+      recResource.accessCodes.forEach((accessCode) => {
+        accessCode.subAccessCodes.forEach((subAccessCode) => {
+          selectedAccessOptions.push({
+            label: subAccessCode.description,
+            value: subAccessCode.code,
+            group: accessCode.code,
+            groupLabel: accessCode.description,
+          });
+        });
+      });
+    }
+
+    return {
+      maintenance_standard_code: recResource.maintenance_standard_code || '',
+      control_access_code: recResource.control_access_code || null,
+      selected_access_options: selectedAccessOptions,
+      status_code: recResource.recreation_status_code?.toString() || '',
+    };
+  }, [recResource]);
+
+  // React Hook Form setup
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isDirty },
+  } = useForm<EditResourceFormData>({
+    resolver: zodResolver(editResourceSchema) as Resolver<EditResourceFormData>,
+    defaultValues,
+    mode: 'onChange',
+  });
+
+  // Watch form values
+  const selectedAccessOptions =
+    useWatch({ control, name: 'selected_access_options' }) || [];
+
+  const onSubmit = async (data: EditResourceFormData) => {
+    // Build access codes structure from selected sub-access options
+    const accessCodesMap: Record<
+      string,
+      {
+        code: string;
+        subAccessCodes: Array<string>;
+      }
+    > = {};
+
+    // Process each selected sub-access option
+    data.selected_access_options.forEach((option: GroupedOption) => {
+      const parentId = option.group;
+
+      // Initialize parent access code if not exists
+      if (!accessCodesMap[parentId]) {
+        accessCodesMap[parentId] = {
+          code: parentId,
+          subAccessCodes: [],
+        };
+      }
+
+      // Add the sub-access code
+      accessCodesMap[parentId].subAccessCodes.push(option.value);
+    });
+
+    // Prepare update data with proper type conversion
+    const updateData: UpdateRecreationResourceDto = {
+      maintenance_standard_code: data.maintenance_standard_code || undefined,
+      control_access_code: data.control_access_code || undefined,
+      status_code: data.status_code ? Number(data.status_code) : undefined,
+      accessCodes: Object.values(accessCodesMap),
+    };
+
+    // Submit the update
+    updateMutation.mutate(
+      {
+        recResourceId: recResource.rec_resource_id.toString(),
+        updateRecreationResourceDto: updateData,
+      },
+      {
+        onSuccess: () => {
+          navigate(
+            ROUTE_PATHS.REC_RESOURCE_OVERVIEW.replace(
+              ':id',
+              recResource.rec_resource_id.toString(),
+            ),
+          );
+        },
+      },
+    );
+  };
+
+  return {
+    control,
+    handleSubmit,
+    errors,
+    isDirty,
+    selectedAccessOptions,
+    updateMutation,
+    onSubmit,
+  };
+};

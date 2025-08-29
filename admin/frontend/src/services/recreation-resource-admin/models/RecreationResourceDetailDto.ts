@@ -13,6 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
+import type { RecreationAccessCodeDto } from './RecreationAccessCodeDto';
+import {
+  RecreationAccessCodeDtoFromJSON,
+  RecreationAccessCodeDtoFromJSONTyped,
+  RecreationAccessCodeDtoToJSON,
+  RecreationAccessCodeDtoToJSONTyped,
+} from './RecreationAccessCodeDto';
 import type { RecreationResourceDistrictDto } from './RecreationResourceDistrictDto';
 import {
   RecreationResourceDistrictDtoFromJSON,
@@ -20,6 +27,13 @@ import {
   RecreationResourceDistrictDtoToJSON,
   RecreationResourceDistrictDtoToJSONTyped,
 } from './RecreationResourceDistrictDto';
+import type { RecreationControlAccessDto } from './RecreationControlAccessDto';
+import {
+  RecreationControlAccessDtoFromJSON,
+  RecreationControlAccessDtoFromJSONTyped,
+  RecreationControlAccessDtoToJSON,
+  RecreationControlAccessDtoToJSONTyped,
+} from './RecreationControlAccessDto';
 import type { RecreationStructureDto } from './RecreationStructureDto';
 import {
   RecreationStructureDtoFromJSON,
@@ -41,13 +55,6 @@ import {
   RecreationStatusDtoToJSON,
   RecreationStatusDtoToJSONTyped,
 } from './RecreationStatusDto';
-import type { RecreationAccessDto } from './RecreationAccessDto';
-import {
-  RecreationAccessDtoFromJSON,
-  RecreationAccessDtoFromJSONTyped,
-  RecreationAccessDtoToJSON,
-  RecreationAccessDtoToJSONTyped,
-} from './RecreationAccessDto';
 import type { RecreationActivityDto } from './RecreationActivityDto';
 import {
   RecreationActivityDtoFromJSON,
@@ -115,7 +122,7 @@ export interface RecreationResourceDetailDto {
    * @type {string}
    * @memberof RecreationResourceDetailDto
    */
-  maintenance_standard_code: RecreationResourceDetailDtoMaintenanceStandardCodeEnum;
+  maintenance_standard: RecreationResourceDetailDtoMaintenanceStandardEnum;
   /**
    * Number of campsites available in the recreation site or trail
    * @type {number}
@@ -123,11 +130,11 @@ export interface RecreationResourceDetailDto {
    */
   campsite_count: number;
   /**
-   * Recreation Access Types with optional sub access details
-   * @type {Array<RecreationAccessDto>}
+   * List of access codes with their associated sub-access codes
+   * @type {Array<RecreationAccessCodeDto>}
    * @memberof RecreationResourceDetailDto
    */
-  recreation_access: Array<RecreationAccessDto>;
+  accessCodes: Array<RecreationAccessCodeDto>;
   /**
    * Structure-related facilities available at the recreation resource (e.g., toilets, tables)
    * @type {RecreationStructureDto}
@@ -159,6 +166,12 @@ export interface RecreationResourceDetailDto {
    */
   project_established_date?: Date;
   /**
+   * Recreation control access code
+   * @type {RecreationControlAccessDto}
+   * @memberof RecreationResourceDetailDto
+   */
+  recreation_control_access_code?: RecreationControlAccessDto;
+  /**
    * Risk rating for the recreation resource
    * @type {RecreationRiskRatingDto}
    * @memberof RecreationResourceDetailDto
@@ -169,12 +182,12 @@ export interface RecreationResourceDetailDto {
 /**
  * @export
  */
-export const RecreationResourceDetailDtoMaintenanceStandardCodeEnum = {
+export const RecreationResourceDetailDtoMaintenanceStandardEnum = {
   U: 'U',
   M: 'M',
 } as const;
-export type RecreationResourceDetailDtoMaintenanceStandardCodeEnum =
-  (typeof RecreationResourceDetailDtoMaintenanceStandardCodeEnum)[keyof typeof RecreationResourceDetailDtoMaintenanceStandardCodeEnum];
+export type RecreationResourceDetailDtoMaintenanceStandardEnum =
+  (typeof RecreationResourceDetailDtoMaintenanceStandardEnum)[keyof typeof RecreationResourceDetailDtoMaintenanceStandardEnum];
 
 /**
  * Check if a given object implements the RecreationResourceDetailDto interface.
@@ -213,16 +226,13 @@ export function instanceOfRecreationResourceDetailDto(
   )
     return false;
   if (
-    !('maintenance_standard_code' in value) ||
-    value['maintenance_standard_code'] === undefined
+    !('maintenance_standard' in value) ||
+    value['maintenance_standard'] === undefined
   )
     return false;
   if (!('campsite_count' in value) || value['campsite_count'] === undefined)
     return false;
-  if (
-    !('recreation_access' in value) ||
-    value['recreation_access'] === undefined
-  )
+  if (!('accessCodes' in value) || value['accessCodes'] === undefined)
     return false;
   if (
     !('recreation_structure' in value) ||
@@ -256,10 +266,10 @@ export function RecreationResourceDetailDtoFromJSONTyped(
     rec_resource_type: json['rec_resource_type'],
     description: json['description'],
     driving_directions: json['driving_directions'],
-    maintenance_standard_code: json['maintenance_standard_code'],
+    maintenance_standard: json['maintenance_standard'],
     campsite_count: json['campsite_count'],
-    recreation_access: (json['recreation_access'] as Array<any>).map(
-      RecreationAccessDtoFromJSON,
+    accessCodes: (json['accessCodes'] as Array<any>).map(
+      RecreationAccessCodeDtoFromJSON,
     ),
     recreation_structure: RecreationStructureDtoFromJSON(
       json['recreation_structure'],
@@ -280,6 +290,12 @@ export function RecreationResourceDetailDtoFromJSONTyped(
       json['project_established_date'] == null
         ? undefined
         : new Date(json['project_established_date']),
+    recreation_control_access_code:
+      json['recreation_control_access_code'] == null
+        ? undefined
+        : RecreationControlAccessDtoFromJSON(
+            json['recreation_control_access_code'],
+          ),
     risk_rating:
       json['risk_rating'] == null
         ? undefined
@@ -312,10 +328,10 @@ export function RecreationResourceDetailDtoToJSONTyped(
     rec_resource_type: value['rec_resource_type'],
     description: value['description'],
     driving_directions: value['driving_directions'],
-    maintenance_standard_code: value['maintenance_standard_code'],
+    maintenance_standard: value['maintenance_standard'],
     campsite_count: value['campsite_count'],
-    recreation_access: (value['recreation_access'] as Array<any>).map(
-      RecreationAccessDtoToJSON,
+    accessCodes: (value['accessCodes'] as Array<any>).map(
+      RecreationAccessCodeDtoToJSON,
     ),
     recreation_structure: RecreationStructureDtoToJSON(
       value['recreation_structure'],
@@ -329,6 +345,9 @@ export function RecreationResourceDetailDtoToJSONTyped(
       value['project_established_date'] == null
         ? undefined
         : value['project_established_date'].toISOString(),
+    recreation_control_access_code: RecreationControlAccessDtoToJSON(
+      value['recreation_control_access_code'],
+    ),
     risk_rating: RecreationRiskRatingDtoToJSON(value['risk_rating']),
   };
 }

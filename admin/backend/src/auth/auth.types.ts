@@ -19,5 +19,6 @@ export interface KeycloakUserToken {
   family_name?: string;
   email?: string;
   client_roles?: string[];
+  idir_username: string;
   [key: string]: unknown;
 }

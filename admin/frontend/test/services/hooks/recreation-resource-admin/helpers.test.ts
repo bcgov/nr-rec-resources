@@ -14,7 +14,10 @@ describe('mapRecreationResourceDetail', () => {
   it('should map descriptions correctly for maintained resource', () => {
     const input = {
       rec_resource_id: '1',
-      maintenance_standard_code: 'U',
+      maintenance_standard: {
+        maintenance_standard_code: 'U',
+        description: 'Maintained',
+      },
       recreation_district: { description: 'District A' },
       recreation_status: { description: 'Open' },
       risk_rating: { risk_rating_code: 'H', description: 'High' },
@@ -29,7 +32,10 @@ describe('mapRecreationResourceDetail', () => {
   it('should map descriptions correctly for user maintained resource', () => {
     const input = {
       rec_resource_id: '2',
-      maintenance_standard_code: 'X',
+      maintenance_standard: {
+        maintenance_standard_code: 'X',
+        description: 'User Maintained',
+      },
       recreation_district: { description: 'District B' },
       recreation_status: { description: 'Closed' },
     };
@@ -42,7 +48,10 @@ describe('mapRecreationResourceDetail', () => {
   it('should map descriptions correctly for M maintenance code', () => {
     const input = {
       rec_resource_id: '2b',
-      maintenance_standard_code: 'M',
+      maintenance_standard: {
+        maintenance_standard_code: 'M',
+        description: 'User Maintained',
+      },
       recreation_district: { description: 'District B2' },
       recreation_status: { description: 'Closed' },
     };
@@ -55,7 +64,10 @@ describe('mapRecreationResourceDetail', () => {
   it('should handle missing nested descriptions', () => {
     const input = {
       rec_resource_id: '3',
-      maintenance_standard_code: 'U',
+      maintenance_standard: {
+        maintenance_standard_code: 'U',
+        description: 'Maintained',
+      },
       recreation_district: undefined,
       recreation_status: null,
       risk_rating: undefined,
@@ -70,7 +82,10 @@ describe('mapRecreationResourceDetail', () => {
   it('should format project established date with UTC timezone', () => {
     const input = {
       rec_resource_id: '4',
-      maintenance_standard_code: 'U',
+      maintenance_standard: {
+        maintenance_standard_code: 'U',
+        description: 'Maintained',
+      },
       project_established_date: '2023-06-15T10:30:00Z',
       recreation_district: { description: 'District C' },
       recreation_status: { description: 'Open' },
@@ -83,12 +98,18 @@ describe('mapRecreationResourceDetail', () => {
   it('should handle null/undefined project_established_date', () => {
     const inputWithNull = {
       rec_resource_id: '5',
-      maintenance_standard_code: 'U',
+      maintenance_standard: {
+        maintenance_standard_code: 'U',
+        description: 'Maintained',
+      },
       project_established_date: null,
     };
     const inputWithUndefined = {
       rec_resource_id: '6',
-      maintenance_standard_code: 'U',
+      maintenance_standard: {
+        maintenance_standard_code: 'U',
+        description: 'Maintained',
+      },
       project_established_date: undefined,
     };
 
@@ -103,15 +124,15 @@ describe('mapRecreationResourceDetail', () => {
     expect(resultUndefined.project_established_date_readable_utc).toBeDefined();
   });
 
-  it('should handle null/undefined maintenance_standard_code', () => {
+  it('should handle null/undefined maintenance_standard', () => {
     const inputWithNull = {
       rec_resource_id: '7',
-      maintenance_standard_code: null,
+      maintenance_standard: null,
       recreation_district: { description: 'District D' },
     };
     const inputWithUndefined = {
       rec_resource_id: '8',
-      maintenance_standard_code: undefined,
+      maintenance_standard: undefined,
       recreation_district: { description: 'District E' },
     };
 
@@ -122,10 +143,8 @@ describe('mapRecreationResourceDetail', () => {
       inputWithUndefined as any,
     );
 
-    expect(resultNull.maintenance_standard_description).toBe('User Maintained');
-    expect(resultUndefined.maintenance_standard_description).toBe(
-      'User Maintained',
-    );
+    expect(resultNull.maintenance_standard_description).toBeUndefined();
+    expect(resultUndefined.maintenance_standard_description).toBeUndefined();
   });
 
   it('should preserve all original properties in the result', () => {
@@ -133,7 +152,10 @@ describe('mapRecreationResourceDetail', () => {
       rec_resource_id: '9',
       name: 'Test Resource',
       description: 'A test recreation resource',
-      maintenance_standard_code: 'U',
+      maintenance_standard: {
+        maintenance_standard_code: 'U',
+        description: 'Maintained',
+      },
       closest_community: 'Test Community',
       recreation_activity: [{ code: 'HIKE', description: 'Hiking' }],
       recreation_district: { description: 'District F' },

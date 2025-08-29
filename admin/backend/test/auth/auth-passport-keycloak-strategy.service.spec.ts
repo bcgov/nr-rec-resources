@@ -1,5 +1,6 @@
 import { AppConfigModule } from '@/app-config/app-config.module';
 import { AuthPassportKeycloakStrategy } from '@/auth';
+import { UserContextService } from '@/common/modules/user-context/user-context.service';
 import { Test } from '@nestjs/testing';
 import { describe, expect, it } from 'vitest';
 
@@ -7,7 +8,14 @@ describe('AuthPassportKeycloakStrategy', () => {
   const createModule = () => {
     return Test.createTestingModule({
       imports: [AppConfigModule],
-      providers: [AuthPassportKeycloakStrategy],
+      providers: [
+        AuthPassportKeycloakStrategy,
+        // Provide a minimal mock for UserContextService so strategy can be instantiated in tests
+        {
+          provide: UserContextService,
+          useValue: { setCurrentUser: vi.fn() },
+        },
+      ],
     }).compile();
   };
 
@@ -24,6 +32,8 @@ describe('AuthPassportKeycloakStrategy', () => {
       auth_time: 1234567890,
       jti: 'test-jti',
       typ: 'Bearer',
+      // include optional fields expected by KeycloakUserToken
+      idir_username: 'TEST\\some.user',
     };
 
     expect(await strategy.validate(mockPayload)).toEqual(mockPayload);

@@ -4,6 +4,8 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { Header as BCGovHeader } from '@bcgov/design-system-react-components';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { EnvironmentBanner } from '@shared/components/environment-banner';
+import '@shared/components/environment-banner/EnvironmentBanner.scss';
 import { forwardRef, KeyboardEvent, MouseEvent } from 'react';
 import {
   Dropdown,
@@ -13,9 +15,7 @@ import {
   Image,
   Stack,
 } from 'react-bootstrap';
-import { EnvironmentBanner } from '@shared/components/environment-banner';
 import './Header.scss';
-import '@shared/components/environment-banner/EnvironmentBanner.scss';
 
 /**
  * A custom menu toggle component for the header dropdown.

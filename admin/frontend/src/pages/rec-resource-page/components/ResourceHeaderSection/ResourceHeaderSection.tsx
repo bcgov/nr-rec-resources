@@ -5,6 +5,7 @@ import {
   COLOR_BLUE,
   COLOR_BLUE_LIGHT,
   COLOR_GREEN,
+  COLOR_RED,
   COLOR_WHITE,
 } from '@/styles/colors';
 import { FC } from 'react';
@@ -43,7 +44,11 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
           {recResource.recreation_status_description && (
             <CustomBadge
               label={recResource.recreation_status_description!}
-              bgColor={COLOR_GREEN}
+              bgColor={
+                recResource.recreation_status_code === 1
+                  ? COLOR_GREEN
+                  : COLOR_RED
+              }
               textColor={COLOR_WHITE}
             />
           )}

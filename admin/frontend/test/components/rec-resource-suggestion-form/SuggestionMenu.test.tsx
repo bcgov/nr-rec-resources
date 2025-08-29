@@ -1,7 +1,7 @@
-import { render, screen } from '@testing-library/react';
 import { SuggestionMenu } from '@/components/rec-resource-suggestion-form/SuggestionMenu';
-import type { RenderMenuProps } from 'react-bootstrap-typeahead';
 import { RESOURCE_TYPE_ICONS } from '@shared/components/suggestion-typeahead/constants';
+import { render, screen } from '@testing-library/react';
+import type { RenderMenuProps } from 'react-bootstrap-typeahead';
 
 // Mock SuggestionListItem
 vi.mock('@/components/rec-resource-suggestion-form/SuggestionListItem', () => ({
@@ -35,6 +35,7 @@ describe('SuggestionMenu', () => {
       recreation_resource_type: 'Trail',
       district_description: 'Mountain District',
       name: 'Alpine Loop',
+      display_on_public_site: true,
     },
     {
       rec_resource_id: 'def456',
@@ -42,6 +43,7 @@ describe('SuggestionMenu', () => {
       recreation_resource_type: 'Campground',
       district_description: 'Valley District',
       name: 'Sunset Camp',
+      display_on_public_site: true,
     },
   ];
 
@@ -106,5 +108,57 @@ describe('SuggestionMenu', () => {
       />,
     );
     expect(screen.queryByTestId('suggestion-item')).not.toBeInTheDocument();
+  });
+
+  it('uses NO_TYPE_ICON when recreation_resource_type_code is undefined', () => {
+    const resultsWithoutTypeCode = [
+      {
+        rec_resource_id: 'xyz789',
+        recreation_resource_type_code: undefined as unknown as string,
+        recreation_resource_type: 'Unknown',
+        district_description: 'Test District',
+        name: 'Test Resource',
+        display_on_public_site: true,
+      },
+    ];
+
+    render(
+      <SuggestionMenu
+        results={resultsWithoutTypeCode}
+        searchTerm="test"
+        menuProps={mockMenuProps}
+      />,
+    );
+
+    const item = screen.getByTestId('suggestion-item');
+    expect(item).toHaveTextContent(
+      `Test Resource | Test District | Unknown | ${RESOURCE_TYPE_ICONS.NO_TYPE_ICON} | test | xyz789`,
+    );
+  });
+
+  it('uses NO_TYPE_ICON when recreation_resource_type_code is null', () => {
+    const resultsWithNullTypeCode = [
+      {
+        rec_resource_id: 'null123',
+        recreation_resource_type_code: null as unknown as string,
+        recreation_resource_type: 'Unknown',
+        district_description: 'Test District',
+        name: 'Null Resource',
+        display_on_public_site: false,
+      },
+    ];
+
+    render(
+      <SuggestionMenu
+        results={resultsWithNullTypeCode}
+        searchTerm="null"
+        menuProps={mockMenuProps}
+      />,
+    );
+
+    const item = screen.getByTestId('suggestion-item');
+    expect(item).toHaveTextContent(
+      `Null Resource | Test District | Unknown | ${RESOURCE_TYPE_ICONS.NO_TYPE_ICON} | null | null123`,
+    );
   });
 });

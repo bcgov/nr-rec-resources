@@ -1,8 +1,5 @@
+import { RecreationResourceDocDto, ResponseError } from '@/services';
 import { useRecreationResourceAdminApiClient } from '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient';
-import {
-  RecreationResourceDocDto,
-  ResponseError,
-} from '@/services/recreation-resource-admin';
 import { addErrorNotification } from '@/store/notificationStore';
 import { QueryOptions, useQuery } from '@tanstack/react-query';
 import { createRetryHandler, transformRecreationResourceDocs } from './helpers';

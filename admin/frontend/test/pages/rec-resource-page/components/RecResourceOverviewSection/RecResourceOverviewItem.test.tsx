@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import { RecResourceOverviewItem } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/components/RecResourceOverviewItem';
 import { render, screen } from '@testing-library/react';
-import { RecResourceOverviewItem } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/RecResourceOverviewItem';
+import { describe, expect, it } from 'vitest';
 
 describe('RecResourceOverviewItem', () => {
   it('renders label and value', () => {
@@ -17,10 +17,9 @@ describe('RecResourceOverviewItem', () => {
     expect(screen.getByText('Bold')).toBeInTheDocument();
   });
 
-  it('returns null if value is falsy', () => {
-    const { container } = render(
-      <RecResourceOverviewItem label="Label" value={undefined} />,
-    );
-    expect(container).toBeEmptyDOMElement();
+  it('renders dash if value is falsy', () => {
+    render(<RecResourceOverviewItem label="Label" value={undefined} />);
+    expect(screen.getByText('Label')).toBeInTheDocument();
+    expect(screen.getByText('-')).toBeInTheDocument();
   });
 });

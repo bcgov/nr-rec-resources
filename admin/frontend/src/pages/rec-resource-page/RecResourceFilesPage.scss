@@ -4,25 +4,13 @@
   &__action-buttons {
     & .rec-resource-files-page__action-button {
       font-weight: normal;
-      border-color: $colorBlue;
-      color: $colorBlue;
       height: 2.5rem;
-
-      &:hover,
-      &:focus {
-        background-color: $colorBlue;
-        color: $colorWhite;
-        border-color: $colorBlue;
-      }
 
       & .rec-resource-files-page__action-button-icon {
         border: 1px solid $colorBlue;
         border-radius: 3px;
         padding: 0.2rem;
         font-size: 0.75rem;
-      }
-      &:hover .rec-resource-files-page__action-button-icon {
-        border-color: $colorWhite;
       }
     }
   }

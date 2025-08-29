@@ -2,7 +2,7 @@ import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { useRecResourceFileTransferState } from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react';
-import React from 'react';
+import { type ReactNode, createElement } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockDocumentListState = {
@@ -103,8 +103,8 @@ const createWrapper = () => {
     },
   });
 
-  return ({ children }: { children: React.ReactNode }) =>
-    React.createElement(QueryClientProvider, { client: queryClient }, children);
+  return ({ children }: { children: ReactNode }) =>
+    createElement(QueryClientProvider, { client: queryClient }, children);
 };
 
 describe('useRecResourceFileTransferState', () => {

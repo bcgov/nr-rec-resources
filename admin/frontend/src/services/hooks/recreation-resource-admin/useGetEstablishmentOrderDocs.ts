@@ -11,7 +11,7 @@ export function useGetEstablishmentOrderDocs(rec_resource_id?: string) {
       if (!rec_resource_id) {
         throw new Error('rec_resource_id is required');
       }
-      const response = await api.establishmentOrderDocsControllerGetAllV1({
+      const response = await api.getAllEstablishmentOrderDocs({
         recResourceId: rec_resource_id,
       });
       return response;

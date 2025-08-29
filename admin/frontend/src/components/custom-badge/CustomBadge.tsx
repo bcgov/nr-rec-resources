@@ -1,4 +1,3 @@
-import React from 'react';
 import './CustomBadge.scss';
 
 export interface CustomBadgeProps {

@@ -1,0 +1,83 @@
+export const recreationResourceSelect = {
+  rec_resource_id: true,
+  name: true,
+  closest_community: true,
+  maintenance_standard_code: true,
+  project_established_date: true,
+  recreation_maintenance_standard_code: {
+    select: {
+      description: true,
+    },
+  },
+  recreation_site_description: {
+    select: {
+      description: true,
+    },
+  },
+  recreation_driving_direction: {
+    select: {
+      description: true,
+    },
+  },
+  recreation_resource_type_view_admin: {
+    select: {
+      rec_resource_type_code: true,
+      description: true,
+    },
+  },
+  recreation_access: {
+    select: {
+      recreation_access_code: {
+        select: {
+          access_code: true,
+          description: true,
+        },
+      },
+      recreation_sub_access_code: {
+        select: {
+          sub_access_code: true,
+          description: true,
+        },
+      },
+    },
+  },
+  recreation_activity: {
+    select: {
+      recreation_activity: true,
+    },
+  },
+  recreation_status: {
+    select: {
+      recreation_status_code: {
+        select: {
+          description: true,
+        },
+      },
+      comment: true,
+      status_code: true,
+    },
+  },
+  recreation_district_code: {
+    select: {
+      district_code: true,
+      description: true,
+    },
+  },
+  recreation_risk_rating_code: {
+    select: {
+      risk_rating_code: true,
+      description: true,
+    },
+  },
+  recreation_control_access_code: {
+    select: {
+      recreation_control_access_code: true,
+      description: true,
+    },
+  },
+  _count: {
+    select: {
+      recreation_defined_campsite: true,
+    },
+  },
+};

@@ -86,7 +86,7 @@ describe('dataRouter', () => {
       expect(recResourceRoute?.handle?.tab).toBe(RecResourceNavKey.OVERVIEW);
     });
 
-    it('configures rec resource overview child route', () => {
+    it('configures rec resource child route', () => {
       const rootRoute = adminDataRouter.routes[0];
       const recResourceRoute = rootRoute.children?.find(
         (route) => route.path === '/rec-resource/:id',
@@ -94,6 +94,21 @@ describe('dataRouter', () => {
 
       const overviewRoute = recResourceRoute?.children?.find(
         (route) => route.index === true,
+      );
+
+      expect(overviewRoute).toBeDefined();
+      expect(overviewRoute).toHaveProperty('loader');
+    });
+
+    it('configures rec resource overview child route', () => {
+      const rootRoute = adminDataRouter.routes[0];
+
+      const recResourceRoute = rootRoute.children?.find(
+        (route) => route.path === '/rec-resource/:id',
+      );
+
+      const overviewRoute = recResourceRoute?.children?.find(
+        (route) => route.path === 'overview',
       );
 
       expect(overviewRoute).toBeDefined();
@@ -150,7 +165,7 @@ describe('dataRouter', () => {
       });
       expect(breadcrumbs?.[1]).toEqual({
         label: 'Test Resource',
-        href: '/rec-resource/123',
+        href: '/rec-resource/123/overview',
       });
     });
 
@@ -165,7 +180,7 @@ describe('dataRouter', () => {
 
       expect(breadcrumbs?.[1]).toEqual({
         label: '123',
-        href: '/rec-resource/123',
+        href: '/rec-resource/123/overview',
       });
     });
 
@@ -179,7 +194,7 @@ describe('dataRouter', () => {
       expect(breadcrumbs).toHaveLength(2);
       expect(breadcrumbs?.[1]).toEqual({
         label: '',
-        href: '/rec-resource/',
+        href: '/rec-resource//overview',
       });
     });
 
@@ -205,7 +220,7 @@ describe('dataRouter', () => {
       });
       expect(breadcrumbs?.[1]).toEqual({
         label: 'Test Resource',
-        href: '/rec-resource/123',
+        href: '/rec-resource/123/overview',
       });
       expect(breadcrumbs?.[2]).toEqual({
         label: 'Files',
@@ -229,6 +244,59 @@ describe('dataRouter', () => {
       expect(breadcrumbs?.[2]).toEqual({
         label: 'Files',
         href: '/rec-resource//files',
+      });
+    });
+
+    it('overview edit page breadcrumb returns home, resource, and edit overview', () => {
+      const rootRoute = adminDataRouter.routes[0];
+      const recResourceRoute = rootRoute.children?.find(
+        (route) => route.path === '/rec-resource/:id',
+      );
+
+      const editRoute = recResourceRoute?.children?.find(
+        (route) => route.path === 'overview/edit',
+      );
+
+      const breadcrumbs = editRoute?.handle?.breadcrumb?.({
+        resourceId: '456',
+        resourceName: 'Test Resource for Edit',
+      });
+
+      expect(breadcrumbs).toHaveLength(3);
+      expect(breadcrumbs?.[0]).toEqual({
+        label: 'Home',
+        href: ROUTE_PATHS.LANDING,
+      });
+      expect(breadcrumbs?.[1]).toEqual({
+        label: 'Test Resource for Edit',
+        href: '/rec-resource/456/overview',
+      });
+      expect(breadcrumbs?.[2]).toEqual({
+        label: 'Edit Overview',
+        href: '/rec-resource/456/overview/edit',
+      });
+    });
+
+    it('overview edit page breadcrumb handles missing context', () => {
+      const rootRoute = adminDataRouter.routes[0];
+      const recResourceRoute = rootRoute.children?.find(
+        (route) => route.path === '/rec-resource/:id',
+      );
+
+      const editRoute = recResourceRoute?.children?.find(
+        (route) => route.path === 'overview/edit',
+      );
+
+      const breadcrumbs = editRoute?.handle?.breadcrumb?.();
+
+      expect(breadcrumbs).toHaveLength(3);
+      expect(breadcrumbs?.[1]).toEqual({
+        label: '',
+        href: '/rec-resource//overview',
+      });
+      expect(breadcrumbs?.[2]).toEqual({
+        label: 'Edit Overview',
+        href: '/rec-resource//overview/edit',
       });
     });
   });

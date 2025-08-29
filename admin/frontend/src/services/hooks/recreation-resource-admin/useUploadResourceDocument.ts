@@ -1,4 +1,4 @@
-import { RecreationResourceApi } from '@/services/recreation-resource-admin';
+import { RecreationResourcesApi } from '@/services';
 import { useMutation } from '@tanstack/react-query';
 import { createRetryHandler } from './helpers';
 import { useRecreationResourceAdminApiClient } from './useRecreationResourceAdminApiClient';
@@ -10,7 +10,7 @@ export interface UploadResourceDocumentParams {
 }
 
 export function useUploadResourceDocument() {
-  const api = useRecreationResourceAdminApiClient() as RecreationResourceApi;
+  const api = useRecreationResourceAdminApiClient() as RecreationResourcesApi;
 
   return useMutation({
     mutationFn: async (params: UploadResourceDocumentParams) => {

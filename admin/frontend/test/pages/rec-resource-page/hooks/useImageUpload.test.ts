@@ -8,7 +8,7 @@ import {
 } from '@/store/notificationStore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
-import React from 'react';
+import { type ReactNode, createElement } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock the dependencies
@@ -37,8 +37,8 @@ const createWrapper = () => {
     },
   });
 
-  return ({ children }: { children: React.ReactNode }) =>
-    React.createElement(QueryClientProvider, { client: queryClient }, children);
+  return ({ children }: { children: ReactNode }) =>
+    createElement(QueryClientProvider, { client: queryClient }, children);
 };
 
 describe('useImageUpload', () => {
