@@ -2,7 +2,7 @@
 
 import { expect, Locator, Page } from '@playwright/test';
 import { BASE_URL } from 'e2e/constants';
-import { waitForImagesToLoad } from 'e2e/utils';
+import { waitForImagesToLoad } from '@shared/e2e/utils';
 
 export class ContactPOM {
   readonly page: Page;

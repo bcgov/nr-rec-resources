@@ -2,7 +2,6 @@
   "name": "admin-frontend",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -10,7 +9,10 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest --mode test",
-    "test:cov": "vitest run --mode test --coverage"
+    "test:cov": "vitest run --mode test --coverage",
+    "e2e": "npx happo-e2e -- npx playwright test",
+    "e2e:chrome": "npx happo-e2e -- npx playwright test --project=chromium",
+    "e2e:ui": "npx happo-e2e -- npx playwright test --ui"
   },
   "dependencies": {
     "@bcgov/bc-sans": "^2.1.0",
@@ -26,18 +28,21 @@
     "@tanstack/react-store": "^0.7.1",
     "@testing-library/react": "^16.3.0",
     "bootstrap": "^5.3.6",
+    "dotenv": "^17.2.1",
     "keycloak-js": "^26.2.0",
     "react": "^19.1.1",
     "react-bootstrap": "^2.10.10",
     "react-bootstrap-typeahead": "^6.4.1",
-    "react-router-dom": "^7.0.0",
     "react-dom": "^19.1.1",
+    "react-router-dom": "^7.0.0",
     "zod": "^4.0.8"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
     "@eslint/compat": "^1.2.4",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.25.0",
+    "@playwright/test": "^1.54.2",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
@@ -51,6 +56,9 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "globals": "^16.0.0",
+    "happo-e2e": "^4.1.2",
+    "happo-playwright": "^2.3.0",
+    "happo.io": "^13.0.0",
     "jsdom": "^26.1.0",
     "msw": "^2.8.2",
     "sass-embedded": "^1.89.0",

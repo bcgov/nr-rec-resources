@@ -31,6 +31,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [error, setError] = useState<AuthenticationError | null>(null);
 
   useEffect(() => {
+    // Do not merge, just for e2e development
+    setIsAuthenticated(true);
+    setIsLoading(false);
+    return;
     setIsLoading(true);
 
     // initialize the authService
