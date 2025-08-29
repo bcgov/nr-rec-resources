@@ -89,6 +89,13 @@ export const mockResponse = {
     reservation_email: "email@email.com",
     reservation_comments: "this is a huge comment",
   },
+  recreation_resource_reservation_info: {
+    reservation_instructions: "All reservations through partner, not RSTBC",
+    reservation_website: "https://accwhistler.ca/WendyThompson.html",
+    reservation_phone_number: "1-999-999-9999",
+    reservation_email: "email@email.com",
+    reservation_comments: "this is a huge comment",
+  },
 };
 
 export const mockSpatialResponse = [
@@ -171,6 +178,13 @@ export const mockResults = {
   recreation_district: {
     description: 'Merritt',
     district_code: 'MERRITT',
+  },
+  recreation_resource_reservation_info: {
+    reservation_instructions: "All reservations through partner, not RSTBC",
+    reservation_website: "https://accwhistler.ca/WendyThompson.html",
+    reservation_phone_number: "1-999-999-9999",
+    reservation_email: "email@email.com",
+    reservation_comments: "this is a huge comment",
   },
   recreation_resource_reservation_info: {
     reservation_instructions: "All reservations through partner, not RSTBC",
