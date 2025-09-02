@@ -422,6 +422,53 @@ describe('RecResourcePage', () => {
       });
     });
 
+    describe('Reservation section', () => {
+      beforeEach(() => {
+        vi.clearAllMocks();
+      });
+
+      test('displays Book now when reservation is availiable via website', async () => {
+        const recreation_resource_reservation_info = {
+          reservation_website: 'https://accwhistler.ca/WendyThompson.html',
+        };
+        await renderComponent({
+          ...mockResource,
+          recreation_resource_reservation_info,
+        });
+        expect(screen.getAllByText(/Book now/i).length).toBeGreaterThan(0);
+      });
+
+      test('displays Phone number when reservation is availiable via website', async () => {
+        const recreation_resource_reservation_info = {
+          reservation_phone_number: '1-999-999-9999',
+        };
+        await renderComponent({
+          ...mockResource,
+          recreation_resource_reservation_info,
+        });
+        expect(
+          screen.getAllByText(
+            recreation_resource_reservation_info.reservation_phone_number,
+          ).length,
+        ).toBeGreaterThan(0);
+      });
+
+      test('displays email when reservation is availiable via website', async () => {
+        const recreation_resource_reservation_info = {
+          reservation_email: 'email@email.com',
+        };
+        await renderComponent({
+          ...mockResource,
+          recreation_resource_reservation_info,
+        });
+        expect(
+          screen.getAllByText(
+            recreation_resource_reservation_info.reservation_email,
+          ).length,
+        ).toBeGreaterThan(0);
+      });
+    });
+
     describe('Page navigation menu conditional links', () => {
       test.each([
         {

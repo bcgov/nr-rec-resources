@@ -29,6 +29,8 @@ import {
   useGetRecreationResourceById,
   useGetSiteOperatorById,
 } from '@/service/queries/recreation-resource';
+import campground from '@/images/icons/campground.svg';
+import RecReservationButton, { ReservationType } from './RecReservationButton';
 
 const PREVIEW_SIZE_CODE = 'pre';
 const FULL_RESOLUTION_SIZE_CODE = 'original';
@@ -230,19 +232,88 @@ const RecResourcePage = () => {
                   statusCode={statusCode}
                 />
               )}
-              {recreation_resource_reservation_info && (
-                <div className="icon-container mb-4">
+              {recreation_resource_reservation_info ? (
+                <>
+                  <div className="icon-container mt-4 mb-4">
+                    <img
+                      src={campground}
+                      alt="Campground icon"
+                      height={24}
+                      width={24}
+                    />{' '}
+                    <div>
+                      <span>
+                        This site is reservable through our site operator.
+                      </span>{' '}
+                      <br />
+                      <span className="note">
+                        *Please note that Recreation Sites and Trails does not
+                        manage the reservations.
+                      </span>
+                    </div>
+                  </div>
+                  <div>
+                    {recreation_resource_reservation_info.reservation_website && (
+                      <RecReservationButton
+                        text={
+                          recreation_resource_reservation_info.reservation_website
+                        }
+                        type={ReservationType.LINK}
+                      />
+                    )}
+                    {recreation_resource_reservation_info.reservation_email && (
+                      <RecReservationButton
+                        text={
+                          recreation_resource_reservation_info.reservation_email
+                        }
+                        type={ReservationType.EMAIL}
+                      />
+                    )}
+                    {recreation_resource_reservation_info.reservation_phone_number && (
+                      <RecReservationButton
+                        text={
+                          recreation_resource_reservation_info.reservation_phone_number
+                        }
+                        type={ReservationType.PHONE}
+                      />
+                    )}
+                  </div>
+                </>
+              ) : (
+                <div className="icon-container mt-4">
                   <img
-                    alt="Location dot icon"
-                    src={locationDot}
+                    src={campground}
+                    alt="Campground icon"
                     height={24}
                     width={24}
                   />{' '}
-                  <span>
-                    {
-                      recreation_resource_reservation_info?.reservation_instructions
-                    }
-                  </span>
+                  <div>
+                    <span>This site is first come first served.</span> <br />
+                    <span>Fees apply when arriving on site.</span> <br />
+                    <span>
+                      Check{' '}
+                      {isCampingAvailable ? (
+                        <a href={`/resource/${rec_resource_id}#camping`}>
+                          camping
+                        </a>
+                      ) : (
+                        <a
+                          href={`/resource/${rec_resource_id}#additional-fees`}
+                        >
+                          additional fees
+                        </a>
+                      )}{' '}
+                      {isFacilitiesAvailable && (
+                        <>
+                          and{' '}
+                          <a href={`/resource/${rec_resource_id}#facilities`}>
+                            facilities
+                          </a>{' '}
+                        </>
+                      )}
+                      for more information.
+                    </span>
+                  </div>
                 </div>
               )}
             </section>
