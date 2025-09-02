@@ -44,6 +44,7 @@ const HeaderMenuToggle = forwardRef<
     <IconButton
       className={'d-lg-none d-sm-block header__menu-button'}
       icon={<FontAwesomeIcon icon={faBars} />}
+      aria-label="Menu toggle"
     />
 
     <Avatar
