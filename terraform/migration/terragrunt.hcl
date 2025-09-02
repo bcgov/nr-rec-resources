@@ -18,7 +18,7 @@ locals {
   statelock_table_name       = "${local.tf_remote_state_prefix}-lock-${local.aws_license_plate}"
   flyway_image               = get_env("flyway_image")
   api_image                  = get_env("api_image")
-  app_name = local.app == "public" ? "node-api-${local.app_env}" : "node-api-${local.app}-${local.app_env}"
+  app_name                   = "node-api-${local.app_env}"
 
 }
 
