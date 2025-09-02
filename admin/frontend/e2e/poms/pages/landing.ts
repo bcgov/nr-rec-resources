@@ -1,9 +1,9 @@
 // https://playwright.dev/docs/pom
 
-import { expect, Locator, Page } from "@playwright/test";
-import { BASE_URL } from "e2e/constants";
-import { SearchEnum } from "e2e/enum/search";
-import { waitForImagesToLoad } from "@shared/e2e/utils";
+import { expect, Locator, Page } from '@playwright/test';
+import { BASE_URL } from 'e2e/constants';
+import { SearchEnum } from 'e2e/enum/search';
+import { waitForImagesToLoad } from '@shared/e2e/utils';
 
 export class LandingPOM {
   readonly page: Page;
@@ -25,7 +25,7 @@ export class LandingPOM {
 
   async verifyLandingPageContent() {
     expect(
-      this.page.getByText("Search by resource name or number"),
+      this.page.getByText('Search by resource name or number'),
     ).toBeVisible();
   }
 

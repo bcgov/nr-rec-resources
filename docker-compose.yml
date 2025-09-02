@@ -104,10 +104,10 @@ services:
       NODE_ENV: development
       LOG_LEVEL: debug
     image: ${FRONTEND_IMAGE:-frontend}
-    ports: ["${FRONTEND_PORT:-3000}:${FRONTEND_PORT:-3000}"]
+    ports: ['${FRONTEND_PORT:-3000}:${FRONTEND_PORT:-3000}']
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:${FRONTEND_PORT:-3000}"]
-    working_dir: "/app"
+      test: ['CMD', 'curl', '-f', 'http://localhost:${FRONTEND_PORT:-3000}']
+    working_dir: '/app'
     depends_on:
       backend:
         condition: service_started

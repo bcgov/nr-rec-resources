@@ -1,6 +1,6 @@
-import baseConfig from "@shared/config/playwright.base.config";
-import { defineConfig } from "@playwright/test";
-import { BASE_URL } from "./e2e/constants";
+import baseConfig from '@shared/config/playwright.base.config';
+import { defineConfig } from '@playwright/test';
+import { BASE_URL } from './e2e/constants';
 
 export default defineConfig({
   ...baseConfig,

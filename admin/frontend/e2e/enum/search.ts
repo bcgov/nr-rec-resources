@@ -1,3 +1,3 @@
 export enum SearchEnum {
-  PLACEHOLDER = "By name or number",
+  PLACEHOLDER = 'By name or number',
 }

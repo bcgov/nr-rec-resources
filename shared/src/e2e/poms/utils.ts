@@ -1,11 +1,11 @@
-import { expect, Locator, Page } from "@playwright/test";
-import happoPlaywright from "happo-playwright";
+import { expect, Locator, Page } from '@playwright/test';
+import happoPlaywright from 'happo-playwright';
 import {
   analyzeAccessibility,
   waitForNetworkRequest,
   waitForNetworkResponse,
-} from "@shared/e2e/utils";
-import { MAP_CANVAS_SELECTOR } from "@shared/e2e/constants";
+} from '@shared/e2e/utils';
+import { MAP_CANVAS_SELECTOR } from '@shared/e2e/constants';
 
 export class UtilsPOM {
   readonly page: Page;
@@ -14,8 +14,8 @@ export class UtilsPOM {
 
   constructor(page: Page) {
     this.page = page;
-    this.baseUrl = (page.context() as any)._options.baseURL ?? "";
-    this.pageContent = page.locator("html");
+    this.baseUrl = (page.context() as any)._options.baseURL ?? '';
+    this.pageContent = page.locator('html');
   }
 
   async checkExpectedUrlParams(expectedParams: string) {
@@ -31,8 +31,8 @@ export class UtilsPOM {
   async clickLinkByText(text: string) {
     const link = this.page
       .locator(`a:has-text("${text}")`)
-      .filter({ hasText: text, hasNotText: "", visible: true });
-    const href = await link.getAttribute("href");
+      .filter({ hasText: text, hasNotText: '', visible: true });
+    const href = await link.getAttribute('href');
     await link.click();
 
     await this.page.waitForURL(`${this.baseUrl}${href}`);
