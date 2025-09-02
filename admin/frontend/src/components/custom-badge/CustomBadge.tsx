@@ -1,5 +1,5 @@
-import React from 'react';
 import './CustomBadge.scss';
+import { Stack } from 'react-bootstrap';
 
 export interface CustomBadgeProps {
   label: string;
@@ -12,10 +12,11 @@ export const CustomBadge: React.FC<CustomBadgeProps> = ({
   bgColor,
   textColor,
 }) => (
-  <span
-    className="custom-badge"
+  <Stack
+    direction="horizontal"
+    className="custom-badge h-100"
     style={{ backgroundColor: bgColor, color: textColor }}
   >
     {label}
-  </span>
+  </Stack>
 );

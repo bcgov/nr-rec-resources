@@ -26,7 +26,7 @@ export const ResourceHeaderSection: FC<ResourceHeaderSectionProps> = ({
         <Stack
           direction="horizontal"
           gap={2}
-          className="flex-wrap align-items-start"
+          className="flex-wrap align-items-end"
         >
           <div className="resource-header-section__title-wrapper">
             <ClampLines
