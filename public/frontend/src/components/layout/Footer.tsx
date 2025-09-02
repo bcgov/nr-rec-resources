@@ -107,6 +107,7 @@ const Footer = () => {
       <div
         className="land-acknowledgement-box text-white shadow d-flex align-items-center"
         aria-label="Land Acknowledgement"
+        tabIndex={0}
       >
         <p className="mb-0 small">
           We acknowledge all First Nations on whose territories Recreation Sites
