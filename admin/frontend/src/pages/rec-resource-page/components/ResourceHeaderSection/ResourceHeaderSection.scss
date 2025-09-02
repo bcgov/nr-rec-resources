@@ -7,13 +7,11 @@
     position: relative;
     display: flex;
     align-items: center;
-    max-width: 320px;
   }
 
   &__title-text {
     font-weight: bold;
     font-size: 1.75rem;
-    line-height: 1;
     margin: 0;
     color: $colorBlack;
   }
