@@ -11,6 +11,7 @@ import {
   MAX_ACTIVITIES_TO_DISPLAY,
   MAX_PHOTOS_TO_DISPLAY,
 } from '@/components/rec-resource/card/constants';
+import { Link } from 'react-router-dom';
 
 interface RecResourceCardProps {
   recreationResource: RecreationResourceSearchModel;
@@ -46,7 +47,7 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
       </div>
       <div className="rec-resource-card-content">
         <div className="rec-resource-card-info">
-          <a href={`/resource/${rec_resource_id}`}>
+          <Link to={`/resource/${rec_resource_id}`}>
             <h2 className="card-heading-text">
               {name?.toLowerCase()}{' '}
               <FontAwesomeIcon
@@ -54,7 +55,7 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
                 className="card-heading-icon"
               />
             </h2>
-          </a>
+          </Link>
 
           <div className="d-flex flex-column flex-sm-row align-items-sm-center align-items-start mb-2 mb-sm-0">
             <span className="fs-6 fw-normal capitalize">
@@ -76,7 +77,9 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
           <span className="card-activities">
             {hasActivities && <Activities activities={activities} />}{' '}
             {isSeeAllActivities && (
-              <a href={`/resource/${rec_resource_id}#things-to-do`}>see all</a>
+              <Link to={`/resource/${rec_resource_id}#things-to-do`}>
+                see all
+              </Link>
             )}
           </span>
           <Status description={statusDescription} statusCode={status_code} />

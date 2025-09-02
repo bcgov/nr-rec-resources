@@ -11,6 +11,11 @@ vi.mock(
   }),
 );
 
+vi.mock('react-router-dom', async (importActual) => ({
+  ...(await importActual()),
+  Link: vi.fn(() => <div data-testid="mock-link" />),
+}));
+
 describe('RecreationSearchBanner', () => {
   beforeEach(() => {
     vi.clearAllMocks();

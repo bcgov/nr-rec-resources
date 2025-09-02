@@ -4,6 +4,31 @@ import {
   MAP_PROJECTION_BC_ALBERS,
   MAP_PROJECTION_WEB_MERCATOR,
 } from '@/components/rec-resource/RecreationResourceMap/constants';
+import Point from 'ol/geom/Point';
+import Feature from 'ol/Feature';
+
+/**
+ * Retrieves the site point geometry ({@link Point}) feature for a recreation resource.
+ * @param recResource - The recreation resource containing the site point geometry.
+ * @returns The OpenLayers feature representing the site point geometry, or undefined if not found.
+ */
+export const getSitePointFeatureFromRecResource = (
+  recResource: RecreationResourceDetailModel,
+): Feature<Point> | undefined => {
+  if (!recResource) {
+    return;
+  }
+
+  // format that converts BC_ALBERS to WEB_MERCATOR
+  const geojsonFormat = new GeoJSON({
+    dataProjection: MAP_PROJECTION_BC_ALBERS,
+    featureProjection: MAP_PROJECTION_WEB_MERCATOR,
+  });
+
+  const { site_point_geometry } = recResource;
+
+  return geojsonFormat.readFeature(site_point_geometry) as Feature<Point>;
+};
 
 /**
  * Converts recreation resource geometries from BC Albers to Web Mercator projection
@@ -25,14 +50,19 @@ export const getMapFeaturesFromRecResource = (
     featureProjection: MAP_PROJECTION_WEB_MERCATOR,
   });
 
-  const { site_point_geometry, spatial_feature_geometry = [] } = recResource;
+  const { spatial_feature_geometry = [] } = recResource;
 
-  return [
+  const result = [
     ...spatial_feature_geometry.flatMap((geom) =>
       geojsonFormat.readFeatures(geom),
     ),
-    ...(site_point_geometry
-      ? geojsonFormat.readFeatures(site_point_geometry)
-      : []),
   ];
+
+  const sitePointFeature = getSitePointFeatureFromRecResource(recResource);
+
+  if (sitePointFeature) {
+    result.push(sitePointFeature);
+  }
+
+  return result;
 };
