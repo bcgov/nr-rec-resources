@@ -13,7 +13,7 @@ set recreation_activity_code = excluded.recreation_activity_code,
     updated_at = excluded.updated_at,
     updated_by = excluded.updated_by;
 
--- If an activity is removed in FTA, remove it in RST
+-- If an activity row is removed in FTA, remove it in RST
 delete from rst.recreation_activity ra
 where not exists (
     select 1
