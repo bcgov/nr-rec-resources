@@ -206,21 +206,29 @@ export class FilterPOM {
 
   async closeMobileFilterMenu() {
     const closeButton = this.page.getByRole('button', {
-      name: /Show/,
+      name: /result/,
     });
     await closeButton.click();
     await expect(this.page.locator('.modal-dialog')).toBeHidden();
   }
 
-  async openMobileFilterGroup(filterGroup: FilterGroup) {
-    await this.page.getByRole('button', { name: filterGroup }).click();
+  async toggleMobileFilterGroup(filterGroup: FilterGroup) {
+    await this.page
+      .getByRole('button', { name: new RegExp(`^${filterGroup}`) })
+      .click();
   }
 
   async toggleMobileFilterOn(filterPrefix: string) {
-    const checkbox = this.page.getByRole('checkbox', {
-      name: new RegExp(`^${filterPrefix}`),
-    });
-    await checkbox.check();
+    const modal = this.page.locator('.filter-modal-content');
+    await modal.waitFor({ state: 'visible' });
+
+    const label = modal.locator(`label:has-text("${filterPrefix}")`);
+    await label.scrollIntoViewIfNeeded();
+    await label.click();
+
+    const checkboxId = await label.getAttribute('for');
+    const checkbox = modal.locator(`#${checkboxId}`);
+
     await expect(checkbox).toBeChecked();
   }
 }
