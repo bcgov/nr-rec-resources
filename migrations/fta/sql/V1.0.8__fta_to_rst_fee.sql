@@ -50,3 +50,14 @@ set
     sunday_ind = excluded.sunday_ind,
     updated_at = excluded.updated_at,
     updated_by = excluded.updated_by;
+
+
+-- If a fee row is removed in FTA, remove it in RST
+delete from rst.recreation_fee rst_rf
+where not exists (
+    select 1
+    from fta.recreation_fee rf
+    where
+        rf.forest_file_id = rst_rf.rec_resource_id
+        and rf.recreation_fee_code = rst_rf.recreation_fee_code
+);

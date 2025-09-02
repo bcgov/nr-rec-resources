@@ -12,3 +12,12 @@ do update
 set recreation_activity_code = excluded.recreation_activity_code,
     updated_at = excluded.updated_at,
     updated_by = excluded.updated_by;
+
+-- If an activity row is removed in FTA, remove it in RST
+delete from rst.recreation_activity ra
+where not exists (
+    select 1
+    from fta.recreation_activity fta
+    where fta.forest_file_id = ra.rec_resource_id
+      and cast(fta.recreation_activity_code as int) = ra.recreation_activity_code
+);
