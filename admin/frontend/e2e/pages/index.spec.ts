@@ -1,11 +1,11 @@
-import { test } from "@playwright/test";
-import { initHappo } from "@shared/e2e/utils";
-import { LandingPOM, LayoutPOM, UtilsPOM } from "e2e/poms";
+import { test } from '@playwright/test';
+import { initHappo } from '@shared/e2e/utils';
+import { LandingPOM, LayoutPOM, UtilsPOM } from 'e2e/poms';
 
 initHappo();
 
-test.describe("RST admin tool landing page", () => {
-  test("RST admin tool landing page renders correctly", async ({ page }) => {
+test.describe('RST admin tool landing page', () => {
+  test('RST admin tool landing page renders correctly', async ({ page }) => {
     const landing = new LandingPOM(page);
     const layout = new LayoutPOM(page);
     const utils = new UtilsPOM(page);
@@ -17,6 +17,6 @@ test.describe("RST admin tool landing page", () => {
 
     await utils.accessibility();
 
-    await utils.screenshot("RST Admin tool landing page", "default");
+    await utils.screenshot('RST Admin tool landing page', 'default');
   });
 });
