@@ -1,4 +1,3 @@
-import React from 'react';
 import clsx from 'clsx';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import './ClampLines.scss';

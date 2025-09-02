@@ -23,6 +23,8 @@ on:
 
 jobs:
   playwright-e2e:
+    # Remove this once admin e2e tests are implemented
+    if: ${{ inputs.app == 'public' }}
     name: Playwright e2e
     timeout-minutes: 60
     runs-on: ubuntu-24.04
@@ -88,3 +90,12 @@ jobs:
     - name: Dump docker logs on failure
       if: failure() && ${{ inputs.local }}
       uses: jwalton/gh-docker-logs@v2
+
+  # Remove this job once admin e2e tests are implemented
+  admin:
+    if: ${{ inputs.app == 'admin' }}
+    name: Skip Playwright e2e
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Skip Playwright e2e
+      run: echo "Skipping Playwright e2e tests for admin app"

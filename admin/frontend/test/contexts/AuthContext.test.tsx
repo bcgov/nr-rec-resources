@@ -29,8 +29,7 @@ function TestComponent() {
   );
 }
 
-// 🚨 DO NOT MERGE 🚨
-describe.skip('AuthContext', () => {
+describe('AuthContext', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     // Reset mock implementations for each test

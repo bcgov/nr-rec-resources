@@ -49,6 +49,6 @@ jobs:
           VITE_KEYCLOAK_REALM=$KEYCLOAK_REALM
           VITE_KEYCLOAK_CLIENT_ID=$KEYCLOAK_CLIENT_ID
       env:
-        KEYCLOAK_AUTH_SERVER_URL: ${{ secrets.KEYCLOAK_AUTH_SERVER_URL }}
-        KEYCLOAK_REALM: ${{ secrets.KEYCLOAK_REALM }}
-        KEYCLOAK_CLIENT_ID: ${{ secrets.KEYCLOAK_CLIENT_ID }}
+        KEYCLOAK_AUTH_SERVER_URL: ${{ matrix.package == 'admin/frontend' && secrets.KEYCLOAK_AUTH_SERVER_URL || '' }}
+        KEYCLOAK_REALM: ${{ matrix.package == 'admin/frontend' && secrets.KEYCLOAK_REALM || '' }}
+        KEYCLOAK_CLIENT_ID: ${{ matrix.package == 'admin/frontend' && secrets.KEYCLOAK_CLIENT_ID || '' }}
