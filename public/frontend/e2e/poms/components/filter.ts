@@ -195,4 +195,32 @@ export class FilterPOM {
       }
     });
   }
+
+  async openMobileFilterMenu() {
+    const mobileFilterButton = this.page.getByRole('button', {
+      name: FilterEnum.MOBILE_FILTER_LABEL,
+    });
+    await mobileFilterButton.click();
+    await expect(this.page.locator('.modal-dialog')).toBeVisible();
+  }
+
+  async closeMobileFilterMenu() {
+    const closeButton = this.page.getByRole('button', {
+      name: /Show/,
+    });
+    await closeButton.click();
+    await expect(this.page.locator('.modal-dialog')).toBeHidden();
+  }
+
+  async openMobileFilterGroup(filterGroup: FilterGroup) {
+    await this.page.getByRole('button', { name: filterGroup }).click();
+  }
+
+  async toggleMobileFilterOn(filterPrefix: string) {
+    const checkbox = this.page.getByRole('checkbox', {
+      name: new RegExp(`^${filterPrefix}`),
+    });
+    await checkbox.check();
+    await expect(checkbox).toBeChecked();
+  }
 }

@@ -1,10 +1,14 @@
-import { test } from '@playwright/test';
+import { devices, test } from '@playwright/test';
 import { initHappo } from '@shared/e2e/utils';
 import { LayoutPOM, RecreationResourcePOM, UtilsPOM } from 'e2e/poms';
 
 initHappo();
 
-test.describe('Recreation Resource page', () => {
+test.use({
+  ...devices['iPhone 14'],
+});
+
+test.describe('Recreation Resource page (Mobile)', () => {
   test('Recreation Resource Page renders correctly', async ({ page }) => {
     const layout = new LayoutPOM(page);
     const recResourcePage = new RecreationResourcePOM(page);
@@ -17,6 +21,6 @@ test.describe('Recreation Resource page', () => {
     await recResourcePage.verifySectionsExistInPageMenu();
     await recResourcePage.verifyPdfDocLinks();
     await utils.accessibility();
-    await utils.screenshot('Recreation Resource page', 'default');
+    await utils.screenshot('Recreation Resource page', 'mobile');
   });
 });

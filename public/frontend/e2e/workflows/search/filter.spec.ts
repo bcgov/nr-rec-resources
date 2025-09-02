@@ -1,7 +1,8 @@
 import { test } from '@playwright/test';
-import { initHappo } from '@shared/e2e/utils';
+import { initHappo, testMobileDevice } from '@shared/e2e/utils';
 import { FilterPOM, SearchPOM, UtilsPOM } from 'e2e/poms';
 import { RecResourceType } from 'e2e/enum/recResource';
+import { FilterGroup } from 'e2e/enum/filter';
 
 initHappo();
 
@@ -319,5 +320,40 @@ test.describe('Search page filter menu workflows', () => {
     await utils.checkExpectedUrlParams('');
 
     await searchPage.waitForResults();
+  });
+
+  test('Mobile: open and close the mobile filter menu', async () => {
+    await testMobileDevice(async (page) => {
+      const filter = new FilterPOM(page);
+      const searchPage = new SearchPOM(page);
+
+      await searchPage.route();
+
+      await filter.openMobileFilterMenu();
+
+      await filter.closeMobileFilterMenu();
+    });
+  });
+
+  test('Mobile: use the mobile filter menu to apply a filter', async () => {
+    await testMobileDevice(async (page) => {
+      const filter = new FilterPOM(page);
+      const searchPage = new SearchPOM(page);
+      const utils = new UtilsPOM(page);
+
+      await searchPage.route();
+
+      await filter.openMobileFilterMenu();
+
+      await filter.openMobileFilterGroup(FilterGroup.DISTRICT);
+
+      await filter.toggleMobileFilterOn('Chilliwack');
+
+      await utils.checkExpectedUrlParams('district=RDCK');
+
+      await searchPage.waitForResults();
+
+      await filter.closeMobileFilterMenu();
+    });
   });
 });
