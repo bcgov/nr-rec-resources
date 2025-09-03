@@ -1,5 +1,6 @@
 import { Button } from 'react-bootstrap';
-import DownloadIcon from '@/images/icons/download.svg';
+import { faUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export enum ReservationType {
   LINK = 'link',
@@ -50,7 +51,7 @@ const RecReservationButton: React.FC<RecReservationButtonProps> = ({
       onClick={() => buttonFunction(text)}
     >
       {type === ReservationType.LINK ? 'Book now' : text} &nbsp;
-      <img src={DownloadIcon} alt="download icon" width={16} height={16} />
+      <FontAwesomeIcon icon={faUpRightFromSquare} />
     </Button>
   );
 };
