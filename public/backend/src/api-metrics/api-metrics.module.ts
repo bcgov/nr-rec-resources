@@ -3,9 +3,10 @@ import { ConfigModule } from '@nestjs/config';
 import { ApiMetricsInterceptor } from './api-metrics.interceptor';
 import { ApiMetricsService } from './api-metrics.service';
 import { OperationNameUtil } from './operation-name.util';
+import { ClsModule } from 'nestjs-cls';
 
 @Module({
-  imports: [ConfigModule],
+  imports: [ConfigModule, ClsModule],
   providers: [
     ApiMetricsService,
     OperationNameUtil,

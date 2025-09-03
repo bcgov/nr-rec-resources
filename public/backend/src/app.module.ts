@@ -10,9 +10,12 @@ import { TerminusModule } from '@nestjs/terminus';
 import { HealthController } from './health.controller';
 import { RecreationResourceModule } from './recreation-resource/recreation-resource.module';
 import { ApiMetricsModule } from './api-metrics/api-metrics.module';
+import { ClsModule } from 'nestjs-cls';
+import { clsConfig } from 'src/common/cls.config';
 
 @Module({
   imports: [
+    ClsModule.forRoot(clsConfig),
     ConfigModule.forRoot(),
     TerminusModule,
     RecreationResourceModule,

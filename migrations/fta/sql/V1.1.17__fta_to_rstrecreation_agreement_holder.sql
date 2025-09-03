@@ -37,3 +37,11 @@ set
   updated_at      = excluded.updated_at,
   created_at      = excluded.created_at,
   created_by      = excluded.created_by;
+
+-- If an agreement holder row is removed in FTA, remove it in RST
+delete from rst.recreation_agreement_holder r
+where r.rec_resource_id not in (
+    select forest_file_id
+    from fta.recreation_agreement_holder a
+    where now() between a.agreement_start_date and a.agreement_end_date
+);

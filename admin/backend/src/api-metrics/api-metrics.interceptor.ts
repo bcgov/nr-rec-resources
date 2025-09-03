@@ -6,13 +6,13 @@ import {
   Injectable,
   Logger,
   NestInterceptor,
-} from '@nestjs/common';
-import { Request, Response } from 'express';
-import { ClsService } from 'nestjs-cls';
-import { from, Observable, throwError } from 'rxjs';
-import { catchError, switchMap, tap } from 'rxjs/operators';
-import { ApiMetricsService } from './api-metrics.service';
-import { OperationNameUtil } from './operation-name.util';
+} from "@nestjs/common";
+import { Request, Response } from "express";
+import { ClsService } from "nestjs-cls";
+import { from, Observable, throwError } from "rxjs";
+import { catchError, switchMap, tap } from "rxjs/operators";
+import { ApiMetricsService } from "./api-metrics.service";
+import { OperationNameUtil } from "./operation-name.util";
 
 /**
  * Interceptor that captures API call metrics and publishes them to CloudWatch.
@@ -39,7 +39,7 @@ export class ApiMetricsInterceptor implements NestInterceptor {
     );
 
     // set request ID headers
-    res.setHeader('rst-request-id', requestId);
+    res.setHeader("rst-request-id", requestId);
 
     return next.handle().pipe(
       tap(() => {
