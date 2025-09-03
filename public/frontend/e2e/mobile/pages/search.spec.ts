@@ -23,6 +23,6 @@ test.describe('Search page (Mobile)', () => {
 
     await utils.accessibility();
 
-    await utils.screenshot('Search page', 'mobile');
+    await utils.screenshotMobile('Search page', 'mobile');
   });
 });

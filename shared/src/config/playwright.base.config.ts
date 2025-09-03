@@ -23,8 +23,12 @@ export default defineConfig({
     { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
     { name: 'safari', use: { ...devices['Desktop Safari'] } },
     {
-      name: 'Microsoft Edge',
-      use: { ...devices['Desktop Edge'], channel: 'msedge' },
+      name: 'edge',
+      use: {
+        ...devices['Desktop Edge'],
+        browserName: 'chromium', // Edge uses Chromium engine
+        channel: 'msedge',
+      },
     },
   ],
 });

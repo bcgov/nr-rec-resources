@@ -34,7 +34,5 @@ export class LandingPOM {
     if (searchTerm) {
       await input.fill(searchTerm);
     }
-
-    /// select from typeahead suggestions
   }
 }

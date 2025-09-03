@@ -24,7 +24,10 @@ test.describe('Contact Page (Mobile)', () => {
     await contact.verifyPageWithScrollMenu();
 
     await utils.accessibility();
-    await utils.screenshot('Contact page direct-route', 'direct-route mobile');
+    await utils.screenshotMobile(
+      'Contact page direct-route',
+      'direct-route mobile',
+    );
   });
 
   test('Contact Page renders correctly via resource contact route', async ({
@@ -46,6 +49,9 @@ test.describe('Contact Page (Mobile)', () => {
     await contact.verifyPageWithScrollMenu();
 
     await utils.accessibility();
-    await utils.screenshot('Contact page', 'resource-contact-route mobile');
+    await utils.screenshotMobile(
+      'Contact page',
+      'resource-contact-route mobile',
+    );
   });
 });
