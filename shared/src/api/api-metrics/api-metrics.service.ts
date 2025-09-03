@@ -1,19 +1,19 @@
-import { HttpStatus, Injectable, Logger } from "@nestjs/common";
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import {
   CloudWatchClient,
   MetricDatum,
   PutMetricDataCommand,
   StandardUnit,
-} from "@aws-sdk/client-cloudwatch";
-import { ConfigService } from "@nestjs/config";
+} from '@aws-sdk/client-cloudwatch';
+import { ConfigService } from '@nestjs/config';
 import {
+  DEFAULT_METRIC_NAMESPACE_NAME_PREFIX,
   ENV_VARS,
   EnvValues,
   ErrorTypes,
-  METRIC_NAMESPACE_NAME_PREFIX,
   MetricDimensions,
   MetricNames,
-} from "./api-metrics.constants";
+} from './api-metrics.constants';
 
 @Injectable()
 export class ApiMetricsService {
@@ -22,11 +22,14 @@ export class ApiMetricsService {
   private readonly metricsEnabled: boolean;
   private readonly metricNamespaceName: string;
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly namespacePrefix: string = DEFAULT_METRIC_NAMESPACE_NAME_PREFIX,
+  ) {
     this.cloudWatch = new CloudWatchClient({});
     const appEnv = this.configService.get<string>(ENV_VARS.APP_ENV);
     this.metricsEnabled = appEnv !== EnvValues.LOCAL;
-    this.metricNamespaceName = `${METRIC_NAMESPACE_NAME_PREFIX}-${appEnv}`;
+    this.metricNamespaceName = `${this.namespacePrefix}-${appEnv}`;
   }
 
   async publish(data: MetricDatum[]): Promise<void> {
@@ -42,7 +45,7 @@ export class ApiMetricsService {
         }),
       );
     } catch (error) {
-      this.logger.error("CloudWatch publish failed", error as any);
+      this.logger.error('CloudWatch publish failed', error as any);
     }
   }
 

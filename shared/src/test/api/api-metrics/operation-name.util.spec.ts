@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { OperationNameUtil } from './operation-name.util';
+import { OperationNameUtil } from '@shared/api/api-metrics/operation-name.util';
 
 describe('OperationNameUtil', () => {
   let reflector, operationNameUtil, mockExecutionContext;

@@ -1,9 +1,9 @@
-import { ApiMetricsModule } from "@/api-metrics/api-metrics.module";
-import { ApiMetricsService } from "@/api-metrics/api-metrics.service";
-import { Test } from "@nestjs/testing";
-import { ClsModule } from "nestjs-cls";
+import { ApiMetricsModule } from '@shared/api/api-metrics/api-metrics.module';
+import { ApiMetricsService } from '@shared/api/api-metrics/api-metrics.service';
+import { Test } from '@nestjs/testing';
+import { ClsModule } from 'nestjs-cls';
 
-describe("ApiMetricsModule", () => {
+describe('ApiMetricsModule', () => {
   let module;
   let apiMetricsService;
 
@@ -15,16 +15,16 @@ describe("ApiMetricsModule", () => {
     apiMetricsService = module.get(ApiMetricsService);
   });
 
-  it("should be defined", () => {
+  it('should be defined', () => {
     expect(module).toBeDefined();
   });
 
-  it("should provide ApiMetricsService", () => {
+  it('should provide ApiMetricsService', () => {
     expect(apiMetricsService).toBeDefined();
     expect(apiMetricsService).toBeInstanceOf(ApiMetricsService);
   });
 
-  it("should export ApiMetricsService at runtime", () => {
+  it('should export ApiMetricsService at runtime', () => {
     // The ApiMetricsService should be available from the module
     expect(apiMetricsService).toBeDefined();
     expect(apiMetricsService).toBeInstanceOf(ApiMetricsService);
