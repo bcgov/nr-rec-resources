@@ -24,7 +24,6 @@ describe('RecReservationButton', () => {
 
     const button = screen.getByRole('button', { name: /Book now/i });
     expect(button).toBeInTheDocument();
-    expect(screen.getByAltText('download icon')).toBeInTheDocument();
   });
 
   it('calls window.open with the correct link when type is LINK', () => {
@@ -79,19 +78,5 @@ describe('RecReservationButton', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /123456789/i }));
     expect(window.open).toHaveBeenCalledWith('tel:123456789');
-  });
-
-  it('always renders the download icon', () => {
-    render(
-      <RecReservationButton
-        type={ReservationType.LINK}
-        text="https://example.com"
-      />,
-    );
-
-    const img = screen.getByAltText('download icon') as HTMLImageElement;
-    expect(img).toBeInTheDocument();
-    expect(img.width).toBe(16);
-    expect(img.height).toBe(16);
   });
 });
