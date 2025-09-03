@@ -17,6 +17,6 @@ test.describe('RST admin tool landing page (Mobile)', () => {
 
     await utils.accessibility();
 
-    await utils.screenshot('RST Admin tool landing page', 'mobile');
+    await utils.screenshotMobile('RST Admin tool landing page', 'mobile');
   });
 });

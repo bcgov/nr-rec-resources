@@ -81,7 +81,7 @@ jobs:
       env:
         HAPPO_API_KEY: ${{ secrets.HAPPO_API_KEY }}
         HAPPO_API_SECRET: ${{ secrets.HAPPO_API_SECRET }}
-        HAPPO_PROJECT: ${{ secrets.HAPPO_PROJECT }}
+        HAPPO_PROJECT: "${{ inputs.local && secrets.HAPPO_PROJECT_LOCAL || secrets.HAPPO_PROJECT }}"
         E2E_BASE_URL: "${{
             inputs.local && inputs.app == 'admin' && 'http://localhost:3001' ||
             inputs.local && inputs.app != 'admin' && 'http://localhost:3000' ||

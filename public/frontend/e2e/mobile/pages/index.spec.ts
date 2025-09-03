@@ -22,7 +22,7 @@ test.describe('Recreation Sites and Trails landing page (Mobile)', () => {
 
     await utils.accessibility();
 
-    await utils.screenshot(
+    await utils.screenshotMobile(
       'Recreation Sites and Trails landing page',
       'mobile',
     );
