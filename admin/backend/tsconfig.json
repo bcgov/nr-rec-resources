@@ -28,7 +28,9 @@
     "paths": {
       "@prisma-generated-sql": ["src/prisma-generated-sql"],
       "@": ["src"],
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@shared": ["../../shared/src"],
+      "@shared/*": ["../../shared/src/*"]
     }
   }
 }

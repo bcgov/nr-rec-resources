@@ -11,13 +11,24 @@ export default defineConfig({
   },
   build: {
     lib: {
-      entry: path.resolve(__dirname, 'index.ts'),
+      entry: path.resolve(__dirname, 'src/index.ts'),
       name: 'shared',
       fileName: 'index',
       formats: ['es', 'cjs'],
     },
     rollupOptions: {
-      external: ['react', 'react-dom'],
+      external: [
+        'react',
+        'react-dom',
+        '@nestjs/common',
+        '@nestjs/config',
+        '@nestjs/core',
+        '@nestjs/swagger',
+        '@aws-sdk/client-cloudwatch',
+        'nestjs-cls',
+        'rxjs',
+        'express',
+      ],
       output: {
         globals: {
           react: 'React',
