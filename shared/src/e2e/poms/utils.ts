@@ -53,7 +53,7 @@ export class UtilsPOM {
 
   async screenshotMobile(component: string, variant: string) {
     const maxHeight = 20000;
-    const viewport = '390x844'; // iPhone 14 size
+    const viewport = '400x844';
     await this.removeVectorFeatureMap();
     await happoPlaywright.screenshot(this.page, this.pageContent, {
       component,
