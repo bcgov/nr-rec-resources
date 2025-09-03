@@ -1,4 +1,5 @@
 import { Test } from '@nestjs/testing';
+import { ClsModule } from 'nestjs-cls';
 import { ConfigModule } from '@nestjs/config';
 import { ApiMetricsModule } from './api-metrics.module';
 import { ApiMetricsService } from './api-metrics.service';
@@ -9,7 +10,7 @@ describe('ApiMetricsModule', () => {
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
-      imports: [ApiMetricsModule],
+      imports: [ClsModule.forRoot(), ApiMetricsModule],
     }).compile();
 
     apiMetricsService = module.get(ApiMetricsService);
