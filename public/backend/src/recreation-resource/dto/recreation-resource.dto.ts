@@ -147,21 +147,25 @@ export class RecreationResourceReservationInfoDto {
   @ApiProperty({
     description: 'Reservation website of designed resource',
     example: 'www.firesidecamping.ca',
+    required: false,
   })
   reservation_website?: string;
   @ApiProperty({
     description: 'Reservation phone number of designed resource',
     example: '(999)999-9999',
+    required: false,
   })
   reservation_phone_number?: string;
   @ApiProperty({
     description: 'Reservation email of designed resource',
     example: 'reservation@email.com',
+    required: false,
   })
   reservation_email?: string;
   @ApiProperty({
     description: 'Reservation comments of designed resource',
     example: 'Membership required to reserve',
+    required: false,
   })
   reservation_comments?: string;
 }

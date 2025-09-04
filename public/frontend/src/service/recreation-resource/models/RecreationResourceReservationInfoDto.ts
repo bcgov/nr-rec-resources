@@ -30,25 +30,25 @@ export interface RecreationResourceReservationInfoDto {
    * @type {string}
    * @memberof RecreationResourceReservationInfoDto
    */
-  reservation_website: string;
+  reservation_website?: string;
   /**
    * Reservation phone number of designed resource
    * @type {string}
    * @memberof RecreationResourceReservationInfoDto
    */
-  reservation_phone_number: string;
+  reservation_phone_number?: string;
   /**
    * Reservation email of designed resource
    * @type {string}
    * @memberof RecreationResourceReservationInfoDto
    */
-  reservation_email: string;
+  reservation_email?: string;
   /**
    * Reservation comments of designed resource
    * @type {string}
    * @memberof RecreationResourceReservationInfoDto
    */
-  reservation_comments: string;
+  reservation_comments?: string;
 }
 
 /**
@@ -60,26 +60,6 @@ export function instanceOfRecreationResourceReservationInfoDto(
   if (
     !('reservation_instructions' in value) ||
     value['reservation_instructions'] === undefined
-  )
-    return false;
-  if (
-    !('reservation_website' in value) ||
-    value['reservation_website'] === undefined
-  )
-    return false;
-  if (
-    !('reservation_phone_number' in value) ||
-    value['reservation_phone_number'] === undefined
-  )
-    return false;
-  if (
-    !('reservation_email' in value) ||
-    value['reservation_email'] === undefined
-  )
-    return false;
-  if (
-    !('reservation_comments' in value) ||
-    value['reservation_comments'] === undefined
   )
     return false;
   return true;
@@ -100,10 +80,20 @@ export function RecreationResourceReservationInfoDtoFromJSONTyped(
   }
   return {
     reservation_instructions: json['reservation_instructions'],
-    reservation_website: json['reservation_website'],
-    reservation_phone_number: json['reservation_phone_number'],
-    reservation_email: json['reservation_email'],
-    reservation_comments: json['reservation_comments'],
+    reservation_website:
+      json['reservation_website'] == null
+        ? undefined
+        : json['reservation_website'],
+    reservation_phone_number:
+      json['reservation_phone_number'] == null
+        ? undefined
+        : json['reservation_phone_number'],
+    reservation_email:
+      json['reservation_email'] == null ? undefined : json['reservation_email'],
+    reservation_comments:
+      json['reservation_comments'] == null
+        ? undefined
+        : json['reservation_comments'],
   };
 }
 
