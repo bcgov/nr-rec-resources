@@ -29,6 +29,7 @@ import {
   useGetRecreationResourceById,
   useGetSiteOperatorById,
 } from '@/service/queries/recreation-resource';
+import RecResourceReservation from './RecResourceReservation';
 
 const PREVIEW_SIZE_CODE = 'pre';
 const FULL_RESOLUTION_SIZE_CODE = 'original';
@@ -228,6 +229,9 @@ const RecResourcePage = () => {
                   description={statusDescription}
                   statusCode={statusCode}
                 />
+              )}
+              {isRecreationSite && recResource && (
+                <RecResourceReservation recResource={recResource} />
               )}
             </section>
           </div>

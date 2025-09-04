@@ -55,6 +55,13 @@ import {
   RecreationFeeDtoToJSON,
   RecreationFeeDtoToJSONTyped,
 } from './RecreationFeeDto';
+import type { RecreationResourceReservationInfoDto } from './RecreationResourceReservationInfoDto';
+import {
+  RecreationResourceReservationInfoDtoFromJSON,
+  RecreationResourceReservationInfoDtoFromJSONTyped,
+  RecreationResourceReservationInfoDtoToJSON,
+  RecreationResourceReservationInfoDtoToJSONTyped,
+} from './RecreationResourceReservationInfoDto';
 import type { RecreationActivityDto } from './RecreationActivityDto';
 import {
   RecreationActivityDtoFromJSON,
@@ -183,6 +190,12 @@ export interface RecreationResourceDetailDto {
    * @memberof RecreationResourceDetailDto
    */
   recreation_district?: RecreationResourceDistrictDto;
+  /**
+   * Recreation resource reservation info
+   * @type {RecreationResourceReservationInfoDto}
+   * @memberof RecreationResourceDetailDto
+   */
+  recreation_resource_reservation_info?: RecreationResourceReservationInfoDto;
 }
 
 /**
@@ -315,6 +328,12 @@ export function RecreationResourceDetailDtoFromJSONTyped(
       json['recreation_district'] == null
         ? undefined
         : RecreationResourceDistrictDtoFromJSON(json['recreation_district']),
+    recreation_resource_reservation_info:
+      json['recreation_resource_reservation_info'] == null
+        ? undefined
+        : RecreationResourceReservationInfoDtoFromJSON(
+            json['recreation_resource_reservation_info'],
+          ),
   };
 }
 
@@ -372,5 +391,9 @@ export function RecreationResourceDetailDtoToJSONTyped(
     recreation_district: RecreationResourceDistrictDtoToJSON(
       value['recreation_district'],
     ),
+    recreation_resource_reservation_info:
+      RecreationResourceReservationInfoDtoToJSON(
+        value['recreation_resource_reservation_info'],
+      ),
   };
 }
