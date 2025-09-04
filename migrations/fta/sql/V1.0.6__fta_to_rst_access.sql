@@ -36,3 +36,13 @@ set
     sub_access_code = excluded.sub_access_code,
     updated_at = excluded.updated_at,
     updated_by = excluded.updated_by;
+
+-- If an access row is removed in FTA, remove it in RST
+delete from rst.recreation_access ra
+where not exists (
+    select 1
+    from fta.recreation_access fta
+    where fta.forest_file_id = ra.rec_resource_id
+      and fta.recreation_access_code = ra.access_code
+      and fta.recreation_sub_access_code = ra.sub_access_code
+);

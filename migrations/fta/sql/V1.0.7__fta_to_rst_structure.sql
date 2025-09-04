@@ -28,3 +28,17 @@ do update
 set
     updated_at = excluded.updated_at,
     updated_by = excluded.updated_by;
+
+-- If a structure row is removed in FTA, remove it in RST
+delete from rst.recreation_structure rst_rs
+where not exists (
+    select 1
+    from fta.recreation_structure rs
+    join fta.recreation_structure_code rsc_fta
+        on rs.recreation_structure_code = rsc_fta.recreation_structure_code
+    join rst.recreation_structure_code rsc_rst
+        on rsc_fta.description = rsc_rst.description
+    where
+        rs.forest_file_id = rst_rs.rec_resource_id
+        and rsc_rst.structure_code = rst_rs.structure_code
+);

@@ -51,12 +51,16 @@ describe("AppModule", () => {
       const moduleFixture = AppModule;
       const metadata = Reflect.getMetadata("imports", moduleFixture);
 
-      expect(metadata).toHaveLength(5);
+      expect(metadata).toHaveLength(7);
       expect(metadata).toEqual(
         expect.arrayContaining([
           PassportModule,
           AuthModule,
-          expect.any(Function), // ConfigModule.forRoot() returns a DynamicModule
+          expect.any(Function), // ClsModule.forRoot() returns a DynamicModule
+          expect.any(Object), // AppConfigModule
+          expect.any(Object), // TerminusModule
+          expect.any(Object), // RecreationResourceModule
+          expect.any(Object), // ApiMetricsModule
         ]),
       );
     });
