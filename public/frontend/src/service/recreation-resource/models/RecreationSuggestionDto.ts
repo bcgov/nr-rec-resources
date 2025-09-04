@@ -36,19 +36,19 @@ export interface RecreationSuggestionDto {
    * @type {string}
    * @memberof RecreationSuggestionDto
    */
-  closest_community?: string;
+  closest_community: string;
   /**
    * Description of the recreation district
    * @type {string}
    * @memberof RecreationSuggestionDto
    */
-  district_description?: string;
+  district_description: string;
   /**
    * Type code of the recreation resource
    * @type {string}
    * @memberof RecreationSuggestionDto
    */
-  recreation_resource_type?: string;
+  recreation_resource_type: string;
   /**
    * Type of the recreation resource
    * @type {string}
@@ -72,6 +72,21 @@ export function instanceOfRecreationSuggestionDto(
   if (!('rec_resource_id' in value) || value['rec_resource_id'] === undefined)
     return false;
   if (!('name' in value) || value['name'] === undefined) return false;
+  if (
+    !('closest_community' in value) ||
+    value['closest_community'] === undefined
+  )
+    return false;
+  if (
+    !('district_description' in value) ||
+    value['district_description'] === undefined
+  )
+    return false;
+  if (
+    !('recreation_resource_type' in value) ||
+    value['recreation_resource_type'] === undefined
+  )
+    return false;
   if (!('option_type' in value) || value['option_type'] === undefined)
     return false;
   return true;
@@ -93,16 +108,9 @@ export function RecreationSuggestionDtoFromJSONTyped(
   return {
     rec_resource_id: json['rec_resource_id'],
     name: json['name'],
-    closest_community:
-      json['closest_community'] == null ? undefined : json['closest_community'],
-    district_description:
-      json['district_description'] == null
-        ? undefined
-        : json['district_description'],
-    recreation_resource_type:
-      json['recreation_resource_type'] == null
-        ? undefined
-        : json['recreation_resource_type'],
+    closest_community: json['closest_community'],
+    district_description: json['district_description'],
+    recreation_resource_type: json['recreation_resource_type'],
     recreation_resource_type_code:
       json['recreation_resource_type_code'] == null
         ? undefined
