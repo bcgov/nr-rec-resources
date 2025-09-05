@@ -30,6 +30,7 @@ import {
   useGetSiteOperatorById,
 } from '@/service/queries/recreation-resource';
 import RecResourceReservation from './RecResourceReservation';
+import KnowBeforeYouGo from './section/KnowBeforeYouGo';
 
 const PREVIEW_SIZE_CODE = 'pre';
 const FULL_RESOLUTION_SIZE_CODE = 'original';
@@ -104,6 +105,7 @@ const RecResourcePage = () => {
     site_point_geometry,
     recreation_resource_docs,
     spatial_feature_geometry,
+    recreation_resource_reservation_info,
   } = recResource || {};
 
   const formattedName = name
@@ -120,7 +122,7 @@ const RecResourcePage = () => {
   const isCampingAvailable =
     Boolean(campsite_count) || Boolean(recreation_fee?.length);
   const isAdditionalFeesAvailable =
-    additional_fees && additional_fees.length > 0;
+    additional_fees !== undefined && additional_fees.length > 0;
   const isSiteDescription = description || maintenance_standard_code;
   const isRecreationSite = rec_resource_type === RECREATION_SITE;
 
@@ -134,6 +136,9 @@ const RecResourcePage = () => {
     Boolean(spatial_feature_geometry?.length) ||
     Boolean(recreation_resource_docs?.length) ||
     driving_directions;
+  const isReservable =
+    recreation_resource_reservation_info !== null &&
+    recreation_resource_reservation_info !== undefined;
 
   // Create page sections for PageWithScrollMenu
   const pageSections: PageSection[] = [
@@ -147,6 +152,12 @@ const RecResourcePage = () => {
       id: SectionIds.SITE_DESCRIPTION,
       href: `#${SectionIds.SITE_DESCRIPTION}`,
       title: SectionTitles.SITE_DESCRIPTION,
+      isVisible: Boolean(isSiteDescription),
+    },
+    {
+      id: SectionIds.KNOW_BEFORE_YOU_GO,
+      href: `#${SectionIds.KNOW_BEFORE_YOU_GO}`,
+      title: SectionTitles.KNOW_BEFORE_YOU_GO,
       isVisible: Boolean(isSiteDescription),
     },
     {
@@ -271,6 +282,13 @@ const RecResourcePage = () => {
                       description={description}
                       maintenanceCode={maintenance_standard_code}
                       ref={sectionRefs[refIndex++]}
+                    />
+                  )}
+
+                  {isRecreationSite && (
+                    <KnowBeforeYouGo
+                      isReservable={isReservable}
+                      isAdditionalFeesAvailable={isAdditionalFeesAvailable}
                     />
                   )}
 

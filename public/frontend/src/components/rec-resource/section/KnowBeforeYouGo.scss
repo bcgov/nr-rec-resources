@@ -1,0 +1,33 @@
+@import '@/styles/variables.scss';
+
+.guides {
+  list-style-type: none;
+  margin: 10px 0;
+  padding: 0;
+}
+
+li {
+  margin: 10px 0;
+  padding: 0;
+}
+
+.small-tittle {
+  font-weight: 700;
+  font-style: Bold;
+  font-size: 16px;
+  line-height: 25.6px;
+}
+
+.info-box {
+  background-color: $colorBlueLight;
+  color: $colorBlue;
+  font-weight: 700;
+  font-style: Bold;
+  font-size: 16px;
+  line-height: 25.6px;
+  letter-spacing: 0px;
+  border-radius: 4px;
+  padding: 16px;
+  margin-bottom: 32px;
+  margin-top: 16px;
+}
