@@ -83,12 +83,12 @@ jobs:
             PVC_SIZE="500Mi"
             # if event is PR then use a different bucket
             if [ "${{ github.event_name }}" == "pull_request" ]; then
-              export AWS_S3_BUCKET="fta-rec-rst-uploads"
+              export AWS_LZA_S3_BUCKET="fta-rec-rst-uploads"
               export RELEASE_NAME="backend-el-pr-${{ github.event.number }}"
               SECRET_PERSIST=false
               PVC_SIZE="200Mi"
             else
-              export AWS_S3_BUCKET="${{ secrets.AWS_S3_BUCKET }}"
+              export AWS_LZA_S3_BUCKET="${{ secrets.AWS_LZA_S3_BUCKET }}"
               export RELEASE_NAME="backend-el"
 
             fi
@@ -102,7 +102,7 @@ jobs:
               --set-string secrets.dbName="${{ secrets.DBNAME }}" \
               --set-string secrets.dbPassword="$DB_PASSWORD" \
               --set-string secrets.dbUser="${{ secrets.DBUSER }}" \
-              --set-string config.awsS3Bucket="$AWS_S3_BUCKET" \
+              --set-string config.awsS3Bucket="$AWS_LZA_S3_BUCKET" \
               --set-string schedule="${{ secrets.SCHEDULE }}" \
               --set-string secrets.flywayTaskConfigs="${FLYWAY_TASK_CONFIGS}" \
               --set secrets.persist=$SECRET_PERSIST \
