@@ -893,7 +893,7 @@ model recreation_resource_reservation_info_history {
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 /// This view or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 view recreation_resource_type_view {
-  rec_resource_id        String               @id @db.VarChar(20)
+  rec_resource_id        String               @unique @db.VarChar(20)
   rec_resource_type_code String?              @db.VarChar
   description            String?              @db.VarChar(200)
   recreation_resource    recreation_resource? @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
