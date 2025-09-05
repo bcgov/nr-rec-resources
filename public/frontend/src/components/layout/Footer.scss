@@ -17,7 +17,6 @@
     z-index: 10;
     width: calc(100% - 2rem);
     height: $landAckBoxHeight;
-    overflow-y: auto;
 
     p {
       padding: clamp(1rem, 2vh, 2rem) clamp(1.25rem, 4vw, 4rem);

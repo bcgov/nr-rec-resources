@@ -1,22 +1,20 @@
-// https://playwright.dev/docs/pom
-
 import { expect, Locator, Page } from '@playwright/test';
 import happoPlaywright from 'happo-playwright';
 import {
   analyzeAccessibility,
   waitForNetworkRequest,
   waitForNetworkResponse,
-} from 'e2e/utils';
-import { BASE_URL, MAP_CANVAS_SELECTOR } from 'e2e/constants';
+} from '@shared/e2e/utils';
+import { MAP_CANVAS_SELECTOR } from '@shared/e2e/constants';
 
 export class UtilsPOM {
   readonly page: Page;
-
   readonly pageContent: Locator;
+  readonly baseUrl: string;
 
   constructor(page: Page) {
     this.page = page;
-
+    this.baseUrl = (page.context() as any)._options.baseURL ?? '';
     this.pageContent = page.locator('html');
   }
 
@@ -37,8 +35,8 @@ export class UtilsPOM {
     const href = await link.getAttribute('href');
     await link.click();
 
-    await this.page.waitForURL(`${BASE_URL}${href}`);
-    expect(this.page.url()).toBe(`${BASE_URL}${href}`);
+    await this.page.waitForURL(`${this.baseUrl}${href}`);
+    expect(this.page.url()).toBe(`${this.baseUrl}${href}`);
   }
 
   async accessibility() {
@@ -46,11 +44,46 @@ export class UtilsPOM {
   }
 
   async screenshot(component: string, variant: string) {
-    // Remove the map canvas element if it exists as it breaks Happo
     await this.removeVectorFeatureMap();
     await happoPlaywright.screenshot(this.page, this.pageContent, {
       component,
       variant,
+    });
+  }
+
+  async screenshotMobile(component: string, variant: string) {
+    const maxHeight = 20000;
+    const viewport = '400x844';
+    await this.removeVectorFeatureMap();
+    await happoPlaywright.screenshot(this.page, this.pageContent, {
+      component,
+      variant,
+      targets: [
+        {
+          name: 'chrome-small',
+          browser: 'chrome',
+          viewport,
+          maxHeight,
+        },
+        {
+          name: 'firefox-small',
+          browser: 'firefox',
+          viewport,
+          maxHeight,
+        },
+        {
+          name: 'safari-small',
+          browser: 'safari',
+          viewport,
+          maxHeight,
+        },
+        {
+          name: 'edge-small',
+          browser: 'edge',
+          viewport,
+          maxHeight,
+        },
+      ],
     });
   }
 

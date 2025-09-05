@@ -1,5 +1,6 @@
 export enum FilterEnum {
   CLEAR_FILTER_LABEL = 'Clear filters',
+  MOBILE_FILTER_LABEL = 'Filter',
 }
 
 export enum FilterGroup {
