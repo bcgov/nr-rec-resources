@@ -27,7 +27,7 @@
     "@aws-sdk/client-cloudwatch": "^3.799.0",
     "@nestjs/axios": "^4.0.0",
     "@nestjs/class-validator": "^0.13.4",
-    "@nestjs/cli": "^11.0.2",
+    "@nestjs/cli": "^11.0.10",
     "@nestjs/common": "^11.0.14",
     "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^11.0.6",
