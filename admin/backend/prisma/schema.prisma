@@ -35,6 +35,7 @@ model recreation_resource {
   recreation_maintenance_standard_code recreation_maintenance_standard_code? @relation(fields: [maintenance_standard_code], references: [maintenance_standard_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_resource_docs             recreation_resource_docs[]
   recreation_resource_images           recreation_resource_images[]
+  recreation_resource_reservation_info recreation_resource_reservation_info?
   recreation_site_description          recreation_site_description?
   recreation_status                    recreation_status?
   recreation_structure                 recreation_structure[]
@@ -854,10 +855,46 @@ model recreation_agreement_holder_history {
   @@schema("rst")
 }
 
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_resource_reservation_info {
+  rec_resource_id          String                   @id @db.VarChar(10)
+  reservation_instructions String?                  @db.VarChar(200)
+  reservation_website      String?                  @db.VarChar(200)
+  reservation_phone_number String?                  @db.VarChar(50)
+  reservation_email        String?                  @db.VarChar(100)
+  reservation_comments     String?                  @db.VarChar(400)
+  updated_at               DateTime?                @default(now()) @db.Timestamp(6)
+  updated_by               String?
+  created_at               DateTime?                @default(now()) @db.Timestamp(6)
+  created_by               String?
+  sys_period               Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_resource      recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@schema("rst")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_resource_reservation_info_history {
+  rec_resource_id          String                   @db.VarChar(10)
+  reservation_instructions String?                  @db.VarChar(200)
+  reservation_website      String?                  @db.VarChar(200)
+  reservation_phone_number String?                  @db.VarChar(50)
+  reservation_email        String?                  @db.VarChar(100)
+  reservation_comments     String?                  @db.VarChar(400)
+  updated_at               DateTime?                @db.Timestamp(6)
+  updated_by               String?
+  created_at               DateTime?                @db.Timestamp(6)
+  created_by               String?
+  sys_period               Unsupported("tstzrange")
+
+  @@ignore
+  @@schema("rst")
+}
+
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 /// This view or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 view recreation_resource_type_view {
-  rec_resource_id        String               @id @db.VarChar(20)
+  rec_resource_id        String               @unique @db.VarChar(20)
   rec_resource_type_code String?              @db.VarChar
   description            String?              @db.VarChar(200)
   recreation_resource    recreation_resource? @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
