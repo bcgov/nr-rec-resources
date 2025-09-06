@@ -186,6 +186,11 @@
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                             <tr>
+                                                <td title="recreation_resource_reservation_info.rec_resource_id references recreation_resource.rec_resource_id via recreation_resource_reservation_info_rec_resource_id_fkey"><a href='recreation_resource_reservation_info.html'>recreation_resource_reservation_info</a><span class='relatedKey'>.rec_resource_id</span></td>
+                                                <td class="constraint detail">recreation_resource_reservation_info_rec_resource_id_fkey</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                            <tr>
                                                 <td title="recreation_resource_search_view.rec_resource_id&#39;s name implies that it&#39;s a child of recreation_resource.rec_resource_id, but it doesn&#39;t reference that column."><a href='recreation_resource_search_view.html'>recreation_resource_search_view</a><span class='relatedKey'>.rec_resource_id</span></td>
                                                 <td class="constraint detail">Implied Constraint</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
@@ -498,124 +503,128 @@
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="recreation_access.html" target="_top" title="recreation_access" alt="" coords="983,5,1205,211">
-<area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="448,949,892,1400">
-<area shape="rect" id="node9" href="recreation_district_code.html" target="_top" title="recreation_district_code" alt="" coords="69,1045,340,1163">
-<area shape="rect" id="node10" href="recreation_maintenance_standard_code.html" target="_top" title="recreation_maintenance_standard_code" alt="" coords="5,1180,404,1297">
-<area shape="rect" id="node3" href="recreation_activity.html" target="_top" title="recreation_activity" alt="" coords="973,228,1215,375">
-<area shape="rect" id="node4" href="recreation_agreement_holder.html" target="_top" title="recreation_agreement_holder" alt="" coords="936,392,1252,509">
-<area shape="rect" id="node5" href="recreation_defined_campsite.html" target="_top" title="recreation_defined_campsite" alt="" coords="939,527,1249,703">
-<area shape="rect" id="node6" href="recreation_driving_direction.html" target="_top" title="recreation_driving_direction" alt="" coords="942,720,1246,837">
-<area shape="rect" id="node7" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="990,855,1198,1001">
-<area shape="rect" id="node8" href="recreation_map_feature.html" target="_top" title="recreation_map_feature" alt="" coords="953,1019,1235,1253">
-<area shape="rect" id="node11" href="recreation_resource_docs.html" target="_top" title="recreation_resource_docs" alt="" coords="953,1271,1235,1447">
-<area shape="rect" id="node12" href="recreation_resource_images.html" target="_top" title="recreation_resource_images" alt="" coords="943,1464,1245,1611">
-<area shape="rect" id="node13" href="recreation_site_description.html" target="_top" title="recreation_site_description" alt="" coords="946,1628,1242,1745">
-<area shape="rect" id="node14" href="recreation_status.html" target="_top" title="recreation_status" alt="" coords="984,1763,1204,1909">
-<area shape="rect" id="node15" href="recreation_structure.html" target="_top" title="recreation_structure" alt="" coords="972,1927,1216,2073">
+<area shape="rect" id="node1" href="recreation_access.html" target="_top" title="recreation_access" alt="" coords="1013,5,1235,211">
+<area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="448,1045,892,1496">
+<area shape="rect" id="node9" href="recreation_district_code.html" target="_top" title="recreation_district_code" alt="" coords="69,1141,340,1259">
+<area shape="rect" id="node10" href="recreation_maintenance_standard_code.html" target="_top" title="recreation_maintenance_standard_code" alt="" coords="5,1276,404,1393">
+<area shape="rect" id="node3" href="recreation_activity.html" target="_top" title="recreation_activity" alt="" coords="1003,228,1245,375">
+<area shape="rect" id="node4" href="recreation_agreement_holder.html" target="_top" title="recreation_agreement_holder" alt="" coords="966,392,1282,509">
+<area shape="rect" id="node5" href="recreation_defined_campsite.html" target="_top" title="recreation_defined_campsite" alt="" coords="969,527,1279,703">
+<area shape="rect" id="node6" href="recreation_driving_direction.html" target="_top" title="recreation_driving_direction" alt="" coords="972,720,1276,837">
+<area shape="rect" id="node7" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="1020,855,1228,1001">
+<area shape="rect" id="node8" href="recreation_map_feature.html" target="_top" title="recreation_map_feature" alt="" coords="983,1019,1265,1253">
+<area shape="rect" id="node11" href="recreation_resource_docs.html" target="_top" title="recreation_resource_docs" alt="" coords="983,1271,1265,1447">
+<area shape="rect" id="node12" href="recreation_resource_images.html" target="_top" title="recreation_resource_images" alt="" coords="973,1464,1275,1611">
+<area shape="rect" id="node13" href="recreation_resource_reservation_info.html" target="_top" title="recreation_resource_reservation_info" alt="" coords="936,1628,1312,1745">
+<area shape="rect" id="node14" href="recreation_site_description.html" target="_top" title="recreation_site_description" alt="" coords="976,1763,1272,1880">
+<area shape="rect" id="node15" href="recreation_status.html" target="_top" title="recreation_status" alt="" coords="1014,1897,1234,2044">
+<area shape="rect" id="node16" href="recreation_structure.html" target="_top" title="recreation_structure" alt="" coords="1002,2061,1246,2208">
 </map>
                                         <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/recreation_resource.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
-<area shape="rect" id="node1" href="recreation_access.html" target="_top" title="recreation_access" alt="" coords="983,5,1205,211">
+<area shape="rect" id="node1" href="recreation_access.html" target="_top" title="recreation_access" alt="" coords="1013,5,1235,211">
 <area shape="rect" id="node2" href="recreation_access_code.html" target="_top" title="recreation_access_code" alt="" coords="537,20,803,108">
-<area shape="rect" id="node3" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="448,925,892,1376">
+<area shape="rect" id="node3" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="448,1045,892,1496">
 <area shape="rect" id="node4" href="recreation_sub_access_code.html" target="_top" title="recreation_sub_access_code" alt="" coords="520,125,820,213">
-<area shape="rect" id="node16" href="recreation_district_code.html" target="_top" title="recreation_district_code" alt="" coords="69,1023,340,1140">
-<area shape="rect" id="node17" href="recreation_maintenance_standard_code.html" target="_top" title="recreation_maintenance_standard_code" alt="" coords="5,1157,404,1275">
-<area shape="rect" id="node5" href="recreation_activity.html" target="_top" title="recreation_activity" alt="" coords="973,228,1215,375">
+<area shape="rect" id="node16" href="recreation_district_code.html" target="_top" title="recreation_district_code" alt="" coords="69,1143,340,1260">
+<area shape="rect" id="node17" href="recreation_maintenance_standard_code.html" target="_top" title="recreation_maintenance_standard_code" alt="" coords="5,1277,404,1395">
+<area shape="rect" id="node5" href="recreation_activity.html" target="_top" title="recreation_activity" alt="" coords="1003,228,1245,375">
 <area shape="rect" id="node6" href="recreation_activity_code.html" target="_top" title="recreation_activity_code" alt="" coords="533,260,807,348">
-<area shape="rect" id="node7" href="recreation_agreement_holder.html" target="_top" title="recreation_agreement_holder" alt="" coords="936,749,1252,867">
-<area shape="rect" id="node8" href="recreation_defined_campsite.html" target="_top" title="recreation_defined_campsite" alt="" coords="939,392,1249,568">
+<area shape="rect" id="node7" href="recreation_agreement_holder.html" target="_top" title="recreation_agreement_holder" alt="" coords="966,1317,1282,1435">
+<area shape="rect" id="node8" href="recreation_defined_campsite.html" target="_top" title="recreation_defined_campsite" alt="" coords="969,392,1279,568">
 <area shape="rect" id="node9" href="recreation_remed_repair_code.html" target="_top" title="recreation_remed_repair_code" alt="" coords="509,453,831,541">
-<area shape="rect" id="node10" href="recreation_driving_direction.html" target="_top" title="recreation_driving_direction" alt="" coords="942,884,1246,1001">
-<area shape="rect" id="node11" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="990,585,1198,732">
+<area shape="rect" id="node10" href="recreation_driving_direction.html" target="_top" title="recreation_driving_direction" alt="" coords="972,749,1276,867">
+<area shape="rect" id="node11" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="1020,585,1228,732">
 <area shape="rect" id="node12" href="recreation_fee_code.html" target="_top" title="recreation_fee_code" alt="" coords="551,617,789,705">
-<area shape="rect" id="node13" href="recreation_map_feature.html" target="_top" title="recreation_map_feature" alt="" coords="953,1317,1235,1552">
-<area shape="rect" id="node14" href="recreation_resource_type_code.html" target="_top" title="recreation_resource_type_code" alt="" coords="507,1437,833,1525">
-<area shape="rect" id="node15" href="recreation_map_feature_geom.html" target="_top" title="recreation_map_feature_geom" alt="" coords="1319,1320,1641,1408">
-<area shape="rect" id="node18" href="recreation_resource_docs.html" target="_top" title="recreation_resource_docs" alt="" coords="953,1569,1235,1745">
-<area shape="rect" id="node19" href="recreation_resource_doc_code.html" target="_top" title="recreation_resource_doc_code" alt="" coords="511,1631,829,1719">
-<area shape="rect" id="node20" href="recreation_resource_image_variants.html" target="_top" title="recreation_resource_image_variants" alt="" coords="1296,1051,1664,1139">
-<area shape="rect" id="node21" href="recreation_resource_images.html" target="_top" title="recreation_resource_images" alt="" coords="943,1019,1245,1165">
-<area shape="rect" id="node22" href="recreation_site_description.html" target="_top" title="recreation_site_description" alt="" coords="946,1183,1242,1300">
-<area shape="rect" id="node23" href="recreation_status.html" target="_top" title="recreation_status" alt="" coords="984,1763,1204,1909">
-<area shape="rect" id="node24" href="recreation_status_code.html" target="_top" title="recreation_status_code" alt="" coords="538,1795,802,1883">
-<area shape="rect" id="node25" href="recreation_structure.html" target="_top" title="recreation_structure" alt="" coords="972,1927,1216,2073">
-<area shape="rect" id="node26" href="recreation_structure_code.html" target="_top" title="recreation_structure_code" alt="" coords="525,1959,815,2047">
+<area shape="rect" id="node13" href="recreation_map_feature.html" target="_top" title="recreation_map_feature" alt="" coords="983,1452,1265,1687">
+<area shape="rect" id="node14" href="recreation_resource_type_code.html" target="_top" title="recreation_resource_type_code" alt="" coords="507,1572,833,1660">
+<area shape="rect" id="node15" href="recreation_map_feature_geom.html" target="_top" title="recreation_map_feature_geom" alt="" coords="1379,1455,1701,1543">
+<area shape="rect" id="node18" href="recreation_resource_docs.html" target="_top" title="recreation_resource_docs" alt="" coords="983,1704,1265,1880">
+<area shape="rect" id="node19" href="recreation_resource_doc_code.html" target="_top" title="recreation_resource_doc_code" alt="" coords="511,1765,829,1853">
+<area shape="rect" id="node20" href="recreation_resource_image_variants.html" target="_top" title="recreation_resource_image_variants" alt="" coords="1356,916,1724,1004">
+<area shape="rect" id="node21" href="recreation_resource_images.html" target="_top" title="recreation_resource_images" alt="" coords="973,884,1275,1031">
+<area shape="rect" id="node22" href="recreation_resource_reservation_info.html" target="_top" title="recreation_resource_reservation_info" alt="" coords="936,1048,1312,1165">
+<area shape="rect" id="node23" href="recreation_site_description.html" target="_top" title="recreation_site_description" alt="" coords="976,1183,1272,1300">
+<area shape="rect" id="node24" href="recreation_status.html" target="_top" title="recreation_status" alt="" coords="1014,1897,1234,2044">
+<area shape="rect" id="node25" href="recreation_status_code.html" target="_top" title="recreation_status_code" alt="" coords="538,1929,802,2017">
+<area shape="rect" id="node26" href="recreation_structure.html" target="_top" title="recreation_structure" alt="" coords="1002,2061,1246,2208">
+<area shape="rect" id="node27" href="recreation_structure_code.html" target="_top" title="recreation_structure_code" alt="" coords="525,2093,815,2181">
 </map>
                                         <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/recreation_resource.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_access.html" target="_top" title="recreation_access" alt="" coords="995,211,1216,416">
-<area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="448,1235,892,1685">
-<area shape="rect" id="node10" href="recreation_district_code.html" target="_top" title="recreation_district_code" alt="" coords="69,1384,340,1501">
-<area shape="rect" id="node11" href="recreation_maintenance_standard_code.html" target="_top" title="recreation_maintenance_standard_code" alt="" coords="5,1856,404,1973">
-<area shape="rect" id="node3" href="recreation_access_history.html" target="_top" title="recreation_access_history" alt="" coords="1319,159,1603,335">
-<area shape="rect" id="node4" href="recreation_activity.html" target="_top" title="recreation_activity" alt="" coords="984,433,1227,580">
-<area shape="rect" id="node5" href="recreation_agreement_holder.html" target="_top" title="recreation_agreement_holder" alt="" coords="947,597,1263,715">
-<area shape="rect" id="node6" href="recreation_defined_campsite.html" target="_top" title="recreation_defined_campsite" alt="" coords="951,732,1260,908">
-<area shape="rect" id="node7" href="recreation_driving_direction.html" target="_top" title="recreation_driving_direction" alt="" coords="953,925,1257,1043">
-<area shape="rect" id="node8" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="1001,1060,1209,1207">
-<area shape="rect" id="node9" href="recreation_map_feature.html" target="_top" title="recreation_map_feature" alt="" coords="1320,753,1601,988">
-<area shape="rect" id="node12" href="recreation_resource_docs.html" target="_top" title="recreation_resource_docs" alt="" coords="964,1260,1247,1436">
-<area shape="rect" id="node13" href="recreation_resource_history.html" target="_top" title="recreation_resource_history" alt="" coords="954,2355,1257,2531">
-<area shape="rect" id="node14" href="recreation_resource_images.html" target="_top" title="recreation_resource_images" alt="" coords="954,1453,1257,1600">
-<area shape="rect" id="node15" href="recreation_resource_search_view.html" target="_top" title="recreation_resource_search_view" alt="" coords="936,5,1275,157">
-<area shape="rect" id="node16" href="recreation_resource_type_view.html" target="_top" title="recreation_resource_type_view" alt="" coords="945,1617,1266,1711">
-<area shape="rect" id="node17" href="recreation_site_description.html" target="_top" title="recreation_site_description" alt="" coords="957,1728,1253,1845">
-<area shape="rect" id="node18" href="recreation_status.html" target="_top" title="recreation_status" alt="" coords="995,1863,1215,2009">
-<area shape="rect" id="node19" href="recreation_structure.html" target="_top" title="recreation_structure" alt="" coords="983,2027,1227,2173">
-<area shape="rect" id="node20" href="recreation_structure_history.html" target="_top" title="recreation_structure_history" alt="" coords="951,2191,1259,2337">
+<area shape="rect" id="node1" href="recreation_access.html" target="_top" title="recreation_access" alt="" coords="1013,211,1235,416">
+<area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="448,1287,892,1737">
+<area shape="rect" id="node10" href="recreation_district_code.html" target="_top" title="recreation_district_code" alt="" coords="69,1436,340,1553">
+<area shape="rect" id="node11" href="recreation_maintenance_standard_code.html" target="_top" title="recreation_maintenance_standard_code" alt="" coords="5,1959,404,2076">
+<area shape="rect" id="node3" href="recreation_access_history.html" target="_top" title="recreation_access_history" alt="" coords="1356,159,1640,335">
+<area shape="rect" id="node4" href="recreation_activity.html" target="_top" title="recreation_activity" alt="" coords="1003,433,1245,580">
+<area shape="rect" id="node5" href="recreation_agreement_holder.html" target="_top" title="recreation_agreement_holder" alt="" coords="966,597,1282,715">
+<area shape="rect" id="node6" href="recreation_defined_campsite.html" target="_top" title="recreation_defined_campsite" alt="" coords="969,732,1279,908">
+<area shape="rect" id="node7" href="recreation_driving_direction.html" target="_top" title="recreation_driving_direction" alt="" coords="972,925,1276,1043">
+<area shape="rect" id="node8" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="1020,1060,1228,1207">
+<area shape="rect" id="node9" href="recreation_map_feature.html" target="_top" title="recreation_map_feature" alt="" coords="1357,753,1639,988">
+<area shape="rect" id="node12" href="recreation_resource_docs.html" target="_top" title="recreation_resource_docs" alt="" coords="983,1260,1265,1436">
+<area shape="rect" id="node13" href="recreation_resource_history.html" target="_top" title="recreation_resource_history" alt="" coords="973,2489,1275,2665">
+<area shape="rect" id="node14" href="recreation_resource_images.html" target="_top" title="recreation_resource_images" alt="" coords="973,1453,1275,1600">
+<area shape="rect" id="node15" href="recreation_resource_reservation_info.html" target="_top" title="recreation_resource_reservation_info" alt="" coords="936,1617,1312,1735">
+<area shape="rect" id="node16" href="recreation_resource_search_view.html" target="_top" title="recreation_resource_search_view" alt="" coords="955,5,1293,157">
+<area shape="rect" id="node17" href="recreation_resource_type_view.html" target="_top" title="recreation_resource_type_view" alt="" coords="963,1752,1285,1845">
+<area shape="rect" id="node18" href="recreation_site_description.html" target="_top" title="recreation_site_description" alt="" coords="976,1863,1272,1980">
+<area shape="rect" id="node19" href="recreation_status.html" target="_top" title="recreation_status" alt="" coords="1014,1997,1234,2144">
+<area shape="rect" id="node20" href="recreation_structure.html" target="_top" title="recreation_structure" alt="" coords="1002,2161,1246,2308">
+<area shape="rect" id="node21" href="recreation_structure_history.html" target="_top" title="recreation_structure_history" alt="" coords="970,2325,1278,2472">
 </map>
                                         <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/recreation_resource.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_access.html" target="_top" title="recreation_access" alt="" coords="1012,278,1233,366">
-<area shape="rect" id="node2" href="recreation_access_code.html" target="_top" title="recreation_access_code" alt="" coords="546,276,811,364">
-<area shape="rect" id="node3" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="457,664,901,1114">
-<area shape="rect" id="node4" href="recreation_sub_access_code.html" target="_top" title="recreation_sub_access_code" alt="" coords="529,381,829,469">
-<area shape="rect" id="node14" href="recreation_district_code.html" target="_top" title="recreation_district_code" alt="" coords="69,56,340,144">
-<area shape="rect" id="node20" href="recreation_maintenance_standard_code.html" target="_top" title="recreation_maintenance_standard_code" alt="" coords="5,848,404,936">
-<area shape="rect" id="node5" href="recreation_access_history.html" target="_top" title="recreation_access_history" alt="" coords="1409,170,1693,258">
-<area shape="rect" id="node6" href="recreation_activity.html" target="_top" title="recreation_activity" alt="" coords="1430,645,1673,792">
-<area shape="rect" id="node7" href="recreation_activity_code.html" target="_top" title="recreation_activity_code" alt="" coords="986,1001,1259,1089">
-<area shape="rect" id="node8" href="recreation_activity_history.html" target="_top" title="recreation_activity_history" alt="" coords="1405,1170,1697,1258">
-<area shape="rect" id="node9" href="recreation_status.html" target="_top" title="recreation_status" alt="" coords="1013,1322,1233,1469">
-<area shape="rect" id="node38" href="recreation_status_code.html" target="_top" title="recreation_status_code" alt="" coords="547,1562,811,1650">
-<area shape="rect" id="node10" href="recreation_agreement_holder.html" target="_top" title="recreation_agreement_holder" alt="" coords="965,732,1281,849">
-<area shape="rect" id="node11" href="recreation_defined_campsite.html" target="_top" title="recreation_defined_campsite" alt="" coords="968,1650,1277,1826">
-<area shape="rect" id="node12" href="recreation_remed_repair_code.html" target="_top" title="recreation_remed_repair_code" alt="" coords="518,1137,839,1225">
-<area shape="rect" id="node13" href="recreation_district_code_history.html" target="_top" title="recreation_district_code_history" alt="" coords="511,53,846,141">
-<area shape="rect" id="node15" href="recreation_driving_direction.html" target="_top" title="recreation_driving_direction" alt="" coords="971,866,1275,984">
-<area shape="rect" id="node16" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="1447,941,1655,1088">
-<area shape="rect" id="node17" href="recreation_fee_code.html" target="_top" title="recreation_fee_code" alt="" coords="1003,1106,1242,1194">
-<area shape="rect" id="node18" href="recreation_fee_history.html" target="_top" title="recreation_fee_history" alt="" coords="1423,1309,1680,1397">
-<area shape="rect" id="node19" href="recreation_maintenance_standard_38c8936b.html" target="_top" title="recreation_maintenance_standard_code_history" alt="" coords="448,1242,909,1330">
-<area shape="rect" id="node21" href="recreation_map_feature.html" target="_top" title="recreation_map_feature" alt="" coords="1416,522,1687,610">
-<area shape="rect" id="node22" href="recreation_resource_type_code.html" target="_top" title="recreation_resource_type_code" alt="" coords="959,518,1286,606">
-<area shape="rect" id="node23" href="recreation_map_feature_geom.html" target="_top" title="recreation_map_feature_geom" alt="" coords="1811,485,2132,573">
-<area shape="rect" id="node24" href="recreation_map_feature_geom_history.html" target="_top" title="recreation_map_feature_geom_history" alt="" coords="1359,276,1744,364">
-<area shape="rect" id="node25" href="recreation_map_feature_history.html" target="_top" title="recreation_map_feature_history" alt="" coords="1384,381,1719,469">
-<area shape="rect" id="node26" href="recreation_resource_district_count_view.html" target="_top" title="recreation_resource_district_count_view" alt="" coords="481,158,877,222">
-<area shape="rect" id="node27" href="recreation_resource_docs.html" target="_top" title="recreation_resource_docs" alt="" coords="981,2208,1264,2384">
-<area shape="rect" id="node28" href="recreation_resource_doc_code.html" target="_top" title="recreation_resource_doc_code" alt="" coords="519,2317,838,2405">
-<area shape="rect" id="node29" href="recreation_resource_docs_history.html" target="_top" title="recreation_resource_docs_history" alt="" coords="1379,2352,1724,2440">
-<area shape="rect" id="node30" href="recreation_resource_history.html" target="_top" title="recreation_resource_history" alt="" coords="971,101,1274,189">
-<area shape="rect" id="node31" href="recreation_resource_image_variants.html" target="_top" title="recreation_resource_image_variants" alt="" coords="1367,1518,1735,1606">
-<area shape="rect" id="node32" href="recreation_resource_images.html" target="_top" title="recreation_resource_images" alt="" coords="971,1486,1274,1633">
-<area shape="rect" id="node33" href="recreation_resource_image_varia_5cf1496b.html" target="_top" title="recreation_resource_image_variants_history" alt="" coords="1336,2222,1767,2310">
-<area shape="rect" id="node34" href="recreation_resource_images_history.html" target="_top" title="recreation_resource_images_history" alt="" coords="1369,2117,1734,2205">
-<area shape="rect" id="node35" href="recreation_resource_search_view.html" target="_top" title="recreation_resource_search_view" alt="" coords="953,20,1292,84">
-<area shape="rect" id="node36" href="recreation_resource_type_view.html" target="_top" title="recreation_resource_type_view" alt="" coords="962,1212,1283,1305">
-<area shape="rect" id="node37" href="recreation_site_description.html" target="_top" title="recreation_site_description" alt="" coords="975,384,1271,501">
-<area shape="rect" id="node39" href="recreation_status_history.html" target="_top" title="recreation_status_history" alt="" coords="1410,1797,1693,1885">
-<area shape="rect" id="node40" href="recreation_structure.html" target="_top" title="recreation_structure" alt="" coords="1001,1844,1245,1990">
-<area shape="rect" id="node41" href="recreation_structure_code.html" target="_top" title="recreation_structure_code" alt="" coords="534,1976,823,2064">
-<area shape="rect" id="node42" href="recreation_structure_history.html" target="_top" title="recreation_structure_history" alt="" coords="969,2044,1277,2190">
+<area shape="rect" id="node1" href="recreation_access.html" target="_top" title="recreation_access" alt="" coords="1031,275,1252,363">
+<area shape="rect" id="node2" href="recreation_access_code.html" target="_top" title="recreation_access_code" alt="" coords="546,63,811,151">
+<area shape="rect" id="node3" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="457,726,901,1176">
+<area shape="rect" id="node4" href="recreation_sub_access_code.html" target="_top" title="recreation_sub_access_code" alt="" coords="529,427,829,515">
+<area shape="rect" id="node14" href="recreation_district_code.html" target="_top" title="recreation_district_code" alt="" coords="69,207,340,295">
+<area shape="rect" id="node20" href="recreation_maintenance_standard_code.html" target="_top" title="recreation_maintenance_standard_code" alt="" coords="5,910,404,998">
+<area shape="rect" id="node5" href="recreation_access_history.html" target="_top" title="recreation_access_history" alt="" coords="1447,63,1731,151">
+<area shape="rect" id="node6" href="recreation_activity.html" target="_top" title="recreation_activity" alt="" coords="1467,584,1710,731">
+<area shape="rect" id="node7" href="recreation_activity_code.html" target="_top" title="recreation_activity_code" alt="" coords="1005,863,1278,951">
+<area shape="rect" id="node8" href="recreation_activity_history.html" target="_top" title="recreation_activity_history" alt="" coords="1443,1144,1735,1232">
+<area shape="rect" id="node9" href="recreation_status.html" target="_top" title="recreation_status" alt="" coords="1031,2139,1251,2286">
+<area shape="rect" id="node39" href="recreation_status_code.html" target="_top" title="recreation_status_code" alt="" coords="547,2219,811,2307">
+<area shape="rect" id="node10" href="recreation_agreement_holder.html" target="_top" title="recreation_agreement_holder" alt="" coords="983,558,1299,675">
+<area shape="rect" id="node11" href="recreation_defined_campsite.html" target="_top" title="recreation_defined_campsite" alt="" coords="987,1618,1296,1794">
+<area shape="rect" id="node12" href="recreation_remed_repair_code.html" target="_top" title="recreation_remed_repair_code" alt="" coords="518,1412,839,1500">
+<area shape="rect" id="node13" href="recreation_district_code_history.html" target="_top" title="recreation_district_code_history" alt="" coords="511,204,846,292">
+<area shape="rect" id="node15" href="recreation_driving_direction.html" target="_top" title="recreation_driving_direction" alt="" coords="989,728,1293,846">
+<area shape="rect" id="node16" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="1485,874,1693,1020">
+<area shape="rect" id="node17" href="recreation_fee_code.html" target="_top" title="recreation_fee_code" alt="" coords="1022,968,1261,1056">
+<area shape="rect" id="node18" href="recreation_fee_history.html" target="_top" title="recreation_fee_history" alt="" coords="1460,1336,1717,1424">
+<area shape="rect" id="node19" href="recreation_maintenance_standard_38c8936b.html" target="_top" title="recreation_maintenance_standard_code_history" alt="" coords="448,1518,909,1606">
+<area shape="rect" id="node21" href="recreation_map_feature.html" target="_top" title="recreation_map_feature" alt="" coords="1453,415,1724,503">
+<area shape="rect" id="node22" href="recreation_resource_type_code.html" target="_top" title="recreation_resource_type_code" alt="" coords="978,416,1305,504">
+<area shape="rect" id="node23" href="recreation_map_feature_geom.html" target="_top" title="recreation_map_feature_geom" alt="" coords="1848,378,2169,466">
+<area shape="rect" id="node24" href="recreation_map_feature_geom_history.html" target="_top" title="recreation_map_feature_geom_history" alt="" coords="1396,168,1781,256">
+<area shape="rect" id="node25" href="recreation_map_feature_history.html" target="_top" title="recreation_map_feature_history" alt="" coords="1421,274,1756,362">
+<area shape="rect" id="node26" href="recreation_resource_district_count_view.html" target="_top" title="recreation_resource_district_count_view" alt="" coords="481,310,877,374">
+<area shape="rect" id="node27" href="recreation_resource_docs.html" target="_top" title="recreation_resource_docs" alt="" coords="1000,2339,1283,2515">
+<area shape="rect" id="node28" href="recreation_resource_doc_code.html" target="_top" title="recreation_resource_doc_code" alt="" coords="519,2448,838,2536">
+<area shape="rect" id="node29" href="recreation_resource_docs_history.html" target="_top" title="recreation_resource_docs_history" alt="" coords="1416,2491,1761,2579">
+<area shape="rect" id="node30" href="recreation_resource_history.html" target="_top" title="recreation_resource_history" alt="" coords="990,134,1293,222">
+<area shape="rect" id="node31" href="recreation_resource_image_variants.html" target="_top" title="recreation_resource_image_variants" alt="" coords="1405,1486,1773,1574">
+<area shape="rect" id="node32" href="recreation_resource_images.html" target="_top" title="recreation_resource_images" alt="" coords="990,1454,1293,1600">
+<area shape="rect" id="node33" href="recreation_resource_image_varia_5cf1496b.html" target="_top" title="recreation_resource_image_variants_history" alt="" coords="1373,2376,1804,2464">
+<area shape="rect" id="node34" href="recreation_resource_images_history.html" target="_top" title="recreation_resource_images_history" alt="" coords="1406,2271,1771,2359">
+<area shape="rect" id="node35" href="recreation_resource_reservation_info.html" target="_top" title="recreation_resource_reservation_info" alt="" coords="953,1074,1329,1191">
+<area shape="rect" id="node36" href="recreation_resource_search_view.html" target="_top" title="recreation_resource_search_view" alt="" coords="972,16,1311,80">
+<area shape="rect" id="node37" href="recreation_resource_type_view.html" target="_top" title="recreation_resource_type_view" alt="" coords="981,1208,1302,1302">
+<area shape="rect" id="node38" href="recreation_site_description.html" target="_top" title="recreation_site_description" alt="" coords="993,1319,1289,1436">
+<area shape="rect" id="node40" href="recreation_status_history.html" target="_top" title="recreation_status_history" alt="" coords="1447,2147,1730,2235">
+<area shape="rect" id="node41" href="recreation_structure.html" target="_top" title="recreation_structure" alt="" coords="1019,1975,1263,2122">
+<area shape="rect" id="node42" href="recreation_structure_code.html" target="_top" title="recreation_structure_code" alt="" coords="534,1924,823,2012">
+<area shape="rect" id="node43" href="recreation_structure_history.html" target="_top" title="recreation_structure_history" alt="" coords="987,1811,1295,1958">
 </map>
                                         <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/recreation_resource.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
