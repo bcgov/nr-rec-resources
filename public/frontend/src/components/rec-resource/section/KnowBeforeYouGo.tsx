@@ -15,10 +15,13 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
   isReservable,
 }) => {
   return (
-    <section id={SectionIds.KNOW_BEFORE_YOU_GO}>
+    <section
+      id={SectionIds.KNOW_BEFORE_YOU_GO}
+      className="rec-resource-section"
+    >
       <h2 className="section-heading">{SectionTitles.KNOW_BEFORE_YOU_GO}</h2>
       <section className="mb-4">
-        {isReservable ? <h4>Reservable</h4> : <h4>First come, first served</h4>}
+        {isReservable ? <h3>Reservable</h3> : <h3>First come, first served</h3>}
         <br />
         {isReservable ? (
           <>
@@ -73,7 +76,7 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
           </div>
         )}
         <br />
-        <h4>Staying safe</h4>
+        <h3>Staying safe</h3>
         <br />
         <p>
           Recreation sites and trails can be in remote areas with access via
@@ -120,7 +123,7 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
           Review the detailed guides under visit responsibly for more
           information on staying safe and preserving natural spaces
         </div>
-        <h4>Visit responsibly</h4>
+        <h3>Visit responsibly</h3>
         <br />
         <p>
           Follow these guides to ensure your activities are safe, respectful,
