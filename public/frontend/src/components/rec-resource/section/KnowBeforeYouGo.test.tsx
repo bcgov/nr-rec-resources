@@ -19,7 +19,7 @@ describe('KnowBeforeYouGo', () => {
 
     // Reservable heading
     expect(
-      screen.getByRole('heading', { level: 4, name: /Reservable/i }),
+      screen.getByRole('heading', { level: 3, name: /Reservable/i }),
     ).toBeInTheDocument();
 
     // Reservable paragraph
@@ -47,7 +47,7 @@ describe('KnowBeforeYouGo', () => {
     // Heading changes
     expect(
       screen.getByRole('heading', {
-        level: 4,
+        level: 3,
         name: /First come, first served/i,
       }),
     ).toBeInTheDocument();
@@ -81,7 +81,7 @@ describe('KnowBeforeYouGo', () => {
 
     // Safety heading
     expect(
-      screen.getByRole('heading', { level: 4, name: /Staying safe/i }),
+      screen.getByRole('heading', { level: 3, name: /Staying safe/i }),
     ).toBeInTheDocument();
 
     // Recycle icon
@@ -97,7 +97,7 @@ describe('KnowBeforeYouGo', () => {
 
     // Visit responsibly section
     expect(
-      screen.getByRole('heading', { level: 4, name: /Visit responsibly/i }),
+      screen.getByRole('heading', { level: 3, name: /Visit responsibly/i }),
     ).toBeInTheDocument();
 
     // Guides list
