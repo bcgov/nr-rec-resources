@@ -23,6 +23,7 @@
   - [Database](#database)
     - [Flyway](#flyway)
     - [Running migrations](#running-migrations)
+    - [Migrating RDS Postgres database between AWS environments](docs/database_migration.md#migrating-rds-postgres-database-between-aws-environments)
   - [Backend](#backend)
   - [Frontend](#frontend)
   - [Generate API Client Library](#generate-api-client-library)
