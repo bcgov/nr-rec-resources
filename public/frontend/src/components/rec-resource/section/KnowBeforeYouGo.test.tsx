@@ -101,9 +101,15 @@ describe('KnowBeforeYouGo', () => {
     ).toBeInTheDocument();
 
     // Guides list
-    expect(screen.getByText(/The Campers Code/i)).toBeInTheDocument();
-    expect(screen.getByText(/Rules for Recreation Sites/i)).toBeInTheDocument();
-    expect(screen.getByText(/Wildfires safety/i)).toBeInTheDocument();
-    expect(screen.getByText(/Fire bans/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Alerts, closures, and Warnings/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Fire Prohibitions and Restrictions/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Rules for Recreation Sites and Trails/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/The Camper's Code/i)).toBeInTheDocument();
   });
 });

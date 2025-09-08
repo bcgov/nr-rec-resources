@@ -127,10 +127,50 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
           and ecologically friendly:
         </p>
         <ul className="guides">
-          <li>The Campers Code {'>'}</li>
-          <li>Rules for Recreation Sites and Trails {'>'}</li>
-          <li>Wildfires safety {'>'}</li>
-          <li>Fire bans {'>'}</li>
+          <li>
+            <a
+              href="https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/alerts"
+              target="_blank"
+              rel="noreferer noreferrer"
+              aria-label="Alerts, closures, and Warnings (opens in new window)"
+            >
+              Alerts, closures, and Warnings
+            </a>{' '}
+            {'>'}
+          </li>
+          <li>
+            <a
+              href="https://www2.gov.bc.ca/gov/content/safety/wildfire-status/prevention/fire-bans-and-restrictions"
+              target="_blank"
+              rel="noreferer noreferrer"
+              aria-label="Fire Prohibitions and Restrictions (opens in new window)"
+            >
+              Fire Prohibitions and Restrictions
+            </a>{' '}
+            {'>'}
+          </li>
+          <li>
+            <a
+              href="https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/planning/rules"
+              target="_blank"
+              rel="noreferer noreferrer"
+              aria-label="Rules for Recreation Sites and Trails (opens in new window)"
+            >
+              Rules for Recreation Sites and Trails
+            </a>{' '}
+            {'>'}
+          </li>
+          <li>
+            <a
+              href="https://www.camperscode.com/#9-rules"
+              target="_blank"
+              rel="noreferer noreferrer"
+              aria-label="The Campers Code (opens in new window)"
+            >
+              The Camper&apos;s Code
+            </a>{' '}
+            {'>'}
+          </li>
         </ul>
       </section>
     </section>
