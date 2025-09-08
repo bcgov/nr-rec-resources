@@ -13,6 +13,7 @@ import {
   createTextStyle,
 } from '@/components/rec-resource/RecreationResourceMap/helpers/layerStyleHelpers';
 import { getLayerStyleForRecResource } from '@/components/rec-resource/RecreationResourceMap/helpers';
+import { StyleContext } from '@/components/rec-resource/RecreationResourceMap/constants';
 
 // Mock the utility functions
 vi.mock('@/utils/map', () => ({
@@ -63,8 +64,17 @@ describe('getLayerStyleForRecResource', () => {
     const style = styleFunction(pointFeature, 1);
 
     expect(isPointGeometry).toHaveBeenCalledWith(pointFeature.getGeometry());
-    expect(createImageStyle).toHaveBeenCalledWith(true, mockRecResource);
-    expect(createTextStyle).toHaveBeenCalledWith('Test Resource', false, true);
+    expect(createImageStyle).toHaveBeenCalledWith(
+      true,
+      mockRecResource,
+      StyleContext.DOWNLOAD,
+    );
+    expect(createTextStyle).toHaveBeenCalledWith(
+      'Test Resource',
+      false,
+      true,
+      StyleContext.DOWNLOAD,
+    );
     expect(style).toBeInstanceOf(Style);
   });
 
@@ -81,14 +91,22 @@ describe('getLayerStyleForRecResource', () => {
     vi.mocked(isLineOrMultiLineStringGeometry).mockReturnValue(true);
     vi.mocked(isPolygonOrMultiPolygonGeometry).mockReturnValue(false);
 
-    const styleFunction = getLayerStyleForRecResource(mockRecResource);
+    const styleFunction = getLayerStyleForRecResource(
+      mockRecResource,
+      StyleContext.DOWNLOAD,
+    );
     const style = styleFunction(lineFeature, 1);
 
     expect(isLineOrMultiLineStringGeometry).toHaveBeenCalledWith(
       lineFeature.getGeometry(),
     );
-    expect(createStrokeStyle).toHaveBeenCalledWith(true);
-    expect(createTextStyle).toHaveBeenCalledWith('Test Resource', true, false);
+    expect(createStrokeStyle).toHaveBeenCalledWith(true, StyleContext.DOWNLOAD);
+    expect(createTextStyle).toHaveBeenCalledWith(
+      'Test Resource',
+      true,
+      false,
+      StyleContext.DOWNLOAD,
+    );
     expect(style).toBeInstanceOf(Style);
   });
 
@@ -109,14 +127,22 @@ describe('getLayerStyleForRecResource', () => {
     vi.mocked(isLineOrMultiLineStringGeometry).mockReturnValue(false);
     vi.mocked(isPolygonOrMultiPolygonGeometry).mockReturnValue(true);
 
-    const styleFunction = getLayerStyleForRecResource(mockRecResource);
+    const styleFunction = getLayerStyleForRecResource(
+      mockRecResource,
+      StyleContext.DOWNLOAD,
+    );
     const style = styleFunction(polygonFeature, 1);
 
     expect(isPolygonOrMultiPolygonGeometry).toHaveBeenCalledWith(
       polygonFeature.getGeometry(),
     );
     expect(createFillStyle).toHaveBeenCalledWith(true);
-    expect(createTextStyle).toHaveBeenCalledWith('Test Resource', false, false);
+    expect(createTextStyle).toHaveBeenCalledWith(
+      'Test Resource',
+      false,
+      false,
+      StyleContext.DOWNLOAD,
+    );
     expect(style).toBeInstanceOf(Style);
   });
 

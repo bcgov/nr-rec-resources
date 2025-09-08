@@ -9,7 +9,10 @@ import {
 import { RecreationResourceDetailModel } from '@/service/custom-models';
 import { Button, Col, Row, Stack } from 'react-bootstrap';
 import { trackEvent } from '@/utils/matomo';
-import { MATOMO_TRACKING_CATEGORY_MAP } from '@/components/rec-resource/RecreationResourceMap/constants';
+import {
+  MATOMO_TRACKING_CATEGORY_MAP,
+  StyleContext,
+} from '@/components/rec-resource/RecreationResourceMap/constants';
 import DownloadMapModal from '@/components/rec-resource/RecreationResourceMap/DownloadMapModal';
 import DownloadIcon from '@/images/icons/download.svg';
 
@@ -23,30 +26,65 @@ export const RecreationResourceMap = ({
   mapComponentCssStyles,
 }: TrailMapProps) => {
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
-  const styledFeatures = useMemo(() => {
+
+  // Memoize styled features for map display (green linear features)
+  const mapStyledFeatures = useMemo(() => {
     const features = getMapFeaturesFromRecResource(recResource);
-    if (!features?.length) return [];
-    const layerStyle = getLayerStyleForRecResource(recResource);
+
+    if (!features?.length) {
+      return [];
+    }
+
+    const layerStyle = getLayerStyleForRecResource(
+      recResource,
+      StyleContext.MAP_DISPLAY,
+    ); // true for map display
+
+    // Apply style to each feature
     return features.map((feature) => {
       feature.setStyle(layerStyle);
       return feature;
     });
   }, [recResource]);
 
-  const layers = useMemo(
-    () => [
+  // Memoize styled features for download (pink linear features)
+  const downloadStyledFeatures = useMemo(() => {
+    const features = getMapFeaturesFromRecResource(recResource);
+
+    if (!features?.length) {
+      return [];
+    }
+
+    const layerStyle = getLayerStyleForRecResource(
+      recResource,
+      StyleContext.DOWNLOAD,
+    ); // false for download
+
+    // Apply style to each feature
+    return features.map((feature) => {
+      feature.setStyle(layerStyle);
+      return feature;
+    });
+  }, [recResource]);
+
+  // Memoize layers to prevent unnecessary VectorLayer recreations
+  const layers = useMemo(() => {
+    if (!mapStyledFeatures.length) {
+      return [];
+    }
+
+    return [
       {
         id: 'rec-resource-layer',
         layerInstance: new VectorLayer({
-          source: new VectorSource({ features: styledFeatures }),
+          source: new VectorSource({ features: mapStyledFeatures }),
           visible: true,
         }),
       },
-    ],
-    [styledFeatures],
-  );
+    ];
+  }, [mapStyledFeatures]);
 
-  if (!styledFeatures || !styledFeatures.length) {
+  if (!mapStyledFeatures || !mapStyledFeatures.length) {
     return null;
   }
 
@@ -87,7 +125,7 @@ export const RecreationResourceMap = ({
       <DownloadMapModal
         isOpen={isDownloadModalOpen}
         setIsOpen={setIsDownloadModalOpen}
-        styledFeatures={styledFeatures}
+        styledFeatures={downloadStyledFeatures}
         recResource={recResource}
       />
     </Stack>

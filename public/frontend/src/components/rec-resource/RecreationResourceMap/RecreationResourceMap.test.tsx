@@ -9,6 +9,7 @@ import {
   getMapFeaturesFromRecResource,
 } from '@/components/rec-resource/RecreationResourceMap/helpers';
 import { trackEvent } from '@/utils/matomo';
+import { StyleContext } from '@/components/rec-resource/RecreationResourceMap/constants';
 
 // Mock the dependencies
 vi.mock('@bcgov/prp-map', () => ({
@@ -54,8 +55,11 @@ describe('RecreationResourceMap', () => {
         mapComponentCssStyles={mockMapStyles}
       />,
     );
-    expect(getMapFeaturesFromRecResource).toHaveBeenCalledWith(mockRecResource);
-    expect(getLayerStyleForRecResource).toHaveBeenCalledWith(mockRecResource);
+    expect(getMapFeaturesFromRecResource).toHaveBeenCalledTimes(2);
+    expect(getLayerStyleForRecResource).toHaveBeenCalledWith(
+      mockRecResource,
+      StyleContext.MAP_DISPLAY,
+    );
 
     expect(VectorFeatureMap).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -80,16 +84,21 @@ describe('RecreationResourceMap', () => {
         mapComponentCssStyles={mockMapStyles}
       />,
     );
-    expect(getMapFeaturesFromRecResource).toHaveBeenCalledWith(mockRecResource);
-    expect(getLayerStyleForRecResource).toHaveBeenCalledWith(mockRecResource);
+    expect(getMapFeaturesFromRecResource).toHaveBeenCalledTimes(2);
+    expect(getLayerStyleForRecResource).toHaveBeenCalledWith(
+      mockRecResource,
+      StyleContext.DOWNLOAD,
+    );
 
     expect(VectorFeatureMap).toHaveBeenCalledWith(
       expect.objectContaining({
-        layers: [
+        style: mockMapStyles,
+        layers: expect.arrayContaining([
           expect.objectContaining({
             id: 'rec-resource-layer',
+            layerInstance: expect.any(Object),
           }),
-        ],
+        ]),
       }),
       undefined,
     );
@@ -97,53 +106,6 @@ describe('RecreationResourceMap', () => {
     expect(
       screen.getByRole('button', { name: /Export map file/i }),
     ).toBeInTheDocument();
-  });
-
-  it('renders VectorFeatureMap with correct props when features exist', () => {
-    render(
-      <RecreationResourceMap
-        recResource={mockRecResource}
-        mapComponentCssStyles={mockMapStyles}
-      />,
-    );
-    expect(getMapFeaturesFromRecResource).toHaveBeenCalledWith(mockRecResource);
-    expect(getLayerStyleForRecResource).toHaveBeenCalledWith(mockRecResource);
-
-    expect(VectorFeatureMap).toHaveBeenCalledWith(
-      expect.objectContaining({
-        layers: [
-          expect.objectContaining({
-            id: 'rec-resource-layer',
-          }),
-        ],
-      }),
-      undefined,
-    );
-
-    expect(
-      screen.getByRole('button', { name: /Export map file/i }),
-    ).toBeInTheDocument();
-  });
-
-  it('renders VectorFeatureMap with correct props when features exist', () => {
-    render(
-      <RecreationResourceMap
-        recResource={mockRecResource}
-        mapComponentCssStyles={mockMapStyles}
-      />,
-    );
-    expect(getMapFeaturesFromRecResource).toHaveBeenCalledWith(mockRecResource);
-    expect(getLayerStyleForRecResource).toHaveBeenCalledWith(mockRecResource);
-
-    expect.objectContaining({
-      mapComponentCssStyles: mockMapStyles,
-      layers: expect.arrayContaining([
-        expect.objectContaining({
-          id: 'rec-resource-layer',
-          layerInstance: expect.any(Object),
-        }),
-      ]),
-    });
   });
 
   it('returns null when features array is empty', () => {
@@ -166,11 +128,11 @@ describe('RecreationResourceMap', () => {
     const { rerender } = render(
       <RecreationResourceMap recResource={mockRecResource} />,
     );
-    expect(getMapFeaturesFromRecResource).toHaveBeenCalledTimes(1);
-    expect(getLayerStyleForRecResource).toHaveBeenCalledTimes(1);
+    expect(getMapFeaturesFromRecResource).toHaveBeenCalledTimes(2);
+    expect(getLayerStyleForRecResource).toHaveBeenCalledTimes(2);
     rerender(<RecreationResourceMap recResource={mockRecResource} />);
-    expect(getMapFeaturesFromRecResource).toHaveBeenCalledTimes(1);
-    expect(getLayerStyleForRecResource).toHaveBeenCalledTimes(1);
+    expect(getMapFeaturesFromRecResource).toHaveBeenCalledTimes(2);
+    expect(getLayerStyleForRecResource).toHaveBeenCalledTimes(2);
   });
 
   it('calls modal Export map file with recResource if defined', () => {
