@@ -41,20 +41,17 @@ const FeedbackButton: FC = () => (
 );
 
 const SearchMapButton: FC = () => (
-  <Button
+  <Link
+    to={{ pathname: ROUTE_PATHS.SEARCH, search: 'view=map' }}
+    className="btn btn-primary text-white"
     onClick={trackClickEvent({
       category: 'Internal link',
       name: 'Search map',
     })}
     aria-label="Open the interactive map"
   >
-    <Link
-      to={{ pathname: ROUTE_PATHS.SEARCH, search: 'view=map' }}
-      className={'text-white'}
-    >
-      View interactive map
-    </Link>
-  </Button>
+    View interactive map
+  </Link>
 );
 
 export const LandingPage: FC = () => {

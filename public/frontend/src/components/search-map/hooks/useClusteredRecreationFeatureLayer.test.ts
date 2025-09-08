@@ -46,12 +46,12 @@ describe('useClusteredRecreationFeatureLayer', () => {
 
   const mapRef = { current: { getMap: () => mockMap } } as any;
 
-  const mockSource = { 
+  const mockSource = {
     setDistance: vi.fn(),
     addFeatures: vi.fn(),
     clear: vi.fn(),
   };
-  
+
   const mockLayer = {
     getSource: () => mockSource,
     setStyle: vi.fn(),
@@ -69,7 +69,9 @@ describe('useClusteredRecreationFeatureLayer', () => {
     vi.clearAllMocks();
 
     // Mock AnimatedCluster constructor to return our mock layer
-    const AnimatedCluster = vi.mocked(await import('ol-ext/layer/AnimatedCluster')).default;
+    const AnimatedCluster = vi.mocked(
+      await import('ol-ext/layer/AnimatedCluster'),
+    ).default;
     AnimatedCluster.mockImplementation(() => mockLayer as any);
 
     vi.spyOn(recreationLayer, 'createRecreationFeatureSource').mockReturnValue(

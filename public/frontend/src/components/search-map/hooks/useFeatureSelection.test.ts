@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderHook } from '@testing-library/react';
 import { RefObject } from 'react';
 import { useFeatureSelection } from './useFeatureSelection';
@@ -6,6 +6,15 @@ import type Feature from 'ol/Feature';
 import type OLMap from 'ol/Map';
 import type Overlay from 'ol/Overlay';
 import type { FeatureLayerConfig } from '@/components/search-map/hooks/types';
+// Import mocked modules
+import Select from 'ol/interaction/Select';
+import {
+  applySelectedStyle,
+  centerMapOnFeature,
+  getFeatureLayerConfig,
+  getPointFeatureCoordinates,
+  isClusteredLayer,
+} from '@/components/search-map/hooks/helpers';
 
 // Mock OpenLayers modules
 vi.mock('ol/interaction/Select');
@@ -22,16 +31,6 @@ vi.mock('@/components/search-map/hooks/helpers', () => ({
   getPointFeatureCoordinates: vi.fn(() => [100, 200]),
   isClusteredLayer: vi.fn(),
 }));
-
-// Import mocked modules
-import Select from 'ol/interaction/Select';
-import {
-  applySelectedStyle,
-  centerMapOnFeature,
-  getFeatureLayerConfig,
-  getPointFeatureCoordinates,
-  isClusteredLayer,
-} from '@/components/search-map/hooks/helpers';
 
 // Create mock constructors
 const MockSelect = Select as unknown as vi.MockedClass<typeof Select>;
@@ -288,7 +287,7 @@ describe('useFeatureSelection', () => {
   });
 
   describe('feature selection handling', () => {
-    let selectHandler: Function;
+    let selectHandler: any;
 
     beforeEach(() => {
       renderHook(() =>
@@ -496,8 +495,8 @@ describe('useFeatureSelection', () => {
   });
 
   describe('moveend handling', () => {
-    let moveEndHandler: Function;
-    let selectHandler: Function;
+    let moveEndHandler: () => void;
+    let selectHandler: () => void;
 
     beforeEach(() => {
       renderHook(() =>
@@ -508,11 +507,11 @@ describe('useFeatureSelection', () => {
         }),
       );
 
-      moveEndHandler = mockMap.on.mock.calls.find(
+      moveEndHandler = mockMap.on?.mock?.calls?.find(
         ([event]) => event === 'moveend',
       )[1];
 
-      selectHandler = mockSelect.on.mock.calls.find(
+      selectHandler = mockSelect.on?.mock?.calls?.find(
         ([event]) => event === 'select',
       )[1];
 
@@ -537,7 +536,7 @@ describe('useFeatureSelection', () => {
         }),
       );
 
-      const newMoveEndHandler = (mockMap.on as Mock).mock.calls.find(
+      const newMoveEndHandler = mockMap.on?.mock?.calls?.find(
         ([event]) => event === 'moveend',
       )![1];
 

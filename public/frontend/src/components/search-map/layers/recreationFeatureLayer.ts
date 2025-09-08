@@ -105,34 +105,6 @@ export const createRecreationFeatureSource = (
   });
 };
 
-/**
- * Creates a vector source with filtered features based on the provided IDs
- * @param filteredIds Array of feature IDs to include
- * @param projection The target projection for the features
- * @param options Additional loader options
- * @returns A clustered vector source containing only the filtered features
- */
-export const createFilteredClusterSource = (
-  filteredIds: string[],
-  clusterOptions?: ClusterOptions,
-) => {
-  const source = new VectorSource({
-    format: new EsriJSON(),
-    overlaps: false,
-  });
-
-  source.setLoader(async () => {
-    const features = await getFilteredFeatures(filteredIds);
-    source.addFeatures(features);
-  });
-
-  // Create a clustered source from the filtered source
-  return new ClusterSource({
-    source,
-    ...clusterOptions,
-  });
-};
-
 export const getFilteredFeatures = async (filteredIds: string[]) => {
   const format = new EsriJSON();
   const filteredSet = new Set(filteredIds);
@@ -193,4 +165,32 @@ export const getFilteredFeatures = async (filteredIds: string[]) => {
   }
 
   return allFeatures;
+};
+
+/**
+ * Creates a vector source with filtered features based on the provided IDs
+ * @param filteredIds Array of feature IDs to include
+ * @param projection The target projection for the features
+ * @param options Additional loader options
+ * @returns A clustered vector source containing only the filtered features
+ */
+export const createFilteredClusterSource = (
+  filteredIds: string[],
+  clusterOptions?: ClusterOptions,
+) => {
+  const source = new VectorSource({
+    format: new EsriJSON(),
+    overlaps: false,
+  });
+
+  source.setLoader(async () => {
+    const features = await getFilteredFeatures(filteredIds);
+    source.addFeatures(features);
+  });
+
+  // Create a clustered source from the filtered source
+  return new ClusterSource({
+    source,
+    ...clusterOptions,
+  });
 };

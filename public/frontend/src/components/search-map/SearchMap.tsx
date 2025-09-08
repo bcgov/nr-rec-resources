@@ -23,7 +23,7 @@ import {
 import FilterMenuSearchMap from '@/components/search/filters/FilterMenuSearchMap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSliders } from '@fortawesome/free-solid-svg-icons';
-import { Button } from 'react-bootstrap';
+import { Button, ProgressBar } from 'react-bootstrap';
 import { trackClickEvent } from '@/utils/matomo';
 import '@/components/search-map/SearchMap.scss';
 import { WILDFIRE_LOCATION_MIN_ZOOM } from '@/components/search-map/constants';
@@ -144,7 +144,7 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
   });
   useZoomToExtent(mapRef, extent);
 
-  const { isMapFocusLoading } = useMapFocus({
+  const { isMapFocusLoading, loadingProgress } = useMapFocus({
     mapRef,
     overlayRef,
     onFocusedFeatureChange: setSelectedFeature,
@@ -192,7 +192,18 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
       />
       <Header />
       <div className="w-100 flex-fill position-relative">
-        <LoadingOverlay isLoading={isMapFocusLoading} message={'Loading map'} />
+        <LoadingOverlay
+          isLoading={isMapFocusLoading}
+          message={'Loading map'}
+          loader={
+            <ProgressBar
+              className="w-50"
+              now={loadingProgress}
+              animated
+              striped
+            />
+          }
+        />
         <VectorFeatureMap
           ref={mapRef}
           style={{ width: '100%', height: '100%' }}

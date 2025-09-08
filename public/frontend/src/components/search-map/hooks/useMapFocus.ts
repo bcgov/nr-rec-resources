@@ -24,6 +24,7 @@ export function useMapFocus({
   const [focusExtent, setFocusExtent] = useState<Extent>();
   const [didFocus, setDidFocus] = useState(false);
   const { mode, value, resetParams } = useMapFocusParam();
+  const [loadingProgress, setLoadingProgress] = useState(0);
   const [isMapFocusLoading, setIsMapFocusLoading] = useState(
     mode === SearchMapFocusModes.REC_RESOURCE_ID,
   );
@@ -50,19 +51,34 @@ export function useMapFocus({
 
     if (!focusResult) return;
 
+    setLoadingProgress(30); // Initial progress when data is loaded
+
     const { focusCenter, focusExtent } = focusResult;
     overlayRef.current?.setPosition(focusCenter);
     setFocusCenter(focusCenter);
     setFocusExtent(focusExtent);
 
-    map.once('rendercomplete', () => {
-      const mapView = map.getView();
-      mapView.fit(focusExtent, { maxZoom: 12 });
+    setLoadingProgress(60); // Progress when about to start fitting the view
 
-      setDidFocus(true);
-      setIsMapFocusLoading(false);
-      resetParams();
-    });
+    const fitOptions = {
+      maxZoom: 12,
+      duration: 1000, // 1 second animation
+      callback: (complete: boolean) => {
+        if (complete) {
+          setLoadingProgress(100);
+          // Small delay to show 100% before hiding
+          setTimeout(() => {
+            setDidFocus(true);
+            setIsMapFocusLoading(false);
+            resetParams();
+            setLoadingProgress(0); // Reset progress
+          }, 300);
+        }
+      },
+    };
+
+    const mapView = map.getView();
+    mapView.fit(focusExtent, fitOptions);
   }, [
     mapRef,
     didFocus,
@@ -76,6 +92,7 @@ export function useMapFocus({
 
   return {
     isMapFocusLoading,
+    loadingProgress,
     focusCenter,
     focusExtent,
   };

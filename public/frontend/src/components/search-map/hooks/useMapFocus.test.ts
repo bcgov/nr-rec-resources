@@ -1,166 +1,309 @@
-import { renderHook } from '@testing-library/react';
-import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
+import { renderHook, act } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach, Mock } from 'vitest';
 import { useMapFocus } from './useMapFocus';
 import { SearchMapFocusModes } from '@/components/search-map/constants';
 import { useMapFocusParam } from '@/components/search-map/hooks/useMapFocusParam';
 import { useGetRecreationResourceById } from '@/service/queries/recreation-resource';
 import { focusRecResourceOnMap } from '@/components/search-map/hooks/helpers';
 
-// --- mocks ---
-vi.mock('@/components/search-map/hooks/useMapFocusParam', () => ({
-  useMapFocusParam: vi.fn(),
-}));
-
-vi.mock('@/service/queries/recreation-resource', () => ({
-  useGetRecreationResourceById: vi.fn(),
-}));
-
-vi.mock('@/components/search-map/hooks/helpers', () => ({
-  focusRecResourceOnMap: vi.fn(),
-}));
+// Mock all dependencies
+vi.mock('@/components/search-map/hooks/useMapFocusParam');
+vi.mock('@/service/queries/recreation-resource');
+vi.mock('@/components/search-map/hooks/helpers');
 
 describe('useMapFocus', () => {
-  let mockMap: any;
-  let mockView: any;
-  let mockOverlay: any;
-  let mockOnFocusedFeatureChange: ReturnType<typeof vi.fn>;
+  // Mock setup
+  const mockMap = { getView: vi.fn() };
+  const mockMapView = { fit: vi.fn() };
+  const mockOverlay = { setPosition: vi.fn() };
+  const mockOnFocusedFeatureChange = vi.fn();
+
+  const mockUseMapFocusParam = useMapFocusParam as Mock;
+  const mockUseGetRecreationResourceById = useGetRecreationResourceById as Mock;
+  const mockFocusRecResourceOnMap = focusRecResourceOnMap as Mock;
+
+  // Test data
+  const defaultProps = {
+    mapRef: { current: { getMap: vi.fn(() => mockMap) } },
+    onFocusedFeatureChange: mockOnFocusedFeatureChange,
+    overlayRef: { current: mockOverlay },
+  };
+
+  const validFocusResult = {
+    focusCenter: [100, 200],
+    focusExtent: [50, 150, 150, 250],
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers();
 
-    mockView = { fit: vi.fn() };
-    mockMap = {
-      getView: vi.fn(() => mockView),
-      once: vi.fn((event, cb) => {
-        if (event === 'rendercomplete') cb(); // immediately call for test
-      }),
-    };
-    mockOverlay = { setPosition: vi.fn() };
-    mockOnFocusedFeatureChange = vi.fn();
-
-    (useMapFocusParam as unknown as Mock).mockReturnValue({
+    mockMap.getView.mockReturnValue(mockMapView);
+    mockUseMapFocusParam.mockReturnValue({
       mode: SearchMapFocusModes.REC_RESOURCE_ID,
-      value: '123',
+      value: 'test-id',
       resetParams: vi.fn(),
     });
+    mockUseGetRecreationResourceById.mockReturnValue({
+      data: { id: 'test-id', name: 'Test Resource' },
+    });
+    mockFocusRecResourceOnMap.mockReturnValue(validFocusResult);
+  });
 
-    (useGetRecreationResourceById as unknown as Mock).mockReturnValue({
-      data: { rec_resource_id: '123', name: 'Test Site' },
+  afterEach(() => {
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
+  });
+
+  describe('initial state', () => {
+    it.each([
+      {
+        mode: SearchMapFocusModes.REC_RESOURCE_ID,
+        expectedLoading: true,
+        expectedProgress: 60,
+      },
+      { mode: 'OTHER_MODE', expectedLoading: false, expectedProgress: 0 },
+    ])(
+      'should handle mode $mode correctly',
+      ({ mode, expectedLoading, expectedProgress }) => {
+        mockUseMapFocusParam.mockReturnValue({
+          mode,
+          value: 'test-id',
+          resetParams: vi.fn(),
+        });
+
+        const { result } = renderHook(() => useMapFocus(defaultProps as any));
+
+        expect(result.current.isMapFocusLoading).toBe(expectedLoading);
+        expect(result.current.loadingProgress).toBe(expectedProgress);
+
+        if (expectedLoading) {
+          expect(result.current.focusCenter).toEqual(
+            validFocusResult.focusCenter,
+          );
+          expect(result.current.focusExtent).toEqual(
+            validFocusResult.focusExtent,
+          );
+        } else {
+          expect(result.current.focusCenter).toBeUndefined();
+          expect(result.current.focusExtent).toBeUndefined();
+        }
+      },
+    );
+  });
+
+  describe('focus conditions', () => {
+    it.each([
+      {
+        scenario: 'already focused',
+        setup: () => {
+          const hook = renderHook(() => useMapFocus(defaultProps as any));
+          act(() => {
+            const fitCallback = mockMapView.fit.mock.calls[0][1].callback;
+            fitCallback(true);
+            vi.advanceTimersByTime(300);
+          });
+          vi.clearAllMocks();
+          return hook;
+        },
+      },
+      {
+        scenario: 'wrong mode',
+        setup: () => {
+          mockUseMapFocusParam.mockReturnValue({
+            mode: 'OTHER_MODE',
+            value: 'test-id',
+            resetParams: vi.fn(),
+          });
+          return renderHook(() => useMapFocus(defaultProps as any));
+        },
+      },
+      {
+        scenario: 'empty value',
+        setup: () => {
+          mockUseMapFocusParam.mockReturnValue({
+            mode: SearchMapFocusModes.REC_RESOURCE_ID,
+            value: '',
+            resetParams: vi.fn(),
+          });
+          return renderHook(() => useMapFocus(defaultProps as any));
+        },
+      },
+      {
+        scenario: 'null resource',
+        setup: () => {
+          mockUseGetRecreationResourceById.mockReturnValue({ data: null });
+          return renderHook(() => useMapFocus(defaultProps as any));
+        },
+      },
+      {
+        scenario: 'null map',
+        setup: () => {
+          const props = { ...defaultProps, mapRef: { current: null } };
+          return renderHook(() => useMapFocus(props as any));
+        },
+      },
+      {
+        scenario: 'getMap returns null',
+        setup: () => {
+          const props = {
+            ...defaultProps,
+            mapRef: { current: { getMap: vi.fn(() => null) } },
+          };
+          return renderHook(() => useMapFocus(props as any));
+        },
+      },
+    ])('should not focus when $scenario', ({ setup }) => {
+      setup();
+      expect(mockFocusRecResourceOnMap).not.toHaveBeenCalled();
     });
 
-    (focusRecResourceOnMap as unknown as Mock).mockReturnValue({
-      focusCenter: [1, 2],
-      focusExtent: [0, 0, 10, 10],
+    it.each([null, undefined])('should not focus when value is %s', (value) => {
+      mockUseMapFocusParam.mockReturnValue({
+        mode: SearchMapFocusModes.REC_RESOURCE_ID,
+        value,
+        resetParams: vi.fn(),
+      });
+
+      renderHook(() => useMapFocus(defaultProps as any));
+      expect(mockFocusRecResourceOnMap).not.toHaveBeenCalled();
     });
   });
 
-  it('returns loading state initially when mode is REC_RESOURCE_ID', () => {
-    mockMap.once = vi.fn();
-    const { result } = renderHook(() =>
-      useMapFocus({
-        mapRef: { current: { getMap: () => mockMap } },
-        onFocusedFeatureChange: mockOnFocusedFeatureChange,
-        overlayRef: { current: mockOverlay },
-      }),
-    );
+  describe('successful focus flow', () => {
+    it('should complete full focus flow', () => {
+      const mockResetParams = vi.fn();
+      mockUseMapFocusParam.mockReturnValue({
+        mode: SearchMapFocusModes.REC_RESOURCE_ID,
+        value: 'test-id',
+        resetParams: mockResetParams,
+      });
 
-    expect(result.current.isMapFocusLoading).toBe(true);
-  });
+      const { result } = renderHook(() => useMapFocus(defaultProps as any));
 
-  it('focuses resource on map and updates state after rendercomplete', () => {
-    const resetParams = vi.fn();
-    (useMapFocusParam as unknown as Mock).mockReturnValue({
-      mode: SearchMapFocusModes.REC_RESOURCE_ID,
-      value: '123',
-      resetParams,
+      expect(result.current.isMapFocusLoading).toBe(true);
+      expect(result.current.loadingProgress).toBe(60);
+      expect(result.current.focusCenter).toEqual(validFocusResult.focusCenter);
+      expect(result.current.focusExtent).toEqual(validFocusResult.focusExtent);
+
+      expect(mockFocusRecResourceOnMap).toHaveBeenCalledWith(
+        mockMap,
+        { id: 'test-id', name: 'Test Resource' },
+        mockOnFocusedFeatureChange,
+      );
+
+      expect(mockOverlay.setPosition).toHaveBeenCalledWith(
+        validFocusResult.focusCenter,
+      );
+
+      expect(mockMapView.fit).toHaveBeenCalledWith(
+        validFocusResult.focusExtent,
+        expect.objectContaining({
+          maxZoom: 12,
+          duration: 1000,
+          callback: expect.any(Function),
+        }),
+      );
+
+      // Complete focus
+      act(() => {
+        const fitCallback = mockMapView.fit.mock.calls[0][1].callback;
+        fitCallback(true);
+        vi.advanceTimersByTime(300);
+      });
+
+      expect(result.current.isMapFocusLoading).toBe(false);
+      expect(result.current.loadingProgress).toBe(0);
+      expect(mockResetParams).toHaveBeenCalled();
     });
 
-    const { result } = renderHook(() =>
-      useMapFocus({
-        mapRef: { current: { getMap: () => mockMap } },
-        onFocusedFeatureChange: mockOnFocusedFeatureChange,
-        overlayRef: { current: mockOverlay },
-      }),
-    );
+    it('should handle failed fit callback', () => {
+      const { result } = renderHook(() => useMapFocus(defaultProps as any));
 
-    // after effect runs and rendercomplete triggers
-    expect(focusRecResourceOnMap).toHaveBeenCalledWith(
-      mockMap,
-      { rec_resource_id: '123', name: 'Test Site' },
-      mockOnFocusedFeatureChange,
-    );
+      act(() => {
+        const fitCallback = mockMapView.fit.mock.calls[0][1].callback;
+        fitCallback(false);
+      });
 
-    expect(mockOverlay.setPosition).toHaveBeenCalledWith([1, 2]);
-    expect(mockView.fit).toHaveBeenCalledWith([0, 0, 10, 10], { maxZoom: 12 });
-
-    expect(result.current.focusCenter).toEqual([1, 2]);
-    expect(result.current.focusExtent).toEqual([0, 0, 10, 10]);
-    expect(result.current.isMapFocusLoading).toBe(false);
-    expect(resetParams).toHaveBeenCalled();
+      expect(result.current.isMapFocusLoading).toBe(true);
+      expect(result.current.loadingProgress).toBe(60);
+    });
   });
 
-  it('does nothing if focusRecResourceOnMap returns null', () => {
-    (focusRecResourceOnMap as unknown as Mock).mockReturnValue(null);
+  describe('overlay handling', () => {
+    it('should handle null overlay gracefully', () => {
+      const props = { ...defaultProps, overlayRef: { current: null } };
 
-    const { result } = renderHook(() =>
-      useMapFocus({
-        mapRef: { current: { getMap: () => mockMap } },
-        onFocusedFeatureChange: mockOnFocusedFeatureChange,
-        overlayRef: { current: mockOverlay },
-      }),
-    );
-
-    expect(result.current.focusCenter).toBeUndefined();
-    expect(result.current.focusExtent).toBeUndefined();
-  });
-
-  it('does nothing if mode is not REC_RESOURCE_ID', () => {
-    (useMapFocusParam as unknown as Mock).mockReturnValue({
-      mode: 'OTHER_MODE',
-      value: '123',
-      resetParams: vi.fn(),
+      expect(() => {
+        renderHook(() => useMapFocus(props as any));
+      }).not.toThrow();
     });
 
-    const { result } = renderHook(() =>
-      useMapFocus({
-        mapRef: { current: { getMap: () => mockMap } },
-        onFocusedFeatureChange: mockOnFocusedFeatureChange,
-        overlayRef: { current: mockOverlay },
-      }),
-    );
-
-    expect(focusRecResourceOnMap).not.toHaveBeenCalled();
-    expect(result.current.focusCenter).toBeUndefined();
-    expect(result.current.focusExtent).toBeUndefined();
+    it('should position overlay when available', () => {
+      renderHook(() => useMapFocus(defaultProps as any));
+      expect(mockOverlay.setPosition).toHaveBeenCalledWith(
+        validFocusResult.focusCenter,
+      );
+    });
   });
 
-  it('does nothing if mapRef.current.getMap() returns null', () => {
-    const { result } = renderHook(() =>
-      useMapFocus({
-        mapRef: { current: { getMap: () => null as any } },
-        onFocusedFeatureChange: mockOnFocusedFeatureChange,
-        overlayRef: { current: mockOverlay },
-      }),
-    );
+  describe('progress tracking', () => {
+    it('should track loading progress through stages', () => {
+      const { result } = renderHook(() => useMapFocus(defaultProps as any));
 
-    expect(focusRecResourceOnMap).not.toHaveBeenCalled();
-    expect(result.current.focusCenter).toBeUndefined();
-    expect(result.current.focusExtent).toBeUndefined();
+      expect(result.current.loadingProgress).toBe(60);
+
+      act(() => {
+        const fitCallback = mockMapView.fit.mock.calls[0][1].callback;
+        fitCallback(true);
+      });
+
+      expect(result.current.loadingProgress).toBe(100);
+
+      act(() => vi.advanceTimersByTime(300));
+      expect(result.current.loadingProgress).toBe(0);
+    });
   });
 
-  it('does nothing if focusRecResourceOnMap returns null', () => {
-    (focusRecResourceOnMap as unknown as Mock).mockReturnValue(null);
+  describe('edge cases', () => {
+    it('should handle null focus result', () => {
+      mockFocusRecResourceOnMap.mockReturnValue(null);
 
-    const { result } = renderHook(() =>
-      useMapFocus({
-        mapRef: { current: { getMap: () => mockMap } },
-        onFocusedFeatureChange: mockOnFocusedFeatureChange,
-        overlayRef: { current: mockOverlay },
-      }),
-    );
+      const { result } = renderHook(() => useMapFocus(defaultProps as any));
 
-    expect(mockOverlay.setPosition).not.toHaveBeenCalled();
-    expect(result.current.focusCenter).toBeUndefined();
-    expect(result.current.focusExtent).toBeUndefined();
+      expect(mockOverlay.setPosition).not.toHaveBeenCalled();
+      expect(result.current.loadingProgress).toBe(0);
+    });
+
+    it('should handle undefined resource data', () => {
+      mockUseGetRecreationResourceById.mockReturnValue({ data: undefined });
+
+      const { result } = renderHook(() => useMapFocus(defaultProps as any));
+
+      expect(result.current.isMapFocusLoading).toBe(true);
+      expect(result.current.loadingProgress).toBe(0);
+      expect(mockFocusRecResourceOnMap).not.toHaveBeenCalled();
+    });
+
+    it('should re-run effect when dependencies change', () => {
+      const { rerender } = renderHook(() => useMapFocus(defaultProps as any));
+
+      // Clear initial calls
+      vi.clearAllMocks();
+
+      // Update mock to trigger re-run
+      mockUseMapFocusParam.mockReturnValue({
+        mode: SearchMapFocusModes.REC_RESOURCE_ID,
+        value: 'new-value',
+        resetParams: vi.fn(),
+      });
+
+      mockUseGetRecreationResourceById.mockReturnValue({
+        data: { id: 'new-value', name: 'New Resource' },
+      });
+
+      rerender();
+      expect(mockFocusRecResourceOnMap).toHaveBeenCalled();
+    });
   });
 });
