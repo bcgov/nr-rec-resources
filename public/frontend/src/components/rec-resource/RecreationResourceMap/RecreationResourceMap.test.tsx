@@ -1,152 +1,393 @@
-import { fireEvent, render, screen } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { RecreationResourceMap } from './RecreationResourceMap';
-import { VectorFeatureMap } from '@bcgov/prp-map';
-import Feature from 'ol/Feature';
-import { Style, Fill } from 'ol/style';
-import {
-  getLayerStyleForRecResource,
-  getMapFeaturesFromRecResource,
-} from '@/components/rec-resource/RecreationResourceMap/helpers';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
+import { RecreationResourceMap } from '../RecreationResourceMap';
+import { RecreationResourceDetailModel } from '@/service/custom-models';
 import { trackEvent } from '@/utils/matomo';
-import { StyleContext } from '@/components/rec-resource/RecreationResourceMap/constants';
+import { MATOMO_TRACKING_CATEGORY_MAP } from '@/components/rec-resource/RecreationResourceMap/constants';
+import { SearchMapFocusModes } from '@/components/search-map/constants';
+import { ROUTE_PATHS } from '@/routes/constants';
 
-// Mock the dependencies
+// Mock external dependencies
 vi.mock('@bcgov/prp-map', () => ({
-  VectorFeatureMap: vi.fn(() => null),
+  VectorFeatureMap: vi.fn(({ style, layers, 'aria-label': ariaLabel }) => (
+    <div
+      data-testid="vector-feature-map"
+      style={style}
+      aria-label={ariaLabel}
+      data-layers-count={layers?.length || 0}
+    />
+  )),
+}));
+
+vi.mock('ol/layer/Vector', () => ({
+  default: vi.fn().mockImplementation((config) => ({
+    getSource: () => config.source,
+    getVisible: () => config.visible,
+    setVisible: vi.fn(),
+  })),
+}));
+
+vi.mock('ol/source/Vector', () => ({
+  default: vi.fn().mockImplementation(({ features }) => ({
+    getFeatures: () => features || [],
+    addFeatures: vi.fn(),
+    clear: vi.fn(),
+  })),
 }));
 
 vi.mock('@/components/rec-resource/RecreationResourceMap/helpers', () => ({
+  getMapFeaturesFromRecResource: vi.fn(),
   getLayerStyleForRecResource: vi.fn(),
-  getMapFeaturesFromRecResource: vi.fn().mockReturnValue([]),
-  downloadGPX: vi.fn(),
-  downloadKML: vi.fn(),
 }));
 
-vi.mock('@/utils/matomo', () => ({
-  trackEvent: vi.fn(),
+vi.mock('@/utils/matomo', () => ({ trackEvent: vi.fn() }));
+
+vi.mock(
+  '@/components/rec-resource/RecreationResourceMap/DownloadMapModal',
+  () => ({
+    default: vi.fn(({ isOpen, setIsOpen, styledFeatures, recResource }) => (
+      <div
+        data-testid="download-modal"
+        data-is-open={isOpen}
+        data-features-count={styledFeatures?.length || 0}
+        data-resource-id={recResource?.rec_resource_id}
+      >
+        <button onClick={() => setIsOpen(false)}>Close Modal</button>
+      </div>
+    )),
+  }),
+);
+
+vi.mock('@/images/icons/download.svg', () => ({
+  default: '/mocked-download-icon.svg',
 }));
+
+vi.mock('@shared/components/icon-button', () => ({
+  IconButton: vi.fn(
+    ({ children, variant, onClick, leftIcon, 'aria-label': ariaLabel }) => (
+      <button
+        onClick={onClick}
+        data-variant={variant}
+        aria-label={ariaLabel}
+        data-testid={
+          variant === 'outline' ? 'download-button' : 'view-main-map-button'
+        }
+      >
+        {leftIcon && <span data-testid="left-icon">{leftIcon}</span>}
+        {children}
+      </button>
+    ),
+  ),
+}));
+
+// Import mocked functions
+import {
+  getMapFeaturesFromRecResource,
+  getLayerStyleForRecResource,
+} from '@/components/rec-resource/RecreationResourceMap/helpers';
+
+const mockGetMapFeaturesFromRecResource = vi.mocked(
+  getMapFeaturesFromRecResource,
+);
+const mockGetLayerStyleForRecResource = vi.mocked(getLayerStyleForRecResource);
+const mockTrackEvent = vi.mocked(trackEvent);
+
+// Test utilities
+const TestWrapper = ({ children }: { children: React.ReactNode }) => (
+  <BrowserRouter>{children}</BrowserRouter>
+);
+
+const createMockFeature = (id: string) => ({
+  getId: () => id,
+  setStyle: vi.fn(),
+  getGeometry: () => ({ getType: () => 'Point' }),
+  getProperties: () => ({ name: `Feature ${id}` }),
+});
+
+const mockResource: RecreationResourceDetailModel = {
+  rec_resource_id: '123',
+  name: 'Test Resource',
+  description: 'Test Description',
+  location: 'Test Location',
+} as unknown as RecreationResourceDetailModel;
+
+const mockResourceWithoutName = {
+  ...mockResource,
+  rec_resource_id: '456',
+  name: '',
+};
 
 describe('RecreationResourceMap', () => {
-  const mockRecResource = {
-    rec_resource_id: '123',
-    name: 'Test Resource',
-    site_point_geometry: {},
-  } as any;
-
-  const mockFeatures = [new Feature({ id: 'feature1' })];
-  mockFeatures[0].setId('feature1');
-
-  const mockLayerStyle = new Style({
-    fill: new Fill({ color: 'rgba(255,0,0,0.4)' }),
-  });
-  const mockMapStyles = { height: '100px' };
-
   beforeEach(() => {
     vi.clearAllMocks();
-    (getMapFeaturesFromRecResource as any).mockReturnValue(mockFeatures);
-    (getLayerStyleForRecResource as any).mockReturnValue(mockLayerStyle);
   });
 
-  it('renders map and download buttons when features exist', () => {
-    render(
-      <RecreationResourceMap
-        recResource={mockRecResource}
-        mapComponentCssStyles={mockMapStyles}
-      />,
-    );
-    expect(getMapFeaturesFromRecResource).toHaveBeenCalledTimes(2);
-    expect(getLayerStyleForRecResource).toHaveBeenCalledWith(
-      mockRecResource,
-      StyleContext.MAP_DISPLAY,
-    );
+  describe('Rendering', () => {
+    it('renders map when features are available', () => {
+      const mockFeatures = [createMockFeature('1'), createMockFeature('2')];
+      const mockStyle = vi.fn();
 
-    expect(VectorFeatureMap).toHaveBeenCalledWith(
-      expect.objectContaining({
-        layers: [
-          expect.objectContaining({
-            id: 'rec-resource-layer',
-          }),
-        ],
-      }),
-      undefined,
-    );
+      mockGetMapFeaturesFromRecResource.mockReturnValue(mockFeatures as any);
+      mockGetLayerStyleForRecResource.mockReturnValue(mockStyle as any);
 
-    expect(
-      screen.getByRole('button', { name: /Export map file/i }),
-    ).toBeInTheDocument();
+      render(
+        <TestWrapper>
+          <RecreationResourceMap recResource={mockResource} />
+        </TestWrapper>,
+      );
+
+      expect(screen.getByTestId('vector-feature-map')).toBeInTheDocument();
+      expect(
+        screen.getByLabelText('Map showing Test Resource'),
+      ).toBeInTheDocument();
+      expect(screen.getByText('View in main map')).toBeInTheDocument();
+      expect(screen.getByText('Export map file')).toBeInTheDocument();
+    });
+
+    it.each([
+      ['empty array', []],
+      ['null', null],
+      ['undefined', undefined],
+    ])('does not render when features are %s', (_, returnValue) => {
+      mockGetMapFeaturesFromRecResource.mockReturnValue(returnValue as any);
+
+      const { container } = render(
+        <TestWrapper>
+          <RecreationResourceMap recResource={mockResource} />
+        </TestWrapper>,
+      );
+
+      expect(container.firstChild).toBeNull();
+    });
+
+    it('renders download icon with correct attributes', () => {
+      const mockFeatures = [createMockFeature('1')];
+      mockGetMapFeaturesFromRecResource.mockReturnValue(mockFeatures as any);
+      mockGetLayerStyleForRecResource.mockReturnValue(vi.fn());
+
+      render(
+        <TestWrapper>
+          <RecreationResourceMap recResource={mockResource} />
+        </TestWrapper>,
+      );
+
+      const downloadIcon = screen.getByAltText('Download map');
+      expect(downloadIcon).toHaveAttribute('src', '/mocked-download-icon.svg');
+      expect(downloadIcon).toHaveAttribute('width', '16');
+      expect(downloadIcon).toHaveAttribute('height', '16');
+    });
   });
 
-  it('renders VectorFeatureMap with correct props when features exist', () => {
-    render(
-      <RecreationResourceMap
-        recResource={mockRecResource}
-        mapComponentCssStyles={mockMapStyles}
-      />,
-    );
-    expect(getMapFeaturesFromRecResource).toHaveBeenCalledTimes(2);
-    expect(getLayerStyleForRecResource).toHaveBeenCalledWith(
-      mockRecResource,
-      StyleContext.DOWNLOAD,
-    );
+  describe('Feature Processing', () => {
+    it('applies styles to features and creates vector layer', () => {
+      const mockFeatures = [createMockFeature('1'), createMockFeature('2')];
+      const mockStyle = vi.fn();
 
-    expect(VectorFeatureMap).toHaveBeenCalledWith(
-      expect.objectContaining({
-        style: mockMapStyles,
-        layers: expect.arrayContaining([
-          expect.objectContaining({
-            id: 'rec-resource-layer',
-            layerInstance: expect.any(Object),
-          }),
-        ]),
-      }),
-      undefined,
-    );
+      mockGetMapFeaturesFromRecResource.mockReturnValue(mockFeatures as any);
+      mockGetLayerStyleForRecResource.mockReturnValue(mockStyle);
 
-    expect(
-      screen.getByRole('button', { name: /Export map file/i }),
-    ).toBeInTheDocument();
+      render(
+        <TestWrapper>
+          <RecreationResourceMap recResource={mockResource} />
+        </TestWrapper>,
+      );
+
+      mockFeatures.forEach((feature) => {
+        expect(feature.setStyle).toHaveBeenCalledWith(mockStyle);
+      });
+
+      const mapComponent = screen.getByTestId('vector-feature-map');
+      expect(mapComponent).toHaveAttribute('data-layers-count', '1');
+    });
   });
 
-  it('returns null when features array is empty', () => {
-    (getMapFeaturesFromRecResource as any).mockReturnValue([]);
-    const { container } = render(
-      <RecreationResourceMap recResource={mockRecResource} />,
-    );
-    expect(container.firstChild).toBeNull();
+  describe('Resource Name Handling', () => {
+    it.each([
+      ['with name', mockResource, 'Test Resource'],
+      ['empty name', mockResourceWithoutName, 'Unnamed Resource'],
+      ['null name', { ...mockResource, name: null as any }, 'Unnamed Resource'],
+    ])('handles resource %s correctly', (_, resource, expectedName) => {
+      const mockFeatures = [createMockFeature('1')];
+      mockGetMapFeaturesFromRecResource.mockReturnValue(mockFeatures as any);
+      mockGetLayerStyleForRecResource.mockReturnValue(vi.fn());
+
+      render(
+        <TestWrapper>
+          <RecreationResourceMap recResource={resource} />
+        </TestWrapper>,
+      );
+
+      expect(
+        screen.getByLabelText(`Map showing ${expectedName}`),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByLabelText(`View ${expectedName} in main map`),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByLabelText(`Export map file for ${expectedName}`),
+      ).toBeInTheDocument();
+    });
   });
 
-  it('returns null when features is undefined', () => {
-    (getMapFeaturesFromRecResource as any).mockReturnValue(undefined);
-    const { container } = render(
-      <RecreationResourceMap recResource={mockRecResource} />,
+  describe('Navigation and Events', () => {
+    beforeEach(() => {
+      const mockFeatures = [createMockFeature('1')];
+      mockGetMapFeaturesFromRecResource.mockReturnValue(mockFeatures as any);
+      mockGetLayerStyleForRecResource.mockReturnValue(vi.fn());
+    });
+
+    it('generates correct main map URL', () => {
+      render(
+        <TestWrapper>
+          <RecreationResourceMap recResource={mockResource} />
+        </TestWrapper>,
+      );
+
+      const viewMainMapLink = screen.getByText('View in main map').closest('a');
+      expect(viewMainMapLink).toHaveAttribute(
+        'href',
+        `${ROUTE_PATHS.SEARCH}?view=map&focus=${SearchMapFocusModes.REC_RESOURCE_ID}:123`,
+      );
+    });
+
+    it.each([
+      [
+        'view in main map',
+        'view-main-map-button',
+        'View in main map',
+        'Test Resource-123-View in main map',
+      ],
+      [
+        'export map file',
+        'download-button',
+        'Export map file',
+        'Test Resource-123-Export map file',
+      ],
+    ])(
+      'tracks %s click event',
+      async (_, buttonTestId, action, expectedName) => {
+        render(
+          <TestWrapper>
+            <RecreationResourceMap recResource={mockResource} />
+          </TestWrapper>,
+        );
+
+        fireEvent.click(screen.getByTestId(buttonTestId));
+
+        expect(mockTrackEvent).toHaveBeenCalledWith({
+          category: MATOMO_TRACKING_CATEGORY_MAP,
+          action,
+          name: expectedName,
+        });
+      },
     );
-    expect(container.firstChild).toBeNull();
+
+    it('tracks events with fallback name when resource name is empty', () => {
+      render(
+        <TestWrapper>
+          <RecreationResourceMap recResource={mockResourceWithoutName} />
+        </TestWrapper>,
+      );
+
+      fireEvent.click(screen.getByTestId('view-main-map-button'));
+
+      expect(mockTrackEvent).toHaveBeenCalledWith({
+        category: MATOMO_TRACKING_CATEGORY_MAP,
+        action: 'View in main map',
+        name: 'Unnamed Resource-456-View in main map',
+      });
+    });
+
+    it('handles missing rec_resource_id', () => {
+      const resourceWithoutId = {
+        ...mockResource,
+        rec_resource_id: undefined,
+      } as any;
+
+      render(
+        <TestWrapper>
+          <RecreationResourceMap recResource={resourceWithoutId} />
+        </TestWrapper>,
+      );
+
+      const viewMainMapLink = screen.getByText('View in main map').closest('a');
+      expect(viewMainMapLink).toHaveAttribute(
+        'href',
+        `${ROUTE_PATHS.SEARCH}?view=map&focus=${SearchMapFocusModes.REC_RESOURCE_ID}:undefined`,
+      );
+    });
   });
 
-  it('memoizes helper calls on re-render with same recResource', () => {
-    const { rerender } = render(
-      <RecreationResourceMap recResource={mockRecResource} />,
-    );
-    expect(getMapFeaturesFromRecResource).toHaveBeenCalledTimes(2);
-    expect(getLayerStyleForRecResource).toHaveBeenCalledTimes(2);
-    rerender(<RecreationResourceMap recResource={mockRecResource} />);
-    expect(getMapFeaturesFromRecResource).toHaveBeenCalledTimes(2);
-    expect(getLayerStyleForRecResource).toHaveBeenCalledTimes(2);
+  describe('Download Modal', () => {
+    beforeEach(() => {
+      const mockFeatures = [createMockFeature('1'), createMockFeature('2')];
+      mockGetMapFeaturesFromRecResource.mockReturnValue(mockFeatures as any);
+      mockGetLayerStyleForRecResource.mockReturnValue(vi.fn());
+    });
+
+    it('opens and closes download modal with correct data', async () => {
+      render(
+        <TestWrapper>
+          <RecreationResourceMap recResource={mockResource} />
+        </TestWrapper>,
+      );
+
+      // Open modal
+      fireEvent.click(screen.getByTestId('download-button'));
+
+      await waitFor(() => {
+        const modal = screen.getByTestId('download-modal');
+        expect(modal).toHaveAttribute('data-is-open', 'true');
+        expect(modal).toHaveAttribute('data-features-count', '2');
+        expect(modal).toHaveAttribute('data-resource-id', '123');
+      });
+
+      // Close modal
+      fireEvent.click(screen.getByText('Close Modal'));
+
+      await waitFor(() => {
+        expect(screen.getByTestId('download-modal')).toHaveAttribute(
+          'data-is-open',
+          'false',
+        );
+      });
+    });
   });
 
-  it('calls modal Export map file with recResource if defined', () => {
-    render(
-      <RecreationResourceMap
-        recResource={{ ...mockRecResource, name: 'Special Name' }}
-        mapComponentCssStyles={mockMapStyles}
-      />,
-    );
-    fireEvent.click(screen.getByRole('button', { name: /Export map file/i }));
-    expect(trackEvent).toHaveBeenCalledWith({
-      category: 'Map',
-      action: 'Export map file',
-      name: 'Special Name-123-Export map file',
+  describe('Memoization', () => {
+    it('memoizes styled features based on recResource changes', () => {
+      const mockFeatures1 = [createMockFeature('1')];
+      const mockFeatures2 = [createMockFeature('2')];
+      const mockStyle = vi.fn();
+
+      mockGetMapFeaturesFromRecResource.mockReturnValue(mockFeatures1 as any);
+      mockGetLayerStyleForRecResource.mockReturnValue(mockStyle);
+
+      const { rerender } = render(
+        <TestWrapper>
+          <RecreationResourceMap recResource={mockResource} />
+        </TestWrapper>,
+      );
+
+      expect(mockGetMapFeaturesFromRecResource).toHaveBeenCalledTimes(2);
+
+      // Rerender with same props
+      rerender(
+        <TestWrapper>
+          <RecreationResourceMap recResource={mockResource} />
+        </TestWrapper>,
+      );
+      expect(mockGetMapFeaturesFromRecResource).toHaveBeenCalledTimes(2);
+
+      // Rerender with different resource
+      mockGetMapFeaturesFromRecResource.mockReturnValue(mockFeatures2 as any);
+      rerender(
+        <TestWrapper>
+          <RecreationResourceMap recResource={mockResourceWithoutName} />
+        </TestWrapper>,
+      );
+      expect(mockGetMapFeaturesFromRecResource).toHaveBeenCalledTimes(4);
     });
   });
 });

@@ -1,16 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import OLMap from 'ol/Map';
+import { createEmpty, extend } from 'ol/extent';
 import {
-  recreationSource,
-  loadFeaturesForFilteredIds,
-  createClusteredRecreationFeatureSource,
   createClusteredRecreationFeatureStyle,
-  createClusteredRecreationFeatureLayer,
+  createFilteredClusterSource,
 } from '@/components/search-map/layers/recreationFeatureLayer';
 import Feature from 'ol/Feature';
 import { click } from 'ol/events/condition';
 import Select from 'ol/interaction/Select';
-import { extend, createEmpty } from 'ol/extent';
+import AnimatedCluster from 'ol-ext/layer/AnimatedCluster';
 import {
   AnimatedClusterOptions,
   ExtendedClusterOptions,
@@ -32,59 +30,26 @@ export const useClusteredRecreationFeatureLayer = (
   const { applyHoverStyles = true } = options || {};
   const [hoveredFeature, setHoveredFeature] = useState<Feature | null>(null);
 
-  const map = mapRef.current?.getMap();
-  const mapProjection = map?.getView().getProjection();
-  const distance = options?.clusterOptions?.distance || 30;
-  const clusterZoomThreshold = options?.clusterOptions?.clusterZoomThreshold;
-
-  const clusterSourceRef = useRef(
-    createClusteredRecreationFeatureSource(options?.clusterOptions),
-  );
-
-  const layerRef = useRef(
-    createClusteredRecreationFeatureLayer(
-      clusterSourceRef.current,
-      createClusteredRecreationFeatureStyle,
-      options?.animatedClusterOptions,
-    ),
-  );
+  const clusterLayer = useRef(
+    new AnimatedCluster({
+      style: createClusteredRecreationFeatureStyle,
+      ...options?.animatedClusterOptions,
+    }),
+  ).current;
 
   useEffect(() => {
-    if (!mapProjection) return;
-    loadFeaturesForFilteredIds(recResourceIds, recreationSource, mapProjection);
-  }, [recResourceIds, mapProjection]);
+    const filteredVectorSource = createFilteredClusterSource(
+      recResourceIds,
+      options?.clusterOptions,
+    );
 
-  useEffect(() => {
-    if (!map || !layerRef.current || !clusterZoomThreshold) return;
-
-    const view = map.getView();
-
-    // Disable clustering based on zoom level by setting the distance to zero
-    // *NOTE*: This doesn't appear to be working for the edge cases of features with identical coordinates
-    const updateClusterDistance = () => {
-      const zoom = view.getZoom();
-      if (zoom == null) return;
-
-      if (zoom >= clusterZoomThreshold) {
-        layerRef.current.getSource().setDistance(0);
-      } else {
-        layerRef.current.getSource().setDistance(distance);
-      }
-    };
-
-    updateClusterDistance();
-    view.on('change:resolution', updateClusterDistance);
-
-    return () => {
-      view.un('change:resolution', updateClusterDistance);
-    };
-  }, [clusterZoomThreshold, distance, map]);
+    clusterLayer.setSource(filteredVectorSource);
+  }, [recResourceIds, options?.clusterOptions]);
 
   useEffect(() => {
     if (!applyHoverStyles) return;
-
     const map = mapRef.current?.getMap();
-    if (!map || !layerRef.current) return;
+    if (!map) return;
 
     const onPointerMove = (evt: any) => {
       const pixel = evt.pixel;
@@ -92,7 +57,7 @@ export const useClusteredRecreationFeatureLayer = (
         pixel,
         (feat) => feat as Feature,
         {
-          layerFilter: (candidateLayer) => candidateLayer === layerRef.current,
+          layerFilter: (candidateLayer) => candidateLayer === clusterLayer,
         },
       );
 
@@ -113,9 +78,9 @@ export const useClusteredRecreationFeatureLayer = (
   }, [mapRef, hoveredFeature, applyHoverStyles]);
 
   useEffect(() => {
-    if (!applyHoverStyles || !layerRef.current) return;
+    if (!applyHoverStyles) return;
 
-    layerRef.current.setStyle((feature: Feature, resolution: number) =>
+    clusterLayer.setStyle((feature: Feature, resolution: number) =>
       createClusteredRecreationFeatureStyle(feature, resolution, {
         iconOpacity: feature === hoveredFeature ? 0.7 : 1,
         clusterOpacity: feature === hoveredFeature ? 0.7 : 0.85,
@@ -123,17 +88,19 @@ export const useClusteredRecreationFeatureLayer = (
       }),
     );
 
-    layerRef.current.changed();
+    clusterLayer.changed();
   }, [hoveredFeature, applyHoverStyles]);
 
   useEffect(() => {
     // Add cluster zoom-to-extent on click interaction
-    if (!map || !layerRef.current) return;
+    if (!mapRef.current) return;
 
     const select = new Select({
       condition: click,
-      layers: [layerRef.current],
+      layers: [clusterLayer],
       style: null,
+      multi: false,
+      hitTolerance: 5,
     });
 
     const handleSelect = (e: any) => {
@@ -146,28 +113,28 @@ export const useClusteredRecreationFeatureLayer = (
           return extend(acc, feature.getGeometry().getExtent());
         }, createEmpty());
 
-        map.getView().fit(extent, {
-          padding: [100, 100, 100, 100],
-          duration: 500,
-          maxZoom: 16,
-        });
-
-        select.getFeatures().clear();
+        mapRef.current
+          ?.getMap()
+          .getView()
+          .fit(extent, {
+            padding: [200, 200, 200, 200],
+            duration: 500,
+          });
       }
     };
 
     select.on('select', handleSelect);
-    map.addInteraction(select);
+    mapRef.current?.getMap().addInteraction(select);
 
+    // Cleanup function
     return () => {
       select.un('select', handleSelect);
-      map.removeInteraction(select);
+      mapRef.current?.getMap().removeInteraction(select);
     };
-  }, [map]);
+  }, [mapRef]);
 
   return {
-    layer: layerRef.current,
-    source: clusterSourceRef.current,
+    layer: clusterLayer,
     style: createClusteredRecreationFeatureStyle,
   };
 };

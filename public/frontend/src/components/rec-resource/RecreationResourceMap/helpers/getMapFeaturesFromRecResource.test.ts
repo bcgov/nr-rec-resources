@@ -5,6 +5,7 @@ import { getMapFeaturesFromRecResource } from '@/components/rec-resource/Recreat
 vi.mock('ol/format', () => ({
   GeoJSON: vi.fn().mockImplementation(() => ({
     readFeatures: vi.fn().mockReturnValue(['mockFeature']),
+    readFeature: vi.fn().mockReturnValue('mockFeature'),
   })),
 }));
 
@@ -23,7 +24,7 @@ describe('getMapFeaturesFromRecResource', () => {
     } as any;
 
     const result = getMapFeaturesFromRecResource(mockResource);
-    expect(result).toEqual(['mockFeature', 'mockFeature']);
+    expect(result).toEqual(['mockFeature', 'mockFeature', 'mockFeature']); // includes site point feature
     expect(GeoJSON).toHaveBeenCalledWith({
       dataProjection: 'EPSG:3005',
       featureProjection: 'EPSG:3857',
@@ -56,6 +57,6 @@ describe('getMapFeaturesFromRecResource', () => {
     } as any;
 
     const result = getMapFeaturesFromRecResource(mockResource);
-    expect(result).toEqual([]);
+    expect(result).toEqual(['mockFeature']); // includes site point feature
   });
 });

@@ -1,6 +1,6 @@
 import 'ol/ol.css';
 import 'ol-ext/dist/ol-ext.css';
-import { useMemo, useRef, useState, useEffect } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import OLMap from 'ol/Map';
 import Cookies from 'js-cookie';
 import { useStore } from '@tanstack/react-store';
@@ -23,13 +23,30 @@ import {
 import FilterMenuSearchMap from '@/components/search/filters/FilterMenuSearchMap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSliders } from '@fortawesome/free-solid-svg-icons';
-import { Button } from 'react-bootstrap';
+import { Button, ProgressBar } from 'react-bootstrap';
 import { trackClickEvent } from '@/utils/matomo';
 import '@/components/search-map/SearchMap.scss';
 import { WILDFIRE_LOCATION_MIN_ZOOM } from '@/components/search-map/constants';
 import RecreationSuggestionForm from '@/components/recreation-suggestion-form/RecreationSuggestionForm';
 import type Feature from 'ol/Feature';
 import MapDisclaimerModal from '../rec-resource/RecreationResourceMap/MapDisclaimerModal';
+import { useMapFocus } from '@/components/search-map/hooks/useMapFocus';
+import Overlay from 'ol/Overlay';
+import { LoadingOverlay } from '@shared/components/loading-overlay';
+
+const CLUSTER_OPTIONS = {
+  clusterZoomThreshold: 16,
+  distance: 50,
+  minDistance: 10,
+};
+
+const ANIMATED_CLUSTER_OPTIONS = {
+  animationDuration: 500,
+  declutter: false,
+  updateWhileAnimating: false,
+  updateWhileInteracting: false,
+  renderBuffer: 300,
+};
 
 const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
   const { extent, recResourceIds } = useStore(searchResultsStore);
@@ -41,21 +58,29 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
 
   const mapRef = useRef<{ getMap: () => OLMap }>(null);
   const popupRef = useRef<HTMLDivElement | null>(null);
+  const overlayRef = useRef<Overlay | null>(null);
+
+  useEffect(() => {
+    if (!popupRef.current || !mapRef.current) return;
+    const overlay = new Overlay({
+      element: popupRef.current,
+      positioning: 'bottom-center',
+      offset: [0, -32],
+      stopEvent: true,
+    });
+    mapRef.current.getMap().addOverlay(overlay);
+    overlayRef.current = overlay;
+
+    return () => {
+      mapRef.current?.getMap().removeOverlay(overlay);
+      overlayRef.current = null;
+    };
+  }, [mapRef, popupRef]);
 
   const { layer: clusteredRecreationFeatureLayer } =
     useClusteredRecreationFeatureLayer(recResourceIds, mapRef, {
-      clusterOptions: {
-        clusterZoomThreshold: 16,
-        distance: 50,
-        minDistance: 10,
-      },
-      animatedClusterOptions: {
-        animationDuration: 500,
-        declutter: false,
-        updateWhileAnimating: false,
-        updateWhileInteracting: false,
-        renderBuffer: 300,
-      },
+      clusterOptions: CLUSTER_OPTIONS,
+      animatedClusterOptions: ANIMATED_CLUSTER_OPTIONS,
     });
 
   const { layer: wildfireLocationsLayer } = useWildfireLocationLayer(mapRef, {
@@ -111,13 +136,19 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
 
   const { clearSelection } = useFeatureSelection({
     mapRef,
-    popupRef,
+    overlayRef,
     featureLayers: featureSelectionLayers,
     options: {
       featureOffsetY: 150,
     },
   });
   useZoomToExtent(mapRef, extent);
+
+  const { isMapFocusLoading, loadingProgress } = useMapFocus({
+    mapRef,
+    overlayRef,
+    onFocusedFeatureChange: setSelectedFeature,
+  });
 
   const layers = useMemo(
     () => [
@@ -154,20 +185,34 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
   }, [props, props.style]);
 
   return (
-    <div className="search-map-container" {...props}>
+    <div className="search-map-container d-flex flex-column vh-100" {...props}>
       <MapDisclaimerModal
         isOpen={isDisclaimerModalOpen}
         setIsOpen={setIsDisclaimerModalOpen}
       />
       <Header />
-      <VectorFeatureMap
-        ref={mapRef}
-        style={{ width: '100%', height: '100%' }}
-        layers={layers}
-        defaultZoom={6}
-        minZoom={5.5}
-        maxZoom={30}
-      />
+      <div className="w-100 flex-fill position-relative">
+        <LoadingOverlay
+          isLoading={isMapFocusLoading}
+          message={'Loading map'}
+          loader={
+            <ProgressBar
+              className="w-50"
+              now={loadingProgress}
+              animated
+              striped
+            />
+          }
+        />
+        <VectorFeatureMap
+          ref={mapRef}
+          style={{ width: '100%', height: '100%' }}
+          layers={layers}
+          defaultZoom={6}
+          minZoom={5.5}
+          maxZoom={30}
+        />
+      </div>
       <div className="search-map-controls">
         <div className="map-search-form">
           <RecreationSuggestionForm

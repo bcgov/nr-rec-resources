@@ -1,34 +1,30 @@
-import { useEffect, useRef } from 'react';
+import { RefObject, useEffect, useRef } from 'react';
+import type { SelectEvent } from 'ol/interaction/Select';
 import Select from 'ol/interaction/Select';
 import Overlay from 'ol/Overlay';
 import { click } from 'ol/events/condition';
-import Point from 'ol/geom/Point';
-import type OLMap from 'ol/Map';
 import type Feature from 'ol/Feature';
-import type { SelectEvent } from 'ol/interaction/Select';
-import type Style from 'ol/style/Style';
-import { locationDotOrangeIcon } from '@/components/search-map/styles/icons';
-
-interface FeatureLayerConfig {
-  id: string;
-  layer: any;
-  onFeatureSelect: (feature: Feature | null) => void;
-  selectedStyle?: Style | ((feature: Feature) => Style);
-}
+import {
+  FeatureLayerConfig,
+  SelectedFeatureInfo,
+} from '@/components/search-map/hooks/types';
+import {
+  applySelectedStyle,
+  centerMapOnFeature,
+  getFeatureLayerConfig,
+  getPointFeatureCoordinates,
+  isClusteredLayer,
+} from '@/components/search-map/hooks/helpers';
+import OLMap from 'ol/Map';
 
 interface UseFeatureSelectionParams {
-  mapRef: React.RefObject<{ getMap: () => OLMap } | null>;
+  mapRef: RefObject<{ getMap: () => OLMap } | null>;
   featureLayers: FeatureLayerConfig[];
-  popupRef: React.RefObject<HTMLDivElement | null>;
+  overlayRef: RefObject<Overlay | null>;
   options?: {
     featureOffsetX?: number;
     featureOffsetY?: number;
   };
-}
-
-interface SelectedFeatureInfo {
-  feature: Feature;
-  layerId: string;
 }
 
 /**
@@ -40,10 +36,9 @@ interface SelectedFeatureInfo {
 export function useFeatureSelection({
   mapRef,
   featureLayers,
-  popupRef,
+  overlayRef,
   options = {},
 }: UseFeatureSelectionParams) {
-  const overlayRef = useRef<Overlay | null>(null);
   const selectedFeatureRef = useRef<SelectedFeatureInfo | null>(null);
   const selectRef = useRef<Select | null>(null);
 
@@ -71,21 +66,11 @@ export function useFeatureSelection({
   };
 
   useEffect(() => {
-    if (!mapRef?.current || !featureLayers.length || !popupRef.current) return;
+    if (!mapRef?.current || !featureLayers.length) return;
 
     const map = mapRef.current.getMap();
     // Extract valid layers from featureLayers config
     const layers = featureLayers.map((config) => config.layer).filter(Boolean);
-
-    // Create and add overlay for popup display
-    const overlay = new Overlay({
-      element: popupRef.current,
-      positioning: 'bottom-center',
-      offset: [0, -32],
-      stopEvent: true,
-    });
-    map.addOverlay(overlay);
-    overlayRef.current = overlay;
 
     // Add select interaction for feature selection via click
     const select = new Select({
@@ -95,25 +80,6 @@ export function useFeatureSelection({
     });
     map.addInteraction(select);
     selectRef.current = select;
-
-    const applySelectedStyle = (
-      feature: Feature,
-      layerConfig: FeatureLayerConfig,
-    ) => {
-      if (layerConfig.selectedStyle) {
-        const style =
-          typeof layerConfig.selectedStyle === 'function'
-            ? layerConfig.selectedStyle(feature)
-            : layerConfig.selectedStyle;
-        feature.setStyle(style);
-      } else {
-        feature.setStyle(locationDotOrangeIcon);
-      }
-    };
-
-    const isClusteredLayer = (layer: any): boolean => {
-      return !!layer.getSource?.()?.getSource?.();
-    };
 
     // Focus and select a feature, show popup and apply style
     const focusFeature = (
@@ -130,26 +96,13 @@ export function useFeatureSelection({
         layerId: layerConfig.id,
       };
 
-      if (overlayRef.current) {
-        const geometry = feature.getGeometry();
-        if (geometry instanceof Point) {
-          const coordinate = geometry.getCoordinates();
-          const offsetY = options.featureOffsetY || 0;
-          const offsetX = options.featureOffsetX || 0;
-
-          const pixel = map.getPixelFromCoordinate(coordinate);
-          const offsetCoord = map.getCoordinateFromPixel([
-            pixel[0] + offsetX, // increase X to push map center right
-            pixel[1] + offsetY, // increase Y to push map center down
-          ]);
-
-          overlayRef.current.setPosition(coordinate);
-          map.renderSync();
-          map.getView().animate({ center: offsetCoord, duration: 400 });
-        }
-      }
+      // center map on feature for popup
+      centerMapOnFeature(map, feature, options);
+      const centerCoords = getPointFeatureCoordinates(feature);
+      overlayRef.current?.setPosition(centerCoords);
 
       layerConfig.onFeatureSelect(feature);
+
       // Update z-index of all feature layers based on selection
       featureLayers.forEach(({ id, layer }) => {
         const isSelected = selectedFeatureRef.current?.layerId === id;
@@ -160,13 +113,7 @@ export function useFeatureSelection({
     const handleSelect = (e: SelectEvent) => {
       // Deselect features and reset their styles
       e.deselected.forEach((feat) => {
-        const layerConfig = featureLayers.find((config) => {
-          const isClustered = isClusteredLayer(config.layer);
-          const features = isClustered
-            ? config.layer.getSource()?.getFeatures()
-            : config.layer.getSource().getFeatures();
-          return features.includes(feat);
-        });
+        const layerConfig = getFeatureLayerConfig(feat, featureLayers);
 
         if (layerConfig) {
           const isClustered = isClusteredLayer(layerConfig.layer);
@@ -267,12 +214,11 @@ export function useFeatureSelection({
 
     return () => {
       map.removeInteraction(select);
-      map.removeOverlay(overlay);
       overlayRef.current = null;
       selectRef.current = null;
     };
     // eslint-disable-next-line
-  }, [mapRef, featureLayers, popupRef]);
+  }, [mapRef, featureLayers, overlayRef]);
 
   return {
     clearSelection,
