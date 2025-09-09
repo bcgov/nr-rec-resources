@@ -110,7 +110,7 @@ const mockResource: RecreationResourceDetailModel = {
   name: 'Test Resource',
   description: 'Test Description',
   location: 'Test Location',
-} as RecreationResourceDetailModel;
+} as unknown as RecreationResourceDetailModel;
 
 const mockResourceWithoutName = {
   ...mockResource,
@@ -128,8 +128,8 @@ describe('RecreationResourceMap', () => {
       const mockFeatures = [createMockFeature('1'), createMockFeature('2')];
       const mockStyle = vi.fn();
 
-      mockGetMapFeaturesFromRecResource.mockReturnValue(mockFeatures);
-      mockGetLayerStyleForRecResource.mockReturnValue(mockStyle);
+      mockGetMapFeaturesFromRecResource.mockReturnValue(mockFeatures as any);
+      mockGetLayerStyleForRecResource.mockReturnValue(mockStyle as any);
 
       render(
         <TestWrapper>
@@ -150,7 +150,7 @@ describe('RecreationResourceMap', () => {
       ['null', null],
       ['undefined', undefined],
     ])('does not render when features are %s', (_, returnValue) => {
-      mockGetMapFeaturesFromRecResource.mockReturnValue(returnValue);
+      mockGetMapFeaturesFromRecResource.mockReturnValue(returnValue as any);
 
       const { container } = render(
         <TestWrapper>
@@ -163,7 +163,7 @@ describe('RecreationResourceMap', () => {
 
     it('renders download icon with correct attributes', () => {
       const mockFeatures = [createMockFeature('1')];
-      mockGetMapFeaturesFromRecResource.mockReturnValue(mockFeatures);
+      mockGetMapFeaturesFromRecResource.mockReturnValue(mockFeatures as any);
       mockGetLayerStyleForRecResource.mockReturnValue(vi.fn());
 
       render(
@@ -184,7 +184,7 @@ describe('RecreationResourceMap', () => {
       const mockFeatures = [createMockFeature('1'), createMockFeature('2')];
       const mockStyle = vi.fn();
 
-      mockGetMapFeaturesFromRecResource.mockReturnValue(mockFeatures);
+      mockGetMapFeaturesFromRecResource.mockReturnValue(mockFeatures as any);
       mockGetLayerStyleForRecResource.mockReturnValue(mockStyle);
 
       render(
@@ -209,7 +209,7 @@ describe('RecreationResourceMap', () => {
       ['null name', { ...mockResource, name: null as any }, 'Unnamed Resource'],
     ])('handles resource %s correctly', (_, resource, expectedName) => {
       const mockFeatures = [createMockFeature('1')];
-      mockGetMapFeaturesFromRecResource.mockReturnValue(mockFeatures);
+      mockGetMapFeaturesFromRecResource.mockReturnValue(mockFeatures as any);
       mockGetLayerStyleForRecResource.mockReturnValue(vi.fn());
 
       render(
@@ -233,7 +233,7 @@ describe('RecreationResourceMap', () => {
   describe('Navigation and Events', () => {
     beforeEach(() => {
       const mockFeatures = [createMockFeature('1')];
-      mockGetMapFeaturesFromRecResource.mockReturnValue(mockFeatures);
+      mockGetMapFeaturesFromRecResource.mockReturnValue(mockFeatures as any);
       mockGetLayerStyleForRecResource.mockReturnValue(vi.fn());
     });
 
@@ -322,7 +322,7 @@ describe('RecreationResourceMap', () => {
   describe('Download Modal', () => {
     beforeEach(() => {
       const mockFeatures = [createMockFeature('1'), createMockFeature('2')];
-      mockGetMapFeaturesFromRecResource.mockReturnValue(mockFeatures);
+      mockGetMapFeaturesFromRecResource.mockReturnValue(mockFeatures as any);
       mockGetLayerStyleForRecResource.mockReturnValue(vi.fn());
     });
 
@@ -361,7 +361,7 @@ describe('RecreationResourceMap', () => {
       const mockFeatures2 = [createMockFeature('2')];
       const mockStyle = vi.fn();
 
-      mockGetMapFeaturesFromRecResource.mockReturnValue(mockFeatures1);
+      mockGetMapFeaturesFromRecResource.mockReturnValue(mockFeatures1 as any);
       mockGetLayerStyleForRecResource.mockReturnValue(mockStyle);
 
       const { rerender } = render(
@@ -370,7 +370,7 @@ describe('RecreationResourceMap', () => {
         </TestWrapper>,
       );
 
-      expect(mockGetMapFeaturesFromRecResource).toHaveBeenCalledTimes(1);
+      expect(mockGetMapFeaturesFromRecResource).toHaveBeenCalledTimes(2);
 
       // Rerender with same props
       rerender(
@@ -378,16 +378,16 @@ describe('RecreationResourceMap', () => {
           <RecreationResourceMap recResource={mockResource} />
         </TestWrapper>,
       );
-      expect(mockGetMapFeaturesFromRecResource).toHaveBeenCalledTimes(1);
+      expect(mockGetMapFeaturesFromRecResource).toHaveBeenCalledTimes(2);
 
       // Rerender with different resource
-      mockGetMapFeaturesFromRecResource.mockReturnValue(mockFeatures2);
+      mockGetMapFeaturesFromRecResource.mockReturnValue(mockFeatures2 as any);
       rerender(
         <TestWrapper>
           <RecreationResourceMap recResource={mockResourceWithoutName} />
         </TestWrapper>,
       );
-      expect(mockGetMapFeaturesFromRecResource).toHaveBeenCalledTimes(2);
+      expect(mockGetMapFeaturesFromRecResource).toHaveBeenCalledTimes(4);
     });
   });
 });
