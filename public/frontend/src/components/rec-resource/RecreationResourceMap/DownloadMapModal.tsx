@@ -7,8 +7,8 @@ import {
   downloadKML,
 } from '@/components/rec-resource/RecreationResourceMap/helpers';
 import '@/components/rec-resource/RecreationResourceMap/DownloadMapModal.scss';
-import { Feature } from '~/ol';
-import { Geometry } from '~/ol/geom';
+import { Feature } from 'ol';
+import { Geometry } from 'ol/geom';
 import { RecreationResourceDetailDto } from '@/service/recreation-resource';
 
 interface DownloadMapModalProps {
