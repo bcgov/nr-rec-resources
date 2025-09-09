@@ -136,9 +136,7 @@ const RecResourcePage = () => {
     Boolean(spatial_feature_geometry?.length) ||
     Boolean(recreation_resource_docs?.length) ||
     driving_directions;
-  const isReservable =
-    recreation_resource_reservation_info !== null &&
-    recreation_resource_reservation_info !== undefined;
+  const isReservable = Boolean(recreation_resource_reservation_info);
 
   // Create page sections for PageWithScrollMenu
   const pageSections: PageSection[] = [
