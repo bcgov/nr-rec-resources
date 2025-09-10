@@ -3,6 +3,14 @@ FROM node:22-slim AS build
 
 WORKDIR /app
 
+ARG VITE_KEYCLOAK_AUTH_SERVER_URL
+ARG VITE_KEYCLOAK_REALM
+ARG VITE_KEYCLOAK_CLIENT_ID
+
+ENV VITE_KEYCLOAK_AUTH_SERVER_URL=$VITE_KEYCLOAK_AUTH_SERVER_URL
+ENV VITE_KEYCLOAK_REALM=$VITE_KEYCLOAK_REALM
+ENV VITE_KEYCLOAK_CLIENT_ID=$VITE_KEYCLOAK_CLIENT_ID
+
 # Copy root package.json and package-lock.json first (workspace root)
 COPY package.json package-lock.json ./
 
@@ -30,5 +38,3 @@ RUN caddy fmt /etc/caddy/Caddyfile
 
 EXPOSE 3001 3002
 HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost:3001/health
-
-USER 1001
