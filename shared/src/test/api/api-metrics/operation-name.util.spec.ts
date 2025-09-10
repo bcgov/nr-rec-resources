@@ -1,38 +1,52 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { ExecutionContext } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { OperationNameUtil } from '@shared/api/api-metrics/operation-name.util';
 
 describe('OperationNameUtil', () => {
-  let reflector, operationNameUtil, mockExecutionContext;
+  let reflector: Reflector;
+  let operationNameUtil: OperationNameUtil;
+  let mockExecutionContext: ExecutionContext;
+  let mockReflector: any;
+  let mockContext: any;
 
   beforeEach(() => {
-    reflector = { get: vi.fn() };
+    mockReflector = {
+      get: vi.fn(),
+      getAll: vi.fn(),
+      getAllAndMerge: vi.fn(),
+      getAllAndOverride: vi.fn(),
+    };
+    reflector = mockReflector as unknown as Reflector;
     operationNameUtil = new OperationNameUtil(reflector);
-    mockExecutionContext = {
+
+    mockContext = {
       getHandler: vi.fn(),
       getClass: vi.fn(),
     };
+    mockExecutionContext = mockContext as unknown as ExecutionContext;
   });
 
   describe('get', () => {
     it('returns operationId from ApiOperationOptions', () => {
       const mockHandler = vi.fn();
-      mockExecutionContext.getHandler.mockReturnValue(mockHandler);
-      mockExecutionContext.getClass.mockReturnValue(vi.fn());
-      reflector.get.mockReturnValue({ operationId: 'customOperationId' });
+      mockContext.getHandler.mockReturnValue(mockHandler);
+      mockContext.getClass.mockReturnValue(vi.fn());
+      mockReflector.get.mockReturnValue({ operationId: 'customOperationId' });
 
       expect(operationNameUtil.get(mockExecutionContext)).toBe(
         'customOperationId',
       );
-      expect(reflector.get).toHaveBeenCalledWith(
+      expect(mockReflector.get).toHaveBeenCalledWith(
         'swagger/apiOperation',
         mockHandler,
       );
     });
 
     it("returns 'Controller.handler' when no operationId", () => {
-      mockExecutionContext.getHandler.mockReturnValue({ name: 'testHandler' });
-      mockExecutionContext.getClass.mockReturnValue({ name: 'TestController' });
-      reflector.get.mockReturnValue({ summary: 'Test summary' });
+      mockContext.getHandler.mockReturnValue({ name: 'testHandler' });
+      mockContext.getClass.mockReturnValue({ name: 'TestController' });
+      mockReflector.get.mockReturnValue({ summary: 'Test summary' });
 
       expect(operationNameUtil.get(mockExecutionContext)).toBe(
         'TestController.testHandler',
@@ -40,9 +54,9 @@ describe('OperationNameUtil', () => {
     });
 
     it("returns 'Controller.handler' when no ApiOperationOptions", () => {
-      mockExecutionContext.getHandler.mockReturnValue({ name: 'testHandler' });
-      mockExecutionContext.getClass.mockReturnValue({ name: 'TestController' });
-      reflector.get.mockReturnValue(undefined);
+      mockContext.getHandler.mockReturnValue({ name: 'testHandler' });
+      mockContext.getClass.mockReturnValue({ name: 'TestController' });
+      mockReflector.get.mockReturnValue(undefined);
 
       expect(operationNameUtil.get(mockExecutionContext)).toBe(
         'TestController.testHandler',
@@ -50,9 +64,9 @@ describe('OperationNameUtil', () => {
     });
 
     it('handles missing names', () => {
-      mockExecutionContext.getHandler.mockReturnValue({});
-      mockExecutionContext.getClass.mockReturnValue({});
-      reflector.get.mockReturnValue(undefined);
+      mockContext.getHandler.mockReturnValue({});
+      mockContext.getClass.mockReturnValue({});
+      mockReflector.get.mockReturnValue(undefined);
 
       expect(operationNameUtil.get(mockExecutionContext)).toBe(
         'undefined.undefined',
