@@ -1,15 +1,21 @@
+import { beforeEach, describe, expect, it } from 'vitest';
 import { ApiMetricsModule } from '@shared/api/api-metrics/api-metrics.module';
 import { ApiMetricsService } from '@shared/api/api-metrics/api-metrics.service';
-import { Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import { ClsModule } from 'nestjs-cls';
+import { ConfigModule } from '@nestjs/config';
 
 describe('ApiMetricsModule', () => {
-  let module;
-  let apiMetricsService;
+  let module: TestingModule;
+  let apiMetricsService: ApiMetricsService;
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
-      imports: [ClsModule.forRoot(), ApiMetricsModule],
+      imports: [
+        ConfigModule.forRoot({ isGlobal: true }),
+        ClsModule.forRoot(),
+        ApiMetricsModule.forRoot({ namespacePrefix: 'test' }),
+      ],
     }).compile();
 
     apiMetricsService = module.get(ApiMetricsService);

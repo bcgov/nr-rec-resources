@@ -1,6 +1,7 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClsModule } from 'nestjs-cls';
+import { Reflector } from '@nestjs/core';
 import { ApiMetricsInterceptor } from './api-metrics.interceptor';
 import { ApiMetricsService } from './api-metrics.service';
 import { OperationNameUtil } from './operation-name.util';
@@ -16,19 +17,20 @@ export class ApiMetricsModule {
       module: ApiMetricsModule,
       imports: [ConfigModule, ClsModule],
       providers: [
+        Reflector,
         OperationNameUtil,
         {
           provide: ApiMetricsService,
-          useFactory: (configService) =>
+          useFactory: (configService: ConfigService) =>
             new ApiMetricsService(configService, options.namespacePrefix),
-          inject: ['ConfigService'],
+          inject: [ConfigService],
         },
         {
           provide: 'APP_INTERCEPTOR',
           useClass: ApiMetricsInterceptor,
         },
       ],
-      exports: [ApiMetricsService],
+      exports: [ApiMetricsService, OperationNameUtil],
     };
   }
 }

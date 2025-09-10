@@ -3,10 +3,13 @@ import { RecreationResourceImageDto } from './recreation-resource-image.dto';
 import { RecreationResourceDocDto } from './recreation-resource-doc.dto';
 import { ClientPublicViewDto } from 'src/service/fsa-resources';
 
-export enum RecreationResourceMaintenanceStandardCode {
-  U = 'U', // User maintained
-  M = 'M', // Maintained
-}
+export const RecreationResourceMaintenanceStandardCode = {
+  U: 'U', // User maintained
+  M: 'M', // Maintained
+} as const;
+
+export type RecreationResourceMaintenanceStandardCode =
+  (typeof RecreationResourceMaintenanceStandardCode)[keyof typeof RecreationResourceMaintenanceStandardCode];
 
 export class RecreationActivityDto {
   @ApiProperty({
@@ -241,8 +244,8 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
 
   @ApiProperty({
     description: 'The maintenance standard code for the recreation resource',
-    enum: RecreationResourceMaintenanceStandardCode,
-    example: RecreationResourceMaintenanceStandardCode.U,
+    type: String,
+    example: 'U',
   })
   maintenance_standard_code?: RecreationResourceMaintenanceStandardCode;
 

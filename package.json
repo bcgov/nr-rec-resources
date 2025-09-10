@@ -1,7 +1,9 @@
 {
   "private": true,
   "workspaces": [
+    "admin/backend",
     "admin/frontend",
+    "public/backend",
     "public/frontend",
     "shared"
   ],
