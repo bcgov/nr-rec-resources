@@ -1,188 +1,598 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import Feature from 'ol/Feature';
-import VectorSource from 'ol/source/Vector';
-import Cluster from 'ol/source/Cluster';
 import { Style } from 'ol/style';
+import { Vector as VectorSource } from 'ol/source';
+import ClusterSource from 'ol/source/Cluster';
+import { EsriJSON } from 'ol/format';
+import type { FeatureLike } from 'ol/Feature';
+
+// Mock dependencies
+vi.mock('ol-ext/layer/AnimatedCluster', () => ({
+  default: class MockAnimatedCluster {
+    constructor(options: any) {
+      Object.assign(this, options);
+    }
+  },
+}));
+
+vi.mock('ol/source', () => ({
+  Vector: vi.fn().mockImplementation((options) => ({
+    addFeatures: vi.fn(),
+    clear: vi.fn(),
+    setLoader: vi.fn(),
+    loader: options?.loader,
+    ...options,
+  })),
+}));
+
+vi.mock('ol/source/Cluster', () => ({
+  default: vi.fn().mockImplementation((options) => ({
+    ...options,
+  })),
+}));
+
+vi.mock('ol/format', () => ({
+  EsriJSON: vi.fn().mockImplementation(() => ({
+    readFeatures: vi.fn(),
+  })),
+}));
+
+vi.mock('@/utils/capitalizeWords', () => ({
+  capitalizeWords: vi.fn((text: string) => text.toUpperCase()),
+}));
+
+vi.mock('@/components/search-map/styles/feature', () => ({
+  featureLabelText: vi.fn((text: string) => ({ text })),
+}));
+
+vi.mock('@/components/search-map/styles/icons', () => ({
+  createLocationDotBlueIcon: vi.fn(
+    ({ opacity }) => new Style({ opacity } as any),
+  ),
+  createLocationDotOrangeIcon: vi.fn(
+    ({ opacity }) => new Style({ opacity } as any),
+  ),
+  createLocationDotRedIcon: vi.fn(
+    ({ opacity }) => new Style({ opacity } as any),
+  ),
+}));
+
+vi.mock('@/components/search-map/styles/cluster', () => ({
+  clusterStyle: vi.fn(
+    ({ size, clusterOpacity, haloOpacity }) =>
+      new Style({ size, clusterOpacity, haloOpacity } as any),
+  ),
+}));
+
+vi.mock('@/components/search-map/constants', () => ({
+  RECREATION_FEATURE_LAYER: 'https://mock-api.com/recreation',
+}));
+
+// Import the module under test after mocks
 import {
   createClusteredRecreationFeatureStyle,
   createRecreationFeatureSource,
-  createClusteredRecreationFeatureSource,
-  createClusteredRecreationFeatureLayer,
-  loadFeaturesForFilteredIds,
+  createFilteredClusterSource,
+  getFilteredFeatures,
 } from './recreationFeatureLayer';
 
-vi.mock('ol/format/EsriJSON', () => {
-  return {
-    default: vi.fn().mockImplementation(() => ({
-      readFeatures: vi.fn().mockReturnValue([
-        (() => {
-          const f = new Feature();
-          f.set('FOREST_FILE_ID', '123');
-          return f;
-        })(),
-      ]),
-    })),
-  };
-});
+// Import mocked dependencies for assertions
+import { capitalizeWords } from '@/utils/capitalizeWords';
+import { featureLabelText } from '@/components/search-map/styles/feature';
+import {
+  createLocationDotBlueIcon,
+  createLocationDotOrangeIcon,
+  createLocationDotRedIcon,
+} from '@/components/search-map/styles/icons';
+import { clusterStyle } from '@/components/search-map/styles/cluster';
 
 describe('recreationFeatureLayer', () => {
+  // Mock fetch globally
+  const mockFetch = vi.fn();
+  global.fetch = mockFetch;
+
   beforeEach(() => {
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
+    // Clear internal caches by accessing them through the module
+    // Since caches are private, we'll test their behavior indirectly
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    vi.resetAllMocks();
   });
 
   describe('createClusteredRecreationFeatureStyle', () => {
-    it('returns cluster style for multiple features', () => {
-      const feature = new Feature();
-      feature.set('features', [new Feature(), new Feature()]);
+    it('should return cluster style for multiple features', () => {
+      const mockFeature = {
+        get: vi.fn((key: string) => {
+          if (key === 'features') return [{ id: 1 }, { id: 2 }, { id: 3 }];
+          return undefined;
+        }),
+      } as unknown as FeatureLike;
 
-      const result = createClusteredRecreationFeatureStyle(feature, 1);
-      expect(result).toBeDefined();
+      const result = createClusteredRecreationFeatureStyle(mockFeature, 1);
+
+      expect(clusterStyle).toHaveBeenCalledWith({
+        size: 3,
+        clusterOpacity: 0.85,
+        haloOpacity: 0.7,
+      });
+      expect(result).toBeInstanceOf(Style);
     });
 
-    it('returns icon and label styles for single feature', () => {
-      const feature = new Feature();
-      const singleFeature = new Feature();
-      singleFeature.set('CLOSURE_IND', 'Y');
-      singleFeature.set('PROJECT_NAME', 'test project');
-      feature.set('features', [singleFeature]);
+    it('should return cluster style with custom opacity options', () => {
+      const mockFeature = {
+        get: vi.fn((key: string) => {
+          if (key === 'features') return [{ id: 1 }, { id: 2 }];
+          return undefined;
+        }),
+      } as unknown as FeatureLike;
 
-      const result = createClusteredRecreationFeatureStyle(
-        feature,
-        1,
-      ) as Style[];
+      const options = {
+        iconOpacity: 0.5,
+        clusterOpacity: 0.6,
+        haloOpacity: 0.4,
+      };
+
+      createClusteredRecreationFeatureStyle(mockFeature, 1, options);
+
+      expect(clusterStyle).toHaveBeenCalledWith({
+        size: 2,
+        clusterOpacity: 0.6,
+        haloOpacity: 0.4,
+      });
+    });
+
+    it('should return orange icon for selected single feature', () => {
+      const mockFeature = {
+        get: vi.fn((key: string) => {
+          if (key === 'features')
+            return [{ get: vi.fn().mockReturnValue(true) }];
+          if (key === 'selected') return true;
+          return undefined;
+        }),
+      } as unknown as FeatureLike;
+
+      const result = createClusteredRecreationFeatureStyle(mockFeature, 1);
+
+      expect(createLocationDotOrangeIcon).toHaveBeenCalledWith({ opacity: 1 });
+      expect(result).toBeInstanceOf(Style);
+    });
+
+    it('should return red icon for closed single feature', () => {
+      const mockSingleFeature = {
+        get: vi.fn((key: string) => {
+          if (key === 'selected') return false;
+          if (key === 'CLOSURE_IND') return 'Y';
+          if (key === 'PROJECT_NAME') return undefined;
+          return undefined;
+        }),
+      };
+
+      const mockFeature = {
+        get: vi.fn((key: string) => {
+          if (key === 'features') return [mockSingleFeature];
+          return undefined;
+        }),
+      } as unknown as FeatureLike;
+
+      const result = createClusteredRecreationFeatureStyle(mockFeature, 1);
+
+      expect(createLocationDotRedIcon).toHaveBeenCalledWith({ opacity: 1 });
+      expect(result).toBeInstanceOf(Style);
+    });
+
+    it('should return blue icon for open single feature', () => {
+      const mockSingleFeature = {
+        get: vi.fn((key: string) => {
+          if (key === 'selected') return false;
+          if (key === 'CLOSURE_IND') return 'N';
+          if (key === 'PROJECT_NAME') return undefined;
+          return undefined;
+        }),
+      };
+
+      const mockFeature = {
+        get: vi.fn((key: string) => {
+          if (key === 'features') return [mockSingleFeature];
+          return undefined;
+        }),
+      } as unknown as FeatureLike;
+
+      createClusteredRecreationFeatureStyle(mockFeature, 1);
+
+      expect(createLocationDotBlueIcon).toHaveBeenCalledWith({ opacity: 1 });
+    });
+
+    it('should return icon and label styles for feature with name', () => {
+      const mockSingleFeature = {
+        get: vi.fn((key: string) => {
+          if (key === 'selected') return false;
+          if (key === 'CLOSURE_IND') return 'N';
+          if (key === 'PROJECT_NAME') return 'test project';
+          return undefined;
+        }),
+      };
+
+      const mockFeature = {
+        get: vi.fn((key: string) => {
+          if (key === 'features') return [mockSingleFeature];
+          return undefined;
+        }),
+      } as unknown as FeatureLike;
+
+      const result = createClusteredRecreationFeatureStyle(mockFeature, 1);
+
+      expect(capitalizeWords).toHaveBeenCalledWith('test project');
+      expect(featureLabelText).toHaveBeenCalledWith('TEST PROJECT');
       expect(Array.isArray(result)).toBe(true);
-      expect(result.length).toBe(2);
-      expect(result[0]).toBeInstanceOf(Style);
-      expect(result[1]).toBeInstanceOf(Style);
+      expect((result as Style[]).length).toBe(2);
     });
   });
 
   describe('createRecreationFeatureSource', () => {
-    it('creates VectorSource with loader set', () => {
-      const source = createRecreationFeatureSource();
-      expect(source).toBeInstanceOf(VectorSource);
-    });
-  });
+    it('should create a VectorSource with EsriJSON format', () => {
+      const options = { projection: 'EPSG:4326' };
+      const result = createRecreationFeatureSource(options as any);
 
-  describe('createClusteredRecreationFeatureSource', () => {
-    it('creates Cluster source wrapping VectorSource', () => {
-      const source = createClusteredRecreationFeatureSource();
-      expect(source).toBeInstanceOf(Cluster);
-    });
-  });
-
-  describe('createClusteredRecreationFeatureLayer', () => {
-    it('creates AnimatedCluster layer with given source and style', () => {
-      const clusterSource = createClusteredRecreationFeatureSource();
-      const layer = createClusteredRecreationFeatureLayer(
-        clusterSource,
-        createClusteredRecreationFeatureStyle,
-      );
-      expect(layer).toBeDefined();
-    });
-  });
-
-  describe('createClusteredRecreationFeatureStyle', () => {
-    beforeEach(() => {
-      vi.restoreAllMocks();
-    });
-
-    it('returns cluster style for multiple features', () => {
-      const feature = new Feature();
-      feature.set('features', [new Feature(), new Feature()]);
-
-      const result = createClusteredRecreationFeatureStyle(feature, 1);
+      expect(VectorSource).toHaveBeenCalledWith({
+        format: expect.any(EsriJSON),
+        overlaps: false,
+        projection: 'EPSG:4326',
+      });
       expect(result).toBeDefined();
     });
 
-    it('returns orange icon style for selected feature', () => {
-      const feature = new Feature();
-      const singleFeature = new Feature();
-      singleFeature.set('selected', true);
-      feature.set('features', [singleFeature]);
+    it('should create a VectorSource without options', () => {
+      createRecreationFeatureSource();
 
-      const result = createClusteredRecreationFeatureStyle(feature, 1);
-      expect(result).toBeDefined();
-    });
-
-    it('returns red icon for closed, unselected feature', () => {
-      const feature = new Feature();
-      const singleFeature = new Feature();
-      singleFeature.set('selected', false);
-      singleFeature.set('CLOSURE_IND', 'Y');
-      singleFeature.set('PROJECT_NAME', 'Test Project');
-      feature.set('features', [singleFeature]);
-
-      const result = createClusteredRecreationFeatureStyle(
-        feature,
-        1,
-      ) as Style[];
-      expect(result).toHaveLength(2);
-    });
-
-    it('returns blue icon for open, unselected feature', () => {
-      const feature = new Feature();
-      const singleFeature = new Feature();
-      singleFeature.set('selected', false);
-      singleFeature.set('CLOSURE_IND', 'N');
-      singleFeature.set('PROJECT_NAME', 'Another Project');
-      feature.set('features', [singleFeature]);
-
-      const result = createClusteredRecreationFeatureStyle(
-        feature,
-        1,
-      ) as Style[];
-      expect(result).toHaveLength(2);
-    });
-
-    it('returns icon style without label if PROJECT_NAME is missing', () => {
-      const feature = new Feature();
-      const singleFeature = new Feature();
-      singleFeature.set('selected', false);
-      singleFeature.set('CLOSURE_IND', 'N');
-      feature.set('features', [singleFeature]);
-
-      const result = createClusteredRecreationFeatureStyle(feature, 1);
-      expect(result).toBeInstanceOf(Style);
+      expect(VectorSource).toHaveBeenCalledWith({
+        format: expect.any(EsriJSON),
+        overlaps: false,
+      });
     });
   });
-  describe('loadFeaturesForFilteredIds', () => {
-    it('fetches and processes features correctly', async () => {
-      const mockFeature = new Feature();
-      mockFeature.set('FOREST_FILE_ID', '123');
 
-      const mockFormat = {
-        readFeatures: vi.fn().mockReturnValue([mockFeature]),
+  describe('createFilteredClusterSource', () => {
+    it('should create a clustered source with filtered features', async () => {
+      const filteredIds = ['123', '456'];
+      const clusterOptions = { distance: 50 };
+
+      // Mock the addFeatures method
+      const mockAddFeatures = vi.fn();
+      const mockSetLoader = vi.fn();
+      let capturedLoader: (() => Promise<void>) | undefined;
+
+      // Mock VectorSource constructor to capture the loader
+      (VectorSource as any).mockImplementation((options: any) => {
+        return {
+          addFeatures: mockAddFeatures,
+          setLoader: mockSetLoader.mockImplementation((loader) => {
+            capturedLoader = loader;
+          }),
+          clear: vi.fn(),
+          ...options,
+        };
+      });
+
+      // Mock the fetch response for getFilteredFeatures
+      const mockResponse = {
+        features: [
+          { attributes: { FOREST_FILE_ID: '123', PROJECT_NAME: 'Test 1' } },
+          { attributes: { FOREST_FILE_ID: '456', PROJECT_NAME: 'Test 2' } },
+        ],
       };
 
-      vi.stubGlobal(
-        'fetch',
-        vi.fn().mockResolvedValue({
-          json: () =>
-            Promise.resolve({
-              features: [{}],
-            }),
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      });
+
+      const mockFeatures = [
+        {
+          get: vi.fn((key: string) =>
+            key === 'FOREST_FILE_ID' ? '123' : undefined,
+          ),
+          setId: vi.fn(),
+          set: vi.fn(),
+        },
+        {
+          get: vi.fn((key: string) =>
+            key === 'FOREST_FILE_ID' ? '456' : undefined,
+          ),
+          setId: vi.fn(),
+          set: vi.fn(),
+        },
+      ];
+
+      const mockFormat = {
+        readFeatures: vi.fn().mockReturnValue(mockFeatures),
+      };
+      (EsriJSON as any).mockImplementation(() => mockFormat);
+
+      const result = createFilteredClusterSource(filteredIds, clusterOptions);
+
+      expect(VectorSource).toHaveBeenCalledWith({
+        format: expect.any(Object),
+        overlaps: false,
+      });
+      expect(mockSetLoader).toHaveBeenCalledWith(expect.any(Function));
+      expect(ClusterSource).toHaveBeenCalledWith({
+        source: expect.any(Object),
+        distance: 50,
+      });
+      expect(result).toBeDefined();
+
+      // Test that the loader function works correctly
+      if (capturedLoader) {
+        await capturedLoader();
+        expect(mockAddFeatures).toHaveBeenCalledWith(mockFeatures);
+      }
+    });
+
+    it('should create a clustered source without cluster options', () => {
+      const filteredIds = ['123'];
+      const mockSetLoader = vi.fn();
+
+      (VectorSource as any).mockImplementation(() => ({
+        addFeatures: vi.fn(),
+        setLoader: mockSetLoader,
+        clear: vi.fn(),
+      }));
+
+      const result = createFilteredClusterSource(filteredIds);
+
+      expect(VectorSource).toHaveBeenCalledWith({
+        format: expect.any(Object),
+        overlaps: false,
+      });
+      expect(mockSetLoader).toHaveBeenCalledWith(expect.any(Function));
+      expect(ClusterSource).toHaveBeenCalledWith({
+        source: expect.any(Object),
+      });
+      expect(result).toBeDefined();
+    });
+
+    it('should handle loader errors gracefully', async () => {
+      const filteredIds = ['123'];
+      let capturedLoader: (() => Promise<void>) | undefined;
+      const mockAddFeatures = vi.fn();
+      const mockSetLoader = vi.fn();
+
+      (VectorSource as any).mockImplementation(() => ({
+        addFeatures: mockAddFeatures,
+        setLoader: mockSetLoader.mockImplementation((loader) => {
+          capturedLoader = loader;
         }),
+        clear: vi.fn(),
+      }));
+
+      // Mock fetch to throw an error
+      mockFetch.mockRejectedValueOnce(new Error('Network error'));
+
+      createFilteredClusterSource(filteredIds);
+
+      // Test that the loader handles errors
+      if (capturedLoader) {
+        await expect(capturedLoader()).rejects.toThrow('Network error');
+        expect(mockAddFeatures).not.toHaveBeenCalled();
+      }
+    });
+  });
+
+  describe('getFilteredFeatures', () => {
+    beforeEach(() => {
+      mockFetch.mockClear();
+    });
+
+    it('should fetch and filter features successfully', async () => {
+      const filteredIds = ['123', '456'];
+      const mockResponse = {
+        features: [
+          { attributes: { FOREST_FILE_ID: '123', PROJECT_NAME: 'Test 1' } },
+          { attributes: { FOREST_FILE_ID: '456', PROJECT_NAME: 'Test 2' } },
+          { attributes: { FOREST_FILE_ID: '789', PROJECT_NAME: 'Test 3' } },
+        ],
+      };
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      });
+
+      const mockFeatures = [
+        {
+          get: vi.fn((key: string) => {
+            if (key === 'FOREST_FILE_ID') return '123';
+            return undefined;
+          }),
+          setId: vi.fn(),
+          set: vi.fn(),
+        },
+        {
+          get: vi.fn((key: string) => {
+            if (key === 'FOREST_FILE_ID') return '456';
+            return undefined;
+          }),
+          setId: vi.fn(),
+          set: vi.fn(),
+        },
+        {
+          get: vi.fn((key: string) => {
+            if (key === 'FOREST_FILE_ID') return '789';
+            return undefined;
+          }),
+          setId: vi.fn(),
+          set: vi.fn(),
+        },
+      ];
+
+      const mockFormat = {
+        readFeatures: vi.fn().mockReturnValue(mockFeatures),
+      };
+      (EsriJSON as any).mockImplementation(() => mockFormat);
+
+      const result = await getFilteredFeatures(filteredIds);
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining('https://mock-api.com/recreation/query/?'),
+      );
+      expect(mockFormat.readFeatures).toHaveBeenCalledWith(mockResponse, {
+        featureProjection: 'EPSG:102100',
+        dataProjection: 'EPSG:102100',
+      });
+      expect(result).toHaveLength(2); // Only filtered features
+      expect(mockFeatures[0].setId).toHaveBeenCalledWith('123');
+      expect(mockFeatures[0].set).toHaveBeenCalledWith(
+        'type',
+        'recreation-resource',
+      );
+      expect(mockFeatures[1].setId).toHaveBeenCalledWith('456');
+      expect(mockFeatures[1].set).toHaveBeenCalledWith(
+        'type',
+        'recreation-resource',
+      );
+    });
+
+    it('should handle pagination with multiple batches', async () => {
+      const filteredIds = ['123'];
+
+      // Mock first batch response (full batch)
+      const mockResponse1 = {
+        features: new Array(1000).fill(null).map((_, i) => ({
+          attributes: { FOREST_FILE_ID: `${i}`, PROJECT_NAME: `Test ${i}` },
+        })),
+      };
+
+      // Mock second batch response (partial batch)
+      const mockResponse2 = {
+        features: [
+          { attributes: { FOREST_FILE_ID: '123', PROJECT_NAME: 'Test Match' } },
+        ],
+      };
+
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(mockResponse1),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: () => Promise.resolve(mockResponse2),
+        });
+
+      const mockFeatures1 = new Array(1000).fill(null).map((_, i) => ({
+        get: vi.fn((key: string) => {
+          if (key === 'FOREST_FILE_ID') return `${i}`;
+          return undefined;
+        }),
+        setId: vi.fn(),
+        set: vi.fn(),
+      }));
+
+      const mockFeatures2 = [
+        {
+          get: vi.fn((key: string) => {
+            if (key === 'FOREST_FILE_ID') return '123';
+            return undefined;
+          }),
+          setId: vi.fn(),
+          set: vi.fn(),
+        },
+      ];
+
+      const mockFormat = {
+        readFeatures: vi
+          .fn()
+          .mockReturnValueOnce(mockFeatures1)
+          .mockReturnValueOnce(mockFeatures2),
+      };
+      (EsriJSON as any).mockImplementation(() => mockFormat);
+
+      const result = await getFilteredFeatures(filteredIds);
+
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+      expect(result).toHaveLength(2); // Only the matching feature from second batch
+    });
+
+    it('should throw error on failed HTTP request', async () => {
+      const filteredIds = ['123'];
+
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+      });
+
+      await expect(getFilteredFeatures(filteredIds)).rejects.toThrow(
+        'HTTP error! status: 500',
+      );
+    });
+
+    it('should handle network errors', async () => {
+      const filteredIds = ['123'];
+
+      mockFetch.mockRejectedValueOnce(new Error('Network error'));
+
+      await expect(getFilteredFeatures(filteredIds)).rejects.toThrow(
+        'Network error',
+      );
+    });
+
+    it('should handle empty filtered IDs', async () => {
+      const filteredIds: string[] = [];
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ features: [] }),
+      });
+
+      const mockFormat = {
+        readFeatures: vi.fn().mockReturnValue([]),
+      };
+      (EsriJSON as any).mockImplementation(() => mockFormat);
+
+      const result = await getFilteredFeatures(filteredIds);
+
+      expect(result).toHaveLength(0);
+    });
+
+    it('should build correct URL parameters', async () => {
+      const filteredIds = ['123'];
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve({ features: [] }),
+      });
+
+      const mockFormat = {
+        readFeatures: vi.fn().mockReturnValue([]),
+      };
+      (EsriJSON as any).mockImplementation(() => mockFormat);
+
+      await getFilteredFeatures(filteredIds);
+
+      const expectedParams = [
+        'f=json',
+        'where=1%3D1',
+        'outFields=PROJECT_NAME%2CPROJECT_TYPE%2CCLOSURE_IND%2CFOREST_FILE_ID',
+        'resultRecordCount=1000',
+        'resultOffset=0',
+        'orderByFields=PROJECT_NAME',
+        'inSR=102100',
+        'outSR=102100',
+        'returnGeometry=true',
+        'geometryPrecision=7',
+        'outStatistics=%5B%5D',
+        'returnCountOnly=false',
+      ];
+
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining('https://mock-api.com/recreation/query/?'),
       );
 
-      const EsriJSONModule = await import('ol/format/EsriJSON');
-      vi.spyOn(EsriJSONModule, 'default').mockImplementation(
-        () => mockFormat as any,
-      );
-
-      const source = new VectorSource();
-      const projection = 'EPSG:3857';
-
-      await loadFeaturesForFilteredIds(['123'], source, projection);
-
-      expect(fetch).toHaveBeenCalled();
-      expect(mockFormat.readFeatures).toHaveBeenCalled();
-      expect(source.getFeatures()).toHaveLength(1);
-      expect(source.getFeatures()[0].get('type')).toBe('recreation-resource');
+      const callUrl = (mockFetch as any).mock.calls[0][0];
+      expectedParams.forEach((param) => {
+        expect(callUrl).toContain(param);
+      });
     });
   });
 });

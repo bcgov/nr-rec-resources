@@ -28,6 +28,7 @@
     }
   },
   "include": [
+    "playwright.config.ts",
     "**/*.d.ts",
     "**/*.spec.ts",
     "**/*.test.ts",

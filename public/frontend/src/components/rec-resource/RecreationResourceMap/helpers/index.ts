@@ -1,3 +1,6 @@
 export { getLayerStyleForRecResource } from './getLayerStyleForRecResource';
-export { getMapFeaturesFromRecResource } from './getMapFeaturesFromRecResource';
+export {
+  getMapFeaturesFromRecResource,
+  getSitePointFeatureFromRecResource,
+} from './getMapFeaturesFromRecResource';
 export * from './mapDownloadHandlers';

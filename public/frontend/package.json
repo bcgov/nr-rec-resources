@@ -21,7 +21,7 @@
   "dependencies": {
     "@bcgov/bc-sans": "^2.1.0",
     "@bcgov/design-system-react-components": "^0.5.1",
-    "@bcgov/prp-map": "^0.0.11",
+    "@bcgov/prp-map": "^0.0.18",
     "@digitalspace/bcparks-bootstrap-theme": "^1.4.6",
     "@fortawesome/fontawesome-free": "^7.0.0",
     "@fortawesome/fontawesome-svg-core": "^7.0.0",
@@ -33,7 +33,7 @@
     "@tanstack/react-store": "^0.7.0",
     "axios": "^1.8.2",
     "bootstrap": "^5.3.3",
-    "dotenv": "^17.0.0",
+    "dotenv": "^17.2.1",
     "html-react-parser": "^5.2.2",
     "js-cookie": "^3.0.5",
     "ol": "^10.4.0",

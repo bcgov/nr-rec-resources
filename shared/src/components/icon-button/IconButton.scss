@@ -1,0 +1,16 @@
+.custom-btn {
+  &__stack {
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__content {
+    flex-grow: 0;
+    flex-shrink: 1;
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    align-items: center;
+  }
+}

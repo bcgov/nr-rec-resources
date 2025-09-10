@@ -52,7 +52,11 @@ describe('MapsAndLocation', () => {
     expect(RecreationResourceMap).toHaveBeenCalledWith(
       expect.objectContaining({
         recResource: mockRecResource,
-        mapComponentCssStyles: { position: 'relative', height: '40vh' },
+        mapComponentCssStyles: {
+          position: 'relative',
+          height: '40vh',
+          minHeight: '500px',
+        },
       }),
       undefined,
     );

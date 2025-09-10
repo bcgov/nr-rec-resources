@@ -37,6 +37,7 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
               mapComponentCssStyles={{
                 position: 'relative',
                 height: '40vh',
+                minHeight: '500px',
               }}
             />
           )}

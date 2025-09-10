@@ -3,20 +3,64 @@ import { Fill, Stroke } from 'ol/style';
 export const FILL_COLOR = '#42814A66';
 export const TEXT_STROKE_COLOR = '#000';
 
+/**
+ * Enum defining different contexts for layer styling
+ */
+export enum StyleContext {
+  /** Style for interactive map display - green lines, orange icons, transparent text background */
+  MAP_DISPLAY = 'MAP_DISPLAY',
+  /** Style for downloadable/printable maps - pink lines, trail icons, black text background */
+  DOWNLOAD = 'DOWNLOAD',
+}
+
+export const ICON_SCALE = {
+  [StyleContext.MAP_DISPLAY]: 0.6,
+  [StyleContext.DOWNLOAD]: 0.3,
+};
+
 export const TEXT_STYLE = {
-  backgroundFill: new Fill({ color: '#000' }),
-  fill: new Fill({ color: '#FFF' }),
-  stroke: new Stroke({
-    color: TEXT_STROKE_COLOR,
-  }),
+  [StyleContext.MAP_DISPLAY]: {
+    backgroundFill: new Fill({ color: 'rgba(255, 255, 255, 0)' }), // transparent
+    fill: new Fill({ color: '#000' }),
+    stroke: new Stroke({
+      color: TEXT_STROKE_COLOR,
+    }),
+  },
+  [StyleContext.DOWNLOAD]: {
+    backgroundFill: new Fill({ color: '#000' }),
+    fill: new Fill({ color: '#FFF' }),
+    stroke: new Stroke({
+      color: TEXT_STROKE_COLOR,
+    }),
+  },
 };
 
 export const MAP_STYLES = {
   STROKE: {
-    POLYGON_COLOR: '#42814A',
-    TRAIL_COLOR: '#FF00FF',
-    WIDTH: 3,
-    LINE_DASH: [6, 6],
+    [StyleContext.MAP_DISPLAY]: {
+      line: {
+        COLOR: '#42814A',
+        WIDTH: 3,
+        LINE_DASH: [6, 6],
+      },
+      polygon: {
+        COLOR: '#42814A',
+        WIDTH: 3,
+        LINE_DASH: [],
+      },
+    },
+    [StyleContext.DOWNLOAD]: {
+      line: {
+        COLOR: '#FF00FF',
+        WIDTH: 3,
+        LINE_DASH: [6, 6],
+      },
+      polygon: {
+        COLOR: '#FF00FF',
+        WIDTH: 3,
+        LINE_DASH: [6, 6],
+      },
+    },
   },
   FILL: {
     COLOR: FILL_COLOR,

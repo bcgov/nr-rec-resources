@@ -3,19 +3,20 @@ import { Stack } from 'react-bootstrap';
 import RecreationSuggestionForm from '@/components/recreation-suggestion-form/RecreationSuggestionForm';
 import { faLocationPin } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { INTERNAL_LINKS } from '@/data/urls';
 import '@/components/search/Search.scss';
 import './RecreationSearchBanner.scss';
+import { Link } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/routes';
 
 const MapLink = ({ className = '' }) => (
-  <a
-    href={INTERNAL_LINKS.SEARCH_MAP}
+  <Link
+    to={{ pathname: ROUTE_PATHS.SEARCH, search: 'view=map' }}
     className={`search-by-map-link ${className}`}
     aria-label="Search by map"
   >
     <FontAwesomeIcon icon={faLocationPin} className="me-2" aria-hidden="true" />
     Search by map
-  </a>
+  </Link>
 );
 
 export const RecreationSearchBanner: FC = () => {

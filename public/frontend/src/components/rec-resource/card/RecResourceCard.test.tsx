@@ -1,5 +1,6 @@
 import { describe, expect, it, Mock, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
 import RecResourceCard from './RecResourceCard';
 import '@testing-library/jest-dom';
 import { getImageList } from '@/components/rec-resource/card/helpers';
@@ -26,6 +27,11 @@ vi.mock('@/components/rec-resource/card/helpers', () => ({
   getImageList: vi.fn(),
 }));
 
+// Helper function to render component with router
+const renderWithRouter = (ui: React.ReactElement) => {
+  return render(<BrowserRouter>{ui}</BrowserRouter>);
+};
+
 describe('RecResourceCard', () => {
   const mockRecreationResource = {
     rec_resource_id: '123',
@@ -46,7 +52,9 @@ describe('RecResourceCard', () => {
   it('renders the card with all components and images', () => {
     (getImageList as Mock).mockReturnValue(['image1.jpg']);
 
-    render(<RecResourceCard recreationResource={mockRecreationResource} />);
+    renderWithRouter(
+      <RecResourceCard recreationResource={mockRecreationResource} />,
+    );
 
     // Check if the name is rendered and transformed to lowercase
     expect(screen.getByText('test resource')).toBeInTheDocument();
@@ -69,7 +77,9 @@ describe('RecResourceCard', () => {
   it('renders the SVG logo when no images are available', () => {
     (getImageList as Mock).mockReturnValue([]);
 
-    render(<RecResourceCard recreationResource={mockRecreationResource} />);
+    renderWithRouter(
+      <RecResourceCard recreationResource={mockRecreationResource} />,
+    );
 
     // SVG logo should be rendered
     expect(screen.getByTestId('rst-svg-logo')).toBeInTheDocument();
@@ -88,7 +98,9 @@ describe('RecResourceCard', () => {
       recreation_activity: [],
     } as unknown as RecreationResourceSearchModel;
 
-    render(<RecResourceCard recreationResource={noActivitiesResource} />);
+    renderWithRouter(
+      <RecResourceCard recreationResource={noActivitiesResource} />,
+    );
 
     // Activities component should not be rendered
     expect(
@@ -104,7 +116,7 @@ describe('RecResourceCard', () => {
       rec_resource_type: null,
     } as unknown as RecreationResourceSearchModel;
 
-    render(<RecResourceCard recreationResource={noTypeResource} />);
+    renderWithRouter(<RecResourceCard recreationResource={noTypeResource} />);
 
     // Resource type should not be rendered
     expect(screen.queryByText('Park')).not.toBeInTheDocument();
@@ -116,7 +128,9 @@ describe('RecResourceCard', () => {
   it('renders with correct URL in anchor tag', () => {
     (getImageList as Mock).mockReturnValue(['image1.jpg']);
 
-    render(<RecResourceCard recreationResource={mockRecreationResource} />);
+    renderWithRouter(
+      <RecResourceCard recreationResource={mockRecreationResource} />,
+    );
 
     // Check if the link has the correct href
     const link = screen.getByRole('link');
@@ -134,7 +148,9 @@ describe('RecResourceCard', () => {
       })),
     } as unknown as RecreationResourceSearchModel;
 
-    render(<RecResourceCard recreationResource={resourceWithManyActivities} />);
+    renderWithRouter(
+      <RecResourceCard recreationResource={resourceWithManyActivities} />,
+    );
 
     expect(screen.getByRole('link', { name: 'see all' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'see all' })).toHaveAttribute(
@@ -154,7 +170,9 @@ describe('RecResourceCard', () => {
       })),
     } as unknown as RecreationResourceSearchModel;
 
-    render(<RecResourceCard recreationResource={resourceWithFewActivities} />);
+    renderWithRouter(
+      <RecResourceCard recreationResource={resourceWithFewActivities} />,
+    );
 
     expect(screen.queryByText('see all')).not.toBeInTheDocument();
   });

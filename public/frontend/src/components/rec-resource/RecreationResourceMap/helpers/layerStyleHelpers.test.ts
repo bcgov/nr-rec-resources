@@ -3,6 +3,7 @@ import { Fill, Icon, Stroke, Text } from 'ol/style';
 import {
   MAP_ICONS,
   MAP_STYLES,
+  StyleContext,
   TEXT_STYLE,
 } from '@/components/rec-resource/RecreationResourceMap/constants';
 import { RecreationResourceDetailModel } from '@/service/custom-models';
@@ -28,7 +29,26 @@ describe('Map Style Functions', () => {
   } as unknown as RecreationResourceDetailModel;
 
   describe('createImageStyle', () => {
-    it('returns Icon when isPoint is true', () => {
+    it('returns Icon with scale 0.5 when isPoint is true and isForMapDisplay is true', () => {
+      (
+        recreationResourceUtils.isRecreationTrail as ReturnType<any>
+      ).mockReturnValue(false);
+      (
+        recreationResourceUtils.isRecreationSite as ReturnType<any>
+      ).mockReturnValue(false);
+      (
+        recreationResourceUtils.isInterpretiveForest as ReturnType<any>
+      ).mockReturnValue(false);
+      createImageStyle(true, mockRecResource, StyleContext.DOWNLOAD);
+      expect(Icon).toHaveBeenCalled();
+      expect(Icon).toHaveBeenCalledWith(
+        expect.objectContaining({
+          scale: 0.3,
+        }),
+      );
+    });
+
+    it('returns Icon with scale 0.3 when isPoint is true and isForMapDisplay is false (default)', () => {
       (
         recreationResourceUtils.isRecreationTrail as ReturnType<any>
       ).mockReturnValue(false);
@@ -47,6 +67,25 @@ describe('Map Style Functions', () => {
       );
     });
 
+    it('returns Icon with scale 0.3 when isPoint is true and isForMapDisplay is false (explicit)', () => {
+      (
+        recreationResourceUtils.isRecreationTrail as ReturnType<any>
+      ).mockReturnValue(false);
+      (
+        recreationResourceUtils.isRecreationSite as ReturnType<any>
+      ).mockReturnValue(false);
+      (
+        recreationResourceUtils.isInterpretiveForest as ReturnType<any>
+      ).mockReturnValue(false);
+      createImageStyle(true, mockRecResource, StyleContext.DOWNLOAD);
+      expect(Icon).toHaveBeenCalled();
+      expect(Icon).toHaveBeenCalledWith(
+        expect.objectContaining({
+          scale: 0.3,
+        }),
+      );
+    });
+
     it('returns undefined when isPoint is false', () => {
       const style = createImageStyle(false, mockRecResource);
       expect(style).toBeUndefined();
@@ -54,21 +93,30 @@ describe('Map Style Functions', () => {
   });
 
   describe('createStrokeStyle', () => {
-    it('creates Stroke with lineDash for line type', () => {
-      createStrokeStyle(true);
+    it('creates Stroke with MAP_TRAIL_COLOR for line type when isForMapDisplay is true', () => {
+      createStrokeStyle(true, StyleContext.DOWNLOAD);
       expect(Stroke).toHaveBeenCalledWith({
-        color: MAP_STYLES.STROKE.TRAIL_COLOR,
-        width: MAP_STYLES.STROKE.WIDTH,
-        lineDash: MAP_STYLES.STROKE.LINE_DASH,
+        color: MAP_STYLES.STROKE.DOWNLOAD.line.COLOR,
+        width: MAP_STYLES.STROKE.DOWNLOAD.line.WIDTH,
+        lineDash: MAP_STYLES.STROKE.DOWNLOAD.line.LINE_DASH,
       });
     });
 
-    it('creates Stroke without lineDash for non-line type', () => {
-      createStrokeStyle(false);
+    it('creates Stroke with KML_TRAIL_COLOR for line type when isForMapDisplay is false (default)', () => {
+      createStrokeStyle(true);
       expect(Stroke).toHaveBeenCalledWith({
-        color: MAP_STYLES.STROKE.POLYGON_COLOR,
-        width: MAP_STYLES.STROKE.WIDTH,
-        lineDash: [],
+        color: MAP_STYLES.STROKE.DOWNLOAD.line.COLOR,
+        width: MAP_STYLES.STROKE.DOWNLOAD.line.WIDTH,
+        lineDash: MAP_STYLES.STROKE.DOWNLOAD.line.LINE_DASH,
+      });
+    });
+
+    it('creates Stroke with KML_TRAIL_COLOR for line type when isForMapDisplay is false (explicit)', () => {
+      createStrokeStyle(true, StyleContext.DOWNLOAD);
+      expect(Stroke).toHaveBeenCalledWith({
+        color: MAP_STYLES.STROKE.DOWNLOAD.line.COLOR,
+        width: MAP_STYLES.STROKE.DOWNLOAD.line.WIDTH,
+        lineDash: MAP_STYLES.STROKE.DOWNLOAD.line.LINE_DASH,
       });
     });
   });
@@ -86,14 +134,14 @@ describe('Map Style Functions', () => {
   });
 
   describe('createTextStyle', () => {
-    it('creates Text style for line type', () => {
-      createTextStyle('Test Label', true, false);
+    it('creates Text style for line type with default download styles (isForMapDisplay = false)', () => {
+      createTextStyle('Test Label', true, false, StyleContext.DOWNLOAD);
       expect(Text).toHaveBeenCalledWith({
         text: 'Test Label',
         placement: 'line',
-        fill: TEXT_STYLE.fill,
-        backgroundFill: TEXT_STYLE.backgroundFill,
-        stroke: TEXT_STYLE.stroke,
+        fill: TEXT_STYLE.DOWNLOAD.fill,
+        backgroundFill: TEXT_STYLE.DOWNLOAD.backgroundFill,
+        stroke: TEXT_STYLE.DOWNLOAD.stroke,
         textBaseline: 'middle',
         offsetY: 0,
         textAlign: 'center',
@@ -105,14 +153,33 @@ describe('Map Style Functions', () => {
       });
     });
 
-    it('creates Text style for point type', () => {
+    it('creates Text style for line type with map display styles (isForMapDisplay = true)', () => {
+      createTextStyle('Test Label', true, false, StyleContext.DOWNLOAD);
+      expect(Text).toHaveBeenCalledWith({
+        text: 'Test Label',
+        placement: 'line',
+        fill: TEXT_STYLE.DOWNLOAD.fill,
+        backgroundFill: TEXT_STYLE.DOWNLOAD.backgroundFill,
+        stroke: TEXT_STYLE.DOWNLOAD.stroke,
+        textBaseline: 'middle',
+        offsetY: 0,
+        textAlign: 'center',
+        repeat: 300,
+        padding: [2, 5, 2, 5],
+        rotateWithView: true,
+        declutterMode: 'declutter',
+        scale: 1.3,
+      });
+    });
+
+    it('creates Text style for point type with default download styles', () => {
       createTextStyle('Test Label', false, true);
       expect(Text).toHaveBeenCalledWith({
         text: 'Test Label',
         placement: 'point',
-        fill: TEXT_STYLE.fill,
-        backgroundFill: TEXT_STYLE.backgroundFill,
-        stroke: TEXT_STYLE.stroke,
+        fill: TEXT_STYLE.DOWNLOAD.fill,
+        backgroundFill: TEXT_STYLE.DOWNLOAD.backgroundFill,
+        stroke: TEXT_STYLE.DOWNLOAD.stroke,
         textBaseline: 'bottom',
         offsetY: -25,
         textAlign: 'center',
@@ -124,14 +191,14 @@ describe('Map Style Functions', () => {
       });
     });
 
-    it('creates Text style for point type for trail', () => {
-      createTextStyle('Test Label', false, true);
+    it('creates Text style for point type with map display styles', () => {
+      createTextStyle('Test Label', false, true, StyleContext.DOWNLOAD);
       expect(Text).toHaveBeenCalledWith({
         text: 'Test Label',
         placement: 'point',
-        fill: TEXT_STYLE.fill,
-        backgroundFill: TEXT_STYLE.backgroundFill,
-        stroke: TEXT_STYLE.stroke,
+        fill: TEXT_STYLE.DOWNLOAD.fill,
+        backgroundFill: TEXT_STYLE.DOWNLOAD.backgroundFill,
+        stroke: TEXT_STYLE.DOWNLOAD.stroke,
         textBaseline: 'bottom',
         offsetY: -25,
         textAlign: 'center',
@@ -145,7 +212,15 @@ describe('Map Style Functions', () => {
   });
 
   describe('getRecResourceIcon', () => {
-    it('returns RECREATION_TRAIL_HEAD icon for recreation trail', () => {
+    it('returns locationDotOrange for map display when isForMapDisplay is true', () => {
+      const icon = getRecResourceIcon(
+        mockRecResource,
+        StyleContext.MAP_DISPLAY,
+      );
+      expect(icon).toBe('/src/assets/location-dot-orange.png');
+    });
+
+    it('returns RECREATION_TRAIL_HEAD icon for recreation trail when isForMapDisplay is false', () => {
       (
         recreationResourceUtils.isRecreationTrail as ReturnType<any>
       ).mockReturnValue(true);
@@ -155,11 +230,11 @@ describe('Map Style Functions', () => {
       (
         recreationResourceUtils.isInterpretiveForest as ReturnType<any>
       ).mockReturnValue(false);
-      const icon = getRecResourceIcon(mockRecResource);
+      const icon = getRecResourceIcon(mockRecResource, StyleContext.DOWNLOAD);
       expect(icon).toBe(MAP_ICONS.RECREATION_TRAIL_HEAD);
     });
 
-    it('returns RECREATION_SITE icon for recreation site', () => {
+    it('returns RECREATION_SITE icon for recreation site when isForMapDisplay is false', () => {
       (
         recreationResourceUtils.isRecreationTrail as ReturnType<any>
       ).mockReturnValue(false);
@@ -169,11 +244,11 @@ describe('Map Style Functions', () => {
       (
         recreationResourceUtils.isInterpretiveForest as ReturnType<any>
       ).mockReturnValue(false);
-      const icon = getRecResourceIcon(mockRecResource);
+      const icon = getRecResourceIcon(mockRecResource, StyleContext.DOWNLOAD);
       expect(icon).toBe(MAP_ICONS.LOCATION_PIN);
     });
 
-    it('returns INTERPRETIVE_FOREST icon for interpretive forest', () => {
+    it('returns INTERPRETIVE_FOREST icon for interpretive forest when isForMapDisplay is false', () => {
       (
         recreationResourceUtils.isRecreationTrail as ReturnType<any>
       ).mockReturnValue(false);
@@ -183,11 +258,11 @@ describe('Map Style Functions', () => {
       (
         recreationResourceUtils.isInterpretiveForest as ReturnType<any>
       ).mockReturnValue(true);
-      const icon = getRecResourceIcon(mockRecResource);
+      const icon = getRecResourceIcon(mockRecResource, StyleContext.DOWNLOAD);
       expect(icon).toBe(MAP_ICONS.LOCATION_PIN);
     });
 
-    it('returns LOCATION_DOT_BLUE icon for unknown type', () => {
+    it('returns LOCATION_PIN icon for unknown type when isForMapDisplay is false', () => {
       (
         recreationResourceUtils.isRecreationTrail as ReturnType<any>
       ).mockReturnValue(false);
@@ -197,7 +272,21 @@ describe('Map Style Functions', () => {
       (
         recreationResourceUtils.isInterpretiveForest as ReturnType<any>
       ).mockReturnValue(false);
-      const icon = getRecResourceIcon(mockRecResource);
+      const icon = getRecResourceIcon(mockRecResource, StyleContext.DOWNLOAD);
+      expect(icon).toBe(MAP_ICONS.LOCATION_PIN);
+    });
+
+    it('returns LOCATION_PIN icon for unknown type when isForMapDisplay is not provided (default false)', () => {
+      (
+        recreationResourceUtils.isRecreationTrail as ReturnType<any>
+      ).mockReturnValue(false);
+      (
+        recreationResourceUtils.isRecreationSite as ReturnType<any>
+      ).mockReturnValue(false);
+      (
+        recreationResourceUtils.isInterpretiveForest as ReturnType<any>
+      ).mockReturnValue(false);
+      const icon = getRecResourceIcon(mockRecResource, StyleContext.DOWNLOAD);
       expect(icon).toBe(MAP_ICONS.LOCATION_PIN);
     });
   });

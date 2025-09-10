@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { Button, Stack } from 'react-bootstrap';
 import './LandingPage.scss';
 import { trackClickEvent } from '@/utils/matomo';
-import { EXTERNAL_LINKS, INTERNAL_LINKS } from '@/data/urls';
+import { EXTERNAL_LINKS } from '@/data/urls';
 import {
   ContentSection,
   InfoBanner,
@@ -13,10 +13,11 @@ import {
   LANDING_PAGE_IMAGE_BASE_PATHS,
   SECTION_HEADING_LEVEL,
 } from '@/components/landing-page/constants';
+import { Link } from 'react-router-dom';
+import { ROUTE_PATHS } from '@/routes';
 
 const LearnMoreLink: FC = () => (
   <Button
-    variant="primary"
     href={EXTERNAL_LINKS.RST_GOV_BC_INFO}
     rel="noopener noreferrer"
     onClick={trackClickEvent({
@@ -31,7 +32,6 @@ const LearnMoreLink: FC = () => (
 
 const FeedbackButton: FC = () => (
   <Button
-    variant="primary"
     href={EXTERNAL_LINKS.FEEDBACK_FORM}
     rel="noopener noreferrer"
     aria-label="Share your feedback (opens in a new tab)"
@@ -41,9 +41,9 @@ const FeedbackButton: FC = () => (
 );
 
 const SearchMapButton: FC = () => (
-  <Button
-    variant="primary"
-    href={INTERNAL_LINKS.SEARCH_MAP}
+  <Link
+    to={{ pathname: ROUTE_PATHS.SEARCH, search: 'view=map' }}
+    className="btn btn-primary text-white"
     onClick={trackClickEvent({
       category: 'Internal link',
       name: 'Search map',
@@ -51,7 +51,7 @@ const SearchMapButton: FC = () => (
     aria-label="Open the interactive map"
   >
     View interactive map
-  </Button>
+  </Link>
 );
 
 export const LandingPage: FC = () => {

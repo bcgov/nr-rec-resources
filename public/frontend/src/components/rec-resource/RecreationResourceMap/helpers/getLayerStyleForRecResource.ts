@@ -7,6 +7,7 @@ import {
   isPointGeometry,
   isPolygonOrMultiPolygonGeometry,
 } from '@/utils/map';
+import { StyleContext } from '@/components/rec-resource/RecreationResourceMap/constants';
 import {
   createFillStyle,
   createImageStyle,
@@ -18,10 +19,12 @@ import {
  * Generates a style function for recreation resource features on a map layer.
  *
  * @param recResource - Optional recreation resource detail model
+ * @param styleContext - The styling context (MAP_DISPLAY, DOWNLOAD, SELECTED, PREVIEW)
  * @returns StyleFunction for OpenLayers features
  */
 export const getLayerStyleForRecResource = (
   recResource: RecreationResourceDetailModel,
+  styleContext = StyleContext.DOWNLOAD,
 ): StyleFunction => {
   const label = recResource?.name ?? '';
   const hasSitePoint = Boolean(recResource?.site_point_geometry);
@@ -36,11 +39,11 @@ export const getLayerStyleForRecResource = (
     const showText = isPolygonOrMultiPolygon ? !hasSitePoint : true;
 
     return new Style({
-      image: createImageStyle(isPoint, recResource),
-      stroke: createStrokeStyle(isLineOrMultiLineString),
+      image: createImageStyle(isPoint, recResource, styleContext),
+      stroke: createStrokeStyle(isLineOrMultiLineString, styleContext),
       fill: createFillStyle(isPolygonOrMultiPolygon),
       text: showText
-        ? createTextStyle(label, isLineOrMultiLineString, isPoint)
+        ? createTextStyle(label, isLineOrMultiLineString, isPoint, styleContext)
         : undefined,
     });
   };

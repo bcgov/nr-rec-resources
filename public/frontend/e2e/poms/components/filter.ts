@@ -195,4 +195,40 @@ export class FilterPOM {
       }
     });
   }
+
+  async openMobileFilterMenu() {
+    const mobileFilterButton = this.page.getByRole('button', {
+      name: FilterEnum.MOBILE_FILTER_LABEL,
+    });
+    await mobileFilterButton.click();
+    await expect(this.page.locator('.modal-dialog')).toBeVisible();
+  }
+
+  async closeMobileFilterMenu() {
+    const closeButton = this.page.getByRole('button', {
+      name: /result/,
+    });
+    await closeButton.click();
+    await expect(this.page.locator('.modal-dialog')).toBeHidden();
+  }
+
+  async toggleMobileFilterGroup(filterGroup: FilterGroup) {
+    await this.page
+      .getByRole('button', { name: new RegExp(`^${filterGroup}`) })
+      .click();
+  }
+
+  async toggleMobileFilterOn(filterPrefix: string) {
+    const modal = this.page.locator('.filter-modal-content');
+    await modal.waitFor({ state: 'visible' });
+
+    const label = modal.locator(`label:has-text("${filterPrefix}")`);
+    await label.scrollIntoViewIfNeeded();
+    await label.click();
+
+    const checkboxId = await label.getAttribute('for');
+    const checkbox = modal.locator(`#${checkboxId}`);
+
+    await expect(checkbox).toBeChecked();
+  }
 }

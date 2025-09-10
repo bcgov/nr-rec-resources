@@ -2,7 +2,7 @@
 
 import { expect, Locator, Page } from '@playwright/test';
 import { BASE_URL } from 'e2e/constants';
-import { waitForImagesToLoad } from 'e2e/utils';
+import { waitForImagesToLoad } from '@shared/e2e/utils';
 
 export class ContactPOM {
   readonly page: Page;
@@ -164,5 +164,40 @@ export class ContactPOM {
       this.page.locator('a[href="#popular-inquiries"]'),
     ).toBeVisible();
     await expect(this.page.locator('a[href="#contact-us"]')).toBeVisible();
+  }
+
+  async verifyPopularTopicLinks() {
+    const expectedLinks = [
+      {
+        text: 'Reservations, fees, and discounts',
+        url: 'https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/planning/fees',
+      },
+      {
+        text: 'Rules and etiquette',
+        url: 'https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/planning/rules',
+      },
+      {
+        text: 'Campfires',
+        url: 'https://www2.gov.bc.ca/gov/content/safety/wildfire-status/prevention/fire-bans-and-restrictions',
+      },
+      {
+        text: 'Planning your trip',
+        url: 'https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/planning',
+      },
+    ];
+
+    const popularSection = this.popularInquiriesSection;
+
+    for (const link of expectedLinks) {
+      const linkElement = popularSection.getByRole('link', { name: link.text });
+      await expect(linkElement).toBeVisible();
+
+      const href = await linkElement.getAttribute('href');
+      if (href !== link.url) {
+        throw new Error(
+          `Expected link "${link.text}" to have href "${link.url}" but got "${href}"`,
+        );
+      }
+    }
   }
 }

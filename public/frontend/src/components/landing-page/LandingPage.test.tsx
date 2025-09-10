@@ -19,6 +19,11 @@ vi.mock('@/components/landing-page/components/content-section', () => ({
   ),
 }));
 
+vi.mock('react-router-dom', async (importActual) => ({
+  ...(await importActual()),
+  Link: vi.fn(() => <div data-testid="mock-link" />),
+}));
+
 describe('LandingPage', () => {
   it('renders main components', () => {
     render(<LandingPage />);
