@@ -29,7 +29,6 @@
       "@prisma-generated-sql": ["src/prisma-generated-sql"],
       "@": ["src"],
       "@/*": ["src/*"],
-      "@shared": ["../../shared/src"],
       "@shared/*": ["../../shared/src/*"]
     }
   }

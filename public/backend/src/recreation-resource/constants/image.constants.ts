@@ -1,23 +1,10 @@
+import { RecreationResourceImageSize } from '../dto/recreation-resource-image.dto';
+
 /**
- * Array of valid image size codes for recreation resource images
+ * Array of valid image size codes derived from {@link RecreationResourceImageSize} enum
  * @description Contains all possible image size values that can be used for filtering
  * recreation resource images
  */
-export const VALID_IMAGE_SIZES_CODES = [
-  'original',
-  'col',
-  'con',
-  'pcs',
-  'hpr',
-  'ili',
-  'lan',
-  'llc',
-  'lpr',
-  'gal',
-  'ppp',
-  'pre',
-  'rsr',
-  'rth',
-  'scr',
-  'thm',
-] as const;
+export const VALID_IMAGE_SIZES_CODES = Object.values(
+  RecreationResourceImageSize,
+);

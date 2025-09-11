@@ -1,4 +1,3 @@
-import 'tsconfig-paths/register';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { bootstrap } from './app';
 import { Logger } from '@nestjs/common';
