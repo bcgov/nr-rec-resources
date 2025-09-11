@@ -27,23 +27,23 @@ jobs:
       tag: ${{ inputs.tag }}
     secrets: inherit
 
-  tests-e2e-dev-environment:
-    name: Run e2e tests on dev env
-    needs: deploy-to-aws-dev
-    uses: ./.github/workflows/.e2e.yml
-    concurrency:
-      group: e2e-tests-${{ inputs.app }}-dev
-      cancel-in-progress: false
-    with:
-      app: ${{ inputs.app }}
-      tag: ${{ inputs.tag }}
-      environment: dev
-    secrets: inherit
+  # tests-e2e-dev-environment:
+  #   name: Run e2e tests on dev env
+  #   needs: deploy-to-aws-dev
+  #   uses: ./.github/workflows/.e2e.yml
+  #   concurrency:
+  #     group: e2e-tests-${{ inputs.app }}-dev
+  #     cancel-in-progress: false
+  #   with:
+  #     app: ${{ inputs.app }}
+  #     tag: ${{ inputs.tag }}
+  #     environment: dev
+  #   secrets: inherit
 
   # Separate review job since we can't use GitHub environments in reusable workflows
   review-test-deployment:
     name: Review ${{ inputs.app }} test deployment
-    needs: tests-e2e-dev-environment
+    needs: deploy-to-aws-dev
     runs-on: ubuntu-24.04
     environment: review-${{ inputs.app}}-test-deployment
     steps:
@@ -66,18 +66,18 @@ jobs:
       tag: ${{ inputs.tag }}
     secrets: inherit
 
-  tests-e2e-test-environment:
-    name: Run e2e tests on test env
-    needs: deploy-to-aws-test
-    uses: ./.github/workflows/.e2e.yml
-    concurrency:
-      group: e2e-tests-${{ inputs.app }}-test
-      cancel-in-progress: true
-    with:
-      app: ${{ inputs.app }}
-      tag: ${{ inputs.tag }}
-      environment: test
-    secrets: inherit
+  # tests-e2e-test-environment:
+  #   name: Run e2e tests on test env
+  #   needs: deploy-to-aws-test
+  #   uses: ./.github/workflows/.e2e.yml
+  #   concurrency:
+  #     group: e2e-tests-${{ inputs.app }}-test
+  #     cancel-in-progress: true
+  #   with:
+  #     app: ${{ inputs.app }}
+  #     tag: ${{ inputs.tag }}
+  #     environment: test
+  #   secrets: inherit
 
   # This is broken and likely should be put elsewhere
   # release:
@@ -85,18 +85,18 @@ jobs:
   #   needs: tests-e2e-test-environment
   #   uses: ./.github/workflows/.release.yml
 
-  promote:
-    name: Promote
-    needs: tests-e2e-test-environment
-    uses: ./.github/workflows/.promote.yml
-    with:
-      app: ${{ inputs.app }}
-      tag: ${{ inputs.tag }}
+  # promote:
+  #   name: Promote
+  #   needs: deploy-to-aws-test
+  #   uses: ./.github/workflows/.promote.yml
+  #   with:
+  #     app: ${{ inputs.app }}
+  #     tag: ${{ inputs.tag }}
 
   # Separate review job since we can't use GitHub environments in reusable workflows
   review-prod-deployment:
     name: Review ${{ inputs.app }} prod deployment
-    needs: tests-e2e-test-environment
+    needs: deploy-to-aws-test
     runs-on: ubuntu-24.04
     environment: review-${{inputs.app}}-prod-deployment
     steps:

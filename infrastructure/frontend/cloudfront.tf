@@ -68,7 +68,9 @@ provider "aws" {
 
 data "aws_acm_certificate" "primary_cert" {
   provider    = aws.cloudfront_cert
-  for_each    = var.app_env == "prod" ? { "primary_cert" = var.custom_domain } : {}
+  # for_each    = var.app_env == "prod" ? { "primary_cert" = var.custom_domain } : {}
+  // LZA TEMPORARY FIX
+  for_each = {}
   domain      = each.value
   statuses    = ["ISSUED"]
   most_recent = true
@@ -85,7 +87,9 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   // Temporary fix for admin-prod deployment. Once we have a custom domain for admin-prod, we can uncomment the line below
   // aliases = var.app_env == "prod" ? [var.custom_domain] : []
   // Public prod app_name is "frontend-prod", admin is "admin-frontend-prod"
-  aliases = var.app_name == "frontend-prod" ? [var.custom_domain] : []
+  # aliases = var.app_name == "frontend-prod" ? [var.custom_domain] : []
+  // LZA TEMPORARY FIX
+  aliases = []
   # viewer_certificate {
   #   acm_certificate_arn            = var.app_env == "prod" ? data.aws_acm_certificate.primary_cert["primary_cert"].arn : null
   #   ssl_support_method             = "sni-only"
@@ -94,10 +98,14 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   # }
   viewer_certificate {
     // Remove this and uncomment the above block when we have a custom domain for admin-prod
-    acm_certificate_arn            = var.app_name == "frontend-prod" ? data.aws_acm_certificate.primary_cert["primary_cert"].arn : null
+    // acm_certificate_arn            = var.app_name == "frontend-prod" ? data.aws_acm_certificate.primary_cert["primary_cert"].arn : null
+    // LZA TEMPORARY FIX
+    acm_certificate_arn            = null
     ssl_support_method             = "sni-only"
     minimum_protocol_version       = "TLSv1.2_2021"
-    cloudfront_default_certificate = var.app_name != "frontend-prod"
+    // cloudfront_default_certificate = var.app_name != "frontend-prod"
+    // LZA TEMPORARY FIX
+    cloudfront_default_certificate            = true
   }
 
   origin {

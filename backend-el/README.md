@@ -61,7 +61,7 @@ backend-el/
   - `ApplicationService.java`: Orchestrates the workflow (extract, upload,
     migrate).
   - `FlywayTaskRunnerService.java`: Runs Flyway migrations via ECS tasks using
-    `FLYWAY_TASK_CONFIGS`.
+    `FLYWAY_TASK_LZA_CONFIGS`.
   - `S3UploaderService.java`: Handles S3 uploads.
 
 ### Flyway ECS Task Runner Configuration
@@ -70,7 +70,7 @@ backend-el/
   configured to run database migrations using Flyway which uses the uploaded CSV
   files on S3.
 - The configuration for these tasks is provided via a single environment
-  variable: `FLYWAY_TASK_CONFIGS`.
+  variable: `FLYWAY_TASK_LZA_CONFIGS`.
 - **Format:** Each config is separated by `|` (pipe). Each config uses `::`
   (double colon) to separate values:
   ```
@@ -94,10 +94,10 @@ backend-el/
   read access to objects
 - Run this command to run the docker image
   `docker run -e spring_profiles_active=local -v ./uploads:/uploads backend-el:latest`
-- To test Flyway ECS task runner locally, set the `FLYWAY_TASK_CONFIGS`
+- To test Flyway ECS task runner locally, set the `FLYWAY_TASK_LZA_CONFIGS`
   environment variable:
   ```
-  export FLYWAY_TASK_CONFIGS="my-ecs-cluster::my-task-definition::subnet-12345678::sg-12345678"
+  export FLYWAY_TASK_LZA_CONFIGS="my-ecs-cluster::my-task-definition::subnet-12345678::sg-12345678"
   ```
   Then run the application as usual.
 
