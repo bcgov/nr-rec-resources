@@ -7,6 +7,14 @@
     "public/frontend",
     "shared"
   ],
+  "nohoist": [
+    "**/prisma",
+    "**/@prisma/client",
+    "admin/backend/**/prisma",
+    "admin/backend/**/@prisma/client",
+    "public/backend/**/prisma",
+    "public/backend/**/@prisma/client"
+  ],
   "scripts": {
     "prettier-fix": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "generate-api": "npx openapi-generator-cli generate -i http://localhost:8000/api/docs-json -g typescript-fetch -o public/frontend/src/service/recreation-resource --skip-validate-spec --additional-properties=modelPropertyNaming=original",

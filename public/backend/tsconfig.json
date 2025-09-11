@@ -22,7 +22,6 @@
     "types": ["vitest/globals", "node"],
     "paths": {
       "@prisma-generated-sql": ["src/prisma-generated-sql"],
-      "@shared": ["../../shared/src"],
       "@shared/*": ["../../shared/src/*"]
     }
   },

@@ -168,7 +168,7 @@ export class RecreationResourceController {
   @ApiQuery({
     name: 'imageSizeCodes',
     required: false,
-    type: String,
+    enum: RecreationResourceImageSize,
     isArray: true,
     description:
       'Comma separated list of image sizes codes to be returned for the ' +
