@@ -10,7 +10,7 @@ describe('buildSearchFilterQuery', () => {
   it('should generate query with no filters', () => {
     const result = buildSearchFilterQuery({ searchText: '' });
     const queryString = getQueryString(result);
-    expect(queryString).toBe('');
+    expect(queryString).toBe('where display_on_public_site is true');
     expect(result.values).toEqual([]);
   });
 
@@ -18,7 +18,7 @@ describe('buildSearchFilterQuery', () => {
     const result = buildSearchFilterQuery({ searchText: 'park' });
     const queryString = getQueryString(result);
     expect(queryString).toBe(
-      'where (name ilike ? or closest_community ilike ?)',
+      'where display_on_public_site is true and (name ilike ? or closest_community ilike ?)',
     );
     expect(result.values).toEqual(['%park%', '%park%']);
   });
@@ -82,7 +82,7 @@ describe('buildSearchFilterQuery', () => {
 
     const queryString = getQueryString(result);
     expect(queryString).toContain(
-      'where (name ilike ? or closest_community ilike ?)',
+      'where display_on_public_site is true and (name ilike ? or closest_community ilike ?)',
     );
     expect(queryString).toContain('and access_code in');
     expect(queryString).toContain('and district_code in');
