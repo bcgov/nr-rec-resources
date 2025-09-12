@@ -144,7 +144,7 @@ variable "scaling_adjustment_increase" {
 variable "fta_dataload_bucket" {
   description = "The name of the S3 bucket for FTA CSV files"
   type        = string
-  default     = "rst-fta-dataload-oracle"
+  default     = "rst-fta-lza-dataload-oracle"
 }
 
 variable "forest_client_api_key" {
