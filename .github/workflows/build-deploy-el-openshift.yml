@@ -93,7 +93,7 @@ jobs:
 
             fi
 
-            export FLYWAY_TASK_CONFIGS="${{ secrets.FLYWAY_TASK_CONFIGS }}"
+            export FLYWAY_TASK_LZA_CONFIGS="${{ secrets.FLYWAY_TASK_LZA_CONFIGS }}"
 
             helm package -u . --app-version="${{ github.sha }}" --version=1.0.0
             helm upgrade \
@@ -104,7 +104,7 @@ jobs:
               --set-string secrets.dbUser="${{ secrets.DBUSER }}" \
               --set-string config.awsS3Bucket="$AWS_LZA_S3_BUCKET" \
               --set-string schedule="${{ secrets.SCHEDULE }}" \
-              --set-string secrets.flywayTaskConfigs="${FLYWAY_TASK_CONFIGS}" \
+              --set-string secrets.flywayTaskConfigs="${FLYWAY_TASK_LZA_CONFIGS}" \
               --set secrets.persist=$SECRET_PERSIST \
               --set-string pvc.size="$PVC_SIZE" \
               --install --wait \
