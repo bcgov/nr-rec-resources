@@ -32,6 +32,7 @@ export const buildSearchFilterQuery = ({
   const facilityFilter = facilities?.split('_').map(String) ?? [];
 
   // Conditional filter for searchText
+  const displayOnPublicSite = Prisma.sql`display_on_public_site is true`;
   const textSearchFilterQuery = searchText
     ? Prisma.sql`(name ilike ${'%' + searchText + '%'} or closest_community ilike ${'%' + searchText + '%'})`
     : Prisma.empty;
@@ -97,6 +98,7 @@ export const buildSearchFilterQuery = ({
       : Prisma.empty;
 
   const conditions = [
+    displayOnPublicSite,
     textSearchFilterQuery,
     accessFilterQuery,
     districtFilterQuery,

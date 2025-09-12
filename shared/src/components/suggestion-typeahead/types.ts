@@ -4,4 +4,5 @@ export interface RecreationResourceSuggestion {
   recreation_resource_type: string;
   district_description: string;
   name: string;
+  display_on_public_site: boolean;
 }

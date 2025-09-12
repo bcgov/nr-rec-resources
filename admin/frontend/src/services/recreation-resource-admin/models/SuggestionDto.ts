@@ -49,6 +49,12 @@ export interface SuggestionDto {
    * @memberof SuggestionDto
    */
   district_description: string;
+  /**
+   * Defines if the resource should be displayed on public site.
+   * @type {boolean}
+   * @memberof SuggestionDto
+   */
+  display_on_public_site: boolean;
 }
 
 /**
@@ -73,6 +79,11 @@ export function instanceOfSuggestionDto(value: object): value is SuggestionDto {
     value['district_description'] === undefined
   )
     return false;
+  if (
+    !('display_on_public_site' in value) ||
+    value['display_on_public_site'] === undefined
+  )
+    return false;
   return true;
 }
 
@@ -93,6 +104,7 @@ export function SuggestionDtoFromJSONTyped(
     recreation_resource_type: json['recreation_resource_type'],
     recreation_resource_type_code: json['recreation_resource_type_code'],
     district_description: json['district_description'],
+    display_on_public_site: json['display_on_public_site'],
   };
 }
 
@@ -114,5 +126,6 @@ export function SuggestionDtoToJSONTyped(
     recreation_resource_type: value['recreation_resource_type'],
     recreation_resource_type_code: value['recreation_resource_type_code'],
     district_description: value['district_description'],
+    display_on_public_site: value['display_on_public_site'],
   };
 }

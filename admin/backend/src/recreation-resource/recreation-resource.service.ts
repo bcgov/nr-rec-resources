@@ -36,6 +36,7 @@ export class RecreationResourceService {
           recreation_resource_type: item.recreation_resource_type,
           recreation_resource_type_code: item.recreation_resource_type_code,
           district_description: item.district_description,
+          display_on_public_site: item.display_on_public_site,
         })),
     };
   }

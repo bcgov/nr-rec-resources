@@ -36,6 +36,7 @@ export const SuggestionMenu = ({
         recreation_resource_type,
         district_description,
         name,
+        display_on_public_site,
       } = option;
       return (
         <MenuItem
@@ -53,6 +54,7 @@ export const SuggestionMenu = ({
             rec_resource_id={rec_resource_id}
             resourceType={recreation_resource_type}
             title={name}
+            display_on_public_site={display_on_public_site}
           />
         </MenuItem>
       );
