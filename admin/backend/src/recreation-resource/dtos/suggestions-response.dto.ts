@@ -40,6 +40,13 @@ export class SuggestionDto {
     example: "Chilliwack",
   })
   district_description: string | null;
+
+  @ApiProperty({
+    description: "Defines if the resource should be displayed on public site.",
+    type: Boolean,
+    example: "true",
+  })
+  display_on_public_site: boolean | null;
 }
 
 /**
