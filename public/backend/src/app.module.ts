@@ -9,9 +9,10 @@ import { MetricsController } from './metrics.controller';
 import { TerminusModule } from '@nestjs/terminus';
 import { HealthController } from './health.controller';
 import { RecreationResourceModule } from './recreation-resource/recreation-resource.module';
-import { ApiMetricsModule } from './api-metrics/api-metrics.module';
 import { ClsModule } from 'nestjs-cls';
 import { clsConfig } from 'src/common/cls.config';
+import { ApiMetricsModule } from '@shared/api/api-metrics/api-metrics.module';
+import { PUBLIC_METRIC_NAMESPACE_NAME_PREFIX } from '@shared/api/api-metrics/api-metrics.constants';
 
 @Module({
   imports: [
@@ -19,13 +20,14 @@ import { clsConfig } from 'src/common/cls.config';
     ConfigModule.forRoot(),
     TerminusModule,
     RecreationResourceModule,
-    ApiMetricsModule,
+    ApiMetricsModule.forRoot({
+      namespacePrefix: PUBLIC_METRIC_NAMESPACE_NAME_PREFIX,
+    }),
   ],
   controllers: [AppController, MetricsController, HealthController],
   providers: [AppService, PrismaService],
 })
 export class AppModule {
-  // let's add a middleware on all routes
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(HTTPLoggerMiddleware)

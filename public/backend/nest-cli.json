@@ -2,7 +2,7 @@
   "collection": "@nestjs/schematics",
   "sourceRoot": "src",
   "compilerOptions": {
-    "builder": "swc",
-    "typeCheck": true
+    "deleteOutDir": true,
+    "assets": ["**/*.sql", "prisma-generated-sql/**/*"]
   }
 }
