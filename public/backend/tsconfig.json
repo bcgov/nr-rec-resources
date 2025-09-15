@@ -21,7 +21,8 @@
     "lib": ["es2022"],
     "types": ["vitest/globals", "node"],
     "paths": {
-      "@prisma-generated-sql": ["src/prisma-generated-sql"]
+      "@prisma-generated-sql": ["src/prisma-generated-sql"],
+      "@shared/*": ["../../shared/src/*"]
     }
   },
   "include": ["src/**/*.ts", "e2e/**/*.ts", "**/*.ts", "**/*.mjs", "**/*.mts"]

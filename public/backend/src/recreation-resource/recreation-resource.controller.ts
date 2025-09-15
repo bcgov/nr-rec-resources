@@ -169,7 +169,6 @@ export class RecreationResourceController {
     name: 'imageSizeCodes',
     required: false,
     enum: RecreationResourceImageSize,
-    type: () => RecreationResourceImageSize,
     isArray: true,
     description:
       'Comma separated list of image sizes codes to be returned for the ' +
