@@ -85,36 +85,34 @@ const RecResourceReservation: React.FC<RecResourceReservationProps> = ({
                 <span>Fees apply when arriving on site.</span> <br />
               </>
             )}
-            {isCampingAvailable ||
-              (isAdditionalFeesAvailable && (
-                <span>
-                  Check{' '}
-                  {isCampingAvailable ? (
+            {(isCampingAvailable || isAdditionalFeesAvailable) && (
+              <span>
+                Check{' '}
+                {isCampingAvailable && (
+                  <a href={`/resource/${recResource.rec_resource_id}#camping`}>
+                    camping
+                  </a>
+                )}
+                {isAdditionalFeesAvailable && (
+                  <a
+                    href={`/resource/${recResource.rec_resource_id}#additional-fees`}
+                  >
+                    additional fees
+                  </a>
+                )}{' '}
+                {isFacilitiesAvailable && (
+                  <>
+                    and{' '}
                     <a
-                      href={`/resource/${recResource.rec_resource_id}#camping`}
+                      href={`/resource/${recResource.rec_resource_id}#facilities`}
                     >
-                      camping
-                    </a>
-                  ) : (
-                    <a
-                      href={`/resource/${recResource.rec_resource_id}#additional-fees`}
-                    >
-                      additional fees
-                    </a>
-                  )}{' '}
-                  {isFacilitiesAvailable && (
-                    <>
-                      and{' '}
-                      <a
-                        href={`/resource/${recResource.rec_resource_id}#facilities`}
-                      >
-                        facilities
-                      </a>{' '}
-                    </>
-                  )}
-                  for more information.
-                </span>
-              ))}
+                      facilities
+                    </a>{' '}
+                  </>
+                )}
+                for more information.
+              </span>
+            )}
           </div>
         </div>
       )}

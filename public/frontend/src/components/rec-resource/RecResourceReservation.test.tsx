@@ -138,7 +138,7 @@ describe('RecResourceReservation', () => {
       <RecResourceReservation
         recResource={{
           ...baseResource,
-          recreation_fee: [],
+          recreation_fee: mockFees,
           campsite_count: 0,
           recreation_resource_reservation_info: undefined,
         }}
