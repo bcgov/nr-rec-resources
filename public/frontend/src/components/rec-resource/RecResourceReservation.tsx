@@ -72,7 +72,7 @@ const RecResourceReservation: React.FC<RecResourceReservationProps> = ({
           </div>
         </>
       ) : (
-        <div className="icon-container mt-4">
+        <div className="camping-info icon-container mt-4">
           <img src={campground} alt="Campground icon" height={24} width={24} />{' '}
           <div>
             <span>This site is first come first served.</span> <br />
