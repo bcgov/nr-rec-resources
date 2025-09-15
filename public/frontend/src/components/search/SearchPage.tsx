@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { RemoveScroll } from 'react-remove-scroll';
 import { useSearchParams } from 'react-router-dom';
 import { useStore } from '@tanstack/react-store';
 import { Col, ProgressBar, Row, Stack } from 'react-bootstrap';
@@ -133,11 +134,13 @@ const SearchPage = () => {
     <>
       <PageTitle title={ROUTE_TITLES.SEARCH} />
       <SearchBanner />
-      <SearchMap
-        style={{
-          visibility: isMapView ? 'visible' : 'hidden',
-        }}
-      />
+      <RemoveScroll enabled={isMapView}>
+        <SearchMap
+          style={{
+            visibility: isMapView ? 'visible' : 'hidden',
+          }}
+        />
+      </RemoveScroll>
       <Stack
         direction="horizontal"
         className="page-container bg-brown-light justify-content-start"
