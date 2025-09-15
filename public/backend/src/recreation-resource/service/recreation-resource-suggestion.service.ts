@@ -22,7 +22,9 @@ export class RecreationResourceSuggestionsService {
           recreation_resource_type_code,
           'recreation_resource' AS option_type
         FROM recreation_resource_search_view
-        WHERE name ILIKE ${`%${term}%`} OR closest_community ILIKE ${`%${term}%`}
+        WHERE
+          display_on_public_site = true
+          AND name ILIKE ${`%${term}%`} OR closest_community ILIKE ${`%${term}%`}
         ORDER BY
           CASE
             WHEN name ILIKE ${`${term}%`} THEN 0  -- prefix match in name

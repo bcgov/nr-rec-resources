@@ -18,5 +18,6 @@ export namespace getRecreationResourceSuggestions {
     recreation_resource_type: string | null;
     recreation_resource_type_code: string | null;
     district_description: string | null;
+    display_on_public_site: boolean | null;
   };
 }
