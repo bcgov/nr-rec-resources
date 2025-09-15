@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ApiMetricsService } from './api-metrics.service';
 import { ConfigService } from '@nestjs/config';
 import {
   CloudWatchClient,
   PutMetricDataCommand,
 } from '@aws-sdk/client-cloudwatch';
+import { ApiMetricsService } from '@shared/api/api-metrics/api-metrics.service';
 
 vi.mock('@aws-sdk/client-cloudwatch');
 
@@ -62,17 +62,17 @@ describe('ApiMetricsService', () => {
       const result = service.buildMetricDatum('TestOp', 'GET', 200, 100);
 
       expect(result).toHaveLength(3);
-      expect(result[0].MetricName).toBe('RequestLatency');
-      expect(result[1].MetricName).toBe('RequestCount');
+      expect(result[0]!.MetricName).toBe('RequestLatency');
+      expect(result[1]!.MetricName).toBe('RequestCount');
     });
 
     it('should include error metrics for 4xx status codes', () => {
       const result = service.buildMetricDatum('TestOp', 'GET', 400, 100);
 
       expect(result).toHaveLength(4);
-      expect(result[3].MetricName).toBe('ErrorCount');
+      expect(result[3]!.MetricName).toBe('ErrorCount');
       expect(
-        result[3].Dimensions?.find((d) => d.Name === 'ErrorType')?.Value,
+        result[3]!.Dimensions?.find((d) => d.Name === 'ErrorType')?.Value,
       ).toBe('ClientError');
     });
 
@@ -80,9 +80,9 @@ describe('ApiMetricsService', () => {
       const result = service.buildMetricDatum('TestOp', 'GET', 500, 100);
 
       expect(result).toHaveLength(4);
-      expect(result[3].MetricName).toBe('ErrorCount');
+      expect(result[3]!.MetricName).toBe('ErrorCount');
       expect(
-        result[3].Dimensions?.find((d) => d.Name === 'ErrorType')?.Value,
+        result[3]!.Dimensions?.find((d) => d.Name === 'ErrorType')?.Value,
       ).toBe('ServerError');
     });
   });
