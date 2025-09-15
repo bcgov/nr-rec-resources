@@ -19,6 +19,16 @@ li {
   line-height: 25.6px;
 }
 
+p.small-tittle {
+  margin-bottom: 6px;
+}
+
+h3 {
+  // Unfortunate use of !important due to bootstrap theme headings using !important
+  font-size: 1.5rem !important;
+  margin-bottom: 1rem;
+}
+
 .info-box {
   background-color: $colorBlueLight;
   color: $colorBlue;
@@ -30,5 +40,5 @@ li {
   border-radius: 4px;
   padding: 16px;
   margin-bottom: 32px;
-  margin-top: 16px;
+  margin-top: 10px;
 }

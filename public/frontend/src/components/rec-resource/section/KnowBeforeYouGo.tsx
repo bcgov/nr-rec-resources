@@ -22,7 +22,6 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
       <h2 className="section-heading">{SectionTitles.KNOW_BEFORE_YOU_GO}</h2>
       <section className="mb-4">
         {isReservable ? <h3>Reservable</h3> : <h3>First come, first served</h3>}
-        <br />
         {isReservable ? (
           <>
             <p>
@@ -56,7 +55,7 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
           <p>
             This site operates on a First Come, First Served (FCFS) basis.
             Reservations are not available - you must arrive to claim an
-            available spot in person. Sports are limited. Plan to arrive early,
+            available spot in person. Spots are limited. Plan to arrive early,
             especially during busy periods.
           </p>
         )}
@@ -77,7 +76,6 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
         )}
         <br />
         <h3>Staying safe</h3>
-        <br />
         <p>
           Recreation sites and trails can be in remote areas with access via
           gravel resource roads. Drive cautiously and watch out for industrial
@@ -98,7 +96,16 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
             </p>
             <p>
               Always follow Leave no Trace outdoor ethics. For more information,
-              see planning your visit.
+              see{' '}
+              <a
+                href="https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/planning"
+                target="_blank"
+                rel="noreferer noreferrer"
+                aria-label="Plan your visit (opens in new window)"
+              >
+                planning your visit
+              </a>
+              .
             </p>
           </div>
         </div>
@@ -124,7 +131,6 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
           information on staying safe and preserving natural spaces
         </div>
         <h3>Visit responsibly</h3>
-        <br />
         <p>
           Follow these guides to ensure your activities are safe, respectful,
           and ecologically friendly:
@@ -175,6 +181,7 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
             {'>'}
           </li>
         </ul>
+        <br />
       </section>
     </section>
   );
