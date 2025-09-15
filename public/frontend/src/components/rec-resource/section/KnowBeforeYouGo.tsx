@@ -51,12 +51,19 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
               </div>
             </div>
           </>
-        ) : (
+        ) : isAdditionalFeesAvailable ? (
           <p>
             This site operates on a First Come, First Served (FCFS) basis.
             Reservations are not available - you must arrive to claim an
             available spot in person. Spots are limited. Plan to arrive early,
             especially during busy periods.
+          </p>
+        ) : (
+          <p>
+            This site operates on a First Come, First Served (FCFS) basis.
+            Reservations are not available - you must arrive to claim an
+            available spot in person. No fees apply and spots are limited. Plan
+            to arrive early, especially during busy periods
           </p>
         )}
         {isAdditionalFeesAvailable && !isReservable && (
