@@ -1,3 +1,13 @@
+@import '@/styles/variables.scss';
+
+.camping-info {
+  // Fix for Axe accessibility "link-in-text-block" error
+  // Ensure links are distinguished from surrounding text in a way that does not rely on color
+  a {
+    text-decoration: underline;
+  }
+}
+
 .note {
   font-size: small;
 }
