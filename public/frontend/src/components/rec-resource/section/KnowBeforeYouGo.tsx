@@ -103,16 +103,7 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
             </p>
             <p>
               Always follow Leave no Trace outdoor ethics. For more information,
-              see{' '}
-              <a
-                href="https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/planning"
-                target="_blank"
-                rel="noreferer noreferrer"
-                aria-label="Plan your visit (opens in new window)"
-              >
-                planning your visit
-              </a>
-              .
+              see planning your visit.
             </p>
           </div>
         </div>
