@@ -93,7 +93,7 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
           <div className="col-sm-1">
             <img src={recycle} alt="Recycle icon" height={40} width={40} />
           </div>
-          <div className="col-sm">
+          <div className="col-sm packing-info">
             <p className="small-tittle">Pack in, pack out</p>
             <p>
               Garbage receptacles and potable water are not provided. Be
@@ -103,7 +103,16 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
             </p>
             <p>
               Always follow Leave no Trace outdoor ethics. For more information,
-              see planning your visit.
+              see{' '}
+              <a
+                href="https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/planning"
+                target="_blank"
+                rel="noreferer noreferrer"
+                aria-label="Plan your visit (opens in new window)"
+              >
+                planning your visit
+              </a>
+              .
             </p>
           </div>
         </div>

@@ -6,6 +6,14 @@
   padding: 0;
 }
 
+.packing-info {
+  // Fix for Axe accessibility "link-in-text-block" error
+  // Ensure links are distinguished from surrounding text in a way that does not rely on color
+  a {
+    text-decoration: underline;
+  }
+}
+
 li {
   margin: 10px 0;
   padding: 0;
