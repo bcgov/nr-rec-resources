@@ -29,5 +29,11 @@ export const SWAGGER_CONSTANTS = {
   API_OPERATION: 'swagger/apiOperation',
 } as const;
 
-export const METRIC_NAMESPACE_NAME_PREFIX =
+export const DEFAULT_METRIC_NAMESPACE_NAME_PREFIX =
+  'RecreationSitesAndTrailsBCAPI';
+
+export const ADMIN_METRIC_NAMESPACE_NAME_PREFIX =
+  'RecreationSitesAndTrailsBCAdminAPI';
+
+export const PUBLIC_METRIC_NAMESPACE_NAME_PREFIX =
   'RecreationSitesAndTrailsBCPublicAPI';

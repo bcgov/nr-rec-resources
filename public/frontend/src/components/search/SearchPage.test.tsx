@@ -333,6 +333,22 @@ describe('SearchPage', () => {
     expect(screen.getByTestId('mock-search-map')).toBeInTheDocument();
   });
 
+  it('disables document scroll when view is map (RemoveScroll enabled)', async () => {
+    mockSearchParams({ view: 'map' });
+    renderWithQueryClient(<SearchPage />);
+    await waitFor(() => {
+      expect(document.body).toHaveAttribute('data-scroll-locked', '1');
+    });
+  });
+
+  it('does not disable document scroll when view is list (RemoveScroll disabled)', async () => {
+    mockSearchParams({ view: 'list' });
+    renderWithQueryClient(<SearchPage />);
+    await waitFor(() => {
+      expect(document.body).not.toHaveAttribute('data-scroll-locked');
+    });
+  });
+
   it('handles all search parameters', () => {
     const params = {
       filter: 'campground',

@@ -1,9 +1,19 @@
 {
   "private": true,
   "workspaces": [
+    "admin/backend",
     "admin/frontend",
+    "public/backend",
     "public/frontend",
     "shared"
+  ],
+  "nohoist": [
+    "**/prisma",
+    "**/@prisma/client",
+    "admin/backend/**/prisma",
+    "admin/backend/**/@prisma/client",
+    "public/backend/**/prisma",
+    "public/backend/**/@prisma/client"
   ],
   "scripts": {
     "prettier-fix": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
