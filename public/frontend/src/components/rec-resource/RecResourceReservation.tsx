@@ -18,6 +18,10 @@ const RecResourceReservation: React.FC<RecResourceReservationProps> = ({
     recResource.recreation_structure?.has_toilet ||
     recResource.recreation_structure?.has_table;
 
+  const isAdditionalFeesAvailable =
+    recResource.additional_fees !== undefined &&
+    recResource.additional_fees.length > 0;
+
   return (
     <>
       {recResource.recreation_resource_reservation_info ? (
@@ -76,32 +80,39 @@ const RecResourceReservation: React.FC<RecResourceReservationProps> = ({
           <img src={campground} alt="Campground icon" height={24} width={24} />{' '}
           <div>
             <span>This site is first come first served.</span> <br />
-            <span>Fees apply when arriving on site.</span> <br />
-            <span>
-              Check{' '}
-              {isCampingAvailable ? (
-                <a href={`/resource/${recResource.rec_resource_id}#camping`}>
-                  camping
-                </a>
-              ) : (
-                <a
-                  href={`/resource/${recResource.rec_resource_id}#additional-fees`}
-                >
-                  additional fees
-                </a>
-              )}{' '}
-              {isFacilitiesAvailable && (
-                <>
-                  and{' '}
+            {isAdditionalFeesAvailable && (
+              <>
+                <span>Fees apply when arriving on site.</span> <br />
+              </>
+            )}
+            {(isCampingAvailable || isAdditionalFeesAvailable) && (
+              <span>
+                Check{' '}
+                {isCampingAvailable && (
+                  <a href={`/resource/${recResource.rec_resource_id}#camping`}>
+                    camping
+                  </a>
+                )}
+                {isAdditionalFeesAvailable && (
                   <a
-                    href={`/resource/${recResource.rec_resource_id}#facilities`}
+                    href={`/resource/${recResource.rec_resource_id}#additional-fees`}
                   >
-                    facilities
-                  </a>{' '}
-                </>
-              )}
-              for more information.
-            </span>
+                    additional fees
+                  </a>
+                )}{' '}
+                {isFacilitiesAvailable && (
+                  <>
+                    and{' '}
+                    <a
+                      href={`/resource/${recResource.rec_resource_id}#facilities`}
+                    >
+                      facilities
+                    </a>{' '}
+                  </>
+                )}
+                for more information.
+              </span>
+            )}
           </div>
         </div>
       )}
