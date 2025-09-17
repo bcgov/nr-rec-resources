@@ -7,7 +7,8 @@ insert into
     display_on_public_site,
     district_code,
     maintenance_standard_code,
-    project_established_date
+    project_established_date,
+    control_access_code
   )
 values
   (
@@ -18,7 +19,8 @@ values
     true,
     'RDKA',
     'M',
-    '2015-03-15'
+    '2015-03-15',
+    'G'
   ),
   (
     'REC1222',
@@ -28,7 +30,8 @@ values
     true,
     'RDPG',
     null,
-    '2008-01-15'
+    '2008-01-15',
+    'R'
   ),
   (
     'REC160773',
@@ -38,7 +41,8 @@ values
     true,
     'RDKA',
     'U',
-    '2012-07-22'
+    '2012-07-22',
+    'G'
   ),
   (
     'REC203239',
@@ -48,7 +52,8 @@ values
     true,
     'RDKA',
     'M',
-    '2014-11-08'
+    '2014-11-08',
+    null
   ),
   (
     'REC6866',
@@ -58,7 +63,8 @@ values
     true,
     'RDVA',
     'M',
-    '1998-05-12'
+    '1998-05-12',
+    'G'
   ),
   (
     'REC203900',
@@ -68,7 +74,8 @@ values
     true,
     'RDRM',
     'M',
-    '2016-09-30'
+    '2016-09-30',
+    'G'
   ),
   (
     'REC160432',
@@ -78,7 +85,8 @@ values
     true,
     'RDKA',
     null,
-    '2011-02-14'
+    '2011-02-14',
+    'G'
   ),
   (
     'REC6739',
@@ -88,7 +96,8 @@ values
     true,
     'RDKB',
     'M',
-    '2007-12-03'
+    '2007-12-03',
+    'G'
   ),
   (
     'REC16158',
@@ -98,7 +107,8 @@ values
     true,
     'RDSQ',
     'U',
-    '2013-06-18'
+    '2013-06-18',
+    'G'
   ),
   (
     'REC2094',
@@ -108,7 +118,8 @@ values
     true,
     'RDKB',
     'M',
-    '2009-04-25'
+    '2009-04-25',
+    'G'
   ),
   (
     'REC6897',
@@ -118,7 +129,8 @@ values
     true,
     'RDMH',
     'M',
-    '2005-08-16'
+    '2005-08-16',
+    'G'
   ),
   (
     'REC2206',
@@ -128,7 +140,8 @@ values
     true,
     'RDKB',
     null,
-    '2010-03-07'
+    '2010-03-07',
+    'G'
   ),
   (
     'REC206043',
@@ -138,7 +151,8 @@ values
     true,
     'RDSI',
     'M',
-    '2017-10-14'
+    '2017-10-14',
+    'R'
   ),
   (
     'REC166903',
@@ -148,7 +162,8 @@ values
     true,
     'RDOS',
     'M',
-    '2006-01-28'
+    '2006-01-28',
+    null
   ),
   (
     'REC32013',
@@ -158,7 +173,8 @@ values
     true,
     'RDOS',
     'M',
-    '2004-11-19'
+    '2004-11-19',
+    null
   ),
   (
     'REC261475',
@@ -168,7 +184,8 @@ values
     true,
     'RDOS',
     null,
-    '2018-07-01'
+    '2018-07-01',
+    null
   ),
   (
     'REC166942',
@@ -178,7 +195,8 @@ values
     true,
     'RDOS',
     'M',
-    '2003-09-12'
+    '2003-09-12',
+    null
   ),
   (
     'REC2792',
@@ -188,7 +206,8 @@ values
     true,
     'RDOS',
     'U',
-    '2001-12-05'
+    '2001-12-05',
+    null
   ),
   (
     'REC230522',
@@ -198,7 +217,8 @@ values
     true,
     'RDOS',
     'M',
-    '2019-02-15'
+    '2019-02-15',
+    null
   ),
   (
     'REC205035',
@@ -208,7 +228,8 @@ values
     true,
     'RDOS',
     null,
-    '2016-04-20'
+    '2016-04-20',
+    null
   ),
   (
     'REC2566',
@@ -218,7 +239,8 @@ values
     true,
     'RDPG',
     'M',
-    '2002-06-08'
+    '2002-06-08',
+    null
   ),
   (
     'REC1735',
@@ -228,7 +250,8 @@ values
     true,
     'RDKA',
     'M',
-    '2008-10-11'
+    '2008-10-11',
+    'G'
   ),
   (
     'REC2978',
@@ -238,7 +261,8 @@ values
     true,
     'RDPG',
     'U',
-    '2000-05-20'
+    '2000-05-20',
+    null
   ),
   (
     'REC136003',
@@ -248,7 +272,8 @@ values
     true,
     'RDKA',
     'U',
-    '2014-08-03'
+    '2014-08-03',
+    null
   ),
   (
     'REC265901',
@@ -258,7 +283,8 @@ values
     true,
     'RDKA',
     null,
-    '2011-09-27'
+    '2011-09-27',
+    null
   ),
   (
     'REC1585',
@@ -268,7 +294,8 @@ values
     true,
     'RDKA',
     null,
-    '2007-03-14'
+    '2007-03-14',
+    null
   ),
   (
     'REC262200',
@@ -278,7 +305,8 @@ values
     true,
     'RDKA',
     null,
-    '2015-12-01'
+    '2015-12-01',
+    null
   ),
   (
     'REC265549',
@@ -288,7 +316,8 @@ values
     true,
     'RDCC',
     'U',
-    '2012-01-18'
+    '2012-01-18',
+    'G'
   ),
   (
     'REC270155',
@@ -298,7 +327,8 @@ values
     true,
     'RDCC',
     'U',
-    '2009-07-09'
+    '2009-07-09',
+    null
   ),
   (
     'REC0587',
@@ -308,7 +338,8 @@ values
     true,
     'RDCC',
     'U',
-    '2006-04-22'
+    '2006-04-22',
+    null
   ),
   (
     'REC166367',
@@ -318,7 +349,8 @@ values
     true,
     'RDCC',
     'M',
-    '2003-11-30'
+    '2003-11-30',
+    null
   ),
   (
     'REC1621',
@@ -328,7 +360,8 @@ values
     true,
     'RDOS',
     'M',
-    '2013-02-26'
+    '2013-02-26',
+    null
   ),
   (
     'REC1164',
@@ -338,7 +371,8 @@ values
     true,
     'RDCO',
     null,
-    '2010-08-17'
+    '2010-08-17',
+    'G'
   ),
   (
     'REC5763',
@@ -348,7 +382,8 @@ values
     true,
     'RDCO',
     'M',
-    '2005-12-04'
+    '2005-12-04',
+    'G'
   ),
   (
     'REC4519',
@@ -358,7 +393,8 @@ values
     true,
     'RDCO',
     'U',
-    null
+    null,
+    'G'
   ),
   (
     'REC265446',
@@ -368,7 +404,8 @@ values
     true,
     'RDCK',
     'U',
-    null
+    null,
+    'G'
   ),
   (
     'REC262362',
@@ -378,7 +415,8 @@ values
     true,
     'RDCK',
     'U',
-    null
+    null,
+    'G'
   ),
   (
     'REC192109',
@@ -388,7 +426,8 @@ values
     true,
     'RDCR',
     'M',
-    null
+    null,
+    'G'
   ),
   (
     'REC204480',
@@ -398,7 +437,8 @@ values
     true,
     'RDPG',
     null,
-    null
+    null,
+    'G'
   ),
   (
     'REC0180',
@@ -408,7 +448,8 @@ values
     true,
     'RDPG',
     null,
-    null
+    null,
+    'G'
   ),
   (
     'REC97746',
@@ -418,7 +459,8 @@ values
     true,
     'RDKM',
     'M',
-    null
+    null,
+    'G'
   ),
   (
     'REC2047',
@@ -428,7 +470,8 @@ values
     true,
     'RDKM',
     'U',
-    null
+    null,
+    'G'
   ),
   (
     'REC2054',
@@ -438,7 +481,8 @@ values
     true,
     'RDKM',
     'U',
-    null
+    null,
+    'G'
   ),
   (
     'REC0108',
@@ -448,7 +492,8 @@ values
     true,
     'RDKM',
     null,
-    null
+    null,
+    'G'
   ),
   (
     'REC13876',
@@ -458,7 +503,8 @@ values
     true,
     'RDSI',
     null,
-    null
+    null,
+    'G'
   ),
   (
     'REC1605',
@@ -468,7 +514,8 @@ values
     true,
     'RDKA',
     'U',
-    null
+    null,
+    'G'
   ),
   (
     'REC1163',
@@ -478,7 +525,8 @@ values
     true,
     'RDKA',
     'M',
-    null
+    null,
+    'G'
   ),
   (
     'REC5973',
@@ -488,7 +536,8 @@ values
     true,
     'RDSQ',
     'U',
-    null
+    null,
+    'G'
   ),
   (
     'REC1298',
@@ -498,6 +547,7 @@ values
     true,
     'RDSQ',
     'M',
+    null,
     null
   ),
   (
@@ -508,6 +558,7 @@ values
     true,
     'RDSQ',
     'M',
+    null,
     null
   ),
   (
@@ -518,5 +569,6 @@ values
     true,
     'RDSQ',
     'M',
+    null,
     null
-  );
+  )
