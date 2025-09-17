@@ -30,16 +30,16 @@ jobs:
       MATOMO_ALLOWED_ORIGINS: ${{ secrets.MATOMO_ALLOWED_ORIGINS }}
     steps:
       - name: Check out Matomo CDK repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: bcgov/nr-parks-web-analytics-matomo
           ref: main
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install CDK CLI
         run: npm install -g aws-cdk
