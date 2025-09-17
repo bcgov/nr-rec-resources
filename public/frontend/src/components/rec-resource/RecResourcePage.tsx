@@ -156,7 +156,7 @@ const RecResourcePage = () => {
       id: SectionIds.KNOW_BEFORE_YOU_GO,
       href: `#${SectionIds.KNOW_BEFORE_YOU_GO}`,
       title: SectionTitles.KNOW_BEFORE_YOU_GO,
-      isVisible: true,
+      isVisible: isRecreationSite,
     },
     {
       id: SectionIds.MAPS_AND_LOCATION,
@@ -287,6 +287,7 @@ const RecResourcePage = () => {
                     <KnowBeforeYouGo
                       isReservable={isReservable}
                       isAdditionalFeesAvailable={isAdditionalFeesAvailable}
+                      isCampingAvailable={isCampingAvailable}
                     />
                   )}
 

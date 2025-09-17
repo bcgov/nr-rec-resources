@@ -80,7 +80,8 @@ const RecResourceReservation: React.FC<RecResourceReservationProps> = ({
           <img src={campground} alt="Campground icon" height={24} width={24} />{' '}
           <div>
             <span>This site is first come first served.</span> <br />
-            {isAdditionalFeesAvailable && (
+            {(isAdditionalFeesAvailable ||
+              Boolean(recResource.recreation_fee?.length)) && (
               <>
                 <span>Fees apply when arriving on site.</span> <br />
               </>
@@ -89,9 +90,19 @@ const RecResourceReservation: React.FC<RecResourceReservationProps> = ({
               <span>
                 Check{' '}
                 {isCampingAvailable && (
-                  <a href={`/resource/${recResource.rec_resource_id}#camping`}>
-                    camping
-                  </a>
+                  <>
+                    <a
+                      href={`/resource/${recResource.rec_resource_id}#camping`}
+                    >
+                      camping fees
+                    </a>
+                    {isAdditionalFeesAvailable &&
+                      !isFacilitiesAvailable &&
+                      ' and '}
+                    {isAdditionalFeesAvailable && isFacilitiesAvailable
+                      ? ', '
+                      : ' '}
+                  </>
                 )}
                 {isAdditionalFeesAvailable && (
                   <a

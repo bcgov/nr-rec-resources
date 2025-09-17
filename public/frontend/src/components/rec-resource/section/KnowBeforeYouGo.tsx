@@ -7,17 +7,19 @@ import reservations from '@/images/icons/reservations.svg';
 
 interface KnowBeforeYouGoProps {
   isAdditionalFeesAvailable: boolean;
+  isCampingAvailable: boolean;
   isReservable: boolean;
 }
 
 const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
   isAdditionalFeesAvailable,
+  isCampingAvailable,
   isReservable,
 }) => {
   return (
     <section
       id={SectionIds.KNOW_BEFORE_YOU_GO}
-      className="rec-resource-section"
+      className="rec-resource-section know-before-you-go"
     >
       <h2 className="section-heading">{SectionTitles.KNOW_BEFORE_YOU_GO}</h2>
       <section className="mb-4">
@@ -51,7 +53,7 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
               </div>
             </div>
           </>
-        ) : isAdditionalFeesAvailable ? (
+        ) : isAdditionalFeesAvailable || isCampingAvailable ? (
           <p>
             This site operates on a First Come, First Served (FCFS) basis.
             Reservations are not available - you must arrive to claim an
@@ -63,10 +65,10 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
             This site operates on a First Come, First Served (FCFS) basis.
             Reservations are not available - you must arrive to claim an
             available spot in person. No fees apply and spots are limited. Plan
-            to arrive early, especially during busy periods
+            to arrive early, especially during busy periods.
           </p>
         )}
-        {isAdditionalFeesAvailable && !isReservable && (
+        {(isAdditionalFeesAvailable || isCampingAvailable) && !isReservable && (
           <div className="row">
             <div className="col-sm-1">
               <img src={cash} alt="Cash Only icon" height={40} width={40} />
@@ -150,7 +152,7 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
               rel="noreferer noreferrer"
               aria-label="Alerts, closures, and Warnings (opens in new window)"
             >
-              Alerts, closures, and Warnings
+              Alerts, closures, and warnings
             </a>{' '}
             {'>'}
           </li>

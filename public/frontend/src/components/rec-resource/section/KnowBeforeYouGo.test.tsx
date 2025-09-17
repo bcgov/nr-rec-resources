@@ -6,7 +6,11 @@ import { describe, it, expect } from 'vitest';
 describe('KnowBeforeYouGo', () => {
   it('renders reservable content when isReservable = true', () => {
     render(
-      <KnowBeforeYouGo isAdditionalFeesAvailable={false} isReservable={true} />,
+      <KnowBeforeYouGo
+        isAdditionalFeesAvailable={false}
+        isCampingAvailable={false}
+        isReservable={true}
+      />,
     );
 
     // Section heading
@@ -40,6 +44,7 @@ describe('KnowBeforeYouGo', () => {
     render(
       <KnowBeforeYouGo
         isAdditionalFeesAvailable={false}
+        isCampingAvailable={false}
         isReservable={false}
       />,
     );
@@ -63,7 +68,11 @@ describe('KnowBeforeYouGo', () => {
 
   it('renders additional fees section when isAdditionalFeesAvailable = true and not reservable', () => {
     render(
-      <KnowBeforeYouGo isAdditionalFeesAvailable={true} isReservable={false} />,
+      <KnowBeforeYouGo
+        isAdditionalFeesAvailable={true}
+        isReservable={false}
+        isCampingAvailable={false}
+      />,
     );
 
     // Cash only section appears
@@ -76,6 +85,7 @@ describe('KnowBeforeYouGo', () => {
       <KnowBeforeYouGo
         isAdditionalFeesAvailable={false}
         isReservable={false}
+        isCampingAvailable={false}
       />,
     );
 
