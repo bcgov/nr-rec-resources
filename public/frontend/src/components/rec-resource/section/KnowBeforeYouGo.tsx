@@ -19,7 +19,7 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
   return (
     <section
       id={SectionIds.KNOW_BEFORE_YOU_GO}
-      className="rec-resource-section"
+      className="rec-resource-section know-before-you-go"
     >
       <h2 className="section-heading">{SectionTitles.KNOW_BEFORE_YOU_GO}</h2>
       <section className="mb-4">

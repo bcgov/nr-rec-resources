@@ -1,52 +1,53 @@
 @import '@/styles/variables.scss';
-
-.guides {
-  list-style-type: none;
-  margin: 10px 0;
-  padding: 0;
-}
-
-.packing-info {
-  // Fix for Axe accessibility "link-in-text-block" error
-  // Ensure links are distinguished from surrounding text in a way that does not rely on color
-  a {
-    text-decoration: underline;
+.know-before-you-go {
+  .guides {
+    list-style-type: none;
+    margin: 10px 0;
+    padding: 0;
   }
-}
 
-li {
-  margin: 10px 0;
-  padding: 0;
-  color: $colorBlueMed;
-}
+  .packing-info {
+    // Fix for Axe accessibility "link-in-text-block" error
+    // Ensure links are distinguished from surrounding text in a way that does not rely on color
+    a {
+      text-decoration: underline;
+    }
+  }
 
-.small-tittle {
-  font-weight: 700;
-  font-style: Bold;
-  font-size: 16px;
-  line-height: 25.6px;
-}
+  li {
+    margin: 10px 0;
+    padding: 0;
+    color: $colorBlueMed;
+  }
 
-p.small-tittle {
-  margin-bottom: 6px;
-}
+  .small-tittle {
+    font-weight: 700;
+    font-style: Bold;
+    font-size: 16px;
+    line-height: 25.6px;
+  }
 
-h3 {
-  // Unfortunate use of !important due to bootstrap theme headings using !important
-  font-size: 1.5rem !important;
-  margin-bottom: 1rem;
-}
+  p.small-tittle {
+    margin-bottom: 6px;
+  }
 
-.info-box {
-  background-color: $colorBlueLight;
-  color: $colorBlue;
-  font-weight: 700;
-  font-style: Bold;
-  font-size: 16px;
-  line-height: 25.6px;
-  letter-spacing: 0px;
-  border-radius: 4px;
-  padding: 16px;
-  margin-bottom: 32px;
-  margin-top: 10px;
+  h3 {
+    // Unfortunate use of !important due to bootstrap theme headings using !important
+    font-size: 1.5rem !important;
+    margin-bottom: 1rem;
+  }
+
+  .info-box {
+    background-color: $colorBlueLight;
+    color: $colorBlue;
+    font-weight: 700;
+    font-style: Bold;
+    font-size: 16px;
+    line-height: 25.6px;
+    letter-spacing: 0px;
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 32px;
+    margin-top: 10px;
+  }
 }
