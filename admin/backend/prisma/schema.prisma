@@ -24,6 +24,7 @@ model recreation_resource {
   created_by                           String?
   sys_period                           Unsupported("tstzrange")              @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
   project_established_date             DateTime?                             @db.Date
+  control_access_code                  String?                               @db.VarChar(1)
   recreation_access                    recreation_access[]
   recreation_activity                  recreation_activity[]
   recreation_agreement_holder          recreation_agreement_holder?
@@ -31,6 +32,7 @@ model recreation_resource {
   recreation_driving_direction         recreation_driving_direction?
   recreation_fee                       recreation_fee[]
   recreation_map_feature               recreation_map_feature[]
+  recreation_control_access_code       recreation_control_access_code?       @relation(fields: [control_access_code], references: [recreation_control_access_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_district_code             recreation_district_code?             @relation(fields: [district_code], references: [district_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_maintenance_standard_code recreation_maintenance_standard_code? @relation(fields: [maintenance_standard_code], references: [maintenance_standard_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_resource_docs             recreation_resource_docs[]
@@ -886,6 +888,39 @@ model recreation_resource_reservation_info_history {
   created_at               DateTime?                @db.Timestamp(6)
   created_by               String?
   sys_period               Unsupported("tstzrange")
+
+  @@ignore
+  @@schema("rst")
+}
+
+model recreation_control_access_code {
+  recreation_control_access_code String                   @id @db.VarChar(1)
+  description                    String?                  @db.VarChar(120)
+  effective_date                 DateTime?                @db.Date
+  expiry_date                    DateTime?                @db.Date
+  update_timestamp               DateTime?                @db.Timestamp(6)
+  updated_at                     DateTime?                @default(now()) @db.Timestamp(6)
+  updated_by                     String?
+  created_at                     DateTime?                @default(now()) @db.Timestamp(6)
+  created_by                     String?
+  sys_period                     Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_resource            recreation_resource[]
+
+  @@schema("rst")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_control_access_code_history {
+  recreation_control_access_code String                   @db.VarChar(1)
+  description                    String?                  @db.VarChar(120)
+  effective_date                 DateTime?                @db.Date
+  expiry_date                    DateTime?                @db.Date
+  update_timestamp               DateTime?                @db.Timestamp(6)
+  updated_at                     DateTime?                @db.Timestamp(6)
+  updated_by                     String?
+  created_at                     DateTime?                @db.Timestamp(6)
+  created_by                     String?
+  sys_period                     Unsupported("tstzrange")
 
   @@ignore
   @@schema("rst")
