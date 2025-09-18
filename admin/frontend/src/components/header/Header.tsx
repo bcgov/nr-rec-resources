@@ -78,10 +78,18 @@ const renderMenuToggle = (fullName: string) =>
 export const Header = () => {
   const { user, authService } = useAuthContext();
   const fullName = authService.getUserFullName();
+  const env = import.meta.env.MODE;
+  const isLocal =
+    import.meta.url.includes('localhost') ||
+    import.meta.url.includes('127.0.0.1');
+  const envString =
+    env && env !== 'production'
+      ? ` - Enviroment: ${env}${isLocal && '  - Local'}`
+      : '';
   return (
-    <div className={'header'}>
+    <div className={`header main ${env && env}`}>
       <BCGovHeader
-        title={'Admin Tool'}
+        title={`Admin Tool${envString}`}
         titleElement="h1"
         logoImage={
           <>

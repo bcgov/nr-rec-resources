@@ -1,6 +1,17 @@
 @import '@/styles/variables.scss';
 
 .header {
+  &.main {
+    background-color: $colorBlue;
+  }
+
+  &.development {
+    background-color: purple;
+  }
+
+  &.test {
+    background-color: green;
+  }
   &__logo {
     width: 200px;
     height: 50px;
@@ -26,7 +37,7 @@
   }
 
   .bcds-header {
-    background-color: $colorBlue !important;
+    background-color: transparent !important;
     color: $colorWhite;
     height: $headerHeight;
 
