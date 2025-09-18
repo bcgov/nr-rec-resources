@@ -1,4 +1,4 @@
-name: Matomo sample deployment
+name: Matomo deployment
 
 on:
   workflow_dispatch:
@@ -52,7 +52,7 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v5.0.0
         with:
-          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          role-to-assume: ${{ secrets.AWS_LZA_DEPLOY_ROLE_ARN }}
           role-session-name: matomo-deployment
           aws-region: ca-central-1
 
