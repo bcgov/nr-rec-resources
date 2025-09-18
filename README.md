@@ -48,8 +48,58 @@
 ### CI/CD
 
 - [CI/CD pipeline with GitHub Actions](docs/ci.md#ci-cd-pipeline-with-github-actions)
-  - [Docker image build and push](docs/ci.md#docker-image-build-and-push)
-  - [Visual Regression Testing with Happo](docs/ci.md#visual-regression-testing)
+- [Matomo Analytics Deployment](#matomo-analytics-deployment)
+
+### Matomo Analytics Deployment
+
+The project uses Matomo for web analytics, which is deployed using AWS CDK. The
+deployment is managed through GitHub Actions.
+
+#### Deployment Workflow
+
+> Currently matomo is only deployed in prod and is being used by all three
+> environments for public and admin apps.
+
+The deployment workflow is triggered manually and supports three environments:
+`dev`, `test`, and `prod`. The workflow performs the following steps:
+
+1. Checks out the Matomo CDK repository
+2. Sets up Node.js environment
+3. Installs AWS CDK CLI
+4. Installs project dependencies
+5. Configures AWS credentials using OIDC
+6. Bootstraps the CDK environment (if not already done)
+7. Deploys all CDK stacks
+
+#### Prerequisites
+
+Before deploying, ensure the following secrets are configured in the repository:
+
+- `MATOMO_ENV_ID`: Environment-specific Matomo ID
+- `MATOMO_AWS_ACCOUNT`: AWS account ID for Matomo
+- `MATOMO_NOTIFICATION_EMAILS`: Comma-separated list of emails for notifications
+- `MATOMO_ALLOWED_ORIGINS`: Allowed origins for Matomo tracking
+- `AWS_LZA_DEPLOY_ROLE_ARN`: ARN of the IAM role for deployment
+
+#### Manual Deployment
+
+To deploy Matomo to an environment:
+
+1. Go to the **Actions** tab in GitHub
+2. Select the **Matomo deployment** workflow
+3. Click **Run workflow**
+4. Select the target environment (`dev`, `test`, or `prod`)
+5. Click **Run workflow**
+
+The deployment will start and you can monitor its progress in the Actions tab.
+
+#### Environment Configuration
+
+Each environment has its own configuration with appropriate resource sizing and
+scaling. The deployment uses AWS services in the `ca-central-1` region.
+
+- [Docker image build and push](docs/ci.md#docker-image-build-and-push)
+- [Visual Regression Testing with Happo](docs/ci.md#visual-regression-testing)
 
 ### Deployment
 
