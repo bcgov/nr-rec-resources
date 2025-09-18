@@ -129,7 +129,7 @@ describe('RecResourceReservation', () => {
     expect(
       screen.getByText(/This site is first come first served/i),
     ).toBeInTheDocument();
-    const campingLink = screen.getByRole('link', { name: 'camping fees' });
+    const campingLink = screen.getByRole('link', { name: 'camping' });
     expect(campingLink).toHaveAttribute('href', '/resource/REC123#camping');
   });
 

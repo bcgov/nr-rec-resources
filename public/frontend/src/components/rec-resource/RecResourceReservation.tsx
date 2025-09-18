@@ -102,7 +102,7 @@ const RecResourceReservation: React.FC<RecResourceReservationProps> = ({
                       <a
                         href={`/resource/${recResource.rec_resource_id}#camping`}
                       >
-                        camping fees
+                        camping
                       </a>
                       {isAdditionalFeesAvailable &&
                         !isFacilitiesAvailable &&
