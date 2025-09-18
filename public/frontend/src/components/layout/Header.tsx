@@ -31,11 +31,19 @@ const Header = () => {
     setIsHamburgerMenuOpen(false);
   };
 
+  const env = import.meta.env.MODE;
+  const isLocal =
+    import.meta.url.includes('localhost') ||
+    import.meta.url.includes('127.0.0.1');
+
   return (
     <header id="header">
       <BetaBanner />
       <div className="page-nav-container main">
-        <nav aria-label="Main header navigation" className="header-nav main">
+        <nav
+          aria-label="Main header navigation"
+          className={`header-nav main ${env && env}`}
+        >
           <div className="navbar-brand">
             <Link to={ROUTE_PATHS.HOME}>
               <img
@@ -44,6 +52,12 @@ const Header = () => {
                 alt="Recreation Sites and Trails BC Logo"
               />
             </Link>
+            {env && env !== 'production' && (
+              <span className="env-identification">
+                Enviroment: {env}
+                {isLocal && '  - Local'}
+              </span>
+            )}
           </div>
           <div className="header-actions">
             <HamburgerButton

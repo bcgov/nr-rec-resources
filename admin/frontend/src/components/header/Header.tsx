@@ -99,30 +99,34 @@ export const Header = () => {
           </>
         }
       >
-        <Stack
-          direction={'horizontal'}
-          gap={3}
-          className={`d-flex justify-content-end align-items-center`}
-        >
-          {user && <div className="d-none d-lg-block fw-bold">{fullName}</div>}
-          <Dropdown>
-            <DropdownToggle
-              as={renderMenuToggle(fullName)} // use the renderMenuToggle function
-              id="dropdown-basic"
-            />
-            <DropdownMenu>
-              {user && (
-                // Only show in mobile view (md and lower)
-                <DropdownItem disabled className="d-md-none">
-                  Signed in as {user?.idir_username}
+        <div className="test">
+          <Stack
+            direction={'horizontal'}
+            gap={3}
+            className={`d-flex justify-content-end align-items-center`}
+          >
+            {user && (
+              <div className="d-none d-lg-block fw-bold">{fullName}</div>
+            )}
+            <Dropdown>
+              <DropdownToggle
+                as={renderMenuToggle(fullName)} // use the renderMenuToggle function
+                id="dropdown-basic"
+              />
+              <DropdownMenu>
+                {user && (
+                  // Only show in mobile view (md and lower)
+                  <DropdownItem disabled className="d-md-none">
+                    Signed in as {user?.idir_username}
+                  </DropdownItem>
+                )}
+                <DropdownItem onClick={() => authService.logout()}>
+                  Logout
                 </DropdownItem>
-              )}
-              <DropdownItem onClick={() => authService.logout()}>
-                Logout
-              </DropdownItem>
-            </DropdownMenu>
-          </Dropdown>
-        </Stack>
+              </DropdownMenu>
+            </Dropdown>
+          </Stack>
+        </div>
       </BCGovHeader>
     </div>
   );
