@@ -4,7 +4,6 @@ import type Feature from 'ol/Feature';
 import type Style from 'ol/style/Style';
 
 export type UseLayerOptions = {
-  hideBelowZoom?: number;
   applyHoverStyles?: boolean;
 };
 

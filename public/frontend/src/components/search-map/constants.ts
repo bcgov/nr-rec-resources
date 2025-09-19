@@ -1,8 +1,6 @@
 export enum MAP_LAYER_OPTIONS {
   TILE_SIZE = 512,
   MAX_ZOOM_LEVEL = 30,
-  MAX_TEXT_RESOLUTION = 400,
-  HIDE_AT_ZOOM_OUT_RESOLUTION = 2500,
 }
 
 export const ZOOM_LEVELS = {
@@ -38,6 +36,12 @@ export const WILDFIRE_LOCATION_MIN_ZOOM = ZOOM_LEVELS.DISTRICT;
 
 export const RECREATION_FEATURE_LAYER =
   'https://services6.arcgis.com/ubm4tcTYICKBpist/arcgis/rest/services/RecSitesReservesInterpForests_DetailsClosures_publicView/FeatureServer/0';
+
+export const RECREATION_LINES_LAYER =
+  'https://maps.gov.bc.ca/arcgis/rest/services/whse/bcgw_pub_whse_forest_tenure/MapServer/3';
+
+export const RECREATION_SITE_BOUNDARY_LAYER =
+  'https://maps.gov.bc.ca/arcgis/rest/services/whse/bcgw_pub_whse_forest_tenure/MapServer/5';
 
 export const WILDFIRE_LOCATION_LAYER =
   'https://services6.arcgis.com/ubm4tcTYICKBpist/arcgis/rest/services/BCWS_ActiveFires_PublicView/FeatureServer/0';

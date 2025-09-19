@@ -10,6 +10,8 @@ import { SearchViewControls } from '@/components/search';
 import {
   useClusteredRecreationFeatureLayer,
   useFeatureSelection,
+  useRecreationSiteBoundaryLayer,
+  useRecreationLinesLayer,
   useWildfireLocationLayer,
   useWildfirePerimeterLayer,
   useZoomToExtent,
@@ -26,7 +28,6 @@ import { faSliders } from '@fortawesome/free-solid-svg-icons';
 import { Button, ProgressBar } from 'react-bootstrap';
 import { trackClickEvent } from '@/utils/matomo';
 import '@/components/search-map/SearchMap.scss';
-import { WILDFIRE_LOCATION_MIN_ZOOM } from '@/components/search-map/constants';
 import RecreationSuggestionForm from '@/components/recreation-suggestion-form/RecreationSuggestionForm';
 import type Feature from 'ol/Feature';
 import MapDisclaimerModal from '../rec-resource/RecreationResourceMap/MapDisclaimerModal';
@@ -83,14 +84,22 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
       animatedClusterOptions: ANIMATED_CLUSTER_OPTIONS,
     });
 
+  const { layer: recreationLinesLayer } = useRecreationLinesLayer(
+    recResourceIds,
+    mapRef,
+  );
+
+  const { layer: recreationSiteBoundaryLayer } = useRecreationSiteBoundaryLayer(
+    recResourceIds,
+    mapRef,
+  );
+
   const { layer: wildfireLocationsLayer } = useWildfireLocationLayer(mapRef, {
     applyHoverStyles: true,
-    hideBelowZoom: WILDFIRE_LOCATION_MIN_ZOOM,
   });
 
   const { layer: wildfirePerimeterLayer } = useWildfirePerimeterLayer(mapRef, {
     applyHoverStyles: false,
-    hideBelowZoom: WILDFIRE_LOCATION_MIN_ZOOM,
   });
 
   const featureSelectionLayers = useMemo(
@@ -153,6 +162,21 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
   const layers = useMemo(
     () => [
       {
+        id: 'recreation-features',
+        layerInstance: clusteredRecreationFeatureLayer,
+        visible: true,
+      },
+      {
+        id: 'recreation-lines',
+        layerInstance: recreationLinesLayer,
+        visible: true,
+      },
+      {
+        id: 'recreation-site-boundaries',
+        layerInstance: recreationSiteBoundaryLayer,
+        visible: true,
+      },
+      {
         id: 'wildfire-perimeters',
         layerInstance: wildfirePerimeterLayer,
         visible: true,
@@ -162,14 +186,11 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
         layerInstance: wildfireLocationsLayer,
         visible: true,
       },
-      {
-        id: 'recreation-features',
-        layerInstance: clusteredRecreationFeatureLayer,
-        visible: true,
-      },
     ],
     [
       clusteredRecreationFeatureLayer,
+      recreationLinesLayer,
+      recreationSiteBoundaryLayer,
       wildfireLocationsLayer,
       wildfirePerimeterLayer,
     ],
