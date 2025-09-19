@@ -28,6 +28,14 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
+vi.mock('@tanstack/react-store', () => ({
+  useStore: vi.fn(() => ({ wasCleared: false })),
+}));
+
+vi.mock('@/store/searchInputStore', () => ({
+  default: { setState: vi.fn() },
+}));
+
 describe('useZoomToExtent', () => {
   const extentGeoJSON = JSON.stringify({
     type: 'Polygon',
@@ -38,6 +46,19 @@ describe('useZoomToExtent', () => {
         [1, 1],
         [0, 1],
         [0, 0],
+      ],
+    ],
+  });
+
+  const differentExtentGeoJSON = JSON.stringify({
+    type: 'Polygon',
+    coordinates: [
+      [
+        [1, 1],
+        [2, 1],
+        [2, 2],
+        [1, 2],
+        [1, 1],
       ],
     ],
   });
@@ -72,8 +93,16 @@ describe('useZoomToExtent', () => {
 
     const mapRef = { current: { getMap: () => createMapMock(1200, 800) } };
 
-    renderHook(() => useZoomToExtent(mapRef, extentGeoJSON));
+    const { rerender } = renderHook(
+      ({ extent }) => useZoomToExtent(mapRef, extent),
+      { initialProps: { extent: extentGeoJSON } },
+    );
 
+    // First call should be skipped due to initial load check
+    expect(fit).not.toHaveBeenCalled();
+
+    // Second call should trigger the zoom when extent changes
+    rerender({ extent: differentExtentGeoJSON });
     expect(fit).toHaveBeenCalledWith([0, 0, 100, 100], {
       padding: [150, 250, 300, 250],
       maxZoom: 16,
@@ -95,8 +124,16 @@ describe('useZoomToExtent', () => {
 
     const mapRef = { current: { getMap: () => createMapMock(800, 600) } };
 
-    renderHook(() => useZoomToExtent(mapRef, extentGeoJSON));
+    const { rerender } = renderHook(
+      ({ extent }) => useZoomToExtent(mapRef, extent),
+      { initialProps: { extent: extentGeoJSON } },
+    );
 
+    // First call should be skipped due to initial load check
+    expect(fit).not.toHaveBeenCalled();
+
+    // Second call should trigger the zoom when extent changes
+    rerender({ extent: differentExtentGeoJSON });
     expect(fit).toHaveBeenCalledWith([0, 0, 100, 100], {
       padding: [150, 200, 250, 200],
       maxZoom: 16,
@@ -109,8 +146,16 @@ describe('useZoomToExtent', () => {
 
     const mapRef = { current: { getMap: () => createMapMock(375, 667) } };
 
-    renderHook(() => useZoomToExtent(mapRef, extentGeoJSON));
+    const { rerender } = renderHook(
+      ({ extent }) => useZoomToExtent(mapRef, extent),
+      { initialProps: { extent: extentGeoJSON } },
+    );
 
+    // First call should be skipped due to initial load check
+    expect(fit).not.toHaveBeenCalled();
+
+    // Second call should trigger the zoom when extent changes
+    rerender({ extent: differentExtentGeoJSON });
     expect(fit).toHaveBeenCalledWith([0, 0, 100, 100], {
       padding: [50, 50, 50, 50],
       maxZoom: 16,
@@ -127,31 +172,62 @@ describe('useZoomToExtent', () => {
 
     const mapRef = { current: { getMap: () => ({}) as unknown as OLMap } };
 
-    renderHook(() => useZoomToExtent(mapRef, 'invalid-json'));
+    const { rerender } = renderHook(
+      ({ extent }) => useZoomToExtent(mapRef, extent),
+      { initialProps: { extent: extentGeoJSON } },
+    );
+
+    // Second call with invalid extent should trigger error
+    rerender({ extent: 'invalid-json' });
 
     expect(consoleError).toHaveBeenCalled();
     consoleError.mockRestore();
   });
 
-  it('skips zoom if filter was cleared', () => {
+  it('zooms when extent changes after initialization', () => {
     mockUseSearchParams.mockReturnValue('filter=abc');
 
     const mapRef = { current: { getMap: () => createMapMock(1200, 800) } };
 
-    const { rerender } = renderHook(() =>
-      useZoomToExtent(mapRef, extentGeoJSON),
+    const { rerender } = renderHook(
+      ({ extent }) => useZoomToExtent(mapRef, extent),
+      { initialProps: { extent: extentGeoJSON } },
     );
 
-    expect(fit).toHaveBeenCalled();
-
-    vi.clearAllMocks();
-
-    // simulate filter cleared
-    mockUseSearchParams.mockReturnValue('');
-
-    rerender();
-
+    // First call should be skipped due to initial load check
     expect(fit).not.toHaveBeenCalled();
-    expect(setZoom).not.toHaveBeenCalled();
+
+    // Second call should trigger zoom when extent changes
+    rerender({ extent: differentExtentGeoJSON });
+
+    // Should have called fit because map is initialized and extent changed
+    expect(fit).toHaveBeenCalled();
+  });
+
+  it('skips zoom if filter was cleared', async () => {
+    const mapRef = { current: { getMap: () => createMapMock(1200, 800) } };
+
+    vi.resetModules();
+    vi.doMock('@tanstack/react-store', () => ({
+      useStore: vi.fn(() => ({ wasCleared: true })),
+    }));
+
+    const { useZoomToExtent: useZoomToExtentWithClearedFilter } = await import(
+      '@/components/search-map/hooks/useZoomToExtent'
+    );
+
+    const { rerender } = renderHook(
+      ({ extent }) => useZoomToExtentWithClearedFilter(mapRef, extent),
+      { initialProps: { extent: extentGeoJSON } },
+    );
+
+    // First call should be skipped due to initial load check
+    expect(fit).not.toHaveBeenCalled();
+
+    // Second call should NOT trigger zoom because wasCleared is true
+    rerender({ extent: differentExtentGeoJSON });
+
+    // Should not have called fit because wasCleared is true
+    expect(fit).not.toHaveBeenCalled();
   });
 });
