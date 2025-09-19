@@ -4,25 +4,32 @@ import XYZ from 'ol/source/XYZ';
 import BaseLayer from 'ol/layer/Base';
 import LayerGroup from 'ol/layer/Group';
 import { useStyledLayer } from '@bcgov/prp-map';
-import { MAP_LAYER_URLS } from '@/components/search-map/constants';
+import {
+  BC_BASE_LAYER_URLS,
+  CANADA_TOPO_LAYER_URLS,
+  BASE_LAYER_URLS,
+  WORLD_BASEMAP_V2_URLS,
+} from '@/components/search-map/constants';
 
 export const useBaseMaps = () => {
   const prpBaseLayer = useStyledLayer(
-    MAP_LAYER_URLS.BC_BASE_LAYER,
-    MAP_LAYER_URLS.BC_BASE_STYLE,
+    BC_BASE_LAYER_URLS.VECTOR_TILE_URL,
+    BC_BASE_LAYER_URLS.STYLE_URL,
     'esri',
   );
   const canadaTopographicLayerBasic = useStyledLayer(
-    MAP_LAYER_URLS.CANADA_TOPOGRAPHIC_LAYER,
-    MAP_LAYER_URLS.CANADA_TOPOGRAPHIC_STYLE_BASIC,
+    CANADA_TOPO_LAYER_URLS.VECTOR_TILE_URL,
+    CANADA_TOPO_LAYER_URLS.STYLE_URL_BASIC,
     'esri',
   );
 
-  const canadaTopographicLayerFull = useStyledLayer(
-    MAP_LAYER_URLS.CANADA_TOPOGRAPHIC_LAYER,
-    MAP_LAYER_URLS.CANADA_TOPOGRAPHIC_STYLE_FULL,
+  const worldBasemapV2Layer = useStyledLayer(
+    WORLD_BASEMAP_V2_URLS.VECTOR_TILE_URL,
+    WORLD_BASEMAP_V2_URLS.STYLE_URL,
     'esri',
   );
+
+  worldBasemapV2Layer.setOpacity(0.3);
 
   const baseMaps = useMemo(
     () => [
@@ -37,42 +44,27 @@ export const useBaseMaps = () => {
         name: 'Hillshade',
         layer: new LayerGroup({
           layers: [
-            // World hillshade as base
             new TileLayer({
               source: new XYZ({
-                url: MAP_LAYER_URLS.WORLD_HILLSHADE_TILE_LAYER,
+                url: BASE_LAYER_URLS.WORLD_HILLSHADE_TILE_LAYER,
                 attributions: 'Esri World Hillshade',
-                cacheSize: 512,
-                maxZoom: 18,
+                cacheSize: 1024,
               }),
               preload: 4,
               useInterimTilesOnError: true,
             }),
-            // Canada hillshade overlaid
             new TileLayer({
               source: new XYZ({
-                url: MAP_LAYER_URLS.CANADA_HILLSHADE_TILE_LAYER,
+                url: BASE_LAYER_URLS.CANADA_HILLSHADE_TILE_LAYER,
                 attributions: 'Esri Canada Hillshade',
-                cacheSize: 512,
-                maxZoom: 18,
+                cacheSize: 1024,
               }),
               preload: 4,
               useInterimTilesOnError: true,
             }),
-            // World street map (similar style, fewer labels)
-            new TileLayer({
-              source: new XYZ({
-                url: 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
-                attributions: 'Esri World Street Map',
-                cacheSize: 512,
-                maxZoom: 18,
-              }),
-              preload: 4,
-              useInterimTilesOnError: true,
-              opacity: 0.6, // Lower opacity to reduce label prominence
-            }),
-            // Canada topographic full
-            canadaTopographicLayerFull,
+
+            worldBasemapV2Layer,
+            canadaTopographicLayerBasic,
           ] as BaseLayer[],
         }),
         image: '/src/components/search-map/assets/basemap/hillshade.webp',
@@ -85,7 +77,7 @@ export const useBaseMaps = () => {
           layers: [
             new TileLayer({
               source: new XYZ({
-                url: MAP_LAYER_URLS.ESRI_WORLD_IMAGERY_LAYER,
+                url: BASE_LAYER_URLS.ESRI_WORLD_IMAGERY_LAYER,
                 attributions: 'Esri World Imagery',
                 cacheSize: 512,
                 maxZoom: 18, // Esri World Imagery maximum zoom level
@@ -99,7 +91,7 @@ export const useBaseMaps = () => {
         image: '/src/components/search-map/assets/basemap/satellite.webp',
       },
     ],
-    [prpBaseLayer, canadaTopographicLayerBasic, canadaTopographicLayerFull],
+    [prpBaseLayer, canadaTopographicLayerBasic, worldBasemapV2Layer],
   );
 
   return baseMaps;

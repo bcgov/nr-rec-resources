@@ -17,6 +17,7 @@
   "dependencies": {
     "@bcgov/bc-sans": "^2.1.0",
     "@bcgov/design-system-react-components": "^0.5.1",
+    "@fortawesome/fontawesome-free": "^7.0.0",
     "@fortawesome/fontawesome-svg-core": "^7.0.1",
     "@fortawesome/free-brands-svg-icons": "^7.0.0",
     "@fortawesome/free-solid-svg-icons": "^7.0.1",

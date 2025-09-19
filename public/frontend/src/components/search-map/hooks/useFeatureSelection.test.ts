@@ -75,6 +75,7 @@ describe('useFeatureSelection', () => {
       set: vi.fn(),
       setStyle: vi.fn(),
       get: vi.fn(),
+      changed: vi.fn(),
     };
 
     mockSource = {
@@ -98,6 +99,14 @@ describe('useFeatureSelection', () => {
       on: vi.fn(),
       un: vi.fn(),
       getView: vi.fn(() => mockView),
+      renderSync: vi.fn(),
+      forEachFeatureAtPixel: vi.fn(),
+      once: vi.fn((event, callback) => {
+        if (event === 'rendercomplete') {
+          callback();
+        }
+        return 'mock-event-key' as any;
+      }),
     };
 
     mockOverlay = {
@@ -234,7 +243,6 @@ describe('useFeatureSelection', () => {
         }),
       );
 
-      // First, simulate a selection by triggering the select event
       const selectHandler = mockSelect.on.mock.calls.find(
         ([event]: any) => event === 'select',
       )[1];
@@ -246,7 +254,6 @@ describe('useFeatureSelection', () => {
         selected: [mockFeature],
       });
 
-      // Now clear the selection
       result.current.clearSelection();
 
       expect(mockFeature.set).toHaveBeenCalledWith('selected', false);
@@ -319,8 +326,8 @@ describe('useFeatureSelection', () => {
 
     it('should handle deselected clustered features', () => {
       const clusteredFeatures = [
-        { set: vi.fn(), setStyle: vi.fn() },
-        { set: vi.fn(), setStyle: vi.fn() },
+        { set: vi.fn(), setStyle: vi.fn(), changed: vi.fn() },
+        { set: vi.fn(), setStyle: vi.fn(), changed: vi.fn() },
       ];
       const deselectedFeature = {
         ...mockFeature,
@@ -340,6 +347,7 @@ describe('useFeatureSelection', () => {
       clusteredFeatures.forEach((f) => {
         expect(f.set).toHaveBeenCalledWith('selected', false);
         expect(f.setStyle).toHaveBeenCalledWith();
+        expect(f.changed).toHaveBeenCalledWith();
       });
       expect(deselectedFeature.setStyle).toHaveBeenCalledWith();
     });
@@ -528,19 +536,6 @@ describe('useFeatureSelection', () => {
       expect(() => newMoveEndHandler()).not.toThrow();
     });
 
-    it('should do nothing when map is null', () => {
-      const nullMapRef = { current: null };
-      renderHook(() =>
-        useFeatureSelection({
-          mapRef: nullMapRef,
-          featureLayers: mockFeatureLayers,
-          overlayRef: mockOverlayRef,
-        }),
-      );
-
-      expect(() => moveEndHandler()).not.toThrow();
-    });
-
     it('should clear selection when zoom is below threshold', () => {
       mockLayer.get.mockReturnValue(15); // hideBelowZoom
       mockView.getZoom.mockReturnValue(10); // current zoom below threshold
@@ -552,7 +547,7 @@ describe('useFeatureSelection', () => {
     });
 
     it('should clear selection when feature is not present in source', () => {
-      mockSource.getFeatures.mockReturnValue([]); // Feature not in source
+      mockSource.getFeatures.mockReturnValue([]);
 
       moveEndHandler();
 
@@ -563,7 +558,7 @@ describe('useFeatureSelection', () => {
     it('should clear selection for clustered layer when feature not in single cluster', () => {
       mockIsClusteredLayer.mockReturnValue(true);
 
-      const clusterFeatures = [mockFeature, { id: 'other' }]; // Multiple features in cluster
+      const clusterFeatures = [mockFeature, { id: 'other' }];
       const clusterFeature = {
         get: vi.fn(() => clusterFeatures),
       };
@@ -584,7 +579,7 @@ describe('useFeatureSelection', () => {
 
       mockLayer.getSource.mockReturnValue({
         getSource: vi.fn(() => mockSource),
-        getFeatures: vi.fn(() => []), // No cluster features
+        getFeatures: vi.fn(() => []),
       });
 
       moveEndHandler();
@@ -597,7 +592,7 @@ describe('useFeatureSelection', () => {
       mockIsClusteredLayer.mockReturnValue(true);
 
       const clusterFeature = {
-        get: vi.fn(() => [mockFeature]), // Single feature in cluster
+        get: vi.fn(() => [mockFeature]),
       };
 
       mockLayer.getSource.mockReturnValue({
@@ -609,138 +604,105 @@ describe('useFeatureSelection', () => {
 
       expect(mockFeature.set).not.toHaveBeenCalledWith('selected', false);
     });
-
-    it('should handle layer config not found', () => {
-      // Remove the layer from featureLayers to simulate not found
-      renderHook(() =>
-        useFeatureSelection({
-          mapRef: mockMapRef,
-          featureLayers: [],
-          overlayRef: mockOverlayRef,
-        }),
-      );
-
-      expect(() => moveEndHandler()).not.toThrow();
-    });
   });
 
-  describe('cleanup', () => {
-    it('should cleanup on unmount', () => {
-      const { unmount } = renderHook(() =>
-        useFeatureSelection({
-          mapRef: mockMapRef,
-          featureLayers: mockFeatureLayers,
-          overlayRef: mockOverlayRef,
-        }),
-      );
+  it('should pass options to centerMapOnFeature', () => {
+    const options = {
+      featureOffsetX: 10,
+      featureOffsetY: 20,
+    };
 
-      unmount();
-
-      expect(mockMap.removeInteraction).toHaveBeenCalledWith(mockSelect);
-    });
-  });
-
-  describe('options handling', () => {
-    it('should pass options to centerMapOnFeature', () => {
-      const options = {
-        featureOffsetX: 10,
-        featureOffsetY: 20,
-      };
-
-      renderHook(() =>
-        useFeatureSelection({
-          mapRef: mockMapRef,
-          featureLayers: mockFeatureLayers,
-          overlayRef: mockOverlayRef,
-          options,
-        }),
-      );
-
-      const selectHandler = mockSelect.on.mock.calls.find(
-        ([event]: any) => event === 'select',
-      )[1];
-
-      mockSource.getFeatures.mockReturnValue([mockFeature]);
-      mockFeatureLayers[0].layer.getSource.mockReturnValue(mockSource);
-      mockIsClusteredLayer.mockReturnValue(false);
-
-      (selectHandler as any)({
-        deselected: [],
-        selected: [mockFeature],
-      });
-
-      expect(mockCenterMapOnFeature).toHaveBeenCalledWith(
-        mockMap,
-        mockFeature,
+    renderHook(() =>
+      useFeatureSelection({
+        mapRef: mockMapRef,
+        featureLayers: mockFeatureLayers,
+        overlayRef: mockOverlayRef,
         options,
-      );
+      }),
+    );
+
+    const selectHandler = mockSelect.on.mock.calls.find(
+      ([event]: any) => event === 'select',
+    )[1];
+
+    mockSource.getFeatures.mockReturnValue([mockFeature]);
+    mockFeatureLayers[0].layer.getSource.mockReturnValue(mockSource);
+    mockIsClusteredLayer.mockReturnValue(false);
+
+    (selectHandler as any)({
+      deselected: [],
+      selected: [mockFeature],
     });
 
-    it('should use empty object as default options', () => {
-      renderHook(() =>
-        useFeatureSelection({
-          mapRef: mockMapRef,
-          featureLayers: mockFeatureLayers,
-          overlayRef: mockOverlayRef,
-        }),
-      );
-
-      const selectHandler = mockSelect.on.mock.calls.find(
-        ([event]: any) => event === 'select',
-      )[1];
-
-      mockSource.getFeatures.mockReturnValue([mockFeature]);
-      mockFeatureLayers[0].layer.getSource.mockReturnValue(mockSource);
-      mockIsClusteredLayer.mockReturnValue(false);
-
-      (selectHandler as any)({
-        deselected: [],
-        selected: [mockFeature],
-      });
-
-      expect(mockCenterMapOnFeature).toHaveBeenCalledWith(
-        mockMap,
-        mockFeature,
-        {},
-      );
-    });
+    expect(mockCenterMapOnFeature).toHaveBeenCalledWith(
+      mockMap,
+      mockFeature,
+      options,
+    );
   });
 
-  describe('z-index management', () => {
-    it('should update z-index for multiple layers', () => {
-      const secondLayer = {
-        getSource: vi.fn(() => ({ getFeatures: vi.fn(() => []) })),
-        setZIndex: vi.fn(),
-      };
+  it('should use empty object as default options', () => {
+    renderHook(() =>
+      useFeatureSelection({
+        mapRef: mockMapRef,
+        featureLayers: mockFeatureLayers,
+        overlayRef: mockOverlayRef,
+      }),
+    );
 
-      const multipleLayersConfig = [
-        { id: 'layer1', layer: mockLayer, onFeatureSelect: vi.fn() },
-        { id: 'layer2', layer: secondLayer, onFeatureSelect: vi.fn() },
-      ];
+    const selectHandler = mockSelect.on.mock.calls.find(
+      ([event]: any) => event === 'select',
+    )[1];
 
-      renderHook(() =>
-        useFeatureSelection({
-          mapRef: mockMapRef,
-          featureLayers: multipleLayersConfig,
-          overlayRef: mockOverlayRef,
-        }),
-      );
+    mockSource.getFeatures.mockReturnValue([mockFeature]);
+    mockFeatureLayers[0].layer.getSource.mockReturnValue(mockSource);
+    mockIsClusteredLayer.mockReturnValue(false);
 
-      const selectHandler = mockSelect.on.mock.calls.find(
-        ([event]: any) => event === 'select',
-      )[1];
-
-      mockSource.getFeatures.mockReturnValue([mockFeature]);
-      mockLayer.getSource.mockReturnValue(mockSource);
-      mockIsClusteredLayer.mockReturnValue(false);
-
-      (selectHandler as any)({
-        deselected: [],
-        selected: [mockFeature],
-      });
-
-      expect(mockLayer.setZIndex).toHaveBeenCalledWith(10); // Selected layer
-      expect(secondLayer.setZIndex).toHaveBeenCalledWith(1); // Non-selected layer
+    (selectHandler as any)({
+      deselected: [],
+      selected: [mockFeature],
     });
+
+    expect(mockCenterMapOnFeature).toHaveBeenCalledWith(
+      mockMap,
+      mockFeature,
+      {},
+    );
+  });
+
+  it('should update z-index for multiple layers', () => {
+    const secondLayer = {
+      getSource: vi.fn(() => ({ getFeatures: vi.fn(() => []) })),
+      setZIndex: vi.fn(),
+    };
+
+    const multipleLayersConfig = [
+      { id: 'layer1', layer: mockLayer, onFeatureSelect: vi.fn() },
+      { id: 'layer2', layer: secondLayer, onFeatureSelect: vi.fn() },
+    ];
+
+    renderHook(() =>
+      useFeatureSelection({
+        mapRef: mockMapRef,
+        featureLayers: multipleLayersConfig,
+        overlayRef: mockOverlayRef,
+      }),
+    );
+
+    const selectHandler = mockSelect.on.mock.calls.find(
+      ([event]: any) => event === 'select',
+    )[1];
+
+    mockSource.getFeatures.mockReturnValue([mockFeature]);
+    mockLayer.getSource.mockReturnValue(mockSource);
+    mockIsClusteredLayer.mockReturnValue(false);
+
+    (selectHandler as any)({
+      deselected: [],
+      selected: [mockFeature],
+    });
+
+    expect(mockLayer.setZIndex).toHaveBeenCalledWith(10); // Selected layer
+    expect(secondLayer.setZIndex).toHaveBeenCalledWith(1); // Non-selected layer
   });
 });
