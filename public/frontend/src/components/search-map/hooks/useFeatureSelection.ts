@@ -41,6 +41,7 @@ export function useFeatureSelection({
 }: UseFeatureSelectionParams) {
   const selectedFeatureRef = useRef<SelectedFeatureInfo | null>(null);
   const selectRef = useRef<Select | null>(null);
+  const selectionHandledRef = useRef<boolean>(false);
 
   // Clear current selection and reset styles
   const clearSelection = () => {
@@ -50,6 +51,9 @@ export function useFeatureSelection({
 
     current.feature.set('selected', false);
     current.feature.setStyle();
+    try {
+      current.feature.changed();
+    } catch {}
 
     overlayRef.current?.setPosition(undefined);
 
@@ -58,6 +62,11 @@ export function useFeatureSelection({
     );
     if (layerConfig) {
       layerConfig.onFeatureSelect(null);
+      try {
+        const layer: any = layerConfig.layer as any;
+        layer?.changed?.();
+        layer?.getSource?.()?.changed?.();
+      } catch {}
     }
 
     selectRef.current?.getFeatures().clear();
@@ -90,16 +99,29 @@ export function useFeatureSelection({
 
       applySelectedStyle(feature, layerConfig);
       feature.set('selected', true);
+      try {
+        feature.changed();
+        const layer: any = layerConfig.layer as any;
+        layer?.changed?.();
+        layer?.getSource?.()?.changed?.();
+        map.renderSync();
+      } catch {}
 
       selectedFeatureRef.current = {
         feature,
         layerId: layerConfig.id,
       };
 
-      // center map on feature for popup
+      // center map on feature for popup, then position overlay after render to avoid misalignment
       centerMapOnFeature(map, feature, options);
       const centerCoords = getPointFeatureCoordinates(feature);
-      overlayRef.current?.setPosition(centerCoords);
+      try {
+        map.once('rendercomplete', () => {
+          overlayRef.current?.setPosition(centerCoords);
+        });
+      } catch {
+        overlayRef.current?.setPosition(centerCoords);
+      }
 
       layerConfig.onFeatureSelect(feature);
 
@@ -111,6 +133,7 @@ export function useFeatureSelection({
     };
 
     const handleSelect = (e: SelectEvent) => {
+      selectionHandledRef.current = true;
       // Deselect features and reset their styles
       e.deselected.forEach((feat) => {
         const layerConfig = getFeatureLayerConfig(feat, featureLayers);
@@ -124,9 +147,18 @@ export function useFeatureSelection({
           deselectedFeatures.forEach((f: Feature) => {
             f.set('selected', false);
             f.setStyle();
+            try {
+              f.changed();
+            } catch {}
           });
 
           feat.setStyle();
+          try {
+            const layer: any = layerConfig.layer as any;
+            layer?.changed?.();
+            layer?.getSource?.()?.changed?.();
+            map.renderSync();
+          } catch {}
         }
       });
 
@@ -212,10 +244,32 @@ export function useFeatureSelection({
     select.on('select', handleSelect);
     map.on('moveend', handleMoveEnd);
 
+    // Clear selection when user starts a click on empty map space.
+    // Using pointerdown avoids race conditions with recenters during select.
+    // Fallback: clear selection on singleclick when nothing was selected
+    const handleSingleClick = (evt: any) => {
+      // If this click already handled a selection, skip clearing
+      if (selectionHandledRef.current) {
+        // reset flag on next tick so subsequent clicks can clear
+        setTimeout(() => (selectionHandledRef.current = false), 0);
+        return;
+      }
+      const hit = map.forEachFeatureAtPixel(evt.pixel, (feature) => feature, {
+        layerFilter: (layer) => layers.includes(layer as any),
+        hitTolerance: 2,
+      });
+      if (!hit) {
+        clearSelection();
+      }
+    };
+    map.on('singleclick', handleSingleClick);
+
     return () => {
       map.removeInteraction(select);
       overlayRef.current = null;
       selectRef.current = null;
+      map.un('moveend', handleMoveEnd);
+      map.un('singleclick', handleSingleClick);
     };
     // eslint-disable-next-line
   }, [mapRef, featureLayers, overlayRef]);

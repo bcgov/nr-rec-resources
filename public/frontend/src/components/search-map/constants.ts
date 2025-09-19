@@ -48,3 +48,35 @@ export const WILDFIRE_PERIMETER_LAYER =
 export enum SearchMapFocusModes {
   REC_RESOURCE_ID = 'recResourceId',
 }
+
+/**
+ * Default map center coordinates in Web Mercator (EPSG:3857) projection
+ * Centered north of Williams Lake
+ */
+export const MAP_CENTER_COORDINATES: [number, number] = [
+  -13599121.904043, 7300000,
+];
+
+/**
+ * Default zoom level for the map
+ */
+export const DEFAULT_MAP_ZOOM = 6;
+
+export const MAP_LAYER_URLS = {
+  BC_BASE_LAYER:
+    'https://tiles.arcgis.com/tiles/ubm4tcTYICKBpist/arcgis/rest/services/BC_BASEMAP_20240307/VectorTileServer/tile/{z}/{x}/{y}.pbf',
+  BC_BASE_STYLE:
+    'https://www.arcgis.com/sharing/rest/content/items/b1624fea73bd46c681fab55be53d96ae/resources/styles/root.json',
+  CANADA_TOPOGRAPHIC_LAYER:
+    'https://tiles.arcgis.com/tiles/B6yKvIZqzuOr0jBR/arcgis/rest/services/Canada_Topographic/VectorTileServer/tile/{z}/{y}/{x}.pbf',
+  CANADA_TOPOGRAPHIC_STYLE_BASIC:
+    'https://www.arcgis.com/sharing/rest/content/items/85e2f70a08494305b60af53bd6fd5cbe/resources/styles/root.json',
+  CANADA_TOPOGRAPHIC_STYLE_FULL:
+    'https://tiles.arcgis.com/tiles/B6yKvIZqzuOr0jBR/arcgis/rest/services/Canada_Topographic/VectorTileServer/resources/styles/root.json',
+  CANADA_HILLSHADE_TILE_LAYER:
+    'https://tiles.arcgis.com/tiles/B6yKvIZqzuOr0jBR/arcgis/rest/services/Canada_Hillshade/MapServer/tile/{z}/{y}/{x}',
+  WORLD_HILLSHADE_TILE_LAYER:
+    'https://services.arcgisonline.com/arcgis/rest/services/Elevation/World_Hillshade/MapServer/tile/{z}/{y}/{x}',
+  ESRI_WORLD_IMAGERY_LAYER:
+    'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+};
