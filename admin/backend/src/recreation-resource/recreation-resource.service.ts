@@ -65,8 +65,6 @@ export class RecreationResourceService {
     return (
       Boolean(item.rec_resource_id) &&
       Boolean(item.name) &&
-      Boolean(item.recreation_resource_type) &&
-      Boolean(item.recreation_resource_type_code) &&
       Boolean(item.district_description)
     );
   }
