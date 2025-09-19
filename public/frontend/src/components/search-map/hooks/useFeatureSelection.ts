@@ -27,6 +27,12 @@ interface UseFeatureSelectionParams {
   };
 }
 
+const resetFeatureStyle = (feature: Feature) => {
+  feature.set('selected', false);
+  feature.setStyle();
+  feature.changed();
+};
+
 /**
  * Custom hook to manage feature selection in an OpenLayers map for multiple layers which is
  * needed as the map can have multiple feature layers, each with its own selection logic.
@@ -43,34 +49,22 @@ export function useFeatureSelection({
   const selectRef = useRef<Select | null>(null);
   const selectionHandledRef = useRef<boolean>(false);
 
+  const getLayerConfigById = (layerId: string) =>
+    featureLayers.find((config) => config.id === layerId);
+
   // Clear current selection and reset styles
   const clearSelection = () => {
     const map = mapRef.current?.getMap();
     const current = selectedFeatureRef.current;
     if (!map || !current) return;
 
-    current.feature.set('selected', false);
-    current.feature.setStyle();
-    try {
-      current.feature.changed();
-    } catch {}
-
+    resetFeatureStyle(current.feature);
     overlayRef.current?.setPosition(undefined);
 
-    const layerConfig = featureLayers.find(
-      (config) => config.id === current.layerId,
-    );
-    if (layerConfig) {
-      layerConfig.onFeatureSelect(null);
-      try {
-        const layer: any = layerConfig.layer as any;
-        layer?.changed?.();
-        layer?.getSource?.()?.changed?.();
-      } catch {}
-    }
+    const layerConfig = getLayerConfigById(current.layerId);
+    layerConfig?.onFeatureSelect(null);
 
     selectRef.current?.getFeatures().clear();
-
     selectedFeatureRef.current = null;
   };
 
@@ -78,7 +72,6 @@ export function useFeatureSelection({
     if (!mapRef?.current || !featureLayers.length) return;
 
     const map = mapRef.current.getMap();
-    // Extract valid layers from featureLayers config
     const layers = featureLayers.map((config) => config.layer).filter(Boolean);
 
     // Add select interaction for feature selection via click
@@ -90,6 +83,12 @@ export function useFeatureSelection({
     map.addInteraction(select);
     selectRef.current = select;
 
+    const updateLayerZIndices = (selectedLayerId: string) => {
+      featureLayers.forEach(({ id, layer }) => {
+        layer.setZIndex(id === selectedLayerId ? 10 : 1);
+      });
+    };
+
     // Focus and select a feature, show popup and apply style
     const focusFeature = (
       feature: Feature,
@@ -99,67 +98,39 @@ export function useFeatureSelection({
 
       applySelectedStyle(feature, layerConfig);
       feature.set('selected', true);
-      try {
-        feature.changed();
-        const layer: any = layerConfig.layer as any;
-        layer?.changed?.();
-        layer?.getSource?.()?.changed?.();
-        map.renderSync();
-      } catch {}
+      map.renderSync();
 
       selectedFeatureRef.current = {
         feature,
         layerId: layerConfig.id,
       };
 
-      // center map on feature for popup, then position overlay after render to avoid misalignment
       centerMapOnFeature(map, feature, options);
       const centerCoords = getPointFeatureCoordinates(feature);
-      try {
-        map.once('rendercomplete', () => {
-          overlayRef.current?.setPosition(centerCoords);
-        });
-      } catch {
+      map.once('rendercomplete', () => {
         overlayRef.current?.setPosition(centerCoords);
-      }
+      });
 
       layerConfig.onFeatureSelect(feature);
-
-      // Update z-index of all feature layers based on selection
-      featureLayers.forEach(({ id, layer }) => {
-        const isSelected = selectedFeatureRef.current?.layerId === id;
-        layer.setZIndex(isSelected ? 10 : 1);
-      });
+      updateLayerZIndices(layerConfig.id);
     };
 
     const handleSelect = (e: SelectEvent) => {
       selectionHandledRef.current = true;
+
       // Deselect features and reset their styles
       e.deselected.forEach((feat) => {
         const layerConfig = getFeatureLayerConfig(feat, featureLayers);
+        if (!layerConfig) return;
 
-        if (layerConfig) {
-          const isClustered = isClusteredLayer(layerConfig.layer);
-          const deselectedFeatures = isClustered
-            ? feat.get('features') || []
-            : [feat];
+        const isClustered = isClusteredLayer(layerConfig.layer);
+        const deselectedFeatures = isClustered
+          ? feat.get('features') || []
+          : [feat];
 
-          deselectedFeatures.forEach((f: Feature) => {
-            f.set('selected', false);
-            f.setStyle();
-            try {
-              f.changed();
-            } catch {}
-          });
-
-          feat.setStyle();
-          try {
-            const layer: any = layerConfig.layer as any;
-            layer?.changed?.();
-            layer?.getSource?.()?.changed?.();
-            map.renderSync();
-          } catch {}
-        }
+        deselectedFeatures.forEach(resetFeatureStyle);
+        feat.setStyle();
+        map.renderSync();
       });
 
       // Select the clicked feature
@@ -196,23 +167,20 @@ export function useFeatureSelection({
       const map = mapRef.current?.getMap();
       if (!current || !map) return;
 
-      const view = map.getView();
-      const zoom = view.getZoom() ?? 0;
-
-      const layerConfig = featureLayers.find(
-        (config) => config.id === current.layerId,
-      );
-      if (!layerConfig) return;
+      const layerConfig = getLayerConfigById(current.layerId);
+      if (!layerConfig) return clearSelection();
 
       const layer = layerConfig.layer;
+      const view = map.getView();
+      const zoom = view.getZoom() ?? 0;
       const hideBelowZoom = layer.get('hideBelowZoom') as number | undefined;
-      const isClustered = isClusteredLayer(layer);
 
       // Clear selection if zoom is below threshold
       if (hideBelowZoom && zoom < hideBelowZoom) {
         return clearSelection();
       }
 
+      const isClustered = isClusteredLayer(layer);
       const source = isClustered
         ? layer.getSource()?.getSource?.()
         : layer.getSource?.();
@@ -234,34 +202,29 @@ export function useFeatureSelection({
           );
 
         const clusteredItems = clusterFeature?.get('features') ?? [];
-
         if (!clusterFeature || clusteredItems.length !== 1) {
           return clearSelection();
         }
       }
     };
 
-    select.on('select', handleSelect);
-    map.on('moveend', handleMoveEnd);
-
-    // Clear selection when user starts a click on empty map space.
-    // Using pointerdown avoids race conditions with recenters during select.
-    // Fallback: clear selection on singleclick when nothing was selected
+    // Clear selection when user clicks on empty map space
     const handleSingleClick = (evt: any) => {
-      // If this click already handled a selection, skip clearing
       if (selectionHandledRef.current) {
-        // reset flag on next tick so subsequent clicks can clear
-        setTimeout(() => (selectionHandledRef.current = false), 0);
+        selectionHandledRef.current = false;
         return;
       }
-      const hit = map.forEachFeatureAtPixel(evt.pixel, (feature) => feature, {
+
+      const hit = map.forEachFeatureAtPixel(evt.pixel, () => true, {
         layerFilter: (layer) => layers.includes(layer as any),
         hitTolerance: 2,
       });
-      if (!hit) {
-        clearSelection();
-      }
+
+      if (!hit) clearSelection();
     };
+
+    select.on('select', handleSelect);
+    map.on('moveend', handleMoveEnd);
     map.on('singleclick', handleSingleClick);
 
     return () => {
