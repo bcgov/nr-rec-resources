@@ -87,14 +87,22 @@ const RecResourceReservation: React.FC<RecResourceReservationProps> = ({
               width={24}
             />{' '}
             <div>
-              <span>This site is first come first served.</span> <br />
+              <span>
+                This site is first come first served.
+                {!isAdditionalFeesAvailable &&
+                  !isCampingAvailable &&
+                  ' No fees apply.'}
+              </span>{' '}
+              <br />
               {(isAdditionalFeesAvailable ||
                 Boolean(recResource.recreation_fee?.length)) && (
                 <>
                   <span>Fees apply when arriving on site.</span> <br />
                 </>
               )}
-              {(isCampingAvailable || isAdditionalFeesAvailable) && (
+              {(isCampingAvailable ||
+                isAdditionalFeesAvailable ||
+                isFacilitiesAvailable) && (
                 <span>
                   Check{' '}
                   {isCampingAvailable && (
@@ -103,25 +111,30 @@ const RecResourceReservation: React.FC<RecResourceReservationProps> = ({
                         href={`/resource/${recResource.rec_resource_id}#camping`}
                       >
                         camping
-                      </a>
+                      </a>{' '}
                       {isAdditionalFeesAvailable &&
                         !isFacilitiesAvailable &&
-                        ' and '}
-                      {isAdditionalFeesAvailable && isFacilitiesAvailable
-                        ? ', '
-                        : ' '}
+                        'and '}
+                      {isAdditionalFeesAvailable &&
+                        isFacilitiesAvailable &&
+                        ', '}
+                      {!isAdditionalFeesAvailable &&
+                        isFacilitiesAvailable &&
+                        'and '}
                     </>
                   )}
                   {isAdditionalFeesAvailable && (
-                    <a
-                      href={`/resource/${recResource.rec_resource_id}#additional-fees`}
-                    >
-                      additional fees
-                    </a>
-                  )}{' '}
+                    <>
+                      <a
+                        href={`/resource/${recResource.rec_resource_id}#additional-fees`}
+                      >
+                        additional fees
+                      </a>{' '}
+                      {isFacilitiesAvailable && 'and '}
+                    </>
+                  )}
                   {isFacilitiesAvailable && (
                     <>
-                      and{' '}
                       <a
                         href={`/resource/${recResource.rec_resource_id}#facilities`}
                       >

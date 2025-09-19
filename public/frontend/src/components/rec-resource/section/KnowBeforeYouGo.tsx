@@ -3,7 +3,6 @@ import '@/components/rec-resource/section/KnowBeforeYouGo.scss';
 import recycle from '@/images/icons/recycle.svg';
 import celreception from '@/images/icons/cel-reception.svg';
 import cash from '@/images/icons/cash.svg';
-import reservations from '@/images/icons/reservations.svg';
 
 interface KnowBeforeYouGoProps {
   isAdditionalFeesAvailable: boolean;
@@ -34,12 +33,7 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
             </p>
             <div className="row">
               <div className="col-sm-1">
-                <img
-                  src={reservations}
-                  alt="Reservations icon"
-                  height={40}
-                  width={40}
-                />
+                <img src={cash} alt="Cash Only icon" height={40} width={40} />
               </div>
               <div className="col-sm">
                 <p className="small-tittle">Bring Cash</p>

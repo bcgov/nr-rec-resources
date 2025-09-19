@@ -31,9 +31,6 @@ describe('KnowBeforeYouGo', () => {
       screen.getByText(/This site has some reservations available/i),
     ).toBeInTheDocument();
 
-    // Reservations icon
-    expect(screen.getByAltText(/Reservations icon/i)).toBeInTheDocument();
-
     // Cash instructions inside reservable branch
     expect(
       screen.getByText(/Most sites operate on a cash-only basis/i),
@@ -61,9 +58,6 @@ describe('KnowBeforeYouGo', () => {
     expect(
       screen.getByText(/This site operates on a First Come, First Served/i),
     ).toBeInTheDocument();
-
-    // Should NOT render Reservations icon
-    expect(screen.queryByAltText(/Reservations icon/i)).not.toBeInTheDocument();
   });
 
   it('renders additional fees section when isAdditionalFeesAvailable = true and not reservable', () => {
