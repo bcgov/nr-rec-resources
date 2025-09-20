@@ -14,6 +14,7 @@ digraph "twoDegreesRelationshipsDiagram" {
   "recreation_map_feature":"rec_resource_id":w -> "recreation_resource":"rec_resource_id.type":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_map_feature":"recreation_resource_type":w -> "recreation_resource_type_code":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_map_feature_geom":"elipses":w -> "recreation_map_feature":"rmf_skey":e [arrowhead=none dir=back arrowtail=teeodot];
+  "recreation_resource":"control_access_code":w -> "recreation_control_access_code":"recreation_control_access_code":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_resource":"district_code":w -> "recreation_district_code":"district_code":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_resource":"maintenance_standard_code":w -> "recreation_maintenance_standard_code":"maintenance_standard_code":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_resource_docs":"doc_code":w -> "recreation_resource_doc_code":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -87,6 +88,18 @@ digraph "twoDegreesRelationshipsDiagram" {
     URL="recreation_agreement_holder.html"
     target="_top"
     tooltip="recreation_agreement_holder"
+  ];
+  "recreation_control_access_code" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="187" HEIGHT="16"><B>recreation_control_access_code</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="recreation_control_access_code" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/primaryKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="187" HEIGHT="16">recreation_control_access_code</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">1 &gt;</TD></TR>
+    </TABLE>>
+    URL="recreation_control_access_code.html"
+    target="_top"
+    tooltip="recreation_control_access_code"
   ];
   "recreation_defined_campsite" [
    label=<
@@ -217,7 +230,8 @@ digraph "twoDegreesRelationshipsDiagram" {
       <TR><TD PORT="created_by" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="171" HEIGHT="16">created_by</TD></TR></TABLE></TD><TD PORT="created_by.type" ALIGN="LEFT">text[2147483647]</TD></TR>
       <TR><TD PORT="sys_period" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="171" HEIGHT="16">sys_period</TD></TR></TABLE></TD><TD PORT="sys_period.type" ALIGN="LEFT">tstzrange[2147483647]</TD></TR>
       <TR><TD PORT="project_established_date" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="171" HEIGHT="16">project_established_date</TD></TR></TABLE></TD><TD PORT="project_established_date.type" ALIGN="LEFT">date[13]</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 2</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">13 &gt;</TD></TR>
+      <TR><TD PORT="control_access_code" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="171" HEIGHT="16">control_access_code</TD></TR></TABLE></TD><TD PORT="control_access_code.type" ALIGN="LEFT">varchar[1]</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">13 &gt;</TD></TR>
     </TABLE>>
     URL="recreation_resource.html"
     target="_top"

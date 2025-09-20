@@ -7,6 +7,7 @@ recreation_remed_repair_code
 recreation_resource_doc_code
 recreation_status_code
 recreation_structure_code
+recreation_control_access_code
 recreation_resource_type_code
 recreation_sub_access_code
 recreation_resource
@@ -18,6 +19,7 @@ recreation_map_feature
 recreation_access_code_history
 recreation_activity_code_history
 recreation_agreement_holder
+recreation_control_access_code_history
 recreation_defined_campsite_history
 recreation_district_code_history
 recreation_driving_direction
