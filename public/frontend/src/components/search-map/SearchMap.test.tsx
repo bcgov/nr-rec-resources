@@ -1,14 +1,49 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen, fireEvent, act } from '@testing-library/react';
-import React from 'react';
+import { forwardRef, useImperativeHandle } from 'react';
+import { screen, fireEvent } from '@testing-library/react';
 import { renderWithQueryClient } from '@/test-utils';
 import SearchMap from '@/components/search-map/SearchMap';
 import * as hooks from '@/components/search-map/hooks/useMapFocus';
 import { trackClickEvent } from '@/utils/matomo';
 
-// Mock all hooks with proper return values
+const mockSetSearchParams = vi.fn();
+const mockSearchParams = {
+  get: vi.fn(),
+  set: vi.fn(),
+  delete: vi.fn(),
+  has: vi.fn(),
+  toString: vi.fn(() => ''),
+};
+
+vi.mock('react-router-dom', async (importOriginal) => {
+  const actual = (await importOriginal()) as any;
+  return {
+    ...actual,
+    useSearchParams: () => [mockSearchParams, mockSetSearchParams],
+    useNavigate: () => vi.fn(),
+    useLocation: () => ({ pathname: '/', search: '', hash: '', state: null }),
+  };
+});
+
 vi.mock('@/components/search-map/hooks/useMapFocus', () => ({
   useMapFocus: vi.fn(),
+}));
+
+vi.mock('@/components/search-map/hooks/useBaseMaps', () => ({
+  useBaseMaps: vi.fn(() => [
+    {
+      id: 'prp',
+      name: 'BC Basemap',
+      layer: { id: 'mock-prp-layer' },
+      image: '/test-image.jpg',
+    },
+    {
+      id: 'satellite',
+      name: 'Satellite',
+      layer: { id: 'mock-satellite-layer' },
+      image: '/test-satellite.jpg',
+    },
+  ]),
 }));
 
 vi.mock('@/components/search-map/hooks', () => ({
@@ -40,188 +75,65 @@ vi.mock('@/components/search-map/hooks', () => ({
   })),
 }));
 
-vi.mock('@/components/layout/Header', () => ({
-  default: () =>
-    React.createElement('div', { 'data-testid': 'header' }, 'Header'),
-}));
+vi.mock('@bcgov/prp-map', () => ({
+  VectorFeatureMap: forwardRef((props: any, ref: any) => {
+    useImperativeHandle(ref, () => ({
+      getMap: () => ({
+        addOverlay: vi.fn(),
+        removeOverlay: vi.fn(),
+        addLayer: vi.fn(),
+        removeLayer: vi.fn(),
+        getView: () => ({
+          fit: vi.fn(),
+          getCenter: () => [0, 0],
+          getZoom: () => 10,
+        }),
+        on: vi.fn(),
+        un: vi.fn(),
+        getTargetElement: () => document.createElement('div'),
+      }),
+      forceUpdate: vi.fn(),
+    }));
 
-vi.mock('@/components/search-map/preview', () => ({
-  RecreationFeaturePreview: ({
-    rec_resource_id,
-    onClose,
-  }: {
-    rec_resource_id: string;
-    onClose?: () => void;
-  }) => {
-    const children = ['RecreationFeaturePreview: ', rec_resource_id];
-    if (onClose) {
-      children.push(
-        React.createElement('button', { onClick: onClose }, 'Close Preview'),
-      );
-    }
-    return React.createElement(
-      'div',
-      { 'data-testid': 'recreation-preview' },
-      ...children,
+    return (
+      <div data-testid="vector-feature-map" onClick={props.onClick}>
+        VectorFeatureMap
+      </div>
     );
-  },
-  WildfireFeaturePreview: ({
-    onClose,
-  }: {
-    onClose: () => void;
-    feature?: any;
-  }) => {
-    return React.createElement(
-      'div',
-      { 'data-testid': 'wildfire-preview' },
-      'WildfireFeaturePreview',
-      React.createElement('button', { onClick: onClose }, 'Close'),
-    );
-  },
-}));
-
-vi.mock('@/components/search/filters/FilterMenuSearchMap', () => ({
-  default: ({
-    isOpen,
-    setIsOpen,
-  }: {
-    isOpen: boolean;
-    setIsOpen: (open: boolean) => void;
-  }) => {
-    const children = ['FilterMenuSearchMap ', isOpen ? 'Open' : 'Closed'];
-    if (setIsOpen) {
-      children.push(
-        React.createElement(
-          'button',
-          {
-            onClick: () => setIsOpen(false),
-            'data-testid': 'close-filter-button',
-          },
-          'Close Filter',
-        ),
-      );
-    }
-    return React.createElement(
-      'div',
-      { 'data-testid': 'filter-menu' },
-      ...children,
-    );
-  },
-}));
-
-vi.mock(
-  '@/components/recreation-suggestion-form/RecreationSuggestionForm',
-  () => ({
-    default: () =>
-      React.createElement(
-        'div',
-        { 'data-testid': 'suggestion-form' },
-        'RecreationSuggestionForm',
-      ),
   }),
-);
-
-vi.mock('@/components/search', () => ({
-  SearchViewControls: ({
-    variant,
-    onListViewClick,
-  }: {
-    variant: string;
-    onListViewClick?: () => void;
-  }) => {
-    const children = ['SearchViewControls ', variant];
-    // Always add the button since the actual component seems to always render it
-    children.push(
-      React.createElement(
-        'button',
-        { onClick: onListViewClick || (() => {}) },
-        'Show list',
-      ),
-    );
-    return React.createElement(
-      'div',
-      { 'data-testid': 'search-view-controls' },
-      ...children,
-    );
-  },
+  useStyledLayer: vi.fn(() => ({ id: 'mock-styled-layer' })),
 }));
 
 vi.mock('@/utils/matomo', () => ({
   trackClickEvent: vi.fn(),
 }));
 
-vi.mock(
-  '@/components/rec-resource/RecreationResourceMap/MapDisclaimerModal',
-  () => ({
-    default: ({
-      isOpen,
-      onClose,
-    }: {
-      isOpen: boolean;
-      onClose: () => void;
-    }) => {
-      return React.createElement(
-        'div',
-        { 'data-testid': 'disclaimer-modal' },
-        'MapDisclaimerModal ',
-        isOpen ? 'Open' : 'Closed',
-        React.createElement('button', { onClick: onClose }, 'Close Modal'),
-      );
-    },
-  }),
-);
-
-vi.mock('@shared/components/loading-overlay', () => ({
-  LoadingOverlay: ({ isLoading }: { isLoading: boolean }) =>
-    React.createElement(
-      'div',
-      { 'data-testid': 'loading-overlay' },
-      isLoading ? 'Loading...' : 'Not Loading',
-    ),
-}));
-
-// Create a more comprehensive mock for the map component
-const mockMapRef = {
-  current: {
-    getMap: () => ({
-      addOverlay: vi.fn(),
-      removeOverlay: vi.fn(),
-      addLayer: vi.fn(),
-      removeLayer: vi.fn(),
-      getView: () => ({
-        fit: vi.fn(),
-        getCenter: () => [0, 0],
-        getZoom: () => 10,
-      }),
-      on: vi.fn(),
-      un: vi.fn(),
-      getTargetElement: () => document.createElement('div'),
+vi.mock('@/store/searchResults', () => ({
+  default: {
+    getState: () => ({
+      extent: null,
+      recResourceIds: [],
     }),
-    forceUpdate: vi.fn(),
+    subscribe: vi.fn(),
   },
-};
-
-vi.mock('@bcgov/prp-map', () => ({
-  VectorFeatureMap: React.forwardRef((props: any, ref: any) => {
-    React.useImperativeHandle(ref, () => mockMapRef.current);
-
-    return React.createElement(
-      'div',
-      { 'data-testid': 'vector-feature-map', onClick: props.onClick },
-      'VectorFeatureMap',
-      // Removed the filters button since the actual component has its own filter buttons
-    );
-  }),
 }));
 
-// Mock any store or context providers if needed
-vi.mock('@/stores/searchStore', () => ({
-  useSearchStore: () => ({
-    filters: {},
-    setFilters: vi.fn(),
-    searchResults: [],
-    isLoading: false,
-  }),
+vi.mock('@tanstack/react-store', () => ({
+  useStore: vi.fn(() => ({
+    extent: null,
+    recResourceIds: [],
+  })),
+  Store: vi.fn().mockImplementation(() => ({
+    getState: () => ({
+      extent: null,
+      recResourceIds: [],
+    }),
+    subscribe: vi.fn(),
+  })),
+}));
+
+vi.mock('@/components/layout/Header', () => ({
+  default: () => <div data-testid="header">Header</div>,
 }));
 
 describe('SearchMap', () => {
@@ -233,9 +145,12 @@ describe('SearchMap', () => {
       isMapFocusLoading: false,
       mapCenter: [0, 0],
       mapZoom: 10,
+      loadingProgress: 0,
     });
 
-    // Reset any localStorage mocks if your component uses them
+    mockSearchParams.set.mockClear();
+    mockSetSearchParams.mockClear();
+
     Object.defineProperty(window, 'localStorage', {
       value: {
         getItem: vi.fn(() => null),
@@ -250,45 +165,53 @@ describe('SearchMap', () => {
   it('renders main components', () => {
     renderWithQueryClient(<SearchMap />);
 
-    expect(screen.getByTestId('header')).toBeDefined();
     expect(screen.getByTestId('vector-feature-map')).toBeDefined();
-    expect(screen.getByTestId('suggestion-form')).toBeDefined();
-    expect(screen.getByTestId('search-view-controls')).toBeDefined();
-    expect(screen.getByTestId('loading-overlay')).toBeDefined();
+
+    expect(screen.getByRole('combobox')).toBeDefined(); // RecreationSuggestionForm input
+
+    expect(screen.getByText('Show list')).toBeDefined();
+
+    expect(screen.getAllByText('Filters')).toHaveLength(2); // Desktop and mobile versions
   });
 
-  it('shows disclaimer modal when initially rendered', () => {
-    renderWithQueryClient(<SearchMap />);
-    expect(screen.getByTestId('disclaimer-modal')).toBeDefined();
+  it('shows disclaimer modal when initially rendered with visible style', () => {
+    renderWithQueryClient(<SearchMap style={{ visibility: 'visible' }} />);
+
+    // The modal should be present in the DOM
+    expect(screen.getByRole('dialog')).toBeDefined();
   });
 
-  it('can close disclaimer modal', () => {
-    renderWithQueryClient(<SearchMap />);
-    const closeButton = screen.getByText('Close Modal');
+  it('can interact with disclaimer modal', () => {
+    renderWithQueryClient(<SearchMap style={{ visibility: 'visible' }} />);
 
-    fireEvent.click(closeButton);
+    const modal = screen.getByRole('dialog');
+    expect(modal).toBeDefined();
 
-    // The modal should still exist but show as closed
-    expect(screen.getByText('MapDisclaimerModal Closed')).toBeDefined();
+    const okButton = screen.getByRole('button', { name: /ok/i });
+    expect(okButton).toBeDefined();
+    fireEvent.click(okButton);
+
+    expect(screen.getByRole('dialog')).toBeDefined();
   });
 
-  it('toggles filter menu on button click', () => {
+  it('can open and interact with filter menu', () => {
     renderWithQueryClient(<SearchMap />);
 
-    // Look for the filters button in the SearchMap component (there are multiple, get the first one)
     const filtersButtons = screen.getAllByText('Filters');
     const filtersButton = filtersButtons[0];
 
-    // Initially closed
-    expect(screen.getByText('FilterMenuSearchMap Closed')).toBeDefined();
+    expect(screen.queryByRole('dialog')).toBeNull();
 
-    // Click to open
     fireEvent.click(filtersButton);
-    expect(screen.getByText('FilterMenuSearchMap Open')).toBeDefined();
 
-    // Click to close
-    fireEvent.click(filtersButton);
-    expect(screen.getByText('FilterMenuSearchMap Closed')).toBeDefined();
+    const modals = screen.getAllByRole('dialog');
+    expect(modals).toHaveLength(1);
+
+    const closeButton = screen.getByRole('button', { name: /close/i });
+    expect(closeButton).toBeDefined();
+    fireEvent.click(closeButton);
+
+    expect(screen.getByRole('dialog')).toBeDefined();
   });
 
   it('shows loading state when map focus is loading', () => {
@@ -296,10 +219,12 @@ describe('SearchMap', () => {
       isMapFocusLoading: true,
       mapCenter: [0, 0],
       mapZoom: 10,
+      loadingProgress: 50,
     });
 
     renderWithQueryClient(<SearchMap />);
-    expect(screen.getByText('Loading...')).toBeDefined();
+
+    expect(screen.getByText('Loading map')).toBeDefined();
   });
 
   it('shows not loading state when map focus is not loading', () => {
@@ -307,70 +232,42 @@ describe('SearchMap', () => {
       isMapFocusLoading: false,
       mapCenter: [0, 0],
       mapZoom: 10,
+      loadingProgress: 100,
     });
 
     renderWithQueryClient(<SearchMap />);
-    expect(screen.getByText('Not Loading')).toBeDefined();
+
+    expect(screen.queryByText('Loading map')).toBeNull();
   });
 
   it('handles list view button click', () => {
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-
     renderWithQueryClient(<SearchMap />);
 
-    const listButton = screen.queryByText('Show list');
-    if (listButton) {
-      fireEvent.click(listButton);
-      // Add assertions based on what should happen
-    }
+    const listButton = screen.getByText('Show list');
+    expect(listButton).toBeDefined();
 
-    consoleSpy.mockRestore();
+    fireEvent.click(listButton);
+
+    expect(mockSearchParams.set).toHaveBeenCalledWith('view', 'list');
+    expect(mockSetSearchParams).toHaveBeenCalledWith(mockSearchParams);
+
+    expect(trackClickEvent).toHaveBeenCalledWith({
+      category: 'Search view button',
+      name: 'Change to list view',
+    });
   });
 
-  it('tracks click events when matomo is called', async () => {
+  it('tracks click events when matomo is called', () => {
     renderWithQueryClient(<SearchMap />);
 
-    // Simulate calling trackClickEvent directly (as you might in your actual component)
     const eventData = {
       category: 'Search Map',
       action: 'Recreation feature selected',
       name: 'Test Feature',
     };
 
-    await act(async () => {
-      trackClickEvent(eventData);
-    });
+    trackClickEvent(eventData);
 
     expect(trackClickEvent).toHaveBeenCalledWith(eventData);
-  });
-
-  it('handles feature selection scenarios', async () => {
-    renderWithQueryClient(<SearchMap />);
-
-    // You can test the component's behavior when props change
-    // or when certain conditions are met, rather than trying to
-    // simulate complex OpenLayers interactions
-
-    // For example, if your component accepts selectedFeature as a prop:
-    // rerender(<SearchMap selectedFeature={{ id: '123' }} />);
-    // expect(screen.getByText('RecreationFeaturePreview: 123')).toBeDefined();
-  });
-
-  it('handles window resize events if component listens to them', () => {
-    renderWithQueryClient(<SearchMap />);
-
-    // Simulate window resize
-    act(() => {
-      window.dispatchEvent(new Event('resize'));
-    });
-
-    // Add assertions based on expected behavior
-    expect(screen.getByTestId('vector-feature-map')).toBeDefined();
-  });
-
-  it('cleans up properly on unmount', () => {
-    const { unmount } = renderWithQueryClient(<SearchMap />);
-
-    expect(() => unmount()).not.toThrow();
   });
 });

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import type { RefObject } from 'react';
 import type OLMap from 'ol/Map';
 import GeoJSON from 'ol/format/GeoJSON';
@@ -11,12 +11,19 @@ export const useZoomToExtent = (
   extent?: string,
 ) => {
   const { wasCleared } = useStore(searchInputStore);
+  const isMapInitialized = useRef(false);
 
   useEffect(() => {
     if (!extent || !mapRef.current) return;
 
     const map = mapRef.current.getMap();
     if (!map) return;
+
+    // Skip on initial load - only run when extent changes after map is initialized
+    if (!isMapInitialized.current) {
+      isMapInitialized.current = true;
+      return;
+    }
 
     // If the search input was cleared, do not zoom to extent
     if (wasCleared) {
