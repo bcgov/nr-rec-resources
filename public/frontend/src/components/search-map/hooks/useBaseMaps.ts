@@ -46,15 +46,6 @@ export const useBaseMaps = () => {
           layers: [
             new TileLayer({
               source: new XYZ({
-                url: BASE_LAYER_URLS.WORLD_HILLSHADE_TILE_LAYER,
-                attributions: 'Esri World Hillshade',
-                cacheSize: 1024,
-              }),
-              preload: 4,
-              useInterimTilesOnError: true,
-            }),
-            new TileLayer({
-              source: new XYZ({
                 url: BASE_LAYER_URLS.CANADA_HILLSHADE_TILE_LAYER,
                 attributions: 'Esri Canada Hillshade',
                 cacheSize: 1024,

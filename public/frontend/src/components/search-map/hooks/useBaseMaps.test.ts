@@ -187,24 +187,14 @@ describe('useBaseMaps', () => {
   it('creates hillshade layer with correct configuration', () => {
     renderHook(() => useBaseMaps());
 
-    // Check for world hillshade layer
-    expect(XYZ).toHaveBeenCalledWith({
-      url: BASE_LAYER_URLS.WORLD_HILLSHADE_TILE_LAYER,
-      attributions: 'Esri World Hillshade',
-      cacheSize: 1024,
-    });
-
-    // Check for Canada hillshade layer
     expect(XYZ).toHaveBeenCalledWith({
       url: BASE_LAYER_URLS.CANADA_HILLSHADE_TILE_LAYER,
       attributions: 'Esri Canada Hillshade',
       cacheSize: 1024,
     });
 
-    // Check that LayerGroup is called with the correct layers
     expect(LayerGroup).toHaveBeenCalledWith({
       layers: expect.arrayContaining([
-        expect.any(Object), // World hillshade tile layer
         expect.any(Object), // Canada hillshade tile layer
         mockWorldBasemapV2Layer, // World basemap v2 layer
         mockCanadaTopographicLayerBasic, // Canada topographic layer basic
