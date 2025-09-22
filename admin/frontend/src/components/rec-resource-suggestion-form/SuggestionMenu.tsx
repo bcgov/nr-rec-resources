@@ -49,7 +49,15 @@ export const SuggestionMenu = ({
             searchTerm={searchTerm}
             district={district_description}
             icon={
-              <Image src={RESOURCE_TYPE_ICONS[recreation_resource_type_code]} />
+              <Image
+                src={
+                  RESOURCE_TYPE_ICONS[
+                    recreation_resource_type_code
+                      ? recreation_resource_type_code
+                      : 'NO_TYPE_ICON'
+                  ]
+                }
+              />
             }
             rec_resource_id={rec_resource_id}
             resourceType={recreation_resource_type}
