@@ -1,16 +1,21 @@
 import { useEffect } from 'react';
-import { Col, Row, Stack } from 'react-bootstrap';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import PageTitle from '@/components/layout/PageTitle';
 import { ROUTE_TITLES, ROUTE_PATHS } from '@/routes/constants';
-import { AlphabeticalResourceList } from './AlphabeticalResourceList';
-import { AlphabeticalNavigation } from './AlphabeticalNavigation';
-import { useAlphabeticalResources } from '@/service/queries/alphabetical-resources';
+import {
+  AlphabeticalList,
+  AlphabeticalNavigation,
+} from '@/components/alphabetical-list';
+import { useAlphabeticalResources } from '@/service/queries/recreation-resource/recreationResourceQueries';
+import { Breadcrumbs, useBreadcrumbs } from '@shared/components/breadcrumbs';
 
 const AlphabeticalListPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const selectedLetter = searchParams.get('letter') || 'A';
+
+  useBreadcrumbs();
+
+  const selectedLetter = searchParams.get('letter') ?? 'A';
 
   // Redirect to 'A' if no letter is specified
   useEffect(() => {
@@ -19,45 +24,21 @@ const AlphabeticalListPage = () => {
     }
   }, [searchParams, navigate]);
 
-  const {
-    data: resources,
-    isLoading,
-    error,
-  } = useAlphabeticalResources(selectedLetter);
-
-  const handleLetterSelect = (newLetter: string) => {
-    navigate(`${ROUTE_PATHS.ALPHABETICAL}?letter=${newLetter}`);
-  };
+  const { data: resources, isLoading } =
+    useAlphabeticalResources(selectedLetter);
 
   return (
     <>
       <PageTitle title={ROUTE_TITLES.ALPHABETICAL} />
-      <div className="page">
-        <Row>
-          <Col>
-            <Stack gap={4}>
-              <div>
-                <h1>Browse by Letter</h1>
-                <p className="text-muted">
-                  Explore recreation resources alphabetically by selecting a
-                  letter below.
-                </p>
-              </div>
-
-              <AlphabeticalNavigation
-                selectedLetter={selectedLetter}
-                onLetterSelect={handleLetterSelect}
-              />
-
-              <AlphabeticalResourceList
-                resources={resources}
-                isLoading={isLoading}
-                error={error}
-                selectedLetter={selectedLetter}
-              />
-            </Stack>
-          </Col>
-        </Row>
+      <div className="page page-padding content-footer-spacing">
+        <Breadcrumbs />
+        <h1 className="my-4">A-Z list</h1>
+        <AlphabeticalNavigation selectedLetter={selectedLetter} />
+        <AlphabeticalList
+          resources={resources}
+          isLoading={isLoading}
+          selectedLetter={selectedLetter}
+        />
       </div>
     </>
   );

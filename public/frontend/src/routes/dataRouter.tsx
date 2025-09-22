@@ -22,7 +22,7 @@ const breadcrumbHelpers = {
     };
   },
   alphabetical: (): BreadcrumbItem => ({
-    label: 'Browse A-Z',
+    label: 'A-Z list',
     href: ROUTE_PATHS.ALPHABETICAL,
   }),
   contact: (): BreadcrumbItem => ({
@@ -63,6 +63,7 @@ export const dataRouter = createBrowserRouter([
         handle: {
           breadcrumb: () => [
             breadcrumbHelpers.home(),
+            breadcrumbHelpers.search(),
             { ...breadcrumbHelpers.alphabetical(), isCurrent: true },
           ],
         },

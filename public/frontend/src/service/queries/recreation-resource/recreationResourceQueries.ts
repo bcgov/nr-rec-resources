@@ -19,7 +19,10 @@ import {
   transformRecreationResourceBase,
   transformRecreationResourceDetail,
 } from '@/service/queries/recreation-resource/helpers';
-import { RecreationResourceDetailModel } from '@/service/custom-models';
+import {
+  RecreationResourceDetailModel,
+  AlphabeticalRecreationResourceModel,
+} from '@/service/custom-models';
 
 interface SearchParams extends SearchRecreationResourcesRequest {
   // Extend generated request with additional params not used in the api
@@ -230,5 +233,29 @@ export const useRecreationSuggestions = ({ query }: { query: string }) => {
     queryFn: () => api.getRecreationSuggestions({ query }),
     enabled: !!query?.trim(),
     staleTime: 5 * 60 * 1000,
+  });
+};
+
+/**
+ * Fetch recreation resources alphabetically by letter.
+ *
+ * @param {string} letter - The letter to filter by (A-Z or # for numerical)
+ */
+export const useAlphabeticalResources = (letter: string) => {
+  const api = useRecreationResourceApi();
+
+  return useQuery<AlphabeticalRecreationResourceModel[]>({
+    queryKey: ['alphabetical-resources', letter],
+    queryFn: async (): Promise<AlphabeticalRecreationResourceModel[]> => {
+      if (!letter) {
+        throw new Error('Letter parameter is required');
+      }
+      const response = await api.getRecreationResourcesAlphabetically({
+        letter,
+      });
+      return response;
+    },
+    enabled: !!letter && letter.length > 0,
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };
