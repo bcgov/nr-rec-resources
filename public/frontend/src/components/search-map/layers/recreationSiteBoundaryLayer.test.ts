@@ -58,7 +58,7 @@ describe('createRecreationSiteBoundaryLayer', () => {
       expect(fineResolutionStyle).toBeDefined();
 
       const coarseResolutionStyle = styleFunction(new Feature(), 600);
-      expect(coarseResolutionStyle).toBeUndefined();
+      expect(coarseResolutionStyle).toBeDefined();
     }
   });
 });

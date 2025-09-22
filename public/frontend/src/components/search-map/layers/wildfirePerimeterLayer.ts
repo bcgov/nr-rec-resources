@@ -7,6 +7,7 @@ import { FeatureLike } from 'ol/Feature';
 import {
   FIRE_STATUS_RGBA_COLOUR_MAP,
   WILDFIRE_PERIMETER_LAYER,
+  WILDFIRE_LOCATION_MIN_ZOOM,
 } from '@/components/search-map/constants';
 
 const WILDFIRE_PERIMETER_FIELDS = [
@@ -60,4 +61,5 @@ export const createWildfirePerimeterLayer = (source: VectorSource) =>
   new VectorLayer({
     source,
     style: (feature) => createWildfirePerimeterStyle(feature),
+    minZoom: WILDFIRE_LOCATION_MIN_ZOOM,
   });

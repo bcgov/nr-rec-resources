@@ -173,11 +173,11 @@ export function useFeatureSelection({
       if (!layerConfig) return;
 
       const layer = layerConfig.layer;
-      const hideBelowZoom = layer.get('hideBelowZoom') as number | undefined;
+      const minZoom = layer.getMinZoom();
       const isClustered = isClusteredLayer(layer);
 
       // Clear selection if zoom is below threshold
-      if (hideBelowZoom && zoom < hideBelowZoom) {
+      if (minZoom !== undefined && zoom < minZoom) {
         return clearSelection();
       }
 

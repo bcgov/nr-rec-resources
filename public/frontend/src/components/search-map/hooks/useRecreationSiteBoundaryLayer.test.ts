@@ -24,10 +24,9 @@ describe('useRecreationSiteBoundaryLayer', () => {
 
   it('calls useLayer with the correct arguments', () => {
     const recResourceIds = ['REC123', 'REC456'];
-    const options = { hideBelowZoom: 10 };
 
     const { result } = renderHook(() =>
-      useRecreationSiteBoundaryLayer(recResourceIds, mapRef, options),
+      useRecreationSiteBoundaryLayer(recResourceIds, mapRef),
     );
 
     expect(mockUseLayer).toHaveBeenCalledWith(
@@ -35,7 +34,7 @@ describe('useRecreationSiteBoundaryLayer', () => {
       recSiteBoundaryLayer.createRecreationSiteBoundarySource,
       recSiteBoundaryLayer.createRecreationSiteBoundaryLayer,
       recSiteBoundaryLayer.createRecreationSiteBoundaryStyle,
-      options,
+      undefined,
     );
     expect(result.current).toEqual({ layer: 'mockLayer' });
   });

@@ -3,7 +3,10 @@ import VectorLayer from 'ol/layer/Vector';
 import EsriJSON from 'ol/format/EsriJSON';
 import { Style, Stroke } from 'ol/style';
 import { FeatureLike } from 'ol/Feature';
-import { RECREATION_LINES_LAYER } from '@/components/search-map/constants';
+import {
+  RECREATION_LINES_LAYER,
+  ZOOM_LEVELS,
+} from '@/components/search-map/constants';
 
 const RECREATION_LINE_FIELDS = [
   'FOREST_FILE_ID',
@@ -76,6 +79,6 @@ export const loadFeaturesForFilteredIds = async (
 export const createRecreationLinesLayer = () =>
   new VectorLayer({
     source: recreationLinesSource,
-    style: (feature, resolution) =>
-      resolution < 500 ? createRecreationLineStyle(feature) : undefined,
+    style: (feature) => createRecreationLineStyle(feature),
+    minZoom: ZOOM_LEVELS.REGION,
   });

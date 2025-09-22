@@ -3,7 +3,10 @@ import VectorLayer from 'ol/layer/Vector';
 import EsriJSON from 'ol/format/EsriJSON';
 import { Style, Stroke, Fill } from 'ol/style';
 import { FeatureLike } from 'ol/Feature';
-import { RECREATION_SITE_BOUNDARY_LAYER } from '@/components/search-map/constants';
+import {
+  RECREATION_SITE_BOUNDARY_LAYER,
+  ZOOM_LEVELS,
+} from '@/components/search-map/constants';
 
 const RECREATION_SITE_BOUNDARY_FIELDS = ['OBJECTID', 'FOREST_FILE_ID'];
 
@@ -16,7 +19,7 @@ export const createRecreationSiteBoundaryStyle = (
   return new Style({
     stroke: new Stroke({
       color: strokeColor,
-      width: isHovered ? 10 : 20,
+      width: 2,
     }),
     fill: new Fill({
       color: 'rgba(45,128,32,0.1)',
@@ -75,6 +78,6 @@ export const loadFeaturesForFilteredIds = async (
 export const createRecreationSiteBoundaryLayer = () =>
   new VectorLayer({
     source: recreationSiteBoundarySource,
-    style: (feature, resolution) =>
-      resolution < 500 ? createRecreationSiteBoundaryStyle(feature) : undefined,
+    style: (feature) => createRecreationSiteBoundaryStyle(feature),
+    minZoom: ZOOM_LEVELS.REGION,
   });

@@ -1,4 +1,4 @@
-import { renderHook, act } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 
 import { vi, describe, it, expect, beforeEach, Mock } from 'vitest';
 import { useLayer } from './useLayer';
@@ -50,38 +50,17 @@ describe('useLayer', () => {
     };
   });
 
-  it('creates layer with source and returns it', () => {
+  it('creates layer successfully', () => {
     const { result } = renderHook(() =>
       useLayer(mapRefMock, createSource, createLayer, createStyle),
     );
 
+    // Check that the source and layer were created properly
     expect(createSource).toHaveBeenCalled();
     expect(createLayer).toHaveBeenCalled();
     expect(result.current.layer).not.toBeNull();
   });
 
-  it('sets visibility based on zoom and hideBelowZoom', () => {
-    const hideBelowZoom = 15;
-
-    renderHook(() =>
-      useLayer(mapRefMock, createSource, createLayer, createStyle, {
-        hideBelowZoom,
-      }),
-    );
-
-    expect(createLayer.mock.results[0].value.setVisible).toHaveBeenCalledWith(
-      false,
-    );
-
-    mapMock.getView = () => ({ getZoom: () => 20 });
-    act(() => {
-      mapMock.__triggerEvent('moveend');
-    });
-
-    expect(createLayer.mock.results[0].value.setVisible).toHaveBeenCalledWith(
-      true,
-    );
-  });
   it('cleans up event listeners and resets cursor on unmount', () => {
     const styleMock = { cursor: '' };
     const targetElement = { style: styleMock };

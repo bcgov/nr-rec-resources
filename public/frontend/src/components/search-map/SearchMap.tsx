@@ -28,7 +28,6 @@ import { faSliders } from '@fortawesome/free-solid-svg-icons';
 import { Button, ProgressBar } from 'react-bootstrap';
 import { trackClickEvent } from '@/utils/matomo';
 import '@/components/search-map/SearchMap.scss';
-import { WILDFIRE_LOCATION_MIN_ZOOM } from '@/components/search-map/constants';
 import RecreationSuggestionForm from '@/components/recreation-suggestion-form/RecreationSuggestionForm';
 import type Feature from 'ol/Feature';
 import MapDisclaimerModal from '../rec-resource/RecreationResourceMap/MapDisclaimerModal';
@@ -97,12 +96,10 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
 
   const { layer: wildfireLocationsLayer } = useWildfireLocationLayer(mapRef, {
     applyHoverStyles: true,
-    hideBelowZoom: WILDFIRE_LOCATION_MIN_ZOOM,
   });
 
   const { layer: wildfirePerimeterLayer } = useWildfirePerimeterLayer(mapRef, {
     applyHoverStyles: false,
-    hideBelowZoom: WILDFIRE_LOCATION_MIN_ZOOM,
   });
 
   const featureSelectionLayers = useMemo(
