@@ -10,6 +10,9 @@ import {
   BASE_LAYER_URLS,
   WORLD_BASEMAP_V2_URLS,
 } from '@/components/search-map/constants';
+import bcBasemapImage from '@/components/search-map/assets/basemap/bc_basemap.webp';
+import hillshadeImage from '@/components/search-map/assets/basemap/hillshade.webp';
+import satelliteImage from '@/components/search-map/assets/basemap/satellite.webp';
 
 export const useBaseMaps = () => {
   const prpBaseLayer = useStyledLayer(
@@ -37,7 +40,7 @@ export const useBaseMaps = () => {
         id: 'prp',
         name: 'BC Basemap',
         layer: prpBaseLayer,
-        image: '/src/components/search-map/assets/basemap/bc_basemap.webp',
+        image: bcBasemapImage,
       },
       {
         id: 'hillshade',
@@ -58,7 +61,7 @@ export const useBaseMaps = () => {
             canadaTopographicLayerBasic,
           ] as BaseLayer[],
         }),
-        image: '/src/components/search-map/assets/basemap/hillshade.webp',
+        image: hillshadeImage,
       },
 
       {
@@ -79,7 +82,7 @@ export const useBaseMaps = () => {
             canadaTopographicLayerBasic,
           ] as BaseLayer[],
         }),
-        image: '/src/components/search-map/assets/basemap/satellite.webp',
+        image: satelliteImage,
       },
     ],
     [prpBaseLayer, canadaTopographicLayerBasic, worldBasemapV2Layer],
