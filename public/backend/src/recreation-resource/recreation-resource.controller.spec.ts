@@ -1,9 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpException, INestApplication } from '@nestjs/common';
+import { vi } from 'vitest';
 import { RecreationResourceController } from './recreation-resource.controller';
 import { RecreationResourceService } from 'src/recreation-resource/service/recreation-resource.service';
 import { RecreationResourceSearchService } from 'src/recreation-resource/service/recreation-resource-search.service';
 import { RecreationResourceSuggestionsService } from 'src/recreation-resource/service/recreation-resource-suggestion.service';
+import { RecreationResourceAlphabeticalService } from 'src/recreation-resource/service/recreation-resource-alphabetical.service';
 import { PrismaService } from 'src/prisma.service';
 import { RecreationResourceImageDto } from './dto/recreation-resource-image.dto';
 import { FsaResourceService } from './service/fsa-resource.service';
@@ -25,6 +27,12 @@ describe('RecreationResourceController', () => {
         RecreationResourceService,
         RecreationResourceSearchService,
         RecreationResourceSuggestionsService,
+        {
+          provide: RecreationResourceAlphabeticalService,
+          useValue: {
+            getAlphabeticalResources: vi.fn(),
+          },
+        },
         {
           provide: PrismaService,
           useValue: {},
@@ -285,6 +293,82 @@ describe('RecreationResourceController', () => {
 
       expect(result).toEqual(mockSuggestions);
       expect(recService.getSuggestions).toHaveBeenCalledWith('aileen');
+    });
+  });
+
+  describe('getAlphabeticalResources', () => {
+    const mockAlphabeticalResources = [
+      {
+        rec_resource_id: 'REC001',
+        name: 'Alpine Trail',
+        recreation_resource_type: 'Trail',
+        recreation_resource_type_code: 'TRAIL',
+      },
+      {
+        rec_resource_id: 'REC002',
+        name: 'Aspen Lake',
+        recreation_resource_type: 'Lake',
+        recreation_resource_type_code: 'LAKE',
+      },
+    ];
+
+    const mockNumericalResources = [
+      {
+        rec_resource_id: 'REC003',
+        name: '0 K SNOWMOBILE PARKING LOT',
+        recreation_resource_type: 'Parking',
+        recreation_resource_type_code: 'PARK',
+      },
+      {
+        rec_resource_id: 'REC004',
+        name: '10 K SNOWMOBILE PARKING LOT',
+        recreation_resource_type: 'Parking',
+        recreation_resource_type_code: 'PARK',
+      },
+    ];
+
+    it('should return resources for a specific letter', async () => {
+      vi.spyOn(recService, 'getAlphabeticalResources').mockResolvedValueOnce(
+        mockAlphabeticalResources as any,
+      );
+
+      const result = await controller.getAlphabeticalResources('A');
+
+      expect(result).toEqual(mockAlphabeticalResources);
+      expect(recService.getAlphabeticalResources).toHaveBeenCalledWith('A');
+    });
+
+    it('should return numerical resources when letter is #', async () => {
+      vi.spyOn(recService, 'getAlphabeticalResources').mockResolvedValueOnce(
+        mockNumericalResources as any,
+      );
+
+      const result = await controller.getAlphabeticalResources('#');
+
+      expect(result).toEqual(mockNumericalResources);
+      expect(recService.getAlphabeticalResources).toHaveBeenCalledWith('#');
+    });
+
+    it('should handle case-insensitive letter filtering', async () => {
+      vi.spyOn(recService, 'getAlphabeticalResources').mockResolvedValueOnce(
+        mockAlphabeticalResources as any,
+      );
+
+      const result = await controller.getAlphabeticalResources('a');
+
+      expect(result).toEqual(mockAlphabeticalResources);
+      expect(recService.getAlphabeticalResources).toHaveBeenCalledWith('a');
+    });
+
+    it('should return empty array when no resources found', async () => {
+      vi.spyOn(recService, 'getAlphabeticalResources').mockResolvedValueOnce(
+        [] as any,
+      );
+
+      const result = await controller.getAlphabeticalResources('Z');
+
+      expect(result).toEqual([]);
+      expect(recService.getAlphabeticalResources).toHaveBeenCalledWith('Z');
     });
   });
 });

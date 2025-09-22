@@ -29,10 +29,27 @@ export class RecreationResourceAlphabeticalService {
     // Get resources ordered alphabetically
     const resources = await this.prisma.recreation_resource.findMany({
       where: whereClause,
-      select: { rec_resource_id: true, name: true },
+      select: {
+        rec_resource_id: true,
+        name: true,
+        recreation_resource_type_view: {
+          select: {
+            rec_resource_type_code: true,
+            description: true,
+          },
+        },
+      },
       orderBy: { name: 'asc' },
     });
 
-    return resources;
+    // Transform the results to match our DTO
+    return resources.map((resource) => ({
+      rec_resource_id: resource.rec_resource_id,
+      name: resource.name,
+      recreation_resource_type:
+        resource.recreation_resource_type_view[0].description,
+      recreation_resource_type_code:
+        resource.recreation_resource_type_view[0].rec_resource_type_code,
+    }));
   }
 }
