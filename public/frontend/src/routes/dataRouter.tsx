@@ -4,6 +4,7 @@ import { LandingPage } from '@/components/landing-page';
 import NotFound from '@/components/NotFound';
 import RecResourcePage from '@/components/rec-resource/RecResourcePage';
 import SearchPage from '@/components/search/SearchPage';
+import AlphabeticalListPage from '@/components/alphabetical-list/AlphabeticalListPage';
 import { ROUTE_PATHS } from '@/routes/constants';
 import { BreadcrumbItem } from '@shared/components/breadcrumbs';
 import { RouteWrapper } from '@/routes/RouteWrapper';
@@ -20,6 +21,10 @@ const breadcrumbHelpers = {
       href: `${ROUTE_PATHS.SEARCH}${lastSearch || ''}`,
     };
   },
+  alphabetical: (): BreadcrumbItem => ({
+    label: 'Browse A-Z',
+    href: ROUTE_PATHS.ALPHABETICAL,
+  }),
   contact: (): BreadcrumbItem => ({
     label: 'Contact',
     href: ROUTE_PATHS.CONTACT_US,
@@ -49,6 +54,16 @@ export const dataRouter = createBrowserRouter([
           breadcrumb: () => [
             breadcrumbHelpers.home(),
             { ...breadcrumbHelpers.search(), isCurrent: true },
+          ],
+        },
+      },
+      {
+        path: ROUTE_PATHS.ALPHABETICAL,
+        element: <AlphabeticalListPage />,
+        handle: {
+          breadcrumb: () => [
+            breadcrumbHelpers.home(),
+            { ...breadcrumbHelpers.alphabetical(), isCurrent: true },
           ],
         },
       },
