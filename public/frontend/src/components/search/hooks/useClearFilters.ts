@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { filterChipStore } from '@/store';
 
-const PRESERVED_SEARCH_PARAMS = ['page', 'filter', 'view'];
+const PRESERVED_SEARCH_PARAMS = ['page', 'filter', 'view', 'base_layer'];
 
 export const useClearFilters = () => {
   const [searchParams, setSearchParams] = useSearchParams();

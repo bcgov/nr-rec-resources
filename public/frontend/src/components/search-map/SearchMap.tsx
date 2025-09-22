@@ -25,7 +25,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSliders } from '@fortawesome/free-solid-svg-icons';
 import { Button, ProgressBar } from 'react-bootstrap';
 import { trackClickEvent } from '@/utils/matomo';
-import '@/components/search-map/SearchMap.scss';
 import { WILDFIRE_LOCATION_MIN_ZOOM } from '@/components/search-map/constants';
 import RecreationSuggestionForm from '@/components/recreation-suggestion-form/RecreationSuggestionForm';
 import type Feature from 'ol/Feature';
@@ -33,6 +32,8 @@ import MapDisclaimerModal from '../rec-resource/RecreationResourceMap/MapDisclai
 import { useMapFocus } from '@/components/search-map/hooks/useMapFocus';
 import Overlay from 'ol/Overlay';
 import { LoadingOverlay } from '@shared/components/loading-overlay';
+import { useBaseMaps } from '@/components/search-map/hooks/useBaseMaps';
+import '@/components/search-map/SearchMap.scss';
 
 const CLUSTER_OPTIONS = {
   clusterZoomThreshold: 16,
@@ -72,6 +73,7 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
     overlayRef.current = overlay;
 
     return () => {
+      // eslint-disable-next-line
       mapRef.current?.getMap().removeOverlay(overlay);
       overlayRef.current = null;
     };
@@ -138,9 +140,6 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
     mapRef,
     overlayRef,
     featureLayers: featureSelectionLayers,
-    options: {
-      featureOffsetY: 150,
-    },
   });
   useZoomToExtent(mapRef, extent);
 
@@ -149,6 +148,8 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
     overlayRef,
     onFocusedFeatureChange: setSelectedFeature,
   });
+
+  const baseLayers = useBaseMaps();
 
   const layers = useMemo(
     () => [
@@ -206,9 +207,11 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
         />
         <VectorFeatureMap
           ref={mapRef}
+          enableTracking
           style={{ width: '100%', height: '100%' }}
           layers={layers}
-          defaultZoom={6}
+          baseLayers={baseLayers}
+          defaultZoom={5}
           minZoom={5.5}
           maxZoom={30}
         />

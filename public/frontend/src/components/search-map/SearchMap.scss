@@ -60,12 +60,12 @@
   transform: none;
 
   @include media-breakpoint-up(sm) {
-    top: 220px;
+    top: 192px;
   }
 
   // Collapse and center on larger screens
   @include media-breakpoint-up(md) {
-    top: 220px;
+    top: 192px;
     left: 50%;
     transform: translateX(-50%);
     flex-direction: row;
