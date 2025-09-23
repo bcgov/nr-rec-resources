@@ -38,8 +38,8 @@ const RecResourceReservation: React.FC<RecResourceReservationProps> = ({
                 <span>This site is reservable through our site operator.</span>{' '}
                 <br />
                 <span className="note">
-                  *Please note that Recreation Sites and Trails does not manage
-                  the reservations.
+                  *Please note that Recreation Sites and Trails do not manage
+                  reservations
                 </span>
               </div>
             </div>
@@ -78,76 +78,70 @@ const RecResourceReservation: React.FC<RecResourceReservationProps> = ({
           </div>
         </>
       ) : (
-        <div className="camping-info icon-container mt-4 reservation-icon">
-          <div className="camp-icon-container">
-            <img
-              src={campground}
-              alt="Campground icon"
-              height={24}
-              width={24}
-            />{' '}
-            <div>
-              <span>
-                This site is first come first served.
-                {!isAdditionalFeesAvailable &&
-                  !isCampingAvailable &&
-                  ' No fees apply.'}
-              </span>{' '}
-              <br />
-              {(isAdditionalFeesAvailable ||
-                Boolean(recResource.recreation_fee?.length)) && (
-                <>
-                  <span>Fees apply when arriving on site.</span> <br />
-                </>
-              )}
-              {(isCampingAvailable ||
-                isAdditionalFeesAvailable ||
-                isFacilitiesAvailable) && (
-                <span>
-                  Check{' '}
-                  {isCampingAvailable && (
+        <>
+          {isCampingAvailable && (
+            <div className="camping-info icon-container mt-4 reservation-icon">
+              <div className="camp-icon-container">
+                <img
+                  src={campground}
+                  alt="Campground icon"
+                  height={24}
+                  width={24}
+                />{' '}
+                <div>
+                  <span>This site is first come first served.</span> <br />
+                  {(isAdditionalFeesAvailable ||
+                    Boolean(recResource.recreation_fee?.length)) && (
                     <>
-                      <a
-                        href={`/resource/${recResource.rec_resource_id}#camping`}
-                      >
-                        camping
-                      </a>{' '}
-                      {isAdditionalFeesAvailable &&
-                        !isFacilitiesAvailable &&
-                        'and '}
-                      {isAdditionalFeesAvailable &&
-                        isFacilitiesAvailable &&
-                        ', '}
-                      {!isAdditionalFeesAvailable &&
-                        isFacilitiesAvailable &&
-                        'and '}
+                      <span>Fees apply when arriving on site.</span> <br />
                     </>
                   )}
-                  {isAdditionalFeesAvailable && (
-                    <>
-                      <a
-                        href={`/resource/${recResource.rec_resource_id}#additional-fees`}
-                      >
-                        additional fees
-                      </a>{' '}
-                      {isFacilitiesAvailable && 'and '}
-                    </>
+                  {(isAdditionalFeesAvailable || isFacilitiesAvailable) && (
+                    <span>
+                      Check{' '}
+                      <>
+                        <a
+                          href={`/resource/${recResource.rec_resource_id}#camping`}
+                        >
+                          camping
+                        </a>{' '}
+                        {isAdditionalFeesAvailable &&
+                          !isFacilitiesAvailable &&
+                          'and '}
+                        {isAdditionalFeesAvailable &&
+                          isFacilitiesAvailable &&
+                          ', '}
+                        {!isAdditionalFeesAvailable &&
+                          isFacilitiesAvailable &&
+                          'and '}
+                      </>
+                      {isAdditionalFeesAvailable && (
+                        <>
+                          <a
+                            href={`/resource/${recResource.rec_resource_id}#additional-fees`}
+                          >
+                            additional fees
+                          </a>{' '}
+                          {isFacilitiesAvailable && 'and '}
+                        </>
+                      )}
+                      {isFacilitiesAvailable && (
+                        <>
+                          <a
+                            href={`/resource/${recResource.rec_resource_id}#facilities`}
+                          >
+                            facilities
+                          </a>{' '}
+                        </>
+                      )}
+                      for more information.
+                    </span>
                   )}
-                  {isFacilitiesAvailable && (
-                    <>
-                      <a
-                        href={`/resource/${recResource.rec_resource_id}#facilities`}
-                      >
-                        facilities
-                      </a>{' '}
-                    </>
-                  )}
-                  for more information.
-                </span>
-              )}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          )}
+        </>
       )}
     </>
   );

@@ -50,7 +50,7 @@ const RecReservationButton: React.FC<RecReservationButtonProps> = ({
       className="submit-btn reservation-button"
       onClick={() => buttonFunction(text)}
     >
-      {type === ReservationType.LINK ? 'Book now' : text} &nbsp;
+      {type === ReservationType.LINK ? 'Reservation info' : text} &nbsp;
       <FontAwesomeIcon icon={faUpRightFromSquare} />
     </Button>
   );
