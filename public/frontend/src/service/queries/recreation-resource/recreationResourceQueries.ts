@@ -240,18 +240,20 @@ export const useRecreationSuggestions = ({ query }: { query: string }) => {
  * Fetch recreation resources alphabetically by letter.
  *
  * @param {string} letter - The letter to filter by (A-Z or # for numerical)
+ * @param {string} [type] - Optional recreation resource type code to filter by
  */
-export const useAlphabeticalResources = (letter: string) => {
+export const useAlphabeticalResources = (letter: string, type?: string) => {
   const api = useRecreationResourceApi();
 
   return useQuery<AlphabeticalRecreationResourceModel[]>({
-    queryKey: ['alphabetical-resources', letter],
+    queryKey: ['alphabetical-resources', letter, type],
     queryFn: async (): Promise<AlphabeticalRecreationResourceModel[]> => {
       if (!letter) {
         throw new Error('Letter parameter is required');
       }
       const response = await api.getRecreationResourcesAlphabetically({
         letter,
+        type,
       });
       return response;
     },

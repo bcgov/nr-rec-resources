@@ -335,7 +335,10 @@ describe('RecreationResourceController', () => {
       const result = await controller.getAlphabeticalResources('A');
 
       expect(result).toEqual(mockAlphabeticalResources);
-      expect(recService.getAlphabeticalResources).toHaveBeenCalledWith('A');
+      expect(recService.getAlphabeticalResources).toHaveBeenCalledWith(
+        'A',
+        undefined,
+      );
     });
 
     it('should return numerical resources when letter is #', async () => {
@@ -346,7 +349,10 @@ describe('RecreationResourceController', () => {
       const result = await controller.getAlphabeticalResources('#');
 
       expect(result).toEqual(mockNumericalResources);
-      expect(recService.getAlphabeticalResources).toHaveBeenCalledWith('#');
+      expect(recService.getAlphabeticalResources).toHaveBeenCalledWith(
+        '#',
+        undefined,
+      );
     });
 
     it('should handle case-insensitive letter filtering', async () => {
@@ -357,7 +363,10 @@ describe('RecreationResourceController', () => {
       const result = await controller.getAlphabeticalResources('a');
 
       expect(result).toEqual(mockAlphabeticalResources);
-      expect(recService.getAlphabeticalResources).toHaveBeenCalledWith('a');
+      expect(recService.getAlphabeticalResources).toHaveBeenCalledWith(
+        'a',
+        undefined,
+      );
     });
 
     it('should return empty array when no resources found', async () => {
@@ -368,7 +377,25 @@ describe('RecreationResourceController', () => {
       const result = await controller.getAlphabeticalResources('Z');
 
       expect(result).toEqual([]);
-      expect(recService.getAlphabeticalResources).toHaveBeenCalledWith('Z');
+      expect(recService.getAlphabeticalResources).toHaveBeenCalledWith(
+        'Z',
+        undefined,
+      );
+    });
+
+    it('should filter by type when type parameter is provided', async () => {
+      const filteredResources = [mockAlphabeticalResources[0]]; // Only trail resources
+      vi.spyOn(recService, 'getAlphabeticalResources').mockResolvedValueOnce(
+        filteredResources as any,
+      );
+
+      const result = await controller.getAlphabeticalResources('A', 'TRAIL');
+
+      expect(result).toEqual(filteredResources);
+      expect(recService.getAlphabeticalResources).toHaveBeenCalledWith(
+        'A',
+        'TRAIL',
+      );
     });
   });
 });

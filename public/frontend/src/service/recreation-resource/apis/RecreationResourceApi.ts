@@ -40,6 +40,7 @@ export interface GetRecreationResourceByIdRequest {
 
 export interface GetRecreationResourcesAlphabeticallyRequest {
   letter: string;
+  type?: string;
 }
 
 export interface GetRecreationSuggestionsRequest {
@@ -140,6 +141,10 @@ export class RecreationResourceApi extends runtime.BaseAPI {
 
     if (requestParameters['letter'] != null) {
       queryParameters['letter'] = requestParameters['letter'];
+    }
+
+    if (requestParameters['type'] != null) {
+      queryParameters['type'] = requestParameters['type'];
     }
 
     const headerParameters: runtime.HTTPHeaders = {};

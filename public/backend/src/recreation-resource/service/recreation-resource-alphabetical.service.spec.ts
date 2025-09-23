@@ -112,5 +112,34 @@ describe('RecreationResourceAlphabeticalService', () => {
 
       expect(result).toEqual([]);
     });
+
+    it('should filter by type when type parameter is provided', async () => {
+      mockPrismaService.recreation_resource.findMany.mockResolvedValue([
+        mockResource,
+      ]);
+
+      const result = await service.getAlphabeticalResources('A', 'TRAIL');
+
+      expect(result).toEqual([expectedResource]);
+      expect(
+        mockPrismaService.recreation_resource.findMany,
+      ).toHaveBeenCalledWith({
+        where: {
+          display_on_public_site: true,
+          name: { startsWith: 'A', mode: 'insensitive' },
+          recreation_resource_type_view: {
+            some: { rec_resource_type_code: 'TRAIL' },
+          },
+        },
+        select: {
+          rec_resource_id: true,
+          name: true,
+          recreation_resource_type_view: {
+            select: { rec_resource_type_code: true, description: true },
+          },
+        },
+        orderBy: { name: 'asc' },
+      });
+    });
   });
 });

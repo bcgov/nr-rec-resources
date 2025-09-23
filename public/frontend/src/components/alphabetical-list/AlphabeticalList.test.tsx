@@ -13,19 +13,19 @@ vi.mock('react-router-dom', () => ({
 const mockResources: AlphabeticalRecreationResourceModel[] = [
   {
     rec_resource_id: '1',
-    name: 'Alice Lake Recreation Site',
+    name: 'Abhau Lake',
     recreation_resource_type: 'Recreation Site',
     recreation_resource_type_code: 'SIT',
   },
   {
     rec_resource_id: '2',
-    name: 'Arrowhead Trail',
+    name: 'Aileen Lake',
     recreation_resource_type: 'Trail',
     recreation_resource_type_code: 'RTR',
   },
   {
     rec_resource_id: '3',
-    name: 'Bear Creek Recreation Site',
+    name: 'Abbott Creek',
     recreation_resource_type: 'Recreation Site',
     recreation_resource_type_code: 'SIT',
   },
@@ -80,9 +80,9 @@ describe('AlphabeticalList', () => {
       />,
     );
 
-    expect(screen.getByText('Alice Lake Recreation Site')).toBeInTheDocument();
-    expect(screen.getByText('Arrowhead Trail')).toBeInTheDocument();
-    expect(screen.getByText('Bear Creek Recreation Site')).toBeInTheDocument();
+    expect(screen.getByText('Abhau Lake')).toBeInTheDocument();
+    expect(screen.getByText('Aileen Lake')).toBeInTheDocument();
+    expect(screen.getByText('Abbott Creek')).toBeInTheDocument();
   });
 
   it('renders resource types for each resource', () => {
@@ -94,7 +94,7 @@ describe('AlphabeticalList', () => {
       />,
     );
 
-    expect(screen.getAllByText('(Recreation Site)')).toHaveLength(2);
-    expect(screen.getByText('(Trail)')).toBeInTheDocument();
+    expect(screen.getAllByText('Recreation Site')).toHaveLength(2);
+    expect(screen.getByText('Trail')).toBeInTheDocument();
   });
 });

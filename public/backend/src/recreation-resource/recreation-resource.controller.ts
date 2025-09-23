@@ -169,6 +169,12 @@ export class RecreationResourceController {
       'Filter resources by starting letter (A-Z) or # for numerical names.',
     example: 'A',
   })
+  @ApiQuery({
+    name: 'type',
+    required: false,
+    type: String,
+    description: 'Filter by recreation resource type code',
+  })
   @ApiResponse({
     status: 200,
     description: 'Resources in alphabetical order',
@@ -176,8 +182,12 @@ export class RecreationResourceController {
   })
   async getAlphabeticalResources(
     @Query('letter') letter: string,
+    @Query('type') type?: string,
   ): Promise<AlphabeticalRecreationResourceDto[]> {
-    return this.recreationResourceService.getAlphabeticalResources(letter);
+    return this.recreationResourceService.getAlphabeticalResources(
+      letter,
+      type,
+    );
   }
 
   @Get(':id')

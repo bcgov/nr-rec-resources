@@ -36,13 +36,13 @@ export interface AlphabeticalRecreationResourceDto {
    * @type {string}
    * @memberof AlphabeticalRecreationResourceDto
    */
-  recreation_resource_type: string | null;
+  recreation_resource_type: string;
   /**
    * Code representing the type of the Recreation Resource
    * @type {string}
    * @memberof AlphabeticalRecreationResourceDto
    */
-  recreation_resource_type_code: string | null;
+  recreation_resource_type_code: string;
 }
 
 /**

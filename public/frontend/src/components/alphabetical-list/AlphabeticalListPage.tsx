@@ -16,6 +16,7 @@ const AlphabeticalListPage = () => {
   useBreadcrumbs();
 
   const selectedLetter = searchParams.get('letter') ?? 'A';
+  const selectedType = searchParams.get('type') ?? undefined;
 
   // Redirect to 'A' if no letter is specified
   useEffect(() => {
@@ -24,8 +25,10 @@ const AlphabeticalListPage = () => {
     }
   }, [searchParams, navigate]);
 
-  const { data: resources, isLoading } =
-    useAlphabeticalResources(selectedLetter);
+  const { data: resources, isLoading } = useAlphabeticalResources(
+    selectedLetter,
+    selectedType,
+  );
 
   return (
     <>
@@ -33,7 +36,10 @@ const AlphabeticalListPage = () => {
       <div className="page page-padding content-footer-spacing">
         <Breadcrumbs />
         <h1 className="my-4">A-Z list</h1>
-        <AlphabeticalNavigation selectedLetter={selectedLetter} />
+        <AlphabeticalNavigation
+          selectedLetter={selectedLetter}
+          selectedType={selectedType}
+        />
         <AlphabeticalList
           resources={resources}
           isLoading={isLoading}

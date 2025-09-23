@@ -8,6 +8,7 @@ export class RecreationResourceAlphabeticalService {
 
   async getAlphabeticalResources(
     letter: string,
+    type?: string,
   ): Promise<AlphabeticalRecreationResourceDto[]> {
     const whereClause: any = { display_on_public_site: true };
 
@@ -23,6 +24,15 @@ export class RecreationResourceAlphabeticalService {
       whereClause.name = {
         startsWith: letter.toUpperCase(),
         mode: 'insensitive' as const,
+      };
+    }
+
+    // Add type filter if provided
+    if (type) {
+      whereClause.recreation_resource_type_view = {
+        some: {
+          rec_resource_type_code: type,
+        },
       };
     }
 

@@ -4,7 +4,7 @@
   row-gap: 0.5rem;
   margin-bottom: 2rem;
 
-  a {
+  button {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -18,6 +18,9 @@
     background-color: transparent;
     transition: all 0.1s ease-in-out;
     border-width: 0.5px;
+    cursor: pointer;
+    font-size: inherit;
+    font-family: inherit;
 
     &:hover {
       background-color: var(--bs-primary);
@@ -30,6 +33,21 @@
       background-color: var(--bs-primary);
       color: white;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    }
+
+    &:focus {
+      outline: 2px solid var(--bs-primary);
+      outline-offset: 2px;
+    }
+  }
+
+  // Special styling for type filter buttons
+  &.types {
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+
+    button {
+      min-width: 8rem;
+      font-size: 0.875rem;
     }
   }
 }

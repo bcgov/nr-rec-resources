@@ -100,9 +100,11 @@ export class RecreationResourceService {
 
   async getAlphabeticalResources(
     letter: string,
+    type?: string,
   ): Promise<AlphabeticalRecreationResourceDto[]> {
     return this.recreationResourceAlphabeticalService.getAlphabeticalResources(
       letter,
+      type,
     );
   }
 }

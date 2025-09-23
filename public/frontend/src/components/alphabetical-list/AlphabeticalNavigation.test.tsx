@@ -1,16 +1,16 @@
 import { render, screen } from '@/test-utils';
 import { AlphabeticalNavigation } from './AlphabeticalNavigation';
-import { ROUTE_PATHS } from '@/routes/constants';
 
+const mockSetSearchParams = vi.fn();
 vi.mock('react-router-dom', () => ({
-  Link: ({ to, children, className, ...props }: any) => (
-    <a href={to} className={className} {...props}>
-      {children}
-    </a>
-  ),
+  useSearchParams: () => [new URLSearchParams(), mockSetSearchParams],
 }));
 
 describe('AlphabeticalNavigation', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it('renders heading', () => {
     render(<AlphabeticalNavigation selectedLetter="A" />);
     expect(screen.getByText('Select a letter:')).toBeInTheDocument();
@@ -30,36 +30,60 @@ describe('AlphabeticalNavigation', () => {
   it('highlights the selected letter', () => {
     render(<AlphabeticalNavigation selectedLetter="M" />);
 
-    const selectedLink = screen.getByText('M');
-    expect(selectedLink).toHaveClass('active');
+    const selectedButton = screen.getByText('M');
+    expect(selectedButton).toHaveClass('active');
   });
 
   it('does not highlight non-selected letters', () => {
     render(<AlphabeticalNavigation selectedLetter="A" />);
 
-    const nonSelectedLink = screen.getByText('Z');
-    expect(nonSelectedLink).not.toHaveClass('active');
+    const nonSelectedButton = screen.getByText('Z');
+    expect(nonSelectedButton).not.toHaveClass('active');
   });
 
-  it('generates correct URLs for each letter', () => {
+  it('calls setSearchParams when letter button is clicked', () => {
     render(<AlphabeticalNavigation selectedLetter="A" />);
 
-    const aLink = screen.getByText('A');
-    expect(aLink).toHaveAttribute(
-      'href',
-      `${ROUTE_PATHS.ALPHABETICAL}?letter=A`,
-    );
+    const zButton = screen.getByText('Z');
+    zButton.click();
 
-    const zLink = screen.getByText('Z');
-    expect(zLink).toHaveAttribute(
-      'href',
-      `${ROUTE_PATHS.ALPHABETICAL}?letter=Z`,
+    expect(mockSetSearchParams).toHaveBeenCalledWith(
+      expect.any(URLSearchParams),
     );
+  });
 
-    const hashLink = screen.getByText('#');
-    expect(hashLink).toHaveAttribute(
-      'href',
-      `${ROUTE_PATHS.ALPHABETICAL}?letter=%23`,
+  it('renders type filter buttons', () => {
+    render(<AlphabeticalNavigation selectedLetter="A" />);
+
+    expect(screen.getByText('Filter by type')).toBeInTheDocument();
+    expect(screen.getByText('All types')).toBeInTheDocument();
+    expect(screen.getByText('Recreation site')).toBeInTheDocument();
+    expect(screen.getByText('Recreation trail')).toBeInTheDocument();
+    expect(screen.getByText('Interpretive forest')).toBeInTheDocument();
+  });
+
+  it('highlights the selected type', () => {
+    render(<AlphabeticalNavigation selectedLetter="A" selectedType="SIT" />);
+
+    const selectedTypeButton = screen.getByText('Recreation site');
+    expect(selectedTypeButton).toHaveClass('active');
+  });
+
+  it('highlights "All types" when no type is selected', () => {
+    render(<AlphabeticalNavigation selectedLetter="A" />);
+
+    const allTypesButton = screen.getByText('All types');
+    expect(allTypesButton).toHaveClass('active');
+  });
+
+  it('calls setSearchParams when type button is clicked', () => {
+    render(<AlphabeticalNavigation selectedLetter="A" />);
+
+    const recreationSiteButton = screen.getByText('Recreation site');
+    recreationSiteButton.click();
+
+    expect(mockSetSearchParams).toHaveBeenCalledWith(
+      expect.any(URLSearchParams),
     );
   });
 });
