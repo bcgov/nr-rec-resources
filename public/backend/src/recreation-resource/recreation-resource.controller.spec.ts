@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { HttpException, INestApplication } from '@nestjs/common';
-import { vi } from 'vitest';
 import { RecreationResourceController } from './recreation-resource.controller';
 import { RecreationResourceService } from 'src/recreation-resource/service/recreation-resource.service';
 import { RecreationResourceSearchService } from 'src/recreation-resource/service/recreation-resource-search.service';
@@ -51,7 +50,6 @@ describe('RecreationResourceController', () => {
     await app.init();
   });
 
-  // Close the app after each test
   afterEach(async () => {
     await app.close();
   });

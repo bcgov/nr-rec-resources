@@ -2,7 +2,7 @@ import { Alert, Spinner } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/routes/constants';
 import { AlphabeticalRecreationResourceModel } from '@/service/custom-models';
-import './AlphabeticalList.scss';
+import '@/components/alphabetical-list/AlphabeticalList.scss';
 
 interface AlphabeticalListProps {
   resources: AlphabeticalRecreationResourceModel[] | undefined;
