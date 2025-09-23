@@ -13,7 +13,7 @@ describe('AlphabeticalNavigation', () => {
 
   it('renders heading', () => {
     render(<AlphabeticalNavigation selectedLetter="A" />);
-    expect(screen.getByText('Select a letter:')).toBeInTheDocument();
+    expect(screen.getByText('Select a letter')).toBeInTheDocument();
   });
 
   it('renders all letters A-Z plus #', () => {

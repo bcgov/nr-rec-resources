@@ -45,8 +45,8 @@ export const AlphabeticalNavigation = ({
 
   return (
     <div>
-      <div>
-        <h2 className="h5 mb-3">Select a letter:</h2>
+      <div className="mb-4">
+        <h2 className="h5 mb-3">Select a letter</h2>
         <div className="alphabetical-navigation">
           {letters.map((letter) => {
             const isActive = selectedLetter === letter;
@@ -64,7 +64,7 @@ export const AlphabeticalNavigation = ({
         </div>
       </div>
       <div>
-        <h2 className="h5 mt-4">Filter by type</h2>
+        <h2 className="h5 mb-3">Filter by type</h2>
         <div className="alphabetical-navigation types">
           <button
             onClick={() => updateSearchParams({ type: null })}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import { RemoveScroll } from 'react-remove-scroll';
 import { useStore } from '@tanstack/react-store';
 import { Col, ProgressBar, Row, Stack } from 'react-bootstrap';
@@ -15,6 +15,8 @@ import {
   FilterMenu,
   FilterMenuMobile,
 } from '@/components/search/filters';
+import SearchLinks from '@/components/search/SearchLinks';
+import SearchLinksMobile from '@/components/search/SearchLinksMobile';
 import filterChipStore from '@/store/filterChips';
 import searchResultsStore, { initialState } from '@/store/searchResults';
 import { useSearchRecreationResourcesPaginated } from '@/service/queries/recreation-resource';
@@ -27,7 +29,7 @@ import {
 import { trackEvent } from '@/utils/matomo';
 import { LoadingButton } from '@/components/LoadingButton';
 import PageTitle from '@/components/layout/PageTitle';
-import { ROUTE_PATHS, ROUTE_TITLES } from '@/routes/constants';
+import { ROUTE_TITLES } from '@/routes/constants';
 
 const SearchPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -152,13 +154,7 @@ const SearchPage = () => {
               isOpen={isMobileFilterOpen}
               setIsOpen={setIsMobileFilterOpen}
             />
-            <div className="d-flex flex-column">
-              <div className="fs-6 fw-bold mb-1">More ways to search</div>
-              <Link to={ROUTE_PATHS.ALPHABETICAL}>A-Z list</Link>
-              <Link to={{ pathname: ROUTE_PATHS.SEARCH, search: 'view=map' }}>
-                Map
-              </Link>
-            </div>
+            <SearchLinks />
           </Col>
 
           <Col md={12} lg={9}>
@@ -169,6 +165,7 @@ const SearchPage = () => {
             >
               Filter
             </button>
+            <SearchLinksMobile />
 
             <div className="d-flex align-items-center justify-content-between">
               {isFetchingFirstPage ? (

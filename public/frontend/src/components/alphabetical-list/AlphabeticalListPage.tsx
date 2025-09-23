@@ -15,13 +15,14 @@ const AlphabeticalListPage = () => {
 
   useBreadcrumbs();
 
-  const selectedLetter = searchParams.get('letter') ?? 'A';
+  const selectedLetter = searchParams.get('letter') ?? '#';
   const selectedType = searchParams.get('type') ?? undefined;
 
-  // Redirect to 'A' if no letter is specified
+  // Redirect to '#' if no letter is specified
   useEffect(() => {
     if (!searchParams.get('letter')) {
-      navigate(`${ROUTE_PATHS.ALPHABETICAL}?letter=A`, { replace: true });
+      // %23 is the URL-encoded value for '#'
+      navigate(`${ROUTE_PATHS.ALPHABETICAL}?letter=%23`, { replace: true });
     }
   }, [searchParams, navigate]);
 

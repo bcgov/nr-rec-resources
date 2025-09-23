@@ -1,0 +1,70 @@
+@import '@/styles/variables.scss';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins/_breakpoints';
+
+.search-links-desktop {
+  flex-direction: column;
+  display: none;
+  margin-top: 1.5rem;
+
+  @include media-breakpoint-up(lg) {
+    display: flex;
+  }
+}
+
+.search-links-modal {
+  .modal-dialog {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .modal-content {
+    background-color: $colorBackgroundGrey;
+
+    .search-links-modal-content {
+      .search-links-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+
+        button.btn {
+          height: 24px;
+          width: 24px;
+          font-size: 1.25rem;
+          padding: 0;
+
+          &:hover {
+            opacity: 0.7;
+          }
+        }
+      }
+
+      .search-links-list {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+
+        .search-link-item {
+          color: $colorBlue;
+          font-size: 1.125rem;
+          padding: 12px 16px;
+          background-color: $colorWhite;
+          border: 1px solid $colorGreyMed;
+          border-radius: 4px;
+          text-align: center;
+          transition: all 0.2s ease;
+
+          &:hover,
+          &:focus-visible {
+            color: $colorWhite;
+            background-color: $colorBlue;
+            border-color: $colorBlue;
+            text-decoration: none;
+          }
+        }
+      }
+    }
+  }
+}
