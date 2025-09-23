@@ -80,9 +80,10 @@ describe('AlphabeticalList', () => {
       />,
     );
 
-    expect(screen.getByText('Abhau Lake')).toBeInTheDocument();
-    expect(screen.getByText('Aileen Lake')).toBeInTheDocument();
-    expect(screen.getByText('Abbott Creek')).toBeInTheDocument();
+    // Names are in lowercase as we use CSS text-transform: capitalize for all caps edge case names
+    expect(screen.getByText('abhau lake')).toBeInTheDocument();
+    expect(screen.getByText('aileen lake')).toBeInTheDocument();
+    expect(screen.getByText('abbott creek')).toBeInTheDocument();
   });
 
   it('renders resource types for each resource', () => {

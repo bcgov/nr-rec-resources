@@ -1,3 +1,5 @@
+@import '@/styles/variables.scss';
+
 .alphabetical-navigation {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(2.5rem, 1fr));
@@ -13,7 +15,7 @@
     padding: 0.375rem 0.75rem;
     font-weight: 600;
     text-decoration: none;
-    border: 1px solid var(--bs-primary);
+    border: 1px solid $colorBlue;
     color: var(--bs-primary);
     background-color: transparent;
     transition: all 0.1s ease-in-out;
@@ -23,31 +25,16 @@
     font-family: inherit;
 
     &:hover {
-      background-color: var(--bs-primary);
-      color: white;
+      background-color: $colorBlue;
+      color: $colorWhite;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       text-decoration: none;
     }
 
     &.active {
-      background-color: var(--bs-primary);
+      background-color: $colorBlue;
       color: white;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-    }
-
-    &:focus {
-      outline: 2px solid var(--bs-primary);
-      outline-offset: 2px;
-    }
-  }
-
-  // Special styling for type filter buttons
-  &.types {
-    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
-
-    button {
-      min-width: 8rem;
-      font-size: 0.875rem;
     }
   }
 }

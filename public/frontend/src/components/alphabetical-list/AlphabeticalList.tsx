@@ -43,22 +43,26 @@ export const AlphabeticalList = ({
       <h2 className="h5 mb-3">{selectedLetter} </h2>
 
       <ul className="list-unstyled">
-        {resources.map((resource) => (
-          <li key={resource.rec_resource_id} className="mb-2">
-            <Link
-              to={ROUTE_PATHS.REC_RESOURCE.replace(
-                ':id',
-                resource.rec_resource_id,
-              )}
-              className="text-decoration-none"
-            >
-              {resource.name}
-            </Link>
-            <span className="text-muted ms-2">
-              {resource.recreation_resource_type}
-            </span>
-          </li>
-        ))}
+        {resources.map((resource) => {
+          const { name } = resource;
+          const formattedName = name.toLowerCase();
+          return (
+            <li key={resource.rec_resource_id} className="mb-2">
+              <Link
+                to={ROUTE_PATHS.REC_RESOURCE.replace(
+                  ':id',
+                  resource.rec_resource_id,
+                )}
+                className="text-decoration-none"
+              >
+                {formattedName}
+              </Link>
+              <span className="text-muted ms-2">
+                {resource.recreation_resource_type}
+              </span>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
