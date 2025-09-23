@@ -34,7 +34,8 @@ export function buildFilterOptionCountsQuery({
   return Prisma.sql`
   WITH filtered_resources AS (
     SELECT rec_resource_id, district_code, access_code,
-           recreation_resource_type_code, has_toilets, has_tables
+           recreation_resource_type_code, has_toilets, has_tables,
+           recreation_status
     FROM recreation_resource_search_view
     ${whereClause}
     LIMIT 5000
@@ -108,6 +109,18 @@ export function buildFilterOptionCountsQuery({
     GROUP BY acv.rec_resource_type_code, acv.description
     ORDER BY acv.rec_resource_type_code DESC
   ),
+  status_counts AS (
+    SELECT
+      LOWER(rr.recreation_status->>'description') AS code,
+      rr.recreation_status->>'description' AS description,
+      COUNT(*)::INT AS count
+    FROM recreation_resource_search_view rr
+    WHERE rr.display_on_public_site = true
+      AND rr.recreation_status IS NOT NULL
+      AND rr.recreation_status->>'description' IS NOT NULL
+    GROUP BY rr.recreation_status->>'description'
+    ORDER BY code
+  ),
   extent_calc AS (
     SELECT
       public.ST_Extent(recreation_site_point) AS extent_geom
@@ -140,6 +153,12 @@ export function buildFilterOptionCountsQuery({
   SELECT
     'type', tc.code, tc.description, tc.count, NULL::TEXT[] AS rec_resource_ids, NULL::TEXT AS extent
   FROM type_counts tc
+
+  UNION ALL
+
+  SELECT
+    'status', sc.code, sc.description, sc.count, NULL::TEXT[] AS rec_resource_ids, NULL::TEXT AS extent
+  FROM status_counts sc
 
   UNION ALL
 

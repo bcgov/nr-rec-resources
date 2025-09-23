@@ -74,6 +74,7 @@ export class RecreationResourceService {
     district?: string,
     access?: string,
     facilities?: string,
+    status?: string,
     lat?: number,
     lon?: number,
   ) {
@@ -86,6 +87,7 @@ export class RecreationResourceService {
       district,
       access,
       facilities,
+      status,
       lat,
       lon,
     );

@@ -55,6 +55,7 @@ const SearchPage = () => {
     activities: searchParams.get('activities') ?? undefined,
     access: searchParams.get('access') ?? undefined,
     facilities: searchParams.get('facilities') ?? undefined,
+    status: searchParams.get('status') ?? undefined,
     lat: lat ? Number(lat) : undefined,
     lon: lon ? Number(lon) : undefined,
     community: community ?? undefined,

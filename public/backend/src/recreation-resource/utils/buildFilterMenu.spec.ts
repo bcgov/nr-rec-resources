@@ -19,21 +19,27 @@ describe('buildFilterMenu', () => {
       const expectedFilters: FilterDto[] = [
         {
           type: 'multi-select',
-          label: 'District',
-          param: 'district',
-          options: [{ id: 'D1', description: 'District A', count: 10 }],
-        },
-        {
-          type: 'multi-select',
           label: 'Type',
           param: 'type',
           options: [{ id: 'T1', description: 'Park', count: 15 }],
         },
         {
           type: 'multi-select',
+          label: 'Status',
+          param: 'status',
+          options: [],
+        },
+        {
+          type: 'multi-select',
           label: 'Things to do',
           param: 'activities',
           options: [{ id: 'A1', description: 'Hiking', count: 12 }],
+        },
+        {
+          type: 'multi-select',
+          label: 'District',
+          param: 'district',
+          options: [{ id: 'D1', description: 'District A', count: 10 }],
         },
         {
           type: 'multi-select',
@@ -65,18 +71,19 @@ describe('buildFilterMenu', () => {
 
       const result = buildFilterMenu(partialData);
 
-      expect(result).toHaveLength(5); // Should still return all filter categories
-      expect(result[0].options).toHaveLength(0); // Empty district
-      expect(result[1].options).toHaveLength(0); // Empty type
+      expect(result).toHaveLength(6); // Should still return all filter categories
+      expect(result[0].options).toHaveLength(0); // Empty type
+      expect(result[1].options).toHaveLength(0); // Empty status
       expect(result[2].options).toHaveLength(1); // Activities
-      expect(result[3].options).toHaveLength(2); // Facilities (always shows both - tables and toilets)
-      expect(result[4].options).toHaveLength(0); // Empty access
+      expect(result[3].options).toHaveLength(0); // Empty district
+      expect(result[4].options).toHaveLength(2); // Facilities (always shows both - tables and toilets)
+      expect(result[5].options).toHaveLength(0); // Empty access
     });
 
     it('should handle empty input', () => {
       const result = buildFilterMenu([]);
 
-      expect(result).toHaveLength(5);
+      expect(result).toHaveLength(6);
       result.forEach((filter) => {
         if (filter.param === 'facilities') {
           expect(filter.options).toEqual([

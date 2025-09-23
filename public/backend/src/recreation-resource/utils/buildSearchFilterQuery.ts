@@ -7,6 +7,7 @@ export interface FilterOptions {
   district?: string;
   access?: string;
   facilities?: string;
+  status?: string;
   lat?: number;
   lon?: number;
   radius?: number;
@@ -22,6 +23,7 @@ export const buildSearchFilterQuery = ({
   district,
   access,
   facilities,
+  status,
   lat,
   lon,
 }: FilterOptions) => {
@@ -30,6 +32,7 @@ export const buildSearchFilterQuery = ({
   const districtFilter = district?.split('_').map(String) ?? [];
   const accessFilter = access?.split('_').map(String) ?? [];
   const facilityFilter = facilities?.split('_').map(String) ?? [];
+  const statusFilter = status?.split('_').map(String) ?? [];
 
   // Conditional filter for searchText
   const displayOnPublicSite = Prisma.sql`display_on_public_site is true`;
@@ -88,6 +91,17 @@ export const buildSearchFilterQuery = ({
       ) > 0`
       : Prisma.empty;
 
+  const statusFilterQuery =
+    statusFilter.length > 0
+      ? Prisma.sql`(${Prisma.join(
+          statusFilter.map(
+            (status) =>
+              Prisma.sql`recreation_status->>'description' ILIKE ${status}`,
+          ),
+          ' OR ',
+        )})`
+      : Prisma.empty;
+
   const locationFilterQuery =
     typeof lat === 'number' && typeof lon === 'number'
       ? Prisma.sql`public.ST_DWithin(
@@ -105,6 +119,7 @@ export const buildSearchFilterQuery = ({
     typeFilterQuery,
     activityFilterQuery,
     facilityFilterQuery,
+    statusFilterQuery,
     locationFilterQuery,
   ].filter((sql) => sql !== Prisma.empty); // Remove empty conditions
 

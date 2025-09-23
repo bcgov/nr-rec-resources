@@ -75,6 +75,7 @@ describe('RecreationResourceSearchService', () => {
         'north',
         'public',
         'restroom',
+        'open',
         49.1,
         -123.1,
       );
@@ -86,6 +87,7 @@ describe('RecreationResourceSearchService', () => {
         district: 'north',
         access: 'public',
         facilities: 'restroom',
+        status: 'open',
         lat: 49.1,
         lon: -123.1,
       });
@@ -194,6 +196,7 @@ describe('RecreationResourceSearchService', () => {
         '',
         'public',
         undefined,
+        undefined,
         12,
         34,
       );
@@ -229,6 +232,7 @@ describe('RecreationResourceSearchService', () => {
         'park',
         'north',
         '',
+        undefined,
         undefined,
         55,
         66,
@@ -267,6 +271,7 @@ describe('RecreationResourceSearchService', () => {
         'north',
         '',
         undefined,
+        undefined,
         1,
         2,
       );
@@ -300,6 +305,7 @@ describe('RecreationResourceSearchService', () => {
         'park',
         '',
         '',
+        undefined,
         undefined,
         3,
         4,
@@ -335,6 +341,7 @@ describe('RecreationResourceSearchService', () => {
         '',
         '',
         'restroom',
+        undefined,
         7,
         8,
       );
@@ -363,7 +370,18 @@ describe('RecreationResourceSearchService', () => {
 
     it('should throw error when only latitude is provided', async () => {
       await expect(
-        service.searchRecreationResources(1, '', 10, '', '', '', '', '', 10),
+        service.searchRecreationResources(
+          1,
+          '',
+          10,
+          '',
+          '',
+          '',
+          '',
+          '',
+          undefined,
+          10,
+        ),
       ).rejects.toThrow('Both lat and lon must be provided');
     });
 

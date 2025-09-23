@@ -27,6 +27,7 @@ export class RecreationResourceSearchService {
     district?: string,
     access?: string,
     facilities?: string,
+    status?: string,
     lat?: number,
     lon?: number,
   ): Promise<PaginatedRecreationResourceDto> {
@@ -44,6 +45,7 @@ export class RecreationResourceSearchService {
       district,
       access,
       facilities,
+      status,
     });
 
     if ((lat && !lon) || (lon && !lat)) {
@@ -58,6 +60,7 @@ export class RecreationResourceSearchService {
       district,
       access,
       facilities,
+      status,
       lat,
       lon,
     });
@@ -148,9 +151,10 @@ export class RecreationResourceSearchService {
     district?: string;
     access?: string;
     facilities?: string;
+    status?: string;
   }): FilterTypes {
-    const { activities, type, district, access, facilities } = params;
-    const hasNoOtherFilters = !activities && !facilities;
+    const { activities, type, district, access, facilities, status } = params;
+    const hasNoOtherFilters = !activities && !facilities && !status;
 
     return {
       isOnlyAccessFilter:

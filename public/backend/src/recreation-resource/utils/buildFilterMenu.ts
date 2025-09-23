@@ -5,9 +5,10 @@ import {
 } from '../dto/paginated-recreation-resource.dto';
 
 const FILTER_CONFIG = [
-  { type: 'district', label: 'District', param: 'district' },
   { type: 'type', label: 'Type', param: 'type' },
+  { type: 'status', label: 'Status', param: 'status' },
   { type: 'activity', label: 'Things to do', param: 'activities' },
+  { type: 'district', label: 'District', param: 'district' },
   { type: 'facilities', label: 'Facilities', param: 'facilities' },
   { type: 'access', label: 'Access type', param: 'access' },
 ] as const;
@@ -87,6 +88,7 @@ export const buildFilterMenu = (
     district: createFilterOptions(aggregatedRecordCounts, 'district'),
     type: createFilterOptions(aggregatedRecordCounts, 'type'),
     activity: createFilterOptions(aggregatedRecordCounts, 'activity'),
+    status: createFilterOptions(aggregatedRecordCounts, 'status'),
   };
 
   return FILTER_CONFIG.map(({ type, label, param }) => ({

@@ -42,6 +42,7 @@ const FilterMenuSearchMap = ({
       access: localFilters.access?.join('_') || undefined,
       facilities: localFilters.facilities?.join('_') || undefined,
       type: localFilters.type?.join('_') || undefined,
+      status: localFilters.status?.join('_') || undefined,
       community: searchParams.get('community') || undefined,
       lat: searchParams.get('lat')
         ? Number(searchParams.get('lat'))
