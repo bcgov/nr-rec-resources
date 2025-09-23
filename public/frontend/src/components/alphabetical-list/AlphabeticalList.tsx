@@ -55,7 +55,7 @@ export const AlphabeticalList = ({
               {resource.name}
             </Link>
             <span className="text-muted ms-2">
-              ({resource.recreation_resource_type})
+              {resource.recreation_resource_type}
             </span>
           </li>
         ))}
