@@ -79,7 +79,7 @@
     "happo-e2e": "^5.0.0",
     "happo-playwright": "^2.2.0",
     "happo.io": "^13.0.0",
-    "jsdom": "^26.0.0",
+    "jsdom": "^27.0.0",
     "less": "^4.2.2",
     "msw-storybook-addon": "^2.0.4",
     "sass-embedded": "^1.83.1",
