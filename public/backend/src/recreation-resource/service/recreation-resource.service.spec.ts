@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 import { RecreationResourceService } from './recreation-resource.service';
 import { RecreationResourceSearchService } from './recreation-resource-search.service';
 import { RecreationResourceSuggestionsService } from 'src/recreation-resource/service/recreation-resource-suggestion.service';
+import { RecreationResourceAlphabeticalService } from './recreation-resource-alphabetical.service';
 import {
   mockResponse,
   mockResults,
@@ -43,6 +44,12 @@ describe('RecreationResourceService', () => {
           provide: RecreationResourceSuggestionsService,
           useValue: {
             getSuggestions: vi.fn(),
+          },
+        },
+        {
+          provide: RecreationResourceAlphabeticalService,
+          useValue: {
+            getAlphabeticalResources: vi.fn(),
           },
         },
       ],

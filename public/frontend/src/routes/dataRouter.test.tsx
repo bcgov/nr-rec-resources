@@ -23,6 +23,12 @@ vi.mock('@/components/NotFound', () => ({
   default: () => <div data-testid="not-found-page">Not Found Page</div>,
 }));
 
+vi.mock('@/components/alphabetical-list/AlphabeticalListPage', () => ({
+  default: () => (
+    <div data-testid="alphabetical-list-page">Alphabetical List Page</div>
+  ),
+}));
+
 vi.mock('@/routes/RouteWrapper', () => ({
   RouteWrapper: () => <div data-testid="route-wrapper">Route Wrapper</div>,
 }));
@@ -60,7 +66,7 @@ describe('dataRouter', () => {
 
       const rootRoute = routes[0];
       expect(rootRoute.path).toBe('/');
-      expect(rootRoute.children).toHaveLength(6);
+      expect(rootRoute.children).toHaveLength(7);
     });
 
     it('should have all expected child routes', () => {
@@ -69,6 +75,7 @@ describe('dataRouter', () => {
 
       expect(childPaths).toContain(ROUTE_PATHS.HOME);
       expect(childPaths).toContain(ROUTE_PATHS.SEARCH);
+      expect(childPaths).toContain(ROUTE_PATHS.ALPHABETICAL);
       expect(childPaths).toContain(ROUTE_PATHS.REC_RESOURCE);
       expect(childPaths).toContain(ROUTE_PATHS.CONTACT_US);
       expect(childPaths).toContain(ROUTE_PATHS.REC_RESOURCE_CONTACT);
@@ -135,6 +142,32 @@ describe('dataRouter', () => {
           {
             label: 'Find a site or trail',
             href: `${ROUTE_PATHS.SEARCH}?query=test`,
+            isCurrent: true,
+          },
+        ]);
+      });
+    });
+
+    describe('alphabetical breadcrumb', () => {
+      it('should return alphabetical breadcrumb', () => {
+        const rootRoute = dataRouter.routes[0];
+        const alphabeticalRoute = rootRoute.children?.find(
+          (child) => child.path === ROUTE_PATHS.ALPHABETICAL,
+        );
+        const breadcrumb = alphabeticalRoute?.handle?.breadcrumb?.();
+
+        expect(breadcrumb).toEqual([
+          {
+            label: 'Home',
+            href: ROUTE_PATHS.HOME,
+          },
+          {
+            label: 'Find a site or trail',
+            href: ROUTE_PATHS.SEARCH,
+          },
+          {
+            label: 'A-Z list',
+            href: ROUTE_PATHS.ALPHABETICAL,
             isCurrent: true,
           },
         ]);

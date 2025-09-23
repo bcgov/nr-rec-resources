@@ -1,0 +1,58 @@
+@import '@/styles/variables.scss';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins/_breakpoints';
+
+.alphabetical-navigation {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(2.4rem, 1fr));
+  row-gap: 0.5rem;
+
+  button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 2.5rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid $colorBlue;
+    color: $colorBlue;
+    background-color: $colorWhite;
+    transition: all 0.1s ease-in-out;
+    border-width: 0.5px;
+
+    &:hover {
+      background-color: $colorBlue;
+      color: $colorWhite;
+      text-decoration: none;
+    }
+
+    &.active {
+      background-color: $colorBlue;
+      color: $colorWhite;
+    }
+  }
+
+  &.types {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+
+    button {
+      height: 2.5rem;
+      font-size: 0.875rem;
+      white-space: nowrap;
+      width: 100%;
+
+      @include media-breakpoint-up(sm) {
+        width: calc(50% - 0.25rem);
+      }
+
+      @include media-breakpoint-up(md) {
+        flex: 1;
+        min-width: 8rem;
+      }
+    }
+  }
+}

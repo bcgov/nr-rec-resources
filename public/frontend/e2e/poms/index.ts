@@ -1,3 +1,4 @@
+export { AlphabeticalListPOM } from 'e2e/poms/pages/alphabeticalList';
 export { ContactPOM } from 'e2e/poms/pages/contact';
 export { FilterPOM } from 'e2e/poms/components/filter';
 export { FilterChipsPOM } from 'e2e/poms/components/filterChips';

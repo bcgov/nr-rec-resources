@@ -1,5 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
+export * from './AlphabeticalRecreationResourceDto';
 export * from './FilterDto';
 export * from './FilterOptionDto';
 export * from './HealthControllerCheck200Response';

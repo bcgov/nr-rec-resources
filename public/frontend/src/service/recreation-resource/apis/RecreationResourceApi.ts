@@ -14,12 +14,15 @@
 
 import * as runtime from '../runtime';
 import type {
+  AlphabeticalRecreationResourceDto,
   PaginatedRecreationResourceDto,
   RecreationResourceDetailDto,
   RecreationSuggestionDto,
   SiteOperatorDto,
 } from '../models/index';
 import {
+  AlphabeticalRecreationResourceDtoFromJSON,
+  AlphabeticalRecreationResourceDtoToJSON,
   PaginatedRecreationResourceDtoFromJSON,
   PaginatedRecreationResourceDtoToJSON,
   RecreationResourceDetailDtoFromJSON,
@@ -32,7 +35,12 @@ import {
 
 export interface GetRecreationResourceByIdRequest {
   id: string;
-  imageSizeCodes?: Array<GetRecreationResourceByIdImageSizeCodesEnum>;
+  imageSizeCodes?: Array<string>;
+}
+
+export interface GetRecreationResourcesAlphabeticallyRequest {
+  letter: string;
+  type?: string;
 }
 
 export interface GetRecreationSuggestionsRequest {
@@ -108,6 +116,63 @@ export class RecreationResourceApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<RecreationResourceDetailDto> {
     const response = await this.getRecreationResourceByIdRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Returns recreation resources in alphabetical order. Use letter parameter to filter by starting letter (A-Z) or # for numerical names.
+   * Get recreation resources alphabetically
+   */
+  async getRecreationResourcesAlphabeticallyRaw(
+    requestParameters: GetRecreationResourcesAlphabeticallyRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<AlphabeticalRecreationResourceDto>>> {
+    if (requestParameters['letter'] == null) {
+      throw new runtime.RequiredError(
+        'letter',
+        'Required parameter "letter" was null or undefined when calling getRecreationResourcesAlphabetically().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    if (requestParameters['letter'] != null) {
+      queryParameters['letter'] = requestParameters['letter'];
+    }
+
+    if (requestParameters['type'] != null) {
+      queryParameters['type'] = requestParameters['type'];
+    }
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resource/alphabetical`,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      jsonValue.map(AlphabeticalRecreationResourceDtoFromJSON),
+    );
+  }
+
+  /**
+   * Returns recreation resources in alphabetical order. Use letter parameter to filter by starting letter (A-Z) or # for numerical names.
+   * Get recreation resources alphabetically
+   */
+  async getRecreationResourcesAlphabetically(
+    requestParameters: GetRecreationResourcesAlphabeticallyRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<Array<AlphabeticalRecreationResourceDto>> {
+    const response = await this.getRecreationResourcesAlphabeticallyRaw(
       requestParameters,
       initOverrides,
     );
@@ -299,27 +364,3 @@ export class RecreationResourceApi extends runtime.BaseAPI {
     return await response.value();
   }
 }
-
-/**
- * @export
- */
-export const GetRecreationResourceByIdImageSizeCodesEnum = {
-  Original: 'original',
-  Col: 'col',
-  Con: 'con',
-  Pcs: 'pcs',
-  Hpr: 'hpr',
-  Ili: 'ili',
-  Lan: 'lan',
-  Llc: 'llc',
-  Lpr: 'lpr',
-  Gal: 'gal',
-  Ppp: 'ppp',
-  Pre: 'pre',
-  Rsr: 'rsr',
-  Rth: 'rth',
-  Scr: 'scr',
-  Thm: 'thm',
-} as const;
-export type GetRecreationResourceByIdImageSizeCodesEnum =
-  (typeof GetRecreationResourceByIdImageSizeCodesEnum)[keyof typeof GetRecreationResourceByIdImageSizeCodesEnum];

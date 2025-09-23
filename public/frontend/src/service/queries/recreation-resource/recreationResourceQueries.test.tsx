@@ -9,6 +9,7 @@ import {
   useGetRecreationResourceById,
   useGetSiteOperatorById,
   useSearchRecreationResourcesPaginated,
+  useAlphabeticalResources,
 } from '@/service/queries/recreation-resource/recreationResourceQueries';
 import { TestQueryClientProvider } from '@/test-utils';
 
@@ -256,5 +257,100 @@ describe('useSearchRecreationResourcesPaginated', () => {
     });
 
     expect(transformRecreationResourceBase).not.toHaveBeenCalled();
+  });
+});
+
+describe('useAlphabeticalResources', () => {
+  const mockApi = {
+    getRecreationResourcesAlphabetically: vi.fn(),
+  };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    (useRecreationResourceApi as any).mockReturnValue(mockApi);
+  });
+
+  it('should not fetch when no letter is provided', async () => {
+    const { result } = renderHook(() => useAlphabeticalResources(''), {
+      wrapper: TestQueryClientProvider,
+    });
+
+    expect(result.current.data).toBeUndefined();
+    expect(mockApi.getRecreationResourcesAlphabetically).not.toHaveBeenCalled();
+  });
+
+  it('should fetch alphabetical resources for a letter', async () => {
+    const mockResponse = [
+      {
+        rec_resource_id: 'REC123',
+        name: 'Abbott Creek',
+        recreation_resource_type: 'Recreation site',
+        recreation_resource_type_code: 'SIT',
+      },
+      {
+        rec_resource_id: 'REC456',
+        name: 'Alpine Lake',
+        recreation_resource_type: 'Recreation site',
+        recreation_resource_type_code: 'SIT',
+      },
+    ];
+
+    mockApi.getRecreationResourcesAlphabetically.mockResolvedValue(
+      mockResponse,
+    );
+
+    const { result } = renderHook(() => useAlphabeticalResources('A'), {
+      wrapper: TestQueryClientProvider,
+    });
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    expect(mockApi.getRecreationResourcesAlphabetically).toHaveBeenCalledWith({
+      letter: 'A',
+    });
+    expect(result.current.data).toEqual(mockResponse);
+  });
+
+  it('should fetch alphabetical resources for numerical (#)', async () => {
+    const mockResponse = [
+      {
+        rec_resource_id: 'REC789',
+        name: '0 K Snowmobile Parking Lot',
+        recreation_resource_type: 'Recreation site',
+        recreation_resource_type_code: 'SIT',
+      },
+    ];
+
+    mockApi.getRecreationResourcesAlphabetically.mockResolvedValue(
+      mockResponse,
+    );
+
+    const { result } = renderHook(() => useAlphabeticalResources('#'), {
+      wrapper: TestQueryClientProvider,
+    });
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    expect(mockApi.getRecreationResourcesAlphabetically).toHaveBeenCalledWith({
+      letter: '#',
+    });
+    expect(result.current.data).toEqual(mockResponse);
+  });
+
+  it('should handle API errors', async () => {
+    const error = new Error('API Error');
+    mockApi.getRecreationResourcesAlphabetically.mockRejectedValueOnce(error);
+
+    const { result } = renderHook(() => useAlphabeticalResources('A'), {
+      wrapper: TestQueryClientProvider,
+    });
+
+    await waitFor(() => {
+      expect(result.current.error).toBeDefined();
+    });
   });
 });
