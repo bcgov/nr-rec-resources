@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { RemoveScroll } from 'react-remove-scroll';
 import { useSearchParams } from 'react-router-dom';
+import { RemoveScroll } from 'react-remove-scroll';
 import { useStore } from '@tanstack/react-store';
 import { Col, ProgressBar, Row, Stack } from 'react-bootstrap';
 import RecResourceCard from '@/components/rec-resource/card/RecResourceCard';
@@ -15,6 +15,8 @@ import {
   FilterMenu,
   FilterMenuMobile,
 } from '@/components/search/filters';
+import SearchLinks from '@/components/search/SearchLinks';
+import SearchLinksMobile from '@/components/search/SearchLinksMobile';
 import filterChipStore from '@/store/filterChips';
 import searchResultsStore, { initialState } from '@/store/searchResults';
 import { useSearchRecreationResourcesPaginated } from '@/service/queries/recreation-resource';
@@ -152,6 +154,7 @@ const SearchPage = () => {
               isOpen={isMobileFilterOpen}
               setIsOpen={setIsMobileFilterOpen}
             />
+            <SearchLinks />
           </Col>
 
           <Col md={12} lg={9}>
@@ -162,6 +165,7 @@ const SearchPage = () => {
             >
               Filter
             </button>
+            <SearchLinksMobile />
 
             <div className="d-flex align-items-center justify-content-between">
               {isFetchingFirstPage ? (

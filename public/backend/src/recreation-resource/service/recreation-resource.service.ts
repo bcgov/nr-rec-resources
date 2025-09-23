@@ -2,11 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { RecreationResourceSearchService } from 'src/recreation-resource/service/recreation-resource-search.service';
 import { RecreationResourceSuggestionsService } from 'src/recreation-resource/service/recreation-resource-suggestion.service';
+import { RecreationResourceAlphabeticalService } from 'src/recreation-resource/service/recreation-resource-alphabetical.service';
 import { RecreationSuggestionDto } from 'src/recreation-resource/dto/recreation-resource-suggestion.dto';
 import { formatRecreationResourceDetailResults } from 'src/recreation-resource/utils/formatRecreationResourceDetailResults';
 import { getRecreationResourceSelect } from 'src/recreation-resource/utils/getRecreationResourceSelect';
 import { RecreationResourceDetailDto } from 'src/recreation-resource/dto/recreation-resource.dto';
 import { RecreationResourceImageSize } from 'src/recreation-resource/dto/recreation-resource-image.dto';
+import { AlphabeticalRecreationResourceDto } from 'src/recreation-resource/dto/alphabetical-recreation-resource.dto';
 import { getRecreationResourceSpatialFeatureGeometry } from '@prisma-generated-sql';
 
 @Injectable()
@@ -15,6 +17,7 @@ export class RecreationResourceService {
     private readonly prisma: PrismaService,
     private readonly recreationResourceSearchService: RecreationResourceSearchService,
     private readonly recreationResourceSuggestionsService: RecreationResourceSuggestionsService,
+    private readonly recreationResourceAlphabeticalService: RecreationResourceAlphabeticalService,
   ) {}
 
   async findOne(
@@ -93,5 +96,15 @@ export class RecreationResourceService {
 
   async getSuggestions(query: string): Promise<RecreationSuggestionDto[]> {
     return this.recreationResourceSuggestionsService.getSuggestions(query);
+  }
+
+  async getAlphabeticalResources(
+    letter: string,
+    type?: string,
+  ): Promise<AlphabeticalRecreationResourceDto[]> {
+    return this.recreationResourceAlphabeticalService.getAlphabeticalResources(
+      letter,
+      type,
+    );
   }
 }

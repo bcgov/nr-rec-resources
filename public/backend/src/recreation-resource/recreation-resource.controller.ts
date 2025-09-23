@@ -15,6 +15,7 @@ import {
   RecreationResourceDetailDto,
   SiteOperatorDto,
 } from './dto/recreation-resource.dto';
+import { AlphabeticalRecreationResourceDto } from './dto/alphabetical-recreation-resource.dto';
 import { FsaResourceService } from './service/fsa-resource.service';
 
 @ApiTags('recreation-resource')
@@ -151,6 +152,42 @@ export class RecreationResourceController {
     }
 
     return this.recreationResourceService.getSuggestions(query);
+  }
+
+  @Get('alphabetical')
+  @ApiOperation({
+    summary: 'Get recreation resources alphabetically',
+    operationId: 'getRecreationResourcesAlphabetically',
+    description:
+      'Returns recreation resources in alphabetical order. Use letter parameter to filter by starting letter (A-Z) or # for numerical names.',
+  })
+  @ApiQuery({
+    name: 'letter',
+    required: true,
+    type: String,
+    description:
+      'Filter resources by starting letter (A-Z) or # for numerical names.',
+    example: 'A',
+  })
+  @ApiQuery({
+    name: 'type',
+    required: false,
+    type: String,
+    description: 'Filter by recreation resource type code',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Resources in alphabetical order',
+    type: [AlphabeticalRecreationResourceDto],
+  })
+  async getAlphabeticalResources(
+    @Query('letter') letter: string,
+    @Query('type') type?: string,
+  ): Promise<AlphabeticalRecreationResourceDto[]> {
+    return this.recreationResourceService.getAlphabeticalResources(
+      letter,
+      type,
+    );
   }
 
   @Get(':id')
