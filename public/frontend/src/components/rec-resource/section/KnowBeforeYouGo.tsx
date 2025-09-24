@@ -22,9 +22,9 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
     >
       <h2 className="section-heading">{SectionTitles.KNOW_BEFORE_YOU_GO}</h2>
       <section className="mb-4">
-        {isReservable ? <h3>Reservable</h3> : <h3>First come, first served</h3>}
         {isReservable ? (
           <>
+            <h3>Reservable</h3>
             <p>
               This site has some reservations available through our site
               operator (see booking button above). There may also be first come,
@@ -47,20 +47,18 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
               </div>
             </div>
           </>
-        ) : isAdditionalFeesAvailable || isCampingAvailable ? (
-          <p>
-            This site operates on a First Come, First Served (FCFS) basis.
-            Reservations are not available - you must arrive to claim an
-            available spot in person. Spots are limited. Plan to arrive early,
-            especially during busy periods.
-          </p>
         ) : (
-          <p>
-            This site operates on a First Come, First Served (FCFS) basis.
-            Reservations are not available - you must arrive to claim an
-            available spot in person. No fees apply and spots are limited. Plan
-            to arrive early, especially during busy periods.
-          </p>
+          isCampingAvailable && (
+            <>
+              <h3>First come, first served</h3>
+              <p>
+                This site operates on a First Come, First Served (FCFS) basis.
+                Reservations are not available - you must arrive to claim an
+                available spot in person. Spots are limited. Plan to arrive
+                early, especially during busy periods.
+              </p>
+            </>
+          )
         )}
         {(isAdditionalFeesAvailable || isCampingAvailable) && !isReservable && (
           <div className="row">
@@ -77,7 +75,6 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
             </div>
           </div>
         )}
-        <br />
         <h3>Staying safe</h3>
         <p>
           Recreation sites and trails can be in remote areas with access via
@@ -93,13 +90,8 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
             <p className="small-tittle">Pack in, pack out</p>
             <p>
               Garbage receptacles and potable water are not provided. Be
-              prepared to bring your own water and pack out any garbage. Basic
-              facilities such as picnic tables, campfire rings, and outhouses
-              may be available.
-            </p>
-            <p>
-              Always follow Leave no Trace outdoor ethics. For more information,
-              see{' '}
+              prepared to bring your own water and pack out any garbage. Always
+              follow Leave no Trace outdoor ethics. For more information, see{' '}
               <a
                 href="https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/planning"
                 target="_blank"

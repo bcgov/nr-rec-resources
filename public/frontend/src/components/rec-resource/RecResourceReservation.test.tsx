@@ -170,6 +170,25 @@ describe('RecResourceReservation', () => {
     );
   });
 
+  it('renders facilities link when facilities are available without AdditionalFeesAvailable', () => {
+    render(
+      <RecResourceReservation
+        recResource={{
+          ...baseResource,
+          recreation_structure: { has_toilet: true, has_table: false },
+          recreation_resource_reservation_info: undefined,
+          additional_fees: [],
+        }}
+      />,
+    );
+
+    const facilitiesLink = screen.getByRole('link', { name: 'facilities' });
+    expect(facilitiesLink).toHaveAttribute(
+      'href',
+      '/resource/REC123#facilities',
+    );
+  });
+
   it('does not render facilities link when facilities are not available', () => {
     render(
       <RecResourceReservation

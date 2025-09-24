@@ -14,7 +14,7 @@ describe('RecReservationButton', () => {
     window.open = originalOpen;
   });
 
-  it("renders with type LINK and displays 'Book now'", () => {
+  it("renders with type LINK and displays 'Reservation info'", () => {
     render(
       <RecReservationButton
         type={ReservationType.LINK}
@@ -22,7 +22,7 @@ describe('RecReservationButton', () => {
       />,
     );
 
-    const button = screen.getByRole('button', { name: /Book now/i });
+    const button = screen.getByRole('button', { name: /Reservation info/i });
     expect(button).toBeInTheDocument();
   });
 
@@ -34,7 +34,7 @@ describe('RecReservationButton', () => {
       />,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: /Book now/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Reservation info/i }));
     expect(window.open).toHaveBeenCalledWith('https://example.com');
   });
 

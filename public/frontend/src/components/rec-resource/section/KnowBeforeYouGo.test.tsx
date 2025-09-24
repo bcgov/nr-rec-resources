@@ -37,11 +37,11 @@ describe('KnowBeforeYouGo', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders FCFS content when isReservable = false', () => {
+  it('renders FCFS content when isReservable = false and isCampingAvailable = true', () => {
     render(
       <KnowBeforeYouGo
         isAdditionalFeesAvailable={false}
-        isCampingAvailable={false}
+        isCampingAvailable={true}
         isReservable={false}
       />,
     );
