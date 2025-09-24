@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-24.04
     environment: ${{ inputs.environment }}
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
     - name: Run Docker compose
       if: ${{ inputs.local }}
       env:
@@ -53,9 +53,9 @@ jobs:
       continue-on-error: true
     - name: Dump docker logs for debugging
       if: ${{ inputs.local }}
-      uses: jwalton/gh-docker-logs@v2
+      uses: jwalton/gh-docker-logs@2741064ab9d7af54b0b1ffb6076cf64c16f0220e # v2
     - name: Cache Playwright Browsers
-      uses: actions/cache@v4
+      uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4
       id: playwright-cache
       with:
         path: |
@@ -64,7 +64,7 @@ jobs:
     - name: Fix permissions
       run: sudo chown -R $USER:$USER public/frontend
     - name: Setup node
-      uses: actions/setup-node@v5
+      uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
       with:
         node-version: '22'
     - run: npm install
@@ -89,7 +89,7 @@ jobs:
           }}"
     - name: Dump docker logs on failure
       if: failure() && ${{ inputs.local }}
-      uses: jwalton/gh-docker-logs@v2
+      uses: jwalton/gh-docker-logs@2741064ab9d7af54b0b1ffb6076cf64c16f0220e # v2
 
   # Remove this job once admin e2e tests are implemented
   admin:

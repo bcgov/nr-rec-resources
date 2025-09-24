@@ -13,7 +13,7 @@ jobs:
   # https://github.com/bcgov/quickstart-openshift-helpers
   schema-spy:
     name: SchemaSpy Documentation
-    uses: bcgov/quickstart-openshift-helpers/.github/workflows/.schema-spy.yml@v1.0.0
+    uses: bcgov/quickstart-openshift-helpers/.github/workflows/.schema-spy.yml@d9b3d32fb3f03c4699c2dce83ddfff042cd31a1f # v1.0.0
     with:
       flyway_locations: migrations/rst
       schemaspy_schema: rst
@@ -28,7 +28,7 @@ jobs:
       issues: write
     steps:
       - name: ZAP Scan - Backend
-        uses: zaproxy/action-full-scan@v0.12.0
+        uses: zaproxy/action-full-scan@75ee1686750ab1511a73b26b77a2aedd295053ed # v0.12.0
         with:
           allow_issue_writing: true
           artifact_name: "zap_backend"
@@ -37,7 +37,7 @@ jobs:
           target: ${{ secrets.API_URL }}/api
 
       - name: ZAP Scan - Frontend
-        uses: zaproxy/action-full-scan@v0.12.0
+        uses: zaproxy/action-full-scan@75ee1686750ab1511a73b26b77a2aedd295053ed # v0.12.0
         with:
           allow_issue_writing: true
           artifact_name: "zap_frontend"

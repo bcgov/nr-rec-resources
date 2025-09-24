@@ -8,9 +8,9 @@ jobs:
     name: Release
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5
       - name: Conventional Changelog Update
-        uses: TriPSs/conventional-changelog-action@v6
+        uses: TriPSs/conventional-changelog-action@5f00b899ccbbcbc112bd6d715d5e76e7a9e4501d # v6
         id: changelog
         continue-on-error: true
         with:
@@ -20,7 +20,7 @@ jobs:
           skip-commit: "true"
           git-push: "true"
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@6cbd405e2c4e67a21c47fa9e383d020e4e28b836 # v2
         if: ${{ steps.changelog.outputs.tag != '' }}
         continue-on-error: true
         env:

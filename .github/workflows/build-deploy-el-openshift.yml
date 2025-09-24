@@ -35,7 +35,7 @@ jobs:
     outputs:
       triggered: ${{ steps.diff_triggers.outputs.triggered }}
     steps:
-      - uses: bcgov/action-diff-triggers@v0.2.0
+      - uses: bcgov/action-diff-triggers@0d193029efd26c76aeacaa84aba3328de8198370 # v0.2.0
         id: diff_triggers
         with:
           triggers: ('.github/workflows/build-deploy-el-openshift.yml' 'backend-el' 'charts/backend-el')
