@@ -7,6 +7,8 @@ export interface FilterOptions {
   district?: string;
   access?: string;
   facilities?: string;
+  status?: string;
+  fees?: string;
   lat?: number;
   lon?: number;
   radius?: number;
@@ -22,6 +24,8 @@ export const buildSearchFilterQuery = ({
   district,
   access,
   facilities,
+  status,
+  fees,
   lat,
   lon,
 }: FilterOptions) => {
@@ -30,6 +34,8 @@ export const buildSearchFilterQuery = ({
   const districtFilter = district?.split('_').map(String) ?? [];
   const accessFilter = access?.split('_').map(String) ?? [];
   const facilityFilter = facilities?.split('_').map(String) ?? [];
+  const statusFilter = status?.split('_').map(String) ?? [];
+  const feesFilter = fees?.split('_').map(String) ?? [];
 
   // Conditional filter for searchText
   const displayOnPublicSite = Prisma.sql`display_on_public_site is true`;
@@ -88,6 +94,43 @@ export const buildSearchFilterQuery = ({
       ) > 0`
       : Prisma.empty;
 
+  // Resources with null status are considered "Open"
+  const statusFilterQuery =
+    statusFilter.length > 0
+      ? Prisma.sql`(${Prisma.join(
+          statusFilter.map((status) => {
+            const lowerStatus = status.toLowerCase();
+            if (lowerStatus === 'open') {
+              return Prisma.sql`(recreation_status IS NULL OR recreation_status->>'description' IS NULL OR recreation_status->>'description' ILIKE ${status})`;
+            } else {
+              return Prisma.sql`recreation_status->>'description' ILIKE ${status}`;
+            }
+          }),
+          ' OR ',
+        )})`
+      : Prisma.empty;
+
+  // Fees filter using is_fees and is_reservable columns
+  // Reservable (R), Fees (F), No fees (NF)
+  const feesFilterQuery =
+    feesFilter.length > 0
+      ? Prisma.sql`(${Prisma.join(
+          feesFilter.map((feeType) => {
+            const upperFeeType = feeType.toUpperCase();
+            if (upperFeeType === 'R') {
+              return Prisma.sql`is_reservable = true`;
+            } else if (upperFeeType === 'F') {
+              return Prisma.sql`is_fees = true`;
+            } else if (upperFeeType === 'NF') {
+              return Prisma.sql`(is_fees = false OR is_fees IS NULL)`;
+            } else {
+              return Prisma.empty;
+            }
+          }),
+          ' OR ',
+        )})`
+      : Prisma.empty;
+
   const locationFilterQuery =
     typeof lat === 'number' && typeof lon === 'number'
       ? Prisma.sql`public.ST_DWithin(
@@ -105,6 +148,8 @@ export const buildSearchFilterQuery = ({
     typeFilterQuery,
     activityFilterQuery,
     facilityFilterQuery,
+    statusFilterQuery,
+    feesFilterQuery,
     locationFilterQuery,
   ].filter((sql) => sql !== Prisma.empty); // Remove empty conditions
 

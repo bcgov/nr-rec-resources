@@ -238,6 +238,8 @@ describe('RecreationResourceController', () => {
       undefined,
       undefined,
       undefined,
+      undefined,
+      undefined,
       lat,
       lon,
     );
@@ -247,6 +249,8 @@ describe('RecreationResourceController', () => {
       1,
       'test',
       10,
+      undefined,
+      undefined,
       undefined,
       undefined,
       undefined,

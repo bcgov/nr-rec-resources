@@ -34,7 +34,8 @@ export function buildFilterOptionCountsQuery({
   return Prisma.sql`
   WITH filtered_resources AS (
     SELECT rec_resource_id, district_code, access_code,
-           recreation_resource_type_code, has_toilets, has_tables
+           recreation_resource_type_code, has_toilets, has_tables,
+           recreation_status, is_fees, is_reservable
     FROM recreation_resource_search_view
     ${whereClause}
     LIMIT 5000
@@ -108,6 +109,53 @@ export function buildFilterOptionCountsQuery({
     GROUP BY acv.rec_resource_type_code, acv.description
     ORDER BY acv.rec_resource_type_code DESC
   ),
+  status_counts AS (
+    WITH status_values AS (
+      SELECT DISTINCT
+        COALESCE(recreation_status->>'description', 'Open') AS status_desc
+      FROM recreation_resource_search_view
+      WHERE display_on_public_site = true
+    )
+    SELECT
+      LOWER(sv.status_desc) AS code,
+      sv.status_desc AS description,
+      CASE
+        WHEN ${filterTypes?.isOnlyStatusFilter ?? false} THEN (
+          SELECT COUNT(*) FROM recreation_resource_search_view
+          WHERE COALESCE(recreation_status->>'description', 'Open') = sv.status_desc ${extraFilters}
+        )::INT
+        ELSE COUNT(CASE WHEN COALESCE(fr.recreation_status->>'description', 'Open') = sv.status_desc THEN 1 END)::INT
+      END AS count
+    FROM status_values sv
+    LEFT JOIN filtered_resources fr ON COALESCE(fr.recreation_status->>'description', 'Open') = sv.status_desc
+    GROUP BY sv.status_desc
+    ORDER BY code
+  ),
+  fees_counts AS (
+    SELECT
+      CASE
+        WHEN ${filterTypes?.isOnlyFeesFilter ?? false} THEN (
+          SELECT COUNT(*) FROM recreation_resource_search_view
+          WHERE is_reservable = true AND display_on_public_site = true ${extraFilters}
+        )::INT
+        ELSE COALESCE(SUM(CASE WHEN is_reservable = true THEN 1 ELSE 0 END), 0)::INT
+      END AS reservable_count,
+      CASE
+        WHEN ${filterTypes?.isOnlyFeesFilter ?? false} THEN (
+          SELECT COUNT(*) FROM recreation_resource_search_view
+          WHERE is_fees = true AND display_on_public_site = true ${extraFilters}
+        )::INT
+        ELSE COALESCE(SUM(CASE WHEN is_fees = true THEN 1 ELSE 0 END), 0)::INT
+      END AS fees_count,
+      CASE
+        WHEN ${filterTypes?.isOnlyFeesFilter ?? false} THEN (
+          SELECT COUNT(*) FROM recreation_resource_search_view
+          WHERE (is_fees = false OR is_fees IS NULL) AND display_on_public_site = true ${extraFilters}
+        )::INT
+        ELSE COALESCE(SUM(CASE WHEN (is_fees = false OR is_fees IS NULL) THEN 1 ELSE 0 END), 0)::INT
+      END AS no_fees_count
+    FROM filtered_resources
+  ),
   extent_calc AS (
     SELECT
       public.ST_Extent(recreation_site_point) AS extent_geom
@@ -140,6 +188,27 @@ export function buildFilterOptionCountsQuery({
   SELECT
     'type', tc.code, tc.description, tc.count, NULL::TEXT[] AS rec_resource_ids, NULL::TEXT AS extent
   FROM type_counts tc
+
+  UNION ALL
+
+  SELECT
+    'status', sc.code, sc.description, sc.count, NULL::TEXT[] AS rec_resource_ids, NULL::TEXT AS extent
+  FROM status_counts sc
+
+  UNION ALL
+
+  SELECT 'fees', 'R', 'Fees apply', reservable_count, NULL::TEXT[] AS rec_resource_ids, NULL::TEXT AS extent
+  FROM fees_counts
+
+  UNION ALL
+
+  SELECT 'fees', 'F', 'Fees apply', fees_count, NULL::TEXT[] AS rec_resource_ids, NULL::TEXT AS extent
+  FROM fees_counts
+
+  UNION ALL
+
+  SELECT 'fees', 'NF', 'No fees', no_fees_count, NULL::TEXT[] AS rec_resource_ids, NULL::TEXT AS extent
+  FROM fees_counts
 
   UNION ALL
 

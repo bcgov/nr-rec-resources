@@ -131,6 +131,8 @@ describe('RecreationResourceService', () => {
       const district = 'district1';
       const access = 'access1';
       const facilities = 'facility1,facility2';
+      const status = 'open';
+      const fees = 'R_F';
       const lat = 48.4284;
       const lon = -123.3656;
 
@@ -146,6 +148,8 @@ describe('RecreationResourceService', () => {
         district,
         access,
         facilities,
+        status,
+        fees,
         lat,
         lon,
       );
@@ -159,6 +163,8 @@ describe('RecreationResourceService', () => {
         district,
         access,
         facilities,
+        status,
+        fees,
         lat,
         lon,
       );
@@ -166,7 +172,7 @@ describe('RecreationResourceService', () => {
   });
 
   describe('getSuggestions', () => {
-    it('should delegate to RecreationResourceSuggestionsService and return results', async () => {
+    it('should return suggestions', async () => {
       const mockSuggestions = [
         {
           rec_resource_id: 'REC204117',
@@ -191,6 +197,36 @@ describe('RecreationResourceService', () => {
       expect(
         (service as any).recreationResourceSuggestionsService.getSuggestions,
       ).toHaveBeenCalledWith(query);
+    });
+  });
+
+  describe('getAlphabeticalResources', () => {
+    it('should return alphabetical resources', async () => {
+      const mockAlphabeticalResources = [
+        {
+          rec_resource_id: 'REC204117',
+          name: 'Aileen Lake',
+          closest_community: 'Winfield',
+          recreation_resource_type: 'Recreation Site',
+          recreation_resource_type_code: 'SIT',
+        },
+      ];
+
+      const letter = 'A';
+      const type = 'SIT';
+
+      vi.mocked(
+        (service as any).recreationResourceAlphabeticalService
+          .getAlphabeticalResources,
+      ).mockResolvedValueOnce(mockAlphabeticalResources);
+
+      const result = await service.getAlphabeticalResources(letter, type);
+
+      expect(result).toEqual(mockAlphabeticalResources);
+      expect(
+        (service as any).recreationResourceAlphabeticalService
+          .getAlphabeticalResources,
+      ).toHaveBeenCalledWith(letter, type);
     });
   });
 });

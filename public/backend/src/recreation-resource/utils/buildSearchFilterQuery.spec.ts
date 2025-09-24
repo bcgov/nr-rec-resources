@@ -70,6 +70,13 @@ describe('buildSearchFilterQuery', () => {
     expect(result.values).toEqual(['%F1%', '%F2%']);
   });
 
+  it('should add status filter correctly', () => {
+    const result = buildSearchFilterQuery({ status: 'open_closed' });
+    const queryString = getQueryString(result);
+    expect(queryString).toContain('recreation_status');
+    expect(result.values).toEqual(['open', 'closed']);
+  });
+
   it('should handle all filters combined', () => {
     const result = buildSearchFilterQuery({
       searchText: 'park',
@@ -78,6 +85,7 @@ describe('buildSearchFilterQuery', () => {
       district: 'D1_D2',
       access: 'A1_A2',
       facilities: 'F1_F2',
+      status: 'open',
     });
 
     const queryString = getQueryString(result);
@@ -91,6 +99,9 @@ describe('buildSearchFilterQuery', () => {
       'from jsonb_array_elements(recreation_activity)',
     );
     expect(queryString).toContain('jsonb_array_elements(recreation_structure)');
+    expect(queryString).toContain(
+      "recreation_status IS NULL OR recreation_status->>'description' IS NULL",
+    );
 
     const expectedValues = [
       '%park%',
@@ -106,6 +117,7 @@ describe('buildSearchFilterQuery', () => {
       2,
       '%F1%',
       '%F2%',
+      'open',
     ];
     expect(result.values).toEqual(expectedValues);
   });
@@ -117,5 +129,27 @@ describe('buildSearchFilterQuery', () => {
     const queryString = getQueryString(result);
     expect(queryString).toContain('ST_DWithin');
     expect(result.values).toEqual([lon, lat, 50000]);
+  });
+
+  it('should add fees filter correctly', () => {
+    const result = buildSearchFilterQuery({
+      fees: 'R_F_NF',
+    });
+
+    const queryString = getQueryString(result);
+    expect(queryString).toContain('is_reservable = true');
+    expect(queryString).toContain('is_fees = true');
+    expect(queryString).toContain('(is_fees = false OR is_fees IS NULL)');
+  });
+
+  it('should handle lowercase fees filter input', () => {
+    const result = buildSearchFilterQuery({
+      fees: 'r_f_nf',
+    });
+
+    const queryString = getQueryString(result);
+    expect(queryString).toContain('is_reservable = true');
+    expect(queryString).toContain('is_fees = true');
+    expect(queryString).toContain('(is_fees = false OR is_fees IS NULL)');
   });
 });

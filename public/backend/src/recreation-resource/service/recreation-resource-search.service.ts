@@ -27,6 +27,8 @@ export class RecreationResourceSearchService {
     district?: string,
     access?: string,
     facilities?: string,
+    status?: string,
+    fees?: string,
     lat?: number,
     lon?: number,
   ): Promise<PaginatedRecreationResourceDto> {
@@ -44,6 +46,8 @@ export class RecreationResourceSearchService {
       district,
       access,
       facilities,
+      status,
+      fees,
     });
 
     if ((lat && !lon) || (lon && !lat)) {
@@ -58,6 +62,8 @@ export class RecreationResourceSearchService {
       district,
       access,
       facilities,
+      status,
+      fees,
       lat,
       lon,
     });
@@ -148,17 +154,49 @@ export class RecreationResourceSearchService {
     district?: string;
     access?: string;
     facilities?: string;
+    status?: string;
+    fees?: string;
   }): FilterTypes {
-    const { activities, type, district, access, facilities } = params;
+    const { activities, type, district, access, facilities, status, fees } =
+      params;
     const hasNoOtherFilters = !activities && !facilities;
 
     return {
       isOnlyAccessFilter:
-        Boolean(access) && !type && !district && hasNoOtherFilters,
+        Boolean(access) &&
+        !type &&
+        !district &&
+        !status &&
+        !fees &&
+        hasNoOtherFilters,
       isOnlyDistrictFilter:
-        Boolean(district) && !type && !access && hasNoOtherFilters,
+        Boolean(district) &&
+        !type &&
+        !access &&
+        !status &&
+        !fees &&
+        hasNoOtherFilters,
       isOnlyTypeFilter:
-        Boolean(type) && !district && !access && hasNoOtherFilters,
+        Boolean(type) &&
+        !district &&
+        !access &&
+        !status &&
+        !fees &&
+        hasNoOtherFilters,
+      isOnlyStatusFilter:
+        Boolean(status) &&
+        !type &&
+        !district &&
+        !access &&
+        !fees &&
+        hasNoOtherFilters,
+      isOnlyFeesFilter:
+        Boolean(fees) &&
+        !type &&
+        !district &&
+        !access &&
+        !status &&
+        hasNoOtherFilters,
     };
   }
 }

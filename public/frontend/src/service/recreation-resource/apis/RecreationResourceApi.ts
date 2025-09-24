@@ -52,6 +52,7 @@ export interface GetSiteOperatorByIdRequest {
 }
 
 export interface SearchRecreationResourcesRequest {
+  fees?: string;
   filter?: string;
   limit?: number;
   page?: number;
@@ -60,6 +61,7 @@ export interface SearchRecreationResourcesRequest {
   district?: string;
   access?: string;
   facilities?: string;
+  status?: string;
   lat?: number;
   lon?: number;
 }
@@ -324,6 +326,14 @@ export class RecreationResourceApi extends runtime.BaseAPI {
       queryParameters['facilities'] = requestParameters['facilities'];
     }
 
+    if (requestParameters['status'] != null) {
+      queryParameters['status'] = requestParameters['status'];
+    }
+
+    if (requestParameters['fees'] != null) {
+      queryParameters['fees'] = requestParameters['fees'];
+    }
+
     if (requestParameters['lat'] != null) {
       queryParameters['lat'] = requestParameters['lat'];
     }
@@ -354,7 +364,7 @@ export class RecreationResourceApi extends runtime.BaseAPI {
    * Search recreation resources
    */
   async searchRecreationResources(
-    requestParameters: SearchRecreationResourcesRequest = {},
+    requestParameters: SearchRecreationResourcesRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<PaginatedRecreationResourceDto> {
     const response = await this.searchRecreationResourcesRaw(
