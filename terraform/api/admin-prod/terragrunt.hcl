@@ -9,7 +9,7 @@ generate "prod_tfvars" {
   disable_signature     = true
   contents              = <<-EOF
   target_env            = "prod"
-  fta_dataload_bucket   = "rst-fta-lza-dataload-oracle-prod"
+  fta_dataload_bucket   = "rst-fta-dataload-oracle-prod"
   api_cpu               = 512
   api_memory            = 1024
   fargate_base_capacity = 1

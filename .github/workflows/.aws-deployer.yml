@@ -69,7 +69,7 @@ jobs:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v5
         with:
-          role-to-assume: ${{ secrets.AWS_LZA_DEPLOY_ROLE_ARN }}
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
           role-session-name: ${{ inputs.environment_name }}-deployment
           aws-region: ${{ env.AWS_REGION }}
 
@@ -96,7 +96,7 @@ jobs:
         env:
           app: ${{ inputs.app }}
           target_env: ${{ inputs.environment_name }}
-          aws_license_plate: ${{ secrets.AWS_LZA_LICENSE_PLATE }}
+          aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
           flyway_image: ${{ inputs.flyway_image && inputs.flyway_image || env.FLYWAY_IMAGE }}
           api_image: ghcr.io/${{ github.repository }}/${{ inputs.app }}/backend:${{ inputs.tag }}
           app_env: ${{ inputs.app_env }}
@@ -122,7 +122,7 @@ jobs:
         env:
           app: ${{ inputs.app }}
           target_env: ${{ inputs.environment_name }}
-          aws_license_plate: ${{ secrets.AWS_LZA_LICENSE_PLATE }}
+          aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
           flyway_image: ghcr.io/${{ github.repository }}/migrations/rst:${{ inputs.tag }}
           api_image: ghcr.io/${{ github.repository }}/public/backend:${{ inputs.tag }}
           app_env: ${{ inputs.app_env }}
@@ -150,7 +150,7 @@ jobs:
         env:
           app: ${{ inputs.app }}
           target_env: ${{ inputs.environment_name }}
-          aws_license_plate: ${{ secrets.AWS_LZA_LICENSE_PLATE }}
+          aws_license_plate: ${{ secrets.AWS_LICENSE_PLATE }}
           flyway_image: ghcr.io/${{ github.repository }}/migrations/rst:${{ inputs.tag }}
           api_image: ghcr.io/${{ github.repository }}/public/backend:${{ inputs.tag }}
           app_env: ${{ inputs.app_env }}

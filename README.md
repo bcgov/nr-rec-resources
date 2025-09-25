@@ -79,7 +79,7 @@ Before deploying, ensure the following secrets are configured in the repository:
 - `MATOMO_AWS_ACCOUNT`: AWS account ID for Matomo
 - `MATOMO_NOTIFICATION_EMAILS`: Comma-separated list of emails for notifications
 - `MATOMO_ALLOWED_ORIGINS`: Allowed origins for Matomo tracking
-- `AWS_LZA_DEPLOY_ROLE_ARN`: ARN of the IAM role for deployment
+- `AWS_DEPLOY_ROLE_ARN`: ARN of the IAM role for deployment
 
 #### Manual Deployment
 

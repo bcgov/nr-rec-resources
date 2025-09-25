@@ -155,7 +155,7 @@ resource "aws_cloudfront_distribution" "api" {
 }
 
 resource "aws_s3_bucket" "cloudfront_api_logs" {
-  bucket        = "cloudfront-api-logs-lza-${var.app_name}"
+  bucket        = "cloudfront-api-logs-${var.app_name}"
   force_destroy = true
 }
 

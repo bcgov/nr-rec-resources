@@ -14,7 +14,7 @@ generate "prod_tfvars" {
   target_env = "prod"
   db_cluster_name = "qsawsc-aurora-cluster-${local.app_env}"
   app_env="${local.app_env}"
-  fta_dataload_bucket = "rst-fta-lza-dataload-oracle-prod"
+  fta_dataload_bucket = "rst-fta-dataload-oracle-prod"
   ha_enabled = true
   min_capacity = 1
   max_capacity = 64
