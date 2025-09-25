@@ -83,6 +83,19 @@ export class RecreationResourceController {
     description: 'Recreation resource facilities',
   })
   @ApiQuery({
+    name: 'status',
+    required: false,
+    type: String,
+    description: 'Recreation resource status (Open/Closed)',
+  })
+  @ApiQuery({
+    name: 'fees',
+    required: false,
+    type: String,
+    description:
+      'Recreation resource fee type (R for Reservable, F for Fees, NF for No fees)',
+  })
+  @ApiQuery({
     name: 'lat',
     required: false,
     type: Number,
@@ -109,6 +122,8 @@ export class RecreationResourceController {
     @Query('district') district?: string,
     @Query('access') access?: string,
     @Query('facilities') facilities?: string,
+    @Query('status') status?: string,
+    @Query('fees') fees?: string,
     @Query('lat') lat?: number,
     @Query('lon') lon?: number,
   ): Promise<PaginatedRecreationResourceDto> {
@@ -121,6 +136,8 @@ export class RecreationResourceController {
       district,
       access,
       facilities,
+      status,
+      fees,
       lat ? parseFloat(String(lat)) : undefined,
       lon ? parseFloat(String(lon)) : undefined,
     );

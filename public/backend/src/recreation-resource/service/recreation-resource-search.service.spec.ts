@@ -75,6 +75,8 @@ describe('RecreationResourceSearchService', () => {
         'north',
         'public',
         'restroom',
+        'open',
+        undefined,
         49.1,
         -123.1,
       );
@@ -86,6 +88,7 @@ describe('RecreationResourceSearchService', () => {
         district: 'north',
         access: 'public',
         facilities: 'restroom',
+        status: 'open',
         lat: 49.1,
         lon: -123.1,
       });
@@ -193,7 +196,9 @@ describe('RecreationResourceSearchService', () => {
         '',
         '',
         'public',
-        undefined,
+        '',
+        '',
+        '',
         12,
         34,
       );
@@ -204,6 +209,8 @@ describe('RecreationResourceSearchService', () => {
             isOnlyAccessFilter: true,
             isOnlyDistrictFilter: false,
             isOnlyTypeFilter: false,
+            isOnlyStatusFilter: false,
+            isOnlyFeesFilter: false,
           },
           searchText: 'foo',
           lat: 12,
@@ -229,7 +236,9 @@ describe('RecreationResourceSearchService', () => {
         'park',
         'north',
         '',
-        undefined,
+        '',
+        '',
+        '',
         55,
         66,
       );
@@ -240,6 +249,8 @@ describe('RecreationResourceSearchService', () => {
             isOnlyAccessFilter: false,
             isOnlyDistrictFilter: false,
             isOnlyTypeFilter: false,
+            isOnlyStatusFilter: false,
+            isOnlyFeesFilter: false,
           },
           searchText: 'bar',
           lat: 55,
@@ -266,7 +277,9 @@ describe('RecreationResourceSearchService', () => {
         '',
         'north',
         '',
-        undefined,
+        '',
+        '',
+        '',
         1,
         2,
       );
@@ -277,6 +290,8 @@ describe('RecreationResourceSearchService', () => {
             isOnlyAccessFilter: false,
             isOnlyDistrictFilter: true,
             isOnlyTypeFilter: false,
+            isOnlyStatusFilter: false,
+            isOnlyFeesFilter: false,
           },
           lat: 1,
           lon: 2,
@@ -300,7 +315,9 @@ describe('RecreationResourceSearchService', () => {
         'park',
         '',
         '',
-        undefined,
+        '',
+        '',
+        '',
         3,
         4,
       );
@@ -311,6 +328,8 @@ describe('RecreationResourceSearchService', () => {
             isOnlyAccessFilter: false,
             isOnlyDistrictFilter: false,
             isOnlyTypeFilter: true,
+            isOnlyStatusFilter: false,
+            isOnlyFeesFilter: false,
           },
           lat: 3,
           lon: 4,
@@ -325,6 +344,68 @@ describe('RecreationResourceSearchService', () => {
       );
     });
 
+    it('should correctly identify status-only filter and pass all params', async () => {
+      await service.searchRecreationResources(
+        1,
+        '',
+        10,
+        '',
+        '',
+        '',
+        '',
+        '',
+        'open',
+        '',
+        5,
+        6,
+      );
+
+      expect(buildFilterOptionCountsQuery).toHaveBeenCalledWith(
+        expect.objectContaining({
+          filterTypes: {
+            isOnlyAccessFilter: false,
+            isOnlyDistrictFilter: false,
+            isOnlyTypeFilter: false,
+            isOnlyStatusFilter: true,
+            isOnlyFeesFilter: false,
+          },
+          lat: 5,
+          lon: 6,
+        }),
+      );
+    });
+
+    it('should correctly identify fees-only filter and pass all params', async () => {
+      await service.searchRecreationResources(
+        1,
+        '',
+        10,
+        '',
+        '',
+        '',
+        '',
+        '',
+        '',
+        'R_F',
+        5,
+        6,
+      );
+
+      expect(buildFilterOptionCountsQuery).toHaveBeenCalledWith(
+        expect.objectContaining({
+          filterTypes: {
+            isOnlyAccessFilter: false,
+            isOnlyDistrictFilter: false,
+            isOnlyTypeFilter: false,
+            isOnlyStatusFilter: false,
+            isOnlyFeesFilter: true,
+          },
+          lat: 5,
+          lon: 6,
+        }),
+      );
+    });
+
     it('should handle activities and facilities with other filters and pass all params', async () => {
       await service.searchRecreationResources(
         1,
@@ -335,6 +416,8 @@ describe('RecreationResourceSearchService', () => {
         '',
         '',
         'restroom',
+        '',
+        undefined,
         7,
         8,
       );
@@ -345,6 +428,8 @@ describe('RecreationResourceSearchService', () => {
             isOnlyAccessFilter: false,
             isOnlyDistrictFilter: false,
             isOnlyTypeFilter: false,
+            isOnlyStatusFilter: false,
+            isOnlyFeesFilter: false,
           },
           lat: 7,
           lon: 8,
@@ -363,7 +448,20 @@ describe('RecreationResourceSearchService', () => {
 
     it('should throw error when only latitude is provided', async () => {
       await expect(
-        service.searchRecreationResources(1, '', 10, '', '', '', '', '', 10),
+        service.searchRecreationResources(
+          1,
+          '',
+          10,
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          '',
+          10,
+          undefined,
+        ),
       ).rejects.toThrow('Both lat and lon must be provided');
     });
 
@@ -373,6 +471,8 @@ describe('RecreationResourceSearchService', () => {
           1,
           '',
           10,
+          '',
+          '',
           '',
           '',
           '',

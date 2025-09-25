@@ -1,3 +1,5 @@
+@import '@/styles/variables.scss';
+
 .alphabetical-resource-list {
   ul {
     list-style: none;
@@ -7,10 +9,10 @@
 
   li {
     margin-bottom: 0.5rem;
-    text-transform: capitalize;
 
     a {
       text-decoration: none;
+      text-transform: capitalize;
 
       &:hover {
         text-decoration: underline;
@@ -20,5 +22,11 @@
     .text-muted {
       font-size: 0.875rem;
     }
+  }
+}
+
+.clear-type-btn {
+  &:hover {
+    color: $colorBlueMed;
   }
 }

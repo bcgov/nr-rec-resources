@@ -1,6 +1,10 @@
-import { render, screen } from '@/test-utils';
+import { render, screen, fireEvent } from '@/test-utils';
 import { AlphabeticalList } from './AlphabeticalList';
 import { AlphabeticalRecreationResourceModel } from '@/service/custom-models';
+
+const mockSetSearchParams = vi.fn();
+
+let mockSearchParams = new URLSearchParams();
 
 vi.mock('react-router-dom', () => ({
   Link: ({ to, children, className, ...props }: any) => (
@@ -8,6 +12,7 @@ vi.mock('react-router-dom', () => ({
       {children}
     </a>
   ),
+  useSearchParams: () => [mockSearchParams, mockSetSearchParams],
 }));
 
 const mockResources: AlphabeticalRecreationResourceModel[] = [
@@ -46,15 +51,15 @@ describe('AlphabeticalList', () => {
     expect(screen.getByText('Loading resources...')).toBeInTheDocument();
   });
 
-  it('renders no resources message when resources array is empty', () => {
+  it('renders no results message when resources array is empty', () => {
     render(
       <AlphabeticalList resources={[]} isLoading={false} selectedLetter="Z" />,
     );
 
-    expect(screen.getByText('No resources found')).toBeInTheDocument();
+    expect(screen.getByText('No results found')).toBeInTheDocument();
     expect(
       screen.getByText(
-        'No recreation resources found starting with "Z". Try selecting a different letter.',
+        'No results found starting with "Z". Try selecting a different letter.',
       ),
     ).toBeInTheDocument();
   });
@@ -97,5 +102,79 @@ describe('AlphabeticalList', () => {
 
     expect(screen.getAllByText('Recreation Site')).toHaveLength(2);
     expect(screen.getByText('Trail')).toBeInTheDocument();
+  });
+
+  describe('type filter functionality', () => {
+    beforeEach(() => {
+      mockSetSearchParams.mockClear();
+      mockSearchParams = new URLSearchParams();
+    });
+
+    it('shows basic no results message when no type filter is present', () => {
+      render(
+        <AlphabeticalList
+          resources={[]}
+          isLoading={false}
+          selectedLetter="Z"
+        />,
+      );
+
+      expect(screen.getByText('No results found')).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          'No results found starting with "Z". Try selecting a different letter.',
+        ),
+      ).toBeInTheDocument();
+      expect(
+        screen.queryByText('clearing your filters'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('shows type filter message and clear button when type filter is present', () => {
+      mockSearchParams = new URLSearchParams('type=1');
+
+      render(
+        <AlphabeticalList
+          resources={[]}
+          isLoading={false}
+          selectedLetter="Z"
+        />,
+      );
+
+      expect(screen.getByText('No results found')).toBeInTheDocument();
+      expect(
+        screen.getByText((_content, element) => {
+          return (
+            element?.textContent ===
+            'No results found starting with "Z". Try selecting a different letter or clearing your filters.'
+          );
+        }),
+      ).toBeInTheDocument();
+      expect(screen.getByText('clearing your filters')).toBeInTheDocument();
+    });
+
+    it('calls setSearchParams to remove type filter when clear button is clicked', () => {
+      mockSearchParams = new URLSearchParams('type=1&letter=Z');
+
+      render(
+        <AlphabeticalList
+          resources={[]}
+          isLoading={false}
+          selectedLetter="Z"
+        />,
+      );
+
+      const clearButton = screen.getByText('clearing your filters');
+      fireEvent.click(clearButton);
+
+      expect(mockSetSearchParams).toHaveBeenCalledWith(
+        expect.objectContaining({
+          toString: expect.any(Function),
+        }),
+      );
+
+      const callArgs = mockSetSearchParams.mock.calls[0][0];
+      expect(callArgs.toString()).toBe('letter=Z');
+    });
   });
 });
