@@ -197,7 +197,7 @@ export function buildFilterOptionCountsQuery({
 
   UNION ALL
 
-  SELECT 'fees', 'R', 'Fees apply', reservable_count, NULL::TEXT[] AS rec_resource_ids, NULL::TEXT AS extent
+  SELECT 'fees', 'R', 'Reservable', reservable_count, NULL::TEXT[] AS rec_resource_ids, NULL::TEXT AS extent
   FROM fees_counts
 
   UNION ALL

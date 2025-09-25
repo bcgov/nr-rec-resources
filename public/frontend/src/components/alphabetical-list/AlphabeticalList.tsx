@@ -1,5 +1,5 @@
 import { Alert, Spinner } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/routes/constants';
 import { AlphabeticalRecreationResourceModel } from '@/service/custom-models';
 import '@/components/alphabetical-list/AlphabeticalList.scss';
@@ -15,6 +15,14 @@ export const AlphabeticalList = ({
   isLoading,
   selectedLetter,
 }: AlphabeticalListProps) => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const isTypeFilters = !!searchParams.get('type');
+
+  const clearTypeFilter = () => {
+    const newSearchParams = new URLSearchParams(searchParams);
+    newSearchParams.delete('type');
+    setSearchParams(newSearchParams);
+  };
   if (isLoading) {
     return (
       <div className="text-center py-5">
@@ -29,10 +37,20 @@ export const AlphabeticalList = ({
   if (!resources || resources.length === 0) {
     return (
       <Alert variant="info" className="not-found-alert">
-        <Alert.Heading>No resources found</Alert.Heading>
+        <Alert.Heading>No results found</Alert.Heading>
         <p>
-          No recreation resources found starting with "{selectedLetter}". Try
-          selecting a different letter.
+          No results found starting with "{selectedLetter}". Try selecting a
+          different letter{isTypeFilters ? ' or ' : ''}
+          {isTypeFilters && (
+            <button
+              type="button"
+              className="btn btn-link clear-type-btn p-0 align-baseline"
+              onClick={clearTypeFilter}
+            >
+              clearing your filters
+            </button>
+          )}
+          .
         </p>
       </Alert>
     );

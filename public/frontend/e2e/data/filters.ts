@@ -71,3 +71,11 @@ export const accessTypeFilterOptions = [
   { label: 'Road access' },
   { label: 'Trail access' },
 ];
+
+export const statusFilterOptions = [{ label: 'Open' }, { label: 'Closed' }];
+
+export const feesFilterOptions = [
+  { label: 'Reservable' },
+  { label: 'Fees apply' },
+  { label: 'No fees' },
+];

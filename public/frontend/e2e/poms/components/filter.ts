@@ -5,6 +5,8 @@ import {
   accessTypeFilterOptions,
   districtFilterOptions,
   facilitiesFilterOptions,
+  feesFilterOptions,
+  statusFilterOptions,
   thingsToDoFilterOptions,
   typeFilterOptions,
 } from 'e2e/data/filters';
@@ -23,6 +25,10 @@ export class FilterPOM {
 
   readonly accessTypeFilters: Locator;
 
+  readonly statusFilters: Locator;
+
+  readonly feesFilters: Locator;
+
   constructor(page: Page) {
     this.page = page;
 
@@ -32,7 +38,8 @@ export class FilterPOM {
 
     this.typeFilters = page
       .locator('fieldset')
-      .filter({ hasText: FilterGroup.TYPE });
+      .filter({ hasText: FilterGroup.TYPE })
+      .first();
 
     this.thingsToDoFilters = page
       .locator('fieldset')
@@ -44,7 +51,17 @@ export class FilterPOM {
 
     this.accessTypeFilters = page
       .locator('fieldset')
-      .filter({ hasText: FilterGroup.ACCESS_TYPE });
+      .filter({ hasText: FilterGroup.ACCESS_TYPE })
+      .first();
+
+    this.statusFilters = page
+      .locator('fieldset')
+      .filter({ hasText: FilterGroup.STATUS });
+
+    this.feesFilters = page
+      .locator('fieldset')
+      .filter({ hasText: FilterGroup.FEES })
+      .first();
   }
 
   async clickClearFilters() {
@@ -55,38 +72,59 @@ export class FilterPOM {
   }
 
   async clickShowLessFilters(filterGroup: Locator) {
-    await filterGroup.getByRole('button', { name: /Show less/ }).click();
+    const showLessButton = filterGroup.getByRole('button', {
+      name: /Show less/,
+    });
+    await showLessButton.waitFor({ state: 'visible', timeout: 10000 });
+    await showLessButton.click();
   }
 
   async clickShowAllFilters(filterGroup: Locator) {
-    await filterGroup.getByRole('button', { name: /Show all/ }).click();
+    const showAllButton = filterGroup.getByRole('button', { name: /Show all/ });
+    await showAllButton.waitFor({ state: 'visible', timeout: 10000 });
+    await showAllButton.click();
   }
 
   async toggleFilterOn(filterGroup: Locator, filterPrefix: string) {
-    const checkbox = filterGroup.getByRole('checkbox', {
-      name: new RegExp(`^${filterPrefix}`),
+    await filterGroup.waitFor({ state: 'visible' });
+    await filterGroup.locator('.form-check').first().waitFor({
+      state: 'visible',
+      timeout: 10000,
     });
-    await checkbox.waitFor({ state: 'visible' });
+    const label = filterGroup
+      .locator('label')
+      .filter({ hasText: new RegExp(`^${filterPrefix}`) });
+    await label.waitFor({ state: 'visible', timeout: 10000 });
+    const labelFor = await label.getAttribute('for');
+    const checkbox = filterGroup.locator(`input[id="${labelFor}"]`);
+    await checkbox.waitFor({ state: 'visible', timeout: 5000 });
     expect(checkbox).not.toBeChecked();
     await checkbox.check();
     await expect(checkbox).toBeChecked();
   }
 
   async toggleFilterOff(filterGroup: Locator, filterPrefix: string) {
-    const checkbox = filterGroup.getByRole('checkbox', {
-      name: new RegExp(`^${filterPrefix}`),
-    });
-    await checkbox.waitFor({ state: 'visible' });
+    const label = filterGroup
+      .locator('label')
+      .filter({ hasText: new RegExp(`^${filterPrefix}`) });
+    await label.waitFor({ state: 'visible', timeout: 5000 });
+    const labelFor = await label.getAttribute('for');
+    const checkbox = filterGroup.locator(`input[id="${labelFor}"]`);
+    await checkbox.waitFor({ state: 'visible', timeout: 5000 });
     expect(checkbox).toBeChecked();
     await checkbox.uncheck();
     await expect(checkbox).not.toBeChecked();
   }
 
   async checkIsFilterToggledOn(filterGroup: Locator, filterPrefix: string) {
-    const checkbox = filterGroup.getByRole('checkbox', {
-      name: new RegExp(`^${filterPrefix}`),
-    });
-    await checkbox.waitFor({ state: 'visible' });
+    const label = filterGroup
+      .locator('label')
+      .filter({ hasText: new RegExp(`^${filterPrefix}`) });
+    await label.waitFor({ state: 'visible', timeout: 5000 });
+    const labelFor = await label.getAttribute('for');
+    const checkbox = filterGroup.locator(`input[id="${labelFor}"]`);
+
+    await checkbox.waitFor({ state: 'visible', timeout: 5000 });
     await expect(checkbox).toBeChecked();
   }
 
@@ -144,16 +182,31 @@ export class FilterPOM {
   }
 
   async verifyAccessTypeFilterGroup() {
+    await this.accessTypeFilters.waitFor({
+      state: 'visible',
+      timeout: 10000,
+    });
+
     await this.verifyFilterGroup(
       this.accessTypeFilters,
       accessTypeFilterOptions,
     );
   }
 
+  async verifyStatusFilterGroup() {
+    await this.verifyFilterGroup(this.statusFilters, statusFilterOptions);
+  }
+
+  async verifyFeesFilterGroup() {
+    await this.verifyFilterGroup(this.feesFilters, feesFilterOptions);
+  }
+
   async verifyInitialFilterMenu() {
     await this.verifyDistrictFilterGroup();
     await this.verifyTypeFilterGroup();
     await this.verifyThingsToDoFilterGroup();
+    await this.verifyStatusFilterGroup();
+    await this.verifyFeesFilterGroup();
     await this.verifyFacilitiesFilterGroup();
     await this.verifyAccessTypeFilterGroup();
   }

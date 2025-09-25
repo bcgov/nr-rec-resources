@@ -7,6 +7,8 @@ export enum FilterGroup {
   DISTRICT = 'District',
   TYPE = 'Type',
   THINGS_TO_DO = 'Things to do',
+  STATUS = 'Status',
+  FEES = 'Fee type',
   FACILITIES = 'Facilities',
-  ACCESS_TYPE = 'Access Type',
+  ACCESS_TYPE = 'Access type',
 }
