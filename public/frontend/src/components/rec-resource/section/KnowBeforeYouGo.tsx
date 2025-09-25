@@ -66,7 +66,7 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
               <img src={cash} alt="Cash Only icon" height={40} width={40} />
             </div>
             <div className="col-sm">
-              <p className="small-tittle">Cash Only</p>
+              <p className="small-tittle">Cash only</p>
               <p>
                 Most sites operate on a cash-only basis, and fees are often
                 collected directly by site operators. Please come prepared with

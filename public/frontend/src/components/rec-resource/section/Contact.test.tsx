@@ -88,7 +88,7 @@ describe('Contact component', () => {
 
   it('renders Contact Us link with correct path', () => {
     renderContact();
-    const contactLink = screen.getByText('Contact Us');
+    const contactLink = screen.getByText('Contact us');
 
     expect(contactLink).toBeInTheDocument();
     expect(contactLink.closest('a')).toHaveAttribute(
