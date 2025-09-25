@@ -14,24 +14,24 @@ export enum StyleContext {
 }
 
 export const ICON_SCALE = {
-  [StyleContext.MAP_DISPLAY]: 0.6,
-  [StyleContext.DOWNLOAD]: 0.3,
+  [StyleContext.MAP_DISPLAY]: 0.5,
+  [StyleContext.DOWNLOAD]: 0.4,
 };
 
 export const TEXT_STYLE = {
   [StyleContext.MAP_DISPLAY]: {
-    backgroundFill: new Fill({ color: 'rgba(255, 255, 255, 0)' }), // transparent
+    font: '14px BC Sans,sans-serif',
     fill: new Fill({ color: '#000' }),
-    stroke: new Stroke({
-      color: TEXT_STROKE_COLOR,
-    }),
+    stroke: new Stroke({ color: '#fff', width: 2 }),
+    scale: 1.3,
   },
   [StyleContext.DOWNLOAD]: {
-    backgroundFill: new Fill({ color: '#000' }),
+    font: '14px BC Sans,sans-serif',
     fill: new Fill({ color: '#FFF' }),
     stroke: new Stroke({
       color: TEXT_STROKE_COLOR,
     }),
+    scale: 0.9,
   },
 };
 

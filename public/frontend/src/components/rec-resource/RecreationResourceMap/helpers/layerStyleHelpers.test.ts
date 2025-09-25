@@ -43,7 +43,7 @@ describe('Map Style Functions', () => {
       expect(Icon).toHaveBeenCalled();
       expect(Icon).toHaveBeenCalledWith(
         expect.objectContaining({
-          scale: 0.3,
+          scale: 0.4,
         }),
       );
     });
@@ -62,7 +62,7 @@ describe('Map Style Functions', () => {
       expect(Icon).toHaveBeenCalled();
       expect(Icon).toHaveBeenCalledWith(
         expect.objectContaining({
-          scale: 0.3,
+          scale: 0.4,
         }),
       );
     });
@@ -81,7 +81,7 @@ describe('Map Style Functions', () => {
       expect(Icon).toHaveBeenCalled();
       expect(Icon).toHaveBeenCalledWith(
         expect.objectContaining({
-          scale: 0.3,
+          scale: 0.4,
         }),
       );
     });
@@ -134,14 +134,15 @@ describe('Map Style Functions', () => {
   });
 
   describe('createTextStyle', () => {
-    it('creates Text style for line type with default download styles (isForMapDisplay = false)', () => {
+    it('creates Text style for line type with download styles', () => {
       createTextStyle('Test Label', true, false, StyleContext.DOWNLOAD);
       expect(Text).toHaveBeenCalledWith({
         text: 'Test Label',
+        font: TEXT_STYLE[StyleContext.DOWNLOAD].font,
+        fill: TEXT_STYLE[StyleContext.DOWNLOAD].fill,
+        stroke: TEXT_STYLE[StyleContext.DOWNLOAD].stroke,
+        scale: TEXT_STYLE[StyleContext.DOWNLOAD].scale,
         placement: 'line',
-        fill: TEXT_STYLE.DOWNLOAD.fill,
-        backgroundFill: TEXT_STYLE.DOWNLOAD.backgroundFill,
-        stroke: TEXT_STYLE.DOWNLOAD.stroke,
         textBaseline: 'middle',
         offsetY: 0,
         textAlign: 'center',
@@ -149,37 +150,18 @@ describe('Map Style Functions', () => {
         padding: [2, 5, 2, 5],
         rotateWithView: true,
         declutterMode: 'declutter',
-        scale: 1.3,
       });
     });
 
-    it('creates Text style for line type with map display styles (isForMapDisplay = true)', () => {
-      createTextStyle('Test Label', true, false, StyleContext.DOWNLOAD);
+    it('creates Text style for point type with download styles', () => {
+      createTextStyle('Test Label', false, true, StyleContext.DOWNLOAD);
       expect(Text).toHaveBeenCalledWith({
         text: 'Test Label',
-        placement: 'line',
-        fill: TEXT_STYLE.DOWNLOAD.fill,
-        backgroundFill: TEXT_STYLE.DOWNLOAD.backgroundFill,
-        stroke: TEXT_STYLE.DOWNLOAD.stroke,
-        textBaseline: 'middle',
-        offsetY: 0,
-        textAlign: 'center',
-        repeat: 300,
-        padding: [2, 5, 2, 5],
-        rotateWithView: true,
-        declutterMode: 'declutter',
-        scale: 1.3,
-      });
-    });
-
-    it('creates Text style for point type with default download styles', () => {
-      createTextStyle('Test Label', false, true);
-      expect(Text).toHaveBeenCalledWith({
-        text: 'Test Label',
+        font: TEXT_STYLE[StyleContext.DOWNLOAD].font,
+        fill: TEXT_STYLE[StyleContext.DOWNLOAD].fill,
+        stroke: TEXT_STYLE[StyleContext.DOWNLOAD].stroke,
+        scale: TEXT_STYLE[StyleContext.DOWNLOAD].scale,
         placement: 'point',
-        fill: TEXT_STYLE.DOWNLOAD.fill,
-        backgroundFill: TEXT_STYLE.DOWNLOAD.backgroundFill,
-        stroke: TEXT_STYLE.DOWNLOAD.stroke,
         textBaseline: 'bottom',
         offsetY: -25,
         textAlign: 'center',
@@ -187,18 +169,37 @@ describe('Map Style Functions', () => {
         padding: [2, 5, 2, 5],
         rotateWithView: false,
         declutterMode: 'declutter',
-        scale: 1.3,
+      });
+    });
+
+    it('creates Text style for line type with map display styles', () => {
+      createTextStyle('Test Label', true, false, StyleContext.MAP_DISPLAY);
+      expect(Text).toHaveBeenCalledWith({
+        text: 'Test Label',
+        font: TEXT_STYLE[StyleContext.MAP_DISPLAY].font,
+        fill: TEXT_STYLE[StyleContext.MAP_DISPLAY].fill,
+        stroke: TEXT_STYLE[StyleContext.MAP_DISPLAY].stroke,
+        scale: TEXT_STYLE[StyleContext.MAP_DISPLAY].scale,
+        placement: 'line',
+        textBaseline: 'middle',
+        offsetY: 0,
+        textAlign: 'center',
+        repeat: 300,
+        padding: [2, 5, 2, 5],
+        rotateWithView: true,
+        declutterMode: 'declutter',
       });
     });
 
     it('creates Text style for point type with map display styles', () => {
-      createTextStyle('Test Label', false, true, StyleContext.DOWNLOAD);
+      createTextStyle('Test Label', false, true, StyleContext.MAP_DISPLAY);
       expect(Text).toHaveBeenCalledWith({
         text: 'Test Label',
+        font: TEXT_STYLE[StyleContext.MAP_DISPLAY].font,
+        fill: TEXT_STYLE[StyleContext.MAP_DISPLAY].fill,
+        stroke: TEXT_STYLE[StyleContext.MAP_DISPLAY].stroke,
+        scale: TEXT_STYLE[StyleContext.MAP_DISPLAY].scale,
         placement: 'point',
-        fill: TEXT_STYLE.DOWNLOAD.fill,
-        backgroundFill: TEXT_STYLE.DOWNLOAD.backgroundFill,
-        stroke: TEXT_STYLE.DOWNLOAD.stroke,
         textBaseline: 'bottom',
         offsetY: -25,
         textAlign: 'center',
@@ -206,7 +207,6 @@ describe('Map Style Functions', () => {
         padding: [2, 5, 2, 5],
         rotateWithView: false,
         declutterMode: 'declutter',
-        scale: 1.3,
       });
     });
   });
