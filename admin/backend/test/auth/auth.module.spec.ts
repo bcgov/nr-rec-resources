@@ -1,11 +1,11 @@
-import { AppConfigModule } from "@/app-config/app-config.module";
-import { AuthModule, AuthPassportKeycloakStrategy } from "@/auth";
-import { ConfigModule } from "@nestjs/config";
-import { Test } from "@nestjs/testing";
-import { describe, expect, it } from "vitest";
+import { AppConfigModule } from '@/app-config/app-config.module';
+import { AuthModule, AuthPassportKeycloakStrategy } from '@/auth';
+import { ConfigModule } from '@nestjs/config';
+import { Test } from '@nestjs/testing';
+import { describe, expect, it } from 'vitest';
 
-describe("AuthModule", () => {
-  it("should compile the module", async () => {
+describe('AuthModule', () => {
+  it('should compile the module', async () => {
     const module = await Test.createTestingModule({
       imports: [AppConfigModule, AuthModule],
     }).compile();
@@ -15,7 +15,7 @@ describe("AuthModule", () => {
     expect(authModule).toBeDefined();
   });
 
-  it("should provide AuthPassportKeycloakStrategy", async () => {
+  it('should provide AuthPassportKeycloakStrategy', async () => {
     const module = await Test.createTestingModule({
       imports: [
         await ConfigModule.forRoot({

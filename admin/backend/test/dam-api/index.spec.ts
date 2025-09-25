@@ -6,11 +6,11 @@ import {
   DamApiService,
   DamApiUtilsService,
   DamErrors,
-} from "@/dam-api";
-import { describe, expect, it } from "vitest";
+} from '@/dam-api';
+import { describe, expect, it } from 'vitest';
 
-describe("DAM API Index Exports", () => {
-  it("should export all service classes", () => {
+describe('DAM API Index Exports', () => {
+  it('should export all service classes', () => {
     expect(DamApiCoreService).toBeDefined();
     expect(DamApiHttpService).toBeDefined();
     expect(DamApiUtilsService).toBeDefined();
@@ -18,14 +18,14 @@ describe("DAM API Index Exports", () => {
     expect(DamApiModule).toBeDefined();
   });
 
-  it("should export types and interfaces (compile-time check)", () => {
+  it('should export types and interfaces (compile-time check)', () => {
     // Types and interfaces can't be tested at runtime since they don't exist
     // This test ensures the imports compile successfully
     // The mere fact that this test compiles means the types are exported correctly
     expect(true).toBe(true);
   });
 
-  it("should export enums and constants", () => {
+  it('should export enums and constants', () => {
     expect(DamErrors).toBeDefined();
     expect(DamErrors.ERR_CREATING_RESOURCE).toBe(416);
 
@@ -34,16 +34,16 @@ describe("DAM API Index Exports", () => {
     expect(DAM_CONFIG.RETRY_ATTEMPTS).toBe(5);
   });
 
-  it("should allow importing service classes from index", () => {
+  it('should allow importing service classes from index', () => {
     // Verify that we can access constructor properties
-    expect(typeof DamApiService).toBe("function");
-    expect(typeof DamApiCoreService).toBe("function");
-    expect(typeof DamApiHttpService).toBe("function");
-    expect(typeof DamApiUtilsService).toBe("function");
-    expect(typeof DamApiModule).toBe("function");
+    expect(typeof DamApiService).toBe('function');
+    expect(typeof DamApiCoreService).toBe('function');
+    expect(typeof DamApiHttpService).toBe('function');
+    expect(typeof DamApiUtilsService).toBe('function');
+    expect(typeof DamApiModule).toBe('function');
   });
 
-  it("should provide access to error codes", () => {
+  it('should provide access to error codes', () => {
     const errorCodes = Object.values(DamErrors);
     expect(errorCodes).toContain(416); // ERR_CREATING_RESOURCE
     expect(errorCodes).toContain(417); // ERR_GETTING_RESOURCE_IMAGES
@@ -55,12 +55,12 @@ describe("DAM API Index Exports", () => {
     expect(errorCodes).toContain(423); // ERR_FILE_PROCESSING_TIMEOUT
   });
 
-  it("should provide access to configuration constants", () => {
+  it('should provide access to configuration constants', () => {
     expect(DAM_CONFIG.REQUIRED_SIZE_CODES).toEqual([
-      "original",
-      "thm",
-      "col",
-      "pre",
+      'original',
+      'thm',
+      'col',
+      'pre',
     ]);
   });
 });

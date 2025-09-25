@@ -1,6 +1,6 @@
-import { Module } from "@nestjs/common";
-import { PassportModule } from "@nestjs/passport";
-import { AuthPassportKeycloakStrategy } from "./auth-papssport-keycloak-strategy.service";
+import { Module } from '@nestjs/common';
+import { PassportModule } from '@nestjs/passport';
+import { AuthPassportKeycloakStrategy } from './auth-papssport-keycloak-strategy.service';
 
 @Module({
   imports: [PassportModule],

@@ -1,9 +1,9 @@
 import {
   RecreationResourceDetailDto,
   RecreationResourceMaintenanceStandardCode,
-} from "../dtos/recreation-resource-detail.dto";
-import { OPEN_STATUS } from "../recreation-resource.constants";
-import { RecreationResourceGetPayload } from "../recreation-resource.types";
+} from '../dtos/recreation-resource-detail.dto';
+import { OPEN_STATUS } from '../recreation-resource.constants';
+import { RecreationResourceGetPayload } from '../recreation-resource.types';
 
 /**
  * Formats recreation resource detail results to match the RecreationResourceDetailDto.
@@ -22,25 +22,25 @@ export function formatRecreationResourceDetailResults({
 
   return {
     rec_resource_id: result.rec_resource_id,
-    name: result.name ?? "",
-    closest_community: result.closest_community ?? "",
+    name: result.name ?? '',
+    closest_community: result.closest_community ?? '',
     description: result.recreation_site_description?.description ?? undefined,
     driving_directions:
       result.recreation_driving_direction?.description ?? undefined,
     maintenance_standard_code:
       result?.maintenance_standard_code as RecreationResourceMaintenanceStandardCode,
     rec_resource_type:
-      result?.recreation_resource_type_view?.[0]?.description ?? "",
+      result?.recreation_resource_type_view?.[0]?.description ?? '',
     recreation_access: (result.recreation_access ?? [])
       .map((access) => ({
-        description: access.recreation_access_code.description ?? "",
+        description: access.recreation_access_code.description ?? '',
         sub_access_code: access.recreation_sub_access_code?.sub_access_code,
         sub_access_description:
           access.recreation_sub_access_code?.description ?? undefined,
       }))
       .filter((access) => !!access.description),
     recreation_activity: (result.recreation_activity ?? []).map((activity) => ({
-      description: activity.recreation_activity.description ?? "",
+      description: activity.recreation_activity.description ?? '',
       recreation_activity_code:
         activity.recreation_activity.recreation_activity_code,
     })),
@@ -48,7 +48,7 @@ export function formatRecreationResourceDetailResults({
       description:
         result.recreation_status?.recreation_status_code?.description ??
         OPEN_STATUS.DESCRIPTION,
-      comment: result.recreation_status?.comment ?? "",
+      comment: result.recreation_status?.comment ?? '',
       status_code:
         result.recreation_status?.status_code ?? OPEN_STATUS.STATUS_CODE,
     },
@@ -58,14 +58,14 @@ export function formatRecreationResourceDetailResults({
         ? (result as any).recreation_structure.some((s: any) =>
             s.recreation_structure_code.description
               ?.toLowerCase()
-              .includes("toilet"),
+              .includes('toilet'),
           )
         : false,
       has_table: Array.isArray((result as any).recreation_structure)
         ? (result as any).recreation_structure.some((s: any) =>
             s.recreation_structure_code.description
               ?.toLowerCase()
-              .includes("table"),
+              .includes('table'),
           )
         : false,
     },

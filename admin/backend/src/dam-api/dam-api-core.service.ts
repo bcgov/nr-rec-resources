@@ -1,9 +1,9 @@
-import { HttpException, Injectable, Logger } from "@nestjs/common";
-import { Readable } from "stream";
-import { DamApiHttpService } from "./dam-api-http.service";
-import { DamApiUtilsService } from "./dam-api-utils.service";
-import { DAM_CONFIG, DamApiConfig, DamErrors, DamFile } from "./dam-api.types";
-import { DamMetadataDto } from "./dto/dam-metadata.dto";
+import { HttpException, Injectable, Logger } from '@nestjs/common';
+import { Readable } from 'stream';
+import { DamApiHttpService } from './dam-api-http.service';
+import { DamApiUtilsService } from './dam-api-utils.service';
+import { DAM_CONFIG, DamApiConfig, DamErrors, DamFile } from './dam-api.types';
+import { DamMetadataDto } from './dto/dam-metadata.dto';
 
 /**
  * Core DAM API operations service - handles basic CRUD operations
@@ -22,12 +22,12 @@ export class DamApiCoreService {
    */
   async createResource(
     metadata: DamMetadataDto,
-    resourceType: "pdf" | "image",
+    resourceType: 'pdf' | 'image',
     config: DamApiConfig,
   ): Promise<string> {
     const params = {
       user: config.user,
-      function: "create_resource",
+      function: 'create_resource',
       metadata: JSON.stringify(metadata),
       resource_type: this.getResourceTypeId(resourceType, config),
       archive: 0,
@@ -38,7 +38,7 @@ export class DamApiCoreService {
     return this.executeRequest(
       params,
       config,
-      "Creating DAM resource",
+      'Creating DAM resource',
       DamErrors.ERR_CREATING_RESOURCE,
       logContext,
     );
@@ -53,7 +53,7 @@ export class DamApiCoreService {
   ): Promise<DamFile[]> {
     const params = {
       user: config.user,
-      function: "get_resource_all_image_sizes",
+      function: 'get_resource_all_image_sizes',
       resource,
     };
 
@@ -62,7 +62,7 @@ export class DamApiCoreService {
     return this.executeRequest(
       params,
       config,
-      "Getting DAM resource path",
+      'Getting DAM resource path',
       DamErrors.ERR_GETTING_RESOURCE_IMAGES,
       logContext,
     );
@@ -73,12 +73,12 @@ export class DamApiCoreService {
    */
   async addResourceToCollection(
     resource: string,
-    collectionType: "pdf" | "image",
+    collectionType: 'pdf' | 'image',
     config: DamApiConfig,
   ): Promise<any> {
     const params = {
       user: config.user,
-      function: "add_resource_to_collection",
+      function: 'add_resource_to_collection',
       resource,
       collection: this.getCollectionId(collectionType, config),
     };
@@ -88,7 +88,7 @@ export class DamApiCoreService {
     return this.executeRequest(
       params,
       config,
-      "Adding resource to collection",
+      'Adding resource to collection',
       DamErrors.ERR_ADDING_RESOURCE_TO_COLLECTION,
       logContext,
     );
@@ -108,7 +108,7 @@ export class DamApiCoreService {
     try {
       const params = {
         user: config.user,
-        function: "upload_multipart",
+        function: 'upload_multipart',
         ref,
         no_exif: 1,
         revert: 0,
@@ -116,7 +116,7 @@ export class DamApiCoreService {
 
       const stream = Readable.from(file.buffer);
       const formData = this.utilsService.createFormData(params, config);
-      formData.append("file", stream, {
+      formData.append('file', stream, {
         filename: file.originalname,
         contentType: file.mimetype,
       });
@@ -132,7 +132,7 @@ export class DamApiCoreService {
         `Failed to upload file - ${logContext}, Error: ${error.message}`,
       );
       throw new HttpException(
-        "Error uploading file.",
+        'Error uploading file.',
         DamErrors.ERR_UPLOADING_FILE,
       );
     }
@@ -144,7 +144,7 @@ export class DamApiCoreService {
   async deleteResource(resource: string, config: DamApiConfig): Promise<any> {
     const params = {
       user: config.user,
-      function: "delete_resource",
+      function: 'delete_resource',
       resource,
     };
 
@@ -153,7 +153,7 @@ export class DamApiCoreService {
     return this.executeRequest(
       params,
       config,
-      "Deleting DAM resource",
+      'Deleting DAM resource',
       DamErrors.ERR_DELETING_RESOURCE,
       logContext,
     );
@@ -168,7 +168,7 @@ export class DamApiCoreService {
   ): Promise<DamFile[]> {
     const params = {
       user: config.user,
-      function: "get_resource_all_image_sizes",
+      function: 'get_resource_all_image_sizes',
       resource,
     };
 
@@ -185,7 +185,7 @@ export class DamApiCoreService {
       params,
       config,
       validateFileTypes,
-      "Getting DAM resource path",
+      'Getting DAM resource path',
       DamErrors.ERR_GETTING_RESOURCE_IMAGES,
       DamErrors.ERR_FILE_PROCESSING_TIMEOUT,
       logContext,
@@ -254,12 +254,12 @@ export class DamApiCoreService {
 
       // Check if it's a file validation timeout vs other errors
       const isFileValidationError =
-        error.message.includes("Custom validation failed") ||
-        error.message.includes("required variants not ready");
+        error.message.includes('Custom validation failed') ||
+        error.message.includes('required variants not ready');
 
       throw new HttpException(
         isFileValidationError
-          ? "File processing timeout: Image variants not ready"
+          ? 'File processing timeout: Image variants not ready'
           : `Error ${operation.toLowerCase()} with retry.`,
         isFileValidationError ? timeoutErrorCode : errorCode,
       );
@@ -270,10 +270,10 @@ export class DamApiCoreService {
    * Gets the appropriate resource type ID based on type
    */
   private getResourceTypeId(
-    resourceType: "pdf" | "image",
+    resourceType: 'pdf' | 'image',
     config: DamApiConfig,
   ): number {
-    return resourceType === "image"
+    return resourceType === 'image'
       ? config.imageResourceType
       : config.pdfResourceType;
   }
@@ -282,10 +282,10 @@ export class DamApiCoreService {
    * Gets the appropriate collection ID based on type
    */
   private getCollectionId(
-    collectionType: "pdf" | "image",
+    collectionType: 'pdf' | 'image',
     config: DamApiConfig,
   ): string {
-    return collectionType === "image"
+    return collectionType === 'image'
       ? config.imageCollectionId
       : config.pdfCollectionId;
   }

@@ -1,5 +1,5 @@
-import { BadRequestException, ValidationPipe } from "@nestjs/common";
-import { ValidationError } from "class-validator";
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import { ValidationError } from 'class-validator';
 
 export const globalValidationPipe = new ValidationPipe({
   whitelist: true,
@@ -12,8 +12,8 @@ export const globalValidationPipe = new ValidationPipe({
     }));
     return new BadRequestException({
       statusCode: 400,
-      error: "Bad Request",
-      message: "Validation failed",
+      error: 'Bad Request',
+      message: 'Validation failed',
       details: formattedErrors,
     });
   },

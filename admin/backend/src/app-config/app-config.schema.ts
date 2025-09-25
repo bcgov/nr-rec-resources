@@ -1,5 +1,5 @@
-import { plainToClass, Transform } from "class-transformer";
-import { IsNotEmpty, IsString, IsUrl, validateSync } from "class-validator";
+import { plainToClass, Transform } from 'class-transformer';
+import { IsNotEmpty, IsString, IsUrl, validateSync } from 'class-validator';
 
 export class EnvironmentVariables {
   @IsString()
@@ -82,9 +82,9 @@ export function validate(config: Record<string, unknown>) {
     const errorMessages = errors
       .map((error) => {
         const constraints = Object.values(error.constraints || {});
-        return `${error.property}: ${constraints.join(", ")}`;
+        return `${error.property}: ${constraints.join(', ')}`;
       })
-      .join("\n");
+      .join('\n');
 
     throw new Error(`Configuration validation failed:\n${errorMessages}`);
   }

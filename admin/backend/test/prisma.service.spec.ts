@@ -1,20 +1,20 @@
-import { AppConfigModule } from "@/app-config/app-config.module";
-import { PrismaService } from "@/prisma.service";
-import { Test, TestingModule } from "@nestjs/testing";
-import { Prisma } from "@prisma/client";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { AppConfigModule } from '@/app-config/app-config.module';
+import { PrismaService } from '@/prisma.service';
+import { Test, TestingModule } from '@nestjs/testing';
+import { Prisma } from '@prisma/client';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-describe("PrismaService", () => {
+describe('PrismaService', () => {
   let prismaService: PrismaService;
   let module: TestingModule;
 
   beforeEach(async () => {
     // Mock PrismaClient methods to prevent actual database connections
-    vi.spyOn(PrismaService.prototype, "$connect").mockResolvedValue(undefined);
-    vi.spyOn(PrismaService.prototype, "$disconnect").mockResolvedValue(
+    vi.spyOn(PrismaService.prototype, '$connect').mockResolvedValue(undefined);
+    vi.spyOn(PrismaService.prototype, '$disconnect').mockResolvedValue(
       undefined,
     );
-    vi.spyOn(PrismaService.prototype, "$on").mockImplementation(
+    vi.spyOn(PrismaService.prototype, '$on').mockImplementation(
       () => PrismaService.prototype,
     );
 
@@ -33,35 +33,35 @@ describe("PrismaService", () => {
     }
   });
 
-  it("should be defined", () => {
+  it('should be defined', () => {
     expect(prismaService).toBeDefined();
   });
 
-  it("should connect to database on module init", async () => {
+  it('should connect to database on module init', async () => {
     await prismaService.onModuleInit();
     expect(prismaService.$connect).toHaveBeenCalled();
   });
 
-  it("should disconnect from database on module destroy", async () => {
+  it('should disconnect from database on module destroy', async () => {
     await prismaService.onModuleDestroy();
     expect(prismaService.$disconnect).toHaveBeenCalled();
   });
 
-  it("should be managed as singleton by NestJS", async () => {
+  it('should be managed as singleton by NestJS', async () => {
     // Verify that NestJS provides the same instance when requested multiple times
     const secondInstance = module.get<PrismaService>(PrismaService);
     expect(secondInstance).toBe(prismaService);
   });
 
-  describe("configuration", () => {
-    it("should be configured with database URL from AppConfigService", () => {
+  describe('configuration', () => {
+    it('should be configured with database URL from AppConfigService', () => {
       expect(prismaService.databaseUrl).toMatch(/^postgresql:\/\//);
-      expect(prismaService.databaseUrl).toContain("test_user"); // From test-setup.ts
-      expect(prismaService.databaseUrl).toContain("test_db"); // From test-setup.ts
+      expect(prismaService.databaseUrl).toContain('test_user'); // From test-setup.ts
+      expect(prismaService.databaseUrl).toContain('test_db'); // From test-setup.ts
     });
   });
 
-  describe("query logging", () => {
+  describe('query logging', () => {
     let logSpy: any;
     let queryCallback: any;
     beforeEach(() => {
@@ -71,9 +71,9 @@ describe("PrismaService", () => {
       prismaService.logger = { log: logSpy };
 
       // Setup $on mock to capture the query callback
-      vi.spyOn(prismaService, "$on").mockImplementation(
+      vi.spyOn(prismaService, '$on').mockImplementation(
         (event: string, callback: any) => {
-          if (event === "query") {
+          if (event === 'query') {
             queryCallback = callback;
           }
           return prismaService;
@@ -84,19 +84,19 @@ describe("PrismaService", () => {
       prismaService.onModuleInit();
     });
 
-    it("should initialize query logging on module init", async () => {
-      const onSpy = vi.spyOn(prismaService, "$on");
+    it('should initialize query logging on module init', async () => {
+      const onSpy = vi.spyOn(prismaService, '$on');
       await prismaService.onModuleInit();
 
-      expect(onSpy).toHaveBeenCalledWith("query", expect.any(Function));
+      expect(onSpy).toHaveBeenCalledWith('query', expect.any(Function));
     });
 
-    it("should log non-health check queries", () => {
+    it('should log non-health check queries', () => {
       const queryEvent: Prisma.QueryEvent = {
-        query: "SELECT * FROM users",
-        params: "[]",
+        query: 'SELECT * FROM users',
+        params: '[]',
         duration: 10,
-        target: "test",
+        target: 'test',
         timestamp: new Date(),
       };
 
@@ -108,12 +108,12 @@ describe("PrismaService", () => {
       );
     });
 
-    it("should not log health check queries", () => {
+    it('should not log health check queries', () => {
       const healthCheckEvent: Prisma.QueryEvent = {
-        query: "SELECT 1",
-        params: "[]",
+        query: 'SELECT 1',
+        params: '[]',
         duration: 5,
-        target: "test",
+        target: 'test',
         timestamp: new Date(),
       };
 
@@ -122,10 +122,10 @@ describe("PrismaService", () => {
       expect(logSpy).not.toHaveBeenCalled();
     });
 
-    it("should handle missing query properties gracefully", () => {
+    it('should handle missing query properties gracefully', () => {
       queryCallback({});
-      queryCallback({ query: "SELECT *" });
-      expect(logSpy).toHaveBeenCalledWith(expect.stringContaining("SELECT *"));
+      queryCallback({ query: 'SELECT *' });
+      expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('SELECT *'));
     });
   });
 });

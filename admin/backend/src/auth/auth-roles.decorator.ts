@@ -1,6 +1,6 @@
-import { SetMetadata } from "@nestjs/common";
-import { AUTH_ROLES_KEY, ROLE_MODE } from "./auth.constants";
-import { RoleMode, RolesMetadata } from "./auth.types";
+import { SetMetadata } from '@nestjs/common';
+import { AUTH_ROLES_KEY, ROLE_MODE } from './auth.constants';
+import { RoleMode, RolesMetadata } from './auth.types';
 
 /**
  * Decorator for role-based authorization

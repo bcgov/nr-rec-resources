@@ -1,61 +1,61 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, Length, Matches } from "class-validator";
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, Length, Matches } from 'class-validator';
 
 /**
  * Enum representing available image size options for the recreation API
  */
 export enum RecreationResourceDocCode {
   /** Recreation Map */
-  RM = "RM",
+  RM = 'RM',
 }
 
 export class RecreationResourceDocDto {
   @ApiProperty({
-    description: "Reference ID for the image",
+    description: 'Reference ID for the image',
     type: String,
-    example: "1000",
+    example: '1000',
   })
   ref_id?: string;
 
   @ApiProperty({
-    description: "Doc title",
+    description: 'Doc title',
     type: String,
-    example: "Campbell river site map",
+    example: 'Campbell river site map',
   })
   title: string | null;
 
   @ApiProperty({
-    description: "rec_resource_id",
+    description: 'rec_resource_id',
     type: String,
   })
   rec_resource_id: string | null;
 
   @ApiProperty({
-    description: "doc link",
+    description: 'doc link',
     type: String,
   })
   url?: string;
 
   @ApiProperty({
-    description: "Document code that indicates the type of document",
+    description: 'Document code that indicates the type of document',
     enum: RecreationResourceDocCode,
   })
   doc_code: RecreationResourceDocCode | null;
 
   @ApiProperty({
-    description: "Description of the document code",
+    description: 'Description of the document code',
     type: String,
   })
   doc_code_description?: string;
 
   @ApiProperty({
-    description: "File extension",
+    description: 'File extension',
     type: String,
   })
   extension: string | null;
 
   @ApiProperty({
-    description: "File upload date",
+    description: 'File upload date',
     type: String,
   })
   created_at: string | null;
@@ -63,15 +63,15 @@ export class RecreationResourceDocDto {
 
 export class CreateRecreationResourceDocBodyDto {
   @ApiProperty({
-    description: "Doc title",
-    example: "Campbell river site map",
+    description: 'Doc title',
+    example: 'Campbell river site map',
     minLength: 3,
     maxLength: 100,
     type: String,
   })
   @Matches(/^[A-Za-z0-9-_'(). ]+$/, {
     message:
-      "document title can only contain alphanumeric characters and spaces",
+      'document title can only contain alphanumeric characters and spaces',
   })
   @Length(3, 100)
   @IsNotEmpty()
@@ -80,8 +80,8 @@ export class CreateRecreationResourceDocBodyDto {
 
 export class CreateRecreationResourceDocFormDto {
   @ApiProperty({
-    description: "Document title",
-    example: "Campbell river site map",
+    description: 'Document title',
+    example: 'Campbell river site map',
     minLength: 3,
     maxLength: 100,
     pattern: "^[A-Za-z0-9-_'(). ]+$",
@@ -90,9 +90,9 @@ export class CreateRecreationResourceDocFormDto {
   title: string;
 
   @ApiProperty({
-    type: "string",
-    format: "binary",
-    description: "File to upload",
+    type: 'string',
+    format: 'binary',
+    description: 'File to upload',
   })
   file: any;
 }

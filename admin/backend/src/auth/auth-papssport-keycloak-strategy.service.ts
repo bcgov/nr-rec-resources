@@ -1,9 +1,9 @@
-import { Injectable, Logger } from "@nestjs/common";
-import { PassportStrategy } from "@nestjs/passport";
-import KeycloakBearerStrategy from "passport-keycloak-bearer";
-import { AppConfigService } from "@/app-config/app-config.service";
-import { AUTH_STRATEGY, LOG_MESSAGES } from "./auth.constants";
-import { KeycloakUserToken } from "./auth.types";
+import { Injectable, Logger } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import KeycloakBearerStrategy from 'passport-keycloak-bearer';
+import { AppConfigService } from '@/app-config/app-config.service';
+import { AUTH_STRATEGY, LOG_MESSAGES } from './auth.constants';
+import { KeycloakUserToken } from './auth.types';
 
 /**
  * Passport strategy for Keycloak Bearer authentication
@@ -29,7 +29,7 @@ export class AuthPassportKeycloakStrategy extends PassportStrategy(
       url: appConfigService.keycloakAuthServerUrl,
       issuer: appConfigService.keycloakIssuer,
       audience: appConfigService.keycloakClientId,
-      loggingLevel: "warn",
+      loggingLevel: 'warn',
     };
   }
 

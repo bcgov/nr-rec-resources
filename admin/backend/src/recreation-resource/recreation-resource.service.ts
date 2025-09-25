@@ -1,12 +1,12 @@
-import { Injectable } from "@nestjs/common";
-import { RecreationResourceRepository } from "./recreation-resource.repository";
+import { Injectable } from '@nestjs/common';
+import { RecreationResourceRepository } from './recreation-resource.repository';
 import {
   SuggestionDto,
   SuggestionsResponseDto,
-} from "./dtos/suggestions-response.dto";
-import { getRecreationResourceSuggestions } from "@/prisma-generated-sql";
-import { RecreationResourceDetailDto } from "./dtos/recreation-resource-detail.dto";
-import { formatRecreationResourceDetailResults } from "./utils";
+} from './dtos/suggestions-response.dto';
+import { getRecreationResourceSuggestions } from '@/prisma-generated-sql';
+import { RecreationResourceDetailDto } from './dtos/recreation-resource-detail.dto';
+import { formatRecreationResourceDetailResults } from './utils';
 
 @Injectable()
 export class RecreationResourceService {

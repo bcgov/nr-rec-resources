@@ -1,8 +1,8 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { AppService } from "../src/app.service";
-import { beforeEach, describe, expect, it } from "vitest";
+import { Test, TestingModule } from '@nestjs/testing';
+import { AppService } from '../src/app.service';
+import { beforeEach, describe, expect, it } from 'vitest';
 
-describe("AppService", () => {
+describe('AppService', () => {
   let service: AppService;
 
   beforeEach(async () => {
@@ -13,13 +13,13 @@ describe("AppService", () => {
     service = module.get<AppService>(AppService);
   });
 
-  it("should be defined", () => {
+  it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  describe("getHello", () => {
+  describe('getHello', () => {
     it('should return "Hello World!"', () => {
-      expect(service.getHello()).toBe("Hello World!");
+      expect(service.getHello()).toBe('Hello World!');
     });
   });
 });

@@ -1,8 +1,8 @@
-import { Injectable } from "@nestjs/common";
-import { PrismaService } from "@/prisma.service";
-import { getRecreationResourceSuggestions } from "@/prisma-generated-sql";
-import { recreationResourceSelect } from "./recreation-resource.select";
-import { RecreationResourceGetPayload } from "./recreation-resource.types";
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '@/prisma.service';
+import { getRecreationResourceSuggestions } from '@/prisma-generated-sql';
+import { recreationResourceSelect } from './recreation-resource.select';
+import { RecreationResourceGetPayload } from './recreation-resource.types';
 
 /**
  * Repository for querying recreation resource data.

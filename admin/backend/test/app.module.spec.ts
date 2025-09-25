@@ -1,12 +1,12 @@
-import { AppController } from "@/app.controller";
-import { AppModule } from "@/app.module";
-import { AppService } from "@/app.service";
-import { AuthModule } from "@/auth";
-import { ConfigModule } from "@nestjs/config";
-import { PassportModule } from "@nestjs/passport";
-import { Test, TestingModule } from "@nestjs/testing";
+import { AppController } from '@/app.controller';
+import { AppModule } from '@/app.module';
+import { AppService } from '@/app.service';
+import { AuthModule } from '@/auth';
+import { ConfigModule } from '@nestjs/config';
+import { PassportModule } from '@nestjs/passport';
+import { Test, TestingModule } from '@nestjs/testing';
 
-describe("AppModule", () => {
+describe('AppModule', () => {
   let module: TestingModule;
 
   beforeEach(async () => {
@@ -15,41 +15,41 @@ describe("AppModule", () => {
     }).compile();
   });
 
-  it("should be defined", () => {
+  it('should be defined', () => {
     expect(module).toBeDefined();
   });
 
-  it("should have ConfigModule configured globally", () => {
+  it('should have ConfigModule configured globally', () => {
     const configModule = module.get(ConfigModule);
     expect(configModule).toBeDefined();
   });
 
-  it("should have PassportModule imported", () => {
+  it('should have PassportModule imported', () => {
     const passportModule = module.get(PassportModule);
     expect(passportModule).toBeDefined();
   });
 
-  it("should have AuthModule imported", () => {
+  it('should have AuthModule imported', () => {
     const authModule = module.get(AuthModule);
     expect(authModule).toBeDefined();
   });
 
-  it("should have AppController registered", () => {
+  it('should have AppController registered', () => {
     const appController = module.get(AppController);
     expect(appController).toBeDefined();
     expect(appController).toBeInstanceOf(AppController);
   });
 
-  it("should have AppService registered", () => {
+  it('should have AppService registered', () => {
     const appService = module.get(AppService);
     expect(appService).toBeDefined();
     expect(appService).toBeInstanceOf(AppService);
   });
 
-  describe("Module configuration", () => {
-    it("should have correct module metadata", () => {
+  describe('Module configuration', () => {
+    it('should have correct module metadata', () => {
       const moduleFixture = AppModule;
-      const metadata = Reflect.getMetadata("imports", moduleFixture);
+      const metadata = Reflect.getMetadata('imports', moduleFixture);
 
       expect(metadata).toHaveLength(7);
       expect(metadata).toEqual(
