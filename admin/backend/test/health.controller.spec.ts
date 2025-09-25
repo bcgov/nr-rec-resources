@@ -1,10 +1,10 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { HealthController } from "@/health.controller";
-import { HealthCheckService, PrismaHealthIndicator } from "@nestjs/terminus";
-import { PrismaService } from "src/prisma.service";
+import { Test, TestingModule } from '@nestjs/testing';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { HealthController } from '@/health.controller';
+import { HealthCheckService, PrismaHealthIndicator } from '@nestjs/terminus';
+import { PrismaService } from 'src/prisma.service';
 
-describe("HealthController", () => {
+describe('HealthController', () => {
   let controller: HealthController;
   let _prismaHealthIndicator: PrismaHealthIndicator;
   let _prismaService: PrismaService;
@@ -16,7 +16,7 @@ describe("HealthController", () => {
         {
           provide: HealthCheckService,
           useValue: {
-            check: vi.fn().mockResolvedValue({ status: "ok" }),
+            check: vi.fn().mockResolvedValue({ status: 'ok' }),
           },
         },
         {
@@ -39,9 +39,9 @@ describe("HealthController", () => {
     _prismaService = module.get<PrismaService>(PrismaService);
   });
 
-  it("should return health check status", async () => {
+  it('should return health check status', async () => {
     const result = await controller.check();
 
-    expect(result).toEqual({ status: "ok" });
+    expect(result).toEqual({ status: 'ok' });
   });
 });

@@ -1,9 +1,9 @@
-import { Test, TestingModule } from "@nestjs/testing";
-import { AppController } from "../src/app.controller";
-import { AppService } from "../src/app.service";
-import { beforeEach, describe, expect, it } from "vitest";
+import { Test, TestingModule } from '@nestjs/testing';
+import { AppController } from '../src/app.controller';
+import { AppService } from '../src/app.service';
+import { beforeEach, describe, expect, it } from 'vitest';
 
-describe("AppController", () => {
+describe('AppController', () => {
   let appController: AppController;
 
   beforeEach(async () => {
@@ -15,9 +15,9 @@ describe("AppController", () => {
     appController = app.get<AppController>(AppController);
   });
 
-  describe("root", () => {
+  describe('root', () => {
     it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe("Hello World!");
+      expect(appController.getHello()).toBe('Hello World!');
     });
   });
 });

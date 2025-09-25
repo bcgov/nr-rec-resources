@@ -1,3 +1,3 @@
-export * from "./getRecreationResourceSpatialFeatureGeometry";
+export * from './getRecreationResourceSpatialFeatureGeometry';
 
-export * from "./getRecreationResourceSuggestions";
+export * from './getRecreationResourceSuggestions';

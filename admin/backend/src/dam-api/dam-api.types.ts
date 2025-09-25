@@ -15,7 +15,7 @@ export interface DamFile {
 
 export interface DamCreateResourceRequest {
   title: string;
-  resourceType: "pdf" | "image";
+  resourceType: 'pdf' | 'image';
 }
 
 export interface DamUploadFileRequest {
@@ -25,7 +25,7 @@ export interface DamUploadFileRequest {
 
 export interface DamCollectionRequest {
   resource: string;
-  collectionType: "pdf" | "image";
+  collectionType: 'pdf' | 'image';
 }
 
 export interface DamApiConfig {
@@ -53,5 +53,5 @@ export const DAM_CONFIG = {
   HTTP_TIMEOUT: 15 * 60 * 1000,
   IMAGE_VALIDATION_TIMEOUT: 5 * 60 * 1000,
   RETRY_ATTEMPTS: 5,
-  REQUIRED_SIZE_CODES: ["original", "thm", "col", "pre"] as const,
+  REQUIRED_SIZE_CODES: ['original', 'thm', 'col', 'pre'] as const,
 } as const;

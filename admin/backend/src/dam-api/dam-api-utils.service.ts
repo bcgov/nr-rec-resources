@@ -1,7 +1,7 @@
-import { Injectable, Logger } from "@nestjs/common";
-import { createHash } from "crypto";
-import FormData from "form-data";
-import { DamApiConfig, DamFile } from "./dam-api.types";
+import { Injectable, Logger } from '@nestjs/common';
+import { createHash } from 'crypto';
+import FormData from 'form-data';
+import { DamApiConfig, DamFile } from './dam-api.types';
 
 /**
  * Utility service for DAM API operations like signing, form data creation, etc.
@@ -18,7 +18,7 @@ export class DamApiUtilsService {
       `Signing DAM API query - Length: ${query.length}, Has Private Key: ${!!privateKey}`,
     );
 
-    return createHash("sha256").update(`${privateKey}${query}`).digest("hex");
+    return createHash('sha256').update(`${privateKey}${query}`).digest('hex');
   }
 
   /**
@@ -26,16 +26,16 @@ export class DamApiUtilsService {
    */
   createFormData(params: Record<string, any>, config: DamApiConfig): FormData {
     this.logger.debug(
-      `Creating form data - Parameters: [${Object.keys(params).join(", ")}], User: ${config.user}`,
+      `Creating form data - Parameters: [${Object.keys(params).join(', ')}], User: ${config.user}`,
     );
 
     const queryString = new URLSearchParams(params).toString();
     const signature = this.sign(queryString, config.privateKey);
     const formData = new FormData();
 
-    formData.append("query", queryString);
-    formData.append("sign", signature);
-    formData.append("user", config.user);
+    formData.append('query', queryString);
+    formData.append('sign', signature);
+    formData.append('user', config.user);
 
     this.logger.debug(
       `Form data created - Query Length: ${queryString.length}, Has Signature: ${!!signature}, User: ${config.user}`,
@@ -63,10 +63,10 @@ export class DamApiUtilsService {
       .map((size_code) => availableSizeCodes.has(size_code))
       .every(Boolean);
 
-    const availableSizesList = Array.from(availableSizeCodes).join(", ");
+    const availableSizesList = Array.from(availableSizeCodes).join(', ');
 
     this.logger.debug(
-      `File types validation - Total: ${files.length}, Available: [${availableSizesList}], Required: [${requiredSizes.join(", ")}], Valid: ${isValid}`,
+      `File types validation - Total: ${files.length}, Available: [${availableSizesList}], Required: [${requiredSizes.join(', ')}], Valid: ${isValid}`,
     );
 
     return isValid;
@@ -79,7 +79,7 @@ export class DamApiUtilsService {
     return new Promise((resolve, reject) => {
       const chunks: Buffer[] = [];
 
-      formData.on("data", (chunk) => {
+      formData.on('data', (chunk) => {
         // Ensure chunk is converted to Buffer if it's not already
         if (Buffer.isBuffer(chunk)) {
           chunks.push(chunk);
@@ -88,11 +88,11 @@ export class DamApiUtilsService {
         }
       });
 
-      formData.on("end", () => {
+      formData.on('end', () => {
         resolve(Buffer.concat(chunks));
       });
 
-      formData.on("error", (error) => {
+      formData.on('error', (error) => {
         reject(error);
       });
 

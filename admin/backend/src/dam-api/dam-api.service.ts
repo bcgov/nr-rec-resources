@@ -1,8 +1,8 @@
-import { AppConfigService } from "@/app-config/app-config.service";
-import { Injectable, Logger } from "@nestjs/common";
-import { DamApiCoreService } from "./dam-api-core.service";
-import { DamApiConfig, DamFile, DamResource } from "./dam-api.types";
-import { DamMetadataDto } from "./dto/dam-metadata.dto";
+import { AppConfigService } from '@/app-config/app-config.service';
+import { Injectable, Logger } from '@nestjs/common';
+import { DamApiCoreService } from './dam-api-core.service';
+import { DamApiConfig, DamFile, DamResource } from './dam-api.types';
+import { DamMetadataDto } from './dto/dam-metadata.dto';
 
 /**
  * Main DAM API Service - provides a clean interface and maintains backward compatibility
@@ -36,7 +36,7 @@ export class DamApiService {
 
   async createResource(
     metadata: DamMetadataDto,
-    resourceType: "pdf" | "image" = "pdf",
+    resourceType: 'pdf' | 'image' = 'pdf',
   ): Promise<string> {
     return this.coreService.createResource(metadata, resourceType, this.config);
   }
@@ -51,7 +51,7 @@ export class DamApiService {
 
   async addResourceToCollection(
     resource: string,
-    collectionType: "pdf" | "image" = "pdf",
+    collectionType: 'pdf' | 'image' = 'pdf',
   ): Promise<any> {
     return this.coreService.addResourceToCollection(
       resource,
@@ -86,11 +86,11 @@ export class DamApiService {
 
     const ref_id = await this.coreService.createResource(
       metadata,
-      "pdf",
+      'pdf',
       this.config,
     );
     await this.coreService.uploadFile(ref_id, file, this.config);
-    await this.coreService.addResourceToCollection(ref_id, "pdf", this.config);
+    await this.coreService.addResourceToCollection(ref_id, 'pdf', this.config);
     const files = await this.coreService.getResourcePath(ref_id, this.config);
 
     this.logger.log(`Document created and uploaded successfully`, {
@@ -119,13 +119,13 @@ export class DamApiService {
 
     const ref_id = await this.coreService.createResource(
       metadata,
-      "image",
+      'image',
       this.config,
     );
     await this.coreService.uploadFile(ref_id, file, this.config);
     await this.coreService.addResourceToCollection(
       ref_id,
-      "image",
+      'image',
       this.config,
     );
     const files = await this.coreService.getResourcePath(ref_id, this.config);
@@ -155,13 +155,13 @@ export class DamApiService {
 
     const ref_id = await this.coreService.createResource(
       metadata,
-      "image",
+      'image',
       this.config,
     );
     await this.coreService.uploadFile(ref_id, file, this.config);
     await this.coreService.addResourceToCollection(
       ref_id,
-      "image",
+      'image',
       this.config,
     );
     const files = await this.coreService.getResourcePathWithRetry(

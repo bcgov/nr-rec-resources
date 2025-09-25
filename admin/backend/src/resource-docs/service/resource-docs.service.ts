@@ -1,15 +1,15 @@
-import { AppConfigService } from "@/app-config/app-config.service";
-import { DamApiService } from "@/dam-api/dam-api.service";
-import { HttpException, Injectable } from "@nestjs/common";
-import path from "path";
-import { PrismaService } from "src/prisma.service";
+import { AppConfigService } from '@/app-config/app-config.service';
+import { DamApiService } from '@/dam-api/dam-api.service';
+import { HttpException, Injectable } from '@nestjs/common';
+import path from 'path';
+import { PrismaService } from 'src/prisma.service';
 import {
   RecreationResourceDocCode,
   RecreationResourceDocDto,
-} from "../dto/recreation-resource-doc.dto";
-import { DamMetadataDto } from "@/dam-api/dto/dam-metadata.dto";
+} from '../dto/recreation-resource-doc.dto';
+import { DamMetadataDto } from '@/dam-api/dto/dam-metadata.dto';
 
-const allowedTypes = ["application/pdf"];
+const allowedTypes = ['application/pdf'];
 
 @Injectable()
 export class ResourceDocsService {
@@ -72,7 +72,7 @@ export class ResourceDocsService {
     });
 
     if (result === null) {
-      throw new HttpException("Recreation Resource document not found", 404);
+      throw new HttpException('Recreation Resource document not found', 404);
     }
 
     return this.mapResponse(result);
@@ -84,7 +84,7 @@ export class ResourceDocsService {
     file: Express.Multer.File,
   ): Promise<RecreationResourceDocDto> {
     if (!allowedTypes.includes(file.mimetype)) {
-      throw new HttpException("File Type not allowed", 415);
+      throw new HttpException('File Type not allowed', 415);
     }
     const resource = await this.prisma.recreation_resource.findUnique({
       where: {
@@ -92,7 +92,7 @@ export class ResourceDocsService {
       },
     });
     if (resource === null) {
-      throw new HttpException("Recreation Resource not found", 404);
+      throw new HttpException('Recreation Resource not found', 404);
     }
     const metadata: DamMetadataDto = {
       title,
@@ -112,7 +112,7 @@ export class ResourceDocsService {
         rec_resource_id,
         url,
         title,
-        extension: path.extname(file.originalname).replace(".", ""),
+        extension: path.extname(file.originalname).replace('.', ''),
       },
     });
     return this.mapResponse(result);
@@ -134,11 +134,11 @@ export class ResourceDocsService {
       },
     });
     if (resource === null) {
-      throw new HttpException("Recreation Resource not found", 404);
+      throw new HttpException('Recreation Resource not found', 404);
     }
     if (file) {
       if (!allowedTypes.includes(file.mimetype)) {
-        throw new HttpException("File Type not allowed", 415);
+        throw new HttpException('File Type not allowed', 415);
       }
       await this.damApiService.uploadFile(ref_id, file);
     }
@@ -178,10 +178,10 @@ export class ResourceDocsService {
 
   private getOriginalFilePath(files: any[]) {
     let originalUrl = files
-      .find((f: any) => f.size_code === "original")
-      .url.replace(this.appConfig.damUrl, "");
-    originalUrl = originalUrl.includes("?")
-      ? originalUrl.split("?")[0]
+      .find((f: any) => f.size_code === 'original')
+      .url.replace(this.appConfig.damUrl, '');
+    originalUrl = originalUrl.includes('?')
+      ? originalUrl.split('?')[0]
       : originalUrl;
     return originalUrl;
   }

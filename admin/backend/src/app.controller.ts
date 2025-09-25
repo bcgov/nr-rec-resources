@@ -1,16 +1,16 @@
-import { Controller, Get, UseGuards } from "@nestjs/common";
-import { AppService } from "./app.service";
-import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
-import { AuthGuard } from "@nestjs/passport";
+import { Controller, Get, UseGuards } from '@nestjs/common';
+import { AppService } from './app.service';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 import {
   AUTH_STRATEGY,
   AuthRoles,
   AuthRolesGuard,
   RecreationResourceAuthRole,
   ROLE_MODE,
-} from "./auth";
+} from './auth';
 
-@ApiTags("App")
+@ApiTags('App')
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}

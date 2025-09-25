@@ -1,10 +1,10 @@
-import { Injectable, Logger } from "@nestjs/common";
-import axios, { AxiosInstance } from "axios";
-import axiosRetry, { IAxiosRetryConfig } from "axios-retry";
-import crypto from "crypto";
-import FormData from "form-data";
-import { DamApiUtilsService } from "./dam-api-utils.service";
-import { DAM_CONFIG } from "./dam-api.types";
+import { Injectable, Logger } from '@nestjs/common';
+import axios, { AxiosInstance } from 'axios';
+import axiosRetry, { IAxiosRetryConfig } from 'axios-retry';
+import crypto from 'crypto';
+import FormData from 'form-data';
+import { DamApiUtilsService } from './dam-api-utils.service';
+import { DAM_CONFIG } from './dam-api.types';
 
 /**
  * Low-level HTTP client service for DAM API communication
@@ -60,7 +60,7 @@ export class DamApiHttpService {
    */
   private getOnRetryHandler() {
     return (retryCount: number, error: any, requestConfig: any) => {
-      const message = requestConfig.url?.includes("validation")
+      const message = requestConfig.url?.includes('validation')
         ? `Retrying DAM API request with validation - Attempt: ${retryCount}/${DAM_CONFIG.RETRY_ATTEMPTS}, URL: ${requestConfig.url}, Error: ${error.message}`
         : `Retrying DAM API request - Attempt: ${retryCount}/${DAM_CONFIG.RETRY_ATTEMPTS}, URL: ${requestConfig.url}, Error: ${error.message}`;
 
@@ -77,7 +77,7 @@ export class DamApiHttpService {
     axiosInstance: AxiosInstance,
   ): Promise<any> {
     const startTime = Date.now();
-    const requestId = crypto.randomBytes(6).toString("hex");
+    const requestId = crypto.randomBytes(6).toString('hex');
 
     this.logger.debug(`[${requestId}] Making DAM API request to ${damUrl}`);
 

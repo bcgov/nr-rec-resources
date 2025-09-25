@@ -1,11 +1,11 @@
-import { DamApiHttpService, DamApiUtilsService } from "@/dam-api";
-import { Test, TestingModule } from "@nestjs/testing";
-import axios from "axios";
-import axiosRetry from "axios-retry";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { DamApiHttpService, DamApiUtilsService } from '@/dam-api';
+import { Test, TestingModule } from '@nestjs/testing';
+import axios from 'axios';
+import axiosRetry from 'axios-retry';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock axios and related modules
-vi.mock("axios", () => ({
+vi.mock('axios', () => ({
   default: {
     create: vi.fn(() => ({
       post: vi.fn(),
@@ -13,16 +13,16 @@ vi.mock("axios", () => ({
   },
 }));
 
-vi.mock("axios-retry", () => ({
+vi.mock('axios-retry', () => ({
   default: vi.fn(),
   exponentialDelay: vi.fn(),
   isNetworkOrIdempotentRequestError: vi.fn(),
   isRetryableError: vi.fn(),
 }));
 
-vi.mock("form-data", () => ({
+vi.mock('form-data', () => ({
   default: vi.fn(() => ({
-    getHeaders: vi.fn(() => ({ "content-type": "multipart/form-data" })),
+    getHeaders: vi.fn(() => ({ 'content-type': 'multipart/form-data' })),
   })),
 }));
 
@@ -30,20 +30,20 @@ vi.mock("form-data", () => ({
 const mockedAxios = vi.mocked(axios, true);
 const mockedAxiosRetry = vi.mocked(axiosRetry, true);
 
-describe("DamApiHttpService", () => {
+describe('DamApiHttpService', () => {
   let service: DamApiHttpService;
   let mockAxiosInstance: any;
   let mockDamApiUtilsService: any;
 
   // Test data setup
   const testData = {
-    url: "https://dam.example.com/api/resource",
+    url: 'https://dam.example.com/api/resource',
     formData: {
-      getHeaders: vi.fn(() => ({ "content-type": "multipart/form-data" })),
+      getHeaders: vi.fn(() => ({ 'content-type': 'multipart/form-data' })),
     } as any,
-    buffer: Buffer.from("test buffer data"),
-    response: { data: { ref_id: "123", status: "success" }, status: 200 },
-    validationResponse: { data: [{ size_code: "original" }], status: 200 },
+    buffer: Buffer.from('test buffer data'),
+    response: { data: { ref_id: '123', status: 'success' }, status: 200 },
+    validationResponse: { data: [{ size_code: 'original' }], status: 200 },
   };
 
   const setupMocks = () => {
@@ -58,10 +58,10 @@ describe("DamApiHttpService", () => {
     mockedAxios.create.mockReturnValue(mockAxiosInstance);
 
     // Mock Date.now for consistent testing
-    vi.spyOn(Date, "now")
+    vi.spyOn(Date, 'now')
       .mockReturnValueOnce(1000) // Start time
       .mockReturnValueOnce(1500); // End time
-    vi.spyOn(Math, "random").mockReturnValue(0.123456789);
+    vi.spyOn(Math, 'random').mockReturnValue(0.123456789);
   };
 
   beforeEach(async () => {
@@ -80,8 +80,8 @@ describe("DamApiHttpService", () => {
     service = module.get<DamApiHttpService>(DamApiHttpService);
   });
 
-  describe("service initialization", () => {
-    it("should be defined and create axios instance with correct configuration", () => {
+  describe('service initialization', () => {
+    it('should be defined and create axios instance with correct configuration', () => {
       expect(service).toBeDefined();
       expect(mockedAxios.create).toHaveBeenCalledWith({ timeout: 900000 });
       expect(mockedAxiosRetry).toHaveBeenCalledWith(
@@ -95,7 +95,7 @@ describe("DamApiHttpService", () => {
       );
     });
 
-    it("should have correct retry condition logic", () => {
+    it('should have correct retry condition logic', () => {
       const retryConfig = mockedAxiosRetry.mock.calls[0]?.[1];
       const retryCondition = retryConfig?.retryCondition;
 
@@ -117,7 +117,7 @@ describe("DamApiHttpService", () => {
         mockIsNetworkError.mockReturnValue(networkError);
         mockIsRetryableError.mockReturnValue(retryableError);
         const mockError = {
-          message: "test",
+          message: 'test',
           isAxiosError: true,
           toJSON: () => ({}),
         } as any;
@@ -125,16 +125,16 @@ describe("DamApiHttpService", () => {
       });
     });
 
-    it("should trigger onRetry callback", () => {
+    it('should trigger onRetry callback', () => {
       const retryConfig = mockedAxiosRetry.mock.calls[0]?.[1];
       const onRetry = retryConfig?.onRetry;
 
       const mockError = {
-        message: "Test retry error",
+        message: 'Test retry error',
         isAxiosError: true,
         toJSON: () => ({}),
       } as any;
-      const mockRequestConfig = { url: "https://test.example.com" };
+      const mockRequestConfig = { url: 'https://test.example.com' };
 
       // This covers the onRetry callback execution
       onRetry?.(2, mockError, mockRequestConfig);
@@ -142,8 +142,8 @@ describe("DamApiHttpService", () => {
     });
   });
 
-  describe("makeRequest", () => {
-    it("should make successful POST request", async () => {
+  describe('makeRequest', () => {
+    it('should make successful POST request', async () => {
       mockAxiosInstance.post.mockResolvedValue(testData.response);
 
       const result = await service.makeRequest(testData.url, testData.formData);
@@ -154,40 +154,40 @@ describe("DamApiHttpService", () => {
       expect(mockAxiosInstance.post).toHaveBeenCalledWith(
         testData.url,
         testData.buffer,
-        { headers: { "content-type": "multipart/form-data" } },
+        { headers: { 'content-type': 'multipart/form-data' } },
       );
       expect(result).toEqual(testData.response.data);
     });
 
-    it("should handle formDataToBuffer errors", async () => {
-      const bufferError = new Error("Failed to convert FormData to buffer");
+    it('should handle formDataToBuffer errors', async () => {
+      const bufferError = new Error('Failed to convert FormData to buffer');
       mockDamApiUtilsService.formDataToBuffer.mockRejectedValue(bufferError);
 
       await expect(
         service.makeRequest(testData.url, testData.formData),
-      ).rejects.toThrow("Failed to convert FormData to buffer");
+      ).rejects.toThrow('Failed to convert FormData to buffer');
       expect(mockAxiosInstance.post).not.toHaveBeenCalled();
     });
 
     // Test multiple error types in a parameterized way
     const errorTestCases = [
       {
-        name: "5xx server errors",
-        error: { message: "Internal Server Error", response: { status: 500 } },
+        name: '5xx server errors',
+        error: { message: 'Internal Server Error', response: { status: 500 } },
       },
       {
-        name: "timeout errors",
-        error: { message: "timeout exceeded", code: "ECONNABORTED" },
+        name: 'timeout errors',
+        error: { message: 'timeout exceeded', code: 'ECONNABORTED' },
       },
       {
-        name: "network errors",
-        error: { message: "Network Error", code: "ENOTFOUND" },
+        name: 'network errors',
+        error: { message: 'Network Error', code: 'ENOTFOUND' },
       },
       {
-        name: "4xx client errors",
-        error: { message: "Bad Request", response: { status: 400 } },
+        name: '4xx client errors',
+        error: { message: 'Bad Request', response: { status: 400 } },
       },
-      { name: "unknown errors", error: { message: "Unknown error" } },
+      { name: 'unknown errors', error: { message: 'Unknown error' } },
     ];
 
     errorTestCases.forEach(({ name, error }) => {
@@ -200,14 +200,14 @@ describe("DamApiHttpService", () => {
     });
   });
 
-  describe("makeRequestWithValidation", () => {
+  describe('makeRequestWithValidation', () => {
     const mockValidationFunction = vi.fn();
 
     beforeEach(() => {
       mockValidationFunction.mockClear();
     });
 
-    it("should make request with custom validation function", async () => {
+    it('should make request with custom validation function', async () => {
       mockValidationFunction.mockReturnValue(true);
       mockAxiosInstance.post.mockResolvedValue(testData.validationResponse);
 
@@ -223,9 +223,9 @@ describe("DamApiHttpService", () => {
       expect(mockedAxios.create).toHaveBeenCalledTimes(2); // Once in constructor, once in method
     });
 
-    it("should handle validation errors", async () => {
+    it('should handle validation errors', async () => {
       mockValidationFunction.mockReturnValue(false);
-      const axiosError = new Error("Request failed after retries");
+      const axiosError = new Error('Request failed after retries');
       mockAxiosInstance.post.mockRejectedValue(axiosError);
 
       await expect(
@@ -234,10 +234,10 @@ describe("DamApiHttpService", () => {
           testData.formData,
           mockValidationFunction,
         ),
-      ).rejects.toThrow("Request failed after retries");
+      ).rejects.toThrow('Request failed after retries');
     });
 
-    it("should test validateResponse and onRetry callbacks for custom instance", async () => {
+    it('should test validateResponse and onRetry callbacks for custom instance', async () => {
       mockValidationFunction.mockReturnValue(true);
       mockAxiosInstance.post.mockResolvedValue(testData.validationResponse);
 
@@ -258,7 +258,7 @@ describe("DamApiHttpService", () => {
       const mockAxiosResponse = {
         data: testData.validationResponse.data,
         status: 200,
-        statusText: "OK",
+        statusText: 'OK',
         headers: {},
         config: { headers: {} } as any,
       };
@@ -273,11 +273,11 @@ describe("DamApiHttpService", () => {
       // Test onRetry callback for validation requests
       const onRetryCallback = customRetryConfig?.onRetry;
       const mockError = {
-        message: "Validation retry error",
+        message: 'Validation retry error',
         isAxiosError: true,
         toJSON: () => ({}),
       } as any;
-      const mockRequestConfig = { url: "https://test.example.com/validation" };
+      const mockRequestConfig = { url: 'https://test.example.com/validation' };
 
       onRetryCallback?.(3, mockError, mockRequestConfig);
       expect(onRetryCallback).toBeDefined();
@@ -292,7 +292,7 @@ describe("DamApiHttpService", () => {
       vi.mocked(axiosRetry).isRetryableError = mockIsRetryableError;
 
       const retryError = {
-        message: "Network Error",
+        message: 'Network Error',
         isAxiosError: true,
         toJSON: () => ({}),
       } as any;
@@ -301,31 +301,31 @@ describe("DamApiHttpService", () => {
     });
   });
 
-  describe("file validation integration", () => {
+  describe('file validation integration', () => {
     const validationTestCases = [
       {
-        name: "should validate files correctly for get_resource_all_image_sizes endpoint",
+        name: 'should validate files correctly for get_resource_all_image_sizes endpoint',
         files: [
-          { size_code: "original", path: "/path/original.jpg" },
-          { size_code: "thm", path: "/path/thumb.jpg" },
-          { size_code: "col", path: "/path/col.jpg" },
-          { size_code: "pre", path: "/path/preview.jpg" },
+          { size_code: 'original', path: '/path/original.jpg' },
+          { size_code: 'thm', path: '/path/thumb.jpg' },
+          { size_code: 'col', path: '/path/col.jpg' },
+          { size_code: 'pre', path: '/path/preview.jpg' },
         ],
-        url: "http://example.com/get_resource_all_image_sizes?resource=123",
+        url: 'http://example.com/get_resource_all_image_sizes?resource=123',
         expectedResult: true,
         shouldCallValidate: true,
       },
       {
-        name: "should return false for incomplete file sets",
-        files: [{ size_code: "thm", path: "/path/thumb.jpg" }],
-        url: "http://example.com/get_resource_all_image_sizes?resource=123",
+        name: 'should return false for incomplete file sets',
+        files: [{ size_code: 'thm', path: '/path/thumb.jpg' }],
+        url: 'http://example.com/get_resource_all_image_sizes?resource=123',
         expectedResult: false,
         shouldCallValidate: true,
       },
       {
-        name: "should not validate files for non-get_resource_all_image_sizes endpoints",
-        files: { result: "success" },
-        url: "http://example.com/different_endpoint",
+        name: 'should not validate files for non-get_resource_all_image_sizes endpoints',
+        files: { result: 'success' },
+        url: 'http://example.com/different_endpoint',
         expectedResult: true,
         shouldCallValidate: false,
       },
@@ -339,11 +339,11 @@ describe("DamApiHttpService", () => {
           );
 
           const mockResponse = { status: 200, data: files, config: { url } };
-          const requiredSizeCodes = ["original", "thm", "col", "pre"];
+          const requiredSizeCodes = ['original', 'thm', 'col', 'pre'];
 
           // Simulate validation logic
           if (
-            mockResponse.config.url?.includes("get_resource_all_image_sizes")
+            mockResponse.config.url?.includes('get_resource_all_image_sizes')
           ) {
             const result = mockDamApiUtilsService.validateFileTypes(
               mockResponse.data,

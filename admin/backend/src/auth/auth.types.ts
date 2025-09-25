@@ -1,4 +1,4 @@
-import { ROLE_MODE } from "./auth.constants";
+import { ROLE_MODE } from './auth.constants';
 
 // Role validation modes type
 export type RoleMode = (typeof ROLE_MODE)[keyof typeof ROLE_MODE];

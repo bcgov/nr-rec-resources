@@ -1,4 +1,4 @@
 export const OPEN_STATUS = {
-  DESCRIPTION: "Open",
+  DESCRIPTION: 'Open',
   STATUS_CODE: 1,
 };

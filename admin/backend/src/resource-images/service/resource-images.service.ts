@@ -1,18 +1,18 @@
-import { AppConfigService } from "@/app-config/app-config.service";
-import { DamApiService } from "@/dam-api/dam-api.service";
-import { HttpException, Injectable } from "@nestjs/common";
-import { PrismaService } from "src/prisma.service";
-import { RecreationResourceImageDto } from "../dto/recreation-resource-image.dto";
-import { DamMetadataDto } from "@/dam-api/dto/dam-metadata.dto";
+import { AppConfigService } from '@/app-config/app-config.service';
+import { DamApiService } from '@/dam-api/dam-api.service';
+import { HttpException, Injectable } from '@nestjs/common';
+import { PrismaService } from 'src/prisma.service';
+import { RecreationResourceImageDto } from '../dto/recreation-resource-image.dto';
+import { DamMetadataDto } from '@/dam-api/dto/dam-metadata.dto';
 
 const allowedTypes = [
-  "image/apng",
-  "image/avif",
-  "image/gif",
-  "image/jpeg",
-  "image/png",
-  "image/svg+xml",
-  "image/webp",
+  'image/apng',
+  'image/avif',
+  'image/gif',
+  'image/jpeg',
+  'image/png',
+  'image/svg+xml',
+  'image/webp',
 ];
 
 @Injectable()
@@ -82,7 +82,7 @@ export class ResourceImagesService {
     });
 
     if (result === null) {
-      throw new HttpException("Recreation Resource image not found", 404);
+      throw new HttpException('Recreation Resource image not found', 404);
     }
 
     return this.mapResponse(result);
@@ -94,7 +94,7 @@ export class ResourceImagesService {
     file: Express.Multer.File,
   ): Promise<RecreationResourceImageDto> {
     if (!allowedTypes.includes(file.mimetype)) {
-      throw new HttpException("File Type not allowed", 415);
+      throw new HttpException('File Type not allowed', 415);
     }
     const resource = await this.prisma.recreation_resource.findUnique({
       where: {
@@ -102,7 +102,7 @@ export class ResourceImagesService {
       },
     });
     if (resource === null) {
-      throw new HttpException("Recreation image not found", 404);
+      throw new HttpException('Recreation image not found', 404);
     }
     const metadata: DamMetadataDto = {
       title,
@@ -149,11 +149,11 @@ export class ResourceImagesService {
       },
     });
     if (resource === null) {
-      throw new HttpException("Recreation image not found", 404);
+      throw new HttpException('Recreation image not found', 404);
     }
     if (file) {
       if (!allowedTypes.includes(file.mimetype)) {
-        throw new HttpException("File Type not allowed", 415);
+        throw new HttpException('File Type not allowed', 415);
       }
       await this.damApiService.uploadFile(ref_id, file);
     }
@@ -189,7 +189,7 @@ export class ResourceImagesService {
   }
 
   private getFilePath(originalUrl: string) {
-    return originalUrl.replace(`${this.appConfig.damUrl}`, "");
+    return originalUrl.replace(`${this.appConfig.damUrl}`, '');
   }
 
   private mapResponse(payload: any) {
