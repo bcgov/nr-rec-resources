@@ -123,7 +123,7 @@ resource "aws_iam_role_policy_attachment" "rdsAttach" {
 }
 
 resource "aws_dynamodb_table_item" "iam_user" {
-  table_name = "BCGOV-IAM-USER-TABLE"
+  table_name = "BCGOV_IAM_USER_TABLE"
   hash_key   = "UserName"
 
   item = jsonencode({
