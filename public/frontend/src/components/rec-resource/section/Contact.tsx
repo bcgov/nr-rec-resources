@@ -54,7 +54,7 @@ const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
                         name: `${MATOMO_TRACKING_CATEGORY_CONTACT_PAGE} - ${rec_resource_id}`,
                       })}
                     >
-                      Contact Us
+                      Contact us
                     </Link>
                   </p>
                 </td>

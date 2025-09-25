@@ -7,7 +7,7 @@ export enum SectionTitles {
   THINGS_TO_DO = 'Things to do',
   FACILITIES = 'Facilities',
   CONTACT = 'Contact',
-  KNOW_BEFORE_YOU_GO = 'Know Before You Go',
+  KNOW_BEFORE_YOU_GO = 'Know before you go',
 }
 
 export enum SectionIds {
