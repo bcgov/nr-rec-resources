@@ -10,8 +10,6 @@ import {
 import { isRecreationTrail } from '@/utils/recreationResourceUtils';
 import locationDotOrange from '@/assets/location-dot-orange.png';
 
-const TEXT_SCALE = 1.3;
-
 /**
  * Returns the appropriate icon URL for a given recreation resource.
  * Checks the resource type using utility functions and selects the icon accordingly.
@@ -91,10 +89,11 @@ export const createTextStyle = (
   const textStyle = TEXT_STYLE[styleContext];
   return new Text({
     text: label,
-    placement: isLineType ? 'line' : 'point',
+    font: textStyle.font,
     fill: textStyle.fill,
-    backgroundFill: textStyle.backgroundFill,
     stroke: textStyle.stroke,
+    scale: textStyle.scale,
+    placement: isLineType ? 'line' : 'point',
     textBaseline: isLineType ? 'middle' : 'bottom',
     offsetY: isPoint ? -25 : 0, // Offset label above point
     textAlign: 'center',
@@ -102,6 +101,5 @@ export const createTextStyle = (
     padding: [2, 5, 2, 5],
     rotateWithView: isLineType,
     declutterMode: 'declutter',
-    scale: TEXT_SCALE,
   });
 };
