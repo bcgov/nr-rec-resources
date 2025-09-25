@@ -43,7 +43,7 @@ spec:
                   value: "/uploads"
                 - name: SPRING_JPA_SHOW_SQL
                   value: "false"
-                - name: AWS_LZA_S3_BUCKET
+                - name: AWS_S3_BUCKET
                   value: "{{ .Values.config.awsS3Bucket }}"
                 - name: spring_profiles_active
                   value: "openshift"
