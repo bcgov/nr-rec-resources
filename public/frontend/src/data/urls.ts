@@ -7,6 +7,10 @@ export const EXTERNAL_LINKS = {
   CONTACT: 'https://www.sitesandtrailsbc.ca/contact-us.aspx',
   FACEBOOK_BC_REC: 'https://www.facebook.com/BCRecSitesandTrails',
   CLOSURE: 'https://www.sitesandtrailsbc.ca/closures.aspx',
+  ALERTS:
+    'https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/alerts',
+  ABOUT_RST:
+    'https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails',
   RULES_ETIQUETE:
     'https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/planning/rules',
   AUTHORIZATIONS:

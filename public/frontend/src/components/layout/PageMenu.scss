@@ -13,7 +13,7 @@
     position: sticky;
     position: -webkit-sticky;
     background-color: #fff;
-    z-index: 100;
+    z-index: $zIndexPhotoGallery;
   }
 
   a {
