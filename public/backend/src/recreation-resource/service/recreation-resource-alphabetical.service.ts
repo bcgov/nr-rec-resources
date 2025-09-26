@@ -42,6 +42,7 @@ export class RecreationResourceAlphabeticalService {
       select: {
         rec_resource_id: true,
         name: true,
+        closest_community: true,
         recreation_resource_type_view: {
           select: {
             rec_resource_type_code: true,
@@ -56,6 +57,7 @@ export class RecreationResourceAlphabeticalService {
     return resources.map((resource) => ({
       rec_resource_id: resource.rec_resource_id,
       name: resource.name,
+      closest_community: resource.closest_community,
       recreation_resource_type:
         resource.recreation_resource_type_view[0].description,
       recreation_resource_type_code:

@@ -2,6 +2,7 @@ import { Alert, Spinner } from 'react-bootstrap';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/routes/constants';
 import { AlphabeticalRecreationResourceModel } from '@/service/custom-models';
+import { capitalizeWords } from '@/utils/capitalizeWords';
 import '@/components/alphabetical-list/AlphabeticalList.scss';
 
 interface AlphabeticalListProps {
@@ -62,21 +63,25 @@ export const AlphabeticalList = ({
 
       <ul className="list-unstyled">
         {resources.map((resource) => {
-          const { name } = resource;
-          const formattedName = name.toLowerCase();
+          const {
+            closest_community,
+            name,
+            rec_resource_id,
+            recreation_resource_type,
+          } = resource;
+          const formattedName = capitalizeWords(name);
+          const formattedCommunity = capitalizeWords(closest_community);
+
           return (
             <li key={resource.rec_resource_id} className="mb-2">
               <Link
-                to={ROUTE_PATHS.REC_RESOURCE.replace(
-                  ':id',
-                  resource.rec_resource_id,
-                )}
+                to={ROUTE_PATHS.REC_RESOURCE.replace(':id', rec_resource_id)}
                 className="text-decoration-none"
               >
                 {formattedName}
               </Link>
-              <span className="text-muted ms-2">
-                {resource.recreation_resource_type}
+              <span className="text-muted">
+                {formattedCommunity} | {recreation_resource_type}
               </span>
             </li>
           );

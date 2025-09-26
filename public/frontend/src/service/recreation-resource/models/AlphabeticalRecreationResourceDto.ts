@@ -43,6 +43,12 @@ export interface AlphabeticalRecreationResourceDto {
    * @memberof AlphabeticalRecreationResourceDto
    */
   recreation_resource_type_code: string;
+  /**
+   * Closest community to the Recreation Resource
+   * @type {string}
+   * @memberof AlphabeticalRecreationResourceDto
+   */
+  closest_community: string;
 }
 
 /**
@@ -62,6 +68,11 @@ export function instanceOfAlphabeticalRecreationResourceDto(
   if (
     !('recreation_resource_type_code' in value) ||
     value['recreation_resource_type_code'] === undefined
+  )
+    return false;
+  if (
+    !('closest_community' in value) ||
+    value['closest_community'] === undefined
   )
     return false;
   return true;
@@ -85,6 +96,7 @@ export function AlphabeticalRecreationResourceDtoFromJSONTyped(
     name: json['name'],
     recreation_resource_type: json['recreation_resource_type'],
     recreation_resource_type_code: json['recreation_resource_type_code'],
+    closest_community: json['closest_community'],
   };
 }
 
@@ -107,5 +119,6 @@ export function AlphabeticalRecreationResourceDtoToJSONTyped(
     name: value['name'],
     recreation_resource_type: value['recreation_resource_type'],
     recreation_resource_type_code: value['recreation_resource_type_code'],
+    closest_community: value['closest_community'],
   };
 }

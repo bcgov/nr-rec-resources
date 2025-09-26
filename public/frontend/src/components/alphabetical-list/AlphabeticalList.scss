@@ -1,4 +1,7 @@
 @import '@/styles/variables.scss';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins/_breakpoints';
 
 .alphabetical-resource-list {
   ul {
@@ -8,11 +11,16 @@
   }
 
   li {
+    display: flex;
+    flex-direction: column;
     margin-bottom: 0.5rem;
+
+    @include media-breakpoint-up(sm) {
+      display: block;
+    }
 
     a {
       text-decoration: none;
-      text-transform: capitalize;
 
       &:hover {
         text-decoration: underline;
@@ -21,6 +29,10 @@
 
     .text-muted {
       font-size: 0.875rem;
+
+      @include media-breakpoint-up(sm) {
+        margin-left: 0.5rem;
+      }
     }
   }
 }

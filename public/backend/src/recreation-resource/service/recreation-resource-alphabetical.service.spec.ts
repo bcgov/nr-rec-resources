@@ -37,6 +37,7 @@ describe('RecreationResourceAlphabeticalService', () => {
     const mockResource = {
       rec_resource_id: 'REC001',
       name: 'Alpine Trail',
+      closest_community: 'Merritt',
       recreation_resource_type_view: [
         {
           rec_resource_type_code: 'TRAIL',
@@ -48,6 +49,7 @@ describe('RecreationResourceAlphabeticalService', () => {
     const expectedResource: AlphabeticalRecreationResourceDto = {
       rec_resource_id: 'REC001',
       name: 'Alpine Trail',
+      closest_community: 'Merritt',
       recreation_resource_type: 'Trail',
       recreation_resource_type_code: 'TRAIL',
     };
@@ -70,6 +72,7 @@ describe('RecreationResourceAlphabeticalService', () => {
         select: {
           rec_resource_id: true,
           name: true,
+          closest_community: true,
           recreation_resource_type_view: {
             select: { rec_resource_type_code: true, description: true },
           },
@@ -134,6 +137,7 @@ describe('RecreationResourceAlphabeticalService', () => {
         select: {
           rec_resource_id: true,
           name: true,
+          closest_community: true,
           recreation_resource_type_view: {
             select: { rec_resource_type_code: true, description: true },
           },

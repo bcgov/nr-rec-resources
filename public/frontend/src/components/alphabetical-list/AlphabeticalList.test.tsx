@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@/test-utils';
+import { render, screen, fireEvent, within } from '@/test-utils';
 import { AlphabeticalList } from './AlphabeticalList';
 import { AlphabeticalRecreationResourceModel } from '@/service/custom-models';
 
@@ -19,18 +19,21 @@ const mockResources: AlphabeticalRecreationResourceModel[] = [
   {
     rec_resource_id: '1',
     name: 'Abhau Lake',
+    closest_community: 'VERNON',
     recreation_resource_type: 'Recreation Site',
     recreation_resource_type_code: 'SIT',
   },
   {
     rec_resource_id: '2',
     name: 'Aileen Lake',
+    closest_community: 'MERRITT',
     recreation_resource_type: 'Trail',
     recreation_resource_type_code: 'RTR',
   },
   {
     rec_resource_id: '3',
     name: 'Abbott Creek',
+    closest_community: 'PRINCE GEORGE',
     recreation_resource_type: 'Recreation Site',
     recreation_resource_type_code: 'SIT',
   },
@@ -85,10 +88,9 @@ describe('AlphabeticalList', () => {
       />,
     );
 
-    // Names are in lowercase as we use CSS text-transform: capitalize for all caps edge case names
-    expect(screen.getByText('abhau lake')).toBeInTheDocument();
-    expect(screen.getByText('aileen lake')).toBeInTheDocument();
-    expect(screen.getByText('abbott creek')).toBeInTheDocument();
+    expect(screen.getByText('Abhau Lake')).toBeInTheDocument();
+    expect(screen.getByText('Aileen Lake')).toBeInTheDocument();
+    expect(screen.getByText('Abbott Creek')).toBeInTheDocument();
   });
 
   it('renders resource types for each resource', () => {
@@ -100,8 +102,33 @@ describe('AlphabeticalList', () => {
       />,
     );
 
-    expect(screen.getAllByText('Recreation Site')).toHaveLength(2);
-    expect(screen.getByText('Trail')).toBeInTheDocument();
+    const listItems = screen.getAllByRole('listitem');
+
+    expect(listItems).toHaveLength(3);
+
+    expect(
+      within(listItems[0]).getByText(/Recreation Site/),
+    ).toBeInTheDocument();
+    expect(within(listItems[1]).getByText(/Trail/)).toBeInTheDocument();
+    expect(
+      within(listItems[2]).getByText(/Recreation Site/),
+    ).toBeInTheDocument();
+  });
+
+  it('renders closest community for each resource', () => {
+    render(
+      <AlphabeticalList
+        resources={mockResources}
+        isLoading={false}
+        selectedLetter="A"
+      />,
+    );
+
+    const listItems = screen.getAllByRole('listitem');
+
+    expect(within(listItems[0]).getByText(/Vernon/)).toBeInTheDocument();
+    expect(within(listItems[1]).getByText(/Merritt/)).toBeInTheDocument();
+    expect(within(listItems[2]).getByText(/Prince George/)).toBeInTheDocument();
   });
 
   describe('type filter functionality', () => {

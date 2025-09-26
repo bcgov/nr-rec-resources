@@ -52,7 +52,6 @@ export interface GetSiteOperatorByIdRequest {
 }
 
 export interface SearchRecreationResourcesRequest {
-  fees?: string;
   filter?: string;
   limit?: number;
   page?: number;
@@ -62,6 +61,7 @@ export interface SearchRecreationResourcesRequest {
   access?: string;
   facilities?: string;
   status?: string;
+  fees?: string;
   lat?: number;
   lon?: number;
 }
@@ -364,7 +364,7 @@ export class RecreationResourceApi extends runtime.BaseAPI {
    * Search recreation resources
    */
   async searchRecreationResources(
-    requestParameters: SearchRecreationResourcesRequest,
+    requestParameters: SearchRecreationResourcesRequest = {},
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<PaginatedRecreationResourceDto> {
     const response = await this.searchRecreationResourcesRaw(
