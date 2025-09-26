@@ -35,7 +35,7 @@ const RecResourceReservation: React.FC<RecResourceReservationProps> = ({
                 width={24}
               />{' '}
               <div>
-                <span>This site is reservable through our site operator.</span>{' '}
+                <span>Reservations available through site operator.</span>{' '}
                 <br />
                 <span className="note">
                   *Please note that Recreation Sites and Trails do not manage

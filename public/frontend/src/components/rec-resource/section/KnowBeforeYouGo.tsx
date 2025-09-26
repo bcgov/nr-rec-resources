@@ -36,7 +36,7 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
                 <img src={cash} alt="Cash Only icon" height={40} width={40} />
               </div>
               <div className="col-sm">
-                <p className="small-tittle">Bring Cash</p>
+                <p className="small-tittle">Bring cash</p>
                 <p>
                   Most sites operate on a cash-only basis, and fees are often
                   collected directly by site operators unless you have paid
@@ -120,10 +120,6 @@ const KnowBeforeYouGo: React.FC<KnowBeforeYouGoProps> = ({
               of many of our rec sites.
             </p>
           </div>
-        </div>
-        <div className="info-box">
-          Review the detailed guides under visit responsibly for more
-          information on staying safe and preserving natural spaces
         </div>
         <h3>Visit responsibly</h3>
         <p>
