@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@/test-utils';
+import { render, screen, fireEvent, within } from '@/test-utils';
 import { AlphabeticalList } from './AlphabeticalList';
 import { AlphabeticalRecreationResourceModel } from '@/service/custom-models';
 
@@ -88,7 +88,6 @@ describe('AlphabeticalList', () => {
       />,
     );
 
-    // Names are properly capitalized using capitalizeWords utility
     expect(screen.getByText('Abhau Lake')).toBeInTheDocument();
     expect(screen.getByText('Aileen Lake')).toBeInTheDocument();
     expect(screen.getByText('Abbott Creek')).toBeInTheDocument();
@@ -103,8 +102,17 @@ describe('AlphabeticalList', () => {
       />,
     );
 
-    expect(screen.getAllByText('Recreation Site')).toHaveLength(2);
-    expect(screen.getByText('Trail')).toBeInTheDocument();
+    const listItems = screen.getAllByRole('listitem');
+
+    expect(listItems).toHaveLength(3);
+
+    expect(
+      within(listItems[0]).getByText(/Recreation Site/),
+    ).toBeInTheDocument();
+    expect(within(listItems[1]).getByText(/Trail/)).toBeInTheDocument();
+    expect(
+      within(listItems[2]).getByText(/Recreation Site/),
+    ).toBeInTheDocument();
   });
 
   it('renders closest community for each resource', () => {
@@ -116,10 +124,11 @@ describe('AlphabeticalList', () => {
       />,
     );
 
-    // Communities are properly capitalized using capitalizeWords utility
-    expect(screen.getByText('Vernon')).toBeInTheDocument();
-    expect(screen.getByText('Merritt')).toBeInTheDocument();
-    expect(screen.getByText('Prince George')).toBeInTheDocument();
+    const listItems = screen.getAllByRole('listitem');
+
+    expect(within(listItems[0]).getByText(/Vernon/)).toBeInTheDocument();
+    expect(within(listItems[1]).getByText(/Merritt/)).toBeInTheDocument();
+    expect(within(listItems[2]).getByText(/Prince George/)).toBeInTheDocument();
   });
 
   describe('type filter functionality', () => {
