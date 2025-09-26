@@ -23,7 +23,7 @@ describe('Contact component', () => {
     clientNumber: '0001',
     clientStatusCode: 'ACT',
     clientTypeCode: 'C',
-    legalFirstName: '',
+    legalFirstName: 'FIRSTNAME',
     legalMiddleName: '',
   };
 
@@ -130,7 +130,7 @@ describe('Contact component', () => {
     };
 
     renderContact({ siteOperator: operatorWithLowercase });
-    const operatorName = screen.getByText('Test Operator Name');
+    const operatorName = screen.getByText('Firstname Test Operator Name');
     expect(operatorName).toBeInTheDocument();
   });
 });
