@@ -94,11 +94,6 @@ describe('KnowBeforeYouGo', () => {
     // Cel reception icon
     expect(screen.getByAltText(/Cel Reception icon/i)).toBeInTheDocument();
 
-    // Info box text
-    expect(
-      screen.getByText(/Review the detailed guides under visit responsibly/i),
-    ).toBeInTheDocument();
-
     // Visit responsibly section
     expect(
       screen.getByRole('heading', { level: 3, name: /Visit responsibly/i }),

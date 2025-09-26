@@ -102,7 +102,7 @@ describe('RecResourceReservation', () => {
     );
 
     expect(
-      screen.getByText(/This site is reservable through our site operator/i),
+      screen.getByText(/Reservations available through site operator./i),
     ).toBeInTheDocument();
     expect(screen.getByTestId('reservation-button-link')).toHaveTextContent(
       'https://example.com',
