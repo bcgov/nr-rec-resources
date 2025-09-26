@@ -24,4 +24,10 @@ export class AlphabeticalRecreationResourceDto {
     example: 'SIT',
   })
   recreation_resource_type_code: string;
+
+  @ApiProperty({
+    description: 'Closest community to the Recreation Resource',
+    example: 'Merritt',
+  })
+  closest_community: string;
 }
