@@ -17,7 +17,7 @@ interface SiteOperatorProps {
 const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
   ({ siteOperator, error, isLoading, refetchData, rec_resource_id }, ref) => {
     const formattedName =
-      `${siteOperator?.legalFirstName && siteOperator?.legalFirstName !== '' && siteOperator.legalFirstName + ' '}${siteOperator?.clientName}`
+      `${Boolean(siteOperator?.legalFirstName) && siteOperator?.legalFirstName !== '' ? siteOperator?.legalFirstName + ' ' : ''}${siteOperator?.clientName}`
         .toLowerCase()
         .replace(/(^\w|\s\w)/g, (m) => m.toUpperCase());
 
