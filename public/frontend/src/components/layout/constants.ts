@@ -18,18 +18,18 @@ export const HEADER_LINKS: HeaderLink[] = [
     isExternal: false,
   },
   {
-    url: EXTERNAL_LINKS.LEGACY_SITE,
-    label: 'Legacy site',
+    url: EXTERNAL_LINKS.ALERTS,
+    label: 'Alerts',
     isExternal: true,
   },
   {
     url: EXTERNAL_LINKS.ABOUT_RST,
-    label: 'About Recreation Sites and Trails',
+    label: 'About',
     isExternal: true,
   },
   {
-    url: EXTERNAL_LINKS.ALERTS,
-    label: 'Alerts',
+    url: EXTERNAL_LINKS.LEGACY_SITE,
+    label: 'Legacy site',
     isExternal: true,
   },
 ];
