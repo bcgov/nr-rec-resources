@@ -497,32 +497,4 @@ describe('RecResourcePage', () => {
       );
     });
   });
-
-  describe('RecResourcePage - Recreation Site Info Alert', () => {
-    test.each([
-      {
-        name: "shows InfoAlert when rec_resource_type is 'Recreation site'",
-        rec_resource_type: 'Recreation site',
-      },
-      {
-        name: "does not show InfoAlert when rec_resource_type is not 'Recreation site'",
-        rec_resource_type: 'Recreation trail',
-      },
-      {
-        name: 'does not show InfoAlert when rec_resource_type is undefined',
-        rec_resource_type: undefined,
-      },
-    ])('$name', async ({ rec_resource_type }: any) => {
-      await renderComponent({
-        ...mockResource,
-        rec_resource_type,
-      });
-
-      if (rec_resource_type === 'Recreation site') {
-        expect(screen.getByRole('alert')).toBeInTheDocument();
-      } else {
-        expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-      }
-    });
-  });
 });

@@ -14,7 +14,6 @@ import {
   SiteDescription,
   ThingsToDo,
 } from '@/components/rec-resource/section';
-import InfoAlert from '@/components/notifications/InfoAlert';
 import Status from '@/components/rec-resource/Status';
 import {
   PageSection,
@@ -259,14 +258,6 @@ const RecResourcePage = () => {
               let refIndex = 0; // Track which ref to use for each visible section
               return (
                 <div className="rec-content-container">
-                  {isRecreationSite && (
-                    <InfoAlert>
-                      Most recreation sites are available on a first-come,
-                      first-served basis and cannot be booked ahead of time. A
-                      limited number of fee-based sites may offer reservations,
-                      check below for details.
-                    </InfoAlert>
-                  )}
                   {isClosures && (
                     <Closures
                       comment={statusComment}
