@@ -4,15 +4,18 @@
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/mixins/_breakpoints';
 
+#header {
+  position: relative;
+}
+
 .header-nav {
   @extend .page;
   position: relative;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
+  justify-content: space-between;
   margin: 0px auto;
   padding: 0.5rem 1rem;
-  justify-content: space-between;
 
   @include media-breakpoint-up(sm) {
     height: 96px;
@@ -25,11 +28,13 @@
   }
 
   &.sub {
+    display: none;
     background-color: $colorBlueMed;
     justify-content: flex-start;
+    height: 40px;
 
-    @include media-breakpoint-up(sm) {
-      height: 40px;
+    @include media-breakpoint-up(md) {
+      display: flex;
     }
 
     & a {
@@ -47,6 +52,13 @@
     @include media-breakpoint-up(sm) {
       height: 64px;
     }
+  }
+
+  .header-actions {
+    max-width: fit-content;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
   }
 
   .header-feedback-btn {

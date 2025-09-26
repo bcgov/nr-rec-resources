@@ -9,7 +9,7 @@
   left: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 999;
+  z-index: $zIndexMapOverlay;
   overflow: hidden;
   background-color: white;
 
@@ -46,7 +46,7 @@
 
 .search-map-controls {
   position: fixed;
-  top: 106px;
+  top: 64px;
   left: 0;
   right: 0;
   margin: 0 auto;
@@ -55,12 +55,12 @@
   max-width: none;
   display: flex;
   flex-direction: column;
-  z-index: 10000;
+  z-index: $zIndexMapControls;
   border-radius: 4px;
   transform: none;
 
   @include media-breakpoint-up(sm) {
-    top: 192px;
+    top: 96px;
   }
 
   // Collapse and center on larger screens

@@ -14,7 +14,7 @@
     left: 50%;
     transform: translate(-50%, -50%);
     background-color: $colorBlueMed;
-    z-index: 10;
+    z-index: $zIndexFooter;
     width: calc(100% - 2rem);
     height: $landAckBoxHeight;
 
