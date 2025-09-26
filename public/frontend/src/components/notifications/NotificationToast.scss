@@ -6,7 +6,7 @@
   min-height: 100px;
   position: fixed;
   right: calc(50% - 150px);
-  z-index: 1000;
+  z-index: $zIndexNotification;
   border: none;
   border-radius: 0;
   box-shadow: 0px 4px 8px 0px rgba($colorBlack, 0.2);

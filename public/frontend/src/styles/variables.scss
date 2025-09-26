@@ -1,1 +1,25 @@
 @import '@shared/styles/variables';
+
+// Z-Index Variables - organized by layer hierarchy
+
+// Base layers (content)
+$zIndexBase: 0;
+$zIndexContent: 1;
+
+// Overlay layers
+$zIndexFooter: 10;
+$zIndexFormOverlay: 10;
+$zIndexPhotoGallery: 100;
+$zIndexScrollToTop: 100;
+
+// Modal and notification layers
+$zIndexMapOverlay: 999;
+$zIndexModal: 1000;
+$zIndexNotification: 1000;
+
+// Top-level controls
+$zIndexMapControls: 1200;
+$zIndexFilterMenu: 1200;
+
+// Navigation layers
+$zIndexHamburgerMenu: 1300;

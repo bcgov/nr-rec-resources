@@ -1,15 +1,36 @@
-import RSTLogo from '@/images/RST_nav_logo.svg';
-import '@/components/layout/Header.scss';
-import BetaBanner from './BetaBanner';
-import { Button, Stack } from 'react-bootstrap';
-import { trackClickEvent } from '@/utils/matomo';
-import { ROUTE_PATHS } from '@/routes';
-import { EXTERNAL_LINKS } from '@/data/urls';
+import { useState, useRef } from 'react';
+import { Link } from 'react-router';
+import { Stack } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLink } from '@fortawesome/free-solid-svg-icons';
-import { Link } from 'react-router';
+import RSTLogo from '@/images/RST_nav_logo.svg';
+import BetaBanner from '@/components/layout/BetaBanner';
+import HamburgerButton from '@/components/layout/HamburgerButton';
+import NavigationDrawer from '@/components/layout/NavigationDrawer';
+import { trackClickEvent } from '@/utils/matomo';
+import { ROUTE_PATHS } from '@/routes';
+import { HEADER_LINKS } from '@/components/layout/constants';
+import '@/components/layout/Header.scss';
 
 const Header = () => {
+  const [isHamburgerMenuOpen, setIsHamburgerMenuOpen] = useState(false);
+  const hamburgerButtonRef = useRef<HTMLButtonElement>(null);
+
+  const handleHeaderLinkClick = (linkLabel: string) => {
+    trackClickEvent({
+      category: 'Header Navigation',
+      name: `Sub Header - ${linkLabel}`,
+    });
+  };
+
+  const handleHamburgerMenuToggle = () => {
+    setIsHamburgerMenuOpen(!isHamburgerMenuOpen);
+  };
+
+  const handleHamburgerMenuClose = () => {
+    setIsHamburgerMenuOpen(false);
+  };
+
   return (
     <header id="header">
       <BetaBanner />
@@ -24,19 +45,13 @@ const Header = () => {
               />
             </Link>
           </div>
-          <Button
-            href={EXTERNAL_LINKS.FEEDBACK_FORM}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Share your feedback (opens in a new tab)"
-            className="header-feedback-btn"
-            onClick={trackClickEvent({
-              category: 'Feedback',
-              name: 'Beta Banner Feedback Button - mobile',
-            })}
-          >
-            Share feedback
-          </Button>
+          <div className="header-actions">
+            <HamburgerButton
+              ref={hamburgerButtonRef}
+              isOpen={isHamburgerMenuOpen}
+              onToggle={handleHamburgerMenuToggle}
+            />
+          </div>
         </nav>
       </div>
       <div className="page-nav-container sub">
@@ -44,21 +59,39 @@ const Header = () => {
           aria-label="Secondary header site navigation"
           className="header-nav sub"
         >
-          <Stack direction="horizontal" gap={3}>
-            <Link to="/search">Find a site or trail</Link>
-            <a
-              href={EXTERNAL_LINKS.LEGACY_SITE}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              <Stack direction={'horizontal'} gap={1}>
-                Legacy site
-                <FontAwesomeIcon icon={faExternalLink} />
-              </Stack>
-            </a>
+          <Stack direction="horizontal" gap={4}>
+            {HEADER_LINKS.map((link, index) => (
+              <div key={index}>
+                {link.isExternal ? (
+                  <a
+                    href={link.url}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    onClick={() => handleHeaderLinkClick(link.label)}
+                  >
+                    <Stack direction={'horizontal'} gap={1}>
+                      {link.label}
+                      <FontAwesomeIcon icon={faExternalLink} />
+                    </Stack>
+                  </a>
+                ) : (
+                  <Link
+                    to={link.url}
+                    onClick={() => handleHeaderLinkClick(link.label)}
+                  >
+                    {link.label}
+                  </Link>
+                )}
+              </div>
+            ))}
           </Stack>
         </nav>
       </div>
+      <NavigationDrawer
+        isOpen={isHamburgerMenuOpen}
+        onClose={handleHamburgerMenuClose}
+        buttonRef={hamburgerButtonRef}
+      />
     </header>
   );
 };
