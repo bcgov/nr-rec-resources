@@ -181,6 +181,20 @@
         "comments": "<p>Indicates the type of remedial repair applicable to the defined campsite.<\/p>"
     },
     {
+        "tableName": "recreation_resource_district_count_view",
+        "tableFileName": "recreation_resource_district_count_view",
+        "tableType": "View",
+        "keyClass": "",
+        "keyTitle": "",
+        "name": "description",
+        "type": "varchar",
+        "length": 120,
+        "nullable": "√",
+        "autoUpdated": "",
+        "defaultValue": "null",
+        "comments": ""
+    },
+    {
         "tableName": "recreation_resource_reservation_info",
         "tableFileName": "recreation_resource_reservation_info",
         "tableType": "Table",
@@ -321,8 +335,8 @@
         "comments": ""
     },
     {
-        "tableName": "recreation_status",
-        "tableFileName": "recreation_status",
+        "tableName": "recreation_site_point",
+        "tableFileName": "recreation_site_point",
         "tableType": "Table",
         "keyClass": "",
         "keyTitle": "",
@@ -517,14 +531,14 @@
         "comments": "<p>The effective date of the Controlled Access Code for a rec resource.<\/p>"
     },
     {
-        "tableName": "recreation_resource_type_view",
-        "tableFileName": "recreation_resource_type_view",
+        "tableName": "recreation_resource_search_view",
+        "tableFileName": "recreation_resource_search_view",
         "tableType": "View",
         "keyClass": "",
         "keyTitle": "",
-        "name": "rec_resource_type_code",
-        "type": "varchar",
-        "length": 2147483647,
+        "name": "is_reservable",
+        "type": "bool",
+        "length": 1,
         "nullable": "√",
         "autoUpdated": "",
         "defaultValue": "null",
@@ -587,6 +601,20 @@
         "comments": "<p>The Controlled Access Code for a rec resource. E.g. \u201cGated\u201d, \u201cRestricted Use\u201d.<\/p>"
     },
     {
+        "tableName": "recreation_resource_district_count_view",
+        "tableFileName": "recreation_resource_district_count_view",
+        "tableType": "View",
+        "keyClass": "",
+        "keyTitle": "",
+        "name": "resource_count",
+        "type": "int8",
+        "length": 19,
+        "nullable": "√",
+        "autoUpdated": "",
+        "defaultValue": "null",
+        "comments": ""
+    },
+    {
         "tableName": "recreation_resource_reservation_info_history",
         "tableFileName": "recreation_resource_reservation_a9ca4bba",
         "tableType": "Table",
@@ -629,14 +657,14 @@
         "comments": ""
     },
     {
-        "tableName": "recreation_resource_district_count_view",
-        "tableFileName": "recreation_resource_district_count_view",
+        "tableName": "recreation_resource_access_count_view",
+        "tableFileName": "recreation_resource_access_count_view",
         "tableType": "View",
         "keyClass": "",
         "keyTitle": "",
-        "name": "description",
-        "type": "varchar",
-        "length": 120,
+        "name": "count",
+        "type": "int8",
+        "length": 19,
         "nullable": "√",
         "autoUpdated": "",
         "defaultValue": "null",
@@ -699,8 +727,8 @@
         "comments": ""
     },
     {
-        "tableName": "recreation_site_point",
-        "tableFileName": "recreation_site_point",
+        "tableName": "recreation_status",
+        "tableFileName": "recreation_status",
         "tableType": "Table",
         "keyClass": "",
         "keyTitle": "",
@@ -797,18 +825,18 @@
         "comments": ""
     },
     {
-        "tableName": "recreation_site_point",
-        "tableFileName": "recreation_site_point",
+        "tableName": "recreation_status",
+        "tableFileName": "recreation_status",
         "tableType": "Table",
         "keyClass": "",
         "keyTitle": "",
-        "name": "revision_count",
-        "type": "int4",
-        "length": 10,
-        "nullable": "√",
+        "name": "comment",
+        "type": "varchar",
+        "length": 5000,
+        "nullable": "",
         "autoUpdated": "",
         "defaultValue": "null",
-        "comments": "<p>A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user&quot;s web browser is the most current.<\/p>"
+        "comments": ""
     },
     {
         "tableName": "recreation_activity",
@@ -867,8 +895,8 @@
         "comments": ""
     },
     {
-        "tableName": "recreation_site_point",
-        "tableFileName": "recreation_site_point",
+        "tableName": "recreation_status",
+        "tableFileName": "recreation_status",
         "tableType": "Table",
         "keyClass": "",
         "keyTitle": "",
@@ -1539,14 +1567,14 @@
         "comments": ""
     },
     {
-        "tableName": "recreation_resource_access_count_view",
-        "tableFileName": "recreation_resource_access_count_view",
+        "tableName": "recreation_resource_type_count_view",
+        "tableFileName": "recreation_resource_type_count_view",
         "tableType": "View",
         "keyClass": "",
         "keyTitle": "",
-        "name": "access_description",
-        "type": "varchar",
-        "length": 120,
+        "name": "count",
+        "type": "int8",
+        "length": 19,
         "nullable": "√",
         "autoUpdated": "",
         "defaultValue": "null",
@@ -1623,18 +1651,18 @@
         "comments": ""
     },
     {
-        "tableName": "recreation_site_point",
-        "tableFileName": "recreation_site_point",
+        "tableName": "recreation_status",
+        "tableFileName": "recreation_status",
         "tableType": "Table",
         "keyClass": "primaryKey",
         "keyTitle": "Primary Key",
         "name": "<i class='icon ion-key iconkey' style='padding-left: 5px;'><\/i>rec_resource_id",
         "type": "varchar",
-        "length": 10,
+        "length": 200,
         "nullable": "",
         "autoUpdated": "",
         "defaultValue": "null",
-        "comments": "<p>Identification manually assigned to a Recreation Resource.<\/p>"
+        "comments": ""
     },
     {
         "tableName": "recreation_resource_docs",
@@ -1735,14 +1763,14 @@
         "comments": "<p>Identifies the Recreation Resource Type Code<\/p>"
     },
     {
-        "tableName": "recreation_resource_type_view",
-        "tableFileName": "recreation_resource_type_view",
+        "tableName": "recreation_resource_search_view",
+        "tableFileName": "recreation_resource_search_view",
         "tableType": "View",
-        "keyClass": "foreignKey",
-        "keyTitle": "Foreign Key",
-        "name": "<i class='icon ion-key iconkey' style='padding-left: 5px;'><\/i>rec_resource_id",
-        "type": "varchar",
-        "length": 20,
+        "keyClass": "",
+        "keyTitle": "",
+        "name": "is_fees",
+        "type": "bool",
+        "length": 1,
         "nullable": "√",
         "autoUpdated": "",
         "defaultValue": "null",
@@ -1752,11 +1780,11 @@
         "tableName": "recreation_resource_district_count_view",
         "tableFileName": "recreation_resource_district_count_view",
         "tableType": "View",
-        "keyClass": "",
-        "keyTitle": "",
-        "name": "resource_count",
-        "type": "int8",
-        "length": 19,
+        "keyClass": "foreignKey",
+        "keyTitle": "Foreign Key",
+        "name": "<i class='icon ion-key iconkey' style='padding-left: 5px;'><\/i>district_code",
+        "type": "varchar",
+        "length": 4,
         "nullable": "√",
         "autoUpdated": "",
         "defaultValue": "null",
@@ -2314,9 +2342,9 @@
         "tableType": "View",
         "keyClass": "",
         "keyTitle": "",
-        "name": "count",
-        "type": "int8",
-        "length": 19,
+        "name": "rec_resource_type_code",
+        "type": "varchar",
+        "length": 2147483647,
         "nullable": "√",
         "autoUpdated": "",
         "defaultValue": "null",
@@ -2477,8 +2505,8 @@
         "comments": ""
     },
     {
-        "tableName": "recreation_site_point",
-        "tableFileName": "recreation_site_point",
+        "tableName": "recreation_status",
+        "tableFileName": "recreation_status",
         "tableType": "Table",
         "keyClass": "",
         "keyTitle": "",
@@ -2561,8 +2589,8 @@
         "comments": ""
     },
     {
-        "tableName": "recreation_resource_type_count_view",
-        "tableFileName": "recreation_resource_type_count_view",
+        "tableName": "recreation_resource_type_view",
+        "tableFileName": "recreation_resource_type_view",
         "tableType": "View",
         "keyClass": "",
         "keyTitle": "",
@@ -2729,18 +2757,18 @@
         "comments": ""
     },
     {
-        "tableName": "recreation_site_point",
-        "tableFileName": "recreation_site_point",
+        "tableName": "recreation_status",
+        "tableFileName": "recreation_status",
         "tableType": "Table",
-        "keyClass": "",
-        "keyTitle": "",
-        "name": "geometry",
-        "type": "geometry",
-        "length": 2147483647,
-        "nullable": "√",
+        "keyClass": "foreignKey",
+        "keyTitle": "Foreign Key",
+        "name": "<i class='icon ion-key iconkey' style='padding-left: 5px;'><\/i>status_code",
+        "type": "int4",
+        "length": 10,
+        "nullable": "",
         "autoUpdated": "",
         "defaultValue": "null",
-        "comments": "<p>A point geometry location represented by a single X,Y pair<\/p>"
+        "comments": ""
     },
     {
         "tableName": "recreation_district_code",
@@ -2981,8 +3009,8 @@
         "comments": ""
     },
     {
-        "tableName": "recreation_status",
-        "tableFileName": "recreation_status",
+        "tableName": "recreation_site_point",
+        "tableFileName": "recreation_site_point",
         "tableType": "Table",
         "keyClass": "",
         "keyTitle": "",
@@ -3429,8 +3457,8 @@
         "comments": ""
     },
     {
-        "tableName": "recreation_status",
-        "tableFileName": "recreation_status",
+        "tableName": "recreation_site_point",
+        "tableFileName": "recreation_site_point",
         "tableType": "Table",
         "keyClass": "",
         "keyTitle": "",
@@ -3457,14 +3485,14 @@
         "comments": ""
     },
     {
-        "tableName": "recreation_resource_district_count_view",
-        "tableFileName": "recreation_resource_district_count_view",
+        "tableName": "recreation_resource_access_count_view",
+        "tableFileName": "recreation_resource_access_count_view",
         "tableType": "View",
-        "keyClass": "foreignKey",
-        "keyTitle": "Foreign Key",
-        "name": "<i class='icon ion-key iconkey' style='padding-left: 5px;'><\/i>district_code",
+        "keyClass": "",
+        "keyTitle": "",
+        "name": "access_description",
         "type": "varchar",
-        "length": 4,
+        "length": 120,
         "nullable": "√",
         "autoUpdated": "",
         "defaultValue": "null",
@@ -4479,18 +4507,18 @@
         "comments": "<p>The timestamp of the last update to the road section record.<\/p>"
     },
     {
-        "tableName": "recreation_status",
-        "tableFileName": "recreation_status",
+        "tableName": "recreation_site_point",
+        "tableFileName": "recreation_site_point",
         "tableType": "Table",
         "keyClass": "",
         "keyTitle": "",
-        "name": "comment",
-        "type": "varchar",
-        "length": 5000,
-        "nullable": "",
+        "name": "revision_count",
+        "type": "int4",
+        "length": 10,
+        "nullable": "√",
         "autoUpdated": "",
         "defaultValue": "null",
-        "comments": ""
+        "comments": "<p>A count of the number of times an entry in the entity has been modified. Used to validate if the current information displayed on a user&quot;s web browser is the most current.<\/p>"
     },
     {
         "tableName": "recreation_access",
@@ -5039,18 +5067,18 @@
         "comments": ""
     },
     {
-        "tableName": "recreation_status",
-        "tableFileName": "recreation_status",
+        "tableName": "recreation_site_point",
+        "tableFileName": "recreation_site_point",
         "tableType": "Table",
-        "keyClass": "foreignKey",
-        "keyTitle": "Foreign Key",
-        "name": "<i class='icon ion-key iconkey' style='padding-left: 5px;'><\/i>status_code",
-        "type": "int4",
-        "length": 10,
-        "nullable": "",
+        "keyClass": "",
+        "keyTitle": "",
+        "name": "geometry",
+        "type": "geometry",
+        "length": 2147483647,
+        "nullable": "√",
         "autoUpdated": "",
         "defaultValue": "null",
-        "comments": ""
+        "comments": "<p>A point geometry location represented by a single X,Y pair<\/p>"
     },
     {
         "tableName": "recreation_resource_search_view",
@@ -5882,11 +5910,11 @@
         "tableName": "recreation_resource_type_view",
         "tableFileName": "recreation_resource_type_view",
         "tableType": "View",
-        "keyClass": "",
-        "keyTitle": "",
-        "name": "description",
+        "keyClass": "foreignKey",
+        "keyTitle": "Foreign Key",
+        "name": "<i class='icon ion-key iconkey' style='padding-left: 5px;'><\/i>rec_resource_id",
         "type": "varchar",
-        "length": 200,
+        "length": 20,
         "nullable": "√",
         "autoUpdated": "",
         "defaultValue": "null",
@@ -6050,11 +6078,11 @@
         "tableName": "recreation_resource_access_count_view",
         "tableFileName": "recreation_resource_access_count_view",
         "tableType": "View",
-        "keyClass": "",
-        "keyTitle": "",
-        "name": "count",
-        "type": "int8",
-        "length": 19,
+        "keyClass": "foreignKey",
+        "keyTitle": "Foreign Key",
+        "name": "<i class='icon ion-key iconkey' style='padding-left: 5px;'><\/i>access_code",
+        "type": "varchar",
+        "length": 3,
         "nullable": "√",
         "autoUpdated": "",
         "defaultValue": "null",
@@ -6187,8 +6215,8 @@
         "comments": ""
     },
     {
-        "tableName": "recreation_status",
-        "tableFileName": "recreation_status",
+        "tableName": "recreation_site_point",
+        "tableFileName": "recreation_site_point",
         "tableType": "Table",
         "keyClass": "",
         "keyTitle": "",
@@ -6299,14 +6327,14 @@
         "comments": ""
     },
     {
-        "tableName": "recreation_resource_access_count_view",
-        "tableFileName": "recreation_resource_access_count_view",
+        "tableName": "recreation_resource_type_count_view",
+        "tableFileName": "recreation_resource_type_count_view",
         "tableType": "View",
-        "keyClass": "foreignKey",
-        "keyTitle": "Foreign Key",
-        "name": "<i class='icon ion-key iconkey' style='padding-left: 5px;'><\/i>access_code",
+        "keyClass": "",
+        "keyTitle": "",
+        "name": "description",
         "type": "varchar",
-        "length": 3,
+        "length": 200,
         "nullable": "√",
         "autoUpdated": "",
         "defaultValue": "null",
@@ -6467,8 +6495,8 @@
         "comments": ""
     },
     {
-        "tableName": "recreation_status",
-        "tableFileName": "recreation_status",
+        "tableName": "recreation_site_point",
+        "tableFileName": "recreation_site_point",
         "tableType": "Table",
         "keyClass": "",
         "keyTitle": "",
@@ -6481,8 +6509,8 @@
         "comments": ""
     },
     {
-        "tableName": "recreation_site_point",
-        "tableFileName": "recreation_site_point",
+        "tableName": "recreation_status",
+        "tableFileName": "recreation_status",
         "tableType": "Table",
         "keyClass": "",
         "keyTitle": "",
@@ -6523,8 +6551,8 @@
         "comments": ""
     },
     {
-        "tableName": "recreation_resource_type_count_view",
-        "tableFileName": "recreation_resource_type_count_view",
+        "tableName": "recreation_resource_type_view",
+        "tableFileName": "recreation_resource_type_view",
         "tableType": "View",
         "keyClass": "",
         "keyTitle": "",
@@ -6775,8 +6803,8 @@
         "comments": ""
     },
     {
-        "tableName": "recreation_site_point",
-        "tableFileName": "recreation_site_point",
+        "tableName": "recreation_status",
+        "tableFileName": "recreation_status",
         "tableType": "Table",
         "keyClass": "",
         "keyTitle": "",
@@ -6915,18 +6943,18 @@
         "comments": ""
     },
     {
-        "tableName": "recreation_status",
-        "tableFileName": "recreation_status",
+        "tableName": "recreation_site_point",
+        "tableFileName": "recreation_site_point",
         "tableType": "Table",
         "keyClass": "primaryKey",
         "keyTitle": "Primary Key",
         "name": "<i class='icon ion-key iconkey' style='padding-left: 5px;'><\/i>rec_resource_id",
         "type": "varchar",
-        "length": 200,
+        "length": 10,
         "nullable": "",
         "autoUpdated": "",
         "defaultValue": "null",
-        "comments": ""
+        "comments": "<p>Identification manually assigned to a Recreation Resource.<\/p>"
     },
     {
         "tableName": "recreation_status_history",
