@@ -2,31 +2,43 @@ name: Make Release
 
 on:
   workflow_call:
+    inputs:
+      app:
+        description: Application name
+        required: true
+        type: string
+
+permissions:
+  contents: write
 
 jobs:
   release:
     name: Release
     runs-on: ubuntu-24.04
+    concurrency:
+      group: release-${{ inputs.app }}
+      cancel-in-progress: false
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v5
-      - name: Conventional Changelog Update
-        uses: TriPSs/conventional-changelog-action@v6
-        id: changelog
-        continue-on-error: true
-        with:
-          github-token: ${{ github.token }}
-          output-file: "CHANGELOG.md"
-          skip-version-file: "true"
-          skip-commit: "true"
-          git-push: "true"
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        if: ${{ steps.changelog.outputs.tag != '' }}
-        continue-on-error: true
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
         with:
           token: ${{ github.token }}
-          tag_name: ${{ steps.changelog.outputs.tag }}
-          name: ${{ steps.changelog.outputs.tag }}
-          body: ${{ steps.changelog.outputs.clean_changelog }}
+          fetch-depth: 0
+      - name: Setup git branch
+        run: |
+          git checkout -b temp-branch || git checkout temp-branch
+      - name: Conventional Changelog Action
+        id: changelog
+        uses: TriPSs/conventional-changelog-action@v6
+        with:
+          github-token: ${{ github.token }}
+          output-file: "false"
+      - name: Create Release
+        if: ${{ steps.changelog.outputs.skipped == 'false' }}
+        run: |
+          gh release create "${{ inputs.app }}-${{ steps.changelog.outputs.tag }}" \
+            --title "${{ inputs.app }} ${{ steps.changelog.outputs.tag }}" \
+            --notes "${{ steps.changelog.outputs.clean_changelog }}"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
