@@ -13,6 +13,12 @@ on:
         type: string
 
 jobs:
+  ## Remove this, testing release process
+  test-release:
+    name: Release
+    uses: ./.github/workflows/.release.yml
+    with:
+      app: ${{ inputs.app }}
   deploy-to-aws-dev:
     name: Deploy Application to AWS dev
     uses: ./.github/workflows/.deploy-app.yml
@@ -79,12 +85,6 @@ jobs:
       environment: test
     secrets: inherit
 
-  # This is broken and likely should be put elsewhere
-  # release:
-  #   name: Release
-  #   needs: tests-e2e-test-environment
-  #   uses: ./.github/workflows/.release.yml
-
   promote:
     name: Promote
     needs: tests-e2e-test-environment
@@ -117,3 +117,10 @@ jobs:
       environment_name: prod
       tag: ${{ inputs.tag }}
     secrets: inherit
+
+  release:
+    name: Release
+    needs: deploy-to-aws-prod
+    uses: ./.github/workflows/.release.yml
+    with:
+      app: ${{ inputs.app }}

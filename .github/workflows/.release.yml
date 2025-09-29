@@ -2,13 +2,31 @@ name: Make Release
 
 on:
   workflow_call:
+    inputs:
+      app:
+        description: Application name
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
   release:
     name: Release
     runs-on: ubuntu-24.04
+    concurrency:
+      group: release-${{ inputs.app }}
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v5
+        with:
+          token: ${{ github.token }}
+          fetch-depth: 0
       - name: Conventional Changelog Update
         uses: TriPSs/conventional-changelog-action@v6
         id: changelog
@@ -27,6 +45,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           token: ${{ github.token }}
-          tag_name: ${{ steps.changelog.outputs.tag }}
-          name: ${{ steps.changelog.outputs.tag }}
+          tag_name: ${{ inputs.app }}-${{ steps.changelog.outputs.tag }}
+          name: ${{ inputs.app }} ${{ steps.changelog.outputs.tag }}
           body: ${{ steps.changelog.outputs.clean_changelog }}
