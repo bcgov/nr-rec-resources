@@ -27,6 +27,12 @@ jobs:
         with:
           token: ${{ github.token }}
           fetch-depth: 0
+      - name: Debug - Check recent commits
+        run: |
+          echo "Recent commits:"
+          git log --oneline -10
+          echo "Current branch:"
+          git branch
       - name: Conventional Changelog Update
         uses: TriPSs/conventional-changelog-action@v6
         id: changelog
@@ -37,6 +43,11 @@ jobs:
           skip-version-file: "true"
           skip-commit: "true"
           git-push: "true"
+      - name: Debug - Check changelog outputs
+        run: |
+          echo "Changelog tag: '${{ steps.changelog.outputs.tag }}'"
+          echo "Changelog clean_changelog: '${{ steps.changelog.outputs.clean_changelog }}'"
+          echo "Changelog new_version: '${{ steps.changelog.outputs.new_version }}'"
       - name: Create Release
         uses: softprops/action-gh-release@v2
         if: ${{ steps.changelog.outputs.tag != '' }}
@@ -48,3 +59,15 @@ jobs:
           tag_name: ${{ inputs.app }}-${{ steps.changelog.outputs.tag }}
           name: ${{ inputs.app }} ${{ steps.changelog.outputs.tag }}
           body: ${{ steps.changelog.outputs.clean_changelog }}
+      - name: Debug - No release created
+        if: ${{ steps.changelog.outputs.tag == '' }}
+        run: |
+          echo "No release was created because no conventional commits were found"
+          echo "Make sure your commits follow conventional commit format:"
+          echo "  feat: add new feature"
+          echo "  fix: bug fix"
+          echo "  chore: maintenance"
+          echo "  docs: documentation"
+          echo "  style: formatting"
+          echo "  refactor: code refactoring"
+          echo "  test: adding tests"
