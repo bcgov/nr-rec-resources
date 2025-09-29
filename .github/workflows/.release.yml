@@ -33,6 +33,17 @@ jobs:
           git log --oneline -10
           echo "Current branch:"
           git branch
+          echo "Checking for existing tags:"
+          git tag --sort=-version:refname | head -5
+          echo "Checking for existing releases:"
+          git log --grep="chore:" --oneline -5
+      - name: Initialize version file
+        run: |
+          if [ ! -f "VERSION.txt" ]; then
+            echo "0.0.0" > VERSION.txt
+            git add VERSION.txt
+            git commit -m "chore: initialize version file" || true
+          fi
       - name: Conventional Changelog Update
         uses: TriPSs/conventional-changelog-action@v6
         id: changelog
@@ -40,7 +51,7 @@ jobs:
         with:
           github-token: ${{ github.token }}
           output-file: "CHANGELOG.md"
-          skip-version-file: "true"
+          version-file: "VERSION.txt"
           skip-commit: "true"
           git-push: "true"
       - name: Debug - Check changelog outputs
