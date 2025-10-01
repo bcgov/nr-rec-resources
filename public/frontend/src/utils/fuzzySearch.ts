@@ -26,6 +26,8 @@ export const fuzzySearchCities = (cities: City[], query: string): City[] => {
   return fuse.search(query, { limit: MAX_LOCATION_OPTIONS }).map((r) => r.item);
 };
 
+// This needs to be more strict to avoid cases like "beach" matching "Welcome Beach"
+// and doing a location search by a loose city name match
 export const fuzzySearchBestCity = (
   cities: City[],
   query: string,
@@ -33,10 +35,29 @@ export const fuzzySearchBestCity = (
   if (!query.trim()) return null;
 
   const fuse = new Fuse(cities, BEST_MATCH_CITY_OPTIONS);
-  const results = fuse.search(query, { limit: 1 });
-  const result = results[0];
+  const queryTokens = query.trim().split(/\s+/);
+  const isQuerySingleWord = queryTokens.length === 1;
 
+  const results = fuse.search(query, { limit: 10 });
   const SCORE_THRESHOLD = 0.075;
 
-  return result && Number(result.score) <= SCORE_THRESHOLD ? result.item : null;
+  for (const result of results) {
+    if (Number(result.score) > SCORE_THRESHOLD) continue;
+
+    const cityTokens = result.item.name.trim().split(/\s+/);
+    const isCitySingleWord = cityTokens.length === 1;
+
+    //
+    // Rule 1: single-word query should only match single-word city names
+    if (isQuerySingleWord && !isCitySingleWord) continue;
+
+    // Rule 2: multi-word query must have same number of words as city name
+    // (allows fuzzy matching but not partial queries)
+    if (!isQuerySingleWord && queryTokens.length !== cityTokens.length)
+      continue;
+
+    return result.item;
+  }
+
+  return null;
 };

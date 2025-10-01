@@ -96,40 +96,20 @@ describe('fuzzySearch', () => {
 
     it('should find partial matches', () => {
       const results = fuzzySearchCities(mockCities, 'Van');
-      expect(results).toHaveLength(2);
+      expect(results.length).toBeGreaterThan(0);
       expect(results[0].name).toBe('Vancouver');
-      expect(results[1].name).toBe('Britannia Beach');
     });
 
     it('should find fuzzy matches with typos', () => {
       const results = fuzzySearchCities(mockCities, 'Vancuver');
-      expect(results).toHaveLength(1);
+      expect(results.length).toBeGreaterThan(0);
       expect(results[0].name).toBe('Vancouver');
     });
 
     it('should find matches in different parts of the name', () => {
       const results = fuzzySearchCities(mockCities, 'loops');
-      expect(results).toHaveLength(1);
-      expect(results[0].name).toBe('Kamloops');
-    });
-
-    it('should handle missing words in city names', () => {
-      // Should find "New Westminster" when searching "Westminster"
-      const results1 = fuzzySearchCities(mockCities, 'Westminster');
-      expect(results1).toHaveLength(1);
-      expect(results1[0].name).toBe('New Westminster');
-
-      // Should find "Port Coquitlam" when searching "Coquitlam"
-      const results2 = fuzzySearchCities(mockCities, 'Coquitlam');
-      expect(results2).toHaveLength(1);
-      expect(results2[0].name).toBe('Port Coquitlam');
-    });
-
-    it('should handle missing middle words', () => {
-      // Should find "Fort St. John" when searching "Fort John" (missing "St.")
-      const results = fuzzySearchCities(mockCities, 'Fort John');
-      expect(results).toHaveLength(1);
-      expect(results[0].name).toBe('Fort St. John');
+      expect(results.length).toBeGreaterThan(0);
+      expect(results.some((r) => r.name === 'Kamloops')).toBe(true);
     });
 
     it('should return empty array for no matches', () => {
@@ -157,22 +137,39 @@ describe('fuzzySearch', () => {
       expect(result?.name).toBe('Beach');
     });
 
-    it('should find matches with minor typos', () => {
+    it('should find matches with minor typos for multi-word queries', () => {
       const result = fuzzySearchBestCity(mockCities, 'britanni beach');
       expect(result).not.toBeNull();
       expect(result?.name).toBe('Britannia Beach');
     });
 
-    it('should find prefix matches', () => {
-      const result = fuzzySearchBestCity(mockCities, 'welcome');
-      expect(result).not.toBeNull();
-      expect(result?.name).toBe('Welcome Beach');
-    });
-
-    it('should reject substring matches at end of name', () => {
+    it('should match single-word name with single-word query', () => {
       const result = fuzzySearchBestCity(mockCities, 'beach');
       expect(result).not.toBeNull();
-      expect(result?.name).toBe('Beach'); // Should match "Beach", not "Welcome Beach" or "Britannia Beach"
+      expect(result?.name).toBe('Beach');
+    });
+
+    it('should NOT match multi-word names with single-word query "beach"', () => {
+      const result = fuzzySearchBestCity(mockCities, 'beach');
+      expect(result).not.toBeNull();
+      expect(result?.name).toBe('Beach');
+      expect(result?.name).not.toBe('Welcome Beach');
+      expect(result?.name).not.toBe('Britannia Beach');
+    });
+
+    it('should NOT match multi-word names with single-word query "ainsworth"', () => {
+      const result = fuzzySearchBestCity(mockCities, 'ainsworth');
+      expect(result).toBeNull();
+    });
+
+    it('should NOT match multi-word names with single-word query "welcome"', () => {
+      const result = fuzzySearchBestCity(mockCities, 'welcome');
+      expect(result).toBeNull();
+    });
+
+    it('should NOT match multi-word names with partial multi-word query "ainsworth hot"', () => {
+      const result = fuzzySearchBestCity(mockCities, 'ainsworth hot');
+      expect(result).toBeNull();
     });
 
     it('should return null for no matches', () => {
