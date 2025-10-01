@@ -25,7 +25,6 @@ inner join (
     from fta.recreation_agreement_holder
     group by forest_file_id
 ) b on a.forest_file_id = b.forest_file_id and a.revision_count = b.revision_count and a.update_timestamp = b.update_timestamp
-where now() between a.agreement_start_date and a.agreement_end_date
 order by a.forest_file_id, a.revision_count desc
 on conflict (rec_resource_id) do update
 set
@@ -43,5 +42,4 @@ delete from rst.recreation_agreement_holder r
 where r.rec_resource_id not in (
     select forest_file_id
     from fta.recreation_agreement_holder a
-    where now() between a.agreement_start_date and a.agreement_end_date
 );
