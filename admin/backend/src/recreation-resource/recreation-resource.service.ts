@@ -62,10 +62,6 @@ export class RecreationResourceService {
   private isValidSuggestion(
     item: getRecreationResourceSuggestions.Result,
   ): item is SuggestionDto {
-    return (
-      Boolean(item.rec_resource_id) &&
-      Boolean(item.name) &&
-      Boolean(item.district_description)
-    );
+    return Boolean(item.rec_resource_id) && Boolean(item.name);
   }
 }
