@@ -29,6 +29,8 @@ describe('buildFilterOptionCountsQuery', () => {
       isOnlyDistrictFilter: true,
       isOnlyAccessFilter: true,
       isOnlyTypeFilter: true,
+      isOnlyStatusFilter: false,
+      isOnlyFeesFilter: false,
     };
 
     const query = buildFilterOptionCountsQuery({
@@ -38,13 +40,13 @@ describe('buildFilterOptionCountsQuery', () => {
     const queryStr = query.sql;
 
     expect(queryStr).toContain(
-      'WHEN ? THEN (SELECT COUNT(*) FROM recreation_resource_search_view WHERE district_code = dcv.district_code  )::INT',
+      'WHEN ? THEN (SELECT COUNT(*) FROM recreation_resource_search_view WHERE district_code = dcv.district_code AND display_on_public_site = true  )::INT',
     );
     expect(queryStr).toContain(
-      'WHEN ? THEN (SELECT COUNT(*) FROM recreation_resource_search_view WHERE access_code = acv.access_code  )::INT',
+      'WHEN ? THEN (SELECT COUNT(*) FROM recreation_resource_search_view WHERE access_code = acv.access_code AND display_on_public_site = true  )::INT',
     );
     expect(queryStr).toContain(
-      'WHEN ? THEN (SELECT COUNT(*) FROM recreation_resource_search_view WHERE recreation_resource_type_code = acv.rec_resource_type_code  )::INT',
+      'WHEN ? THEN (SELECT COUNT(*) FROM recreation_resource_search_view WHERE recreation_resource_type_code = acv.rec_resource_type_code AND display_on_public_site = true  )::INT',
     );
 
     expect(query.values).toContain('AC1');
@@ -91,6 +93,8 @@ describe('buildFilterOptionCountsQuery', () => {
       isOnlyDistrictFilter: false,
       isOnlyAccessFilter: false,
       isOnlyTypeFilter: false,
+      isOnlyStatusFilter: false,
+      isOnlyFeesFilter: false,
     };
     const query = buildFilterOptionCountsQuery({ whereClause, filterTypes });
 
@@ -109,6 +113,8 @@ describe('buildFilterOptionCountsQuery', () => {
       isOnlyDistrictFilter: true,
       isOnlyAccessFilter: false,
       isOnlyTypeFilter: true,
+      isOnlyStatusFilter: false,
+      isOnlyFeesFilter: false,
     };
     const lat = 50.0;
     const lon = -120.0;
@@ -128,11 +134,11 @@ describe('buildFilterOptionCountsQuery', () => {
     expect(query.values).toContain(-120.0);
     // Check that both true and false branches are present
     expect(query.sql).toContain(
-      'WHEN ? THEN (SELECT COUNT(*) FROM recreation_resource_search_view WHERE district_code = dcv.district_code',
+      'WHEN ? THEN (SELECT COUNT(*) FROM recreation_resource_search_view WHERE district_code = dcv.district_code AND display_on_public_site = true',
     );
     expect(query.sql).toContain('ELSE COUNT(fr.access_code)::INT');
     expect(query.sql).toContain(
-      'WHEN ? THEN (SELECT COUNT(*) FROM recreation_resource_search_view WHERE recreation_resource_type_code = acv.rec_resource_type_code',
+      'WHEN ? THEN (SELECT COUNT(*) FROM recreation_resource_search_view WHERE recreation_resource_type_code = acv.rec_resource_type_code AND display_on_public_site = true',
     );
   });
 });
