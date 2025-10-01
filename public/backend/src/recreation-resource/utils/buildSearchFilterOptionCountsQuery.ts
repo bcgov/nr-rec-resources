@@ -29,7 +29,7 @@ export function buildFilterOptionCountsQuery({
       )`
       : Prisma.empty;
 
-  const extraFilters = Prisma.sql`${textSearchCondition} ${locationFilter}`;
+  const extraFilters = Prisma.sql`AND display_on_public_site = true ${textSearchCondition} ${locationFilter}`;
 
   return Prisma.sql`
   WITH filtered_resources AS (
@@ -136,21 +136,21 @@ export function buildFilterOptionCountsQuery({
       CASE
         WHEN ${filterTypes?.isOnlyFeesFilter ?? false} THEN (
           SELECT COUNT(*) FROM recreation_resource_search_view
-          WHERE is_reservable = true AND display_on_public_site = true ${extraFilters}
+          WHERE is_reservable = true ${extraFilters}
         )::INT
         ELSE COALESCE(SUM(CASE WHEN is_reservable = true THEN 1 ELSE 0 END), 0)::INT
       END AS reservable_count,
       CASE
         WHEN ${filterTypes?.isOnlyFeesFilter ?? false} THEN (
           SELECT COUNT(*) FROM recreation_resource_search_view
-          WHERE is_fees = true AND display_on_public_site = true ${extraFilters}
+          WHERE is_fees = true ${extraFilters}
         )::INT
         ELSE COALESCE(SUM(CASE WHEN is_fees = true THEN 1 ELSE 0 END), 0)::INT
       END AS fees_count,
       CASE
         WHEN ${filterTypes?.isOnlyFeesFilter ?? false} THEN (
           SELECT COUNT(*) FROM recreation_resource_search_view
-          WHERE (is_fees = false OR is_fees IS NULL) AND display_on_public_site = true ${extraFilters}
+          WHERE (is_fees = false OR is_fees IS NULL) ${extraFilters}
         )::INT
         ELSE COALESCE(SUM(CASE WHEN (is_fees = false OR is_fees IS NULL) THEN 1 ELSE 0 END), 0)::INT
       END AS no_fees_count
