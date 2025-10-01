@@ -483,7 +483,7 @@ describe('RecreationSuggestionForm', () => {
     expect(handleCityOptionSearch).toHaveBeenCalledWith(citiesList[0]);
     expect(trackClickEvent).toHaveBeenCalledWith({
       category: 'Test page search',
-      name: 'Exact city match selected: Victoria',
+      name: 'City match selected: Victoria',
     });
     expect(handleSearch).not.toHaveBeenCalled();
   });

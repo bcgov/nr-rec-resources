@@ -74,6 +74,7 @@ export class RecreationResourceSearchService {
       skip,
       lat,
       lon,
+      searchText,
     });
 
     const filterOptionCountsQuerySql = buildFilterOptionCountsQuery({

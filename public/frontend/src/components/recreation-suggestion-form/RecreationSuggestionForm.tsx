@@ -19,15 +19,15 @@ import {
   RecreationSuggestion,
 } from '@/components/recreation-suggestion-form/types';
 import '@/components/recreation-suggestion-form/RecreationSuggestionForm.scss';
-import { Option } from 'react-bootstrap-typeahead/types/types';
 import { trackClickEvent } from '@/utils/matomo';
+import { fuzzySearchCities, fuzzySearchBestCity } from '@/utils/fuzzySearch';
 import { ROUTE_PATHS } from '@/routes/constants';
 import {
   CURRENT_LOCATION_TITLE,
-  MAX_LOCATION_OPTIONS,
   OPTION_TYPE,
   SEARCH_PLACEHOLDER,
 } from '@/components/recreation-suggestion-form/constants';
+import { Option } from 'react-bootstrap-typeahead/types/types';
 
 interface RecreationSuggestionFormProps {
   /**
@@ -94,17 +94,11 @@ const RecreationSuggestionForm = ({
   );
 
   const cityOptions = useMemo(() => {
-    const searchText = searchInputValue?.toLowerCase() ?? '';
+    const searchText = searchInputValue?.trim() ?? '';
 
     if (!searchText) return [currentLocationOption];
 
-    const filteredCities = (citiesList ?? [])
-      .filter(
-        (city) =>
-          city.name.toLowerCase().startsWith(searchText) ||
-          city.name.toLowerCase().includes(` ${searchText}`),
-      )
-      .slice(0, MAX_LOCATION_OPTIONS);
+    const filteredCities = fuzzySearchCities(citiesList ?? [], searchText);
 
     return [...filteredCities, currentLocationOption];
   }, [currentLocationOption, searchInputValue, citiesList]);
@@ -131,21 +125,22 @@ const RecreationSuggestionForm = ({
 
   const performSearch = useCallback(
     (inputValue: string) => {
-      const trimmed = inputValue.trim();
-      if (!trimmed && !allowEmptySearch) return;
+      const trimmedInputValue = inputValue.trim();
+      if (!trimmedInputValue && !allowEmptySearch) return;
 
-      const exactCityMatch = (citiesList ?? []).find(
-        (city) => city.name.toLowerCase() === trimmed.toLowerCase(),
+      const bestCityMatch = fuzzySearchBestCity(
+        citiesList ?? [],
+        trimmedInputValue,
       );
 
-      if (exactCityMatch) {
-        handleCityOptionSearch(exactCityMatch);
+      if (bestCityMatch) {
+        handleCityOptionSearch(bestCityMatch);
         trackClickEvent({
           category: trackingName,
-          name: `Exact city match selected: ${exactCityMatch.name}`,
+          name: `City match selected: ${bestCityMatch.name}`,
         })();
       } else {
-        handleSearch(trimmed);
+        handleSearch(trimmedInputValue);
         trackClickEvent({
           category: trackingName,
           name: 'Search button clicked',
