@@ -1,6 +1,8 @@
 import { RecreationResourceDetailDto } from '@/service/recreation-resource/models/RecreationResourceDetailDto';
 import RecReservationButton, { ReservationType } from './RecReservationButton';
 import campground from '@/images/icons/campground.svg';
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '@/components/rec-resource/RecResourceReservation.scss';
 
 export interface RecResourceReservationProps {
@@ -79,7 +81,7 @@ const RecResourceReservation: React.FC<RecResourceReservationProps> = ({
         </>
       ) : (
         <>
-          {isCampingAvailable && (
+          {isCampingAvailable ? (
             <div className="camping-info icon-container mt-4 reservation-icon">
               <div className="camp-icon-container">
                 <img
@@ -89,7 +91,15 @@ const RecResourceReservation: React.FC<RecResourceReservationProps> = ({
                   width={24}
                 />{' '}
                 <div>
-                  <span>This site is first come first served.</span> <br />
+                  <span>This site is first come first served.</span>
+                  {(!isAdditionalFeesAvailable ||
+                    Boolean(recResource.recreation_fee?.length) === false) && (
+                    <>
+                      {' '}
+                      <span>No fees apply.</span>
+                    </>
+                  )}
+                  <br />
                   {(isAdditionalFeesAvailable ||
                     Boolean(recResource.recreation_fee?.length)) && (
                     <>
@@ -137,6 +147,15 @@ const RecResourceReservation: React.FC<RecResourceReservationProps> = ({
                       for more information.
                     </span>
                   )}
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="camping-info icon-container mt-4 reservation-icon">
+              <div className="camp-icon-container">
+                <FontAwesomeIcon icon={faInfoCircle} className="info-icon" />
+                <div>
+                  <span>No fees apply.</span>
                 </div>
               </div>
             </div>
