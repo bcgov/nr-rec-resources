@@ -38,6 +38,11 @@ export const useSearchInput = () => {
       const trimmedValue = (inputValue ?? state.searchInputValue).trim();
       const newParams = new URLSearchParams(searchParams);
 
+      // Clear city-related params when performing a text search
+      newParams.delete(LAT_PARAM_KEY);
+      newParams.delete(LON_PARAM_KEY);
+      newParams.delete(COMMUNITY_PARAM_KEY);
+
       if (trimmedValue) {
         newParams.set(FILTER_PARAM_KEY, trimmedValue);
       } else {
@@ -71,6 +76,15 @@ export const useSearchInput = () => {
     const newParams = new URLSearchParams(searchParams.toString());
     // Remove only params that get set during typeahead search
     newParams.delete(FILTER_PARAM_KEY);
+    newParams.delete(LAT_PARAM_KEY);
+    newParams.delete(LON_PARAM_KEY);
+    newParams.delete(COMMUNITY_PARAM_KEY);
+
+    setSearchParams(Object.fromEntries(newParams.entries()));
+  }, [searchParams, setSearchParams]);
+
+  const handleClearCityParams = useCallback(() => {
+    const newParams = new URLSearchParams(searchParams.toString());
     newParams.delete(LAT_PARAM_KEY);
     newParams.delete(LON_PARAM_KEY);
     newParams.delete(COMMUNITY_PARAM_KEY);
@@ -120,6 +134,7 @@ export const useSearchInput = () => {
     handleSearch,
     handleClearSearch,
     handleClearTypeaheadSearch,
+    handleClearCityParams,
     handleCityOptionSearch,
   };
 };

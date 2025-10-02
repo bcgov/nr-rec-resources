@@ -1,4 +1,5 @@
 import { Prisma } from '@prisma/client';
+import { buildFuzzySearchConditions } from './fuzzySearchUtils';
 
 export interface FilterOptions {
   searchText?: string;
@@ -37,11 +38,9 @@ export const buildSearchFilterQuery = ({
   const statusFilter = status?.split('_').map(String) ?? [];
   const feesFilter = fees?.split('_').map(String) ?? [];
 
-  // Conditional filter for searchText
+  // Conditional filter for searchText with fuzzy search
   const displayOnPublicSite = Prisma.sql`display_on_public_site is true`;
-  const textSearchFilterQuery = searchText
-    ? Prisma.sql`(name ilike ${'%' + searchText + '%'} or closest_community ilike ${'%' + searchText + '%'})`
-    : Prisma.empty;
+  const textSearchFilterQuery = buildFuzzySearchConditions(searchText);
 
   const accessFilterQuery =
     accessFilter.length > 0

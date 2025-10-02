@@ -2,6 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma.service';
 import { RecreationSuggestionDto } from 'src/recreation-resource/dto/recreation-resource-suggestion.dto';
+import {
+  buildFuzzySearchConditions,
+  buildFuzzySearchScore,
+  buildSuggestionsOrdering,
+} from 'src/recreation-resource/utils/fuzzySearchUtils';
 
 const RESULTS_LIMIT = 5;
 
@@ -12,6 +17,10 @@ export class RecreationResourceSuggestionsService {
   async getSuggestions(query: string): Promise<RecreationSuggestionDto[]> {
     const term = query.trim();
     try {
+      const fuzzyConditions = buildFuzzySearchConditions(term);
+      const fuzzyScore = buildFuzzySearchScore(term);
+      const ordering = buildSuggestionsOrdering(term);
+
       const sql = Prisma.sql`
         SELECT
           rec_resource_id,
@@ -21,18 +30,12 @@ export class RecreationResourceSuggestionsService {
           recreation_resource_type,
           recreation_resource_type_code,
           'recreation_resource' AS option_type
+          ${fuzzyScore}
         FROM recreation_resource_search_view
         WHERE
           display_on_public_site = true
-          AND name ILIKE ${`%${term}%`} OR closest_community ILIKE ${`%${term}%`}
-        ORDER BY
-          CASE
-            WHEN name ILIKE ${`${term}%`} THEN 0  -- prefix match in name
-            WHEN name ILIKE ${`%${term}%`} THEN 1 -- partial match in name
-            WHEN closest_community ILIKE ${`%${term}%`} THEN 2 -- prefix match in community
-            ELSE 3
-          END,
-          name ASC
+          AND ${fuzzyConditions}
+        ${ordering}
         LIMIT ${RESULTS_LIMIT}
         `;
 

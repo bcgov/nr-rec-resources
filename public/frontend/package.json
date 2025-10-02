@@ -34,6 +34,7 @@
     "axios": "^1.8.2",
     "bootstrap": "^5.3.3",
     "dotenv": "^17.2.1",
+    "fuse.js": "^7.1.0",
     "html-react-parser": "^5.2.2",
     "js-cookie": "^3.0.5",
     "ol": "^10.6.1",

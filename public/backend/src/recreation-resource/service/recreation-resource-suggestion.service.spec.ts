@@ -1,54 +1,114 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { RecreationResourceSuggestionsService } from 'src/recreation-resource/service/recreation-resource-suggestion.service';
+import { Test, TestingModule } from '@nestjs/testing';
+import { RecreationResourceSuggestionsService } from './recreation-resource-suggestion.service';
 import { PrismaService } from 'src/prisma.service';
+import { vi } from 'vitest';
 
 describe('RecreationResourceSuggestionsService', () => {
-  let prisma: PrismaService;
   let service: RecreationResourceSuggestionsService;
+  let prismaService: PrismaService;
 
-  const mockResults = [
-    {
-      rec_resource_id: 'REC204117',
-      name: 'Aileen Lake',
-      closest_community: 'Winfield',
-      district_description: 'Columbia-Shuswap',
-      recreation_resource_type: 'Recreation Site',
-      recreation_resource_type_code: 'SIT',
-      option_type: 'recreation_resource',
-    },
-  ];
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        RecreationResourceSuggestionsService,
+        {
+          provide: PrismaService,
+          useValue: {
+            $queryRaw: vi.fn(),
+          },
+        },
+      ],
+    }).compile();
 
-  beforeEach(() => {
-    prisma = {
-      $queryRaw: vi.fn(),
-    } as unknown as PrismaService;
-
-    service = new RecreationResourceSuggestionsService(prisma);
+    service = module.get<RecreationResourceSuggestionsService>(
+      RecreationResourceSuggestionsService,
+    );
+    prismaService = module.get<PrismaService>(PrismaService);
   });
 
-  it('should return suggestions from prisma', async () => {
-    vi.mocked(prisma.$queryRaw).mockResolvedValueOnce(mockResults);
-
-    const results = await service.getSuggestions('aileen');
-    expect(results).toEqual(mockResults);
-    expect(prisma.$queryRaw).toHaveBeenCalledOnce();
+  it('should be defined', () => {
+    expect(service).toBeDefined();
   });
 
-  it('should trim the query and use it in the SQL values', async () => {
-    vi.mocked(prisma.$queryRaw).mockResolvedValueOnce(mockResults);
+  describe('getSuggestions', () => {
+    it('should return suggestions with fuzzy search', async () => {
+      const mockSuggestions = [
+        {
+          rec_resource_id: 'REC001',
+          name: 'Blue Lake Campground',
+          closest_community: 'Hope',
+          district_description: 'Chilliwack',
+          recreation_resource_type: 'Recreation Site',
+          recreation_resource_type_code: 'SIT',
+          option_type: 'recreation_resource',
+          match_score: 0.8,
+        },
+      ];
 
-    await service.getSuggestions('  aileen   ');
-    const [[query]] = vi.mocked(prisma.$queryRaw).mock.calls;
+      vi.spyOn(prismaService, '$queryRaw').mockResolvedValue(mockSuggestions);
 
-    expect(query.values).toContain('%aileen%');
-    expect(query.values).toContain('aileen%');
-  });
+      const result = await service.getSuggestions('Blue Lake');
 
-  it('should return empty array on error', async () => {
-    vi.spyOn(console, 'error').mockImplementation(() => {});
-    vi.mocked(prisma.$queryRaw).mockRejectedValueOnce(new Error('DB error'));
+      expect(result).toEqual(mockSuggestions);
+      expect(prismaService.$queryRaw).toHaveBeenCalledWith(
+        expect.objectContaining({
+          strings: expect.arrayContaining([
+            expect.stringContaining('similarity'),
+            expect.stringContaining('fuzzy_score'),
+          ]),
+        }),
+      );
+    });
 
-    const results = await service.getSuggestions('fail');
-    expect(results).toEqual([]);
+    it('should handle typos with fuzzy search', async () => {
+      const mockSuggestions = [
+        {
+          rec_resource_id: 'REC001',
+          name: 'Blue Lake Campground',
+          closest_community: 'Hope',
+          district_description: 'Kamploops',
+          recreation_resource_type: 'Recreation site',
+          recreation_resource_type_code: 'SIT',
+          option_type: 'recreation_resource',
+          match_score: 0.6,
+        },
+      ];
+
+      vi.spyOn(prismaService, '$queryRaw').mockResolvedValue(mockSuggestions);
+
+      const result = await service.getSuggestions('Blu Lake'); // Typo in search
+
+      expect(result).toEqual(mockSuggestions);
+    });
+
+    it('should handle missing words', async () => {
+      const mockSuggestions = [
+        {
+          rec_resource_id: 'REC002',
+          name: 'Alpine Lake Trail',
+          closest_community: 'Valemount',
+          district_description: 'Kamloops',
+          recreation_resource_type: 'Recreation site',
+          recreation_resource_type_code: 'SIT',
+          option_type: 'recreation_resource',
+          match_score: 0.7,
+        },
+      ];
+
+      vi.spyOn(prismaService, '$queryRaw').mockResolvedValue(mockSuggestions);
+
+      const result = await service.getSuggestions('Alpine Trail'); // Missing "Lake"
+      expect(result).toEqual(mockSuggestions);
+    });
+
+    it('should return empty array on error', async () => {
+      vi.spyOn(prismaService, '$queryRaw').mockRejectedValue(
+        new Error('Database error'),
+      );
+
+      const result = await service.getSuggestions('test');
+
+      expect(result).toEqual([]);
+    });
   });
 });

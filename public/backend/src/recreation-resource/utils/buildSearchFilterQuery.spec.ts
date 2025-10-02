@@ -15,12 +15,19 @@ describe('buildSearchFilterQuery', () => {
   });
 
   it('should generate query with basic text filter', () => {
-    const result = buildSearchFilterQuery({ searchText: 'park' });
+    const result = buildSearchFilterQuery({ searchText: 'site' });
     const queryString = getQueryString(result);
     expect(queryString).toBe(
-      'where display_on_public_site is true and (name ilike ? or closest_community ilike ?)',
+      'where display_on_public_site is true and ( name ilike ? or closest_community ilike ? or similarity(name, ?) > 0.2 or similarity(closest_community, ?) > 0.2 or name % ? or closest_community % ? )',
     );
-    expect(result.values).toEqual(['%park%', '%park%']);
+    expect(result.values).toEqual([
+      '%site%',
+      '%site%',
+      'site',
+      'site',
+      'site',
+      'site',
+    ]);
   });
 
   it('should add access filter correctly', () => {
@@ -79,7 +86,7 @@ describe('buildSearchFilterQuery', () => {
 
   it('should handle all filters combined', () => {
     const result = buildSearchFilterQuery({
-      searchText: 'park',
+      searchText: 'site',
       activities: '101_102',
       type: 'T1_T2',
       district: 'D1_D2',
@@ -90,7 +97,7 @@ describe('buildSearchFilterQuery', () => {
 
     const queryString = getQueryString(result);
     expect(queryString).toContain(
-      'where display_on_public_site is true and (name ilike ? or closest_community ilike ?)',
+      'where display_on_public_site is true and ( name ilike ? or closest_community ilike ? or similarity(name, ?) > 0.2 or similarity(closest_community, ?) > 0.2 or name % ? or closest_community % ? )',
     );
     expect(queryString).toContain('and access_code in');
     expect(queryString).toContain('and district_code in');
@@ -104,8 +111,12 @@ describe('buildSearchFilterQuery', () => {
     );
 
     const expectedValues = [
-      '%park%',
-      '%park%',
+      '%site%',
+      '%site%',
+      'site',
+      'site',
+      'site',
+      'site',
       'A1',
       'A2',
       'D1',

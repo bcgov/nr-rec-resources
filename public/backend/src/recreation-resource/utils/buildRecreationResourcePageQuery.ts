@@ -1,4 +1,8 @@
 import { Prisma } from '@prisma/client';
+import {
+  buildFuzzySearchScore,
+  buildFuzzySearchOrdering,
+} from './fuzzySearchUtils';
 
 interface RecreationResourcePageQueryParams {
   whereClause: Prisma.Sql;
@@ -6,6 +10,7 @@ interface RecreationResourcePageQueryParams {
   skip: number;
   lat?: number;
   lon?: number;
+  searchText?: string;
 }
 
 export function buildRecreationResourcePageQuery({
@@ -14,6 +19,7 @@ export function buildRecreationResourcePageQuery({
   skip,
   lat,
   lon,
+  searchText,
 }: RecreationResourcePageQueryParams): Prisma.Sql {
   const hasLocation = typeof lat === 'number' && typeof lon === 'number';
 
@@ -25,9 +31,9 @@ export function buildRecreationResourcePageQuery({
     ) as distance`
     : Prisma.empty;
 
-  const orderBySql = hasLocation
-    ? Prisma.sql`order by distance asc, name asc`
-    : Prisma.sql`order by name asc`;
+  // Add fuzzy search scoring if searchText is provided
+  const fuzzyScoreSql = buildFuzzySearchScore(searchText);
+  const orderBySql = buildFuzzySearchOrdering(searchText, hasLocation);
 
   return Prisma.sql`
     select rec_resource_id,
@@ -48,6 +54,7 @@ export function buildRecreationResourcePageQuery({
            has_tables,
            count(*) over()::int AS total_count
            ${distanceSql}
+           ${fuzzyScoreSql}
     from recreation_resource_search_view ${whereClause} ${orderBySql}
     limit ${take}
     offset ${skip};
