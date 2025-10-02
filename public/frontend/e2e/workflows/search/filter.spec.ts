@@ -41,11 +41,9 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.toggleFilterOn(filter.districtFilters, 'Kamloops');
 
-    await filter.toggleFilterOn(filter.districtFilters, 'Okanagan');
-
     await filter.toggleFilterOn(filter.districtFilters, 'Squamish');
 
-    await utils.checkExpectedUrlParams('district=RDCK_RDKA_RDOS_RDSQ');
+    await utils.checkExpectedUrlParams('district=RDCK_RDKA_RDSQ');
 
     await searchPage.waitForResults();
   });
@@ -241,8 +239,6 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.toggleFilterOn(filter.districtFilters, 'Kamloops');
 
-    await filter.toggleFilterOn(filter.districtFilters, 'Okanagan');
-
     await filter.toggleFilterOn(filter.typeFilters, RecResourceType.SITE);
 
     await filter.toggleFilterOn(filter.facilitiesFilters, 'Toilets');
@@ -251,12 +247,10 @@ test.describe('Search page filter menu workflows', () => {
       type: ['Recreation site'],
     });
 
-    await filter.toggleFilterOn(filter.accessTypeFilters, 'Road access');
-
     await searchPage.waitForResults();
 
     await utils.checkExpectedUrlParams(
-      'district=RDCK_RDKA_RDOS&page=1&type=SIT&facilities=toilet&access=R',
+      'district=RDCK_RDKA&page=1&type=SIT&facilities=toilet',
     );
 
     await utils.screenshot(

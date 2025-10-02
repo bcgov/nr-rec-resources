@@ -25,11 +25,11 @@ test.describe('Search for a recreation site or trail workflows', () => {
 
     await searchPage.verifyInitialResults();
 
-    await searchPage.searchFor('summer');
+    await searchPage.searchFor('sum');
 
-    await utils.checkExpectedUrlParams('filter=summer&page=1');
+    await utils.checkExpectedUrlParams('filter=sum&page=1');
 
-    await searchPage.verifySearchResults('summer');
+    await searchPage.verifySearchResults('sum');
 
     await utils.clickLinkByText('Agur Lake');
 
@@ -54,7 +54,7 @@ test.describe('Search for a recreation site or trail workflows', () => {
 
     await searchPage.verifyInitialResults();
 
-    await searchPage.searchFor('not a real place', false);
+    await searchPage.searchFor("doesn't exist", false);
 
     await searchPage.waitForNoResults();
   });

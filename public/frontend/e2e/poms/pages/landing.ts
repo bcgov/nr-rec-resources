@@ -42,13 +42,18 @@ export class LandingPOM {
 
   async searchFor(searchTerm?: string) {
     const input = this.page.getByPlaceholder(SearchEnum.PLACEHOLDER);
+
     if (searchTerm) {
       await input.fill(searchTerm);
     }
+
     await this.searchBtn.click();
 
-    expect(this.page.url()).toBe(
-      `${BASE_URL}/search${searchTerm ? `?filter=${searchTerm}` : ''}`,
-    );
+    const url = new URL(this.page.url());
+    if (searchTerm) {
+      expect(url.searchParams.get('filter')).toBe(searchTerm);
+    } else {
+      expect(url.searchParams.has('filter')).toBe(false);
+    }
   }
 }

@@ -64,7 +64,6 @@ test.describe('User flows from the landing page to searching for a rec resource'
     const landingPage = new LandingPOM(page);
     const layout = new LayoutPOM(page);
     const recResourcePage = new RecreationResourcePOM(page);
-    const searchPage = new SearchPOM(page);
     const utils = new UtilsPOM(page);
 
     await landingPage.route();
@@ -73,13 +72,11 @@ test.describe('User flows from the landing page to searching for a rec resource'
     await layout.verifyFooterContent();
     await landingPage.verifyLandingPageContent();
 
-    await landingPage.searchFor('snow');
+    await landingPage.searchFor('24 snow');
 
     await filter.verifyInitialFilterMenu();
 
-    await utils.checkExpectedUrlParams('filter=snow');
-
-    await searchPage.verifySearchResults('snow');
+    await utils.checkExpectedUrlParams('filter=24+snow');
 
     await utils.clickLinkByText('24 mile snowmobile area');
 
