@@ -71,26 +71,18 @@ describe('fuzzySearch', () => {
     },
     {
       id: 9,
-      name: 'Beach',
-      latitude: 49.3456,
-      longitude: -123.789,
+      name: 'Ainsworth Hot Springs',
+      latitude: 49.4567,
+      longitude: -123.8901,
       rank: 9,
       option_type: OPTION_TYPE.CITY,
     },
     {
       id: 10,
-      name: 'Ainsworth Hot Springs',
-      latitude: 49.4567,
-      longitude: -123.8901,
-      rank: 10,
-      option_type: OPTION_TYPE.CITY,
-    },
-    {
-      id: 11,
       name: 'Squamish',
       latitude: 49.7016,
       longitude: -123.1558,
-      rank: 11,
+      rank: 10,
       option_type: OPTION_TYPE.CITY,
     },
   ];
@@ -135,19 +127,9 @@ describe('fuzzySearch', () => {
         description: 'exact match for long city name',
       },
       {
-        query: 'Beach',
-        expected: 'Beach',
-        description: 'exact match for single word city',
-      },
-      {
         query: 'britanni beach',
         expected: 'Britannia Beach',
         description: 'match with minor typos for multi-word query',
-      },
-      {
-        query: 'beach',
-        expected: 'Beach',
-        description: 'single-word name with single-word query',
       },
       {
         query: 'vancuver',
@@ -175,17 +157,10 @@ describe('fuzzySearch', () => {
       expect(result?.name).toBe(expected);
     });
 
-    it('should NOT match multi-word names with single-word query "beach"', () => {
-      const result = fuzzySearchBestCity(mockCities, 'beach');
-      expect(result).not.toBeNull();
-      expect(result?.name).toBe('Beach');
-      expect(result?.name).not.toBe('Welcome Beach');
-      expect(result?.name).not.toBe('Britannia Beach');
-    });
-
     it.each([
       { query: 'ainsworth', description: 'single-word query "ainsworth"' },
       { query: 'welcome', description: 'single-word query "welcome"' },
+      { query: 'beach', description: 'single-word query "beach"' },
       {
         query: 'ainsworth hot',
         description: 'partial multi-word query "ainsworth hot"',
