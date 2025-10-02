@@ -11,7 +11,7 @@ const CITY_SUGGESTIONS_OPTIONS: IFuseOptions<City> = {
 };
 
 export const BEST_MATCH_CITY_OPTIONS: IFuseOptions<City> = {
-  threshold: 0.2,
+  threshold: 0.25,
   keys: ['name'],
   minMatchCharLength: 4,
   includeScore: true,
@@ -39,7 +39,7 @@ export const fuzzySearchBestCity = (
   const isQuerySingleWord = queryTokens.length === 1;
 
   const results = fuse.search(query, { limit: 10 });
-  const SCORE_THRESHOLD = 0.075;
+  const SCORE_THRESHOLD = 0.25;
 
   for (const result of results) {
     if (Number(result.score) > SCORE_THRESHOLD) continue;
@@ -47,7 +47,6 @@ export const fuzzySearchBestCity = (
     const cityTokens = result.item.name.trim().split(/\s+/);
     const isCitySingleWord = cityTokens.length === 1;
 
-    //
     // Rule 1: single-word query should only match single-word city names
     if (isQuerySingleWord && !isCitySingleWord) continue;
 

@@ -85,6 +85,14 @@ describe('fuzzySearch', () => {
       rank: 10,
       option_type: OPTION_TYPE.CITY,
     },
+    {
+      id: 11,
+      name: 'Squamish',
+      latitude: 49.7016,
+      longitude: -123.1558,
+      rank: 11,
+      option_type: OPTION_TYPE.CITY,
+    },
   ];
 
   describe('fuzzySearchCities', () => {
@@ -119,34 +127,52 @@ describe('fuzzySearch', () => {
   });
 
   describe('fuzzySearchBestCity', () => {
-    it('should find exact matches', () => {
-      const result = fuzzySearchBestCity(mockCities, 'Vancouver');
+    it.each([
+      { query: 'Vancouver', expected: 'Vancouver', description: 'exact match' },
+      {
+        query: 'Ainsworth Hot Springs',
+        expected: 'Ainsworth Hot Springs',
+        description: 'exact match for long city name',
+      },
+      {
+        query: 'Beach',
+        expected: 'Beach',
+        description: 'exact match for single word city',
+      },
+      {
+        query: 'britanni beach',
+        expected: 'Britannia Beach',
+        description: 'match with minor typos for multi-word query',
+      },
+      {
+        query: 'beach',
+        expected: 'Beach',
+        description: 'single-word name with single-word query',
+      },
+      {
+        query: 'vancuver',
+        expected: 'Vancouver',
+        description: 'spelling error "vancuver" → "Vancouver"',
+      },
+      {
+        query: 'sqaumish',
+        expected: 'Squamish',
+        description: 'spelling error "sqaumish" → "Squamish"',
+      },
+      {
+        query: 'Victor',
+        expected: 'Victoria',
+        description: 'partial match "Victor" → "Victoria"',
+      },
+      {
+        query: 'victoria',
+        expected: 'Victoria',
+        description: 'lowercase query',
+      },
+    ])('should find $description', ({ query, expected }) => {
+      const result = fuzzySearchBestCity(mockCities, query);
       expect(result).not.toBeNull();
-      expect(result?.name).toBe('Vancouver');
-    });
-
-    it('should find exact matches for long city names', () => {
-      const result = fuzzySearchBestCity(mockCities, 'Ainsworth Hot Springs');
-      expect(result).not.toBeNull();
-      expect(result?.name).toBe('Ainsworth Hot Springs');
-    });
-
-    it('should find exact matches for single word cities', () => {
-      const result = fuzzySearchBestCity(mockCities, 'Beach');
-      expect(result).not.toBeNull();
-      expect(result?.name).toBe('Beach');
-    });
-
-    it('should find matches with minor typos for multi-word queries', () => {
-      const result = fuzzySearchBestCity(mockCities, 'britanni beach');
-      expect(result).not.toBeNull();
-      expect(result?.name).toBe('Britannia Beach');
-    });
-
-    it('should match single-word name with single-word query', () => {
-      const result = fuzzySearchBestCity(mockCities, 'beach');
-      expect(result).not.toBeNull();
-      expect(result?.name).toBe('Beach');
+      expect(result?.name).toBe(expected);
     });
 
     it('should NOT match multi-word names with single-word query "beach"', () => {
@@ -157,33 +183,24 @@ describe('fuzzySearch', () => {
       expect(result?.name).not.toBe('Britannia Beach');
     });
 
-    it('should NOT match multi-word names with single-word query "ainsworth"', () => {
-      const result = fuzzySearchBestCity(mockCities, 'ainsworth');
+    it.each([
+      { query: 'ainsworth', description: 'single-word query "ainsworth"' },
+      { query: 'welcome', description: 'single-word query "welcome"' },
+      {
+        query: 'ainsworth hot',
+        description: 'partial multi-word query "ainsworth hot"',
+      },
+    ])('should NOT match multi-word names with $description', ({ query }) => {
+      const result = fuzzySearchBestCity(mockCities, query);
       expect(result).toBeNull();
     });
 
-    it('should NOT match multi-word names with single-word query "welcome"', () => {
-      const result = fuzzySearchBestCity(mockCities, 'welcome');
-      expect(result).toBeNull();
-    });
-
-    it('should NOT match multi-word names with partial multi-word query "ainsworth hot"', () => {
-      const result = fuzzySearchBestCity(mockCities, 'ainsworth hot');
-      expect(result).toBeNull();
-    });
-
-    it('should return null for no matches', () => {
-      const result = fuzzySearchBestCity(mockCities, 'xyz');
-      expect(result).toBeNull();
-    });
-
-    it('should return null for empty query', () => {
-      const result = fuzzySearchBestCity(mockCities, '');
-      expect(result).toBeNull();
-    });
-
-    it('should return null for whitespace query', () => {
-      const result = fuzzySearchBestCity(mockCities, '   ');
+    it.each([
+      { query: 'xyz', description: 'no matches' },
+      { query: '', description: 'empty query' },
+      { query: '   ', description: 'whitespace query' },
+    ])('should return null for $description', ({ query }) => {
+      const result = fuzzySearchBestCity(mockCities, query);
       expect(result).toBeNull();
     });
   });
