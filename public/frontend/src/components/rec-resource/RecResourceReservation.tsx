@@ -92,13 +92,13 @@ const RecResourceReservation: React.FC<RecResourceReservationProps> = ({
                 />{' '}
                 <div>
                   <span>This site is first come first served.</span>
-                  {(!isAdditionalFeesAvailable ||
-                    Boolean(recResource.recreation_fee?.length) === false) && (
-                    <>
-                      {' '}
-                      <span>No fees apply.</span>
-                    </>
-                  )}
+                  {!isAdditionalFeesAvailable &&
+                    Boolean(recResource.recreation_fee?.length) === false && (
+                      <>
+                        {' '}
+                        <span>No fees apply.</span>
+                      </>
+                    )}
                   <br />
                   {(isAdditionalFeesAvailable ||
                     Boolean(recResource.recreation_fee?.length)) && (
