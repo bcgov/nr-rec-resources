@@ -104,7 +104,7 @@ describe('useZoomToExtent', () => {
     // Second call should trigger the zoom when extent changes
     rerender({ extent: differentExtentGeoJSON });
     expect(fit).toHaveBeenCalledWith([0, 0, 100, 100], {
-      padding: [150, 250, 300, 250],
+      padding: [140, 120, 120, 120],
       maxZoom: 16,
       duration: 500,
     });
@@ -135,7 +135,7 @@ describe('useZoomToExtent', () => {
     // Second call should trigger the zoom when extent changes
     rerender({ extent: differentExtentGeoJSON });
     expect(fit).toHaveBeenCalledWith([0, 0, 100, 100], {
-      padding: [150, 200, 250, 200],
+      padding: [140, 120, 120, 120],
       maxZoom: 16,
       duration: 500,
     });
@@ -157,7 +157,7 @@ describe('useZoomToExtent', () => {
     // Second call should trigger the zoom when extent changes
     rerender({ extent: differentExtentGeoJSON });
     expect(fit).toHaveBeenCalledWith([0, 0, 100, 100], {
-      padding: [50, 50, 50, 50],
+      padding: [100, 80, 50, 80],
       maxZoom: 16,
       duration: 500,
     });

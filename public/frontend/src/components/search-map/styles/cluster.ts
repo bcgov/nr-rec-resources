@@ -2,11 +2,7 @@ import { Circle, Fill, Stroke, Style, Text } from 'ol/style';
 
 const CLUSTER_COLOR = '36,100,164';
 
-const getClusterRadius = (size: number) => {
-  if (size > 50) return 32;
-  if (size > 9) return 18;
-  return 14;
-};
+const CLUSTER_RADIUS = 20;
 
 interface ClusterStyleOptions {
   size: number;
@@ -19,7 +15,7 @@ export const clusterStyle = ({
   clusterOpacity = 0.85,
   haloOpacity = 0.7,
 }: ClusterStyleOptions): Style[] => {
-  const radius = getClusterRadius(size);
+  const radius = CLUSTER_RADIUS;
   const strokeWidth = 2;
   const haloRadius = radius + strokeWidth;
 
