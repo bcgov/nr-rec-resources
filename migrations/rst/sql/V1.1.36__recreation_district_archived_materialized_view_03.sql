@@ -14,9 +14,9 @@ update rst.recreation_district_code
 set is_archived = true
 where district_code in ('RDQC', 'RDRM', 'RDOS', 'RDMH');
 
-drop materialized view if exists recreation_resource_district_count_view;
+drop materialized view if exists rst.recreation_resource_district_count_view;
 
-create materialized view recreation_resource_district_count_view as
+create materialized view rst.recreation_resource_district_count_view as
 select
   rd.district_code,
   rd.description,
@@ -30,6 +30,6 @@ where
 group by
   rd.district_code;
 
-comment on materialized view recreation_resource_district_count_view is 'provides a list of district codes and counts of their associated recreation resources for use in the search filter menu.';
+comment on materialized view rst.recreation_resource_district_count_view is 'provides a list of district codes and counts of their associated recreation resources for use in the search filter menu.';
 
-refresh materialized view recreation_resource_district_count_view;
+refresh materialized view rst.recreation_resource_district_count_view;
