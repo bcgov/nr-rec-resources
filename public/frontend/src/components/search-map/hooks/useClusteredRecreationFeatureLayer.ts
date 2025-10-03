@@ -13,6 +13,7 @@ import {
   AnimatedClusterOptions,
   ExtendedClusterOptions,
 } from '@/components/search-map/types';
+import { calculateMapPadding } from '@/components/search-map/utils';
 
 interface UseClusteredRecreationFeatureLayerOptions {
   clusterOptions?: ExtendedClusterOptions;
@@ -113,13 +114,16 @@ export const useClusteredRecreationFeatureLayer = (
           return extend(acc, feature.getGeometry().getExtent());
         }, createEmpty());
 
-        mapRef.current
-          ?.getMap()
-          .getView()
-          .fit(extent, {
-            padding: [200, 200, 200, 200],
+        const map = mapRef.current?.getMap();
+        if (map) {
+          const mapSize = map.getSize();
+          const padding = calculateMapPadding(mapSize?.[0] ?? 1200);
+
+          map.getView().fit(extent, {
+            padding,
             duration: 500,
           });
+        }
       }
     };
 
