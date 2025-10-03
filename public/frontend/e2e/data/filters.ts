@@ -1,5 +1,5 @@
 export const districtFilterOptions = [
-  { label: '100 Mile-Chilcotin' },
+  { label: 'Boundary-South Okanagan' },
   { label: 'Cascades' },
   { label: 'Chilliwack' },
   { label: 'Columbia-Shuswap' },
@@ -10,7 +10,7 @@ export const districtFilterOptions = [
   { label: 'Kootenay-Boundary' },
   { label: 'Nadina-Skeena' },
   { label: 'North Coast-Kalum-Cassiar' },
-  { label: 'Okanagan' },
+  { label: 'North Okanagan' },
   { label: 'Peace-Ft. Nelson' },
   { label: 'Prince George-Mackenzie' },
   { label: 'Quesnel-Central Cariboo' },
