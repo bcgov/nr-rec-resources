@@ -135,11 +135,10 @@ test.describe('Filter chip workflows', () => {
     const utils = new UtilsPOM(page);
 
     await searchPage.route(
-      '?page=1&district=RDMH_RDCK_RDCO_RDKA&type=RTR_SIT_IF&access=B_F_R_T&facilities=toilet&activities=1',
+      '?page=1&district=RDCK_RDCO_RDKA&type=RTR_SIT_IF&access=B_F_R_T&facilities=toilet&activities=1',
     );
 
     await filterChips.verifyFilterChips([
-      '100 Mile-Chilcotin',
       DISTRICT,
       'Columbia-Shuswap',
       'Kamloops',
