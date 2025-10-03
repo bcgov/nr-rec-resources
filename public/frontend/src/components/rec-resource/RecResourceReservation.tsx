@@ -155,7 +155,7 @@ const RecResourceReservation: React.FC<RecResourceReservationProps> = ({
               <div className="camp-icon-container">
                 <FontAwesomeIcon icon={faInfoCircle} className="info-icon" />
                 <div>
-                  <span>No fees apply.</span>
+                  <span>No fees apply</span>
                 </div>
               </div>
             </div>

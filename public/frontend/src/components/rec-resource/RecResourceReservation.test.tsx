@@ -216,7 +216,7 @@ describe('RecResourceReservation', () => {
       />,
     );
 
-    expect(screen.getByText(/No fees apply./i)).toBeInTheDocument();
+    expect(screen.getByText(/No fees apply/i)).toBeInTheDocument();
   });
 
   it('renders no fees apply when there is camping and no fees', () => {
