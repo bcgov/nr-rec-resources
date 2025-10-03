@@ -85,6 +85,22 @@ describe('fuzzySearch', () => {
       rank: 10,
       option_type: OPTION_TYPE.CITY,
     },
+    {
+      id: 11,
+      name: 'Dawson Creek',
+      latitude: 55.7601,
+      longitude: -120.2353,
+      rank: 11,
+      option_type: OPTION_TYPE.CITY,
+    },
+    {
+      id: 12,
+      name: 'Peachland',
+      latitude: 49.6833,
+      longitude: -119.7333,
+      rank: 12,
+      option_type: OPTION_TYPE.CITY,
+    },
   ];
 
   describe('fuzzySearchCities', () => {
@@ -157,10 +173,22 @@ describe('fuzzySearch', () => {
       expect(result?.name).toBe(expected);
     });
 
+    it.each([{ query: 'beach', description: 'does not match "Peachland"' }])(
+      'should NOT match partial single-word names with $description',
+      ({ query }) => {
+        const result = fuzzySearchBestCity(mockCities, query);
+        expect(result).toBeNull();
+      },
+    );
+
     it.each([
       { query: 'ainsworth', description: 'single-word query "ainsworth"' },
       { query: 'welcome', description: 'single-word query "welcome"' },
       { query: 'beach', description: 'single-word query "beach"' },
+      {
+        query: 'leon creek',
+        description: 'multi-word query should not return "Dawson Creek"',
+      },
       {
         query: 'ainsworth hot',
         description: 'partial multi-word query "ainsworth hot"',
