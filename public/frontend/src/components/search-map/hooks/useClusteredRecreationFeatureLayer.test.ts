@@ -42,6 +42,7 @@ describe('useClusteredRecreationFeatureLayer', () => {
     removeInteraction: vi.fn(),
     getTargetElement: vi.fn(() => mockTargetElement),
     forEachFeatureAtPixel: vi.fn(),
+    getSize: vi.fn(() => [1200, 800]),
   };
 
   const mapRef = { current: { getMap: () => mockMap } } as any;
@@ -289,7 +290,7 @@ describe('useClusteredRecreationFeatureLayer', () => {
     selectHandler({ selected: [mockClusterFeature] });
 
     expect(mockView.fit).toHaveBeenCalledWith([0, 0, 100, 100], {
-      padding: [200, 200, 200, 200],
+      padding: [140, 120, 120, 120],
       duration: 500,
     });
   });

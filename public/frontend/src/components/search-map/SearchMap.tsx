@@ -36,8 +36,7 @@ import { useBaseMaps } from '@/components/search-map/hooks/useBaseMaps';
 import '@/components/search-map/SearchMap.scss';
 
 const CLUSTER_OPTIONS = {
-  clusterZoomThreshold: 16,
-  distance: 50,
+  distance: 89,
   minDistance: 10,
 };
 
