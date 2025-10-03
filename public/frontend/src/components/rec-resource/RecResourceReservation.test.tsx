@@ -202,4 +202,36 @@ describe('RecResourceReservation', () => {
 
     expect(screen.queryByRole('link', { name: 'facilities' })).toBeNull();
   });
+
+  it('renders no fees apply when there is no camping and fees', () => {
+    render(
+      <RecResourceReservation
+        recResource={{
+          ...baseResource,
+          campsite_count: 0,
+          additional_fees: [],
+          recreation_fee: [],
+          recreation_resource_reservation_info: undefined,
+        }}
+      />,
+    );
+
+    expect(screen.getByText(/No fees apply./i)).toBeInTheDocument();
+  });
+
+  it('renders no fees apply when there is camping and no fees', () => {
+    render(
+      <RecResourceReservation
+        recResource={{
+          ...baseResource,
+          campsite_count: 1,
+          additional_fees: [],
+          recreation_fee: [],
+          recreation_resource_reservation_info: undefined,
+        }}
+      />,
+    );
+
+    expect(screen.getByText(/No fees apply./i)).toBeInTheDocument();
+  });
 });
