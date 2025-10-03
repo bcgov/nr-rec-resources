@@ -20,7 +20,10 @@ import {
 } from '@/components/recreation-suggestion-form/types';
 import '@/components/recreation-suggestion-form/RecreationSuggestionForm.scss';
 import { trackClickEvent } from '@/utils/matomo';
-import { fuzzySearchCities, fuzzySearchBestCity } from '@/utils/fuzzySearch';
+import {
+  fuzzySearchCities,
+  fuzzySearchBestCity,
+} from '@/components/recreation-suggestion-form/utils/fuzzySearch';
 import { ROUTE_PATHS } from '@/routes/constants';
 import {
   CURRENT_LOCATION_TITLE,
