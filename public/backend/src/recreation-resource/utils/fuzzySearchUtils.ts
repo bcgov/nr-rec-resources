@@ -12,8 +12,8 @@ export const buildFuzzySearchConditions = (searchText: string): Prisma.Sql => {
   return Prisma.sql`(
     name ilike ${'%' + searchText + '%'}
     or closest_community ilike ${'%' + searchText + '%'}
-    or similarity(name, ${searchText}) > 0.2
-    or similarity(closest_community, ${searchText}) > 0.2
+    or similarity(name, ${searchText}) > 0.3
+    or similarity(closest_community, ${searchText}) > 0.3
     or name % ${searchText}
     or closest_community % ${searchText}
   )`;
