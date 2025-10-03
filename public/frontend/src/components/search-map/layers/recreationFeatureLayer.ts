@@ -11,6 +11,9 @@ import {
   createLocationDotBlueIcon,
   createLocationDotOrangeIcon,
   createLocationDotRedIcon,
+  createSITIcon,
+  createRTRIcon,
+  createIFIcon,
 } from '@/components/search-map/styles/icons';
 import { clusterStyle } from '@/components/search-map/styles/cluster';
 import { RECREATION_FEATURE_LAYER } from '@/components/search-map/constants';
@@ -33,9 +36,34 @@ const getCapitalizedName = (name: string): string => {
   return labelTextCache.get(name)!;
 };
 
+const PROJECT_TYPE_ICON_MAP = {
+  SIT: createSITIcon,
+  RTR: createRTRIcon,
+  IF: createIFIcon,
+} as const;
+
+const getProjectTypeIcon = (
+  projectType: string,
+  options: { opacity: number; isClosed: boolean },
+): Style => {
+  const iconType = Object.keys(PROJECT_TYPE_ICON_MAP).find((type) =>
+    projectType.includes(type),
+  );
+
+  if (iconType) {
+    return PROJECT_TYPE_ICON_MAP[
+      iconType as keyof typeof PROJECT_TYPE_ICON_MAP
+    ](options);
+  }
+
+  return options.isClosed
+    ? createLocationDotRedIcon(options)
+    : createLocationDotBlueIcon(options);
+};
+
 export function createClusteredRecreationFeatureStyle(
   feature: FeatureLike,
-  _resolution: number,
+  resolution: number,
   options?: {
     iconOpacity?: number;
     clusterOpacity?: number;
@@ -68,16 +96,36 @@ export function createClusteredRecreationFeatureStyle(
   }
 
   const isClosed = singleFeature.get('CLOSURE_IND') === 'Y';
-  const iconKey = `icon-${isClosed}-${iconOpacity}`;
+  const projectType = singleFeature.get('PROJECT_TYPE');
 
-  if (!iconStyleCache.has(iconKey)) {
-    const iconStyle = isClosed
-      ? createLocationDotRedIcon({ opacity: iconOpacity })
-      : createLocationDotBlueIcon({ opacity: iconOpacity });
-    iconStyleCache.set(iconKey, iconStyle);
+  const useProjectTypeIcons = resolution <= 300;
+
+  let iconStyle: Style;
+
+  if (useProjectTypeIcons && projectType) {
+    const iconKey = `icon-${projectType}-${isClosed}-${iconOpacity}`;
+
+    if (!iconStyleCache.has(iconKey)) {
+      const projectIcon = getProjectTypeIcon(projectType, {
+        opacity: iconOpacity,
+        isClosed,
+      });
+      iconStyleCache.set(iconKey, projectIcon);
+    }
+
+    iconStyle = iconStyleCache.get(iconKey)!;
+  } else {
+    const iconKey = `icon-${isClosed}-${iconOpacity}`;
+
+    if (!iconStyleCache.has(iconKey)) {
+      const defaultIconStyle = isClosed
+        ? createLocationDotRedIcon({ opacity: iconOpacity })
+        : createLocationDotBlueIcon({ opacity: iconOpacity });
+      iconStyleCache.set(iconKey, defaultIconStyle);
+    }
+
+    iconStyle = iconStyleCache.get(iconKey)!;
   }
-
-  const iconStyle = iconStyleCache.get(iconKey)!;
 
   const name = singleFeature.get('PROJECT_NAME');
   if (!name) return iconStyle;

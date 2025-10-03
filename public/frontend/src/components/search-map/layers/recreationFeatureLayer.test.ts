@@ -5,7 +5,6 @@ import ClusterSource from 'ol/source/Cluster';
 import { EsriJSON } from 'ol/format';
 import type { FeatureLike } from 'ol/Feature';
 
-// Mock dependencies
 vi.mock('ol-ext/layer/AnimatedCluster', () => ({
   default: class MockAnimatedCluster {
     constructor(options: any) {
@@ -54,6 +53,15 @@ vi.mock('@/components/search-map/styles/icons', () => ({
   createLocationDotRedIcon: vi.fn(
     ({ opacity }) => new Style({ opacity } as any),
   ),
+  createSITIcon: vi.fn(
+    ({ opacity, isClosed }) => new Style({ opacity, isClosed } as any),
+  ),
+  createRTRIcon: vi.fn(
+    ({ opacity, isClosed }) => new Style({ opacity, isClosed } as any),
+  ),
+  createIFIcon: vi.fn(
+    ({ opacity, isClosed }) => new Style({ opacity, isClosed } as any),
+  ),
 }));
 
 vi.mock('@/components/search-map/styles/cluster', () => ({
@@ -82,6 +90,9 @@ import {
   createLocationDotBlueIcon,
   createLocationDotOrangeIcon,
   createLocationDotRedIcon,
+  createSITIcon,
+  createRTRIcon,
+  createIFIcon,
 } from '@/components/search-map/styles/icons';
 import { clusterStyle } from '@/components/search-map/styles/cluster';
 
@@ -227,6 +238,68 @@ describe('recreationFeatureLayer', () => {
       expect(Array.isArray(result)).toBe(true);
       expect((result as Style[]).length).toBe(2);
     });
+
+    describe('project type icons', () => {
+      const createMockFeature = (
+        projectType: string,
+        isClosed: boolean = false,
+      ) => {
+        const mockSingleFeature = {
+          get: vi.fn((key: string) => {
+            if (key === 'selected') return false;
+            if (key === 'CLOSURE_IND') return isClosed ? 'Y' : 'N';
+            if (key === 'PROJECT_TYPE') return projectType;
+            if (key === 'PROJECT_NAME') return undefined;
+            return undefined;
+          }),
+        };
+
+        return {
+          get: vi.fn((key: string) => {
+            if (key === 'features') return [mockSingleFeature];
+            return undefined;
+          }),
+        } as unknown as FeatureLike;
+      };
+
+      const projectTypes = [
+        { type: 'SIT', icon: createSITIcon },
+        { type: 'RTR', icon: createRTRIcon },
+        { type: 'IF', icon: createIFIcon },
+      ];
+
+      projectTypes.forEach(({ type, icon }) => {
+        it(`should return ${type} icon for ${type} project type when zoomed in`, () => {
+          const mockFeature = createMockFeature(type, false);
+          createClusteredRecreationFeatureStyle(mockFeature, 200);
+          expect(icon).toHaveBeenCalledWith({ opacity: 1, isClosed: false });
+        });
+
+        it(`should return closed ${type} icon for closed ${type} project`, () => {
+          const mockFeature = createMockFeature(type, true);
+          createClusteredRecreationFeatureStyle(mockFeature, 200);
+          expect(icon).toHaveBeenCalledWith({ opacity: 1, isClosed: true });
+        });
+      });
+
+      it('should fall back to default icons for unknown project types', () => {
+        const mockFeature = createMockFeature('UNKNOWN_TYPE', false);
+        createClusteredRecreationFeatureStyle(mockFeature, 200);
+        expect(createLocationDotBlueIcon).toHaveBeenCalledWith({
+          opacity: 1,
+          isClosed: false,
+        });
+      });
+
+      it('should fall back to red icon for closed unknown project types', () => {
+        const mockFeature = createMockFeature('UNKNOWN_TYPE', true);
+        createClusteredRecreationFeatureStyle(mockFeature, 200);
+        expect(createLocationDotRedIcon).toHaveBeenCalledWith({
+          opacity: 1,
+          isClosed: true,
+        });
+      });
+    });
   });
 
   describe('createRecreationFeatureSource', () => {
@@ -257,12 +330,10 @@ describe('recreationFeatureLayer', () => {
       const filteredIds = ['123', '456'];
       const clusterOptions = { distance: 50 };
 
-      // Mock the addFeatures method
       const mockAddFeatures = vi.fn();
       const mockSetLoader = vi.fn();
       let capturedLoader: (() => Promise<void>) | undefined;
 
-      // Mock VectorSource constructor to capture the loader
       (VectorSource as any).mockImplementation((options: any) => {
         return {
           addFeatures: mockAddFeatures,
@@ -274,7 +345,6 @@ describe('recreationFeatureLayer', () => {
         };
       });
 
-      // Mock the fetch response for getFilteredFeatures
       const mockResponse = {
         features: [
           { attributes: { FOREST_FILE_ID: '123', PROJECT_NAME: 'Test 1' } },
@@ -322,7 +392,6 @@ describe('recreationFeatureLayer', () => {
       });
       expect(result).toBeDefined();
 
-      // Test that the loader function works correctly
       if (capturedLoader) {
         await capturedLoader();
         expect(mockAddFeatures).toHaveBeenCalledWith(mockFeatures);
@@ -456,14 +525,12 @@ describe('recreationFeatureLayer', () => {
     it('should handle pagination with multiple batches', async () => {
       const filteredIds = ['123'];
 
-      // Mock first batch response (full batch)
       const mockResponse1 = {
         features: new Array(1000).fill(null).map((_, i) => ({
           attributes: { FOREST_FILE_ID: `${i}`, PROJECT_NAME: `Test ${i}` },
         })),
       };
 
-      // Mock second batch response (partial batch)
       const mockResponse2 = {
         features: [
           { attributes: { FOREST_FILE_ID: '123', PROJECT_NAME: 'Test Match' } },
