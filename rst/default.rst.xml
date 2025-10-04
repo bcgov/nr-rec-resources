@@ -266,6 +266,7 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="description" nullable="false" remarks="Description of the recreation district boundary type" size="120" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="now()" digits="6" id="2" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="3" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <column autoUpdated="false" defaultValue="false" digits="0" id="4" name="is_archived" nullable="false" remarks="indicates whether the recreation district code is archived (no longer active)." size="1" type="bool" typeCode="-7"/>
          <primaryKey column="district_code" sequenceNumberInPK="1"/>
          <index name="recreation_district_code_pkey" unique="true">
             <column ascending="true" name="district_code"/>
@@ -581,7 +582,7 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="access_description" nullable="true" remarks="" size="120" type="varchar" typeCode="12"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="count" nullable="true" remarks="" size="19" type="int8" typeCode="-5"/>
       </table>
-      <table name="recreation_resource_district_count_view" numRows="0" remarks="Provides a list of district codes and counts of their associated recreation resources for use in the search filter menu." schema="rst" type="VIEW" viewSql=" SELECT rd.district_code,&#10;    rd.description,&#10;    COALESCE(count(DISTINCT r.rec_resource_id), (0)::bigint) AS resource_count&#10;   FROM (rst.recreation_district_code rd&#10;     LEFT JOIN rst.recreation_resource r ON ((((r.district_code)::text = (rd.district_code)::text) AND (r.display_on_public_site = true))))&#10;  WHERE ((rd.district_code)::text &lt;&gt; ALL ((ARRAY['RDQC'::character varying, 'RDRM'::character varying])::text[]))&#10;  GROUP BY rd.district_code;">
+      <table name="recreation_resource_district_count_view" numRows="0" remarks="provides a list of district codes and counts of their associated recreation resources for use in the search filter menu." schema="rst" type="VIEW" viewSql=" SELECT rd.district_code,&#10;    rd.description,&#10;    COALESCE(count(DISTINCT r.rec_resource_id), (0)::bigint) AS resource_count&#10;   FROM (rst.recreation_district_code rd&#10;     LEFT JOIN rst.recreation_resource r ON ((((r.district_code)::text = (rd.district_code)::text) AND (r.display_on_public_site = true))))&#10;  WHERE (rd.is_archived = false)&#10;  GROUP BY rd.district_code;">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="district_code" nullable="true" remarks="" size="4" type="varchar" typeCode="12">
             <parent column="district_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_district_code"/>
          </column>

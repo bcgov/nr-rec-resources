@@ -84,7 +84,7 @@
                             </div>
                         </div><!-- /.box-header -->
                         <div class="box-body clearfix">
-                            <p>Provides a list of district codes and counts of their associated recreation resources for use in the search filter menu.</p>
+                            <p>provides a list of district codes and counts of their associated recreation resources for use in the search filter menu.</p>
                         </div><!-- /.box-body -->
                     </div>
                 </section>
@@ -237,7 +237,7 @@
                             </div>
                         </div>
                         <div class="box-body">
-                            <textarea id="sql-script-codemirror" name="sql-script-codemirror" rows="" style="display: none;">SELECT rd.district_code,&#10;    rd.description,&#10;    COALESCE(count(DISTINCT r.rec_resource_id), (0)::bigint) AS resource_count&#10;   FROM (rst.recreation_district_code rd&#10;     LEFT JOIN rst.recreation_resource r ON ((((r.district_code)::text &#61; (rd.district_code)::text) AND (r.display_on_public_site &#61; true))))&#10;  WHERE ((rd.district_code)::text &lt;&gt; ALL ((ARRAY[&#39;RDQC&#39;::character varying, &#39;RDRM&#39;::character varying])::text[]))&#10;  GROUP BY rd.district_code;</textarea>
+                            <textarea id="sql-script-codemirror" name="sql-script-codemirror" rows="" style="display: none;">SELECT rd.district_code,&#10;    rd.description,&#10;    COALESCE(count(DISTINCT r.rec_resource_id), (0)::bigint) AS resource_count&#10;   FROM (rst.recreation_district_code rd&#10;     LEFT JOIN rst.recreation_resource r ON ((((r.district_code)::text &#61; (rd.district_code)::text) AND (r.display_on_public_site &#61; true))))&#10;  WHERE (rd.is_archived &#61; false)&#10;  GROUP BY rd.district_code;</textarea>
                             <div style="padding-top: 5px;"><hr></div>
                             <div class="box box-solid">
                                 <div class="box-header with-border">
