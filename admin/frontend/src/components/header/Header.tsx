@@ -83,7 +83,7 @@ export const Header = () => {
     import.meta.url.includes('localhost') ||
     import.meta.url.includes('127.0.0.1');
   const envString =
-    env && env !== 'production'
+    env && (env === 'development' || env === 'test')
       ? ` - Enviroment: ${env}${isLocal && '  - Local'}`
       : '';
   return (

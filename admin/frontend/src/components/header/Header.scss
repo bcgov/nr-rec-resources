@@ -6,11 +6,11 @@
   }
 
   &.development {
-    background-color: purple;
+    background-color: $colorHeaderDevEnvironment;
   }
 
   &.test {
-    background-color: green;
+    background-color: $colorHeaderTestEnvironment;
   }
   &__logo {
     width: 200px;
