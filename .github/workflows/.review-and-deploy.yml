@@ -79,20 +79,6 @@ jobs:
       environment: test
     secrets: inherit
 
-  # This is broken and likely should be put elsewhere
-  # release:
-  #   name: Release
-  #   needs: tests-e2e-test-environment
-  #   uses: ./.github/workflows/.release.yml
-
-  promote:
-    name: Promote
-    needs: tests-e2e-test-environment
-    uses: ./.github/workflows/.promote.yml
-    with:
-      app: ${{ inputs.app }}
-      tag: ${{ inputs.tag }}
-
   # Separate review job since we can't use GitHub environments in reusable workflows
   review-prod-deployment:
     name: Review ${{ inputs.app }} prod deployment
@@ -103,9 +89,24 @@ jobs:
       - name: Review Prod Deployment
         run: echo "Reviewing Prod Deployment"
 
+  release:
+    name: Release
+    needs: review-prod-deployment
+    uses: ./.github/workflows/.release.yml
+    with:
+      app: ${{ inputs.app }}
+
+  promote:
+    name: Promote
+    needs: release
+    uses: ./.github/workflows/.promote.yml
+    with:
+      app: ${{ inputs.app }}
+      tag: ${{ inputs.tag }}
+
   deploy-to-aws-prod:
     name: Deploy Application to AWS prod
-    needs: review-prod-deployment
+    needs: release
     uses: ./.github/workflows/.deploy-app.yml
     concurrency:
       group: deploy-${{ inputs.app }}-to-aws-prod
