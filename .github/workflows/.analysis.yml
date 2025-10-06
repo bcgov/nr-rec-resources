@@ -73,6 +73,7 @@ jobs:
   validate-pr-title: # Validate the PR title follows conventional commit format for changelog generation
     name: Validate PR title
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
     permissions:
       pull-requests: read
     steps:

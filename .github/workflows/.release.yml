@@ -19,6 +19,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
+
       - name: Conventional Changelog Update
         uses: TriPSs/conventional-changelog-action@v6
         id: changelog
@@ -28,7 +29,9 @@ jobs:
           output-file: "CHANGELOG.md"
           skip-version-file: true
           skip-commit: true
-          git-push: ${{ github.ref_name == 'main' }}
+          git-push: false
+          tag-prefix: ${{ inputs.app }}-
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         if: ${{ steps.changelog.outputs.tag != '' }}
@@ -37,9 +40,9 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           token: ${{ github.token }}
-          tag_name: ${{ inputs.app }}-${{ steps.changelog.outputs.tag }}
-          name: ${{ inputs.app }} ${{ steps.changelog.outputs.tag }}
+          tag_name: ${{ steps.changelog.outputs.tag }}
+          name: Release ${{ steps.changelog.outputs.tag }}
           body: |
-            ## ${{ inputs.app }} Release ${{ steps.changelog.outputs.tag }}
+            ## Release ${{ steps.changelog.outputs.tag }}
 
             ${{ steps.changelog.outputs.clean_changelog }}
