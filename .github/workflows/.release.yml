@@ -2,6 +2,14 @@ name: Make Release
 
 on:
   workflow_call:
+    inputs:
+      app:
+        description: Application name
+        required: true
+        type: string
+
+permissions:
+  contents: write
 
 jobs:
   release:
@@ -9,6 +17,8 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
       - name: Conventional Changelog Update
         uses: TriPSs/conventional-changelog-action@v6
         id: changelog
@@ -16,9 +26,9 @@ jobs:
         with:
           github-token: ${{ github.token }}
           output-file: "CHANGELOG.md"
-          skip-version-file: "true"
-          skip-commit: "true"
-          git-push: "true"
+          skip-version-file: true
+          skip-commit: true
+          git-push: ${{ github.ref_name == 'main' }}
       - name: Create Release
         uses: softprops/action-gh-release@v2
         if: ${{ steps.changelog.outputs.tag != '' }}
@@ -27,6 +37,9 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           token: ${{ github.token }}
-          tag_name: ${{ steps.changelog.outputs.tag }}
-          name: ${{ steps.changelog.outputs.tag }}
-          body: ${{ steps.changelog.outputs.clean_changelog }}
+          tag_name: ${{ inputs.app }}-${{ steps.changelog.outputs.tag }}
+          name: ${{ inputs.app }} ${{ steps.changelog.outputs.tag }}
+          body: |
+            ## ${{ inputs.app }} Release ${{ steps.changelog.outputs.tag }}
+
+            ${{ steps.changelog.outputs.clean_changelog }}
