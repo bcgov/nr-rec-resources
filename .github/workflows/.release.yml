@@ -1,12 +1,7 @@
 name: Make Release
 
 on:
-  workflow_call:
-    inputs:
-      app:
-        description: Application name
-        required: true
-        type: string
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -30,7 +25,6 @@ jobs:
           skip-version-file: true
           skip-commit: true
           git-push: false
-          tag-prefix: ${{ inputs.app }}-
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
