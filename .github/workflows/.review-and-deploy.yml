@@ -91,7 +91,7 @@ jobs:
 
   promote:
     name: Promote
-    needs: release
+    needs: review-prod-deployment
     uses: ./.github/workflows/.promote.yml
     with:
       app: ${{ inputs.app }}
