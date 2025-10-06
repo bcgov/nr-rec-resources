@@ -13,20 +13,6 @@ on:
 
 
 jobs:
-  ################################################
-  # Merging these in to verify the release process works as expected
-  # -- will remove these in a follow up PR
-  release-admin:
-    name: Release Admin
-    uses: ./.github/workflows/.release.yml
-    with:
-      app: admin
-  release-public:
-    name: Release Public
-    uses: ./.github/workflows/.release.yml
-    with:
-      app: public
-  ###############################################
   build-containers:
     name: Build containers
     concurrency:
