@@ -28,7 +28,7 @@ import { trackClickEvent } from '@/utils/matomo';
 import { WILDFIRE_LOCATION_MIN_ZOOM } from '@/components/search-map/constants';
 import RecreationSuggestionForm from '@/components/recreation-suggestion-form/RecreationSuggestionForm';
 import type Feature from 'ol/Feature';
-import MapDisclaimerModal from '../rec-resource/RecreationResourceMap/MapDisclaimerModal';
+import MapDisclaimerModal from '@/components/search-map/MapDisclaimerModal';
 import { useMapFocus } from '@/components/search-map/hooks/useMapFocus';
 import Overlay from 'ol/Overlay';
 import { LoadingOverlay } from '@shared/components/loading-overlay';

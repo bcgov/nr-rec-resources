@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import activityIconMap from '@/data/activityIconMap';
+import { activityIconMap } from '@shared/data/activityIconMap';
 import { Activity } from '@/components/rec-resource/types';
 import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 import '@/components/rec-resource/section/ThingsToDo.scss';
