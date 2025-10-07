@@ -4,3 +4,4 @@ export {
   getSitePointFeatureFromRecResource,
 } from './getMapFeaturesFromRecResource';
 export * from './mapDownloadHandlers';
+export * from './coordinatesConversion';

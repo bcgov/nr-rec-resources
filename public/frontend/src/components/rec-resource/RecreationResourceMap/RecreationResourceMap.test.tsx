@@ -39,6 +39,9 @@ vi.mock('ol/source/Vector', () => ({
 vi.mock('@/components/rec-resource/RecreationResourceMap/helpers', () => ({
   getMapFeaturesFromRecResource: vi.fn(),
   getLayerStyleForRecResource: vi.fn(),
+  getSitePointFeatureFromRecResource: vi.fn(),
+  webMercatorXToLon: vi.fn((x) => x * 0.00001),
+  webMercatorYToLat: vi.fn((y) => y * 0.00001),
 }));
 
 vi.mock('@/utils/matomo', () => ({ trackEvent: vi.fn() }));
@@ -64,20 +67,11 @@ vi.mock('@/images/icons/download.svg', () => ({
 }));
 
 vi.mock('@shared/components/icon-button', () => ({
-  IconButton: vi.fn(
-    ({ children, variant, onClick, leftIcon, 'aria-label': ariaLabel }) => (
-      <button
-        onClick={onClick}
-        data-variant={variant}
-        aria-label={ariaLabel}
-        data-testid={
-          variant === 'outline' ? 'download-button' : 'view-main-map-button'
-        }
-      >
-        {leftIcon && <span data-testid="left-icon">{leftIcon}</span>}
-        {children}
-      </button>
-    ),
+  IconButton: ({ children, leftIcon, ...props }: any) => (
+    <button {...props}>
+      {leftIcon && <span data-testid="left-icon">{leftIcon}</span>}
+      {children}
+    </button>
   ),
 }));
 
@@ -85,11 +79,15 @@ vi.mock('@shared/components/icon-button', () => ({
 import {
   getMapFeaturesFromRecResource,
   getLayerStyleForRecResource,
+  getSitePointFeatureFromRecResource,
+  webMercatorXToLon,
+  webMercatorYToLat,
 } from '@/components/rec-resource/RecreationResourceMap/helpers';
 
 const mockGetMapFeaturesFromRecResource = vi.mocked(
   getMapFeaturesFromRecResource,
 );
+
 const mockGetLayerStyleForRecResource = vi.mocked(getLayerStyleForRecResource);
 const mockTrackEvent = vi.mocked(trackEvent);
 
@@ -141,7 +139,7 @@ describe('RecreationResourceMap', () => {
       expect(
         screen.getByLabelText('Map showing Test Resource'),
       ).toBeInTheDocument();
-      expect(screen.getByText('View in main map')).toBeInTheDocument();
+      expect(screen.getByText('Full map')).toBeInTheDocument();
       expect(screen.getByText('Export map file')).toBeInTheDocument();
     });
 
@@ -244,7 +242,7 @@ describe('RecreationResourceMap', () => {
         </TestWrapper>,
       );
 
-      const viewMainMapLink = screen.getByText('View in main map').closest('a');
+      const viewMainMapLink = screen.getByText('Full map').closest('a');
       expect(viewMainMapLink).toHaveAttribute(
         'href',
         `${ROUTE_PATHS.SEARCH}?view=map&focus=${SearchMapFocusModes.REC_RESOURCE_ID}:123`,
@@ -253,7 +251,7 @@ describe('RecreationResourceMap', () => {
 
     it.each([
       [
-        'view in main map',
+        'View in main map',
         'view-main-map-button',
         'View in main map',
         'Test Resource-123-View in main map',
@@ -264,6 +262,12 @@ describe('RecreationResourceMap', () => {
         'Export map file',
         'Test Resource-123-Export map file',
       ],
+      [
+        'Google Maps button',
+        'google-maps',
+        'Open in Google Maps',
+        'Test Resource-123-Open in Google Maps',
+      ],
     ])(
       'tracks %s click event',
       async (_, buttonTestId, action, expectedName) => {
@@ -273,13 +277,40 @@ describe('RecreationResourceMap', () => {
           </TestWrapper>,
         );
 
-        fireEvent.click(screen.getByTestId(buttonTestId));
+        if (buttonTestId === 'google-maps') {
+          const mockGeom = { getCoordinates: vi.fn(() => [100, 200]) };
+          const mockFeature = { getGeometry: vi.fn(() => mockGeom) };
+          (getSitePointFeatureFromRecResource as any).mockReturnValue(
+            mockFeature,
+          );
+          (getMapFeaturesFromRecResource as any).mockReturnValue([
+            { setStyle: vi.fn() },
+          ]);
+          const openSpy = vi
+            .spyOn(window, 'open')
+            .mockImplementation(() => null);
 
-        expect(mockTrackEvent).toHaveBeenCalledWith({
-          category: MATOMO_TRACKING_CATEGORY_MAP,
-          action,
-          name: expectedName,
-        });
+          fireEvent.click(screen.getByTestId(buttonTestId));
+
+          expect(trackEvent).toHaveBeenCalledWith(
+            expect.objectContaining({ action: 'Open in Google Maps' }),
+          );
+          expect(webMercatorYToLat).toHaveBeenCalledWith(200);
+          expect(webMercatorXToLon).toHaveBeenCalledWith(100);
+          expect(openSpy).toHaveBeenCalledWith(
+            expect.stringContaining(
+              'https://www.google.com/maps/search/?api=1&query=',
+            ),
+            '_blank',
+          );
+        } else {
+          fireEvent.click(screen.getByTestId(buttonTestId));
+          expect(mockTrackEvent).toHaveBeenCalledWith({
+            category: MATOMO_TRACKING_CATEGORY_MAP,
+            action,
+            name: expectedName,
+          });
+        }
       },
     );
 
@@ -311,7 +342,7 @@ describe('RecreationResourceMap', () => {
         </TestWrapper>,
       );
 
-      const viewMainMapLink = screen.getByText('View in main map').closest('a');
+      const viewMainMapLink = screen.getByText('Full map').closest('a');
       expect(viewMainMapLink).toHaveAttribute(
         'href',
         `${ROUTE_PATHS.SEARCH}?view=map&focus=${SearchMapFocusModes.REC_RESOURCE_ID}:undefined`,
