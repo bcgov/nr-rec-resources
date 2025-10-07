@@ -167,15 +167,12 @@ export class RecreationResourceApi extends runtime.BaseAPI {
       formParams.append('file', requestParameters['file'] as any);
     }
 
-    let urlPath = `/api/v1/recreation-resource/{rec_resource_id}/docs`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resource/{rec_resource_id}/docs`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
@@ -267,15 +264,12 @@ export class RecreationResourceApi extends runtime.BaseAPI {
       formParams.append('file', requestParameters['file'] as any);
     }
 
-    let urlPath = `/api/v1/recreation-resource/{rec_resource_id}/images`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resource/{rec_resource_id}/images`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
@@ -336,20 +330,17 @@ export class RecreationResourceApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resource/{rec_resource_id}/docs/{ref_id}`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-    urlPath = urlPath.replace(
-      `{${'ref_id'}}`,
-      encodeURIComponent(String(requestParameters['refId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resource/{rec_resource_id}/docs/{ref_id}`
+          .replace(
+            `{${'rec_resource_id'}}`,
+            encodeURIComponent(String(requestParameters['recResourceId'])),
+          )
+          .replace(
+            `{${'ref_id'}}`,
+            encodeURIComponent(String(requestParameters['refId'])),
+          ),
         method: 'DELETE',
         headers: headerParameters,
         query: queryParameters,
@@ -409,20 +400,17 @@ export class RecreationResourceApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resource/{rec_resource_id}/images/{ref_id}`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-    urlPath = urlPath.replace(
-      `{${'ref_id'}}`,
-      encodeURIComponent(String(requestParameters['refId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resource/{rec_resource_id}/images/{ref_id}`
+          .replace(
+            `{${'rec_resource_id'}}`,
+            encodeURIComponent(String(requestParameters['recResourceId'])),
+          )
+          .replace(
+            `{${'ref_id'}}`,
+            encodeURIComponent(String(requestParameters['refId'])),
+          ),
         method: 'DELETE',
         headers: headerParameters,
         query: queryParameters,
@@ -482,20 +470,17 @@ export class RecreationResourceApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resource/{rec_resource_id}/docs/{ref_id}`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-    urlPath = urlPath.replace(
-      `{${'ref_id'}}`,
-      encodeURIComponent(String(requestParameters['refId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resource/{rec_resource_id}/docs/{ref_id}`
+          .replace(
+            `{${'rec_resource_id'}}`,
+            encodeURIComponent(String(requestParameters['recResourceId'])),
+          )
+          .replace(
+            `{${'ref_id'}}`,
+            encodeURIComponent(String(requestParameters['refId'])),
+          ),
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -548,16 +533,12 @@ export class RecreationResourceApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resource/{rec_resource_id}/docs`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resource/{rec_resource_id}/docs`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -617,20 +598,17 @@ export class RecreationResourceApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resource/{rec_resource_id}/images/{ref_id}`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-    urlPath = urlPath.replace(
-      `{${'ref_id'}}`,
-      encodeURIComponent(String(requestParameters['refId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resource/{rec_resource_id}/images/{ref_id}`
+          .replace(
+            `{${'rec_resource_id'}}`,
+            encodeURIComponent(String(requestParameters['recResourceId'])),
+          )
+          .replace(
+            `{${'ref_id'}}`,
+            encodeURIComponent(String(requestParameters['refId'])),
+          ),
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -683,16 +661,12 @@ export class RecreationResourceApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resource/{rec_resource_id}/images`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resource/{rec_resource_id}/images`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -745,16 +719,12 @@ export class RecreationResourceApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/recreation-resource/{rec_resource_id}`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/recreation-resource/{rec_resource_id}`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -811,12 +781,9 @@ export class RecreationResourceApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/recreation-resource/suggestions`;
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/recreation-resource/suggestions`,
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -885,20 +852,17 @@ export class RecreationResourceApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resource/{rec_resource_id}/docs/{ref_id}`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-    urlPath = urlPath.replace(
-      `{${'ref_id'}}`,
-      encodeURIComponent(String(requestParameters['refId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resource/{rec_resource_id}/docs/{ref_id}`
+          .replace(
+            `{${'rec_resource_id'}}`,
+            encodeURIComponent(String(requestParameters['recResourceId'])),
+          )
+          .replace(
+            `{${'ref_id'}}`,
+            encodeURIComponent(String(requestParameters['refId'])),
+          ),
         method: 'PUT',
         headers: headerParameters,
         query: queryParameters,
@@ -970,20 +934,17 @@ export class RecreationResourceApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resource/{rec_resource_id}/images/{ref_id}`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-    urlPath = urlPath.replace(
-      `{${'ref_id'}}`,
-      encodeURIComponent(String(requestParameters['refId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resource/{rec_resource_id}/images/{ref_id}`
+          .replace(
+            `{${'rec_resource_id'}}`,
+            encodeURIComponent(String(requestParameters['recResourceId'])),
+          )
+          .replace(
+            `{${'ref_id'}}`,
+            encodeURIComponent(String(requestParameters['refId'])),
+          ),
         method: 'PUT',
         headers: headerParameters,
         query: queryParameters,

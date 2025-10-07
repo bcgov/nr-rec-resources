@@ -4,14 +4,19 @@ import {
   SuggestionDto,
   SuggestionsResponseDto,
 } from './dtos/suggestions-response.dto';
-import { getRecreationResourceSuggestions } from '@/prisma-generated-sql';
+import {
+  getRecreationResourceSuggestions,
+  getRecreationResourceSpatialFeatureGeometry,
+} from '@/prisma-generated-sql';
 import { RecreationResourceDetailDto } from './dtos/recreation-resource-detail.dto';
 import { formatRecreationResourceDetailResults } from './utils';
+import { PrismaService } from '@/prisma.service';
 
 @Injectable()
 export class RecreationResourceService {
   constructor(
     private readonly recreationResourceRepository: RecreationResourceRepository,
+    private readonly prisma: PrismaService,
   ) {}
 
   /**
@@ -53,7 +58,16 @@ export class RecreationResourceService {
       await this.recreationResourceRepository.findOneById(rec_resource_id);
     if (!resource) return null;
 
-    return formatRecreationResourceDetailResults(resource);
+    // Fetch the spatial features
+    const recResourceSpatialGeometryResult: getRecreationResourceSpatialFeatureGeometry.Result[] =
+      await this.prisma.$queryRawTyped(
+        getRecreationResourceSpatialFeatureGeometry(rec_resource_id),
+      );
+
+    return formatRecreationResourceDetailResults(
+      resource,
+      recResourceSpatialGeometryResult,
+    );
   }
 
   /**

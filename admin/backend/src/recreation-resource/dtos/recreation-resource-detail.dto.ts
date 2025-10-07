@@ -271,7 +271,7 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
       'GeoJSON geometry data for the point location for the rec resource in string format',
     type: String,
     required: false,
-    example: ['{"type":"Point","coordinates":[1292239.7691,1133870.4011]}'],
+    example: '{"type":"Point","coordinates":[1292239.7691,1133870.4011]}',
   })
   site_point_geometry?: string;
 
