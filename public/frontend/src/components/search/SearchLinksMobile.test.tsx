@@ -6,9 +6,9 @@ import {
   SEARCH_LINKS,
   SEARCH_LINKS_TITLE,
 } from '@/components/search/constants';
-import { trackEvent } from '@/utils/matomo';
+import { trackEvent } from '@shared/utils';
 
-vi.mock('@/utils/matomo', () => ({
+vi.mock('@shared/utils', () => ({
   trackEvent: vi.fn(),
 }));
 

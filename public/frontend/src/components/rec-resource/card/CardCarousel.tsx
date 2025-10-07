@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Carousel from 'react-bootstrap/Carousel';
-import { trackClickEvent } from '@/utils/matomo';
+import { trackClickEvent } from '@shared/utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCircleChevronLeft,

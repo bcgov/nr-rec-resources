@@ -1,5 +1,9 @@
 import { describe, it, beforeEach, vi, expect } from 'vitest';
-import { trackEvent, trackClickEvent, trackSiteSearch } from '@/utils/matomo';
+import {
+  trackEvent,
+  trackClickEvent,
+  trackSiteSearch,
+} from '../../utils/matomo';
 
 declare global {
   interface Window {

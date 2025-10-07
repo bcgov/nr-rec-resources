@@ -7,7 +7,7 @@ import RSTLogo from '@/images/RST_nav_logo.svg';
 import BetaBanner from '@/components/layout/BetaBanner';
 import HamburgerButton from '@/components/layout/HamburgerButton';
 import NavigationDrawer from '@/components/layout/NavigationDrawer';
-import { trackClickEvent } from '@/utils/matomo';
+import { trackClickEvent } from '@shared/utils';
 import { ROUTE_PATHS } from '@/routes';
 import { HEADER_LINKS } from '@/components/layout/constants';
 import '@/components/layout/Header.scss';

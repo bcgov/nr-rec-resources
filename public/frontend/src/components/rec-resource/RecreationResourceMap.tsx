@@ -13,7 +13,7 @@ import {
   StyleContext,
 } from '@shared/components/recreation-resource-map';
 import { RecreationResourceDetailModel } from '@/service/custom-models';
-import { trackEvent } from '@/utils/matomo';
+import { trackEvent } from '@shared/utils';
 import { IconButton } from '@shared/components/icon-button';
 import { SearchMapFocusModes } from '@/components/search-map/constants';
 import { ROUTE_PATHS } from '@/routes/constants';

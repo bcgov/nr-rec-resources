@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { RecreationResourceMap } from './RecreationResourceMap';
 import { BrowserRouter } from 'react-router-dom';
 import { RecreationResourceDetailModel } from '@/service/custom-models';
-import { trackEvent } from '@/utils/matomo';
+import { trackEvent } from '@shared/utils';
 
 vi.mock('@shared/components/recreation-resource-map', () => ({
   RecreationResourceMap: ({
@@ -28,7 +28,7 @@ vi.mock('@shared/components/recreation-resource-map', () => ({
   StyleContext: { DOWNLOAD: 'download' },
 }));
 
-vi.mock('@/utils/matomo');
+vi.mock('@shared/utils');
 
 const mockRecResource = {
   rec_resource_id: '123',

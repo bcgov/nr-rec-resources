@@ -28,7 +28,7 @@ vi.mock('react-remove-scroll', () => ({
   ),
 }));
 
-vi.mock('@/utils/matomo', () => ({
+vi.mock('@shared/utils', () => ({
   trackClickEvent: vi.fn(() => vi.fn()),
 }));
 
@@ -39,7 +39,7 @@ vi.mock('@fortawesome/react-fontawesome', () => ({
 }));
 
 import { useClickOutside } from '@shared/hooks';
-import { trackClickEvent } from '@/utils/matomo';
+import { trackClickEvent } from '@shared/utils';
 
 const mockUseClickOutside = vi.mocked(useClickOutside);
 const mockTrackClickEvent = vi.mocked(trackClickEvent);

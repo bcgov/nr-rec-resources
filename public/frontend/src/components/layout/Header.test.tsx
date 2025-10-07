@@ -18,7 +18,7 @@ vi.mock('@/components/layout/BetaBanner', () => ({
   default: () => <div data-testid="beta-banner">Beta Banner</div>,
 }));
 
-vi.mock('@/utils/matomo', () => ({
+vi.mock('@shared/utils', () => ({
   trackClickEvent: vi.fn(() => vi.fn()),
 }));
 
@@ -28,7 +28,7 @@ vi.mock('@fortawesome/react-fontawesome', () => ({
   ),
 }));
 
-import { trackClickEvent } from '@/utils/matomo';
+import { trackClickEvent } from '@shared/utils';
 
 const mockTrackClickEvent = vi.mocked(trackClickEvent);
 

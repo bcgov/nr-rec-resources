@@ -1,4 +1,4 @@
-import { trackClickEvent } from '@/utils/matomo';
+import { trackClickEvent } from '@shared/utils';
 
 interface FooterLinkProps {
   title: string;

@@ -13,7 +13,7 @@ import {
   useQuery,
   InfiniteData,
 } from '@tanstack/react-query';
-import { trackSiteSearch } from '@/utils/matomo';
+import { trackSiteSearch } from '@shared/utils';
 import buildQueryString from '@/utils/buildQueryString';
 import {
   transformRecreationResourceBase,

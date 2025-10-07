@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { Button, Stack } from 'react-bootstrap';
 import './LandingPage.scss';
-import { trackClickEvent } from '@/utils/matomo';
+import { trackClickEvent } from '@shared/utils';
 import { EXTERNAL_LINKS } from '@/data/urls';
 import {
   ContentSection,

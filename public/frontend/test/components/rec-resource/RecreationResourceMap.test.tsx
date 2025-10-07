@@ -13,7 +13,7 @@ vi.mock('@shared/components/recreation-resource-map', () => ({
   MATOMO_TRACKING_CATEGORY_MAP: 'Map',
 }));
 
-vi.mock('@/utils/matomo', () => ({
+vi.mock('@shared/utils', () => ({
   trackEvent: vi.fn(),
 }));
 

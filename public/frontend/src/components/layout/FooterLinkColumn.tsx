@@ -1,5 +1,5 @@
 import { ReactNode, memo, useCallback } from 'react';
-import { trackClickEvent } from '@/utils/matomo';
+import { trackClickEvent } from '@shared/utils';
 import { Stack } from 'react-bootstrap';
 
 interface LinkProps {

@@ -4,7 +4,7 @@ import { useStore } from '@tanstack/react-store';
 import { useSearchParams } from 'react-router-dom';
 import FilterMenuSearchMap from '@/components/search/filters/FilterMenuSearchMap';
 import { useSearchRecreationResourcesPaginated } from '@/service/queries/recreation-resource';
-import { trackEvent } from '@/utils/matomo';
+import { trackEvent } from '@shared/utils';
 
 vi.mock('@tanstack/react-store', async () => {
   const mod = await import('@tanstack/react-store');
@@ -26,7 +26,7 @@ vi.mock('@/service/queries/recreation-resource', () => ({
   useSearchRecreationResourcesPaginated: vi.fn(),
 }));
 
-vi.mock('@/utils/matomo', () => ({
+vi.mock('@shared/utils', () => ({
   trackEvent: vi.fn(),
 }));
 

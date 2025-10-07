@@ -24,7 +24,7 @@ import FilterMenuSearchMap from '@/components/search/filters/FilterMenuSearchMap
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSliders } from '@fortawesome/free-solid-svg-icons';
 import { Button, ProgressBar } from 'react-bootstrap';
-import { trackClickEvent } from '@/utils/matomo';
+import { trackClickEvent } from '@shared/utils';
 import { WILDFIRE_LOCATION_MIN_ZOOM } from '@/components/search-map/constants';
 import RecreationSuggestionForm from '@/components/recreation-suggestion-form/RecreationSuggestionForm';
 import type Feature from 'ol/Feature';

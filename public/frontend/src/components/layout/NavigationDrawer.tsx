@@ -6,7 +6,7 @@ import { RemoveScroll } from 'react-remove-scroll';
 import { useClickOutside } from '@shared/hooks';
 import { HEADER_LINKS } from './constants';
 import { EXTERNAL_LINKS } from '@/data/urls';
-import { trackClickEvent } from '@/utils/matomo';
+import { trackClickEvent } from '@shared/utils';
 import '@/components/layout/NavigationDrawer.scss';
 
 interface NavigationDrawerProps {
