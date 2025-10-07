@@ -1,4 +1,5 @@
 import { CSSProperties, useCallback, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Col, Row, Stack } from 'react-bootstrap';
 import {
   RecreationResourceMap as SharedRecreationResourceMap,
@@ -6,9 +7,6 @@ import {
   DownloadMapModal,
   getMapFeaturesFromRecResource,
   getSitePointFeatureFromRecResource,
-  webMercatorXToLon,
-  webMercatorYToLat,
-} from '@/components/rec-resource/RecreationResourceMap/helpers';
   getLayerStyleForRecResource,
   StyleContext,
 } from '@shared/components/recreation-resource-map';
@@ -20,8 +18,11 @@ import { ROUTE_PATHS } from '@/routes/constants';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLink, faMap } from '@fortawesome/free-solid-svg-icons';
 import { getRecResourceDetailPageUrl } from '@/utils/recreationResourceUtils';
-import { Link } from 'react-router-dom';
 import DownloadIcon from '@shared/assets/icons/download.svg';
+import {
+  webMercatorXToLon,
+  webMercatorYToLat,
+} from '@/components/rec-resource/RecreationResourceMap/helpers/coordinatesConversion';
 
 interface RecreationResourceMapProps {
   recResource: RecreationResourceDetailModel;
@@ -106,7 +107,6 @@ export const RecreationResourceMap = ({
     trackEvent({
       category: MATOMO_TRACKING_CATEGORY_MAP,
       action: TRACKING_ACTIONS.OPEN_GOOGLE_MAPS,
-
       name: `${recResourceName}-${recResource?.rec_resource_id}-${TRACKING_ACTIONS.OPEN_GOOGLE_MAPS}`,
     });
     const map = getSitePointFeatureFromRecResource(recResource);
@@ -125,17 +125,19 @@ export const RecreationResourceMap = ({
     }
   }, [recResource, recResourceName]);
 
-  if (!mapStyledFeatures.length || !downloadStyledFeatures.length) {
+  if (!downloadStyledFeatures.length) {
     return null;
   }
 
   return (
     <div className={className}>
       <Stack direction="vertical" gap={3}>
-        <SharedRecreationResourceMap
-          recResource={recResource}
-          mapComponentCssStyles={mapComponentCssStyles}
-        />
+        {recResource && (
+          <SharedRecreationResourceMap
+            recResource={recResource}
+            mapComponentCssStyles={mapComponentCssStyles}
+          />
+        )}
 
         <Row className="g-md-2 g-2">
           <Col xs={12} md="auto">
