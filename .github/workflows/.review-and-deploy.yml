@@ -89,16 +89,9 @@ jobs:
       - name: Review Prod Deployment
         run: echo "Reviewing Prod Deployment"
 
-  release:
-    name: Release
-    needs: review-prod-deployment
-    uses: ./.github/workflows/.release.yml
-    with:
-      app: ${{ inputs.app }}
-
   promote:
     name: Promote
-    needs: release
+    needs: review-prod-deployment
     uses: ./.github/workflows/.promote.yml
     with:
       app: ${{ inputs.app }}
@@ -106,7 +99,7 @@ jobs:
 
   deploy-to-aws-prod:
     name: Deploy Application to AWS prod
-    needs: release
+    needs: promote
     uses: ./.github/workflows/.deploy-app.yml
     concurrency:
       group: deploy-${{ inputs.app }}-to-aws-prod

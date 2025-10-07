@@ -1,12 +1,12 @@
 name: Make Release
 
+# Release workflow to create a new release on the 1st of every month
+# or manually via workflow_dispatch
+
 on:
-  workflow_call:
-    inputs:
-      app:
-        description: Application name
-        required: true
-        type: string
+  schedule:
+    - cron: '0 0 1 * *' # 1st day of every month at midnight UTC
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -19,6 +19,7 @@ jobs:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
+          ref: main
 
       - name: Conventional Changelog Update
         uses: TriPSs/conventional-changelog-action@v6
@@ -30,7 +31,6 @@ jobs:
           skip-version-file: true
           skip-commit: true
           git-push: false
-          tag-prefix: ${{ inputs.app }}-
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
