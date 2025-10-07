@@ -4,13 +4,9 @@ import { RecreationResourceMap } from '@/components/rec-resource/RecreationResou
 import { BrowserRouter } from 'react-router-dom';
 import { RecreationResourceDetailModel } from '@/service/custom-models';
 
-vi.mock('@shared/components/recreation-resource-map', () => ({
-  RecreationResourceMap: ({
-    recResource,
-  }: {
-    recResource: { name: string };
-  }) => <div data-testid="shared-map">{recResource.name}</div>,
-  MATOMO_TRACKING_CATEGORY_MAP: 'Map',
+vi.mock('@shared/components/recreation-resource-map/helpers', () => ({
+  getMapFeaturesFromRecResource: vi.fn(() => []),
+  getLayerStyleForRecResource: vi.fn(() => ({})),
 }));
 
 vi.mock('@shared/utils', () => ({
@@ -22,7 +18,11 @@ const mockRecResource = {
   name: 'Test Recreation Site',
   closest_community: 'Test City',
   recreation_activity: [],
-  recreation_status: { code: 'OPEN', description: 'Open' },
+  recreation_status: {
+    status_code: 1,
+    description: 'Open',
+    comment: null,
+  },
   rec_resource_type: 'Recreation Site',
   description: 'Test description',
   driving_directions: 'Test directions',
@@ -32,18 +32,18 @@ const mockRecResource = {
   recreation_access: [],
   additional_fees: [],
   recreation_structure: {},
-} as RecreationResourceDetailModel;
+  spatial_feature_geometry: [],
+} as unknown as RecreationResourceDetailModel;
 
 describe('RecreationResourceMap', () => {
-  it('renders the shared map component', () => {
+  it('renders the component', () => {
     render(
       <BrowserRouter>
         <RecreationResourceMap recResource={mockRecResource} />
       </BrowserRouter>,
     );
 
-    expect(screen.getByTestId('shared-map')).toBeInTheDocument();
-    expect(screen.getByText('Test Recreation Site')).toBeInTheDocument();
+    expect(screen.getByText('View in main map')).toBeInTheDocument();
   });
 
   it('renders View in main map button', () => {

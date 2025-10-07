@@ -6,26 +6,9 @@ import { BrowserRouter } from 'react-router-dom';
 import { RecreationResourceDetailModel } from '@/service/custom-models';
 import { trackEvent } from '@shared/utils';
 
-vi.mock('@shared/components/recreation-resource-map', () => ({
-  RecreationResourceMap: ({
-    recResource,
-  }: {
-    recResource: { name: string };
-  }) => <div data-testid="shared-map">{recResource.name}</div>,
-  MATOMO_TRACKING_CATEGORY_MAP: 'Map',
-  DownloadMapModal: ({
-    isOpen,
-    recResource,
-  }: {
-    isOpen: boolean;
-    recResource: { name: string };
-  }) =>
-    isOpen ? (
-      <div data-testid="download-modal">Download Modal: {recResource.name}</div>
-    ) : null,
+vi.mock('@shared/components/recreation-resource-map/helpers', () => ({
   getMapFeaturesFromRecResource: vi.fn(() => []),
   getLayerStyleForRecResource: vi.fn(() => ({})),
-  StyleContext: { DOWNLOAD: 'download' },
 }));
 
 vi.mock('@shared/utils');
@@ -41,15 +24,15 @@ describe('RecreationResourceMap', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
-  it('renders the shared map component', () => {
+  it('renders the component', () => {
     render(
       <BrowserRouter>
         <RecreationResourceMap recResource={mockRecResource} />
       </BrowserRouter>,
     );
 
-    expect(screen.getByTestId('shared-map')).toBeInTheDocument();
-    expect(screen.getByText('Test Recreation Site')).toBeInTheDocument();
+    expect(screen.getByText('View in main map')).toBeInTheDocument();
+    expect(screen.getByText('Export map file')).toBeInTheDocument();
   });
 
   it('renders View in main map button', () => {
@@ -94,15 +77,13 @@ describe('RecreationResourceMap', () => {
       </BrowserRouter>,
     );
 
-    expect(screen.queryByTestId('download-modal')).not.toBeInTheDocument();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 
     const downloadButton = screen.getByText('Export map file');
     await user.click(downloadButton);
 
-    expect(screen.getByTestId('download-modal')).toBeInTheDocument();
-    expect(
-      screen.getByText('Download Modal: Test Recreation Site'),
-    ).toBeInTheDocument();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(screen.getAllByText('Export map file')).toHaveLength(2); // Button text and modal heading
   });
 
   it('tracks event when Export map file button is clicked', async () => {

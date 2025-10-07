@@ -1,16 +1,21 @@
 import { RecreationResourceRepository } from '@/recreation-resource/recreation-resource.repository';
 import { RecreationResourceService } from '@/recreation-resource/recreation-resource.service';
+import { PrismaService } from '@/prisma.service';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('RecreationResourceService', () => {
   let service: RecreationResourceService;
   let repo: RecreationResourceRepository;
+  let prisma: PrismaService;
 
   beforeEach(() => {
     repo = {
       findSuggestions: vi.fn(),
     } as unknown as RecreationResourceRepository;
-    service = new RecreationResourceService(repo);
+    prisma = {
+      $queryRawTyped: vi.fn(),
+    } as unknown as PrismaService;
+    service = new RecreationResourceService(repo, prisma);
   });
 
   it('should return suggestions in correct format', async () => {
@@ -76,12 +81,16 @@ describe('RecreationResourceService', () => {
 describe('RecreationResourceService - findOne', () => {
   let service: RecreationResourceService;
   let repo: RecreationResourceRepository;
+  let prisma: PrismaService;
 
   beforeEach(() => {
     repo = {
       findOneById: vi.fn(),
     } as unknown as RecreationResourceRepository;
-    service = new RecreationResourceService(repo);
+    prisma = {
+      $queryRawTyped: vi.fn(),
+    } as unknown as PrismaService;
+    service = new RecreationResourceService(repo, prisma);
   });
 
   it('should return null if resource not found', async () => {
@@ -126,7 +135,14 @@ describe('RecreationResourceService - findOne', () => {
         district_code: 'D1',
       },
     };
+    const geometryData = [
+      {
+        spatial_feature_geometry: null,
+        site_point_geometry: null,
+      },
+    ];
     (repo.findOneById as any).mockResolvedValue(resource);
+    (prisma.$queryRawTyped as any).mockResolvedValue(geometryData);
     const result = await service.findOne('id1');
     expect(result).toMatchObject({
       rec_resource_id: 'id1',
@@ -166,7 +182,7 @@ describe('RecreationResourceService - findOne', () => {
 describe('RecreationResourceService - isValidSuggestion', () => {
   let service: RecreationResourceService;
   beforeEach(() => {
-    service = new RecreationResourceService({} as any);
+    service = new RecreationResourceService({} as any, {} as any);
   });
   it('should return true for valid suggestion', () => {
     const item = {
