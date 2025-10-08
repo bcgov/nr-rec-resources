@@ -35,6 +35,8 @@ vi.mock(
 );
 
 const mockClick = vi.fn();
+const mockAppendChild = vi.fn();
+const mockRemoveChild = vi.fn();
 
 // Polyfill URL methods for jsdom
 if (!URL.createObjectURL) {
@@ -44,8 +46,23 @@ if (!URL.revokeObjectURL) {
   URL.revokeObjectURL = vi.fn() as any;
 }
 const mockCreateObjectURL = vi.mocked(URL.createObjectURL);
+const mockRevokeObjectURL = vi.mocked(URL.revokeObjectURL);
 
-// Helper to create a fake Feature with proper typing
+const originalCreateElement = document.createElement.bind(document);
+vi.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
+  if (tagName === 'a') {
+    return {
+      href: '',
+      download: '',
+      click: mockClick,
+    } as any;
+  }
+  return originalCreateElement(tagName);
+});
+
+vi.spyOn(document.body, 'appendChild').mockImplementation(mockAppendChild);
+vi.spyOn(document.body, 'removeChild').mockImplementation(mockRemoveChild);
+
 function createFakeFeature(geometryType: string) {
   return {
     clone: vi.fn(function () {
@@ -68,10 +85,14 @@ describe('downloadGPX', () => {
   it('should generate GPX data and trigger download', () => {
     const feature = createFakeFeature('Point');
     downloadGPX([feature], 'testName');
+
     expect(GPX).toHaveBeenCalled();
     expect((GPX as any).mock.results[0].value.writeFeatures).toHaveBeenCalled();
     expect(mockCreateObjectURL).toHaveBeenCalled();
+    expect(mockAppendChild).toHaveBeenCalled();
     expect(mockClick).toHaveBeenCalled();
+    expect(mockRemoveChild).toHaveBeenCalled();
+    expect(mockRevokeObjectURL).toHaveBeenCalled();
   });
 });
 
@@ -87,18 +108,26 @@ describe('downloadKML', () => {
   it('should generate KML data for non-point geometries', () => {
     const feature = createFakeFeature('LineString');
     downloadKML([feature], recResource);
+
     expect(KML).toHaveBeenCalled();
     expect((KML as any).mock.results[0].value.writeFeatures).toHaveBeenCalled();
     expect(mockCreateObjectURL).toHaveBeenCalled();
+    expect(mockAppendChild).toHaveBeenCalled();
     expect(mockClick).toHaveBeenCalled();
+    expect(mockRemoveChild).toHaveBeenCalled();
+    expect(mockRevokeObjectURL).toHaveBeenCalled();
   });
 
   it('should generate KML data for point geometries', () => {
     const feature = createFakeFeature('Point');
     downloadKML([feature], recResource);
+
     expect(KML).toHaveBeenCalled();
     expect((KML as any).mock.results[0].value.writeFeatures).toHaveBeenCalled();
     expect(mockCreateObjectURL).toHaveBeenCalled();
+    expect(mockAppendChild).toHaveBeenCalled();
     expect(mockClick).toHaveBeenCalled();
+    expect(mockRemoveChild).toHaveBeenCalled();
+    expect(mockRevokeObjectURL).toHaveBeenCalled();
   });
 });
