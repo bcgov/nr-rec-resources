@@ -5,13 +5,6 @@
     background-color: $colorBlue;
   }
 
-  &.development {
-    background-color: $colorHeaderDevEnvironment;
-  }
-
-  &.test {
-    background-color: $colorHeaderTestEnvironment;
-  }
   &__logo {
     width: 200px;
     height: 50px;
@@ -44,5 +37,19 @@
     &--title {
       color: $colorWhite !important;
     }
+  }
+}
+
+.env-identification {
+  color: $colorBlack;
+  font-weight: bold;
+  padding: 10px 25px 10px 25px;
+
+  &.development {
+    background-color: $colorHeaderDevEnvironment;
+  }
+
+  &.test {
+    background-color: $colorHeaderTestEnvironment;
   }
 }

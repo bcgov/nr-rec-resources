@@ -39,7 +39,7 @@ const Header = () => {
   return (
     <header id="header">
       <BetaBanner />
-      <div className={`page-nav-container main ${env && env}`}>
+      <div className={`page-nav-container main`}>
         <nav aria-label="Main header navigation" className="header-nav main">
           <div className="navbar-brand">
             <Link to={ROUTE_PATHS.HOME}>
@@ -50,8 +50,8 @@ const Header = () => {
               />
             </Link>
             {env && (env === 'development' || env === 'test') && (
-              <span className="env-identification">
-                Enviroment: {env}
+              <span className={`env-identification ${env && env}`}>
+                {env === 'development' ? 'Dev' : 'Test'} environment
                 {isLocal && '  - Local'}
               </span>
             )}

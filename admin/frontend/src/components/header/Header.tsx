@@ -82,14 +82,11 @@ export const Header = () => {
   const isLocal =
     import.meta.url.includes('localhost') ||
     import.meta.url.includes('127.0.0.1');
-  const envString =
-    env && (env === 'development' || env === 'test')
-      ? ` - Enviroment: ${env}${isLocal && '  - Local'}`
-      : '';
+
   return (
-    <div className={`header main ${env && env}`}>
+    <div className={`header main`}>
       <BCGovHeader
-        title={`Admin Tool${envString}`}
+        title={`Admin Tool`}
         titleElement="h1"
         logoImage={
           <>
@@ -107,7 +104,13 @@ export const Header = () => {
           </>
         }
       >
-        <div className="test">
+        {env && (env === 'development' || env === 'test') && (
+          <span className={`env-identification ${env && env}`}>
+            {env === 'development' ? 'Dev' : 'Test'} environment
+            {isLocal && '  - Local'}
+          </span>
+        )}
+        <div>
           <Stack
             direction={'horizontal'}
             gap={3}

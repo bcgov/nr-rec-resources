@@ -12,14 +12,6 @@
   &.main {
     background-color: $colorBlue;
   }
-
-  &.development {
-    background-color: $colorHeaderDevEnvironment;
-  }
-
-  &.test {
-    background-color: $colorHeaderTestEnvironment;
-  }
 }
 
 .header-nav {
@@ -102,6 +94,14 @@ a {
 
 .env-identification {
   font-weight: bold;
-  color: $colorWhite;
-  padding-left: 10%;
+  margin-left: 10%;
+  padding: 10px 25px 10px 25px;
+
+  &.development {
+    background-color: $colorHeaderDevEnvironment;
+  }
+
+  &.test {
+    background-color: $colorHeaderTestEnvironment;
+  }
 }
