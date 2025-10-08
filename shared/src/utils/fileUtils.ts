@@ -1,9 +1,5 @@
 /**
  * Triggers a file download in the browser for the given content.
- *
- * @param content - The file content as a string.
- * @param fileName - The name for the downloaded file.
- * @param mimeType - The MIME type of the file.
  */
 export function triggerFileDownload(
   content: string,

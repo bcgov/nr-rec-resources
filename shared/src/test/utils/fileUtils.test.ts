@@ -7,7 +7,7 @@ import {
   MockInstance,
   vi,
 } from 'vitest';
-import { triggerFileDownload } from './fileUtils';
+import { triggerFileDownload } from '@shared/utils/fileUtils';
 
 describe('triggerFileDownload', () => {
   const originalCreateObjectURL = URL.createObjectURL;
