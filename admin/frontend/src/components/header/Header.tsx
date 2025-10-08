@@ -104,7 +104,7 @@ export const Header = () => {
           </>
         }
       >
-        {env && (env === 'development' || env === 'test') && (
+        {(env === 'development' || env === 'test') && (
           <span className={`env-identification ${env && env}`}>
             {env === 'development' ? 'Dev' : 'Test'} environment
             {isLocal && '  - Local'}
