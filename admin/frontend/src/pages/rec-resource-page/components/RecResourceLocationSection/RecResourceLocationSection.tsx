@@ -13,6 +13,7 @@ import {
 import { ExternalLink } from '@shared/components/links';
 import { RecreationResourceDetailUIModel } from '@/services';
 import { trackEvent } from '@shared/utils';
+import '@/pages/rec-resource-page/components/RecResourceLocationSection/RecResourceLocationSection.scss';
 
 type RecResourceLocationSectionProps = {
   recResource: RecreationResourceDetailUIModel;

@@ -10,7 +10,11 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
   const { isLoading, error } = useAuthContext();
 
   if (isLoading) {
-    return <Spinner />;
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <Spinner />
+      </div>
+    );
   }
 
   if (error) {
