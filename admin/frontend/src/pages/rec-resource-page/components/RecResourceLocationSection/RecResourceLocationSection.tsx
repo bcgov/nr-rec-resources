@@ -24,7 +24,6 @@ const TRACKING_ACTIONS = {
 };
 
 const MAP_STYLES: CSSProperties = {
-  position: 'relative',
   height: '40vh',
   minHeight: '500px',
 };

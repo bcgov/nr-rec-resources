@@ -4,10 +4,29 @@ import { RecreationResourceMap } from '@/components/rec-resource/RecreationResou
 import { BrowserRouter } from 'react-router-dom';
 import { RecreationResourceDetailModel } from '@/service/custom-models';
 
-vi.mock('@shared/components/recreation-resource-map/helpers', () => ({
-  getMapFeaturesFromRecResource: vi.fn(() => []),
-  getLayerStyleForRecResource: vi.fn(() => ({})),
-}));
+const mockFeature = {
+  setStyle: vi.fn(),
+  getGeometry: vi.fn(() => ({
+    getCoordinates: vi.fn(() => [0, 0]),
+  })),
+};
+
+vi.mock('@shared/components/recreation-resource-map', async () => {
+  const actual = await vi.importActual(
+    '@shared/components/recreation-resource-map',
+  );
+  return {
+    ...actual,
+    RecreationResourceMap: ({ recResource }: any) => (
+      <div data-testid="shared-recreation-resource-map">
+        Mock Map for {recResource.name}
+      </div>
+    ),
+    getMapFeaturesFromRecResource: vi.fn(() => [mockFeature]),
+    getSitePointFeatureFromRecResource: vi.fn(() => mockFeature),
+    getLayerStyleForRecResource: vi.fn(() => ({})),
+  };
+});
 
 vi.mock('@shared/utils', () => ({
   trackEvent: vi.fn(),
@@ -43,17 +62,19 @@ describe('RecreationResourceMap', () => {
       </BrowserRouter>,
     );
 
-    expect(screen.getByText('View in main map')).toBeInTheDocument();
+    expect(screen.getByText('Full map')).toBeInTheDocument();
+    expect(screen.getByText('Export map file')).toBeInTheDocument();
+    expect(screen.getByText('Google Maps')).toBeInTheDocument();
   });
 
-  it('renders View in main map button', () => {
+  it('renders Full map button', () => {
     render(
       <BrowserRouter>
         <RecreationResourceMap recResource={mockRecResource} />
       </BrowserRouter>,
     );
 
-    expect(screen.getByText('View in main map')).toBeInTheDocument();
+    expect(screen.getByText('Full map')).toBeInTheDocument();
   });
 
   it('applies custom className when provided', () => {

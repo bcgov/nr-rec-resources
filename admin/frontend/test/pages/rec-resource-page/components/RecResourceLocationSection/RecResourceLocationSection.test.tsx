@@ -13,6 +13,7 @@ vi.mock('@shared/components/recreation-resource-map', () => ({
   ExportMapFileBtn: () => <button>ExportMapFileBtn</button>,
   getMapFeaturesFromRecResource: vi.fn(),
   getLayerStyleForRecResource: vi.fn(),
+  getExtentFromRecResource: vi.fn(),
   MATOMO_TRACKING_CATEGORY_MAP: 'Map',
   StyleContext: {
     DOWNLOAD: 'download',

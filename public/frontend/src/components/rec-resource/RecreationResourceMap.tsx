@@ -1,4 +1,4 @@
-import { CSSProperties, useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Col, Row, Stack } from 'react-bootstrap';
 import {
@@ -9,6 +9,8 @@ import {
   getSitePointFeatureFromRecResource,
   getLayerStyleForRecResource,
   StyleContext,
+  webMercatorXToLon,
+  webMercatorYToLat,
 } from '@shared/components/recreation-resource-map';
 import { RecreationResourceDetailModel } from '@/service/custom-models';
 import { trackEvent } from '@shared/utils';
@@ -19,14 +21,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExternalLink, faMap } from '@fortawesome/free-solid-svg-icons';
 import { getRecResourceDetailPageUrl } from '@/utils/recreationResourceUtils';
 import DownloadIcon from '@shared/assets/icons/download.svg';
-import {
-  webMercatorXToLon,
-  webMercatorYToLat,
-} from '@/components/rec-resource/RecreationResourceMap/helpers/coordinatesConversion';
 
 interface RecreationResourceMapProps {
   recResource: RecreationResourceDetailModel;
-  mapComponentCssStyles?: CSSProperties;
   className?: string;
 }
 
@@ -50,7 +47,6 @@ const TRACKING_ACTIONS = {
  */
 export const RecreationResourceMap = ({
   recResource,
-  mapComponentCssStyles,
   className,
 }: RecreationResourceMapProps) => {
   const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
@@ -131,11 +127,14 @@ export const RecreationResourceMap = ({
 
   return (
     <div className={className}>
-      <Stack direction="vertical" gap={3}>
+      <Stack direction="vertical" gap={1}>
         {recResource && (
           <SharedRecreationResourceMap
             recResource={recResource}
-            mapComponentCssStyles={mapComponentCssStyles}
+            mapComponentCssStyles={{
+              height: '40vh',
+              minHeight: '500px',
+            }}
           />
         )}
 

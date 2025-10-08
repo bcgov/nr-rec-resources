@@ -59,7 +59,10 @@ export const RecreationResourceMap = ({
 
   return (
     <VectorFeatureMap
-      style={mapComponentCssStyles}
+      style={{
+        position: 'relative',
+        ...mapComponentCssStyles,
+      }}
       layers={layers}
       enableTracking
       aria-label={`Map showing ${recResource.name || 'recreation resource'}`}
