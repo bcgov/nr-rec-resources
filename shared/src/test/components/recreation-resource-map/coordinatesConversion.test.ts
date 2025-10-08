@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { webMercatorXToLon, webMercatorYToLat } from './coordinatesConversion';
+import {
+  webMercatorXToLon,
+  webMercatorYToLat,
+} from '@shared/components/recreation-resource-map/helpers/coordinatesConversion';
 
 // The same radius used in the implementation
 const R = 6378137.0;

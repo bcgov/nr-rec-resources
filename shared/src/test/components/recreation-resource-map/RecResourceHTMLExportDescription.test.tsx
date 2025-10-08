@@ -1,25 +1,21 @@
 import { describe, expect, it } from 'vitest';
 import { render } from '@testing-library/react';
-import { RecResourceHTMLExportDescription } from './RecResourceHTMLExportDescription';
-import { RecreationResourceDetailModel } from '@/service/custom-models/recreation-resource';
-import { getRecResourceDetailPageUrl } from '@/utils/recreationResourceUtils';
+import { RecResourceHTMLExportDescription } from '@shared/components/recreation-resource-map/RecResourceHTMLExportDescription';
+import { RecreationResourceMapData } from '@shared/components/recreation-resource-map/types';
 
-vi.mock('@/utils/recreationResourceUtils', async (importOriginal) => ({
-  ...(await importOriginal()),
-  getRecResourceDetailPageUrl: (id: string) =>
-    `https://testhost/resource/${id}`,
-}));
+const getRecResourceDetailPageUrl = (id: string) =>
+  `https://testhost/resource/${id}`;
 
-const baseResource: RecreationResourceDetailModel = {
+const baseResource: RecreationResourceMapData = {
   rec_resource_id: '1',
   name: 'Test Site',
+  rec_resource_type: 'SITE',
   closest_community: 'Testville',
   recreation_activity: [
     { description: 'Hiking', recreation_activity_code: 20 },
     { description: 'Biking', recreation_activity_code: 19 },
   ],
   recreation_status: {} as any,
-  rec_resource_type: 'SITE',
   recreation_resource_images: [
     {
       recreation_resource_image_variants: [
@@ -70,7 +66,10 @@ const baseResource: RecreationResourceDetailModel = {
 describe('RecResourceHTMLExportDescription', () => {
   it('renders all main fields and link', () => {
     const { getByText, getByAltText, getAllByAltText } = render(
-      <RecResourceHTMLExportDescription recResource={baseResource} />,
+      <RecResourceHTMLExportDescription
+        recResource={baseResource}
+        getResourceDetailUrl={getRecResourceDetailPageUrl}
+      />,
     );
     // Name, description, image
     expect(getByText('Test Site')).toBeTruthy();
@@ -104,7 +103,7 @@ describe('RecResourceHTMLExportDescription', () => {
   });
 
   it('handles missing optional fields gracefully and still renders link', () => {
-    const resource: RecreationResourceDetailModel = {
+    const resource: RecreationResourceMapData = {
       ...baseResource,
       recreation_resource_images: [],
       recreation_fee: [],
@@ -114,7 +113,10 @@ describe('RecResourceHTMLExportDescription', () => {
       description: '',
     };
     const { queryByAltText, queryByText, getByText } = render(
-      <RecResourceHTMLExportDescription recResource={resource} />,
+      <RecResourceHTMLExportDescription
+        recResource={resource}
+        getResourceDetailUrl={getRecResourceDetailPageUrl}
+      />,
     );
     expect(queryByAltText('Test Site')).toBeNull();
     expect(queryByText('Fees:')).toBeNull();
@@ -128,13 +130,13 @@ describe('RecResourceHTMLExportDescription', () => {
   });
 
   it('renders correctly with only required fields and link', () => {
-    const minimalResource: RecreationResourceDetailModel = {
+    const minimalResource: RecreationResourceMapData = {
       rec_resource_id: '2',
       name: 'Minimal Site',
+      rec_resource_type: '',
       closest_community: '',
       recreation_activity: [],
       recreation_status: {} as any,
-      rec_resource_type: '',
       description: '',
       driving_directions: '',
       maintenance_standard_code: 'U',
@@ -148,7 +150,10 @@ describe('RecResourceHTMLExportDescription', () => {
       recreation_resource_docs: [],
     };
     const { getByText } = render(
-      <RecResourceHTMLExportDescription recResource={minimalResource} />,
+      <RecResourceHTMLExportDescription
+        recResource={minimalResource}
+        getResourceDetailUrl={getRecResourceDetailPageUrl}
+      />,
     );
     expect(getByText('Minimal Site')).toBeTruthy();
     const link = getByText('View on Sites & Trails BC');
@@ -156,24 +161,30 @@ describe('RecResourceHTMLExportDescription', () => {
   });
 
   it('renders no image if image variants is empty or undefined', () => {
-    const resourceEmpty: RecreationResourceDetailModel = {
+    const resourceEmpty: RecreationResourceMapData = {
       ...baseResource,
       recreation_resource_images: [
         { recreation_resource_image_variants: [] },
       ] as any,
     };
-    const resourceUndef: RecreationResourceDetailModel = {
+    const resourceUndef: RecreationResourceMapData = {
       ...baseResource,
       recreation_resource_images: [{}] as any,
     };
     expect(
       render(
-        <RecResourceHTMLExportDescription recResource={resourceEmpty} />,
+        <RecResourceHTMLExportDescription
+          recResource={resourceEmpty}
+          getResourceDetailUrl={getRecResourceDetailPageUrl}
+        />,
       ).queryByAltText('Test Site'),
     ).toBeNull();
     expect(
       render(
-        <RecResourceHTMLExportDescription recResource={resourceUndef} />,
+        <RecResourceHTMLExportDescription
+          recResource={resourceUndef}
+          getResourceDetailUrl={getRecResourceDetailPageUrl}
+        />,
       ).queryByAltText('Test Site'),
     ).toBeNull();
   });

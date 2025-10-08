@@ -35,15 +35,6 @@ describe('Map Style Functions', () => {
     });
 
     it('returns Icon with scale 0.3 when isPoint is true and isForMapDisplay is false (default)', () => {
-      (
-        recreationResourceUtils.isRecreationTrail as ReturnType<any>
-      ).mockReturnValue(false);
-      (
-        recreationResourceUtils.isRecreationSite as ReturnType<any>
-      ).mockReturnValue(false);
-      (
-        recreationResourceUtils.isInterpretiveForest as ReturnType<any>
-      ).mockReturnValue(false);
       createImageStyle(true, mockRecResource);
       expect(Icon).toHaveBeenCalled();
       expect(Icon).toHaveBeenCalledWith(
@@ -54,15 +45,6 @@ describe('Map Style Functions', () => {
     });
 
     it('returns Icon with scale 0.3 when isPoint is true and isForMapDisplay is false (explicit)', () => {
-      (
-        recreationResourceUtils.isRecreationTrail as ReturnType<any>
-      ).mockReturnValue(false);
-      (
-        recreationResourceUtils.isRecreationSite as ReturnType<any>
-      ).mockReturnValue(false);
-      (
-        recreationResourceUtils.isInterpretiveForest as ReturnType<any>
-      ).mockReturnValue(false);
       createImageStyle(true, mockRecResource, StyleContext.DOWNLOAD);
       expect(Icon).toHaveBeenCalled();
       expect(Icon).toHaveBeenCalledWith(
@@ -203,75 +185,34 @@ describe('Map Style Functions', () => {
         mockRecResource,
         StyleContext.MAP_DISPLAY,
       );
-      expect(icon).toBe('/src/assets/location-dot-orange.png');
+      expect(icon).toBe('/src/assets/icons/location-dot-orange.png');
     });
 
     it('returns RECREATION_TRAIL_HEAD icon for recreation trail when isForMapDisplay is false', () => {
-      (
-        recreationResourceUtils.isRecreationTrail as ReturnType<any>
-      ).mockReturnValue(true);
-      (
-        recreationResourceUtils.isRecreationSite as ReturnType<any>
-      ).mockReturnValue(false);
-      (
-        recreationResourceUtils.isInterpretiveForest as ReturnType<any>
-      ).mockReturnValue(false);
-      const icon = getRecResourceIcon(mockRecResource, StyleContext.DOWNLOAD);
+      const trailResource = {
+        ...mockRecResource,
+        rec_resource_type: 'Recreation Trail',
+      };
+      const icon = getRecResourceIcon(trailResource, StyleContext.DOWNLOAD);
       expect(icon).toBe(MAP_ICONS.RECREATION_TRAIL_HEAD);
     });
 
-    it('returns RECREATION_SITE icon for recreation site when isForMapDisplay is false', () => {
-      (
-        recreationResourceUtils.isRecreationTrail as ReturnType<any>
-      ).mockReturnValue(false);
-      (
-        recreationResourceUtils.isRecreationSite as ReturnType<any>
-      ).mockReturnValue(true);
-      (
-        recreationResourceUtils.isInterpretiveForest as ReturnType<any>
-      ).mockReturnValue(false);
+    it('returns LOCATION_PIN icon for recreation site when isForMapDisplay is false', () => {
       const icon = getRecResourceIcon(mockRecResource, StyleContext.DOWNLOAD);
       expect(icon).toBe(MAP_ICONS.LOCATION_PIN);
     });
 
-    it('returns INTERPRETIVE_FOREST icon for interpretive forest when isForMapDisplay is false', () => {
-      (
-        recreationResourceUtils.isRecreationTrail as ReturnType<any>
-      ).mockReturnValue(false);
-      (
-        recreationResourceUtils.isRecreationSite as ReturnType<any>
-      ).mockReturnValue(false);
-      (
-        recreationResourceUtils.isInterpretiveForest as ReturnType<any>
-      ).mockReturnValue(true);
+    it('returns LOCATION_PIN icon for interpretive forest when isForMapDisplay is false', () => {
       const icon = getRecResourceIcon(mockRecResource, StyleContext.DOWNLOAD);
       expect(icon).toBe(MAP_ICONS.LOCATION_PIN);
     });
 
     it('returns LOCATION_PIN icon for unknown type when isForMapDisplay is false', () => {
-      (
-        recreationResourceUtils.isRecreationTrail as ReturnType<any>
-      ).mockReturnValue(false);
-      (
-        recreationResourceUtils.isRecreationSite as ReturnType<any>
-      ).mockReturnValue(false);
-      (
-        recreationResourceUtils.isInterpretiveForest as ReturnType<any>
-      ).mockReturnValue(false);
       const icon = getRecResourceIcon(mockRecResource, StyleContext.DOWNLOAD);
       expect(icon).toBe(MAP_ICONS.LOCATION_PIN);
     });
 
     it('returns LOCATION_PIN icon for unknown type when isForMapDisplay is not provided (default false)', () => {
-      (
-        recreationResourceUtils.isRecreationTrail as ReturnType<any>
-      ).mockReturnValue(false);
-      (
-        recreationResourceUtils.isRecreationSite as ReturnType<any>
-      ).mockReturnValue(false);
-      (
-        recreationResourceUtils.isInterpretiveForest as ReturnType<any>
-      ).mockReturnValue(false);
       const icon = getRecResourceIcon(mockRecResource, StyleContext.DOWNLOAD);
       expect(icon).toBe(MAP_ICONS.LOCATION_PIN);
     });

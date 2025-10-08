@@ -26,6 +26,7 @@ const TRACKING_ACTIONS = {
 const MAP_STYLES: CSSProperties = {
   height: '40vh',
   minHeight: '500px',
+  maxHeight: '500px',
 };
 
 const ARC_MAPS_BASE_URL =

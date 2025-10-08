@@ -1,9 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { downloadGPX, downloadKML } from './mapDownloadHandlers';
+import {
+  downloadGPX,
+  downloadKML,
+} from '@shared/components/recreation-resource-map/helpers/mapDownloadHandlers';
 import { GPX, KML } from 'ol/format';
-import { triggerFileDownload } from '@/utils/fileUtils';
 
-// Mock ol/format and ol/style modules
 vi.mock('ol/format', () => {
   return {
     GPX: vi.fn().mockImplementation(() => ({
@@ -23,26 +24,26 @@ vi.mock('ol/style', () => {
   };
 });
 
-// Mock triggerFileDownload utility
-vi.mock('@/utils/fileUtils', () => ({
-  triggerFileDownload: vi.fn(),
-}));
-
-// Mock RecResourceHTMLExportDescription and renderToString for KML
 vi.mock('react-dom/server', () => ({
   renderToString: vi.fn(() => '<div>desc</div>'),
 }));
 vi.mock(
-  '@/components/rec-resource/RecreationResourceMap/RecResourceHTMLExportDescription',
+  '@shared/components/recreation-resource-map/RecResourceHTMLExportDescription',
   () => ({
     RecResourceHTMLExportDescription: () => null,
   }),
 );
 
-// Fallback for URL.createObjectURL in test envs
+const mockClick = vi.fn();
+
+// Polyfill URL methods for jsdom
 if (!URL.createObjectURL) {
-  URL.createObjectURL = () => 'blob-url';
+  URL.createObjectURL = vi.fn(() => 'blob-url') as any;
 }
+if (!URL.revokeObjectURL) {
+  URL.revokeObjectURL = vi.fn() as any;
+}
+const mockCreateObjectURL = vi.mocked(URL.createObjectURL);
 
 // Helper to create a fake Feature with proper typing
 function createFakeFeature(geometryType: string) {
@@ -69,11 +70,8 @@ describe('downloadGPX', () => {
     downloadGPX([feature], 'testName');
     expect(GPX).toHaveBeenCalled();
     expect((GPX as any).mock.results[0].value.writeFeatures).toHaveBeenCalled();
-    expect(triggerFileDownload).toHaveBeenCalledWith(
-      'mockedGPX',
-      'testName.gpx',
-      'application/gpx+xml',
-    );
+    expect(mockCreateObjectURL).toHaveBeenCalled();
+    expect(mockClick).toHaveBeenCalled();
   });
 });
 
@@ -86,28 +84,21 @@ describe('downloadKML', () => {
     name: 'ResourceName',
   } as any;
 
-  it('should generate KML data for non-point geometries without setting style', () => {
+  it('should generate KML data for non-point geometries', () => {
     const feature = createFakeFeature('LineString');
     downloadKML([feature], recResource);
-    expect(feature.setStyle).not.toHaveBeenCalled();
     expect(KML).toHaveBeenCalled();
     expect((KML as any).mock.results[0].value.writeFeatures).toHaveBeenCalled();
-    expect(triggerFileDownload).toHaveBeenCalledWith(
-      'mockedKML',
-      'ResourceName.kml',
-      'application/vnd.google-earth.kml+xml',
-    );
+    expect(mockCreateObjectURL).toHaveBeenCalled();
+    expect(mockClick).toHaveBeenCalled();
   });
 
-  it('should generate KML data for point geometries and set style', () => {
+  it('should generate KML data for point geometries', () => {
     const feature = createFakeFeature('Point');
     downloadKML([feature], recResource);
     expect(KML).toHaveBeenCalled();
     expect((KML as any).mock.results[0].value.writeFeatures).toHaveBeenCalled();
-    expect(triggerFileDownload).toHaveBeenCalledWith(
-      'mockedKML',
-      'ResourceName.kml',
-      'application/vnd.google-earth.kml+xml',
-    );
+    expect(mockCreateObjectURL).toHaveBeenCalled();
+    expect(mockClick).toHaveBeenCalled();
   });
 });

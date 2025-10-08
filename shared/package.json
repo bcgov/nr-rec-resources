@@ -45,6 +45,7 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "express": "^5.1.0",
+    "html-react-parser": "^5.2.2",
     "nestjs-cls": "^6.0.1",
     "ol": "^10.6.1",
     "ol-ext": "^4.0.33",

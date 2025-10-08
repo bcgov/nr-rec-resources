@@ -3,7 +3,6 @@ import { BrowserRouter } from 'react-router';
 import Header from '@/components/layout/Header';
 import { HEADER_LINKS } from '@/components/layout/constants';
 
-// Mock BetaBanner since it's not the focus of these tests
 vi.mock('@/components/layout/BetaBanner', () => ({
   default: () => <div data-testid="beta-banner">Beta Banner</div>,
 }));

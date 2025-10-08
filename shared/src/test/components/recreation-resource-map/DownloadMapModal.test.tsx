@@ -1,11 +1,14 @@
 import { render, screen, fireEvent } from '@testing-library/react';
-import DownloadMapModal from '@/components/rec-resource/RecreationResourceMap/DownloadMapModal';
-import { vi } from 'vitest';
+import DownloadMapModal from '@shared/components/recreation-resource-map/DownloadMapModal';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/components/rec-resource/RecreationResourceMap/helpers', () => ({
-  downloadGPX: vi.fn(),
-  downloadKML: vi.fn(),
-}));
+vi.mock(
+  '@shared/components/recreation-resource-map/helpers/mapDownloadHandlers',
+  () => ({
+    downloadGPX: vi.fn(),
+    downloadKML: vi.fn(),
+  }),
+);
 
 describe('DownloadMapModal', () => {
   const setIsOpen = vi.fn();
@@ -50,7 +53,7 @@ describe('DownloadMapModal', () => {
 
   it('toggles KML and GPX checkboxes and triggers the correct download', async () => {
     const { downloadKML, downloadGPX } = await import(
-      '@/components/rec-resource/RecreationResourceMap/helpers'
+      '@shared/components/recreation-resource-map/helpers/mapDownloadHandlers'
     );
 
     render(
@@ -86,7 +89,11 @@ describe('DownloadMapModal', () => {
     fireEvent.click(kmlCheckbox);
     fireEvent.click(screen.getByText('Download'));
     expect(downloadGPX).toHaveBeenCalledWith(styledFeatures, 'Test Resource');
-    expect(downloadKML).toHaveBeenCalledWith(styledFeatures, recResource);
+    expect(downloadKML).toHaveBeenCalledWith(
+      styledFeatures,
+      recResource,
+      undefined,
+    );
   });
 
   it('disables download button when no checkbox is selected', () => {
