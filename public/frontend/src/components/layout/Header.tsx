@@ -50,7 +50,7 @@ const Header = () => {
               />
             </Link>
             {(env === 'development' || env === 'test') && (
-              <span className={`env-identification ${env && env}`}>
+              <span className={`env-identification ${env}`}>
                 {env === 'development' ? 'Dev' : 'Test'} environment
                 {isLocal && '  - Local'}
               </span>
