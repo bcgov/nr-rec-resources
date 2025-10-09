@@ -1,16 +1,10 @@
 @import '@/styles/variables.scss';
 
-.bcds-header {
-  background-color: $colorBlue !important;
-  color: $colorWhite;
-  height: $headerHeight;
-
-  &--title {
-    color: $colorWhite !important;
-  }
-}
-
 .header {
+  &.main {
+    background-color: $colorBlue;
+  }
+
   &__logo {
     width: 200px;
     height: 50px;
@@ -33,5 +27,30 @@
       width: 44px;
       height: 42px;
     }
+  }
+
+  .bcds-header {
+    background-color: transparent !important;
+    color: $colorWhite;
+    height: $headerHeight;
+
+    &--title {
+      color: $colorWhite !important;
+    }
+  }
+}
+
+.env-identification {
+  border-radius: 10px;
+  color: $colorBlack;
+  font-weight: bold;
+  padding: 10px 25px 10px 25px;
+
+  &.development {
+    background-color: $colorHeaderDevEnvironment;
+  }
+
+  &.test {
+    background-color: $colorHeaderTestEnvironment;
   }
 }
