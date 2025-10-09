@@ -138,7 +138,7 @@ export const RecreationResourceMap = ({
           />
         )}
 
-        <Row className="g-md-2 g-2">
+        <Row className="g-md-2 g-2 justify-content-start">
           <Col xs={12} md="auto">
             <Link
               onClick={handleViewInMainMapClick}
