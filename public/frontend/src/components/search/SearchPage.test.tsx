@@ -91,7 +91,7 @@ vi.mock('@/components/search/hooks/useInitialPageFromSearchParams', () => ({
 vi.mock('@/components/search/utils/setFilterChipsFromSearchParams', () => ({
   default: vi.fn(),
 }));
-vi.mock('@/utils/matomo', () => ({ trackEvent: vi.fn() }));
+vi.mock('@shared/utils', () => ({ trackEvent: vi.fn() }));
 
 describe('SearchPage', () => {
   const mockQueryResult = (overrides = {}) => ({

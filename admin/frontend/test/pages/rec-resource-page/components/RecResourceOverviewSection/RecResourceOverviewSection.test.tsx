@@ -1,5 +1,20 @@
 import { RecResourceOverviewSection } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/RecResourceOverviewSection';
 import { render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
+
+vi.mock(
+  '@/pages/rec-resource-page/components/RecResourceActivitySection',
+  () => ({
+    RecResourceActivitySection: () => <div>RecResourceActivitySection</div>,
+  }),
+);
+
+vi.mock(
+  '@/pages/rec-resource-page/components/RecResourceLocationSection',
+  () => ({
+    RecResourceLocationSection: () => <div>RecResourceLocationSection</div>,
+  }),
+);
 
 describe('RecResourceOverviewSection', () => {
   const recResource = {
@@ -242,5 +257,11 @@ describe('RecResourceOverviewSection', () => {
     expect(screen.getByText('Complete Maintenance')).toBeInTheDocument();
     expect(screen.getByText('Complete Directions')).toBeInTheDocument();
     expect(screen.getByText('Complete Date')).toBeInTheDocument();
+  });
+
+  it('renders child components', () => {
+    render(<RecResourceOverviewSection recResource={recResource} />);
+    expect(screen.getByText('RecResourceLocationSection')).toBeInTheDocument();
+    expect(screen.getByText('RecResourceActivitySection')).toBeInTheDocument();
   });
 });

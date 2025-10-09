@@ -1,10 +1,10 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import FooterLinkColumn from '@/components/layout/FooterLinkColumn';
-import { trackClickEvent } from '@/utils/matomo';
+import { trackClickEvent } from '@shared/utils';
 import { vi } from 'vitest';
 
 // Mock the matomo tracking utility
-vi.mock('@/utils/matomo', () => ({
+vi.mock('@shared/utils', () => ({
   trackClickEvent: vi.fn(() => vi.fn()),
 }));
 

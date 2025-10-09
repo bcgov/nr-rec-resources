@@ -1,5 +1,5 @@
 import '@/components/layout/PageMenu.scss';
-import { trackClickEvent } from '@/utils/matomo';
+import { trackClickEvent } from '@shared/utils';
 
 type PageSection = {
   sectionIndex: number;

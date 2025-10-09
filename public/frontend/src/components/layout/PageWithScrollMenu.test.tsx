@@ -12,7 +12,7 @@ vi.mock('react-use-scrollspy', () => ({
 }));
 
 // Mock trackClickEvent
-vi.mock('@/utils/matomo', () => ({
+vi.mock('@shared/utils', () => ({
   trackClickEvent: () => () => {},
 }));
 

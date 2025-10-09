@@ -3,7 +3,7 @@ import { PageWithScrollMenu } from '@/components/layout/PageWithScrollMenu';
 import './ContactPage.scss';
 import { Form, Stack } from 'react-bootstrap';
 import { useEffect } from 'react';
-import { trackEvent } from '@/utils/matomo';
+import { trackEvent } from '@shared/utils';
 import { MATOMO_TRACKING_CATEGORY_CONTACT_PAGE } from '@/data/analytics';
 import PageTitle from '@/components/layout/PageTitle';
 import { Breadcrumbs } from '@shared/components/breadcrumbs';

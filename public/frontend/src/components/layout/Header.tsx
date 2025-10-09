@@ -1,13 +1,12 @@
 import { useState, useRef } from 'react';
 import { Link } from 'react-router';
 import { Stack } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExternalLink } from '@fortawesome/free-solid-svg-icons';
 import RSTLogo from '@/images/RST_nav_logo.svg';
 import BetaBanner from '@/components/layout/BetaBanner';
 import HamburgerButton from '@/components/layout/HamburgerButton';
 import NavigationDrawer from '@/components/layout/NavigationDrawer';
-import { trackClickEvent } from '@/utils/matomo';
+import { trackClickEvent } from '@shared/utils';
+import { ExternalLink } from '@shared/components/links';
 import { ROUTE_PATHS } from '@/routes';
 import { HEADER_LINKS } from '@/components/layout/constants';
 import '@/components/layout/Header.scss';
@@ -63,17 +62,11 @@ const Header = () => {
             {HEADER_LINKS.map((link, index) => (
               <div key={index}>
                 {link.isExternal ? (
-                  <a
-                    href={link.url}
-                    rel="noopener noreferrer"
-                    target="_blank"
+                  <ExternalLink
+                    url={link.url}
+                    label={link.label}
                     onClick={() => handleHeaderLinkClick(link.label)}
-                  >
-                    <Stack direction={'horizontal'} gap={1}>
-                      {link.label}
-                      <FontAwesomeIcon icon={faExternalLink} />
-                    </Stack>
-                  </a>
+                  />
                 ) : (
                   <Link
                     to={link.url}

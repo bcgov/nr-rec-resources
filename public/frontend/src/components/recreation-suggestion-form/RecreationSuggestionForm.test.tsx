@@ -4,7 +4,7 @@ import { screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { act } from 'react-dom/test-utils';
 import { renderWithQueryClient } from '@/test-utils';
-import { trackClickEvent } from '@/utils/matomo';
+import { trackClickEvent } from '@shared/utils';
 import { useSearchCitiesApi } from '@/components/recreation-suggestion-form/hooks/useSearchCitiesApi';
 import { useSearchInput } from '@/components/recreation-suggestion-form/hooks/useSearchInput';
 import { useCurrentLocation } from '@/components/recreation-suggestion-form/hooks/useCurrentLocation';
@@ -12,7 +12,7 @@ import RecreationSuggestionForm from '@/components/recreation-suggestion-form/Re
 
 vi.mock('@/components/recreation-suggestion-form/hooks/useSearchInput');
 vi.mock('@/components/recreation-suggestion-form/hooks/useCurrentLocation');
-vi.mock('@/utils/matomo', () => ({
+vi.mock('@shared/utils', () => ({
   trackClickEvent: vi.fn(() => vi.fn()),
 }));
 

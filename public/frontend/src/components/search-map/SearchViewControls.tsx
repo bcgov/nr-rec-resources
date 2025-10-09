@@ -3,7 +3,7 @@ import { Button } from 'react-bootstrap';
 import '@/components/search/filters/Filters.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faList, faMap } from '@fortawesome/free-solid-svg-icons';
-import { trackClickEvent } from '@/utils/matomo';
+import { trackClickEvent } from '@shared/utils';
 
 interface SearchViewControlsProps {
   variant: 'list' | 'map';

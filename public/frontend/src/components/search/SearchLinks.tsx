@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { trackEvent } from '@/utils/matomo';
+import { trackEvent } from '@shared/utils';
 import {
   SEARCH_LINKS,
   SEARCH_LINKS_TITLE,

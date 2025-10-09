@@ -26,7 +26,7 @@ import {
   PaginatedRecreationResourceModel,
   RecreationResourceSearchModel,
 } from '@/service/custom-models';
-import { trackEvent } from '@/utils/matomo';
+import { trackEvent } from '@shared/utils';
 import { LoadingButton } from '@/components/LoadingButton';
 import PageTitle from '@/components/layout/PageTitle';
 import { ROUTE_TITLES } from '@/routes/constants';

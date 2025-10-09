@@ -4,15 +4,17 @@ import {
 } from '../dtos/recreation-resource-detail.dto';
 import { OPEN_STATUS } from '../recreation-resource.constants';
 import { RecreationResourceGetPayload } from '../recreation-resource.types';
+import { getRecreationResourceSpatialFeatureGeometry } from '@/prisma-generated-sql';
 
 /**
  * Formats recreation resource detail results to match the RecreationResourceDetailDto.
  */
 
-export function formatRecreationResourceDetailResults({
-  recreation_district_code,
-  ...result
-}: RecreationResourceGetPayload): RecreationResourceDetailDto {
+export function formatRecreationResourceDetailResults(
+  { recreation_district_code, ...result }: RecreationResourceGetPayload,
+  recreationResourceSpatialFeatureGeometryResult: getRecreationResourceSpatialFeatureGeometry.Result[],
+): RecreationResourceDetailDto {
+  const spatialFeatures = recreationResourceSpatialFeatureGeometryResult?.[0];
   const recreationDistrict = recreation_district_code
     ? {
         description: recreation_district_code.description,
@@ -69,6 +71,9 @@ export function formatRecreationResourceDetailResults({
           )
         : false,
     },
+    spatial_feature_geometry:
+      spatialFeatures?.spatial_feature_geometry ?? undefined,
+    site_point_geometry: spatialFeatures?.site_point_geometry ?? undefined,
     recreation_district: recreationDistrict,
     project_established_date: result.project_established_date ?? undefined,
   };

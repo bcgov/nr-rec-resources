@@ -19,11 +19,9 @@ const RecreationFeaturePreview: React.FC<RecreationFeaturePreviewProps> = ({
   return (
     <div className="map-feature-preview">
       {!recreationResource ? (
-        <Spinner
-          animation="border"
-          role="output"
-          className="map-feature-preview-spinner mb-2"
-        />
+        <div className="map-feature-preview-spinner">
+          <Spinner animation="border" role="output" className="mb-2" />
+        </div>
       ) : (
         <RecResourceCard
           className="map-feature-preview-card rec-resource-card"

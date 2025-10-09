@@ -7,7 +7,7 @@ import { useSearchRecreationResourcesPaginated } from '@/service/queries/recreat
 import searchResultsStore from '@/store/searchResults';
 import FilterGroupAccordion from '@/components/search/filters/FilterGroupAccordion';
 import FilterModal from '@/components/search/filters/FilterModal';
-import { trackEvent } from '@/utils/matomo';
+import { trackEvent } from '@shared/utils';
 import '@/components/search/filters/Filters.scss';
 import '@/components/search/filters/FilterMenuSearchMap.scss';
 

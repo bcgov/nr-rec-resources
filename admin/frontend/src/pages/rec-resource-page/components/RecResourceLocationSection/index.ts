@@ -1,0 +1,1 @@
+export { RecResourceLocationSection } from './RecResourceLocationSection';

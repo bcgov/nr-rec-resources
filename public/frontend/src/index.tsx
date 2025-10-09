@@ -6,7 +6,7 @@ import '@/styles/global.scss';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from '@/App';
-import { MAP_PROJECTION_BC_ALBERS } from '@/components/rec-resource/RecreationResourceMap/constants';
+import { MAP_PROJECTION_BC_ALBERS } from '@shared/components/recreation-resource-map';
 import { register } from 'ol/proj/proj4';
 import proj4 from 'proj4';
 

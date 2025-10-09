@@ -1,45 +1,32 @@
 import { render, screen, within, fireEvent } from '@testing-library/react';
+import { BrowserRouter } from 'react-router';
 import Header from '@/components/layout/Header';
 import { HEADER_LINKS } from '@/components/layout/constants';
-
-vi.mock('react-router', async () => {
-  const actual = await vi.importActual('react-router');
-  return {
-    ...actual,
-    Link: ({ children, to, onClick, ...props }: any) => (
-      <a href={to} onClick={onClick} {...props}>
-        {children}
-      </a>
-    ),
-  };
-});
 
 vi.mock('@/components/layout/BetaBanner', () => ({
   default: () => <div data-testid="beta-banner">Beta Banner</div>,
 }));
 
-vi.mock('@/utils/matomo', () => ({
+vi.mock('@shared/utils', () => ({
   trackClickEvent: vi.fn(() => vi.fn()),
 }));
 
-vi.mock('@fortawesome/react-fontawesome', () => ({
-  FontAwesomeIcon: ({ icon }: any) => (
-    <span data-testid="font-awesome-icon" data-icon={icon.iconName} />
-  ),
-}));
-
-import { trackClickEvent } from '@/utils/matomo';
+import { trackClickEvent } from '@shared/utils';
 
 const mockTrackClickEvent = vi.mocked(trackClickEvent);
 
 describe('Header component', () => {
+  const renderWithRouter = (ui: React.ReactElement) => {
+    return render(<BrowserRouter>{ui}</BrowserRouter>);
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
     mockTrackClickEvent.mockReturnValue(vi.fn());
   });
 
   it('renders the component correctly', () => {
-    render(<Header />);
+    renderWithRouter(<Header />);
 
     expect(screen.getByRole('banner')).toBeInTheDocument();
     expect(
@@ -56,7 +43,7 @@ describe('Header component', () => {
   });
 
   it('renders hamburger button with correct initial state', () => {
-    render(<Header />);
+    renderWithRouter(<Header />);
     const hamburgerButton = screen.getByRole('button', { name: /open menu/i });
     expect(hamburgerButton).toBeInTheDocument();
     expect(hamburgerButton).toHaveAttribute('aria-expanded', 'false');
@@ -64,7 +51,7 @@ describe('Header component', () => {
   });
 
   it('renders navigation drawer with correct initial state', () => {
-    render(<Header />);
+    renderWithRouter(<Header />);
     const navigationDrawer = screen.getByRole('navigation', {
       name: /mobile navigation menu/i,
     });
@@ -73,7 +60,7 @@ describe('Header component', () => {
   });
 
   it('renders all header links correctly', () => {
-    render(<Header />);
+    renderWithRouter(<Header />);
 
     const desktopNav = screen.getByRole('navigation', {
       name: /secondary header site navigation/i,
@@ -90,11 +77,6 @@ describe('Header component', () => {
           'rel',
           'noopener noreferrer',
         );
-
-        const icon = within(linkElement.closest('a')!).getByTestId(
-          'font-awesome-icon',
-        );
-        expect(icon).toHaveAttribute('data-icon', 'arrow-up-right-from-square');
       } else {
         expect(linkElement.closest('a')).toHaveAttribute('href', link.url);
         expect(linkElement.closest('a')).not.toHaveAttribute('target');
@@ -103,7 +85,7 @@ describe('Header component', () => {
   });
 
   it('toggles hamburger menu when hamburger button is clicked', () => {
-    render(<Header />);
+    renderWithRouter(<Header />);
 
     const hamburgerButton = screen.getByRole('button', { name: /open menu/i });
     const navigationDrawer = screen.getByRole('navigation', {
@@ -127,7 +109,7 @@ describe('Header component', () => {
   });
 
   it('navigation drawer can be toggled multiple times', () => {
-    render(<Header />);
+    renderWithRouter(<Header />);
 
     const hamburgerButton = screen.getByRole('button', { name: /open menu/i });
     const navigationDrawer = screen.getByRole('navigation', {
@@ -145,7 +127,7 @@ describe('Header component', () => {
   });
 
   it('tracks analytics when header links are clicked', () => {
-    render(<Header />);
+    renderWithRouter(<Header />);
 
     const firstLink = HEADER_LINKS[0];
     const desktopNav = screen.getByRole('navigation', {
@@ -162,7 +144,7 @@ describe('Header component', () => {
   });
 
   it('tracks analytics when mobile navigation links are clicked', () => {
-    render(<Header />);
+    renderWithRouter(<Header />);
 
     const hamburgerButton = screen.getByRole('button', { name: /open menu/i });
     fireEvent.click(hamburgerButton);
@@ -182,7 +164,7 @@ describe('Header component', () => {
   });
 
   it('renders logo link correctly', () => {
-    render(<Header />);
+    renderWithRouter(<Header />);
 
     const logoLink = screen.getByRole('link', {
       name: /recreation sites and trails bc logo/i,
