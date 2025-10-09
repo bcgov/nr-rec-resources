@@ -1,7 +1,7 @@
 import { FC } from 'react';
 import { Stack } from 'react-bootstrap';
 import RecreationSuggestionForm from '@/components/recreation-suggestion-form/RecreationSuggestionForm';
-import { faLocationPin } from '@fortawesome/free-solid-svg-icons';
+import { faMap } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '@/components/search/Search.scss';
 import './RecreationSearchBanner.scss';
@@ -14,7 +14,7 @@ const MapLink = ({ className = '' }) => (
     className={`search-by-map-link ${className}`}
     aria-label="Search by map"
   >
-    <FontAwesomeIcon icon={faLocationPin} className="me-2" aria-hidden="true" />
+    <FontAwesomeIcon icon={faMap} className="me-2" aria-hidden="true" />
     Search by map
   </Link>
 );
