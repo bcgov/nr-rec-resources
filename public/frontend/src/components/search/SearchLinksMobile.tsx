@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Modal } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
-import { trackEvent } from '@/utils/matomo';
+import { trackEvent } from '@shared/utils';
 import {
   SEARCH_LINKS,
   SEARCH_LINKS_TITLE,

@@ -2,7 +2,7 @@ import { useSearchParams } from 'react-router-dom';
 import removeFilter from '@/utils/removeFilter';
 import { FilterChip } from '@/components/search/types';
 import { filterChipStore } from '@/store';
-import { trackEvent } from '@/utils/matomo';
+import { trackEvent } from '@shared/utils';
 
 export const useFilterHandler = () => {
   const [searchParams, setSearchParams] = useSearchParams();

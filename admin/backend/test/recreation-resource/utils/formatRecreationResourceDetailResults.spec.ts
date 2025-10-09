@@ -44,6 +44,15 @@ const baseResource = {
   ],
 };
 
+const mockGeometryResult = [
+  {
+    spatial_feature_geometry: [
+      '{"type":"Polygon","coordinates":[[[1,2],[3,4],[5,6],[1,2]]]}',
+    ],
+    site_point_geometry: '{"type":"Point","coordinates":[123.45,67.89]}',
+  },
+];
+
 describe('formatRecreationResourceDetailResults', () => {
   it('should format a fully populated resource', () => {
     const input = {
@@ -53,7 +62,10 @@ describe('formatRecreationResourceDetailResults', () => {
         district_code: 'D1',
       },
     };
-    const result = formatRecreationResourceDetailResults(input as any);
+    const result = formatRecreationResourceDetailResults(
+      input as any,
+      mockGeometryResult,
+    );
     expect(result.rec_resource_id).toBe('123');
     expect(result.name).toBe('Test Site');
     expect(result.closest_community).toBe('Testville');
@@ -90,6 +102,12 @@ describe('formatRecreationResourceDetailResults', () => {
       description: 'District 1',
       district_code: 'D1',
     });
+    expect(result.spatial_feature_geometry).toEqual([
+      '{"type":"Polygon","coordinates":[[[1,2],[3,4],[5,6],[1,2]]]}',
+    ]);
+    expect(result.site_point_geometry).toBe(
+      '{"type":"Point","coordinates":[123.45,67.89]}',
+    );
   });
 
   it('should handle missing optional fields and use OPEN_STATUS defaults', () => {
@@ -108,7 +126,7 @@ describe('formatRecreationResourceDetailResults', () => {
       recreation_structure: undefined,
       recreation_district_code: undefined,
     };
-    const result = formatRecreationResourceDetailResults(input as any);
+    const result = formatRecreationResourceDetailResults(input as any, []);
     expect(result.name).toBe('');
     expect(result.closest_community).toBe('');
     expect(result.description).toBeUndefined();
@@ -147,7 +165,7 @@ describe('formatRecreationResourceDetailResults', () => {
         },
       ],
     };
-    const result = formatRecreationResourceDetailResults(input as any);
+    const result = formatRecreationResourceDetailResults(input as any, []);
     expect(result.recreation_access).toEqual([
       {
         description: 'Road',
@@ -171,7 +189,7 @@ describe('formatRecreationResourceDetailResults', () => {
         },
       ],
     };
-    const result = formatRecreationResourceDetailResults(input as any);
+    const result = formatRecreationResourceDetailResults(input as any, []);
     expect(result.recreation_access).toEqual([]);
   });
 
@@ -180,7 +198,7 @@ describe('formatRecreationResourceDetailResults', () => {
       ...baseResource,
       recreation_structure: undefined,
     };
-    const result = formatRecreationResourceDetailResults(input as any);
+    const result = formatRecreationResourceDetailResults(input as any, []);
     expect(result.recreation_structure).toEqual({
       has_toilet: false,
       has_table: false,
@@ -194,7 +212,7 @@ describe('formatRecreationResourceDetailResults', () => {
         { recreation_structure_code: { description: 'Other' } },
       ],
     };
-    const result = formatRecreationResourceDetailResults(input as any);
+    const result = formatRecreationResourceDetailResults(input as any, []);
     expect(result.recreation_structure).toEqual({
       has_toilet: false,
       has_table: false,
@@ -213,7 +231,7 @@ describe('formatRecreationResourceDetailResults', () => {
         },
       ],
     };
-    const result = formatRecreationResourceDetailResults(input as any);
+    const result = formatRecreationResourceDetailResults(input as any, []);
     expect(result.recreation_activity).toEqual([
       { description: '', recreation_activity_code: 'HIKE' },
     ]);
@@ -239,7 +257,7 @@ describe('formatRecreationResourceDetailResults', () => {
         },
       ],
     };
-    const result = formatRecreationResourceDetailResults(input as any);
+    const result = formatRecreationResourceDetailResults(input as any, []);
     expect(result.recreation_access).toEqual([
       {
         description: 'Road',
@@ -264,7 +282,7 @@ describe('formatRecreationResourceDetailResults', () => {
         },
       ],
     };
-    const result = formatRecreationResourceDetailResults(input as any);
+    const result = formatRecreationResourceDetailResults(input as any, []);
     expect(result.recreation_access).toEqual([
       {
         description: 'Trail',

@@ -4,7 +4,7 @@ import { screen, fireEvent } from '@testing-library/react';
 import { renderWithQueryClient } from '@/test-utils';
 import SearchMap from '@/components/search-map/SearchMap';
 import * as hooks from '@/components/search-map/hooks/useMapFocus';
-import { trackClickEvent } from '@/utils/matomo';
+import { trackClickEvent } from '@shared/utils';
 
 const mockSetSearchParams = vi.fn();
 const mockSearchParams = {
@@ -104,7 +104,7 @@ vi.mock('@bcgov/prp-map', () => ({
   useStyledLayer: vi.fn(() => ({ id: 'mock-styled-layer' })),
 }));
 
-vi.mock('@/utils/matomo', () => ({
+vi.mock('@shared/utils', () => ({
   trackClickEvent: vi.fn(),
 }));
 

@@ -1,4 +1,4 @@
-import activityIconMap from '@/data/activityIconMap';
+import { activityIconMap } from '@shared/data/activityIconMap';
 import { MAX_ACTIVITIES_TO_DISPLAY } from '@/components/rec-resource/card/constants';
 import { Activity } from '@/components/rec-resource/types';
 

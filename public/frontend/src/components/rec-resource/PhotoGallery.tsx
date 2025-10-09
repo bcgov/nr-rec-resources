@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImages } from '@fortawesome/free-solid-svg-icons';
-import { trackEvent } from '@/utils/matomo';
+import { trackEvent } from '@shared/utils';
 import Lightbox from 'yet-another-react-lightbox';
 import Captions from 'yet-another-react-lightbox/plugins/captions';
 import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails';

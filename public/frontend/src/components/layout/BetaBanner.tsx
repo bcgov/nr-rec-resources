@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import '@/components/layout/BetaBanner.scss';
 import useMediaQuery from '@/hooks/useMediaQuery';
-import { trackClickEvent } from '@/utils/matomo';
+import { trackClickEvent } from '@shared/utils';
 import { EXTERNAL_LINKS } from '@/data/urls';
 import { Button } from 'react-bootstrap';
 

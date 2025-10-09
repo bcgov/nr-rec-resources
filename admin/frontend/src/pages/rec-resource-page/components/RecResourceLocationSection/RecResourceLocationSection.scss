@@ -1,0 +1,9 @@
+@import '@/styles/variables.scss';
+
+.map-links {
+  button,
+  a {
+    color: $colorBlue;
+    font-weight: 700;
+  }
+}

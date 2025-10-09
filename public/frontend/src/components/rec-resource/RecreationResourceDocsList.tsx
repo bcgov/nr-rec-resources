@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { trackEvent } from '@/utils/matomo';
+import { trackEvent } from '@shared/utils';
 import { RecreationResourceDetailModel } from '@/service/custom-models';
 import { RecreationResourceDocDto } from '@/service/recreation-resource';
 

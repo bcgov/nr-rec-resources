@@ -3,7 +3,7 @@ import { CONTACT_TOPICS } from '@/components/contact-page/constants';
 import rapp_logo from '@/components/contact-page/assets/rapp_logo.jpg';
 import bc_wildfire_app_logo from '@/components/contact-page/assets/bc_wildfire_app_logo.png';
 import { FC } from 'react';
-import { trackClickEvent } from '@/utils/matomo';
+import { trackClickEvent } from '@shared/utils';
 import { MATOMO_TRACKING_CATEGORY_CONTACT_PAGE } from '@/data/analytics';
 import { Link } from 'react-router';
 import { ROUTE_PATHS } from '@/routes';

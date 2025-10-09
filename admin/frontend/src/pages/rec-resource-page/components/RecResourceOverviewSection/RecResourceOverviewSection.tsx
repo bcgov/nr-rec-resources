@@ -2,6 +2,8 @@ import { formatRecreationAccess } from '@/pages/rec-resource-page/components/Rec
 import { RecreationResourceDetailUIModel } from '@/services';
 import { Col, Row, Stack } from 'react-bootstrap';
 import { RecResourceOverviewItem } from './RecResourceOverviewItem';
+import { RecResourceActivitySection } from '../RecResourceActivitySection';
+import { RecResourceLocationSection } from '../RecResourceLocationSection';
 
 type RecResourceOverviewSectionProps = {
   recResource: RecreationResourceDetailUIModel;
@@ -70,6 +72,12 @@ export const RecResourceOverviewSection = (
           />
         </Col>
       </Row>
+
+      {recResource && <RecResourceLocationSection recResource={recResource} />}
+
+      <RecResourceActivitySection
+        recreationActivities={recResource.recreation_activity}
+      />
     </Stack>
   );
 };

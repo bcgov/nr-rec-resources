@@ -2,7 +2,7 @@ import { forwardRef } from 'react';
 import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 import { ResponseError, SiteOperatorDto } from '@/service/recreation-resource';
 import { Link } from 'react-router';
-import { trackClickEvent } from '@/utils/matomo';
+import { trackClickEvent } from '@shared/utils';
 import { MATOMO_TRACKING_CATEGORY_CONTACT_PAGE } from '@/data/analytics';
 import { ROUTE_PATHS } from '@/routes';
 

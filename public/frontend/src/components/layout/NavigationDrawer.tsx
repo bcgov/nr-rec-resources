@@ -1,12 +1,11 @@
 import { useRef } from 'react';
 import { Link } from 'react-router';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExternalLink } from '@fortawesome/free-solid-svg-icons';
 import { RemoveScroll } from 'react-remove-scroll';
 import { useClickOutside } from '@shared/hooks';
+import { ExternalLink } from '@shared/components/links';
 import { HEADER_LINKS } from './constants';
 import { EXTERNAL_LINKS } from '@/data/urls';
-import { trackClickEvent } from '@/utils/matomo';
+import { trackClickEvent } from '@shared/utils';
 import '@/components/layout/NavigationDrawer.scss';
 
 interface NavigationDrawerProps {
@@ -58,15 +57,11 @@ const NavigationDrawer = ({
           {HEADER_LINKS.map((link, index) => (
             <li key={index} className="navigation-drawer-item">
               {link.isExternal ? (
-                <a
-                  href={link.url}
-                  rel="noopener noreferrer"
-                  target="_blank"
+                <ExternalLink
+                  url={link.url}
+                  label={link.label}
                   onClick={() => handleMenuLinkClick(link.label)}
-                >
-                  {link.label}
-                  <FontAwesomeIcon icon={faExternalLink} />
-                </a>
+                />
               ) : (
                 <Link
                   to={link.url}
@@ -79,18 +74,14 @@ const NavigationDrawer = ({
           ))}
 
           <li className="navigation-drawer-item feedback">
-            <a
-              href={EXTERNAL_LINKS.FEEDBACK_FORM}
-              target="_blank"
-              rel="noopener noreferrer"
+            <ExternalLink
+              url={EXTERNAL_LINKS.FEEDBACK_FORM}
+              label="Share feedback"
               onClick={() => {
                 handleMenuLinkClick('Share feedback');
                 handleFeedbackClick();
               }}
-            >
-              Share feedback
-              <FontAwesomeIcon icon={faExternalLink} />
-            </a>
+            />
           </li>
         </ul>
       </nav>

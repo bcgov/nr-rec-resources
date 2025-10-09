@@ -19,7 +19,7 @@ import {
   RecreationSuggestion,
 } from '@/components/recreation-suggestion-form/types';
 import '@/components/recreation-suggestion-form/RecreationSuggestionForm.scss';
-import { trackClickEvent } from '@/utils/matomo';
+import { trackClickEvent } from '@shared/utils';
 import {
   fuzzySearchCities,
   fuzzySearchBestCity,

@@ -5,7 +5,7 @@ import OLMap from 'ol/Map';
 import Point from 'ol/geom/Point';
 import { RecreationResourceDetailModel } from '@/service/custom-models';
 import VectorLayer from 'ol/layer/Vector';
-import { getSitePointFeatureFromRecResource } from '@/components/rec-resource/RecreationResourceMap/helpers';
+import { getSitePointFeatureFromRecResource } from '@shared/components/recreation-resource-map/helpers';
 import VectorSource from 'ol/source/Vector';
 import { getCenter } from 'ol/extent';
 
