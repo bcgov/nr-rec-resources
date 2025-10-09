@@ -264,6 +264,7 @@ describe('recreationFeatureLayer', () => {
 
       const projectTypes = [
         { type: 'SIT', icon: createSITIcon },
+        { type: 'RR', icon: createSITIcon },
         { type: 'RTR', icon: createRTRIcon },
         { type: 'IF', icon: createIFIcon },
       ];

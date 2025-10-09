@@ -38,6 +38,7 @@ const getCapitalizedName = (name: string): string => {
 
 const PROJECT_TYPE_ICON_MAP = {
   SIT: createSITIcon,
+  RR: createSITIcon, // Recreation Reserves are displayed as Recreation Sites
   RTR: createRTRIcon,
   IF: createIFIcon,
 } as const;
@@ -103,7 +104,7 @@ export function createClusteredRecreationFeatureStyle(
   let iconStyle: Style;
 
   if (useProjectTypeIcons && projectType) {
-    const iconKey = `icon-${projectType}-${isClosed}-${iconOpacity}`;
+    const iconKey = `icon-project-${projectType}-${isClosed}-${iconOpacity}`;
 
     if (!iconStyleCache.has(iconKey)) {
       const projectIcon = getProjectTypeIcon(projectType, {
@@ -115,7 +116,7 @@ export function createClusteredRecreationFeatureStyle(
 
     iconStyle = iconStyleCache.get(iconKey)!;
   } else {
-    const iconKey = `icon-${isClosed}-${iconOpacity}`;
+    const iconKey = `icon-default-${isClosed}-${iconOpacity}`;
 
     if (!iconStyleCache.has(iconKey)) {
       const defaultIconStyle = isClosed
