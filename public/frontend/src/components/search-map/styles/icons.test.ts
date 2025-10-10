@@ -1,60 +1,80 @@
 import { describe, it, expect } from 'vitest';
 import {
-  locationDotBlueIcon,
-  locationDotRedIcon,
-  locationDotOrangeIcon,
-  createLocationDotBlueIcon,
-  createLocationDotRedIcon,
-  createLocationDotOrangeIcon,
+  createSITIcon,
+  createRTRIcon,
+  createIFIcon,
 } from '@/components/search-map/styles/icons';
-import locationDotBlue from '@/assets/location-dot-blue.png';
-import locationDotRed from '@/assets/location-dot-red.png';
-import locationDotOrange from '@/assets/location-dot-orange.png';
+import SIT_ICON from '@shared/assets/icons/recreation_site.svg';
+import SIT_ICON_CLOSED from '@shared/assets/icons/recreation_site_closed.svg';
+import SIT_ICON_SELECTED from '@shared/assets/icons/recreation_site_selected.svg';
+import RTR_ICON from '@shared/assets/icons/recreation_trail.svg';
+import RTR_ICON_CLOSED from '@shared/assets/icons/recreation_trail_closed.svg';
+import RTR_ICON_SELECTED from '@shared/assets/icons/recreation_trail_selected.svg';
+import IF_ICON from '@shared/assets/icons/interpretive_forest.svg';
+import IF_ICON_CLOSED from '@shared/assets/icons/interpretive_forest_closed.svg';
+import IF_ICON_SELECTED from '@shared/assets/icons/interpretive_forest_selected.svg';
 import { Icon } from 'ol/style';
 
-describe('Static locationDot icons', () => {
-  it('locationDotBlueIcon uses correct settings', () => {
-    const icon = locationDotBlueIcon.getImage() as Icon;
+describe('Recreation Site Icons', () => {
+  it('createSITIcon creates default variant', () => {
+    const icon = createSITIcon().getImage() as Icon;
     expect(icon).toBeInstanceOf(Icon);
-    expect(icon.getSrc()).toBe(locationDotBlue);
-    expect(icon.getScale()).toBe(0.5);
+    expect(icon.getSrc()).toBe(SIT_ICON);
+    expect(icon.getScale()).toBe(0.8);
+    expect(icon.getOpacity()).toBe(1);
   });
 
-  it('locationDotRedIcon uses correct settings', () => {
-    const icon = locationDotRedIcon.getImage() as Icon;
-    expect(icon.getSrc()).toBe(locationDotRed);
-    expect(icon.getScale()).toBe(0.5);
+  it('createSITIcon creates closed variant', () => {
+    const icon = createSITIcon({ variant: 'closed' }).getImage() as Icon;
+    expect(icon.getSrc()).toBe(SIT_ICON_CLOSED);
+    expect(icon.getScale()).toBe(0.8);
   });
 
-  it('locationDotOrangeIcon uses correct settings', () => {
-    const icon = locationDotOrangeIcon.getImage() as Icon;
-    expect(icon.getSrc()).toBe(locationDotOrange);
-    expect(icon.getScale()).toBe(0.5);
+  it('createSITIcon creates selected variant', () => {
+    const icon = createSITIcon({ variant: 'selected' }).getImage() as Icon;
+    expect(icon.getSrc()).toBe(SIT_ICON_SELECTED);
+    expect(icon.getScale()).toBe(0.8);
+  });
+
+  it('createSITIcon accepts custom opacity and scale', () => {
+    const icon = createSITIcon({ opacity: 0.7, scale: 1.0 }).getImage() as Icon;
+    expect(icon.getOpacity()).toBe(0.7);
+    expect(icon.getScale()).toBe(1.0);
   });
 });
 
-describe('createLocationDotIcon factory functions', () => {
-  it('createLocationDotBlueIcon creates icon with default options', () => {
-    const icon = createLocationDotBlueIcon().getImage() as Icon;
-    expect(icon.getSrc()).toBe(locationDotBlue);
-    expect(icon.getScale()).toBe(0.5);
-    expect(icon.getOpacity()).toBe(1);
+describe('Recreation Trail Icons', () => {
+  it('createRTRIcon creates default variant', () => {
+    const icon = createRTRIcon().getImage() as Icon;
+    expect(icon.getSrc()).toBe(RTR_ICON);
+    expect(icon.getScale()).toBe(0.8);
   });
 
-  it('createLocationDotRedIcon creates icon with custom options', () => {
-    const icon = createLocationDotRedIcon({
-      scale: 0.7,
-      opacity: 0.8,
-    }).getImage() as Icon;
-    expect(icon.getSrc()).toBe(locationDotRed);
-    expect(icon.getScale()).toBe(0.7);
-    expect(icon.getOpacity()).toBe(0.8);
+  it('createRTRIcon creates closed variant', () => {
+    const icon = createRTRIcon({ variant: 'closed' }).getImage() as Icon;
+    expect(icon.getSrc()).toBe(RTR_ICON_CLOSED);
   });
 
-  it('createLocationDotOrangeIcon creates icon with custom scale only', () => {
-    const icon = createLocationDotOrangeIcon({ scale: 0.9 }).getImage() as Icon;
-    expect(icon.getSrc()).toBe(locationDotOrange);
-    expect(icon.getScale()).toBe(0.9);
-    expect(icon.getOpacity()).toBe(1);
+  it('createRTRIcon creates selected variant', () => {
+    const icon = createRTRIcon({ variant: 'selected' }).getImage() as Icon;
+    expect(icon.getSrc()).toBe(RTR_ICON_SELECTED);
+  });
+});
+
+describe('Interpretive Forest Icons', () => {
+  it('createIFIcon creates default variant', () => {
+    const icon = createIFIcon().getImage() as Icon;
+    expect(icon.getSrc()).toBe(IF_ICON);
+    expect(icon.getScale()).toBe(0.8);
+  });
+
+  it('createIFIcon creates closed variant', () => {
+    const icon = createIFIcon({ variant: 'closed' }).getImage() as Icon;
+    expect(icon.getSrc()).toBe(IF_ICON_CLOSED);
+  });
+
+  it('createIFIcon creates selected variant', () => {
+    const icon = createIFIcon({ variant: 'selected' }).getImage() as Icon;
+    expect(icon.getSrc()).toBe(IF_ICON_SELECTED);
   });
 });

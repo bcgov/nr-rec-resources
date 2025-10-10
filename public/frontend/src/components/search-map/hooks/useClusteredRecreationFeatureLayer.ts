@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import OLMap from 'ol/Map';
+import { Options as ClusterOptions } from 'ol/source/Cluster';
 import { createEmpty, extend } from 'ol/extent';
 import {
   createClusteredRecreationFeatureStyle,
@@ -9,14 +10,11 @@ import Feature from 'ol/Feature';
 import { click } from 'ol/events/condition';
 import Select from 'ol/interaction/Select';
 import AnimatedCluster from 'ol-ext/layer/AnimatedCluster';
-import {
-  AnimatedClusterOptions,
-  ExtendedClusterOptions,
-} from '@/components/search-map/types';
+import { AnimatedClusterOptions } from '@/components/search-map/types';
 import { calculateMapPadding } from '@/components/search-map/utils';
 
 interface UseClusteredRecreationFeatureLayerOptions {
-  clusterOptions?: ExtendedClusterOptions;
+  clusterOptions?: ClusterOptions;
   animatedClusterOptions?: AnimatedClusterOptions;
   applyHoverStyles?: boolean;
 }
@@ -130,7 +128,6 @@ export const useClusteredRecreationFeatureLayer = (
     select.on('select', handleSelect);
     mapRef.current?.getMap().addInteraction(select);
 
-    // Cleanup function
     return () => {
       select.un('select', handleSelect);
       mapRef.current?.getMap().removeInteraction(select);

@@ -66,11 +66,14 @@ export const useSearchInput = () => {
   }, [setSearchInputValue, setSelectedCity, setSearchParams]);
 
   const handleClearTypeaheadSearch = useCallback(() => {
+    const isMapView = searchParams.get('view') === 'map';
     searchInputStore.setState((prev) => ({
       ...prev,
       searchInputValue: '',
       selectedCity: [],
-      wasCleared: true,
+      // Only set wasCleared if on map view
+      // as we use it to prevent auto-zooming when clearing the search
+      wasCleared: isMapView,
     }));
 
     const newParams = new URLSearchParams(searchParams.toString());

@@ -44,23 +44,14 @@ vi.mock('@/components/search-map/styles/feature', () => ({
 }));
 
 vi.mock('@/components/search-map/styles/icons', () => ({
-  createLocationDotBlueIcon: vi.fn(
-    ({ opacity }) => new Style({ opacity } as any),
-  ),
-  createLocationDotOrangeIcon: vi.fn(
-    ({ opacity }) => new Style({ opacity } as any),
-  ),
-  createLocationDotRedIcon: vi.fn(
-    ({ opacity }) => new Style({ opacity } as any),
-  ),
   createSITIcon: vi.fn(
-    ({ opacity, isClosed }) => new Style({ opacity, isClosed } as any),
+    ({ opacity, variant }) => new Style({ opacity, variant } as any),
   ),
   createRTRIcon: vi.fn(
-    ({ opacity, isClosed }) => new Style({ opacity, isClosed } as any),
+    ({ opacity, variant }) => new Style({ opacity, variant } as any),
   ),
   createIFIcon: vi.fn(
-    ({ opacity, isClosed }) => new Style({ opacity, isClosed } as any),
+    ({ opacity, variant }) => new Style({ opacity, variant } as any),
   ),
 }));
 
@@ -87,9 +78,6 @@ import {
 import { capitalizeWords } from '@/utils/capitalizeWords';
 import { featureLabelText } from '@/components/search-map/styles/feature';
 import {
-  createLocationDotBlueIcon,
-  createLocationDotOrangeIcon,
-  createLocationDotRedIcon,
   createSITIcon,
   createRTRIcon,
   createIFIcon,
@@ -153,23 +141,34 @@ describe('recreationFeatureLayer', () => {
       });
     });
 
-    it('should return orange icon for selected single feature', () => {
+    it('should return selected icon for selected single feature', () => {
+      const mockSingleFeature = {
+        get: vi.fn((key: string) => {
+          if (key === 'selected') return true;
+          if (key === 'CLOSURE_IND') return 'N';
+          if (key === 'PROJECT_NAME') return undefined;
+          if (key === 'PROJECT_TYPE') return undefined;
+          return undefined;
+        }),
+      };
+
       const mockFeature = {
         get: vi.fn((key: string) => {
-          if (key === 'features')
-            return [{ get: vi.fn().mockReturnValue(true) }];
-          if (key === 'selected') return true;
+          if (key === 'features') return [mockSingleFeature];
           return undefined;
         }),
       } as unknown as FeatureLike;
 
       const result = createClusteredRecreationFeatureStyle(mockFeature, 1);
 
-      expect(createLocationDotOrangeIcon).toHaveBeenCalledWith({ opacity: 1 });
+      expect(createSITIcon).toHaveBeenCalledWith({
+        opacity: 1,
+        variant: 'selected',
+      });
       expect(result).toBeInstanceOf(Style);
     });
 
-    it('should return red icon for closed single feature', () => {
+    it('should return closed icon for closed single feature', () => {
       const mockSingleFeature = {
         get: vi.fn((key: string) => {
           if (key === 'selected') return false;
@@ -188,11 +187,14 @@ describe('recreationFeatureLayer', () => {
 
       const result = createClusteredRecreationFeatureStyle(mockFeature, 1);
 
-      expect(createLocationDotRedIcon).toHaveBeenCalledWith({ opacity: 1 });
+      expect(createSITIcon).toHaveBeenCalledWith({
+        opacity: 1,
+        variant: 'closed',
+      });
       expect(result).toBeInstanceOf(Style);
     });
 
-    it('should return blue icon for open single feature', () => {
+    it('should return default icon for open single feature', () => {
       const mockSingleFeature = {
         get: vi.fn((key: string) => {
           if (key === 'selected') return false;
@@ -211,7 +213,10 @@ describe('recreationFeatureLayer', () => {
 
       createClusteredRecreationFeatureStyle(mockFeature, 1);
 
-      expect(createLocationDotBlueIcon).toHaveBeenCalledWith({ opacity: 1 });
+      expect(createSITIcon).toHaveBeenCalledWith({
+        opacity: 1,
+        variant: 'default',
+      });
     });
 
     it('should return icon and label styles for feature with name', () => {
@@ -273,31 +278,31 @@ describe('recreationFeatureLayer', () => {
         it(`should return ${type} icon for ${type} project type when zoomed in`, () => {
           const mockFeature = createMockFeature(type, false);
           createClusteredRecreationFeatureStyle(mockFeature, 200);
-          expect(icon).toHaveBeenCalledWith({ opacity: 1, isClosed: false });
+          expect(icon).toHaveBeenCalledWith({ opacity: 1, variant: 'default' });
         });
 
         it(`should return closed ${type} icon for closed ${type} project`, () => {
           const mockFeature = createMockFeature(type, true);
           createClusteredRecreationFeatureStyle(mockFeature, 200);
-          expect(icon).toHaveBeenCalledWith({ opacity: 1, isClosed: true });
+          expect(icon).toHaveBeenCalledWith({ opacity: 1, variant: 'closed' });
         });
       });
 
       it('should fall back to default icons for unknown project types', () => {
         const mockFeature = createMockFeature('UNKNOWN_TYPE', false);
         createClusteredRecreationFeatureStyle(mockFeature, 200);
-        expect(createLocationDotBlueIcon).toHaveBeenCalledWith({
+        expect(createSITIcon).toHaveBeenCalledWith({
           opacity: 1,
-          isClosed: false,
+          variant: 'default',
         });
       });
 
-      it('should fall back to red icon for closed unknown project types', () => {
+      it('should fall back to closed icon for closed unknown project types', () => {
         const mockFeature = createMockFeature('UNKNOWN_TYPE', true);
         createClusteredRecreationFeatureStyle(mockFeature, 200);
-        expect(createLocationDotRedIcon).toHaveBeenCalledWith({
+        expect(createSITIcon).toHaveBeenCalledWith({
           opacity: 1,
-          isClosed: true,
+          variant: 'closed',
         });
       });
     });

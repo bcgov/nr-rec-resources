@@ -36,7 +36,7 @@ import { useBaseMaps } from '@/components/search-map/hooks/useBaseMaps';
 import '@/components/search-map/SearchMap.scss';
 
 const CLUSTER_OPTIONS = {
-  distance: 89,
+  distance: 60,
   minDistance: 10,
 };
 
@@ -109,7 +109,6 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
               : 'None',
           });
         },
-        selectedStyle: locationDotOrangeIcon,
       },
       {
         id: 'wildfire-locations',

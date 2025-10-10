@@ -66,6 +66,7 @@ const RecreationSuggestionForm = ({
   const filter = searchParams.get('filter');
   const community = searchParams.get('community');
   const isSearchParams = filter || community;
+  const view = searchParams.get('view') || 'list';
   const { data: citiesList } = useSearchCitiesApi();
   const { getLocation, permissionDeniedCount } = useCurrentLocation();
   const {
@@ -254,6 +255,7 @@ const RecreationSuggestionForm = ({
         onSubmit={handleSubmit}
       >
         <SuggestionTypeahead<RecreationSuggestion | CitySuggestion>
+          key={`search-typeahead-${view}-${defaultSearchInputValue}`}
           onChange={handleSuggestionChange}
           onClear={handleClearTypeaheadSearch}
           onKeyDown={handleInputKeyDown}
