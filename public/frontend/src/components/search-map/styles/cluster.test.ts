@@ -17,9 +17,9 @@ describe('clusterStyle', () => {
 
     const clusterImage = cluster.getImage() as CircleStyle;
     expect(clusterImage.getRadius()).toBe(20);
-    expect(clusterImage.getStroke()!.getColor()).toBe('rgb(36,100,164)');
+    expect(clusterImage.getStroke()!.getColor()).toBe('rgb(47,97,39)');
     expect(clusterImage.getStroke()!.getWidth()).toBe(2);
-    expect(clusterImage.getFill()!.getColor()).toBe('rgba(36,100,164, 0.85)');
+    expect(clusterImage.getFill()!.getColor()).toBe('rgba(47,97,39, 0.85)');
 
     const text = cluster.getText() as Text;
     expect(text.getText()).toBe('5');
@@ -50,6 +50,6 @@ describe('clusterStyle', () => {
     expect(haloImage.getStroke()!.getColor()).toBe('rgba(255, 255, 255, 0.2)');
 
     const clusterImage = cluster.getImage() as CircleStyle;
-    expect(clusterImage.getFill()!.getColor()).toBe('rgba(36,100,164, 0.5)');
+    expect(clusterImage.getFill()!.getColor()).toBe('rgba(47,97,39, 0.5)');
   });
 });
