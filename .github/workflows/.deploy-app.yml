@@ -99,6 +99,7 @@ jobs:
       - name: Build And Update UI (CF)
         env:
           app: ${{ inputs.app }}
+          VITE_DEPLOYMENT_ENV: ${{ inputs.app_env }}
           VITE_RECREATION_RESOURCE_ASSETS_BASE_URL: ${{ secrets.VITE_RECREATION_RESOURCE_ASSETS_BASE_URL }}
           VITE_API_BASE_URL: ${{ needs.deploy-api.outputs.API_GW_URL }}/api
           VITE_MATOMO_URL: ${{ secrets.VITE_MATOMO_URL }}

@@ -15,6 +15,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "jsx": "react-jsx",
+    "types": ["vite/client"],
     "baseUrl": "./",
     "paths": {
       "@shared": ["src"],

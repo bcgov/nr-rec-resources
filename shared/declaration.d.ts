@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 declare module 'happo-playwright';
 declare module '*.svg' {
   const content: string;

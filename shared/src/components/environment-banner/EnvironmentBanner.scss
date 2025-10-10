@@ -1,0 +1,26 @@
+@import '@shared/styles/variables.scss';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins/_breakpoints';
+
+.env-identification {
+  border-radius: 10px;
+  color: $colorBlack;
+  font-weight: bold;
+  padding: 5px;
+  margin-left: 1rem;
+
+  @include media-breakpoint-up(sm) {
+    padding: 10px 25px 10px 25px;
+    margin-left: 2rem;
+  }
+
+  &.dev,
+  &.development {
+    background-color: $colorHeaderDevEnvironment;
+  }
+
+  &.test {
+    background-color: $colorHeaderTestEnvironment;
+  }
+}

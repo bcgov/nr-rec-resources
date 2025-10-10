@@ -26,6 +26,11 @@ vi.mock('@/components/avatar/Avatar', () => ({
   )),
 }));
 vi.mock('@/hooks/useMediaQuery');
+vi.mock('@shared/components/environment-banner', () => ({
+  EnvironmentBanner: () => (
+    <div data-testid="environment-banner">Environment Banner</div>
+  ),
+}));
 
 describe('Header', () => {
   beforeEach(() => {
@@ -128,4 +133,9 @@ describe('Header', () => {
       expect(mockLogout).toHaveBeenCalled();
     },
   );
+
+  it('renders environment banner', () => {
+    renderHeader();
+    expect(screen.getByTestId('environment-banner')).toBeInTheDocument();
+  });
 });
