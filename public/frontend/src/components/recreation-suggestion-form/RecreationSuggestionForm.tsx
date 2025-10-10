@@ -255,7 +255,7 @@ const RecreationSuggestionForm = ({
         onSubmit={handleSubmit}
       >
         <SuggestionTypeahead<RecreationSuggestion | CitySuggestion>
-          key={`search-typeahead-${view}`}
+          key={`search-typeahead-${view}-${defaultSearchInputValue}`}
           onChange={handleSuggestionChange}
           onClear={handleClearTypeaheadSearch}
           onKeyDown={handleInputKeyDown}
