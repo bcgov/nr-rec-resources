@@ -7,9 +7,11 @@ import HamburgerButton from '@/components/layout/HamburgerButton';
 import NavigationDrawer from '@/components/layout/NavigationDrawer';
 import { trackClickEvent } from '@shared/utils';
 import { ExternalLink } from '@shared/components/links';
+import { EnvironmentBanner } from '@shared/components/environment-banner';
 import { ROUTE_PATHS } from '@/routes';
 import { HEADER_LINKS } from '@/components/layout/constants';
 import '@/components/layout/Header.scss';
+import '@shared/components/environment-banner/EnvironmentBanner.scss';
 
 const Header = () => {
   const [isHamburgerMenuOpen, setIsHamburgerMenuOpen] = useState(false);
@@ -30,11 +32,6 @@ const Header = () => {
     setIsHamburgerMenuOpen(false);
   };
 
-  const env = import.meta.env.MODE;
-  const isLocal =
-    import.meta.url.includes('localhost') ||
-    import.meta.url.includes('127.0.0.1');
-
   return (
     <header id="header">
       <BetaBanner />
@@ -48,12 +45,7 @@ const Header = () => {
                 alt="Recreation Sites and Trails BC Logo"
               />
             </Link>
-            {(env === 'development' || env === 'test') && (
-              <span className={`env-identification ${env}`}>
-                {env === 'development' ? 'Dev' : 'Test'} environment
-                {isLocal && '  - Local'}
-              </span>
-            )}
+            <EnvironmentBanner />
           </div>
           <div className="header-actions">
             <HamburgerButton

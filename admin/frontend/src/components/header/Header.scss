@@ -39,18 +39,3 @@
     }
   }
 }
-
-.env-identification {
-  border-radius: 10px;
-  color: $colorBlack;
-  font-weight: bold;
-  padding: 10px 25px 10px 25px;
-
-  &.development {
-    background-color: $colorHeaderDevEnvironment;
-  }
-
-  &.test {
-    background-color: $colorHeaderTestEnvironment;
-  }
-}

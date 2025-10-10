@@ -13,7 +13,9 @@ import {
   Image,
   Stack,
 } from 'react-bootstrap';
+import { EnvironmentBanner } from '@shared/components/environment-banner';
 import './Header.scss';
+import '@shared/components/environment-banner/EnvironmentBanner.scss';
 
 /**
  * A custom menu toggle component for the header dropdown.
@@ -78,10 +80,6 @@ const renderMenuToggle = (fullName: string) =>
 export const Header = () => {
   const { user, authService } = useAuthContext();
   const fullName = authService.getUserFullName();
-  const env = import.meta.env.MODE;
-  const isLocal =
-    import.meta.url.includes('localhost') ||
-    import.meta.url.includes('127.0.0.1');
 
   return (
     <div className={`header main`}>
@@ -104,12 +102,7 @@ export const Header = () => {
           </>
         }
       >
-        {(env === 'development' || env === 'test') && (
-          <span className={`env-identification ${env}`}>
-            {env === 'development' ? 'Dev' : 'Test'} environment
-            {isLocal && '  - Local'}
-          </span>
-        )}
+        <EnvironmentBanner />
         <div>
           <Stack
             direction={'horizontal'}

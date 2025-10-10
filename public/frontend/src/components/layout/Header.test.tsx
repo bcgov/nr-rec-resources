@@ -11,6 +11,12 @@ vi.mock('@shared/utils', () => ({
   trackClickEvent: vi.fn(() => vi.fn()),
 }));
 
+vi.mock('@shared/components/environment-banner', () => ({
+  EnvironmentBanner: () => (
+    <div data-testid="environment-banner">Environment Banner</div>
+  ),
+}));
+
 import { trackClickEvent } from '@shared/utils';
 
 const mockTrackClickEvent = vi.mocked(trackClickEvent);
@@ -172,5 +178,10 @@ describe('Header component', () => {
     expect(logoLink).toHaveAttribute('href', '/');
 
     expect(within(logoLink).getByRole('img')).toBeInTheDocument();
+  });
+
+  it('renders environment banner', () => {
+    renderWithRouter(<Header />);
+    expect(screen.getByTestId('environment-banner')).toBeInTheDocument();
   });
 });

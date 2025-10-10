@@ -1,7 +1,11 @@
 # Build
 FROM node:22-slim AS build
 
-# Set environment variable for build
+# Build arguments for deployment environment
+ARG VITE_DEPLOYMENT_ENV
+
+# Set environment variables for build
+ENV VITE_DEPLOYMENT_ENV=${VITE_DEPLOYMENT_ENV}
 ENV VITE_RECREATION_RESOURCE_ASSETS_BASE_URL="https://dam.lqc63d-prod.nimbus.cloud.gov.bc.ca"
 
 WORKDIR /app

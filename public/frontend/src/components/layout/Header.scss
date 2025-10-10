@@ -91,18 +91,3 @@
 a {
   text-decoration: none;
 }
-
-.env-identification {
-  border-radius: 10px;
-  font-weight: bold;
-  margin-left: 10%;
-  padding: 10px 25px 10px 25px;
-
-  &.development {
-    background-color: $colorHeaderDevEnvironment;
-  }
-
-  &.test {
-    background-color: $colorHeaderTestEnvironment;
-  }
-}
