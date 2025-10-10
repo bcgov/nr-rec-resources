@@ -150,7 +150,6 @@ export const SuggestionTypeahead = <T extends object>({
       }}
       selected={selected}
       onInputChange={onInputChange}
-      onKeyDown={onKeyDown}
       options={suggestions}
       isLoading={isLoading}
       renderInput={renderInput}

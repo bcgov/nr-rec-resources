@@ -12,6 +12,7 @@ import {
   MAX_PHOTOS_TO_DISPLAY,
 } from '@/components/rec-resource/card/constants';
 import { Link } from 'react-router-dom';
+import { useReplaceHistoryWithMapFocus } from '@/components/search-map/hooks/useReplaceHistoryWithMapFocus';
 
 interface RecResourceCardProps {
   recreationResource: RecreationResourceSearchModel;
@@ -39,6 +40,8 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
   const hasActivities = activities.length > 0;
   const hasImages = imageList.length > 0;
   const isSeeAllActivities = activities.length > MAX_ACTIVITIES_TO_DISPLAY;
+  const replaceHistoryWithFocusedMap =
+    useReplaceHistoryWithMapFocus(rec_resource_id);
 
   return (
     <div className={className} key={rec_resource_id} id={rec_resource_id}>
@@ -47,7 +50,10 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
       </div>
       <div className="rec-resource-card-content">
         <div className="rec-resource-card-info">
-          <Link to={`/resource/${rec_resource_id}`}>
+          <Link
+            to={`/resource/${rec_resource_id}`}
+            onClick={replaceHistoryWithFocusedMap}
+          >
             <h2 className="card-heading-text">
               {name?.toLowerCase()}{' '}
               <FontAwesomeIcon
