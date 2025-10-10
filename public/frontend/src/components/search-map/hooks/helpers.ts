@@ -1,5 +1,4 @@
 import type Feature from 'ol/Feature';
-import { locationDotOrangeIcon } from '@/components/search-map/styles/icons';
 import { FeatureLayerConfig } from '@/components/search-map/hooks/types';
 import OLMap from 'ol/Map';
 import Point from 'ol/geom/Point';
@@ -8,6 +7,7 @@ import VectorLayer from 'ol/layer/Vector';
 import { getSitePointFeatureFromRecResource } from '@shared/components/recreation-resource-map/helpers';
 import VectorSource from 'ol/source/Vector';
 import { getCenter } from 'ol/extent';
+import { createSITIcon } from '@/components/search-map/styles/icons';
 
 export const isClusteredLayer = (layer: any): boolean =>
   !!layer.getSource?.()?.getSource?.();
@@ -22,8 +22,6 @@ export const applySelectedStyle = (
         ? layerConfig.selectedStyle(feature)
         : layerConfig.selectedStyle;
     feature.setStyle(style);
-  } else {
-    feature.setStyle(locationDotOrangeIcon);
   }
 };
 
@@ -89,7 +87,7 @@ export const focusRecResourceOnMap = (
   feature.setId(recResource.rec_resource_id);
   feature.set('FOREST_FILE_ID', recResource.rec_resource_id);
   feature.set('selected', true);
-  feature.setStyle(locationDotOrangeIcon);
+  feature.setStyle(createSITIcon({ variant: 'selected' }));
 
   const featureLayer = new VectorLayer({
     source: new VectorSource({ features: [feature] }),

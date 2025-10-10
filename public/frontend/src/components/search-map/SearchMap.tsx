@@ -109,7 +109,6 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
               : 'None',
           });
         },
-        selectedStyle: locationDotOrangeIcon,
       },
       {
         id: 'wildfire-locations',

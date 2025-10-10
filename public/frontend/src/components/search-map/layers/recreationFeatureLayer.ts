@@ -8,9 +8,6 @@ import type { FeatureLike } from 'ol/Feature';
 import { capitalizeWords } from '@/utils/capitalizeWords';
 import { featureLabelText } from '@/components/search-map/styles/feature';
 import {
-  createLocationDotBlueIcon,
-  createLocationDotOrangeIcon,
-  createLocationDotRedIcon,
   createSITIcon,
   createRTRIcon,
   createIFIcon,
@@ -44,22 +41,22 @@ const PROJECT_TYPE_ICON_MAP = {
 } as const;
 
 const getProjectTypeIcon = (
-  projectType: string,
-  options: { opacity: number; isClosed: boolean },
+  projectType: string | undefined,
+  options: { opacity: number; variant?: 'default' | 'closed' | 'selected' },
 ): Style => {
-  const iconType = Object.keys(PROJECT_TYPE_ICON_MAP).find((type) =>
-    projectType.includes(type),
-  );
+  if (projectType) {
+    const iconType = Object.keys(PROJECT_TYPE_ICON_MAP).find((type) =>
+      projectType.includes(type),
+    );
 
-  if (iconType) {
-    return PROJECT_TYPE_ICON_MAP[
-      iconType as keyof typeof PROJECT_TYPE_ICON_MAP
-    ](options);
+    if (iconType) {
+      return PROJECT_TYPE_ICON_MAP[
+        iconType as keyof typeof PROJECT_TYPE_ICON_MAP
+      ](options);
+    }
   }
 
-  return options.isClosed
-    ? createLocationDotRedIcon(options)
-    : createLocationDotBlueIcon(options);
+  return createSITIcon(options);
 };
 
 export function createClusteredRecreationFeatureStyle(
@@ -91,37 +88,36 @@ export function createClusteredRecreationFeatureStyle(
   // Handle single feature case
   const singleFeature = features[0] ?? feature;
   const isSelected = singleFeature.get('selected');
-
-  if (isSelected) {
-    return createLocationDotOrangeIcon({ opacity: iconOpacity });
-  }
-
   const isClosed = singleFeature.get('CLOSURE_IND') === 'Y';
   const projectType = singleFeature.get('PROJECT_TYPE');
 
   const useProjectTypeIcons = resolution <= 30000;
 
+  // Determine icon variant based on feature state
+  const variant = isSelected ? 'selected' : isClosed ? 'closed' : 'default';
+
   let iconStyle: Style;
 
   if (useProjectTypeIcons && projectType) {
-    const iconKey = `icon-project-${projectType}-${isClosed}-${iconOpacity}`;
+    const iconKey = `icon-project-${projectType}-${variant}-${iconOpacity}`;
 
     if (!iconStyleCache.has(iconKey)) {
       const projectIcon = getProjectTypeIcon(projectType, {
         opacity: iconOpacity,
-        isClosed,
+        variant,
       });
       iconStyleCache.set(iconKey, projectIcon);
     }
 
     iconStyle = iconStyleCache.get(iconKey)!;
   } else {
-    const iconKey = `icon-default-${isClosed}-${iconOpacity}`;
+    const iconKey = `icon-default-${variant}-${iconOpacity}`;
 
     if (!iconStyleCache.has(iconKey)) {
-      const defaultIconStyle = isClosed
-        ? createLocationDotRedIcon({ opacity: iconOpacity })
-        : createLocationDotBlueIcon({ opacity: iconOpacity });
+      const defaultIconStyle = createSITIcon({
+        opacity: iconOpacity,
+        variant,
+      });
       iconStyleCache.set(iconKey, defaultIconStyle);
     }
 
