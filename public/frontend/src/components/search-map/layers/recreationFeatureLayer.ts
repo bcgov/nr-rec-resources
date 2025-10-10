@@ -99,7 +99,7 @@ export function createClusteredRecreationFeatureStyle(
   const isClosed = singleFeature.get('CLOSURE_IND') === 'Y';
   const projectType = singleFeature.get('PROJECT_TYPE');
 
-  const useProjectTypeIcons = resolution <= 300;
+  const useProjectTypeIcons = resolution <= 30000;
 
   let iconStyle: Style;
 

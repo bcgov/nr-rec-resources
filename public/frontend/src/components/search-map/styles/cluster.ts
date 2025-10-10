@@ -1,6 +1,6 @@
 import { Circle, Fill, Stroke, Style, Text } from 'ol/style';
 
-const CLUSTER_COLOR = '36,100,164';
+const CLUSTER_COLOR = '47,97,39';
 
 const CLUSTER_RADIUS = 20;
 
