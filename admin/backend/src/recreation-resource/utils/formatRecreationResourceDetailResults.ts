@@ -32,7 +32,7 @@ export function formatRecreationResourceDetailResults(
     maintenance_standard_code:
       result?.maintenance_standard_code as RecreationResourceMaintenanceStandardCode,
     rec_resource_type:
-      result?.recreation_resource_type_view?.[0]?.description ?? '',
+      result?.recreation_resource_type_view_admin?.[0]?.description ?? '',
     recreation_access: (result.recreation_access ?? [])
       .map((access) => ({
         description: access.recreation_access_code.description ?? '',

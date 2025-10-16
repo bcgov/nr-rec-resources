@@ -10,7 +10,7 @@ const baseResource = {
   recreation_site_description: { description: 'A nice place' },
   recreation_driving_direction: { description: 'Turn left' },
   maintenance_standard_code: 'A' as RecreationResourceMaintenanceStandardCode,
-  recreation_resource_type_view: [{ description: 'Campground' }],
+  recreation_resource_type_view_admin: [{ description: 'Campground' }],
   recreation_access: [
     {
       recreation_access_code: { description: 'Road' },
@@ -118,7 +118,7 @@ describe('formatRecreationResourceDetailResults', () => {
       // recreation_site_description missing
       // recreation_driving_direction missing
       maintenance_standard_code: undefined,
-      recreation_resource_type_view: [],
+      recreation_resource_type_view_admin: [],
       recreation_access: undefined,
       recreation_activity: undefined,
       recreation_status: undefined,

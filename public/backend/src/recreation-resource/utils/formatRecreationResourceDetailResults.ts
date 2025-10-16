@@ -29,7 +29,8 @@ export const formatRecreationResourceDetailResults = (
     driving_directions: result.recreation_driving_direction?.description,
     maintenance_standard_code:
       result?.maintenance_standard_code as RecreationResourceMaintenanceStandardCode,
-    rec_resource_type: result?.recreation_resource_type_view?.[0].description,
+    rec_resource_type:
+      result?.recreation_resource_type_view_public?.[0].description,
     recreation_access: result.recreation_access?.map(
       (access) => access.recreation_access_code.description,
     ),

@@ -14,7 +14,7 @@ export const recreationResourceSelect = {
       description: true,
     },
   },
-  recreation_resource_type_view: {
+  recreation_resource_type_view_admin: {
     select: {
       rec_resource_type_code: true,
       description: true,

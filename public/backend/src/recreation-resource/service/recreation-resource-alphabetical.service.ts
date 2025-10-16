@@ -29,7 +29,7 @@ export class RecreationResourceAlphabeticalService {
 
     // Add type filter if provided
     if (type) {
-      whereClause.recreation_resource_type_view = {
+      whereClause.recreation_resource_type_view_public = {
         some: {
           rec_resource_type_code: type,
         },
@@ -43,7 +43,7 @@ export class RecreationResourceAlphabeticalService {
         rec_resource_id: true,
         name: true,
         closest_community: true,
-        recreation_resource_type_view: {
+        recreation_resource_type_view_public: {
           select: {
             rec_resource_type_code: true,
             description: true,
@@ -59,9 +59,9 @@ export class RecreationResourceAlphabeticalService {
       name: resource.name,
       closest_community: resource.closest_community,
       recreation_resource_type:
-        resource.recreation_resource_type_view[0].description,
+        resource.recreation_resource_type_view_public[0].description,
       recreation_resource_type_code:
-        resource.recreation_resource_type_view[0].rec_resource_type_code,
+        resource.recreation_resource_type_view_public[0].rec_resource_type_code,
     }));
   }
 }

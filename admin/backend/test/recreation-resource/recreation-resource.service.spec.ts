@@ -107,7 +107,7 @@ describe('RecreationResourceService - findOne', () => {
       recreation_site_description: { description: 'desc' },
       recreation_driving_direction: { description: 'drive' },
       maintenance_standard_code: 'U',
-      recreation_resource_type_view: [{ description: 'TypeDesc' }],
+      recreation_resource_type_view_admin: [{ description: 'TypeDesc' }],
       recreation_access: [
         { recreation_access_code: { description: 'Road' } },
         { recreation_access_code: { description: 'Boat-in' } },
