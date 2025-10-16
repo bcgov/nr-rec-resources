@@ -38,7 +38,7 @@ describe('RecreationResourceAlphabeticalService', () => {
       rec_resource_id: 'REC001',
       name: 'Alpine Trail',
       closest_community: 'Merritt',
-      recreation_resource_type_view: [
+      recreation_resource_type_view_public: [
         {
           rec_resource_type_code: 'TRAIL',
           description: 'Trail',
@@ -73,7 +73,7 @@ describe('RecreationResourceAlphabeticalService', () => {
           rec_resource_id: true,
           name: true,
           closest_community: true,
-          recreation_resource_type_view: {
+          recreation_resource_type_view_public: {
             select: { rec_resource_type_code: true, description: true },
           },
         },
@@ -130,7 +130,7 @@ describe('RecreationResourceAlphabeticalService', () => {
         where: {
           display_on_public_site: true,
           name: { startsWith: 'A', mode: 'insensitive' },
-          recreation_resource_type_view: {
+          recreation_resource_type_view_public: {
             some: { rec_resource_type_code: 'TRAIL' },
           },
         },
@@ -138,7 +138,7 @@ describe('RecreationResourceAlphabeticalService', () => {
           rec_resource_id: true,
           name: true,
           closest_community: true,
-          recreation_resource_type_view: {
+          recreation_resource_type_view_public: {
             select: { rec_resource_type_code: true, description: true },
           },
         },

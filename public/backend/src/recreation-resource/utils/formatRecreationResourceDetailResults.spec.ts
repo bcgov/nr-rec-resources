@@ -12,7 +12,7 @@ export const mockResponse = {
   recreation_driving_direction: {
     description: 'Test driving direction',
   },
-  recreation_resource_type_view: [
+  recreation_resource_type_view_public: [
     {
       description: 'Recreation Site',
       rec_resource_type_code: 'RS',

@@ -11,20 +11,20 @@ datasource db {
 }
 
 model recreation_resource {
-  rec_resource_id                      String                                @id @db.VarChar(20)
-  name                                 String?                               @db.VarChar(200)
+  rec_resource_id                      String                                 @id @db.VarChar(20)
+  name                                 String?                                @db.VarChar(200)
   description                          String?
-  closest_community                    String?                               @db.VarChar(200)
-  display_on_public_site               Boolean?                              @default(false)
-  district_code                        String?                               @db.VarChar(4)
-  maintenance_standard_code            String?                               @db.VarChar(1)
-  updated_at                           DateTime?                             @default(now()) @db.Timestamp(6)
+  closest_community                    String?                                @db.VarChar(200)
+  display_on_public_site               Boolean?                               @default(false)
+  district_code                        String?                                @db.VarChar(4)
+  maintenance_standard_code            String?                                @db.VarChar(1)
+  updated_at                           DateTime?                              @default(now()) @db.Timestamp(6)
   updated_by                           String?
-  created_at                           DateTime?                             @default(now()) @db.Timestamp(6)
+  created_at                           DateTime?                              @default(now()) @db.Timestamp(6)
   created_by                           String?
-  sys_period                           Unsupported("tstzrange")              @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  project_established_date             DateTime?                             @db.Date
-  control_access_code                  String?                               @db.VarChar(1)
+  sys_period                           Unsupported("tstzrange")               @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  project_established_date             DateTime?                              @db.Date
+  control_access_code                  String?                                @db.VarChar(1)
   recreation_access                    recreation_access[]
   recreation_activity                  recreation_activity[]
   recreation_agreement_holder          recreation_agreement_holder?
@@ -32,16 +32,17 @@ model recreation_resource {
   recreation_driving_direction         recreation_driving_direction?
   recreation_fee                       recreation_fee[]
   recreation_map_feature               recreation_map_feature[]
-  recreation_control_access_code       recreation_control_access_code?       @relation(fields: [control_access_code], references: [recreation_control_access_code], onDelete: NoAction, onUpdate: NoAction)
-  recreation_district_code             recreation_district_code?             @relation(fields: [district_code], references: [district_code], onDelete: NoAction, onUpdate: NoAction)
-  recreation_maintenance_standard_code recreation_maintenance_standard_code? @relation(fields: [maintenance_standard_code], references: [maintenance_standard_code], onDelete: NoAction, onUpdate: NoAction)
+  recreation_control_access_code       recreation_control_access_code?        @relation(fields: [control_access_code], references: [recreation_control_access_code], onDelete: NoAction, onUpdate: NoAction)
+  recreation_district_code             recreation_district_code?              @relation(fields: [district_code], references: [district_code], onDelete: NoAction, onUpdate: NoAction)
+  recreation_maintenance_standard_code recreation_maintenance_standard_code?  @relation(fields: [maintenance_standard_code], references: [maintenance_standard_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_resource_docs             recreation_resource_docs[]
   recreation_resource_images           recreation_resource_images[]
   recreation_resource_reservation_info recreation_resource_reservation_info?
   recreation_site_description          recreation_site_description?
   recreation_status                    recreation_status?
   recreation_structure                 recreation_structure[]
-  recreation_resource_type_view        recreation_resource_type_view[]
+  recreation_resource_type_view_admin  recreation_resource_type_view_admin[]
+  recreation_resource_type_view_public recreation_resource_type_view_public[]
 
   @@schema("rst")
 }
@@ -116,6 +117,7 @@ model recreation_district_code {
   description         String                   @db.VarChar(120)
   updated_at          DateTime?                @default(now()) @db.Timestamp(6)
   sys_period          Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  is_archived         Boolean                  @default(false)
   recreation_resource recreation_resource[]
 
   @@schema("rst")
@@ -928,11 +930,20 @@ model recreation_control_access_code_history {
 
 /// The underlying view does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
 /// This view or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-view recreation_resource_type_view {
+view recreation_resource_type_view_admin {
+  rec_resource_id        String               @unique @db.VarChar(20)
+  rec_resource_type_code String?              @db.VarChar(3)
+  description            String?              @db.VarChar(200)
+  recreation_resource    recreation_resource? @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction, map: "recreation_resource_type_view_admin_recreation_resource_fkey")
+
+  @@schema("rst")
+}
+
+view recreation_resource_type_view_public {
   rec_resource_id        String               @unique @db.VarChar(20)
   rec_resource_type_code String?              @db.VarChar
   description            String?              @db.VarChar(200)
-  recreation_resource    recreation_resource? @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+  recreation_resource    recreation_resource? @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction, map: "recreation_resource_type_view_public_recreation_resource_fkey")
 
   @@schema("rst")
 }

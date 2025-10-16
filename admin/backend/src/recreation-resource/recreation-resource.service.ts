@@ -33,16 +33,16 @@ export class RecreationResourceService {
 
     return {
       total,
-      suggestions: data
-        .filter(this.isValidSuggestion)
-        .map((item: SuggestionDto) => ({
+      suggestions: data.filter(this.isValidSuggestion).map(
+        (item): SuggestionDto => ({
           name: item.name,
           rec_resource_id: item.rec_resource_id,
           recreation_resource_type: item.recreation_resource_type,
           recreation_resource_type_code: item.recreation_resource_type_code,
           district_description: item.district_description,
           display_on_public_site: item.display_on_public_site,
-        })),
+        }),
+      ),
     };
   }
 
@@ -75,7 +75,10 @@ export class RecreationResourceService {
    */
   private isValidSuggestion(
     item: getRecreationResourceSuggestions.Result,
-  ): item is SuggestionDto {
+  ): item is getRecreationResourceSuggestions.Result & {
+    rec_resource_id: string;
+    name: string;
+  } {
     return Boolean(item.rec_resource_id) && Boolean(item.name);
   }
 }

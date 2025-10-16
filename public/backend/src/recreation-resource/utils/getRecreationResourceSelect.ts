@@ -19,7 +19,7 @@ export const getRecreationResourceSelect = (
       description: true,
     },
   },
-  recreation_resource_type_view: {
+  recreation_resource_type_view_public: {
     select: {
       rec_resource_type_code: true,
       description: true,
