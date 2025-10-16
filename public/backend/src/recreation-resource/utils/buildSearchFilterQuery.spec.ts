@@ -18,11 +18,15 @@ describe('buildSearchFilterQuery', () => {
     const result = buildSearchFilterQuery({ searchText: 'site' });
     const queryString = getQueryString(result);
     expect(queryString).toBe(
-      'where display_on_public_site is true and ( name ilike ? or closest_community ilike ? or similarity(name, ?) > 0.3 or similarity(closest_community, ?) > 0.3 or name % ? or closest_community % ? )',
+      'where display_on_public_site is true and ( name ilike ? or closest_community ilike ? or similarity(name, ?) > 0.3 or similarity(closest_community, ?) > 0.3 or name % ? or closest_community % ? or (length(?) >= 4 and similarity(name, ?) > 0.2) or (length(?) >= 4 and similarity(closest_community, ?) > 0.2) )',
     );
     expect(result.values).toEqual([
       '%site%',
       '%site%',
+      'site',
+      'site',
+      'site',
+      'site',
       'site',
       'site',
       'site',
@@ -97,7 +101,7 @@ describe('buildSearchFilterQuery', () => {
 
     const queryString = getQueryString(result);
     expect(queryString).toContain(
-      'where display_on_public_site is true and ( name ilike ? or closest_community ilike ? or similarity(name, ?) > 0.3 or similarity(closest_community, ?) > 0.3 or name % ? or closest_community % ? )',
+      'where display_on_public_site is true and ( name ilike ? or closest_community ilike ? or similarity(name, ?) > 0.3 or similarity(closest_community, ?) > 0.3 or name % ? or closest_community % ? or (length(?) >= 4 and similarity(name, ?) > 0.2) or (length(?) >= 4 and similarity(closest_community, ?) > 0.2) )',
     );
     expect(queryString).toContain('and access_code in');
     expect(queryString).toContain('and district_code in');
@@ -113,6 +117,10 @@ describe('buildSearchFilterQuery', () => {
     const expectedValues = [
       '%site%',
       '%site%',
+      'site',
+      'site',
+      'site',
+      'site',
       'site',
       'site',
       'site',
