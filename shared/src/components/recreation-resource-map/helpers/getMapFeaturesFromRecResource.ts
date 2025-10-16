@@ -15,7 +15,7 @@ import Feature from 'ol/Feature';
 export const getSitePointFeatureFromRecResource = (
   recResource: RecreationResourceMapData,
 ): Feature<Point> | undefined => {
-  if (!recResource) {
+  if (!recResource || !recResource.site_point_geometry) {
     return;
   }
 

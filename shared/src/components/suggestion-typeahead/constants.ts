@@ -7,5 +7,6 @@ export const RESOURCE_TYPE_ICONS: Record<string, string> = {
   SIT: SIT_ICON,
   RTR: RTR_ICON,
   IF: IF_ICON,
+  RR: NO_TYPE_ICON, // Need to add RR icon in the future
   NO_TYPE_ICON: NO_TYPE_ICON,
 };

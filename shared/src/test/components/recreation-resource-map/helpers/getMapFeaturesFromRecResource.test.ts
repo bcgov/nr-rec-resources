@@ -24,7 +24,7 @@ describe('getMapFeaturesFromRecResource', () => {
     } as any;
 
     const result = getMapFeaturesFromRecResource(mockResource);
-    expect(result).toEqual(['mockFeature', 'mockFeature', 'mockFeature']); // includes site point feature
+    expect(result).toEqual(['mockFeature', 'mockFeature']); // no site point feature when undefined
     expect(GeoJSON).toHaveBeenCalledWith({
       dataProjection: 'EPSG:3005',
       featureProjection: 'EPSG:3857',
@@ -57,6 +57,6 @@ describe('getMapFeaturesFromRecResource', () => {
     } as any;
 
     const result = getMapFeaturesFromRecResource(mockResource);
-    expect(result).toEqual(['mockFeature']); // includes site point feature
+    expect(result).toEqual([]);
   });
 });
