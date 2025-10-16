@@ -11,7 +11,7 @@ const CITY_SUGGESTIONS_OPTIONS: IFuseOptions<City> = {
 };
 
 export const BEST_MATCH_CITY_OPTIONS: IFuseOptions<City> = {
-  threshold: 0.3,
+  threshold: 0.25,
   keys: ['name'],
   minMatchCharLength: 3,
   includeScore: true,

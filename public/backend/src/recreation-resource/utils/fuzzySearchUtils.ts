@@ -16,6 +16,8 @@ export const buildFuzzySearchConditions = (searchText: string): Prisma.Sql => {
     or similarity(closest_community, ${searchText}) > 0.3
     or name % ${searchText}
     or closest_community % ${searchText}
+    or (length(${searchText}) >= 4 and similarity(name, ${searchText}) > 0.2)
+    or (length(${searchText}) >= 4 and similarity(closest_community, ${searchText}) > 0.2)
   )`;
 };
 
@@ -31,7 +33,9 @@ export const buildFuzzySearchScore = (searchText: string): Prisma.Sql => {
     similarity(name, ${searchText}),
     similarity(closest_community, ${searchText}),
     CASE WHEN name % ${searchText} THEN 0.8 ELSE 0 END,
-    CASE WHEN closest_community % ${searchText} THEN 0.7 ELSE 0 END
+    CASE WHEN closest_community % ${searchText} THEN 0.7 ELSE 0 END,
+    CASE WHEN length(${searchText}) >= 4 AND similarity(name, ${searchText}) > 0.2 THEN similarity(name, ${searchText}) ELSE 0 END,
+    CASE WHEN length(${searchText}) >= 4 AND similarity(closest_community, ${searchText}) > 0.2 THEN similarity(closest_community, ${searchText}) ELSE 0 END
   ) as fuzzy_score`;
 };
 

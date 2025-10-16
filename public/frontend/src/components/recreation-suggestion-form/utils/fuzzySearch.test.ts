@@ -101,6 +101,14 @@ describe('fuzzySearch', () => {
       rank: 12,
       option_type: OPTION_TYPE.CITY,
     },
+    {
+      id: 13,
+      name: 'Duncan',
+      latitude: 48.7781,
+      longitude: -123.7073,
+      rank: 13,
+      option_type: OPTION_TYPE.CITY,
+    },
   ];
 
   describe('fuzzySearchCities', () => {
@@ -173,7 +181,10 @@ describe('fuzzySearch', () => {
       expect(result?.name).toBe(expected);
     });
 
-    it.each([{ query: 'beach', description: 'does not match "Peachland"' }])(
+    it.each([
+      { query: 'beach', description: 'does not match "Peachland"' },
+      { query: 'cabn', description: 'partial single-word query "Duncan"' },
+    ])(
       'should NOT match partial single-word names with $description',
       ({ query }) => {
         const result = fuzzySearchBestCity(mockCities, query);
