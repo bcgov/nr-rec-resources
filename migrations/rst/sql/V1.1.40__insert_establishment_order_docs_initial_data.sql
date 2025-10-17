@@ -1,5 +1,6 @@
+-- Only insert rows where the rec_resource_id exists in recreation_resource table
 INSERT INTO rst.recreation_establishment_order_docs (s3_key, rec_resource_id, title, file_size, extension)
-VALUES
+SELECT * FROM (VALUES
   ('REC0002/1981-06-11.pdf', 'REC0002', '1981 06 11', 253820, 'pdf'),
   ('REC0002/1992-06-11.pdf', 'REC0002', '1992 06 11', 491108, 'pdf'),
   ('REC0002/1994-03-17.pdf', 'REC0002', '1994 03 17', 386282, 'pdf'),
@@ -4197,4 +4198,8 @@ VALUES
   ('REC99061/1998-08-13.pdf', 'REC99061', '1998 08 13', 283220, 'pdf'),
   ('REC99112/2011-03-17.pdf', 'REC99112', '2011 03 17', 180824, 'pdf'),
   ('REC99112/Order_191.pdf', 'REC99112', 'Order 191', 49877, 'pdf')
+) AS v(s3_key, rec_resource_id, title, file_size, extension)
+WHERE EXISTS (
+  SELECT 1 FROM rst.recreation_resource rr WHERE rr.rec_resource_id = v.rec_resource_id
+)
 ON CONFLICT (s3_key) DO NOTHING;
