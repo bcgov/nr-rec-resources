@@ -36,6 +36,7 @@ model recreation_resource {
   recreation_district_code             recreation_district_code?              @relation(fields: [district_code], references: [district_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_maintenance_standard_code recreation_maintenance_standard_code?  @relation(fields: [maintenance_standard_code], references: [maintenance_standard_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_resource_docs             recreation_resource_docs[]
+  recreation_establishment_order_docs  recreation_establishment_order_docs[]
   recreation_resource_images           recreation_resource_images[]
   recreation_resource_reservation_info recreation_resource_reservation_info?
   recreation_site_description          recreation_site_description?
@@ -576,6 +577,24 @@ model recreation_resource_docs {
   recreation_resource          recreation_resource?          @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction, map: "recreation_resource_doc_rec_resource_id_fkey")
 
   @@unique([rec_resource_id, ref_id])
+  @@schema("rst")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_establishment_order_docs {
+  s3_key          String                   @id @db.VarChar
+  rec_resource_id String?                  @db.VarChar(10)
+  title           String?                  @db.VarChar
+  file_size       BigInt?
+  extension       String?                  @db.VarChar
+  updated_at      DateTime?                @default(now()) @db.Timestamp(6)
+  updated_by      String?
+  created_at      DateTime?                @default(now()) @db.Timestamp(6)
+  created_by      String?
+  sys_period      Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_resource recreation_resource? @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([rec_resource_id], map: "idx_recreation_establishment_order_docs_rec_resource_id")
   @@schema("rst")
 }
 
