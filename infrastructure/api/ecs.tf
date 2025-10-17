@@ -187,7 +187,7 @@ resource "aws_ecs_task_definition" "node_api_task" {
         },
         {
           name  = "ESTABLISHMENT_ORDER_DOCS_BUCKET"
-          value = aws_s3_bucket.establishment_order_docs.id
+          value = var.app == "admin" ? aws_s3_bucket.establishment_order_docs[0].id : ""
         },
         {
           name  = "AWS_REGION"

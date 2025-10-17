@@ -70,6 +70,7 @@ generate "tfvars" {
   forest_client_api_url="${local.forest_client_api_url}"
   alarm_alert_email_recipients="${local.alarm_alert_email_recipients}"
   app_env="${local.app_env}"
+  app="${local.app}"
   flyway_image="${local.flyway_image}"
   api_image="${local.api_image}"
   app_name="${local.app_name}"

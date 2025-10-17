@@ -78,6 +78,10 @@ variable "app_name" {
   description = " The APP name with environment (app_env)"
   type        = string
 }
+variable "app" {
+  description = "The app type (admin or public)"
+  type        = string
+}
 variable "common_tags" {
   description = "Common tags to be applied to resources"
   type        = map(string)
