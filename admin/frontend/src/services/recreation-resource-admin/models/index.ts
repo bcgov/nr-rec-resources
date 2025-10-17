@@ -3,6 +3,7 @@
 export * from './BadRequestResponseDto';
 export * from './CreateRecreationResourceDocBodyDto';
 export * from './CreateRecreationResourceImageBodyDto';
+export * from './EstablishmentOrderDocDto';
 export * from './HealthControllerCheck200Response';
 export * from './HealthControllerCheck200ResponseInfoValue';
 export * from './HealthControllerCheck503Response';

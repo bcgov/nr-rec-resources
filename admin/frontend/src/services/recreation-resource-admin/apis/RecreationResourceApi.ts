@@ -17,6 +17,7 @@ import type {
   BadRequestResponseDto,
   CreateRecreationResourceDocBodyDto,
   CreateRecreationResourceImageBodyDto,
+  EstablishmentOrderDocDto,
   RecreationResourceDetailDto,
   RecreationResourceDocDto,
   RecreationResourceImageDto,
@@ -29,6 +30,8 @@ import {
   CreateRecreationResourceDocBodyDtoToJSON,
   CreateRecreationResourceImageBodyDtoFromJSON,
   CreateRecreationResourceImageBodyDtoToJSON,
+  EstablishmentOrderDocDtoFromJSON,
+  EstablishmentOrderDocDtoToJSON,
   RecreationResourceDetailDtoFromJSON,
   RecreationResourceDetailDtoToJSON,
   RecreationResourceDocDtoFromJSON,
@@ -59,6 +62,10 @@ export interface DeleteDocumentResourceRequest {
 export interface DeleteImageResourceRequest {
   recResourceId: string;
   refId: string;
+}
+
+export interface EstablishmentOrderDocsControllerGetAllV1Request {
+  recResourceId: string;
 }
 
 export interface GetDocumentResourceByIdRequest {
@@ -431,6 +438,66 @@ export class RecreationResourceApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<RecreationResourceImageDto> {
     const response = await this.deleteImageResourceRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Returns a list of establishment order documents with presigned URLs for download
+   * Get all establishment order documents for a recreation resource
+   */
+  async establishmentOrderDocsControllerGetAllV1Raw(
+    requestParameters: EstablishmentOrderDocsControllerGetAllV1Request,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<EstablishmentOrderDocDto>>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling establishmentOrderDocsControllerGetAllV1().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resources/{rec_resource_id}/establishment-order-docs`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      jsonValue.map(EstablishmentOrderDocDtoFromJSON),
+    );
+  }
+
+  /**
+   * Returns a list of establishment order documents with presigned URLs for download
+   * Get all establishment order documents for a recreation resource
+   */
+  async establishmentOrderDocsControllerGetAllV1(
+    requestParameters: EstablishmentOrderDocsControllerGetAllV1Request,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<Array<EstablishmentOrderDocDto>> {
+    const response = await this.establishmentOrderDocsControllerGetAllV1Raw(
       requestParameters,
       initOverrides,
     );
