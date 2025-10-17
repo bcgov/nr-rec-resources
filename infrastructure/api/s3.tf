@@ -1,11 +1,14 @@
 # S3 bucket for Establishment Order documents
+# Only create for admin app
 resource "aws_s3_bucket" "establishment_order_docs" {
+  count  = var.app == "admin" ? 1 : 0
   bucket = "rst-lza-establishment-order-docs-${var.target_env}"
 }
 
 # Enable versioning for the bucket
 resource "aws_s3_bucket_versioning" "establishment_order_docs" {
-  bucket = aws_s3_bucket.establishment_order_docs.id
+  count  = var.app == "admin" ? 1 : 0
+  bucket = aws_s3_bucket.establishment_order_docs[0].id
 
   versioning_configuration {
     status = "Enabled"
@@ -14,7 +17,8 @@ resource "aws_s3_bucket_versioning" "establishment_order_docs" {
 
 # Enable encryption for the bucket
 resource "aws_s3_bucket_server_side_encryption_configuration" "establishment_order_docs" {
-  bucket = aws_s3_bucket.establishment_order_docs.id
+  count  = var.app == "admin" ? 1 : 0
+  bucket = aws_s3_bucket.establishment_order_docs[0].id
 
   rule {
     apply_server_side_encryption_by_default {
@@ -25,7 +29,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "establishment_ord
 
 # Block public access
 resource "aws_s3_bucket_public_access_block" "establishment_order_docs" {
-  bucket = aws_s3_bucket.establishment_order_docs.id
+  count  = var.app == "admin" ? 1 : 0
+  bucket = aws_s3_bucket.establishment_order_docs[0].id
 
   block_public_acls       = true
   block_public_policy     = true
@@ -35,7 +40,8 @@ resource "aws_s3_bucket_public_access_block" "establishment_order_docs" {
 
 # Lifecycle policy - delete old versions after 30 days
 resource "aws_s3_bucket_lifecycle_configuration" "establishment_order_docs" {
-  bucket = aws_s3_bucket.establishment_order_docs.id
+  count  = var.app == "admin" ? 1 : 0
+  bucket = aws_s3_bucket.establishment_order_docs[0].id
 
   rule {
     id     = "expire-old-versions"
