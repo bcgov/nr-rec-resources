@@ -7,7 +7,7 @@
     "build:analyze": "vite build --mode analyze",
     "build:clean": "rimraf dist",
     "clean": "rimraf ./node_modules/.vite",
-    "deploy": "npm ci --ignore-scripts --no-update-notifier && npm run build && npm prune --production",
+    "deploy": "npm install --ignore-scripts --no-update-notifier && npm run build && npm prune --production",
     "dev": "vite --host",
     "e2e": "npx happo-e2e -- npx playwright test",
     "e2e:chrome": "npx happo-e2e -- npx playwright test --project=chromium",

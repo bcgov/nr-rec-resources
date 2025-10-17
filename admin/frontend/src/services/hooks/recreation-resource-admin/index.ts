@@ -2,6 +2,7 @@ export * from './helpers';
 export * from './useDeleteResourceDocument';
 export * from './useDeleteResourceImage';
 export * from './useGetDocumentsByRecResourceId';
+export * from './useGetEstablishmentOrderDocs';
 export * from './useGetImagesByRecResourceId';
 export * from './useGetRecreationResourceById';
 export * from './useGetRecreationResourceSuggestions';

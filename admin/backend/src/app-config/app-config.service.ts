@@ -92,4 +92,17 @@ export class AppConfigService {
   get keycloakIssuer(): string {
     return this.configService.get('KEYCLOAK_ISSUER', { infer: true })!;
   }
+
+  // AWS S3 Configuration
+  get establishmentOrderDocsBucket(): string {
+    return this.configService.get('ESTABLISHMENT_ORDER_DOCS_BUCKET', {
+      infer: true,
+    })!;
+  }
+
+  get awsRegion(): string {
+    return this.configService.get('AWS_REGION', {
+      infer: true,
+    })!;
+  }
 }

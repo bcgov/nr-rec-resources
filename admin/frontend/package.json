@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "deploy": "npm ci --ignore-scripts --no-update-notifier && npm run build && npm prune --production",
+    "deploy": "npm install --ignore-scripts --no-update-notifier && npm run build && npm prune --production",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest --mode test",

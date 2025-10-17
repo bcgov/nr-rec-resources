@@ -67,6 +67,15 @@ export class EnvironmentVariables {
   @IsUrl({ require_tld: false })
   @IsNotEmpty()
   KEYCLOAK_ISSUER: string;
+
+  // AWS S3 configuration
+  @IsString()
+  @IsNotEmpty()
+  ESTABLISHMENT_ORDER_DOCS_BUCKET: string;
+
+  @IsString()
+  @IsNotEmpty()
+  AWS_REGION: string;
 }
 
 export function validate(config: Record<string, unknown>) {
