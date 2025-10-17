@@ -187,7 +187,11 @@ resource "aws_ecs_task_definition" "node_api_task" {
         },
         {
           name  = "ESTABLISHMENT_ORDER_DOCS_BUCKET"
+<<<<<<< HEAD
           value = var.app == "admin" ? aws_s3_bucket.establishment_order_docs[0].id : ""
+=======
+          value = aws_s3_bucket.establishment_order_docs.id
+>>>>>>> b04e0b07 (chore: add establishment order migrations and bucket)
         },
         {
           name  = "AWS_REGION"

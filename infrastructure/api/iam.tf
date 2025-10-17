@@ -94,11 +94,17 @@ resource "aws_iam_role_policy" "cloudwatch_metrics" {
 }
 
 # IAM policy for S3 access to Establishment Order documents
+<<<<<<< HEAD
 # Only create for admin app
 resource "aws_iam_role_policy" "s3_establishment_order_docs" {
   count = var.app == "admin" ? 1 : 0
   name  = "${var.app_name}_s3_establishment_order_docs"
   role  = aws_iam_role.app_container_role.id
+=======
+resource "aws_iam_role_policy" "s3_establishment_order_docs" {
+  name = "${var.app_name}_s3_establishment_order_docs"
+  role = aws_iam_role.app_container_role.id
+>>>>>>> b04e0b07 (chore: add establishment order migrations and bucket)
 
   policy = jsonencode({
     Version = "2012-10-17"
