@@ -185,6 +185,14 @@ resource "aws_ecs_task_definition" "node_api_task" {
           name  = "DAM_RST_IMAGE_COLLECTION_ID"
           value = var.dam_config.dam_rst_image_collection_id
         },
+        {
+          name  = "ESTABLISHMENT_ORDER_DOCS_BUCKET"
+          value = aws_s3_bucket.establishment_order_docs.id
+        },
+        {
+          name  = "AWS_REGION"
+          value = var.aws_region
+        }
       ]
       portMappings = [
         {
