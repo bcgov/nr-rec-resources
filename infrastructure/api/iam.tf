@@ -93,6 +93,31 @@ resource "aws_iam_role_policy" "cloudwatch_metrics" {
   })
 }
 
+# IAM policy for S3 access to Establishment Order documents
+resource "aws_iam_role_policy" "s3_establishment_order_docs" {
+  name = "${var.app_name}_s3_establishment_order_docs"
+  role = aws_iam_role.app_container_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          "arn:aws:s3:::rst-lza-establishment-order-docs-${var.target_env}",
+          "arn:aws:s3:::rst-lza-establishment-order-docs-${var.target_env}/*"
+        ]
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role_policy" "app_container_cwlogs" {
   name = "${var.app_name}_container_cwlogs"
   role = aws_iam_role.app_container_role.id
