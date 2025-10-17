@@ -6,9 +6,15 @@ import { PrismaService } from '@/prisma.service';
 import { ConfigModule } from '@nestjs/config';
 import { ResourceDocsModule } from '@/resource-docs/resource-docs.module';
 import { ResourceImagesModule } from '@/resource-images/resource-images.module';
+import { EstablishmentOrderDocsModule } from '@/establishment-order-docs/establishment-order-docs.module';
 
 @Module({
-  imports: [ConfigModule, ResourceDocsModule, ResourceImagesModule],
+  imports: [
+    ConfigModule,
+    ResourceDocsModule,
+    ResourceImagesModule,
+    EstablishmentOrderDocsModule,
+  ],
   controllers: [RecreationResourceController],
   providers: [
     RecreationResourceService,
