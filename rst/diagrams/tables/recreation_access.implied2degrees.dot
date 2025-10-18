@@ -11,6 +11,7 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
   "recreation_agreement_holder":"elipses":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=teeodot];
   "recreation_defined_campsite":"elipses":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_driving_direction":"elipses":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=teeodot];
+  "recreation_establishment_order_docs":"elipses":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_fee":"elipses":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_map_feature":"amendment_id":w -> "recreation_access":"id.type":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_map_feature":"rec_resource_id":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -32,7 +33,8 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
   "recreation_resource_search_view":"elipses":w -> "recreation_access_code":"access_code":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_resource_search_view":"elipses":w -> "recreation_district_code":"elipses":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_resource_search_view":"elipses":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
-  "recreation_resource_type_view":"elipses":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "recreation_resource_type_view_admin":"elipses":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "recreation_resource_type_view_public":"elipses":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_site_description":"elipses":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=teeodot];
   "recreation_status":"elipses":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=teeodot];
   "recreation_structure":"elipses":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -155,6 +157,17 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
     target="_top"
     tooltip="recreation_driving_direction"
   ];
+  "recreation_establishment_order_docs" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="223" HEIGHT="16"><B>recreation_establishment_order_docs</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="recreation_establishment_order_docs.html"
+    target="_top"
+    tooltip="recreation_establishment_order_docs"
+  ];
   "recreation_fee" [
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
@@ -228,7 +241,7 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
       <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="120" HEIGHT="16"><B>recreation_resource</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">18 &gt;</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">20 &gt;</TD></TR>
     </TABLE>>
     URL="recreation_resource.html"
     target="_top"
@@ -309,15 +322,25 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
     target="_top"
     tooltip="recreation_resource_type_code"
   ];
-  "recreation_resource_type_view" [
+  "recreation_resource_type_view_admin" [
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
-      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="184" HEIGHT="16"><B>recreation_resource_type_view</B></TD><TD ALIGN="RIGHT">[view]</TD></TR></TABLE></TD></TR>
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="227" HEIGHT="16"><B>recreation_resource_type_view_admin</B></TD><TD ALIGN="RIGHT">[view]</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
     </TABLE>>
-    URL="recreation_resource_type_view.html"
+    URL="recreation_resource_type_view_admin.html"
     target="_top"
-    tooltip="recreation_resource_type_view"
+    tooltip="recreation_resource_type_view_admin"
+  ];
+  "recreation_resource_type_view_public" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="226" HEIGHT="16"><B>recreation_resource_type_view_public</B></TD><TD ALIGN="RIGHT">[view]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+    </TABLE>>
+    URL="recreation_resource_type_view_public.html"
+    target="_top"
+    tooltip="recreation_resource_type_view_public"
   ];
   "recreation_site_description" [
    label=<

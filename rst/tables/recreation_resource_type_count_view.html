@@ -212,7 +212,7 @@
                             </div>
                         </div>
                         <div class="box-body">
-                            <textarea id="sql-script-codemirror" name="sql-script-codemirror" rows="" style="display: none;">SELECT rrtv.rec_resource_type_code,&#10;    rrtv.description,&#10;    COALESCE(count(DISTINCT rr.rec_resource_id), (0)::bigint) AS count&#10;   FROM (rst.recreation_resource_type_view rrtv&#10;     LEFT JOIN rst.recreation_resource rr ON ((((rr.rec_resource_id)::text &#61; (rrtv.rec_resource_id)::text) AND (rr.display_on_public_site &#61; true))))&#10;  WHERE ((rrtv.rec_resource_type_code)::text &lt;&gt; &#39;RR&#39;::text)&#10;  GROUP BY rrtv.rec_resource_type_code, rrtv.description&#10;  ORDER BY rrtv.description DESC;</textarea>
+                            <textarea id="sql-script-codemirror" name="sql-script-codemirror" rows="" style="display: none;">SELECT rrtv.rec_resource_type_code,&#10;    rrtv.description,&#10;    COALESCE(count(DISTINCT rr.rec_resource_id), (0)::bigint) AS count&#10;   FROM (rst.recreation_resource_type_view_public rrtv&#10;     LEFT JOIN rst.recreation_resource rr ON ((((rr.rec_resource_id)::text &#61; (rrtv.rec_resource_id)::text) AND (rr.display_on_public_site &#61; true))))&#10;  WHERE ((rrtv.rec_resource_type_code)::text &lt;&gt; &#39;RR&#39;::text)&#10;  GROUP BY rrtv.rec_resource_type_code, rrtv.description&#10;  ORDER BY rrtv.description DESC;</textarea>
                             <div style="padding-top: 5px;"><hr></div>
                             <div class="box box-solid">
                                 <div class="box-header with-border">

@@ -14,6 +14,7 @@ recreation_resource
 recreation_access
 recreation_resource_docs
 recreation_status
+recreation_establishment_order_docs
 recreation_resource_images
 recreation_map_feature
 recreation_access_code_history
@@ -23,6 +24,7 @@ recreation_control_access_code_history
 recreation_defined_campsite_history
 recreation_district_code_history
 recreation_driving_direction
+recreation_establishment_order_docs_history
 recreation_fee_code_history
 recreation_maintenance_standard_code_history
 recreation_map_feature_geom_history
