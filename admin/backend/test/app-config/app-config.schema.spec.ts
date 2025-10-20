@@ -30,6 +30,8 @@ describe('AppConfigSchema', () => {
     KEYCLOAK_REALM: 'test-realm',
     KEYCLOAK_CLIENT_ID: 'test-client',
     KEYCLOAK_ISSUER: 'http://localhost:8080/auth/realms/test-realm',
+    ESTABLISHMENT_ORDER_DOCS_BUCKET: 'test-establishment-order-docs-bucket',
+    AWS_REGION: 'ca-central-1',
   };
 
   describe('validate function', () => {
