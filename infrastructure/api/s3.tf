@@ -1,3 +1,11 @@
+locals {
+  frontend_url = (
+    can(data.terraform_remote_state.frontend[0].outputs.cloudfront.domain_name)
+    ? data.terraform_remote_state.frontend[0].outputs.cloudfront.domain_name
+    : "example.com" # Placeholder for ephemeral environments
+  )
+}
+
 # S3 bucket for Establishment Order documents
 # Only create for admin app
 resource "aws_s3_bucket" "establishment_order_docs" {
@@ -70,6 +78,10 @@ resource "aws_s3_bucket_cors_configuration" "establishment_order_docs" {
       contains(["dev"], var.target_env) ? [
         "http://localhost:3000",
         "http://localhost:3001"
+      ] : [],
+      # CloudFront URL for dev and test environments
+      contains(["dev", "test"], var.target_env) ? [
+        "https://${local.frontend_url}"
       ] : [],
       # Production custom domain
       var.target_env == "prod" && var.custom_domain != "" ? [
