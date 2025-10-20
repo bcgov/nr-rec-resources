@@ -17,5 +17,6 @@ generate "prod_tfvars" {
   min_capacity          = 1
   max_capacity          = 10
   enable_cors           = true
+  custom_domain         = "staff.sitesandtrailsbc.ca"
 EOF
 }

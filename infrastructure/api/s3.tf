@@ -56,3 +56,27 @@ resource "aws_s3_bucket_lifecycle_configuration" "establishment_order_docs" {
     }
   }
 }
+
+# CORS configuration for establishment order docs
+resource "aws_s3_bucket_cors_configuration" "establishment_order_docs" {
+  count  = var.app == "admin" ? 1 : 0
+  bucket = aws_s3_bucket.establishment_order_docs[0].id
+
+  cors_rule {
+    allowed_headers = ["*"]
+    allowed_methods = ["GET", "HEAD"]
+    allowed_origins = concat(
+      # Localhost origins for dev
+      contains(["dev"], var.target_env) ? [
+        "http://localhost:3000",
+        "http://localhost:3001"
+      ] : [],
+      # Production custom domain
+      var.target_env == "prod" && var.custom_domain != "" ? [
+        "https://${var.custom_domain}"
+      ] : []
+    )
+    expose_headers  = ["ETag"]
+    max_age_seconds = 3000
+  }
+}
