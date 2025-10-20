@@ -59,13 +59,15 @@ export function GalleryAccordion<T>({
 
           <Row className="gallery-accordion__row g-3">
             {/* Upload tile */}
-            <GalleryColumn>
-              <FileUploadTile
-                disabled={uploadDisabled}
-                label={uploadLabel}
-                onClick={onFileUploadTileClick}
-              />
-            </GalleryColumn>
+            {onFileUploadTileClick && (
+              <GalleryColumn>
+                <FileUploadTile
+                  disabled={uploadDisabled}
+                  label={uploadLabel}
+                  onClick={onFileUploadTileClick}
+                />
+              </GalleryColumn>
+            )}
 
             {items.map((item, idx) => (
               <GalleryColumn key={idx}>{renderItem(item, idx)}</GalleryColumn>
