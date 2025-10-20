@@ -91,6 +91,7 @@ describe('fileUtils', () => {
     const originalFetch = global.fetch;
     beforeEach(() => {
       global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
         blob: vi
           .fn()
           .mockResolvedValue(
@@ -112,7 +113,7 @@ describe('fileUtils', () => {
       await downloadUrlAsFile('https://example.com/test.txt', 'fetched.txt');
       expect(global.fetch).toHaveBeenCalledWith(
         'https://example.com/test.txt',
-        { mode: 'cors' },
+        { credentials: 'include' },
       );
     });
   });
@@ -129,7 +130,25 @@ describe('fileUtils', () => {
       expect(buildFileNameWithExtension('document.pdf', 'pdf')).toBe(
         'document.pdf',
       );
-      expect(buildFileNameWithExtension('file.PDF', 'pdf')).toBe('file.PDF');
+    });
+
+    it('should normalize uppercase extensions to lowercase', () => {
+      expect(buildFileNameWithExtension('file.PDF', 'pdf')).toBe('file.pdf');
+      expect(buildFileNameWithExtension('Document.DOCX', 'docx')).toBe(
+        'Document.docx',
+      );
+    });
+
+    it('should handle filenames with multiple dots correctly', () => {
+      expect(buildFileNameWithExtension('my.file.name.PDF', 'pdf')).toBe(
+        'my.file.name.pdf',
+      );
+      expect(
+        buildFileNameWithExtension('archive.2024.backup.tar.gz', 'gz'),
+      ).toBe('archive.2024.backup.tar.gz');
+      expect(buildFileNameWithExtension('test.v2.document', 'pdf')).toBe(
+        'test.v2.document.pdf',
+      );
     });
   });
 });

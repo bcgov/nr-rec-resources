@@ -1,11 +1,3 @@
-locals {
-  frontend_url = (
-    can(data.terraform_remote_state.frontend[0].outputs.cloudfront.domain_name)
-    ? data.terraform_remote_state.frontend[0].outputs.cloudfront.domain_name
-    : "example.com" # Placeholder for ephemeral environments
-  )
-}
-
 # S3 bucket for Establishment Order documents
 # Only create for admin app
 resource "aws_s3_bucket" "establishment_order_docs" {

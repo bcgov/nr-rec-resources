@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@/prisma.service';
-import { S3Service } from './s3.service';
+import { S3Service } from '@/s3';
 import { EstablishmentOrderDocDto } from './dto/establishment-order-doc.dto';
 
 @Injectable()

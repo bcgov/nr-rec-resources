@@ -53,8 +53,13 @@ export function buildFileNameWithExtension(
   title: string,
   extension: string,
 ): string {
-  if (title.endsWith(`.${extension}`)) {
-    return title;
+  const lowerTitle = title.toLowerCase();
+  const lowerExt = extension.toLowerCase();
+
+  if (lowerTitle.endsWith(`.${lowerExt}`)) {
+    // Replace the extension with lowercase version
+    const lastDotIndex = title.lastIndexOf('.');
+    return title.slice(0, lastDotIndex) + `.${lowerExt}`;
   }
   return `${title}.${extension}`;
 }
