@@ -4,6 +4,7 @@ import { Col, Row, Stack } from 'react-bootstrap';
 import { RecResourceOverviewItem } from './RecResourceOverviewItem';
 import { RecResourceActivitySection } from '../RecResourceActivitySection';
 import { RecResourceLocationSection } from '../RecResourceLocationSection';
+import { RecResourceEstablishmentOrderSection } from '../RecResourceEstablishmentOrderSection';
 
 type RecResourceOverviewSectionProps = {
   recResource: RecreationResourceDetailUIModel;
@@ -72,6 +73,10 @@ export const RecResourceOverviewSection = (
           />
         </Col>
       </Row>
+
+      <RecResourceEstablishmentOrderSection
+        recResourceId={recResource.rec_resource_id}
+      />
 
       {recResource && <RecResourceLocationSection recResource={recResource} />}
 

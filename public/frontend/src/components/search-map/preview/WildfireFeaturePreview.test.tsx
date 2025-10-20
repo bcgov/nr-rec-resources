@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import WildfireFeaturePreview from '@/components/search-map/preview/WildfireFeaturePreview';
 import Feature from 'ol/Feature';
-import { formatDate } from '@/utils/formatDate';
+import { formatDateFull } from '@shared/utils';
 
 const createMockFeature = (props: Record<string, any>) => new Feature(props);
 
@@ -25,7 +25,9 @@ describe('WildfireFeaturePreview', () => {
     ).toBeInTheDocument();
     expect(screen.getByText(fireProps.FIRE_STATUS)).toBeInTheDocument();
     expect(
-      screen.getByText(`Discovered on ${formatDate(fireProps.IGNITION_DATE)}`),
+      screen.getByText(
+        `Discovered on ${formatDateFull(fireProps.IGNITION_DATE)}`,
+      ),
     ).toBeInTheDocument();
     expect(
       screen.getByText(`${fireProps.CURRENT_SIZE} Hectares`),

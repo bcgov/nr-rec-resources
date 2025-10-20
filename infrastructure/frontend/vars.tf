@@ -1,3 +1,8 @@
+variable "app" {
+  description = "The app type (admin or public)"
+  type        = string
+}
+
 variable "target_env" {
   description = "AWS workload account env"
   type        = string

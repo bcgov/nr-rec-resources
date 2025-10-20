@@ -214,3 +214,9 @@ variable "dam_config" {
   description = "DAM configuration for BC Image and Documents storage"
   sensitive = true
 }
+
+variable "custom_domain" {
+  description = "Custom domain for the admin application (used in prod for CORS)"
+  type        = string
+  default     = ""
+}

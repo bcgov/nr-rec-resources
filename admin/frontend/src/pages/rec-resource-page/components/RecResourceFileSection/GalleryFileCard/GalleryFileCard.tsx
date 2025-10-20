@@ -29,11 +29,13 @@ import { LoadingState } from './LoadingState';
  * @property {T} file - File object to display.
  * @property {(action: GalleryFileAction, file: T) => () => void} getFileActionHandler -
  *   Function that returns an event handler for a given file action and file.
+ * @property {typeof CARD_ACTIONS} [actions] - Optional custom actions to display. Defaults to CARD_ACTIONS.
  */
 export interface GalleryFileCardProps<T extends GalleryFile> {
   topContent?: React.ReactNode;
   file: T;
   getFileActionHandler: (action: GalleryFileAction, file: T) => () => void;
+  actions?: typeof CARD_ACTIONS;
 }
 
 /**
@@ -43,6 +45,7 @@ export const GalleryFileCard = <T extends GalleryFile>({
   topContent,
   file,
   getFileActionHandler,
+  actions = CARD_ACTIONS,
 }: GalleryFileCardProps<T>) => {
   const isUploadError = Boolean(file.uploadFailed);
   const isUploading = Boolean(file.isUploading);
@@ -98,7 +101,7 @@ export const GalleryFileCard = <T extends GalleryFile>({
     return (
       <>
         <Stack direction="horizontal" className="gallery-file-card__top-hover">
-          {CARD_ACTIONS.map(({ key, icon, label }) => (
+          {actions.map(({ key, icon, label }) => (
             <ActionButton
               key={key}
               icon={icon}
@@ -173,7 +176,7 @@ export const GalleryFileCard = <T extends GalleryFile>({
                     />
                   </>
                 ) : (
-                  CARD_ACTIONS.map(({ key, icon, label }) => (
+                  actions.map(({ key, icon, label }) => (
                     <DropdownActionItem
                       key={key}
                       icon={icon}

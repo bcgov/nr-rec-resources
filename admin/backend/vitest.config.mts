@@ -30,6 +30,8 @@ export default defineConfig({
       KEYCLOAK_CLIENT_ID: 'test-client',
       KEYCLOAK_ISSUER:
         'https://test-keycloak.example.com/auth/realms/test-realm',
+      ESTABLISHMENT_ORDER_DOCS_BUCKET: 'rst-lza-establishment-order-docs-dev',
+      AWS_REGION: 'ca-central-1',
     },
     coverage: {
       provider: 'v8',
