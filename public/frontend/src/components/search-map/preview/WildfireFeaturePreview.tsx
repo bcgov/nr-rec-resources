@@ -9,7 +9,7 @@ import {
   faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { FIRE_STATUS_COLOUR_MAP } from '@/components/search-map/constants';
-import { formatDate } from '@/utils/formatDate';
+import { formatDateFull } from '@shared/utils';
 import { faCalendar } from '@fortawesome/free-regular-svg-icons';
 import WILDFIRE_ICON from '@shared/assets/icons/wildfire_bc.svg';
 import '@/components/search-map/preview/MapFeaturePreview.scss';
@@ -101,7 +101,7 @@ const WildfireFeaturePreview: React.FC<WildfireFeaturePreviewProps> = ({
             {ignitionDate && (
               <p>
                 <FontAwesomeIcon icon={faCalendar} className="me-2" />
-                Discovered on {formatDate(ignitionDate)}
+                Discovered on {formatDateFull(ignitionDate)}
               </p>
             )}
             {currentSize && (

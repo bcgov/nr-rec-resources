@@ -2,6 +2,7 @@ import {
   downloadBlobAsFile,
   downloadUrlAsFile,
   getFileNameWithoutExtension,
+  buildFileNameWithExtension,
 } from '@/utils/fileUtils';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
@@ -113,6 +114,22 @@ describe('fileUtils', () => {
         'https://example.com/test.txt',
         { mode: 'cors' },
       );
+    });
+  });
+
+  describe('buildFileNameWithExtension', () => {
+    it('should add extension to title', () => {
+      expect(buildFileNameWithExtension('document', 'pdf')).toBe(
+        'document.pdf',
+      );
+      expect(buildFileNameWithExtension('report', 'docx')).toBe('report.docx');
+    });
+
+    it('should not duplicate extension if title already has it', () => {
+      expect(buildFileNameWithExtension('document.pdf', 'pdf')).toBe(
+        'document.pdf',
+      );
+      expect(buildFileNameWithExtension('file.PDF', 'pdf')).toBe('file.PDF');
     });
   });
 });

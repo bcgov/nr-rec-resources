@@ -26,7 +26,10 @@ export function downloadBlobAsFile(blob: Blob, fileName: string) {
  * @param fileName - The name for the downloaded file.
  */
 export async function downloadUrlAsFile(url: string, fileName: string) {
-  const response = await fetch(url, { mode: 'cors' });
+  const response = await fetch(url, { credentials: 'include' });
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
   const blob = await response.blob();
   downloadBlobAsFile(blob, fileName);
 }
@@ -38,4 +41,20 @@ export async function downloadUrlAsFile(url: string, fileName: string) {
  */
 export function getFileNameWithoutExtension(file: File): string {
   return file.name.replace(/\.[^/.]+$/, '');
+}
+
+/**
+ * Builds a file name with the given extension, avoiding duplicate extensions.
+ * @param title - The base file name.
+ * @param extension - The file extension (without the dot).
+ * @returns The file name with extension.
+ */
+export function buildFileNameWithExtension(
+  title: string,
+  extension: string,
+): string {
+  if (title.endsWith(`.${extension}`)) {
+    return title;
+  }
+  return `${title}.${extension}`;
 }
