@@ -47,6 +47,7 @@ generate "tfvars" {
   if_exists         = "overwrite"
   disable_signature = true
   contents          = <<-EOF
+  app="${local.app}"
   app_env="${local.app_env}"
   app_name="${local.app_name}"
   api_remote_state = {
