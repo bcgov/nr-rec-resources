@@ -16,6 +16,15 @@ vi.mock(
   }),
 );
 
+vi.mock(
+  '@/pages/rec-resource-page/components/RecResourceEstablishmentOrderSection',
+  () => ({
+    RecResourceEstablishmentOrderSection: () => (
+      <div>RecResourceEstablishmentOrderSection</div>
+    ),
+  }),
+);
+
 describe('RecResourceOverviewSection', () => {
   const recResource = {
     description: '<b>Test Description</b>',
@@ -263,5 +272,8 @@ describe('RecResourceOverviewSection', () => {
     render(<RecResourceOverviewSection recResource={recResource} />);
     expect(screen.getByText('RecResourceLocationSection')).toBeInTheDocument();
     expect(screen.getByText('RecResourceActivitySection')).toBeInTheDocument();
+    expect(
+      screen.getByText('RecResourceEstablishmentOrderSection'),
+    ).toBeInTheDocument();
   });
 });

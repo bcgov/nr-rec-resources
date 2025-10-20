@@ -6,6 +6,12 @@ import {
   IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 
+export const ACTION_TYPES = {
+  DOWNLOAD: 'download',
+  DELETE: 'delete',
+  VIEW: 'view',
+} as const;
+
 /**
  * Available file actions configuration
  */
@@ -14,7 +20,7 @@ export const CARD_ACTIONS: ReadonlyArray<{
   icon: IconDefinition;
   label: string;
 }> = [
-  { key: 'view', icon: faEye, label: 'View' },
-  { key: 'download', icon: faCloudDownload, label: 'Download' },
-  { key: 'delete', icon: faTrash, label: 'Delete' },
+  { key: ACTION_TYPES.VIEW, icon: faEye, label: 'View' },
+  { key: ACTION_TYPES.DOWNLOAD, icon: faCloudDownload, label: 'Download' },
+  { key: ACTION_TYPES.DELETE, icon: faTrash, label: 'Delete' },
 ] as const;
