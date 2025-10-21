@@ -1,4 +1,5 @@
 export * from './helpers';
+export * from './useDeleteEstablishmentOrderDoc';
 export * from './useDeleteResourceDocument';
 export * from './useDeleteResourceImage';
 export * from './useGetDocumentsByRecResourceId';
@@ -7,5 +8,6 @@ export * from './useGetImagesByRecResourceId';
 export * from './useGetRecreationResourceById';
 export * from './useGetRecreationResourceSuggestions';
 export * from './useRecreationResourceAdminApiClient';
+export * from './useUploadEstablishmentOrderDoc';
 export * from './useUploadResourceDocument';
 export * from './useUploadResourceImage';
