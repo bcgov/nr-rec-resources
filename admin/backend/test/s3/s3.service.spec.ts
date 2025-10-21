@@ -1,6 +1,12 @@
 import { AppConfigService } from '@/app-config/app-config.service';
 import { S3Service } from '@/s3/s3.service';
-import { GetObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  HeadObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
@@ -229,6 +235,227 @@ describe('S3Service', () => {
           lastModified: date2,
         },
       ]);
+    });
+  });
+
+  describe('uploadFile', () => {
+    const mockFile = Buffer.from('test file content');
+    const recResourceId = 'REC0001';
+    const filename = 'test-document.pdf';
+    const expectedKey = 'REC0001/test-document.pdf';
+
+    it('should upload file successfully when file does not exist', async () => {
+      mockS3Client.send.mockRejectedValueOnce({
+        name: 'NotFound',
+        $metadata: { httpStatusCode: 404 },
+      });
+      mockS3Client.send.mockResolvedValueOnce({} as any);
+
+      const result = await service.uploadFile(
+        recResourceId,
+        mockFile,
+        filename,
+      );
+
+      expect(result).toBe(expectedKey);
+      expect(mockS3Client.send).toHaveBeenCalledTimes(2);
+      // First call should be HeadObjectCommand to check existence
+      const firstCall = mockS3Client.send.mock.calls[0]?.[0];
+      expect(firstCall).toBeInstanceOf(HeadObjectCommand);
+      // Second call should be PutObjectCommand to upload
+      const secondCall = mockS3Client.send.mock.calls[1]?.[0];
+      expect(secondCall).toBeInstanceOf(PutObjectCommand);
+    });
+
+    it('should throw error when file already exists', async () => {
+      // Mock HeadObjectCommand to succeed (file exists)
+      mockS3Client.send.mockResolvedValueOnce({} as any);
+
+      await expect(
+        service.uploadFile(recResourceId, mockFile, filename),
+      ).rejects.toThrow(`File "${filename}" already exists`);
+
+      // Should only call HeadObjectCommand, not PutObjectCommand
+      expect(mockS3Client.send).toHaveBeenCalledTimes(1);
+    });
+
+    it('should construct correct S3 key from recResourceId and filename', async () => {
+      mockS3Client.send.mockRejectedValueOnce({
+        name: 'NotFound',
+        $metadata: { httpStatusCode: 404 },
+      });
+      mockS3Client.send.mockResolvedValueOnce({} as any);
+
+      const result = await service.uploadFile('REC0042', mockFile, 'order.pdf');
+
+      expect(result).toBe('REC0042/order.pdf');
+    });
+
+    it('should upload file with correct parameters', async () => {
+      mockS3Client.send.mockRejectedValueOnce({
+        name: 'NotFound',
+        $metadata: { httpStatusCode: 404 },
+      });
+      mockS3Client.send.mockResolvedValueOnce({} as any);
+
+      await service.uploadFile(recResourceId, mockFile, filename);
+
+      const putCall = mockS3Client.send.mock.calls[1]?.[0];
+      expect(putCall).toBeInstanceOf(PutObjectCommand);
+    });
+
+    it('should handle 404 httpStatusCode as file not found', async () => {
+      // Mock with httpStatusCode 404 instead of NotFound name
+      mockS3Client.send.mockRejectedValueOnce({
+        $metadata: { httpStatusCode: 404 },
+      });
+      mockS3Client.send.mockResolvedValueOnce({} as any);
+
+      const result = await service.uploadFile(
+        recResourceId,
+        mockFile,
+        filename,
+      );
+
+      expect(result).toBe(expectedKey);
+      expect(mockS3Client.send).toHaveBeenCalledTimes(2);
+    });
+
+    it('should throw error when HeadObjectCommand fails with non-404 error', async () => {
+      const error = new Error('Access Denied');
+      mockS3Client.send.mockRejectedValueOnce(error);
+
+      await expect(
+        service.uploadFile(recResourceId, mockFile, filename),
+      ).rejects.toThrow('Access Denied');
+
+      // Should not attempt upload
+      expect(mockS3Client.send).toHaveBeenCalledTimes(1);
+    });
+
+    it('should throw error when PutObjectCommand fails', async () => {
+      mockS3Client.send.mockRejectedValueOnce({
+        name: 'NotFound',
+        $metadata: { httpStatusCode: 404 },
+      });
+      mockS3Client.send.mockRejectedValueOnce(
+        new Error('Insufficient permissions'),
+      );
+
+      await expect(
+        service.uploadFile(recResourceId, mockFile, filename),
+      ).rejects.toThrow('Insufficient permissions');
+    });
+
+    it('should handle files with special characters in filename', async () => {
+      const specialFilename = 'test document #2024.pdf';
+      const expectedSpecialKey = 'REC0001/test document #2024.pdf';
+
+      mockS3Client.send.mockRejectedValueOnce({
+        name: 'NotFound',
+        $metadata: { httpStatusCode: 404 },
+      });
+      mockS3Client.send.mockResolvedValueOnce({} as any);
+
+      const result = await service.uploadFile(
+        recResourceId,
+        mockFile,
+        specialFilename,
+      );
+
+      expect(result).toBe(expectedSpecialKey);
+    });
+
+    it('should handle large file buffers', async () => {
+      const largeFile = Buffer.alloc(10 * 1024 * 1024); // 10MB
+
+      mockS3Client.send.mockRejectedValueOnce({
+        name: 'NotFound',
+        $metadata: { httpStatusCode: 404 },
+      });
+      mockS3Client.send.mockResolvedValueOnce({} as any);
+
+      const result = await service.uploadFile(
+        recResourceId,
+        largeFile,
+        filename,
+      );
+
+      expect(result).toBe(expectedKey);
+      const putCall = mockS3Client.send.mock.calls[1]?.[0];
+      expect(putCall).toBeInstanceOf(PutObjectCommand);
+    });
+  });
+
+  describe('deleteFile', () => {
+    it('should delete file successfully', async () => {
+      const testKey = 'REC0001/test-document.pdf';
+      mockS3Client.send.mockResolvedValueOnce({} as any);
+
+      await service.deleteFile(testKey);
+
+      expect(mockS3Client.send).toHaveBeenCalledTimes(1);
+      const deleteCall = mockS3Client.send.mock.calls[0]?.[0];
+      expect(deleteCall).toBeInstanceOf(DeleteObjectCommand);
+    });
+
+    it('should throw error when S3 deletion fails', async () => {
+      const testKey = 'REC0001/test-document.pdf';
+      const error = new Error('Access Denied');
+
+      mockS3Client.send.mockRejectedValueOnce(error);
+
+      await expect(service.deleteFile(testKey)).rejects.toThrow(
+        'Access Denied',
+      );
+    });
+
+    it('should handle deletion of files with special characters', async () => {
+      const testKey = 'REC0001/test document @#2024.pdf';
+      mockS3Client.send.mockResolvedValueOnce({} as any);
+
+      await service.deleteFile(testKey);
+
+      expect(mockS3Client.send).toHaveBeenCalledTimes(1);
+      const deleteCall = mockS3Client.send.mock.calls[0]?.[0];
+      expect(deleteCall).toBeInstanceOf(DeleteObjectCommand);
+    });
+
+    it('should handle deletion of non-existent files', async () => {
+      // S3 DeleteObject returns success even if the object doesn't exist
+      const testKey = 'REC0001/nonexistent.pdf';
+      mockS3Client.send.mockResolvedValueOnce({} as any);
+
+      await expect(service.deleteFile(testKey)).resolves.not.toThrow();
+      expect(mockS3Client.send).toHaveBeenCalledTimes(1);
+    });
+
+    it('should handle network errors during deletion', async () => {
+      const testKey = 'REC0001/test.pdf';
+      const networkError = new Error('Network timeout');
+
+      mockS3Client.send.mockRejectedValueOnce(networkError);
+
+      await expect(service.deleteFile(testKey)).rejects.toThrow(
+        'Network timeout',
+      );
+    });
+
+    it('should delete files from different resource IDs', async () => {
+      const testKey1 = 'REC0001/doc1.pdf';
+      const testKey2 = 'REC0042/doc2.pdf';
+
+      mockS3Client.send.mockResolvedValueOnce({} as any);
+      await service.deleteFile(testKey1);
+
+      mockS3Client.send.mockResolvedValueOnce({} as any);
+      await service.deleteFile(testKey2);
+
+      expect(mockS3Client.send).toHaveBeenCalledTimes(2);
+      const firstCall = mockS3Client.send.mock.calls[0]?.[0];
+      const secondCall = mockS3Client.send.mock.calls[1]?.[0];
+      expect(firstCall).toBeInstanceOf(DeleteObjectCommand);
+      expect(secondCall).toBeInstanceOf(DeleteObjectCommand);
     });
   });
 });
