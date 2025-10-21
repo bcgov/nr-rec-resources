@@ -1,6 +1,9 @@
 import {
+  DeleteObjectCommand,
   GetObjectCommand,
+  HeadObjectCommand,
   ListObjectsV2Command,
+  PutObjectCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
@@ -82,6 +85,87 @@ export class S3Service {
     } catch (error) {
       this.logger.error(
         `Error generating presigned URL for key ${key}: ${error.message}`,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Upload a file to S3
+   * @param recResourceId - Recreation resource ID
+   * @param file - File buffer
+   * @param filename - Filename including extension
+   * @returns S3 key of uploaded file
+   */
+  async uploadFile(
+    recResourceId: string,
+    file: Buffer,
+    filename: string,
+  ): Promise<string> {
+    const key = `${recResourceId}/${filename}`;
+
+    try {
+      // Check if file already exists
+      await this.s3Client.send(
+        new HeadObjectCommand({
+          Bucket: this.bucketName,
+          Key: key,
+        }),
+      );
+
+      // If we get here, file exists - throw error
+      this.logger.error(`File already exists in S3 - Key: ${key}`);
+      throw new Error(`File "${filename}" already exists`);
+    } catch (error) {
+      // If it's a NotFound error, file doesn't exist - proceed with upload
+      if (
+        error.name === 'NotFound' ||
+        error.$metadata?.httpStatusCode === 404
+      ) {
+        this.logger.log(
+          `Uploading file to S3 - Key: ${key}, Size: ${file.length} bytes`,
+        );
+
+        await this.s3Client.send(
+          new PutObjectCommand({
+            Bucket: this.bucketName,
+            Key: key,
+            Body: file,
+            ContentType: 'application/pdf',
+          }),
+        );
+
+        this.logger.log(`File uploaded successfully to S3 - Key: ${key}`);
+        return key;
+      }
+
+      // If it's our error message or some other error, re-throw
+      this.logger.error(
+        `Error uploading file to S3 for rec_resource_id ${recResourceId}: ${error.message}`,
+      );
+      throw error;
+    }
+  }
+
+  /**
+   * Delete a file from S3
+   * @param key - S3 object key
+   */
+  async deleteFile(key: string): Promise<void> {
+    try {
+      this.logger.log(`Deleting file from S3 - Key: ${key}`);
+
+      await this.s3Client.send(
+        new DeleteObjectCommand({
+          Bucket: this.bucketName,
+          Key: key,
+        }),
+      );
+
+      this.logger.log(`File deleted successfully from S3 - Key: ${key}`);
+    } catch (error) {
+      this.logger.error(
+        `Error deleting file from S3 - Key: ${key}: ${error.message}`,
       );
       throw error;
     }
