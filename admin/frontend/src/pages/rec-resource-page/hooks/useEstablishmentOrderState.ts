@@ -33,6 +33,7 @@ export function useEstablishmentOrderState(recResourceId: string) {
     new Set(),
   );
   const [deletingDocs, setDeletingDocs] = useState<Set<string>>(new Set());
+  const [pendingDocs, setPendingDocs] = useState<GalleryFile[]>([]);
 
   // Upload modal state
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -43,7 +44,27 @@ export function useEstablishmentOrderState(recResourceId: string) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [fileToDelete, setFileToDelete] = useState<GalleryFile | null>(null);
 
-  // File name validation
+  const addPendingDoc = useCallback((doc: GalleryFile) => {
+    setPendingDocs((prev) => [...prev, doc]);
+  }, []);
+
+  const removePendingDoc = useCallback((id: string) => {
+    setPendingDocs((prev) => prev.filter((doc) => doc.id !== id));
+  }, []);
+
+  const updatePendingDoc = useCallback(
+    (id: string, updates: Partial<GalleryFile>) => {
+      setPendingDocs((prev) => {
+        const idx = prev.findIndex((d) => d.id === id);
+        if (idx === -1) return prev;
+        const updatedDocs = [...prev];
+        updatedDocs[idx] = { ...updatedDocs[idx], ...updates };
+        return updatedDocs;
+      });
+    },
+    [],
+  );
+
   const existingFileNames = useMemo(() => docs.map((doc) => doc.title), [docs]);
   const validator = useMemo(
     () => createFileUploadValidator(existingFileNames),
@@ -54,20 +75,19 @@ export function useEstablishmentOrderState(recResourceId: string) {
     return result.success ? undefined : result.error.issues[0]?.message;
   }, [uploadFileName, validator]);
 
-  const galleryFiles: GalleryFile[] = useMemo(
-    () =>
-      docs.map((doc) => ({
-        id: doc.s3_key,
-        name: doc.title,
-        date: formatDateReadable(doc.created_at) ?? '-',
-        url: doc.url,
-        extension: doc.extension || 'pdf',
-        type: 'document' as const,
-        isDownloading: downloadingDocs.has(doc.s3_key),
-        isDeleting: deletingDocs.has(doc.s3_key),
-      })),
-    [docs, downloadingDocs, deletingDocs],
-  );
+  const galleryFiles: GalleryFile[] = useMemo(() => {
+    const serverDocs = docs.map((doc) => ({
+      id: doc.s3_key,
+      name: doc.title,
+      date: formatDateReadable(doc.created_at) ?? '-',
+      url: doc.url,
+      extension: doc.extension || 'pdf',
+      type: 'document' as const,
+      isDownloading: downloadingDocs.has(doc.s3_key),
+      isDeleting: deletingDocs.has(doc.s3_key),
+    }));
+    return [...serverDocs, ...pendingDocs];
+  }, [docs, downloadingDocs, deletingDocs, pendingDocs]);
 
   const handleUploadClick = useCallback(() => {
     const input = document.createElement('input');
@@ -121,26 +141,44 @@ export function useEstablishmentOrderState(recResourceId: string) {
   const handleUploadConfirm = useCallback(async () => {
     if (!selectedFile?.pendingFile || !uploadFileName || fileNameError) return;
 
+    const pendingFile = selectedFile.pendingFile;
+    const tempId = selectedFile.id;
+    const fileName = uploadFileName;
+
     setShowUploadModal(false);
     setSelectedFile(null);
+    setUploadFileName('');
+
+    // Create temporary pending doc with isUploading state
+    const tempDoc: GalleryFile = {
+      ...selectedFile,
+      name: fileName,
+      isUploading: true,
+      pendingFile,
+      type: 'document',
+    };
+    addPendingDoc(tempDoc);
 
     try {
       await uploadMutation.mutateAsync({
         recResourceId,
-        file: selectedFile.pendingFile,
-        title: uploadFileName,
+        file: pendingFile,
+        title: fileName,
       });
       addSuccessNotification(
-        `Establishment order "${uploadFileName}" uploaded successfully.`,
+        `Establishment order "${fileName}" uploaded successfully.`,
       );
+      removePendingDoc(tempId);
       refetch();
     } catch (error: unknown) {
       const errorInfo = await handleApiError(error);
       addErrorNotification(
-        `${errorInfo.statusCode} - Failed to upload establishment order "${uploadFileName}": ${errorInfo.message}. Please try again.`,
+        `${errorInfo.statusCode} - Failed to upload establishment order "${fileName}": ${errorInfo.message}. Please try again.`,
       );
-    } finally {
-      setUploadFileName('');
+      updatePendingDoc(tempId, {
+        isUploading: false,
+        uploadFailed: true,
+      });
     }
   }, [
     selectedFile,
@@ -149,6 +187,9 @@ export function useEstablishmentOrderState(recResourceId: string) {
     uploadMutation,
     recResourceId,
     refetch,
+    addPendingDoc,
+    removePendingDoc,
+    updatePendingDoc,
   ]);
 
   const handleUploadCancel = useCallback(() => {

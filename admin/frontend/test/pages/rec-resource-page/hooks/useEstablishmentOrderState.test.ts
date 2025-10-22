@@ -249,6 +249,77 @@ describe('useEstablishmentOrderState', () => {
 
       expect(mockUploadMutation).not.toHaveBeenCalled();
     });
+
+    it('adds pending doc to gallery during upload', async () => {
+      const { result } = renderHook(() =>
+        useEstablishmentOrderState('test-resource-id'),
+      );
+
+      await setupFileUpload(result);
+
+      // eslint-disable-next-line
+      const uploadPromise = new Promise(() => {});
+      mockUploadMutation.mockReturnValue(uploadPromise);
+
+      await act(async () => {
+        result.current.handleUploadConfirm();
+      });
+
+      await waitFor(() => {
+        expect(result.current.galleryFiles).toHaveLength(3);
+        const pendingDoc = result.current.galleryFiles[2];
+        expect(pendingDoc.isUploading).toBe(true);
+        expect(pendingDoc.name).toBe('test');
+        expect(pendingDoc.type).toBe('document');
+      });
+
+      expect(result.current.galleryFiles[0].id).toBe('doc-1');
+      expect(result.current.galleryFiles[1].id).toBe('doc-2');
+    });
+
+    it('removes pending doc on successful upload', async () => {
+      const { result } = renderHook(() =>
+        useEstablishmentOrderState('test-resource-id'),
+      );
+
+      await setupFileUpload(result);
+      mockUploadMutation.mockResolvedValueOnce({ success: true });
+
+      await act(async () => {
+        await result.current.handleUploadConfirm();
+      });
+
+      await waitFor(() => {
+        expect(mockRefetch).toHaveBeenCalled();
+      });
+
+      expect(result.current.galleryFiles).toHaveLength(2);
+      expect(result.current.galleryFiles[0].id).toBe('doc-1');
+      expect(result.current.galleryFiles[1].id).toBe('doc-2');
+    });
+
+    it('marks pending doc as failed on upload error', async () => {
+      const { result } = renderHook(() =>
+        useEstablishmentOrderState('test-resource-id'),
+      );
+
+      await setupFileUpload(result);
+      mockUploadMutation.mockRejectedValueOnce(new Error('Upload failed'));
+
+      await act(async () => {
+        await result.current.handleUploadConfirm();
+      });
+
+      await waitFor(() => {
+        expect(notificationStore.addErrorNotification).toHaveBeenCalled();
+      });
+
+      expect(result.current.galleryFiles).toHaveLength(3);
+      const failedDoc = result.current.galleryFiles[2];
+      expect(failedDoc.uploadFailed).toBe(true);
+      expect(failedDoc.isUploading).toBe(false);
+      expect(failedDoc.name).toBe('test');
+    });
   });
 
   describe('handleUploadCancel', () => {
