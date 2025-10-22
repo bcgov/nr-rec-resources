@@ -113,11 +113,11 @@ export class S3Service {
         }),
       );
 
-      // If we get here, file exists - throw error
+      // If file exists - throw error
       this.logger.error(`File already exists in S3 - Key: ${key}`);
       throw new Error(`File "${filename}" already exists`);
     } catch (error) {
-      // If it's a NotFound error, file doesn't exist - proceed with upload
+      // If file doesn't exist - proceed with upload
       if (
         error.name === 'NotFound' ||
         error.$metadata?.httpStatusCode === 404
@@ -139,7 +139,6 @@ export class S3Service {
         return key;
       }
 
-      // If it's our error message or some other error, re-throw
       this.logger.error(
         `Error uploading file to S3 for rec_resource_id ${recResourceId}: ${error.message}`,
       );

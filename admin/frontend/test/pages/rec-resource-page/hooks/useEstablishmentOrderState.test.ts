@@ -566,4 +566,61 @@ describe('useEstablishmentOrderState', () => {
       expect(result.current.isLoading).toBe(true);
     });
   });
+
+  describe('isUploadDisabled', () => {
+    it('returns false when no files are uploading', () => {
+      const { result } = renderHook(() =>
+        useEstablishmentOrderState('test-resource-id'),
+      );
+
+      expect(result.current.isUploadDisabled).toBe(false);
+    });
+
+    it('becomes true during upload and false after completion', async () => {
+      setupMockValidator(true);
+      mockUploadMutation.mockResolvedValue({});
+
+      const { result } = renderHook(() =>
+        useEstablishmentOrderState('test-resource-id'),
+      );
+
+      expect(result.current.isUploadDisabled).toBe(false);
+
+      const mockFile = createMockFile('test.pdf');
+
+      act(() => {
+        result.current.handleUploadClick();
+      });
+
+      await waitFor(() => {
+        expect(document.querySelector('input[type="file"]')).not.toBeNull();
+      });
+
+      act(() => {
+        simulateFileSelection(mockFile);
+      });
+
+      await waitFor(() => {
+        expect(result.current.uploadModalState.show).toBe(true);
+      });
+
+      act(() => {
+        result.current.setUploadFileName('Test Upload');
+      });
+
+      act(() => {
+        result.current.handleUploadConfirm();
+      });
+
+      await waitFor(() => {
+        expect(result.current.isUploadDisabled).toBe(true);
+      });
+
+      await waitFor(() => {
+        expect(mockRefetch).toHaveBeenCalled();
+      });
+
+      expect(result.current.isUploadDisabled).toBe(false);
+    });
+  });
 });

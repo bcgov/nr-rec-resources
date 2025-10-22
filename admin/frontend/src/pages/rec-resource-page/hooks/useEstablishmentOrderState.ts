@@ -89,6 +89,10 @@ export function useEstablishmentOrderState(recResourceId: string) {
     return [...serverDocs, ...pendingDocs];
   }, [docs, downloadingDocs, deletingDocs, pendingDocs]);
 
+  const isUploadDisabled = useMemo(() => {
+    return galleryFiles.some((file) => file.isUploading);
+  }, [galleryFiles]);
+
   const handleUploadClick = useCallback(() => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -274,6 +278,7 @@ export function useEstablishmentOrderState(recResourceId: string) {
   return {
     galleryFiles,
     isLoading,
+    isUploadDisabled,
     uploadModalState: {
       show: showUploadModal,
       file: selectedFile,

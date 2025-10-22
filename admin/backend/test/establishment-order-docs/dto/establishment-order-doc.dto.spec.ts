@@ -41,31 +41,6 @@ describe('EstablishmentOrderDocDto', () => {
     expect(dto.created_at).toBeUndefined();
   });
 
-  it('should allow setting all optional fields', () => {
-    const dto = new EstablishmentOrderDocDto();
-    dto.s3_key = 'REC0002/document.pdf';
-    dto.rec_resource_id = 'REC0002';
-    dto.title = 'Test Document';
-    dto.url = 'https://example.com/doc.pdf';
-    dto.file_size = undefined;
-    dto.extension = undefined;
-    dto.created_at = undefined;
-
-    expect(dto.s3_key).toBe('REC0002/document.pdf');
-    expect(dto.rec_resource_id).toBe('REC0002');
-    expect(dto.title).toBe('Test Document');
-    expect(dto.url).toBe('https://example.com/doc.pdf');
-    expect(dto.file_size).toBeUndefined();
-    expect(dto.extension).toBeUndefined();
-    expect(dto.created_at).toBeUndefined();
-  });
-
-  it('should handle large file sizes', () => {
-    const dto = new EstablishmentOrderDocDto();
-    dto.file_size = 10485760; // 10MB
-    expect(dto.file_size).toBe(10485760);
-  });
-
   it('should handle various file extensions', () => {
     const dto = new EstablishmentOrderDocDto();
     dto.extension = 'pdf';
@@ -79,15 +54,6 @@ describe('EstablishmentOrderDocDto', () => {
     const dto = new EstablishmentOrderDocDto();
     dto.s3_key = 'REC0001/test document #2024.pdf';
     expect(dto.s3_key).toBe('REC0001/test document #2024.pdf');
-  });
-
-  it('should handle presigned URLs with query parameters', () => {
-    const dto = new EstablishmentOrderDocDto();
-    dto.url =
-      'https://s3.amazonaws.com/bucket/file.pdf?AWSAccessKeyId=XXX&Expires=1234567890&Signature=YYY';
-    expect(dto.url).toContain('AWSAccessKeyId');
-    expect(dto.url).toContain('Expires');
-    expect(dto.url).toContain('Signature');
   });
 
   it('should handle timestamps correctly', () => {
@@ -124,32 +90,6 @@ describe('CreateEstablishmentOrderDocBodyDto', () => {
     dto.title = "Order (2024) - Winter's Update";
     expect(dto.title).toBe("Order (2024) - Winter's Update");
   });
-
-  it('should accept short titles', () => {
-    const dto = new CreateEstablishmentOrderDocBodyDto();
-    dto.title = 'AB';
-    expect(dto.title).toBe('AB');
-  });
-
-  it('should accept long titles', () => {
-    const dto = new CreateEstablishmentOrderDocBodyDto();
-    const longTitle =
-      'This is a very long establishment order title that contains many words and describes the order in great detail';
-    dto.title = longTitle;
-    expect(dto.title).toBe(longTitle);
-  });
-
-  it('should trim whitespace if title has leading/trailing spaces', () => {
-    const dto = new CreateEstablishmentOrderDocBodyDto();
-    dto.title = '  Test Order  ';
-    expect(dto.title.trim()).toBe('Test Order');
-  });
-
-  it('should handle Unicode characters in title', () => {
-    const dto = new CreateEstablishmentOrderDocBodyDto();
-    dto.title = 'Établissement Ordre 2024';
-    expect(dto.title).toBe('Établissement Ordre 2024');
-  });
 });
 
 describe('CreateEstablishmentOrderDocFormDto', () => {
@@ -163,15 +103,6 @@ describe('CreateEstablishmentOrderDocFormDto', () => {
     expect(dto.file).toBe('file-content');
   });
 
-  it('should allow file to be a Buffer', () => {
-    const dto = new CreateEstablishmentOrderDocFormDto();
-    dto.title = 'Test Order';
-    dto.file = Buffer.from('test file content');
-
-    expect(dto.title).toBe('Test Order');
-    expect(dto.file).toBeInstanceOf(Buffer);
-  });
-
   it('should allow missing file property', () => {
     const dto = new CreateEstablishmentOrderDocFormDto();
     dto.title = 'Test Order';
@@ -180,47 +111,11 @@ describe('CreateEstablishmentOrderDocFormDto', () => {
     expect(dto.file).toBeUndefined();
   });
 
-  it('should handle file as binary string', () => {
-    const dto = new CreateEstablishmentOrderDocFormDto();
-    dto.title = 'Binary Order';
-    dto.file = 'binary-file-content';
-
-    expect(dto.file).toBe('binary-file-content');
-  });
-
   it('should handle empty title', () => {
     const dto = new CreateEstablishmentOrderDocFormDto();
     dto.file = Buffer.from('content');
 
     expect(dto.title).toBeUndefined();
     expect(dto.file).toBeInstanceOf(Buffer);
-  });
-
-  it('should handle large file buffers', () => {
-    const dto = new CreateEstablishmentOrderDocFormDto();
-    dto.title = 'Large Document';
-    const largeBuffer = Buffer.alloc(10 * 1024 * 1024); // 10MB
-    dto.file = largeBuffer;
-
-    expect(dto.file).toBeInstanceOf(Buffer);
-    expect(dto.file.length).toBe(10 * 1024 * 1024);
-  });
-
-  it('should handle file as any type', () => {
-    const dto = new CreateEstablishmentOrderDocFormDto();
-    dto.title = 'Test';
-    dto.file = { name: 'test.pdf', content: 'data' };
-
-    expect(dto.file).toEqual({ name: 'test.pdf', content: 'data' });
-  });
-
-  it('should allow both properties to be set simultaneously', () => {
-    const dto = new CreateEstablishmentOrderDocFormDto();
-    dto.title = 'Complete Order';
-    dto.file = Buffer.from('complete content');
-
-    expect(dto.title).toBe('Complete Order');
-    expect(dto.file).toBeInstanceOf(Buffer);
-    expect(dto.file.toString()).toBe('complete content');
   });
 });

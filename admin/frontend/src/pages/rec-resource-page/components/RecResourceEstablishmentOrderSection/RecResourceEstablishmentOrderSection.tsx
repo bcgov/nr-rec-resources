@@ -18,6 +18,7 @@ export const RecResourceEstablishmentOrderSection = ({
   const {
     galleryFiles,
     isLoading,
+    isUploadDisabled,
     uploadModalState,
     deleteModalState,
     handleUploadClick,
@@ -39,6 +40,7 @@ export const RecResourceEstablishmentOrderSection = ({
         items={galleryFiles}
         uploadLabel="Upload"
         onFileUploadTileClick={handleUploadClick}
+        uploadDisabled={isUploadDisabled}
         renderItem={(file) => (
           <GalleryFileCard
             file={file}

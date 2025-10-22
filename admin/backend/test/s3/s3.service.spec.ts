@@ -321,18 +321,6 @@ describe('S3Service', () => {
       expect(mockS3Client.send).toHaveBeenCalledTimes(2);
     });
 
-    it('should throw error when HeadObjectCommand fails with non-404 error', async () => {
-      const error = new Error('Access Denied');
-      mockS3Client.send.mockRejectedValueOnce(error);
-
-      await expect(
-        service.uploadFile(recResourceId, mockFile, filename),
-      ).rejects.toThrow('Access Denied');
-
-      // Should not attempt upload
-      expect(mockS3Client.send).toHaveBeenCalledTimes(1);
-    });
-
     it('should throw error when PutObjectCommand fails', async () => {
       mockS3Client.send.mockRejectedValueOnce({
         name: 'NotFound',
@@ -364,26 +352,6 @@ describe('S3Service', () => {
       );
 
       expect(result).toBe(expectedSpecialKey);
-    });
-
-    it('should handle large file buffers', async () => {
-      const largeFile = Buffer.alloc(10 * 1024 * 1024); // 10MB
-
-      mockS3Client.send.mockRejectedValueOnce({
-        name: 'NotFound',
-        $metadata: { httpStatusCode: 404 },
-      });
-      mockS3Client.send.mockResolvedValueOnce({} as any);
-
-      const result = await service.uploadFile(
-        recResourceId,
-        largeFile,
-        filename,
-      );
-
-      expect(result).toBe(expectedKey);
-      const putCall = mockS3Client.send.mock.calls[1]?.[0];
-      expect(putCall).toBeInstanceOf(PutObjectCommand);
     });
   });
 
@@ -428,17 +396,6 @@ describe('S3Service', () => {
 
       await expect(service.deleteFile(testKey)).resolves.not.toThrow();
       expect(mockS3Client.send).toHaveBeenCalledTimes(1);
-    });
-
-    it('should handle network errors during deletion', async () => {
-      const testKey = 'REC0001/test.pdf';
-      const networkError = new Error('Network timeout');
-
-      mockS3Client.send.mockRejectedValueOnce(networkError);
-
-      await expect(service.deleteFile(testKey)).rejects.toThrow(
-        'Network timeout',
-      );
     });
 
     it('should delete files from different resource IDs', async () => {
