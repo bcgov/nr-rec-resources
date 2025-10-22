@@ -61,6 +61,10 @@ describe('formatRecreationResourceDetailResults', () => {
         description: 'District 1',
         district_code: 'D1',
       },
+      recreation_risk_rating_code: {
+        risk_rating_code: 'H',
+        description: 'High',
+      },
     };
     const result = formatRecreationResourceDetailResults(
       input as any,
@@ -101,6 +105,10 @@ describe('formatRecreationResourceDetailResults', () => {
     expect(result.recreation_district).toEqual({
       description: 'District 1',
       district_code: 'D1',
+    });
+    expect(result.risk_rating).toEqual({
+      risk_rating_code: 'H',
+      description: 'High',
     });
     expect(result.spatial_feature_geometry).toEqual([
       '{"type":"Polygon","coordinates":[[[1,2],[3,4],[5,6],[1,2]]]}',
@@ -146,6 +154,7 @@ describe('formatRecreationResourceDetailResults', () => {
       has_table: false,
     });
     expect(result.recreation_district).toBeUndefined();
+    expect(result.risk_rating).toBeUndefined();
   });
 
   it('should filter out falsy recreation_access descriptions', () => {

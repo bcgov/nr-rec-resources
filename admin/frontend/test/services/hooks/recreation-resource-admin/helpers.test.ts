@@ -17,11 +17,13 @@ describe('mapRecreationResourceDetail', () => {
       maintenance_standard_code: 'U',
       recreation_district: { description: 'District A' },
       recreation_status: { description: 'Open' },
+      risk_rating: { risk_rating_code: 'H', description: 'High' },
     };
     const result = helpersModule.mapRecreationResourceDetail(input as any);
     expect(result.maintenance_standard_description).toBe('Maintained');
     expect(result.recreation_district_description).toBe('District A');
     expect(result.recreation_status_description).toBe('Open');
+    expect(result.risk_rating_description).toBe('High');
   });
 
   it('should map descriptions correctly for user maintained resource', () => {
@@ -56,11 +58,13 @@ describe('mapRecreationResourceDetail', () => {
       maintenance_standard_code: 'U',
       recreation_district: undefined,
       recreation_status: null,
+      risk_rating: undefined,
     };
     const result = helpersModule.mapRecreationResourceDetail(input as any);
     expect(result.maintenance_standard_description).toBe('Maintained');
     expect(result.recreation_district_description).toBeUndefined();
     expect(result.recreation_status_description).toBeUndefined();
+    expect(result.risk_rating_description).toBeUndefined();
   });
 
   it('should format project established date with UTC timezone', () => {
@@ -164,11 +168,13 @@ describe('mapRecreationResourceDetail', () => {
       maintenance_standard_code: 'U',
       recreation_district: {},
       recreation_status: {},
+      risk_rating: {},
     };
 
     const result = helpersModule.mapRecreationResourceDetail(input as any);
     expect(result.recreation_district_description).toBeUndefined();
     expect(result.recreation_status_description).toBeUndefined();
+    expect(result.risk_rating_description).toBeUndefined();
   });
 });
 

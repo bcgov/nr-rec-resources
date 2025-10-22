@@ -58,6 +58,12 @@ export const recreationResourceSelect = {
       description: true,
     },
   },
+  recreation_risk_rating_code: {
+    select: {
+      risk_rating_code: true,
+      description: true,
+    },
+  },
   _count: {
     select: {
       recreation_defined_campsite: true,

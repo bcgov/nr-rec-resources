@@ -11,7 +11,11 @@ import { getRecreationResourceSpatialFeatureGeometry } from '@/prisma-generated-
  */
 
 export function formatRecreationResourceDetailResults(
-  { recreation_district_code, ...result }: RecreationResourceGetPayload,
+  {
+    recreation_district_code,
+    recreation_risk_rating_code,
+    ...result
+  }: RecreationResourceGetPayload,
   recreationResourceSpatialFeatureGeometryResult: getRecreationResourceSpatialFeatureGeometry.Result[],
 ): RecreationResourceDetailDto {
   const spatialFeatures = recreationResourceSpatialFeatureGeometryResult?.[0];
@@ -19,6 +23,13 @@ export function formatRecreationResourceDetailResults(
     ? {
         description: recreation_district_code.description,
         district_code: recreation_district_code.district_code,
+      }
+    : undefined;
+
+  const riskRating = recreation_risk_rating_code
+    ? {
+        description: recreation_risk_rating_code.description,
+        risk_rating_code: recreation_risk_rating_code.risk_rating_code,
       }
     : undefined;
 
@@ -76,5 +87,6 @@ export function formatRecreationResourceDetailResults(
     site_point_geometry: spatialFeatures?.site_point_geometry ?? undefined,
     recreation_district: recreationDistrict,
     project_established_date: result.project_established_date ?? undefined,
+    risk_rating: riskRating,
   };
 }
