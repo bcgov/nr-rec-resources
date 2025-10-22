@@ -1,25 +1,76 @@
 import { RecResourceEstablishmentOrderSection } from '@/pages/rec-resource-page/components/RecResourceEstablishmentOrderSection';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import * as services from '@/services';
 import * as fileUtils from '@/utils/fileUtils';
 import * as notificationStore from '@/store/notificationStore';
+import { handleApiError } from '@/services/utils/errorHandler';
 
 vi.mock('@/services');
 vi.mock('@/utils/fileUtils');
 vi.mock('@/store/notificationStore');
+vi.mock('@/services/utils/errorHandler');
+vi.mock('@/pages/rec-resource-page/validation/fileUploadSchema', () => ({
+  createFileUploadValidator: vi.fn(() => ({
+    safeParse: vi.fn(() => ({ success: true, data: {} })),
+  })),
+}));
+
+const mockDocs = [
+  {
+    s3_key: 'doc1',
+    title: 'Test Document',
+    url: 'https://example.com/doc.pdf',
+    extension: 'pdf',
+    created_at: '2023-01-15T00:00:00Z',
+  },
+];
+
+const mockRefetch = vi.fn();
+const mockUploadMutation = vi.fn();
+const mockDeleteMutation = vi.fn();
+
+const setupMocks = (docs = mockDocs, isLoading = false) => {
+  vi.mocked(services.useGetEstablishmentOrderDocs).mockReturnValue({
+    data: docs,
+    isLoading,
+    refetch: mockRefetch,
+  } as any);
+
+  vi.mocked(services.useUploadEstablishmentOrderDoc).mockReturnValue({
+    mutateAsync: mockUploadMutation,
+  } as any);
+
+  vi.mocked(services.useDeleteEstablishmentOrderDoc).mockReturnValue({
+    mutateAsync: mockDeleteMutation,
+  } as any);
+
+  vi.mocked(fileUtils.getFileNameWithoutExtension).mockImplementation((file) =>
+    file.name.replace(/\.[^/.]+$/, ''),
+  );
+  vi.mocked(fileUtils.buildFileNameWithExtension).mockImplementation(
+    (name, ext) => `${name}.${ext}`,
+  );
+  vi.mocked(fileUtils.downloadUrlAsFile).mockResolvedValue(undefined);
+
+  vi.mocked(handleApiError).mockResolvedValue({
+    statusCode: 500,
+    message: 'Error occurred',
+    isResponseError: false,
+    isAuthError: false,
+  });
+};
 
 describe('RecResourceEstablishmentOrderSection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    global.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
+    setupMocks();
   });
 
   it('renders with loading state', () => {
-    vi.mocked(services.useGetEstablishmentOrderDocs).mockReturnValue({
-      data: [],
-      isLoading: true,
-    } as any);
+    setupMocks([], true);
 
     render(<RecResourceEstablishmentOrderSection recResourceId="123" />);
 
@@ -27,19 +78,6 @@ describe('RecResourceEstablishmentOrderSection', () => {
   });
 
   it('renders documents when loaded', () => {
-    vi.mocked(services.useGetEstablishmentOrderDocs).mockReturnValue({
-      data: [
-        {
-          s3_key: 'doc1',
-          title: 'Test Document',
-          url: 'https://example.com/doc.pdf',
-          extension: 'pdf',
-          created_at: '2023-01-15T00:00:00Z',
-        },
-      ],
-      isLoading: false,
-    } as any);
-
     render(<RecResourceEstablishmentOrderSection recResourceId="123" />);
 
     expect(screen.getByText('Establishment orders')).toBeInTheDocument();
@@ -47,24 +85,6 @@ describe('RecResourceEstablishmentOrderSection', () => {
 
   it('handles download action successfully', async () => {
     const user = userEvent.setup();
-
-    vi.mocked(services.useGetEstablishmentOrderDocs).mockReturnValue({
-      data: [
-        {
-          s3_key: 'doc1',
-          title: 'Test Document',
-          url: 'https://example.com/doc.pdf',
-          extension: 'pdf',
-          created_at: '2023-01-15T00:00:00Z',
-        },
-      ],
-      isLoading: false,
-    } as any);
-
-    vi.mocked(fileUtils.buildFileNameWithExtension).mockReturnValue(
-      'Test Document.pdf',
-    );
-    vi.mocked(fileUtils.downloadUrlAsFile).mockResolvedValue(undefined);
 
     render(<RecResourceEstablishmentOrderSection recResourceId="123" />);
 
@@ -90,22 +110,6 @@ describe('RecResourceEstablishmentOrderSection', () => {
       .spyOn(console, 'error')
       .mockImplementation(() => {});
 
-    vi.mocked(services.useGetEstablishmentOrderDocs).mockReturnValue({
-      data: [
-        {
-          s3_key: 'doc1',
-          title: 'Test Document',
-          url: 'https://example.com/doc.pdf',
-          extension: 'pdf',
-          created_at: '2023-01-15T00:00:00Z',
-        },
-      ],
-      isLoading: false,
-    } as any);
-
-    vi.mocked(fileUtils.buildFileNameWithExtension).mockReturnValue(
-      'Test Document.pdf',
-    );
     vi.mocked(fileUtils.downloadUrlAsFile).mockRejectedValue(
       new Error('Download failed'),
     );
@@ -115,7 +119,7 @@ describe('RecResourceEstablishmentOrderSection', () => {
     const downloadButton = screen.getByRole('button', { name: /download/i });
     await user.click(downloadButton);
 
-    await vi.waitFor(() => {
+    await waitFor(() => {
       expect(notificationStore.addErrorNotification).toHaveBeenCalledWith(
         'Failed to download "Test Document.pdf". Please try again.',
       );
@@ -129,19 +133,6 @@ describe('RecResourceEstablishmentOrderSection', () => {
     const mockOpen = vi.fn();
     window.open = mockOpen;
 
-    vi.mocked(services.useGetEstablishmentOrderDocs).mockReturnValue({
-      data: [
-        {
-          s3_key: 'doc1',
-          title: 'Test Document',
-          url: 'https://example.com/doc.pdf',
-          extension: 'pdf',
-          created_at: '2023-01-15T00:00:00Z',
-        },
-      ],
-      isLoading: false,
-    } as any);
-
     render(<RecResourceEstablishmentOrderSection recResourceId="123" />);
 
     const viewButton = screen.getByRole('button', { name: /view/i });
@@ -151,5 +142,139 @@ describe('RecResourceEstablishmentOrderSection', () => {
       'https://example.com/doc.pdf',
       '_blank',
     );
+  });
+
+  describe('upload functionality', () => {
+    it('renders upload button', () => {
+      render(<RecResourceEstablishmentOrderSection recResourceId="123" />);
+
+      expect(screen.getByText('Upload')).toBeInTheDocument();
+    });
+
+    it('creates file input element for uploads', async () => {
+      const user = userEvent.setup();
+
+      render(<RecResourceEstablishmentOrderSection recResourceId="123" />);
+
+      const uploadButton = screen.getByText('Upload');
+      await user.click(uploadButton);
+
+      const fileInput = document.querySelector('input[type="file"]');
+      expect(fileInput).toBeInTheDocument();
+      expect(fileInput).toHaveAttribute('accept', 'application/pdf');
+    });
+  });
+
+  describe('delete functionality', () => {
+    it('opens delete modal when clicking delete button', async () => {
+      const user = userEvent.setup();
+
+      render(<RecResourceEstablishmentOrderSection recResourceId="123" />);
+
+      const deleteButton = screen.getAllByRole('button', {
+        name: /delete/i,
+      })[0];
+      await user.click(deleteButton);
+
+      await waitFor(() => {
+        const modal = screen.getByRole('dialog');
+        expect(modal).toBeInTheDocument();
+        expect(
+          within(modal).getByText(
+            /Are you sure you want to delete this establishment order\?/i,
+          ),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it('deletes file successfully', async () => {
+      const user = userEvent.setup();
+
+      mockDeleteMutation.mockResolvedValueOnce({ success: true });
+
+      render(<RecResourceEstablishmentOrderSection recResourceId="123" />);
+
+      const deleteButton = screen.getAllByRole('button', {
+        name: /delete/i,
+      })[0];
+      await user.click(deleteButton);
+
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+      });
+
+      const modal = screen.getByRole('dialog');
+      const confirmButton = within(modal).getByRole('button', {
+        name: /delete/i,
+      });
+      await user.click(confirmButton);
+
+      await waitFor(() => {
+        expect(mockDeleteMutation).toHaveBeenCalledWith({
+          recResourceId: '123',
+          s3Key: 'doc1',
+        });
+        expect(notificationStore.addSuccessNotification).toHaveBeenCalledWith(
+          'Establishment order "Test Document" deleted successfully.',
+        );
+        expect(mockRefetch).toHaveBeenCalled();
+      });
+    });
+
+    it('handles delete error', async () => {
+      const user = userEvent.setup();
+
+      mockDeleteMutation.mockRejectedValueOnce(new Error('Delete failed'));
+
+      render(<RecResourceEstablishmentOrderSection recResourceId="123" />);
+
+      const deleteButton = screen.getAllByRole('button', {
+        name: /delete/i,
+      })[0];
+      await user.click(deleteButton);
+
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+      });
+
+      const modal = screen.getByRole('dialog');
+      const confirmButton = within(modal).getByRole('button', {
+        name: /delete/i,
+      });
+      await user.click(confirmButton);
+
+      await waitFor(() => {
+        expect(notificationStore.addErrorNotification).toHaveBeenCalledWith(
+          '500 - Failed to delete establishment order "Test Document": Error occurred. Please try again.',
+        );
+      });
+    });
+
+    it('cancels delete when clicking cancel', async () => {
+      const user = userEvent.setup();
+
+      render(<RecResourceEstablishmentOrderSection recResourceId="123" />);
+
+      const deleteButton = screen.getAllByRole('button', {
+        name: /delete/i,
+      })[0];
+      await user.click(deleteButton);
+
+      await waitFor(() => {
+        expect(screen.getByRole('dialog')).toBeInTheDocument();
+      });
+
+      const modal = screen.getByRole('dialog');
+      const cancelButton = within(modal).getByRole('button', {
+        name: /cancel/i,
+      });
+      await user.click(cancelButton);
+
+      await waitFor(() => {
+        expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+      });
+
+      expect(mockDeleteMutation).not.toHaveBeenCalled();
+    });
   });
 });

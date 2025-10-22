@@ -99,14 +99,20 @@ export function useRecResourceFileTransferState() {
   // Calculate upload disabled state based on total documents (server + pending)
   const isDocumentUploadDisabled = useMemo(() => {
     const totalDocCount = galleryDocuments.length;
-    return totalDocCount >= getMaxFilesByFileType('document');
-  }, [galleryDocuments.length]);
+    const hasUploadingDoc = galleryDocuments.some((doc) => doc.isUploading);
+    return (
+      totalDocCount >= getMaxFilesByFileType('document') || hasUploadingDoc
+    );
+  }, [galleryDocuments]);
 
   // Calculate upload disabled state based on total images (server + pending)
   const isImageUploadDisabled = useMemo(() => {
     const totalImageCount = galleryImages.length;
-    return totalImageCount >= getMaxFilesByFileType('image');
-  }, [galleryImages.length]);
+    const hasUploadingImage = galleryImages.some((image) => image.isUploading);
+    return (
+      totalImageCount >= getMaxFilesByFileType('image') || hasUploadingImage
+    );
+  }, [galleryImages]);
 
   // File name validation
   const { fileNameError } = useFileNameValidation();

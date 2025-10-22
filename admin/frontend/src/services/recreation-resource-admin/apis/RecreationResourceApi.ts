@@ -64,6 +64,17 @@ export interface DeleteImageResourceRequest {
   refId: string;
 }
 
+export interface EstablishmentOrderDocsControllerCreateV1Request {
+  recResourceId: string;
+  file: Blob;
+  title: string;
+}
+
+export interface EstablishmentOrderDocsControllerDeleteV1Request {
+  recResourceId: string;
+  s3Key: string;
+}
+
 export interface EstablishmentOrderDocsControllerGetAllV1Request {
   recResourceId: string;
 }
@@ -438,6 +449,177 @@ export class RecreationResourceApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<RecreationResourceImageDto> {
     const response = await this.deleteImageResourceRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Uploads a PDF document to S3 and creates a database record
+   * Create a new establishment order document
+   */
+  async establishmentOrderDocsControllerCreateV1Raw(
+    requestParameters: EstablishmentOrderDocsControllerCreateV1Request,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<EstablishmentOrderDocDto>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling establishmentOrderDocsControllerCreateV1().',
+      );
+    }
+
+    if (requestParameters['file'] == null) {
+      throw new runtime.RequiredError(
+        'file',
+        'Required parameter "file" was null or undefined when calling establishmentOrderDocsControllerCreateV1().',
+      );
+    }
+
+    if (requestParameters['title'] == null) {
+      throw new runtime.RequiredError(
+        'title',
+        'Required parameter "title" was null or undefined when calling establishmentOrderDocsControllerCreateV1().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+    const consumes: runtime.Consume[] = [
+      { contentType: 'multipart/form-data' },
+    ];
+    // @ts-ignore: canConsumeForm may be unused
+    const canConsumeForm = runtime.canConsumeForm(consumes);
+
+    let formParams: { append(param: string, value: any): any };
+    let useForm = false;
+    // use FormData to transmit files using content-type "multipart/form-data"
+    useForm = canConsumeForm;
+    if (useForm) {
+      formParams = new FormData();
+    } else {
+      formParams = new URLSearchParams();
+    }
+
+    if (requestParameters['file'] != null) {
+      formParams.append('file', requestParameters['file'] as any);
+    }
+
+    if (requestParameters['title'] != null) {
+      formParams.append('title', requestParameters['title'] as any);
+    }
+
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resources/{rec_resource_id}/establishment-order-docs`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+        body: formParams,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      EstablishmentOrderDocDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Uploads a PDF document to S3 and creates a database record
+   * Create a new establishment order document
+   */
+  async establishmentOrderDocsControllerCreateV1(
+    requestParameters: EstablishmentOrderDocsControllerCreateV1Request,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<EstablishmentOrderDocDto> {
+    const response = await this.establishmentOrderDocsControllerCreateV1Raw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Deletes the document from S3 and removes the database record. The s3_key should be URL-encoded.
+   * Delete an establishment order document
+   */
+  async establishmentOrderDocsControllerDeleteV1Raw(
+    requestParameters: EstablishmentOrderDocsControllerDeleteV1Request,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<EstablishmentOrderDocDto>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling establishmentOrderDocsControllerDeleteV1().',
+      );
+    }
+
+    if (requestParameters['s3Key'] == null) {
+      throw new runtime.RequiredError(
+        's3Key',
+        'Required parameter "s3Key" was null or undefined when calling establishmentOrderDocsControllerDeleteV1().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resources/{rec_resource_id}/establishment-order-docs/{s3_key}`
+          .replace(
+            `{${'rec_resource_id'}}`,
+            encodeURIComponent(String(requestParameters['recResourceId'])),
+          )
+          .replace(
+            `{${'s3_key'}}`,
+            encodeURIComponent(String(requestParameters['s3Key'])),
+          ),
+        method: 'DELETE',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      EstablishmentOrderDocDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Deletes the document from S3 and removes the database record. The s3_key should be URL-encoded.
+   * Delete an establishment order document
+   */
+  async establishmentOrderDocsControllerDeleteV1(
+    requestParameters: EstablishmentOrderDocsControllerDeleteV1Request,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<EstablishmentOrderDocDto> {
+    const response = await this.establishmentOrderDocsControllerDeleteV1Raw(
       requestParameters,
       initOverrides,
     );
