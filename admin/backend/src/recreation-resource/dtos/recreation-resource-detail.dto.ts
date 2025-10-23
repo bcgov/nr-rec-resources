@@ -166,6 +166,20 @@ export class RecreationResourceDistrictDto {
   description: string;
 }
 
+export class RecreationRiskRatingDto {
+  @ApiProperty({
+    description: 'Risk rating code',
+    example: 'H',
+  })
+  risk_rating_code: string;
+
+  @ApiProperty({
+    description: 'Description of the risk rating',
+    example: 'High',
+  })
+  description: string;
+}
+
 /**
  * Base class containing common fields/properties for recreation resources
  * @abstract
@@ -289,4 +303,11 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
     type: Date,
   })
   project_established_date?: Date;
+
+  @ApiProperty({
+    description: 'Risk rating for the recreation resource',
+    type: RecreationRiskRatingDto,
+    required: false,
+  })
+  risk_rating?: RecreationRiskRatingDto;
 }

@@ -41,6 +41,11 @@ export const RecResourceOverviewSection = (
       label: 'Project Established Date',
       value: recResource.project_established_date_readable_utc,
     },
+    {
+      key: 'risk-rating',
+      label: 'Risk Rating',
+      value: recResource.risk_rating_description,
+    },
   ];
 
   return (

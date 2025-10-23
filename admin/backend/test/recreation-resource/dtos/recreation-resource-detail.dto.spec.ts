@@ -5,6 +5,7 @@ import {
   RecreationResourceDetailDto,
   RecreationResourceDistrictDto,
   RecreationResourceMaintenanceStandardCode,
+  RecreationRiskRatingDto,
   RecreationStatusDto,
   RecreationStructureDto,
 } from '@/recreation-resource/dtos/recreation-resource-detail.dto';
@@ -47,6 +48,10 @@ describe('RecreationResourceDetailDto', () => {
       district_code: 'RDCK',
       description: 'Chilliwack',
     };
+    dto.risk_rating = {
+      risk_rating_code: 'H',
+      description: 'High',
+    };
 
     expect(dto.rec_resource_id).toBe('rec-123-abc');
     expect(dto.name).toBe('Evergreen Valley Campground');
@@ -69,6 +74,8 @@ describe('RecreationResourceDetailDto', () => {
     );
     expect(dto.recreation_district.district_code).toBe('RDCK');
     expect(dto.recreation_district.description).toBe('Chilliwack');
+    expect(dto.risk_rating.risk_rating_code).toBe('H');
+    expect(dto.risk_rating.description).toBe('High');
   });
 
   it('should allow undefined optional properties', () => {
@@ -79,6 +86,7 @@ describe('RecreationResourceDetailDto', () => {
     expect(dto.spatial_feature_geometry).toBeUndefined();
     expect(dto.site_point_geometry).toBeUndefined();
     expect(dto.recreation_district).toBeUndefined();
+    expect(dto.risk_rating).toBeUndefined();
   });
 
   it('should assign and use all enums', () => {
@@ -152,5 +160,15 @@ describe('RecreationResourceDistrictDto', () => {
     dto.description = 'Chilliwack';
     expect(dto.district_code).toBe('RDCK');
     expect(dto.description).toBe('Chilliwack');
+  });
+});
+
+describe('RecreationRiskRatingDto', () => {
+  it('should assign properties', () => {
+    const dto = new RecreationRiskRatingDto();
+    dto.risk_rating_code = 'H';
+    dto.description = 'High';
+    expect(dto.risk_rating_code).toBe('H');
+    expect(dto.description).toBe('High');
   });
 });

@@ -27,6 +27,13 @@ import {
   RecreationStructureDtoToJSON,
   RecreationStructureDtoToJSONTyped,
 } from './RecreationStructureDto';
+import type { RecreationRiskRatingDto } from './RecreationRiskRatingDto';
+import {
+  RecreationRiskRatingDtoFromJSON,
+  RecreationRiskRatingDtoFromJSONTyped,
+  RecreationRiskRatingDtoToJSON,
+  RecreationRiskRatingDtoToJSONTyped,
+} from './RecreationRiskRatingDto';
 import type { RecreationStatusDto } from './RecreationStatusDto';
 import {
   RecreationStatusDtoFromJSON,
@@ -151,6 +158,12 @@ export interface RecreationResourceDetailDto {
    * @memberof RecreationResourceDetailDto
    */
   project_established_date?: Date;
+  /**
+   * Risk rating for the recreation resource
+   * @type {RecreationRiskRatingDto}
+   * @memberof RecreationResourceDetailDto
+   */
+  risk_rating?: RecreationRiskRatingDto;
 }
 
 /**
@@ -267,6 +280,10 @@ export function RecreationResourceDetailDtoFromJSONTyped(
       json['project_established_date'] == null
         ? undefined
         : new Date(json['project_established_date']),
+    risk_rating:
+      json['risk_rating'] == null
+        ? undefined
+        : RecreationRiskRatingDtoFromJSON(json['risk_rating']),
   };
 }
 
@@ -312,5 +329,6 @@ export function RecreationResourceDetailDtoToJSONTyped(
       value['project_established_date'] == null
         ? undefined
         : value['project_established_date'].toISOString(),
+    risk_rating: RecreationRiskRatingDtoToJSON(value['risk_rating']),
   };
 }

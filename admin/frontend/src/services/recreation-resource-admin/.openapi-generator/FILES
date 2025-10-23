@@ -17,6 +17,7 @@ models/RecreationResourceDistrictDto.ts
 models/RecreationResourceDocDto.ts
 models/RecreationResourceImageDto.ts
 models/RecreationResourceImageVariantDto.ts
+models/RecreationRiskRatingDto.ts
 models/RecreationStatusDto.ts
 models/RecreationStructureDto.ts
 models/SuggestionDto.ts

@@ -1,6 +1,6 @@
+import { vi, describe, expect, it } from 'vitest';
 import { RecResourceOverviewSection } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/RecResourceOverviewSection';
 import { render, screen } from '@testing-library/react';
-import { vi } from 'vitest';
 
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceActivitySection',
@@ -45,6 +45,7 @@ describe('RecResourceOverviewSection', () => {
     maintenance_standard_description: 'Test Maintenance',
     driving_directions: '<i>Test Directions</i>',
     project_established_date_readable_utc: 'June 15, 2023',
+    risk_rating_description: 'High',
   } as any;
 
   it('renders all overview items', () => {
@@ -57,10 +58,12 @@ describe('RecResourceOverviewSection', () => {
     expect(screen.getByText('Maintenance Type')).toBeInTheDocument();
     expect(screen.getByText('Driving Directions')).toBeInTheDocument();
     expect(screen.getByText('Project Established Date')).toBeInTheDocument();
+    expect(screen.getByText('Risk Rating')).toBeInTheDocument();
     expect(screen.getByText('Test Community')).toBeInTheDocument();
     expect(screen.getByText('Test District')).toBeInTheDocument();
     expect(screen.getByText('Test Maintenance')).toBeInTheDocument();
     expect(screen.getByText('June 15, 2023')).toBeInTheDocument();
+    expect(screen.getByText('High')).toBeInTheDocument();
     // Recreation access with sub access
     expect(screen.getByText('Road')).toBeInTheDocument();
     expect(screen.getByText('(4 wheel drive)')).toBeInTheDocument();
@@ -209,6 +212,7 @@ describe('RecResourceOverviewSection', () => {
       maintenance_standard_description: '',
       driving_directions: undefined,
       project_established_date_readable_utc: null,
+      risk_rating_description: undefined,
     } as any;
 
     render(<RecResourceOverviewSection recResource={recResourceMinimal} />);
@@ -227,6 +231,7 @@ describe('RecResourceOverviewSection', () => {
     expect(
       screen.queryByText('Project Established Date'),
     ).not.toBeInTheDocument();
+    expect(screen.queryByText('Risk Rating')).not.toBeInTheDocument();
   });
 
   it('renders all fields when all have values', () => {
@@ -244,6 +249,7 @@ describe('RecResourceOverviewSection', () => {
       maintenance_standard_description: 'Complete Maintenance',
       driving_directions: 'Complete Directions',
       project_established_date_readable_utc: 'Complete Date',
+      risk_rating_description: 'Moderate',
     } as any;
 
     render(<RecResourceOverviewSection recResource={recResourceComplete} />);
@@ -257,6 +263,7 @@ describe('RecResourceOverviewSection', () => {
     expect(screen.getByText('Maintenance Type')).toBeInTheDocument();
     expect(screen.getByText('Driving Directions')).toBeInTheDocument();
     expect(screen.getByText('Project Established Date')).toBeInTheDocument();
+    expect(screen.getByText('Risk Rating')).toBeInTheDocument();
 
     // All values should be rendered
     expect(screen.getByText('Complete Description')).toBeInTheDocument();
@@ -266,6 +273,7 @@ describe('RecResourceOverviewSection', () => {
     expect(screen.getByText('Complete Maintenance')).toBeInTheDocument();
     expect(screen.getByText('Complete Directions')).toBeInTheDocument();
     expect(screen.getByText('Complete Date')).toBeInTheDocument();
+    expect(screen.getByText('Moderate')).toBeInTheDocument();
   });
 
   it('renders child components', () => {

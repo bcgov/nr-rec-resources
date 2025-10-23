@@ -14,6 +14,7 @@ export * from './RecreationResourceDistrictDto';
 export * from './RecreationResourceDocDto';
 export * from './RecreationResourceImageDto';
 export * from './RecreationResourceImageVariantDto';
+export * from './RecreationRiskRatingDto';
 export * from './RecreationStatusDto';
 export * from './RecreationStructureDto';
 export * from './SuggestionDto';

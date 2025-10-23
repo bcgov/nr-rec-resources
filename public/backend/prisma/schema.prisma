@@ -25,16 +25,19 @@ model recreation_resource {
   sys_period                           Unsupported("tstzrange")               @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
   project_established_date             DateTime?                              @db.Date
   control_access_code                  String?                                @db.VarChar(1)
+  risk_rating_code                     String?                                @db.VarChar(2)
   recreation_access                    recreation_access[]
   recreation_activity                  recreation_activity[]
   recreation_agreement_holder          recreation_agreement_holder?
   recreation_defined_campsite          recreation_defined_campsite[]
   recreation_driving_direction         recreation_driving_direction?
+  recreation_establishment_order_docs  recreation_establishment_order_docs[]
   recreation_fee                       recreation_fee[]
   recreation_map_feature               recreation_map_feature[]
   recreation_control_access_code       recreation_control_access_code?        @relation(fields: [control_access_code], references: [recreation_control_access_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_district_code             recreation_district_code?              @relation(fields: [district_code], references: [district_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_maintenance_standard_code recreation_maintenance_standard_code?  @relation(fields: [maintenance_standard_code], references: [maintenance_standard_code], onDelete: NoAction, onUpdate: NoAction)
+  recreation_risk_rating_code          recreation_risk_rating_code?           @relation(fields: [risk_rating_code], references: [risk_rating_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_resource_docs             recreation_resource_docs[]
   recreation_resource_images           recreation_resource_images[]
   recreation_resource_reservation_info recreation_resource_reservation_info?
@@ -924,6 +927,63 @@ model recreation_control_access_code_history {
   created_at                     DateTime?                @db.Timestamp(6)
   created_by                     String?
   sys_period                     Unsupported("tstzrange")
+
+  @@ignore
+  @@schema("rst")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_establishment_order_docs {
+  s3_key              String                   @id @db.VarChar
+  rec_resource_id     String?                  @db.VarChar(10)
+  title               String?                  @db.VarChar
+  file_size           BigInt?
+  extension           String?                  @db.VarChar
+  updated_at          DateTime?                @default(now()) @db.Timestamp(6)
+  updated_by          String?
+  created_at          DateTime?                @default(now()) @db.Timestamp(6)
+  created_by          String?
+  sys_period          Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_resource recreation_resource?     @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([rec_resource_id], map: "idx_recreation_establishment_order_docs_rec_resource_id")
+  @@schema("rst")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_establishment_order_docs_history {
+  s3_key          String                   @db.VarChar
+  rec_resource_id String?                  @db.VarChar(10)
+  title           String?                  @db.VarChar
+  file_size       BigInt?
+  extension       String?                  @db.VarChar
+  updated_at      DateTime?                @db.Timestamp(6)
+  updated_by      String?
+  created_at      DateTime?                @db.Timestamp(6)
+  created_by      String?
+  sys_period      Unsupported("tstzrange")
+
+  @@ignore
+  @@schema("rst")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_risk_rating_code {
+  risk_rating_code    String                   @id @db.VarChar(2)
+  description         String                   @db.VarChar(100)
+  updated_at          DateTime?                @default(now()) @db.Timestamp(6)
+  sys_period          Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_resource recreation_resource[]
+
+  @@schema("rst")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_risk_rating_code_history {
+  risk_rating_code String                   @db.VarChar(2)
+  description      String                   @db.VarChar(100)
+  updated_at       DateTime?                @db.Timestamp(6)
+  sys_period       Unsupported("tstzrange")
 
   @@ignore
   @@schema("rst")
