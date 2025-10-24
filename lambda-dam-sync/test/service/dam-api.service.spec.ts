@@ -1,7 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import axios from 'axios';
-import crypto from 'crypto';
-import FormData from 'form-data';
 import {
   getCollectionResources,
   getResourceFieldData,
@@ -31,24 +29,24 @@ vi.mock('crypto', async () => {
     randomBytes: vi.fn(() => Buffer.from('abcdef123456', 'hex')),
   };
 });
-vi.mock('form-data', () => {
-  const { EventEmitter } = require('events');
-  class MockFormData extends EventEmitter {
-    data: Record<string, any> = {};
-    append(key: string, value: any) {
-      this.data[key] = value;
-    }
-    getHeaders() {
-      return { 'content-type': 'mocked-form-data' };
-    }
-    resume() {
-      // simulate emitting data and ending
-      setTimeout(() => this.emit('data', Buffer.from('chunk')), 1);
-      setTimeout(() => this.emit('end'), 5);
-    }
-  }
-  return { default: MockFormData }; // ✅ return as default
-});
+// vi.mock('form-data', () => {
+//   const { EventEmitter } = require('events');
+//   class MockFormData extends EventEmitter {
+//     data: Record<string, any> = {};
+//     append(key: string, value: any) {
+//       this.data[key] = value;
+//     }
+//     getHeaders() {
+//       return { 'content-type': 'mocked-form-data' };
+//     }
+//     resume() {
+//       // simulate emitting data and ending
+//       setTimeout(() => this.emit('data', Buffer.from('chunk')), 1);
+//       setTimeout(() => this.emit('end'), 5);
+//     }
+//   }
+//   return { default: MockFormData };
+// });
 
 describe('dam-service', () => {
   let mockResponse: any;
@@ -86,9 +84,7 @@ describe('dam-service', () => {
   });
 
   it('executeRequest should handle request failure correctly', async () => {
-    (axios.post as unknown as vi.Mock).mockRejectedValueOnce(
-      new Error('Network error'),
-    );
+    (axios.post as any).mockRejectedValueOnce(new Error('Network error'));
     const { getResourcePath } = await import(
       '../../src/service/dam-api.service'
     );
