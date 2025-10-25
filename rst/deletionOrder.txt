@@ -21,6 +21,7 @@ recreation_activity
 recreation_structure_code_history
 recreation_status_code_history
 recreation_site_description
+recreation_risk_rating_code_history
 recreation_resource_type_code_history
 recreation_resource_reservation_info
 recreation_resource_images_history
@@ -48,6 +49,7 @@ recreation_resource_docs
 recreation_access
 recreation_resource
 recreation_sub_access_code
+recreation_risk_rating_code
 recreation_resource_type_code
 recreation_control_access_code
 recreation_structure_code

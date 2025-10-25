@@ -33,6 +33,7 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
   "recreation_resource":"control_access_code":w -> "recreation_control_access_code":"recreation_control_access_code":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_resource":"district_code":w -> "recreation_district_code":"district_code":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_resource":"maintenance_standard_code":w -> "recreation_maintenance_standard_code":"maintenance_standard_code":e [arrowhead=none dir=back arrowtail=crowodot];
+  "recreation_resource":"risk_rating_code":w -> "recreation_risk_rating_code":"risk_rating_code":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_resource_district_count_view":"elipses":w -> "recreation_district_code":"district_code":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_resource_docs":"doc_code":w -> "recreation_resource_doc_code":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_resource_docs":"rec_resource_id":w -> "recreation_resource":"rec_resource_id.type":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -51,6 +52,7 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
   "recreation_resource_search_view":"rec_resource_id":w -> "recreation_resource":"rec_resource_id.type":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_resource_type_view_admin":"rec_resource_id":w -> "recreation_resource":"rec_resource_id.type":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_resource_type_view_public":"rec_resource_id":w -> "recreation_resource":"rec_resource_id.type":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "recreation_risk_rating_code_history":"elipses":w -> "recreation_risk_rating_code":"risk_rating_code":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_site_description":"rec_resource_id":w -> "recreation_resource":"rec_resource_id.type":e [arrowhead=none dir=back arrowtail=teeodot];
   "recreation_status":"rec_resource_id":w -> "recreation_resource":"rec_resource_id.type":e [arrowhead=none dir=back arrowtail=teeodot];
   "recreation_status":"status_code":w -> "recreation_status_code":"elipses":e [arrowhead=none dir=back arrowtail=crowodot];
@@ -365,7 +367,8 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
       <TR><TD PORT="sys_period" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="171" HEIGHT="16">sys_period</TD></TR></TABLE></TD><TD PORT="sys_period.type" ALIGN="LEFT">tstzrange[2147483647]</TD></TR>
       <TR><TD PORT="project_established_date" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="171" HEIGHT="16">project_established_date</TD></TR></TABLE></TD><TD PORT="project_established_date.type" ALIGN="LEFT">date[13]</TD></TR>
       <TR><TD PORT="control_access_code" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="171" HEIGHT="16">control_access_code</TD></TR></TABLE></TD><TD PORT="control_access_code.type" ALIGN="LEFT">varchar[1]</TD></TR>
-      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 3</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">20 &gt;</TD></TR>
+      <TR><TD PORT="risk_rating_code" COLSPAN="2" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="171" HEIGHT="16">risk_rating_code</TD></TR></TABLE></TD><TD PORT="risk_rating_code.type" ALIGN="LEFT">varchar[2]</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 4</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">20 &gt;</TD></TR>
     </TABLE>>
     URL="recreation_resource.html"
     target="_top"
@@ -528,6 +531,29 @@ digraph "twoDegreesRelationshipsDiagramImplied" {
     URL="recreation_resource_type_view_public.html"
     target="_top"
     tooltip="recreation_resource_type_view_public"
+  ];
+  "recreation_risk_rating_code" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="164" HEIGHT="16"><B>recreation_risk_rating_code</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="risk_rating_code" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/primaryKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="164" HEIGHT="16">risk_rating_code</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">2 &gt;</TD></TR>
+    </TABLE>>
+    URL="recreation_risk_rating_code.html"
+    target="_top"
+    tooltip="recreation_risk_rating_code"
+  ];
+  "recreation_risk_rating_code_history" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="211" HEIGHT="16"><B>recreation_risk_rating_code_history</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">&lt; 1</TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="recreation_risk_rating_code_history.html"
+    target="_top"
+    tooltip="recreation_risk_rating_code_history"
   ];
   "recreation_site_description" [
    label=<
