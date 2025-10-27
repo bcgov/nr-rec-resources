@@ -1,5 +1,6 @@
-import { RecResourceOverviewItem } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/RecResourceOverviewItem';
+import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { RecResourceOverviewItem } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/RecResourceOverviewItem';
 
 describe('RecResourceOverviewItem', () => {
   it('renders label and value', () => {

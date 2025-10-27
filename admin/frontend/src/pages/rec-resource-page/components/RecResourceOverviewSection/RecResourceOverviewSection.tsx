@@ -44,7 +44,7 @@ export const RecResourceOverviewSection = (
     {
       key: 'risk-rating',
       label: 'Risk Rating',
-      value: recResource.risk_rating_description,
+      value: recResource.risk_rating_description ?? '--',
     },
   ];
 
