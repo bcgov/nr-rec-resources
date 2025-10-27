@@ -13,6 +13,7 @@ import { ClsModule } from 'nestjs-cls';
 import { clsConfig } from 'src/common/cls.config';
 import { ApiMetricsModule } from '@shared/api/api-metrics/api-metrics.module';
 import { PUBLIC_METRIC_NAMESPACE_NAME_PREFIX } from '@shared/api/api-metrics/api-metrics.constants';
+import { SitemapModule } from './sitemap/sitemap.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { PUBLIC_METRIC_NAMESPACE_NAME_PREFIX } from '@shared/api/api-metrics/api
     ConfigModule.forRoot(),
     TerminusModule,
     RecreationResourceModule,
+    SitemapModule,
     ApiMetricsModule.forRoot({
       namespacePrefix: PUBLIC_METRIC_NAMESPACE_NAME_PREFIX,
     }),

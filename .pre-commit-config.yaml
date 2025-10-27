@@ -8,6 +8,7 @@ repos:
         exclude: (^charts/.*/templates/)
         args: ['--unsafe']
       - id: check-added-large-files
+        args: ['--maxkb=1000']
 
   - repo: https://github.com/pre-commit/mirrors-eslint
     rev: 'v9.15.0'
