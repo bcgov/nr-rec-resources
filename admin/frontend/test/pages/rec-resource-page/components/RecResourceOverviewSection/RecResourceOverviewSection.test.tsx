@@ -222,6 +222,9 @@ describe('RecResourceOverviewSection', () => {
     expect(screen.getByText('Description')).toBeInTheDocument();
     expect(screen.getByText('Test Description')).toBeInTheDocument();
 
+    // Risk Rating should render with default '--' value
+    expect(screen.queryByText('Risk Rating')).toBeInTheDocument();
+
     // Optional fields should not be rendered when empty/null/undefined
     expect(screen.queryByText('Closest Community')).not.toBeInTheDocument();
     expect(screen.queryByText('Recreation District')).not.toBeInTheDocument();
@@ -231,7 +234,6 @@ describe('RecResourceOverviewSection', () => {
     expect(
       screen.queryByText('Project Established Date'),
     ).not.toBeInTheDocument();
-    expect(screen.queryByText('Risk Rating')).not.toBeInTheDocument();
   });
 
   it('renders all fields when all have values', () => {
