@@ -6,11 +6,8 @@ import {
   MATOMO_TRACKING_CATEGORY_MAP,
   DownloadMapModal,
   getMapFeaturesFromRecResource,
-  getSitePointFeatureFromRecResource,
   getLayerStyleForRecResource,
   StyleContext,
-  webMercatorXToLon,
-  webMercatorYToLat,
 } from '@shared/components/recreation-resource-map';
 import { RecreationResourceDetailModel } from '@/service/custom-models';
 import { trackEvent } from '@shared/utils';
@@ -18,7 +15,7 @@ import { IconButton } from '@shared/components/icon-button';
 import { SearchMapFocusModes } from '@/components/search-map/constants';
 import { ROUTE_PATHS } from '@/routes/constants';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faExternalLink, faMap } from '@fortawesome/free-solid-svg-icons';
+import { faMap } from '@fortawesome/free-solid-svg-icons';
 import { getRecResourceDetailPageUrl } from '@/utils/recreationResourceUtils';
 import DownloadIcon from '@shared/assets/icons/download.svg';
 
@@ -99,27 +96,30 @@ export const RecreationResourceMap = ({
     setIsDownloadModalOpen(true);
   }, [recResourceName, recResource?.rec_resource_id]);
 
-  const handleGoogleMapsLink = useCallback(() => {
-    trackEvent({
-      category: MATOMO_TRACKING_CATEGORY_MAP,
-      action: TRACKING_ACTIONS.OPEN_GOOGLE_MAPS,
-      name: `${recResourceName}-${recResource?.rec_resource_id}-${TRACKING_ACTIONS.OPEN_GOOGLE_MAPS}`,
-    });
-    const map = getSitePointFeatureFromRecResource(recResource);
-    if (map) {
-      const geometry = map.getGeometry();
-      const coordinates = geometry?.getCoordinates();
-      if (coordinates) {
-        const lat = webMercatorYToLat(coordinates[1]);
-        const lon = webMercatorXToLon(coordinates[0]);
-        console.log(lat, lon);
-        window.open(
-          `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`,
-          '_blank',
-        );
-      }
-    }
-  }, [recResource, recResourceName]);
+  /*
+   * Hide temporaly google maps link until we come with a proper warning/disclaimer //NOSONAR
+   * const handleGoogleMapsLink = useCallback(() => {
+   *  trackEvent({
+   *    category: MATOMO_TRACKING_CATEGORY_MAP,
+   *    action: TRACKING_ACTIONS.OPEN_GOOGLE_MAPS,
+   *    name: `${recResourceName}-${recResource?.rec_resource_id}-${TRACKING_ACTIONS.OPEN_GOOGLE_MAPS}`,
+   *  });
+   *  const map = getSitePointFeatureFromRecResource(recResource);
+   *  if (map) {
+   *    const geometry = map.getGeometry();
+   *    const coordinates = geometry?.getCoordinates();
+   *    if (coordinates) {
+   *      const lat = webMercatorYToLat(coordinates[1]);
+   *      const lon = webMercatorXToLon(coordinates[0]);
+   *      console.log(lat, lon);
+   *      window.open(
+   *        `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`,
+   *        '_blank',
+   *      );
+   *    }
+   *  }
+   *}, [recResource, recResourceName]);
+   */
 
   if (!downloadStyledFeatures.length) {
     return null;
@@ -154,19 +154,19 @@ export const RecreationResourceMap = ({
               </IconButton>
             </Link>
           </Col>
-
-          <Col xs={12} md="auto">
-            <IconButton
-              data-testid="google-maps"
-              variant="outline"
-              onClick={handleGoogleMapsLink}
-              aria-label={`Google maps view for ${recResourceName}`}
-              leftIcon={<FontAwesomeIcon icon={faExternalLink} />}
-            >
-              Google Maps
-            </IconButton>
-          </Col>
-
+          {/* Hide temporaly google maps link until we come with a proper warning/disclaimer //NOSONAR
+           *{<Col xs={12} md="auto">
+           *  <IconButton
+           *    data-testid="google-maps"
+           *    variant="outline"
+           *    onClick={handleGoogleMapsLink}
+           *    aria-label={`Google maps view for ${recResourceName}`}
+           *    leftIcon={<FontAwesomeIcon icon={faExternalLink} />}
+           *  >
+           *    Google Maps
+           *  </IconButton>
+           *</Col>}
+           */}
           <Col xs={12} md="auto">
             <IconButton
               data-testid="download-button"
