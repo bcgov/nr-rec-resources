@@ -1,0 +1,28 @@
+name: Update sitemap.xml
+
+on:
+  schedule:
+    - cron: '0 6 * * 0' # every Sunday at 6 AM UTC
+  workflow_dispatch:
+
+jobs:
+  update-sitemap:
+    runs-on: ubuntu-latest
+    env:
+      PUBLIC_API_URL: ${{ secrets.PUBLIC_API_URL }}
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Download sitemap from API
+        run: |
+          wget -O public/frontend/public/sitemap.xml "$PUBLIC_API_URL/api/sitemap.xml"
+
+      - name: Commit and push sitemap.xml
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/frontend/public/sitemap.xml
+          git commit -m "chore: update sitemap.xml [skip ci]" || echo "No changes"
+          git push
