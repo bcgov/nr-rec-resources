@@ -47,7 +47,7 @@ ENV PRISMA_CLI_BINARY_TARGETS=debian-openssl-3.0.x
 RUN npm install --ignore-scripts --no-update-notifier --omit=dev
 
 # Deploy using minimal Distroless image
-FROM gcr.io/distroless/nodejs22-debian12:nonroot
+FROM node:22
 ENV NODE_ENV=production
 
 # Copy app and dependencies
@@ -62,5 +62,5 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=3s CMD curl -f http://localhost:8001/api
 
 # Nonroot user, limit heap size to 300 MB since we have 512 MB limit
-USER nonroot
+USER node
 CMD ["--max-old-space-size=300", "/app/dist/admin/backend/src/main"]
