@@ -29,7 +29,7 @@ export class AuthPassportKeycloakStrategy extends PassportStrategy(
       url: appConfigService.keycloakAuthServerUrl,
       issuer: appConfigService.keycloakIssuer,
       audience: appConfigService.keycloakClientId,
-      loggingLevel: 'warn',
+      loggingLevel: 'debug',
     };
   }
 

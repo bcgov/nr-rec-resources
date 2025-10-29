@@ -6,12 +6,12 @@ import {
   Param,
   Post,
   UploadedFile,
-  UseGuards,
+  // UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
-  ApiBearerAuth,
+  // ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiOperation,
@@ -25,23 +25,23 @@ import {
   CreateEstablishmentOrderDocBodyDto,
   CreateEstablishmentOrderDocFormDto,
 } from './dto/create-establishment-order-doc.dto';
-import { AuthGuard } from '@nestjs/passport';
-import {
-  AUTH_STRATEGY,
-  AuthRoles,
-  AuthRolesGuard,
-  RecreationResourceAuthRole,
-  ROLE_MODE,
-} from '@/auth';
+// import { AuthGuard } from '@nestjs/passport';
+// import {
+//   AUTH_STRATEGY,
+//   AuthRoles,
+//   AuthRolesGuard,
+//   RecreationResourceAuthRole,
+//   ROLE_MODE,
+// } from '@/auth';
 
 @ApiTags('recreation-resource')
 @Controller({
   path: 'recreation-resources/:rec_resource_id/establishment-order-docs',
   version: '1',
 })
-@ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
-@UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
-@AuthRoles([RecreationResourceAuthRole.RST_VIEWER], ROLE_MODE.ALL)
+// @ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
+// @UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
+// @AuthRoles([RecreationResourceAuthRole.RST_VIEWER], ROLE_MODE.ALL)
 export class EstablishmentOrderDocsController {
   constructor(
     private readonly establishmentOrderDocsService: EstablishmentOrderDocsService,
