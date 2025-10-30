@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react';
-import React from 'react';
+import { type ReactNode, createElement } from 'react';
 import { Mock, vi } from 'vitest';
 
 // Mock dependencies first - this needs to be before imports
@@ -34,8 +34,8 @@ const createWrapper = () => {
       queries: { retry: false },
     },
   });
-  return function Wrapper(props: { children: React.ReactNode }) {
-    return React.createElement(
+  return function Wrapper(props: { children: ReactNode }) {
+    return createElement(
       QueryClientProvider,
       { client: queryClient },
       props.children,

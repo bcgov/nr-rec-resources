@@ -1,6 +1,6 @@
-import Keycloak from 'keycloak-js';
-import { UserInfo } from '@/services/auth/AuthService.types';
 import { AuthServiceEvent } from '@/services/auth/AuthService.constants';
+import { UserInfo } from '@/services/auth/AuthService.types';
+import Keycloak from 'keycloak-js';
 
 export class AuthService {
   private static _instance: AuthService;
@@ -65,7 +65,8 @@ export class AuthService {
       redirectUri: window.location.href,
       scope: 'openid profile email',
       pkceMethod: 'S256',
-      checkLoginIframe: false,
+      checkLoginIframe: true,
+      checkLoginIframeInterval: 15,
     });
   }
 

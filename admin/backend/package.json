@@ -18,7 +18,10 @@
     "test": "vitest --exclude e2e",
     "test:cov": "npx vitest run --coverage --exclude e2e",
     "test:e2e": "vitest --dir e2e",
-    "copy-prisma-generated-sql": "prisma generate --sql && node build-scripts/copy-prisma-generated-sql.js"
+    "copy-prisma-generated-sql": "prisma generate --sql && node build-scripts/copy-prisma-generated-sql.js",
+    "prettier-fix": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
+    "generate-admin-api": "npx openapi-generator-cli generate -i http://localhost:8001/api/docs-json -g typescript-fetch -o ../frontend/src/services/recreation-resource-admin --skip-validate-spec --additional-properties=modelPropertyNaming=original",
+    "install-admin-client-sdk": "npm run generate-admin-api && cd ../.. && npm run prettier-fix"
   },
   "dependencies": {
     "@aws-sdk/client-cloudwatch": "^3.876.0",

@@ -1,4 +1,11 @@
 import {
+  AUTH_STRATEGY,
+  AuthRoles,
+  AuthRolesGuard,
+  RecreationResourceAuthRole,
+  ROLE_MODE,
+} from '@/auth';
+import {
   Body,
   Controller,
   Delete,
@@ -9,6 +16,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
@@ -19,22 +27,14 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { EstablishmentOrderDocsService } from './establishment-order-docs.service';
-import { EstablishmentOrderDocDto } from './dto/establishment-order-doc.dto';
 import {
   CreateEstablishmentOrderDocBodyDto,
   CreateEstablishmentOrderDocFormDto,
 } from './dto/create-establishment-order-doc.dto';
-import { AuthGuard } from '@nestjs/passport';
-import {
-  AUTH_STRATEGY,
-  AuthRoles,
-  AuthRolesGuard,
-  RecreationResourceAuthRole,
-  ROLE_MODE,
-} from '@/auth';
+import { EstablishmentOrderDocDto } from './dto/establishment-order-doc.dto';
+import { EstablishmentOrderDocsService } from './establishment-order-docs.service';
 
-@ApiTags('recreation-resource')
+@ApiTags('recreation-resources')
 @Controller({
   path: 'recreation-resources/:rec_resource_id/establishment-order-docs',
   version: '1',
@@ -49,6 +49,7 @@ export class EstablishmentOrderDocsController {
 
   @Get()
   @ApiOperation({
+    operationId: 'getAllEstablishmentOrderDocs',
     summary: 'Get all establishment order documents for a recreation resource',
     description:
       'Returns a list of establishment order documents with presigned URLs for download',
@@ -81,6 +82,7 @@ export class EstablishmentOrderDocsController {
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
+    operationId: 'createEstablishmentOrderDoc',
     summary: 'Create a new establishment order document',
     description: 'Uploads a PDF document to S3 and creates a database record',
   })
@@ -128,6 +130,7 @@ export class EstablishmentOrderDocsController {
 
   @Delete(':s3_key')
   @ApiOperation({
+    operationId: 'deleteEstablishmentOrderDoc',
     summary: 'Delete an establishment order document',
     description:
       'Deletes the document from S3 and removes the database record. The s3_key should be URL-encoded.',

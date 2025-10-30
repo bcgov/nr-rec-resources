@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import Keycloak from 'keycloak-js';
 import { AuthService, UserInfo } from '@/services/auth';
 import { AuthServiceEvent } from '@/services/auth/AuthService.constants';
+import Keycloak from 'keycloak-js';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('keycloak-js');
 
@@ -82,7 +82,8 @@ describe('AuthService', () => {
         redirectUri: 'http://localhost:3000/',
         scope: 'openid profile email',
         pkceMethod: 'S256',
-        checkLoginIframe: false,
+        checkLoginIframe: true,
+        checkLoginIframeInterval: 15,
       });
     });
 

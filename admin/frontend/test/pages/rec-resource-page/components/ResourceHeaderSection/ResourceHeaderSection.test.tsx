@@ -60,4 +60,32 @@ describe('ResourceHeaderSection', () => {
     const badges = screen.getAllByTestId('custom-badge');
     expect(badges).toHaveLength(1); // Only ID badge
   });
+
+  it('uses green color when recreation_status_code is 1 (active)', () => {
+    const resourceWithActiveStatus = {
+      ...baseResource,
+      recreation_status_description: 'Active',
+      recreation_status_code: 1,
+    } as unknown as RecreationResourceDetailUIModel;
+
+    render(<ResourceHeaderSection recResource={resourceWithActiveStatus} />);
+
+    const badges = screen.getAllByTestId('custom-badge');
+    expect(badges).toHaveLength(2); // ID badge and status badge
+    expect(badges[1]).toHaveTextContent('Active');
+  });
+
+  it('uses red color when recreation_status_code is not 1 (inactive)', () => {
+    const resourceWithInactiveStatus = {
+      ...baseResource,
+      recreation_status_description: 'Inactive',
+      recreation_status_code: 0,
+    } as unknown as RecreationResourceDetailUIModel;
+
+    render(<ResourceHeaderSection recResource={resourceWithInactiveStatus} />);
+
+    const badges = screen.getAllByTestId('custom-badge');
+    expect(badges).toHaveLength(2); // ID badge and status badge
+    expect(badges[1]).toHaveTextContent('Inactive');
+  });
 });

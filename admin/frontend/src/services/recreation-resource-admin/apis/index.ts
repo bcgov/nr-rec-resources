@@ -2,4 +2,4 @@
 /* eslint-disable */
 export * from './AppApi';
 export * from './HealthApi';
-export * from './RecreationResourceApi';
+export * from './RecreationResourcesApi';

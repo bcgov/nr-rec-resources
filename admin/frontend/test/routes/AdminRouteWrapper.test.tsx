@@ -10,9 +10,10 @@ vi.mock('@/components', () => ({
   ),
 }));
 
-// Mock React Router Outlet
+// Mock React Router Outlet and useSearchParams
 vi.mock('react-router-dom', () => ({
   Outlet: () => <div data-testid="outlet">Page Content</div>,
+  useSearchParams: () => [new URLSearchParams()],
 }));
 
 describe('AdminRouteWrapper', () => {

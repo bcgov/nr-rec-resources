@@ -1,6 +1,6 @@
 apis/AppApi.ts
 apis/HealthApi.ts
-apis/RecreationResourceApi.ts
+apis/RecreationResourcesApi.ts
 apis/index.ts
 index.ts
 models/BadRequestResponseDto.ts
@@ -10,8 +10,10 @@ models/EstablishmentOrderDocDto.ts
 models/HealthControllerCheck200Response.ts
 models/HealthControllerCheck200ResponseInfoValue.ts
 models/HealthControllerCheck503Response.ts
-models/RecreationAccessDto.ts
+models/OptionDto.ts
+models/RecreationAccessCodeDto.ts
 models/RecreationActivityDto.ts
+models/RecreationControlAccessDto.ts
 models/RecreationResourceDetailDto.ts
 models/RecreationResourceDistrictDto.ts
 models/RecreationResourceDocDto.ts
@@ -20,8 +22,11 @@ models/RecreationResourceImageVariantDto.ts
 models/RecreationRiskRatingDto.ts
 models/RecreationStatusDto.ts
 models/RecreationStructureDto.ts
+models/RecreationSubAccessCodeDto.ts
 models/SuggestionDto.ts
 models/SuggestionsResponseDto.ts
+models/UpdateRecreationAccessCodeDto.ts
+models/UpdateRecreationResourceDto.ts
 models/ValidationErrorDetailDto.ts
 models/index.ts
 runtime.ts

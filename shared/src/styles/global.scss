@@ -52,6 +52,28 @@
   );
 }
 
+.btn-outline-primary {
+  background-color: var(--surface-color-secondary-button-default);
+  border: 1px solid var(--surface-color-border-dark);
+  color: var(--typography-color-primary);
+
+  &:hover {
+    background-color: var(--surface-color-secondary-button-hover);
+    border: 1px solid var(--surface-color-border-dark);
+    color: var(--typography-color-primary);
+  }
+
+  &:focus {
+    border-color: var(--surface-color-primary-hover);
+    color: var(--surface-color-primary-hover);
+  }
+
+  &:disabled {
+    border-color: var(--surface-color-primary-disabled);
+    color: var(--surface-color-primary-disabled);
+  }
+}
+
 // Typography color overrides for Bootstrap utility classes using BC Gov typography design tokens
 .text-primary {
   color: var(--typography-color-primary) !important;

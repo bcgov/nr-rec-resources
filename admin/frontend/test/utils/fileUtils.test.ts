@@ -1,10 +1,10 @@
 import {
+  buildFileNameWithExtension,
   downloadBlobAsFile,
   downloadUrlAsFile,
   getFileNameWithoutExtension,
-  buildFileNameWithExtension,
 } from '@/utils/fileUtils';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Use vi.stubGlobal for URL only
 beforeAll(() => {
@@ -115,6 +115,33 @@ describe('fileUtils', () => {
         'https://example.com/test.txt',
         { credentials: 'include' },
       );
+    });
+
+    it('should throw error when fetch response is not ok', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 404,
+      }) as unknown as typeof fetch;
+
+      await expect(
+        downloadUrlAsFile('https://example.com/missing.txt', 'file.txt'),
+      ).rejects.toThrow('HTTP 404');
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        'https://example.com/missing.txt',
+        { credentials: 'include' },
+      );
+    });
+
+    it('should throw error with correct status code on server error', async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+      }) as unknown as typeof fetch;
+
+      await expect(
+        downloadUrlAsFile('https://example.com/error.txt', 'file.txt'),
+      ).rejects.toThrow('HTTP 500');
     });
   });
 

@@ -1,4 +1,11 @@
 import {
+  AUTH_STRATEGY,
+  AuthRoles,
+  AuthRolesGuard,
+  RecreationResourceAuthRole,
+  ROLE_MODE,
+} from '@/auth';
+import {
   Body,
   Controller,
   Delete,
@@ -10,6 +17,8 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -20,27 +29,18 @@ import {
   ApiTags,
   getSchemaPath,
 } from '@nestjs/swagger';
-import { ResourceImagesService } from './service/resource-images.service';
 import {
   CreateRecreationResourceImageBodyDto,
   CreateRecreationResourceImageFormDto,
   RecreationResourceImageDto,
 } from './dto/recreation-resource-image.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import {
-  AUTH_STRATEGY,
-  AuthRoles,
-  AuthRolesGuard,
-  RecreationResourceAuthRole,
-  ROLE_MODE,
-} from '@/auth';
-import { AuthGuard } from '@nestjs/passport';
+import { ResourceImagesService } from './service/resource-images.service';
 
-@ApiTags('recreation-resource')
+@ApiTags('recreation-resources')
 @ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
 @UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
 @AuthRoles([RecreationResourceAuthRole.RST_VIEWER], ROLE_MODE.ALL)
-@Controller({ path: 'recreation-resource', version: '1' })
+@Controller({ path: 'recreation-resources', version: '1' })
 export class ResourceImagesController {
   constructor(private readonly resourceImagesService: ResourceImagesService) {}
 

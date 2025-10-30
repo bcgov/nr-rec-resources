@@ -36,11 +36,11 @@ import {
 } from './dto/recreation-resource-doc.dto';
 import { ResourceDocsService } from './service/resource-docs.service';
 
-@ApiTags('recreation-resource')
+@ApiTags('recreation-resources')
 @ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
 @UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
 @AuthRoles([RecreationResourceAuthRole.RST_VIEWER], ROLE_MODE.ALL)
-@Controller({ path: 'recreation-resource', version: '1' })
+@Controller({ path: 'recreation-resources', version: '1' })
 export class ResourceDocsController {
   constructor(private readonly resourceDocsService: ResourceDocsService) {}
 

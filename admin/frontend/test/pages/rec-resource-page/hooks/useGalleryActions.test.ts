@@ -6,7 +6,7 @@ import {
 } from '@/pages/rec-resource-page/types';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';
-import React, { ReactNode } from 'react';
+import { type ReactNode, createElement } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock dependencies
@@ -123,11 +123,7 @@ describe('useGalleryActions', () => {
 
   const createWrapper = () => {
     return ({ children }: { children: ReactNode }) =>
-      React.createElement(
-        QueryClientProvider,
-        { client: queryClient },
-        children,
-      );
+      createElement(QueryClientProvider, { client: queryClient }, children);
   };
 
   it('returns action handlers', () => {

@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
-import { renderHook } from '@testing-library/react';
+import { RecreationResourcesApi } from '@/services';
 import { useRecreationResourceAdminApiClient } from '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient';
-import { RecreationResourceApi } from '@/services/recreation-resource-admin';
+import { renderHook } from '@testing-library/react';
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
 vi.mock('@/contexts/AuthContext', () => ({
   useAuthContext: vi.fn(),
@@ -31,7 +31,7 @@ describe('useRecreationResourceAdminApiClient', () => {
 
     const { result } = renderHook(() => useRecreationResourceAdminApiClient());
 
-    expect(result.current).toBeInstanceOf(RecreationResourceApi);
+    expect(result.current).toBeInstanceOf(RecreationResourcesApi);
 
     // Check if the config object has the correct basePath
     const config = result.current['configuration'];

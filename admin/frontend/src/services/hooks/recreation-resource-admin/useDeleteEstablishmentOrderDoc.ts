@@ -12,7 +12,7 @@ export function useDeleteEstablishmentOrderDoc() {
 
   return useMutation({
     mutationFn: (params: DeleteEstablishmentOrderDocParams) => {
-      return api.establishmentOrderDocsControllerDeleteV1(params);
+      return api.deleteEstablishmentOrderDoc(params);
     },
     retry: createRetryHandler(),
   });

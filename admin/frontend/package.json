@@ -12,7 +12,8 @@
     "test:cov": "vitest run --mode test --coverage",
     "e2e": "npx happo-e2e -- npx playwright test",
     "e2e:chrome": "npx happo-e2e -- npx playwright test --project=chromium",
-    "e2e:ui": "npx happo-e2e -- npx playwright test --ui"
+    "e2e:ui": "npx happo-e2e -- npx playwright test --ui",
+    "prettier-fix": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\""
   },
   "dependencies": {
     "@bcgov/bc-sans": "^2.1.0",
@@ -23,6 +24,7 @@
     "@fortawesome/free-brands-svg-icons": "^7.0.0",
     "@fortawesome/free-solid-svg-icons": "^7.0.1",
     "@fortawesome/react-fontawesome": "^3.0.2",
+    "@hookform/resolvers": "^5.2.1",
     "@rst/shared": "file:../../shared",
     "@tanstack/react-query": "^5.80.7",
     "@tanstack/react-query-devtools": "^5.80.7",
@@ -40,7 +42,9 @@
     "react-bootstrap": "^2.10.10",
     "react-bootstrap-typeahead": "^6.4.1",
     "react-dom": "^19.1.1",
+    "react-hook-form": "^7.62.0",
     "react-router-dom": "^7.0.0",
+    "react-select": "^5.10.2",
     "zod": "^4.0.8"
   },
   "devDependencies": {

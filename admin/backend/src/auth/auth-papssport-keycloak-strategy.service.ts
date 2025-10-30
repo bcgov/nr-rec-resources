@@ -1,7 +1,8 @@
+import { AppConfigService } from '@/app-config/app-config.service';
+import { UserContextService } from '@/common/modules/user-context/user-context.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import KeycloakBearerStrategy from 'passport-keycloak-bearer';
-import { AppConfigService } from '@/app-config/app-config.service';
 import { AUTH_STRATEGY, LOG_MESSAGES } from './auth.constants';
 import { KeycloakUserToken } from './auth.types';
 
@@ -15,7 +16,10 @@ export class AuthPassportKeycloakStrategy extends PassportStrategy(
 ) {
   private readonly logger = new Logger(AuthPassportKeycloakStrategy.name);
 
-  constructor(private readonly appConfig: AppConfigService) {
+  constructor(
+    private readonly appConfig: AppConfigService,
+    private readonly userContextService: UserContextService,
+  ) {
     const config = AuthPassportKeycloakStrategy.buildKeycloakConfig(appConfig);
     super(config);
     this.logger.log(LOG_MESSAGES.KEYCLOAK_INITIALIZED);
@@ -39,6 +43,7 @@ export class AuthPassportKeycloakStrategy extends PassportStrategy(
    * @returns The user token information
    */
   async validate(payload: KeycloakUserToken): Promise<KeycloakUserToken> {
+    this.userContextService.setCurrentUser(payload);
     return payload;
   }
 }
