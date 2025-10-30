@@ -62,11 +62,11 @@ describe('useEditResourceForm', () => {
     recreation_access: [],
     recreation_structure: { has_toilet: false, has_table: false },
     project_established_date_readable_utc: null,
-    accessCodes: [
+    access_codes: [
       {
         code: 'AC1',
         description: 'Access Type 1',
-        subAccessCodes: [
+        sub_access_codes: [
           { code: 'SUB1', description: 'Sub Access 1' },
           { code: 'SUB2', description: 'Sub Access 2' },
         ],
@@ -74,7 +74,7 @@ describe('useEditResourceForm', () => {
       {
         code: 'AC2',
         description: 'Access Type 2',
-        subAccessCodes: [{ code: 'SUB3', description: 'Sub Access 3' }],
+        sub_access_codes: [{ code: 'SUB3', description: 'Sub Access 3' }],
       },
     ],
   } as RecreationResourceDetailUIModel;
@@ -142,10 +142,10 @@ describe('useEditResourceForm', () => {
       ]);
     });
 
-    it('should handle recResource with no accessCodes', () => {
+    it('should handle recResource with no access_codes', () => {
       const recResourceWithoutAccessCodes = {
         ...mockRecResource,
-        accessCodes: [] as any,
+        access_codes: [] as any,
       };
 
       const { result } = renderHook(
@@ -158,10 +158,10 @@ describe('useEditResourceForm', () => {
       expect(result.current.selectedAccessOptions).toEqual([]);
     });
 
-    it('should handle recResource with empty accessCodes array', () => {
+    it('should handle recResource with empty access_codes array', () => {
       const recResourceWithEmptyAccessCodes = {
         ...mockRecResource,
-        accessCodes: [],
+        access_codes: [],
       };
 
       const { result } = renderHook(
@@ -174,10 +174,10 @@ describe('useEditResourceForm', () => {
       expect(result.current.selectedAccessOptions).toEqual([]);
     });
 
-    it('should handle recResource with non-array accessCodes', () => {
+    it('should handle recResource with non-array access_codes', () => {
       const recResourceWithInvalidAccessCodes = {
         ...mockRecResource,
-        accessCodes: {} as any,
+        access_codes: {} as any,
       };
 
       const { result } = renderHook(
@@ -299,10 +299,10 @@ describe('useEditResourceForm', () => {
             maintenance_standard_code: 'M',
             control_access_code: 'CA2',
             status_code: 2,
-            accessCodes: [
+            access_codes: [
               {
-                code: 'AC1',
-                subAccessCodes: ['SUB1', 'SUB2'],
+                access_code: 'AC1',
+                sub_access_codes: ['SUB1', 'SUB2'],
               },
             ],
           },
@@ -369,14 +369,14 @@ describe('useEditResourceForm', () => {
             maintenance_standard_code: 'M',
             control_access_code: 'CA2',
             status_code: 2,
-            accessCodes: [
+            access_codes: [
               {
-                code: 'AC1',
-                subAccessCodes: ['SUB1', 'SUB2'],
+                access_code: 'AC1',
+                sub_access_codes: ['SUB1', 'SUB2'],
               },
               {
-                code: 'AC2',
-                subAccessCodes: ['SUB3'],
+                access_code: 'AC2',
+                sub_access_codes: ['SUB3'],
               },
             ],
           },
@@ -417,7 +417,7 @@ describe('useEditResourceForm', () => {
             maintenance_standard_code: 'M',
             control_access_code: 'CA2',
             status_code: 2,
-            accessCodes: [],
+            access_codes: [],
           },
         },
         expect.objectContaining({
@@ -456,7 +456,7 @@ describe('useEditResourceForm', () => {
             maintenance_standard_code: undefined,
             control_access_code: 'CA2',
             status_code: 2,
-            accessCodes: [],
+            access_codes: [],
           },
         },
         expect.objectContaining({
@@ -495,7 +495,7 @@ describe('useEditResourceForm', () => {
             maintenance_standard_code: 'M',
             control_access_code: undefined,
             status_code: 2,
-            accessCodes: [],
+            access_codes: [],
           },
         },
         expect.objectContaining({
@@ -534,7 +534,7 @@ describe('useEditResourceForm', () => {
             maintenance_standard_code: 'M',
             control_access_code: 'CA2',
             status_code: undefined,
-            accessCodes: [],
+            access_codes: [],
           },
         },
         expect.objectContaining({
@@ -666,11 +666,11 @@ describe('useEditResourceForm', () => {
       const updatedResource = {
         ...mockRecResource,
         rec_resource_id: '456',
-        accessCodes: [
+        access_codes: [
           {
             code: 'NEW1',
             description: 'New Access',
-            subAccessCodes: [{ code: 'NEWSUB1', description: 'New Sub' }],
+            sub_access_codes: [{ code: 'NEWSUB1', description: 'New Sub' }],
           },
         ],
       } as RecreationResourceDetailUIModel;

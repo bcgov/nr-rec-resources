@@ -6,21 +6,21 @@ import { describe, expect, it } from 'vitest';
 
 describe('Update Recreation Resource DTOs', () => {
   describe('UpdateRecreationAccessCodeDto', () => {
-    it('should create a valid UpdateRecreationAccessCodeDto with code and subAccessCodes', () => {
+    it('should create a valid UpdateRecreationAccessCodeDto with access_code and sub_access_codes', () => {
       const dto = new UpdateRecreationAccessCodeDto();
-      dto.code = 'BOAT';
-      dto.subAccessCodes = ['MOTOR', 'PADDLE'];
+      dto.access_code = 'BOAT';
+      dto.sub_access_codes = ['MOTOR', 'PADDLE'];
 
-      expect(dto.code).toBe('BOAT');
-      expect(dto.subAccessCodes).toEqual(['MOTOR', 'PADDLE']);
+      expect(dto.access_code).toBe('BOAT');
+      expect(dto.sub_access_codes).toEqual(['MOTOR', 'PADDLE']);
     });
 
-    it('should create a valid UpdateRecreationAccessCodeDto with only code', () => {
+    it('should create a valid UpdateRecreationAccessCodeDto with only access_code', () => {
       const dto = new UpdateRecreationAccessCodeDto();
-      dto.code = 'ROAD';
+      dto.access_code = 'ROAD';
 
-      expect(dto.code).toBe('ROAD');
-      expect(dto.subAccessCodes).toBeUndefined();
+      expect(dto.access_code).toBe('ROAD');
+      expect(dto.sub_access_codes).toBeUndefined();
     });
   });
 
@@ -30,16 +30,16 @@ describe('Update Recreation Resource DTOs', () => {
       dto.maintenance_standard_code = '1';
       dto.control_access_code = 'G';
       const ac1 = new UpdateRecreationAccessCodeDto();
-      ac1.code = 'BOAT';
-      ac1.subAccessCodes = ['MOTOR'];
+      ac1.access_code = 'BOAT';
+      ac1.sub_access_codes = ['MOTOR'];
       const ac2 = new UpdateRecreationAccessCodeDto();
-      ac2.code = 'ROAD';
-      dto.accessCodes = [ac1, ac2];
+      ac2.access_code = 'ROAD';
+      dto.access_codes = [ac1, ac2];
       dto.status_code = 1;
 
       expect(dto.maintenance_standard_code).toBe('1');
       expect(dto.control_access_code).toBe('G');
-      expect(dto.accessCodes).toHaveLength(2);
+      expect(dto.access_codes).toHaveLength(2);
       expect(dto.status_code).toBe(1);
     });
 
@@ -49,7 +49,7 @@ describe('Update Recreation Resource DTOs', () => {
 
       expect(dto.maintenance_standard_code).toBe('2');
       expect(dto.control_access_code).toBeUndefined();
-      expect(dto.accessCodes).toBeUndefined();
+      expect(dto.access_codes).toBeUndefined();
       expect(dto.status_code).toBeUndefined();
     });
 
@@ -61,14 +61,14 @@ describe('Update Recreation Resource DTOs', () => {
       expect(dto.maintenance_standard_code).toBeUndefined();
     });
 
-    it('should create a valid DTO with only accessCodes', () => {
+    it('should create a valid DTO with only access_codes', () => {
       const dto = new UpdateRecreationResourceDto();
       const ac = new UpdateRecreationAccessCodeDto();
-      ac.code = 'TRAIL';
-      dto.accessCodes = [ac];
+      ac.access_code = 'TRAIL';
+      dto.access_codes = [ac];
 
-      expect(dto.accessCodes).toHaveLength(1);
-      expect(dto.accessCodes?.[0]?.code).toBe('TRAIL');
+      expect(dto.access_codes).toHaveLength(1);
+      expect(dto.access_codes?.[0]?.access_code).toBe('TRAIL');
     });
   });
 });

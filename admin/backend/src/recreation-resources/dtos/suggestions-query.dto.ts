@@ -1,5 +1,5 @@
-import { Length, Matches } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Length, Matches } from 'class-validator';
 
 /**
  * DTO for recreation resource suggestions query parameters.
@@ -19,8 +19,8 @@ export class SuggestionsQueryDto {
     pattern: '^[A-Za-z0-9 "\'()#.&/]+$',
   })
   @Matches(/^[A-Za-z0-9 "'()#.&/]+$/, {
-    message: 'searchTerm can only contain alphanumeric characters and spaces',
+    message: 'search_term can only contain alphanumeric characters and spaces',
   })
   @Length(3, 50)
-  searchTerm: string;
+  search_term: string;
 }

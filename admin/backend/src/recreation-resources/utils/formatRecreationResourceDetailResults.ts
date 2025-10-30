@@ -48,14 +48,14 @@ export function formatRecreationResourceDetailResults(
     maintenance_standard: maintenanceStandard,
     rec_resource_type:
       result?.recreation_resource_type_view_admin?.[0]?.description ?? '',
-    accessCodes: (() => {
+    access_codes: (() => {
       // Use a Map for O(1) lookups of access codes
       const accessCodeMap = new Map<
         string,
         {
           code: string;
           description: string;
-          subAccessCodes: Array<{ code: string; description: string }>;
+          sub_access_codes: Array<{ code: string; description: string }>;
         }
       >();
 
@@ -72,14 +72,14 @@ export function formatRecreationResourceDetailResults(
           accessCodeMap.set(accessCode, {
             code: accessCode,
             description: accessDescription,
-            subAccessCodes: [],
+            sub_access_codes: [],
           });
         }
 
         // Add sub-access code if it exists
         if (access.recreation_sub_access_code) {
           const entry = accessCodeMap.get(accessCode)!;
-          entry.subAccessCodes.push({
+          entry.sub_access_codes.push({
             code: access.recreation_sub_access_code.sub_access_code,
             description: access.recreation_sub_access_code.description!, // Use sub-access code as its own description
           });

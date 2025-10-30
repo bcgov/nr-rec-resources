@@ -63,7 +63,7 @@ export class RecreationResourceController {
   })
   @ApiOperation({ operationId: 'getRecreationResourceSuggestions' })
   @ApiQuery({
-    name: 'searchTerm',
+    name: 'search_term',
     required: true,
   })
   @ApiBadRequestResponse({
@@ -74,7 +74,7 @@ export class RecreationResourceController {
     @Query() query: SuggestionsQueryDto,
   ): Promise<SuggestionsResponseDto> {
     return await this.recreationResourceService.getSuggestions(
-      query.searchTerm,
+      query.search_term,
     );
   }
 

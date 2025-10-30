@@ -1136,7 +1136,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     const queryParameters: any = {};
 
     if (requestParameters['searchTerm'] != null) {
-      queryParameters['searchTerm'] = requestParameters['searchTerm'];
+      queryParameters['search_term'] = requestParameters['searchTerm'];
     }
 
     const headerParameters: runtime.HTTPHeaders = {};

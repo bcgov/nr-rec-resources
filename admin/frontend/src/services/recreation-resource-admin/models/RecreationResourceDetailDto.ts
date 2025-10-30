@@ -134,7 +134,7 @@ export interface RecreationResourceDetailDto {
    * @type {Array<RecreationAccessCodeDto>}
    * @memberof RecreationResourceDetailDto
    */
-  accessCodes: Array<RecreationAccessCodeDto>;
+  access_codes: Array<RecreationAccessCodeDto>;
   /**
    * Structure-related facilities available at the recreation resource (e.g., toilets, tables)
    * @type {RecreationStructureDto}
@@ -232,7 +232,7 @@ export function instanceOfRecreationResourceDetailDto(
     return false;
   if (!('campsite_count' in value) || value['campsite_count'] === undefined)
     return false;
-  if (!('accessCodes' in value) || value['accessCodes'] === undefined)
+  if (!('access_codes' in value) || value['access_codes'] === undefined)
     return false;
   if (
     !('recreation_structure' in value) ||
@@ -268,7 +268,7 @@ export function RecreationResourceDetailDtoFromJSONTyped(
     driving_directions: json['driving_directions'],
     maintenance_standard: json['maintenance_standard'],
     campsite_count: json['campsite_count'],
-    accessCodes: (json['accessCodes'] as Array<any>).map(
+    access_codes: (json['access_codes'] as Array<any>).map(
       RecreationAccessCodeDtoFromJSON,
     ),
     recreation_structure: RecreationStructureDtoFromJSON(
@@ -330,7 +330,7 @@ export function RecreationResourceDetailDtoToJSONTyped(
     driving_directions: value['driving_directions'],
     maintenance_standard: value['maintenance_standard'],
     campsite_count: value['campsite_count'],
-    accessCodes: (value['accessCodes'] as Array<any>).map(
+    access_codes: (value['access_codes'] as Array<any>).map(
       RecreationAccessCodeDtoToJSON,
     ),
     recreation_structure: RecreationStructureDtoToJSON(

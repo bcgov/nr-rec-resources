@@ -37,11 +37,11 @@ describe('RecResourceOverviewSection', () => {
     project_established_date_readable_utc: 'June 15, 2023',
     risk_rating_description: 'High',
     control_access_code_description: 'Controlled',
-    accessCodes: [
+    access_codes: [
       {
         code: 'ROAD',
         description: 'Road',
-        subAccessCodes: [{ code: '4W', description: '4 wheel drive' }],
+        sub_access_codes: [{ code: '4W', description: '4 wheel drive' }],
       },
     ],
   } as any;
@@ -89,11 +89,11 @@ describe('RecResourceOverviewSection', () => {
   it('renders recreation access without sub access', () => {
     const recResourceWithoutSubAccess = {
       ...recResource,
-      accessCodes: [
+      access_codes: [
         {
           code: 'ROAD',
           description: 'Road',
-          subAccessCodes: [],
+          sub_access_codes: [],
         },
       ],
     } as any;
@@ -108,7 +108,7 @@ describe('RecResourceOverviewSection', () => {
   it('does not render access when accessCodes missing', () => {
     const recResourceNoAccess = {
       ...recResource,
-      accessCodes: [],
+      access_codes: [],
     } as any;
 
     renderWithRouter(
@@ -256,11 +256,11 @@ describe('RecResourceOverviewSection', () => {
       description: 'Complete Description',
       closest_community: 'Complete Community',
       recreation_district_description: 'Complete District',
-      accessCodes: [
+      access_codes: [
         {
           code: 'ROAD',
           description: 'Road',
-          subAccessCodes: [],
+          sub_access_codes: [],
         },
       ],
       maintenance_standard_description: 'Complete Maintenance',

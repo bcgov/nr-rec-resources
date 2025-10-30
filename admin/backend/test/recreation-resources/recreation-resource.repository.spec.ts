@@ -70,7 +70,7 @@ describe('RecreationResourceRepository', () => {
   });
 
   describe('update', () => {
-    it('should update resource and return updated payload (no accessCodes)', async () => {
+    it('should update resource and return updated payload (no access_codes)', async () => {
       const recId = 'res1';
       const updateData = {
         status_code: 1,
@@ -98,13 +98,13 @@ describe('RecreationResourceRepository', () => {
       expect(prisma.$transaction).toHaveBeenCalled();
     });
 
-    it('should handle accessCodes: deleteMany and createMany called', async () => {
+    it('should handle access_codes: deleteMany and createMany called', async () => {
       const recId = 'res2';
       const updateData = {
         status_code: 1,
-        accessCodes: [
-          { code: 'AC1', subAccessCodes: ['S1', 'S2'] },
-          { code: 'AC2', subAccessCodes: ['S3'] },
+        access_codes: [
+          { access_code: 'AC1', sub_access_codes: ['S1', 'S2'] },
+          { access_code: 'AC2', sub_access_codes: ['S3'] },
         ],
       } as any;
 

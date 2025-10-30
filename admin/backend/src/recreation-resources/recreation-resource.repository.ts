@@ -71,7 +71,7 @@ export class RecreationResourceRepository {
       // Use transaction to ensure data consistency
       const result = await this.prisma.$transaction(async (tx) => {
         const {
-          accessCodes,
+          access_codes: accessCodes,
           control_access_code,
           status_code,
           ...directFields
@@ -123,12 +123,12 @@ export class RecreationResourceRepository {
             where: { rec_resource_id },
           });
 
-          // Create new access records from the accessCodes array
+          // Create new access records from the access_codes array
           if (Array.isArray(accessCodes) && accessCodes.length > 0) {
             const accessRecordsToCreate = accessCodes.flatMap((accessCode) =>
-              (accessCode.subAccessCodes ?? []).map((subAccessCode) => ({
+              (accessCode.sub_access_codes ?? []).map((subAccessCode) => ({
                 rec_resource_id,
-                access_code: accessCode.code,
+                access_code: accessCode.access_code,
                 sub_access_code: subAccessCode,
                 created_at: timestamp,
                 created_by: idirUsername,

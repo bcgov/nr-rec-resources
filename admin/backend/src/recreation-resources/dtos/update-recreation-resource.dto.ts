@@ -17,7 +17,7 @@ export class UpdateRecreationAccessCodeDto {
   })
   @IsString()
   @IsNotEmpty()
-  code: string;
+  access_code: string;
 
   @ApiPropertyOptional({
     description: 'Sub access codes related to this access code',
@@ -27,7 +27,7 @@ export class UpdateRecreationAccessCodeDto {
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
-  subAccessCodes?: string[];
+  sub_access_codes?: string[];
 }
 
 /**
@@ -69,7 +69,7 @@ export class UpdateRecreationResourceDto {
   @ValidateNested({ each: true })
   @Type(() => UpdateRecreationAccessCodeDto)
   @IsOptional()
-  accessCodes?: UpdateRecreationAccessCodeDto[];
+  access_codes?: UpdateRecreationAccessCodeDto[];
 
   @ApiPropertyOptional({
     description: 'Status code (open or closed)',

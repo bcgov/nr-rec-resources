@@ -1,9 +1,9 @@
 import { useRecreationResourceAdminApiClient } from '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient';
-import { useQuery } from '@tanstack/react-query';
 import {
   ResponseError,
   SuggestionsResponseDto,
 } from '@/services/recreation-resource-admin';
+import { useQuery } from '@tanstack/react-query';
 import { createRetryHandler } from './helpers';
 
 export function isValidRecreationResourceSearchTerm(
