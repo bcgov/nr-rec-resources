@@ -49,7 +49,7 @@ describe('RecreationResourceController', () => {
     };
     (service.getSuggestions as any).mockResolvedValue(mockResponse);
 
-    const query: SuggestionsQueryDto = { searchTerm: 'Test' };
+    const query: SuggestionsQueryDto = { search_term: 'Test' };
     const result = await controller.getSuggestions(query);
     expect(service.getSuggestions).toHaveBeenCalledWith('Test');
     expect(result).toEqual(mockResponse);
@@ -101,7 +101,7 @@ describe('RecreationResourceController', () => {
           description: 'Standard 1',
         },
         rec_resource_type: '',
-        accessCodes: [],
+        access_codes: [],
         recreation_activity: [],
         recreation_status: { description: 'Open', comment: '', status_code: 1 },
         campsite_count: 0,

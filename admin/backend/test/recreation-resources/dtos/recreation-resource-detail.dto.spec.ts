@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import {
   RecreationAccessCodeDto,
   RecreationActivityDto,
@@ -12,7 +11,8 @@ import {
   RecreationStatusDto,
   RecreationStructureDto,
   RecreationSubAccessCodeDto,
-} from '../../../src/recreation-resources/dtos/recreation-resource-detail.dto';
+} from '@/recreation-resources/dtos/recreation-resource-detail.dto';
+import { describe, expect, it } from 'vitest';
 
 describe('RecreationResourceDetailDto', () => {
   it('should create an instance', () => {
@@ -46,8 +46,8 @@ describe('RecreationResourceDetailDto', () => {
     const access = new RecreationAccessCodeDto();
     access.code = 'R';
     access.description = 'Road';
-    access.subAccessCodes = [sub];
-    dto.accessCodes = [access];
+    access.sub_access_codes = [sub];
+    dto.access_codes = [access];
 
     dto.recreation_structure = new RecreationStructureDto();
     dto.recreation_structure.has_toilet = true;
@@ -78,8 +78,8 @@ describe('RecreationResourceDetailDto', () => {
       RecreationResourceMaintenanceStandardCode.U,
     );
     expect(dto.campsite_count).toBe(10);
-    expect(dto.accessCodes![0]!.code).toBe('R');
-    expect(dto.accessCodes![0]!.subAccessCodes![0]!.code).toBe('4W');
+    expect(dto.access_codes![0]!.code).toBe('R');
+    expect(dto.access_codes![0]!.sub_access_codes![0]!.code).toBe('4W');
     expect(dto.recreation_structure.has_toilet).toBe(true);
     expect(dto.recreation_structure.has_table).toBe(false);
     expect(dto.spatial_feature_geometry).toEqual(['geojson1', 'geojson2']);
@@ -183,11 +183,11 @@ describe('RecreationAccessCodeDto & RecreationSubAccessCodeDto', () => {
     const access = new RecreationAccessCodeDto();
     access.code = 'R';
     access.description = 'Road';
-    access.subAccessCodes = [sub];
+    access.sub_access_codes = [sub];
 
     expect(access.code).toBe('R');
-    expect(access.subAccessCodes![0]!.code).toBe('4W');
-    expect(access.subAccessCodes![0]!.description).toBe('4 wheel drive');
+    expect(access.sub_access_codes![0]!.code).toBe('4W');
+    expect(access.sub_access_codes![0]!.description).toBe('4 wheel drive');
   });
 });
 

@@ -25,9 +25,9 @@ export const useEditResourceForm = (
   const defaultValues: EditResourceFormData = useMemo(() => {
     const selectedAccessOptions: GroupedOption[] = [];
 
-    if (recResource.accessCodes && Array.isArray(recResource.accessCodes)) {
-      recResource.accessCodes.forEach((accessCode) => {
-        accessCode.subAccessCodes.forEach((subAccessCode) => {
+    if (recResource.access_codes && Array.isArray(recResource.access_codes)) {
+      recResource.access_codes.forEach((accessCode) => {
+        accessCode.sub_access_codes.forEach((subAccessCode) => {
           selectedAccessOptions.push({
             label: subAccessCode.description,
             value: subAccessCode.code,
@@ -66,8 +66,8 @@ export const useEditResourceForm = (
     const accessCodesMap: Record<
       string,
       {
-        code: string;
-        subAccessCodes: Array<string>;
+        access_code: string;
+        sub_access_codes: Array<string>;
       }
     > = {};
 
@@ -78,13 +78,13 @@ export const useEditResourceForm = (
       // Initialize parent access code if not exists
       if (!accessCodesMap[parentId]) {
         accessCodesMap[parentId] = {
-          code: parentId,
-          subAccessCodes: [],
+          access_code: parentId,
+          sub_access_codes: [],
         };
       }
 
       // Add the sub-access code
-      accessCodesMap[parentId].subAccessCodes.push(option.value);
+      accessCodesMap[parentId].sub_access_codes.push(option.value);
     });
 
     // Prepare update data with proper type conversion
@@ -92,7 +92,7 @@ export const useEditResourceForm = (
       maintenance_standard_code: data.maintenance_standard_code || undefined,
       control_access_code: data.control_access_code || undefined,
       status_code: data.status_code ? Number(data.status_code) : undefined,
-      accessCodes: Object.values(accessCodesMap),
+      access_codes: Object.values(accessCodesMap),
     };
 
     // Submit the update

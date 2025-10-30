@@ -44,7 +44,7 @@ export interface RecreationAccessCodeDto {
    * @type {Array<RecreationSubAccessCodeDto>}
    * @memberof RecreationAccessCodeDto
    */
-  subAccessCodes: Array<RecreationSubAccessCodeDto>;
+  sub_access_codes: Array<RecreationSubAccessCodeDto>;
 }
 
 /**
@@ -56,7 +56,7 @@ export function instanceOfRecreationAccessCodeDto(
   if (!('code' in value) || value['code'] === undefined) return false;
   if (!('description' in value) || value['description'] === undefined)
     return false;
-  if (!('subAccessCodes' in value) || value['subAccessCodes'] === undefined)
+  if (!('sub_access_codes' in value) || value['sub_access_codes'] === undefined)
     return false;
   return true;
 }
@@ -77,7 +77,7 @@ export function RecreationAccessCodeDtoFromJSONTyped(
   return {
     code: json['code'],
     description: json['description'],
-    subAccessCodes: (json['subAccessCodes'] as Array<any>).map(
+    sub_access_codes: (json['sub_access_codes'] as Array<any>).map(
       RecreationSubAccessCodeDtoFromJSON,
     ),
   };
@@ -100,7 +100,7 @@ export function RecreationAccessCodeDtoToJSONTyped(
   return {
     code: value['code'],
     description: value['description'],
-    subAccessCodes: (value['subAccessCodes'] as Array<any>).map(
+    sub_access_codes: (value['sub_access_codes'] as Array<any>).map(
       RecreationSubAccessCodeDtoToJSON,
     ),
   };

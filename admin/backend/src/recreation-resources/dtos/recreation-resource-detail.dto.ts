@@ -50,7 +50,7 @@ export class RecreationAccessCodeDto {
     description: 'List of sub-access codes associated with this access code',
     type: [RecreationSubAccessCodeDto],
   })
-  subAccessCodes: RecreationSubAccessCodeDto[];
+  sub_access_codes: RecreationSubAccessCodeDto[];
 }
 
 export class RecreationFeeDto {
@@ -294,7 +294,7 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
     description: 'List of access codes with their associated sub-access codes',
     type: [RecreationAccessCodeDto],
   })
-  accessCodes: RecreationAccessCodeDto[];
+  access_codes: RecreationAccessCodeDto[];
 
   @ApiProperty({
     description:

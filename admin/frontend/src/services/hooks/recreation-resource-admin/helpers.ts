@@ -14,12 +14,20 @@ import { formatDateReadable } from '@shared/index';
 export function mapRecreationResourceDetail(
   data: RecreationResourceDetailDto,
 ): RecreationResourceDetailUIModel {
-  const primaryAccess = data.recreation_access?.[0];
+  // Note: maintenance_standard is currently typed as an enum in the generated client
+  // but the API actually returns an object with maintenance_standard_code and description
+  const maintenanceStandard = data.maintenance_standard as any;
+
   return {
     ...data,
     maintenance_standard_code:
-      data.maintenance_standard?.maintenance_standard_code,
-    maintenance_standard_description: data.maintenance_standard?.description,
+      typeof maintenanceStandard === 'object'
+        ? maintenanceStandard?.maintenance_standard_code
+        : undefined,
+    maintenance_standard_description:
+      typeof maintenanceStandard === 'object'
+        ? maintenanceStandard?.description
+        : undefined,
     recreation_district_description: data.recreation_district?.description,
     recreation_status_code: data.recreation_status?.status_code,
     recreation_status_description: data.recreation_status?.description,
@@ -27,10 +35,6 @@ export function mapRecreationResourceDetail(
       data.recreation_control_access_code?.recreation_control_access_code,
     control_access_code_description:
       data.recreation_control_access_code?.description,
-    access_code: primaryAccess?.access_code,
-    access_code_description: primaryAccess?.description,
-    sub_access_code: primaryAccess?.sub_access_code,
-    sub_access_code_description: primaryAccess?.sub_access_description,
     project_established_date_readable_utc: formatDateReadable(
       data.project_established_date,
       {

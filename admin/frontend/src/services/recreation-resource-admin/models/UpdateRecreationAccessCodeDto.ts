@@ -24,13 +24,13 @@ export interface UpdateRecreationAccessCodeDto {
    * @type {string}
    * @memberof UpdateRecreationAccessCodeDto
    */
-  code: string;
+  access_code: string;
   /**
    * Sub access codes related to this access code
    * @type {Array<string>}
    * @memberof UpdateRecreationAccessCodeDto
    */
-  subAccessCodes?: Array<string>;
+  sub_access_codes?: Array<string>;
 }
 
 /**
@@ -39,7 +39,8 @@ export interface UpdateRecreationAccessCodeDto {
 export function instanceOfUpdateRecreationAccessCodeDto(
   value: object,
 ): value is UpdateRecreationAccessCodeDto {
-  if (!('code' in value) || value['code'] === undefined) return false;
+  if (!('access_code' in value) || value['access_code'] === undefined)
+    return false;
   return true;
 }
 
@@ -57,9 +58,9 @@ export function UpdateRecreationAccessCodeDtoFromJSONTyped(
     return json;
   }
   return {
-    code: json['code'],
-    subAccessCodes:
-      json['subAccessCodes'] == null ? undefined : json['subAccessCodes'],
+    access_code: json['access_code'],
+    sub_access_codes:
+      json['sub_access_codes'] == null ? undefined : json['sub_access_codes'],
   };
 }
 
@@ -78,7 +79,7 @@ export function UpdateRecreationAccessCodeDtoToJSONTyped(
   }
 
   return {
-    code: value['code'],
-    subAccessCodes: value['subAccessCodes'],
+    access_code: value['access_code'],
+    sub_access_codes: value['sub_access_codes'],
   };
 }

@@ -44,7 +44,7 @@ export interface UpdateRecreationResourceDto {
    * @type {Array<UpdateRecreationAccessCodeDto>}
    * @memberof UpdateRecreationResourceDto
    */
-  accessCodes?: Array<UpdateRecreationAccessCodeDto>;
+  access_codes?: Array<UpdateRecreationAccessCodeDto>;
   /**
    * Status code (open or closed)
    * @type {number}
@@ -84,10 +84,10 @@ export function UpdateRecreationResourceDtoFromJSONTyped(
       json['control_access_code'] == null
         ? undefined
         : json['control_access_code'],
-    accessCodes:
-      json['accessCodes'] == null
+    access_codes:
+      json['access_codes'] == null
         ? undefined
-        : (json['accessCodes'] as Array<any>).map(
+        : (json['access_codes'] as Array<any>).map(
             UpdateRecreationAccessCodeDtoFromJSON,
           ),
     status_code: json['status_code'] == null ? undefined : json['status_code'],
@@ -111,10 +111,10 @@ export function UpdateRecreationResourceDtoToJSONTyped(
   return {
     maintenance_standard_code: value['maintenance_standard_code'],
     control_access_code: value['control_access_code'],
-    accessCodes:
-      value['accessCodes'] == null
+    access_codes:
+      value['access_codes'] == null
         ? undefined
-        : (value['accessCodes'] as Array<any>).map(
+        : (value['access_codes'] as Array<any>).map(
             UpdateRecreationAccessCodeDtoToJSON,
           ),
     status_code: value['status_code'],

@@ -13,16 +13,16 @@ vi.mock('@fortawesome/react-fontawesome', () => ({
 
 describe('RecreationResourceAccessRow', () => {
   const createMockRecResource = (
-    accessCodes: RecreationResourceDetailUIModel['accessCodes'],
+    accessCodes: RecreationResourceDetailUIModel['access_codes'],
   ): RecreationResourceDetailUIModel =>
     ({
-      accessCodes,
+      access_codes: accessCodes,
     }) as RecreationResourceDetailUIModel;
 
   it('should render access codes when provided', () => {
     const recResource = createMockRecResource([
-      { code: 'ROAD', description: 'Road Access', subAccessCodes: [] },
-      { code: 'TRAIL', description: 'Trail Access', subAccessCodes: [] },
+      { code: 'ROAD', description: 'Road Access', sub_access_codes: [] },
+      { code: 'TRAIL', description: 'Trail Access', sub_access_codes: [] },
     ]);
 
     render(<RecreationResourceAccessRow recResource={recResource} />);
@@ -43,9 +43,9 @@ describe('RecreationResourceAccessRow', () => {
 
   it('should not render expand button when 3 or fewer access codes', () => {
     const recResource = createMockRecResource([
-      { code: 'ROAD', description: 'Road Access', subAccessCodes: [] },
-      { code: 'TRAIL', description: 'Trail Access', subAccessCodes: [] },
-      { code: 'WATER', description: 'Water Access', subAccessCodes: [] },
+      { code: 'ROAD', description: 'Road Access', sub_access_codes: [] },
+      { code: 'TRAIL', description: 'Trail Access', sub_access_codes: [] },
+      { code: 'WATER', description: 'Water Access', sub_access_codes: [] },
     ]);
 
     render(<RecreationResourceAccessRow recResource={recResource} />);
@@ -55,10 +55,10 @@ describe('RecreationResourceAccessRow', () => {
 
   it('should render expand button when more than 3 access codes', () => {
     const recResource = createMockRecResource([
-      { code: 'ROAD', description: 'Road Access', subAccessCodes: [] },
-      { code: 'TRAIL', description: 'Trail Access', subAccessCodes: [] },
-      { code: 'WATER', description: 'Water Access', subAccessCodes: [] },
-      { code: 'AIR', description: 'Air Access', subAccessCodes: [] },
+      { code: 'ROAD', description: 'Road Access', sub_access_codes: [] },
+      { code: 'TRAIL', description: 'Trail Access', sub_access_codes: [] },
+      { code: 'WATER', description: 'Water Access', sub_access_codes: [] },
+      { code: 'AIR', description: 'Air Access', sub_access_codes: [] },
     ]);
 
     render(<RecreationResourceAccessRow recResource={recResource} />);
@@ -68,11 +68,11 @@ describe('RecreationResourceAccessRow', () => {
 
   it('should show only first 3 items initially when more than 3 codes', () => {
     const recResource = createMockRecResource([
-      { code: 'ROAD', description: 'Road Access', subAccessCodes: [] },
-      { code: 'TRAIL', description: 'Trail Access', subAccessCodes: [] },
-      { code: 'WATER', description: 'Water Access', subAccessCodes: [] },
-      { code: 'AIR', description: 'Air Access', subAccessCodes: [] },
-      { code: 'RAIL', description: 'Rail Access', subAccessCodes: [] },
+      { code: 'ROAD', description: 'Road Access', sub_access_codes: [] },
+      { code: 'TRAIL', description: 'Trail Access', sub_access_codes: [] },
+      { code: 'WATER', description: 'Water Access', sub_access_codes: [] },
+      { code: 'AIR', description: 'Air Access', sub_access_codes: [] },
+      { code: 'RAIL', description: 'Rail Access', sub_access_codes: [] },
     ]);
 
     render(<RecreationResourceAccessRow recResource={recResource} />);
@@ -86,11 +86,11 @@ describe('RecreationResourceAccessRow', () => {
 
   it('should show correct count in expand button', () => {
     const recResource = createMockRecResource([
-      { code: 'ROAD', description: 'Road Access', subAccessCodes: [] },
-      { code: 'TRAIL', description: 'Trail Access', subAccessCodes: [] },
-      { code: 'WATER', description: 'Water Access', subAccessCodes: [] },
-      { code: 'AIR', description: 'Air Access', subAccessCodes: [] },
-      { code: 'RAIL', description: 'Rail Access', subAccessCodes: [] },
+      { code: 'ROAD', description: 'Road Access', sub_access_codes: [] },
+      { code: 'TRAIL', description: 'Trail Access', sub_access_codes: [] },
+      { code: 'WATER', description: 'Water Access', sub_access_codes: [] },
+      { code: 'AIR', description: 'Air Access', sub_access_codes: [] },
+      { code: 'RAIL', description: 'Rail Access', sub_access_codes: [] },
     ]);
 
     render(<RecreationResourceAccessRow recResource={recResource} />);
@@ -102,11 +102,11 @@ describe('RecreationResourceAccessRow', () => {
   it('should expand to show all items when expand button is clicked', async () => {
     const user = userEvent.setup();
     const recResource = createMockRecResource([
-      { code: 'ROAD', description: 'Road Access', subAccessCodes: [] },
-      { code: 'TRAIL', description: 'Trail Access', subAccessCodes: [] },
-      { code: 'WATER', description: 'Water Access', subAccessCodes: [] },
-      { code: 'AIR', description: 'Air Access', subAccessCodes: [] },
-      { code: 'RAIL', description: 'Rail Access', subAccessCodes: [] },
+      { code: 'ROAD', description: 'Road Access', sub_access_codes: [] },
+      { code: 'TRAIL', description: 'Trail Access', sub_access_codes: [] },
+      { code: 'WATER', description: 'Water Access', sub_access_codes: [] },
+      { code: 'AIR', description: 'Air Access', sub_access_codes: [] },
+      { code: 'RAIL', description: 'Rail Access', sub_access_codes: [] },
     ]);
 
     render(<RecreationResourceAccessRow recResource={recResource} />);
@@ -125,10 +125,10 @@ describe('RecreationResourceAccessRow', () => {
   it('should change button text to "Show Less" when expanded', async () => {
     const user = userEvent.setup();
     const recResource = createMockRecResource([
-      { code: 'ROAD', description: 'Road Access', subAccessCodes: [] },
-      { code: 'TRAIL', description: 'Trail Access', subAccessCodes: [] },
-      { code: 'WATER', description: 'Water Access', subAccessCodes: [] },
-      { code: 'AIR', description: 'Air Access', subAccessCodes: [] },
+      { code: 'ROAD', description: 'Road Access', sub_access_codes: [] },
+      { code: 'TRAIL', description: 'Trail Access', sub_access_codes: [] },
+      { code: 'WATER', description: 'Water Access', sub_access_codes: [] },
+      { code: 'AIR', description: 'Air Access', sub_access_codes: [] },
     ]);
 
     render(<RecreationResourceAccessRow recResource={recResource} />);
@@ -142,11 +142,11 @@ describe('RecreationResourceAccessRow', () => {
   it('should collapse back to 3 items when "Show Less" is clicked', async () => {
     const user = userEvent.setup();
     const recResource = createMockRecResource([
-      { code: 'ROAD', description: 'Road Access', subAccessCodes: [] },
-      { code: 'TRAIL', description: 'Trail Access', subAccessCodes: [] },
-      { code: 'WATER', description: 'Water Access', subAccessCodes: [] },
-      { code: 'AIR', description: 'Air Access', subAccessCodes: [] },
-      { code: 'RAIL', description: 'Rail Access', subAccessCodes: [] },
+      { code: 'ROAD', description: 'Road Access', sub_access_codes: [] },
+      { code: 'TRAIL', description: 'Trail Access', sub_access_codes: [] },
+      { code: 'WATER', description: 'Water Access', sub_access_codes: [] },
+      { code: 'AIR', description: 'Air Access', sub_access_codes: [] },
+      { code: 'RAIL', description: 'Rail Access', sub_access_codes: [] },
     ]);
 
     render(<RecreationResourceAccessRow recResource={recResource} />);
@@ -174,7 +174,7 @@ describe('RecreationResourceAccessRow', () => {
       {
         code: 'ROAD',
         description: 'Road Access',
-        subAccessCodes: [
+        sub_access_codes: [
           { code: '4W', description: '4-Wheel Drive' },
           { code: '2W', description: '2-Wheel Drive' },
         ],
@@ -188,13 +188,13 @@ describe('RecreationResourceAccessRow', () => {
     expect(screen.getByText('2-Wheel Drive')).toBeInTheDocument();
   });
 
-  it('should handle access codes with undefined subAccessCodes', () => {
+  it('should handle access codes with undefined sub_access_codes', () => {
     const recResource = createMockRecResource([
       {
         code: 'ROAD',
         description: 'Road Access',
-        subAccessCodes: undefined,
-      } as any,
+        sub_access_codes: [],
+      },
     ]);
 
     render(<RecreationResourceAccessRow recResource={recResource} />);

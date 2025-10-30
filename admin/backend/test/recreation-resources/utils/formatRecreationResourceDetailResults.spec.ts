@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest';
  * `formatRecreationResourceDetailResults`.
  *
  * Notes on current implementation:
- * - Accesses are returned as `accessCodes: Array<{ code, description, subAccessCodes: Array<{code,description}> }>`
+ * - Accesses are returned as `access_codes: Array<{ code, description, sub_access_codes: Array<{code,description}> }>`
  * - Maintenance is returned as `maintenance_standard` (object) when available
  * - Defaults are used for missing status and other optional fields
  */
@@ -104,17 +104,17 @@ describe('formatRecreationResourceDetailResults', () => {
     // resource type
     expect(result.rec_resource_type).toBe('Campground');
 
-    // accessCodes - grouped by access_code and sorted by code
-    expect(result.accessCodes).toEqual([
+    // access_codes - grouped by access_code and sorted by code
+    expect(result.access_codes).toEqual([
       {
         code: 'ROAD',
         description: 'Road',
-        subAccessCodes: [{ code: '4W', description: '4 wheel drive' }],
+        sub_access_codes: [{ code: '4W', description: '4 wheel drive' }],
       },
       {
         code: 'TRAIL',
         description: 'Trail',
-        subAccessCodes: [],
+        sub_access_codes: [],
       },
     ]);
 
@@ -181,7 +181,7 @@ describe('formatRecreationResourceDetailResults', () => {
     expect(result.driving_directions).toBeUndefined();
     expect(result.maintenance_standard).toBeUndefined();
     expect(result.rec_resource_type).toBe('');
-    expect(result.accessCodes).toEqual([]);
+    expect(result.access_codes).toEqual([]);
     expect(result.recreation_activity).toEqual([]);
     expect(result.recreation_status).toEqual({
       description: OPEN_STATUS.DESCRIPTION,
@@ -228,10 +228,10 @@ describe('formatRecreationResourceDetailResults', () => {
     const result = formatRecreationResourceDetailResults(input as any, []);
 
     // sorted by code -> A then B
-    expect(result.accessCodes.map((a: any) => a.code)).toEqual(['A', 'B']);
-    const a = result.accessCodes[0];
-    expect(result.accessCodes.length).toBeGreaterThanOrEqual(1);
-    expect(a!.subAccessCodes.map((s: any) => s.code)).toEqual(['a1', 'a2']);
+    expect(result.access_codes.map((a: any) => a.code)).toEqual(['A', 'B']);
+    const a = result.access_codes[0];
+    expect(result.access_codes.length).toBeGreaterThanOrEqual(1);
+    expect(a!.sub_access_codes.map((s: any) => s.code)).toEqual(['a1', 'a2']);
   });
 
   it('should set has_toilet and has_table to false if recreation_structure is not an array', () => {

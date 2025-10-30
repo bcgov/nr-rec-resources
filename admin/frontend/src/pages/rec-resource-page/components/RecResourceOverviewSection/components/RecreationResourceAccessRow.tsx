@@ -13,7 +13,7 @@ import {
 } from 'react-bootstrap';
 
 interface AccessCodeCardProps {
-  accessCode: RecreationResourceDetailUIModel['accessCodes'][number];
+  accessCode: RecreationResourceDetailUIModel['access_codes'][number];
 }
 
 const AccessCodeCard: React.FC<AccessCodeCardProps> = ({ accessCode }) => (
@@ -27,10 +27,10 @@ const AccessCodeCard: React.FC<AccessCodeCardProps> = ({ accessCode }) => (
       </Stack>
     </Card.Header>
 
-    {accessCode.subAccessCodes.length > 0 && (
+    {accessCode.sub_access_codes.length > 0 && (
       <ListGroup>
         <Stack direction="vertical" gap={2}>
-          {accessCode.subAccessCodes.map((subCode) => (
+          {accessCode.sub_access_codes.map((subCode) => (
             <ListGroup.Item
               key={subCode.code}
               className="d-flex align-items-center py-2 px-3 border-0 bg-light"
@@ -56,13 +56,13 @@ export const RecreationResourceAccessRow: FC<{
 }> = ({ recResource }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  if (!recResource.accessCodes?.length) {
+  if (!recResource.access_codes?.length) {
     return '-';
   }
 
-  const groupedAccessCodes = recResource.accessCodes.map((accessCode) => ({
+  const groupedAccessCodes = recResource.access_codes.map((accessCode) => ({
     ...accessCode,
-    subAccessCodes: accessCode.subAccessCodes || [],
+    subAccessCodes: accessCode.sub_access_codes || [],
   }));
 
   const toggleExpand = () => setIsExpanded(!isExpanded);
