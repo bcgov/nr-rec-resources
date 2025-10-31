@@ -28,6 +28,7 @@ import {
 } from './dto/recreation-resource.dto';
 import { AlphabeticalRecreationResourceDto } from './dto/alphabetical-recreation-resource.dto';
 import { FsaResourceService } from './service/fsa-resource.service';
+import { RecreationResourceGeometry } from './dto/recreation-resource-geometry.dto';
 
 @ApiTags('recreation-resource')
 @Controller({ path: 'recreation-resource', version: '1' })
