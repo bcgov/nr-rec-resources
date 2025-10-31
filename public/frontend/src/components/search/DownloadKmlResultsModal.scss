@@ -1,0 +1,99 @@
+@import '@/styles/variables.scss';
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+
+.modal.map-download-modal {
+  .modal-dialog {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 375px;
+  }
+  .modal-content {
+    background-color: $colorBackgroundGrey;
+    .map-download-modal-content {
+      &--header {
+        display: flex;
+        justify-content: space-between;
+        button.btn {
+          color: $colorGrey;
+          height: 24px;
+          width: 24px;
+          font-size: 1.25rem;
+          padding: 0;
+        }
+      }
+      .expand-link {
+        margin: 0;
+        padding: 0;
+        color: $colorBlue;
+        font-weight: normal;
+
+        svg {
+          font-size: 1rem;
+          margin-left: 6px;
+        }
+
+        &:focus {
+          box-shadow: none;
+          color: $colorBlue;
+        }
+      }
+      .map-download-options {
+        background-color: $colorWhite;
+        border: 1px solid $colorGreyMed;
+        border-radius: 4px;
+        margin-top: 16px;
+        width: 100%;
+
+        .map-download-option-label {
+          margin: 1px 0; // optical
+          display: flex;
+          width: 100%;
+          align-items: center;
+          justify-content: space-between;
+          border: none;
+          line-height: 1.125rem;
+          background-color: inherit;
+        }
+      }
+      .filter-group-container {
+        margin-top: 0;
+      }
+    }
+    .modal-footer {
+      .clear-filter-link {
+        margin: 0;
+        text-decoration: underline;
+      }
+    }
+    .download-button:disabled {
+      background-color: $colorGreyLight;
+      border: none;
+    }
+
+    .title {
+      color: $colorBlack;
+      margin-bottom: 20px;
+      font-weight: bold;
+      font-size: 23.33px;
+      line-height: 21.3px;
+      letter-spacing: 0px;
+    }
+
+    .description {
+      margin-bottom: 20px;
+      font-weight: 400;
+      font-size: 13.33px;
+      line-height: 21.3px;
+      letter-spacing: 0px;
+    }
+  }
+}
+
+.close-filter-btn {
+  svg {
+    vertical-align: 1px; // optical
+  }
+}
