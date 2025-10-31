@@ -17,6 +17,7 @@ import type {
   AlphabeticalRecreationResourceDto,
   PaginatedRecreationResourceDto,
   RecreationResourceDetailDto,
+  RecreationResourceSearchWithGeometryDto,
   RecreationSuggestionDto,
   SiteOperatorDto,
 } from '../models/index';
@@ -27,6 +28,8 @@ import {
   PaginatedRecreationResourceDtoToJSON,
   RecreationResourceDetailDtoFromJSON,
   RecreationResourceDetailDtoToJSON,
+  RecreationResourceSearchWithGeometryDtoFromJSON,
+  RecreationResourceSearchWithGeometryDtoToJSON,
   RecreationSuggestionDtoFromJSON,
   RecreationSuggestionDtoToJSON,
   SiteOperatorDtoFromJSON,
@@ -52,6 +55,21 @@ export interface GetSiteOperatorByIdRequest {
 }
 
 export interface SearchRecreationResourcesRequest {
+  filter?: string;
+  limit?: number;
+  page?: number;
+  activities?: string;
+  type?: string;
+  district?: string;
+  access?: string;
+  facilities?: string;
+  status?: string;
+  fees?: string;
+  lat?: number;
+  lon?: number;
+}
+
+export interface SearchRecreationResourcesWithGeometryRequest {
   filter?: string;
   limit?: number;
   page?: number;
@@ -368,6 +386,98 @@ export class RecreationResourceApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<PaginatedRecreationResourceDto> {
     const response = await this.searchRecreationResourcesRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   *        Returns a non paginated list of recreation resources and related data with geometry appended.       The unpaginated summary data (counts, filters, extent) is based on the first 5000 matching records only, due       to internal limits for performance reasons. This limit does not affect the main paginated resource list.
+   * Search recreation resources with geometry
+   */
+  async searchRecreationResourcesWithGeometryRaw(
+    requestParameters: SearchRecreationResourcesWithGeometryRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<
+    runtime.ApiResponse<Array<RecreationResourceSearchWithGeometryDto>>
+  > {
+    const queryParameters: any = {};
+
+    if (requestParameters['filter'] != null) {
+      queryParameters['filter'] = requestParameters['filter'];
+    }
+
+    if (requestParameters['limit'] != null) {
+      queryParameters['limit'] = requestParameters['limit'];
+    }
+
+    if (requestParameters['page'] != null) {
+      queryParameters['page'] = requestParameters['page'];
+    }
+
+    if (requestParameters['activities'] != null) {
+      queryParameters['activities'] = requestParameters['activities'];
+    }
+
+    if (requestParameters['type'] != null) {
+      queryParameters['type'] = requestParameters['type'];
+    }
+
+    if (requestParameters['district'] != null) {
+      queryParameters['district'] = requestParameters['district'];
+    }
+
+    if (requestParameters['access'] != null) {
+      queryParameters['access'] = requestParameters['access'];
+    }
+
+    if (requestParameters['facilities'] != null) {
+      queryParameters['facilities'] = requestParameters['facilities'];
+    }
+
+    if (requestParameters['status'] != null) {
+      queryParameters['status'] = requestParameters['status'];
+    }
+
+    if (requestParameters['fees'] != null) {
+      queryParameters['fees'] = requestParameters['fees'];
+    }
+
+    if (requestParameters['lat'] != null) {
+      queryParameters['lat'] = requestParameters['lat'];
+    }
+
+    if (requestParameters['lon'] != null) {
+      queryParameters['lon'] = requestParameters['lon'];
+    }
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resource/geometry`,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      jsonValue.map(RecreationResourceSearchWithGeometryDtoFromJSON),
+    );
+  }
+
+  /**
+   *        Returns a non paginated list of recreation resources and related data with geometry appended.       The unpaginated summary data (counts, filters, extent) is based on the first 5000 matching records only, due       to internal limits for performance reasons. This limit does not affect the main paginated resource list.
+   * Search recreation resources with geometry
+   */
+  async searchRecreationResourcesWithGeometry(
+    requestParameters: SearchRecreationResourcesWithGeometryRequest = {},
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<Array<RecreationResourceSearchWithGeometryDto>> {
+    const response = await this.searchRecreationResourcesWithGeometryRaw(
       requestParameters,
       initOverrides,
     );
