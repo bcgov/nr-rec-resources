@@ -28,11 +28,13 @@ import {
 } from '@/service/custom-models';
 import { trackEvent } from '@shared/utils';
 import { LoadingButton } from '@/components/LoadingButton';
+import DownloadKmlResultsModal from './DownloadKmlResultsModal';
 
 const SearchPage = () => {
   const navigate = useNavigate({ from: '/search' });
   const searchParams = useSearch({ from: '/search/' });
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
 
   const initialPage = useInitialPageFromSearchParams();
   const lat = searchParams.lat;
@@ -131,10 +133,13 @@ const SearchPage = () => {
     });
   };
 
+  const handleDownloadClick = useCallback(() => {
+    setIsDownloadModalOpen(true);
+  }, []);
+
   const isFetchingFirstPage =
     isFetching && !isFetchingPreviousPage && !isFetchingNextPage;
   const isLocationSearchResults = lat && lon && community;
-
   return (
     <>
       <SearchBanner />
@@ -192,6 +197,7 @@ const SearchPage = () => {
                           within <b>50 km</b> radius of <b>{community}</b>
                         </span>
                       )}
+                      <span onClick={handleDownloadClick}> Download KML</span>
                     </div>
                     <SearchViewControls variant="map" />
                   </div>
@@ -242,6 +248,22 @@ const SearchPage = () => {
             )}
           </Col>
         </Row>
+        <DownloadKmlResultsModal
+          isOpen={isDownloadModalOpen}
+          setIsOpen={setIsDownloadModalOpen}
+          filter={searchFilter ?? undefined}
+          district={searchParams.get('district') ?? undefined}
+          activities={searchParams.get('activities') ?? undefined}
+          access={searchParams.get('access') ?? undefined}
+          facilities={searchParams.get('facilities') ?? undefined}
+          status={searchParams.get('status') ?? undefined}
+          fees={searchParams.get('fees') ?? undefined}
+          lat={lat ? Number(lat) : undefined}
+          lon={lon ? Number(lon) : undefined}
+          community={community ?? undefined}
+          type={searchParams.get('type') ?? undefined}
+          searchResultsNumber={totalCount}
+        />
       </Stack>
     </>
   );

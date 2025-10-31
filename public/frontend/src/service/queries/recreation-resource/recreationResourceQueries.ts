@@ -8,6 +8,7 @@ import {
   SiteOperatorDto,
   RecreationResourceApi,
   Configuration,
+  RecreationResourceSearchWithGeometryDto,
 } from '@/service/recreation-resource';
 import { useRecreationResourceApi } from '@/service/hooks/useRecreationResourceApi';
 import { getBasePath } from '@/service/hooks/helpers';
@@ -290,6 +291,29 @@ export const useAlphabeticalResources = (letter: string, type?: string) => {
       return response;
     },
     enabled: !!letter && letter.length > 0,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+/**
+ * Fetch recreation resources alphabetically by letter.
+ *
+ * @param {string} letter - The letter to filter by (A-Z or # for numerical)
+ * @param {string} [type] - Optional recreation resource type code to filter by
+ */
+export const useSearchRecreationResourcesGeometry = (
+  params: SearchParams,
+  isEnabled: boolean,
+) => {
+  const api = useRecreationResourceApi();
+
+  return useQuery<RecreationResourceSearchWithGeometryDto[]>({
+    queryKey: ['recreationResourcesGeometry', params],
+    queryFn: async (): Promise<RecreationResourceSearchWithGeometryDto[]> => {
+      const response = await api.searchRecreationResourcesWithGeometry(params);
+      return response;
+    },
+    enabled: isEnabled,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };

@@ -9,7 +9,11 @@ import { getRecreationResourceSelect } from 'src/recreation-resource/utils/getRe
 import { RecreationResourceDetailDto } from 'src/recreation-resource/dto/recreation-resource.dto';
 import { RecreationResourceImageSize } from 'src/recreation-resource/dto/recreation-resource-image.dto';
 import { AlphabeticalRecreationResourceDto } from 'src/recreation-resource/dto/alphabetical-recreation-resource.dto';
-import { getRecreationResourceSpatialFeatureGeometry } from '@prisma-generated-sql';
+import {
+  getRecreationResourceSpatialFeatureGeometry,
+  getMultipleResourcesSpatialFeatureGeometry,
+} from '@prisma-generated-sql';
+import { RecreationResourceGeometry } from '../dto/recreation-resource-geometry.dto';
 
 @Injectable()
 export class RecreationResourceService {
@@ -110,5 +114,15 @@ export class RecreationResourceService {
       letter,
       type,
     );
+  }
+
+  async getMultipleGeometry(
+    ids: string[],
+  ): Promise<RecreationResourceGeometry[]> {
+    const multipleResourcesSpatialFeatureGeometryResult: getMultipleResourcesSpatialFeatureGeometry.Result[] =
+      await this.prisma.$queryRawTyped(
+        getMultipleResourcesSpatialFeatureGeometry(ids),
+      );
+    return multipleResourcesSpatialFeatureGeometryResult;
   }
 }
