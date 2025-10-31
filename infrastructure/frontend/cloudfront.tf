@@ -113,6 +113,7 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = aws_s3_bucket.frontend.bucket
     response_headers_policy_id = aws_cloudfront_response_headers_policy.csp_policy.id
+    compress = true
 
     forwarded_values {
       query_string = false

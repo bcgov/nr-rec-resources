@@ -36,6 +36,7 @@
     "@aws-sdk/client-cloudwatch": "^3.879.0",
     "@aws-sdk/client-s3": "^3.911.0",
     "@aws-sdk/s3-request-presigner": "^3.911.0",
+    "@bcgov/bc-sans": "^2.1.0",
     "@bcgov/design-system-react-components": "^0.5.1",
     "@bcgov/prp-map": "^0.0.22",
     "@fortawesome/react-fontawesome": "^3.0.2",
