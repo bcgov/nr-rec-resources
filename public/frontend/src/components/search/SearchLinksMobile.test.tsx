@@ -1,6 +1,6 @@
 import { vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { renderWithRouter } from '@/test-utils';
 import SearchLinksMobile from '@/components/search/SearchLinksMobile';
 import {
   SEARCH_LINKS,
@@ -12,20 +12,16 @@ vi.mock('@shared/utils', () => ({
   trackEvent: vi.fn(),
 }));
 
-const renderWithRouter = (component: React.ReactElement) => {
-  return render(<BrowserRouter>{component}</BrowserRouter>);
-};
-
 describe('SearchLinksMobile', () => {
-  it('renders the mobile button', () => {
-    renderWithRouter(<SearchLinksMobile />);
+  it('renders the mobile button', async () => {
+    await renderWithRouter(<SearchLinksMobile />);
     expect(
       screen.getByRole('button', { name: SEARCH_LINKS_TITLE }),
     ).toBeInTheDocument();
   });
 
-  it('opens modal when button is clicked', () => {
-    renderWithRouter(<SearchLinksMobile />);
+  it('opens modal when button is clicked', async () => {
+    await renderWithRouter(<SearchLinksMobile />);
 
     const button = screen.getByRole('button', { name: SEARCH_LINKS_TITLE });
     fireEvent.click(button);
@@ -38,8 +34,8 @@ describe('SearchLinksMobile', () => {
     });
   });
 
-  it('renders all search links in modal', () => {
-    renderWithRouter(<SearchLinksMobile />);
+  it('renders all search links in modal', async () => {
+    await renderWithRouter(<SearchLinksMobile />);
 
     const button = screen.getByRole('button', { name: SEARCH_LINKS_TITLE });
     fireEvent.click(button);
@@ -49,23 +45,23 @@ describe('SearchLinksMobile', () => {
     });
   });
 
-  it('has correct href attributes for modal links', () => {
-    renderWithRouter(<SearchLinksMobile />);
+  it('has correct href attributes for modal links', async () => {
+    await renderWithRouter(<SearchLinksMobile />);
 
     const button = screen.getByRole('button', { name: SEARCH_LINKS_TITLE });
     fireEvent.click(button);
 
     SEARCH_LINKS.forEach((link) => {
       const linkElement = screen.getByText(link.label);
-      expect(linkElement).toHaveAttribute(
-        'href',
-        link.path + (link.search ? `?${link.search}` : ''),
-      );
+      const expectedHref = link.search
+        ? `${link.path}?${new URLSearchParams(link.search).toString()}`
+        : link.path;
+      expect(linkElement).toHaveAttribute('href', expectedHref);
     });
   });
 
   it('closes modal when close button is clicked', async () => {
-    renderWithRouter(<SearchLinksMobile />);
+    await renderWithRouter(<SearchLinksMobile />);
 
     const openButton = screen.getByRole('button', { name: SEARCH_LINKS_TITLE });
     fireEvent.click(openButton);
@@ -81,7 +77,7 @@ describe('SearchLinksMobile', () => {
   });
 
   it('closes modal when a link is clicked', async () => {
-    renderWithRouter(<SearchLinksMobile />);
+    await renderWithRouter(<SearchLinksMobile />);
 
     const openButton = screen.getByRole('button', { name: SEARCH_LINKS_TITLE });
     fireEvent.click(openButton);
@@ -96,8 +92,8 @@ describe('SearchLinksMobile', () => {
     });
   });
 
-  it('calls trackEvent when button is clicked', () => {
-    renderWithRouter(<SearchLinksMobile />);
+  it('calls trackEvent when button is clicked', async () => {
+    await renderWithRouter(<SearchLinksMobile />);
 
     const button = screen.getByRole('button', { name: SEARCH_LINKS_TITLE });
     fireEvent.click(button);
@@ -109,8 +105,8 @@ describe('SearchLinksMobile', () => {
     });
   });
 
-  it('calls trackEvent when a link is clicked', () => {
-    renderWithRouter(<SearchLinksMobile />);
+  it('calls trackEvent when a link is clicked', async () => {
+    await renderWithRouter(<SearchLinksMobile />);
 
     const openButton = screen.getByRole('button', { name: SEARCH_LINKS_TITLE });
     fireEvent.click(openButton);

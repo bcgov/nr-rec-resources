@@ -5,7 +5,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@shared/index', () => ({
   Breadcrumbs: () => <nav data-testid="breadcrumbs">Breadcrumbs</nav>,
-  useBreadcrumbs: () => {},
 }));
 vi.mock('@/pages/rec-resource-page/hooks/useRecResource', () => ({
   useRecResource: vi.fn(),

@@ -1,24 +1,28 @@
 import { useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import { filterChipStore } from '@/store';
 
 const PRESERVED_SEARCH_PARAMS = ['page', 'filter', 'view', 'base_layer'];
 
 export const useClearFilters = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const searchParams = useSearch({ from: '/search/' });
 
   const clearFilters = useCallback(() => {
-    const newSearchParams = new URLSearchParams();
+    const newSearchParams: Record<string, string> = {};
 
     PRESERVED_SEARCH_PARAMS.forEach((key) => {
-      if (searchParams.has(key)) {
-        newSearchParams.set(key, searchParams.get(key)!);
+      const value = searchParams[key as keyof typeof searchParams];
+      if (value) {
+        newSearchParams[key] = String(value);
       }
     });
 
-    setSearchParams(newSearchParams);
+    navigate({
+      search: () => newSearchParams,
+    });
     filterChipStore.setState(() => []);
-  }, [searchParams, setSearchParams]);
+  }, [searchParams, navigate]);
 
   return clearFilters;
 };

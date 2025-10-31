@@ -15,7 +15,7 @@ vi.mock('@/services/hooks/recreation-resource-admin/helpers', () => ({
 import { createRetryHandler } from '@/services/hooks/recreation-resource-admin/helpers';
 import { useRecreationResourceAdminApiClient } from '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient';
 import { useUploadResourceImage } from '@/services/hooks/recreation-resource-admin/useUploadResourceImage';
-import { reactQueryWrapper } from '@test/test-utils/reactQueryWrapper';
+import { TestQueryClientProvider } from '@test/test-utils';
 import { renderHook } from '@testing-library/react';
 
 describe('useUploadResourceImage', () => {
@@ -32,7 +32,7 @@ describe('useUploadResourceImage', () => {
 
   it('should return a mutation function', () => {
     const { result } = renderHook(() => useUploadResourceImage(), {
-      wrapper: reactQueryWrapper,
+      wrapper: TestQueryClientProvider,
     });
 
     expect(result.current).toHaveProperty('mutateAsync');
@@ -41,7 +41,7 @@ describe('useUploadResourceImage', () => {
 
   it('should configure retry with createRetryHandler', () => {
     renderHook(() => useUploadResourceImage(), {
-      wrapper: reactQueryWrapper,
+      wrapper: TestQueryClientProvider,
     });
 
     expect(createRetryHandler).toHaveBeenCalled();
@@ -49,7 +49,7 @@ describe('useUploadResourceImage', () => {
 
   it('should use the API client for upload', () => {
     renderHook(() => useUploadResourceImage(), {
-      wrapper: reactQueryWrapper,
+      wrapper: TestQueryClientProvider,
     });
 
     expect(useRecreationResourceAdminApiClient).toHaveBeenCalled();
@@ -68,7 +68,7 @@ describe('useUploadResourceImage', () => {
     });
 
     const { result } = renderHook(() => useUploadResourceImage(), {
-      wrapper: reactQueryWrapper,
+      wrapper: TestQueryClientProvider,
     });
 
     await result.current.mutateAsync(mockParams);

@@ -9,6 +9,7 @@ import {
   createRetryHandler,
   transformRecreationResourceImages,
 } from './helpers';
+import { RECREATION_RESOURCE_QUERY_KEYS } from './queryKeys';
 
 export const useGetImagesByRecResourceId = (
   recResourceId?: string,
@@ -18,7 +19,7 @@ export const useGetImagesByRecResourceId = (
     useRecreationResourceAdminApiClient();
 
   return useQuery<RecreationResourceImageDto[], ResponseError>({
-    queryKey: ['getImagesByRecResourceId', recResourceId],
+    queryKey: RECREATION_RESOURCE_QUERY_KEYS.images(recResourceId!),
     initialData: [],
     queryFn: async () => {
       const images =

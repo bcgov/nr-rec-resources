@@ -3,15 +3,15 @@ import { getFilterState, haveFiltersChanged } from './helpers';
 import { URLSearchFilterParams } from './types';
 
 describe('getFilterState', () => {
-  it('should extract filter parameters from URLSearchParams', () => {
-    const searchParams = new URLSearchParams({
+  it('should extract filter parameters from search params object', () => {
+    const searchParams = {
       activities: 'hiking',
       type: 'outdoor',
       filter: 'popular',
       district: 'north',
       access: 'public',
       facilities: 'parking',
-    });
+    };
 
     const result = getFilterState(searchParams);
 
@@ -26,9 +26,9 @@ describe('getFilterState', () => {
   });
 
   it('should return undefined for missing parameters', () => {
-    const searchParams = new URLSearchParams({
+    const searchParams = {
       activities: 'hiking',
-    });
+    };
 
     const result = getFilterState(searchParams);
 

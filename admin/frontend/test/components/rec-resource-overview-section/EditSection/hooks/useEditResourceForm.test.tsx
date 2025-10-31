@@ -1,5 +1,5 @@
 import { useEditResourceForm } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/hooks/useEditResourceForm';
-import { ROUTE_PATHS } from '@/routes';
+import { ROUTE_PATHS } from '@/constants/routes';
 import {
   RecreationResourceDetailUIModel,
   useUpdateRecreationResource,
@@ -7,7 +7,6 @@ import {
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { type ReactNode, createElement } from 'react';
-import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock dependencies - must be before imports
@@ -24,7 +23,7 @@ vi.mock(
   }),
 );
 
-// Create a wrapper with QueryClient and Router for tests
+// Create a wrapper with QueryClient for tests (no router needed since navigation is mocked)
 const createWrapper = () => {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -35,11 +34,7 @@ const createWrapper = () => {
   });
 
   return ({ children }: { children: ReactNode }) =>
-    createElement(
-      MemoryRouter,
-      {},
-      createElement(QueryClientProvider, { client: queryClient }, children),
-    );
+    createElement(QueryClientProvider, { client: queryClient }, children);
 };
 
 describe('useEditResourceForm', () => {
@@ -313,9 +308,10 @@ describe('useEditResourceForm', () => {
       );
 
       await waitFor(() => {
-        expect(mockNavigateWithQueryParams).toHaveBeenCalledWith(
-          ROUTE_PATHS.REC_RESOURCE_OVERVIEW.replace(':id', '123'),
-        );
+        expect(mockNavigateWithQueryParams).toHaveBeenCalledWith({
+          to: ROUTE_PATHS.REC_RESOURCE_OVERVIEW,
+          params: { id: '123' },
+        });
       });
     });
 

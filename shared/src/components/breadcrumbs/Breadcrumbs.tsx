@@ -1,12 +1,12 @@
 /**
  * Breadcrumb Component
  *
- * A flexible breadcrumb navigation component that supports both
- * store-driven and manually provided breadcrumb items.
+ * A flexible breadcrumb navigation component that reads breadcrumbs
+ * from TanStack Router's route context or accepts manual items.
  */
 
 import { Breadcrumb } from 'react-bootstrap';
-import { useBreadcrumbItems } from './store/breadcrumbStore';
+import { useMatches } from '@tanstack/react-router';
 import { BreadcrumbItem } from './types';
 import {
   getBreadcrumbItemProps,
@@ -18,7 +18,7 @@ import './Breadcrumbs.scss';
 export interface BreadcrumbsProps {
   /**
    * Optional array of breadcrumb items.
-   * If not provided, uses the global breadcrumb store.
+   * If not provided, reads from route context via useMatches().
    */
   items?: BreadcrumbItem[];
 
@@ -44,7 +44,7 @@ export interface BreadcrumbsProps {
  * Breadcrumb navigation component
  *
  * Renders a breadcrumb navigation bar using React Bootstrap.
- * Supports both store-driven and manually provided breadcrumb items.
+ * Reads breadcrumbs from route context or uses manually provided items.
  */
 export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
   items,
@@ -52,10 +52,16 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({
   showHomeIcon = true,
   ariaLabel = 'Breadcrumb navigation',
 }) => {
-  const storeItems = useBreadcrumbItems();
+  const matches = useMatches();
 
-  // Use provided items or fall back to store items
-  const breadcrumbItems = items || storeItems;
+  // Get breadcrumb function from the last matched route's context
+  const lastMatch = matches[matches.length - 1];
+  const breadcrumbFn = (lastMatch?.context as any)?.breadcrumb;
+  const loaderData = lastMatch?.loaderData;
+
+  // Generate breadcrumbs from route context or use provided items
+  const routeBreadcrumbs = breadcrumbFn?.(loaderData) || [];
+  const breadcrumbItems = items || routeBreadcrumbs;
 
   return (
     <Breadcrumb

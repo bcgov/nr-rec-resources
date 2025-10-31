@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from '@tanstack/react-router';
 import { Modal } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
@@ -69,7 +69,8 @@ const SearchLinksMobile = () => {
               {SEARCH_LINKS.map((link) => (
                 <Link
                   key={link.trackingName}
-                  to={{ pathname: link.path, search: link.search }}
+                  to={link.path}
+                  search={link.search}
                   className="search-link-item"
                   onClick={() => handleLinkClick(link.trackingName)}
                 >

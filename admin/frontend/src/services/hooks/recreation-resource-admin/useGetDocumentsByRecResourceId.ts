@@ -3,6 +3,7 @@ import { useRecreationResourceAdminApiClient } from '@/services/hooks/recreation
 import { addErrorNotification } from '@/store/notificationStore';
 import { QueryOptions, useQuery } from '@tanstack/react-query';
 import { createRetryHandler, transformRecreationResourceDocs } from './helpers';
+import { RECREATION_RESOURCE_QUERY_KEYS } from './queryKeys';
 
 export const useGetDocumentsByRecResourceId = (
   recResourceId?: string,
@@ -12,7 +13,7 @@ export const useGetDocumentsByRecResourceId = (
     useRecreationResourceAdminApiClient();
 
   return useQuery<RecreationResourceDocDto[], ResponseError>({
-    queryKey: ['getDocumentsByRecResourceId', recResourceId],
+    queryKey: RECREATION_RESOURCE_QUERY_KEYS.documents(recResourceId!),
     initialData: [],
     queryFn: async () => {
       const docs =

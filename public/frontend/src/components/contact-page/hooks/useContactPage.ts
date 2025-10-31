@@ -1,14 +1,12 @@
 import { useCallback, useMemo, useState } from 'react';
-import { useParams } from 'react-router';
-import { useGetRecreationResourceById } from '@/service/queries/recreation-resource/recreationResourceQueries';
-import { useBreadcrumbs } from '@shared/components/breadcrumbs';
 import { getContactEmailLink } from '@/utils/getContactEmailLink';
 import {
   type ContactTopic,
   renderContactDetails,
-} from '../utils/contactDetailsRenderer';
-import { CONTACT_TOPICS } from '../constants';
-import { ROUTE_TITLES } from '@/routes';
+} from '@/components/contact-page/utils/contactDetailsRenderer';
+import { RecreationResourceDetailModel } from '@/service/custom-models';
+import { CONTACT_TOPICS } from '@/components/contact-page/constants';
+import { ROUTE_TITLES } from '@/constants/routes';
 
 interface UseContactPageReturn {
   // Contact form state
@@ -23,22 +21,11 @@ interface UseContactPageReturn {
 
 /**
  * Comprehensive hook that manages all business logic for the ContactPage component
- * Handles resource data, breadcrumbs, contact form state, and page structure
+ * Handles contact form state and page structure
  */
-export const useContactPage = (): UseContactPageReturn => {
-  // Get resource ID from URL params
-  const { id: rec_resource_id } = useParams();
-
-  // Fetch resource data
-  const { data: recResource } = useGetRecreationResourceById({
-    id: rec_resource_id,
-  });
-
-  // Set up breadcrumbs based on context
-  useBreadcrumbs({
-    context: { resourceName: recResource?.name, resourceId: rec_resource_id },
-  });
-
+export const useContactPage = (
+  recResource: RecreationResourceDetailModel,
+): UseContactPageReturn => {
   // Contact form state
   const [selectedTopic, setSelectedTopic] = useState<ContactTopic>(
     CONTACT_TOPICS.RESERVATIONS,

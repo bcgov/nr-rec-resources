@@ -1,6 +1,6 @@
 import { describe, expect, it, Mock, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { screen } from '@testing-library/react';
+import { renderWithRouter } from '@/test-utils';
 import RecResourceCard from './RecResourceCard';
 import '@testing-library/jest-dom';
 import { getImageList } from '@/components/rec-resource/card/helpers';
@@ -27,11 +27,6 @@ vi.mock('@/components/rec-resource/card/helpers', () => ({
   getImageList: vi.fn(),
 }));
 
-// Helper function to render component with router
-const renderWithRouter = (ui: React.ReactElement) => {
-  return render(<BrowserRouter>{ui}</BrowserRouter>);
-};
-
 describe('RecResourceCard', () => {
   const mockRecreationResource = {
     rec_resource_id: '123',
@@ -49,10 +44,10 @@ describe('RecResourceCard', () => {
     vi.resetAllMocks();
   });
 
-  it('renders the card with all components and images', () => {
+  it('renders the card with all components and images', async () => {
     (getImageList as Mock).mockReturnValue(['image1.jpg']);
 
-    renderWithRouter(
+    await renderWithRouter(
       <RecResourceCard recreationResource={mockRecreationResource} />,
     );
 
@@ -74,10 +69,10 @@ describe('RecResourceCard', () => {
     expect(screen.queryByTestId('rst-svg-logo')).not.toBeInTheDocument();
   });
 
-  it('renders the SVG logo when no images are available', () => {
+  it('renders the SVG logo when no images are available', async () => {
     (getImageList as Mock).mockReturnValue([]);
 
-    renderWithRouter(
+    await renderWithRouter(
       <RecResourceCard recreationResource={mockRecreationResource} />,
     );
 
@@ -90,7 +85,7 @@ describe('RecResourceCard', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('renders without activities when none are provided', () => {
+  it('renders without activities when none are provided', async () => {
     (getImageList as Mock).mockReturnValue(['image1.jpg']);
 
     const noActivitiesResource = {
@@ -98,7 +93,7 @@ describe('RecResourceCard', () => {
       recreation_activity: [],
     } as unknown as RecreationResourceSearchModel;
 
-    renderWithRouter(
+    await renderWithRouter(
       <RecResourceCard recreationResource={noActivitiesResource} />,
     );
 
@@ -108,7 +103,7 @@ describe('RecResourceCard', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('renders without resource type when none is provided', () => {
+  it('renders without resource type when none is provided', async () => {
     (getImageList as Mock).mockReturnValue(['image1.jpg']);
 
     const noTypeResource = {
@@ -116,7 +111,9 @@ describe('RecResourceCard', () => {
       rec_resource_type: null,
     } as unknown as RecreationResourceSearchModel;
 
-    renderWithRouter(<RecResourceCard recreationResource={noTypeResource} />);
+    await renderWithRouter(
+      <RecResourceCard recreationResource={noTypeResource} />,
+    );
 
     // Resource type should not be rendered
     expect(screen.queryByText('Park')).not.toBeInTheDocument();
@@ -125,10 +122,10 @@ describe('RecResourceCard', () => {
     expect(screen.queryByText('|')).not.toBeInTheDocument();
   });
 
-  it('renders with correct URL in anchor tag', () => {
+  it('renders with correct URL in anchor tag', async () => {
     (getImageList as Mock).mockReturnValue(['image1.jpg']);
 
-    renderWithRouter(
+    await renderWithRouter(
       <RecResourceCard recreationResource={mockRecreationResource} />,
     );
 
@@ -137,7 +134,7 @@ describe('RecResourceCard', () => {
     expect(link).toHaveAttribute('href', '/resource/123');
   });
 
-  it('renders the see all activities link when there are more than MAX_ACTIVITIES_TO_DISPLAY activities', () => {
+  it('renders the see all activities link when there are more than MAX_ACTIVITIES_TO_DISPLAY activities', async () => {
     (getImageList as Mock).mockReturnValue(['image1.jpg']);
 
     const resourceWithManyActivities = {
@@ -148,7 +145,7 @@ describe('RecResourceCard', () => {
       })),
     } as unknown as RecreationResourceSearchModel;
 
-    renderWithRouter(
+    await renderWithRouter(
       <RecResourceCard recreationResource={resourceWithManyActivities} />,
     );
 
@@ -159,7 +156,7 @@ describe('RecResourceCard', () => {
     );
   });
 
-  it('does not render the see all activities link when there are fewer than or equal to MAX_ACTIVITIES_TO_DISPLAY activities', () => {
+  it('does not render the see all activities link when there are fewer than or equal to MAX_ACTIVITIES_TO_DISPLAY activities', async () => {
     (getImageList as Mock).mockReturnValue(['image1.jpg']);
 
     const resourceWithFewActivities = {
@@ -170,7 +167,7 @@ describe('RecResourceCard', () => {
       })),
     } as unknown as RecreationResourceSearchModel;
 
-    renderWithRouter(
+    await renderWithRouter(
       <RecResourceCard recreationResource={resourceWithFewActivities} />,
     );
 

@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation } from '@tanstack/react-router';
 
 /**
  * Defines the available feature flags in the application.
@@ -43,13 +43,14 @@ export interface FeatureFlagProviderProps {
  * ```
  */
 export const FeatureFlagProvider = ({ children }: FeatureFlagProviderProps) => {
-  const [searchParams] = useSearchParams();
+  const location = useLocation();
 
   const flags = useMemo<FeatureFlags>(() => {
+    const searchParams = new URLSearchParams(location.search);
     return {
       enable_full_features: searchParams.get('enable_full_features') === 'true',
     };
-  }, [searchParams.toString()]);
+  }, [location.search]);
 
   return (
     <FeatureFlagContext.Provider value={flags}>

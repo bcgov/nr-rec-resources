@@ -1,7 +1,7 @@
 import { FileUploadModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/FileUploadModal';
 import * as fileTransferState from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
 import { setUploadFileName } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
-import { reactQueryWrapper } from '@test/test-utils/reactQueryWrapper';
+import { TestQueryClientProvider } from '@test/test-utils';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -93,7 +93,7 @@ describe('FileUploadModal', () => {
   };
 
   const renderModal = () =>
-    render(<FileUploadModal />, { wrapper: reactQueryWrapper });
+    render(<FileUploadModal />, { wrapper: TestQueryClientProvider });
 
   beforeEach(() => {
     vi.clearAllMocks();

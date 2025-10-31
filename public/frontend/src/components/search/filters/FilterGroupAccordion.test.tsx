@@ -3,9 +3,10 @@ import FilterGroupAccordion from '@/components/search/filters/FilterGroupAccordi
 import FilterGroup from '@/components/search/filters/FilterGroup';
 import { activitiesOptions } from '@/components/search/test/mock-data';
 
-vi.mock('react-router-dom', async () => {
+vi.mock('@tanstack/react-router', async () => {
   return {
-    useSearchParams: vi.fn(() => [new URLSearchParams(), vi.fn()]),
+    useSearch: vi.fn(() => ({})),
+    useNavigate: vi.fn(() => vi.fn()),
   };
 });
 

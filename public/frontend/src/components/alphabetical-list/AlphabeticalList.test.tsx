@@ -2,17 +2,18 @@ import { render, screen, fireEvent, within } from '@/test-utils';
 import { AlphabeticalList } from './AlphabeticalList';
 import { AlphabeticalRecreationResourceModel } from '@/service/custom-models';
 
-const mockSetSearchParams = vi.fn();
+const mockNavigate = vi.fn();
 
-let mockSearchParams = new URLSearchParams();
+let mockSearch: any = {};
 
-vi.mock('react-router-dom', () => ({
+vi.mock('@tanstack/react-router', () => ({
   Link: ({ to, children, className, ...props }: any) => (
     <a href={to} className={className} {...props}>
       {children}
     </a>
   ),
-  useSearchParams: () => [mockSearchParams, mockSetSearchParams],
+  useNavigate: () => mockNavigate,
+  useSearch: () => mockSearch,
 }));
 
 const mockResources: AlphabeticalRecreationResourceModel[] = [
@@ -133,8 +134,8 @@ describe('AlphabeticalList', () => {
 
   describe('type filter functionality', () => {
     beforeEach(() => {
-      mockSetSearchParams.mockClear();
-      mockSearchParams = new URLSearchParams();
+      mockNavigate.mockClear();
+      mockSearch = {};
     });
 
     it('shows basic no results message when no type filter is present', () => {
@@ -158,7 +159,7 @@ describe('AlphabeticalList', () => {
     });
 
     it('shows type filter message and clear button when type filter is present', () => {
-      mockSearchParams = new URLSearchParams('type=1');
+      mockSearch = { type: '1' };
 
       render(
         <AlphabeticalList
@@ -180,8 +181,8 @@ describe('AlphabeticalList', () => {
       expect(screen.getByText('clearing your filters')).toBeInTheDocument();
     });
 
-    it('calls setSearchParams to remove type filter when clear button is clicked', () => {
-      mockSearchParams = new URLSearchParams('type=1&letter=Z');
+    it('calls navigate to remove type filter when clear button is clicked', () => {
+      mockSearch = { type: '1', letter: 'Z' };
 
       render(
         <AlphabeticalList
@@ -194,14 +195,11 @@ describe('AlphabeticalList', () => {
       const clearButton = screen.getByText('clearing your filters');
       fireEvent.click(clearButton);
 
-      expect(mockSetSearchParams).toHaveBeenCalledWith(
+      expect(mockNavigate).toHaveBeenCalledWith(
         expect.objectContaining({
-          toString: expect.any(Function),
+          search: expect.any(Function),
         }),
       );
-
-      const callArgs = mockSetSearchParams.mock.calls[0][0];
-      expect(callArgs.toString()).toBe('letter=Z');
     });
   });
 });

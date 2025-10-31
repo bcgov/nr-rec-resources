@@ -2,7 +2,7 @@ import * as helpersModule from '@/services/hooks/recreation-resource-admin/helpe
 import { useDeleteResourceDocument } from '@/services/hooks/recreation-resource-admin/useDeleteResourceDocument';
 import * as apiClientModule from '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient';
 import { RecreationResourceApi } from '@/services/recreation-resource-admin/apis/RecreationResourceApi';
-import { reactQueryWrapper } from '@test/test-utils/reactQueryWrapper';
+import { TestQueryClientProvider } from '@test/test-utils';
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -35,7 +35,7 @@ describe('useDeleteResourceDocument', () => {
 
   it('returns a mutation object with expected properties', () => {
     const { result } = renderHook(() => useDeleteResourceDocument(), {
-      wrapper: reactQueryWrapper,
+      wrapper: TestQueryClientProvider,
     });
 
     expect(result.current).toMatchObject({
@@ -60,7 +60,7 @@ describe('useDeleteResourceDocument', () => {
     });
 
     const { result } = renderHook(() => useDeleteResourceDocument(), {
-      wrapper: reactQueryWrapper,
+      wrapper: TestQueryClientProvider,
     });
 
     await act(async () => {
@@ -81,7 +81,7 @@ describe('useDeleteResourceDocument', () => {
     mockDeleteDocumentResource.mockResolvedValueOnce(mockResponse);
 
     const { result } = renderHook(() => useDeleteResourceDocument(), {
-      wrapper: reactQueryWrapper,
+      wrapper: TestQueryClientProvider,
     });
 
     let response;
@@ -102,7 +102,7 @@ describe('useDeleteResourceDocument', () => {
     mockDeleteDocumentResource.mockRejectedValueOnce(mockError);
 
     const { result } = renderHook(() => useDeleteResourceDocument(), {
-      wrapper: reactQueryWrapper,
+      wrapper: TestQueryClientProvider,
     });
 
     await act(async () => {
@@ -114,7 +114,7 @@ describe('useDeleteResourceDocument', () => {
 
   it('configures retry handler', () => {
     renderHook(() => useDeleteResourceDocument(), {
-      wrapper: reactQueryWrapper,
+      wrapper: TestQueryClientProvider,
     });
 
     expect(helpersModule.createRetryHandler).toHaveBeenCalled();
@@ -122,7 +122,7 @@ describe('useDeleteResourceDocument', () => {
 
   it('starts with isPending false', () => {
     const { result } = renderHook(() => useDeleteResourceDocument(), {
-      wrapper: reactQueryWrapper,
+      wrapper: TestQueryClientProvider,
     });
 
     expect(result.current.isPending).toBe(false);
@@ -139,7 +139,7 @@ describe('useDeleteResourceDocument', () => {
     mockDeleteDocumentResource.mockRejectedValueOnce(networkError);
 
     const { result } = renderHook(() => useDeleteResourceDocument(), {
-      wrapper: reactQueryWrapper,
+      wrapper: TestQueryClientProvider,
     });
 
     await act(async () => {

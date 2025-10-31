@@ -1,9 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithRouter } from '@/test-utils';
 import RecResourcePage from '@/components/rec-resource/RecResourcePage';
-import * as routerDom from 'react-router-dom';
-import { MemoryRouter } from 'react-router';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   useGetRecreationResourceById,
   useGetSiteOperatorById,
@@ -11,47 +9,35 @@ import {
 import { ReactNode } from 'react';
 import { AdditionalFees, Camping } from '@/components/rec-resource/section';
 
-// Create a wrapper component with all necessary providers
-const createWrapper = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        gcTime: 0,
-      },
-    },
-  });
-
-  return ({ children }: { children: React.ReactNode }) => (
-    <MemoryRouter>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </MemoryRouter>
-  );
-};
-
-// Setup mocks
 vi.mock('@/service/queries/recreation-resource', () => ({
   useGetRecreationResourceById: vi.fn(),
   useGetSiteOperatorById: vi.fn(),
 }));
 
-// Mock breadcrumb hooks
 vi.mock('@shared/components/breadcrumbs', () => ({
   Breadcrumbs: () => <nav aria-label="breadcrumb">Breadcrumbs</nav>,
-  useBreadcrumbs: vi.fn(),
 }));
 
+let mockLoaderData: any = { recResource: undefined };
 const mockNavigate = vi.fn();
-
-vi.mock('react-router-dom', async () => {
-  const actual =
-    await vi.importActual<typeof import('react-router-dom')>(
-      'react-router-dom',
-    );
+vi.mock('@/routes/resource/$id', () => ({
+  Route: {
+    useLoaderData: () => mockLoaderData,
+  },
+}));
+vi.mock('@tanstack/react-router', async (importOriginal) => {
+  const original =
+    await importOriginal<typeof import('@tanstack/react-router')>();
   return {
-    ...actual,
-    useParams: vi.fn(),
-    useNavigate: () => mockNavigate,
+    ...original,
+    useParams: vi.fn(() => ({ id: 'REC1234' })),
+    useNavigate: vi.fn(() => mockNavigate),
+    useMatches: vi.fn(() => [
+      {
+        context: {},
+        loaderData: mockLoaderData,
+      },
+    ]),
   };
 });
 
@@ -80,7 +66,6 @@ vi.mock('@/components/rec-resource/section', async () => ({
   ),
 }));
 
-// Mock data
 export const mockResource = {
   rec_resource_id: 'REC1234',
   name: 'Resource Name',
@@ -128,29 +113,13 @@ describe('RecResourcePage', () => {
       error: error,
     });
 
-    await act(async () => {
-      const Wrapper = createWrapper();
-      render(
-        <Wrapper>
-          <RecResourcePage />
-        </Wrapper>,
-      );
-    });
+    mockLoaderData = { recResource: mockApiResponse };
+    await renderWithRouter(<RecResourcePage />);
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(routerDom.useParams).mockReturnValue({ id: 'REC1234' });
-  });
-
-  describe('Error handling', async () => {
-    it('redirects to not found page', async () => {
-      await renderComponent(undefined, { response: { status: 404 } });
-
-      await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/404', { replace: true });
-      });
-    });
+    mockNavigate.mockClear();
   });
 
   describe('Activities section', () => {

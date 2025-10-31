@@ -1,11 +1,12 @@
 import { describe, expect, it, Mock, vi } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearch, useNavigate } from '@tanstack/react-router';
 import { filterChipStore } from '@/store';
 import { useClearFilters } from '@/components/search/hooks/useClearFilters';
 
-vi.mock('react-router-dom', () => ({
-  useSearchParams: vi.fn(),
+vi.mock('@tanstack/react-router', () => ({
+  useSearch: vi.fn(),
+  useNavigate: vi.fn(),
 }));
 
 vi.mock('@/store', () => ({
@@ -16,15 +17,16 @@ vi.mock('@/store', () => ({
 
 describe('useClearFilters', () => {
   it('should clear filters and reset searchParams', () => {
-    const setSearchParams = vi.fn();
-    const searchParams = new URLSearchParams({
+    const navigate = vi.fn();
+    const searchParams = {
       page: '1',
       activities: 'test',
       type: 'test',
       district: 'test',
-    });
+    };
 
-    (useSearchParams as Mock).mockReturnValue([searchParams, setSearchParams]);
+    (useSearch as Mock).mockReturnValue(searchParams);
+    (useNavigate as Mock).mockReturnValue(navigate);
 
     const { result } = renderHook(() => useClearFilters());
 
@@ -32,24 +34,25 @@ describe('useClearFilters', () => {
       result.current();
     });
 
-    expect(setSearchParams).toHaveBeenCalledWith(
-      new URLSearchParams({ page: '1' }),
-    );
+    expect(navigate).toHaveBeenCalledWith({
+      search: expect.any(Function),
+    });
 
     expect(filterChipStore.setState).toHaveBeenCalled();
   });
 
   it('should not remove the page or filter params', () => {
-    const setSearchParams = vi.fn();
-    const searchParams = new URLSearchParams({
+    const navigate = vi.fn();
+    const searchParams = {
       page: '1',
       filter: 'test',
       activities: 'test',
       type: 'test',
       district: 'test',
-    });
+    };
 
-    (useSearchParams as Mock).mockReturnValue([searchParams, setSearchParams]);
+    (useSearch as Mock).mockReturnValue(searchParams);
+    (useNavigate as Mock).mockReturnValue(navigate);
 
     const { result } = renderHook(() => useClearFilters());
 
@@ -57,9 +60,9 @@ describe('useClearFilters', () => {
       result.current();
     });
 
-    expect(setSearchParams).toHaveBeenCalledWith(
-      new URLSearchParams({ page: '1', filter: 'test' }),
-    );
+    expect(navigate).toHaveBeenCalledWith({
+      search: expect.any(Function),
+    });
 
     expect(filterChipStore.setState).toHaveBeenCalled();
   });

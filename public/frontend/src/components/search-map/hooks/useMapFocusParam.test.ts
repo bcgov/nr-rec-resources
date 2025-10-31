@@ -2,33 +2,30 @@ import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { useMapFocusParam } from './useMapFocusParam';
 import { SearchMapFocusModes } from '@/components/search-map/constants';
-import { useSearchParams } from 'react-router-dom';
+import { useSearch, useNavigate } from '@tanstack/react-router';
 
-// mock useSearchParams from react-router-dom
-vi.mock('react-router-dom', () => {
+// mock TanStack Router hooks
+vi.mock('@tanstack/react-router', () => {
   return {
-    useSearchParams: vi.fn(),
+    useSearch: vi.fn(),
+    useNavigate: vi.fn(),
   };
 });
 
 describe('useMapFocusParam', () => {
-  let mockGet: ReturnType<typeof vi.fn>;
-  let mockDelete: ReturnType<typeof vi.fn>;
-  let mockSetSearchParams: ReturnType<typeof vi.fn>;
+  let mockNavigate: ReturnType<typeof vi.fn>;
+  let mockSearchParams: any;
 
   beforeEach(() => {
-    mockGet = vi.fn();
-    mockDelete = vi.fn();
-    mockSetSearchParams = vi.fn();
+    mockNavigate = vi.fn();
+    mockSearchParams = {};
 
-    (useSearchParams as unknown as Mock).mockReturnValue([
-      { get: mockGet, delete: mockDelete } as any,
-      mockSetSearchParams,
-    ]);
+    (useSearch as unknown as Mock).mockReturnValue(mockSearchParams);
+    (useNavigate as unknown as Mock).mockReturnValue(mockNavigate);
   });
 
   it('returns undefined mode and value when no focus param is set', () => {
-    mockGet.mockReturnValue(null);
+    mockSearchParams = {};
 
     const { result } = renderHook(() => useMapFocusParam());
 
@@ -37,7 +34,8 @@ describe('useMapFocusParam', () => {
   });
 
   it('parses valid focus param into mode and value', () => {
-    mockGet.mockReturnValue(`${SearchMapFocusModes.REC_RESOURCE_ID}:123`);
+    mockSearchParams = { focus: `${SearchMapFocusModes.REC_RESOURCE_ID}:123` };
+    (useSearch as unknown as Mock).mockReturnValue(mockSearchParams);
 
     const { result } = renderHook(() => useMapFocusParam());
 
@@ -46,7 +44,8 @@ describe('useMapFocusParam', () => {
   });
 
   it('returns undefined mode for invalid mode string', () => {
-    mockGet.mockReturnValue('invalid:456');
+    mockSearchParams = { focus: 'invalid:456' };
+    (useSearch as unknown as Mock).mockReturnValue(mockSearchParams);
 
     const { result } = renderHook(() => useMapFocusParam());
 
@@ -55,7 +54,8 @@ describe('useMapFocusParam', () => {
   });
 
   it('returns value as undefined when focus param has no value', () => {
-    mockGet.mockReturnValue(SearchMapFocusModes.REC_RESOURCE_ID);
+    mockSearchParams = { focus: SearchMapFocusModes.REC_RESOURCE_ID };
+    (useSearch as unknown as Mock).mockReturnValue(mockSearchParams);
 
     const { result } = renderHook(() => useMapFocusParam());
 
@@ -64,7 +64,8 @@ describe('useMapFocusParam', () => {
   });
 
   it('resetParams deletes focus param and updates search params', () => {
-    mockGet.mockReturnValue(`${SearchMapFocusModes.REC_RESOURCE_ID}:789`);
+    mockSearchParams = { focus: `${SearchMapFocusModes.REC_RESOURCE_ID}:789` };
+    (useSearch as unknown as Mock).mockReturnValue(mockSearchParams);
 
     const { result } = renderHook(() => useMapFocusParam());
 
@@ -72,8 +73,8 @@ describe('useMapFocusParam', () => {
       result.current.resetParams();
     });
 
-    expect(mockDelete).toHaveBeenCalledWith('focus');
-    expect(mockSetSearchParams).toHaveBeenCalledWith(expect.any(Object), {
+    expect(mockNavigate).toHaveBeenCalledWith({
+      search: expect.any(Function),
       replace: true,
     });
   });

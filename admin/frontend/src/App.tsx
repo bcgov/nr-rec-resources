@@ -2,8 +2,8 @@ import { AuthGuard } from '@/components';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { RouterProvider } from 'react-router-dom';
-import { adminDataRouter } from './routes/dataRouter';
+import { RouterProvider, createRouter } from '@tanstack/react-router';
+import { routeTree } from './routeTree.gen';
 import { useGlobalQueryErrorHandler } from './services/hooks/useGlobalQueryErrorHandler';
 
 const queryClient = new QueryClient({
@@ -14,6 +14,24 @@ const queryClient = new QueryClient({
   },
 });
 
+const router = createRouter({
+  routeTree,
+  scrollRestoration: true,
+  scrollRestorationBehavior: 'instant',
+  context: {
+    queryClient,
+  },
+});
+
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: typeof router;
+  }
+  interface RouterContext {
+    queryClient: QueryClient;
+  }
+}
+
 function App() {
   useGlobalQueryErrorHandler(queryClient);
 
@@ -21,7 +39,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <AuthGuard>
-          <RouterProvider router={adminDataRouter} />
+          <RouterProvider router={router} />
         </AuthGuard>
       </AuthProvider>
 

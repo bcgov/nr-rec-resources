@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Link } from 'react-router';
+import { Link } from '@tanstack/react-router';
 import { Stack } from 'react-bootstrap';
 import RSTLogo from '@/images/RST_nav_logo.svg';
 import BetaBanner from '@/components/layout/BetaBanner';
@@ -8,7 +8,7 @@ import NavigationDrawer from '@/components/layout/NavigationDrawer';
 import { trackClickEvent } from '@shared/utils';
 import { ExternalLink } from '@shared/components/links';
 import { EnvironmentBanner } from '@shared/components/environment-banner';
-import { ROUTE_PATHS } from '@/routes';
+import { ROUTE_PATHS } from '@/constants/routes';
 import { HEADER_LINKS } from '@/components/layout/constants';
 import '@/components/layout/Header.scss';
 import '@shared/components/environment-banner/EnvironmentBanner.scss';

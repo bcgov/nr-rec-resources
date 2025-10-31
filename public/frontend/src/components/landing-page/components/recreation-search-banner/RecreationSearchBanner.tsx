@@ -5,12 +5,12 @@ import { faMap } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '@/components/search/Search.scss';
 import './RecreationSearchBanner.scss';
-import { Link } from 'react-router-dom';
-import { ROUTE_PATHS } from '@/routes';
+import { Link } from '@tanstack/react-router';
 
 const MapLink = ({ className = '' }) => (
   <Link
-    to={{ pathname: ROUTE_PATHS.SEARCH, search: 'view=map' }}
+    to="/search"
+    search={{ view: 'map' }}
     className={`search-by-map-link ${className}`}
     aria-label="Search by map"
   >

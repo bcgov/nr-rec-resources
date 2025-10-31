@@ -1,10 +1,10 @@
 import { forwardRef } from 'react';
 import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 import { ResponseError, SiteOperatorDto } from '@/service/recreation-resource';
-import { Link } from 'react-router';
+import { Link } from '@tanstack/react-router';
 import { trackClickEvent } from '@shared/utils';
-import { MATOMO_TRACKING_CATEGORY_CONTACT_PAGE } from '@/data/analytics';
-import { ROUTE_PATHS } from '@/routes';
+import { MATOMO_TRACKING_CATEGORY_CONTACT_PAGE } from '@/constants/analytics';
+import { ROUTE_PATHS } from '@/constants/routes';
 
 interface SiteOperatorProps {
   siteOperator?: SiteOperatorDto;
@@ -43,13 +43,10 @@ const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
                   </p>
                   <p>
                     <Link
-                      to={{
-                        pathname: ROUTE_PATHS.REC_RESOURCE_CONTACT.replace(
-                          ':id',
-                          rec_resource_id,
-                        ),
-                        hash: '#contact-us',
-                      }}
+                      to={ROUTE_PATHS.REC_RESOURCE_CONTACT.replace(
+                        '$id',
+                        rec_resource_id,
+                      )}
                       onClick={trackClickEvent({
                         category: MATOMO_TRACKING_CATEGORY_CONTACT_PAGE,
                         name: `${MATOMO_TRACKING_CATEGORY_CONTACT_PAGE} - ${rec_resource_id}`,

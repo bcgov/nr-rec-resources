@@ -1,20 +1,8 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import { afterEach, vi, describe, it, expect } from 'vitest';
-import { MemoryRouter } from 'react-router';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { renderWithRouter } from '@/test-utils';
 import Contact from './Contact';
 import { ResponseError } from '@/service/recreation-resource';
-
-// Create test query client
-const createTestQueryClient = () =>
-  new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-        gcTime: 0,
-      },
-    },
-  });
 
 describe('Contact component', () => {
   const siteOperator = {
@@ -36,15 +24,8 @@ describe('Contact component', () => {
     refetchData: refetchDataMock,
   };
 
-  const renderContact = (props: any = {}) => {
-    const queryClient = createTestQueryClient();
-    return render(
-      <MemoryRouter>
-        <QueryClientProvider client={queryClient}>
-          <Contact {...defaultProps} {...props} />
-        </QueryClientProvider>
-      </MemoryRouter>,
-    );
+  const renderContact = async (props: any = {}) => {
+    return await renderWithRouter(<Contact {...defaultProps} {...props} />);
   };
 
   afterEach(() => {
@@ -56,7 +37,7 @@ describe('Contact component', () => {
   });
 
   it('renders component with site operator name', async () => {
-    renderContact({ siteOperator });
+    await renderContact({ siteOperator });
     const operatorName = screen.getByText(/Site Operator Name/);
     const operatorLabel = screen.getByText(/Site operator/);
 
@@ -64,13 +45,13 @@ describe('Contact component', () => {
     expect(operatorLabel).toBeInTheDocument();
   });
 
-  it('renders loading state', () => {
-    renderContact({ isLoading: true });
+  it('renders loading state', async () => {
+    await renderContact({ isLoading: true });
     const loadingMessage = screen.getByText('Loading ...');
     expect(loadingMessage).toBeInTheDocument();
   });
 
-  it('renders error state with retry link', () => {
+  it('renders error state with retry link', async () => {
     const mockResponse = {
       status: 500,
       statusText: 'Internal Server Error',
@@ -78,7 +59,7 @@ describe('Contact component', () => {
 
     const error = new ResponseError(mockResponse, 'Server Error');
 
-    renderContact({ error });
+    await renderContact({ error });
     const errorMessage = screen.getByTestId('error-message');
     const retryLink = screen.getByText('Click here to retry.');
 
@@ -86,19 +67,19 @@ describe('Contact component', () => {
     expect(retryLink).toBeInTheDocument();
   });
 
-  it('renders Contact Us link with correct path', () => {
-    renderContact();
+  it('renders Contact Us link with correct path', async () => {
+    await renderContact();
     const contactLink = screen.getByText('Contact us');
 
     expect(contactLink).toBeInTheDocument();
     expect(contactLink.closest('a')).toHaveAttribute(
       'href',
-      '/resource/REC1234/contact#contact-us',
+      '/resource/REC1234/contact',
     );
   });
 
-  it('renders general questions section', () => {
-    renderContact();
+  it('renders general questions section', async () => {
+    await renderContact();
     const generalQuestions = screen.getByText(
       /General questions and feedback for Recreation Sites and Trails BC/,
     );
@@ -110,7 +91,7 @@ describe('Contact component', () => {
     expect(weekdaysText).toBeInTheDocument();
   });
 
-  it('does not render site operator section when error is present', () => {
+  it('does not render site operator section when error is present', async () => {
     const mockResponse = {
       status: 400,
       statusText: 'Bad Request',
@@ -118,18 +99,18 @@ describe('Contact component', () => {
 
     const error = new ResponseError(mockResponse, 'Client Error');
 
-    renderContact({ error });
+    await renderContact({ error });
     const operatorLabel = screen.queryByText(/Site operator/);
     expect(operatorLabel).not.toBeInTheDocument();
   });
 
-  it('formats site operator name correctly', () => {
+  it('formats site operator name correctly', async () => {
     const operatorWithLowercase = {
       ...siteOperator,
       clientName: 'test operator name',
     };
 
-    renderContact({ siteOperator: operatorWithLowercase });
+    await renderContact({ siteOperator: operatorWithLowercase });
     const operatorName = screen.getByText('Firstname Test Operator Name');
     expect(operatorName).toBeInTheDocument();
   });

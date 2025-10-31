@@ -5,7 +5,7 @@ import { EsriJSON } from 'ol/format';
 import type { Feature } from 'ol';
 import { Style } from 'ol/style';
 import type { FeatureLike } from 'ol/Feature';
-import { capitalizeWords } from '@/utils/capitalizeWords';
+import { capitalizeWords } from '@shared/utils/capitalizeWords';
 import { featureLabelText } from '@/components/search-map/styles/feature';
 import {
   createSITIcon,

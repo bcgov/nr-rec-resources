@@ -1,6 +1,6 @@
+import { createRef } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ContactPage } from './ContactPage';
-import React from 'react';
 import { vi } from 'vitest';
 import { CONTACT_TOPICS } from '@/components/contact-page/constants';
 
@@ -11,19 +11,16 @@ vi.mock('@/components/layout/PageWithScrollMenu', () => {
   return {
     __esModule: true,
     PageWithScrollMenu: function PageWithScrollMenuMock({ children }: any) {
-      return <div>{children([React.createRef(), React.createRef()])}</div>;
+      return <div>{children([createRef(), createRef()])}</div>;
     },
   };
 });
 vi.mock('@/components/layout/PageMenu', () => ({
   default: () => <div data-testid="page-menu" />,
 }));
-vi.mock('@/components/layout/PageTitle', () => ({
-  default: (props: any) => <div data-testid="page-title">{props.title}</div>,
-}));
+
 vi.mock('@shared/components/breadcrumbs', () => ({
   Breadcrumbs: () => <nav data-testid="breadcrumbs" />,
-  useBreadcrumbs: () => {},
 }));
 vi.mock(
   '@/service/queries/recreation-resource/recreationResourceQueries',
@@ -34,15 +31,29 @@ vi.mock(
 vi.mock('@/utils/getContactEmailLink', () => ({
   getContactEmailLink: () => 'mailto:recinfo@gov.bc.ca',
 }));
-vi.mock('react-router', () => ({
+vi.mock('@tanstack/react-router', () => ({
   useParams: () => ({ id: '123' }),
   Link: (props: any) => <a {...props} />,
+  useMatches: () => [
+    {
+      context: {},
+      loaderData: {
+        recResource: { name: 'Test Resource' },
+        recResourceId: '123',
+      },
+    },
+  ],
+  createFileRoute: () => () => ({
+    useLoaderData: () => ({
+      recResource: { name: 'Test Resource' },
+      recResourceId: '123',
+    }),
+  }),
 }));
 
 describe('ContactPage', () => {
-  it('renders page title and breadcrumbs', () => {
+  it('renders breadcrumbs', () => {
     render(<ContactPage />);
-    expect(screen.getByTestId('page-title')).toHaveTextContent('Test Resource');
     expect(screen.getByTestId('breadcrumbs')).toBeInTheDocument();
   });
 

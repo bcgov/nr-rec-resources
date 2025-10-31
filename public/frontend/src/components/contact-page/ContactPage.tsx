@@ -4,8 +4,8 @@ import './ContactPage.scss';
 import { Form, Stack } from 'react-bootstrap';
 import { useEffect } from 'react';
 import { trackEvent } from '@shared/utils';
-import { MATOMO_TRACKING_CATEGORY_CONTACT_PAGE } from '@/data/analytics';
-import PageTitle from '@/components/layout/PageTitle';
+import { MATOMO_TRACKING_CATEGORY_CONTACT_PAGE } from '@/constants/analytics';
+import { useMatches } from '@tanstack/react-router';
 import { Breadcrumbs } from '@shared/components/breadcrumbs';
 import { type ContactTopic } from './utils/contactDetailsRenderer';
 import { useContactPage } from './hooks/useContactPage';
@@ -17,12 +17,13 @@ import {
 } from '@/components/contact-page/constants';
 
 export const ContactPage = () => {
-  const {
-    selectedTopic,
-    setSelectedTopic,
-    contactDetailsComponent,
-    pageTitle,
-  } = useContactPage();
+  // Get recResource from loader data if available (only exists for /resource/$id/contact)
+  const matches = useMatches();
+  const lastMatch = matches[matches.length - 1];
+  const recResource = (lastMatch?.loaderData as any)?.recResource;
+
+  const { selectedTopic, setSelectedTopic, contactDetailsComponent } =
+    useContactPage(recResource);
 
   useEffect(() => {
     trackEvent({
@@ -33,7 +34,6 @@ export const ContactPage = () => {
 
   return (
     <div className="page-container">
-      <PageTitle title={pageTitle} />
       <div className="page contact-page">
         <Breadcrumbs className="mb-4" />
         <Stack gap={4} direction="vertical">

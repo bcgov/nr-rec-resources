@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { ContentSection } from './ContentSection';
-import { BOOTSTRAP_BREAKPOINTS } from '@/data/breakpoints';
+import { BOOTSTRAP_BREAKPOINTS } from '@/constants/breakpoints';
 import { IMAGE_SIZES } from '@/components/landing-page/components/content-section/constants';
 import { describe, expect, it } from 'vitest';
 

@@ -1,10 +1,10 @@
 import { useRef } from 'react';
-import { Link } from 'react-router';
+import { Link } from '@tanstack/react-router';
 import { RemoveScroll } from 'react-remove-scroll';
 import { useClickOutside } from '@shared/hooks';
 import { ExternalLink } from '@shared/components/links';
 import { HEADER_LINKS } from './constants';
-import { EXTERNAL_LINKS } from '@/data/urls';
+import { EXTERNAL_LINKS } from '@/constants/urls';
 import { trackClickEvent } from '@shared/utils';
 import '@/components/layout/NavigationDrawer.scss';
 
