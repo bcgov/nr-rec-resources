@@ -1,7 +1,7 @@
 import { BaseFileModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/BaseFileModal';
 import { GalleryFile } from '@/pages/rec-resource-page/types';
 import { faTrash, faUpload } from '@fortawesome/free-solid-svg-icons';
-import { reactQueryWrapper } from '@test/test-utils/reactQueryWrapper';
+import { TestQueryClientProvider } from '@test/test-utils';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -79,7 +79,7 @@ describe('BaseFileModal', () => {
         <BaseFileModal {...defaultProps} title="Custom" className="custom">
           <div data-testid="content">Content</div>
         </BaseFileModal>,
-        { wrapper: reactQueryWrapper },
+        { wrapper: TestQueryClientProvider },
       );
 
       // Modal visibility and content
@@ -101,7 +101,7 @@ describe('BaseFileModal', () => {
     it('renders correct preview based on file type', () => {
       // Test image preview
       render(<BaseFileModal {...defaultProps} galleryFile={imageFile} />, {
-        wrapper: reactQueryWrapper,
+        wrapper: TestQueryClientProvider,
       });
 
       const preview = screen.getByAltText('preview');
@@ -114,7 +114,7 @@ describe('BaseFileModal', () => {
           {...defaultProps}
           galleryFile={{ ...documentFile, name: 'doc.pdf' }}
         />,
-        { wrapper: reactQueryWrapper },
+        { wrapper: TestQueryClientProvider },
       );
 
       const pdfIcon = screen
@@ -143,7 +143,7 @@ describe('BaseFileModal', () => {
           confirmButtonIcon={faTrash}
           confirmButtonVariant="danger"
         />,
-        { wrapper: reactQueryWrapper },
+        { wrapper: TestQueryClientProvider },
       );
 
       // Alert rendering
@@ -173,7 +173,7 @@ describe('BaseFileModal', () => {
 
     it('works without alert config', () => {
       render(<BaseFileModal {...defaultProps} />, {
-        wrapper: reactQueryWrapper,
+        wrapper: TestQueryClientProvider,
       });
       expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     });
@@ -184,7 +184,7 @@ describe('BaseFileModal', () => {
       // Test CSS classes
       const { rerender } = render(
         <BaseFileModal {...defaultProps} className="custom" />,
-        { wrapper: reactQueryWrapper },
+        { wrapper: TestQueryClientProvider },
       );
 
       const title = screen.getByText('Test Modal');
@@ -217,7 +217,7 @@ describe('BaseFileModal', () => {
 
       expect(() =>
         render(<BaseFileModal {...minimalProps} />, {
-          wrapper: reactQueryWrapper,
+          wrapper: TestQueryClientProvider,
         }),
       ).not.toThrow();
     });

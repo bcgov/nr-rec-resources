@@ -3,7 +3,7 @@ import { renderHook, act } from '@testing-library/react';
 import { useUploadResourceDocument } from '@/services/hooks/recreation-resource-admin/useUploadResourceDocument';
 import { RecreationResourceApi } from '@/services/recreation-resource-admin/apis/RecreationResourceApi';
 import * as apiClientModule from '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient';
-import { reactQueryWrapper } from '@test/test-utils/reactQueryWrapper';
+import { TestQueryClientProvider } from '@test/test-utils';
 
 vi.mock(
   '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient',
@@ -39,7 +39,7 @@ describe('useUploadResourceDocument (vitest)', () => {
     });
 
     const { result } = renderHook(() => useUploadResourceDocument(), {
-      wrapper: reactQueryWrapper,
+      wrapper: TestQueryClientProvider,
     });
 
     await act(async () => {

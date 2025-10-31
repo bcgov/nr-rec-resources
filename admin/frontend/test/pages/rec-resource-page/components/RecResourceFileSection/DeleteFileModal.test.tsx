@@ -1,7 +1,7 @@
 import { DeleteFileModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/DeleteFileModal';
 import * as fileTransferState from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
 import { GalleryFile } from '@/pages/rec-resource-page/types';
-import { reactQueryWrapper } from '@test/test-utils/reactQueryWrapper';
+import { TestQueryClientProvider } from '@test/test-utils';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -70,7 +70,7 @@ const mockUseRecResourceFileTransferState = vi.mocked(
 
 describe('DeleteFileModal', () => {
   const renderModal = () =>
-    render(<DeleteFileModal />, { wrapper: reactQueryWrapper });
+    render(<DeleteFileModal />, { wrapper: TestQueryClientProvider });
 
   const setMockState = (state: {
     showDeleteModal?: boolean;

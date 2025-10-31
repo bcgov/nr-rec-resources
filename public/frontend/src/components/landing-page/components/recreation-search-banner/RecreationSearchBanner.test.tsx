@@ -11,7 +11,7 @@ vi.mock(
   }),
 );
 
-vi.mock('react-router-dom', async (importActual) => ({
+vi.mock('@tanstack/react-router', async (importActual) => ({
   ...(await importActual()),
   Link: vi.fn(() => <div data-testid="mock-link" />),
 }));

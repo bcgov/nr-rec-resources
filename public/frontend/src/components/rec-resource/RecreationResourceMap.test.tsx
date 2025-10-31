@@ -1,8 +1,8 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithRouter } from '@/test-utils';
 import userEvent from '@testing-library/user-event';
 import { RecreationResourceMap } from './RecreationResourceMap';
-import { BrowserRouter } from 'react-router-dom';
 import { RecreationResourceDetailModel } from '@/service/custom-models';
 import { trackEvent } from '@shared/utils';
 
@@ -43,11 +43,9 @@ describe('RecreationResourceMap', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
-  it('renders the component', () => {
-    render(
-      <BrowserRouter>
-        <RecreationResourceMap recResource={mockRecResource} />
-      </BrowserRouter>,
+  it('renders the component', async () => {
+    await renderWithRouter(
+      <RecreationResourceMap recResource={mockRecResource} />,
     );
 
     expect(screen.getByText('Full map')).toBeInTheDocument();
@@ -55,34 +53,28 @@ describe('RecreationResourceMap', () => {
     // expect(screen.getByText('Google Maps')).toBeInTheDocument();
   });
 
-  it('renders Full map button', () => {
-    render(
-      <BrowserRouter>
-        <RecreationResourceMap recResource={mockRecResource} />
-      </BrowserRouter>,
+  it('renders Full map button', async () => {
+    await renderWithRouter(
+      <RecreationResourceMap recResource={mockRecResource} />,
     );
 
     expect(screen.getByText('Full map')).toBeInTheDocument();
   });
 
-  it('applies custom className when provided', () => {
-    const { container } = render(
-      <BrowserRouter>
-        <RecreationResourceMap
-          recResource={mockRecResource}
-          className="custom-class"
-        />
-      </BrowserRouter>,
+  it('applies custom className when provided', async () => {
+    const { container } = await renderWithRouter(
+      <RecreationResourceMap
+        recResource={mockRecResource}
+        className="custom-class"
+      />,
     );
 
     expect(container.querySelector('.custom-class')).toBeInTheDocument();
   });
 
-  it('renders Export map file button', () => {
-    render(
-      <BrowserRouter>
-        <RecreationResourceMap recResource={mockRecResource} />
-      </BrowserRouter>,
+  it('renders Export map file button', async () => {
+    await renderWithRouter(
+      <RecreationResourceMap recResource={mockRecResource} />,
     );
 
     expect(screen.getByText('Export map file')).toBeInTheDocument();
@@ -91,10 +83,8 @@ describe('RecreationResourceMap', () => {
   it('opens download modal when Export map file button is clicked', async () => {
     const user = userEvent.setup();
 
-    render(
-      <BrowserRouter>
-        <RecreationResourceMap recResource={mockRecResource} />
-      </BrowserRouter>,
+    await renderWithRouter(
+      <RecreationResourceMap recResource={mockRecResource} />,
     );
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -109,10 +99,8 @@ describe('RecreationResourceMap', () => {
   it('tracks event when Export map file button is clicked', async () => {
     const user = userEvent.setup();
 
-    render(
-      <BrowserRouter>
-        <RecreationResourceMap recResource={mockRecResource} />
-      </BrowserRouter>,
+    await renderWithRouter(
+      <RecreationResourceMap recResource={mockRecResource} />,
     );
 
     const downloadButton = screen.getByText('Export map file');
@@ -128,10 +116,8 @@ describe('RecreationResourceMap', () => {
   it('tracks event when Full map button is clicked', async () => {
     const user = userEvent.setup();
 
-    render(
-      <BrowserRouter>
-        <RecreationResourceMap recResource={mockRecResource} />
-      </BrowserRouter>,
+    await renderWithRouter(
+      <RecreationResourceMap recResource={mockRecResource} />,
     );
 
     const viewInMapButton = screen.getByText('Full map');

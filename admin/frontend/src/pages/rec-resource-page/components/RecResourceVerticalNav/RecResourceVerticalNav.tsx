@@ -5,7 +5,7 @@ import {
 } from '@/pages/rec-resource-page';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Dropdown, Nav } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import './RecResourceVerticalNav.scss';
 
@@ -24,7 +24,7 @@ export const RecResourceVerticalNav = ({
     if (eventKey) {
       const tabKey = eventKey as RecResourceNavKey;
       const route = REC_RESOURCE_PAGE_NAV_SECTIONS[tabKey].route(resourceId);
-      navigate(route);
+      navigate({ to: route });
     }
   };
 

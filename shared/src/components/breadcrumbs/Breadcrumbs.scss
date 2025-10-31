@@ -6,6 +6,7 @@
 
   // Breadcrumb separator: override the default separator ("/") with Font Awesome chevron-right
   &-item + &-item::before {
+    --bs-breadcrumb-divider: ''; // Override Bootstrap's CSS variable
     content: ''; // remove the Font Awesome character
     background-image: url('../../assets/icons/breadcrumbs/chevron-right.svg');
     width: 1rem;

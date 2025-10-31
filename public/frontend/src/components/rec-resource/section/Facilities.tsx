@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import '@/components/rec-resource/section/ThingsToDo.scss';
-import { facilityMap } from '@/data/facilitiesIconMap';
+import { facilityMap } from '@/constants/facilitiesIconMap';
 import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 
 interface FacilitiesProps {

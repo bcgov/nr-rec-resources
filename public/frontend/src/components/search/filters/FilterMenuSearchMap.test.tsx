@@ -1,7 +1,7 @@
 import { vi, Mock } from 'vitest';
 import { render, screen, waitFor, fireEvent } from '@/test-utils';
 import { useStore } from '@tanstack/react-store';
-import { useSearchParams } from 'react-router-dom';
+import { useSearch, useNavigate } from '@tanstack/react-router';
 import FilterMenuSearchMap from '@/components/search/filters/FilterMenuSearchMap';
 import { useSearchRecreationResourcesPaginated } from '@/service/queries/recreation-resource';
 import { trackEvent } from '@shared/utils';
@@ -14,11 +14,10 @@ vi.mock('@tanstack/react-store', async () => {
   };
 });
 
-vi.mock('react-router-dom', async () => {
-  const mod = await import('react-router-dom');
+vi.mock('@tanstack/react-router', async () => {
   return {
-    ...mod,
-    useSearchParams: vi.fn(),
+    useSearch: vi.fn(),
+    useNavigate: vi.fn(),
   };
 });
 
@@ -32,15 +31,13 @@ vi.mock('@shared/utils', () => ({
 
 describe('FilterMenuSearchMap', () => {
   const setIsOpenMock = vi.fn();
-  const setSearchParamsMock = vi.fn();
+  const navigateMock = vi.fn();
 
   beforeEach(() => {
     vi.resetAllMocks();
 
-    (useSearchParams as Mock).mockReturnValue([
-      new URLSearchParams({ district: 'ok' }),
-      setSearchParamsMock,
-    ]);
+    (useSearch as Mock).mockReturnValue({ district: 'ok' });
+    (useNavigate as Mock).mockReturnValue(navigateMock);
 
     (useStore as Mock).mockReturnValue({
       filters: [
@@ -86,10 +83,7 @@ describe('FilterMenuSearchMap', () => {
   });
 
   it('disables filters with zero count and not selected', async () => {
-    (useSearchParams as Mock).mockReturnValue([
-      new URLSearchParams({}),
-      vi.fn(),
-    ]);
+    (useSearch as Mock).mockReturnValue({});
 
     (useSearchRecreationResourcesPaginated as Mock).mockReturnValue({
       data: {
@@ -130,7 +124,7 @@ describe('FilterMenuSearchMap', () => {
     const applyButton = await screen.findByRole('button', { name: /apply/i });
     fireEvent.click(applyButton);
 
-    expect(setSearchParamsMock).toHaveBeenCalled();
+    expect(navigateMock).toHaveBeenCalled();
 
     expect(setIsOpenMock).toHaveBeenCalledWith(false);
 

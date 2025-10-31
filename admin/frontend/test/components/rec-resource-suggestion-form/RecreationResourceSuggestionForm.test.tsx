@@ -3,14 +3,18 @@ import * as suggestionHook from '@/services/hooks/recreation-resource-admin/useG
 import { RecreationResourceSuggestion } from '@shared/components/suggestion-typeahead/types';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock dependencies
-vi.mock('react-router', async () => ({
-  ...(await vi.importActual('react-router')),
-  useNavigate: vi.fn(),
-}));
+vi.mock('@tanstack/react-router', async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import('@tanstack/react-router')>();
+  return {
+    ...actual,
+    useNavigate: vi.fn(),
+  };
+});
 
 vi.mock('@/components/rec-resource-suggestion-form/SuggestionMenu', () => ({
   SuggestionMenu: ({ results, searchTerm }: any) => (
@@ -151,7 +155,10 @@ describe('RecreationResourceSuggestionForm', () => {
     // Test navigation on selection
     const suggestionItem = screen.getByTestId('typeahead-item');
     await userEvent.click(suggestionItem);
-    expect(mockNavigate).toHaveBeenCalledWith('/rec-resource/123');
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: '/rec-resource/$id',
+      params: { id: '123' },
+    });
 
     // Test custom menu rendering (renderMenu callback)
     expect(screen.getByTestId('custom-menu')).toBeInTheDocument();

@@ -3,5 +3,6 @@
 **/node_modules
 migrations
 
-# this file is auto generated
+# these files are auto generated
 public/frontend/stories/mock/mockServiceWorker.js
+**/routeTree.gen.ts

@@ -1,6 +1,6 @@
 import { EstablishmentOrderUploadModal } from '@/pages/rec-resource-page/components/RecResourceEstablishmentOrderSection/EstablishmentOrderUploadModal';
 import { GalleryFile } from '@/pages/rec-resource-page/types';
-import { reactQueryWrapper } from '@test/test-utils/reactQueryWrapper';
+import { TestQueryClientProvider } from '@test/test-utils';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -35,7 +35,7 @@ describe('EstablishmentOrderUploadModal', () => {
         onConfirm={mockOnConfirm}
         onFileNameChange={mockOnFileNameChange}
       />,
-      { wrapper: reactQueryWrapper },
+      { wrapper: TestQueryClientProvider },
     );
     expect(container.firstChild).toBeNull();
   });
@@ -50,7 +50,7 @@ describe('EstablishmentOrderUploadModal', () => {
         onConfirm={mockOnConfirm}
         onFileNameChange={mockOnFileNameChange}
       />,
-      { wrapper: reactQueryWrapper },
+      { wrapper: TestQueryClientProvider },
     );
     expect(container.firstChild).toBeNull();
   });
@@ -65,7 +65,7 @@ describe('EstablishmentOrderUploadModal', () => {
         onConfirm={mockOnConfirm}
         onFileNameChange={mockOnFileNameChange}
       />,
-      { wrapper: reactQueryWrapper },
+      { wrapper: TestQueryClientProvider },
     );
 
     expect(screen.getByText('Upload establishment order')).toBeInTheDocument();
@@ -85,7 +85,7 @@ describe('EstablishmentOrderUploadModal', () => {
         onConfirm={mockOnConfirm}
         onFileNameChange={mockOnFileNameChange}
       />,
-      { wrapper: reactQueryWrapper },
+      { wrapper: TestQueryClientProvider },
     );
 
     const input = screen.getByRole('textbox');
@@ -104,7 +104,7 @@ describe('EstablishmentOrderUploadModal', () => {
         onConfirm={mockOnConfirm}
         onFileNameChange={mockOnFileNameChange}
       />,
-      { wrapper: reactQueryWrapper },
+      { wrapper: TestQueryClientProvider },
     );
 
     expect(screen.getByText('File name already exists')).toBeInTheDocument();
@@ -123,7 +123,7 @@ describe('EstablishmentOrderUploadModal', () => {
         onConfirm={mockOnConfirm}
         onFileNameChange={mockOnFileNameChange}
       />,
-      { wrapper: reactQueryWrapper },
+      { wrapper: TestQueryClientProvider },
     );
 
     const uploadButton = screen.getByRole('button', { name: /upload/i });
@@ -140,7 +140,7 @@ describe('EstablishmentOrderUploadModal', () => {
         onConfirm={mockOnConfirm}
         onFileNameChange={mockOnFileNameChange}
       />,
-      { wrapper: reactQueryWrapper },
+      { wrapper: TestQueryClientProvider },
     );
 
     fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
@@ -158,7 +158,7 @@ describe('EstablishmentOrderUploadModal', () => {
         onConfirm={mockOnConfirm}
         onFileNameChange={mockOnFileNameChange}
       />,
-      { wrapper: reactQueryWrapper },
+      { wrapper: TestQueryClientProvider },
     );
 
     fireEvent.click(screen.getByRole('button', { name: /upload/i }));
@@ -176,7 +176,7 @@ describe('EstablishmentOrderUploadModal', () => {
         onConfirm={mockOnConfirm}
         onFileNameChange={mockOnFileNameChange}
       />,
-      { wrapper: reactQueryWrapper },
+      { wrapper: TestQueryClientProvider },
     );
 
     const form = screen.getByRole('textbox').closest('form');
@@ -197,7 +197,7 @@ describe('EstablishmentOrderUploadModal', () => {
         onConfirm={mockOnConfirm}
         onFileNameChange={mockOnFileNameChange}
       />,
-      { wrapper: reactQueryWrapper },
+      { wrapper: TestQueryClientProvider },
     );
 
     const form = screen.getByRole('textbox').closest('form');

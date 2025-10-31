@@ -6,8 +6,11 @@ import {
   ResponseError,
   SearchRecreationResourcesRequest,
   SiteOperatorDto,
+  RecreationResourceApi,
+  Configuration,
 } from '@/service/recreation-resource';
 import { useRecreationResourceApi } from '@/service/hooks/useRecreationResourceApi';
+import { getBasePath } from '@/service/hooks/helpers';
 import {
   useInfiniteQuery,
   useQuery,
@@ -23,11 +26,40 @@ import {
   RecreationResourceDetailModel,
   AlphabeticalRecreationResourceModel,
 } from '@/service/custom-models';
+import { RECREATION_RESOURCE_QUERY_KEYS } from './queryKeys';
 
 interface SearchParams extends SearchRecreationResourcesRequest {
   // Extend generated request with additional params not used in the api
   community?: string;
 }
+
+/**
+ * Fetch a recreation resource by ID (non-hook version for loaders).
+ *
+ * @param {Partial<GetRecreationResourceByIdRequest>} params - The parameters for the query
+ * @param {string} params.id - The unique identifier of the recreation resource
+ * @param {Array<GetRecreationResourceByIdImageSizeCodesEnum>} params.imageSizeCodes - Array of image size codes to request
+ */
+export const getRecreationResourceById = async ({
+  id,
+  imageSizeCodes,
+}: GetRecreationResourceByIdRequest): Promise<RecreationResourceDetailModel> => {
+  const api = new RecreationResourceApi(
+    new Configuration({
+      basePath: getBasePath(),
+    }),
+  );
+
+  const response = await api.getRecreationResourceById({
+    id,
+    imageSizeCodes,
+  });
+
+  // normalize image urls
+  return transformRecreationResourceDetail(
+    response,
+  ) as RecreationResourceDetailModel;
+};
 
 /**
  * Custom hook to fetch a recreation resource by ID.
@@ -42,7 +74,7 @@ export const useGetRecreationResourceById = ({
 }: Partial<GetRecreationResourceByIdRequest>) => {
   const api = useRecreationResourceApi();
   return useQuery<RecreationResourceDetailModel | undefined, ResponseError>({
-    queryKey: ['recreationResource', id],
+    queryKey: RECREATION_RESOURCE_QUERY_KEYS.detail(id!),
 
     // Fetch function that calls the API and transforms the response
     queryFn: async () => {

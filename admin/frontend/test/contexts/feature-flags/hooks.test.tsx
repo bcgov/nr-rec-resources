@@ -4,16 +4,31 @@ import {
   useFeatureFlagsEnabled,
 } from '@/contexts/feature-flags';
 import { renderHook } from '@testing-library/react';
+import { useLocation } from '@tanstack/react-router';
 import { ReactNode } from 'react';
-import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+vi.mock('@tanstack/react-router', async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import('@tanstack/react-router')>();
+  return {
+    ...actual,
+    useLocation: vi.fn(),
+  };
+});
 
 describe('Feature Flag Hooks', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   const createWrapper = (searchParams = '') => {
+    vi.mocked(useLocation).mockReturnValue({
+      search: searchParams ? `?${searchParams}` : '',
+    } as any);
+
     return ({ children }: { children: ReactNode }) => (
-      <MemoryRouter initialEntries={[`/?${searchParams}`]}>
-        <FeatureFlagProvider>{children}</FeatureFlagProvider>
-      </MemoryRouter>
+      <FeatureFlagProvider>{children}</FeatureFlagProvider>
     );
   };
 

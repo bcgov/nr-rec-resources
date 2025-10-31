@@ -1,4 +1,6 @@
 import { RecreationResourceImageVariantDto } from '@/services/recreation-resource-admin';
+import { RecResourceNavKey } from '@/pages/rec-resource-page';
+import { RouteHandle } from '@shared/index';
 
 export type FileType = 'image' | 'document';
 
@@ -44,3 +46,13 @@ export type GalleryGeneralAction =
   | 'confirm-delete'
   | 'cancel-delete'
   | 'cancel-upload';
+
+export interface RecResourcePageRouteHandle<TContext>
+  extends RouteHandle<TContext> {
+  tab: RecResourceNavKey;
+}
+
+export interface RecResourceRouteContext {
+  resourceId: string;
+  resourceName?: string;
+}

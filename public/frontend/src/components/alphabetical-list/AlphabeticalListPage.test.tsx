@@ -2,20 +2,19 @@ import { render, screen } from '@/test-utils';
 import AlphabeticalListPage from './AlphabeticalListPage';
 import { vi } from 'vitest';
 
-vi.mock('react-router-dom', () => ({
-  useSearchParams: () => [new URLSearchParams('?letter=A')],
+vi.mock('@tanstack/react-router', () => ({
+  useSearch: () => ({ letter: 'A' }),
   useNavigate: () => vi.fn(),
-}));
-
-vi.mock('@/components/layout/PageTitle', () => ({
-  default: ({ title }: { title: string }) => (
-    <div data-testid="page-title">{title}</div>
-  ),
+  useMatches: () => [
+    {
+      context: {},
+      loaderData: {},
+    },
+  ],
 }));
 
 vi.mock('@shared/components/breadcrumbs', () => ({
   Breadcrumbs: () => <nav data-testid="breadcrumbs" />,
-  useBreadcrumbs: () => {},
 }));
 
 vi.mock('@/components/alphabetical-list', () => ({
@@ -42,11 +41,6 @@ vi.mock(
 );
 
 describe('AlphabeticalListPage', () => {
-  it('renders page title', () => {
-    render(<AlphabeticalListPage />);
-    expect(screen.getByTestId('page-title')).toBeInTheDocument();
-  });
-
   it('renders breadcrumbs', () => {
     render(<AlphabeticalListPage />);
     expect(screen.getByTestId('breadcrumbs')).toBeInTheDocument();

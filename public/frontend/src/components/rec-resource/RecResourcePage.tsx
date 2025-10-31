@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Breadcrumbs, useBreadcrumbs } from '@shared/components/breadcrumbs';
+import { Breadcrumbs } from '@shared/components/breadcrumbs';
 import PhotoGallery, {
   PhotoGalleryProps,
 } from '@/components/rec-resource/PhotoGallery';
@@ -14,20 +13,16 @@ import {
   SiteDescription,
   ThingsToDo,
 } from '@/components/rec-resource/section';
+import { Route } from '@/routes/resource/$id';
 import Status from '@/components/rec-resource/Status';
 import {
   PageSection,
   PageWithScrollMenu,
 } from '@/components/layout/PageWithScrollMenu';
 import locationDot from '@/images/fontAwesomeIcons/location-dot.svg';
-import PageTitle from '@/components/layout/PageTitle';
-import { ROUTE_TITLES, SITE_TITLE } from '@/routes/constants';
 import '@/components/rec-resource/RecResource.scss';
 import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
-import {
-  useGetRecreationResourceById,
-  useGetSiteOperatorById,
-} from '@/service/queries/recreation-resource';
+import { useGetSiteOperatorById } from '@/service/queries/recreation-resource';
 import RecResourceReservation from './RecResourceReservation';
 import KnowBeforeYouGo from './section/KnowBeforeYouGo';
 
@@ -36,24 +31,19 @@ const FULL_RESOLUTION_SIZE_CODE = 'original';
 const RECREATION_SITE = 'Recreation site';
 
 const RecResourcePage = () => {
-  const navigate = useNavigate();
-  const [photos, setPhotos] = useState<PhotoGalleryProps['photos']>([]);
+  const { recResource } = Route.useLoaderData();
 
-  const { id } = useParams();
-
-  const { data: recResource, error } = useGetRecreationResourceById({
-    id,
-    imageSizeCodes: [PREVIEW_SIZE_CODE, FULL_RESOLUTION_SIZE_CODE],
-  });
-
+  // Fetch site operator client-side using rec_resource_id
   const {
     data: siteOperator,
     isLoading: isOperatorLoading,
     error: operatorError,
     refetch: refetchOperator,
   } = useGetSiteOperatorById({
-    id,
+    id: recResource.rec_resource_id,
   });
+
+  const [photos, setPhotos] = useState<PhotoGalleryProps['photos']>([]);
 
   /**
    * Processes recreation resource images to extract the preview and full size image urls
@@ -110,11 +100,6 @@ const RecResourcePage = () => {
   const formattedName = name
     ?.toLowerCase()
     .replace(/(^\w|\s\w)/g, (m) => m.toUpperCase());
-
-  // Set up breadcrumbs for this resource page
-  useBreadcrumbs({
-    context: { resourceName: formattedName, resourceId: rec_resource_id },
-  });
 
   const isThingsToDo = recreation_activity && recreation_activity.length > 0;
   const isAccess = recreation_access && recreation_access.length > 0;
@@ -195,150 +180,132 @@ const RecResourcePage = () => {
     },
   ];
 
-  const resourceNotFound = error?.response.status === 404;
-
-  if (resourceNotFound) {
-    navigate('/404', {
-      replace: true,
-    });
-  }
-
   return (
-    <>
-      <PageTitle
-        title={
-          formattedName ? ROUTE_TITLES.REC_RESOURCE(formattedName) : SITE_TITLE
-        }
-      />
-      <div className="rec-resource-container">
-        <div className={`bg-container ${isPhotoGallery ? 'with-gallery' : ''}`}>
-          <div className="page">
-            <Breadcrumbs className="mb-4" />
-            <section>
-              <div>
-                <h1>{formattedName}</h1>
-                <p className="bc-color-blue-dk mb-4">
-                  <span>{rec_resource_type} |</span> {rec_resource_id}
-                </p>
-              </div>
-              <div className="icon-container mb-4">
-                <img
-                  alt="Location dot icon"
-                  src={locationDot}
-                  height={24}
-                  width={24}
-                />{' '}
-                <span className="capitalize">
-                  {closest_community?.toLowerCase()}
-                </span>
-              </div>
-              {statusCode && statusDescription && (
-                <Status
-                  description={statusDescription}
-                  statusCode={statusCode}
-                />
-              )}
-              {isRecreationSite && recResource && (
-                <RecResourceReservation recResource={recResource} />
-              )}
-            </section>
-          </div>
-        </div>
+    <div className="rec-resource-container">
+      <div className={`bg-container ${isPhotoGallery ? 'with-gallery' : ''}`}>
         <div className="page">
-          {isPhotoGallery && (
-            <div className="photo-gallery-container">
-              <PhotoGallery photos={photos} />
+          <Breadcrumbs className="mb-4" />
+          <section>
+            <div>
+              <h1>{formattedName}</h1>
+              <p className="bc-color-blue-dk mb-4">
+                <span>{rec_resource_type} |</span> {rec_resource_id}
+              </p>
             </div>
-          )}
-          <PageWithScrollMenu
-            sections={pageSections}
-            className="rec-resource-main"
-          >
-            {(sectionRefs) => {
-              let refIndex = 0; // Track which ref to use for each visible section
-              return (
-                <div className="rec-content-container">
-                  {isClosures && (
-                    <Closures
-                      comment={statusComment}
-                      siteName={formattedName}
-                      ref={sectionRefs[refIndex++]}
-                    />
-                  )}
-
-                  {isSiteDescription && (
-                    <SiteDescription
-                      description={description}
-                      maintenanceCode={maintenance_standard_code}
-                      ref={sectionRefs[refIndex++]}
-                    />
-                  )}
-
-                  {isCampingAvailable && (
-                    <Camping
-                      id={SectionIds.CAMPING}
-                      ref={sectionRefs[refIndex++]}
-                      campsite_count={campsite_count}
-                      fees={recreation_fee}
-                    />
-                  )}
-
-                  {isAdditionalFeesAvailable && (
-                    <AdditionalFees
-                      id={SectionIds.ADDITIONAL_FEES}
-                      ref={sectionRefs[refIndex++]}
-                      fees={additional_fees}
-                    />
-                  )}
-
-                  {isThingsToDo && (
-                    <ThingsToDo
-                      activities={recreation_activity}
-                      ref={sectionRefs[refIndex++]}
-                    />
-                  )}
-
-                  {isFacilitiesAvailable && (
-                    <Facilities
-                      recreation_structure={recreation_structure}
-                      ref={sectionRefs[refIndex++]}
-                    />
-                  )}
-
-                  {isMapsAndLocation && (
-                    <MapsAndLocation
-                      accessTypes={recreation_access}
-                      recResource={recResource}
-                      ref={sectionRefs[refIndex++]}
-                    />
-                  )}
-
-                  {isRecreationSite && (
-                    <KnowBeforeYouGo
-                      isReservable={isReservable}
-                      isAdditionalFeesAvailable={isAdditionalFeesAvailable}
-                      isCampingAvailable={isCampingAvailable}
-                      ref={sectionRefs[refIndex++]}
-                    />
-                  )}
-
-                  {rec_resource_id && (
-                    <Contact
-                      ref={sectionRefs[refIndex++]}
-                      error={operatorError}
-                      isLoading={isOperatorLoading}
-                      siteOperator={siteOperator}
-                      refetchData={refetchOperator}
-                      rec_resource_id={rec_resource_id}
-                    />
-                  )}
-                </div>
-              );
-            }}
-          </PageWithScrollMenu>
+            <div className="icon-container mb-4">
+              <img
+                alt="Location dot icon"
+                src={locationDot}
+                height={24}
+                width={24}
+              />{' '}
+              <span className="capitalize">
+                {closest_community?.toLowerCase()}
+              </span>
+            </div>
+            {statusCode && statusDescription && (
+              <Status description={statusDescription} statusCode={statusCode} />
+            )}
+            {isRecreationSite && recResource && (
+              <RecResourceReservation recResource={recResource} />
+            )}
+          </section>
         </div>
       </div>
-    </>
+      <div className="page">
+        {isPhotoGallery && (
+          <div className="photo-gallery-container">
+            <PhotoGallery photos={photos} />
+          </div>
+        )}
+        <PageWithScrollMenu
+          sections={pageSections}
+          className="rec-resource-main"
+        >
+          {(sectionRefs) => {
+            let refIndex = 0; // Track which ref to use for each visible section
+            return (
+              <div className="rec-content-container">
+                {isClosures && (
+                  <Closures
+                    comment={statusComment}
+                    siteName={formattedName}
+                    ref={sectionRefs[refIndex++]}
+                  />
+                )}
+
+                {isSiteDescription && (
+                  <SiteDescription
+                    description={description}
+                    maintenanceCode={maintenance_standard_code}
+                    ref={sectionRefs[refIndex++]}
+                  />
+                )}
+
+                {isCampingAvailable && (
+                  <Camping
+                    id={SectionIds.CAMPING}
+                    ref={sectionRefs[refIndex++]}
+                    campsite_count={campsite_count}
+                    fees={recreation_fee}
+                  />
+                )}
+
+                {isAdditionalFeesAvailable && (
+                  <AdditionalFees
+                    id={SectionIds.ADDITIONAL_FEES}
+                    ref={sectionRefs[refIndex++]}
+                    fees={additional_fees}
+                  />
+                )}
+
+                {isThingsToDo && (
+                  <ThingsToDo
+                    activities={recreation_activity}
+                    ref={sectionRefs[refIndex++]}
+                  />
+                )}
+
+                {isFacilitiesAvailable && (
+                  <Facilities
+                    recreation_structure={recreation_structure}
+                    ref={sectionRefs[refIndex++]}
+                  />
+                )}
+
+                {isMapsAndLocation && (
+                  <MapsAndLocation
+                    accessTypes={recreation_access}
+                    recResource={recResource}
+                    ref={sectionRefs[refIndex++]}
+                  />
+                )}
+
+                {isRecreationSite && (
+                  <KnowBeforeYouGo
+                    isReservable={isReservable}
+                    isAdditionalFeesAvailable={isAdditionalFeesAvailable}
+                    isCampingAvailable={isCampingAvailable}
+                    ref={sectionRefs[refIndex++]}
+                  />
+                )}
+
+                {rec_resource_id && (
+                  <Contact
+                    ref={sectionRefs[refIndex++]}
+                    error={operatorError}
+                    isLoading={isOperatorLoading}
+                    siteOperator={siteOperator}
+                    refetchData={refetchOperator}
+                    rec_resource_id={rec_resource_id}
+                  />
+                )}
+              </div>
+            );
+          }}
+        </PageWithScrollMenu>
+      </div>
+    </div>
   );
 };
 

@@ -1,5 +1,5 @@
-import { render, screen, within, fireEvent } from '@testing-library/react';
-import { BrowserRouter } from 'react-router';
+import { screen, within, fireEvent } from '@testing-library/react';
+import { renderWithRouter } from '@/test-utils';
 import Header from '@/components/layout/Header';
 import { HEADER_LINKS } from '@/components/layout/constants';
 
@@ -22,17 +22,13 @@ import { trackClickEvent } from '@shared/utils';
 const mockTrackClickEvent = vi.mocked(trackClickEvent);
 
 describe('Header component', () => {
-  const renderWithRouter = (ui: React.ReactElement) => {
-    return render(<BrowserRouter>{ui}</BrowserRouter>);
-  };
-
   beforeEach(() => {
     vi.clearAllMocks();
     mockTrackClickEvent.mockReturnValue(vi.fn());
   });
 
-  it('renders the component correctly', () => {
-    renderWithRouter(<Header />);
+  it('renders the component correctly', async () => {
+    await renderWithRouter(<Header />);
 
     expect(screen.getByRole('banner')).toBeInTheDocument();
     expect(
@@ -48,16 +44,16 @@ describe('Header component', () => {
     ).toBeInTheDocument();
   });
 
-  it('renders hamburger button with correct initial state', () => {
-    renderWithRouter(<Header />);
+  it('renders hamburger button with correct initial state', async () => {
+    await renderWithRouter(<Header />);
     const hamburgerButton = screen.getByRole('button', { name: /open menu/i });
     expect(hamburgerButton).toBeInTheDocument();
     expect(hamburgerButton).toHaveAttribute('aria-expanded', 'false');
     expect(hamburgerButton).toHaveAttribute('aria-label', 'Open menu');
   });
 
-  it('renders navigation drawer with correct initial state', () => {
-    renderWithRouter(<Header />);
+  it('renders navigation drawer with correct initial state', async () => {
+    await renderWithRouter(<Header />);
     const navigationDrawer = screen.getByRole('navigation', {
       name: /mobile navigation menu/i,
     });
@@ -65,8 +61,8 @@ describe('Header component', () => {
     expect(navigationDrawer).toHaveClass('menu-closed');
   });
 
-  it('renders all header links correctly', () => {
-    renderWithRouter(<Header />);
+  it('renders all header links correctly', async () => {
+    await renderWithRouter(<Header />);
 
     const desktopNav = screen.getByRole('navigation', {
       name: /secondary header site navigation/i,
@@ -90,8 +86,8 @@ describe('Header component', () => {
     });
   });
 
-  it('toggles hamburger menu when hamburger button is clicked', () => {
-    renderWithRouter(<Header />);
+  it('toggles hamburger menu when hamburger button is clicked', async () => {
+    await renderWithRouter(<Header />);
 
     const hamburgerButton = screen.getByRole('button', { name: /open menu/i });
     const navigationDrawer = screen.getByRole('navigation', {
@@ -114,8 +110,8 @@ describe('Header component', () => {
     expect(navigationDrawer).toHaveClass('menu-closed');
   });
 
-  it('navigation drawer can be toggled multiple times', () => {
-    renderWithRouter(<Header />);
+  it('navigation drawer can be toggled multiple times', async () => {
+    await renderWithRouter(<Header />);
 
     const hamburgerButton = screen.getByRole('button', { name: /open menu/i });
     const navigationDrawer = screen.getByRole('navigation', {
@@ -132,8 +128,8 @@ describe('Header component', () => {
     expect(navigationDrawer).toHaveClass('menu-open');
   });
 
-  it('tracks analytics when header links are clicked', () => {
-    renderWithRouter(<Header />);
+  it('tracks analytics when header links are clicked', async () => {
+    await renderWithRouter(<Header />);
 
     const firstLink = HEADER_LINKS[0];
     const desktopNav = screen.getByRole('navigation', {
@@ -149,8 +145,8 @@ describe('Header component', () => {
     });
   });
 
-  it('tracks analytics when mobile navigation links are clicked', () => {
-    renderWithRouter(<Header />);
+  it('tracks analytics when mobile navigation links are clicked', async () => {
+    await renderWithRouter(<Header />);
 
     const hamburgerButton = screen.getByRole('button', { name: /open menu/i });
     fireEvent.click(hamburgerButton);
@@ -169,8 +165,8 @@ describe('Header component', () => {
     });
   });
 
-  it('renders logo link correctly', () => {
-    renderWithRouter(<Header />);
+  it('renders logo link correctly', async () => {
+    await renderWithRouter(<Header />);
 
     const logoLink = screen.getByRole('link', {
       name: /recreation sites and trails bc logo/i,
@@ -180,8 +176,8 @@ describe('Header component', () => {
     expect(within(logoLink).getByRole('img')).toBeInTheDocument();
   });
 
-  it('renders environment banner', () => {
-    renderWithRouter(<Header />);
+  it('renders environment banner', async () => {
+    await renderWithRouter(<Header />);
     expect(screen.getByTestId('environment-banner')).toBeInTheDocument();
   });
 });

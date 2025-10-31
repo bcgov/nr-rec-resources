@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import './AlphabeticalNavigation.scss';
 
 interface AlphabeticalNavigationProps {
@@ -10,7 +10,7 @@ export const AlphabeticalNavigation = ({
   selectedLetter,
   selectedType,
 }: AlphabeticalNavigationProps) => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate({ from: '/search/a-z-list' });
 
   // Generate A-Z letters
   const letters = [
@@ -28,19 +28,23 @@ export const AlphabeticalNavigation = ({
     letter?: string;
     type?: string | null;
   }) => {
-    const newParams = new URLSearchParams(searchParams);
+    navigate({
+      search: (prev) => {
+        const newParams = { ...prev };
 
-    if (updates.letter !== undefined) {
-      newParams.set('letter', updates.letter);
-    }
+        if (updates.letter !== undefined) {
+          newParams.letter = updates.letter;
+        }
 
-    if (updates.type === null) {
-      newParams.delete('type');
-    } else if (updates.type !== undefined) {
-      newParams.set('type', updates.type);
-    }
+        if (updates.type === null) {
+          delete newParams.type;
+        } else if (updates.type !== undefined) {
+          newParams.type = updates.type;
+        }
 
-    setSearchParams(newParams);
+        return newParams;
+      },
+    });
   };
 
   return (

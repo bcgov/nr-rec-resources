@@ -1,4 +1,4 @@
-import { EXTERNAL_LINKS } from '@/data/urls';
+import { EXTERNAL_LINKS } from '@/constants/urls';
 
 export interface HeaderLink {
   url: string;
