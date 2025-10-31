@@ -13,7 +13,7 @@ import { buildRecreationResourcePageQuery } from '../utils/buildRecreationResour
 
 @Injectable()
 export class RecreationResourceSearchService {
-  private static readonly MAX_PAGE_SIZE = 10;
+  private static readonly MAX_PAGE_SIZE = 200;
   private static readonly MAX_PAGE_NUMBER = 10;
 
   constructor(private readonly prisma: PrismaService) {}
