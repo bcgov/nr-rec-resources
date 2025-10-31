@@ -157,7 +157,7 @@ resource "aws_cloudfront_response_headers_policy" "csp_policy" {
         "img-src 'self' blob: data: https://fonts.googleapis.com https://*.arcgis.com https://www.w3.org https://services.arcgisonline.com ${var.csp_urls.image_src} ${var.csp_urls.matomo_src}",
         "connect-src 'self' ${local.api_url} ${local.establishment_order_docs_s3_url} https://${var.app_env}.loginproxy.gov.bc.ca https://loginproxy.gov.bc.ca https://services6.arcgis.com https://www.arcgis.com https://services.arcgis.com https://tiles.arcgis.com https://maps.arcgis.com https://basemaps.arcgis.com ${var.csp_urls.connect_src} ${var.csp_urls.matomo_src}",
         "media-src 'self'",
-        "frame-src 'none'",
+        "frame-src 'self' https://${var.app_env}.loginproxy.gov.bc.ca https://loginproxy.gov.bc.ca",
         "worker-src 'self' blob: https://js.arcgis.com",
         "object-src 'none'",
         "base-uri 'self'",
