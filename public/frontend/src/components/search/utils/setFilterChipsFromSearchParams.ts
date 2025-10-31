@@ -6,7 +6,7 @@ import filterChipStore from '@/store/filterChips';
 const setFilterChipsFromSearchParams = (
   filterChips: FilterChip[],
   searchResults: SearchResultsStore,
-  searchParams: URLSearchParams,
+  searchParams: Record<string, any>,
 ) => {
   const isFilterChips = filterChips.length > 0;
   if (isFilterChips) return;
@@ -15,14 +15,18 @@ const setFilterChipsFromSearchParams = (
   const filterChipList: FilterChip[] = [];
 
   const filterParams = Object.fromEntries(
-    [...searchParams].filter(([key]) => !['filter', 'page'].includes(key)),
+    Object.entries(searchParams).filter(
+      ([key]) => !['filter', 'page'].includes(key),
+    ),
   );
 
   if (Object.keys(filterParams).length === 0) return;
 
   filters.forEach((filterGroup) => {
     const groupParam = filterGroup.param;
-    const groupValues = filterParams[groupParam]?.split('_');
+    const groupValues = filterParams[groupParam]
+      ? String(filterParams[groupParam]).split('_')
+      : [];
 
     filterGroup.options.forEach((option) => {
       if (groupValues?.includes(String(option.id))) {

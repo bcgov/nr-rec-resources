@@ -1,10 +1,5 @@
 import { useCallback } from 'react';
-import {
-  useNavigate,
-  useLocation,
-  NavigateOptions,
-  To,
-} from 'react-router-dom';
+import { useLocation, useNavigate } from '@tanstack/react-router';
 
 /**
  * Custom hook that wraps React Router's useNavigate to preserve query parameters
@@ -26,30 +21,17 @@ export const useNavigateWithQueryParams = () => {
   const location = useLocation();
 
   return useCallback(
-    (to: To | number, options?: NavigateOptions) => {
+    (to: string | number, options?: { replace?: boolean }) => {
       // Handle numeric navigation (e.g., navigate(-1) for going back)
       if (typeof to === 'number') {
-        navigate(to);
+        navigate({ to, replace: options?.replace });
         return;
       }
 
       // Preserve current search params
       const currentSearch = location.search;
 
-      // Handle string paths
-      if (typeof to === 'string') {
-        navigate(`${to}${currentSearch}`, options);
-        return;
-      }
-
-      // Handle object paths (To type with pathname, search, etc.)
-      navigate(
-        {
-          ...to,
-          search: to.search || currentSearch,
-        },
-        options,
-      );
+      navigate({ to: `${to}${currentSearch}`, replace: options?.replace });
     },
     [navigate, location.search],
   );

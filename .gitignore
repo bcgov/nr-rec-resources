@@ -78,6 +78,7 @@ web_modules/
 
 # Optional npm cache directory
 .npm
+.npm-cache
 
 # Optional eslint cache
 .eslintcache
@@ -266,3 +267,6 @@ k6_results/
 /public/frontend/coverage
 admin/frontend/coverage/**/*
 admin/backend/coverage/**/*
+
+# Tanstack
+.tanstack

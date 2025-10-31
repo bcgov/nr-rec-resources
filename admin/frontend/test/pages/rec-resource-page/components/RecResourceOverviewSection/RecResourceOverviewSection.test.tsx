@@ -1,8 +1,17 @@
 import { FeatureFlagProvider } from '@/contexts/feature-flags';
 import { RecResourceOverviewSection } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/RecResourceOverviewSection';
 import { render, screen } from '@testing-library/react';
-import { createMemoryRouter, RouterProvider } from 'react-router-dom';
-import { describe, expect, it, vi } from 'vitest';
+import { useLocation } from '@tanstack/react-router';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+vi.mock('@tanstack/react-router', async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import('@tanstack/react-router')>();
+  return {
+    ...actual,
+    useLocation: vi.fn(),
+  };
+});
 
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceActivitySection',
@@ -28,6 +37,12 @@ vi.mock(
 );
 
 describe('RecResourceOverviewSection', () => {
+  beforeEach(() => {
+    vi.mocked(useLocation).mockReturnValue({
+      search: '',
+    } as any);
+  });
+
   const recResource = {
     description: '<b>Test Description</b>',
     closest_community: 'Test Community',
@@ -46,23 +61,14 @@ describe('RecResourceOverviewSection', () => {
     ],
   } as any;
 
-  const renderWithRouter = (ui: React.ReactNode) => {
-    const router = createMemoryRouter(
-      [
-        {
-          path: '/',
-          element: <FeatureFlagProvider>{ui}</FeatureFlagProvider>,
-        },
-      ],
-      {
-        initialEntries: ['/'],
-      },
-    );
-    return render(<RouterProvider router={router} />);
+  const renderWithProvider = (ui: React.ReactNode) => {
+    return render(<FeatureFlagProvider>{ui}</FeatureFlagProvider>);
   };
 
   it('renders all overview items', () => {
-    renderWithRouter(<RecResourceOverviewSection recResource={recResource} />);
+    renderWithProvider(
+      <RecResourceOverviewSection recResource={recResource} />,
+    );
     expect(screen.getByText('Overview')).toBeInTheDocument();
     expect(screen.getByText('Description')).toBeInTheDocument();
     expect(screen.getByText('Closest Community')).toBeInTheDocument();
@@ -98,7 +104,7 @@ describe('RecResourceOverviewSection', () => {
       ],
     } as any;
 
-    renderWithRouter(
+    renderWithProvider(
       <RecResourceOverviewSection recResource={recResourceWithoutSubAccess} />,
     );
     expect(screen.getByText('Road')).toBeInTheDocument();
@@ -111,7 +117,7 @@ describe('RecResourceOverviewSection', () => {
       access_codes: [],
     } as any;
 
-    renderWithRouter(
+    renderWithProvider(
       <RecResourceOverviewSection recResource={recResourceNoAccess} />,
     );
     // With empty accessCodes, should show a dash
@@ -125,7 +131,7 @@ describe('RecResourceOverviewSection', () => {
       project_established_date_readable_utc: 'January 10, 2020',
     } as any;
 
-    renderWithRouter(
+    renderWithProvider(
       <RecResourceOverviewSection recResource={recResourceWithDate} />,
     );
     expect(screen.getByText('Project Established Date')).toBeInTheDocument();
@@ -138,7 +144,7 @@ describe('RecResourceOverviewSection', () => {
       project_established_date_readable_utc: null,
     } as any;
 
-    renderWithRouter(
+    renderWithProvider(
       <RecResourceOverviewSection recResource={recResourceWithNullDate} />,
     );
     expect(screen.getByText('Project Established Date')).toBeInTheDocument();
@@ -159,7 +165,7 @@ describe('RecResourceOverviewSection', () => {
       project_established_date_readable_utc: undefined,
     } as any;
 
-    renderWithRouter(
+    renderWithProvider(
       <RecResourceOverviewSection recResource={recResourceWithUndefinedDate} />,
     );
     expect(screen.getByText('Project Established Date')).toBeInTheDocument();
@@ -171,7 +177,7 @@ describe('RecResourceOverviewSection', () => {
       project_established_date_readable_utc: '',
     } as any;
 
-    renderWithRouter(
+    renderWithProvider(
       <RecResourceOverviewSection recResource={recResourceWithEmptyDate} />,
     );
     expect(screen.getByText('Project Established Date')).toBeInTheDocument();
@@ -183,7 +189,7 @@ describe('RecResourceOverviewSection', () => {
       project_established_date_readable_utc: '   ',
     } as any;
 
-    renderWithRouter(
+    renderWithProvider(
       <RecResourceOverviewSection
         recResource={recResourceWithWhitespaceDate}
       />,
@@ -215,7 +221,7 @@ describe('RecResourceOverviewSection', () => {
         project_established_date_readable_utc: dateValue,
       } as any;
 
-      const { unmount } = renderWithRouter(
+      const { unmount } = renderWithProvider(
         <RecResourceOverviewSection recResource={recResourceWithCustomDate} />,
       );
       expect(screen.getByText('Project Established Date')).toBeInTheDocument();
@@ -236,7 +242,7 @@ describe('RecResourceOverviewSection', () => {
       risk_rating_description: undefined,
     } as any;
 
-    renderWithRouter(
+    renderWithProvider(
       <RecResourceOverviewSection recResource={recResourceMinimal} />,
     );
 
@@ -270,7 +276,7 @@ describe('RecResourceOverviewSection', () => {
       control_access_code_description: 'Controlled',
     } as any;
 
-    renderWithRouter(
+    renderWithProvider(
       <RecResourceOverviewSection recResource={recResourceComplete} />,
     );
 
@@ -297,7 +303,9 @@ describe('RecResourceOverviewSection', () => {
   });
 
   it('renders child components', () => {
-    renderWithRouter(<RecResourceOverviewSection recResource={recResource} />);
+    renderWithProvider(
+      <RecResourceOverviewSection recResource={recResource} />,
+    );
     expect(screen.getByText('RecResourceLocationSection')).toBeInTheDocument();
     expect(screen.getByText('RecResourceActivitySection')).toBeInTheDocument();
     expect(

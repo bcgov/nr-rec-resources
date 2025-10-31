@@ -3,7 +3,6 @@ import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { RecreationResourceDetailUIModel } from '@/services';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock dependencies
@@ -89,26 +88,6 @@ describe('RecResourceOverviewEditSection', () => {
     mutate: vi.fn(),
   };
 
-  const renderWithRouter = (component: React.ReactElement) => {
-    const router = createMemoryRouter(
-      [
-        {
-          path: '/',
-          element: component,
-        },
-        {
-          path: '/rec-resource/:id/overview',
-          element: <div>Overview Page</div>,
-        },
-      ],
-      {
-        initialEntries: ['/'],
-      },
-    );
-
-    return render(<RouterProvider router={router} />);
-  };
-
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -172,13 +151,13 @@ describe('RecResourceOverviewEditSection', () => {
 
   describe('rendering', () => {
     it('should render the edit section with title', () => {
-      renderWithRouter(<RecResourceOverviewEditSection />);
+      render(<RecResourceOverviewEditSection />);
 
       expect(screen.getByText('Edit Overview')).toBeInTheDocument();
     });
 
     it('should render Cancel button', () => {
-      renderWithRouter(<RecResourceOverviewEditSection />);
+      render(<RecResourceOverviewEditSection />);
 
       expect(
         screen.getByRole('button', { name: 'Cancel' }),
@@ -186,13 +165,13 @@ describe('RecResourceOverviewEditSection', () => {
     });
 
     it('should render Save button', () => {
-      renderWithRouter(<RecResourceOverviewEditSection />);
+      render(<RecResourceOverviewEditSection />);
 
       expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
     });
 
     it('should render Status field', () => {
-      renderWithRouter(<RecResourceOverviewEditSection />);
+      render(<RecResourceOverviewEditSection />);
 
       expect(screen.getByText('Status')).toBeInTheDocument();
       expect(
@@ -201,7 +180,7 @@ describe('RecResourceOverviewEditSection', () => {
     });
 
     it('should render Maintenance Standard field', () => {
-      renderWithRouter(<RecResourceOverviewEditSection />);
+      render(<RecResourceOverviewEditSection />);
 
       expect(screen.getByText('Maintenance Standard')).toBeInTheDocument();
       expect(
@@ -210,7 +189,7 @@ describe('RecResourceOverviewEditSection', () => {
     });
 
     it('should render Control Access Type field', () => {
-      renderWithRouter(<RecResourceOverviewEditSection />);
+      render(<RecResourceOverviewEditSection />);
 
       expect(screen.getByText('Control Access Type')).toBeInTheDocument();
       expect(
@@ -219,7 +198,7 @@ describe('RecResourceOverviewEditSection', () => {
     });
 
     it('should render Access and Sub-Access field', () => {
-      renderWithRouter(<RecResourceOverviewEditSection />);
+      render(<RecResourceOverviewEditSection />);
 
       expect(screen.getByText('Access and Sub-Access')).toBeInTheDocument();
       expect(
@@ -230,7 +209,7 @@ describe('RecResourceOverviewEditSection', () => {
     });
 
     it('should render helper text for Access and Sub-Access field', () => {
-      renderWithRouter(<RecResourceOverviewEditSection />);
+      render(<RecResourceOverviewEditSection />);
 
       expect(screen.getByTestId('helper-text')).toHaveTextContent(
         'Access types are grouped with their available sub-options below them.',
@@ -250,7 +229,7 @@ describe('RecResourceOverviewEditSection', () => {
         selectedAccessOptions: [],
       } as any);
 
-      renderWithRouter(<RecResourceOverviewEditSection />);
+      render(<RecResourceOverviewEditSection />);
 
       const saveButton = screen.getByRole('button', { name: 'Save' });
       expect(saveButton).toBeDisabled();
@@ -267,7 +246,7 @@ describe('RecResourceOverviewEditSection', () => {
         selectedAccessOptions: [],
       } as any);
 
-      renderWithRouter(<RecResourceOverviewEditSection />);
+      render(<RecResourceOverviewEditSection />);
 
       const saveButton = screen.getByRole('button', { name: 'Save' });
       expect(saveButton).not.toBeDisabled();
@@ -284,7 +263,7 @@ describe('RecResourceOverviewEditSection', () => {
         selectedAccessOptions: [],
       } as any);
 
-      renderWithRouter(<RecResourceOverviewEditSection />);
+      render(<RecResourceOverviewEditSection />);
 
       const saveButton = screen.getByRole('button', { name: 'Saving...' });
       expect(saveButton).toBeDisabled();
@@ -301,7 +280,7 @@ describe('RecResourceOverviewEditSection', () => {
         selectedAccessOptions: [],
       } as any);
 
-      renderWithRouter(<RecResourceOverviewEditSection />);
+      render(<RecResourceOverviewEditSection />);
 
       expect(screen.getByText('Saving...')).toBeInTheDocument();
     });
@@ -317,7 +296,7 @@ describe('RecResourceOverviewEditSection', () => {
         selectedAccessOptions: [],
       } as any);
 
-      renderWithRouter(<RecResourceOverviewEditSection />);
+      render(<RecResourceOverviewEditSection />);
 
       const saveButton = screen.getByRole('button', { name: 'Saving...' });
       expect(saveButton).toBeDisabled();
@@ -336,7 +315,7 @@ describe('RecResourceOverviewEditSection', () => {
         selectedAccessOptions: [],
       } as any);
 
-      renderWithRouter(<RecResourceOverviewEditSection />);
+      render(<RecResourceOverviewEditSection />);
 
       const saveButton = screen.getByRole('button', { name: 'Save' });
       await userEvent.click(saveButton);
@@ -350,7 +329,7 @@ describe('RecResourceOverviewEditSection', () => {
 
   describe('navigation', () => {
     it('should link Cancel button to overview page', () => {
-      renderWithRouter(<RecResourceOverviewEditSection />);
+      render(<RecResourceOverviewEditSection />);
 
       const cancelButton = screen.getByRole('button', { name: 'Cancel' });
       const link = cancelButton.closest('a');
@@ -361,19 +340,19 @@ describe('RecResourceOverviewEditSection', () => {
 
   describe('hooks integration', () => {
     it('should call useRecResource hook', () => {
-      renderWithRouter(<RecResourceOverviewEditSection />);
+      render(<RecResourceOverviewEditSection />);
 
       expect(useRecResource).toHaveBeenCalled();
     });
 
     it('should call useResourceOptions hook', () => {
-      renderWithRouter(<RecResourceOverviewEditSection />);
+      render(<RecResourceOverviewEditSection />);
 
       expect(useResourceOptions).toHaveBeenCalled();
     });
 
     it('should call useEditResourceForm hook with recResource', () => {
-      renderWithRouter(<RecResourceOverviewEditSection />);
+      render(<RecResourceOverviewEditSection />);
 
       expect(useEditResourceForm).toHaveBeenCalledWith(mockRecResource);
     });
@@ -386,7 +365,7 @@ describe('RecResourceOverviewEditSection', () => {
         error: null,
       });
 
-      renderWithRouter(<RecResourceOverviewEditSection />);
+      render(<RecResourceOverviewEditSection />);
 
       // Should still render without crashing
       expect(screen.getByText('Edit Overview')).toBeInTheDocument();
@@ -395,16 +374,14 @@ describe('RecResourceOverviewEditSection', () => {
 
   describe('layout and structure', () => {
     it('should render form within container', () => {
-      const { container } = renderWithRouter(
-        <RecResourceOverviewEditSection />,
-      );
+      const { container } = render(<RecResourceOverviewEditSection />);
 
       const form = container.querySelector('form');
       expect(form).toBeInTheDocument();
     });
 
     it('should have proper spacing between sections', () => {
-      renderWithRouter(<RecResourceOverviewEditSection />);
+      render(<RecResourceOverviewEditSection />);
 
       // Check that main sections are rendered
       expect(screen.getByText('Edit Overview')).toBeInTheDocument();
@@ -413,7 +390,7 @@ describe('RecResourceOverviewEditSection', () => {
     });
 
     it('should render all form fields', () => {
-      renderWithRouter(<RecResourceOverviewEditSection />);
+      render(<RecResourceOverviewEditSection />);
 
       expect(
         screen.getByTestId('select-field-status_code'),

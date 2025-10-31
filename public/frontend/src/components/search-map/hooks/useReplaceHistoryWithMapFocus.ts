@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { ROUTE_PATHS } from '@/routes/constants';
+import { useLocation, useNavigate } from '@tanstack/react-router';
+import { ROUTE_PATHS } from '@/constants/routes';
 import { SearchMapFocusModes } from '@/components/search-map/constants';
 
 /**
@@ -16,7 +16,10 @@ export function useReplaceHistoryWithMapFocus(recResourceId?: string) {
     if (!recResourceId) return null;
     return {
       pathname: ROUTE_PATHS.SEARCH,
-      search: `view=map&focus=${SearchMapFocusModes.REC_RESOURCE_ID}:${recResourceId}`,
+      search: {
+        view: 'map',
+        focus: `${SearchMapFocusModes.REC_RESOURCE_ID}:${recResourceId}`,
+      },
     } as const;
   }, [recResourceId]);
 
@@ -26,7 +29,11 @@ export function useReplaceHistoryWithMapFocus(recResourceId?: string) {
     const params = new URLSearchParams(location.search);
     const isMapView = params.get('view') === 'map';
     if (isOnSearchPath && isMapView) {
-      navigate(mainMapUrl, { replace: true });
+      navigate({
+        to: mainMapUrl.pathname,
+        search: mainMapUrl.search,
+        replace: true,
+      });
     }
   }, [location.pathname, location.search, navigate, mainMapUrl]);
 

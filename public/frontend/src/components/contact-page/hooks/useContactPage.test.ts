@@ -3,9 +3,10 @@ import { useContactPage } from './useContactPage';
 import { CONTACT_TOPICS } from '../constants';
 import { vi } from 'vitest';
 
-// Mock all the dependencies
-vi.mock('react-router', () => ({
+vi.mock('@tanstack/react-router', () => ({
   useParams: () => ({ id: '123' }),
+  useMatches: () => [],
+  useLocation: () => ({ pathname: '/', search: '', hash: '' }),
 }));
 
 vi.mock(
@@ -17,10 +18,6 @@ vi.mock(
   }),
 );
 
-vi.mock('@shared/components/breadcrumbs', () => ({
-  useBreadcrumbs: vi.fn(),
-}));
-
 vi.mock('@/utils/getContactEmailLink', () => ({
   getContactEmailLink: () => 'mailto:test@example.com',
 }));
@@ -29,16 +26,20 @@ vi.mock('../utils/contactDetailsRenderer', () => ({
   renderContactDetails: vi.fn(({ topic }) => `Mock component for ${topic}`),
 }));
 
-vi.mock('@/routes', () => ({
+vi.mock('@/constants/routes', () => ({
   ROUTE_TITLES: {
     REC_RESOURCE_CONTACT: (name: string) =>
       `Contact Us - ${name} | Sites and Trails BC`,
   },
 }));
 
+const mockResource = {
+  name: 'Test Resource',
+} as any;
+
 describe('useContactPage', () => {
   it('should return all necessary data and functions', () => {
-    const { result } = renderHook(() => useContactPage());
+    const { result } = renderHook(() => useContactPage(mockResource));
 
     expect(result.current).toHaveProperty('selectedTopic');
     expect(result.current).toHaveProperty('setSelectedTopic');
@@ -53,13 +54,13 @@ describe('useContactPage', () => {
   });
 
   it('should initialize with default topic', () => {
-    const { result } = renderHook(() => useContactPage());
+    const { result } = renderHook(() => useContactPage(mockResource));
 
     expect(result.current.selectedTopic).toBe(CONTACT_TOPICS.RESERVATIONS);
   });
 
   it('should update selected topic when setSelectedTopic is called', () => {
-    const { result } = renderHook(() => useContactPage());
+    const { result } = renderHook(() => useContactPage(mockResource));
 
     act(() => {
       result.current.setSelectedTopic(CONTACT_TOPICS.WILDFIRES);
@@ -69,7 +70,7 @@ describe('useContactPage', () => {
   });
 
   it('should compute page title correctly', () => {
-    const { result } = renderHook(() => useContactPage());
+    const { result } = renderHook(() => useContactPage(mockResource));
 
     expect(result.current.pageTitle).toBe(
       'Contact Us - Test Resource | Sites and Trails BC',
@@ -77,13 +78,13 @@ describe('useContactPage', () => {
   });
 
   it('should provide email link', () => {
-    const { result } = renderHook(() => useContactPage());
+    const { result } = renderHook(() => useContactPage(mockResource));
 
     expect(result.current.emailLink).toBe('mailto:test@example.com');
   });
 
   it('should maintain stable reference for setSelectedTopic', () => {
-    const { result, rerender } = renderHook(() => useContactPage());
+    const { result, rerender } = renderHook(() => useContactPage(mockResource));
 
     const initialSetTopic = result.current.setSelectedTopic;
 

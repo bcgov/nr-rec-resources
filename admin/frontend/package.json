@@ -28,6 +28,7 @@
     "@rst/shared": "file:../../shared",
     "@tanstack/react-query": "^5.80.7",
     "@tanstack/react-query-devtools": "^5.80.7",
+    "@tanstack/react-router": "^1.133.25",
     "@tanstack/react-store": "^0.8.0",
     "@testing-library/react": "^16.3.0",
     "bootstrap": "^5.3.6",
@@ -43,7 +44,6 @@
     "react-bootstrap-typeahead": "^6.4.1",
     "react-dom": "^19.1.1",
     "react-hook-form": "^7.62.0",
-    "react-router-dom": "^7.0.0",
     "react-select": "^5.10.2",
     "zod": "^4.0.8"
   },
@@ -53,6 +53,7 @@
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.25.0",
     "@playwright/test": "^1.54.2",
+    "@tanstack/router-plugin": "^1.133.25",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",

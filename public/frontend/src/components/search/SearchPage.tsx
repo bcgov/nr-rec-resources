@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import { RemoveScroll } from 'react-remove-scroll';
 import { useStore } from '@tanstack/react-store';
 import { Col, ProgressBar, Row, Stack } from 'react-bootstrap';
@@ -28,18 +28,17 @@ import {
 } from '@/service/custom-models';
 import { trackEvent } from '@shared/utils';
 import { LoadingButton } from '@/components/LoadingButton';
-import PageTitle from '@/components/layout/PageTitle';
-import { ROUTE_TITLES } from '@/routes/constants';
 
 const SearchPage = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate({ from: '/search' });
+  const searchParams = useSearch({ from: '/search/' });
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
   const initialPage = useInitialPageFromSearchParams();
-  const lat = searchParams.get('lat');
-  const lon = searchParams.get('lon');
-  const community = searchParams.get('community');
-  const searchFilter = searchParams.get('filter');
+  const lat = searchParams.lat;
+  const lon = searchParams.lon;
+  const community = searchParams.community;
+  const searchFilter = searchParams.filter;
 
   const {
     data,
@@ -52,23 +51,23 @@ const SearchPage = () => {
     isFetchingPreviousPage,
   } = useSearchRecreationResourcesPaginated({
     limit: 10,
-    filter: searchParams.get('filter') ?? undefined,
-    district: searchParams.get('district') ?? undefined,
-    activities: searchParams.get('activities') ?? undefined,
-    access: searchParams.get('access') ?? undefined,
-    facilities: searchParams.get('facilities') ?? undefined,
-    status: searchParams.get('status') ?? undefined,
-    fees: searchParams.get('fees') ?? undefined,
+    filter: searchParams.filter ?? undefined,
+    district: searchParams.district ?? undefined,
+    activities: searchParams.activities ?? undefined,
+    access: searchParams.access ?? undefined,
+    facilities: searchParams.facilities ?? undefined,
+    status: searchParams.status ?? undefined,
+    fees: searchParams.fees ?? undefined,
     lat: lat ? Number(lat) : undefined,
     lon: lon ? Number(lon) : undefined,
     community: community ?? undefined,
-    type: searchParams.get('type') ?? undefined,
+    type: searchParams.type ?? undefined,
     page: initialPage,
   });
 
   const searchResults = useStore(searchResultsStore);
   const filterChips = useStore(filterChipStore);
-  const isMapView = searchParams.get('view') === 'map';
+  const isMapView = searchParams.view === 'map';
 
   useEffect(() => {
     searchResultsStore.setState(() => data ?? initialState);
@@ -93,11 +92,13 @@ const SearchPage = () => {
       '.search-container section',
     )?.lastElementChild;
 
-    const newSearchParams = {
-      ...Object.fromEntries(searchParams),
-      page: (Number(data?.currentPage || 1) + 1).toString(),
-    };
-    setSearchParams(newSearchParams);
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        page: Number(data?.currentPage || 1) + 1,
+      }),
+      resetScroll: false,
+    });
 
     await fetchNextPage();
 
@@ -136,7 +137,6 @@ const SearchPage = () => {
 
   return (
     <>
-      <PageTitle title={ROUTE_TITLES.SEARCH} />
       <SearchBanner />
       <RemoveScroll enabled={isMapView}>
         <SearchMap

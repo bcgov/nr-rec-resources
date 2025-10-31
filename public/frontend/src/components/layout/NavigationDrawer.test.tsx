@@ -1,9 +1,9 @@
-import { render, screen, fireEvent } from '@testing-library/react';
+import { screen, fireEvent } from '@testing-library/react';
 import { createRef } from 'react';
-import { BrowserRouter } from 'react-router';
+import { renderWithRouter } from '@/test-utils';
 import NavigationDrawer from './NavigationDrawer';
 import { HEADER_LINKS } from './constants';
-import { EXTERNAL_LINKS } from '@/data/urls';
+import { EXTERNAL_LINKS } from '@/constants/urls';
 import { trackClickEvent } from '@shared/utils';
 
 vi.mock('@shared/utils', () => ({
@@ -19,17 +19,13 @@ describe('NavigationDrawer', () => {
     buttonRef: createRef<HTMLButtonElement>(),
   };
 
-  const renderWithRouter = (ui: React.ReactElement) => {
-    return render(<BrowserRouter>{ui}</BrowserRouter>);
-  };
-
   beforeEach(() => {
     vi.clearAllMocks();
     mockTrackClickEvent.mockReturnValue(vi.fn());
   });
 
-  it('renders the navigation drawer with correct structure', () => {
-    renderWithRouter(<NavigationDrawer {...defaultProps} />);
+  it('renders the navigation drawer with correct structure', async () => {
+    await renderWithRouter(<NavigationDrawer {...defaultProps} />);
 
     const drawer = screen.getByRole('navigation', {
       name: 'Mobile navigation menu',
@@ -41,8 +37,10 @@ describe('NavigationDrawer', () => {
     expect(list).toHaveClass('navigation-drawer-list');
   });
 
-  it('applies correct classes when open', () => {
-    renderWithRouter(<NavigationDrawer {...defaultProps} isOpen={true} />);
+  it('applies correct classes when open', async () => {
+    await renderWithRouter(
+      <NavigationDrawer {...defaultProps} isOpen={true} />,
+    );
 
     const drawer = screen.getByRole('navigation', {
       name: 'Mobile navigation menu',
@@ -50,8 +48,8 @@ describe('NavigationDrawer', () => {
     expect(drawer).toHaveClass('navigation-drawer', 'menu-open');
   });
 
-  it('renders all header links correctly', () => {
-    renderWithRouter(<NavigationDrawer {...defaultProps} />);
+  it('renders all header links correctly', async () => {
+    await renderWithRouter(<NavigationDrawer {...defaultProps} />);
 
     HEADER_LINKS.forEach((link) => {
       const linkElement = screen.getByText(link.label);
@@ -71,8 +69,8 @@ describe('NavigationDrawer', () => {
     });
   });
 
-  it('renders feedback link correctly', () => {
-    renderWithRouter(<NavigationDrawer {...defaultProps} />);
+  it('renders feedback link correctly', async () => {
+    await renderWithRouter(<NavigationDrawer {...defaultProps} />);
 
     const feedbackLink = screen.getByText('Share feedback');
     expect(feedbackLink).toBeInTheDocument();
@@ -90,9 +88,9 @@ describe('NavigationDrawer', () => {
     expect(feedbackItem).toHaveClass('navigation-drawer-item', 'feedback');
   });
 
-  it('calls onClose when internal link is clicked', () => {
+  it('calls onClose when internal link is clicked', async () => {
     const mockOnClose = vi.fn();
-    renderWithRouter(
+    await renderWithRouter(
       <NavigationDrawer {...defaultProps} onClose={mockOnClose} />,
     );
 
@@ -105,9 +103,9 @@ describe('NavigationDrawer', () => {
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
-  it('calls onClose when external link is clicked', () => {
+  it('calls onClose when external link is clicked', async () => {
     const mockOnClose = vi.fn();
-    renderWithRouter(
+    await renderWithRouter(
       <NavigationDrawer {...defaultProps} onClose={mockOnClose} />,
     );
 
@@ -120,9 +118,9 @@ describe('NavigationDrawer', () => {
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
-  it('calls onClose when feedback link is clicked', () => {
+  it('calls onClose when feedback link is clicked', async () => {
     const mockOnClose = vi.fn();
-    renderWithRouter(
+    await renderWithRouter(
       <NavigationDrawer {...defaultProps} onClose={mockOnClose} />,
     );
 
@@ -132,11 +130,11 @@ describe('NavigationDrawer', () => {
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
-  it('tracks analytics for internal link clicks', () => {
+  it('tracks analytics for internal link clicks', async () => {
     const mockTracker = vi.fn();
     mockTrackClickEvent.mockReturnValue(mockTracker);
 
-    renderWithRouter(<NavigationDrawer {...defaultProps} />);
+    await renderWithRouter(<NavigationDrawer {...defaultProps} />);
 
     const internalLink = HEADER_LINKS.find((link) => !link.isExternal);
     const linkElement = screen.getByText(internalLink!.label);
@@ -149,11 +147,11 @@ describe('NavigationDrawer', () => {
     });
   });
 
-  it('tracks analytics for external link clicks', () => {
+  it('tracks analytics for external link clicks', async () => {
     const mockTracker = vi.fn();
     mockTrackClickEvent.mockReturnValue(mockTracker);
 
-    renderWithRouter(<NavigationDrawer {...defaultProps} />);
+    await renderWithRouter(<NavigationDrawer {...defaultProps} />);
 
     const externalLink = HEADER_LINKS.find((link) => link.isExternal);
     const linkElement = screen.getByText(externalLink!.label);
@@ -166,11 +164,11 @@ describe('NavigationDrawer', () => {
     });
   });
 
-  it('tracks analytics for feedback link clicks', () => {
+  it('tracks analytics for feedback link clicks', async () => {
     const mockTracker = vi.fn();
     mockTrackClickEvent.mockReturnValue(mockTracker);
 
-    renderWithRouter(<NavigationDrawer {...defaultProps} />);
+    await renderWithRouter(<NavigationDrawer {...defaultProps} />);
 
     const feedbackLink = screen.getByText('Share feedback');
     fireEvent.click(feedbackLink);
@@ -186,9 +184,9 @@ describe('NavigationDrawer', () => {
     });
   });
 
-  it('calls onClose when clicking outside the drawer while open', () => {
+  it('calls onClose when clicking outside the drawer while open', async () => {
     const mockOnClose = vi.fn();
-    renderWithRouter(
+    await renderWithRouter(
       <NavigationDrawer
         {...defaultProps}
         isOpen={true}
@@ -202,9 +200,9 @@ describe('NavigationDrawer', () => {
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
-  it('does not call onClose when clicking inside the drawer', () => {
+  it('does not call onClose when clicking inside the drawer', async () => {
     const mockOnClose = vi.fn();
-    renderWithRouter(
+    await renderWithRouter(
       <NavigationDrawer
         {...defaultProps}
         isOpen={true}
@@ -222,8 +220,8 @@ describe('NavigationDrawer', () => {
     expect(mockOnClose).not.toHaveBeenCalled();
   });
 
-  it('has correct accessibility attributes', () => {
-    renderWithRouter(<NavigationDrawer {...defaultProps} />);
+  it('has correct accessibility attributes', async () => {
+    await renderWithRouter(<NavigationDrawer {...defaultProps} />);
 
     const drawer = screen.getByRole('navigation', {
       name: 'Mobile navigation menu',
@@ -231,8 +229,8 @@ describe('NavigationDrawer', () => {
     expect(drawer).toHaveAttribute('aria-label', 'Mobile navigation menu');
   });
 
-  it('renders all navigation items as list items', () => {
-    renderWithRouter(<NavigationDrawer {...defaultProps} />);
+  it('renders all navigation items as list items', async () => {
+    await renderWithRouter(<NavigationDrawer {...defaultProps} />);
 
     const listItems = screen.getAllByRole('listitem');
     // Should have all header links plus feedback link

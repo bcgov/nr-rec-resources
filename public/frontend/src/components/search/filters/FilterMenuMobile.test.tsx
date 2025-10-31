@@ -4,8 +4,9 @@ import { useClearFilters } from '@/components/search/hooks/useClearFilters';
 import searchResultsStore from '@/store/searchResults';
 import { mockFilterMenuContent } from '@/components/search/test/mock-data';
 
-vi.mock('react-router-dom', () => ({
-  useSearchParams: vi.fn(() => [new URLSearchParams(), vi.fn()]),
+vi.mock('@tanstack/react-router', () => ({
+  useSearch: vi.fn(() => ({})),
+  useNavigate: vi.fn(() => vi.fn()),
 }));
 
 // Mock the useClearFilters hook

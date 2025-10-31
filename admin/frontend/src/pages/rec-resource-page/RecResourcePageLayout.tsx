@@ -7,11 +7,11 @@ import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import {
   RecResourcePageRouteHandle,
   RecResourceRouteContext,
-} from '@/routes/types';
-import { Breadcrumbs, useBreadcrumbs } from '@shared/index';
+} from '@/pages/rec-resource-page/types';
+import { Breadcrumbs } from '@shared/index';
 import { useEffect, useState } from 'react';
 import { Col, Row, Spinner, Stack } from 'react-bootstrap';
-import { Outlet, UIMatch, useMatches, useParams } from 'react-router-dom';
+import { Outlet, useMatches, useParams } from '@tanstack/react-router';
 import './RecResourcePageLayout.scss';
 
 const LoadingSpinner = () => (
@@ -27,28 +27,22 @@ const LoadingSpinner = () => (
 
 export const RecResourcePageLayout = () => {
   const { recResource, isLoading, error } = useRecResource();
-  const { id: rec_resource_id } = useParams();
-  const matches = useMatches() as UIMatch<
-    unknown,
-    RecResourcePageRouteHandle<RecResourceRouteContext>
-  >[];
+  const { id: rec_resource_id } = useParams({ from: '/rec-resource/$id' });
+  const matches = useMatches() as unknown as Array<{
+    handle?: RecResourcePageRouteHandle<RecResourceRouteContext>;
+  }>;
   const [activeTab, setActiveTab] = useState<RecResourceNavKey>(
     RecResourceNavKey.OVERVIEW,
   );
 
-  // Update store based on current route handle
+  // Update store based on current route context
   useEffect(() => {
     const currentMatch = matches[matches.length - 1];
-    const tabFromRoute = currentMatch.handle.tab;
-    setActiveTab(tabFromRoute);
+    const tabFromRoute = (currentMatch as any).context?.tab;
+    if (tabFromRoute) {
+      setActiveTab(tabFromRoute);
+    }
   }, [matches]);
-
-  useBreadcrumbs({
-    context: {
-      resourceName: recResource?.name,
-      resourceId: recResource?.rec_resource_id,
-    } as RecResourceRouteContext,
-  });
 
   if (!rec_resource_id || error) {
     return null;

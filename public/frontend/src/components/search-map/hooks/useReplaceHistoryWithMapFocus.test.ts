@@ -1,11 +1,10 @@
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { useReplaceHistoryWithMapFocus } from './useReplaceHistoryWithMapFocus';
-import { ROUTE_PATHS } from '@/routes/constants';
+import { ROUTE_PATHS } from '@/constants/routes';
 import { SearchMapFocusModes } from '@/components/search-map/constants';
 
-// Mock react-router-dom hooks
-vi.mock('react-router-dom', () => {
+vi.mock('@tanstack/react-router', () => {
   return {
     useNavigate: vi.fn(),
     useLocation: vi.fn(),
@@ -22,9 +21,9 @@ describe('useReplaceHistoryWithMapFocus', () => {
     mockNavigate = vi.fn();
 
     // Re-import to refresh mocks per test
-    const rrd = await import('react-router-dom');
-    mockUseNavigate = rrd.useNavigate as unknown as Mock;
-    mockUseLocation = rrd.useLocation as unknown as Mock;
+    const tanstackRouter = await import('@tanstack/react-router');
+    mockUseNavigate = tanstackRouter.useNavigate as unknown as Mock;
+    mockUseLocation = tanstackRouter.useLocation as unknown as Mock;
 
     mockUseNavigate.mockReturnValue(mockNavigate);
   });
@@ -42,13 +41,14 @@ describe('useReplaceHistoryWithMapFocus', () => {
 
     result.current();
 
-    expect(mockNavigate).toHaveBeenCalledWith(
-      {
-        pathname: ROUTE_PATHS.SEARCH,
-        search: `view=map&focus=${SearchMapFocusModes.REC_RESOURCE_ID}:${recResourceId}`,
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: ROUTE_PATHS.SEARCH,
+      search: {
+        view: 'map',
+        focus: `${SearchMapFocusModes.REC_RESOURCE_ID}:${recResourceId}`,
       },
-      { replace: true },
-    );
+      replace: true,
+    });
   });
 
   it('does not navigate when not on map view', () => {

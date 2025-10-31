@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearch } from '@tanstack/react-router';
 import { Form } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
@@ -22,7 +22,7 @@ const FilterGroup = ({
   label,
   showMoreBtn = true,
 }: FilterGroupProps) => {
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearch({ strict: false }) as Record<string, any>;
   const [showAllOptions, setShowAllOptions] = useState(false);
   const { toggleFilter } = useFilterHandler();
 
@@ -55,7 +55,9 @@ const FilterGroup = ({
   const optionList = isShowAllFilters
     ? options.slice(0, MAX_VISIBLE_OPTIONS)
     : options;
-  const filterParamsArray = searchParams.get(param)?.split('_');
+  const filterParamsArray = searchParams[param]
+    ? String(searchParams[param]).split('_')
+    : [];
   const isShowMoreBtn = showMoreBtn && filtersCount > MAX_VISIBLE_OPTIONS;
 
   return (

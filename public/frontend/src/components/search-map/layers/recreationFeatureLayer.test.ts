@@ -35,7 +35,7 @@ vi.mock('ol/format', () => ({
   })),
 }));
 
-vi.mock('@/utils/capitalizeWords', () => ({
+vi.mock('@shared/utils/capitalizeWords', () => ({
   capitalizeWords: vi.fn((text: string) => text.toUpperCase()),
 }));
 
@@ -75,7 +75,7 @@ import {
 } from './recreationFeatureLayer';
 
 // Import mocked dependencies for assertions
-import { capitalizeWords } from '@/utils/capitalizeWords';
+import { capitalizeWords } from '@shared/utils/capitalizeWords';
 import { featureLabelText } from '@/components/search-map/styles/feature';
 import {
   createSITIcon,

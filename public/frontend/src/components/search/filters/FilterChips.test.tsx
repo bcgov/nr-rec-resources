@@ -6,9 +6,10 @@ import { useFilterHandler } from '@/components/search/hooks/useFilterHandler';
 import FilterChips from '@/components/search/filters/FilterChips';
 import { FilterChip } from '@/components/search/types';
 
-vi.mock('react-router-dom', async () => {
+vi.mock('@tanstack/react-router', async () => {
   return {
-    useSearchParams: vi.fn(() => [new URLSearchParams(), vi.fn()]), // Default empty params
+    useSearch: vi.fn(() => ({})),
+    useNavigate: vi.fn(() => vi.fn()),
   };
 });
 

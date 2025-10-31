@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import { getFilterState, haveFiltersChanged } from './helpers';
 
 /**
@@ -9,9 +9,10 @@ import { getFilterState, haveFiltersChanged } from './helpers';
  * @returns {number} The current page number from URL params or default of 1
  */
 export const useInitialPageFromSearchParams = (): number => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const searchParams = useSearch({ from: '/search/' });
   const [initialPage, setInitialPage] = useState(() =>
-    Number(searchParams.get('page') ?? 1),
+    Number(searchParams.page ?? 1),
   );
 
   const [prevState, setPrevState] = useState(getFilterState(searchParams));
@@ -21,14 +22,17 @@ export const useInitialPageFromSearchParams = (): number => {
     const currentState = getFilterState(searchParams);
 
     if (haveFiltersChanged(currentState, prevState)) {
-      setSearchParams((prev) => ({
-        ...Object.fromEntries(prev),
-        page: '1',
-      }));
+      navigate({
+        search: (prev: any) => ({
+          ...prev,
+          page: 1,
+        }),
+      } as any);
       setInitialPage(1);
       setPrevState(currentState);
     }
-  }, [searchParams, setSearchParams]);
+    // eslint-disable-next-line
+  }, [searchParams, navigate]);
 
   return initialPage;
 };

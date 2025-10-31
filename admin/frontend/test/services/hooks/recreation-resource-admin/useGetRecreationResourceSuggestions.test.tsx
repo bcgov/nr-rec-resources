@@ -2,7 +2,7 @@ import { renderHook, waitFor } from '@testing-library/react';
 import { Mock, vi } from 'vitest';
 import { useGetRecreationResourceSuggestions } from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceSuggestions';
 import { useRecreationResourceAdminApiClient } from '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient';
-import { reactQueryWrapper } from '@test/test-utils/reactQueryWrapper';
+import { TestQueryClientProvider } from '@test/test-utils';
 
 // --- Mocks ---
 vi.mock(
@@ -21,7 +21,7 @@ const mockGetSuggestions = vi.fn();
 // --- Helpers ---
 const renderSuggestionsHook = (searchTerm: string) =>
   renderHook(() => useGetRecreationResourceSuggestions(searchTerm), {
-    wrapper: reactQueryWrapper,
+    wrapper: TestQueryClientProvider,
   });
 
 const setMockSuggestions = (value: any, isError = false) => {

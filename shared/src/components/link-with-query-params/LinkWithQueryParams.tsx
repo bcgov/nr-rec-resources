@@ -1,22 +1,21 @@
 import React from 'react';
-import { Link, useLocation, LinkProps, To } from 'react-router-dom';
+import { Link, useLocation } from '@tanstack/react-router';
 
-export const LinkWithQueryParams: React.FC<LinkProps> = ({
+type Props = React.ComponentProps<typeof Link> & {
+  to: string;
+};
+
+export const LinkWithQueryParams: React.FC<Props> = ({
   to,
   children,
   ...props
 }) => {
   const location = useLocation();
-  const currentSearch = location.search; // e.g. '?enable_edit=true'
 
-  // Preserve any existing search on the provided `to` by overwriting with currentSearch.
-  const newTo: To =
-    typeof to === 'string'
-      ? `${to}${currentSearch}`
-      : { ...to, search: currentSearch };
+  const currentSearch = location.search; // e.g. '?enable_edit=true';
 
   return (
-    <Link to={newTo} {...props}>
+    <Link to={to} search={currentSearch} {...props}>
       {children}
     </Link>
   );

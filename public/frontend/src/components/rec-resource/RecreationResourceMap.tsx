@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link } from '@tanstack/react-router';
 import { Col, Row, Stack } from 'react-bootstrap';
 import {
   RecreationResourceMap as SharedRecreationResourceMap,
@@ -13,7 +13,7 @@ import { RecreationResourceDetailModel } from '@/service/custom-models';
 import { trackEvent } from '@shared/utils';
 import { IconButton } from '@shared/components/icon-button';
 import { SearchMapFocusModes } from '@/components/search-map/constants';
-import { ROUTE_PATHS } from '@/routes/constants';
+import { ROUTE_PATHS } from '@/constants/routes';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMap } from '@fortawesome/free-solid-svg-icons';
 import { getRecResourceDetailPageUrl } from '@/utils/recreationResourceUtils';
@@ -51,7 +51,10 @@ export const RecreationResourceMap = ({
   const mainMapUrl = useMemo(
     () => ({
       pathname: ROUTE_PATHS.SEARCH,
-      search: `view=map&focus=${SearchMapFocusModes.REC_RESOURCE_ID}:${recResource.rec_resource_id}`,
+      search: {
+        view: 'map',
+        focus: `${SearchMapFocusModes.REC_RESOURCE_ID}:${recResource.rec_resource_id}`,
+      },
     }),
     [recResource.rec_resource_id],
   );
@@ -143,7 +146,8 @@ export const RecreationResourceMap = ({
             <Link
               onClick={handleViewInMainMapClick}
               aria-label={`View ${recResourceName} in main map`}
-              to={mainMapUrl}
+              to={mainMapUrl.pathname}
+              search={mainMapUrl.search}
             >
               <IconButton
                 data-testid="view-main-map-button"

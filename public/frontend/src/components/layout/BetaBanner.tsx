@@ -3,7 +3,7 @@ import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import '@/components/layout/BetaBanner.scss';
 import useMediaQuery from '@/hooks/useMediaQuery';
 import { trackClickEvent } from '@shared/utils';
-import { EXTERNAL_LINKS } from '@/data/urls';
+import { EXTERNAL_LINKS } from '@/constants/urls';
 import { Button } from 'react-bootstrap';
 
 const BetaBanner = () => {

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { screen } from '@testing-library/react';
+import { renderWithRouter } from '@/test-utils';
 import MapsAndLocation from './MapsAndLocation';
 import { RecreationResourceMap } from '@/components/rec-resource/RecreationResourceMap';
 import { RecreationResourceDocsList } from '@/components/rec-resource/RecreationResourceDocsList';
@@ -46,14 +46,12 @@ describe('MapsAndLocation', () => {
 
   const mockAccessTypes = ['Drive-up', 'Walk-in'];
 
-  it('renders section with proper id and heading', () => {
-    render(
-      <BrowserRouter>
-        <MapsAndLocation
-          recResource={mockRecResource}
-          accessTypes={mockAccessTypes}
-        />
-      </BrowserRouter>,
+  it('renders section with proper id and heading', async () => {
+    await renderWithRouter(
+      <MapsAndLocation
+        recResource={mockRecResource}
+        accessTypes={mockAccessTypes}
+      />,
     );
     expect(
       screen.getByRole('heading', { name: /maps and location/i }),
@@ -61,12 +59,8 @@ describe('MapsAndLocation', () => {
     expect(document.getElementById('maps-and-location')).toBeInTheDocument();
   });
 
-  it('renders RecreationResourceMap with correct props', () => {
-    render(
-      <BrowserRouter>
-        <MapsAndLocation recResource={mockRecResource} />
-      </BrowserRouter>,
-    );
+  it('renders RecreationResourceMap with correct props', async () => {
+    await renderWithRouter(<MapsAndLocation recResource={mockRecResource} />);
     expect(RecreationResourceMap).toHaveBeenCalledWith(
       expect.objectContaining({
         recResource: mockRecResource,
@@ -75,14 +69,12 @@ describe('MapsAndLocation', () => {
     );
   });
 
-  it('renders access types list when provided', () => {
-    render(
-      <BrowserRouter>
-        <MapsAndLocation
-          recResource={mockRecResource}
-          accessTypes={mockAccessTypes}
-        />
-      </BrowserRouter>,
+  it('renders access types list when provided', async () => {
+    await renderWithRouter(
+      <MapsAndLocation
+        recResource={mockRecResource}
+        accessTypes={mockAccessTypes}
+      />,
     );
     expect(
       screen.getByRole('heading', { name: /access types/i }),
@@ -92,42 +84,30 @@ describe('MapsAndLocation', () => {
     });
   });
 
-  it('renders singular "Access Type" heading when only one access type provided', () => {
-    render(
-      <BrowserRouter>
-        <MapsAndLocation
-          recResource={mockRecResource}
-          accessTypes={['Drive-up']}
-        />
-      </BrowserRouter>,
+  it('renders singular "Access Type" heading when only one access type provided', async () => {
+    await renderWithRouter(
+      <MapsAndLocation
+        recResource={mockRecResource}
+        accessTypes={['Drive-up']}
+      />,
     );
     expect(
       screen.getByRole('heading', { name: /^access type$/i }),
     ).toBeInTheDocument();
   });
 
-  it('does not render access types section when accessTypes prop is missing or empty', () => {
-    render(
-      <BrowserRouter>
-        <MapsAndLocation recResource={mockRecResource} />
-      </BrowserRouter>,
-    );
+  it('does not render access types section when accessTypes prop is missing or empty', async () => {
+    await renderWithRouter(<MapsAndLocation recResource={mockRecResource} />);
     expect(screen.queryByRole('heading', { name: /access types/i })).toBeNull();
 
-    render(
-      <BrowserRouter>
-        <MapsAndLocation recResource={mockRecResource} accessTypes={[]} />
-      </BrowserRouter>,
+    await renderWithRouter(
+      <MapsAndLocation recResource={mockRecResource} accessTypes={[]} />,
     );
     expect(screen.queryByRole('heading', { name: /access types/i })).toBeNull();
   });
 
-  it('renders "Getting there" section when driving_directions is provided', () => {
-    render(
-      <BrowserRouter>
-        <MapsAndLocation recResource={mockRecResource} />
-      </BrowserRouter>,
-    );
+  it('renders "Getting there" section when driving_directions is provided', async () => {
+    await renderWithRouter(<MapsAndLocation recResource={mockRecResource} />);
     expect(
       screen.getByRole('heading', { name: /getting there/i }),
     ).toBeInTheDocument();
@@ -136,15 +116,13 @@ describe('MapsAndLocation', () => {
     ).toBeInTheDocument();
   });
 
-  it('does not render "Getting there" section when driving_directions is not provided', () => {
+  it('does not render "Getting there" section when driving_directions is not provided', async () => {
     const recResourceNoDirections = {
       ...mockRecResource,
       driving_directions: undefined,
     };
-    render(
-      <BrowserRouter>
-        <MapsAndLocation recResource={recResourceNoDirections} />
-      </BrowserRouter>,
+    await renderWithRouter(
+      <MapsAndLocation recResource={recResourceNoDirections} />,
     );
     expect(
       screen.queryByRole('heading', { name: /getting there/i }),
@@ -152,11 +130,9 @@ describe('MapsAndLocation', () => {
   });
 
   describe('RecreationResourceDocsList', () => {
-    it('renders docs list when recResource has recreation_resource_docs', () => {
-      render(
-        <BrowserRouter>
-          <MapsAndLocation recResource={mockRecResourceWithDocs} />
-        </BrowserRouter>,
+    it('renders docs list when recResource has recreation_resource_docs', async () => {
+      await renderWithRouter(
+        <MapsAndLocation recResource={mockRecResourceWithDocs} />,
       );
       expect(RecreationResourceDocsList).toHaveBeenCalledWith(
         { recResource: mockRecResourceWithDocs },
@@ -164,19 +140,11 @@ describe('MapsAndLocation', () => {
       );
     });
 
-    it('does not render docs list when recResource is undefined or missing docs', () => {
-      render(
-        <BrowserRouter>
-          <MapsAndLocation recResource={mockRecResource} />
-        </BrowserRouter>,
-      );
+    it('does not render docs list when recResource is undefined or missing docs', async () => {
+      await renderWithRouter(<MapsAndLocation recResource={mockRecResource} />);
       expect(RecreationResourceDocsList).not.toHaveBeenCalled();
 
-      render(
-        <BrowserRouter>
-          <MapsAndLocation />
-        </BrowserRouter>,
-      );
+      await renderWithRouter(<MapsAndLocation />);
       expect(RecreationResourceDocsList).not.toHaveBeenCalled();
     });
   });

@@ -44,6 +44,8 @@
     "@nestjs/config": "^4.0.2",
     "@nestjs/swagger": "^11.2.0",
     "@nestjs/terminus": "^11.0.0",
+    "@tanstack/react-router": "^1.133.22",
+    "@tanstack/react-query": "^5.66.7",
     "@tanstack/react-store": "^0.8.0",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
@@ -58,7 +60,6 @@
     "react-bootstrap": "^2.10.10",
     "react-bootstrap-typeahead": "^6.4.1",
     "react-dom": "^19.1.1",
-    "react-router-dom": "^7.8.1",
     "rxjs": "^7.8.2"
   }
 }

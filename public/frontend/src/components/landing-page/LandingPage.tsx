@@ -2,7 +2,7 @@ import { FC } from 'react';
 import { Button, Stack } from 'react-bootstrap';
 import './LandingPage.scss';
 import { trackClickEvent } from '@shared/utils';
-import { EXTERNAL_LINKS } from '@/data/urls';
+import { EXTERNAL_LINKS } from '@/constants/urls';
 import {
   ContentSection,
   InfoBanner,
@@ -13,8 +13,8 @@ import {
   LANDING_PAGE_IMAGE_BASE_PATHS,
   SECTION_HEADING_LEVEL,
 } from '@/components/landing-page/constants';
-import { Link } from 'react-router-dom';
-import { ROUTE_PATHS } from '@/routes';
+import { Link } from '@tanstack/react-router';
+import { ROUTE_PATHS } from '@/constants/routes';
 
 const LearnMoreLink: FC = () => (
   <Button
@@ -42,7 +42,8 @@ const FeedbackButton: FC = () => (
 
 const SearchMapButton: FC = () => (
   <Link
-    to={{ pathname: ROUTE_PATHS.SEARCH, search: 'view=map' }}
+    to={ROUTE_PATHS.SEARCH}
+    search={{ view: 'map' }}
     className="btn btn-primary text-white"
     onClick={trackClickEvent({
       category: 'Internal link',

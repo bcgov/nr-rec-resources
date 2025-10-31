@@ -1,7 +1,7 @@
 import { FC, HTMLAttributes, ReactElement, useMemo } from 'react';
 import { Col, Image, Row } from 'react-bootstrap';
 import './ContentSection.scss';
-import { BOOTSTRAP_BREAKPOINTS } from '@/data/breakpoints';
+import { BOOTSTRAP_BREAKPOINTS } from '@/constants/breakpoints';
 import { IMAGE_SIZES } from '@/components/landing-page/components/content-section/constants';
 
 interface ContentSectionProps extends HTMLAttributes<HTMLElement> {

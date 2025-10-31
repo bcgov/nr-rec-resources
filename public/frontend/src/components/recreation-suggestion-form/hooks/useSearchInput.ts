@@ -1,8 +1,8 @@
 import { useCallback, useEffect } from 'react';
 import { useStore } from '@tanstack/react-store';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useRouterState } from '@tanstack/react-router';
 import searchInputStore from '@/store/searchInputStore';
-import { ROUTE_PATHS } from '@/routes';
+import { ROUTE_PATHS } from '@/constants/routes';
 import { City } from '@/components/recreation-suggestion-form/types';
 
 export const FILTER_PARAM_KEY = 'filter';
@@ -11,8 +11,10 @@ const LON_PARAM_KEY = 'lon';
 const COMMUNITY_PARAM_KEY = 'community';
 
 export const useSearchInput = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const search = useRouterState({
+    select: (s) => s.location.search,
+  });
   const state = useStore(searchInputStore);
 
   const setSearchInputValue = useCallback(
@@ -36,37 +38,36 @@ export const useSearchInput = () => {
   const handleSearch = useCallback(
     (inputValue: string) => {
       const trimmedValue = (inputValue ?? state.searchInputValue).trim();
-      const newParams = new URLSearchParams(searchParams);
+
+      const newParams: Record<string, string> = { ...search };
 
       // Clear city-related params when performing a text search
-      newParams.delete(LAT_PARAM_KEY);
-      newParams.delete(LON_PARAM_KEY);
-      newParams.delete(COMMUNITY_PARAM_KEY);
+      delete newParams[LAT_PARAM_KEY];
+      delete newParams[LON_PARAM_KEY];
+      delete newParams[COMMUNITY_PARAM_KEY];
 
-      if (trimmedValue) {
-        newParams.set(FILTER_PARAM_KEY, trimmedValue);
-      } else {
-        newParams.delete(FILTER_PARAM_KEY);
-      }
+      if (trimmedValue) newParams[FILTER_PARAM_KEY] = trimmedValue;
+      else delete newParams[FILTER_PARAM_KEY];
 
       navigate({
-        pathname: ROUTE_PATHS.SEARCH,
-        search: newParams.toString(),
+        to: ROUTE_PATHS.SEARCH,
+        search: newParams,
       });
     },
-    [navigate, searchParams, state.searchInputValue],
+    [navigate, search, state.searchInputValue],
   );
 
   const handleClearSearch = useCallback(() => {
     setSearchInputValue('');
     setSelectedCity([]);
-
-    const newParams = new URLSearchParams();
-    setSearchParams(newParams);
-  }, [setSearchInputValue, setSelectedCity, setSearchParams]);
+    navigate({
+      to: ROUTE_PATHS.SEARCH,
+      search: {},
+    });
+  }, [navigate, setSearchInputValue, setSelectedCity]);
 
   const handleClearTypeaheadSearch = useCallback(() => {
-    const isMapView = searchParams.get('view') === 'map';
+    const isMapView = search.view === 'map';
     searchInputStore.setState((prev) => ({
       ...prev,
       searchInputValue: '',
@@ -76,57 +77,61 @@ export const useSearchInput = () => {
       wasCleared: isMapView,
     }));
 
-    const newParams = new URLSearchParams(searchParams.toString());
-    // Remove only params that get set during typeahead search
-    newParams.delete(FILTER_PARAM_KEY);
-    newParams.delete(LAT_PARAM_KEY);
-    newParams.delete(LON_PARAM_KEY);
-    newParams.delete(COMMUNITY_PARAM_KEY);
+    const newParams = { ...search };
 
-    setSearchParams(Object.fromEntries(newParams.entries()));
-  }, [searchParams, setSearchParams]);
+    // Remove only params that get set during typeahead search
+    delete newParams[FILTER_PARAM_KEY];
+    delete newParams[LAT_PARAM_KEY];
+    delete newParams[LON_PARAM_KEY];
+    delete newParams[COMMUNITY_PARAM_KEY];
+
+    navigate({
+      to: ROUTE_PATHS.SEARCH,
+      search: newParams,
+    });
+  }, [navigate, search]);
 
   const handleClearCityParams = useCallback(() => {
-    const newParams = new URLSearchParams(searchParams.toString());
-    newParams.delete(LAT_PARAM_KEY);
-    newParams.delete(LON_PARAM_KEY);
-    newParams.delete(COMMUNITY_PARAM_KEY);
+    const newParams = { ...search };
+    delete newParams[LAT_PARAM_KEY];
+    delete newParams[LON_PARAM_KEY];
+    delete newParams[COMMUNITY_PARAM_KEY];
 
-    setSearchParams(Object.fromEntries(newParams.entries()));
-  }, [searchParams, setSearchParams]);
+    navigate({
+      to: ROUTE_PATHS.SEARCH,
+      search: newParams,
+    });
+  }, [navigate, search]);
 
   const handleCityOptionSearch = useCallback(
     (city: City) => {
       if (!city) return;
 
-      const newParams = new URLSearchParams(searchParams);
-      newParams.delete(FILTER_PARAM_KEY);
-      newParams.set(LAT_PARAM_KEY, String(city.latitude));
-      newParams.set(LON_PARAM_KEY, String(city.longitude));
-      newParams.set(COMMUNITY_PARAM_KEY, city.name.trim());
+      const newParams: Record<string, string> = {
+        ...search,
+        [LAT_PARAM_KEY]: String(city.latitude),
+        [LON_PARAM_KEY]: String(city.longitude),
+        [COMMUNITY_PARAM_KEY]: city.name.trim(),
+      };
+      delete newParams[FILTER_PARAM_KEY];
 
       setSelectedCity([city]);
-
       navigate({
-        pathname: ROUTE_PATHS.SEARCH,
-        search: newParams.toString(),
+        to: ROUTE_PATHS.SEARCH,
+        search: newParams,
       });
     },
-    [navigate, searchParams, setSelectedCity],
+    [navigate, search, setSelectedCity],
   );
 
   // Initialize state from query params
   useEffect(() => {
-    const filter = searchParams.get(FILTER_PARAM_KEY);
-    if (filter) {
-      setSearchInputValue(filter);
-    }
-  }, [searchParams, setSearchInputValue]);
+    const filter = search[FILTER_PARAM_KEY];
+    if (filter) setSearchInputValue(filter);
+  }, [search, setSearchInputValue]);
 
   const defaultSearchInputValue =
-    searchParams.get(FILTER_PARAM_KEY) ||
-    searchParams.get(COMMUNITY_PARAM_KEY) ||
-    '';
+    search[FILTER_PARAM_KEY] || search[COMMUNITY_PARAM_KEY] || '';
 
   return {
     defaultSearchInputValue,

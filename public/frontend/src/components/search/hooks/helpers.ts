@@ -1,20 +1,20 @@
 import { URLSearchFilterParams } from './types';
 
 /**
- * Extracts filter parameters from URLSearchParams object
+ * Extracts filter parameters from search params object
  *
- * @param searchParams - URLSearchParams object containing query parameters
+ * @param searchParams - Search params object containing query parameters
  * @returns URLSearchFilterParams object with extracted filter values or undefined
  */
 export const getFilterState = (
-  searchParams: URLSearchParams,
+  searchParams: Record<string, any>,
 ): URLSearchFilterParams => ({
-  activities: searchParams.get('activities') ?? undefined,
-  type: searchParams.get('type') ?? undefined,
-  filter: searchParams.get('filter') ?? undefined,
-  district: searchParams.get('district') ?? undefined,
-  access: searchParams.get('access') ?? undefined,
-  facilities: searchParams.get('facilities') ?? undefined,
+  activities: searchParams.activities ?? undefined,
+  type: searchParams.type ?? undefined,
+  filter: searchParams.filter ?? undefined,
+  district: searchParams.district ?? undefined,
+  access: searchParams.access ?? undefined,
+  facilities: searchParams.facilities ?? undefined,
 });
 
 /**

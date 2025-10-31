@@ -4,11 +4,12 @@ import searchResultsStore from '@/store/searchResults';
 import { mockFilterMenuContent } from '@/components/search/test/mock-data';
 import { describe, it, vi } from 'vitest';
 
-vi.mock('react-router-dom', async () => {
-  const actual = (await vi.importActual('react-router-dom')) as any;
+vi.mock('@tanstack/react-router', async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import('@tanstack/react-router')>();
   return {
     ...actual,
-    useSearchParams: vi.fn().mockReturnValue([new URLSearchParams()]),
+    useSearch: vi.fn().mockReturnValue({}),
   };
 });
 

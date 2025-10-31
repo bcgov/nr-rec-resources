@@ -1,30 +1,31 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { RecResourceOverviewLink } from '@/components/RecResourceOverviewLink';
+import { useLocation } from '@tanstack/react-router';
+
+vi.mock('@tanstack/react-router', async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import('@tanstack/react-router')>();
+  return {
+    ...actual,
+    useLocation: vi.fn(),
+    Link: ({ to, children, ...props }: any) => (
+      <a href={to} {...props}>
+        {children}
+      </a>
+    ),
+  };
+});
 
 describe('RecResourceOverviewLink', () => {
-  const renderWithRouter = (component: React.ReactElement) => {
-    const router = createMemoryRouter(
-      [
-        {
-          path: '/',
-          element: component,
-        },
-        {
-          path: '/rec-resource/:id',
-          element: <div>Resource Overview Page</div>,
-        },
-      ],
-      {
-        initialEntries: ['/'],
-      },
-    );
-    return render(<RouterProvider router={router} />);
-  };
+  beforeEach(() => {
+    vi.mocked(useLocation).mockReturnValue({
+      search: '',
+    } as any);
+  });
 
   it('should render children correctly', () => {
-    renderWithRouter(
+    render(
       <RecResourceOverviewLink rec_resource_id="123">
         <button>View Resource</button>
       </RecResourceOverviewLink>,
@@ -36,7 +37,7 @@ describe('RecResourceOverviewLink', () => {
   });
 
   it('should generate correct link path with resource id', () => {
-    renderWithRouter(
+    render(
       <RecResourceOverviewLink rec_resource_id="456">
         <span>Test Link</span>
       </RecResourceOverviewLink>,
@@ -47,7 +48,7 @@ describe('RecResourceOverviewLink', () => {
   });
 
   it('should handle string resource ids', () => {
-    renderWithRouter(
+    render(
       <RecResourceOverviewLink rec_resource_id="test-resource-id">
         <div>Resource Link</div>
       </RecResourceOverviewLink>,
@@ -61,7 +62,7 @@ describe('RecResourceOverviewLink', () => {
   });
 
   it('should render as a proper link element', () => {
-    renderWithRouter(
+    render(
       <RecResourceOverviewLink rec_resource_id="789">
         <span>Link Content</span>
       </RecResourceOverviewLink>,
@@ -73,7 +74,7 @@ describe('RecResourceOverviewLink', () => {
   });
 
   it('should pass through complex children', () => {
-    renderWithRouter(
+    render(
       <RecResourceOverviewLink rec_resource_id="complex">
         <div>
           <h3>Complex Content</h3>
