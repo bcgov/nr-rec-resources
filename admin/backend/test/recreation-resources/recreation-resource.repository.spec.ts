@@ -206,6 +206,101 @@ describe('RecreationResourceRepository', () => {
       expect(statusUpdate).not.toHaveBeenCalled();
     });
 
+    it('should set control_access_code to null when empty string provided and update main resource', async () => {
+      const recId = 'res7';
+      const updateData = {
+        maintenance_standard_code: '4',
+        control_access_code: '',
+      } as any;
+
+      let capturedUpdateData: any = null;
+
+      (
+        prisma.$transaction as unknown as ReturnType<typeof vi.fn>
+      ).mockImplementation(async (cb: any) => {
+        const tx = {
+          recreation_status: { update: vi.fn().mockResolvedValue({}) },
+          recreation_resource: {
+            update: vi.fn().mockImplementation((opts: any) => {
+              capturedUpdateData = opts.data;
+              return Promise.resolve({});
+            }),
+            findUnique: vi.fn().mockResolvedValue({ id: recId }),
+          },
+          recreation_access: { deleteMany: vi.fn(), createMany: vi.fn() },
+        };
+        return cb(tx);
+      });
+
+      const result = await repo.update(recId, updateData);
+      expect(result).toEqual({ id: recId });
+      // control_access_code should be converted to null in update data
+      expect(capturedUpdateData.control_access_code).toBeNull();
+    });
+
+    it('should call deleteMany but not createMany when access_codes is empty array', async () => {
+      const recId = 'res8';
+      const updateData = {
+        status_code: 1,
+        access_codes: [],
+      } as any;
+
+      const deleteMany = vi.fn().mockResolvedValue({});
+      const createMany = vi.fn().mockResolvedValue({});
+
+      (
+        prisma.$transaction as unknown as ReturnType<typeof vi.fn>
+      ).mockImplementation(async (cb: any) => {
+        const tx = {
+          recreation_status: { update: vi.fn().mockResolvedValue({}) },
+          recreation_resource: {
+            update: vi.fn().mockResolvedValue({}),
+            findUnique: vi.fn().mockResolvedValue({ id: recId }),
+          },
+          recreation_access: { deleteMany, createMany },
+        };
+        return cb(tx);
+      });
+
+      const result = await repo.update(recId, updateData);
+      expect(result).toEqual({ id: recId });
+      expect(deleteMany).toHaveBeenCalledWith({
+        where: { rec_resource_id: recId },
+      });
+      expect(createMany).not.toHaveBeenCalled();
+    });
+
+    it('should throw when updatedResource is not found after update', async () => {
+      const recId = 'res9';
+      const updateData = { maintenance_standard_code: '5' } as any;
+
+      (
+        prisma.$transaction as unknown as ReturnType<typeof vi.fn>
+      ).mockImplementation(async (cb: any) => {
+        const tx = {
+          recreation_status: { update: vi.fn().mockResolvedValue({}) },
+          recreation_resource: {
+            update: vi.fn().mockResolvedValue({}),
+            findUnique: vi.fn().mockResolvedValue(null),
+          },
+          recreation_access: { deleteMany: vi.fn(), createMany: vi.fn() },
+        };
+        return cb(tx);
+      });
+
+      // Spy on logger
+      const loggerSpy = vi.spyOn((repo as any).logger, 'error');
+
+      await expect(repo.update(recId, updateData)).rejects.toThrow(
+        'Resource not found after update',
+      );
+
+      expect(loggerSpy).toHaveBeenCalledWith(
+        `Failed to update recreation resource ${recId}`,
+        expect.any(String),
+      );
+    });
+
     it('should re-throw Prisma errors for service layer to handle', async () => {
       const recId = 'res5';
       const updateData = { status_code: 1 } as any;

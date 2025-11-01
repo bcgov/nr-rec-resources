@@ -11,6 +11,7 @@ models/HealthControllerCheck200Response.ts
 models/HealthControllerCheck200ResponseInfoValue.ts
 models/HealthControllerCheck503Response.ts
 models/OptionDto.ts
+models/OptionsByTypeDto.ts
 models/RecreationAccessCodeDto.ts
 models/RecreationActivityDto.ts
 models/RecreationControlAccessDto.ts

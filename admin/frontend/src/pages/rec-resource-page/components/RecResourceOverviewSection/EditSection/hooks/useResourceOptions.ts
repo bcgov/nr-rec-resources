@@ -1,8 +1,5 @@
 import { GroupedOptions } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/components';
-import {
-  GetOptionsByTypeTypeEnum,
-  useGetRecreationResourceOptions,
-} from '@/services';
+import { useGetRecreationResourceOptions } from '@/services';
 import { useMemo } from 'react';
 
 /**
@@ -10,30 +7,26 @@ import { useMemo } from 'react';
  * Consolidates all option API calls into a single hook for reusability
  */
 export const useResourceOptions = () => {
-  const regionOptions = useGetRecreationResourceOptions(
-    GetOptionsByTypeTypeEnum.Regions,
-  );
-  const maintenanceOptions = useGetRecreationResourceOptions(
-    GetOptionsByTypeTypeEnum.Maintenance,
-  );
-  const controlAccessCodeTypeOptions = useGetRecreationResourceOptions(
-    GetOptionsByTypeTypeEnum.ControlAccessCode,
-    {
-      // Add "None" option to unset control access code
-      select: (data) => [{ id: null, label: 'None' }, ...data],
-    },
-  );
-  const accessOptions = useGetRecreationResourceOptions(
-    GetOptionsByTypeTypeEnum.Access,
-  );
-  const recreationStatusOptions = useGetRecreationResourceOptions(
-    GetOptionsByTypeTypeEnum.RecreationStatus,
-  );
+  const { data: resourceOptions, isLoading } = useGetRecreationResourceOptions([
+    'access',
+    'controlAccessCode',
+    'maintenance',
+    'recreationStatus',
+    'regions',
+  ]);
+
+  const [
+    accessOptions,
+    controlAccessCodeOptions,
+    maintenanceOptions,
+    recreationStatusOptions,
+    regionOptions,
+  ] = resourceOptions || [];
 
   const groupedAccessOptions = useMemo(() => {
     const groups: GroupedOptions[] = [];
 
-    accessOptions.data?.forEach((accessOption) => {
+    accessOptions?.options.forEach((accessOption) => {
       const groupedOptions: GroupedOptions = {
         label: accessOption.label,
         options: [],
@@ -55,17 +48,12 @@ export const useResourceOptions = () => {
   }, [accessOptions]);
 
   return {
-    regionOptions: regionOptions.data || [],
-    maintenanceOptions: maintenanceOptions.data || [],
-    controlAccessCodeTypeOptions: controlAccessCodeTypeOptions.data || [],
-    accessOptions: accessOptions.data || [],
-    recreationStatusOptions: recreationStatusOptions.data || [],
+    regionOptions: regionOptions?.options ?? [],
+    maintenanceOptions: maintenanceOptions?.options ?? [],
+    controlAccessCodeTypeOptions: controlAccessCodeOptions?.options ?? [],
+    accessOptions: accessOptions?.options ?? [],
+    recreationStatusOptions: recreationStatusOptions?.options ?? [],
     groupedAccessOptions,
-    isLoading:
-      regionOptions.isLoading ||
-      maintenanceOptions.isLoading ||
-      controlAccessCodeTypeOptions.isLoading ||
-      accessOptions.isLoading ||
-      recreationStatusOptions.isLoading,
+    isLoading,
   };
 };

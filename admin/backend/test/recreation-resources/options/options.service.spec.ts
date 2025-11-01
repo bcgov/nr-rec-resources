@@ -12,6 +12,7 @@ describe('OptionsService', () => {
   beforeEach(async () => {
     const mockOptionsRepository = {
       findAllByType: vi.fn(),
+      findAllByTypes: vi.fn(),
       findOneByTypeAndId: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
@@ -121,6 +122,36 @@ describe('OptionsService', () => {
     });
   });
 
+  describe('findAllByTypes', () => {
+    it('should return a map of types to options', async () => {
+      const mockMap = {
+        activities: [{ id: '1', label: 'Hiking' }],
+        regions: [{ id: 'VAN', label: 'Vancouver' }],
+      };
+
+      repository.findAllByTypes = vi.fn().mockResolvedValue(mockMap);
+
+      const result = await service.findAllByTypes(['activities', 'regions']);
+
+      expect(result).toEqual(mockMap);
+      expect(repository.findAllByTypes).toHaveBeenCalled();
+      // ensure the service preserves the original type keys when calling repository
+      const callArg = (repository.findAllByTypes as any).mock.calls[0][0];
+      expect(callArg).toHaveLength(2);
+      expect(callArg[0].type).toBe('activities');
+      expect(callArg[1].type).toBe('regions');
+    });
+
+    it('should propagate repository errors', async () => {
+      const err = new BadRequestException('Invalid types');
+      repository.findAllByTypes = vi.fn().mockRejectedValue(err);
+
+      // Use a valid type so service validation does not throw first
+      await expect(service.findAllByTypes(['activities'])).rejects.toBe(err);
+      expect(repository.findAllByTypes).toHaveBeenCalled();
+    });
+  });
+
   describe('findOneByTypeAndId', () => {
     it('should return a single activity', async () => {
       const mockActivity = { id: '1', label: 'Hiking' };
@@ -227,6 +258,14 @@ describe('OptionsService', () => {
         { description: 'Alpine Hiking' },
       );
     });
+
+    it('should throw NotFoundException when updating non-existent option', async () => {
+      repository.findOneByTypeAndId = vi.fn().mockResolvedValue(null);
+
+      await expect(
+        service.update('activities', '999', { label: 'Does not exist' }),
+      ).rejects.toThrow(NotFoundException);
+    });
   });
 
   describe('remove', () => {
@@ -256,6 +295,25 @@ describe('OptionsService', () => {
         },
         1,
       );
+    });
+
+    it('should throw NotFoundException when removing non-existent option', async () => {
+      repository.findOneByTypeAndId = vi.fn().mockResolvedValue(null);
+
+      await expect(service.remove('activities', '999')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
+  });
+
+  describe('findAllByTypes edge cases', () => {
+    it('should call repository with empty array and return its result', async () => {
+      repository.findAllByTypes = vi.fn().mockResolvedValue({});
+
+      const result = await service.findAllByTypes([]);
+
+      expect(repository.findAllByTypes).toHaveBeenCalledWith([]);
+      expect(result).toEqual({});
     });
   });
 
@@ -357,6 +415,29 @@ describe('OptionsService', () => {
           service.findSubAccessByAccessAndSubAccessCode('road', 'paved'),
         ).rejects.toThrow(NotFoundException);
       });
+    });
+
+    it('should return empty label when sub-access has no description', async () => {
+      const mockAccessCode = { access_code: 'road', description: 'Road' };
+      const mockSubAccessCode = {
+        sub_access_code: 'paved' /* no description */,
+      };
+      const mockCombination = { access_code: 'road', sub_access_code: 'paved' };
+
+      repository.findAccessCode = vi.fn().mockResolvedValue(mockAccessCode);
+      repository.findSubAccessCode = vi
+        .fn()
+        .mockResolvedValue(mockSubAccessCode as any);
+      repository.findAccessSubAccessCombination = vi
+        .fn()
+        .mockResolvedValue(mockCombination);
+
+      const result = await service.findSubAccessByAccessAndSubAccessCode(
+        'road',
+        'paved',
+      );
+
+      expect(result).toEqual({ id: 'paved', label: '' });
     });
 
     describe('createSubAccess', () => {

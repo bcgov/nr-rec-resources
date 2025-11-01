@@ -11,6 +11,7 @@ describe('OptionsController', () => {
 
   const mockOptionsService = {
     findAllByType: vi.fn(),
+    findAllByTypes: vi.fn(),
   };
 
   beforeEach(async () => {
@@ -60,8 +61,66 @@ describe('OptionsController', () => {
       const err = new BadRequestException('Invalid option type');
       mockOptionsService.findAllByType.mockRejectedValue(err);
 
-      await expect(controller.findAllByType('invalid')).rejects.toBe(err);
+      await expect(controller.findAllByType('invalid' as any)).rejects.toBe(
+        err,
+      );
       expect(service.findAllByType).toHaveBeenCalledWith('invalid');
+    });
+  });
+
+  describe('findAllByTypes', () => {
+    it('should return grouped options when service resolves with a map', async () => {
+      const mockMap = {
+        activities: [
+          { id: '1', label: 'Hiking' },
+          { id: '2', label: 'Skiing' },
+        ],
+        regions: [],
+      };
+
+      mockOptionsService.findAllByTypes.mockResolvedValue(mockMap);
+
+      const query = { types: ['activities', 'regions'] };
+
+      const result = await controller.findAllByTypes(query as any);
+
+      expect(result).toEqual([
+        { type: 'activities', options: mockMap.activities },
+        { type: 'regions', options: [] },
+      ]);
+
+      expect(service.findAllByTypes).toHaveBeenCalledWith(query.types);
+    });
+
+    it('should include requested types with empty arrays when missing in result map', async () => {
+      const mockMap = {
+        activities: [{ id: '1', label: 'Hiking' }],
+      };
+
+      mockOptionsService.findAllByTypes.mockResolvedValue(mockMap);
+
+      const query = { types: ['activities', 'regions'] };
+
+      const result = await controller.findAllByTypes(query as any);
+
+      // Controller now maps over the requested types, so 'regions' should be present with []
+      expect(result).toEqual([
+        { type: 'activities', options: mockMap.activities },
+        { type: 'regions', options: [] },
+      ]);
+
+      expect(service.findAllByTypes).toHaveBeenCalledWith(query.types);
+    });
+
+    it('should propagate service errors', async () => {
+      const err = new BadRequestException('Invalid option types');
+      mockOptionsService.findAllByTypes.mockRejectedValue(err);
+
+      await expect(
+        controller.findAllByTypes({ types: ['invalid'] } as any),
+      ).rejects.toBe(err);
+
+      expect(service.findAllByTypes).toHaveBeenCalledWith(['invalid']);
     });
   });
 });

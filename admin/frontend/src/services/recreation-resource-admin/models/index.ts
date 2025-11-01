@@ -8,6 +8,7 @@ export * from './HealthControllerCheck200Response';
 export * from './HealthControllerCheck200ResponseInfoValue';
 export * from './HealthControllerCheck503Response';
 export * from './OptionDto';
+export * from './OptionsByTypeDto';
 export * from './RecreationAccessCodeDto';
 export * from './RecreationActivityDto';
 export * from './RecreationControlAccessDto';
