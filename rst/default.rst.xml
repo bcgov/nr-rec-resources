@@ -60,9 +60,34 @@
             <column ascending="true" name="sub_access_code"/>
          </index>
       </table>
+      <table name="recreation_access_and_sub_access_code" remarks="Codes pairing primary access codes with optional sub-access codes." schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="access_code" nullable="false" remarks="Primary access code (e.g. R=Road, T=Trail)." size="3" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="access_code_description" nullable="false" remarks="Description of the primary access code." size="100" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="sub_access_code" nullable="false" remarks="Sub access code (optional detail for primary access)." size="3" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="sub_access_code_description" nullable="true" remarks="Description of the sub access code." size="100" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="now()" digits="6" id="4" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="5" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <primaryKey column="access_code" sequenceNumberInPK="1"/>
+         <primaryKey column="sub_access_code" sequenceNumberInPK="2"/>
+         <index name="recreation_access_and_sub_access_code_pkey" unique="true">
+            <column ascending="true" name="access_code"/>
+            <column ascending="true" name="sub_access_code"/>
+         </index>
+      </table>
+      <table name="recreation_access_and_sub_access_code_history" remarks="" schema="rst" type="TABLE">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="access_code" nullable="false" remarks="" size="3" type="varchar" typeCode="12">
+            <parent column="access_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_access_code"/>
+         </column>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="access_code_description" nullable="false" remarks="" size="100" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="sub_access_code" nullable="false" remarks="" size="3" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="sub_access_code_description" nullable="true" remarks="" size="100" type="varchar" typeCode="12"/>
+         <column autoUpdated="false" defaultValue="null" digits="6" id="4" name="updated_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
+         <column autoUpdated="false" defaultValue="null" digits="0" id="5" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+      </table>
       <table name="recreation_access_code" remarks="Codes describing types of access to Recreation Resources" schema="rst" type="TABLE">
          <column autoUpdated="false" defaultValue="null" digits="0" id="0" name="access_code" nullable="false" remarks="Code identifying the type of access" size="3" type="varchar" typeCode="12">
             <child column="access_code" foreignKey="recreation_access_access_code_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_access"/>
+            <child column="access_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_access_and_sub_access_code_history"/>
             <child column="access_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_access_code_history"/>
             <child column="access_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_access_history"/>
             <child column="access_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_access_count_view"/>

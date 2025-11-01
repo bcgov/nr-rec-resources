@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>recreation_resource_access_count_view - default.rst</title>
+        <title>recreation_access_and_sub_access_code - default.rst</title>
         <!-- Tell the browser to be responsive to screen width -->
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
         <link rel="icon" type="image/png" sizes="16x16" href="../favicon.png">
@@ -73,7 +73,7 @@
             <div class="content-wrapper">
                 <!-- Content Header (Page header) -->
                 <section class="content-header">
-                    <h1>recreation_resource_access_count_view</h1><p><span id="recordNumber">0</span> rows</p><br />
+                    <h1>recreation_access_and_sub_access_code</h1><p><span id="recordNumber">-1</span> rows</p><br />
                     <div class="box box-primary">
                         <div class="box-header with-border">
                             <i class="fa fa-file-text-o"></i>
@@ -84,7 +84,7 @@
                             </div>
                         </div><!-- /.box-header -->
                         <div class="box-body clearfix">
-                            <p>Provides a list of access codes and counts of their associated recreation resources for use in the search filter menu.</p>
+                            <p>Codes pairing primary access codes with optional sub-access codes.</p>
                         </div><!-- /.box-body -->
                     </div>
                 </section>
@@ -122,10 +122,10 @@
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="access_code">access_code</span></td>
+                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="access_code">access_code</span></td>
                                     <td>varchar</td>
                                     <td>3</td>
-                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
                                     <td title=''></td>
                                     <td>null</td>
                                     <td>
@@ -134,22 +134,68 @@
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
-                                            <tr>
-                                                <td title="recreation_resource_access_count_view.access_code&#39;s name implies that it&#39;s a child of recreation_access_code.access_code, but it doesn&#39;t reference that column."><a href='recreation_access_code.html'>recreation_access_code</a><span class='relatedKey'>.access_code</span></td>
-                                                <td class="constraint detail">Implied Constraint</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Primary access code (e.g. R=Road, T=Trail).</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="access_description">access_description</span></td>
+                                    <td><span id="access_code_description">access_code_description</span></td>
                                     <td>varchar</td>
-                                    <td>120</td>
+                                    <td>100</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Description of the primary access code.</p></td>
+                                </tr>
+                                <tr>
+                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="sub_access_code">sub_access_code</span></td>
+                                    <td>varchar</td>
+                                    <td>3</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Sub access code (optional detail for primary access).</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="sub_access_code_description">sub_access_code_description</span></td>
+                                    <td>varchar</td>
+                                    <td>100</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Description of the sub access code.</p></td>
+                                </tr>
+                                <tr>
+                                    <td><span id="updated_at">updated_at</span></td>
+                                    <td>timestamp</td>
+                                    <td>29,6</td>
+                                    <td title='nullable'>√</td>
+                                    <td title=''></td>
+                                    <td>now()</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -161,12 +207,12 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="count">count</span></td>
-                                    <td>int8</td>
-                                    <td>19</td>
-                                    <td title='nullable'>√</td>
+                                    <td><span id="sys_period">sys_period</span></td>
+                                    <td>tstzrange</td>
+                                    <td>2147483647</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td title=''></td>
+                                    <td>tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -183,6 +229,42 @@
                     </div>
                     <div class="box box-primary">
                         <div class="box-header with-border">
+                            <i class="fa fa-sitemap"></i>
+                            <h3 id="Indexes" class="box-title">Indexes</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <table
+                                    id="indexes_table"
+                                    class="table table-bordered table-striped dataTable"
+                                    role="grid"
+                                    data-paging="true"
+                                    data-page-length="10"
+                                    data-length-change="false">
+                                <thead>
+                                <tr>
+                                    <th>Constraint Name</th>
+                                    <th>Type</th>
+                                    <th>Sort</th>
+                                    <th>Column(s)</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey'></i> recreation_access_and_sub_access_code_pkey</td>
+                                    <td>Primary key</td>
+                                    <td><span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span></td>
+                                    <td>access_code + sub_access_code</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div><!-- /.box-body -->
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
                             <i class="fa fa-code-fork"></i>
                             <h3 id="Relationships" class="box-title">Relationships</h3>
                             <div class="box-tools pull-right">
@@ -195,61 +277,15 @@
                                 <h5>Close relationships within degrees of separation</h5>
                                 <ul class="nav nav-tabs pull-left ui-sortable-handle">
                                     <li class="active"><a href="#oneDegreeImg-chart" data-toggle="tab" aria-expanded="true">One</a></li>
-                                    <li class=""><a href="#oneimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">One implied</a></li>
-                                    <li class=""><a href="#twoimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two implied</a></li>
                                 </ul>
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="recreation_resource_access_count_view.html" target="_top" title="recreation_resource_access_count_view" alt="" coords="5,5,467,139">
+<area shape="rect" id="node1" href="recreation_access_and_sub_access_code.html" target="_top" title="recreation_access_and_sub_access_code" alt="" coords="5,5,537,251">
 </map>
-                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/recreation_resource_access_count_view.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
-                                    </div>
-                                    <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
-                                        <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_resource_access_count_view.html" target="_top" title="recreation_resource_access_count_view" alt="" coords="315,5,776,139">
-<area shape="rect" id="node2" href="recreation_access_code.html" target="_top" title="recreation_access_code" alt="" coords="5,8,271,125">
-</map>
-                                        <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/recreation_resource_access_count_view.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
-                                    </div>
-                                    <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
-                                        <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_access.html" target="_top" title="recreation_access" alt="" coords="435,216,656,304">
-<area shape="rect" id="node2" href="recreation_access_code.html" target="_top" title="recreation_access_code" alt="" coords="5,248,271,365">
-<area shape="rect" id="node3" href="recreation_access_and_sub_acces_c164e148.html" target="_top" title="recreation_access_and_sub_access_code_history" alt="" coords="316,5,775,93">
-<area shape="rect" id="node4" href="recreation_access_code_history.html" target="_top" title="recreation_access_code_history" alt="" coords="381,111,709,199">
-<area shape="rect" id="node5" href="recreation_access_history.html" target="_top" title="recreation_access_history" alt="" coords="820,251,1104,339">
-<area shape="rect" id="node6" href="recreation_resource_access_count_view.html" target="_top" title="recreation_resource_access_count_view" alt="" coords="315,357,776,491">
-<area shape="rect" id="node7" href="recreation_resource_search_view.html" target="_top" title="recreation_resource_search_view" alt="" coords="376,508,715,572">
-</map>
-                                        <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/recreation_resource_access_count_view.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/recreation_access_and_sub_access_code.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                 </div>
-                            </div>
-                        </div><!-- /.box-body -->
-                    </div>
-                    <div class="box box-primary">
-                        <div class="box-header with-border">
-                            <i class="fa fa-file-code-o"></i>
-                            <h3 id="ViewDefinition" class="box-title">View Definition</h3>
-                            <div class="box-tools pull-right">
-                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
-                            </div>
-                        </div>
-                        <div class="box-body">
-                            <textarea id="sql-script-codemirror" name="sql-script-codemirror" rows="" style="display: none;">SELECT rac.access_code,&#10;    rac.description AS access_description,&#10;    COALESCE(count(DISTINCT ROW(ra.rec_resource_id, ra.access_code, ra.sub_access_code)), (0)::bigint) AS count&#10;   FROM ((rst.recreation_access ra&#10;     LEFT JOIN rst.recreation_access_code rac ON (((ra.access_code)::text &#61; (rac.access_code)::text)))&#10;     LEFT JOIN rst.recreation_resource rr ON (((ra.rec_resource_id)::text &#61; (rr.rec_resource_id)::text)))&#10;  WHERE (rr.display_on_public_site &#61; true)&#10;  GROUP BY rac.access_code, rac.description;</textarea>
-                            <div style="padding-top: 5px;"><hr></div>
-                            <div class="box box-solid">
-                                <div class="box-header with-border">
-                                    <i class="fa fa-puzzle-piece"></i>
-                                    <h3 class="box-title">Possibly Referenced Tables/Views</h3>
-                                </div>
-                                <!-- /.box-header -->
-                                <div class="box-body">
-                                    <ul class="list-unstyled">
-                                    </ul>
-                                </div><!-- /.box-body -->
                             </div>
                         </div><!-- /.box-body -->
                     </div>

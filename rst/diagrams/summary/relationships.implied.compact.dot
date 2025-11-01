@@ -61,6 +61,18 @@ digraph "compactImpliedRelationshipsDiagram" {
     target="_top"
     tooltip="recreation_control_access_code"
   ];
+  "recreation_access_and_sub_access_code_history" [
+   label=<
+    <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
+      <TR><TD COLSPAN="3"  BGCOLOR="#f5f5f5"><TABLE BORDER="0" CELLSPACING="0"><TR><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="284" HEIGHT="16"><B>recreation_access_and_sub_access_code_history</B></TD><TD ALIGN="RIGHT">[table]</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="access_code" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="284" HEIGHT="16">access_code</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
+      <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
+    </TABLE>>
+    URL="tables/recreation_access_and_sub_acces_c164e148.html"
+    target="_top"
+    tooltip="recreation_access_and_sub_access_code_history"
+  ];
   "recreation_agreement_holder" [
    label=<
     <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" BGCOLOR="#ffffff">
@@ -752,6 +764,7 @@ digraph "compactImpliedRelationshipsDiagram" {
   "recreation_access":"access_code":w -> "recreation_access_code":"access_code":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_access":"rec_resource_id":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_access":"sub_access_code":w -> "recreation_sub_access_code":"sub_access_code":e [arrowhead=none dir=back arrowtail=crowodot];
+  "recreation_access_and_sub_access_code_history":"access_code":w -> "recreation_access_code":"access_code":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_access_code_history":"access_code":w -> "recreation_access_code":"access_code":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_access_history":"access_code":w -> "recreation_access_code":"access_code":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_access_history":"id":w -> "recreation_access":"id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
