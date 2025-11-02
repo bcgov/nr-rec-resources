@@ -5,9 +5,7 @@
 
 export const RECREATION_RESOURCE_QUERY_KEYS = {
   all: ['recreation-resource'] as const,
-  details: () => [...RECREATION_RESOURCE_QUERY_KEYS.all, 'detail'] as const,
-  detail: (id: string) =>
-    [...RECREATION_RESOURCE_QUERY_KEYS.details(), id] as const,
+  detail: (id: string) => ['recreation-resource', 'detail', id] as const,
   siteOperator: (id: string) =>
-    [...RECREATION_RESOURCE_QUERY_KEYS.all, 'site-operator', id] as const,
+    ['recreation-resource', 'site-operator', id] as const,
 };

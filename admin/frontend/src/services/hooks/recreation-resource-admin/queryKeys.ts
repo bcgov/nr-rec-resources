@@ -5,11 +5,8 @@
 
 export const RECREATION_RESOURCE_QUERY_KEYS = {
   all: ['recreation-resource-admin'] as const,
-  details: () => [...RECREATION_RESOURCE_QUERY_KEYS.all, 'detail'] as const,
-  detail: (id: string) =>
-    [...RECREATION_RESOURCE_QUERY_KEYS.details(), id] as const,
-  images: (id: string) =>
-    [...RECREATION_RESOURCE_QUERY_KEYS.all, 'images', id] as const,
+  detail: (id: string) => ['recreation-resource-admin', 'detail', id] as const,
+  images: (id: string) => ['recreation-resource-admin', 'images', id] as const,
   documents: (id: string) =>
-    [...RECREATION_RESOURCE_QUERY_KEYS.all, 'documents', id] as const,
+    ['recreation-resource-admin', 'documents', id] as const,
 };
