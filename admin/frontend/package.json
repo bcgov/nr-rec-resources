@@ -6,14 +6,17 @@
     "dev": "vite",
     "build": "vite build",
     "deploy": "npm install --ignore-scripts --no-update-notifier && npm run build && npm prune --production",
-    "lint": "eslint .",
+    "lint": "eslint . --fix",
+    "lint:fix": "eslint . --fix",
     "preview": "vite preview",
     "test": "vitest --mode test",
     "test:cov": "vitest run --mode test --coverage",
     "e2e": "npx happo-e2e -- npx playwright test",
     "e2e:chrome": "npx happo-e2e -- npx playwright test --project=chromium",
     "e2e:ui": "npx happo-e2e -- npx playwright test --ui",
-    "prettier-fix": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\""
+    "prettier-fix": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@bcgov/bc-sans": "^2.1.0",
@@ -76,6 +79,8 @@
     "sass-embedded": "^1.89.0",
     "vite": "^7.0.5",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "eslint-plugin-storybook": "10.0.3",
+    "@storybook/addon-docs": "10.0.3"
   }
 }
