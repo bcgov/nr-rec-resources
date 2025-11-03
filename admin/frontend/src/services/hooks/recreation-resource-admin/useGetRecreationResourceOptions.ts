@@ -1,32 +1,31 @@
 import {
-  RecreationResourceOptionUIModel,
+  OptionsByTypeDto,
   ResponseError,
   useRecreationResourceAdminApiClient,
 } from '@/services';
-import { GetOptionsByTypeTypeEnum } from '@/services/recreation-resource-admin/apis/RecreationResourcesApi';
+import { GetOptionsByTypesTypesEnum } from '@/services/recreation-resource-admin/apis/RecreationResourcesApi';
 import { addErrorNotification } from '@/store/notificationStore';
-import { UseQueryOptions, useQuery } from '@tanstack/react-query';
+import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { createRetryHandler } from './helpers';
 
 export function useGetRecreationResourceOptions(
-  type: GetOptionsByTypeTypeEnum,
+  types: Array<GetOptionsByTypesTypesEnum>,
   queryOptions?: Partial<
-    UseQueryOptions<RecreationResourceOptionUIModel[], ResponseError>
+    UseQueryOptions<Array<OptionsByTypeDto>, ResponseError>
   >,
 ) {
   const api = useRecreationResourceAdminApiClient();
 
-  return useQuery<RecreationResourceOptionUIModel[], ResponseError>({
-    queryKey: ['recreation-resource-options', type],
-    queryFn: () =>
-      api.getOptionsByType({
-        type,
-      }),
+  const queryKey = ['recreation-resource-options', ...types];
+
+  return useQuery({
+    queryKey,
+    queryFn: () => api.getOptionsByTypes({ types }),
     retry: createRetryHandler({
       onFail: () =>
         addErrorNotification(
-          `Failed to load options for type ${type} after multiple attempts. Please try again later.`,
-          'getOptionsByType-error',
+          `Failed to load options for types ${types.join(', ')} after multiple attempts. Please try again later.`,
+          'getOptionsByTypes-error',
         ),
     }),
     staleTime: 5 * 60 * 1000, // Options data is relatively static, cache for 5 minutes

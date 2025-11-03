@@ -61,37 +61,20 @@ describe('useResourceOptions', () => {
     const mockAccessData = [{ id: '4', label: 'Access 1' }];
     const mockRecreationStatusData = [{ id: '5', label: 'Active' }];
 
-    mockUseGetRecreationResourceOptions
-      .mockReturnValueOnce({
-        data: mockRegionData,
-        isLoading: false,
-        error: null,
-        refetch: vi.fn(),
-      } as any)
-      .mockReturnValueOnce({
-        data: mockMaintenanceData,
-        isLoading: false,
-        error: null,
-        refetch: vi.fn(),
-      } as any)
-      .mockReturnValueOnce({
-        data: mockControlAccessData,
-        isLoading: false,
-        error: null,
-        refetch: vi.fn(),
-      } as any)
-      .mockReturnValueOnce({
-        data: mockAccessData,
-        isLoading: false,
-        error: null,
-        refetch: vi.fn(),
-      } as any)
-      .mockReturnValueOnce({
-        data: mockRecreationStatusData,
-        isLoading: false,
-        error: null,
-        refetch: vi.fn(),
-      } as any);
+    // The hook expects a single call that returns an array in the order:
+    // [access, controlAccessCode, maintenance, recreationStatus, regions]
+    mockUseGetRecreationResourceOptions.mockReturnValue({
+      data: [
+        { options: mockAccessData },
+        { options: mockControlAccessData },
+        { options: mockMaintenanceData },
+        { options: mockRecreationStatusData },
+        { options: mockRegionData },
+      ],
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    } as any);
 
     const { result } = renderHook(() => useResourceOptions(), { wrapper });
 
@@ -108,37 +91,12 @@ describe('useResourceOptions', () => {
   });
 
   it('should handle loading states correctly', () => {
-    mockUseGetRecreationResourceOptions
-      .mockReturnValueOnce({
-        data: undefined,
-        isLoading: true,
-        error: null,
-        refetch: vi.fn(),
-      } as any)
-      .mockReturnValueOnce({
-        data: [],
-        isLoading: false,
-        error: null,
-        refetch: vi.fn(),
-      } as any)
-      .mockReturnValueOnce({
-        data: [],
-        isLoading: false,
-        error: null,
-        refetch: vi.fn(),
-      } as any)
-      .mockReturnValueOnce({
-        data: [],
-        isLoading: false,
-        error: null,
-        refetch: vi.fn(),
-      } as any)
-      .mockReturnValueOnce({
-        data: [],
-        isLoading: false,
-        error: null,
-        refetch: vi.fn(),
-      } as any);
+    mockUseGetRecreationResourceOptions.mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      error: null,
+      refetch: vi.fn(),
+    } as any);
 
     const { result } = renderHook(() => useResourceOptions(), { wrapper });
 
@@ -152,51 +110,28 @@ describe('useResourceOptions', () => {
       error: null,
       refetch: vi.fn(),
     } as any);
-
     renderHook(() => useResourceOptions(), { wrapper });
 
-    expect(mockUseGetRecreationResourceOptions).toHaveBeenCalledTimes(5);
-    const calls = mockUseGetRecreationResourceOptions.mock.calls;
-    expect(calls[0][0]).toBe(GetOptionsByTypeTypeEnum.Regions);
-    expect(calls[1][0]).toBe(GetOptionsByTypeTypeEnum.Maintenance);
-    expect(calls[2][0]).toBe(GetOptionsByTypeTypeEnum.ControlAccessCode);
-    expect(calls[2][1]).toMatchObject({ select: expect.any(Function) });
-    expect(calls[3][0]).toBe(GetOptionsByTypeTypeEnum.Access);
-    expect(calls[4][0]).toBe(GetOptionsByTypeTypeEnum.RecreationStatus);
+    // The hook calls the service hook once with an array of enum values
+    expect(mockUseGetRecreationResourceOptions).toHaveBeenCalledTimes(1);
+    const callArg = mockUseGetRecreationResourceOptions.mock.calls[0][0];
+    expect(callArg).toEqual([
+      GetOptionsByTypeTypeEnum.Access,
+      GetOptionsByTypeTypeEnum.ControlAccessCode,
+      GetOptionsByTypeTypeEnum.Maintenance,
+      GetOptionsByTypeTypeEnum.RecreationStatus,
+      GetOptionsByTypeTypeEnum.Regions,
+    ]);
   });
 
   it('should aggregate loading states from all queries', () => {
-    mockUseGetRecreationResourceOptions
-      .mockReturnValueOnce({
-        data: [],
-        isLoading: false,
-        error: null,
-        refetch: vi.fn(),
-      } as any)
-      .mockReturnValueOnce({
-        data: [],
-        isLoading: true, // One query is loading
-        error: null,
-        refetch: vi.fn(),
-      } as any)
-      .mockReturnValueOnce({
-        data: [],
-        isLoading: false,
-        error: null,
-        refetch: vi.fn(),
-      } as any)
-      .mockReturnValueOnce({
-        data: [],
-        isLoading: false,
-        error: null,
-        refetch: vi.fn(),
-      } as any)
-      .mockReturnValueOnce({
-        data: [],
-        isLoading: false,
-        error: null,
-        refetch: vi.fn(),
-      } as any);
+    // The underlying hook returns an aggregated isLoading flag; emulate it
+    mockUseGetRecreationResourceOptions.mockReturnValue({
+      data: [],
+      isLoading: true,
+      error: null,
+      refetch: vi.fn(),
+    } as any);
 
     const { result } = renderHook(() => useResourceOptions(), { wrapper });
 
@@ -221,38 +156,18 @@ describe('useResourceOptions', () => {
       { id: '1', label: 'Active' },
       { id: '2', label: 'Inactive' },
     ];
-
-    mockUseGetRecreationResourceOptions
-      .mockReturnValueOnce({
-        data: [],
-        isLoading: false,
-        error: null,
-        refetch: vi.fn(),
-      } as any)
-      .mockReturnValueOnce({
-        data: [],
-        isLoading: false,
-        error: null,
-        refetch: vi.fn(),
-      } as any)
-      .mockReturnValueOnce({
-        data: [],
-        isLoading: false,
-        error: null,
-        refetch: vi.fn(),
-      } as any)
-      .mockReturnValueOnce({
-        data: [],
-        isLoading: false,
-        error: null,
-        refetch: vi.fn(),
-      } as any)
-      .mockReturnValueOnce({
-        data: mockRecreationStatusData,
-        isLoading: false,
-        error: null,
-        refetch: vi.fn(),
-      } as any);
+    mockUseGetRecreationResourceOptions.mockReturnValue({
+      data: [
+        { options: [] },
+        { options: [] },
+        { options: [] },
+        { options: mockRecreationStatusData },
+        { options: [] },
+      ],
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    } as any);
 
     const { result } = renderHook(() => useResourceOptions(), { wrapper });
 
@@ -280,37 +195,18 @@ describe('useResourceOptions', () => {
       },
     ];
 
-    mockUseGetRecreationResourceOptions
-      .mockReturnValueOnce({
-        data: [],
-        isLoading: false,
-        error: null,
-        refetch: vi.fn(),
-      } as any)
-      .mockReturnValueOnce({
-        data: [],
-        isLoading: false,
-        error: null,
-        refetch: vi.fn(),
-      } as any)
-      .mockReturnValueOnce({
-        data: [],
-        isLoading: false,
-        error: null,
-        refetch: vi.fn(),
-      } as any)
-      .mockReturnValueOnce({
-        data: mockAccessDataWithNulls,
-        isLoading: false,
-        error: null,
-        refetch: vi.fn(),
-      } as any)
-      .mockReturnValueOnce({
-        data: [],
-        isLoading: false,
-        error: null,
-        refetch: vi.fn(),
-      } as any);
+    mockUseGetRecreationResourceOptions.mockReturnValue({
+      data: [
+        { options: mockAccessDataWithNulls },
+        { options: [] },
+        { options: [] },
+        { options: [] },
+        { options: [] },
+      ],
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    } as any);
 
     const { result } = renderHook(() => useResourceOptions(), { wrapper });
 

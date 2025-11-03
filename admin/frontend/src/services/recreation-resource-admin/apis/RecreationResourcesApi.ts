@@ -19,6 +19,7 @@ import type {
   CreateRecreationResourceImageBodyDto,
   EstablishmentOrderDocDto,
   OptionDto,
+  OptionsByTypeDto,
   RecreationResourceDetailDto,
   RecreationResourceDocDto,
   RecreationResourceImageDto,
@@ -36,6 +37,8 @@ import {
   EstablishmentOrderDocDtoToJSON,
   OptionDtoFromJSON,
   OptionDtoToJSON,
+  OptionsByTypeDtoFromJSON,
+  OptionsByTypeDtoToJSON,
   RecreationResourceDetailDtoFromJSON,
   RecreationResourceDetailDtoToJSON,
   RecreationResourceDocDtoFromJSON,
@@ -105,6 +108,10 @@ export interface GetImagesByRecResourceIdRequest {
 
 export interface GetOptionsByTypeRequest {
   type: GetOptionsByTypeTypeEnum;
+}
+
+export interface GetOptionsByTypesRequest {
+  types: Array<GetOptionsByTypesTypesEnum>;
 }
 
 export interface GetRecreationResourceByIdRequest {
@@ -1012,15 +1019,6 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {};
 
-    if (this.configuration && this.configuration.accessToken) {
-      const token = this.configuration.accessToken;
-      const tokenString = await token('keycloak', []);
-
-      if (tokenString) {
-        headerParameters['Authorization'] = `Bearer ${tokenString}`;
-      }
-    }
-
     let urlPath = `/api/v1/recreation-resources/options/{type}`;
     urlPath = urlPath.replace(
       `{${'type'}}`,
@@ -1051,6 +1049,61 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<Array<OptionDto>> {
     const response = await this.getOptionsByTypeRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Retrieve options for multiple option types. Provide a comma-separated list of types in the `types` query parameter.
+   * List options for multiple types
+   */
+  async getOptionsByTypesRaw(
+    requestParameters: GetOptionsByTypesRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<OptionsByTypeDto>>> {
+    if (requestParameters['types'] == null) {
+      throw new runtime.RequiredError(
+        'types',
+        'Required parameter "types" was null or undefined when calling getOptionsByTypes().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    if (requestParameters['types'] != null) {
+      queryParameters['types'] = requestParameters['types'];
+    }
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    let urlPath = `/api/v1/recreation-resources/options`;
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      jsonValue.map(OptionsByTypeDtoFromJSON),
+    );
+  }
+
+  /**
+   * Retrieve options for multiple option types. Provide a comma-separated list of types in the `types` query parameter.
+   * List options for multiple types
+   */
+  async getOptionsByTypes(
+    requestParameters: GetOptionsByTypesRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<Array<OptionsByTypeDto>> {
+    const response = await this.getOptionsByTypesRaw(
       requestParameters,
       initOverrides,
     );
@@ -1445,3 +1498,20 @@ export const GetOptionsByTypeTypeEnum = {
 } as const;
 export type GetOptionsByTypeTypeEnum =
   (typeof GetOptionsByTypeTypeEnum)[keyof typeof GetOptionsByTypeTypeEnum];
+/**
+ * @export
+ */
+export const GetOptionsByTypesTypesEnum = {
+  Activities: 'activities',
+  Regions: 'regions',
+  Access: 'access',
+  SubAccess: 'sub-access',
+  Maintenance: 'maintenance',
+  ResourceType: 'resourceType',
+  FeeType: 'feeType',
+  RecreationStatus: 'recreationStatus',
+  Structure: 'structure',
+  ControlAccessCode: 'controlAccessCode',
+} as const;
+export type GetOptionsByTypesTypesEnum =
+  (typeof GetOptionsByTypesTypesEnum)[keyof typeof GetOptionsByTypesTypesEnum];

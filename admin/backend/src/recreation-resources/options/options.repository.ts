@@ -28,6 +28,46 @@ export class OptionsRepository {
   }
 
   /**
+   * Find options for multiple types using a single transaction.
+   * Accepts an array of { type, mapping } so the caller can preserve the original type key.
+   */
+  async findAllByTypes(
+    mappingPairs: { type: string; mapping: TableMapping }[],
+  ): Promise<Record<string, OptionDto[]>> {
+    // Build an array of Prisma findMany/select calls
+    const queries = mappingPairs.map(({ mapping }) => {
+      // Use the prisma model dynamically
+      const model = (this.prisma as any)[mapping.prismaModel];
+
+      // Use findMany with orderBy
+      return model.findMany({
+        orderBy: { [mapping.labelField]: 'asc' },
+      });
+    });
+
+    // Execute all queries in a single transaction
+    const results = await this.prisma.$transaction(queries);
+
+    // Map results back to type -> OptionDto[] applying reducers where provided
+    const output: Record<string, OptionDto[]> = {};
+
+    mappingPairs.forEach(({ type, mapping }, idx) => {
+      const rows = results[idx];
+
+      if (mapping.reducer) {
+        output[type] = mapping.reducer(rows);
+      } else {
+        output[type] = (rows as any[]).map((result) => ({
+          id: result[mapping.idField].toString(),
+          label: result[mapping.labelField],
+        }));
+      }
+    });
+
+    return output;
+  }
+
+  /**
    * Find one option by type and ID
    */
   async findOneByTypeAndId(

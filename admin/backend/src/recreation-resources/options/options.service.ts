@@ -47,6 +47,21 @@ export class OptionsService {
   }
 
   /**
+   * Retrieve options for multiple types. Returns a mapping of type -> options array.
+   */
+  async findAllByTypes(types: string[]): Promise<Record<string, OptionDto[]>> {
+    // Validate types and build mapping pairs preserving the original type string
+    const mappingPairs = types.map((t) => {
+      const validType = this.validateOptionType(t);
+      const mapping = this.getTableMapping(validType);
+      return { type: t, mapping };
+    });
+
+    // Let the repository execute all queries in a single transaction and return a map
+    return this.optionsRepository.findAllByTypes(mappingPairs);
+  }
+
+  /**
    * Get a single option by type and ID
    */
   async findOneByTypeAndId(type: string, id: string): Promise<OptionDto> {

@@ -33,6 +33,9 @@ describe('OptionsRepository', () => {
       recreation_access_code: {
         findUnique: vi.fn(),
       },
+      recreation_access_and_sub_access_code: {
+        findMany: vi.fn(),
+      },
       recreation_sub_access_code: {
         findMany: vi.fn(),
         findUnique: vi.fn(),
@@ -43,6 +46,7 @@ describe('OptionsRepository', () => {
       recreation_access: {
         findFirst: vi.fn(),
       },
+      $transaction: vi.fn(),
     };
 
     module = await Test.createTestingModule({
@@ -158,6 +162,108 @@ describe('OptionsRepository', () => {
           children: [{ id: 'MOTOR', label: 'Motor' }],
         },
       ]);
+    });
+  });
+
+  describe('findAllByTypes', () => {
+    it('should return a map of types to options using $transaction', async () => {
+      const mockPairs = [
+        {
+          type: 'activities',
+          mapping: mockTableMapping,
+        },
+      ];
+
+      const activitiesRows = [
+        { recreation_activity_code: 1, description: 'Hiking' },
+      ];
+
+      // $transaction should resolve with an array of results matching mapping pairs
+      (prisma as any).$transaction.mockResolvedValue([activitiesRows]);
+
+      const result = await repository.findAllByTypes(mockPairs as any);
+
+      expect(result).toEqual({
+        activities: [{ id: '1', label: 'Hiking' }],
+      });
+      expect((prisma as any).$transaction).toHaveBeenCalled();
+    });
+
+    it('should handle multiple mapping pairs and empty results', async () => {
+      const mockPairs = [
+        { type: 'activities', mapping: mockTableMapping },
+        {
+          type: 'recreationStatus',
+          mapping: {
+            idField: 'status_code',
+            labelField: 'description',
+            prismaModel: 'recreation_status_code',
+          },
+        },
+      ];
+
+      const activitiesRows = [
+        { recreation_activity_code: 1, description: 'Hiking' },
+      ];
+      const statusRows: any[] = [];
+
+      (prisma as any).$transaction.mockResolvedValue([
+        activitiesRows,
+        statusRows,
+      ]);
+
+      const result = await repository.findAllByTypes(mockPairs as any);
+
+      expect(result).toEqual({
+        activities: [{ id: '1', label: 'Hiking' }],
+        recreationStatus: [],
+      });
+    });
+
+    it('should apply reducer when provided', async () => {
+      const reducer = vi.fn().mockReturnValue([
+        {
+          id: 'BOAT',
+          label: 'Boat',
+          children: [{ id: 'MOTOR', label: 'Motor' }],
+        },
+      ]);
+
+      const mockPairs = [
+        {
+          type: 'access',
+          mapping: {
+            idField: 'access_code',
+            labelField: 'access_code_description',
+            prismaModel: 'recreation_access_and_sub_access_code',
+            reducer,
+          },
+        },
+      ];
+
+      const rows = [
+        {
+          access_code: 'BOAT',
+          access_code_description: 'Boat',
+          sub_access_code: 'MOTOR',
+          description: 'Motor',
+        },
+      ];
+
+      (prisma as any).$transaction.mockResolvedValue([rows]);
+
+      const result = await repository.findAllByTypes(mockPairs as any);
+
+      expect(reducer).toHaveBeenCalledWith(rows);
+      expect(result).toEqual({
+        access: [
+          {
+            id: 'BOAT',
+            label: 'Boat',
+            children: [{ id: 'MOTOR', label: 'Motor' }],
+          },
+        ],
+      });
     });
   });
 
@@ -306,6 +412,24 @@ describe('OptionsRepository', () => {
         },
       });
     });
+
+    it('should handle missing description values and return empty labels', async () => {
+      const mockResults = [
+        { sub_access_code: 'paved', description: null },
+        { sub_access_code: 'gravel' },
+      ];
+
+      (prisma as any).recreation_sub_access_code.findMany.mockResolvedValue(
+        mockResults,
+      );
+
+      const result = await repository.findSubAccessByAccessCode('road');
+
+      expect(result).toEqual([
+        { id: 'paved', label: '' },
+        { id: 'gravel', label: '' },
+      ]);
+    });
   });
 
   describe('findSubAccessCode', () => {
@@ -327,6 +451,16 @@ describe('OptionsRepository', () => {
           where: { sub_access_code: 'paved' },
         },
       );
+    });
+
+    it('should return null when sub-access code not found', async () => {
+      (prisma as any).recreation_sub_access_code.findUnique.mockResolvedValue(
+        null,
+      );
+
+      const result = await repository.findSubAccessCode('missing');
+
+      expect(result).toBeNull();
     });
   });
 
@@ -350,6 +484,17 @@ describe('OptionsRepository', () => {
           sub_access_code: 'paved',
         },
       });
+    });
+
+    it('should return null when combination not found', async () => {
+      (prisma as any).recreation_access.findFirst.mockResolvedValue(null);
+
+      const result = await repository.findAccessSubAccessCombination(
+        'road',
+        'missing',
+      );
+
+      expect(result).toBeNull();
     });
   });
 
@@ -375,6 +520,18 @@ describe('OptionsRepository', () => {
         },
       });
     });
+
+    it('should return empty label when created without description', async () => {
+      const mockResult: any = { sub_access_code: 'dirt' };
+
+      (prisma as any).recreation_sub_access_code.create.mockResolvedValue(
+        mockResult,
+      );
+
+      const result = await repository.createSubAccess('dirt', undefined as any);
+
+      expect(result).toEqual({ id: 'dirt', label: '' });
+    });
   });
 
   describe('updateSubAccess', () => {
@@ -399,6 +556,21 @@ describe('OptionsRepository', () => {
           description: true,
         },
       });
+    });
+
+    it('should return empty label when updated without description', async () => {
+      const mockResult: any = { sub_access_code: 'paved' };
+
+      (prisma as any).recreation_sub_access_code.update.mockResolvedValue(
+        mockResult,
+      );
+
+      const result = await repository.updateSubAccess(
+        'paved',
+        undefined as any,
+      );
+
+      expect(result).toEqual({ id: 'paved', label: '' });
     });
   });
 
