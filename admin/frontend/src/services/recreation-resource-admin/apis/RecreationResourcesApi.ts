@@ -1019,6 +1019,15 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {};
 
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
     let urlPath = `/api/v1/recreation-resources/options/{type}`;
     urlPath = urlPath.replace(
       `{${'type'}}`,
@@ -1056,7 +1065,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Retrieve options for multiple option types. Provide a comma-separated list of types in the `types` query parameter.
+   * Retrieve options for multiple option types. Provide a comma-separated list of types in the `types` query parameter.  The order of elements in the response matches the order of types provided by the client.
    * List options for multiple types
    */
   async getOptionsByTypesRaw(
@@ -1078,6 +1087,15 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     const headerParameters: runtime.HTTPHeaders = {};
 
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
     let urlPath = `/api/v1/recreation-resources/options`;
 
     const response = await this.request(
@@ -1096,7 +1114,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Retrieve options for multiple option types. Provide a comma-separated list of types in the `types` query parameter.
+   * Retrieve options for multiple option types. Provide a comma-separated list of types in the `types` query parameter.  The order of elements in the response matches the order of types provided by the client.
    * List options for multiple types
    */
   async getOptionsByTypes(
