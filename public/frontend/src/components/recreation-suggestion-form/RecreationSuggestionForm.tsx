@@ -271,7 +271,12 @@ const RecreationSuggestionForm = ({
           minLength={0}
           placeholder={SEARCH_PLACEHOLDER}
         />
-        <Button variant={searchBtnVariant} type="submit" className="submit-btn">
+        <Button
+          variant={searchBtnVariant}
+          type="submit"
+          aria-label="Search"
+          className="submit-btn d-none d-sm-block"
+        >
           Search
         </Button>
       </Form>

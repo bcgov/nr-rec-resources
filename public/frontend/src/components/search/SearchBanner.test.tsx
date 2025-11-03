@@ -23,6 +23,15 @@ describe('SearchBanner', () => {
     expect(
       screen.getByPlaceholderText('By name or community'),
     ).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Search' })).toBeInTheDocument();
+
+    const desktopButton = container.querySelector(
+      '.submit-btn.d-none.d-sm-block',
+    );
+    const mobileButton = container.querySelector(
+      '.mobile-search-button.d-block.d-sm-none',
+    );
+
+    expect(desktopButton).toBeInTheDocument();
+    expect(mobileButton).toBeInTheDocument();
   });
 });

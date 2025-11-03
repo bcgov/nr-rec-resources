@@ -4,7 +4,7 @@ import {
   TypeaheadComponentProps,
 } from 'react-bootstrap-typeahead';
 import { SuggestionSearchInput } from '@shared/components/suggestion-typeahead/SuggestionSearchInput';
-import 'react-bootstrap-typeahead/css/Typeahead.css';
+// import 'react-bootstrap-typeahead/css/Typeahead.css';
 import './SuggestionTypeahead.scss';
 import { TypeaheadInputProps } from 'react-bootstrap-typeahead/types/types';
 
@@ -81,6 +81,10 @@ export interface SuggestionTypeaheadProps<T> {
    * The currently selected suggestion(s).
    */
   selected?: T[];
+  /**
+   * Whether to show the mobile search button.
+   */
+  isMobileSearchBtn?: boolean;
 }
 
 /**
@@ -104,6 +108,7 @@ export const SuggestionTypeahead = <T extends object>({
   labelKey = 'name',
   minLength = 1,
   onInputChange,
+  isMobileSearchBtn = true,
   selected,
 }: SuggestionTypeaheadProps<T>) => {
   const typeaheadRef = useRef(null);
@@ -113,6 +118,7 @@ export const SuggestionTypeahead = <T extends object>({
       <SuggestionSearchInput
         {...inputProps}
         isLoading={isLoading}
+        isMobileSearchBtn={isMobileSearchBtn}
         onBlur={() => {
           if (typeaheadRef.current) {
             (typeaheadRef.current as any).blur();

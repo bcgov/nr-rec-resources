@@ -29,7 +29,6 @@ describe('SuggestionSearchInput', () => {
         isLoading={true}
       />,
     );
-    // Simulate ref assignment
     const input = screen.getByRole('textbox');
     inputRef.mockClear();
     referenceElementRef.mockClear();
@@ -38,7 +37,40 @@ describe('SuggestionSearchInput', () => {
     expect(inputRef).toHaveBeenCalledWith(input);
     expect(referenceElementRef).toHaveBeenCalledWith(input);
 
-    const spinner = screen.getByRole('status');
-    expect(spinner).toBeInTheDocument();
+    const spinners = screen.getAllByRole('status');
+    expect(spinners).toHaveLength(1);
+  });
+
+  it('renders mobile search button when isMobileSearchBtn is true', () => {
+    const inputRef = vi.fn();
+    const referenceElementRef = vi.fn();
+    render(
+      <SuggestionSearchInput
+        inputRef={inputRef}
+        referenceElementRef={referenceElementRef}
+        value=""
+        onChange={() => {}}
+        isMobileSearchBtn={true}
+      />,
+    );
+    const mobileSearchButton = screen.getByLabelText('Search');
+    expect(mobileSearchButton).toBeInTheDocument();
+    expect(mobileSearchButton).toHaveClass('mobile-search-button');
+  });
+
+  it('does not render mobile search button when isMobileSearchBtn is false', () => {
+    const inputRef = vi.fn();
+    const referenceElementRef = vi.fn();
+    render(
+      <SuggestionSearchInput
+        inputRef={inputRef}
+        referenceElementRef={referenceElementRef}
+        value=""
+        onChange={() => {}}
+        isMobileSearchBtn={false}
+      />,
+    );
+    const mobileSearchButton = screen.queryByLabelText('Search');
+    expect(mobileSearchButton).not.toBeInTheDocument();
   });
 });
