@@ -25,4 +25,15 @@ test.describe('Search page (Mobile)', () => {
 
     await utils.screenshotMobile('Search page', 'mobile');
   });
+
+  test('Search map view renders correctly', async ({ page }) => {
+    const searchPage = new SearchPOM(page);
+    const utils = new UtilsPOM(page);
+
+    await searchPage.route();
+    await searchPage.showMapView();
+    await searchPage.closeMapDisclaimer();
+
+    await utils.screenshotMobileWithMap('Search page map view', 'mobile');
+  });
 });

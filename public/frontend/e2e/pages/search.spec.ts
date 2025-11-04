@@ -23,4 +23,15 @@ test.describe('Search page', () => {
 
     await utils.screenshot('Search page', 'default');
   });
+
+  test('Search map view renders correctly', async ({ page }) => {
+    const searchPage = new SearchPOM(page);
+    const utils = new UtilsPOM(page);
+
+    await searchPage.route();
+    await searchPage.showMapView();
+    await searchPage.closeMapDisclaimer();
+
+    await utils.screenshotWithMap('Search page map view', 'default');
+  });
 });
