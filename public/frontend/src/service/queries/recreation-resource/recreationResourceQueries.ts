@@ -8,7 +8,7 @@ import {
   SiteOperatorDto,
   RecreationResourceApi,
   Configuration,
-  RecreationResourceSearchWithGeometryDto,
+  RecreationResourceDetailDto,
 } from '@/service/recreation-resource';
 import { useRecreationResourceApi } from '@/service/hooks/useRecreationResourceApi';
 import { getBasePath } from '@/service/hooks/helpers';
@@ -301,17 +301,19 @@ export const useAlphabeticalResources = (letter: string, type?: string) => {
  * @param {string} letter - The letter to filter by (A-Z or # for numerical)
  * @param {string} [type] - Optional recreation resource type code to filter by
  */
-export const useSearchRecreationResourcesGeometry = (
-  params: SearchParams,
+export const useRecreationResourcesWithGeometry = (
+  ids: string[],
   isEnabled: boolean,
 ) => {
   const api = useRecreationResourceApi();
 
-  return useQuery<RecreationResourceSearchWithGeometryDto[]>({
-    queryKey: ['recreationResourcesGeometry', params],
-    queryFn: async (): Promise<RecreationResourceSearchWithGeometryDto[]> => {
-      const response = await api.searchRecreationResourcesWithGeometry(params);
-      return response;
+  return useQuery<RecreationResourceDetailDto[]>({
+    queryKey: ['recreationResourcesGeometry', ids],
+    queryFn: async (): Promise<RecreationResourceDetailDto[]> => {
+      const response = await api.getResourcesWithGeometry({ ids });
+      return response.map((rec: RecreationResourceDetailDto) => {
+        return transformRecreationResourceDetail(rec);
+      });
     },
     enabled: isEnabled,
     staleTime: 5 * 60 * 1000, // 5 minutes

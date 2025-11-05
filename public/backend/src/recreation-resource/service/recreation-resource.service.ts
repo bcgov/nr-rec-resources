@@ -54,6 +54,34 @@ export class RecreationResourceService {
     );
   }
 
+  async findMany(
+    ids: string[],
+    imageSizeCodes?: RecreationResourceImageSize[],
+  ): Promise<RecreationResourceDetailDto[]> {
+    const result = await this.prisma.recreation_resource.findMany({
+      where: {
+        rec_resource_id: {
+          in: ids,
+        },
+        AND: {
+          display_on_public_site: true,
+        },
+      },
+      select: getRecreationResourceSelect(imageSizeCodes),
+    });
+
+    const geometries = await this.getMultipleGeometry(ids);
+
+    return result.map((rec) => {
+      return formatRecreationResourceDetailResults(rec, {
+        site_point_geometry:
+          geometries[rec.rec_resource_id].site_point_geometry,
+        spatial_feature_geometry:
+          geometries[rec.rec_resource_id].spatial_feature_geometry,
+      });
+    });
+  }
+
   async findClientNumber(id: string): Promise<string> {
     const agreementHolder =
       await this.prisma.recreation_agreement_holder.findUnique({
@@ -118,11 +146,19 @@ export class RecreationResourceService {
 
   async getMultipleGeometry(
     ids: string[],
-  ): Promise<RecreationResourceGeometry[]> {
+  ): Promise<
+    Record<string, Omit<RecreationResourceGeometry, 'rec_resource_id'>>
+  > {
     const multipleResourcesSpatialFeatureGeometryResult: getMultipleResourcesSpatialFeatureGeometry.Result[] =
       await this.prisma.$queryRawTyped(
         getMultipleResourcesSpatialFeatureGeometry(ids),
       );
-    return multipleResourcesSpatialFeatureGeometryResult;
+    return multipleResourcesSpatialFeatureGeometryResult.reduce(
+      (g, { rec_resource_id, ...rest }) => {
+        g[rec_resource_id] = rest;
+        return g;
+      },
+      {} as Record<string, Omit<RecreationResourceGeometry, 'rec_resource_id'>>,
+    );
   }
 }

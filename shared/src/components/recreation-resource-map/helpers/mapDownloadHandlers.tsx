@@ -8,6 +8,14 @@ import { RecreationResourceMapData } from '@shared/components/recreation-resourc
 import { RecResourceHTMLExportDescription } from '@shared/components/recreation-resource-map/RecResourceHTMLExportDescription';
 import { renderToString } from 'react-dom/server';
 import { triggerFileDownload } from '@shared/utils';
+import { getMapFeaturesFromRecResource } from './getMapFeaturesFromRecResource';
+import { Geometry } from 'ol/geom';
+
+interface KmlProps {
+  features: Feature[];
+  recResource: RecreationResourceMapData;
+  getResourceDetailUrl?: (recResourceId: string) => string;
+}
 
 /**
  * Downloads features as a GPX file.
@@ -58,6 +66,42 @@ export function downloadKML(
   triggerFileDownload(
     kmlXml,
     `${recResource.name}.kml`,
+    'application/vnd.google-earth.kml+xml',
+  );
+}
+
+/**
+ * Downloads multiple resources features as a KML file, with styles and HTML description.
+ * @param props Array of Resource features props
+ */
+export function downloadKMLMultiple(props: KmlProps[]) {
+  const allFeatures: Feature<Geometry>[] = [];
+  props.forEach((p: any) => {
+    p.features.forEach((feature: any) => {
+      // Add HTML description for KML export
+      feature.set(
+        'description',
+        renderToString(
+          <RecResourceHTMLExportDescription
+            recResource={p.recResource}
+            getResourceDetailUrl={p.getResourceDetailUrl}
+          />,
+        ),
+      );
+      allFeatures.push(feature);
+    });
+  });
+  const kmlFormat = new KML({
+    extractStyles: true,
+    writeStyles: true,
+  });
+  const kmlXml = kmlFormat.writeFeatures(allFeatures, {
+    featureProjection: MAP_PROJECTION_WEB_MERCATOR,
+    dataProjection: MAP_PROJECTION_WGS84,
+  });
+  triggerFileDownload(
+    kmlXml,
+    `search_results.kml`,
     'application/vnd.google-earth.kml+xml',
   );
 }
