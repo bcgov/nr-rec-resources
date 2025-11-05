@@ -16,7 +16,6 @@ export * from './RecreationResourceImageDto';
 export * from './RecreationResourceImageVariantDto';
 export * from './RecreationResourceReservationInfoDto';
 export * from './RecreationResourceSearchDto';
-export * from './RecreationResourceSearchWithGeometryDto';
 export * from './RecreationStatusDto';
 export * from './RecreationStructureDto';
 export * from './RecreationSuggestionDto';

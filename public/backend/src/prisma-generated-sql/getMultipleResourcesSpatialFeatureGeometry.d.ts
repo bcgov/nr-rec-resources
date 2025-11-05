@@ -13,8 +13,7 @@ export const getMultipleResourcesSpatialFeatureGeometry: (
 export namespace getMultipleResourcesSpatialFeatureGeometry {
   export type Parameters = [_text: string[]];
   export type Result = {
-    rec_resource_id: string;
-    description: string | null;
+    rec_resource_id: string | null;
     spatial_feature_geometry: string[] | null;
     site_point_geometry: string | null;
   };

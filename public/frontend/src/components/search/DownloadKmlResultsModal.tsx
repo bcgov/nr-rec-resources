@@ -2,64 +2,59 @@ import { Modal } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import './DownloadKmlResultsModal.scss';
-import { useSearchRecreationResourcesGeometry } from '@/service/queries/recreation-resource';
+import { useRecreationResourcesWithGeometry } from '@/service/queries/recreation-resource';
 import { useEffect } from 'react';
+import {
+  downloadKMLMultiple,
+  getLayerStyleForRecResource,
+  getMapFeaturesFromRecResource,
+  StyleContext,
+} from '@shared/components/recreation-resource-map';
+import { Feature } from 'ol';
+import { RecreationResourceMapData } from '@shared/components/recreation-resource-map/types';
+import { getRecResourceDetailPageUrl } from '@/utils/recreationResourceUtils';
 
 interface DownloadKmlResultsModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   searchResultsNumber: number;
-  filter: string | undefined;
-  district: string | undefined;
-  activities: string | undefined;
-  access: string | undefined;
-  facilities: string | undefined;
-  status: string | undefined;
-  fees: string | undefined;
-  lat: number | undefined;
-  lon: number | undefined;
-  community: string | undefined;
-  type: string | undefined;
+  ids: string[];
+}
+
+interface KmlProps {
+  features: Feature[];
+  recResource: RecreationResourceMapData;
+  getResourceDetailUrl?: (recResourceId: string) => string;
 }
 
 const DownloadKmlResultsModal = ({
   isOpen,
   setIsOpen,
   searchResultsNumber,
-  filter,
-  district,
-  activities,
-  access,
-  facilities,
-  status,
-  fees,
-  lat,
-  lon,
-  community,
-  type,
+  ids,
 }: DownloadKmlResultsModalProps) => {
-  const { data, refetch } = useSearchRecreationResourcesGeometry(
-    {
-      limit: 500,
-      filter,
-      district,
-      activities,
-      access,
-      facilities,
-      status,
-      fees,
-      lat,
-      lon,
-      community,
-      type,
-      page: 1,
-    },
-    false,
-  );
+  const { data, refetch } = useRecreationResourcesWithGeometry(ids, false);
 
   useEffect(() => {
     if (data) {
-      alert('create KML');
+      const allKmlProps: KmlProps[] = [];
+      data.forEach((recResource) => {
+        const features = getMapFeaturesFromRecResource(recResource);
+        const layerStyle = getLayerStyleForRecResource(
+          recResource,
+          StyleContext.DOWNLOAD,
+        );
+        features.map((feature) => {
+          feature.setStyle(layerStyle);
+        });
+        const props: KmlProps = {
+          features,
+          recResource,
+          getResourceDetailUrl: getRecResourceDetailPageUrl,
+        };
+        allKmlProps.push(props);
+      });
+      downloadKMLMultiple(allKmlProps);
     }
   }, [data]);
 
@@ -99,7 +94,6 @@ const DownloadKmlResultsModal = ({
           A KML file shows maps and routes in apps like Google Earth, helping
           you visualize trails, campsites, terrain features in 3D.
         </div>
-        {filter}
       </Modal.Body>
       <Modal.Footer className="d-block">
         <button
