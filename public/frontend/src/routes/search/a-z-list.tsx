@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import AlphabeticalListPage from '@/components/alphabetical-list/AlphabeticalListPage';
 import { BreadcrumbItem } from '@shared/components/breadcrumbs';
 import { ROUTE_TITLES } from '@/constants/routes';
+import { alphabeticalLoader } from '@/service/loaders/alphabeticalLoader';
 
 export type SearchParams = {
   letter?: string;
@@ -10,6 +11,7 @@ export type SearchParams = {
 
 export const Route = createFileRoute('/search/a-z-list')({
   component: AlphabeticalRoute,
+  loader: alphabeticalLoader,
   validateSearch: (search: Record<string, unknown>): SearchParams => ({
     letter: (search.letter as string) || '#',
     type: search.type as string | undefined,
