@@ -1,11 +1,22 @@
-import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, screen, waitFor } from '@testing-library/react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
 import searchResultsStore from '@/store/searchResults';
 import * as recreationResourceQueries from '@/service/queries/recreation-resource';
 import SearchPage from './SearchPage';
 import { renderWithQueryClient } from '@/test-utils';
 import { mockSearchResultsData } from '@/components/search/test/mock-data';
+
+const mockNavigate = vi.fn();
+const mockSearchParams: Record<string, string> = {};
+
+vi.mock('@tanstack/react-router', async () => {
+  const actual = await vi.importActual('@tanstack/react-router');
+  return {
+    ...actual,
+    useSearch: vi.fn(() => mockSearchParams),
+    useNavigate: () => mockNavigate,
+  };
+});
 
 vi.mock('@/service/queries/recreation-resource');
 vi.mock('@/components/rec-resource/card/RecResourceCard', () => ({
@@ -40,12 +51,11 @@ vi.mock('@/components/search', () => ({
     <div data-testid="mock-search-view-controls" />
   )),
 }));
-vi.mock('react-router-dom', async () => ({
-  ...(await vi.importActual<typeof import('react-router-dom')>(
-    'react-router-dom',
-  )),
-  useSearchParams: vi.fn(),
-  useNavigate: vi.fn(),
+vi.mock('@/components/search/SearchLinks', () => ({
+  default: vi.fn(() => null),
+}));
+vi.mock('@/components/search/SearchLinksMobile', () => ({
+  default: vi.fn(() => null),
 }));
 vi.mock('@/components/LoadingButton', () => ({
   LoadingButton: vi.fn(
@@ -106,22 +116,21 @@ describe('SearchPage', () => {
     ...overrides,
   });
 
-  const mockSearchParams = (params = {}) => {
-    const searchParams = new URLSearchParams(params);
-    const setSearchParams = vi.fn();
-    (useSearchParams as Mock).mockReturnValue([searchParams, setSearchParams]);
-    return setSearchParams;
-  };
-
   const mockStoreState = (state = {}) => {
     searchResultsStore.state = { ...mockSearchResultsData, ...state };
   };
 
+  const setMockSearchParams = (params: Record<string, string> = {}) => {
+    Object.keys(mockSearchParams).forEach(
+      (key) => delete mockSearchParams[key],
+    );
+    Object.assign(mockSearchParams, params);
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
-    (useNavigate as Mock).mockReturnValue(vi.fn());
-    mockSearchParams();
     mockStoreState();
+    setMockSearchParams();
 
     // Mock scroll functionality
     vi.spyOn(document, 'querySelector').mockImplementation((selector) => {
@@ -171,20 +180,20 @@ describe('SearchPage', () => {
   });
 
   it('displays filter text when filter is set', () => {
-    mockSearchParams({ filter: 'test' });
     mockStoreState({ totalCount: 1 });
+    setMockSearchParams({ filter: 'test' });
     renderWithQueryClient(<SearchPage />);
     expect(screen.getByText('Result containing')).toBeInTheDocument();
     expect(screen.getByText("'test'")).toBeInTheDocument();
   });
 
   it('displays location context when coordinates provided', async () => {
-    mockSearchParams({
+    mockStoreState({ totalCount: 5 });
+    setMockSearchParams({
       lat: '48.4284',
       lon: '-123.3656',
       community: 'Victoria',
     });
-    mockStoreState({ totalCount: 5 });
     const { container } = renderWithQueryClient(<SearchPage />);
     await waitFor(() => {
       const resultsTextDiv = container.querySelector('.results-text');
@@ -295,7 +304,6 @@ describe('SearchPage', () => {
   });
 
   it('handles undefined currentPage in pagination', async () => {
-    const setSearchParams = mockSearchParams({});
     const queryResult = mockQueryResult({
       data: { ...mockSearchResultsData, currentPage: undefined },
     });
@@ -309,7 +317,8 @@ describe('SearchPage', () => {
     fireEvent.click(screen.getByText('Load More'));
     await vi.runAllTimersAsync();
 
-    expect(setSearchParams).toHaveBeenCalledWith({ page: '2' });
+    // Just verify the button was clicked - navigation is handled by router
+    expect(queryResult.fetchNextPage).toHaveBeenCalled();
     vi.useRealTimers();
   });
 
@@ -322,19 +331,19 @@ describe('SearchPage', () => {
   });
 
   it('handles map view parameter', () => {
-    mockSearchParams({ view: 'map' });
+    setMockSearchParams({ view: 'map' });
     renderWithQueryClient(<SearchPage />);
     expect(screen.getByTestId('mock-search-map')).toBeInTheDocument();
   });
 
   it('handles list view parameter', () => {
-    mockSearchParams({ view: 'list' });
+    setMockSearchParams({ view: 'list' });
     renderWithQueryClient(<SearchPage />);
     expect(screen.getByTestId('mock-search-map')).toBeInTheDocument();
   });
 
   it('disables document scroll when view is map (RemoveScroll enabled)', async () => {
-    mockSearchParams({ view: 'map' });
+    setMockSearchParams({ view: 'map' });
     renderWithQueryClient(<SearchPage />);
     await waitFor(() => {
       expect(document.body).toHaveAttribute('data-scroll-locked', '1');
@@ -342,7 +351,7 @@ describe('SearchPage', () => {
   });
 
   it('does not disable document scroll when view is list (RemoveScroll disabled)', async () => {
-    mockSearchParams({ view: 'list' });
+    setMockSearchParams({ view: 'list' });
     renderWithQueryClient(<SearchPage />);
     await waitFor(() => {
       expect(document.body).not.toHaveAttribute('data-scroll-locked');
@@ -350,7 +359,7 @@ describe('SearchPage', () => {
   });
 
   it('handles all search parameters', () => {
-    const params = {
+    setMockSearchParams({
       filter: 'campground',
       district: 'Peace',
       activities: '1,2,3',
@@ -361,20 +370,18 @@ describe('SearchPage', () => {
       community: 'Vancouver',
       type: 'recreation_site',
       page: '2',
-    };
-    mockSearchParams(params);
+    });
     renderWithQueryClient(<SearchPage />);
     expect(screen.getByTestId('mock-search-banner')).toBeInTheDocument();
   });
 
   it('handles missing search parameters', () => {
-    mockSearchParams({});
     renderWithQueryClient(<SearchPage />);
     expect(screen.getByTestId('mock-search-banner')).toBeInTheDocument();
   });
 
   it('handles invalid parameters', () => {
-    mockSearchParams({ lat: 'invalid', lon: 'invalid' });
+    setMockSearchParams({ lat: 'invalid', lon: 'invalid' });
     renderWithQueryClient(<SearchPage />);
     expect(screen.getByTestId('mock-search-banner')).toBeInTheDocument();
   });

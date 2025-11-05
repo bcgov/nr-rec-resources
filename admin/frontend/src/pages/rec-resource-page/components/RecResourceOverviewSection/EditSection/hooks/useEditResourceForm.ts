@@ -1,4 +1,4 @@
-import { ROUTE_PATHS } from '@/routes';
+import { ROUTE_PATHS } from '@/constants/routes';
 import {
   RecreationResourceDetailUIModel,
   UpdateRecreationResourceDto,
@@ -103,12 +103,10 @@ export const useEditResourceForm = (
       },
       {
         onSuccess: () => {
-          navigate(
-            ROUTE_PATHS.REC_RESOURCE_OVERVIEW.replace(
-              ':id',
-              recResource.rec_resource_id.toString(),
-            ),
-          );
+          navigate({
+            to: ROUTE_PATHS.REC_RESOURCE_OVERVIEW,
+            params: { id: recResource.rec_resource_id.toString() },
+          });
         },
       },
     );

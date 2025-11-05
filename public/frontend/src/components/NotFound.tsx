@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router';
+import { useNavigate } from '@tanstack/react-router';
 import '@/components/NotFound.scss';
 
 export default function NotFound() {
@@ -22,14 +22,18 @@ export default function NotFound() {
           <button
             type="button"
             className="btn btn-outline-primary not-found-btn"
-            onClick={() => navigate('/')}
+            onClick={() => navigate({ to: '/' })}
           >
             Return to home
           </button>
           <button
             type="button"
             className="btn btn-outline-primary not-found-btn"
-            onClick={() => navigate(`/search${lastSearch ? lastSearch : ''}`)}
+            onClick={() => {
+              navigate({
+                to: `/search${lastSearch || ''}`,
+              });
+            }}
           >
             Find a rec site or trail
           </button>

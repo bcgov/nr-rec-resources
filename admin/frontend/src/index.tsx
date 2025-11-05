@@ -4,7 +4,6 @@ import '@shared/styles/bc-sans.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@/styles/global.scss';
-
 import App from '@/App';
 import { MAP_PROJECTION_BC_ALBERS } from '@shared/components/recreation-resource-map';
 import { register } from 'ol/proj/proj4';

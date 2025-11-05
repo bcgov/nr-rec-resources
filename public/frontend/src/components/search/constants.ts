@@ -1,9 +1,9 @@
-import { ROUTE_PATHS } from '@/routes/constants';
+import { ROUTE_PATHS } from '@/constants/routes';
 
 export interface SearchLink {
   label: string;
   path: string;
-  search?: string;
+  search?: Record<string, string>;
   trackingName: string;
 }
 
@@ -18,7 +18,7 @@ export const SEARCH_LINKS: SearchLink[] = [
   {
     label: 'Map',
     path: ROUTE_PATHS.SEARCH,
-    search: 'view=map',
+    search: { view: 'map' },
     trackingName: 'Map',
   },
 ];

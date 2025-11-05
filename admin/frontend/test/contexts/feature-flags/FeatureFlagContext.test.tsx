@@ -3,12 +3,29 @@ import {
   useFeatureFlagContext,
 } from '@/contexts/feature-flags';
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { useLocation } from '@tanstack/react-router';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+vi.mock('@tanstack/react-router', async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import('@tanstack/react-router')>();
+  return {
+    ...actual,
+    useLocation: vi.fn(),
+  };
+});
 
 describe('FeatureFlagContext', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   describe('FeatureFlagProvider', () => {
     it('should provide feature flags based on search params', () => {
+      vi.mocked(useLocation).mockReturnValue({
+        search: '?enable_full_features=true',
+      } as any);
+
       function TestComponent() {
         const flags = useFeatureFlagContext();
         return (
@@ -21,11 +38,9 @@ describe('FeatureFlagContext', () => {
       }
 
       render(
-        <MemoryRouter initialEntries={['/?enable_full_features=true']}>
-          <FeatureFlagProvider>
-            <TestComponent />
-          </FeatureFlagProvider>
-        </MemoryRouter>,
+        <FeatureFlagProvider>
+          <TestComponent />
+        </FeatureFlagProvider>,
       );
 
       expect(
@@ -34,6 +49,10 @@ describe('FeatureFlagContext', () => {
     });
 
     it('should default enable_full_features to false when not in params', () => {
+      vi.mocked(useLocation).mockReturnValue({
+        search: '',
+      } as any);
+
       function TestComponent() {
         const flags = useFeatureFlagContext();
         return (
@@ -46,11 +65,9 @@ describe('FeatureFlagContext', () => {
       }
 
       render(
-        <MemoryRouter initialEntries={['/']}>
-          <FeatureFlagProvider>
-            <TestComponent />
-          </FeatureFlagProvider>
-        </MemoryRouter>,
+        <FeatureFlagProvider>
+          <TestComponent />
+        </FeatureFlagProvider>,
       );
 
       expect(
@@ -59,6 +76,10 @@ describe('FeatureFlagContext', () => {
     });
 
     it('should default enable_full_features to false when param value is not "true"', () => {
+      vi.mocked(useLocation).mockReturnValue({
+        search: '?enable_full_features=false',
+      } as any);
+
       function TestComponent() {
         const flags = useFeatureFlagContext();
         return (
@@ -71,11 +92,9 @@ describe('FeatureFlagContext', () => {
       }
 
       render(
-        <MemoryRouter initialEntries={['/?enable_full_features=false']}>
-          <FeatureFlagProvider>
-            <TestComponent />
-          </FeatureFlagProvider>
-        </MemoryRouter>,
+        <FeatureFlagProvider>
+          <TestComponent />
+        </FeatureFlagProvider>,
       );
 
       expect(

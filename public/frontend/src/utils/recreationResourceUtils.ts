@@ -1,4 +1,4 @@
-import { ROUTE_PATHS } from '@/routes/constants';
+import { ROUTE_PATHS } from '@/constants/routes';
 import { RecreationResourceDetailModel } from '@/service/custom-models';
 
 /**
@@ -7,7 +7,7 @@ import { RecreationResourceDetailModel } from '@/service/custom-models';
  */
 export function getRecResourceDetailPageUrl(recResourceId: string): string {
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-  const route = ROUTE_PATHS.REC_RESOURCE.replace(':id', recResourceId);
+  const route = ROUTE_PATHS.REC_RESOURCE.replace('$id', recResourceId);
   return `${baseUrl}${route}`;
 }
 

@@ -1,9 +1,10 @@
 import { render, screen } from '@/test-utils';
 import { AlphabeticalNavigation } from './AlphabeticalNavigation';
 
-const mockSetSearchParams = vi.fn();
-vi.mock('react-router-dom', () => ({
-  useSearchParams: () => [new URLSearchParams(), mockSetSearchParams],
+const mockNavigate = vi.fn();
+vi.mock('@tanstack/react-router', () => ({
+  useNavigate: () => mockNavigate,
+  useSearch: () => ({}),
 }));
 
 describe('AlphabeticalNavigation', () => {
@@ -41,14 +42,16 @@ describe('AlphabeticalNavigation', () => {
     expect(nonSelectedButton).not.toHaveClass('active');
   });
 
-  it('calls setSearchParams when letter button is clicked', () => {
+  it('calls navigate when letter button is clicked', () => {
     render(<AlphabeticalNavigation selectedLetter="A" />);
 
     const zButton = screen.getByText('Z');
     zButton.click();
 
-    expect(mockSetSearchParams).toHaveBeenCalledWith(
-      expect.any(URLSearchParams),
+    expect(mockNavigate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        search: expect.any(Function),
+      }),
     );
   });
 
@@ -76,14 +79,16 @@ describe('AlphabeticalNavigation', () => {
     expect(allTypesButton).toHaveClass('active');
   });
 
-  it('calls setSearchParams when type button is clicked', () => {
+  it('calls navigate when type button is clicked', () => {
     render(<AlphabeticalNavigation selectedLetter="A" />);
 
     const recreationSiteButton = screen.getByText('Recreation site');
     recreationSiteButton.click();
 
-    expect(mockSetSearchParams).toHaveBeenCalledWith(
-      expect.any(URLSearchParams),
+    expect(mockNavigate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        search: expect.any(Function),
+      }),
     );
   });
 });

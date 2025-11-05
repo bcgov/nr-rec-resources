@@ -1,7 +1,7 @@
 import { describe, it, beforeEach, vi, expect } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
 import { useGetDocumentsByRecResourceId } from '@/services/hooks/recreation-resource-admin/useGetDocumentsByRecResourceId';
-import { reactQueryWrapper } from '@test/test-utils/reactQueryWrapper';
+import { TestQueryClientProvider } from '@test/test-utils';
 import * as apiClientModule from '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient';
 import * as helpers from '@/services/hooks/recreation-resource-admin/helpers';
 import * as notificationStore from '@/store/notificationStore';
@@ -36,7 +36,7 @@ describe('useGetDocumentsByRecResourceId', () => {
     mockTransformDocs.mockReturnValueOnce(transformed);
 
     const { result } = renderHook(() => useGetDocumentsByRecResourceId('abc'), {
-      wrapper: reactQueryWrapper,
+      wrapper: TestQueryClientProvider,
     });
 
     await waitFor(() => expect(result.current.data).toEqual(transformed));
@@ -57,7 +57,7 @@ describe('useGetDocumentsByRecResourceId', () => {
     );
 
     renderHook(() => useGetDocumentsByRecResourceId('fail-id'), {
-      wrapper: reactQueryWrapper,
+      wrapper: TestQueryClientProvider,
     });
 
     expect(mockAddErrorNotification).toHaveBeenCalledWith(
