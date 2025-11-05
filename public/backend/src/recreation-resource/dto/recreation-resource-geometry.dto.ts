@@ -2,19 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class RecreationResourceGeometry {
   @ApiProperty({
-    description: 'Unique identifier of the Recreation Resource',
-    example: 'rec-123-abc',
-    format: 'uuid',
-  })
-  rec_resource_id: string;
-
-  @ApiProperty({
-    description: 'Detailed description of the Recreation Resource',
-    example: 'A scenic campground nestled in the heart of Evergreen Valley',
-  })
-  description?: string;
-
-  @ApiProperty({
     description: 'GeoJSON geometry data for the rec resource in string format',
     type: [String],
     required: false,

@@ -29,6 +29,8 @@ import {
 import { trackEvent } from '@shared/utils';
 import { LoadingButton } from '@/components/LoadingButton';
 import DownloadKmlResultsModal from './DownloadKmlResultsModal';
+import { IconButton } from '@shared/components/icon-button';
+import DownloadIcon from '@shared/assets/icons/download.svg';
 
 const SearchPage = () => {
   const navigate = useNavigate({ from: '/search' });
@@ -137,6 +139,12 @@ const SearchPage = () => {
     setIsDownloadModalOpen(true);
   }, []);
 
+  const DOWNLOAD_ICON_CONFIG = {
+    WIDTH: 16,
+    HEIGHT: 16,
+    ALT: 'Download search results KML',
+  } as const;
+
   const isFetchingFirstPage =
     isFetching && !isFetchingPreviousPage && !isFetchingNextPage;
   const isLocationSearchResults = lat && lon && community;
@@ -197,8 +205,23 @@ const SearchPage = () => {
                           within <b>50 km</b> radius of <b>{community}</b>
                         </span>
                       )}
-                      <span onClick={handleDownloadClick}> Download KML</span>
                     </div>
+                    <IconButton
+                      data-testid="download-button"
+                      variant="secondary"
+                      onClick={handleDownloadClick}
+                      aria-label={`Export map file for search results`}
+                      leftIcon={
+                        <img
+                          src={DownloadIcon}
+                          alt={DOWNLOAD_ICON_CONFIG.ALT}
+                          width={DOWNLOAD_ICON_CONFIG.WIDTH}
+                          height={DOWNLOAD_ICON_CONFIG.HEIGHT}
+                        />
+                      }
+                    >
+                      Download KML
+                    </IconButton>
                     <SearchViewControls variant="map" />
                   </div>
                   <FilterChips />
@@ -251,18 +274,11 @@ const SearchPage = () => {
         <DownloadKmlResultsModal
           isOpen={isDownloadModalOpen}
           setIsOpen={setIsDownloadModalOpen}
-          filter={searchFilter ?? undefined}
-          district={searchParams.get('district') ?? undefined}
-          activities={searchParams.get('activities') ?? undefined}
-          access={searchParams.get('access') ?? undefined}
-          facilities={searchParams.get('facilities') ?? undefined}
-          status={searchParams.get('status') ?? undefined}
-          fees={searchParams.get('fees') ?? undefined}
-          lat={lat ? Number(lat) : undefined}
-          lon={lon ? Number(lon) : undefined}
-          community={community ?? undefined}
-          type={searchParams.get('type') ?? undefined}
           searchResultsNumber={totalCount}
+          ids={paginatedResults?.flatMap(
+            (pageData: PaginatedRecreationResourceModel) =>
+              pageData?.recResourceIds,
+          )}
         />
       </Stack>
     </>
