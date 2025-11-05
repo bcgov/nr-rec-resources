@@ -1,8 +1,13 @@
 import { useCallback } from 'react';
-import { useLocation, useNavigate } from '@tanstack/react-router';
+import {
+  useLocation,
+  useNavigate,
+  useRouter,
+  type NavigateOptions,
+} from '@tanstack/react-router';
 
 /**
- * Custom hook that wraps React Router's useNavigate to preserve query parameters
+ * Custom hook that wraps TanStack Router's useNavigate to preserve query parameters
  * @returns A navigate function that automatically preserves current query params
  *
  * @example
@@ -10,29 +15,37 @@ import { useLocation, useNavigate } from '@tanstack/react-router';
  * const navigate = useNavigateWithQueryParams();
  *
  * // Navigate to '/home' while preserving query params like ?enable_edit=true
- * navigate('/home');
+ * navigate({ to: '/home' });
  *
- * // Navigate with additional options
- * navigate('/home', { replace: true });
+ * // Navigate with params and preserve query params
+ * navigate({ to: '/rec-resource/$id/overview', params: { id: '123' } });
+ *
+ * // Navigate back
+ * navigate(-1);
  * ```
  */
 export const useNavigateWithQueryParams = () => {
   const navigate = useNavigate();
+  const router = useRouter();
   const location = useLocation();
 
   return useCallback(
-    (to: string | number, options?: { replace?: boolean }) => {
+    (options: NavigateOptions | number) => {
       // Handle numeric navigation (e.g., navigate(-1) for going back)
-      if (typeof to === 'number') {
-        navigate({ to, replace: options?.replace });
+      if (typeof options === 'number') {
+        router.history.go(options);
         return;
       }
 
       // Preserve current search params
       const currentSearch = location.search;
 
-      navigate({ to: `${to}${currentSearch}`, replace: options?.replace });
+      // Handle object paths (To type with pathname, search, etc.)
+      navigate({
+        ...options,
+        search: options.search || currentSearch,
+      });
     },
-    [navigate, location.search],
+    [navigate, router.history, location.search],
   );
 };

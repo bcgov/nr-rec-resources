@@ -247,7 +247,7 @@ export const useSearchRecreationResourcesPaginated = (params: SearchParams) => {
   };
 
   return useInfiniteQuery({
-    queryKey: ['recreationResources', params],
+    queryKey: RECREATION_RESOURCE_QUERY_KEYS.search(params),
     initialPageParam: params,
     getPreviousPageParam,
     getNextPageParam,
@@ -278,7 +278,7 @@ export const useAlphabeticalResources = (letter: string, type?: string) => {
   const api = useRecreationResourceApi();
 
   return useQuery<AlphabeticalRecreationResourceModel[]>({
-    queryKey: ['alphabetical-resources', letter, type],
+    queryKey: RECREATION_RESOURCE_QUERY_KEYS.alphabetical(letter, type),
     queryFn: async (): Promise<AlphabeticalRecreationResourceModel[]> => {
       if (!letter) {
         throw new Error('Letter parameter is required');

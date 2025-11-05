@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router';
 import SearchPage from '@/components/search/SearchPage';
 import { BreadcrumbItem } from '@shared/components/breadcrumbs';
 import { ROUTE_TITLES } from '@/constants/routes';
+import { searchLoader } from '@/service/loaders/searchLoader';
 
 export type SearchParams = {
   filter?: string;
@@ -22,6 +23,7 @@ export type SearchParams = {
 
 export const Route = createFileRoute('/search/')({
   component: SearchRoute,
+  loader: searchLoader,
   validateSearch: (search: Record<string | number, unknown>): SearchParams => {
     return {
       filter: search.filter as string | undefined,
