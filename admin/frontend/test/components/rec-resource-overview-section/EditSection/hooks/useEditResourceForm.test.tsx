@@ -10,10 +10,12 @@ import { type ReactNode, createElement } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock dependencies - must be before imports
-const mockNavigateWithQueryParams = vi.fn();
+const mockNavigate = vi.fn();
 
 vi.mock('@shared/hooks', () => ({
-  useNavigateWithQueryParams: vi.fn(() => mockNavigateWithQueryParams),
+  useNavigateWithQueryParams: vi.fn(() => ({
+    navigate: mockNavigate,
+  })),
 }));
 
 vi.mock(
@@ -86,6 +88,7 @@ describe('useEditResourceForm', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockNavigate.mockClear();
     vi.mocked(useUpdateRecreationResource).mockReturnValue(
       mockUpdateMutation as any,
     );
@@ -308,7 +311,7 @@ describe('useEditResourceForm', () => {
       );
 
       await waitFor(() => {
-        expect(mockNavigateWithQueryParams).toHaveBeenCalledWith({
+        expect(mockNavigate).toHaveBeenCalledWith({
           to: ROUTE_PATHS.REC_RESOURCE_OVERVIEW,
           params: { id: '123' },
         });
@@ -594,7 +597,7 @@ describe('useEditResourceForm', () => {
       });
 
       expect(mockMutate).toHaveBeenCalled();
-      expect(mockNavigateWithQueryParams).not.toHaveBeenCalled();
+      expect(mockNavigate).not.toHaveBeenCalled();
     });
   });
 

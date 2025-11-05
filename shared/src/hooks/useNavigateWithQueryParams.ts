@@ -8,11 +8,11 @@ import {
 
 /**
  * Custom hook that wraps TanStack Router's useNavigate to preserve query parameters
- * @returns A navigate function that automatically preserves current query params
+ * @returns An object with navigate and navigateBack functions
  *
  * @example
  * ```tsx
- * const navigate = useNavigateWithQueryParams();
+ * const { navigate, navigateBack } = useNavigateWithQueryParams();
  *
  * // Navigate to '/home' while preserving query params like ?enable_edit=true
  * navigate({ to: '/home' });
@@ -21,7 +21,7 @@ import {
  * navigate({ to: '/rec-resource/$id/overview', params: { id: '123' } });
  *
  * // Navigate back
- * navigate(-1);
+ * navigateBack(); // or navigateBack(-1)
  * ```
  */
 export const useNavigateWithQueryParams = () => {
@@ -29,14 +29,8 @@ export const useNavigateWithQueryParams = () => {
   const router = useRouter();
   const location = useLocation();
 
-  return useCallback(
-    (options: NavigateOptions | number) => {
-      // Handle numeric navigation (e.g., navigate(-1) for going back)
-      if (typeof options === 'number') {
-        router.history.go(options);
-        return;
-      }
-
+  const navigateWithParams = useCallback(
+    (options: NavigateOptions) => {
       // Preserve current search params
       const currentSearch = location.search;
 
@@ -46,6 +40,15 @@ export const useNavigateWithQueryParams = () => {
         search: options.search || currentSearch,
       });
     },
-    [navigate, router.history, location.search],
+    [navigate, location.search],
   );
+
+  const navigateBack = useCallback(
+    (steps: number = -1) => {
+      router.history.go(steps);
+    },
+    [router.history],
+  );
+
+  return { navigate: navigateWithParams, navigateBack };
 };

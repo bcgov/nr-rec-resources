@@ -24,7 +24,7 @@ describe('useNavigateWithQueryParams', () => {
 
     const { result } = renderHook(() => useNavigateWithQueryParams());
 
-    result.current({ to: '/new-page' });
+    result.current.navigate({ to: '/new-page' });
 
     expect(mockNavigate).toHaveBeenCalledWith({
       to: '/new-page',
@@ -35,7 +35,7 @@ describe('useNavigateWithQueryParams', () => {
   it('should handle numeric navigation (go back)', () => {
     const { result } = renderHook(() => useNavigateWithQueryParams());
 
-    result.current(-1);
+    result.current.navigateBack(-1);
 
     expect(mockHistoryGo).toHaveBeenCalledWith(-1);
     expect(mockNavigate).not.toHaveBeenCalled();
@@ -46,7 +46,7 @@ describe('useNavigateWithQueryParams', () => {
 
     const { result } = renderHook(() => useNavigateWithQueryParams());
 
-    result.current({
+    result.current.navigate({
       to: '/rec-resource/$id',
       params: { id: '123' },
       replace: true,
@@ -65,7 +65,7 @@ describe('useNavigateWithQueryParams', () => {
 
     const { result } = renderHook(() => useNavigateWithQueryParams());
 
-    result.current({ to: '/new-page' });
+    result.current.navigate({ to: '/new-page' });
 
     expect(mockNavigate).toHaveBeenCalledWith({
       to: '/new-page',
@@ -78,7 +78,7 @@ describe('useNavigateWithQueryParams', () => {
 
     const { result } = renderHook(() => useNavigateWithQueryParams());
 
-    result.current({
+    result.current.navigate({
       to: '/new-page',
       search: { new: 'param', shared: 'new' },
     });
@@ -87,5 +87,14 @@ describe('useNavigateWithQueryParams', () => {
       to: '/new-page',
       search: { new: 'param', shared: 'new' },
     });
+  });
+
+  it('should default navigateBack to -1 when no argument provided', () => {
+    const { result } = renderHook(() => useNavigateWithQueryParams());
+
+    result.current.navigateBack();
+
+    expect(mockHistoryGo).toHaveBeenCalledWith(-1);
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 });
