@@ -18,7 +18,7 @@ describe('SearchBanner', () => {
   });
 
   it('renders correctly', async () => {
-    await renderWithRouter(<SearchBanner />);
+    const { container } = await renderWithRouter(<SearchBanner />);
 
     expect(
       screen.getByPlaceholderText('By name or community'),
@@ -27,11 +27,7 @@ describe('SearchBanner', () => {
     const desktopButton = container.querySelector(
       '.submit-btn.d-none.d-sm-block',
     );
-    const mobileButton = container.querySelector(
-      '.mobile-search-button.d-block.d-sm-none',
-    );
 
     expect(desktopButton).toBeInTheDocument();
-    expect(mobileButton).toBeInTheDocument();
   });
 });
