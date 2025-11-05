@@ -1,38 +1,54 @@
 import { useCallback } from 'react';
-import { useLocation, useNavigate } from '@tanstack/react-router';
+import {
+  useLocation,
+  useNavigate,
+  useRouter,
+  type NavigateOptions,
+} from '@tanstack/react-router';
 
 /**
- * Custom hook that wraps React Router's useNavigate to preserve query parameters
- * @returns A navigate function that automatically preserves current query params
+ * Custom hook that wraps TanStack Router's useNavigate to preserve query parameters
+ * @returns An object with navigate and navigateBack functions
  *
  * @example
  * ```tsx
- * const navigate = useNavigateWithQueryParams();
+ * const { navigate, navigateBack } = useNavigateWithQueryParams();
  *
  * // Navigate to '/home' while preserving query params like ?enable_edit=true
- * navigate('/home');
+ * navigate({ to: '/home' });
  *
- * // Navigate with additional options
- * navigate('/home', { replace: true });
+ * // Navigate with params and preserve query params
+ * navigate({ to: '/rec-resource/$id/overview', params: { id: '123' } });
+ *
+ * // Navigate back
+ * navigateBack(); // or navigateBack(-1)
  * ```
  */
 export const useNavigateWithQueryParams = () => {
   const navigate = useNavigate();
+  const router = useRouter();
   const location = useLocation();
 
-  return useCallback(
-    (to: string | number, options?: { replace?: boolean }) => {
-      // Handle numeric navigation (e.g., navigate(-1) for going back)
-      if (typeof to === 'number') {
-        navigate({ to, replace: options?.replace });
-        return;
-      }
-
+  const navigateWithParams = useCallback(
+    (options: NavigateOptions) => {
       // Preserve current search params
       const currentSearch = location.search;
 
-      navigate({ to: `${to}${currentSearch}`, replace: options?.replace });
+      // Handle object paths (To type with pathname, search, etc.)
+      navigate({
+        ...options,
+        search: options.search || currentSearch,
+      });
     },
     [navigate, location.search],
   );
+
+  const navigateBack = useCallback(
+    (steps: number = -1) => {
+      router.history.go(steps);
+    },
+    [router.history],
+  );
+
+  return { navigate: navigateWithParams, navigateBack };
 };

@@ -18,7 +18,7 @@ import { EditResourceFormData, editResourceSchema } from '../schemas';
 export const useEditResourceForm = (
   recResource: RecreationResourceDetailUIModel,
 ) => {
-  const navigate = useNavigateWithQueryParams();
+  const { navigate } = useNavigateWithQueryParams();
   const updateMutation = useUpdateRecreationResource();
 
   // Get default values from resource data

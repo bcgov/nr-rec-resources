@@ -8,4 +8,7 @@ export const RECREATION_RESOURCE_QUERY_KEYS = {
   detail: (id: string) => ['recreation-resource', 'detail', id] as const,
   siteOperator: (id: string) =>
     ['recreation-resource', 'site-operator', id] as const,
+  search: (params: any) => ['recreationResources', params] as const,
+  alphabetical: (letter: string, type?: string) =>
+    ['alphabetical-resources', letter, type] as const,
 };

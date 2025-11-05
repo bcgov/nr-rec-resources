@@ -16,6 +16,10 @@ describe('Search Route', () => {
     expect(Route.options.component).toBeDefined();
   });
 
+  it('should have loader function', () => {
+    expect(Route.options.loader).toBeDefined();
+  });
+
   it('should have head function', () => {
     expect(Route.options.head).toBeDefined();
   });

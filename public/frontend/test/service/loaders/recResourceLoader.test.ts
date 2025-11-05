@@ -43,9 +43,11 @@ describe('recResourceLoader', () => {
 
     (getRecreationResourceById as any).mockResolvedValue(mockResource);
 
-    mockQueryClient.ensureQueryData.mockImplementation(async ({ queryFn }) => {
-      return await queryFn();
-    });
+    mockQueryClient.ensureQueryData.mockImplementation(
+      async ({ queryFn }: any) => {
+        return await queryFn();
+      },
+    );
 
     await recResourceLoader({ context: mockContext, params });
 
@@ -60,9 +62,11 @@ describe('recResourceLoader', () => {
 
     (getRecreationResourceById as any).mockResolvedValue(null);
 
-    mockQueryClient.ensureQueryData.mockImplementation(async ({ queryFn }) => {
-      return await queryFn();
-    });
+    mockQueryClient.ensureQueryData.mockImplementation(
+      async ({ queryFn }: any) => {
+        return await queryFn();
+      },
+    );
 
     await expect(
       recResourceLoader({ context: mockContext, params }),
@@ -74,9 +78,11 @@ describe('recResourceLoader', () => {
 
     (getRecreationResourceById as any).mockResolvedValue(null);
 
-    mockQueryClient.ensureQueryData.mockImplementation(async ({ queryFn }) => {
-      return await queryFn();
-    });
+    mockQueryClient.ensureQueryData.mockImplementation(
+      async ({ queryFn }: any) => {
+        return await queryFn();
+      },
+    );
 
     try {
       await recResourceLoader({ context: mockContext, params });

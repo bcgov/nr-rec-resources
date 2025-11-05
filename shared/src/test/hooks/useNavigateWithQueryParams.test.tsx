@@ -3,79 +3,98 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useNavigateWithQueryParams } from '@shared/hooks/useNavigateWithQueryParams';
 
 const mockNavigate = vi.fn();
-const mockLocation = { search: '' };
+const mockHistoryGo = vi.fn();
+const mockLocation = { search: {} };
 
 vi.mock('@tanstack/react-router', () => ({
   useNavigate: () => mockNavigate,
   useLocation: () => mockLocation,
+  useRouter: () => ({ history: { go: mockHistoryGo } }),
 }));
 
 describe('useNavigateWithQueryParams', () => {
   beforeEach(() => {
     mockNavigate.mockClear();
-    mockLocation.search = '';
+    mockHistoryGo.mockClear();
+    mockLocation.search = {};
   });
 
-  it('should preserve query params when navigating with string path', () => {
-    mockLocation.search = '?enable_edit=true&tab=overview';
+  it('should preserve query params when navigating with NavigateOptions', () => {
+    mockLocation.search = { enable_edit: 'true', tab: 'overview' };
 
     const { result } = renderHook(() => useNavigateWithQueryParams());
 
-    result.current('/new-page');
+    result.current.navigate({ to: '/new-page' });
 
     expect(mockNavigate).toHaveBeenCalledWith({
-      to: '/new-page?enable_edit=true&tab=overview',
-      replace: undefined,
+      to: '/new-page',
+      search: { enable_edit: 'true', tab: 'overview' },
     });
   });
 
   it('should handle numeric navigation (go back)', () => {
     const { result } = renderHook(() => useNavigateWithQueryParams());
 
-    result.current(-1);
+    result.current.navigateBack(-1);
 
-    expect(mockNavigate).toHaveBeenCalledWith({
-      to: -1,
-      replace: undefined,
-    });
+    expect(mockHistoryGo).toHaveBeenCalledWith(-1);
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
-  it('should pass through navigate options', () => {
-    mockLocation.search = '?param=value';
+  it('should pass through navigate options with params', () => {
+    mockLocation.search = { param: 'value' };
 
     const { result } = renderHook(() => useNavigateWithQueryParams());
 
-    result.current('/new-page', { replace: true });
+    result.current.navigate({
+      to: '/rec-resource/$id',
+      params: { id: '123' },
+      replace: true,
+    });
 
     expect(mockNavigate).toHaveBeenCalledWith({
-      to: '/new-page?param=value',
+      to: '/rec-resource/$id',
+      params: { id: '123' },
       replace: true,
+      search: { param: 'value' },
     });
   });
 
   it('should work when there are no query params', () => {
-    mockLocation.search = '';
+    mockLocation.search = {};
 
     const { result } = renderHook(() => useNavigateWithQueryParams());
 
-    result.current('/new-page');
+    result.current.navigate({ to: '/new-page' });
 
     expect(mockNavigate).toHaveBeenCalledWith({
       to: '/new-page',
-      replace: undefined,
+      search: {},
     });
   });
 
-  it('should allow overriding query params by including them in the path', () => {
-    mockLocation.search = '?old=param';
+  it('should override current search params when new ones are provided', () => {
+    mockLocation.search = { old: 'param', shared: 'old' };
 
     const { result } = renderHook(() => useNavigateWithQueryParams());
 
-    result.current('/new-page?new=param');
+    result.current.navigate({
+      to: '/new-page',
+      search: { new: 'param', shared: 'new' },
+    });
 
     expect(mockNavigate).toHaveBeenCalledWith({
-      to: '/new-page?new=param?old=param',
-      replace: undefined,
+      to: '/new-page',
+      search: { new: 'param', shared: 'new' },
     });
+  });
+
+  it('should default navigateBack to -1 when no argument provided', () => {
+    const { result } = renderHook(() => useNavigateWithQueryParams());
+
+    result.current.navigateBack();
+
+    expect(mockHistoryGo).toHaveBeenCalledWith(-1);
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 });
