@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from '@tanstack/react-router';
 import { trackEvent } from '@shared/utils';
 import {
   SEARCH_LINKS,
@@ -21,7 +21,8 @@ const SearchLinks = () => {
       {SEARCH_LINKS.map((link) => (
         <Link
           key={link.trackingName}
-          to={{ pathname: link.path, search: link.search }}
+          to={link.path}
+          search={link.search}
           onClick={() => handleLinkClick(link.trackingName)}
         >
           {link.label}

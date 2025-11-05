@@ -1,14 +1,10 @@
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
+import { renderWithRouter } from '@/test-utils';
 import Footer from '@/components/layout/Footer';
-import { MemoryRouter } from 'react-router-dom';
 
 describe('the Footer component', () => {
-  it('renders the component correctly', () => {
-    render(
-      <MemoryRouter>
-        <Footer />
-      </MemoryRouter>,
-    );
+  it('renders the component correctly', async () => {
+    await renderWithRouter(<Footer />);
 
     // Check for Facebook link by href using query selector
     const faceBookLink = screen.getByRole('link', {

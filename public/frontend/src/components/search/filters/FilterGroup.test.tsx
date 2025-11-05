@@ -2,11 +2,12 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import FilterGroup from '@/components/search/filters/FilterGroup';
 import { activitiesOptions } from '@/components/search/test/mock-data';
 import { describe, expect, it, Mock, vi } from 'vitest';
-import { useSearchParams } from 'react-router-dom';
+import { useSearch } from '@tanstack/react-router';
 
-vi.mock('react-router-dom', async () => {
+vi.mock('@tanstack/react-router', async () => {
   return {
-    useSearchParams: vi.fn(() => [new URLSearchParams(), vi.fn()]), // Default empty params
+    useSearch: vi.fn(() => ({})),
+    useNavigate: vi.fn(() => vi.fn()),
   };
 });
 
@@ -165,10 +166,7 @@ describe('the FilterGroup component', () => {
       { id: 2, count: 14, description: 'Angling', hasFocus: false },
     ];
 
-    (useSearchParams as Mock).mockReturnValue([
-      new URLSearchParams({ activities: '22' }), // Snowmobiling
-      vi.fn(),
-    ]);
+    (useSearch as Mock).mockReturnValue({ activities: '22' }); // Snowmobiling
 
     render(
       <FilterGroup

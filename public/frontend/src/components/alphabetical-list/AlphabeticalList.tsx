@@ -1,8 +1,8 @@
 import { Alert, Spinner } from 'react-bootstrap';
-import { Link, useSearchParams } from 'react-router-dom';
-import { ROUTE_PATHS } from '@/routes/constants';
+import { Link, useNavigate, useSearch } from '@tanstack/react-router';
+import { ROUTE_PATHS } from '@/constants/routes';
 import { AlphabeticalRecreationResourceModel } from '@/service/custom-models';
-import { capitalizeWords } from '@/utils/capitalizeWords';
+import { capitalizeWords } from '@shared/utils/capitalizeWords';
 import '@/components/alphabetical-list/AlphabeticalList.scss';
 
 interface AlphabeticalListProps {
@@ -16,13 +16,18 @@ export const AlphabeticalList = ({
   isLoading,
   selectedLetter,
 }: AlphabeticalListProps) => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const isTypeFilters = !!searchParams.get('type');
+  const navigate = useNavigate({ from: '/search/a-z-list' });
+  const searchParams = useSearch({ from: '/search/a-z-list' });
+  const isTypeFilters = !!searchParams.type;
 
   const clearTypeFilter = () => {
-    const newSearchParams = new URLSearchParams(searchParams);
-    newSearchParams.delete('type');
-    setSearchParams(newSearchParams);
+    navigate({
+      search: (prev: Record<string, unknown>) => {
+        const { ...rest } = prev;
+        delete rest.type;
+        return rest;
+      },
+    });
   };
   if (isLoading) {
     return (
@@ -75,7 +80,7 @@ export const AlphabeticalList = ({
           return (
             <li key={resource.rec_resource_id} className="mb-2">
               <Link
-                to={ROUTE_PATHS.REC_RESOURCE.replace(':id', rec_resource_id)}
+                to={ROUTE_PATHS.REC_RESOURCE.replace('$id', rec_resource_id)}
                 className="text-decoration-none"
               >
                 {formattedName}

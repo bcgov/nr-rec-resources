@@ -1,5 +1,5 @@
-import { ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
+import { ReactNode, useEffect } from 'react';
+import { useRouter } from '@tanstack/react-router';
 import type { FeatureFlags } from './FeatureFlagContext';
 import { useFeatureFlagsEnabled } from './hooks';
 
@@ -52,7 +52,15 @@ export function FeatureFlagRouteGuard({
 }: FeatureFlagRouteGuardProps) {
   const allEnabled = useFeatureFlagsEnabled(...requiredFlags);
 
-  if (!allEnabled) return <Navigate to={redirectTo} replace />;
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!allEnabled) {
+      router.navigate({ to: redirectTo, replace: true });
+    }
+  }, [allEnabled, redirectTo, router]);
+
+  if (!allEnabled) return null;
 
   return <>{children}</>;
 }

@@ -1,12 +1,12 @@
 import RSTLogo from '@/images/RST_logo.svg';
 import { faFacebook } from '@fortawesome/free-brands-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { EXTERNAL_LINKS } from '@/data/urls';
+import { EXTERNAL_LINKS } from '@/constants/urls';
 import '@/components/layout/Footer.scss';
 import FooterLinkColumn from './FooterLinkColumn';
 import FooterLink from './FooterLink';
-import { Link } from 'react-router-dom';
-import { ROUTE_PATHS } from '@/routes';
+import { Link } from '@tanstack/react-router';
+import { ROUTE_PATHS } from '@/constants/routes';
 
 const linkColumns = [
   {
@@ -19,7 +19,7 @@ const linkColumns = [
       },
       {
         title: 'Rules and etiquette',
-        url: EXTERNAL_LINKS.RULES_ETIQUETE,
+        url: EXTERNAL_LINKS.RULES_ETIQUETTE,
         component: null,
       },
       {
@@ -55,7 +55,7 @@ const linkColumns = [
       {
         title: 'Contact us',
         component: (
-          <Link to={{ pathname: ROUTE_PATHS.CONTACT_US, hash: '#contact-us' }}>
+          <Link to={ROUTE_PATHS.CONTACT_US} hash="contact-us">
             Contact us
           </Link>
         ),

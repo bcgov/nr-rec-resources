@@ -3,7 +3,7 @@ import { Mock, vi } from 'vitest';
 import { createRetryHandler } from '@/services/hooks/recreation-resource-admin/helpers';
 import { useDeleteResourceImage } from '@/services/hooks/recreation-resource-admin/useDeleteResourceImage';
 import { useRecreationResourceAdminApiClient } from '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient';
-import { reactQueryWrapper } from '@test/test-utils/reactQueryWrapper';
+import { TestQueryClientProvider } from '@test/test-utils';
 import { renderHook } from '@testing-library/react';
 
 // Mock dependencies first - this needs to be before imports
@@ -32,7 +32,7 @@ describe('useDeleteResourceImage', () => {
 
   it('should return a mutation function', () => {
     const { result } = renderHook(() => useDeleteResourceImage(), {
-      wrapper: reactQueryWrapper,
+      wrapper: TestQueryClientProvider,
     });
 
     expect(result.current).toHaveProperty('mutateAsync');
@@ -41,7 +41,7 @@ describe('useDeleteResourceImage', () => {
 
   it('should configure retry with createRetryHandler', () => {
     renderHook(() => useDeleteResourceImage(), {
-      wrapper: reactQueryWrapper,
+      wrapper: TestQueryClientProvider,
     });
 
     expect(createRetryHandler).toHaveBeenCalled();
@@ -49,7 +49,7 @@ describe('useDeleteResourceImage', () => {
 
   it('should use the API client for deletion', () => {
     renderHook(() => useDeleteResourceImage(), {
-      wrapper: reactQueryWrapper,
+      wrapper: TestQueryClientProvider,
     });
 
     expect(useRecreationResourceAdminApiClient).toHaveBeenCalled();
@@ -64,7 +64,7 @@ describe('useDeleteResourceImage', () => {
     mockApi.deleteImageResource.mockResolvedValue({ success: true });
 
     const { result } = renderHook(() => useDeleteResourceImage(), {
-      wrapper: reactQueryWrapper,
+      wrapper: TestQueryClientProvider,
     });
 
     await result.current.mutateAsync(mockParams);

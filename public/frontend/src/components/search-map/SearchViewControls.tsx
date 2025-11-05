@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import { Button } from 'react-bootstrap';
 import '@/components/search/filters/Filters.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -10,11 +10,15 @@ interface SearchViewControlsProps {
 }
 
 const SearchViewControls = ({ variant }: SearchViewControlsProps) => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate({ from: '/search' });
 
   const handleViewChange = (newView: string) => {
-    searchParams.set('view', newView);
-    setSearchParams(searchParams);
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        view: newView,
+      }),
+    });
     trackClickEvent({
       category: 'Search view button',
       name: `Change to ${newView} view`,

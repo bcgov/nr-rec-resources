@@ -11,7 +11,7 @@ import {
   MAX_ACTIVITIES_TO_DISPLAY,
   MAX_PHOTOS_TO_DISPLAY,
 } from '@/components/rec-resource/card/constants';
-import { Link } from 'react-router-dom';
+import { Link } from '@tanstack/react-router';
 import { useReplaceHistoryWithMapFocus } from '@/components/search-map/hooks/useReplaceHistoryWithMapFocus';
 
 interface RecResourceCardProps {
@@ -51,7 +51,8 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
       <div className="rec-resource-card-content">
         <div className="rec-resource-card-info">
           <Link
-            to={`/resource/${rec_resource_id}`}
+            to="/resource/$id"
+            params={{ id: rec_resource_id }}
             onClick={replaceHistoryWithFocusedMap}
           >
             <h2 className="card-heading-text">
@@ -83,7 +84,11 @@ const RecResourceCard: React.FC<RecResourceCardProps> = ({
           <span className="card-activities">
             {hasActivities && <Activities activities={activities} />}{' '}
             {isSeeAllActivities && (
-              <Link to={`/resource/${rec_resource_id}#things-to-do`}>
+              <Link
+                to="/resource/$id"
+                params={{ id: rec_resource_id }}
+                hash="things-to-do"
+              >
                 see all
               </Link>
             )}

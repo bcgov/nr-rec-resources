@@ -4,20 +4,16 @@ import NotFound from '@/components/NotFound';
 
 const useNavigateMock = vi.fn(); //keep it at top of file
 
-vi.mock('react-router', () => {
+vi.mock('@tanstack/react-router', async () => {
+  const actual = await vi.importActual('@tanstack/react-router');
   return {
-    ...vi.importActual('react-router'),
+    ...actual,
     useNavigate: () => useNavigateMock,
   };
 });
 
 describe('NotFound', () => {
   it('renders a heading with the correct text', () => {
-    const navigate = vi.fn();
-    const useNavigateMock = vi.fn(() => navigate);
-    vi.doMock('react-router', () => ({
-      useNavigate: useNavigateMock,
-    }));
     render(<NotFound />);
     const title = screen.getByText('404 - Uh oh ! Page not found.');
     expect(title).toBeInTheDocument();

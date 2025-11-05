@@ -1,28 +1,30 @@
 import { useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import PageTitle from '@/components/layout/PageTitle';
-import { ROUTE_TITLES, ROUTE_PATHS } from '@/routes/constants';
+import { useNavigate, useSearch } from '@tanstack/react-router';
+
+import { ROUTE_PATHS } from '@/constants/routes';
 import {
   AlphabeticalList,
   AlphabeticalNavigation,
 } from '@/components/alphabetical-list';
 import { useAlphabeticalResources } from '@/service/queries/recreation-resource/recreationResourceQueries';
-import { Breadcrumbs, useBreadcrumbs } from '@shared/components/breadcrumbs';
+import { Breadcrumbs } from '@shared/components/breadcrumbs';
 
 const AlphabeticalListPage = () => {
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearch({ from: '/search/a-z-list' });
   const navigate = useNavigate();
 
-  useBreadcrumbs();
-
-  const selectedLetter = searchParams.get('letter') ?? '#';
-  const selectedType = searchParams.get('type') ?? undefined;
+  const selectedLetter = searchParams.letter ?? '#';
+  const selectedType = searchParams.type ?? undefined;
 
   // Redirect to '#' if no letter is specified
   useEffect(() => {
-    if (!searchParams.get('letter')) {
-      // %23 is the URL-encoded value for '#'
-      navigate(`${ROUTE_PATHS.ALPHABETICAL}?letter=%23`, { replace: true });
+    if (!searchParams.letter) {
+      // Redirect to '#' if no letter is specified
+      navigate({
+        to: ROUTE_PATHS.ALPHABETICAL,
+        search: { letter: '#' },
+        replace: true,
+      });
     }
   }, [searchParams, navigate]);
 
@@ -33,7 +35,6 @@ const AlphabeticalListPage = () => {
 
   return (
     <>
-      <PageTitle title={ROUTE_TITLES.ALPHABETICAL} />
       <div className="page page-padding content-footer-spacing">
         <Breadcrumbs />
         <h1 className="my-4">A-Z list</h1>

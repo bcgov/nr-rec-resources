@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import { SearchMapFocusModes } from '@/components/search-map/constants';
 
 export function useMapFocusParam(): {
@@ -7,8 +7,9 @@ export function useMapFocusParam(): {
   value?: string;
   resetParams: () => void;
 } {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const focus = searchParams.get('focus');
+  const navigate = useNavigate();
+  const searchParams = useSearch({ strict: false });
+  const focus = searchParams.focus;
 
   // parse focus param
   const [mode, value] = useMemo(() => {
@@ -25,9 +26,15 @@ export function useMapFocusParam(): {
   }, [focus]);
 
   const resetParams = useCallback(() => {
-    searchParams.delete('focus');
-    setSearchParams(searchParams, { replace: true });
-  }, [searchParams, setSearchParams]);
+    navigate({
+      search: (prev) => {
+        const newParams = { ...prev };
+        delete newParams.focus;
+        return newParams;
+      },
+      replace: true,
+    });
+  }, [navigate]);
 
   return { mode, value, resetParams };
 }

@@ -2,7 +2,6 @@ import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { RecResourceVerticalNav } from '@/pages/rec-resource-page/components/RecResourceVerticalNav';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { BrowserRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock matchMedia for Offcanvas component
@@ -22,8 +21,9 @@ Object.defineProperty(window, 'matchMedia', {
 
 const mockNavigate = vi.fn();
 
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
+vi.mock('@tanstack/react-router', async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import('@tanstack/react-router')>();
   return {
     ...actual,
     useNavigate: () => mockNavigate,
@@ -31,7 +31,7 @@ vi.mock('react-router-dom', async () => {
 });
 
 const renderWithRouter = (component: React.ReactElement) => {
-  return render(<BrowserRouter>{component}</BrowserRouter>);
+  return render(component);
 };
 
 describe('RecResourceVerticalNav', () => {
@@ -89,9 +89,9 @@ describe('RecResourceVerticalNav', () => {
     const filesLinks = screen.getAllByText('Files');
     await user.click(filesLinks[0]);
 
-    expect(mockNavigate).toHaveBeenCalledWith(
-      '/rec-resource/test-resource-123/files',
-    );
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: '/rec-resource/test-resource-123/files',
+    });
   });
 
   it('shows files tab as active in mobile trigger', () => {

@@ -20,11 +20,11 @@ vi.mock('ol/format/GeoJSON', () => {
 
 const mockUseSearchParams = vi.fn();
 
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
+vi.mock('@tanstack/react-router', async () => {
+  const actual = await vi.importActual('@tanstack/react-router');
   return {
     ...actual,
-    useSearchParams: () => [new URLSearchParams(mockUseSearchParams())],
+    useSearch: () => mockUseSearchParams(),
   };
 });
 

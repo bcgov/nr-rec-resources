@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Modal, Form } from 'react-bootstrap';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useStore } from '@tanstack/react-store';
 import { useClearFilters } from '@/components/search/hooks/useClearFilters';
 import { useSearchRecreationResourcesPaginated } from '@/service/queries/recreation-resource';
@@ -8,6 +8,7 @@ import searchResultsStore from '@/store/searchResults';
 import FilterGroupAccordion from '@/components/search/filters/FilterGroupAccordion';
 import FilterModal from '@/components/search/filters/FilterModal';
 import { trackEvent } from '@shared/utils';
+
 import '@/components/search/filters/Filters.scss';
 import '@/components/search/filters/FilterMenuSearchMap.scss';
 
@@ -22,11 +23,12 @@ const FilterMenuSearchMap = ({
   isOpen,
   setIsOpen,
 }: FilterMenuSearchMapProps) => {
+  const navigate = useNavigate();
   const clearFilters = useClearFilters();
   const { filters: searchStoreFilters, totalCount: searchStoreTotalCount } =
     useStore(searchResultsStore);
   const [menuContent, setMenuContent] = useState(searchStoreFilters);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const searchParams = useSearch({ from: '/search/' });
   const params = menuContent?.map(({ param }) => param) ?? [];
   const [localFilters, setLocalFilters] = useState<Record<string, string[]>>(
     {},
@@ -36,7 +38,7 @@ const FilterMenuSearchMap = ({
     return {
       limit: 10,
       page: 1,
-      filter: searchParams.get('filter') || undefined,
+      filter: searchParams.filter || undefined,
       district: localFilters.district?.join('_') || undefined,
       activities: localFilters.activities?.join('_') || undefined,
       access: localFilters.access?.join('_') || undefined,
@@ -44,13 +46,9 @@ const FilterMenuSearchMap = ({
       type: localFilters.type?.join('_') || undefined,
       status: localFilters.status?.join('_') || undefined,
       fees: localFilters.fees?.join('_') || undefined,
-      community: searchParams.get('community') || undefined,
-      lat: searchParams.get('lat')
-        ? Number(searchParams.get('lat'))
-        : undefined,
-      lon: searchParams.get('lon')
-        ? Number(searchParams.get('lon'))
-        : undefined,
+      community: searchParams.community || undefined,
+      lat: searchParams.lat ? Number(searchParams.lat) : undefined,
+      lon: searchParams.lon ? Number(searchParams.lon) : undefined,
     };
   }, [localFilters, searchParams]);
 
@@ -63,8 +61,8 @@ const FilterMenuSearchMap = ({
       setMenuContent(searchStoreFilters);
       const initialFilters: Record<string, string[]> = {};
       searchStoreFilters.forEach(({ param }) => {
-        const value = searchParams.get(param);
-        initialFilters[param] = value ? value.split('_') : [];
+        const value = searchParams[param];
+        initialFilters[param] = value ? String(value).split('_') : [];
       });
       setLocalFilters(initialFilters);
     }
@@ -79,7 +77,7 @@ const FilterMenuSearchMap = ({
 
   const handleClose = () => setIsOpen(false);
 
-  const handleToggleFilter = (param: string, id: string) => {
+  const handleToggleFilter = (param: string, id: string | number) => {
     const current = localFilters[param] ?? [];
     const updated = current.includes(id)
       ? current.filter((v) => v !== id)
@@ -88,15 +86,20 @@ const FilterMenuSearchMap = ({
   };
 
   const handleApplyFilters = () => {
-    const newParams = new URLSearchParams(searchParams);
+    const newSearchParams: Record<string, any> = { ...searchParams };
     params.forEach((param) => {
       if (localFilters[param]?.length) {
-        newParams.set(param, localFilters[param].join('_'));
+        const joinedValue = localFilters[param].join('_');
+        // Convert to number if it's a single numeric value to prevent quote serialization
+        newSearchParams[param] =
+          localFilters[param].length === 1 && !isNaN(Number(joinedValue))
+            ? Number(joinedValue)
+            : joinedValue;
       } else {
-        newParams.delete(param);
+        delete newSearchParams[param];
       }
     });
-    setSearchParams(newParams);
+    navigate({ search: newSearchParams });
     setIsOpen(false);
     trackEvent({
       action: 'Apply filters',
@@ -149,9 +152,7 @@ const FilterMenuSearchMap = ({
                             label={`${description} (${count})`}
                             checked={isChecked}
                             disabled={isDisabled}
-                            onChange={() =>
-                              handleToggleFilter(param, String(id))
-                            }
+                            onChange={() => handleToggleFilter(param, id)}
                           />
                         );
                       })}

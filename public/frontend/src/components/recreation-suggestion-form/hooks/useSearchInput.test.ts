@@ -1,26 +1,21 @@
 import { act, renderHook } from '@testing-library/react';
 import { useSearchInput } from './useSearchInput';
-import * as ReactRouterDom from 'react-router-dom';
+import * as TanStackRouter from '@tanstack/react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { ROUTE_PATHS } from '@/routes';
+import { ROUTE_PATHS } from '@/constants/routes';
 import { City } from '@/components/recreation-suggestion-form/types';
 import { OPTION_TYPE } from '@/components/recreation-suggestion-form/constants';
 import React from 'react';
 
 const mockNavigate = vi.fn();
-const mockSetSearchParams = vi.fn();
 
-vi.mock('react-router-dom', async () => {
+vi.mock('@tanstack/react-router', async (importOriginal) => {
   const actual =
-    await vi.importActual<typeof import('react-router-dom')>(
-      'react-router-dom',
-    );
+    await importOriginal<typeof import('@tanstack/react-router')>();
   return {
     ...actual,
-    useSearchParams: () => [
-      new URLSearchParams({ filter: 'test' }),
-      mockSetSearchParams,
-    ],
+    useSearch: vi.fn(() => ({ filter: 'test' })),
+    useRouterState: vi.fn(() => ({ filter: 'test' })),
     useNavigate: () => mockNavigate,
     Link: ({ children, to, ...props }: any) =>
       React.createElement('a', { href: to, ...props }, children),
@@ -33,10 +28,8 @@ describe('useSearchInput', () => {
   });
 
   it('should initialize with empty string when no filter or community param is provided', () => {
-    vi.spyOn(ReactRouterDom, 'useSearchParams').mockReturnValue([
-      new URLSearchParams(),
-      mockSetSearchParams,
-    ]);
+    vi.spyOn(TanStackRouter, 'useSearch').mockReturnValue({});
+    vi.spyOn(TanStackRouter, 'useRouterState').mockReturnValue({});
 
     const { result } = renderHook(() => useSearchInput());
 
@@ -45,12 +38,10 @@ describe('useSearchInput', () => {
   });
 
   it('should initialize with filter search param value', () => {
-    const searchParams = new URLSearchParams({ filter: 'test' });
-
-    vi.spyOn(ReactRouterDom, 'useSearchParams').mockReturnValue([
-      searchParams,
-      mockSetSearchParams,
-    ]);
+    vi.spyOn(TanStackRouter, 'useSearch').mockReturnValue({ filter: 'test' });
+    vi.spyOn(TanStackRouter, 'useRouterState').mockReturnValue({
+      filter: 'test',
+    });
 
     const { result } = renderHook(() => useSearchInput());
 
@@ -59,6 +50,10 @@ describe('useSearchInput', () => {
   });
 
   it('should update searchInputValue when setSearchInputValue is called', () => {
+    vi.spyOn(TanStackRouter, 'useRouterState').mockReturnValue({
+      filter: 'test',
+    });
+
     const { result } = renderHook(() => useSearchInput());
 
     act(() => {
@@ -69,6 +64,10 @@ describe('useSearchInput', () => {
   });
 
   it('should clear searchInputValue and selectedCity when handleClearSearch is called', () => {
+    vi.spyOn(TanStackRouter, 'useRouterState').mockReturnValue({
+      filter: 'test',
+    });
+
     const { result } = renderHook(() => useSearchInput());
 
     act(() => {
@@ -93,10 +92,15 @@ describe('useSearchInput', () => {
 
     expect(result.current.searchInputValue).toBe('');
     expect(result.current.selectedCity).toEqual([]);
-    expect(mockSetSearchParams).toHaveBeenCalledWith(new URLSearchParams());
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: ROUTE_PATHS.SEARCH,
+      search: {},
+    });
   });
 
   it('should trim input value and navigate with filter param when handleSearch is called', () => {
+    vi.spyOn(TanStackRouter, 'useRouterState').mockReturnValue({});
+
     const { result } = renderHook(() => useSearchInput());
 
     act(() => {
@@ -108,8 +112,8 @@ describe('useSearchInput', () => {
     });
 
     expect(mockNavigate).toHaveBeenCalledWith({
-      pathname: ROUTE_PATHS.SEARCH,
-      search: 'filter=test',
+      to: ROUTE_PATHS.SEARCH,
+      search: { filter: 'test' },
     });
   });
 
@@ -122,6 +126,8 @@ describe('useSearchInput', () => {
       option_type: OPTION_TYPE.CITY,
     };
 
+    vi.spyOn(TanStackRouter, 'useRouterState').mockReturnValue({});
+
     const { result } = renderHook(() => useSearchInput());
 
     act(() => {
@@ -129,24 +135,30 @@ describe('useSearchInput', () => {
     });
 
     expect(mockNavigate).toHaveBeenCalledWith({
-      pathname: ROUTE_PATHS.SEARCH,
-      search: expect.stringContaining('community=Vancouver'),
+      to: ROUTE_PATHS.SEARCH,
+      search: expect.objectContaining({
+        community: 'Vancouver',
+        lat: '49.2827',
+        lon: '-123.1207',
+      }),
     });
 
     expect(result.current.selectedCity).toEqual([city]);
   });
 
   it('should clear typeahead search params and reset searchInputValue and selectedCity when handleClearTypeaheadSearch is called', () => {
-    const params = new URLSearchParams({
+    vi.spyOn(TanStackRouter, 'useSearch').mockReturnValue({
       filter: 'some',
       lat: '49.0',
       lon: '-123.0',
       community: 'Vancouver',
     });
-    vi.spyOn(ReactRouterDom, 'useSearchParams').mockReturnValue([
-      params,
-      mockSetSearchParams,
-    ]);
+    vi.spyOn(TanStackRouter, 'useRouterState').mockReturnValue({
+      filter: 'some',
+      lat: '49.0',
+      lon: '-123.0',
+      community: 'Vancouver',
+    });
 
     const { result } = renderHook(() => useSearchInput());
 
@@ -170,17 +182,20 @@ describe('useSearchInput', () => {
     expect(result.current.searchInputValue).toBe('');
     expect(result.current.selectedCity).toEqual([]);
 
-    // It should call setSearchParams with params that no longer include filter, lat, lon, community
-    expect(mockSetSearchParams).toHaveBeenCalledWith({});
+    // It should call navigate with an empty search object
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: ROUTE_PATHS.SEARCH,
+      search: {},
+    });
   });
 
   it('should initialize defaultSearchInputValue from community param if filter param is absent', () => {
-    const searchParams = new URLSearchParams({ community: 'Victoria' });
-
-    vi.spyOn(ReactRouterDom, 'useSearchParams').mockReturnValue([
-      searchParams,
-      mockSetSearchParams,
-    ]);
+    vi.spyOn(TanStackRouter, 'useSearch').mockReturnValue({
+      community: 'Victoria',
+    });
+    vi.spyOn(TanStackRouter, 'useRouterState').mockReturnValue({
+      community: 'Victoria',
+    });
 
     const { result } = renderHook(() => useSearchInput());
 

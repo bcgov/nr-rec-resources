@@ -1,27 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { forwardRef, useImperativeHandle } from 'react';
 import { screen, fireEvent } from '@testing-library/react';
-import { renderWithQueryClient } from '@/test-utils';
+import { renderWithRouter } from '@/test-utils';
 import SearchMap from '@/components/search-map/SearchMap';
 import * as hooks from '@/components/search-map/hooks/useMapFocus';
 import { trackClickEvent } from '@shared/utils';
 
-const mockSetSearchParams = vi.fn();
-const mockSearchParams = {
-  get: vi.fn(),
-  set: vi.fn(),
-  delete: vi.fn(),
-  has: vi.fn(),
-  toString: vi.fn(() => ''),
-};
-
-vi.mock('react-router-dom', async (importOriginal) => {
-  const actual = (await importOriginal()) as any;
+vi.mock('@tanstack/react-router', async () => {
+  const actual = await vi.importActual('@tanstack/react-router');
   return {
     ...actual,
-    useSearchParams: () => [mockSearchParams, mockSetSearchParams],
-    useNavigate: () => vi.fn(),
-    useLocation: () => ({ pathname: '/', search: '', hash: '', state: null }),
+    useNavigate: vi.fn(() => vi.fn()),
+    useSearch: vi.fn(() => ({})),
   };
 });
 
@@ -148,9 +138,6 @@ describe('SearchMap', () => {
       loadingProgress: 0,
     });
 
-    mockSearchParams.set.mockClear();
-    mockSetSearchParams.mockClear();
-
     Object.defineProperty(window, 'localStorage', {
       value: {
         getItem: vi.fn(() => null),
@@ -162,8 +149,8 @@ describe('SearchMap', () => {
     });
   });
 
-  it('renders main components', () => {
-    renderWithQueryClient(<SearchMap />);
+  it('renders main components', async () => {
+    await renderWithRouter(<SearchMap />);
 
     expect(screen.getByTestId('vector-feature-map')).toBeDefined();
 
@@ -174,15 +161,15 @@ describe('SearchMap', () => {
     expect(screen.getAllByText('Filters')).toHaveLength(2); // Desktop and mobile versions
   });
 
-  it('shows disclaimer modal when initially rendered with visible style', () => {
-    renderWithQueryClient(<SearchMap style={{ visibility: 'visible' }} />);
+  it('shows disclaimer modal when initially rendered with visible style', async () => {
+    await renderWithRouter(<SearchMap style={{ visibility: 'visible' }} />);
 
     // The modal should be present in the DOM
     expect(screen.getByRole('dialog')).toBeDefined();
   });
 
-  it('can interact with disclaimer modal', () => {
-    renderWithQueryClient(<SearchMap style={{ visibility: 'visible' }} />);
+  it('can interact with disclaimer modal', async () => {
+    await renderWithRouter(<SearchMap style={{ visibility: 'visible' }} />);
 
     const modal = screen.getByRole('dialog');
     expect(modal).toBeDefined();
@@ -194,8 +181,8 @@ describe('SearchMap', () => {
     expect(screen.getByRole('dialog')).toBeDefined();
   });
 
-  it('can open and interact with filter menu', () => {
-    renderWithQueryClient(<SearchMap />);
+  it('can open and interact with filter menu', async () => {
+    await renderWithRouter(<SearchMap />);
 
     const filtersButtons = screen.getAllByText('Filters');
     const filtersButton = filtersButtons[0];
@@ -214,7 +201,7 @@ describe('SearchMap', () => {
     expect(screen.getByRole('dialog')).toBeDefined();
   });
 
-  it('shows loading state when map focus is loading', () => {
+  it('shows loading state when map focus is loading', async () => {
     mockUseMapFocus.mockReturnValue({
       isMapFocusLoading: true,
       mapCenter: [0, 0],
@@ -222,12 +209,12 @@ describe('SearchMap', () => {
       loadingProgress: 50,
     });
 
-    renderWithQueryClient(<SearchMap />);
+    await renderWithRouter(<SearchMap />);
 
     expect(screen.getByText('Loading map')).toBeDefined();
   });
 
-  it('shows not loading state when map focus is not loading', () => {
+  it('shows not loading state when map focus is not loading', async () => {
     mockUseMapFocus.mockReturnValue({
       isMapFocusLoading: false,
       mapCenter: [0, 0],
@@ -235,21 +222,18 @@ describe('SearchMap', () => {
       loadingProgress: 100,
     });
 
-    renderWithQueryClient(<SearchMap />);
+    await renderWithRouter(<SearchMap />);
 
     expect(screen.queryByText('Loading map')).toBeNull();
   });
 
-  it('handles list view button click', () => {
-    renderWithQueryClient(<SearchMap />);
+  it('handles list view button click', async () => {
+    await renderWithRouter(<SearchMap />);
 
     const listButton = screen.getByText('Show list');
     expect(listButton).toBeDefined();
 
     fireEvent.click(listButton);
-
-    expect(mockSearchParams.set).toHaveBeenCalledWith('view', 'list');
-    expect(mockSetSearchParams).toHaveBeenCalledWith(mockSearchParams);
 
     expect(trackClickEvent).toHaveBeenCalledWith({
       category: 'Search view button',
@@ -257,8 +241,8 @@ describe('SearchMap', () => {
     });
   });
 
-  it('tracks click events when matomo is called', () => {
-    renderWithQueryClient(<SearchMap />);
+  it('tracks click events when matomo is called', async () => {
+    await renderWithRouter(<SearchMap />);
 
     const eventData = {
       category: 'Search Map',

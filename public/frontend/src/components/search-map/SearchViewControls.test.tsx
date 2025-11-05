@@ -2,13 +2,12 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import SearchViewControls from '@/components/search-map/SearchViewControls';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-const mockSetSearchParams = vi.fn();
-const mockSearchParams = {
-  set: vi.fn(),
-};
+const mockNavigate = vi.fn();
+const mockSearchParams = {};
 
-vi.mock('react-router-dom', () => ({
-  useSearchParams: () => [mockSearchParams, mockSetSearchParams],
+vi.mock('@tanstack/react-router', () => ({
+  useSearch: () => mockSearchParams,
+  useNavigate: () => mockNavigate,
 }));
 
 describe('SearchViewControls', () => {
@@ -34,8 +33,9 @@ describe('SearchViewControls', () => {
 
     fireEvent.click(button);
 
-    expect(mockSearchParams.set).toHaveBeenCalledWith('view', 'list');
-    expect(mockSetSearchParams).toHaveBeenCalledWith(mockSearchParams);
+    expect(mockNavigate).toHaveBeenCalledWith({
+      search: expect.any(Function),
+    });
   });
 
   it('clicking "Show map" button sets view=map in search params', () => {
@@ -44,7 +44,8 @@ describe('SearchViewControls', () => {
 
     fireEvent.click(button);
 
-    expect(mockSearchParams.set).toHaveBeenCalledWith('view', 'map');
-    expect(mockSetSearchParams).toHaveBeenCalledWith(mockSearchParams);
+    expect(mockNavigate).toHaveBeenCalledWith({
+      search: expect.any(Function),
+    });
   });
 });

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { ROUTE_PATHS } from '@/routes/constants';
+import { ROUTE_PATHS } from '@/constants/routes';
 import {
   getRecResourceDetailPageUrl,
   isInterpretiveForest,
@@ -22,7 +22,7 @@ describe('getRecResourceDetailPageUrl', () => {
   });
 
   it('should return full URL with origin when in browser environment', () => {
-    const expectedUrl = `${mockOrigin}${ROUTE_PATHS.REC_RESOURCE.replace(':id', testRecResourceId)}`;
+    const expectedUrl = `${mockOrigin}${ROUTE_PATHS.REC_RESOURCE.replace('$id', testRecResourceId)}`;
     const result = getRecResourceDetailPageUrl(testRecResourceId);
     expect(result).toBe(expectedUrl);
   });
@@ -35,7 +35,7 @@ describe('getRecResourceDetailPageUrl', () => {
     );
 
     const expectedUrl = ROUTE_PATHS.REC_RESOURCE.replace(
-      ':id',
+      '$id',
       testRecResourceId,
     );
     const result = getRecResourceDetailPageUrl(testRecResourceId);
@@ -46,7 +46,7 @@ describe('getRecResourceDetailPageUrl', () => {
 
   it('should correctly replace :id parameter in route', () => {
     const result = getRecResourceDetailPageUrl(testRecResourceId);
-    expect(result).not.toContain(':id');
+    expect(result).not.toContain('$id');
     expect(result).toContain(testRecResourceId);
   });
 
@@ -54,7 +54,7 @@ describe('getRecResourceDetailPageUrl', () => {
     const emptyId = '';
     const result = getRecResourceDetailPageUrl(emptyId);
     expect(result).toBe(
-      `${mockOrigin}${ROUTE_PATHS.REC_RESOURCE.replace(':id', emptyId)}`,
+      `${mockOrigin}${ROUTE_PATHS.REC_RESOURCE.replace('$id', emptyId)}`,
     );
   });
 

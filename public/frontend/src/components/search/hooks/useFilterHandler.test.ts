@@ -1,17 +1,27 @@
-import { describe, expect, it, Mock, vi } from 'vitest';
+import { describe, expect, it, Mock, vi, beforeEach } from 'vitest';
 import { renderHook, act } from '@testing-library/react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearch, useNavigate } from '@tanstack/react-router';
 import { filterChipStore } from '@/store';
 import { useFilterHandler } from '@/components/search/hooks/useFilterHandler';
 
-vi.mock('react-router-dom', () => ({
-  useSearchParams: vi.fn(),
+vi.mock('@tanstack/react-router', () => ({
+  useSearch: vi.fn(),
+  useNavigate: vi.fn(),
 }));
 
 vi.mock('@/store', () => ({
   filterChipStore: {
     setState: vi.fn(),
+    state: [],
   },
+}));
+
+vi.mock('@/utils/removeFilter', () => ({
+  default: vi.fn(),
+}));
+
+vi.mock('@shared/utils', () => ({
+  trackEvent: vi.fn(),
 }));
 
 describe('useFilterHandler', () => {
@@ -20,9 +30,10 @@ describe('useFilterHandler', () => {
   });
 
   it('should un-toggle a filter if isChecked is false', () => {
-    const setSearchParams = vi.fn();
-    const searchParams = new URLSearchParams({ page: '1', test: 'test' });
-    (useSearchParams as Mock).mockReturnValue([searchParams, setSearchParams]);
+    const navigate = vi.fn();
+    const searchParams = { page: 1, test: 'test' };
+    (useSearch as Mock).mockReturnValue(searchParams);
+    (useNavigate as Mock).mockReturnValue(navigate);
 
     const { result } = renderHook(() => useFilterHandler());
 
@@ -30,7 +41,12 @@ describe('useFilterHandler', () => {
       result.current.toggleFilter({ id: '1', label: 'test', param: 'test' });
     });
 
-    expect(setSearchParams).toHaveBeenCalledWith(searchParams);
+    expect(navigate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: '/search',
+        search: expect.any(Function),
+      }),
+    );
 
     expect(filterChipStore.setState).toHaveBeenCalled();
 
@@ -45,9 +61,10 @@ describe('useFilterHandler', () => {
   });
 
   it('should toggle a filter with isChecked', () => {
-    const setSearchParams = vi.fn();
-    const searchParams = new URLSearchParams();
-    (useSearchParams as Mock).mockReturnValue([searchParams, setSearchParams]);
+    const navigate = vi.fn();
+    const searchParams = {};
+    (useSearch as Mock).mockReturnValue(searchParams);
+    (useNavigate as Mock).mockReturnValue(navigate);
 
     const { result } = renderHook(() => useFilterHandler());
 
@@ -58,9 +75,11 @@ describe('useFilterHandler', () => {
       );
     });
 
-    expect(setSearchParams).toHaveBeenCalled();
-    expect(setSearchParams.mock.calls[0][0]).toEqual(
-      expect.any(URLSearchParams),
+    expect(navigate).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: '/search',
+        search: expect.any(Function),
+      }),
     );
 
     expect(filterChipStore.setState).toHaveBeenCalled();

@@ -1,21 +1,38 @@
-import ScrollToTop from './components/layout/ScrollToTop';
-import { RouterProvider } from 'react-router-dom';
+import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { dataRouter } from '@/routes';
+import { routeTree } from './routeTree.gen';
 import './App.scss';
 
 const MAIN_CONTENT_ID = 'main-content';
 
-const App = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        refetchOnWindowFocus: false,
-        staleTime: 1000 * 60 * 5, // 5 minutes
-      },
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      staleTime: 1000 * 60 * 5, // 5 minutes
     },
-  });
+  },
+});
 
+const router = createRouter({
+  routeTree,
+  scrollRestoration: true,
+  scrollRestorationBehavior: 'instant',
+  context: {
+    queryClient,
+  },
+});
+
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: typeof router;
+  }
+  interface RouterContext {
+    queryClient: QueryClient;
+  }
+}
+
+const App = () => {
   return (
     <>
       <a
@@ -26,10 +43,8 @@ const App = () => {
       </a>
 
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={dataRouter} />
+        <RouterProvider router={router} />
       </QueryClientProvider>
-
-      <ScrollToTop />
     </>
   );
 };

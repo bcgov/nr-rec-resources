@@ -1,5 +1,5 @@
 import { useCallback, useMemo } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearch } from '@tanstack/react-router';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
@@ -24,7 +24,7 @@ import {
   fuzzySearchCities,
   fuzzySearchBestCity,
 } from '@/components/recreation-suggestion-form/utils/fuzzySearch';
-import { ROUTE_PATHS } from '@/routes/constants';
+import { ROUTE_PATHS } from '@/constants/routes';
 import {
   CURRENT_LOCATION_TITLE,
   OPTION_TYPE,
@@ -62,11 +62,11 @@ const RecreationSuggestionForm = ({
   trackingSource,
 }: RecreationSuggestionFormProps) => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const filter = searchParams.get('filter');
-  const community = searchParams.get('community');
+  const searchParams = useSearch({ strict: false });
+  const filter = searchParams.filter;
+  const community = searchParams.community;
   const isSearchParams = filter || community;
-  const view = searchParams.get('view') || 'list';
+  const view = searchParams.view ?? 'list';
   const { data: citiesList } = useSearchCitiesApi();
   const { getLocation, permissionDeniedCount } = useCurrentLocation();
   const {
@@ -229,9 +229,10 @@ const RecreationSuggestionForm = ({
           category: trackingName,
           name: `Suggestion selected: ${suggestion.name}`,
         })();
-        navigate(
-          ROUTE_PATHS.REC_RESOURCE.replace(':id', suggestion.rec_resource_id),
-        );
+        navigate({
+          to: ROUTE_PATHS.REC_RESOURCE,
+          params: { id: suggestion.rec_resource_id },
+        });
         return;
 
       case OPTION_TYPE.CITY:

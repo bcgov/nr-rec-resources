@@ -5,10 +5,14 @@ import * as notificationStore from '@/store/notificationStore';
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Mock dependencies
-vi.mock('react-router-dom', () => ({
-  useParams: vi.fn(),
-}));
+vi.mock('@tanstack/react-router', async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import('@tanstack/react-router')>();
+  return {
+    ...actual,
+    useParams: vi.fn(),
+  };
+});
 
 vi.mock(
   '@/services/hooks/recreation-resource-admin/useGetRecreationResourceById',
@@ -25,8 +29,7 @@ vi.mock('@/store/notificationStore', () => ({
   addErrorNotification: vi.fn(),
 }));
 
-// Import mocked modules for type safety
-import { useParams } from 'react-router-dom';
+import { useParams } from '@tanstack/react-router';
 
 const mockRecResource = {
   rec_resource_id: 'test-resource-123',

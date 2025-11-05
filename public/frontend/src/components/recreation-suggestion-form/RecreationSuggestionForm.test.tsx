@@ -9,6 +9,7 @@ import { useSearchCitiesApi } from '@/components/recreation-suggestion-form/hook
 import { useSearchInput } from '@/components/recreation-suggestion-form/hooks/useSearchInput';
 import { useCurrentLocation } from '@/components/recreation-suggestion-form/hooks/useCurrentLocation';
 import RecreationSuggestionForm from '@/components/recreation-suggestion-form/RecreationSuggestionForm';
+import { useSearch } from '@tanstack/react-router';
 
 vi.mock('@/components/recreation-suggestion-form/hooks/useSearchInput');
 vi.mock('@/components/recreation-suggestion-form/hooks/useCurrentLocation');
@@ -28,21 +29,20 @@ vi.mock('@/components/recreation-suggestion-form/constants', () => ({
 }));
 
 const mockNavigate = vi.fn();
-const mockSearchParams = new URLSearchParams();
-const mockUseSearchParams = vi.fn(() => [mockSearchParams]);
 
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom');
+vi.mock('@tanstack/react-router', async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import('@tanstack/react-router')>();
   return {
     ...actual,
     useNavigate: () => mockNavigate,
-    useSearchParams: () => mockUseSearchParams(),
+    useSearch: vi.fn(() => ({})),
   };
 });
 
-vi.mock('@/routes/constants', () => ({
+vi.mock('@/constants/routes', () => ({
   ROUTE_PATHS: {
-    REC_RESOURCE: '/recreation-resource/:id',
+    REC_RESOURCE: '/recreation-resource/$id',
   },
 }));
 
@@ -97,8 +97,7 @@ describe('RecreationSuggestionForm', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockSearchParams.delete('filter');
-    mockSearchParams.delete('community');
+    vi.mocked(useSearch).mockReturnValue({});
 
     mockedUseSearchInput.mockReturnValue({
       defaultSearchInputValue: '',
@@ -381,7 +380,12 @@ describe('RecreationSuggestionForm', () => {
       category: 'Test page search',
       name: 'Suggestion selected: Test Resource',
     });
-    expect(mockNavigate).toHaveBeenCalledWith('/recreation-resource/456');
+    expect(mockNavigate).toHaveBeenCalledWith({
+      params: {
+        id: '456',
+      },
+      to: '/recreation-resource/$id',
+    });
   });
 
   it('handles recreation resource selection with disabled navigation', async () => {
@@ -497,7 +501,7 @@ describe('RecreationSuggestionForm', () => {
   });
 
   it('sets selectedValue when search params are present and searchInputValue exists', () => {
-    mockSearchParams.set('filter', 'camping');
+    vi.mocked(useSearch).mockReturnValue({ filter: 'camping' });
 
     mockedUseSearchInput.mockReturnValue({
       defaultSearchInputValue: '',
@@ -517,7 +521,7 @@ describe('RecreationSuggestionForm', () => {
   });
 
   it('sets selectedValue to undefined when search params are present but searchInputValue is empty', () => {
-    mockSearchParams.set('community', 'victoria');
+    vi.mocked(useSearch).mockReturnValue({ community: 'victoria' });
 
     mockedUseSearchInput.mockReturnValue({
       defaultSearchInputValue: '',

@@ -6,7 +6,7 @@ import {
   mockFilterMenuContent,
 } from '@/components/search/test/mock-data';
 
-vi.mock('react-router-dom', async () => {
+vi.mock('@tanstack/react-router', async () => {
   return {
     useSearchParams: vi.fn(() => [new URLSearchParams(), vi.fn()]), // Default empty params
   };
@@ -25,10 +25,10 @@ describe('setFilterChipsFromSearchParams', () => {
     vi.resetAllMocks();
   });
   it('should set filter chips from search params', () => {
-    const searchParams = new URLSearchParams({
+    const searchParams = {
       activities: '1',
       type: 'camping',
-    });
+    };
 
     mockSearchResultsData.filters = mockFilterMenuContent;
 
@@ -38,20 +38,16 @@ describe('setFilterChipsFromSearchParams', () => {
   });
 
   it('should not set filter chips if no search params', () => {
-    setFilterChipsFromSearchParams(
-      [],
-      mockSearchResultsData,
-      new URLSearchParams(),
-    );
+    setFilterChipsFromSearchParams([], mockSearchResultsData, {});
 
     expect(filterChipStore.setState).not.toHaveBeenCalled();
   });
 
   it('should not set filter chips if filter chips are already set', () => {
-    const searchParams = new URLSearchParams({
+    const searchParams = {
       activities: 'hiking',
       type: 'camping',
-    });
+    };
 
     setFilterChipsFromSearchParams(
       [{ id: '1', label: 'test', param: 'test' }],

@@ -1,6 +1,6 @@
 import { EstablishmentOrderDeleteModal } from '@/pages/rec-resource-page/components/RecResourceEstablishmentOrderSection/EstablishmentOrderDeleteModal';
 import { GalleryFile } from '@/pages/rec-resource-page/types';
-import { reactQueryWrapper } from '@test/test-utils/reactQueryWrapper';
+import { TestQueryClientProvider } from '@test/test-utils';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -29,7 +29,7 @@ describe('EstablishmentOrderDeleteModal', () => {
         onCancel={mockOnCancel}
         onConfirm={mockOnConfirm}
       />,
-      { wrapper: reactQueryWrapper },
+      { wrapper: TestQueryClientProvider },
     );
     expect(container.firstChild).toBeNull();
   });
@@ -42,7 +42,7 @@ describe('EstablishmentOrderDeleteModal', () => {
         onCancel={mockOnCancel}
         onConfirm={mockOnConfirm}
       />,
-      { wrapper: reactQueryWrapper },
+      { wrapper: TestQueryClientProvider },
     );
     expect(container.firstChild).toBeNull();
   });
@@ -55,7 +55,7 @@ describe('EstablishmentOrderDeleteModal', () => {
         onCancel={mockOnCancel}
         onConfirm={mockOnConfirm}
       />,
-      { wrapper: reactQueryWrapper },
+      { wrapper: TestQueryClientProvider },
     );
 
     expect(screen.getByText('Delete establishment order')).toBeInTheDocument();
@@ -82,7 +82,7 @@ describe('EstablishmentOrderDeleteModal', () => {
         onCancel={mockOnCancel}
         onConfirm={mockOnConfirm}
       />,
-      { wrapper: reactQueryWrapper },
+      { wrapper: TestQueryClientProvider },
     );
 
     fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
@@ -98,7 +98,7 @@ describe('EstablishmentOrderDeleteModal', () => {
         onCancel={mockOnCancel}
         onConfirm={mockOnConfirm}
       />,
-      { wrapper: reactQueryWrapper },
+      { wrapper: TestQueryClientProvider },
     );
 
     fireEvent.click(screen.getByRole('button', { name: /delete/i }));
@@ -114,7 +114,7 @@ describe('EstablishmentOrderDeleteModal', () => {
         onCancel={mockOnCancel}
         onConfirm={mockOnConfirm}
       />,
-      { wrapper: reactQueryWrapper },
+      { wrapper: TestQueryClientProvider },
     );
 
     fireEvent.click(screen.getByLabelText(/close/i));
