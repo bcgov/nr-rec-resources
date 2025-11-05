@@ -1,4 +1,11 @@
-import { Controller, Get, HttpException, Param, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpException,
+  Param,
+  ParseArrayPipe,
+  Query,
+} from '@nestjs/common';
 import {
   ApiOperation,
   ApiParam,
@@ -13,12 +20,10 @@ import { ParseImageSizesPipe } from './pipes/parse-image-sizes.pipe';
 import { RecreationSuggestionDto } from 'src/recreation-resource/dto/recreation-resource-suggestion.dto';
 import {
   RecreationResourceDetailDto,
-  RecreationResourceSearchWithGeometryDto,
   SiteOperatorDto,
 } from './dto/recreation-resource.dto';
 import { AlphabeticalRecreationResourceDto } from './dto/alphabetical-recreation-resource.dto';
 import { FsaResourceService } from './service/fsa-resource.service';
-import { RecreationResourceGeometry } from './dto/recreation-resource-geometry.dto';
 
 @ApiTags('recreation-resource')
 @Controller({ path: 'recreation-resource', version: '1' })
@@ -211,136 +216,30 @@ export class RecreationResourceController {
 
   @Get('geometry')
   @ApiOperation({
-    summary: 'Search recreation resources with geometry',
-    operationId: 'searchRecreationResourcesWithGeometry',
+    summary: 'Get a list recreation resources with geometry',
+    operationId: 'getResourcesWithGeometry',
     description: `
-      Returns a non paginated list of recreation resources and related data with geometry appended.
-      The unpaginated summary data (counts, filters, extent) is based on the first 5000 matching records only, due
-      to internal limits for performance reasons. This limit does not affect the main paginated resource list.`,
+      Returns a non paginated list of recreation resources and related data with geometry appended.`,
   })
   @ApiQuery({
-    name: 'filter',
-    required: false,
-    type: String,
-    description: 'Search filter',
-  })
-  @ApiQuery({
-    name: 'limit',
-    required: false,
-    type: Number,
-    description: 'Number of items per page',
-  })
-  @ApiQuery({
-    name: 'page',
-    required: false,
-    type: Number,
-    description: 'Page number',
-  })
-  @ApiQuery({
-    name: 'activities',
-    required: false,
-    type: String,
-    description: 'Recreation activities',
-  })
-  @ApiQuery({
-    name: 'type',
-    required: false,
-    type: String,
-    description: 'Recreation resource type',
-  })
-  @ApiQuery({
-    name: 'district',
-    required: false,
-    type: String,
-    description: 'Recreation district',
-  })
-  @ApiQuery({
-    name: 'access',
-    required: false,
-    type: String,
-    description: 'Recreation resource access type',
-  })
-  @ApiQuery({
-    name: 'facilities',
-    required: false,
-    type: String,
-    description: 'Recreation resource facilities',
-  })
-  @ApiQuery({
-    name: 'status',
-    required: false,
-    type: String,
-    description: 'Recreation resource status (Open/Closed)',
-  })
-  @ApiQuery({
-    name: 'fees',
-    required: false,
-    type: String,
-    description:
-      'Recreation resource fee type (R for Reservable, F for Fees, NF for No fees)',
-  })
-  @ApiQuery({
-    name: 'lat',
-    required: false,
-    type: Number,
-    description: 'Latitude for location-based search',
-  })
-  @ApiQuery({
-    name: 'lon',
-    required: false,
-    type: Number,
-    description: 'Longitude for location-based search',
+    name: 'ids',
+    required: true,
+    type: [String],
+    description: 'Array of rec resource ids',
   })
   @ApiResponse({
     status: 200,
     description: 'Resources found',
-    type: [RecreationResourceSearchWithGeometryDto],
+    type: [RecreationResourceDetailDto],
   })
   async getMultipleGeometry(
-    @Query('filter') filter: string = '',
-    @Query('limit') limit?: number,
-    @Query('page') page: number = 1,
-    @Query('activities') activities?: string,
-    @Query('type') type?: string,
-    @Query('district') district?: string,
-    @Query('access') access?: string,
-    @Query('facilities') facilities?: string,
-    @Query('status') status?: string,
-    @Query('fees') fees?: string,
-    @Query('lat') lat?: number,
-    @Query('lon') lon?: number,
-  ): Promise<RecreationResourceSearchWithGeometryDto[]> {
-    const result =
-      await this.recreationResourceService.searchRecreationResources(
-        page,
-        filter ?? '',
-        limit ? parseInt(String(limit)) : undefined,
-        activities,
-        type,
-        district,
-        access,
-        facilities,
-        status,
-        fees,
-        lat ? parseFloat(String(lat)) : undefined,
-        lon ? parseFloat(String(lon)) : undefined,
-      );
-
-    const geometries = await this.recreationResourceService.getMultipleGeometry(
-      result.recResourceIds,
-    );
-    return result.data.map((rec) => {
-      const g = geometries.find(
-        (g: RecreationResourceGeometry) =>
-          g.rec_resource_id === rec.rec_resource_id,
-      );
-      return {
-        ...rec,
-        description: g.description,
-        spatial_feature_geometry: g.spatial_feature_geometry,
-        site_point_geometry: g.site_point_geometry,
-      };
-    });
+    @Query('ids', new ParseArrayPipe({ items: String, separator: ',' }))
+    ids: string[],
+  ): Promise<RecreationResourceDetailDto[]> {
+    return await this.recreationResourceService.findMany(ids, [
+      RecreationResourceImageSize.HIGH_RES_PRINT,
+      RecreationResourceImageSize.PREVIEW,
+    ]);
   }
 
   @Get(':id')
