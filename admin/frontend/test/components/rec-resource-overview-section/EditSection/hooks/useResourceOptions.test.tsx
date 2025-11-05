@@ -48,7 +48,9 @@ describe('useResourceOptions', () => {
 
     expect(result.current.regionOptions).toEqual([]);
     expect(result.current.maintenanceOptions).toEqual([]);
-    expect(result.current.controlAccessCodeTypeOptions).toEqual([]);
+    const firstOption = result.current.controlAccessCodeTypeOptions[0];
+    expect(firstOption.label).toBe('None');
+    expect([null, '']).toContain(firstOption.id);
     expect(result.current.accessOptions).toEqual([]);
     expect(result.current.recreationStatusOptions).toEqual([]);
     expect(result.current.isLoading).toBe(false);
@@ -80,7 +82,11 @@ describe('useResourceOptions', () => {
 
     expect(result.current.regionOptions).toEqual(mockRegionData);
     expect(result.current.maintenanceOptions).toEqual(mockMaintenanceData);
-    expect(result.current.controlAccessCodeTypeOptions).toEqual(
+    const first = result.current.controlAccessCodeTypeOptions[0];
+    expect(first.label).toBe('None');
+    expect([null, '']).toContain(first.id);
+    // remaining options should match the mocked control access data
+    expect(result.current.controlAccessCodeTypeOptions.slice(1)).toEqual(
       mockControlAccessData,
     );
     expect(result.current.accessOptions).toEqual(mockAccessData);

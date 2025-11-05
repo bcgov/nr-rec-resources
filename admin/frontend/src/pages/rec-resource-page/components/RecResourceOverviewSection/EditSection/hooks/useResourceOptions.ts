@@ -47,10 +47,16 @@ export const useResourceOptions = () => {
     return groups;
   }, [accessOptions]);
 
+  const controlAccessCodeTypeOptions = useMemo(() => {
+    const noneOption = { id: null, label: 'None' } as const;
+
+    return [noneOption, ...(controlAccessCodeOptions?.options ?? [])];
+  }, [controlAccessCodeOptions]);
+
   return {
     regionOptions: regionOptions?.options ?? [],
     maintenanceOptions: maintenanceOptions?.options ?? [],
-    controlAccessCodeTypeOptions: controlAccessCodeOptions?.options ?? [],
+    controlAccessCodeTypeOptions,
     accessOptions: accessOptions?.options ?? [],
     recreationStatusOptions: recreationStatusOptions?.options ?? [],
     groupedAccessOptions,

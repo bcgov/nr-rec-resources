@@ -48,9 +48,16 @@ describe('Update Recreation Resource DTOs', () => {
       dto.maintenance_standard_code = '2';
 
       expect(dto.maintenance_standard_code).toBe('2');
-      expect(dto.control_access_code).toBeUndefined();
+      expect(dto.control_access_code == null).toBe(true);
       expect(dto.access_codes).toBeUndefined();
       expect(dto.status_code).toBeUndefined();
+    });
+
+    it('should accept null control_access_code', () => {
+      const dto = new UpdateRecreationResourceDto();
+      dto.control_access_code = null as any;
+
+      expect(dto.control_access_code).toBeNull();
     });
 
     it('should create a valid DTO with only status_code', () => {

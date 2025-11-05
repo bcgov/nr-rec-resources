@@ -1,4 +1,6 @@
-export const ROUTE_PATHS = {
+import { NavigateOptions } from '@tanstack/react-router';
+
+export const ROUTE_PATHS: Record<string, NavigateOptions['to']> = {
   LANDING: '/',
   REC_RESOURCE_PAGE: '/rec-resource/$id',
   REC_RESOURCE_OVERVIEW: '/rec-resource/$id/overview',

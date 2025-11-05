@@ -56,10 +56,12 @@ export class UpdateRecreationResourceDto {
     description:
       'Control access code (stored in recreation_control_access_code table)',
     example: 'G',
+    type: String,
+    nullable: true,
   })
   @IsOptional()
   @IsString()
-  control_access_code?: string;
+  control_access_code?: string | null;
 
   @ApiPropertyOptional({
     description: 'List of access codes with their sub-access codes',
