@@ -205,7 +205,6 @@ const SearchPage = () => {
                           within <b>50 km</b> radius of <b>{community}</b>
                         </span>
                       )}
-                      <span onClick={handleDownloadClick}> Download KML</span>
                     </div>
                     <IconButton
                       data-testid="download-button"
