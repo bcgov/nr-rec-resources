@@ -18,11 +18,16 @@ describe('SearchBanner', () => {
   });
 
   it('renders correctly', async () => {
-    await renderWithRouter(<SearchBanner />);
+    const { container } = await renderWithRouter(<SearchBanner />);
 
     expect(
       screen.getByPlaceholderText('By name or community'),
     ).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Search' })).toBeInTheDocument();
+
+    const desktopButton = container.querySelector(
+      '.submit-btn.d-none.d-sm-block',
+    );
+
+    expect(desktopButton).toBeInTheDocument();
   });
 });

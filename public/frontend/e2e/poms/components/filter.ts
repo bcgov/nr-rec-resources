@@ -222,6 +222,16 @@ export class FilterPOM {
       // We can't use this to check district, facilities, or access type
       // because the API doesn't return data for those filters
       const url = response.url();
+      const status = response.status();
+
+      // Only parse successful JSON responses
+      if (
+        status !== 200 ||
+        !response.headers()['content-type']?.includes('application/json')
+      ) {
+        return;
+      }
+
       if (url.includes('type=') && type) {
         const json = await response.json();
         const results = json.data.map((item: any) => item.rec_resource_type);

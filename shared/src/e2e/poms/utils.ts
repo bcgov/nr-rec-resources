@@ -87,6 +87,130 @@ export class UtilsPOM {
     });
   }
 
+  /**
+   * Prepare page for Happo screenshot by capturing map with Playwright and replacing canvas.
+   */
+  private async prepareMapScreenshot() {
+    // Wait for map to be visible and loaded
+    await this.page.waitForSelector(MAP_CANVAS_SELECTOR, { state: 'visible' });
+    await this.page.waitForTimeout(2000);
+
+    // Check if map is in a fixed full-screen container
+    const isFixedMap = await this.page.evaluate(() => {
+      const container = document.querySelector('.search-map-container');
+      if (!container) return false;
+      const style = window.getComputedStyle(container);
+      return style.position === 'fixed';
+    });
+
+    // Take screenshot - use viewport for fixed maps, fullPage for scrollable
+    const screenshotBuffer = await this.page.screenshot({
+      fullPage: !isFixedMap,
+    });
+    const base64Screenshot = screenshotBuffer.toString('base64');
+
+    // Remove the canvas element entirely to prevent Happo from processing it
+    await this.removeVectorFeatureMap();
+
+    // Inject the screenshot as a background image
+    await this.page.evaluate(
+      (data) => {
+        const { imgData, isFixed } = data;
+        const body = document.body;
+        const html = document.documentElement;
+
+        // Use viewport dimensions for fixed maps, scroll dimensions for scrollable
+        const height = isFixed ? window.innerHeight : body.scrollHeight;
+        const width = isFixed ? window.innerWidth : body.scrollWidth;
+
+        // Create a wrapper to hold the screenshot
+        const wrapper = document.createElement('div');
+        wrapper.id = 'happo-screenshot-wrapper';
+        wrapper.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: ${width}px;
+        height: ${height}px;
+        background-image: url(${imgData});
+        background-size: cover;
+        background-position: top left;
+        background-repeat: no-repeat;
+        z-index: 999999;
+      `;
+
+        // Hide all original body content
+        Array.from(body.children).forEach((child) => {
+          (child as HTMLElement).style.display = 'none';
+        });
+
+        // Add the screenshot wrapper
+        body.appendChild(wrapper);
+
+        // Ensure body maintains dimensions
+        body.style.minHeight = `${height}px`;
+        html.style.minHeight = `${height}px`;
+      },
+      {
+        imgData: `data:image/png;base64,${base64Screenshot}`,
+        isFixed: isFixedMap,
+      },
+    );
+  }
+
+  /**
+   * Take a screenshot with map visible using Playwright's native screenshot.
+   */
+  async screenshotWithMap(component: string, variant: string) {
+    await this.prepareMapScreenshot();
+
+    await happoPlaywright.screenshot(this.page, this.pageContent, {
+      component,
+      variant,
+    });
+  }
+
+  /**
+   * Take a mobile screenshot with map visible using Playwright's native screenshot.
+   */
+  async screenshotMobileWithMap(component: string, variant: string) {
+    const maxHeight = 20000;
+    const viewport = '400x844';
+
+    await this.prepareMapScreenshot();
+
+    await happoPlaywright.screenshot(this.page, this.pageContent, {
+      component,
+      variant,
+      targets: [
+        {
+          name: 'chrome-small',
+          browser: 'chrome',
+          viewport,
+          maxHeight,
+        },
+        {
+          name: 'firefox-small',
+          browser: 'firefox',
+          viewport,
+          maxHeight,
+        },
+        {
+          name: 'safari-small',
+          browser: 'safari',
+          viewport,
+          maxHeight,
+        },
+        {
+          name: 'edge-small',
+          browser: 'edge',
+          viewport,
+          maxHeight,
+        },
+      ],
+    });
+  }
+
   async waitForNetworkRequest(url: string) {
     await waitForNetworkRequest(this.page, url);
   }
