@@ -91,6 +91,7 @@ export const RecreationResourceSuggestionForm = () => {
             emptyLabel={getEmptyLabel()}
             placeholder="By name or number"
             renderMenu={renderMenu}
+            isMobileSearchBtn={false}
           />
         </Stack>
       </Form.Group>

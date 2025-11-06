@@ -3,77 +3,16 @@
 @import 'bootstrap/scss/variables';
 @import 'bootstrap/scss/mixins/_breakpoints';
 
-.dropdown-menu-item {
-  width: calc(100% - 1.5rem);
-  margin: auto;
-  border: 0 solid transparent;
-  border-radius: 1rem;
-  padding: unset;
-  margin: 1rem auto;
-
-  &.active,
-  &:active {
-    color: inherit;
-    background-color: $colorGreyLight;
-  }
-
-  @include media-breakpoint-up(sm) {
-    width: calc(100% - 2rem);
-  }
-}
-
-.rec-id-badge {
-  background: $colorIceBlue !important;
-  min-width: 100px;
-  color: $colorBlue;
-
-  // Set badge background to white when menu item is active or hovered
-  .active &,
-  .dropdown-menu-item:hover & {
-    background: $colorWhite !important;
-  }
-}
-
-.rec-name {
-  white-space: normal;
-
-  // Underline the text when the menu item is active or hovered
-  .active &,
-  .dropdown-menu-item:hover & {
-    text-decoration: underline;
-  }
-}
-
-.clear-button {
-  all: unset;
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: transparent;
-  border: none;
-  padding: 5px;
-  color: #999;
-  font-size: 24px;
-  cursor: pointer;
-  z-index: 10;
-  transition: font-size 0.2s ease;
-
-  &:hover {
-    color: #333;
-  }
-
-  &:focus {
-    font-size: 32px;
-  }
-}
-
 .suggestion-search-input-container {
-  border: 1px solid #ced4da;
+  border: 1px solid $colorGreyLight;
   border-radius: 0.375rem;
   overflow: hidden;
   background-color: #fff;
-  padding: 0.35rem 0.875rem;
+  padding: 0.35rem 0rem 0.35rem 0.875rem;
+
+  @include media-breakpoint-up(sm) {
+    padding: 0.35rem 0.875rem;
+  }
 
   &:has(input[aria-expanded='true']) {
     border-radius: 0.375rem 0.375rem 0 0;
@@ -81,9 +20,9 @@
 
   .input-group-text,
   .form-control {
-    border: none !important;
-    background-color: transparent !important;
-    box-shadow: none !important;
+    border: none;
+    background-color: transparent;
+    box-shadow: none;
   }
 
   .search-icon-wrapper {
@@ -99,10 +38,116 @@
   }
 }
 
+.dropdown-menu-item {
+  width: calc(100% - 1.5rem);
+  margin: auto;
+  border: 0 solid transparent;
+  border-radius: 1rem;
+  padding: unset;
+  margin: 1rem auto;
+
+  &.active,
+  &:active {
+    color: inherit;
+    background-color: $colorGreyLight;
+  }
+
+  .rbt {
+    width: 100%;
+  }
+
+  @include media-breakpoint-up(sm) {
+    width: calc(100% - 2rem);
+  }
+}
+
+.rec-id-badge {
+  background: $colorIceBlue !important;
+  min-width: 100px;
+  color: $colorBlue;
+
+  .active &,
+  .dropdown-menu-item:hover & {
+    background: $colorWhite !important;
+  }
+}
+
+.rec-name {
+  white-space: normal;
+
+  .active &,
+  .dropdown-menu-item:hover & {
+    text-decoration: underline;
+  }
+}
+
+.suggestion-search-input-container button.clear-button {
+  all: unset;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  padding: 5px;
+  color: $colorGreyMed;
+  opacity: 0.7;
+  font-size: 28px;
+  cursor: pointer;
+  right: 8px;
+  z-index: 10;
+
+  &:hover {
+    color: $colorGrey;
+  }
+}
+
+.has-mobile-search-btn button.clear-button {
+  right: 60px;
+
+  @include media-breakpoint-up(sm) {
+    right: 10px;
+  }
+}
+
+.mobile-search-button {
+  color: $colorWhite;
+  background: $colorBlue;
+  border: none;
+  padding: 0 1rem;
+  cursor: pointer;
+  margin: -0.35rem 0;
+
+  &:focus,
+  &:focus-visible {
+    outline: none;
+    box-shadow: none;
+    border: none;
+  }
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
 .rbt-menu.dropdown-menu {
   width: 100%;
   margin-top: 0;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
   box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.rbt-aux {
+  display: none;
+}
+
+.suggestion-spinner {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: $colorGrey;
+  right: 64px;
+
+  @include media-breakpoint-up(sm) {
+    right: 12px;
+  }
 }
