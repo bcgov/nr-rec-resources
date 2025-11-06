@@ -29,6 +29,7 @@
     "@fortawesome/react-fontawesome": "^3.0.2",
     "@hookform/resolvers": "^5.2.1",
     "@rst/shared": "file:../../shared",
+    "@storybook/react-vite": "^10.0.5",
     "@tanstack/react-query": "^5.80.7",
     "@tanstack/react-query-devtools": "^5.80.7",
     "@tanstack/react-router": "^1.133.25",
@@ -56,6 +57,7 @@
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.25.0",
     "@playwright/test": "^1.54.2",
+    "@storybook/addon-docs": "^10.0.5",
     "@tanstack/router-plugin": "^1.133.25",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
@@ -70,6 +72,7 @@
     "eslint-plugin-react": "^7.37.3",
     "eslint-plugin-react-hooks": "^7.0.0",
     "eslint-plugin-react-refresh": "^0.4.19",
+    "eslint-plugin-storybook": "10.0.5",
     "globals": "^16.0.0",
     "happo-e2e": "^5.0.0",
     "happo-playwright": "^2.3.0",
@@ -79,8 +82,6 @@
     "sass-embedded": "^1.89.0",
     "vite": "^7.0.5",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.2.4",
-    "eslint-plugin-storybook": "10.0.3",
-    "@storybook/addon-docs": "10.0.3"
+    "vitest": "^3.2.4"
   }
 }
