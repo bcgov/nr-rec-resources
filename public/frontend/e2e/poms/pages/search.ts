@@ -13,6 +13,8 @@ export class SearchPOM {
 
   readonly searchBtn: Locator;
 
+  readonly showMapBtn: Locator;
+
   constructor(page: Page) {
     this.page = page;
 
@@ -20,11 +22,40 @@ export class SearchPOM {
       name: SearchEnum.SEARCH_BTN_LABEL,
       exact: true,
     });
+
+    this.showMapBtn = page.getByRole('button', {
+      name: 'Show map',
+    });
   }
 
   async route(params?: string) {
     await this.page.goto(`${this.url}${params ? params : ''}`);
     await waitForImagesToLoad(this.page);
+  }
+
+  async showMapView() {
+    await this.showMapBtn.waitFor({ state: 'visible' });
+    await this.showMapBtn.click();
+    await this.page.waitForSelector('.search-map-container', {
+      state: 'visible',
+    });
+  }
+
+  async closeMapDisclaimer() {
+    const disclaimerModal = this.page.locator('[role="dialog"]');
+    const disclaimerVisible = await disclaimerModal
+      .isVisible()
+      .catch(() => false);
+    if (disclaimerVisible) {
+      const closeButton = this.page.getByRole('button', {
+        name: /close|dismiss|ok|got it/i,
+      });
+      const buttonVisible = await closeButton.isVisible().catch(() => false);
+      if (buttonVisible) {
+        await closeButton.click();
+        await disclaimerModal.waitFor({ state: 'hidden' });
+      }
+    }
   }
 
   async getRecResourceCardCount() {

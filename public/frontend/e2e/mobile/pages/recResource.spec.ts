@@ -20,7 +20,8 @@ test.describe('Recreation Resource page (Mobile)', () => {
     await layout.verifyFooterContent();
     await recResourcePage.verifySectionsExistInPageMenu();
     await recResourcePage.verifyPdfDocLinks();
+
     await utils.accessibility();
-    await utils.screenshotMobile('Recreation Resource page', 'mobile');
+    await utils.screenshotMobileWithMap('Recreation Resource page', 'mobile');
   });
 });

@@ -16,7 +16,8 @@ test.describe('Recreation Resource page', () => {
     await layout.verifyFooterContent();
     await recResourcePage.verifySectionsExistInPageMenu();
     await recResourcePage.verifyPdfDocLinks();
+
     await utils.accessibility();
-    await utils.screenshot('Recreation Resource page', 'default');
+    await utils.screenshotWithMap('Recreation Resource page', 'default');
   });
 });
