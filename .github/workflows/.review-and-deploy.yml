@@ -103,7 +103,7 @@ jobs:
     uses: ./.github/workflows/.deploy-app.yml
     concurrency:
       group: deploy-${{ inputs.app }}-to-aws-prod
-      cancel-in-progress: true
+      cancel-in-progress: false
     with:
       app: ${{ inputs.app }}
       app_env: prod
