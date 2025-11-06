@@ -3,6 +3,7 @@
 import { expect, Locator, Page } from '@playwright/test';
 import { BASE_URL } from 'e2e/constants';
 import { waitForImagesToLoad } from '@shared/e2e/utils';
+import { MAP_CONTAINER_SELECTOR } from '@shared/e2e/constants';
 import { SearchEnum } from 'e2e/enum/search';
 import { RecResource } from 'e2e/poms/pages/types';
 
@@ -36,7 +37,7 @@ export class SearchPOM {
   async showMapView() {
     await this.showMapBtn.waitFor({ state: 'visible' });
     await this.showMapBtn.click();
-    await this.page.waitForSelector('.search-map-container', {
+    await this.page.waitForSelector(MAP_CONTAINER_SELECTOR, {
       state: 'visible',
     });
   }

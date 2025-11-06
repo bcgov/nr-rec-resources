@@ -5,7 +5,10 @@ import {
   waitForNetworkRequest,
   waitForNetworkResponse,
 } from '@shared/e2e/utils';
-import { MAP_CANVAS_SELECTOR } from '@shared/e2e/constants';
+import {
+  MAP_CANVAS_SELECTOR,
+  MAP_CONTAINER_SELECTOR,
+} from '@shared/e2e/constants';
 
 export class UtilsPOM {
   readonly page: Page;
@@ -88,20 +91,75 @@ export class UtilsPOM {
   }
 
   /**
+   * Wait for layout to stabilize by checking element dimensions over time.
+   */
+  private async waitForLayoutStability(
+    selector: string,
+    checks = 3,
+    delayMs = 100,
+  ) {
+    let previousDimensions = { width: 0, height: 0 };
+
+    for (let i = 0; i < checks; i++) {
+      const dimensions = await this.page.evaluate((sel) => {
+        const element = document.querySelector(sel);
+        if (!element) return { width: 0, height: 0 };
+        const rect = element.getBoundingClientRect();
+        return { width: rect.width, height: rect.height };
+      }, selector);
+
+      if (
+        i > 0 &&
+        (dimensions.width !== previousDimensions.width ||
+          dimensions.height !== previousDimensions.height)
+      ) {
+        // Dimensions changed, reset the check counter
+        i = -1;
+      }
+
+      previousDimensions = dimensions;
+      await this.page.waitForTimeout(delayMs);
+    }
+  }
+
+  /**
    * Prepare page for Happo screenshot by capturing map with Playwright and replacing canvas.
    */
   private async prepareMapScreenshot() {
     // Wait for map to be visible and loaded
     await this.page.waitForSelector(MAP_CANVAS_SELECTOR, { state: 'visible' });
-    await this.page.waitForTimeout(2000);
 
     // Check if map is in a fixed full-screen container
-    const isFixedMap = await this.page.evaluate(() => {
-      const container = document.querySelector('.search-map-container');
+    const isFixedMap = await this.page.evaluate((selector) => {
+      const container = document.querySelector(selector);
       if (!container) return false;
       const style = window.getComputedStyle(container);
       return style.position === 'fixed';
-    });
+    }, MAP_CONTAINER_SELECTOR);
+
+    // For fullscreen maps, use aggressive stability checks
+    if (isFixedMap) {
+      // Wait for network to be idle (all map tiles and resources loaded)
+      await this.page.waitForLoadState('networkidle');
+
+      // Wait for any animations/transitions to complete
+      await this.page.evaluate(() => {
+        return Promise.all(
+          document.getAnimations().map((animation) => animation.finished),
+        );
+      });
+
+      // Wait for the map canvas and container to stabilize (no size changes)
+      await this.waitForLayoutStability(MAP_CONTAINER_SELECTOR, 5, 150);
+      await this.waitForLayoutStability(MAP_CANVAS_SELECTOR, 5, 150);
+
+      // Additional wait for fullscreen map to fully settle
+      await this.page.waitForTimeout(500);
+    } else {
+      // For embedded maps, use lighter stability checks
+      await this.waitForLayoutStability(MAP_CANVAS_SELECTOR, 3, 100);
+      await this.page.waitForTimeout(200);
+    }
 
     // Take screenshot - use viewport for fixed maps, fullPage for scrollable
     const screenshotBuffer = await this.page.screenshot({
