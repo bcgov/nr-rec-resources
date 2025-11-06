@@ -1,20 +1,20 @@
-import { useEditResourceForm } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/hooks/useEditResourceForm';
 import { ROUTE_PATHS } from '@/constants/routes';
+import { useEditResourceForm } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/hooks/useEditResourceForm';
 import {
   RecreationResourceDetailUIModel,
   useUpdateRecreationResource,
 } from '@/services';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
-import { type ReactNode, createElement } from 'react';
+import { createElement, type ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock dependencies - must be before imports
-const mockNavigate = vi.fn();
+const mockNavigateWithQueryParams = vi.fn();
 
 vi.mock('@shared/hooks', () => ({
   useNavigateWithQueryParams: vi.fn(() => ({
-    navigate: mockNavigate,
+    navigate: mockNavigateWithQueryParams,
   })),
 }));
 
@@ -25,7 +25,22 @@ vi.mock(
   }),
 );
 
-// Create a wrapper with QueryClient for tests (no router needed since navigation is mocked)
+// Mock notifications and error handler
+const mockAddSuccessNotification = vi.fn();
+const mockAddErrorNotification = vi.fn();
+const mockHandleApiError = vi.fn();
+
+vi.mock('@/store/notificationStore', () => ({
+  addSuccessNotification: (...args: any[]) =>
+    mockAddSuccessNotification(...args),
+  addErrorNotification: (...args: any[]) => mockAddErrorNotification(...args),
+}));
+
+vi.mock('@/services/utils/errorHandler', () => ({
+  handleApiError: (...args: any[]) => mockHandleApiError(...args),
+}));
+
+// Create a wrapper with QueryClient for tests
 const createWrapper = () => {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -40,7 +55,7 @@ const createWrapper = () => {
 };
 
 describe('useEditResourceForm', () => {
-  const mockMutate = vi.fn();
+  const mockMutateAsync = vi.fn();
 
   const mockRecResource: RecreationResourceDetailUIModel = {
     rec_resource_id: '123',
@@ -77,7 +92,7 @@ describe('useEditResourceForm', () => {
   } as RecreationResourceDetailUIModel;
 
   const mockUpdateMutation = {
-    mutate: mockMutate,
+    mutateAsync: mockMutateAsync,
     isPending: false,
     isSuccess: false,
     isError: false,
@@ -88,7 +103,6 @@ describe('useEditResourceForm', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockNavigate.mockClear();
     vi.mocked(useUpdateRecreationResource).mockReturnValue(
       mockUpdateMutation as any,
     );
@@ -281,41 +295,39 @@ describe('useEditResourceForm', () => {
         ],
       };
 
-      // Mock mutate implementation
-      mockMutate.mockImplementation((request, options) => {
-        options?.onSuccess?.();
-      });
+      // Mock mutateAsync implementation to resolve (success)
+      mockMutateAsync.mockResolvedValue(undefined);
 
       await act(async () => {
         await result.current.onSubmit(formData);
       });
 
-      expect(mockMutate).toHaveBeenCalledWith(
-        {
-          recResourceId: '123',
-          updateRecreationResourceDto: {
-            maintenance_standard_code: 'M',
-            control_access_code: 'CA2',
-            status_code: 2,
-            access_codes: [
-              {
-                access_code: 'AC1',
-                sub_access_codes: ['SUB1', 'SUB2'],
-              },
-            ],
-          },
+      expect(mockMutateAsync).toHaveBeenCalledWith({
+        recResourceId: '123',
+        updateRecreationResourceDto: {
+          maintenance_standard_code: 'M',
+          control_access_code: 'CA2',
+          status_code: 2,
+          access_codes: [
+            {
+              access_code: 'AC1',
+              sub_access_codes: ['SUB1', 'SUB2'],
+            },
+          ],
         },
-        expect.objectContaining({
-          onSuccess: expect.any(Function),
-        }),
-      );
+      });
 
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith({
+        expect(mockNavigateWithQueryParams).toHaveBeenCalledWith({
           to: ROUTE_PATHS.REC_RESOURCE_OVERVIEW,
           params: { id: '123' },
         });
       });
+
+      // Success notification should be shown
+      expect(mockAddSuccessNotification).toHaveBeenCalledWith(
+        'Recreation resource updated successfully.',
+      );
     });
 
     it('should handle multiple access code groups', async () => {
@@ -352,38 +364,30 @@ describe('useEditResourceForm', () => {
         ],
       };
 
-      // Mock mutate implementation
-      mockMutate.mockImplementation((request, options) => {
-        options?.onSuccess?.();
-      });
+      mockMutateAsync.mockResolvedValue(undefined);
 
       await act(async () => {
         await result.current.onSubmit(formData);
       });
 
-      expect(mockMutate).toHaveBeenCalledWith(
-        {
-          recResourceId: '123',
-          updateRecreationResourceDto: {
-            maintenance_standard_code: 'M',
-            control_access_code: 'CA2',
-            status_code: 2,
-            access_codes: [
-              {
-                access_code: 'AC1',
-                sub_access_codes: ['SUB1', 'SUB2'],
-              },
-              {
-                access_code: 'AC2',
-                sub_access_codes: ['SUB3'],
-              },
-            ],
-          },
+      expect(mockMutateAsync).toHaveBeenCalledWith({
+        recResourceId: '123',
+        updateRecreationResourceDto: {
+          maintenance_standard_code: 'M',
+          control_access_code: 'CA2',
+          status_code: 2,
+          access_codes: [
+            {
+              access_code: 'AC1',
+              sub_access_codes: ['SUB1', 'SUB2'],
+            },
+            {
+              access_code: 'AC2',
+              sub_access_codes: ['SUB3'],
+            },
+          ],
         },
-        expect.objectContaining({
-          onSuccess: expect.any(Function),
-        }),
-      );
+      });
     });
 
     it('should handle empty selected_access_options', async () => {
@@ -401,28 +405,21 @@ describe('useEditResourceForm', () => {
         selected_access_options: [],
       };
 
-      mockMutate.mockImplementation((request, options) => {
-        options?.onSuccess?.();
-      });
+      mockMutateAsync.mockResolvedValue(undefined);
 
       await act(async () => {
         await result.current.onSubmit(formData);
       });
 
-      expect(mockMutate).toHaveBeenCalledWith(
-        {
-          recResourceId: '123',
-          updateRecreationResourceDto: {
-            maintenance_standard_code: 'M',
-            control_access_code: 'CA2',
-            status_code: 2,
-            access_codes: [],
-          },
+      expect(mockMutateAsync).toHaveBeenCalledWith({
+        recResourceId: '123',
+        updateRecreationResourceDto: {
+          maintenance_standard_code: 'M',
+          control_access_code: 'CA2',
+          status_code: 2,
+          access_codes: [],
         },
-        expect.objectContaining({
-          onSuccess: expect.any(Function),
-        }),
-      );
+      });
     });
 
     it('should handle undefined/empty maintenance_standard_code', async () => {
@@ -440,28 +437,21 @@ describe('useEditResourceForm', () => {
         selected_access_options: [],
       };
 
-      mockMutate.mockImplementation((request, options) => {
-        options?.onSuccess?.();
-      });
+      mockMutateAsync.mockResolvedValue(undefined);
 
       await act(async () => {
         await result.current.onSubmit(formData);
       });
 
-      expect(mockMutate).toHaveBeenCalledWith(
-        {
-          recResourceId: '123',
-          updateRecreationResourceDto: {
-            maintenance_standard_code: undefined,
-            control_access_code: 'CA2',
-            status_code: 2,
-            access_codes: [],
-          },
+      expect(mockMutateAsync).toHaveBeenCalledWith({
+        recResourceId: '123',
+        updateRecreationResourceDto: {
+          maintenance_standard_code: undefined,
+          control_access_code: 'CA2',
+          status_code: 2,
+          access_codes: [],
         },
-        expect.objectContaining({
-          onSuccess: expect.any(Function),
-        }),
-      );
+      });
     });
 
     it('should handle undefined/null control_access_code', async () => {
@@ -479,28 +469,21 @@ describe('useEditResourceForm', () => {
         selected_access_options: [],
       };
 
-      mockMutate.mockImplementation((request, options) => {
-        options?.onSuccess?.();
-      });
+      mockMutateAsync.mockResolvedValue(undefined);
 
       await act(async () => {
         await result.current.onSubmit(formData);
       });
 
-      expect(mockMutate).toHaveBeenCalledWith(
-        {
-          recResourceId: '123',
-          updateRecreationResourceDto: {
-            maintenance_standard_code: 'M',
-            control_access_code: undefined,
-            status_code: 2,
-            access_codes: [],
-          },
+      expect(mockMutateAsync).toHaveBeenCalledWith({
+        recResourceId: '123',
+        updateRecreationResourceDto: {
+          maintenance_standard_code: 'M',
+          control_access_code: null,
+          status_code: 2,
+          access_codes: [],
         },
-        expect.objectContaining({
-          onSuccess: expect.any(Function),
-        }),
-      );
+      });
     });
 
     it('should handle undefined/empty status_code', async () => {
@@ -518,28 +501,21 @@ describe('useEditResourceForm', () => {
         selected_access_options: [],
       };
 
-      mockMutate.mockImplementation((request, options) => {
-        options?.onSuccess?.();
-      });
+      mockMutateAsync.mockResolvedValue(undefined);
 
       await act(async () => {
         await result.current.onSubmit(formData);
       });
 
-      expect(mockMutate).toHaveBeenCalledWith(
-        {
-          recResourceId: '123',
-          updateRecreationResourceDto: {
-            maintenance_standard_code: 'M',
-            control_access_code: 'CA2',
-            status_code: undefined,
-            access_codes: [],
-          },
+      expect(mockMutateAsync).toHaveBeenCalledWith({
+        recResourceId: '123',
+        updateRecreationResourceDto: {
+          maintenance_standard_code: 'M',
+          control_access_code: 'CA2',
+          status_code: undefined,
+          access_codes: [],
         },
-        expect.objectContaining({
-          onSuccess: expect.any(Function),
-        }),
-      );
+      });
     });
 
     it('should convert status_code string to number', async () => {
@@ -557,22 +533,20 @@ describe('useEditResourceForm', () => {
         selected_access_options: [],
       };
 
-      mockMutate.mockImplementation((request, options) => {
-        options?.onSuccess?.();
-      });
+      mockMutateAsync.mockResolvedValue(undefined);
 
       await act(async () => {
         await result.current.onSubmit(formData);
       });
 
-      const call = mockMutate.mock.calls[0][0];
+      const call = mockMutateAsync.mock.calls[0][0];
       expect(call.updateRecreationResourceDto.status_code).toBe(5);
       expect(typeof call.updateRecreationResourceDto.status_code).toBe(
         'number',
       );
     });
 
-    it('should not navigate if mutation does not call onSuccess', async () => {
+    it('should show error notification when mutation errors', async () => {
       const { result } = renderHook(
         () => useEditResourceForm(mockRecResource),
         {
@@ -587,17 +561,25 @@ describe('useEditResourceForm', () => {
         selected_access_options: [],
       };
 
-      // Mock mutate without calling onSuccess
-      mockMutate.mockImplementation(() => {
-        // Mutation started but not completed
-      });
+      // Mock mutateAsync to reject with an error
+      const mockError = new Error('something went wrong');
+      mockHandleApiError.mockResolvedValue({ message: 'API error' });
+
+      mockMutateAsync.mockRejectedValue(mockError);
 
       await act(async () => {
         await result.current.onSubmit(formData);
       });
 
-      expect(mockMutate).toHaveBeenCalled();
-      expect(mockNavigate).not.toHaveBeenCalled();
+      // handleApiError should have been called with the thrown error
+      expect(mockHandleApiError).toHaveBeenCalledWith(mockError);
+
+      // Error notification should be shown with the message returned by the handler
+      expect(mockAddErrorNotification).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'Failed to update recreation resource: API error',
+        ),
+      );
     });
   });
 

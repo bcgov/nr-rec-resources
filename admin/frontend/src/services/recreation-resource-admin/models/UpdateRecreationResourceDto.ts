@@ -38,7 +38,7 @@ export interface UpdateRecreationResourceDto {
    * @type {string}
    * @memberof UpdateRecreationResourceDto
    */
-  control_access_code?: string;
+  control_access_code?: string | null;
   /**
    * List of access codes with their sub-access codes
    * @type {Array<UpdateRecreationAccessCodeDto>}

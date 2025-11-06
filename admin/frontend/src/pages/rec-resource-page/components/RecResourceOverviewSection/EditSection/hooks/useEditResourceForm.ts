@@ -4,6 +4,11 @@ import {
   UpdateRecreationResourceDto,
   useUpdateRecreationResource,
 } from '@/services';
+import { handleApiError } from '@/services/utils/errorHandler';
+import {
+  addErrorNotification,
+  addSuccessNotification,
+} from '@/store/notificationStore';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigateWithQueryParams } from '@shared/hooks';
 import { useMemo } from 'react';
@@ -90,26 +95,29 @@ export const useEditResourceForm = (
     // Prepare update data with proper type conversion
     const updateData: UpdateRecreationResourceDto = {
       maintenance_standard_code: data.maintenance_standard_code || undefined,
-      control_access_code: data.control_access_code || undefined,
+      control_access_code: data.control_access_code ?? null,
       status_code: data.status_code ? Number(data.status_code) : undefined,
       access_codes: Object.values(accessCodesMap),
     };
 
-    // Submit the update
-    updateMutation.mutate(
-      {
+    // Submit the update using mutateAsync for cleaner async handling
+    try {
+      await updateMutation.mutateAsync({
         recResourceId: recResource.rec_resource_id.toString(),
         updateRecreationResourceDto: updateData,
-      },
-      {
-        onSuccess: () => {
-          navigate({
-            to: ROUTE_PATHS.REC_RESOURCE_OVERVIEW,
-            params: { id: recResource.rec_resource_id.toString() },
-          });
-        },
-      },
-    );
+      });
+
+      addSuccessNotification('Recreation resource updated successfully.');
+      navigate({
+        to: ROUTE_PATHS.REC_RESOURCE_OVERVIEW,
+        params: { id: recResource.rec_resource_id.toString() },
+      });
+    } catch (error) {
+      const { message } = await handleApiError(error);
+      addErrorNotification(
+        `Failed to update recreation resource: ${message}. Please try again.`,
+      );
+    }
   };
 
   return {
