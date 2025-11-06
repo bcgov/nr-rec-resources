@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import NotFound from '@/components/NotFound';
 import { ROUTE_PATHS, ROUTE_TITLES } from '@/constants/routes';
+import { META_DESCRIPTIONS } from '@/constants/seo';
 import { BreadcrumbItem } from '@shared/components/breadcrumbs';
 
 export const Route = createFileRoute('/$')({
@@ -9,7 +10,7 @@ export const Route = createFileRoute('/$')({
     meta: [
       {
         name: 'description',
-        content: '404 - Page Not Found',
+        content: META_DESCRIPTIONS.NOT_FOUND,
       },
       { title: ROUTE_TITLES.NOT_FOUND },
     ],

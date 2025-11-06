@@ -3,6 +3,7 @@ import SearchPage from '@/components/search/SearchPage';
 import { BreadcrumbItem } from '@shared/components/breadcrumbs';
 import { ROUTE_TITLES } from '@/constants/routes';
 import { searchLoader } from '@/service/loaders/searchLoader';
+import { META_DESCRIPTIONS } from '@/constants/seo';
 
 export type SearchParams = {
   filter?: string;
@@ -42,12 +43,14 @@ export const Route = createFileRoute('/search/')({
       letter: search.letter as string | undefined,
     };
   },
-  head: () => ({
-    meta: [
-      { name: 'description', content: 'Search for recreation resources' },
-      { title: ROUTE_TITLES.SEARCH },
-    ],
-  }),
+  head: () => {
+    return {
+      meta: [
+        { name: 'description', content: META_DESCRIPTIONS.SEARCH },
+        { title: ROUTE_TITLES.SEARCH },
+      ],
+    };
+  },
   beforeLoad: () => ({
     breadcrumb: (): BreadcrumbItem[] => {
       const lastSearch = sessionStorage.getItem('lastSearch');
