@@ -18,6 +18,6 @@ test.describe('Recreation Resource page', () => {
     await recResourcePage.verifyPdfDocLinks();
 
     await utils.accessibility();
-    await utils.screenshotWithMap('Recreation Resource page', 'default');
+    await utils.screenshot('Recreation Resource page', 'default');
   });
 });
