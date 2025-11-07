@@ -4,15 +4,26 @@ import { Route as ParentRoute } from '@/routes/resource/$id';
 import { ROUTE_TITLES } from '@/constants/routes';
 import { BreadcrumbItem } from '@shared/components/breadcrumbs';
 import { recResourceLoader } from '@/service/loaders/recResourceLoader';
+import { getResourceMetaDescription } from '@/constants/seo';
 
 export const Route = createFileRoute('/resource/$id/')({
   component: RecResourceRoute,
   head: ({ loaderData }) => {
     const recResource = loaderData?.recResource;
+    const metaDescription = getResourceMetaDescription(
+      recResource?.description,
+      recResource?.name,
+    );
+    const pageTitle = ROUTE_TITLES.REC_RESOURCE(recResource?.name);
+
     return {
       meta: [
         {
-          title: ROUTE_TITLES.REC_RESOURCE(recResource?.name || ''),
+          name: 'description',
+          content: metaDescription,
+        },
+        {
+          title: pageTitle,
         },
       ],
     };

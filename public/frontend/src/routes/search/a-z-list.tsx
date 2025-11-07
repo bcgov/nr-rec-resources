@@ -3,6 +3,7 @@ import AlphabeticalListPage from '@/components/alphabetical-list/AlphabeticalLis
 import { BreadcrumbItem } from '@shared/components/breadcrumbs';
 import { ROUTE_TITLES } from '@/constants/routes';
 import { alphabeticalLoader } from '@/service/loaders/alphabeticalLoader';
+import { META_DESCRIPTIONS } from '@/constants/seo';
 
 export type SearchParams = {
   letter?: string;
@@ -18,7 +19,7 @@ export const Route = createFileRoute('/search/a-z-list')({
   }),
   head: () => ({
     meta: [
-      { name: 'description', content: 'A-Z list of recreation resources' },
+      { name: 'description', content: META_DESCRIPTIONS.ALPHABETICAL },
       { title: ROUTE_TITLES.ALPHABETICAL },
     ],
   }),

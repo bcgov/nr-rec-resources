@@ -22,13 +22,3 @@ export const ROUTE_TITLES = {
     return `Contact Us${titleSegment} | ${SITE_TITLE}`;
   },
 };
-
-export const META_DESCRIPTIONS = {
-  HOME: 'Discover and explore recreation sites and trails across British Columbia.',
-  SEARCH: 'Search for recreation resources',
-  ALPHABETICAL: 'A-Z list of recreation resources',
-  REC_RESOURCE:
-    'Detailed information about a specific recreation resource in British Columbia.',
-  NOT_FOUND: 'The page you are looking for does not exist.',
-  CONTACT: 'Get in touch with us for more information or assistance.',
-};
