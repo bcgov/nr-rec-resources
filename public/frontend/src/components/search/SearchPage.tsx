@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { RemoveScroll } from 'react-remove-scroll';
 import { useStore } from '@tanstack/react-store';
