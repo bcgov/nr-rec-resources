@@ -210,6 +210,8 @@ variable "dam_config" {
     dam_user = string
     dam_rst_pdf_collection_id = string
     dam_rst_image_collection_id = string
+    dam_rst_pdf_type_id = string
+    dam_rst_image_type_id = string
   })
   description = "DAM configuration for BC Image and Documents storage"
   sensitive = true
