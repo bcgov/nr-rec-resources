@@ -28,12 +28,11 @@ test.describe('Search page (Mobile)', () => {
 
   test('Search map view renders correctly', async ({ page }) => {
     const searchPage = new SearchPOM(page);
-    const utils = new UtilsPOM(page);
 
     await searchPage.route();
     await searchPage.showMapView();
     await searchPage.closeMapDisclaimer();
 
-    await utils.screenshotMobileWithMap('Search page map view', 'mobile');
+    // Need to add screenshot test once that is supported for map views
   });
 });
