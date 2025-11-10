@@ -40,7 +40,7 @@ export class SitemapService {
       xml += this.buildUrlEntry(`${baseUrl}/resource/${id}/contact`, lastmod);
     }
 
-    xml += '</urlset>';
+    xml += '</urlset>\n';
 
     return xml;
   }

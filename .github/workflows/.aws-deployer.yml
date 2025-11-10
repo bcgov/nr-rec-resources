@@ -112,6 +112,8 @@ jobs:
           dam_user: ${{ secrets.DAM_USER }}
           dam_rst_pdf_collection_id: ${{ secrets.DAM_RST_PDF_COLLECTION_ID }}
           dam_rst_image_collection_id: ${{ secrets.DAM_RST_IMAGE_COLLECTION_ID }}
+          dam_rst_pdf_type_id: ${{ secrets.DAM_RESOURCE_TYPE_PDF }}
+          dam_rst_image_type_id: ${{ secrets.DAM_RESOURCE_TYPE_IMAGE }}
         run: |
           terragrunt run-all ${{ inputs.command }} --terragrunt-non-interactive
 
@@ -138,6 +140,8 @@ jobs:
           dam_user: ${{ secrets.DAM_USER }}
           dam_rst_pdf_collection_id: ${{ secrets.DAM_RST_PDF_COLLECTION_ID }}
           dam_rst_image_collection_id: ${{ secrets.DAM_RST_IMAGE_COLLECTION_ID }}
+          dam_rst_pdf_type_id: ${{ secrets.DAM_RESOURCE_TYPE_PDF }}
+          dam_rst_image_type_id: ${{ secrets.DAM_RESOURCE_TYPE_IMAGE }}
         run: |
           terragrunt output -json > outputs.json
           cat outputs.json

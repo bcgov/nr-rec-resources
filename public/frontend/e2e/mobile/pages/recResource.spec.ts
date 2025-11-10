@@ -22,6 +22,6 @@ test.describe('Recreation Resource page (Mobile)', () => {
     await recResourcePage.verifyPdfDocLinks();
 
     await utils.accessibility();
-    await utils.screenshotMobileWithMap('Recreation Resource page', 'mobile');
+    await utils.screenshotMobile('Recreation Resource page', 'mobile');
   });
 });
