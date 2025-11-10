@@ -25,6 +25,7 @@
     "**/*.tsx",
     "**/*.mjs",
     "**/*.mts",
-    "public/frontend/.storybook/**/*"
+    "public/frontend/.storybook/**/*",
+    "admin/frontend/.storybook/**/*"
   ]
 }
