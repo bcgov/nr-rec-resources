@@ -25,12 +25,12 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/express": "^5.0.3",
     "@vitejs/plugin-react": "^5.0.0",
-    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/coverage-v8": "^4.0.0",
     "happo-playwright": "^2.3.0",
     "jsdom": "^27.0.0",
     "sass-embedded": "^1.89.2",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.2.4"
+    "vitest": "^4.0.0"
   },
   "peerDependencies": {
     "@aws-sdk/client-cloudwatch": "^3.879.0",
