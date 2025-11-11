@@ -10,5 +10,13 @@ set -e
 #   echo "APP_ENV is not 'dev'. Skipping flyway clean."
 # fi
 
+# Make APP_ENV available as a Flyway placeholder for conditional SQL in migrations
+# This allows migrations to check the environment and execute conditionally
+# while still being recorded in flyway_schema_history (avoiding version gaps)
+if [ -n "$APP_ENV" ]; then
+  export FLYWAY_PLACEHOLDERS_APP_ENV="$APP_ENV"
+  echo "Setting Flyway placeholder APP_ENV=$APP_ENV for use in migrations"
+fi
+
 # Execute the passed arguments (default to Flyway commands)
 exec flyway "$@"
