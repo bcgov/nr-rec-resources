@@ -40,6 +40,8 @@ const DownloadKmlResultsModal = ({
     false,
   );
 
+  const REC_LIMIT = 400;
+
   useEffect(() => {
     if (data) {
       const allKmlProps: KmlProps[] = [];
@@ -99,11 +101,18 @@ const DownloadKmlResultsModal = ({
           A KML file shows maps and routes in apps like Google Earth, helping
           you visualize trails, campsites, terrain features in 3D.
         </div>
+        {searchResultsNumber > REC_LIMIT && (
+          <div className="description alert-msg" data-testid="msg-alert">
+            There's a limit of {REC_LIMIT} resources for downloading KML files,
+            please refine your search filters.
+          </div>
+        )}
       </Modal.Body>
       <Modal.Footer className="d-block">
         <button
           aria-label="Download"
           onClick={() => handleDownload()}
+          disabled={searchResultsNumber > REC_LIMIT}
           className="btn btn-primary w-100 mx-0 mb-2 download-button"
         >
           Download

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { RemoveScroll } from 'react-remove-scroll';
 import { useStore } from '@tanstack/react-store';
-import { Col, ProgressBar, Row, Stack } from 'react-bootstrap';
+import { Button, Col, ProgressBar, Row, Stack } from 'react-bootstrap';
 import RecResourceCard from '@/components/rec-resource/card/RecResourceCard';
 import {
   NoResults,
@@ -29,7 +29,6 @@ import {
 import { trackEvent } from '@shared/utils';
 import { LoadingButton } from '@/components/LoadingButton';
 import DownloadKmlResultsModal from './DownloadKmlResultsModal';
-import { IconButton } from '@shared/components/icon-button';
 import DownloadIcon from '@shared/assets/icons/download.svg';
 
 const SearchPage = () => {
@@ -206,23 +205,22 @@ const SearchPage = () => {
                         </span>
                       )}
                     </div>
-                    <IconButton
-                      data-testid="download-button"
-                      variant="secondary"
-                      onClick={handleDownloadClick}
-                      aria-label={`Export map file for search results`}
-                      leftIcon={
+                    <div>
+                      <Button
+                        className="search-chip btn h-2 text-nowrap"
+                        variant="secondary"
+                        onClick={handleDownloadClick}
+                      >
                         <img
                           src={DownloadIcon}
                           alt={DOWNLOAD_ICON_CONFIG.ALT}
                           width={DOWNLOAD_ICON_CONFIG.WIDTH}
                           height={DOWNLOAD_ICON_CONFIG.HEIGHT}
                         />
-                      }
-                    >
-                      Download KML
-                    </IconButton>
-                    <SearchViewControls variant="map" />
+                        &nbsp;Download KML
+                      </Button>{' '}
+                      <SearchViewControls variant="map" />
+                    </div>
                   </div>
                   <FilterChips />
                   {totalCount === 0 && <NoResults />}
