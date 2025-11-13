@@ -51,7 +51,7 @@ const DownloadKmlResultsModal = ({
           recResource,
           StyleContext.DOWNLOAD,
         );
-        features.map((feature) => {
+        features.forEach((feature) => {
           feature.setStyle(layerStyle);
         });
         const props: KmlProps = {
