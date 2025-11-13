@@ -210,6 +210,7 @@ const SearchPage = () => {
                         className="search-chip btn h-2 text-nowrap"
                         variant="secondary"
                         onClick={handleDownloadClick}
+                        name="DownloadButton"
                       >
                         <img
                           src={DownloadIcon}
