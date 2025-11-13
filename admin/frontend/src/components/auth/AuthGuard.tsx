@@ -1,5 +1,7 @@
-import { ReactNode } from 'react';
 import { useAuthContext } from '@/contexts/AuthContext';
+import { LoginPage } from '@/pages/LoginPage';
+import { UnauthorizedPage } from '@/pages/UnauthorizedPage';
+import { ReactNode } from 'react';
 import { Spinner } from 'react-bootstrap';
 
 interface AuthGuardProps {
@@ -7,7 +9,7 @@ interface AuthGuardProps {
 }
 
 export const AuthGuard = ({ children }: AuthGuardProps) => {
-  const { isLoading, error } = useAuthContext();
+  const { isLoading, isAuthenticated, isAuthorized, error } = useAuthContext();
 
   if (isLoading) {
     return (
@@ -24,6 +26,14 @@ export const AuthGuard = ({ children }: AuthGuardProps) => {
         <p>{error.getMessage()}</p>
       </div>
     );
+  }
+
+  if (!isAuthenticated) {
+    return <LoginPage />;
+  }
+
+  if (!isAuthorized) {
+    return <UnauthorizedPage />;
   }
 
   return <>{children}</>;

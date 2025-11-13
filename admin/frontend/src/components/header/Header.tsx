@@ -85,7 +85,7 @@ export const Header = () => {
     <div className={`header main`}>
       <BCGovHeader
         title={`Admin Tool`}
-        titleElement="h1"
+        titleElement="h3"
         logoImage={
           <>
             <Image
@@ -110,25 +110,28 @@ export const Header = () => {
             className={`d-flex justify-content-end align-items-center`}
           >
             {user && (
-              <div className="d-none d-lg-block fw-bold">{fullName}</div>
+              <>
+                <div className="d-none d-lg-block fw-bold">{fullName}</div>
+
+                <Dropdown>
+                  <DropdownToggle
+                    as={renderMenuToggle(fullName)} // use the renderMenuToggle function
+                    id="dropdown-basic"
+                  />
+                  <DropdownMenu>
+                    {user && (
+                      // Only show in mobile view (md and lower)
+                      <DropdownItem disabled className="d-md-none">
+                        Signed in as {user?.idir_username}
+                      </DropdownItem>
+                    )}
+                    <DropdownItem onClick={() => authService.logout()}>
+                      Logout
+                    </DropdownItem>
+                  </DropdownMenu>
+                </Dropdown>
+              </>
             )}
-            <Dropdown>
-              <DropdownToggle
-                as={renderMenuToggle(fullName)} // use the renderMenuToggle function
-                id="dropdown-basic"
-              />
-              <DropdownMenu>
-                {user && (
-                  // Only show in mobile view (md and lower)
-                  <DropdownItem disabled className="d-md-none">
-                    Signed in as {user?.idir_username}
-                  </DropdownItem>
-                )}
-                <DropdownItem onClick={() => authService.logout()}>
-                  Logout
-                </DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
           </Stack>
         </div>
       </BCGovHeader>

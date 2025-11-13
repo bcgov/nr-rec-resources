@@ -41,7 +41,6 @@ export class AuthService {
 
     // Set up event handlers before initialization
     this.keycloak.onAuthSuccess = () => {
-      console.log('Auth success event fired');
       if (this.keycloak.authenticated) {
         window.dispatchEvent(new CustomEvent(AuthServiceEvent.AUTH_SUCCESS));
       }
@@ -49,19 +48,17 @@ export class AuthService {
 
     // Add custom event dispatch for logout and error events
     this.keycloak.onAuthLogout = () => {
-      console.log('Auth logout event fired');
       window.dispatchEvent(new CustomEvent(AuthServiceEvent.AUTH_LOGOUT));
     };
 
     this.keycloak.onAuthError = (err) => {
-      console.error('Auth error event fired', err);
       window.dispatchEvent(
         new CustomEvent(AuthServiceEvent.AUTH_ERROR, { detail: err }),
       );
     };
 
     return this.keycloak.init({
-      onLoad: 'login-required',
+      onLoad: 'check-sso',
       redirectUri: window.location.href,
       scope: 'openid profile email',
       pkceMethod: 'S256',
@@ -70,14 +67,19 @@ export class AuthService {
     });
   }
 
-  async login(): Promise<void> {
+  async login(redirectPath?: string): Promise<void> {
+    const redirectUri = redirectPath
+      ? `${window.location.origin}${redirectPath}`
+      : window.location.href;
     await this.keycloak.login({
-      redirectUri: window.location.href,
+      redirectUri,
     });
   }
 
   async logout(): Promise<void> {
-    await this.keycloak.logout();
+    await this.keycloak.logout({
+      redirectUri: window.location.origin,
+    });
   }
 
   async getToken(): Promise<string | undefined> {
@@ -93,6 +95,22 @@ export class AuthService {
   getUserRoles(): string[] {
     const tokenParsed = this.keycloak.tokenParsed as UserInfo;
     return tokenParsed?.client_roles || [];
+  }
+
+  /**
+   * Check if the user has at least one of the required roles
+   */
+  hasRequiredRole(requiredRoles: string[]): boolean {
+    const userRoles = this.getUserRoles();
+    return requiredRoles.some((role) => userRoles.includes(role));
+  }
+
+  /**
+   * Check if the user is authorized to access the application
+   * Requires at least 'rst-viewer' or 'rst-admin' role
+   */
+  isAuthorized(): boolean {
+    return this.hasRequiredRole(['rst-viewer', 'rst-admin']);
   }
 
   /**

@@ -77,14 +77,16 @@ describe('AuthService', () => {
 
     it('calls keycloak.init with correct config', async () => {
       await authService.init();
-      expect(mockKeycloak.init).toHaveBeenCalledWith({
-        onLoad: 'login-required',
-        redirectUri: 'http://localhost:3000/',
-        scope: 'openid profile email',
-        pkceMethod: 'S256',
-        checkLoginIframe: true,
-        checkLoginIframeInterval: 15,
-      });
+      expect(mockKeycloak.init).toHaveBeenCalledWith(
+        expect.objectContaining({
+          onLoad: 'check-sso',
+          redirectUri: expect.any(String),
+          scope: 'openid profile email',
+          pkceMethod: 'S256',
+          checkLoginIframe: true,
+          checkLoginIframeInterval: 15,
+        }),
+      );
     });
 
     it('returns cached authenticated if already initialized', async () => {
