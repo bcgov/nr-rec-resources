@@ -73,12 +73,14 @@ export class RecreationResourceService {
     const geometries = await this.getMultipleGeometry(ids);
 
     return result.map((rec) => {
-      return formatRecreationResourceDetailResults(rec, {
-        site_point_geometry:
-          geometries[rec.rec_resource_id].site_point_geometry,
-        spatial_feature_geometry:
-          geometries[rec.rec_resource_id].spatial_feature_geometry,
-      });
+      if (geometries[rec.rec_resource_id]) {
+        return formatRecreationResourceDetailResults(rec, {
+          site_point_geometry:
+            geometries[rec.rec_resource_id].site_point_geometry,
+          spatial_feature_geometry:
+            geometries[rec.rec_resource_id].spatial_feature_geometry,
+        });
+      }
     });
   }
 

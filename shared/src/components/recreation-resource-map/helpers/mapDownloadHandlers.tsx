@@ -8,7 +8,6 @@ import { RecreationResourceMapData } from '@shared/components/recreation-resourc
 import { RecResourceHTMLExportDescription } from '@shared/components/recreation-resource-map/RecResourceHTMLExportDescription';
 import { renderToString } from 'react-dom/server';
 import { triggerFileDownload } from '@shared/utils';
-import { getMapFeaturesFromRecResource } from './getMapFeaturesFromRecResource';
 import { Geometry } from 'ol/geom';
 
 interface KmlProps {

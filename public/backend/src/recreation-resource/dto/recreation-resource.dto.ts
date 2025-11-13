@@ -375,3 +375,11 @@ export class SiteOperatorDto implements ClientPublicViewDto {
   })
   acronym?: string;
 }
+
+export class RecResourcesIdsDto {
+  @ApiProperty({
+    description: 'Array of Rec Resources Ids',
+    example: '["REC230522","REC230523"]',
+  })
+  ids: string[];
+}
