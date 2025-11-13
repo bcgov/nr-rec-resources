@@ -276,6 +276,21 @@ describe('RecResourcePage', () => {
         matcher[shouldShow ? 'toBeInTheDocument' : 'toBeNull']();
       });
     });
+
+    it('removes duplicate access types before passing to MapsAndLocation', async () => {
+      const sectionModule = await import('@/components/rec-resource/section');
+      vi.clearAllMocks();
+
+      await renderComponent({
+        ...mockResource,
+        recreation_access: ['Road', 'Boat-in', 'Road', 'Boat-in', 'Trail'],
+      });
+
+      expect(sectionModule.MapsAndLocation).toHaveBeenCalled();
+      const callArgs = vi.mocked(sectionModule.MapsAndLocation).mock
+        .calls[0][0];
+      expect(callArgs.accessTypes).toEqual(['Road', 'Boat-in', 'Trail']);
+    });
   });
 
   describe('Camping section', () => {
