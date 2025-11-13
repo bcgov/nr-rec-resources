@@ -7,6 +7,7 @@ export * from './HealthControllerCheck200Response';
 export * from './HealthControllerCheck200ResponseInfoValue';
 export * from './HealthControllerCheck503Response';
 export * from './PaginatedRecreationResourceDto';
+export * from './RecResourcesIdsDto';
 export * from './RecreationActivityDto';
 export * from './RecreationFeeDto';
 export * from './RecreationResourceDetailDto';

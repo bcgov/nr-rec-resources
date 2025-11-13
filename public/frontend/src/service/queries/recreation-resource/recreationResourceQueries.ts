@@ -9,6 +9,7 @@ import {
   RecreationResourceApi,
   Configuration,
   RecreationResourceDetailDto,
+  RecResourcesIdsDto,
 } from '@/service/recreation-resource';
 import { useRecreationResourceApi } from '@/service/hooks/useRecreationResourceApi';
 import { getBasePath } from '@/service/hooks/helpers';
@@ -296,21 +297,21 @@ export const useAlphabeticalResources = (letter: string, type?: string) => {
 };
 
 /**
- * Fetch recreation resources alphabetically by letter.
- *
- * @param {string} letter - The letter to filter by (A-Z or # for numerical)
- * @param {string} [type] - Optional recreation resource type code to filter by
+ * Get all rec resources info with geometry using a string array.
+ * This method is used to generate multiple KML files.
  */
 export const useRecreationResourcesWithGeometry = (
-  ids: string[],
+  recResourcesIdsDto: RecResourcesIdsDto,
   isEnabled: boolean,
 ) => {
   const api = useRecreationResourceApi();
 
   return useQuery<RecreationResourceDetailDto[]>({
-    queryKey: ['recreationResourcesGeometry', ids],
+    queryKey: ['recreationResourcesGeometry', recResourcesIdsDto],
     queryFn: async (): Promise<RecreationResourceDetailDto[]> => {
-      const response = await api.getResourcesWithGeometry({ ids });
+      const response = await api.getResourcesWithGeometry({
+        recResourcesIdsDto,
+      });
       return response.map((rec: RecreationResourceDetailDto) => {
         return transformRecreationResourceDetail(rec);
       });

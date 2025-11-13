@@ -1,12 +1,15 @@
 import {
+  Body,
   Controller,
   Get,
   HttpException,
   Param,
   ParseArrayPipe,
+  Post,
   Query,
 } from '@nestjs/common';
 import {
+  ApiBody,
   ApiOperation,
   ApiParam,
   ApiQuery,
@@ -20,6 +23,7 @@ import { ParseImageSizesPipe } from './pipes/parse-image-sizes.pipe';
 import { RecreationSuggestionDto } from 'src/recreation-resource/dto/recreation-resource-suggestion.dto';
 import {
   RecreationResourceDetailDto,
+  RecResourcesIdsDto,
   SiteOperatorDto,
 } from './dto/recreation-resource.dto';
 import { AlphabeticalRecreationResourceDto } from './dto/alphabetical-recreation-resource.dto';
@@ -214,17 +218,17 @@ export class RecreationResourceController {
     );
   }
 
-  @Get('geometry')
+  @Post('geometry')
   @ApiOperation({
-    summary: 'Get a list recreation resources with geometry',
+    summary:
+      'Get a list recreation resources with geometry. This uses the POST method to overcome the querystring limit.',
     operationId: 'getResourcesWithGeometry',
     description: `
       Returns a non paginated list of recreation resources and related data with geometry appended.`,
   })
-  @ApiQuery({
-    name: 'ids',
+  @ApiBody({
     required: true,
-    type: [String],
+    type: RecResourcesIdsDto,
     description: 'Array of rec resource ids',
   })
   @ApiResponse({
@@ -233,11 +237,10 @@ export class RecreationResourceController {
     type: [RecreationResourceDetailDto],
   })
   async getMultipleGeometry(
-    @Query('ids', new ParseArrayPipe({ items: String, separator: ',' }))
-    ids: string[],
+    @Body() dto: RecResourcesIdsDto,
   ): Promise<RecreationResourceDetailDto[]> {
-    return await this.recreationResourceService.findMany(ids, [
-      RecreationResourceImageSize.HIGH_RES_PRINT,
+    return await this.recreationResourceService.findMany(dto.ids, [
+      RecreationResourceImageSize.ORIGINAL,
       RecreationResourceImageSize.PREVIEW,
     ]);
   }
