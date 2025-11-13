@@ -97,6 +97,20 @@ describe('DownloadKmlResultsModal', () => {
     expect(screen.queryByText('Export map file')).not.toBeInTheDocument();
   });
 
+  it('download button is disabled if search results number is over 400', () => {
+    render(
+      <DownloadKmlResultsModal
+        isOpen={true}
+        setIsOpen={setIsOpenMock}
+        searchResultsNumber={401}
+        ids={[]}
+      />,
+    );
+    const downloadBtn = screen.getByRole('button', { name: /download/i });
+    expect(downloadBtn).toBeDisabled();
+    expect(screen.queryByTestId('msg-alert')).toBeInTheDocument();
+  });
+
   it('calls setIsOpen(false) when close button clicked', () => {
     render(
       <DownloadKmlResultsModal
