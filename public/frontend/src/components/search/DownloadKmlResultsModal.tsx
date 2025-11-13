@@ -33,7 +33,12 @@ const DownloadKmlResultsModal = ({
   searchResultsNumber,
   ids,
 }: DownloadKmlResultsModalProps) => {
-  const { data, refetch } = useRecreationResourcesWithGeometry(ids, false);
+  const { data, refetch } = useRecreationResourcesWithGeometry(
+    {
+      ids,
+    },
+    false,
+  );
 
   useEffect(() => {
     if (data) {

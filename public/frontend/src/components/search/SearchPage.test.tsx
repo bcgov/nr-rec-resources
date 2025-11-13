@@ -22,6 +22,11 @@ vi.mock('@/service/queries/recreation-resource');
 vi.mock('@/components/rec-resource/card/RecResourceCard', () => ({
   default: vi.fn(() => <div data-testid="mock-resource-card" />),
 }));
+vi.mock('./DownloadKmlResultsModal', () => ({
+  default: vi.fn(({ isOpen }) => (
+    <div>Download Modal {isOpen ? 'Open' : 'Closed'}</div>
+  )),
+}));
 vi.mock('@/components/search-map/SearchMap', () => ({
   default: vi.fn(() => <div data-testid="mock-search-map" />),
 }));
