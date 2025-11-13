@@ -8,11 +8,23 @@ vi.mock('@/contexts/AuthContext', () => ({
   useAuthContext: vi.fn(),
 }));
 
+const baseMock = {
+  isLoading: false,
+  isAuthenticated: false,
+  isAuthorized: false,
+  error: null,
+  user: undefined,
+  authService: {
+    getUserFullName: () => 'Test User',
+    logout: vi.fn(),
+  },
+};
+
 describe('AuthGuard', () => {
   it('renders spinner when loading', () => {
     (useAuthContext as any).mockReturnValue({
+      ...baseMock,
       isLoading: true,
-      error: null,
     });
     render(
       <AuthGuard>
@@ -24,7 +36,7 @@ describe('AuthGuard', () => {
 
   it('renders error message when error exists', () => {
     (useAuthContext as any).mockReturnValue({
-      isLoading: false,
+      ...baseMock,
       error: { getMessage: () => 'Auth failed' },
     });
     render(
@@ -38,8 +50,9 @@ describe('AuthGuard', () => {
 
   it('renders children when not loading and no error', () => {
     (useAuthContext as any).mockReturnValue({
-      isLoading: false,
-      error: null,
+      ...baseMock,
+      isAuthenticated: true,
+      isAuthorized: true,
     });
     render(
       <AuthGuard>

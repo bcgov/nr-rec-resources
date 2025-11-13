@@ -37,6 +37,7 @@
     "**/*.ts",
     "**/*.tsx",
     "**/*.mjs",
-    "**/*.mts"
+    "**/*.mts",
+    "frontend/.storybook/**/*"
   ]
 }
