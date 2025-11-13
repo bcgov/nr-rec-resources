@@ -1,0 +1,71 @@
+// Right Panel - Login Section
+.login-panel {
+  // Responsive width and background for desktop
+  @media (min-width: 992px) {
+    flex: 0 0 40% !important;
+    background-image: url('/images/landing-page/admin-bg-dt.jpg');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+  }
+
+  // Mobile: no background, flexible
+  @media (max-width: 991px) {
+    flex: 1 !important;
+    min-height: auto !important;
+    background-image: none;
+  }
+
+  &__card {
+    z-index: 1;
+    background: rgba(0, 51, 102, 0.8);
+    backdrop-filter: blur(10px);
+    border-left: 9.223px solid #fcba19;
+    border-radius: 0 var(--layout-margin-small, 8px)
+      var(--layout-margin-small, 8px) 0;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    padding: 3rem 2.5rem;
+    width: 80%;
+    min-height: 300px;
+
+    @media (max-width: 991px) {
+      padding: 2rem 1.5rem;
+      width: 100% !important;
+      background: rgba(0, 51, 102, 1);
+      min-height: unset;
+      box-shadow: none;
+      margin-bottom: 2rem;
+    }
+  }
+
+  // Title responsive sizing
+  &__title {
+    @media (max-width: 991px) {
+      font-size: 1.75rem !important;
+    }
+  }
+
+  // Button custom styling (Bootstrap button base + custom enhancements)
+  &__button {
+    padding: 12px 56px;
+    gap: 8px;
+    border-radius: 4px;
+    background: #ffffff;
+    color: #003366;
+    border: none;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: #f0f0f0;
+      color: #002147;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}

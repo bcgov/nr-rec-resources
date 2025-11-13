@@ -1,0 +1,39 @@
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f8f9fa;
+}
+
+// Top Header Section - Full Width
+.auth-page {
+  width: 100%;
+
+  .bcds-header {
+    padding: 0 5vw;
+    width: 100%;
+
+    &--container {
+      max-width: unset !important;
+    }
+  }
+
+  .auth-layout {
+    display: flex;
+    width: 100%;
+    flex: 1;
+    gap: 0;
+
+    & > div:first-child {
+      padding: 10rem;
+
+      @media (max-width: 991px) {
+        padding: 4rem 2rem;
+      }
+    }
+
+    @media (max-width: 991px) {
+      flex-direction: column;
+    }
+  }
+}

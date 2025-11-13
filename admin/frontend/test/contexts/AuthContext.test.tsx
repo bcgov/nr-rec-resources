@@ -6,12 +6,13 @@ import { AuthServiceEvent } from '@/services/auth/AuthService.constants';
 
 // Properly mock AuthService
 const authServiceMock = {
-  init: vi.fn().mockResolvedValue(undefined),
+  init: vi.fn().mockResolvedValue(true),
   getUser: vi.fn().mockResolvedValue({ name: 'Test User' }),
+  isAuthorized: vi.fn().mockReturnValue(true),
   keycloakInstance: {} as any,
 };
 
-vi.mock('@/services/auth/AuthService', () => ({
+vi.mock('@/services/auth', () => ({
   AuthService: {
     getInstance: () => authServiceMock,
   },
@@ -31,10 +32,11 @@ function TestComponent() {
 
 describe('AuthContext', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
     // Reset mock implementations for each test
-    authServiceMock.init.mockResolvedValue(undefined);
+    authServiceMock.init.mockResolvedValue(true);
     authServiceMock.getUser.mockResolvedValue({ name: 'Test User' });
+    authServiceMock.isAuthorized.mockReturnValue(true);
     authServiceMock.keycloakInstance = {};
   });
 
@@ -45,9 +47,9 @@ describe('AuthContext', () => {
       </AuthProvider>,
     );
 
-    await act(async () => {
-      window.dispatchEvent(new CustomEvent(AuthServiceEvent.AUTH_SUCCESS));
-      await Promise.resolve();
+    // Wait for initialization to complete and user to be set
+    await waitFor(() => {
+      expect(screen.getByTestId('is-loading')).toHaveTextContent('no');
     });
 
     expect(screen.getByTestId('user')).toHaveTextContent('Test User');
@@ -63,6 +65,11 @@ describe('AuthContext', () => {
       </AuthProvider>,
     );
 
+    // Wait for initialization to finish first
+    await waitFor(() => {
+      expect(screen.getByTestId('is-loading')).toHaveTextContent('no');
+    });
+
     await act(async () => {
       window.dispatchEvent(new CustomEvent(AuthServiceEvent.AUTH_LOGOUT));
       await Promise.resolve();
@@ -73,15 +80,22 @@ describe('AuthContext', () => {
   });
 
   it('handles auth error event', async () => {
-    vi.spyOn(AuthenticationError, 'parse').mockReturnValueOnce({
-      message: 'Auth error',
-    } as any);
+    const parseSpy = vi
+      .spyOn(AuthenticationError, 'parse')
+      .mockReturnValueOnce({
+        message: 'Auth error',
+      } as any);
 
     render(
       <AuthProvider>
         <TestComponent />
       </AuthProvider>,
     );
+
+    // Ensure initialization finished so handler will run
+    await waitFor(() => {
+      expect(screen.getByTestId('is-loading')).toHaveTextContent('no');
+    });
 
     await act(async () => {
       window.dispatchEvent(
@@ -92,13 +106,17 @@ describe('AuthContext', () => {
 
     expect(screen.getByTestId('error')).toHaveTextContent('Auth error');
     expect(screen.getByTestId('is-loading')).toHaveTextContent('no');
+
+    parseSpy.mockRestore();
   });
 
   it('handles init throwing error', async () => {
     authServiceMock.init.mockRejectedValueOnce('fail');
-    vi.spyOn(AuthenticationError, 'parse').mockReturnValueOnce({
-      message: 'fail',
-    } as any);
+    const parseSpy = vi
+      .spyOn(AuthenticationError, 'parse')
+      .mockReturnValueOnce({
+        message: 'fail',
+      } as any);
 
     render(
       <AuthProvider>
@@ -109,6 +127,8 @@ describe('AuthContext', () => {
     await waitFor(() => {
       expect(screen.getByTestId('error')).toHaveTextContent('fail');
     });
+
+    parseSpy.mockRestore();
   });
 
   it('throws if useAuthContext is used outside provider', () => {
