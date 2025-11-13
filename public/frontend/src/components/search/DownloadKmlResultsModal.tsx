@@ -102,7 +102,7 @@ const DownloadKmlResultsModal = ({
       </Modal.Body>
       <Modal.Footer className="d-block">
         <button
-          aria-label="Show results"
+          aria-label="Download"
           onClick={() => handleDownload()}
           className="btn btn-primary w-100 mx-0 mb-2 download-button"
         >
