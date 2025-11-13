@@ -1,5 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
+import { Feature } from 'ol';
+import { Style } from 'ol/style';
 import DownloadKmlResultsModal from './DownloadKmlResultsModal';
 import * as recreationHooks from '@/service/queries/recreation-resource';
 import * as recreationMapUtils from '@shared/components/recreation-resource-map';
@@ -8,42 +10,31 @@ import * as recreationMapUtils from '@shared/components/recreation-resource-map'
 
 // Mock react-bootstrap Modal and its subcomponents
 vi.mock('react-bootstrap', () => {
-  const React = require('react');
   const Modal = ({ show, children, ...props }: any) =>
-    show ? React.createElement('div', props, children) : null;
+    show ? <div {...props}>{children}</div> : null;
 
-  // Required subcomponents (otherwise undefined)
-  Modal.Body = ({ children }: any) => React.createElement('div', {}, children);
-  Modal.Footer = ({ children }: any) =>
-    React.createElement('div', {}, children);
+  Modal.Body = ({ children }: any) => <div>{children}</div>;
+  Modal.Footer = ({ children }: any) => <div>{children}</div>;
 
   return { Modal };
 });
 
-// Mock FontAwesome components
-vi.mock('@fortawesome/react-fontawesome', () => {
-  const React = require('react');
-  return {
-    FontAwesomeIcon: ({ icon, ...props }: any) =>
-      React.createElement('span', props, icon),
-  };
-});
+// FontAwesome mocks
+vi.mock('@fortawesome/react-fontawesome', () => ({
+  FontAwesomeIcon: ({ icon, ...props }: any) => <span {...props}>{icon}</span>,
+}));
 
 vi.mock('@fortawesome/free-solid-svg-icons', () => ({
   faXmark: 'faXmark',
 }));
 
-// Mock recreation resource map utils
-vi.mock('@shared/components/recreation-resource-map', () => {
-  const { Feature } = require('ol');
-  const { Style } = require('ol/style');
-  return {
-    getMapFeaturesFromRecResource: vi.fn(() => [new Feature()]),
-    getLayerStyleForRecResource: vi.fn(() => new Style()),
-    downloadKMLMultiple: vi.fn(),
-    StyleContext: { DOWNLOAD: 'download' },
-  };
-});
+// OL / map utilities mock
+vi.mock('@shared/components/recreation-resource-map', () => ({
+  getMapFeaturesFromRecResource: vi.fn(() => [new Feature()]),
+  getLayerStyleForRecResource: vi.fn(() => new Style()), // ✅ valid style
+  downloadKMLMultiple: vi.fn(),
+  StyleContext: { DOWNLOAD: 'download' },
+}));
 
 // Mock React Query hook
 vi.mock('@/service/queries/recreation-resource', () => ({
