@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { RemoveScroll } from 'react-remove-scroll';
 import { useStore } from '@tanstack/react-store';
-import { Button, Col, ProgressBar, Row, Stack } from 'react-bootstrap';
+import { Col, ProgressBar, Row, Stack } from 'react-bootstrap';
 import RecResourceCard from '@/components/rec-resource/card/RecResourceCard';
 import {
   NoResults,
@@ -29,7 +29,6 @@ import {
 import { trackEvent } from '@shared/utils';
 import { LoadingButton } from '@/components/LoadingButton';
 import DownloadKmlResultsModal from './DownloadKmlResultsModal';
-import DownloadIcon from '@shared/assets/icons/download.svg';
 
 const SearchPage = () => {
   const navigate = useNavigate({ from: '/search' });
@@ -138,12 +137,6 @@ const SearchPage = () => {
     setIsDownloadModalOpen(true);
   }, []);
 
-  const DOWNLOAD_ICON_CONFIG = {
-    WIDTH: 16,
-    HEIGHT: 16,
-    ALT: 'Download search results KML',
-  } as const;
-
   const isFetchingFirstPage =
     isFetching && !isFetchingPreviousPage && !isFetchingNextPage;
   const isLocationSearchResults = lat && lon && community;
@@ -206,21 +199,10 @@ const SearchPage = () => {
                       )}
                     </div>
                     <div>
-                      <Button
-                        className="search-chip btn h-2 text-nowrap"
-                        variant="secondary"
-                        onClick={handleDownloadClick}
-                        name="DownloadButton"
-                      >
-                        <img
-                          src={DownloadIcon}
-                          alt={DOWNLOAD_ICON_CONFIG.ALT}
-                          width={DOWNLOAD_ICON_CONFIG.WIDTH}
-                          height={DOWNLOAD_ICON_CONFIG.HEIGHT}
-                        />
-                        &nbsp;Download KML
-                      </Button>{' '}
-                      <SearchViewControls variant="map" />
+                      <SearchViewControls
+                        variant="map"
+                        downloadKMLFunction={handleDownloadClick}
+                      />
                     </div>
                   </div>
                   <FilterChips />
