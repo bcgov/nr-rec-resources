@@ -4,13 +4,24 @@ import '@/components/search/filters/Filters.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faList, faMap } from '@fortawesome/free-solid-svg-icons';
 import { trackClickEvent } from '@shared/utils';
+import DownloadIcon from '@shared/assets/icons/download.svg';
 
 interface SearchViewControlsProps {
   variant: 'list' | 'map';
+  downloadKMLFunction: () => void;
 }
 
-const SearchViewControls = ({ variant }: SearchViewControlsProps) => {
+const SearchViewControls = ({
+  variant,
+  downloadKMLFunction,
+}: SearchViewControlsProps) => {
   const navigate = useNavigate({ from: '/search' });
+
+  const DOWNLOAD_ICON_CONFIG = {
+    WIDTH: 16,
+    HEIGHT: 16,
+    ALT: 'Download search results KML',
+  } as const;
 
   const handleViewChange = (newView: string) => {
     navigate({
@@ -26,17 +37,33 @@ const SearchViewControls = ({ variant }: SearchViewControlsProps) => {
   };
 
   return (
-    <Button
-      className="search-chip btn h-2 text-nowrap"
-      variant="secondary"
-      onClick={() => handleViewChange(variant)}
-    >
-      <FontAwesomeIcon
-        icon={variant === 'list' ? faList : faMap}
-        className="me-2"
-      />
-      Show {variant}
-    </Button>
+    <>
+      <Button
+        className="search-chip btn h-2 text-nowrap"
+        variant="secondary"
+        onClick={downloadKMLFunction}
+        name="DownloadButton"
+      >
+        <img
+          src={DownloadIcon}
+          alt={DOWNLOAD_ICON_CONFIG.ALT}
+          width={DOWNLOAD_ICON_CONFIG.WIDTH}
+          height={DOWNLOAD_ICON_CONFIG.HEIGHT}
+        />
+        &nbsp;Download KML
+      </Button>{' '}
+      <Button
+        className="search-chip btn h-2 text-nowrap"
+        variant="secondary"
+        onClick={() => handleViewChange(variant)}
+      >
+        <FontAwesomeIcon
+          icon={variant === 'list' ? faList : faMap}
+          className="me-2"
+        />
+        Show {variant}
+      </Button>
+    </>
   );
 };
 
