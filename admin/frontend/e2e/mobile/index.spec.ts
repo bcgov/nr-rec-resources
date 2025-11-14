@@ -8,8 +8,8 @@ test.use({
   ...devices['iPhone 14'],
 });
 
-test.describe('RST admin tool landing page (Mobile)', () => {
-  test('RST admin tool landing page renders correctly', async ({ page }) => {
+test.describe('RecSpace landing page (Mobile)', () => {
+  test('RecSpace landing page renders correctly', async ({ page }) => {
     const landing = new LandingPOM(page);
     const utils = new UtilsPOM(page);
 
@@ -17,6 +17,6 @@ test.describe('RST admin tool landing page (Mobile)', () => {
 
     await utils.accessibility();
 
-    await utils.screenshotMobile('RST Admin tool landing page', 'mobile');
+    await utils.screenshotMobile('RecSpace landing page', 'mobile');
   });
 });

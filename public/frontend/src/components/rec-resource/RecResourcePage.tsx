@@ -101,6 +101,11 @@ const RecResourcePage = () => {
     ?.toLowerCase()
     .replace(/(^\w|\s\w)/g, (m) => m.toUpperCase());
 
+  // Deduplicate access types
+  const uniqueRecreationAccess = recreation_access
+    ? ([...new Set(recreation_access)] as string[])
+    : undefined;
+
   const isThingsToDo = recreation_activity && recreation_activity.length > 0;
   const isAccess = recreation_access && recreation_access.length > 0;
   const isCampingAvailable =
@@ -275,7 +280,7 @@ const RecResourcePage = () => {
 
                 {isMapsAndLocation && (
                   <MapsAndLocation
-                    accessTypes={recreation_access}
+                    accessTypes={uniqueRecreationAccess}
                     recResource={recResource}
                     ref={sectionRefs[refIndex++]}
                   />

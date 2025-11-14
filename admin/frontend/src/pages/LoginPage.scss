@@ -9,9 +9,13 @@
     padding: 2rem 1.5rem !important;
   }
 
+  &__page-header {
+    color: $colorBlue;
+  }
+
   &__contact-header {
     height: 59px;
-    background: $colorGreyLight;
+    background: $colorBackgroundGrey;
   }
 
   &__contact-content {

@@ -17,6 +17,6 @@ export class LayoutPOM {
       }),
     ).toBeVisible();
 
-    await expect(header.getByText('Admin Tool')).toBeVisible();
+    await expect(header.getByText('RecSpace')).toBeVisible();
   }
 }
