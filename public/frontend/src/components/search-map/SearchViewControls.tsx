@@ -20,7 +20,7 @@ const SearchViewControls = ({
   const DOWNLOAD_ICON_CONFIG = {
     WIDTH: 16,
     HEIGHT: 16,
-    ALT: 'Download search results KML',
+    ALT: 'Download KML File',
   } as const;
 
   const handleViewChange = (newView: string) => {
