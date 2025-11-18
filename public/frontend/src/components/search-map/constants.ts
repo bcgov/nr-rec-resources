@@ -80,3 +80,16 @@ export const CANADA_TOPO_LAYER_URLS = {
   STYLE_URL_FULL:
     'https://tiles.arcgis.com/tiles/B6yKvIZqzuOr0jBR/arcgis/rest/services/Canada_Topographic/VectorTileServer/resources/styles/root.json',
 };
+
+export const CLUSTER_OPTIONS = {
+  distance: 30,
+  minDistance: 10,
+};
+
+export const ANIMATED_CLUSTER_OPTIONS = {
+  animationDuration: 500,
+  declutter: false,
+  updateWhileAnimating: false,
+  updateWhileInteracting: false,
+  renderBuffer: 300,
+};
