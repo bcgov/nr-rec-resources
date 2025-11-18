@@ -25,7 +25,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSliders } from '@fortawesome/free-solid-svg-icons';
 import { Button, ProgressBar } from 'react-bootstrap';
 import { trackClickEvent } from '@shared/utils';
-import { WILDFIRE_LOCATION_MIN_ZOOM } from '@/components/search-map/constants';
+import {
+  ANIMATED_CLUSTER_OPTIONS,
+  CLUSTER_OPTIONS,
+  WILDFIRE_LOCATION_MIN_ZOOM,
+} from '@/components/search-map/constants';
 import RecreationSuggestionForm from '@/components/recreation-suggestion-form/RecreationSuggestionForm';
 import type Feature from 'ol/Feature';
 import MapDisclaimerModal from '@/components/search-map/MapDisclaimerModal';
@@ -34,19 +38,6 @@ import Overlay from 'ol/Overlay';
 import { LoadingOverlay } from '@shared/components/loading-overlay';
 import { useBaseMaps } from '@/components/search-map/hooks/useBaseMaps';
 import '@/components/search-map/SearchMap.scss';
-
-const CLUSTER_OPTIONS = {
-  distance: 60,
-  minDistance: 10,
-};
-
-const ANIMATED_CLUSTER_OPTIONS = {
-  animationDuration: 500,
-  declutter: false,
-  updateWhileAnimating: false,
-  updateWhileInteracting: false,
-  renderBuffer: 300,
-};
 
 const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
   const { extent, recResourceIds } = useStore(searchResultsStore);
