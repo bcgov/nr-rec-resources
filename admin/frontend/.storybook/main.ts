@@ -3,21 +3,15 @@ import { dirname } from 'node:path';
 import type { StorybookConfig } from '@storybook/react-vite';
 
 const config: StorybookConfig = {
-  stories: [
-    '../stories/**/*.mdx',
-    '../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)',
-    '../stories/**/*.stories.@(js|jsx|mjs|ts|tsx)',
-  ],
-  addons: [
-    getAbsolutePath('@chromatic-com/storybook'),
-    getAbsolutePath('@storybook/addon-docs'),
-  ],
+  stories: ['../stories/**/*.stories.@(tsx|mdx)'],
+  addons: [getAbsolutePath('@storybook/addon-docs')],
   framework: {
     name: getAbsolutePath('@storybook/react-vite'),
     options: {},
   },
-  staticDirs: ['../public', '../stories/mock'],
+  docs: {},
 };
+
 export default config;
 
 function getAbsolutePath(value: string): any {

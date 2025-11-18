@@ -1,0 +1,34 @@
+@import '@/styles/global.scss';
+
+.login-info {
+  @media (min-width: 992px) {
+    flex: 0 0 60% !important;
+  }
+
+  @media (max-width: 991px) {
+    padding: 2rem 1.5rem !important;
+  }
+
+  &__page-header {
+    color: $colorBlue;
+  }
+
+  &__contact-header {
+    height: 59px;
+    background: $colorBackgroundGrey;
+  }
+
+  &__contact-content {
+    min-height: 178px;
+  }
+
+  &__email-icon {
+    width: 48px;
+    height: 48px;
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+}
