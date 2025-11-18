@@ -29,7 +29,10 @@ describe('recResourceLoader', () => {
 
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: RECREATION_RESOURCE_QUERY_KEYS.detail('REC123'),
+        queryKey: RECREATION_RESOURCE_QUERY_KEYS.detail('REC123', [
+          'pre',
+          'original',
+        ]),
       }),
     );
   });

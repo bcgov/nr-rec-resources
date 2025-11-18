@@ -5,12 +5,13 @@ const PREVIEW_SIZE_CODE = 'pre';
 const FULL_RESOLUTION_SIZE_CODE = 'original';
 
 export async function recResourceLoader({ context, params }: any) {
+  const imageSizeCodes = [PREVIEW_SIZE_CODE, FULL_RESOLUTION_SIZE_CODE];
   const recResource = await context.queryClient.ensureQueryData({
-    queryKey: RECREATION_RESOURCE_QUERY_KEYS.detail(params.id),
+    queryKey: RECREATION_RESOURCE_QUERY_KEYS.detail(params.id, imageSizeCodes),
     queryFn: async () => {
       const resource = await getRecreationResourceById({
         id: params.id,
-        imageSizeCodes: [PREVIEW_SIZE_CODE, FULL_RESOLUTION_SIZE_CODE],
+        imageSizeCodes,
       });
 
       if (!resource) {
