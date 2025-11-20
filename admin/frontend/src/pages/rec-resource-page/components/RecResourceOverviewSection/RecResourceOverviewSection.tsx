@@ -6,8 +6,8 @@ import { RecResourceActivitySection } from '../RecResourceActivitySection';
 import { RecResourceEstablishmentOrderSection } from '../RecResourceEstablishmentOrderSection';
 import { RecResourceLocationSection } from '../RecResourceLocationSection';
 import {
-  RecreationResourceAccessRow,
   RecResourceOverviewItem,
+  RecreationResourceAccessRow,
 } from './components';
 
 type RecResourceOverviewSectionProps = {
@@ -41,8 +41,8 @@ export const RecResourceOverviewSection = (
       value: recResource.project_established_date_readable_utc,
     },
     {
-      key: 'controlled-access-code',
-      label: 'Controlled Access Code',
+      key: 'controlled-access-type',
+      label: 'Controlled Access Type',
       value: recResource.control_access_code_description,
     },
     {
