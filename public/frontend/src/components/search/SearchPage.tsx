@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { RemoveScroll } from 'react-remove-scroll';
 import { useStore } from '@tanstack/react-store';
@@ -28,11 +28,13 @@ import {
 } from '@/service/custom-models';
 import { trackEvent } from '@shared/utils';
 import { LoadingButton } from '@/components/LoadingButton';
+import DownloadKmlResultsModal from './DownloadKmlResultsModal';
 
 const SearchPage = () => {
   const navigate = useNavigate({ from: '/search' });
   const searchParams = useSearch({ from: '/search/' });
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
 
   const initialPage = useInitialPageFromSearchParams();
   const lat = searchParams.lat;
@@ -131,10 +133,13 @@ const SearchPage = () => {
     });
   };
 
+  const handleDownloadClick = useCallback(() => {
+    setIsDownloadModalOpen(true);
+  }, []);
+
   const isFetchingFirstPage =
     isFetching && !isFetchingPreviousPage && !isFetchingNextPage;
   const isLocationSearchResults = lat && lon && community;
-
   return (
     <>
       <SearchBanner />
@@ -193,7 +198,12 @@ const SearchPage = () => {
                         </span>
                       )}
                     </div>
-                    <SearchViewControls variant="map" />
+                    <div>
+                      <SearchViewControls
+                        variant="map"
+                        downloadKMLFunction={handleDownloadClick}
+                      />
+                    </div>
                   </div>
                   <FilterChips />
                   {totalCount === 0 && <NoResults />}
@@ -242,6 +252,15 @@ const SearchPage = () => {
             )}
           </Col>
         </Row>
+        <DownloadKmlResultsModal
+          isOpen={isDownloadModalOpen}
+          setIsOpen={setIsDownloadModalOpen}
+          searchResultsNumber={totalCount}
+          ids={paginatedResults?.flatMap(
+            (pageData: PaginatedRecreationResourceModel) =>
+              pageData?.recResourceIds,
+          )}
+        />
       </Stack>
     </>
   );

@@ -8,6 +8,8 @@ import {
   SiteOperatorDto,
   RecreationResourceApi,
   Configuration,
+  RecreationResourceDetailDto,
+  RecResourcesIdsDto,
 } from '@/service/recreation-resource';
 import { useRecreationResourceApi } from '@/service/hooks/useRecreationResourceApi';
 import { getBasePath } from '@/service/hooks/helpers';
@@ -290,6 +292,31 @@ export const useAlphabeticalResources = (letter: string, type?: string) => {
       return response;
     },
     enabled: !!letter && letter.length > 0,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+/**
+ * Get all rec resources info with geometry using a string array.
+ * This method is used to generate multiple KML files.
+ */
+export const useRecreationResourcesWithGeometry = (
+  recResourcesIdsDto: RecResourcesIdsDto,
+  isEnabled: boolean,
+) => {
+  const api = useRecreationResourceApi();
+
+  return useQuery<RecreationResourceDetailDto[]>({
+    queryKey: ['recreationResourcesGeometry', recResourcesIdsDto],
+    queryFn: async (): Promise<RecreationResourceDetailDto[]> => {
+      const response = await api.getResourcesWithGeometry({
+        recResourcesIdsDto,
+      });
+      return response.map((rec: RecreationResourceDetailDto) => {
+        return transformRecreationResourceDetail(rec);
+      });
+    },
+    enabled: isEnabled,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };

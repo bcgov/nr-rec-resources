@@ -16,6 +16,7 @@ import * as runtime from '../runtime';
 import type {
   AlphabeticalRecreationResourceDto,
   PaginatedRecreationResourceDto,
+  RecResourcesIdsDto,
   RecreationResourceDetailDto,
   RecreationSuggestionDto,
   SiteOperatorDto,
@@ -25,6 +26,8 @@ import {
   AlphabeticalRecreationResourceDtoToJSON,
   PaginatedRecreationResourceDtoFromJSON,
   PaginatedRecreationResourceDtoToJSON,
+  RecResourcesIdsDtoFromJSON,
+  RecResourcesIdsDtoToJSON,
   RecreationResourceDetailDtoFromJSON,
   RecreationResourceDetailDtoToJSON,
   RecreationSuggestionDtoFromJSON,
@@ -45,6 +48,10 @@ export interface GetRecreationResourcesAlphabeticallyRequest {
 
 export interface GetRecreationSuggestionsRequest {
   query: string;
+}
+
+export interface GetResourcesWithGeometryRequest {
+  recResourcesIdsDto: RecResourcesIdsDto;
 }
 
 export interface GetSiteOperatorByIdRequest {
@@ -228,6 +235,58 @@ export class RecreationResourceApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<Array<RecreationSuggestionDto>> {
     const response = await this.getRecreationSuggestionsRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   *        Returns a non paginated list of recreation resources and related data with geometry appended.
+   * Get a list recreation resources with geometry. This uses the POST method to overcome the querystring limit.
+   */
+  async getResourcesWithGeometryRaw(
+    requestParameters: GetResourcesWithGeometryRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<RecreationResourceDetailDto>>> {
+    if (requestParameters['recResourcesIdsDto'] == null) {
+      throw new runtime.RequiredError(
+        'recResourcesIdsDto',
+        'Required parameter "recResourcesIdsDto" was null or undefined when calling getResourcesWithGeometry().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    headerParameters['Content-Type'] = 'application/json';
+
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resource/geometry`,
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+        body: RecResourcesIdsDtoToJSON(requestParameters['recResourcesIdsDto']),
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      jsonValue.map(RecreationResourceDetailDtoFromJSON),
+    );
+  }
+
+  /**
+   *        Returns a non paginated list of recreation resources and related data with geometry appended.
+   * Get a list recreation resources with geometry. This uses the POST method to overcome the querystring limit.
+   */
+  async getResourcesWithGeometry(
+    requestParameters: GetResourcesWithGeometryRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<Array<RecreationResourceDetailDto>> {
+    const response = await this.getResourcesWithGeometryRaw(
       requestParameters,
       initOverrides,
     );
