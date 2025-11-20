@@ -1,14 +1,24 @@
 import { AppConfigModule } from '@/app-config/app-config.module';
+import { UserContextModule } from '@/common/modules/user-context/user-context.module';
 import { ResourceDocsController } from '@/resource-docs/resource-docs.controller';
 import { ResourceDocsModule } from '@/resource-docs/resource-docs.module';
 import { ResourceDocsService } from '@/resource-docs/service/resource-docs.service';
 import { Test } from '@nestjs/testing';
+import { ClsModule } from 'nestjs-cls';
 import { describe, expect, it } from 'vitest';
 
 describe('ResourceDocsModule', () => {
   it('should compile and provide controller and service', async () => {
     const moduleRef = await Test.createTestingModule({
-      imports: [ResourceDocsModule, AppConfigModule],
+      imports: [
+        ResourceDocsModule,
+        AppConfigModule,
+        ClsModule.forRoot({
+          global: true,
+          middleware: { mount: false },
+        }),
+        UserContextModule,
+      ],
     })
 
       .compile();
