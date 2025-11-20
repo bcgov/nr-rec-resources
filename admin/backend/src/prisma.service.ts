@@ -6,6 +6,8 @@ import {
 } from '@nestjs/common';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { AppConfigService } from './app-config/app-config.service';
+import { UserContextService } from './common/modules/user-context/user-context.service';
+import { createAuditExtension } from '@/prisma/audit.extension';
 
 @Injectable()
 class PrismaService
@@ -15,16 +17,16 @@ class PrismaService
   private readonly logger = new Logger(PrismaService.name);
   public readonly databaseUrl: string;
 
-  constructor(private readonly appConfigService: AppConfigService) {
+  constructor(
+    private readonly appConfigService: AppConfigService,
+    private readonly userContext: UserContextService,
+  ) {
     const databaseUrl = appConfigService.databaseUrl;
 
-    // Initialize PrismaClient with configuration
     super({
       errorFormat: 'pretty',
       datasources: {
-        db: {
-          url: databaseUrl,
-        },
+        db: { url: databaseUrl },
       },
       log: [
         { emit: 'event', level: 'query' },
@@ -36,14 +38,19 @@ class PrismaService
 
     this.databaseUrl = databaseUrl;
 
-    this.logger.log('PrismaService initialized successfully');
+    // Apply audit extension
+    const auditExtension = createAuditExtension(this.userContext);
+    Object.assign(this, this.$extends(auditExtension));
+
+    this.logger.log('PrismaService initialized with audit extension');
   }
 
   async onModuleInit() {
     await this.$connect();
+
+    // Query logging
     this.$on<any>('query', (e: Prisma.QueryEvent) => {
-      // dont print the health check queries
-      if (e?.query?.includes('SELECT 1')) return;
+      if (e.query.includes('SELECT 1')) return;
       this.logger.log(
         `Query: ${e.query} - Params: ${e.params} - Duration: ${e.duration}ms`,
       );
