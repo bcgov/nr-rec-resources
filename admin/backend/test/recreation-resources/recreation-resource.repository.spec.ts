@@ -1,4 +1,3 @@
-import { UserContextService } from '@/common/modules/user-context/user-context.service';
 import { PrismaService } from '@/prisma.service';
 import { RecreationResourceRepository } from '@/recreation-resources/recreation-resource.repository';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
@@ -12,7 +11,6 @@ type MockedPrismaService = Mocked<PrismaService> & {
 describe('RecreationResourceRepository', () => {
   let repo: RecreationResourceRepository;
   let prisma: MockedPrismaService;
-  let userContext: Mocked<UserContextService>;
 
   beforeEach(() => {
     prisma = {
@@ -22,13 +20,7 @@ describe('RecreationResourceRepository', () => {
       },
       $transaction: vi.fn(),
     } as unknown as MockedPrismaService;
-    userContext = {
-      getUserId: vi.fn(),
-      getIdentityProviderPrefixedUsername: vi
-        .fn()
-        .mockReturnValue('IDIR\\user'),
-    } as unknown as Mocked<UserContextService>;
-    repo = new RecreationResourceRepository(prisma, userContext);
+    repo = new RecreationResourceRepository(prisma);
   });
 
   describe('findSuggestions', () => {
@@ -175,10 +167,9 @@ describe('RecreationResourceRepository', () => {
       await repo.update(recId, updateData);
       expect(statusUpdate).toHaveBeenCalledWith({
         where: { rec_resource_id: recId },
-        data: expect.objectContaining({
+        data: {
           status_code: 2,
-          updated_by: 'IDIR\\user',
-        }),
+        },
       });
     });
 

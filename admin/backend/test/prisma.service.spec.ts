@@ -1,7 +1,9 @@
 import { AppConfigModule } from '@/app-config/app-config.module';
+import { UserContextModule } from '@/common/modules/user-context/user-context.module';
 import { PrismaService } from '@/prisma.service';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Prisma } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
+import { ClsModule } from 'nestjs-cls';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('PrismaService', () => {
@@ -10,6 +12,10 @@ describe('PrismaService', () => {
 
   beforeEach(async () => {
     // Mock PrismaClient methods to prevent actual database connections
+    // We need to mock $extends before the class is instantiated
+    const extendsMock = vi.fn().mockReturnThis();
+    PrismaClient.prototype.$extends = extendsMock as any;
+
     vi.spyOn(PrismaService.prototype, '$connect').mockResolvedValue(undefined);
     vi.spyOn(PrismaService.prototype, '$disconnect').mockResolvedValue(
       undefined,
@@ -18,9 +24,16 @@ describe('PrismaService', () => {
       () => PrismaService.prototype,
     );
 
-    // Create NestJS testing module with AppConfigModule
+    // Create NestJS testing module with AppConfigModule, ClsModule, and UserContextModule
     module = await Test.createTestingModule({
-      imports: [AppConfigModule],
+      imports: [
+        AppConfigModule,
+        ClsModule.forRoot({
+          global: true,
+          middleware: { mount: false },
+        }),
+        UserContextModule,
+      ],
       providers: [PrismaService],
     }).compile();
 
@@ -122,10 +135,20 @@ describe('PrismaService', () => {
       expect(logSpy).not.toHaveBeenCalled();
     });
 
-    it('should handle missing query properties gracefully', () => {
-      queryCallback({});
-      queryCallback({ query: 'SELECT *' });
-      expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('SELECT *'));
+    it('should log queries with all properties present', () => {
+      const validQueryEvent: Prisma.QueryEvent = {
+        query: 'SELECT * FROM users WHERE id = $1',
+        params: '[1]',
+        duration: 15,
+        target: 'test',
+        timestamp: new Date(),
+      };
+
+      queryCallback(validQueryEvent);
+
+      expect(logSpy).toHaveBeenCalledWith(
+        `Query: ${validQueryEvent.query} - Params: ${validQueryEvent.params} - Duration: ${validQueryEvent.duration}ms`,
+      );
     });
   });
 });

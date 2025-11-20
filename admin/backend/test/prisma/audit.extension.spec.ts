@@ -1,0 +1,223 @@
+import {
+  auditOperationHandler,
+  createAuditExtension,
+} from '@/prisma/audit.extension';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+// Mock Prisma.dmmf globally
+vi.mock('@prisma/client', async () => {
+  const actual = await vi.importActual('@prisma/client');
+  return {
+    ...actual,
+    Prisma: {
+      ...(actual as any).Prisma,
+      dmmf: {
+        datamodel: {
+          models: [
+            {
+              name: 'Post',
+              fields: [
+                { name: 'id' },
+                { name: 'title' },
+                { name: 'created_at' },
+                { name: 'created_by' },
+                { name: 'updated_at' },
+                { name: 'updated_by' },
+              ],
+            },
+            {
+              name: 'NonAuditedModel',
+              fields: [{ name: 'id' }, { name: 'title' }],
+            },
+          ],
+        },
+      },
+    },
+  };
+});
+
+describe('createAuditExtension', () => {
+  let userContext: any;
+
+  beforeEach(() => {
+    userContext = {
+      getIdentityProviderPrefixedUsername: vi
+        .fn()
+        .mockReturnValue('IDIR\\testuser'),
+    };
+  });
+
+  it('should create an extension without errors', () => {
+    expect(() => createAuditExtension(userContext)).not.toThrow();
+  });
+
+  it('should return a Prisma extension', () => {
+    const extension = createAuditExtension(userContext);
+    expect(extension).toBeDefined();
+    expect(
+      typeof extension === 'function' || typeof extension === 'object',
+    ).toBe(true);
+  });
+
+  it('should use the provided userContext', () => {
+    const extension = createAuditExtension(userContext);
+    expect(extension).toBeDefined();
+  });
+
+  it('should handle different user contexts', () => {
+    const context1 = {
+      getIdentityProviderPrefixedUsername: vi
+        .fn()
+        .mockReturnValue('IDIR\\user1'),
+    } as any;
+    const context2 = {
+      getIdentityProviderPrefixedUsername: vi
+        .fn()
+        .mockReturnValue('BCeID\\user2'),
+    } as any;
+
+    const extension1 = createAuditExtension(context1);
+    const extension2 = createAuditExtension(context2);
+
+    expect(extension1).toBeDefined();
+    expect(extension2).toBeDefined();
+  });
+
+  describe('auditOperationHandler', () => {
+    it('adds created_at and created_by on create', async () => {
+      const fakeQuery = vi
+        .fn()
+        .mockImplementation((args) => Promise.resolve(args));
+
+      const args = { data: {} };
+      const result = await auditOperationHandler(
+        {
+          model: 'Post',
+          operation: 'create',
+          args,
+          query: fakeQuery,
+        },
+        userContext,
+      );
+
+      expect(result.data.created_at).toBeInstanceOf(Date);
+      expect(result.data.created_by).toBe('IDIR\\testuser');
+      expect(result.data.updated_at).toBeInstanceOf(Date);
+      expect(result.data.updated_by).toBe('IDIR\\testuser');
+      expect(fakeQuery).toHaveBeenCalledWith(result);
+    });
+
+    it('adds updated_at and updated_by on update', async () => {
+      const fakeQuery = vi
+        .fn()
+        .mockImplementation((args) => Promise.resolve(args));
+
+      const args = { data: {} };
+      const result = await auditOperationHandler(
+        {
+          model: 'Post',
+          operation: 'update',
+          args,
+          query: fakeQuery,
+        },
+        userContext,
+      );
+
+      expect(result.data.updated_at).toBeInstanceOf(Date);
+      expect(result.data.updated_by).toBe('IDIR\\testuser');
+      expect(result.data).not.toHaveProperty('created_at');
+      expect(result.data).not.toHaveProperty('created_by');
+      expect(fakeQuery).toHaveBeenCalledWith(result);
+    });
+
+    it('does not modify data for models without audit fields', async () => {
+      const fakeQuery = vi
+        .fn()
+        .mockImplementation((args) => Promise.resolve(args));
+
+      const args = { data: { title: 'Test' } };
+      const result = await auditOperationHandler(
+        {
+          model: 'NonAuditedModel',
+          operation: 'create',
+          args,
+          query: fakeQuery,
+        },
+        userContext,
+      );
+
+      expect(result.data).toEqual({ title: 'Test' });
+      expect(fakeQuery).toHaveBeenCalledWith(result);
+    });
+
+    it('handles updateMany operations', async () => {
+      const fakeQuery = vi
+        .fn()
+        .mockImplementation((args) => Promise.resolve(args));
+
+      const args = { data: { status: 'active' } };
+      const result = await auditOperationHandler(
+        {
+          model: 'Post',
+          operation: 'updateMany',
+          args,
+          query: fakeQuery,
+        },
+        userContext,
+      );
+
+      expect(result.data.updated_at).toBeInstanceOf(Date);
+      expect(result.data.updated_by).toBe('IDIR\\testuser');
+      expect(result.data.status).toBe('active');
+      expect(fakeQuery).toHaveBeenCalledWith(result);
+    });
+
+    it('does not add audit fields on read operations', async () => {
+      const fakeQuery = vi
+        .fn()
+        .mockImplementation((args) => Promise.resolve(args));
+
+      const args = { where: { id: 1 } };
+      const result = await auditOperationHandler(
+        {
+          model: 'Post',
+          operation: 'findMany',
+          args,
+          query: fakeQuery,
+        },
+        userContext,
+      );
+
+      expect(result).toEqual({ where: { id: 1 } });
+      expect(fakeQuery).toHaveBeenCalledWith(result);
+    });
+
+    it('preserves existing data when adding audit fields', async () => {
+      const fakeQuery = vi
+        .fn()
+        .mockImplementation((args) => Promise.resolve(args));
+
+      const args = {
+        data: {
+          title: 'Test Post',
+          content: 'Test Content',
+        },
+      };
+      const result = await auditOperationHandler(
+        {
+          model: 'Post',
+          operation: 'create',
+          args,
+          query: fakeQuery,
+        },
+        userContext,
+      );
+
+      expect(result.data.title).toBe('Test Post');
+      expect(result.data.content).toBe('Test Content');
+      expect(result.data.created_at).toBeInstanceOf(Date);
+      expect(result.data.created_by).toBe('IDIR\\testuser');
+      expect(fakeQuery).toHaveBeenCalledWith(result);
+    });
+  });
+});

@@ -2,7 +2,6 @@ import { getRecreationResourceSuggestions } from '@/prisma-generated-sql';
 import { PrismaService } from '@/prisma.service';
 import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { UserContextService } from '../common/modules/user-context/user-context.service';
 import { UpdateRecreationResourceDto } from './dtos/update-recreation-resource.dto';
 import { recreationResourceSelect } from './recreation-resource.select';
 import { RecreationResourceGetPayload } from './recreation-resource.types';
@@ -14,10 +13,7 @@ import { RecreationResourceGetPayload } from './recreation-resource.types';
 export class RecreationResourceRepository {
   private readonly logger = new Logger(RecreationResourceRepository.name);
 
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly userContext: UserContextService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   /**
    * Finds recreation resource suggestions matching the search term.
@@ -64,9 +60,6 @@ export class RecreationResourceRepository {
     rec_resource_id: string,
     updateData: UpdateRecreationResourceDto,
   ): Promise<RecreationResourceGetPayload> {
-    const idirUsername = this.userContext.getIdentityProviderPrefixedUsername();
-    const timestamp = new Date();
-
     try {
       // Use transaction to ensure data consistency
       const result = await this.prisma.$transaction(async (tx) => {
@@ -83,17 +76,12 @@ export class RecreationResourceRepository {
             where: { rec_resource_id },
             data: {
               status_code,
-              updated_at: timestamp,
-              updated_by: idirUsername,
             },
           });
         }
 
         // Build update data for main resource - only include provided fields
-        const mainResourceUpdateData: Record<string, any> = {
-          updated_at: timestamp,
-          updated_by: idirUsername,
-        };
+        const mainResourceUpdateData: Record<string, any> = {};
 
         // Add direct fields if provided
         Object.entries(directFields).forEach(([key, value]) => {
@@ -108,8 +96,8 @@ export class RecreationResourceRepository {
             control_access_code || null;
         }
 
-        // Only update main resource if there are fields to update beyond timestamps
-        if (Object.keys(mainResourceUpdateData).length > 2) {
+        // Only update main resource if there are fields to update
+        if (Object.keys(mainResourceUpdateData).length > 0) {
           await tx.recreation_resource.update({
             where: { rec_resource_id },
             data: mainResourceUpdateData as Prisma.recreation_resourceUpdateInput,
@@ -130,10 +118,6 @@ export class RecreationResourceRepository {
                 rec_resource_id,
                 access_code: accessCode.access_code,
                 sub_access_code: subAccessCode,
-                created_at: timestamp,
-                created_by: idirUsername,
-                updated_at: timestamp,
-                updated_by: idirUsername,
               })),
             );
 
