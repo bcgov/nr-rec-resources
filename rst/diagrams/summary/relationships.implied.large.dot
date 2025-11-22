@@ -584,6 +584,7 @@ digraph "largeImpliedRelationshipsDiagram" {
       <TR><TD PORT="description" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="191" HEIGHT="16">description</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="updated_at" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="191" HEIGHT="16">updated_at</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="sys_period" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="191" HEIGHT="16">sys_period</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="is_archived" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="191" HEIGHT="16">is_archived</TD></TR></TABLE></TD></TR>
       <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
     </TABLE>>
     URL="tables/recreation_district_code_history.html"
@@ -625,6 +626,9 @@ digraph "largeImpliedRelationshipsDiagram" {
       <TR><TD PORT="created_at" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="171" HEIGHT="16">created_at</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="created_by" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="171" HEIGHT="16">created_by</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="sys_period" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="171" HEIGHT="16">sys_period</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="project_established_date" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="171" HEIGHT="16">project_established_date</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="control_access_code" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="171" HEIGHT="16">control_access_code</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="risk_rating_code" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="171" HEIGHT="16">risk_rating_code</TD></TR></TABLE></TD></TR>
       <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
     </TABLE>>
     URL="tables/recreation_resource_history.html"
@@ -1127,6 +1131,7 @@ digraph "largeImpliedRelationshipsDiagram" {
   "recreation_resource_history":"district_code":w -> "recreation_district_code":"district_code":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_resource_history":"maintenance_standard_code":w -> "recreation_maintenance_standard_code":"maintenance_standard_code":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_resource_history":"rec_resource_id":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "recreation_resource_history":"risk_rating_code":w -> "recreation_risk_rating_code":"risk_rating_code":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_resource_image_variants":"ref_id":w -> "recreation_resource_images":"ref_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_resource_image_variants_history":"ref_id":w -> "recreation_resource_docs":"ref_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_resource_images":"rec_resource_id":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot];

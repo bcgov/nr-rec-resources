@@ -447,6 +447,7 @@ digraph "compactImpliedRelationshipsDiagram" {
       <TR><TD PORT="rec_resource_id" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="171" HEIGHT="16">rec_resource_id</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="district_code" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="171" HEIGHT="16">district_code</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="maintenance_standard_code" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="171" HEIGHT="16">maintenance_standard_code</TD></TR></TABLE></TD></TR>
+      <TR><TD PORT="risk_rating_code" COLSPAN="3" ALIGN="LEFT"><TABLE BORDER="0" CELLSPACING="0" ALIGN="LEFT"><TR ALIGN="LEFT"><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="15" HEIGHT="16"><IMG SRC="../../images/foreignKeys.png"/></TD><TD ALIGN="LEFT" FIXEDSIZE="TRUE" WIDTH="171" HEIGHT="16">risk_rating_code</TD></TR></TABLE></TD></TR>
       <TR><TD PORT="elipses" COLSPAN="3" ALIGN="LEFT">...</TD></TR>
       <TR><TD ALIGN="LEFT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD><TD ALIGN="RIGHT" BGCOLOR="#ffffff">  </TD></TR>
     </TABLE>>
@@ -811,6 +812,7 @@ digraph "compactImpliedRelationshipsDiagram" {
   "recreation_resource_history":"district_code":w -> "recreation_district_code":"district_code":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_resource_history":"maintenance_standard_code":w -> "recreation_maintenance_standard_code":"maintenance_standard_code":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_resource_history":"rec_resource_id":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
+  "recreation_resource_history":"risk_rating_code":w -> "recreation_risk_rating_code":"risk_rating_code":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_resource_image_variants":"ref_id":w -> "recreation_resource_images":"ref_id":e [arrowhead=none dir=back arrowtail=crowodot];
   "recreation_resource_image_variants_history":"ref_id":w -> "recreation_resource_docs":"ref_id":e [arrowhead=none dir=back arrowtail=crowodot style=dashed];
   "recreation_resource_images":"rec_resource_id":w -> "recreation_resource":"rec_resource_id":e [arrowhead=none dir=back arrowtail=crowodot];

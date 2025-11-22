@@ -121,6 +121,15 @@
                                         <td></td>
                                     </tr>
                                     <tr>
+                                        <td><a href="routines/setup_temporal_table_schema_nam_9976574a.html">setup_temporal_table(schema_name text, table_name text, auto_sync boolean DEFAULT false)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>plpgsql</td>
+                                        <td>false</td>
+                                        <td>void</td>
+                                        <td>INVOKER</td>
+                                        <td><p>Sets up temporal table tracking for a table. When auto_sync is true, synchronizes history table schema with source table.</p></td>
+                                    </tr>
+                                    <tr>
                                         <td><a href="routines/word_similarity_text__text__af8b7feb.html">word_similarity(text, text)</a></td>
                                         <td>FUNCTION</td>
                                         <td>c</td>
@@ -155,6 +164,15 @@
                                         <td>boolean</td>
                                         <td>INVOKER</td>
                                         <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/sync_temporal_table_schema_sche_4a3fb08d.html">sync_temporal_table_schema(schema_name text, table_name text)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>plpgsql</td>
+                                        <td>false</td>
+                                        <td>jsonb</td>
+                                        <td>INVOKER</td>
+                                        <td><p>Synchronizes history table schema with source table by adding missing columns. Returns JSON with details of added columns.</p></td>
                                     </tr>
                                     <tr>
                                         <td><a href="routines/strict_word_similarity_commutat_b5dcea55.html">strict_word_similarity_commutator_op(text, text)</a></td>
@@ -227,6 +245,15 @@
                                         <td>void</td>
                                         <td>INVOKER</td>
                                         <td></td>
+                                    </tr>
+                                    <tr>
+                                        <td><a href="routines/sync_all_temporal_tables_schema_2e275cdd.html">sync_all_temporal_tables(schema_name text)</a></td>
+                                        <td>FUNCTION</td>
+                                        <td>plpgsql</td>
+                                        <td>false</td>
+                                        <td>jsonb</td>
+                                        <td>INVOKER</td>
+                                        <td><p>Synchronizes all temporal tables in a schema. Returns JSON with details of all changes made.</p></td>
                                     </tr>
                                     <tr>
                                         <td><a href="routines/strict_word_similarity_op_text__987a9131.html">strict_word_similarity_op(text, text)</a></td>
