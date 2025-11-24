@@ -1,6 +1,5 @@
 import { useAuthContext } from '@/contexts/AuthContext';
-import { LoginPage } from '@/pages/LoginPage';
-import { UnauthorizedPage } from '@/pages/UnauthorizedPage';
+import { LoginPage, UnauthorizedPage } from '@/pages/auth';
 import { ReactNode } from 'react';
 import { Spinner } from 'react-bootstrap';
 
