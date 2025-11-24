@@ -3,12 +3,12 @@ import { render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import * as services from '@/services';
-import * as fileUtils from '@/utils/fileUtils';
+import * as fileUtils from '@shared/utils';
 import * as notificationStore from '@/store/notificationStore';
 import { handleApiError } from '@/services/utils/errorHandler';
 
 vi.mock('@/services');
-vi.mock('@/utils/fileUtils');
+vi.mock('@shared/utils');
 vi.mock('@/store/notificationStore');
 vi.mock('@/services/utils/errorHandler');
 vi.mock('@/pages/rec-resource-page/validation/fileUploadSchema', () => ({

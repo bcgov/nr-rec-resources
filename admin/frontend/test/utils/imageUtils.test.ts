@@ -1,10 +1,10 @@
+import * as imageUtils from '@/utils/imageUtils';
 import {
-  isImageFile,
   getImagePreviewUrl,
+  isImageFile,
   validateImageFile,
 } from '@/utils/imageUtils';
-import * as imageUtils from '@/utils/imageUtils';
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('Image Utils', () => {
   beforeEach(() => {
@@ -99,7 +99,9 @@ describe('Image Utils', () => {
       isImageFileMock.mockReturnValue(true);
       expect(
         validateImageFile(makeFile('large.png', 11 * 1024 * 1024, 'image/png')),
-      ).toBe('Image must be less than 10MB.');
+      ).toBe(
+        'Whoops, the file "large.png" is too big. Please upload a file smaller than 10MB.',
+      );
     });
     it('should return an error message for an image file exceeding a custom size limit', () => {
       isImageFileMock.mockReturnValue(true);
@@ -108,7 +110,9 @@ describe('Image Utils', () => {
           makeFile('very-large.gif', 6 * 1024 * 1024, 'image/gif'),
           5,
         ),
-      ).toBe('Image must be less than 5MB.');
+      ).toBe(
+        'Whoops, the file "very-large.gif" is too big. Please upload a file smaller than 5MB.',
+      );
     });
     it('should return null for an image file exactly at the default size limit', () => {
       isImageFileMock.mockReturnValue(true);

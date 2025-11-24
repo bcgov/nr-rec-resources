@@ -11,10 +11,7 @@ import {
   setUploadFileName,
 } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
 import { addErrorNotification } from '@/store/notificationStore';
-import {
-  buildFileTooLargeMessage,
-  isFileTooLarge,
-} from '@/pages/rec-resource-page/validation';
+import { buildFileTooLargeMessage, isFileTooLarge } from '@shared/utils';
 import { afterEach, beforeEach, vi } from 'vitest';
 
 // Mock URL.createObjectURL
@@ -42,10 +39,14 @@ vi.mock('@/store/notificationStore', () => ({
 }));
 
 // Mock the validation functions
-vi.mock('@/pages/rec-resource-page/validation', () => ({
-  isFileTooLarge: vi.fn(),
-  buildFileTooLargeMessage: vi.fn(),
-}));
+vi.mock('@shared/utils', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@shared/utils')>();
+  return {
+    ...actual,
+    isFileTooLarge: vi.fn(),
+    buildFileTooLargeMessage: vi.fn(),
+  };
+});
 
 describe('formatGalleryFileDate', () => {
   it('formats ISO date string to en-CA format', () => {
@@ -241,8 +242,11 @@ describe('handleAddFileClick', () => {
     }
 
     // Verify validation was called
-    expect(isFileTooLarge).toHaveBeenCalledWith(mockFile);
-    expect(buildFileTooLargeMessage).toHaveBeenCalledWith('large-file.pdf');
+    expect(isFileTooLarge).toHaveBeenCalledWith(mockFile, expect.any(Number));
+    expect(buildFileTooLargeMessage).toHaveBeenCalledWith(
+      'large-file.pdf',
+      9.5,
+    );
     expect(addErrorNotification).toHaveBeenCalledWith(
       'Whoops, the file "large-file.pdf" is too big. Please upload a file smaller than 9.5MB.',
     );
@@ -278,7 +282,7 @@ describe('handleAddFileClick', () => {
     }
 
     // Verify validation was called
-    expect(isFileTooLarge).toHaveBeenCalledWith(mockFile);
+    expect(isFileTooLarge).toHaveBeenCalledWith(mockFile, expect.any(Number));
 
     // Verify error notification was NOT called
     expect(buildFileTooLargeMessage).not.toHaveBeenCalled();

@@ -4,7 +4,7 @@ import {
   addSuccessNotification,
   removeNotification,
 } from '@/store/notificationStore';
-import { downloadUrlAsFile } from '@/utils/fileUtils';
+import { downloadUrlAsFile } from '@shared/utils';
 import { useMutation } from '@tanstack/react-query';
 import { updateGalleryDocument } from '../store/recResourceFileTransferStore';
 import { GalleryFile } from '../types';

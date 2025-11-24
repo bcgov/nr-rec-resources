@@ -6,7 +6,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock utility functions
-vi.mock('@/utils/fileUtils', () => ({
+vi.mock('@shared/utils', () => ({
   getFileNameWithoutExtension: vi.fn((file) => file.name.split('.')[0]),
 }));
 

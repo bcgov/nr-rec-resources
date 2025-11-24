@@ -1,4 +1,10 @@
-import { getFileNameWithoutExtension } from '@/utils/fileUtils';
+import { addErrorNotification } from '@/store/notificationStore';
+import {
+  buildFileTooLargeMessage,
+  getFileNameWithoutExtension,
+  isFileTooLarge,
+  megabytesToBytes,
+} from '@shared/utils';
 import { FILE_TYPE_CONFIGS } from './constants';
 import {
   setSelectedFile,
@@ -6,8 +12,9 @@ import {
   setUploadFileName,
 } from './store/recResourceFileTransferStore';
 import { FileType, GalleryFile } from './types';
-import { addErrorNotification } from '@/store/notificationStore';
-import { buildFileTooLargeMessage, isFileTooLarge } from './validation';
+
+const MAX_FILE_SIZE_MB = 9.5;
+const MAX_FILE_SIZE_BYTES = megabytesToBytes(MAX_FILE_SIZE_MB);
 
 /**
  * Formats the date string for display.
@@ -86,8 +93,10 @@ export function handleAddFileClick(accept: string, type: FileType): void {
       const file = target.files?.[0];
       if (file) {
         // Validate file size
-        if (isFileTooLarge(file)) {
-          addErrorNotification(buildFileTooLargeMessage(file.name));
+        if (isFileTooLarge(file, MAX_FILE_SIZE_BYTES)) {
+          addErrorNotification(
+            buildFileTooLargeMessage(file.name, MAX_FILE_SIZE_MB),
+          );
           return;
         }
         const galleryFile = createTempGalleryFile(file, type);

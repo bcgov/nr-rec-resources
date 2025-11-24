@@ -13,15 +13,17 @@ import {
   buildFileNameWithExtension,
   downloadUrlAsFile,
   getFileNameWithoutExtension,
-} from '@/utils/fileUtils';
-import { ACTION_TYPES } from '@/pages/rec-resource-page/components/RecResourceFileSection/GalleryFileCard/constants';
-import { formatDateReadable } from '@shared/utils';
-import { handleApiError } from '@/services/utils/errorHandler';
-import {
+  formatDateReadable,
   buildFileTooLargeMessage,
-  createFileUploadValidator,
   isFileTooLarge,
-} from '@/pages/rec-resource-page/validation';
+  megabytesToBytes,
+} from '@shared/utils';
+import { ACTION_TYPES } from '@/pages/rec-resource-page/components/RecResourceFileSection/GalleryFileCard/constants';
+import { handleApiError } from '@/services/utils/errorHandler';
+import { createFileUploadValidator } from '@/pages/rec-resource-page/validation';
+
+const MAX_FILE_SIZE_MB = 9.5;
+const MAX_FILE_SIZE_BYTES = megabytesToBytes(MAX_FILE_SIZE_MB);
 
 export function useEstablishmentOrderState(recResourceId: string) {
   const {
@@ -121,8 +123,10 @@ export function useEstablishmentOrderState(recResourceId: string) {
           }
 
           // Validate file size
-          if (isFileTooLarge(file)) {
-            addErrorNotification(buildFileTooLargeMessage(file.name));
+          if (isFileTooLarge(file, MAX_FILE_SIZE_BYTES)) {
+            addErrorNotification(
+              buildFileTooLargeMessage(file.name, MAX_FILE_SIZE_MB),
+            );
             return;
           }
 
