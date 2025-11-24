@@ -25,6 +25,7 @@
     "install-client-sdk-fsa": "npm run generate-fsa-api && npm run prettier-fix"
   },
   "devDependencies": {
+    "@swc/core": "^1.15.1",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.15.0",
     "@openapitools/openapi-generator-cli": "^2.21.1",

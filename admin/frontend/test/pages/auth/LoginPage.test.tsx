@@ -1,5 +1,5 @@
 import { useAuthContext } from '@/contexts/AuthContext';
-import { LoginPage } from '@/pages/LoginPage';
+import { LoginPage } from '@/pages/auth';
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -42,9 +42,7 @@ describe('LoginPage', () => {
 
   it('renders informational content and two LoginPanel instances', () => {
     render(<LoginPage />);
-    expect(
-      screen.getByText(/Welcome to Recreation Sites and Trails Staff Portal/),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Welcome to RecSpace/)).toBeInTheDocument();
     // two mocked login panels (one mobile, one desktop)
     expect(screen.getByTestId('login-panel-d-lg-none')).toBeInTheDocument();
     expect(

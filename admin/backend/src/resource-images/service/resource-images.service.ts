@@ -107,11 +107,12 @@ export class ResourceImagesService {
     const metadata: DamMetadataDto = {
       title,
       closestCommunity: resource.closest_community,
-      recreationName: `${resource.name} - ${resource.rec_resource_id}`,
-      recreationDistrict: resource.district_code,
+      recreationResource: `${resource.name} - ${resource.rec_resource_id}`,
+      recreationRegionDistrict: resource.district_code,
     };
     const { ref_id, files } =
       await this.damApiService.createAndUploadImageWithRetry(metadata, file);
+
     const result = await this.prisma.recreation_resource_images.create({
       data: {
         ref_id: ref_id.toString(),
@@ -139,9 +140,6 @@ export class ResourceImagesService {
     caption: string,
     file: Express.Multer.File | undefined,
   ): Promise<RecreationResourceImageDto> {
-    const docToUpdate = {
-      caption,
-    };
     const resource = await this.prisma.recreation_resource_images.findUnique({
       where: {
         rec_resource_id,
@@ -157,12 +155,15 @@ export class ResourceImagesService {
       }
       await this.damApiService.uploadFile(ref_id, file);
     }
+
     const result = await this.prisma.recreation_resource_images.update({
       where: {
         rec_resource_id,
         ref_id,
       },
-      data: docToUpdate,
+      data: {
+        caption,
+      },
     });
 
     return this.mapResponse(result);

@@ -1,5 +1,5 @@
 import { AuthContext } from '@/contexts/AuthContext';
-import { UnauthorizedPage } from '@/pages/UnauthorizedPage';
+import { UnauthorizedPage } from '@/pages/auth';
 import { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
 

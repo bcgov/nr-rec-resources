@@ -74,7 +74,7 @@ export const useGetRecreationResourceById = ({
 }: Partial<GetRecreationResourceByIdRequest>) => {
   const api = useRecreationResourceApi();
   return useQuery<RecreationResourceDetailModel | undefined, ResponseError>({
-    queryKey: RECREATION_RESOURCE_QUERY_KEYS.detail(id!),
+    queryKey: RECREATION_RESOURCE_QUERY_KEYS.detail(id!, imageSizeCodes),
 
     // Fetch function that calls the API and transforms the response
     queryFn: async () => {

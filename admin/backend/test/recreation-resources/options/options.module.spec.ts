@@ -1,4 +1,5 @@
 import { AppConfigModule } from '@/app-config/app-config.module';
+import { UserContextModule } from '@/common/modules/user-context/user-context.module';
 import { PrismaService } from '@/prisma.service';
 import { OptionsController } from '@/recreation-resources/options/options.controller';
 import { OptionsModule } from '@/recreation-resources/options/options.module';
@@ -6,6 +7,7 @@ import { OptionsRepository } from '@/recreation-resources/options/options.reposi
 import { OptionsService } from '@/recreation-resources/options/options.service';
 import { ConfigModule } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import { ClsModule } from 'nestjs-cls';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 describe('OptionsModule', () => {
@@ -13,7 +15,16 @@ describe('OptionsModule', () => {
 
   beforeEach(async () => {
     module = await Test.createTestingModule({
-      imports: [OptionsModule, ConfigModule.forRoot(), AppConfigModule],
+      imports: [
+        OptionsModule,
+        ConfigModule.forRoot(),
+        AppConfigModule,
+        ClsModule.forRoot({
+          global: true,
+          middleware: { mount: false },
+        }),
+        UserContextModule,
+      ],
     }).compile();
   });
 

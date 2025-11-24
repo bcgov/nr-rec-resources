@@ -1,5 +1,5 @@
 import { AuthContext } from '@/contexts/AuthContext';
-import { LoginPage } from '@/pages/LoginPage';
+import { LoginPage } from '@/pages/auth';
 import { Meta, StoryObj } from '@storybook/react';
 import React from 'react';
 

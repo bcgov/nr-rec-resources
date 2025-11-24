@@ -30,7 +30,7 @@ To enable this feature on a table, we have created a util function called
 will create the history table and triggers to track changes to the table.
 
 ```sql
-set setup_temporal_table('rst', 'my_table');
+select setup_temporal_table('rst', 'my_table');
 ```
 
 To see historical data for the table, make an update to a row in the table and
@@ -40,12 +40,45 @@ then query the history table:
 select * from rst.my_table_history;
 ```
 
-### Important
+### Schema Synchronization
 
-> `setup_temporal_table` sets up a table for history tracking at that point in
-> time. If you add or change a column you will have to manually update the
-> history table as well. If you add a column and forget to add it to the history
-> table then it won't be tracked.
+When you add or modify columns in your source table, you need to synchronize the
+history table to ensure new columns are tracked. We provide utility functions
+for this:
+
+**Sync a single table:**
+
+```sql
+-- Returns JSON with details of columns added
+select sync_temporal_table_schema('rst', 'my_table');
+```
+
+**Sync all temporal tables in a schema:**
+
+```sql
+-- Syncs all tables with history tables in the schema
+select sync_all_temporal_tables('rst');
+```
+
+**Auto-sync when setting up temporal tracking:**
+
+```sql
+-- The third parameter enables auto-sync if history table exists
+select setup_temporal_table('rst', 'my_table', true);
+```
+
+The sync functions will:
+
+- Detect missing columns in the history table
+- Add them with matching data types and constraints
+- Display the column names and types that were added
+- Return a JSON object with details of all changes
+
+### Best Practices
+
+> After adding or modifying columns in a source table, always run
+> `sync_temporal_table_schema` to ensure the history table stays in sync.
+> Include this in your migration scripts after schema changes.
 
 ## Prisma Generated SQL Functions
 
