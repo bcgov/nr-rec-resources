@@ -6,6 +6,8 @@ import {
   setUploadFileName,
 } from './store/recResourceFileTransferStore';
 import { FileType, GalleryFile } from './types';
+import { addErrorNotification } from '@/store/notificationStore';
+import { buildFileTooLargeMessage, isFileTooLarge } from './validation';
 
 /**
  * Formats the date string for display.
@@ -83,6 +85,11 @@ export function handleAddFileClick(accept: string, type: FileType): void {
     try {
       const file = target.files?.[0];
       if (file) {
+        // Validate file size
+        if (isFileTooLarge(file)) {
+          addErrorNotification(buildFileTooLargeMessage(file.name));
+          return;
+        }
         const galleryFile = createTempGalleryFile(file, type);
         setSelectedFile(galleryFile);
         setShowUploadOverlay(true);

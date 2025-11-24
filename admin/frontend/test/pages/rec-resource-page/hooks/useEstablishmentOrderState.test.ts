@@ -5,11 +5,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { handleApiError } from '@/services/utils/errorHandler';
 import * as fileUtils from '@/utils/fileUtils';
 import { createFileUploadValidator } from '@/pages/rec-resource-page/validation/fileUploadSchema';
+import {
+  buildFileTooLargeMessage,
+  isFileTooLarge,
+} from '@/pages/rec-resource-page/validation';
 import { ACTION_TYPES } from '@/pages/rec-resource-page/components/RecResourceFileSection/GalleryFileCard/constants';
 import {
+  useDeleteEstablishmentOrderDoc,
   useGetEstablishmentOrderDocs,
   useUploadEstablishmentOrderDoc,
-  useDeleteEstablishmentOrderDoc,
 } from '@/services';
 
 vi.mock('@/services');
@@ -18,6 +22,7 @@ vi.mock('@/services/utils/errorHandler');
 vi.mock('@/utils/fileUtils');
 vi.mock('@shared/utils');
 vi.mock('@/pages/rec-resource-page/validation/fileUploadSchema');
+vi.mock('@/pages/rec-resource-page/validation');
 
 const mockRefetch = vi.fn();
 const mockUploadMutation = vi.fn();
@@ -100,6 +105,13 @@ describe('useEstablishmentOrderState', () => {
     );
     vi.mocked(fileUtils.downloadUrlAsFile).mockResolvedValue(undefined);
 
+    // Default: files are not too large
+    vi.mocked(isFileTooLarge).mockReturnValue(false);
+    vi.mocked(buildFileTooLargeMessage).mockImplementation(
+      (fileName) =>
+        `Whoops, the file "${fileName}" is too big. Please upload a file smaller than 9.5MB.`,
+    );
+
     setupMockValidator(true);
   });
 
@@ -167,6 +179,30 @@ describe('useEstablishmentOrderState', () => {
       await waitFor(() => {
         expect(notificationStore.addErrorNotification).toHaveBeenCalledWith(
           'Invalid file type. Only PDF files are allowed.',
+        );
+        expect(result.current.uploadModalState.show).toBe(false);
+      });
+    });
+
+    it('shows error notification for files that are too large', async () => {
+      vi.mocked(isFileTooLarge).mockReturnValue(true);
+
+      const { result } = renderHook(() =>
+        useEstablishmentOrderState('test-resource-id'),
+      );
+
+      const largeFile = createMockFile('large-file.pdf');
+
+      await act(async () => {
+        result.current.handleUploadClick();
+        simulateFileSelection(largeFile);
+      });
+
+      await waitFor(() => {
+        expect(isFileTooLarge).toHaveBeenCalledWith(largeFile);
+        expect(buildFileTooLargeMessage).toHaveBeenCalledWith('large-file.pdf');
+        expect(notificationStore.addErrorNotification).toHaveBeenCalledWith(
+          'Whoops, the file "large-file.pdf" is too big. Please upload a file smaller than 9.5MB.',
         );
         expect(result.current.uploadModalState.show).toBe(false);
       });

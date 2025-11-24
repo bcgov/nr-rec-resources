@@ -12,6 +12,8 @@ interface RecResourceEstablishmentOrderSectionProps {
   recResourceId: string;
 }
 
+const MAX_UPLOADS = 30;
+
 export const RecResourceEstablishmentOrderSection = ({
   recResourceId,
 }: RecResourceEstablishmentOrderSectionProps) => {
@@ -30,17 +32,28 @@ export const RecResourceEstablishmentOrderSection = ({
     setUploadFileName,
   } = useEstablishmentOrderState(recResourceId);
 
+  const reachedMaxUploads = (galleryFiles?.length ?? 0) >= MAX_UPLOADS;
+  const uploadDisabled = isUploadDisabled || reachedMaxUploads;
+
   return (
     <section>
       <h2 className="my-3">Establishment orders</h2>
+
+      {/* warning when the max upload limit is reached */}
+      {reachedMaxUploads && (
+        <div className="alert alert-warning" role="alert">
+          Upload limit reached. Maximum {MAX_UPLOADS} documents allowed.
+        </div>
+      )}
+
       <GalleryAccordion
         eventKey="establishment-orders"
         title="Documents"
-        description="Upload establishment order documents in PDF format."
+        description="Documents are only accepted in PDF format with a 9.5 MB file size limit. Maximum 30 documents."
         items={galleryFiles}
         uploadLabel="Upload"
         onFileUploadTileClick={handleUploadClick}
-        uploadDisabled={isUploadDisabled}
+        uploadDisabled={uploadDisabled}
         renderItem={(file) => (
           <GalleryFileCard
             file={file}
