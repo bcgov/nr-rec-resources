@@ -1,5 +1,6 @@
 import { AuthLayout } from '@/components/auth/AuthLayout';
 import { LoginPanel } from '@/components/auth/LoginPanel';
+import { CONTACT } from '@/constants/contact';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
@@ -70,10 +71,10 @@ export const LoginPage = () => {
                   Email
                 </div>
                 <a
-                  href="mailto:RST.stafftool.support@gov.bc.ca"
+                  href={CONTACT.SUPPORT_EMAIL_LINK}
                   className="text-decoration-none"
                 >
-                  RST.stafftool.support@gov.bc.ca
+                  {CONTACT.SUPPORT_EMAIL}
                 </a>
               </div>
             </div>

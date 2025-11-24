@@ -1,5 +1,6 @@
+import { CONTACT } from '@/constants/contact';
 import { useAuthContext } from '@/contexts/AuthContext';
-import { UnauthorizedPage } from '@/pages/UnauthorizedPage';
+import { UnauthorizedPage } from '@/pages/auth';
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -46,7 +47,7 @@ describe('UnauthorizedPage', () => {
       screen.getByText(/You are not authorized to log in yet/),
     ).toBeInTheDocument();
     expect(
-      screen.getAllByText('parksweb@gov.bc.ca').length,
+      screen.getAllByText(CONTACT.SUPPORT_EMAIL).length,
     ).toBeGreaterThanOrEqual(1);
   });
 
