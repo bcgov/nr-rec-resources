@@ -4,7 +4,6 @@ import {
   Get,
   HttpException,
   Param,
-  ParseArrayPipe,
   Post,
   Query,
   ValidationPipe,

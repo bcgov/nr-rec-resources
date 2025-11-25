@@ -39,19 +39,6 @@ import { LoadingOverlay } from '@shared/components/loading-overlay';
 import { useBaseMaps } from '@/components/search-map/hooks/useBaseMaps';
 import '@/components/search-map/SearchMap.scss';
 
-const CLUSTER_OPTIONS = {
-  distance: 60,
-  minDistance: 10,
-};
-
-const ANIMATED_CLUSTER_OPTIONS = {
-  animationDuration: 500,
-  declutter: false,
-  updateWhileAnimating: false,
-  updateWhileInteracting: false,
-  renderBuffer: 300,
-};
-
 interface SearchViewControlsProps {
   totalCount: number;
   ids: string[];
