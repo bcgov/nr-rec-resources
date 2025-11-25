@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { RecreationResourceImageDto } from './recreation-resource-image.dto';
 import { RecreationResourceDocDto } from './recreation-resource-doc.dto';
 import { ClientPublicViewDto } from 'src/service/fsa-resources';
+import { ArrayMaxSize, ArrayMinSize } from '@nestjs/class-validator';
 
 export enum RecreationResourceMaintenanceStandardCode {
   U = 'U', // User maintained
@@ -381,5 +382,7 @@ export class RecResourcesIdsDto {
     description: 'Array of Rec Resources Ids',
     example: '["REC230522","REC230523"]',
   })
+  @ArrayMinSize(1)
+  @ArrayMaxSize(400)
   ids: string[];
 }

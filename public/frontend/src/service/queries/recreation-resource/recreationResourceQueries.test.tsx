@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { useRecreationResourceApi } from '@/service/hooks/useRecreationResourceApi';
 import {
   transformRecreationResourceBase,
@@ -10,7 +10,7 @@ import {
   useGetSiteOperatorById,
   useSearchRecreationResourcesPaginated,
   useAlphabeticalResources,
-  useRecreationResourcesWithGeometry,
+  useRecreationResourcesWithGeometryMutation,
 } from '@/service/queries/recreation-resource/recreationResourceQueries';
 import { TestQueryClientProvider } from '@/test-utils';
 
@@ -424,17 +424,21 @@ describe('useRecreationResourcesWithGeometry', () => {
     mockApi.getResourcesWithGeometry.mockResolvedValue(mockResponse);
 
     const { result } = renderHook(
-      () => useRecreationResourcesWithGeometry({ ids: ['REC2328'] }, true),
-      {
-        wrapper: TestQueryClientProvider,
-      },
+      () => useRecreationResourcesWithGeometryMutation(),
+      { wrapper: TestQueryClientProvider },
     );
 
-    await waitFor(() => {
-      expect(result.current.isSuccess).toBe(true);
+    // Act: trigger the mutation
+    await act(async () => {
+      await result.current.mutateAsync({ ids: ['REC2328'] });
     });
-    expect(result.current.data).toEqual(mockResponse);
-    expect(result.current.data?.length).toEqual(1);
+
+    await waitFor(() => {
+      // Assert
+      expect(result.current.isSuccess).toBe(true);
+      expect(result.current.data).toEqual(mockResponse);
+      expect(result.current.data?.length).toBe(1);
+    });
   });
 
   it('should handle API errors', async () => {
@@ -442,14 +446,23 @@ describe('useRecreationResourcesWithGeometry', () => {
     mockApi.getResourcesWithGeometry.mockRejectedValueOnce(error);
 
     const { result } = renderHook(
-      () => useRecreationResourcesWithGeometry({ ids: ['REC2328'] }, true),
-      {
-        wrapper: TestQueryClientProvider,
-      },
+      () => useRecreationResourcesWithGeometryMutation(),
+      { wrapper: TestQueryClientProvider },
     );
 
+    // Act
+    await act(async () => {
+      try {
+        await result.current.mutateAsync({ ids: ['REC2328'] });
+      } catch (_) {
+        // mutateAsync throws, so swallow it to let state update
+      }
+    });
+
     await waitFor(() => {
-      expect(result.current.error).toBeDefined();
+      // Assert
+      expect(result.current.isError).toBe(true);
+      expect(result.current.error).toEqual(error);
     });
   });
 });

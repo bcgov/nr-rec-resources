@@ -5,16 +5,21 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faList, faMap } from '@fortawesome/free-solid-svg-icons';
 import { trackClickEvent } from '@shared/utils';
 import DownloadIcon from '@shared/assets/icons/download.svg';
+import DownloadKmlResultsModal from '../search/DownloadKmlResultsModal';
+import { useCallback, useState } from 'react';
 
 interface SearchViewControlsProps {
   variant: 'list' | 'map';
-  downloadKMLFunction: () => void;
+  totalCount: number;
+  ids: string[];
 }
 
 const SearchViewControls = ({
   variant,
-  downloadKMLFunction,
+  totalCount,
+  ids,
 }: SearchViewControlsProps) => {
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const navigate = useNavigate({ from: '/search' });
 
   const DOWNLOAD_ICON_CONFIG = {
@@ -36,12 +41,20 @@ const SearchViewControls = ({
     });
   };
 
+  const handleDownloadClick = useCallback(() => {
+    trackClickEvent({
+      category: 'Open download KML on search',
+      name: `Download KML file from ${totalCount} resources on search`,
+    });
+    setIsDownloadModalOpen(true);
+  }, []);
+
   return (
     <>
       <Button
         className="search-chip btn h-2 text-nowrap"
         variant="secondary"
-        onClick={downloadKMLFunction}
+        onClick={handleDownloadClick}
         name="DownloadButton"
       >
         <img
@@ -63,6 +76,12 @@ const SearchViewControls = ({
         />
         Show {variant}
       </Button>
+      <DownloadKmlResultsModal
+        isOpen={isDownloadModalOpen}
+        setIsOpen={setIsDownloadModalOpen}
+        searchResultsNumber={totalCount}
+        ids={ids}
+      />
     </>
   );
 };
