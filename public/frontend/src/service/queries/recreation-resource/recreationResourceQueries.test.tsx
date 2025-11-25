@@ -454,7 +454,7 @@ describe('useRecreationResourcesWithGeometry', () => {
     await act(async () => {
       try {
         await result.current.mutateAsync({ ids: ['REC2328'] });
-      } catch (_) {
+      } catch {
         // mutateAsync throws, so swallow it to let state update
       }
     });
