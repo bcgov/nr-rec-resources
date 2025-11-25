@@ -52,6 +52,22 @@ vi.mock('@/utils/recreationResourceUtils', () => ({
   getRecResourceDetailPageUrl: vi.fn((id: string) => `/details/${id}`),
 }));
 
+const mockData = [
+  {
+    rec_resource_id: 'r1',
+    name: 'Trail 1',
+    closest_community: 'Mockville',
+    recreation_activity: [],
+    recreation_facility: [],
+    recreation_access: [],
+    recreation_fee: [],
+    rec_resource_status: 'Open',
+    district: 'D1',
+    type: 'Trail',
+    geometry: {},
+  },
+];
+
 // ─── Tests ────────────────────────────────────────────────────────────────
 
 describe('DownloadKmlResultsModal', () => {
@@ -67,7 +83,7 @@ describe('DownloadKmlResultsModal', () => {
         isOpen={true}
         setIsOpen={setIsOpenMock}
         searchResultsNumber={3}
-        ids={['r1']}
+        ids={['r1', 'r2', 'r3']}
       />,
     );
 
@@ -131,13 +147,13 @@ describe('DownloadKmlResultsModal', () => {
     expect(setIsOpenMock).toHaveBeenCalledWith(false);
   });
 
-  it('calls refetch when download clicked', () => {
-    const mutateMock = vi.fn();
+  it('calls mutateAsync when download clicked', () => {
+    const mutateAsyncMock = vi.fn();
     (
       recreationHooks.useRecreationResourcesWithGeometryMutation as vi.Mock
     ).mockReturnValueOnce({
       data: undefined,
-      mutate: mutateMock,
+      mutateAsync: mutateAsyncMock,
       isSuccess: false,
       isError: false,
       isLoading: false,
@@ -155,30 +171,15 @@ describe('DownloadKmlResultsModal', () => {
 
     const downloadBtn = screen.getByRole('button', { name: /download/i });
     fireEvent.click(downloadBtn);
-    expect(mutateMock).toHaveBeenCalled();
+    expect(mutateAsyncMock).toHaveBeenCalled();
   });
 
   it('runs downloadKMLMultiple when data exists', async () => {
-    const mockData = [
-      {
-        rec_resource_id: 'r1',
-        name: 'Trail 1',
-        closest_community: 'Mockville',
-        recreation_activity: [],
-        recreation_facility: [],
-        recreation_access: [],
-        recreation_fee: [],
-        rec_resource_status: 'Open',
-        district: 'D1',
-        type: 'Trail',
-        geometry: {},
-      },
-    ];
-
     (
       recreationHooks.useRecreationResourcesWithGeometryMutation as vi.Mock
     ).mockReturnValueOnce({
       data: mockData,
+      mutateAsync: vi.fn().mockResolvedValue(mockData),
       isSuccess: true,
       isError: false,
       isLoading: false,
@@ -193,6 +194,9 @@ describe('DownloadKmlResultsModal', () => {
         ids={['r1']}
       />,
     );
+
+    const downloadBtn = screen.getByRole('button', { name: /download/i });
+    fireEvent.click(downloadBtn);
 
     await waitFor(() => {
       expect(
