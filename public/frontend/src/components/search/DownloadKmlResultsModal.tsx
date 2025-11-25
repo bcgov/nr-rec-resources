@@ -3,7 +3,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import './DownloadKmlResultsModal.scss';
 import { useRecreationResourcesWithGeometryMutation } from '@/service/queries/recreation-resource';
-import { useEffect } from 'react';
 import {
   downloadKMLMultiple,
   getLayerStyleForRecResource,
@@ -33,12 +32,13 @@ const DownloadKmlResultsModal = ({
   searchResultsNumber,
   ids,
 }: DownloadKmlResultsModalProps) => {
-  const { mutate, data, isPending } =
+  const { mutateAsync, isPending } =
     useRecreationResourcesWithGeometryMutation();
 
   const REC_LIMIT = 400;
 
-  useEffect(() => {
+  const handleDownload = async () => {
+    const data = await mutateAsync({ ids });
     if (data) {
       const allKmlProps: KmlProps[] = [];
       data.forEach((recResource) => {
@@ -59,10 +59,6 @@ const DownloadKmlResultsModal = ({
       });
       downloadKMLMultiple(allKmlProps);
     }
-  }, [data]);
-
-  const handleDownload = () => {
-    mutate({ ids });
   };
 
   const handleCloseModal = () => {

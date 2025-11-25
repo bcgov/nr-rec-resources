@@ -72,8 +72,8 @@ export class RecreationResourceService {
 
     const geometries = await this.getMultipleGeometry(ids);
 
-    return result.map((rec) => {
-      if (geometries[rec.rec_resource_id]) {
+    const response = result.map((rec) => {
+      if (geometries[rec.rec_resource_id] && rec) {
         return formatRecreationResourceDetailResults(rec, {
           site_point_geometry:
             geometries[rec.rec_resource_id].site_point_geometry,
@@ -82,6 +82,7 @@ export class RecreationResourceService {
         });
       }
     });
+    return response.filter((i) => i !== undefined);
   }
 
   async findClientNumber(id: string): Promise<string> {
