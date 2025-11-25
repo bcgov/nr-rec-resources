@@ -2,7 +2,7 @@ import { Modal } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import './DownloadKmlResultsModal.scss';
-import { useRecreationResourcesWithGeometry } from '@/service/queries/recreation-resource';
+import { useRecreationResourcesWithGeometryMutation } from '@/service/queries/recreation-resource';
 import { useEffect } from 'react';
 import {
   downloadKMLMultiple,
@@ -33,12 +33,8 @@ const DownloadKmlResultsModal = ({
   searchResultsNumber,
   ids,
 }: DownloadKmlResultsModalProps) => {
-  const { data, refetch } = useRecreationResourcesWithGeometry(
-    {
-      ids,
-    },
-    false,
-  );
+  const { mutate, data, isPending } =
+    useRecreationResourcesWithGeometryMutation();
 
   const REC_LIMIT = 400;
 
@@ -66,7 +62,7 @@ const DownloadKmlResultsModal = ({
   }, [data]);
 
   const handleDownload = () => {
-    refetch();
+    mutate({ ids });
   };
 
   const handleCloseModal = () => {
@@ -112,7 +108,7 @@ const DownloadKmlResultsModal = ({
         <button
           aria-label="Download"
           onClick={() => handleDownload()}
-          disabled={searchResultsNumber > REC_LIMIT}
+          disabled={searchResultsNumber > REC_LIMIT && !isPending}
           className="btn btn-primary w-100 mx-0 mb-2 download-button"
         >
           Download

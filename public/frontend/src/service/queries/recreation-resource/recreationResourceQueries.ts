@@ -17,6 +17,7 @@ import {
   useInfiniteQuery,
   useQuery,
   InfiniteData,
+  useMutation,
 } from '@tanstack/react-query';
 import { trackSiteSearch } from '@shared/utils';
 import buildQueryString from '@/utils/buildQueryString';
@@ -298,25 +299,20 @@ export const useAlphabeticalResources = (letter: string, type?: string) => {
 
 /**
  * Get all rec resources info with geometry using a string array.
- * This method is used to generate multiple KML files.
+ * This method is used to generate KML files from multiple resources.
  */
-export const useRecreationResourcesWithGeometry = (
-  recResourcesIdsDto: RecResourcesIdsDto,
-  isEnabled: boolean,
-) => {
+export const useRecreationResourcesWithGeometryMutation = () => {
   const api = useRecreationResourceApi();
 
-  return useQuery<RecreationResourceDetailDto[]>({
-    queryKey: ['recreationResourcesGeometry', recResourcesIdsDto],
-    queryFn: async (): Promise<RecreationResourceDetailDto[]> => {
+  return useMutation<RecreationResourceDetailDto[], Error, RecResourcesIdsDto>({
+    mutationFn: async (recResourcesIdsDto: RecResourcesIdsDto) => {
       const response = await api.getResourcesWithGeometry({
         recResourcesIdsDto,
       });
-      return response.map((rec: RecreationResourceDetailDto) => {
-        return transformRecreationResourceDetail(rec);
-      });
+
+      return response.map((rec: RecreationResourceDetailDto) =>
+        transformRecreationResourceDetail(rec),
+      );
     },
-    enabled: isEnabled,
-    staleTime: 5 * 60 * 1000, // 5 minutes
   });
 };

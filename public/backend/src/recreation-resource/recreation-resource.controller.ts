@@ -7,6 +7,7 @@ import {
   ParseArrayPipe,
   Post,
   Query,
+  ValidationPipe,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -237,7 +238,7 @@ export class RecreationResourceController {
     type: [RecreationResourceDetailDto],
   })
   async getMultipleGeometry(
-    @Body() dto: RecResourcesIdsDto,
+    @Body(new ValidationPipe()) dto: RecResourcesIdsDto,
   ): Promise<RecreationResourceDetailDto[]> {
     return await this.recreationResourceService.findMany(dto.ids, [
       RecreationResourceImageSize.ORIGINAL,

@@ -38,9 +38,8 @@ vi.mock('@shared/components/recreation-resource-map', () => ({
 
 // Mock React Query hook
 vi.mock('@/service/queries/recreation-resource', () => ({
-  useRecreationResourcesWithGeometry: vi.fn(() => ({
+  useRecreationResourcesWithGeometryMutation: vi.fn(() => ({
     data: undefined,
-    refetch: vi.fn(),
     isSuccess: false,
     isError: false,
     isLoading: false,
@@ -133,12 +132,12 @@ describe('DownloadKmlResultsModal', () => {
   });
 
   it('calls refetch when download clicked', () => {
-    const refetchMock = vi.fn();
+    const mutateMock = vi.fn();
     (
-      recreationHooks.useRecreationResourcesWithGeometry as vi.Mock
+      recreationHooks.useRecreationResourcesWithGeometryMutation as vi.Mock
     ).mockReturnValueOnce({
       data: undefined,
-      refetch: refetchMock,
+      mutate: mutateMock,
       isSuccess: false,
       isError: false,
       isLoading: false,
@@ -156,7 +155,7 @@ describe('DownloadKmlResultsModal', () => {
 
     const downloadBtn = screen.getByRole('button', { name: /download/i });
     fireEvent.click(downloadBtn);
-    expect(refetchMock).toHaveBeenCalled();
+    expect(mutateMock).toHaveBeenCalled();
   });
 
   it('runs downloadKMLMultiple when data exists', async () => {
@@ -177,10 +176,9 @@ describe('DownloadKmlResultsModal', () => {
     ];
 
     (
-      recreationHooks.useRecreationResourcesWithGeometry as vi.Mock
+      recreationHooks.useRecreationResourcesWithGeometryMutation as vi.Mock
     ).mockReturnValueOnce({
       data: mockData,
-      refetch: vi.fn(),
       isSuccess: true,
       isError: false,
       isLoading: false,
