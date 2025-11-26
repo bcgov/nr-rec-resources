@@ -1,7 +1,7 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook } from '@testing-library/react';
 
-vi.mock('@/utils/fileUtils', () => ({ downloadUrlAsFile: vi.fn() }));
+vi.mock('@shared/utils', () => ({ downloadUrlAsFile: vi.fn() }));
 vi.mock('@/store/notificationStore', () => ({
   addSuccessNotification: vi.fn(),
   addErrorNotification: vi.fn(),
@@ -12,7 +12,7 @@ vi.mock('@/store/notificationStore', () => ({
 import { useFileDownload } from '@/pages/rec-resource-page/hooks/useFileDownload';
 import { GalleryFile } from '@/pages/rec-resource-page/types';
 import * as notificationStore from '@/store/notificationStore';
-import * as fileUtils from '@/utils/fileUtils';
+import * as fileUtils from '@shared/utils';
 
 const createWrapper = () => {
   const queryClient = new QueryClient();

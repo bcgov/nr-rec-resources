@@ -1,14 +1,14 @@
 import { RecResourceEstablishmentOrderSection } from '@/pages/rec-resource-page/components/RecResourceEstablishmentOrderSection';
 import { render, screen, waitFor, within } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import * as services from '@/services';
-import * as fileUtils from '@/utils/fileUtils';
+import * as fileUtils from '@shared/utils';
 import * as notificationStore from '@/store/notificationStore';
 import { handleApiError } from '@/services/utils/errorHandler';
 
 vi.mock('@/services');
-vi.mock('@/utils/fileUtils');
+vi.mock('@shared/utils');
 vi.mock('@/store/notificationStore');
 vi.mock('@/services/utils/errorHandler');
 vi.mock('@/pages/rec-resource-page/validation/fileUploadSchema', () => ({
@@ -68,6 +68,22 @@ describe('RecResourceEstablishmentOrderSection', () => {
     global.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
     setupMocks();
   });
+
+  afterEach(() => {
+    // Ensure any hidden file inputs created by upload handler are removed
+    document
+      .querySelectorAll('input[type="file"]')
+      .forEach((el) => el.parentElement?.removeChild(el));
+  });
+
+  const generateDocs = (count: number) =>
+    Array.from({ length: count }, (_, i) => ({
+      s3_key: `doc${i + 1}`,
+      title: `Document ${i + 1}`,
+      url: `https://example.com/doc${i + 1}.pdf`,
+      extension: 'pdf',
+      created_at: '2023-01-15T00:00:00Z',
+    }));
 
   it('renders with loading state', () => {
     setupMocks([], true);
@@ -159,6 +175,52 @@ describe('RecResourceEstablishmentOrderSection', () => {
       const uploadButton = screen.getByText('Upload');
       await user.click(uploadButton);
 
+      const fileInput = document.querySelector('input[type="file"]');
+      expect(fileInput).toBeInTheDocument();
+      expect(fileInput).toHaveAttribute('accept', 'application/pdf');
+    });
+
+    it('shows description with maximum documents info', () => {
+      render(<RecResourceEstablishmentOrderSection recResourceId="123" />);
+      expect(screen.getByText(/Maximum 30 documents\./i)).toBeInTheDocument();
+    });
+
+    it('disables upload and shows warning when max uploads reached', async () => {
+      const user = userEvent.setup();
+
+      setupMocks(generateDocs(30), false);
+      render(<RecResourceEstablishmentOrderSection recResourceId="123" />);
+
+      const uploadTile = screen.getByTestId('upload-tile');
+      expect(uploadTile).toHaveClass('disabled');
+      expect(screen.getByText('Upload')).toBeInTheDocument();
+
+      expect(
+        screen.getByText(
+          /Upload limit reached\. Maximum 30 documents allowed\./i,
+        ),
+      ).toBeInTheDocument();
+
+      await user.click(uploadTile);
+      expect(
+        document.querySelector('input[type="file"]'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('does not show warning and allows upload when below max', async () => {
+      const user = userEvent.setup();
+
+      setupMocks(generateDocs(2), false);
+      render(<RecResourceEstablishmentOrderSection recResourceId="123" />);
+
+      expect(
+        screen.queryByText(
+          /Upload limit reached\. Maximum 30 documents allowed\./i,
+        ),
+      ).not.toBeInTheDocument();
+
+      const uploadTile = screen.getByTestId('upload-tile');
+      await user.click(uploadTile);
       const fileInput = document.querySelector('input[type="file"]');
       expect(fileInput).toBeInTheDocument();
       expect(fileInput).toHaveAttribute('accept', 'application/pdf');

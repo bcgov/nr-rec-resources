@@ -1,22 +1,34 @@
-import { useEstablishmentOrderState } from '@/pages/rec-resource-page/hooks/useEstablishmentOrderState';
-import * as notificationStore from '@/store/notificationStore';
-import { act, renderHook, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { handleApiError } from '@/services/utils/errorHandler';
-import * as fileUtils from '@/utils/fileUtils';
-import { createFileUploadValidator } from '@/pages/rec-resource-page/validation/fileUploadSchema';
 import { ACTION_TYPES } from '@/pages/rec-resource-page/components/RecResourceFileSection/GalleryFileCard/constants';
+import { useEstablishmentOrderState } from '@/pages/rec-resource-page/hooks/useEstablishmentOrderState';
+import { createFileUploadValidator } from '@/pages/rec-resource-page/validation/fileUploadSchema';
 import {
+  useDeleteEstablishmentOrderDoc,
   useGetEstablishmentOrderDocs,
   useUploadEstablishmentOrderDoc,
-  useDeleteEstablishmentOrderDoc,
 } from '@/services';
+import { handleApiError } from '@/services/utils/errorHandler';
+import * as notificationStore from '@/store/notificationStore';
+import * as fileUtils from '@shared/utils';
+import { buildFileTooLargeMessage, isFileTooLarge } from '@shared/utils';
+import { act, renderHook, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/services');
 vi.mock('@/store/notificationStore');
 vi.mock('@/services/utils/errorHandler');
-vi.mock('@/utils/fileUtils');
-vi.mock('@shared/utils');
+vi.mock('@shared/utils', async () => {
+  const actual =
+    await vi.importActual<typeof import('@shared/utils')>('@shared/utils');
+  return {
+    ...actual,
+    isFileTooLarge: vi.fn(),
+    buildFileTooLargeMessage: vi.fn(),
+    getFileNameWithoutExtension: vi.fn(),
+    buildFileNameWithExtension: vi.fn(),
+    downloadUrlAsFile: vi.fn(),
+    formatDateReadable: vi.fn((date: string) => date),
+  };
+});
 vi.mock('@/pages/rec-resource-page/validation/fileUploadSchema');
 
 const mockRefetch = vi.fn();
@@ -100,6 +112,13 @@ describe('useEstablishmentOrderState', () => {
     );
     vi.mocked(fileUtils.downloadUrlAsFile).mockResolvedValue(undefined);
 
+    // Default: files are not too large
+    vi.mocked(isFileTooLarge).mockReturnValue(false);
+    vi.mocked(buildFileTooLargeMessage).mockImplementation(
+      (fileName, maxSizeMB) =>
+        `Whoops, the file "${fileName}" is too big. Please upload a file smaller than ${maxSizeMB}MB.`,
+    );
+
     setupMockValidator(true);
   });
 
@@ -167,6 +186,36 @@ describe('useEstablishmentOrderState', () => {
       await waitFor(() => {
         expect(notificationStore.addErrorNotification).toHaveBeenCalledWith(
           'Invalid file type. Only PDF files are allowed.',
+        );
+        expect(result.current.uploadModalState.show).toBe(false);
+      });
+    });
+
+    it('shows error notification for files that are too large', async () => {
+      vi.mocked(isFileTooLarge).mockReturnValue(true);
+
+      const { result } = renderHook(() =>
+        useEstablishmentOrderState('test-resource-id'),
+      );
+
+      const largeFile = createMockFile('large-file.pdf');
+
+      await act(async () => {
+        result.current.handleUploadClick();
+        simulateFileSelection(largeFile);
+      });
+
+      await waitFor(() => {
+        expect(isFileTooLarge).toHaveBeenCalledWith(
+          largeFile,
+          expect.any(Number),
+        );
+        expect(buildFileTooLargeMessage).toHaveBeenCalledWith(
+          'large-file.pdf',
+          9.5,
+        );
+        expect(notificationStore.addErrorNotification).toHaveBeenCalledWith(
+          'Whoops, the file "large-file.pdf" is too big. Please upload a file smaller than 9.5MB.',
         );
         expect(result.current.uploadModalState.show).toBe(false);
       });

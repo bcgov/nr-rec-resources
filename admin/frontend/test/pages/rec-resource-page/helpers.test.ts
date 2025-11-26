@@ -10,6 +10,8 @@ import {
   setShowUploadOverlay,
   setUploadFileName,
 } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
+import { addErrorNotification } from '@/store/notificationStore';
+import { buildFileTooLargeMessage, isFileTooLarge } from '@shared/utils';
 import { afterEach, beforeEach, vi } from 'vitest';
 
 // Mock URL.createObjectURL
@@ -30,6 +32,21 @@ vi.mock('@/pages/rec-resource-page/store/recResourceFileTransferStore', () => ({
   setShowUploadOverlay: vi.fn(),
   setUploadFileName: vi.fn(),
 }));
+
+// Mock the notification store
+vi.mock('@/store/notificationStore', () => ({
+  addErrorNotification: vi.fn(),
+}));
+
+// Mock the validation functions
+vi.mock('@shared/utils', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@shared/utils')>();
+  return {
+    ...actual,
+    isFileTooLarge: vi.fn(),
+    buildFileTooLargeMessage: vi.fn(),
+  };
+});
 
 describe('formatGalleryFileDate', () => {
   it('formats ISO date string to en-CA format', () => {
@@ -87,6 +104,9 @@ describe('handleAddFileClick', () => {
     document.createElement = vi.fn().mockReturnValue(mockInput);
     document.body.appendChild = vi.fn();
     document.body.removeChild = vi.fn();
+
+    // Default: file size is valid
+    vi.mocked(isFileTooLarge).mockReturnValue(false);
   });
 
   afterEach(() => {
@@ -191,9 +211,94 @@ describe('handleAddFileClick', () => {
 
     acceptTypes.forEach(({ accept, type }) => {
       vi.clearAllMocks();
+      vi.mocked(isFileTooLarge).mockReturnValue(false);
       handleAddFileClick(accept, type);
       expect(mockInput.accept).toBe(accept);
     });
+  });
+
+  it('rejects files that are too large', () => {
+    const mockFile = new File(['test content'], 'large-file.pdf', {
+      type: 'application/pdf',
+    });
+
+    // Mock file as being too large
+    vi.mocked(isFileTooLarge).mockReturnValue(true);
+    vi.mocked(buildFileTooLargeMessage).mockReturnValue(
+      'Whoops, the file "large-file.pdf" is too big. Please upload a file smaller than 9.5MB.',
+    );
+
+    handleAddFileClick('application/pdf', 'document');
+
+    // Simulate file selection
+    mockInput.files = [mockFile] as unknown as FileList;
+    const mockEvent = {
+      target: mockInput,
+    } as unknown as Event;
+
+    // Trigger the onchange event
+    if (mockInput.onchange) {
+      mockInput.onchange(mockEvent);
+    }
+
+    // Verify validation was called
+    expect(isFileTooLarge).toHaveBeenCalledWith(mockFile, expect.any(Number));
+    expect(buildFileTooLargeMessage).toHaveBeenCalledWith(
+      'large-file.pdf',
+      9.5,
+    );
+    expect(addErrorNotification).toHaveBeenCalledWith(
+      'Whoops, the file "large-file.pdf" is too big. Please upload a file smaller than 9.5MB.',
+    );
+
+    // Verify file was NOT processed further
+    expect(setSelectedFile).not.toHaveBeenCalled();
+    expect(setShowUploadOverlay).not.toHaveBeenCalled();
+    expect(setUploadFileName).not.toHaveBeenCalled();
+
+    // Verify cleanup still happens
+    expect(document.body.removeChild).toHaveBeenCalledWith(mockInput);
+  });
+
+  it('accepts files that are within size limit', () => {
+    const mockFile = new File(['test content'], 'valid-file.pdf', {
+      type: 'application/pdf',
+    });
+
+    // Mock file as being within size limit
+    vi.mocked(isFileTooLarge).mockReturnValue(false);
+
+    handleAddFileClick('application/pdf', 'document');
+
+    // Simulate file selection
+    mockInput.files = [mockFile] as unknown as FileList;
+    const mockEvent = {
+      target: mockInput,
+    } as unknown as Event;
+
+    // Trigger the onchange event
+    if (mockInput.onchange) {
+      mockInput.onchange(mockEvent);
+    }
+
+    // Verify validation was called
+    expect(isFileTooLarge).toHaveBeenCalledWith(mockFile, expect.any(Number));
+
+    // Verify error notification was NOT called
+    expect(buildFileTooLargeMessage).not.toHaveBeenCalled();
+    expect(addErrorNotification).not.toHaveBeenCalled();
+
+    // Verify file WAS processed
+    expect(setSelectedFile).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'valid-file.pdf',
+        type: 'document',
+        pendingFile: mockFile,
+      }),
+    );
+    expect(setShowUploadOverlay).toHaveBeenCalledWith(true);
+    expect(setUploadFileName).toHaveBeenCalledWith('valid-file');
+    expect(document.body.removeChild).toHaveBeenCalledWith(mockInput);
   });
 });
 

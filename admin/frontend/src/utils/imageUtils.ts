@@ -15,12 +15,12 @@ export function getImagePreviewUrl(file: File): string {
   return URL.createObjectURL(file);
 }
 
+import { validateFileSize } from '@shared/utils';
+
 /**
  * Validate image file size and type.
  */
 export function validateImageFile(file: File, maxSizeMB = 10): string | null {
   if (!isImageFile(file)) return 'Invalid image file type.';
-  if (file.size > maxSizeMB * 1024 * 1024)
-    return `Image must be less than ${maxSizeMB}MB.`;
-  return null;
+  return validateFileSize(file, maxSizeMB);
 }

@@ -1,7 +1,7 @@
 import {
+  useDeleteEstablishmentOrderDoc,
   useGetEstablishmentOrderDocs,
   useUploadEstablishmentOrderDoc,
-  useDeleteEstablishmentOrderDoc,
 } from '@/services';
 import {
   addErrorNotification,
@@ -10,14 +10,20 @@ import {
 import { useCallback, useMemo, useState } from 'react';
 import { GalleryFile } from '@/pages/rec-resource-page/types';
 import {
-  downloadUrlAsFile,
   buildFileNameWithExtension,
+  downloadUrlAsFile,
   getFileNameWithoutExtension,
-} from '@/utils/fileUtils';
+  formatDateReadable,
+  buildFileTooLargeMessage,
+  isFileTooLarge,
+  megabytesToBytes,
+} from '@shared/utils';
 import { ACTION_TYPES } from '@/pages/rec-resource-page/components/RecResourceFileSection/GalleryFileCard/constants';
-import { formatDateReadable } from '@shared/utils';
 import { handleApiError } from '@/services/utils/errorHandler';
 import { createFileUploadValidator } from '@/pages/rec-resource-page/validation';
+
+const MAX_FILE_SIZE_MB = 9.5;
+const MAX_FILE_SIZE_BYTES = megabytesToBytes(MAX_FILE_SIZE_MB);
 
 export function useEstablishmentOrderState(recResourceId: string) {
   const {
@@ -112,6 +118,14 @@ export function useEstablishmentOrderState(recResourceId: string) {
           if (file.type !== 'application/pdf') {
             addErrorNotification(
               'Invalid file type. Only PDF files are allowed.',
+            );
+            return;
+          }
+
+          // Validate file size
+          if (isFileTooLarge(file, MAX_FILE_SIZE_BYTES)) {
+            addErrorNotification(
+              buildFileTooLargeMessage(file.name, MAX_FILE_SIZE_MB),
             );
             return;
           }
