@@ -13,6 +13,7 @@ export interface RecreationResourceDetailUIModel
   project_established_date_readable_utc: string | null;
   control_access_code?: string;
   control_access_code_description?: string;
+  risk_rating_code?: string;
   risk_rating_description?: string;
 }
 

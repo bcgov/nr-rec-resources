@@ -69,6 +69,8 @@ describe('useEditResourceForm', () => {
     driving_directions: 'Test directions',
     maintenance_standard: 'U' as const,
     maintenance_standard_code: 'U',
+    risk_rating_code: 'L',
+    project_established_date: new Date('2020-01-01T00:00:00.000Z'),
     control_access_code: 'CA1',
     campsite_count: 0,
     recreation_access: [],
@@ -308,6 +310,8 @@ describe('useEditResourceForm', () => {
           maintenance_standard_code: 'M',
           control_access_code: 'CA2',
           status_code: 2,
+          risk_rating_code: null,
+          project_established_date: null,
           access_codes: [
             {
               access_code: 'AC1',
@@ -376,6 +380,8 @@ describe('useEditResourceForm', () => {
           maintenance_standard_code: 'M',
           control_access_code: 'CA2',
           status_code: 2,
+          risk_rating_code: null,
+          project_established_date: null,
           access_codes: [
             {
               access_code: 'AC1',
@@ -417,6 +423,8 @@ describe('useEditResourceForm', () => {
           maintenance_standard_code: 'M',
           control_access_code: 'CA2',
           status_code: 2,
+          risk_rating_code: null,
+          project_established_date: null,
           access_codes: [],
         },
       });
@@ -449,6 +457,8 @@ describe('useEditResourceForm', () => {
           maintenance_standard_code: undefined,
           control_access_code: 'CA2',
           status_code: 2,
+          risk_rating_code: null,
+          project_established_date: null,
           access_codes: [],
         },
       });
@@ -481,6 +491,8 @@ describe('useEditResourceForm', () => {
           maintenance_standard_code: 'M',
           control_access_code: null,
           status_code: 2,
+          risk_rating_code: null,
+          project_established_date: null,
           access_codes: [],
         },
       });
@@ -513,6 +525,8 @@ describe('useEditResourceForm', () => {
           maintenance_standard_code: 'M',
           control_access_code: 'CA2',
           status_code: undefined,
+          risk_rating_code: null,
+          project_established_date: null,
           access_codes: [],
         },
       });
@@ -544,6 +558,78 @@ describe('useEditResourceForm', () => {
       expect(typeof call.updateRecreationResourceDto.status_code).toBe(
         'number',
       );
+    });
+
+    it('should include risk_rating_code and project_established_date in update payload', async () => {
+      const { result } = renderHook(
+        () => useEditResourceForm(mockRecResource),
+        {
+          wrapper: createWrapper(),
+        },
+      );
+
+      const formData = {
+        maintenance_standard_code: 'M',
+        control_access_code: 'CA2',
+        status_code: '2',
+        risk_rating_code: 'H',
+        project_established_date: '2021-12-01',
+        selected_access_options: [],
+      } as any;
+
+      mockMutateAsync.mockResolvedValue(undefined);
+
+      await act(async () => {
+        await result.current.onSubmit(formData);
+      });
+
+      expect(mockMutateAsync).toHaveBeenCalledWith({
+        recResourceId: '123',
+        updateRecreationResourceDto: {
+          maintenance_standard_code: 'M',
+          control_access_code: 'CA2',
+          risk_rating_code: 'H',
+          project_established_date: '2021-12-01',
+          status_code: 2,
+          access_codes: [],
+        },
+      });
+    });
+
+    it('should handle null/empty risk_rating_code and project_established_date', async () => {
+      const { result } = renderHook(
+        () => useEditResourceForm(mockRecResource),
+        {
+          wrapper: createWrapper(),
+        },
+      );
+
+      const formData = {
+        maintenance_standard_code: 'M',
+        control_access_code: 'CA2',
+        status_code: '2',
+        risk_rating_code: null,
+        project_established_date: '',
+        selected_access_options: [],
+      } as any;
+
+      mockMutateAsync.mockResolvedValue(undefined);
+
+      await act(async () => {
+        await result.current.onSubmit(formData);
+      });
+
+      expect(mockMutateAsync).toHaveBeenCalledWith({
+        recResourceId: '123',
+        updateRecreationResourceDto: {
+          maintenance_standard_code: 'M',
+          control_access_code: 'CA2',
+          risk_rating_code: null,
+          project_established_date: null,
+          status_code: 2,
+          access_codes: [],
+        },
+      });
     });
 
     it('should show error notification when mutation errors', async () => {

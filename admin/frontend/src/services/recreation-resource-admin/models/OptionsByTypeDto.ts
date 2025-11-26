@@ -55,6 +55,7 @@ export const OptionsByTypeDtoTypeEnum = {
   RecreationStatus: 'recreationStatus',
   Structure: 'structure',
   ControlAccessCode: 'controlAccessCode',
+  RiskRatingCode: 'riskRatingCode',
 } as const;
 export type OptionsByTypeDtoTypeEnum =
   (typeof OptionsByTypeDtoTypeEnum)[keyof typeof OptionsByTypeDtoTypeEnum];

@@ -41,6 +41,7 @@ export function mapRecreationResourceDetail(
         timeZone: 'UTC', // this date is stored in PST timezone in database
       },
     ),
+    risk_rating_code: data.risk_rating?.risk_rating_code,
     risk_rating_description: data.risk_rating?.description,
   };
 }

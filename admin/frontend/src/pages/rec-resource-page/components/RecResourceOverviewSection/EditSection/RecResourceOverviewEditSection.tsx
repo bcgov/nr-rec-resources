@@ -1,4 +1,5 @@
 import { RecResourceOverviewLink } from '@/components/RecResourceOverviewLink';
+import { DateInputField } from '@/components/date-input-field';
 import { EditResourceFormData } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/schemas';
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { RecreationResourceDetailUIModel } from '@/services';
@@ -18,6 +19,7 @@ export const RecResourceOverviewEditSection = () => {
   const {
     maintenanceOptions,
     controlAccessCodeTypeOptions,
+    riskRatingCodeTypeOptions,
     recreationStatusOptions,
     groupedAccessOptions,
   } = useResourceOptions();
@@ -78,6 +80,26 @@ export const RecResourceOverviewEditSection = () => {
                 label="Control Access Type"
                 options={controlAccessCodeTypeOptions}
                 placeholder="Search or select a control access type..."
+                control={control}
+                errors={errors}
+              />
+            </Col>
+
+            <Col xs={12} md={6}>
+              <SelectField
+                name="risk_rating_code"
+                label="Risk Rating"
+                options={riskRatingCodeTypeOptions}
+                placeholder="Search or select a risk rating..."
+                control={control}
+                errors={errors}
+              />
+            </Col>
+
+            <Col xs={12} md={6}>
+              <DateInputField
+                name="project_established_date"
+                label="Project Established Date"
                 control={control}
                 errors={errors}
               />

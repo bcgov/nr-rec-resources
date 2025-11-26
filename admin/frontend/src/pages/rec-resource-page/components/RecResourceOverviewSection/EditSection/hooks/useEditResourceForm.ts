@@ -12,7 +12,7 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigateWithQueryParams } from '@shared/hooks';
 import { useMemo } from 'react';
-import { useForm, useWatch, type Resolver } from 'react-hook-form';
+import { type Resolver, useForm, useWatch } from 'react-hook-form';
 import type { GroupedOption } from '../components/GroupedMultiSelectField';
 import { EditResourceFormData, editResourceSchema } from '../schemas';
 
@@ -46,6 +46,12 @@ export const useEditResourceForm = (
     return {
       maintenance_standard_code: recResource.maintenance_standard_code || '',
       control_access_code: recResource.control_access_code || null,
+      risk_rating_code: recResource.risk_rating_code || null,
+      project_established_date: recResource.project_established_date
+        ? new Date(recResource.project_established_date)
+            .toISOString()
+            .split('T')[0]
+        : null,
       selected_access_options: selectedAccessOptions,
       status_code: recResource.recreation_status_code?.toString() || '',
     };
@@ -96,6 +102,8 @@ export const useEditResourceForm = (
     const updateData: UpdateRecreationResourceDto = {
       maintenance_standard_code: data.maintenance_standard_code || undefined,
       control_access_code: data.control_access_code ?? null,
+      risk_rating_code: data.risk_rating_code ?? null,
+      project_established_date: data.project_established_date || null,
       status_code: data.status_code ? Number(data.status_code) : undefined,
       access_codes: Object.values(accessCodesMap),
     };

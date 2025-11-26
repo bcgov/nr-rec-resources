@@ -12,6 +12,7 @@ export const OPTION_TYPES = {
   RECREATION_STATUS: 'recreationStatus',
   STRUCTURE: 'structure',
   CONTROL_ACCESS_CODE: 'controlAccessCode',
+  RISK_RATING_CODE: 'riskRatingCode',
 } as const;
 
 export type OptionType = (typeof OPTION_TYPES)[keyof typeof OPTION_TYPES];
@@ -74,6 +75,11 @@ export const OPTION_TABLE_MAPPINGS: Record<OptionType, TableMapping> = {
     idField: 'recreation_control_access_code',
     labelField: 'description',
     prismaModel: 'recreation_control_access_code',
+  },
+  [OPTION_TYPES.RISK_RATING_CODE]: {
+    idField: 'risk_rating_code',
+    labelField: 'description',
+    prismaModel: 'recreation_risk_rating_code',
   },
 };
 

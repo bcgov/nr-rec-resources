@@ -340,6 +340,7 @@ model recreation_district_code_history {
   description   String                   @db.VarChar(120)
   updated_at    DateTime?                @db.Timestamp(6)
   sys_period    Unsupported("tstzrange")
+  is_archived   Boolean                  @default(false)
 
   @@ignore
   @@schema("rst")
@@ -436,6 +437,9 @@ model recreation_resource_history {
   created_at                DateTime?                @db.Timestamp(6)
   created_by                String?
   sys_period                Unsupported("tstzrange")
+  project_established_date  DateTime?                @db.Date
+  control_access_code       String?                  @db.VarChar(1)
+  risk_rating_code          String?                  @db.VarChar(2)
 
   @@ignore
   @@schema("rst")

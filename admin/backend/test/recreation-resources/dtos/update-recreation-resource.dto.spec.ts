@@ -29,6 +29,8 @@ describe('Update Recreation Resource DTOs', () => {
       const dto = new UpdateRecreationResourceDto();
       dto.maintenance_standard_code = '1';
       dto.control_access_code = 'G';
+      dto.risk_rating_code = 'H';
+      dto.project_established_date = new Date('2024-01-15');
       const ac1 = new UpdateRecreationAccessCodeDto();
       ac1.access_code = 'BOAT';
       ac1.sub_access_codes = ['MOTOR'];
@@ -39,6 +41,10 @@ describe('Update Recreation Resource DTOs', () => {
 
       expect(dto.maintenance_standard_code).toBe('1');
       expect(dto.control_access_code).toBe('G');
+      expect(dto.risk_rating_code).toBe('H');
+      expect(dto.project_established_date?.toISOString().split('T')[0]).toBe(
+        '2024-01-15',
+      );
       expect(dto.access_codes).toHaveLength(2);
       expect(dto.status_code).toBe(1);
     });
@@ -49,6 +55,8 @@ describe('Update Recreation Resource DTOs', () => {
 
       expect(dto.maintenance_standard_code).toBe('2');
       expect(dto.control_access_code == null).toBe(true);
+      expect(dto.risk_rating_code).toBeUndefined();
+      expect(dto.project_established_date).toBeUndefined();
       expect(dto.access_codes).toBeUndefined();
       expect(dto.status_code).toBeUndefined();
     });
@@ -58,6 +66,20 @@ describe('Update Recreation Resource DTOs', () => {
       dto.control_access_code = null as any;
 
       expect(dto.control_access_code).toBeNull();
+    });
+
+    it('should accept null risk_rating_code', () => {
+      const dto = new UpdateRecreationResourceDto();
+      dto.risk_rating_code = null as any;
+
+      expect(dto.risk_rating_code).toBeNull();
+    });
+
+    it('should accept null project_established_date', () => {
+      const dto = new UpdateRecreationResourceDto();
+      dto.project_established_date = null as any;
+
+      expect(dto.project_established_date).toBeNull();
     });
 
     it('should create a valid DTO with only status_code', () => {
@@ -76,6 +98,24 @@ describe('Update Recreation Resource DTOs', () => {
 
       expect(dto.access_codes).toHaveLength(1);
       expect(dto.access_codes?.[0]?.access_code).toBe('TRAIL');
+    });
+
+    it('should create a valid DTO with only risk_rating_code', () => {
+      const dto = new UpdateRecreationResourceDto();
+      dto.risk_rating_code = 'L';
+
+      expect(dto.risk_rating_code).toBe('L');
+      expect(dto.maintenance_standard_code).toBeUndefined();
+    });
+
+    it('should create a valid DTO with only project_established_date', () => {
+      const dto = new UpdateRecreationResourceDto();
+      dto.project_established_date = new Date('2024-06-20');
+
+      expect(dto.project_established_date?.toISOString().split('T')[0]).toBe(
+        '2024-06-20',
+      );
+      expect(dto.maintenance_standard_code).toBeUndefined();
     });
   });
 });
