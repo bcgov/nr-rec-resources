@@ -73,7 +73,7 @@ export class RecreationResourceService {
     const geometries = await this.getMultipleGeometry(ids);
 
     const response = result.map((rec) => {
-      if (geometries[rec.rec_resource_id] && rec) {
+      if (rec && geometries[rec.rec_resource_id]) {
         return formatRecreationResourceDetailResults(rec, {
           site_point_geometry:
             geometries[rec.rec_resource_id].site_point_geometry,
