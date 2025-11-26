@@ -8,6 +8,8 @@ import {
   SiteOperatorDto,
   RecreationResourceApi,
   Configuration,
+  RecreationResourceDetailDto,
+  RecResourcesIdsDto,
 } from '@/service/recreation-resource';
 import { useRecreationResourceApi } from '@/service/hooks/useRecreationResourceApi';
 import { getBasePath } from '@/service/hooks/helpers';
@@ -15,6 +17,7 @@ import {
   useInfiniteQuery,
   useQuery,
   InfiniteData,
+  useMutation,
 } from '@tanstack/react-query';
 import { trackSiteSearch } from '@shared/utils';
 import buildQueryString from '@/utils/buildQueryString';
@@ -291,5 +294,25 @@ export const useAlphabeticalResources = (letter: string, type?: string) => {
     },
     enabled: !!letter && letter.length > 0,
     staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+/**
+ * Get all rec resources info with geometry using a string array.
+ * This method is used to generate KML files from multiple resources.
+ */
+export const useRecreationResourcesWithGeometryMutation = () => {
+  const api = useRecreationResourceApi();
+
+  return useMutation<RecreationResourceDetailDto[], Error, RecResourcesIdsDto>({
+    mutationFn: async (recResourcesIdsDto: RecResourcesIdsDto) => {
+      const response = await api.getResourcesWithGeometry({
+        recResourcesIdsDto,
+      });
+
+      return response.map((rec: RecreationResourceDetailDto) =>
+        transformRecreationResourceDetail(rec),
+      );
+    },
   });
 };

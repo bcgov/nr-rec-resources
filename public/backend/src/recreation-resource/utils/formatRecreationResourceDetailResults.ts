@@ -7,13 +7,20 @@ import { RecreationResourceGetPayload } from 'src/recreation-resource/service/ty
 import { getRecreationResourceSpatialFeatureGeometry } from '@prisma-generated-sql';
 import { RecreationResourceDocCode } from 'src/recreation-resource/dto/recreation-resource-doc.dto';
 import { OPEN_STATUS } from 'src/recreation-resource/constants/service.constants';
+import { RecreationResourceGeometry } from '../dto/recreation-resource-geometry.dto';
 
 // Format recreation resource detail results to match the RecreationResourceDetailDto
 export const formatRecreationResourceDetailResults = (
   { recreation_district_code, ...result }: RecreationResourceGetPayload,
-  recreationResourceSpatialFeatureGeometryResult: getRecreationResourceSpatialFeatureGeometry.Result[],
+  recreationResourceSpatialFeatureGeometryResult:
+    | getRecreationResourceSpatialFeatureGeometry.Result[]
+    | RecreationResourceGeometry,
 ): RecreationResourceDetailDto => {
-  const spatialFeatures = recreationResourceSpatialFeatureGeometryResult?.[0];
+  const spatialFeatures = Array.isArray(
+    recreationResourceSpatialFeatureGeometryResult,
+  )
+    ? recreationResourceSpatialFeatureGeometryResult[0]
+    : recreationResourceSpatialFeatureGeometryResult;
   const recreationDistrict = recreation_district_code
     ? {
         description: recreation_district_code.description,

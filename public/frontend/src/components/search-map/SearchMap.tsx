@@ -39,7 +39,13 @@ import { LoadingOverlay } from '@shared/components/loading-overlay';
 import { useBaseMaps } from '@/components/search-map/hooks/useBaseMaps';
 import '@/components/search-map/SearchMap.scss';
 
-const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
+interface SearchViewControlsProps {
+  totalCount: number;
+  ids: string[];
+  props: React.HTMLAttributes<HTMLDivElement>;
+}
+
+const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
   const { extent, recResourceIds } = useStore(searchResultsStore);
   const [selectedFeature, setSelectedFeature] = useState<Feature | null>(null);
   const [selectedWildfireFeature, setSelectedWildfireFeature] =
@@ -166,16 +172,19 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
   );
 
   useEffect(() => {
-    if (props.style?.visibility === 'visible') {
+    if (searchViewControlsProps.props.style?.visibility === 'visible') {
       const hideDialog = Cookies.get('hidemap-disclaimer-dialog');
       if (!hideDialog) {
         setIsDisclaimerModalOpen(true);
       }
     }
-  }, [props, props.style]);
+  }, [searchViewControlsProps.props, searchViewControlsProps.props.style]);
 
   return (
-    <div className="search-map-container d-flex flex-column vh-100" {...props}>
+    <div
+      className="search-map-container d-flex flex-column vh-100"
+      {...searchViewControlsProps.props}
+    >
       <MapDisclaimerModal
         isOpen={isDisclaimerModalOpen}
         setIsOpen={setIsDisclaimerModalOpen}
@@ -231,7 +240,11 @@ const SearchMap = (props: React.HTMLAttributes<HTMLDivElement>) => {
             <FontAwesomeIcon icon={faSliders} className="me-2" />
             Filters
           </Button>
-          <SearchViewControls variant="list" />
+          <SearchViewControls
+            variant="list"
+            totalCount={searchViewControlsProps.totalCount}
+            ids={searchViewControlsProps.ids}
+          />
         </div>
         <FilterMenuSearchMap
           isOpen={isFilterMenuOpen}

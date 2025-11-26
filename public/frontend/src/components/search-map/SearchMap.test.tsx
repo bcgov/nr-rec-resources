@@ -150,7 +150,15 @@ describe('SearchMap', () => {
   });
 
   it('renders main components', async () => {
-    await renderWithRouter(<SearchMap />);
+    await renderWithRouter(
+      <SearchMap
+        ids={[]}
+        totalCount={0}
+        props={{
+          style: { visibility: 'visible' },
+        }}
+      />,
+    );
 
     expect(screen.getByTestId('vector-feature-map')).toBeDefined();
 
@@ -162,14 +170,30 @@ describe('SearchMap', () => {
   });
 
   it('shows disclaimer modal when initially rendered with visible style', async () => {
-    await renderWithRouter(<SearchMap style={{ visibility: 'visible' }} />);
+    await renderWithRouter(
+      <SearchMap
+        ids={[]}
+        totalCount={0}
+        props={{
+          style: { visibility: 'visible' },
+        }}
+      />,
+    );
 
     // The modal should be present in the DOM
     expect(screen.getByRole('dialog')).toBeDefined();
   });
 
   it('can interact with disclaimer modal', async () => {
-    await renderWithRouter(<SearchMap style={{ visibility: 'visible' }} />);
+    await renderWithRouter(
+      <SearchMap
+        ids={[]}
+        totalCount={0}
+        props={{
+          style: { visibility: 'visible' },
+        }}
+      />,
+    );
 
     const modal = screen.getByRole('dialog');
     expect(modal).toBeDefined();
@@ -182,7 +206,15 @@ describe('SearchMap', () => {
   });
 
   it('can open and interact with filter menu', async () => {
-    await renderWithRouter(<SearchMap />);
+    await renderWithRouter(
+      <SearchMap
+        ids={[]}
+        totalCount={0}
+        props={{
+          style: { visibility: 'hidden' },
+        }}
+      />,
+    );
 
     const filtersButtons = screen.getAllByText('Filters');
     const filtersButton = filtersButtons[0];
@@ -209,7 +241,15 @@ describe('SearchMap', () => {
       loadingProgress: 50,
     });
 
-    await renderWithRouter(<SearchMap />);
+    await renderWithRouter(
+      <SearchMap
+        ids={[]}
+        totalCount={0}
+        props={{
+          style: { visibility: 'visible' },
+        }}
+      />,
+    );
 
     expect(screen.getByText('Loading map')).toBeDefined();
   });
@@ -222,13 +262,29 @@ describe('SearchMap', () => {
       loadingProgress: 100,
     });
 
-    await renderWithRouter(<SearchMap />);
+    await renderWithRouter(
+      <SearchMap
+        ids={[]}
+        totalCount={0}
+        props={{
+          style: { visibility: 'visible' },
+        }}
+      />,
+    );
 
     expect(screen.queryByText('Loading map')).toBeNull();
   });
 
   it('handles list view button click', async () => {
-    await renderWithRouter(<SearchMap />);
+    await renderWithRouter(
+      <SearchMap
+        ids={[]}
+        totalCount={0}
+        props={{
+          style: { visibility: 'visible' },
+        }}
+      />,
+    );
 
     const listButton = screen.getByText('Show list');
     expect(listButton).toBeDefined();
@@ -242,7 +298,15 @@ describe('SearchMap', () => {
   });
 
   it('tracks click events when matomo is called', async () => {
-    await renderWithRouter(<SearchMap />);
+    await renderWithRouter(
+      <SearchMap
+        ids={[]}
+        totalCount={0}
+        props={{
+          style: { visibility: 'visible' },
+        }}
+      />,
+    );
 
     const eventData = {
       category: 'Search Map',
