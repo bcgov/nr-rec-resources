@@ -46,7 +46,6 @@ export interface OptionsByTypeDto {
  */
 export const OptionsByTypeDtoTypeEnum = {
   Activities: 'activities',
-  Regions: 'regions',
   Access: 'access',
   SubAccess: 'sub-access',
   Maintenance: 'maintenance',
@@ -56,6 +55,7 @@ export const OptionsByTypeDtoTypeEnum = {
   Structure: 'structure',
   ControlAccessCode: 'controlAccessCode',
   RiskRatingCode: 'riskRatingCode',
+  District: 'district',
 } as const;
 export type OptionsByTypeDtoTypeEnum =
   (typeof OptionsByTypeDtoTypeEnum)[keyof typeof OptionsByTypeDtoTypeEnum];

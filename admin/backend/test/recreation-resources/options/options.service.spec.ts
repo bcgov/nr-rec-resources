@@ -50,11 +50,11 @@ describe('OptionsService', () => {
   describe('validateOptionType', () => {
     it('should accept valid option types', () => {
       expect(() => service['validateOptionType']('activities')).not.toThrow();
-      expect(() => service['validateOptionType']('regions')).not.toThrow();
       expect(() => service['validateOptionType']('access')).not.toThrow();
       expect(() =>
         service['validateOptionType']('recreationStatus'),
       ).not.toThrow();
+      expect(() => service['validateOptionType']('district')).not.toThrow();
     });
 
     it('should reject invalid option types', () => {
@@ -83,24 +83,6 @@ describe('OptionsService', () => {
       });
     });
 
-    it('should return regions', async () => {
-      const mockRegions = [
-        { id: 'VAN', label: 'Vancouver' },
-        { id: 'VIC', label: 'Victoria' },
-      ];
-
-      repository.findAllByType = vi.fn().mockResolvedValue(mockRegions);
-
-      const result = await service.findAllByType('regions');
-
-      expect(result).toEqual(mockRegions);
-      expect(repository.findAllByType).toHaveBeenCalledWith({
-        idField: 'district_code',
-        labelField: 'description',
-        prismaModel: 'recreation_district_code',
-      });
-    });
-
     it('should return recreation status options', async () => {
       const mockRecreationStatus = [
         { id: '1', label: 'Active' },
@@ -120,18 +102,35 @@ describe('OptionsService', () => {
         prismaModel: 'recreation_status_code',
       });
     });
+
+    it('should return district options', async () => {
+      const mockDistricts = [
+        { id: 'CHWK', label: 'Chilliwack' },
+        { id: 'VAN', label: 'Vancouver' },
+      ];
+
+      repository.findAllByType = vi.fn().mockResolvedValue(mockDistricts);
+
+      const result = await service.findAllByType('district');
+
+      expect(result).toEqual(mockDistricts);
+      expect(repository.findAllByType).toHaveBeenCalledWith({
+        idField: 'district_code',
+        labelField: 'description',
+        prismaModel: 'recreation_district_code',
+      });
+    });
   });
 
   describe('findAllByTypes', () => {
     it('should return a map of types to options', async () => {
       const mockMap = {
         activities: [{ id: '1', label: 'Hiking' }],
-        regions: [{ id: 'VAN', label: 'Vancouver' }],
       };
 
       repository.findAllByTypes = vi.fn().mockResolvedValue(mockMap);
 
-      const result = await service.findAllByTypes(['activities', 'regions']);
+      const result = await service.findAllByTypes(['activities', 'district']);
 
       expect(result).toEqual(mockMap);
       expect(repository.findAllByTypes).toHaveBeenCalled();
@@ -139,7 +138,7 @@ describe('OptionsService', () => {
       const callArg = (repository.findAllByTypes as any).mock.calls[0][0];
       expect(callArg).toHaveLength(2);
       expect(callArg[0].type).toBe('activities');
-      expect(callArg[1].type).toBe('regions');
+      expect(callArg[1].type).toBe('district');
     });
 
     it('should propagate repository errors', async () => {
@@ -201,26 +200,26 @@ describe('OptionsService', () => {
       );
     });
 
-    it('should create a new region with generated ID', async () => {
-      const mockCreatedRegion = {
+    it('should create a new district with generated ID', async () => {
+      const mockCreatedDistrict = {
         id: 'mountain_b',
-        label: 'Mountain Bike Region',
+        label: 'Mountain Bike District',
       };
 
-      repository.create = vi.fn().mockResolvedValue(mockCreatedRegion);
+      repository.create = vi.fn().mockResolvedValue(mockCreatedDistrict);
 
-      const result = await service.create('regions', {
-        label: 'Mountain Bike Region',
+      const result = await service.create('district', {
+        label: 'Mountain Bike District',
       });
 
-      expect(result).toEqual(mockCreatedRegion);
+      expect(result).toEqual(mockCreatedDistrict);
       expect(repository.create).toHaveBeenCalledWith(
         {
           idField: 'district_code',
           labelField: 'description',
           prismaModel: 'recreation_district_code',
         },
-        { district_code: 'mountain_b', description: 'Mountain Bike Region' },
+        { district_code: 'mountain_b', description: 'Mountain Bike District' },
       );
     });
   });

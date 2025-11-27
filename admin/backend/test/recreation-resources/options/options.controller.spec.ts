@@ -51,10 +51,10 @@ describe('OptionsController', () => {
     it('should return an empty array when service resolves with empty array', async () => {
       mockOptionsService.findAllByType.mockResolvedValue([]);
 
-      const result = await controller.findAllByType('regions');
+      const result = await controller.findAllByType('district');
 
       expect(result).toEqual([]);
-      expect(service.findAllByType).toHaveBeenCalledWith('regions');
+      expect(service.findAllByType).toHaveBeenCalledWith('district');
     });
 
     it('should propagate service errors', async () => {
@@ -75,29 +75,29 @@ describe('OptionsController', () => {
           { id: '1', label: 'Hiking' },
           { id: '2', label: 'Skiing' },
         ],
-        regions: [],
         risk_rating_code: [
           { id: 'H', label: 'High' },
           { id: 'M', label: 'Medium' },
           { id: 'L', label: 'Low' },
         ],
+        district: [
+          { id: 'CHWK', label: 'Chilliwack' },
+          { id: 'VAN', label: 'Vancouver' },
+        ],
       };
 
       mockOptionsService.findAllByTypes.mockResolvedValue(mockMap);
 
-      const query = { types: ['activities', 'regions', 'risk_rating_code'] };
+      const query = { types: ['activities', 'district', 'risk_rating_code'] };
 
       const result = await controller.findAllByTypes(query as any);
-
       expect(result).toEqual([
         { type: 'activities', options: mockMap.activities },
-        { type: 'regions', options: [] },
+        { type: 'district', options: mockMap.district },
         { type: 'risk_rating_code', options: mockMap.risk_rating_code },
       ]);
-
       expect(service.findAllByTypes).toHaveBeenCalledWith(query.types);
     });
-
     it('should include requested types with empty arrays when missing in result map', async () => {
       const mockMap = {
         activities: [{ id: '1', label: 'Hiking' }],
@@ -105,14 +105,14 @@ describe('OptionsController', () => {
 
       mockOptionsService.findAllByTypes.mockResolvedValue(mockMap);
 
-      const query = { types: ['activities', 'regions'] };
+      const query = { types: ['activities', 'district'] };
 
       const result = await controller.findAllByTypes(query as any);
 
-      // Controller now maps over the requested types, so 'regions' should be present with []
+      // Controller now maps over the requested types, so 'district' should be present with []
       expect(result).toEqual([
         { type: 'activities', options: mockMap.activities },
-        { type: 'regions', options: [] },
+        { type: 'district', options: [] },
       ]);
 
       expect(service.findAllByTypes).toHaveBeenCalledWith(query.types);

@@ -22,6 +22,7 @@ export const RecResourceOverviewEditSection = () => {
     riskRatingCodeTypeOptions,
     recreationStatusOptions,
     groupedAccessOptions,
+    districtOptions,
   } = useResourceOptions();
 
   const { handleSubmit, control, errors, isDirty, updateMutation, onSubmit } =
@@ -80,6 +81,17 @@ export const RecResourceOverviewEditSection = () => {
                 label="Control Access Type"
                 options={controlAccessCodeTypeOptions}
                 placeholder="Search or select a control access type..."
+                control={control}
+                errors={errors}
+              />
+            </Col>
+
+            <Col xs={12} md={6}>
+              <SelectField
+                name="district_code"
+                label="Recreation District"
+                options={districtOptions}
+                placeholder="Search or select a recreation district..."
                 control={control}
                 errors={errors}
               />

@@ -74,8 +74,8 @@ const mockRecResource: RecreationResourceDetailUIModel = {
   project_established_date_readable_utc: null,
   access_codes: [
     {
-      code: 'AC1',
       description: 'Access Type 1',
+      code: 'AC1',
       sub_access_codes: [
         { code: 'SUB1', description: 'Sub Access 1' },
         { code: 'SUB2', description: 'Sub Access 2' },
@@ -146,7 +146,11 @@ describe('RecResourceOverviewEditSection', () => {
           ],
         },
       ],
-      regionOptions: [],
+      districtOptions: [
+        { id: null, label: 'None' },
+        { id: 'RDCK', label: 'Chilliwack' },
+        { id: 'RDVAN', label: 'Vancouver' },
+      ],
       accessOptions: [],
       isLoading: false,
     });
@@ -237,6 +241,15 @@ describe('RecResourceOverviewEditSection', () => {
         screen.getByTestId(
           'grouped-multi-select-field-selected_access_options',
         ),
+      ).toBeInTheDocument();
+    });
+
+    it('should render Recreation District field', () => {
+      render(<RecResourceOverviewEditSection />);
+
+      expect(screen.getByText('Recreation District')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('select-field-district_code'),
       ).toBeInTheDocument();
     });
 
@@ -432,6 +445,9 @@ describe('RecResourceOverviewEditSection', () => {
       ).toBeInTheDocument();
       expect(
         screen.getByTestId('select-field-control_access_code'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('select-field-district_code'),
       ).toBeInTheDocument();
       expect(
         screen.getByTestId(
