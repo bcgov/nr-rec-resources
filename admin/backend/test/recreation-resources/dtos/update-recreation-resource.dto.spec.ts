@@ -38,6 +38,7 @@ describe('Update Recreation Resource DTOs', () => {
       ac2.access_code = 'ROAD';
       dto.access_codes = [ac1, ac2];
       dto.status_code = 1;
+      dto.district_code = 'CHWK';
 
       expect(dto.maintenance_standard_code).toBe('1');
       expect(dto.control_access_code).toBe('G');
@@ -47,6 +48,7 @@ describe('Update Recreation Resource DTOs', () => {
       );
       expect(dto.access_codes).toHaveLength(2);
       expect(dto.status_code).toBe(1);
+      expect(dto.district_code).toBe('CHWK');
     });
 
     it('should create a valid DTO with only maintenance_standard_code', () => {
@@ -98,6 +100,14 @@ describe('Update Recreation Resource DTOs', () => {
 
       expect(dto.access_codes).toHaveLength(1);
       expect(dto.access_codes?.[0]?.access_code).toBe('TRAIL');
+    });
+
+    it('should create a valid DTO with only district_code', () => {
+      const dto = new UpdateRecreationResourceDto();
+      dto.district_code = 'CHWK';
+
+      expect(dto.district_code).toBe('CHWK');
+      expect(dto.maintenance_standard_code).toBeUndefined();
     });
 
     it('should create a valid DTO with only risk_rating_code', () => {

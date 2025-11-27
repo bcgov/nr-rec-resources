@@ -63,6 +63,12 @@ export interface UpdateRecreationResourceDto {
    * @memberof UpdateRecreationResourceDto
    */
   status_code?: number;
+  /**
+   * District code (recreation district)
+   * @type {string}
+   * @memberof UpdateRecreationResourceDto
+   */
+  district_code?: string | null;
 }
 
 /**
@@ -109,6 +115,8 @@ export function UpdateRecreationResourceDtoFromJSONTyped(
             UpdateRecreationAccessCodeDtoFromJSON,
           ),
     status_code: json['status_code'] == null ? undefined : json['status_code'],
+    district_code:
+      json['district_code'] == null ? undefined : json['district_code'],
   };
 }
 
@@ -138,5 +146,6 @@ export function UpdateRecreationResourceDtoToJSONTyped(
             UpdateRecreationAccessCodeDtoToJSON,
           ),
     status_code: value['status_code'],
+    district_code: value['district_code'],
   };
 }

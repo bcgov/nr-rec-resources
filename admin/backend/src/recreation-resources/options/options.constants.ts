@@ -3,7 +3,6 @@ import { mapAccessOptions } from './options.mapper';
 
 export const OPTION_TYPES = {
   ACTIVITIES: 'activities',
-  REGIONS: 'regions',
   ACCESS: 'access',
   SUB_ACCESS: 'sub-access',
   MAINTENANCE: 'maintenance',
@@ -13,6 +12,7 @@ export const OPTION_TYPES = {
   STRUCTURE: 'structure',
   CONTROL_ACCESS_CODE: 'controlAccessCode',
   RISK_RATING_CODE: 'riskRatingCode',
+  DISTRICT: 'district',
 } as const;
 
 export type OptionType = (typeof OPTION_TYPES)[keyof typeof OPTION_TYPES];
@@ -29,11 +29,6 @@ export const OPTION_TABLE_MAPPINGS: Record<OptionType, TableMapping> = {
     idField: 'recreation_activity_code',
     labelField: 'description',
     prismaModel: 'recreation_activity_code',
-  },
-  [OPTION_TYPES.REGIONS]: {
-    idField: 'district_code',
-    labelField: 'description',
-    prismaModel: 'recreation_district_code',
   },
   [OPTION_TYPES.ACCESS]: {
     idField: 'access_code',
@@ -80,6 +75,11 @@ export const OPTION_TABLE_MAPPINGS: Record<OptionType, TableMapping> = {
     idField: 'risk_rating_code',
     labelField: 'description',
     prismaModel: 'recreation_risk_rating_code',
+  },
+  [OPTION_TYPES.DISTRICT]: {
+    idField: 'district_code',
+    labelField: 'description',
+    prismaModel: 'recreation_district_code',
   },
 };
 

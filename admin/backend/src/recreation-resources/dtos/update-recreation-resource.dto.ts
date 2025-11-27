@@ -103,4 +103,13 @@ export class UpdateRecreationResourceDto {
   @IsOptional()
   @IsNumber()
   status_code?: number;
+
+  @ApiPropertyOptional({
+    description: 'District code (recreation district)',
+    example: 'CHWK',
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  district_code?: string;
 }

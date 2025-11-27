@@ -12,8 +12,8 @@ export const useResourceOptions = () => {
     'controlAccessCode',
     'maintenance',
     'recreationStatus',
-    'regions',
     'riskRatingCode',
+    'district',
   ]);
 
   const [
@@ -21,8 +21,8 @@ export const useResourceOptions = () => {
     controlAccessCodeOptions,
     maintenanceOptions,
     recreationStatusOptions,
-    regionOptions,
     riskRatingCodeOptions,
+    districtOptions,
   ] = resourceOptions || [];
 
   const groupedAccessOptions = useMemo(() => {
@@ -61,8 +61,14 @@ export const useResourceOptions = () => {
     return [noneOption, ...(riskRatingCodeOptions?.options ?? [])];
   }, [riskRatingCodeOptions]);
 
+  const districtOptionsWithNoneOption = useMemo(() => {
+    const noneOption = { id: null, label: 'None' } as const;
+
+    return [noneOption, ...(districtOptions?.options ?? [])];
+  }, [districtOptions]);
+
   return {
-    regionOptions: regionOptions?.options ?? [],
+    districtOptions: districtOptionsWithNoneOption,
     maintenanceOptions: maintenanceOptions?.options ?? [],
     controlAccessCodeTypeOptions,
     riskRatingCodeTypeOptions,

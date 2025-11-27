@@ -18,6 +18,7 @@ describe('editResourceSchema', () => {
       control_access_code: '',
       status_code: '',
       selected_access_options: [],
+      district_code: '',
     };
     const result = editResourceSchema.safeParse(data);
     expect(result.success).toBe(true);
@@ -41,6 +42,24 @@ describe('editResourceSchema', () => {
     } as unknown as EditResourceFormData;
     const result = editResourceSchema.safeParse(data);
     expect(result.success).toBe(false);
+  });
+
+  it('accepts district_code field', () => {
+    const result = editResourceSchema.safeParse({
+      district_code: 'CHWK',
+      selected_access_options: [],
+    });
+    expect(result.success).toBe(true);
+    expect(result.data!.district_code).toBe('CHWK');
+  });
+
+  it('accepts district_code as null', () => {
+    const result = editResourceSchema.safeParse({
+      district_code: null,
+      selected_access_options: [],
+    });
+    expect(result.success).toBe(true);
+    expect(result.data!.district_code).toBe(null);
   });
 
   describe('project_established_date validation', () => {

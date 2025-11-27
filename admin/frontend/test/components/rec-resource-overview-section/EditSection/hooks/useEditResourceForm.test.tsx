@@ -266,6 +266,32 @@ describe('useEditResourceForm', () => {
       // The form should initialize successfully
       expect(result.current.control).toBeDefined();
     });
+
+    it('should handle district_code initialization with or without recreation_district', () => {
+      const withDistrict = {
+        ...mockRecResource,
+        recreation_district: {
+          district_code: 'CHWK',
+          description: 'Chilliwack',
+        },
+      };
+      const withoutDistrict = {
+        ...mockRecResource,
+        recreation_district: undefined,
+      };
+
+      const { result: resultWith } = renderHook(
+        () => useEditResourceForm(withDistrict),
+        { wrapper: createWrapper() },
+      );
+      const { result: resultWithout } = renderHook(
+        () => useEditResourceForm(withoutDistrict),
+        { wrapper: createWrapper() },
+      );
+
+      expect(resultWith.current.control).toBeDefined();
+      expect(resultWithout.current.control).toBeDefined();
+    });
   });
 
   describe('onSubmit', () => {
@@ -312,6 +338,7 @@ describe('useEditResourceForm', () => {
           status_code: 2,
           risk_rating_code: null,
           project_established_date: null,
+          district_code: null,
           access_codes: [
             {
               access_code: 'AC1',
@@ -382,6 +409,7 @@ describe('useEditResourceForm', () => {
           status_code: 2,
           risk_rating_code: null,
           project_established_date: null,
+          district_code: null,
           access_codes: [
             {
               access_code: 'AC1',
@@ -425,6 +453,7 @@ describe('useEditResourceForm', () => {
           status_code: 2,
           risk_rating_code: null,
           project_established_date: null,
+          district_code: null,
           access_codes: [],
         },
       });
@@ -459,6 +488,7 @@ describe('useEditResourceForm', () => {
           status_code: 2,
           risk_rating_code: null,
           project_established_date: null,
+          district_code: null,
           access_codes: [],
         },
       });
@@ -493,6 +523,7 @@ describe('useEditResourceForm', () => {
           status_code: 2,
           risk_rating_code: null,
           project_established_date: null,
+          district_code: null,
           access_codes: [],
         },
       });
@@ -527,6 +558,7 @@ describe('useEditResourceForm', () => {
           status_code: undefined,
           risk_rating_code: null,
           project_established_date: null,
+          district_code: null,
           access_codes: [],
         },
       });
@@ -560,6 +592,71 @@ describe('useEditResourceForm', () => {
       );
     });
 
+    it('should handle district_code submission (provided, empty, or undefined)', async () => {
+      const { result } = renderHook(
+        () => useEditResourceForm(mockRecResource),
+        {
+          wrapper: createWrapper(),
+        },
+      );
+
+      mockMutateAsync.mockResolvedValue(undefined);
+
+      // Test with district_code provided
+      await act(async () => {
+        await result.current.onSubmit({
+          maintenance_standard_code: 'M',
+          control_access_code: 'CA2',
+          status_code: '2',
+          selected_access_options: [],
+          district_code: 'CHWK',
+        });
+      });
+
+      expect(mockMutateAsync).toHaveBeenCalledWith({
+        recResourceId: '123',
+        updateRecreationResourceDto: expect.objectContaining({
+          district_code: 'CHWK',
+        }),
+      });
+
+      // Test with empty/null district_code
+      await act(async () => {
+        await result.current.onSubmit({
+          maintenance_standard_code: 'M',
+          control_access_code: 'CA2',
+          status_code: '2',
+          selected_access_options: [],
+          district_code: '',
+        });
+      });
+
+      expect(mockMutateAsync).toHaveBeenLastCalledWith({
+        recResourceId: '123',
+        updateRecreationResourceDto: expect.objectContaining({
+          district_code: null,
+        }),
+      });
+
+      // Test with null district_code
+      await act(async () => {
+        await result.current.onSubmit({
+          maintenance_standard_code: 'M',
+          control_access_code: 'CA2',
+          status_code: '2',
+          selected_access_options: [],
+          district_code: null,
+        });
+      });
+
+      expect(mockMutateAsync).toHaveBeenLastCalledWith({
+        recResourceId: '123',
+        updateRecreationResourceDto: expect.objectContaining({
+          district_code: null,
+        }),
+      });
+    });
+
     it('should include risk_rating_code and project_established_date in update payload', async () => {
       const { result } = renderHook(
         () => useEditResourceForm(mockRecResource),
@@ -591,6 +688,7 @@ describe('useEditResourceForm', () => {
           risk_rating_code: 'H',
           project_established_date: '2021-12-01',
           status_code: 2,
+          district_code: null,
           access_codes: [],
         },
       });
@@ -627,6 +725,7 @@ describe('useEditResourceForm', () => {
           risk_rating_code: null,
           project_established_date: null,
           status_code: 2,
+          district_code: null,
           access_codes: [],
         },
       });

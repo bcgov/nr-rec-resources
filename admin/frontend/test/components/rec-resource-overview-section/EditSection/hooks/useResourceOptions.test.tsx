@@ -46,7 +46,9 @@ describe('useResourceOptions', () => {
 
     const { result } = renderHook(() => useResourceOptions(), { wrapper });
 
-    expect(result.current.regionOptions).toEqual([]);
+    expect(result.current.districtOptions).toEqual([
+      { id: null, label: 'None' },
+    ]);
     expect(result.current.maintenanceOptions).toEqual([]);
     const firstOption = result.current.controlAccessCodeTypeOptions[0];
     expect(firstOption.label).toBe('None');
@@ -57,7 +59,7 @@ describe('useResourceOptions', () => {
   });
 
   it('should return data when available', () => {
-    const mockRegionData = [{ id: '1', label: 'Region 1' }];
+    const mockDistrictData = [{ id: 'CHWK', label: 'Chilliwack' }];
     const mockMaintenanceData = [{ id: '2', label: 'Maintenance 1' }];
     const mockControlAccessData = [{ id: '3', label: 'Control Access 1' }];
     const mockAccessData = [{ id: '4', label: 'Access 1' }];
@@ -65,15 +67,15 @@ describe('useResourceOptions', () => {
     const mockRiskRatingData = [{ id: 'L', label: 'Low' }];
 
     // The hook expects a single call that returns an array in the order:
-    // [access, controlAccessCode, maintenance, recreationStatus, regions]
+    // [access, controlAccessCode, maintenance, recreationStatus, riskRatingCode, district]
     mockUseGetRecreationResourceOptions.mockReturnValue({
       data: [
         { options: mockAccessData },
         { options: mockControlAccessData },
         { options: mockMaintenanceData },
         { options: mockRecreationStatusData },
-        { options: mockRegionData },
         { options: mockRiskRatingData },
+        { options: mockDistrictData },
       ],
       isLoading: false,
       error: null,
@@ -82,7 +84,10 @@ describe('useResourceOptions', () => {
 
     const { result } = renderHook(() => useResourceOptions(), { wrapper });
 
-    expect(result.current.regionOptions).toEqual(mockRegionData);
+    const districtFirst = result.current.districtOptions[0];
+    expect(districtFirst.label).toBe('None');
+    expect([null, '']).toContain(districtFirst.id);
+    expect(result.current.districtOptions.slice(1)).toEqual(mockDistrictData);
     expect(result.current.maintenanceOptions).toEqual(mockMaintenanceData);
     const first = result.current.controlAccessCodeTypeOptions[0];
     expect(first.label).toBe('None');
@@ -131,8 +136,8 @@ describe('useResourceOptions', () => {
       GetOptionsByTypeTypeEnum.ControlAccessCode,
       GetOptionsByTypeTypeEnum.Maintenance,
       GetOptionsByTypeTypeEnum.RecreationStatus,
-      GetOptionsByTypeTypeEnum.Regions,
       GetOptionsByTypeTypeEnum.RiskRatingCode,
+      GetOptionsByTypeTypeEnum.District,
     ]);
   });
 
@@ -175,6 +180,8 @@ describe('useResourceOptions', () => {
         { options: [] },
         { options: mockRecreationStatusData },
         { options: [] },
+        { options: [] },
+        { options: [] },
       ],
       isLoading: false,
       error: null,
@@ -210,6 +217,8 @@ describe('useResourceOptions', () => {
     mockUseGetRecreationResourceOptions.mockReturnValue({
       data: [
         { options: mockAccessDataWithNulls },
+        { options: [] },
+        { options: [] },
         { options: [] },
         { options: [] },
         { options: [] },

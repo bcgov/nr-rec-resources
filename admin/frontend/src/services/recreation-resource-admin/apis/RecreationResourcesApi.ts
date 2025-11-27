@@ -1001,7 +1001,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Retrieve all available values for a given option type. Valid types: activities, regions, access, sub-access, maintenance, resourceType, feeType, recreationStatus, structure, controlAccessCode, riskRatingCode
+   * Retrieve all available values for a given option type. Valid types: activities, access, sub-access, maintenance, resourceType, feeType, recreationStatus, structure, controlAccessCode, riskRatingCode, district
    * List all options for a type
    */
   async getOptionsByTypeRaw(
@@ -1050,7 +1050,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Retrieve all available values for a given option type. Valid types: activities, regions, access, sub-access, maintenance, resourceType, feeType, recreationStatus, structure, controlAccessCode, riskRatingCode
+   * Retrieve all available values for a given option type. Valid types: activities, access, sub-access, maintenance, resourceType, feeType, recreationStatus, structure, controlAccessCode, riskRatingCode, district
    * List all options for a type
    */
   async getOptionsByType(
@@ -1504,7 +1504,6 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
  */
 export const GetOptionsByTypeTypeEnum = {
   Activities: 'activities',
-  Regions: 'regions',
   Access: 'access',
   SubAccess: 'sub-access',
   Maintenance: 'maintenance',
@@ -1514,6 +1513,7 @@ export const GetOptionsByTypeTypeEnum = {
   Structure: 'structure',
   ControlAccessCode: 'controlAccessCode',
   RiskRatingCode: 'riskRatingCode',
+  District: 'district',
 } as const;
 export type GetOptionsByTypeTypeEnum =
   (typeof GetOptionsByTypeTypeEnum)[keyof typeof GetOptionsByTypeTypeEnum];
@@ -1522,7 +1522,6 @@ export type GetOptionsByTypeTypeEnum =
  */
 export const GetOptionsByTypesTypesEnum = {
   Activities: 'activities',
-  Regions: 'regions',
   Access: 'access',
   SubAccess: 'sub-access',
   Maintenance: 'maintenance',
@@ -1532,6 +1531,7 @@ export const GetOptionsByTypesTypesEnum = {
   Structure: 'structure',
   ControlAccessCode: 'controlAccessCode',
   RiskRatingCode: 'riskRatingCode',
+  District: 'district',
 } as const;
 export type GetOptionsByTypesTypesEnum =
   (typeof GetOptionsByTypesTypesEnum)[keyof typeof GetOptionsByTypesTypesEnum];
