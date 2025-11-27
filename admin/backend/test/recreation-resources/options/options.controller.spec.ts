@@ -76,17 +76,23 @@ describe('OptionsController', () => {
           { id: '2', label: 'Skiing' },
         ],
         regions: [],
+        risk_rating_code: [
+          { id: 'H', label: 'High' },
+          { id: 'M', label: 'Medium' },
+          { id: 'L', label: 'Low' },
+        ],
       };
 
       mockOptionsService.findAllByTypes.mockResolvedValue(mockMap);
 
-      const query = { types: ['activities', 'regions'] };
+      const query = { types: ['activities', 'regions', 'risk_rating_code'] };
 
       const result = await controller.findAllByTypes(query as any);
 
       expect(result).toEqual([
         { type: 'activities', options: mockMap.activities },
         { type: 'regions', options: [] },
+        { type: 'risk_rating_code', options: mockMap.risk_rating_code },
       ]);
 
       expect(service.findAllByTypes).toHaveBeenCalledWith(query.types);

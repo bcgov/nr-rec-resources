@@ -40,6 +40,18 @@ export interface UpdateRecreationResourceDto {
    */
   control_access_code?: string | null;
   /**
+   * Risk rating code
+   * @type {string}
+   * @memberof UpdateRecreationResourceDto
+   */
+  risk_rating_code?: string | null;
+  /**
+   * Project established date
+   * @type {string}
+   * @memberof UpdateRecreationResourceDto
+   */
+  project_established_date?: string | null;
+  /**
    * List of access codes with their sub-access codes
    * @type {Array<UpdateRecreationAccessCodeDto>}
    * @memberof UpdateRecreationResourceDto
@@ -84,6 +96,12 @@ export function UpdateRecreationResourceDtoFromJSONTyped(
       json['control_access_code'] == null
         ? undefined
         : json['control_access_code'],
+    risk_rating_code:
+      json['risk_rating_code'] == null ? undefined : json['risk_rating_code'],
+    project_established_date:
+      json['project_established_date'] == null
+        ? undefined
+        : json['project_established_date'],
     access_codes:
       json['access_codes'] == null
         ? undefined
@@ -111,6 +129,8 @@ export function UpdateRecreationResourceDtoToJSONTyped(
   return {
     maintenance_standard_code: value['maintenance_standard_code'],
     control_access_code: value['control_access_code'],
+    risk_rating_code: value['risk_rating_code'],
+    project_established_date: value['project_established_date'],
     access_codes:
       value['access_codes'] == null
         ? undefined

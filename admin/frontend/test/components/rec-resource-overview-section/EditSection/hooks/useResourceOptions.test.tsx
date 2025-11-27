@@ -62,6 +62,7 @@ describe('useResourceOptions', () => {
     const mockControlAccessData = [{ id: '3', label: 'Control Access 1' }];
     const mockAccessData = [{ id: '4', label: 'Access 1' }];
     const mockRecreationStatusData = [{ id: '5', label: 'Active' }];
+    const mockRiskRatingData = [{ id: 'L', label: 'Low' }];
 
     // The hook expects a single call that returns an array in the order:
     // [access, controlAccessCode, maintenance, recreationStatus, regions]
@@ -72,6 +73,7 @@ describe('useResourceOptions', () => {
         { options: mockMaintenanceData },
         { options: mockRecreationStatusData },
         { options: mockRegionData },
+        { options: mockRiskRatingData },
       ],
       isLoading: false,
       error: null,
@@ -94,6 +96,9 @@ describe('useResourceOptions', () => {
       mockRecreationStatusData,
     );
     expect(result.current.isLoading).toBe(false);
+    expect(result.current.riskRatingCodeTypeOptions.slice(1)).toEqual(
+      mockRiskRatingData,
+    );
   });
 
   it('should handle loading states correctly', () => {
@@ -127,6 +132,7 @@ describe('useResourceOptions', () => {
       GetOptionsByTypeTypeEnum.Maintenance,
       GetOptionsByTypeTypeEnum.RecreationStatus,
       GetOptionsByTypeTypeEnum.Regions,
+      GetOptionsByTypeTypeEnum.RiskRatingCode,
     ]);
   });
 

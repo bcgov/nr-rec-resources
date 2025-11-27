@@ -25,7 +25,7 @@ import {
 import { GetOptionsByTypesQueryDto } from './dtos/get-options-by-types-query.dto';
 import { OptionDto } from './dtos/option.dto';
 import { OptionsByTypeDto } from './dtos/options-by-type.dto';
-import { VALID_OPTION_TYPES, type OptionType } from './options.constants';
+import { type OptionType, VALID_OPTION_TYPES } from './options.constants';
 import { OptionsService } from './options.service';
 
 @Controller({ path: 'recreation-resources/options', version: '1' })

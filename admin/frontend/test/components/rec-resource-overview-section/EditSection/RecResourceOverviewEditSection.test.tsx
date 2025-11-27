@@ -4,6 +4,10 @@ import { RecreationResourceDetailUIModel } from '@/services';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  useEditResourceForm,
+  useResourceOptions,
+} from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/hooks';
 
 // Mock dependencies
 vi.mock('@/pages/rec-resource-page/hooks/useRecResource');
@@ -41,10 +45,15 @@ vi.mock(
   }),
 );
 
-import {
-  useEditResourceForm,
-  useResourceOptions,
-} from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/hooks';
+// Mock the DateInputField which was added separately
+vi.mock('@/components/date-input-field', () => ({
+  DateInputField: ({ label, name }: any) => (
+    <div data-testid={`date-field-${name}`}>
+      <label>{label}</label>
+      <input name={name} />
+    </div>
+  ),
+}));
 
 const mockRecResource: RecreationResourceDetailUIModel = {
   rec_resource_id: '123',
@@ -63,11 +72,11 @@ const mockRecResource: RecreationResourceDetailUIModel = {
   recreation_access: [],
   recreation_structure: { has_toilet: false, has_table: false },
   project_established_date_readable_utc: null,
-  accessCodes: [
+  access_codes: [
     {
       code: 'AC1',
       description: 'Access Type 1',
-      subAccessCodes: [
+      sub_access_codes: [
         { code: 'SUB1', description: 'Sub Access 1' },
         { code: 'SUB2', description: 'Sub Access 2' },
       ],
@@ -108,6 +117,11 @@ describe('RecResourceOverviewEditSection', () => {
       controlAccessCodeTypeOptions: [
         { id: 'CA1', label: 'Control Access 1' },
         { id: 'CA2', label: 'Control Access 2' },
+      ],
+      // new risk rating options added
+      riskRatingCodeTypeOptions: [
+        { id: 'R1', label: 'Low' },
+        { id: 'R2', label: 'High' },
       ],
       recreationStatusOptions: [
         { id: '1', label: 'Open' },
@@ -194,6 +208,24 @@ describe('RecResourceOverviewEditSection', () => {
       expect(screen.getByText('Control Access Type')).toBeInTheDocument();
       expect(
         screen.getByTestId('select-field-control_access_code'),
+      ).toBeInTheDocument();
+    });
+
+    it('should render Risk Rating field', () => {
+      render(<RecResourceOverviewEditSection />);
+
+      expect(screen.getByText('Risk Rating')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('select-field-risk_rating_code'),
+      ).toBeInTheDocument();
+    });
+
+    it('should render Project Established Date field', () => {
+      render(<RecResourceOverviewEditSection />);
+
+      expect(screen.getByText('Project Established Date')).toBeInTheDocument();
+      expect(
+        screen.getByTestId('date-field-project_established_date'),
       ).toBeInTheDocument();
     });
 
@@ -405,6 +437,12 @@ describe('RecResourceOverviewEditSection', () => {
         screen.getByTestId(
           'grouped-multi-select-field-selected_access_options',
         ),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('select-field-risk_rating_code'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByTestId('date-field-project_established_date'),
       ).toBeInTheDocument();
     });
   });

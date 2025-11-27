@@ -189,6 +189,15 @@ describe('AuthService', () => {
       await expect(authService.login()).rejects.toThrow('fail');
     });
 
+    it('calls keycloak.login with redirectPath when provided', async () => {
+      const redirectPath = '/some/path?foo=bar';
+      const expectedRedirect = `${window.location.origin}${redirectPath}`;
+      await authService.login(redirectPath);
+      expect(mockKeycloak.login).toHaveBeenCalledWith(
+        expect.objectContaining({ redirectUri: expectedRedirect }),
+      );
+    });
+
     it('calls keycloak.logout', async () => {
       await authService.logout();
       expect(mockKeycloak.logout).toHaveBeenCalled();
@@ -197,6 +206,32 @@ describe('AuthService', () => {
     it('propagates logout errors', async () => {
       mockKeycloak.logout.mockRejectedValue(new Error('fail'));
       await expect(authService.logout()).rejects.toThrow('fail');
+    });
+  });
+
+  describe('roles and authorization helpers', () => {
+    beforeEach(() => {
+      authService = AuthService.getInstance();
+    });
+
+    it('hasRequiredRole returns true when user has a required role', () => {
+      mockKeycloak.tokenParsed = { client_roles: ['foo', 'bar'] } as UserInfo;
+      expect(authService.hasRequiredRole(['bar', 'baz'])).toBe(true);
+    });
+
+    it('hasRequiredRole returns false when user lacks required roles', () => {
+      mockKeycloak.tokenParsed = { client_roles: ['alpha'] } as UserInfo;
+      expect(authService.hasRequiredRole(['beta', 'gamma'])).toBe(false);
+    });
+
+    it('isAuthorized returns true when user has rst-admin or rst-viewer', () => {
+      mockKeycloak.tokenParsed = { client_roles: ['rst-admin'] } as UserInfo;
+      expect(authService.isAuthorized()).toBe(true);
+    });
+
+    it('isAuthorized returns false when user lacks rst roles', () => {
+      mockKeycloak.tokenParsed = { client_roles: ['other'] } as UserInfo;
+      expect(authService.isAuthorized()).toBe(false);
     });
   });
 

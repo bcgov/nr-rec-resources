@@ -17,6 +17,18 @@ export const RecResourceOverviewItem = ({
   value,
   isHtml,
 }: RecResourceOverviewItemProps) => {
+  const renderContent = () => {
+    if (!value) {
+      return '-';
+    }
+
+    if (isHtml) {
+      return <div dangerouslySetInnerHTML={{ __html: value as string }} />;
+    }
+
+    return value;
+  };
+
   return (
     <Stack
       gap={1}
@@ -26,15 +38,7 @@ export const RecResourceOverviewItem = ({
       aria-labelledby={`overview-${label.toLowerCase()}`}
     >
       <span className="text-primary fw-bold">{label}</span>
-      <div className="text-secondary">
-        {isHtml ? (
-          <div dangerouslySetInnerHTML={{ __html: value as string }} />
-        ) : value ? (
-          value
-        ) : (
-          '-'
-        )}
-      </div>
+      <div className="text-secondary">{renderContent()}</div>
     </Stack>
   );
 };

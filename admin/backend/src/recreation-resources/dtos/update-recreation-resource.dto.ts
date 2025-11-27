@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsDate,
   IsNotEmpty,
   IsNumber,
   IsOptional,
@@ -12,7 +13,7 @@ import {
 export class UpdateRecreationAccessCodeDto {
   @ApiProperty({
     description: 'Access code (stored in recreation_access table)',
-    example: 'BOAT',
+    example: 'R',
     required: true,
   })
   @IsString()
@@ -21,6 +22,7 @@ export class UpdateRecreationAccessCodeDto {
 
   @ApiPropertyOptional({
     description: 'Sub access codes related to this access code',
+    example: ['4W'],
     type: [String],
     required: false,
   })
@@ -45,7 +47,7 @@ export class UpdateRecreationAccessCodeDto {
 export class UpdateRecreationResourceDto {
   @ApiPropertyOptional({
     description: 'Maintenance standard code',
-    example: '1',
+    example: 'M',
   })
   @IsOptional()
   @IsString()
@@ -62,6 +64,27 @@ export class UpdateRecreationResourceDto {
   @IsOptional()
   @IsString()
   control_access_code?: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Risk rating code',
+    example: 'H',
+    type: String,
+    nullable: true,
+  })
+  @IsOptional()
+  @IsString()
+  risk_rating_code?: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Project established date',
+    example: '2024-01-15',
+    type: String,
+    nullable: true,
+  })
+  @IsOptional()
+  @Type(() => Date)
+  @IsDate()
+  project_established_date?: Date | null;
 
   @ApiPropertyOptional({
     description: 'List of access codes with their sub-access codes',

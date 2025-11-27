@@ -22,7 +22,7 @@ describe('TextField', () => {
   const mockErrors = {};
 
   const defaultProps = {
-    name: 'name' as const, // Using 'name' as it's a valid field from EditResourceFormData
+    name: 'maintenance_standard_code' as const,
     label: 'Test Label',
     register: mockRegister,
     errors: mockErrors,
@@ -79,7 +79,7 @@ describe('TextField', () => {
     render(
       <TextField
         {...defaultProps}
-        errors={{ name: { message: errorMessage } }}
+        errors={{ maintenance_standard_code: { message: errorMessage } }}
       />,
       { wrapper: Wrapper },
     );
@@ -138,12 +138,12 @@ describe('TextField', () => {
     mockRegister.mockReturnValue({});
     render(<TextField {...defaultProps} />);
 
-    expect(mockRegister).toHaveBeenCalledWith('name');
+    expect(mockRegister).toHaveBeenCalledWith('maintenance_standard_code');
   });
 
   it('should display error message when error exists', () => {
     const errorsWithMessage = {
-      name: { message: 'This field is required' },
+      maintenance_standard_code: { message: 'This field is required' },
     };
 
     render(<TextField {...defaultProps} errors={errorsWithMessage} />, {
@@ -165,7 +165,7 @@ describe('TextField', () => {
 
   it('should handle different error formats', () => {
     const errorsWithDifferentFormat = {
-      name: { message: 'Custom error message' },
+      maintenance_standard_code: { message: 'Custom error message' },
     };
 
     render(<TextField {...defaultProps} errors={errorsWithDifferentFormat} />, {
