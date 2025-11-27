@@ -9,7 +9,11 @@ import { getRecreationResourceSelect } from 'src/recreation-resource/utils/getRe
 import { RecreationResourceDetailDto } from 'src/recreation-resource/dto/recreation-resource.dto';
 import { RecreationResourceImageSize } from 'src/recreation-resource/dto/recreation-resource-image.dto';
 import { AlphabeticalRecreationResourceDto } from 'src/recreation-resource/dto/alphabetical-recreation-resource.dto';
-import { getRecreationResourceSpatialFeatureGeometry } from '@prisma-generated-sql';
+import {
+  getRecreationResourceSpatialFeatureGeometry,
+  getMultipleResourcesSpatialFeatureGeometry,
+} from '@prisma-generated-sql';
+import { RecreationResourceGeometry } from '../dto/recreation-resource-geometry.dto';
 
 @Injectable()
 export class RecreationResourceService {
@@ -48,6 +52,37 @@ export class RecreationResourceService {
       recResource,
       recResourceSpatialGeometryResult,
     );
+  }
+
+  async findMany(
+    ids: string[],
+    imageSizeCodes?: RecreationResourceImageSize[],
+  ): Promise<RecreationResourceDetailDto[]> {
+    const result = await this.prisma.recreation_resource.findMany({
+      where: {
+        rec_resource_id: {
+          in: ids,
+        },
+        AND: {
+          display_on_public_site: true,
+        },
+      },
+      select: getRecreationResourceSelect(imageSizeCodes),
+    });
+
+    const geometries = await this.getMultipleGeometry(ids);
+
+    const response = result.map((rec) => {
+      if (rec && geometries[rec.rec_resource_id]) {
+        return formatRecreationResourceDetailResults(rec, {
+          site_point_geometry:
+            geometries[rec.rec_resource_id].site_point_geometry,
+          spatial_feature_geometry:
+            geometries[rec.rec_resource_id].spatial_feature_geometry,
+        });
+      }
+    });
+    return response.filter((i) => i !== undefined);
   }
 
   async findClientNumber(id: string): Promise<string> {
@@ -109,6 +144,24 @@ export class RecreationResourceService {
     return this.recreationResourceAlphabeticalService.getAlphabeticalResources(
       letter,
       type,
+    );
+  }
+
+  async getMultipleGeometry(
+    ids: string[],
+  ): Promise<
+    Record<string, Omit<RecreationResourceGeometry, 'rec_resource_id'>>
+  > {
+    const multipleResourcesSpatialFeatureGeometryResult: getMultipleResourcesSpatialFeatureGeometry.Result[] =
+      await this.prisma.$queryRawTyped(
+        getMultipleResourcesSpatialFeatureGeometry(ids),
+      );
+    return multipleResourcesSpatialFeatureGeometryResult.reduce(
+      (g, { rec_resource_id, ...rest }) => {
+        g[rec_resource_id] = rest;
+        return g;
+      },
+      {} as Record<string, Omit<RecreationResourceGeometry, 'rec_resource_id'>>,
     );
   }
 }

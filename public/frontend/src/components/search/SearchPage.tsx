@@ -134,14 +134,20 @@ const SearchPage = () => {
   const isFetchingFirstPage =
     isFetching && !isFetchingPreviousPage && !isFetchingNextPage;
   const isLocationSearchResults = lat && lon && community;
-
   return (
     <>
       <SearchBanner />
       <RemoveScroll enabled={isMapView}>
         <SearchMap
-          style={{
-            visibility: isMapView ? 'visible' : 'hidden',
+          totalCount={totalCount}
+          ids={paginatedResults?.flatMap(
+            (pageData: PaginatedRecreationResourceModel) =>
+              pageData?.recResourceIds,
+          )}
+          props={{
+            style: {
+              visibility: isMapView ? 'visible' : 'hidden',
+            },
           }}
         />
       </RemoveScroll>
@@ -193,7 +199,16 @@ const SearchPage = () => {
                         </span>
                       )}
                     </div>
-                    <SearchViewControls variant="map" />
+                    <div>
+                      <SearchViewControls
+                        variant="map"
+                        totalCount={totalCount}
+                        ids={paginatedResults?.flatMap(
+                          (pageData: PaginatedRecreationResourceModel) =>
+                            pageData?.recResourceIds,
+                        )}
+                      />
+                    </div>
                   </div>
                   <FilterChips />
                   {totalCount === 0 && <NoResults />}
