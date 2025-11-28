@@ -154,9 +154,45 @@ const RecResourceReservation: React.FC<RecResourceReservationProps> = ({
             <div className="camping-info icon-container mt-4 reservation-icon">
               <div className="camp-icon-container">
                 <FontAwesomeIcon icon={faInfoCircle} className="info-icon" />
-                <div>
-                  <span>No fees apply</span>
-                </div>
+              </div>
+              <div>
+                {isAdditionalFeesAvailable || isFacilitiesAvailable ? (
+                  <>
+                    {!isAdditionalFeesAvailable && (
+                      <>
+                        <span>No fees apply</span>
+                        <br />
+                      </>
+                    )}
+                    <span>
+                      Check{' '}
+                      {isAdditionalFeesAvailable && (
+                        <>
+                          <a
+                            href={`/resource/${recResource.rec_resource_id}#additional-fees`}
+                          >
+                            additional fees
+                          </a>{' '}
+                          {isFacilitiesAvailable && 'and '}
+                        </>
+                      )}
+                      {isFacilitiesAvailable && (
+                        <>
+                          <a
+                            href={`/resource/${recResource.rec_resource_id}#facilities`}
+                          >
+                            facilities
+                          </a>{' '}
+                        </>
+                      )}
+                      for more information
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span>No fees apply</span>{' '}
+                  </>
+                )}
               </div>
             </div>
           )}
