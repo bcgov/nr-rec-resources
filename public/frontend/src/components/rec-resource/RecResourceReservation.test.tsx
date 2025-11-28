@@ -234,4 +234,36 @@ describe('RecResourceReservation', () => {
 
     expect(screen.getByText(/No fees apply./i)).toBeInTheDocument();
   });
+
+  it('renders no fees apply when there is no camping and with fees and facilities', () => {
+    render(
+      <RecResourceReservation
+        recResource={{
+          ...baseResource,
+          campsite_count: 0,
+          recreation_fee: [],
+          recreation_resource_reservation_info: undefined,
+        }}
+      />,
+    );
+
+    expect(screen.getByText(/additional fees/i)).toBeInTheDocument();
+  });
+
+  it('renders no fees apply when there is no camping no fees and no facilities', () => {
+    render(
+      <RecResourceReservation
+        recResource={{
+          ...baseResource,
+          campsite_count: 0,
+          additional_fees: [],
+          recreation_fee: [],
+          recreation_structure: { has_toilet: false, has_table: false },
+          recreation_resource_reservation_info: undefined,
+        }}
+      />,
+    );
+
+    expect(screen.getByText(/No fees apply/i)).toBeInTheDocument();
+  });
 });
