@@ -1,13 +1,13 @@
 import { RecResourceOverviewEditSection } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/RecResourceOverviewEditSection';
+import {
+  useEditResourceForm,
+  useResourceOptions,
+} from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/hooks';
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { RecreationResourceDetailUIModel } from '@/services';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  useEditResourceForm,
-  useResourceOptions,
-} from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/hooks';
 
 // Mock dependencies
 vi.mock('@/pages/rec-resource-page/hooks/useRecResource');
@@ -206,10 +206,10 @@ describe('RecResourceOverviewEditSection', () => {
       ).toBeInTheDocument();
     });
 
-    it('should render Control Access Type field', () => {
+    it('should render Controlled Access Type field', () => {
       render(<RecResourceOverviewEditSection />);
 
-      expect(screen.getByText('Control Access Type')).toBeInTheDocument();
+      expect(screen.getByText('Controlled Access Type')).toBeInTheDocument();
       expect(
         screen.getByTestId('select-field-control_access_code'),
       ).toBeInTheDocument();
