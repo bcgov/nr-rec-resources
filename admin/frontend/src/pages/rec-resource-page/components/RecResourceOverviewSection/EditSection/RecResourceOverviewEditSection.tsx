@@ -78,7 +78,7 @@ export const RecResourceOverviewEditSection = () => {
             <Col xs={12} md={6}>
               <SelectField
                 name="control_access_code"
-                label="Control Access Type"
+                label="Controlled Access Type"
                 options={controlAccessCodeTypeOptions}
                 placeholder="Search or select a control access type..."
                 control={control}
