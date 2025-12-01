@@ -10,6 +10,11 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
   return {
     ...actual,
     useLocation: vi.fn(),
+    Link: ({ to, children, className, ...props }: any) => (
+      <a href={to} className={className} {...props}>
+        {children}
+      </a>
+    ),
   };
 });
 
@@ -37,8 +42,16 @@ vi.mock(
 );
 
 describe('RecResourceOverviewSection', () => {
+  const mockLocation = {
+    href: '',
+    pathname: '',
+    hash: '',
+    state: {},
+  };
+
   beforeEach(() => {
     vi.mocked(useLocation).mockReturnValue({
+      ...mockLocation,
       search: '',
     } as any);
   });
@@ -308,6 +321,21 @@ describe('RecResourceOverviewSection', () => {
     );
     expect(screen.getByText('RecResourceLocationSection')).toBeInTheDocument();
     expect(screen.getByText('RecResourceActivitySection')).toBeInTheDocument();
+
+    // Establishment Order section should not render without feature flag
+    expect(
+      screen.queryByText('RecResourceEstablishmentOrderSection'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders the Establishment Order section when feature flag is enabled', () => {
+    vi.mocked(useLocation).mockReturnValue({
+      ...mockLocation,
+      search: '?enable_full_features=true',
+    } as any);
+    renderWithProvider(
+      <RecResourceOverviewSection recResource={recResource} />,
+    );
     expect(
       screen.getByText('RecResourceEstablishmentOrderSection'),
     ).toBeInTheDocument();
