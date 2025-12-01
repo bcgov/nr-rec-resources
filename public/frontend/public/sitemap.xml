@@ -18,14 +18,6 @@
     <lastmod>2025-10-28</lastmod>
   </url>
   <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC3128</loc>
-    <lastmod>2025-06-30</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC3128/contact</loc>
-    <lastmod>2025-06-30</lastmod>
-  </url>
-  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC1511</loc>
     <lastmod>2025-11-18</lastmod>
   </url>
@@ -258,14 +250,6 @@
     <lastmod>2025-06-30</lastmod>
   </url>
   <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0149</loc>
-    <lastmod>2023-06-09</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0149/contact</loc>
-    <lastmod>2023-06-09</lastmod>
-  </url>
-  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC4781</loc>
     <lastmod>2025-11-20</lastmod>
   </url>
@@ -346,12 +330,44 @@
     <lastmod>2025-06-30</lastmod>
   </url>
   <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC3128</loc>
+    <lastmod>2025-06-30</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC3128/contact</loc>
+    <lastmod>2025-06-30</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0144</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0144/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC5290</loc>
     <lastmod>2025-06-30</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC5290/contact</loc>
     <lastmod>2025-06-30</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0149</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0149/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0150</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0150/contact</loc>
+    <lastmod>2025-11-25</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC16048</loc>
@@ -370,12 +386,68 @@
     <lastmod>2025-06-26</lastmod>
   </url>
   <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0156</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0156/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0158</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0158/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC16060</loc>
     <lastmod>2020-05-04</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC16060/contact</loc>
     <lastmod>2020-05-04</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0163</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0163/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0165</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0165/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0166</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0166/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0167</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0167/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0171</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0171/contact</loc>
+    <lastmod>2025-11-25</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC204659</loc>
@@ -386,12 +458,60 @@
     <lastmod>2025-07-14</lastmod>
   </url>
   <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0179</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0179/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC1095</loc>
     <lastmod>2025-06-19</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC1095/contact</loc>
     <lastmod>2025-06-19</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0181</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0181/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0184</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0184/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0185</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0185/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0187</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0187/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0190</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0190/contact</loc>
+    <lastmod>2025-11-25</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0002</loc>
@@ -418,12 +538,76 @@
     <lastmod>2025-06-26</lastmod>
   </url>
   <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0191</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0191/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0030</loc>
     <lastmod>2025-06-26</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0030/contact</loc>
     <lastmod>2025-06-26</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0196</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0196/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0276</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0276/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0297</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0297/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0300</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0300/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0475</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0475/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC3198</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC3198/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC3201</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC3201/contact</loc>
+    <lastmod>2025-11-25</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0039</loc>
@@ -474,12 +658,36 @@
     <lastmod>2025-06-26</lastmod>
   </url>
   <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC3204</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC3204/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0125</loc>
-    <lastmod>2025-06-26</lastmod>
+    <lastmod>2025-11-25</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0125/contact</loc>
-    <lastmod>2025-06-26</lastmod>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC3237</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC3237/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6325</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6325/contact</loc>
+    <lastmod>2025-11-25</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0142</loc>
@@ -490,12 +698,100 @@
     <lastmod>2025-06-30</lastmod>
   </url>
   <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6344</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6344/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6345</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6345/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6356</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6356/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6433</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6433/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6450</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6450/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16077</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16077/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16081</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16081/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16069</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16069/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16068</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16068/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC169078</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC169078/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0160</loc>
     <lastmod>2025-06-26</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0160/contact</loc>
     <lastmod>2025-06-26</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0174</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0174/contact</loc>
+    <lastmod>2025-11-25</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC1319</loc>
@@ -512,14 +808,6 @@
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC1335/contact</loc>
     <lastmod>2025-06-19</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0174</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0174/contact</loc>
-    <lastmod>2025-06-26</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0175</loc>
@@ -810,6 +1098,14 @@
     <lastmod>2021-02-03</lastmod>
   </url>
   <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0242</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0242/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0992</loc>
     <lastmod>2020-04-15</lastmod>
   </url>
@@ -831,14 +1127,6 @@
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0254/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0242</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0242/contact</loc>
     <lastmod>2025-06-26</lastmod>
   </url>
   <url>
@@ -1482,6 +1770,14 @@
     <lastmod>2025-06-27</lastmod>
   </url>
   <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0471</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0471/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC1531</loc>
     <lastmod>2025-06-18</lastmod>
   </url>
@@ -1520,14 +1816,6 @@
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0282/contact</loc>
     <lastmod>2020-04-29</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0471</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0471/contact</loc>
-    <lastmod>2025-06-26</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC15029</loc>
@@ -2530,27 +2818,11 @@
     <lastmod>2020-05-06</lastmod>
   </url>
   <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16130</loc>
-    <lastmod>2020-05-06</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16130/contact</loc>
-    <lastmod>2020-05-06</lastmod>
-  </url>
-  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC16141</loc>
     <lastmod>2020-05-06</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC16141/contact</loc>
-    <lastmod>2020-05-06</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16159</loc>
-    <lastmod>2020-05-06</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16159/contact</loc>
     <lastmod>2020-05-06</lastmod>
   </url>
   <url>
@@ -2560,6 +2832,22 @@
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC16176/contact</loc>
     <lastmod>2020-05-06</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16130</loc>
+    <lastmod>2025-11-26</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16130/contact</loc>
+    <lastmod>2025-11-26</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16159</loc>
+    <lastmod>2025-11-26</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16159/contact</loc>
+    <lastmod>2025-11-26</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC16138</loc>
@@ -5802,6 +6090,14 @@
     <lastmod>2025-06-30</lastmod>
   </url>
   <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC3041</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC3041/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC3053</loc>
     <lastmod>2024-08-30</lastmod>
   </url>
@@ -5890,14 +6186,6 @@
     <lastmod>2025-06-26</lastmod>
   </url>
   <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC3041</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC3041/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC3046</loc>
     <lastmod>2025-06-26</lastmod>
   </url>
@@ -5962,6 +6250,14 @@
     <lastmod>2025-06-24</lastmod>
   </url>
   <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC4700</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC4700/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC4662</loc>
     <lastmod>2025-06-25</lastmod>
   </url>
@@ -5976,14 +6272,6 @@
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC4672/contact</loc>
     <lastmod>2025-06-25</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC4700</loc>
-    <lastmod>2025-06-19</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC4700/contact</loc>
-    <lastmod>2025-06-19</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC4713</loc>
@@ -6770,6 +7058,14 @@
     <lastmod>2025-06-18</lastmod>
   </url>
   <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC5894</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC5894/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC5905</loc>
     <lastmod>2025-06-30</lastmod>
   </url>
@@ -6864,14 +7160,6 @@
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC5890/contact</loc>
     <lastmod>2025-06-30</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC5894</loc>
-    <lastmod>2021-05-14</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC5894/contact</loc>
-    <lastmod>2021-05-14</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC5902</loc>
@@ -7794,6 +8082,14 @@
     <lastmod>2020-04-30</lastmod>
   </url>
   <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6898</loc>
+    <lastmod>2025-11-26</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6898/contact</loc>
+    <lastmod>2025-11-26</lastmod>
+  </url>
+  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC16187</loc>
     <lastmod>2025-06-27</lastmod>
   </url>
@@ -7874,20 +8170,20 @@
     <lastmod>2020-04-17</lastmod>
   </url>
   <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6898</loc>
-    <lastmod>2025-06-25</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6898/contact</loc>
-    <lastmod>2025-06-25</lastmod>
-  </url>
-  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC6897</loc>
     <lastmod>2020-01-09</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC6897/contact</loc>
     <lastmod>2020-01-09</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16084</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16084/contact</loc>
+    <lastmod>2025-11-25</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC1890</loc>
@@ -7960,14 +8256,6 @@
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC160138/contact</loc>
     <lastmod>2020-03-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16084</loc>
-    <lastmod>2019-11-27</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16084/contact</loc>
-    <lastmod>2019-11-27</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC97307</loc>
@@ -8882,6 +9170,14 @@
     <lastmod>2019-03-12</lastmod>
   </url>
   <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC203411</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC203411/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC191072</loc>
     <lastmod>2019-03-28</lastmod>
   </url>
@@ -9064,14 +9360,6 @@
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC203216/contact</loc>
     <lastmod>2022-02-23</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC203411</loc>
-    <lastmod>2025-06-20</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC203411/contact</loc>
-    <lastmod>2025-06-20</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC160875</loc>
@@ -9530,6 +9818,14 @@
     <lastmod>2025-06-30</lastmod>
   </url>
   <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC202937</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC202937/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC240342</loc>
     <lastmod>2025-06-26</lastmod>
   </url>
@@ -9616,14 +9912,6 @@
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC4726/contact</loc>
     <lastmod>2025-06-16</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC202937</loc>
-    <lastmod>2024-11-27</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC202937/contact</loc>
-    <lastmod>2024-11-27</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC1596</loc>
@@ -11194,43 +11482,11 @@
     <lastmod>2025-06-30</lastmod>
   </url>
   <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0144</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0144/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0146</loc>
     <lastmod>2025-06-26</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0146/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0150</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0150/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0156</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0156/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0158</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0158/contact</loc>
     <lastmod>2025-06-26</lastmod>
   </url>
   <url>
@@ -11247,46 +11503,6 @@
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0162/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0163</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0163/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0165</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0165/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0166</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0166/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0167</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0167/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0171</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0171/contact</loc>
     <lastmod>2025-06-26</lastmod>
   </url>
   <url>
@@ -11314,14 +11530,6 @@
     <lastmod>2025-06-26</lastmod>
   </url>
   <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0179</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0179/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0180</loc>
     <lastmod>2025-06-26</lastmod>
   </url>
@@ -11330,35 +11538,11 @@
     <lastmod>2025-06-26</lastmod>
   </url>
   <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0181</loc>
-    <lastmod>2025-07-10</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0181/contact</loc>
-    <lastmod>2025-07-10</lastmod>
-  </url>
-  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0182</loc>
     <lastmod>2025-06-26</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0182/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0184</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0184/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0185</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0185/contact</loc>
     <lastmod>2025-06-26</lastmod>
   </url>
   <url>
@@ -11370,14 +11554,6 @@
     <lastmod>2025-06-26</lastmod>
   </url>
   <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0187</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0187/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0188</loc>
     <lastmod>2025-06-26</lastmod>
   </url>
@@ -11386,35 +11562,11 @@
     <lastmod>2025-06-26</lastmod>
   </url>
   <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0190</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0190/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0191</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0191/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0195</loc>
     <lastmod>2025-06-26</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0195/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0196</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0196/contact</loc>
     <lastmod>2025-06-26</lastmod>
   </url>
   <url>
@@ -11554,14 +11706,6 @@
     <lastmod>2025-06-30</lastmod>
   </url>
   <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0276</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0276/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0289</loc>
     <lastmod>2025-06-16</lastmod>
   </url>
@@ -11592,22 +11736,6 @@
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0292/contact</loc>
     <lastmod>2025-06-30</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0297</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0297/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0300</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0300/contact</loc>
-    <lastmod>2025-06-26</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0303</loc>
@@ -11672,14 +11800,6 @@
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0472/contact</loc>
     <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0475</loc>
-    <lastmod>2024-01-16</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC0475/contact</loc>
-    <lastmod>2024-01-16</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC0489</loc>
@@ -15282,36 +15402,12 @@
     <lastmod>2025-06-26</lastmod>
   </url>
   <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC3198</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC3198/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC3201</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC3201/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC3202</loc>
     <lastmod>2023-10-18</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC3202/contact</loc>
     <lastmod>2023-10-18</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC3204</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC3204/contact</loc>
-    <lastmod>2025-06-26</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC3206</loc>
@@ -15328,14 +15424,6 @@
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC3232/contact</loc>
     <lastmod>2022-02-24</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC3237</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC3237/contact</loc>
-    <lastmod>2025-06-26</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC3258</loc>
@@ -15432,14 +15520,6 @@
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC4506/contact</loc>
     <lastmod>2025-06-24</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC4521</loc>
-    <lastmod>2022-08-23</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC4521/contact</loc>
-    <lastmod>2022-08-23</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC4524</loc>
@@ -15600,6 +15680,14 @@
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC4503/contact</loc>
     <lastmod>2025-11-20</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC4521</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC4521/contact</loc>
+    <lastmod>2025-11-25</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC4632</loc>
@@ -16066,28 +16154,12 @@
     <lastmod>2025-06-30</lastmod>
   </url>
   <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC5671</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC5671/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC5704</loc>
     <lastmod>2025-06-26</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC5704/contact</loc>
     <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC5712</loc>
-    <lastmod>2024-07-15</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC5712/contact</loc>
-    <lastmod>2024-07-15</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC5722</loc>
@@ -16232,6 +16304,22 @@
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC5899/contact</loc>
     <lastmod>2025-07-11</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC5671</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC5671/contact</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC5712</loc>
+    <lastmod>2025-11-25</lastmod>
+  </url>
+  <url>
+    <loc>https://beta.sitesandtrailsbc.ca/resource/REC5712/contact</loc>
+    <lastmod>2025-11-25</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC5943</loc>
@@ -16426,14 +16514,6 @@
     <lastmod>2020-04-30</lastmod>
   </url>
   <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6325</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6325/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC6326</loc>
     <lastmod>2025-06-19</lastmod>
   </url>
@@ -16448,30 +16528,6 @@
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC6341/contact</loc>
     <lastmod>2025-06-25</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6344</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6344/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6345</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6345/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6356</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6356/contact</loc>
-    <lastmod>2025-06-26</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC6358</loc>
@@ -16530,14 +16586,6 @@
     <lastmod>2025-06-26</lastmod>
   </url>
   <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6433</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6433/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC6444</loc>
     <lastmod>2025-06-26</lastmod>
   </url>
@@ -16575,14 +16623,6 @@
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC15781/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6450</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC6450/contact</loc>
     <lastmod>2025-06-26</lastmod>
   </url>
   <url>
@@ -16970,27 +17010,11 @@
     <lastmod>2025-07-21</lastmod>
   </url>
   <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16077</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16077/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC16046</loc>
     <lastmod>2025-06-26</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC16046/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16081</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16081/contact</loc>
     <lastmod>2025-06-26</lastmod>
   </url>
   <url>
@@ -17032,22 +17056,6 @@
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC4715/contact</loc>
     <lastmod>2021-02-04</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16069</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16069/contact</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16068</loc>
-    <lastmod>2025-06-26</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC16068/contact</loc>
-    <lastmod>2025-06-26</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC2057</loc>
@@ -17832,14 +17840,6 @@
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC169043/contact</loc>
     <lastmod>2021-04-08</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC169078</loc>
-    <lastmod>2025-06-24</lastmod>
-  </url>
-  <url>
-    <loc>https://beta.sitesandtrailsbc.ca/resource/REC169078/contact</loc>
-    <lastmod>2025-06-24</lastmod>
   </url>
   <url>
     <loc>https://beta.sitesandtrailsbc.ca/resource/REC169080</loc>
