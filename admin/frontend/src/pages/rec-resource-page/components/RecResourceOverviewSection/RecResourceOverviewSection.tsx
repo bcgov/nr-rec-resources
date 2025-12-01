@@ -101,9 +101,11 @@ export const RecResourceOverviewSection = (
         </Col>
       </Row>
 
-      <RecResourceEstablishmentOrderSection
-        recResourceId={recResource.rec_resource_id}
-      />
+      <FeatureFlagGuard requiredFlags={['enable_full_features']}>
+        <RecResourceEstablishmentOrderSection
+          recResourceId={recResource.rec_resource_id}
+        />
+      </FeatureFlagGuard>
 
       {recResource && <RecResourceLocationSection recResource={recResource} />}
 
