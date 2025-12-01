@@ -122,10 +122,7 @@ describe('fileUtils', () => {
     });
     it('should fetch the URL and download the file', async () => {
       await downloadUrlAsFile('https://example.com/test.txt', 'fetched.txt');
-      expect(global.fetch).toHaveBeenCalledWith(
-        'https://example.com/test.txt',
-        { credentials: 'include' },
-      );
+      expect(global.fetch).toHaveBeenCalledWith('https://example.com/test.txt');
     });
 
     it('should throw error when fetch response is not ok', async () => {
@@ -140,7 +137,6 @@ describe('fileUtils', () => {
 
       expect(global.fetch).toHaveBeenCalledWith(
         'https://example.com/missing.txt',
-        { credentials: 'include' },
       );
     });
 

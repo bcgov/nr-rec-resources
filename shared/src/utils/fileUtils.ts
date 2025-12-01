@@ -26,7 +26,7 @@ export function downloadBlobAsFile(blob: Blob, fileName: string) {
  * @param fileName - The name for the downloaded file.
  */
 export async function downloadUrlAsFile(url: string, fileName: string) {
-  const response = await fetch(url, { credentials: 'include' });
+  const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`HTTP ${response.status}`);
   }
