@@ -32,6 +32,7 @@ describe('RecreationResourceDetailDto', () => {
     dto.recreation_status.description = 'Open';
     dto.rec_resource_type = 'IF';
     dto.description = 'A scenic campground';
+    dto.display_on_public_site = true;
     dto.driving_directions = 'Take exit 123';
     const maintenance = new RecreationResourceMaintenanceStandardDto();
     maintenance.maintenance_standard_code =
@@ -73,6 +74,7 @@ describe('RecreationResourceDetailDto', () => {
     expect(dto.recreation_status.status_code).toBe(1);
     expect(dto.rec_resource_type).toBe('IF');
     expect(dto.description).toBe('A scenic campground');
+    expect(dto.display_on_public_site).toBe(true);
     expect(dto.driving_directions).toBe('Take exit 123');
     expect(dto.maintenance_standard.maintenance_standard_code).toBe(
       RecreationResourceMaintenanceStandardCode.U,
@@ -99,6 +101,7 @@ describe('RecreationResourceDetailDto', () => {
   it('should allow undefined optional properties', () => {
     const dto = new RecreationResourceDetailDto();
     expect(dto.description).toBeUndefined();
+    expect(dto.display_on_public_site).toBeUndefined();
     expect(dto.driving_directions).toBeUndefined();
     expect(dto.maintenance_standard).toBeUndefined();
     expect(dto.spatial_feature_geometry).toBeUndefined();

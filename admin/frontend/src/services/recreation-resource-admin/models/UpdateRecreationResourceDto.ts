@@ -69,6 +69,12 @@ export interface UpdateRecreationResourceDto {
    * @memberof UpdateRecreationResourceDto
    */
   district_code?: string | null;
+  /**
+   * Indicates if the resource should be displayed on the public site
+   * @type {boolean}
+   * @memberof UpdateRecreationResourceDto
+   */
+  display_on_public_site?: boolean;
 }
 
 /**
@@ -117,6 +123,10 @@ export function UpdateRecreationResourceDtoFromJSONTyped(
     status_code: json['status_code'] == null ? undefined : json['status_code'],
     district_code:
       json['district_code'] == null ? undefined : json['district_code'],
+    display_on_public_site:
+      json['display_on_public_site'] == null
+        ? undefined
+        : json['display_on_public_site'],
   };
 }
 
@@ -147,5 +157,6 @@ export function UpdateRecreationResourceDtoToJSONTyped(
           ),
     status_code: value['status_code'],
     district_code: value['district_code'],
+    display_on_public_site: value['display_on_public_site'],
   };
 }

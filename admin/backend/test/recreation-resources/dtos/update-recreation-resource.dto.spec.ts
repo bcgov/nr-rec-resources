@@ -39,6 +39,7 @@ describe('Update Recreation Resource DTOs', () => {
       dto.access_codes = [ac1, ac2];
       dto.status_code = 1;
       dto.district_code = 'CHWK';
+      dto.display_on_public_site = true;
 
       expect(dto.maintenance_standard_code).toBe('1');
       expect(dto.control_access_code).toBe('G');
@@ -49,6 +50,7 @@ describe('Update Recreation Resource DTOs', () => {
       expect(dto.access_codes).toHaveLength(2);
       expect(dto.status_code).toBe(1);
       expect(dto.district_code).toBe('CHWK');
+      expect(dto.display_on_public_site).toBe(true);
     });
 
     it('should create a valid DTO with only maintenance_standard_code', () => {
@@ -61,6 +63,7 @@ describe('Update Recreation Resource DTOs', () => {
       expect(dto.project_established_date).toBeUndefined();
       expect(dto.access_codes).toBeUndefined();
       expect(dto.status_code).toBeUndefined();
+      expect(dto.display_on_public_site).toBeUndefined();
     });
 
     it('should accept null control_access_code', () => {
@@ -125,6 +128,14 @@ describe('Update Recreation Resource DTOs', () => {
       expect(dto.project_established_date?.toISOString().split('T')[0]).toBe(
         '2024-06-20',
       );
+      expect(dto.maintenance_standard_code).toBeUndefined();
+    });
+
+    it('should create a valid DTO with only display_on_public_site', () => {
+      const dto = new UpdateRecreationResourceDto();
+      dto.display_on_public_site = false;
+
+      expect(dto.display_on_public_site).toBe(false);
       expect(dto.maintenance_standard_code).toBeUndefined();
     });
   });

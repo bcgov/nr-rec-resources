@@ -4,6 +4,7 @@ export const recreationResourceSelect = {
   closest_community: true,
   maintenance_standard_code: true,
   project_established_date: true,
+  display_on_public_site: true,
   recreation_maintenance_standard_code: {
     select: {
       description: true,

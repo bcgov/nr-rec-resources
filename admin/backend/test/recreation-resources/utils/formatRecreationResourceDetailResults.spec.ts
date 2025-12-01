@@ -16,6 +16,7 @@ const baseResource = {
   rec_resource_id: '123',
   name: 'Test Site',
   closest_community: 'Testville',
+  display_on_public_site: true,
   recreation_site_description: { description: 'A nice place' },
   recreation_driving_direction: { description: 'Turn left' },
   // raw value stored on the resource row
@@ -93,6 +94,7 @@ describe('formatRecreationResourceDetailResults', () => {
     expect(result.name).toBe('Test Site');
     expect(result.closest_community).toBe('Testville');
     expect(result.description).toBe('A nice place');
+    expect(result.display_on_public_site).toBe(true);
     expect(result.driving_directions).toBe('Turn left');
 
     // maintenance_standard is an object when present
@@ -178,6 +180,7 @@ describe('formatRecreationResourceDetailResults', () => {
     expect(result.name).toBe('');
     expect(result.closest_community).toBe('');
     expect(result.description).toBeUndefined();
+    expect(result.display_on_public_site).toBeUndefined();
     expect(result.driving_directions).toBeUndefined();
     expect(result.maintenance_standard).toBeUndefined();
     expect(result.rec_resource_type).toBe('');

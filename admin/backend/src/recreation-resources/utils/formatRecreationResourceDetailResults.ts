@@ -48,6 +48,7 @@ export function formatRecreationResourceDetailResults(
     maintenance_standard: maintenanceStandard,
     rec_resource_type:
       result?.recreation_resource_type_view_admin?.[0]?.description ?? '',
+    display_on_public_site: result.display_on_public_site ?? undefined,
     access_codes: (() => {
       // Use a Map for O(1) lookups of access codes
       const accessCodeMap = new Map<
