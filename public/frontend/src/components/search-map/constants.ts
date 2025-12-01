@@ -82,9 +82,21 @@ export const CANADA_TOPO_LAYER_URLS = {
 };
 
 export const CLUSTER_OPTIONS = {
-  distance: 30,
+  distance: 60,
   minDistance: 10,
 };
+
+// Cluster distance values
+export const CLUSTER_DISTANCE_ZOOMED_OUT = 60;
+export const CLUSTER_DISTANCE_ZOOMED_IN = 0;
+
+// Cluster minDistance values
+export const CLUSTER_MIN_DISTANCE_ZOOMED_OUT = 10;
+export const CLUSTER_MIN_DISTANCE_ZOOMED_IN = 0;
+
+// Zoom level threshold for switching cluster distance
+// When zoom is greater than or equal to this, use smaller cluster distance
+export const CLUSTER_DISTANCE_ZOOM_THRESHOLD = 12;
 
 export const ANIMATED_CLUSTER_OPTIONS = {
   animationDuration: 500,

@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import OLMap from 'ol/Map';
-import { Options as ClusterOptions } from 'ol/source/Cluster';
+import ClusterSource, { Options as ClusterOptions } from 'ol/source/Cluster';
 import { createEmpty, extend } from 'ol/extent';
 import {
   createClusteredRecreationFeatureStyle,
@@ -11,7 +11,10 @@ import { click } from 'ol/events/condition';
 import Select from 'ol/interaction/Select';
 import AnimatedCluster from 'ol-ext/layer/AnimatedCluster';
 import { AnimatedClusterOptions } from '@/components/search-map/types';
-import { calculateMapPadding } from '@/components/search-map/utils';
+import {
+  calculateMapPadding,
+  getClusterDistance,
+} from '@/components/search-map/utils';
 
 interface UseClusteredRecreationFeatureLayerOptions {
   clusterOptions?: ClusterOptions;
@@ -28,6 +31,7 @@ export const useClusteredRecreationFeatureLayer = (
 ) => {
   const { applyHoverStyles = true } = options || {};
   const [hoveredFeature, setHoveredFeature] = useState<Feature | null>(null);
+  const clusterSourceRef = useRef<ClusterSource | null>(null);
 
   const clusterLayer = useRef(
     new AnimatedCluster({
@@ -36,14 +40,41 @@ export const useClusteredRecreationFeatureLayer = (
     }),
   ).current;
 
+  // Create underlying vector source and cluster source, update cluster distance based on zoom
   useEffect(() => {
-    const filteredVectorSource = createFilteredClusterSource(
-      recResourceIds,
-      options?.clusterOptions,
-    );
+    const map = mapRef.current?.getMap();
+    if (!map) return;
 
-    clusterLayer.setSource(filteredVectorSource);
-  }, [recResourceIds, options?.clusterOptions]);
+    const view = map.getView();
+    const defaultDistance = options?.clusterOptions?.distance;
+    const defaultMinDistance = options?.clusterOptions?.minDistance;
+    const initialClusterOptions = getClusterDistance(
+      view.getZoom(),
+      defaultDistance,
+      defaultMinDistance,
+    );
+    const clusterSource = createFilteredClusterSource(recResourceIds, {
+      distance: initialClusterOptions.distance,
+      minDistance: initialClusterOptions.minDistance,
+    });
+
+    clusterLayer.setSource(clusterSource);
+    clusterSourceRef.current = clusterSource;
+
+    const handleZoomChange = () => {
+      const zoom = view.getZoom();
+      const { distance, minDistance } = getClusterDistance(
+        zoom,
+        defaultDistance,
+        defaultMinDistance,
+      );
+      clusterSource.setDistance(distance);
+      clusterSource.setMinDistance(minDistance);
+    };
+
+    view.on('change:resolution', handleZoomChange);
+    return () => view.un('change:resolution', handleZoomChange);
+  }, [recResourceIds, options?.clusterOptions, mapRef]);
 
   useEffect(() => {
     if (!applyHoverStyles) return;
