@@ -177,6 +177,12 @@ export interface RecreationResourceDetailDto {
    * @memberof RecreationResourceDetailDto
    */
   risk_rating?: RecreationRiskRatingDto;
+  /**
+   * Indicates if the resource should be displayed on the public site
+   * @type {boolean}
+   * @memberof RecreationResourceDetailDto
+   */
+  display_on_public_site?: boolean;
 }
 
 /**
@@ -300,6 +306,10 @@ export function RecreationResourceDetailDtoFromJSONTyped(
       json['risk_rating'] == null
         ? undefined
         : RecreationRiskRatingDtoFromJSON(json['risk_rating']),
+    display_on_public_site:
+      json['display_on_public_site'] == null
+        ? undefined
+        : json['display_on_public_site'],
   };
 }
 
@@ -349,5 +359,6 @@ export function RecreationResourceDetailDtoToJSONTyped(
       value['recreation_control_access_code'],
     ),
     risk_rating: RecreationRiskRatingDtoToJSON(value['risk_rating']),
+    display_on_public_site: value['display_on_public_site'],
   };
 }

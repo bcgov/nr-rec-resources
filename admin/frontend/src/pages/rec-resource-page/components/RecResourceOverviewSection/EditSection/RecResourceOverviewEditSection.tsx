@@ -4,8 +4,10 @@ import { EditResourceFormData } from '@/pages/rec-resource-page/components/RecRe
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { RecreationResourceDetailUIModel } from '@/services';
 import { Button, Col, Form, Row, Stack } from 'react-bootstrap';
+import { Controller } from 'react-hook-form';
 import { GroupedMultiSelectField, SelectField } from './components';
 import { useEditResourceForm, useResourceOptions } from './hooks';
+import { VisibleOnPublicSite } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/components';
 
 /**
  * Edit section for recreation resource overview
@@ -50,6 +52,21 @@ export const RecResourceOverviewEditSection = () => {
 
       <Form onSubmit={handleSubmit(onSubmit as any)}>
         <Stack direction="vertical" gap={4}>
+          <Row>
+            <Col xs={12}>
+              <Controller
+                name="display_on_public_site"
+                control={control}
+                render={({ field }) => (
+                  <VisibleOnPublicSite
+                    isEditMode={true}
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                )}
+              />
+            </Col>
+          </Row>
           <Row className="gy-3">
             {/* Status */}
             <Col xs={12} md={6}>
