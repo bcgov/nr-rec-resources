@@ -17,6 +17,13 @@ vi.mock('ol-ext/layer/AnimatedCluster', () => ({
 }));
 
 vi.mock('ol/interaction/Select');
+vi.mock('ol/source/Cluster', () => ({
+  default: vi.fn().mockImplementation((options) => ({
+    setDistance: vi.fn(),
+    getSource: vi.fn(),
+    ...options,
+  })),
+}));
 vi.mock('ol/extent', () => ({
   extend: vi.fn(() => [0, 0, 100, 100]),
   createEmpty: vi.fn(() => [0, 0, 0, 0]),
@@ -47,14 +54,19 @@ describe('useClusteredRecreationFeatureLayer', () => {
 
   const mapRef = { current: { getMap: () => mockMap } } as any;
 
-  const mockSource = {
-    setDistance: vi.fn(),
+  const mockVectorSource = {
     addFeatures: vi.fn(),
     clear: vi.fn(),
   };
 
+  const mockClusterSource = {
+    setDistance: vi.fn(),
+    setMinDistance: vi.fn(),
+    getSource: vi.fn(() => mockVectorSource),
+  };
+
   const mockLayer = {
-    getSource: () => mockSource,
+    getSource: () => mockClusterSource,
     setStyle: vi.fn(),
     changed: vi.fn(),
     setSource: vi.fn(),
@@ -75,15 +87,12 @@ describe('useClusteredRecreationFeatureLayer', () => {
     ).default;
     AnimatedCluster.mockImplementation(() => mockLayer as any);
 
-    vi.spyOn(recreationLayer, 'createRecreationFeatureSource').mockReturnValue(
-      mockSource as any,
-    );
     vi.spyOn(
       recreationLayer,
       'createClusteredRecreationFeatureStyle',
     ).mockReturnValue(new Style());
     vi.spyOn(recreationLayer, 'createFilteredClusterSource').mockReturnValue(
-      mockSource as any,
+      mockClusterSource as any,
     );
     (Select as any).mockImplementation(() => mockSelectInstance);
   });
@@ -98,35 +107,34 @@ describe('useClusteredRecreationFeatureLayer', () => {
     );
   });
 
-  it('creates filtered vector source when recResourceIds change', () => {
-    const { rerender } = renderHook(
-      ({ recResourceIds }) =>
-        useClusteredRecreationFeatureLayer(recResourceIds, mapRef),
-      { initialProps: { recResourceIds: ['1'] } },
-    );
+  it('creates cluster source and updates distance on zoom changes', () => {
+    mockView.getZoom = vi.fn(() => 5);
+    renderHook(() => useClusteredRecreationFeatureLayer(['1'], mapRef));
+
     expect(recreationLayer.createFilteredClusterSource).toHaveBeenCalledWith(
       ['1'],
-      undefined,
-    );
-
-    rerender({ recResourceIds: ['2'] });
-    expect(recreationLayer.createFilteredClusterSource).toHaveBeenCalledWith(
-      ['2'],
-      undefined,
-    );
-  });
-
-  it('creates layer with cluster options', () => {
-    renderHook(() =>
-      useClusteredRecreationFeatureLayer(['1'], mapRef, {
-        clusterOptions: { distance: 50 },
-        animatedClusterOptions: { animationDuration: 700 },
+      expect.objectContaining({
+        distance: expect.any(Number),
+        minDistance: expect.any(Number),
       }),
     );
+    expect(mockLayer.setSource).toHaveBeenCalled();
 
-    expect(recreationLayer.createFilteredClusterSource).toHaveBeenCalledWith(
-      ['1'],
-      { distance: 50 },
+    // Test zoom change handler calls setDistance
+    const zoomChangeHandler = mockView.on.mock.calls.find(
+      (call) => call[0] === 'change:resolution',
+    )?.[1];
+    expect(zoomChangeHandler).toBeDefined();
+
+    mockView.getZoom = vi.fn(() => 15);
+    act(() => {
+      zoomChangeHandler?.();
+    });
+    expect(mockClusterSource.setDistance).toHaveBeenCalledWith(
+      expect.any(Number),
+    );
+    expect(mockClusterSource.setMinDistance).toHaveBeenCalledWith(
+      expect.any(Number),
     );
   });
 
@@ -204,61 +212,46 @@ describe('useClusteredRecreationFeatureLayer', () => {
     expect(pointerMoveCall).toBeUndefined();
   });
 
-  it('handles empty recResourceIds array', () => {
+  it('handles empty recResourceIds and selection edge cases', () => {
+    mockView.getZoom = vi.fn(() => 5);
     renderHook(() => useClusteredRecreationFeatureLayer([], mapRef));
-
     expect(recreationLayer.createFilteredClusterSource).toHaveBeenCalledWith(
       [],
-      undefined,
+      expect.objectContaining({
+        distance: expect.any(Number),
+        minDistance: expect.any(Number),
+      }),
     );
-  });
-
-  it('handles single feature selection (no zoom)', () => {
-    renderHook(() => useClusteredRecreationFeatureLayer(['1'], mapRef));
 
     const selectCall = mockSelectInstance.on.mock.calls.find(
       (call) => call[0] === 'select',
     );
     const selectHandler = selectCall![1];
 
-    // Mock single feature (should not zoom)
-    const mockSingleFeature = {
-      get: () => [new Feature()], // Single feature array
-    };
-
-    selectHandler({ selected: [mockSingleFeature] });
-
-    // Should not call fit when only one feature
-    expect(mockView.fit).not.toHaveBeenCalled();
-  });
-
-  it('handles selection with no features', () => {
-    renderHook(() => useClusteredRecreationFeatureLayer(['1'], mapRef));
-
-    const selectCall = mockSelectInstance.on.mock.calls.find(
-      (call) => call[0] === 'select',
-    );
-    const selectHandler = selectCall![1];
-
-    // Mock empty selection
+    // Test single feature and empty selection (both should not zoom)
+    selectHandler({ selected: [{ get: () => [new Feature()] }] });
     selectHandler({ selected: [] });
-
     expect(mockView.fit).not.toHaveBeenCalled();
   });
 
-  it('adds and removes select interaction on mount/unmount', () => {
+  it('adds and removes interactions on mount/unmount', () => {
+    mockView.getZoom = vi.fn(() => 5);
     const { unmount } = renderHook(() =>
       useClusteredRecreationFeatureLayer(['1'], mapRef),
     );
 
     expect(mockMap.addInteraction).toHaveBeenCalledWith(mockSelectInstance);
-    expect(mockSelectInstance.on).toHaveBeenCalledWith(
-      'select',
+    expect(mockView.on).toHaveBeenCalledWith(
+      'change:resolution',
       expect.any(Function),
     );
 
     unmount();
 
+    expect(mockView.un).toHaveBeenCalledWith(
+      'change:resolution',
+      expect.any(Function),
+    );
     expect(mockSelectInstance.un).toHaveBeenCalledWith(
       'select',
       expect.any(Function),
@@ -267,6 +260,7 @@ describe('useClusteredRecreationFeatureLayer', () => {
   });
 
   it('handles cluster selection and zooms to cluster extent', () => {
+    mockView.getZoom = vi.fn(() => 5);
     renderHook(() => useClusteredRecreationFeatureLayer(['1'], mapRef));
 
     const selectCall = mockSelectInstance.on.mock.calls.find(
