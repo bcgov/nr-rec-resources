@@ -1,0 +1,29 @@
+@import '@/styles/variables';
+
+.visible-on-public-site-card {
+  border: 1.5px solid $colorBlue;
+  background-color: $colorBackgroundGrey;
+
+  .pill {
+    padding: 0.25rem 0.75rem;
+    border-radius: 50rem;
+    width: fit-content;
+    display: inline-flex;
+    align-items: center;
+    cursor: default;
+
+    &__visible {
+      background-color: $colorGreenLight;
+      color: white;
+    }
+
+    &__hidden {
+      background-color: $colorAmber;
+      color: $colorGrey;
+    }
+  }
+
+  .form-check-input {
+    cursor: pointer;
+  }
+}

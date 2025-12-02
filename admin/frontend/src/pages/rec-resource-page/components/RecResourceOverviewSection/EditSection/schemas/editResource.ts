@@ -29,6 +29,7 @@ export const editResourceSchema = z.object({
   status_code: z.string().optional(),
   selected_access_options: z.custom<MultiValue<GroupedOption>>().default([]),
   district_code: z.string().optional().nullable(),
+  display_on_public_site: z.boolean().default(false),
 });
 
 /**
