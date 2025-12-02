@@ -350,4 +350,12 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
     required: false,
   })
   risk_rating?: RecreationRiskRatingDto;
+
+  @ApiProperty({
+    description:
+      'Indicates if the resource should be displayed on the public site',
+    example: true,
+    required: false,
+  })
+  display_on_public_site?: boolean;
 }

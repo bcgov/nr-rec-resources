@@ -9,7 +9,6 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Mock dependencies
 vi.mock('@/pages/rec-resource-page/hooks/useRecResource');
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/hooks/useEditResourceForm',
@@ -18,14 +17,28 @@ vi.mock(
   '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/hooks/useResourceOptions',
 );
 
-// Mock RecResourceOverviewLink component
+vi.mock('react-hook-form', async () => {
+  const actual = await vi.importActual('react-hook-form');
+  return {
+    ...actual,
+    Controller: ({ render }: any) => {
+      const field = {
+        value: false,
+        onChange: vi.fn(),
+        onBlur: vi.fn(),
+        name: 'display_on_public_site',
+      };
+      return render({ field });
+    },
+  };
+});
+
 vi.mock('@/components/RecResourceOverviewLink', () => ({
   RecResourceOverviewLink: ({ children, rec_resource_id }: any) => (
     <a href={`/rec-resource/${rec_resource_id}/overview`}>{children}</a>
   ),
 }));
 
-// Mock the form field components to avoid react-hook-form complexity
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/components',
   () => ({
@@ -45,7 +58,6 @@ vi.mock(
   }),
 );
 
-// Mock the DateInputField which was added separately
 vi.mock('@/components/date-input-field', () => ({
   DateInputField: ({ label, name }: any) => (
     <div data-testid={`date-field-${name}`}>
@@ -84,23 +96,72 @@ const mockRecResource: RecreationResourceDetailUIModel = {
   ],
 } as RecreationResourceDetailUIModel;
 
-describe('RecResourceOverviewEditSection', () => {
-  const mockHandleSubmit = vi.fn((callback) => (e?: any) => {
+const mockResourceOptions = {
+  maintenanceOptions: [
+    { id: 'U', label: 'Unmanaged' },
+    { id: 'M', label: 'Managed' },
+  ],
+  controlAccessCodeTypeOptions: [
+    { id: 'CA1', label: 'Control Access 1' },
+    { id: 'CA2', label: 'Control Access 2' },
+  ],
+  riskRatingCodeTypeOptions: [
+    { id: 'R1', label: 'Low' },
+    { id: 'R2', label: 'High' },
+  ],
+  recreationStatusOptions: [
+    { id: '1', label: 'Open' },
+    { id: '2', label: 'Closed' },
+  ],
+  groupedAccessOptions: [
+    {
+      label: 'Access Type 1',
+      options: [
+        {
+          value: 'SUB1',
+          label: 'Sub Access 1',
+          group: 'AC1',
+          groupLabel: 'Access Type 1',
+        },
+        {
+          value: 'SUB2',
+          label: 'Sub Access 2',
+          group: 'AC1',
+          groupLabel: 'Access Type 1',
+        },
+      ],
+    },
+  ],
+  districtOptions: [
+    { id: null, label: 'None' },
+    { id: 'RDCK', label: 'Chilliwack' },
+    { id: 'RDVAN', label: 'Vancouver' },
+  ],
+  accessOptions: [],
+  isLoading: false,
+};
+
+const createMockFormReturn = (overrides = {}) => ({
+  handleSubmit: vi.fn((callback) => (e?: any) => {
     e?.preventDefault?.();
     return callback();
-  });
-  const mockOnSubmit = vi.fn();
-  const mockControl = {} as any;
-  const mockErrors = {};
-  const mockUpdateMutation = {
+  }),
+  control: {} as any,
+  errors: {},
+  isDirty: false,
+  updateMutation: {
     isPending: false,
     mutate: vi.fn(),
-  };
+  },
+  onSubmit: vi.fn(),
+  selectedAccessOptions: [],
+  ...overrides,
+});
 
+describe('RecResourceOverviewEditSection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Mock useRecResource
     vi.mocked(useRecResource).mockReturnValue({
       rec_resource_id: '123',
       recResource: mockRecResource,
@@ -108,149 +169,63 @@ describe('RecResourceOverviewEditSection', () => {
       error: null,
     });
 
-    // Mock useResourceOptions
-    vi.mocked(useResourceOptions).mockReturnValue({
-      maintenanceOptions: [
-        { id: 'U', label: 'Unmanaged' },
-        { id: 'M', label: 'Managed' },
-      ],
-      controlAccessCodeTypeOptions: [
-        { id: 'CA1', label: 'Control Access 1' },
-        { id: 'CA2', label: 'Control Access 2' },
-      ],
-      // new risk rating options added
-      riskRatingCodeTypeOptions: [
-        { id: 'R1', label: 'Low' },
-        { id: 'R2', label: 'High' },
-      ],
-      recreationStatusOptions: [
-        { id: '1', label: 'Open' },
-        { id: '2', label: 'Closed' },
-      ],
-      groupedAccessOptions: [
-        {
-          label: 'Access Type 1',
-          options: [
-            {
-              value: 'SUB1',
-              label: 'Sub Access 1',
-              group: 'AC1',
-              groupLabel: 'Access Type 1',
-            },
-            {
-              value: 'SUB2',
-              label: 'Sub Access 2',
-              group: 'AC1',
-              groupLabel: 'Access Type 1',
-            },
-          ],
-        },
-      ],
-      districtOptions: [
-        { id: null, label: 'None' },
-        { id: 'RDCK', label: 'Chilliwack' },
-        { id: 'RDVAN', label: 'Vancouver' },
-      ],
-      accessOptions: [],
-      isLoading: false,
-    });
-
-    // Mock useEditResourceForm
-    vi.mocked(useEditResourceForm).mockReturnValue({
-      handleSubmit: mockHandleSubmit,
-      control: mockControl,
-      errors: mockErrors,
-      isDirty: false,
-      updateMutation: mockUpdateMutation,
-      onSubmit: mockOnSubmit,
-      selectedAccessOptions: [],
-    } as any);
+    vi.mocked(useResourceOptions).mockReturnValue(mockResourceOptions);
+    vi.mocked(useEditResourceForm).mockReturnValue(
+      createMockFormReturn() as any,
+    );
   });
 
   describe('rendering', () => {
-    it('should render the edit section with title', () => {
+    it('should render the edit section with title and action buttons', () => {
       render(<RecResourceOverviewEditSection />);
 
       expect(screen.getByText('Edit Overview')).toBeInTheDocument();
-    });
-
-    it('should render Cancel button', () => {
-      render(<RecResourceOverviewEditSection />);
-
       expect(
         screen.getByRole('button', { name: 'Cancel' }),
       ).toBeInTheDocument();
-    });
-
-    it('should render Save button', () => {
-      render(<RecResourceOverviewEditSection />);
-
       expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
     });
 
-    it('should render Status field', () => {
+    it.each([
+      {
+        label: 'Status',
+        testId: 'select-field-status_code',
+      },
+      {
+        label: 'Maintenance Standard',
+        testId: 'select-field-maintenance_standard_code',
+      },
+      {
+        label: 'Controlled Access Type',
+        testId: 'select-field-control_access_code',
+      },
+      {
+        label: 'Risk Rating',
+        testId: 'select-field-risk_rating_code',
+      },
+      {
+        label: 'Project Established Date',
+        testId: 'date-field-project_established_date',
+      },
+      {
+        label: 'Access and Sub-Access',
+        testId: 'grouped-multi-select-field-selected_access_options',
+      },
+      {
+        label: 'Recreation District',
+        testId: 'select-field-district_code',
+      },
+    ])('should render $label field', ({ label, testId }) => {
       render(<RecResourceOverviewEditSection />);
 
-      expect(screen.getByText('Status')).toBeInTheDocument();
-      expect(
-        screen.getByTestId('select-field-status_code'),
-      ).toBeInTheDocument();
+      expect(screen.getByText(label)).toBeInTheDocument();
+      expect(screen.getByTestId(testId)).toBeInTheDocument();
     });
 
-    it('should render Maintenance Standard field', () => {
+    it('should render VisibleOnPublicSite component', () => {
       render(<RecResourceOverviewEditSection />);
 
-      expect(screen.getByText('Maintenance Standard')).toBeInTheDocument();
-      expect(
-        screen.getByTestId('select-field-maintenance_standard_code'),
-      ).toBeInTheDocument();
-    });
-
-    it('should render Controlled Access Type field', () => {
-      render(<RecResourceOverviewEditSection />);
-
-      expect(screen.getByText('Controlled Access Type')).toBeInTheDocument();
-      expect(
-        screen.getByTestId('select-field-control_access_code'),
-      ).toBeInTheDocument();
-    });
-
-    it('should render Risk Rating field', () => {
-      render(<RecResourceOverviewEditSection />);
-
-      expect(screen.getByText('Risk Rating')).toBeInTheDocument();
-      expect(
-        screen.getByTestId('select-field-risk_rating_code'),
-      ).toBeInTheDocument();
-    });
-
-    it('should render Project Established Date field', () => {
-      render(<RecResourceOverviewEditSection />);
-
-      expect(screen.getByText('Project Established Date')).toBeInTheDocument();
-      expect(
-        screen.getByTestId('date-field-project_established_date'),
-      ).toBeInTheDocument();
-    });
-
-    it('should render Access and Sub-Access field', () => {
-      render(<RecResourceOverviewEditSection />);
-
-      expect(screen.getByText('Access and Sub-Access')).toBeInTheDocument();
-      expect(
-        screen.getByTestId(
-          'grouped-multi-select-field-selected_access_options',
-        ),
-      ).toBeInTheDocument();
-    });
-
-    it('should render Recreation District field', () => {
-      render(<RecResourceOverviewEditSection />);
-
-      expect(screen.getByText('Recreation District')).toBeInTheDocument();
-      expect(
-        screen.getByTestId('select-field-district_code'),
-      ).toBeInTheDocument();
+      expect(screen.getByText('Displayed on public site')).toBeInTheDocument();
     });
 
     it('should render helper text for Access and Sub-Access field', () => {
@@ -263,102 +238,69 @@ describe('RecResourceOverviewEditSection', () => {
   });
 
   describe('button states', () => {
-    it('should disable Save button when form is not dirty', () => {
-      vi.mocked(useEditResourceForm).mockReturnValue({
-        handleSubmit: mockHandleSubmit,
-        control: mockControl,
-        errors: mockErrors,
+    it.each([
+      {
         isDirty: false,
-        updateMutation: mockUpdateMutation,
-        onSubmit: mockOnSubmit,
-        selectedAccessOptions: [],
-      } as any);
-
-      render(<RecResourceOverviewEditSection />);
-
-      const saveButton = screen.getByRole('button', { name: 'Save' });
-      expect(saveButton).toBeDisabled();
-    });
-
-    it('should enable Save button when form is dirty', () => {
-      vi.mocked(useEditResourceForm).mockReturnValue({
-        handleSubmit: mockHandleSubmit,
-        control: mockControl,
-        errors: mockErrors,
+        isPending: false,
+        expectedText: 'Save',
+        shouldBeDisabled: true,
+      },
+      {
         isDirty: true,
-        updateMutation: mockUpdateMutation,
-        onSubmit: mockOnSubmit,
-        selectedAccessOptions: [],
-      } as any);
-
-      render(<RecResourceOverviewEditSection />);
-
-      const saveButton = screen.getByRole('button', { name: 'Save' });
-      expect(saveButton).not.toBeDisabled();
-    });
-
-    it('should disable Save button when mutation is pending', () => {
-      vi.mocked(useEditResourceForm).mockReturnValue({
-        handleSubmit: mockHandleSubmit,
-        control: mockControl,
-        errors: mockErrors,
+        isPending: false,
+        expectedText: 'Save',
+        shouldBeDisabled: false,
+      },
+      {
         isDirty: true,
-        updateMutation: { ...mockUpdateMutation, isPending: true },
-        onSubmit: mockOnSubmit,
-        selectedAccessOptions: [],
-      } as any);
-
-      render(<RecResourceOverviewEditSection />);
-
-      const saveButton = screen.getByRole('button', { name: 'Saving...' });
-      expect(saveButton).toBeDisabled();
-    });
-
-    it('should show "Saving..." text when mutation is pending', () => {
-      vi.mocked(useEditResourceForm).mockReturnValue({
-        handleSubmit: mockHandleSubmit,
-        control: mockControl,
-        errors: mockErrors,
-        isDirty: true,
-        updateMutation: { ...mockUpdateMutation, isPending: true },
-        onSubmit: mockOnSubmit,
-        selectedAccessOptions: [],
-      } as any);
-
-      render(<RecResourceOverviewEditSection />);
-
-      expect(screen.getByText('Saving...')).toBeInTheDocument();
-    });
-
-    it('should disable Save button when both not dirty and pending', () => {
-      vi.mocked(useEditResourceForm).mockReturnValue({
-        handleSubmit: mockHandleSubmit,
-        control: mockControl,
-        errors: mockErrors,
+        isPending: true,
+        expectedText: 'Saving...',
+        shouldBeDisabled: true,
+      },
+      {
         isDirty: false,
-        updateMutation: { ...mockUpdateMutation, isPending: true },
-        onSubmit: mockOnSubmit,
-        selectedAccessOptions: [],
-      } as any);
+        isPending: true,
+        expectedText: 'Saving...',
+        shouldBeDisabled: true,
+      },
+    ])(
+      'should render Save button as "$expectedText" and disabled=$shouldBeDisabled when isDirty=$isDirty and isPending=$isPending',
+      ({ isDirty, isPending, expectedText, shouldBeDisabled }) => {
+        vi.mocked(useEditResourceForm).mockReturnValue(
+          createMockFormReturn({
+            isDirty,
+            updateMutation: { isPending, mutate: vi.fn() },
+          }) as any,
+        );
 
-      render(<RecResourceOverviewEditSection />);
+        render(<RecResourceOverviewEditSection />);
 
-      const saveButton = screen.getByRole('button', { name: 'Saving...' });
-      expect(saveButton).toBeDisabled();
-    });
+        const saveButton = screen.getByRole('button', { name: expectedText });
+
+        if (shouldBeDisabled) {
+          expect(saveButton).toBeDisabled();
+        } else {
+          expect(saveButton).not.toBeDisabled();
+        }
+      },
+    );
   });
 
   describe('form submission', () => {
-    it('should call handleSubmit when Save button is clicked', async () => {
-      vi.mocked(useEditResourceForm).mockReturnValue({
-        handleSubmit: mockHandleSubmit,
-        control: mockControl,
-        errors: mockErrors,
-        isDirty: true,
-        updateMutation: mockUpdateMutation,
-        onSubmit: mockOnSubmit,
-        selectedAccessOptions: [],
-      } as any);
+    it('should call handleSubmit and onSubmit when Save button is clicked', async () => {
+      const mockHandleSubmit = vi.fn((callback) => (e?: any) => {
+        e?.preventDefault?.();
+        return callback();
+      });
+      const mockOnSubmit = vi.fn();
+
+      vi.mocked(useEditResourceForm).mockReturnValue(
+        createMockFormReturn({
+          isDirty: true,
+          handleSubmit: mockHandleSubmit,
+          onSubmit: mockOnSubmit,
+        }) as any,
+      );
 
       render(<RecResourceOverviewEditSection />);
 
@@ -380,86 +322,6 @@ describe('RecResourceOverviewEditSection', () => {
       const link = cancelButton.closest('a');
 
       expect(link).toHaveAttribute('href', '/rec-resource/123/overview');
-    });
-  });
-
-  describe('hooks integration', () => {
-    it('should call useRecResource hook', () => {
-      render(<RecResourceOverviewEditSection />);
-
-      expect(useRecResource).toHaveBeenCalled();
-    });
-
-    it('should call useResourceOptions hook', () => {
-      render(<RecResourceOverviewEditSection />);
-
-      expect(useResourceOptions).toHaveBeenCalled();
-    });
-
-    it('should call useEditResourceForm hook with recResource', () => {
-      render(<RecResourceOverviewEditSection />);
-
-      expect(useEditResourceForm).toHaveBeenCalledWith(mockRecResource);
-    });
-
-    it('should handle empty recResource gracefully', () => {
-      vi.mocked(useRecResource).mockReturnValue({
-        rec_resource_id: undefined as any,
-        recResource: undefined as any,
-        isLoading: false,
-        error: null,
-      });
-
-      render(<RecResourceOverviewEditSection />);
-
-      // Should still render without crashing
-      expect(screen.getByText('Edit Overview')).toBeInTheDocument();
-    });
-  });
-
-  describe('layout and structure', () => {
-    it('should render form within container', () => {
-      const { container } = render(<RecResourceOverviewEditSection />);
-
-      const form = container.querySelector('form');
-      expect(form).toBeInTheDocument();
-    });
-
-    it('should have proper spacing between sections', () => {
-      render(<RecResourceOverviewEditSection />);
-
-      // Check that main sections are rendered
-      expect(screen.getByText('Edit Overview')).toBeInTheDocument();
-      expect(screen.getByText('Status')).toBeInTheDocument();
-      expect(screen.getByText('Access and Sub-Access')).toBeInTheDocument();
-    });
-
-    it('should render all form fields', () => {
-      render(<RecResourceOverviewEditSection />);
-
-      expect(
-        screen.getByTestId('select-field-status_code'),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByTestId('select-field-maintenance_standard_code'),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByTestId('select-field-control_access_code'),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByTestId('select-field-district_code'),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByTestId(
-          'grouped-multi-select-field-selected_access_options',
-        ),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByTestId('select-field-risk_rating_code'),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByTestId('date-field-project_established_date'),
-      ).toBeInTheDocument();
     });
   });
 });

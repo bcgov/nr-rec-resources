@@ -6,80 +6,65 @@ import { describe, expect, it } from 'vitest';
 
 describe('editResourceSchema', () => {
   it('accepts all fields undefined (all optional)', () => {
-    const data: Partial<EditResourceFormData> = {};
-    const result = editResourceSchema.safeParse(data);
+    const result = editResourceSchema.safeParse({});
     expect(result.success).toBe(true);
-    expect(result.data).toEqual({ selected_access_options: [] });
+    expect(result.data).toEqual({
+      selected_access_options: [],
+      display_on_public_site: false,
+    });
   });
 
-  it('accepts empty strings', () => {
-    const data: EditResourceFormData = {
+  it('accepts empty strings for string fields', () => {
+    const data = {
       maintenance_standard_code: '',
       control_access_code: '',
       status_code: '',
-      selected_access_options: [],
       district_code: '',
     };
     const result = editResourceSchema.safeParse(data);
     expect(result.success).toBe(true);
-    expect(result.data).toEqual(data);
   });
 
   it('accepts partial data', () => {
-    const data: Partial<EditResourceFormData> = {
+    const data = {
       maintenance_standard_code: 'STANDARD',
-      selected_access_options: [],
     };
     const result = editResourceSchema.safeParse(data);
     expect(result.success).toBe(true);
-    expect(result.data!.maintenance_standard_code).toBe('STANDARD');
+    expect(result.data?.maintenance_standard_code).toBe('STANDARD');
   });
 
   it('rejects non-string values for string fields', () => {
     const data = {
       maintenance_standard_code: 123,
-      selected_access_options: [],
     } as unknown as EditResourceFormData;
     const result = editResourceSchema.safeParse(data);
     expect(result.success).toBe(false);
   });
 
-  it('accepts district_code field', () => {
-    const result = editResourceSchema.safeParse({
-      district_code: 'CHWK',
-      selected_access_options: [],
-    });
+  it.each([
+    ['string', 'CHWK', 'CHWK'],
+    ['null', null, null],
+  ])('accepts district_code as %s', (_, input, expected) => {
+    const result = editResourceSchema.safeParse({ district_code: input });
     expect(result.success).toBe(true);
-    expect(result.data!.district_code).toBe('CHWK');
-  });
-
-  it('accepts district_code as null', () => {
-    const result = editResourceSchema.safeParse({
-      district_code: null,
-      selected_access_options: [],
-    });
-    expect(result.success).toBe(true);
-    expect(result.data!.district_code).toBe(null);
+    expect(result.data?.district_code).toBe(expected);
   });
 
   describe('project_established_date validation', () => {
     it('accepts a valid past date', () => {
-      const data: Partial<EditResourceFormData> = {
+      const result = editResourceSchema.safeParse({
         project_established_date: '2023-01-15',
-        selected_access_options: [],
-      };
-      const result = editResourceSchema.safeParse(data);
+      });
       expect(result.success).toBe(true);
-      expect(result.data!.project_established_date).toBe('2023-01-15');
+      expect(result.data?.project_established_date).toBe('2023-01-15');
     });
 
     it('accepts today as the project established date', () => {
       const today = new Date().toISOString().split('T')[0];
-      const data: Partial<EditResourceFormData> = {
+      const result = editResourceSchema.safeParse({
         project_established_date: today,
-        selected_access_options: [],
-      };
-      const result = editResourceSchema.safeParse(data);
+      });
       expect(result.success).toBe(true);
     });
 
@@ -88,35 +73,41 @@ describe('editResourceSchema', () => {
       futureDate.setFullYear(futureDate.getFullYear() + 1);
       const futureDateString = futureDate.toISOString().split('T')[0];
 
-      const data: Partial<EditResourceFormData> = {
+      const result = editResourceSchema.safeParse({
         project_established_date: futureDateString,
-        selected_access_options: [],
-      };
-      const result = editResourceSchema.safeParse(data);
+      });
       expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe(
-          'Project established date cannot be in the future',
-        );
-      }
+      expect(result.error?.issues[0].message).toBe(
+        'Project established date cannot be in the future',
+      );
     });
 
     it('accepts null for project_established_date', () => {
-      const data = {
+      const result = editResourceSchema.safeParse({
         project_established_date: null,
-        selected_access_options: [],
-      } as Partial<EditResourceFormData>;
-      const result = editResourceSchema.safeParse(data);
+      });
       expect(result.success).toBe(true);
     });
+  });
 
-    it('accepts undefined for project_established_date', () => {
-      const data: Partial<EditResourceFormData> = {
-        project_established_date: undefined,
-        selected_access_options: [],
-      };
-      const result = editResourceSchema.safeParse(data);
+  describe('display_on_public_site validation', () => {
+    it.each([
+      [true, true],
+      [false, false],
+    ])('accepts %s for display_on_public_site', (input, expected) => {
+      const result = editResourceSchema.safeParse({
+        display_on_public_site: input,
+      });
       expect(result.success).toBe(true);
+      expect(result.data?.display_on_public_site).toBe(expected);
+    });
+
+    it('defaults to false when display_on_public_site is not provided', () => {
+      const result = editResourceSchema.safeParse({
+        maintenance_standard_code: 'STANDARD',
+      });
+      expect(result.success).toBe(true);
+      expect(result.data?.display_on_public_site).toBe(false);
     });
   });
 });

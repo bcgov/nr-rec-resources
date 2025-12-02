@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   IsArray,
+  IsBoolean,
   IsDate,
   IsNotEmpty,
   IsNumber,
@@ -112,4 +113,13 @@ export class UpdateRecreationResourceDto {
   @IsOptional()
   @IsString()
   district_code?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Indicates if the resource should be displayed on the public site',
+    example: true,
+  })
+  @IsOptional()
+  @IsBoolean()
+  display_on_public_site?: boolean;
 }

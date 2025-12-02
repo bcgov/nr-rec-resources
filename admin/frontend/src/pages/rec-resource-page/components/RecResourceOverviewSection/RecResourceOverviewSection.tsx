@@ -8,6 +8,7 @@ import { RecResourceLocationSection } from '../RecResourceLocationSection';
 import {
   RecResourceOverviewItem,
   RecreationResourceAccessRow,
+  VisibleOnPublicSite,
 } from './components';
 
 type RecResourceOverviewSectionProps = {
@@ -63,6 +64,14 @@ export const RecResourceOverviewSection = (
           </LinkWithQueryParams>
         </FeatureFlagGuard>
       </div>
+
+      <Row>
+        <Col xs={12}>
+          <VisibleOnPublicSite
+            value={recResource.display_on_public_site ?? false}
+          />
+        </Col>
+      </Row>
 
       <Row>
         <Col xs={12}>
