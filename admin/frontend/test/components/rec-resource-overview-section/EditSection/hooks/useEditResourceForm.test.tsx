@@ -2,6 +2,7 @@ import { ROUTE_PATHS } from '@/constants/routes';
 import { useEditResourceForm } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/hooks/useEditResourceForm';
 import {
   RecreationResourceDetailUIModel,
+  RecreationResourceOptionUIModel,
   useUpdateRecreationResource,
 } from '@/services';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -103,6 +104,39 @@ describe('useEditResourceForm', () => {
     reset: vi.fn(),
   };
 
+  // Helper functions
+  const renderHookWithResource = (
+    resource: RecreationResourceDetailUIModel = mockRecResource,
+    districtOptions: RecreationResourceOptionUIModel[] = [],
+  ) => {
+    return renderHook(() => useEditResourceForm(resource, districtOptions), {
+      wrapper: createWrapper(),
+    });
+  };
+
+  const createFormData = (overrides: any = {}) => ({
+    maintenance_standard_code: 'M',
+    control_access_code: 'CA2',
+    status_code: '2',
+    selected_access_options: [],
+    ...overrides,
+  });
+
+  const submitFormAndAssert = async (
+    result: ReturnType<typeof renderHookWithResource>['result'],
+    formData: any,
+    expectedDto: any,
+  ) => {
+    mockMutateAsync.mockResolvedValue(undefined);
+    await act(async () => {
+      await result.current.onSubmit(formData);
+    });
+    expect(mockMutateAsync).toHaveBeenCalledWith({
+      recResourceId: '123',
+      updateRecreationResourceDto: expectedDto,
+    });
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useUpdateRecreationResource).mockReturnValue(
@@ -111,13 +145,8 @@ describe('useEditResourceForm', () => {
   });
 
   describe('initialization', () => {
-    it('should initialize with default values from recResource', () => {
-      const { result } = renderHook(
-        () => useEditResourceForm(mockRecResource),
-        {
-          wrapper: createWrapper(),
-        },
-      );
+    it('should initialize with default values and expose all required properties', () => {
+      const { result } = renderHookWithResource();
 
       expect(result.current.control).toBeDefined();
       expect(result.current.handleSubmit).toBeDefined();
@@ -127,12 +156,7 @@ describe('useEditResourceForm', () => {
     });
 
     it('should initialize selectedAccessOptions with grouped options from recResource', () => {
-      const { result } = renderHook(
-        () => useEditResourceForm(mockRecResource),
-        {
-          wrapper: createWrapper(),
-        },
-      );
+      const { result } = renderHookWithResource();
 
       expect(result.current.selectedAccessOptions).toEqual([
         {
@@ -156,114 +180,26 @@ describe('useEditResourceForm', () => {
       ]);
     });
 
-    it('should handle recResource with no access_codes', () => {
-      const recResourceWithoutAccessCodes = {
+    it.each([
+      ['empty array', []],
+      ['null', null],
+      ['non-array', {}],
+    ])('should handle recResource with %s access_codes', (_, accessCodes) => {
+      const resource = {
         ...mockRecResource,
-        access_codes: [] as any,
+        access_codes: accessCodes as any,
       };
-
-      const { result } = renderHook(
-        () => useEditResourceForm(recResourceWithoutAccessCodes),
-        {
-          wrapper: createWrapper(),
-        },
-      );
-
+      const { result } = renderHookWithResource(resource);
       expect(result.current.selectedAccessOptions).toEqual([]);
     });
 
-    it('should handle recResource with empty access_codes array', () => {
-      const recResourceWithEmptyAccessCodes = {
-        ...mockRecResource,
-        access_codes: [],
-      };
-
-      const { result } = renderHook(
-        () => useEditResourceForm(recResourceWithEmptyAccessCodes),
-        {
-          wrapper: createWrapper(),
-        },
-      );
-
-      expect(result.current.selectedAccessOptions).toEqual([]);
-    });
-
-    it('should handle recResource with non-array access_codes', () => {
-      const recResourceWithInvalidAccessCodes = {
-        ...mockRecResource,
-        access_codes: {} as any,
-      };
-
-      const { result } = renderHook(
-        () => useEditResourceForm(recResourceWithInvalidAccessCodes),
-        {
-          wrapper: createWrapper(),
-        },
-      );
-
-      expect(result.current.selectedAccessOptions).toEqual([]);
-    });
-
-    it('should initialize with null control_access_code when not provided', () => {
-      const recResourceWithoutControlAccess = {
-        ...mockRecResource,
-        control_access_code: undefined,
-      };
-
-      const { result } = renderHook(
-        () => useEditResourceForm(recResourceWithoutControlAccess),
-        {
-          wrapper: createWrapper(),
-        },
-      );
-
-      // The form should initialize successfully
-      expect(result.current.control).toBeDefined();
-    });
-
-    it('should initialize with empty maintenance_standard_code when not provided', () => {
-      const recResourceWithoutMaintenanceStandard = {
-        ...mockRecResource,
-        maintenance_standard_code: undefined,
-      };
-
-      const { result } = renderHook(
-        () => useEditResourceForm(recResourceWithoutMaintenanceStandard),
-        {
-          wrapper: createWrapper(),
-        },
-      );
-
-      // The form should initialize successfully
-      expect(result.current.control).toBeDefined();
-    });
-
-    it('should convert recreation_status_code to string', () => {
-      const { result } = renderHook(
-        () => useEditResourceForm(mockRecResource),
-        {
-          wrapper: createWrapper(),
-        },
-      );
-
-      // The form should initialize successfully with the status code
-      expect(result.current.control).toBeDefined();
-    });
-
-    it('should handle undefined recreation_status_code', () => {
-      const recResourceWithoutStatusCode = {
-        ...mockRecResource,
-        recreation_status_code: undefined,
-      };
-
-      const { result } = renderHook(
-        () => useEditResourceForm(recResourceWithoutStatusCode),
-        {
-          wrapper: createWrapper(),
-        },
-      );
-
-      // The form should initialize successfully
+    it.each([
+      ['control_access_code', { control_access_code: undefined }],
+      ['maintenance_standard_code', { maintenance_standard_code: undefined }],
+      ['recreation_status_code', { recreation_status_code: undefined }],
+    ])('should initialize when %s is missing', (_, overrides) => {
+      const resource = { ...mockRecResource, ...overrides };
+      const { result } = renderHookWithResource(resource);
       expect(result.current.control).toBeDefined();
     });
 
@@ -280,14 +216,8 @@ describe('useEditResourceForm', () => {
         recreation_district: undefined,
       };
 
-      const { result: resultWith } = renderHook(
-        () => useEditResourceForm(withDistrict),
-        { wrapper: createWrapper() },
-      );
-      const { result: resultWithout } = renderHook(
-        () => useEditResourceForm(withoutDistrict),
-        { wrapper: createWrapper() },
-      );
+      const { result: resultWith } = renderHookWithResource(withDistrict);
+      const { result: resultWithout } = renderHookWithResource(withoutDistrict);
 
       expect(resultWith.current.control).toBeDefined();
       expect(resultWithout.current.control).toBeDefined();
@@ -295,18 +225,10 @@ describe('useEditResourceForm', () => {
   });
 
   describe('onSubmit', () => {
-    it('should submit form data and navigate on success', async () => {
-      const { result } = renderHook(
-        () => useEditResourceForm(mockRecResource),
-        {
-          wrapper: createWrapper(),
-        },
-      );
+    it('should submit form data, navigate, and show success notification', async () => {
+      const { result } = renderHookWithResource();
 
-      const formData = {
-        maintenance_standard_code: 'M',
-        control_access_code: 'CA2',
-        status_code: '2',
+      const formData = createFormData({
         selected_access_options: [
           {
             label: 'Sub Access 1',
@@ -321,31 +243,21 @@ describe('useEditResourceForm', () => {
             groupLabel: 'Access Type 1',
           },
         ],
-      };
-
-      // Mock mutateAsync implementation to resolve (success)
-      mockMutateAsync.mockResolvedValue(undefined);
-
-      await act(async () => {
-        await result.current.onSubmit(formData);
       });
 
-      expect(mockMutateAsync).toHaveBeenCalledWith({
-        recResourceId: '123',
-        updateRecreationResourceDto: {
-          maintenance_standard_code: 'M',
-          control_access_code: 'CA2',
-          status_code: 2,
-          risk_rating_code: null,
-          project_established_date: null,
-          district_code: null,
-          access_codes: [
-            {
-              access_code: 'AC1',
-              sub_access_codes: ['SUB1', 'SUB2'],
-            },
-          ],
-        },
+      await submitFormAndAssert(result, formData, {
+        maintenance_standard_code: 'M',
+        control_access_code: 'CA2',
+        status_code: 2,
+        risk_rating_code: null,
+        project_established_date: null,
+        district_code: null,
+        access_codes: [
+          {
+            access_code: 'AC1',
+            sub_access_codes: ['SUB1', 'SUB2'],
+          },
+        ],
       });
 
       await waitFor(() => {
@@ -355,24 +267,15 @@ describe('useEditResourceForm', () => {
         });
       });
 
-      // Success notification should be shown
       expect(mockAddSuccessNotification).toHaveBeenCalledWith(
         'Recreation resource updated successfully.',
       );
     });
 
     it('should handle multiple access code groups', async () => {
-      const { result } = renderHook(
-        () => useEditResourceForm(mockRecResource),
-        {
-          wrapper: createWrapper(),
-        },
-      );
+      const { result } = renderHookWithResource();
 
-      const formData = {
-        maintenance_standard_code: 'M',
-        control_access_code: 'CA2',
-        status_code: '2',
+      const formData = createFormData({
         selected_access_options: [
           {
             label: 'Sub Access 1',
@@ -393,194 +296,67 @@ describe('useEditResourceForm', () => {
             groupLabel: 'Access Type 2',
           },
         ],
-      };
-
-      mockMutateAsync.mockResolvedValue(undefined);
-
-      await act(async () => {
-        await result.current.onSubmit(formData);
       });
 
-      expect(mockMutateAsync).toHaveBeenCalledWith({
-        recResourceId: '123',
-        updateRecreationResourceDto: {
-          maintenance_standard_code: 'M',
-          control_access_code: 'CA2',
-          status_code: 2,
-          risk_rating_code: null,
-          project_established_date: null,
-          district_code: null,
-          access_codes: [
-            {
-              access_code: 'AC1',
-              sub_access_codes: ['SUB1', 'SUB2'],
-            },
-            {
-              access_code: 'AC2',
-              sub_access_codes: ['SUB3'],
-            },
-          ],
-        },
-      });
-    });
-
-    it('should handle empty selected_access_options', async () => {
-      const { result } = renderHook(
-        () => useEditResourceForm(mockRecResource),
-        {
-          wrapper: createWrapper(),
-        },
-      );
-
-      const formData = {
+      await submitFormAndAssert(result, formData, {
         maintenance_standard_code: 'M',
         control_access_code: 'CA2',
-        status_code: '2',
-        selected_access_options: [],
-      };
-
-      mockMutateAsync.mockResolvedValue(undefined);
-
-      await act(async () => {
-        await result.current.onSubmit(formData);
-      });
-
-      expect(mockMutateAsync).toHaveBeenCalledWith({
-        recResourceId: '123',
-        updateRecreationResourceDto: {
-          maintenance_standard_code: 'M',
-          control_access_code: 'CA2',
-          status_code: 2,
-          risk_rating_code: null,
-          project_established_date: null,
-          district_code: null,
-          access_codes: [],
-        },
+        status_code: 2,
+        risk_rating_code: null,
+        project_established_date: null,
+        district_code: null,
+        access_codes: [
+          {
+            access_code: 'AC1',
+            sub_access_codes: ['SUB1', 'SUB2'],
+          },
+          {
+            access_code: 'AC2',
+            sub_access_codes: ['SUB3'],
+          },
+        ],
       });
     });
 
-    it('should handle undefined/empty maintenance_standard_code', async () => {
-      const { result } = renderHook(
-        () => useEditResourceForm(mockRecResource),
-        {
-          wrapper: createWrapper(),
-        },
-      );
-
-      const formData = {
-        maintenance_standard_code: '',
-        control_access_code: 'CA2',
-        status_code: '2',
-        selected_access_options: [],
-      };
-
-      mockMutateAsync.mockResolvedValue(undefined);
-
-      await act(async () => {
-        await result.current.onSubmit(formData);
-      });
-
-      expect(mockMutateAsync).toHaveBeenCalledWith({
-        recResourceId: '123',
-        updateRecreationResourceDto: {
-          maintenance_standard_code: undefined,
-          control_access_code: 'CA2',
-          status_code: 2,
-          risk_rating_code: null,
-          project_established_date: null,
-          district_code: null,
-          access_codes: [],
-        },
-      });
-    });
-
-    it('should handle undefined/null control_access_code', async () => {
-      const { result } = renderHook(
-        () => useEditResourceForm(mockRecResource),
-        {
-          wrapper: createWrapper(),
-        },
-      );
-
-      const formData = {
-        maintenance_standard_code: 'M',
-        control_access_code: null,
-        status_code: '2',
-        selected_access_options: [],
-      };
-
-      mockMutateAsync.mockResolvedValue(undefined);
-
-      await act(async () => {
-        await result.current.onSubmit(formData);
-      });
-
-      expect(mockMutateAsync).toHaveBeenCalledWith({
-        recResourceId: '123',
-        updateRecreationResourceDto: {
-          maintenance_standard_code: 'M',
-          control_access_code: null,
-          status_code: 2,
-          risk_rating_code: null,
-          project_established_date: null,
-          district_code: null,
-          access_codes: [],
-        },
-      });
-    });
-
-    it('should handle undefined/empty status_code', async () => {
-      const { result } = renderHook(
-        () => useEditResourceForm(mockRecResource),
-        {
-          wrapper: createWrapper(),
-        },
-      );
-
-      const formData = {
+    it.each([
+      [
+        'empty maintenance_standard_code',
+        { maintenance_standard_code: '' },
+        { maintenance_standard_code: undefined },
+      ],
+      [
+        'null control_access_code',
+        { control_access_code: null },
+        { control_access_code: null },
+      ],
+      ['empty status_code', { status_code: '' }, { status_code: undefined }],
+      [
+        'empty selected_access_options',
+        { selected_access_options: [] },
+        { access_codes: [] },
+      ],
+    ])('should handle %s', async (_, formOverrides, expectedOverrides) => {
+      const { result } = renderHookWithResource();
+      const formData = createFormData(formOverrides);
+      const expectedDto = {
         maintenance_standard_code: 'M',
         control_access_code: 'CA2',
-        status_code: '',
-        selected_access_options: [],
+        status_code: 2,
+        risk_rating_code: null,
+        project_established_date: null,
+        district_code: null,
+        access_codes: [],
+        ...expectedOverrides,
       };
 
-      mockMutateAsync.mockResolvedValue(undefined);
-
-      await act(async () => {
-        await result.current.onSubmit(formData);
-      });
-
-      expect(mockMutateAsync).toHaveBeenCalledWith({
-        recResourceId: '123',
-        updateRecreationResourceDto: {
-          maintenance_standard_code: 'M',
-          control_access_code: 'CA2',
-          status_code: undefined,
-          risk_rating_code: null,
-          project_established_date: null,
-          district_code: null,
-          access_codes: [],
-        },
-      });
+      await submitFormAndAssert(result, formData, expectedDto);
     });
 
     it('should convert status_code string to number', async () => {
-      const { result } = renderHook(
-        () => useEditResourceForm(mockRecResource),
-        {
-          wrapper: createWrapper(),
-        },
-      );
-
-      const formData = {
-        maintenance_standard_code: 'M',
-        control_access_code: 'CA2',
-        status_code: '5',
-        selected_access_options: [],
-      };
+      const { result } = renderHookWithResource();
+      const formData = createFormData({ status_code: '5' });
 
       mockMutateAsync.mockResolvedValue(undefined);
-
       await act(async () => {
         await result.current.onSubmit(formData);
       });
@@ -592,174 +368,56 @@ describe('useEditResourceForm', () => {
       );
     });
 
-    it('should handle district_code submission (provided, empty, or undefined)', async () => {
-      const { result } = renderHook(
-        () => useEditResourceForm(mockRecResource),
-        {
-          wrapper: createWrapper(),
-        },
-      );
+    it.each([
+      ['provided', 'CHWK', 'CHWK'],
+      ['empty string', '', null],
+      ['null', null, null],
+    ])('should handle district_code when %s', async (_, input, expected) => {
+      const { result } = renderHookWithResource();
+      const formData = createFormData({ district_code: input });
 
-      mockMutateAsync.mockResolvedValue(undefined);
-
-      // Test with district_code provided
-      await act(async () => {
-        await result.current.onSubmit({
-          maintenance_standard_code: 'M',
-          control_access_code: 'CA2',
-          status_code: '2',
-          selected_access_options: [],
-          district_code: 'CHWK',
-        });
-      });
-
-      expect(mockMutateAsync).toHaveBeenCalledWith({
-        recResourceId: '123',
-        updateRecreationResourceDto: expect.objectContaining({
-          district_code: 'CHWK',
-        }),
-      });
-
-      // Test with empty/null district_code
-      await act(async () => {
-        await result.current.onSubmit({
-          maintenance_standard_code: 'M',
-          control_access_code: 'CA2',
-          status_code: '2',
-          selected_access_options: [],
-          district_code: '',
-        });
-      });
-
-      expect(mockMutateAsync).toHaveBeenLastCalledWith({
-        recResourceId: '123',
-        updateRecreationResourceDto: expect.objectContaining({
-          district_code: null,
-        }),
-      });
-
-      // Test with null district_code
-      await act(async () => {
-        await result.current.onSubmit({
-          maintenance_standard_code: 'M',
-          control_access_code: 'CA2',
-          status_code: '2',
-          selected_access_options: [],
-          district_code: null,
-        });
-      });
-
-      expect(mockMutateAsync).toHaveBeenLastCalledWith({
-        recResourceId: '123',
-        updateRecreationResourceDto: expect.objectContaining({
-          district_code: null,
-        }),
+      await submitFormAndAssert(result, formData, {
+        maintenance_standard_code: 'M',
+        control_access_code: 'CA2',
+        status_code: 2,
+        risk_rating_code: null,
+        project_established_date: null,
+        district_code: expected,
+        access_codes: [],
       });
     });
 
     it('should include risk_rating_code and project_established_date in update payload', async () => {
-      const { result } = renderHook(
-        () => useEditResourceForm(mockRecResource),
-        {
-          wrapper: createWrapper(),
-        },
-      );
-
-      const formData = {
-        maintenance_standard_code: 'M',
-        control_access_code: 'CA2',
-        status_code: '2',
+      const { result } = renderHookWithResource();
+      const formData = createFormData({
         risk_rating_code: 'H',
         project_established_date: '2021-12-01',
-        selected_access_options: [],
-      } as any;
+      } as any);
 
-      mockMutateAsync.mockResolvedValue(undefined);
-
-      await act(async () => {
-        await result.current.onSubmit(formData);
-      });
-
-      expect(mockMutateAsync).toHaveBeenCalledWith({
-        recResourceId: '123',
-        updateRecreationResourceDto: {
-          maintenance_standard_code: 'M',
-          control_access_code: 'CA2',
-          risk_rating_code: 'H',
-          project_established_date: '2021-12-01',
-          status_code: 2,
-          district_code: null,
-          access_codes: [],
-        },
-      });
-    });
-
-    it('should handle null/empty risk_rating_code and project_established_date', async () => {
-      const { result } = renderHook(
-        () => useEditResourceForm(mockRecResource),
-        {
-          wrapper: createWrapper(),
-        },
-      );
-
-      const formData = {
+      await submitFormAndAssert(result, formData, {
         maintenance_standard_code: 'M',
         control_access_code: 'CA2',
-        status_code: '2',
-        risk_rating_code: null,
-        project_established_date: '',
-        selected_access_options: [],
-      } as any;
-
-      mockMutateAsync.mockResolvedValue(undefined);
-
-      await act(async () => {
-        await result.current.onSubmit(formData);
-      });
-
-      expect(mockMutateAsync).toHaveBeenCalledWith({
-        recResourceId: '123',
-        updateRecreationResourceDto: {
-          maintenance_standard_code: 'M',
-          control_access_code: 'CA2',
-          risk_rating_code: null,
-          project_established_date: null,
-          status_code: 2,
-          district_code: null,
-          access_codes: [],
-        },
+        risk_rating_code: 'H',
+        project_established_date: '2021-12-01',
+        status_code: 2,
+        district_code: null,
+        access_codes: [],
       });
     });
 
     it('should show error notification when mutation errors', async () => {
-      const { result } = renderHook(
-        () => useEditResourceForm(mockRecResource),
-        {
-          wrapper: createWrapper(),
-        },
-      );
-
-      const formData = {
-        maintenance_standard_code: 'M',
-        control_access_code: 'CA2',
-        status_code: '2',
-        selected_access_options: [],
-      };
-
-      // Mock mutateAsync to reject with an error
+      const { result } = renderHookWithResource();
+      const formData = createFormData();
       const mockError = new Error('something went wrong');
-      mockHandleApiError.mockResolvedValue({ message: 'API error' });
 
+      mockHandleApiError.mockResolvedValue({ message: 'API error' });
       mockMutateAsync.mockRejectedValue(mockError);
 
       await act(async () => {
         await result.current.onSubmit(formData);
       });
 
-      // handleApiError should have been called with the thrown error
       expect(mockHandleApiError).toHaveBeenCalledWith(mockError);
-
-      // Error notification should be shown with the message returned by the handler
       expect(mockAddErrorNotification).toHaveBeenCalledWith(
         expect.stringContaining(
           'Failed to update recreation resource: API error',
@@ -769,38 +427,18 @@ describe('useEditResourceForm', () => {
   });
 
   describe('form state', () => {
-    it('should expose isDirty as false initially', () => {
-      const { result } = renderHook(
-        () => useEditResourceForm(mockRecResource),
-        {
-          wrapper: createWrapper(),
-        },
-      );
-
-      expect(result.current.isDirty).toBe(false);
-    });
-
-    it('should expose errors object', () => {
-      const { result } = renderHook(
-        () => useEditResourceForm(mockRecResource),
-        {
-          wrapper: createWrapper(),
-        },
-      );
-
-      expect(result.current.errors).toBeDefined();
-      expect(typeof result.current.errors).toBe('object');
-    });
-
-    it('should expose updateMutation', () => {
-      const { result } = renderHook(
-        () => useEditResourceForm(mockRecResource),
-        {
-          wrapper: createWrapper(),
-        },
-      );
-
-      expect(result.current.updateMutation).toBe(mockUpdateMutation);
+    it.each([
+      ['isDirty', (r: any) => r.isDirty, false],
+      ['errors', (r: any) => r.errors, expect.objectContaining({})],
+      ['updateMutation', (r: any) => r.updateMutation, mockUpdateMutation],
+    ])('should expose %s', (_, getter, expected) => {
+      const { result } = renderHookWithResource();
+      const value = getter(result.current);
+      if (typeof expected === 'object' && expected !== null) {
+        expect(value).toMatchObject(expected);
+      } else {
+        expect(value).toBe(expected);
+      }
     });
   });
 
@@ -815,20 +453,14 @@ describe('useEditResourceForm', () => {
       );
 
       const initialAccessOptions = result.current.selectedAccessOptions;
-
-      // Rerender with same resource
       rerender({ resource: mockRecResource });
 
-      // selectedAccessOptions should remain stable
       expect(result.current.selectedAccessOptions).toEqual(
         initialAccessOptions,
       );
     });
 
     it('should compute new defaultValues when recResource prop changes', () => {
-      const initialResource = mockRecResource;
-
-      // Create a fresh instance to trigger useMemo recalculation
       const updatedResource = {
         ...mockRecResource,
         rec_resource_id: '456',
@@ -841,32 +473,62 @@ describe('useEditResourceForm', () => {
         ],
       } as RecreationResourceDetailUIModel;
 
-      // First render with initial resource
-      const { unmount } = renderHook(
-        () => useEditResourceForm(initialResource),
+      const { result } = renderHookWithResource(updatedResource);
+
+      expect(result.current.selectedAccessOptions).toEqual([
         {
-          wrapper: createWrapper(),
+          label: 'New Sub',
+          value: 'NEWSUB1',
+          group: 'NEW1',
+          groupLabel: 'New Access',
         },
+      ]);
+    });
+  });
+
+  describe('archived district validation', () => {
+    const districtOptions: RecreationResourceOptionUIModel[] = [
+      { id: null, label: 'None' },
+      { id: 'CHWK', label: 'Chilliwack', is_archived: false },
+      { id: 'VAN', label: 'Vancouver', is_archived: true },
+    ];
+
+    it.each([
+      ['non-archived district', 'CHWK', 'CHWK'],
+      ['null district_code', null, null],
+    ])(
+      'should accept %s in form submission',
+      async (_, districtCode, expected) => {
+        const { result } = renderHookWithResource(
+          mockRecResource,
+          districtOptions,
+        );
+        const formData = createFormData({ district_code: districtCode });
+
+        await submitFormAndAssert(result, formData, {
+          maintenance_standard_code: 'M',
+          control_access_code: 'CA2',
+          status_code: 2,
+          risk_rating_code: null,
+          project_established_date: null,
+          district_code: expected,
+          access_codes: [],
+        });
+      },
+    );
+
+    it.each([
+      ['with districtOptions', districtOptions],
+      ['with empty array', []],
+      ['without parameter', undefined],
+    ])('should initialize form %s', (_, options) => {
+      const { result } = renderHookWithResource(
+        mockRecResource,
+        options as any,
       );
-
-      unmount();
-
-      // Second render with updated resource (fresh hook instance)
-      const { result } = renderHook(
-        () => useEditResourceForm(updatedResource),
-        {
-          wrapper: createWrapper(),
-        },
-      );
-
-      // The new hook instance should have values from the updated resource
-      expect(result.current.selectedAccessOptions.length).toBe(1);
-      expect(result.current.selectedAccessOptions[0]).toEqual({
-        label: 'New Sub',
-        value: 'NEWSUB1',
-        group: 'NEW1',
-        groupLabel: 'New Access',
-      });
+      expect(result.current.control).toBeDefined();
+      expect(result.current.errors).toBeDefined();
+      expect(result.current.handleSubmit).toBeDefined();
     });
   });
 });

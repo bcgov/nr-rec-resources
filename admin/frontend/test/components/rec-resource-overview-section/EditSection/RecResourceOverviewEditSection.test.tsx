@@ -17,10 +17,13 @@ vi.mock(
   '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/hooks/useResourceOptions',
 );
 
+const mockUseWatch = vi.fn(() => null);
+
 vi.mock('react-hook-form', async () => {
   const actual = await vi.importActual('react-hook-form');
   return {
     ...actual,
+    useWatch: (...args: any[]) => mockUseWatch(...args),
     Controller: ({ render }: any) => {
       const field = {
         value: false,
@@ -161,6 +164,7 @@ const createMockFormReturn = (overrides = {}) => ({
 describe('RecResourceOverviewEditSection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseWatch.mockReturnValue(null);
 
     vi.mocked(useRecResource).mockReturnValue({
       rec_resource_id: '123',

@@ -17,6 +17,7 @@ vi.mock('react-select', () => ({
       placeholder,
       className,
       isSearchable,
+      isOptionDisabled,
     }) => {
       const selectedOption =
         options?.find((opt: any) => opt.id === value) || null;
@@ -36,16 +37,23 @@ vi.mock('react-select', () => ({
               {options?.length === 0 ? (
                 <div>No options</div>
               ) : (
-                options?.map((opt: any) => (
-                  <button
-                    key={opt.id || 'null'}
-                    type="button"
-                    onClick={() => onChange?.(opt)}
-                    data-testid={`option-${opt.id}`}
-                  >
-                    {opt.label}
-                  </button>
-                ))
+                options?.map((opt: any) => {
+                  const isDisabledOption = isOptionDisabled
+                    ? isOptionDisabled(opt)
+                    : false;
+                  return (
+                    <button
+                      key={opt.id || 'null'}
+                      type="button"
+                      onClick={() => !isDisabledOption && onChange?.(opt)}
+                      disabled={isDisabledOption}
+                      data-testid={`option-${opt.id}`}
+                      data-disabled={isDisabledOption}
+                    >
+                      {opt.label}
+                    </button>
+                  );
+                })
               )}
             </div>
           )}
@@ -129,18 +137,7 @@ describe('SelectField', () => {
   });
 
   describe('User Interactions', () => {
-    it('should select an option when clicked', async () => {
-      const user = userEvent.setup();
-      renderWithForm();
-
-      const optionButton = screen.getByTestId('option-2');
-      await user.click(optionButton);
-
-      // Verify the option button still exists (meaning selection worked)
-      expect(screen.getByTestId('option-2')).toBeInTheDocument();
-    });
-
-    it('should update form value on selection', async () => {
+    it('should select an option and update form value when clicked', async () => {
       const user = userEvent.setup();
       const TestComponent = () => {
         const { control, formState, watch } = useForm<EditResourceFormData>({
@@ -165,39 +162,91 @@ describe('SelectField', () => {
       render(<TestComponent />);
 
       expect(screen.getByTestId('watched-value')).toHaveTextContent('none');
+      expect(screen.getByTestId('option-2')).toBeInTheDocument();
 
       await user.click(screen.getByTestId('option-1'));
-
       expect(screen.getByTestId('watched-value')).toHaveTextContent('1');
     });
 
     it('should be searchable', () => {
       renderWithForm();
-      const input = screen.getByRole('combobox');
-      expect(input).not.toHaveAttribute('readonly');
+      expect(screen.getByRole('combobox')).not.toHaveAttribute('readonly');
     });
   });
 
   describe('Disabled State', () => {
-    it('should be enabled by default', () => {
-      renderWithForm();
-      expect(screen.getByRole('combobox')).not.toBeDisabled();
-    });
+    it.each([
+      { disabled: false, shouldBeDisabled: false },
+      { disabled: true, shouldBeDisabled: true },
+    ])(
+      'should be $shouldBeDisabled when disabled prop is $disabled',
+      ({ disabled, shouldBeDisabled }) => {
+        renderWithForm({ disabled });
+        const input = screen.getByRole('combobox');
+        if (shouldBeDisabled) {
+          expect(input).toBeDisabled();
+          expect(
+            screen.queryByTestId('select-options'),
+          ).not.toBeInTheDocument();
+        } else {
+          expect(input).not.toBeDisabled();
+        }
+      },
+    );
 
-    it('should be disabled when disabled prop is true', () => {
-      renderWithForm({ disabled: true });
-      const input = screen.getByRole('combobox');
-      expect(input).toBeDisabled();
-    });
+    it('should disable individual options when disabled field is true and prevent selection', async () => {
+      const user = userEvent.setup();
+      const optionsWithDisabled: RecreationResourceOptionUIModel[] = [
+        { id: '1', label: 'Option 1', disabled: false },
+        { id: '2', label: 'Option 2', disabled: true },
+        { id: '3', label: 'Option 3', disabled: false },
+      ];
 
-    it('should not show options when disabled', () => {
-      renderWithForm({ disabled: true });
-      expect(screen.queryByTestId('select-options')).not.toBeInTheDocument();
+      const TestComponent = () => {
+        const { control, formState, watch } = useForm<EditResourceFormData>({
+          defaultValues: {},
+        });
+        const value = watch('maintenance_standard_code');
+        return (
+          <>
+            <SelectField
+              name="maintenance_standard_code"
+              label="Test Select"
+              options={optionsWithDisabled}
+              placeholder="Select an option"
+              control={control}
+              errors={formState.errors}
+            />
+            <div data-testid="watched-value">{value || 'none'}</div>
+          </>
+        );
+      };
+
+      render(<TestComponent />);
+
+      const disabledOption = screen.getByTestId('option-2');
+      const enabledOption1 = screen.getByTestId('option-1');
+      const enabledOption3 = screen.getByTestId('option-3');
+
+      // Verify disabled state
+      expect(disabledOption).toBeDisabled();
+      expect(disabledOption).toHaveAttribute('data-disabled', 'true');
+      expect(enabledOption1).not.toBeDisabled();
+      expect(enabledOption3).not.toBeDisabled();
+
+      // Verify disabled option cannot be selected
+      expect(screen.getByTestId('watched-value')).toHaveTextContent('none');
+      await user.click(disabledOption);
+      expect(screen.getByTestId('watched-value')).toHaveTextContent('none');
+
+      // Verify enabled options can be selected
+      await user.click(enabledOption1);
+      expect(screen.getByTestId('watched-value')).toHaveTextContent('1');
     });
   });
 
   describe('Error Handling', () => {
-    it('should display error message', () => {
+    it('should display error message and apply error class when error exists', () => {
       const TestComponent = () => {
         const { control, formState } = useForm<EditResourceFormData>({
           defaultValues: {},
@@ -220,84 +269,25 @@ describe('SelectField', () => {
 
       render(<TestComponent />);
       expect(screen.getByText('This field is required')).toBeInTheDocument();
-    });
-
-    it('should apply error class when error exists', () => {
-      const TestComponent = () => {
-        const { control, formState } = useForm<EditResourceFormData>({
-          defaultValues: {},
-        });
-        formState.errors.maintenance_standard_code = {
-          type: 'required',
-          message: 'Error',
-        };
-        return (
-          <SelectField
-            name="maintenance_standard_code"
-            label="Test Select"
-            options={mockOptions}
-            placeholder="Select an option"
-            control={control}
-            errors={formState.errors}
-          />
-        );
-      };
-
-      render(<TestComponent />);
       expect(screen.getByTestId('mock-select')).toHaveClass('is-invalid');
     });
 
     it('should not show error when no error exists', () => {
       renderWithForm();
-      const errorElement = document.querySelector('.invalid-feedback');
-      expect(errorElement).not.toBeInTheDocument();
+      expect(
+        document.querySelector('.invalid-feedback'),
+      ).not.toBeInTheDocument();
     });
   });
 
   describe('Form Integration', () => {
-    it('should integrate with react-hook-form Controller', async () => {
+    it('should integrate with react-hook-form and handle selection changes', async () => {
       const user = userEvent.setup();
       const TestComponent = () => {
-        const { control, formState, getValues } = useForm<EditResourceFormData>(
-          { defaultValues: {} },
-        );
-        return (
-          <>
-            <SelectField
-              name="maintenance_standard_code"
-              label="Test Select"
-              options={mockOptions}
-              placeholder="Select an option"
-              control={control}
-              errors={formState.errors}
-            />
-            <button
-              onClick={() => {
-                const value = getValues('maintenance_standard_code');
-                document.getElementById('result')!.textContent = value || '';
-              }}
-            >
-              Get Value
-            </button>
-            <div id="result"></div>
-          </>
-        );
-      };
-
-      render(<TestComponent />);
-
-      await user.click(screen.getByTestId('option-3'));
-      await user.click(screen.getByText('Get Value'));
-
-      expect(document.getElementById('result')).toHaveTextContent('3');
-    });
-
-    it('should handle multiple selection changes', async () => {
-      const user = userEvent.setup();
-      const TestComponent = () => {
-        const { control, formState, watch } = useForm<EditResourceFormData>({
-          defaultValues: { maintenance_standard_code: '1' },
-        });
+        const { control, formState, watch, getValues } =
+          useForm<EditResourceFormData>({
+            defaultValues: { maintenance_standard_code: '1' },
+          });
         const value = watch('maintenance_standard_code');
         return (
           <>
@@ -310,6 +300,15 @@ describe('SelectField', () => {
               errors={formState.errors}
             />
             <div data-testid="current-value">{value}</div>
+            <button
+              onClick={() => {
+                const val = getValues('maintenance_standard_code');
+                document.getElementById('result')!.textContent = val || '';
+              }}
+            >
+              Get Value
+            </button>
+            <div id="result"></div>
           </>
         );
       };
@@ -323,6 +322,9 @@ describe('SelectField', () => {
 
       await user.click(screen.getByTestId('option-3'));
       expect(screen.getByTestId('current-value')).toHaveTextContent('3');
+
+      await user.click(screen.getByText('Get Value'));
+      expect(document.getElementById('result')).toHaveTextContent('3');
     });
   });
 

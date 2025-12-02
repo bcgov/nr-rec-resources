@@ -1,12 +1,13 @@
 import {
   EditResourceFormData,
-  editResourceSchema,
+  createEditResourceSchema,
 } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/schemas/editResource';
 import { describe, expect, it } from 'vitest';
 
-describe('editResourceSchema', () => {
+describe('createEditResourceSchema', () => {
   it('accepts all fields undefined (all optional)', () => {
-    const result = editResourceSchema.safeParse({});
+    const schema = createEditResourceSchema();
+    const result = schema.safeParse({});
     expect(result.success).toBe(true);
     expect(result.data).toEqual({
       selected_access_options: [],
@@ -15,30 +16,33 @@ describe('editResourceSchema', () => {
   });
 
   it('accepts empty strings for string fields', () => {
+    const schema = createEditResourceSchema();
     const data = {
       maintenance_standard_code: '',
       control_access_code: '',
       status_code: '',
       district_code: '',
     };
-    const result = editResourceSchema.safeParse(data);
+    const result = schema.safeParse(data);
     expect(result.success).toBe(true);
   });
 
   it('accepts partial data', () => {
+    const schema = createEditResourceSchema();
     const data = {
       maintenance_standard_code: 'STANDARD',
     };
-    const result = editResourceSchema.safeParse(data);
+    const result = schema.safeParse(data);
     expect(result.success).toBe(true);
     expect(result.data?.maintenance_standard_code).toBe('STANDARD');
   });
 
   it('rejects non-string values for string fields', () => {
+    const schema = createEditResourceSchema();
     const data = {
       maintenance_standard_code: 123,
     } as unknown as EditResourceFormData;
-    const result = editResourceSchema.safeParse(data);
+    const result = schema.safeParse(data);
     expect(result.success).toBe(false);
   });
 
@@ -46,14 +50,82 @@ describe('editResourceSchema', () => {
     ['string', 'CHWK', 'CHWK'],
     ['null', null, null],
   ])('accepts district_code as %s', (_, input, expected) => {
-    const result = editResourceSchema.safeParse({ district_code: input });
+    const schema = createEditResourceSchema();
+    const result = schema.safeParse({ district_code: input });
     expect(result.success).toBe(true);
     expect(result.data?.district_code).toBe(expected);
   });
 
+  describe('district_code archived validation', () => {
+    it('accepts non-archived district', () => {
+      const districtOptions = [
+        { id: 'CHWK', label: 'Chilliwack', is_archived: false },
+        { id: 'VAN', label: 'Vancouver', is_archived: true },
+      ];
+      const schema = createEditResourceSchema(districtOptions);
+      const result = schema.safeParse({ district_code: 'CHWK' });
+      expect(result.success).toBe(true);
+      expect(result.data?.district_code).toBe('CHWK');
+    });
+
+    it('rejects archived district', () => {
+      const districtOptions = [
+        { id: 'CHWK', label: 'Chilliwack', is_archived: false },
+        { id: 'VAN', label: 'Vancouver', is_archived: true },
+      ];
+      const schema = createEditResourceSchema(districtOptions);
+      const result = schema.safeParse({ district_code: 'VAN' });
+      expect(result.success).toBe(false);
+      expect(result.error?.issues[0].message).toBe(
+        'Cannot save with an archived district. Please select an active district.',
+      );
+    });
+
+    it('accepts null district_code even when archived options exist', () => {
+      const districtOptions = [
+        { id: 'VAN', label: 'Vancouver', is_archived: true },
+      ];
+      const schema = createEditResourceSchema(districtOptions);
+      const result = schema.safeParse({ district_code: null });
+      expect(result.success).toBe(true);
+      expect(result.data?.district_code).toBe(null);
+    });
+
+    it('accepts undefined district_code even when archived options exist', () => {
+      const districtOptions = [
+        { id: 'VAN', label: 'Vancouver', is_archived: true },
+      ];
+      const schema = createEditResourceSchema(districtOptions);
+      const result = schema.safeParse({});
+      expect(result.success).toBe(true);
+      expect(result.data?.district_code).toBeUndefined();
+    });
+
+    it('accepts district_code not found in options (edge case)', () => {
+      const districtOptions = [
+        { id: 'CHWK', label: 'Chilliwack', is_archived: false },
+      ];
+      const schema = createEditResourceSchema(districtOptions);
+      const result = schema.safeParse({ district_code: 'UNKNOWN' });
+      expect(result.success).toBe(true);
+      expect(result.data?.district_code).toBe('UNKNOWN');
+    });
+
+    it('accepts district_code when option has no is_archived property', () => {
+      const districtOptions = [
+        { id: 'CHWK', label: 'Chilliwack' }, // No is_archived property
+      ];
+      const schema = createEditResourceSchema(districtOptions);
+      const result = schema.safeParse({ district_code: 'CHWK' });
+      expect(result.success).toBe(true);
+      expect(result.data?.district_code).toBe('CHWK');
+    });
+  });
+
   describe('project_established_date validation', () => {
     it('accepts a valid past date', () => {
-      const result = editResourceSchema.safeParse({
+      const schema = createEditResourceSchema();
+      const result = schema.safeParse({
         project_established_date: '2023-01-15',
       });
       expect(result.success).toBe(true);
@@ -61,19 +133,21 @@ describe('editResourceSchema', () => {
     });
 
     it('accepts today as the project established date', () => {
+      const schema = createEditResourceSchema();
       const today = new Date().toISOString().split('T')[0];
-      const result = editResourceSchema.safeParse({
+      const result = schema.safeParse({
         project_established_date: today,
       });
       expect(result.success).toBe(true);
     });
 
     it('rejects a future date for project_established_date', () => {
+      const schema = createEditResourceSchema();
       const futureDate = new Date();
       futureDate.setFullYear(futureDate.getFullYear() + 1);
       const futureDateString = futureDate.toISOString().split('T')[0];
 
-      const result = editResourceSchema.safeParse({
+      const result = schema.safeParse({
         project_established_date: futureDateString,
       });
       expect(result.success).toBe(false);
@@ -83,7 +157,8 @@ describe('editResourceSchema', () => {
     });
 
     it('accepts null for project_established_date', () => {
-      const result = editResourceSchema.safeParse({
+      const schema = createEditResourceSchema();
+      const result = schema.safeParse({
         project_established_date: null,
       });
       expect(result.success).toBe(true);
@@ -95,7 +170,8 @@ describe('editResourceSchema', () => {
       [true, true],
       [false, false],
     ])('accepts %s for display_on_public_site', (input, expected) => {
-      const result = editResourceSchema.safeParse({
+      const schema = createEditResourceSchema();
+      const result = schema.safeParse({
         display_on_public_site: input,
       });
       expect(result.success).toBe(true);
@@ -103,7 +179,8 @@ describe('editResourceSchema', () => {
     });
 
     it('defaults to false when display_on_public_site is not provided', () => {
-      const result = editResourceSchema.safeParse({
+      const schema = createEditResourceSchema();
+      const result = schema.safeParse({
         maintenance_standard_code: 'STANDARD',
       });
       expect(result.success).toBe(true);

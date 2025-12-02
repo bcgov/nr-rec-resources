@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { ArrayNotEmpty, IsArray, IsIn } from 'class-validator';
-import { VALID_OPTION_TYPES, type OptionType } from '../options.constants';
+import { VALID_OPTION_TYPES } from '../options.constants';
+import { type OptionType } from '../options.types';
 
 /**
  * Query DTO for fetching options for multiple types.

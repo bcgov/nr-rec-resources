@@ -1,30 +1,49 @@
 import { PrismaService } from '@/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { OptionDto } from './dtos/option.dto';
-import { TableMapping } from './options.constants';
+import { OPTION_TABLE_MAPPINGS, OPTION_TYPES } from './options.constants';
+import {
+  buildSelectFields,
+  mapResultToOptionDto,
+  transformResultsToOptionDtos,
+} from './options.mapper';
+import { TableMapping } from './options.types';
 
 @Injectable()
 export class OptionsRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   /**
+   * Executes a Prisma query and transforms the result to OptionDto.
+   */
+  private async executeAndTransform<T>(
+    mapping: TableMapping,
+    queryFn: (selectFields: Record<string, boolean>) => Promise<T>,
+  ): Promise<OptionDto | null> {
+    const selectFields = buildSelectFields(mapping);
+    const result = await queryFn(selectFields);
+
+    if (!result) {
+      return null;
+    }
+
+    return mapResultToOptionDto(mapping, result);
+  }
+
+  /**
    * Find all options by type
    */
   async findAllByType(mapping: TableMapping): Promise<OptionDto[]> {
+    const selectFields = buildSelectFields(mapping);
+
     const results = await (this.prisma as any)[mapping.prismaModel].findMany({
+      select: selectFields,
       orderBy: {
         [mapping.labelField]: 'asc',
       },
     });
 
-    if (mapping.reducer) {
-      return mapping.reducer(results);
-    }
-
-    return results.map((result: any) => ({
-      id: result[mapping.idField].toString(),
-      label: result[mapping.labelField],
-    }));
+    return await transformResultsToOptionDtos(mapping, results);
   }
 
   /**
@@ -36,11 +55,11 @@ export class OptionsRepository {
   ): Promise<Record<string, OptionDto[]>> {
     // Build an array of Prisma findMany/select calls
     const queries = mappingPairs.map(({ mapping }) => {
-      // Use the prisma model dynamically
       const model = (this.prisma as any)[mapping.prismaModel];
+      const selectFields = buildSelectFields(mapping);
 
-      // Use findMany with orderBy
       return model.findMany({
+        select: selectFields,
         orderBy: { [mapping.labelField]: 'asc' },
       });
     });
@@ -48,21 +67,16 @@ export class OptionsRepository {
     // Execute all queries in a single transaction
     const results = await this.prisma.$transaction(queries);
 
-    // Map results back to type -> OptionDto[] applying reducers where provided
+    // Map results back to type -> OptionDto[] using transformation pipeline
     const output: Record<string, OptionDto[]> = {};
 
-    mappingPairs.forEach(({ type, mapping }, idx) => {
-      const rows = results[idx];
-
-      if (mapping.reducer) {
-        output[type] = mapping.reducer(rows);
-      } else {
-        output[type] = (rows as any[]).map((result) => ({
-          id: result[mapping.idField].toString(),
-          label: result[mapping.labelField],
-        }));
-      }
-    });
+    // Process all mappings in parallel
+    await Promise.all(
+      mappingPairs.map(async ({ type, mapping }, idx) => {
+        const rows = results[idx];
+        output[type] = await transformResultsToOptionDtos(mapping, rows);
+      }),
+    );
 
     return output;
   }
@@ -74,42 +88,27 @@ export class OptionsRepository {
     mapping: TableMapping,
     searchId: string | number,
   ): Promise<OptionDto | null> {
-    const result = await (this.prisma as any)[mapping.prismaModel].findUnique({
-      where: {
-        [mapping.idField]: searchId,
-      },
-      select: {
-        [mapping.idField]: true,
-        [mapping.labelField]: true,
-      },
-    });
-
-    if (!result) {
-      return null;
-    }
-
-    return {
-      id: result[mapping.idField].toString(),
-      label: result[mapping.labelField],
-    };
+    return this.executeAndTransform(mapping, (selectFields) =>
+      (this.prisma as any)[mapping.prismaModel].findUnique({
+        where: {
+          [mapping.idField]: searchId,
+        },
+        select: selectFields,
+      }),
+    );
   }
 
   /**
    * Create a new option
    */
   async create(mapping: TableMapping, data: any): Promise<OptionDto> {
+    const selectFields = buildSelectFields(mapping);
     const result = await (this.prisma as any)[mapping.prismaModel].create({
       data,
-      select: {
-        [mapping.idField]: true,
-        [mapping.labelField]: true,
-      },
+      select: selectFields,
     });
 
-    return {
-      id: result[mapping.idField].toString(),
-      label: result[mapping.labelField],
-    };
+    return mapResultToOptionDto(mapping, result);
   }
 
   /**
@@ -120,21 +119,16 @@ export class OptionsRepository {
     searchId: string | number,
     data: any,
   ): Promise<OptionDto> {
+    const selectFields = buildSelectFields(mapping);
     const result = await (this.prisma as any)[mapping.prismaModel].update({
       where: {
         [mapping.idField]: searchId,
       },
       data,
-      select: {
-        [mapping.idField]: true,
-        [mapping.labelField]: true,
-      },
+      select: selectFields,
     });
 
-    return {
-      id: result[mapping.idField].toString(),
-      label: result[mapping.labelField],
-    };
+    return mapResultToOptionDto(mapping, result);
   }
 
   /**
@@ -164,6 +158,9 @@ export class OptionsRepository {
    * Find sub-access codes by access code
    */
   async findSubAccessByAccessCode(accessCode: string): Promise<OptionDto[]> {
+    const mapping = OPTION_TABLE_MAPPINGS[OPTION_TYPES.SUB_ACCESS];
+    const selectFields = buildSelectFields(mapping);
+
     const results = await this.prisma.recreation_sub_access_code.findMany({
       where: {
         recreation_access: {
@@ -172,19 +169,13 @@ export class OptionsRepository {
           },
         },
       },
-      select: {
-        sub_access_code: true,
-        description: true,
-      },
+      select: selectFields,
       orderBy: {
-        description: 'asc',
+        [mapping.labelField]: 'asc',
       },
     });
 
-    return results.map((result) => ({
-      id: result.sub_access_code,
-      label: result.description || '',
-    }));
+    return await transformResultsToOptionDtos(mapping, results);
   }
 
   /**
@@ -218,21 +209,11 @@ export class OptionsRepository {
     subAccessCode: string,
     description: string,
   ): Promise<OptionDto> {
-    const result = await this.prisma.recreation_sub_access_code.create({
-      data: {
-        sub_access_code: subAccessCode,
-        description: description,
-      },
-      select: {
-        sub_access_code: true,
-        description: true,
-      },
+    const mapping = OPTION_TABLE_MAPPINGS[OPTION_TYPES.SUB_ACCESS];
+    return this.create(mapping, {
+      [mapping.idField]: subAccessCode,
+      [mapping.labelField]: description,
     });
-
-    return {
-      id: result.sub_access_code,
-      label: result.description || '',
-    };
   }
 
   /**
@@ -242,33 +223,17 @@ export class OptionsRepository {
     subAccessCode: string,
     description: string,
   ): Promise<OptionDto> {
-    const result = await this.prisma.recreation_sub_access_code.update({
-      where: {
-        sub_access_code: subAccessCode,
-      },
-      data: {
-        description: description,
-      },
-      select: {
-        sub_access_code: true,
-        description: true,
-      },
+    const mapping = OPTION_TABLE_MAPPINGS[OPTION_TYPES.SUB_ACCESS];
+    return this.update(mapping, subAccessCode, {
+      [mapping.labelField]: description,
     });
-
-    return {
-      id: result.sub_access_code,
-      label: result.description || '',
-    };
   }
 
   /**
    * Delete sub-access code
    */
   async removeSubAccess(subAccessCode: string): Promise<void> {
-    await this.prisma.recreation_sub_access_code.delete({
-      where: {
-        sub_access_code: subAccessCode,
-      },
-    });
+    const mapping = OPTION_TABLE_MAPPINGS[OPTION_TYPES.SUB_ACCESS];
+    return this.remove(mapping, subAccessCode);
   }
 }

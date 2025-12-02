@@ -83,6 +83,27 @@ describe('OptionsService', () => {
       });
     });
 
+    it('should return district options with is_archived field', async () => {
+      const mockDistricts = [
+        { id: 'D001', label: 'District 1', is_archived: false },
+        { id: 'D002', label: 'District 2', is_archived: true },
+      ];
+
+      repository.findAllByType = vi.fn().mockResolvedValue(mockDistricts);
+
+      const result = await service.findAllByType('district');
+
+      expect(result).toEqual(mockDistricts);
+      expect(result[0]!.is_archived).toBe(false);
+      expect(result[1]!.is_archived).toBe(true);
+      expect(repository.findAllByType).toHaveBeenCalledWith({
+        idField: 'district_code',
+        labelField: 'description',
+        prismaModel: 'recreation_district_code',
+        archivedField: 'is_archived',
+      });
+    });
+
     it('should return recreation status options', async () => {
       const mockRecreationStatus = [
         { id: '1', label: 'Active' },
@@ -103,10 +124,10 @@ describe('OptionsService', () => {
       });
     });
 
-    it('should return district options', async () => {
+    it('should return district options with is_archived field', async () => {
       const mockDistricts = [
-        { id: 'CHWK', label: 'Chilliwack' },
-        { id: 'VAN', label: 'Vancouver' },
+        { id: 'CHWK', label: 'Chilliwack', is_archived: false },
+        { id: 'VAN', label: 'Vancouver', is_archived: true },
       ];
 
       repository.findAllByType = vi.fn().mockResolvedValue(mockDistricts);
@@ -114,10 +135,13 @@ describe('OptionsService', () => {
       const result = await service.findAllByType('district');
 
       expect(result).toEqual(mockDistricts);
+      expect(result[0]!.is_archived).toBe(false);
+      expect(result[1]!.is_archived).toBe(true);
       expect(repository.findAllByType).toHaveBeenCalledWith({
         idField: 'district_code',
         labelField: 'description',
         prismaModel: 'recreation_district_code',
+        archivedField: 'is_archived',
       });
     });
   });
@@ -170,6 +194,30 @@ describe('OptionsService', () => {
       );
     });
 
+    it('should return district option with is_archived field', async () => {
+      const mockDistrict = {
+        id: 'D001',
+        label: 'District 1',
+        is_archived: true,
+      };
+
+      repository.findOneByTypeAndId = vi.fn().mockResolvedValue(mockDistrict);
+
+      const result = await service.findOneByTypeAndId('district', 'D001');
+
+      expect(result).toEqual(mockDistrict);
+      expect(result.is_archived).toBe(true);
+      expect(repository.findOneByTypeAndId).toHaveBeenCalledWith(
+        {
+          idField: 'district_code',
+          labelField: 'description',
+          prismaModel: 'recreation_district_code',
+          archivedField: 'is_archived',
+        },
+        'D001',
+      );
+    });
+
     it('should throw NotFoundException for non-existent option', async () => {
       repository.findOneByTypeAndId = vi.fn().mockResolvedValue(null);
 
@@ -218,6 +266,7 @@ describe('OptionsService', () => {
           idField: 'district_code',
           labelField: 'description',
           prismaModel: 'recreation_district_code',
+          archivedField: 'is_archived',
         },
         { district_code: 'mountain_b', description: 'Mountain Bike District' },
       );

@@ -1,13 +1,14 @@
 import { RecResourceOverviewLink } from '@/components/RecResourceOverviewLink';
 import { DateInputField } from '@/components/date-input-field';
 import { EditResourceFormData } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/schemas';
+import { VisibleOnPublicSite } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/components';
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { RecreationResourceDetailUIModel } from '@/services';
+import { useMemo } from 'react';
 import { Button, Col, Form, Row, Stack } from 'react-bootstrap';
-import { Controller } from 'react-hook-form';
+import { Controller, useWatch } from 'react-hook-form';
 import { GroupedMultiSelectField, SelectField } from './components';
 import { useEditResourceForm, useResourceOptions } from './hooks';
-import { VisibleOnPublicSite } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/components';
 
 /**
  * Edit section for recreation resource overview
@@ -25,10 +26,39 @@ export const RecResourceOverviewEditSection = () => {
     recreationStatusOptions,
     groupedAccessOptions,
     districtOptions,
-  } = useResourceOptions();
+  } = useResourceOptions({
+    currentDistrictCode: recResource.recreation_district?.district_code,
+  });
 
   const { handleSubmit, control, errors, isDirty, updateMutation, onSubmit } =
-    useEditResourceForm(recResource);
+    useEditResourceForm(recResource, districtOptions);
+
+  // Watch the district_code field to check if selected option is archived
+  const selectedDistrictCode = useWatch({
+    control,
+    name: 'district_code',
+  });
+
+  // Determine helper text based on whether an archived option is selected
+  const districtHelperText = useMemo(() => {
+    const selectedOption = districtOptions.find(
+      (opt) => opt.id === selectedDistrictCode,
+    );
+
+    if (selectedOption?.is_archived) {
+      return (
+        <div className="bg-light p-2 rounded mt-1">
+          <span className="bg-light text-danger">
+            <strong>Note:</strong> The district currently assigned to this
+            resource has been archived. Please select an active district from
+            the list.
+          </span>
+        </div>
+      );
+    }
+
+    return null;
+  }, [districtOptions, selectedDistrictCode]);
 
   return (
     <Stack direction="vertical" gap={4}>
@@ -111,6 +141,7 @@ export const RecResourceOverviewEditSection = () => {
                 placeholder="Search or select a recreation district..."
                 control={control}
                 errors={errors}
+                helperText={districtHelperText}
               />
             </Col>
 

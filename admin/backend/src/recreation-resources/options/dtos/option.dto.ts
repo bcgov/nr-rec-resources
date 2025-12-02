@@ -24,6 +24,12 @@ export class OptionDto {
     ],
   })
   children?: OptionDto[];
+
+  @ApiPropertyOptional({
+    description: 'Indicates if the option is archived',
+    example: false,
+  })
+  is_archived?: boolean;
 }
 
 export class CreateOptionDto {

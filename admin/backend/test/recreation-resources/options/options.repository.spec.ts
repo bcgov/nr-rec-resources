@@ -14,38 +14,30 @@ describe('OptionsRepository', () => {
     prismaModel: 'recreation_activity_code',
   };
 
+  const mockDistrictMapping = {
+    idField: 'district_code',
+    labelField: 'description',
+    prismaModel: 'recreation_district_code',
+    archivedField: 'is_archived',
+  };
+
+  const createPrismaModel = () => ({
+    findMany: vi.fn(),
+    findUnique: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+  });
+
   beforeEach(async () => {
     const mockPrismaService = {
-      recreation_activity_code: {
-        findMany: vi.fn(),
-        findUnique: vi.fn(),
-        create: vi.fn(),
-        update: vi.fn(),
-        delete: vi.fn(),
-      },
-      recreation_status_code: {
-        findMany: vi.fn(),
-        findUnique: vi.fn(),
-        create: vi.fn(),
-        update: vi.fn(),
-        delete: vi.fn(),
-      },
-      recreation_access_code: {
-        findUnique: vi.fn(),
-      },
-      recreation_access_and_sub_access_code: {
-        findMany: vi.fn(),
-      },
-      recreation_sub_access_code: {
-        findMany: vi.fn(),
-        findUnique: vi.fn(),
-        create: vi.fn(),
-        update: vi.fn(),
-        delete: vi.fn(),
-      },
-      recreation_access: {
-        findFirst: vi.fn(),
-      },
+      recreation_activity_code: createPrismaModel(),
+      recreation_status_code: createPrismaModel(),
+      recreation_access_code: { findUnique: vi.fn() },
+      recreation_access_and_sub_access_code: { findMany: vi.fn() },
+      recreation_sub_access_code: createPrismaModel(),
+      recreation_access: { findFirst: vi.fn() },
+      recreation_district_code: createPrismaModel(),
       $transaction: vi.fn(),
     };
 
@@ -71,72 +63,68 @@ describe('OptionsRepository', () => {
   });
 
   describe('findAllByType', () => {
-    it('should return all options for a given type', async () => {
-      const mockResults = [
-        { recreation_activity_code: 1, description: 'Hiking' },
-        { recreation_activity_code: 2, description: 'Skiing' },
-      ];
-
-      (prisma as any).recreation_activity_code.findMany.mockResolvedValue(
-        mockResults,
-      );
-
-      const result = await repository.findAllByType(mockTableMapping);
-
-      expect(result).toEqual([
-        { id: '1', label: 'Hiking' },
-        { id: '2', label: 'Skiing' },
-      ]);
-      expect(prisma.recreation_activity_code.findMany).toHaveBeenCalledWith({
-        orderBy: {
-          description: 'asc',
+    it.each([
+      {
+        name: 'activities',
+        mapping: mockTableMapping,
+        mockResults: [
+          { recreation_activity_code: 1, description: 'Hiking' },
+          { recreation_activity_code: 2, description: 'Skiing' },
+        ],
+        expected: [
+          { id: '1', label: 'Hiking' },
+          { id: '2', label: 'Skiing' },
+        ],
+        model: 'recreation_activity_code',
+      },
+      {
+        name: 'recreation status',
+        mapping: {
+          idField: 'status_code',
+          labelField: 'description',
+          prismaModel: 'recreation_status_code',
         },
-      });
-    });
+        mockResults: [
+          { status_code: 1, description: 'Active' },
+          { status_code: 2, description: 'Inactive' },
+        ],
+        expected: [
+          { id: '1', label: 'Active' },
+          { id: '2', label: 'Inactive' },
+        ],
+        model: 'recreation_status_code',
+      },
+    ])(
+      'should return all options for $name',
+      async ({ mapping, mockResults, expected, model }) => {
+        (prisma as any)[model].findMany.mockResolvedValue(mockResults);
 
-    it('should return recreation status options', async () => {
-      const mockRecreationStatusMapping = {
-        idField: 'status_code',
-        labelField: 'description',
-        prismaModel: 'recreation_status_code',
-      };
+        const result = await repository.findAllByType(mapping);
 
-      const mockResults = [
-        { status_code: 1, description: 'Active' },
-        { status_code: 2, description: 'Inactive' },
-      ];
+        expect(result).toEqual(expected);
+        expect((prisma as any)[model].findMany).toHaveBeenCalledWith({
+          select: expect.objectContaining({
+            [mapping.idField]: true,
+            [mapping.labelField]: true,
+          }),
+          orderBy: { [mapping.labelField]: 'asc' },
+        });
+      },
+    );
 
-      (prisma as any).recreation_status_code.findMany.mockResolvedValue(
-        mockResults,
-      );
-
-      const result = await repository.findAllByType(
-        mockRecreationStatusMapping,
-      );
-
-      expect(result).toEqual([
-        { id: '1', label: 'Active' },
-        { id: '2', label: 'Inactive' },
-      ]);
-      expect(prisma.recreation_status_code.findMany).toHaveBeenCalledWith({
-        orderBy: {
-          description: 'asc',
-        },
-      });
-    });
-
-    it('should use reducer when mapping has one', async () => {
+    it('should use middleware when mapping has one', async () => {
       const mockAccessMapping = {
         idField: 'access_code',
         labelField: 'access_code_description',
         prismaModel: 'recreation_access_and_sub_access_code',
-        reducer: vi.fn().mockReturnValue([
+        middleware: vi.fn().mockReturnValue([
           {
             id: 'BOAT',
             label: 'Boat',
             children: [{ id: 'MOTOR', label: 'Motor' }],
           },
         ]),
+        additionalFields: ['sub_access_code', 'sub_access_code_description'],
       };
 
       const mockResults = [
@@ -144,7 +132,7 @@ describe('OptionsRepository', () => {
           access_code: 'BOAT',
           access_code_description: 'Boat',
           sub_access_code: 'MOTOR',
-          description: 'Motor',
+          sub_access_code_description: 'Motor',
         },
       ];
 
@@ -154,7 +142,13 @@ describe('OptionsRepository', () => {
 
       const result = await repository.findAllByType(mockAccessMapping);
 
-      expect(mockAccessMapping.reducer).toHaveBeenCalledWith(mockResults);
+      // Middleware receives (mapped: OptionDto[], raw: any[])
+      expect(mockAccessMapping.middleware).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ id: 'BOAT', label: 'Boat' }),
+        ]),
+        mockResults,
+      );
       expect(result).toEqual([
         {
           id: 'BOAT',
@@ -162,6 +156,36 @@ describe('OptionsRepository', () => {
           children: [{ id: 'MOTOR', label: 'Motor' }],
         },
       ]);
+    });
+
+    it('should include is_archived for district options', async () => {
+      const mockResults = [
+        {
+          district_code: 'D001',
+          description: 'District 1',
+          is_archived: false,
+        },
+        { district_code: 'D002', description: 'District 2', is_archived: true },
+      ];
+
+      (prisma as any).recreation_district_code.findMany.mockResolvedValue(
+        mockResults,
+      );
+
+      const result = await repository.findAllByType(mockDistrictMapping);
+
+      expect(result).toEqual([
+        { id: 'D001', label: 'District 1', is_archived: false },
+        { id: 'D002', label: 'District 2', is_archived: true },
+      ]);
+      expect(prisma.recreation_district_code.findMany).toHaveBeenCalledWith({
+        select: {
+          district_code: true,
+          description: true,
+          is_archived: true,
+        },
+        orderBy: { description: 'asc' },
+      });
     });
   });
 
@@ -220,8 +244,8 @@ describe('OptionsRepository', () => {
       });
     });
 
-    it('should apply reducer when provided', async () => {
-      const reducer = vi.fn().mockReturnValue([
+    it('should apply middleware when provided', async () => {
+      const middleware = vi.fn().mockReturnValue([
         {
           id: 'BOAT',
           label: 'Boat',
@@ -236,7 +260,11 @@ describe('OptionsRepository', () => {
             idField: 'access_code',
             labelField: 'access_code_description',
             prismaModel: 'recreation_access_and_sub_access_code',
-            reducer,
+            middleware,
+            additionalFields: [
+              'sub_access_code',
+              'sub_access_code_description',
+            ],
           },
         },
       ];
@@ -246,7 +274,7 @@ describe('OptionsRepository', () => {
           access_code: 'BOAT',
           access_code_description: 'Boat',
           sub_access_code: 'MOTOR',
-          description: 'Motor',
+          sub_access_code_description: 'Motor',
         },
       ];
 
@@ -254,7 +282,13 @@ describe('OptionsRepository', () => {
 
       const result = await repository.findAllByTypes(mockPairs as any);
 
-      expect(reducer).toHaveBeenCalledWith(rows);
+      expect(middleware).toHaveBeenCalled();
+      expect(middleware).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({ id: 'BOAT', label: 'Boat' }),
+        ]),
+        rows,
+      );
       expect(result).toEqual({
         access: [
           {
@@ -264,6 +298,31 @@ describe('OptionsRepository', () => {
           },
         ],
       });
+    });
+
+    it('should include is_archived for district options in findAllByTypes', async () => {
+      const districtRows = [
+        {
+          district_code: 'D001',
+          description: 'District 1',
+          is_archived: false,
+        },
+        { district_code: 'D002', description: 'District 2', is_archived: true },
+      ];
+
+      (prisma as any).$transaction.mockResolvedValue([districtRows]);
+
+      const result = await repository.findAllByTypes([
+        { type: 'district', mapping: mockDistrictMapping },
+      ] as any);
+
+      expect(result).toEqual({
+        district: [
+          { id: 'D001', label: 'District 1', is_archived: false },
+          { id: 'D002', label: 'District 2', is_archived: true },
+        ],
+      });
+      expect((prisma as any).$transaction).toHaveBeenCalled();
     });
   });
 
@@ -283,6 +342,37 @@ describe('OptionsRepository', () => {
         select: {
           recreation_activity_code: true,
           description: true,
+        },
+      });
+    });
+
+    it('should include is_archived for district option when found', async () => {
+      const mockResult = {
+        district_code: 'D001',
+        description: 'District 1',
+        is_archived: false,
+      };
+
+      (prisma as any).recreation_district_code.findUnique.mockResolvedValue(
+        mockResult,
+      );
+
+      const result = await repository.findOneByTypeAndId(
+        mockDistrictMapping,
+        'D001',
+      );
+
+      expect(result).toEqual({
+        id: 'D001',
+        label: 'District 1',
+        is_archived: false,
+      });
+      expect(prisma.recreation_district_code.findUnique).toHaveBeenCalledWith({
+        where: { district_code: 'D001' },
+        select: {
+          district_code: true,
+          description: true,
+          is_archived: true,
         },
       });
     });
@@ -321,6 +411,35 @@ describe('OptionsRepository', () => {
         },
       });
     });
+
+    it('should include is_archived when creating a district option', async () => {
+      const mockData = { description: 'New District' };
+      const mockResult = {
+        district_code: 'D003',
+        description: 'New District',
+        is_archived: false,
+      };
+
+      (prisma as any).recreation_district_code.create.mockResolvedValue(
+        mockResult,
+      );
+
+      const result = await repository.create(mockDistrictMapping, mockData);
+
+      expect(result).toEqual({
+        id: 'D003',
+        label: 'New District',
+        is_archived: false,
+      });
+      expect(prisma.recreation_district_code.create).toHaveBeenCalledWith({
+        data: mockData,
+        select: {
+          district_code: true,
+          description: true,
+          is_archived: true,
+        },
+      });
+    });
   });
 
   describe('update', () => {
@@ -344,6 +463,40 @@ describe('OptionsRepository', () => {
         select: {
           recreation_activity_code: true,
           description: true,
+        },
+      });
+    });
+
+    it('should include is_archived when updating a district option', async () => {
+      const mockData = { description: 'Updated District' };
+      const mockResult = {
+        district_code: 'D001',
+        description: 'Updated District',
+        is_archived: true,
+      };
+
+      (prisma as any).recreation_district_code.update.mockResolvedValue(
+        mockResult,
+      );
+
+      const result = await repository.update(
+        mockDistrictMapping,
+        'D001',
+        mockData,
+      );
+
+      expect(result).toEqual({
+        id: 'D001',
+        label: 'Updated District',
+        is_archived: true,
+      });
+      expect(prisma.recreation_district_code.update).toHaveBeenCalledWith({
+        where: { district_code: 'D001' },
+        data: mockData,
+        select: {
+          district_code: true,
+          description: true,
+          is_archived: true,
         },
       });
     });
@@ -379,57 +532,55 @@ describe('OptionsRepository', () => {
   });
 
   describe('findSubAccessByAccessCode', () => {
-    it('should find sub-access codes by access code', async () => {
-      const mockResults = [
-        { sub_access_code: 'paved', description: 'Paved' },
-        { sub_access_code: 'gravel', description: 'Gravel' },
-      ];
+    it.each([
+      {
+        name: 'with descriptions',
+        mockResults: [
+          { sub_access_code: 'paved', description: 'Paved' },
+          { sub_access_code: 'gravel', description: 'Gravel' },
+        ],
+        expected: [
+          { id: 'paved', label: 'Paved' },
+          { id: 'gravel', label: 'Gravel' },
+        ],
+      },
+      {
+        name: 'with missing descriptions',
+        mockResults: [
+          { sub_access_code: 'paved', description: null },
+          { sub_access_code: 'gravel' },
+        ],
+        expected: [
+          { id: 'paved', label: '' },
+          { id: 'gravel', label: '' },
+        ],
+      },
+    ])(
+      'should find sub-access codes $name',
+      async ({ mockResults, expected }) => {
+        (prisma as any).recreation_sub_access_code.findMany.mockResolvedValue(
+          mockResults,
+        );
 
-      (prisma as any).recreation_sub_access_code.findMany.mockResolvedValue(
-        mockResults,
-      );
+        const result = await repository.findSubAccessByAccessCode('road');
 
-      const result = await repository.findSubAccessByAccessCode('road');
-
-      expect(result).toEqual([
-        { id: 'paved', label: 'Paved' },
-        { id: 'gravel', label: 'Gravel' },
-      ]);
-      expect(prisma.recreation_sub_access_code.findMany).toHaveBeenCalledWith({
-        where: {
-          recreation_access: {
-            some: {
-              access_code: 'road',
+        expect(result).toEqual(expected);
+        expect(prisma.recreation_sub_access_code.findMany).toHaveBeenCalledWith(
+          {
+            where: {
+              recreation_access: {
+                some: { access_code: 'road' },
+              },
             },
+            select: {
+              sub_access_code: true,
+              description: true,
+            },
+            orderBy: { description: 'asc' },
           },
-        },
-        select: {
-          sub_access_code: true,
-          description: true,
-        },
-        orderBy: {
-          description: 'asc',
-        },
-      });
-    });
-
-    it('should handle missing description values and return empty labels', async () => {
-      const mockResults = [
-        { sub_access_code: 'paved', description: null },
-        { sub_access_code: 'gravel' },
-      ];
-
-      (prisma as any).recreation_sub_access_code.findMany.mockResolvedValue(
-        mockResults,
-      );
-
-      const result = await repository.findSubAccessByAccessCode('road');
-
-      expect(result).toEqual([
-        { id: 'paved', label: '' },
-        { id: 'gravel', label: '' },
-      ]);
-    });
+        );
+      },
+    );
   });
 
   describe('findSubAccessCode', () => {
@@ -465,113 +616,101 @@ describe('OptionsRepository', () => {
   });
 
   describe('findAccessSubAccessCombination', () => {
-    it('should find access and sub-access combination', async () => {
-      const mockCombination = { access_code: 'road', sub_access_code: 'paved' };
-
-      (prisma as any).recreation_access.findFirst.mockResolvedValue(
-        mockCombination,
-      );
+    it.each([
+      {
+        name: 'when found',
+        mockResult: { access_code: 'road', sub_access_code: 'paved' },
+        expected: { access_code: 'road', sub_access_code: 'paved' },
+      },
+      {
+        name: 'when not found',
+        mockResult: null,
+        expected: null,
+      },
+    ])('should $name', async ({ mockResult, expected }) => {
+      (prisma as any).recreation_access.findFirst.mockResolvedValue(mockResult);
 
       const result = await repository.findAccessSubAccessCombination(
         'road',
         'paved',
       );
 
-      expect(result).toEqual(mockCombination);
-      expect(prisma.recreation_access.findFirst).toHaveBeenCalledWith({
-        where: {
-          access_code: 'road',
-          sub_access_code: 'paved',
-        },
-      });
-    });
-
-    it('should return null when combination not found', async () => {
-      (prisma as any).recreation_access.findFirst.mockResolvedValue(null);
-
-      const result = await repository.findAccessSubAccessCombination(
-        'road',
-        'missing',
-      );
-
-      expect(result).toBeNull();
+      expect(result).toEqual(expected);
+      if (mockResult) {
+        expect(prisma.recreation_access.findFirst).toHaveBeenCalledWith({
+          where: {
+            access_code: 'road',
+            sub_access_code: 'paved',
+          },
+        });
+      }
     });
   });
 
   describe('createSubAccess', () => {
-    it('should create sub-access code', async () => {
-      const mockResult = { sub_access_code: 'dirt', description: 'Dirt Road' };
+    it.each([
+      {
+        name: 'with description',
+        code: 'dirt',
+        description: 'Dirt Road',
+        mockResult: { sub_access_code: 'dirt', description: 'Dirt Road' },
+        expected: { id: 'dirt', label: 'Dirt Road' },
+      },
+      {
+        name: 'without description',
+        code: 'dirt',
+        description: undefined,
+        mockResult: { sub_access_code: 'dirt' },
+        expected: { id: 'dirt', label: '' },
+      },
+    ])(
+      'should create sub-access code $name',
+      async ({ code, description, mockResult, expected }) => {
+        (prisma as any).recreation_sub_access_code.create.mockResolvedValue(
+          mockResult,
+        );
 
-      (prisma as any).recreation_sub_access_code.create.mockResolvedValue(
-        mockResult,
-      );
+        const result = await repository.createSubAccess(
+          code,
+          description as any,
+        );
 
-      const result = await repository.createSubAccess('dirt', 'Dirt Road');
-
-      expect(result).toEqual({ id: 'dirt', label: 'Dirt Road' });
-      expect(prisma.recreation_sub_access_code.create).toHaveBeenCalledWith({
-        data: {
-          sub_access_code: 'dirt',
-          description: 'Dirt Road',
-        },
-        select: {
-          sub_access_code: true,
-          description: true,
-        },
-      });
-    });
-
-    it('should return empty label when created without description', async () => {
-      const mockResult: any = { sub_access_code: 'dirt' };
-
-      (prisma as any).recreation_sub_access_code.create.mockResolvedValue(
-        mockResult,
-      );
-
-      const result = await repository.createSubAccess('dirt', undefined as any);
-
-      expect(result).toEqual({ id: 'dirt', label: '' });
-    });
+        expect(result).toEqual(expected);
+      },
+    );
   });
 
   describe('updateSubAccess', () => {
-    it('should update sub-access code', async () => {
-      const mockResult = {
-        sub_access_code: 'paved',
+    it.each([
+      {
+        name: 'with description',
+        code: 'paved',
         description: 'Paved Highway',
-      };
+        mockResult: { sub_access_code: 'paved', description: 'Paved Highway' },
+        expected: { id: 'paved', label: 'Paved Highway' },
+      },
+      {
+        name: 'without description',
+        code: 'paved',
+        description: undefined,
+        mockResult: { sub_access_code: 'paved' },
+        expected: { id: 'paved', label: '' },
+      },
+    ])(
+      'should update sub-access code $name',
+      async ({ code, description, mockResult, expected }) => {
+        (prisma as any).recreation_sub_access_code.update.mockResolvedValue(
+          mockResult,
+        );
 
-      (prisma as any).recreation_sub_access_code.update.mockResolvedValue(
-        mockResult,
-      );
+        const result = await repository.updateSubAccess(
+          code,
+          description as any,
+        );
 
-      const result = await repository.updateSubAccess('paved', 'Paved Highway');
-
-      expect(result).toEqual({ id: 'paved', label: 'Paved Highway' });
-      expect(prisma.recreation_sub_access_code.update).toHaveBeenCalledWith({
-        where: { sub_access_code: 'paved' },
-        data: { description: 'Paved Highway' },
-        select: {
-          sub_access_code: true,
-          description: true,
-        },
-      });
-    });
-
-    it('should return empty label when updated without description', async () => {
-      const mockResult: any = { sub_access_code: 'paved' };
-
-      (prisma as any).recreation_sub_access_code.update.mockResolvedValue(
-        mockResult,
-      );
-
-      const result = await repository.updateSubAccess(
-        'paved',
-        undefined as any,
-      );
-
-      expect(result).toEqual({ id: 'paved', label: '' });
-    });
+        expect(result).toEqual(expected);
+      },
+    );
   });
 
   describe('removeSubAccess', () => {
