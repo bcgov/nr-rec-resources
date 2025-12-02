@@ -15,7 +15,7 @@ describe('VisibleOnPublicSite', () => {
 
     expect(screen.getByText('Displayed on public site')).toBeInTheDocument();
     expect(
-      screen.getByText('Yes - Visible on public site'),
+      screen.getByText('Yes - visible on public site'),
     ).toBeInTheDocument();
   });
 
@@ -24,7 +24,7 @@ describe('VisibleOnPublicSite', () => {
 
     expect(screen.getByText('Displayed on public site')).toBeInTheDocument();
     expect(
-      screen.getByText(/No - Not visible on public site/),
+      screen.getByText(/No - not visible on public site/),
     ).toBeInTheDocument();
   });
 

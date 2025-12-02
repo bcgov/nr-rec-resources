@@ -37,9 +37,8 @@ export const VisibleOnPublicSite = ({
             </span>
             <span className={`pill pill__${value ? 'visible' : 'hidden'}`}>
               {value
-                ? `Yes - Visible on public site`
-                : `No -
-              Not visible on public site`}
+                ? `Yes - visible on public site`
+                : `No - not visible on public site`}
             </span>
           </Stack>
           {isEditMode && (
