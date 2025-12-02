@@ -64,7 +64,7 @@ const MapDisclaimerModal = ({ isOpen, setIsOpen }: MapDisclaimerModalProps) => {
               target="_blank"
               rel="noreferrer"
             >
-              BC Sites & Trails Alerts.
+              Alerts, closures and warnings.
             </a>
           </p>
         </div>
