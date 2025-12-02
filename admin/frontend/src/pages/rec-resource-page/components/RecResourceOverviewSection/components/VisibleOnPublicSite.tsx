@@ -19,7 +19,7 @@ export const VisibleOnPublicSite = ({
   };
 
   return (
-    <Card className="visible-on-public-site-card border-dark border-2">
+    <Card className="visible-on-public-site-card">
       <Card.Body>
         <Stack
           direction="horizontal"
