@@ -67,7 +67,7 @@ describe('MapDisclaimerModal', () => {
     ).toBeInTheDocument();
 
     const link = screen.getByRole('link', {
-      name: /BC Sites & Trails Alerts/i,
+      name: /Alerts, closures and warnings/i,
     });
     expect(link).toHaveAttribute('href', expect.stringContaining('gov.bc.ca'));
   });
