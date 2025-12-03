@@ -1,5 +1,5 @@
 import { RecreationResourceOptionUIModel } from '@/services';
-import { memo } from 'react';
+import { ReactNode } from 'react';
 import { Form } from 'react-bootstrap';
 import { Control, Controller, FieldErrors } from 'react-hook-form';
 import Select, { SingleValue } from 'react-select';
@@ -9,7 +9,7 @@ import { EditResourceFormData } from '../schemas';
  * Reusable Select Field Component using react-select
  * Handles all select form field logic with proper React Hook Form integration
  */
-export const SelectField = memo(function SelectField({
+export const SelectField = ({
   name,
   label,
   options,
@@ -17,6 +17,7 @@ export const SelectField = memo(function SelectField({
   control,
   errors,
   disabled = false,
+  helperText,
 }: {
   name: keyof EditResourceFormData;
   label: string;
@@ -25,7 +26,8 @@ export const SelectField = memo(function SelectField({
   control: Control<EditResourceFormData>;
   errors: FieldErrors<EditResourceFormData>;
   disabled?: boolean;
-}) {
+  helperText?: ReactNode;
+}) => {
   return (
     <Controller
       name={name}
@@ -52,7 +54,9 @@ export const SelectField = memo(function SelectField({
               isSearchable={true}
               getOptionLabel={(option) => option.label}
               getOptionValue={(option) => option.id || ''}
+              isOptionDisabled={(option) => Boolean(option.disabled)}
             />
+            <Form.Text muted>{helperText}</Form.Text>
             {errors[name] && (
               <Form.Control.Feedback type="invalid" className="d-block">
                 {errors[name]?.message as string}
@@ -63,4 +67,4 @@ export const SelectField = memo(function SelectField({
       }}
     />
   );
-});
+};

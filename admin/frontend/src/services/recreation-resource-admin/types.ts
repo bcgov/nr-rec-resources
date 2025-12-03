@@ -21,4 +21,6 @@ export interface RecreationResourceOptionUIModel {
   id: string | null;
   label: string;
   children?: RecreationResourceOptionUIModel[];
+  is_archived?: boolean;
+  disabled?: boolean;
 }

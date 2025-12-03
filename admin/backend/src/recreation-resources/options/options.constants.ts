@@ -1,28 +1,7 @@
-import { OptionDto } from '@/recreation-resources/options';
 import { mapAccessOptions } from './options.mapper';
+import { OPTION_TYPES, OptionType, TableMapping } from './options.types';
 
-export const OPTION_TYPES = {
-  ACTIVITIES: 'activities',
-  ACCESS: 'access',
-  SUB_ACCESS: 'sub-access',
-  MAINTENANCE: 'maintenance',
-  RESOURCE_TYPE: 'resourceType',
-  FEE_TYPE: 'feeType',
-  RECREATION_STATUS: 'recreationStatus',
-  STRUCTURE: 'structure',
-  CONTROL_ACCESS_CODE: 'controlAccessCode',
-  RISK_RATING_CODE: 'riskRatingCode',
-  DISTRICT: 'district',
-} as const;
-
-export type OptionType = (typeof OPTION_TYPES)[keyof typeof OPTION_TYPES];
-
-export interface TableMapping {
-  idField: string;
-  labelField: string;
-  prismaModel: string;
-  reducer?: (records: any[]) => OptionDto[];
-}
+export { OPTION_TYPES };
 
 export const OPTION_TABLE_MAPPINGS: Record<OptionType, TableMapping> = {
   [OPTION_TYPES.ACTIVITIES]: {
@@ -34,7 +13,8 @@ export const OPTION_TABLE_MAPPINGS: Record<OptionType, TableMapping> = {
     idField: 'access_code',
     labelField: 'access_code_description',
     prismaModel: 'recreation_access_and_sub_access_code',
-    reducer: mapAccessOptions,
+    middleware: mapAccessOptions,
+    additionalFields: ['sub_access_code', 'sub_access_code_description'],
   },
   [OPTION_TYPES.SUB_ACCESS]: {
     idField: 'sub_access_code',
@@ -80,6 +60,7 @@ export const OPTION_TABLE_MAPPINGS: Record<OptionType, TableMapping> = {
     idField: 'district_code',
     labelField: 'description',
     prismaModel: 'recreation_district_code',
+    archivedField: 'is_archived',
   },
 };
 

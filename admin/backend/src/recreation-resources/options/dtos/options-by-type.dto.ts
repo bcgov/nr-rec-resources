@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { OptionDto } from '../dtos/option.dto';
-import { VALID_OPTION_TYPES, type OptionType } from '../options.constants';
+import { VALID_OPTION_TYPES } from '../options.constants';
+import { type OptionType } from '../options.types';
 
 export class OptionsByTypeDto {
   @ApiProperty({

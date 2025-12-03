@@ -37,6 +37,12 @@ export interface OptionDto {
    * @memberof OptionDto
    */
   children?: Array<OptionDto>;
+  /**
+   * Indicates if the option is archived
+   * @type {boolean}
+   * @memberof OptionDto
+   */
+  is_archived?: boolean;
 }
 
 /**
@@ -66,6 +72,7 @@ export function OptionDtoFromJSONTyped(
       json['children'] == null
         ? undefined
         : (json['children'] as Array<any>).map(OptionDtoFromJSON),
+    is_archived: json['is_archived'] == null ? undefined : json['is_archived'],
   };
 }
 
@@ -88,5 +95,6 @@ export function OptionDtoToJSONTyped(
       value['children'] == null
         ? undefined
         : (value['children'] as Array<any>).map(OptionDtoToJSON),
+    is_archived: value['is_archived'],
   };
 }

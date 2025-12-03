@@ -17,10 +17,13 @@ vi.mock(
   '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/hooks/useResourceOptions',
 );
 
+const mockUseWatch = vi.fn(() => null);
+
 vi.mock('react-hook-form', async () => {
   const actual = await vi.importActual('react-hook-form');
   return {
     ...actual,
+    useWatch: (...args: any[]) => mockUseWatch(...args),
     Controller: ({ render }: any) => {
       const field = {
         value: false,
@@ -55,6 +58,22 @@ vi.mock(
         <select multiple name={name} />
       </div>
     ),
+    FormErrorBanner: ({ errors }: any) => {
+      const errorMessages = Object.entries(errors || {})
+        .filter(([, error]: any) => error?.message)
+        .map(([field, error]: any) => `${field}: ${error.message}`);
+      if (errorMessages.length === 0) return null;
+      return (
+        <div data-testid="form-error-banner">
+          <div>Please review and correct the following errors:</div>
+          <ul>
+            {errorMessages.map((msg: string, idx: number) => (
+              <li key={idx}>{msg}</li>
+            ))}
+          </ul>
+        </div>
+      );
+    },
   }),
 );
 
@@ -161,6 +180,7 @@ const createMockFormReturn = (overrides = {}) => ({
 describe('RecResourceOverviewEditSection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseWatch.mockReturnValue(null);
 
     vi.mocked(useRecResource).mockReturnValue({
       rec_resource_id: '123',
@@ -322,6 +342,71 @@ describe('RecResourceOverviewEditSection', () => {
       const link = cancelButton.closest('a');
 
       expect(link).toHaveAttribute('href', '/rec-resource/123/overview');
+    });
+  });
+
+  describe('FormErrorBanner', () => {
+    it('should not render error banner when there are no errors', () => {
+      vi.mocked(useEditResourceForm).mockReturnValue(
+        createMockFormReturn({
+          errors: {},
+        }) as any,
+      );
+
+      render(<RecResourceOverviewEditSection />);
+
+      expect(screen.queryByTestId('form-error-banner')).not.toBeInTheDocument();
+    });
+
+    it('should render error banner when there are errors', () => {
+      vi.mocked(useEditResourceForm).mockReturnValue(
+        createMockFormReturn({
+          errors: {
+            district_code: {
+              type: 'custom',
+              message:
+                'Cannot save with an archived district. Please select an active district.',
+            },
+          },
+        }) as any,
+      );
+
+      render(<RecResourceOverviewEditSection />);
+
+      expect(screen.getByTestId('form-error-banner')).toBeInTheDocument();
+      expect(
+        screen.getByText('Please review and correct the following errors:'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          /Cannot save with an archived district. Please select an active district./,
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it('should display multiple errors when present', () => {
+      vi.mocked(useEditResourceForm).mockReturnValue(
+        createMockFormReturn({
+          errors: {
+            district_code: {
+              type: 'custom',
+              message: 'Cannot save with an archived district.',
+            },
+            status_code: {
+              type: 'required',
+              message: 'Status is required',
+            },
+          },
+        }) as any,
+      );
+
+      render(<RecResourceOverviewEditSection />);
+
+      expect(screen.getByTestId('form-error-banner')).toBeInTheDocument();
+      expect(
+        screen.getByText(/Cannot save with an archived district/),
+      ).toBeInTheDocument();
+      expect(screen.getByText(/Status is required/)).toBeInTheDocument();
     });
   });
 });

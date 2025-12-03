@@ -1,6 +1,7 @@
 import { ROUTE_PATHS } from '@/constants/routes';
 import {
   RecreationResourceDetailUIModel,
+  RecreationResourceOptionUIModel,
   UpdateRecreationResourceDto,
   useUpdateRecreationResource,
 } from '@/services';
@@ -12,19 +13,28 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigateWithQueryParams } from '@shared/hooks';
 import { useMemo } from 'react';
-import { type Resolver, useForm, useWatch } from 'react-hook-form';
+import { useForm, useWatch, type Resolver } from 'react-hook-form';
 import type { GroupedOption } from '../components/GroupedMultiSelectField';
-import { EditResourceFormData, editResourceSchema } from '../schemas';
+import { EditResourceFormData, createEditResourceSchema } from '../schemas';
 
 /**
  * Custom hook for managing edit resource form logic
  * Handles form state, validation, submission, and complex interactions
+ * @param recResource - The recreation resource data
+ * @param districtOptions - Array of district options for validation
  */
 export const useEditResourceForm = (
   recResource: RecreationResourceDetailUIModel,
+  districtOptions: RecreationResourceOptionUIModel[] = [],
 ) => {
   const { navigate } = useNavigateWithQueryParams();
   const updateMutation = useUpdateRecreationResource();
+
+  // Create schema with district options for validation
+  const editResourceSchema = useMemo(
+    () => createEditResourceSchema(districtOptions),
+    [districtOptions],
+  );
 
   // Get default values from resource data
   const defaultValues: EditResourceFormData = useMemo(() => {
@@ -67,7 +77,8 @@ export const useEditResourceForm = (
   } = useForm<EditResourceFormData>({
     resolver: zodResolver(editResourceSchema) as Resolver<EditResourceFormData>,
     defaultValues,
-    mode: 'onChange',
+    mode: 'onSubmit', // Validate on every change for real-time feedback
+    reValidateMode: 'onChange', // Re-validate on change to clear errors when fixed
   });
 
   // Watch form values

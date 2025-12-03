@@ -1,2 +1,5 @@
 // Form validation schemas
-export { editResourceSchema, type EditResourceFormData } from './editResource';
+export {
+  createEditResourceSchema,
+  type EditResourceFormData,
+} from './editResource';

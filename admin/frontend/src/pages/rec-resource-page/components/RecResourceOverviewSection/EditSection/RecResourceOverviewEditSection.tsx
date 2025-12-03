@@ -1,13 +1,19 @@
 import { RecResourceOverviewLink } from '@/components/RecResourceOverviewLink';
 import { DateInputField } from '@/components/date-input-field';
-import { EditResourceFormData } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/schemas';
+import { VisibleOnPublicSite } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/components';
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { RecreationResourceDetailUIModel } from '@/services';
+import { useMemo } from 'react';
 import { Button, Col, Form, Row, Stack } from 'react-bootstrap';
-import { Controller } from 'react-hook-form';
-import { GroupedMultiSelectField, SelectField } from './components';
+import { Controller, useWatch } from 'react-hook-form';
+import {
+  FormErrorBanner,
+  GroupedMultiSelectField,
+  SelectField,
+} from './components';
+import { EDIT_RESOURCE_FIELD_LABEL_MAP } from './constants';
 import { useEditResourceForm, useResourceOptions } from './hooks';
-import { VisibleOnPublicSite } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/components';
+import { EditResourceFormData } from './schemas';
 
 /**
  * Edit section for recreation resource overview
@@ -25,10 +31,39 @@ export const RecResourceOverviewEditSection = () => {
     recreationStatusOptions,
     groupedAccessOptions,
     districtOptions,
-  } = useResourceOptions();
+  } = useResourceOptions({
+    currentDistrictCode: recResource.recreation_district?.district_code,
+  });
 
   const { handleSubmit, control, errors, isDirty, updateMutation, onSubmit } =
-    useEditResourceForm(recResource);
+    useEditResourceForm(recResource, districtOptions);
+
+  // Watch the district_code field to check if selected option is archived
+  const selectedDistrictCode = useWatch({
+    control,
+    name: 'district_code',
+  });
+
+  // Determine helper text based on whether an archived option is selected
+  const districtHelperText = useMemo(() => {
+    const selectedOption = districtOptions.find(
+      (opt) => opt.id === selectedDistrictCode,
+    );
+
+    if (selectedOption?.is_archived) {
+      return (
+        <div className="bg-light p-2 rounded mt-1">
+          <span className="bg-light text-danger">
+            <strong>Note:</strong> The district currently assigned to this
+            resource has been archived. Please select an active district from
+            the list.
+          </span>
+        </div>
+      );
+    }
+
+    return null;
+  }, [districtOptions, selectedDistrictCode]);
 
   return (
     <Stack direction="vertical" gap={4}>
@@ -49,6 +84,11 @@ export const RecResourceOverviewEditSection = () => {
           </Button>
         </Stack>
       </div>
+
+      <FormErrorBanner
+        errors={errors}
+        fieldLabelMap={EDIT_RESOURCE_FIELD_LABEL_MAP}
+      />
 
       <Form onSubmit={handleSubmit(onSubmit as any)}>
         <Stack direction="vertical" gap={4}>
@@ -72,7 +112,7 @@ export const RecResourceOverviewEditSection = () => {
             <Col xs={12} md={6}>
               <SelectField
                 name="status_code"
-                label="Status"
+                label={EDIT_RESOURCE_FIELD_LABEL_MAP.status_code}
                 options={recreationStatusOptions}
                 placeholder="Search or select a status..."
                 control={control}
@@ -84,7 +124,7 @@ export const RecResourceOverviewEditSection = () => {
             <Col xs={12} md={6}>
               <SelectField
                 name="maintenance_standard_code"
-                label="Maintenance Standard"
+                label={EDIT_RESOURCE_FIELD_LABEL_MAP.maintenance_standard_code}
                 options={maintenanceOptions}
                 placeholder="Search or select a standard..."
                 control={control}
@@ -95,7 +135,7 @@ export const RecResourceOverviewEditSection = () => {
             <Col xs={12} md={6}>
               <SelectField
                 name="control_access_code"
-                label="Controlled Access Type"
+                label={EDIT_RESOURCE_FIELD_LABEL_MAP.control_access_code}
                 options={controlAccessCodeTypeOptions}
                 placeholder="Search or select a control access type..."
                 control={control}
@@ -106,18 +146,19 @@ export const RecResourceOverviewEditSection = () => {
             <Col xs={12} md={6}>
               <SelectField
                 name="district_code"
-                label="Recreation District"
+                label={EDIT_RESOURCE_FIELD_LABEL_MAP.district_code}
                 options={districtOptions}
                 placeholder="Search or select a recreation district..."
                 control={control}
                 errors={errors}
+                helperText={districtHelperText}
               />
             </Col>
 
             <Col xs={12} md={6}>
               <SelectField
                 name="risk_rating_code"
-                label="Risk Rating"
+                label={EDIT_RESOURCE_FIELD_LABEL_MAP.risk_rating_code}
                 options={riskRatingCodeTypeOptions}
                 placeholder="Search or select a risk rating..."
                 control={control}
@@ -128,7 +169,7 @@ export const RecResourceOverviewEditSection = () => {
             <Col xs={12} md={6}>
               <DateInputField
                 name="project_established_date"
-                label="Project Established Date"
+                label={EDIT_RESOURCE_FIELD_LABEL_MAP.project_established_date}
                 control={control}
                 errors={errors}
               />
@@ -140,7 +181,7 @@ export const RecResourceOverviewEditSection = () => {
             <Col xs={12}>
               <GroupedMultiSelectField<EditResourceFormData>
                 name="selected_access_options"
-                label="Access and Sub-Access"
+                label={EDIT_RESOURCE_FIELD_LABEL_MAP.selected_access_options}
                 options={groupedAccessOptions}
                 placeholder="Search and select access types and their specific sub-options..."
                 control={control}

@@ -4,12 +4,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateOptionDto, OptionDto, UpdateOptionDto } from './dtos/option.dto';
-import {
-  OPTION_TABLE_MAPPINGS,
-  OptionType,
-  VALID_OPTION_TYPES,
-} from './options.constants';
+import { OPTION_TABLE_MAPPINGS, VALID_OPTION_TYPES } from './options.constants';
 import { OptionsRepository } from './options.repository';
+import { OptionType } from './options.types';
 
 @Injectable()
 export class OptionsService {
