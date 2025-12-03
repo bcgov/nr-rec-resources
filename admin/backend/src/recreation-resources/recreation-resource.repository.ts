@@ -5,6 +5,7 @@ import { Prisma } from '@prisma/client';
 import { UpdateRecreationResourceDto } from './dtos/update-recreation-resource.dto';
 import { recreationResourceSelect } from './recreation-resource.select';
 import { RecreationResourceGetPayload } from './recreation-resource.types';
+import { upsertDescriptionField } from './utils/upsertDescriptionTable';
 
 /**
  * Repository for querying recreation resource data.
@@ -132,63 +133,19 @@ export class RecreationResourceRepository {
           }
         }
 
-        if (site_description !== undefined) {
-          if (site_description === null) {
-            // Delete the record if null is explicitly provided
-            await tx.recreation_site_description.deleteMany({
-              where: { rec_resource_id },
-            });
-          } else {
-            // Check if record exists, then create or update
-            const existingSiteDescription =
-              await tx.recreation_site_description.findUnique({
-                where: { rec_resource_id },
-              });
+        await upsertDescriptionField(
+          tx,
+          'recreation_site_description',
+          rec_resource_id,
+          site_description,
+        );
 
-            if (existingSiteDescription) {
-              await tx.recreation_site_description.update({
-                where: { rec_resource_id },
-                data: { description: site_description },
-              });
-            } else {
-              await tx.recreation_site_description.create({
-                data: {
-                  rec_resource_id,
-                  description: site_description,
-                },
-              });
-            }
-          }
-        }
-
-        if (driving_directions !== undefined) {
-          if (driving_directions === null) {
-            // Delete the record if null is explicitly provided
-            await tx.recreation_driving_direction.deleteMany({
-              where: { rec_resource_id },
-            });
-          } else {
-            // Check if record exists, then create or update
-            const existingDrivingDirection =
-              await tx.recreation_driving_direction.findUnique({
-                where: { rec_resource_id },
-              });
-
-            if (existingDrivingDirection) {
-              await tx.recreation_driving_direction.update({
-                where: { rec_resource_id },
-                data: { description: driving_directions },
-              });
-            } else {
-              await tx.recreation_driving_direction.create({
-                data: {
-                  rec_resource_id,
-                  description: driving_directions,
-                },
-              });
-            }
-          }
-        }
+        await upsertDescriptionField(
+          tx,
+          'recreation_driving_direction',
+          rec_resource_id,
+          driving_directions,
+        );
 
         // Fetch the complete updated resource
         const updatedResource = await tx.recreation_resource.findUnique({

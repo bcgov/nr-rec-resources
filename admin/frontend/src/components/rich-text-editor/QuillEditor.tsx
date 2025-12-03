@@ -54,5 +54,5 @@ export const QuillEditor = ({ value, onChange }: QuillEditorProps) => {
     }
   }, [value]);
 
-  return <div ref={containerRef} />;
+  return <div className="quill-editor" ref={containerRef} />;
 };
