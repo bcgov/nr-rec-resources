@@ -77,7 +77,8 @@ export const useEditResourceForm = (
   } = useForm<EditResourceFormData>({
     resolver: zodResolver(editResourceSchema) as Resolver<EditResourceFormData>,
     defaultValues,
-    mode: 'onChange',
+    mode: 'onSubmit', // Validate on every change for real-time feedback
+    reValidateMode: 'onChange', // Re-validate on change to clear errors when fixed
   });
 
   // Watch form values
