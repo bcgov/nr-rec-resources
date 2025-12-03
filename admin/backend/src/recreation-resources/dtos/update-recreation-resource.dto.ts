@@ -122,4 +122,24 @@ export class UpdateRecreationResourceDto {
   @IsOptional()
   @IsBoolean()
   display_on_public_site?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Site description (rich text)',
+    example: '<p>This is a beautiful site with many amenities.</p>',
+    nullable: true,
+    type: String,
+  })
+  @IsOptional()
+  @IsString()
+  site_description?: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Driving directions (rich text)',
+    example: '<p>Take Highway 1 east, then turn left at Main St.</p>',
+    nullable: true,
+    type: String,
+  })
+  @IsOptional()
+  @IsString()
+  driving_directions?: string | null;
 }

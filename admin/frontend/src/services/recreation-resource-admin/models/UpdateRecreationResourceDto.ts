@@ -75,6 +75,18 @@ export interface UpdateRecreationResourceDto {
    * @memberof UpdateRecreationResourceDto
    */
   display_on_public_site?: boolean;
+  /**
+   * Site description (rich text)
+   * @type {string}
+   * @memberof UpdateRecreationResourceDto
+   */
+  site_description?: string | null;
+  /**
+   * Driving directions (rich text)
+   * @type {string}
+   * @memberof UpdateRecreationResourceDto
+   */
+  driving_directions?: string | null;
 }
 
 /**
@@ -127,6 +139,12 @@ export function UpdateRecreationResourceDtoFromJSONTyped(
       json['display_on_public_site'] == null
         ? undefined
         : json['display_on_public_site'],
+    site_description:
+      json['site_description'] == null ? undefined : json['site_description'],
+    driving_directions:
+      json['driving_directions'] == null
+        ? undefined
+        : json['driving_directions'],
   };
 }
 
@@ -158,5 +176,7 @@ export function UpdateRecreationResourceDtoToJSONTyped(
     status_code: value['status_code'],
     district_code: value['district_code'],
     display_on_public_site: value['display_on_public_site'],
+    site_description: value['site_description'],
+    driving_directions: value['driving_directions'],
   };
 }
