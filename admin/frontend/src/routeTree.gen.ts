@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as RecResourceIdRouteImport } from './routes/rec-resource/$id'
 import { Route as RecResourceIdIndexRouteImport } from './routes/rec-resource/$id/index'
 import { Route as RecResourceIdFilesRouteImport } from './routes/rec-resource/$id/files'
+import { Route as RecResourceIdFeesRouteImport } from './routes/rec-resource/$id/fees'
 import { Route as RecResourceIdOverviewIndexRouteImport } from './routes/rec-resource/$id/overview/index'
 import { Route as RecResourceIdOverviewEditRouteImport } from './routes/rec-resource/$id/overview/edit'
 
@@ -36,6 +37,11 @@ const RecResourceIdFilesRoute = RecResourceIdFilesRouteImport.update({
   path: '/files',
   getParentRoute: () => RecResourceIdRoute,
 } as any)
+const RecResourceIdFeesRoute = RecResourceIdFeesRouteImport.update({
+  id: '/fees',
+  path: '/fees',
+  getParentRoute: () => RecResourceIdRoute,
+} as any)
 const RecResourceIdOverviewIndexRoute =
   RecResourceIdOverviewIndexRouteImport.update({
     id: '/overview/',
@@ -52,6 +58,7 @@ const RecResourceIdOverviewEditRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/rec-resource/$id': typeof RecResourceIdRouteWithChildren
+  '/rec-resource/$id/fees': typeof RecResourceIdFeesRoute
   '/rec-resource/$id/files': typeof RecResourceIdFilesRoute
   '/rec-resource/$id/': typeof RecResourceIdIndexRoute
   '/rec-resource/$id/overview/edit': typeof RecResourceIdOverviewEditRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/rec-resource/$id/fees': typeof RecResourceIdFeesRoute
   '/rec-resource/$id/files': typeof RecResourceIdFilesRoute
   '/rec-resource/$id': typeof RecResourceIdIndexRoute
   '/rec-resource/$id/overview/edit': typeof RecResourceIdOverviewEditRoute
@@ -68,6 +76,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/rec-resource/$id': typeof RecResourceIdRouteWithChildren
+  '/rec-resource/$id/fees': typeof RecResourceIdFeesRoute
   '/rec-resource/$id/files': typeof RecResourceIdFilesRoute
   '/rec-resource/$id/': typeof RecResourceIdIndexRoute
   '/rec-resource/$id/overview/edit': typeof RecResourceIdOverviewEditRoute
@@ -78,6 +87,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/rec-resource/$id'
+    | '/rec-resource/$id/fees'
     | '/rec-resource/$id/files'
     | '/rec-resource/$id/'
     | '/rec-resource/$id/overview/edit'
@@ -85,6 +95,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/rec-resource/$id/fees'
     | '/rec-resource/$id/files'
     | '/rec-resource/$id'
     | '/rec-resource/$id/overview/edit'
@@ -93,6 +104,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/rec-resource/$id'
+    | '/rec-resource/$id/fees'
     | '/rec-resource/$id/files'
     | '/rec-resource/$id/'
     | '/rec-resource/$id/overview/edit'
@@ -134,6 +146,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecResourceIdFilesRouteImport
       parentRoute: typeof RecResourceIdRoute
     }
+    '/rec-resource/$id/fees': {
+      id: '/rec-resource/$id/fees'
+      path: '/fees'
+      fullPath: '/rec-resource/$id/fees'
+      preLoaderRoute: typeof RecResourceIdFeesRouteImport
+      parentRoute: typeof RecResourceIdRoute
+    }
     '/rec-resource/$id/overview/': {
       id: '/rec-resource/$id/overview/'
       path: '/overview'
@@ -152,6 +171,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface RecResourceIdRouteChildren {
+  RecResourceIdFeesRoute: typeof RecResourceIdFeesRoute
   RecResourceIdFilesRoute: typeof RecResourceIdFilesRoute
   RecResourceIdIndexRoute: typeof RecResourceIdIndexRoute
   RecResourceIdOverviewEditRoute: typeof RecResourceIdOverviewEditRoute
@@ -159,6 +179,7 @@ interface RecResourceIdRouteChildren {
 }
 
 const RecResourceIdRouteChildren: RecResourceIdRouteChildren = {
+  RecResourceIdFeesRoute: RecResourceIdFeesRoute,
   RecResourceIdFilesRoute: RecResourceIdFilesRoute,
   RecResourceIdIndexRoute: RecResourceIdIndexRoute,
   RecResourceIdOverviewEditRoute: RecResourceIdOverviewEditRoute,

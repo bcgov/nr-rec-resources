@@ -1,4 +1,6 @@
 import {
+  RecreationFeeDto,
+  RecreationFeeUIModel,
   RecreationResourceDetailDto,
   RecreationResourceDetailUIModel,
   RecreationResourceDocDto,
@@ -43,6 +45,23 @@ export function mapRecreationResourceDetail(
     ),
     risk_rating_code: data.risk_rating?.risk_rating_code,
     risk_rating_description: data.risk_rating?.description,
+  };
+}
+
+/**
+ * Maps a RecreationFeeDto to RecreationFeeUIModel with readable date fields.
+ * @param fee The original RecreationFeeDto object
+ * @returns RecreationFeeUIModel with readable UTC date fields
+ */
+export function mapRecreationFee(fee: RecreationFeeDto): RecreationFeeUIModel {
+  return {
+    ...fee,
+    fee_start_date_readable_utc: formatDateReadable(fee.fee_start_date, {
+      timeZone: 'UTC',
+    }),
+    fee_end_date_readable_utc: formatDateReadable(fee.fee_end_date, {
+      timeZone: 'UTC',
+    }),
   };
 }
 
