@@ -27,6 +27,13 @@ export const QuillEditor = ({ value, onChange }: QuillEditorProps) => {
     quillRef.current = quill;
 
     quill.on('text-change', () => {
+      const links = quill.root.querySelectorAll('a');
+      links.forEach((a) => {
+        if (!/^https?:\/\//i.test(a.href)) {
+          a.href = 'https://' + a.getAttribute('href');
+        }
+      });
+
       onChange(quill.root.innerHTML);
     });
 

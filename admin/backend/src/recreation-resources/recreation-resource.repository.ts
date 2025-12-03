@@ -66,7 +66,9 @@ export class RecreationResourceRepository {
         const {
           access_codes: accessCodes,
           control_access_code,
+          driving_directions,
           status_code,
+          site_description,
           ...directFields
         } = updateData;
 
@@ -125,6 +127,64 @@ export class RecreationResourceRepository {
             if (accessRecordsToCreate.length > 0) {
               await tx.recreation_access.createMany({
                 data: accessRecordsToCreate,
+              });
+            }
+          }
+        }
+
+        if (site_description !== undefined) {
+          if (site_description === null) {
+            // Delete the record if null is explicitly provided
+            await tx.recreation_site_description.deleteMany({
+              where: { rec_resource_id },
+            });
+          } else {
+            // Check if record exists, then create or update
+            const existingSiteDescription =
+              await tx.recreation_site_description.findUnique({
+                where: { rec_resource_id },
+              });
+
+            if (existingSiteDescription) {
+              await tx.recreation_site_description.update({
+                where: { rec_resource_id },
+                data: { description: site_description },
+              });
+            } else {
+              await tx.recreation_site_description.create({
+                data: {
+                  rec_resource_id,
+                  description: site_description,
+                },
+              });
+            }
+          }
+        }
+
+        if (driving_directions !== undefined) {
+          if (driving_directions === null) {
+            // Delete the record if null is explicitly provided
+            await tx.recreation_driving_direction.deleteMany({
+              where: { rec_resource_id },
+            });
+          } else {
+            // Check if record exists, then create or update
+            const existingDrivingDirection =
+              await tx.recreation_driving_direction.findUnique({
+                where: { rec_resource_id },
+              });
+
+            if (existingDrivingDirection) {
+              await tx.recreation_driving_direction.update({
+                where: { rec_resource_id },
+                data: { description: driving_directions },
+              });
+            } else {
+              await tx.recreation_driving_direction.create({
+                data: {
+                  rec_resource_id,
+                  description: driving_directions,
+                },
               });
             }
           }

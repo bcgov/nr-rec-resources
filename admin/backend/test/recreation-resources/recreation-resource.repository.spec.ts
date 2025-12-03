@@ -317,7 +317,6 @@ describe('RecreationResourceRepository', () => {
         prisma.$transaction as unknown as ReturnType<typeof vi.fn>
       ).mockRejectedValue(prismaError);
 
-      // Spy on logger
       const loggerSpy = vi.spyOn((repo as any).logger, 'error');
 
       await expect(repo.update(recId, updateData)).rejects.toThrow();
@@ -325,6 +324,41 @@ describe('RecreationResourceRepository', () => {
         `Failed to update recreation resource ${recId}`,
         expect.any(String),
       );
+    });
+
+    it('should handle site_description and driving_directions updates', async () => {
+      const recId = 'rec1234';
+      const updateData = {
+        site_description: 'Site desc',
+        driving_directions: 'Directions here',
+      } as any;
+
+      (
+        prisma.$transaction as unknown as ReturnType<typeof vi.fn>
+      ).mockImplementation(async (cb: any) => {
+        const tx = {
+          recreation_status: { update: vi.fn().mockResolvedValue({}) },
+          recreation_resource: {
+            update: vi.fn().mockResolvedValue({}),
+            findUnique: vi.fn().mockResolvedValue({ id: recId }),
+          },
+          recreation_access: { deleteMany: vi.fn(), createMany: vi.fn() },
+          recreation_site_description: {
+            findUnique: vi.fn().mockResolvedValue(null),
+            create: vi.fn().mockResolvedValue({}),
+            deleteMany: vi.fn().mockResolvedValue({}),
+          },
+          recreation_driving_direction: {
+            findUnique: vi.fn().mockResolvedValue(null),
+            create: vi.fn().mockResolvedValue({}),
+            deleteMany: vi.fn().mockResolvedValue({}),
+          },
+        };
+        return cb(tx);
+      });
+
+      const result = await repo.update(recId, updateData);
+      expect(result).toEqual({ id: recId });
     });
   });
 });

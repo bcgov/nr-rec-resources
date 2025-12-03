@@ -4,6 +4,7 @@ import { QuillEditor } from '@/components/rich-text-editor/QuillEditor';
 
 let textChangeCallback: (() => void) | null = null;
 let rootHTML: string = '<p>Hello world</p>';
+let querySelectorAllMock = vi.fn(() => []);
 
 vi.mock('quill', () => {
   class QuillMock {
@@ -14,6 +15,8 @@ vi.mock('quill', () => {
       set innerHTML(value: string) {
         rootHTML = value;
       },
+      querySelectorAll: (...args: Parameters<Element['querySelectorAll']>) =>
+        querySelectorAllMock(...args),
     };
 
     on = vi.fn((event: string, cb: () => void) => {
@@ -33,6 +36,7 @@ describe('QuillEditor', () => {
     vi.clearAllMocks();
     textChangeCallback = null;
     rootHTML = '<p>Hello world</p>';
+    querySelectorAllMock = vi.fn(() => []);
   });
 
   it('renders the editor container', () => {
@@ -49,5 +53,24 @@ describe('QuillEditor', () => {
     }
 
     expect(onChange).toHaveBeenCalledWith('<p>Hello world</p>');
+  });
+
+  it('adds https:// to links without a protocol', () => {
+    const onChange = vi.fn();
+    const mockLinkElement = {
+      href: 'example.com',
+      getAttribute: vi.fn(() => 'example.com'),
+    };
+
+    render(<QuillEditor value="" onChange={onChange} />);
+
+    querySelectorAllMock.mockReturnValue([mockLinkElement]);
+
+    if (textChangeCallback) {
+      textChangeCallback();
+    }
+
+    expect(mockLinkElement.href).toBe('https://example.com');
+    expect(onChange).toHaveBeenCalled();
   });
 });
