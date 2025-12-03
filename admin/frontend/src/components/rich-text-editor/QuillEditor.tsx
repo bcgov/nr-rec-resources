@@ -41,8 +41,7 @@ export const QuillEditor = ({ value, onChange }: QuillEditorProps) => {
       container.innerHTML = '';
       quillRef.current = null;
     };
-    // eslint-disable-next-line
-  }, []);
+  }, [onChange]);
 
   useEffect(() => {
     const quill = quillRef.current;
