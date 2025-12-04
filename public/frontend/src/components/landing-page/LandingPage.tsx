@@ -67,9 +67,9 @@ export const LandingPage: FC = () => {
         gap={5}
       >
         <ContentSection
-          aria-label="Welcome to the new Recreation Sites and Trails BC beta site"
+          aria-label="Welcome to the new Recreation Sites and Trails BC site"
           headingComponent={
-            <h1>Welcome to the new Recreation Sites and Trails BC beta site</h1>
+            <h1>Welcome to the new Recreation Sites and Trails BC site</h1>
           }
           sectionContent={
             <>
@@ -78,10 +78,10 @@ export const LandingPage: FC = () => {
                 enjoy the recreation areas and trails we all cherish.
               </p>
               <p>
-                This beta version is just the beginning. We're committed to
-                improving it through ongoing research and feedback from people
-                like you. It’s a collaborative, evolving project—and we’d love
-                for you to be part of the journey.
+                This is just the beginning. We're committed to improving it
+                through ongoing research and feedback from people like you. It’s
+                a collaborative, evolving project—and we’d love for you to be
+                part of the journey.
               </p>
               <p>
                 <a
@@ -139,19 +139,6 @@ export const LandingPage: FC = () => {
               <p>
                 Our new interactive map helps you easily find recreation sites
                 and trails near you—or along your journey.
-              </p>
-              <p>
-                While we work to continuously improve this map, you can still
-                use the{' '}
-                <a
-                  rel="noreferrer noopener"
-                  className="research-signup-link"
-                  href={EXTERNAL_LINKS.LEGACY_SITE}
-                >
-                  legacy interactive map
-                </a>{' '}
-                to explore destinations, check road conditions, and stay
-                informed about wildfire updates.
               </p>
               <SearchMapButton />
             </>

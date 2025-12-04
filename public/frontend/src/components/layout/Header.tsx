@@ -2,7 +2,6 @@ import { useState, useRef } from 'react';
 import { Link } from '@tanstack/react-router';
 import { Stack } from 'react-bootstrap';
 import RSTLogo from '@/images/RST_nav_logo.svg';
-import BetaBanner from '@/components/layout/BetaBanner';
 import HamburgerButton from '@/components/layout/HamburgerButton';
 import NavigationDrawer from '@/components/layout/NavigationDrawer';
 import { trackClickEvent } from '@shared/utils';
@@ -34,7 +33,6 @@ const Header = () => {
 
   return (
     <header id="header">
-      <BetaBanner />
       <div className={`page-nav-container main`}>
         <nav aria-label="Main header navigation" className="header-nav main">
           <div className="navbar-brand">

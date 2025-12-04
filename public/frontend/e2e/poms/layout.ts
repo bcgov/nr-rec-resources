@@ -16,8 +16,6 @@ export class LayoutPOM {
     await expect(
       nav.getByRole('link', { name: 'Find a site or trail' }),
     ).toBeVisible();
-
-    await expect(nav.getByRole('link', { name: 'Legacy site' })).toBeVisible();
   }
 
   async verifyFooterContent() {

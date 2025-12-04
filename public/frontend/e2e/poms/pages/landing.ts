@@ -28,7 +28,7 @@ export class LandingPOM {
 
   async verifyLandingPageContent() {
     [
-      'Welcome to the new Recreation Sites and Trails BC beta site',
+      'Welcome to the new Recreation Sites and Trails BC site',
       'Find a recreation site or trail',
       'Human-centred, research-driven',
       'New interactive map launched',
