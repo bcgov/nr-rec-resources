@@ -46,7 +46,7 @@
 
 .search-map-controls {
   position: fixed;
-  top: 64px;
+  top: 32px;
   left: 0;
   right: 0;
   margin: 0 auto;
@@ -60,12 +60,12 @@
   transform: none;
 
   @include media-breakpoint-up(sm) {
-    top: 152px;
+    top: 102px;
   }
 
   // Collapse and center on larger screens
   @include media-breakpoint-up(md) {
-    top: 192px;
+    top: 142px;
     left: 50%;
     transform: translateX(-50%);
     flex-direction: row;
