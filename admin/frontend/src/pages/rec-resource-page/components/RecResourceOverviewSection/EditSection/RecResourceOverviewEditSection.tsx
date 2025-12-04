@@ -14,6 +14,7 @@ import {
 import { EDIT_RESOURCE_FIELD_LABEL_MAP } from './constants';
 import { useEditResourceForm, useResourceOptions } from './hooks';
 import { EditResourceFormData } from './schemas';
+import { RichTextEditor } from '@/components/rich-text-editor/RichTextEditor';
 
 /**
  * Edit section for recreation resource overview
@@ -107,6 +108,19 @@ export const RecResourceOverviewEditSection = () => {
               />
             </Col>
           </Row>
+
+          <Row className="mb-3">
+            <Col xs={12}>
+              <RichTextEditor
+                name="site_description"
+                label="Site Description"
+                control={control}
+                errors={errors}
+                defaultValue={recResource.description ?? ''}
+              />
+            </Col>
+          </Row>
+
           <Row className="gy-3">
             {/* Status */}
             <Col xs={12} md={6}>
@@ -191,6 +205,18 @@ export const RecResourceOverviewEditSection = () => {
             </Col>
           </Row>
         </Stack>
+
+        <Row className="my-3">
+          <Col xs={12}>
+            <RichTextEditor
+              name="driving_directions"
+              label="Driving Directions"
+              control={control}
+              errors={errors}
+              defaultValue={recResource.driving_directions ?? ''}
+            />
+          </Col>
+        </Row>
       </Form>
     </Stack>
   );

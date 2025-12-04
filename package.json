@@ -25,10 +25,10 @@
     "install-client-sdk-fsa": "npm run generate-fsa-api && npm run prettier-fix"
   },
   "devDependencies": {
-    "@swc/core": "^1.15.1",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.15.0",
     "@openapitools/openapi-generator-cli": "^2.21.1",
+    "@swc/core": "^1.15.1",
     "@types/k6": "^1.0.0",
     "@typescript-eslint/eslint-plugin": "^8.38.0",
     "@typescript-eslint/parser": "^8.38.0",
@@ -38,6 +38,7 @@
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-prettier": "^5.2.1",
     "eslint-plugin-promise": "^7.2.1",
+    "eslint-plugin-react-hooks": "^7.0.1",
     "globals": "^16.0.0",
     "k6": "^0.0.0",
     "prettier": "^3.4.1",

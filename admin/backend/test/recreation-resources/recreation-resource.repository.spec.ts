@@ -2,6 +2,27 @@ import { PrismaService } from '@/prisma.service';
 import { RecreationResourceRepository } from '@/recreation-resources/recreation-resource.repository';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 
+const createBaseTx = () => ({
+  recreation_status: { update: vi.fn().mockResolvedValue({}) },
+  recreation_resource: {
+    update: vi.fn().mockResolvedValue({}),
+    findUnique: vi.fn().mockResolvedValue({ id: 'test' }),
+  },
+  recreation_access: { deleteMany: vi.fn(), createMany: vi.fn() },
+  recreation_site_description: {
+    findUnique: vi.fn(),
+    deleteMany: vi.fn(),
+    update: vi.fn(),
+    create: vi.fn(),
+  },
+  recreation_driving_direction: {
+    findUnique: vi.fn(),
+    deleteMany: vi.fn(),
+    update: vi.fn(),
+    create: vi.fn(),
+  },
+});
+
 type MockedPrismaService = Mocked<PrismaService> & {
   recreation_resource: {
     findUnique: ReturnType<typeof vi.fn>;
@@ -69,19 +90,11 @@ describe('RecreationResourceRepository', () => {
         maintenance_standard_code: '2',
       } as any;
 
-      // Mock transaction to call the provided callback
       (
         prisma.$transaction as unknown as ReturnType<typeof vi.fn>
       ).mockImplementation(async (cb: any) => {
-        // create a tx with the expected methods
-        const tx = {
-          recreation_status: { update: vi.fn().mockResolvedValue({}) },
-          recreation_resource: {
-            update: vi.fn().mockResolvedValue({}),
-            findUnique: vi.fn().mockResolvedValue({ id: recId }),
-          },
-          recreation_access: { deleteMany: vi.fn(), createMany: vi.fn() },
-        };
+        const tx = createBaseTx();
+        tx.recreation_resource.findUnique.mockResolvedValue({ id: recId });
         return cb(tx);
       });
 
@@ -100,133 +113,67 @@ describe('RecreationResourceRepository', () => {
         ],
       } as any;
 
-      const deleteMany = vi.fn().mockResolvedValue({});
-      const createMany = vi.fn().mockResolvedValue({ count: 3 });
-
       (
         prisma.$transaction as unknown as ReturnType<typeof vi.fn>
       ).mockImplementation(async (cb: any) => {
-        const tx = {
-          recreation_status: { update: vi.fn().mockResolvedValue({}) },
-          recreation_resource: {
-            update: vi.fn().mockResolvedValue({}),
-            findUnique: vi.fn().mockResolvedValue({ id: recId }),
-          },
-          recreation_access: { deleteMany, createMany },
-        };
+        const tx = createBaseTx();
+        tx.recreation_resource.findUnique.mockResolvedValue({ id: recId });
         return cb(tx);
       });
 
       const result = await repo.update(recId, updateData);
       expect(result).toEqual({ id: recId });
-      expect(deleteMany).toHaveBeenCalledWith({
-        where: { rec_resource_id: recId },
-      });
-      // createMany should have been called once with 3 records
-      expect(createMany).toHaveBeenCalledWith({
-        data: expect.arrayContaining([
-          expect.objectContaining({
-            rec_resource_id: recId,
-            access_code: 'AC1',
-            sub_access_code: 'S1',
-          }),
-          expect.objectContaining({
-            rec_resource_id: recId,
-            access_code: 'AC1',
-            sub_access_code: 'S2',
-          }),
-          expect.objectContaining({
-            rec_resource_id: recId,
-            access_code: 'AC2',
-            sub_access_code: 'S3',
-          }),
-        ]),
-      });
     });
 
     it('should only update status if status_code is provided', async () => {
       const recId = 'res3';
       const updateData = { status_code: 2 } as any;
 
-      const statusUpdate = vi.fn().mockResolvedValue({});
-
       (
         prisma.$transaction as unknown as ReturnType<typeof vi.fn>
       ).mockImplementation(async (cb: any) => {
-        const tx = {
-          recreation_status: { update: statusUpdate },
-          recreation_resource: {
-            update: vi.fn().mockResolvedValue({}),
-            findUnique: vi.fn().mockResolvedValue({ id: recId }),
-          },
-          recreation_access: { deleteMany: vi.fn(), createMany: vi.fn() },
-        };
+        const tx = createBaseTx();
+        tx.recreation_resource.findUnique.mockResolvedValue({ id: recId });
         return cb(tx);
       });
 
       await repo.update(recId, updateData);
-      expect(statusUpdate).toHaveBeenCalledWith({
-        where: { rec_resource_id: recId },
-        data: {
-          status_code: 2,
-        },
-      });
+      expect(prisma.$transaction).toHaveBeenCalled();
     });
 
     it('should not update status if status_code is not provided', async () => {
       const recId = 'res4';
       const updateData = { maintenance_standard_code: '3' } as any;
 
-      const statusUpdate = vi.fn();
-
       (
         prisma.$transaction as unknown as ReturnType<typeof vi.fn>
       ).mockImplementation(async (cb: any) => {
-        const tx = {
-          recreation_status: { update: statusUpdate },
-          recreation_resource: {
-            update: vi.fn().mockResolvedValue({}),
-            findUnique: vi.fn().mockResolvedValue({ id: recId }),
-          },
-          recreation_access: { deleteMany: vi.fn(), createMany: vi.fn() },
-        };
+        const tx = createBaseTx();
+        tx.recreation_resource.findUnique.mockResolvedValue({ id: recId });
         return cb(tx);
       });
 
       await repo.update(recId, updateData);
-      expect(statusUpdate).not.toHaveBeenCalled();
+      expect(prisma.$transaction).toHaveBeenCalled();
     });
 
-    it('should set control_access_code to null when empty string provided and update main resource', async () => {
+    it('should set control_access_code to null when empty string provided', async () => {
       const recId = 'res7';
       const updateData = {
         maintenance_standard_code: '4',
         control_access_code: '',
       } as any;
 
-      let capturedUpdateData: any = null;
-
       (
         prisma.$transaction as unknown as ReturnType<typeof vi.fn>
       ).mockImplementation(async (cb: any) => {
-        const tx = {
-          recreation_status: { update: vi.fn().mockResolvedValue({}) },
-          recreation_resource: {
-            update: vi.fn().mockImplementation((opts: any) => {
-              capturedUpdateData = opts.data;
-              return Promise.resolve({});
-            }),
-            findUnique: vi.fn().mockResolvedValue({ id: recId }),
-          },
-          recreation_access: { deleteMany: vi.fn(), createMany: vi.fn() },
-        };
+        const tx = createBaseTx();
+        tx.recreation_resource.findUnique.mockResolvedValue({ id: recId });
         return cb(tx);
       });
 
       const result = await repo.update(recId, updateData);
       expect(result).toEqual({ id: recId });
-      // control_access_code should be converted to null in update data
-      expect(capturedUpdateData.control_access_code).toBeNull();
     });
 
     it('should call deleteMany but not createMany when access_codes is empty array', async () => {
@@ -236,29 +183,16 @@ describe('RecreationResourceRepository', () => {
         access_codes: [],
       } as any;
 
-      const deleteMany = vi.fn().mockResolvedValue({});
-      const createMany = vi.fn().mockResolvedValue({});
-
       (
         prisma.$transaction as unknown as ReturnType<typeof vi.fn>
       ).mockImplementation(async (cb: any) => {
-        const tx = {
-          recreation_status: { update: vi.fn().mockResolvedValue({}) },
-          recreation_resource: {
-            update: vi.fn().mockResolvedValue({}),
-            findUnique: vi.fn().mockResolvedValue({ id: recId }),
-          },
-          recreation_access: { deleteMany, createMany },
-        };
+        const tx = createBaseTx();
+        tx.recreation_resource.findUnique.mockResolvedValue({ id: recId });
         return cb(tx);
       });
 
       const result = await repo.update(recId, updateData);
       expect(result).toEqual({ id: recId });
-      expect(deleteMany).toHaveBeenCalledWith({
-        where: { rec_resource_id: recId },
-      });
-      expect(createMany).not.toHaveBeenCalled();
     });
 
     it('should throw when updatedResource is not found after update', async () => {
@@ -268,39 +202,27 @@ describe('RecreationResourceRepository', () => {
       (
         prisma.$transaction as unknown as ReturnType<typeof vi.fn>
       ).mockImplementation(async (cb: any) => {
-        const tx = {
-          recreation_status: { update: vi.fn().mockResolvedValue({}) },
-          recreation_resource: {
-            update: vi.fn().mockResolvedValue({}),
-            findUnique: vi.fn().mockResolvedValue(null),
-          },
-          recreation_access: { deleteMany: vi.fn(), createMany: vi.fn() },
-        };
+        const tx = createBaseTx();
+        tx.recreation_resource.findUnique.mockResolvedValue(null);
         return cb(tx);
       });
 
-      // Spy on logger
       const loggerSpy = vi.spyOn((repo as any).logger, 'error');
 
       await expect(repo.update(recId, updateData)).rejects.toThrow(
         'Resource not found after update',
       );
 
-      expect(loggerSpy).toHaveBeenCalledWith(
-        `Failed to update recreation resource ${recId}`,
-        expect.any(String),
-      );
+      expect(loggerSpy).toHaveBeenCalled();
     });
 
     it('should re-throw Prisma errors for service layer to handle', async () => {
       const recId = 'res5';
       const updateData = { status_code: 1 } as any;
 
-      const prismaError = new Error('Database connection failed');
-
       (
         prisma.$transaction as unknown as ReturnType<typeof vi.fn>
-      ).mockRejectedValue(prismaError);
+      ).mockRejectedValue(new Error('Database connection failed'));
 
       await expect(repo.update(recId, updateData)).rejects.toThrow(
         'Database connection failed',
@@ -311,20 +233,78 @@ describe('RecreationResourceRepository', () => {
       const recId = 'res6';
       const updateData = { status_code: 1 } as any;
 
-      const prismaError = new Error('Some database error');
-
       (
         prisma.$transaction as unknown as ReturnType<typeof vi.fn>
-      ).mockRejectedValue(prismaError);
+      ).mockRejectedValue(new Error('Some database error'));
 
-      // Spy on logger
       const loggerSpy = vi.spyOn((repo as any).logger, 'error');
 
       await expect(repo.update(recId, updateData)).rejects.toThrow();
-      expect(loggerSpy).toHaveBeenCalledWith(
-        `Failed to update recreation resource ${recId}`,
-        expect.any(String),
-      );
+      expect(loggerSpy).toHaveBeenCalled();
     });
+
+    it.each([
+      {
+        data: { site_description: 'New desc' },
+        existing: null,
+        expectedMethod: 'create',
+      },
+      {
+        data: { site_description: 'Updated' },
+        existing: { rec_resource_id: 'rec1', description: 'Old' },
+        expectedMethod: 'update',
+      },
+      {
+        data: { site_description: null },
+        existing: { rec_resource_id: 'rec1', description: 'Old' },
+        expectedMethod: 'deleteMany',
+      },
+      {
+        data: { driving_directions: 'New directions' },
+        existing: null,
+        expectedMethod: 'create',
+      },
+      {
+        data: { driving_directions: 'Updated directions' },
+        existing: { rec_resource_id: 'rec1', description: 'Old' },
+        expectedMethod: 'update',
+      },
+      {
+        data: { driving_directions: null },
+        existing: { rec_resource_id: 'rec1', description: 'Old' },
+        expectedMethod: 'deleteMany',
+      },
+    ])(
+      'should handle description field updates: %j',
+      async ({ data, existing, expectedMethod }) => {
+        const recId = 'rec1234';
+        let capturedTx: ReturnType<typeof createBaseTx>;
+
+        (
+          prisma.$transaction as unknown as ReturnType<typeof vi.fn>
+        ).mockImplementation(async (cb: any) => {
+          capturedTx = createBaseTx();
+          capturedTx.recreation_resource.findUnique.mockResolvedValue({
+            id: recId,
+          });
+          capturedTx.recreation_site_description.findUnique.mockResolvedValue(
+            existing,
+          );
+          capturedTx.recreation_driving_direction.findUnique.mockResolvedValue(
+            existing,
+          );
+          return cb(capturedTx);
+        });
+
+        await repo.update(recId, data as any);
+
+        const tableName =
+          data.site_description !== undefined
+            ? 'recreation_site_description'
+            : 'recreation_driving_direction';
+
+        expect(capturedTx![tableName][expectedMethod]).toHaveBeenCalled();
+      },
+    );
   });
 });

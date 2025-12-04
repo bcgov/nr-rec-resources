@@ -10,7 +10,6 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { createElement, type ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Mock dependencies - must be before imports
 const mockNavigateWithQueryParams = vi.fn();
 
 vi.mock('@shared/hooks', () => ({
@@ -26,7 +25,6 @@ vi.mock(
   }),
 );
 
-// Mock notifications and error handler
 const mockAddSuccessNotification = vi.fn();
 const mockAddErrorNotification = vi.fn();
 const mockHandleApiError = vi.fn();
@@ -41,7 +39,6 @@ vi.mock('@/services/utils/errorHandler', () => ({
   handleApiError: (...args: any[]) => mockHandleApiError(...args),
 }));
 
-// Create a wrapper with QueryClient for tests
 const createWrapper = () => {
   const queryClient = new QueryClient({
     defaultOptions: {
@@ -67,6 +64,7 @@ describe('useEditResourceForm', () => {
     recreation_status_code: 1,
     rec_resource_type: 'RR',
     description: 'Test description',
+    display_on_public_site: true,
     driving_directions: 'Test directions',
     maintenance_standard: 'U' as const,
     maintenance_standard_code: 'U',
@@ -104,7 +102,6 @@ describe('useEditResourceForm', () => {
     reset: vi.fn(),
   };
 
-  // Helper functions
   const renderHookWithResource = (
     resource: RecreationResourceDetailUIModel = mockRecResource,
     districtOptions: RecreationResourceOptionUIModel[] = [],
@@ -118,6 +115,12 @@ describe('useEditResourceForm', () => {
     maintenance_standard_code: 'M',
     control_access_code: 'CA2',
     status_code: '2',
+    risk_rating_code: null,
+    project_established_date: null,
+    district_code: null,
+    display_on_public_site: false,
+    site_description: null,
+    driving_directions: null,
     selected_access_options: [],
     ...overrides,
   });
@@ -252,6 +255,9 @@ describe('useEditResourceForm', () => {
         risk_rating_code: null,
         project_established_date: null,
         district_code: null,
+        display_on_public_site: false,
+        site_description: null,
+        driving_directions: null,
         access_codes: [
           {
             access_code: 'AC1',
@@ -305,6 +311,9 @@ describe('useEditResourceForm', () => {
         risk_rating_code: null,
         project_established_date: null,
         district_code: null,
+        display_on_public_site: false,
+        site_description: null,
+        driving_directions: null,
         access_codes: [
           {
             access_code: 'AC1',
@@ -345,6 +354,9 @@ describe('useEditResourceForm', () => {
         risk_rating_code: null,
         project_established_date: null,
         district_code: null,
+        display_on_public_site: false,
+        site_description: null,
+        driving_directions: null,
         access_codes: [],
         ...expectedOverrides,
       };
@@ -383,6 +395,9 @@ describe('useEditResourceForm', () => {
         risk_rating_code: null,
         project_established_date: null,
         district_code: expected,
+        display_on_public_site: false,
+        site_description: null,
+        driving_directions: null,
         access_codes: [],
       });
     });
@@ -401,6 +416,72 @@ describe('useEditResourceForm', () => {
         project_established_date: '2021-12-01',
         status_code: 2,
         district_code: null,
+        display_on_public_site: false,
+        site_description: null,
+        driving_directions: null,
+        access_codes: [],
+      });
+    });
+
+    it('should show error notification when mutation errors', async () => {
+      const { result } = renderHookWithResource();
+      const formData = createFormData();
+      const mockError = new Error('something went wrong');
+
+      mockHandleApiError.mockResolvedValue({ message: 'API error' });
+      mockMutateAsync.mockRejectedValue(mockError);
+
+      await act(async () => {
+        await result.current.onSubmit(formData);
+      });
+
+      expect(mockHandleApiError).toHaveBeenCalledWith(mockError);
+      expect(mockAddErrorNotification).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'Failed to update recreation resource: API error',
+        ),
+      );
+    });
+
+    it.each([
+      ['provided', 'CHWK', 'CHWK'],
+      ['empty string', '', null],
+      ['null', null, null],
+    ])('should handle district_code when %s', async (_, input, expected) => {
+      const { result } = renderHookWithResource();
+      const formData = createFormData({ district_code: input });
+
+      await submitFormAndAssert(result, formData, {
+        maintenance_standard_code: 'M',
+        control_access_code: 'CA2',
+        status_code: 2,
+        risk_rating_code: null,
+        project_established_date: null,
+        district_code: expected,
+        display_on_public_site: false,
+        site_description: null,
+        driving_directions: null,
+        access_codes: [],
+      });
+    });
+
+    it('should include risk_rating_code and project_established_date in update payload', async () => {
+      const { result } = renderHookWithResource();
+      const formData = createFormData({
+        risk_rating_code: 'H',
+        project_established_date: '2021-12-01',
+      } as any);
+
+      await submitFormAndAssert(result, formData, {
+        maintenance_standard_code: 'M',
+        control_access_code: 'CA2',
+        risk_rating_code: 'H',
+        project_established_date: '2021-12-01',
+        status_code: 2,
+        district_code: null,
+        display_on_public_site: false,
+        site_description: null,
+        driving_directions: null,
         access_codes: [],
       });
     });
@@ -512,6 +593,9 @@ describe('useEditResourceForm', () => {
           risk_rating_code: null,
           project_established_date: null,
           district_code: expected,
+          display_on_public_site: false,
+          site_description: null,
+          driving_directions: null,
           access_codes: [],
         });
       },

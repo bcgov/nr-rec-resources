@@ -66,6 +66,8 @@ export const useEditResourceForm = (
       status_code: recResource.recreation_status_code?.toString() || '',
       district_code: recResource.recreation_district?.district_code || null,
       display_on_public_site: recResource.display_on_public_site ?? false,
+      site_description: recResource.description || '',
+      driving_directions: recResource.driving_directions || '',
     };
   }, [recResource]);
 
@@ -121,6 +123,8 @@ export const useEditResourceForm = (
       access_codes: Object.values(accessCodesMap),
       district_code: data.district_code || null,
       display_on_public_site: data.display_on_public_site,
+      site_description: data.site_description?.trim() ?? null,
+      driving_directions: data.driving_directions?.trim() ?? null,
     };
 
     // Submit the update using mutateAsync for cleaner async handling

@@ -5,6 +5,7 @@ import { Prisma } from '@prisma/client';
 import { UpdateRecreationResourceDto } from './dtos/update-recreation-resource.dto';
 import { recreationResourceSelect } from './recreation-resource.select';
 import { RecreationResourceGetPayload } from './recreation-resource.types';
+import { upsertDescriptionField } from './utils/upsertDescriptionTable';
 
 /**
  * Repository for querying recreation resource data.
@@ -66,7 +67,9 @@ export class RecreationResourceRepository {
         const {
           access_codes: accessCodes,
           control_access_code,
+          driving_directions,
           status_code,
+          site_description,
           ...directFields
         } = updateData;
 
@@ -129,6 +132,20 @@ export class RecreationResourceRepository {
             }
           }
         }
+
+        await upsertDescriptionField(
+          tx,
+          'recreation_site_description',
+          rec_resource_id,
+          site_description,
+        );
+
+        await upsertDescriptionField(
+          tx,
+          'recreation_driving_direction',
+          rec_resource_id,
+          driving_directions,
+        );
 
         // Fetch the complete updated resource
         const updatedResource = await tx.recreation_resource.findUnique({

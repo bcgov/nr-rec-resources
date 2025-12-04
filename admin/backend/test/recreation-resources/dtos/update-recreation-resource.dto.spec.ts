@@ -40,6 +40,10 @@ describe('Update Recreation Resource DTOs', () => {
       dto.status_code = 1;
       dto.district_code = 'CHWK';
       dto.display_on_public_site = true;
+      dto.site_description =
+        '<p>This is a beautiful site with many amenities.</p>';
+      dto.driving_directions =
+        '<p>Take Highway 1 east, then turn left at Main St.</p>';
 
       expect(dto.maintenance_standard_code).toBe('1');
       expect(dto.control_access_code).toBe('G');
@@ -51,6 +55,12 @@ describe('Update Recreation Resource DTOs', () => {
       expect(dto.status_code).toBe(1);
       expect(dto.district_code).toBe('CHWK');
       expect(dto.display_on_public_site).toBe(true);
+      expect(dto.site_description).toBe(
+        '<p>This is a beautiful site with many amenities.</p>',
+      );
+      expect(dto.driving_directions).toBe(
+        '<p>Take Highway 1 east, then turn left at Main St.</p>',
+      );
     });
 
     it('should create a valid DTO with only maintenance_standard_code', () => {
@@ -136,6 +146,22 @@ describe('Update Recreation Resource DTOs', () => {
       dto.display_on_public_site = false;
 
       expect(dto.display_on_public_site).toBe(false);
+      expect(dto.maintenance_standard_code).toBeUndefined();
+    });
+
+    it('should create a valid DTO with only site_description', () => {
+      const dto = new UpdateRecreationResourceDto();
+      dto.site_description = '<p>Lovely park</p>';
+
+      expect(dto.site_description).toBe('<p>Lovely park</p>');
+      expect(dto.maintenance_standard_code).toBeUndefined();
+    });
+
+    it('should create a valid DTO with only driving_directions', () => {
+      const dto = new UpdateRecreationResourceDto();
+      dto.driving_directions = '<p>Exit 12, follow signs</p>';
+
+      expect(dto.driving_directions).toBe('<p>Exit 12, follow signs</p>');
       expect(dto.maintenance_standard_code).toBeUndefined();
     });
   });

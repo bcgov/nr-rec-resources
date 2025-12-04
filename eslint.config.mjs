@@ -3,6 +3,7 @@ import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended'
 import prettier from 'eslint-plugin-prettier';
 import pluginPromise from 'eslint-plugin-promise';
 import importPlugin from 'eslint-plugin-import';
+import reactHooks from 'eslint-plugin-react-hooks';
 import globals from 'globals';
 import tsParser from '@typescript-eslint/parser';
 import path from 'node:path';
@@ -135,6 +136,15 @@ export default [
           prefer: 'type-imports',
         },
       ],
+    },
+  },
+  {
+    files: [
+      'admin/frontend/**/*.{js,jsx,ts,tsx}',
+      'public/frontend/**/*.{js,jsx,ts,tsx}',
+    ],
+    plugins: {
+      'react-hooks': reactHooks,
     },
   },
 ];
