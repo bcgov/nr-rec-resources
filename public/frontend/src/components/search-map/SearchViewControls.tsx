@@ -42,10 +42,6 @@ const SearchViewControls = ({
   };
 
   const handleDownloadClick = useCallback(() => {
-    trackClickEvent({
-      category: 'Open download KML modal on search',
-      name: `Download KML file from ${totalCount} resources on search`,
-    });
     setIsDownloadModalOpen(true);
   }, []);
 
@@ -81,6 +77,7 @@ const SearchViewControls = ({
         setIsOpen={setIsDownloadModalOpen}
         searchResultsNumber={totalCount}
         ids={ids}
+        variant={variant}
       />
     </>
   );
