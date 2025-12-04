@@ -27,9 +27,4 @@ export const HEADER_LINKS: HeaderLink[] = [
     label: 'About',
     isExternal: true,
   },
-  {
-    url: EXTERNAL_LINKS.LEGACY_SITE,
-    label: 'Legacy site',
-    isExternal: true,
-  },
 ];
