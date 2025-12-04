@@ -12,12 +12,14 @@ import {
 import { Feature } from 'ol';
 import { RecreationResourceMapData } from '@shared/components/recreation-resource-map/types';
 import { getRecResourceDetailPageUrl } from '@/utils/recreationResourceUtils';
+import { trackEvent } from '@shared/utils';
 
 interface DownloadKmlResultsModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   searchResultsNumber: number;
   ids: string[];
+  variant: 'list' | 'map';
 }
 
 interface KmlProps {
@@ -31,9 +33,12 @@ const DownloadKmlResultsModal = ({
   setIsOpen,
   searchResultsNumber,
   ids,
+  variant,
 }: DownloadKmlResultsModalProps) => {
   const { mutateAsync, isPending } =
     useRecreationResourcesWithGeometryMutation();
+  // swap variants to track properly on matomo
+  const actualVariant = variant === 'list' ? 'map' : 'list';
 
   const REC_LIMIT = 400;
 
@@ -58,6 +63,11 @@ const DownloadKmlResultsModal = ({
         allKmlProps.push(props);
       });
       downloadKMLMultiple(allKmlProps);
+      trackEvent({
+        category: `Export map`,
+        action: `Export_bulk_${actualVariant}`,
+        name: `Export_bulk_${actualVariant}_${searchResultsNumber}`,
+      });
     }
   };
 
