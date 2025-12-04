@@ -59,6 +59,8 @@ export const createEditResourceSchema = (
         },
       ),
     display_on_public_site: z.boolean().default(false),
+    site_description: z.string().optional().nullable(),
+    driving_directions: z.string().optional().nullable(),
   });
 };
 

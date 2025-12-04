@@ -187,4 +187,62 @@ describe('createEditResourceSchema', () => {
       expect(result.data?.display_on_public_site).toBe(false);
     });
   });
+
+  describe('site_description validation', () => {
+    it('accepts a string for site_description', () => {
+      const schema = createEditResourceSchema();
+      const result = schema.safeParse({
+        site_description: 'This is a beautiful camping site',
+      });
+      expect(result.success).toBe(true);
+      expect(result.data?.site_description).toBe(
+        'This is a beautiful camping site',
+      );
+    });
+
+    it('accepts null for site_description', () => {
+      const schema = createEditResourceSchema();
+      const result = schema.safeParse({
+        site_description: null,
+      });
+      expect(result.success).toBe(true);
+      expect(result.data?.site_description).toBeNull();
+    });
+
+    it('accepts undefined for site_description', () => {
+      const schema = createEditResourceSchema();
+      const result = schema.safeParse({});
+      expect(result.success).toBe(true);
+      expect(result.data?.site_description).toBeUndefined();
+    });
+  });
+
+  describe('driving_directions validation', () => {
+    it('accepts a string for driving_directions', () => {
+      const schema = createEditResourceSchema();
+      const result = schema.safeParse({
+        driving_directions: 'Take Highway 1 north, exit at sign',
+      });
+      expect(result.success).toBe(true);
+      expect(result.data?.driving_directions).toBe(
+        'Take Highway 1 north, exit at sign',
+      );
+    });
+
+    it('accepts null for driving_directions', () => {
+      const schema = createEditResourceSchema();
+      const result = schema.safeParse({
+        driving_directions: null,
+      });
+      expect(result.success).toBe(true);
+      expect(result.data?.driving_directions).toBeNull();
+    });
+
+    it('accepts undefined for driving_directions', () => {
+      const schema = createEditResourceSchema();
+      const result = schema.safeParse({});
+      expect(result.success).toBe(true);
+      expect(result.data?.driving_directions).toBeUndefined();
+    });
+  });
 });
