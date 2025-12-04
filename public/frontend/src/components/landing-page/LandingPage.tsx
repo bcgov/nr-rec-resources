@@ -5,7 +5,6 @@ import { trackClickEvent } from '@shared/utils';
 import { EXTERNAL_LINKS } from '@/constants/urls';
 import {
   ContentSection,
-  InfoBanner,
   RecreationSearchBanner,
   SectionHeading,
 } from '@/components/landing-page/components';
@@ -59,7 +58,6 @@ export const LandingPage: FC = () => {
   return (
     <>
       <RecreationSearchBanner />
-      <InfoBanner />
       <Stack
         direction="vertical"
         className="info-section align-items-center my-5 content-footer-spacing"
