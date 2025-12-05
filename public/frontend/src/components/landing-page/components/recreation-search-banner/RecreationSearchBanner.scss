@@ -81,3 +81,20 @@
     }
   }
 }
+
+.reservable-title {
+  font-weight: bold;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.reservable-msg {
+  a:link {
+    color: $colorWhite;
+    text-decoration: underline;
+  }
+  a:visited {
+    color: $colorWhite;
+    text-decoration: underline;
+  }
+}

@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import '@/components/search/Search.scss';
 import './RecreationSearchBanner.scss';
 import { Link } from '@tanstack/react-router';
+import { ROUTE_PATHS } from '@/constants/routes';
 
 const MapLink = ({ className = '' }) => (
   <Link
@@ -39,6 +40,18 @@ export const RecreationSearchBanner: FC = () => {
           />
         </Stack>
         <MapLink className="d-block d-sm-none mt-3 mb-2 mx-auto" />
+        <div>
+          <div className="reservable-title">Are campsites reservable?</div>
+          <div className="reservable-msg">
+            Most campsites are available on a first-come, first-served basis and
+            cannot be booked ahead of time. View our{' '}
+            <a href={`${ROUTE_PATHS.HOME}${'search?fees=R'}`}>
+              reservable sites
+            </a>{' '}
+            and check out each description section to get more details about
+            fees and reservations.
+          </div>
+        </div>
       </section>
     </section>
   );

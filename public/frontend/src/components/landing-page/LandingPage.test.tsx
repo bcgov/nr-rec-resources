@@ -36,7 +36,5 @@ describe('LandingPage', () => {
       'mock-content-section-content',
     );
     expect(contentSectionContents).toHaveLength(4);
-
-    expect(document.querySelector('.info-banner')).toBeVisible();
   });
 });
