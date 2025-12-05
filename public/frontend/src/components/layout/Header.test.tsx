@@ -3,10 +3,6 @@ import { renderWithRouter } from '@/test-utils';
 import Header from '@/components/layout/Header';
 import { HEADER_LINKS } from '@/components/layout/constants';
 
-vi.mock('@/components/layout/BetaBanner', () => ({
-  default: () => <div data-testid="beta-banner">Beta Banner</div>,
-}));
-
 vi.mock('@shared/utils', () => ({
   trackClickEvent: vi.fn(() => vi.fn()),
 }));

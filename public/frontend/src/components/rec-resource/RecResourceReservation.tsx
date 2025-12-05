@@ -158,12 +158,12 @@ const RecResourceReservation: React.FC<RecResourceReservationProps> = ({
               <div>
                 {isAdditionalFeesAvailable || isFacilitiesAvailable ? (
                   <>
-                    {!isAdditionalFeesAvailable && (
-                      <>
-                        <span>No fees apply</span>
-                        <br />
-                      </>
+                    {!isAdditionalFeesAvailable ? (
+                      <span>No fees apply</span>
+                    ) : (
+                      <span>Fees apply when arriving on site.</span>
                     )}
+                    <br />
                     <span>
                       Check{' '}
                       {isAdditionalFeesAvailable && (

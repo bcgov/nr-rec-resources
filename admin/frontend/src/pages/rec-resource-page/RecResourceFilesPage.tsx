@@ -20,7 +20,7 @@ const InfoBanner = () => (
         aria-label="Information"
       />
       <span className="rec-resource-page__info-banner-text">
-        All images and documents will be published to the beta website within 15
+        All images and documents will be published to the website within 15
         minutes.
       </span>
     </Stack>

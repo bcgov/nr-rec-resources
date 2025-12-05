@@ -73,7 +73,7 @@ describe('RecResourceFilesPage', () => {
     expect(screen.getByRole('alert')).toBeInTheDocument();
     expect(
       screen.getByText(
-        /All images and documents will be published to the beta website within 15 minutes/,
+        /All images and documents will be published to the website within 15 minutes/,
       ),
     ).toBeInTheDocument();
   });
@@ -184,7 +184,7 @@ describe('RecResourceFilesPage', () => {
 
     expect(
       screen.getByText(
-        'All images and documents will be published to the beta website within 15 minutes.',
+        'All images and documents will be published to the website within 15 minutes.',
       ),
     ).toBeInTheDocument();
   });
@@ -214,7 +214,7 @@ describe('RecResourceFilesPage', () => {
     render(<RecResourceFilesPage />);
 
     const textElement = screen.getByText(
-      'All images and documents will be published to the beta website within 15 minutes.',
+      'All images and documents will be published to the website within 15 minutes.',
     );
     expect(textElement).toHaveClass('rec-resource-page__info-banner-text');
   });
