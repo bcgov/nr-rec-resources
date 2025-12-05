@@ -48,6 +48,18 @@ resource "aws_rds_cluster_parameter_group" "db_postgresql" {
   tags = {
     managed-by = "terraform"
   }
+
+  parameter {
+    name  = "shared_preload_libraries"
+    value = "pg_cron"
+    apply_method = "pending-reboot"
+  }
+
+  parameter {
+    name  = "cron.database_name"
+    value = var.db_database_name
+    apply_method = "pending-reboot"
+  }
 }
 
 resource "aws_secretsmanager_secret" "db_mastercreds_secret" {
@@ -93,7 +105,7 @@ module "aurora_postgresql_v2" {
   create_db_subnet_group = false
   create_monitoring_role = false
 
-  apply_immediately   = true
+  apply_immediately   = false
   skip_final_snapshot = true
   auto_minor_version_upgrade = false
 
