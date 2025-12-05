@@ -3,7 +3,11 @@ import { RecreationResourceRepository } from '@/recreation-resources/recreation-
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 
 const createBaseTx = () => ({
-  recreation_status: { update: vi.fn().mockResolvedValue({}) },
+  recreation_status: {
+    findUnique: vi.fn().mockResolvedValue(null),
+    create: vi.fn().mockResolvedValue({}),
+    update: vi.fn().mockResolvedValue({}),
+  },
   recreation_resource: {
     update: vi.fn().mockResolvedValue({}),
     findUnique: vi.fn().mockResolvedValue({ id: 'test' }),
@@ -257,7 +261,12 @@ describe('RecreationResourceRepository', () => {
       {
         data: { site_description: null },
         existing: { rec_resource_id: 'rec1', description: 'Old' },
-        expectedMethod: 'deleteMany',
+        expectedMethod: 'update',
+      },
+      {
+        data: { site_description: null },
+        existing: null,
+        expectedMethod: 'create',
       },
       {
         data: { driving_directions: 'New directions' },
@@ -272,7 +281,12 @@ describe('RecreationResourceRepository', () => {
       {
         data: { driving_directions: null },
         existing: { rec_resource_id: 'rec1', description: 'Old' },
-        expectedMethod: 'deleteMany',
+        expectedMethod: 'update',
+      },
+      {
+        data: { driving_directions: null },
+        existing: null,
+        expectedMethod: 'create',
       },
     ])(
       'should handle description field updates: %j',
@@ -304,6 +318,53 @@ describe('RecreationResourceRepository', () => {
             : 'recreation_driving_direction';
 
         expect(capturedTx![tableName][expectedMethod]).toHaveBeenCalled();
+      },
+    );
+
+    it.each([
+      {
+        existing: null,
+        status_code: 10,
+        expectedMethod: 'create',
+      },
+      {
+        existing: { rec_resource_id: 'status-case', status_code: 9 },
+        status_code: 11,
+        expectedMethod: 'update',
+      },
+    ])(
+      'should %s when existing status is %j',
+      async ({ existing, status_code, expectedMethod }) => {
+        const recId = 'status-case';
+        let capturedTx: ReturnType<typeof createBaseTx>;
+
+        (
+          prisma.$transaction as unknown as ReturnType<typeof vi.fn>
+        ).mockImplementationOnce(async (cb: any) => {
+          capturedTx = createBaseTx();
+          capturedTx.recreation_status.findUnique.mockResolvedValue(existing);
+          capturedTx.recreation_resource.findUnique.mockResolvedValue({
+            id: recId,
+          });
+          return cb(capturedTx);
+        });
+
+        await repo.update(recId, { status_code } as any);
+
+        if (expectedMethod === 'create') {
+          expect(capturedTx!.recreation_status.create).toHaveBeenCalledWith({
+            data: {
+              rec_resource_id: recId,
+              status_code,
+              comment: 'Closed status',
+            },
+          });
+        } else {
+          expect(capturedTx!.recreation_status.update).toHaveBeenCalledWith({
+            where: { rec_resource_id: recId },
+            data: { status_code },
+          });
+        }
       },
     );
   });
