@@ -3,6 +3,11 @@ import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
 import { QUILL_TOOLBAR_OPTIONS } from './constants';
 
+const normalize = (html: string) => {
+  // Quill represents an empty input as '<p><br></p>'
+  return html === '<p><br></p>' ? '' : html;
+};
+
 interface QuillEditorProps {
   value: string;
   onChange: (html: string) => void;
@@ -34,7 +39,7 @@ export const QuillEditor = ({ value, onChange }: QuillEditorProps) => {
         }
       });
 
-      onChange(quill.root.innerHTML);
+      onChange(normalize(quill.root.innerHTML));
     });
 
     return () => {
