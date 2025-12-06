@@ -1,18 +1,18 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import RecreationFee from './RecreationFee';
-import {
-  formatFeeDate,
-  formatFeeDays,
-  getFeeTypeLabel,
-} from '@/utils/recreationFeeUtils';
+import { formatFeeDays, getFeeTypeLabel } from '@shared/utils/feeUtils';
+import { formatDateFull } from '@shared/utils';
 import { RecreationFeeDto } from '@/service/recreation-resource';
 
 // Mock the utility functions
-vi.mock('@/utils/recreationFeeUtils', () => ({
-  formatFeeDate: vi.fn(),
+vi.mock('@shared/utils/feeUtils', () => ({
   formatFeeDays: vi.fn(),
   getFeeTypeLabel: vi.fn(),
+}));
+
+vi.mock('@shared/utils/dateUtils', () => ({
+  formatDateFull: vi.fn(),
 }));
 
 describe('RecreationFee', () => {
@@ -25,7 +25,7 @@ describe('RecreationFee', () => {
 
   beforeEach(() => {
     // Reset mock implementations
-    vi.mocked(formatFeeDate).mockImplementation((date) => date as any);
+    vi.mocked(formatDateFull).mockImplementation((date: Date) => date);
     vi.mocked(formatFeeDays).mockReturnValue('Monday - Sunday');
     vi.mocked(getFeeTypeLabel).mockReturnValue('Camping');
   });
@@ -43,8 +43,8 @@ describe('RecreationFee', () => {
 
     // Check if utility functions were called with correct arguments
     expect(getFeeTypeLabel).toHaveBeenCalledWith('CAMPING');
-    expect(formatFeeDate).toHaveBeenCalledWith('2025-06-01');
-    expect(formatFeeDate).toHaveBeenCalledWith('2025-09-30');
+    expect(formatDateFull).toHaveBeenCalledWith('2025-06-01');
+    expect(formatDateFull).toHaveBeenCalledWith('2025-09-30');
     expect(formatFeeDays).toHaveBeenCalledWith(mockFee);
 
     // Verify rendered content

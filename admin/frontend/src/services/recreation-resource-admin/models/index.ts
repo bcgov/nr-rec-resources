@@ -12,6 +12,7 @@ export * from './OptionsByTypeDto';
 export * from './RecreationAccessCodeDto';
 export * from './RecreationActivityDto';
 export * from './RecreationControlAccessDto';
+export * from './RecreationFeeDto';
 export * from './RecreationResourceDetailDto';
 export * from './RecreationResourceDistrictDto';
 export * from './RecreationResourceDocDto';

@@ -1,10 +1,7 @@
 import { Stack } from 'react-bootstrap';
 import { RecreationFeeModel } from '@/service/custom-models';
-import {
-  formatFeeDate,
-  formatFeeDays,
-  getFeeTypeLabel,
-} from '@/utils/recreationFeeUtils';
+import { formatFeeDays, getFeeTypeLabel } from '@shared/utils/feeUtils';
+import { formatDateFull } from '@shared/utils';
 
 interface RecreationFeeListProps {
   data: RecreationFeeModel[];
@@ -27,8 +24,8 @@ const RecreationFee: React.FC<RecreationFeeListProps> = ({ data }) => {
           <Stack direction="vertical">
             <strong>Fee applies</strong>
             <span>
-              {formatFeeDate(fee.fee_start_date)} -{' '}
-              {formatFeeDate(fee.fee_end_date)}
+              {formatDateFull(fee.fee_start_date)} -{' '}
+              {formatDateFull(fee.fee_end_date)}
             </span>
             <span>{formatFeeDays(fee)}</span>
           </Stack>

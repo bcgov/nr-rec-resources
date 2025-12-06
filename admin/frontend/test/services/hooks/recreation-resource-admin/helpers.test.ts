@@ -308,6 +308,193 @@ describe('getBasePathForAssets', () => {
   });
 });
 
+describe('mapRecreationFee', () => {
+  it('should map fee with both start and end dates', () => {
+    const input = {
+      fee_amount: 15,
+      fee_start_date: new Date('2024-06-01T00:00:00Z'),
+      fee_end_date: new Date('2024-09-30T00:00:00Z'),
+      recreation_fee_code: 'C',
+      fee_type_description: 'Camping',
+      monday_ind: 'Y',
+      tuesday_ind: 'Y',
+      wednesday_ind: 'Y',
+      thursday_ind: 'Y',
+      friday_ind: 'Y',
+      saturday_ind: 'Y',
+      sunday_ind: 'Y',
+    };
+
+    const result = helpersModule.mapRecreationFee(input as any);
+
+    expect(result.fee_start_date_readable_utc).toBeDefined();
+    expect(result.fee_end_date_readable_utc).toBeDefined();
+    expect(typeof result.fee_start_date_readable_utc).toBe('string');
+    expect(typeof result.fee_end_date_readable_utc).toBe('string');
+    expect(result.fee_start_date_readable_utc).not.toBeNull();
+    expect(result.fee_end_date_readable_utc).not.toBeNull();
+  });
+
+  it('should format dates with UTC timezone', () => {
+    const input = {
+      fee_amount: 20,
+      fee_start_date: new Date('2024-05-15T10:30:00Z'),
+      fee_end_date: new Date('2024-10-15T14:45:00Z'),
+      recreation_fee_code: 'D',
+      fee_type_description: 'Day use',
+    };
+
+    const result = helpersModule.mapRecreationFee(input as any);
+
+    // Verify dates are formatted (should be readable format like "May 15, 2024")
+    expect(result.fee_start_date_readable_utc).toMatch(/\w{3} \d{1,2}, \d{4}/);
+    expect(result.fee_end_date_readable_utc).toMatch(/\w{3} \d{1,2}, \d{4}/);
+  });
+
+  it('should handle null start date', () => {
+    const input = {
+      fee_amount: 10,
+      fee_start_date: null,
+      fee_end_date: new Date('2024-09-30T00:00:00Z'),
+      recreation_fee_code: 'H',
+      fee_type_description: 'Hiking',
+    };
+
+    const result = helpersModule.mapRecreationFee(input as any);
+
+    expect(result.fee_start_date_readable_utc).toBeNull();
+    expect(result.fee_end_date_readable_utc).toBeDefined();
+    expect(typeof result.fee_end_date_readable_utc).toBe('string');
+  });
+
+  it('should handle null end date', () => {
+    const input = {
+      fee_amount: 25,
+      fee_start_date: new Date('2024-06-01T00:00:00Z'),
+      fee_end_date: null,
+      recreation_fee_code: 'P',
+      fee_type_description: 'Parking',
+    };
+
+    const result = helpersModule.mapRecreationFee(input as any);
+
+    expect(result.fee_start_date_readable_utc).toBeDefined();
+    expect(typeof result.fee_start_date_readable_utc).toBe('string');
+    expect(result.fee_end_date_readable_utc).toBeNull();
+  });
+
+  it('should handle undefined start date', () => {
+    const input = {
+      fee_amount: 12,
+      fee_start_date: undefined,
+      fee_end_date: new Date('2024-09-30T00:00:00Z'),
+      recreation_fee_code: 'T',
+      fee_type_description: 'Trail',
+    };
+
+    const result = helpersModule.mapRecreationFee(input as any);
+
+    expect(result.fee_start_date_readable_utc).toBeNull();
+    expect(result.fee_end_date_readable_utc).toBeDefined();
+  });
+
+  it('should handle undefined end date', () => {
+    const input = {
+      fee_amount: 18,
+      fee_start_date: new Date('2024-06-01T00:00:00Z'),
+      fee_end_date: undefined,
+      recreation_fee_code: 'C',
+      fee_type_description: 'Camping',
+    };
+
+    const result = helpersModule.mapRecreationFee(input as any);
+
+    expect(result.fee_start_date_readable_utc).toBeDefined();
+    expect(result.fee_end_date_readable_utc).toBeNull();
+  });
+
+  it('should handle both dates as null', () => {
+    const input = {
+      fee_amount: 5,
+      fee_start_date: null,
+      fee_end_date: null,
+      recreation_fee_code: 'D',
+      fee_type_description: 'Day use',
+    };
+
+    const result = helpersModule.mapRecreationFee(input as any);
+
+    expect(result.fee_start_date_readable_utc).toBeNull();
+    expect(result.fee_end_date_readable_utc).toBeNull();
+  });
+
+  it('should preserve all original properties', () => {
+    const input = {
+      fee_amount: 30,
+      fee_start_date: new Date('2024-07-01T00:00:00Z'),
+      fee_end_date: new Date('2024-08-31T00:00:00Z'),
+      recreation_fee_code: 'C',
+      fee_type_description: 'Camping',
+      monday_ind: 'Y',
+      tuesday_ind: 'Y',
+      wednesday_ind: 'N',
+      thursday_ind: 'Y',
+      friday_ind: 'Y',
+      saturday_ind: 'Y',
+      sunday_ind: 'Y',
+    };
+
+    const result = helpersModule.mapRecreationFee(input as any);
+
+    expect(result.fee_amount).toBe(input.fee_amount);
+    expect(result.fee_start_date).toBe(input.fee_start_date);
+    expect(result.fee_end_date).toBe(input.fee_end_date);
+    expect(result.recreation_fee_code).toBe(input.recreation_fee_code);
+    expect(result.fee_type_description).toBe(input.fee_type_description);
+    expect(result.monday_ind).toBe(input.monday_ind);
+    expect(result.tuesday_ind).toBe(input.tuesday_ind);
+    expect(result.wednesday_ind).toBe(input.wednesday_ind);
+    expect(result.thursday_ind).toBe(input.thursday_ind);
+    expect(result.friday_ind).toBe(input.friday_ind);
+    expect(result.saturday_ind).toBe(input.saturday_ind);
+    expect(result.sunday_ind).toBe(input.sunday_ind);
+  });
+
+  it('should handle date strings', () => {
+    const input = {
+      fee_amount: 15,
+      fee_start_date: '2024-06-01T00:00:00Z',
+      fee_end_date: '2024-09-30T00:00:00Z',
+      recreation_fee_code: 'C',
+      fee_type_description: 'Camping',
+    };
+
+    const result = helpersModule.mapRecreationFee(input as any);
+
+    expect(result.fee_start_date_readable_utc).toBeDefined();
+    expect(result.fee_end_date_readable_utc).toBeDefined();
+    expect(typeof result.fee_start_date_readable_utc).toBe('string');
+    expect(typeof result.fee_end_date_readable_utc).toBe('string');
+  });
+
+  it('should add readable date fields to the result', () => {
+    const input = {
+      fee_amount: 20,
+      fee_start_date: new Date('2024-05-15T00:00:00Z'),
+      fee_end_date: new Date('2024-10-15T00:00:00Z'),
+      recreation_fee_code: 'D',
+      fee_type_description: 'Day use',
+    };
+
+    const result = helpersModule.mapRecreationFee(input as any);
+
+    expect(result).toHaveProperty('fee_start_date_readable_utc');
+    expect(result).toHaveProperty('fee_end_date_readable_utc');
+    expect(result.fee_start_date_readable_utc).not.toBeUndefined();
+    expect(result.fee_end_date_readable_utc).not.toBeUndefined();
+  });
+});
+
 describe('createRetryHandler', () => {
   // Manual mock for onFail callback
   const onFailMock = () => {
