@@ -42,6 +42,10 @@
       padding: 2rem;
     }
 
+    @media (max-width: 380px) {
+      margin-top: 6rem;
+    }
+
     .search-header {
       display: flex;
       flex-direction: column;
