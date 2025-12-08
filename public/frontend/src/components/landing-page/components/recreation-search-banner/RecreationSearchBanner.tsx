@@ -41,7 +41,9 @@ export const RecreationSearchBanner: FC = () => {
         </Stack>
         <MapLink className="d-block d-sm-none mt-3 mb-2 mx-auto" />
         <div>
-          <div className="reservable-title">Are campsites reservable?</div>
+          <div className="reservable-title">
+            Note: Are campsites reservable?
+          </div>
           <div className="reservable-msg">
             Most campsites are available on a first-come, first-served basis and
             cannot be booked ahead of time. View our{' '}
