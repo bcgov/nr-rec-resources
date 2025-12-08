@@ -32,7 +32,11 @@ describe('rec-resource-page constants', () => {
     });
 
     it('has all expected tab keys', () => {
-      expect(Object.values(RecResourceNavKey)).toEqual(['overview', 'files']);
+      expect(Object.values(RecResourceNavKey)).toEqual([
+        'overview',
+        'files',
+        'fees',
+      ]);
     });
   });
 });

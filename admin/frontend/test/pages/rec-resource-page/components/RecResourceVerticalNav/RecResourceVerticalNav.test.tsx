@@ -3,6 +3,9 @@ import { RecResourceVerticalNav } from '@/pages/rec-resource-page/components/Rec
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import * as hooks from '@/pages/rec-resource-page/hooks/useVisibleNavSections';
+
+vi.mock('@/pages/rec-resource-page/hooks/useVisibleNavSections');
 
 // Mock matchMedia for Offcanvas component
 Object.defineProperty(window, 'matchMedia', {
@@ -27,8 +30,26 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
   return {
     ...actual,
     useNavigate: () => mockNavigate,
+    useRouter: () => ({
+      state: {
+        location: {
+          pathname: '/rec-resource/test-resource-123',
+          search: '',
+        },
+      },
+    }),
+    useLocation: () => ({
+      pathname: '/rec-resource/test-resource-123',
+      search: '',
+    }),
   };
 });
+
+vi.mock('@shared/hooks', () => ({
+  useNavigateWithQueryParams: () => ({
+    navigate: mockNavigate,
+  }),
+}));
 
 const renderWithRouter = (component: React.ReactElement) => {
   return render(component);
@@ -40,8 +61,25 @@ describe('RecResourceVerticalNav', () => {
     resourceId: 'test-resource-123',
   };
 
+  const mockVisibleNavSections = [
+    [
+      RecResourceNavKey.OVERVIEW,
+      {
+        title: 'Overview',
+        route: (id: string) => `/rec-resource/${id}/overview`,
+      },
+    ],
+    [
+      RecResourceNavKey.FILES,
+      { title: 'Files', route: (id: string) => `/rec-resource/${id}/files` },
+    ],
+  ];
+
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(hooks.useVisibleNavSections).mockReturnValue(
+      mockVisibleNavSections as any,
+    );
   });
 
   it('renders all navigation items in desktop view', () => {
@@ -91,7 +129,7 @@ describe('RecResourceVerticalNav', () => {
 
     expect(mockNavigate).toHaveBeenCalledWith({
       to: '/rec-resource/test-resource-123/files',
-    });
+    } as any);
   });
 
   it('shows files tab as active in mobile trigger', () => {
@@ -111,5 +149,55 @@ describe('RecResourceVerticalNav', () => {
       'rec-resource-vertical-nav__mobile-trigger',
     );
     expect(triggerButton).toHaveTextContent('Files');
+  });
+
+  it('hides fees nav item when feature flag is disabled', () => {
+    vi.mocked(hooks.useVisibleNavSections).mockReturnValue(
+      mockVisibleNavSections as any,
+    );
+
+    renderWithRouter(<RecResourceVerticalNav {...defaultProps} />);
+
+    expect(screen.queryByText('Fees')).not.toBeInTheDocument();
+  });
+
+  it('shows fees nav item when feature flag is enabled', () => {
+    const sectionsWithFees = [
+      ...mockVisibleNavSections,
+      [
+        RecResourceNavKey.FEES,
+        { title: 'Fees', route: (id: string) => `/rec-resource/${id}/fees` },
+      ],
+    ];
+    vi.mocked(hooks.useVisibleNavSections).mockReturnValue(
+      sectionsWithFees as any,
+    );
+
+    renderWithRouter(<RecResourceVerticalNav {...defaultProps} />);
+
+    expect(screen.getByText('Fees')).toBeInTheDocument();
+  });
+
+  it('navigates to fees route when fees nav item is clicked', async () => {
+    const user = userEvent.setup();
+    const sectionsWithFees = [
+      ...mockVisibleNavSections,
+      [
+        RecResourceNavKey.FEES,
+        { title: 'Fees', route: (id: string) => `/rec-resource/${id}/fees` },
+      ],
+    ];
+    vi.mocked(hooks.useVisibleNavSections).mockReturnValue(
+      sectionsWithFees as any,
+    );
+
+    renderWithRouter(<RecResourceVerticalNav {...defaultProps} />);
+
+    const feesLinks = screen.getAllByText('Fees');
+    await user.click(feesLinks[0]);
+
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: '/rec-resource/test-resource-123/fees',
+    } as any);
   });
 });

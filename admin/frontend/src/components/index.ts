@@ -7,4 +7,5 @@ export * from './date-input-field';
 export * from './header';
 export * from './notification-bar';
 export * from './page-layout';
+export * from './table';
 export * from './rich-text-editor';

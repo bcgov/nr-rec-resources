@@ -20,6 +20,7 @@ import type {
   EstablishmentOrderDocDto,
   OptionDto,
   OptionsByTypeDto,
+  RecreationFeeDto,
   RecreationResourceDetailDto,
   RecreationResourceDocDto,
   RecreationResourceImageDto,
@@ -39,6 +40,8 @@ import {
   OptionDtoToJSON,
   OptionsByTypeDtoFromJSON,
   OptionsByTypeDtoToJSON,
+  RecreationFeeDtoFromJSON,
+  RecreationFeeDtoToJSON,
   RecreationResourceDetailDtoFromJSON,
   RecreationResourceDetailDtoToJSON,
   RecreationResourceDocDtoFromJSON,
@@ -115,6 +118,10 @@ export interface GetOptionsByTypesRequest {
 }
 
 export interface GetRecreationResourceByIdRequest {
+  recResourceId: string;
+}
+
+export interface GetRecreationResourceFeesRequest {
   recResourceId: string;
 }
 
@@ -1137,6 +1144,70 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<RecreationResourceDetailDto> {
     const response = await this.getRecreationResourceByIdRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Returns a list of fees for the recreation resource, sorted by fee type and start date
+   * Get all fees for a recreation resource
+   */
+  async getRecreationResourceFeesRaw(
+    requestParameters: GetRecreationResourceFeesRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<RecreationFeeDto>>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling getRecreationResourceFees().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/fees`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      jsonValue.map(RecreationFeeDtoFromJSON),
+    );
+  }
+
+  /**
+   * Returns a list of fees for the recreation resource, sorted by fee type and start date
+   * Get all fees for a recreation resource
+   */
+  async getRecreationResourceFees(
+    requestParameters: GetRecreationResourceFeesRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<Array<RecreationFeeDto>> {
+    const response = await this.getRecreationResourceFeesRaw(
       requestParameters,
       initOverrides,
     );
