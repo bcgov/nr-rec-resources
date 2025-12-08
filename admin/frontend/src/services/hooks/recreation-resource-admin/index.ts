@@ -4,6 +4,7 @@ export * from './useDeleteResourceDocument';
 export * from './useDeleteResourceImage';
 export * from './useGetDocumentsByRecResourceId';
 export * from './useGetEstablishmentOrderDocs';
+export * from './useGetRecreationResourceFees';
 export * from './useGetImagesByRecResourceId';
 export * from './useGetRecreationResourceById';
 export * from './useGetRecreationResourceOptions';

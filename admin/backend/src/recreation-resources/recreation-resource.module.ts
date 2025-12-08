@@ -9,6 +9,7 @@ import { ResourceImagesModule } from '@/resource-images/resource-images.module';
 import { EstablishmentOrderDocsModule } from '@/establishment-order-docs/establishment-order-docs.module';
 import { OptionsModule } from './options/options.module';
 import { UserContextModule } from '../common/modules/user-context/user-context.module';
+import { FeesModule } from './fees/fees.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { UserContextModule } from '../common/modules/user-context/user-context.m
     ResourceDocsModule,
     ResourceImagesModule,
     EstablishmentOrderDocsModule,
+    FeesModule,
     OptionsModule,
     UserContextModule,
   ],

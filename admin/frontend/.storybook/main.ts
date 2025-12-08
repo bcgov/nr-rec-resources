@@ -1,6 +1,6 @@
-import { fileURLToPath } from 'node:url';
-import { dirname } from 'node:path';
 import type { StorybookConfig } from '@storybook/react-vite';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 const config: StorybookConfig = {
   stories: ['../stories/**/*.stories.@(tsx|mdx)'],
