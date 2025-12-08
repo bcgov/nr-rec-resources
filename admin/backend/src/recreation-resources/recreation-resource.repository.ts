@@ -5,7 +5,7 @@ import { Prisma } from '@prisma/client';
 import { UpdateRecreationResourceDto } from './dtos/update-recreation-resource.dto';
 import { recreationResourceSelect } from './recreation-resource.select';
 import { RecreationResourceGetPayload } from './recreation-resource.types';
-import { upsertDescriptionField } from './utils/upsertDescriptionTable';
+import { upsert } from './utils/upsertUtils';
 
 /**
  * Repository for querying recreation resource data.
@@ -73,13 +73,18 @@ export class RecreationResourceRepository {
           ...directFields
         } = updateData;
 
-        // Update status only if status_code is provided
         if (status_code !== undefined) {
-          await tx.recreation_status.update({
+          await upsert({
+            tx,
+            tableName: 'recreation_status',
             where: { rec_resource_id },
-            data: {
+            createData: {
+              rec_resource_id,
               status_code,
+              // Comment field required for creation
+              comment: `${status_code === 1 ? 'Open' : 'Closed'} status`,
             },
+            updateData: { status_code },
           });
         }
 
@@ -133,19 +138,25 @@ export class RecreationResourceRepository {
           }
         }
 
-        await upsertDescriptionField(
-          tx,
-          'recreation_site_description',
-          rec_resource_id,
-          site_description,
-        );
+        if (site_description !== undefined) {
+          await upsert({
+            tx,
+            tableName: 'recreation_site_description',
+            where: { rec_resource_id },
+            createData: { rec_resource_id, description: site_description },
+            updateData: { description: site_description },
+          });
+        }
 
-        await upsertDescriptionField(
-          tx,
-          'recreation_driving_direction',
-          rec_resource_id,
-          driving_directions,
-        );
+        if (driving_directions !== undefined) {
+          await upsert({
+            tx,
+            tableName: 'recreation_driving_direction',
+            where: { rec_resource_id },
+            createData: { rec_resource_id, description: driving_directions },
+            updateData: { description: driving_directions },
+          });
+        }
 
         // Fetch the complete updated resource
         const updatedResource = await tx.recreation_resource.findUnique({

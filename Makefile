@@ -35,9 +35,13 @@ load_fixtures:
 clean:
 	$(FLYWAY) -url=jdbc:postgresql://$(POSTGRES_HOST)/$(DB_NAME) -user=$(POSTGRES_USER) -password=$(POSTGRES_PASSWORD) -schemas=$(DB_SCHEMA) -locations=filesystem:$(MIGRATIONS_DIR) clean
 
-## Ensure that your backend isn't running and that there are no active connections to the database
+.PHONY: terminate_connections
+terminate_connections:
+	@echo "Terminating active connections to $(DB_NAME)..."
+	@$(PSQL) -d postgres -tc "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='$(DB_NAME)';"
+
 .PHONY: reset_db
-reset_db: drop_db create_db migrate load_fixtures
+reset_db: terminate_connections drop_db create_db migrate load_fixtures
 
 # Reset the project, useful when switching branches with different packages and migrations
 .PHONY: reset_project
