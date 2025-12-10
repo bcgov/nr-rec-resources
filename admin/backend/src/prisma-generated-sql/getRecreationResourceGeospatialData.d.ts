@@ -13,11 +13,10 @@ export const getRecreationResourceGeospatialData: (
 export namespace getRecreationResourceGeospatialData {
   export type Parameters = [text: string];
   export type Result = {
-    rec_resource_id: string;
     spatial_feature_geometry: string[] | null;
     site_point_geometry: string | null;
-    latitude: number | null;
-    longitude: number | null;
+    latitude: $runtime.Decimal | null;
+    longitude: $runtime.Decimal | null;
     utm_zone: number | null;
     utm_easting: number | null;
     utm_northing: number | null;

@@ -11,6 +11,7 @@ vi.mock('@/routes/rec-resource/$id/geospatial', () => ({
         latitude: 49.123456,
         longitude: -123.654321,
       },
+      recResource: {},
     }),
   },
 }));
@@ -22,10 +23,8 @@ vi.mock('@/contexts/feature-flags', () => ({
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceLocationSection',
   () => ({
-    RecResourceLocationSection: ({ recResource }: any) => (
-      <div data-testid="mock-location">
-        LocationSection:{recResource?.utm_zone}
-      </div>
+    RecResourceLocationSection: () => (
+      <div data-testid="mock-location">LocationSection rendered</div>
     ),
   }),
 );
@@ -67,11 +66,11 @@ describe('RecResourceGeospatialSection', () => {
     expect(screen.getByText('-123.654321')).toBeDefined();
   });
 
-  it('renders RecResourceLocationSection when geospatialData exists', () => {
+  it('renders RecResourceLocationSection when recResource exists', () => {
     render(<RecResourceGeospatialSection />);
 
     expect(screen.getByTestId('mock-location')).toHaveTextContent(
-      'LocationSection:10',
+      'LocationSection rendered',
     );
   });
 });

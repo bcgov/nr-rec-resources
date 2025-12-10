@@ -5,22 +5,12 @@ import { CopyButton } from '@shared/components/copy-button';
 import { RecResourceOverviewItem } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/components';
 import { RecResourceLocationSection } from '@/pages/rec-resource-page/components/RecResourceLocationSection';
 import { Route } from '@/routes/rec-resource/$id/geospatial';
-import { RecreationResourceGeospatialDto } from '@/services/recreation-resource-admin';
 
 export function RecResourceGeospatialSection() {
-  const { geospatialData } = Route.useLoaderData() as {
-    geospatialData?: RecreationResourceGeospatialDto;
-  };
-  const formatCoordinate = (
-    value: number | null | undefined,
-    decimals: number = 2,
-  ): string | undefined => {
-    if (!value) return undefined;
-    return value.toFixed(decimals);
-  };
+  const { geospatialData, recResource } = Route.useLoaderData();
 
-  const latitude = formatCoordinate(geospatialData?.latitude, 6);
-  const longitude = formatCoordinate(geospatialData?.longitude, 6);
+  const latitude = geospatialData?.latitude;
+  const longitude = geospatialData?.longitude;
 
   const geospatialItems = [
     {
@@ -71,9 +61,9 @@ export function RecResourceGeospatialSection() {
           ))}
         </Row>
 
-        {geospatialData && (
-          <div style={{ marginTop: 32 }}>
-            <RecResourceLocationSection recResource={geospatialData} />
+        {recResource && (
+          <div className="mt-4">
+            <RecResourceLocationSection recResource={recResource} />
           </div>
         )}
       </div>

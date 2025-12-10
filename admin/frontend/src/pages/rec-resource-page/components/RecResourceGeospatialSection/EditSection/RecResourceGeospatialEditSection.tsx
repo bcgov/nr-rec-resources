@@ -3,7 +3,6 @@ import { Button, Col, Form, Row, Stack } from 'react-bootstrap';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { LinkWithQueryParams } from '@shared/components/link-with-query-params';
 import { Route } from '@/routes/rec-resource/$id/geospatial/edit';
-import { RecreationResourceGeospatialDto } from '@/services/recreation-resource-admin';
 import { RecResourceLocationSection } from '@/pages/rec-resource-page/components/RecResourceLocationSection';
 import { useEditGeospatialForm } from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/EditSection/hooks';
 
@@ -15,10 +14,7 @@ const onNumberChange = (onChange: (v?: number) => void) => {
 };
 
 export const RecResourceGeospatialEditSection = () => {
-  const { geospatialData } = Route.useLoaderData() as {
-    geospatialData?: RecreationResourceGeospatialDto;
-    recResource?: Record<string, any>;
-  };
+  const { geospatialData, recResource } = Route.useLoaderData();
 
   const params = Route.useParams();
   const recResourceId = params?.id;
@@ -156,11 +152,7 @@ export const RecResourceGeospatialEditSection = () => {
           </Col>
         </Row>
       </Form>
-      {geospatialData && (
-        <div style={{ marginTop: 24 }}>
-          <RecResourceLocationSection recResource={geospatialData} />
-        </div>
-      )}
+      {recResource && <RecResourceLocationSection recResource={recResource} />}
     </Stack>
   );
 };

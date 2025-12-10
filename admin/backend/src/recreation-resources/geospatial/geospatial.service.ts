@@ -13,7 +13,6 @@ export class GeospatialService {
   /**
    * Get geospatial data for a recreation resource
    * Fetches spatial feature geometries and calculated coordinate values
-   * Uses a typed raw SQL query via Prisma
    */
   async findGeospatialDataById(
     rec_resource_id: string,
@@ -35,14 +34,14 @@ export class GeospatialService {
     if (!data) return null;
 
     return {
-      rec_resource_id: data.rec_resource_id,
+      rec_resource_id,
       spatial_feature_geometry: data.spatial_feature_geometry ?? undefined,
       site_point_geometry: data.site_point_geometry ?? undefined,
       utm_zone: data.utm_zone,
       utm_easting: data.utm_easting,
       utm_northing: data.utm_northing,
-      latitude: data.latitude,
-      longitude: data.longitude,
+      latitude: data.latitude ? Number(data.latitude) : null,
+      longitude: data.longitude ? Number(data.longitude) : null,
     };
   }
 
@@ -73,10 +72,7 @@ export class GeospatialService {
 
   /**
    * Upsert a site point row using UTM coordinates.
-   * - Constructs a point in the appropriate UTM EPSG (326## for northern hemisphere),
-   *   transforms it to BC Albers (3005), then sets SRID to 0 for storage to match legacy rows.
    */
-
   async upsertSitePointFromUtm(
     rec_resource_id: string,
     utmZone: number,
