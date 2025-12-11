@@ -3,10 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { Form } from 'react-bootstrap';
 import { FormProvider, useForm } from 'react-hook-form';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  DateInputField,
-  DateInputFieldProps,
-} from '@/components/date-input-field';
+import { DateInputField, DateInputFieldProps } from '@/components/form';
 
 // Mock react-hook-form
 vi.mock('react-hook-form', async () => {

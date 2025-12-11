@@ -1,5 +1,5 @@
 import { Form } from 'react-bootstrap';
-import { EditResourceFormData } from '../schemas';
+import { EditResourceFormData } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/schemas';
 
 /**
  * Reusable Text Field Component
@@ -14,6 +14,7 @@ export const TextField = ({
   as = 'input',
   rows,
   required = false,
+  maxLength,
 }: {
   name: keyof EditResourceFormData;
   label: string;
@@ -23,6 +24,7 @@ export const TextField = ({
   as?: 'input' | 'textarea';
   rows?: number;
   required?: boolean;
+  maxLength?: number;
 }) => (
   <Form.Group controlId={name}>
     <Form.Label>
@@ -33,6 +35,7 @@ export const TextField = ({
       as={as}
       rows={rows}
       placeholder={placeholder}
+      maxLength={maxLength}
       {...register(name)}
       isInvalid={!!errors[name]}
     />

@@ -1,4 +1,4 @@
-import { SelectField } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/components';
+import { SelectField } from '@/components/form';
 import { EditResourceFormData } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/schemas';
 import { RecreationResourceOptionUIModel } from '@/services';
 import { render, screen } from '@testing-library/react';

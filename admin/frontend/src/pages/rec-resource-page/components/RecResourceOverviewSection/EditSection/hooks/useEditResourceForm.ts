@@ -66,6 +66,7 @@ export const useEditResourceForm = (
       status_code: recResource.recreation_status_code?.toString() || '',
       district_code: recResource.recreation_district?.district_code || null,
       display_on_public_site: recResource.display_on_public_site ?? false,
+      closest_community: recResource.closest_community || null,
       site_description: recResource.description || '',
       driving_directions: recResource.driving_directions || '',
     };
@@ -74,6 +75,7 @@ export const useEditResourceForm = (
   // React Hook Form setup
   const {
     control,
+    register,
     handleSubmit,
     formState: { errors, isDirty },
   } = useForm<EditResourceFormData>({
@@ -123,6 +125,7 @@ export const useEditResourceForm = (
       access_codes: Object.values(accessCodesMap),
       district_code: data.district_code || null,
       display_on_public_site: data.display_on_public_site,
+      closest_community: data.closest_community?.trim() ?? null,
       site_description: data.site_description?.trim() ?? null,
       driving_directions: data.driving_directions?.trim() ?? null,
     };
@@ -149,6 +152,7 @@ export const useEditResourceForm = (
 
   return {
     control,
+    register,
     handleSubmit,
     errors,
     isDirty,

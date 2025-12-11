@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
-import { QuillEditor } from '@/components/rich-text-editor/QuillEditor';
+import { QuillEditor } from '@/components/form/rich-text-editor/QuillEditor';
 
 let textChangeCallback: (() => void) | null = null;
 let rootHTML: string = '<p>Hello world</p>';

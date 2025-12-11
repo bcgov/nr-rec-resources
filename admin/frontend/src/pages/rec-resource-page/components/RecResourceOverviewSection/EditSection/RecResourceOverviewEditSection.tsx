@@ -1,20 +1,24 @@
 import { RecResourceOverviewLink } from '@/components/RecResourceOverviewLink';
-import { DateInputField } from '@/components/date-input-field';
+import {
+  DateInputField,
+  SelectField,
+  TextField,
+  GroupedMultiSelectField,
+  RichTextEditor,
+} from '@/components/form';
 import { VisibleOnPublicSite } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/components';
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { RecreationResourceDetailUIModel } from '@/services';
 import { useMemo } from 'react';
 import { Button, Col, Form, Row, Stack } from 'react-bootstrap';
 import { Controller, useWatch } from 'react-hook-form';
+import { FormErrorBanner } from './components';
 import {
-  FormErrorBanner,
-  GroupedMultiSelectField,
-  SelectField,
-} from './components';
-import { EDIT_RESOURCE_FIELD_LABEL_MAP } from './constants';
+  EDIT_RESOURCE_FIELD_LABEL_MAP,
+  CLOSEST_COMMUNITY_MAX_LENGTH,
+} from './constants';
 import { useEditResourceForm, useResourceOptions } from './hooks';
 import { EditResourceFormData } from './schemas';
-import { RichTextEditor } from '@/components/rich-text-editor/RichTextEditor';
 
 /**
  * Edit section for recreation resource overview
@@ -36,8 +40,15 @@ export const RecResourceOverviewEditSection = () => {
     currentDistrictCode: recResource.recreation_district?.district_code,
   });
 
-  const { handleSubmit, control, errors, isDirty, updateMutation, onSubmit } =
-    useEditResourceForm(recResource, districtOptions);
+  const {
+    handleSubmit,
+    control,
+    register,
+    errors,
+    isDirty,
+    updateMutation,
+    onSubmit,
+  } = useEditResourceForm(recResource, districtOptions);
 
   // Watch the district_code field to check if selected option is archived
   const selectedDistrictCode = useWatch({
@@ -116,12 +127,22 @@ export const RecResourceOverviewEditSection = () => {
                 label="Site Description"
                 control={control}
                 errors={errors}
-                defaultValue={recResource.description ?? ''}
               />
             </Col>
           </Row>
 
           <Row className="gy-3">
+            {/* Closest Community */}
+            <Col xs={12} md={6}>
+              <TextField
+                name="closest_community"
+                label={EDIT_RESOURCE_FIELD_LABEL_MAP.closest_community}
+                placeholder="Enter the closest community..."
+                register={register}
+                errors={errors}
+                maxLength={CLOSEST_COMMUNITY_MAX_LENGTH}
+              />
+            </Col>
             {/* Status */}
             <Col xs={12} md={6}>
               <SelectField
@@ -213,7 +234,6 @@ export const RecResourceOverviewEditSection = () => {
               label="Driving Directions"
               control={control}
               errors={errors}
-              defaultValue={recResource.driving_directions ?? ''}
             />
           </Col>
         </Row>
