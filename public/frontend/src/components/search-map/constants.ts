@@ -105,3 +105,6 @@ export const ANIMATED_CLUSTER_OPTIONS = {
   updateWhileInteracting: false,
   renderBuffer: 300,
 };
+
+export const LEGACY_MAP_LINK =
+  'https://governmentofbc.maps.arcgis.com/apps/webappviewer/index.html?id=4e9f5f3a722b45c8a86696f6c91d09c6';

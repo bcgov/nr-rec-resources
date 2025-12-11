@@ -28,6 +28,7 @@ import { trackClickEvent } from '@shared/utils';
 import {
   ANIMATED_CLUSTER_OPTIONS,
   CLUSTER_OPTIONS,
+  LEGACY_MAP_LINK,
   WILDFIRE_LOCATION_MIN_ZOOM,
 } from '@/components/search-map/constants';
 import RecreationSuggestionForm from '@/components/recreation-suggestion-form/RecreationSuggestionForm';
@@ -213,6 +214,11 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
           minZoom={5.5}
           maxZoom={30}
         />
+        <div className="link-to-legacy">
+          <a href={LEGACY_MAP_LINK} target="_blank" rel="noreferrer">
+            Link to legacy map
+          </a>
+        </div>
       </div>
       <div className="search-map-controls">
         <div className="map-search-form">
