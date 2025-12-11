@@ -1,13 +1,6 @@
-import { RecResourceOverviewEditSection } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/RecResourceOverviewEditSection';
-import {
-  useEditResourceForm,
-  useResourceOptions,
-} from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/hooks';
-import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
-import { RecreationResourceDetailUIModel } from '@/services';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { vi, beforeEach, describe, expect, it } from 'vitest';
+
+const mockUseWatch = vi.fn(() => null);
 
 vi.mock('@/pages/rec-resource-page/hooks/useRecResource');
 vi.mock(
@@ -16,8 +9,6 @@ vi.mock(
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/hooks/useResourceOptions',
 );
-
-const mockUseWatch = vi.fn(() => null);
 
 vi.mock('react-hook-form', async () => {
   const actual = await vi.importActual('react-hook-form');
@@ -42,22 +33,43 @@ vi.mock('@/components/RecResourceOverviewLink', () => ({
   ),
 }));
 
+vi.mock('@/components/form', () => ({
+  DateInputField: ({ label, name }: any) => (
+    <div data-testid={`date-field-${name}`}>
+      <label>{label}</label>
+      <input name={name} />
+    </div>
+  ),
+  SelectField: ({ label, name }: any) => (
+    <div data-testid={`select-field-${name}`}>
+      <label>{label}</label>
+      <select name={name} />
+    </div>
+  ),
+  TextField: ({ label, name, placeholder }: any) => (
+    <div data-testid={`text-field-${name}`}>
+      <label>{label}</label>
+      <input name={name} placeholder={placeholder} />
+    </div>
+  ),
+  GroupedMultiSelectField: ({ label, name, helperText }: any) => (
+    <div data-testid={`grouped-multi-select-field-${name}`}>
+      <label>{label}</label>
+      {helperText && <div data-testid="helper-text">{helperText}</div>}
+      <select multiple name={name} />
+    </div>
+  ),
+  RichTextEditor: ({ label, name }: any) => (
+    <div data-testid={`rich-text-editor-${name}`}>
+      <label>{label}</label>
+      <textarea name={name} />
+    </div>
+  ),
+}));
+
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/components',
   () => ({
-    SelectField: ({ label, name }: any) => (
-      <div data-testid={`select-field-${name}`}>
-        <label>{label}</label>
-        <select name={name} />
-      </div>
-    ),
-    GroupedMultiSelectField: ({ label, name, helperText }: any) => (
-      <div data-testid={`grouped-multi-select-field-${name}`}>
-        <label>{label}</label>
-        {helperText && <div data-testid="helper-text">{helperText}</div>}
-        <select multiple name={name} />
-      </div>
-    ),
     FormErrorBanner: ({ errors }: any) => {
       const errorMessages = Object.entries(errors || {})
         .filter(([, error]: any) => error?.message)
@@ -77,14 +89,15 @@ vi.mock(
   }),
 );
 
-vi.mock('@/components/date-input-field', () => ({
-  DateInputField: ({ label, name }: any) => (
-    <div data-testid={`date-field-${name}`}>
-      <label>{label}</label>
-      <input name={name} />
-    </div>
-  ),
-}));
+import {
+  useEditResourceForm,
+  useResourceOptions,
+} from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/hooks';
+import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
+import { RecreationResourceDetailUIModel } from '@/services';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { RecResourceOverviewEditSection } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/RecResourceOverviewEditSection';
 
 const mockRecResource: RecreationResourceDetailUIModel = {
   rec_resource_id: '123',
@@ -166,6 +179,11 @@ const createMockFormReturn = (overrides = {}) => ({
     return callback();
   }),
   control: {} as any,
+  register: vi.fn(() => ({
+    onChange: vi.fn(),
+    onBlur: vi.fn(),
+    ref: vi.fn(),
+  })),
   errors: {},
   isDirty: false,
   updateMutation: {
@@ -254,6 +272,40 @@ describe('RecResourceOverviewEditSection', () => {
       expect(screen.getByTestId('helper-text')).toHaveTextContent(
         'Access types are grouped with their available sub-options below them.',
       );
+    });
+
+    it('should render and allow editing closest community field', async () => {
+      const mockHandleSubmit = vi.fn((callback) => (e?: any) => {
+        e?.preventDefault?.();
+        return callback();
+      });
+      const mockOnSubmit = vi.fn();
+
+      vi.mocked(useEditResourceForm).mockReturnValue(
+        createMockFormReturn({
+          isDirty: true,
+          handleSubmit: mockHandleSubmit,
+          onSubmit: mockOnSubmit,
+        }) as any,
+      );
+
+      render(<RecResourceOverviewEditSection />);
+
+      const textFieldDiv = screen.getByTestId('text-field-closest_community');
+      expect(textFieldDiv).toBeInTheDocument();
+
+      const input = textFieldDiv.querySelector('input') as HTMLInputElement;
+      await userEvent.type(input, 'New Community');
+
+      expect(input.value).toBe('New Community');
+
+      const saveButton = screen.getByRole('button', { name: 'Save' });
+      await userEvent.click(saveButton);
+
+      await waitFor(() => {
+        expect(mockHandleSubmit).toHaveBeenCalled();
+        expect(mockOnSubmit).toHaveBeenCalled();
+      });
     });
   });
 

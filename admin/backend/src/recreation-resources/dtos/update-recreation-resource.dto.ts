@@ -116,7 +116,7 @@ export class UpdateRecreationResourceDto {
   district_code?: string;
 
   @ApiPropertyOptional({
-    description: 'Closest community near the resource',
+    description: 'Closest community to the recreation resource',
     example: 'Port Hardy',
     nullable: true,
     type: String,

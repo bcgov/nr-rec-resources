@@ -161,6 +161,39 @@ describe('RecreationResourceRepository', () => {
       expect(prisma.$transaction).toHaveBeenCalled();
     });
 
+    it('should update recreation_resource with closest_community when provided', async () => {
+      const recId = 'res4b';
+      const updateData = {
+        maintenance_standard_code: '3',
+        closest_community: 'Lakeside',
+      } as any;
+
+      let capturedTx: ReturnType<typeof createBaseTx> | undefined;
+
+      (
+        prisma.$transaction as unknown as ReturnType<typeof vi.fn>
+      ).mockImplementation(async (cb: any) => {
+        capturedTx = createBaseTx();
+        capturedTx.recreation_resource.findUnique.mockResolvedValue({
+          id: recId,
+        });
+        return cb(capturedTx);
+      });
+
+      await repo.update(recId, updateData);
+
+      // Ensure the transaction was used and that the main resource update included closest_community
+      expect(prisma.$transaction).toHaveBeenCalled();
+      expect(capturedTx).toBeDefined();
+      expect(capturedTx!.recreation_resource.update).toHaveBeenCalledWith({
+        where: { rec_resource_id: recId },
+        data: expect.objectContaining({
+          closest_community: 'Lakeside',
+          maintenance_standard_code: '3',
+        }),
+      });
+    });
+
     it('should set control_access_code to null when empty string provided', async () => {
       const recId = 'res7';
       const updateData = {

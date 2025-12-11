@@ -70,7 +70,7 @@ export interface UpdateRecreationResourceDto {
    */
   district_code?: string | null;
   /**
-   * Closest community near the resource
+   * Closest community to the recreation resource
    * @type {string}
    * @memberof UpdateRecreationResourceDto
    */
