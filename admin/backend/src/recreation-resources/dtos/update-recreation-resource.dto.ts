@@ -9,6 +9,7 @@ import {
   IsOptional,
   IsString,
   ValidateNested,
+  MaxLength,
 } from 'class-validator';
 
 export class UpdateRecreationAccessCodeDto {
@@ -113,6 +114,18 @@ export class UpdateRecreationResourceDto {
   @IsOptional()
   @IsString()
   district_code?: string;
+
+  @ApiPropertyOptional({
+    description: 'Closest community near the resource',
+    example: 'Port Hardy',
+    nullable: true,
+    type: String,
+    maxLength: 200,
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  closest_community?: string | null;
 
   @ApiPropertyOptional({
     description:

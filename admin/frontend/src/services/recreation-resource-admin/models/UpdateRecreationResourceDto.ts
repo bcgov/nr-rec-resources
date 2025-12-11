@@ -70,6 +70,12 @@ export interface UpdateRecreationResourceDto {
    */
   district_code?: string | null;
   /**
+   * Closest community near the resource
+   * @type {string}
+   * @memberof UpdateRecreationResourceDto
+   */
+  closest_community?: string | null;
+  /**
    * Indicates if the resource should be displayed on the public site
    * @type {boolean}
    * @memberof UpdateRecreationResourceDto
@@ -135,6 +141,8 @@ export function UpdateRecreationResourceDtoFromJSONTyped(
     status_code: json['status_code'] == null ? undefined : json['status_code'],
     district_code:
       json['district_code'] == null ? undefined : json['district_code'],
+    closest_community:
+      json['closest_community'] == null ? undefined : json['closest_community'],
     display_on_public_site:
       json['display_on_public_site'] == null
         ? undefined
@@ -175,6 +183,7 @@ export function UpdateRecreationResourceDtoToJSONTyped(
           ),
     status_code: value['status_code'],
     district_code: value['district_code'],
+    closest_community: value['closest_community'],
     display_on_public_site: value['display_on_public_site'],
     site_description: value['site_description'],
     driving_directions: value['driving_directions'],
