@@ -96,7 +96,7 @@ export const CLUSTER_MIN_DISTANCE_ZOOMED_IN = 0;
 
 // Zoom level threshold for switching cluster distance
 // When zoom is greater than or equal to this, use smaller cluster distance
-export const CLUSTER_DISTANCE_ZOOM_THRESHOLD = 12;
+export const CLUSTER_DISTANCE_ZOOM_THRESHOLD = 10;
 
 export const ANIMATED_CLUSTER_OPTIONS = {
   animationDuration: 500,
