@@ -4,6 +4,7 @@ export enum RecResourceNavKey {
   OVERVIEW = 'overview',
   FILES = 'files',
   FEES = 'fees',
+  GEOSPATIAL = 'geospatial',
 }
 
 type FeatureFlagKey = keyof FeatureFlags;
@@ -36,5 +37,9 @@ export const REC_RESOURCE_PAGE_NAV_SECTIONS: Record<
   [RecResourceNavKey.FEES]: {
     title: 'Fees',
     route: (id: string) => `/rec-resource/${id}/fees`,
+  },
+  [RecResourceNavKey.GEOSPATIAL]: {
+    title: 'Geospatial',
+    route: (id: string) => `/rec-resource/${id}/geospatial`,
   },
 };

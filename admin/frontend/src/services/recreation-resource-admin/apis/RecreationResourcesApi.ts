@@ -23,9 +23,11 @@ import type {
   RecreationFeeDto,
   RecreationResourceDetailDto,
   RecreationResourceDocDto,
+  RecreationResourceGeospatialDto,
   RecreationResourceImageDto,
   SuggestionsResponseDto,
   UpdateRecreationResourceDto,
+  UpdateRecreationResourceGeospatialDto,
 } from '../models/index';
 import {
   BadRequestResponseDtoFromJSON,
@@ -46,12 +48,16 @@ import {
   RecreationResourceDetailDtoToJSON,
   RecreationResourceDocDtoFromJSON,
   RecreationResourceDocDtoToJSON,
+  RecreationResourceGeospatialDtoFromJSON,
+  RecreationResourceGeospatialDtoToJSON,
   RecreationResourceImageDtoFromJSON,
   RecreationResourceImageDtoToJSON,
   SuggestionsResponseDtoFromJSON,
   SuggestionsResponseDtoToJSON,
   UpdateRecreationResourceDtoFromJSON,
   UpdateRecreationResourceDtoToJSON,
+  UpdateRecreationResourceGeospatialDtoFromJSON,
+  UpdateRecreationResourceGeospatialDtoToJSON,
 } from '../models/index';
 
 export interface CreateEstablishmentOrderDocRequest {
@@ -125,6 +131,10 @@ export interface GetRecreationResourceFeesRequest {
   recResourceId: string;
 }
 
+export interface GetRecreationResourceGeospatialRequest {
+  recResourceId: string;
+}
+
 export interface GetRecreationResourceSuggestionsRequest {
   searchTerm: string;
 }
@@ -144,6 +154,11 @@ export interface UpdateImageResourceRequest {
 export interface UpdateRecreationResourceByIdRequest {
   recResourceId: string;
   updateRecreationResourceDto: UpdateRecreationResourceDto;
+}
+
+export interface UpdateRecreationResourceGeospatialRequest {
+  recResourceId: string;
+  updateRecreationResourceGeospatialDto: UpdateRecreationResourceGeospatialDto;
 }
 
 /**
@@ -1177,16 +1192,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/fees`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/fees`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -1208,6 +1219,66 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<Array<RecreationFeeDto>> {
     const response = await this.getRecreationResourceFeesRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Returns geospatial data including spatial feature geometries and calculated coordinate values
+   * Get geospatial data for a recreation resource
+   */
+  async getRecreationResourceGeospatialRaw(
+    requestParameters: GetRecreationResourceGeospatialRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceGeospatialDto>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling getRecreationResourceGeospatial().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resources/{rec_resource_id}/geospatial`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationResourceGeospatialDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Returns geospatial data including spatial feature geometries and calculated coordinate values
+   * Get geospatial data for a recreation resource
+   */
+  async getRecreationResourceGeospatial(
+    requestParameters: GetRecreationResourceGeospatialRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationResourceGeospatialDto> {
+    const response = await this.getRecreationResourceGeospatialRaw(
       requestParameters,
       initOverrides,
     );
@@ -1503,6 +1574,78 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<RecreationResourceDetailDto> {
     const response = await this.updateRecreationResourceByIdRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Updates or inserts the site point geometry based on provided UTM fields (zone, easting, northing)
+   * Update geospatial data for a recreation resource
+   */
+  async updateRecreationResourceGeospatialRaw(
+    requestParameters: UpdateRecreationResourceGeospatialRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceGeospatialDto>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling updateRecreationResourceGeospatial().',
+      );
+    }
+
+    if (requestParameters['updateRecreationResourceGeospatialDto'] == null) {
+      throw new runtime.RequiredError(
+        'updateRecreationResourceGeospatialDto',
+        'Required parameter "updateRecreationResourceGeospatialDto" was null or undefined when calling updateRecreationResourceGeospatial().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    headerParameters['Content-Type'] = 'application/json';
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resources/{rec_resource_id}/geospatial`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
+        method: 'PUT',
+        headers: headerParameters,
+        query: queryParameters,
+        body: UpdateRecreationResourceGeospatialDtoToJSON(
+          requestParameters['updateRecreationResourceGeospatialDto'],
+        ),
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationResourceGeospatialDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Updates or inserts the site point geometry based on provided UTM fields (zone, easting, northing)
+   * Update geospatial data for a recreation resource
+   */
+  async updateRecreationResourceGeospatial(
+    requestParameters: UpdateRecreationResourceGeospatialRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationResourceGeospatialDto> {
+    const response = await this.updateRecreationResourceGeospatialRaw(
       requestParameters,
       initOverrides,
     );

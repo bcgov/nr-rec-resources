@@ -29,6 +29,8 @@ describe('rec-resource-page constants', () => {
     it('has correct enum values', () => {
       expect(RecResourceNavKey.OVERVIEW).toBe('overview');
       expect(RecResourceNavKey.FILES).toBe('files');
+      expect(RecResourceNavKey.FEES).toBe('fees');
+      expect(RecResourceNavKey.GEOSPATIAL).toBe('geospatial');
     });
 
     it('has all expected tab keys', () => {
@@ -36,6 +38,7 @@ describe('rec-resource-page constants', () => {
         'overview',
         'files',
         'fees',
+        'geospatial',
       ]);
     });
   });

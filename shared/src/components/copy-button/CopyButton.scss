@@ -1,0 +1,26 @@
+.copy-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  &__text {
+    font-size: 1rem;
+  }
+
+  &__button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    font-size: 1.2rem;
+
+    &:hover {
+      opacity: 0.6;
+    }
+  }
+
+  &__tooltip {
+    min-width: 120px;
+    text-align: center;
+  }
+}

@@ -10,6 +10,7 @@ import { EstablishmentOrderDocsModule } from '@/establishment-order-docs/establi
 import { OptionsModule } from './options/options.module';
 import { UserContextModule } from '../common/modules/user-context/user-context.module';
 import { FeesModule } from './fees/fees.module';
+import { GeospatialModule } from './geospatial/geospatial.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { FeesModule } from './fees/fees.module';
     ResourceImagesModule,
     EstablishmentOrderDocsModule,
     FeesModule,
+    GeospatialModule,
     OptionsModule,
     UserContextModule,
   ],
