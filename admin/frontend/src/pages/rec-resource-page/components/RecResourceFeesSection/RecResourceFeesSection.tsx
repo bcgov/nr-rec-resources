@@ -1,13 +1,9 @@
-import { RecreationFeeUIModel } from '@/services';
+import { Route } from '@/routes/rec-resource/$id/fees';
 import { RecResourceFeesTable } from './RecResourceFeesTable';
 
-interface RecResourceFeesSectionProps {
-  fees: RecreationFeeUIModel[];
-}
+export const RecResourceFeesSection = () => {
+  const { fees } = Route.useLoaderData();
 
-export const RecResourceFeesSection = ({
-  fees,
-}: RecResourceFeesSectionProps) => {
   return (
     <div className="rounded">
       <div className="fw-bold mb-4">Current Fee Information</div>

@@ -1,9 +1,9 @@
 import { RecResourceFeesSection } from '@/pages/rec-resource-page/components/RecResourceFeesSection';
-import { RecreationFeeUIModel } from '@/services';
+import { Route } from '@/routes/rec-resource/$id/fees';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
-const mockFees: RecreationFeeUIModel[] = [
+const mockFees = [
   {
     fee_amount: 15,
     fee_start_date: new Date('2024-05-15'),
@@ -38,15 +38,36 @@ const mockFees: RecreationFeeUIModel[] = [
   },
 ];
 
-describe('RecResourceFeesSection', () => {
-  it('renders section title', () => {
-    render(<RecResourceFeesSection fees={mockFees} />);
+vi.mock('@/routes/rec-resource/$id/fees', () => {
+  return {
+    Route: {
+      useLoaderData: vi.fn(() => ({
+        fees: mockFees,
+      })),
+    },
+  };
+});
 
-    expect(screen.getByText('Current Fee Information')).toBeInTheDocument();
+describe('RecResourceFeesSection', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(Route.useLoaderData).mockReturnValue({
+      fees: mockFees,
+    });
+  });
+
+  it('renders empty state when no fees', () => {
+    vi.mocked(Route.useLoaderData).mockReturnValueOnce({
+      fees: [],
+    });
+
+    render(<RecResourceFeesSection />);
+
+    expect(screen.getByText('Currently no fees')).toBeInTheDocument();
   });
 
   it('renders fees table with correct data', () => {
-    render(<RecResourceFeesSection fees={mockFees} />);
+    render(<RecResourceFeesSection />);
 
     expect(screen.getByText('Fee Type')).toBeInTheDocument();
     expect(screen.getByText('Amount')).toBeInTheDocument();
@@ -61,9 +82,8 @@ describe('RecResourceFeesSection', () => {
   });
 
   it('formats fee days correctly', () => {
-    render(<RecResourceFeesSection fees={mockFees} />);
+    render(<RecResourceFeesSection />);
 
-    // First fee has all days except Sunday - should show individual day badges
     expect(screen.getByText('Mon')).toBeInTheDocument();
     expect(screen.getByText('Tue')).toBeInTheDocument();
     expect(screen.getByText('Wed')).toBeInTheDocument();
@@ -71,7 +91,6 @@ describe('RecResourceFeesSection', () => {
     expect(screen.getByText('Fri')).toBeInTheDocument();
     expect(screen.getByText('Sat')).toBeInTheDocument();
 
-    // Second fee has all days - should show "All days" badge
     expect(screen.getByText('All days')).toBeInTheDocument();
   });
 
@@ -83,7 +102,11 @@ describe('RecResourceFeesSection', () => {
       },
     ];
 
-    render(<RecResourceFeesSection fees={feesWithNullAmount} />);
+    vi.mocked(Route.useLoaderData).mockReturnValueOnce({
+      fees: feesWithNullAmount as any,
+    });
+
+    render(<RecResourceFeesSection />);
 
     const row = screen.getByText('Day use').closest('tr');
     expect(row).toHaveTextContent('--');
@@ -100,7 +123,11 @@ describe('RecResourceFeesSection', () => {
       },
     ];
 
-    render(<RecResourceFeesSection fees={feesWithNullDates} />);
+    vi.mocked(Route.useLoaderData).mockReturnValueOnce({
+      fees: feesWithNullDates as any,
+    });
+
+    render(<RecResourceFeesSection />);
 
     const row = screen.getByText('Day use').closest('tr');
     expect(row).toHaveTextContent('--');
@@ -114,7 +141,11 @@ describe('RecResourceFeesSection', () => {
       },
     ];
 
-    render(<RecResourceFeesSection fees={feesWithoutDescription} />);
+    vi.mocked(Route.useLoaderData).mockReturnValueOnce({
+      fees: feesWithoutDescription,
+    });
+
+    render(<RecResourceFeesSection />);
 
     expect(screen.getByText('D')).toBeInTheDocument();
   });
@@ -127,7 +158,11 @@ describe('RecResourceFeesSection', () => {
       },
     ];
 
-    render(<RecResourceFeesSection fees={feesWithZeroAmount} />);
+    vi.mocked(Route.useLoaderData).mockReturnValueOnce({
+      fees: feesWithZeroAmount,
+    });
+
+    render(<RecResourceFeesSection />);
 
     expect(screen.getByText('$0.00')).toBeInTheDocument();
   });
@@ -147,9 +182,12 @@ describe('RecResourceFeesSection', () => {
       },
     ];
 
-    render(<RecResourceFeesSection fees={duplicateFees} />);
+    vi.mocked(Route.useLoaderData).mockReturnValueOnce({
+      fees: duplicateFees,
+    });
 
-    // Should render both fees with unique keys
+    render(<RecResourceFeesSection />);
+
     const rows = screen.getAllByText('Day use');
     expect(rows.length).toBe(2);
   });
@@ -163,7 +201,11 @@ describe('RecResourceFeesSection', () => {
       },
     ];
 
-    render(<RecResourceFeesSection fees={feesWithOnlyStartDate} />);
+    vi.mocked(Route.useLoaderData).mockReturnValueOnce({
+      fees: feesWithOnlyStartDate as any,
+    });
+
+    render(<RecResourceFeesSection />);
 
     const row = screen.getByText('Day use').closest('tr');
     expect(row).toHaveTextContent('--');

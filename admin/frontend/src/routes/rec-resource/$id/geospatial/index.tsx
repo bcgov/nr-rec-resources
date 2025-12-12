@@ -5,7 +5,7 @@ import { recResourceGeospatialLoader } from '@/services/loaders/recResourceGeosp
 import { Route as ParentRoute } from '@/routes/rec-resource/$id';
 
 export const Route = createFileRoute('/rec-resource/$id/geospatial/')({
-  component: RecResourceGeospatialRoute,
+  component: RecResourceGeospatialPage,
   loader: recResourceGeospatialLoader,
   beforeLoad: ({ params, context }) => {
     const parentBeforeLoad = ParentRoute.options.beforeLoad?.({
@@ -28,7 +28,3 @@ export const Route = createFileRoute('/rec-resource/$id/geospatial/')({
     };
   },
 });
-
-function RecResourceGeospatialRoute() {
-  return <RecResourceGeospatialPage />;
-}
