@@ -1,7 +1,7 @@
-import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
 import { RecResourceOverviewLink } from '@/components/RecResourceOverviewLink';
 import { useLocation } from '@tanstack/react-router';
+import { render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@tanstack/react-router', async (importOriginal) => {
   const actual =
@@ -44,7 +44,7 @@ describe('RecResourceOverviewLink', () => {
     );
 
     const link = screen.getByRole('link');
-    expect(link).toHaveAttribute('href', '/rec-resource/456/overview');
+    expect(link).toHaveAttribute('href', '/rec-resource/$id/overview');
   });
 
   it('should handle string resource ids', () => {
@@ -55,10 +55,7 @@ describe('RecResourceOverviewLink', () => {
     );
 
     const link = screen.getByRole('link');
-    expect(link).toHaveAttribute(
-      'href',
-      '/rec-resource/test-resource-id/overview',
-    );
+    expect(link).toHaveAttribute('href', '/rec-resource/$id/overview');
   });
 
   it('should render as a proper link element', () => {

@@ -226,6 +226,20 @@ describe('useEditResourceForm', () => {
       expect(resultWith.current.control).toBeDefined();
       expect(resultWithout.current.control).toBeDefined();
     });
+
+    it('should set project_established_date to null when not provided', () => {
+      const resourceWithoutDate = {
+        ...mockRecResource,
+        project_established_date: null as any,
+      };
+
+      const { result } = renderHookWithResource(resourceWithoutDate);
+
+      expect(result.current.control).toBeDefined();
+      expect(result.current.control._formValues?.project_established_date).toBe(
+        null,
+      );
+    });
   });
 
   describe('onSubmit', () => {

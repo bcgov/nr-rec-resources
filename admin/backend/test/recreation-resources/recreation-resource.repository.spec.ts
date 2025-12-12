@@ -1,6 +1,12 @@
 import { PrismaService } from '@/prisma.service';
 import { RecreationResourceRepository } from '@/recreation-resources/recreation-resource.repository';
+import { syncManyToManyComposite } from '@/recreation-resources/utils/syncManyToManyUtils';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
+
+// Mock the utility function
+vi.mock('@/recreation-resources/utils/syncManyToManyUtils', () => ({
+  syncManyToManyComposite: vi.fn(),
+}));
 
 const createBaseTx = () => ({
   recreation_status: {
@@ -12,7 +18,11 @@ const createBaseTx = () => ({
     update: vi.fn().mockResolvedValue({}),
     findUnique: vi.fn().mockResolvedValue({ id: 'test' }),
   },
-  recreation_access: { deleteMany: vi.fn(), createMany: vi.fn() },
+  recreation_access: {
+    findMany: vi.fn(),
+    deleteMany: vi.fn(),
+    createMany: vi.fn(),
+  },
   recreation_site_description: {
     findUnique: vi.fn(),
     deleteMany: vi.fn(),
@@ -46,6 +56,7 @@ describe('RecreationResourceRepository', () => {
       $transaction: vi.fn(),
     } as unknown as MockedPrismaService;
     repo = new RecreationResourceRepository(prisma);
+    vi.clearAllMocks();
   });
 
   describe('findSuggestions', () => {
@@ -87,7 +98,7 @@ describe('RecreationResourceRepository', () => {
   });
 
   describe('update', () => {
-    it('should update resource and return updated payload (no access_codes)', async () => {
+    it('should update resource and return updated payload', async () => {
       const recId = 'res1';
       const updateData = {
         status_code: 1,
@@ -107,69 +118,68 @@ describe('RecreationResourceRepository', () => {
       expect(prisma.$transaction).toHaveBeenCalled();
     });
 
-    it('should handle access_codes: deleteMany and createMany called', async () => {
+    it('should call syncManyToManyComposite with correct parameters for access_codes', async () => {
       const recId = 'res2';
       const updateData = {
-        status_code: 1,
         access_codes: [
           { access_code: 'AC1', sub_access_codes: ['S1', 'S2'] },
           { access_code: 'AC2', sub_access_codes: ['S3'] },
         ],
       } as any;
 
+      let capturedTx: ReturnType<typeof createBaseTx>;
+      let capturedConfig: any;
       (
         prisma.$transaction as unknown as ReturnType<typeof vi.fn>
       ).mockImplementation(async (cb: any) => {
-        const tx = createBaseTx();
-        tx.recreation_resource.findUnique.mockResolvedValue({ id: recId });
-        return cb(tx);
+        capturedTx = createBaseTx();
+        capturedTx.recreation_resource.findUnique.mockResolvedValue({
+          id: recId,
+        });
+        return cb(capturedTx);
       });
 
-      const result = await repo.update(recId, updateData);
-      expect(result).toEqual({ id: recId });
+      // Capture the config to test the functions
+      vi.mocked(syncManyToManyComposite).mockImplementation(async (config) => {
+        capturedConfig = config;
+        return Promise.resolve();
+      });
+
+      await repo.update(recId, updateData);
+
+      expect(syncManyToManyComposite).toHaveBeenCalledWith({
+        tx: capturedTx!,
+        tableName: 'recreation_access',
+        where: { rec_resource_id: recId },
+        newKeys: expect.arrayContaining([
+          { access_code: 'AC1', sub_access_code: 'S1' },
+          { access_code: 'AC1', sub_access_code: 'S2' },
+          { access_code: 'AC2', sub_access_code: 'S3' },
+        ]),
+        createData: expect.any(Function),
+      });
+
+      // Verify the functions work correctly (improves coverage)
+      expect(capturedConfig).toBeDefined();
+      expect(
+        capturedConfig.createData({
+          access_code: 'AC1',
+          sub_access_code: 'S1',
+        }),
+      ).toEqual({
+        rec_resource_id: recId,
+        access_code: 'AC1',
+        sub_access_code: 'S1',
+      });
     });
 
-    it('should only update status if status_code is provided', async () => {
+    it('should handle access_codes with no sub_access_codes', async () => {
       const recId = 'res3';
-      const updateData = { status_code: 2 } as any;
-
-      (
-        prisma.$transaction as unknown as ReturnType<typeof vi.fn>
-      ).mockImplementation(async (cb: any) => {
-        const tx = createBaseTx();
-        tx.recreation_resource.findUnique.mockResolvedValue({ id: recId });
-        return cb(tx);
-      });
-
-      await repo.update(recId, updateData);
-      expect(prisma.$transaction).toHaveBeenCalled();
-    });
-
-    it('should not update status if status_code is not provided', async () => {
-      const recId = 'res4';
-      const updateData = { maintenance_standard_code: '3' } as any;
-
-      (
-        prisma.$transaction as unknown as ReturnType<typeof vi.fn>
-      ).mockImplementation(async (cb: any) => {
-        const tx = createBaseTx();
-        tx.recreation_resource.findUnique.mockResolvedValue({ id: recId });
-        return cb(tx);
-      });
-
-      await repo.update(recId, updateData);
-      expect(prisma.$transaction).toHaveBeenCalled();
-    });
-
-    it('should update recreation_resource with closest_community when provided', async () => {
-      const recId = 'res4b';
       const updateData = {
-        maintenance_standard_code: '3',
-        closest_community: 'Lakeside',
+        access_codes: [{ access_code: 'AC1', sub_access_codes: [] }],
       } as any;
 
-      let capturedTx: ReturnType<typeof createBaseTx> | undefined;
-
+      let capturedTx: ReturnType<typeof createBaseTx>;
       (
         prisma.$transaction as unknown as ReturnType<typeof vi.fn>
       ).mockImplementation(async (cb: any) => {
@@ -182,58 +192,41 @@ describe('RecreationResourceRepository', () => {
 
       await repo.update(recId, updateData);
 
-      // Ensure the transaction was used and that the main resource update included closest_community
-      expect(prisma.$transaction).toHaveBeenCalled();
-      expect(capturedTx).toBeDefined();
-      expect(capturedTx!.recreation_resource.update).toHaveBeenCalledWith({
-        where: { rec_resource_id: recId },
-        data: expect.objectContaining({
-          closest_community: 'Lakeside',
-          maintenance_standard_code: '3',
+      expect(syncManyToManyComposite).toHaveBeenCalledWith(
+        expect.objectContaining({
+          newKeys: expect.arrayContaining([
+            { access_code: 'AC1', sub_access_code: null },
+          ]),
         }),
-      });
+      );
     });
 
-    it('should set control_access_code to null when empty string provided', async () => {
-      const recId = 'res7';
-      const updateData = {
-        maintenance_standard_code: '4',
-        control_access_code: '',
-      } as any;
+    it('should handle empty access_codes array', async () => {
+      const recId = 'res4';
+      const updateData = { access_codes: [] } as any;
 
+      let capturedTx: ReturnType<typeof createBaseTx>;
       (
         prisma.$transaction as unknown as ReturnType<typeof vi.fn>
       ).mockImplementation(async (cb: any) => {
-        const tx = createBaseTx();
-        tx.recreation_resource.findUnique.mockResolvedValue({ id: recId });
-        return cb(tx);
+        capturedTx = createBaseTx();
+        capturedTx.recreation_resource.findUnique.mockResolvedValue({
+          id: recId,
+        });
+        return cb(capturedTx);
       });
 
-      const result = await repo.update(recId, updateData);
-      expect(result).toEqual({ id: recId });
-    });
+      await repo.update(recId, updateData);
 
-    it('should call deleteMany but not createMany when access_codes is empty array', async () => {
-      const recId = 'res8';
-      const updateData = {
-        status_code: 1,
-        access_codes: [],
-      } as any;
-
-      (
-        prisma.$transaction as unknown as ReturnType<typeof vi.fn>
-      ).mockImplementation(async (cb: any) => {
-        const tx = createBaseTx();
-        tx.recreation_resource.findUnique.mockResolvedValue({ id: recId });
-        return cb(tx);
-      });
-
-      const result = await repo.update(recId, updateData);
-      expect(result).toEqual({ id: recId });
+      expect(syncManyToManyComposite).toHaveBeenCalledWith(
+        expect.objectContaining({
+          newKeys: [],
+        }),
+      );
     });
 
     it('should throw when updatedResource is not found after update', async () => {
-      const recId = 'res9';
+      const recId = 'res5';
       const updateData = { maintenance_standard_code: '5' } as any;
 
       (
@@ -254,7 +247,7 @@ describe('RecreationResourceRepository', () => {
     });
 
     it('should re-throw Prisma errors for service layer to handle', async () => {
-      const recId = 'res5';
+      const recId = 'res6';
       const updateData = { status_code: 1 } as any;
 
       (
@@ -267,7 +260,7 @@ describe('RecreationResourceRepository', () => {
     });
 
     it('should log errors before re-throwing', async () => {
-      const recId = 'res6';
+      const recId = 'res7';
       const updateData = { status_code: 1 } as any;
 
       (

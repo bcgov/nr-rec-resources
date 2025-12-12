@@ -9,6 +9,7 @@ import { ResourceImagesModule } from '@/resource-images/resource-images.module';
 import { EstablishmentOrderDocsModule } from '@/establishment-order-docs/establishment-order-docs.module';
 import { OptionsModule } from './options/options.module';
 import { UserContextModule } from '../common/modules/user-context/user-context.module';
+import { ActivitiesModule } from './activities/activities.module';
 import { FeesModule } from './fees/fees.module';
 import { GeospatialModule } from './geospatial/geospatial.module';
 
@@ -22,6 +23,7 @@ import { GeospatialModule } from './geospatial/geospatial.module';
     GeospatialModule,
     OptionsModule,
     UserContextModule,
+    ActivitiesModule,
   ],
   controllers: [RecreationResourceController],
   providers: [

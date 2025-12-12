@@ -1,10 +1,5 @@
 import { Prisma } from '@prisma/client';
-
-type TableClient<TCreate, TUpdate> = {
-  findUnique(args: { where: unknown }): Promise<unknown | null>;
-  create(args: { data: TCreate }): Promise<unknown>;
-  update(args: { where: unknown; data: TUpdate }): Promise<unknown>;
-};
+import { getTableClient } from './prisma-table-helper';
 
 /**
  * Performs an upsert-like operation against a Prisma model using a transaction client.
@@ -41,14 +36,12 @@ export async function upsert<TCreate, TUpdate>({
   createData: TCreate;
   updateData: TUpdate;
 }): Promise<void> {
-  const clientMap = tx as unknown as Record<
-    string,
-    TableClient<TCreate, TUpdate>
-  >;
-  const table = clientMap[tableName];
+  const table = getTableClient(tx, tableName);
 
-  if (!table || typeof table.findUnique !== 'function') {
-    throw new Error(`Table client not found on transaction: ${tableName}`);
+  if (!table.findUnique || !table.create || !table.update) {
+    throw new Error(
+      `Table client missing required methods on transaction: ${tableName}`,
+    );
   }
 
   const existing = await table.findUnique({ where });

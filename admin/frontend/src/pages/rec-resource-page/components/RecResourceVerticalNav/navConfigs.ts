@@ -1,45 +1,57 @@
-import type { FeatureFlags } from '@/contexts/feature-flags/FeatureFlagContext';
+import { ROUTE_PATHS } from '@/constants/routes';
+import { NavigateOptions } from '@tanstack/react-router';
 
 export enum RecResourceNavKey {
   OVERVIEW = 'overview',
   FILES = 'files',
+  ACTIVITIES = 'activities',
   FEES = 'fees',
   GEOSPATIAL = 'geospatial',
-}
-
-type FeatureFlagKey = keyof FeatureFlags;
-
-export interface NavSectionConfig {
-  title: string;
-  route: (id: string) => string;
-  requiredFlags?: FeatureFlagKey[];
 }
 
 /**
  * Navigation configuration for recreation resource pages.
  *
  * This configuration defines the navigation structure including titles
- * and route generation functions for each tab section.
- * Sections can optionally specify required feature flags.
+ * and navigation options generation functions for each tab section.
  */
 export const REC_RESOURCE_PAGE_NAV_SECTIONS: Record<
   RecResourceNavKey,
-  NavSectionConfig
+  { title: string; getNavigateOptions: (id: string) => NavigateOptions }
 > = {
   [RecResourceNavKey.OVERVIEW]: {
     title: 'Overview',
-    route: (id: string) => `/rec-resource/${id}/overview`,
+    getNavigateOptions: (id: string) => ({
+      to: ROUTE_PATHS.REC_RESOURCE_OVERVIEW,
+      params: { id },
+    }),
   },
   [RecResourceNavKey.FILES]: {
     title: 'Files',
-    route: (id: string) => `/rec-resource/${id}/files`,
+    getNavigateOptions: (id: string) => ({
+      to: ROUTE_PATHS.REC_RESOURCE_FILES,
+      params: { id },
+    }),
+  },
+  [RecResourceNavKey.ACTIVITIES]: {
+    title: 'Activities',
+    getNavigateOptions: (id: string) => ({
+      to: ROUTE_PATHS.REC_RESOURCE_ACTIVITIES,
+      params: { id },
+    }),
   },
   [RecResourceNavKey.FEES]: {
     title: 'Fees',
-    route: (id: string) => `/rec-resource/${id}/fees`,
+    getNavigateOptions: (id: string) => ({
+      to: ROUTE_PATHS.REC_RESOURCE_FEES,
+      params: { id },
+    }),
   },
   [RecResourceNavKey.GEOSPATIAL]: {
     title: 'Geospatial',
-    route: (id: string) => `/rec-resource/${id}/geospatial`,
+    getNavigateOptions: (id: string) => ({
+      to: ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL,
+      params: { id },
+    }),
   },
 };

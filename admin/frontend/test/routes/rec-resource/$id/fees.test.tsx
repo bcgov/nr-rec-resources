@@ -1,6 +1,6 @@
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { Route } from '@/routes/rec-resource/$id/fees';
-import { recResourceLoader } from '@/services/loaders/recResourceLoader';
+import { recResourceFeesLoader } from '@/services/loaders/recResourceFeesLoader';
 import { describe, expect, it } from 'vitest';
 
 describe('RecResource Fees Route', () => {
@@ -9,8 +9,8 @@ describe('RecResource Fees Route', () => {
     expect(Route.options.component).toBeDefined();
   });
 
-  it('should have loader set to recResourceLoader', () => {
-    expect(Route.options.loader).toBe(recResourceLoader);
+  it('should have loader set to recResourceFeesLoader', () => {
+    expect(Route.options.loader).toBe(recResourceFeesLoader);
   });
 
   it('should have beforeLoad function', () => {

@@ -7,7 +7,6 @@ import { useVisibleNavSections } from '@/pages/rec-resource-page/hooks/useVisibl
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useNavigateWithQueryParams } from '@shared/hooks';
-import { NavigateOptions } from '@tanstack/react-router';
 import { Dropdown, Nav } from 'react-bootstrap';
 import './RecResourceVerticalNav.scss';
 
@@ -26,8 +25,9 @@ export const RecResourceVerticalNav = ({
   const handleNavSelect = (eventKey: string | null) => {
     if (eventKey) {
       const tabKey = eventKey as RecResourceNavKey;
-      const route = REC_RESOURCE_PAGE_NAV_SECTIONS[tabKey].route(resourceId);
-      navigate({ to: route as NavigateOptions['to'] });
+      const navigationConfig = REC_RESOURCE_PAGE_NAV_SECTIONS[tabKey];
+      const navigateOptions = navigationConfig.getNavigateOptions(resourceId);
+      navigate(navigateOptions);
     }
   };
 

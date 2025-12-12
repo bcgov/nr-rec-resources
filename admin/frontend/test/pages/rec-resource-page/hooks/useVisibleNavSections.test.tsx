@@ -20,10 +20,11 @@ describe('useVisibleNavSections', () => {
 
     const { result } = renderHook(() => useVisibleNavSections());
 
-    expect(result.current).toHaveLength(4);
+    expect(result.current).toHaveLength(5);
     expect(result.current.map(([key]) => key)).toEqual([
       RecResourceNavKey.OVERVIEW,
       RecResourceNavKey.FILES,
+      RecResourceNavKey.ACTIVITIES,
       RecResourceNavKey.FEES,
       RecResourceNavKey.GEOSPATIAL,
     ]);
@@ -36,10 +37,11 @@ describe('useVisibleNavSections', () => {
 
     const { result } = renderHook(() => useVisibleNavSections());
 
-    expect(result.current).toHaveLength(4);
+    expect(result.current).toHaveLength(5);
     expect(result.current.map(([key]) => key)).toEqual([
       RecResourceNavKey.OVERVIEW,
       RecResourceNavKey.FILES,
+      RecResourceNavKey.ACTIVITIES,
       RecResourceNavKey.FEES,
       RecResourceNavKey.GEOSPATIAL,
     ]);
@@ -55,9 +57,9 @@ describe('useVisibleNavSections', () => {
     result.current.forEach(([key, config]) => {
       expect(typeof key).toBe('string');
       expect(config).toHaveProperty('title');
-      expect(config).toHaveProperty('route');
+      expect(config).toHaveProperty('getNavigateOptions');
       expect(typeof config.title).toBe('string');
-      expect(typeof config.route).toBe('function');
+      expect(typeof config.getNavigateOptions).toBe('function');
     });
   });
 });

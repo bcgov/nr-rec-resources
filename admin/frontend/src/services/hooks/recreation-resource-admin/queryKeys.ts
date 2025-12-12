@@ -9,4 +9,6 @@ export const RECREATION_RESOURCE_QUERY_KEYS = {
   images: (id: string) => ['recreation-resource-admin', 'images', id] as const,
   documents: (id: string) =>
     ['recreation-resource-admin', 'documents', id] as const,
+  activities: (id: string) =>
+    ['recreation-resource-admin', 'activities', id] as const,
 };

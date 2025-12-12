@@ -1,3 +1,4 @@
+import { ROUTE_PATHS } from '@/constants/routes';
 import {
   REC_RESOURCE_PAGE_NAV_SECTIONS,
   RecResourceNavKey,
@@ -10,61 +11,73 @@ describe('rec-resource-page navigation', () => {
       const overviewTab =
         REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.OVERVIEW];
       expect(overviewTab.title).toBe('Overview');
-      expect(overviewTab.route('123')).toBe('/rec-resource/123/overview');
+      expect(overviewTab.getNavigateOptions('123')).toEqual({
+        to: ROUTE_PATHS.REC_RESOURCE_OVERVIEW,
+        params: { id: '123' },
+      });
     });
 
     it('has correct files tab configuration', () => {
       const filesTab = REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.FILES];
       expect(filesTab.title).toBe('Files');
-      expect(filesTab.route('123')).toBe('/rec-resource/123/files');
+      expect(filesTab.getNavigateOptions('123')).toEqual({
+        to: ROUTE_PATHS.REC_RESOURCE_FILES,
+        params: { id: '123' },
+      });
     });
 
-    it('has correct fees tab configuration', () => {
-      const feesTab = REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.FEES];
-      expect(feesTab.title).toBe('Fees');
-      expect(feesTab.route('123')).toBe('/rec-resource/123/fees');
-      expect(feesTab.requiredFlags).toBeUndefined();
+    it('has correct activities tab configuration (lines 37-39)', () => {
+      const activitiesTab =
+        REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.ACTIVITIES];
+      expect(activitiesTab.title).toBe('Activities');
+      expect(activitiesTab.getNavigateOptions('123')).toEqual({
+        to: ROUTE_PATHS.REC_RESOURCE_ACTIVITIES,
+        params: { id: '123' },
+      });
     });
 
     it('has tabs for all tab keys', () => {
       expect(Object.keys(REC_RESOURCE_PAGE_NAV_SECTIONS)).toEqual([
         RecResourceNavKey.OVERVIEW,
         RecResourceNavKey.FILES,
+        RecResourceNavKey.ACTIVITIES,
         RecResourceNavKey.FEES,
         RecResourceNavKey.GEOSPATIAL,
       ]);
     });
 
-    it('route functions work with different IDs', () => {
+    it('getNavigateOptions functions work with different IDs', () => {
       const overviewTab =
         REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.OVERVIEW];
       const filesTab = REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.FILES];
-      const feesTab = REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.FEES];
 
-      expect(overviewTab.route('abc')).toBe('/rec-resource/abc/overview');
-      expect(filesTab.route('xyz')).toBe('/rec-resource/xyz/files');
-      expect(feesTab.route('xyz')).toBe('/rec-resource/xyz/fees');
+      expect(overviewTab.getNavigateOptions('abc')).toEqual({
+        to: ROUTE_PATHS.REC_RESOURCE_OVERVIEW,
+        params: { id: 'abc' },
+      });
+      expect(filesTab.getNavigateOptions('xyz')).toEqual({
+        to: ROUTE_PATHS.REC_RESOURCE_FILES,
+        params: { id: 'xyz' },
+      });
     });
 
-    it('route functions return correct types', () => {
+    it('getNavigateOptions functions return correct types', () => {
       const overviewTab =
         REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.OVERVIEW];
-      const result = overviewTab.route('test');
+      const result = overviewTab.getNavigateOptions('test');
 
-      expect(typeof result).toBe('string');
-      expect(result.startsWith('/')).toBe(true);
+      expect(result).toHaveProperty('to');
+      expect(result).toHaveProperty('params');
+      expect(result.to).toBe(ROUTE_PATHS.REC_RESOURCE_OVERVIEW);
+      expect(result.params).toEqual({ id: 'test' });
     });
 
     it('has consistent structure for all navigation sections', () => {
       Object.entries(REC_RESOURCE_PAGE_NAV_SECTIONS).forEach(([_, section]) => {
         expect(section).toHaveProperty('title');
-        expect(section).toHaveProperty('route');
+        expect(section).toHaveProperty('getNavigateOptions');
         expect(typeof section.title).toBe('string');
-        expect(typeof section.route).toBe('function');
-        // requiredFlags is optional
-        if (section.requiredFlags) {
-          expect(Array.isArray(section.requiredFlags)).toBe(true);
-        }
+        expect(typeof section.getNavigateOptions).toBe('function');
       });
     });
   });
