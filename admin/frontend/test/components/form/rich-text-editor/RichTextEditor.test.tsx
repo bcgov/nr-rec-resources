@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { RichTextEditor } from '@/components/rich-text-editor/RichTextEditor';
+import { RichTextEditor } from '@/components/form';
 
-vi.mock('@/components/rich-text-editor/QuillEditor', () => ({
+vi.mock('@/components/form/rich-text-editor/QuillEditor', () => ({
   QuillEditor: (_props: any, ref: any) => (
     <div data-testid="quill-editor" ref={ref} />
   ),

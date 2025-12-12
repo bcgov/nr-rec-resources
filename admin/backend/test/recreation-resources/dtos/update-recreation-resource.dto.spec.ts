@@ -44,6 +44,7 @@ describe('Update Recreation Resource DTOs', () => {
         '<p>This is a beautiful site with many amenities.</p>';
       dto.driving_directions =
         '<p>Take Highway 1 east, then turn left at Main St.</p>';
+      dto.closest_community = 'Nearby Town';
 
       expect(dto.maintenance_standard_code).toBe('1');
       expect(dto.control_access_code).toBe('G');
@@ -61,6 +62,7 @@ describe('Update Recreation Resource DTOs', () => {
       expect(dto.driving_directions).toBe(
         '<p>Take Highway 1 east, then turn left at Main St.</p>',
       );
+      expect(dto.closest_community).toBe('Nearby Town');
     });
 
     it('should create a valid DTO with only maintenance_standard_code', () => {
@@ -74,6 +76,7 @@ describe('Update Recreation Resource DTOs', () => {
       expect(dto.access_codes).toBeUndefined();
       expect(dto.status_code).toBeUndefined();
       expect(dto.display_on_public_site).toBeUndefined();
+      expect(dto.closest_community).toBeUndefined();
     });
 
     it('should accept null control_access_code', () => {
@@ -163,6 +166,21 @@ describe('Update Recreation Resource DTOs', () => {
 
       expect(dto.driving_directions).toBe('<p>Exit 12, follow signs</p>');
       expect(dto.maintenance_standard_code).toBeUndefined();
+    });
+
+    it('should create a valid DTO with only closest_community', () => {
+      const dto = new UpdateRecreationResourceDto();
+      dto.closest_community = 'Smallville';
+
+      expect(dto.closest_community).toBe('Smallville');
+      expect(dto.maintenance_standard_code).toBeUndefined();
+    });
+
+    it('should accept null closest_community', () => {
+      const dto = new UpdateRecreationResourceDto();
+      dto.closest_community = null as any;
+
+      expect(dto.closest_community).toBeNull();
     });
   });
 });

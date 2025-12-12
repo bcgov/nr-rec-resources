@@ -3,7 +3,7 @@ import { ReactNode } from 'react';
 import { Form } from 'react-bootstrap';
 import { Control, Controller, FieldErrors } from 'react-hook-form';
 import Select, { SingleValue } from 'react-select';
-import { EditResourceFormData } from '../schemas';
+import { EditResourceFormData } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/schemas';
 
 /**
  * Reusable Select Field Component using react-select

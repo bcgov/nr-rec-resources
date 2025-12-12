@@ -1,8 +1,5 @@
-import { GroupedMultiSelectField } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/components';
-import type {
-  GroupedOption,
-  GroupedOptions,
-} from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/components/GroupedMultiSelectField';
+import { GroupedMultiSelectField } from '@/components/form';
+import type { GroupedOption, GroupedOptions } from '@/components/form';
 import { EditResourceFormData } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/schemas';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';

@@ -1,4 +1,4 @@
-import { TextField } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/components';
+import { TextField } from '@/components/form';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Form } from 'react-bootstrap';

@@ -121,6 +121,7 @@ describe('useEditResourceForm', () => {
     display_on_public_site: false,
     site_description: null,
     driving_directions: null,
+    closest_community: null,
     selected_access_options: [],
     ...overrides,
   });
@@ -258,6 +259,7 @@ describe('useEditResourceForm', () => {
         display_on_public_site: false,
         site_description: null,
         driving_directions: null,
+        closest_community: null,
         access_codes: [
           {
             access_code: 'AC1',
@@ -314,6 +316,7 @@ describe('useEditResourceForm', () => {
         display_on_public_site: false,
         site_description: null,
         driving_directions: null,
+        closest_community: null,
         access_codes: [
           {
             access_code: 'AC1',
@@ -357,6 +360,7 @@ describe('useEditResourceForm', () => {
         display_on_public_site: false,
         site_description: null,
         driving_directions: null,
+        closest_community: null,
         access_codes: [],
         ...expectedOverrides,
       };
@@ -398,6 +402,7 @@ describe('useEditResourceForm', () => {
         display_on_public_site: false,
         site_description: null,
         driving_directions: null,
+        closest_community: null,
         access_codes: [],
       });
     });
@@ -419,6 +424,7 @@ describe('useEditResourceForm', () => {
         display_on_public_site: false,
         site_description: null,
         driving_directions: null,
+        closest_community: null,
         access_codes: [],
       });
     });
@@ -461,6 +467,7 @@ describe('useEditResourceForm', () => {
         display_on_public_site: false,
         site_description: null,
         driving_directions: null,
+        closest_community: null,
         access_codes: [],
       });
     });
@@ -482,6 +489,7 @@ describe('useEditResourceForm', () => {
         display_on_public_site: false,
         site_description: null,
         driving_directions: null,
+        closest_community: null,
         access_codes: [],
       });
     });
@@ -596,6 +604,7 @@ describe('useEditResourceForm', () => {
           display_on_public_site: false,
           site_description: null,
           driving_directions: null,
+          closest_community: null,
           access_codes: [],
         });
       },
