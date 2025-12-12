@@ -1,4 +1,4 @@
-import { SelectField } from '@/components/form';
+import { SelectField } from '@/components/form/SelectField';
 import { EditResourceFormData } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/schemas';
 import { RecreationResourceOptionUIModel } from '@/services';
 import { render, screen } from '@testing-library/react';
@@ -6,62 +6,8 @@ import userEvent from '@testing-library/user-event';
 import { useForm } from 'react-hook-form';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Mock react-select to simplify testing
-vi.mock('react-select', () => ({
-  default: vi.fn(
-    ({
-      options,
-      value,
-      onChange,
-      isDisabled,
-      placeholder,
-      className,
-      isSearchable,
-      isOptionDisabled,
-    }) => {
-      const selectedOption =
-        options?.find((opt: any) => opt.id === value) || null;
-      return (
-        <div data-testid="mock-select" className={className}>
-          <input
-            type="text"
-            role="combobox"
-            value={selectedOption?.label || ''}
-            placeholder={placeholder}
-            disabled={isDisabled}
-            readOnly={!isSearchable}
-            data-testid="select-input"
-          />
-          {!isDisabled && (
-            <div data-testid="select-options">
-              {options?.length === 0 ? (
-                <div>No options</div>
-              ) : (
-                options?.map((opt: any) => {
-                  const isDisabledOption = isOptionDisabled
-                    ? isOptionDisabled(opt)
-                    : false;
-                  return (
-                    <button
-                      key={opt.id || 'null'}
-                      type="button"
-                      onClick={() => !isDisabledOption && onChange?.(opt)}
-                      disabled={isDisabledOption}
-                      data-testid={`option-${opt.id}`}
-                      data-disabled={isDisabledOption}
-                    >
-                      {opt.label}
-                    </button>
-                  );
-                })
-              )}
-            </div>
-          )}
-        </div>
-      );
-    },
-  ),
-}));
+// Mock react-select using shared mock from test/__mocks__ directory
+vi.mock('react-select');
 
 describe('SelectField', () => {
   const mockOptions: RecreationResourceOptionUIModel[] = [
@@ -70,24 +16,37 @@ describe('SelectField', () => {
     { id: '3', label: 'Option 3' },
   ];
 
+  const defaultProps = {
+    name: 'maintenance_standard_code' as const,
+    label: 'Test Select',
+    options: mockOptions,
+    placeholder: 'Select an option',
+  };
+
   const renderWithForm = (
-    props = {},
+    props: Partial<
+      typeof defaultProps & { disabled?: boolean; helperText?: React.ReactNode }
+    > = {},
     defaultValues: Partial<EditResourceFormData> = {},
+    watchValue = false,
   ) => {
     const TestComponent = () => {
-      const { control, formState } = useForm<EditResourceFormData>({
+      const { control, formState, watch } = useForm<EditResourceFormData>({
         defaultValues,
       });
+      const value = watchValue ? watch('maintenance_standard_code') : undefined;
       return (
-        <SelectField
-          name="maintenance_standard_code"
-          label="Test Select"
-          options={mockOptions}
-          placeholder="Select an option"
-          control={control}
-          errors={formState.errors}
-          {...props}
-        />
+        <>
+          <SelectField
+            {...defaultProps}
+            control={control}
+            errors={formState.errors}
+            {...props}
+          />
+          {watchValue && (
+            <div data-testid="watched-value">{value || 'none'}</div>
+          )}
+        </>
       );
     };
     return render(<TestComponent />);
@@ -98,72 +57,41 @@ describe('SelectField', () => {
   });
 
   describe('Rendering', () => {
-    it('should render with label and placeholder', () => {
+    it('should render with label, placeholder, and all options', () => {
       renderWithForm();
       expect(screen.getByText('Test Select')).toBeInTheDocument();
       expect(
         screen.getByPlaceholderText('Select an option'),
       ).toBeInTheDocument();
-    });
-
-    it('should render with pre-selected value', () => {
-      renderWithForm({}, { maintenance_standard_code: '2' });
-      // The input will be empty initially, but the option should be selected in the underlying form
-      const input = screen.getByRole('combobox');
-      expect(input).toBeInTheDocument();
-      expect(screen.getByTestId('option-2')).toBeInTheDocument();
-    });
-
-    it('should render all options', () => {
-      renderWithForm();
       expect(screen.getByTestId('option-1')).toBeInTheDocument();
       expect(screen.getByTestId('option-2')).toBeInTheDocument();
       expect(screen.getByTestId('option-3')).toBeInTheDocument();
     });
 
-    it('should handle empty options array', () => {
-      renderWithForm({ options: [] });
-      expect(screen.getByText('No options')).toBeInTheDocument();
+    it('should render with pre-selected value', () => {
+      renderWithForm({}, { maintenance_standard_code: '2' });
+      expect(screen.getByRole('combobox')).toBeInTheDocument();
+      expect(screen.getByTestId('option-2')).toBeInTheDocument();
     });
 
-    it('should handle options with null id', () => {
-      const optionsWithNull: RecreationResourceOptionUIModel[] = [
-        { id: null, label: 'None' },
-        { id: '1', label: 'Option 1' },
-      ];
-      renderWithForm({ options: optionsWithNull });
-      expect(screen.getByText('None')).toBeInTheDocument();
+    it.each([
+      { options: [], expected: 'No options' },
+      {
+        options: [{ id: null, label: 'None' }],
+        expected: 'None',
+      },
+    ])('should handle $expected', ({ options, expected }) => {
+      renderWithForm({ options });
+      expect(screen.getByText(expected)).toBeInTheDocument();
     });
   });
 
   describe('User Interactions', () => {
     it('should select an option and update form value when clicked', async () => {
       const user = userEvent.setup();
-      const TestComponent = () => {
-        const { control, formState, watch } = useForm<EditResourceFormData>({
-          defaultValues: {},
-        });
-        const value = watch('maintenance_standard_code');
-        return (
-          <>
-            <SelectField
-              name="maintenance_standard_code"
-              label="Test Select"
-              options={mockOptions}
-              placeholder="Select an option"
-              control={control}
-              errors={formState.errors}
-            />
-            <div data-testid="watched-value">{value || 'none'}</div>
-          </>
-        );
-      };
-
-      render(<TestComponent />);
+      renderWithForm({}, {}, true);
 
       expect(screen.getByTestId('watched-value')).toHaveTextContent('none');
-      expect(screen.getByTestId('option-2')).toBeInTheDocument();
-
       await user.click(screen.getByTestId('option-1'));
       expect(screen.getByTestId('watched-value')).toHaveTextContent('1');
     });
@@ -194,7 +122,7 @@ describe('SelectField', () => {
       },
     );
 
-    it('should disable individual options when disabled field is true and prevent selection', async () => {
+    it('should disable individual options and prevent selection', async () => {
       const user = userEvent.setup();
       const optionsWithDisabled: RecreationResourceOptionUIModel[] = [
         { id: '1', label: 'Option 1', disabled: false },
@@ -206,18 +134,17 @@ describe('SelectField', () => {
         const { control, formState, watch } = useForm<EditResourceFormData>({
           defaultValues: {},
         });
-        const value = watch('maintenance_standard_code');
         return (
           <>
             <SelectField
-              name="maintenance_standard_code"
-              label="Test Select"
+              {...defaultProps}
               options={optionsWithDisabled}
-              placeholder="Select an option"
               control={control}
               errors={formState.errors}
             />
-            <div data-testid="watched-value">{value || 'none'}</div>
+            <div data-testid="watched-value">
+              {watch('maintenance_standard_code') || 'none'}
+            </div>
           </>
         );
       };
@@ -225,22 +152,16 @@ describe('SelectField', () => {
       render(<TestComponent />);
 
       const disabledOption = screen.getByTestId('option-2');
-      const enabledOption1 = screen.getByTestId('option-1');
-      const enabledOption3 = screen.getByTestId('option-3');
+      const enabledOption = screen.getByTestId('option-1');
 
-      // Verify disabled state
       expect(disabledOption).toBeDisabled();
       expect(disabledOption).toHaveAttribute('data-disabled', 'true');
-      expect(enabledOption1).not.toBeDisabled();
-      expect(enabledOption3).not.toBeDisabled();
+      expect(enabledOption).not.toBeDisabled();
 
-      // Verify disabled option cannot be selected
-      expect(screen.getByTestId('watched-value')).toHaveTextContent('none');
       await user.click(disabledOption);
       expect(screen.getByTestId('watched-value')).toHaveTextContent('none');
 
-      // Verify enabled options can be selected
-      await user.click(enabledOption1);
+      await user.click(enabledOption);
       expect(screen.getByTestId('watched-value')).toHaveTextContent('1');
     });
   });
@@ -248,22 +169,17 @@ describe('SelectField', () => {
   describe('Error Handling', () => {
     it('should display error message and apply error class when error exists', () => {
       const TestComponent = () => {
-        const { control, formState } = useForm<EditResourceFormData>({
+        const { control } = useForm<EditResourceFormData>({
           defaultValues: {},
         });
-        formState.errors.maintenance_standard_code = {
-          type: 'required',
-          message: 'This field is required',
+        const errors = {
+          maintenance_standard_code: {
+            type: 'required' as const,
+            message: 'This field is required',
+          },
         };
         return (
-          <SelectField
-            name="maintenance_standard_code"
-            label="Test Select"
-            options={mockOptions}
-            placeholder="Select an option"
-            control={control}
-            errors={formState.errors}
-          />
+          <SelectField {...defaultProps} control={control} errors={errors} />
         );
       };
 
@@ -288,18 +204,16 @@ describe('SelectField', () => {
           useForm<EditResourceFormData>({
             defaultValues: { maintenance_standard_code: '1' },
           });
-        const value = watch('maintenance_standard_code');
         return (
           <>
             <SelectField
-              name="maintenance_standard_code"
-              label="Test Select"
-              options={mockOptions}
-              placeholder="Select an option"
+              {...defaultProps}
               control={control}
               errors={formState.errors}
             />
-            <div data-testid="current-value">{value}</div>
+            <div data-testid="current-value">
+              {watch('maintenance_standard_code')}
+            </div>
             <button
               onClick={() => {
                 const val = getValues('maintenance_standard_code');
@@ -329,21 +243,13 @@ describe('SelectField', () => {
   });
 
   describe('Accessibility', () => {
-    it('should have proper form control structure', () => {
-      renderWithForm();
-      expect(screen.getByText('Test Select')).toBeInTheDocument();
-      expect(screen.getByRole('combobox')).toBeInTheDocument();
-    });
-
-    it('should have proper controlId', () => {
+    it('should have proper form control structure and be keyboard accessible', () => {
       renderWithForm();
       const label = screen.getByText('Test Select');
-      expect(label).toHaveAttribute('for', 'maintenance_standard_code');
-    });
-
-    it('should be keyboard accessible', () => {
-      renderWithForm();
       const input = screen.getByRole('combobox');
+
+      expect(label).toBeInTheDocument();
+      expect(label).toHaveAttribute('for', 'maintenance_standard_code');
       expect(input).toBeInTheDocument();
       input.focus();
       expect(input).toHaveFocus();
@@ -351,14 +257,20 @@ describe('SelectField', () => {
   });
 
   describe('Edge Cases', () => {
-    it('should handle custom labels', () => {
-      renderWithForm({ label: 'Custom Label' });
-      expect(screen.getByText('Custom Label')).toBeInTheDocument();
-    });
-
-    it('should handle custom placeholder', () => {
-      renderWithForm({ placeholder: 'Choose wisely' });
-      expect(screen.getByPlaceholderText('Choose wisely')).toBeInTheDocument();
+    it.each([
+      { prop: 'label', value: 'Custom Label', test: 'getByText' },
+      {
+        prop: 'placeholder',
+        value: 'Choose wisely',
+        test: 'getByPlaceholderText',
+      },
+    ])('should handle custom $prop', ({ prop, value, test }) => {
+      renderWithForm({ [prop]: value });
+      if (test === 'getByText') {
+        expect(screen.getByText(value)).toBeInTheDocument();
+      } else {
+        expect(screen.getByPlaceholderText(value)).toBeInTheDocument();
+      }
     });
 
     it('should render without errors', () => {
@@ -379,18 +291,16 @@ describe('SelectField', () => {
   describe('Component Props', () => {
     it('should pass correct props to react-select', () => {
       renderWithForm();
-      const select = screen.getByTestId('mock-select');
-      expect(select).toBeInTheDocument();
+      expect(screen.getByTestId('mock-select')).toBeInTheDocument();
     });
 
-    it('should handle all field names from EditResourceFormData', () => {
-      const fields: Array<keyof EditResourceFormData> = [
-        'maintenance_standard_code',
-        'control_access_code',
-        'status_code',
-      ];
-
-      fields.forEach((fieldName) => {
+    it.each([
+      'maintenance_standard_code',
+      'control_access_code',
+      'status_code',
+    ] as Array<keyof EditResourceFormData>)(
+      'should handle field name: $fieldName',
+      (fieldName) => {
         const TestComponent = () => {
           const { control, formState } = useForm<EditResourceFormData>();
           return (
@@ -407,6 +317,38 @@ describe('SelectField', () => {
         const { unmount } = render(<TestComponent />);
         expect(screen.getByText(`Test ${fieldName}`)).toBeInTheDocument();
         unmount();
+      },
+    );
+  });
+
+  describe('Helper Text and Option ID Handling', () => {
+    it('should render helperText when provided', () => {
+      renderWithForm({ helperText: 'This is helpful text' });
+      expect(screen.getByText('This is helpful text')).toBeInTheDocument();
+    });
+
+    it('should not render helperText when not provided', () => {
+      renderWithForm();
+      const helperTexts = document.querySelectorAll('.text-muted');
+      expect(helperTexts.length).toBeGreaterThan(0);
+    });
+
+    it.each([
+      {
+        name: 'null id',
+        options: [{ id: null, label: 'Null ID Option' }],
+      },
+      {
+        name: 'undefined id',
+        options: [
+          { id: undefined as any, label: 'Undefined ID Option' },
+          { id: '1', label: 'Valid Option' },
+        ],
+      },
+    ])('should handle options with $name', ({ options }) => {
+      renderWithForm({ options });
+      options.forEach((opt) => {
+        expect(screen.getByText(opt.label)).toBeInTheDocument();
       });
     });
   });

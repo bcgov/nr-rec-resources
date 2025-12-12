@@ -106,7 +106,7 @@ export const RecResourceOverviewEditSection = () => {
         <Stack direction="vertical" gap={4}>
           <Row>
             <Col xs={12}>
-              <Controller
+              <Controller<EditResourceFormData>
                 name="display_on_public_site"
                 control={control}
                 render={({ field }) => (
@@ -145,7 +145,7 @@ export const RecResourceOverviewEditSection = () => {
             </Col>
             {/* Status */}
             <Col xs={12} md={6}>
-              <SelectField
+              <SelectField<EditResourceFormData>
                 name="status_code"
                 label={EDIT_RESOURCE_FIELD_LABEL_MAP.status_code}
                 options={recreationStatusOptions}
@@ -157,7 +157,7 @@ export const RecResourceOverviewEditSection = () => {
 
             {/* Maintenance Standard & Control Access */}
             <Col xs={12} md={6}>
-              <SelectField
+              <SelectField<EditResourceFormData>
                 name="maintenance_standard_code"
                 label={EDIT_RESOURCE_FIELD_LABEL_MAP.maintenance_standard_code}
                 options={maintenanceOptions}
@@ -168,7 +168,7 @@ export const RecResourceOverviewEditSection = () => {
             </Col>
 
             <Col xs={12} md={6}>
-              <SelectField
+              <SelectField<EditResourceFormData>
                 name="control_access_code"
                 label={EDIT_RESOURCE_FIELD_LABEL_MAP.control_access_code}
                 options={controlAccessCodeTypeOptions}
@@ -179,7 +179,7 @@ export const RecResourceOverviewEditSection = () => {
             </Col>
 
             <Col xs={12} md={6}>
-              <SelectField
+              <SelectField<EditResourceFormData>
                 name="district_code"
                 label={EDIT_RESOURCE_FIELD_LABEL_MAP.district_code}
                 options={districtOptions}
@@ -191,7 +191,7 @@ export const RecResourceOverviewEditSection = () => {
             </Col>
 
             <Col xs={12} md={6}>
-              <SelectField
+              <SelectField<EditResourceFormData>
                 name="risk_rating_code"
                 label={EDIT_RESOURCE_FIELD_LABEL_MAP.risk_rating_code}
                 options={riskRatingCodeTypeOptions}

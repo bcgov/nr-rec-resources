@@ -1,3 +1,4 @@
+import { GroupedOption } from '@/components';
 import { ROUTE_PATHS } from '@/constants/routes';
 import {
   RecreationResourceDetailUIModel,
@@ -14,7 +15,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigateWithQueryParams } from '@shared/hooks';
 import { useMemo } from 'react';
 import { useForm, useWatch, type Resolver } from 'react-hook-form';
-import type { GroupedOption } from '../components/GroupedMultiSelectField';
 import { EditResourceFormData, createEditResourceSchema } from '../schemas';
 
 /**

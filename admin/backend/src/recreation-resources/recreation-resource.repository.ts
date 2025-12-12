@@ -5,6 +5,7 @@ import { Prisma } from '@prisma/client';
 import { UpdateRecreationResourceDto } from './dtos/update-recreation-resource.dto';
 import { recreationResourceSelect } from './recreation-resource.select';
 import { RecreationResourceGetPayload } from './recreation-resource.types';
+import { syncManyToManyComposite } from './utils/syncManyToManyUtils';
 import { upsert } from './utils/upsertUtils';
 
 /**
@@ -113,29 +114,21 @@ export class RecreationResourceRepository {
         }
 
         // Handle recreation_access updates if accessCodes is provided
-        if (accessCodes !== undefined) {
-          // Delete all existing access records for this resource
-          await tx.recreation_access.deleteMany({
+        if (accessCodes) {
+          const newAccessKeys = accessCodes.flatMap(
+            ({ access_code, sub_access_codes }) =>
+              (sub_access_codes?.length ? sub_access_codes : [null]).map(
+                (sub_access_code) => ({ access_code, sub_access_code }),
+              ),
+          );
+
+          await syncManyToManyComposite({
+            tx,
+            tableName: 'recreation_access',
             where: { rec_resource_id },
+            newKeys: newAccessKeys,
+            createData: (key) => ({ rec_resource_id, ...key }),
           });
-
-          // Create new access records from the access_codes array
-          if (Array.isArray(accessCodes) && accessCodes.length > 0) {
-            const accessRecordsToCreate = accessCodes.flatMap((accessCode) =>
-              (accessCode.sub_access_codes ?? []).map((subAccessCode) => ({
-                rec_resource_id,
-                access_code: accessCode.access_code,
-                sub_access_code: subAccessCode,
-              })),
-            );
-
-            // Batch create for better performance
-            if (accessRecordsToCreate.length > 0) {
-              await tx.recreation_access.createMany({
-                data: accessRecordsToCreate,
-              });
-            }
-          }
         }
 
         if (site_description !== undefined) {

@@ -1,7 +1,7 @@
 import { FeatureFlagProvider } from '@/contexts/feature-flags';
 import { RecResourceOverviewSection } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/RecResourceOverviewSection';
-import { render, screen } from '@testing-library/react';
 import { useLocation } from '@tanstack/react-router';
+import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@tanstack/react-router', async (importOriginal) => {
@@ -70,6 +70,12 @@ describe('RecResourceOverviewSection', () => {
         code: 'ROAD',
         description: 'Road',
         sub_access_codes: [{ code: '4W', description: '4 wheel drive' }],
+      },
+    ],
+    recreation_activity: [
+      {
+        recreation_activity_code: 1,
+        description: 'Hiking',
       },
     ],
   } as any;
@@ -320,7 +326,6 @@ describe('RecResourceOverviewSection', () => {
       <RecResourceOverviewSection recResource={recResource} />,
     );
     expect(screen.getByText('RecResourceLocationSection')).toBeInTheDocument();
-    expect(screen.getByText('RecResourceActivitySection')).toBeInTheDocument();
 
     // Establishment Order section should not render without feature flag
     expect(

@@ -27,16 +27,31 @@ export async function auditOperationHandler(
   const hasUpdatedAt = fieldNames.has('updated_at');
   const hasUpdatedBy = fieldNames.has('updated_by');
 
-  // CREATE
-  if (operation === 'create' && (hasCreatedAt || hasCreatedBy)) {
+  // Helper function to add audit fields to a data object
+  const addCreateAuditFields = (data: any) => {
     const username = userContext.getIdentityProviderPrefixedUsername();
-    args.data = {
-      ...args.data,
+    return {
+      ...data,
       ...(hasCreatedAt && { created_at: timestamp }),
       ...(hasCreatedBy && { created_by: username }),
       ...(hasUpdatedAt && { updated_at: timestamp }),
       ...(hasUpdatedBy && { updated_by: username }),
     };
+  };
+
+  // CREATE
+  if (operation === 'create' && (hasCreatedAt || hasCreatedBy)) {
+    args.data = addCreateAuditFields(args.data);
+  }
+
+  // CREATE MANY
+  if (
+    operation === 'createMany' &&
+    (hasCreatedAt || hasCreatedBy || hasUpdatedAt || hasUpdatedBy)
+  ) {
+    if (Array.isArray(args.data)) {
+      args.data = args.data.map(addCreateAuditFields);
+    }
   }
 
   // UPDATE / UPDATE MANY

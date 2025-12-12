@@ -28,6 +28,7 @@ models/RecreationStructureDto.ts
 models/RecreationSubAccessCodeDto.ts
 models/SuggestionDto.ts
 models/SuggestionsResponseDto.ts
+models/UpdateActivitiesDto.ts
 models/UpdateRecreationAccessCodeDto.ts
 models/UpdateRecreationResourceDto.ts
 models/UpdateRecreationResourceGeospatialDto.ts

@@ -1,9 +1,9 @@
+import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath, URL } from 'node:url';
 import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import tsconfigPaths from 'vite-tsconfig-paths';
-import { TanStackRouterVite } from '@tanstack/router-plugin/vite';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
@@ -42,6 +42,15 @@ export default defineConfig(({ mode }) => {
         reporter: ['lcov', 'text'],
         include: ['src'],
         exclude: ['src/index.tsx', 'src/services/recreation-resource-admin/**'],
+      },
+      /**
+       * Shared mocks for tests - to use in tests, do vi.mock('react-select') in the test file
+       */
+      alias: {
+        'react-select': path.resolve(
+          __dirname,
+          'test/__mocks__/react-select.tsx',
+        ),
       },
     },
     resolve: {

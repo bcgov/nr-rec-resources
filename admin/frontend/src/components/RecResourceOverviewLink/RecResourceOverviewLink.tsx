@@ -8,7 +8,8 @@ export const RecResourceOverviewLink: FC<{
 }> = ({ rec_resource_id, children }) => {
   return (
     <LinkWithQueryParams
-      to={ROUTE_PATHS.REC_RESOURCE_OVERVIEW.replace('$id', rec_resource_id)}
+      to={ROUTE_PATHS.REC_RESOURCE_OVERVIEW}
+      params={{ id: rec_resource_id }}
     >
       {children}
     </LinkWithQueryParams>
