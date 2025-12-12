@@ -137,7 +137,6 @@ const FilterMenuSearchMap = ({
                   tabIndex={index}
                 >
                   <fieldset className="filter-group-container">
-                    <legend className="filter-group-title">{label}</legend>
                     <Form.Group
                       className={`filter-options-container ${isColumns ? 'filter-option-columns' : ''}`}
                     >
