@@ -1,6 +1,13 @@
-import { vi, beforeEach, describe, expect, it } from 'vitest';
-
-const mockUseWatch = vi.fn(() => null);
+import { RecResourceOverviewEditSection } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/RecResourceOverviewEditSection';
+import {
+  useEditResourceForm,
+  useResourceOptions,
+} from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/hooks';
+import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
+import { RecreationResourceDetailUIModel } from '@/services';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/pages/rec-resource-page/hooks/useRecResource');
 vi.mock(
@@ -10,11 +17,15 @@ vi.mock(
   '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/hooks/useResourceOptions',
 );
 
+const { mockUseWatch } = vi.hoisted(() => ({
+  mockUseWatch: vi.fn<() => string | null>(() => null),
+}));
+
 vi.mock('react-hook-form', async () => {
   const actual = await vi.importActual('react-hook-form');
   return {
-    ...actual,
-    useWatch: (...args: any[]) => mockUseWatch(...args),
+    ...(actual as any),
+    useWatch: mockUseWatch,
     Controller: ({ render }: any) => {
       const field = {
         value: false,
@@ -34,22 +45,13 @@ vi.mock('@/components/RecResourceOverviewLink', () => ({
 }));
 
 vi.mock('@/components/form', () => ({
-  DateInputField: ({ label, name }: any) => (
-    <div data-testid={`date-field-${name}`}>
-      <label>{label}</label>
-      <input name={name} />
-    </div>
-  ),
-  SelectField: ({ label, name }: any) => (
+  SelectField: ({ label, name, helperText }: any) => (
     <div data-testid={`select-field-${name}`}>
       <label>{label}</label>
       <select name={name} />
-    </div>
-  ),
-  TextField: ({ label, name, placeholder }: any) => (
-    <div data-testid={`text-field-${name}`}>
-      <label>{label}</label>
-      <input name={name} placeholder={placeholder} />
+      {helperText && (
+        <div data-testid={`helper-text-${name}`}>{helperText}</div>
+      )}
     </div>
   ),
   GroupedMultiSelectField: ({ label, name, helperText }: any) => (
@@ -59,10 +61,22 @@ vi.mock('@/components/form', () => ({
       <select multiple name={name} />
     </div>
   ),
-  RichTextEditor: ({ label, name }: any) => (
-    <div data-testid={`rich-text-editor-${name}`}>
+  DateInputField: ({ label, name }: any) => (
+    <div data-testid={`date-field-${name}`}>
       <label>{label}</label>
-      <textarea name={name} />
+      <input name={name} />
+    </div>
+  ),
+  TextField: ({ label, name }: any) => (
+    <div data-testid={`text-field-${name}`}>
+      <label>{label}</label>
+      <input name={name} />
+    </div>
+  ),
+  RichTextEditor: ({ name, label }: any) => (
+    <div data-testid={`rich-text-${name}`}>
+      <label>{label}</label>
+      <div>Rich Text Editor</div>
     </div>
   ),
 }));
@@ -88,16 +102,6 @@ vi.mock(
     },
   }),
 );
-
-import {
-  useEditResourceForm,
-  useResourceOptions,
-} from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/hooks';
-import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
-import { RecreationResourceDetailUIModel } from '@/services';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { RecResourceOverviewEditSection } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/RecResourceOverviewEditSection';
 
 const mockRecResource: RecreationResourceDetailUIModel = {
   rec_resource_id: '123',
@@ -182,6 +186,7 @@ const createMockFormReturn = (overrides = {}) => ({
   register: vi.fn(() => ({
     onChange: vi.fn(),
     onBlur: vi.fn(),
+    name: 'test',
     ref: vi.fn(),
   })),
   errors: {},
@@ -224,11 +229,8 @@ describe('RecResourceOverviewEditSection', () => {
       expect(screen.getByRole('button', { name: 'Save' })).toBeInTheDocument();
     });
 
-    it.each([
-      {
-        label: 'Status',
-        testId: 'select-field-status_code',
-      },
+    const formFields = [
+      { label: 'Status', testId: 'select-field-status_code' },
       {
         label: 'Maintenance Standard',
         testId: 'select-field-maintenance_standard_code',
@@ -237,10 +239,7 @@ describe('RecResourceOverviewEditSection', () => {
         label: 'Controlled Access Type',
         testId: 'select-field-control_access_code',
       },
-      {
-        label: 'Risk Rating',
-        testId: 'select-field-risk_rating_code',
-      },
+      { label: 'Risk Rating', testId: 'select-field-risk_rating_code' },
       {
         label: 'Project Established Date',
         testId: 'date-field-project_established_date',
@@ -249,68 +248,28 @@ describe('RecResourceOverviewEditSection', () => {
         label: 'Access and Sub-Access',
         testId: 'grouped-multi-select-field-selected_access_options',
       },
-      {
-        label: 'Recreation District',
-        testId: 'select-field-district_code',
-      },
-    ])('should render $label field', ({ label, testId }) => {
+      { label: 'Recreation District', testId: 'select-field-district_code' },
+    ];
+
+    it.each(formFields)('should render $label field', ({ label, testId }) => {
       render(<RecResourceOverviewEditSection />);
 
       expect(screen.getByText(label)).toBeInTheDocument();
       expect(screen.getByTestId(testId)).toBeInTheDocument();
     });
 
-    it('should render VisibleOnPublicSite component', () => {
+    it('should render VisibleOnPublicSite component and helper text', () => {
       render(<RecResourceOverviewEditSection />);
 
       expect(screen.getByText('Displayed on public site')).toBeInTheDocument();
-    });
-
-    it('should render helper text for Access and Sub-Access field', () => {
-      render(<RecResourceOverviewEditSection />);
-
       expect(screen.getByTestId('helper-text')).toHaveTextContent(
         'Access types are grouped with their available sub-options below them.',
       );
     });
-
-    it('should render and allow editing closest community field', async () => {
-      const mockHandleSubmit = vi.fn((callback) => (e?: any) => {
-        e?.preventDefault?.();
-        return callback();
-      });
-      const mockOnSubmit = vi.fn();
-
-      vi.mocked(useEditResourceForm).mockReturnValue(
-        createMockFormReturn({
-          isDirty: true,
-          handleSubmit: mockHandleSubmit,
-          onSubmit: mockOnSubmit,
-        }) as any,
-      );
-
-      render(<RecResourceOverviewEditSection />);
-
-      const textFieldDiv = screen.getByTestId('text-field-closest_community');
-      expect(textFieldDiv).toBeInTheDocument();
-
-      const input = textFieldDiv.querySelector('input') as HTMLInputElement;
-      await userEvent.type(input, 'New Community');
-
-      expect(input.value).toBe('New Community');
-
-      const saveButton = screen.getByRole('button', { name: 'Save' });
-      await userEvent.click(saveButton);
-
-      await waitFor(() => {
-        expect(mockHandleSubmit).toHaveBeenCalled();
-        expect(mockOnSubmit).toHaveBeenCalled();
-      });
-    });
   });
 
   describe('button states', () => {
-    it.each([
+    const buttonStateTests = [
       {
         isDirty: false,
         isPending: false,
@@ -335,7 +294,9 @@ describe('RecResourceOverviewEditSection', () => {
         expectedText: 'Saving...',
         shouldBeDisabled: true,
       },
-    ])(
+    ];
+
+    it.each(buttonStateTests)(
       'should render Save button as "$expectedText" and disabled=$shouldBeDisabled when isDirty=$isDirty and isPending=$isPending',
       ({ isDirty, isPending, expectedText, shouldBeDisabled }) => {
         vi.mocked(useEditResourceForm).mockReturnValue(
@@ -348,7 +309,6 @@ describe('RecResourceOverviewEditSection', () => {
         render(<RecResourceOverviewEditSection />);
 
         const saveButton = screen.getByRole('button', { name: expectedText });
-
         if (shouldBeDisabled) {
           expect(saveButton).toBeDisabled();
         } else {
@@ -398,67 +358,178 @@ describe('RecResourceOverviewEditSection', () => {
   });
 
   describe('FormErrorBanner', () => {
-    it('should not render error banner when there are no errors', () => {
-      vi.mocked(useEditResourceForm).mockReturnValue(
-        createMockFormReturn({
-          errors: {},
-        }) as any,
-      );
-
-      render(<RecResourceOverviewEditSection />);
-
-      expect(screen.queryByTestId('form-error-banner')).not.toBeInTheDocument();
-    });
-
-    it('should render error banner when there are errors', () => {
-      vi.mocked(useEditResourceForm).mockReturnValue(
-        createMockFormReturn({
-          errors: {
-            district_code: {
-              type: 'custom',
-              message:
-                'Cannot save with an archived district. Please select an active district.',
-            },
+    const errorBannerTests = [
+      { errors: {}, shouldRender: false, description: 'no errors' },
+      {
+        errors: {
+          district_code: {
+            type: 'custom',
+            message:
+              'Cannot save with an archived district. Please select an active district.',
           },
-        }) as any,
-      );
-
-      render(<RecResourceOverviewEditSection />);
-
-      expect(screen.getByTestId('form-error-banner')).toBeInTheDocument();
-      expect(
-        screen.getByText('Please review and correct the following errors:'),
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(
-          /Cannot save with an archived district. Please select an active district./,
-        ),
-      ).toBeInTheDocument();
-    });
-
-    it('should display multiple errors when present', () => {
-      vi.mocked(useEditResourceForm).mockReturnValue(
-        createMockFormReturn({
-          errors: {
-            district_code: {
-              type: 'custom',
-              message: 'Cannot save with an archived district.',
-            },
-            status_code: {
-              type: 'required',
-              message: 'Status is required',
-            },
+        },
+        shouldRender: true,
+        description: 'single error',
+        expectedTexts: [
+          'Please review and correct the following errors:',
+          'Cannot save with an archived district. Please select an active district.',
+        ],
+      },
+      {
+        errors: {
+          district_code: {
+            type: 'custom',
+            message: 'Cannot save with an archived district.',
           },
-        }) as any,
-      );
+          status_code: {
+            type: 'required',
+            message: 'Status is required',
+          },
+        },
+        shouldRender: true,
+        description: 'multiple errors',
+        expectedTexts: [
+          'Cannot save with an archived district',
+          'Status is required',
+        ],
+      },
+    ];
 
-      render(<RecResourceOverviewEditSection />);
+    it.each(errorBannerTests)(
+      'should $description and render=$shouldRender',
+      ({ errors, shouldRender, expectedTexts }) => {
+        vi.mocked(useEditResourceForm).mockReturnValue(
+          createMockFormReturn({ errors }) as any,
+        );
 
-      expect(screen.getByTestId('form-error-banner')).toBeInTheDocument();
-      expect(
-        screen.getByText(/Cannot save with an archived district/),
-      ).toBeInTheDocument();
-      expect(screen.getByText(/Status is required/)).toBeInTheDocument();
-    });
+        render(<RecResourceOverviewEditSection />);
+
+        const banner = screen.queryByTestId('form-error-banner');
+        if (shouldRender) {
+          expect(banner).toBeInTheDocument();
+          expectedTexts!.forEach((text) => {
+            expect(screen.getByText(new RegExp(text))).toBeInTheDocument();
+          });
+        } else {
+          expect(banner).not.toBeInTheDocument();
+        }
+      },
+    );
+  });
+
+  describe('Archived District Warning', () => {
+    const archivedDistrictTests = [
+      {
+        description: 'archived district is selected',
+        districtOptions: [
+          { id: '1', label: 'Active District', is_archived: false },
+          { id: '2', label: 'Archived District', is_archived: true },
+        ],
+        selectedDistrict: '2',
+        shouldShowWarning: true,
+      },
+      {
+        description: 'active district is selected',
+        districtOptions: [
+          { id: '1', label: 'Active District', is_archived: false },
+          { id: '2', label: 'Archived District', is_archived: true },
+        ],
+        selectedDistrict: '1',
+        shouldShowWarning: false,
+      },
+      {
+        description: 'no district is selected',
+        districtOptions: [
+          { id: '1', label: 'Active District', is_archived: false },
+        ],
+        selectedDistrict: null,
+        shouldShowWarning: false,
+      },
+      {
+        description: 'selected option is not found',
+        districtOptions: [
+          { id: '1', label: 'Active District', is_archived: false },
+        ],
+        selectedDistrict: '999',
+        shouldShowWarning: false,
+      },
+    ];
+
+    it.each(archivedDistrictTests)(
+      'should display warning=$shouldShowWarning when $description',
+      ({ districtOptions, selectedDistrict, shouldShowWarning }) => {
+        vi.mocked(useResourceOptions).mockReturnValue({
+          ...mockResourceOptions,
+          districtOptions,
+        });
+
+        mockUseWatch.mockReturnValue(selectedDistrict);
+
+        render(<RecResourceOverviewEditSection />);
+
+        const warningText =
+          /The district currently assigned to this resource has been archived/;
+
+        if (shouldShowWarning) {
+          const helperTextContainer = screen.getByTestId(
+            'helper-text-district_code',
+          );
+          expect(helperTextContainer).toBeInTheDocument();
+          expect(screen.getByText(warningText)).toBeInTheDocument();
+          expect(
+            screen.getByText(/Please select an active district from the list/),
+          ).toBeInTheDocument();
+        } else {
+          expect(screen.queryByText(warningText)).not.toBeInTheDocument();
+        }
+      },
+    );
+  });
+
+  describe('useResourceOptions integration', () => {
+    const districtCodeTests = [
+      {
+        scenario: 'recreation_district exists with district_code',
+        recreation_district: {
+          district_code: 'CHWK',
+          description: 'Chilliwack',
+        },
+        expectedCode: 'CHWK',
+      },
+      {
+        scenario: 'recreation_district is missing',
+        recreation_district: undefined,
+        expectedCode: undefined,
+      },
+      {
+        scenario: 'recreation_district.district_code is missing',
+        recreation_district: {
+          district_code: undefined as any,
+          description: 'District',
+        },
+        expectedCode: undefined,
+      },
+    ];
+
+    it.each(districtCodeTests)(
+      'should pass currentDistrictCode when $scenario',
+      ({ recreation_district, expectedCode }) => {
+        vi.mocked(useRecResource).mockReturnValue({
+          rec_resource_id: '123',
+          recResource: {
+            ...mockRecResource,
+            recreation_district,
+          },
+          isLoading: false,
+          error: null,
+        });
+
+        render(<RecResourceOverviewEditSection />);
+
+        expect(useResourceOptions).toHaveBeenCalledWith({
+          currentDistrictCode: expectedCode,
+        });
+      },
+    );
   });
 });

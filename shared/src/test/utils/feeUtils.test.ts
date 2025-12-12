@@ -40,9 +40,10 @@ describe('getFeeTypeLabel', () => {
 
 describe('formatFeeDate', () => {
   it('formats a valid date correctly', () => {
-    const date = new Date('2024-02-01T00:00:00Z');
+    const date = new Date('2024-02-15T12:00:00Z');
     const formatted = formatFeeDate(date);
     expect(formatted).toMatch(/Feb/);
+    expect(formatted).toMatch(/15/);
     expect(formatted).toMatch(/2024/);
   });
 
@@ -55,9 +56,10 @@ describe('formatFeeDate', () => {
   });
 
   it('handles string dates', () => {
-    const formatted = formatFeeDate('2024-02-01');
+    const formatted = formatFeeDate('2024-03-20T12:00:00Z');
     expect(formatted).toBeTruthy();
     expect(formatted).not.toBe('N/A');
+    expect(formatted).toMatch(/Mar/);
   });
 });
 

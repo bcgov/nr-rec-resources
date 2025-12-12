@@ -1,13 +1,13 @@
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { RecResourceFeesPage } from '@/pages/rec-resource-page/RecResourceFeesPage';
 import { Route as ParentRoute } from '@/routes/rec-resource/$id';
-import { recResourceLoader } from '@/services/loaders/recResourceLoader';
+import { recResourceFeesLoader } from '@/services/loaders/recResourceFeesLoader';
 import { BreadcrumbItem } from '@shared/components/breadcrumbs';
 import { createFileRoute } from '@tanstack/react-router';
 
 export const Route = createFileRoute('/rec-resource/$id/fees')({
   component: RecResourceFeesPage,
-  loader: recResourceLoader,
+  loader: recResourceFeesLoader,
   beforeLoad: ({ params, context }) => {
     const parentBeforeLoad = ParentRoute.options.beforeLoad?.({
       params,

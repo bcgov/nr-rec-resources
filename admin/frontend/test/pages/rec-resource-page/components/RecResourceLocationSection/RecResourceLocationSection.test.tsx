@@ -22,8 +22,21 @@ vi.mock('@shared/components/links', () => ({
 
 vi.mock('@shared/components/recreation-resource-map', () => ({
   RecreationResourceMap: () => <div>RecreationResourceMap</div>,
-  DownloadMapModal: ({ isOpen }: { isOpen: boolean }) => (
-    <div>{isOpen ? 'DownloadMapModal-Open' : 'DownloadMapModal-Closed'}</div>
+  DownloadMapModal: ({
+    isOpen,
+    getResourceDetailUrl,
+  }: {
+    isOpen: boolean;
+    getResourceDetailUrl?: (id: string) => string;
+  }) => (
+    <div>
+      {isOpen ? 'DownloadMapModal-Open' : 'DownloadMapModal-Closed'}
+      {getResourceDetailUrl && (
+        <div data-testid="resource-url">
+          {getResourceDetailUrl('test-id-123')}
+        </div>
+      )}
+    </div>
   ),
   ExportMapFileBtn: ({ onClick }: { onClick: () => void }) => (
     <button onClick={onClick}>ExportMapFileBtn</button>
@@ -220,5 +233,18 @@ describe('RecResourceLocationSection', () => {
       'href',
       'https://arcmaps.gov.bc.ca/ess/hm/mapview/?runWorkflow=Startup&Theme=TEN&extent=123,235,346,457',
     );
+  });
+
+  it('passes getResourceDetailUrl function to DownloadMapModal', async () => {
+    const user = userEvent.setup();
+    render(<RecResourceLocationSection recResource={baseResource} />);
+
+    // Open the modal
+    const exportButton = screen.getByText('ExportMapFileBtn');
+    await user.click(exportButton);
+
+    // Check that the function generates the correct URL
+    const urlElement = screen.getByTestId('resource-url');
+    expect(urlElement).toHaveTextContent('/recreation-resource/test-id-123');
   });
 });

@@ -37,6 +37,7 @@ describe('rec-resource-page constants', () => {
       expect(Object.values(RecResourceNavKey)).toEqual([
         'overview',
         'files',
+        'activities',
         'fees',
         'geospatial',
       ]);

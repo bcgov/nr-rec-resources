@@ -1,15 +1,31 @@
 import { RecreationResourceOptionUIModel } from '@/services';
 import { ReactNode } from 'react';
 import { Form } from 'react-bootstrap';
-import { Control, Controller, FieldErrors } from 'react-hook-form';
+import {
+  Control,
+  Controller,
+  FieldErrors,
+  FieldValues,
+  Path,
+} from 'react-hook-form';
 import Select, { SingleValue } from 'react-select';
-import { EditResourceFormData } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/schemas';
+
+interface SelectFieldProps<TFieldValues extends FieldValues> {
+  name: Path<TFieldValues>;
+  label: string;
+  options: RecreationResourceOptionUIModel[];
+  placeholder: string;
+  control: Control<TFieldValues>;
+  errors: FieldErrors<TFieldValues>;
+  disabled?: boolean;
+  helperText?: ReactNode;
+}
 
 /**
- * Reusable Select Field Component using react-select
+ * Select Field Component using react-select
  * Handles all select form field logic with proper React Hook Form integration
  */
-export const SelectField = ({
+export function SelectField<TFieldValues extends FieldValues>({
   name,
   label,
   options,
@@ -18,18 +34,9 @@ export const SelectField = ({
   errors,
   disabled = false,
   helperText,
-}: {
-  name: keyof EditResourceFormData;
-  label: string;
-  options: RecreationResourceOptionUIModel[];
-  placeholder: string;
-  control: Control<EditResourceFormData>;
-  errors: FieldErrors<EditResourceFormData>;
-  disabled?: boolean;
-  helperText?: ReactNode;
-}) => {
+}: SelectFieldProps<TFieldValues>) {
   return (
-    <Controller
+    <Controller<TFieldValues>
       name={name}
       control={control}
       render={({ field: { onChange, value } }) => {
@@ -67,4 +74,4 @@ export const SelectField = ({
       }}
     />
   );
-};
+}

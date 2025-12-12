@@ -172,6 +172,39 @@ describe('createAuditExtension', () => {
       expect(fakeQuery).toHaveBeenCalledWith(result);
     });
 
+    it('adds audit fields on createMany operations', async () => {
+      const fakeQuery = vi
+        .fn()
+        .mockImplementation((args) => Promise.resolve(args));
+
+      const args = {
+        data: [{ title: 'Post 1' }, { title: 'Post 2' }],
+      };
+      const result = await auditOperationHandler(
+        {
+          model: 'Post',
+          operation: 'createMany',
+          args,
+          query: fakeQuery,
+        },
+        userContext,
+      );
+
+      expect(Array.isArray(result.data)).toBe(true);
+      expect(result.data.length).toBe(2);
+      expect(result.data[0].title).toBe('Post 1');
+      expect(result.data[0].created_at).toBeInstanceOf(Date);
+      expect(result.data[0].created_by).toBe('IDIR\\testuser');
+      expect(result.data[0].updated_at).toBeInstanceOf(Date);
+      expect(result.data[0].updated_by).toBe('IDIR\\testuser');
+      expect(result.data[1].title).toBe('Post 2');
+      expect(result.data[1].created_at).toBeInstanceOf(Date);
+      expect(result.data[1].created_by).toBe('IDIR\\testuser');
+      expect(result.data[1].updated_at).toBeInstanceOf(Date);
+      expect(result.data[1].updated_by).toBe('IDIR\\testuser');
+      expect(fakeQuery).toHaveBeenCalledWith(result);
+    });
+
     it('does not add audit fields on read operations', async () => {
       const fakeQuery = vi
         .fn()

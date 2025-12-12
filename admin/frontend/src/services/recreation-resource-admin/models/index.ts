@@ -25,6 +25,7 @@ export * from './RecreationStructureDto';
 export * from './RecreationSubAccessCodeDto';
 export * from './SuggestionDto';
 export * from './SuggestionsResponseDto';
+export * from './UpdateActivitiesDto';
 export * from './UpdateRecreationAccessCodeDto';
 export * from './UpdateRecreationResourceDto';
 export * from './UpdateRecreationResourceGeospatialDto';

@@ -78,6 +78,8 @@ describe('upsert', () => {
         createData: {},
         updateData: {},
       }),
-    ).rejects.toThrow('Table client not found on transaction: bad_table');
+    ).rejects.toThrow(
+      'Table client missing required methods on transaction: bad_table',
+    );
   });
 });

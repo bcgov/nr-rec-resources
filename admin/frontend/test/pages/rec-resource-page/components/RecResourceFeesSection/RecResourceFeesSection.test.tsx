@@ -1,11 +1,9 @@
 import { RecResourceFeesSection } from '@/pages/rec-resource-page/components/RecResourceFeesSection';
-import * as services from '@/services';
+import { RecreationFeeUIModel } from '@/services';
 import { render, screen } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
-vi.mock('@/services');
-
-const mockFees = [
+const mockFees: RecreationFeeUIModel[] = [
   {
     fee_amount: 15,
     fee_start_date: new Date('2024-05-15'),
@@ -19,6 +17,8 @@ const mockFees = [
     friday_ind: 'Y',
     saturday_ind: 'Y',
     sunday_ind: 'N',
+    fee_start_date_readable_utc: 'May 15, 2024',
+    fee_end_date_readable_utc: 'October 15, 2024',
   },
   {
     fee_amount: 7,
@@ -33,58 +33,20 @@ const mockFees = [
     friday_ind: 'Y',
     saturday_ind: 'Y',
     sunday_ind: 'Y',
+    fee_start_date_readable_utc: 'May 15, 2024',
+    fee_end_date_readable_utc: 'October 15, 2024',
   },
 ];
 
-const setupMocks = (
-  fees = mockFees,
-  isLoading = false,
-  error: Error | null = null,
-) => {
-  vi.mocked(services.useGetRecreationResourceFees).mockReturnValue({
-    data: fees,
-    isLoading,
-    error,
-    isSuccess: !isLoading && !error,
-    isError: !!error,
-  } as any);
-};
-
 describe('RecResourceFeesSection', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    setupMocks();
-  });
+  it('renders section title', () => {
+    render(<RecResourceFeesSection fees={mockFees} />);
 
-  it('renders loading state', () => {
-    setupMocks([], true);
-
-    render(<RecResourceFeesSection recResourceId="REC1222" />);
-
-    expect(screen.getByRole('status')).toBeInTheDocument();
-    expect(screen.getByText('Loading fees...')).toBeInTheDocument();
-  });
-
-  it('renders error state', () => {
-    setupMocks([], false, new Error('Network error'));
-
-    render(<RecResourceFeesSection recResourceId="REC1222" />);
-
-    expect(
-      screen.getByText('Error loading fees. Please try again later.'),
-    ).toBeInTheDocument();
-  });
-
-  it('renders empty state when no fees', () => {
-    setupMocks([]);
-
-    render(<RecResourceFeesSection recResourceId="REC9999" />);
-
-    expect(screen.getByText('Currently no fees')).toBeInTheDocument();
+    expect(screen.getByText('Current Fee Information')).toBeInTheDocument();
   });
 
   it('renders fees table with correct data', () => {
-    render(<RecResourceFeesSection recResourceId="REC1222" />);
+    render(<RecResourceFeesSection fees={mockFees} />);
 
     expect(screen.getByText('Fee Type')).toBeInTheDocument();
     expect(screen.getByText('Amount')).toBeInTheDocument();
@@ -99,7 +61,7 @@ describe('RecResourceFeesSection', () => {
   });
 
   it('formats fee days correctly', () => {
-    render(<RecResourceFeesSection recResourceId="REC1222" />);
+    render(<RecResourceFeesSection fees={mockFees} />);
 
     // First fee has all days except Sunday - should show individual day badges
     expect(screen.getByText('Mon')).toBeInTheDocument();
@@ -114,66 +76,64 @@ describe('RecResourceFeesSection', () => {
   });
 
   it('handles missing fee amount', () => {
-    const feesWithNullAmount = [
+    const feesWithNullAmount: RecreationFeeUIModel[] = [
       {
         ...mockFees[0],
         fee_amount: undefined,
       },
     ];
-    setupMocks(feesWithNullAmount as any);
 
-    render(<RecResourceFeesSection recResourceId="REC1222" />);
+    render(<RecResourceFeesSection fees={feesWithNullAmount} />);
 
     const row = screen.getByText('Day use').closest('tr');
     expect(row).toHaveTextContent('--');
   });
 
   it('handles missing dates', () => {
-    const feesWithNullDates = [
+    const feesWithNullDates: RecreationFeeUIModel[] = [
       {
         ...mockFees[0],
         fee_start_date: undefined,
         fee_end_date: undefined,
+        fee_start_date_readable_utc: undefined,
+        fee_end_date_readable_utc: undefined,
       },
     ];
-    setupMocks(feesWithNullDates as any);
 
-    render(<RecResourceFeesSection recResourceId="REC1222" />);
+    render(<RecResourceFeesSection fees={feesWithNullDates} />);
 
     const row = screen.getByText('Day use').closest('tr');
     expect(row).toHaveTextContent('--');
   });
 
   it('uses fee code when description is missing', () => {
-    const feesWithoutDescription = [
+    const feesWithoutDescription: RecreationFeeUIModel[] = [
       {
         ...mockFees[0],
         fee_type_description: '',
       },
     ];
-    setupMocks(feesWithoutDescription);
 
-    render(<RecResourceFeesSection recResourceId="REC1222" />);
+    render(<RecResourceFeesSection fees={feesWithoutDescription} />);
 
     expect(screen.getByText('D')).toBeInTheDocument();
   });
 
   it('handles fee amount of zero', () => {
-    const feesWithZeroAmount = [
+    const feesWithZeroAmount: RecreationFeeUIModel[] = [
       {
         ...mockFees[0],
         fee_amount: 0,
       },
     ];
-    setupMocks(feesWithZeroAmount);
 
-    render(<RecResourceFeesSection recResourceId="REC1222" />);
+    render(<RecResourceFeesSection fees={feesWithZeroAmount} />);
 
     expect(screen.getByText('$0.00')).toBeInTheDocument();
   });
 
   it('handles multiple fees with same code and start date', () => {
-    const duplicateFees = [
+    const duplicateFees: RecreationFeeUIModel[] = [
       {
         ...mockFees[0],
         recreation_fee_code: 'D',
@@ -186,9 +146,8 @@ describe('RecResourceFeesSection', () => {
         fee_amount: 20,
       },
     ];
-    setupMocks(duplicateFees);
 
-    render(<RecResourceFeesSection recResourceId="REC1222" />);
+    render(<RecResourceFeesSection fees={duplicateFees} />);
 
     // Should render both fees with unique keys
     const rows = screen.getAllByText('Day use');
@@ -196,17 +155,24 @@ describe('RecResourceFeesSection', () => {
   });
 
   it('handles fees with only start date and no end date', () => {
-    const feesWithOnlyStartDate = [
+    const feesWithOnlyStartDate: RecreationFeeUIModel[] = [
       {
         ...mockFees[0],
         fee_end_date: undefined,
+        fee_end_date_readable_utc: undefined,
       },
     ];
-    setupMocks(feesWithOnlyStartDate as any);
 
-    render(<RecResourceFeesSection recResourceId="REC1222" />);
+    render(<RecResourceFeesSection fees={feesWithOnlyStartDate} />);
 
     const row = screen.getByText('Day use').closest('tr');
     expect(row).toHaveTextContent('--');
+  });
+
+  it('handles empty fees array', () => {
+    render(<RecResourceFeesSection fees={[]} />);
+
+    expect(screen.getByText('Current Fee Information')).toBeInTheDocument();
+    expect(screen.getByText('Fee Type')).toBeInTheDocument();
   });
 });

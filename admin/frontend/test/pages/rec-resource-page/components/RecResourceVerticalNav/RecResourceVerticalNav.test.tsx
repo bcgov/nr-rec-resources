@@ -1,11 +1,11 @@
+import { ROUTE_PATHS } from '@/constants/routes';
+import { FeatureFlagProvider } from '@/contexts/feature-flags';
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { RecResourceVerticalNav } from '@/pages/rec-resource-page/components/RecResourceVerticalNav';
+import { useLocation } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import * as hooks from '@/pages/rec-resource-page/hooks/useVisibleNavSections';
-
-vi.mock('@/pages/rec-resource-page/hooks/useVisibleNavSections');
 
 // Mock matchMedia for Offcanvas component
 Object.defineProperty(window, 'matchMedia', {
@@ -24,35 +24,23 @@ Object.defineProperty(window, 'matchMedia', {
 
 const mockNavigate = vi.fn();
 
+vi.mock('@shared/hooks', () => ({
+  useNavigateWithQueryParams: vi.fn(() => ({
+    navigate: mockNavigate,
+  })),
+}));
+
 vi.mock('@tanstack/react-router', async (importOriginal) => {
   const actual =
     await importOriginal<typeof import('@tanstack/react-router')>();
   return {
     ...actual,
-    useNavigate: () => mockNavigate,
-    useRouter: () => ({
-      state: {
-        location: {
-          pathname: '/rec-resource/test-resource-123',
-          search: '',
-        },
-      },
-    }),
-    useLocation: () => ({
-      pathname: '/rec-resource/test-resource-123',
-      search: '',
-    }),
+    useLocation: vi.fn(),
   };
 });
 
-vi.mock('@shared/hooks', () => ({
-  useNavigateWithQueryParams: () => ({
-    navigate: mockNavigate,
-  }),
-}));
-
 const renderWithRouter = (component: React.ReactElement) => {
-  return render(component);
+  return render(<FeatureFlagProvider>{component}</FeatureFlagProvider>);
 };
 
 describe('RecResourceVerticalNav', () => {
@@ -61,25 +49,11 @@ describe('RecResourceVerticalNav', () => {
     resourceId: 'test-resource-123',
   };
 
-  const mockVisibleNavSections = [
-    [
-      RecResourceNavKey.OVERVIEW,
-      {
-        title: 'Overview',
-        route: (id: string) => `/rec-resource/${id}/overview`,
-      },
-    ],
-    [
-      RecResourceNavKey.FILES,
-      { title: 'Files', route: (id: string) => `/rec-resource/${id}/files` },
-    ],
-  ];
-
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(hooks.useVisibleNavSections).mockReturnValue(
-      mockVisibleNavSections as any,
-    );
+    vi.mocked(useLocation).mockReturnValue({
+      search: '',
+    } as any);
   });
 
   it('renders all navigation items in desktop view', () => {
@@ -128,8 +102,9 @@ describe('RecResourceVerticalNav', () => {
     await user.click(filesLinks[0]);
 
     expect(mockNavigate).toHaveBeenCalledWith({
-      to: '/rec-resource/test-resource-123/files',
-    } as any);
+      to: ROUTE_PATHS.REC_RESOURCE_FILES,
+      params: { id: 'test-resource-123' },
+    });
   });
 
   it('shows files tab as active in mobile trigger', () => {
@@ -149,55 +124,5 @@ describe('RecResourceVerticalNav', () => {
       'rec-resource-vertical-nav__mobile-trigger',
     );
     expect(triggerButton).toHaveTextContent('Files');
-  });
-
-  it('hides fees nav item when feature flag is disabled', () => {
-    vi.mocked(hooks.useVisibleNavSections).mockReturnValue(
-      mockVisibleNavSections as any,
-    );
-
-    renderWithRouter(<RecResourceVerticalNav {...defaultProps} />);
-
-    expect(screen.queryByText('Fees')).not.toBeInTheDocument();
-  });
-
-  it('shows fees nav item when feature flag is enabled', () => {
-    const sectionsWithFees = [
-      ...mockVisibleNavSections,
-      [
-        RecResourceNavKey.FEES,
-        { title: 'Fees', route: (id: string) => `/rec-resource/${id}/fees` },
-      ],
-    ];
-    vi.mocked(hooks.useVisibleNavSections).mockReturnValue(
-      sectionsWithFees as any,
-    );
-
-    renderWithRouter(<RecResourceVerticalNav {...defaultProps} />);
-
-    expect(screen.getByText('Fees')).toBeInTheDocument();
-  });
-
-  it('navigates to fees route when fees nav item is clicked', async () => {
-    const user = userEvent.setup();
-    const sectionsWithFees = [
-      ...mockVisibleNavSections,
-      [
-        RecResourceNavKey.FEES,
-        { title: 'Fees', route: (id: string) => `/rec-resource/${id}/fees` },
-      ],
-    ];
-    vi.mocked(hooks.useVisibleNavSections).mockReturnValue(
-      sectionsWithFees as any,
-    );
-
-    renderWithRouter(<RecResourceVerticalNav {...defaultProps} />);
-
-    const feesLinks = screen.getAllByText('Fees');
-    await user.click(feesLinks[0]);
-
-    expect(mockNavigate).toHaveBeenCalledWith({
-      to: '/rec-resource/test-resource-123/fees',
-    } as any);
   });
 });

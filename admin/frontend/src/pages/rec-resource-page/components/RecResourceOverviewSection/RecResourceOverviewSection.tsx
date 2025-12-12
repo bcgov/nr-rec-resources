@@ -1,8 +1,8 @@
+import { ROUTE_PATHS } from '@/constants/routes';
 import { FeatureFlagGuard } from '@/contexts/feature-flags';
 import { RecreationResourceDetailUIModel } from '@/services';
 import { LinkWithQueryParams } from '@shared/components/link-with-query-params';
 import { Col, Row, Stack } from 'react-bootstrap';
-import { RecResourceActivitySection } from '../RecResourceActivitySection';
 import { RecResourceEstablishmentOrderSection } from '../RecResourceEstablishmentOrderSection';
 import { RecResourceLocationSection } from '../RecResourceLocationSection';
 import {
@@ -59,7 +59,11 @@ export const RecResourceOverviewSection = (
         <h2>Overview</h2>
 
         <FeatureFlagGuard requiredFlags={['enable_full_features']}>
-          <LinkWithQueryParams to="edit" className="btn btn-outline-primary">
+          <LinkWithQueryParams
+            to={ROUTE_PATHS.REC_RESOURCE_OVERVIEW_EDIT}
+            params={{ id: recResource.rec_resource_id }}
+            className="btn btn-outline-primary"
+          >
             Edit
           </LinkWithQueryParams>
         </FeatureFlagGuard>
@@ -117,10 +121,6 @@ export const RecResourceOverviewSection = (
       </FeatureFlagGuard>
 
       {recResource && <RecResourceLocationSection recResource={recResource} />}
-
-      <RecResourceActivitySection
-        recreationActivities={recResource.recreation_activity}
-      />
     </Stack>
   );
 };
