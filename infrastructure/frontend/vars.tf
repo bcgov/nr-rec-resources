@@ -13,19 +13,19 @@ variable "app_env" {
 }
 
 variable "app_name" {
-  description  = " The APP name with environment (app_env)"
+  description = " The APP name with environment (app_env)"
   type        = string
 }
 
 variable "aws_region" {
-  type = string
+  type    = string
   default = "ca-central-1"
 }
 
-variable "custom_domain" {
-  description = "The custom domain name for the CloudFront distribution."
-  type        = string
-  default     = "beta.sitesandtrailsbc.ca"
+variable "custom_domains" {
+  description = "List of custom domain names for the CloudFront distribution. For public app in prod, typically includes beta, apex, and www domains. For admin app, typically includes staff subdomain."
+  type        = list(string)
+  default     = []
 }
 
 variable "api_remote_state" {
@@ -46,12 +46,12 @@ variable "api_remote_state" {
 
 variable "csp_urls" {
   description = "List of URLs to be included in the Content Security Policy"
-  type        = object({
-    script_src = optional(string, "")
-    style_src  = optional(string, "")
+  type = object({
+    script_src  = optional(string, "")
+    style_src   = optional(string, "")
     connect_src = optional(string, "")
-    matomo_src = optional(string, "")
-    image_src = optional(string, "")
+    matomo_src  = optional(string, "")
+    image_src   = optional(string, "")
   })
   default = {}
 }
