@@ -28,7 +28,7 @@ interface CurrencyInputProps {
 }
 
 const isValidCurrencyInput = (input: string): boolean => {
-  return /^\d*\.?\d*$/.test(input) && (input.match(/\./g) || []).length <= 1;
+  return /^(\d+(\.\d*)?|\.\d*|)$/.test(input);
 };
 
 const formatCurrency = (value: number): string => {

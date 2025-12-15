@@ -1,6 +1,6 @@
 import { FeesController } from '@/recreation-resources/fees/fees.controller';
 import { FeesService } from '@/recreation-resources/fees/fees.service';
-import { INestApplication } from '@nestjs/common';
+import { HttpException, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -17,6 +17,7 @@ describe('FeesController', () => {
           provide: FeesService,
           useValue: {
             getAll: vi.fn(),
+            create: vi.fn(),
           },
         },
       ],
@@ -71,6 +72,66 @@ describe('FeesController', () => {
 
       expect(response).toEqual([]);
       expect(feesService.getAll).toHaveBeenCalledWith('REC9999');
+    });
+  });
+
+  describe('create', () => {
+    it('should create and return a fee', async () => {
+      const createFeeDto = {
+        recreation_fee_code: 'D',
+        fee_amount: 20,
+        fee_start_date: new Date('2024-06-01'),
+        fee_end_date: new Date('2024-09-30'),
+        monday_ind: 'Y',
+        tuesday_ind: 'Y',
+        wednesday_ind: 'Y',
+        thursday_ind: 'Y',
+        friday_ind: 'Y',
+        saturday_ind: 'Y',
+        sunday_ind: 'Y',
+      };
+
+      const expectedResult = {
+        ...createFeeDto,
+        fee_type_description: 'Day use',
+      };
+
+      vi.spyOn(feesService, 'create').mockResolvedValue(expectedResult as any);
+
+      const response = await controller.create('REC1222', createFeeDto as any);
+
+      expect(response).toBe(expectedResult);
+      expect(feesService.create).toHaveBeenCalledWith('REC1222', createFeeDto);
+    });
+
+    it('should re-throw HttpException as-is', async () => {
+      const createFeeDto = {
+        recreation_fee_code: 'D',
+        fee_amount: 20,
+        fee_start_date: new Date('2024-06-01'),
+      };
+
+      const httpException = new HttpException('Not Found', 404);
+      vi.spyOn(feesService, 'create').mockRejectedValue(httpException);
+
+      await expect(
+        controller.create('REC1222', createFeeDto as any),
+      ).rejects.toThrow(httpException);
+    });
+
+    it('should wrap generic errors in 500 HttpException', async () => {
+      const createFeeDto = {
+        recreation_fee_code: 'D',
+        fee_amount: 20,
+        fee_start_date: new Date('2024-06-01'),
+      };
+
+      const genericError = new Error('Database error');
+      vi.spyOn(feesService, 'create').mockRejectedValue(genericError);
+
+      await expect(
+        controller.create('REC1222', createFeeDto as any),
+      ).rejects.toThrow(new HttpException('Error creating fee', 500));
     });
   });
 });
