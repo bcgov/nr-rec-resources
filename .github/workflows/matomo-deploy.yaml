@@ -30,7 +30,7 @@ jobs:
       MATOMO_ALLOWED_ORIGINS: ${{ secrets.MATOMO_ALLOWED_ORIGINS }}
     steps:
       - name: Check out Matomo CDK repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           repository: bcgov/nr-parks-web-analytics-matomo
           ref: main
