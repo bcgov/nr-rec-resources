@@ -1,7 +1,8 @@
 import { RecResourceFeesSection } from '@/pages/rec-resource-page/components/RecResourceFeesSection';
-import { Route } from '@/routes/rec-resource/$id/fees';
+import { Route } from '@/routes/rec-resource/$id/fees/index';
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
+import * as featureFlagHooks from '@/contexts/feature-flags/hooks';
 
 const mockFees = [
   {
@@ -38,15 +39,36 @@ const mockFees = [
   },
 ];
 
-vi.mock('@/routes/rec-resource/$id/fees', () => {
+vi.mock('@/contexts/feature-flags/hooks');
+
+vi.mock('@/routes/rec-resource/$id/fees/index', () => {
   return {
     Route: {
       useLoaderData: vi.fn(() => ({
         fees: mockFees,
       })),
+      useParams: vi.fn(() => ({
+        id: 'test-id',
+      })),
     },
   };
 });
+
+vi.mock('@tanstack/react-router', async () => {
+  const actual = await vi.importActual('@tanstack/react-router');
+  return {
+    ...actual,
+    useNavigate: vi.fn(() => vi.fn()),
+  };
+});
+
+vi.mock('@shared/components/link-with-query-params', () => ({
+  LinkWithQueryParams: ({ to, children, className }: any) => (
+    <a href={to} className={className}>
+      {children}
+    </a>
+  ),
+}));
 
 describe('RecResourceFeesSection', () => {
   beforeEach(() => {
@@ -54,6 +76,18 @@ describe('RecResourceFeesSection', () => {
     vi.mocked(Route.useLoaderData).mockReturnValue({
       fees: mockFees,
     });
+    vi.mocked(Route.useParams).mockReturnValue({
+      id: 'test-id',
+    });
+    vi.mocked(featureFlagHooks.useFeatureFlagsEnabled).mockReturnValue(true);
+  });
+
+  it('renders h2 heading with Fees title', () => {
+    render(<RecResourceFeesSection />);
+
+    expect(
+      screen.getByRole('heading', { name: 'Fees', level: 2 }),
+    ).toBeInTheDocument();
   });
 
   it('renders empty state when no fees', () => {
@@ -95,7 +129,7 @@ describe('RecResourceFeesSection', () => {
   });
 
   it('handles missing fee amount', () => {
-    const feesWithNullAmount: RecreationFeeUIModel[] = [
+    const feesWithNullAmount = [
       {
         ...mockFees[0],
         fee_amount: undefined,
@@ -113,7 +147,7 @@ describe('RecResourceFeesSection', () => {
   });
 
   it('handles missing dates', () => {
-    const feesWithNullDates: RecreationFeeUIModel[] = [
+    const feesWithNullDates = [
       {
         ...mockFees[0],
         fee_start_date: undefined,
@@ -134,7 +168,7 @@ describe('RecResourceFeesSection', () => {
   });
 
   it('uses fee code when description is missing', () => {
-    const feesWithoutDescription: RecreationFeeUIModel[] = [
+    const feesWithoutDescription = [
       {
         ...mockFees[0],
         fee_type_description: '',
@@ -151,7 +185,7 @@ describe('RecResourceFeesSection', () => {
   });
 
   it('handles fee amount of zero', () => {
-    const feesWithZeroAmount: RecreationFeeUIModel[] = [
+    const feesWithZeroAmount = [
       {
         ...mockFees[0],
         fee_amount: 0,
@@ -168,7 +202,7 @@ describe('RecResourceFeesSection', () => {
   });
 
   it('handles multiple fees with same code and start date', () => {
-    const duplicateFees: RecreationFeeUIModel[] = [
+    const duplicateFees = [
       {
         ...mockFees[0],
         recreation_fee_code: 'D',
@@ -193,7 +227,7 @@ describe('RecResourceFeesSection', () => {
   });
 
   it('handles fees with only start date and no end date', () => {
-    const feesWithOnlyStartDate: RecreationFeeUIModel[] = [
+    const feesWithOnlyStartDate = [
       {
         ...mockFees[0],
         fee_end_date: undefined,
@@ -211,10 +245,21 @@ describe('RecResourceFeesSection', () => {
     expect(row).toHaveTextContent('--');
   });
 
-  it('handles empty fees array', () => {
-    render(<RecResourceFeesSection fees={[]} />);
+  it('renders Add Fee button when feature flag is enabled', () => {
+    vi.mocked(featureFlagHooks.useFeatureFlagsEnabled).mockReturnValue(true);
 
-    expect(screen.getByText('Current Fee Information')).toBeInTheDocument();
-    expect(screen.getByText('Fee Type')).toBeInTheDocument();
+    render(<RecResourceFeesSection />);
+
+    expect(screen.getByRole('link', { name: /add fee/i })).toBeInTheDocument();
+  });
+
+  it('does not render Add Fee button when feature flag is disabled', () => {
+    vi.mocked(featureFlagHooks.useFeatureFlagsEnabled).mockReturnValue(false);
+
+    render(<RecResourceFeesSection />);
+
+    expect(
+      screen.queryByRole('link', { name: /add fee/i }),
+    ).not.toBeInTheDocument();
   });
 });

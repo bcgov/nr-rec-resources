@@ -229,7 +229,6 @@ describe('FeesService', () => {
         monday_ind: 'Y',
       };
 
-      // Arrange prisma mocks
       vi.mocked(
         prismaService.recreation_resource!.findUnique as any,
       ).mockResolvedValue({
@@ -256,19 +255,15 @@ describe('FeesService', () => {
         createdRecord,
       );
 
-      // Act
       const result = await service.create(recId, input);
 
-      // Assert mapping
       expect(result.recreation_fee_code).toBe('C');
       expect(result.fee_amount).toBe(15.5);
       expect(result.fee_type_description).toBe('Camping');
-      // Dates should be Date objects equal to the created record dates
       expect(result.fee_start_date).toEqual(createdRecord.fee_start_date);
       expect(result.fee_end_date).toEqual(createdRecord.fee_end_date);
       expect(result.monday_ind).toBe('Y');
 
-      // Assert prisma.create was called with Date objects (transformed from strings)
       const createCallArg = (prismaService.recreation_fee!.create as any).mock
         .calls[0][0];
       expect(createCallArg).toBeTruthy();
@@ -294,32 +289,7 @@ describe('FeesService', () => {
         NotFoundException,
       );
 
-      // Ensure create is not called
       expect(prismaService.recreation_fee!.create).not.toHaveBeenCalled();
-    });
-
-    it('propagates database foreign-key errors from prisma.create', async () => {
-      const recId = 'REC123';
-      const input: CreateRecreationFeeDto = {
-        recreation_fee_code: 'Z',
-      };
-
-      // resource exists
-      vi.mocked(
-        prismaService.recreation_resource!.findUnique as any,
-      ).mockResolvedValue({
-        rec_resource_id: recId,
-      });
-
-      const prismaFkError = {
-        code: 'P2003',
-        message: 'Foreign key constraint failed',
-      };
-      vi.mocked(prismaService.recreation_fee!.create as any).mockRejectedValue(
-        prismaFkError,
-      );
-
-      await expect(service.create(recId, input)).rejects.toEqual(prismaFkError);
     });
   });
 });

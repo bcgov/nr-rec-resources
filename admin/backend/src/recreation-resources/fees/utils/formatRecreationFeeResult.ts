@@ -5,14 +5,6 @@ export type FeeWithDescription = Prisma.recreation_feeGetPayload<{
   include: { with_description: { select: { description: true } } };
 }>;
 
-/**
- * Formats a Prisma `recreation_fee` record (including `with_description`)
- * into the `RecreationFeeDto` shape consumed by consumers of the service.
- *
- * - Converts DB `null` values to `undefined` where the API expects that.
- * - Extracts `with_description.description` into `fee_type_description`.
- * - Strips the nested `with_description` relation from the resulting DTO.
- */
 export function formatRecreationFeeResult(
   fee: FeeWithDescription,
 ): RecreationFeeDto {

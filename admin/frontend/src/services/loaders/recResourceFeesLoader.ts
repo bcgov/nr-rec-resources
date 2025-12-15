@@ -6,8 +6,6 @@ import {
 import { RECREATION_RESOURCE_QUERY_KEYS } from '@/services/hooks/recreation-resource-admin/queryKeys';
 import { mapRecreationFee } from '@/services/hooks/recreation-resource-admin/helpers';
 
-export const RECREATION_RESOURCE_FEES_QUERY_KEY = 'recreation-resource-fees';
-
 export async function recResourceFeesLoader({ context, params }: any) {
   const authService = AuthService.getInstance();
   const basePath = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || '';
@@ -21,7 +19,7 @@ export async function recResourceFeesLoader({ context, params }: any) {
 
   const [fees, recResource] = await Promise.all([
     context.queryClient.ensureQueryData({
-      queryKey: [RECREATION_RESOURCE_FEES_QUERY_KEY, params.id],
+      queryKey: RECREATION_RESOURCE_QUERY_KEYS.fees(params.id),
       queryFn: async () => {
         const response = await api.getRecreationResourceFees({
           recResourceId: params.id,

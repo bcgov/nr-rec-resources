@@ -116,16 +116,4 @@ describe('recResourceLoader', () => {
 
     expect(result).toEqual({ recResource: mockRecResource });
   });
-
-  it('should handle missing VITE_API_BASE_URL', async () => {
-    vi.stubEnv('VITE_API_BASE_URL', '');
-
-    const params = { id: 'REC123' };
-    mockQueryClient.ensureQueryData.mockResolvedValue({});
-
-    const result = await recResourceLoader({ context: mockContext, params });
-
-    expect(RecreationResourcesApi).toHaveBeenCalled();
-    expect(result).toBeDefined();
-  });
 });

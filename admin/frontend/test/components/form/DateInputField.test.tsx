@@ -74,14 +74,37 @@ describe('DateInputField', () => {
     expect(screen.getByPlaceholderText('Select a date')).toBeInTheDocument();
   });
 
-  it('applies max date (today)', () => {
-    const today = new Date().toISOString().split('T')[0];
-
+  it('does not apply max date by default', () => {
     render(<DateInputField {...defaultProps} />, { wrapper: Wrapper });
+
+    expect(screen.getByLabelText('Established Date')).not.toHaveAttribute(
+      'max',
+    );
+  });
+
+  it('applies max date when provided', () => {
+    const maxDate = '2025-12-31';
+
+    render(<DateInputField {...defaultProps} max={maxDate} />, {
+      wrapper: Wrapper,
+    });
 
     expect(screen.getByLabelText('Established Date')).toHaveAttribute(
       'max',
-      today,
+      maxDate,
+    );
+  });
+
+  it('applies min date when provided', () => {
+    const minDate = '2023-01-01';
+
+    render(<DateInputField {...defaultProps} min={minDate} />, {
+      wrapper: Wrapper,
+    });
+
+    expect(screen.getByLabelText('Established Date')).toHaveAttribute(
+      'min',
+      minDate,
     );
   });
 
