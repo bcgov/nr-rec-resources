@@ -1,0 +1,37 @@
+@import '@/styles/global';
+
+.title {
+  margin-bottom: 0.5em;
+}
+
+.activity-container {
+  display: flex;
+  flex-direction: column;
+  width: 350px;
+  margin-right: 16px;
+
+  a:link, a:visited, a:hover, a:active {
+    text-decoration: none;
+  }
+
+  .activity-title {
+    color: $colorBlue;
+    font-weight: 700;
+    font-style: Bold;
+    font-size: 23px;
+    line-height: 33px;
+  }
+
+  .activity-description {
+    color: $colorBlue;
+    font-size: 16px;
+    width: 100%;
+  }
+
+  .activity-image {
+    width: 349px;
+    height: 203px;
+    border-bottom-width: 10px;
+    border-radius: 24px;
+  }
+}

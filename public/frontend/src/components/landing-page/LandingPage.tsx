@@ -14,6 +14,7 @@ import {
 } from '@/components/landing-page/constants';
 import { Link } from '@tanstack/react-router';
 import { ROUTE_PATHS } from '@/constants/routes';
+import { ActivitiesList } from './components/activities-list';
 
 const LearnMoreLink: FC = () => (
   <Button
@@ -97,7 +98,7 @@ export const LandingPage: FC = () => {
           imageBasePath={LANDING_PAGE_IMAGE_BASE_PATHS.WELCOME}
           imageAlt="Research illustration"
         />
-
+        <ActivitiesList />
         <ContentSection
           aria-label="Research process"
           headingComponent={
