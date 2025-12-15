@@ -20,7 +20,9 @@ describe('ActivitiesList', () => {
 
     // Section title
     expect(
-      screen.getByRole('heading', { name: 'Activities List' }),
+      screen.getByRole('heading', {
+        name: 'Find sites and trails by activity',
+      }),
     ).toBeInTheDocument();
 
     // Activity components rendered
