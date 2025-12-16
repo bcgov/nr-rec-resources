@@ -6,38 +6,47 @@ import { RecResourceOverviewItem } from '@/pages/rec-resource-page/components/Re
 import { RecResourceLocationSection } from '@/pages/rec-resource-page/components/RecResourceLocationSection';
 import { Route } from '@/routes/rec-resource/$id/geospatial';
 import { ROUTE_PATHS } from '@/constants/routes';
+import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
+import { useGetRecreationResourceGeospatial } from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceGeospatial';
 
 export function RecResourceGeospatialSection() {
-  const { geospatialData, recResource } = Route.useLoaderData();
+  const params = Route.useParams();
+  const recResourceId = params?.id;
+  const { recResource } = useRecResource();
 
-  const latitude = geospatialData?.latitude;
-  const longitude = geospatialData?.longitude;
+  const { data: geospatialData } =
+    useGetRecreationResourceGeospatial(recResourceId);
+
+  const { latitude, longitude, utm_easting, utm_northing, utm_zone } =
+    geospatialData || {};
+
+  const hasGeometryData = utm_zone && utm_easting && utm_northing;
 
   const geospatialItems = [
     {
       key: 'utm-zone',
       label: 'UTM zone',
-      value: geospatialData?.utm_zone?.toString(),
+      value: utm_zone?.toString(),
     },
     {
       key: 'utm-easting',
       label: 'UTM easting',
-      value: geospatialData?.utm_easting?.toString(),
+      value: utm_easting?.toString(),
     },
     {
       key: 'utm-northing',
       label: 'UTM northing',
-      value: geospatialData?.utm_northing?.toString(),
+      value: utm_northing?.toString(),
     },
     {
       key: 'latitude',
       label: 'Latitude',
-      value: latitude ? <CopyButton text={latitude} /> : undefined,
+      value: latitude ? <CopyButton text={String(latitude)} /> : undefined,
     },
     {
       key: 'longitude',
       label: 'Longitude',
-      value: longitude ? <CopyButton text={longitude} /> : undefined,
+      value: longitude ? <CopyButton text={String(longitude)} /> : undefined,
     },
   ];
 
@@ -47,15 +56,17 @@ export function RecResourceGeospatialSection() {
         <h2>Geospatial</h2>
 
         <FeatureFlagGuard requiredFlags={['enable_full_features']}>
-          <LinkWithQueryParams
-            to={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL_EDIT.replace(
-              '$id',
-              recResource?.rec_resource_id,
-            )}
-            className="btn btn-outline-primary"
-          >
-            Edit
-          </LinkWithQueryParams>
+          {hasGeometryData && (
+            <LinkWithQueryParams
+              to={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL_EDIT.replace(
+                '$id',
+                recResourceId,
+              )}
+              className="btn btn-outline-primary"
+            >
+              Edit
+            </LinkWithQueryParams>
+          )}
         </FeatureFlagGuard>
       </div>
 

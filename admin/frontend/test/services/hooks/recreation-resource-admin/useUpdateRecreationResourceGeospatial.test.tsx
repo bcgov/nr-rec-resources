@@ -1,7 +1,6 @@
 import { useRecreationResourceAdminApiClient } from '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient';
 import useUpdateRecreationResourceGeospatial from '@/services/hooks/recreation-resource-admin/useUpdateRecreationResourceGeospatial';
 import { RECREATION_RESOURCE_QUERY_KEYS } from '@/services/hooks/recreation-resource-admin/queryKeys';
-import { RECREATION_RESOURCE_GEOSPATIAL_QUERY_KEY } from '@/services/loaders/recResourceGeospatialLoader';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -105,10 +104,9 @@ describe('useUpdateRecreationResourceGeospatial', () => {
       expect(result.current.isSuccess).toBe(true);
     });
 
-    const geospatialData = queryClient.getQueryData([
-      RECREATION_RESOURCE_GEOSPATIAL_QUERY_KEY,
-      'REC123',
-    ]);
+    const geospatialData = queryClient.getQueryData(
+      RECREATION_RESOURCE_QUERY_KEYS.geospatial('REC123'),
+    );
 
     expect(geospatialData).toEqual(mockApiResponse);
   });
