@@ -5,6 +5,7 @@ import { CopyButton } from '@shared/components/copy-button';
 import { RecResourceOverviewItem } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/components';
 import { RecResourceLocationSection } from '@/pages/rec-resource-page/components/RecResourceLocationSection';
 import { Route } from '@/routes/rec-resource/$id/geospatial';
+import { ROUTE_PATHS } from '@/constants/routes';
 
 export function RecResourceGeospatialSection() {
   const { geospatialData, recResource } = Route.useLoaderData();
@@ -46,7 +47,13 @@ export function RecResourceGeospatialSection() {
         <h2>Geospatial</h2>
 
         <FeatureFlagGuard requiredFlags={['enable_full_features']}>
-          <LinkWithQueryParams to="edit" className="btn btn-outline-primary">
+          <LinkWithQueryParams
+            to={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL_EDIT.replace(
+              '$id',
+              recResource?.rec_resource_id,
+            )}
+            className="btn btn-outline-primary"
+          >
             Edit
           </LinkWithQueryParams>
         </FeatureFlagGuard>

@@ -207,6 +207,7 @@ export const RecResourceOverviewEditSection = () => {
                 label={EDIT_RESOURCE_FIELD_LABEL_MAP.project_established_date}
                 control={control}
                 errors={errors}
+                max={new Date().toISOString().split('T')[0]}
               />
             </Col>
           </Row>

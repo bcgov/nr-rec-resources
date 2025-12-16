@@ -1,4 +1,5 @@
 export * from './helpers';
+export * from './useCreateFee';
 export * from './useDeleteEstablishmentOrderDoc';
 export * from './useDeleteResourceDocument';
 export * from './useDeleteResourceImage';
