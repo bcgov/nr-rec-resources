@@ -58,7 +58,7 @@
     "@playwright/test": "^1.51.0",
     "@storybook/addon-docs": "^10.0.5",
     "@storybook/addon-onboarding": "^10.0.5",
-    "@storybook/addon-vitest": "10.1.4",
+    "@storybook/addon-vitest": "10.1.6",
     "@storybook/react-vite": "^10.0.5",
     "@tanstack/router-plugin": "^1.133.22",
     "@testing-library/jest-dom": "^6.6.3",
