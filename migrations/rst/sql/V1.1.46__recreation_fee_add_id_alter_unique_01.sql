@@ -1,0 +1,20 @@
+alter table rst.recreation_fee
+drop constraint if exists recreation_fee_rec_resource_id_recreation_fee_code_key;
+
+alter table rst.recreation_fee
+add column if not exists fee_id uuid
+primary key
+default gen_random_uuid();
+
+create unique index recreation_fee_unique_idx
+on rst.recreation_fee (
+    rec_resource_id,
+    recreation_fee_code,
+    monday_ind,
+    tuesday_ind,
+    wednesday_ind,
+    thursday_ind,
+    friday_ind,
+    saturday_ind,
+    sunday_ind
+);

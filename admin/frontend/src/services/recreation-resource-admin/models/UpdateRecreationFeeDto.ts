@@ -16,131 +16,100 @@ import { mapValues } from '../runtime';
 /**
  *
  * @export
- * @interface RecreationFeeDto
+ * @interface UpdateRecreationFeeDto
  */
-export interface RecreationFeeDto {
+export interface UpdateRecreationFeeDto {
   /**
    * Unique identifier for the fee
    * @type {string}
-   * @memberof RecreationFeeDto
+   * @memberof UpdateRecreationFeeDto
    */
   fee_id: string;
   /**
-   * Amount charged for the recreation resource
-   * @type {number}
-   * @memberof RecreationFeeDto
+   * Start date for the fee applicability (YYYY-MM-DD)
+   * @type {object}
+   * @memberof UpdateRecreationFeeDto
    */
-  fee_amount?: number;
+  fee_start_date?: object | null;
   /**
-   * Start date for the fee applicability
-   * @type {Date}
-   * @memberof RecreationFeeDto
+   * End date for the fee applicability (YYYY-MM-DD)
+   * @type {object}
+   * @memberof UpdateRecreationFeeDto
    */
-  fee_start_date?: Date;
-  /**
-   * End date for the fee applicability
-   * @type {Date}
-   * @memberof RecreationFeeDto
-   */
-  fee_end_date?: Date;
-  /**
-   * Type of fee applicable represented by code (C, D, H, P, T)
-   * @type {string}
-   * @memberof RecreationFeeDto
-   */
-  recreation_fee_code: string;
-  /**
-   * Description of the fee type
-   * @type {string}
-   * @memberof RecreationFeeDto
-   */
-  fee_type_description: string;
+  fee_end_date?: object | null;
   /**
    * Indicates if the fee applies on Monday
    * @type {string}
-   * @memberof RecreationFeeDto
+   * @memberof UpdateRecreationFeeDto
    */
   monday_ind?: string;
   /**
    * Indicates if the fee applies on Tuesday
    * @type {string}
-   * @memberof RecreationFeeDto
+   * @memberof UpdateRecreationFeeDto
    */
   tuesday_ind?: string;
   /**
    * Indicates if the fee applies on Wednesday
    * @type {string}
-   * @memberof RecreationFeeDto
+   * @memberof UpdateRecreationFeeDto
    */
   wednesday_ind?: string;
   /**
    * Indicates if the fee applies on Thursday
    * @type {string}
-   * @memberof RecreationFeeDto
+   * @memberof UpdateRecreationFeeDto
    */
   thursday_ind?: string;
   /**
    * Indicates if the fee applies on Friday
    * @type {string}
-   * @memberof RecreationFeeDto
+   * @memberof UpdateRecreationFeeDto
    */
   friday_ind?: string;
   /**
    * Indicates if the fee applies on Saturday
    * @type {string}
-   * @memberof RecreationFeeDto
+   * @memberof UpdateRecreationFeeDto
    */
   saturday_ind?: string;
   /**
    * Indicates if the fee applies on Sunday
    * @type {string}
-   * @memberof RecreationFeeDto
+   * @memberof UpdateRecreationFeeDto
    */
   sunday_ind?: string;
 }
 
 /**
- * Check if a given object implements the RecreationFeeDto interface.
+ * Check if a given object implements the UpdateRecreationFeeDto interface.
  */
-export function instanceOfRecreationFeeDto(
+export function instanceOfUpdateRecreationFeeDto(
   value: object,
-): value is RecreationFeeDto {
+): value is UpdateRecreationFeeDto {
   if (!('fee_id' in value) || value['fee_id'] === undefined) return false;
-  if (
-    !('recreation_fee_code' in value) ||
-    value['recreation_fee_code'] === undefined
-  )
-    return false;
-  if (
-    !('fee_type_description' in value) ||
-    value['fee_type_description'] === undefined
-  )
-    return false;
   return true;
 }
 
-export function RecreationFeeDtoFromJSON(json: any): RecreationFeeDto {
-  return RecreationFeeDtoFromJSONTyped(json, false);
+export function UpdateRecreationFeeDtoFromJSON(
+  json: any,
+): UpdateRecreationFeeDto {
+  return UpdateRecreationFeeDtoFromJSONTyped(json, false);
 }
 
-export function RecreationFeeDtoFromJSONTyped(
+export function UpdateRecreationFeeDtoFromJSONTyped(
   json: any,
   ignoreDiscriminator: boolean,
-): RecreationFeeDto {
+): UpdateRecreationFeeDto {
   if (json == null) {
     return json;
   }
   return {
     fee_id: json['fee_id'],
-    fee_amount: json['fee_amount'] == null ? undefined : json['fee_amount'],
     fee_start_date:
-      json['fee_start_date'] == null
-        ? undefined
-        : new Date(json['fee_start_date']),
+      json['fee_start_date'] == null ? undefined : json['fee_start_date'],
     fee_end_date:
-      json['fee_end_date'] == null ? undefined : new Date(json['fee_end_date']),
-    recreation_fee_code: json['recreation_fee_code'],
-    fee_type_description: json['fee_type_description'],
+      json['fee_end_date'] == null ? undefined : json['fee_end_date'],
     monday_ind: json['monday_ind'] == null ? undefined : json['monday_ind'],
     tuesday_ind: json['tuesday_ind'] == null ? undefined : json['tuesday_ind'],
     wednesday_ind:
@@ -154,12 +123,14 @@ export function RecreationFeeDtoFromJSONTyped(
   };
 }
 
-export function RecreationFeeDtoToJSON(json: any): RecreationFeeDto {
-  return RecreationFeeDtoToJSONTyped(json, false);
+export function UpdateRecreationFeeDtoToJSON(
+  json: any,
+): UpdateRecreationFeeDto {
+  return UpdateRecreationFeeDtoToJSONTyped(json, false);
 }
 
-export function RecreationFeeDtoToJSONTyped(
-  value?: RecreationFeeDto | null,
+export function UpdateRecreationFeeDtoToJSONTyped(
+  value?: UpdateRecreationFeeDto | null,
   ignoreDiscriminator: boolean = false,
 ): any {
   if (value == null) {
@@ -168,17 +139,8 @@ export function RecreationFeeDtoToJSONTyped(
 
   return {
     fee_id: value['fee_id'],
-    fee_amount: value['fee_amount'],
-    fee_start_date:
-      value['fee_start_date'] == null
-        ? undefined
-        : value['fee_start_date'].toISOString(),
-    fee_end_date:
-      value['fee_end_date'] == null
-        ? undefined
-        : value['fee_end_date'].toISOString(),
-    recreation_fee_code: value['recreation_fee_code'],
-    fee_type_description: value['fee_type_description'],
+    fee_start_date: value['fee_start_date'],
+    fee_end_date: value['fee_end_date'],
     monday_ind: value['monday_ind'],
     tuesday_ind: value['tuesday_ind'],
     wednesday_ind: value['wednesday_ind'],
