@@ -4,10 +4,11 @@ import {
   RecreationResourcesApi,
 } from '@/services/recreation-resource-admin';
 import { RECREATION_RESOURCE_QUERY_KEYS } from '@/services/hooks/recreation-resource-admin/queryKeys';
+import { recResourceLoader } from './recResourceLoader';
 
-export const RECREATION_RESOURCE_GEOSPATIAL_QUERY_KEY = 'geospatial';
+export async function recResourceGeospatialLoader(args: any) {
+  const parentData = await recResourceLoader(args);
 
-export async function recResourceGeospatialLoader({ context, params }: any) {
   const authService = AuthService.getInstance();
   const basePath = import.meta.env.VITE_API_BASE_URL?.replace('/api', '') || '';
 
@@ -18,25 +19,25 @@ export async function recResourceGeospatialLoader({ context, params }: any) {
     }),
   );
 
-  const [geospatialData, recResource] = await Promise.all([
-    context.queryClient.ensureQueryData({
-      queryKey: [RECREATION_RESOURCE_GEOSPATIAL_QUERY_KEY, params.id],
+  const geospatialData = await args.context.queryClient
+    .ensureQueryData({
+      queryKey: RECREATION_RESOURCE_QUERY_KEYS.geospatial(args.params.id),
       queryFn: async () => {
         return await api.getRecreationResourceGeospatial({
-          recResourceId: params.id,
+          recResourceId: args.params.id,
         });
       },
-    }),
-    context.queryClient.ensureQueryData({
-      queryKey: RECREATION_RESOURCE_QUERY_KEYS.detail(params.id),
-      queryFn: async () => {
-        const data = await api.getRecreationResourceById({
-          recResourceId: params.id,
-        });
-        return data;
-      },
-    }),
-  ]);
+    })
+    .catch((error: any) => {
+      // If geospatial data doesn't exist return null
+      if (error?.status === 404 || error?.response?.status === 404) {
+        return null;
+      }
+      throw error;
+    });
 
-  return { geospatialData, recResource };
+  return {
+    ...parentData,
+    geospatialData,
+  };
 }

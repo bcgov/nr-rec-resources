@@ -2,6 +2,8 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { RecResourceGeospatialEditSection } from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/EditSection';
 
+const mockUseGetRecreationResourceGeospatial = vi.fn();
+
 vi.mock('react-hook-form', async () => {
   const actual = await vi.importActual('react-hook-form');
   return {
@@ -36,15 +38,35 @@ vi.mock(
 
 vi.mock('@/routes/rec-resource/$id/geospatial/edit', () => ({
   Route: {
-    useLoaderData: () => ({
-      geospatialData: {
-        latitude: 49.123456,
-        longitude: -123.654321,
-      },
-    }),
     useParams: () => ({ id: 'REC123' }),
   },
 }));
+
+vi.mock('@/pages/rec-resource-page/hooks/useRecResource', () => ({
+  useRecResource: () => ({
+    rec_resource_id: 'REC123',
+    recResource: {},
+    isLoading: false,
+    error: undefined,
+  }),
+}));
+
+vi.mock(
+  '@/services/hooks/recreation-resource-admin/useGetRecreationResourceGeospatial',
+  () => ({
+    useGetRecreationResourceGeospatial: (...args: any[]) =>
+      mockUseGetRecreationResourceGeospatial(...args),
+  }),
+);
+
+vi.mock(
+  '@/pages/rec-resource-page/components/RecResourceLocationSection',
+  () => ({
+    RecResourceLocationSection: () => (
+      <div data-testid="mock-location">LocationSection rendered</div>
+    ),
+  }),
+);
 
 vi.mock('@shared/components/link-with-query-params', () => ({
   LinkWithQueryParams: ({ children, ...props }: any) => (
@@ -54,6 +76,13 @@ vi.mock('@shared/components/link-with-query-params', () => ({
 
 describe('RecResourceGeospatialEditSection', () => {
   it('renders header and action buttons', () => {
+    mockUseGetRecreationResourceGeospatial.mockReturnValue({
+      data: {
+        latitude: 49.123456,
+        longitude: -123.654321,
+      },
+    });
+
     render(<RecResourceGeospatialEditSection />);
 
     expect(screen.getByText('Edit Geospatial')).toBeDefined();
@@ -64,6 +93,13 @@ describe('RecResourceGeospatialEditSection', () => {
   });
 
   it('displays computed latitude and longitude', () => {
+    mockUseGetRecreationResourceGeospatial.mockReturnValue({
+      data: {
+        latitude: 49.123456,
+        longitude: -123.654321,
+      },
+    });
+
     render(<RecResourceGeospatialEditSection />);
 
     expect(screen.getByText('Latitude')).toBeDefined();

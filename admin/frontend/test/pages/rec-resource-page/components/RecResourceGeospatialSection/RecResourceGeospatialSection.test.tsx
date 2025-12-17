@@ -1,20 +1,30 @@
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+const mockUseRecResource = vi.fn();
+const mockUseGetRecreationResourceGeospatial = vi.fn();
+
+const mockRoute = {
+  useParams: vi.fn(() => ({
+    id: 'REC0001',
+  })),
+};
 
 vi.mock('@/routes/rec-resource/$id/geospatial', () => ({
-  Route: {
-    useLoaderData: () => ({
-      geospatialData: {
-        utm_zone: 10,
-        utm_easting: 500000,
-        utm_northing: 5480000,
-        latitude: 49.123456,
-        longitude: -123.654321,
-      },
-      recResource: {},
-    }),
-  },
+  Route: mockRoute,
 }));
+
+vi.mock('@/pages/rec-resource-page/hooks/useRecResource', () => ({
+  useRecResource: (...args: any[]) => mockUseRecResource(...args),
+}));
+
+vi.mock(
+  '@/services/hooks/recreation-resource-admin/useGetRecreationResourceGeospatial',
+  () => ({
+    useGetRecreationResourceGeospatial: (...args: any[]) =>
+      mockUseGetRecreationResourceGeospatial(...args),
+  }),
+);
 
 vi.mock('@/contexts/feature-flags', () => ({
   FeatureFlagGuard: ({ children }: any) => <>{children}</>,
@@ -40,6 +50,25 @@ const { RecResourceGeospatialSection } = await import(
 );
 
 describe('RecResourceGeospatialSection', () => {
+  beforeEach(() => {
+    mockUseRecResource.mockReturnValue({
+      rec_resource_id: 'REC0001',
+      recResource: {},
+      isLoading: false,
+      error: undefined,
+    });
+
+    mockUseGetRecreationResourceGeospatial.mockReturnValue({
+      data: {
+        utm_zone: 10,
+        utm_easting: 500000,
+        utm_northing: 5480000,
+        latitude: 49.123456,
+        longitude: -123.654321,
+      },
+    });
+  });
+
   it('renders header and edit link', () => {
     render(<RecResourceGeospatialSection />);
 
@@ -72,5 +101,15 @@ describe('RecResourceGeospatialSection', () => {
     expect(screen.getByTestId('mock-location')).toHaveTextContent(
       'LocationSection rendered',
     );
+  });
+
+  it('does not render edit button when geometry data is missing', () => {
+    mockUseGetRecreationResourceGeospatial.mockReturnValueOnce({
+      data: {},
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    expect(screen.queryByText('Edit')).toBeNull();
   });
 });
