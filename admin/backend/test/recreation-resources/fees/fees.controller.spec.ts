@@ -18,6 +18,7 @@ describe('FeesController', () => {
           useValue: {
             getAll: vi.fn(),
             create: vi.fn(),
+            update: vi.fn(),
           },
         },
       ],
@@ -132,6 +133,62 @@ describe('FeesController', () => {
       await expect(
         controller.create('REC1222', createFeeDto as any),
       ).rejects.toThrow(new HttpException('Error creating fee', 500));
+    });
+  });
+
+  describe('update', () => {
+    it('should update and return a fee', async () => {
+      const updateFeeDto = {
+        fee_amount: 25,
+        monday_ind: 'N',
+        sunday_ind: 'Y',
+      };
+
+      const expectedResult = {
+        fee_id: 123,
+        recreation_fee_code: 'D',
+        fee_amount: 25,
+        fee_type_description: 'Day use',
+        monday_ind: 'N',
+        sunday_ind: 'Y',
+      };
+
+      vi.spyOn(feesService, 'update').mockResolvedValue(expectedResult as any);
+
+      const response = await controller.update(
+        'REC1222',
+        123,
+        updateFeeDto as any,
+      );
+
+      expect(response).toBe(expectedResult);
+      expect(feesService.update).toHaveBeenCalledWith(
+        'REC1222',
+        123,
+        updateFeeDto,
+      );
+    });
+
+    it('should re-throw HttpException as-is', async () => {
+      const updateFeeDto = { fee_amount: 25 };
+
+      const httpException = new HttpException('Not Found', 404);
+      vi.spyOn(feesService, 'update').mockRejectedValue(httpException);
+
+      await expect(
+        controller.update('REC1222', 123, updateFeeDto as any),
+      ).rejects.toThrow(httpException);
+    });
+
+    it('should wrap generic errors in 500 HttpException', async () => {
+      const updateFeeDto = { fee_amount: 25 };
+
+      const genericError = new Error('Database error');
+      vi.spyOn(feesService, 'update').mockRejectedValue(genericError);
+
+      await expect(
+        controller.update('REC1222', 123, updateFeeDto as any),
+      ).rejects.toThrow(new HttpException('Error updating fee', 500));
     });
   });
 });

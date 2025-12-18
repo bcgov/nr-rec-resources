@@ -1,4 +1,5 @@
 import { CustomBadge, Table } from '@/components';
+import { ROUTE_PATHS } from '@/constants/routes';
 import { RecreationFeeUIModel } from '@/services';
 import { COLOR_BLACK, COLOR_GREY } from '@/styles/colors';
 import { getIndividualDays } from './helpers';
@@ -78,7 +79,7 @@ export const RecResourceFeesTable = ({
         if (!canEditFees || !recResourceId) return <span>--</span>;
         return (
           <LinkWithQueryParams
-            to="/rec-resource/$id/fees/$feeId/edit"
+            to={ROUTE_PATHS.REC_RESOURCE_FEE_EDIT}
             params={{ id: recResourceId, feeId: String(fee.fee_id) }}
             className="p-0 align-middle bc-color-blue-dk"
             aria-label="Edit fee"

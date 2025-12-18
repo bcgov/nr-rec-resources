@@ -119,6 +119,17 @@ describe('RecResourceFeesEditSection', () => {
     expect(feesTable).toHaveTextContent('0 fees');
   });
 
+  it('shows Fee not found when feeId does not match any loaded fee', () => {
+    vi.mocked(Route.useParams).mockReturnValueOnce({
+      id: 'test-id',
+      feeId: '999',
+    });
+
+    render(<RecResourceFeesEditSection />);
+
+    expect(screen.getByText(/fee not found/i)).toBeInTheDocument();
+  });
+
   it('uses rec resource id from params in Add Fee link', () => {
     vi.mocked(Route.useParams).mockReturnValueOnce({
       id: 'REC999',

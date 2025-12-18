@@ -57,6 +57,7 @@ describe('FeesService', () => {
               findMany: vi.fn(),
               create: vi.fn(),
               findUnique: vi.fn(),
+              update: vi.fn(),
             },
             recreation_resource: {
               findUnique: vi.fn(),
@@ -290,6 +291,98 @@ describe('FeesService', () => {
       );
 
       expect(prismaService.recreation_fee!.create).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('update', () => {
+    it('throws NotFoundException when fee does not exist', async () => {
+      vi.mocked(prismaService.recreation_fee.findUnique).mockResolvedValue(
+        null,
+      );
+
+      await expect(
+        service.update('REC1222', 123, { fee_amount: 25 } as any),
+      ).rejects.toBeInstanceOf(NotFoundException);
+
+      expect(prismaService.recreation_fee.update).not.toHaveBeenCalled();
+    });
+
+    it('throws NotFoundException when fee belongs to a different resource', async () => {
+      vi.mocked(prismaService.recreation_fee.findUnique).mockResolvedValue({
+        fee_id: 123,
+        rec_resource_id: 'REC_DIFFERENT',
+      } as any);
+
+      await expect(
+        service.update('REC1222', 123, { fee_amount: 25 } as any),
+      ).rejects.toBeInstanceOf(NotFoundException);
+
+      expect(prismaService.recreation_fee.update).not.toHaveBeenCalled();
+    });
+
+    it('maps provided fields only, converts date strings to Date, and preserves null-clearing', async () => {
+      vi.mocked(prismaService.recreation_fee.findUnique).mockResolvedValue({
+        fee_id: 123,
+        rec_resource_id: 'REC1222',
+      } as any);
+
+      const updateDto = {
+        recreation_fee_code: 'D',
+        fee_amount: null,
+        fee_start_date: '2024-06-01',
+        fee_end_date: null,
+        monday_ind: 'Y',
+        wednesday_ind: 'N',
+      };
+
+      const updatedRecord = {
+        fee_id: 123,
+        rec_resource_id: 'REC1222',
+        recreation_fee_code: 'D',
+        fee_amount: null,
+        fee_start_date: new Date('2024-06-01'),
+        fee_end_date: null,
+        monday_ind: 'Y',
+        wednesday_ind: 'N',
+        tuesday_ind: 'Y',
+        with_description: { description: 'Day use' },
+      };
+
+      vi.mocked(prismaService.recreation_fee.update).mockResolvedValue(
+        updatedRecord as any,
+      );
+
+      const result = await service.update('REC1222', 123, updateDto as any);
+
+      expect(result).toMatchObject({
+        fee_id: 123,
+        recreation_fee_code: 'D',
+        fee_amount: undefined,
+        fee_type_description: 'Day use',
+        monday_ind: 'Y',
+        wednesday_ind: 'N',
+      });
+      expect(result.fee_start_date).toEqual(new Date('2024-06-01'));
+      expect(result.fee_end_date).toBeUndefined();
+
+      const updateCallArg = (prismaService.recreation_fee.update as any).mock
+        .calls[0][0];
+      expect(updateCallArg.where).toEqual({ fee_id: 123 });
+
+      // ensure we only send provided fields
+      expect(updateCallArg.data).toMatchObject({
+        recreation_fee_code: 'D',
+        fee_amount: null,
+        fee_start_date: new Date('2024-06-01'),
+        fee_end_date: null,
+        monday_ind: 'Y',
+        wednesday_ind: 'N',
+      });
+      expect('tuesday_ind' in updateCallArg.data).toBe(false);
+      expect('thursday_ind' in updateCallArg.data).toBe(false);
+      expect('friday_ind' in updateCallArg.data).toBe(false);
+      expect('saturday_ind' in updateCallArg.data).toBe(false);
+      expect('sunday_ind' in updateCallArg.data).toBe(false);
     });
   });
 });
