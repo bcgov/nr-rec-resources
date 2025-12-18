@@ -3,9 +3,9 @@ import { ApiProperty } from '@nestjs/swagger';
 export class RecreationFeeDto {
   @ApiProperty({
     description: 'Unique identifier for the fee',
-    example: '550e8400-e29b-41d4-a716-446655440000',
+    example: 123,
   })
-  fee_id: string;
+  fee_id: number;
 
   @ApiProperty({
     description: 'Amount charged for the recreation resource',

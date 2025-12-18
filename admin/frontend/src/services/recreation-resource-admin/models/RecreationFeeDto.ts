@@ -21,10 +21,10 @@ import { mapValues } from '../runtime';
 export interface RecreationFeeDto {
   /**
    * Unique identifier for the fee
-   * @type {string}
+   * @type {number}
    * @memberof RecreationFeeDto
    */
-  fee_id: string;
+  fee_id: number;
   /**
    * Amount charged for the recreation resource
    * @type {number}

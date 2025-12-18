@@ -184,6 +184,7 @@ export interface UpdateRecreationResourceByIdRequest {
 
 export interface UpdateRecreationResourceFeeRequest {
   recResourceId: string;
+  feeId: number;
   updateRecreationFeeDto: UpdateRecreationFeeDto;
 }
 
@@ -1812,7 +1813,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Updates fee start/end dates and day-of-week applicability for an existing fee identified by fee_id
+   * Updates an existing fee identified by fee_id and associated with the recreation resource
    * Update an existing fee for a recreation resource
    */
   async updateRecreationResourceFeeRaw(
@@ -1823,6 +1824,13 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       throw new runtime.RequiredError(
         'recResourceId',
         'Required parameter "recResourceId" was null or undefined when calling updateRecreationResourceFee().',
+      );
+    }
+
+    if (requestParameters['feeId'] == null) {
+      throw new runtime.RequiredError(
+        'feeId',
+        'Required parameter "feeId" was null or undefined when calling updateRecreationResourceFee().',
       );
     }
 
@@ -1849,11 +1857,16 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     }
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/fees/edit`.replace(
-          `{${'rec_resource_id'}}`,
-          encodeURIComponent(String(requestParameters['recResourceId'])),
-        ),
-        method: 'POST',
+        path: `/api/v1/recreation-resources/{rec_resource_id}/fees/{fee_id}`
+          .replace(
+            `{${'rec_resource_id'}}`,
+            encodeURIComponent(String(requestParameters['recResourceId'])),
+          )
+          .replace(
+            `{${'fee_id'}}`,
+            encodeURIComponent(String(requestParameters['feeId'])),
+          ),
+        method: 'PUT',
         headers: headerParameters,
         query: queryParameters,
         body: UpdateRecreationFeeDtoToJSON(
@@ -1869,7 +1882,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Updates fee start/end dates and day-of-week applicability for an existing fee identified by fee_id
+   * Updates an existing fee identified by fee_id and associated with the recreation resource
    * Update an existing fee for a recreation resource
    */
   async updateRecreationResourceFee(

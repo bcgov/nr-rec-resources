@@ -20,23 +20,29 @@ import { mapValues } from '../runtime';
  */
 export interface UpdateRecreationFeeDto {
   /**
-   * Unique identifier for the fee
+   * Type of fee applicable represented by code (C, D, H, P, T)
    * @type {string}
    * @memberof UpdateRecreationFeeDto
    */
-  fee_id: string;
+  recreation_fee_code?: string;
   /**
-   * Start date for the fee applicability (YYYY-MM-DD)
-   * @type {object}
+   * Amount charged for the recreation resource
+   * @type {number}
    * @memberof UpdateRecreationFeeDto
    */
-  fee_start_date?: object | null;
+  fee_amount?: number;
   /**
-   * End date for the fee applicability (YYYY-MM-DD)
-   * @type {object}
+   * Start date for the fee applicability
+   * @type {string}
    * @memberof UpdateRecreationFeeDto
    */
-  fee_end_date?: object | null;
+  fee_start_date?: string | null;
+  /**
+   * End date for the fee applicability
+   * @type {string}
+   * @memberof UpdateRecreationFeeDto
+   */
+  fee_end_date?: string | null;
   /**
    * Indicates if the fee applies on Monday
    * @type {string}
@@ -87,7 +93,6 @@ export interface UpdateRecreationFeeDto {
 export function instanceOfUpdateRecreationFeeDto(
   value: object,
 ): value is UpdateRecreationFeeDto {
-  if (!('fee_id' in value) || value['fee_id'] === undefined) return false;
   return true;
 }
 
@@ -105,7 +110,11 @@ export function UpdateRecreationFeeDtoFromJSONTyped(
     return json;
   }
   return {
-    fee_id: json['fee_id'],
+    recreation_fee_code:
+      json['recreation_fee_code'] == null
+        ? undefined
+        : json['recreation_fee_code'],
+    fee_amount: json['fee_amount'] == null ? undefined : json['fee_amount'],
     fee_start_date:
       json['fee_start_date'] == null ? undefined : json['fee_start_date'],
     fee_end_date:
@@ -138,7 +147,8 @@ export function UpdateRecreationFeeDtoToJSONTyped(
   }
 
   return {
-    fee_id: value['fee_id'],
+    recreation_fee_code: value['recreation_fee_code'],
+    fee_amount: value['fee_amount'],
     fee_start_date: value['fee_start_date'],
     fee_end_date: value['fee_end_date'],
     monday_ind: value['monday_ind'],

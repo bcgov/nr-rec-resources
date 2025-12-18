@@ -1,12 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { RecResourceFeesAddSection } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/RecResourceFeesAddSection';
+import { FeatureFlagRouteGuard } from '@/contexts/feature-flags';
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { recResourceFeesLoader } from '@/services/loaders/recResourceFeesLoader';
 import { Route as ParentRoute } from '@/routes/rec-resource/$id';
-import { FeatureFlagRouteGuard } from '@/contexts/feature-flags';
+import { RecResourceFeesEditSection } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/RecResourceFeesEditSection';
 
-export const Route = createFileRoute('/rec-resource/$id/fees/add')({
-  component: RecResourceFeesEditRoute,
+export const Route = createFileRoute('/rec-resource/$id/fees/$feeId/edit')({
+  component: RecResourceFeeEditRoute,
   loader: recResourceFeesLoader,
   beforeLoad: ({ params, context }) => {
     const parentBeforeLoad = ParentRoute.options.beforeLoad?.({
@@ -25,8 +25,8 @@ export const Route = createFileRoute('/rec-resource/$id/fees/add')({
             href: `/rec-resource/${params.id}/fees`,
           },
           {
-            label: 'Add Fee',
-            href: `/rec-resource/${params.id}/fees/add`,
+            label: 'Edit Fee',
+            href: `/rec-resource/${params.id}/fees/${params.feeId}/edit`,
           },
         ];
       },
@@ -34,10 +34,10 @@ export const Route = createFileRoute('/rec-resource/$id/fees/add')({
   },
 });
 
-function RecResourceFeesEditRoute() {
+function RecResourceFeeEditRoute() {
   return (
     <FeatureFlagRouteGuard requiredFlags={['enable_full_features']}>
-      <RecResourceFeesAddSection />
+      <RecResourceFeesEditSection />
     </FeatureFlagRouteGuard>
   );
 }
