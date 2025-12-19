@@ -1,4 +1,4 @@
-import { GroupedOptions } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/components';
+import { GroupedOptions } from '@/components/form/GroupedMultiSelectField';
 import {
   RecreationResourceOptionUIModel,
   useGetRecreationResourceOptions,

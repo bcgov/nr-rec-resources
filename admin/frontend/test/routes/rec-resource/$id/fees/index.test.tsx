@@ -1,9 +1,9 @@
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
-import { Route } from '@/routes/rec-resource/$id/fees';
+import { Route } from '@/routes/rec-resource/$id/fees/index';
 import { recResourceFeesLoader } from '@/services/loaders/recResourceFeesLoader';
 import { describe, expect, it } from 'vitest';
 
-describe('RecResource Fees Route', () => {
+describe('RecResource Fees Index Route', () => {
   it('should export a Route with correct component', () => {
     expect(Route).toBeDefined();
     expect(Route.options.component).toBeDefined();
@@ -53,20 +53,9 @@ describe('RecResource Fees Route', () => {
     const params = { id: 'REC123' };
     const context = {};
 
-    // We can't easily mock the parent route import, so we test the logic
-    // by checking that if parentBeforeLoad?.breadcrumb is falsy, it returns []
     const result = beforeLoad({ params, context });
 
-    // If parent doesn't provide breadcrumb, our breadcrumb function should handle it
-    // This is tested indirectly through the actual parent route behavior
     expect(result.breadcrumb).toBeDefined();
     expect(typeof result.breadcrumb).toBe('function');
-  });
-
-  it('should have FeatureFlagRouteGuard in component', () => {
-    // Verify the component is wrapped with FeatureFlagRouteGuard
-    const component = Route.options.component;
-    expect(component).toBeDefined();
-    expect(typeof component).toBe('function');
   });
 });

@@ -1,9 +1,10 @@
 import { RecResourceFeesSection } from '@/pages/rec-resource-page/components/RecResourceFeesSection';
-import { RecreationFeeUIModel } from '@/services';
+import { Route } from '@/routes/rec-resource/$id/fees/index';
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
+import * as featureFlagHooks from '@/contexts/feature-flags/hooks';
 
-const mockFees: RecreationFeeUIModel[] = [
+const mockFees = [
   {
     fee_amount: 15,
     fee_start_date: new Date('2024-05-15'),
@@ -38,15 +39,69 @@ const mockFees: RecreationFeeUIModel[] = [
   },
 ];
 
-describe('RecResourceFeesSection', () => {
-  it('renders section title', () => {
-    render(<RecResourceFeesSection fees={mockFees} />);
+vi.mock('@/contexts/feature-flags/hooks');
 
-    expect(screen.getByText('Current Fee Information')).toBeInTheDocument();
+vi.mock('@/routes/rec-resource/$id/fees/index', () => {
+  return {
+    Route: {
+      useLoaderData: vi.fn(() => ({
+        fees: mockFees,
+      })),
+      useParams: vi.fn(() => ({
+        id: 'test-id',
+      })),
+    },
+  };
+});
+
+vi.mock('@tanstack/react-router', async () => {
+  const actual = await vi.importActual('@tanstack/react-router');
+  return {
+    ...actual,
+    useNavigate: vi.fn(() => vi.fn()),
+  };
+});
+
+vi.mock('@shared/components/link-with-query-params', () => ({
+  LinkWithQueryParams: ({ to, children, className }: any) => (
+    <a href={to} className={className}>
+      {children}
+    </a>
+  ),
+}));
+
+describe('RecResourceFeesSection', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.mocked(Route.useLoaderData).mockReturnValue({
+      fees: mockFees,
+    });
+    vi.mocked(Route.useParams).mockReturnValue({
+      id: 'test-id',
+    });
+    vi.mocked(featureFlagHooks.useFeatureFlagsEnabled).mockReturnValue(true);
+  });
+
+  it('renders h2 heading with Fees title', () => {
+    render(<RecResourceFeesSection />);
+
+    expect(
+      screen.getByRole('heading', { name: 'Fees', level: 2 }),
+    ).toBeInTheDocument();
+  });
+
+  it('renders empty state when no fees', () => {
+    vi.mocked(Route.useLoaderData).mockReturnValueOnce({
+      fees: [],
+    });
+
+    render(<RecResourceFeesSection />);
+
+    expect(screen.getByText('Currently no fees')).toBeInTheDocument();
   });
 
   it('renders fees table with correct data', () => {
-    render(<RecResourceFeesSection fees={mockFees} />);
+    render(<RecResourceFeesSection />);
 
     expect(screen.getByText('Fee Type')).toBeInTheDocument();
     expect(screen.getByText('Amount')).toBeInTheDocument();
@@ -61,9 +116,8 @@ describe('RecResourceFeesSection', () => {
   });
 
   it('formats fee days correctly', () => {
-    render(<RecResourceFeesSection fees={mockFees} />);
+    render(<RecResourceFeesSection />);
 
-    // First fee has all days except Sunday - should show individual day badges
     expect(screen.getByText('Mon')).toBeInTheDocument();
     expect(screen.getByText('Tue')).toBeInTheDocument();
     expect(screen.getByText('Wed')).toBeInTheDocument();
@@ -71,26 +125,29 @@ describe('RecResourceFeesSection', () => {
     expect(screen.getByText('Fri')).toBeInTheDocument();
     expect(screen.getByText('Sat')).toBeInTheDocument();
 
-    // Second fee has all days - should show "All days" badge
     expect(screen.getByText('All days')).toBeInTheDocument();
   });
 
   it('handles missing fee amount', () => {
-    const feesWithNullAmount: RecreationFeeUIModel[] = [
+    const feesWithNullAmount = [
       {
         ...mockFees[0],
         fee_amount: undefined,
       },
     ];
 
-    render(<RecResourceFeesSection fees={feesWithNullAmount} />);
+    vi.mocked(Route.useLoaderData).mockReturnValueOnce({
+      fees: feesWithNullAmount as any,
+    });
+
+    render(<RecResourceFeesSection />);
 
     const row = screen.getByText('Day use').closest('tr');
     expect(row).toHaveTextContent('--');
   });
 
   it('handles missing dates', () => {
-    const feesWithNullDates: RecreationFeeUIModel[] = [
+    const feesWithNullDates = [
       {
         ...mockFees[0],
         fee_start_date: undefined,
@@ -100,40 +157,52 @@ describe('RecResourceFeesSection', () => {
       },
     ];
 
-    render(<RecResourceFeesSection fees={feesWithNullDates} />);
+    vi.mocked(Route.useLoaderData).mockReturnValueOnce({
+      fees: feesWithNullDates as any,
+    });
+
+    render(<RecResourceFeesSection />);
 
     const row = screen.getByText('Day use').closest('tr');
     expect(row).toHaveTextContent('--');
   });
 
   it('uses fee code when description is missing', () => {
-    const feesWithoutDescription: RecreationFeeUIModel[] = [
+    const feesWithoutDescription = [
       {
         ...mockFees[0],
         fee_type_description: '',
       },
     ];
 
-    render(<RecResourceFeesSection fees={feesWithoutDescription} />);
+    vi.mocked(Route.useLoaderData).mockReturnValueOnce({
+      fees: feesWithoutDescription,
+    });
+
+    render(<RecResourceFeesSection />);
 
     expect(screen.getByText('D')).toBeInTheDocument();
   });
 
   it('handles fee amount of zero', () => {
-    const feesWithZeroAmount: RecreationFeeUIModel[] = [
+    const feesWithZeroAmount = [
       {
         ...mockFees[0],
         fee_amount: 0,
       },
     ];
 
-    render(<RecResourceFeesSection fees={feesWithZeroAmount} />);
+    vi.mocked(Route.useLoaderData).mockReturnValueOnce({
+      fees: feesWithZeroAmount,
+    });
+
+    render(<RecResourceFeesSection />);
 
     expect(screen.getByText('$0.00')).toBeInTheDocument();
   });
 
   it('handles multiple fees with same code and start date', () => {
-    const duplicateFees: RecreationFeeUIModel[] = [
+    const duplicateFees = [
       {
         ...mockFees[0],
         recreation_fee_code: 'D',
@@ -147,15 +216,18 @@ describe('RecResourceFeesSection', () => {
       },
     ];
 
-    render(<RecResourceFeesSection fees={duplicateFees} />);
+    vi.mocked(Route.useLoaderData).mockReturnValueOnce({
+      fees: duplicateFees,
+    });
 
-    // Should render both fees with unique keys
+    render(<RecResourceFeesSection />);
+
     const rows = screen.getAllByText('Day use');
     expect(rows.length).toBe(2);
   });
 
   it('handles fees with only start date and no end date', () => {
-    const feesWithOnlyStartDate: RecreationFeeUIModel[] = [
+    const feesWithOnlyStartDate = [
       {
         ...mockFees[0],
         fee_end_date: undefined,
@@ -163,16 +235,31 @@ describe('RecResourceFeesSection', () => {
       },
     ];
 
-    render(<RecResourceFeesSection fees={feesWithOnlyStartDate} />);
+    vi.mocked(Route.useLoaderData).mockReturnValueOnce({
+      fees: feesWithOnlyStartDate as any,
+    });
+
+    render(<RecResourceFeesSection />);
 
     const row = screen.getByText('Day use').closest('tr');
     expect(row).toHaveTextContent('--');
   });
 
-  it('handles empty fees array', () => {
-    render(<RecResourceFeesSection fees={[]} />);
+  it('renders Add Fee button when feature flag is enabled', () => {
+    vi.mocked(featureFlagHooks.useFeatureFlagsEnabled).mockReturnValue(true);
 
-    expect(screen.getByText('Current Fee Information')).toBeInTheDocument();
-    expect(screen.getByText('Fee Type')).toBeInTheDocument();
+    render(<RecResourceFeesSection />);
+
+    expect(screen.getByRole('link', { name: /add fee/i })).toBeInTheDocument();
+  });
+
+  it('does not render Add Fee button when feature flag is disabled', () => {
+    vi.mocked(featureFlagHooks.useFeatureFlagsEnabled).mockReturnValue(false);
+
+    render(<RecResourceFeesSection />);
+
+    expect(
+      screen.queryByRole('link', { name: /add fee/i }),
+    ).not.toBeInTheDocument();
   });
 });

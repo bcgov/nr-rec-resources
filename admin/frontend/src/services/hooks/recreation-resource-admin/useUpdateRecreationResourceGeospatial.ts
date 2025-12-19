@@ -6,7 +6,6 @@ import {
 } from '@/services/recreation-resource-admin';
 import { useRecreationResourceAdminApiClient } from './useRecreationResourceAdminApiClient';
 import { RECREATION_RESOURCE_QUERY_KEYS } from './queryKeys';
-import { RECREATION_RESOURCE_GEOSPATIAL_QUERY_KEY } from '@/services/loaders/recResourceGeospatialLoader';
 
 export interface UpdateRecreationResourceGeospatialRequest {
   recResourceId: string;
@@ -41,7 +40,7 @@ export function useUpdateRecreationResourceGeospatial() {
       // Immediately update the geospatial cache with the authoritative returned data so components
       // that depend on this query get a new object reference and re-render (e.g., map features).
       queryClient.setQueryData(
-        [RECREATION_RESOURCE_GEOSPATIAL_QUERY_KEY, recResourceId],
+        RECREATION_RESOURCE_QUERY_KEYS.geospatial(recResourceId),
         () => data,
       );
 

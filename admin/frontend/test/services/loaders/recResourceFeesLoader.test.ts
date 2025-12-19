@@ -1,23 +1,18 @@
 import { AuthService } from '@/services/auth';
 import { mapRecreationFee } from '@/services/hooks/recreation-resource-admin/helpers';
+import { RECREATION_RESOURCE_QUERY_KEYS } from '@/services/hooks/recreation-resource-admin/queryKeys';
 import { recResourceFeesLoader } from '@/services/loaders/recResourceFeesLoader';
-import { recResourceLoader } from '@/services/loaders/recResourceLoader';
 import { RecreationResourcesApi } from '@/services/recreation-resource-admin';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/services/auth');
 vi.mock('@/services/recreation-resource-admin');
 vi.mock('@/services/hooks/recreation-resource-admin/helpers');
-vi.mock('@/services/loaders/recResourceLoader');
 
-const MOCK_PARENT_DATA = {
-  recResource: {
-    rec_resource_id: 'REC123',
-    name: 'Test Resource',
-  },
+const MOCK_REC_RESOURCE = {
+  rec_resource_id: 'REC123',
+  name: 'Test Resource',
 };
-
-const MOCK_EMPTY_PARENT_DATA = { recResource: {} };
 
 describe('recResourceFeesLoader', () => {
   let mockAuthService: any;
@@ -35,6 +30,7 @@ describe('recResourceFeesLoader', () => {
 
     mockApi = {
       getRecreationResourceFees: vi.fn(),
+      getRecreationResourceById: vi.fn(),
     };
     (RecreationResourcesApi as any).mockImplementation(() => mockApi);
 
@@ -54,17 +50,7 @@ describe('recResourceFeesLoader', () => {
     vi.unstubAllEnvs();
   });
 
-  it('should call parent loader to get recResource data', async () => {
-    (recResourceLoader as any).mockResolvedValue(MOCK_PARENT_DATA);
-    mockQueryClient.ensureQueryData.mockResolvedValue([]);
-
-    await recResourceFeesLoader(mockArgs);
-
-    expect(recResourceLoader).toHaveBeenCalledWith(mockArgs);
-  });
-
   it('should create RecreationResourcesApi instance and get auth token', async () => {
-    (recResourceLoader as any).mockResolvedValue(MOCK_EMPTY_PARENT_DATA);
     mockQueryClient.ensureQueryData.mockResolvedValue([]);
 
     await recResourceFeesLoader(mockArgs);
@@ -73,15 +59,26 @@ describe('recResourceFeesLoader', () => {
     expect(AuthService.getInstance).toHaveBeenCalled();
   });
 
-  it('should call ensureQueryData with correct query key', async () => {
-    (recResourceLoader as any).mockResolvedValue(MOCK_EMPTY_PARENT_DATA);
+  it('should call ensureQueryData for fees with correct query key', async () => {
     mockQueryClient.ensureQueryData.mockResolvedValue([]);
 
     await recResourceFeesLoader(mockArgs);
 
     expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
       expect.objectContaining({
-        queryKey: ['recreation-resource-fees', 'REC123'],
+        queryKey: RECREATION_RESOURCE_QUERY_KEYS.fees('REC123'),
+      }),
+    );
+  });
+
+  it('should call ensureQueryData for recResource with correct query key', async () => {
+    mockQueryClient.ensureQueryData.mockResolvedValue([]);
+
+    await recResourceFeesLoader(mockArgs);
+
+    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: RECREATION_RESOURCE_QUERY_KEYS.detail('REC123'),
       }),
     );
   });
@@ -102,8 +99,8 @@ describe('recResourceFeesLoader', () => {
       },
     ];
 
-    (recResourceLoader as any).mockResolvedValue(MOCK_PARENT_DATA);
     mockApi.getRecreationResourceFees.mockResolvedValue(mockApiFees);
+    mockApi.getRecreationResourceById.mockResolvedValue(MOCK_REC_RESOURCE);
     (mapRecreationFee as any).mockImplementation((fee: any) => ({
       ...fee,
       fee_start_date_readable_utc: 'May 15, 2024',
@@ -124,41 +121,41 @@ describe('recResourceFeesLoader', () => {
     expect(mapRecreationFee).toHaveBeenCalledTimes(2);
   });
 
-  it('should return merged parent data and fees', async () => {
+  it('should return fees and recResource', async () => {
     const mockFees = [{ fee_amount: 15, recreation_fee_code: 'D' }];
 
-    (recResourceLoader as any).mockResolvedValue(MOCK_PARENT_DATA);
-    mockQueryClient.ensureQueryData.mockResolvedValue(mockFees);
+    mockQueryClient.ensureQueryData.mockImplementation(
+      async ({ queryKey }: any) => {
+        if (queryKey[1] === 'fees') {
+          return mockFees;
+        }
+        return MOCK_REC_RESOURCE;
+      },
+    );
 
     const result = await recResourceFeesLoader(mockArgs);
 
     expect(result).toEqual({
-      ...MOCK_PARENT_DATA,
       fees: mockFees,
+      recResource: MOCK_REC_RESOURCE,
     });
   });
 
   it('should handle empty fees array', async () => {
-    (recResourceLoader as any).mockResolvedValue(MOCK_PARENT_DATA);
-    mockQueryClient.ensureQueryData.mockResolvedValue([]);
+    mockQueryClient.ensureQueryData.mockImplementation(
+      async ({ queryKey }: any) => {
+        if (queryKey[1] === 'fees') {
+          return [];
+        }
+        return MOCK_REC_RESOURCE;
+      },
+    );
 
     const result = await recResourceFeesLoader(mockArgs);
 
     expect(result).toEqual({
-      ...MOCK_PARENT_DATA,
       fees: [],
+      recResource: MOCK_REC_RESOURCE,
     });
-  });
-
-  it('should handle missing VITE_API_BASE_URL', async () => {
-    vi.stubEnv('VITE_API_BASE_URL', '');
-
-    (recResourceLoader as any).mockResolvedValue(MOCK_EMPTY_PARENT_DATA);
-    mockQueryClient.ensureQueryData.mockResolvedValue([]);
-
-    const result = await recResourceFeesLoader(mockArgs);
-
-    expect(RecreationResourcesApi).toHaveBeenCalled();
-    expect(result).toBeDefined();
   });
 });

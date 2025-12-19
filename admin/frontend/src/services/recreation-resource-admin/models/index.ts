@@ -1,6 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export * from './BadRequestResponseDto';
+export * from './CreateRecreationFeeDto';
 export * from './CreateRecreationResourceDocBodyDto';
 export * from './CreateRecreationResourceImageBodyDto';
 export * from './EstablishmentOrderDocDto';

@@ -1,6 +1,11 @@
 import { PrismaService } from '@/prisma.service';
-import { Injectable, Logger } from '@nestjs/common';
-import { RecreationFeeDto } from './dto/recreation-fee.dto';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { RecreationFeeDto } from '@/recreation-resources/fees/dto/recreation-fee.dto';
+import { CreateRecreationFeeDto } from '@/recreation-resources/fees/dto/create-recreation-fee.dto';
+import {
+  formatRecreationFeeResult,
+  FeeWithDescription,
+} from '@/recreation-resources/fees/utils/formatRecreationFeeResult';
 
 @Injectable()
 export class FeesService {
@@ -40,21 +45,68 @@ export class FeesService {
     });
 
     // Map to DTO format
-    const feesDto: RecreationFeeDto[] = fees.map((fee) => ({
-      fee_amount: fee.fee_amount ?? undefined,
-      fee_start_date: fee.fee_start_date ?? undefined,
-      fee_end_date: fee.fee_end_date ?? undefined,
-      recreation_fee_code: fee.recreation_fee_code,
-      fee_type_description: fee.with_description?.description ?? '',
-      monday_ind: fee.monday_ind ?? undefined,
-      tuesday_ind: fee.tuesday_ind ?? undefined,
-      wednesday_ind: fee.wednesday_ind ?? undefined,
-      thursday_ind: fee.thursday_ind ?? undefined,
-      friday_ind: fee.friday_ind ?? undefined,
-      saturday_ind: fee.saturday_ind ?? undefined,
-      sunday_ind: fee.sunday_ind ?? undefined,
-    }));
+    const feesDto: RecreationFeeDto[] = fees.map((fee) =>
+      formatRecreationFeeResult(fee as FeeWithDescription),
+    );
 
     return feesDto;
+  }
+
+  /**
+   * Create a new fee for a recreation resource
+   * @param rec_resource_id - Recreation Resource ID
+   * @param createFeeDto - Fee data to create
+   * @returns The created fee
+   * @throws NotFoundException if resource not found
+   */
+  async create(
+    rec_resource_id: string,
+    createFeeDto: CreateRecreationFeeDto,
+  ): Promise<RecreationFeeDto> {
+    this.logger.log(
+      `Creating fee for rec_resource_id: ${rec_resource_id}, fee_code: ${createFeeDto.recreation_fee_code}`,
+    );
+
+    // Verify resource exists
+    const resource = await this.prisma.recreation_resource.findUnique({
+      where: { rec_resource_id },
+      select: { rec_resource_id: true },
+    });
+
+    if (!resource) {
+      throw new NotFoundException(
+        `Recreation resource with ID ${rec_resource_id} not found`,
+      );
+    }
+
+    const createdFee = await this.prisma.recreation_fee.create({
+      data: {
+        rec_resource_id,
+        recreation_fee_code: createFeeDto.recreation_fee_code,
+        fee_amount: createFeeDto.fee_amount ?? null,
+        fee_start_date: createFeeDto.fee_start_date
+          ? new Date(createFeeDto.fee_start_date)
+          : null,
+        fee_end_date: createFeeDto.fee_end_date
+          ? new Date(createFeeDto.fee_end_date)
+          : null,
+        monday_ind: createFeeDto.monday_ind ?? 'N',
+        tuesday_ind: createFeeDto.tuesday_ind ?? 'N',
+        wednesday_ind: createFeeDto.wednesday_ind ?? 'N',
+        thursday_ind: createFeeDto.thursday_ind ?? 'N',
+        friday_ind: createFeeDto.friday_ind ?? 'N',
+        saturday_ind: createFeeDto.saturday_ind ?? 'N',
+        sunday_ind: createFeeDto.sunday_ind ?? 'N',
+      },
+      include: {
+        with_description: {
+          select: {
+            description: true,
+          },
+        },
+      },
+    });
+
+    return formatRecreationFeeResult(createdFee as FeeWithDescription);
   }
 }

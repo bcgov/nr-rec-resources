@@ -54,7 +54,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",
-    "@eslint/compat": "^1.2.4",
+    "@eslint/compat": "^2.0.0",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.25.0",
     "@playwright/test": "^1.54.2",
@@ -75,7 +75,7 @@
     "eslint-plugin-react": "^7.37.3",
     "eslint-plugin-react-hooks": "^7.0.0",
     "eslint-plugin-react-refresh": "^0.4.19",
-    "eslint-plugin-storybook": "10.1.4",
+    "eslint-plugin-storybook": "10.1.6",
     "globals": "^16.0.0",
     "happo-e2e": "^5.0.0",
     "happo-playwright": "^2.3.0",

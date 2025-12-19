@@ -5,6 +5,8 @@ import { LinkWithQueryParams } from '@shared/components/link-with-query-params';
 import { Route } from '@/routes/rec-resource/$id/geospatial/edit';
 import { RecResourceLocationSection } from '@/pages/rec-resource-page/components/RecResourceLocationSection';
 import { useEditGeospatialForm } from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/EditSection/hooks';
+import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
+import { useGetRecreationResourceGeospatial } from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceGeospatial';
 
 const onNumberChange = (onChange: (v?: number) => void) => {
   return (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -14,13 +16,16 @@ const onNumberChange = (onChange: (v?: number) => void) => {
 };
 
 export const RecResourceGeospatialEditSection = () => {
-  const { geospatialData, recResource } = Route.useLoaderData();
-
   const params = Route.useParams();
   const recResourceId = params?.id;
 
+  const { recResource } = useRecResource();
+
+  const { data: geospatialData } =
+    useGetRecreationResourceGeospatial(recResourceId);
+
   const { handleSubmit, control, errors, isDirty, isSubmitting, onSubmit } =
-    useEditGeospatialForm(geospatialData, recResourceId);
+    useEditGeospatialForm(geospatialData ?? undefined, recResourceId);
 
   return (
     <Stack direction="vertical" gap={4}>
