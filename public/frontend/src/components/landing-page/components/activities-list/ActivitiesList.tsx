@@ -49,9 +49,8 @@ export const ActivitiesList = () => {
     },
   ];
   return (
-    <section className={`content-section`}>
-      <h1 className="title">Find sites and trails by activity</h1>
-      <Row className="g-3">
+    <section>
+      <Row className="g-3 activities-container">
         {activities.map((activity, index) => {
           return (
             <Activity

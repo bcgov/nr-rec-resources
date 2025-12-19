@@ -4,11 +4,22 @@
   margin-bottom: 0.5em;
 }
 
+.activities-container {
+  @include media-breakpoint-down(md) {
+    margin-top: 0.5em;
+  }
+}
+
 .activity-container {
   display: flex;
   flex-direction: column;
   width: 350px;
   margin-right: 16px;
+  @include media-breakpoint-down(md) {
+    border: solid 1px $colorBlue;
+    border-radius: 4px;
+    margin-bottom: 1em;
+  }
 
   a:link,
   a:visited,
@@ -32,9 +43,15 @@
   }
 
   .activity-image {
-    width: 349px;
-    height: 203px;
-    border-bottom-width: 10px;
     border-radius: 24px;
+    @include media-breakpoint-up(md) {
+      width: 349px;
+      height: 203px;
+      border-bottom-width: 10px;
+    }
+    @include media-breakpoint-down(md) {
+      border-radius: 4px;
+      border-right: solid 1px $colorBlue;
+    }
   }
 }
