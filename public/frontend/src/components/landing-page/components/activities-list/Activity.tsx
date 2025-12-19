@@ -7,6 +7,7 @@ export const Activity: FC<LandingPageActivity> = ({
   title,
   description,
   imageUrl,
+  mobileImageUrl,
   activityFilter,
 }) => {
   return (
@@ -15,8 +16,12 @@ export const Activity: FC<LandingPageActivity> = ({
         md={4}
         lg={4}
         className={`d-flex activity-container d-none d-md-block`}
+        data-testid="content-column"
       >
-        <a href={`${ROUTE_PATHS.HOME}${'search?activities='}${activityFilter}`}>
+        <a
+          href={`${ROUTE_PATHS.HOME}${'search?activities='}${activityFilter}`}
+          data-testid="desktop-link"
+        >
           <div className="w-100 h-100">
             <img
               src={imageUrl}
@@ -24,6 +29,7 @@ export const Activity: FC<LandingPageActivity> = ({
               width={349}
               height={203}
               className="activity-image"
+              data-testid="desktop-image"
             />
             <div className="activity-title">{title}</div>
             <div className="activity-description">{description}</div>
@@ -35,13 +41,15 @@ export const Activity: FC<LandingPageActivity> = ({
           <Col xs={4} className="p-0 test">
             <a
               href={`${ROUTE_PATHS.HOME}${'search?activities='}${activityFilter}`}
+              data-testid="mobile-link"
             >
               <img
-                src={imageUrl}
+                src={mobileImageUrl}
                 alt={description}
                 width={100}
                 height={78}
-                className="activity-image img-fluid"
+                className="activity-image"
+                data-testid="mobile-image"
               />
             </a>
           </Col>

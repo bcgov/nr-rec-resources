@@ -83,8 +83,8 @@
 
   .desktop-image {
     @include media-breakpoint-up(md) {
-    border: solid 6px $colorWhite;
-    border-radius: 24px;
-  }
+      border: solid 6px $colorWhite;
+      border-radius: 24px;
+    }
   }
 }

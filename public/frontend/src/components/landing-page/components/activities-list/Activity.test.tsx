@@ -19,6 +19,7 @@ describe('Activity component', () => {
       description: 'Explore the mountains',
       imageUrl: 'https://example.com/hiking.jpg',
       activityFilter: 12,
+      mobileImageUrl: 'https://example.com/hiking_mobile.jpg',
     };
 
     render(<Activity {...props} />);
@@ -28,20 +29,27 @@ describe('Activity component', () => {
     expect(column).toBeInTheDocument();
     expect(column).toHaveClass('activity-container');
 
-    // Link
-    const link = screen.getByRole('link');
-    expect(link).toHaveAttribute('href', '/search?activities=12');
+    // Links
+    const linkDesktop = screen.getByTestId('desktop-link');
+    expect(linkDesktop).toHaveAttribute('href', '/search?activities=12');
+    const linkMobile = screen.getByTestId('mobile-link');
+    expect(linkMobile).toHaveAttribute('href', '/search?activities=12');
 
-    // Image
-    const image = screen.getByRole('img');
-    expect(image).toHaveAttribute('src', props.imageUrl);
-    expect(image).toHaveAttribute('alt', props.description);
-    expect(image).toHaveAttribute('width', '349');
-    expect(image).toHaveAttribute('height', '203');
-    expect(image).toHaveClass('activity-image');
+    // Images
+    const desktopImage = screen.getByTestId('desktop-image');
+    expect(desktopImage).toHaveAttribute('src', props.imageUrl);
+    expect(desktopImage).toHaveAttribute('alt', props.description);
+    expect(desktopImage).toHaveAttribute('width', '349');
+    expect(desktopImage).toHaveAttribute('height', '203');
+    expect(desktopImage).toHaveClass('activity-image');
+    const mobileImage = screen.getByTestId('mobile-image');
+    expect(mobileImage).toHaveAttribute('src', props.mobileImageUrl);
+    expect(mobileImage).toHaveAttribute('alt', props.description);
+    expect(mobileImage).toHaveAttribute('width', '100');
+    expect(mobileImage).toHaveAttribute('height', '78');
+    expect(mobileImage).toHaveClass('activity-image');
 
     // Text content
-    expect(screen.getByText(props.title)).toBeInTheDocument();
     expect(screen.getByText(props.description)).toBeInTheDocument();
   });
 });

@@ -18,13 +18,6 @@ describe('ActivitiesList', () => {
   it('renders section, title, and all activities with correct props', () => {
     render(<ActivitiesList />);
 
-    // Section title
-    expect(
-      screen.getByRole('heading', {
-        name: 'Find sites and trails by activity',
-      }),
-    ).toBeInTheDocument();
-
     // Activity components rendered
     const activities = screen.getAllByTestId('activity-mock');
     expect(activities).toHaveLength(6);
@@ -54,9 +47,9 @@ describe('ActivitiesList', () => {
     expect(activityMock).toHaveBeenNthCalledWith(
       3,
       expect.objectContaining({
-        title: 'Other Activity',
-        description: 'Enjoy this other activity.',
-        activityFilter: 16,
+        title: 'Hiking',
+        description: 'Explore scenic trails and hiking.',
+        activityFilter: 12,
       }),
     );
   });

@@ -8,44 +8,44 @@ export const ActivitiesList = () => {
     {
       title: 'Camping',
       description: 'Relax and unplug in the great outdoors.',
-      imageUrl:
-        'https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca/filestore/1/3/3/1/1_fb0e63515869888/11331_f8ea0bc433cf3dc.webp?v=1740081814',
+      imageUrl: '/images/landing-page/activities/camping.jpg',
+      mobileImageUrl: '/images/landing-page/activities/camping_mobile.png',
       activityFilter: 32,
     },
     {
       title: 'Angling',
       description: 'Catch fish in pristine waters.',
-      imageUrl:
-        'https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca/filestore/8/2/3/1/1_e09ae51d24b66c9/11328_79f0c8499cb4ede.webp?v=1740081796',
+      imageUrl: '/images/landing-page/activities/angling.jpg',
+      mobileImageUrl: '/images/landing-page/activities/angling_mobile.png',
       activityFilter: 1,
     },
     {
-      title: 'Other Activity',
-      description: 'Enjoy this other activity.',
-      imageUrl:
-        'https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca/filestore/5/3/3/1/1_b78e49a9d594da5/11335_3eb13a251129d29.webp?v=1740081841',
-      activityFilter: 16,
+      title: 'Hiking',
+      description: 'Explore scenic trails and hiking.',
+      imageUrl: '/images/landing-page/activities/hiking.jpg',
+      mobileImageUrl: '/images/landing-page/activities/hiking_mobile.png',
+      activityFilter: 12,
     },
     {
-      title: 'Camping',
-      description: 'Relax and unplug in the great outdoors.',
-      imageUrl:
-        'https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca/filestore/1/3/3/1/1_fb0e63515869888/11331_f8ea0bc433cf3dc.webp?v=1740081814',
-      activityFilter: 32,
+      title: 'Four wheel driving',
+      description: 'Explore wild landscapes and remote terrain.',
+      imageUrl: '/images/landing-page/activities/driving.jpg',
+      mobileImageUrl: '/images/landing-page/activities/driving_mobile.png',
+      activityFilter: 21,
     },
     {
-      title: 'Angling',
-      description: 'Catch fish in pristine waters.',
-      imageUrl:
-        'https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca/filestore/8/2/3/1/1_e09ae51d24b66c9/11328_79f0c8499cb4ede.webp?v=1740081796',
-      activityFilter: 1,
+      title: 'Boating',
+      description: 'Glide across serene lakes or coastal waters.',
+      imageUrl: '/images/landing-page/activities/boating.jpg',
+      mobileImageUrl: '/images/landing-page/activities/boating_mobile.png',
+      activityFilter: 2,
     },
     {
-      title: 'Other Activity',
-      description: 'Enjoy this other activity.',
-      imageUrl:
-        'https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca/filestore/5/3/3/1/1_b78e49a9d594da5/11335_3eb13a251129d29.webp?v=1740081841',
-      activityFilter: 16,
+      title: 'Swimming and bathing',
+      description: 'Refresh and soak up nature’s tranquility.',
+      imageUrl: '/images/landing-page/activities/swimming.jpg',
+      mobileImageUrl: '/images/landing-page/activities/swimming_mobile.png',
+      activityFilter: 7,
     },
   ];
   return (
@@ -57,6 +57,7 @@ export const ActivitiesList = () => {
               title={activity.title}
               description={activity.description}
               imageUrl={activity.imageUrl}
+              mobileImageUrl={activity.mobileImageUrl}
               activityFilter={activity.activityFilter}
               key={index}
             />
