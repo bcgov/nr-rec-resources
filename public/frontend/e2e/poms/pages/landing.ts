@@ -28,11 +28,9 @@ export class LandingPOM {
 
   async verifyLandingPageContent() {
     [
-      'Welcome to the new Recreation Sites and Trails BC site',
-      'Find a recreation site or trail',
-      'Human-centred, research-driven',
-      'New interactive map launched',
-      'About Recreation Sites and Trails BC',
+      'Enjoy BC outdoor recreation',
+      'Find sites and trails by activity',
+      'Partnering and volunteering',
     ].forEach(async (heading) => {
       await expect(
         this.page.getByRole('heading', { name: heading }),
