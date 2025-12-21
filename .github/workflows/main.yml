@@ -78,3 +78,14 @@ jobs:
       app: public
       tag: ${{ github.sha }}
     secrets: inherit
+
+  deploy-dns:
+    if: github.ref_name == 'main' || github.head_ref == 'main'
+    name: Deploy DNS to prod
+    needs: [review-and-deploy-admin, review-and-deploy-public]
+    uses: ./.github/workflows/.aws-deployer.yml
+    with:
+      environment_name: prod
+      command: apply
+      working_directory: dns
+    secrets: inherit
