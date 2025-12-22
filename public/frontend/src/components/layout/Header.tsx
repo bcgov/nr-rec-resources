@@ -8,7 +8,7 @@ import { trackClickEvent } from '@shared/utils';
 import { ExternalLink } from '@shared/components/links';
 import { EnvironmentBanner } from '@shared/components/environment-banner';
 import { ROUTE_PATHS } from '@/constants/routes';
-import { HEADER_LINKS } from '@/components/layout/constants';
+import { HEADER_LINKS, HeaderLink } from '@/components/layout/constants';
 import '@/components/layout/Header.scss';
 import '@shared/components/environment-banner/EnvironmentBanner.scss';
 
@@ -20,6 +20,13 @@ const Header = () => {
     trackClickEvent({
       category: 'Header Navigation',
       name: `Sub Header - ${linkLabel}`,
+    });
+  };
+
+  const handleHeaderExternalLinkClick = (link: HeaderLink) => {
+    trackClickEvent({
+      category: 'outlinks',
+      name: `Sub Header - ${link.label}`,
     });
   };
 
@@ -66,7 +73,7 @@ const Header = () => {
                   <ExternalLink
                     url={link.url}
                     label={link.label}
-                    onClick={() => handleHeaderLinkClick(link.label)}
+                    onClick={() => handleHeaderExternalLinkClick(link)}
                   />
                 ) : (
                   <Link
