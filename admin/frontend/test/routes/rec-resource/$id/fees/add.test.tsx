@@ -27,7 +27,7 @@ describe('RecResource Fees Add Route', () => {
     expect(result.tab).toBe(RecResourceNavKey.FEES);
   });
 
-  it('should generate breadcrumb with Add Fees label', () => {
+  it('should generate breadcrumb with Fees and Add Fee labels', () => {
     const beforeLoad = Route.options.beforeLoad as any;
     const params = { id: 'REC123' };
     const context = {};
@@ -39,11 +39,15 @@ describe('RecResource Fees Add Route', () => {
 
     const breadcrumb = result.breadcrumb(loaderData);
 
-    expect(breadcrumb).toHaveLength(3);
+    expect(breadcrumb).toHaveLength(4);
     expect(breadcrumb[0].label).toBe('Home');
     expect(breadcrumb[1].label).toBe('Test Resource');
     expect(breadcrumb[2]).toEqual({
-      label: 'Add Fees',
+      label: 'Fees',
+      href: '/rec-resource/REC123/fees',
+    });
+    expect(breadcrumb[3]).toEqual({
+      label: 'Add Fee',
       href: '/rec-resource/REC123/fees/add',
     });
   });

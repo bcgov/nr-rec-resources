@@ -28,6 +28,7 @@ export * from './SuggestionDto';
 export * from './SuggestionsResponseDto';
 export * from './UpdateActivitiesDto';
 export * from './UpdateRecreationAccessCodeDto';
+export * from './UpdateRecreationFeeDto';
 export * from './UpdateRecreationResourceDto';
 export * from './UpdateRecreationResourceGeospatialDto';
 export * from './ValidationErrorDetailDto';

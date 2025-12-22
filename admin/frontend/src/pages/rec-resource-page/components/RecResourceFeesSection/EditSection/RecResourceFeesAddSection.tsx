@@ -1,18 +1,15 @@
 import { ROUTE_PATHS } from '@/constants/routes';
-import { Route } from '@/routes/rec-resource/$id/fees/$feeId/edit';
+import { Route } from '@/routes/rec-resource/$id/fees/add';
 import { useNavigateWithQueryParams } from '@shared/hooks';
 import { RecResourceFeesContent } from '@/pages/rec-resource-page/components/RecResourceFeesSection/RecResourceFeesContent';
 import { RecResourceFeeFormModal } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/RecResourceFeeFormModal';
 import { RecreationFeeUIModel } from '@/services';
 
-export const RecResourceFeesEditSection = () => {
+export const RecResourceFeesAddSection = () => {
   const { fees } = Route.useLoaderData() as { fees: RecreationFeeUIModel[] };
   const params = Route.useParams();
   const recResourceId = params?.id;
-  const feeId = parseInt(params?.feeId, 10);
   const { navigate } = useNavigateWithQueryParams();
-
-  const initialFee = fees.find((f) => f.fee_id === feeId);
 
   const handleClose = () => {
     navigate({
@@ -26,8 +23,7 @@ export const RecResourceFeesEditSection = () => {
       <RecResourceFeesContent fees={fees} recResourceId={recResourceId} />
       <RecResourceFeeFormModal
         recResourceId={recResourceId}
-        mode="edit"
-        initialFee={initialFee}
+        mode="create"
         onClose={handleClose}
       />
     </>

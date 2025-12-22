@@ -1,22 +1,16 @@
-import { AddFees } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/AddFees';
+import { RecResourceFeeForm } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/RecResourceFeeForm';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { FEE_APPLIES_OPTIONS } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/schemas/addFee';
-import { useAddFeeForm } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/hooks/useAddFeeForm';
+import { useFeeForm } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/hooks/useFeeForm';
 import { useFeeOptions } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/hooks/useFeeOptions';
 
 const mockControl = { _mock: 'control' };
 const mockHandleSubmit = vi.fn((fn) => fn);
 const mockOnSubmit = vi.fn();
 
-vi.mock('@tanstack/react-router', () => ({
-  useParams: vi.fn(() => ({
-    id: 'test-rec-resource-id',
-  })),
-}));
-
 vi.mock(
-  '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/hooks/useAddFeeForm',
+  '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/hooks/useFeeForm',
 );
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/hooks/useFeeOptions',
@@ -43,18 +37,17 @@ vi.mock('react-hook-form', () => ({
   },
 }));
 
-describe('AddFees', () => {
+describe('RecResourceFeeFormFields (create)', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(useAddFeeForm).mockReturnValue({
+    vi.mocked(useFeeForm).mockReturnValue({
       control: mockControl,
       handleSubmit: mockHandleSubmit,
       errors: {},
       isDirty: false,
-      createMutation: { isPending: false },
+      mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
-      setValue: vi.fn(),
     } as any);
     vi.mocked(useFeeOptions).mockReturnValue({
       options: [
@@ -65,28 +58,28 @@ describe('AddFees', () => {
     });
   });
 
-  it('renders Add new Fee heading', () => {
-    render(<AddFees />);
-
-    expect(screen.getByText('Add new Fee')).toBeInTheDocument();
-  });
-
   it('renders Fee Applies dropdown', () => {
-    render(<AddFees />);
+    render(
+      <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
+    );
 
     expect(screen.getByTestId('select-field-fee_applies')).toBeInTheDocument();
     expect(screen.getByText(/Fee Applies/)).toBeInTheDocument();
   });
 
   it('renders Day Presets dropdown', () => {
-    render(<AddFees />);
+    render(
+      <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
+    );
 
     expect(screen.getByTestId('select-field-day_preset')).toBeInTheDocument();
     expect(screen.getByText(/Day Presets/)).toBeInTheDocument();
   });
 
   it('renders all day checkboxes', () => {
-    render(<AddFees />);
+    render(
+      <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
+    );
 
     expect(screen.getByText('Monday')).toBeInTheDocument();
     expect(screen.getByText('Tuesday')).toBeInTheDocument();
@@ -98,7 +91,9 @@ describe('AddFees', () => {
   });
 
   it('renders Fee Type dropdown with options from useFeeOptions', () => {
-    render(<AddFees />);
+    render(
+      <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
+    );
 
     const feeTypeField = screen.getByTestId('select-field-recreation_fee_code');
     expect(feeTypeField).toBeInTheDocument();
@@ -106,31 +101,36 @@ describe('AddFees', () => {
   });
 
   it('renders Amount field', () => {
-    render(<AddFees />);
+    render(
+      <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
+    );
 
     expect(screen.getByTestId('currency-field-fee_amount')).toBeInTheDocument();
     expect(screen.getByText('Amount')).toBeInTheDocument();
   });
 
   it('renders Add Fee button', () => {
-    render(<AddFees />);
+    render(
+      <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
+    );
 
     expect(screen.getByRole('button', { name: 'Add Fee' })).toBeInTheDocument();
   });
 
   it('does not render date fields when fee applies always', () => {
-    vi.mocked(useAddFeeForm).mockReturnValueOnce({
+    vi.mocked(useFeeForm).mockReturnValueOnce({
       control: mockControl,
       handleSubmit: mockHandleSubmit,
       errors: {},
       isDirty: false,
-      createMutation: { isPending: false },
+      mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
-      setValue: vi.fn(),
     } as any);
 
-    render(<AddFees />);
+    render(
+      <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
+    );
 
     expect(
       screen.queryByTestId('date-field-fee_start_date'),
@@ -144,18 +144,19 @@ describe('AddFees', () => {
   });
 
   it('renders date fields when fee applies for specific dates', () => {
-    vi.mocked(useAddFeeForm).mockReturnValueOnce({
+    vi.mocked(useFeeForm).mockReturnValueOnce({
       control: mockControl,
       handleSubmit: mockHandleSubmit,
       errors: {},
       isDirty: false,
-      createMutation: { isPending: false },
+      mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
-      setValue: vi.fn(),
     } as any);
 
-    render(<AddFees />);
+    render(
+      <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
+    );
 
     expect(screen.getByTestId('date-field-fee_start_date')).toBeInTheDocument();
     expect(screen.getByTestId('date-field-fee_end_date')).toBeInTheDocument();
@@ -163,35 +164,37 @@ describe('AddFees', () => {
   });
 
   it('disables submit button when form is not dirty', () => {
-    vi.mocked(useAddFeeForm).mockReturnValueOnce({
+    vi.mocked(useFeeForm).mockReturnValueOnce({
       control: mockControl,
       handleSubmit: mockHandleSubmit,
       errors: {},
       isDirty: false,
-      createMutation: { isPending: false },
+      mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
-      setValue: vi.fn(),
     } as any);
 
-    render(<AddFees />);
+    render(
+      <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
+    );
 
     expect(screen.getByRole('button', { name: 'Add Fee' })).toBeDisabled();
   });
 
   it('disables submit button when mutation is pending', () => {
-    vi.mocked(useAddFeeForm).mockReturnValueOnce({
+    vi.mocked(useFeeForm).mockReturnValueOnce({
       control: mockControl,
       handleSubmit: mockHandleSubmit,
       errors: {},
       isDirty: true,
-      createMutation: { isPending: true },
+      mutation: { isPending: true },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
-      setValue: vi.fn(),
     } as any);
 
-    render(<AddFees />);
+    render(
+      <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
+    );
 
     expect(
       screen.getByRole('button', { name: 'Adding Fee...' }),
@@ -199,35 +202,37 @@ describe('AddFees', () => {
   });
 
   it('enables submit button when form is dirty and not pending', () => {
-    vi.mocked(useAddFeeForm).mockReturnValueOnce({
+    vi.mocked(useFeeForm).mockReturnValueOnce({
       control: mockControl,
       handleSubmit: mockHandleSubmit,
       errors: {},
       isDirty: true,
-      createMutation: { isPending: false },
+      mutation: { isPending: false },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
-      setValue: vi.fn(),
     } as any);
 
-    render(<AddFees />);
+    render(
+      <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
+    );
 
     expect(screen.getByRole('button', { name: 'Add Fee' })).not.toBeDisabled();
   });
 
   it('shows button text as Adding Fee... when mutation is pending', () => {
-    vi.mocked(useAddFeeForm).mockReturnValueOnce({
+    vi.mocked(useFeeForm).mockReturnValueOnce({
       control: mockControl,
       handleSubmit: mockHandleSubmit,
       errors: {},
       isDirty: true,
-      createMutation: { isPending: true },
+      mutation: { isPending: true },
       onSubmit: mockOnSubmit,
       feeApplies: FEE_APPLIES_OPTIONS.ALWAYS,
-      setValue: vi.fn(),
     } as any);
 
-    render(<AddFees />);
+    render(
+      <RecResourceFeeForm recResourceId="test-rec-resource-id" mode="create" />,
+    );
 
     expect(screen.getByText('Adding Fee...')).toBeInTheDocument();
   });

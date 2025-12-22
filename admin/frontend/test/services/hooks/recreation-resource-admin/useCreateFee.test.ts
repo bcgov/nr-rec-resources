@@ -12,9 +12,17 @@ vi.mock(
   }),
 );
 
-vi.mock('@/services/hooks/recreation-resource-admin/helpers', () => ({
-  createRetryHandler: vi.fn(),
-}));
+vi.mock(
+  '@/services/hooks/recreation-resource-admin/helpers',
+  async (importOriginal) => {
+    const actual: any = await importOriginal();
+    return {
+      ...actual,
+      createRetryHandler: vi.fn(),
+      mapRecreationFee: vi.fn((fee: any) => fee),
+    };
+  },
+);
 
 describe('useCreateFee', () => {
   const mockApi = {
