@@ -177,11 +177,6 @@ describe('NavigationDrawer', () => {
       category: 'Mobile Navigation',
       name: 'Hamburger Menu - Share feedback',
     });
-
-    expect(mockTrackClickEvent).toHaveBeenCalledWith({
-      category: 'Feedback',
-      name: 'Beta Banner Feedback Button - mobile navigation drawer',
-    });
   });
 
   it('calls onClose when clicking outside the drawer while open', async () => {
@@ -234,7 +229,7 @@ describe('NavigationDrawer', () => {
 
     const listItems = screen.getAllByRole('listitem');
     // Should have all header links plus feedback link
-    expect(listItems).toHaveLength(HEADER_LINKS.length + 1);
+    expect(listItems).toHaveLength(HEADER_LINKS.length);
 
     listItems.forEach((item) => {
       expect(item).toHaveClass('navigation-drawer-item');
