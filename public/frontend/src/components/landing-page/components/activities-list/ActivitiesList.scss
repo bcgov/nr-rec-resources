@@ -5,8 +5,9 @@
 }
 
 .activities-container {
+  margin-top: 1em;
   @include media-breakpoint-down(md) {
-    margin-top: 0.5em;
+    margin-top: 2em;
   }
 }
 
@@ -34,6 +35,7 @@
     font-style: Bold;
     font-size: 23px;
     line-height: 33px;
+    margin-top: 0.6em;
   }
 
   .activity-description {

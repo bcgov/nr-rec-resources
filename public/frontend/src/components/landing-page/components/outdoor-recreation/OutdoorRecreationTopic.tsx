@@ -28,7 +28,7 @@ export const OutdoorRecreationTopic: FC<Topic> = ({
       <a href={`${ROUTE_PATHS.HOME}${'search?type='}${type}`}>
         <Container className="d-flex align-items-center justify-content-left link">
           <img
-            className="d-block d-md-none"
+            className="d-block d-md-none mobile-icon"
             src={mobileIcon}
             alt="Topic icon"
             height={30}
