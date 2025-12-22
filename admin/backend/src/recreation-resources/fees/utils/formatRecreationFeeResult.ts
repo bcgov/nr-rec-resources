@@ -9,6 +9,7 @@ export function formatRecreationFeeResult(
   fee: FeeWithDescription,
 ): RecreationFeeDto {
   return {
+    fee_id: fee.fee_id,
     fee_amount: fee.fee_amount ?? undefined,
     fee_start_date: fee.fee_start_date ?? undefined,
     fee_end_date: fee.fee_end_date ?? undefined,

@@ -10,6 +10,7 @@ export const ROUTE_PATHS = {
   REC_RESOURCE_ACTIVITIES_EDIT: '/rec-resource/$id/activities/edit',
   REC_RESOURCE_FEES: '/rec-resource/$id/fees',
   REC_RESOURCE_FEES_ADD: '/rec-resource/$id/fees/add',
+  REC_RESOURCE_FEE_EDIT: '/rec-resource/$id/fees/$feeId/edit',
   REC_RESOURCE_GEOSPATIAL: '/rec-resource/$id/geospatial',
   REC_RESOURCE_GEOSPATIAL_EDIT: '/rec-resource/$id/geospatial/edit',
 } as const satisfies Record<string, NavigateOptions['to']>;

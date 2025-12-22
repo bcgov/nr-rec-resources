@@ -8,3 +8,4 @@ export * from './header';
 export * from './notification-bar';
 export * from './page-layout';
 export * from './table';
+export * from './IconButton';

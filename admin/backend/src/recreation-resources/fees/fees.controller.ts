@@ -12,7 +12,9 @@ import {
   Get,
   HttpException,
   Param,
+  ParseIntPipe,
   Post,
+  Put,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -27,6 +29,7 @@ import {
 } from '@nestjs/swagger';
 import { CreateRecreationFeeDto } from './dto/create-recreation-fee.dto';
 import { RecreationFeeDto } from './dto/recreation-fee.dto';
+import { UpdateRecreationFeeDto } from './dto/update-recreation-fee.dto';
 import { FeesService } from './fees.service';
 
 @ApiTags('recreation-resources')
@@ -113,6 +116,65 @@ export class FeesController {
         throw error;
       }
       throw new HttpException('Error creating fee', 500);
+    }
+  }
+
+  @Put(':fee_id')
+  @AuthRoles([RecreationResourceAuthRole.RST_ADMIN], ROLE_MODE.ALL)
+  @ApiOperation({
+    operationId: 'updateRecreationResourceFee',
+    summary: 'Update an existing fee for a recreation resource',
+    description:
+      'Updates an existing fee identified by fee_id and associated with the recreation resource',
+  })
+  @ApiParam({
+    name: 'rec_resource_id',
+    description: 'Recreation Resource ID',
+    example: 'REC262200',
+  })
+  @ApiParam({
+    name: 'fee_id',
+    description: 'Fee ID',
+    example: 123,
+  })
+  @ApiBody({
+    required: true,
+    description: 'Fee fields to update',
+    type: UpdateRecreationFeeDto,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Fee updated successfully',
+    type: RecreationFeeDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Fee not found for this recreation resource',
+  })
+  @ApiResponse({
+    status: 409,
+    description: 'Fee type already exists for this resource',
+  })
+  @ApiBadRequestResponse({
+    description: 'Bad Request - validation errors',
+    type: BadRequestResponseDto,
+  })
+  async update(
+    @Param('rec_resource_id') rec_resource_id: string,
+    @Param('fee_id', ParseIntPipe) fee_id: number,
+    @Body() updateFeeDto: UpdateRecreationFeeDto,
+  ): Promise<RecreationFeeDto> {
+    try {
+      return await this.feesService.update(
+        rec_resource_id,
+        fee_id,
+        updateFeeDto,
+      );
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException('Error updating fee', 500);
     }
   }
 }

@@ -29,6 +29,7 @@ import type {
   RecreationResourceImageDto,
   SuggestionsResponseDto,
   UpdateActivitiesDto,
+  UpdateRecreationFeeDto,
   UpdateRecreationResourceDto,
   UpdateRecreationResourceGeospatialDto,
 } from '../models/index';
@@ -63,6 +64,8 @@ import {
   SuggestionsResponseDtoToJSON,
   UpdateActivitiesDtoFromJSON,
   UpdateActivitiesDtoToJSON,
+  UpdateRecreationFeeDtoFromJSON,
+  UpdateRecreationFeeDtoToJSON,
   UpdateRecreationResourceDtoFromJSON,
   UpdateRecreationResourceDtoToJSON,
   UpdateRecreationResourceGeospatialDtoFromJSON,
@@ -177,6 +180,12 @@ export interface UpdateImageResourceRequest {
 export interface UpdateRecreationResourceByIdRequest {
   recResourceId: string;
   updateRecreationResourceDto: UpdateRecreationResourceDto;
+}
+
+export interface UpdateRecreationResourceFeeRequest {
+  recResourceId: string;
+  feeId: number;
+  updateRecreationFeeDto: UpdateRecreationFeeDto;
 }
 
 export interface UpdateRecreationResourceGeospatialRequest {
@@ -1797,6 +1806,90 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<RecreationResourceDetailDto> {
     const response = await this.updateRecreationResourceByIdRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Updates an existing fee identified by fee_id and associated with the recreation resource
+   * Update an existing fee for a recreation resource
+   */
+  async updateRecreationResourceFeeRaw(
+    requestParameters: UpdateRecreationResourceFeeRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationFeeDto>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling updateRecreationResourceFee().',
+      );
+    }
+
+    if (requestParameters['feeId'] == null) {
+      throw new runtime.RequiredError(
+        'feeId',
+        'Required parameter "feeId" was null or undefined when calling updateRecreationResourceFee().',
+      );
+    }
+
+    if (requestParameters['updateRecreationFeeDto'] == null) {
+      throw new runtime.RequiredError(
+        'updateRecreationFeeDto',
+        'Required parameter "updateRecreationFeeDto" was null or undefined when calling updateRecreationResourceFee().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    headerParameters['Content-Type'] = 'application/json';
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resources/{rec_resource_id}/fees/{fee_id}`
+          .replace(
+            `{${'rec_resource_id'}}`,
+            encodeURIComponent(String(requestParameters['recResourceId'])),
+          )
+          .replace(
+            `{${'fee_id'}}`,
+            encodeURIComponent(String(requestParameters['feeId'])),
+          ),
+        method: 'PUT',
+        headers: headerParameters,
+        query: queryParameters,
+        body: UpdateRecreationFeeDtoToJSON(
+          requestParameters['updateRecreationFeeDto'],
+        ),
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationFeeDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Updates an existing fee identified by fee_id and associated with the recreation resource
+   * Update an existing fee for a recreation resource
+   */
+  async updateRecreationResourceFee(
+    requestParameters: UpdateRecreationResourceFeeRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationFeeDto> {
+    const response = await this.updateRecreationResourceFeeRaw(
       requestParameters,
       initOverrides,
     );

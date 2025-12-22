@@ -144,10 +144,11 @@ model recreation_fee {
   created_at          DateTime?                @default(now()) @db.Timestamp(6)
   created_by          String?
   sys_period          Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  fee_id              Int                      @id @default(autoincrement())
   recreation_resource recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
   with_description    recreation_fee_code      @relation("fee_with_description", fields: [recreation_fee_code], references: [recreation_fee_code], onDelete: NoAction, onUpdate: NoAction)
 
-  @@unique([rec_resource_id, recreation_fee_code])
+  @@unique([rec_resource_id, recreation_fee_code, monday_ind, tuesday_ind, wednesday_ind, thursday_ind, friday_ind, saturday_ind, sunday_ind], map: "recreation_fee_unique_idx")
   @@index([rec_resource_id], map: "idx_recreation_fee_rec_resource_id")
   @@schema("rst")
 }
