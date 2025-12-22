@@ -4,9 +4,9 @@ import { RemoveScroll } from 'react-remove-scroll';
 import { useClickOutside } from '@shared/hooks';
 import { ExternalLink } from '@shared/components/links';
 import { HEADER_LINKS } from './constants';
-import { EXTERNAL_LINKS } from '@/constants/urls';
 import { trackClickEvent } from '@shared/utils';
 import '@/components/layout/NavigationDrawer.scss';
+import { EXTERNAL_LINKS } from '@/constants/urls';
 
 interface NavigationDrawerProps {
   isOpen: boolean;
@@ -39,13 +39,6 @@ const NavigationDrawer = ({
     onClose();
   };
 
-  const handleFeedbackClick = () => {
-    trackClickEvent({
-      category: 'Feedback',
-      name: 'Beta Banner Feedback Button - mobile navigation drawer',
-    });
-  };
-
   return (
     <RemoveScroll enabled={isOpen}>
       <nav
@@ -55,7 +48,10 @@ const NavigationDrawer = ({
       >
         <ul className="navigation-drawer-list">
           {HEADER_LINKS.map((link, index) => (
-            <li key={index} className="navigation-drawer-item">
+            <li
+              key={index}
+              className={`navigation-drawer-item ${link.url === EXTERNAL_LINKS.FEEDBACK_FORM && 'feedback'}`}
+            >
               {link.isExternal ? (
                 <ExternalLink
                   url={link.url}
@@ -72,17 +68,6 @@ const NavigationDrawer = ({
               )}
             </li>
           ))}
-
-          <li className="navigation-drawer-item feedback">
-            <ExternalLink
-              url={EXTERNAL_LINKS.FEEDBACK_FORM}
-              label="Share feedback"
-              onClick={() => {
-                handleMenuLinkClick('Share feedback');
-                handleFeedbackClick();
-              }}
-            />
-          </li>
         </ul>
       </nav>
     </RemoveScroll>
