@@ -26,14 +26,14 @@ locals {
 }
 
 resource "aws_s3_bucket" "frontend" {
-  bucket = "${var.app_name}-${data.aws_caller_identity.current.account_id}-${var.aws_region}"
+  bucket        = "${var.app_name}-${data.aws_caller_identity.current.account_id}-${var.aws_region}"
   force_destroy = true
 }
 
 resource "aws_s3_bucket_public_access_block" "frontend_bucket_block" {
-  bucket            = aws_s3_bucket.frontend.id
-  block_public_acls = true
-  block_public_policy = true
+  bucket                  = aws_s3_bucket.frontend.id
+  block_public_acls       = true
+  block_public_policy     = true
   restrict_public_buckets = true
   ignore_public_acls      = true
 
@@ -70,7 +70,7 @@ provider "aws" {
 
 data "aws_acm_certificate" "primary_cert" {
   provider    = aws.cloudfront_cert
-  for_each    = var.app_env == "prod" ? { "primary_cert" = var.custom_domain } : {}
+  for_each    = var.app_env == "prod" ? { "primary_cert" = "*.sitesandtrailsbc.ca" } : {}
   domain      = each.value
   statuses    = ["ISSUED"]
   most_recent = true
@@ -82,9 +82,9 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   comment             = "Distribution for ${var.app_name} site."
   default_root_object = "index.html"
   price_class         = "PriceClass_100"
-  web_acl_id          = "${aws_wafv2_web_acl.waf_cloudfront.arn}"
+  web_acl_id          = aws_wafv2_web_acl.waf_cloudfront.arn
 
-  aliases = var.app_env == "prod" ? [var.custom_domain] : []
+  aliases = var.app_env == "prod" ? var.custom_domains : []
   viewer_certificate {
     acm_certificate_arn            = var.app_env == "prod" ? data.aws_acm_certificate.primary_cert["primary_cert"].arn : null
     ssl_support_method             = "sni-only"
@@ -102,18 +102,18 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
   }
 
   custom_error_response {
-    error_code = 403
-    response_code = 200
+    error_code         = 403
+    response_code      = 200
     response_page_path = "/"
   }
 
 
   default_cache_behavior {
-    allowed_methods  = ["GET", "HEAD"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = aws_s3_bucket.frontend.bucket
+    allowed_methods            = ["GET", "HEAD"]
+    cached_methods             = ["GET", "HEAD"]
+    target_origin_id           = aws_s3_bucket.frontend.bucket
     response_headers_policy_id = aws_cloudfront_response_headers_policy.csp_policy.id
-    compress = true
+    compress                   = true
 
     forwarded_values {
       query_string = false

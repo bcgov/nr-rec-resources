@@ -9,6 +9,7 @@ generate "prod_tfvars" {
   disable_signature = true
   contents          = <<-EOF
   target_env = "prod"
+  custom_domains = ["beta.sitesandtrailsbc.ca", "sitesandtrailsbc.ca", "www.sitesandtrailsbc.ca"]
   csp_urls = {
       image_src = "https://dam.lqc63d-prod.nimbus.cloud.gov.bc.ca https://beta.sitesandtrailsbc.ca https://sitesandtrailsbc.ca"
       connect_src = "https://dam.lqc63d-prod.nimbus.cloud.gov.bc.ca https://bcparks.api.gov.bc.ca"
