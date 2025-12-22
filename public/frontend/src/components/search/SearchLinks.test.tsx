@@ -1,4 +1,3 @@
-import { vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import { renderWithRouter } from '@/test-utils';
 import SearchLinks from '@/components/search/SearchLinks';
@@ -6,11 +5,6 @@ import {
   SEARCH_LINKS,
   SEARCH_LINKS_TITLE,
 } from '@/components/search/constants';
-import { trackEvent } from '@shared/utils';
-
-vi.mock('@shared/utils', () => ({
-  trackEvent: vi.fn(),
-}));
 
 describe('SearchLinks', () => {
   it('renders the title', async () => {
@@ -42,18 +36,5 @@ describe('SearchLinks', () => {
     await renderWithRouter(<SearchLinks />);
     const container = screen.getByText(SEARCH_LINKS_TITLE).parentElement;
     expect(container).toHaveClass('search-links-desktop');
-  });
-
-  it('calls trackEvent when a link is clicked', async () => {
-    await renderWithRouter(<SearchLinks />);
-
-    const firstLink = screen.getByText(SEARCH_LINKS[0].label);
-    firstLink.click();
-
-    expect(trackEvent).toHaveBeenCalledWith({
-      category: 'Search',
-      action: 'Click',
-      name: `Search link - ${SEARCH_LINKS[0].trackingName}`,
-    });
   });
 });

@@ -84,6 +84,7 @@ describe('DownloadKmlResultsModal', () => {
         setIsOpen={setIsOpenMock}
         searchResultsNumber={3}
         ids={['r1', 'r2', 'r3']}
+        trackingView="list"
       />,
     );
 
@@ -98,6 +99,7 @@ describe('DownloadKmlResultsModal', () => {
         setIsOpen={setIsOpenMock}
         searchResultsNumber={1}
         ids={['r1']}
+        trackingView="list"
       />,
     );
     expect(screen.queryByText('Export map file')).not.toBeInTheDocument();
@@ -110,6 +112,7 @@ describe('DownloadKmlResultsModal', () => {
         setIsOpen={setIsOpenMock}
         searchResultsNumber={401}
         ids={[]}
+        trackingView="list"
       />,
     );
     const downloadBtn = screen.getByRole('button', { name: /download/i });
@@ -124,6 +127,7 @@ describe('DownloadKmlResultsModal', () => {
         setIsOpen={setIsOpenMock}
         searchResultsNumber={1}
         ids={['r1']}
+        trackingView="list"
       />,
     );
 
@@ -139,6 +143,7 @@ describe('DownloadKmlResultsModal', () => {
         setIsOpen={setIsOpenMock}
         searchResultsNumber={2}
         ids={['r1']}
+        trackingView="list"
       />,
     );
 
@@ -166,6 +171,7 @@ describe('DownloadKmlResultsModal', () => {
         setIsOpen={setIsOpenMock}
         searchResultsNumber={1}
         ids={['r1']}
+        trackingView="list"
       />,
     );
 
@@ -192,6 +198,7 @@ describe('DownloadKmlResultsModal', () => {
         setIsOpen={setIsOpenMock}
         searchResultsNumber={1}
         ids={['r1']}
+        trackingView="list"
       />,
     );
 

@@ -1,10 +1,16 @@
 import { useStore } from '@tanstack/react-store';
 import { useClearFilters } from '@/components/search/hooks/useClearFilters';
 import searchResultsStore from '@/store/searchResults';
+import filterChipStore from '@/store/filterChips';
 import FilterGroupAccordion from '@/components/search/filters/FilterGroupAccordion';
 import FilterGroup from '@/components/search/filters/FilterGroup';
 import FilterModal from '@/components/search/filters/FilterModal';
 import { Modal } from 'react-bootstrap';
+import { trackEvent } from '@shared/utils';
+import {
+  MATOMO_ACTION_FILTERS_LIST_MOBILE,
+  MATOMO_CATEGORY_FILTERS,
+} from '@/constants/analytics';
 
 interface FilterMenuMobileProps {
   isOpen: boolean;
@@ -14,9 +20,24 @@ interface FilterMenuMobileProps {
 const FilterMenuMobile = ({ isOpen, setIsOpen }: FilterMenuMobileProps) => {
   const clearFilters = useClearFilters();
   const { filters: menuContent, totalCount } = useStore(searchResultsStore);
+  const selectedFilters = useStore(filterChipStore);
   const params = menuContent?.map(({ param }) => param) ?? [];
 
   const handleClose = () => setIsOpen(false);
+  const handleShowResults = () => {
+    const filterNames = selectedFilters?.map((f) => f.label) ?? [];
+    const listOfFilterNames = filterNames
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .join(', ');
+
+    trackEvent({
+      category: MATOMO_CATEGORY_FILTERS,
+      action: MATOMO_ACTION_FILTERS_LIST_MOBILE,
+      name: `${MATOMO_ACTION_FILTERS_LIST_MOBILE}_${listOfFilterNames}`,
+    });
+    handleClose();
+  };
 
   return (
     <FilterModal
@@ -46,7 +67,7 @@ const FilterMenuMobile = ({ isOpen, setIsOpen }: FilterMenuMobileProps) => {
 
           <Modal.Footer className="d-block">
             <button
-              onClick={handleClose}
+              onClick={handleShowResults}
               className="btn btn-primary w-100 mx-0 mb-2"
             >
               Show {totalCount} {totalCount === 1 ? 'result' : 'results'}

@@ -3,6 +3,7 @@ import { screen } from '@testing-library/react';
 import { RecreationSearchBanner } from './RecreationSearchBanner';
 import RecreationSuggestionForm from '@/components/recreation-suggestion-form/RecreationSuggestionForm';
 import { renderWithQueryClient } from '@/test-utils';
+import { MATOMO_SEARCH_CONTEXT_HOME } from '@/constants/analytics';
 
 vi.mock(
   '@/components/recreation-suggestion-form/RecreationSuggestionForm',
@@ -34,7 +35,7 @@ describe('RecreationSearchBanner', () => {
       {
         allowEmptySearch: true,
         searchBtnVariant: 'secondary',
-        trackingSource: 'Landing page',
+        trackingContext: MATOMO_SEARCH_CONTEXT_HOME,
       },
       undefined,
     );

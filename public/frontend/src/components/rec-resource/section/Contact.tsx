@@ -3,7 +3,10 @@ import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 import { ResponseError, SiteOperatorDto } from '@/service/recreation-resource';
 import { Link } from '@tanstack/react-router';
 import { trackClickEvent } from '@shared/utils';
-import { MATOMO_TRACKING_CATEGORY_CONTACT_PAGE } from '@/constants/analytics';
+import {
+  MATOMO_ACTION_CONTACT_FROM_REC_RESOURCE_CLICK,
+  MATOMO_TRACKING_CATEGORY_CONTACT_PAGE,
+} from '@/constants/analytics';
 import { ROUTE_PATHS } from '@/constants/routes';
 
 interface SiteOperatorProps {
@@ -49,7 +52,8 @@ const Contact = forwardRef<HTMLElement, SiteOperatorProps>(
                       )}
                       onClick={trackClickEvent({
                         category: MATOMO_TRACKING_CATEGORY_CONTACT_PAGE,
-                        name: `${MATOMO_TRACKING_CATEGORY_CONTACT_PAGE} - ${rec_resource_id}`,
+                        action: MATOMO_ACTION_CONTACT_FROM_REC_RESOURCE_CLICK,
+                        name: `${MATOMO_TRACKING_CATEGORY_CONTACT_PAGE} ${rec_resource_id}`,
                       })}
                     >
                       Contact us

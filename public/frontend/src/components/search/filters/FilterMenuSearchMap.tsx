@@ -8,6 +8,10 @@ import searchResultsStore from '@/store/searchResults';
 import FilterGroupAccordion from '@/components/search/filters/FilterGroupAccordion';
 import FilterModal from '@/components/search/filters/FilterModal';
 import { trackEvent } from '@shared/utils';
+import {
+  MATOMO_ACTION_FILTERS_MAP,
+  MATOMO_CATEGORY_FILTERS,
+} from '@/constants/analytics';
 
 import '@/components/search/filters/Filters.scss';
 import '@/components/search/filters/FilterMenuSearchMap.scss';
@@ -61,7 +65,7 @@ const FilterMenuSearchMap = ({
       setMenuContent(searchStoreFilters);
       const initialFilters: Record<string, string[]> = {};
       searchStoreFilters.forEach(({ param }) => {
-        const value = searchParams[param];
+        const value = (searchParams as Record<string, unknown>)[param];
         initialFilters[param] = value ? String(value).split('_') : [];
       });
       setLocalFilters(initialFilters);
@@ -79,9 +83,10 @@ const FilterMenuSearchMap = ({
 
   const handleToggleFilter = (param: string, id: string | number) => {
     const current = localFilters[param] ?? [];
-    const updated = current.includes(id)
-      ? current.filter((v) => v !== id)
-      : [...current, id];
+    const idStr = String(id);
+    const updated = current.includes(idStr)
+      ? current.filter((v) => v !== idStr)
+      : [...current, idStr];
     setLocalFilters({ ...localFilters, [param]: updated });
   };
 
@@ -99,12 +104,25 @@ const FilterMenuSearchMap = ({
         delete newSearchParams[param];
       }
     });
-    navigate({ search: newSearchParams });
+    navigate({ search: newSearchParams as any });
     setIsOpen(false);
+
+    const selectedFilterNames =
+      menuContent?.flatMap(({ options, param }) => {
+        const selectedIds = localFilters[param] ?? [];
+        return options
+          .filter(({ id }) => selectedIds.includes(String(id)))
+          .map(({ description }) => description);
+      }) ?? [];
+    const listOfFilterNames = selectedFilterNames
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .join(', ');
+
     trackEvent({
-      action: 'Apply filters',
-      category: 'Search map filter menu',
-      name: `Applied filters: ${params.join(', ')}`,
+      category: MATOMO_CATEGORY_FILTERS,
+      action: MATOMO_ACTION_FILTERS_MAP,
+      name: `${MATOMO_ACTION_FILTERS_MAP}_${listOfFilterNames}`,
     });
   };
 

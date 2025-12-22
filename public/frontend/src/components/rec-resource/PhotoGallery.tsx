@@ -14,6 +14,11 @@ import 'yet-another-react-lightbox/plugins/thumbnails.css';
 import '@/components/rec-resource/PhotoGallery.scss';
 
 import Photo from './Photo';
+import {
+  MATOMO_ACTION_CLICK,
+  MATOMO_CATEGORY_PHOTO_GALLERY,
+  MATOMO_NAME_PHOTO_GALLERY_OPEN,
+} from '@/constants/analytics';
 
 interface Photo {
   caption?: string;
@@ -62,9 +67,9 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
       e.preventDefault();
       setOpen(true);
       trackEvent({
-        action: 'Keyboard navigation',
-        category: 'Photo gallery',
-        name: 'Open photo gallery',
+        action: MATOMO_ACTION_CLICK,
+        category: MATOMO_CATEGORY_PHOTO_GALLERY,
+        name: MATOMO_NAME_PHOTO_GALLERY_OPEN,
       });
     }
   };
@@ -72,9 +77,9 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
   const handleOpen = () => {
     setOpen(true);
     trackEvent({
-      action: 'Click',
-      category: 'Photo gallery',
-      name: 'Open photo gallery',
+      action: MATOMO_ACTION_CLICK,
+      category: MATOMO_CATEGORY_PHOTO_GALLERY,
+      name: MATOMO_NAME_PHOTO_GALLERY_OPEN,
     });
   };
 

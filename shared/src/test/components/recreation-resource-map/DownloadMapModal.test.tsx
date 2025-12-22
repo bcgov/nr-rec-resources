@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import DownloadMapModal from '@shared/components/recreation-resource-map/DownloadMapModal';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { trackEvent } from '@shared/utils';
 
 vi.mock(
   '@shared/components/recreation-resource-map/helpers/mapDownloadHandlers',
@@ -10,10 +11,22 @@ vi.mock(
   }),
 );
 
+vi.mock('@shared/utils', () => ({
+  trackEvent: vi.fn(),
+}));
+
 describe('DownloadMapModal', () => {
   const setIsOpen = vi.fn();
   const styledFeatures = [{ id: 'fake-feature' }] as any;
-  const recResource = { name: 'Test Resource' } as any;
+  const recResource = {
+    name: 'Test Resource',
+    rec_resource_id: 'REC123',
+  } as any;
+  const matomo = {
+    category: 'Export map',
+    actionGpx: 'Export map_GPX',
+    actionKml: 'Export map_KML',
+  } as const;
 
   beforeEach(() => {
     setIsOpen.mockClear();
@@ -26,6 +39,7 @@ describe('DownloadMapModal', () => {
         setIsOpen={setIsOpen}
         styledFeatures={styledFeatures}
         recResource={recResource}
+        matomo={matomo}
       />,
     );
 
@@ -41,6 +55,7 @@ describe('DownloadMapModal', () => {
         setIsOpen={setIsOpen}
         styledFeatures={styledFeatures}
         recResource={recResource}
+        matomo={matomo}
       />,
     );
 
@@ -62,6 +77,7 @@ describe('DownloadMapModal', () => {
         setIsOpen={setIsOpen}
         styledFeatures={styledFeatures}
         recResource={recResource}
+        matomo={matomo}
       />,
     );
 
@@ -94,6 +110,17 @@ describe('DownloadMapModal', () => {
       recResource,
       undefined,
     );
+
+    expect(trackEvent).toHaveBeenCalledWith({
+      category: 'Export map',
+      action: 'Export map_GPX',
+      name: 'Export_map_GPX_Test-Resource-REC123',
+    });
+    expect(trackEvent).toHaveBeenCalledWith({
+      category: 'Export map',
+      action: 'Export map_KML',
+      name: 'Export_map_KML_Test-Resource-REC123',
+    });
   });
 
   it('disables download button when no checkbox is selected', () => {

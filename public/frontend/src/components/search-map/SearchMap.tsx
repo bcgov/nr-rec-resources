@@ -25,6 +25,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSliders } from '@fortawesome/free-solid-svg-icons';
 import { Button, ProgressBar } from 'react-bootstrap';
 import { trackClickEvent } from '@shared/utils';
+import { MATOMO_SEARCH_CONTEXT_MAP } from '@/constants/analytics';
 import {
   ANIMATED_CLUSTER_OPTIONS,
   CLUSTER_OPTIONS,
@@ -225,7 +226,7 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
           <RecreationSuggestionForm
             disableNavigation={true}
             searchBtnVariant="secondary"
-            trackingSource="Search page map view"
+            trackingContext={MATOMO_SEARCH_CONTEXT_MAP}
           />
           <Button
             variant={isFilterMenuOpen ? 'primary' : 'secondary'}
@@ -250,6 +251,7 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
             variant="list"
             totalCount={searchViewControlsProps.totalCount}
             ids={searchViewControlsProps.ids}
+            trackingView="map"
           />
         </div>
         <FilterMenuSearchMap

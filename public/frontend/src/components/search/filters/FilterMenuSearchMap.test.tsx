@@ -131,9 +131,9 @@ describe('FilterMenuSearchMap', () => {
     expect(trackEvent).toHaveBeenCalledTimes(1);
     const callArg = (trackEvent as Mock).mock.calls[0][0];
     expect(callArg).toMatchObject({
-      action: 'Apply filters',
-      category: 'Search map filter menu',
-      name: 'Applied filters: district',
+      action: 'Filters_map',
+      category: 'Filters',
+      name: 'Filters_map_Okanagan, Chilliwack',
     });
   });
 
