@@ -22,7 +22,6 @@ export const addFeeSchema = z
       FEE_APPLIES_OPTIONS.ALWAYS,
       FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
     ]),
-    recurring_fee: z.boolean().default(false),
     fee_start_date: z.string().optional(),
     fee_end_date: z.string().optional(),
     day_preset: z

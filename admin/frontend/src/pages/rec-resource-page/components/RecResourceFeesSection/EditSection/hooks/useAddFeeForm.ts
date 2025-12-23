@@ -50,7 +50,6 @@ export const useAddFeeForm = (recResourceId: string) => {
     recreation_fee_code: '',
     fee_amount: undefined,
     fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
-    recurring_fee: false,
     fee_start_date: undefined,
     fee_end_date: undefined,
     day_preset: DAY_PRESET_OPTIONS.ALL_DAYS,

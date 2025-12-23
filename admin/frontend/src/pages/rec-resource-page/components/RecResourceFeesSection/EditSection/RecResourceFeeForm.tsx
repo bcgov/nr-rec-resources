@@ -99,25 +99,6 @@ export const RecResourceFeeForm = ({
                 />
               </Col>
             </Row>
-
-            <Row className="gy-3">
-              <Col xs={12} md={6}>
-                <Form.Group controlId="recurring_fee">
-                  <Controller<AddFeeFormData>
-                    name="recurring_fee"
-                    control={control}
-                    render={({ field }) => (
-                      <Form.Check
-                        type="checkbox"
-                        label="Recurring Fee (Yearly)"
-                        checked={!!field.value}
-                        onChange={(e) => field.onChange(e.target.checked)}
-                      />
-                    )}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
           </>
         )}
 
