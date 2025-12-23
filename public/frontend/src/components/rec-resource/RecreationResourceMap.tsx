@@ -3,7 +3,6 @@ import { Link } from '@tanstack/react-router';
 import { Col, Row, Stack } from 'react-bootstrap';
 import {
   RecreationResourceMap as SharedRecreationResourceMap,
-  MATOMO_TRACKING_CATEGORY_MAP,
   DownloadMapModal,
   getMapFeaturesFromRecResource,
   getLayerStyleForRecResource,
@@ -18,6 +17,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faMap } from '@fortawesome/free-solid-svg-icons';
 import { getRecResourceDetailPageUrl } from '@/utils/recreationResourceUtils';
 import DownloadIcon from '@shared/assets/icons/download.svg';
+import {
+  MATOMO_ACTION_EXPORT_MAP_GPX,
+  MATOMO_ACTION_EXPORT_MAP_KML,
+  MATOMO_CATEGORY_EXPORT_MAP,
+  MATOMO_CATEGORY_MAP_VIEW,
+  MATOMO_NAME_MAPVIEW_RESOURCE,
+  MATOMO_ACTION_MAPVIEW_RESOURCE,
+} from '@/constants/analytics';
 
 interface RecreationResourceMapProps {
   recResource: RecreationResourceDetailModel;
@@ -28,12 +35,6 @@ const DOWNLOAD_ICON_CONFIG = {
   WIDTH: 16,
   HEIGHT: 16,
   ALT: 'Download map',
-} as const;
-
-const TRACKING_ACTIONS = {
-  VIEW_IN_MAIN_MAP: 'View in main map',
-  EXPORT_MAP_FILE: 'Export map file',
-  OPEN_GOOGLE_MAPS: 'Open in Google Maps',
 } as const;
 
 /**
@@ -84,20 +85,15 @@ export const RecreationResourceMap = ({
 
   const handleViewInMainMapClick = useCallback(() => {
     trackEvent({
-      category: MATOMO_TRACKING_CATEGORY_MAP,
-      action: TRACKING_ACTIONS.VIEW_IN_MAIN_MAP,
-      name: `${recResourceName}-${recResource?.rec_resource_id}-${TRACKING_ACTIONS.VIEW_IN_MAIN_MAP}`,
+      category: MATOMO_CATEGORY_MAP_VIEW,
+      action: MATOMO_ACTION_MAPVIEW_RESOURCE,
+      name: `${MATOMO_NAME_MAPVIEW_RESOURCE}_${recResourceName}-${recResource?.rec_resource_id}`,
     });
   }, [recResourceName, recResource?.rec_resource_id]);
 
   const handleDownloadClick = useCallback(() => {
-    trackEvent({
-      category: MATOMO_TRACKING_CATEGORY_MAP,
-      action: TRACKING_ACTIONS.EXPORT_MAP_FILE,
-      name: `${recResourceName}-${recResource?.rec_resource_id}-${TRACKING_ACTIONS.EXPORT_MAP_FILE}`,
-    });
     setIsDownloadModalOpen(true);
-  }, [recResourceName, recResource?.rec_resource_id]);
+  }, []);
 
   /*
    * Hide temporaly google maps link until we come with a proper warning/disclaimer //NOSONAR
@@ -197,6 +193,11 @@ export const RecreationResourceMap = ({
           styledFeatures={downloadStyledFeatures}
           recResource={recResource}
           getResourceDetailUrl={getRecResourceDetailPageUrl}
+          matomo={{
+            category: MATOMO_CATEGORY_EXPORT_MAP,
+            actionGpx: MATOMO_ACTION_EXPORT_MAP_GPX,
+            actionKml: MATOMO_ACTION_EXPORT_MAP_KML,
+          }}
         />
       </Stack>
     </div>

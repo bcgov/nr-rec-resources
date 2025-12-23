@@ -13,13 +13,17 @@ import { Feature } from 'ol';
 import { RecreationResourceMapData } from '@shared/components/recreation-resource-map/types';
 import { getRecResourceDetailPageUrl } from '@/utils/recreationResourceUtils';
 import { trackEvent } from '@shared/utils';
+import {
+  MATOMO_ACTION_EXPORT_FILTERED_RESULTS,
+  MATOMO_CATEGORY_EXPORT_MAP,
+} from '@/constants/analytics';
 
 interface DownloadKmlResultsModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   searchResultsNumber: number;
   ids: string[];
-  variant: 'list' | 'map';
+  trackingView: 'list' | 'map';
 }
 
 interface KmlProps {
@@ -33,12 +37,10 @@ const DownloadKmlResultsModal = ({
   setIsOpen,
   searchResultsNumber,
   ids,
-  variant,
+  trackingView,
 }: DownloadKmlResultsModalProps) => {
   const { mutateAsync, isPending } =
     useRecreationResourcesWithGeometryMutation();
-  // swap variants to track properly on matomo
-  const actualVariant = variant === 'list' ? 'map' : 'list';
 
   const REC_LIMIT = 400;
 
@@ -64,9 +66,9 @@ const DownloadKmlResultsModal = ({
       });
       downloadKMLMultiple(allKmlProps);
       trackEvent({
-        category: `Export map`,
-        action: `Export_bulk_${actualVariant}`,
-        name: `Export_bulk_${actualVariant}_${searchResultsNumber}`,
+        category: MATOMO_CATEGORY_EXPORT_MAP,
+        action: MATOMO_ACTION_EXPORT_FILTERED_RESULTS,
+        name: `Export ${searchResultsNumber} from ${trackingView}`,
       });
     }
   };

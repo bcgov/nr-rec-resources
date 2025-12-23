@@ -1,5 +1,4 @@
 import { Link } from '@tanstack/react-router';
-import { trackEvent } from '@shared/utils';
 import {
   SEARCH_LINKS,
   SEARCH_LINKS_TITLE,
@@ -7,24 +6,11 @@ import {
 import '@/components/search/SearchLinks.scss';
 
 const SearchLinks = () => {
-  const handleLinkClick = (trackingName: string) => {
-    trackEvent({
-      category: 'Search',
-      action: 'Click',
-      name: `Search link - ${trackingName}`,
-    });
-  };
-
   return (
     <div className="search-links-desktop">
       <div className="fs-6 fw-bold mb-1">{SEARCH_LINKS_TITLE}</div>
       {SEARCH_LINKS.map((link) => (
-        <Link
-          key={link.trackingName}
-          to={link.path}
-          search={link.search}
-          onClick={() => handleLinkClick(link.trackingName)}
-        >
+        <Link key={link.trackingName} to={link.path} search={link.search}>
           {link.label}
         </Link>
       ))}

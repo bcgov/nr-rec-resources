@@ -1,4 +1,3 @@
-import { vi } from 'vitest';
 import { screen, fireEvent, waitFor } from '@testing-library/react';
 import { renderWithRouter } from '@/test-utils';
 import SearchLinksMobile from '@/components/search/SearchLinksMobile';
@@ -6,11 +5,6 @@ import {
   SEARCH_LINKS,
   SEARCH_LINKS_TITLE,
 } from '@/components/search/constants';
-import { trackEvent } from '@shared/utils';
-
-vi.mock('@shared/utils', () => ({
-  trackEvent: vi.fn(),
-}));
 
 describe('SearchLinksMobile', () => {
   it('renders the mobile button', async () => {
@@ -89,35 +83,6 @@ describe('SearchLinksMobile', () => {
       expect(
         screen.queryByRole('heading', { name: SEARCH_LINKS_TITLE }),
       ).not.toBeInTheDocument();
-    });
-  });
-
-  it('calls trackEvent when button is clicked', async () => {
-    await renderWithRouter(<SearchLinksMobile />);
-
-    const button = screen.getByRole('button', { name: SEARCH_LINKS_TITLE });
-    fireEvent.click(button);
-
-    expect(trackEvent).toHaveBeenCalledWith({
-      category: 'Search',
-      action: 'Click',
-      name: 'Open search links modal',
-    });
-  });
-
-  it('calls trackEvent when a link is clicked', async () => {
-    await renderWithRouter(<SearchLinksMobile />);
-
-    const openButton = screen.getByRole('button', { name: SEARCH_LINKS_TITLE });
-    fireEvent.click(openButton);
-
-    const firstLink = screen.getByText(SEARCH_LINKS[0].label);
-    fireEvent.click(firstLink);
-
-    expect(trackEvent).toHaveBeenCalledWith({
-      category: 'Search',
-      action: 'Click',
-      name: `Search link - ${SEARCH_LINKS[0].trackingName}`,
     });
   });
 });

@@ -1,6 +1,10 @@
 import { ReactNode, memo, useCallback } from 'react';
 import { trackClickEvent } from '@shared/utils';
 import { Stack } from 'react-bootstrap';
+import {
+  MATOMO_CATEGORY_FOOTER_LINK,
+  MATOMO_ACTION_CLICK,
+} from '@/constants/analytics';
 
 interface LinkProps {
   title: string;
@@ -16,7 +20,8 @@ interface LinkColumnProps {
 const FooterLinkColumn = memo(({ title, links }: LinkColumnProps) => {
   const handleButtonClick = useCallback((linkTitle: string) => {
     trackClickEvent({
-      category: 'Footer link',
+      category: MATOMO_CATEGORY_FOOTER_LINK,
+      action: MATOMO_ACTION_CLICK,
       name: `Footer link - ${linkTitle}`,
     })();
   }, []);
@@ -45,7 +50,8 @@ const FooterLinkColumn = memo(({ title, links }: LinkColumnProps) => {
                   target="_blank"
                   rel="noreferrer"
                   onClick={trackClickEvent({
-                    category: 'Footer link',
+                    category: MATOMO_CATEGORY_FOOTER_LINK,
+                    action: MATOMO_ACTION_CLICK,
                     name: `Footer link - ${link.title}`,
                   })}
                 >

@@ -9,7 +9,18 @@ import {
 import '@shared/components/recreation-resource-map/DownloadMapModal.scss';
 import { Feature } from 'ol';
 import { Geometry } from 'ol/geom';
-import { RecreationResourceMapData } from '@shared/components/recreation-resource-map/RecreationResourceMap';
+import { RecreationResourceMapData } from '@shared/components/recreation-resource-map/types';
+import { trackEvent } from '@shared/utils';
+import {
+  MATOMO_NAME_PREFIX_EXPORT_MAP_GPX,
+  MATOMO_NAME_PREFIX_EXPORT_MAP_KML,
+} from '@shared/constants/matomo';
+
+type DownloadMapModalMatomoConfig = {
+  category: string;
+  actionGpx: string;
+  actionKml: string;
+};
 
 interface DownloadMapModalProps {
   isOpen: boolean;
@@ -17,6 +28,7 @@ interface DownloadMapModalProps {
   styledFeatures: Feature<Geometry>[];
   recResource: RecreationResourceMapData;
   getResourceDetailUrl?: (recResourceId: string) => string;
+  matomo?: DownloadMapModalMatomoConfig;
 }
 
 const DownloadMapModal = ({
@@ -25,6 +37,7 @@ const DownloadMapModal = ({
   styledFeatures,
   recResource,
   getResourceDetailUrl,
+  matomo,
 }: DownloadMapModalProps) => {
   const [isKml, setIsKml] = useState(false);
   const [isGpx, setIsGpx] = useState(false);
@@ -41,10 +54,28 @@ const DownloadMapModal = ({
   };
 
   const handleDownload = () => {
+    const recName = (recResource?.name || 'Unnamed Resource')
+      .split(/\s+/)
+      .join('-');
+    const recId = recResource?.rec_resource_id || '';
     if (isGpx) {
+      if (matomo) {
+        trackEvent({
+          category: matomo.category,
+          action: matomo.actionGpx,
+          name: `${MATOMO_NAME_PREFIX_EXPORT_MAP_GPX}${recName}-${recId}`,
+        });
+      }
       downloadGPX(styledFeatures, recResource?.name || 'map');
     }
     if (isKml) {
+      if (matomo) {
+        trackEvent({
+          category: matomo.category,
+          action: matomo.actionKml,
+          name: `${MATOMO_NAME_PREFIX_EXPORT_MAP_KML}${recName}-${recId}`,
+        });
+      }
       downloadKML(styledFeatures, recResource, getResourceDetailUrl);
     }
   };

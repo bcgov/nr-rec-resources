@@ -1,5 +1,9 @@
 import '@/components/layout/PageMenu.scss';
 import { trackClickEvent } from '@shared/utils';
+import {
+  MATOMO_CATEGORY_SECTION_MENU_NAV,
+  MATOMO_ACTION_CLICK,
+} from '@/constants/analytics';
 
 type PageSection = {
   sectionIndex: number;
@@ -37,8 +41,9 @@ const PageMenu: React.FC<PageMenuProps> = ({
                 }
                 onClick={() => {
                   const trackClickEventHandler = trackClickEvent({
-                    category: 'Section menu navigation',
-                    name: `${title} section`,
+                    category: MATOMO_CATEGORY_SECTION_MENU_NAV,
+                    action: MATOMO_ACTION_CLICK,
+                    name: title,
                   });
                   trackClickEventHandler();
                   onMenuClick?.(sectionIndex);

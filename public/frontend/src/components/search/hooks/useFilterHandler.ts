@@ -4,6 +4,10 @@ import { FilterChip } from '@/components/search/types';
 import { filterChipStore } from '@/store';
 import { trackEvent } from '@shared/utils';
 import { ROUTE_PATHS } from '@/constants/routes';
+import {
+  MATOMO_ACTION_FILTERS_LIST_DESKTOP,
+  MATOMO_CATEGORY_FILTERS,
+} from '@/constants/analytics';
 
 export const useFilterHandler = () => {
   const navigate = useNavigate();
@@ -41,9 +45,9 @@ export const useFilterHandler = () => {
         ]);
       }
       trackEvent({
-        action: 'Filter toggle on',
-        category: 'Search page list view',
-        name: label,
+        category: MATOMO_CATEGORY_FILTERS,
+        action: MATOMO_ACTION_FILTERS_LIST_DESKTOP,
+        name: `${MATOMO_ACTION_FILTERS_LIST_DESKTOP}_${label}`,
       });
     } else {
       filterChipStore.setState((prevState) =>
@@ -62,12 +66,6 @@ export const useFilterHandler = () => {
           return newParams;
         },
         resetScroll: false,
-      });
-
-      trackEvent({
-        action: 'Filter toggle off',
-        category: 'Search page list view',
-        name: label,
       });
     }
   };

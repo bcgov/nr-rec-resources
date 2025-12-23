@@ -28,6 +28,10 @@ import {
 } from '@/service/custom-models';
 import { trackEvent } from '@shared/utils';
 import { LoadingButton } from '@/components/LoadingButton';
+import {
+  MATOMO_ACTION_LOADMORE,
+  MATOMO_CATEGORY_LOADMORE,
+} from '@/constants/analytics';
 
 const SearchPage = () => {
   const navigate = useNavigate({ from: '/search' });
@@ -53,7 +57,10 @@ const SearchPage = () => {
     limit: 10,
     filter: searchParams.filter ?? undefined,
     district: searchParams.district ?? undefined,
-    activities: searchParams.activities ?? undefined,
+    activities:
+      searchParams.activities != null
+        ? String(searchParams.activities)
+        : undefined,
     access: searchParams.access ?? undefined,
     facilities: searchParams.facilities ?? undefined,
     status: searchParams.status ?? undefined,
@@ -68,6 +75,7 @@ const SearchPage = () => {
   const searchResults = useStore(searchResultsStore);
   const filterChips = useStore(filterChipStore);
   const isMapView = searchParams.view === 'map';
+  const trackingView = isMapView ? 'map' : 'list';
 
   useEffect(() => {
     searchResultsStore.setState(() => data ?? initialState);
@@ -100,6 +108,11 @@ const SearchPage = () => {
       resetScroll: false,
     });
 
+    const nextPage = Number(data?.currentPage || 1) + 1;
+    const start = (nextPage - 1) * 10 + 1;
+    const end = Math.min(nextPage * 10, totalCount);
+    const paginationInfo = `${start}-${end}`;
+
     await fetchNextPage();
 
     // scroll the last item of the previous list into view
@@ -107,28 +120,18 @@ const SearchPage = () => {
       lastItem?.scrollIntoView({ behavior: 'smooth' });
     });
     trackEvent({
-      category: 'Search',
-      action: 'Click',
-      name: 'Load more results',
+      category: MATOMO_CATEGORY_LOADMORE,
+      action: MATOMO_ACTION_LOADMORE,
+      name: `${MATOMO_ACTION_LOADMORE}_${paginationInfo}`,
     });
   };
 
   const handleLoadPrevious = () => {
     fetchPreviousPage();
-    trackEvent({
-      category: 'Search',
-      action: 'Click',
-      name: 'Load previous results',
-    });
   };
 
   const handleOpenMobileFilter = () => {
     setIsMobileFilterOpen(true);
-    trackEvent({
-      category: 'Search',
-      action: 'Click',
-      name: 'Open mobile filter menu',
-    });
   };
 
   const isFetchingFirstPage =
@@ -207,6 +210,7 @@ const SearchPage = () => {
                           (pageData: PaginatedRecreationResourceModel) =>
                             pageData?.recResourceIds,
                         )}
+                        trackingView={trackingView}
                       />
                     </div>
                   </div>

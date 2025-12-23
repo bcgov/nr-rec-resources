@@ -4,7 +4,11 @@ import rapp_logo from '@/components/contact-page/assets/rapp_logo.jpg';
 import bc_wildfire_app_logo from '@/components/contact-page/assets/bc_wildfire_app_logo.png';
 import { FC } from 'react';
 import { trackClickEvent } from '@shared/utils';
-import { MATOMO_TRACKING_CATEGORY_CONTACT_PAGE } from '@/constants/analytics';
+import {
+  MATOMO_ACTION_CONTACT_EMAIL_LINK_CLICK,
+  MATOMO_NAME_CONTACT_EMAIL_RECINFO,
+  MATOMO_TRACKING_CATEGORY_CONTACT_PAGE,
+} from '@/constants/analytics';
 import { Link } from '@tanstack/react-router';
 import { ROUTE_PATHS } from '@/constants/routes';
 
@@ -58,8 +62,8 @@ const EmailSection: React.FC<{ emailLink: string }> = ({ emailLink }) => (
         aria-label="Send email to recreation information"
         onClick={trackClickEvent({
           category: MATOMO_TRACKING_CATEGORY_CONTACT_PAGE,
-          action: 'Email Link Click',
-          name: 'recinfo@gov.bc.ca',
+          action: MATOMO_ACTION_CONTACT_EMAIL_LINK_CLICK,
+          name: MATOMO_NAME_CONTACT_EMAIL_RECINFO,
         })}
       >
         recinfo@gov.bc.ca

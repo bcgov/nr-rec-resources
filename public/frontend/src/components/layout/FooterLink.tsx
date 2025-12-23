@@ -1,4 +1,5 @@
 import { trackClickEvent } from '@shared/utils';
+import { MATOMO_CATEGORY_FOOTER_LINK } from '@/constants/analytics';
 
 interface FooterLinkProps {
   title: string;
@@ -14,7 +15,7 @@ const FooterLink = ({ title, url }: FooterLinkProps) => {
         target="_blank"
         rel="noreferrer"
         onClick={trackClickEvent({
-          category: 'Footer link',
+          category: MATOMO_CATEGORY_FOOTER_LINK,
           action: 'Click',
           name: `Footer link - ${title}`,
         })}

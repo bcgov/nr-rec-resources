@@ -68,6 +68,7 @@ describe('FooterLinkColumn', () => {
 
     expect(trackClickEvent).toHaveBeenCalledWith({
       category: 'Footer link',
+      action: 'Click',
       name: 'Footer link - External Link',
     });
     expect(mockTrackFunction).toHaveBeenCalled();
@@ -90,6 +91,7 @@ describe('FooterLinkColumn', () => {
 
     expect(trackClickEvent).toHaveBeenCalledWith({
       category: 'Footer link',
+      action: 'Click',
       name: 'Footer link - Component Link',
     });
     expect(mockTrackFunction).toHaveBeenCalled();
@@ -112,6 +114,7 @@ describe('FooterLinkColumn', () => {
 
     expect(trackClickEvent).toHaveBeenCalledWith({
       category: 'Footer link',
+      action: 'Click',
       name: 'Footer link - Component Link',
     });
     expect(mockTrackFunction).toHaveBeenCalled();
@@ -140,6 +143,7 @@ describe('FooterLinkColumn', () => {
 
     expect(trackClickEvent).toHaveBeenCalledWith({
       category: 'Footer link',
+      action: 'Click',
       name: 'Footer link - Component Link',
     });
     expect(mockTrackFunction).toHaveBeenCalled();

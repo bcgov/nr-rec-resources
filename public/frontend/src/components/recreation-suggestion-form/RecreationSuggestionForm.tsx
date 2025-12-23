@@ -21,6 +21,13 @@ import {
 import '@/components/recreation-suggestion-form/RecreationSuggestionForm.scss';
 import { trackClickEvent } from '@shared/utils';
 import {
+  MATOMO_CATEGORY_SEARCH,
+  MATOMO_SEARCH_CONTEXT_LIST,
+  MATOMO_SEARCH_ACTION_BY_SOURCE,
+  type MatomoSearchKind,
+  type MatomoSearchContext,
+} from '@/constants/analytics';
+import {
   fuzzySearchCities,
   fuzzySearchBestCity,
 } from '@/components/recreation-suggestion-form/utils/fuzzySearch';
@@ -49,17 +56,17 @@ interface RecreationSuggestionFormProps {
    */
   searchBtnVariant?: 'primary' | 'secondary';
   /**
-   * The source of the search, used for tracking purposes.
-   * This should be a descriptive string indicating where the search was initiated.
+   * The tracking context used to pick which Search_* action to emit.
+   * Values come from analytics constants (Search_home/Search_list/Search_map).
    */
-  trackingSource: string;
+  trackingContext: MatomoSearchContext;
 }
 
 const RecreationSuggestionForm = ({
   allowEmptySearch,
   disableNavigation = false,
   searchBtnVariant = 'primary',
-  trackingSource,
+  trackingContext,
 }: RecreationSuggestionFormProps) => {
   const navigate = useNavigate();
   const searchParams = useSearch({ strict: false });
@@ -78,7 +85,19 @@ const RecreationSuggestionForm = ({
     handleSearch,
   } = useSearchInput();
 
-  const trackingName = `${trackingSource} search`;
+  const matomoContext: MatomoSearchContext =
+    trackingContext ?? MATOMO_SEARCH_CONTEXT_LIST;
+
+  const trackSearch = useCallback(
+    (kind: MatomoSearchKind, keyword: string) => {
+      trackClickEvent({
+        category: MATOMO_CATEGORY_SEARCH,
+        action: MATOMO_SEARCH_ACTION_BY_SOURCE[matomoContext][kind],
+        name: keyword.trim(),
+      })();
+    },
+    [matomoContext],
+  );
 
   const isPermissionDenied = useMemo(
     () => permissionDeniedCount > 0,
@@ -139,16 +158,10 @@ const RecreationSuggestionForm = ({
 
       if (bestCityMatch) {
         handleCityOptionSearch(bestCityMatch);
-        trackClickEvent({
-          category: trackingName,
-          name: `City match selected: ${bestCityMatch.name}`,
-        })();
+        trackSearch('enter', bestCityMatch.name);
       } else {
         handleSearch(trimmedInputValue);
-        trackClickEvent({
-          category: trackingName,
-          name: 'Search button clicked',
-        })();
+        trackSearch('enter', trimmedInputValue);
       }
     },
     [
@@ -156,17 +169,16 @@ const RecreationSuggestionForm = ({
       citiesList,
       handleCityOptionSearch,
       handleSearch,
-      trackingName,
+      trackSearch,
     ],
   );
 
   const handleSubmit = useCallback(
     (e: React.FormEvent<HTMLFormElement>) => {
       e.preventDefault();
-      const input = e.currentTarget.querySelector('input') as HTMLInputElement;
-      performSearch(input?.value ?? '');
+      performSearch(searchInputValue ?? '');
     },
-    [performSearch],
+    [performSearch, searchInputValue],
   );
 
   const handleInputKeyDown = useCallback(
@@ -211,10 +223,7 @@ const RecreationSuggestionForm = ({
 
           setSearchInputValue(CURRENT_LOCATION_TITLE);
           handleCityOptionSearch(updatedCurrentLocation);
-          trackClickEvent({
-            category: trackingName,
-            name: `Current location selected`,
-          })();
+          trackSearch('selected', CURRENT_LOCATION_TITLE);
         } catch (err) {
           console.warn('Failed to get current location:', err);
         }
@@ -223,12 +232,10 @@ const RecreationSuggestionForm = ({
 
       case OPTION_TYPE.RECREATION_RESOURCE:
         if (disableNavigation) {
+          trackSearch('selected', suggestion.name);
           return handleSearch(suggestion.name);
         }
-        trackClickEvent({
-          category: trackingName,
-          name: `Suggestion selected: ${suggestion.name}`,
-        })();
+        trackSearch('selected', suggestion.name);
         navigate({
           to: ROUTE_PATHS.REC_RESOURCE,
           params: { id: suggestion.rec_resource_id },
@@ -236,10 +243,7 @@ const RecreationSuggestionForm = ({
         return;
 
       case OPTION_TYPE.CITY:
-        trackClickEvent({
-          category: trackingName,
-          name: `City selected: ${suggestion.name}`,
-        })();
+        trackSearch('selected', suggestion.name);
         setSearchInputValue(suggestion.name);
         handleCityOptionSearch(suggestion);
         return;

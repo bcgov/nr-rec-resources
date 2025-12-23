@@ -3,7 +3,6 @@ import { Link } from '@tanstack/react-router';
 import { Modal } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faXmark } from '@fortawesome/free-solid-svg-icons';
-import { trackEvent } from '@shared/utils';
 import {
   SEARCH_LINKS,
   SEARCH_LINKS_TITLE,
@@ -15,23 +14,13 @@ const SearchLinksMobile = () => {
 
   const handleOpenMobileModal = () => {
     setIsMobileModalOpen(true);
-    trackEvent({
-      category: 'Search',
-      action: 'Click',
-      name: 'Open search links modal',
-    });
   };
 
   const handleCloseMobileModal = () => {
     setIsMobileModalOpen(false);
   };
 
-  const handleLinkClick = (linkName: string) => {
-    trackEvent({
-      category: 'Search',
-      action: 'Click',
-      name: `Search link - ${linkName}`,
-    });
+  const handleLinkClick = () => {
     setIsMobileModalOpen(false);
   };
 
@@ -72,7 +61,7 @@ const SearchLinksMobile = () => {
                   to={link.path}
                   search={link.search}
                   className="search-link-item"
-                  onClick={() => handleLinkClick(link.trackingName)}
+                  onClick={handleLinkClick}
                 >
                   {link.label}
                 </Link>

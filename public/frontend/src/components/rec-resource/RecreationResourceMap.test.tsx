@@ -106,11 +106,7 @@ describe('RecreationResourceMap', () => {
     const downloadButton = screen.getByText('Export map file');
     await user.click(downloadButton);
 
-    expect(trackEvent).toHaveBeenCalledWith({
-      category: 'Map',
-      action: 'Export map file',
-      name: 'Test Recreation Site-123-Export map file',
-    });
+    expect(trackEvent).not.toHaveBeenCalled();
   });
 
   it('tracks event when Full map button is clicked', async () => {
@@ -124,9 +120,9 @@ describe('RecreationResourceMap', () => {
     await user.click(viewInMapButton);
 
     expect(trackEvent).toHaveBeenCalledWith({
-      category: 'Map',
-      action: 'View in main map',
-      name: 'Test Recreation Site-123-View in main map',
+      category: 'MapView',
+      action: 'MapView_resource',
+      name: 'MapView_resource_Test Recreation Site-123',
     });
   });
 });

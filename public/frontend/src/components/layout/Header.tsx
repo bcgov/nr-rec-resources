@@ -11,6 +11,11 @@ import { ROUTE_PATHS } from '@/constants/routes';
 import { HEADER_LINKS, HeaderLink } from '@/components/layout/constants';
 import '@/components/layout/Header.scss';
 import '@shared/components/environment-banner/EnvironmentBanner.scss';
+import {
+  MATOMO_ACTION_MAPVIEW_HOME,
+  MATOMO_CATEGORY_MAP_VIEW,
+  MATOMO_NAME_MAPVIEW_HOME,
+} from '@/constants/analytics';
 
 const Header = () => {
   const [isHamburgerMenuOpen, setIsHamburgerMenuOpen] = useState(false);
@@ -21,6 +26,14 @@ const Header = () => {
       category: 'Header Navigation',
       name: `Sub Header - ${linkLabel}`,
     });
+
+    if (linkLabel === 'Search by map') {
+      trackClickEvent({
+        category: MATOMO_CATEGORY_MAP_VIEW,
+        action: MATOMO_ACTION_MAPVIEW_HOME,
+        name: MATOMO_NAME_MAPVIEW_HOME,
+      })();
+    }
   };
 
   const handleHeaderExternalLinkClick = (link: HeaderLink) => {

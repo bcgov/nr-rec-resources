@@ -139,8 +139,9 @@ describe('RecreationSuggestionForm', () => {
 
     expect(handleSearch).toHaveBeenCalledWith('');
     expect(trackClickEvent).toHaveBeenCalledWith({
-      category: 'Test page search',
-      name: 'Search button clicked',
+      category: 'Search',
+      action: 'Search_list_enter',
+      name: '',
     });
   });
 
@@ -230,8 +231,9 @@ describe('RecreationSuggestionForm', () => {
 
     expect(handleSearch).toHaveBeenCalled();
     expect(trackClickEvent).toHaveBeenCalledWith({
-      category: 'Test page search',
-      name: 'Search button clicked',
+      category: 'Search',
+      action: 'Search_list_enter',
+      name: 'camping',
     });
   });
 
@@ -291,8 +293,9 @@ describe('RecreationSuggestionForm', () => {
       option_type: 'CURRENT_LOCATION',
     });
     expect(trackClickEvent).toHaveBeenCalledWith({
-      category: 'Test page search',
-      name: 'Current location selected',
+      category: 'Search',
+      action: 'Search_list_selected',
+      name: 'Use my current location',
     });
   });
 
@@ -377,8 +380,9 @@ describe('RecreationSuggestionForm', () => {
     });
 
     expect(trackClickEvent).toHaveBeenCalledWith({
-      category: 'Test page search',
-      name: 'Suggestion selected: Test Resource',
+      category: 'Search',
+      action: 'Search_list_selected',
+      name: 'Test Resource',
     });
     expect(mockNavigate).toHaveBeenCalledWith({
       params: {
@@ -409,7 +413,11 @@ describe('RecreationSuggestionForm', () => {
 
     expect(handleSearch).toHaveBeenCalledWith('Test Resource');
     expect(mockNavigate).not.toHaveBeenCalled();
-    expect(trackClickEvent).not.toHaveBeenCalled();
+    expect(trackClickEvent).toHaveBeenCalledWith({
+      category: 'Search',
+      action: 'Search_list_selected',
+      name: 'Test Resource',
+    });
   });
 
   it('tracks city selection', async () => {
@@ -431,8 +439,9 @@ describe('RecreationSuggestionForm', () => {
     });
 
     expect(trackClickEvent).toHaveBeenCalledWith({
-      category: 'Test page search',
-      name: 'City selected: Victoria',
+      category: 'Search',
+      action: 'Search_list_selected',
+      name: 'Victoria',
     });
     expect(handleCityOptionSearch).toHaveBeenCalledWith({
       option_type: 'CITY',
@@ -474,6 +483,14 @@ describe('RecreationSuggestionForm', () => {
     const citiesList = [{ id: 1, name: 'Victoria', option_type: 'CITY' }];
 
     (useSearchCitiesApi as Mock).mockReturnValue({ data: citiesList });
+    mockedUseSearchInput.mockReturnValue({
+      defaultSearchInputValue: '',
+      searchInputValue: 'Victoria',
+      setSearchInputValue,
+      handleCityOptionSearch,
+      handleClearTypeaheadSearch,
+      handleSearch,
+    });
 
     renderWithQueryClient(
       <RecreationSuggestionForm allowEmptySearch trackingSource="Test page" />,
@@ -486,8 +503,9 @@ describe('RecreationSuggestionForm', () => {
 
     expect(handleCityOptionSearch).toHaveBeenCalledWith(citiesList[0]);
     expect(trackClickEvent).toHaveBeenCalledWith({
-      category: 'Test page search',
-      name: 'City match selected: Victoria',
+      category: 'Search',
+      action: 'Search_list_enter',
+      name: 'Victoria',
     });
     expect(handleSearch).not.toHaveBeenCalled();
   });

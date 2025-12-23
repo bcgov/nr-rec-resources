@@ -4,7 +4,12 @@ import './ContactPage.scss';
 import { Form, Stack } from 'react-bootstrap';
 import { useEffect } from 'react';
 import { trackEvent } from '@shared/utils';
-import { MATOMO_TRACKING_CATEGORY_CONTACT_PAGE } from '@/constants/analytics';
+import {
+  MATOMO_ACTION_CONTACT_DROPDOWN_SELECTION,
+  MATOMO_ACTION_CONTACT_PAGE_LOAD,
+  MATOMO_NAME_PREFIX_CONTACT_DROPDOWN_SELECTION,
+  MATOMO_TRACKING_CATEGORY_CONTACT_PAGE,
+} from '@/constants/analytics';
 import { useMatches } from '@tanstack/react-router';
 import { Breadcrumbs } from '@shared/components/breadcrumbs';
 import { type ContactTopic } from './utils/contactDetailsRenderer';
@@ -28,7 +33,7 @@ export const ContactPage = () => {
   useEffect(() => {
     trackEvent({
       category: MATOMO_TRACKING_CATEGORY_CONTACT_PAGE,
-      action: `${MATOMO_TRACKING_CATEGORY_CONTACT_PAGE} - Page Load`,
+      action: MATOMO_ACTION_CONTACT_PAGE_LOAD,
     });
   }, []);
 
@@ -92,11 +97,15 @@ export const ContactPage = () => {
                         className="contact-page__form-select"
                         value={selectedTopic}
                         onChange={(e) => {
-                          setSelectedTopic(e.target.value as ContactTopic);
+                          const selected = e.target.value as ContactTopic;
+                          const selectedLabel =
+                            CONTACT_TOPIC_LABELS[selected] ?? selected;
+
+                          setSelectedTopic(selected);
                           trackEvent({
                             category: MATOMO_TRACKING_CATEGORY_CONTACT_PAGE,
-                            action: `${MATOMO_TRACKING_CATEGORY_CONTACT_PAGE} - Dropdown Selection`,
-                            name: e.target.value,
+                            action: MATOMO_ACTION_CONTACT_DROPDOWN_SELECTION,
+                            name: `${MATOMO_NAME_PREFIX_CONTACT_DROPDOWN_SELECTION}${selectedLabel}`,
                           });
                         }}
                         required

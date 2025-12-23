@@ -4,7 +4,7 @@ import { screen, fireEvent } from '@testing-library/react';
 import { renderWithRouter } from '@/test-utils';
 import SearchMap from '@/components/search-map/SearchMap';
 import * as hooks from '@/components/search-map/hooks/useMapFocus';
-import { trackClickEvent } from '@shared/utils';
+import { trackClickEvent, trackEvent } from '@shared/utils';
 
 vi.mock('@tanstack/react-router', async () => {
   const actual = await vi.importActual('@tanstack/react-router');
@@ -96,6 +96,7 @@ vi.mock('@bcgov/prp-map', () => ({
 
 vi.mock('@shared/utils', () => ({
   trackClickEvent: vi.fn(),
+  trackEvent: vi.fn(),
 }));
 
 vi.mock('@/store/searchResults', () => ({
@@ -291,9 +292,10 @@ describe('SearchMap', () => {
 
     fireEvent.click(listButton);
 
-    expect(trackClickEvent).toHaveBeenCalledWith({
-      category: 'Search view button',
-      name: 'Change to list view',
+    expect(trackEvent).toHaveBeenCalledWith({
+      category: 'ListView',
+      action: 'ListView_map',
+      name: 'ListView_map',
     });
   });
 
