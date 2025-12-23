@@ -1,0 +1,94 @@
+@import '@/styles/global';
+
+.title {
+  margin-bottom: 0.5em;
+  @include media-breakpoint-down(md) {
+    margin-top: 1em;
+  }
+}
+
+.topic-container {
+  display: flex;
+  flex-direction: column;
+  width: 350px;
+  margin-right: 16px;
+
+  a:link,
+  a:visited,
+  a:hover,
+  a:active {
+    text-decoration: none;
+  }
+}
+
+.description {
+  color: $colorBlue;
+  font-size: 16px;
+  width: 100%;
+  @include media-breakpoint-down(md) {
+    margin-bottom: 1em;
+  }
+}
+
+.indicators {
+  color: $colorBlue;
+  font-weight: 700;
+  font-style: Bold;
+  font-size: 60px;
+  line-height: 48px;
+  vertical-align: middle;
+}
+
+.title-container {
+  margin-top: 40px;
+  margin-bottom: 20px;
+  padding-left: 0px;
+}
+
+.link {
+  color: $colorBlue;
+  font-weight: 700;
+  font-style: Bold;
+  font-size: 16px;
+  letter-spacing: 0px;
+  padding-left: 0px;
+  margin-top: 20px;
+  @include media-breakpoint-down(md) {
+    margin-top: 0px;
+  }
+}
+
+.btn-icon {
+  font-size: 16px;
+  align-items: center;
+  background-color: $colorBlue;
+  border: 2px solid $colorWhite;
+  border-radius: 50%;
+  color: $colorWhite;
+  display: flex;
+  justify-content: center;
+  height: 24px;
+  width: 24px;
+  &:hover {
+    background-color: $colorBlueMed;
+  }
+}
+
+.mobile-icon {
+  margin-right: 0.5em;
+}
+
+.map-image-container {
+  margin-left: 30px;
+  margin-top: 40px;
+  @include media-breakpoint-down(md) {
+    margin-left: 0px;
+  }
+
+  .desktop-image {
+    @include media-breakpoint-up(md) {
+      border: solid 6px $colorWhite;
+      border-radius: 24px;
+    }
+  }
+}

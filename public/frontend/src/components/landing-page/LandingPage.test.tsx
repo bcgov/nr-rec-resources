@@ -30,11 +30,11 @@ describe('LandingPage', () => {
 
     expect(screen.getByTestId('mock-search-banner')).toBeInTheDocument();
     const contentSections = screen.getAllByTestId('mock-content-section');
-    expect(contentSections).toHaveLength(4);
+    expect(contentSections).toHaveLength(3);
 
     const contentSectionContents = screen.getAllByTestId(
       'mock-content-section-content',
     );
-    expect(contentSectionContents).toHaveLength(4);
+    expect(contentSectionContents).toHaveLength(3);
   });
 });

@@ -1,0 +1,59 @@
+@import '@/styles/global';
+
+.title {
+  margin-bottom: 0.5em;
+}
+
+.activities-container {
+  margin-top: 1em;
+  @include media-breakpoint-down(md) {
+    margin-top: 2em;
+  }
+}
+
+.activity-container {
+  display: flex;
+  flex-direction: column;
+  width: 350px;
+  margin-right: 16px;
+  @include media-breakpoint-down(md) {
+    border: solid 1px $colorBlue;
+    border-radius: 4px;
+    margin-bottom: 1em;
+  }
+
+  a:link,
+  a:visited,
+  a:hover,
+  a:active {
+    text-decoration: none;
+  }
+
+  .activity-title {
+    color: $colorBlue;
+    font-weight: 700;
+    font-style: Bold;
+    font-size: 23px;
+    line-height: 33px;
+    margin-top: 0.6em;
+  }
+
+  .activity-description {
+    color: $colorBlue;
+    font-size: 16px;
+    width: 100%;
+  }
+
+  .activity-image {
+    border-radius: 24px;
+    @include media-breakpoint-up(md) {
+      width: 349px;
+      height: 203px;
+      border-bottom-width: 10px;
+    }
+    @include media-breakpoint-down(md) {
+      border-radius: 4px;
+      border-right: solid 1px $colorBlue;
+    }
+  }
+}

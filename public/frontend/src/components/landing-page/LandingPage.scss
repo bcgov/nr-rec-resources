@@ -1,6 +1,20 @@
 @import '@/styles/global';
 
 .info-section {
+  @include media-breakpoint-up(md) {
+    background: repeating-linear-gradient(
+      to bottom,
+      $colorWhite 0,
+      $colorWhite 33.33%,
+      $colorBackgroundGrey 33.33%,
+      $colorBackgroundGrey 83.66%,
+      $colorWhite 83.66%,
+      $colorWhite 100%
+    );
+  }
+  @media (max-width: 380px) {
+    padding-top: 2em;
+  }
   .content-section {
     @extend .page;
   }
@@ -14,8 +28,8 @@
     }
   }
 
-  .research-signup-link {
-    text-decoration: underline;
-    color: inherit;
+  .partnering-box {
+    padding-left: 1.8em;
+    color: $colorBlue;
   }
 }
