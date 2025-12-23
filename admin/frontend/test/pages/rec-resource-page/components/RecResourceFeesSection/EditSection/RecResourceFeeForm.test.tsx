@@ -138,9 +138,6 @@ describe('RecResourceFeeFormFields (create)', () => {
     expect(
       screen.queryByTestId('date-field-fee_end_date'),
     ).not.toBeInTheDocument();
-    expect(
-      screen.queryByText('Recurring Fee (Yearly)'),
-    ).not.toBeInTheDocument();
   });
 
   it('renders date fields when fee applies for specific dates', () => {
@@ -160,7 +157,6 @@ describe('RecResourceFeeFormFields (create)', () => {
 
     expect(screen.getByTestId('date-field-fee_start_date')).toBeInTheDocument();
     expect(screen.getByTestId('date-field-fee_end_date')).toBeInTheDocument();
-    expect(screen.getByText('Recurring Fee (Yearly)')).toBeInTheDocument();
   });
 
   it('disables submit button when form is not dirty', () => {

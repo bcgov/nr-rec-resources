@@ -35,9 +35,11 @@ describe('useFeeForm', () => {
   const mockReset = vi.fn();
   const mockHandleSubmit = vi.fn();
   const mockSetValue = vi.fn();
+  let mockDirtyFields: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockDirtyFields = {};
 
     vi.mocked(useNavigateWithQueryParams).mockReturnValue({
       navigate: mockNavigate,
@@ -56,11 +58,80 @@ describe('useFeeForm', () => {
       handleSubmit: mockHandleSubmit,
       reset: mockReset,
       setValue: mockSetValue,
-      formState: { errors: {}, isDirty: false },
+      formState: { errors: {}, isDirty: false, dirtyFields: mockDirtyFields },
     } as any);
 
     // Avoid preset effect noise; it's not needed for submit behavior
     vi.mocked(reactHookForm.useWatch).mockReturnValue(undefined as any);
+  });
+
+  it('does not overwrite existing day selections on initial load when day preset is custom', () => {
+    const recResourceId = 'REC123';
+
+    vi.mocked(reactHookForm.useWatch).mockImplementation(({ name }: any) => {
+      if (name === 'day_preset') return DAY_PRESET_OPTIONS.CUSTOM;
+      return FEE_APPLIES_OPTIONS.ALWAYS;
+    });
+
+    renderHook(() =>
+      useFeeForm({
+        recResourceId,
+        mode: 'edit',
+        initialFee: {
+          fee_id: 123,
+          recreation_fee_code: 'D',
+          monday_ind: 'Y',
+          tuesday_ind: 'N',
+          wednesday_ind: 'Y',
+          thursday_ind: 'N',
+          friday_ind: 'N',
+          saturday_ind: 'Y',
+          sunday_ind: 'N',
+        } as any,
+      }),
+    );
+
+    expect(mockSetValue).not.toHaveBeenCalled();
+  });
+
+  it('clears day selections when user switches to custom day preset', () => {
+    const recResourceId = 'REC123';
+    let currentPreset: (typeof DAY_PRESET_OPTIONS)[keyof typeof DAY_PRESET_OPTIONS] =
+      DAY_PRESET_OPTIONS.ALL_DAYS;
+
+    vi.mocked(reactHookForm.useWatch).mockImplementation(({ name }: any) => {
+      if (name === 'day_preset') return currentPreset;
+      return FEE_APPLIES_OPTIONS.ALWAYS;
+    });
+
+    const { rerender } = renderHook(() =>
+      useFeeForm({
+        recResourceId,
+        mode: 'create',
+      }),
+    );
+
+    expect(mockSetValue).not.toHaveBeenCalled();
+
+    mockDirtyFields = { day_preset: true };
+    vi.mocked(reactHookForm.useForm).mockReturnValue({
+      control: { _mock: 'control' },
+      handleSubmit: mockHandleSubmit,
+      reset: mockReset,
+      setValue: mockSetValue,
+      formState: { errors: {}, isDirty: true, dirtyFields: mockDirtyFields },
+    } as any);
+
+    currentPreset = DAY_PRESET_OPTIONS.CUSTOM;
+    rerender();
+
+    expect(mockSetValue).toHaveBeenCalledWith('monday_ind', false);
+    expect(mockSetValue).toHaveBeenCalledWith('tuesday_ind', false);
+    expect(mockSetValue).toHaveBeenCalledWith('wednesday_ind', false);
+    expect(mockSetValue).toHaveBeenCalledWith('thursday_ind', false);
+    expect(mockSetValue).toHaveBeenCalledWith('friday_ind', false);
+    expect(mockSetValue).toHaveBeenCalledWith('saturday_ind', false);
+    expect(mockSetValue).toHaveBeenCalledWith('sunday_ind', false);
   });
 
   it('create mode: submits with day indicators transformed and dates included only for specific dates', async () => {
@@ -81,7 +152,6 @@ describe('useFeeForm', () => {
       recreation_fee_code: 'D',
       fee_amount: 15,
       fee_applies: FEE_APPLIES_OPTIONS.SPECIFIC_DATES,
-      recurring_fee: false,
       fee_start_date: '2024-05-15',
       fee_end_date: '2024-10-15',
       day_preset: DAY_PRESET_OPTIONS.CUSTOM,
@@ -141,7 +211,6 @@ describe('useFeeForm', () => {
       recreation_fee_code: 'D',
       fee_amount: undefined,
       fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
-      recurring_fee: false,
       fee_start_date: '2024-05-15',
       fee_end_date: '2024-10-15',
       day_preset: DAY_PRESET_OPTIONS.ALL_DAYS,

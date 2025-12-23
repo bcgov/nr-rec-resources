@@ -73,7 +73,6 @@ export function useFeeForm({
         recreation_fee_code: '',
         fee_amount: undefined,
         fee_applies: FEE_APPLIES_OPTIONS.ALWAYS,
-        recurring_fee: false,
         fee_start_date: undefined,
         fee_end_date: undefined,
         day_preset: DAY_PRESET_OPTIONS.ALL_DAYS,
@@ -92,7 +91,6 @@ export function useFeeForm({
       recreation_fee_code: initialFee.recreation_fee_code ?? '',
       fee_amount: initialFee.fee_amount ?? undefined,
       fee_applies: feeApplies,
-      recurring_fee: false,
       fee_start_date: toYmd(initialFee.fee_start_date),
       fee_end_date: toYmd(initialFee.fee_end_date),
       day_preset,
@@ -111,7 +109,7 @@ export function useFeeForm({
     handleSubmit,
     reset,
     setValue,
-    formState: { errors, isDirty },
+    formState: { errors, isDirty, dirtyFields },
   } = useForm<AddFeeFormData>({
     resolver: zodResolver(addFeeSchema) as any,
     defaultValues,
@@ -122,13 +120,17 @@ export function useFeeForm({
   const dayPreset = useWatch({ control, name: 'day_preset' });
 
   useEffect(() => {
-    const presetConfig = DAY_PRESET_CONFIG[dayPreset];
-    if (presetConfig) {
-      DAY_FIELDS.forEach((field) => {
-        setValue(field, presetConfig[field]);
-      });
-    }
-  }, [dayPreset, setValue]);
+    // This preserves existing day selections in edit mode when the preset is "custom".
+    if (!dirtyFields.day_preset) return;
+
+    const presetConfig =
+      dayPreset === DAY_PRESET_OPTIONS.CUSTOM
+        ? DAY_PRESET_CONFIG.custom
+        : DAY_PRESET_CONFIG[dayPreset];
+    DAY_FIELDS.forEach((field) => {
+      setValue(field, presetConfig[field]);
+    });
+  }, [dayPreset, dirtyFields.day_preset, setValue]);
 
   const done = () => {
     if (onDone) return onDone();
