@@ -6,8 +6,8 @@ import { IMAGE_SIZES } from '@/components/landing-page/components/content-sectio
 
 interface ContentSectionProps extends HTMLAttributes<HTMLElement> {
   sectionContent: ReactElement;
-  imageBasePath: string;
-  imageAlt: string;
+  imageBasePath?: string;
+  imageAlt?: string;
   imageFirst?: boolean;
   headingComponent: ReactElement;
 }
@@ -35,26 +35,27 @@ export const ContentSection: FC<ContentSectionProps> = ({
       data-testid="content-section"
     >
       <Row className="flex-column flex-lg-row align-items-center">
+        {imageBasePath && (
+          <Col
+            md={12}
+            lg={6}
+            className={`image-col ${imageOrderClass} d-flex justify-content-center align-items-center`}
+            data-testid="image-column"
+          >
+            <Image
+              srcSet={generateImageSrcSet}
+              sizes={IMAGE_SIZES}
+              alt={imageAlt}
+              fluid
+              rounded
+              className="w-100"
+              data-testid="content-image"
+            />
+          </Col>
+        )}
         <Col
           md={12}
-          lg={6}
-          className={`image-col ${imageOrderClass} d-flex justify-content-center align-items-center`}
-          data-testid="image-column"
-        >
-          <Image
-            srcSet={generateImageSrcSet}
-            sizes={IMAGE_SIZES}
-            alt={imageAlt}
-            fluid
-            rounded
-            className="w-100"
-            data-testid="content-image"
-          />
-        </Col>
-
-        <Col
-          md={12}
-          lg={6}
+          lg={imageBasePath ? 6 : 12}
           className={`content-col ${contentOrderClass}`}
           data-testid="content-column"
         >
