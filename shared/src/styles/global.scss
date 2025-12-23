@@ -420,3 +420,9 @@ input[type='text'] {
 .content-footer-spacing {
   @include content-footer-spacing;
 }
+
+// Quill editor bug fix for bullet lists
+// https://github.com/slab/quill/issues/4124
+li[data-list='bullet'] {
+  list-style-type: disc;
+}
