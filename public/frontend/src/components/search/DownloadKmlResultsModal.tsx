@@ -1,6 +1,10 @@
-import { Modal } from 'react-bootstrap';
+import { Alert, Col, Container, Modal, Row, Stack } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
+import {
+  faXmark,
+  faInfoCircle,
+  faExclamationTriangle,
+} from '@fortawesome/free-solid-svg-icons';
 import './DownloadKmlResultsModal.scss';
 import { useRecreationResourcesWithGeometryMutation } from '@/service/queries/recreation-resource';
 import {
@@ -86,7 +90,7 @@ const DownloadKmlResultsModal = ({
     >
       <Modal.Body className="map-download-modal-content">
         <div className="map-download-modal-content--header">
-          <h2 className="fs-4 mb-4">Export map file</h2>
+          <h2 className="fs-4 mb-4">Download KML</h2>
           <button
             aria-label="close"
             className="btn close-filter-btn"
@@ -95,35 +99,85 @@ const DownloadKmlResultsModal = ({
             <FontAwesomeIcon icon={faXmark} />
           </button>
         </div>
-        <div className="title">
-          Download search results ({searchResultsNumber})
-        </div>
-        <div className="description">
-          Download KML files for your search results.
+        {searchResultsNumber > REC_LIMIT ? (
+          <Alert
+            variant="danger"
+            className="rec-resource-page__info-banner"
+            data-testid="msg-alert"
+          >
+            <Stack direction="horizontal" gap={2}>
+              <FontAwesomeIcon
+                className="rec-resource-page__info-banner-icon"
+                icon={faInfoCircle}
+                aria-label="Information"
+              />
+              <span className="rec-resource-page__info-banner-text alert-msg">
+                There's a limit of {REC_LIMIT} resources for downloading KML
+                files, please refine your search filters.
+              </span>
+            </Stack>
+          </Alert>
+        ) : (
+          <Alert
+            variant="warning"
+            className="rec-resource-page__info-banner"
+            data-testid="msg-alert"
+          >
+            <Stack direction="horizontal" gap={2}>
+              <FontAwesomeIcon
+                className="rec-resource-page__info-banner-icon"
+                icon={faExclamationTriangle}
+                aria-label="Information"
+              />
+              <span className="rec-resource-page__info-banner-text alert-msg">
+                Download may be slow on limited bandwidth or unstable
+                connections.
+              </span>
+            </Stack>
+          </Alert>
+        )}
+        <div>
+          Download KML files for your <strong>{searchResultsNumber}</strong>{' '}
+          search results.
         </div>
         <div className="description">
           A KML file shows maps and routes in apps like Google Earth, helping
           you visualize trails, campsites, terrain features in 3D.
         </div>
-        {searchResultsNumber > REC_LIMIT && (
-          <div className="description alert-msg" data-testid="msg-alert">
-            There's a limit of {REC_LIMIT} resources for downloading KML files,
-            please refine your search filters.
-          </div>
-        )}
       </Modal.Body>
       <Modal.Footer className="d-block">
-        <button
-          aria-label="Download"
-          onClick={() => handleDownload()}
-          disabled={searchResultsNumber > REC_LIMIT && !isPending}
-          className="btn btn-primary w-100 mx-0 mb-2 download-button"
-        >
-          Download
-        </button>
-        <button className="btn w-100 mx-0 mb-2" onClick={handleCloseModal}>
-          Cancel
-        </button>
+        <Container>
+          <Row>
+            <Col>
+              {searchResultsNumber > REC_LIMIT ? (
+                <button
+                  aria-label="Refine your search"
+                  onClick={handleCloseModal}
+                  className="btn btn-primary w-100 mx-0 mb-2 download-button"
+                >
+                  {'< '}Refine your search
+                </button>
+              ) : (
+                <button
+                  aria-label="Download"
+                  onClick={() => handleDownload()}
+                  disabled={searchResultsNumber > REC_LIMIT && !isPending}
+                  className="btn btn-primary w-100 mx-0 mb-2 download-button"
+                >
+                  Download
+                </button>
+              )}
+            </Col>
+            <Col>
+              <button
+                className="btn w-100 mx-0 mb-2 cancel-button"
+                onClick={handleCloseModal}
+              >
+                Cancel
+              </button>
+            </Col>
+          </Row>
+        </Container>
       </Modal.Footer>
     </Modal>
   );

@@ -4,9 +4,6 @@ import '@/components/search/filters/Filters.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faList, faMap } from '@fortawesome/free-solid-svg-icons';
 import { trackEvent } from '@shared/utils';
-import DownloadIcon from '@shared/assets/icons/download.svg';
-import DownloadKmlResultsModal from '../search/DownloadKmlResultsModal';
-import { useCallback, useState } from 'react';
 import {
   MATOMO_ACTION_LISTVIEW_MAP,
   MATOMO_ACTION_MAPVIEW_LIST,
@@ -18,25 +15,10 @@ import {
 
 interface SearchViewControlsProps {
   variant: 'list' | 'map';
-  totalCount: number;
-  ids: string[];
-  trackingView?: 'list' | 'map';
 }
 
-const SearchViewControls = ({
-  variant,
-  totalCount,
-  ids,
-  trackingView,
-}: SearchViewControlsProps) => {
-  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
+const SearchViewControls = ({ variant }: SearchViewControlsProps) => {
   const navigate = useNavigate({ from: '/search' });
-
-  const DOWNLOAD_ICON_CONFIG = {
-    WIDTH: 16,
-    HEIGHT: 16,
-    ALT: 'Download KML File',
-  } as const;
 
   const handleViewChange = (newView: string) => {
     navigate({
@@ -61,26 +43,8 @@ const SearchViewControls = ({
     });
   };
 
-  const handleDownloadClick = useCallback(() => {
-    setIsDownloadModalOpen(true);
-  }, []);
-
   return (
     <>
-      <Button
-        className="search-chip btn h-2 text-nowrap"
-        variant="secondary"
-        onClick={handleDownloadClick}
-        name="DownloadButton"
-      >
-        <img
-          src={DownloadIcon}
-          alt={DOWNLOAD_ICON_CONFIG.ALT}
-          width={DOWNLOAD_ICON_CONFIG.WIDTH}
-          height={DOWNLOAD_ICON_CONFIG.HEIGHT}
-        />
-        &nbsp;Download KML
-      </Button>{' '}
       <Button
         className="search-chip btn h-2 text-nowrap"
         variant="secondary"
@@ -92,13 +56,6 @@ const SearchViewControls = ({
         />
         Show {variant}
       </Button>
-      <DownloadKmlResultsModal
-        isOpen={isDownloadModalOpen}
-        setIsOpen={setIsDownloadModalOpen}
-        searchResultsNumber={totalCount}
-        ids={ids}
-        trackingView={trackingView ?? (variant === 'list' ? 'map' : 'list')}
-      />
     </>
   );
 };

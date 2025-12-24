@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Modal, Form } from 'react-bootstrap';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { Modal, Form, Container, Row, Col } from 'react-bootstrap';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { useStore } from '@tanstack/react-store';
 import { useClearFilters } from '@/components/search/hooks/useClearFilters';
@@ -15,6 +15,7 @@ import {
 
 import '@/components/search/filters/Filters.scss';
 import '@/components/search/filters/FilterMenuSearchMap.scss';
+import DownloadKmlResultsModal from '../DownloadKmlResultsModal';
 
 interface FilterMenuSearchMapProps {
   isOpen: boolean;
@@ -32,6 +33,7 @@ const FilterMenuSearchMap = ({
   const { filters: searchStoreFilters, totalCount: searchStoreTotalCount } =
     useStore(searchResultsStore);
   const [menuContent, setMenuContent] = useState(searchStoreFilters);
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const searchParams = useSearch({ from: '/search/' });
   const params = menuContent?.map(({ param }) => param) ?? [];
   const [localFilters, setLocalFilters] = useState<Record<string, string[]>>(
@@ -58,6 +60,7 @@ const FilterMenuSearchMap = ({
 
   const { data } = useSearchRecreationResourcesPaginated(previewQueryParams);
   const totalCount = (data?.totalCount || searchStoreTotalCount) ?? 0;
+  const recResourceIds = data?.recResourceIds ? data.recResourceIds : [];
 
   useEffect(() => {
     // Initialize menu content and local filters or update when search store filters change
@@ -131,6 +134,37 @@ const FilterMenuSearchMap = ({
     setLocalFilters({});
   };
 
+  const handleDownloadClick = useCallback(() => {
+    setIsDownloadModalOpen(true);
+  }, []);
+
+  const downloadKMLButton = (
+    <button
+      className="btn-link clear-filter-link footer-buttons"
+      onClick={handleDownloadClick}
+    >
+      Download KML
+    </button>
+  );
+
+  const clearFiltersButton = (
+    <button
+      className="btn-link clear-filter-link fw-normal footer-buttons"
+      onClick={handleClear}
+    >
+      Clear filters
+    </button>
+  );
+
+  const applyButton = (
+    <button
+      onClick={handleApplyFilters}
+      className="btn btn-primary mx-0 mb-2 mb-lg-0 apply-button footer-buttons"
+    >
+      Apply {totalCount} {totalCount === 1 ? 'result' : 'results'}
+    </button>
+  );
+
   return (
     <FilterModal
       className="filter-menu-search-map"
@@ -181,19 +215,42 @@ const FilterMenuSearchMap = ({
           </div>
 
           <Modal.Footer>
-            <button
-              onClick={handleApplyFilters}
-              className="btn btn-primary mx-0 mb-2 mb-lg-0"
-            >
-              Apply {totalCount} {totalCount === 1 ? 'result' : 'results'}
-            </button>
-            <button
-              className="btn-link clear-filter-link fw-normal"
-              onClick={handleClear}
-            >
-              Clear filters
-            </button>
+            <Container className="d-none d-md-block">
+              <Row className="flex-nowrap ">
+                <Col className="text-center" md={4}>
+                  {downloadKMLButton}
+                </Col>
+                <Col className="text-center" md={4}>
+                  {clearFiltersButton}
+                </Col>
+                <Col className="text-center" md={4}>
+                  {applyButton}
+                </Col>
+              </Row>
+            </Container>
+            <Container className="d-block d-md-none">
+              <Row className="flex-nowrap">
+                <Col className="text-center" md={12}>
+                  {applyButton}
+                </Col>
+              </Row>
+              <Row className="d-flex align-items-center g-0">
+                <Col className="text-center p-0" xs={6}>
+                  {downloadKMLButton}
+                </Col>
+                <Col className="text-center p-0" xs={6}>
+                  {clearFiltersButton}
+                </Col>
+              </Row>
+            </Container>
           </Modal.Footer>
+          <DownloadKmlResultsModal
+            isOpen={isDownloadModalOpen}
+            setIsOpen={setIsDownloadModalOpen}
+            searchResultsNumber={totalCount}
+            ids={recResourceIds}
+            trackingView={'list'}
+          />
         </>
       )}
     </FilterModal>
