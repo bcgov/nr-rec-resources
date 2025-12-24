@@ -12,6 +12,7 @@ export * from './useGetRecreationResourceOptions';
 export * from './useGetRecreationResourceSuggestions';
 export * from './useRecreationResourceAdminApiClient';
 export * from './useUpdateActivities';
+export * from './useUpdateFeatures';
 export * from './useUpdateRecreationResource';
 export * from './useUploadEstablishmentOrderDoc';
 export * from './useUploadResourceDocument';

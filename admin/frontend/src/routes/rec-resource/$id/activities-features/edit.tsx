@@ -1,14 +1,16 @@
 import { FeatureFlagRouteGuard } from '@/contexts/feature-flags';
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
-import { RecResourceActivitiesEditSection } from '@/pages/rec-resource-page/components/RecResourceActivitiesSection';
+import { RecResourceActivitiesFeaturesEditPage } from '@/pages/rec-resource-page/RecResourceActivitiesFeaturesEditPage';
 import { Route as ParentRoute } from '@/routes/rec-resource/$id';
-import { recResourceActivitiesLoader } from '@/services/loaders/recResourceActivitiesLoader';
+import { recResourceActivitiesFeaturesLoader } from '@/services/loaders/recResourceActivitiesFeaturesLoader';
 import { BreadcrumbItem } from '@shared/components/breadcrumbs';
 import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/rec-resource/$id/activities/edit')({
-  component: RecResourceActivitiesEditRoute,
-  loader: recResourceActivitiesLoader,
+export const Route = createFileRoute(
+  '/rec-resource/$id/activities-features/edit',
+)({
+  component: RecResourceActivitiesFeaturesEditRoute,
+  loader: recResourceActivitiesFeaturesLoader,
   beforeLoad: ({ params, context }) => {
     const parentBeforeLoad = ParentRoute.options.beforeLoad?.({
       params,
@@ -21,12 +23,12 @@ export const Route = createFileRoute('/rec-resource/$id/activities/edit')({
         return [
           ...parentBeforeLoad.breadcrumb(loaderData),
           {
-            label: 'Activities',
-            href: `/rec-resource/${params.id}/activities`,
+            label: 'Activities & features',
+            href: `/rec-resource/${params.id}/activities-features`,
           },
           {
-            label: 'Edit Activities',
-            href: `/rec-resource/${params.id}/activities/edit`,
+            label: 'Edit',
+            href: `/rec-resource/${params.id}/activities-features/edit`,
           },
         ];
       },
@@ -34,10 +36,10 @@ export const Route = createFileRoute('/rec-resource/$id/activities/edit')({
   },
 });
 
-function RecResourceActivitiesEditRoute() {
+function RecResourceActivitiesFeaturesEditRoute() {
   return (
     <FeatureFlagRouteGuard requiredFlags={['enable_full_features']}>
-      <RecResourceActivitiesEditSection />
+      <RecResourceActivitiesFeaturesEditPage />
     </FeatureFlagRouteGuard>
   );
 }

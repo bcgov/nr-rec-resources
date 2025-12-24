@@ -16,5 +16,6 @@ describe('Options Index', () => {
   it('should export option types constant', () => {
     expect(OptionsIndex.OPTION_TYPES).toBeDefined();
     expect(OptionsIndex.OPTION_TYPES.ACTIVITIES).toBe('activities');
+    expect(OptionsIndex.OPTION_TYPES.FEATURE_CODE).toBe('featureCode');
   });
 });

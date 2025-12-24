@@ -29,9 +29,9 @@ describe('rec-resource-page navigation', () => {
     it('has correct activities tab configuration (lines 37-39)', () => {
       const activitiesTab =
         REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.ACTIVITIES];
-      expect(activitiesTab.title).toBe('Activities');
+      expect(activitiesTab.title).toBe('Activities & features');
       expect(activitiesTab.getNavigateOptions('123')).toEqual({
-        to: ROUTE_PATHS.REC_RESOURCE_ACTIVITIES,
+        to: ROUTE_PATHS.REC_RESOURCE_ACTIVITIES_FEATURES,
         params: { id: '123' },
       });
     });

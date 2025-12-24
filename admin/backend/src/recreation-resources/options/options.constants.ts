@@ -36,6 +36,11 @@ export const OPTION_TABLE_MAPPINGS: Record<OptionType, TableMapping> = {
     labelField: 'description',
     prismaModel: 'recreation_fee_code',
   },
+  [OPTION_TYPES.FEATURE_CODE]: {
+    idField: 'recreation_feature_code',
+    labelField: 'description',
+    prismaModel: 'recreation_feature_code',
+  },
   [OPTION_TYPES.RECREATION_STATUS]: {
     idField: 'status_code',
     labelField: 'description',

@@ -51,6 +51,7 @@ export const OptionsByTypeDtoTypeEnum = {
   Maintenance: 'maintenance',
   ResourceType: 'resourceType',
   FeeType: 'feeType',
+  FeatureCode: 'featureCode',
   RecreationStatus: 'recreationStatus',
   Structure: 'structure',
   ControlAccessCode: 'controlAccessCode',

@@ -51,6 +51,7 @@ describe('OptionsService', () => {
     it('should accept valid option types', () => {
       expect(() => service['validateOptionType']('activities')).not.toThrow();
       expect(() => service['validateOptionType']('access')).not.toThrow();
+      expect(() => service['validateOptionType']('featureCode')).not.toThrow();
       expect(() =>
         service['validateOptionType']('recreationStatus'),
       ).not.toThrow();

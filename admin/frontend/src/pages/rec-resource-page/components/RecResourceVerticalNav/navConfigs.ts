@@ -34,9 +34,9 @@ export const REC_RESOURCE_PAGE_NAV_SECTIONS: Record<
     }),
   },
   [RecResourceNavKey.ACTIVITIES]: {
-    title: 'Activities',
+    title: 'Activities & features',
     getNavigateOptions: (id: string) => ({
-      to: ROUTE_PATHS.REC_RESOURCE_ACTIVITIES,
+      to: ROUTE_PATHS.REC_RESOURCE_ACTIVITIES_FEATURES,
       params: { id },
     }),
   },
