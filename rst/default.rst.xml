@@ -389,12 +389,24 @@
          <column autoUpdated="false" defaultValue="now()" digits="6" id="14" name="created_at" nullable="true" remarks="" size="29" type="timestamp" typeCode="93"/>
          <column autoUpdated="false" defaultValue="null" digits="0" id="15" name="created_by" nullable="true" remarks="" size="2147483647" type="text" typeCode="12"/>
          <column autoUpdated="false" defaultValue="tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)" digits="0" id="16" name="sys_period" nullable="false" remarks="" size="2147483647" type="tstzrange" typeCode="1111"/>
+         <column autoUpdated="true" defaultValue="null" digits="0" id="17" name="fee_id" nullable="false" remarks="" size="10" type="int4" typeCode="4"/>
+         <primaryKey column="fee_id" sequenceNumberInPK="1"/>
+         <index name="recreation_fee_pkey" unique="true">
+            <column ascending="true" name="fee_id"/>
+         </index>
          <index name="idx_recreation_fee_rec_resource_id" unique="false">
             <column ascending="true" name="rec_resource_id"/>
          </index>
-         <index name="recreation_fee_rec_resource_id_recreation_fee_code_key" unique="true">
+         <index name="recreation_fee_unique_idx" unique="true">
             <column ascending="true" name="rec_resource_id"/>
             <column ascending="true" name="recreation_fee_code"/>
+            <column ascending="true" name="monday_ind"/>
+            <column ascending="true" name="tuesday_ind"/>
+            <column ascending="true" name="wednesday_ind"/>
+            <column ascending="true" name="thursday_ind"/>
+            <column ascending="true" name="friday_ind"/>
+            <column ascending="true" name="saturday_ind"/>
+            <column ascending="true" name="sunday_ind"/>
          </index>
       </table>
       <table name="recreation_fee_code" remarks="Recreation fee codes for classification of fees within a project" schema="rst" type="TABLE">

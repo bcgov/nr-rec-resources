@@ -182,7 +182,7 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="monday_ind">monday_ind</span></td>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="monday_ind">monday_ind</span></td>
                                     <td>varchar</td>
                                     <td>1</td>
                                     <td title='nullable'>√</td>
@@ -199,7 +199,7 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="tuesday_ind">tuesday_ind</span></td>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="tuesday_ind">tuesday_ind</span></td>
                                     <td>varchar</td>
                                     <td>1</td>
                                     <td title='nullable'>√</td>
@@ -216,7 +216,7 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="wednesday_ind">wednesday_ind</span></td>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="wednesday_ind">wednesday_ind</span></td>
                                     <td>varchar</td>
                                     <td>1</td>
                                     <td title='nullable'>√</td>
@@ -233,7 +233,7 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="thursday_ind">thursday_ind</span></td>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="thursday_ind">thursday_ind</span></td>
                                     <td>varchar</td>
                                     <td>1</td>
                                     <td title='nullable'>√</td>
@@ -250,7 +250,7 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="friday_ind">friday_ind</span></td>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="friday_ind">friday_ind</span></td>
                                     <td>varchar</td>
                                     <td>1</td>
                                     <td title='nullable'>√</td>
@@ -267,7 +267,7 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="saturday_ind">saturday_ind</span></td>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="saturday_ind">saturday_ind</span></td>
                                     <td>varchar</td>
                                     <td>1</td>
                                     <td title='nullable'>√</td>
@@ -284,7 +284,7 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="sunday_ind">sunday_ind</span></td>
+                                    <td class='indexedColumn' title='Indexed'><i class='fa fa-sitemap fa-rotate-120' style='padding-right: 5px;'></i><span id="sunday_ind">sunday_ind</span></td>
                                     <td>varchar</td>
                                     <td>1</td>
                                     <td title='nullable'>√</td>
@@ -407,6 +407,23 @@
                                     </td>
                                     <td></td>
                                 </tr>
+                                <tr>
+                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="fee_id">fee_id</span></td>
+                                    <td>int4</td>
+                                    <td>10</td>
+                                    <td title=''></td>
+                                    <td title='Automatically updated by the database'>√</td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td></td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -438,16 +455,22 @@
                                 </thead>
                                 <tbody>
                                 <tr>
+                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey'></i> recreation_fee_pkey</td>
+                                    <td>Primary key</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>fee_id</td>
+                                </tr>
+                                <tr>
                                     <td title='Indexed'>idx_recreation_fee_rec_resource_id</td>
                                     <td>Performance</td>
                                     <td><span title='Ascending'>Asc</span></td>
                                     <td>rec_resource_id</td>
                                 </tr>
                                 <tr>
-                                    <td class='uniqueKey' title='Unique Key'><i class='icon ion-key iconkey'></i> recreation_fee_rec_resource_id_recreation_fee_code_key</td>
+                                    <td class='uniqueKey' title='Unique Key'><i class='icon ion-key iconkey'></i> recreation_fee_unique_idx</td>
                                     <td>Must be unique</td>
-                                    <td><span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span></td>
-                                    <td>rec_resource_id + recreation_fee_code</td>
+                                    <td><span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span></td>
+                                    <td>rec_resource_id + recreation_fee_code + monday_ind + tuesday_ind + wednesday_ind + thursday_ind + friday_ind + saturday_ind + sunday_ind</td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -474,7 +497,7 @@
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="327,5,701,573">
+<area shape="rect" id="node1" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="327,5,701,603">
 <area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="5,8,283,243">
 <area shape="rect" id="node3" href="recreation_fee_code.html" target="_top" title="recreation_fee_code" alt="" coords="25,331,263,448">
 </map>
@@ -493,7 +516,7 @@
 <area shape="rect" id="node5" href="recreation_defined_campsite.html" target="_top" title="recreation_defined_campsite" alt="" coords="803,321,1113,409">
 <area shape="rect" id="node6" href="recreation_driving_direction.html" target="_top" title="recreation_driving_direction" alt="" coords="806,427,1110,515">
 <area shape="rect" id="node7" href="recreation_establishment_order_docs.html" target="_top" title="recreation_establishment_order_docs" alt="" coords="769,532,1147,620">
-<area shape="rect" id="node8" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="771,1375,1145,1943">
+<area shape="rect" id="node8" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="771,1375,1145,1972">
 <area shape="rect" id="node9" href="recreation_fee_code.html" target="_top" title="recreation_fee_code" alt="" coords="467,1700,706,1817">
 <area shape="rect" id="node10" href="recreation_map_feature.html" target="_top" title="recreation_map_feature" alt="" coords="823,637,1093,725">
 <area shape="rect" id="node15" href="recreation_resource_docs.html" target="_top" title="recreation_resource_docs" alt="" coords="817,743,1099,831">
@@ -507,7 +530,7 @@
                                     </div>
                                     <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="327,5,701,573">
+<area shape="rect" id="node1" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="327,5,701,603">
 <area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="5,8,283,243">
 <area shape="rect" id="node3" href="recreation_fee_code.html" target="_top" title="recreation_fee_code" alt="" coords="25,331,263,448">
 </map>
@@ -527,7 +550,7 @@
 <area shape="rect" id="node6" href="recreation_defined_campsite.html" target="_top" title="recreation_defined_campsite" alt="" coords="804,649,1113,737">
 <area shape="rect" id="node7" href="recreation_driving_direction.html" target="_top" title="recreation_driving_direction" alt="" coords="807,755,1111,843">
 <area shape="rect" id="node8" href="recreation_establishment_order_docs.html" target="_top" title="recreation_establishment_order_docs" alt="" coords="770,896,1147,984">
-<area shape="rect" id="node9" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="1192,1093,1567,1661">
+<area shape="rect" id="node9" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="1192,1093,1567,1691">
 <area shape="rect" id="node10" href="recreation_fee_code.html" target="_top" title="recreation_fee_code" alt="" coords="839,1001,1078,1119">
 <area shape="rect" id="node11" href="recreation_fee_code_history.html" target="_top" title="recreation_fee_code_history" alt="" coords="1228,988,1531,1076">
 <area shape="rect" id="node12" href="recreation_fee_history.html" target="_top" title="recreation_fee_history" alt="" coords="1251,661,1508,749">
