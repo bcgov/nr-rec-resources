@@ -9,17 +9,16 @@
   @include media-breakpoint-down(md) {
     margin-top: 2em;
   }
+  padding-bottom: 20px;
 }
 
 .activity-container {
   display: flex;
   flex-direction: column;
-  width: 350px;
-  margin-right: 16px;
+  width: 370px;
   @include media-breakpoint-down(md) {
-    border: solid 1px $colorBlue;
-    border-radius: 4px;
     margin-bottom: 1em;
+    margin-left: 0.5em;
   }
 
   a:link,
@@ -36,6 +35,10 @@
     font-size: 23px;
     line-height: 33px;
     margin-top: 0.6em;
+    @include media-breakpoint-down(md) {
+      margin-top: 0em;
+      margin-left: 0.5em;
+    }
   }
 
   .activity-description {
@@ -53,7 +56,11 @@
     }
     @include media-breakpoint-down(md) {
       border-radius: 4px;
-      border-right: solid 1px $colorBlue;
+      border: solid 1px $colorBlue;
     }
+  }
+
+  .desktop-text {
+    width: 350px !important;
   }
 }

@@ -101,4 +101,7 @@
     color: $colorWhite;
     text-decoration: underline;
   }
+  @include media-breakpoint-down(md) {
+    padding-bottom: 0.8em;
+  }
 }
