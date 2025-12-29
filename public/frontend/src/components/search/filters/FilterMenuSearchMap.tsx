@@ -160,6 +160,7 @@ const FilterMenuSearchMap = ({
     <button
       onClick={handleApplyFilters}
       className="btn btn-primary mx-0 mb-2 mb-lg-0 apply-button footer-buttons"
+      data-testid="apply-button"
     >
       Apply {totalCount} {totalCount === 1 ? 'result' : 'results'}
     </button>

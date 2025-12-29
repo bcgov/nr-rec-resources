@@ -9,14 +9,19 @@ import * as recreationMapUtils from '@shared/components/recreation-resource-map'
 // ─── Safe, Hoistable Mocks ────────────────────────────────────────────────
 
 // Mock react-bootstrap Modal and its subcomponents
-vi.mock('react-bootstrap', () => {
+vi.mock('react-bootstrap', async () => {
+  const actual = await vi.importActual<any>('react-bootstrap');
+
   const Modal = ({ show, children, ...props }: any) =>
     show ? <div {...props}>{children}</div> : null;
 
   Modal.Body = ({ children }: any) => <div>{children}</div>;
   Modal.Footer = ({ children }: any) => <div>{children}</div>;
 
-  return { Modal };
+  return {
+    ...actual,
+    Modal,
+  };
 });
 
 // FontAwesome mocks
@@ -26,6 +31,8 @@ vi.mock('@fortawesome/react-fontawesome', () => ({
 
 vi.mock('@fortawesome/free-solid-svg-icons', () => ({
   faXmark: 'faXmark',
+  faExclamationTriangle: 'faExclamationTriangle',
+  faInfoCircle: 'faInfoCircle',
 }));
 
 // OL / map utilities mock
@@ -88,8 +95,7 @@ describe('DownloadKmlResultsModal', () => {
       />,
     );
 
-    expect(screen.getByText('Export map file')).toBeInTheDocument();
-    expect(screen.getByText('Download search results (3)')).toBeInTheDocument();
+    expect(screen.getByText('Download KML')).toBeInTheDocument();
   });
 
   it('does not render when isOpen is false', () => {
@@ -105,7 +111,7 @@ describe('DownloadKmlResultsModal', () => {
     expect(screen.queryByText('Export map file')).not.toBeInTheDocument();
   });
 
-  it('download button is disabled if search results number is over 400', () => {
+  it('refine search button is enabled if search results number is over 400', () => {
     render(
       <DownloadKmlResultsModal
         isOpen={true}
@@ -115,8 +121,7 @@ describe('DownloadKmlResultsModal', () => {
         trackingView="list"
       />,
     );
-    const downloadBtn = screen.getByRole('button', { name: /download/i });
-    expect(downloadBtn).toBeDisabled();
+    expect(screen.queryByTestId('refine-button')).toBeInTheDocument();
     expect(screen.queryByTestId('msg-alert')).toBeInTheDocument();
   });
 

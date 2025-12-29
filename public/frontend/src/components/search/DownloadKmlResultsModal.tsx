@@ -154,6 +154,7 @@ const DownloadKmlResultsModal = ({
                   aria-label="Refine your search"
                   onClick={handleCloseModal}
                   className="btn btn-primary w-100 mx-0 mb-2 download-button"
+                  data-testid="refine-button"
                 >
                   {'< '}Refine your search
                 </button>
