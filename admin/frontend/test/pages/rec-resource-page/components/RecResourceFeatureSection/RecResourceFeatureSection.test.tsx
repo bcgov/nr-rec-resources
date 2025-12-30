@@ -6,19 +6,25 @@ describe('RecResourceFeatureSection', () => {
   it('renders section title', () => {
     render(<RecResourceFeatureSection recreationFeatures={[]} />);
 
-    expect(screen.getByText('Features')).toBeInTheDocument();
+    expect(
+      screen.getByText('Significant resource features'),
+    ).toBeInTheDocument();
   });
 
   it('renders empty state when no features', () => {
     render(<RecResourceFeatureSection recreationFeatures={[]} />);
 
-    expect(screen.getByText('No features assigned.')).toBeInTheDocument();
+    expect(
+      screen.getByText('No significant resource features assigned.'),
+    ).toBeInTheDocument();
   });
 
   it('renders empty state when features is null', () => {
     render(<RecResourceFeatureSection recreationFeatures={null as any} />);
 
-    expect(screen.getByText('No features assigned.')).toBeInTheDocument();
+    expect(
+      screen.getByText('No significant resource features assigned.'),
+    ).toBeInTheDocument();
   });
 
   it('renders features list with codes and descriptions', () => {
@@ -86,6 +92,8 @@ describe('RecResourceFeatureSection', () => {
   it('renders undefined features as empty state', () => {
     render(<RecResourceFeatureSection recreationFeatures={undefined as any} />);
 
-    expect(screen.getByText('No features assigned.')).toBeInTheDocument();
+    expect(
+      screen.getByText('No significant resource features assigned.'),
+    ).toBeInTheDocument();
   });
 });

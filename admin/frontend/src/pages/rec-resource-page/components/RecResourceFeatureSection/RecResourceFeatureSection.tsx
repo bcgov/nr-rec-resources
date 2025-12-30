@@ -21,8 +21,11 @@ export const RecResourceFeatureSection = ({
       ) : (
         <div>
           <ul className="list-unstyled">
-            {sortedFeatures.map((feature) => (
-              <li className="fw-bold" key={feature.recreation_feature_code}>
+            {sortedFeatures.map((feature, index) => (
+              <li
+                className="fw-bold"
+                key={`${feature.recreation_feature_code}-${index}`}
+              >
                 {feature.recreation_feature_code} - {feature.description}
               </li>
             ))}
