@@ -3,9 +3,6 @@ import { PrismaService } from '@/prisma.service';
 import { RecreationFeatureDto } from './dtos/recreation-feature.dto';
 import { FeaturesRepository } from './features.repository';
 
-/**
- * Service for managing recreation resource features.
- */
 @Injectable()
 export class FeaturesService {
   constructor(

@@ -1,4 +1,3 @@
-import { ROUTE_PATHS } from '@/constants/routes';
 import { RecreationActivityDto, useUpdateActivities } from '@/services';
 import { handleApiError } from '@/services/utils/errorHandler';
 import {
@@ -6,7 +5,6 @@ import {
   addSuccessNotification,
 } from '@/store/notificationStore';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigateWithQueryParams } from '@shared/hooks';
 import { useEffect, useMemo } from 'react';
 import { useForm, type Resolver } from 'react-hook-form';
 import {
@@ -21,7 +19,6 @@ export const useEditActivitiesForm = (
   activities: RecreationActivityDto[],
   recResourceId: string,
 ) => {
-  const { navigate } = useNavigateWithQueryParams();
   const updateMutation = useUpdateActivities();
 
   // Get default values from activities data
@@ -51,23 +48,18 @@ export const useEditActivitiesForm = (
     reset(defaultValues);
   }, [defaultValues, reset]);
 
-  const onSubmit = async (data: EditActivitiesFormData) => {
+  const onSubmit = async (data: EditActivitiesFormData): Promise<boolean> => {
     try {
       await updateMutation.mutateAsync({
         recResourceId,
         activity_codes: data.activity_codes,
       });
-
       addSuccessNotification('Activities updated successfully.');
-      navigate({
-        to: ROUTE_PATHS.REC_RESOURCE_ACTIVITIES,
-        params: { id: recResourceId },
-      });
+      return true;
     } catch (error) {
       const { message } = await handleApiError(error);
-      addErrorNotification(
-        `Failed to update activities: ${message}. Please try again.`,
-      );
+      addErrorNotification(`Failed to update activities: ${message}`);
+      return false;
     }
   };
 

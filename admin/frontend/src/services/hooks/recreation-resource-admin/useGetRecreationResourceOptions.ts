@@ -7,6 +7,7 @@ import { GetOptionsByTypesTypesEnum } from '@/services/recreation-resource-admin
 import { addErrorNotification } from '@/store/notificationStore';
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { createRetryHandler } from './helpers';
+import { RECREATION_RESOURCE_QUERY_KEYS } from './queryKeys';
 
 export function useGetRecreationResourceOptions(
   types: Array<GetOptionsByTypesTypesEnum>,
@@ -16,7 +17,7 @@ export function useGetRecreationResourceOptions(
 ) {
   const api = useRecreationResourceAdminApiClient();
 
-  const queryKey = ['recreation-resource-options', ...types];
+  const queryKey = RECREATION_RESOURCE_QUERY_KEYS.options(types);
 
   return useQuery({
     queryKey,

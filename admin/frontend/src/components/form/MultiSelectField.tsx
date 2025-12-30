@@ -13,6 +13,7 @@ import Select, { MultiValue } from 'react-select';
 interface MultiSelectFieldProps<TFieldValues extends FieldValues> {
   name: Path<TFieldValues>;
   label: string;
+  hideLabel?: boolean;
   options: RecreationResourceOptionUIModel[];
   placeholder: string;
   control: Control<TFieldValues>;
@@ -60,12 +61,14 @@ function MultiSelectFieldComponent<TFieldValues extends FieldValues>({
               onChange={(
                 newValue: MultiValue<RecreationResourceOptionUIModel>,
               ) => {
-                // Convert option.id (string | null) to number for activity_codes array
-                onChange(
+                const ids =
                   newValue
-                    ?.map((opt) => (opt.id ? Number(opt.id) : null))
-                    .filter((id): id is number => id !== null) || [],
-                );
+                    ?.map((o) => o.id)
+                    .filter((id): id is string => id !== null) ?? [];
+                const useNumbers = value?.length
+                  ? typeof value[0] === 'number'
+                  : options.some((o) => o.id && !isNaN(Number(o.id)));
+                onChange(useNumbers ? ids.map(Number) : ids);
               }}
               className={
                 (errors as Record<string, any>)[name as string]

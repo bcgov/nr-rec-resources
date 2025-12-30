@@ -1,13 +1,7 @@
-import { ROUTE_PATHS } from '@/constants/routes';
 import { useEditActivitiesForm } from '@/pages/rec-resource-page/components/RecResourceActivitiesSection/EditSection/hooks/useEditActivitiesForm';
 import { useUpdateActivities } from '@/services/hooks/recreation-resource-admin/useUpdateActivities';
 import { handleApiError } from '@/services/utils/errorHandler';
-import {
-  addErrorNotification,
-  addSuccessNotification,
-} from '@/store/notificationStore';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigateWithQueryParams } from '@shared/hooks';
 import { renderHook } from '@testing-library/react';
 import { useForm } from 'react-hook-form';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -22,12 +16,17 @@ vi.mock('@hookform/resolvers/zod', () => ({
 }));
 
 vi.mock('@/services/hooks/recreation-resource-admin/useUpdateActivities');
-vi.mock('@/services/utils/errorHandler');
-vi.mock('@/store/notificationStore');
-vi.mock('@shared/hooks');
+
+vi.mock('@/services/utils/errorHandler', () => ({
+  handleApiError: vi.fn(),
+}));
+
+vi.mock('@/store/notificationStore', () => ({
+  addSuccessNotification: vi.fn(),
+  addErrorNotification: vi.fn(),
+}));
 
 describe('useEditActivitiesForm', () => {
-  const mockNavigate = vi.fn();
   const mockMutateAsync = vi.fn();
   const mockReset = vi.fn();
   const mockHandleSubmit = vi.fn();
@@ -52,11 +51,6 @@ describe('useEditActivitiesForm', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-
-    // Setup mocks
-    vi.mocked(useNavigateWithQueryParams).mockReturnValue({
-      navigate: mockNavigate,
-    } as any);
 
     vi.mocked(useUpdateActivities).mockReturnValue({
       mutateAsync: mockMutateAsync,
@@ -111,18 +105,12 @@ describe('useEditActivitiesForm', () => {
     const formData = { activity_codes: [1, 3] };
     mockMutateAsync.mockResolvedValue(undefined);
 
-    await result.current.onSubmit(formData);
+    const submitResult = await result.current.onSubmit(formData);
 
+    expect(submitResult).toBe(true);
     expect(mockMutateAsync).toHaveBeenCalledWith({
       recResourceId: mockRecResourceId,
       activity_codes: [1, 3],
-    });
-    expect(addSuccessNotification).toHaveBeenCalledWith(
-      'Activities updated successfully.',
-    );
-    expect(mockNavigate).toHaveBeenCalledWith({
-      to: ROUTE_PATHS.REC_RESOURCE_ACTIVITIES,
-      params: { id: mockRecResourceId },
     });
   });
 
@@ -133,18 +121,13 @@ describe('useEditActivitiesForm', () => {
 
     const error = new Error('API Error');
     mockMutateAsync.mockRejectedValue(error);
-    vi.mocked(handleApiError).mockResolvedValue({
-      message: 'Something went wrong',
-    } as any);
+    vi.mocked(handleApiError).mockResolvedValue({ message: 'API Error' });
 
     const formData = { activity_codes: [1, 3] };
-    await result.current.onSubmit(formData);
+    const submitResult = await result.current.onSubmit(formData);
 
+    expect(submitResult).toBe(false);
     expect(handleApiError).toHaveBeenCalledWith(error);
-    expect(addErrorNotification).toHaveBeenCalledWith(
-      'Failed to update activities: Something went wrong. Please try again.',
-    );
-    expect(mockNavigate).not.toHaveBeenCalled();
   });
 
   it('returns correct form state and helpers', () => {

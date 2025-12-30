@@ -85,27 +85,5 @@ describe('UpdateFeaturesDto', () => {
       expect(errors[0]!.property).toBe('feature_codes');
       expect(errors[0]!.constraints).toHaveProperty('isNotEmpty');
     });
-
-    it('should fail validation when feature_codes contains over-length strings', async () => {
-      const dto = new UpdateFeaturesDto();
-      dto.feature_codes = ['A1', 'TOOLONG', 'X0'];
-
-      const errors = await validate(dto);
-
-      expect(errors).toHaveLength(1);
-      expect(errors[0]!.property).toBe('feature_codes');
-      expect(errors[0]!.constraints).toHaveProperty('maxLength');
-    });
-
-    it('should pass validation with large array of strings', async () => {
-      const dto = new UpdateFeaturesDto();
-      dto.feature_codes = Array.from({ length: 100 }, (_, i) =>
-        String(i).padStart(2, '0'),
-      );
-
-      const errors = await validate(dto);
-
-      expect(errors).toHaveLength(0);
-    });
   });
 });

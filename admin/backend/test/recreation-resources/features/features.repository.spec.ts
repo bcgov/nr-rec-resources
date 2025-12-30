@@ -14,6 +14,10 @@ describe('FeaturesRepository', () => {
   let prisma: PrismaService;
   let module: TestingModule;
 
+  const mockLogger = {
+    error: vi.fn(),
+  };
+
   const mockPrismaService = {
     recreation_feature: {
       findMany: vi.fn(),
@@ -34,6 +38,10 @@ describe('FeaturesRepository', () => {
 
     repository = module.get<FeaturesRepository>(FeaturesRepository);
     prisma = module.get<PrismaService>(PrismaService);
+
+    // Inject mock logger
+    (repository as any).logger = mockLogger;
+
     vi.clearAllMocks();
   });
 
@@ -145,6 +153,22 @@ describe('FeaturesRepository', () => {
       await repository.updateFeatures(rec_resource_id, feature_codes);
 
       expect(prisma.$transaction).toHaveBeenCalledTimes(1);
+    });
+
+    it('should log and rethrow errors', async () => {
+      const feature_codes = ['A1', 'B2'];
+      const testError = new Error('Database connection failed');
+
+      mockPrismaService.$transaction.mockRejectedValue(testError);
+
+      await expect(
+        repository.updateFeatures(rec_resource_id, feature_codes),
+      ).rejects.toThrow(testError);
+
+      expect(mockLogger.error).toHaveBeenCalledWith(
+        `Failed to update features for resource ${rec_resource_id}`,
+        testError.stack,
+      );
     });
   });
 });

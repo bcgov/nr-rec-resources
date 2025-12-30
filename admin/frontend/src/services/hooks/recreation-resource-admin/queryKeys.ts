@@ -16,4 +16,6 @@ export const RECREATION_RESOURCE_QUERY_KEYS = {
   fees: (id: string) => ['recreation-resource-admin', 'fees', id] as const,
   geospatial: (id: string) =>
     ['recreation-resource-admin', 'geospatial', id] as const,
+  options: (types: string[]) =>
+    ['recreation-resource-options', ...types] as const,
 };

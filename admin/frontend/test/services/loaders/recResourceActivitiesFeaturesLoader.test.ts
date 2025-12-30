@@ -35,6 +35,7 @@ describe('recResourceActivitiesLoader', () => {
     mockApi = {
       getActivitiesByRecResourceId: vi.fn(),
       getFeaturesByRecResourceId: vi.fn(),
+      getOptionsByTypes: vi.fn(),
     };
     (RecreationResourcesApi as any).mockImplementation(() => mockApi);
 
@@ -165,5 +166,23 @@ describe('recResourceActivitiesLoader', () => {
 
     expect(RecreationResourcesApi).toHaveBeenCalled();
     expect(result).toBeDefined();
+  });
+
+  it('should prefetch activities and feature options for cache', async () => {
+    (recResourceLoader as any).mockResolvedValue(MOCK_EMPTY_PARENT_DATA);
+    mockQueryClient.ensureQueryData.mockResolvedValue([]);
+
+    await recResourceActivitiesFeaturesLoader(mockArgs);
+
+    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: RECREATION_RESOURCE_QUERY_KEYS.options(['activities']),
+      }),
+    );
+    expect(mockQueryClient.ensureQueryData).toHaveBeenCalledWith(
+      expect.objectContaining({
+        queryKey: RECREATION_RESOURCE_QUERY_KEYS.options(['featureCode']),
+      }),
+    );
   });
 });

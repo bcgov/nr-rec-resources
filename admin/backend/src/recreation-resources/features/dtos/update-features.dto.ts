@@ -1,10 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsArray, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
-/**
- * DTO for updating recreation resource features.
- * Contains an array of feature codes to associate with the resource.
- */
 export class UpdateFeaturesDto {
   @ApiProperty({
     description: 'Array of recreation feature codes',
