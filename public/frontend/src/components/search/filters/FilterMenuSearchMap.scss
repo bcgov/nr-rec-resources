@@ -85,3 +85,13 @@
 .filter-modal {
   z-index: $zIndexFilterMenu;
 }
+
+.apply-button {
+  width: 90% !important;
+}
+
+.footer-buttons {
+  @include media-breakpoint-up(md) {
+    padding: 0.7em 0em !important;
+  }
+}

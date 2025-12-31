@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate, useSearch } from '@tanstack/react-router';
 import { RemoveScroll } from 'react-remove-scroll';
 import { useStore } from '@tanstack/react-store';
@@ -32,11 +32,13 @@ import {
   MATOMO_ACTION_LOADMORE,
   MATOMO_CATEGORY_LOADMORE,
 } from '@/constants/analytics';
+import DownloadKmlResultsModal from './DownloadKmlResultsModal';
 
 const SearchPage = () => {
   const navigate = useNavigate({ from: '/search' });
   const searchParams = useSearch({ from: '/search/' });
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
 
   const initialPage = useInitialPageFromSearchParams();
   const lat = searchParams.lat;
@@ -86,7 +88,7 @@ const SearchPage = () => {
     // eslint-disable-next-line
   }, [searchResults]);
 
-  const { pages: paginatedResults, totalCount } = searchResults;
+  const { pages: paginatedResults, totalCount, recResourceIds } = searchResults;
   /**
    * Handles loading the next page of search results.
    *
@@ -134,6 +136,10 @@ const SearchPage = () => {
     setIsMobileFilterOpen(true);
   };
 
+  const handleDownloadClick = useCallback(() => {
+    setIsDownloadModalOpen(true);
+  }, []);
+
   const isFetchingFirstPage =
     isFetching && !isFetchingPreviousPage && !isFetchingNextPage;
   const isLocationSearchResults = lat && lon && community;
@@ -165,7 +171,7 @@ const SearchPage = () => {
               isOpen={isMobileFilterOpen}
               setIsOpen={setIsMobileFilterOpen}
             />
-            <SearchLinks />
+            <SearchLinks downloadKMLModalFunction={handleDownloadClick} />
           </Col>
 
           <Col md={12} lg={9}>
@@ -203,15 +209,7 @@ const SearchPage = () => {
                       )}
                     </div>
                     <div>
-                      <SearchViewControls
-                        variant="map"
-                        totalCount={totalCount}
-                        ids={paginatedResults?.flatMap(
-                          (pageData: PaginatedRecreationResourceModel) =>
-                            pageData?.recResourceIds,
-                        )}
-                        trackingView={trackingView}
-                      />
+                      <SearchViewControls variant="map" />
                     </div>
                   </div>
                   <FilterChips />
@@ -262,6 +260,13 @@ const SearchPage = () => {
           </Col>
         </Row>
       </Stack>
+      <DownloadKmlResultsModal
+        isOpen={isDownloadModalOpen}
+        setIsOpen={setIsDownloadModalOpen}
+        searchResultsNumber={totalCount}
+        ids={recResourceIds}
+        trackingView={trackingView ?? (isMapView ? 'list' : 'map')}
+      />
     </>
   );
 };
