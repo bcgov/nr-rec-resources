@@ -14,6 +14,10 @@ vi.mock('@/components/search/hooks/useClearFilters', () => ({
   useClearFilters: vi.fn(),
 }));
 
+vi.mock('../DownloadKmlResultsModal', () => ({
+  default: () => null,
+}));
+
 Object.defineProperty(searchResultsStore, 'state', {
   get: vi.fn(() => ({
     totalCount: 12,

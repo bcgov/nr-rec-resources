@@ -98,6 +98,7 @@
 
 // modal
 .modal.filter-modal {
+  z-index: 1400;
   .modal-dialog {
     display: flex;
     flex-direction: column;

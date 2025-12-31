@@ -23,10 +23,15 @@ vi.mock('@tanstack/react-router', async () => {
 
 vi.mock('@/service/queries/recreation-resource', () => ({
   useSearchRecreationResourcesPaginated: vi.fn(),
+  useRecreationResourcesWithGeometryMutation: vi.fn(),
 }));
 
 vi.mock('@shared/utils', () => ({
   trackEvent: vi.fn(),
+}));
+
+vi.mock('../DownloadKmlResultsModal', () => ({
+  default: () => null,
 }));
 
 describe('FilterMenuSearchMap', () => {
@@ -109,9 +114,10 @@ describe('FilterMenuSearchMap', () => {
 
   it('shows total count on apply button', async () => {
     render(<FilterMenuSearchMap isOpen={true} setIsOpen={setIsOpenMock} />);
-    expect(
-      await screen.findByRole('button', { name: /apply 5 results/i }),
-    ).toBeInTheDocument();
+    const applyButton = await screen.findAllByRole('button', {
+      name: /apply 5 results/i,
+    });
+    expect(applyButton[0]).toBeInTheDocument();
   });
 
   it('calls trackEvent with correct params when Apply is clicked', async () => {
@@ -121,8 +127,10 @@ describe('FilterMenuSearchMap', () => {
     fireEvent.click(chilliwackCheckbox);
     await waitFor(() => expect(chilliwackCheckbox).toBeChecked());
 
-    const applyButton = await screen.findByRole('button', { name: /apply/i });
-    fireEvent.click(applyButton);
+    const applyButton = await screen.findAllByRole('button', {
+      name: /apply/i,
+    });
+    fireEvent.click(applyButton[0]);
 
     expect(navigateMock).toHaveBeenCalled();
 
@@ -140,8 +148,8 @@ describe('FilterMenuSearchMap', () => {
   it('clears filters and resets localFilters when Clear filters is clicked', async () => {
     render(<FilterMenuSearchMap isOpen={true} setIsOpen={setIsOpenMock} />);
 
-    const clearButton = await screen.findByText(/clear filters/i);
-    fireEvent.click(clearButton);
+    const clearButton = await screen.findAllByText(/clear filters/i);
+    fireEvent.click(clearButton[0]);
 
     const okCheckbox = await screen.findByLabelText('Okanagan (2)');
     const cwCheckbox = await screen.findByLabelText('Chilliwack (3)');
@@ -153,8 +161,8 @@ describe('FilterMenuSearchMap', () => {
   it('calls setIsOpen(false) when modal is closed', async () => {
     render(<FilterMenuSearchMap isOpen={true} setIsOpen={setIsOpenMock} />);
 
-    const applyButton = await screen.findByRole('button', { name: /apply/i });
-    fireEvent.click(applyButton);
+    const applyButton = await screen.findAllByTestId('apply-button');
+    fireEvent.click(applyButton[0]);
 
     expect(setIsOpenMock).toHaveBeenCalledWith(false);
   });
