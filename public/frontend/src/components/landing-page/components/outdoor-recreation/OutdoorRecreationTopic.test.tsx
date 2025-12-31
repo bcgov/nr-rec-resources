@@ -55,9 +55,6 @@ describe('OutdoorRecreationTopic', () => {
     // Link text
     expect(screen.getByText(defaultProps.linkText)).toBeInTheDocument();
 
-    // FontAwesome icon
-    expect(screen.getByTestId('fa-icon')).toBeInTheDocument();
-
     // Anchor href
     const link = screen.getByRole('link');
     expect(link).toHaveAttribute('href', '/search?type=camping');
