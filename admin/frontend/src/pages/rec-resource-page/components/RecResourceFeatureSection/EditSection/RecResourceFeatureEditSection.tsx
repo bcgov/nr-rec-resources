@@ -17,7 +17,7 @@ export const RecResourceFeatureEditSection = ({
   optionsLoading,
 }: RecResourceFeatureEditSectionProps) => {
   return (
-    <MultiSelectField<EditFeaturesFormData, string>
+    <MultiSelectField<EditFeaturesFormData>
       name="feature_codes"
       label="Features"
       hideLabel

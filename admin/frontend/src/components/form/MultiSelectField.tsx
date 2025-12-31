@@ -34,6 +34,7 @@ function MultiSelectFieldComponent<TFieldValues extends FieldValues>({
   control,
   errors,
   disabled = false,
+  hideLabel = false,
 }: MultiSelectFieldProps<TFieldValues>) {
   return (
     <Controller<TFieldValues>
@@ -50,7 +51,9 @@ function MultiSelectFieldComponent<TFieldValues extends FieldValues>({
 
         return (
           <Form.Group controlId={name as string}>
-            <Form.Label>{label}</Form.Label>
+            <Form.Label className={hideLabel ? 'visually-hidden' : ''}>
+              {label}
+            </Form.Label>
             <Select<RecreationResourceOptionUIModel, true>
               id={`${name as string}-select`}
               isMulti
