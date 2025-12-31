@@ -421,5 +421,47 @@ describe('MultiSelectField', () => {
 
       expect(screen.getByTestId('value-type')).toHaveTextContent('number');
     });
+
+    it('should preserve string IDs when form value is string array', async () => {
+      const user = userEvent.setup();
+      type StringFormData = { tags: string[] };
+      const stringOptions = [
+        { id: 'alpha', label: 'Alpha' },
+        { id: 'beta', label: 'Beta' },
+      ];
+
+      const TestComponent = () => {
+        const { control, formState, watch } = useForm<StringFormData>({
+          defaultValues: { tags: ['alpha'] },
+        });
+        const value = watch('tags');
+        return (
+          <>
+            <MultiSelectField
+              name="tags"
+              label="Tags"
+              options={stringOptions}
+              placeholder="Select tags"
+              control={control}
+              errors={formState.errors}
+            />
+            <div data-testid="value-type">
+              {value?.length
+                ? typeof value[0] === 'string'
+                  ? 'string'
+                  : 'not-string'
+                : 'empty'}
+            </div>
+            <div data-testid="values">{value?.join(', ')}</div>
+          </>
+        );
+      };
+
+      render(<TestComponent />);
+      await user.click(screen.getByTestId('option-beta'));
+
+      expect(screen.getByTestId('value-type')).toHaveTextContent('string');
+      expect(screen.getByTestId('values')).toHaveTextContent('alpha, beta');
+    });
   });
 });

@@ -6,8 +6,9 @@ export const ROUTE_PATHS = {
   REC_RESOURCE_OVERVIEW: '/rec-resource/$id/overview',
   REC_RESOURCE_OVERVIEW_EDIT: '/rec-resource/$id/overview/edit',
   REC_RESOURCE_FILES: '/rec-resource/$id/files',
-  REC_RESOURCE_ACTIVITIES: '/rec-resource/$id/activities',
-  REC_RESOURCE_ACTIVITIES_EDIT: '/rec-resource/$id/activities/edit',
+  REC_RESOURCE_ACTIVITIES_FEATURES: '/rec-resource/$id/activities-features',
+  REC_RESOURCE_ACTIVITIES_FEATURES_EDIT:
+    '/rec-resource/$id/activities-features/edit',
   REC_RESOURCE_FEES: '/rec-resource/$id/fees',
   REC_RESOURCE_FEES_ADD: '/rec-resource/$id/fees/add',
   REC_RESOURCE_FEE_EDIT: '/rec-resource/$id/fees/$feeId/edit',

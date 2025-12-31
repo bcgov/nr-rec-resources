@@ -1,12 +1,14 @@
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
-import { Route } from '@/routes/rec-resource/$id/activities/index';
+import { Route } from '@/routes/rec-resource/$id/activities-features/index';
 import { render, screen } from '@testing-library/react';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/pages/rec-resource-page/RecResourceActivitiesPage', () => ({
-  RecResourceActivitiesPage: () => (
-    <div data-testid="rec-resource-activities-page">Activities Page</div>
+vi.mock('@/pages/rec-resource-page/RecResourceActivitiesFeaturesPage', () => ({
+  RecResourceActivitiesFeaturesPage: () => (
+    <div data-testid="rec-resource-activities-features-page">
+      Activities &amp; Features Page
+    </div>
   ),
 }));
 
@@ -24,7 +26,7 @@ describe('RecResourceActivitiesRoute', () => {
     expect(Route.options.beforeLoad).toBeDefined();
   });
 
-  it('should render RecResourceActivitiesPage component', () => {
+  it('should render RecResourceActivitiesFeaturesPage component', () => {
     const Component = Route.options.component as React.ComponentType;
     if (!Component) {
       throw new Error('Component is not defined');
@@ -33,7 +35,7 @@ describe('RecResourceActivitiesRoute', () => {
     render(<Component />);
 
     expect(
-      screen.getByTestId('rec-resource-activities-page'),
+      screen.getByTestId('rec-resource-activities-features-page'),
     ).toBeInTheDocument();
   });
 

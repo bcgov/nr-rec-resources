@@ -16,6 +16,7 @@ models/OptionsByTypeDto.ts
 models/RecreationAccessCodeDto.ts
 models/RecreationActivityDto.ts
 models/RecreationControlAccessDto.ts
+models/RecreationFeatureDto.ts
 models/RecreationFeeDto.ts
 models/RecreationResourceDetailDto.ts
 models/RecreationResourceDistrictDto.ts
@@ -30,6 +31,7 @@ models/RecreationSubAccessCodeDto.ts
 models/SuggestionDto.ts
 models/SuggestionsResponseDto.ts
 models/UpdateActivitiesDto.ts
+models/UpdateFeaturesDto.ts
 models/UpdateRecreationAccessCodeDto.ts
 models/UpdateRecreationFeeDto.ts
 models/UpdateRecreationResourceDto.ts

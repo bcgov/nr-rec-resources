@@ -87,19 +87,19 @@ export const addSuccessNotification = (
   message: string,
   id?: string | number,
   autoDismiss = true,
-  timeout = 3000,
+  timeout = 5000,
 ): void => addStatusNotification(message, 'success', id, autoDismiss, timeout);
 
 export const addInfoNotification = (
   message: string,
   id?: string | number,
   autoDismiss = true,
-  timeout = 3000,
+  timeout = 5000,
 ): void => addStatusNotification(message, 'info', id, autoDismiss, timeout);
 
 export const addErrorNotification = (
   message: string,
   id?: string | number,
   autoDismiss = true,
-  timeout = 3000,
+  timeout = 5000,
 ): void => addStatusNotification(message, 'danger', id, autoDismiss, timeout);

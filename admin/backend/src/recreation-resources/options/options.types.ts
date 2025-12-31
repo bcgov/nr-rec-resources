@@ -19,6 +19,7 @@ export const OPTION_TYPES = {
   MAINTENANCE: 'maintenance',
   RESOURCE_TYPE: 'resourceType',
   FEE_TYPE: 'feeType',
+  FEATURE_CODE: 'featureCode',
   RECREATION_STATUS: 'recreationStatus',
   STRUCTURE: 'structure',
   CONTROL_ACCESS_CODE: 'controlAccessCode',

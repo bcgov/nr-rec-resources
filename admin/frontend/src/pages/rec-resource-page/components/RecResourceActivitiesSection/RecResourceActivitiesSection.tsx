@@ -22,7 +22,7 @@ export const RecResourceActivitiesSection = ({
 
         <FeatureFlagGuard requiredFlags={['enable_full_features']}>
           <LinkWithQueryParams
-            to={ROUTE_PATHS.REC_RESOURCE_ACTIVITIES_EDIT}
+            to={ROUTE_PATHS.REC_RESOURCE_ACTIVITIES_FEATURES_EDIT}
             params={{ id: rec_resource_id }}
             className="btn btn-outline-primary"
           >

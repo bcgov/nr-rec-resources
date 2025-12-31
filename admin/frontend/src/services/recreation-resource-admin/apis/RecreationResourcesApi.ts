@@ -22,6 +22,7 @@ import type {
   OptionDto,
   OptionsByTypeDto,
   RecreationActivityDto,
+  RecreationFeatureDto,
   RecreationFeeDto,
   RecreationResourceDetailDto,
   RecreationResourceDocDto,
@@ -29,6 +30,7 @@ import type {
   RecreationResourceImageDto,
   SuggestionsResponseDto,
   UpdateActivitiesDto,
+  UpdateFeaturesDto,
   UpdateRecreationFeeDto,
   UpdateRecreationResourceDto,
   UpdateRecreationResourceGeospatialDto,
@@ -50,6 +52,8 @@ import {
   OptionsByTypeDtoToJSON,
   RecreationActivityDtoFromJSON,
   RecreationActivityDtoToJSON,
+  RecreationFeatureDtoFromJSON,
+  RecreationFeatureDtoToJSON,
   RecreationFeeDtoFromJSON,
   RecreationFeeDtoToJSON,
   RecreationResourceDetailDtoFromJSON,
@@ -64,6 +68,8 @@ import {
   SuggestionsResponseDtoToJSON,
   UpdateActivitiesDtoFromJSON,
   UpdateActivitiesDtoToJSON,
+  UpdateFeaturesDtoFromJSON,
+  UpdateFeaturesDtoToJSON,
   UpdateRecreationFeeDtoFromJSON,
   UpdateRecreationFeeDtoToJSON,
   UpdateRecreationResourceDtoFromJSON,
@@ -127,6 +133,10 @@ export interface GetDocumentsByRecResourceIdRequest {
   recResourceId: string;
 }
 
+export interface GetFeaturesByRecResourceIdRequest {
+  recResourceId: string;
+}
+
 export interface GetImageResourceByIdRequest {
   recResourceId: string;
   refId: string;
@@ -169,6 +179,11 @@ export interface UpdateDocumentResourceRequest {
   recResourceId: string;
   refId: string;
   createRecreationResourceDocBodyDto: CreateRecreationResourceDocBodyDto;
+}
+
+export interface UpdateFeaturesRequest {
+  recResourceId: string;
+  updateFeaturesDto: UpdateFeaturesDto;
 }
 
 export interface UpdateImageResourceRequest {
@@ -1021,6 +1036,64 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
+   * Get all features related to the resource
+   */
+  async getFeaturesByRecResourceIdRaw(
+    requestParameters: GetFeaturesByRecResourceIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<RecreationFeatureDto>>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling getFeaturesByRecResourceId().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resources/{rec_resource_id}/features`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      jsonValue.map(RecreationFeatureDtoFromJSON),
+    );
+  }
+
+  /**
+   * Get all features related to the resource
+   */
+  async getFeaturesByRecResourceId(
+    requestParameters: GetFeaturesByRecResourceIdRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<Array<RecreationFeatureDto>> {
+    const response = await this.getFeaturesByRecResourceIdRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
    * Get one image resource by reference ID
    */
   async getImageResourceByIdRaw(
@@ -1149,7 +1222,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Retrieve all available values for a given option type. Valid types: activities, access, sub-access, maintenance, resourceType, feeType, recreationStatus, structure, controlAccessCode, riskRatingCode, district
+   * Retrieve all available values for a given option type. Valid types: activities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district
    * List all options for a type
    */
   async getOptionsByTypeRaw(
@@ -1194,7 +1267,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Retrieve all available values for a given option type. Valid types: activities, access, sub-access, maintenance, resourceType, feeType, recreationStatus, structure, controlAccessCode, riskRatingCode, district
+   * Retrieve all available values for a given option type. Valid types: activities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district
    * List all options for a type
    */
   async getOptionsByType(
@@ -1659,6 +1732,74 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
+   * Update features for a recreation resource
+   */
+  async updateFeaturesRaw(
+    requestParameters: UpdateFeaturesRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<RecreationFeatureDto>>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling updateFeatures().',
+      );
+    }
+
+    if (requestParameters['updateFeaturesDto'] == null) {
+      throw new runtime.RequiredError(
+        'updateFeaturesDto',
+        'Required parameter "updateFeaturesDto" was null or undefined when calling updateFeatures().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    headerParameters['Content-Type'] = 'application/json';
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resources/{rec_resource_id}/features`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
+        method: 'PUT',
+        headers: headerParameters,
+        query: queryParameters,
+        body: UpdateFeaturesDtoToJSON(requestParameters['updateFeaturesDto']),
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      jsonValue.map(RecreationFeatureDtoFromJSON),
+    );
+  }
+
+  /**
+   * Update features for a recreation resource
+   */
+  async updateFeatures(
+    requestParameters: UpdateFeaturesRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<Array<RecreationFeatureDto>> {
+    const response = await this.updateFeaturesRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
    * Update an Image Resource
    */
   async updateImageResourceRaw(
@@ -1979,6 +2120,7 @@ export const GetOptionsByTypeTypeEnum = {
   Maintenance: 'maintenance',
   ResourceType: 'resourceType',
   FeeType: 'feeType',
+  FeatureCode: 'featureCode',
   RecreationStatus: 'recreationStatus',
   Structure: 'structure',
   ControlAccessCode: 'controlAccessCode',
@@ -1997,6 +2139,7 @@ export const GetOptionsByTypesTypesEnum = {
   Maintenance: 'maintenance',
   ResourceType: 'resourceType',
   FeeType: 'feeType',
+  FeatureCode: 'featureCode',
   RecreationStatus: 'recreationStatus',
   Structure: 'structure',
   ControlAccessCode: 'controlAccessCode',

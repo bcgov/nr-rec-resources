@@ -111,7 +111,7 @@ describe('RecResourceActivitiesSection', () => {
     expect(editLink).toHaveTextContent('Edit');
     expect(editLink).toHaveAttribute(
       'href',
-      '/rec-resource/$id/activities/edit',
+      '/rec-resource/$id/activities-features/edit',
     );
   });
 

@@ -32,6 +32,7 @@ describe('OptionsRepository', () => {
   beforeEach(async () => {
     const mockPrismaService = {
       recreation_activity_code: createPrismaModel(),
+      recreation_feature_code: createPrismaModel(),
       recreation_status_code: createPrismaModel(),
       recreation_access_code: { findUnique: vi.fn() },
       recreation_access_and_sub_access_code: { findMany: vi.fn() },
@@ -76,6 +77,23 @@ describe('OptionsRepository', () => {
           { id: '2', label: 'Skiing' },
         ],
         model: 'recreation_activity_code',
+      },
+      {
+        name: 'feature codes',
+        mapping: {
+          idField: 'recreation_feature_code',
+          labelField: 'description',
+          prismaModel: 'recreation_feature_code',
+        },
+        mockResults: [
+          { recreation_feature_code: 'C01', description: 'Campground' },
+          { recreation_feature_code: 'T01', description: 'Trail' },
+        ],
+        expected: [
+          { id: 'C01', label: 'Campground' },
+          { id: 'T01', label: 'Trail' },
+        ],
+        model: 'recreation_feature_code',
       },
       {
         name: 'recreation status',

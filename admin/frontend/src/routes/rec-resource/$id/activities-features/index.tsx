@@ -1,13 +1,13 @@
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
-import { RecResourceActivitiesPage } from '@/pages/rec-resource-page/RecResourceActivitiesPage';
+import { RecResourceActivitiesFeaturesPage } from '@/pages/rec-resource-page/RecResourceActivitiesFeaturesPage';
 import { Route as ParentRoute } from '@/routes/rec-resource/$id';
-import { recResourceActivitiesLoader } from '@/services/loaders/recResourceActivitiesLoader';
+import { recResourceActivitiesFeaturesLoader } from '@/services/loaders/recResourceActivitiesFeaturesLoader';
 import { BreadcrumbItem } from '@shared/components/breadcrumbs';
 import { createFileRoute } from '@tanstack/react-router';
 
-export const Route = createFileRoute('/rec-resource/$id/activities/')({
-  component: RecResourceActivitiesRoute,
-  loader: recResourceActivitiesLoader,
+export const Route = createFileRoute('/rec-resource/$id/activities-features/')({
+  component: RecResourceActivitiesFeaturesRoute,
+  loader: recResourceActivitiesFeaturesLoader,
   beforeLoad: ({ params, context }) => {
     const parentBeforeLoad = ParentRoute.options.beforeLoad?.({
       params,
@@ -20,8 +20,8 @@ export const Route = createFileRoute('/rec-resource/$id/activities/')({
         return [
           ...parentBeforeLoad.breadcrumb(loaderData),
           {
-            label: 'Activities',
-            href: `/rec-resource/${params.id}/activities`,
+            label: 'Activities & features',
+            href: `/rec-resource/${params.id}/activities-features`,
           },
         ];
       },
@@ -29,6 +29,6 @@ export const Route = createFileRoute('/rec-resource/$id/activities/')({
   },
 });
 
-function RecResourceActivitiesRoute() {
-  return <RecResourceActivitiesPage />;
+function RecResourceActivitiesFeaturesRoute() {
+  return <RecResourceActivitiesFeaturesPage />;
 }

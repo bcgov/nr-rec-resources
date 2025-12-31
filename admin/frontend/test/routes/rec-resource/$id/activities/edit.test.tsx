@@ -4,11 +4,11 @@ import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock(
-  '@/pages/rec-resource-page/components/RecResourceActivitiesSection',
+  '@/pages/rec-resource-page/RecResourceActivitiesFeaturesEditPage',
   () => ({
-    RecResourceActivitiesEditSection: () => (
-      <div data-testid="rec-resource-activities-edit-section">
-        Edit Activities Section
+    RecResourceActivitiesFeaturesEditPage: () => (
+      <div data-testid="rec-resource-activities-features-edit-page">
+        Edit Activities &amp; Features Page
       </div>
     ),
   }),
@@ -42,8 +42,8 @@ vi.mock('@/routes/rec-resource/$id', () => ({
   },
 }));
 
-import { Route } from '@/routes/rec-resource/$id/activities/edit';
-import { recResourceActivitiesLoader } from '@/services/loaders/recResourceActivitiesLoader';
+import { Route } from '@/routes/rec-resource/$id/activities-features/edit';
+import { recResourceActivitiesFeaturesLoader } from '@/services/loaders/recResourceActivitiesFeaturesLoader';
 
 describe('RecResourceActivitiesEditRoute', () => {
   const createParentBreadcrumb =
@@ -75,7 +75,7 @@ describe('RecResourceActivitiesEditRoute', () => {
   it('should have all required route properties', () => {
     expect(Route).toBeDefined();
     expect(Route.options.component).toBeDefined();
-    expect(Route.options.loader).toBe(recResourceActivitiesLoader);
+    expect(Route.options.loader).toBe(recResourceActivitiesFeaturesLoader);
     expect(Route.options.beforeLoad).toBeDefined();
     expect(typeof Route.options.beforeLoad).toBe('function');
   });
@@ -86,7 +86,7 @@ describe('RecResourceActivitiesEditRoute', () => {
     const guard = screen.getByTestId('feature-flag-route-guard');
     expect(guard).toHaveAttribute('data-flags', 'enable_full_features');
     expect(guard).toContainElement(
-      screen.getByTestId('rec-resource-activities-edit-section'),
+      screen.getByTestId('rec-resource-activities-features-edit-page'),
     );
   });
 
@@ -119,7 +119,7 @@ describe('RecResourceActivitiesEditRoute', () => {
     }
   });
 
-  it('should generate complete breadcrumb with parent items and append Activities/Edit Activities', () => {
+  it('should generate complete breadcrumb with parent items and append Activities & features/Edit', () => {
     const breadcrumb = callBeforeLoad().breadcrumb({
       recResource: { name: 'Test Resource' },
     });
@@ -127,14 +127,17 @@ describe('RecResourceActivitiesEditRoute', () => {
     expect(breadcrumb).toEqual([
       { label: 'Home', href: '/' },
       { label: 'Test Resource', href: '/rec-resource/test-123' },
-      { label: 'Activities', href: '/rec-resource/test-123/activities' },
       {
-        label: 'Edit Activities',
-        href: '/rec-resource/test-123/activities/edit',
+        label: 'Activities & features',
+        href: '/rec-resource/test-123/activities-features',
+      },
+      {
+        label: 'Edit',
+        href: '/rec-resource/test-123/activities-features/edit',
       },
     ]);
     expect(breadcrumb.slice(-2).map((b: { label: string }) => b.label)).toEqual(
-      ['Activities', 'Edit Activities'],
+      ['Activities & features', 'Edit'],
     );
   });
 
@@ -168,7 +171,11 @@ describe('RecResourceActivitiesEditRoute', () => {
 
     expect(breadcrumb1[1]!.label).toBe('Resource 1');
     expect(breadcrumb2[1]!.label).toBe('Resource 2');
-    expect(breadcrumb1[2]!.href).toBe('/rec-resource/REC0001/activities');
-    expect(breadcrumb2[3]!.href).toBe('/rec-resource/REC0001/activities/edit');
+    expect(breadcrumb1[2]!.href).toBe(
+      '/rec-resource/REC0001/activities-features',
+    );
+    expect(breadcrumb2[3]!.href).toBe(
+      '/rec-resource/REC0001/activities-features/edit',
+    );
   });
 });

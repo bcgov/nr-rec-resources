@@ -27,7 +27,7 @@ export const ActivityList = ({ recreationActivities }: ActivityListProps) => {
                   height={24}
                 />
               )}
-              <div className="text-primary fw-bold">{activity.description}</div>
+              <div className="fw-bold">{activity.description}</div>
             </div>
           </Col>
         );

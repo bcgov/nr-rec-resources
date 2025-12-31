@@ -10,6 +10,7 @@ import { EstablishmentOrderDocsModule } from '@/establishment-order-docs/establi
 import { OptionsModule } from './options/options.module';
 import { UserContextModule } from '../common/modules/user-context/user-context.module';
 import { ActivitiesModule } from './activities/activities.module';
+import { FeaturesModule } from './features/features.module';
 import { FeesModule } from './fees/fees.module';
 import { GeospatialModule } from './geospatial/geospatial.module';
 
@@ -24,6 +25,7 @@ import { GeospatialModule } from './geospatial/geospatial.module';
     OptionsModule,
     UserContextModule,
     ActivitiesModule,
+    FeaturesModule,
   ],
   controllers: [RecreationResourceController],
   providers: [
