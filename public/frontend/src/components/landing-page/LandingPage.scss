@@ -15,6 +15,9 @@
   @media (max-width: 380px) {
     padding-top: 2em;
   }
+  @include media-breakpoint-down(md) {
+    margin-top: 1em !important;
+  }
   .content-section {
     @extend .page;
   }

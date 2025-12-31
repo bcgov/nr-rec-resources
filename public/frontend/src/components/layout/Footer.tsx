@@ -140,7 +140,7 @@ const Footer = () => {
             </div>
           </div>
         </div>
-        <div className="text-left pt-4 mt-4 border-top border-white">
+        <div className="text-center pt-4 mt-4 border-top border-white">
           {footerLinks.map((item, index) => (
             <FooterLink key={index} title={item.title} url={item.url} />
           ))}

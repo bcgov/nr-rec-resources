@@ -61,8 +61,11 @@ export const OutdoorRecreation = () => {
             />
           );
         })}
-        <Container className="d-flex map-image-container">
-          <a href={`${ROUTE_PATHS.HOME}${'search?view=map'}`}>
+        <Container className="d-flex justify-content-center align-items-center map-image-container">
+          <a
+            href={`${ROUTE_PATHS.HOME}${'search?view=map'}`}
+            className="d-flex align-items-center"
+          >
             <img
               src="/images/landing-page/activities/map_landing.png"
               alt="map image"
