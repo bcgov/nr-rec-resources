@@ -10,6 +10,7 @@ interface ContentSectionProps extends HTMLAttributes<HTMLElement> {
   imageAlt?: string;
   imageFirst?: boolean;
   headingComponent: ReactElement;
+  className?: string;
 }
 
 export const ContentSection: FC<ContentSectionProps> = ({
@@ -18,6 +19,7 @@ export const ContentSection: FC<ContentSectionProps> = ({
   imageAlt,
   imageFirst = false,
   headingComponent,
+  className,
 }) => {
   const imageOrderClass = imageFirst ? 'order-lg-1' : 'order-lg-2';
   const contentOrderClass = imageFirst ? 'order-lg-2' : 'order-lg-1';
@@ -31,7 +33,7 @@ export const ContentSection: FC<ContentSectionProps> = ({
 
   return (
     <section
-      className={`content-section ${imageFirst ? 'image-first' : 'image-last'}`}
+      className={`content-section ${className} ${imageFirst ? 'image-first' : 'image-last'}`}
       data-testid="content-section"
     >
       <Row className="flex-column flex-lg-row align-items-center">

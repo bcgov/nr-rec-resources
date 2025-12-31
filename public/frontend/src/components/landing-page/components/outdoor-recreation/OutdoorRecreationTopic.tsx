@@ -20,24 +20,33 @@ export const OutdoorRecreationTopic: FC<Topic> = ({
       className={`d-flex topic-container`}
       data-testid="content-column"
     >
-      <Container className="d-flex justify-content-left title-container d-none d-md-block">
+      <Container className="d-flex justify-content-start title-container d-none d-md-block">
         <img src={icon} alt="Topic icon" height={50} width={50} />{' '}
         <span className="indicators">{title}</span>
       </Container>
       <span className="description d-none d-md-block">{description}</span>
       <a href={`${ROUTE_PATHS.HOME}${'search?type='}${type}`}>
-        <Container className="d-flex align-items-center justify-content-left link">
-          <img
-            className="d-block d-md-none mobile-icon"
-            src={mobileIcon}
-            alt="Topic icon"
-            height={30}
-            width={30}
-          />{' '}
-          {linkText}&nbsp;
-          <span className="btn-icon">
-            <FontAwesomeIcon icon={faAngleRight} />
-          </span>
+        <Container className="d-flex align-items-center link">
+          <Col className="d-flex align-items-center flex-nowrap text-nowrap">
+            <img
+              className="d-block d-md-none mobile-icon"
+              src={mobileIcon}
+              alt="Topic icon"
+              height={30}
+              width={30}
+            />{' '}
+            {linkText}&nbsp;
+            <div className="d-none d-md-block">
+              <span className="btn-icon">
+                <FontAwesomeIcon icon={faAngleRight} />
+              </span>
+            </div>
+          </Col>
+          <Col sm={3} className="d-block d-md-none">
+            <span className="btn-icon">
+              <FontAwesomeIcon icon={faAngleRight} />
+            </span>
+          </Col>
         </Container>
       </a>
     </Col>

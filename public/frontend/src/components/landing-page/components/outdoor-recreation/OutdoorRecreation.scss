@@ -10,8 +10,12 @@
 .topic-container {
   display: flex;
   flex-direction: column;
-  width: 350px;
+  width: 360px;
   margin-right: 16px;
+
+  @include media-breakpoint-down(md) {
+    width: 100%;
+  }
 
   a:link,
   a:visited,
@@ -79,12 +83,7 @@
 }
 
 .map-image-container {
-  margin-left: 30px;
   margin-top: 40px;
-  @include media-breakpoint-down(md) {
-    margin-left: 0px;
-  }
-
   .desktop-image {
     @include media-breakpoint-up(md) {
       border: solid 6px $colorWhite;
