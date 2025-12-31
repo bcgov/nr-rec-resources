@@ -14,7 +14,6 @@
   }
   @media (max-width: 380px) {
     padding-top: 2em;
-    background-color: yellow;
   }
   @include media-breakpoint-down(md) {
     margin-top: 1em !important;
