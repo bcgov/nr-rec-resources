@@ -47,9 +47,21 @@ jobs:
       command: ${{ inputs.command }}
       working_directory: database
     secrets: inherit
+  deploy-storage:
+    name: Deploys Storage (S3 + CloudFront)
+    uses: ./.github/workflows/.aws-deployer.yml
+    concurrency:
+      group: deploy-storage-${{ inputs.environment_name }}
+      cancel-in-progress: false
+    with:
+      app_env: ${{ inputs.app_env }}
+      environment_name: ${{ inputs.environment_name }}
+      command: ${{ inputs.command }}
+      working_directory: storage
+    secrets: inherit
   deploy-api:
     name: Deploys API
-    needs: [deploy-db]
+    needs: [deploy-db, deploy-storage]
     uses: ./.github/workflows/.aws-deployer.yml
     concurrency:
       group: deploy-api-${{ inputs.app }}-${{ inputs.environment_name }}
@@ -64,6 +76,7 @@ jobs:
     secrets: inherit
   deploy-cloudfront:
     name: Deploys Cloudfront
+    needs: deploy-storage
     uses: ./.github/workflows/.aws-deployer.yml
     concurrency:
       group: deploy-cloudfront-${{ inputs.app }}-${{ inputs.environment_name }}
