@@ -19,6 +19,23 @@ locals {
   db_master_creds = jsondecode(data.aws_secretsmanager_secret_version.db_master_creds_version.secret_string)
 }
 
+# Storage module remote state for S3 buckets and CloudFront
+data "terraform_remote_state" "storage" {
+  backend = "s3"
+  config = {
+    bucket         = var.storage_remote_state.bucket
+    key            = var.storage_remote_state.key
+    dynamodb_table = var.storage_remote_state.dynamodb_table
+    region         = var.storage_remote_state.region
+  }
+}
+
+locals {
+  storage_images_bucket    = data.terraform_remote_state.storage.outputs.images_bucket.name
+  storage_documents_bucket = data.terraform_remote_state.storage.outputs.documents_bucket.name
+  storage_cloudfront_url   = data.terraform_remote_state.storage.outputs.cloudfront_url
+}
+
 
 resource "aws_ecs_cluster" "ecs_cluster" {
   name = "ecs-cluster-${var.app_name}"
@@ -200,6 +217,18 @@ resource "aws_ecs_task_definition" "node_api_task" {
         {
           name  = "AWS_REGION"
           value = var.aws_region
+        },
+        {
+          name  = "RST_STORAGE_IMAGES_BUCKET"
+          value = local.storage_images_bucket
+        },
+        {
+          name  = "RST_STORAGE_DOCUMENTS_BUCKET"
+          value = local.storage_documents_bucket
+        },
+        {
+          name  = "RST_STORAGE_CLOUDFRONT_URL"
+          value = local.storage_cloudfront_url
         }
       ]
       portMappings = [
