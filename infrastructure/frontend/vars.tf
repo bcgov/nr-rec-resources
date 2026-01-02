@@ -55,3 +55,19 @@ variable "csp_urls" {
   })
   default = {}
 }
+
+variable "storage_remote_state" {
+  description = "Remote state configuration for the storage module"
+  type = object({
+    bucket         = string
+    key            = string
+    dynamodb_table = string
+    region         = string
+  })
+  default = {
+    bucket         = "example-storage-bucket"
+    key            = "example/storage/terraform.tfstate"
+    dynamodb_table = "example-storage-lock-table"
+    region         = "ca-central-1"
+  }
+}

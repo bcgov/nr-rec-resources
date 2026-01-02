@@ -22,6 +22,12 @@ locals {
     dynamodb_table = local.statelock_table_name
     region         = local.region
   }
+  storage_remote_state = {
+    bucket         = local.statefile_bucket_name
+    key            = "${local.app_env}/storage/terraform.tfstate"
+    dynamodb_table = local.statelock_table_name
+    region         = local.region
+  }
 }
 
 # Remote S3 state for Terraform.
@@ -55,6 +61,13 @@ generate "tfvars" {
     key            = "${local.api_remote_state.key}"
     dynamodb_table = "${local.api_remote_state.dynamodb_table}"
     region         = "${local.api_remote_state.region}"
+  }
+
+  storage_remote_state = {
+    bucket         = "${local.storage_remote_state.bucket}"
+    key            = "${local.storage_remote_state.key}"
+    dynamodb_table = "${local.storage_remote_state.dynamodb_table}"
+    region         = "${local.storage_remote_state.region}"
   }
 EOF
 }

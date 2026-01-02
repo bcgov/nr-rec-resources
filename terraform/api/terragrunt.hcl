@@ -22,6 +22,12 @@ locals {
     dynamodb_table = "${local.tf_remote_state_prefix}-lock-${local.aws_license_plate}"
     region         = "ca-central-1"
   }
+  storage_remote_state = {
+    bucket         = "${local.tf_remote_state_prefix}-${local.aws_license_plate}-${local.target_env}"
+    key            = "${local.app_env}/storage/terraform.tfstate"
+    dynamodb_table = "${local.tf_remote_state_prefix}-lock-${local.aws_license_plate}"
+    region         = "ca-central-1"
+  }
   flyway_image                 = get_env("flyway_image")
   api_image                    = get_env("api_image")
   forest_client_api_key        = get_env("forest_client_api_key")
@@ -84,6 +90,13 @@ generate "tfvars" {
     key            = "${local.frontend_remote_state.key}"
     dynamodb_table = "${local.frontend_remote_state.dynamodb_table}"
     region         = "${local.frontend_remote_state.region}"
+  }
+
+  storage_remote_state = {
+    bucket         = "${local.storage_remote_state.bucket}"
+    key            = "${local.storage_remote_state.key}"
+    dynamodb_table = "${local.storage_remote_state.dynamodb_table}"
+    region         = "${local.storage_remote_state.region}"
   }
 EOF
 }
