@@ -1,6 +1,24 @@
 locals {
   container_name = var.app_name
   rds_app_env    = (contains(["dev", "test", "prod"], var.app_env) ? var.app_env : "dev") # if app_env is not dev, test, or prod, default to dev
+
+  db_master_creds = jsondecode(data.aws_secretsmanager_secret_version.db_master_creds_version.secret_string)
+
+  storage_images_bucket = (
+    can(data.terraform_remote_state.storage[0].outputs.images_bucket.name)
+    ? data.terraform_remote_state.storage[0].outputs.images_bucket.name
+    : "placeholder-images-bucket"
+  )
+  storage_documents_bucket = (
+    can(data.terraform_remote_state.storage[0].outputs.documents_bucket.name)
+    ? data.terraform_remote_state.storage[0].outputs.documents_bucket.name
+    : "placeholder-documents-bucket"
+  )
+  storage_cloudfront_url = (
+    can(data.terraform_remote_state.storage[0].outputs.cloudfront_url)
+    ? data.terraform_remote_state.storage[0].outputs.cloudfront_url
+    : "https://placeholder.cloudfront.net"
+  )
 }
 
 data "aws_secretsmanager_secret" "db_master_creds" {
@@ -15,12 +33,8 @@ data "aws_secretsmanager_secret_version" "db_master_creds_version" {
   secret_id = data.aws_secretsmanager_secret.db_master_creds.id
 }
 
-locals {
-  db_master_creds = jsondecode(data.aws_secretsmanager_secret_version.db_master_creds_version.secret_string)
-}
-
-# Storage module remote state for S3 buckets and CloudFront
 data "terraform_remote_state" "storage" {
+  count   = can(regex("ephemeral", var.app_env)) ? 0 : 1
   backend = "s3"
   config = {
     bucket         = var.storage_remote_state.bucket
@@ -29,13 +43,6 @@ data "terraform_remote_state" "storage" {
     region         = var.storage_remote_state.region
   }
 }
-
-locals {
-  storage_images_bucket    = data.terraform_remote_state.storage.outputs.images_bucket.name
-  storage_documents_bucket = data.terraform_remote_state.storage.outputs.documents_bucket.name
-  storage_cloudfront_url   = data.terraform_remote_state.storage.outputs.cloudfront_url
-}
-
 
 resource "aws_ecs_cluster" "ecs_cluster" {
   name = "ecs-cluster-${var.app_name}"
