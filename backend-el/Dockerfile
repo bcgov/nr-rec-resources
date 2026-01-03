@@ -6,7 +6,7 @@ RUN mvn dependency:go-offline
 COPY src ./src
 RUN mvn package -DskipTests
 # Stage 2: Run the application
-FROM eclipse-temurin:21
+FROM eclipse-temurin:25
 WORKDIR /app
 ARG DEPENDENCY=/app/target/
 COPY --from=build ${DEPENDENCY}/*.jar /app/app.jar
