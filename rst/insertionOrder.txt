@@ -1,6 +1,7 @@
 recreation_access_code
 recreation_district_code
 recreation_activity_code
+recreation_feature_code
 recreation_fee_code
 recreation_maintenance_standard_code
 recreation_remed_repair_code
@@ -27,6 +28,7 @@ recreation_defined_campsite_history
 recreation_district_code_history
 recreation_driving_direction
 recreation_establishment_order_docs_history
+recreation_feature_code_history
 recreation_fee_code_history
 recreation_maintenance_standard_code_history
 recreation_map_feature_geom_history
@@ -45,6 +47,8 @@ recreation_structure_code_history
 recreation_activity
 recreation_activity_history
 recreation_defined_campsite
+recreation_feature
+recreation_feature_history
 recreation_fee
 recreation_fee_history
 recreation_map_feature_geom
