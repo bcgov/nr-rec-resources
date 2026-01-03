@@ -25,7 +25,9 @@ describe('S3Service', () => {
       send: vi.fn(),
     } as any;
 
-    vi.mocked(S3Client).mockImplementation(() => mockS3Client);
+    vi.mocked(S3Client).mockImplementation(function () {
+      return mockS3Client;
+    });
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [

@@ -6,11 +6,24 @@ describe('useMediaQuery', () => {
   let matchMediaMock: any;
 
   beforeEach(() => {
-    matchMediaMock = vi.spyOn(window, 'matchMedia');
+    Object.defineProperty(window, 'matchMedia', {
+      writable: true,
+      value: vi.fn().mockImplementation((query) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: vi.fn(), // deprecated
+        removeListener: vi.fn(), // deprecated
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      })),
+    });
+    matchMediaMock = window.matchMedia;
   });
 
   afterEach(() => {
-    vi.restoreAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should return true if the media query matches', () => {

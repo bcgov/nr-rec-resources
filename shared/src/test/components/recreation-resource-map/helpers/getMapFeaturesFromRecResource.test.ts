@@ -3,10 +3,12 @@ import { GeoJSON } from 'ol/format';
 import { getMapFeaturesFromRecResource } from '@shared/components/recreation-resource-map/helpers';
 
 vi.mock('ol/format', () => ({
-  GeoJSON: vi.fn().mockImplementation(() => ({
-    readFeatures: vi.fn().mockReturnValue(['mockFeature']),
-    readFeature: vi.fn().mockReturnValue('mockFeature'),
-  })),
+  GeoJSON: vi.fn().mockImplementation(function () {
+    return {
+      readFeatures: vi.fn().mockReturnValue(['mockFeature']),
+      readFeature: vi.fn().mockReturnValue('mockFeature'),
+    };
+  }),
 }));
 
 describe('getMapFeaturesFromRecResource', () => {

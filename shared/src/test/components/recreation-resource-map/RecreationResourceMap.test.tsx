@@ -19,19 +19,23 @@ vi.mock('@bcgov/prp-map', () => ({
 }));
 
 vi.mock('ol/layer/Vector', () => ({
-  default: vi.fn().mockImplementation((config) => ({
-    getSource: () => config.source,
-    getVisible: () => config.visible,
-    setVisible: vi.fn(),
-  })),
+  default: vi.fn().mockImplementation(function (config) {
+    return {
+      getSource: () => config.source,
+      getVisible: () => config.visible,
+      setVisible: vi.fn(),
+    };
+  }),
 }));
 
 vi.mock('ol/source/Vector', () => ({
-  default: vi.fn().mockImplementation(({ features }) => ({
-    getFeatures: () => features || [],
-    addFeatures: vi.fn(),
-    clear: vi.fn(),
-  })),
+  default: vi.fn().mockImplementation(function ({ features }) {
+    return {
+      getFeatures: () => features || [],
+      addFeatures: vi.fn(),
+      clear: vi.fn(),
+    };
+  }),
 }));
 
 vi.mock('@shared/components/recreation-resource-map/helpers', () => ({

@@ -120,7 +120,9 @@ describe('useFeatureSelection', () => {
       })),
     };
 
-    MockSelect.mockImplementation(() => mockSelect);
+    MockSelect.mockImplementation(function () {
+      return mockSelect;
+    });
 
     mockMapRef = {
       current: { getMap: () => mockMap as OLMap },
