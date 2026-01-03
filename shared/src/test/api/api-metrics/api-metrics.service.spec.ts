@@ -22,7 +22,9 @@ describe('ApiMetricsService', () => {
       send: vi.fn(),
     } as any;
 
-    vi.mocked(CloudWatchClient).mockImplementation(() => mockCloudWatchClient);
+    vi.mocked(CloudWatchClient).mockImplementation(function () {
+      return mockCloudWatchClient;
+    });
 
     service = new ApiMetricsService(configService);
   });

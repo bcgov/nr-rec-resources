@@ -95,7 +95,9 @@ describe('getAlphabeticalResources', () => {
         .fn()
         .mockResolvedValue([{ rec_resource_id: 'REC1', name: 'Alpine Trail' }]),
     };
-    vi.mocked(RecreationResourceApi).mockImplementation(() => mockApi as any);
+    vi.mocked(RecreationResourceApi).mockImplementation(function () {
+      return mockApi as any;
+    });
 
     const result = await getAlphabeticalResources('A', 'trail');
 

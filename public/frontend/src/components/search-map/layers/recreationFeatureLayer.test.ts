@@ -14,25 +14,33 @@ vi.mock('ol-ext/layer/AnimatedCluster', () => ({
 }));
 
 vi.mock('ol/source', () => ({
-  Vector: vi.fn().mockImplementation((options) => ({
-    addFeatures: vi.fn(),
-    clear: vi.fn(),
-    setLoader: vi.fn(),
-    loader: options?.loader,
-    ...options,
-  })),
+  Vector: vi.fn().mockImplementation(function (options) {
+    return {
+      addFeatures: vi.fn(),
+      clear: vi.fn(),
+      setLoader: vi.fn(),
+      loader: options?.loader,
+      ...options,
+      set: vi.fn(),
+    };
+  }),
 }));
 
 vi.mock('ol/source/Cluster', () => ({
-  default: vi.fn().mockImplementation((options) => ({
-    ...options,
-  })),
+  default: vi.fn().mockImplementation(function (options) {
+    return {
+      ...options,
+      set: vi.fn(),
+    };
+  }),
 }));
 
 vi.mock('ol/format', () => ({
-  EsriJSON: vi.fn().mockImplementation(() => ({
-    readFeatures: vi.fn(),
-  })),
+  EsriJSON: vi.fn().mockImplementation(function () {
+    return {
+      readFeatures: vi.fn(),
+    };
+  }),
 }));
 
 vi.mock('@shared/utils/capitalizeWords', () => ({
@@ -340,7 +348,7 @@ describe('recreationFeatureLayer', () => {
       const mockSetLoader = vi.fn();
       let capturedLoader: (() => Promise<void>) | undefined;
 
-      (VectorSource as any).mockImplementation((options: any) => {
+      (VectorSource as any).mockImplementation(function (options: any) {
         return {
           addFeatures: mockAddFeatures,
           setLoader: mockSetLoader.mockImplementation((loader) => {
@@ -383,7 +391,9 @@ describe('recreationFeatureLayer', () => {
       const mockFormat = {
         readFeatures: vi.fn().mockReturnValue(mockFeatures),
       };
-      (EsriJSON as any).mockImplementation(() => mockFormat);
+      (EsriJSON as any).mockImplementation(function () {
+        return mockFormat;
+      });
 
       const result = createFilteredClusterSource(filteredIds, clusterOptions);
 
@@ -408,11 +418,13 @@ describe('recreationFeatureLayer', () => {
       const filteredIds = ['123'];
       const mockSetLoader = vi.fn();
 
-      (VectorSource as any).mockImplementation(() => ({
-        addFeatures: vi.fn(),
-        setLoader: mockSetLoader,
-        clear: vi.fn(),
-      }));
+      (VectorSource as any).mockImplementation(function () {
+        return {
+          addFeatures: vi.fn(),
+          setLoader: mockSetLoader,
+          clear: vi.fn(),
+        };
+      });
 
       const result = createFilteredClusterSource(filteredIds);
 
@@ -433,13 +445,15 @@ describe('recreationFeatureLayer', () => {
       const mockAddFeatures = vi.fn();
       const mockSetLoader = vi.fn();
 
-      (VectorSource as any).mockImplementation(() => ({
-        addFeatures: mockAddFeatures,
-        setLoader: mockSetLoader.mockImplementation((loader) => {
-          capturedLoader = loader;
-        }),
-        clear: vi.fn(),
-      }));
+      (VectorSource as any).mockImplementation(function () {
+        return {
+          addFeatures: mockAddFeatures,
+          setLoader: mockSetLoader.mockImplementation((loader) => {
+            capturedLoader = loader;
+          }),
+          clear: vi.fn(),
+        };
+      });
 
       // Mock fetch to throw an error
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
@@ -504,7 +518,9 @@ describe('recreationFeatureLayer', () => {
       const mockFormat = {
         readFeatures: vi.fn().mockReturnValue(mockFeatures),
       };
-      (EsriJSON as any).mockImplementation(() => mockFormat);
+      (EsriJSON as any).mockImplementation(function () {
+        return mockFormat;
+      });
 
       const result = await getFilteredFeatures(filteredIds);
 
@@ -579,7 +595,9 @@ describe('recreationFeatureLayer', () => {
           .mockReturnValueOnce(mockFeatures1)
           .mockReturnValueOnce(mockFeatures2),
       };
-      (EsriJSON as any).mockImplementation(() => mockFormat);
+      (EsriJSON as any).mockImplementation(function () {
+        return mockFormat;
+      });
 
       const result = await getFilteredFeatures(filteredIds);
 
@@ -621,7 +639,9 @@ describe('recreationFeatureLayer', () => {
       const mockFormat = {
         readFeatures: vi.fn().mockReturnValue([]),
       };
-      (EsriJSON as any).mockImplementation(() => mockFormat);
+      (EsriJSON as any).mockImplementation(function () {
+        return mockFormat;
+      });
 
       const result = await getFilteredFeatures(filteredIds);
 
@@ -639,7 +659,9 @@ describe('recreationFeatureLayer', () => {
       const mockFormat = {
         readFeatures: vi.fn().mockReturnValue([]),
       };
-      (EsriJSON as any).mockImplementation(() => mockFormat);
+      (EsriJSON as any).mockImplementation(function () {
+        return mockFormat;
+      });
 
       await getFilteredFeatures(filteredIds);
 
