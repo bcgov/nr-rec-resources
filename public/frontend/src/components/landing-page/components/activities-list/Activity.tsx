@@ -40,7 +40,7 @@ export const Activity: FC<LandingPageActivity> = ({
         <Row className="d-flex align-items-center">
           <Col xs={3} className="p-0">
             <a
-              href={`${ROUTE_PATHS.HOME}${'search?activities='}${activityFilter}`}
+              href={`${ROUTE_PATHS.HOME}${'search?activities='}${activityFilter}&view=map`}
               data-testid="mobile-link"
             >
               <img
