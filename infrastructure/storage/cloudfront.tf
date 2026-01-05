@@ -13,23 +13,6 @@ resource "aws_cloudfront_origin_access_control" "storage" {
 }
 
 # =============================================================================
-# CloudFront Function to strip path prefixes
-# =============================================================================
-
-resource "aws_cloudfront_function" "strip_path_prefix" {
-  name    = "rst-strip-path-prefix-${var.target_env}"
-  runtime = "cloudfront-js-2.0"
-  publish = true
-  code    = <<-EOF
-    function handler(event) {
-      var request = event.request;
-      request.uri = request.uri.replace(/^\/(images|documents)/, '');
-      return request;
-    }
-  EOF
-}
-
-# =============================================================================
 # S3 Bucket Policies to allow CloudFront OAC access
 # =============================================================================
 
@@ -141,11 +124,6 @@ resource "aws_cloudfront_distribution" "storage" {
       }
     }
 
-    function_association {
-      event_type   = "viewer-request"
-      function_arn = aws_cloudfront_function.strip_path_prefix.arn
-    }
-
     min_ttl     = 0
     default_ttl = 86400    # 1 day
     max_ttl     = 31536000 # 1 year
@@ -165,11 +143,6 @@ resource "aws_cloudfront_distribution" "storage" {
       cookies {
         forward = "none"
       }
-    }
-
-    function_association {
-      event_type   = "viewer-request"
-      function_arn = aws_cloudfront_function.strip_path_prefix.arn
     }
 
     min_ttl     = 0
