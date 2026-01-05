@@ -6,8 +6,8 @@ output "images_bucket" {
   }
 }
 
-output "documents_bucket" {
-  description = "Documents S3 bucket details"
+output "public_documents_bucket" {
+  description = "Public documents S3 bucket details"
   value = {
     name = aws_s3_bucket.documents.id
     arn  = aws_s3_bucket.documents.arn

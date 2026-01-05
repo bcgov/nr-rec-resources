@@ -9,9 +9,9 @@ locals {
     ? data.terraform_remote_state.storage[0].outputs.images_bucket.name
     : "placeholder-images-bucket"
   )
-  storage_documents_bucket = (
-    can(data.terraform_remote_state.storage[0].outputs.documents_bucket.name)
-    ? data.terraform_remote_state.storage[0].outputs.documents_bucket.name
+  storage_public_documents_bucket = (
+    can(data.terraform_remote_state.storage[0].outputs.public_documents_bucket.name)
+    ? data.terraform_remote_state.storage[0].outputs.public_documents_bucket.name
     : "placeholder-documents-bucket"
   )
   storage_cloudfront_url = (
@@ -230,8 +230,8 @@ resource "aws_ecs_task_definition" "node_api_task" {
           value = local.storage_images_bucket
         },
         {
-          name  = "RST_STORAGE_DOCUMENTS_BUCKET"
-          value = local.storage_documents_bucket
+          name  = "RST_STORAGE_PUBLIC_DOCUMENTS_BUCKET"
+          value = local.storage_public_documents_bucket
         },
         {
           name  = "RST_STORAGE_CLOUDFRONT_URL"

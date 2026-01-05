@@ -1,6 +1,6 @@
 locals {
   images_bucket_name    = "rst-storage-images-${var.target_env}"
-  documents_bucket_name = "rst-storage-documents-${var.target_env}"
+  public_documents_bucket_name = "rst-storage-public-documents-${var.target_env}"
 }
 
 # =============================================================================
@@ -62,7 +62,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "images" {
 # =============================================================================
 
 resource "aws_s3_bucket" "documents" {
-  bucket = local.documents_bucket_name
+  bucket = local.public_documents_bucket_name
 
   tags = var.common_tags
 }
