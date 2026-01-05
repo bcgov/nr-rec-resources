@@ -108,7 +108,7 @@ const Footer = () => {
         className="land-acknowledgement-box text-white shadow d-flex align-items-center"
         aria-label="Land Acknowledgement"
       >
-        <p className="mb-0 small">
+        <p className="mb-0">
           We acknowledge all First Nations on whose territories Recreation Sites
           and Trails were established. We honour their connection to the land
           and respect the importance of their diverse teachings, traditions, and
