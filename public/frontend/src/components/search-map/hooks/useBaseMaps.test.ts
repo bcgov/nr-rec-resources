@@ -64,18 +64,24 @@ describe('useBaseMaps', () => {
     const { useStyledLayer } = await import('@bcgov/prp-map');
     vi.mocked(useStyledLayer).mockImplementation(mockUseStyledLayer);
 
-    const mockTileLayer = vi.fn().mockImplementation((config) => ({
-      ...config,
-      id: 'tile-layer',
-    }));
-    const mockXYZ = vi.fn().mockImplementation((config) => ({
-      ...config,
-      id: 'xyz-source',
-    }));
-    const mockLayerGroup = vi.fn().mockImplementation((config) => ({
-      ...config,
-      id: 'layer-group',
-    }));
+    const mockTileLayer = vi.fn().mockImplementation(function (config) {
+      return {
+        ...config,
+        id: 'tile-layer',
+      };
+    });
+    const mockXYZ = vi.fn().mockImplementation(function (config) {
+      return {
+        ...config,
+        id: 'xyz-source',
+      };
+    });
+    const mockLayerGroup = vi.fn().mockImplementation(function (config) {
+      return {
+        ...config,
+        id: 'layer-group',
+      };
+    });
 
     vi.mocked(TileLayer).mockImplementation(mockTileLayer);
     vi.mocked(XYZ).mockImplementation(mockXYZ);

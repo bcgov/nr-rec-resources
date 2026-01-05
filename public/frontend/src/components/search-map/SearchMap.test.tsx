@@ -114,13 +114,11 @@ vi.mock('@tanstack/react-store', () => ({
     extent: null,
     recResourceIds: [],
   })),
-  Store: vi.fn().mockImplementation(() => ({
-    getState: () => ({
-      extent: null,
-      recResourceIds: [],
-    }),
-    subscribe: vi.fn(),
-  })),
+  Store: vi.fn().mockImplementation(function () {
+    return {
+      load: vi.fn(),
+    };
+  }),
 }));
 
 vi.mock('@/components/layout/Header', () => ({

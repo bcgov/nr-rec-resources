@@ -10,11 +10,13 @@ vi.mock('ol/proj', () => ({
 
 vi.mock('ol/format/GeoJSON', () => {
   return {
-    default: vi.fn().mockImplementation(() => ({
-      readGeometry: vi.fn().mockReturnValue({
-        getExtent: vi.fn().mockReturnValue([1, 2, 3, 4]),
-      }),
-    })),
+    default: vi.fn().mockImplementation(function () {
+      return {
+        readGeometry: vi.fn().mockReturnValue({
+          getExtent: vi.fn().mockReturnValue([1, 2, 3, 4]),
+        }),
+      };
+    }),
   };
 });
 

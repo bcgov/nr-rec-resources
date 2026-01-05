@@ -36,7 +36,9 @@ describe('AuthService', () => {
       } as UserInfo,
     };
 
-    (Keycloak as any).mockImplementation(() => mockKeycloak);
+    (Keycloak as any).mockImplementation(function () {
+      return mockKeycloak;
+    });
     dispatchEventSpy = vi.spyOn(
       window,
       'dispatchEvent',

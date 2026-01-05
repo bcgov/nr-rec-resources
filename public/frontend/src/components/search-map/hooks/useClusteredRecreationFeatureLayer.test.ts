@@ -7,22 +7,27 @@ import { Style } from 'ol/style';
 
 // Mock AnimatedCluster
 vi.mock('ol-ext/layer/AnimatedCluster', () => ({
-  default: vi.fn().mockImplementation((options) => ({
-    setSource: vi.fn(),
-    setStyle: vi.fn(),
-    changed: vi.fn(),
-    getSource: vi.fn(),
-    ...options,
-  })),
+  default: vi.fn().mockImplementation(function (options) {
+    return {
+      setSource: vi.fn(),
+      setStyle: vi.fn(),
+      changed: vi.fn(),
+      getSource: vi.fn(),
+      set: vi.fn(),
+      ...options,
+    };
+  }),
 }));
 
 vi.mock('ol/interaction/Select');
 vi.mock('ol/source/Cluster', () => ({
-  default: vi.fn().mockImplementation((options) => ({
-    setDistance: vi.fn(),
-    getSource: vi.fn(),
-    ...options,
-  })),
+  default: vi.fn().mockImplementation(function (options) {
+    return {
+      setDistance: vi.fn(),
+      getSource: vi.fn(),
+      ...options,
+    };
+  }),
 }));
 vi.mock('ol/extent', () => ({
   extend: vi.fn(() => [0, 0, 100, 100]),
@@ -85,7 +90,9 @@ describe('useClusteredRecreationFeatureLayer', () => {
     const AnimatedCluster = vi.mocked(
       await import('ol-ext/layer/AnimatedCluster'),
     ).default;
-    AnimatedCluster.mockImplementation(() => mockLayer as any);
+    AnimatedCluster.mockImplementation(function () {
+      return mockLayer as any;
+    });
 
     vi.spyOn(
       recreationLayer,
@@ -94,7 +101,9 @@ describe('useClusteredRecreationFeatureLayer', () => {
     vi.spyOn(recreationLayer, 'createFilteredClusterSource').mockReturnValue(
       mockClusterSource as any,
     );
-    (Select as any).mockImplementation(() => mockSelectInstance);
+    (Select as any).mockImplementation(function () {
+      return mockSelectInstance;
+    });
   });
 
   it('returns layer and style', () => {

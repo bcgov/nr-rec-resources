@@ -32,7 +32,9 @@ describe('recResourceFeesLoader', () => {
       getRecreationResourceFees: vi.fn(),
       getRecreationResourceById: vi.fn(),
     };
-    (RecreationResourcesApi as any).mockImplementation(() => mockApi);
+    (RecreationResourcesApi as any).mockImplementation(function () {
+      return mockApi;
+    });
 
     mockQueryClient = {
       ensureQueryData: vi.fn(),
