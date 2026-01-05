@@ -77,6 +77,8 @@ describe('PrismaService', () => {
   describe('query logging', () => {
     let logSpy: any;
     let queryCallback: any;
+    let onMock: any;
+
     beforeEach(() => {
       // Mock the logger
       logSpy = vi.fn();
@@ -84,24 +86,23 @@ describe('PrismaService', () => {
       prismaService.logger = { log: logSpy };
 
       // Setup $on mock to capture the query callback
-      vi.spyOn(prismaService, '$on').mockImplementation(
-        (event: string, callback: any) => {
-          if (event === 'query') {
-            queryCallback = callback;
-          }
-          return prismaService;
-        },
-      );
+      // Re-assign the mock implementation to capture callbacks
+      onMock = vi.fn((event: string, callback: any) => {
+        if (event === 'query') {
+          queryCallback = callback;
+        }
+        return prismaService;
+      });
+      prismaService.$on = onMock as any;
 
       // Initialize and capture the callback
       prismaService.onModuleInit();
     });
 
     it('should initialize query logging on module init', async () => {
-      const onSpy = vi.spyOn(prismaService, '$on');
       await prismaService.onModuleInit();
 
-      expect(onSpy).toHaveBeenCalledWith('query', expect.any(Function));
+      expect(onMock).toHaveBeenCalledWith('query', expect.any(Function));
     });
 
     it('should log non-health check queries', () => {

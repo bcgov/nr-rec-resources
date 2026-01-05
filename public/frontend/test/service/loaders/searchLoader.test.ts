@@ -174,7 +174,9 @@ describe('getSearchResults', () => {
       }),
     };
 
-    vi.mocked(RecreationResourceApi).mockImplementation(() => mockApi as any);
+    vi.mocked(RecreationResourceApi).mockImplementation(function () {
+      return mockApi as any;
+    });
 
     const params = { filter: 'test', district: '123', limit: 10 };
     await getSearchResults(params);
@@ -202,7 +204,9 @@ describe('getSearchResults', () => {
       }),
     };
 
-    vi.mocked(RecreationResourceApi).mockImplementation(() => mockApi as any);
+    vi.mocked(RecreationResourceApi).mockImplementation(function () {
+      return mockApi as any;
+    });
 
     await getSearchResults({ filter: 'test' });
 
@@ -237,7 +241,9 @@ describe('getSearchResults', () => {
       }),
     };
 
-    vi.mocked(RecreationResourceApi).mockImplementation(() => mockApi as any);
+    vi.mocked(RecreationResourceApi).mockImplementation(function () {
+      return mockApi as any;
+    });
 
     const result = await getSearchResults({ filter: 'test' });
 

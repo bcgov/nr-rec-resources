@@ -35,7 +35,9 @@ describe('recResourceGeospatialLoader', () => {
     mockApi = {
       getRecreationResourceGeospatial: vi.fn(),
     };
-    (RecreationResourcesApi as any).mockImplementation(() => mockApi);
+    (RecreationResourcesApi as any).mockImplementation(function () {
+      return mockApi;
+    });
 
     mockQueryClient = {
       ensureQueryData: vi.fn(),

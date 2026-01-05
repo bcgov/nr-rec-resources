@@ -7,12 +7,16 @@ import { GPX, KML } from 'ol/format';
 
 vi.mock('ol/format', () => {
   return {
-    GPX: vi.fn().mockImplementation(() => ({
-      writeFeatures: vi.fn().mockReturnValue('mockedGPX'),
-    })),
-    KML: vi.fn().mockImplementation(() => ({
-      writeFeatures: vi.fn().mockReturnValue('mockedKML'),
-    })),
+    GPX: vi.fn().mockImplementation(function () {
+      return {
+        writeFeatures: vi.fn().mockReturnValue('mockedGPX'),
+      };
+    }),
+    KML: vi.fn().mockImplementation(function () {
+      return {
+        writeFeatures: vi.fn().mockReturnValue('mockedKML'),
+      };
+    }),
   };
 });
 vi.mock('ol/style', () => {
@@ -38,15 +42,12 @@ const mockClick = vi.fn();
 const mockAppendChild = vi.fn();
 const mockRemoveChild = vi.fn();
 
-// Polyfill URL methods for jsdom
-if (!URL.createObjectURL) {
-  URL.createObjectURL = vi.fn(() => 'blob-url') as any;
-}
-if (!URL.revokeObjectURL) {
-  URL.revokeObjectURL = vi.fn() as any;
-}
-const mockCreateObjectURL = vi.mocked(URL.createObjectURL);
-const mockRevokeObjectURL = vi.mocked(URL.revokeObjectURL);
+const mockCreateObjectURL = vi
+  .spyOn(URL, 'createObjectURL')
+  .mockReturnValue('blob-url');
+const mockRevokeObjectURL = vi
+  .spyOn(URL, 'revokeObjectURL')
+  .mockImplementation(() => {});
 
 const originalCreateElement = document.createElement.bind(document);
 vi.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
