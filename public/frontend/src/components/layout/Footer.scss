@@ -17,6 +17,8 @@
     z-index: $zIndexFooter;
     width: calc(100% - 2rem);
     height: $landAckBoxHeight;
+    max-width: 800px;
+    max-height: 160px;
 
     p {
       padding: clamp(1rem, 2vh, 2rem) clamp(1.25rem, 4vw, 4rem);

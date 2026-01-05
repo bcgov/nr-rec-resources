@@ -31,9 +31,15 @@ describe('Activity component', () => {
 
     // Links
     const linkDesktop = screen.getByTestId('desktop-link');
-    expect(linkDesktop).toHaveAttribute('href', '/search?activities=12');
+    expect(linkDesktop).toHaveAttribute(
+      'href',
+      '/search?activities=12&view=map',
+    );
     const linkMobile = screen.getByTestId('mobile-link');
-    expect(linkMobile).toHaveAttribute('href', '/search?activities=12');
+    expect(linkMobile).toHaveAttribute(
+      'href',
+      '/search?activities=12&view=map',
+    );
 
     // Images
     const desktopImage = screen.getByTestId('desktop-image');
