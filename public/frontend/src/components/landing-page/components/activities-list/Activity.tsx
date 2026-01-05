@@ -19,7 +19,7 @@ export const Activity: FC<LandingPageActivity> = ({
         data-testid="content-column"
       >
         <a
-          href={`${ROUTE_PATHS.HOME}${'search?activities='}${activityFilter}`}
+          href={`${ROUTE_PATHS.HOME}${'search?activities='}${activityFilter}&view=map`}
           data-testid="desktop-link"
         >
           <div className="w-100 h-100 desktop-text">
@@ -55,7 +55,7 @@ export const Activity: FC<LandingPageActivity> = ({
           </Col>
           <Col xs={9} className="align-items-center justify-content-left">
             <a
-              href={`${ROUTE_PATHS.HOME}${'search?activities='}${activityFilter}`}
+              href={`${ROUTE_PATHS.HOME}${'search?activities='}${activityFilter}&view=map`}
             >
               <div className="activity-title">{title}</div>
             </a>
