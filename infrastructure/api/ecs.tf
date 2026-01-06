@@ -1,6 +1,24 @@
 locals {
   container_name = var.app_name
   rds_app_env    = (contains(["dev", "test", "prod"], var.app_env) ? var.app_env : "dev") # if app_env is not dev, test, or prod, default to dev
+
+  db_master_creds = jsondecode(data.aws_secretsmanager_secret_version.db_master_creds_version.secret_string)
+
+  storage_images_bucket = (
+    can(data.terraform_remote_state.storage[0].outputs.images_bucket.name)
+    ? data.terraform_remote_state.storage[0].outputs.images_bucket.name
+    : "placeholder-images-bucket"
+  )
+  storage_public_documents_bucket = (
+    can(data.terraform_remote_state.storage[0].outputs.public_documents_bucket.name)
+    ? data.terraform_remote_state.storage[0].outputs.public_documents_bucket.name
+    : "placeholder-documents-bucket"
+  )
+  storage_cloudfront_url = (
+    can(data.terraform_remote_state.storage[0].outputs.cloudfront_url)
+    ? data.terraform_remote_state.storage[0].outputs.cloudfront_url
+    : "https://placeholder.cloudfront.net"
+  )
 }
 
 data "aws_secretsmanager_secret" "db_master_creds" {
@@ -15,10 +33,16 @@ data "aws_secretsmanager_secret_version" "db_master_creds_version" {
   secret_id = data.aws_secretsmanager_secret.db_master_creds.id
 }
 
-locals {
-  db_master_creds = jsondecode(data.aws_secretsmanager_secret_version.db_master_creds_version.secret_string)
+data "terraform_remote_state" "storage" {
+  count   = can(regex("ephemeral", var.app_env)) ? 0 : 1
+  backend = "s3"
+  config = {
+    bucket         = var.storage_remote_state.bucket
+    key            = var.storage_remote_state.key
+    dynamodb_table = var.storage_remote_state.dynamodb_table
+    region         = var.storage_remote_state.region
+  }
 }
-
 
 resource "aws_ecs_cluster" "ecs_cluster" {
   name = "ecs-cluster-${var.app_name}"
@@ -200,6 +224,18 @@ resource "aws_ecs_task_definition" "node_api_task" {
         {
           name  = "AWS_REGION"
           value = var.aws_region
+        },
+        {
+          name  = "RST_STORAGE_IMAGES_BUCKET"
+          value = local.storage_images_bucket
+        },
+        {
+          name  = "RST_STORAGE_PUBLIC_DOCUMENTS_BUCKET"
+          value = local.storage_public_documents_bucket
+        },
+        {
+          name  = "RST_STORAGE_CLOUDFRONT_URL"
+          value = local.storage_cloudfront_url
         }
       ]
       portMappings = [
