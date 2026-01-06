@@ -75,7 +75,7 @@
     "eslint-plugin-react": "^7.37.3",
     "eslint-plugin-react-hooks": "^7.0.0",
     "eslint-plugin-react-refresh": "^0.4.19",
-    "eslint-plugin-storybook": "10.1.6",
+    "eslint-plugin-storybook": "10.1.11",
     "globals": "^16.0.0",
     "happo-e2e": "^5.0.0",
     "happo-playwright": "^2.3.0",
