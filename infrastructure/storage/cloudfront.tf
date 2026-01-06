@@ -1,5 +1,11 @@
 data "aws_caller_identity" "current" {}
 
+locals {
+  # Managed Cache Policy: CachingOptimized
+  # https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html
+  cache_policy_caching_optimized = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+}
+
 # =============================================================================
 # Origin Access Control for CloudFront to access private S3 buckets
 # =============================================================================
@@ -74,14 +80,12 @@ resource "aws_cloudfront_distribution" "storage" {
   comment         = "Distribution for s3 public image and document storage-${var.target_env}"
   price_class     = "PriceClass_100"
 
-  # Images origin
   origin {
     domain_name              = aws_s3_bucket.images.bucket_regional_domain_name
     origin_id                = "images"
     origin_access_control_id = aws_cloudfront_origin_access_control.storage.id
   }
 
-  # Documents origin
   origin {
     domain_name              = aws_s3_bucket.documents.bucket_regional_domain_name
     origin_id                = "documents"
@@ -96,16 +100,7 @@ resource "aws_cloudfront_distribution" "storage" {
     compress               = true
     viewer_protocol_policy = "redirect-to-https"
 
-    forwarded_values {
-      query_string = false
-      cookies {
-        forward = "none"
-      }
-    }
-
-    min_ttl     = 0
-    default_ttl = 86400    # 1 day
-    max_ttl     = 31536000 # 1 year
+    cache_policy_id = local.cache_policy_caching_optimized
   }
 
   # Cache behavior for images path
@@ -117,16 +112,7 @@ resource "aws_cloudfront_distribution" "storage" {
     compress               = true
     viewer_protocol_policy = "redirect-to-https"
 
-    forwarded_values {
-      query_string = false
-      cookies {
-        forward = "none"
-      }
-    }
-
-    min_ttl     = 0
-    default_ttl = 86400    # 1 day
-    max_ttl     = 31536000 # 1 year
+    cache_policy_id = local.cache_policy_caching_optimized
   }
 
   # Cache behavior for documents path
@@ -138,16 +124,7 @@ resource "aws_cloudfront_distribution" "storage" {
     compress               = true
     viewer_protocol_policy = "redirect-to-https"
 
-    forwarded_values {
-      query_string = false
-      cookies {
-        forward = "none"
-      }
-    }
-
-    min_ttl     = 0
-    default_ttl = 3600   # 1 hour for documents
-    max_ttl     = 86400  # 1 day
+    cache_policy_id = local.cache_policy_caching_optimized
   }
 
   restrictions {
