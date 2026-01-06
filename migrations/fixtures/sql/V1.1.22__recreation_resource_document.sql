@@ -1,0 +1,22 @@
+
+INSERT INTO rst.recreation_resource_document (doc_id, rec_resource_id, doc_code, file_name, extension, file_size)
+VALUES
+  ('7f57518e-95b7-4366-b4fa-b6c257c8241f', 'REC1621', 'RM', 'REC1621', 'pdf', 1032028),
+  ('0bec9214-52b7-4ba0-9251-9e3120d3a242', 'REC166367', 'RM', 'Agnes Lake Trail', 'pdf', 5474188),
+  ('c80de945-a7c3-4138-b715-96c303f8274b', 'REC166903', 'RM', '99 Mile Trails 48x68 detail sign ver5', 'pdf', 789785),
+  ('e50f8217-c221-4709-bd3e-2463afe1a41d', 'REC166903', 'RM', '99 Mile Trails 48x68 sign ver5', 'pdf', 1136365),
+  ('d5cf9f6d-cf01-40fe-a146-e224fd09b126', 'REC166903', 'RM', '99 Mile XC Trail', 'pdf', 6534274),
+  ('08f0698d-6600-430c-a4e3-1b40b178ae98', 'REC166942', 'RM', '99 Mile Parking Oval', 'pdf', 6310978),
+  ('7bee0150-fe84-410a-ad14-9b86267cc442', 'REC192109', 'RM', 'Alamo Loops Trail', 'pdf', 3140067),
+  ('a7df44f5-1a21-4649-a7cd-edfb14f881e2', 'REC203239', 'RM', '10k Tulameen Snowmobile Parling', 'pdf', 2210883),
+  ('4b2a34c7-a4f7-4022-8a55-28d4ea0a480a', 'REC205035', 'RM', '99 Mile XC Keene Road Parking', 'pdf', 6297429),
+  ('dbd89a30-741f-443c-baba-4c15359ab22c', 'REC230522', 'RM', '99 Mile Trails 48x68 detail sign ver5', 'pdf', 789785),
+  ('b5887afb-9a61-4907-bb88-afa57b90ba0d', 'REC230522', 'RM', '99 Mile Trails 48x68 sign ver5', 'pdf', 1136365),
+  ('30db8260-3155-4a18-9b7e-dddb87c56247', 'REC230522', 'RM', '99_Mile_Snowshoe_Trail', 'pdf', 4631499),
+  ('f1bdc846-6bc8-4aca-b83c-986536f45e10', 'REC230522', 'RM', '99_mile_snowshoe_network_map', 'pdf', 787707),
+  ('9d187f54-f019-4e4e-87b9-9a090aeefe29', 'REC261475', 'RM', '99 MILE OFF ROAD MOTORCYCLE TRAILS', 'pdf', 7745164),
+  ('a968e921-9cab-486a-b35f-97452361a74c', 'REC265549', 'RM', 'Aberdeen Snowshoe Trails', 'pdf', 51635606),
+  ('3eb34835-78f9-46a1-b5ce-92d1e8680c42', 'REC265901', 'RM', 'Abordeen Columns Trail', 'pdf', 2605860),
+  ('430a245f-f19e-4ca5-8bea-e090ba8e14e7', 'REC32013', 'RM', '99 Mile Trails 48x68 detail sign', 'pdf', 801694),
+  ('2756d532-44e7-4852-9055-bffc1f6bc9a4', 'REC32013', 'RM', '99 Mile Trails 48x68 sign', 'pdf', 1105543),
+  ('c85eb3a3-fb44-40fa-946c-f26e26905a60', 'REC32013', 'RM', '99mile_Bike_Trail', 'pdf', 5534882);
