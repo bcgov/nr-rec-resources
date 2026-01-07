@@ -1,5 +1,5 @@
 # Build
-FROM node:22.19.0-slim AS build
+FROM node:24.11.1-slim AS build
 
 WORKDIR /app
 
@@ -27,7 +27,7 @@ WORKDIR /app
 RUN mkdir -p admin/backend/node_modules/.prisma || true
 
 # Dependencies
-FROM node:22.19.0-slim AS dependencies
+FROM node:24.11.1-slim AS dependencies
 
 WORKDIR /app
 
