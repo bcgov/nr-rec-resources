@@ -38,7 +38,7 @@ jobs:
 
 
     steps:
-      - uses: bcgov/action-test-and-analyse@v1.5.0
+      - uses: bcgov/action-test-and-analyse@v1.6.0
         with:
           commands: |
             npm install
