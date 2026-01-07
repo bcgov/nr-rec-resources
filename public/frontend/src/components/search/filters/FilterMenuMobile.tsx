@@ -77,14 +77,14 @@ const FilterMenuMobile = ({ isOpen, setIsOpen }: FilterMenuMobileProps) => {
               </FilterGroupAccordion>
             ))}
 
-            <Modal.Footer className="d-block">
+            <Modal.Footer className="d-block filter-footer">
               <button
                 onClick={handleShowResults}
                 className="btn btn-primary w-100 mx-0 mb-2"
               >
                 Show {totalCount} {totalCount === 1 ? 'result' : 'results'}
               </button>
-              <Container>
+              <Container className="filter-tools">
                 <Row className="d-flex align-items-center g-0">
                   <Col>
                     <button
