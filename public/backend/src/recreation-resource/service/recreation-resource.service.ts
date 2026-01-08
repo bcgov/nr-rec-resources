@@ -14,7 +14,7 @@ import {
   getMultipleResourcesSpatialFeatureGeometry,
 } from '@prisma-generated-sql';
 import { RecreationResourceGeometry } from 'src/recreation-resource/dto/recreation-resource-geometry.dto';
-import { RecreationResourceImageSize } from 'src/recreation-resource/dto/recreation-resource-image.dto';
+import { RecreationResourceImageSize } from '@shared/constants/images';
 
 @Injectable()
 export class RecreationResourceService {

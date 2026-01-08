@@ -7,7 +7,7 @@ import { getRecreationResourceSpatialFeatureGeometry } from '@prisma-generated-s
 import { RecreationResourceDocCode } from 'src/recreation-resource/dto/recreation-resource-doc.dto';
 import { OPEN_STATUS } from 'src/recreation-resource/constants/service.constants';
 import { RecreationResourceGeometry } from '../dto/recreation-resource-geometry.dto';
-import { RecreationResourceImageSize } from 'src/recreation-resource/dto/recreation-resource-image.dto';
+import { RecreationResourceImageSize } from '@shared/constants/images';
 import { formatImageUrls } from './formatImageUrls';
 
 interface FormatRecreationResourceDetailResultsOptions {

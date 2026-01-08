@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   RecreationResourceImageDto,
-  RecreationResourceImageSize,
   RecreationResourceImageUrlDto,
 } from './recreation-resource-image.dto';
+import { RecreationResourceImageSize } from '@shared/constants/images';
 
 describe('RecreationResourceImageDto', () => {
   it('should create an instance with valid properties', () => {
