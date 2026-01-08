@@ -5,14 +5,12 @@ import filterChipStore from '@/store/filterChips';
 import FilterGroupAccordion from '@/components/search/filters/FilterGroupAccordion';
 import FilterGroup from '@/components/search/filters/FilterGroup';
 import FilterModal from '@/components/search/filters/FilterModal';
-import { Col, Container, Modal, Row } from 'react-bootstrap';
+import { Container, Modal, Row } from 'react-bootstrap';
 import { trackEvent } from '@shared/utils';
 import {
   MATOMO_ACTION_FILTERS_LIST_MOBILE,
   MATOMO_CATEGORY_FILTERS,
 } from '@/constants/analytics';
-import DownloadKmlResultsModal from '../DownloadKmlResultsModal';
-import { useCallback, useState } from 'react';
 
 interface FilterMenuMobileProps {
   isOpen: boolean;
@@ -20,19 +18,10 @@ interface FilterMenuMobileProps {
 }
 
 const FilterMenuMobile = ({ isOpen, setIsOpen }: FilterMenuMobileProps) => {
-  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const clearFilters = useClearFilters();
-  const {
-    filters: menuContent,
-    totalCount,
-    recResourceIds,
-  } = useStore(searchResultsStore);
+  const { filters: menuContent, totalCount } = useStore(searchResultsStore);
   const selectedFilters = useStore(filterChipStore);
   const params = menuContent?.map(({ param }) => param) ?? [];
-
-  const handleDownloadClick = useCallback(() => {
-    setIsDownloadModalOpen(true);
-  }, []);
 
   const handleClose = () => setIsOpen(false);
   const handleShowResults = () => {
@@ -86,35 +75,18 @@ const FilterMenuMobile = ({ isOpen, setIsOpen }: FilterMenuMobileProps) => {
               </button>
               <Container className="filter-tools">
                 <Row className="d-flex align-items-center g-0">
-                  <Col>
-                    <button
-                      className="btn-link clear-filter-link w-100 fw-normal"
-                      onClick={handleDownloadClick}
-                    >
-                      Download KML
-                    </button>
-                  </Col>
-                  <Col>
-                    <button
-                      className="btn-link clear-filter-link w-100 fw-normal"
-                      onClick={clearFilters}
-                    >
-                      Clear filters
-                    </button>
-                  </Col>
+                  <button
+                    className="btn-link clear-filter-link w-100 fw-normal"
+                    onClick={clearFilters}
+                  >
+                    Clear filters
+                  </button>
                 </Row>
               </Container>
             </Modal.Footer>
           </>
         )}
       </FilterModal>
-      <DownloadKmlResultsModal
-        isOpen={isDownloadModalOpen}
-        setIsOpen={setIsDownloadModalOpen}
-        searchResultsNumber={totalCount}
-        ids={recResourceIds}
-        trackingView={'list'}
-      />
     </>
   );
 };
