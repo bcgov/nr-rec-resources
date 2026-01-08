@@ -84,11 +84,10 @@ export const mockResource = {
   },
   recreation_resource_images: [
     {
-      caption: 'test image',
-      recreation_resource_image_variants: [
-        { size_code: 'scr', url: 'preview-url' },
-        { size_code: 'original', url: 'full-url' },
-      ],
+      image_id: 'test-image-1',
+      url: {
+        original: 'https://example.com/images/REC1234/original.webp',
+      },
     },
   ],
 };

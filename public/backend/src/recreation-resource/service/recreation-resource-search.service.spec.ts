@@ -1,13 +1,13 @@
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { RecreationResourceSearchService } from './recreation-resource-search.service';
 import { PrismaService } from 'src/prisma.service';
+import { AppConfigService } from 'src/app-config/app-config.service';
 import { buildFilterMenu } from 'src/recreation-resource/utils/buildFilterMenu';
 import { buildSearchFilterQuery } from 'src/recreation-resource/utils/buildSearchFilterQuery';
 import { formatSearchResults } from 'src/recreation-resource/utils/formatSearchResults';
-import { buildFilterOptionCountsQuery } from '../utils/buildSearchFilterOptionCountsQuery';
-import { buildRecreationResourcePageQuery } from '../utils/buildRecreationResourcePageQuery';
+import { buildFilterOptionCountsQuery } from 'src/recreation-resource/utils/buildSearchFilterOptionCountsQuery';
+import { buildRecreationResourcePageQuery } from 'src/recreation-resource/utils/buildRecreationResourcePageQuery';
 
-// Mock all dependencies
 vi.mock('src/recreation-resource/utils/buildFilterMenu', () => ({
   buildFilterMenu: vi.fn().mockReturnValue({ filters: [] }),
 }));
@@ -35,14 +35,20 @@ vi.mock('../utils/buildRecreationResourcePageQuery', () => ({
 describe('RecreationResourceSearchService', () => {
   let service: RecreationResourceSearchService;
   let prismaService: PrismaService;
+  let appConfigService: AppConfigService;
 
   beforeEach(() => {
     prismaService = {
       $queryRaw: vi.fn(),
     } as any;
-    service = new RecreationResourceSearchService(prismaService);
+    appConfigService = {
+      rstStorageCloudfrontUrl: 'https://test-cloudfront.example.com',
+    } as any;
+    service = new RecreationResourceSearchService(
+      prismaService,
+      appConfigService,
+    );
 
-    // Reset all mocks before each test
     vi.clearAllMocks();
   });
 
@@ -111,10 +117,13 @@ describe('RecreationResourceSearchService', () => {
           lon: -123.1,
         }),
       );
-      expect(formatSearchResults).toHaveBeenCalledWith([
-        { id: 1, name: 'Resource 1', total_count: 10 },
-        { id: 2, name: 'Resource 2', total_count: 10 },
-      ]);
+      expect(formatSearchResults).toHaveBeenCalledWith(
+        [
+          { id: 1, name: 'Resource 1', total_count: 10 },
+          { id: 2, name: 'Resource 2', total_count: 10 },
+        ],
+        'https://test-cloudfront.example.com',
+      );
       expect(buildFilterMenu).toHaveBeenCalledWith([
         { filter_type: 'type', filter_value: 'park', count: 5 },
       ]);
@@ -160,10 +169,13 @@ describe('RecreationResourceSearchService', () => {
         recResourceIds: [],
         filters: { filters: [] },
       });
-      expect(formatSearchResults).toHaveBeenCalledWith([
-        { id: 1, name: 'Resource 1', total_count: 10 },
-        { id: 2, name: 'Resource 2', total_count: 10 },
-      ]);
+      expect(formatSearchResults).toHaveBeenCalledWith(
+        [
+          { id: 1, name: 'Resource 1', total_count: 10 },
+          { id: 2, name: 'Resource 2', total_count: 10 },
+        ],
+        'https://test-cloudfront.example.com',
+      );
       expect(buildFilterMenu).toHaveBeenCalledWith([
         { filter_type: 'type', filter_value: 'park', count: 5 },
       ]);
@@ -183,7 +195,10 @@ describe('RecreationResourceSearchService', () => {
         recResourceIds: [],
         filters: { filters: [] },
       });
-      expect(formatSearchResults).toHaveBeenCalledWith([]);
+      expect(formatSearchResults).toHaveBeenCalledWith(
+        [],
+        'https://test-cloudfront.example.com',
+      );
       expect(buildFilterMenu).toHaveBeenCalledWith([]);
     });
 

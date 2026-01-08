@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
+import { AppConfigService } from 'src/app-config/app-config.service';
 import { buildFilterMenu } from 'src/recreation-resource/utils/buildFilterMenu';
 import { buildSearchFilterQuery } from 'src/recreation-resource/utils/buildSearchFilterQuery';
 import { formatSearchResults } from 'src/recreation-resource/utils/formatSearchResults';
@@ -8,15 +9,18 @@ import {
   AggregatedRecordCount,
   FilterTypes,
 } from 'src/recreation-resource/service/types';
-import { buildFilterOptionCountsQuery } from '../utils/buildSearchFilterOptionCountsQuery';
-import { buildRecreationResourcePageQuery } from '../utils/buildRecreationResourcePageQuery';
+import { buildFilterOptionCountsQuery } from 'src/recreation-resource/utils/buildSearchFilterOptionCountsQuery';
+import { buildRecreationResourcePageQuery } from 'src/recreation-resource/utils/buildRecreationResourcePageQuery';
 
 @Injectable()
 export class RecreationResourceSearchService {
   private static readonly MAX_PAGE_SIZE = 10;
   private static readonly MAX_PAGE_NUMBER = 10;
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly appConfig: AppConfigService,
+  ) {}
 
   async searchRecreationResources(
     page: number = 1,
@@ -139,7 +143,10 @@ export class RecreationResourceSearchService {
     extent?: string | null,
   ): PaginatedRecreationResourceDto {
     return {
-      data: formatSearchResults(recreationResources),
+      data: formatSearchResults(
+        recreationResources,
+        this.appConfig.rstStorageCloudfrontUrl,
+      ),
       page,
       limit,
       total: recreationResources?.[0]?.total_count ?? 0,

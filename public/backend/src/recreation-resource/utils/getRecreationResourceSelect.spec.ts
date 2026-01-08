@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { getRecreationResourceSelect } from 'src/recreation-resource/utils/getRecreationResourceSelect';
 import { EXCLUDED_ACTIVITY_CODES } from 'src/recreation-resource/constants/service.constants';
-import { RecreationResourceImageSize } from 'src/recreation-resource/dto/recreation-resource-image.dto';
 
 describe('getRecreationResourceSelect', () => {
   it('should return the correct default selection structure', () => {
@@ -23,14 +22,10 @@ describe('getRecreationResourceSelect', () => {
           description: true,
         },
       },
-      recreation_map_feature: {
+      recreation_resource_type_view_public: {
         select: {
-          recreation_resource_type_code: {
-            select: {
-              rec_resource_type_code: true,
-              description: true,
-            },
-          },
+          rec_resource_type_code: true,
+          description: true,
         },
       },
       recreation_access: {
@@ -83,19 +78,9 @@ describe('getRecreationResourceSelect', () => {
           },
         },
       },
-      recreation_resource_images: {
+      recreation_resource_image: {
         select: {
-          ref_id: true,
-          caption: true,
-          recreation_resource_image_variants: {
-            select: {
-              size_code: true,
-              url: true,
-              width: true,
-              height: true,
-              extension: true,
-            },
-          },
+          image_id: true,
         },
       },
       recreation_structure: {
@@ -107,12 +92,11 @@ describe('getRecreationResourceSelect', () => {
           },
         },
       },
-      recreation_resource_docs: {
+      recreation_resource_document: {
         select: {
+          doc_id: true,
           doc_code: true,
-          url: true,
-          title: true,
-          ref_id: true,
+          file_name: true,
           extension: true,
           recreation_resource_doc_code: {
             select: {
@@ -129,24 +113,10 @@ describe('getRecreationResourceSelect', () => {
     });
   });
 
-  it('should filter image variants by provided size codes', () => {
-    const imageSizeCodes: RecreationResourceImageSize[] = [
-      RecreationResourceImageSize.ORIGINAL,
-    ];
-    const select = getRecreationResourceSelect(imageSizeCodes);
-
-    expect(
-      select.recreation_resource_images.select
-        .recreation_resource_image_variants.where.size_code.in,
-    ).toEqual(imageSizeCodes);
-  });
-
-  it('should handle empty imageSizeCodes by defaulting to an empty array', () => {
+  it('should include recreation_resource_image selection', () => {
     const select = getRecreationResourceSelect();
-    expect(
-      select.recreation_resource_images.select
-        .recreation_resource_image_variants.where.size_code.in,
-    ).toEqual([]);
+    expect(select.recreation_resource_image).toBeDefined();
+    expect(select.recreation_resource_image.select.image_id).toBe(true);
   });
 
   it('should exclude activities with excluded activity codes', () => {

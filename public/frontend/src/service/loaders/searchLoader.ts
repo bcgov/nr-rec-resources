@@ -4,7 +4,6 @@ import {
   SearchRecreationResourcesRequest,
 } from '@/service/recreation-resource';
 import { getBasePath } from '@/service/hooks/helpers';
-import { transformRecreationResourceBase } from '@/service/queries/recreation-resource/helpers';
 import { RECREATION_RESOURCE_QUERY_KEYS } from '@/service/queries/recreation-resource/queryKeys';
 import { trackSiteSearch } from '@shared/utils';
 import buildQueryString from '@/utils/buildQueryString';
@@ -43,10 +42,7 @@ export const getSearchResults = async (params: SearchParams) => {
     resultsCount: response.total,
   });
 
-  return {
-    ...response,
-    data: response.data.map((item) => transformRecreationResourceBase(item)),
-  };
+  return response;
 };
 
 /**

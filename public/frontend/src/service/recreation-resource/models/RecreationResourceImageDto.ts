@@ -13,13 +13,13 @@
  */
 
 import { mapValues } from '../runtime';
-import type { RecreationResourceImageVariantDto } from './RecreationResourceImageVariantDto';
+import type { RecreationResourceImageUrlDto } from './RecreationResourceImageUrlDto';
 import {
-  RecreationResourceImageVariantDtoFromJSON,
-  RecreationResourceImageVariantDtoFromJSONTyped,
-  RecreationResourceImageVariantDtoToJSON,
-  RecreationResourceImageVariantDtoToJSONTyped,
-} from './RecreationResourceImageVariantDto';
+  RecreationResourceImageUrlDtoFromJSON,
+  RecreationResourceImageUrlDtoFromJSONTyped,
+  RecreationResourceImageUrlDtoToJSON,
+  RecreationResourceImageUrlDtoToJSONTyped,
+} from './RecreationResourceImageUrlDto';
 
 /**
  *
@@ -28,23 +28,17 @@ import {
  */
 export interface RecreationResourceImageDto {
   /**
-   * Reference ID for the image
+   * Image ID (UUID)
    * @type {string}
    * @memberof RecreationResourceImageDto
    */
-  ref_id: string;
+  image_id: string;
   /**
-   * Image caption
-   * @type {string}
+   * URL object containing full URLs for requested image variants. Default returns only original.
+   * @type {RecreationResourceImageUrlDto}
    * @memberof RecreationResourceImageDto
    */
-  caption: string;
-  /**
-   * Available image variants
-   * @type {Array<RecreationResourceImageVariantDto>}
-   * @memberof RecreationResourceImageDto
-   */
-  recreation_resource_image_variants?: Array<RecreationResourceImageVariantDto>;
+  url: RecreationResourceImageUrlDto;
 }
 
 /**
@@ -53,8 +47,8 @@ export interface RecreationResourceImageDto {
 export function instanceOfRecreationResourceImageDto(
   value: object,
 ): value is RecreationResourceImageDto {
-  if (!('ref_id' in value) || value['ref_id'] === undefined) return false;
-  if (!('caption' in value) || value['caption'] === undefined) return false;
+  if (!('image_id' in value) || value['image_id'] === undefined) return false;
+  if (!('url' in value) || value['url'] === undefined) return false;
   return true;
 }
 
@@ -72,14 +66,8 @@ export function RecreationResourceImageDtoFromJSONTyped(
     return json;
   }
   return {
-    ref_id: json['ref_id'],
-    caption: json['caption'],
-    recreation_resource_image_variants:
-      json['recreation_resource_image_variants'] == null
-        ? undefined
-        : (json['recreation_resource_image_variants'] as Array<any>).map(
-            RecreationResourceImageVariantDtoFromJSON,
-          ),
+    image_id: json['image_id'],
+    url: RecreationResourceImageUrlDtoFromJSON(json['url']),
   };
 }
 
@@ -98,13 +86,7 @@ export function RecreationResourceImageDtoToJSONTyped(
   }
 
   return {
-    ref_id: value['ref_id'],
-    caption: value['caption'],
-    recreation_resource_image_variants:
-      value['recreation_resource_image_variants'] == null
-        ? undefined
-        : (value['recreation_resource_image_variants'] as Array<any>).map(
-            RecreationResourceImageVariantDtoToJSON,
-          ),
+    image_id: value['image_id'],
+    url: RecreationResourceImageUrlDtoToJSON(value['url']),
   };
 }

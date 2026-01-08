@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
+import { AppConfigService } from 'src/app-config/app-config.service';
 import { RecreationResourceSearchService } from 'src/recreation-resource/service/recreation-resource-search.service';
 import { RecreationResourceSuggestionsService } from 'src/recreation-resource/service/recreation-resource-suggestion.service';
 import { RecreationResourceAlphabeticalService } from 'src/recreation-resource/service/recreation-resource-alphabetical.service';
@@ -7,18 +8,19 @@ import { RecreationSuggestionDto } from 'src/recreation-resource/dto/recreation-
 import { formatRecreationResourceDetailResults } from 'src/recreation-resource/utils/formatRecreationResourceDetailResults';
 import { getRecreationResourceSelect } from 'src/recreation-resource/utils/getRecreationResourceSelect';
 import { RecreationResourceDetailDto } from 'src/recreation-resource/dto/recreation-resource.dto';
-import { RecreationResourceImageSize } from 'src/recreation-resource/dto/recreation-resource-image.dto';
 import { AlphabeticalRecreationResourceDto } from 'src/recreation-resource/dto/alphabetical-recreation-resource.dto';
 import {
   getRecreationResourceSpatialFeatureGeometry,
   getMultipleResourcesSpatialFeatureGeometry,
 } from '@prisma-generated-sql';
-import { RecreationResourceGeometry } from '../dto/recreation-resource-geometry.dto';
+import { RecreationResourceGeometry } from 'src/recreation-resource/dto/recreation-resource-geometry.dto';
+import { RecreationResourceImageSize } from 'src/recreation-resource/dto/recreation-resource-image.dto';
 
 @Injectable()
 export class RecreationResourceService {
   constructor(
     private readonly prisma: PrismaService,
+    private readonly appConfig: AppConfigService,
     private readonly recreationResourceSearchService: RecreationResourceSearchService,
     private readonly recreationResourceSuggestionsService: RecreationResourceSuggestionsService,
     private readonly recreationResourceAlphabeticalService: RecreationResourceAlphabeticalService,
@@ -35,7 +37,7 @@ export class RecreationResourceService {
           display_on_public_site: true,
         },
       },
-      select: getRecreationResourceSelect(imageSizeCodes),
+      select: getRecreationResourceSelect(),
     });
 
     if (!recResource) {
@@ -48,10 +50,12 @@ export class RecreationResourceService {
         getRecreationResourceSpatialFeatureGeometry(id),
       );
 
-    return formatRecreationResourceDetailResults(
+    return formatRecreationResourceDetailResults({
       recResource,
-      recResourceSpatialGeometryResult,
-    );
+      spatialFeatureGeometry: recResourceSpatialGeometryResult,
+      rstStorageCloudfrontUrl: this.appConfig.rstStorageCloudfrontUrl,
+      imageSizeCodes,
+    });
   }
 
   async findMany(
@@ -67,18 +71,23 @@ export class RecreationResourceService {
           display_on_public_site: true,
         },
       },
-      select: getRecreationResourceSelect(imageSizeCodes),
+      select: getRecreationResourceSelect(),
     });
 
     const geometries = await this.getMultipleGeometry(ids);
 
     const response = result.map((rec) => {
       if (rec && geometries[rec.rec_resource_id]) {
-        return formatRecreationResourceDetailResults(rec, {
-          site_point_geometry:
-            geometries[rec.rec_resource_id].site_point_geometry,
-          spatial_feature_geometry:
-            geometries[rec.rec_resource_id].spatial_feature_geometry,
+        return formatRecreationResourceDetailResults({
+          recResource: rec,
+          spatialFeatureGeometry: {
+            site_point_geometry:
+              geometries[rec.rec_resource_id].site_point_geometry,
+            spatial_feature_geometry:
+              geometries[rec.rec_resource_id].spatial_feature_geometry,
+          },
+          rstStorageCloudfrontUrl: this.appConfig.rstStorageCloudfrontUrl,
+          imageSizeCodes,
         });
       }
     });

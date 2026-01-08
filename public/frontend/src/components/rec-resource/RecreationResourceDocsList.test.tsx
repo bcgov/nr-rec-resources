@@ -4,19 +4,19 @@ import { RecreationResourceDocsList } from '@/components/rec-resource/Recreation
 
 describe('RecreationResourceDocsList', () => {
   const mockSingleDoc = {
-    ref_id: '123',
+    doc_id: '123',
     url: 'http://example.com/doc1',
     extension: 'pdf',
-    title: 'Document 1',
+    file_name: 'Document 1',
   };
 
   const mockMultipleDocs = [
     mockSingleDoc,
     {
-      ref_id: '456',
+      doc_id: '456',
       url: 'http://example.com/doc2',
       extension: 'jpg',
-      title: 'Document 2',
+      file_name: 'Document 2',
     },
   ];
 
