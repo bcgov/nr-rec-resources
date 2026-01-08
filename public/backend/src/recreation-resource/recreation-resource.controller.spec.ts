@@ -7,10 +7,8 @@ import { RecreationResourceSuggestionsService } from 'src/recreation-resource/se
 import { RecreationResourceAlphabeticalService } from 'src/recreation-resource/service/recreation-resource-alphabetical.service';
 import { AppConfigService } from 'src/app-config/app-config.service';
 import { PrismaService } from 'src/prisma.service';
-import {
-  RecreationResourceImageDto,
-  RecreationResourceImageSize,
-} from './dto/recreation-resource-image.dto';
+import { RecreationResourceImageDto } from './dto/recreation-resource-image.dto';
+import { RecreationResourceImageSize } from '@shared/constants/images';
 import { FsaResourceService } from './service/fsa-resource.service';
 import { ApiModule } from 'src/service/fsa-resources';
 import { SiteOperatorDto } from './dto/recreation-resource.dto';

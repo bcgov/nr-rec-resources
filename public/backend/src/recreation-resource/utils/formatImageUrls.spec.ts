@@ -1,5 +1,5 @@
 import { formatImageUrls } from './formatImageUrls';
-import { RecreationResourceImageSize } from 'src/recreation-resource/dto/recreation-resource-image.dto';
+import { RecreationResourceImageSize } from '@shared/constants/images';
 
 describe('formatImageUrls', () => {
   const mockImages = [{ image_id: 'img-uuid-1' }, { image_id: 'img-uuid-2' }];
