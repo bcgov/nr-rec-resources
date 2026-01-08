@@ -5,6 +5,7 @@ import { RecreationResourceService } from 'src/recreation-resource/service/recre
 import { RecreationResourceSearchService } from 'src/recreation-resource/service/recreation-resource-search.service';
 import { RecreationResourceSuggestionsService } from 'src/recreation-resource/service/recreation-resource-suggestion.service';
 import { RecreationResourceAlphabeticalService } from 'src/recreation-resource/service/recreation-resource-alphabetical.service';
+import { AppConfigService } from 'src/app-config/app-config.service';
 import { PrismaService } from 'src/prisma.service';
 import {
   RecreationResourceImageDto,
@@ -38,6 +39,14 @@ describe('RecreationResourceController', () => {
         {
           provide: PrismaService,
           useValue: {},
+        },
+        {
+          provide: AppConfigService,
+          useValue: {
+            rstStorageCloudfrontUrl: 'https://test-cloudfront.example.com',
+            forestClientApiKey: 'test-api-key',
+            forestClientApiUrl: 'https://test-api.example.com',
+          },
         },
       ],
     }).compile();
@@ -79,17 +88,7 @@ describe('RecreationResourceController', () => {
         },
         recreation_resource_images: <RecreationResourceImageDto[]>[
           {
-            ref_id: '1000',
-            caption: 'Campground facilities',
-            recreation_resource_image_variants: [
-              {
-                width: 1920,
-                height: 1080,
-                url: 'https://example.com/images/campground1.jpg',
-                size_code: 'llc',
-                extension: 'jpg',
-              },
-            ],
+            image_id: '1000',
           },
         ],
       };
@@ -127,17 +126,7 @@ describe('RecreationResourceController', () => {
             },
             recreation_resource_images: <RecreationResourceImageDto[]>[
               {
-                ref_id: '1000',
-                caption: 'Campground facilities',
-                recreation_resource_image_variants: [
-                  {
-                    width: 1920,
-                    height: 1080,
-                    url: 'https://example.com/images/campground1.jpg',
-                    size_code: 'llc',
-                    extension: 'jpg',
-                  },
-                ],
+                image_id: '1000',
               },
             ],
           },
@@ -227,7 +216,7 @@ describe('RecreationResourceController', () => {
 
     const spy = vi
       .spyOn(recService, 'searchRecreationResources')
-      .mockResolvedValue(mockResult);
+      .mockResolvedValue(mockResult as any);
 
     const lat: any = '48.4284';
     const lon: any = '-123.3656';

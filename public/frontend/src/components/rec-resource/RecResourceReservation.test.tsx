@@ -70,7 +70,7 @@ describe('RecResourceReservation', () => {
             extension: '',
           },
         ],
-        ref_id: '',
+        image_id: '',
       },
     ],
     recreation_resource_reservation_info: undefined,

@@ -1,59 +1,59 @@
 import { getImageList } from '@/components/rec-resource/card/helpers';
 import { RecreationResourceSearchModel } from '@/service/custom-models';
-import { IMAGE_SIZE_CODE_FOR_SEARCH_RESULTS_CARD } from '@/components/rec-resource/card/constants';
 
 describe('getImageList', () => {
-  it('should extract the correct size code size image from resource', () => {
-    const mockResource: RecreationResourceSearchModel = {
+  it('should extract image URLs from url.pre', () => {
+    const mockResource = {
       recreation_resource_images: [
         {
-          recreation_resource_image_variants: [
-            {
-              size_code: IMAGE_SIZE_CODE_FOR_SEARCH_RESULTS_CARD,
-              url: 'image1.jpg',
-            },
-            {
-              size_code: 'thm',
-              url: 'image1-small.jpg',
-            },
-          ],
+          image_id: 'image-1',
+          url: {
+            pre: 'https://cdn.example.com/images/REC123/image-1/pre.webp',
+          },
         },
         {
-          recreation_resource_image_variants: [
-            {
-              size_code: IMAGE_SIZE_CODE_FOR_SEARCH_RESULTS_CARD,
-              url: 'image2.jpg',
-            },
-          ],
+          image_id: 'image-2',
+          url: {
+            original:
+              'https://cdn.example.com/images/REC123/image-2/original.webp',
+            pre: 'https://cdn.example.com/images/REC123/image-2/pre.webp',
+          },
         },
       ],
-    } as RecreationResourceSearchModel;
+    } as unknown as RecreationResourceSearchModel;
 
     const result = getImageList(mockResource);
 
     expect(result).toEqual([
-      { imageUrl: 'image1.jpg' },
-      { imageUrl: 'image2.jpg' },
+      {
+        imageUrl: 'https://cdn.example.com/images/REC123/image-1/pre.webp',
+      },
+      {
+        imageUrl: 'https://cdn.example.com/images/REC123/image-2/pre.webp',
+      },
     ]);
   });
 
-  it('should return empty array when no images exist for the required size code', () => {
-    const mockResource: RecreationResourceSearchModel = {
+  it('should fallback to url.original when url.pre is not available', () => {
+    const mockResource = {
       recreation_resource_images: [
         {
-          recreation_resource_image_variants: [
-            {
-              size_code: 'thm',
-              url: 'image1-small.jpg',
-            },
-          ],
+          image_id: 'image-1',
+          url: {
+            original:
+              'https://cdn.example.com/images/REC123/image-1/original.webp',
+          },
         },
       ],
-    } as RecreationResourceSearchModel;
+    } as unknown as RecreationResourceSearchModel;
 
     const result = getImageList(mockResource);
 
-    expect(result).toEqual([]);
+    expect(result).toEqual([
+      {
+        imageUrl: 'https://cdn.example.com/images/REC123/image-1/original.webp',
+      },
+    ]);
   });
 
   it('should handle empty recreation_resource_images array', () => {
@@ -66,33 +66,11 @@ describe('getImageList', () => {
     expect(result).toEqual([]);
   });
 
-  it('should sort images with landscape orientation before portrait', () => {
-    const mockResource: RecreationResourceSearchModel = {
-      recreation_resource_images: [
-        {
-          recreation_resource_image_variants: [
-            {
-              size_code: IMAGE_SIZE_CODE_FOR_SEARCH_RESULTS_CARD,
-              url: 'portrait.jpg',
-              width: 600,
-              height: 800,
-            },
-            {
-              size_code: IMAGE_SIZE_CODE_FOR_SEARCH_RESULTS_CARD,
-              url: 'landscape.jpg',
-              width: 1200,
-              height: 800,
-            },
-          ],
-        },
-      ],
-    } as unknown as RecreationResourceSearchModel;
+  it('should handle undefined recreation_resource_images', () => {
+    const mockResource = {} as unknown as RecreationResourceSearchModel;
 
     const result = getImageList(mockResource);
 
-    expect(result).toEqual([
-      { imageUrl: 'landscape.jpg' },
-      { imageUrl: 'portrait.jpg' },
-    ]);
+    expect(result).toEqual([]);
   });
 });

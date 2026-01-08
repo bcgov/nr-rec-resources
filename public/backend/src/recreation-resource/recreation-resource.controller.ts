@@ -276,7 +276,7 @@ export class RecreationResourceController {
     @Param('id') id: string,
     @Query(
       'imageSizeCodes',
-      new ParseImageSizesPipe([RecreationResourceImageSize.HIGH_RES_PRINT]),
+      new ParseImageSizesPipe([RecreationResourceImageSize.ORIGINAL]),
     )
     imageSizeCodes?: RecreationResourceImageSize[],
   ): Promise<RecreationResourceDetailDto> {

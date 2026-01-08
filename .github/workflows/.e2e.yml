@@ -49,6 +49,9 @@ jobs:
         DAM_RST_IMAGE_COLLECTION_ID: ${{ secrets.DAM_RST_IMAGE_COLLECTION_ID }}
         DAM_RESOURCE_TYPE_PDF: ${{ secrets.DAM_RESOURCE_TYPE_PDF }}
         DAM_RESOURCE_TYPE_IMAGE: ${{ secrets.DAM_RESOURCE_TYPE_IMAGE }}
+        RST_STORAGE_CLOUDFRONT_URL: ${{ secrets.RST_STORAGE_CLOUDFRONT_URL }}
+        FOREST_CLIENT_API_URL: ${{ secrets.FOREST_CLIENT_API_URL }}
+        FOREST_CLIENT_API_KEY: ${{ secrets.FOREST_CLIENT_API_KEY }}
       run: docker compose up -d --wait
       continue-on-error: true
     - name: Dump docker logs for debugging

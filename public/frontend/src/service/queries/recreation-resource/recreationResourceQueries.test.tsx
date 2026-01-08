@@ -2,10 +2,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { useRecreationResourceApi } from '@/service/hooks/useRecreationResourceApi';
 import {
-  transformRecreationResourceBase,
-  transformRecreationResourceDetail,
-} from '@/service/queries/recreation-resource/helpers';
-import {
   useGetRecreationResourceById,
   useGetSiteOperatorById,
   useSearchRecreationResourcesPaginated,
@@ -14,12 +10,8 @@ import {
 } from '@/service/queries/recreation-resource/recreationResourceQueries';
 import { TestQueryClientProvider } from '@/test-utils';
 
-// Mock the API hook and transform functions
+// Mock the API hook
 vi.mock('@/service/hooks/useRecreationResourceApi');
-vi.mock('@/service/queries/recreation-resource/helpers', () => ({
-  transformRecreationResourceBase: vi.fn((data) => data),
-  transformRecreationResourceDetail: vi.fn((data) => data),
-}));
 
 describe('useGetRecreationResourceById', () => {
   const mockApi = {
@@ -29,9 +21,6 @@ describe('useGetRecreationResourceById', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (useRecreationResourceApi as any).mockReturnValue(mockApi);
-    (transformRecreationResourceDetail as any).mockImplementation(
-      (data: any) => data,
-    );
   });
 
   it('should return undefined when no id is provided', async () => {
@@ -42,7 +31,6 @@ describe('useGetRecreationResourceById', () => {
 
     expect(result.current.data).toBeUndefined();
     expect(mockApi.getRecreationResourceById).not.toHaveBeenCalled();
-    expect(transformRecreationResourceDetail).not.toHaveBeenCalled();
   });
 
   it('should fetch and transform recreation resource data', async () => {
@@ -71,9 +59,6 @@ describe('useGetRecreationResourceById', () => {
       id: '123',
       imageSizeCodes: ['llc'],
     });
-    expect(transformRecreationResourceDetail).toHaveBeenCalledWith(
-      mockResponse,
-    );
   });
 
   it('should handle API errors', async () => {
@@ -92,7 +77,6 @@ describe('useGetRecreationResourceById', () => {
     await waitFor(() => {
       expect(result.current.error).toBeDefined();
     });
-    expect(transformRecreationResourceDetail).not.toHaveBeenCalled();
   });
 });
 
@@ -171,9 +155,6 @@ describe('useSearchRecreationResourcesPaginated', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (useRecreationResourceApi as any).mockReturnValue(mockApi);
-    (transformRecreationResourceBase as any).mockImplementation(
-      (data: any) => data,
-    );
   });
 
   it('should fetch first page of resources', async () => {
@@ -201,7 +182,6 @@ describe('useSearchRecreationResourcesPaginated', () => {
 
     expect(result.current.data?.totalCount).toBe(20);
     expect(result.current.data?.currentPage).toBe(1);
-    expect(transformRecreationResourceBase).toHaveBeenCalledTimes(2);
   });
 
   it('should handle pagination correctly', async () => {
@@ -240,8 +220,6 @@ describe('useSearchRecreationResourcesPaginated', () => {
     await waitFor(() => {
       expect(result.current.data?.pages).toHaveLength(2);
     });
-
-    expect(transformRecreationResourceBase).toHaveBeenCalledTimes(2);
   });
 
   it('should handle API errors in pagination', async () => {
@@ -256,8 +234,6 @@ describe('useSearchRecreationResourcesPaginated', () => {
     await waitFor(() => {
       expect(result.current.error).toBeDefined();
     });
-
-    expect(transformRecreationResourceBase).not.toHaveBeenCalled();
   });
 });
 
