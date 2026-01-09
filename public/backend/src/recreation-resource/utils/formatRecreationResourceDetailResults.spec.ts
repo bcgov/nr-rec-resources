@@ -63,16 +63,15 @@ export const mockResponse = {
       with_description: { description: 'Fee description' },
     },
   ],
-  recreation_resource_images: [] as any,
+  recreation_resource_image: [] as any,
   recreation_structure: [],
-  recreation_resource_docs: [
+  recreation_resource_document: [
     {
+      doc_id: '11560-uuid',
       doc_code: 'RM',
-      url: '/filestore/0/6/5/1/1_e6add31b6192a01/11560_d8bbba4218445a6.pdf',
-      title: 'French Creek Map',
-      ref_id: '11560',
+      file_name: 'French Creek Map',
       extension: 'pdf',
-      recreation_resource_doc_code: {} as any,
+      recreation_resource_doc_code: { description: 'Recreation Map' },
     },
   ],
   _count: {
@@ -147,13 +146,12 @@ export const mockResults = {
   campsite_count: 1,
   recreation_resource_docs: [
     {
+      doc_id: '11560-uuid',
+      file_name: 'French Creek Map',
+      url: '/documents/REC203239/11560-uuid/French Creek Map.pdf',
       doc_code: 'RM',
-      doc_code_description: undefined,
+      doc_code_description: 'Recreation Map',
       extension: 'pdf',
-      recreation_resource_doc_code: {},
-      ref_id: '11560',
-      title: 'French Creek Map',
-      url: '/filestore/0/6/5/1/1_e6add31b6192a01/11560_d8bbba4218445a6.pdf',
     },
   ],
   recreation_resource_images: [],
@@ -179,21 +177,14 @@ export const mockResults = {
     reservation_email: 'email@email.com',
     reservation_comments: 'this is a huge comment',
   },
-  recreation_resource_reservation_info: {
-    reservation_instructions: 'All reservations through partner, not RSTBC',
-    reservation_website: 'https://accwhistler.ca/WendyThompson.html',
-    reservation_phone_number: '1-999-999-9999',
-    reservation_email: 'email@email.com',
-    reservation_comments: 'this is a huge comment',
-  },
 };
 
 describe('formatRecreationResourceDetailResults function', () => {
   it('should correctly format the results', () => {
-    const results = formatRecreationResourceDetailResults(
-      mockResponse,
-      mockSpatialResponse,
-    );
+    const results = formatRecreationResourceDetailResults({
+      recResource: mockResponse,
+      spatialFeatureGeometry: mockSpatialResponse,
+    });
     expect(results).toEqual(mockResults);
   });
 
@@ -212,24 +203,27 @@ describe('formatRecreationResourceDetailResults function', () => {
         has_toilet: true,
       },
     };
-    const results = formatRecreationResourceDetailResults(
-      mockResponseCopy,
-      mockSpatialResponse,
-    );
+    const results = formatRecreationResourceDetailResults({
+      recResource: mockResponseCopy,
+      spatialFeatureGeometry: mockSpatialResponse,
+    });
     expect(results).toEqual(mockResultsCopy);
   });
 
   it('should throw an error with garbage data', () => {
-    expect(() => formatRecreationResourceDetailResults({} as any, [])).toThrow(
-      "Cannot read properties of undefined (reading 'map')",
-    );
+    expect(() =>
+      formatRecreationResourceDetailResults({
+        recResource: {} as any,
+        spatialFeatureGeometry: [],
+      }),
+    ).toThrow("Cannot read properties of undefined (reading 'map')");
   });
 
   it("should return result with status as 'Open' if no status is provided", () => {
-    const results = formatRecreationResourceDetailResults(
-      { ...mockResponse, recreation_status: null },
-      mockSpatialResponse,
-    );
+    const results = formatRecreationResourceDetailResults({
+      recResource: { ...mockResponse, recreation_status: null },
+      spatialFeatureGeometry: mockSpatialResponse,
+    });
 
     expect(results.recreation_status).toEqual({
       comment: undefined,
@@ -243,10 +237,10 @@ describe('formatRecreationResourceDetailResults function', () => {
       ...mockResponse,
       recreation_district_code: undefined,
     };
-    const results = formatRecreationResourceDetailResults(
-      mockResponseNoDistrict,
-      mockSpatialResponse,
-    );
+    const results = formatRecreationResourceDetailResults({
+      recResource: mockResponseNoDistrict,
+      spatialFeatureGeometry: mockSpatialResponse,
+    });
     expect(results.recreation_district).toBeUndefined();
   });
 });

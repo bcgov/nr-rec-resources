@@ -1,6 +1,19 @@
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { bootstrap } from './app';
 
+vi.mock('src/app-config/app-config.schema', () => ({
+  validate: () => ({
+    POSTGRES_HOST: 'localhost',
+    POSTGRES_PORT: 5432,
+    POSTGRES_USER: 'test',
+    POSTGRES_PASSWORD: 'test',
+    POSTGRES_DATABASE: 'test',
+    RST_STORAGE_CLOUDFRONT_URL: 'http://example.com',
+    FOREST_CLIENT_API_URL: 'http://localhost:3001',
+    FOREST_CLIENT_API_KEY: 'test-api-key',
+  }),
+}));
+
 vi.mock('prom-client', () => ({
   Registry: vi.fn().mockImplementation(() => ({})),
   collectDefaultMetrics: vi.fn().mockImplementation(() => ({})),

@@ -25,7 +25,7 @@ export const RecreationResourceDocsList: FC<
   }
 
   const renderDocDetails = (doc: RecreationResourceDocDto) => (
-    <li key={doc.ref_id}>
+    <li key={doc.doc_id}>
       <a
         className="text-decoration-underline link-color"
         href={doc.url}
@@ -35,11 +35,11 @@ export const RecreationResourceDocsList: FC<
           trackEvent({
             category: MATOMO_CATEGORY_PDF_VIEWED,
             action: `PDF_viewed_${recResource.rec_resource_id}`,
-            name: `PDF_viewed_${recResource.rec_resource_id}_${doc.title}`,
+            name: `PDF_viewed_${recResource.rec_resource_id}_${doc.file_name}`,
           })
         }
       >
-        {doc.title} [{doc.extension.toUpperCase()}]
+        {doc.file_name} [{doc.extension.toUpperCase()}]
       </a>
     </li>
   );

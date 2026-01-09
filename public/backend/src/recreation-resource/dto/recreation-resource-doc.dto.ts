@@ -10,19 +10,19 @@ export enum RecreationResourceDocCode {
 
 export class RecreationResourceDocDto {
   @ApiProperty({
-    description: 'Reference ID for the image',
+    description: 'Reference ID for the document',
     example: '1000',
   })
-  ref_id: string;
+  doc_id: string;
 
   @ApiProperty({
-    description: 'Doc title',
+    description: 'File name',
     example: 'Campbell river site map',
   })
-  title: string;
+  file_name: string;
 
   @ApiProperty({
-    description: 'doc link',
+    description: 'Download URL for the document',
   })
   url: string;
 

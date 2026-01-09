@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ApiModule, ClientAPIService } from 'src/service/fsa-resources';
+import { AppConfigService } from 'src/app-config/app-config.service';
 import { FsaResourceService } from './fsa-resource.service';
 import { HttpModule, HttpService } from '@nestjs/axios';
 import { AxiosResponse } from 'axios';
@@ -31,7 +32,16 @@ describe('FsaResourceService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [ApiModule, HttpModule],
-      providers: [FsaResourceService, ClientAPIService],
+      providers: [
+        FsaResourceService,
+        ClientAPIService,
+        {
+          provide: AppConfigService,
+          useValue: {
+            forestClientApiKey: 'test-api-key',
+          },
+        },
+      ],
     }).compile();
 
     service = module.get<FsaResourceService>(FsaResourceService);
