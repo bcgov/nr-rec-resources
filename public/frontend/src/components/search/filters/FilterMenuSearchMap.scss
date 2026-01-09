@@ -57,9 +57,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0;
-    padding-top: 1rem;
     width: 100%;
+    padding-left: 0;
+
+    .filter-tools.container {
+      padding-left: 0;
+    }
 
     @include media-breakpoint-up(lg) {
       flex-direction: row-reverse;
@@ -84,10 +87,6 @@
 
 .filter-modal {
   z-index: $zIndexFilterMenu;
-}
-
-.apply-button {
-  width: 90% !important;
 }
 
 .footer-buttons {

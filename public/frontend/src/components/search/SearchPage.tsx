@@ -182,7 +182,14 @@ const SearchPage = () => {
             >
               Filter
             </button>
-            <SearchLinksMobile />
+            <SearchLinksMobile
+              totalCount={totalCount}
+              ids={paginatedResults?.flatMap(
+                (pageData: PaginatedRecreationResourceModel) =>
+                  pageData?.recResourceIds,
+              )}
+              trackingView={trackingView ?? (isMapView ? 'list' : 'map')}
+            />
 
             <div className="d-flex align-items-center justify-content-between">
               {isFetchingFirstPage ? (

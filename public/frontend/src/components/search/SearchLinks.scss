@@ -60,7 +60,7 @@
           text-align: center;
           transition: all 0.2s ease;
 
-          &:hover,
+          &:active,
           &:focus-visible {
             color: $colorWhite;
             background-color: $colorBlue;
@@ -71,4 +71,8 @@
       }
     }
   }
+}
+
+.kml-box {
+  margin-top: 1em;
 }
