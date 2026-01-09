@@ -130,9 +130,9 @@ resource "aws_cloudfront_distribution" "api" {
 
     response_headers_policy_id = aws_cloudfront_response_headers_policy.api_cors.id
 
-    default_ttl = var.enable_cors ? 0 : 900
+    default_ttl = var.enable_cors ? 0 : 30
     min_ttl     = 0
-    max_ttl     = var.enable_cors ? 0 : 900
+    max_ttl     = var.enable_cors ? 0 : 60
   }
 
   restrictions {
