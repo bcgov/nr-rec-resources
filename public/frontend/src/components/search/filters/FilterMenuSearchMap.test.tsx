@@ -3,7 +3,10 @@ import { render, screen, waitFor, fireEvent } from '@/test-utils';
 import { useStore } from '@tanstack/react-store';
 import { useSearch, useNavigate } from '@tanstack/react-router';
 import FilterMenuSearchMap from '@/components/search/filters/FilterMenuSearchMap';
-import { useSearchRecreationResourcesPaginated } from '@/service/queries/recreation-resource';
+import {
+  useSearchRecreationResourcesPaginated,
+  useRecreationResourcesWithGeometryMutation,
+} from '@/service/queries/recreation-resource';
 import { trackEvent } from '@shared/utils';
 
 vi.mock('@tanstack/react-store', async () => {
@@ -37,12 +40,27 @@ vi.mock('../DownloadKmlResultsModal', () => ({
 describe('FilterMenuSearchMap', () => {
   const setIsOpenMock = vi.fn();
   const navigateMock = vi.fn();
+  const mockMutateAsync = vi.fn();
+
+  const mockMutation = {
+    mutateAsync: mockMutateAsync,
+    isPending: false,
+    isSuccess: false,
+    isError: false,
+    error: null,
+    data: undefined,
+    reset: vi.fn(),
+  };
 
   beforeEach(() => {
     vi.resetAllMocks();
 
     (useSearch as Mock).mockReturnValue({ district: 'ok' });
     (useNavigate as Mock).mockReturnValue(navigateMock);
+
+    vi.mocked(useRecreationResourcesWithGeometryMutation).mockReturnValue(
+      mockMutation as any,
+    );
 
     (useStore as Mock).mockReturnValue({
       filters: [
@@ -165,5 +183,19 @@ describe('FilterMenuSearchMap', () => {
     fireEvent.click(applyButton[0]);
 
     expect(setIsOpenMock).toHaveBeenCalledWith(false);
+  });
+
+  it('shows kml download component when the button is clicked and close the component', async () => {
+    render(<FilterMenuSearchMap isOpen={true} setIsOpen={setIsOpenMock} />);
+
+    const kmlButton = screen.getByText('Download KML');
+    fireEvent.click(kmlButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('msg-alert')).toBeInTheDocument();
+    });
+
+    const cancelButton = screen.getByText('Cancel');
+    fireEvent.click(cancelButton);
   });
 });

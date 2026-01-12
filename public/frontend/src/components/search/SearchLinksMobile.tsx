@@ -8,9 +8,26 @@ import {
   SEARCH_LINKS_TITLE,
 } from '@/components/search/constants';
 import '@/components/search/SearchLinks.scss';
+import DownloadKmlResults from './DownloadKmlResults';
 
-const SearchLinksMobile = () => {
+interface SearchLinksMobileProps {
+  totalCount: number;
+  ids: string[];
+  trackingView: 'list' | 'map';
+}
+
+const SearchLinksMobile = ({
+  totalCount,
+  ids,
+  trackingView,
+}: SearchLinksMobileProps) => {
   const [isMobileModalOpen, setIsMobileModalOpen] = useState(false);
+
+  const [isDisplayKmlDownload, setIsDisplayKmlDownload] = useState(false);
+
+  const handleDisplayKmlDownload = () => {
+    setIsDisplayKmlDownload(!isDisplayKmlDownload);
+  };
 
   const handleOpenMobileModal = () => {
     setIsMobileModalOpen(true);
@@ -66,7 +83,31 @@ const SearchLinksMobile = () => {
                   {link.label}
                 </Link>
               ))}
+              {!isDisplayKmlDownload && (
+                <a
+                  className="search-link-item"
+                  href="#"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    handleDisplayKmlDownload();
+                  }}
+                >
+                  Download KML
+                </a>
+              )}
             </div>
+            {isDisplayKmlDownload && (
+              <div className="kml-box">
+                <DownloadKmlResults
+                  searchResultsNumber={totalCount}
+                  ids={ids}
+                  trackingView={trackingView}
+                  handleCloseModal={() => {
+                    handleDisplayKmlDownload();
+                  }}
+                />
+              </div>
+            )}
           </div>
         </Modal.Body>
       </Modal>

@@ -64,6 +64,7 @@
       }
     }
     .modal-footer {
+      margin: 0;
       .clear-filter-link {
         margin: 0;
         text-decoration: underline;
@@ -95,10 +96,17 @@
 
 .cancel-button {
   background-color: $colorWhite;
+  color: $colorBlue;
+  border: 1px solid $colorBlue;
 }
 
 .close-filter-btn {
   svg {
     vertical-align: 1px; // optical
   }
+}
+
+.kml-buttons {
+  padding-left: 0px;
+  padding-right: 0px;
 }

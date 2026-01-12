@@ -8,14 +8,18 @@ import {
 
 describe('SearchLinksMobile', () => {
   it('renders the mobile button', async () => {
-    await renderWithRouter(<SearchLinksMobile />);
+    await renderWithRouter(
+      <SearchLinksMobile totalCount={1} ids={['r1']} trackingView="map" />,
+    );
     expect(
       screen.getByRole('button', { name: SEARCH_LINKS_TITLE }),
     ).toBeInTheDocument();
   });
 
   it('opens modal when button is clicked', async () => {
-    await renderWithRouter(<SearchLinksMobile />);
+    await renderWithRouter(
+      <SearchLinksMobile totalCount={1} ids={['r1']} trackingView="map" />,
+    );
 
     const button = screen.getByRole('button', { name: SEARCH_LINKS_TITLE });
     fireEvent.click(button);
@@ -29,7 +33,9 @@ describe('SearchLinksMobile', () => {
   });
 
   it('renders all search links in modal', async () => {
-    await renderWithRouter(<SearchLinksMobile />);
+    await renderWithRouter(
+      <SearchLinksMobile totalCount={1} ids={['r1']} trackingView="map" />,
+    );
 
     const button = screen.getByRole('button', { name: SEARCH_LINKS_TITLE });
     fireEvent.click(button);
@@ -40,7 +46,9 @@ describe('SearchLinksMobile', () => {
   });
 
   it('has correct href attributes for modal links', async () => {
-    await renderWithRouter(<SearchLinksMobile />);
+    await renderWithRouter(
+      <SearchLinksMobile totalCount={1} ids={['r1']} trackingView="map" />,
+    );
 
     const button = screen.getByRole('button', { name: SEARCH_LINKS_TITLE });
     fireEvent.click(button);
@@ -55,7 +63,9 @@ describe('SearchLinksMobile', () => {
   });
 
   it('closes modal when close button is clicked', async () => {
-    await renderWithRouter(<SearchLinksMobile />);
+    await renderWithRouter(
+      <SearchLinksMobile totalCount={1} ids={['r1']} trackingView="map" />,
+    );
 
     const openButton = screen.getByRole('button', { name: SEARCH_LINKS_TITLE });
     fireEvent.click(openButton);
@@ -71,7 +81,9 @@ describe('SearchLinksMobile', () => {
   });
 
   it('closes modal when a link is clicked', async () => {
-    await renderWithRouter(<SearchLinksMobile />);
+    await renderWithRouter(
+      <SearchLinksMobile totalCount={1} ids={['r1']} trackingView="map" />,
+    );
 
     const openButton = screen.getByRole('button', { name: SEARCH_LINKS_TITLE });
     fireEvent.click(openButton);
@@ -84,5 +96,24 @@ describe('SearchLinksMobile', () => {
         screen.queryByRole('heading', { name: SEARCH_LINKS_TITLE }),
       ).not.toBeInTheDocument();
     });
+  });
+
+  it('shows kml download component when the button is clicked and close the component', async () => {
+    await renderWithRouter(
+      <SearchLinksMobile totalCount={1} ids={['r1']} trackingView="map" />,
+    );
+
+    const openButton = screen.getByRole('button', { name: SEARCH_LINKS_TITLE });
+    fireEvent.click(openButton);
+
+    const kmlButton = screen.getByText('Download KML');
+    fireEvent.click(kmlButton);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('msg-alert')).toBeInTheDocument();
+    });
+
+    const cancelButton = screen.getByText('Cancel');
+    fireEvent.click(cancelButton);
   });
 });
