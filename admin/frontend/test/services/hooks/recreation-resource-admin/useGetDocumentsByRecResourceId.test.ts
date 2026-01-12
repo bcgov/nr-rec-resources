@@ -1,13 +1,12 @@
-import { describe, it, beforeEach, vi, expect } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
-import { useGetDocumentsByRecResourceId } from '@/services/hooks/recreation-resource-admin/useGetDocumentsByRecResourceId';
-import { TestQueryClientProvider } from '@test/test-utils';
-import * as apiClientModule from '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient';
 import * as helpers from '@/services/hooks/recreation-resource-admin/helpers';
+import { useGetDocumentsByRecResourceId } from '@/services/hooks/recreation-resource-admin/useGetDocumentsByRecResourceId';
+import * as apiClientModule from '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient';
 import * as notificationStore from '@/store/notificationStore';
+import { TestQueryClientProvider } from '@test/test-utils';
+import { renderHook, waitFor } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockGetDocumentsByRecResourceId = vi.fn();
-const mockTransformDocs = vi.fn();
 const mockAddErrorNotification = vi.fn();
 
 const mockApi = {
@@ -21,29 +20,23 @@ describe('useGetDocumentsByRecResourceId', () => {
       apiClientModule,
       'useRecreationResourceAdminApiClient',
     ).mockReturnValue(mockApi as any);
-    vi.spyOn(helpers, 'transformRecreationResourceDocs').mockImplementation(
-      mockTransformDocs,
-    );
     vi.spyOn(notificationStore, 'addErrorNotification').mockImplementation(
       mockAddErrorNotification,
     );
   });
 
-  it('returns transformed documents on success', async () => {
-    const docs = [{ id: 1 }];
-    const transformed = [{ id: 1, title: 'doc' }];
+  it('returns documents directly from API on success', async () => {
+    const docs = [{ id: 1, title: 'doc', url: 'https://example.com/doc.pdf' }];
     mockGetDocumentsByRecResourceId.mockResolvedValueOnce(docs);
-    mockTransformDocs.mockReturnValueOnce(transformed);
 
     const { result } = renderHook(() => useGetDocumentsByRecResourceId('abc'), {
       wrapper: TestQueryClientProvider,
     });
 
-    await waitFor(() => expect(result.current.data).toEqual(transformed));
+    await waitFor(() => expect(result.current.data).toEqual(docs));
     expect(mockGetDocumentsByRecResourceId).toHaveBeenCalledWith({
       recResourceId: 'abc',
     });
-    expect(mockTransformDocs).toHaveBeenCalledWith(docs);
   });
 
   it('calls addErrorNotification when retries are exhausted (onFail)', async () => {

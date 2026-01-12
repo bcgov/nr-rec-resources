@@ -1,5 +1,5 @@
-import { RecreationResourceImageVariantDto } from '@/services/recreation-resource-admin';
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
+import { RecreationResourceImageVariantDto } from '@/services/recreation-resource-admin';
 import { RouteHandle } from '@shared/index';
 
 export type FileType = 'image' | 'document';
@@ -18,6 +18,8 @@ export interface GalleryFile {
   isDeleting?: boolean;
   deleteFailed?: boolean;
   type: FileType;
+  processingProgress?: number; // 0-100 for image processing
+  processingStage?: string; // e.g., "Processing image...", "Uploading..."
 }
 
 // Specialized type for documents

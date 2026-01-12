@@ -1,7 +1,7 @@
+import { BaseFileModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/BaseFileModal';
 import { useRecResourceFileTransferState } from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
 import { faInfoCircle, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { FC } from 'react';
-import { BaseFileModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/BaseFileModal';
 import { useImageUploadForm } from './hooks';
 import { ImageUploadForm } from './sections';
 
@@ -34,11 +34,13 @@ export const ImageUploadModal: FC = () => {
 
   const fileSize = selectedFileForUpload.pendingFile?.size;
 
-  const alertConfig = {
-    variant: 'info' as const,
-    icon: faInfoCircle,
-    text: 'Uploading this photo will publish to the public website.',
-  };
+  const alerts = [
+    {
+      variant: 'info' as const,
+      icon: faInfoCircle,
+      text: 'Uploading this photo will publish to the public website.',
+    },
+  ];
 
   return (
     <BaseFileModal
@@ -46,7 +48,7 @@ export const ImageUploadModal: FC = () => {
       onHide={handleCancel}
       title="Upload Photo"
       galleryFile={selectedFileForUpload}
-      alertConfig={alertConfig}
+      alerts={alerts}
       onCancel={handleCancel}
       onConfirm={handleUpload}
       confirmButtonText="Upload"

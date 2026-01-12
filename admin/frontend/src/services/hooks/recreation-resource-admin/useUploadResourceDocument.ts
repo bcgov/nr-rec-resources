@@ -5,8 +5,8 @@ import { useRecreationResourceAdminApiClient } from './useRecreationResourceAdmi
 
 export interface UploadResourceDocumentParams {
   recResourceId: string;
+  fileName: string;
   file: File;
-  title: string;
 }
 
 export function useUploadResourceDocument() {
@@ -14,7 +14,11 @@ export function useUploadResourceDocument() {
 
   return useMutation({
     mutationFn: async (params: UploadResourceDocumentParams) => {
-      return api.createRecreationresourceDocument(params);
+      return api.createRecreationresourceDocument({
+        recResourceId: params.recResourceId,
+        fileName: params.fileName,
+        file: params.file,
+      });
     },
     retry: createRetryHandler(),
   });

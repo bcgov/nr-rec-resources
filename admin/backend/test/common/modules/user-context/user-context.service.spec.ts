@@ -1,6 +1,6 @@
 import { KeycloakUserToken } from '@/auth/auth.types';
+import { UnauthorizedUserException } from '@/common/exceptions/unauthorized-user.exception';
 import { UserContextService } from '@/common/modules/user-context/user-context.service';
-import { UnauthorizedException } from '@nestjs/common';
 import { ClsService } from 'nestjs-cls';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 
@@ -35,16 +35,18 @@ describe('UserContextService', () => {
       expect(clsService.get).toHaveBeenCalledWith('user');
     });
 
-    it('should throw UnauthorizedException if user is not set', () => {
+    it('should throw UnauthorizedUserException if user is not set', () => {
       clsService.get.mockReturnValue(null);
 
-      expect(() => service.getCurrentUserName()).toThrow(UnauthorizedException);
       expect(() => service.getCurrentUserName()).toThrow(
-        'User not authenticated or missing IDIR username',
+        UnauthorizedUserException,
+      );
+      expect(() => service.getCurrentUserName()).toThrow(
+        'User is not properly authenticated',
       );
     });
 
-    it('should throw UnauthorizedException if user has no idir_username', () => {
+    it('should throw UnauthorizedUserException if user has no idir_username', () => {
       const mockUser = {
         sub: '123',
         iss: 'https://issuer',
@@ -53,9 +55,11 @@ describe('UserContextService', () => {
       } as KeycloakUserToken;
       clsService.get.mockReturnValue(mockUser);
 
-      expect(() => service.getCurrentUserName()).toThrow(UnauthorizedException);
       expect(() => service.getCurrentUserName()).toThrow(
-        'User not authenticated or missing IDIR username',
+        UnauthorizedUserException,
+      );
+      expect(() => service.getCurrentUserName()).toThrow(
+        'User is not properly authenticated',
       );
     });
   });
@@ -159,11 +163,13 @@ describe('UserContextService', () => {
       expect(clsService.get).toHaveBeenCalledWith('user');
     });
 
-    it('should throw UnauthorizedException if user is not set', () => {
+    it('should throw UnauthorizedUserException if user is not set', () => {
       clsService.get.mockReturnValue(null);
 
-      expect(() => service.getCurrentUser()).toThrow(UnauthorizedException);
-      expect(() => service.getCurrentUser()).toThrow('User not authenticated');
+      expect(() => service.getCurrentUser()).toThrow(UnauthorizedUserException);
+      expect(() => service.getCurrentUser()).toThrow(
+        'User is not properly authenticated',
+      );
     });
   });
 });

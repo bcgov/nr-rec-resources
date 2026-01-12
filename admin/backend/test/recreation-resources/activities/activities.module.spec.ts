@@ -66,7 +66,6 @@ describe('ActivitiesModule', () => {
   });
 
   it('should export ActivitiesService', () => {
-    // Test that ActivitiesService can be retrieved from the module
     const service = module.get<ActivitiesService>(ActivitiesService);
     expect(service).toBeDefined();
   });

@@ -1,5 +1,5 @@
 import { Store } from '@tanstack/store';
-import { GalleryDocument, GalleryFile, GalleryImage } from '../types';
+import { FileType, GalleryDocument, GalleryFile, GalleryImage } from '../types';
 
 export interface RecResourceFileTransferState {
   selectedFileForUpload: GalleryFile | null;
@@ -81,33 +81,95 @@ export const hideDeleteModal = () => {
   setFileToDelete(undefined);
 };
 
+function addPendingFile<T extends GalleryFile>(file: T, type: FileType): void {
+  recResourceFileTransferStore.setState((prev) => {
+    if (type === 'document') {
+      return {
+        ...prev,
+        pendingDocs: [...prev.pendingDocs, file as GalleryDocument],
+      };
+    } else {
+      return {
+        ...prev,
+        pendingImages: [...prev.pendingImages, file as GalleryImage],
+      };
+    }
+  });
+}
+
+function updatePendingFile<T extends GalleryFile>(
+  id: string,
+  updates: Partial<T>,
+  type: FileType,
+): void {
+  recResourceFileTransferStore.setState((prev) => {
+    if (type === 'document') {
+      const idx = prev.pendingDocs.findIndex((d) => d.id === id);
+      if (idx === -1) return prev;
+      const updatedDocs = [...prev.pendingDocs];
+      updatedDocs[idx] = { ...updatedDocs[idx], ...updates };
+      return { ...prev, pendingDocs: updatedDocs };
+    } else {
+      const idx = prev.pendingImages.findIndex((img) => img.id === id);
+      if (idx === -1) return prev;
+      const updatedImages = [...prev.pendingImages];
+      updatedImages[idx] = { ...updatedImages[idx], ...updates };
+      return { ...prev, pendingImages: updatedImages };
+    }
+  });
+}
+
+function removePendingFile(id: string, type: FileType): void {
+  recResourceFileTransferStore.setState((prev) => {
+    if (type === 'document') {
+      return {
+        ...prev,
+        pendingDocs: prev.pendingDocs.filter((doc) => doc.id !== id),
+      };
+    } else {
+      return {
+        ...prev,
+        pendingImages: prev.pendingImages.filter((img) => img.id !== id),
+      };
+    }
+  });
+}
+
+function updateGalleryFile<T extends GalleryFile>(
+  id: string,
+  updates: Partial<T>,
+  type: FileType,
+): void {
+  recResourceFileTransferStore.setState((prev) => {
+    if (type === 'document') {
+      const idx = prev.galleryDocuments.findIndex((d) => d.id === id);
+      if (idx === -1) return prev;
+      const updatedDocs = [...prev.galleryDocuments];
+      updatedDocs[idx] = { ...updatedDocs[idx], ...updates };
+      return { ...prev, galleryDocuments: updatedDocs };
+    } else {
+      const idx = prev.galleryImages.findIndex((img) => img.id === id);
+      if (idx === -1) return prev;
+      const updatedImages = [...prev.galleryImages];
+      updatedImages[idx] = { ...updatedImages[idx], ...updates };
+      return { ...prev, galleryImages: updatedImages };
+    }
+  });
+}
+
 export function addPendingDoc(doc: GalleryDocument) {
-  recResourceFileTransferStore.setState((prev) => ({
-    ...prev,
-    pendingDocs: [...prev.pendingDocs, doc],
-  }));
+  addPendingFile(doc, 'document');
 }
 
 export function updatePendingDoc(
   id: string,
   updates: Partial<GalleryDocument>,
 ) {
-  recResourceFileTransferStore.setState((prev) => {
-    const idx = prev.pendingDocs.findIndex((d) => d.id === id);
-    if (idx === -1) {
-      return prev;
-    }
-    const updatedDocs = [...prev.pendingDocs];
-    updatedDocs[idx] = { ...updatedDocs[idx], ...updates };
-    return { ...prev, pendingDocs: updatedDocs };
-  });
+  updatePendingFile(id, updates, 'document');
 }
 
 export function removePendingDoc(id: string) {
-  recResourceFileTransferStore.setState((prev) => ({
-    ...prev,
-    pendingDocs: prev.pendingDocs.filter((doc) => doc.id !== id),
-  }));
+  removePendingFile(id, 'document');
 }
 
 export function setGalleryDocuments(docs: GalleryDocument[]) {
@@ -121,40 +183,19 @@ export function updateGalleryDocument(
   id: string,
   updates: Partial<GalleryDocument>,
 ) {
-  recResourceFileTransferStore.setState((prev) => {
-    const idx = prev.galleryDocuments.findIndex((d) => d.id === id);
-    if (idx === -1) return prev;
-    const updatedDocs = [...prev.galleryDocuments];
-    updatedDocs[idx] = { ...updatedDocs[idx], ...updates };
-    return { ...prev, galleryDocuments: updatedDocs };
-  });
+  updateGalleryFile(id, updates, 'document');
 }
 
-// Image-related functions
 export function addPendingImage(image: GalleryImage) {
-  recResourceFileTransferStore.setState((prev) => ({
-    ...prev,
-    pendingImages: [...prev.pendingImages, image],
-  }));
+  addPendingFile(image, 'image');
 }
 
 export function updatePendingImage(id: string, updates: Partial<GalleryImage>) {
-  recResourceFileTransferStore.setState((prev) => {
-    const idx = prev.pendingImages.findIndex((img) => img.id === id);
-    if (idx === -1) {
-      return prev;
-    }
-    const updatedImages = [...prev.pendingImages];
-    updatedImages[idx] = { ...updatedImages[idx], ...updates };
-    return { ...prev, pendingImages: updatedImages };
-  });
+  updatePendingFile(id, updates, 'image');
 }
 
 export function removePendingImage(id: string) {
-  recResourceFileTransferStore.setState((prev) => ({
-    ...prev,
-    pendingImages: prev.pendingImages.filter((img) => img.id !== id),
-  }));
+  removePendingFile(id, 'image');
 }
 
 export function setGalleryImages(images: GalleryImage[]) {
@@ -165,13 +206,7 @@ export function setGalleryImages(images: GalleryImage[]) {
 }
 
 export function updateGalleryImage(id: string, updates: Partial<GalleryImage>) {
-  recResourceFileTransferStore.setState((prev) => {
-    const idx = prev.galleryImages.findIndex((img) => img.id === id);
-    if (idx === -1) return prev;
-    const updatedImages = [...prev.galleryImages];
-    updatedImages[idx] = { ...updatedImages[idx], ...updates };
-    return { ...prev, galleryImages: updatedImages };
-  });
+  updateGalleryFile(id, updates, 'image');
 }
 
 export function resetRecResourceFileTransferStore() {

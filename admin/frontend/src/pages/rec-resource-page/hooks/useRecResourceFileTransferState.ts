@@ -57,43 +57,44 @@ export function useRecResourceFileTransferState() {
     setGalleryImages([...pendingImages, ...galleryImagesFromServer]);
   }, [pendingImages, galleryImagesFromServer]);
 
-  // Gallery actions (includes upload modal state)
   const { handleFileAction, handleGeneralAction } = useGalleryActions();
 
-  // Document action handlers
-  const getDocumentFileActionHandler = useCallback(
-    (action: GalleryFileAction, file: GalleryFile) => {
-      return () => {
-        handleFileAction(action, file, refetchDocuments);
-      };
-    },
-    [handleFileAction, refetchDocuments],
-  );
-  const getDocumentGeneralActionHandler = useCallback(
-    (action: GalleryGeneralAction) => {
-      return () => {
-        handleGeneralAction(action, 'document', refetchDocuments);
-      };
-    },
-    [handleGeneralAction, refetchDocuments],
+  const createFileActionHandler = useCallback(
+    (refetch: () => void) =>
+      (action: GalleryFileAction, file: GalleryFile) =>
+      () => {
+        handleFileAction(action, file, refetch);
+      },
+    [handleFileAction],
   );
 
-  // Image action handlers
-  const getImageFileActionHandler = useCallback(
-    (action: GalleryFileAction, file: GalleryFile) => {
-      return () => {
-        handleFileAction(action, file, refetchImages);
-      };
-    },
-    [handleFileAction, refetchImages],
+  const createGeneralActionHandler = useCallback(
+    (fileType: 'document' | 'image', refetch: () => void) =>
+      (action: GalleryGeneralAction) =>
+      () => {
+        handleGeneralAction(action, fileType, refetch);
+      },
+    [handleGeneralAction],
   );
-  const getImageGeneralActionHandler = useCallback(
-    (action: GalleryGeneralAction) => {
-      return () => {
-        handleGeneralAction(action, 'image', refetchImages);
-      };
-    },
-    [handleGeneralAction, refetchImages],
+
+  const getDocumentFileActionHandler = useMemo(
+    () => createFileActionHandler(refetchDocuments),
+    [createFileActionHandler, refetchDocuments],
+  );
+
+  const getDocumentGeneralActionHandler = useMemo(
+    () => createGeneralActionHandler('document', refetchDocuments),
+    [createGeneralActionHandler, refetchDocuments],
+  );
+
+  const getImageFileActionHandler = useMemo(
+    () => createFileActionHandler(refetchImages),
+    [createFileActionHandler, refetchImages],
+  );
+
+  const getImageGeneralActionHandler = useMemo(
+    () => createGeneralActionHandler('image', refetchImages),
+    [createGeneralActionHandler, refetchImages],
   );
 
   // Calculate upload disabled state based on total documents (server + pending)

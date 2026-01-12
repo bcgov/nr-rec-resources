@@ -17,12 +17,14 @@ export const EstablishmentOrderDeleteModal: FC<
 > = ({ show, file, onCancel, onConfirm }) => {
   if (!show || !file) return null;
 
-  const alertConfig = {
-    variant: 'danger' as const,
-    icon: faWarning,
-    iconColor: COLOR_RED,
-    text: 'Deleting this establishment order document is permanent and cannot be undone.',
-  };
+  const alerts = [
+    {
+      variant: 'danger' as const,
+      icon: faWarning,
+      iconColor: COLOR_RED,
+      text: 'Deleting this establishment order document is permanent and cannot be undone.',
+    },
+  ];
 
   return (
     <BaseFileModal
@@ -30,7 +32,7 @@ export const EstablishmentOrderDeleteModal: FC<
       onHide={onCancel}
       title="Delete establishment order"
       galleryFile={file}
-      alertConfig={alertConfig}
+      alerts={alerts}
       className="delete-file-modal"
       onCancel={onCancel}
       onConfirm={onConfirm}

@@ -27,93 +27,6 @@ describe('AppConfigService', () => {
     expect(service).toBeDefined();
   });
 
-  describe('DAM Configuration', () => {
-    it('should return DAM RST PDF collection ID', () => {
-      expect(service.damRstPdfCollectionId).toBe('test-pdf-collection');
-    });
-
-    it('should return DAM RST image collection ID', () => {
-      expect(service.damRstImageCollectionId).toBe('test-image-collection');
-    });
-
-    it('should return DAM URL', () => {
-      expect(service.damUrl).toBe('https://test-dam.example.com');
-    });
-
-    it('should return DAM resource type PDF with default value when not configured', async () => {
-      // Use vi.stubEnv to test default values
-      vi.stubEnv('DAM_RESOURCE_TYPE_PDF', undefined);
-      vi.stubEnv('DAM_RESOURCE_TYPE_IMAGE', undefined);
-
-      const module: TestingModule = await Test.createTestingModule({
-        imports: [
-          ConfigModule.forRoot({
-            isGlobal: true,
-            validate,
-            ignoreEnvFile: true,
-          }),
-        ],
-        providers: [AppConfigService],
-      }).compile();
-
-      const serviceWithoutTypes =
-        module.get<AppConfigService>(AppConfigService);
-      expect(serviceWithoutTypes.damResourceTypePdf).toBe(1);
-
-      // Restore original values
-      vi.unstubAllEnvs();
-    });
-
-    it('should return DAM resource type image with default value when not configured', async () => {
-      // Use vi.stubEnv to test default values
-      vi.stubEnv('DAM_RESOURCE_TYPE_PDF', undefined);
-      vi.stubEnv('DAM_RESOURCE_TYPE_IMAGE', undefined);
-
-      const module: TestingModule = await Test.createTestingModule({
-        imports: [
-          ConfigModule.forRoot({
-            isGlobal: true,
-            validate,
-            ignoreEnvFile: true,
-          }),
-        ],
-        providers: [AppConfigService],
-      }).compile();
-
-      const serviceWithoutTypes =
-        module.get<AppConfigService>(AppConfigService);
-      expect(serviceWithoutTypes.damResourceTypeImage).toBe(1);
-
-      // Restore original values
-      vi.unstubAllEnvs();
-    });
-
-    it('should return configured DAM resource type values when provided', async () => {
-      // Use vi.stubEnv to test specific values
-      vi.stubEnv('DAM_RESOURCE_TYPE_PDF', '3');
-      vi.stubEnv('DAM_RESOURCE_TYPE_IMAGE', '5');
-
-      const module: TestingModule = await Test.createTestingModule({
-        imports: [
-          ConfigModule.forRoot({
-            isGlobal: true,
-            validate,
-            ignoreEnvFile: true,
-          }),
-        ],
-        providers: [AppConfigService],
-      }).compile();
-
-      const serviceWithResourceTypes =
-        module.get<AppConfigService>(AppConfigService);
-      expect(serviceWithResourceTypes.damResourceTypePdf).toBe(3);
-      expect(serviceWithResourceTypes.damResourceTypeImage).toBe(5);
-
-      // Restore original values
-      vi.unstubAllEnvs();
-    });
-  });
-
   describe('Database Configuration', () => {
     it('should return database host', () => {
       expect(service.databaseHost).toBe('localhost');
@@ -147,7 +60,6 @@ describe('AppConfigService', () => {
     });
 
     it('should encode special characters in password', async () => {
-      // Use vi.stubEnv to test password encoding
       vi.stubEnv('POSTGRES_PASSWORD', 'test@pass#123');
 
       const module: TestingModule = await Test.createTestingModule({
@@ -167,7 +79,6 @@ describe('AppConfigService', () => {
         'postgresql://test_user:test%40pass%23123@localhost:5432/test_db?schema=test_schema&connection_limit=10';
       expect(serviceWithSpecialPass.databaseUrl).toBe(expectedUrl);
 
-      // Restore original value
       vi.unstubAllEnvs();
     });
   });

@@ -369,7 +369,6 @@ describe('FeesService', () => {
         .calls[0][0];
       expect(updateCallArg.where).toEqual({ fee_id: 123 });
 
-      // ensure we only send provided fields
       expect(updateCallArg.data).toMatchObject({
         recreation_fee_code: 'D',
         fee_amount: null,

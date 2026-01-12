@@ -35,12 +35,14 @@ export const DeleteFileModal: FC<DeleteFileModalProps> = () => {
   const handleConfirm = isImageDelete
     ? getImageGeneralActionHandler('confirm-delete')
     : getDocumentGeneralActionHandler('confirm-delete');
-  const alertConfig = {
-    variant: 'danger' as const,
-    icon: faWarning,
-    iconColor: COLOR_RED,
-    text: 'Deleting this file will remove it from the public site within 15 minutes. This action cannot be undone.',
-  };
+  const alerts = [
+    {
+      variant: 'danger' as const,
+      icon: faWarning,
+      iconColor: COLOR_RED,
+      text: 'Deleting this file will remove it from the public site within 15 minutes. This action cannot be undone.',
+    },
+  ];
 
   return (
     <BaseFileModal
@@ -48,7 +50,7 @@ export const DeleteFileModal: FC<DeleteFileModalProps> = () => {
       onHide={handleCancel}
       title="Delete File"
       galleryFile={fileToDelete}
-      alertConfig={alertConfig}
+      alerts={alerts}
       className="delete-file-modal"
       onCancel={handleCancel}
       onConfirm={handleConfirm}

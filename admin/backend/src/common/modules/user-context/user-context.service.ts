@@ -1,6 +1,7 @@
 import { KeycloakUserToken } from '@/auth/auth.types';
+import { UnauthorizedUserException } from '@/common/exceptions/unauthorized-user.exception';
 import { AuthIdentityProviderName } from '@/common/modules/user-context/user-context.types';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { ClsService } from 'nestjs-cls';
 
 /**
@@ -17,15 +18,13 @@ export class UserContextService {
 
   /**
    * Gets the current user's IDIR username
-   * @throws {UnauthorizedException} If user is not authenticated or missing IDIR username
+   * @throws {UnauthorizedUserException} If user is not authenticated or missing IDIR username
    */
   getCurrentUserName(): string {
     const user = this.cls.get<KeycloakUserToken>(this.USER_KEY);
 
     if (!user?.idir_username) {
-      throw new UnauthorizedException(
-        'User not authenticated or missing IDIR username',
-      );
+      throw new UnauthorizedUserException();
     }
 
     return user.idir_username;
@@ -57,13 +56,13 @@ export class UserContextService {
 
   /**
    * Gets the current user's token information
-   * @throws {UnauthorizedException} If user is not authenticated
+   * @throws {UnauthorizedUserException} If user is not authenticated
    */
   getCurrentUser(): KeycloakUserToken {
     const user = this.cls.get<KeycloakUserToken>(this.USER_KEY);
 
     if (!user) {
-      throw new UnauthorizedException('User not authenticated');
+      throw new UnauthorizedUserException();
     }
 
     return user;

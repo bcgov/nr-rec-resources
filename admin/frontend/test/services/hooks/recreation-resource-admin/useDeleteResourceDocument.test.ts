@@ -52,7 +52,7 @@ describe('useDeleteResourceDocument', () => {
   it('calls deleteDocumentResource with correct params', async () => {
     const params = {
       recResourceId: 'test-resource-123',
-      refId: 'test-document-456',
+      documentId: 'test-document-456',
     };
 
     mockDeleteDocumentResource.mockResolvedValueOnce({
@@ -67,14 +67,17 @@ describe('useDeleteResourceDocument', () => {
       await result.current.mutateAsync(params);
     });
 
-    expect(mockDeleteDocumentResource).toHaveBeenCalledWith(params);
+    expect(mockDeleteDocumentResource).toHaveBeenCalledWith({
+      recResourceId: 'test-resource-123',
+      documentId: 'test-document-456',
+    });
     expect(mockDeleteDocumentResource).toHaveBeenCalledTimes(1);
   });
 
   it('returns response from deleteDocumentResource', async () => {
     const params = {
       recResourceId: 'test-resource-123',
-      refId: 'test-document-456',
+      documentId: 'test-document-456',
     };
 
     const mockResponse = { success: true, id: 'test-document-456' };
@@ -95,7 +98,7 @@ describe('useDeleteResourceDocument', () => {
   it('throws error when deleteDocumentResource fails', async () => {
     const params = {
       recResourceId: 'test-resource-123',
-      refId: 'test-document-456',
+      documentId: 'test-document-456',
     };
 
     const mockError = new Error('Delete failed');
@@ -131,7 +134,7 @@ describe('useDeleteResourceDocument', () => {
   it('handles network errors gracefully', async () => {
     const params = {
       recResourceId: 'test-resource-123',
-      refId: 'test-document-456',
+      documentId: 'test-document-456',
     };
 
     const networkError = new Error('Network Error');

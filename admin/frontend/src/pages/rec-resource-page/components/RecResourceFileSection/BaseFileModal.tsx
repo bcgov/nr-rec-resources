@@ -1,23 +1,25 @@
 import { ClampLines, CustomButton } from '@/components';
 import { COLOR_RED } from '@/styles/colors';
-import { faFilePdf, IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { IconDefinition, faFilePdf } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FC, ReactNode } from 'react';
 import { Alert, AlertProps, ButtonProps, Modal, Stack } from 'react-bootstrap';
-import { GalleryFile } from '@/pages/rec-resource-page/types';
+import { GalleryFile } from '../../types';
 import './BaseFileModal.scss';
+
+interface AlertConfig {
+  variant: AlertProps['variant'];
+  icon: IconDefinition;
+  text: string;
+  iconColor?: string;
+}
 
 interface BaseFileModalProps {
   show: boolean;
   onHide: () => void;
   title: string;
   galleryFile: GalleryFile;
-  alertConfig?: {
-    variant: AlertProps['variant'];
-    icon: IconDefinition;
-    text: string;
-    iconColor?: string;
-  };
+  alerts?: AlertConfig[];
   children?: ReactNode;
   className?: string;
   onCancel?: () => void;
@@ -33,7 +35,7 @@ export const BaseFileModal: FC<BaseFileModalProps> = ({
   onHide,
   title,
   galleryFile,
-  alertConfig,
+  alerts,
   children,
   onCancel,
   onConfirm,
@@ -89,25 +91,27 @@ export const BaseFileModal: FC<BaseFileModalProps> = ({
         </Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        {alertConfig && (
+        {alerts?.map((alert, index) => (
           <Alert
-            variant={alertConfig.variant}
-            className={`${className}__alert base-file-modal__alert base-file-modal__alert--${alertConfig.variant} mb-3 d-flex align-items-center`}
+            key={index}
+            variant={alert.variant}
+            className={`${className}__alert base-file-modal__alert mb-3 d-flex align-items-center`}
           >
             <Stack direction="horizontal" gap={2}>
               <FontAwesomeIcon
-                icon={alertConfig.icon}
+                icon={alert.icon}
                 className={`${className}__alert-icon base-file-modal__alert-icon me-2`}
-                color={alertConfig.iconColor}
+                color={alert.iconColor}
+                aria-label={alert.variant === 'danger' ? 'Error' : undefined}
               />
               <span
                 className={`${className}__alert-text base-file-modal__alert-text`}
               >
-                {alertConfig.text}
+                {alert.text}
               </span>
             </Stack>
           </Alert>
-        )}
+        ))}
 
         {filePreview}
 

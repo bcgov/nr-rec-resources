@@ -17,8 +17,8 @@ export function useDocumentList(rec_resource_id?: string) {
   const galleryDocumentsFromServer: GalleryDocument[] = useMemo(
     () =>
       documentsFromServer.map((doc: RecreationResourceDocDto) => ({
-        id: doc.ref_id,
-        name: doc.title,
+        id: doc.document_id,
+        name: doc.file_name,
         date: formatGalleryFileDate(doc.created_at),
         url: doc.url,
         extension: doc.extension,

@@ -73,7 +73,7 @@ export function useEstablishmentOrderState(recResourceId: string) {
 
   const existingFileNames = useMemo(() => docs.map((doc) => doc.title), [docs]);
   const validator = useMemo(
-    () => createFileUploadValidator(existingFileNames),
+    () => createFileUploadValidator(existingFileNames, 'document'),
     [existingFileNames],
   );
   const fileNameError = useMemo(() => {

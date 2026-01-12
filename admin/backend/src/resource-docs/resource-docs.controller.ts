@@ -5,6 +5,7 @@ import {
   RecreationResourceAuthRole,
   ROLE_MODE,
 } from '@/auth';
+import { createFileValidationPipe } from '@/common/pipes/file-validation.pipe';
 import {
   Body,
   Controller,
@@ -12,7 +13,6 @@ import {
   Get,
   Param,
   Post,
-  Put,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -70,9 +70,9 @@ export class ResourceDocsController {
     return this.resourceDocsService.getAll(rec_resource_id);
   }
 
-  @Get(':rec_resource_id/docs/:ref_id')
+  @Get(':rec_resource_id/docs/:document_id')
   @ApiOperation({
-    summary: 'Get one document resource by reference ID',
+    summary: 'Get one document resource by document ID',
     operationId: 'getDocumentResourceById',
   })
   @ApiParam({
@@ -83,9 +83,9 @@ export class ResourceDocsController {
     example: 'REC204117',
   })
   @ApiParam({
-    name: 'ref_id',
+    name: 'document_id',
     required: true,
-    description: 'Document Resource identifier',
+    description: 'Document identifier',
     type: 'string',
     example: '11714',
   })
@@ -100,11 +100,11 @@ export class ResourceDocsController {
   })
   async getDocumentByResourceId(
     @Param('rec_resource_id') rec_resource_id: string,
-    @Param('ref_id') ref_id: string,
+    @Param('document_id') document_id: string,
   ): Promise<RecreationResourceDocDto | null> {
     return this.resourceDocsService.getDocumentByResourceId(
       rec_resource_id,
-      ref_id,
+      document_id,
     );
   }
 
@@ -149,59 +149,19 @@ export class ResourceDocsController {
   async createRecreationResourceDocument(
     @Param('rec_resource_id') rec_resource_id: string,
     @Body() body: CreateRecreationResourceDocBodyDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile(
+      createFileValidationPipe({ allowedTypes: ['application/pdf'] }),
+    )
+    file: Express.Multer.File,
   ): Promise<RecreationResourceDocDto | null> {
-    return this.resourceDocsService.create(rec_resource_id, body.title, file);
-  }
-
-  @Put(':rec_resource_id/docs/:ref_id')
-  @UseInterceptors(FileInterceptor('file'))
-  @ApiOperation({
-    summary: 'Update a Document Resource',
-    operationId: 'updateDocumentResource',
-  })
-  @ApiParam({
-    name: 'rec_resource_id',
-    required: true,
-    description: 'Resource identifier',
-    type: 'string',
-    example: 'REC204117',
-  })
-  @ApiParam({
-    name: 'ref_id',
-    required: true,
-    description: 'Document Resource identifier',
-    type: 'string',
-    example: '11714',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Document Updated',
-    type: RecreationResourceDocDto,
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Recreation Resource document not found',
-  })
-  @ApiResponse({ status: 413, description: 'File too large' })
-  @ApiResponse({ status: 500, description: 'Error updating document' })
-  @ApiResponse({ status: 415, description: 'File Type not allowed' })
-  @ApiResponse({ status: 419, description: 'Error uploading file' })
-  async update(
-    @Param('rec_resource_id') rec_resource_id: string,
-    @Param('ref_id') ref_id: string,
-    @Body() body: CreateRecreationResourceDocBodyDto,
-    @UploadedFile() file: Express.Multer.File,
-  ): Promise<RecreationResourceDocDto | null> {
-    return this.resourceDocsService.update(
+    return this.resourceDocsService.create(
       rec_resource_id,
-      ref_id,
-      body.title,
+      body.file_name,
       file,
     );
   }
 
-  @Delete(':rec_resource_id/docs/:ref_id')
+  @Delete(':rec_resource_id/docs/:document_id')
   @ApiOperation({
     summary: 'Delete a Document Resource',
     operationId: 'deleteDocumentResource',
@@ -214,9 +174,9 @@ export class ResourceDocsController {
     example: 'REC204117',
   })
   @ApiParam({
-    name: 'ref_id',
+    name: 'document_id',
     required: true,
-    description: 'Document Resource identifier',
+    description: 'Document identifier',
     type: 'string',
     example: '11714',
   })
@@ -233,8 +193,8 @@ export class ResourceDocsController {
   @ApiResponse({ status: 420, description: 'Error deleting resource' })
   async delete(
     @Param('rec_resource_id') rec_resource_id: string,
-    @Param('ref_id') ref_id: string,
-  ): Promise<RecreationResourceDocDto | null> {
-    return this.resourceDocsService.delete(rec_resource_id, ref_id);
+    @Param('document_id') document_id: string,
+  ): Promise<RecreationResourceDocDto> {
+    return this.resourceDocsService.delete(rec_resource_id, document_id);
   }
 }

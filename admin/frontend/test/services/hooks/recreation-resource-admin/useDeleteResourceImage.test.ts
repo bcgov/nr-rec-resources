@@ -58,7 +58,7 @@ describe('useDeleteResourceImage', () => {
   it('should call deleteImageResource with correct parameters', async () => {
     const mockParams = {
       recResourceId: 'test-resource-id',
-      refId: 'test-image-id',
+      imageId: 'test-image-id',
     };
 
     mockApi.deleteImageResource.mockResolvedValue({ success: true });
@@ -69,6 +69,10 @@ describe('useDeleteResourceImage', () => {
 
     await result.current.mutateAsync(mockParams);
 
-    expect(mockApi.deleteImageResource).toHaveBeenCalledWith(mockParams);
+    // Verify that imageId is passed directly to the API call
+    expect(mockApi.deleteImageResource).toHaveBeenCalledWith({
+      recResourceId: 'test-resource-id',
+      imageId: 'test-image-id',
+    });
   });
 });

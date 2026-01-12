@@ -2,8 +2,6 @@
 /* eslint-disable */
 export * from './BadRequestResponseDto';
 export * from './CreateRecreationFeeDto';
-export * from './CreateRecreationResourceDocBodyDto';
-export * from './CreateRecreationResourceImageBodyDto';
 export * from './EstablishmentOrderDocDto';
 export * from './HealthControllerCheck200Response';
 export * from './HealthControllerCheck200ResponseInfoValue';

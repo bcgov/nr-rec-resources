@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react';
-import { type ReactNode, createElement } from 'react';
+import { createElement, type ReactNode } from 'react';
 import { Mock, vi } from 'vitest';
 
 // Mock dependencies first - this needs to be before imports
@@ -13,17 +13,13 @@ vi.mock(
 
 vi.mock('@/services/hooks/recreation-resource-admin/helpers', () => ({
   createRetryHandler: vi.fn(),
-  transformRecreationResourceImages: vi.fn(),
 }));
 
 vi.mock('@/store/notificationStore', () => ({
   addErrorNotification: vi.fn(),
 }));
 
-import {
-  createRetryHandler,
-  transformRecreationResourceImages,
-} from '@/services/hooks/recreation-resource-admin/helpers';
+import { createRetryHandler } from '@/services/hooks/recreation-resource-admin/helpers';
 import { useGetImagesByRecResourceId } from '@/services/hooks/recreation-resource-admin/useGetImagesByRecResourceId';
 import { useRecreationResourceAdminApiClient } from '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient';
 import * as notificationStore from '@/store/notificationStore';
@@ -53,9 +49,6 @@ describe('useGetImagesByRecResourceId', () => {
     vi.clearAllMocks();
     (useRecreationResourceAdminApiClient as Mock).mockReturnValue(mockApi);
     (createRetryHandler as Mock).mockReturnValue(mockRetryHandler);
-    (transformRecreationResourceImages as Mock).mockImplementation(
-      (data: any) => data,
-    );
   });
 
   it('should return query with correct initial data', () => {

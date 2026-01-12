@@ -5,6 +5,7 @@ import {
   RecreationResourceAuthRole,
   ROLE_MODE,
 } from '@/auth';
+import { createFileValidationPipe } from '@/common/pipes/file-validation.pipe';
 import {
   Body,
   Controller,
@@ -119,7 +120,10 @@ export class EstablishmentOrderDocsController {
   async create(
     @Param('rec_resource_id') rec_resource_id: string,
     @Body() body: CreateEstablishmentOrderDocBodyDto,
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile(
+      createFileValidationPipe({ allowedTypes: ['application/pdf'] }),
+    )
+    file: Express.Multer.File,
   ): Promise<EstablishmentOrderDocDto> {
     return this.establishmentOrderDocsService.create(
       rec_resource_id,

@@ -1,54 +1,63 @@
 import { AppConfigService } from '@/app-config/app-config.service';
-import { DamApiService } from '@/dam-api/dam-api.service';
+import {
+  BaseStorageFileService,
+  StorageConfig,
+} from '@/common/services/base-storage-file-service';
 import { HttpException, Injectable } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 import { PrismaService } from 'src/prisma.service';
-import { RecreationResourceImageDto } from '../dto/recreation-resource-image.dto';
-import { DamMetadataDto } from '@/dam-api/dto/dam-metadata.dto';
+import {
+  RecreationResourceImageDto,
+  RecreationResourceImageSize,
+} from '../dto/recreation-resource-image.dto';
+import { RecResourceImagesS3Service } from './rec-resource-images-s3.service';
 
-const allowedTypes = [
-  'image/apng',
-  'image/avif',
-  'image/gif',
-  'image/jpeg',
-  'image/png',
-  'image/svg+xml',
-  'image/webp',
-];
+// Constants
+const REQUIRED_VARIANTS = ['original', 'scr', 'pre', 'thm'] as const;
+type ImageVariantType = (typeof REQUIRED_VARIANTS)[number];
+
+interface ImageVariantFiles {
+  original: Express.Multer.File;
+  scr: Express.Multer.File;
+  pre: Express.Multer.File;
+  thm: Express.Multer.File;
+}
 
 @Injectable()
-export class ResourceImagesService {
-  imagecollectionId: string;
-
+export class ResourceImagesService extends BaseStorageFileService {
   constructor(
-    private readonly prisma: PrismaService,
-    private readonly appConfig: AppConfigService,
-    private readonly damApiService: DamApiService,
+    prisma: PrismaService,
+    appConfig: AppConfigService,
+    private readonly s3Service: RecResourceImagesS3Service,
   ) {
-    this.imagecollectionId = this.appConfig.damRstImageCollectionId;
+    super(ResourceImagesService.name, prisma, appConfig);
+  }
+
+  /**
+   * Get storage configuration for resource images
+   */
+  protected getStorageConfig(): StorageConfig {
+    return {
+      bucketName: this.appConfig.recResourceImagesBucket,
+      cloudfrontUrl: this.appConfig.recResourceStorageCloudfrontUrl,
+      endpointUrl: this.appConfig.awsEndpointUrl,
+    };
   }
 
   async getAll(
     rec_resource_id: string,
   ): Promise<RecreationResourceImageDto[] | null> {
-    const result = await this.prisma.recreation_resource_images.findMany({
+    const result = await this.prisma.recreation_resource_image.findMany({
       where: {
         rec_resource_id,
       },
       select: {
         rec_resource_id: true,
-        caption: true,
-        ref_id: true,
+        image_id: true,
+        file_name: true,
+        extension: true,
+        file_size: true,
         created_at: true,
-        recreation_resource_image_variants: {
-          select: {
-            url: true,
-            extension: true,
-            width: true,
-            height: true,
-            size_code: true,
-            created_at: true,
-          },
-        },
       },
     });
     return result.map((i) => this.mapResponse(i));
@@ -56,28 +65,20 @@ export class ResourceImagesService {
 
   async getImageByResourceId(
     rec_resource_id: string,
-    ref_id: string,
+    image_id: string,
   ): Promise<RecreationResourceImageDto> {
-    const result = await this.prisma.recreation_resource_images.findUnique({
+    const result = await this.prisma.recreation_resource_image.findUnique({
       where: {
         rec_resource_id,
-        ref_id,
+        image_id,
       },
       select: {
         rec_resource_id: true,
-        caption: true,
-        ref_id: true,
+        image_id: true,
+        file_name: true,
+        extension: true,
+        file_size: true,
         created_at: true,
-        recreation_resource_image_variants: {
-          select: {
-            url: true,
-            extension: true,
-            width: true,
-            height: true,
-            size_code: true,
-            created_at: true,
-          },
-        },
       },
     });
 
@@ -90,112 +91,167 @@ export class ResourceImagesService {
 
   async create(
     rec_resource_id: string,
-    title: string,
-    file: Express.Multer.File,
+    file_name: string,
+    variantFiles: ImageVariantFiles,
   ): Promise<RecreationResourceImageDto> {
-    if (!allowedTypes.includes(file.mimetype)) {
-      throw new HttpException('File Type not allowed', 415);
-    }
-    const resource = await this.prisma.recreation_resource.findUnique({
-      where: {
-        rec_resource_id,
-      },
-    });
-    if (resource === null) {
-      throw new HttpException('Recreation image not found', 404);
-    }
-    const metadata: DamMetadataDto = {
-      title,
-      closestCommunity: resource.closest_community,
-      recreationResource: `${resource.name} - ${resource.rec_resource_id}`,
-      recreationRegionDistrict: resource.district_code,
-    };
-    const { ref_id, files } =
-      await this.damApiService.createAndUploadImageWithRetry(metadata, file);
+    // File validation (MIME type, size, presence) is handled by multi-file validation pipe at controller level
 
-    const result = await this.prisma.recreation_resource_images.create({
-      data: {
-        ref_id: ref_id.toString(),
+    // Check if resource exists
+    await this.validateResourceExists(rec_resource_id);
+
+    // Generate image_id
+    const image_id = randomUUID();
+
+    try {
+      // Prepare variants for upload
+      // Only tag the original variant with file_name (others are derivatives)
+      const variants = REQUIRED_VARIANTS.map((sizeCode) => ({
+        sizeCode,
+        buffer: variantFiles[sizeCode].buffer,
+        metadata:
+          sizeCode === 'original'
+            ? {
+                filename: file_name,
+              }
+            : undefined,
+      }));
+
+      // Upload all variants to S3 (transactional) with metadata tags
+      await this.s3Service.uploadImageVariants(
         rec_resource_id,
-        caption: title,
-        recreation_resource_image_variants: {
-          create: files.map((f: any) => {
-            return {
-              size_code: f.size_code,
-              url: this.getFilePath(f.url),
-              width: f.width,
-              height: f.height,
-              extension: f.extension,
-            };
-          }),
-        },
-      },
-    });
-    return this.mapResponse(result);
+        image_id,
+        variants,
+      );
+
+      this.logger.log(
+        `Successfully uploaded ${variants.length} image variants to S3 for rec_resource_id: ${rec_resource_id}, image_id: ${image_id}`,
+      );
+
+      const result = await this.createDatabaseRecord(
+        rec_resource_id,
+        image_id,
+        file_name,
+        variantFiles.original.size,
+      );
+
+      return this.mapResponse(result);
+    } catch (error) {
+      this.handleError(
+        error,
+        `Failed to create image for rec_resource_id: ${rec_resource_id}`,
+        'Failed to upload image',
+      );
+    }
   }
 
-  async update(
+  /**
+   * Create database record with image and variants
+   */
+  private async createDatabaseRecord(
     rec_resource_id: string,
-    ref_id: string,
-    caption: string,
-    file: Express.Multer.File | undefined,
-  ): Promise<RecreationResourceImageDto> {
-    const resource = await this.prisma.recreation_resource_images.findUnique({
-      where: {
-        rec_resource_id,
-        ref_id,
-      },
-    });
-    if (resource === null) {
-      throw new HttpException('Recreation image not found', 404);
-    }
-    if (file) {
-      if (!allowedTypes.includes(file.mimetype)) {
-        throw new HttpException('File Type not allowed', 415);
-      }
-      await this.damApiService.uploadFile(ref_id, file);
-    }
-
-    const result = await this.prisma.recreation_resource_images.update({
-      where: {
-        rec_resource_id,
-        ref_id,
-      },
+    image_id: string,
+    file_name: string,
+    file_size: number,
+  ) {
+    return this.prisma.recreation_resource_image.create({
       data: {
-        caption,
+        image_id,
+        rec_resource_id,
+        file_name: file_name,
+        extension: 'webp',
+        file_size: BigInt(file_size),
+        created_by: 'system',
+        created_at: new Date(),
       },
     });
-
-    return this.mapResponse(result);
   }
 
   async delete(
     rec_resource_id: string,
-    ref_id: string,
+    image_id: string,
   ): Promise<RecreationResourceImageDto | null> {
-    await this.damApiService.deleteResource(ref_id);
-    await this.prisma.recreation_resource_image_variants.deleteMany({
-      where: {
-        ref_id,
-      },
-    });
-    const result = await this.prisma.recreation_resource_images.delete({
+    // Check if resource exists
+    const resource = await this.prisma.recreation_resource_image.findUnique({
       where: {
         rec_resource_id,
-        ref_id,
+        image_id,
       },
     });
 
-    return this.mapResponse(result);
+    if (resource === null) {
+      throw new HttpException('Recreation Resource image not found', 404);
+    }
+
+    try {
+      // Delete all S3 objects for this image
+      await this.s3Service.deleteImageVariants(rec_resource_id, image_id);
+
+      // Delete database record
+      const result = await this.prisma.recreation_resource_image.delete({
+        where: {
+          rec_resource_id,
+          image_id,
+        },
+      });
+
+      this.logger.log(
+        `Successfully deleted image for rec_resource_id: ${rec_resource_id}, image_id: ${image_id}`,
+      );
+
+      return this.mapResponse(result);
+    } catch (error) {
+      this.handleError(
+        error,
+        `Failed to delete image for rec_resource_id: ${rec_resource_id}, image_id: ${image_id}`,
+        'Failed to delete image',
+      );
+    }
   }
 
-  private getFilePath(originalUrl: string) {
-    return originalUrl.replace(`${this.appConfig.damUrl}`, '');
+  private constructS3Path(
+    rec_resource_id: string,
+    image_id: string,
+    sizeCode: string,
+  ): string {
+    return `images/${rec_resource_id}/${image_id}/${sizeCode}.webp`;
   }
 
-  private mapResponse(payload: any) {
+  private constructImageUrl(
+    rec_resource_id: string,
+    image_id: string,
+    variant: string,
+  ): string {
+    const key = this.constructS3Path(rec_resource_id, image_id, variant);
+    return this.getPublicUrl(key);
+  }
+
+  private mapResponse(payload: any): RecreationResourceImageDto {
+    const sizeCodeMap: Record<ImageVariantType, RecreationResourceImageSize> = {
+      original: RecreationResourceImageSize.ORIGINAL,
+      scr: RecreationResourceImageSize.SCREEN,
+      pre: RecreationResourceImageSize.PREVIEW,
+      thm: RecreationResourceImageSize.THUMBNAIL,
+    };
+
+    // Generate URLs for all variants (synchronous - direct URL construction)
+    const variants = REQUIRED_VARIANTS.map((sizeCode) => ({
+      url: this.constructImageUrl(
+        payload.rec_resource_id,
+        payload.image_id,
+        sizeCode,
+      ),
+      size_code: sizeCodeMap[sizeCode],
+      extension: 'webp',
+      width: 0,
+      height: 0,
+    }));
+
     return {
-      ...payload,
+      ref_id: payload.image_id, // Map image_id to ref_id for backward compatibility
+      image_id: payload.image_id,
+      file_name: payload.file_name,
+      created_at: payload.created_at,
+      recreation_resource_image_variants: variants,
     };
   }
 }

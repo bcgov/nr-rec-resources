@@ -3,23 +3,7 @@ import { EstablishmentOrderDocsService } from '@/establishment-order-docs/establ
 import { HttpException, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-
-const createMockFile = (
-  filename: string,
-  mimetype: string = 'application/pdf',
-  size: number = 1024000,
-): Express.Multer.File => ({
-  fieldname: 'file',
-  originalname: filename,
-  encoding: '7bit',
-  mimetype,
-  size,
-  buffer: Buffer.from('mock file content'),
-  stream: null as any,
-  destination: '',
-  filename: '',
-  path: '',
-});
+import { createMockFile } from '../test-utils/file-test-utils';
 
 describe('EstablishmentOrderDocsController', () => {
   let controller: EstablishmentOrderDocsController;
@@ -135,7 +119,7 @@ describe('EstablishmentOrderDocsController', () => {
 
   describe('create', () => {
     it('should create establishment order document successfully', async () => {
-      const mockFile = createMockFile('test-order.pdf');
+      const mockFile = createMockFile({ originalname: 'test-order.pdf' });
       const body = { title: 'Test Order 2024' };
       const result = {
         s3_key: 'REC0001/Test Order 2024.pdf',
@@ -162,7 +146,10 @@ describe('EstablishmentOrderDocsController', () => {
     });
 
     it('should throw 415 error for invalid file type', async () => {
-      const mockFile = createMockFile('test.txt', 'text/plain');
+      const mockFile = createMockFile({
+        originalname: 'test.txt',
+        mimetype: 'text/plain',
+      });
       const body = { title: 'Test Document' };
 
       vi.spyOn(establishmentOrderDocsService, 'create').mockRejectedValue(
@@ -179,7 +166,7 @@ describe('EstablishmentOrderDocsController', () => {
     });
 
     it('should throw 404 error when recreation resource not found', async () => {
-      const mockFile = createMockFile('test-order.pdf');
+      const mockFile = createMockFile({ originalname: 'test-order.pdf' });
       const body = { title: 'Test Order' };
 
       vi.spyOn(establishmentOrderDocsService, 'create').mockRejectedValue(
@@ -196,7 +183,7 @@ describe('EstablishmentOrderDocsController', () => {
     });
 
     it('should handle S3 upload errors', async () => {
-      const mockFile = createMockFile('test-order.pdf');
+      const mockFile = createMockFile({ originalname: 'test-order.pdf' });
       const body = { title: 'Test Order' };
 
       vi.spyOn(establishmentOrderDocsService, 'create').mockRejectedValue(
@@ -209,7 +196,7 @@ describe('EstablishmentOrderDocsController', () => {
     });
 
     it('should pass correct parameters from body and file', async () => {
-      const mockFile = createMockFile('document.pdf');
+      const mockFile = createMockFile({ originalname: 'document.pdf' });
       const body = { title: 'Important Document' };
       const result = {
         s3_key: 'REC0001/Important Document.pdf',
