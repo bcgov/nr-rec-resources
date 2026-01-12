@@ -4,6 +4,10 @@ locals {
   # Managed Cache Policy: CachingOptimized
   # https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-cache-policies.html
   cache_policy_caching_optimized = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+
+  # Managed Response Headers Policy: CORS-with-preflight
+  # https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-managed-response-headers-policies.html
+  response_headers_policy_cors_preflight = "5cc3b908-e619-4b99-88e5-2cf7f45965bd"
 }
 
 # =============================================================================
@@ -100,7 +104,8 @@ resource "aws_cloudfront_distribution" "storage" {
     compress               = true
     viewer_protocol_policy = "redirect-to-https"
 
-    cache_policy_id = local.cache_policy_caching_optimized
+    cache_policy_id            = local.cache_policy_caching_optimized
+    response_headers_policy_id = local.response_headers_policy_cors_preflight
   }
 
   # Cache behavior for images path
@@ -112,7 +117,8 @@ resource "aws_cloudfront_distribution" "storage" {
     compress               = true
     viewer_protocol_policy = "redirect-to-https"
 
-    cache_policy_id = local.cache_policy_caching_optimized
+    cache_policy_id            = local.cache_policy_caching_optimized
+    response_headers_policy_id = local.response_headers_policy_cors_preflight
   }
 
   # Cache behavior for documents path
@@ -124,7 +130,8 @@ resource "aws_cloudfront_distribution" "storage" {
     compress               = true
     viewer_protocol_policy = "redirect-to-https"
 
-    cache_policy_id = local.cache_policy_caching_optimized
+    cache_policy_id            = local.cache_policy_caching_optimized
+    response_headers_policy_id = local.response_headers_policy_cors_preflight
   }
 
   restrictions {
