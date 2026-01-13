@@ -3,8 +3,47 @@ import { Route as IndexRoute } from '@/routes/rec-resource/$id/geospatial';
 import { recResourceGeospatialLoader } from '@/services/loaders/recResourceGeospatialLoader';
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { describe, expect, it } from 'vitest';
+import { render, screen } from '@testing-library/react';
+
+vi.mock(
+  '@/pages/rec-resource-page/components/RecResourceGeospatialSection',
+  () => ({
+    RecResourceGeospatialEditSection: () => (
+      <div data-testid="rec-resource-geospatial-edit-section">
+        Geospatial Features Page
+      </div>
+    ),
+  }),
+);
+
+vi.mock('@/contexts/feature-flags', () => ({
+  FeatureFlagRouteGuard: ({
+    children,
+    requiredFlags,
+  }: {
+    children: React.ReactNode;
+    requiredFlags: string[];
+  }) => (
+    <div
+      data-testid="feature-flag-route-guard"
+      data-flags={requiredFlags.join(',')}
+    >
+      {children}
+    </div>
+  ),
+}));
 
 describe('RecResource Geospatial Edit Route', () => {
+  it('should render component with FeatureFlagRouteGuard', () => {
+    const Component = EditRoute.options.component!;
+    render(<Component />);
+    const guard = screen.getByTestId('feature-flag-route-guard');
+    expect(guard).toHaveAttribute('data-flags', 'enable_full_features');
+    expect(guard).toContainElement(
+      screen.getByTestId('rec-resource-geospatial-edit-section'),
+    );
+  });
+
   it('should export a Route with correct component', () => {
     expect(EditRoute).toBeDefined();
     expect(EditRoute.options.component).toBeDefined();

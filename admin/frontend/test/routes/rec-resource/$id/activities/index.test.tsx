@@ -65,6 +65,27 @@ describe('RecResourceActivitiesRoute', () => {
     expect(result.tab).toBe(RecResourceNavKey.ACTIVITIES);
   });
 
+  it('should generate breadcrumb', () => {
+    const beforeLoad = Route.options.beforeLoad as any;
+    const params = { id: 'REC123' };
+    const context = {};
+
+    const result = beforeLoad({ params, context });
+    const loaderData = {
+      recResource: { name: 'test resource' },
+    };
+
+    const breadcrumb = result.breadcrumb(loaderData);
+
+    expect(breadcrumb).toHaveLength(3);
+    expect(breadcrumb[0].label).toBe('Home');
+    expect(breadcrumb[1].label).toBe('Test Resource');
+    expect(breadcrumb[2]).toEqual({
+      label: 'Activities & features',
+      href: '/rec-resource/REC123/activities-features',
+    });
+  });
+
   it('should return tab in beforeLoad result', () => {
     const beforeLoad = Route.options.beforeLoad;
     expect(beforeLoad).toBeDefined();
