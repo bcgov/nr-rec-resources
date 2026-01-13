@@ -26,21 +26,32 @@ jobs:
     environment: test
     permissions:
       issues: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Backend
+            target: ${{ secrets.API_URL }}/api
+            artifact: zap_backend
+            title: "ZAP: Backend"
+          - name: Frontend
+            target: ${{ secrets.APP_URL }}
+            artifact: zap_frontend
+            title: "ZAP: Frontend"
+          - name: Admin Backend
+            target: ${{ secrets.ADMIN_API_URL }}/api
+            artifact: zap_admin_backend
+            title: "ZAP: Admin Backend"
+          - name: Admin Frontend
+            target: ${{ secrets.ADMIN_APP_URL }}
+            artifact: zap_admin_frontend
+            title: "ZAP: Admin Frontend"
     steps:
-      - name: ZAP Scan - Backend
+      - name: ZAP Scan - ${{ matrix.name }}
         uses: zaproxy/action-full-scan@v0.13.0
         with:
           allow_issue_writing: true
-          artifact_name: "zap_backend"
+          artifact_name: ${{ matrix.artifact }}
           cmd_options: "-a"
-          issue_title: "ZAP: Backend"
-          target: ${{ secrets.API_URL }}/api
-
-      - name: ZAP Scan - Frontend
-        uses: zaproxy/action-full-scan@v0.13.0
-        with:
-          allow_issue_writing: true
-          artifact_name: "zap_frontend"
-          cmd_options: "-a"
-          issue_title: "ZAP: Frontend"
-          target: ${{ secrets.APP_URL }}
+          issue_title: ${{ matrix.title }}
+          target: ${{ matrix.target }}
