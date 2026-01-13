@@ -3,9 +3,10 @@ import { RecResourceGeospatialPage } from '@/pages/rec-resource-page/RecResource
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { recResourceGeospatialLoader } from '@/services/loaders/recResourceGeospatialLoader';
 import { Route as ParentRoute } from '@/routes/rec-resource/$id';
+import { FeatureFlagRouteGuard } from '@/contexts/feature-flags';
 
 export const Route = createFileRoute('/rec-resource/$id/geospatial/')({
-  component: RecResourceGeospatialPage,
+  component: RecResourceGeospatialPageRoute,
   loader: recResourceGeospatialLoader,
   beforeLoad: ({ params, context }) => {
     const parentBeforeLoad = ParentRoute.options.beforeLoad?.({
@@ -28,3 +29,11 @@ export const Route = createFileRoute('/rec-resource/$id/geospatial/')({
     };
   },
 });
+
+function RecResourceGeospatialPageRoute() {
+  return (
+    <FeatureFlagRouteGuard requiredFlags={['enable_full_features']}>
+      <RecResourceGeospatialPage />
+    </FeatureFlagRouteGuard>
+  );
+}

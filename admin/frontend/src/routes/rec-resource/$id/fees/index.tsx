@@ -4,9 +4,10 @@ import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { recResourceFeesLoader } from '@/services/loaders/recResourceFeesLoader';
 import { Route as ParentRoute } from '@/routes/rec-resource/$id';
 import { BreadcrumbItem } from '@shared/components/breadcrumbs';
+import { FeatureFlagRouteGuard } from '@/contexts/feature-flags';
 
 export const Route = createFileRoute('/rec-resource/$id/fees/')({
-  component: RecResourceFeesPage,
+  component: RecResourceFeesPageRoute,
   loader: recResourceFeesLoader,
   beforeLoad: ({ params, context }) => {
     const parentBeforeLoad = ParentRoute.options.beforeLoad?.({
@@ -28,3 +29,11 @@ export const Route = createFileRoute('/rec-resource/$id/fees/')({
     };
   },
 });
+
+function RecResourceFeesPageRoute() {
+  return (
+    <FeatureFlagRouteGuard requiredFlags={['enable_full_features']}>
+      <RecResourceFeesPage />
+    </FeatureFlagRouteGuard>
+  );
+}

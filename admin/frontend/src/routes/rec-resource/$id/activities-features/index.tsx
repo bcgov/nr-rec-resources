@@ -1,3 +1,4 @@
+import { FeatureFlagRouteGuard } from '@/contexts/feature-flags';
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { RecResourceActivitiesFeaturesPage } from '@/pages/rec-resource-page/RecResourceActivitiesFeaturesPage';
 import { Route as ParentRoute } from '@/routes/rec-resource/$id';
@@ -30,5 +31,9 @@ export const Route = createFileRoute('/rec-resource/$id/activities-features/')({
 });
 
 function RecResourceActivitiesFeaturesRoute() {
-  return <RecResourceActivitiesFeaturesPage />;
+  return (
+    <FeatureFlagRouteGuard requiredFlags={['enable_full_features']}>
+      <RecResourceActivitiesFeaturesPage />;
+    </FeatureFlagRouteGuard>
+  );
 }
