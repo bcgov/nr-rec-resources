@@ -1,11 +1,10 @@
-import { FileUploadModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/FileUploadModal';
+import { DocumentUploadModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/DocumentUploadModal';
 import * as fileTransferState from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
 import { setUploadFileName } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
 import { TestQueryClientProvider } from '@test/test-utils';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Mock utility functions
 vi.mock('@shared/utils', () => ({
   getFileNameWithoutExtension: vi.fn((file) => file.name.split('.')[0]),
 }));
@@ -14,7 +13,6 @@ vi.mock('@/utils/imageUtils', () => ({
   isImageFile: vi.fn((file) => file.type.startsWith('image/')),
 }));
 
-// Mock BaseFileModal
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceFileSection/BaseFileModal',
   () => ({
@@ -55,17 +53,17 @@ const mockUseRecResourceFileTransferState = vi.mocked(
 );
 const mockSetUploadFileName = vi.mocked(setUploadFileName);
 
-describe('FileUploadModal', () => {
+describe('DocumentUploadModal', () => {
   const createFile = (
-    name = 'test.png',
-    fileType = 'image/png',
-    galleryType: 'image' | 'document' = 'image',
+    name = 'test.pdf',
+    fileType = 'application/pdf',
+    galleryType: 'image' | 'document' = 'document',
   ) => ({
     id: 'test-id',
     name,
     date: '2023-01-01',
     url: '',
-    extension: name.split('.').pop() || 'png',
+    extension: name.split('.').pop() || 'pdf',
     type: galleryType,
     pendingFile: new File(['test content'], name, { type: fileType }),
   });
@@ -93,7 +91,7 @@ describe('FileUploadModal', () => {
   };
 
   const renderModal = () =>
-    render(<FileUploadModal />, { wrapper: TestQueryClientProvider });
+    render(<DocumentUploadModal />, { wrapper: TestQueryClientProvider });
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -112,13 +110,14 @@ describe('FileUploadModal', () => {
       expect(renderModal().container.firstChild).toBeNull();
     });
 
-    it('renders with correct title based on file type', () => {
+    it('renders with correct title for documents and returns null for images', () => {
+      // Images should return null - handled by ImageUploadModal
       setMockState({
         showUploadOverlay: true,
         selectedFileForUpload: createFile('test.jpg', 'image/jpeg', 'image'),
       });
-      renderModal();
-      expect(screen.getByText('Upload image')).toBeInTheDocument();
+      const { container: imageContainer } = renderModal();
+      expect(imageContainer.firstChild).toBeNull();
 
       setMockState({
         showUploadOverlay: true,
@@ -129,7 +128,7 @@ describe('FileUploadModal', () => {
         ),
       });
       renderModal();
-      expect(screen.getByText('Upload file')).toBeInTheDocument();
+      expect(screen.getByText('Upload document')).toBeInTheDocument();
     });
   });
 

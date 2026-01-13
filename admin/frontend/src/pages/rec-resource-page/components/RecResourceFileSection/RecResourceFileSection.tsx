@@ -1,5 +1,6 @@
 import { DeleteFileModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/DeleteFileModal';
-import { FileUploadModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/FileUploadModal';
+import { DocumentUploadModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/DocumentUploadModal';
+import { ImageUploadModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal';
 import { useRecResourceFileTransferState } from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
 import { resetRecResourceFileTransferStore } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
 import { GalleryDocument, GalleryImage } from '@/pages/rec-resource-page/types';
@@ -78,7 +79,8 @@ export const RecResourceFileSection = () => {
         renderItem={renderGalleryDocumentCard}
       />
 
-      <FileUploadModal />
+      <DocumentUploadModal />
+      <ImageUploadModal />
       <DeleteFileModal />
     </>
   );

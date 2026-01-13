@@ -4,7 +4,7 @@ import { faFilePdf, IconDefinition } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FC, ReactNode } from 'react';
 import { Alert, AlertProps, ButtonProps, Modal, Stack } from 'react-bootstrap';
-import { GalleryFile } from '../../types';
+import { GalleryFile } from '@/pages/rec-resource-page/types';
 import './BaseFileModal.scss';
 
 interface BaseFileModalProps {
@@ -45,18 +45,20 @@ export const BaseFileModal: FC<BaseFileModalProps> = ({
 }) => {
   if (!show) return null;
 
-  // Determine if we're dealing with an image
   const isImage = galleryFile.type === 'image';
 
   // Create preview component
   const filePreview = (() => {
     if (isImage) {
       return (
-        <img
-          src={galleryFile.url}
-          alt="preview"
-          className={`${className}__preview-img base-file-modal__preview-img`}
-        />
+        <>
+          <h4>Preview</h4>
+          <img
+            src={galleryFile.url}
+            alt="preview"
+            className={`${className}__preview-img base-file-modal__preview-img`}
+          />
+        </>
       );
     }
 
@@ -90,7 +92,7 @@ export const BaseFileModal: FC<BaseFileModalProps> = ({
         {alertConfig && (
           <Alert
             variant={alertConfig.variant}
-            className={`${className}__alert base-file-modal__alert mb-3 d-flex align-items-center`}
+            className={`${className}__alert base-file-modal__alert base-file-modal__alert--${alertConfig.variant} mb-3 d-flex align-items-center`}
           >
             <Stack direction="horizontal" gap={2}>
               <FontAwesomeIcon

@@ -1,9 +1,16 @@
 @import '@/styles/variables';
 
 .base-file-modal {
-  &__title {
-    font-weight: 600;
-    color: $colorGrey;
+  .modal-dialog {
+    max-width: 694px;
+  }
+  .modal-header {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  .modal-footer {
+    border-top: none;
+    padding-top: 0;
   }
 
   &__alert {
@@ -13,9 +20,13 @@
 
     &-text {
       font-size: 1rem;
-      font-weight: 700;
       margin: 0;
     }
+  }
+
+  h4 {
+    font-weight: 700;
+    font-size: 1rem;
   }
 
   &__preview-img {
@@ -23,7 +34,7 @@
     max-height: 300px;
     object-fit: cover;
     border-radius: 8px;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     border: 1px solid $colorGreyLight;
   }
 
@@ -47,5 +58,23 @@
     font-weight: 500;
     max-width: 200px;
     word-break: break-word;
+  }
+
+  &__form-label {
+    font-weight: 700;
+    color: $colorGrey;
+  }
+
+  &__alert--info {
+    background-color: $colorIceBlue;
+    border: 1px solid $colorBlueMed;
+    color: $colorBlue;
+  }
+
+  &__file-info {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.875rem;
+    color: $colorGreyMed;
   }
 }
