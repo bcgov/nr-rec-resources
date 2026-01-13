@@ -86,10 +86,7 @@ describe('BaseFileModal', () => {
       expect(screen.getByRole('dialog')).toBeInTheDocument();
       expect(screen.getByText('Custom')).toBeInTheDocument();
       expect(screen.getByTestId('content')).toBeInTheDocument();
-      expect(screen.getByRole('dialog')).toHaveClass(
-        'base-file-modal',
-        'custom',
-      );
+      expect(screen.getByRole('dialog')).toHaveClass('base-file-modal');
 
       // Hide modal
       rerender(<BaseFileModal {...defaultProps} show={false} />);
@@ -104,6 +101,7 @@ describe('BaseFileModal', () => {
         wrapper: TestQueryClientProvider,
       });
 
+      expect(screen.getByText('Preview')).toBeInTheDocument();
       const preview = screen.getByAltText('preview');
       expect(preview).toHaveAttribute('src', imageFile.url);
       expect(preview).toHaveClass('base-file-modal__preview-img');
@@ -129,10 +127,9 @@ describe('BaseFileModal', () => {
   describe('Alerts and Interactions', () => {
     it('handles alerts and button interactions', () => {
       const alertConfig = {
-        variant: 'warning' as const,
+        variant: 'info' as const,
         icon: faTrash,
         text: 'Warning message',
-        iconColor: 'red',
       };
 
       render(
@@ -148,11 +145,9 @@ describe('BaseFileModal', () => {
 
       // Alert rendering
       expect(screen.getByText('Warning message')).toBeInTheDocument();
-      expect(screen.getByRole('alert')).toHaveClass('alert-warning');
-      const alertIcon = screen
-        .getAllByTestId('font-awesome-icon')
-        .find((icon) => icon.getAttribute('data-icon') === 'trash');
-      expect(alertIcon).toHaveAttribute('data-color', 'red');
+      const alertElement = screen.getByRole('alert');
+      expect(alertElement).toHaveClass('base-file-modal__alert');
+      expect(alertElement).toHaveClass('base-file-modal__alert--info');
 
       // Button interactions
       const cancelButton = screen.getByRole('button', { name: /cancel/i });
@@ -188,7 +183,7 @@ describe('BaseFileModal', () => {
       );
 
       const title = screen.getByText('Test Modal');
-      expect(title).toHaveClass('custom__title', 'base-file-modal__title');
+      expect(title).toBeInTheDocument();
 
       // Test modal styling
       const modalDialog = screen

@@ -1,15 +1,11 @@
 import { useRecResourceFileTransferState } from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
 import { setUploadFileName } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
-import {
-  faExclamationTriangle,
-  faUpload,
-} from '@fortawesome/free-solid-svg-icons';
+import { faInfoCircle, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { FC } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
 import { BaseFileModal } from './BaseFileModal';
-import './FileUploadModal.scss';
 
-export const FileUploadModal: FC = () => {
+export const DocumentUploadModal: FC = () => {
   const {
     uploadModalState: {
       showUploadOverlay,
@@ -18,26 +14,22 @@ export const FileUploadModal: FC = () => {
       fileNameError,
     },
     getDocumentGeneralActionHandler,
-    getImageGeneralActionHandler,
   } = useRecResourceFileTransferState();
 
   if (!showUploadOverlay || !selectedFileForUpload) return null;
 
-  const isImage = selectedFileForUpload.type === 'image';
-  const modalTitle = isImage ? 'Upload image' : 'Upload file';
+  // Images are handled by ImageUploadModal
+  if (selectedFileForUpload.type === 'image') return null;
 
-  // Use the appropriate action handler based on file type
-  const getGeneralActionHandler = isImage
-    ? getImageGeneralActionHandler
-    : getDocumentGeneralActionHandler;
+  const modalTitle = 'Upload document';
 
-  const handleCancel = getGeneralActionHandler('cancel-upload');
-  const handleConfirm = getGeneralActionHandler('confirm-upload');
+  const handleCancel = getDocumentGeneralActionHandler('cancel-upload');
+  const handleConfirm = getDocumentGeneralActionHandler('confirm-upload');
 
   const alertConfig = {
-    variant: 'warning',
-    icon: faExclamationTriangle,
-    text: 'Uploading files will directly publish to the public website within 15 minutess.',
+    variant: 'info' as const,
+    icon: faInfoCircle,
+    text: 'Uploading files will directly publish to the public website within 15 minutes.',
   };
 
   const isFilenameInvalid = !!fileNameError;
@@ -57,7 +49,6 @@ export const FileUploadModal: FC = () => {
       title={modalTitle}
       galleryFile={selectedFileForUpload}
       alertConfig={alertConfig}
-      className="upload-file-modal"
       onCancel={handleCancel}
       onConfirm={handleConfirm}
       confirmButtonText="Upload"
@@ -66,7 +57,7 @@ export const FileUploadModal: FC = () => {
     >
       <Form onSubmit={handleFormSubmit}>
         <Form.Group as={Row}>
-          <Form.Label column sm={4} className="fw-bold">
+          <Form.Label column sm={4} className="base-file-modal__form-label">
             Name
           </Form.Label>
           <Col sm={8}>

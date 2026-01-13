@@ -54,13 +54,27 @@ vi.mock(
   }),
 );
 vi.mock(
-  '@/pages/rec-resource-page/components/RecResourceFileSection/FileUploadModal',
+  '@/pages/rec-resource-page/components/RecResourceFileSection/DocumentUploadModal',
   () => ({
-    FileUploadModal: () => {
+    DocumentUploadModal: () => {
       const { uploadModalState } = mockUseRecResourceFileTransferState();
       return uploadModalState.showUploadOverlay &&
-        uploadModalState.selectedFileForUpload ? (
-        <div data-testid="upload-file-modal" />
+        uploadModalState.selectedFileForUpload &&
+        uploadModalState.selectedFileForUpload.type === 'document' ? (
+        <div data-testid="document-upload-modal" />
+      ) : null;
+    },
+  }),
+);
+vi.mock(
+  '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal',
+  () => ({
+    ImageUploadModal: () => {
+      const { uploadModalState } = mockUseRecResourceFileTransferState();
+      return uploadModalState.showUploadOverlay &&
+        uploadModalState.selectedFileForUpload &&
+        uploadModalState.selectedFileForUpload.type === 'image' ? (
+        <div data-testid="image-upload-modal" />
       ) : null;
     },
   }),
@@ -138,17 +152,30 @@ describe('RecResourceFileSection', () => {
     expect(actionHandler).not.toHaveBeenCalled(); // Upload action should not be called
   });
 
-  it('shows upload modal when uploadModalState has showUploadModal and selectedFile', () => {
+  it('shows document upload modal when uploadModalState has showUploadModal and selectedFile for document', () => {
     mockUseRecResourceFileTransferState.mockReturnValue({
       ...defaultState,
       uploadModalState: {
         showUploadOverlay: true,
-        selectedFileForUpload: { name: 'file.pdf' },
+        selectedFileForUpload: { name: 'file.pdf', type: 'document' },
         uploadFileName: 'test.pdf',
       },
     });
     render(<RecResourceFileSection />);
-    expect(screen.getByTestId('upload-file-modal')).toBeInTheDocument();
+    expect(screen.getByTestId('document-upload-modal')).toBeInTheDocument();
+  });
+
+  it('shows image upload modal when uploadModalState has showUploadModal and selectedFile for image', () => {
+    mockUseRecResourceFileTransferState.mockReturnValue({
+      ...defaultState,
+      uploadModalState: {
+        showUploadOverlay: true,
+        selectedFileForUpload: { name: 'photo.jpg', type: 'image' },
+        uploadFileName: 'test.jpg',
+      },
+    });
+    render(<RecResourceFileSection />);
+    expect(screen.getByTestId('image-upload-modal')).toBeInTheDocument();
   });
 
   it('shows delete modal', () => {
