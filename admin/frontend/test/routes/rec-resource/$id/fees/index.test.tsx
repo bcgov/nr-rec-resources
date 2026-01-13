@@ -1,7 +1,32 @@
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { Route } from '@/routes/rec-resource/$id/fees/index';
 import { recResourceFeesLoader } from '@/services/loaders/recResourceFeesLoader';
+import React from 'react';
+import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
+
+vi.mock('@/pages/rec-resource-page/RecResourceFeesPage', () => ({
+  RecResourceFeesPage: () => (
+    <div data-testid="rec-resource-fees-features-page">Fees Page</div>
+  ),
+}));
+
+vi.mock('@/contexts/feature-flags', () => ({
+  FeatureFlagRouteGuard: ({
+    children,
+    requiredFlags,
+  }: {
+    children: React.ReactNode;
+    requiredFlags: string[];
+  }) => (
+    <div
+      data-testid="feature-flag-route-guard"
+      data-flags={requiredFlags.join(',')}
+    >
+      {children}
+    </div>
+  ),
+}));
 
 describe('RecResource Fees Index Route', () => {
   it('should export a Route with correct component', () => {
@@ -15,6 +40,16 @@ describe('RecResource Fees Index Route', () => {
 
   it('should have beforeLoad function', () => {
     expect(Route.options.beforeLoad).toBeDefined();
+  });
+
+  it('should render component with FeatureFlagRouteGuard', () => {
+    const Component = Route.options.component!;
+    render(<Component />);
+    const guard = screen.getByTestId('feature-flag-route-guard');
+    expect(guard).toHaveAttribute('data-flags', 'enable_full_features');
+    expect(guard).toContainElement(
+      screen.getByTestId('rec-resource-fees-features-page'),
+    );
   });
 
   it('should set tab to FEES in beforeLoad', () => {

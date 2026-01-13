@@ -19,7 +19,7 @@ describe('rec-resource-page navigation', () => {
 
     it('has correct files tab configuration', () => {
       const filesTab = REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.FILES];
-      expect(filesTab.title).toBe('Files');
+      expect(filesTab.title).toBe('Images & Sitemaps');
       expect(filesTab.getNavigateOptions('123')).toEqual({
         to: ROUTE_PATHS.REC_RESOURCE_FILES,
         params: { id: '123' },

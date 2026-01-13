@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useNavigateWithQueryParams } from '@shared/hooks';
 import { Dropdown, Nav } from 'react-bootstrap';
 import './RecResourceVerticalNav.scss';
+import { FeatureFlagGuard } from '@/contexts/feature-flags';
 
 interface RecResourceVerticalNavProps {
   activeTab: RecResourceNavKey;
@@ -48,9 +49,19 @@ export const RecResourceVerticalNav = ({
 
           <Dropdown.Menu>
             {visibleNavSections.map(([key, { title }]) => (
-              <Dropdown.Item eventKey={key} key={key}>
-                {title}
-              </Dropdown.Item>
+              <FeatureFlagGuard
+                key={key}
+                requiredFlags={
+                  key === RecResourceNavKey.FILES ||
+                  key === RecResourceNavKey.OVERVIEW
+                    ? []
+                    : ['enable_full_features']
+                }
+              >
+                <Dropdown.Item eventKey={key} key={key}>
+                  {title}
+                </Dropdown.Item>
+              </FeatureFlagGuard>
             ))}
           </Dropdown.Menu>
         </Dropdown>
@@ -64,9 +75,19 @@ export const RecResourceVerticalNav = ({
         onSelect={handleNavSelect}
       >
         {visibleNavSections.map(([key, { title }]) => (
-          <Nav.Item key={key}>
-            <Nav.Link eventKey={key}>{title}</Nav.Link>
-          </Nav.Item>
+          <FeatureFlagGuard
+            key={key}
+            requiredFlags={
+              key === RecResourceNavKey.FILES ||
+              key === RecResourceNavKey.OVERVIEW
+                ? []
+                : ['enable_full_features']
+            }
+          >
+            <Nav.Item key={key}>
+              <Nav.Link eventKey={key}>{title}</Nav.Link>
+            </Nav.Item>
+          </FeatureFlagGuard>
         ))}
       </Nav>
     </>

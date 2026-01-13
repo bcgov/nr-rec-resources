@@ -61,7 +61,7 @@ describe('RecResourceVerticalNav', () => {
 
     // Desktop navigation should have nav links
     const overviewLinks = screen.getAllByText('Overview');
-    const filesLinks = screen.getAllByText('Files');
+    const filesLinks = screen.getAllByText('Images & Sitemaps');
 
     expect(overviewLinks.length).toBeGreaterThan(0);
     expect(filesLinks.length).toBeGreaterThan(0);
@@ -86,7 +86,7 @@ describe('RecResourceVerticalNav', () => {
 
     // Find active links in desktop nav (should be hidden on mobile via CSS)
     const overviewLinks = screen.getAllByText('Overview');
-    const filesLinks = screen.getAllByText('Files');
+    const filesLinks = screen.getAllByText('Images & Sitemaps');
 
     // At least one overview link should exist
     expect(overviewLinks.length).toBeGreaterThan(0);
@@ -98,7 +98,7 @@ describe('RecResourceVerticalNav', () => {
     renderWithRouter(<RecResourceVerticalNav {...defaultProps} />);
 
     // Find all Files links and click the first one (desktop nav)
-    const filesLinks = screen.getAllByText('Files');
+    const filesLinks = screen.getAllByText('Images & Sitemaps');
     await user.click(filesLinks[0]);
 
     expect(mockNavigate).toHaveBeenCalledWith({
@@ -115,7 +115,7 @@ describe('RecResourceVerticalNav', () => {
       />,
     );
 
-    // Mobile trigger should show "Files" as the active title
+    // Mobile trigger should show "Images & Sitemaps" as the active title
     const mobileContainer = document.querySelector('.d-md-none');
     const triggerButton = mobileContainer?.querySelector('button');
 
@@ -123,6 +123,6 @@ describe('RecResourceVerticalNav', () => {
     expect(triggerButton).toHaveClass(
       'rec-resource-vertical-nav__mobile-trigger',
     );
-    expect(triggerButton).toHaveTextContent('Files');
+    expect(triggerButton).toHaveTextContent('Images & Sitemaps');
   });
 });
