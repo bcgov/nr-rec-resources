@@ -5,6 +5,14 @@ import { recResourceGeospatialLoader } from '@/services/loaders/recResourceGeosp
 import { Route as ParentRoute } from '@/routes/rec-resource/$id';
 import { FeatureFlagRouteGuard } from '@/contexts/feature-flags';
 
+function RecResourceGeospatialPageRoute() {
+  return (
+    <FeatureFlagRouteGuard requiredFlags={['enable_full_features']}>
+      <RecResourceGeospatialPage />
+    </FeatureFlagRouteGuard>
+  );
+}
+
 export const Route = createFileRoute('/rec-resource/$id/geospatial/')({
   component: RecResourceGeospatialPageRoute,
   loader: recResourceGeospatialLoader,
@@ -29,11 +37,3 @@ export const Route = createFileRoute('/rec-resource/$id/geospatial/')({
     };
   },
 });
-
-function RecResourceGeospatialPageRoute() {
-  return (
-    <FeatureFlagRouteGuard requiredFlags={['enable_full_features']}>
-      <RecResourceGeospatialPage />
-    </FeatureFlagRouteGuard>
-  );
-}

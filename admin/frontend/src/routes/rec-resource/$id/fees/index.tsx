@@ -6,6 +6,14 @@ import { Route as ParentRoute } from '@/routes/rec-resource/$id';
 import { BreadcrumbItem } from '@shared/components/breadcrumbs';
 import { FeatureFlagRouteGuard } from '@/contexts/feature-flags';
 
+function RecResourceFeesPageRoute() {
+  return (
+    <FeatureFlagRouteGuard requiredFlags={['enable_full_features']}>
+      <RecResourceFeesPage />
+    </FeatureFlagRouteGuard>
+  );
+}
+
 export const Route = createFileRoute('/rec-resource/$id/fees/')({
   component: RecResourceFeesPageRoute,
   loader: recResourceFeesLoader,
@@ -29,11 +37,3 @@ export const Route = createFileRoute('/rec-resource/$id/fees/')({
     };
   },
 });
-
-function RecResourceFeesPageRoute() {
-  return (
-    <FeatureFlagRouteGuard requiredFlags={['enable_full_features']}>
-      <RecResourceFeesPage />
-    </FeatureFlagRouteGuard>
-  );
-}
