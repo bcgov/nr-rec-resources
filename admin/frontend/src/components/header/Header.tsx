@@ -85,7 +85,7 @@ export const Header = () => {
     <div className={`header main`}>
       <BCGovHeader
         title={'RecSpace'}
-        titleElement="h3"
+        titleElement="h1"
         logoImage={
           <>
             <Image
