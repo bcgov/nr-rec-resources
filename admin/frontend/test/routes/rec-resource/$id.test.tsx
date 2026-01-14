@@ -17,13 +17,13 @@ describe('RecResource $id Route', () => {
     expect(Route.options.beforeLoad).toBeDefined();
   });
 
-  it('should set tab to OVERVIEW in beforeLoad', () => {
+  it('should set tab to FILES in beforeLoad', () => {
     const beforeLoad = Route.options.beforeLoad as any;
     const params = { id: 'REC123' };
 
     const result = beforeLoad({ params });
 
-    expect(result.tab).toBe(RecResourceNavKey.OVERVIEW);
+    expect(result.tab).toBe(RecResourceNavKey.FILES);
   });
 
   it('should generate breadcrumb with resource name', () => {
