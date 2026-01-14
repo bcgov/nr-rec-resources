@@ -1,9 +1,8 @@
 import 'dotenv/config';
 import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
 import { HTTPLoggerMiddleware } from './middleware/req.res.logger';
-import { PrismaService } from 'src/prisma.service';
-import { ConfigModule } from '@nestjs/config';
 import { AppService } from './app.service';
+import { PrismaService } from 'src/prisma.service';
 import { AppController } from './app.controller';
 import { MetricsController } from './metrics.controller';
 import { TerminusModule } from '@nestjs/terminus';
@@ -14,11 +13,12 @@ import { clsConfig } from 'src/common/cls.config';
 import { ApiMetricsModule } from '@shared/api/api-metrics/api-metrics.module';
 import { PUBLIC_METRIC_NAMESPACE_NAME_PREFIX } from '@shared/api/api-metrics/api-metrics.constants';
 import { SitemapModule } from './sitemap/sitemap.module';
+import { AppConfigModule } from './app-config/app-config.module';
 
 @Module({
   imports: [
     ClsModule.forRoot(clsConfig),
-    ConfigModule.forRoot(),
+    AppConfigModule,
     TerminusModule,
     RecreationResourceModule,
     SitemapModule,

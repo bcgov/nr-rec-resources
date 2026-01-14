@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
+import { RecreationResourceImageDto } from '@/service/recreation-resource';
 import { Breadcrumbs } from '@shared/components/breadcrumbs';
 import PhotoGallery, {
   PhotoGalleryProps,
@@ -25,9 +26,6 @@ import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 import { useGetSiteOperatorById } from '@/service/queries/recreation-resource';
 import RecResourceReservation from './RecResourceReservation';
 import KnowBeforeYouGo from './section/KnowBeforeYouGo';
-
-const PREVIEW_SIZE_CODE = 'pre';
-const FULL_RESOLUTION_SIZE_CODE = 'original';
 const RECREATION_SITE = 'Recreation site';
 
 const RecResourcePage = () => {
@@ -43,34 +41,16 @@ const RecResourcePage = () => {
     id: recResource.rec_resource_id,
   });
 
-  const [photos, setPhotos] = useState<PhotoGalleryProps['photos']>([]);
-
-  /**
-   * Processes recreation resource images to extract the preview and full size image urls
-   */
-  useEffect(() => {
-    if (recResource?.recreation_resource_images) {
-      setPhotos(
-        recResource.recreation_resource_images.map((imageObj) => {
-          const photoObj = {
-            caption: imageObj.caption,
-            previewUrl: '',
-            fullResolutionUrl: '',
-          };
-
-          imageObj.recreation_resource_image_variants?.forEach((variant) => {
-            if (variant.size_code === PREVIEW_SIZE_CODE) {
-              photoObj.previewUrl = variant.url;
-            } else if (variant.size_code === FULL_RESOLUTION_SIZE_CODE) {
-              photoObj.fullResolutionUrl = variant.url;
-            }
-          });
-
-          return photoObj;
-        }),
-      );
-    }
-  }, [recResource]);
+  const photos = useMemo<PhotoGalleryProps['photos']>(
+    () =>
+      recResource?.recreation_resource_images
+        ?.map((imageObj: RecreationResourceImageDto) => ({
+          previewUrl: imageObj.url?.pre ?? '',
+          fullResolutionUrl: imageObj.url?.original ?? '',
+        }))
+        .filter((img) => img.previewUrl !== '') ?? [],
+    [recResource],
+  );
 
   const {
     additional_fees,
@@ -99,7 +79,7 @@ const RecResourcePage = () => {
 
   const formattedName = name
     ?.toLowerCase()
-    .replace(/(^\w|\s\w)/g, (m) => m.toUpperCase());
+    .replace(/(^\w|\s\w)/g, (m: string) => m.toUpperCase());
 
   // Deduplicate access types
   const uniqueRecreationAccess = recreation_access

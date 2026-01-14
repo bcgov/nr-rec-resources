@@ -1,9 +1,6 @@
-import { RecreationResourceImageSize } from 'src/recreation-resource/dto/recreation-resource-image.dto';
 import { EXCLUDED_ACTIVITY_CODES } from 'src/recreation-resource/constants/service.constants';
 
-export const getRecreationResourceSelect = (
-  imageSizeCodes?: RecreationResourceImageSize[],
-) => ({
+export const getRecreationResourceSelect = () => ({
   rec_resource_id: true,
   name: true,
   closest_community: true,
@@ -75,24 +72,9 @@ export const getRecreationResourceSelect = (
       },
     },
   },
-  recreation_resource_images: {
+  recreation_resource_image: {
     select: {
-      ref_id: true,
-      caption: true,
-      recreation_resource_image_variants: {
-        select: {
-          size_code: true,
-          url: true,
-          width: true,
-          height: true,
-          extension: true,
-        },
-        where: {
-          size_code: {
-            in: imageSizeCodes ?? [],
-          },
-        },
-      },
+      image_id: true,
     },
   },
   recreation_structure: {
@@ -104,12 +86,11 @@ export const getRecreationResourceSelect = (
       },
     },
   },
-  recreation_resource_docs: {
+  recreation_resource_document: {
     select: {
+      doc_id: true,
       doc_code: true,
-      url: true,
-      title: true,
-      ref_id: true,
+      file_name: true,
       extension: true,
       recreation_resource_doc_code: {
         select: {

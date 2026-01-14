@@ -12,9 +12,6 @@ vi.mock('@shared/utils', () => ({
 vi.mock('@/utils/buildQueryString', () => ({
   default: vi.fn(() => '?filter=test'),
 }));
-vi.mock('@/service/queries/recreation-resource/helpers', () => ({
-  transformRecreationResourceBase: vi.fn((data) => data),
-}));
 
 describe('searchLoader', () => {
   let mockContext: any;
@@ -215,42 +212,5 @@ describe('getSearchResults', () => {
         page: 1,
       }),
     );
-  });
-
-  it('should transform response data', async () => {
-    const { RecreationResourceApi } = await import(
-      '@/service/recreation-resource'
-    );
-    const { transformRecreationResourceBase } = await import(
-      '@/service/queries/recreation-resource/helpers'
-    );
-
-    const mockTransformedData = {
-      rec_resource_id: 'REC1',
-      name: 'Transformed Site',
-    };
-
-    vi.mocked(transformRecreationResourceBase).mockReturnValue(
-      mockTransformedData as any,
-    );
-
-    const mockApi = {
-      searchRecreationResources: vi.fn().mockResolvedValue({
-        data: [{ rec_resource_id: 'REC1', name: 'Test Site' }],
-        total: 1,
-      }),
-    };
-
-    vi.mocked(RecreationResourceApi).mockImplementation(function () {
-      return mockApi as any;
-    });
-
-    const result = await getSearchResults({ filter: 'test' });
-
-    expect(transformRecreationResourceBase).toHaveBeenCalledWith({
-      rec_resource_id: 'REC1',
-      name: 'Test Site',
-    });
-    expect(result.data).toEqual([mockTransformedData]);
   });
 });

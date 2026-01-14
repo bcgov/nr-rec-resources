@@ -1,4 +1,4 @@
-import { RecreationResourceImageSize } from '../dto/recreation-resource-image.dto';
+import { RecreationResourceImageSize } from '@shared/constants/images';
 
 /**
  * Array of valid image size codes derived from {@link RecreationResourceImageSize} enum
