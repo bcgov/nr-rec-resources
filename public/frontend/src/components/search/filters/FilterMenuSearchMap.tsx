@@ -222,7 +222,7 @@ const FilterMenuSearchMap = ({
                 <DownloadKmlResults
                   searchResultsNumber={totalCount}
                   ids={recResourceIds}
-                  trackingView={'list'}
+                  trackingView={'map'}
                   handleCloseModal={() => {
                     handleDisplayKmlDownload();
                   }}
