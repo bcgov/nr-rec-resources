@@ -1,5 +1,5 @@
 import { devices, test } from '@playwright/test';
-import { initHappo, waitForImagesToLoad } from '@shared/e2e/utils';
+import { initHappo } from '@shared/e2e/utils';
 import { AuthPOM, LandingPOM, UtilsPOM } from 'e2e/poms';
 
 initHappo();
@@ -18,7 +18,7 @@ test.describe('RecSpace landing page (Mobile)', () => {
 
     await auth.loginAsAdmin();
 
-    await waitForImagesToLoad(page);
+    await landing.verifyLandingPageContentMobile();
 
     await utils.accessibility();
 

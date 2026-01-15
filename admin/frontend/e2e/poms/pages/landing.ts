@@ -24,9 +24,13 @@ export class LandingPOM {
   }
 
   async verifyLandingPageContent() {
-    expect(
+    await expect(
       this.page.getByText('Search by resource name or number'),
     ).toBeVisible();
+  }
+
+  async verifyLandingPageContentMobile() {
+    await expect(this.page.getByText('Search by name or number')).toBeVisible();
   }
 
   async searchFor(searchTerm?: string) {

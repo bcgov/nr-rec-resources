@@ -3,6 +3,8 @@
 import { expect, Locator, Page } from '@playwright/test';
 
 export class AuthPOM {
+  private readonly EMAIL_DOMAIN = '@gov.bc.ca';
+
   readonly page: Page;
 
   readonly loginButton: Locator;
@@ -11,6 +13,20 @@ export class AuthPOM {
     this.page = page;
 
     this.loginButton = page.getByRole('button', { name: 'Login' });
+  }
+
+  private getAdminCredentials() {
+    const user = process.env.E2E_TEST_ADMIN_USER;
+    const password = process.env.E2E_TEST_ADMIN_PASSWORD;
+    const email = user ? `${user}${this.EMAIL_DOMAIN}` : undefined;
+    return { email, password };
+  }
+
+  private getViewerCredentials() {
+    const user = process.env.E2E_TEST_VIEWER_USER;
+    const password = process.env.E2E_TEST_VIEWER_PASSWORD;
+    const email = user ? `${user}${this.EMAIL_DOMAIN}` : undefined;
+    return { email, password };
   }
 
   private getEmailInput() {
@@ -75,31 +91,29 @@ export class AuthPOM {
   }
 
   async loginAsAdmin() {
-    const adminUser = process.env.E2E_TEST_ADMIN_USER;
-    const adminPassword = process.env.E2E_TEST_ADMIN_PASSWORD;
+    const { email, password } = this.getAdminCredentials();
 
-    if (!adminUser || !adminPassword) {
+    if (!email || !password) {
       throw new Error(
         'E2E_TEST_ADMIN_USER and E2E_TEST_ADMIN_PASSWORD environment variables must be set',
       );
     }
 
     await this.clickLoginButton();
-    await this.performMicrosoftLogin(adminUser, adminPassword);
+    await this.performMicrosoftLogin(email, password);
   }
 
   async loginAsViewer() {
-    const viewerUser = process.env.E2E_TEST_VIEWER_USER;
-    const viewerPassword = process.env.E2E_TEST_VIEWER_PASSWORD;
+    const { email, password } = this.getViewerCredentials();
 
-    if (!viewerUser || !viewerPassword) {
+    if (!email || !password) {
       throw new Error(
         'E2E_TEST_VIEWER_USER and E2E_TEST_VIEWER_PASSWORD environment variables must be set',
       );
     }
 
     await this.clickLoginButton();
-    await this.performMicrosoftLogin(viewerUser, viewerPassword);
+    await this.performMicrosoftLogin(email, password);
   }
 
   async verifyLoggedIn() {
