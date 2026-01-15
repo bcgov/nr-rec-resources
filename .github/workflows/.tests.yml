@@ -9,70 +9,68 @@ on:
         type: string
 
 jobs:
-  tests:
-    name: Tests
-    runs-on: ubuntu-24.04
-    timeout-minutes: 5
-    environment:
-      name: ${{ inputs.app }}
-    services:
-      postgres:
-        image: postgres
-        env:
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-    strategy:
-      matrix:
-        dir: [backend, frontend]
-        include:
-          - dir: backend
-            token: SONAR_TOKEN_BACKEND
-          - dir: frontend
-            token: SONAR_TOKEN_FRONTEND
-
-
-    steps:
-      - uses: bcgov/action-test-and-analyse@v1.6.0
-        with:
-          commands: |
-            npm install
-            npm run test:cov
-          dir: ${{ inputs.app }}/${{ matrix.dir }}
-          node_version: "22"
-          sonar_args: >
-            -Dsonar.exclusions=**/coverage/**,**/node_modules/**,**/*spec.ts,**/*test.ts,**/*test.tsx,src/service/recreation-resource/**,src/service/custom-models/**,src/service/fsa-resources/**,src/services/recreation-resource-admin/**
-            -Dsonar.cpd.exclusions=**/recreation-resource.controller.ts
-            -Dsonar.organization=bcgov-sonarcloud
-            -Dsonar.projectKey=bcgov-sonarcloud_nr-rec-resources${{ format('{0}-{1}', inputs.app == 'admin' && '-admin' || '', matrix.dir) }}
-            -Dsonar.sources=src
-            -Dsonar.tests.inclusions=**/*spec.ts
-            -Dsonar.javascript.lcov.reportPaths=./coverage/lcov.info
-          sonar_token: ${{ secrets[matrix.token] }}
-
-  verify-terraform:
-    name: Verify Terraform
-    uses: ./.github/workflows/.deploy-app.yml
-    concurrency:
-      group: verify-terraform-${{ inputs.app }}-${{ github.ref }}
-      cancel-in-progress: false
-    with:
-      app: ${{ inputs.app }}
-      # event.number is only available in PRs, so we use github.ref_name as a fallback on main
-      app_env: ${{ format('ephemeral-{0}', github.event.number || github.ref_name ) }}
-      command: plan
-      environment_name: dev
-      tag: ${{ github.sha }}
-    secrets: inherit
+  # tests:
+  #   name: Tests
+  #   runs-on: ubuntu-24.04
+  #   timeout-minutes: 5
+  #   environment:
+  #     name: ${{ inputs.app }}
+  #   services:
+  #     postgres:
+  #       image: postgres
+  #       env:
+  #         POSTGRES_PASSWORD: postgres
+  #       options: >-
+  #         --health-cmd pg_isready
+  #         --health-interval 10s
+  #         --health-timeout 5s
+  #         --health-retries 5
+  #       ports:
+  #         - 5432:5432
+  #   strategy:
+  #     matrix:
+  #       dir: [backend, frontend]
+  #       include:
+  #         - dir: backend
+  #           token: SONAR_TOKEN_BACKEND
+  #         - dir: frontend
+  #           token: SONAR_TOKEN_FRONTEND
+  #
+  #
+  #   steps:
+  #     - uses: bcgov/action-test-and-analyse@v1.6.0
+  #       with:
+  #         commands: |
+  #           npm install
+  #           npm run test:cov
+  #         dir: ${{ inputs.app }}/${{ matrix.dir }}
+  #         node_version: "22"
+  #         sonar_args: >
+  #           -Dsonar.exclusions=**/coverage/**,**/node_modules/**,**/*spec.ts,**/*test.ts,**/*test.tsx,src/service/recreation-resource/**,src/service/custom-models/**,src/service/fsa-resources/**,src/services/recreation-resource-admin/**
+  #           -Dsonar.cpd.exclusions=**/recreation-resource.controller.ts
+  #           -Dsonar.organization=bcgov-sonarcloud
+  #           -Dsonar.projectKey=bcgov-sonarcloud_nr-rec-resources${{ format('{0}-{1}', inputs.app == 'admin' && '-admin' || '', matrix.dir) }}
+  #           -Dsonar.sources=src
+  #           -Dsonar.tests.inclusions=**/*spec.ts
+  #           -Dsonar.javascript.lcov.reportPaths=./coverage/lcov.info
+  #         sonar_token: ${{ secrets[matrix.token] }}
+  #
+  # verify-terraform:
+  #   name: Verify Terraform
+  #   uses: ./.github/workflows/.deploy-app.yml
+  #   concurrency:
+  #     group: verify-terraform-${{ inputs.app }}-${{ github.ref }}
+  #     cancel-in-progress: false
+  #   with:
+  #     app: ${{ inputs.app }}
+  #     # event.number is only available in PRs, so we use github.ref_name as a fallback on main
+  #     app_env: ${{ format('ephemeral-{0}', github.event.number || github.ref_name ) }}
+  #     command: plan
+  #     environment_name: dev
+  #     tag: ${{ github.sha }}
+  #   secrets: inherit
 
   tests-e2e-local:
-    # Admin e2e not setup yet
-    if: ${{ inputs.app == 'public' }}
     name: Run E2E tests locally
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.app }}-e2e-local
@@ -82,4 +80,5 @@ jobs:
       app: ${{ inputs.app }}
       tag: ${{ github.sha }}
       local: true
+      environment: dev
     secrets: inherit

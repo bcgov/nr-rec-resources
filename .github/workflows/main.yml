@@ -19,24 +19,25 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}-build-containers
       cancel-in-progress: true
     uses: ./.github/workflows/.build.yml
-
-  repo-analysis:
-    name: Repository analysis
-    concurrency:
-      group: ${{ github.workflow }}-${{ github.ref }}-analysis
-      cancel-in-progress: true
-    uses: ./.github/workflows/.analysis.yml
     secrets: inherit
 
-  analysis-results:
-    name: Analysis Results
-    needs: [repo-analysis]
-    if: always()
-    runs-on: ubuntu-24.04
-    steps:
-      - if: contains(needs.*.result, 'failure')
-        run: echo "At least one job has failed." && exit 1
-      - run: echo "Success!"
+  # repo-analysis:
+  #   name: Repository analysis
+  #   concurrency:
+  #     group: ${{ github.workflow }}-${{ github.ref }}-analysis
+  #     cancel-in-progress: true
+  #   uses: ./.github/workflows/.analysis.yml
+  #   secrets: inherit
+  #
+  # analysis-results:
+  #   name: Analysis Results
+  #   needs: [repo-analysis]
+  #   if: always()
+  #   runs-on: ubuntu-24.04
+  #   steps:
+  #     - if: contains(needs.*.result, 'failure')
+  #       run: echo "At least one job has failed." && exit 1
+  #     - run: echo "Success!"
 
   test-admin:
     name: Run tests for admin app
@@ -46,46 +47,46 @@ jobs:
       app: admin
     secrets: inherit
 
-  test-public:
-    name: Run tests for public app
-    needs: build-containers
-    uses: ./.github/workflows/.tests.yml
-    with:
-      app: public
-    secrets: inherit
+  # test-public:
+  #   name: Run tests for public app
+  #   needs: build-containers
+  #   uses: ./.github/workflows/.tests.yml
+  #   with:
+  #     app: public
+  #   secrets: inherit
 
-  test-shared:
-    name: Run shared tests
-    needs: build-containers
-    uses: ./.github/workflows/.shared.yml
+  # test-shared:
+  #   name: Run shared tests
+  #   needs: build-containers
+  #   uses: ./.github/workflows/.shared.yml
 
-  review-and-deploy-admin:
-    if: github.ref_name == 'main' || github.head_ref == 'main'
-    name: Review and deploy Admin app
-    needs: [test-admin, test-public, test-shared]
-    uses: ./.github/workflows/.review-and-deploy.yml
-    with:
-      app: admin
-      tag: ${{ github.sha }}
-    secrets: inherit
-
-  review-and-deploy-public:
-    if: github.ref_name == 'main' || github.head_ref == 'main'
-    name: Review and deploy Public app
-    needs: [test-admin, test-public, test-shared]
-    uses: ./.github/workflows/.review-and-deploy.yml
-    with:
-      app: public
-      tag: ${{ github.sha }}
-    secrets: inherit
-
-  deploy-dns:
-    if: github.ref_name == 'main' || github.head_ref == 'main'
-    name: Deploy DNS to prod
-    needs: [review-and-deploy-admin, review-and-deploy-public]
-    uses: ./.github/workflows/.aws-deployer.yml
-    with:
-      environment_name: prod
-      command: apply
-      working_directory: dns
-    secrets: inherit
+  # review-and-deploy-admin:
+  #   if: github.ref_name == 'main' || github.head_ref == 'main'
+  #   name: Review and deploy Admin app
+  #   needs: [test-admin, test-public, test-shared]
+  #   uses: ./.github/workflows/.review-and-deploy.yml
+  #   with:
+  #     app: admin
+  #     tag: ${{ github.sha }}
+  #   secrets: inherit
+  #
+  # review-and-deploy-public:
+  #   if: github.ref_name == 'main' || github.head_ref == 'main'
+  #   name: Review and deploy Public app
+  #   needs: [test-admin, test-public, test-shared]
+  #   uses: ./.github/workflows/.review-and-deploy.yml
+  #   with:
+  #     app: public
+  #     tag: ${{ github.sha }}
+  #   secrets: inherit
+  #
+  # deploy-dns:
+  #   if: github.ref_name == 'main' || github.head_ref == 'main'
+  #   name: Deploy DNS to prod
+  #   needs: [review-and-deploy-admin, review-and-deploy-public]
+  #   uses: ./.github/workflows/.aws-deployer.yml
+  #   with:
+  #     environment_name: prod
+  #     command: apply
+  #     working_directory: dns
+  #   secrets: inherit

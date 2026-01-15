@@ -50,6 +50,8 @@ jobs:
         RST_STORAGE_CLOUDFRONT_URL: ${{ secrets.RST_STORAGE_CLOUDFRONT_URL }}
         FOREST_CLIENT_API_URL: ${{ secrets.FOREST_CLIENT_API_URL }}
         FOREST_CLIENT_API_KEY: ${{ secrets.FOREST_CLIENT_API_KEY }}
+        ESTABLISHMENT_ORDER_DOCS_BUCKET: ${{ secrets.ESTABLISHMENT_ORDER_DOCS_BUCKET }}
+        AWS_REGION: ${{ secrets.AWS_REGION }}
       run: docker compose up -d --wait
       continue-on-error: true
     - name: Dump docker logs for debugging

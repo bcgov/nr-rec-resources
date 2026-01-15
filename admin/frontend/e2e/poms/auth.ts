@@ -22,6 +22,7 @@ export class AuthPOM {
   }
 
   async clickLoginButton() {
+    await this.loginButton.waitFor({ state: 'visible' });
     await this.loginButton.click();
   }
 
