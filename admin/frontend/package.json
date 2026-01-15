@@ -14,6 +14,7 @@
     "e2e": "npx happo-e2e -- npx playwright test",
     "e2e:chrome": "npx happo-e2e -- npx playwright test --project=chromium",
     "e2e:ui": "npx happo-e2e -- npx playwright test --ui",
+    "e2e:capture-auth": "E2E_CAPTURE_AUTH=true npx playwright test e2e/scripts/capture-auth.ts --headed",
     "prettier-fix": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"

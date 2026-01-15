@@ -1,19 +1,19 @@
 import { test } from '@playwright/test';
+import { getAdminStorageState } from '@shared/config/playwright.base.config';
 import { initHappo } from '@shared/e2e/utils';
-import { AuthPOM, LandingPOM, LayoutPOM, UtilsPOM } from 'e2e/poms';
+import { LandingPOM, LayoutPOM, UtilsPOM } from 'e2e/poms';
 
 initHappo();
+
+test.use({ storageState: getAdminStorageState() });
 
 test.describe('RecSpace landing page', () => {
   test('RecSpace landing page renders correctly', async ({ page }) => {
     const landing = new LandingPOM(page);
     const layout = new LayoutPOM(page);
-    const auth = new AuthPOM(page);
     const utils = new UtilsPOM(page);
 
     await landing.route();
-
-    await auth.loginAsAdmin();
 
     await layout.verifyHeaderContent();
     await landing.verifyLandingPageContent();
