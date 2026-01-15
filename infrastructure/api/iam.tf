@@ -134,6 +134,7 @@ resource "aws_iam_role_policy" "s3_storage_buckets" {
         Action = var.app == "admin" ? [
           "s3:GetObject",
           "s3:PutObject",
+          "s3:PutObjectTagging",
           "s3:DeleteObject",
           "s3:ListBucket"
         ] : [
