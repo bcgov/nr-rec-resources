@@ -1,0 +1,62 @@
+name: Deploy Lambda with Terraform
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies & build
+        run: |
+          cd src
+          npm ci
+          npm run build || true
+
+      - name: Zip Lambda code
+        run: |
+          cd src
+          zip -r ../lambda.zip .
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::<ACCOUNT_ID>:role/<GitHubActionsDeployRole>
+          aws-region: ca-central-1
+
+      - name: Upload Lambda package to S3
+        run: |
+          aws s3 cp lambda.zip s3://my-lambda-artifacts-bucket/lambda.zip
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.5
+
+      - name: Terraform Init
+        working-directory: ./terraform
+        run: terraform init
+
+      - name: Terraform Apply
+        working-directory: ./terraform
+        run: |
+          terraform apply -auto-approve \
+            -var "s3_bucket=my-lambda-artifacts-bucket" \
+            -var "s3_key=lambda.zip" \
+            -var "lambda_role_arn=arn:aws:iam::<ACCOUNT_ID>:role/lambda_exec_role"
