@@ -12,10 +12,13 @@
       $colorWhite 100%
     );
   }
-  @media (max-width: 380px) {
-    padding-top: 2em;
-  }
   @include media-breakpoint-down(md) {
+    margin-top: 2.5em !important;
+  }
+  @media (min-width: 340px) {
+    margin-top: 5.5em !important;
+  }
+  @media (min-width: 390px) {
     margin-top: 1em !important;
   }
   .content-section {
@@ -31,8 +34,17 @@
     }
   }
 
-  .partnering-box {
-    padding-left: 1.8em;
-    color: $colorBlue;
+  .partnering-container {
+    @media (max-width: 768px) {
+      padding-left: 6px;
+    }
+    .partnering-box {
+      padding-left: 1.8em;
+      color: $colorBlue;
+      @media (max-width: 768px) {
+        padding-left: 0px !important;
+        margin-left: 0px !important;
+      }
+    }
   }
 }

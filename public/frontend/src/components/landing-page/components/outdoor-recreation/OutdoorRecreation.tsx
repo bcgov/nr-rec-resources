@@ -70,8 +70,6 @@ export const OutdoorRecreation = () => {
               src="/images/landing-page/activities/map_landing.png"
               alt="map image"
               className="d-none d-md-block desktop-image"
-              width={1080}
-              height={348}
             />
             <img
               src="/images/landing-page/activities/map_landing_mobile.png"
