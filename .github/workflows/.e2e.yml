@@ -24,7 +24,7 @@ on:
 jobs:
   playwright-e2e:
     name: Playwright e2e
-    timeout-minutes: 60
+    timeout-minutes: 30
     runs-on: ubuntu-24.04
     environment: ${{ inputs.environment }}
     steps:
@@ -95,5 +95,14 @@ jobs:
         E2E_TEST_VIEWER_USER: ${{ secrets.E2E_TEST_VIEWER_USER }}
         E2E_TEST_VIEWER_PASSWORD: ${{ secrets.E2E_TEST_VIEWER_PASSWORD }}
     - name: Dump docker logs on failure
-      if: failure() && ${{ inputs.local }}
+      if: ${{ failure() && inputs.local }}
       uses: jwalton/gh-docker-logs@v2
+    - name: Upload Playwright test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-report-${{ inputs.app }}
+        path: |
+          ${{ inputs.app }}/frontend/test-results/
+          ${{ inputs.app }}/frontend/playwright-report/
+        retention-days: 7

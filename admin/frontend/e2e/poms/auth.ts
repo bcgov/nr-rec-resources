@@ -82,10 +82,16 @@ export class AuthPOM {
 
     await this.handleStaySignedInPrompt();
 
+    // Debug: capture what page we're stuck on if CI fails
+    await this.page.screenshot({
+      path: 'test-results/after-signin-prompt.png',
+      fullPage: true,
+    });
+
     await this.page.waitForURL(
       (url) => !url.hostname.includes('login.microsoftonline.com'),
       {
-        timeout: 30000,
+        timeout: 10000, // Reduced for faster debugging
       },
     );
   }
