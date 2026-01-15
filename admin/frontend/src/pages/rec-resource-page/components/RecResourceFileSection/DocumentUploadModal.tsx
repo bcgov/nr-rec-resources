@@ -1,9 +1,6 @@
 import { useRecResourceFileTransferState } from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
 import { setUploadFileName } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
-import {
-  faExclamationTriangle,
-  faUpload,
-} from '@fortawesome/free-solid-svg-icons';
+import { faInfoCircle, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { FC } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
 import { BaseFileModal } from './BaseFileModal';
@@ -31,8 +28,8 @@ export const DocumentUploadModal: FC = () => {
 
   const alerts = [
     {
-      variant: 'warning' as const,
-      icon: faExclamationTriangle,
+      variant: 'info' as const,
+      icon: faInfoCircle,
       text: 'Uploading files will directly publish to the public website within 15 minutess.',
     },
   ];
