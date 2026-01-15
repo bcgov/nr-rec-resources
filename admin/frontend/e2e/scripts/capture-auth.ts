@@ -31,9 +31,9 @@ setup('Capture admin auth state', async ({ page }) => {
   const state = await page.context().storageState();
   const json = JSON.stringify(state, null, 2);
 
-  fs.mkdirSync('.auth', { recursive: true });
-  fs.writeFileSync('.auth/admin-storage-state.json', json);
-  console.log('\n✓ Saved to .auth/admin-storage-state.json\n');
+  fs.mkdirSync('e2e/.auth', { recursive: true });
+  fs.writeFileSync('e2e/.auth/admin-storage-state.json', json);
+  console.log('\n✓ Saved to e2e/.auth/admin-storage-state.json\n');
 });
 
 setup('Capture viewer auth state', async ({ page }) => {
@@ -56,7 +56,7 @@ setup('Capture viewer auth state', async ({ page }) => {
   const state = await page.context().storageState();
   const json = JSON.stringify(state, null, 2);
 
-  fs.mkdirSync('.auth', { recursive: true });
-  fs.writeFileSync('.auth/viewer-storage-state.json', json);
-  console.log('\n✓ Saved to .auth/viewer-storage-state.json\n');
+  fs.mkdirSync('e2e/.auth', { recursive: true });
+  fs.writeFileSync('e2e/.auth/viewer-storage-state.json', json);
+  console.log('\n✓ Saved to e2e/.auth/viewer-storage-state.json\n');
 });

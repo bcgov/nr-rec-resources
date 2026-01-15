@@ -1,22 +1,35 @@
 import { config } from 'dotenv';
 import { defineConfig, devices } from '@playwright/test';
 import path from 'path';
+import fs from 'fs';
 
 // Load .env file from cwd (where playwright is run from)
 config({ path: path.resolve(process.cwd(), '.env') });
 
 /**
- * Parse storageState from environment variable (JSON string).
- * Returns undefined if not set, allowing fallback to manual login.
+ * Read storageState from file.
+ * Returns undefined if file doesn't exist, allowing fallback to manual login.
  */
 export const getAdminStorageState = () => {
-  const state = process.env.E2E_ADMIN_STORAGE_STATE;
-  return state ? JSON.parse(state) : undefined;
+  const filePath = path.resolve(
+    process.cwd(),
+    'e2e/.auth/admin-storage-state.json',
+  );
+  if (fs.existsSync(filePath)) {
+    return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  }
+  return undefined;
 };
 
 export const getViewerStorageState = () => {
-  const state = process.env.E2E_VIEWER_STORAGE_STATE;
-  return state ? JSON.parse(state) : undefined;
+  const filePath = path.resolve(
+    process.cwd(),
+    'e2e/.auth/viewer-storage-state.json',
+  );
+  if (fs.existsSync(filePath)) {
+    return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  }
+  return undefined;
 };
 
 export default defineConfig({

@@ -78,6 +78,19 @@ jobs:
     - run: npx @playwright/test install-deps
       if: steps.playwright-cache.outputs.cache-hit == 'true'
       working-directory: ./${{ inputs.app }}/frontend
+    - name: Capture authentication state
+      run: npm run e2e:capture-auth
+      working-directory: ./${{ inputs.app }}/frontend
+      env:
+        E2E_BASE_URL: "${{
+            inputs.local && inputs.app == 'admin' && 'http://localhost:3001' ||
+            inputs.local && inputs.app != 'admin' && 'http://localhost:3000' ||
+            secrets.E2E_BASE_URL
+          }}"
+        E2E_TEST_ADMIN_USER: ${{ secrets.E2E_TEST_ADMIN_USER }}
+        E2E_TEST_ADMIN_PASSWORD: ${{ secrets.E2E_TEST_ADMIN_PASSWORD }}
+        E2E_TEST_VIEWER_USER: ${{ secrets.E2E_TEST_VIEWER_USER }}
+        E2E_TEST_VIEWER_PASSWORD: ${{ secrets.E2E_TEST_VIEWER_PASSWORD }}
     - name: Run Playwright tests
       run: npx happo-e2e -- npx playwright test
       working-directory: ./${{ inputs.app }}/frontend
@@ -90,8 +103,6 @@ jobs:
             inputs.local && inputs.app != 'admin' && 'http://localhost:3000' ||
             secrets.E2E_BASE_URL
           }}"
-        E2E_ADMIN_STORAGE_STATE: ${{ secrets.E2E_ADMIN_STORAGE_STATE }}
-        E2E_VIEWER_STORAGE_STATE: ${{ secrets.E2E_VIEWER_STORAGE_STATE }}
     - name: Dump docker logs on failure
       if: ${{ failure() && inputs.local }}
       uses: jwalton/gh-docker-logs@v2
