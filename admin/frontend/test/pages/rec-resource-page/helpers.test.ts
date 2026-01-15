@@ -11,8 +11,7 @@ import {
   setUploadFileName,
 } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
 import { addErrorNotification } from '@/store/notificationStore';
-import { buildFileTooLargeMessage, isFileTooLarge } from '@shared/utils';
-import { afterEach, beforeEach, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock URL.createObjectURL
 Object.defineProperty(URL, 'createObjectURL', {
@@ -26,97 +25,84 @@ Object.defineProperty(crypto, 'randomUUID', {
   value: vi.fn(() => 'mocked-uuid'),
 });
 
-// Mock the store functions
 vi.mock('@/pages/rec-resource-page/store/recResourceFileTransferStore', () => ({
   setSelectedFile: vi.fn(),
   setShowUploadOverlay: vi.fn(),
   setUploadFileName: vi.fn(),
 }));
 
-// Mock the notification store
 vi.mock('@/store/notificationStore', () => ({
   addErrorNotification: vi.fn(),
 }));
 
-// Mock the validation functions
-vi.mock('@shared/utils', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@shared/utils')>();
+// Helper to create mock input element
+function createMockInput(): HTMLInputElement {
   return {
-    ...actual,
-    isFileTooLarge: vi.fn(),
-    buildFileTooLargeMessage: vi.fn(),
-  };
-});
+    type: '',
+    accept: '',
+    style: { display: '' },
+    onchange: null,
+    click: vi.fn(),
+    files: null,
+  } as unknown as HTMLInputElement;
+}
+
+// Helper to simulate file selection
+function simulateFileSelection(
+  mockInput: HTMLInputElement,
+  files: File | File[] | null,
+): void {
+  mockInput.files = (files
+    ? Array.isArray(files)
+      ? files
+      : [files]
+    : null) as unknown as FileList;
+  const mockEvent = { target: mockInput } as unknown as Event;
+  mockInput.onchange?.(mockEvent);
+}
 
 describe('formatGalleryFileDate', () => {
-  it('formats ISO date string to en-CA format', () => {
-    // 2023-07-13T15:30:00Z UTC
-    const result = formatGalleryFileDate('2023-07-13T15:30:00Z');
-    // The output will depend on the local timezone, so just check for expected substrings
-    expect(result).toMatch(/Jul/);
+  it.each([
+    ['2023-07-13T15:30:00Z', /Jul/],
+    ['2023-12-25T09:15:00Z', /\d{1,2}:\d{2}\s?(AM|PM|a\.m\.|p\.m\.)/i],
+    ['2023-01-05T12:00:00Z', /\b0[1-9]\b|\b[12][0-9]\b|\b3[01]\b/],
+  ])('formats date correctly for %s', (date, pattern) => {
+    const result = formatGalleryFileDate(date);
+    expect(result).toMatch(pattern);
     expect(result).toMatch(/2023/);
-    expect(result).toMatch(/\d{2}/); // day
-    expect(result).toMatch(/\d{2}:\d{2}/); // time
+    expect(result).toMatch(/\d{2}:\d{2}/);
   });
 
   it('handles invalid date string gracefully', () => {
-    const result = formatGalleryFileDate('not-a-date');
-    expect(result).toBe('Invalid Date');
-  });
-
-  it('formats date with correct time format (12-hour with AM/PM)', () => {
-    const result = formatGalleryFileDate('2023-12-25T09:15:00Z');
-    // Check for either AM/PM or a.m./p.m. format (depending on locale)
-    expect(result).toMatch(/\d{1,2}:\d{2}\s?(AM|PM|a\.m\.|p\.m\.)/i);
-  });
-
-  it('formats date with correct day format (2-digit)', () => {
-    const result = formatGalleryFileDate('2023-01-05T12:00:00Z');
-    expect(result).toMatch(/\b0[1-9]\b|\b[12][0-9]\b|\b3[01]\b/); // 2-digit day format
+    expect(formatGalleryFileDate('not-a-date')).toBe('Invalid Date');
   });
 });
 
 describe('handleAddFileClick', () => {
   let mockInput: HTMLInputElement;
-  let originalCreateElement: typeof document.createElement;
-  let originalAppendChild: typeof document.body.appendChild;
-  let originalRemoveChild: typeof document.body.removeChild;
+  const originalMethods = {
+    createElement: document.createElement,
+    appendChild: document.body.appendChild,
+    removeChild: document.body.removeChild,
+  };
 
   beforeEach(() => {
-    // Clear all mocks
     vi.clearAllMocks();
-
-    // Create a mock input element
-    mockInput = {
-      type: '',
-      accept: '',
-      style: { display: '' },
-      onchange: null,
-      click: vi.fn(),
-      files: null,
-    } as unknown as HTMLInputElement;
-
-    // Mock document methods
-    originalCreateElement = document.createElement;
-    originalAppendChild = document.body.appendChild;
-    originalRemoveChild = document.body.removeChild;
-
+    mockInput = createMockInput();
     document.createElement = vi.fn().mockReturnValue(mockInput);
     document.body.appendChild = vi.fn();
     document.body.removeChild = vi.fn();
-
-    // Default: file size is valid
-    vi.mocked(isFileTooLarge).mockReturnValue(false);
   });
 
   afterEach(() => {
-    // Restore original methods
-    document.createElement = originalCreateElement;
-    document.body.appendChild = originalAppendChild;
-    document.body.removeChild = originalRemoveChild;
+    Object.assign(document, { createElement: originalMethods.createElement });
+    Object.assign(document.body, {
+      appendChild: originalMethods.appendChild,
+      removeChild: originalMethods.removeChild,
+    });
   });
 
-  it('creates a file input with correct properties', () => {
+  it('creates and configures file input correctly', () => {
     const acceptType = 'application/pdf';
     handleAddFileClick(acceptType, 'document');
 
@@ -124,32 +110,17 @@ describe('handleAddFileClick', () => {
     expect(mockInput.type).toBe('file');
     expect(mockInput.accept).toBe(acceptType);
     expect(mockInput.style.display).toBe('none');
-  });
-
-  it('appends input to document body and clicks it', () => {
-    handleAddFileClick('application/pdf', 'document');
-
     expect(document.body.appendChild).toHaveBeenCalledWith(mockInput);
     expect(mockInput.click).toHaveBeenCalled();
   });
 
-  it('handles file selection correctly', () => {
+  it('processes valid file selection correctly', () => {
     const mockFile = new File(['test content'], 'test.pdf', {
       type: 'application/pdf',
     });
 
     handleAddFileClick('application/pdf', 'document');
-
-    // Simulate file selection
-    mockInput.files = [mockFile] as unknown as FileList;
-    const mockEvent = {
-      target: mockInput,
-    } as unknown as Event;
-
-    // Trigger the onchange event
-    if (mockInput.onchange) {
-      mockInput.onchange(mockEvent);
-    }
+    simulateFileSelection(mockInput, mockFile);
 
     expect(setSelectedFile).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -163,195 +134,93 @@ describe('handleAddFileClick', () => {
     expect(document.body.removeChild).toHaveBeenCalledWith(mockInput);
   });
 
-  it('handles case when no file is selected', () => {
+  it.each([
+    ['no file selected', null],
+    ['empty files array', []],
+  ])('handles case when %s', (_, files) => {
     handleAddFileClick('application/pdf', 'document');
-
-    // Simulate no file selection (files is null)
-    mockInput.files = null;
-    const mockEvent = {
-      target: mockInput,
-    } as unknown as Event;
-
-    // Trigger the onchange event
-    if (mockInput.onchange) {
-      mockInput.onchange(mockEvent);
-    }
+    simulateFileSelection(mockInput, files);
 
     expect(setSelectedFile).not.toHaveBeenCalled();
     expect(setShowUploadOverlay).not.toHaveBeenCalled();
     expect(document.body.removeChild).toHaveBeenCalledWith(mockInput);
   });
 
-  it('handles case when files array is empty', () => {
-    handleAddFileClick('application/pdf', 'document');
-
-    // Simulate empty files array
-    mockInput.files = [] as unknown as FileList;
-    const mockEvent = {
-      target: mockInput,
-    } as unknown as Event;
-
-    // Trigger the onchange event
-    if (mockInput.onchange) {
-      mockInput.onchange(mockEvent);
-    }
-
-    expect(setSelectedFile).not.toHaveBeenCalled();
-    expect(setShowUploadOverlay).not.toHaveBeenCalled();
-    expect(document.body.removeChild).toHaveBeenCalledWith(mockInput);
+  it.each([
+    ['application/pdf', 'document'],
+    ['image/*', 'image'],
+    ['application/msword', 'document'],
+    ['.doc,.docx,.pdf', 'document'],
+  ])('accepts %s file type', (accept, type) => {
+    handleAddFileClick(accept, type as 'document' | 'image');
+    expect(mockInput.accept).toBe(accept);
   });
 
-  it('accepts different file types', () => {
-    const acceptTypes = [
-      { accept: 'application/pdf', type: 'document' as const },
-      { accept: 'image/*', type: 'image' as const },
-      { accept: 'application/msword', type: 'document' as const },
-      { accept: '.doc,.docx,.pdf', type: 'document' as const },
-    ];
+  it('rejects invalid files and shows notification without opening modal', () => {
+    const mockAddErrorNotification = vi.mocked(addErrorNotification);
 
-    acceptTypes.forEach(({ accept, type }) => {
-      vi.clearAllMocks();
-      vi.mocked(isFileTooLarge).mockReturnValue(false);
-      handleAddFileClick(accept, type);
-      expect(mockInput.accept).toBe(accept);
-    });
-  });
-
-  it('rejects files that are too large', () => {
-    const mockFile = new File(['test content'], 'large-file.pdf', {
+    const largeFile = new File(['test content'], 'large-file.pdf', {
       type: 'application/pdf',
     });
-
-    // Mock file as being too large
-    vi.mocked(isFileTooLarge).mockReturnValue(true);
-    vi.mocked(buildFileTooLargeMessage).mockReturnValue(
-      'Whoops, the file "large-file.pdf" is too big. Please upload a file smaller than 9.5MB.',
-    );
-
-    handleAddFileClick('application/pdf', 'document');
-
-    // Simulate file selection
-    mockInput.files = [mockFile] as unknown as FileList;
-    const mockEvent = {
-      target: mockInput,
-    } as unknown as Event;
-
-    // Trigger the onchange event
-    if (mockInput.onchange) {
-      mockInput.onchange(mockEvent);
-    }
-
-    // Verify validation was called
-    expect(isFileTooLarge).toHaveBeenCalledWith(mockFile, expect.any(Number));
-    expect(buildFileTooLargeMessage).toHaveBeenCalledWith(
-      'large-file.pdf',
-      9.5,
-    );
-    expect(addErrorNotification).toHaveBeenCalledWith(
-      'Whoops, the file "large-file.pdf" is too big. Please upload a file smaller than 9.5MB.',
-    );
-
-    // Verify file was NOT processed further
-    expect(setSelectedFile).not.toHaveBeenCalled();
-    expect(setShowUploadOverlay).not.toHaveBeenCalled();
-    expect(setUploadFileName).not.toHaveBeenCalled();
-
-    // Verify cleanup still happens
-    expect(document.body.removeChild).toHaveBeenCalledWith(mockInput);
-  });
-
-  it('accepts files that are within size limit', () => {
-    const mockFile = new File(['test content'], 'valid-file.pdf', {
-      type: 'application/pdf',
+    // Make file larger than limit
+    Object.defineProperty(largeFile, 'size', {
+      value: 10 * 1024 * 1024, // 10MB > 9.5MB limit
+      writable: false,
     });
 
-    // Mock file as being within size limit
-    vi.mocked(isFileTooLarge).mockReturnValue(false);
-
     handleAddFileClick('application/pdf', 'document');
+    simulateFileSelection(mockInput, largeFile);
 
-    // Simulate file selection
-    mockInput.files = [mockFile] as unknown as FileList;
-    const mockEvent = {
-      target: mockInput,
-    } as unknown as Event;
-
-    // Trigger the onchange event
-    if (mockInput.onchange) {
-      mockInput.onchange(mockEvent);
-    }
-
-    // Verify validation was called
-    expect(isFileTooLarge).toHaveBeenCalledWith(mockFile, expect.any(Number));
-
-    // Verify error notification was NOT called
-    expect(buildFileTooLargeMessage).not.toHaveBeenCalled();
-    expect(addErrorNotification).not.toHaveBeenCalled();
-
-    // Verify file WAS processed
-    expect(setSelectedFile).toHaveBeenCalledWith(
-      expect.objectContaining({
-        name: 'valid-file.pdf',
-        type: 'document',
-        pendingFile: mockFile,
-      }),
+    // Invalid file should show notification and NOT open modal
+    expect(mockAddErrorNotification).toHaveBeenCalledWith(
+      expect.stringContaining('too big'),
     );
-    expect(setShowUploadOverlay).toHaveBeenCalledWith(true);
-    expect(setUploadFileName).toHaveBeenCalledWith('valid-file');
+    expect(setSelectedFile).not.toHaveBeenCalled();
+    expect(setShowUploadOverlay).not.toHaveBeenCalled();
     expect(document.body.removeChild).toHaveBeenCalledWith(mockInput);
   });
 });
 
-describe('handleAddPdfFileClick', () => {
+describe('handleAddFileByType', () => {
   let mockInput: HTMLInputElement;
-  let originalCreateElement: typeof document.createElement;
-  let originalAppendChild: typeof document.body.appendChild;
-  let originalRemoveChild: typeof document.body.removeChild;
+  const originalMethods = {
+    createElement: document.createElement,
+    appendChild: document.body.appendChild,
+    removeChild: document.body.removeChild,
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();
-
-    mockInput = {
-      type: '',
-      accept: '',
-      style: { display: '' },
-      onchange: null,
-      click: vi.fn(),
-      files: null,
-    } as unknown as HTMLInputElement;
-
-    originalCreateElement = document.createElement;
-    originalAppendChild = document.body.appendChild;
-    originalRemoveChild = document.body.removeChild;
-
+    mockInput = createMockInput();
     document.createElement = vi.fn().mockReturnValue(mockInput);
     document.body.appendChild = vi.fn();
     document.body.removeChild = vi.fn();
   });
 
   afterEach(() => {
-    document.createElement = originalCreateElement;
-    document.body.appendChild = originalAppendChild;
-    document.body.removeChild = originalRemoveChild;
+    Object.assign(document, { createElement: originalMethods.createElement });
+    Object.assign(document.body, {
+      appendChild: originalMethods.appendChild,
+      removeChild: originalMethods.removeChild,
+    });
   });
 
-  it('calls handleAddFileClick with PDF mime type', () => {
-    handleAddFileByType('document');
-
-    expect(document.createElement).toHaveBeenCalledWith('input');
-    expect(mockInput.accept).toBe('application/pdf');
-    expect(mockInput.type).toBe('file');
-    expect(mockInput.click).toHaveBeenCalled();
-  });
-
-  it('restricts file selection to PDF files only', () => {
-    handleAddFileByType('document');
-    expect(mockInput.accept).toBe('application/pdf');
-  });
+  it.each([
+    ['document', 'application/pdf'],
+    ['image', 'image/png,image/jpg,image/jpeg,image/webp'],
+  ])(
+    'calls handleAddFileClick with correct mime type for %s',
+    (type, expectedAccept) => {
+      handleAddFileByType(type as 'document' | 'image');
+      expect(mockInput.accept).toBe(expectedAccept);
+      expect(mockInput.type).toBe('file');
+      expect(mockInput.click).toHaveBeenCalled();
+    },
+  );
 });
 
 describe('createTempGalleryFile', () => {
-  it('creates temp gallery file with extension from file name', () => {
+  it('creates temp gallery file with all required properties', () => {
     const mockFile = new File(['content'], 'test-image.jpg', {
       type: 'image/jpeg',
     });
@@ -368,51 +237,31 @@ describe('createTempGalleryFile', () => {
     );
   });
 
-  it('handles file name without extension (empty string fallback)', () => {
-    const mockFile = new File(['content'], 'filename.', {
-      type: 'application/pdf',
+  it.each([
+    ['filename.', '', 'document'],
+    ['file.name.with.multiple.dots.png', 'png', 'image'],
+    ['document.PDF', 'pdf', 'document'],
+  ])('handles file name "%s" correctly', (fileName, expectedExt, type) => {
+    const mockFile = new File(['content'], fileName, {
+      type: type === 'image' ? 'image/png' : 'application/pdf',
     });
-    const result = createTempGalleryFile(mockFile, 'document');
+    const result = createTempGalleryFile(
+      mockFile,
+      type as 'document' | 'image',
+    );
 
-    expect(result.extension).toBe('');
-    expect(result.name).toBe('filename.');
-    expect(result.type).toBe('document');
-    expect(result.url).toBe('mocked-object-url');
-  });
-
-  it('handles file name with multiple dots', () => {
-    const mockFile = new File(['content'], 'file.name.with.multiple.dots.png', {
-      type: 'image/png',
-    });
-    const result = createTempGalleryFile(mockFile, 'image');
-
-    expect(result.extension).toBe('png');
-    expect(result.name).toBe('file.name.with.multiple.dots.png');
-    expect(result.url).toBe('mocked-object-url');
-  });
-
-  it('handles uppercase file extension', () => {
-    const mockFile = new File(['content'], 'document.PDF', {
-      type: 'application/pdf',
-    });
-    const result = createTempGalleryFile(mockFile, 'document');
-
-    expect(result.extension).toBe('pdf');
-    expect(result.name).toBe('document.PDF');
+    expect(result.extension).toBe(expectedExt);
+    expect(result.name).toBe(fileName);
+    expect(result.type).toBe(type);
     expect(result.url).toBe('mocked-object-url');
   });
 });
 
 describe('getMaxFilesByFileType', () => {
-  it('returns correct max files for image type', () => {
-    const result = getMaxFilesByFileType('image');
-    expect(typeof result).toBe('number');
-    expect(result).toBeGreaterThan(0);
-  });
-
-  it('returns correct max files for document type', () => {
-    const result = getMaxFilesByFileType('document');
-    expect(typeof result).toBe('number');
-    expect(result).toBeGreaterThan(0);
-  });
+  it.each(['image', 'document'] as const)(
+    'returns a positive number for %s type',
+    (type) => {
+      expect(getMaxFilesByFileType(type)).toBeGreaterThan(0);
+    },
+  );
 });

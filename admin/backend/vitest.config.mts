@@ -12,13 +12,6 @@ export default defineConfig({
     setupFiles: 'test/test-setup.ts',
     env: {
       // Test environment variables
-      DAM_RST_PDF_COLLECTION_ID: 'test-pdf-collection',
-      DAM_RST_IMAGE_COLLECTION_ID: 'test-image-collection',
-      DAM_URL: 'https://test-dam.example.com',
-      DAM_USER: 'test-user',
-      DAM_PRIVATE_KEY: 'test-private-key',
-      DAM_RESOURCE_TYPE_PDF: '1',
-      DAM_RESOURCE_TYPE_IMAGE: '2',
       POSTGRES_HOST: 'localhost',
       POSTGRES_PORT: '5432',
       POSTGRES_USER: 'test_user',
@@ -31,6 +24,9 @@ export default defineConfig({
       KEYCLOAK_ISSUER:
         'https://test-keycloak.example.com/auth/realms/test-realm',
       ESTABLISHMENT_ORDER_DOCS_BUCKET: 'rst-lza-establishment-order-docs-dev',
+      RST_STORAGE_IMAGES_BUCKET: 'rst-lza-rec-resource-images-dev',
+      RST_STORAGE_PUBLIC_DOCUMENTS_BUCKET: 'rst-lza-rec-resource-docs-dev',
+      RST_STORAGE_CLOUDFRONT_URL: 'https://test-cdn.example.com',
       AWS_REGION: 'ca-central-1',
     },
     coverage: {

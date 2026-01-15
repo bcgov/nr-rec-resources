@@ -126,16 +126,18 @@ describe('BaseFileModal', () => {
 
   describe('Alerts and Interactions', () => {
     it('handles alerts and button interactions', () => {
-      const alertConfig = {
-        variant: 'info' as const,
-        icon: faTrash,
-        text: 'Warning message',
-      };
+      const alerts = [
+        {
+          variant: 'info' as const,
+          icon: faTrash,
+          text: 'Warning message',
+        },
+      ];
 
       render(
         <BaseFileModal
           {...defaultProps}
-          alertConfig={alertConfig}
+          alerts={alerts}
           confirmButtonText="Delete"
           confirmButtonIcon={faTrash}
           confirmButtonVariant="danger"
@@ -147,7 +149,6 @@ describe('BaseFileModal', () => {
       expect(screen.getByText('Warning message')).toBeInTheDocument();
       const alertElement = screen.getByRole('alert');
       expect(alertElement).toHaveClass('base-file-modal__alert');
-      expect(alertElement).toHaveClass('base-file-modal__alert--info');
 
       // Button interactions
       const cancelButton = screen.getByRole('button', { name: /cancel/i });

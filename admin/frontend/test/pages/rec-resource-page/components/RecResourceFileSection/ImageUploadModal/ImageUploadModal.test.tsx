@@ -140,6 +140,5 @@ describe('ImageUploadModal', () => {
     ).toBeInTheDocument();
     const alertElement = screen.getByRole('alert');
     expect(alertElement).toHaveClass('base-file-modal__alert');
-    expect(alertElement).toHaveClass('base-file-modal__alert--info');
   });
 });

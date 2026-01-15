@@ -24,32 +24,40 @@ export function useFileNameValidation() {
       : galleryDocuments.map((doc) => doc.name);
   }, [selectedFileForUpload?.type, galleryImages, galleryDocuments]);
 
-  // Create validator only when existing file names change
-  const validator = useMemo(() => {
-    return createFileUploadValidator(existingFileNames);
-  }, [existingFileNames]);
+  // Get file type from selected file
+  const fileType = selectedFileForUpload?.type;
 
-  // Calculate validation result only when filename or validator changes
-  const validationResult = useMemo(() => {
-    // if (!uploadFileName.trim()) return null;
+  // Create validator only when existing file names or file type changes
+  const validator = useMemo(() => {
+    if (!fileType) return null;
+    return createFileUploadValidator(existingFileNames, fileType);
+  }, [existingFileNames, fileType]);
+
+  // Calculate file name validation result only when filename or validator changes
+  const fileNameValidationResult = useMemo(() => {
+    if (!validator || uploadFileName === undefined || uploadFileName === null) {
+      return null;
+    }
     return validator.safeParse({ fileName: uploadFileName });
   }, [uploadFileName, validator]);
 
   // Calculate derived values only when validation result changes
   const { fileNameError, hasError } = useMemo(() => {
-    const error = validationResult.success
-      ? undefined
-      : validationResult.error.issues[0]?.message;
+    const nameError =
+      fileNameValidationResult && !fileNameValidationResult.success
+        ? fileNameValidationResult.error.issues[0]?.message
+        : undefined;
 
     return {
-      fileNameError: error,
-      hasError: !!error,
+      fileNameError: nameError,
+      hasError: !!nameError,
     };
-  }, [validationResult]);
+  }, [fileNameValidationResult]);
 
   // Validation function for imperative use
   const validateFileName = useMemo(() => {
     return (fileName: string) => {
+      if (!validator) return { success: false as const, error: { issues: [] } };
       return validator.safeParse({ fileName });
     };
   }, [validator]);

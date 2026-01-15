@@ -1,549 +1,98 @@
-import { AppConfigModule } from '@/app-config/app-config.module';
-import { DamApiService } from '@/dam-api/dam-api.service';
+import { RecResourceImagesS3Service } from '@/resource-images/service/rec-resource-images-s3.service';
 import { ResourceImagesService } from '@/resource-images/service/resource-images.service';
-import { HttpException } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'src/prisma.service';
-import { Readable } from 'stream';
-import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
-
-const mockedResources = [
-  {
-    rec_resource_id: 'REC1735',
-    caption: 'Abbott Lake - REC1735',
-    ref_id: '33272',
-    created_at: '2025-03-26T23:33:06.175Z',
-    recreation_resource_image_variants: [
-      {
-        url: '/filestore/2/7/2/3/3_ce2c0d2d1f7b567/33272_53af5f9880e0b58.webp?v=1742978093',
-        extension: 'webp',
-        width: 1440,
-        height: 1080,
-        size_code: 'original',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/2/7/2/3/3_ce2c0d2d1f7b567/33272hpr_50d64095d1b545b.jpg?v=1742978094',
-        extension: 'jpg',
-        width: 1440,
-        height: 1080,
-        size_code: 'hpr',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/2/7/2/3/3_ce2c0d2d1f7b567/33272scr_a6b28a4a883e705.jpg?v=1742978095',
-        extension: 'jpg',
-        width: 1067,
-        height: 800,
-        size_code: 'scr',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/2/7/2/3/3_ce2c0d2d1f7b567/33272con_b59229a84e96074.jpg?v=1742978095',
-        extension: 'jpg',
-        width: 987,
-        height: 740,
-        size_code: 'con',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/2/7/2/3/3_ce2c0d2d1f7b567/33272lpr_00c2c4e2c44f8be.jpg?v=1742978095',
-        extension: 'jpg',
-        width: 1000,
-        height: 750,
-        size_code: 'lpr',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/2/7/2/3/3_ce2c0d2d1f7b567/33272pre_4ca8f79b70e3ae4.jpg?v=1742978095',
-        extension: 'jpg',
-        width: 640,
-        height: 480,
-        size_code: 'pre',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/2/7/2/3/3_ce2c0d2d1f7b567/33272ili_d11b6a9f0e2ea72.jpg?v=1742978096',
-        extension: 'jpg',
-        width: 700,
-        height: 525,
-        size_code: 'ili',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/2/7/2/3/3_ce2c0d2d1f7b567/33272lan_2117477c188cbcf.jpg?v=1742978096',
-        extension: 'jpg',
-        width: 720,
-        height: 540,
-        size_code: 'lan',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/2/7/2/3/3_ce2c0d2d1f7b567/33272llc_cf3569d8facb75b.jpg?v=1742978096',
-        extension: 'jpg',
-        width: 507,
-        height: 380,
-        size_code: 'llc',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/2/7/2/3/3_ce2c0d2d1f7b567/33272rsr_bf8333d75f22eb0.jpg?v=1742978096',
-        extension: 'jpg',
-        width: 525,
-        height: 394,
-        size_code: 'rsr',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/2/7/2/3/3_ce2c0d2d1f7b567/33272pcs_f2f236377af69c4.jpg?v=1742978096',
-        extension: 'jpg',
-        width: 335,
-        height: 251,
-        size_code: 'pcs',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/2/7/2/3/3_ce2c0d2d1f7b567/33272thm_d688063923eb149.jpg?v=1742978097',
-        extension: 'jpg',
-        width: 175,
-        height: 131,
-        size_code: 'thm',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/2/7/2/3/3_ce2c0d2d1f7b567/33272col_03512325f568271.jpg?v=1742978097',
-        extension: 'jpg',
-        width: 100,
-        height: 75,
-        size_code: 'col',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-    ],
-  },
-  {
-    rec_resource_id: 'REC1735',
-    caption: 'Abbott Lake - REC1735',
-    ref_id: '30863',
-    created_at: '2025-03-26T23:33:06.175Z',
-    recreation_resource_image_variants: [
-      {
-        url: '/filestore/3/6/8/0/3_e6bbf6ae0cadf83/30863_1eece985e2af6f3.webp?v=1742970902',
-        extension: 'webp',
-        width: 1440,
-        height: 1080,
-        size_code: 'original',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/3/6/8/0/3_e6bbf6ae0cadf83/30863hpr_3f8e81713688a1b.jpg?v=1742970902',
-        extension: 'jpg',
-        width: 1440,
-        height: 1080,
-        size_code: 'hpr',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/3/6/8/0/3_e6bbf6ae0cadf83/30863scr_38e8100515e466d.jpg?v=1742970903',
-        extension: 'jpg',
-        width: 1067,
-        height: 800,
-        size_code: 'scr',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/3/6/8/0/3_e6bbf6ae0cadf83/30863con_80a157e660f949b.jpg?v=1742970903',
-        extension: 'jpg',
-        width: 987,
-        height: 740,
-        size_code: 'con',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/3/6/8/0/3_e6bbf6ae0cadf83/30863lpr_f6d95848d86f983.jpg?v=1742970903',
-        extension: 'jpg',
-        width: 1000,
-        height: 750,
-        size_code: 'lpr',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/3/6/8/0/3_e6bbf6ae0cadf83/30863pre_5f23aea331e5b28.jpg?v=1742970903',
-        extension: 'jpg',
-        width: 640,
-        height: 480,
-        size_code: 'pre',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/3/6/8/0/3_e6bbf6ae0cadf83/30863ili_f5df83a659d5468.jpg?v=1742970904',
-        extension: 'jpg',
-        width: 700,
-        height: 525,
-        size_code: 'ili',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/3/6/8/0/3_e6bbf6ae0cadf83/30863lan_12da682701a455e.jpg?v=1742970904',
-        extension: 'jpg',
-        width: 720,
-        height: 540,
-        size_code: 'lan',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/3/6/8/0/3_e6bbf6ae0cadf83/30863llc_4e77fff865f9e31.jpg?v=1742970904',
-        extension: 'jpg',
-        width: 507,
-        height: 380,
-        size_code: 'llc',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/3/6/8/0/3_e6bbf6ae0cadf83/30863rsr_a2e7e2dddd54d4a.jpg?v=1742970904',
-        extension: 'jpg',
-        width: 525,
-        height: 394,
-        size_code: 'rsr',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/3/6/8/0/3_e6bbf6ae0cadf83/30863pcs_31cbda7b73501b9.jpg?v=1742970904',
-        extension: 'jpg',
-        width: 335,
-        height: 251,
-        size_code: 'pcs',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/3/6/8/0/3_e6bbf6ae0cadf83/30863thm_1a60975eaa048ca.jpg?v=1742970905',
-        extension: 'jpg',
-        width: 175,
-        height: 131,
-        size_code: 'thm',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/3/6/8/0/3_e6bbf6ae0cadf83/30863col_40143ccebe2d9fb.jpg?v=1742970905',
-        extension: 'jpg',
-        width: 100,
-        height: 75,
-        size_code: 'col',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-    ],
-  },
-  {
-    rec_resource_id: 'REC1735',
-    caption: 'Abbott Lake - REC1735',
-    ref_id: '27953',
-    created_at: '2025-03-26T23:33:06.175Z',
-    recreation_resource_image_variants: [
-      {
-        url: '/filestore/3/5/9/7/2_54310885e27e146/27953_8e2def2b99b557c.webp?v=1742962225',
-        extension: 'webp',
-        width: 1440,
-        height: 1080,
-        size_code: 'original',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/3/5/9/7/2_54310885e27e146/27953hpr_3efdf28884e021a.jpg?v=1742962226',
-        extension: 'jpg',
-        width: 1440,
-        height: 1080,
-        size_code: 'hpr',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/3/5/9/7/2_54310885e27e146/27953scr_0750d9c3cabf8d2.jpg?v=1742962226',
-        extension: 'jpg',
-        width: 1067,
-        height: 800,
-        size_code: 'scr',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/3/5/9/7/2_54310885e27e146/27953con_f7c32f563a52267.jpg?v=1742962226',
-        extension: 'jpg',
-        width: 987,
-        height: 740,
-        size_code: 'con',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/3/5/9/7/2_54310885e27e146/27953lpr_c96c47cf361ebf5.jpg?v=1742962227',
-        extension: 'jpg',
-        width: 1000,
-        height: 750,
-        size_code: 'lpr',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/3/5/9/7/2_54310885e27e146/27953pre_4e31e8768484dc6.jpg?v=1742962227',
-        extension: 'jpg',
-        width: 640,
-        height: 480,
-        size_code: 'pre',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/3/5/9/7/2_54310885e27e146/27953ili_2fbf917945c4ccb.jpg?v=1742962227',
-        extension: 'jpg',
-        width: 700,
-        height: 525,
-        size_code: 'ili',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/3/5/9/7/2_54310885e27e146/27953lan_7af81c416afeefa.jpg?v=1742962227',
-        extension: 'jpg',
-        width: 720,
-        height: 540,
-        size_code: 'lan',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/3/5/9/7/2_54310885e27e146/27953llc_ca9bba50e39922a.jpg?v=1742962227',
-        extension: 'jpg',
-        width: 507,
-        height: 380,
-        size_code: 'llc',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/3/5/9/7/2_54310885e27e146/27953rsr_2716ff97cb06fe7.jpg?v=1742962228',
-        extension: 'jpg',
-        width: 525,
-        height: 394,
-        size_code: 'rsr',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/3/5/9/7/2_54310885e27e146/27953pcs_3ee26f56eea43de.jpg?v=1742962228',
-        extension: 'jpg',
-        width: 335,
-        height: 251,
-        size_code: 'pcs',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/3/5/9/7/2_54310885e27e146/27953thm_09e6feab4fc36c5.jpg?v=1742962228',
-        extension: 'jpg',
-        width: 175,
-        height: 131,
-        size_code: 'thm',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/3/5/9/7/2_54310885e27e146/27953col_271b932075268c7.jpg?v=1742962228',
-        extension: 'jpg',
-        width: 100,
-        height: 75,
-        size_code: 'col',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-    ],
-  },
-  {
-    rec_resource_id: 'REC1735',
-    caption: 'Abbott Lake 4 - REC1735',
-    ref_id: '24220',
-    created_at: '2025-03-26T23:33:06.175Z',
-    recreation_resource_image_variants: [
-      {
-        url: '/filestore/0/2/2/4/2_8904484d6f089ea/24220_39d56c84be5e21b.webp?v=1742951043',
-        extension: 'webp',
-        width: 1024,
-        height: 768,
-        size_code: 'original',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/0/2/2/4/2_8904484d6f089ea/24220hpr_fd28ae66689919b.jpg?v=1742951044',
-        extension: 'jpg',
-        width: 1024,
-        height: 768,
-        size_code: 'hpr',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/0/2/2/4/2_8904484d6f089ea/24220scr_d864c571077ff74.jpg?v=1742951044',
-        extension: 'jpg',
-        width: 1024,
-        height: 768,
-        size_code: 'scr',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/0/2/2/4/2_8904484d6f089ea/24220con_0dfe9e75bad4a04.jpg?v=1742951044',
-        extension: 'jpg',
-        width: 987,
-        height: 740,
-        size_code: 'con',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/0/2/2/4/2_8904484d6f089ea/24220lpr_ea95061e15c65ae.jpg?v=1742951045',
-        extension: 'jpg',
-        width: 1000,
-        height: 750,
-        size_code: 'lpr',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/0/2/2/4/2_8904484d6f089ea/24220pre_189c55b69464ba6.jpg?v=1742951045',
-        extension: 'jpg',
-        width: 640,
-        height: 480,
-        size_code: 'pre',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/0/2/2/4/2_8904484d6f089ea/24220ili_1af157bad0cf87e.jpg?v=1742951045',
-        extension: 'jpg',
-        width: 700,
-        height: 525,
-        size_code: 'ili',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/0/2/2/4/2_8904484d6f089ea/24220lan_b14fdf961fcdab7.jpg?v=1742951045',
-        extension: 'jpg',
-        width: 720,
-        height: 540,
-        size_code: 'lan',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/0/2/2/4/2_8904484d6f089ea/24220llc_794597c36876efd.jpg?v=1742951045',
-        extension: 'jpg',
-        width: 507,
-        height: 380,
-        size_code: 'llc',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/0/2/2/4/2_8904484d6f089ea/24220rsr_9e722c3c230e7b3.jpg?v=1742951045',
-        extension: 'jpg',
-        width: 525,
-        height: 394,
-        size_code: 'rsr',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/0/2/2/4/2_8904484d6f089ea/24220pcs_1eeee455606e780.jpg?v=1742951045',
-        extension: 'jpg',
-        width: 335,
-        height: 251,
-        size_code: 'pcs',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/0/2/2/4/2_8904484d6f089ea/24220thm_13fd1afeb90af60.jpg?v=1742951046',
-        extension: 'jpg',
-        width: 175,
-        height: 131,
-        size_code: 'thm',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-      {
-        url: '/filestore/0/2/2/4/2_8904484d6f089ea/24220col_371d6e4e34f85f8.jpg?v=1742951046',
-        extension: 'jpg',
-        width: 100,
-        height: 75,
-        size_code: 'col',
-        created_at: '2025-03-26T23:33:06.175Z',
-      },
-    ],
-  },
-];
+import { createVariantFiles } from 'test/test-utils/file-test-utils';
+import { Mocked, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  createMockImage,
+  createStorageTestModule,
+  setupAppConfigForStorage,
+} from '../../test-utils/storage-test-utils';
 
 vi.mock('fs');
 
 describe('ResourceImagesDocsService', () => {
   let prismaService: Mocked<PrismaService>;
   let service: ResourceImagesService;
-  let damApiService: Mocked<DamApiService>;
+  let mockS3Service: Mocked<RecResourceImagesS3Service>;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [AppConfigModule],
-      providers: [
-        ResourceImagesService,
-        {
-          provide: PrismaService,
-          useValue: {
-            $transaction: vi.fn(),
-            recreation_resource_images: {
-              findUnique: vi.fn(),
-              findMany: vi.fn(),
-              create: vi.fn(),
-              delete: vi.fn(),
-              update: vi.fn(),
-            },
-            recreation_resource_image_variants: {
-              deleteMany: vi.fn(),
-            },
-            recreation_resource: {
-              findUnique: vi.fn(),
-            },
-          },
-        },
-        {
-          provide: DamApiService,
-          useValue: {
-            createResource: vi.fn(),
-            uploadFile: vi.fn(),
-            addResourceToCollection: vi.fn(),
-            getResourcePath: vi.fn(),
-            deleteResource: vi.fn(),
-            createAndUploadImage: vi.fn(),
-            createAndUploadImageWithRetry: vi.fn(),
-          },
-        },
-      ],
-    }).compile();
+    const mockS3ServiceValue = {
+      uploadImageVariants: vi.fn(),
+      deleteImageVariants: vi.fn(),
+    } as any;
 
-    service = module.get<ResourceImagesService>(ResourceImagesService);
-    prismaService = module.get(PrismaService);
-    damApiService = module.get(DamApiService);
+    const testModule = await createStorageTestModule<ResourceImagesService>({
+      serviceClass: ResourceImagesService,
+      customS3ServiceProvider: {
+        provide: RecResourceImagesS3Service,
+        useValue: mockS3ServiceValue,
+      },
+    });
+    service = testModule.service;
+    prismaService = testModule.prismaService;
+    mockS3Service = mockS3ServiceValue;
+    await setupAppConfigForStorage({
+      bucketName: 'test-images-bucket',
+      cloudfrontUrl: 'https://test-cdn.example.com',
+    });
   });
 
   describe('getById', () => {
     it('should return one resource', async () => {
+      const mockResource = createMockImage('11535', 'REC1735', {
+        file_name: 'abbott-lake-rec1735.webp',
+        created_at: new Date('2025-03-26T23:33:06.175Z'),
+      });
       vi.mocked(
-        prismaService.recreation_resource_images.findUnique,
-      ).mockResolvedValue(mockedResources[0] as any);
+        prismaService.recreation_resource_image.findUnique,
+      ).mockResolvedValue(mockResource as any);
 
       const result = await service.getImageByResourceId('REC0001', '11535');
-      expect(result).toMatchObject(mockedResources[0] as any);
+      expect(result).toBeDefined();
+      expect(result.ref_id).toBe('11535');
+      expect(result.image_id).toBe('11535');
+      expect(result.file_name).toBe('abbott-lake-rec1735.webp');
+      expect(result.recreation_resource_image_variants).toHaveLength(4);
     });
 
     it('should return status 404 if resource not found', async () => {
       vi.mocked(
-        prismaService.recreation_resource_images.findUnique,
+        prismaService.recreation_resource_image.findUnique,
       ).mockResolvedValueOnce(null);
-      try {
-        await service.getImageByResourceId('REC0001', '11535');
-      } catch (err) {
-        expect(err.status).toBe(404);
-      }
+      await expect(
+        service.getImageByResourceId('REC0001', '11535'),
+      ).rejects.toThrow();
     });
   });
 
   describe('getAll', () => {
     it('should return all image resources related to the resource', async () => {
+      const mockResources = [
+        createMockImage('30863', 'REC1735', {
+          file_name: 'abbott-lake-rec1735.webp',
+          created_at: new Date('2025-03-26T23:33:06.175Z'),
+        }),
+        createMockImage('27953', 'REC1735', {
+          file_name: 'abbott-lake-rec1735.webp',
+          created_at: new Date('2025-03-26T23:33:06.175Z'),
+        }),
+      ];
       vi.mocked(
-        prismaService.recreation_resource_images.findMany,
-      ).mockResolvedValue(mockedResources as any);
+        prismaService.recreation_resource_image.findMany,
+      ).mockResolvedValue(mockResources as any);
 
       const result = await service.getAll('REC0001');
-      expect(result).toMatchObject(mockedResources);
+      expect(result).toBeDefined();
+      expect(result).toHaveLength(2);
+      expect(result?.[0]?.ref_id).toBe('30863');
+      expect(result?.[0]?.image_id).toBe('30863');
+      expect(result?.[0]?.recreation_resource_image_variants).toHaveLength(4);
     });
 
     it('should return empty array if resource not found', async () => {
       vi.mocked(
-        prismaService.recreation_resource_images.findMany,
+        prismaService.recreation_resource_image.findMany,
       ).mockResolvedValueOnce([]);
       const result = await service.getAll('NONEXISTENT');
       expect(result?.length).toBe(0);
@@ -551,233 +100,199 @@ describe('ResourceImagesDocsService', () => {
   });
 
   describe('create', () => {
-    const file = {
-      originalname: 'sample.name',
-      mimetype: 'image/jpeg',
-      path: 'sample.url',
-      buffer: Buffer.from('file'),
-      fieldname: '',
-      encoding: '',
-      size: 0,
-      stream: Readable.from(['test content']),
-      destination: '',
-      filename: '',
+    const variantFiles = createVariantFiles();
+    const mockResource = { rec_resource_id: 'REC0001' };
+    const mockCreated = {
+      rec_resource_id: 'REC0001',
+      image_id: 'image-123',
+      file_name: 'title.webp',
+      extension: 'webp',
+      file_size: BigInt(1024),
+      created_at: new Date(),
     };
-    it('should return the created resource', async () => {
-      vi.mocked(
-        damApiService.createAndUploadImageWithRetry,
-      ).mockResolvedValueOnce({
-        ref_id: 'ref123',
-        files: [
-          {
-            size_code: 'original',
-            url: 'https://dam-url.com/path/file.jpg?v=123',
-          },
-          {
-            size_code: 'thm',
-            url: 'https://dam-url.com/path/file.jpg?v=123',
-          },
-          {
-            size_code: 'pre',
-            url: 'https://dam-url.com/path/file.jpg?v=123',
-          },
-        ],
-      });
+    const mockS3Paths = [
+      'images/REC0001/image-123/original.webp',
+      'images/REC0001/image-123/scr.webp',
+      'images/REC0001/image-123/pre.webp',
+      'images/REC0001/image-123/thm.webp',
+    ];
+
+    beforeEach(() => {
       vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue(
-        mockedResources[0] as any,
+        mockResource as any,
+      );
+      vi.mocked(mockS3Service.uploadImageVariants).mockResolvedValue(
+        mockS3Paths,
       );
       vi.mocked(
-        prismaService.recreation_resource_images.create,
-      ).mockResolvedValue(mockedResources[0] as any);
-
-      const result = await service.create('REC0001', 'Title', file);
-      expect(result).toMatchObject(mockedResources[0] as any);
+        prismaService.recreation_resource_image.create,
+      ).mockResolvedValue(mockCreated as any);
     });
 
-    it('should return the created resource with no params on original path', async () => {
-      vi.mocked(
-        damApiService.createAndUploadImageWithRetry,
-      ).mockResolvedValueOnce({
-        ref_id: 'ref123',
-        files: [
-          {
-            size_code: 'original',
-            url: 'https://dam-url.com/path/file.jpg?v=123',
-          },
-          {
-            size_code: 'thm',
-            url: 'https://dam-url.com/path/file.jpg?v=123',
-          },
-          {
-            size_code: 'pre',
-            url: 'https://dam-url.com/path/file.jpg?v=123',
-          },
-        ],
-      });
-      vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue(
-        mockedResources[0] as any,
+    it('should return the created resource', async () => {
+      const result = await service.create('REC0001', 'Title', variantFiles);
+      expect(result).toBeDefined();
+      expect(result.image_id).toBe('image-123');
+      expect(result.ref_id).toBe('image-123');
+      expect(result.file_name).toBe('title.webp');
+      expect(result.recreation_resource_image_variants).toHaveLength(4);
+      expect(
+        prismaService.recreation_resource_image.create,
+      ).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            file_name: expect.stringMatching(/^Title$/), // without .webp extension
+            extension: 'webp',
+            file_size: expect.any(BigInt),
+          }),
+        }),
       );
-      vi.mocked(
-        prismaService.recreation_resource_images.create,
-      ).mockResolvedValue(mockedResources[0] as any);
-
-      const result = await service.create('REC0001', 'Title', file);
-      expect(result).toMatchObject(mockedResources[0] as any);
     });
 
     it('should return status 404 if resource not found', async () => {
-      vi.mocked(
-        damApiService.createAndUploadImageWithRetry,
-      ).mockResolvedValueOnce({
-        ref_id: 'ref123',
-        files: [
-          {
-            size_code: 'original',
-            url: 'https://dam-url.com/path/file.jpg?v=123',
-          },
-        ],
-      });
       vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue(
         null,
       );
-      vi.mocked(
-        prismaService.recreation_resource_images.create,
-      ).mockResolvedValueOnce(null as any);
-      try {
-        await service.create('REC0001', 'Title', file);
-      } catch (err) {
-        expect(err.status).toBe(404);
-      }
-    });
-
-    it('should return the created resource retrying to get resource path', async () => {
-      vi.mocked(
-        damApiService.createAndUploadImageWithRetry,
-      ).mockResolvedValueOnce({
-        ref_id: 'ref123',
-        files: [
-          {
-            size_code: 'original',
-            url: 'https://dam-url.com/path/file.jpg?v=123',
-          },
-          {
-            size_code: 'thm',
-            url: 'https://dam-url.com/path/file.jpg?v=123',
-          },
-          {
-            size_code: 'pre',
-            url: 'https://dam-url.com/path/file.jpg?v=123',
-          },
-        ],
-      });
-      vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue(
-        mockedResources[0] as any,
-      );
-      vi.mocked(
-        prismaService.recreation_resource_images.create,
-      ).mockResolvedValue(mockedResources[0] as any);
-
-      const result = await service.create('REC0001', 'Title', file);
-      expect(result).toMatchObject(mockedResources[0] as any);
+      await expect(
+        service.create('REC0001', 'Title', variantFiles),
+      ).rejects.toThrow();
     });
 
     it('should return server error 500 after retrying to get resource path 3 times', async () => {
-      vi.mocked(
-        damApiService.createAndUploadImageWithRetry,
-      ).mockRejectedValueOnce(
-        new HttpException(
-          'Error creating and uploading image with retry.',
-          419,
-        ),
-      );
-      vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue(
-        mockedResources[0] as any,
+      vi.mocked(mockS3Service.uploadImageVariants).mockRejectedValueOnce(
+        new Error('S3 upload failed'),
       );
 
-      try {
-        await service.create('REC0001', 'Title', file);
-      } catch (err) {
-        expect(err.status).toBe(419);
-      }
-    });
-
-    it('should return status 415 if the file type is invalid', async () => {
-      file.mimetype = 'application/zip';
-      vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue(
-        mockedResources[0] as any,
-      );
-      try {
-        await service.create('REC0001', 'Title', file);
-      } catch (err) {
-        expect(err.status).toBe(415);
-      }
-    });
-  });
-
-  describe('update', () => {
-    const file = {
-      originalname: 'sample.name',
-      mimetype: 'image/jpeg',
-      path: 'sample.url',
-      buffer: Buffer.from('file'),
-      fieldname: '',
-      encoding: '',
-      size: 0,
-      stream: Readable.from(['test content']),
-      destination: '',
-      filename: '',
-    };
-    it('should update and return the resource', async () => {
-      vi.mocked(damApiService.uploadFile).mockResolvedValueOnce(undefined);
-      vi.mocked(
-        prismaService.recreation_resource_images.findUnique,
-      ).mockResolvedValue(mockedResources[0] as any);
-      vi.mocked(
-        prismaService.recreation_resource_images.update,
-      ).mockResolvedValue(mockedResources[0] as any);
-
-      const result = await service.update('REC0001', '11535', 'Title', file);
-      expect(result).not.toBeNull();
-    });
-
-    it('should return status 404 if resource not found', async () => {
-      vi.mocked(
-        prismaService.recreation_resource_images.findUnique,
-      ).mockResolvedValueOnce(null);
-      try {
-        await service.update('REC0001', '11535', 'Title', file);
-      } catch (err) {
-        expect(err.status).toBe(404);
-      }
-    });
-
-    it('should return status 415 if the file type is invalid', async () => {
-      file.mimetype = 'application/zip';
-      vi.mocked(
-        prismaService.recreation_resource_images.findUnique,
-      ).mockResolvedValueOnce(mockedResources[0] as any);
-      try {
-        await service.update('REC0001', '11535', 'Title', file);
-      } catch (err) {
-        expect(err.status).toBe(415);
-      }
+      await expect(
+        service.create('REC0001', 'Title', variantFiles),
+      ).rejects.toThrow('Failed to upload image');
     });
   });
 
   describe('delete', () => {
     it('should return the deleted resource', async () => {
-      vi.mocked(damApiService.deleteResource).mockResolvedValueOnce(undefined);
+      const mockResource = createMockImage('11535', 'REC1735', {
+        file_name: 'abbott-lake-rec1735.webp',
+        created_at: new Date('2025-03-26T23:33:06.175Z'),
+      });
+      vi.mocked(
+        prismaService.recreation_resource_image.findUnique,
+      ).mockResolvedValue(mockResource as any);
       vi.mocked(
         prismaService.recreation_resource_image_variants.deleteMany,
-      ).mockResolvedValue(
-        mockedResources[0]?.recreation_resource_image_variants as any,
-      );
+      ).mockResolvedValue({} as any);
       vi.mocked(
-        prismaService.recreation_resource_images.delete,
-      ).mockResolvedValue(mockedResources[0] as any);
+        prismaService.recreation_resource_image.delete,
+      ).mockResolvedValue(mockResource as any);
+      vi.mocked(mockS3Service.deleteImageVariants).mockResolvedValue(undefined);
 
       const result = await service.delete('REC0001', '11535');
-      expect(result).toMatchObject(mockedResources[0] as any);
+      expect(result).toBeDefined();
+      expect(result?.ref_id).toBe('11535');
+      expect(result?.image_id).toBe('11535');
+      expect(result?.file_name).toBe('abbott-lake-rec1735.webp');
+      expect(result?.recreation_resource_image_variants).toHaveLength(4);
+    });
+
+    it('should throw HttpException when image is not found (covers line 182)', async () => {
+      vi.mocked(
+        prismaService.recreation_resource_image.findUnique,
+      ).mockResolvedValue(null);
+
+      await expect(service.delete('REC0001', 'nonexistent')).rejects.toThrow(
+        'Recreation Resource image not found',
+      );
+      expect(mockS3Service.deleteImageVariants).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('URL Construction (service-specific)', () => {
+    it('should construct URLs with correct image variant S3 key format', async () => {
+      const payload = createMockImage('image-123', 'REC0001', {
+        file_name: 'test-image.webp',
+      });
+
+      vi.mocked(
+        prismaService.recreation_resource_image.findMany,
+      ).mockResolvedValue([payload] as any);
+
+      const result = await service.getAll('REC0001');
+
+      expect(result).toBeDefined();
+      expect(result?.[0]?.recreation_resource_image_variants).toBeDefined();
+      if (result?.[0]?.recreation_resource_image_variants) {
+        const variant = result[0].recreation_resource_image_variants[0];
+        expect(variant).toBeDefined();
+        expect(variant.url).toContain('images/REC0001/image-123/original.webp');
+      }
+    });
+  });
+
+  describe('S3 Integration Error Handling', () => {
+    const createServiceWithS3Error = async (
+      s3Error: Error,
+      operation: 'upload' | 'delete',
+    ) => {
+      const mockS3ServiceValue = {
+        uploadImageVariants:
+          operation === 'upload'
+            ? vi.fn().mockRejectedValueOnce(s3Error)
+            : vi.fn(),
+        deleteImageVariants:
+          operation === 'delete'
+            ? vi.fn().mockRejectedValueOnce(s3Error)
+            : vi.fn(),
+      } as any;
+
+      return await createStorageTestModule<ResourceImagesService>({
+        serviceClass: ResourceImagesService,
+        prismaOverrides: {
+          recreation_resource: {
+            findUnique: vi.fn().mockResolvedValue({
+              rec_resource_id: 'REC0001',
+            }),
+          },
+          recreation_resource_image: {
+            findUnique:
+              operation === 'delete'
+                ? vi.fn().mockResolvedValue({
+                    rec_resource_id: 'REC0001',
+                    image_id: 'image-123',
+                  })
+                : undefined,
+            create: operation === 'upload' ? vi.fn() : undefined,
+            delete: operation === 'delete' ? vi.fn() : undefined,
+          },
+          recreation_resource_image_variants:
+            operation === 'delete' ? { deleteMany: vi.fn() } : undefined,
+        },
+        customS3ServiceProvider: {
+          provide: RecResourceImagesS3Service,
+          useValue: mockS3ServiceValue,
+        },
+      });
+    };
+    it('should handle S3 upload failure in create()', async () => {
+      const variantFiles = createVariantFiles();
+      const { service: serviceWithS3 } = await createServiceWithS3Error(
+        new Error('S3 upload failed'),
+        'upload',
+      );
+
+      await expect(
+        serviceWithS3.create('REC0001', 'Caption', variantFiles),
+      ).rejects.toThrow('Failed to upload image: S3 upload failed');
+    });
+
+    it('should handle S3 delete failure in delete()', async () => {
+      const { service: serviceWithS3 } = await createServiceWithS3Error(
+        new Error('S3 delete failed'),
+        'delete',
+      );
+
+      await expect(
+        serviceWithS3.delete('REC0001', 'image-123'),
+      ).rejects.toThrow('Failed to delete image: S3 delete failed');
     });
   });
 });

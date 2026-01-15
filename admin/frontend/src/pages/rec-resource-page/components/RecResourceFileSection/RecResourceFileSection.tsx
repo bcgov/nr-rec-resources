@@ -59,7 +59,7 @@ export const RecResourceFileSection = () => {
       <GalleryAccordion<GalleryImage>
         eventKey="images"
         title="Public images"
-        description="Upload up to 20 JPG, PNG, or WEBP images (max 9.5MB each)."
+        description="Upload up to 20 JPG, PNG, or WEBP images (max 5MB each)."
         items={galleryImages}
         uploadLabel="Upload"
         isLoading={isFetchingImages}

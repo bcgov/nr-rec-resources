@@ -1,33 +1,13 @@
 import { plainToClass, Transform } from 'class-transformer';
-import { IsNotEmpty, IsString, IsUrl, validateSync } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUrl,
+  validateSync,
+} from 'class-validator';
 
 export class EnvironmentVariables {
-  @IsString()
-  @IsNotEmpty()
-  DAM_RST_PDF_COLLECTION_ID: string;
-
-  @IsString()
-  @IsNotEmpty()
-  DAM_RST_IMAGE_COLLECTION_ID: string;
-
-  @IsUrl({ require_tld: false }) // Allow localhost URLs for development
-  @IsNotEmpty()
-  DAM_URL: string;
-
-  @IsString()
-  @IsNotEmpty()
-  DAM_USER: string;
-
-  @IsString()
-  @IsNotEmpty()
-  DAM_PRIVATE_KEY: string;
-
-  @Transform(({ value }) => parseInt(value, 10) || 1) // Default to 1 if not provided
-  DAM_RESOURCE_TYPE_PDF: number;
-
-  @Transform(({ value }) => parseInt(value, 10) || 1) // Default to 1 if not provided
-  DAM_RESOURCE_TYPE_IMAGE: number;
-
   // Database configuration
   @IsString()
   @IsNotEmpty()
@@ -75,7 +55,25 @@ export class EnvironmentVariables {
 
   @IsString()
   @IsNotEmpty()
+  RST_STORAGE_IMAGES_BUCKET: string;
+
+  @IsString()
+  @IsNotEmpty()
+  RST_STORAGE_PUBLIC_DOCUMENTS_BUCKET: string;
+
+  @IsString()
+  @IsNotEmpty()
   AWS_REGION: string;
+
+  // Optional: AWS endpoint URL for LocalStack/local development
+  @IsOptional()
+  @IsUrl({ require_tld: false })
+  AWS_ENDPOINT_URL?: string;
+
+  // CloudFront CDN configuration
+  @IsString()
+  @IsNotEmpty()
+  RST_STORAGE_CLOUDFRONT_URL: string;
 }
 
 export function validate(config: Record<string, unknown>) {

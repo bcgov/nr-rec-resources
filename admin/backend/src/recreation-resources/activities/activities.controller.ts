@@ -24,7 +24,6 @@ import {
   ApiParam,
   ApiResponse,
   ApiTags,
-  getSchemaPath,
 } from '@nestjs/swagger';
 import { RecreationActivityDto } from '../dtos/recreation-resource-detail.dto';
 import { ActivitiesService } from './activities.service';
@@ -53,10 +52,7 @@ export class ActivitiesController {
   @ApiResponse({
     status: 200,
     description: 'Activities Found',
-    schema: {
-      type: 'array',
-      items: { $ref: getSchemaPath(RecreationActivityDto) },
-    },
+    type: [RecreationActivityDto],
   })
   @ApiResponse({
     status: 404,
@@ -99,10 +95,7 @@ export class ActivitiesController {
   @ApiResponse({
     status: 200,
     description: 'Activities Updated',
-    schema: {
-      type: 'array',
-      items: { $ref: getSchemaPath(RecreationActivityDto) },
-    },
+    type: [RecreationActivityDto],
   })
   @ApiResponse({
     status: 404,

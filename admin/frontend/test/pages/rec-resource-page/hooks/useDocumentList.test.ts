@@ -15,8 +15,8 @@ vi.mock('@/pages/rec-resource-page/helpers', () => ({
 }));
 
 const baseDoc = {
-  ref_id: '1',
-  title: 'Doc 1',
+  document_id: '1',
+  file_name: 'Doc 1',
   created_at: '2024-01-01',
   url: 'url1',
   extension: 'pdf',
@@ -64,7 +64,7 @@ describe('useDocumentList', () => {
   it('handles many documents', () => {
     const docs = Array.from({ length: 30 }, (_, i) => ({
       ...baseDoc,
-      ref_id: String(i),
+      document_id: String(i),
     }));
     mockUseGetDocumentsByRecResourceId.mockReturnValue({
       data: docs,

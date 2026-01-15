@@ -6,43 +6,6 @@ import { ConfigService } from '@nestjs/config';
 export class AppConfigService {
   constructor(private configService: ConfigService<EnvironmentVariables>) {}
 
-  // DAM Configuration
-  get damRstPdfCollectionId(): string {
-    return this.configService.get('DAM_RST_PDF_COLLECTION_ID', {
-      infer: true,
-    })!;
-  }
-
-  get damRstImageCollectionId(): string {
-    return this.configService.get('DAM_RST_IMAGE_COLLECTION_ID', {
-      infer: true,
-    })!;
-  }
-
-  get damUrl(): string {
-    return this.configService.get('DAM_URL', { infer: true })!;
-  }
-
-  get damUser(): string {
-    return this.configService.get('DAM_USER', { infer: true })!;
-  }
-
-  get damPrivateKey(): string {
-    return this.configService.get('DAM_PRIVATE_KEY', { infer: true })!;
-  }
-
-  get damResourceTypePdf(): number {
-    return (
-      this.configService.get('DAM_RESOURCE_TYPE_PDF', { infer: true }) || 1
-    );
-  }
-
-  get damResourceTypeImage(): number {
-    return (
-      this.configService.get('DAM_RESOURCE_TYPE_IMAGE', { infer: true }) || 1
-    );
-  }
-
   // Database Configuration
   get databaseHost(): string {
     return this.configService.get('POSTGRES_HOST', { infer: true })!;
@@ -100,8 +63,33 @@ export class AppConfigService {
     })!;
   }
 
+  get recResourceImagesBucket(): string {
+    return this.configService.get('RST_STORAGE_IMAGES_BUCKET', {
+      infer: true,
+    })!;
+  }
+
+  get recResourcePublicDocsBucket(): string {
+    return this.configService.get('RST_STORAGE_PUBLIC_DOCUMENTS_BUCKET', {
+      infer: true,
+    })!;
+  }
+
   get awsRegion(): string {
     return this.configService.get('AWS_REGION', {
+      infer: true,
+    })!;
+  }
+
+  get awsEndpointUrl(): string | undefined {
+    return this.configService.get('AWS_ENDPOINT_URL', {
+      infer: true,
+    });
+  }
+
+  // CloudFront Configuration
+  get recResourceStorageCloudfrontUrl(): string {
+    return this.configService.get('RST_STORAGE_CLOUDFRONT_URL', {
       infer: true,
     })!;
   }

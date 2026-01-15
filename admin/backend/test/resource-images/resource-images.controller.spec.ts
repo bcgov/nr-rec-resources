@@ -1,7 +1,7 @@
 import { AppConfigModule } from '@/app-config/app-config.module';
-import { DamApiService } from '@/dam-api/dam-api.service';
 import { PrismaService } from '@/prisma.service';
 import { ResourceImagesController } from '@/resource-images/resource-images.controller';
+import { RecResourceImagesS3Service } from '@/resource-images/service/rec-resource-images-s3.service';
 import { ResourceImagesService } from '@/resource-images/service/resource-images.service';
 import { HttpException, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -24,8 +24,18 @@ describe('ResourceImagesController', () => {
           useValue: {},
         },
         {
-          provide: DamApiService,
-          useValue: {},
+          provide: RecResourceImagesS3Service,
+          useValue: {
+            uploadImageVariants: vi.fn(),
+            deleteImageVariants: vi.fn(),
+          },
+        },
+        {
+          provide: RecResourceImagesS3Service,
+          useValue: {
+            uploadImageVariants: vi.fn(),
+            deleteImageVariants: vi.fn(),
+          },
         },
       ],
     }).compile();
@@ -38,7 +48,6 @@ describe('ResourceImagesController', () => {
     await app.init();
   });
 
-  // Close the app after each test
   afterEach(async () => {
     await app.close();
   });
@@ -51,7 +60,7 @@ describe('ResourceImagesController', () => {
     it('should return a Recreation Resource image', async () => {
       const result = {
         rec_resource_id: 'REC1735',
-        caption: 'caption change 321',
+        file_name: 'caption-change-321.webp',
         ref_id: '11829',
         created_at: '2025-07-08T20:26:01.793Z',
         recreation_resource_image_variants: [
@@ -100,7 +109,7 @@ describe('ResourceImagesController', () => {
       const result = [
         {
           rec_resource_id: 'REC1735',
-          caption: 'caption change 321',
+          file_name: 'caption-change-321.webp',
           ref_id: '11829',
           created_at: '2025-07-08T20:26:01.793Z',
           recreation_resource_image_variants: [
@@ -148,148 +157,148 @@ describe('ResourceImagesController', () => {
       const result = {
         rec_resource_id: 'REC1735',
         ref_id: '11829',
-        caption: 'new resource image',
-        updated_at: '2025-07-08T20:26:01.793Z',
-        updated_by: null,
+        image_id: '11829',
+        file_name: 'new-resource-image.webp',
         created_at: '2025-07-08T20:26:01.793Z',
-        created_by: null,
+        recreation_resource_image_variants: [],
       };
       vi.spyOn(resourceImagesService, 'create').mockResolvedValue(
         result as any,
       );
-      expect(
-        await controller.createRecreationResourceImage(
-          'REC0001',
-          { caption: 'caption' },
+      const files = {
+        original: [
           {
-            originalname: 'sample.name',
-            mimetype: 'application/jpg',
-            path: 'sample.url',
+            originalname: 'original.webp',
+            mimetype: 'image/webp',
+            path: 'original',
             buffer: Buffer.from('file'),
-            fieldname: '',
+            fieldname: 'original',
             encoding: '',
             size: 0,
             stream: Readable.from(['test content']),
             destination: '',
             filename: '',
           },
-        ),
-      ).toBe(result);
-    });
-
-    it('should throw error if recreation resource not found', async () => {
-      vi.spyOn(resourceImagesService, 'create').mockRejectedValue(
-        new HttpException('Recreation Resource not found', 404),
-      );
-      try {
-        await controller.createRecreationResourceImage(
-          'REC0001',
-          { caption: 'caption' },
+        ],
+        scr: [
           {
-            originalname: 'sample.name',
-            mimetype: 'application/jpg',
-            path: 'sample.url',
+            originalname: 'scr.webp',
+            mimetype: 'image/webp',
+            path: 'scr',
             buffer: Buffer.from('file'),
-            fieldname: '',
+            fieldname: 'scr',
             encoding: '',
             size: 0,
             stream: Readable.from(['test content']),
             destination: '',
             filename: '',
           },
-        );
-      } catch (e) {
-        expect(e).toBeInstanceOf(HttpException);
-        expect(e.message).toBe('Recreation Resource not found');
-        expect(e.getStatus()).toBe(404);
-      }
-    });
-
-    it('should throw error if file type not allowed', async () => {
-      vi.spyOn(resourceImagesService, 'create').mockRejectedValue(
-        new HttpException('File Type not allowed', 415),
-      );
-      try {
-        await controller.createRecreationResourceImage(
-          'REC0001',
-          { caption: 'caption' },
+        ],
+        pre: [
           {
-            originalname: 'sample.name',
-            mimetype: 'application/zip',
-            path: 'sample.url',
+            originalname: 'pre.webp',
+            mimetype: 'image/webp',
+            path: 'pre',
             buffer: Buffer.from('file'),
-            fieldname: '',
+            fieldname: 'pre',
             encoding: '',
             size: 0,
             stream: Readable.from(['test content']),
             destination: '',
             filename: '',
           },
-        );
-      } catch (e) {
-        expect(e).toBeInstanceOf(HttpException);
-        expect(e.message).toBe('File Type not allowed');
-        expect(e.getStatus()).toBe(415);
-      }
-    });
-  });
-
-  describe('update', () => {
-    it('should update and return the Recreation Resource document', async () => {
-      const result = {
-        rec_resource_id: 'REC1735',
-        ref_id: '11829',
-        caption: 'caption change 321',
-        updated_at: '2025-07-08T20:26:01.793Z',
-        updated_by: null,
-        created_at: '2025-07-08T20:26:01.793Z',
-        created_by: null,
+        ],
+        thm: [
+          {
+            originalname: 'thm.webp',
+            mimetype: 'image/webp',
+            path: 'thm',
+            buffer: Buffer.from('file'),
+            fieldname: 'thm',
+            encoding: '',
+            size: 0,
+            stream: Readable.from(['test content']),
+            destination: '',
+            filename: '',
+          },
+        ],
       };
-      vi.spyOn(resourceImagesService, 'update').mockResolvedValue(
-        result as any,
-      );
       expect(
-        await controller.update(
+        await controller.createRecreationResourceImage(
           'REC0001',
-          '11535',
-          { caption: 'caption' },
-          {
-            originalname: 'sample.name',
-            mimetype: 'application/jpg',
-            path: 'sample.url',
-            buffer: Buffer.from('file'),
-            fieldname: '',
-            encoding: '',
-            size: 0,
-            stream: Readable.from(['test content']),
-            destination: '',
-            filename: '',
-          },
+          { file_name: 'caption.webp' },
+          files,
         ),
       ).toBe(result);
     });
 
     it('should throw error if recreation resource not found', async () => {
-      vi.spyOn(resourceImagesService, 'update').mockRejectedValue(
+      vi.spyOn(resourceImagesService, 'create').mockRejectedValue(
         new HttpException('Recreation Resource not found', 404),
       );
-      try {
-        await controller.update(
-          'REC0001',
-          '11535',
-          { caption: 'caption' },
+      const files = {
+        original: [
           {
-            originalname: 'sample.name',
-            mimetype: 'application/jpg',
-            path: 'sample.url',
+            originalname: 'original.webp',
+            mimetype: 'image/webp',
+            path: 'original',
             buffer: Buffer.from('file'),
-            fieldname: '',
+            fieldname: 'original',
             encoding: '',
             size: 0,
             stream: Readable.from(['test content']),
             destination: '',
             filename: '',
           },
+        ],
+        scr: [
+          {
+            originalname: 'scr.webp',
+            mimetype: 'image/webp',
+            path: 'scr',
+            buffer: Buffer.from('file'),
+            fieldname: 'scr',
+            encoding: '',
+            size: 0,
+            stream: Readable.from(['test content']),
+            destination: '',
+            filename: '',
+          },
+        ],
+        pre: [
+          {
+            originalname: 'pre.webp',
+            mimetype: 'image/webp',
+            path: 'pre',
+            buffer: Buffer.from('file'),
+            fieldname: 'pre',
+            encoding: '',
+            size: 0,
+            stream: Readable.from(['test content']),
+            destination: '',
+            filename: '',
+          },
+        ],
+        thm: [
+          {
+            originalname: 'thm.webp',
+            mimetype: 'image/webp',
+            path: 'thm',
+            buffer: Buffer.from('file'),
+            fieldname: 'thm',
+            encoding: '',
+            size: 0,
+            stream: Readable.from(['test content']),
+            destination: '',
+            filename: '',
+          },
+        ],
+      };
+      try {
+        await controller.createRecreationResourceImage(
+          'REC0001',
+          { file_name: 'caption.webp' },
+          files,
         );
       } catch (e) {
         expect(e).toBeInstanceOf(HttpException);
@@ -299,31 +308,76 @@ describe('ResourceImagesController', () => {
     });
 
     it('should throw error if file type not allowed', async () => {
-      vi.spyOn(resourceImagesService, 'update').mockRejectedValue(
-        new HttpException('File Type not allowed', 415),
+      vi.spyOn(resourceImagesService, 'create').mockRejectedValue(
+        new HttpException("Variant 'original' must be WebP format", 400),
       );
-      try {
-        await controller.update(
-          'REC0001',
-          '11535',
-          { caption: 'caption' },
+      const files = {
+        original: [
           {
-            originalname: 'sample.name',
-            mimetype: 'application/zip',
-            path: 'sample.url',
+            originalname: 'original.jpg',
+            mimetype: 'image/jpeg',
+            path: 'original',
             buffer: Buffer.from('file'),
-            fieldname: '',
+            fieldname: 'original',
             encoding: '',
             size: 0,
             stream: Readable.from(['test content']),
             destination: '',
             filename: '',
           },
+        ],
+        scr: [
+          {
+            originalname: 'scr.webp',
+            mimetype: 'image/webp',
+            path: 'scr',
+            buffer: Buffer.from('file'),
+            fieldname: 'scr',
+            encoding: '',
+            size: 0,
+            stream: Readable.from(['test content']),
+            destination: '',
+            filename: '',
+          },
+        ],
+        pre: [
+          {
+            originalname: 'pre.webp',
+            mimetype: 'image/webp',
+            path: 'pre',
+            buffer: Buffer.from('file'),
+            fieldname: 'pre',
+            encoding: '',
+            size: 0,
+            stream: Readable.from(['test content']),
+            destination: '',
+            filename: '',
+          },
+        ],
+        thm: [
+          {
+            originalname: 'thm.webp',
+            mimetype: 'image/webp',
+            path: 'thm',
+            buffer: Buffer.from('file'),
+            fieldname: 'thm',
+            encoding: '',
+            size: 0,
+            stream: Readable.from(['test content']),
+            destination: '',
+            filename: '',
+          },
+        ],
+      };
+      try {
+        await controller.createRecreationResourceImage(
+          'REC0001',
+          { file_name: 'caption.webp' },
+          files,
         );
       } catch (e) {
         expect(e).toBeInstanceOf(HttpException);
-        expect(e.message).toBe('File Type not allowed');
-        expect(e.getStatus()).toBe(415);
+        expect(e.message).toContain("Variant 'original' must be WebP format");
       }
     });
   });
@@ -333,7 +387,7 @@ describe('ResourceImagesController', () => {
       const result = {
         rec_resource_id: 'REC1735',
         ref_id: '11829',
-        caption: 'caption change 321',
+        file_name: 'caption-change-321.webp',
         updated_at: '2025-07-08T20:26:01.793Z',
         updated_by: null,
         created_at: '2025-07-08T20:26:01.793Z',
@@ -355,6 +409,33 @@ describe('ResourceImagesController', () => {
         expect(e).toBeInstanceOf(HttpException);
         expect(e.message).toBe('Recreation Resource not found');
         expect(e.getStatus()).toBe(404);
+      }
+    });
+
+    it('should propagate S3 errors from service', async () => {
+      vi.spyOn(resourceImagesService, 'delete').mockRejectedValue(
+        new HttpException('Failed to delete image: S3 error', 500),
+      );
+      try {
+        await controller.delete('REC0001', '11535');
+      } catch (e) {
+        expect(e).toBeInstanceOf(HttpException);
+        expect(e.message).toBe('Failed to delete image: S3 error');
+        expect(e.getStatus()).toBe(500);
+      }
+    });
+  });
+
+  describe('create - missing variant files', () => {
+    it('should handle missing variant files', async () => {
+      try {
+        await controller.createRecreationResourceImage(
+          'REC0001',
+          { file_name: 'caption.webp' },
+          undefined as any,
+        );
+      } catch (e) {
+        expect(e).toBeInstanceOf(Error);
       }
     });
   });

@@ -32,7 +32,6 @@ describe('useUploadResourceDocument (vitest)', () => {
       file: new File(['dummy content'], 'test.pdf', {
         type: 'application/pdf',
       }),
-      title: 'Test PDF',
     };
     mockCreateRecreationresourceDocument.mockResolvedValueOnce({
       success: true,
@@ -46,6 +45,9 @@ describe('useUploadResourceDocument (vitest)', () => {
       result.current.mutate(params);
     });
 
-    expect(mockCreateRecreationresourceDocument).toHaveBeenCalledWith(params);
+    expect(mockCreateRecreationresourceDocument).toHaveBeenCalledWith({
+      recResourceId: params.recResourceId,
+      file: params.file,
+    });
   });
 });

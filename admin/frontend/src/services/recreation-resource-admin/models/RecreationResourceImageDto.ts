@@ -34,11 +34,17 @@ export interface RecreationResourceImageDto {
    */
   ref_id: string;
   /**
-   * Image caption
+   * Image ID (UUID)
    * @type {string}
    * @memberof RecreationResourceImageDto
    */
-  caption: string;
+  image_id?: string;
+  /**
+   * Image file name
+   * @type {string}
+   * @memberof RecreationResourceImageDto
+   */
+  file_name: string;
   /**
    * Available image variants
    * @type {Array<RecreationResourceImageVariantDto>}
@@ -60,7 +66,7 @@ export function instanceOfRecreationResourceImageDto(
   value: object,
 ): value is RecreationResourceImageDto {
   if (!('ref_id' in value) || value['ref_id'] === undefined) return false;
-  if (!('caption' in value) || value['caption'] === undefined) return false;
+  if (!('file_name' in value) || value['file_name'] === undefined) return false;
   if (!('created_at' in value) || value['created_at'] === undefined)
     return false;
   return true;
@@ -81,7 +87,8 @@ export function RecreationResourceImageDtoFromJSONTyped(
   }
   return {
     ref_id: json['ref_id'],
-    caption: json['caption'],
+    image_id: json['image_id'] == null ? undefined : json['image_id'],
+    file_name: json['file_name'],
     recreation_resource_image_variants:
       json['recreation_resource_image_variants'] == null
         ? undefined
@@ -108,7 +115,8 @@ export function RecreationResourceImageDtoToJSONTyped(
 
   return {
     ref_id: value['ref_id'],
-    caption: value['caption'],
+    image_id: value['image_id'],
+    file_name: value['file_name'],
     recreation_resource_image_variants:
       value['recreation_resource_image_variants'] == null
         ? undefined

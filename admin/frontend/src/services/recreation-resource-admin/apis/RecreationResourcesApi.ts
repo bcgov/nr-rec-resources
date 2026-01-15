@@ -16,8 +16,6 @@ import * as runtime from '../runtime';
 import type {
   BadRequestResponseDto,
   CreateRecreationFeeDto,
-  CreateRecreationResourceDocBodyDto,
-  CreateRecreationResourceImageBodyDto,
   EstablishmentOrderDocDto,
   OptionDto,
   OptionsByTypeDto,
@@ -40,10 +38,6 @@ import {
   BadRequestResponseDtoToJSON,
   CreateRecreationFeeDtoFromJSON,
   CreateRecreationFeeDtoToJSON,
-  CreateRecreationResourceDocBodyDtoFromJSON,
-  CreateRecreationResourceDocBodyDtoToJSON,
-  CreateRecreationResourceImageBodyDtoFromJSON,
-  CreateRecreationResourceImageBodyDtoToJSON,
   EstablishmentOrderDocDtoFromJSON,
   EstablishmentOrderDocDtoToJSON,
   OptionDtoFromJSON,
@@ -91,19 +85,22 @@ export interface CreateRecreationResourceFeeRequest {
 
 export interface CreateRecreationresourceDocumentRequest {
   recResourceId: string;
-  title: string;
+  fileName: string;
   file: Blob;
 }
 
 export interface CreateRecreationresourceImageRequest {
   recResourceId: string;
-  caption: string;
-  file: Blob;
+  fileName: string;
+  original: Blob;
+  scr: Blob;
+  pre: Blob;
+  thm: Blob;
 }
 
 export interface DeleteDocumentResourceRequest {
   recResourceId: string;
-  refId: string;
+  documentId: string;
 }
 
 export interface DeleteEstablishmentOrderDocRequest {
@@ -113,7 +110,7 @@ export interface DeleteEstablishmentOrderDocRequest {
 
 export interface DeleteImageResourceRequest {
   recResourceId: string;
-  refId: string;
+  imageId: string;
 }
 
 export interface GetActivitiesByRecResourceIdRequest {
@@ -126,7 +123,7 @@ export interface GetAllEstablishmentOrderDocsRequest {
 
 export interface GetDocumentResourceByIdRequest {
   recResourceId: string;
-  refId: string;
+  documentId: string;
 }
 
 export interface GetDocumentsByRecResourceIdRequest {
@@ -139,7 +136,7 @@ export interface GetFeaturesByRecResourceIdRequest {
 
 export interface GetImageResourceByIdRequest {
   recResourceId: string;
-  refId: string;
+  imageId: string;
 }
 
 export interface GetImagesByRecResourceIdRequest {
@@ -175,21 +172,9 @@ export interface UpdateActivitiesRequest {
   updateActivitiesDto: UpdateActivitiesDto;
 }
 
-export interface UpdateDocumentResourceRequest {
-  recResourceId: string;
-  refId: string;
-  createRecreationResourceDocBodyDto: CreateRecreationResourceDocBodyDto;
-}
-
 export interface UpdateFeaturesRequest {
   recResourceId: string;
   updateFeaturesDto: UpdateFeaturesDto;
-}
-
-export interface UpdateImageResourceRequest {
-  recResourceId: string;
-  refId: string;
-  createRecreationResourceImageBodyDto: CreateRecreationResourceImageBodyDto;
 }
 
 export interface UpdateRecreationResourceByIdRequest {
@@ -277,12 +262,15 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       formParams.append('title', requestParameters['title'] as any);
     }
 
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/establishment-order-docs`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/establishment-order-docs`.replace(
-          `{${'rec_resource_id'}}`,
-          encodeURIComponent(String(requestParameters['recResourceId'])),
-        ),
+        path: urlPath,
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
@@ -347,12 +335,16 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/fees`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/fees`.replace(
-          `{${'rec_resource_id'}}`,
-          encodeURIComponent(String(requestParameters['recResourceId'])),
-        ),
+        path: urlPath,
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
@@ -397,10 +389,10 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       );
     }
 
-    if (requestParameters['title'] == null) {
+    if (requestParameters['fileName'] == null) {
       throw new runtime.RequiredError(
-        'title',
-        'Required parameter "title" was null or undefined when calling createRecreationresourceDocument().',
+        'fileName',
+        'Required parameter "fileName" was null or undefined when calling createRecreationresourceDocument().',
       );
     }
 
@@ -439,20 +431,23 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       formParams = new URLSearchParams();
     }
 
-    if (requestParameters['title'] != null) {
-      formParams.append('title', requestParameters['title'] as any);
+    if (requestParameters['fileName'] != null) {
+      formParams.append('file_name', requestParameters['fileName'] as any);
     }
 
     if (requestParameters['file'] != null) {
       formParams.append('file', requestParameters['file'] as any);
     }
 
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/docs`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/docs`.replace(
-          `{${'rec_resource_id'}}`,
-          encodeURIComponent(String(requestParameters['recResourceId'])),
-        ),
+        path: urlPath,
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
@@ -481,7 +476,8 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Create a new Image Resource with an uploaded file
+   * Accepts 4 WebP image variants (original, scr, pre, thm) that have been processed client-side.
+   * Create a new Image Resource with 4 pre-processed WebP variants
    */
   async createRecreationresourceImageRaw(
     requestParameters: CreateRecreationresourceImageRequest,
@@ -494,17 +490,38 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       );
     }
 
-    if (requestParameters['caption'] == null) {
+    if (requestParameters['fileName'] == null) {
       throw new runtime.RequiredError(
-        'caption',
-        'Required parameter "caption" was null or undefined when calling createRecreationresourceImage().',
+        'fileName',
+        'Required parameter "fileName" was null or undefined when calling createRecreationresourceImage().',
       );
     }
 
-    if (requestParameters['file'] == null) {
+    if (requestParameters['original'] == null) {
       throw new runtime.RequiredError(
-        'file',
-        'Required parameter "file" was null or undefined when calling createRecreationresourceImage().',
+        'original',
+        'Required parameter "original" was null or undefined when calling createRecreationresourceImage().',
+      );
+    }
+
+    if (requestParameters['scr'] == null) {
+      throw new runtime.RequiredError(
+        'scr',
+        'Required parameter "scr" was null or undefined when calling createRecreationresourceImage().',
+      );
+    }
+
+    if (requestParameters['pre'] == null) {
+      throw new runtime.RequiredError(
+        'pre',
+        'Required parameter "pre" was null or undefined when calling createRecreationresourceImage().',
+      );
+    }
+
+    if (requestParameters['thm'] == null) {
+      throw new runtime.RequiredError(
+        'thm',
+        'Required parameter "thm" was null or undefined when calling createRecreationresourceImage().',
       );
     }
 
@@ -530,26 +547,47 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     let useForm = false;
     // use FormData to transmit files using content-type "multipart/form-data"
     useForm = canConsumeForm;
+    // use FormData to transmit files using content-type "multipart/form-data"
+    useForm = canConsumeForm;
+    // use FormData to transmit files using content-type "multipart/form-data"
+    useForm = canConsumeForm;
+    // use FormData to transmit files using content-type "multipart/form-data"
+    useForm = canConsumeForm;
     if (useForm) {
       formParams = new FormData();
     } else {
       formParams = new URLSearchParams();
     }
 
-    if (requestParameters['caption'] != null) {
-      formParams.append('caption', requestParameters['caption'] as any);
+    if (requestParameters['fileName'] != null) {
+      formParams.append('file_name', requestParameters['fileName'] as any);
     }
 
-    if (requestParameters['file'] != null) {
-      formParams.append('file', requestParameters['file'] as any);
+    if (requestParameters['original'] != null) {
+      formParams.append('original', requestParameters['original'] as any);
     }
+
+    if (requestParameters['scr'] != null) {
+      formParams.append('scr', requestParameters['scr'] as any);
+    }
+
+    if (requestParameters['pre'] != null) {
+      formParams.append('pre', requestParameters['pre'] as any);
+    }
+
+    if (requestParameters['thm'] != null) {
+      formParams.append('thm', requestParameters['thm'] as any);
+    }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/images`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
 
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/images`.replace(
-          `{${'rec_resource_id'}}`,
-          encodeURIComponent(String(requestParameters['recResourceId'])),
-        ),
+        path: urlPath,
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
@@ -564,7 +602,8 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Create a new Image Resource with an uploaded file
+   * Accepts 4 WebP image variants (original, scr, pre, thm) that have been processed client-side.
+   * Create a new Image Resource with 4 pre-processed WebP variants
    */
   async createRecreationresourceImage(
     requestParameters: CreateRecreationresourceImageRequest,
@@ -591,10 +630,10 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       );
     }
 
-    if (requestParameters['refId'] == null) {
+    if (requestParameters['documentId'] == null) {
       throw new runtime.RequiredError(
-        'refId',
-        'Required parameter "refId" was null or undefined when calling deleteDocumentResource().',
+        'documentId',
+        'Required parameter "documentId" was null or undefined when calling deleteDocumentResource().',
       );
     }
 
@@ -610,17 +649,20 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/docs/{document_id}`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+    urlPath = urlPath.replace(
+      `{${'document_id'}}`,
+      encodeURIComponent(String(requestParameters['documentId'])),
+    );
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/docs/{ref_id}`
-          .replace(
-            `{${'rec_resource_id'}}`,
-            encodeURIComponent(String(requestParameters['recResourceId'])),
-          )
-          .replace(
-            `{${'ref_id'}}`,
-            encodeURIComponent(String(requestParameters['refId'])),
-          ),
+        path: urlPath,
         method: 'DELETE',
         headers: headerParameters,
         query: queryParameters,
@@ -681,17 +723,20 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/establishment-order-docs/{s3_key}`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+    urlPath = urlPath.replace(
+      `{${'s3_key'}}`,
+      encodeURIComponent(String(requestParameters['s3Key'])),
+    );
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/establishment-order-docs/{s3_key}`
-          .replace(
-            `{${'rec_resource_id'}}`,
-            encodeURIComponent(String(requestParameters['recResourceId'])),
-          )
-          .replace(
-            `{${'s3_key'}}`,
-            encodeURIComponent(String(requestParameters['s3Key'])),
-          ),
+        path: urlPath,
         method: 'DELETE',
         headers: headerParameters,
         query: queryParameters,
@@ -733,10 +778,10 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       );
     }
 
-    if (requestParameters['refId'] == null) {
+    if (requestParameters['imageId'] == null) {
       throw new runtime.RequiredError(
-        'refId',
-        'Required parameter "refId" was null or undefined when calling deleteImageResource().',
+        'imageId',
+        'Required parameter "imageId" was null or undefined when calling deleteImageResource().',
       );
     }
 
@@ -752,17 +797,20 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/images/{image_id}`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+    urlPath = urlPath.replace(
+      `{${'image_id'}}`,
+      encodeURIComponent(String(requestParameters['imageId'])),
+    );
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/images/{ref_id}`
-          .replace(
-            `{${'rec_resource_id'}}`,
-            encodeURIComponent(String(requestParameters['recResourceId'])),
-          )
-          .replace(
-            `{${'ref_id'}}`,
-            encodeURIComponent(String(requestParameters['refId'])),
-          ),
+        path: urlPath,
         method: 'DELETE',
         headers: headerParameters,
         query: queryParameters,
@@ -815,12 +863,16 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/activities`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/activities`.replace(
-          `{${'rec_resource_id'}}`,
-          encodeURIComponent(String(requestParameters['recResourceId'])),
-        ),
+        path: urlPath,
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -874,12 +926,16 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/establishment-order-docs`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/establishment-order-docs`.replace(
-          `{${'rec_resource_id'}}`,
-          encodeURIComponent(String(requestParameters['recResourceId'])),
-        ),
+        path: urlPath,
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -908,7 +964,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Get one document resource by reference ID
+   * Get one document resource by document ID
    */
   async getDocumentResourceByIdRaw(
     requestParameters: GetDocumentResourceByIdRequest,
@@ -921,10 +977,10 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       );
     }
 
-    if (requestParameters['refId'] == null) {
+    if (requestParameters['documentId'] == null) {
       throw new runtime.RequiredError(
-        'refId',
-        'Required parameter "refId" was null or undefined when calling getDocumentResourceById().',
+        'documentId',
+        'Required parameter "documentId" was null or undefined when calling getDocumentResourceById().',
       );
     }
 
@@ -940,17 +996,20 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/docs/{document_id}`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+    urlPath = urlPath.replace(
+      `{${'document_id'}}`,
+      encodeURIComponent(String(requestParameters['documentId'])),
+    );
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/docs/{ref_id}`
-          .replace(
-            `{${'rec_resource_id'}}`,
-            encodeURIComponent(String(requestParameters['recResourceId'])),
-          )
-          .replace(
-            `{${'ref_id'}}`,
-            encodeURIComponent(String(requestParameters['refId'])),
-          ),
+        path: urlPath,
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -964,7 +1023,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Get one document resource by reference ID
+   * Get one document resource by document ID
    */
   async getDocumentResourceById(
     requestParameters: GetDocumentResourceByIdRequest,
@@ -1003,12 +1062,16 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/docs`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/docs`.replace(
-          `{${'rec_resource_id'}}`,
-          encodeURIComponent(String(requestParameters['recResourceId'])),
-        ),
+        path: urlPath,
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -1061,12 +1124,16 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/features`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/features`.replace(
-          `{${'rec_resource_id'}}`,
-          encodeURIComponent(String(requestParameters['recResourceId'])),
-        ),
+        path: urlPath,
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -1094,7 +1161,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Get one image resource by reference ID
+   * Get one image resource by image ID
    */
   async getImageResourceByIdRaw(
     requestParameters: GetImageResourceByIdRequest,
@@ -1107,10 +1174,10 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       );
     }
 
-    if (requestParameters['refId'] == null) {
+    if (requestParameters['imageId'] == null) {
       throw new runtime.RequiredError(
-        'refId',
-        'Required parameter "refId" was null or undefined when calling getImageResourceById().',
+        'imageId',
+        'Required parameter "imageId" was null or undefined when calling getImageResourceById().',
       );
     }
 
@@ -1126,17 +1193,20 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/images/{image_id}`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+    urlPath = urlPath.replace(
+      `{${'image_id'}}`,
+      encodeURIComponent(String(requestParameters['imageId'])),
+    );
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/images/{ref_id}`
-          .replace(
-            `{${'rec_resource_id'}}`,
-            encodeURIComponent(String(requestParameters['recResourceId'])),
-          )
-          .replace(
-            `{${'ref_id'}}`,
-            encodeURIComponent(String(requestParameters['refId'])),
-          ),
+        path: urlPath,
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -1150,7 +1220,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Get one image resource by reference ID
+   * Get one image resource by image ID
    */
   async getImageResourceById(
     requestParameters: GetImageResourceByIdRequest,
@@ -1189,12 +1259,16 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/images`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/images`.replace(
-          `{${'rec_resource_id'}}`,
-          encodeURIComponent(String(requestParameters['recResourceId'])),
-        ),
+        path: urlPath,
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -1248,12 +1322,16 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
+
+    let urlPath = `/api/v1/recreation-resources/options/{type}`;
+    urlPath = urlPath.replace(
+      `{${'type'}}`,
+      encodeURIComponent(String(requestParameters['type'])),
+    );
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resources/options/{type}`.replace(
-          `{${'type'}}`,
-          encodeURIComponent(String(requestParameters['type'])),
-        ),
+        path: urlPath,
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -1312,9 +1390,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
+
+    let urlPath = `/api/v1/recreation-resources/options`;
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resources/options`,
+        path: urlPath,
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -1368,12 +1449,16 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
+
+    let urlPath = `/api/recreation-resources/{rec_resource_id}`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
     const response = await this.request(
       {
-        path: `/api/recreation-resources/{rec_resource_id}`.replace(
-          `{${'rec_resource_id'}}`,
-          encodeURIComponent(String(requestParameters['recResourceId'])),
-        ),
+        path: urlPath,
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -1427,12 +1512,16 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/fees`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/fees`.replace(
-          `{${'rec_resource_id'}}`,
-          encodeURIComponent(String(requestParameters['recResourceId'])),
-        ),
+        path: urlPath,
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -1487,12 +1576,16 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/geospatial`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/geospatial`.replace(
-          `{${'rec_resource_id'}}`,
-          encodeURIComponent(String(requestParameters['recResourceId'])),
-        ),
+        path: urlPath,
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -1550,9 +1643,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
+
+    let urlPath = `/api/recreation-resources/suggestions`;
+
     const response = await this.request(
       {
-        path: `/api/recreation-resources/suggestions`,
+        path: urlPath,
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -1614,12 +1710,16 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/activities`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/activities`.replace(
-          `{${'rec_resource_id'}}`,
-          encodeURIComponent(String(requestParameters['recResourceId'])),
-        ),
+        path: urlPath,
         method: 'PUT',
         headers: headerParameters,
         query: queryParameters,
@@ -1643,88 +1743,6 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<Array<RecreationActivityDto>> {
     const response = await this.updateActivitiesRaw(
-      requestParameters,
-      initOverrides,
-    );
-    return await response.value();
-  }
-
-  /**
-   * Update a Document Resource
-   */
-  async updateDocumentResourceRaw(
-    requestParameters: UpdateDocumentResourceRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationResourceDocDto>> {
-    if (requestParameters['recResourceId'] == null) {
-      throw new runtime.RequiredError(
-        'recResourceId',
-        'Required parameter "recResourceId" was null or undefined when calling updateDocumentResource().',
-      );
-    }
-
-    if (requestParameters['refId'] == null) {
-      throw new runtime.RequiredError(
-        'refId',
-        'Required parameter "refId" was null or undefined when calling updateDocumentResource().',
-      );
-    }
-
-    if (requestParameters['createRecreationResourceDocBodyDto'] == null) {
-      throw new runtime.RequiredError(
-        'createRecreationResourceDocBodyDto',
-        'Required parameter "createRecreationResourceDocBodyDto" was null or undefined when calling updateDocumentResource().',
-      );
-    }
-
-    const queryParameters: any = {};
-
-    const headerParameters: runtime.HTTPHeaders = {};
-
-    headerParameters['Content-Type'] = 'application/json';
-
-    if (this.configuration && this.configuration.accessToken) {
-      const token = this.configuration.accessToken;
-      const tokenString = await token('keycloak', []);
-
-      if (tokenString) {
-        headerParameters['Authorization'] = `Bearer ${tokenString}`;
-      }
-    }
-    const response = await this.request(
-      {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/docs/{ref_id}`
-          .replace(
-            `{${'rec_resource_id'}}`,
-            encodeURIComponent(String(requestParameters['recResourceId'])),
-          )
-          .replace(
-            `{${'ref_id'}}`,
-            encodeURIComponent(String(requestParameters['refId'])),
-          ),
-        method: 'PUT',
-        headers: headerParameters,
-        query: queryParameters,
-        body: CreateRecreationResourceDocBodyDtoToJSON(
-          requestParameters['createRecreationResourceDocBodyDto'],
-        ),
-      },
-      initOverrides,
-    );
-
-    return new runtime.JSONApiResponse(response, (jsonValue) =>
-      RecreationResourceDocDtoFromJSON(jsonValue),
-    );
-  }
-
-  /**
-   * Update a Document Resource
-   */
-  async updateDocumentResource(
-    requestParameters: UpdateDocumentResourceRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<RecreationResourceDocDto> {
-    const response = await this.updateDocumentResourceRaw(
       requestParameters,
       initOverrides,
     );
@@ -1766,12 +1784,16 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/features`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/features`.replace(
-          `{${'rec_resource_id'}}`,
-          encodeURIComponent(String(requestParameters['recResourceId'])),
-        ),
+        path: urlPath,
         method: 'PUT',
         headers: headerParameters,
         query: queryParameters,
@@ -1793,88 +1815,6 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<Array<RecreationFeatureDto>> {
     const response = await this.updateFeaturesRaw(
-      requestParameters,
-      initOverrides,
-    );
-    return await response.value();
-  }
-
-  /**
-   * Update an Image Resource
-   */
-  async updateImageResourceRaw(
-    requestParameters: UpdateImageResourceRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationResourceImageDto>> {
-    if (requestParameters['recResourceId'] == null) {
-      throw new runtime.RequiredError(
-        'recResourceId',
-        'Required parameter "recResourceId" was null or undefined when calling updateImageResource().',
-      );
-    }
-
-    if (requestParameters['refId'] == null) {
-      throw new runtime.RequiredError(
-        'refId',
-        'Required parameter "refId" was null or undefined when calling updateImageResource().',
-      );
-    }
-
-    if (requestParameters['createRecreationResourceImageBodyDto'] == null) {
-      throw new runtime.RequiredError(
-        'createRecreationResourceImageBodyDto',
-        'Required parameter "createRecreationResourceImageBodyDto" was null or undefined when calling updateImageResource().',
-      );
-    }
-
-    const queryParameters: any = {};
-
-    const headerParameters: runtime.HTTPHeaders = {};
-
-    headerParameters['Content-Type'] = 'application/json';
-
-    if (this.configuration && this.configuration.accessToken) {
-      const token = this.configuration.accessToken;
-      const tokenString = await token('keycloak', []);
-
-      if (tokenString) {
-        headerParameters['Authorization'] = `Bearer ${tokenString}`;
-      }
-    }
-    const response = await this.request(
-      {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/images/{ref_id}`
-          .replace(
-            `{${'rec_resource_id'}}`,
-            encodeURIComponent(String(requestParameters['recResourceId'])),
-          )
-          .replace(
-            `{${'ref_id'}}`,
-            encodeURIComponent(String(requestParameters['refId'])),
-          ),
-        method: 'PUT',
-        headers: headerParameters,
-        query: queryParameters,
-        body: CreateRecreationResourceImageBodyDtoToJSON(
-          requestParameters['createRecreationResourceImageBodyDto'],
-        ),
-      },
-      initOverrides,
-    );
-
-    return new runtime.JSONApiResponse(response, (jsonValue) =>
-      RecreationResourceImageDtoFromJSON(jsonValue),
-    );
-  }
-
-  /**
-   * Update an Image Resource
-   */
-  async updateImageResource(
-    requestParameters: UpdateImageResourceRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<RecreationResourceImageDto> {
-    const response = await this.updateImageResourceRaw(
       requestParameters,
       initOverrides,
     );
@@ -1917,12 +1857,16 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
+
+    let urlPath = `/api/recreation-resources/{rec_resource_id}`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
     const response = await this.request(
       {
-        path: `/api/recreation-resources/{rec_resource_id}`.replace(
-          `{${'rec_resource_id'}}`,
-          encodeURIComponent(String(requestParameters['recResourceId'])),
-        ),
+        path: urlPath,
         method: 'PUT',
         headers: headerParameters,
         query: queryParameters,
@@ -1996,17 +1940,20 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/fees/{fee_id}`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+    urlPath = urlPath.replace(
+      `{${'fee_id'}}`,
+      encodeURIComponent(String(requestParameters['feeId'])),
+    );
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/fees/{fee_id}`
-          .replace(
-            `{${'rec_resource_id'}}`,
-            encodeURIComponent(String(requestParameters['recResourceId'])),
-          )
-          .replace(
-            `{${'fee_id'}}`,
-            encodeURIComponent(String(requestParameters['feeId'])),
-          ),
+        path: urlPath,
         method: 'PUT',
         headers: headerParameters,
         query: queryParameters,
@@ -2073,12 +2020,16 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
+
+    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/geospatial`;
+    urlPath = urlPath.replace(
+      `{${'rec_resource_id'}}`,
+      encodeURIComponent(String(requestParameters['recResourceId'])),
+    );
+
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/geospatial`.replace(
-          `{${'rec_resource_id'}}`,
-          encodeURIComponent(String(requestParameters['recResourceId'])),
-        ),
+        path: urlPath,
         method: 'PUT',
         headers: headerParameters,
         query: queryParameters,

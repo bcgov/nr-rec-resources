@@ -32,7 +32,6 @@ describe('AllExceptionsFilter', () => {
     const res: any = makeMockRes();
     const req: any = makeMockReq('/not-found', 'GET');
 
-    // Call catch via ArgumentsHost mock
     const host: any = {
       switchToHttp: () => ({ getRequest: () => req, getResponse: () => res }),
     };
@@ -90,7 +89,6 @@ describe('AllExceptionsFilter', () => {
       const host: any = {
         switchToHttp: () => ({ getRequest: () => req, getResponse: () => res }),
       };
-      // call catch
       filter.catch(prismaError, host as any);
       return { res };
     };

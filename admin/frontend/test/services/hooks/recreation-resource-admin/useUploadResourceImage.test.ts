@@ -15,6 +15,7 @@ vi.mock('@/services/hooks/recreation-resource-admin/helpers', () => ({
 import { createRetryHandler } from '@/services/hooks/recreation-resource-admin/helpers';
 import { useRecreationResourceAdminApiClient } from '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient';
 import { useUploadResourceImage } from '@/services/hooks/recreation-resource-admin/useUploadResourceImage';
+import { ImageVariant } from '@/utils/imageProcessing';
 import { TestQueryClientProvider } from '@test/test-utils';
 import { renderHook } from '@testing-library/react';
 
@@ -56,11 +57,42 @@ describe('useUploadResourceImage', () => {
   });
 
   it('should call createRecreationresourceImage with correct parameters', async () => {
-    const mockFile = new File(['test'], 'test.jpg', { type: 'image/jpeg' });
+    // Create mock variants matching the expected structure
+    const mockVariants: ImageVariant[] = [
+      {
+        sizeCode: 'original',
+        blob: new Blob(['original'], { type: 'image/webp' }),
+        width: 1920,
+        height: 1080,
+        file: new File(['original'], 'original.webp', { type: 'image/webp' }),
+      },
+      {
+        sizeCode: 'scr',
+        blob: new Blob(['scr'], { type: 'image/webp' }),
+        width: 1400,
+        height: 800,
+        file: new File(['scr'], 'scr.webp', { type: 'image/webp' }),
+      },
+      {
+        sizeCode: 'pre',
+        blob: new Blob(['pre'], { type: 'image/webp' }),
+        width: 900,
+        height: 540,
+        file: new File(['pre'], 'pre.webp', { type: 'image/webp' }),
+      },
+      {
+        sizeCode: 'thm',
+        blob: new Blob(['thm'], { type: 'image/webp' }),
+        width: 250,
+        height: 250,
+        file: new File(['thm'], 'thm.webp', { type: 'image/webp' }),
+      },
+    ];
+
     const mockParams = {
       recResourceId: 'test-resource-id',
-      file: mockFile,
-      caption: 'test caption',
+      variants: mockVariants,
+      fileName: 'test-caption.webp',
     };
 
     mockApi.createRecreationresourceImage.mockResolvedValue({
@@ -75,8 +107,11 @@ describe('useUploadResourceImage', () => {
 
     expect(mockApi.createRecreationresourceImage).toHaveBeenCalledWith({
       recResourceId: mockParams.recResourceId,
-      caption: mockParams.caption,
-      file: mockParams.file,
+      fileName: mockParams.fileName,
+      original: mockVariants[0].blob,
+      scr: mockVariants[1].blob,
+      pre: mockVariants[2].blob,
+      thm: mockVariants[3].blob,
     });
   });
 });

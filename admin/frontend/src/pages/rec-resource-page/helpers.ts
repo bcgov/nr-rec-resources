@@ -1,9 +1,8 @@
 import { addErrorNotification } from '@/store/notificationStore';
 import {
-  buildFileTooLargeMessage,
   getFileNameWithoutExtension,
-  isFileTooLarge,
-  megabytesToBytes,
+  validateFileMimeType,
+  validateFileSize,
 } from '@shared/utils';
 import { FILE_TYPE_CONFIGS } from './constants';
 import {
@@ -13,8 +12,8 @@ import {
 } from './store/recResourceFileTransferStore';
 import { FileType, GalleryFile } from './types';
 
-const MAX_FILE_SIZE_MB = 9.5;
-const MAX_FILE_SIZE_BYTES = megabytesToBytes(MAX_FILE_SIZE_MB);
+export const MAX_IMAGE_SIZE_MB = 5.1;
+const MAX_DOCUMENT_SIZE_MB = 9.5;
 
 /**
  * Formats the date string for display.
@@ -92,13 +91,14 @@ export function handleAddFileClick(accept: string, type: FileType): void {
     try {
       const file = target.files?.[0];
       if (file) {
-        // Validate file size
-        if (isFileTooLarge(file, MAX_FILE_SIZE_BYTES)) {
-          addErrorNotification(
-            buildFileTooLargeMessage(file.name, MAX_FILE_SIZE_MB),
-          );
+        // Validate file immediately after selection
+        const fileError = validateFile(file, type);
+        if (fileError) {
+          // Show error in notification and prevent modal from opening
+          addErrorNotification(fileError);
           return;
         }
+        // File is valid, proceed to open modal
         const galleryFile = createTempGalleryFile(file, type);
         setSelectedFile(galleryFile);
         setShowUploadOverlay(true);
@@ -124,4 +124,33 @@ export function handleAddFileClick(accept: string, type: FileType): void {
 export function handleAddFileByType(fileType: FileType): void {
   const acceptTypes = getAcceptedMimeTypes(fileType);
   handleAddFileClick(acceptTypes, fileType);
+}
+
+/**
+ * Validates file object (size and format) separately
+ * Returns error message if invalid, null if valid
+ */
+export function validateFile(
+  file: File | null | undefined,
+  fileType: FileType,
+): string | null {
+  if (!file) {
+    return 'File is required';
+  }
+
+  // Validate file format
+  const allowedTypes = FILE_TYPE_CONFIGS[fileType].accept;
+  if (!validateFileMimeType(file, allowedTypes)) {
+    return `Invalid file format. Only ${allowedTypes} files are allowed.`;
+  }
+
+  // Validate file size using shared utility
+  const maxSizeMB =
+    fileType === 'image' ? MAX_IMAGE_SIZE_MB : MAX_DOCUMENT_SIZE_MB;
+  const sizeError = validateFileSize(file, maxSizeMB);
+  if (sizeError) {
+    return sizeError;
+  }
+
+  return null;
 }

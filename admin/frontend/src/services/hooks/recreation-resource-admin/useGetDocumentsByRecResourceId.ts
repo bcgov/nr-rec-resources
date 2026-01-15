@@ -2,7 +2,7 @@ import { RecreationResourceDocDto, ResponseError } from '@/services';
 import { useRecreationResourceAdminApiClient } from '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient';
 import { addErrorNotification } from '@/store/notificationStore';
 import { QueryOptions, useQuery } from '@tanstack/react-query';
-import { createRetryHandler, transformRecreationResourceDocs } from './helpers';
+import { createRetryHandler } from './helpers';
 import { RECREATION_RESOURCE_QUERY_KEYS } from './queryKeys';
 
 export const useGetDocumentsByRecResourceId = (
@@ -20,7 +20,7 @@ export const useGetDocumentsByRecResourceId = (
         await recreationResourceAdminApiClient.getDocumentsByRecResourceId({
           recResourceId: recResourceId!,
         });
-      return transformRecreationResourceDocs(docs);
+      return docs;
     },
     enabled: Boolean(recResourceId),
     retry: createRetryHandler({
