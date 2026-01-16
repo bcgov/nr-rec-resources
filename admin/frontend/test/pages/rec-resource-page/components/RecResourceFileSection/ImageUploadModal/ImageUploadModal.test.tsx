@@ -10,6 +10,7 @@ vi.mock(
   () => ({
     useImageUploadForm: vi.fn(() => ({
       control: {},
+      handleSubmit: vi.fn((fn) => fn),
       resetForm: vi.fn(),
       uploadState: 'ready',
       isUploadEnabled: true,

@@ -14,7 +14,7 @@ export const ImageUploadModal: FC = () => {
     getImageGeneralActionHandler,
   } = useRecResourceFileTransferState();
 
-  const { control, resetForm, uploadState, isUploadEnabled } =
+  const { control, handleSubmit, resetForm, uploadState, isUploadEnabled } =
     useImageUploadForm(selectedFileForUpload?.name);
 
   if (!showUploadOverlay || !selectedFileForUpload) return null;
@@ -60,7 +60,11 @@ export const ImageUploadModal: FC = () => {
         {fileSize !== undefined && <span>{formatFileSize(fileSize)}</span>}
       </div>
 
-      <ImageUploadForm control={control} uploadState={uploadState} />
+      <ImageUploadForm
+        control={control}
+        uploadState={uploadState}
+        onSubmit={handleSubmit(handleUpload)}
+      />
     </BaseFileModal>
   );
 };
