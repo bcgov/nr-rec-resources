@@ -49,7 +49,7 @@ export const LandingPage: FC = () => {
           headingComponent={<h1>Partnering and volunteering</h1>}
           sectionContent={
             <>
-              <Container className="d-flex d-none d-md-block">
+              <Container className="d-flex d-none d-md-block partnering-container">
                 <Row>
                   <Col
                     md={12}
@@ -69,7 +69,7 @@ export const LandingPage: FC = () => {
                   <Col
                     md={12}
                     lg={3}
-                    className="align-items-center justify-content-left"
+                    className="align-items-center justify-content-left partnering-box"
                   >
                     <LearnMore />
                   </Col>

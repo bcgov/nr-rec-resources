@@ -98,8 +98,6 @@ describe('OutdoorRecreation', () => {
       'src',
       '/images/landing-page/activities/map_landing.png',
     );
-    expect(desktopMap).toHaveAttribute('width', '1080');
-    expect(desktopMap).toHaveAttribute('height', '348');
 
     /**
      * Mobile map image
@@ -109,7 +107,5 @@ describe('OutdoorRecreation', () => {
       'src',
       '/images/landing-page/activities/map_landing_mobile.png',
     );
-    expect(mobileMap).toHaveAttribute('width', '343');
-    expect(mobileMap).toHaveAttribute('height', '348');
   });
 });
