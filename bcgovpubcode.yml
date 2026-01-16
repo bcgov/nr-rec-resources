@@ -1,7 +1,7 @@
 ---
 data_management_roles:
   product_owner: Airlia Hansen
-  data_custodian: Airlia Hansen
+  data_custodian: Jessica Ainsworth
 product_external_dependencies:
   common_components:
     - Design-System
