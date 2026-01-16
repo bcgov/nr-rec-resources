@@ -25,7 +25,7 @@ describe('ImageUploadForm', () => {
     render(<TestWrapper uploadState="initial" />);
 
     expect(
-      screen.getByText(/did you take this photo during working hours/i),
+      screen.getByText(/was this photo taken by staff during working hours/i),
     ).toBeInTheDocument();
   });
 
