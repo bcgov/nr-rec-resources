@@ -35,12 +35,9 @@ export const useImageUploadForm = (initialDisplayName?: string) => {
       containsPersonalInfo: undefined,
       confirmNoPersonalInfo: false,
     });
-    // ensure the global uploadFileName is initialized to the incoming display name
     setUploadFileName(displayNameWithoutExtension ?? '');
     // eslint-disable-next-line
   }, [initialDisplayName]);
-
-  // Live sync moved to Controller's onChange in ImageUploadForm.tsx
 
   const uploadState: UploadState = getUploadState(
     formValues as ImageUploadFormData,
@@ -60,6 +57,7 @@ export const useImageUploadForm = (initialDisplayName?: string) => {
 
   return {
     control: form.control,
+    handleSubmit: form.handleSubmit,
     setValue: form.setValue,
     resetForm,
     uploadState,

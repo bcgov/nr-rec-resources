@@ -13,16 +13,22 @@ import './ImageUploadForm.scss';
 interface ImageUploadFormProps {
   control: Control<ImageUploadFormData>;
   uploadState: UploadState;
+  onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
 }
 
 export const ImageUploadForm: FC<ImageUploadFormProps> = ({
   control,
   uploadState,
+  onSubmit,
 }) => {
   const isToggle2Disabled = uploadState === 'not-working-hours';
 
   return (
-    <Form className="image-upload-form">
+    <Form
+      className="image-upload-form"
+      onSubmit={onSubmit}
+      aria-label="image-upload-form"
+    >
       <h4>Details</h4>
       {/* Display Name */}
       <Form.Group className="mb-4">
