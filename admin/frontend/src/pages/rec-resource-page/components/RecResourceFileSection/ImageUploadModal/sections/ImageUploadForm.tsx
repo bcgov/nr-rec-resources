@@ -7,6 +7,7 @@ import {
 } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/schemas';
 import { Badge } from '@/components';
 import { BC_GOV_PERSONAL_INFORMATION_URL } from '@/constants/urls';
+import { setUploadFileName } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
 import './ImageUploadForm.scss';
 
 interface ImageUploadFormProps {
@@ -39,6 +40,10 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
                 maxLength={50}
                 placeholder="Enter a display name"
                 isInvalid={!!fieldState.error}
+                onChange={(e) => {
+                  field.onChange(e);
+                  setUploadFileName((e.target as HTMLInputElement).value);
+                }}
               />
               <Form.Text className="text-muted">
                 Briefly describe the location or feature

@@ -1,8 +1,13 @@
 import { ImageUploadForm } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/sections/ImageUploadForm';
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 import { useForm } from 'react-hook-form';
 import { ImageUploadFormData } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/schemas';
+import { setUploadFileName } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
+
+vi.mock('@/pages/rec-resource-page/store/recResourceFileTransferStore', () => ({
+  setUploadFileName: vi.fn(),
+}));
 
 const TestWrapper = ({ uploadState }: { uploadState: string }) => {
   const { control } = useForm<ImageUploadFormData>();
@@ -67,5 +72,14 @@ describe('ImageUploadForm', () => {
         /by uploading this photo, i confirm that it contains no personally identifiable information/i,
       ),
     ).toBeInTheDocument();
+  });
+
+  it('syncs display name to store on change', () => {
+    render(<TestWrapper uploadState="initial" />);
+    const input = screen.getByPlaceholderText('Enter a display name');
+
+    fireEvent.change(input, { target: { value: 'New Display Name' } });
+
+    expect(setUploadFileName).toHaveBeenCalledWith('New Display Name');
   });
 });
