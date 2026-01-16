@@ -7,7 +7,7 @@ export const imageUploadSchema = z.object({
     .min(1, 'Display name is required')
     .max(50, 'Display name must be 50 characters or less'),
 
-  // Toggle 1: Did you take this photo during working hours?
+  // Toggle 1: Was this photo taken by staff during working hours?
   takenDuringWorkingHours: z.enum(['yes', 'no']).optional(),
 
   // Toggle 2: Does this photo contain Personal Info? (only relevant when Toggle 1 = yes)

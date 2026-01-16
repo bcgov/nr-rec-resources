@@ -50,7 +50,9 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
       <h4>Privacy and ownership</h4>
       {/* Toggle 1: Working Hours */}
       <Form.Group className="image-upload-form__toggle-group">
-        <Form.Label>Did you take this photo during working hours?</Form.Label>
+        <Form.Label>
+          Was this photo taken by staff during working hours?
+        </Form.Label>
         <Controller
           name="takenDuringWorkingHours"
           control={control}
