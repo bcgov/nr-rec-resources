@@ -5,6 +5,7 @@ import {
   ImageUploadFormData,
   UploadState,
 } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/schemas';
+import { Badge } from '@/components';
 import { BC_GOV_PERSONAL_INFORMATION_URL } from '@/constants/urls';
 import './ImageUploadForm.scss';
 
@@ -24,7 +25,9 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
       <h4>Details</h4>
       {/* Display Name */}
       <Form.Group className="mb-4">
-        <Form.Label>Display name (public label)</Form.Label>
+        <Form.Label>
+          Display name <Badge label="Public" />
+        </Form.Label>
         <Controller
           name="displayName"
           control={control}
