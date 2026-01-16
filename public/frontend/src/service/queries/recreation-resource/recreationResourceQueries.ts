@@ -22,10 +22,6 @@ import {
 import { trackSiteSearch } from '@shared/utils';
 import buildQueryString from '@/utils/buildQueryString';
 import {
-  transformRecreationResourceBase,
-  transformRecreationResourceDetail,
-} from '@/service/queries/recreation-resource/helpers';
-import {
   RecreationResourceDetailModel,
   AlphabeticalRecreationResourceModel,
 } from '@/service/custom-models';
@@ -58,10 +54,7 @@ export const getRecreationResourceById = async ({
     imageSizeCodes,
   });
 
-  // normalize image urls
-  return transformRecreationResourceDetail(
-    response,
-  ) as RecreationResourceDetailModel;
+  return response as RecreationResourceDetailModel;
 };
 
 /**
@@ -87,10 +80,7 @@ export const useGetRecreationResourceById = ({
           imageSizeCodes,
         });
 
-        // normalize image urls
-        return transformRecreationResourceDetail(
-          response,
-        ) as RecreationResourceDetailModel;
+        return response as RecreationResourceDetailModel;
       }
     },
 
@@ -196,7 +186,6 @@ export const useSearchRecreationResourcesPaginated = (params: SearchParams) => {
 
   /**
    * Fetches recreation resources for the specified page
-   * Transforms the response data using transformRecreationResource
    */
   const queryFn = async ({ pageParam }: { pageParam: SearchParams }) => {
     try {
@@ -216,11 +205,7 @@ export const useSearchRecreationResourcesPaginated = (params: SearchParams) => {
         resultsCount: response.total,
       });
 
-      // Transform each resource in the response to normalize image urls
-      return {
-        ...response,
-        data: response.data.map(transformRecreationResourceBase),
-      };
+      return response;
     } catch (error) {
       console.error('Failed to fetch recreation resources:', error);
       throw error;
@@ -310,9 +295,7 @@ export const useRecreationResourcesWithGeometryMutation = () => {
         recResourcesIdsDto,
       });
 
-      return response.map((rec: RecreationResourceDetailDto) =>
-        transformRecreationResourceDetail(rec),
-      );
+      return response;
     },
   });
 };

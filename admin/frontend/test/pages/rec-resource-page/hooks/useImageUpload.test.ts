@@ -1,256 +1,208 @@
 import { useImageUpload } from '@/pages/rec-resource-page/hooks/useImageUpload';
-import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
-import { useUploadResourceImage } from '@/services/hooks/recreation-resource-admin/useUploadResourceImage';
-import { handleApiError } from '@/services/utils/errorHandler';
-import {
-  addErrorNotification,
-  addSuccessNotification,
-} from '@/store/notificationStore';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { processImageToVariants } from '@/utils/imageProcessing';
 import { renderHook, waitFor } from '@testing-library/react';
-import { type ReactNode, createElement } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  createMockFile,
+  createMockGalleryFile,
+  createMockImageVariants,
+  createQueryClientWrapper,
+} from './test-utils/upload-delete-test-utils';
 
 // Mock the dependencies
 vi.mock('@/pages/rec-resource-page/hooks/useRecResource');
 vi.mock('@/services/hooks/recreation-resource-admin/useUploadResourceImage');
-vi.mock('@/services/utils/errorHandler');
-vi.mock('@/store/notificationStore');
+vi.mock('@/utils/imageProcessing');
 vi.mock('@/pages/rec-resource-page/store/recResourceFileTransferStore', () => ({
   addPendingImage: vi.fn(),
   removePendingImage: vi.fn(),
   updatePendingImage: vi.fn(),
 }));
 
-const mockUploadResourceImage = vi.fn();
-const mockRecResource = {
-  rec_resource_id: 'test-rec-resource-id',
-};
+vi.mock('@/pages/rec-resource-page/hooks/utils/validateUpload', () => ({
+  validateUploadFile: vi.fn(),
+}));
 
-// Create a wrapper with QueryClient for tests
-const createWrapper = () => {
-  const queryClient = new QueryClient({
-    defaultOptions: {
-      queries: {
-        retry: false,
-      },
-    },
-  });
+vi.mock('@/pages/rec-resource-page/hooks/utils/useFileUpload', () => ({
+  useFileUpload: vi.fn(),
+}));
 
-  return ({ children }: { children: ReactNode }) =>
-    createElement(QueryClientProvider, { client: queryClient }, children);
-};
+import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
+import { useFileUpload } from '@/pages/rec-resource-page/hooks/utils/useFileUpload';
+import { validateUploadFile } from '@/pages/rec-resource-page/hooks/utils/validateUpload';
+import { useUploadResourceImage } from '@/services/hooks/recreation-resource-admin/useUploadResourceImage';
+
+const mockExecuteUpload = vi.fn();
+const mockProcessImageToVariants = vi.mocked(processImageToVariants);
 
 describe('useImageUpload', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Mock useRecResource
     vi.mocked(useRecResource).mockReturnValue({
+      recResource: { rec_resource_id: 'test-rec-resource-id' },
       rec_resource_id: 'test-rec-resource-id',
-      recResource: mockRecResource as any,
       isLoading: false,
       error: null,
-    });
-
-    // Mock useUploadResourceImage
-    vi.mocked(useUploadResourceImage).mockReturnValue({
-      mutateAsync: mockUploadResourceImage,
     } as any);
 
-    vi.mocked(addSuccessNotification).mockImplementation(() => {});
-    vi.mocked(addErrorNotification).mockImplementation(() => {});
+    vi.mocked(useUploadResourceImage).mockReturnValue({
+      mutateAsync: vi.fn(),
+    } as any);
+
+    vi.mocked(useFileUpload).mockReturnValue({
+      executeUpload: mockExecuteUpload,
+    } as any);
+
+    vi.mocked(validateUploadFile).mockReturnValue(true);
+    mockProcessImageToVariants.mockResolvedValue(createMockImageVariants());
   });
 
-  it('should handle successful image upload', async () => {
-    mockUploadResourceImage.mockResolvedValueOnce({ success: true });
-
+  it('returns upload handlers', () => {
     const { result } = renderHook(() => useImageUpload(), {
-      wrapper: createWrapper(),
+      wrapper: createQueryClientWrapper(),
     });
 
-    const mockFile = new File(['image content'], 'test-image.jpg', {
-      type: 'image/jpeg',
+    expect(result.current).toMatchObject({
+      handleUpload: expect.any(Function),
+      handleUploadRetry: expect.any(Function),
     });
-    const galleryFile = {
-      id: 'temp-id',
-      name: 'Test Image',
-      date: '2024-01-01',
-      url: '',
-      extension: 'jpg',
-      pendingFile: mockFile,
-      type: 'image' as const,
-    };
-    const onSuccess = vi.fn();
+  });
 
-    await result.current.handleUpload(galleryFile, onSuccess);
-
-    await waitFor(() => {
-      expect(mockUploadResourceImage).toHaveBeenCalledWith({
-        recResourceId: 'test-rec-resource-id',
-        file: mockFile,
-        caption: 'Test Image',
+  describe('handleUpload', () => {
+    it('adds pending image and calls executeUpload with processFile', async () => {
+      const mockFile = createMockFile('test-image.jpg', 'image/jpeg');
+      const galleryFile = createMockGalleryFile<
+        import('@/pages/rec-resource-page/types').GalleryImage
+      >('image', {
+        id: 'temp-img-123',
+        name: 'Test Image',
+        extension: 'jpg',
+        pendingFile: mockFile,
       });
-    });
+      const onSuccess = vi.fn();
 
-    expect(addSuccessNotification).toHaveBeenCalledWith(
-      `Image "Test Image" uploaded successfully.`,
-    );
-    expect(onSuccess).toHaveBeenCalled();
-  });
+      mockExecuteUpload.mockResolvedValueOnce(undefined);
 
-  it('should handle failed image upload', async () => {
-    const mockError = new Error('Upload failed');
-    mockUploadResourceImage.mockRejectedValueOnce(mockError);
+      const { result } = renderHook(() => useImageUpload(), {
+        wrapper: createQueryClientWrapper(),
+      });
 
-    vi.mocked(handleApiError).mockResolvedValueOnce({
-      statusCode: 500,
-      message: 'Internal server error',
-      isResponseError: true,
-      isAuthError: false,
-    });
+      await result.current.handleUpload(galleryFile, onSuccess);
 
-    const { result } = renderHook(() => useImageUpload(), {
-      wrapper: createWrapper(),
-    });
+      await waitFor(() => {
+        expect(mockExecuteUpload).toHaveBeenCalled();
+      });
 
-    const mockFile = new File(['image content'], 'test-image.jpg', {
-      type: 'image/jpeg',
-    });
-    const galleryFile = {
-      id: 'temp-id',
-      name: 'Test Image',
-      date: '2024-01-01',
-      url: '',
-      extension: 'jpg',
-      pendingFile: mockFile,
-      type: 'image' as const,
-    };
+      const executeUploadCall = mockExecuteUpload.mock.calls[0][0];
+      expect(executeUploadCall).toMatchObject({
+        recResourceId: 'test-rec-resource-id',
+        galleryFile,
+        tempId: 'temp-img-123',
+        uploadMutation: expect.objectContaining({
+          mutateAsync: expect.any(Function),
+        }),
+        updatePendingFile: expect.any(Function),
+        removePendingFile: expect.any(Function),
+        successMessage: expect.any(Function),
+        fileType: 'image',
+        onSuccess,
+      });
 
-    await result.current.handleUpload(galleryFile);
-
-    await waitFor(() => {
-      expect(addErrorNotification).toHaveBeenCalledWith(
-        `500 - Failed to upload image "Test Image": Internal server error. Please try again.`,
+      expect(executeUploadCall.processFile).toBeDefined();
+      expect(executeUploadCall.successMessage('Test Image')).toBe(
+        'Image "Test Image" uploaded successfully.',
       );
     });
+
+    it('does nothing if validation fails', async () => {
+      vi.mocked(validateUploadFile).mockReturnValueOnce(false);
+      const galleryFile = createMockGalleryFile('image', {
+        name: 'Test Image',
+        pendingFile: undefined,
+      });
+
+      const { result } = renderHook(() => useImageUpload(), {
+        wrapper: createQueryClientWrapper(),
+      });
+
+      await result.current.handleUpload(galleryFile as any);
+
+      expect(mockExecuteUpload).not.toHaveBeenCalled();
+    });
+
+    it('does nothing when recResource is undefined', async () => {
+      vi.mocked(useRecResource).mockReturnValue({
+        recResource: null,
+        rec_resource_id: undefined,
+        isLoading: false,
+        error: null,
+      } as any);
+
+      vi.mocked(validateUploadFile).mockReturnValueOnce(false);
+
+      const galleryFile = createMockGalleryFile('image', {
+        name: 'Test Image',
+        pendingFile: createMockFile('test.jpg'),
+      });
+
+      const { result } = renderHook(() => useImageUpload(), {
+        wrapper: createQueryClientWrapper(),
+      });
+
+      await result.current.handleUpload(galleryFile as any);
+
+      expect(mockExecuteUpload).not.toHaveBeenCalled();
+    });
   });
 
-  it('should handle upload retry for failed images', async () => {
-    mockUploadResourceImage.mockResolvedValueOnce({ success: true });
+  describe('handleUploadRetry', () => {
+    it('updates pending image and calls executeUpload', async () => {
+      const mockFile = createMockFile('test-image.jpg', 'image/jpeg');
+      const pendingImage = createMockGalleryFile('image', {
+        id: 'pending-123',
+        name: 'Test Image',
+        pendingFile: mockFile,
+      });
+      const onSuccess = vi.fn();
 
-    const { result } = renderHook(() => useImageUpload(), {
-      wrapper: createWrapper(),
-    });
+      mockExecuteUpload.mockResolvedValueOnce(undefined);
 
-    const mockFile = new File(['image content'], 'test-image.jpg', {
-      type: 'image/jpeg',
-    });
-    const pendingImage = {
-      id: 'pending-123',
-      name: 'Test Image',
-      pendingFile: mockFile,
-    };
-    const onSuccess = vi.fn();
+      const { result } = renderHook(() => useImageUpload(), {
+        wrapper: createQueryClientWrapper(),
+      });
 
-    await result.current.handleUploadRetry(pendingImage as any, onSuccess);
+      await result.current.handleUploadRetry(pendingImage as any, onSuccess);
 
-    await waitFor(() => {
-      expect(mockUploadResourceImage).toHaveBeenCalledWith({
+      await waitFor(() => {
+        expect(mockExecuteUpload).toHaveBeenCalled();
+      });
+
+      const executeUploadCall = mockExecuteUpload.mock.calls[0][0];
+      expect(executeUploadCall).toMatchObject({
         recResourceId: 'test-rec-resource-id',
-        file: mockFile,
-        caption: 'Test Image',
+        galleryFile: pendingImage,
+        tempId: 'pending-123',
+        fileType: 'image',
+        onSuccess,
       });
     });
 
-    expect(addSuccessNotification).toHaveBeenCalledWith(
-      `Image "Test Image" uploaded successfully.`,
-    );
-    expect(onSuccess).toHaveBeenCalled();
-  });
+    it('does nothing if validation fails', async () => {
+      vi.mocked(validateUploadFile).mockReturnValueOnce(false);
+      const pendingImage = createMockGalleryFile('image', {
+        id: 'pending-123',
+        name: 'Test Image',
+        pendingFile: undefined,
+      });
 
-  it('should not upload if required parameters are missing', async () => {
-    const { result } = renderHook(() => useImageUpload(), {
-      wrapper: createWrapper(),
+      const { result } = renderHook(() => useImageUpload(), {
+        wrapper: createQueryClientWrapper(),
+      });
+
+      await result.current.handleUploadRetry(pendingImage as any);
+
+      expect(mockExecuteUpload).not.toHaveBeenCalled();
     });
-
-    // Test with null pendingFile
-    const galleryFileWithoutFile = {
-      id: 'temp-id',
-      name: 'Test Image',
-      date: '2024-01-01',
-      url: '',
-      extension: 'jpg',
-      pendingFile: undefined,
-      type: 'image' as const,
-    };
-    await result.current.handleUpload(galleryFileWithoutFile);
-    expect(mockUploadResourceImage).not.toHaveBeenCalled();
-
-    // Test with empty filename
-    const mockFile = new File(['image content'], 'test-image.jpg', {
-      type: 'image/jpeg',
-    });
-    const galleryFileWithoutName = {
-      id: 'temp-id',
-      name: '',
-      date: '2024-01-01',
-      url: '',
-      extension: 'jpg',
-      pendingFile: mockFile,
-      type: 'image' as const,
-    };
-    await result.current.handleUpload(galleryFileWithoutName);
-    expect(mockUploadResourceImage).not.toHaveBeenCalled();
-  });
-
-  it('should not retry upload if resource id is missing', async () => {
-    // Mock useRecResource to return null rec_resource_id
-    vi.mocked(useRecResource).mockReturnValue({
-      rec_resource_id: null,
-      recResource: null,
-      isLoading: false,
-      error: null,
-    } as any);
-
-    const { result } = renderHook(() => useImageUpload(), {
-      wrapper: createWrapper(),
-    });
-
-    const mockFile = new File(['image content'], 'test-image.jpg', {
-      type: 'image/jpeg',
-    });
-    const pendingImage = {
-      id: 'pending-123',
-      name: 'Test Image',
-      pendingFile: mockFile,
-    };
-    const onSuccess = vi.fn();
-
-    await result.current.handleUploadRetry(pendingImage as any, onSuccess);
-
-    expect(mockUploadResourceImage).not.toHaveBeenCalled();
-    expect(onSuccess).not.toHaveBeenCalled();
-  });
-
-  it('should not retry upload if pendingFile is missing', async () => {
-    const { result } = renderHook(() => useImageUpload(), {
-      wrapper: createWrapper(),
-    });
-
-    const pendingImageWithoutFile = {
-      id: 'pending-123',
-      name: 'Test Image',
-      pendingFile: undefined,
-    };
-    const onSuccess = vi.fn();
-
-    await result.current.handleUploadRetry(
-      pendingImageWithoutFile as any,
-      onSuccess,
-    );
-
-    expect(mockUploadResourceImage).not.toHaveBeenCalled();
-    expect(onSuccess).not.toHaveBeenCalled();
   });
 });

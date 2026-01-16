@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, Length, Matches } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 /**
  * Enum representing available image size options for the recreation API
@@ -11,18 +11,18 @@ export enum RecreationResourceDocCode {
 
 export class RecreationResourceDocDto {
   @ApiProperty({
-    description: 'Reference ID for the image',
+    description: 'Document ID',
     type: String,
     example: '1000',
   })
-  ref_id?: string;
+  document_id?: string;
 
   @ApiProperty({
-    description: 'Doc title',
+    description: 'File name',
     type: String,
-    example: 'Campbell river site map',
+    example: 'campbell-river-site-map.pdf',
   })
-  title: string | null;
+  file_name: string | null;
 
   @ApiProperty({
     description: 'rec_resource_id',
@@ -39,6 +39,8 @@ export class RecreationResourceDocDto {
   @ApiProperty({
     description: 'Document code that indicates the type of document',
     enum: RecreationResourceDocCode,
+    example: RecreationResourceDocCode.RM,
+    required: false,
   })
   doc_code: RecreationResourceDocCode | null;
 
@@ -63,31 +65,22 @@ export class RecreationResourceDocDto {
 
 export class CreateRecreationResourceDocBodyDto {
   @ApiProperty({
-    description: 'Doc title',
-    example: 'Campbell river site map',
-    minLength: 3,
-    maxLength: 100,
+    description: 'File name',
+    example: 'document-name.pdf',
     type: String,
   })
-  @Matches(/^[A-Za-z0-9-_'(). ]+$/, {
-    message:
-      'document title can only contain alphanumeric characters and spaces',
-  })
-  @Length(3, 100)
   @IsNotEmpty()
-  title: string;
+  @IsString()
+  file_name: string;
 }
 
 export class CreateRecreationResourceDocFormDto {
   @ApiProperty({
-    description: 'Document title',
-    example: 'Campbell river site map',
-    minLength: 3,
-    maxLength: 100,
-    pattern: "^[A-Za-z0-9-_'(). ]+$",
+    description: 'File name',
+    example: 'document-name.pdf',
     type: String,
   })
-  title: string;
+  file_name: string;
 
   @ApiProperty({
     type: 'string',

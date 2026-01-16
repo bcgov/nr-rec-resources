@@ -18,7 +18,7 @@ import {
 } from '@nestjs/swagger';
 import { RecreationResourceService } from 'src/recreation-resource/service/recreation-resource.service';
 import { PaginatedRecreationResourceDto } from './dto/paginated-recreation-resource.dto';
-import { RecreationResourceImageSize } from './dto/recreation-resource-image.dto';
+import { RecreationResourceImageSize } from '@shared/constants/images';
 import { ParseImageSizesPipe } from './pipes/parse-image-sizes.pipe';
 import { RecreationSuggestionDto } from 'src/recreation-resource/dto/recreation-resource-suggestion.dto';
 import {
@@ -276,7 +276,7 @@ export class RecreationResourceController {
     @Param('id') id: string,
     @Query(
       'imageSizeCodes',
-      new ParseImageSizesPipe([RecreationResourceImageSize.HIGH_RES_PRINT]),
+      new ParseImageSizesPipe([RecreationResourceImageSize.ORIGINAL]),
     )
     imageSizeCodes?: RecreationResourceImageSize[],
   ): Promise<RecreationResourceDetailDto> {

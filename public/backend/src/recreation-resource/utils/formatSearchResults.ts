@@ -6,6 +6,8 @@ import {
 } from 'src/recreation-resource/dto/recreation-resource.dto';
 import { RecreationResourceImageDto } from 'src/recreation-resource/dto/recreation-resource-image.dto';
 import { OPEN_STATUS } from 'src/recreation-resource/constants/service.constants';
+import { formatImageUrls } from './formatImageUrls';
+import { IMAGE_SIZE_CODE_FOR_SEARCH_RESULTS_CARD } from '@shared/constants/images';
 
 export type RecreationResourceSearchView = {
   rec_resource_id: string;
@@ -29,8 +31,17 @@ export type RecreationResourceSearchView = {
 // Format search results to match the BaseRecreationResourceDto
 export const formatSearchResults = (
   recResources: RecreationResourceSearchView[],
+  rstStorageCloudfrontUrl: string = '',
 ): BaseRecreationResourceDto[] => {
   return recResources?.map((resource) => {
+    const recreation_resource_images: RecreationResourceImageDto[] =
+      formatImageUrls({
+        images: resource.recreation_resource_images ?? [],
+        recResourceId: resource.rec_resource_id,
+        baseUrl: rstStorageCloudfrontUrl,
+        imageSizeCodes: [IMAGE_SIZE_CODE_FOR_SEARCH_RESULTS_CARD],
+      });
+
     return {
       rec_resource_id: resource.rec_resource_id,
       name: resource.name,
@@ -48,7 +59,7 @@ export const formatSearchResults = (
         status_code:
           resource.recreation_status?.status_code ?? OPEN_STATUS.STATUS_CODE,
       },
-      recreation_resource_images: resource.recreation_resource_images ?? [],
+      recreation_resource_images,
     };
   });
 };

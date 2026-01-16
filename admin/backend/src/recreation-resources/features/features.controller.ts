@@ -24,7 +24,6 @@ import {
   ApiParam,
   ApiResponse,
   ApiTags,
-  getSchemaPath,
 } from '@nestjs/swagger';
 import { RecreationFeatureDto } from './dtos/recreation-feature.dto';
 import { UpdateFeaturesDto } from './dtos/update-features.dto';
@@ -53,10 +52,7 @@ export class FeaturesController {
   @ApiResponse({
     status: 200,
     description: 'Features Found',
-    schema: {
-      type: 'array',
-      items: { $ref: getSchemaPath(RecreationFeatureDto) },
-    },
+    type: [RecreationFeatureDto],
   })
   @ApiResponse({
     status: 404,
@@ -99,10 +95,7 @@ export class FeaturesController {
   @ApiResponse({
     status: 200,
     description: 'Features Updated',
-    schema: {
-      type: 'array',
-      items: { $ref: getSchemaPath(RecreationFeatureDto) },
-    },
+    type: [RecreationFeatureDto],
   })
   @ApiResponse({
     status: 404,

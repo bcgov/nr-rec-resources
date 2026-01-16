@@ -20,11 +20,11 @@ import { mapValues } from '../runtime';
  */
 export interface CreateRecreationResourceImageBodyDto {
   /**
-   * Image caption
+   * Image file name
    * @type {string}
    * @memberof CreateRecreationResourceImageBodyDto
    */
-  caption: string;
+  file_name: string;
 }
 
 /**
@@ -33,7 +33,7 @@ export interface CreateRecreationResourceImageBodyDto {
 export function instanceOfCreateRecreationResourceImageBodyDto(
   value: object,
 ): value is CreateRecreationResourceImageBodyDto {
-  if (!('caption' in value) || value['caption'] === undefined) return false;
+  if (!('file_name' in value) || value['file_name'] === undefined) return false;
   return true;
 }
 
@@ -51,7 +51,7 @@ export function CreateRecreationResourceImageBodyDtoFromJSONTyped(
     return json;
   }
   return {
-    caption: json['caption'],
+    file_name: json['file_name'],
   };
 }
 
@@ -70,6 +70,6 @@ export function CreateRecreationResourceImageBodyDtoToJSONTyped(
   }
 
   return {
-    caption: value['caption'],
+    file_name: value['file_name'],
   };
 }

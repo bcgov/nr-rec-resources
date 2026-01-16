@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, Length, Matches } from 'class-validator';
+import { IsNotEmpty, IsString, Length } from 'class-validator';
 
 /**
  * Enum representing available image size options for the recreation API
@@ -56,13 +56,9 @@ export enum RecreationResourceImageSize {
 
 export class RecreationResourceImageVariantDto {
   @ApiProperty({
-    description: 'Size code of the image as defined in BCGov DAM',
+    description: 'Size code of the image variant',
     enum: RecreationResourceImageSize,
     example: RecreationResourceImageSize.ORIGINAL,
-    externalDocs: {
-      description: 'Learn more about image size codes used (need admin access)',
-      url: 'https://dam.lqc63d-test.nimbus.cloud.gov.bc.ca/pages/admin/admin_size_management.php',
-    },
   })
   size_code: RecreationResourceImageSize;
 
@@ -99,16 +95,19 @@ export class RecreationResourceImageDto {
   ref_id: string;
 
   @ApiProperty({
-    description: 'Image caption',
-    example: 'Scenic mountain view',
+    description: 'Image ID (UUID)',
+    example: 'a7c1e5f3-8d2b-4c9a-b1e6-f3d8c7a2e5b9',
+    required: false,
   })
-  @Matches(/^[A-Za-z0-9 "'()#.&/]+$/, {
-    message:
-      'image caption can only contain alphanumeric characters and spaces',
+  image_id?: string;
+
+  @ApiProperty({
+    description: 'Image file name',
+    example: 'scenic-mountain-view.webp',
   })
-  @Length(3, 100)
   @IsNotEmpty()
-  caption: string;
+  @IsString()
+  file_name: string;
 
   @ApiProperty({
     description: 'Available image variants',
@@ -126,31 +125,27 @@ export class RecreationResourceImageDto {
 
 export class CreateRecreationResourceImageBodyDto {
   @ApiProperty({
-    description: 'Image caption',
-    example: 'Scenic mountain view',
-    minLength: 3,
-    maxLength: 100,
+    description: 'Image file name',
+    example: 'scenic-mountain-view.webp',
+    minLength: 1,
+    maxLength: 255,
     type: String,
   })
-  @Matches(/^[A-Za-z0-9-_'(). ]+$/, {
-    message:
-      'image caption can only contain alphanumeric characters and spaces',
-  })
-  @Length(3, 100)
   @IsNotEmpty()
-  caption: string;
+  @IsString()
+  @Length(1, 255)
+  file_name: string;
 }
 
 export class CreateRecreationResourceImageFormDto {
   @ApiProperty({
-    description: 'Image caption',
-    example: 'Scenic mountain view',
-    minLength: 3,
-    maxLength: 100,
-    pattern: "^[A-Za-z0-9-_'(). ]+$",
+    description: 'Image file name',
+    example: 'scenic-mountain-view.webp',
+    minLength: 1,
+    maxLength: 255,
     type: String,
   })
-  caption: string;
+  file_name: string;
 
   @ApiProperty({
     type: 'string',
@@ -158,4 +153,18 @@ export class CreateRecreationResourceImageFormDto {
     description: 'File to upload',
   })
   file: any;
+}
+
+/**
+ * DTO for creating image with 4 pre-processed variants
+ */
+export class CreateRecreationResourceImageVariantsDto {
+  @ApiProperty({
+    description: 'Image file name',
+    example: 'beautiful-mountain-view.webp',
+  })
+  @IsNotEmpty()
+  @IsString()
+  @Length(1, 255)
+  file_name: string;
 }

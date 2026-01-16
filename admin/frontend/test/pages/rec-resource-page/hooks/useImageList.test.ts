@@ -12,15 +12,24 @@ vi.mock('@/pages/rec-resource-page/helpers', () => ({
   formatGalleryFileDate: vi.fn(),
 }));
 
+vi.mock('@/pages/rec-resource-page/hooks/utils/findImageVariant', () => ({
+  findImageVariant: vi.fn(),
+}));
+
 import { formatGalleryFileDate } from '@/pages/rec-resource-page/helpers';
 import { useImageList } from '@/pages/rec-resource-page/hooks/useImageList';
 import { useGetImagesByRecResourceId } from '@/services/hooks/recreation-resource-admin/useGetImagesByRecResourceId';
+import { findImageVariant } from '@/pages/rec-resource-page/hooks/utils/findImageVariant';
 
 describe('useImageList', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     (formatGalleryFileDate as any).mockImplementation(
       (date: string) => `formatted-${date}`,
+    );
+    (findImageVariant as any).mockImplementation(
+      (variants: any[], sizeCode: string) =>
+        variants?.find((v) => v.size_code === sizeCode),
     );
   });
 
@@ -40,7 +49,8 @@ describe('useImageList', () => {
     const mockImagesFromServer = [
       {
         ref_id: 'image-1',
-        caption: 'Test Image 1',
+        image_id: 'image-1',
+        file_name: 'test-image-1.webp',
         created_at: '2025-01-01T10:00:00Z',
         recreation_resource_image_variants: [
           {
@@ -57,7 +67,8 @@ describe('useImageList', () => {
       },
       {
         ref_id: 'image-2',
-        caption: 'Test Image 2',
+        image_id: 'image-2',
+        file_name: 'test-image-2.webp',
         created_at: '2025-01-02T10:00:00Z',
         recreation_resource_image_variants: [
           {
@@ -81,7 +92,7 @@ describe('useImageList', () => {
     expect(result.current.galleryImagesFromServer).toEqual([
       {
         id: 'image-1',
-        name: 'Test Image 1',
+        name: 'test-image-1.webp',
         date: 'formatted-2025-01-01T10:00:00Z',
         url: 'https://example.com/original.jpg',
         extension: 'jpg',
@@ -91,7 +102,7 @@ describe('useImageList', () => {
       },
       {
         id: 'image-2',
-        name: 'Test Image 2',
+        name: 'test-image-2.webp',
         date: 'formatted-2025-01-02T10:00:00Z',
         url: 'https://example.com/original2.jpg',
         extension: 'jpg',
@@ -109,7 +120,8 @@ describe('useImageList', () => {
     const mockImagesFromServer = [
       {
         ref_id: 'image-1',
-        caption: 'Test Image 1',
+        image_id: 'image-1',
+        file_name: 'test-image-1.webp',
         created_at: '2025-01-01T10:00:00Z',
         recreation_resource_image_variants: null,
       },
@@ -126,7 +138,7 @@ describe('useImageList', () => {
     expect(result.current.galleryImagesFromServer).toEqual([
       {
         id: 'image-1',
-        name: 'Test Image 1',
+        name: 'test-image-1.webp',
         date: 'formatted-2025-01-01T10:00:00Z',
         url: undefined,
         extension: undefined,

@@ -5,8 +5,6 @@ apis/index.ts
 index.ts
 models/BadRequestResponseDto.ts
 models/CreateRecreationFeeDto.ts
-models/CreateRecreationResourceDocBodyDto.ts
-models/CreateRecreationResourceImageBodyDto.ts
 models/EstablishmentOrderDocDto.ts
 models/HealthControllerCheck200Response.ts
 models/HealthControllerCheck200ResponseInfoValue.ts

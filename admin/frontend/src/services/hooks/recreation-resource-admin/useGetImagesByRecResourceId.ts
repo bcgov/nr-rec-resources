@@ -5,10 +5,7 @@ import {
 } from '@/services/recreation-resource-admin';
 import { addErrorNotification } from '@/store/notificationStore';
 import { QueryOptions, useQuery } from '@tanstack/react-query';
-import {
-  createRetryHandler,
-  transformRecreationResourceImages,
-} from './helpers';
+import { createRetryHandler } from './helpers';
 import { RECREATION_RESOURCE_QUERY_KEYS } from './queryKeys';
 
 export const useGetImagesByRecResourceId = (
@@ -26,7 +23,7 @@ export const useGetImagesByRecResourceId = (
         await recreationResourceAdminApiClient.getImagesByRecResourceId({
           recResourceId: recResourceId!,
         });
-      return transformRecreationResourceImages(images);
+      return images;
     },
     enabled: Boolean(recResourceId),
     retry: createRetryHandler({

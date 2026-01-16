@@ -16,16 +16,16 @@ vi.mock(
       onCancel,
       onConfirm,
       confirmButtonText,
-      alertConfig,
+      alerts,
     }: any) =>
       show ? (
         <div data-testid="base-file-modal">
           <div data-testid="modal-title">{title}</div>
-          {alertConfig && (
-            <div role="alert" data-testid="alert">
-              {alertConfig.text}
+          {alerts?.map((alert: any, index: number) => (
+            <div key={index} role="alert" data-testid="alert">
+              {alert.text}
             </div>
-          )}
+          ))}
           <div data-testid="modal-body">{children}</div>
           <button onClick={onCancel}>Cancel</button>
           <button onClick={onConfirm} className="btn-danger">

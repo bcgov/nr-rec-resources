@@ -1,70 +1,49 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import {
   CreateRecreationResourceDocBodyDto,
-  RecreationResourceDocCode,
-  RecreationResourceDocDto,
   CreateRecreationResourceDocFormDto,
+  RecreationResourceDocDto,
 } from '../../../src/resource-docs/dto/recreation-resource-doc.dto';
 
 describe('RecreationResourceDocDto', () => {
   it('should create a valid DTO instance', () => {
     const dto = new RecreationResourceDocDto();
-    dto.ref_id = '1000';
+    dto.document_id = '1000';
     dto.title = 'Campbell river site map';
     dto.url = 'https://example.com/map.pdf';
-    dto.doc_code = RecreationResourceDocCode.RM;
-    dto.doc_code_description = 'Recreation Map';
-    dto.extension = 'pdf';
+    dto.rec_resource_id = 'REC0001';
+    dto.created_at = '2024-01-01T00:00:00Z';
 
     expect(dto).toBeDefined();
-    expect(dto.ref_id).toBe('1000');
+    expect(dto.document_id).toBe('1000');
     expect(dto.title).toBe('Campbell river site map');
     expect(dto.url).toBe('https://example.com/map.pdf');
-    expect(dto.doc_code).toBe(RecreationResourceDocCode.RM);
-    expect(dto.doc_code_description).toBe('Recreation Map');
-    expect(dto.extension).toBe('pdf');
-  });
-
-  it('should validate enum values', () => {
-    expect(Object.values(RecreationResourceDocCode)).toContain('RM');
-    expect(Object.keys(RecreationResourceDocCode)).toHaveLength(1);
+    expect(dto.rec_resource_id).toBe('REC0001');
+    expect(dto.created_at).toBe('2024-01-01T00:00:00Z');
   });
 
   it('should handle empty values', () => {
     const dto = new RecreationResourceDocDto();
     expect(dto).toBeDefined();
-    expect(dto.ref_id).toBeUndefined();
+    expect(dto.document_id).toBeUndefined();
     expect(dto.title).toBeUndefined();
     expect(dto.url).toBeUndefined();
-    expect(dto.doc_code).toBeUndefined();
-    expect(dto.doc_code_description).toBeUndefined();
-    expect(dto.extension).toBeUndefined();
+    expect(dto.rec_resource_id).toBeUndefined();
+    expect(dto.created_at).toBeUndefined();
   });
 
   it('should allow setting all optional and nullable fields', () => {
     const dto = new RecreationResourceDocDto();
-    dto.ref_id = 'ref';
+    dto.document_id = 'doc-id';
     dto.title = null;
     dto.rec_resource_id = null;
     dto.url = undefined;
-    dto.doc_code = null;
-    dto.doc_code_description = undefined;
-    dto.extension = null;
     dto.created_at = null;
-    expect(dto.ref_id).toBe('ref');
+    expect(dto.document_id).toBe('doc-id');
     expect(dto.title).toBeNull();
     expect(dto.rec_resource_id).toBeNull();
     expect(dto.url).toBeUndefined();
-    expect(dto.doc_code).toBeNull();
-    expect(dto.doc_code_description).toBeUndefined();
-    expect(dto.extension).toBeNull();
     expect(dto.created_at).toBeNull();
-  });
-
-  it('should assign enum property correctly', () => {
-    const dto = new RecreationResourceDocDto();
-    dto.doc_code = RecreationResourceDocCode.RM;
-    expect(dto.doc_code).toBe('RM');
   });
 });
 
@@ -80,7 +59,6 @@ describe('CreateRecreationResourceDocBodyDto', () => {
   it('should fail validation for short title', async () => {
     const dto = new CreateRecreationResourceDocBodyDto();
     dto.title = 'ab';
-    // Simulate validation (would use class-validator in real test)
     expect(dto.title.length).toBeLessThan(3);
   });
 

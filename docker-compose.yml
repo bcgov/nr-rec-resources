@@ -85,6 +85,9 @@ services:
       DAM_RST_IMAGE_COLLECTION_ID: ${DAM_RST_IMAGE_COLLECTION_ID:-}
       DAM_RESOURCE_TYPE_PDF: ${DAM_RESOURCE_TYPE_PDF:-}
       DAM_RESOURCE_TYPE_IMAGE: ${DAM_RESOURCE_TYPE_IMAGE:-}
+      RST_STORAGE_CLOUDFRONT_URL: ${RST_STORAGE_CLOUDFRONT_URL:-}
+      FOREST_CLIENT_API_URL: ${FOREST_CLIENT_API_URL:-}
+      FOREST_CLIENT_API_KEY: ${FOREST_CLIENT_API_KEY:-}
       POSTGRES_SCHEMA: *POSTGRES_SCHEMA
     image: ${BACKEND_IMAGE:-backend}
     build:
@@ -93,6 +96,27 @@ services:
     healthcheck:
       test: ['CMD', 'curl', '-f', 'http://localhost:8000/api']
     working_dir: '/app'
+
+  localstack:
+    profiles: ['local']
+    container_name: localstack
+    image: localstack/localstack:latest
+    ports:
+      - '4566:4566' # LocalStack Gateway
+      - '4510-4559:4510-4559' # External services port range
+    environment:
+      - SERVICES=s3
+      - DEBUG=1
+      - AWS_DEFAULT_REGION=ca-central-1
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+    volumes:
+      - 'localstack-data:/var/lib/localstack'
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:4566/_localstack/health']
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   frontend:
     container_name: frontend
@@ -111,3 +135,6 @@ services:
     depends_on:
       backend:
         condition: service_started
+
+volumes:
+  localstack-data:

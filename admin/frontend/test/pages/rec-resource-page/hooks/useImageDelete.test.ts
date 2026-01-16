@@ -1,22 +1,19 @@
 import { useImageDelete } from '@/pages/rec-resource-page/hooks/useImageDelete';
-import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
-import {
-  recResourceFileTransferStore,
-  updateGalleryImage,
-} from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
+import { useFileDelete } from '@/pages/rec-resource-page/hooks/utils/useFileDelete';
+import * as store from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
 import { GalleryImage } from '@/pages/rec-resource-page/types';
 import { useDeleteResourceImage } from '@/services/hooks/recreation-resource-admin/useDeleteResourceImage';
-import { handleApiError } from '@/services/utils/errorHandler';
-import {
-  addErrorNotification,
-  addSuccessNotification,
-} from '@/store/notificationStore';
-import { renderHook, waitFor } from '@testing-library/react';
+import { useStore } from '@tanstack/react-store';
+import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  createMockGalleryFile,
+  setupDeleteMocks,
+} from './test-utils/upload-delete-test-utils';
 
 // Mock dependencies
-vi.mock('@/pages/rec-resource-page/hooks/useRecResource', () => ({
-  useRecResource: vi.fn(),
+vi.mock('@tanstack/react-store', () => ({
+  useStore: vi.fn(),
 }));
 
 vi.mock(
@@ -26,192 +23,166 @@ vi.mock(
   }),
 );
 
-vi.mock('@/store/notificationStore', () => ({
-  addErrorNotification: vi.fn(),
-  addSuccessNotification: vi.fn(),
+vi.mock('@/pages/rec-resource-page/hooks/useRecResource', () => ({
+  useRecResource: vi.fn(),
 }));
 
-vi.mock('@/services/utils/errorHandler', () => ({
-  handleApiError: vi.fn(),
-}));
-
-vi.mock(
-  '@/pages/rec-resource-page/store/recResourceFileTransferStore',
-  async (importOriginal) => {
-    const actual =
-      await importOriginal<
-        typeof import('@/pages/rec-resource-page/store/recResourceFileTransferStore')
-      >();
-    return {
-      ...actual,
-      updateGalleryImage: vi.fn(),
-    };
+vi.mock('@/pages/rec-resource-page/store/recResourceFileTransferStore', () => ({
+  recResourceFileTransferStore: {
+    setState: vi.fn(),
+    getState: vi.fn(),
+    state: { galleryImages: [], fileToDelete: null },
   },
-);
+  updateGalleryImage: vi.fn(),
+  setFileToDelete: vi.fn(),
+}));
 
-const mockUseRecResource = vi.mocked(useRecResource);
-const mockUseDeleteResourceImage = vi.mocked(useDeleteResourceImage);
-const mockAddErrorNotification = vi.mocked(addErrorNotification);
-const mockAddSuccessNotification = vi.mocked(addSuccessNotification);
-const mockUpdateGalleryImage = vi.mocked(updateGalleryImage);
-const mockHandleApiError = vi.mocked(handleApiError);
+vi.mock('@/pages/rec-resource-page/hooks/utils/useFileDelete', () => ({
+  useFileDelete: vi.fn(),
+}));
+
+const mockDeleteMutation = vi.fn();
+const mockImage = createMockGalleryFile<GalleryImage>('image', {
+  id: 'test-image-123',
+  name: 'test-image.jpg',
+  url: 'http://example.com/test.jpg',
+  extension: 'jpg',
+  variants: [],
+  previewUrl: 'http://example.com/preview.jpg',
+});
 
 describe('useImageDelete', () => {
-  const mockMutateAsync = vi.fn();
-  const mockRecResource = {
-    rec_resource_id: 'test-resource-id',
-  };
-  const mockImage: GalleryImage = {
-    id: 'test-image-id',
-    name: 'test-image.jpg',
-    date: '2024-01-01',
-    url: 'https://example.com/test-image.jpg',
-    extension: 'jpg',
-    type: 'image' as const,
-    variants: [],
-    previewUrl: 'https://example.com/test-image-preview.jpg',
-    pendingFile: undefined,
-  };
+  const mockExecuteDelete = vi.fn();
 
   beforeEach(() => {
     vi.clearAllMocks();
 
-    mockUseRecResource.mockReturnValue({
-      recResource: mockRecResource,
-    } as any);
+    setupDeleteMocks({
+      recResourceId: 'test-resource-123',
+    });
 
-    mockUseDeleteResourceImage.mockReturnValue({
-      mutateAsync: mockMutateAsync,
+    vi.mocked(useStore).mockReturnValue({ fileToDelete: mockImage });
+
+    vi.mocked(useDeleteResourceImage).mockReturnValue({
+      mutateAsync: mockDeleteMutation,
       isPending: false,
     } as any);
 
-    // Set up store state
-    recResourceFileTransferStore.setState({
-      selectedFileForUpload: null,
-      uploadFileName: '',
-      showUploadOverlay: false,
-      pendingDocs: [],
-      galleryDocuments: [],
-      pendingImages: [],
-      galleryImages: [],
-      showDeleteModal: false,
-      fileToDelete: mockImage,
-    });
-  });
-
-  it('should handle successful image deletion', async () => {
-    mockMutateAsync.mockResolvedValue(undefined);
-
-    const { result } = renderHook(() => useImageDelete());
-
-    await result.current.handleDelete();
-
-    await waitFor(() => {
-      expect(mockUpdateGalleryImage).toHaveBeenCalledWith(mockImage.id, {
-        isDeleting: true,
-      });
-      expect(mockMutateAsync).toHaveBeenCalledWith({
-        recResourceId: mockRecResource.rec_resource_id,
-        refId: mockImage.id,
-      });
-      expect(mockAddSuccessNotification).toHaveBeenCalledWith(
-        `Image "${mockImage.name}" deleted successfully.`,
-      );
-    });
-  });
-
-  it('should handle successful image deletion with onSuccess callback', async () => {
-    mockMutateAsync.mockResolvedValue(undefined);
-    const onSuccessMock = vi.fn();
-
-    const { result } = renderHook(() => useImageDelete());
-
-    await result.current.handleDelete(onSuccessMock);
-
-    await waitFor(() => {
-      expect(mockUpdateGalleryImage).toHaveBeenCalledWith(mockImage.id, {
-        isDeleting: true,
-      });
-      expect(mockMutateAsync).toHaveBeenCalledWith({
-        recResourceId: mockRecResource.rec_resource_id,
-        refId: mockImage.id,
-      });
-      expect(mockAddSuccessNotification).toHaveBeenCalledWith(
-        `Image "${mockImage.name}" deleted successfully.`,
-      );
-      expect(onSuccessMock).toHaveBeenCalled();
-    });
-  });
-
-  it('should handle deletion error', async () => {
-    const mockError = new Error('Deletion failed');
-    mockMutateAsync.mockRejectedValue(mockError);
-
-    // Mock handleApiError to return expected error format
-    mockHandleApiError.mockResolvedValue({
-      statusCode: 500,
-      message: 'Delete failed',
-      isResponseError: false,
-      isAuthError: false,
-    });
-
-    const { result } = renderHook(() => useImageDelete());
-
-    await result.current.handleDelete();
-
-    await waitFor(() => {
-      expect(mockUpdateGalleryImage).toHaveBeenCalledWith(mockImage.id, {
-        isDeleting: true,
-      });
-      expect(mockAddErrorNotification).toHaveBeenCalledWith(
-        expect.stringContaining('Failed to delete image'),
-      );
-      expect(mockUpdateGalleryImage).toHaveBeenCalledWith(mockImage.id, {
-        isDeleting: false,
-        deleteFailed: true,
-      });
-    });
-  });
-
-  it('should not proceed if no resource id', async () => {
-    mockUseRecResource.mockReturnValue({
-      recResource: null,
+    vi.mocked(useFileDelete).mockReturnValue({
+      executeDelete: mockExecuteDelete,
     } as any);
-
-    const { result } = renderHook(() => useImageDelete());
-
-    await result.current.handleDelete();
-
-    expect(mockMutateAsync).not.toHaveBeenCalled();
-    expect(mockAddErrorNotification).toHaveBeenCalledWith(
-      'Unable to delete image: missing required information.',
-    );
   });
 
-  it('should not proceed if no image to delete', async () => {
-    recResourceFileTransferStore.setState((prev) => ({
-      ...prev,
-      fileToDelete: undefined,
-    }));
-
+  it('returns delete handlers and pending state', () => {
     const { result } = renderHook(() => useImageDelete());
 
-    await result.current.handleDelete();
-
-    expect(mockMutateAsync).not.toHaveBeenCalled();
-    expect(mockAddErrorNotification).toHaveBeenCalledWith(
-      'Unable to delete image: missing required information.',
-    );
+    expect(result.current).toMatchObject({
+      handleDelete: expect.any(Function),
+      isDeleting: expect.any(Boolean),
+    });
   });
 
-  it('should return correct loading state', () => {
-    mockUseDeleteResourceImage.mockReturnValue({
-      mutateAsync: mockMutateAsync,
-      isPending: true,
-    } as any);
+  describe('handleDelete', () => {
+    it('calls executeDelete with correct parameters', async () => {
+      const onSuccess = vi.fn();
+      mockExecuteDelete.mockResolvedValueOnce(undefined);
 
-    const { result } = renderHook(() => useImageDelete());
+      const { result } = renderHook(() => useImageDelete());
 
-    expect(result.current.isDeleting).toBe(true);
+      await act(async () => {
+        await result.current.handleDelete(onSuccess);
+      });
+
+      const callArgs = mockExecuteDelete.mock.calls[0][0];
+      expect(callArgs).toMatchObject({
+        recResourceId: 'test-resource-123',
+        file: mockImage,
+        expectedType: 'image',
+        deleteMutation: expect.objectContaining({
+          mutateAsync: mockDeleteMutation,
+        }),
+        updateGalleryFile: store.updateGalleryImage,
+        setFileToDelete: store.setFileToDelete,
+        errorMessage: 'Unable to delete image: missing required information.',
+        onSuccess,
+      });
+
+      // Verify getMutationParams function
+      expect(callArgs.getMutationParams).toBeDefined();
+      expect(
+        callArgs.getMutationParams('test-resource-123', 'test-image-123'),
+      ).toEqual({
+        recResourceId: 'test-resource-123',
+        imageId: 'test-image-123',
+      });
+
+      // Verify successMessage function
+      expect(callArgs.successMessage).toBeDefined();
+      expect(callArgs.successMessage('test-image.jpg')).toBe(
+        'Image "test-image.jpg" deleted successfully.',
+      );
+    });
+
+    it('works without onSuccess callback', async () => {
+      mockExecuteDelete.mockResolvedValueOnce(undefined);
+
+      const { result } = renderHook(() => useImageDelete());
+
+      await act(async () => {
+        await result.current.handleDelete();
+      });
+
+      expect(mockExecuteDelete).toHaveBeenCalledWith(
+        expect.objectContaining({
+          onSuccess: undefined,
+        }),
+      );
+    });
+
+    it('passes fileToDelete from store to executeDelete', async () => {
+      const imageFromStore = createMockGalleryFile<GalleryImage>('image', {
+        id: 'store-image-456',
+        name: 'store-image.jpg',
+      });
+      vi.mocked(useStore).mockReturnValue({ fileToDelete: imageFromStore });
+
+      mockExecuteDelete.mockResolvedValueOnce(undefined);
+
+      const { result } = renderHook(() => useImageDelete());
+
+      await act(async () => {
+        await result.current.handleDelete();
+      });
+
+      expect(mockExecuteDelete).toHaveBeenCalledWith(
+        expect.objectContaining({
+          file: imageFromStore,
+        }),
+      );
+    });
+  });
+
+  describe('isDeleting state', () => {
+    it('returns isPending state from mutation', () => {
+      vi.mocked(useDeleteResourceImage).mockReturnValue({
+        mutateAsync: mockDeleteMutation,
+        isPending: true,
+      } as any);
+
+      const { result } = renderHook(() => useImageDelete());
+
+      expect(result.current.isDeleting).toBe(true);
+    });
+
+    it('returns false when mutation is not pending', () => {
+      vi.mocked(useDeleteResourceImage).mockReturnValue({
+        mutateAsync: mockDeleteMutation,
+        isPending: false,
+      } as any);
+
+      const { result } = renderHook(() => useImageDelete());
+
+      expect(result.current.isDeleting).toBe(false);
+    });
   });
 });

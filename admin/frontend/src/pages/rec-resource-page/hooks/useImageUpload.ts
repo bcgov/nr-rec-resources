@@ -1,10 +1,6 @@
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { useUploadResourceImage } from '@/services/hooks/recreation-resource-admin/useUploadResourceImage';
-import { handleApiError } from '@/services/utils/errorHandler';
-import {
-  addErrorNotification,
-  addSuccessNotification,
-} from '@/store/notificationStore';
+import { processImageToVariants } from '@/utils/imageProcessing';
 import { useCallback } from 'react';
 import {
   addPendingImage,
@@ -12,102 +8,106 @@ import {
   updatePendingImage,
 } from '../store/recResourceFileTransferStore';
 import { GalleryFile, GalleryImage } from '../types';
+import { validateUploadFile } from './utils/validateUpload';
+import { useFileUpload } from './utils/useFileUpload';
 
-/**
- * Hook to manage image upload operations.
- * Handles both new uploads and retry operations for failed uploads.
- */
 export function useImageUpload() {
   const { recResource } = useRecResource();
   const uploadResourceImageMutation = useUploadResourceImage();
+  const { executeUpload } = useFileUpload<GalleryImage>();
 
-  // Shared upload logic for both new and retry uploads
-  const doUpload = useCallback(
-    async ({
-      rec_resource_id,
-      file,
-      caption,
-      tempId,
-      onSuccess,
-    }: {
-      rec_resource_id: string;
-      file: File;
-      caption: string;
-      tempId: string;
-      onSuccess?: () => void;
-    }) => {
-      try {
-        await uploadResourceImageMutation.mutateAsync({
-          recResourceId: rec_resource_id,
-          file,
-          caption,
-        });
-        addSuccessNotification(`Image "${caption}" uploaded successfully.`);
-        removePendingImage(tempId);
-        onSuccess?.();
-      } catch (error: unknown) {
-        const errorInfo = await handleApiError(error);
-        addErrorNotification(
-          `${errorInfo.statusCode} - Failed to upload image "${caption}": ${errorInfo.message}. Please try again.`,
-        );
-        updatePendingImage(tempId, {
-          isUploading: false,
-          uploadFailed: true,
-        });
-      }
+  const updateProgress = useCallback(
+    (tempId: string, updates: Partial<GalleryImage>) => {
+      updatePendingImage(tempId, updates);
     },
-    [uploadResourceImageMutation],
+    [],
   );
 
-  // Handle upload (with pending image)
+  const processFile = useCallback(
+    async (
+      file: File,
+      onProgress?: (progress: number, stage: string) => void,
+    ) => {
+      const variants = await processImageToVariants({
+        file,
+        onProgress,
+      });
+      return { variants };
+    },
+    [],
+  );
+
   const handleUpload = useCallback(
     async (galleryFile: GalleryFile, onSuccess?: () => void) => {
-      if (
-        !recResource?.rec_resource_id ||
-        !galleryFile.pendingFile ||
-        !galleryFile.name
-      ) {
+      const recResourceId = recResource?.rec_resource_id;
+      if (!validateUploadFile(recResourceId, galleryFile)) {
         return;
       }
-      const tempImage: GalleryImage = {
+
+      addPendingImage({
         ...galleryFile,
         variants: [],
         previewUrl: '',
         type: 'image',
         isUploading: true,
-      };
-      addPendingImage(tempImage);
+      } as GalleryImage);
 
-      await doUpload({
-        rec_resource_id: recResource.rec_resource_id,
-        file: galleryFile.pendingFile,
-        caption: galleryFile.name,
+      await executeUpload({
+        recResourceId: recResourceId!,
+        galleryFile: galleryFile as GalleryImage,
         tempId: galleryFile.id,
+        uploadMutation: uploadResourceImageMutation,
+        processFile,
+        updatePendingFile: updateProgress,
+        removePendingFile: removePendingImage,
+        successMessage: (fileName) =>
+          `Image "${fileName}" uploaded successfully.`,
+        fileType: 'image',
         onSuccess,
       });
     },
-    [doUpload, recResource],
+    [
+      executeUpload,
+      recResource,
+      uploadResourceImageMutation,
+      processFile,
+      updateProgress,
+    ],
   );
 
-  // Handle upload retry (for failed uploads)
   const handleUploadRetry = useCallback(
     async (pendingImage: GalleryFile, onSuccess?: () => void) => {
-      if (!recResource?.rec_resource_id || !pendingImage.pendingFile) {
+      const recResourceId = recResource?.rec_resource_id;
+      if (!validateUploadFile(recResourceId, pendingImage, ['pendingFile'])) {
         return;
       }
-      updatePendingImage(pendingImage.id, {
+
+      updateProgress(pendingImage.id, {
         isUploading: true,
         uploadFailed: false,
       });
-      await doUpload({
-        rec_resource_id: recResource.rec_resource_id,
-        file: pendingImage.pendingFile,
-        caption: pendingImage.name,
+
+      await executeUpload({
+        recResourceId: recResourceId!,
+        galleryFile: pendingImage as GalleryImage,
         tempId: pendingImage.id,
+        uploadMutation: uploadResourceImageMutation,
+        processFile,
+        updatePendingFile: updateProgress,
+        removePendingFile: removePendingImage,
+        successMessage: (fileName) =>
+          `Image "${fileName}" uploaded successfully.`,
+        fileType: 'image',
         onSuccess,
       });
     },
-    [doUpload, recResource],
+    [
+      executeUpload,
+      recResource,
+      uploadResourceImageMutation,
+      processFile,
+      updateProgress,
+    ],
   );
 
   return {

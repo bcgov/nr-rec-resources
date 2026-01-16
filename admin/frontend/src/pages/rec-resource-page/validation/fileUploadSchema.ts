@@ -1,9 +1,10 @@
 import { z } from 'zod';
+import { FileType } from '../types';
 
 /**
- * Schema for validating file upload names
+ * Base schema for validating file upload names
  */
-export const fileUploadSchema = z.object({
+const baseFileUploadSchema = z.object({
   fileName: z
     .string()
     .min(1, 'File name is required')
@@ -14,20 +15,30 @@ export const fileUploadSchema = z.object({
     ),
 });
 
+/**
+ * Schema for validating file upload names and files
+ */
+export const fileUploadSchema = baseFileUploadSchema.extend({
+  file: z.custom<File>(),
+});
+
 export type FileUploadSchema = z.infer<typeof fileUploadSchema>;
 
 /**
- * Custom validation function that checks for duplicate names
+ * Custom validation function that checks for duplicate names and validates file
  * Optimized version using Set for O(1) lookup instead of O(n) array search
  */
-export const createFileUploadValidator = (existingFileNames: string[]) => {
+export const createFileUploadValidator = (
+  existingFileNames: string[],
+  _fileType: FileType,
+) => {
   // Create a Set of normalized names for faster duplicate checking
   const normalizedExistingNames = new Set(
     existingFileNames.map((name) => name.toLowerCase().trim()),
   );
 
-  return fileUploadSchema.extend({
-    fileName: fileUploadSchema.shape.fileName.refine((name) => {
+  return baseFileUploadSchema.extend({
+    fileName: baseFileUploadSchema.shape.fileName.refine((name) => {
       const normalizedName = name.toLowerCase();
       return !normalizedExistingNames.has(normalizedName);
     }, 'A file with this name already exists. Please choose a different name'),

@@ -134,17 +134,18 @@ resource "aws_iam_role_policy" "s3_storage_buckets" {
         Action = var.app == "admin" ? [
           "s3:GetObject",
           "s3:PutObject",
+          "s3:PutObjectTagging",
           "s3:DeleteObject",
           "s3:ListBucket"
-        ] : [
+          ] : [
           "s3:GetObject",
           "s3:ListBucket"
         ]
         Resource = [
           "arn:aws:s3:::rst-storage-images-${var.target_env}",
           "arn:aws:s3:::rst-storage-images-${var.target_env}/*",
-          "arn:aws:s3:::rst-storage-documents-${var.target_env}",
-          "arn:aws:s3:::rst-storage-documents-${var.target_env}/*"
+          "arn:aws:s3:::rst-storage-public-documents-${var.target_env}",
+          "arn:aws:s3:::rst-storage-public-documents-${var.target_env}/*"
         ]
       }
     ]

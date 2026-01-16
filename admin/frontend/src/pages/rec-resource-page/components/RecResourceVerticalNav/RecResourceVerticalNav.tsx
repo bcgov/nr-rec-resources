@@ -52,8 +52,7 @@ export const RecResourceVerticalNav = ({
               <FeatureFlagGuard
                 key={key}
                 requiredFlags={
-                  key === RecResourceNavKey.FILES ||
-                  key === RecResourceNavKey.OVERVIEW
+                  key === RecResourceNavKey.FILES
                     ? []
                     : ['enable_full_features']
                 }
@@ -78,10 +77,7 @@ export const RecResourceVerticalNav = ({
           <FeatureFlagGuard
             key={key}
             requiredFlags={
-              key === RecResourceNavKey.FILES ||
-              key === RecResourceNavKey.OVERVIEW
-                ? []
-                : ['enable_full_features']
+              key === RecResourceNavKey.FILES ? [] : ['enable_full_features']
             }
           >
             <Nav.Item key={key}>

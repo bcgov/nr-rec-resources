@@ -20,17 +20,17 @@ import { mapValues } from '../runtime';
  */
 export interface RecreationResourceDocDto {
   /**
-   * Reference ID for the image
+   * Document ID
    * @type {string}
    * @memberof RecreationResourceDocDto
    */
-  ref_id: string;
+  document_id: string;
   /**
-   * Doc title
+   * File name
    * @type {string}
    * @memberof RecreationResourceDocDto
    */
-  title: string;
+  file_name: string;
   /**
    * rec_resource_id
    * @type {string}
@@ -48,7 +48,7 @@ export interface RecreationResourceDocDto {
    * @type {string}
    * @memberof RecreationResourceDocDto
    */
-  doc_code: RecreationResourceDocDtoDocCodeEnum;
+  doc_code?: RecreationResourceDocDtoDocCodeEnum;
   /**
    * Description of the document code
    * @type {string}
@@ -84,12 +84,12 @@ export type RecreationResourceDocDtoDocCodeEnum =
 export function instanceOfRecreationResourceDocDto(
   value: object,
 ): value is RecreationResourceDocDto {
-  if (!('ref_id' in value) || value['ref_id'] === undefined) return false;
-  if (!('title' in value) || value['title'] === undefined) return false;
+  if (!('document_id' in value) || value['document_id'] === undefined)
+    return false;
+  if (!('file_name' in value) || value['file_name'] === undefined) return false;
   if (!('rec_resource_id' in value) || value['rec_resource_id'] === undefined)
     return false;
   if (!('url' in value) || value['url'] === undefined) return false;
-  if (!('doc_code' in value) || value['doc_code'] === undefined) return false;
   if (
     !('doc_code_description' in value) ||
     value['doc_code_description'] === undefined
@@ -115,11 +115,11 @@ export function RecreationResourceDocDtoFromJSONTyped(
     return json;
   }
   return {
-    ref_id: json['ref_id'],
-    title: json['title'],
+    document_id: json['document_id'],
+    file_name: json['file_name'],
     rec_resource_id: json['rec_resource_id'],
     url: json['url'],
-    doc_code: json['doc_code'],
+    doc_code: json['doc_code'] == null ? undefined : json['doc_code'],
     doc_code_description: json['doc_code_description'],
     extension: json['extension'],
     created_at: json['created_at'],
@@ -141,8 +141,8 @@ export function RecreationResourceDocDtoToJSONTyped(
   }
 
   return {
-    ref_id: value['ref_id'],
-    title: value['title'],
+    document_id: value['document_id'],
+    file_name: value['file_name'],
     rec_resource_id: value['rec_resource_id'],
     url: value['url'],
     doc_code: value['doc_code'],

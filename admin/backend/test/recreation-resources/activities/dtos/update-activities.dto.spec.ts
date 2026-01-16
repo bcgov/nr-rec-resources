@@ -99,8 +99,7 @@ describe('UpdateActivitiesDto', () => {
 
       const errors = await validate(dto);
 
-      // Note: isNumber validator allows negative numbers
-      // Business logic should handle validation of valid activity codes
+      // Note: isNumber validator allows negative numbers; business logic handles validation
       expect(errors).toHaveLength(0);
     });
 
@@ -110,8 +109,7 @@ describe('UpdateActivitiesDto', () => {
 
       const errors = await validate(dto);
 
-      // Note: isNumber validator allows decimals
-      // Business logic should handle validation of valid activity codes
+      // Note: isNumber validator allows decimals; business logic handles validation
       expect(errors).toHaveLength(0);
     });
   });

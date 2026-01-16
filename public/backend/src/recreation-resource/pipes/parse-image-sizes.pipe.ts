@@ -1,5 +1,5 @@
 import { Injectable, PipeTransform } from '@nestjs/common';
-import { RecreationResourceImageSize } from '../dto/recreation-resource-image.dto';
+import { RecreationResourceImageSize } from '@shared/constants/images';
 import { VALID_IMAGE_SIZES_CODES } from '../constants/image.constants';
 
 /**

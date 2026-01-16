@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'src/prisma.service';
+import { AppConfigService } from 'src/app-config/app-config.service';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 import { RecreationResourceService } from './recreation-resource.service';
 import { RecreationResourceSearchService } from './recreation-resource-search.service';
@@ -32,6 +33,12 @@ describe('RecreationResourceService', () => {
             recreation_resource: { findUnique: vi.fn(), findMany: vi.fn() },
             recreation_agreement_holder: { findUnique: vi.fn() },
             $queryRawTyped: vi.fn(),
+          },
+        },
+        {
+          provide: AppConfigService,
+          useValue: {
+            rstStorageCloudfrontUrl: '',
           },
         },
         {
@@ -328,7 +335,7 @@ describe('RecreationResourceService', () => {
             { recreation_structure_code: { description: 'Sign - 3 Blade' } },
             { recreation_structure_code: { description: 'Registration Box' } },
           ],
-          recreation_resource_docs: [],
+          recreation_resource_document: [],
           recreation_district_code: {
             district_code: 'RDBO',
             description: 'Boundary-South Okanagan',

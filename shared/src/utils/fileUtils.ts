@@ -79,3 +79,28 @@ export function buildFileNameWithExtension(
   }
   return `${title}.${extension}`;
 }
+
+/**
+ * Validates if a file's MIME type matches any of the allowed MIME types.
+ * Supports wildcard matching (e.g., "image/*" matches "image/jpeg", "image/png", etc.).
+ *
+ * @param file - The file to validate.
+ * @param allowedMimeTypes - Comma-separated string of allowed MIME types (e.g., "image/png,image/jpeg,image/*").
+ * @returns True if the file's MIME type matches one of the allowed types, false otherwise.
+ */
+export function validateFileMimeType(
+  file: File,
+  allowedMimeTypes: string,
+): boolean {
+  const allowedTypes = allowedMimeTypes.split(',');
+  return allowedTypes.some((type) => {
+    const normalizedType = type.trim().toLowerCase();
+    const normalizedFileType = file.type.toLowerCase();
+    // Handle wildcard matching (e.g., "image/*")
+    if (normalizedType.endsWith('/*')) {
+      const prefix = normalizedType.slice(0, -2);
+      return normalizedFileType.startsWith(prefix);
+    }
+    return normalizedFileType === normalizedType;
+  });
+}

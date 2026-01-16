@@ -8,6 +8,13 @@
   display: none;
   margin-top: 1.5rem;
 
+  .search-link-item {
+    &:focus {
+      color: $colorBlueMed;
+      text-decoration: none;
+    }
+  }
+
   @include media-breakpoint-up(lg) {
     display: flex;
   }

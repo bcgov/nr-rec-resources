@@ -10,7 +10,7 @@ export const Route = createFileRoute('/rec-resource/$id')({
   component: RecResourceRoute,
   loader: recResourceLoader,
   beforeLoad: ({ params }) => ({
-    tab: RecResourceNavKey.OVERVIEW,
+    tab: RecResourceNavKey.FILES,
     breadcrumb: (loaderData?: any): BreadcrumbItem[] => {
       const resourceName = capitalizeWords(loaderData?.recResource?.name);
       return [

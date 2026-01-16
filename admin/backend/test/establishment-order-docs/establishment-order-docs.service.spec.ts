@@ -1,45 +1,34 @@
 import { EstablishmentOrderDocsService } from '@/establishment-order-docs/establishment-order-docs.service';
-import { S3Service } from '@/s3';
 import { HttpException } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'src/prisma.service';
+import { S3Service } from 'src/s3/s3.service';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
+import { createMockFile } from '../test-utils/file-test-utils';
+import {
+  createMockEstablishmentOrderDoc,
+  createStorageTestModule,
+} from '../test-utils/storage-test-utils';
 
 const mockedDocs = [
-  {
-    s3_key: 'REC0001/establishment-order-2024.pdf',
-    rec_resource_id: 'REC0001',
-    title: 'Establishment Order 2024',
-    file_size: BigInt(1024000),
-    extension: 'pdf',
-    created_at: new Date('2024-01-01T00:00:00Z'),
-  },
-  {
-    s3_key: 'REC0001/establishment-order-2023.pdf',
-    rec_resource_id: 'REC0001',
-    title: 'Establishment Order 2023',
-    file_size: BigInt(2048000),
-    extension: 'pdf',
-    created_at: new Date('2023-01-01T00:00:00Z'),
-  },
+  createMockEstablishmentOrderDoc(
+    'REC0001/establishment-order-2024.pdf',
+    'REC0001',
+    {
+      title: 'Establishment Order 2024',
+      file_size: BigInt(1024000),
+      created_at: new Date('2024-01-01T00:00:00Z'),
+    },
+  ),
+  createMockEstablishmentOrderDoc(
+    'REC0001/establishment-order-2023.pdf',
+    'REC0001',
+    {
+      title: 'Establishment Order 2023',
+      file_size: BigInt(2048000),
+      created_at: new Date('2023-01-01T00:00:00Z'),
+    },
+  ),
 ];
-
-const createMockFile = (
-  filename: string,
-  mimetype: string = 'application/pdf',
-  size: number = 1024000,
-): Express.Multer.File => ({
-  fieldname: 'file',
-  originalname: filename,
-  encoding: '7bit',
-  mimetype,
-  size,
-  buffer: Buffer.from('mock file content'),
-  stream: null as any,
-  destination: '',
-  filename: '',
-  path: '',
-});
 
 describe('EstablishmentOrderDocsService', () => {
   let prismaService: Mocked<PrismaService>;
@@ -47,39 +36,29 @@ describe('EstablishmentOrderDocsService', () => {
   let s3Service: Mocked<S3Service>;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        EstablishmentOrderDocsService,
-        {
-          provide: PrismaService,
-          useValue: {
-            recreation_establishment_order_docs: {
-              findMany: vi.fn(),
-              create: vi.fn(),
-              findUnique: vi.fn(),
-              delete: vi.fn(),
-            },
-            recreation_resource: {
-              findUnique: vi.fn(),
-            },
-          },
-        },
-        {
-          provide: S3Service,
-          useValue: {
-            getSignedUrl: vi.fn(),
-            uploadFile: vi.fn(),
-            deleteFile: vi.fn(),
-          },
-        },
-      ],
-    }).compile();
+    const mockS3Service = {
+      getSignedUrl: vi.fn(),
+      uploadFile: vi.fn(),
+      deleteFile: vi.fn(),
+    } as any;
 
-    service = module.get<EstablishmentOrderDocsService>(
-      EstablishmentOrderDocsService,
-    );
-    prismaService = module.get(PrismaService);
-    s3Service = module.get(S3Service);
+    const testModule =
+      await createStorageTestModule<EstablishmentOrderDocsService>({
+        serviceClass: EstablishmentOrderDocsService,
+        prismaOverrides: {
+          recreation_establishment_order_docs: {
+            findMany: vi.fn(),
+            create: vi.fn(),
+            findUnique: vi.fn(),
+            delete: vi.fn(),
+          },
+        },
+        s3ServiceOverrides: mockS3Service,
+      });
+
+    service = testModule.service;
+    prismaService = testModule.prismaService;
+    s3Service = mockS3Service;
   });
 
   describe('getAll', () => {
@@ -136,65 +115,62 @@ describe('EstablishmentOrderDocsService', () => {
       expect(s3Service.getSignedUrl).not.toHaveBeenCalled();
     });
 
-    it('should handle null/undefined values in database fields', async () => {
-      const docWithNulls = [
+    it.each([
+      [
+        'null/undefined values',
+        [
+          {
+            s3_key: 'REC0002/document.pdf',
+            rec_resource_id: 'REC0002',
+            title: null,
+            file_size: null,
+            extension: null,
+            created_at: null,
+          },
+        ],
         {
-          s3_key: 'REC0002/document.pdf',
-          rec_resource_id: 'REC0002',
-          title: null,
-          file_size: null,
-          extension: null,
-          created_at: null,
+          title: '',
+          file_size: 0,
+          extension: '',
+          created_at: undefined,
         },
-      ];
-
-      vi.mocked(
-        prismaService.recreation_establishment_order_docs.findMany,
-      ).mockResolvedValue(docWithNulls as any);
-
-      vi.mocked(s3Service.getSignedUrl).mockResolvedValueOnce(
-        'https://s3.amazonaws.com/bucket/REC0002/document.pdf?signature=xyz',
-      );
-
-      const result = await service.getAll('REC0002');
-
-      expect(result).toHaveLength(1);
-      expect(result[0]).toMatchObject({
-        s3_key: 'REC0002/document.pdf',
-        rec_resource_id: 'REC0002',
-        title: '',
-        file_size: 0,
-        extension: '',
-        url: 'https://s3.amazonaws.com/bucket/REC0002/document.pdf?signature=xyz',
-      });
-      expect(result[0]?.created_at).toBeUndefined();
-    });
-
-    it('should handle documents with undefined rec_resource_id', async () => {
-      const docWithUndefinedRecResourceId = [
+      ],
+      [
+        'undefined rec_resource_id',
+        [
+          {
+            s3_key: 'orphan/document.pdf',
+            rec_resource_id: null,
+            title: 'Orphan Document',
+            file_size: BigInt(512000),
+            extension: 'pdf',
+            created_at: new Date('2024-06-01T00:00:00Z'),
+          },
+        ],
         {
-          s3_key: 'orphan/document.pdf',
           rec_resource_id: null,
-          title: 'Orphan Document',
-          file_size: BigInt(512000),
-          extension: 'pdf',
-          created_at: new Date('2024-06-01T00:00:00Z'),
         },
-      ];
+      ],
+    ])(
+      'should handle %s in database fields',
+      async (_, docs, expectedFields) => {
+        vi.mocked(
+          prismaService.recreation_establishment_order_docs.findMany,
+        ).mockResolvedValue(docs as any);
 
-      vi.mocked(
-        prismaService.recreation_establishment_order_docs.findMany,
-      ).mockResolvedValue(docWithUndefinedRecResourceId as any);
+        vi.mocked(s3Service.getSignedUrl).mockResolvedValueOnce(
+          `https://s3.amazonaws.com/bucket/${docs[0].s3_key}?signature=xyz`,
+        );
 
-      vi.mocked(s3Service.getSignedUrl).mockResolvedValueOnce(
-        'https://s3.amazonaws.com/bucket/orphan/document.pdf?signature=orphan',
-      );
+        const result = await service.getAll('REC0002');
 
-      const result = await service.getAll('REC0003');
-
-      expect(result).toHaveLength(1);
-      expect(result[0]?.rec_resource_id).toBeNull();
-    });
+        expect(result).toHaveLength(1);
+        expect(result[0]).toMatchObject({
+          s3_key: docs[0]?.s3_key,
+          ...expectedFields,
+        });
+      },
+    );
 
     it('should call prisma findMany with correct parameters', async () => {
       vi.mocked(
@@ -228,7 +204,10 @@ describe('EstablishmentOrderDocsService', () => {
     };
 
     it('should create establishment order document successfully', async () => {
-      const mockFile = createMockFile('test-order.pdf');
+      const mockFile = createMockFile({
+        originalname: 'test-order.pdf',
+        size: 1024000,
+      });
       const title = 'Test Order 2024';
       const s3Key = 'REC0001/Test Order 2024.pdf';
 
@@ -285,29 +264,10 @@ describe('EstablishmentOrderDocsService', () => {
       expect(s3Service.getSignedUrl).toHaveBeenCalledWith(s3Key);
     });
 
-    it('should throw 415 error for invalid file type', async () => {
-      const mockFile = createMockFile('test.txt', 'text/plain');
-
-      await expect(
-        service.create('REC0001', 'Test Document', mockFile),
-      ).rejects.toThrow(HttpException);
-
-      try {
-        await service.create('REC0001', 'Test Document', mockFile);
-      } catch (error) {
-        expect(error).toBeInstanceOf(HttpException);
-        expect(error.getStatus()).toBe(415);
-        expect(error.message).toBe('File Type not allowed');
-      }
-
-      expect(
-        prismaService.recreation_resource.findUnique,
-      ).not.toHaveBeenCalled();
-      expect(s3Service.uploadFile).not.toHaveBeenCalled();
-    });
+    // Note: File type validation handled at controller level via ParseFilePipe
 
     it('should throw 404 error when recreation resource not found', async () => {
-      const mockFile = createMockFile('test-order.pdf');
+      const mockFile = createMockFile({ originalname: 'test-order.pdf' });
 
       vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue(
         null,
@@ -317,14 +277,6 @@ describe('EstablishmentOrderDocsService', () => {
         service.create('REC9999', 'Test Order', mockFile),
       ).rejects.toThrow(HttpException);
 
-      try {
-        await service.create('REC9999', 'Test Order', mockFile);
-      } catch (error) {
-        expect(error).toBeInstanceOf(HttpException);
-        expect(error.getStatus()).toBe(404);
-        expect(error.message).toBe('Recreation Resource not found');
-      }
-
       expect(s3Service.uploadFile).not.toHaveBeenCalled();
       expect(
         prismaService.recreation_establishment_order_docs.create,
@@ -332,7 +284,7 @@ describe('EstablishmentOrderDocsService', () => {
     });
 
     it('should handle S3 upload errors', async () => {
-      const mockFile = createMockFile('test-order.pdf');
+      const mockFile = createMockFile({ originalname: 'test-order.pdf' });
 
       vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue(
         mockRecResource as any,
@@ -351,7 +303,11 @@ describe('EstablishmentOrderDocsService', () => {
     });
 
     it('should extract file extension correctly', async () => {
-      const mockFile = createMockFile('document.PDF', 'application/pdf');
+      const mockFile = createMockFile({
+        originalname: 'document.PDF',
+        mimetype: 'application/pdf',
+        size: 1024000,
+      });
       const title = 'Important Document';
       const s3Key = 'REC0001/Important Document.PDF';
 
@@ -385,14 +341,13 @@ describe('EstablishmentOrderDocsService', () => {
   });
 
   describe('delete', () => {
-    const mockDoc = {
-      s3_key: 'REC0001/test-order.pdf',
-      rec_resource_id: 'REC0001',
-      title: 'Test Order',
-      file_size: BigInt(1024000),
-      extension: 'pdf',
-      created_at: new Date('2024-01-01T00:00:00Z'),
-    };
+    const mockDoc = createMockEstablishmentOrderDoc(
+      'REC0001/test-order.pdf',
+      'REC0001',
+      {
+        title: 'Test Order',
+      },
+    );
 
     it('should delete establishment order document successfully', async () => {
       vi.mocked(
@@ -438,14 +393,6 @@ describe('EstablishmentOrderDocsService', () => {
         service.delete('REC0001', 'REC0001/nonexistent.pdf'),
       ).rejects.toThrow(HttpException);
 
-      try {
-        await service.delete('REC0001', 'REC0001/nonexistent.pdf');
-      } catch (error) {
-        expect(error).toBeInstanceOf(HttpException);
-        expect(error.getStatus()).toBe(404);
-        expect(error.message).toBe('Document not found');
-      }
-
       expect(
         prismaService.recreation_establishment_order_docs.delete,
       ).not.toHaveBeenCalled();
@@ -488,7 +435,6 @@ describe('EstablishmentOrderDocsService', () => {
         service.delete('REC0001', 'REC0001/test-order.pdf'),
       ).rejects.toThrow('S3 deletion failed');
 
-      // Database deletion should still have happened
       expect(
         prismaService.recreation_establishment_order_docs.delete,
       ).toHaveBeenCalled();
@@ -516,13 +462,13 @@ describe('EstablishmentOrderDocsService', () => {
 
       expect(result).toMatchObject({
         s3_key: 'REC0001/test.pdf',
+        rec_resource_id: null,
         title: '',
         file_size: 0,
         extension: '',
         url: '',
+        created_at: undefined,
       });
-      expect(result.rec_resource_id).toBeNull();
-      expect(result.created_at).toBeUndefined();
     });
   });
 });

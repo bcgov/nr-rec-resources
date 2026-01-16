@@ -1,0 +1,15 @@
+@import '@/styles/variables';
+
+.image-upload-form {
+  margin-top: 1rem;
+
+  &__radio-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-check-input {
+    margin-top: 0.3rem;
+  }
+}

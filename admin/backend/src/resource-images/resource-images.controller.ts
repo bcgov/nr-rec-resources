@@ -5,6 +5,7 @@ import {
   RecreationResourceAuthRole,
   ROLE_MODE,
 } from '@/auth';
+import { createFileFieldsValidationPipe } from '@/common/pipes/file-fields-validation.pipe';
 import {
   Body,
   Controller,
@@ -12,13 +13,12 @@ import {
   Get,
   Param,
   Post,
-  Put,
-  UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiBody,
@@ -30,8 +30,7 @@ import {
   getSchemaPath,
 } from '@nestjs/swagger';
 import {
-  CreateRecreationResourceImageBodyDto,
-  CreateRecreationResourceImageFormDto,
+  CreateRecreationResourceImageVariantsDto,
   RecreationResourceImageDto,
 } from './dto/recreation-resource-image.dto';
 import { ResourceImagesService } from './service/resource-images.service';
@@ -70,9 +69,9 @@ export class ResourceImagesController {
     return this.resourceImagesService.getAll(rec_resource_id);
   }
 
-  @Get(':rec_resource_id/images/:ref_id')
+  @Get(':rec_resource_id/images/:image_id')
   @ApiOperation({
-    summary: 'Get one image resource by reference ID',
+    summary: 'Get one image resource by image ID',
     operationId: 'getImageResourceById',
   })
   @ApiParam({
@@ -83,11 +82,11 @@ export class ResourceImagesController {
     example: 'REC204118',
   })
   @ApiParam({
-    name: 'ref_id',
+    name: 'image_id',
     required: true,
-    description: 'Image Resource identifier',
+    description: 'Image identifier (UUID)',
     type: 'string',
-    example: '11719',
+    example: 'a7c1e5f3-8d2b-4c9a-b1e6-f3d8c7a2e5b9',
   })
   @ApiResponse({
     status: 200,
@@ -100,20 +99,29 @@ export class ResourceImagesController {
   })
   async getImageByResourceId(
     @Param('rec_resource_id') rec_resource_id: string,
-    @Param('ref_id') ref_id: string,
+    @Param('image_id') image_id: string,
   ): Promise<RecreationResourceImageDto | null> {
     return this.resourceImagesService.getImageByResourceId(
       rec_resource_id,
-      ref_id,
+      image_id,
     );
   }
 
   @Post(':rec_resource_id/images')
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'original', maxCount: 1 },
+      { name: 'scr', maxCount: 1 },
+      { name: 'pre', maxCount: 1 },
+      { name: 'thm', maxCount: 1 },
+    ]),
+  )
   @ApiConsumes('multipart/form-data')
   @ApiOperation({
-    summary: 'Create a new Image Resource with an uploaded file',
+    summary: 'Create a new Image Resource with 4 pre-processed WebP variants',
     operationId: 'createRecreationresourceImage',
+    description:
+      'Accepts 4 WebP image variants (original, scr, pre, thm) that have been processed client-side.',
   })
   @ApiParam({
     name: 'rec_resource_id',
@@ -124,8 +132,18 @@ export class ResourceImagesController {
   })
   @ApiBody({
     required: true,
-    description: 'Image Resource properties',
-    type: CreateRecreationResourceImageFormDto,
+    description: 'Image variants',
+    schema: {
+      type: 'object',
+      properties: {
+        file_name: { type: 'string', example: 'beautiful-mountain-view.webp' },
+        original: { type: 'string', format: 'binary' },
+        scr: { type: 'string', format: 'binary' },
+        pre: { type: 'string', format: 'binary' },
+        thm: { type: 'string', format: 'binary' },
+      },
+      required: ['file_name', 'original', 'scr', 'pre', 'thm'],
+    },
   })
   @ApiResponse({
     status: 200,
@@ -133,77 +151,66 @@ export class ResourceImagesController {
     type: RecreationResourceImageDto,
   })
   @ApiResponse({
-    status: 404,
-    description: 'Recreation Resource Image not found',
+    status: 400,
+    description: 'Missing required variants or metadata',
   })
-  @ApiResponse({ status: 500, description: 'Error creating image' })
-  @ApiResponse({ status: 415, description: 'File Type not allowed' })
-  @ApiResponse({ status: 416, description: 'Error creating resource' })
-  @ApiResponse({ status: 417, description: 'Error getting resource images' })
   @ApiResponse({
-    status: 418,
-    description: 'Error adding resource to collection',
+    status: 404,
+    description: 'Recreation Resource not found',
   })
-  @ApiResponse({ status: 419, description: 'Error uploading file' })
+  @ApiResponse({ status: 415, description: 'Only WebP images are allowed' })
+  @ApiResponse({ status: 500, description: 'Error creating image' })
   async createRecreationResourceImage(
     @Param('rec_resource_id') rec_resource_id: string,
-    @Body() body: CreateRecreationResourceImageBodyDto,
-    @UploadedFile() file: Express.Multer.File,
+    @Body() body: CreateRecreationResourceImageVariantsDto,
+    @UploadedFiles(
+      createFileFieldsValidationPipe({
+        fields: [
+          {
+            fieldName: 'original',
+            allowedTypes: ['image/webp'],
+            maxSize: 2 * 1024 * 1024,
+          },
+          {
+            fieldName: 'scr',
+            allowedTypes: ['image/webp'],
+            maxSize: 2 * 1024 * 1024,
+          },
+          {
+            fieldName: 'pre',
+            allowedTypes: ['image/webp'],
+            maxSize: 2 * 1024 * 1024,
+          },
+          {
+            fieldName: 'thm',
+            allowedTypes: ['image/webp'],
+            maxSize: 2 * 1024 * 1024,
+          },
+        ],
+      }),
+    )
+    files: {
+      original: Express.Multer.File[];
+      scr: Express.Multer.File[];
+      pre: Express.Multer.File[];
+      thm: Express.Multer.File[];
+    },
   ): Promise<RecreationResourceImageDto | null> {
+    const variantFiles = {
+      original: files.original[0]!,
+      scr: files.scr[0]!,
+      pre: files.pre[0]!,
+      thm: files.thm[0]!,
+    };
+
     return this.resourceImagesService.create(
       rec_resource_id,
-      body.caption,
-      file,
+      body.file_name,
+      variantFiles,
     );
   }
 
-  @Put(':rec_resource_id/images/:ref_id')
-  @UseInterceptors(FileInterceptor('file'))
-  @ApiOperation({
-    summary: 'Update an Image Resource',
-    operationId: 'updateImageResource',
-  })
-  @ApiParam({
-    name: 'rec_resource_id',
-    required: true,
-    description: 'Resource identifier',
-    type: 'string',
-    example: 'REC204118',
-  })
-  @ApiParam({
-    name: 'ref_id',
-    required: true,
-    description: 'Image Resource identifier',
-    type: 'string',
-    example: '11719',
-  })
-  @ApiResponse({ status: 500, description: 'Error updating Image' })
-  @ApiResponse({ status: 415, description: 'File Type not allowed' })
-  @ApiResponse({ status: 419, description: 'Error uploading file' })
-  @ApiResponse({
-    status: 404,
-    description: 'Recreation Resource Image not found',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Image Updated',
-    type: RecreationResourceImageDto,
-  })
-  async update(
-    @Param('rec_resource_id') rec_resource_id: string,
-    @Param('ref_id') ref_id: string,
-    @Body() body: CreateRecreationResourceImageBodyDto,
-    @UploadedFile() file: Express.Multer.File,
-  ): Promise<RecreationResourceImageDto | null> {
-    return this.resourceImagesService.update(
-      rec_resource_id,
-      ref_id,
-      body.caption,
-      file,
-    );
-  }
-
-  @Delete(':rec_resource_id/images/:ref_id')
+  @Delete(':rec_resource_id/images/:image_id')
   @ApiOperation({
     summary: 'Delete an image Resource',
     operationId: 'deleteImageResource',
@@ -216,11 +223,11 @@ export class ResourceImagesController {
     example: 'REC204118',
   })
   @ApiParam({
-    name: 'ref_id',
+    name: 'image_id',
     required: true,
-    description: 'Image Resource identifier',
+    description: 'Image identifier (UUID)',
     type: 'string',
-    example: '11719',
+    example: 'a7c1e5f3-8d2b-4c9a-b1e6-f3d8c7a2e5b9',
   })
   @ApiResponse({ status: 500, description: 'Error deleting image' })
   @ApiResponse({ status: 420, description: 'Error deleting resource' })
@@ -235,8 +242,8 @@ export class ResourceImagesController {
   })
   async delete(
     @Param('rec_resource_id') rec_resource_id: string,
-    @Param('ref_id') ref_id: string,
+    @Param('image_id') image_id: string,
   ): Promise<RecreationResourceImageDto | null> {
-    return this.resourceImagesService.delete(rec_resource_id, ref_id);
+    return this.resourceImagesService.delete(rec_resource_id, image_id);
   }
 }

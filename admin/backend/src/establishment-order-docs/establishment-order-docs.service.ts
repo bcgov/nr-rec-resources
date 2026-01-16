@@ -1,19 +1,20 @@
-import { HttpException, Injectable, Logger } from '@nestjs/common';
+import { AppConfigService } from '@/app-config/app-config.service';
+import { BaseStorageFileService } from '@/common/services/base-storage-file-service';
+import { extractFileMetadata } from '@/common/utils/file.utils';
 import { PrismaService } from '@/prisma.service';
-import { S3Service } from '@/s3';
+import { S3Service } from '@/s3/s3.service';
+import { HttpException, Injectable } from '@nestjs/common';
 import { EstablishmentOrderDocDto } from './dto/establishment-order-doc.dto';
-import * as path from 'path';
-
-const allowedTypes = ['application/pdf'];
 
 @Injectable()
-export class EstablishmentOrderDocsService {
-  private readonly logger = new Logger(EstablishmentOrderDocsService.name);
-
+export class EstablishmentOrderDocsService extends BaseStorageFileService {
   constructor(
-    private readonly prisma: PrismaService,
+    prisma: PrismaService,
+    appConfig: AppConfigService,
     private readonly s3Service: S3Service,
-  ) {}
+  ) {
+    super(EstablishmentOrderDocsService.name, prisma, appConfig);
+  }
 
   /**
    * Get all establishment order documents for a recreation resource
@@ -75,27 +76,17 @@ export class EstablishmentOrderDocsService {
     title: string,
     file: Express.Multer.File,
   ): Promise<EstablishmentOrderDocDto> {
-    // Validate file type
-    if (!allowedTypes.includes(file.mimetype)) {
-      throw new HttpException('File Type not allowed', 415);
-    }
+    // File validation is handled by ParseFilePipe at controller level
 
     // Verify recreation resource exists
-    const resource = await this.prisma.recreation_resource.findUnique({
-      where: {
-        rec_resource_id,
-      },
-    });
-    if (resource === null) {
-      throw new HttpException('Recreation Resource not found', 404);
-    }
+    await this.validateResourceExists(rec_resource_id);
 
     this.logger.log(
       `Creating establishment order doc for rec_resource_id: ${rec_resource_id}, title: ${title}`,
     );
 
-    // Upload file to S3
-    const extension = path.extname(file.originalname).replace('.', '');
+    // Extract file metadata using utility function
+    const { extension } = extractFileMetadata(file);
     const filename = `${title}.${extension}`;
     const s3_key = await this.s3Service.uploadFile(
       rec_resource_id,

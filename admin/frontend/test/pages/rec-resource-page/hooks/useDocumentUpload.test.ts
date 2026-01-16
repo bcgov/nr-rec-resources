@@ -1,9 +1,11 @@
 import { useDocumentUpload } from '@/pages/rec-resource-page/hooks/useDocumentUpload';
 import * as store from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
-import { GalleryFile } from '@/pages/rec-resource-page/types';
-import * as notificationStore from '@/store/notificationStore';
 import { act, renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  createMockFile,
+  createMockGalleryFile,
+} from './test-utils/upload-delete-test-utils';
 
 // Mock dependencies
 vi.mock('@tanstack/react-store', () => ({
@@ -27,65 +29,41 @@ vi.mock('@/pages/rec-resource-page/store/recResourceFileTransferStore', () => ({
   updatePendingDoc: vi.fn(),
 }));
 
-vi.mock('@/store/notificationStore', () => ({
-  addErrorNotification: vi.fn(),
-  addSuccessNotification: vi.fn(),
+vi.mock('@/pages/rec-resource-page/hooks/utils/useFileUpload', () => ({
+  useFileUpload: vi.fn(),
 }));
 
-vi.mock('@/pages/rec-resource-page/helpers', () => ({
-  handleAddFileByType: vi.fn(),
-  handleAddFileClick: vi.fn(),
+vi.mock('@/pages/rec-resource-page/hooks/utils/validateUpload', () => ({
+  validateUploadFile: vi.fn(),
 }));
 
-vi.mock('@/services/utils/errorHandler', () => ({
-  handleApiError: vi.fn(),
-}));
-
-// Import mocked modules for type safety
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
+import { useFileUpload } from '@/pages/rec-resource-page/hooks/utils/useFileUpload';
+import { validateUploadFile } from '@/pages/rec-resource-page/hooks/utils/validateUpload';
 import { useUploadResourceDocument } from '@/services/hooks/recreation-resource-admin/useUploadResourceDocument';
-import { handleApiError } from '@/services/utils/errorHandler';
 
-const mockUploadMutation = vi.fn();
-const mockRecResource = {
-  rec_resource_id: 'test-resource-123',
-  name: 'Test Resource',
-  closest_community: 'Test Community',
-  recreation_activity: [],
-  recreation_status: { status_code: 1, comment: '', description: 'Open' },
-  rec_resource_type: 'RR',
-  description: 'Test description',
-  driving_directions: 'Test directions',
-  maintenance_standard_code: 'U' as const,
-  campsite_count: 0,
-  recreation_access: [],
-  recreation_structure: { has_toilet: false, has_table: false },
-};
+const mockExecuteUpload = vi.fn();
 
 describe('useDocumentUpload', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Mock useRecResource hook
     vi.mocked(useRecResource).mockReturnValue({
+      recResource: { rec_resource_id: 'test-resource-123' },
       rec_resource_id: 'test-resource-123',
-      recResource: mockRecResource,
       isLoading: false,
       error: null,
-    });
-
-    // Mock upload mutation
-    vi.mocked(useUploadResourceDocument).mockReturnValue({
-      mutateAsync: mockUploadMutation,
     } as any);
 
-    // Mock handleApiError to return expected error format
-    vi.mocked(handleApiError).mockResolvedValue({
-      statusCode: 500,
-      message: 'Upload failed',
-      isResponseError: false,
-      isAuthError: false,
-    });
+    vi.mocked(useUploadResourceDocument).mockReturnValue({
+      mutateAsync: vi.fn(),
+    } as any);
+
+    vi.mocked(useFileUpload).mockReturnValue({
+      executeUpload: mockExecuteUpload,
+    } as any);
+
+    vi.mocked(validateUploadFile).mockReturnValue(true);
   });
 
   it('returns upload handlers', () => {
@@ -98,22 +76,17 @@ describe('useDocumentUpload', () => {
   });
 
   describe('handleUpload', () => {
-    it('uploads file successfully', async () => {
-      const file = new File(['content'], 'test.pdf', {
-        type: 'application/pdf',
-      });
-      const galleryFile = {
-        id: 'temp-id',
+    it('adds pending doc and calls executeUpload with correct parameters', async () => {
+      const file = createMockFile('test.pdf', 'application/pdf');
+      const galleryFile = createMockGalleryFile('document', {
+        id: 'temp-doc-123',
         name: 'Test Document',
-        date: '2024-01-01',
-        url: '',
         extension: 'pdf',
         pendingFile: file,
-        type: 'document' as const,
-      };
+      });
       const onSuccess = vi.fn();
 
-      mockUploadMutation.mockResolvedValueOnce({ success: true });
+      mockExecuteUpload.mockResolvedValueOnce(undefined);
 
       const { result } = renderHook(() => useDocumentUpload());
 
@@ -121,136 +94,97 @@ describe('useDocumentUpload', () => {
         await result.current.handleUpload(galleryFile, onSuccess);
       });
 
-      // Verify pending doc was added
+      await act(async () => {
+        // Wait for async operations
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      });
+
       expect(store.addPendingDoc).toHaveBeenCalledWith(
         expect.objectContaining({
           name: 'Test Document',
-          date: '2024-01-01',
           extension: 'pdf',
           isUploading: true,
           pendingFile: file,
+          type: 'document',
         }),
       );
 
-      // Verify upload was called
-      expect(mockUploadMutation).toHaveBeenCalledWith({
-        recResourceId: 'test-resource-123',
-        file,
-        title: 'Test Document',
-      });
-
-      // Verify success flow
-      expect(notificationStore.addSuccessNotification).toHaveBeenCalledWith(
-        `File "Test Document" uploaded successfully.`,
+      expect(mockExecuteUpload).toHaveBeenCalledWith(
+        expect.objectContaining({
+          recResourceId: 'test-resource-123',
+          tempId: 'temp-doc-123',
+          uploadMutation: expect.objectContaining({
+            mutateAsync: expect.any(Function),
+          }),
+          updatePendingFile: store.updatePendingDoc,
+          removePendingFile: store.removePendingDoc,
+          successMessage: expect.any(Function),
+          fileType: 'document',
+          onSuccess,
+        }),
       );
-      expect(onSuccess).toHaveBeenCalled();
-      expect(store.removePendingDoc).toHaveBeenCalled();
+
+      const executeUploadCall = mockExecuteUpload.mock.calls[0][0];
+      expect(executeUploadCall.successMessage('Test Document')).toBe(
+        'File "Test Document" uploaded successfully.',
+      );
     });
 
-    it('handles upload error', async () => {
-      const file = new File(['content'], 'test.pdf');
-      const galleryFile = {
-        id: 'temp-id',
+    it('does nothing if validation fails', async () => {
+      vi.mocked(validateUploadFile).mockReturnValueOnce(false);
+      const galleryFile = createMockGalleryFile('document', {
         name: 'Test Document',
-        date: '2024-01-01',
-        url: '',
-        extension: 'pdf',
-        pendingFile: file,
-        type: 'document' as const,
-      };
-      const onSuccess = vi.fn();
-
-      mockUploadMutation.mockRejectedValueOnce(new Error('Upload failed'));
+        pendingFile: createMockFile('test.pdf'),
+      });
 
       const { result } = renderHook(() => useDocumentUpload());
 
       await act(async () => {
-        await result.current.handleUpload(galleryFile, onSuccess);
-      });
-
-      // Verify pending doc was added initially with formatted date
-      expect(store.addPendingDoc).toHaveBeenCalledWith(
-        expect.objectContaining({
-          name: 'Test Document',
-          date: '2024-01-01',
-          extension: 'pdf',
-          isUploading: true,
-          pendingFile: file,
-        }),
-      );
-
-      // Verify error flow
-      expect(notificationStore.addErrorNotification).toHaveBeenCalledWith(
-        `500 - Failed to upload file "Test Document": Upload failed. Please try again.`,
-      );
-      expect(store.updatePendingDoc).toHaveBeenCalledWith(expect.any(String), {
-        isUploading: false,
-        uploadFailed: true,
-      });
-      expect(onSuccess).not.toHaveBeenCalled();
-    });
-
-    it('does nothing if no file provided', async () => {
-      const onSuccess = vi.fn();
-      const galleryFileWithoutFile = {
-        id: 'temp-id',
-        name: 'filename',
-        date: '2024-01-01',
-        url: '',
-        extension: 'pdf',
-        pendingFile: undefined,
-        type: 'document' as const,
-      };
-
-      const { result } = renderHook(() => useDocumentUpload());
-
-      await act(async () => {
-        await result.current.handleUpload(galleryFileWithoutFile, onSuccess);
+        await result.current.handleUpload(galleryFile);
       });
 
       expect(store.addPendingDoc).not.toHaveBeenCalled();
-      expect(mockUploadMutation).not.toHaveBeenCalled();
+      expect(mockExecuteUpload).not.toHaveBeenCalled();
     });
 
-    it('does nothing if no filename provided', async () => {
-      const file = new File(['content'], 'test.pdf');
-      const onSuccess = vi.fn();
-      const galleryFileWithoutName = {
-        id: 'temp-id',
-        name: '',
-        date: '2024-01-01',
-        url: '',
-        extension: 'pdf',
-        pendingFile: file,
-        type: 'document' as const,
-      };
+    it('does nothing when recResource is undefined', async () => {
+      vi.mocked(useRecResource).mockReturnValue({
+        recResource: null,
+        rec_resource_id: undefined,
+        isLoading: false,
+        error: null,
+      } as any);
+
+      vi.mocked(validateUploadFile).mockReturnValueOnce(false);
+
+      const galleryFile = createMockGalleryFile('document', {
+        name: 'Test Document',
+        pendingFile: createMockFile('test.pdf'),
+      });
 
       const { result } = renderHook(() => useDocumentUpload());
 
       await act(async () => {
-        await result.current.handleUpload(galleryFileWithoutName, onSuccess);
+        await result.current.handleUpload(galleryFile);
       });
 
       expect(store.addPendingDoc).not.toHaveBeenCalled();
-      expect(mockUploadMutation).not.toHaveBeenCalled();
+      expect(mockExecuteUpload).not.toHaveBeenCalled();
     });
   });
 
   describe('handleUploadRetry', () => {
-    it('retries upload successfully', async () => {
-      const pendingFile = new File(['content'], 'test.pdf');
-      const pendingDoc: GalleryFile = {
+    it('updates pending doc and calls executeUpload with correct parameters', async () => {
+      const pendingFile = createMockFile('test.pdf');
+      const pendingDoc = createMockGalleryFile('document', {
         id: 'pending-123',
         name: 'Test Document',
-        date: '2023-01-01',
-        url: '',
         extension: 'pdf',
         pendingFile,
-        type: 'document',
-      };
+      });
       const onSuccess = vi.fn();
 
-      mockUploadMutation.mockResolvedValueOnce({ success: true });
+      mockExecuteUpload.mockResolvedValueOnce(undefined);
 
       const { result } = renderHook(() => useDocumentUpload());
 
@@ -258,107 +192,42 @@ describe('useDocumentUpload', () => {
         await result.current.handleUploadRetry(pendingDoc, onSuccess);
       });
 
-      // Verify pending doc status was updated
       expect(store.updatePendingDoc).toHaveBeenCalledWith('pending-123', {
         isUploading: true,
         uploadFailed: false,
       });
 
-      // Verify upload was called
-      expect(mockUploadMutation).toHaveBeenCalledWith({
+      expect(mockExecuteUpload).toHaveBeenCalledWith({
         recResourceId: 'test-resource-123',
-        file: pendingFile,
-        title: 'Test Document',
+        galleryFile: pendingDoc,
+        tempId: 'pending-123',
+        uploadMutation: expect.objectContaining({
+          mutateAsync: expect.any(Function),
+        }),
+        updatePendingFile: store.updatePendingDoc,
+        removePendingFile: store.removePendingDoc,
+        successMessage: expect.any(Function),
+        fileType: 'document',
+        onSuccess,
       });
-
-      // Verify success flow
-      expect(notificationStore.addSuccessNotification).toHaveBeenCalled();
-      expect(onSuccess).toHaveBeenCalled();
     });
 
-    it('does nothing if no pending file', async () => {
-      const pendingDoc: GalleryFile = {
+    it('does nothing if validation fails', async () => {
+      vi.mocked(validateUploadFile).mockReturnValueOnce(false);
+      const pendingDoc = createMockGalleryFile('document', {
         id: 'pending-123',
         name: 'Test Document',
-        date: '2023-01-01',
-        url: '',
-        extension: 'pdf',
-        type: 'document',
-        // No pendingFile
-      };
-      const onSuccess = vi.fn();
+        pendingFile: undefined,
+      });
 
       const { result } = renderHook(() => useDocumentUpload());
 
       await act(async () => {
-        await result.current.handleUploadRetry(pendingDoc, onSuccess);
+        await result.current.handleUploadRetry(pendingDoc);
       });
 
       expect(store.updatePendingDoc).not.toHaveBeenCalled();
-      expect(mockUploadMutation).not.toHaveBeenCalled();
+      expect(mockExecuteUpload).not.toHaveBeenCalled();
     });
-
-    it('handles retry upload error', async () => {
-      const pendingFile = new File(['content'], 'test.pdf');
-      const pendingDoc: GalleryFile = {
-        id: 'pending-123',
-        name: 'Test Document',
-        date: '2023-01-01',
-        url: '',
-        extension: 'pdf',
-        pendingFile,
-        type: 'document',
-      };
-      const onSuccess = vi.fn();
-
-      mockUploadMutation.mockRejectedValueOnce(new Error('Upload failed'));
-
-      const { result } = renderHook(() => useDocumentUpload());
-
-      await act(async () => {
-        await result.current.handleUploadRetry(pendingDoc, onSuccess);
-      });
-
-      // Verify error flow
-      expect(notificationStore.addErrorNotification).toHaveBeenCalledWith(
-        `500 - Failed to upload file "Test Document": Upload failed. Please try again.`,
-      );
-      expect(store.updatePendingDoc).toHaveBeenCalledWith('pending-123', {
-        isUploading: false,
-        uploadFailed: true,
-      });
-    });
-  });
-
-  it('does nothing when recResource is undefined', async () => {
-    // Mock useRecResource to return undefined recResource
-    vi.mocked(useRecResource).mockReturnValue({
-      rec_resource_id: 'test-resource-123',
-      recResource: undefined,
-      isLoading: false,
-      error: null,
-    });
-
-    const file = new File(['content'], 'test.pdf');
-    const galleryFile: GalleryFile = {
-      id: 'test-123',
-      name: 'test.pdf',
-      date: '2023-01-01',
-      url: '',
-      extension: 'pdf',
-      pendingFile: file,
-      type: 'document',
-    };
-    const onSuccess = vi.fn();
-    mockUploadMutation.mockResolvedValueOnce({ success: true });
-
-    const { result } = renderHook(() => useDocumentUpload());
-
-    await act(async () => {
-      await result.current.handleUpload(galleryFile, onSuccess);
-    });
-
-    expect(mockUploadMutation).not.toHaveBeenCalled();
-    expect(store.addPendingDoc).not.toHaveBeenCalled();
   });
 });

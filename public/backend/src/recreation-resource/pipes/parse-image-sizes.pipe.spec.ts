@@ -1,5 +1,5 @@
 import { ParseImageSizesPipe } from './parse-image-sizes.pipe';
-import { RecreationResourceImageSize } from '../dto/recreation-resource-image.dto';
+import { RecreationResourceImageSize } from '@shared/constants/images';
 
 describe('ParseImageSizesPipe', () => {
   let pipe: ParseImageSizesPipe;

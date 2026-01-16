@@ -20,7 +20,7 @@ import { mapValues } from '../runtime';
  */
 export interface RecreationResourceImageVariantDto {
   /**
-   * Size code of the image as defined in BCGov DAM
+   * Size code of the image variant
    * @type {string}
    * @memberof RecreationResourceImageVariantDto
    */
