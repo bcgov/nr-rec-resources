@@ -36,7 +36,6 @@
   - [Running pre-commit on all files](#running-pre-commit-on-all-files)
 - [Style Guide](#style-guide)
 - [Schemaspy Database Schema Documentation](#schemaspy-database-schema-documentation)
-- [Storybook Integration](#storybook-integration)
 - [API Metrics](#api-metrics)
 
 ### API
@@ -306,35 +305,6 @@ Schedule job runs every saturday and keep schema documentation upto date in
 #### Admin App
 
 ![RST Admin App Architecture](docs/admin-architecture/rst-admin-arch.mermaid.svg)
-
-## Storybook Integration
-
-This project integrates Storybook for component development and includes MSW
-(Mock Service Worker) for API mocking.
-
-### Running Storybook
-
-```bash
-npm run storybook
-```
-
-### Directory Structure
-
-```
-frontend/.storybook/        # Storybook configuration
-
-frontend/stories/          # Component stories - Folder structure mirrors src
-├── components
-│   └── rec-resource
-│       ├── AdditionalFees.stories.ts
-│       ├── Camping.stories.ts
-│       ├── RecResourcePage.stories.tsx
-│       ├── mockData.ts
-│       └── mockHandlers.ts
-└── mock
-    └── mockServiceWorker.js
-
-```
 
 ---
 
