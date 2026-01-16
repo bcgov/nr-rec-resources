@@ -32,6 +32,24 @@ describe('useImageUploadForm', () => {
     expect(setUploadFileName).toHaveBeenCalledWith('test-image');
   });
 
+  it('handles undefined initialDisplayName and syncs empty string to store', () => {
+    renderHook(() => useImageUploadForm(undefined));
+
+    expect(setUploadFileName).toHaveBeenCalledWith('');
+  });
+
+  it('resets form to empty string when initialDisplayName is undefined', () => {
+    const { result } = renderHook(() => useImageUploadForm(undefined));
+
+    vi.clearAllMocks();
+
+    act(() => {
+      result.current.resetForm();
+    });
+
+    expect(setUploadFileName).toHaveBeenCalledWith('');
+  });
+
   it('updates uploadState correctly based on form values', () => {
     const { result } = renderHook(() => useImageUploadForm('test.jpg'));
 
