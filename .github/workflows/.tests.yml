@@ -45,6 +45,7 @@ jobs:
             npm run test:cov
           dir: ${{ inputs.app }}/${{ matrix.dir }}
           node_version: "22"
+          cache: ''
           sonar_args: >
             -Dsonar.exclusions=**/coverage/**,**/node_modules/**,**/*spec.ts,**/*test.ts,**/*test.tsx,src/service/recreation-resource/**,src/service/custom-models/**,src/service/fsa-resources/**,src/services/recreation-resource-admin/**
             -Dsonar.cpd.exclusions=**/recreation-resource.controller.ts
