@@ -1,12 +1,29 @@
 import { ImageUploadForm } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/sections/ImageUploadForm';
-import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
 import { useForm } from 'react-hook-form';
 import { ImageUploadFormData } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/schemas';
+import { setUploadFileName } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
 
-const TestWrapper = ({ uploadState }: { uploadState: string }) => {
-  const { control } = useForm<ImageUploadFormData>();
-  return <ImageUploadForm control={control} uploadState={uploadState as any} />;
+vi.mock('@/pages/rec-resource-page/store/recResourceFileTransferStore', () => ({
+  setUploadFileName: vi.fn(),
+}));
+
+const TestWrapper = ({
+  uploadState,
+  onSubmit = vi.fn(),
+}: {
+  uploadState: string;
+  onSubmit?: any;
+}) => {
+  const { control, handleSubmit } = useForm<ImageUploadFormData>();
+  return (
+    <ImageUploadForm
+      control={control}
+      uploadState={uploadState as any}
+      onSubmit={handleSubmit(onSubmit)}
+    />
+  );
 };
 
 describe('ImageUploadForm', () => {
@@ -67,5 +84,26 @@ describe('ImageUploadForm', () => {
         /by uploading this photo, i confirm that it contains no personally identifiable information/i,
       ),
     ).toBeInTheDocument();
+  });
+
+  it('syncs display name to store on change', () => {
+    render(<TestWrapper uploadState="initial" />);
+    const input = screen.getByPlaceholderText('Enter a display name');
+
+    fireEvent.change(input, { target: { value: 'New Display Name' } });
+
+    expect(setUploadFileName).toHaveBeenCalledWith('New Display Name');
+  });
+
+  it('triggers onSubmit when Enter key is pressed on display name field', async () => {
+    const onSubmit = vi.fn();
+    render(<TestWrapper uploadState="initial" onSubmit={onSubmit} />);
+
+    const input = screen.getByPlaceholderText('Enter a display name');
+    fireEvent.change(input, { target: { value: 'Valid Name' } });
+
+    fireEvent.submit(screen.getByLabelText('image-upload-form'));
+
+    await vi.waitFor(() => expect(onSubmit).toHaveBeenCalled());
   });
 });

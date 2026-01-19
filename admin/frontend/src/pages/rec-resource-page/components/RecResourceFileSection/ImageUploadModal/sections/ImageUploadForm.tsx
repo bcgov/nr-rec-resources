@@ -7,21 +7,28 @@ import {
 } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/schemas';
 import { Badge } from '@/components';
 import { BC_GOV_PERSONAL_INFORMATION_URL } from '@/constants/urls';
+import { setUploadFileName } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
 import './ImageUploadForm.scss';
 
 interface ImageUploadFormProps {
   control: Control<ImageUploadFormData>;
   uploadState: UploadState;
+  onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
 }
 
 export const ImageUploadForm: FC<ImageUploadFormProps> = ({
   control,
   uploadState,
+  onSubmit,
 }) => {
   const isToggle2Disabled = uploadState === 'not-working-hours';
 
   return (
-    <Form className="image-upload-form">
+    <Form
+      className="image-upload-form"
+      onSubmit={onSubmit}
+      aria-label="image-upload-form"
+    >
       <h4>Details</h4>
       {/* Display Name */}
       <Form.Group className="mb-4">
@@ -39,6 +46,10 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
                 maxLength={50}
                 placeholder="Enter a display name"
                 isInvalid={!!fieldState.error}
+                onChange={(e) => {
+                  field.onChange(e);
+                  setUploadFileName((e.target as HTMLInputElement).value);
+                }}
               />
               <Form.Text className="text-muted">
                 Briefly describe the location or feature
