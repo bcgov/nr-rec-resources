@@ -1,5 +1,3 @@
-// For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
-import storybook from 'eslint-plugin-storybook';
 // eslint-disable-next-line import/no-relative-parent-imports
 import baseConfig from '../../eslint.config.mjs';
 // eslint-disable-next-line import/no-relative-parent-imports
@@ -17,5 +15,4 @@ export default [
     ],
   },
   ...reactConfig,
-  ...storybook.configs['flat/recommended'],
 ];
