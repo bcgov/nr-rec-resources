@@ -1,6 +1,14 @@
 import { FileType } from './types';
 
 /**
+ * Maximum file size limits in megabytes for different file types.
+ */
+export const MAX_FILE_SIZE_MB = {
+  image: 25,
+  document: 9.5,
+} as const;
+
+/**
  * File type configurations for different upload types.
  *
  * This configuration defines the accepted MIME types and limits for each file type
