@@ -21,7 +21,9 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
   uploadState,
   onSubmit,
 }) => {
-  const isToggle2Disabled = uploadState === 'not-working-hours';
+  const isPersonalInfoDisabled = uploadState === 'not-working-hours';
+  const showConfirmCheckbox =
+    uploadState === 'confirm-no-personal-info' || uploadState === 'ready';
 
   return (
     <Form
@@ -97,9 +99,8 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
       {/* Warning: Not working hours */}
       {uploadState === 'not-working-hours' && (
         <Alert variant="warning">
-          RecSpace is currently accepting photos only taken during working
-          hours. Thank you for your patience as we continue to enhance this
-          feature.
+          RecSpace is currently accepting photos only by staff during working
+          hours. Please check back soon as we continue to enhance this feature.
         </Alert>
       )}
       {/* Toggle 2: Personal Info */}
@@ -130,7 +131,7 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
                 value="yes"
                 checked={field.value === 'yes'}
                 onChange={() => field.onChange('yes')}
-                disabled={isToggle2Disabled}
+                disabled={isPersonalInfoDisabled}
               />
               <Form.Check
                 inline
@@ -140,7 +141,7 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
                 value="no"
                 checked={field.value === 'no'}
                 onChange={() => field.onChange('no')}
-                disabled={isToggle2Disabled}
+                disabled={isPersonalInfoDisabled}
               />
             </div>
           )}
@@ -149,13 +150,13 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
       {/* Warning: Has Personal Info */}
       {uploadState === 'has-personal-info' && (
         <Alert variant="warning">
-          This photo contains personally identifiable information. Thank you for
-          your patience as we continue to enhance this feature.
+          RecSpace is not currently accepting photos with personally
+          identifiable information. Please check back soon as we continue to
+          enhance this feature.
         </Alert>
       )}
       {/* Checkbox: Confirm no Personal Info */}
-      {(uploadState === 'confirm-no-personal-info' ||
-        uploadState === 'ready') && (
+      {showConfirmCheckbox && (
         <Alert className="base-file-modal__alert base-file-modal__alert--info mb-0">
           <Controller
             name="confirmNoPersonalInfo"
