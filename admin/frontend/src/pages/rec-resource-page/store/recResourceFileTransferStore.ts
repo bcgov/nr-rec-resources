@@ -86,12 +86,12 @@ function addPendingFile<T extends GalleryFile>(file: T, type: FileType): void {
     if (type === 'document') {
       return {
         ...prev,
-        pendingDocs: [...prev.pendingDocs, file as GalleryDocument],
+        pendingDocs: [file as GalleryDocument, ...prev.pendingDocs],
       };
     } else {
       return {
         ...prev,
-        pendingImages: [...prev.pendingImages, file as GalleryImage],
+        pendingImages: [file as GalleryImage, ...prev.pendingImages],
       };
     }
   });
