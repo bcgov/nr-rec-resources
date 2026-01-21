@@ -26,6 +26,7 @@ export default defineConfig({
       ESTABLISHMENT_ORDER_DOCS_BUCKET: 'rst-lza-establishment-order-docs-dev',
       RST_STORAGE_IMAGES_BUCKET: 'rst-lza-rec-resource-images-dev',
       RST_STORAGE_PUBLIC_DOCUMENTS_BUCKET: 'rst-lza-rec-resource-docs-dev',
+      RST_STORAGE_CONSENT_FORMS_BUCKET: 'rst-storage-consent-forms-dev',
       RST_STORAGE_CLOUDFRONT_URL: 'https://test-cdn.example.com',
       AWS_REGION: 'ca-central-1',
     },

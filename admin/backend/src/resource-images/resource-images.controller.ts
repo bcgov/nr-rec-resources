@@ -33,6 +33,7 @@ import {
   CreateRecreationResourceImageVariantsDto,
   RecreationResourceImageDto,
 } from './dto/recreation-resource-image.dto';
+import { MAX_FILE_SIZE } from './resource-images.constants';
 import { ResourceImagesService } from './service/resource-images.service';
 
 @ApiTags('recreation-resources')
@@ -114,6 +115,7 @@ export class ResourceImagesController {
       { name: 'scr', maxCount: 1 },
       { name: 'pre', maxCount: 1 },
       { name: 'thm', maxCount: 1 },
+      { name: 'consent_form', maxCount: 1 },
     ]),
   )
   @ApiConsumes('multipart/form-data')
@@ -132,15 +134,24 @@ export class ResourceImagesController {
   })
   @ApiBody({
     required: true,
-    description: 'Image variants',
+    description: 'Image variants and optional consent form',
     schema: {
       type: 'object',
       properties: {
         file_name: { type: 'string', example: 'beautiful-mountain-view.webp' },
+        date_taken: { type: 'string', format: 'date', example: '2024-06-15' },
+        contains_pii: { type: 'boolean', example: false },
+        photographer_type: { type: 'string', example: 'STAFF' },
+        photographer_name: { type: 'string', example: 'John Doe' },
         original: { type: 'string', format: 'binary' },
         scr: { type: 'string', format: 'binary' },
         pre: { type: 'string', format: 'binary' },
         thm: { type: 'string', format: 'binary' },
+        consent_form: {
+          type: 'string',
+          format: 'binary',
+          description: 'Optional PDF consent form',
+        },
       },
       required: ['file_name', 'original', 'scr', 'pre', 'thm'],
     },
@@ -169,22 +180,28 @@ export class ResourceImagesController {
           {
             fieldName: 'original',
             allowedTypes: ['image/webp'],
-            maxSize: 2 * 1024 * 1024,
+            maxSize: MAX_FILE_SIZE,
           },
           {
             fieldName: 'scr',
             allowedTypes: ['image/webp'],
-            maxSize: 2 * 1024 * 1024,
+            maxSize: MAX_FILE_SIZE,
           },
           {
             fieldName: 'pre',
             allowedTypes: ['image/webp'],
-            maxSize: 2 * 1024 * 1024,
+            maxSize: MAX_FILE_SIZE,
           },
           {
             fieldName: 'thm',
             allowedTypes: ['image/webp'],
-            maxSize: 2 * 1024 * 1024,
+            maxSize: MAX_FILE_SIZE,
+          },
+          {
+            fieldName: 'consent_form',
+            allowedTypes: ['application/pdf'],
+            maxSize: MAX_FILE_SIZE,
+            required: false,
           },
         ],
       }),
@@ -194,6 +211,7 @@ export class ResourceImagesController {
       scr: Express.Multer.File[];
       pre: Express.Multer.File[];
       thm: Express.Multer.File[];
+      consent_form?: Express.Multer.File[];
     },
   ): Promise<RecreationResourceImageDto | null> {
     const variantFiles = {
@@ -203,10 +221,19 @@ export class ResourceImagesController {
       thm: files.thm[0]!,
     };
 
+    const consentFormFile = files.consent_form?.[0] ?? null;
+
     return this.resourceImagesService.create(
       rec_resource_id,
       body.file_name,
       variantFiles,
+      {
+        date_taken: body.date_taken,
+        contains_pii: body.contains_pii,
+        photographer_type: body.photographer_type,
+        photographer_name: body.photographer_name,
+      },
+      consentFormFile,
     );
   }
 
