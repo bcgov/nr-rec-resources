@@ -52,6 +52,8 @@ on:
         value: ${{ jobs.infra.outputs.STORAGE_PUBLIC_DOCUMENTS_BUCKET }}
       CUSTOM_DOMAINS:
         value: ${{ jobs.infra.outputs.CUSTOM_DOMAINS }}
+      STORAGE_CONSENT_FORMS_BUCKET:
+        value: ${{ jobs.infra.outputs.STORAGE_CONSENT_FORMS_BUCKET }}
 
 env:
   TG_VERSION: 0.55.2
@@ -73,6 +75,7 @@ jobs:
       STORAGE_IMAGES_BUCKET: ${{ steps.tg-outputs-storage.outputs.STORAGE_IMAGES_BUCKET }}
       STORAGE_PUBLIC_DOCUMENTS_BUCKET: ${{ steps.tg-outputs-storage.outputs.STORAGE_PUBLIC_DOCUMENTS_BUCKET }}
       CUSTOM_DOMAINS: ${{ steps.tg-outputs-frontend.outputs.CUSTOM_DOMAINS }}
+      STORAGE_CONSENT_FORMS_BUCKET: ${{ steps.tg-outputs-storage.outputs.STORAGE_CONSENT_FORMS_BUCKET }}
 
     steps:
       - name: Checkout
@@ -192,3 +195,4 @@ jobs:
           echo "STORAGE_CLOUDFRONT_URL=$(jq -r .cloudfront_url.value outputs.json)" >> $GITHUB_OUTPUT
           echo "STORAGE_IMAGES_BUCKET=$(jq -r .images_bucket.value.name outputs.json)" >> $GITHUB_OUTPUT
           echo "STORAGE_PUBLIC_DOCUMENTS_BUCKET=$(jq -r .public_documents_bucket.value.name outputs.json)" >> $GITHUB_OUTPUT
+          echo "STORAGE_CONSENT_FORMS_BUCKET=$(jq -r .consent_forms_bucket.value.name outputs.json)" >> $GITHUB_OUTPUT

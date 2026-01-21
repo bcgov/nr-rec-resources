@@ -14,6 +14,14 @@ output "public_documents_bucket" {
   }
 }
 
+output "consent_forms_bucket" {
+  description = "Consent forms S3 bucket details (private, contains PII)"
+  value = {
+    name = aws_s3_bucket.consent_forms.id
+    arn  = aws_s3_bucket.consent_forms.arn
+  }
+}
+
 output "cloudfront" {
   description = "CloudFront distribution details"
   value = {

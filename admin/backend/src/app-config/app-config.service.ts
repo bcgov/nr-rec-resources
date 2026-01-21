@@ -75,6 +75,12 @@ export class AppConfigService {
     })!;
   }
 
+  get recResourceConsentFormsBucket(): string {
+    return this.configService.get('RST_STORAGE_CONSENT_FORMS_BUCKET', {
+      infer: true,
+    })!;
+  }
+
   get awsRegion(): string {
     return this.configService.get('AWS_REGION', {
       infer: true,
