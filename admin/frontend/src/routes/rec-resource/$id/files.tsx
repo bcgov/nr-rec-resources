@@ -3,11 +3,11 @@ import { RecResourceFilesPage } from '@/pages/rec-resource-page/RecResourceFiles
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { BreadcrumbItem } from '@shared/components/breadcrumbs';
 import { Route as ParentRoute } from '@/routes/rec-resource/$id';
-import { recResourceLoader } from '@/services/loaders/recResourceLoader';
+import { recResourceFilesLoader } from '@/services/loaders/recResourceFilesLoader';
 
 export const Route = createFileRoute('/rec-resource/$id/files')({
   component: RecResourceFilesRoute,
-  loader: recResourceLoader,
+  loader: recResourceFilesLoader,
   beforeLoad: ({ params, context }) => {
     const parentBeforeLoad = ParentRoute.options.beforeLoad?.({
       params,

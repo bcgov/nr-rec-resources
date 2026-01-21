@@ -95,7 +95,7 @@ export const BaseFileModal: FC<BaseFileModalProps> = ({
           <Alert
             key={index}
             variant={alert.variant}
-            className={`${className}__alert base-file-modal__alert mb-3 d-flex align-items-center`}
+            className={`${className}__alert base-file-modal__alert base-file-modal__alert--${alert.variant} mb-3 d-flex align-items-center`}
           >
             <Stack direction="horizontal" gap={2}>
               <FontAwesomeIcon

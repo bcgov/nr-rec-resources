@@ -67,6 +67,11 @@ export const OPTION_TABLE_MAPPINGS: Record<OptionType, TableMapping> = {
     prismaModel: 'recreation_district_code',
     archivedField: 'is_archived',
   },
+  [OPTION_TYPES.PHOTOGRAPHER_TYPE]: {
+    idField: 'photographer_type_code',
+    labelField: 'description',
+    prismaModel: 'recreation_photographer_type_code',
+  },
 };
 
 export const VALID_OPTION_TYPES = Object.values(OPTION_TYPES);

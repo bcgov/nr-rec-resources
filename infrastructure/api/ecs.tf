@@ -14,6 +14,11 @@ locals {
     ? data.terraform_remote_state.storage[0].outputs.public_documents_bucket.name
     : "placeholder-documents-bucket"
   )
+  storage_consent_forms_bucket = (
+    can(data.terraform_remote_state.storage[0].outputs.consent_forms_bucket.name)
+    ? data.terraform_remote_state.storage[0].outputs.consent_forms_bucket.name
+    : "placeholder-consent-forms-bucket"
+  )
   storage_cloudfront_url = (
     can(data.terraform_remote_state.storage[0].outputs.cloudfront_url)
     ? data.terraform_remote_state.storage[0].outputs.cloudfront_url
@@ -236,6 +241,10 @@ resource "aws_ecs_task_definition" "node_api_task" {
         {
           name  = "RST_STORAGE_CLOUDFRONT_URL"
           value = local.storage_cloudfront_url
+        },
+        {
+          name  = "RST_STORAGE_CONSENT_FORMS_BUCKET"
+          value = var.app == "admin" ? local.storage_consent_forms_bucket : ""
         }
       ]
       portMappings = [

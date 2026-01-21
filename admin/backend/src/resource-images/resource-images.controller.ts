@@ -31,6 +31,7 @@ import {
   PresignImageUploadResponseDto,
   RecreationResourceImageDto,
 } from './dto/recreation-resource-image.dto';
+import { MAX_FILE_SIZE } from './resource-images.constants';
 import { ResourceImagesService } from './service/resource-images.service';
 
 @Controller({ path: 'recreation-resources', version: '1' })
@@ -39,7 +40,7 @@ import { ResourceImagesService } from './service/resource-images.service';
 @UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
 @AuthRoles([RecreationResourceAuthRole.RST_VIEWER], ROLE_MODE.ALL)
 export class ResourceImagesController {
-  constructor(private readonly resourceImagesService: ResourceImagesService) {}
+  constructor(private readonly resourceImagesService: ResourceImagesService) { }
 
   @Get(':rec_resource_id/images')
   @ApiOperation({

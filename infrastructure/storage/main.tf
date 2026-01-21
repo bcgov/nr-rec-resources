@@ -17,6 +17,7 @@ data "terraform_remote_state" "admin_frontend" {
 locals {
   images_bucket_name           = "rst-storage-images-${var.target_env}"
   public_documents_bucket_name = "rst-storage-public-documents-${var.target_env}"
+  consent_forms_bucket_name    = "rst-storage-consent-forms-${var.target_env}"
 
   # Get CloudFront domain from remote state
   admin_cf_domain = try(data.terraform_remote_state.admin_frontend[0].outputs.cloudfront.domain_name, "")
@@ -119,4 +120,33 @@ resource "aws_s3_bucket_cors_configuration" "documents" {
     expose_headers  = ["ETag"]
     max_age_seconds = 3000
   }
+}
+
+# =============================================================================
+# Consent Forms S3 Bucket (Private - contains PII)
+# =============================================================================
+
+resource "aws_s3_bucket" "consent_forms" {
+  bucket = local.consent_forms_bucket_name
+
+  tags = var.common_tags
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "consent_forms" {
+  bucket = aws_s3_bucket.consent_forms.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "consent_forms" {
+  bucket = aws_s3_bucket.consent_forms.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
