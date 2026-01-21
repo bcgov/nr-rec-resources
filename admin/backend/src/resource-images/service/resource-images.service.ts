@@ -6,13 +6,11 @@ import {
 import { HttpException, Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { PrismaService } from 'src/prisma.service';
-import {
-  RecreationResourceImageDto,
-  RecreationResourceImageSize,
-} from '../dto/recreation-resource-image.dto';
+import { RecreationResourceImageDto } from '../dto/recreation-resource-image.dto';
+import { RecreationResourceImageSize } from '@shared/constants/images';
+import { ConsentFormsS3Service } from './consent-forms-s3.service';
 import { RecResourceImagesS3Service } from './rec-resource-images-s3.service';
 
-// Constants
 const REQUIRED_VARIANTS = ['original', 'scr', 'pre', 'thm'] as const;
 type ImageVariantType = (typeof REQUIRED_VARIANTS)[number];
 
@@ -23,19 +21,24 @@ interface ImageVariantFiles {
   thm: Express.Multer.File;
 }
 
+export interface ConsentMetadata {
+  date_taken?: string;
+  contains_pii?: boolean;
+  photographer_type?: string;
+  photographer_name?: string;
+}
+
 @Injectable()
 export class ResourceImagesService extends BaseStorageFileService {
   constructor(
     prisma: PrismaService,
     appConfig: AppConfigService,
     private readonly s3Service: RecResourceImagesS3Service,
+    private readonly consentFormsS3Service: ConsentFormsS3Service,
   ) {
     super(ResourceImagesService.name, prisma, appConfig);
   }
 
-  /**
-   * Get storage configuration for resource images
-   */
   protected getStorageConfig(): StorageConfig {
     return {
       bucketName: this.appConfig.recResourceImagesBucket,
@@ -94,49 +97,74 @@ export class ResourceImagesService extends BaseStorageFileService {
     rec_resource_id: string,
     file_name: string,
     variantFiles: ImageVariantFiles,
+    consentMetadata?: ConsentMetadata,
+    consentFormFile?: Express.Multer.File | null,
   ): Promise<RecreationResourceImageDto> {
-    // File validation (MIME type, size, presence) is handled by multi-file validation pipe at controller level
-
-    // Check if resource exists
     await this.validateResourceExists(rec_resource_id);
 
-    // Generate image_id
     const image_id = randomUUID();
+    const doc_id = consentFormFile ? randomUUID() : null;
+    const cleanupActions: (() => Promise<void>)[] = [];
 
     try {
-      // Prepare variants for upload
-      // Only tag the original variant with file_name (others are derivatives)
-      const variants = REQUIRED_VARIANTS.map((sizeCode) => ({
-        sizeCode,
-        buffer: variantFiles[sizeCode].buffer,
-        metadata:
-          sizeCode === 'original'
-            ? {
-                filename: file_name,
-              }
-            : undefined,
-      }));
-
-      // Upload all variants to S3 (transactional) with metadata tags
-      await this.s3Service.uploadImageVariants(
-        rec_resource_id,
-        image_id,
-        variants,
-      );
-
-      this.logger.log(
-        `Successfully uploaded ${variants.length} image variants to S3 for rec_resource_id: ${rec_resource_id}, image_id: ${image_id}`,
-      );
-
-      const result = await this.createDatabaseRecord(
+      // Phase 1: S3 Uploads
+      await this.prepareAndUploadImages(
         rec_resource_id,
         image_id,
         file_name,
-        variantFiles.original.size,
+        variantFiles,
       );
+      cleanupActions.push(() =>
+        this.s3Service.deleteImageVariants(rec_resource_id, image_id),
+      );
+
+      const consentFileName =
+        consentFormFile?.originalname || `consent_${image_id}.pdf`;
+      const consentFormUploaded =
+        consentFormFile && consentMetadata?.contains_pii && doc_id;
+
+      if (consentFormUploaded) {
+        await this.uploadConsentForm(
+          rec_resource_id,
+          image_id,
+          doc_id,
+          consentFormFile,
+          consentFileName,
+        );
+        cleanupActions.push(() =>
+          this.consentFormsS3Service.deleteConsentForm(
+            rec_resource_id,
+            image_id,
+            doc_id,
+          ),
+        );
+      }
+
+      // Phase 2: Database Transaction
+      const result = await this.createDatabaseRecords({
+        image_id,
+        doc_id,
+        rec_resource_id,
+        file_name,
+        variantFiles,
+        consentFormFile: consentFormFile ?? undefined,
+        consentMetadata,
+        consentFormUploaded: !!consentFormUploaded,
+        consentFileName: consentFormUploaded ? consentFileName : null,
+      });
 
       return this.mapResponse(result);
     } catch (error) {
+      this.logger.error(
+        `Error during image creation, running cleanup for image_id: ${image_id}`,
+      );
+      for (const cleanup of cleanupActions) {
+        try {
+          await cleanup();
+        } catch (cleanupError) {
+          this.logger.error(`Cleanup action failed: ${cleanupError}`);
+        }
+      }
       this.handleError(
         error,
         `Failed to create image for rec_resource_id: ${rec_resource_id}`,
@@ -145,25 +173,120 @@ export class ResourceImagesService extends BaseStorageFileService {
     }
   }
 
-  /**
-   * Create database record with image and variants
-   */
-  private async createDatabaseRecord(
+  private async prepareAndUploadImages(
     rec_resource_id: string,
     image_id: string,
     file_name: string,
-    file_size: number,
-  ) {
-    return this.prisma.recreation_resource_image.create({
-      data: {
-        image_id,
-        rec_resource_id,
-        file_name: file_name,
-        extension: 'webp',
-        file_size: BigInt(file_size),
-        created_by: 'system',
-        created_at: new Date(),
-      },
+    variantFiles: ImageVariantFiles,
+  ): Promise<void> {
+    const variants = REQUIRED_VARIANTS.map((sizeCode) => ({
+      sizeCode,
+      buffer: variantFiles[sizeCode].buffer,
+      metadata: sizeCode === 'original' ? { filename: file_name } : undefined,
+    }));
+
+    await this.s3Service.uploadImageVariants(
+      rec_resource_id,
+      image_id,
+      variants,
+    );
+    this.logger.log(
+      `Successfully uploaded ${variants.length} image variants to S3 for rec_resource_id: ${rec_resource_id}, image_id: ${image_id}`,
+    );
+  }
+
+  private async uploadConsentForm(
+    rec_resource_id: string,
+    image_id: string,
+    doc_id: string,
+    consentFormFile: Express.Multer.File,
+    consentFileName: string,
+  ): Promise<void> {
+    await this.consentFormsS3Service.uploadConsentForm(
+      rec_resource_id,
+      image_id,
+      doc_id,
+      consentFormFile.buffer,
+      consentFileName,
+    );
+    this.logger.log(
+      `Successfully uploaded consent form to S3 for image_id: ${image_id}`,
+    );
+  }
+
+  private async createDatabaseRecords(params: {
+    image_id: string;
+    doc_id: string | null;
+    rec_resource_id: string;
+    file_name: string;
+    variantFiles: ImageVariantFiles;
+    consentFormFile?: Express.Multer.File;
+    consentMetadata?: ConsentMetadata;
+    consentFormUploaded: boolean;
+    consentFileName: string | null;
+  }) {
+    const {
+      image_id,
+      doc_id,
+      rec_resource_id,
+      file_name,
+      variantFiles,
+      consentFormFile,
+      consentMetadata,
+      consentFormUploaded,
+      consentFileName,
+    } = params;
+
+    return this.prisma.$transaction(async (tx) => {
+      const imageRecord = await tx.recreation_resource_image.create({
+        data: {
+          image_id,
+          rec_resource_id,
+          file_name,
+          extension: 'webp',
+          file_size: BigInt(variantFiles.original.size),
+          created_by: 'system',
+          created_at: new Date(),
+        },
+      });
+
+      if (consentFormUploaded && doc_id && consentFileName && consentFormFile) {
+        await tx.recreation_resource_document.create({
+          data: {
+            doc_id,
+            rec_resource_id,
+            doc_code: 'IC',
+            file_name: consentFileName,
+            extension: 'pdf',
+            file_size: BigInt(consentFormFile.size),
+            created_by: 'system',
+            created_at: new Date(),
+          },
+        });
+
+        await tx.recreation_image_consent_form.create({
+          data: {
+            consent_id: randomUUID(),
+            image_id,
+            doc_id,
+            photographer_type_code:
+              consentMetadata?.photographer_type ?? 'STAFF',
+            photographer_name: consentMetadata?.photographer_name,
+            date_taken: consentMetadata?.date_taken
+              ? new Date(consentMetadata.date_taken)
+              : null,
+            contains_pii: consentMetadata?.contains_pii ?? false,
+            created_by: 'system',
+            created_at: new Date(),
+          },
+        });
+      }
+
+      this.logger.log(
+        `Created image ${image_id}${consentFormUploaded ? ' with consent form' : ''} for resource ${rec_resource_id}`,
+      );
+
+      return imageRecord;
     });
   }
 
@@ -184,22 +307,35 @@ export class ResourceImagesService extends BaseStorageFileService {
     }
 
     try {
-      // Delete all S3 objects for this image
-      await this.s3Service.deleteImageVariants(rec_resource_id, image_id);
+      // NOTE: S3 files are intentionally NOT deleted for audit purposes
 
-      // Delete database record
-      const result = await this.prisma.recreation_resource_image.delete({
-        where: {
-          rec_resource_id,
-          image_id,
-        },
+      const result = await this.prisma.$transaction(async (tx) => {
+        // Check for associated consent form
+        const consentForm = await tx.recreation_image_consent_form.findUnique({
+          where: { image_id },
+        });
+
+        // Delete consent-related records first (foreign key constraints)
+        if (consentForm) {
+          await tx.recreation_image_consent_form.delete({
+            where: { image_id },
+          });
+          await tx.recreation_resource_document.delete({
+            where: { doc_id: consentForm.doc_id },
+          });
+        }
+
+        const deleted = await tx.recreation_resource_image.delete({
+          where: { rec_resource_id, image_id },
+        });
+
+        return { deleted, hadConsentForm: !!consentForm };
       });
 
       this.logger.log(
-        `Successfully deleted image for rec_resource_id: ${rec_resource_id}, image_id: ${image_id}`,
+        `Deleted image ${image_id}${result.hadConsentForm ? ' with consent form' : ''} for resource ${rec_resource_id}`,
       );
-
-      return this.mapResponse(result);
+      return this.mapResponse(result.deleted);
     } catch (error) {
       this.handleError(
         error,
