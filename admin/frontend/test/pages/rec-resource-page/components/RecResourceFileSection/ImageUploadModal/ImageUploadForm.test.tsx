@@ -61,7 +61,7 @@ describe('ImageUploadForm', () => {
 
     expect(
       screen.getByText(
-        /recspace is currently accepting photos only taken during working hours/i,
+        /recspace is currently accepting photos only by staff during working hours/i,
       ),
     ).toBeInTheDocument();
   });
@@ -71,7 +71,7 @@ describe('ImageUploadForm', () => {
 
     expect(
       screen.getByText(
-        /this photo contains personally identifiable information/i,
+        /recspace is not currently accepting photos with personally identifiable information/i,
       ),
     ).toBeInTheDocument();
   });

@@ -51,6 +51,7 @@ export class ResourceImagesService extends BaseStorageFileService {
       where: {
         rec_resource_id,
       },
+      orderBy: [{ updated_at: 'desc' }, { created_at: 'desc' }],
       select: {
         rec_resource_id: true,
         image_id: true,
