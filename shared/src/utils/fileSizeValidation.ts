@@ -1,28 +1,17 @@
-/**
- * Returns true if the file exceeds the specified max size.
- * @param file - The file to check.
- * @param maxSizeBytes - Maximum file size in bytes.
- * @returns True if the file exceeds the max size, false otherwise.
- */
+/** Returns true if the file exceeds the specified max size. */
 export function isFileTooLarge(file: File, maxSizeBytes: number): boolean {
   return file.size > maxSizeBytes;
 }
 
-/**
- * Converts megabytes to bytes.
- * @param megabytes - Size in megabytes.
- * @returns Size in bytes.
- */
+/** Converts megabytes to bytes using binary conversion (1024 base). */
 export function megabytesToBytes(megabytes: number): number {
   return megabytes * 1024 * 1024;
 }
 
-/**
- * Builds a file size error message for a given file name and max size.
- * @param fileName - The name of the file that's too large.
- * @param maxSizeMB - Maximum allowed file size in megabytes.
- * @returns Error message string.
- */
+/** 2% tolerance to account for decimal vs binary MB conversion differences. */
+const FILE_SIZE_TOLERANCE_PERCENT = 0.02;
+
+/** Builds a file size error message. */
 export function buildFileTooLargeMessage(
   fileName: string,
   maxSizeMB: number,
@@ -31,11 +20,8 @@ export function buildFileTooLargeMessage(
 }
 
 /**
- * Validates file size and returns an error message if invalid, null if valid.
- * @param file - The file to validate.
- * @param maxSizeMB - Maximum allowed file size in megabytes.
- * @param fileName - Optional file name to include in error message. Defaults to file.name.
- * @returns Error message string if file is too large, null otherwise.
+ * Validates file size with 2% tolerance for decimal/binary conversion differences.
+ * @returns Error message if too large, null if valid.
  */
 export function validateFileSize(
   file: File,
@@ -43,7 +29,11 @@ export function validateFileSize(
   fileName?: string,
 ): string | null {
   const maxSizeBytes = megabytesToBytes(maxSizeMB);
-  if (isFileTooLarge(file, maxSizeBytes)) {
+  // Add tolerance to account for decimal/binary conversion and file system overhead
+  const maxSizeBytesWithTolerance =
+    maxSizeBytes * (1 + FILE_SIZE_TOLERANCE_PERCENT);
+
+  if (isFileTooLarge(file, maxSizeBytesWithTolerance)) {
     return buildFileTooLargeMessage(fileName || file.name, maxSizeMB);
   }
   return null;

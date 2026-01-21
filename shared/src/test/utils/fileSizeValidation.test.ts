@@ -101,7 +101,12 @@ describe('fileSizeValidation', () => {
     it('should return error message for files exceeding size limit', () => {
       const maxSizeMB = 10;
       const maxSizeBytes = megabytesToBytes(maxSizeMB);
-      const file = new File(['x'.repeat(maxSizeBytes + 1)], 'large.txt');
+      // File significantly over limit (beyond tolerance) should fail
+      const wayOverLimit = maxSizeBytes * 1.05; // 5% over (exceeds 2% tolerance)
+      const file = new File(
+        ['x'.repeat(Math.floor(wayOverLimit))],
+        'large.txt',
+      );
       const result = validateFileSize(file, maxSizeMB);
       expect(result).toBe(
         'Whoops, the file "large.txt" is too big. Please upload a file smaller than 10MB.',
@@ -111,8 +116,10 @@ describe('fileSizeValidation', () => {
     it('should use provided file name in error message', () => {
       const maxSizeMB = 9.5;
       const maxSizeBytes = megabytesToBytes(maxSizeMB);
+      // File significantly over limit (beyond tolerance) should fail
+      const wayOverLimit = maxSizeBytes * 1.05; // 5% over (exceeds 2% tolerance)
       const file = new File(
-        ['x'.repeat(maxSizeBytes + 1)],
+        ['x'.repeat(Math.floor(wayOverLimit))],
         'original-name.txt',
       );
       const customFileName = 'custom-name.pdf';
@@ -125,7 +132,12 @@ describe('fileSizeValidation', () => {
     it('should use file.name when custom file name is not provided', () => {
       const maxSizeMB = 5;
       const maxSizeBytes = megabytesToBytes(maxSizeMB);
-      const file = new File(['x'.repeat(maxSizeBytes + 1)], 'default-name.jpg');
+      // File significantly over limit (beyond tolerance) should fail
+      const wayOverLimit = maxSizeBytes * 1.05; // 5% over (exceeds 2% tolerance)
+      const file = new File(
+        ['x'.repeat(Math.floor(wayOverLimit))],
+        'default-name.jpg',
+      );
       const result = validateFileSize(file, maxSizeMB);
       expect(result).toBe(
         'Whoops, the file "default-name.jpg" is too big. Please upload a file smaller than 5MB.',
@@ -137,6 +149,36 @@ describe('fileSizeValidation', () => {
       const maxSizeBytes = megabytesToBytes(maxSizeMB);
       const file = new File(['x'.repeat(maxSizeBytes)], 'exact.txt');
       expect(validateFileSize(file, maxSizeMB)).toBeNull();
+    });
+
+    it('should allow files slightly over binary limit due to tolerance (decimal vs binary conversion)', () => {
+      const maxSizeMB = 25;
+      const maxSizeBytes = megabytesToBytes(maxSizeMB); // Binary: 26,214,400 bytes
+      // File showing as exactly 25MB in file explorer (decimal: 25,000,000 bytes) should pass
+      const decimal25MB = 25 * 1000 * 1000; // 25,000,000 bytes
+      const file = new File(['x'.repeat(decimal25MB)], '25mb-decimal.txt');
+      expect(validateFileSize(file, maxSizeMB)).toBeNull();
+
+      // File slightly over binary limit but within 2% tolerance should pass
+      const slightlyOverBinary = maxSizeBytes * 1.015; // 1.5% over (within 2% tolerance)
+      const file2 = new File(
+        ['x'.repeat(Math.floor(slightlyOverBinary))],
+        'slightly-over.txt',
+      );
+      expect(validateFileSize(file2, maxSizeMB)).toBeNull();
+
+      // File at exactly 2% tolerance should pass
+      const atTolerance = maxSizeBytes * 1.02; // Exactly 2% tolerance
+      const file3 = new File(
+        ['x'.repeat(Math.floor(atTolerance))],
+        'at-tolerance.txt',
+      );
+      expect(validateFileSize(file3, maxSizeMB)).toBeNull();
+
+      // File significantly over tolerance limit should fail
+      const wayOver = maxSizeBytes * 1.03; // 3% over (exceeds 2% tolerance)
+      const file4 = new File(['x'.repeat(Math.floor(wayOver))], 'way-over.txt');
+      expect(validateFileSize(file4, maxSizeMB)).toBeTruthy();
     });
 
     it('should handle empty files', () => {

@@ -1,4 +1,8 @@
-import { MAX_IMAGE_SIZE_MB } from '@/pages/rec-resource-page/helpers';
+import {
+  FILE_TYPE_CONFIGS,
+  MAX_FILE_SIZE_MB,
+} from '@/pages/rec-resource-page/constants';
+import { validateFileMimeType, validateFileSize } from '@shared/utils';
 
 export interface ImageVariant {
   sizeCode: 'original' | 'scr' | 'pre' | 'thm';
@@ -22,7 +26,6 @@ export interface ImageValidationError {
 }
 
 // Constants
-const MAX_FILE_SIZE = MAX_IMAGE_SIZE_MB * 1024 * 1024; // Uses MAX_IMAGE_SIZE_MB from helpers
 const DEFAULT_MAX_RESOLUTION = { width: 3840, height: 2160 }; // 4K
 const DEFAULT_WEBP_QUALITY = 0.85;
 
@@ -43,7 +46,7 @@ const PROGRESS = {
   COMPLETE: 100,
 } as const;
 
-const VALID_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
+const VALID_IMAGE_TYPES = FILE_TYPE_CONFIGS.image.accept;
 
 /**
  * Check if WebP format is supported by the browser
@@ -79,33 +82,25 @@ function configureCanvasQuality(ctx: CanvasRenderingContext2D): void {
 
 /**
  * Validate image file before processing (without loading image)
+ * Uses shared validation utilities for consistency
  */
 function validateImageBasic(file: File): ImageValidationError | null {
-  // Check file size
-  if (file.size > MAX_FILE_SIZE) {
-    console.debug('[Image Processing] Image rejected - too large', {
-      fileName: file.name,
-      fileSizeBytes: file.size,
-      fileSizeMB: (file.size / 1024 / 1024).toFixed(2),
-      maxSizeBytes: MAX_FILE_SIZE,
-      maxSizeMB: (MAX_FILE_SIZE / 1024 / 1024).toFixed(2),
-      exceedsByBytes: file.size - MAX_FILE_SIZE,
-      exceedsByMB: ((file.size - MAX_FILE_SIZE) / 1024 / 1024).toFixed(2),
-    });
+  // Check file size using shared utility
+  const maxSizeMB = MAX_FILE_SIZE_MB.image;
+  const sizeError = validateFileSize(file, maxSizeMB);
+  if (sizeError) {
     return {
       type: 'size',
-      message: `Image too large: ${(file.size / 1024 / 1024).toFixed(2)}MB (max ${MAX_FILE_SIZE / 1024 / 1024}MB)`,
+      message: sizeError,
       details: { size: file.size },
     };
   }
 
-  // Check file type
-  if (
-    !VALID_IMAGE_TYPES.includes(file.type as (typeof VALID_IMAGE_TYPES)[number])
-  ) {
+  // Check file type using shared utility
+  if (!validateFileMimeType(file, VALID_IMAGE_TYPES)) {
     return {
       type: 'format',
-      message: `Invalid image format: ${file.type}. Supported formats: JPEG, PNG, WebP`,
+      message: `Invalid image format: ${file.type}. Supported formats: ${VALID_IMAGE_TYPES}`,
     };
   }
 
@@ -161,25 +156,6 @@ async function loadAndValidateImage(
 
     img.src = url;
   });
-}
-
-/**
- * Validate image file before processing
- * @deprecated This function loads the image separately. Use processImageToVariants which combines validation and loading.
- */
-export async function validateImage(
-  file: File,
-  maxResolution = DEFAULT_MAX_RESOLUTION,
-): Promise<ImageValidationError | null> {
-  // Basic validation (size, format)
-  const basicError = validateImageBasic(file);
-  if (basicError) {
-    return basicError;
-  }
-
-  // Load and check dimensions
-  const { error } = await loadAndValidateImage(file, maxResolution);
-  return error;
 }
 
 /**

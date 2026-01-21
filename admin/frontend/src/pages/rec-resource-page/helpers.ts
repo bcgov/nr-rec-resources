@@ -4,16 +4,13 @@ import {
   validateFileMimeType,
   validateFileSize,
 } from '@shared/utils';
-import { FILE_TYPE_CONFIGS } from './constants';
+import { FILE_TYPE_CONFIGS, MAX_FILE_SIZE_MB } from './constants';
 import {
   setSelectedFile,
   setShowUploadOverlay,
   setUploadFileName,
 } from './store/recResourceFileTransferStore';
 import { FileType, GalleryFile } from './types';
-
-export const MAX_IMAGE_SIZE_MB = 5.1;
-const MAX_DOCUMENT_SIZE_MB = 9.5;
 
 /**
  * Formats the date string for display.
@@ -145,8 +142,7 @@ export function validateFile(
   }
 
   // Validate file size using shared utility
-  const maxSizeMB =
-    fileType === 'image' ? MAX_IMAGE_SIZE_MB : MAX_DOCUMENT_SIZE_MB;
+  const maxSizeMB = MAX_FILE_SIZE_MB[fileType];
   const sizeError = validateFileSize(file, maxSizeMB);
   if (sizeError) {
     return sizeError;

@@ -2,7 +2,6 @@ import {
   formatDimensions,
   formatFileSize,
   processImageToVariants,
-  validateImage,
 } from '@/utils/imageProcessing';
 import {
   afterAll,
@@ -140,94 +139,6 @@ describe('imageProcessing', () => {
     vi.unstubAllGlobals();
   });
 
-  describe('validateImage', () => {
-    it('should return null for valid image', async () => {
-      const file = makeFile(1024 * 1024, 'image/jpeg');
-      mockImage.width = 1920;
-      mockImage.height = 1080;
-
-      const result = await validateImage(file);
-
-      expect(result).toBeNull();
-      expect(mockCreateObjectURL).toHaveBeenCalledWith(file);
-    });
-
-    it('should return error for file too large', async () => {
-      const file = makeFile(6 * 1024 * 1024, 'image/jpeg');
-
-      const result = await validateImage(file);
-
-      expect(result).not.toBeNull();
-      expect(result?.type).toBe('size');
-      expect(result?.message).toContain('too large');
-      expect(result?.details?.size).toBe(6 * 1024 * 1024);
-    });
-
-    it('should return error for invalid file type', async () => {
-      const file = makeFile(1024 * 1024, 'image/gif');
-
-      const result = await validateImage(file);
-
-      expect(result).not.toBeNull();
-      expect(result?.type).toBe('format');
-      expect(result?.message).toContain('Invalid image format');
-    });
-
-    it('should downscale images with dimensions too large instead of returning error', async () => {
-      const file = makeFile(1024 * 1024, 'image/jpeg');
-      mockImage.width = 5000;
-      mockImage.height = 3000;
-
-      const result = await validateImage(file, { width: 3840, height: 2160 });
-
-      // Should return null (no error) because image is automatically downscaled
-      expect(result).toBeNull();
-      expect(mockCreateObjectURL).toHaveBeenCalledWith(file);
-      // Verify canvas was created with downscaled dimensions
-      expect(mockCanvas.width).toBeLessThanOrEqual(3840);
-      expect(mockCanvas.height).toBeLessThanOrEqual(2160);
-    });
-
-    it('should return error when image fails to load', async () => {
-      const file = makeFile(1024 * 1024, 'image/jpeg');
-      global.Image = class {
-        width = 0;
-        height = 0;
-        onload: (() => void) | null = null;
-        onerror: (() => void) | null = null;
-        src = '';
-
-        constructor() {
-          setTimeout(() => {
-            if (this.onerror) {
-              this.onerror();
-            }
-          }, 0);
-        }
-      } as any;
-
-      const result = await validateImage(file);
-
-      expect(result).not.toBeNull();
-      expect(result?.type).toBe('loading');
-      expect(result?.message).toContain('Failed to load image');
-    });
-
-    it('should downscale images to fit custom maxResolution', async () => {
-      const file = makeFile(1024 * 1024, 'image/jpeg');
-      mockImage.width = 2000;
-      mockImage.height = 1500;
-
-      const result = await validateImage(file, { width: 1920, height: 1080 });
-
-      // Should return null (no error) because image is automatically downscaled
-      expect(result).toBeNull();
-      // Verify canvas was created with downscaled dimensions
-      expect(mockCanvas.width).toBeLessThanOrEqual(1920);
-      expect(mockCanvas.height).toBeLessThanOrEqual(1080);
-    });
-  });
-
   describe('formatFileSize', () => {
     it.each([
       [512, '512 B'],
@@ -302,7 +213,9 @@ describe('imageProcessing', () => {
     });
 
     it('should handle validation errors', async () => {
-      const file = makeFile(6 * 1024 * 1024, 'image/jpeg');
+      // MAX_FILE_SIZE_MB.image is 25MB, with 2% tolerance = ~26.7MB
+      // Use 30MB to ensure it exceeds the limit
+      const file = makeFile(30 * 1024 * 1024, 'image/jpeg');
 
       await expect(processImageToVariants({ file })).rejects.toThrow(
         'Failed to process image',
