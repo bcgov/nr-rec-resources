@@ -7,14 +7,18 @@ import { S3Service } from '@/s3/s3.service';
 import { HttpException, Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { PrismaService } from 'src/prisma.service';
-import {
-  RecreationResourceImageDto,
-  RecreationResourceImageSize,
-} from '../dto/recreation-resource-image.dto';
+import { RecreationResourceImageDto } from '../dto/recreation-resource-image.dto';
+import { RecreationResourceImageSize } from '@shared/constants/images';
 
-// Constants
 const REQUIRED_VARIANTS = ['original', 'scr', 'pre', 'thm'] as const;
 type ImageVariantType = (typeof REQUIRED_VARIANTS)[number];
+
+export interface ConsentMetadata {
+  date_taken?: string;
+  contains_pii?: boolean;
+  photographer_type?: string;
+  photographer_name?: string;
+}
 
 @Injectable()
 export class ResourceImagesService extends BaseStorageFileService {
@@ -26,9 +30,6 @@ export class ResourceImagesService extends BaseStorageFileService {
     super(ResourceImagesService.name, prisma, appConfig, s3Service);
   }
 
-  /**
-   * Get storage configuration for resource images
-   */
   protected getStorageConfig(): StorageConfig {
     return {
       bucketName: this.appConfig.recResourceImagesBucket,
@@ -55,6 +56,32 @@ export class ResourceImagesService extends BaseStorageFileService {
       },
     });
     return result.map((i) => this.mapResponse(i));
+  }
+
+  async getImageByResourceId(
+    rec_resource_id: string,
+    image_id: string,
+  ): Promise<RecreationResourceImageDto> {
+    const result = await this.prisma.recreation_resource_image.findUnique({
+      where: {
+        rec_resource_id,
+        image_id,
+      },
+      select: {
+        rec_resource_id: true,
+        image_id: true,
+        file_name: true,
+        extension: true,
+        file_size: true,
+        created_at: true,
+      },
+    });
+
+    if (result === null) {
+      throw new HttpException('Recreation Resource image not found', 404);
+    }
+
+    return this.mapResponse(result);
   }
 
   /**
@@ -221,19 +248,33 @@ export class ResourceImagesService extends BaseStorageFileService {
         `All image variants deleted successfully for imageId: ${image_id}`,
       );
 
-      // Delete database record
-      const result = await this.prisma.recreation_resource_image.delete({
-        where: {
-          rec_resource_id,
-          image_id,
-        },
+      const result = await this.prisma.$transaction(async (tx) => {
+        // Check for associated consent form
+        const consentForm = await tx.recreation_image_consent_form.findUnique({
+          where: { image_id },
+        });
+
+        // Delete consent-related records first (foreign key constraints)
+        if (consentForm) {
+          await tx.recreation_image_consent_form.delete({
+            where: { image_id },
+          });
+          await tx.recreation_resource_document.delete({
+            where: { doc_id: consentForm.doc_id },
+          });
+        }
+
+        const deleted = await tx.recreation_resource_image.delete({
+          where: { rec_resource_id, image_id },
+        });
+
+        return { deleted, hadConsentForm: !!consentForm };
       });
 
       this.logger.log(
-        `Successfully deleted image for rec_resource_id: ${rec_resource_id}, image_id: ${image_id}`,
+        `Deleted image ${image_id}${result.hadConsentForm ? ' with consent form' : ''} for resource ${rec_resource_id}`,
       );
-
-      return this.mapResponse(result);
+      return this.mapResponse(result.deleted);
     } catch (error) {
       this.handleError(
         error,

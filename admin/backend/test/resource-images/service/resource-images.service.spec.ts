@@ -6,7 +6,7 @@ import {
   createMockImage,
   createStorageTestModule,
   setupAppConfigForStorage,
-} from '../../test-utils/storage-test-utils';
+} from 'test/test-utils/storage-test-utils';
 
 vi.mock('fs');
 
@@ -83,9 +83,6 @@ describe('ResourceImagesDocsService', () => {
       vi.mocked(
         prismaService.recreation_resource_image.findUnique,
       ).mockResolvedValue(mockResource as any);
-      vi.mocked(
-        prismaService.recreation_resource_image.delete,
-      ).mockResolvedValue(mockResource as any);
 
       // Mock S3 list and delete operations
       const mockObjects = [
@@ -113,6 +110,25 @@ describe('ResourceImagesDocsService', () => {
       vi.mocked(s3Service.listObjectsByPrefix).mockResolvedValue(mockObjects);
       vi.mocked(s3Service.deleteFile).mockResolvedValue(undefined);
 
+      // Mock the transaction for delete
+      vi.mocked(prismaService.$transaction).mockImplementation(
+        async (fn: any) => {
+          const mockTx = {
+            recreation_image_consent_form: {
+              findUnique: vi.fn().mockResolvedValue(null),
+              delete: vi.fn(),
+            },
+            recreation_resource_document: {
+              delete: vi.fn(),
+            },
+            recreation_resource_image: {
+              delete: vi.fn().mockResolvedValue(mockResource),
+            },
+          };
+          return fn(mockTx);
+        },
+      );
+
       const result = await service.delete('REC0001', '11535');
       expect(result).toBeDefined();
       expect(result?.ref_id).toBe('11535');
@@ -123,6 +139,53 @@ describe('ResourceImagesDocsService', () => {
         'images/REC0001/11535/',
       );
       expect(s3Service.deleteFile).toHaveBeenCalledTimes(4);
+      expect(prismaService.$transaction).toHaveBeenCalled();
+    });
+
+    it('should delete with consent form records when they exist', async () => {
+      const mockResource = createMockImage('11535', 'REC1735', {
+        file_name: 'abbott-lake-rec1735.webp',
+        created_at: new Date('2025-03-26T23:33:06.175Z'),
+      });
+      const mockConsentForm = { doc_id: 'doc-123', image_id: '11535' };
+
+      vi.mocked(
+        prismaService.recreation_resource_image.findUnique,
+      ).mockResolvedValue(mockResource as any);
+
+      // Mock S3 operations
+      vi.mocked(s3Service.listObjectsByPrefix).mockResolvedValue([]);
+      vi.mocked(s3Service.deleteFile).mockResolvedValue(undefined);
+
+      const mockConsentFormDelete = vi.fn();
+      const mockDocumentDelete = vi.fn();
+
+      vi.mocked(prismaService.$transaction).mockImplementation(
+        async (fn: any) => {
+          const mockTx = {
+            recreation_image_consent_form: {
+              findUnique: vi.fn().mockResolvedValue(mockConsentForm),
+              delete: mockConsentFormDelete,
+            },
+            recreation_resource_document: {
+              delete: mockDocumentDelete,
+            },
+            recreation_resource_image: {
+              delete: vi.fn().mockResolvedValue(mockResource),
+            },
+          };
+          return fn(mockTx);
+        },
+      );
+
+      const result = await service.delete('REC0001', '11535');
+      expect(result).toBeDefined();
+      expect(mockConsentFormDelete).toHaveBeenCalledWith({
+        where: { image_id: '11535' },
+      });
+      expect(mockDocumentDelete).toHaveBeenCalledWith({
+        where: { doc_id: 'doc-123' },
+      });
     });
 
     it('should throw HttpException when image is not found', async () => {
@@ -134,6 +197,7 @@ describe('ResourceImagesDocsService', () => {
         'Recreation Resource image not found',
       );
       expect(s3Service.listObjectsByPrefix).not.toHaveBeenCalled();
+      expect(prismaService.$transaction).not.toHaveBeenCalled();
     });
   });
 

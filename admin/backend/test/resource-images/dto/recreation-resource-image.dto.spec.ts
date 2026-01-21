@@ -1,8 +1,8 @@
 import {
   RecreationResourceImageDto,
-  RecreationResourceImageSize,
   RecreationResourceImageVariantDto,
 } from '@/resource-images/dto/recreation-resource-image.dto';
+import { RecreationResourceImageSize } from '@shared/constants/images';
 import { describe, expect, it } from 'vitest';
 
 describe('RecreationResourceDocDto', () => {
@@ -19,11 +19,11 @@ describe('RecreationResourceDocDto', () => {
         size_code: RecreationResourceImageSize.ORIGINAL,
       },
       {
-        url: '/filestore/2/7/2/3/3_ce2c0d2d1f7b567/33272hpr_50d64095d1b545b.jpg?v=1742978094',
-        extension: 'jpg',
-        width: 1440,
-        height: 1080,
-        size_code: RecreationResourceImageSize.HIGH_RES_PRINT,
+        url: '/filestore/2/7/2/3/3_ce2c0d2d1f7b567/33272thm_50d64095d1b545b.webp?v=1742978094',
+        extension: 'webp',
+        width: 175,
+        height: 175,
+        size_code: RecreationResourceImageSize.THUMBNAIL,
       },
     ];
 
@@ -43,7 +43,7 @@ describe('RecreationResourceDocDto', () => {
 
   it('should validate enum values', () => {
     expect(Object.values(RecreationResourceImageSize)).toContain('original');
-    expect(Object.keys(RecreationResourceImageSize)).toHaveLength(16);
+    expect(Object.keys(RecreationResourceImageSize)).toHaveLength(4);
   });
 
   it('should handle empty values', () => {
