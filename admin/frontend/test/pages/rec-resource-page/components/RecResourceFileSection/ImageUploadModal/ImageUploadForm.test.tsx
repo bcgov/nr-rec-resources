@@ -1,10 +1,10 @@
 import { ImageUploadForm } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/sections/ImageUploadForm';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 vi.mock('@/pages/rec-resource-page/store/recResourceFileTransferStore', () => ({
-  setUploadFileName: () => {},
-  setUploadConsentMetadata: () => {},
+  setUploadFileName: vi.fn(),
+  setUploadConsentMetadata: vi.fn(),
 }));
 
 vi.mock(
@@ -102,6 +102,20 @@ describe('ImageUploadForm', () => {
         screen.getByText(/did you take this photo\?/i),
       ).toBeInTheDocument();
     });
+
+    it('shows photographer name field when No is selected for did you take photo', async () => {
+      render(<TestWrapper />);
+
+      // Click "No" radio button for "Did you take this photo?"
+      const noRadio = document.getElementById('didYouTakePhoto-no');
+      fireEvent.click(noRadio!);
+
+      await waitFor(() => {
+        expect(
+          screen.getByPlaceholderText('Enter photographer name'),
+        ).toBeInTheDocument();
+      });
+    });
   });
 
   describe('identifiable information', () => {
@@ -113,6 +127,20 @@ describe('ImageUploadForm', () => {
           name: /personally identifiable information/i,
         }),
       ).toBeInTheDocument();
+    });
+
+    it('shows consent upload section when Yes is selected for identifiable info', async () => {
+      render(<TestWrapper />);
+
+      // Click "Yes" for contains identifiable information
+      const yesRadio = document.getElementById('containsIdentifiableInfo-yes');
+      fireEvent.click(yesRadio!);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/this photo requires a consent and release form/i),
+        ).toBeInTheDocument();
+      });
     });
   });
 

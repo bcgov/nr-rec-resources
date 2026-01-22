@@ -141,6 +141,42 @@ describe('useImageUpload', () => {
       );
     });
 
+    it('processFile calls processImageToVariants and includes consent metadata', async () => {
+      const mockFile = createMockFile('test-image.jpg', 'image/jpeg');
+      const galleryFile = createMockGalleryFile<
+        import('@/pages/rec-resource-page/types').GalleryImage
+      >('image', {
+        id: 'temp-img-123',
+        name: 'Test Image',
+        pendingFile: mockFile,
+      });
+
+      const mockVariants = createMockImageVariants();
+      mockProcessImageToVariants.mockResolvedValue(mockVariants);
+
+      const { result } = renderHook(() => useImageUpload(), {
+        wrapper: createQueryClientWrapper(),
+      });
+
+      await result.current.handleUpload(galleryFile);
+
+      const executeUploadCall = mockExecuteUpload.mock.calls[0][0];
+      const processFileResult = await executeUploadCall.processFile(mockFile);
+
+      expect(mockProcessImageToVariants).toHaveBeenCalledWith({
+        file: mockFile,
+        onProgress: undefined,
+      });
+
+      expect(processFileResult).toMatchObject({
+        variants: mockVariants,
+        dateTaken: null,
+        containsPii: false,
+        photographerType: 'STAFF',
+        photographerName: '',
+      });
+    });
+
     it('does nothing if validation fails', async () => {
       vi.mocked(validateUploadFile).mockReturnValueOnce(false);
       const galleryFile = createMockGalleryFile('image', {
@@ -211,6 +247,31 @@ describe('useImageUpload', () => {
         tempId: 'pending-123',
         fileType: 'image',
         onSuccess,
+      });
+    });
+
+    it('passes updatePendingFile that calls updatePendingImage', async () => {
+      const { updatePendingImage } = await import(
+        '@/pages/rec-resource-page/store/recResourceFileTransferStore'
+      );
+      const mockFile = createMockFile('test-image.jpg', 'image/jpeg');
+      const pendingImage = createMockGalleryFile('image', {
+        id: 'pending-123',
+        name: 'Test Image',
+        pendingFile: mockFile,
+      });
+
+      const { result } = renderHook(() => useImageUpload(), {
+        wrapper: createQueryClientWrapper(),
+      });
+
+      await result.current.handleUploadRetry(pendingImage as any);
+
+      const executeUploadCall = mockExecuteUpload.mock.calls[0][0];
+      executeUploadCall.updatePendingFile('pending-123', { progress: 50 });
+
+      expect(updatePendingImage).toHaveBeenCalledWith('pending-123', {
+        progress: 50,
       });
     });
 

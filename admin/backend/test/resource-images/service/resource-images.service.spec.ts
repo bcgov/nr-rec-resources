@@ -16,6 +16,7 @@ describe('ResourceImagesDocsService', () => {
   let prismaService: Mocked<PrismaService>;
   let service: ResourceImagesService;
   let mockS3Service: Mocked<RecResourceImagesS3Service>;
+  let mockConsentFormsS3Service: Mocked<ConsentFormsS3Service>;
 
   beforeEach(async () => {
     const mockS3ServiceValue = {
@@ -44,6 +45,7 @@ describe('ResourceImagesDocsService', () => {
     service = testModule.service;
     prismaService = testModule.prismaService;
     mockS3Service = mockS3ServiceValue;
+    mockConsentFormsS3Service = mockConsentFormsS3ServiceValue;
     await setupAppConfigForStorage({
       bucketName: 'test-images-bucket',
       cloudfrontUrl: 'https://test-cdn.example.com',
@@ -181,6 +183,34 @@ describe('ResourceImagesDocsService', () => {
       await expect(
         service.create('REC0001', 'Title', variantFiles),
       ).rejects.toThrow('Failed to upload image');
+    });
+
+    it('should create image with consent form metadata', async () => {
+      const consentFormFile = {
+        buffer: Buffer.from('pdf content'),
+        originalname: 'consent.pdf',
+        size: 1024,
+      } as Express.Multer.File;
+
+      const consentMetadata = {
+        date_taken: '2024-01-15',
+        contains_pii: true,
+        photographer_type: 'OTHER',
+        photographer_name: 'John Doe',
+      };
+
+      const result = await service.create(
+        'REC0001',
+        'Title',
+        variantFiles,
+        consentMetadata,
+        consentFormFile,
+      );
+
+      expect(result).toBeDefined();
+      expect(result.image_id).toBe('image-123');
+      expect(prismaService.$transaction).toHaveBeenCalled();
+      expect(mockConsentFormsS3Service.uploadConsentForm).toHaveBeenCalled();
     });
   });
 
