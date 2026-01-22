@@ -118,24 +118,23 @@ export class ResourceImagesService extends BaseStorageFileService {
         this.s3Service.deleteImageVariants(rec_resource_id, image_id),
       );
 
-      const consentFileName =
-        consentFormFile?.originalname || `consent_${image_id}.pdf`;
-      const consentFormUploaded =
-        consentFormFile && consentMetadata?.contains_pii && doc_id;
+      const consentFormUploaded = Boolean(
+        consentFormFile && consentMetadata?.contains_pii && doc_id,
+      );
 
       if (consentFormUploaded) {
         await this.uploadConsentForm(
           rec_resource_id,
           image_id,
-          doc_id,
-          consentFormFile,
-          consentFileName,
+          doc_id!,
+          consentFormFile!,
+          consentFormFile!.originalname,
         );
         cleanupActions.push(() =>
           this.consentFormsS3Service.deleteConsentForm(
             rec_resource_id,
             image_id,
-            doc_id,
+            doc_id!,
           ),
         );
       }
@@ -149,8 +148,7 @@ export class ResourceImagesService extends BaseStorageFileService {
         variantFiles,
         consentFormFile: consentFormFile ?? undefined,
         consentMetadata,
-        consentFormUploaded: !!consentFormUploaded,
-        consentFileName: consentFormUploaded ? consentFileName : null,
+        consentFormUploaded,
       });
 
       return this.mapResponse(result);
@@ -223,7 +221,6 @@ export class ResourceImagesService extends BaseStorageFileService {
     consentFormFile?: Express.Multer.File;
     consentMetadata?: ConsentMetadata;
     consentFormUploaded: boolean;
-    consentFileName: string | null;
   }) {
     const {
       image_id,
@@ -234,7 +231,6 @@ export class ResourceImagesService extends BaseStorageFileService {
       consentFormFile,
       consentMetadata,
       consentFormUploaded,
-      consentFileName,
     } = params;
 
     return this.prisma.$transaction(async (tx) => {
@@ -250,13 +246,13 @@ export class ResourceImagesService extends BaseStorageFileService {
         },
       });
 
-      if (consentFormUploaded && doc_id && consentFileName && consentFormFile) {
+      if (consentFormUploaded && doc_id && consentFormFile) {
         await tx.recreation_resource_document.create({
           data: {
             doc_id,
             rec_resource_id,
             doc_code: 'IC',
-            file_name: consentFileName,
+            file_name: consentFormFile.originalname,
             extension: 'pdf',
             file_size: BigInt(consentFormFile.size),
             created_by: 'system',
