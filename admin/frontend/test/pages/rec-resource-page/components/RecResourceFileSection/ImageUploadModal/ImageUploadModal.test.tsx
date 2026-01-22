@@ -6,25 +6,31 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/pages/rec-resource-page/hooks/useRecResourceFileTransferState');
 vi.mock(
-  '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/hooks',
-  () => ({
-    useImageUploadForm: vi.fn(() => ({
-      control: {},
-      handleSubmit: vi.fn((fn) => fn),
-      resetForm: vi.fn(),
-      uploadState: 'ready',
-      isUploadEnabled: true,
-    })),
-  }),
-);
-
-vi.mock(
   '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/sections',
-  () => ({
-    ImageUploadForm: () => (
-      <div data-testid="image-upload-form">Privacy Form</div>
-    ),
-  }),
+  () => {
+    // Store callback to call after render
+    let pendingFormReady: ((handlers: any) => void) | null = null;
+
+    return {
+      ImageUploadForm: ({
+        onFormReady,
+      }: {
+        onFormReady: (handlers: any) => void;
+      }) => {
+        // Store the callback
+        pendingFormReady = onFormReady;
+        // Call it after microtask (simulates useEffect)
+        void Promise.resolve().then(() => {
+          if (pendingFormReady) {
+            pendingFormReady({ resetForm: vi.fn(), isValid: true });
+            pendingFormReady = null;
+          }
+          return undefined;
+        });
+        return <div data-testid="image-upload-form">Privacy Form</div>;
+      },
+    };
+  },
 );
 
 const mockHandleGeneralAction = vi.fn();
@@ -116,14 +122,16 @@ describe('ImageUploadModal', () => {
     expect(mockHandleGeneralAction).toHaveBeenCalledWith('cancel-upload');
   });
 
-  it('handles upload button click when enabled', () => {
+  it('handles upload button click when enabled', async () => {
     setMockState({
       showUploadOverlay: true,
       selectedFileForUpload: createFile(),
     });
     render(<ImageUploadModal />, { wrapper: TestQueryClientProvider });
 
-    fireEvent.click(screen.getByRole('button', { name: /upload/i }));
+    // Wait for async state update from onFormReady
+    const uploadButton = await screen.findByRole('button', { name: /upload/i });
+    fireEvent.click(uploadButton);
     expect(mockHandleGeneralAction).toHaveBeenCalledWith('confirm-upload');
   });
 

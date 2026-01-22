@@ -7,11 +7,17 @@ export interface UploadResourceImageParams {
   recResourceId: string;
   variants: ImageVariant[];
   fileName: string;
+  dateTaken?: string;
+  containsPii?: boolean;
+  photographerType?: string;
+  photographerName?: string;
+  consentFormFile?: File;
 }
 
 /**
  * Hook to upload an image with variants to a recreation resource.
  * Accepts 4 pre-processed WebP variants from browser-side processing.
+ * Optionally accepts consent form metadata and PDF file.
  */
 export function useUploadResourceImage() {
   const apiClient = useRecreationResourceAdminApiClient();
@@ -21,6 +27,11 @@ export function useUploadResourceImage() {
       recResourceId,
       variants,
       fileName,
+      dateTaken,
+      containsPii,
+      photographerType,
+      photographerName,
+      consentFormFile,
     }: UploadResourceImageParams) => {
       // Extract variants into a map for easy lookup
       const variantMap = new Map(variants.map((v) => [v.sizeCode, v]));
@@ -35,16 +46,29 @@ export function useUploadResourceImage() {
         throw new Error('Missing required image variants');
       }
 
-      // Pass parameters as individual properties to match API client interface
-      // The API client will create FormData internally
-      return await apiClient.createRecreationresourceImage({
+      const requestParams: Parameters<
+        typeof apiClient.createRecreationresourceImage
+      >[0] = {
         recResourceId,
         fileName,
         original: original.blob,
         scr: scr.blob,
         pre: pre.blob,
         thm: thm.blob,
-      });
+      };
+
+      const extendedParams = {
+        ...requestParams,
+        dateTaken,
+        containsPii,
+        photographerType,
+        photographerName,
+        consentForm: consentFormFile,
+      };
+
+      return await apiClient.createRecreationresourceImage(
+        extendedParams as typeof requestParams,
+      );
     },
     retry: createRetryHandler(),
   });

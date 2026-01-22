@@ -13,10 +13,36 @@ import {
 vi.mock('@/pages/rec-resource-page/hooks/useRecResource');
 vi.mock('@/services/hooks/recreation-resource-admin/useUploadResourceImage');
 vi.mock('@/utils/imageProcessing');
+
 vi.mock('@/pages/rec-resource-page/store/recResourceFileTransferStore', () => ({
   addPendingImage: vi.fn(),
   removePendingImage: vi.fn(),
   updatePendingImage: vi.fn(),
+  recResourceFileTransferStore: {
+    state: {
+      uploadConsentMetadata: {
+        dateTaken: null,
+        containsPii: false,
+        photographerType: 'STAFF',
+        photographerName: '',
+        consentFormFile: null,
+      },
+    },
+    subscribe: vi.fn(),
+  },
+}));
+
+// Mock useStore to return consent metadata
+vi.mock('@tanstack/react-store', () => ({
+  useStore: vi.fn(() => ({
+    uploadConsentMetadata: {
+      dateTaken: null,
+      containsPii: false,
+      photographerType: 'STAFF',
+      photographerName: '',
+      consentFormFile: null,
+    },
+  })),
 }));
 
 vi.mock('@/pages/rec-resource-page/hooks/utils/validateUpload', () => ({

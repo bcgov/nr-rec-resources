@@ -19,6 +19,37 @@ import { ImageVariant } from '@/utils/imageProcessing';
 import { TestQueryClientProvider } from '@test/test-utils';
 import { renderHook } from '@testing-library/react';
 
+const createMockVariants = (): ImageVariant[] => [
+  {
+    sizeCode: 'original',
+    blob: new Blob(['original'], { type: 'image/webp' }),
+    width: 1920,
+    height: 1080,
+    file: new File(['original'], 'original.webp', { type: 'image/webp' }),
+  },
+  {
+    sizeCode: 'scr',
+    blob: new Blob(['scr'], { type: 'image/webp' }),
+    width: 1400,
+    height: 800,
+    file: new File(['scr'], 'scr.webp', { type: 'image/webp' }),
+  },
+  {
+    sizeCode: 'pre',
+    blob: new Blob(['pre'], { type: 'image/webp' }),
+    width: 900,
+    height: 540,
+    file: new File(['pre'], 'pre.webp', { type: 'image/webp' }),
+  },
+  {
+    sizeCode: 'thm',
+    blob: new Blob(['thm'], { type: 'image/webp' }),
+    width: 250,
+    height: 250,
+    file: new File(['thm'], 'thm.webp', { type: 'image/webp' }),
+  },
+];
+
 describe('useUploadResourceImage', () => {
   const mockApi = {
     createRecreationresourceImage: vi.fn(),
@@ -48,70 +79,120 @@ describe('useUploadResourceImage', () => {
     expect(createRetryHandler).toHaveBeenCalled();
   });
 
-  it('should use the API client for upload', () => {
-    renderHook(() => useUploadResourceImage(), {
-      wrapper: TestQueryClientProvider,
-    });
+  describe('basic upload', () => {
+    it('calls API with correct parameters for basic upload', async () => {
+      const mockParams = {
+        recResourceId: 'test-resource-id',
+        variants: createMockVariants(),
+        fileName: 'test-caption.webp',
+      };
 
-    expect(useRecreationResourceAdminApiClient).toHaveBeenCalled();
+      mockApi.createRecreationresourceImage.mockResolvedValue({
+        id: 'test-image-id',
+      });
+
+      const { result } = renderHook(() => useUploadResourceImage(), {
+        wrapper: TestQueryClientProvider,
+      });
+
+      await result.current.mutateAsync(mockParams);
+
+      expect(mockApi.createRecreationresourceImage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          recResourceId: mockParams.recResourceId,
+          fileName: mockParams.fileName,
+          original: expect.any(Blob),
+          scr: expect.any(Blob),
+          pre: expect.any(Blob),
+          thm: expect.any(Blob),
+        }),
+      );
+    });
   });
 
-  it('should call createRecreationresourceImage with correct parameters', async () => {
-    // Create mock variants matching the expected structure
-    const mockVariants: ImageVariant[] = [
-      {
-        sizeCode: 'original',
-        blob: new Blob(['original'], { type: 'image/webp' }),
-        width: 1920,
-        height: 1080,
-        file: new File(['original'], 'original.webp', { type: 'image/webp' }),
-      },
-      {
-        sizeCode: 'scr',
-        blob: new Blob(['scr'], { type: 'image/webp' }),
-        width: 1400,
-        height: 800,
-        file: new File(['scr'], 'scr.webp', { type: 'image/webp' }),
-      },
-      {
-        sizeCode: 'pre',
-        blob: new Blob(['pre'], { type: 'image/webp' }),
-        width: 900,
-        height: 540,
-        file: new File(['pre'], 'pre.webp', { type: 'image/webp' }),
-      },
-      {
-        sizeCode: 'thm',
-        blob: new Blob(['thm'], { type: 'image/webp' }),
-        width: 250,
-        height: 250,
-        file: new File(['thm'], 'thm.webp', { type: 'image/webp' }),
-      },
-    ];
-
-    const mockParams = {
-      recResourceId: 'test-resource-id',
-      variants: mockVariants,
-      fileName: 'test-caption.webp',
-    };
-
-    mockApi.createRecreationresourceImage.mockResolvedValue({
-      id: 'test-image-id',
+  describe('upload with consent metadata', () => {
+    const consentFile = new File(['consent'], 'consent.pdf', {
+      type: 'application/pdf',
     });
 
-    const { result } = renderHook(() => useUploadResourceImage(), {
-      wrapper: TestQueryClientProvider,
+    it.each([
+      ['dateTaken', { dateTaken: '2024-01-15' }, { dateTaken: '2024-01-15' }],
+      ['containsPii', { containsPii: true }, { containsPii: true }],
+      [
+        'photographerType',
+        { photographerType: 'OTHER' },
+        { photographerType: 'OTHER' },
+      ],
+      [
+        'photographerName',
+        { photographerName: 'John Photographer' },
+        { photographerName: 'John Photographer' },
+      ],
+      [
+        'consentFormFile',
+        { consentFormFile: consentFile },
+        { consentForm: consentFile },
+      ],
+    ])('passes %s to API', async (_, inputField, expectedField) => {
+      const mockParams = {
+        recResourceId: 'test-resource-id',
+        variants: createMockVariants(),
+        fileName: 'test.webp',
+        ...inputField,
+      };
+
+      mockApi.createRecreationresourceImage.mockResolvedValue({
+        id: 'test-image-id',
+      });
+
+      const { result } = renderHook(() => useUploadResourceImage(), {
+        wrapper: TestQueryClientProvider,
+      });
+
+      await result.current.mutateAsync(mockParams);
+
+      expect(mockApi.createRecreationresourceImage).toHaveBeenCalledWith(
+        expect.objectContaining(expectedField),
+      );
     });
 
-    await result.current.mutateAsync(mockParams);
+    it('passes all consent metadata fields together', async () => {
+      const consentFile = new File(['consent'], 'consent.pdf', {
+        type: 'application/pdf',
+      });
 
-    expect(mockApi.createRecreationresourceImage).toHaveBeenCalledWith({
-      recResourceId: mockParams.recResourceId,
-      fileName: mockParams.fileName,
-      original: mockVariants[0].blob,
-      scr: mockVariants[1].blob,
-      pre: mockVariants[2].blob,
-      thm: mockVariants[3].blob,
+      const mockParams = {
+        recResourceId: 'test-resource-id',
+        variants: createMockVariants(),
+        fileName: 'test.webp',
+        dateTaken: '2024-01-15',
+        containsPii: true,
+        photographerType: 'OTHER',
+        photographerName: 'John Photographer',
+        consentFormFile: consentFile,
+      };
+
+      mockApi.createRecreationresourceImage.mockResolvedValue({
+        id: 'test-image-id',
+      });
+
+      const { result } = renderHook(() => useUploadResourceImage(), {
+        wrapper: TestQueryClientProvider,
+      });
+
+      await result.current.mutateAsync(mockParams);
+
+      expect(mockApi.createRecreationresourceImage).toHaveBeenCalledWith(
+        expect.objectContaining({
+          recResourceId: 'test-resource-id',
+          fileName: 'test.webp',
+          dateTaken: '2024-01-15',
+          containsPii: true,
+          photographerType: 'OTHER',
+          photographerName: 'John Photographer',
+          consentForm: consentFile,
+        }),
+      );
     });
   });
 });

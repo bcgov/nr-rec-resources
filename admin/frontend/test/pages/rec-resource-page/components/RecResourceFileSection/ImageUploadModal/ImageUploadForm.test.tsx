@@ -1,109 +1,130 @@
 import { ImageUploadForm } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/sections/ImageUploadForm';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
-import { useForm } from 'react-hook-form';
-import { ImageUploadFormData } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/schemas';
-import { setUploadFileName } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
+import { render, screen, waitFor } from '@testing-library/react';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 vi.mock('@/pages/rec-resource-page/store/recResourceFileTransferStore', () => ({
-  setUploadFileName: vi.fn(),
+  setUploadFileName: () => {},
+  setUploadConsentMetadata: () => {},
 }));
 
+vi.mock(
+  '@/services/hooks/recreation-resource-admin/useGetRecreationResourceOptions',
+  () => ({
+    useGetRecreationResourceOptions: () => ({
+      data: [
+        {
+          type: 'photographerType',
+          options: [
+            { id: 'STAFF', label: 'Staff' },
+            { id: 'CONTRACTOR', label: 'Contractor' },
+            { id: 'VOLUNTEER', label: 'Volunteer' },
+            { id: 'PHOTOGRAPHER', label: 'Photographer' },
+            { id: 'OTHER', label: 'Other' },
+          ],
+        },
+      ],
+      isLoading: false,
+      error: null,
+    }),
+  }),
+);
+
 const TestWrapper = ({
-  uploadState,
-  onSubmit = vi.fn(),
+  onUpload = vi.fn(),
+  onFormReady = vi.fn(),
 }: {
-  uploadState: string;
-  onSubmit?: any;
+  onUpload?: () => void;
+  onFormReady?: (handlers: any) => void;
 }) => {
-  const { control, handleSubmit } = useForm<ImageUploadFormData>();
   return (
     <ImageUploadForm
-      control={control}
-      uploadState={uploadState as any}
-      onSubmit={handleSubmit(onSubmit)}
+      fileName="test-image.jpg"
+      onUpload={onUpload}
+      onFormReady={onFormReady}
     />
   );
 };
 
 describe('ImageUploadForm', () => {
-  it('renders display name input', () => {
-    render(<TestWrapper uploadState="initial" />);
-
-    expect(
-      screen.getByPlaceholderText('Enter a display name'),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/briefly describe the location or feature/i),
-    ).toBeInTheDocument();
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  it('renders working hours toggle question', () => {
-    render(<TestWrapper uploadState="initial" />);
+  describe('component setup', () => {
+    it('calls onFormReady with form handlers on mount', async () => {
+      const onFormReady = vi.fn();
+      render(<TestWrapper onFormReady={onFormReady} />);
 
-    expect(
-      screen.getByText(/was this photo taken by staff during working hours/i),
-    ).toBeInTheDocument();
+      await waitFor(() => {
+        expect(onFormReady).toHaveBeenCalledWith(
+          expect.objectContaining({
+            resetForm: expect.any(Function),
+            isValid: expect.any(Boolean),
+          }),
+        );
+      });
+    });
   });
 
-  it('renders personal info toggle question', () => {
-    render(<TestWrapper uploadState="initial" />);
+  describe('display name field', () => {
+    it('renders display name input', () => {
+      render(<TestWrapper />);
 
-    expect(
-      screen.getByText((content) =>
-        content.toLowerCase().includes('personally identifiable information'),
-      ),
-    ).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText('Enter a display name'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/briefly describe the location or feature/i),
+      ).toBeInTheDocument();
+    });
   });
 
-  it('shows warning when not taken during working hours', () => {
-    render(<TestWrapper uploadState="not-working-hours" />);
+  describe('date taken field', () => {
+    it('renders date taken section', () => {
+      render(<TestWrapper />);
 
-    expect(
-      screen.getByText(
-        /recspace is currently accepting photos only by staff during working hours/i,
-      ),
-    ).toBeInTheDocument();
+      expect(screen.getByText('Date Taken')).toBeInTheDocument();
+    });
   });
 
-  it('shows warning when photo has personal info', () => {
-    render(<TestWrapper uploadState="has-personal-info" />);
+  describe('photographer fields', () => {
+    it('renders photographer type dropdown', () => {
+      render(<TestWrapper />);
 
-    expect(
-      screen.getByText(
-        /recspace is not currently accepting photos with personally identifiable information/i,
-      ),
-    ).toBeInTheDocument();
+      expect(screen.getByText('Photographer Type')).toBeInTheDocument();
+      expect(screen.getByRole('combobox')).toBeInTheDocument();
+    });
+
+    it('renders did you take photo question', () => {
+      render(<TestWrapper />);
+
+      expect(
+        screen.getByText(/did you take this photo\?/i),
+      ).toBeInTheDocument();
+    });
   });
 
-  it('shows confirmation checkbox when ready to confirm', () => {
-    render(<TestWrapper uploadState="confirm-no-personal-info" />);
+  describe('identifiable information', () => {
+    it('renders identifiable information question', () => {
+      render(<TestWrapper />);
 
-    expect(
-      screen.getByText(
-        /by uploading this photo, i confirm that it contains no personally identifiable information/i,
-      ),
-    ).toBeInTheDocument();
+      expect(
+        screen.getByRole('link', {
+          name: /personally identifiable information/i,
+        }),
+      ).toBeInTheDocument();
+    });
   });
 
-  it('syncs display name to store on change', () => {
-    render(<TestWrapper uploadState="initial" />);
-    const input = screen.getByPlaceholderText('Enter a display name');
+  describe('confirmation checkbox', () => {
+    it('renders confirmation checkbox', () => {
+      render(<TestWrapper />);
 
-    fireEvent.change(input, { target: { value: 'New Display Name' } });
-
-    expect(setUploadFileName).toHaveBeenCalledWith('New Display Name');
-  });
-
-  it('triggers onSubmit when Enter key is pressed on display name field', async () => {
-    const onSubmit = vi.fn();
-    render(<TestWrapper uploadState="initial" onSubmit={onSubmit} />);
-
-    const input = screen.getByPlaceholderText('Enter a display name');
-    fireEvent.change(input, { target: { value: 'Valid Name' } });
-
-    fireEvent.submit(screen.getByLabelText('image-upload-form'));
-
-    await vi.waitFor(() => expect(onSubmit).toHaveBeenCalled());
+      expect(
+        screen.getByText(
+          /by uploading this photo, i confirm that it contains no personally identifiable information/i,
+        ),
+      ).toBeInTheDocument();
+    });
   });
 });

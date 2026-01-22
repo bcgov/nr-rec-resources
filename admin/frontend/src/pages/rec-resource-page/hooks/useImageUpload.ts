@@ -1,9 +1,11 @@
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { useUploadResourceImage } from '@/services/hooks/recreation-resource-admin/useUploadResourceImage';
 import { processImageToVariants } from '@/utils/imageProcessing';
+import { useStore } from '@tanstack/react-store';
 import { useCallback } from 'react';
 import {
   addPendingImage,
+  recResourceFileTransferStore,
   removePendingImage,
   updatePendingImage,
 } from '../store/recResourceFileTransferStore';
@@ -15,6 +17,8 @@ export function useImageUpload() {
   const { recResource } = useRecResource();
   const uploadResourceImageMutation = useUploadResourceImage();
   const { executeUpload } = useFileUpload<GalleryImage>();
+
+  const { uploadConsentMetadata } = useStore(recResourceFileTransferStore);
 
   const updateProgress = useCallback(
     (tempId: string, updates: Partial<GalleryImage>) => {
@@ -32,9 +36,17 @@ export function useImageUpload() {
         file,
         onProgress,
       });
-      return { variants };
+
+      return {
+        variants,
+        dateTaken: uploadConsentMetadata.dateTaken,
+        containsPii: uploadConsentMetadata.containsPii,
+        photographerType: uploadConsentMetadata.photographerType,
+        photographerName: uploadConsentMetadata.photographerName,
+        consentFormFile: uploadConsentMetadata.consentFormFile ?? undefined,
+      };
     },
-    [],
+    [uploadConsentMetadata],
   );
 
   const handleUpload = useCallback(
