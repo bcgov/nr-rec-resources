@@ -10,8 +10,6 @@ describe('services/hooks/index', () => {
     expect(hooksIndex).toHaveProperty('useGetRecreationResourceById');
     expect(hooksIndex).toHaveProperty('useGetRecreationResourceSuggestions');
     expect(hooksIndex).toHaveProperty('useRecreationResourceAdminApiClient');
-    expect(hooksIndex).toHaveProperty('useUploadResourceDocument');
-    expect(hooksIndex).toHaveProperty('useUploadResourceImage');
     expect(hooksIndex).toHaveProperty('createRetryHandler');
   });
 
@@ -32,8 +30,6 @@ describe('services/hooks/index', () => {
     expect(typeof hooksIndex.useRecreationResourceAdminApiClient).toBe(
       'function',
     );
-    expect(typeof hooksIndex.useUploadResourceDocument).toBe('function');
-    expect(typeof hooksIndex.useUploadResourceImage).toBe('function');
     expect(typeof hooksIndex.createRetryHandler).toBe('function');
   });
 });

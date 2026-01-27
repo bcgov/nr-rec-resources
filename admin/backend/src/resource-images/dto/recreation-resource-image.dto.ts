@@ -123,48 +123,93 @@ export class RecreationResourceImageDto {
   created_at: string | null;
 }
 
-export class CreateRecreationResourceImageBodyDto {
+/**
+ * DTO for presigned upload URL response - single image variant
+ */
+export class ImagePresignedUrlDto {
   @ApiProperty({
-    description: 'Image file name',
-    example: 'scenic-mountain-view.webp',
-    minLength: 1,
-    maxLength: 255,
-    type: String,
+    description: 'S3 object key for this variant',
+    example: 'images/REC204118/a7c1e5f3-8d2b-4c9a-b1e6-f3d8c7a2e5b9/scr.webp',
   })
-  @IsNotEmpty()
-  @IsString()
-  @Length(1, 255)
-  file_name: string;
-}
-
-export class CreateRecreationResourceImageFormDto {
-  @ApiProperty({
-    description: 'Image file name',
-    example: 'scenic-mountain-view.webp',
-    minLength: 1,
-    maxLength: 255,
-    type: String,
-  })
-  file_name: string;
+  key: string;
 
   @ApiProperty({
-    type: 'string',
-    format: 'binary',
-    description: 'File to upload',
+    description: 'Presigned PUT URL for uploading to S3',
+    example: 'https://bucket.s3.amazonaws.com/images/REC204118/...',
   })
-  file: any;
+  url: string;
+
+  @ApiProperty({
+    description: 'Size code of the image variant',
+    enum: RecreationResourceImageSize,
+    example: RecreationResourceImageSize.SCREEN,
+  })
+  size_code: RecreationResourceImageSize;
 }
 
 /**
- * DTO for creating image with 4 pre-processed variants
+ * DTO for image presign endpoint response
  */
-export class CreateRecreationResourceImageVariantsDto {
+export class PresignImageUploadResponseDto {
   @ApiProperty({
-    description: 'Image file name',
+    description: 'Allocated image ID (UUID)',
+    example: 'a7c1e5f3-8d2b-4c9a-b1e6-f3d8c7a2e5b9',
+  })
+  image_id: string;
+
+  @ApiProperty({
+    description: 'Array of presigned URLs for 4 image variants',
+    type: [ImagePresignedUrlDto],
+  })
+  presigned_urls: ImagePresignedUrlDto[];
+}
+
+/**
+ * DTO for image finalize endpoint request
+ */
+export class FinalizeImageUploadRequestDto {
+  @ApiProperty({
+    description: 'Image ID (returned from presign endpoint)',
+    example: 'a7c1e5f3-8d2b-4c9a-b1e6-f3d8c7a2e5b9',
+  })
+  @IsNotEmpty()
+  @IsString()
+  image_id: string;
+
+  @ApiProperty({
+    description: 'Original image file name',
     example: 'beautiful-mountain-view.webp',
   })
   @IsNotEmpty()
   @IsString()
   @Length(1, 255)
   file_name: string;
+
+  @ApiProperty({
+    description: 'Size of the original image variant in bytes',
+    example: 2097152,
+  })
+  @IsNotEmpty()
+  file_size_original: number;
+
+  @ApiProperty({
+    description: 'Sizes of screen variant in bytes',
+    example: 1048576,
+  })
+  @IsNotEmpty()
+  file_size_scr: number;
+
+  @ApiProperty({
+    description: 'Size of preview variant in bytes',
+    example: 524288,
+  })
+  @IsNotEmpty()
+  file_size_pre: number;
+
+  @ApiProperty({
+    description: 'Size of thumbnail variant in bytes',
+    example: 262144,
+  })
+  @IsNotEmpty()
+  file_size_thm: number;
 }

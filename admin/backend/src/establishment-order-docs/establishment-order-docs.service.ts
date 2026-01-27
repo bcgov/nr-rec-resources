@@ -11,9 +11,9 @@ export class EstablishmentOrderDocsService extends BaseStorageFileService {
   constructor(
     prisma: PrismaService,
     appConfig: AppConfigService,
-    private readonly s3Service: S3Service,
+    s3Service: S3Service,
   ) {
-    super(EstablishmentOrderDocsService.name, prisma, appConfig);
+    super(EstablishmentOrderDocsService.name, prisma, appConfig, s3Service);
   }
 
   /**

@@ -112,6 +112,7 @@ export function createMockS3Service(): Mocked<S3Service> {
     uploadFile: vi.fn(),
     deleteFile: vi.fn(),
     getSignedUrl: vi.fn(),
+    getSignedUploadUrl: vi.fn(),
     listObjectsByPrefix: vi.fn(),
     getBucketName: vi.fn(),
     getS3Client: vi.fn(),

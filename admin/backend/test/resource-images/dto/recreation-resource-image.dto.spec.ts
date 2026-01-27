@@ -1,7 +1,4 @@
 import {
-  CreateRecreationResourceImageBodyDto,
-  CreateRecreationResourceImageFormDto,
-  CreateRecreationResourceImageVariantsDto,
   RecreationResourceImageDto,
   RecreationResourceImageSize,
   RecreationResourceImageVariantDto,
@@ -75,52 +72,6 @@ describe('RecreationResourceDocDto', () => {
       expect(dto.width).toBe(1440);
       expect(dto.height).toBe(1080);
       expect(dto.size_code).toBe(RecreationResourceImageSize.ORIGINAL);
-    });
-  });
-
-  describe('CreateRecreationResourceImageBodyDto', () => {
-    it('should create a valid DTO instance', () => {
-      const dto = new CreateRecreationResourceImageBodyDto();
-      dto.file_name = 'new-file-upload.webp';
-
-      expect(dto).toBeDefined();
-      expect(dto.file_name).toBe('new-file-upload.webp');
-    });
-  });
-
-  describe('CreateRecreationResourceImageFormDto', () => {
-    it('should create a valid DTO instance', () => {
-      const dto = new CreateRecreationResourceImageFormDto();
-      dto.file_name = 'campbell-river-site-map.webp';
-      dto.file = 'file-content';
-
-      expect(dto).toBeDefined();
-      expect(dto.file_name).toBe('campbell-river-site-map.webp');
-      expect(dto.file).toBe('file-content');
-    });
-
-    it('should allow file to be a Buffer', () => {
-      const dto = new CreateRecreationResourceImageFormDto();
-      dto.file_name = 'campbell-river-site-map.webp';
-      dto.file = Buffer.from('test');
-      expect(dto.file).toBeInstanceOf(Buffer);
-    });
-
-    it('should allow missing file property', () => {
-      const dto = new CreateRecreationResourceImageFormDto();
-      dto.file_name = 'campbell-river-site-map.webp';
-      expect(dto.file_name).toBe('campbell-river-site-map.webp');
-      expect(dto.file).toBeUndefined();
-    });
-  });
-
-  describe('CreateRecreationResourceImageVariantsDto', () => {
-    it('should create a valid DTO instance', () => {
-      const dto = new CreateRecreationResourceImageVariantsDto();
-      dto.file_name = 'beautiful-mountain-view.webp';
-
-      expect(dto).toBeDefined();
-      expect(dto.file_name).toBe('beautiful-mountain-view.webp');
     });
   });
 });

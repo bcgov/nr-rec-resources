@@ -20,3 +20,15 @@ variable "common_tags" {
     managed-by = "terraform"
   }
 }
+
+variable "admin_frontend_custom_domains" {
+  description = "List of custom domain names for the admin frontend (used for CORS in prod). These are the CloudFront aliases."
+  type        = list(string)
+  default     = []
+}
+
+variable "admin_frontend_cloudfront_domain" {
+  description = "Admin frontend CloudFront domain"
+  type        = string
+  default     = ""
+}

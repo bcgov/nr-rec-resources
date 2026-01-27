@@ -1,5 +1,8 @@
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
-import { useUploadResourceImage } from '@/services/hooks/recreation-resource-admin/useUploadResourceImage';
+import {
+  useFinalizeImageUpload,
+  usePresignImageUpload,
+} from '@/services/hooks/recreation-resource-admin/usePresignAndFinalizeHooks';
 import { processImageToVariants } from '@/utils/imageProcessing';
 import { useCallback } from 'react';
 import {
@@ -8,13 +11,14 @@ import {
   updatePendingImage,
 } from '../store/recResourceFileTransferStore';
 import { GalleryFile, GalleryImage } from '../types';
+import { usePresignedUpload } from './utils/usePresignedUpload';
 import { validateUploadFile } from './utils/validateUpload';
-import { useFileUpload } from './utils/useFileUpload';
 
 export function useImageUpload() {
   const { recResource } = useRecResource();
-  const uploadResourceImageMutation = useUploadResourceImage();
-  const { executeUpload } = useFileUpload<GalleryImage>();
+  const presignImageMutation = usePresignImageUpload();
+  const finalizeImageMutation = useFinalizeImageUpload();
+  const { executePresignedUpload } = usePresignedUpload<GalleryImage>();
 
   const updateProgress = useCallback(
     (tempId: string, updates: Partial<GalleryImage>) => {
@@ -52,11 +56,12 @@ export function useImageUpload() {
         isUploading: true,
       } as GalleryImage);
 
-      await executeUpload({
+      await executePresignedUpload({
         recResourceId: recResourceId!,
         galleryFile: galleryFile as GalleryImage,
         tempId: galleryFile.id,
-        uploadMutation: uploadResourceImageMutation,
+        presignMutation: presignImageMutation,
+        finalizeMutation: finalizeImageMutation,
         processFile,
         updatePendingFile: updateProgress,
         removePendingFile: removePendingImage,
@@ -67,9 +72,10 @@ export function useImageUpload() {
       });
     },
     [
-      executeUpload,
+      executePresignedUpload,
       recResource,
-      uploadResourceImageMutation,
+      presignImageMutation,
+      finalizeImageMutation,
       processFile,
       updateProgress,
     ],
@@ -87,11 +93,12 @@ export function useImageUpload() {
         uploadFailed: false,
       });
 
-      await executeUpload({
+      await executePresignedUpload({
         recResourceId: recResourceId!,
         galleryFile: pendingImage as GalleryImage,
         tempId: pendingImage.id,
-        uploadMutation: uploadResourceImageMutation,
+        presignMutation: presignImageMutation,
+        finalizeMutation: finalizeImageMutation,
         processFile,
         updatePendingFile: updateProgress,
         removePendingFile: removePendingImage,
@@ -102,11 +109,12 @@ export function useImageUpload() {
       });
     },
     [
-      executeUpload,
+      executePresignedUpload,
       recResource,
-      uploadResourceImageMutation,
-      processFile,
+      presignImageMutation,
+      finalizeImageMutation,
       updateProgress,
+      processFile,
     ],
   );
 

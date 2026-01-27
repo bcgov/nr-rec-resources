@@ -6,11 +6,16 @@ index.ts
 models/BadRequestResponseDto.ts
 models/CreateRecreationFeeDto.ts
 models/EstablishmentOrderDocDto.ts
+models/FinalizeDocUploadRequestDto.ts
+models/FinalizeImageUploadRequestDto.ts
 models/HealthControllerCheck200Response.ts
 models/HealthControllerCheck200ResponseInfoValue.ts
 models/HealthControllerCheck503Response.ts
+models/ImagePresignedUrlDto.ts
 models/OptionDto.ts
 models/OptionsByTypeDto.ts
+models/PresignDocUploadResponseDto.ts
+models/PresignImageUploadResponseDto.ts
 models/RecreationAccessCodeDto.ts
 models/RecreationActivityDto.ts
 models/RecreationControlAccessDto.ts

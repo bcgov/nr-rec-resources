@@ -4,6 +4,7 @@ import {
   StorageConfig,
 } from '@/common/services/base-storage-file-service';
 import { PrismaService } from '@/prisma.service';
+import { S3Service } from '@/s3/s3.service';
 import { Injectable } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -20,9 +21,10 @@ class TestStorageService extends BaseStorageFileService {
   constructor(
     prisma: PrismaService,
     appConfig: AppConfigService,
+    s3Service: S3Service,
     config: StorageConfig,
   ) {
-    super('TestStorageService', prisma, appConfig);
+    super('TestStorageService', prisma, appConfig, s3Service);
     this.testConfig = config;
   }
 
@@ -35,6 +37,7 @@ describe('BaseStorageFileService', () => {
   let service: TestStorageService;
   let mockPrisma: any;
   let mockAppConfig: any;
+  let mockS3Service: any;
 
   beforeEach(() => {
     mockPrisma = {
@@ -45,6 +48,12 @@ describe('BaseStorageFileService', () => {
 
     mockAppConfig = {
       awsRegion: 'us-east-1',
+    };
+
+    mockS3Service = {
+      getSignedUploadUrl: vi.fn(),
+      deleteFile: vi.fn(),
+      listObjectsByPrefix: vi.fn(),
     };
   });
 
@@ -71,15 +80,20 @@ describe('BaseStorageFileService', () => {
                 useValue: mockAppConfig,
               },
               {
+                provide: S3Service,
+                useValue: mockS3Service,
+              },
+              {
                 provide: TestStorageService,
-                useFactory: (prisma, appConfig) => {
+                useFactory: (prisma, appConfig, s3Service) => {
                   return new TestStorageService(
                     prisma,
                     appConfig,
+                    s3Service,
                     testCase.config,
                   );
                 },
-                inject: [PrismaService, AppConfigService],
+                inject: [PrismaService, AppConfigService, S3Service],
               },
             ],
           }).compile();
@@ -111,15 +125,20 @@ describe('BaseStorageFileService', () => {
                 useValue: mockAppConfig,
               },
               {
+                provide: S3Service,
+                useValue: mockS3Service,
+              },
+              {
                 provide: TestStorageService,
-                useFactory: (prisma, appConfig) => {
+                useFactory: (prisma, appConfig, s3Service) => {
                   return new TestStorageService(
                     prisma,
                     appConfig,
+                    s3Service,
                     testCase.config,
                   );
                 },
-                inject: [PrismaService, AppConfigService],
+                inject: [PrismaService, AppConfigService, S3Service],
               },
             ],
           }).compile();
@@ -147,15 +166,20 @@ describe('BaseStorageFileService', () => {
                 useValue: mockAppConfig,
               },
               {
+                provide: S3Service,
+                useValue: mockS3Service,
+              },
+              {
                 provide: TestStorageService,
-                useFactory: (prisma, appConfig) => {
+                useFactory: (prisma, appConfig, s3Service) => {
                   return new TestStorageService(
                     prisma,
                     appConfig,
+                    s3Service,
                     testCase.config,
                   );
                 },
-                inject: [PrismaService, AppConfigService],
+                inject: [PrismaService, AppConfigService, S3Service],
               },
             ],
           }).compile();

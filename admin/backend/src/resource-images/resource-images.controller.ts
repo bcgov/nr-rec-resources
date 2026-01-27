@@ -5,7 +5,6 @@ import {
   RecreationResourceAuthRole,
   ROLE_MODE,
 } from '@/auth';
-import { createFileFieldsValidationPipe } from '@/common/pipes/file-fields-validation.pipe';
 import {
   Body,
   Controller,
@@ -13,33 +12,32 @@ import {
   Get,
   Param,
   Post,
-  UploadedFiles,
+  Query,
   UseGuards,
-  UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiBody,
-  ApiConsumes,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   ApiTags,
   getSchemaPath,
 } from '@nestjs/swagger';
 import {
-  CreateRecreationResourceImageVariantsDto,
+  FinalizeImageUploadRequestDto,
+  PresignImageUploadResponseDto,
   RecreationResourceImageDto,
 } from './dto/recreation-resource-image.dto';
 import { ResourceImagesService } from './service/resource-images.service';
 
+@Controller({ path: 'recreation-resources', version: '1' })
 @ApiTags('recreation-resources')
 @ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
 @UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
 @AuthRoles([RecreationResourceAuthRole.RST_VIEWER], ROLE_MODE.ALL)
-@Controller({ path: 'recreation-resources', version: '1' })
 export class ResourceImagesController {
   constructor(private readonly resourceImagesService: ResourceImagesService) {}
 
@@ -69,10 +67,12 @@ export class ResourceImagesController {
     return this.resourceImagesService.getAll(rec_resource_id);
   }
 
-  @Get(':rec_resource_id/images/:image_id')
+  @Post(':rec_resource_id/images/presign')
   @ApiOperation({
-    summary: 'Get one image resource by image ID',
-    operationId: 'getImageResourceById',
+    summary: 'Request presigned URLs for direct S3 image variant upload',
+    operationId: 'presignImageUpload',
+    description:
+      'Allocates an image ID and returns 4 presigned PUT URLs for uploading WebP variants directly to S3. Variants should be generated client-side.',
   })
   @ApiParam({
     name: 'rec_resource_id',
@@ -81,47 +81,37 @@ export class ResourceImagesController {
     type: 'string',
     example: 'REC204118',
   })
-  @ApiParam({
-    name: 'image_id',
+  @ApiQuery({
+    name: 'fileName',
     required: true,
-    description: 'Image identifier (UUID)',
+    description:
+      'User-edited filename (without extension) to tag on original.webp',
     type: 'string',
-    example: 'a7c1e5f3-8d2b-4c9a-b1e6-f3d8c7a2e5b9',
+    example: 'my-image',
   })
   @ApiResponse({
     status: 200,
-    description: 'Image Found',
-    type: RecreationResourceImageDto,
+    description: 'Presigned URLs generated',
+    type: PresignImageUploadResponseDto,
   })
   @ApiResponse({
     status: 404,
     description: 'Recreation Resource not found',
   })
-  async getImageByResourceId(
+  @ApiResponse({ status: 500, description: 'Error generating presigned URLs' })
+  async presignImageUpload(
     @Param('rec_resource_id') rec_resource_id: string,
-    @Param('image_id') image_id: string,
-  ): Promise<RecreationResourceImageDto | null> {
-    return this.resourceImagesService.getImageByResourceId(
-      rec_resource_id,
-      image_id,
-    );
+    @Query('fileName') fileName: string,
+  ): Promise<PresignImageUploadResponseDto> {
+    return this.resourceImagesService.presignUpload(rec_resource_id, fileName);
   }
 
-  @Post(':rec_resource_id/images')
-  @UseInterceptors(
-    FileFieldsInterceptor([
-      { name: 'original', maxCount: 1 },
-      { name: 'scr', maxCount: 1 },
-      { name: 'pre', maxCount: 1 },
-      { name: 'thm', maxCount: 1 },
-    ]),
-  )
-  @ApiConsumes('multipart/form-data')
+  @Post(':rec_resource_id/images/finalize')
   @ApiOperation({
-    summary: 'Create a new Image Resource with 4 pre-processed WebP variants',
-    operationId: 'createRecreationresourceImage',
+    summary: 'Finalize image upload and create database record',
+    operationId: 'finalizeImageUpload',
     description:
-      'Accepts 4 WebP image variants (original, scr, pre, thm) that have been processed client-side.',
+      'Creates database record for uploaded image variants. Should be called after all S3 uploads complete successfully. No S3 verification is performed.',
   })
   @ApiParam({
     name: 'rec_resource_id',
@@ -132,82 +122,23 @@ export class ResourceImagesController {
   })
   @ApiBody({
     required: true,
-    description: 'Image variants',
-    schema: {
-      type: 'object',
-      properties: {
-        file_name: { type: 'string', example: 'beautiful-mountain-view.webp' },
-        original: { type: 'string', format: 'binary' },
-        scr: { type: 'string', format: 'binary' },
-        pre: { type: 'string', format: 'binary' },
-        thm: { type: 'string', format: 'binary' },
-      },
-      required: ['file_name', 'original', 'scr', 'pre', 'thm'],
-    },
+    type: FinalizeImageUploadRequestDto,
   })
   @ApiResponse({
     status: 200,
-    description: 'Image Created',
+    description: 'Image record created',
     type: RecreationResourceImageDto,
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Missing required variants or metadata',
   })
   @ApiResponse({
     status: 404,
     description: 'Recreation Resource not found',
   })
-  @ApiResponse({ status: 415, description: 'Only WebP images are allowed' })
-  @ApiResponse({ status: 500, description: 'Error creating image' })
-  async createRecreationResourceImage(
+  @ApiResponse({ status: 500, description: 'Error finalizing upload' })
+  async finalizeImageUpload(
     @Param('rec_resource_id') rec_resource_id: string,
-    @Body() body: CreateRecreationResourceImageVariantsDto,
-    @UploadedFiles(
-      createFileFieldsValidationPipe({
-        fields: [
-          {
-            fieldName: 'original',
-            allowedTypes: ['image/webp'],
-            maxSize: 2 * 1024 * 1024,
-          },
-          {
-            fieldName: 'scr',
-            allowedTypes: ['image/webp'],
-            maxSize: 2 * 1024 * 1024,
-          },
-          {
-            fieldName: 'pre',
-            allowedTypes: ['image/webp'],
-            maxSize: 2 * 1024 * 1024,
-          },
-          {
-            fieldName: 'thm',
-            allowedTypes: ['image/webp'],
-            maxSize: 2 * 1024 * 1024,
-          },
-        ],
-      }),
-    )
-    files: {
-      original: Express.Multer.File[];
-      scr: Express.Multer.File[];
-      pre: Express.Multer.File[];
-      thm: Express.Multer.File[];
-    },
-  ): Promise<RecreationResourceImageDto | null> {
-    const variantFiles = {
-      original: files.original[0]!,
-      scr: files.scr[0]!,
-      pre: files.pre[0]!,
-      thm: files.thm[0]!,
-    };
-
-    return this.resourceImagesService.create(
-      rec_resource_id,
-      body.file_name,
-      variantFiles,
-    );
+    @Body() body: FinalizeImageUploadRequestDto,
+  ): Promise<RecreationResourceImageDto> {
+    return this.resourceImagesService.finalizeUpload(rec_resource_id, body);
   }
 
   @Delete(':rec_resource_id/images/:image_id')

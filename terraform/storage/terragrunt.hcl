@@ -38,6 +38,9 @@ generate "tfvars" {
   disable_signature = true
   contents          = <<-EOF
   app_env="${local.app_env}"
+
+  admin_frontend_cloudfront_domain = "${get_env("ADMIN_FRONTEND_CF_DOMAIN", "")}"
+  admin_frontend_custom_domains = ${get_env("ADMIN_FRONTEND_CUSTOM_DOMAINS", "[]")}
 EOF
 }
 

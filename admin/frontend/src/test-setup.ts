@@ -1,7 +1,7 @@
-import { afterAll, afterEach, beforeAll } from 'vitest';
-import { setupServer } from 'msw/node';
-import { http, HttpResponse } from 'msw';
 import '@testing-library/jest-dom';
+import { HttpResponse, http } from 'msw';
+import { setupServer } from 'msw/node';
+import { afterAll, afterEach, beforeAll } from 'vitest';
 
 const users = [
   {
@@ -20,7 +20,7 @@ export const restHandlers = [
   }),
 ];
 
-const server = setupServer(...restHandlers);
+export const server = setupServer(...restHandlers);
 
 // Start server before all tests
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));

@@ -24,12 +24,6 @@ describe('services/hooks/recreation-resource-admin/index', () => {
     expect(recreationResourceAdminIndex).toHaveProperty(
       'useRecreationResourceAdminApiClient',
     );
-    expect(recreationResourceAdminIndex).toHaveProperty(
-      'useUploadResourceDocument',
-    );
-    expect(recreationResourceAdminIndex).toHaveProperty(
-      'useUploadResourceImage',
-    );
   });
 
   it('exports helpers', () => {
@@ -61,12 +55,6 @@ describe('services/hooks/recreation-resource-admin/index', () => {
     expect(
       typeof recreationResourceAdminIndex.useRecreationResourceAdminApiClient,
     ).toBe('function');
-    expect(typeof recreationResourceAdminIndex.useUploadResourceDocument).toBe(
-      'function',
-    );
-    expect(typeof recreationResourceAdminIndex.useUploadResourceImage).toBe(
-      'function',
-    );
     expect(typeof recreationResourceAdminIndex.createRetryHandler).toBe(
       'function',
     );

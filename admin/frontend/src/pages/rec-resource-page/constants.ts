@@ -5,7 +5,7 @@ import { FileType } from './types';
  */
 export const MAX_FILE_SIZE_MB = {
   image: 25,
-  document: 9.5,
+  document: 25,
 } as const;
 
 /**

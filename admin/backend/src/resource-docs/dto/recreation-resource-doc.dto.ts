@@ -63,29 +63,61 @@ export class RecreationResourceDocDto {
   created_at: string | null;
 }
 
-export class CreateRecreationResourceDocBodyDto {
+/**
+ * DTO for document presign endpoint response
+ */
+export class PresignDocUploadResponseDto {
   @ApiProperty({
-    description: 'File name',
-    example: 'document-name.pdf',
-    type: String,
+    description: 'Allocated document ID (UUID)',
+    example: 'a7c1e5f3-8d2b-4c9a-b1e6-f3d8c7a2e5b9',
+  })
+  document_id: string;
+
+  @ApiProperty({
+    description: 'S3 object key for the document',
+    example: 'documents/REC204118/a7c1e5f3-8d2b-4c9a-b1e6-f3d8c7a2e5b9/map.pdf',
+  })
+  key: string;
+
+  @ApiProperty({
+    description: 'Presigned PUT URL for uploading to S3',
+    example: 'https://bucket.s3.amazonaws.com/documents/REC204118/...',
+  })
+  url: string;
+}
+
+/**
+ * DTO for document finalize endpoint request
+ */
+export class FinalizeDocUploadRequestDto {
+  @ApiProperty({
+    description: 'Document ID (returned from presign endpoint)',
+    example: 'a7c1e5f3-8d2b-4c9a-b1e6-f3d8c7a2e5b9',
+  })
+  @IsNotEmpty()
+  @IsString()
+  document_id: string;
+
+  @ApiProperty({
+    description: 'Document file name',
+    example: 'campbell-river-site-map.pdf',
   })
   @IsNotEmpty()
   @IsString()
   file_name: string;
-}
-
-export class CreateRecreationResourceDocFormDto {
-  @ApiProperty({
-    description: 'File name',
-    example: 'document-name.pdf',
-    type: String,
-  })
-  file_name: string;
 
   @ApiProperty({
-    type: 'string',
-    format: 'binary',
-    description: 'File to upload',
+    description: 'File extension without dot',
+    example: 'pdf',
   })
-  file: any;
+  @IsNotEmpty()
+  @IsString()
+  extension: string;
+
+  @ApiProperty({
+    description: 'File size in bytes',
+    example: 2097152,
+  })
+  @IsNotEmpty()
+  file_size: number;
 }

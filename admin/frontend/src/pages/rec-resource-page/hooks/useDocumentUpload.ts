@@ -1,5 +1,8 @@
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
-import { useUploadResourceDocument } from '@/services/hooks/recreation-resource-admin/useUploadResourceDocument';
+import {
+  useFinalizeDocUpload,
+  usePresignDocUpload,
+} from '@/services/hooks/recreation-resource-admin/usePresignAndFinalizeHooks';
 import { useCallback } from 'react';
 import {
   addPendingDoc,
@@ -7,13 +10,14 @@ import {
   updatePendingDoc,
 } from '../store/recResourceFileTransferStore';
 import { GalleryDocument, GalleryFile } from '../types';
+import { usePresignedUpload } from './utils/usePresignedUpload';
 import { validateUploadFile } from './utils/validateUpload';
-import { useFileUpload } from './utils/useFileUpload';
 
 export function useDocumentUpload() {
   const { recResource } = useRecResource();
-  const uploadResourceDocumentMutation = useUploadResourceDocument();
-  const { executeUpload } = useFileUpload<GalleryDocument>();
+  const presignDocMutation = usePresignDocUpload();
+  const finalizeDocMutation = useFinalizeDocUpload();
+  const { executePresignedUpload } = usePresignedUpload<GalleryDocument>();
 
   const handleUpload = useCallback(
     async (galleryFile: GalleryFile, onSuccess?: () => void) => {
@@ -30,11 +34,12 @@ export function useDocumentUpload() {
       };
       addPendingDoc(tempDoc);
 
-      await executeUpload({
+      await executePresignedUpload({
         recResourceId: recResourceId!,
         galleryFile: tempDoc,
         tempId: galleryFile.id,
-        uploadMutation: uploadResourceDocumentMutation,
+        presignMutation: presignDocMutation,
+        finalizeMutation: finalizeDocMutation,
         updatePendingFile: updatePendingDoc,
         removePendingFile: removePendingDoc,
         successMessage: (fileName) =>
@@ -43,7 +48,12 @@ export function useDocumentUpload() {
         onSuccess,
       });
     },
-    [executeUpload, recResource, uploadResourceDocumentMutation],
+    [
+      executePresignedUpload,
+      recResource,
+      presignDocMutation,
+      finalizeDocMutation,
+    ],
   );
 
   const handleUploadRetry = useCallback(
@@ -58,11 +68,12 @@ export function useDocumentUpload() {
         uploadFailed: false,
       });
 
-      await executeUpload({
+      await executePresignedUpload({
         recResourceId: recResourceId!,
         galleryFile: pendingDoc as GalleryDocument,
         tempId: pendingDoc.id,
-        uploadMutation: uploadResourceDocumentMutation,
+        presignMutation: presignDocMutation,
+        finalizeMutation: finalizeDocMutation,
         updatePendingFile: updatePendingDoc,
         removePendingFile: removePendingDoc,
         successMessage: (fileName) =>
@@ -71,7 +82,12 @@ export function useDocumentUpload() {
         onSuccess,
       });
     },
-    [executeUpload, recResource, uploadResourceDocumentMutation],
+    [
+      executePresignedUpload,
+      recResource,
+      presignDocMutation,
+      finalizeDocMutation,
+    ],
   );
 
   return {
