@@ -63,17 +63,67 @@ describe('useImageUploadForm', () => {
     });
   });
 
-  describe('conditional field visibility', () => {
-    it('showPhotographerFields is false when didYouTakePhoto is null', () => {
+  describe('staff field visibility (default)', () => {
+    it('shows "working hours" question for staff', () => {
       const { result } = renderHook(() => useImageUploadForm('test.jpg'));
 
-      expect(result.current.showPhotographerFields).toBe(false);
+      expect(result.current.showTakenDuringWorkingHours).toBe(true);
     });
 
-    it('showConsentUpload is false when containsIdentifiableInfo is null', () => {
+    it('hides name field for staff', () => {
       const { result } = renderHook(() => useImageUploadForm('test.jpg'));
 
+      expect(result.current.showNameField).toBe(false);
+    });
+
+    it('hides consent upload by default for staff (before questions answered)', () => {
+      const { result } = renderHook(() => useImageUploadForm('test.jpg'));
+
+      // Staff consent upload is hidden until we know it's required
       expect(result.current.showConsentUpload).toBe(false);
+    });
+  });
+
+  describe('staff consent upload visibility', () => {
+    it('shows consent upload when staff photo NOT taken during working hours', async () => {
+      const { result } = renderHook(() => useImageUploadForm('test.jpg'));
+
+      act(() => {
+        // Simulate selecting "No" for working hours
+        result.current.setValue('didYouTakePhoto', false);
+      });
+
+      await waitFor(() => {
+        expect(result.current.showConsentUpload).toBe(true);
+      });
+    });
+
+    it('shows consent upload when staff photo contains PII', async () => {
+      const { result } = renderHook(() => useImageUploadForm('test.jpg'));
+
+      act(() => {
+        // Staff took photo during working hours but it contains PII
+        result.current.setValue('didYouTakePhoto', true);
+        result.current.setValue('containsIdentifiableInfo', true);
+      });
+
+      await waitFor(() => {
+        expect(result.current.showConsentUpload).toBe(true);
+      });
+    });
+
+    it('hides consent upload when staff: working hours + no PII', async () => {
+      const { result } = renderHook(() => useImageUploadForm('test.jpg'));
+
+      act(() => {
+        // Staff took photo during working hours AND no PII = exempt
+        result.current.setValue('didYouTakePhoto', true);
+        result.current.setValue('containsIdentifiableInfo', false);
+      });
+
+      await waitFor(() => {
+        expect(result.current.showConsentUpload).toBe(false);
+      });
     });
   });
 

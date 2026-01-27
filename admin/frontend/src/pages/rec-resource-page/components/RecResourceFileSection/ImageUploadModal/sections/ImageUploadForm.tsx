@@ -37,7 +37,8 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
     resetForm,
     isUploadEnabled,
     showDateWarning,
-    showPhotographerFields,
+    showTakenDuringWorkingHours,
+    showNameField,
     showConsentUpload,
     consentFormFile,
     handleConsentFileSelect,
@@ -159,42 +160,46 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
         />
       </Form.Group>
 
-      {/* Did you take this photo? */}
-      <Form.Group className="mb-3">
-        <FormLabel required>Did you take this photo?</FormLabel>
-        <Controller
-          name="didYouTakePhoto"
-          control={control}
-          render={({ field }) => (
-            <div className="image-upload-form__radio-group">
-              <Form.Check
-                inline
-                type="radio"
-                id="didYouTakePhoto-yes"
-                label="Yes"
-                checked={field.value === true}
-                onChange={() => field.onChange(true)}
-              />
-              <Form.Check
-                inline
-                type="radio"
-                id="didYouTakePhoto-no"
-                label="No"
-                checked={field.value === false}
-                onChange={() => field.onChange(false)}
-              />
-            </div>
+      {/* Was this photo taken during working hours? (Staff only) */}
+      {showTakenDuringWorkingHours && (
+        <Form.Group className="mb-3">
+          <FormLabel required>
+            Was this photo taken during working hours?
+          </FormLabel>
+          <Controller
+            name="didYouTakePhoto"
+            control={control}
+            render={({ field }) => (
+              <div className="image-upload-form__radio-group">
+                <Form.Check
+                  inline
+                  type="radio"
+                  id="didYouTakePhoto-yes"
+                  label="Yes"
+                  checked={field.value === true}
+                  onChange={() => field.onChange(true)}
+                />
+                <Form.Check
+                  inline
+                  type="radio"
+                  id="didYouTakePhoto-no"
+                  label="No"
+                  checked={field.value === false}
+                  onChange={() => field.onChange(false)}
+                />
+              </div>
+            )}
+          />
+          {errors.didYouTakePhoto && (
+            <Form.Text className="text-danger">
+              {errors.didYouTakePhoto.message}
+            </Form.Text>
           )}
-        />
-        {errors.didYouTakePhoto && (
-          <Form.Text className="text-danger">
-            {errors.didYouTakePhoto.message}
-          </Form.Text>
-        )}
-      </Form.Group>
+        </Form.Group>
+      )}
 
-      {/* Photographer Name (shown when did NOT take photo) */}
-      {showPhotographerFields && (
+      {/* Photographer Name (shown for non-staff only) */}
+      {showNameField && (
         <Form.Group className="mb-3">
           <FormLabel required>
             Provide the name for copyright attribution

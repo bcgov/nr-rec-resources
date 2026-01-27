@@ -54,7 +54,7 @@ export const useImageUploadForm = (initialDisplayName?: string) => {
 
   // Sync consent form file to form state
   useEffect(() => {
-    setValue('consentFormFile', consentFormFile);
+    setValue('consentFormFile', consentFormFile, { shouldValidate: true });
   }, [consentFormFile, setValue]);
 
   // Watch form values for conditional rendering
@@ -87,9 +87,21 @@ export const useImageUploadForm = (initialDisplayName?: string) => {
   // Check if date is suspiciously old for warning display
   const showDateWarning = isDateSuspiciouslyOld(dateCreated);
 
-  // Conditional field visibility
-  const showPhotographerFields = didYouTakePhoto === false;
-  const showConsentUpload = containsIdentifiableInfo === true;
+  // Conditional field visibility based on photographer type
+  const isStaff = photographerType === 'STAFF';
+
+  // "Was this photo taken during working hours?" only shows for staff
+  const showTakenDuringWorkingHours = isStaff;
+
+  // Name field shows for non-staff only
+  const showNameField = !isStaff;
+
+  // Consent form NOT needed only if: staff + during working hours + no PII
+  const showConsentUpload = isStaff
+    ? // Staff: show only when we've confirmed consent IS required
+      didYouTakePhoto === false || containsIdentifiableInfo === true
+    : // Non-staff: always requires consent
+      true;
 
   // Handle consent form PDF upload
   const handleConsentFileSelect = useCallback((file: File | null) => {
@@ -130,7 +142,8 @@ export const useImageUploadForm = (initialDisplayName?: string) => {
     resetForm,
     isUploadEnabled,
     showDateWarning,
-    showPhotographerFields,
+    showTakenDuringWorkingHours,
+    showNameField,
     showConsentUpload,
     consentFormFile,
     handleConsentFileSelect,

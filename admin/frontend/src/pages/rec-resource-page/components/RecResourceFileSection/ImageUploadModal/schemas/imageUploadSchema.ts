@@ -29,18 +29,31 @@ export const imageUploadSchema = z
     consentFormFile: z.instanceof(File).optional().nullable(),
     confirmationChecked: z.boolean(),
   })
-  .refine((data) => data.didYouTakePhoto !== null, {
-    message: 'Please answer whether you took this photo',
-    path: ['didYouTakePhoto'],
-  })
+  // "Was this photo taken during working hours?" only required for staff
+  .refine(
+    (data) => {
+      const isStaff = data.photographerType === 'STAFF';
+      if (isStaff) {
+        return data.didYouTakePhoto !== null;
+      }
+      return true;
+    },
+    {
+      message:
+        'Please answer whether this photo was taken during working hours',
+      path: ['didYouTakePhoto'],
+    },
+  )
   .refine((data) => data.containsIdentifiableInfo !== null, {
     message:
       'Please answer whether this photo contains identifiable information',
     path: ['containsIdentifiableInfo'],
   })
+  // Photographer name required for non-staff only
   .refine(
     (data) => {
-      if (data.didYouTakePhoto === false) {
+      const isStaff = data.photographerType === 'STAFF';
+      if (!isStaff) {
         return !!data.photographerName && data.photographerName.trim() !== '';
       }
       return true;
@@ -50,16 +63,38 @@ export const imageUploadSchema = z
       path: ['photographerName'],
     },
   )
+  // Consent form NOT required only if: staff + working hours + no PII
+  // All other cases require consent form (once user has answered required questions)
   .refine(
     (data) => {
-      if (data.containsIdentifiableInfo === true) {
-        return !!data.consentFormFile;
+      const isStaff = data.photographerType === 'STAFF';
+
+      // For staff: don't enforce consent requirement until both questions are answered
+      if (isStaff) {
+        // Still answering questions - don't require consent yet
+        if (
+          data.didYouTakePhoto === null ||
+          data.containsIdentifiableInfo === null
+        ) {
+          return true;
+        }
+        // Staff exempt if: working hours + no PII
+        const staffExempt =
+          data.didYouTakePhoto === true &&
+          data.containsIdentifiableInfo === false;
+        return staffExempt || !!data.consentFormFile;
       }
-      return true;
+
+      // Non-staff: don't enforce until containsIdentifiableInfo is answered
+      if (data.containsIdentifiableInfo === null) {
+        return true;
+      }
+
+      // Non-staff always needs consent form
+      return !!data.consentFormFile;
     },
     {
-      message:
-        'Consent form is required for photos with identifiable information',
+      message: 'Consent form is required',
       path: ['consentFormFile'],
     },
   )

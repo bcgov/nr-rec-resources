@@ -29,6 +29,13 @@ vi.mock(
   }),
 );
 
+const NON_STAFF_TYPES = [
+  { id: 'CONTRACTOR', label: 'Contractor' },
+  { id: 'VOLUNTEER', label: 'Volunteer' },
+  { id: 'PHOTOGRAPHER', label: 'Photographer' },
+  { id: 'OTHER', label: 'Other' },
+];
+
 const TestWrapper = ({
   onUpload = vi.fn(),
   onFormReady = vi.fn(),
@@ -66,7 +73,7 @@ describe('ImageUploadForm', () => {
     });
   });
 
-  describe('display name field', () => {
+  describe('common fields (always visible)', () => {
     it('renders display name input', () => {
       render(<TestWrapper />);
 
@@ -77,17 +84,13 @@ describe('ImageUploadForm', () => {
         screen.getByText(/briefly describe the location or feature/i),
       ).toBeInTheDocument();
     });
-  });
 
-  describe('date taken field', () => {
     it('renders date taken section', () => {
       render(<TestWrapper />);
 
       expect(screen.getByText('Date Taken')).toBeInTheDocument();
     });
-  });
 
-  describe('photographer fields', () => {
     it('renders photographer type dropdown', () => {
       render(<TestWrapper />);
 
@@ -95,30 +98,6 @@ describe('ImageUploadForm', () => {
       expect(screen.getByRole('combobox')).toBeInTheDocument();
     });
 
-    it('renders did you take photo question', () => {
-      render(<TestWrapper />);
-
-      expect(
-        screen.getByText(/did you take this photo\?/i),
-      ).toBeInTheDocument();
-    });
-
-    it('shows photographer name field when No is selected for did you take photo', async () => {
-      render(<TestWrapper />);
-
-      // Click "No" radio button for "Did you take this photo?"
-      const noRadio = document.getElementById('didYouTakePhoto-no');
-      fireEvent.click(noRadio!);
-
-      await waitFor(() => {
-        expect(
-          screen.getByPlaceholderText('Enter photographer name'),
-        ).toBeInTheDocument();
-      });
-    });
-  });
-
-  describe('identifiable information', () => {
     it('renders identifiable information question', () => {
       render(<TestWrapper />);
 
@@ -129,7 +108,35 @@ describe('ImageUploadForm', () => {
       ).toBeInTheDocument();
     });
 
-    it('shows consent upload section when Yes is selected for identifiable info', async () => {
+    it('renders confirmation checkbox', () => {
+      render(<TestWrapper />);
+
+      expect(
+        screen.getByText(
+          /by uploading this photo, i confirm that it contains no personally identifiable information/i,
+        ),
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe('staff-specific fields', () => {
+    it('shows "working hours" question for staff (default)', () => {
+      render(<TestWrapper />);
+
+      expect(
+        screen.getByText(/was this photo taken during working hours\?/i),
+      ).toBeInTheDocument();
+    });
+
+    it('does not show photographer name field for staff', () => {
+      render(<TestWrapper />);
+
+      expect(
+        screen.queryByPlaceholderText('Enter photographer name'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('shows consent upload when staff + has PII', async () => {
       render(<TestWrapper />);
 
       // Click "Yes" for contains identifiable information
@@ -144,15 +151,53 @@ describe('ImageUploadForm', () => {
     });
   });
 
-  describe('confirmation checkbox', () => {
-    it('renders confirmation checkbox', () => {
-      render(<TestWrapper />);
+  describe('non-staff fields (all types behave the same)', () => {
+    it.each(NON_STAFF_TYPES)(
+      '$label: hides "working hours" question',
+      async ({ id }) => {
+        render(<TestWrapper />);
 
-      expect(
-        screen.getByText(
-          /by uploading this photo, i confirm that it contains no personally identifiable information/i,
-        ),
-      ).toBeInTheDocument();
-    });
+        const dropdown = screen.getByRole('combobox');
+        fireEvent.change(dropdown, { target: { value: id } });
+
+        await waitFor(() => {
+          expect(
+            screen.queryByText(/was this photo taken during working hours\?/i),
+          ).not.toBeInTheDocument();
+        });
+      },
+    );
+
+    it.each(NON_STAFF_TYPES)(
+      '$label: shows photographer name field',
+      async ({ id }) => {
+        render(<TestWrapper />);
+
+        const dropdown = screen.getByRole('combobox');
+        fireEvent.change(dropdown, { target: { value: id } });
+
+        await waitFor(() => {
+          expect(
+            screen.getByPlaceholderText('Enter photographer name'),
+          ).toBeInTheDocument();
+        });
+      },
+    );
+
+    it.each(NON_STAFF_TYPES)(
+      '$label: always shows consent upload section',
+      async ({ id }) => {
+        render(<TestWrapper />);
+
+        const dropdown = screen.getByRole('combobox');
+        fireEvent.change(dropdown, { target: { value: id } });
+
+        await waitFor(() => {
+          expect(
+            screen.getByText(/this photo requires a consent and release form/i),
+          ).toBeInTheDocument();
+        });
+      },
+    );
   });
 });

@@ -6,6 +6,12 @@ import {
 import { describe, expect, it } from 'vitest';
 
 describe('imageUploadSchema', () => {
+  const mockConsentFile = new File(['consent'], 'consent.pdf', {
+    type: 'application/pdf',
+  });
+
+  const NON_STAFF_TYPES = ['CONTRACTOR', 'VOLUNTEER', 'PHOTOGRAPHER', 'OTHER'];
+
   const createValidFormData = (
     overrides: Partial<ImageUploadFormData> = {},
   ): ImageUploadFormData => ({
@@ -66,40 +72,151 @@ describe('imageUploadSchema', () => {
     });
   });
 
-  describe('didYouTakePhoto validation', () => {
-    it('requires didYouTakePhoto to be answered', () => {
+  describe('staff-specific validation', () => {
+    it('requires "working hours" answer for staff', () => {
       const result = imageUploadSchema.safeParse(
-        createValidFormData({ didYouTakePhoto: null }),
+        createValidFormData({
+          photographerType: 'STAFF',
+          didYouTakePhoto: null,
+        }),
       );
       expect(result.success).toBe(false);
     });
 
-    it('accepts true', () => {
-      const result = imageUploadSchema.safeParse(
-        createValidFormData({ didYouTakePhoto: true }),
-      );
-      expect(result.success).toBe(true);
-    });
-
-    it('requires photographer name when didYouTakePhoto is false', () => {
+    it('does not require photographer name for staff', () => {
       const result = imageUploadSchema.safeParse(
         createValidFormData({
-          didYouTakePhoto: false,
+          photographerType: 'STAFF',
           photographerName: '',
         }),
       );
-      expect(result.success).toBe(false);
-    });
-
-    it('accepts when photographer name provided and didYouTakePhoto is false', () => {
-      const result = imageUploadSchema.safeParse(
-        createValidFormData({
-          didYouTakePhoto: false,
-          photographerName: 'John Doe',
-        }),
-      );
       expect(result.success).toBe(true);
     });
+
+    describe('consent form requirements', () => {
+      it('does not require consent when working hours + no PII', () => {
+        const result = imageUploadSchema.safeParse(
+          createValidFormData({
+            photographerType: 'STAFF',
+            didYouTakePhoto: true,
+            containsIdentifiableInfo: false,
+            consentFormFile: null,
+          }),
+        );
+        expect(result.success).toBe(true);
+      });
+
+      it('requires consent when working hours + has PII', () => {
+        const result = imageUploadSchema.safeParse(
+          createValidFormData({
+            photographerType: 'STAFF',
+            didYouTakePhoto: true,
+            containsIdentifiableInfo: true,
+            consentFormFile: null,
+          }),
+        );
+        expect(result.success).toBe(false);
+      });
+
+      it('requires consent when NOT working hours', () => {
+        const result = imageUploadSchema.safeParse(
+          createValidFormData({
+            photographerType: 'STAFF',
+            didYouTakePhoto: false,
+            containsIdentifiableInfo: false,
+            consentFormFile: null,
+          }),
+        );
+        expect(result.success).toBe(false);
+      });
+
+      it('accepts consent form when required', () => {
+        const result = imageUploadSchema.safeParse(
+          createValidFormData({
+            photographerType: 'STAFF',
+            didYouTakePhoto: true,
+            containsIdentifiableInfo: true,
+            consentFormFile: mockConsentFile,
+          }),
+        );
+        expect(result.success).toBe(true);
+      });
+    });
+  });
+
+  describe('non-staff validation (all types behave the same)', () => {
+    it.each(NON_STAFF_TYPES)(
+      '%s: does not require "working hours" answer',
+      (photographerType) => {
+        const result = imageUploadSchema.safeParse(
+          createValidFormData({
+            photographerType,
+            didYouTakePhoto: null,
+            photographerName: 'John Doe',
+            consentFormFile: mockConsentFile,
+          }),
+        );
+        expect(result.success).toBe(true);
+      },
+    );
+
+    it.each(NON_STAFF_TYPES)(
+      '%s: requires photographer name',
+      (photographerType) => {
+        const result = imageUploadSchema.safeParse(
+          createValidFormData({
+            photographerType,
+            photographerName: '',
+            consentFormFile: mockConsentFile,
+          }),
+        );
+        expect(result.success).toBe(false);
+      },
+    );
+
+    it.each(NON_STAFF_TYPES)(
+      '%s: accepts when photographer name provided',
+      (photographerType) => {
+        const result = imageUploadSchema.safeParse(
+          createValidFormData({
+            photographerType,
+            photographerName: 'John Doe',
+            consentFormFile: mockConsentFile,
+          }),
+        );
+        expect(result.success).toBe(true);
+      },
+    );
+
+    it.each(NON_STAFF_TYPES)(
+      '%s: always requires consent form',
+      (photographerType) => {
+        const result = imageUploadSchema.safeParse(
+          createValidFormData({
+            photographerType,
+            photographerName: 'John Doe',
+            containsIdentifiableInfo: false,
+            consentFormFile: null,
+          }),
+        );
+        expect(result.success).toBe(false);
+      },
+    );
+
+    it.each(NON_STAFF_TYPES)(
+      '%s: accepts when consent form provided',
+      (photographerType) => {
+        const result = imageUploadSchema.safeParse(
+          createValidFormData({
+            photographerType,
+            photographerName: 'John Doe',
+            containsIdentifiableInfo: false,
+            consentFormFile: mockConsentFile,
+          }),
+        );
+        expect(result.success).toBe(true);
+      },
+    );
   });
 
   describe('containsIdentifiableInfo validation', () => {
@@ -108,29 +225,6 @@ describe('imageUploadSchema', () => {
         createValidFormData({ containsIdentifiableInfo: null }),
       );
       expect(result.success).toBe(false);
-    });
-
-    it('requires consent form when containsIdentifiableInfo is true', () => {
-      const result = imageUploadSchema.safeParse(
-        createValidFormData({
-          containsIdentifiableInfo: true,
-          consentFormFile: null,
-        }),
-      );
-      expect(result.success).toBe(false);
-    });
-
-    it('accepts when consent form provided and containsIdentifiableInfo is true', () => {
-      const mockFile = new File(['consent'], 'consent.pdf', {
-        type: 'application/pdf',
-      });
-      const result = imageUploadSchema.safeParse(
-        createValidFormData({
-          containsIdentifiableInfo: true,
-          consentFormFile: mockFile,
-        }),
-      );
-      expect(result.success).toBe(true);
     });
   });
 
