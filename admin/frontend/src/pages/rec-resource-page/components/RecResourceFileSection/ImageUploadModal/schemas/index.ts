@@ -1,7 +1,7 @@
 export {
   imageUploadSchema,
-  getUploadState,
-  canUpload,
+  isDateSuspiciouslyOld,
+  MAX_DISPLAY_NAME_LENGTH,
+  MAX_AGE_YEARS,
   type ImageUploadFormData,
-  type UploadState,
 } from './imageUploadSchema';

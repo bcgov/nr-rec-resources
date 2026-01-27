@@ -96,6 +96,11 @@ export interface CreateRecreationresourceImageRequest {
   scr: Blob;
   pre: Blob;
   thm: Blob;
+  dateTaken?: Date;
+  containsPii?: boolean;
+  photographerType?: string;
+  photographerName?: string;
+  consentForm?: Blob;
 }
 
 export interface DeleteDocumentResourceRequest {
@@ -262,15 +267,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       formParams.append('title', requestParameters['title'] as any);
     }
 
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/establishment-order-docs`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/establishment-order-docs`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
@@ -335,16 +337,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/fees`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/fees`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
@@ -439,15 +437,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       formParams.append('file', requestParameters['file'] as any);
     }
 
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/docs`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/docs`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
@@ -553,6 +548,8 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     useForm = canConsumeForm;
     // use FormData to transmit files using content-type "multipart/form-data"
     useForm = canConsumeForm;
+    // use FormData to transmit files using content-type "multipart/form-data"
+    useForm = canConsumeForm;
     if (useForm) {
       formParams = new FormData();
     } else {
@@ -561,6 +558,31 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
 
     if (requestParameters['fileName'] != null) {
       formParams.append('file_name', requestParameters['fileName'] as any);
+    }
+
+    if (requestParameters['dateTaken'] != null) {
+      formParams.append('date_taken', requestParameters['dateTaken'] as any);
+    }
+
+    if (requestParameters['containsPii'] != null) {
+      formParams.append(
+        'contains_pii',
+        requestParameters['containsPii'] as any,
+      );
+    }
+
+    if (requestParameters['photographerType'] != null) {
+      formParams.append(
+        'photographer_type',
+        requestParameters['photographerType'] as any,
+      );
+    }
+
+    if (requestParameters['photographerName'] != null) {
+      formParams.append(
+        'photographer_name',
+        requestParameters['photographerName'] as any,
+      );
     }
 
     if (requestParameters['original'] != null) {
@@ -579,15 +601,19 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       formParams.append('thm', requestParameters['thm'] as any);
     }
 
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/images`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
+    if (requestParameters['consentForm'] != null) {
+      formParams.append(
+        'consent_form',
+        requestParameters['consentForm'] as any,
+      );
+    }
 
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/images`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
@@ -649,20 +675,17 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/docs/{document_id}`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-    urlPath = urlPath.replace(
-      `{${'document_id'}}`,
-      encodeURIComponent(String(requestParameters['documentId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/docs/{document_id}`
+          .replace(
+            `{${'rec_resource_id'}}`,
+            encodeURIComponent(String(requestParameters['recResourceId'])),
+          )
+          .replace(
+            `{${'document_id'}}`,
+            encodeURIComponent(String(requestParameters['documentId'])),
+          ),
         method: 'DELETE',
         headers: headerParameters,
         query: queryParameters,
@@ -723,20 +746,17 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/establishment-order-docs/{s3_key}`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-    urlPath = urlPath.replace(
-      `{${'s3_key'}}`,
-      encodeURIComponent(String(requestParameters['s3Key'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/establishment-order-docs/{s3_key}`
+          .replace(
+            `{${'rec_resource_id'}}`,
+            encodeURIComponent(String(requestParameters['recResourceId'])),
+          )
+          .replace(
+            `{${'s3_key'}}`,
+            encodeURIComponent(String(requestParameters['s3Key'])),
+          ),
         method: 'DELETE',
         headers: headerParameters,
         query: queryParameters,
@@ -797,20 +817,17 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/images/{image_id}`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-    urlPath = urlPath.replace(
-      `{${'image_id'}}`,
-      encodeURIComponent(String(requestParameters['imageId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/images/{image_id}`
+          .replace(
+            `{${'rec_resource_id'}}`,
+            encodeURIComponent(String(requestParameters['recResourceId'])),
+          )
+          .replace(
+            `{${'image_id'}}`,
+            encodeURIComponent(String(requestParameters['imageId'])),
+          ),
         method: 'DELETE',
         headers: headerParameters,
         query: queryParameters,
@@ -863,16 +880,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/activities`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/activities`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -926,16 +939,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/establishment-order-docs`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/establishment-order-docs`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -996,20 +1005,17 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/docs/{document_id}`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-    urlPath = urlPath.replace(
-      `{${'document_id'}}`,
-      encodeURIComponent(String(requestParameters['documentId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/docs/{document_id}`
+          .replace(
+            `{${'rec_resource_id'}}`,
+            encodeURIComponent(String(requestParameters['recResourceId'])),
+          )
+          .replace(
+            `{${'document_id'}}`,
+            encodeURIComponent(String(requestParameters['documentId'])),
+          ),
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -1062,16 +1068,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/docs`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/docs`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -1124,16 +1126,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/features`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/features`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -1193,20 +1191,17 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/images/{image_id}`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-    urlPath = urlPath.replace(
-      `{${'image_id'}}`,
-      encodeURIComponent(String(requestParameters['imageId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/images/{image_id}`
+          .replace(
+            `{${'rec_resource_id'}}`,
+            encodeURIComponent(String(requestParameters['recResourceId'])),
+          )
+          .replace(
+            `{${'image_id'}}`,
+            encodeURIComponent(String(requestParameters['imageId'])),
+          ),
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -1259,16 +1254,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/images`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/images`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -1296,7 +1287,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Retrieve all available values for a given option type. Valid types: activities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district
+   * Retrieve all available values for a given option type. Valid types: activities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, photographerType
    * List all options for a type
    */
   async getOptionsByTypeRaw(
@@ -1322,16 +1313,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/options/{type}`;
-    urlPath = urlPath.replace(
-      `{${'type'}}`,
-      encodeURIComponent(String(requestParameters['type'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/options/{type}`.replace(
+          `{${'type'}}`,
+          encodeURIComponent(String(requestParameters['type'])),
+        ),
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -1345,7 +1332,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Retrieve all available values for a given option type. Valid types: activities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district
+   * Retrieve all available values for a given option type. Valid types: activities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, photographerType
    * List all options for a type
    */
   async getOptionsByType(
@@ -1390,12 +1377,9 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/options`;
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/options`,
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -1449,16 +1433,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/recreation-resources/{rec_resource_id}`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/recreation-resources/{rec_resource_id}`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -1512,16 +1492,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/fees`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/fees`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -1576,16 +1552,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/geospatial`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/geospatial`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -1643,12 +1615,9 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/recreation-resources/suggestions`;
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/recreation-resources/suggestions`,
         method: 'GET',
         headers: headerParameters,
         query: queryParameters,
@@ -1710,16 +1679,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/activities`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/activities`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'PUT',
         headers: headerParameters,
         query: queryParameters,
@@ -1784,16 +1749,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/features`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/features`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'PUT',
         headers: headerParameters,
         query: queryParameters,
@@ -1857,16 +1818,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/recreation-resources/{rec_resource_id}`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/recreation-resources/{rec_resource_id}`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'PUT',
         headers: headerParameters,
         query: queryParameters,
@@ -1940,20 +1897,17 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/fees/{fee_id}`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-    urlPath = urlPath.replace(
-      `{${'fee_id'}}`,
-      encodeURIComponent(String(requestParameters['feeId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/fees/{fee_id}`
+          .replace(
+            `{${'rec_resource_id'}}`,
+            encodeURIComponent(String(requestParameters['recResourceId'])),
+          )
+          .replace(
+            `{${'fee_id'}}`,
+            encodeURIComponent(String(requestParameters['feeId'])),
+          ),
         method: 'PUT',
         headers: headerParameters,
         query: queryParameters,
@@ -2020,16 +1974,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/geospatial`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/geospatial`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'PUT',
         headers: headerParameters,
         query: queryParameters,
@@ -2077,6 +2027,7 @@ export const GetOptionsByTypeTypeEnum = {
   ControlAccessCode: 'controlAccessCode',
   RiskRatingCode: 'riskRatingCode',
   District: 'district',
+  PhotographerType: 'photographerType',
 } as const;
 export type GetOptionsByTypeTypeEnum =
   (typeof GetOptionsByTypeTypeEnum)[keyof typeof GetOptionsByTypeTypeEnum];
@@ -2096,6 +2047,7 @@ export const GetOptionsByTypesTypesEnum = {
   ControlAccessCode: 'controlAccessCode',
   RiskRatingCode: 'riskRatingCode',
   District: 'district',
+  PhotographerType: 'photographerType',
 } as const;
 export type GetOptionsByTypesTypesEnum =
   (typeof GetOptionsByTypesTypesEnum)[keyof typeof GetOptionsByTypesTypesEnum];

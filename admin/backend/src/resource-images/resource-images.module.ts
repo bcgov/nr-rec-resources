@@ -8,6 +8,8 @@ import { memoryStorage } from 'multer';
 import { PrismaModule } from 'src/prisma.module';
 import { PrismaService } from 'src/prisma.service';
 import { ResourceImagesController } from './resource-images.controller';
+import { MAX_FILE_SIZE, MAX_FILES_COUNT } from './resource-images.constants';
+import { ConsentFormsS3Service } from './service/consent-forms-s3.service';
 import { RecResourceImagesS3Service } from './service/rec-resource-images-s3.service';
 import { ResourceImagesService } from './service/resource-images.service';
 
@@ -23,6 +25,16 @@ import { ResourceImagesService } from './service/resource-images.service';
       },
       inject: [AppConfigService, S3ServiceFactory],
     },
+    {
+      provide: ConsentFormsS3Service,
+      useFactory: (
+        appConfig: AppConfigService,
+        s3Factory: S3ServiceFactory,
+      ) => {
+        return new ConsentFormsS3Service(appConfig, s3Factory);
+      },
+      inject: [AppConfigService, S3ServiceFactory],
+    },
     ResourceImagesService,
     PrismaService,
   ],
@@ -31,8 +43,8 @@ import { ResourceImagesService } from './service/resource-images.service';
     MulterModule.register({
       storage: memoryStorage(),
       limits: {
-        fileSize: 2 * 1024 * 1024, // 2MB per file (each WebP variant is small)
-        files: 4, // Maximum 4 files (original, scr, pre, thm)
+        fileSize: MAX_FILE_SIZE,
+        files: MAX_FILES_COUNT,
       },
       // MIME type validation is handled by multi-file validation pipe at controller level
     }),

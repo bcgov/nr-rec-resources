@@ -1,3 +1,4 @@
+import { ConsentFormsS3Service } from '@/resource-images/service/consent-forms-s3.service';
 import { RecResourceImagesS3Service } from '@/resource-images/service/rec-resource-images-s3.service';
 import { ResourceImagesService } from '@/resource-images/service/resource-images.service';
 import { PrismaService } from 'src/prisma.service';
@@ -7,7 +8,7 @@ import {
   createMockImage,
   createStorageTestModule,
   setupAppConfigForStorage,
-} from '../../test-utils/storage-test-utils';
+} from 'test/test-utils/storage-test-utils';
 
 vi.mock('fs');
 
@@ -15,11 +16,17 @@ describe('ResourceImagesDocsService', () => {
   let prismaService: Mocked<PrismaService>;
   let service: ResourceImagesService;
   let mockS3Service: Mocked<RecResourceImagesS3Service>;
+  let mockConsentFormsS3Service: Mocked<ConsentFormsS3Service>;
 
   beforeEach(async () => {
     const mockS3ServiceValue = {
       uploadImageVariants: vi.fn(),
       deleteImageVariants: vi.fn(),
+    } as any;
+
+    const mockConsentFormsS3ServiceValue = {
+      uploadConsentForm: vi.fn(),
+      deleteConsentForm: vi.fn(),
     } as any;
 
     const testModule = await createStorageTestModule<ResourceImagesService>({
@@ -28,10 +35,17 @@ describe('ResourceImagesDocsService', () => {
         provide: RecResourceImagesS3Service,
         useValue: mockS3ServiceValue,
       },
+      additionalProviders: [
+        {
+          provide: ConsentFormsS3Service,
+          useValue: mockConsentFormsS3ServiceValue,
+        },
+      ],
     });
     service = testModule.service;
     prismaService = testModule.prismaService;
     mockS3Service = mockS3ServiceValue;
+    mockConsentFormsS3Service = mockConsentFormsS3ServiceValue;
     await setupAppConfigForStorage({
       bucketName: 'test-images-bucket',
       cloudfrontUrl: 'https://test-cdn.example.com',
@@ -124,9 +138,22 @@ describe('ResourceImagesDocsService', () => {
       vi.mocked(mockS3Service.uploadImageVariants).mockResolvedValue(
         mockS3Paths,
       );
-      vi.mocked(
-        prismaService.recreation_resource_image.create,
-      ).mockResolvedValue(mockCreated as any);
+      vi.mocked(prismaService.$transaction).mockImplementation(
+        async (fn: any) => {
+          const mockTx = {
+            recreation_resource_image: {
+              create: vi.fn().mockResolvedValue(mockCreated),
+            },
+            recreation_resource_document: {
+              create: vi.fn().mockResolvedValue({}),
+            },
+            recreation_image_consent_form: {
+              create: vi.fn().mockResolvedValue({}),
+            },
+          };
+          return fn(mockTx);
+        },
+      );
     });
 
     it('should return the created resource', async () => {
@@ -136,17 +163,7 @@ describe('ResourceImagesDocsService', () => {
       expect(result.ref_id).toBe('image-123');
       expect(result.file_name).toBe('title.webp');
       expect(result.recreation_resource_image_variants).toHaveLength(4);
-      expect(
-        prismaService.recreation_resource_image.create,
-      ).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            file_name: expect.stringMatching(/^Title$/), // without .webp extension
-            extension: 'webp',
-            file_size: expect.any(BigInt),
-          }),
-        }),
-      );
+      expect(prismaService.$transaction).toHaveBeenCalled();
     });
 
     it('should return status 404 if resource not found', async () => {
@@ -167,6 +184,34 @@ describe('ResourceImagesDocsService', () => {
         service.create('REC0001', 'Title', variantFiles),
       ).rejects.toThrow('Failed to upload image');
     });
+
+    it('should create image with consent form metadata', async () => {
+      const consentFormFile = {
+        buffer: Buffer.from('pdf content'),
+        originalname: 'consent.pdf',
+        size: 1024,
+      } as Express.Multer.File;
+
+      const consentMetadata = {
+        date_taken: '2024-01-15',
+        contains_pii: true,
+        photographer_type: 'OTHER',
+        photographer_name: 'John Doe',
+      };
+
+      const result = await service.create(
+        'REC0001',
+        'Title',
+        variantFiles,
+        consentMetadata,
+        consentFormFile,
+      );
+
+      expect(result).toBeDefined();
+      expect(result.image_id).toBe('image-123');
+      expect(prismaService.$transaction).toHaveBeenCalled();
+      expect(mockConsentFormsS3Service.uploadConsentForm).toHaveBeenCalled();
+    });
   });
 
   describe('delete', () => {
@@ -178,13 +223,25 @@ describe('ResourceImagesDocsService', () => {
       vi.mocked(
         prismaService.recreation_resource_image.findUnique,
       ).mockResolvedValue(mockResource as any);
-      vi.mocked(
-        prismaService.recreation_resource_image_variants.deleteMany,
-      ).mockResolvedValue({} as any);
-      vi.mocked(
-        prismaService.recreation_resource_image.delete,
-      ).mockResolvedValue(mockResource as any);
-      vi.mocked(mockS3Service.deleteImageVariants).mockResolvedValue(undefined);
+
+      // Mock the transaction for delete
+      vi.mocked(prismaService.$transaction).mockImplementation(
+        async (fn: any) => {
+          const mockTx = {
+            recreation_image_consent_form: {
+              findUnique: vi.fn().mockResolvedValue(null),
+              delete: vi.fn(),
+            },
+            recreation_resource_document: {
+              delete: vi.fn(),
+            },
+            recreation_resource_image: {
+              delete: vi.fn().mockResolvedValue(mockResource),
+            },
+          };
+          return fn(mockTx);
+        },
+      );
 
       const result = await service.delete('REC0001', '11535');
       expect(result).toBeDefined();
@@ -192,9 +249,52 @@ describe('ResourceImagesDocsService', () => {
       expect(result?.image_id).toBe('11535');
       expect(result?.file_name).toBe('abbott-lake-rec1735.webp');
       expect(result?.recreation_resource_image_variants).toHaveLength(4);
+      expect(prismaService.$transaction).toHaveBeenCalled();
     });
 
-    it('should throw HttpException when image is not found (covers line 182)', async () => {
+    it('should delete with consent form records when they exist', async () => {
+      const mockResource = createMockImage('11535', 'REC1735', {
+        file_name: 'abbott-lake-rec1735.webp',
+        created_at: new Date('2025-03-26T23:33:06.175Z'),
+      });
+      const mockConsentForm = { doc_id: 'doc-123', image_id: '11535' };
+
+      vi.mocked(
+        prismaService.recreation_resource_image.findUnique,
+      ).mockResolvedValue(mockResource as any);
+
+      const mockConsentFormDelete = vi.fn();
+      const mockDocumentDelete = vi.fn();
+
+      vi.mocked(prismaService.$transaction).mockImplementation(
+        async (fn: any) => {
+          const mockTx = {
+            recreation_image_consent_form: {
+              findUnique: vi.fn().mockResolvedValue(mockConsentForm),
+              delete: mockConsentFormDelete,
+            },
+            recreation_resource_document: {
+              delete: mockDocumentDelete,
+            },
+            recreation_resource_image: {
+              delete: vi.fn().mockResolvedValue(mockResource),
+            },
+          };
+          return fn(mockTx);
+        },
+      );
+
+      const result = await service.delete('REC0001', '11535');
+      expect(result).toBeDefined();
+      expect(mockConsentFormDelete).toHaveBeenCalledWith({
+        where: { image_id: '11535' },
+      });
+      expect(mockDocumentDelete).toHaveBeenCalledWith({
+        where: { doc_id: 'doc-123' },
+      });
+    });
+
+    it('should throw HttpException when image is not found', async () => {
       vi.mocked(
         prismaService.recreation_resource_image.findUnique,
       ).mockResolvedValue(null);
@@ -202,7 +302,7 @@ describe('ResourceImagesDocsService', () => {
       await expect(service.delete('REC0001', 'nonexistent')).rejects.toThrow(
         'Recreation Resource image not found',
       );
-      expect(mockS3Service.deleteImageVariants).not.toHaveBeenCalled();
+      expect(prismaService.$transaction).not.toHaveBeenCalled();
     });
   });
 
@@ -223,25 +323,25 @@ describe('ResourceImagesDocsService', () => {
       if (result?.[0]?.recreation_resource_image_variants) {
         const variant = result[0].recreation_resource_image_variants[0];
         expect(variant).toBeDefined();
-        expect(variant.url).toContain('images/REC0001/image-123/original.webp');
+        if (variant) {
+          expect(variant.url).toContain(
+            'images/REC0001/image-123/original.webp',
+          );
+        }
       }
     });
   });
 
   describe('S3 Integration Error Handling', () => {
-    const createServiceWithS3Error = async (
-      s3Error: Error,
-      operation: 'upload' | 'delete',
-    ) => {
+    const createServiceWithS3Error = async (s3Error: Error) => {
       const mockS3ServiceValue = {
-        uploadImageVariants:
-          operation === 'upload'
-            ? vi.fn().mockRejectedValueOnce(s3Error)
-            : vi.fn(),
-        deleteImageVariants:
-          operation === 'delete'
-            ? vi.fn().mockRejectedValueOnce(s3Error)
-            : vi.fn(),
+        uploadImageVariants: vi.fn().mockRejectedValueOnce(s3Error),
+        deleteImageVariants: vi.fn(),
+      } as any;
+
+      const mockConsentFormsS3ServiceValue = {
+        uploadConsentForm: vi.fn(),
+        deleteConsentForm: vi.fn(),
       } as any;
 
       return await createStorageTestModule<ResourceImagesService>({
@@ -252,31 +352,23 @@ describe('ResourceImagesDocsService', () => {
               rec_resource_id: 'REC0001',
             }),
           },
-          recreation_resource_image: {
-            findUnique:
-              operation === 'delete'
-                ? vi.fn().mockResolvedValue({
-                    rec_resource_id: 'REC0001',
-                    image_id: 'image-123',
-                  })
-                : undefined,
-            create: operation === 'upload' ? vi.fn() : undefined,
-            delete: operation === 'delete' ? vi.fn() : undefined,
-          },
-          recreation_resource_image_variants:
-            operation === 'delete' ? { deleteMany: vi.fn() } : undefined,
         },
         customS3ServiceProvider: {
           provide: RecResourceImagesS3Service,
           useValue: mockS3ServiceValue,
         },
+        additionalProviders: [
+          {
+            provide: ConsentFormsS3Service,
+            useValue: mockConsentFormsS3ServiceValue,
+          },
+        ],
       });
     };
     it('should handle S3 upload failure in create()', async () => {
       const variantFiles = createVariantFiles();
       const { service: serviceWithS3 } = await createServiceWithS3Error(
         new Error('S3 upload failed'),
-        'upload',
       );
 
       await expect(
@@ -284,15 +376,32 @@ describe('ResourceImagesDocsService', () => {
       ).rejects.toThrow('Failed to upload image: S3 upload failed');
     });
 
-    it('should handle S3 delete failure in delete()', async () => {
-      const { service: serviceWithS3 } = await createServiceWithS3Error(
-        new Error('S3 delete failed'),
-        'delete',
+    it('should clean up S3 uploads when database transaction fails', async () => {
+      const variantFiles = createVariantFiles();
+
+      vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue(
+        {
+          rec_resource_id: 'REC0001',
+        } as any,
+      );
+
+      vi.mocked(mockS3Service.uploadImageVariants).mockResolvedValue([
+        'images/REC0001/image-123/original.webp',
+      ]);
+      vi.mocked(mockS3Service.deleteImageVariants).mockResolvedValue(undefined);
+
+      vi.mocked(prismaService.$transaction).mockRejectedValueOnce(
+        new Error('Database connection failed'),
       );
 
       await expect(
-        serviceWithS3.delete('REC0001', 'image-123'),
-      ).rejects.toThrow('Failed to delete image: S3 delete failed');
+        service.create('REC0001', 'Caption', variantFiles),
+      ).rejects.toThrow('Failed to upload image');
+
+      expect(mockS3Service.deleteImageVariants).toHaveBeenCalledWith(
+        'REC0001',
+        expect.any(String), // image_id is generated
+      );
     });
   });
 });

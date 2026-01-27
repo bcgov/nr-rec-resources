@@ -1,6 +1,7 @@
 import { AppConfigModule } from '@/app-config/app-config.module';
 import { PrismaService } from '@/prisma.service';
 import { ResourceImagesController } from '@/resource-images/resource-images.controller';
+import { ConsentFormsS3Service } from '@/resource-images/service/consent-forms-s3.service';
 import { RecResourceImagesS3Service } from '@/resource-images/service/rec-resource-images-s3.service';
 import { ResourceImagesService } from '@/resource-images/service/resource-images.service';
 import { HttpException, INestApplication } from '@nestjs/common';
@@ -31,10 +32,10 @@ describe('ResourceImagesController', () => {
           },
         },
         {
-          provide: RecResourceImagesS3Service,
+          provide: ConsentFormsS3Service,
           useValue: {
-            uploadImageVariants: vi.fn(),
-            deleteImageVariants: vi.fn(),
+            uploadConsentForm: vi.fn(),
+            deleteConsentForm: vi.fn(),
           },
         },
       ],

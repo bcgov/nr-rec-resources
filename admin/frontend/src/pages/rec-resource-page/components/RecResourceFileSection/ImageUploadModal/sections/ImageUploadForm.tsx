@@ -1,30 +1,60 @@
-import { FC } from 'react';
-import { Alert, Form } from 'react-bootstrap';
-import { Control, Controller } from 'react-hook-form';
+import { FC, useEffect } from 'react';
+import { Alert, Button, Form } from 'react-bootstrap';
+import { Controller } from 'react-hook-form';
+import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { FormLabel } from '@/components';
 import {
-  ImageUploadFormData,
-  UploadState,
-} from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/schemas';
-import { Badge } from '@/components';
-import { BC_GOV_PERSONAL_INFORMATION_URL } from '@/constants/urls';
+  BC_GOV_PERSONAL_INFORMATION_URL,
+  CONSENT_FORM_URL,
+} from '@/constants/urls';
+import { ConsentFileUpload } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/components';
+import { useImageUploadForm } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/hooks';
 import { setUploadFileName } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
+import { useGetRecreationResourceOptions } from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceOptions';
 import './ImageUploadForm.scss';
 
+export interface ImageUploadFormHandlers {
+  resetForm: () => void;
+  isValid: boolean;
+}
+
 interface ImageUploadFormProps {
-  control: Control<ImageUploadFormData>;
-  uploadState: UploadState;
-  onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>;
+  fileName: string;
+  onUpload: () => void;
+  onFormReady: (handlers: ImageUploadFormHandlers) => void;
 }
 
 export const ImageUploadForm: FC<ImageUploadFormProps> = ({
-  control,
-  uploadState,
-  onSubmit,
+  fileName,
+  onUpload,
+  onFormReady,
 }) => {
-  const isPersonalInfoDisabled = uploadState === 'not-working-hours';
-  const showConfirmCheckbox =
-    uploadState === 'confirm-no-personal-info' || uploadState === 'ready';
+  const {
+    control,
+    handleSubmit,
+    errors,
+    resetForm,
+    isUploadEnabled,
+    showDateWarning,
+    showTakenDuringWorkingHours,
+    showNameField,
+    showConsentUpload,
+    consentFormFile,
+    handleConsentFileSelect,
+    handleConsentFileRemove,
+  } = useImageUploadForm(fileName);
 
+  const { data: photographerTypeOptions } = useGetRecreationResourceOptions([
+    'photographerType',
+  ]);
+  const photographerTypes = photographerTypeOptions?.[0]?.options ?? [];
+
+  useEffect(() => {
+    onFormReady({ resetForm, isValid: isUploadEnabled });
+  }, [onFormReady, resetForm, isUploadEnabled]);
+
+  const onSubmit = handleSubmit(onUpload);
   return (
     <Form
       className="image-upload-form"
@@ -32,22 +62,23 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
       aria-label="image-upload-form"
     >
       <h4>Details</h4>
+
       {/* Display Name */}
       <Form.Group className="mb-4">
-        <Form.Label>
-          Display name <Badge label="Public" />
-        </Form.Label>
+        <FormLabel required public>
+          Display name
+        </FormLabel>
         <Controller
           name="displayName"
           control={control}
-          render={({ field, fieldState }) => (
+          render={({ field }) => (
             <>
               <Form.Control
                 {...field}
                 type="text"
                 maxLength={50}
                 placeholder="Enter a display name"
-                isInvalid={!!fieldState.error}
+                isInvalid={!!errors.displayName}
                 onChange={(e) => {
                   field.onChange(e);
                   setUploadFileName((e.target as HTMLInputElement).value);
@@ -56,56 +87,148 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
               <Form.Text className="text-muted">
                 Briefly describe the location or feature
               </Form.Text>
-              <Form.Control.Feedback type="invalid">
-                {fieldState.error?.message}
-              </Form.Control.Feedback>
+              {errors.displayName && (
+                <Form.Control.Feedback type="invalid">
+                  {errors.displayName.message}
+                </Form.Control.Feedback>
+              )}
             </>
           )}
         />
       </Form.Group>
-      <h4>Privacy and ownership</h4>
-      {/* Toggle 1: Working Hours */}
-      <Form.Group className="image-upload-form__toggle-group">
-        <Form.Label>
-          Was this photo taken by staff during working hours?
-        </Form.Label>
+
+      {/* Date Created */}
+      <Form.Group className="mb-4">
+        <Form.Label>Date Taken</Form.Label>
         <Controller
-          name="takenDuringWorkingHours"
+          name="dateCreated"
           control={control}
           render={({ field }) => (
-            <div className="image-upload-form__radio-group">
-              <Form.Check
-                inline
-                type="radio"
-                id="working-hours-yes"
-                label="Yes"
-                value="yes"
-                checked={field.value === 'yes'}
-                onChange={() => field.onChange('yes')}
+            <>
+              <Form.Control
+                type="date"
+                value={
+                  field.value
+                    ? new Date(field.value).toISOString().split('T')[0]
+                    : ''
+                }
+                onChange={(e) => {
+                  const date = e.target.value ? new Date(e.target.value) : null;
+                  field.onChange(date);
+                }}
+                isInvalid={!!errors.dateCreated}
               />
-              <Form.Check
-                inline
-                type="radio"
-                id="working-hours-no"
-                label="No"
-                value="no"
-                checked={field.value === 'no'}
-                onChange={() => field.onChange('no')}
-              />
-            </div>
+              <Form.Text className="text-muted">
+                Update if inaccurate.
+              </Form.Text>
+              {errors.dateCreated && (
+                <Form.Control.Feedback type="invalid">
+                  {errors.dateCreated.message}
+                </Form.Control.Feedback>
+              )}
+              {showDateWarning && (
+                <Alert variant="warning" className="mt-2">
+                  This date is more than 50 years ago. Please verify it is
+                  correct.
+                </Alert>
+              )}
+            </>
           )}
         />
       </Form.Group>
-      {/* Warning: Not working hours */}
-      {uploadState === 'not-working-hours' && (
-        <Alert variant="warning">
-          RecSpace is currently accepting photos only by staff during working
-          hours. Please check back soon as we continue to enhance this feature.
-        </Alert>
+
+      <h4>Privacy and ownership</h4>
+
+      {/* Photographer Type */}
+      <Form.Group className="mb-3">
+        <FormLabel required>Photographer Type</FormLabel>
+        <Controller
+          name="photographerType"
+          control={control}
+          render={({ field }) => (
+            <Form.Select
+              value={field.value ?? 'STAFF'}
+              onChange={(e) => field.onChange(e.target.value)}
+            >
+              {photographerTypes.map((opt) => (
+                <option key={opt.id} value={opt.id}>
+                  {opt.label}
+                </option>
+              ))}
+            </Form.Select>
+          )}
+        />
+      </Form.Group>
+
+      {/* Was this photo taken during working hours? (Staff only) */}
+      {showTakenDuringWorkingHours && (
+        <Form.Group className="mb-3">
+          <FormLabel required>
+            Was this photo taken during working hours?
+          </FormLabel>
+          <Controller
+            name="didYouTakePhoto"
+            control={control}
+            render={({ field }) => (
+              <div className="image-upload-form__radio-group">
+                <Form.Check
+                  inline
+                  type="radio"
+                  id="didYouTakePhoto-yes"
+                  label="Yes"
+                  checked={field.value === true}
+                  onChange={() => field.onChange(true)}
+                />
+                <Form.Check
+                  inline
+                  type="radio"
+                  id="didYouTakePhoto-no"
+                  label="No"
+                  checked={field.value === false}
+                  onChange={() => field.onChange(false)}
+                />
+              </div>
+            )}
+          />
+          {errors.didYouTakePhoto && (
+            <Form.Text className="text-danger">
+              {errors.didYouTakePhoto.message}
+            </Form.Text>
+          )}
+        </Form.Group>
       )}
-      {/* Toggle 2: Personal Info */}
-      <Form.Group className="my-2 d-flex flex-column">
-        <Form.Label className="mb-0">
+
+      {/* Photographer Name (shown for non-staff only) */}
+      {showNameField && (
+        <Form.Group className="mb-3">
+          <FormLabel required>
+            Provide the name for copyright attribution
+          </FormLabel>
+          <Controller
+            name="photographerName"
+            control={control}
+            render={({ field }) => (
+              <>
+                <Form.Control
+                  {...field}
+                  type="text"
+                  placeholder="Enter photographer name"
+                  isInvalid={!!errors.photographerName}
+                />
+                {errors.photographerName && (
+                  <Form.Control.Feedback type="invalid">
+                    {errors.photographerName.message}
+                  </Form.Control.Feedback>
+                )}
+              </>
+            )}
+          />
+        </Form.Group>
+      )}
+
+      {/* Contains identifiable information? */}
+      <Form.Group className="mb-3 d-flex flex-column">
+        <FormLabel className="mb-0" required>
           Does this photo contain{' '}
           <a
             href={BC_GOV_PERSONAL_INFORMATION_URL}
@@ -114,65 +237,101 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
           >
             personally identifiable information?
           </a>
-        </Form.Label>
+        </FormLabel>
         <Form.Text className="text-muted mt-0 mb-2">
           Includes faces, vehicle plates, or identifiable details.
         </Form.Text>
         <Controller
-          name="containsPersonalInfo"
+          name="containsIdentifiableInfo"
           control={control}
           render={({ field }) => (
             <div className="image-upload-form__radio-group">
               <Form.Check
                 inline
                 type="radio"
-                id="personal-info-yes"
+                id="containsIdentifiableInfo-yes"
                 label="Yes"
-                value="yes"
-                checked={field.value === 'yes'}
-                onChange={() => field.onChange('yes')}
-                disabled={isPersonalInfoDisabled}
+                checked={field.value === true}
+                onChange={() => field.onChange(true)}
               />
               <Form.Check
                 inline
                 type="radio"
-                id="personal-info-no"
+                id="containsIdentifiableInfo-no"
                 label="No"
-                value="no"
-                checked={field.value === 'no'}
-                onChange={() => field.onChange('no')}
-                disabled={isPersonalInfoDisabled}
+                checked={field.value === false}
+                onChange={() => field.onChange(false)}
               />
             </div>
           )}
         />
+        {errors.containsIdentifiableInfo && (
+          <Form.Text className="text-danger">
+            {errors.containsIdentifiableInfo.message}
+          </Form.Text>
+        )}
       </Form.Group>
-      {/* Warning: Has Personal Info */}
-      {uploadState === 'has-personal-info' && (
-        <Alert variant="warning">
-          RecSpace is not currently accepting photos with personally
-          identifiable information. Please check back soon as we continue to
-          enhance this feature.
-        </Alert>
+
+      {/* Consent form upload (shown when photo contains identifiable info) */}
+      {showConsentUpload && (
+        <div className="consent-upload-area mb-3">
+          <Alert variant="danger" className="d-flex align-items-start gap-2">
+            <FontAwesomeIcon icon={faCircleInfo} className="mt-1" />
+            <div className="w-100">
+              <strong>This photo requires a consent and release form.</strong>
+              <p className="mb-2">
+                Please download and ask the people in the photo to complete. If
+                this is part of a photoshoot please combine into one pdf.
+              </p>
+              <Button
+                variant="primary"
+                className="w-100 text-white"
+                href={CONSENT_FORM_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Download consent and release form
+              </Button>
+            </div>
+          </Alert>
+
+          <ConsentFileUpload
+            file={consentFormFile}
+            onFileSelect={handleConsentFileSelect}
+            onFileRemove={handleConsentFileRemove}
+          />
+          {errors.consentFormFile && (
+            <Form.Text className="text-danger d-block mt-2">
+              {errors.consentFormFile.message}
+            </Form.Text>
+          )}
+        </div>
       )}
-      {/* Checkbox: Confirm no Personal Info */}
-      {showConfirmCheckbox && (
-        <Alert className="base-file-modal__alert base-file-modal__alert--info mb-0">
-          <Controller
-            name="confirmNoPersonalInfo"
-            control={control}
-            render={({ field }) => (
+
+      {/* Confirmation checkbox */}
+      <Alert className="base-file-modal__alert base-file-modal__alert--info mb-0">
+        <Controller
+          name="confirmationChecked"
+          control={control}
+          render={({ field }) => (
+            <>
               <Form.Check
                 type="checkbox"
-                id="confirm-no-personal-info"
-                label="By uploading this photo, I confirm that it contains no personally identifiable information."
-                checked={field.value ?? false}
-                onChange={field.onChange}
+                id="confirmationChecked"
+                label="By uploading this photo, I confirm that it contains no personally identifiable information or that I have obtained the required consent forms, and the image rights belong to Recreation Sites and Trails."
+                checked={field.value}
+                onChange={(e) => field.onChange(e.target.checked)}
+                isInvalid={!!errors.confirmationChecked}
               />
-            )}
-          />
-        </Alert>
-      )}
+              {errors.confirmationChecked && (
+                <Form.Text className="text-danger">
+                  {errors.confirmationChecked.message}
+                </Form.Text>
+              )}
+            </>
+          )}
+        />
+      </Alert>
     </Form>
   );
 };
