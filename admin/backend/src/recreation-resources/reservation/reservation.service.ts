@@ -52,39 +52,34 @@ export class ReservationService {
     this.logger.log(
       `Updating reservation data for rec_resource_id: ${rec_resource_id}`,
     );
-
     await this.prisma.recreation_resource_reservation_info.upsert({
       where: { rec_resource_id },
       update: {
         reservation_website:
-          (updateDto.reservation_website && updateDto.reservation_website) !==
-          ''
+          updateDto.reservation_website !== undefined
             ? updateDto.reservation_website
             : null,
         reservation_phone_number:
-          (updateDto.reservation_phone_number &&
-            updateDto.reservation_phone_number) !== ''
+          updateDto.reservation_phone_number !== undefined
             ? updateDto.reservation_phone_number
             : null,
         reservation_email:
-          (updateDto.reservation_email && updateDto.reservation_email) !== ''
+          updateDto.reservation_email !== undefined
             ? updateDto.reservation_email
             : null,
       },
       create: {
         rec_resource_id,
         reservation_website:
-          (updateDto.reservation_website && updateDto.reservation_website) !==
-          ''
+          updateDto.reservation_website !== undefined
             ? updateDto.reservation_website
             : null,
         reservation_phone_number:
-          (updateDto.reservation_phone_number &&
-            updateDto.reservation_phone_number) !== ''
+          updateDto.reservation_phone_number !== undefined
             ? updateDto.reservation_phone_number
             : null,
         reservation_email:
-          (updateDto.reservation_email && updateDto.reservation_email) !== ''
+          updateDto.reservation_email !== undefined
             ? updateDto.reservation_email
             : null,
       },

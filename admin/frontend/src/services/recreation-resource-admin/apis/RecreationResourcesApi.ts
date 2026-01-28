@@ -101,11 +101,6 @@ export interface CreateRecreationResourceFeeRequest {
   createRecreationFeeDto: CreateRecreationFeeDto;
 }
 
-export interface CreateRecreationResourceReservationRequest {
-  recResourceId: string;
-  updateRecreationResourceReservationDto: UpdateRecreationResourceReservationDto;
-}
-
 export interface CreateRecreationresourceDocumentRequest {
   recResourceId: string;
   fileName: string;
@@ -404,78 +399,6 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<RecreationFeeDto> {
     const response = await this.createRecreationResourceFeeRaw(
-      requestParameters,
-      initOverrides,
-    );
-    return await response.value();
-  }
-
-  /**
-   * Updates or inserts reservation data for a recreation resource
-   * Create reservation data for a recreation resource
-   */
-  async createRecreationResourceReservationRaw(
-    requestParameters: CreateRecreationResourceReservationRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<UpdateRecreationResourceReservationDto>> {
-    if (requestParameters['recResourceId'] == null) {
-      throw new runtime.RequiredError(
-        'recResourceId',
-        'Required parameter "recResourceId" was null or undefined when calling createRecreationResourceReservation().',
-      );
-    }
-
-    if (requestParameters['updateRecreationResourceReservationDto'] == null) {
-      throw new runtime.RequiredError(
-        'updateRecreationResourceReservationDto',
-        'Required parameter "updateRecreationResourceReservationDto" was null or undefined when calling createRecreationResourceReservation().',
-      );
-    }
-
-    const queryParameters: any = {};
-
-    const headerParameters: runtime.HTTPHeaders = {};
-
-    headerParameters['Content-Type'] = 'application/json';
-
-    if (this.configuration && this.configuration.accessToken) {
-      const token = this.configuration.accessToken;
-      const tokenString = await token('keycloak', []);
-
-      if (tokenString) {
-        headerParameters['Authorization'] = `Bearer ${tokenString}`;
-      }
-    }
-    const response = await this.request(
-      {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/reservation`.replace(
-          `{${'rec_resource_id'}}`,
-          encodeURIComponent(String(requestParameters['recResourceId'])),
-        ),
-        method: 'POST',
-        headers: headerParameters,
-        query: queryParameters,
-        body: UpdateRecreationResourceReservationDtoToJSON(
-          requestParameters['updateRecreationResourceReservationDto'],
-        ),
-      },
-      initOverrides,
-    );
-
-    return new runtime.JSONApiResponse(response, (jsonValue) =>
-      UpdateRecreationResourceReservationDtoFromJSON(jsonValue),
-    );
-  }
-
-  /**
-   * Updates or inserts reservation data for a recreation resource
-   * Create reservation data for a recreation resource
-   */
-  async createRecreationResourceReservation(
-    requestParameters: CreateRecreationResourceReservationRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<UpdateRecreationResourceReservationDto> {
-    const response = await this.createRecreationResourceReservationRaw(
       requestParameters,
       initOverrides,
     );

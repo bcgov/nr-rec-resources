@@ -28,8 +28,7 @@ export async function recResourceReservationLoader(args: any) {
           });
           return response;
         } catch (err) {
-          console.log('ERROR', err);
-          return null;
+          if (err) return null;
         }
       },
     }),

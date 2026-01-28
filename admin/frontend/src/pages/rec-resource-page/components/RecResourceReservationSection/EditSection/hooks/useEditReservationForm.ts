@@ -69,11 +69,23 @@ export const useEditReservationForm = (
   const onSubmit = async (data: EditReservationFormData) => {
     // Prepare update data with proper type conversion
     const updateData: UpdateRecreationResourceReservationDto = {
-      reservation_email: data.reservation_email || '',
-      reservation_website: data.reservation_website || '',
-      reservation_phone_number: data.reservation_phone_number || '',
+      reservation_email: data.reservation_email || undefined,
+      reservation_website: data.reservation_website || undefined,
+      reservation_phone_number: data.reservation_phone_number || undefined,
     };
-    console.log('ON SUBMIT', recResourceReservationInfo);
+
+    if (
+      data.has_reservation &&
+      (!data.reservation_email || data.reservation_email === '') &&
+      (!data.reservation_website || data.reservation_website === '') &&
+      (!data.reservation_phone_number || data.reservation_phone_number === '')
+    ) {
+      addErrorNotification(
+        `Failed to update recreation resource: at least one contact form must exist.`,
+      );
+      return;
+    }
+
     // Submit the update using mutateAsync for cleaner async handling
     try {
       await updateMutation.mutateAsync({
@@ -87,9 +99,7 @@ export const useEditReservationForm = (
       navigate({
         to: ROUTE_PATHS.REC_RESOURCE_RESERVATION,
         params: {
-          id: recResourceReservationInfo
-            ? recResourceReservationInfo.rec_resource_id.toString()
-            : '',
+          id: recResourceId,
         },
       });
     } catch (error) {
