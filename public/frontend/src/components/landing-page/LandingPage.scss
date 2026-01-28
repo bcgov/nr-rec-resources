@@ -33,18 +33,4 @@
       font-size: 0.7rem;
     }
   }
-
-  .partnering-container {
-    @media (max-width: 768px) {
-      padding-left: 6px;
-    }
-    .partnering-box {
-      padding-left: 1.8em;
-      color: $colorBlue;
-      @media (max-width: 768px) {
-        padding-left: 0px !important;
-        margin-left: 0px !important;
-      }
-    }
-  }
 }
