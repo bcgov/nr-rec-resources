@@ -24,19 +24,19 @@ export interface UpdateRecreationResourceReservationDto {
    * @type {string}
    * @memberof UpdateRecreationResourceReservationDto
    */
-  reservation_website: string;
+  reservation_website?: string;
   /**
    * Reservation phone number of designed resource
    * @type {string}
    * @memberof UpdateRecreationResourceReservationDto
    */
-  reservation_phone_number: string;
+  reservation_phone_number?: string;
   /**
    * Reservation email of designed resource
    * @type {string}
    * @memberof UpdateRecreationResourceReservationDto
    */
-  reservation_email: string;
+  reservation_email?: string;
 }
 
 /**
@@ -45,21 +45,6 @@ export interface UpdateRecreationResourceReservationDto {
 export function instanceOfUpdateRecreationResourceReservationDto(
   value: object,
 ): value is UpdateRecreationResourceReservationDto {
-  if (
-    !('reservation_website' in value) ||
-    value['reservation_website'] === undefined
-  )
-    return false;
-  if (
-    !('reservation_phone_number' in value) ||
-    value['reservation_phone_number'] === undefined
-  )
-    return false;
-  if (
-    !('reservation_email' in value) ||
-    value['reservation_email'] === undefined
-  )
-    return false;
   return true;
 }
 
@@ -77,9 +62,16 @@ export function UpdateRecreationResourceReservationDtoFromJSONTyped(
     return json;
   }
   return {
-    reservation_website: json['reservation_website'],
-    reservation_phone_number: json['reservation_phone_number'],
-    reservation_email: json['reservation_email'],
+    reservation_website:
+      json['reservation_website'] == null
+        ? undefined
+        : json['reservation_website'],
+    reservation_phone_number:
+      json['reservation_phone_number'] == null
+        ? undefined
+        : json['reservation_phone_number'],
+    reservation_email:
+      json['reservation_email'] == null ? undefined : json['reservation_email'],
   };
 }
 

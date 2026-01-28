@@ -50,6 +50,7 @@ export const HasReservation = ({
                 onChange={handleToggle}
                 aria-label="Toggle requirement for reservation on rec resource"
                 className="cursor-pointer"
+                name="has_reservation"
               />
             </div>
           )}

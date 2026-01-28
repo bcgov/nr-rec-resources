@@ -23,14 +23,14 @@ export const RecResourceReservationSection = (
       value: reservationInfo?.reservation_email,
     },
     {
-      key: 'phone-number',
-      label: 'Phone Number',
-      value: reservationInfo?.reservation_phone_number,
-    },
-    {
       key: 'website',
       label: 'Website',
       value: reservationInfo?.reservation_website,
+    },
+    {
+      key: 'phone-number',
+      label: 'Phone Number',
+      value: reservationInfo?.reservation_phone_number,
     },
   ];
   const isReservable = !reservationInfo

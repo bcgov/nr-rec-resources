@@ -1,6 +1,6 @@
 import { TextField } from '@/components/form';
 import { Button, Col, Form, Row, Stack } from 'react-bootstrap';
-import { Controller } from 'react-hook-form';
+import { Controller, useWatch } from 'react-hook-form';
 import { FormErrorBanner } from './components';
 import {
   EDIT_RESERVATION_FIELD_LABEL_MAP,
@@ -14,7 +14,7 @@ import { useRecResourceReservation } from '@/pages/rec-resource-page/hooks/useRe
 import { LinkWithQueryParams } from '@shared/components/link-with-query-params';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { Route } from '@/routes/rec-resource/$id/reservation/edit';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 /**
  * Edit section for recreation resource overview
@@ -32,6 +32,7 @@ export const RecResourceReservationEditSection = () => {
   const [requireReservation, setRequireReservation] = useState(
     checkRequireReservation,
   );
+  const initialReservationInfo = reservationInfo;
 
   const {
     handleSubmit,
@@ -41,11 +42,83 @@ export const RecResourceReservationEditSection = () => {
     isDirty,
     updateMutation,
     onSubmit,
+    setValue,
   } = useEditReservationForm(recResourceId, reservationInfo);
+
+  const reservationEmail = useWatch({
+    control,
+    name: 'reservation_email',
+  });
+
+  const reservationWebsite = useWatch({
+    control,
+    name: 'reservation_website',
+  });
+
+  const reservationPhone = useWatch({
+    control,
+    name: 'reservation_phone_number',
+  });
+
+  useEffect(() => {
+    if (
+      reservationEmail === '' &&
+      reservationWebsite === '' &&
+      reservationPhone === ''
+    ) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setRequireReservation(false);
+    } else {
+      setRequireReservation(true);
+    }
+  }, [reservationEmail, reservationWebsite, reservationPhone]);
+
+  const clearFields = () => {
+    setValue('has_reservation', false, {
+      shouldDirty: true,
+    });
+    setValue('reservation_email', '', {
+      shouldDirty: true,
+    });
+    setValue('reservation_website', '', {
+      shouldDirty: true,
+    });
+    setValue('reservation_phone_number', '', {
+      shouldDirty: true,
+    });
+  };
+
+  const restoreFields = () => {
+    setValue('has_reservation', true, {
+      shouldDirty: true,
+    });
+    setValue('reservation_email', initialReservationInfo?.reservation_email, {
+      shouldDirty: true,
+    });
+    setValue(
+      'reservation_website',
+      initialReservationInfo?.reservation_website,
+      {
+        shouldDirty: true,
+      },
+    );
+    setValue(
+      'reservation_phone_number',
+      initialReservationInfo?.reservation_phone_number,
+      {
+        shouldDirty: true,
+      },
+    );
+  };
 
   const handleRequireReservation = () => {
     setRequireReservation((prev) => {
       const next = !prev;
+      if (!next) {
+        clearFields();
+      } else {
+        restoreFields();
+      }
       return next;
     });
   };

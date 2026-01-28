@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useMemo } from 'react';
 import { Alert, Stack } from 'react-bootstrap';
 import { FieldErrors } from 'react-hook-form';
-import { EditResourceFormData } from '../schemas';
+import { EditReservationFormData } from '../schemas';
 
 /**
  * Utility function to extract all error messages from react-hook-form errors
@@ -12,8 +12,8 @@ import { EditResourceFormData } from '../schemas';
  * @param fieldLabelMap - Optional map of field names to human-readable labels
  */
 function extractErrorMessages(
-  errors: FieldErrors<EditResourceFormData>,
-  fieldLabelMap?: Record<keyof EditResourceFormData, string>,
+  errors: FieldErrors<EditReservationFormData>,
+  fieldLabelMap?: Record<keyof EditReservationFormData, string>,
 ): string[] {
   const messages: string[] = [];
 
@@ -21,7 +21,8 @@ function extractErrorMessages(
   for (const [fieldName, error] of Object.entries(errors)) {
     if (error) {
       const fieldLabel =
-        fieldLabelMap?.[fieldName as keyof EditResourceFormData] || fieldName;
+        fieldLabelMap?.[fieldName as keyof EditReservationFormData] ||
+        fieldName;
       messages.push(`${fieldLabel}: ${error.message}`);
     }
   }
@@ -30,8 +31,8 @@ function extractErrorMessages(
 }
 
 interface FormErrorBannerProps {
-  errors: FieldErrors<EditResourceFormData>;
-  fieldLabelMap?: Record<keyof EditResourceFormData, string>;
+  errors: FieldErrors<EditReservationFormData>;
+  fieldLabelMap?: Record<keyof EditReservationFormData, string>;
   className?: string;
 }
 
