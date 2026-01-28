@@ -1,16 +1,37 @@
+# =============================================================================
+# Remote State Data Sources
+# =============================================================================
+
+data "terraform_remote_state" "admin_frontend" {
+  # Skip remote state lookup for ephemeral environments where frontend state doesn't exist yet
+  count   = can(regex("ephemeral", var.app_env)) ? 0 : 1
+  backend = "s3"
+  config = {
+    bucket         = var.admin_frontend_remote_state.bucket
+    key            = var.admin_frontend_remote_state.key
+    dynamodb_table = var.admin_frontend_remote_state.dynamodb_table
+    region         = var.admin_frontend_remote_state.region
+  }
+}
+
 locals {
   images_bucket_name           = "rst-storage-images-${var.target_env}"
   public_documents_bucket_name = "rst-storage-public-documents-${var.target_env}"
 
+  # Get CloudFront domain from remote state
+  admin_cf_domain = try(data.terraform_remote_state.admin_frontend[0].outputs.cloudfront.domain_name, "")
+
+  # Get custom domains from remote state (for prod CORS)
+  admin_custom_domains = try(data.terraform_remote_state.admin_frontend[0].outputs.custom_domains, [])
 
   # CORS allowed origins:
   # - Dev: localhost:3001 for local development
-  # - All environments: CloudFront domain (if provided)
-  # - Prod: Custom domain aliases (e.g., staff.sitesandtrailsbc.ca)
+  # - All environments: CloudFront domain (from remote state)
+  # - Prod: Custom domain aliases (from remote state)
   cors_allowed_origins = compact(concat(
-    contains(["dev", "test"], var.target_env) ? ["http://localhost:3001"] : [],
-    var.admin_frontend_cloudfront_domain != "" ? ["https://${var.admin_frontend_cloudfront_domain}"] : [],
-    var.target_env == "prod" ? [for domain in var.admin_frontend_custom_domains : "https://${domain}"] : []
+    var.target_env == "dev" ? ["http://localhost:3001"] : [],
+    local.admin_cf_domain != "" ? ["https://${local.admin_cf_domain}"] : [],
+    var.target_env == "prod" ? [for domain in local.admin_custom_domains : "https://${domain}"] : []
   ))
 }
 
@@ -44,6 +65,8 @@ resource "aws_s3_bucket_public_access_block" "images" {
 }
 
 resource "aws_s3_bucket_cors_configuration" "images" {
+  # Skip CORS config when no origins available (ephemeral/initial deployments)
+  count  = length(local.cors_allowed_origins) > 0 ? 1 : 0
   bucket = aws_s3_bucket.images.id
 
   cors_rule {
@@ -85,6 +108,8 @@ resource "aws_s3_bucket_public_access_block" "documents" {
 }
 
 resource "aws_s3_bucket_cors_configuration" "documents" {
+  # Skip CORS config when no origins available (ephemeral/initial deployments)
+  count  = length(local.cors_allowed_origins) > 0 ? 1 : 0
   bucket = aws_s3_bucket.documents.id
 
   cors_rule {
