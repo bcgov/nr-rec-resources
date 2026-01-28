@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { Button, Col, Container, Row, Stack } from 'react-bootstrap';
+import { Button, Stack } from 'react-bootstrap';
 import './LandingPage.scss';
 import { EXTERNAL_LINKS } from '@/constants/urls';
 import {
@@ -13,6 +13,7 @@ import { faExternalLink } from '@fortawesome/free-solid-svg-icons';
 
 const LearnMore: FC = () => (
   <Button
+    className="flex-shrink-0"
     href={EXTERNAL_LINKS.PARTNERING}
     rel="noopener noreferrer"
     target="_blank"
@@ -49,32 +50,18 @@ export const LandingPage: FC = () => {
           headingComponent={<h1>Partnering and volunteering</h1>}
           sectionContent={
             <>
-              <Container className="d-flex d-none d-md-block partnering-container">
-                <Row>
-                  <Col
-                    md={12}
-                    lg={9}
-                    className="partnering-box justify-content-left"
-                  >
-                    <div>
-                      We partner with volunteer organizations through
-                      Stewardship Partner Insurance Program (SPIP) agreements.
-                      These agreements make it possible for Recreation Sites and
-                      Trails BC to collaborate with First Nations, local
-                      governments, and community groups. Volunteers play a vital
-                      role in keeping our sites, trails, and recreation
-                      facilities safe and enjoyable for everyone.
-                    </div>
-                  </Col>
-                  <Col
-                    md={12}
-                    lg={3}
-                    className="align-items-center justify-content-left partnering-box"
-                  >
-                    <LearnMore />
-                  </Col>
-                </Row>
-              </Container>
+              <div className="d-none d-md-flex align-items-center gap-4">
+                <p className="mb-0 flex-grow-1">
+                  We partner with volunteer organizations through Stewardship
+                  Partner Insurance Program (SPIP) agreements. These agreements
+                  make it possible for Recreation Sites and Trails BC to
+                  collaborate with First Nations, local governments, and
+                  community groups. Volunteers play a vital role in keeping our
+                  sites, trails, and recreation facilities safe and enjoyable
+                  for everyone.
+                </p>
+                <LearnMore />
+              </div>
               <div className="d-block d-md-none">
                 <p>
                   We partner with volunteer organizations through Stewardship
