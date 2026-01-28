@@ -45,6 +45,18 @@ resource "aws_s3_bucket_policy" "images" {
             "AWS:SourceArn" = aws_cloudfront_distribution.storage.arn
           }
         }
+      },
+      {
+        Sid       = "DenyQuarantinedObjects"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = "${aws_s3_bucket.images.arn}/*"
+        Condition = {
+          StringEquals = {
+            "s3:ExistingObjectTag/GuardDutyMalwareScanStatus" = "THREATS_FOUND"
+          }
+        }
       }
     ]
   })
@@ -67,6 +79,18 @@ resource "aws_s3_bucket_policy" "documents" {
         Condition = {
           StringEquals = {
             "AWS:SourceArn" = aws_cloudfront_distribution.storage.arn
+          }
+        }
+      },
+      {
+        Sid       = "DenyQuarantinedObjects"
+        Effect    = "Deny"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = "${aws_s3_bucket.documents.arn}/*"
+        Condition = {
+          StringEquals = {
+            "s3:ExistingObjectTag/GuardDutyMalwareScanStatus" = "THREATS_FOUND"
           }
         }
       }
