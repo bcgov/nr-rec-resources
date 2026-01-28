@@ -44,6 +44,7 @@ export const HasReservation = ({
           {isEditMode && (
             <div>
               <Form.Check
+                data-testid="toggle-res"
                 type="switch"
                 id="reservation-requirement-switch"
                 checked={value}
