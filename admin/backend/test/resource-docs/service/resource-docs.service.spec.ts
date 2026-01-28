@@ -1,9 +1,9 @@
 import { ResourceDocsService } from '@/resource-docs/service/resource-docs.service';
 import { PrismaService } from 'src/prisma.service';
 import { S3Service } from 'src/s3/s3.service';
+import { HttpException } from '@nestjs/common';
 import { Mocked, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { createMockFile } from 'test/test-utils/file-test-utils';
 import {
   createMockDocument,
   createStorageTestModule,
@@ -17,7 +17,6 @@ vi.mock('crypto', () => ({
 
 const REC_RESOURCE_ID = 'REC0001';
 const DOCUMENT_ID = '11535';
-const TEST_DOC_ID = 'test-document-id';
 const TEST_CAPTION = 'Tenquille Lake - Hawint Map';
 
 describe('ResourceDocsService', () => {
@@ -30,6 +29,7 @@ describe('ResourceDocsService', () => {
       uploadFile: vi.fn(),
       deleteFile: vi.fn(),
       getSignedUrl: vi.fn(),
+      getSignedUploadUrl: vi.fn(),
       listObjectsByPrefix: vi.fn(),
     } as any;
 
@@ -44,34 +44,13 @@ describe('ResourceDocsService', () => {
       bucketName: 'test-docs-bucket',
       cloudfrontUrl: 'https://test-cdn.example.com',
     });
+
+    // Mock recreation_resource for validation (after prismaService is initialized)
+    vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue({
+      rec_resource_id: REC_RESOURCE_ID,
+    } as any);
+
     vi.clearAllMocks();
-  });
-
-  describe('getById', () => {
-    it('should return one resource', async () => {
-      const mockDoc = createMockDocument(DOCUMENT_ID, TEST_CAPTION);
-      vi.mocked(
-        prismaService.recreation_resource_document.findUnique,
-      ).mockResolvedValue(mockDoc as any);
-
-      const result = await service.getDocumentByResourceId(
-        REC_RESOURCE_ID,
-        DOCUMENT_ID,
-      );
-
-      expect(result.doc_code_description).toBe(TEST_CAPTION);
-      expect(result.document_id).toBe(DOCUMENT_ID);
-      expect(result.url).toContain(`${DOCUMENT_ID}/sample.pdf`);
-    });
-
-    it('should return status 404 if resource not found', async () => {
-      vi.mocked(
-        prismaService.recreation_resource_document.findUnique,
-      ).mockResolvedValueOnce(null);
-      await expect(
-        service.getDocumentByResourceId(REC_RESOURCE_ID, DOCUMENT_ID),
-      ).rejects.toThrow();
-    });
   });
 
   describe('getAll', () => {
@@ -103,106 +82,6 @@ describe('ResourceDocsService', () => {
       ).mockResolvedValueOnce([]);
       expect(await service.getAll('NONEXISTENT')).toHaveLength(0);
     });
-  });
-
-  describe('create', () => {
-    const mockResource = {
-      rec_resource_id: REC_RESOURCE_ID,
-      name: 'Test Resource',
-    };
-
-    beforeEach(() => {
-      vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue(
-        mockResource as any,
-      );
-      vi.mocked(s3Service.uploadFile).mockResolvedValue(
-        `documents/${REC_RESOURCE_ID}/${TEST_DOC_ID}/sample.pdf`,
-      );
-      const mockDoc = createMockDocument(TEST_DOC_ID, 'Title', REC_RESOURCE_ID);
-      vi.mocked(
-        prismaService.recreation_resource_document.create,
-      ).mockResolvedValue(mockDoc as any);
-      vi.mocked(
-        prismaService.recreation_resource_document.findUnique,
-      ).mockResolvedValue(mockDoc as any);
-    });
-
-    it('should return the created resource', async () => {
-      const file = createMockFile({ originalname: 'sample.pdf' });
-      const result = await service.create(REC_RESOURCE_ID, 'sample', file);
-
-      expect(s3Service.uploadFile).toHaveBeenCalledWith(
-        `documents/${REC_RESOURCE_ID}/${TEST_DOC_ID}`,
-        file.buffer,
-        `sample.pdf`,
-      );
-      expect(
-        prismaService.recreation_resource_document.create,
-      ).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            file_name: 'sample',
-            extension: 'pdf',
-            doc_code: 'RM',
-          }),
-        }),
-      );
-      expect(result.doc_code_description).toBe('Title');
-      expect(result.document_id).toBe(TEST_DOC_ID);
-      expect(result.url).toContain(`${TEST_DOC_ID}/sample.pdf`);
-    });
-
-    it('should return status 404 if resource not found', async () => {
-      vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue(
-        null,
-      );
-      await expect(
-        service.create(
-          REC_RESOURCE_ID,
-          'sample',
-          createMockFile({ originalname: 'sample.pdf' }),
-        ),
-      ).rejects.toThrow();
-      expect(s3Service.uploadFile).not.toHaveBeenCalled();
-    });
-
-    it.each([
-      ['empty', ''],
-      ['null', null],
-    ])(
-      'should throw FileValidationException when file_name is %s (covers line 83)',
-      async (_, fileName) => {
-        const file = createMockFile({ originalname: 'sample.pdf' });
-        await expect(
-          service.create(REC_RESOURCE_ID, fileName as any, file),
-        ).rejects.toThrow('File name is required');
-        expect(s3Service.uploadFile).not.toHaveBeenCalled();
-      },
-    );
-
-    it('should throw HttpException when document creation succeeds but retrieval fails (covers line 128)', async () => {
-      const file = createMockFile({ originalname: 'sample.pdf' });
-      vi.mocked(
-        prismaService.recreation_resource_document.findUnique,
-      ).mockResolvedValue(null);
-
-      await expect(
-        service.create(REC_RESOURCE_ID, 'sample', file),
-      ).rejects.toThrow('Failed to retrieve created document');
-    });
-
-    it('should handle errors in create method catch block (covers line 133)', async () => {
-      const file = createMockFile({ originalname: 'sample.pdf' });
-      vi.mocked(s3Service.uploadFile).mockRejectedValueOnce(
-        new Error('S3 upload failed'),
-      );
-
-      await expect(
-        service.create(REC_RESOURCE_ID, 'sample', file),
-      ).rejects.toThrow('Failed to upload document');
-    });
-
-    // Note: File type validation handled at controller level via ParseFilePipe
   });
 
   describe('delete', () => {
@@ -349,21 +228,260 @@ describe('ResourceDocsService', () => {
     });
   });
 
-  describe('URL Construction (service-specific)', () => {
-    it('should construct URL with correct document S3 key format', async () => {
-      const testPayload = createMockDocument(DOCUMENT_ID, TEST_CAPTION);
-      const expectedS3Key = `documents/${REC_RESOURCE_ID}/${DOCUMENT_ID}/sample.pdf`;
+  describe('presignUpload', () => {
+    it('should generate presigned URL successfully', async () => {
+      const mockUrl = 'https://s3.amazonaws.com/presigned-url';
+      vi.mocked(s3Service.getSignedUploadUrl).mockResolvedValue(mockUrl);
 
-      vi.mocked(
-        prismaService.recreation_resource_document.findUnique,
-      ).mockResolvedValue(testPayload as any);
-
-      const result = await service.getDocumentByResourceId(
+      const result = await service.presignUpload(
         REC_RESOURCE_ID,
-        DOCUMENT_ID,
+        'campbell-river-site-map.pdf',
       );
 
-      expect(result.url).toContain(expectedS3Key);
+      expect(result).toBeDefined();
+      expect(result.document_id).toBe('test-document-id');
+      expect(result.key).toContain(
+        `documents/${REC_RESOURCE_ID}/test-document-id/`,
+      );
+      expect(result.key).toContain('campbell-river-site-map.pdf');
+      expect(result.url).toBe(mockUrl);
+
+      expect(s3Service.getSignedUploadUrl).toHaveBeenCalledWith(
+        `documents/${REC_RESOURCE_ID}/test-document-id/campbell-river-site-map.pdf`,
+        'application/pdf',
+        900,
+        undefined, // No tags for documents
+      );
+    });
+
+    it('should validate resource exists before generating URL', async () => {
+      vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue(
+        null,
+      );
+
+      await expect(service.presignUpload('REC9999', 'map.pdf')).rejects.toThrow(
+        'Recreation Resource not found',
+      );
+
+      expect(s3Service.getSignedUploadUrl).not.toHaveBeenCalled();
+    });
+
+    it('should handle S3 service errors', async () => {
+      vi.mocked(s3Service.getSignedUploadUrl).mockRejectedValue(
+        new Error('S3 service error'),
+      );
+
+      await expect(
+        service.presignUpload(REC_RESOURCE_ID, 'map.pdf'),
+      ).rejects.toThrow('Failed to generate presigned URL');
+    });
+
+    it('should construct correct S3 key', async () => {
+      vi.mocked(s3Service.getSignedUploadUrl).mockResolvedValue(
+        'https://s3.amazonaws.com/url',
+      );
+
+      await service.presignUpload(REC_RESOURCE_ID, 'test-document.pdf');
+
+      const call = vi.mocked(s3Service.getSignedUploadUrl).mock.calls[0];
+      const key = call[0];
+
+      expect(key).toContain(`documents/${REC_RESOURCE_ID}/test-document-id/`);
+      expect(key).toContain('test-document.pdf');
+    });
+  });
+
+  describe('finalizeUpload', () => {
+    it('should create database record and retrieve it successfully', async () => {
+      const body = {
+        document_id: 'test-document-id',
+        file_name: 'campbell-river-site-map.pdf',
+        extension: 'pdf',
+        file_size: 2097152,
+        doc_code: 'RM',
+      };
+
+      const mockRetrieved = createMockDocument(
+        'test-document-id',
+        TEST_CAPTION,
+        REC_RESOURCE_ID,
+        {
+          file_name: 'campbell-river-site-map.pdf',
+          extension: 'pdf',
+        },
+      );
+
+      vi.mocked(
+        prismaService.recreation_resource_document.create,
+      ).mockResolvedValue({} as any);
+      vi.mocked(
+        prismaService.recreation_resource_document.findUnique,
+      ).mockResolvedValueOnce(mockRetrieved as any);
+
+      const result = await service.finalizeUpload(REC_RESOURCE_ID, body);
+
+      expect(result).toBeDefined();
+      expect(result.document_id).toBe('test-document-id');
+      expect(result.file_name).toBe('campbell-river-site-map.pdf');
+      expect(
+        prismaService.recreation_resource_document.create,
+      ).toHaveBeenCalledWith({
+        data: {
+          doc_id: 'test-document-id',
+          rec_resource_id: REC_RESOURCE_ID,
+          doc_code: 'RM',
+          file_name: 'campbell-river-site-map.pdf',
+          extension: 'pdf',
+          file_size: BigInt(2097152),
+          created_by: 'system',
+          created_at: expect.any(Date),
+        },
+      });
+      expect(
+        prismaService.recreation_resource_document.findUnique,
+      ).toHaveBeenCalledWith({
+        where: {
+          rec_resource_id: REC_RESOURCE_ID,
+          doc_id: 'test-document-id',
+        },
+        select: expect.any(Object),
+      });
+    });
+
+    it('should use default doc_code when not provided', async () => {
+      const body = {
+        document_id: 'test-document-id',
+        file_name: 'map.pdf',
+        extension: 'pdf',
+        file_size: 1024,
+      };
+
+      const mockCreated = createMockDocument('test-document-id', TEST_CAPTION);
+      const mockRetrieved = createMockDocument(
+        'test-document-id',
+        TEST_CAPTION,
+      );
+
+      vi.mocked(
+        prismaService.recreation_resource_document.create,
+      ).mockResolvedValue(mockCreated as any);
+      vi.mocked(
+        prismaService.recreation_resource_document.findUnique,
+      ).mockResolvedValueOnce(mockRetrieved as any);
+
+      await service.finalizeUpload(REC_RESOURCE_ID, body);
+
+      expect(
+        prismaService.recreation_resource_document.create,
+      ).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          doc_code: 'RM', // Default value
+        }),
+      });
+    });
+
+    it('should validate resource exists before creating record', async () => {
+      vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue(
+        null,
+      );
+
+      const body = {
+        document_id: 'test-document-id',
+        file_name: 'map.pdf',
+        extension: 'pdf',
+        file_size: 1024,
+      };
+
+      await expect(service.finalizeUpload('REC9999', body)).rejects.toThrow(
+        'Recreation Resource not found',
+      );
+
+      expect(
+        prismaService.recreation_resource_document.create,
+      ).not.toHaveBeenCalled();
+    });
+
+    it('should throw 400 error for invalid document_id', async () => {
+      const body = {
+        document_id: '',
+        file_name: 'map.pdf',
+        extension: 'pdf',
+        file_size: 1024,
+      };
+
+      await expect(
+        service.finalizeUpload(REC_RESOURCE_ID, body),
+      ).rejects.toThrow('Invalid document_id');
+    });
+
+    it('should throw 400 error for non-string document_id', async () => {
+      const body = {
+        document_id: null as any,
+        file_name: 'map.pdf',
+        extension: 'pdf',
+        file_size: 1024,
+      };
+
+      await expect(
+        service.finalizeUpload(REC_RESOURCE_ID, body),
+      ).rejects.toThrow('Invalid document_id');
+    });
+
+    it('should handle database creation errors', async () => {
+      const body = {
+        document_id: 'test-document-id',
+        file_name: 'map.pdf',
+        extension: 'pdf',
+        file_size: 1024,
+      };
+
+      vi.mocked(
+        prismaService.recreation_resource_document.create,
+      ).mockRejectedValue(new Error('Database error'));
+
+      await expect(
+        service.finalizeUpload(REC_RESOURCE_ID, body),
+      ).rejects.toThrow('Failed to finalize upload');
+    });
+
+    it('should throw 500 error when document retrieval fails after creation', async () => {
+      const body = {
+        document_id: 'test-document-id',
+        file_name: 'map.pdf',
+        extension: 'pdf',
+        file_size: 1024,
+      };
+
+      const mockCreated = createMockDocument('test-document-id', TEST_CAPTION);
+
+      vi.mocked(
+        prismaService.recreation_resource_document.create,
+      ).mockResolvedValue(mockCreated as any);
+      vi.mocked(
+        prismaService.recreation_resource_document.findUnique,
+      ).mockResolvedValueOnce(null);
+
+      await expect(
+        service.finalizeUpload(REC_RESOURCE_ID, body),
+      ).rejects.toThrow('Failed to retrieve created document');
+    });
+
+    it('should handle HttpException from database operations', async () => {
+      const body = {
+        document_id: 'test-document-id',
+        file_name: 'map.pdf',
+        extension: 'pdf',
+        file_size: 1024,
+      };
+
+      const httpException = new HttpException('Database constraint error', 409);
+      vi.mocked(
+        prismaService.recreation_resource_document.create,
+      ).mockRejectedValue(httpException);
+
+      await expect(
+        service.finalizeUpload(REC_RESOURCE_ID, body),
+      ).rejects.toThrow('Database constraint error');
     });
   });
 });

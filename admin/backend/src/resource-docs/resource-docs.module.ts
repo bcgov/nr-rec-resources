@@ -1,8 +1,6 @@
 import { AppConfigModule } from '@/app-config/app-config.module';
-import { AppConfigService } from '@/app-config/app-config.service';
-import { S3ServiceFactory } from '@/s3/s3-service.factory';
+import { createS3ServiceProvider } from '@/common/providers/s3-service.provider';
 import { S3Module } from '@/s3/s3.module';
-import { S3Service } from '@/s3/s3.service';
 import { Module } from '@nestjs/common';
 import { MulterModule } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
@@ -13,16 +11,7 @@ import { ResourceDocsService } from './service/resource-docs.service';
 
 @Module({
   providers: [
-    {
-      provide: S3Service,
-      useFactory: (
-        s3Factory: S3ServiceFactory,
-        appConfig: AppConfigService,
-      ) => {
-        return s3Factory.createForBucket(appConfig.recResourcePublicDocsBucket);
-      },
-      inject: [S3ServiceFactory, AppConfigService],
-    },
+    createS3ServiceProvider('recResourcePublicDocsBucket'),
     ResourceDocsService,
     PrismaService,
   ],
@@ -30,7 +19,7 @@ import { ResourceDocsService } from './service/resource-docs.service';
   imports: [
     MulterModule.register({
       storage: memoryStorage(),
-      limits: { fileSize: 20.5 * 1024 * 1024 }, // ~20 MB limit
+      limits: { fileSize: 25 * 1024 * 1024 * 1.02 }, // ~25 MB limit with 2% buffer
     }),
     PrismaModule,
     AppConfigModule,

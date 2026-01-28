@@ -7,18 +7,6 @@ import {
   createMockGalleryFile,
 } from './test-utils/upload-delete-test-utils';
 
-// Mock dependencies
-vi.mock('@tanstack/react-store', () => ({
-  useStore: vi.fn(),
-}));
-
-vi.mock(
-  '@/services/hooks/recreation-resource-admin/useUploadResourceDocument',
-  () => ({
-    useUploadResourceDocument: vi.fn(),
-  }),
-);
-
 vi.mock('@/pages/rec-resource-page/hooks/useRecResource', () => ({
   useRecResource: vi.fn(),
 }));
@@ -29,41 +17,42 @@ vi.mock('@/pages/rec-resource-page/store/recResourceFileTransferStore', () => ({
   updatePendingDoc: vi.fn(),
 }));
 
-vi.mock('@/pages/rec-resource-page/hooks/utils/useFileUpload', () => ({
-  useFileUpload: vi.fn(),
-}));
-
 vi.mock('@/pages/rec-resource-page/hooks/utils/validateUpload', () => ({
   validateUploadFile: vi.fn(),
 }));
 
-import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
-import { useFileUpload } from '@/pages/rec-resource-page/hooks/utils/useFileUpload';
-import { validateUploadFile } from '@/pages/rec-resource-page/hooks/utils/validateUpload';
-import { useUploadResourceDocument } from '@/services/hooks/recreation-resource-admin/useUploadResourceDocument';
+vi.mock(
+  '@/services/hooks/recreation-resource-admin/usePresignAndFinalizeHooks',
+  () => ({
+    usePresignDocUpload: vi.fn(() => ({ mutateAsync: vi.fn() })),
+    useFinalizeDocUpload: vi.fn(() => ({ mutateAsync: vi.fn() })),
+  }),
+);
 
-const mockExecuteUpload = vi.fn();
+vi.mock('@/pages/rec-resource-page/hooks/utils/usePresignedUpload', () => ({
+  usePresignedUpload: vi.fn(),
+}));
+
+import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
+import { validateUploadFile } from '@/pages/rec-resource-page/hooks/utils/validateUpload';
+import { usePresignedUpload } from '@/pages/rec-resource-page/hooks/utils/usePresignedUpload';
+
+const mockExecutePresignedUpload = vi.fn();
+const mockRecResource = {
+  recResource: { rec_resource_id: 'test-resource-123' },
+  rec_resource_id: 'test-resource-123',
+  isLoading: false,
+  error: null,
+};
 
 describe('useDocumentUpload', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-
-    vi.mocked(useRecResource).mockReturnValue({
-      recResource: { rec_resource_id: 'test-resource-123' },
-      rec_resource_id: 'test-resource-123',
-      isLoading: false,
-      error: null,
-    } as any);
-
-    vi.mocked(useUploadResourceDocument).mockReturnValue({
-      mutateAsync: vi.fn(),
-    } as any);
-
-    vi.mocked(useFileUpload).mockReturnValue({
-      executeUpload: mockExecuteUpload,
-    } as any);
-
+    vi.mocked(useRecResource).mockReturnValue(mockRecResource as any);
     vi.mocked(validateUploadFile).mockReturnValue(true);
+    vi.mocked(usePresignedUpload).mockReturnValue({
+      executePresignedUpload: mockExecutePresignedUpload,
+    } as any);
   });
 
   it('returns upload handlers', () => {
@@ -76,7 +65,7 @@ describe('useDocumentUpload', () => {
   });
 
   describe('handleUpload', () => {
-    it('adds pending doc and calls executeUpload with correct parameters', async () => {
+    it('adds pending doc and calls executePresignedUpload with correct parameters', async () => {
       const file = createMockFile('test.pdf', 'application/pdf');
       const galleryFile = createMockGalleryFile('document', {
         id: 'temp-doc-123',
@@ -86,17 +75,12 @@ describe('useDocumentUpload', () => {
       });
       const onSuccess = vi.fn();
 
-      mockExecuteUpload.mockResolvedValueOnce(undefined);
+      mockExecutePresignedUpload.mockResolvedValueOnce(undefined);
 
       const { result } = renderHook(() => useDocumentUpload());
 
       await act(async () => {
         await result.current.handleUpload(galleryFile, onSuccess);
-      });
-
-      await act(async () => {
-        // Wait for async operations
-        await new Promise((resolve) => setTimeout(resolve, 0));
       });
 
       expect(store.addPendingDoc).toHaveBeenCalledWith(
@@ -109,13 +93,16 @@ describe('useDocumentUpload', () => {
         }),
       );
 
-      expect(mockExecuteUpload).toHaveBeenCalledWith(
+      expect(mockExecutePresignedUpload).toHaveBeenCalledWith(
         expect.objectContaining({
           recResourceId: 'test-resource-123',
-          tempId: 'temp-doc-123',
-          uploadMutation: expect.objectContaining({
-            mutateAsync: expect.any(Function),
+          galleryFile: expect.objectContaining({
+            name: 'Test Document',
+            type: 'document',
           }),
+          tempId: 'temp-doc-123',
+          presignMutation: expect.any(Object),
+          finalizeMutation: expect.any(Object),
           updatePendingFile: store.updatePendingDoc,
           removePendingFile: store.removePendingDoc,
           successMessage: expect.any(Function),
@@ -124,8 +111,8 @@ describe('useDocumentUpload', () => {
         }),
       );
 
-      const executeUploadCall = mockExecuteUpload.mock.calls[0][0];
-      expect(executeUploadCall.successMessage('Test Document')).toBe(
+      const call = mockExecutePresignedUpload.mock.calls[0][0];
+      expect(call.successMessage('Test Document')).toBe(
         'File "Test Document" uploaded successfully.',
       );
     });
@@ -144,7 +131,7 @@ describe('useDocumentUpload', () => {
       });
 
       expect(store.addPendingDoc).not.toHaveBeenCalled();
-      expect(mockExecuteUpload).not.toHaveBeenCalled();
+      expect(mockExecutePresignedUpload).not.toHaveBeenCalled();
     });
 
     it('does nothing when recResource is undefined', async () => {
@@ -154,7 +141,6 @@ describe('useDocumentUpload', () => {
         isLoading: false,
         error: null,
       } as any);
-
       vi.mocked(validateUploadFile).mockReturnValueOnce(false);
 
       const galleryFile = createMockGalleryFile('document', {
@@ -169,12 +155,12 @@ describe('useDocumentUpload', () => {
       });
 
       expect(store.addPendingDoc).not.toHaveBeenCalled();
-      expect(mockExecuteUpload).not.toHaveBeenCalled();
+      expect(mockExecutePresignedUpload).not.toHaveBeenCalled();
     });
   });
 
   describe('handleUploadRetry', () => {
-    it('updates pending doc and calls executeUpload with correct parameters', async () => {
+    it('updates pending doc and calls executePresignedUpload with correct parameters', async () => {
       const pendingFile = createMockFile('test.pdf');
       const pendingDoc = createMockGalleryFile('document', {
         id: 'pending-123',
@@ -184,7 +170,7 @@ describe('useDocumentUpload', () => {
       });
       const onSuccess = vi.fn();
 
-      mockExecuteUpload.mockResolvedValueOnce(undefined);
+      mockExecutePresignedUpload.mockResolvedValueOnce(undefined);
 
       const { result } = renderHook(() => useDocumentUpload());
 
@@ -197,13 +183,12 @@ describe('useDocumentUpload', () => {
         uploadFailed: false,
       });
 
-      expect(mockExecuteUpload).toHaveBeenCalledWith({
+      expect(mockExecutePresignedUpload).toHaveBeenCalledWith({
         recResourceId: 'test-resource-123',
         galleryFile: pendingDoc,
         tempId: 'pending-123',
-        uploadMutation: expect.objectContaining({
-          mutateAsync: expect.any(Function),
-        }),
+        presignMutation: expect.any(Object),
+        finalizeMutation: expect.any(Object),
         updatePendingFile: store.updatePendingDoc,
         removePendingFile: store.removePendingDoc,
         successMessage: expect.any(Function),
@@ -227,7 +212,7 @@ describe('useDocumentUpload', () => {
       });
 
       expect(store.updatePendingDoc).not.toHaveBeenCalled();
-      expect(mockExecuteUpload).not.toHaveBeenCalled();
+      expect(mockExecutePresignedUpload).not.toHaveBeenCalled();
     });
   });
 });

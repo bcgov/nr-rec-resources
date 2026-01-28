@@ -8,5 +8,6 @@ generate "prod_tfvars" {
   disable_signature = true
   contents          = <<-EOF
   target_env = "prod"
+  admin_frontend_custom_domains = ["staff.sitesandtrailsbc.ca"]
 EOF
 }

@@ -176,6 +176,69 @@ export class S3Service {
   }
 
   /**
+   * Generate a presigned URL for uploading an object to S3
+   * @param key - The S3 object key
+   * @param contentType - MIME type of the object to upload (e.g., 'image/webp', 'application/pdf')
+   * @param expiresIn - URL expiration time in seconds (default: 900 = 15 minutes)
+   * @param tags - Optional S3 tags to apply to the object (key-value pairs)
+   * @returns Presigned URL or direct LocalStack URL
+   * @throws BadRequestException if parameters are invalid
+   * @throws InternalServerErrorException if URL generation fails
+   */
+  async getSignedUploadUrl(
+    key: string,
+    contentType: string,
+    expiresIn: number = 900, // 15 minutes for upload URLs
+    tags?: Record<string, string>,
+  ): Promise<string> {
+    if (!key?.trim()) {
+      throw new BadRequestException('S3 key is required');
+    }
+
+    if (!contentType?.trim()) {
+      throw new BadRequestException('Content type is required');
+    }
+
+    if (expiresIn <= 0 || expiresIn > 604800) {
+      // Max 7 days (AWS limit)
+      throw new BadRequestException(
+        'Expiration time must be between 1 and 604800 seconds',
+      );
+    }
+
+    try {
+      // For LocalStack, construct direct URL instead of presigned URL
+      if (this.endpointUrl) {
+        const endpoint = this.endpointUrl.replace(/\/$/, '');
+        return `${endpoint}/${this.bucketName}/${key.trim()}`;
+      }
+
+      // For AWS, use presigned URLs
+      const commandOptions: any = {
+        Bucket: this.bucketName,
+        Key: key.trim(),
+        ContentType: contentType.trim(),
+      };
+
+      // Add tags if provided (format: "key1=value1&key2=value2")
+      if (tags && Object.keys(tags).length > 0) {
+        const tagString = Object.entries(tags)
+          .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+          .join('&');
+        commandOptions.Tagging = tagString;
+      }
+
+      const command = new PutObjectCommand(commandOptions);
+
+      return await getSignedUrl(this.s3Client, command, { expiresIn });
+    } catch (error) {
+      const errorMessage = `Failed to generate presigned upload URL for key "${key}" in bucket "${this.bucketName}"`;
+      this.logger.error(`${errorMessage}: ${error.message}`, error.stack);
+      throw new InternalServerErrorException(errorMessage);
+    }
+  }
+
+  /**
    * Upload a file to S3
    * @param recResourceId - Recreation resource ID
    * @param file - File buffer

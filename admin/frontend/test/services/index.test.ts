@@ -19,8 +19,6 @@ describe('services/index', () => {
     expect(servicesIndex).toHaveProperty('useGetRecreationResourceById');
     expect(servicesIndex).toHaveProperty('useGetRecreationResourceSuggestions');
     expect(servicesIndex).toHaveProperty('useRecreationResourceAdminApiClient');
-    expect(servicesIndex).toHaveProperty('useUploadResourceDocument');
-    expect(servicesIndex).toHaveProperty('useUploadResourceImage');
   });
 
   it('exports recreation-resource-admin types', () => {

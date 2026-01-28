@@ -88,6 +88,22 @@ jobs:
       working_directory: frontend
       app_env: ${{ inputs.app_env }}
     secrets: inherit
+  update-storage-cors:
+    name: Update Storage CORS
+    needs: deploy-cloudfront
+    if: ${{ inputs.command == 'apply' && inputs.app == 'admin' }}
+    uses: ./.github/workflows/.aws-deployer.yml
+    concurrency:
+      group: update-storage-cors-${{ inputs.environment_name }}
+      cancel-in-progress: false
+    with:
+      app_env: ${{ inputs.app_env }}
+      environment_name: ${{ inputs.environment_name }}
+      command: apply
+      working_directory: storage
+      admin_frontend_cloudfront_domain: ${{ needs.deploy-cloudfront.outputs.CF_DOMAIN }}
+      admin_frontend_custom_domains: ${{ needs.deploy-cloudfront.outputs.CUSTOM_DOMAINS }}
+    secrets: inherit
   build-ui:
     name: Builds UI
     needs: [deploy-api, deploy-cloudfront]

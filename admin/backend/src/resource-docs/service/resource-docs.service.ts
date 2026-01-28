@@ -1,10 +1,8 @@
 import { AppConfigService } from '@/app-config/app-config.service';
-import { FileValidationException } from '@/common/exceptions/file-validation.exception';
 import {
   BaseStorageFileService,
   StorageConfig,
 } from '@/common/services/base-storage-file-service';
-import { extractFileMetadata } from '@/common/utils/file.utils';
 import { HttpException, Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { PrismaService } from 'src/prisma.service';
@@ -31,9 +29,9 @@ export class ResourceDocsService extends BaseStorageFileService {
   constructor(
     prisma: PrismaService,
     appConfig: AppConfigService,
-    private readonly s3Service: S3Service,
+    s3Service: S3Service,
   ) {
-    super(ResourceDocsService.name, prisma, appConfig);
+    super(ResourceDocsService.name, prisma, appConfig, s3Service);
   }
 
   /**
@@ -56,87 +54,6 @@ export class ResourceDocsService extends BaseStorageFileService {
       select: DOCUMENT_SELECT_FIELDS,
     });
     return result.map((i) => this.mapResponse(i, rec_resource_id));
-  }
-
-  async getDocumentByResourceId(
-    rec_resource_id: string,
-    document_id: string,
-  ): Promise<RecreationResourceDocDto> {
-    const result = await this.prisma.recreation_resource_document.findUnique({
-      where: { rec_resource_id, doc_id: document_id },
-      select: DOCUMENT_SELECT_FIELDS,
-    });
-
-    if (!result) {
-      throw new HttpException('Recreation Resource document not found', 404);
-    }
-
-    return this.mapResponse(result, rec_resource_id);
-  }
-
-  async create(
-    rec_resource_id: string,
-    file_name: string,
-    file: Express.Multer.File,
-  ): Promise<RecreationResourceDocDto> {
-    // File validation is handled by ParseFilePipe at controller level
-    if (!file_name) {
-      throw FileValidationException.fileNameRequired();
-    }
-    // Validate resource exists
-    await this.validateResourceExists(rec_resource_id);
-
-    try {
-      const document_id = randomUUID();
-      // Extract extension from file metadata, but use provided filename
-      const { extension } = extractFileMetadata(file);
-      const filename = file_name;
-
-      const s3Filename = `${filename}.${extension}`;
-      const s3Key = await this.s3Service.uploadFile(
-        `documents/${rec_resource_id}/${document_id}`,
-        file.buffer,
-        s3Filename,
-      );
-
-      this.logger.log(
-        `Successfully uploaded document to S3 for rec_resource_id: ${rec_resource_id}, document_id: ${document_id}, s3_key: ${s3Key}`,
-      );
-
-      await this.prisma.recreation_resource_document.create({
-        data: {
-          doc_id: document_id,
-          rec_resource_id,
-          doc_code: 'RM', // Default doc_code - TODO: should come from request
-          file_name: filename,
-          extension,
-          file_size: BigInt(file.size),
-          created_by: 'system',
-          created_at: new Date(),
-        },
-      });
-
-      // Fetch the created document with relations for response mapping
-      const result = await this.prisma.recreation_resource_document.findUnique({
-        where: {
-          rec_resource_id,
-          doc_id: document_id,
-        },
-        select: DOCUMENT_SELECT_FIELDS,
-      });
-
-      if (!result) {
-        throw new HttpException('Failed to retrieve created document', 500);
-      }
-
-      return this.mapResponse(result, rec_resource_id);
-    } catch (error) {
-      this.handleError(
-        error,
-        `Failed to create document for rec_resource_id: ${rec_resource_id}`,
-        'Failed to upload document',
-      );
-    }
   }
 
   async delete(
@@ -176,6 +93,102 @@ export class ResourceDocsService extends BaseStorageFileService {
         error,
         `Failed to delete document for rec_resource_id: ${rec_resource_id}, document_id: ${document_id}`,
         'Failed to delete document',
+      );
+    }
+  }
+
+  /**
+   * Generate presigned upload URL for document
+   * Called before client uploads file to S3
+   */
+  async presignUpload(rec_resource_id: string, file_name: string) {
+    // Validate resource exists
+    await this.validateResourceExists(rec_resource_id);
+
+    const document_id = randomUUID();
+
+    try {
+      const key = `documents/${rec_resource_id}/${document_id}/${file_name}`;
+
+      const url = await this.generatePresignedUrl(
+        key,
+        'application/pdf',
+        900, // 15 minutes
+      );
+
+      this.logger.log(
+        `Generated presigned upload URL for document: rec_resource_id=${rec_resource_id}, document_id=${document_id}`,
+      );
+
+      return {
+        document_id,
+        key,
+        url,
+      };
+    } catch (error) {
+      this.handleError(
+        error,
+        `Failed to generate presigned URL for rec_resource_id: ${rec_resource_id}`,
+        'Failed to generate presigned URL',
+      );
+    }
+  }
+
+  /**
+   * Finalize document upload by creating database record
+   * Called after S3 upload completes successfully
+   * No S3 verification is performed
+   */
+  async finalizeUpload(
+    rec_resource_id: string,
+    { document_id, file_name, extension, file_size, doc_code = 'RM' }: any,
+  ): Promise<RecreationResourceDocDto> {
+    // Validate resource exists
+    await this.validateResourceExists(rec_resource_id);
+
+    // Validate document_id format (basic UUID validation)
+    this.validateEntityId(document_id, 'document_id');
+
+    try {
+      await this.prisma.recreation_resource_document.create({
+        data: {
+          doc_id: document_id,
+          rec_resource_id,
+          doc_code,
+          file_name,
+          extension,
+          file_size: BigInt(file_size),
+          created_by: 'system',
+          created_at: new Date(),
+        },
+      });
+
+      // Fetch the created document with relations for response mapping
+      const result = await this.prisma.recreation_resource_document.findUnique({
+        where: {
+          rec_resource_id,
+          doc_id: document_id,
+        },
+        select: DOCUMENT_SELECT_FIELDS,
+      });
+
+      if (!result) {
+        throw new HttpException('Failed to retrieve created document', 500);
+      }
+
+      this.logger.log(
+        `Finalized document upload: rec_resource_id=${rec_resource_id}, document_id=${document_id}`,
+      );
+
+      return this.mapResponse(result, rec_resource_id);
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      this.handleError(
+        error,
+        `Failed to finalize document upload for rec_resource_id: ${rec_resource_id}, document_id: ${document_id}`,
+        'Failed to finalize upload',
       );
     }
   }

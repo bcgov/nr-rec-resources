@@ -35,6 +35,14 @@ on:
         description: 'Optional input to pass in a different flyway migration image'
         required: false
         type: string
+      admin_frontend_cloudfront_domain:
+        description: 'Admin frontend CloudFront domain (from GitHub outputs)'
+        required: false
+        type: string
+      admin_frontend_custom_domains:
+        description: 'Admin frontend custom domains (JSON array from GitHub outputs)'
+        required: false
+        type: string
     outputs:
       API_GW_URL:
         value: ${{ jobs.infra.outputs.API_GW_URL }}
@@ -50,6 +58,8 @@ on:
         value: ${{ jobs.infra.outputs.STORAGE_IMAGES_BUCKET }}
       STORAGE_PUBLIC_DOCUMENTS_BUCKET:
         value: ${{ jobs.infra.outputs.STORAGE_PUBLIC_DOCUMENTS_BUCKET }}
+      CUSTOM_DOMAINS:
+        value: ${{ jobs.infra.outputs.CUSTOM_DOMAINS }}
 
 env:
   TG_VERSION: 0.55.2
@@ -70,6 +80,7 @@ jobs:
       STORAGE_CLOUDFRONT_URL: ${{ steps.tg-outputs-storage.outputs.STORAGE_CLOUDFRONT_URL }}
       STORAGE_IMAGES_BUCKET: ${{ steps.tg-outputs-storage.outputs.STORAGE_IMAGES_BUCKET }}
       STORAGE_PUBLIC_DOCUMENTS_BUCKET: ${{ steps.tg-outputs-storage.outputs.STORAGE_PUBLIC_DOCUMENTS_BUCKET }}
+      CUSTOM_DOMAINS: ${{ steps.tg-outputs-frontend.outputs.CUSTOM_DOMAINS }}
 
     steps:
       - name: Checkout
@@ -123,6 +134,8 @@ jobs:
           dam_rst_image_collection_id: ${{ secrets.DAM_RST_IMAGE_COLLECTION_ID }}
           dam_rst_pdf_type_id: ${{ secrets.DAM_RESOURCE_TYPE_PDF }}
           dam_rst_image_type_id: ${{ secrets.DAM_RESOURCE_TYPE_IMAGE }}
+          ADMIN_FRONTEND_CF_DOMAIN: ${{ inputs.admin_frontend_cloudfront_domain || '' }}
+          ADMIN_FRONTEND_CUSTOM_DOMAINS: ${{ inputs.admin_frontend_custom_domains || '[]' }}
         run: |
           terragrunt run-all ${{ inputs.command }} --terragrunt-non-interactive
 
@@ -173,6 +186,7 @@ jobs:
           echo "S3_BUCKET_ARN=$(jq -r .s3_bucket_arn.value outputs.json)" >> $GITHUB_OUTPUT
           echo "CF_DOMAIN=$(jq -r .cloudfront.value.domain_name outputs.json)" >> $GITHUB_OUTPUT
           echo "CF_DISTRIBUTION_ID=$(jq -r .cloudfront.value.distribution_id outputs.json)" >> $GITHUB_OUTPUT
+          echo "CUSTOM_DOMAINS=$(jq -c '.custom_domains.value // []' outputs.json)" >> $GITHUB_OUTPUT
 
       - name: Terragrunt Storage Outputs
         if: ${{ inputs.working_directory == 'storage' }}

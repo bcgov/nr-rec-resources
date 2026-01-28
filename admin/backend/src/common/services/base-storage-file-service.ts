@@ -1,5 +1,6 @@
 import { AppConfigService } from '@/app-config/app-config.service';
 import { PrismaService } from '@/prisma.service';
+import { S3Service } from '@/s3/s3.service';
 import { HttpException, Injectable, Logger } from '@nestjs/common';
 
 /**
@@ -22,15 +23,18 @@ export abstract class BaseStorageFileService {
   protected readonly logger: Logger;
   protected readonly prisma: PrismaService;
   protected readonly appConfig: AppConfigService;
+  protected readonly s3Service: S3Service;
 
   constructor(
     serviceName: string,
     prisma: PrismaService,
     appConfig: AppConfigService,
+    s3Service: S3Service,
   ) {
     this.logger = new Logger(serviceName);
     this.prisma = prisma;
     this.appConfig = appConfig;
+    this.s3Service = s3Service;
   }
 
   /**
@@ -119,5 +123,35 @@ export abstract class BaseStorageFileService {
     }
 
     return key;
+  }
+
+  /**
+   * Generate a presigned upload URL using S3Service
+   * Services can use this helper for common presign operations
+   * @param key - S3 object key
+   * @param contentType - MIME type of the file
+   * @param expiresIn - Expiration time in seconds (default: 900 = 15 minutes)
+   * @param tags - Optional S3 object tags
+   * @returns Presigned upload URL
+   */
+  protected async generatePresignedUrl(
+    key: string,
+    contentType: string,
+    expiresIn: number = 900,
+    tags?: Record<string, string>,
+  ): Promise<string> {
+    return this.s3Service.getSignedUploadUrl(key, contentType, expiresIn, tags);
+  }
+
+  /**
+   * Validate entity ID format (basic UUID/string validation)
+   * @param entityId - The entity ID to validate
+   * @param entityType - Type name for error message (e.g., 'image_id', 'document_id')
+   * @throws HttpException if entityId is invalid
+   */
+  protected validateEntityId(entityId: string, entityType: string): void {
+    if (!entityId || typeof entityId !== 'string') {
+      throw new HttpException(`Invalid ${entityType}`, 400);
+    }
   }
 }

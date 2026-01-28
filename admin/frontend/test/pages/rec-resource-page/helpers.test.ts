@@ -164,7 +164,7 @@ describe('handleAddFileClick', () => {
     });
     // Make file larger than limit
     Object.defineProperty(largeFile, 'size', {
-      value: 10 * 1024 * 1024, // 10MB > 9.5MB limit
+      value: 30 * 1024 * 1024, // 30MB > 25MB limit (with 2% buffer ~25.5MB)
       writable: false,
     });
 

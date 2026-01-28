@@ -10,3 +10,8 @@ output "s3_bucket_arn" {
   description = "ARN of S3 bucket for storing static assets."
   value       = aws_s3_bucket.frontend.arn
 }
+
+output "custom_domains" {
+  description = "Custom domain aliases for CloudFront distribution"
+  value       = var.custom_domains
+}
