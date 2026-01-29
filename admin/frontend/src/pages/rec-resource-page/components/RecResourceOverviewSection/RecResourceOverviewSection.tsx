@@ -5,11 +5,8 @@ import { LinkWithQueryParams } from '@shared/components/link-with-query-params';
 import { Col, Row, Stack } from 'react-bootstrap';
 import { RecResourceEstablishmentOrderSection } from '../RecResourceEstablishmentOrderSection';
 import { RecResourceLocationSection } from '../RecResourceLocationSection';
-import {
-  RecResourceOverviewItem,
-  RecreationResourceAccessRow,
-  VisibleOnPublicSite,
-} from './components';
+import { RecreationResourceAccessRow, VisibleOnPublicSite } from './components';
+import { FieldItem } from '../shared/FieldItem';
 
 type RecResourceOverviewSectionProps = {
   recResource: RecreationResourceDetailUIModel;
@@ -79,7 +76,7 @@ export const RecResourceOverviewSection = (
 
       <Row>
         <Col xs={12}>
-          <RecResourceOverviewItem
+          <FieldItem
             label="Description"
             value={recResource.description}
             isHtml
@@ -90,14 +87,14 @@ export const RecResourceOverviewSection = (
       <Row className="gy-3">
         {overviewItems.map((item) => (
           <Col key={item.key} xs={12} md={6} lg={4}>
-            <RecResourceOverviewItem label={item.label} value={item.value} />
+            <FieldItem label={item.label} value={item.value} />
           </Col>
         ))}
       </Row>
 
       <Row>
         <Col xs={12}>
-          <RecResourceOverviewItem
+          <FieldItem
             label="Access Type"
             value={<RecreationResourceAccessRow recResource={recResource} />}
           />
@@ -106,7 +103,7 @@ export const RecResourceOverviewSection = (
 
       <Row>
         <Col xs={12}>
-          <RecResourceOverviewItem
+          <FieldItem
             label="Driving Directions"
             value={recResource.driving_directions}
             isHtml

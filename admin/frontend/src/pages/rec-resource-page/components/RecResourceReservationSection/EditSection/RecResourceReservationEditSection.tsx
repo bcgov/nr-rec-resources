@@ -1,7 +1,6 @@
 import { TextField } from '@/components/form';
 import { Button, Col, Form, Row, Stack } from 'react-bootstrap';
 import { Controller, useWatch } from 'react-hook-form';
-import { FormErrorBanner } from './components';
 import {
   EDIT_RESERVATION_FIELD_LABEL_MAP,
   EMAIL_MAX_LENGTH,
@@ -15,6 +14,7 @@ import { LinkWithQueryParams } from '@shared/components/link-with-query-params';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { Route } from '@/routes/rec-resource/$id/reservation/edit';
 import { useEffect, useState } from 'react';
+import { FormErrorBanner } from '../../shared/FormErrorBanner';
 
 /**
  * Edit section for recreation resource overview

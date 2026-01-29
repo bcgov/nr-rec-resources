@@ -27,19 +27,16 @@ vi.mock(
     HasReservation: ({ value }: { value: boolean }) => (
       <div data-testid="has-reservation">{String(value)}</div>
     ),
-    RecResourceReservationItem: ({
-      label,
-      value,
-    }: {
-      label: string;
-      value?: string | null;
-    }) => (
-      <div data-testid={`reservation-item-${label}`}>
-        {label}:{value ?? ''}
-      </div>
-    ),
   }),
 );
+
+vi.mock('@/pages/rec-resource-page/components/shared/FieldItem', () => ({
+  FieldItem: ({ label, value }: { label: string; value?: string | null }) => (
+    <div data-testid={`reservation-item-${label}`}>
+      {label}:{value ?? ''}
+    </div>
+  ),
+}));
 
 vi.mock('@/constants/routes', () => ({
   ROUTE_PATHS: {

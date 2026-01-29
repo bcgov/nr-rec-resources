@@ -3,7 +3,8 @@ import { FeatureFlagGuard } from '@/contexts/feature-flags';
 import { RecreationResourceReservationInfoDto } from '@/services';
 import { LinkWithQueryParams } from '@shared/components/link-with-query-params';
 import { Col, Row, Stack } from 'react-bootstrap';
-import { HasReservation, RecResourceReservationItem } from './components';
+import { HasReservation } from './components';
+import { FieldItem } from '../shared/FieldItem';
 import { Route } from '@/routes/rec-resource/$id/reservation';
 
 type RecResourceReservationSectionProps = {
@@ -66,7 +67,7 @@ export const RecResourceReservationSection = (
       <Row className="gy-3">
         {reservationItems.map((item) => (
           <Col key={item.key} lg={12}>
-            <RecResourceReservationItem label={item.label} value={item.value} />
+            <FieldItem label={item.label} value={item.value} />
           </Col>
         ))}
       </Row>

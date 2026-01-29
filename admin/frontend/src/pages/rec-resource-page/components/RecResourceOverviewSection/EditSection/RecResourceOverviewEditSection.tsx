@@ -12,13 +12,13 @@ import { RecreationResourceDetailUIModel } from '@/services';
 import { useMemo } from 'react';
 import { Button, Col, Form, Row, Stack } from 'react-bootstrap';
 import { Controller, useWatch } from 'react-hook-form';
-import { FormErrorBanner } from './components';
 import {
   EDIT_RESOURCE_FIELD_LABEL_MAP,
   CLOSEST_COMMUNITY_MAX_LENGTH,
 } from './constants';
 import { useEditResourceForm, useResourceOptions } from './hooks';
 import { EditResourceFormData } from './schemas';
+import { FormErrorBanner } from '../../shared/FormErrorBanner';
 
 /**
  * Edit section for recreation resource overview
