@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsNotEmpty,
   IsString,
@@ -7,6 +7,7 @@ import {
   IsOptional,
   IsBoolean,
   IsDateString,
+  ValidateNested,
 } from 'class-validator';
 
 import { RecreationResourceImageSize } from '@shared/constants/images';
@@ -122,6 +123,51 @@ export class PresignImageUploadResponseDto {
 }
 
 /**
+ * DTO for consent form metadata
+ */
+export class ConsentFormMetadataDto {
+  @ApiPropertyOptional({
+    description: 'Date the photo was taken (ISO date string)',
+    example: '2024-06-15',
+  })
+  @IsOptional()
+  @IsDateString()
+  date_taken?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Whether the image contains personally identifiable information',
+    example: false,
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    return value;
+  })
+  @IsBoolean()
+  contains_pii?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Type of photographer (database code)',
+    example: 'STAFF',
+  })
+  @IsOptional()
+  @IsString()
+  photographer_type?: string;
+
+  @ApiPropertyOptional({
+    description: 'Name of the photographer for attribution',
+    example: 'John Doe',
+    maxLength: 255,
+  })
+  @IsOptional()
+  @IsString()
+  @Length(0, 255)
+  photographer_name?: string;
+}
+
+/**
  * DTO for image finalize endpoint request
  */
 export class FinalizeImageUploadRequestDto {
@@ -171,42 +217,12 @@ export class FinalizeImageUploadRequestDto {
   file_size_thm: number;
 
   @ApiPropertyOptional({
-    description: 'Date the photo was taken (ISO date string)',
-    example: '2024-06-15',
-  })
-  @IsOptional()
-  @IsDateString()
-  date_taken?: string;
-
-  @ApiPropertyOptional({
     description:
-      'Whether the image contains personally identifiable information',
-    example: false,
+      'Consent form metadata (required when uploading consent form PDF)',
+    type: () => ConsentFormMetadataDto,
   })
   @IsOptional()
-  @Transform(({ value }) => {
-    if (value === 'true' || value === true) return true;
-    if (value === 'false' || value === false) return false;
-    return value;
-  })
-  @IsBoolean()
-  contains_pii?: boolean;
-
-  @ApiPropertyOptional({
-    description: 'Type of photographer (database code)',
-    example: 'STAFF',
-  })
-  @IsOptional()
-  @IsString()
-  photographer_type?: string;
-
-  @ApiPropertyOptional({
-    description: 'Name of the photographer for attribution',
-    example: 'John Doe',
-    maxLength: 255,
-  })
-  @IsOptional()
-  @IsString()
-  @Length(0, 255)
-  photographer_name?: string;
+  @ValidateNested()
+  @Type(() => ConsentFormMetadataDto)
+  consent?: ConsentFormMetadataDto;
 }

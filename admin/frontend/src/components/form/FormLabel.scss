@@ -1,0 +1,20 @@
+@import '@shared/styles/variables';
+
+.form-label__required {
+  color: $colorRed;
+  margin-left: 0.25rem;
+}
+
+.form-label__public-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  margin-left: 0.5rem;
+  border-radius: 4px;
+  background-color: $colorGreenLightest;
+  color: $colorGreenDarker;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: normal;
+}

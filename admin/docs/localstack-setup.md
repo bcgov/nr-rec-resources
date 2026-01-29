@@ -18,11 +18,12 @@ testing. It allows you to test S3 operations without connecting to AWS.
 2. **Start LocalStack**:
 
    ```bash
-   # Using Docker
-   docker run --rm -it -p 4566:4566 -p 4571:4571 localstack/localstack
-
+   # Using Makefile
+   make localstack
    # Or using localstack CLI
    localstack start
+   # Or manually with Docker
+   docker run --rm -it -p 4566:4566 -p 4571:4571 localstack/localstack
    ```
 
 3. **Create required S3 buckets** in LocalStack:
@@ -32,6 +33,9 @@ testing. It allows you to test S3 operations without connecting to AWS.
    aws --endpoint-url=http://localhost:4566 s3 mb s3://rst-storage-images-dev
    aws --endpoint-url=http://localhost:4566 s3 mb s3://rst-storage-public-documents-dev
    aws --endpoint-url=http://localhost:4566 s3 mb s3://rst-lza-establishment-order-docs-dev
+
+   # Alternatively one command to run localstack and set up everything
+   make localstack-setup
    ```
 
 4. **Configure environment variables**:
