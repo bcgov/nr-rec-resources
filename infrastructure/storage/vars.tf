@@ -21,14 +21,13 @@ variable "common_tags" {
   }
 }
 
-variable "admin_frontend_custom_domains" {
-  description = "List of custom domain names for the admin frontend (used for CORS in prod). These are the CloudFront aliases."
-  type        = list(string)
-  default     = []
-}
-
-variable "admin_frontend_cloudfront_domain" {
-  description = "Admin frontend CloudFront domain"
-  type        = string
-  default     = ""
+variable "admin_frontend_remote_state" {
+  description = "Remote state config for admin frontend (to lookup CloudFront domain)"
+  type = object({
+    bucket         = string
+    key            = string
+    dynamodb_table = string
+    region         = string
+  })
+  default = null
 }
