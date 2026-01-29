@@ -1,6 +1,7 @@
 import { useImageUpload } from '@/pages/rec-resource-page/hooks/useImageUpload';
 import { processImageToVariants } from '@/utils/imageProcessing';
 import { renderHook } from '@testing-library/react';
+import { TestQueryClientProvider } from '@test/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   createMockFile,
@@ -20,6 +21,31 @@ vi.mock('@/pages/rec-resource-page/store/recResourceFileTransferStore', () => ({
   addPendingImage: vi.fn(),
   removePendingImage: vi.fn(),
   updatePendingImage: vi.fn(),
+  recResourceFileTransferStore: {
+    state: {
+      uploadConsentMetadata: {
+        dateTaken: null,
+        containsPii: false,
+        photographerType: 'STAFF',
+        photographerName: '',
+        consentFormFile: null,
+      },
+    },
+    subscribe: vi.fn(),
+  },
+}));
+
+// Mock useStore to return consent metadata
+vi.mock('@tanstack/react-store', () => ({
+  useStore: vi.fn(() => ({
+    uploadConsentMetadata: {
+      dateTaken: null,
+      containsPii: false,
+      photographerType: 'STAFF',
+      photographerName: '',
+      consentFormFile: null,
+    },
+  })),
 }));
 
 vi.mock('@/pages/rec-resource-page/hooks/utils/validateUpload', () => ({
@@ -114,6 +140,42 @@ describe('useImageUpload', () => {
       expect(call.successMessage('Test Image')).toBe(
         'Image "Test Image" uploaded successfully.',
       );
+    });
+
+    it('processFile calls processImageToVariants and includes consent metadata', async () => {
+      const mockFile = createMockFile('test-image.jpg', 'image/jpeg');
+      const galleryFile = createMockGalleryFile<
+        import('@/pages/rec-resource-page/types').GalleryImage
+      >('image', {
+        id: 'temp-img-123',
+        name: 'Test Image',
+        pendingFile: mockFile,
+      });
+
+      const mockVariants = createMockImageVariants();
+      vi.mocked(processImageToVariants).mockResolvedValue(mockVariants);
+
+      const { result } = renderHook(() => useImageUpload(), {
+        wrapper: TestQueryClientProvider,
+      });
+
+      await result.current.handleUpload(galleryFile);
+
+      const executeUploadCall = mockExecutePresignedUpload.mock.calls[0][0];
+      const processFileResult = await executeUploadCall.processFile(mockFile);
+
+      expect(processImageToVariants).toHaveBeenCalledWith({
+        file: mockFile,
+        onProgress: undefined,
+      });
+
+      expect(processFileResult).toMatchObject({
+        variants: mockVariants,
+        dateTaken: null,
+        containsPii: false,
+        photographerType: 'STAFF',
+        photographerName: '',
+      });
     });
 
     it('does nothing if validation fails', async () => {
