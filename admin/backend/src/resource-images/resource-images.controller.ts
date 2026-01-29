@@ -13,12 +13,16 @@ import {
   Param,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBearerAuth,
   ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiParam,
   ApiQuery,
@@ -31,7 +35,6 @@ import {
   PresignImageUploadResponseDto,
   RecreationResourceImageDto,
 } from './dto/recreation-resource-image.dto';
-import { MAX_FILE_SIZE } from './resource-images.constants';
 import { ResourceImagesService } from './service/resource-images.service';
 
 @Controller({ path: 'recreation-resources', version: '1' })
@@ -40,7 +43,7 @@ import { ResourceImagesService } from './service/resource-images.service';
 @UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
 @AuthRoles([RecreationResourceAuthRole.RST_VIEWER], ROLE_MODE.ALL)
 export class ResourceImagesController {
-  constructor(private readonly resourceImagesService: ResourceImagesService) { }
+  constructor(private readonly resourceImagesService: ResourceImagesService) {}
 
   @Get(':rec_resource_id/images')
   @ApiOperation({
@@ -108,11 +111,13 @@ export class ResourceImagesController {
   }
 
   @Post(':rec_resource_id/images/finalize')
+  @UseInterceptors(FileInterceptor('consent_form'))
+  @ApiConsumes('multipart/form-data')
   @ApiOperation({
     summary: 'Finalize image upload and create database record',
     operationId: 'finalizeImageUpload',
     description:
-      'Creates database record for uploaded image variants. Should be called after all S3 uploads complete successfully. No S3 verification is performed.',
+      'Creates database record for uploaded image variants and optional consent form. Should be called after all S3 uploads complete successfully.',
   })
   @ApiParam({
     name: 'rec_resource_id',
@@ -124,6 +129,7 @@ export class ResourceImagesController {
   @ApiBody({
     required: true,
     type: FinalizeImageUploadRequestDto,
+    description: 'Image metadata and optional consent form fields',
   })
   @ApiResponse({
     status: 200,
@@ -138,8 +144,13 @@ export class ResourceImagesController {
   async finalizeImageUpload(
     @Param('rec_resource_id') rec_resource_id: string,
     @Body() body: FinalizeImageUploadRequestDto,
+    @UploadedFile() consentForm?: Express.Multer.File,
   ): Promise<RecreationResourceImageDto> {
-    return this.resourceImagesService.finalizeUpload(rec_resource_id, body);
+    return this.resourceImagesService.finalizeUpload(
+      rec_resource_id,
+      body,
+      consentForm,
+    );
   }
 
   @Delete(':rec_resource_id/images/:image_id')
