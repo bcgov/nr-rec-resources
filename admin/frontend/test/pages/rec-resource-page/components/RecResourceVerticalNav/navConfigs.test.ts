@@ -51,6 +51,11 @@ describe('rec-resource-page navigation', () => {
       const overviewTab =
         REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.OVERVIEW];
       const filesTab = REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.FILES];
+      const feesTab = REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.FEES];
+      const geospatialTab =
+        REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.GEOSPATIAL];
+      const reservationTab =
+        REC_RESOURCE_PAGE_NAV_SECTIONS[RecResourceNavKey.RESERVATION];
 
       expect(overviewTab.getNavigateOptions('abc')).toEqual({
         to: ROUTE_PATHS.REC_RESOURCE_OVERVIEW,
@@ -58,6 +63,18 @@ describe('rec-resource-page navigation', () => {
       });
       expect(filesTab.getNavigateOptions('xyz')).toEqual({
         to: ROUTE_PATHS.REC_RESOURCE_FILES,
+        params: { id: 'xyz' },
+      });
+      expect(feesTab.getNavigateOptions('xyz')).toEqual({
+        to: ROUTE_PATHS.REC_RESOURCE_FEES,
+        params: { id: 'xyz' },
+      });
+      expect(geospatialTab.getNavigateOptions('xyz')).toEqual({
+        to: ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL,
+        params: { id: 'xyz' },
+      });
+      expect(reservationTab.getNavigateOptions('xyz')).toEqual({
+        to: ROUTE_PATHS.REC_RESOURCE_RESERVATION,
         params: { id: 'xyz' },
       });
     });
