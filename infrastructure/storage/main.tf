@@ -8,7 +8,7 @@ locals {
   # - All environments: CloudFront domain (if provided)
   # - Prod: Custom domain aliases (e.g., staff.sitesandtrailsbc.ca)
   cors_allowed_origins = compact(concat(
-    var.target_env == "dev" ? ["http://localhost:3001"] : [],
+    contains(["dev", "test"], var.target_env) ? ["http://localhost:3001"] : [],
     var.admin_frontend_cloudfront_domain != "" ? ["https://${var.admin_frontend_cloudfront_domain}"] : [],
     var.target_env == "prod" ? [for domain in var.admin_frontend_custom_domains : "https://${domain}"] : []
   ))
