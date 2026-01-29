@@ -123,9 +123,9 @@ export class PresignImageUploadResponseDto {
 }
 
 /**
- * DTO for consent form metadata
+ * DTO for consent form data (metadata + file)
  */
-export class ConsentFormMetadataDto {
+export class ConsentFormDto {
   @ApiPropertyOptional({
     description: 'Date the photo was taken (ISO date string)',
     example: '2024-06-15',
@@ -165,6 +165,14 @@ export class ConsentFormMetadataDto {
   @IsString()
   @Length(0, 255)
   photographer_name?: string;
+
+  @ApiPropertyOptional({
+    description: 'Consent form PDF file',
+    type: 'string',
+    format: 'binary',
+  })
+  @IsOptional()
+  consent_form?: Express.Multer.File;
 }
 
 /**
@@ -217,12 +225,11 @@ export class FinalizeImageUploadRequestDto {
   file_size_thm: number;
 
   @ApiPropertyOptional({
-    description:
-      'Consent form metadata (required when uploading consent form PDF)',
-    type: () => ConsentFormMetadataDto,
+    description: 'Consent form data (metadata and PDF file)',
+    type: () => ConsentFormDto,
   })
   @IsOptional()
   @ValidateNested()
-  @Type(() => ConsentFormMetadataDto)
-  consent?: ConsentFormMetadataDto;
+  @Type(() => ConsentFormDto)
+  consent?: ConsentFormDto;
 }

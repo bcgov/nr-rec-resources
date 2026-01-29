@@ -1,7 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export * from './BadRequestResponseDto';
-export * from './ConsentFormMetadataDto';
+export * from './ConsentFormDto';
 export * from './CreateRecreationFeeDto';
 export * from './EstablishmentOrderDocDto';
 export * from './FinalizeDocUploadRequestDto';
