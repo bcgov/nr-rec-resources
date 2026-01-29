@@ -4,7 +4,7 @@ apis/RecreationResourcesApi.ts
 apis/index.ts
 index.ts
 models/BadRequestResponseDto.ts
-models/ConsentFormMetadataDto.ts
+models/ConsentFormDto.ts
 models/CreateRecreationFeeDto.ts
 models/EstablishmentOrderDocDto.ts
 models/FinalizeDocUploadRequestDto.ts

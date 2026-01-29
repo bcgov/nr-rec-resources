@@ -15,7 +15,7 @@
 import * as runtime from '../runtime';
 import type {
   BadRequestResponseDto,
-  ConsentFormMetadataDto,
+  ConsentFormDto,
   CreateRecreationFeeDto,
   EstablishmentOrderDocDto,
   FinalizeDocUploadRequestDto,
@@ -40,8 +40,8 @@ import type {
 import {
   BadRequestResponseDtoFromJSON,
   BadRequestResponseDtoToJSON,
-  ConsentFormMetadataDtoFromJSON,
-  ConsentFormMetadataDtoToJSON,
+  ConsentFormDtoFromJSON,
+  ConsentFormDtoToJSON,
   CreateRecreationFeeDtoFromJSON,
   CreateRecreationFeeDtoToJSON,
   EstablishmentOrderDocDtoFromJSON,
@@ -123,7 +123,7 @@ export interface FinalizeImageUploadRequest {
   fileSizeScr: number;
   fileSizePre: number;
   fileSizeThm: number;
-  consent?: ConsentFormMetadataDto;
+  consent?: ConsentFormDto;
 }
 
 export interface GetActivitiesByRecResourceIdRequest {
@@ -788,11 +788,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       formParams.append(
         'consent',
         new Blob(
-          [
-            JSON.stringify(
-              ConsentFormMetadataDtoToJSON(requestParameters['consent']),
-            ),
-          ],
+          [JSON.stringify(ConsentFormDtoToJSON(requestParameters['consent']))],
           { type: 'application/json' },
         ),
       );
