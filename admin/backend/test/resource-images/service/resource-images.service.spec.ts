@@ -1,4 +1,5 @@
 import { ResourceImagesService } from '@/resource-images/service/resource-images.service';
+import { ConsentFormsS3Service } from '@/resource-images/service/consent-forms-s3.service';
 import { PrismaService } from 'src/prisma.service';
 import { S3Service } from 'src/s3/s3.service';
 import { Mocked, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -15,6 +16,21 @@ describe('ResourceImagesDocsService', () => {
   let service: ResourceImagesService;
   let s3Service: Mocked<S3Service>;
 
+  const mockConsentS3Service = {
+    deleteFile: vi.fn(),
+  };
+
+  const mockConsentFormsS3Service = {
+    uploadConsentForm: vi.fn(),
+    getS3Service: vi.fn().mockReturnValue(mockConsentS3Service),
+    getConsentFormKey: vi
+      .fn()
+      .mockImplementation(
+        (recResourceId: string, imageId: string, docId: string) =>
+          `${recResourceId}/${imageId}/${docId}.pdf`,
+      ),
+  };
+
   beforeEach(async () => {
     const mockS3Service = {
       getSignedUploadUrl: vi.fn(),
@@ -26,6 +42,12 @@ describe('ResourceImagesDocsService', () => {
     const testModule = await createStorageTestModule<ResourceImagesService>({
       serviceClass: ResourceImagesService,
       s3ServiceOverrides: mockS3Service,
+      additionalProviders: [
+        {
+          provide: ConsentFormsS3Service,
+          useValue: mockConsentFormsS3Service,
+        },
+      ],
     });
     service = testModule.service;
     prismaService = testModule.prismaService;
@@ -39,6 +61,9 @@ describe('ResourceImagesDocsService', () => {
     vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue({
       rec_resource_id: 'REC0001',
     } as any);
+
+    mockConsentFormsS3Service.uploadConsentForm.mockReset();
+    mockConsentS3Service.deleteFile.mockReset();
   });
 
   describe('getAll', () => {

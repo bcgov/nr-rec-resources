@@ -139,9 +139,6 @@ describe('usePresignAndFinalizeHooks', () => {
         image_id: 'img-123',
         file_name: 'test-image',
         file_size_original: 1000,
-        file_size_scr: 500,
-        file_size_pre: 300,
-        file_size_thm: 100,
       };
 
       const mockResponse = { id: 'img-123', ...params };
@@ -161,9 +158,6 @@ describe('usePresignAndFinalizeHooks', () => {
         imageId: 'img-123',
         fileName: 'test-image',
         fileSizeOriginal: 1000,
-        fileSizeScr: 500,
-        fileSizePre: 300,
-        fileSizeThm: 100,
         consent: undefined,
       });
       expect(createRetryHandler).toHaveBeenCalled();
@@ -175,9 +169,6 @@ describe('usePresignAndFinalizeHooks', () => {
         image_id: 'img-123',
         file_name: 'test-image',
         file_size_original: 1000,
-        file_size_scr: 500,
-        file_size_pre: 300,
-        file_size_thm: 100,
       };
 
       const error = new Error('Finalize failed');
