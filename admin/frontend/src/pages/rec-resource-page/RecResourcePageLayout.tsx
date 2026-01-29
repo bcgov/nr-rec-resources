@@ -51,7 +51,6 @@ export const RecResourcePageLayout = () => {
   if (isLoading || !recResource) {
     return <LoadingSpinner />;
   }
-
   return (
     <Stack
       direction="vertical"

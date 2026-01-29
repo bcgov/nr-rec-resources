@@ -14,4 +14,6 @@ export const ROUTE_PATHS = {
   REC_RESOURCE_FEE_EDIT: '/rec-resource/$id/fees/$feeId/edit',
   REC_RESOURCE_GEOSPATIAL: '/rec-resource/$id/geospatial',
   REC_RESOURCE_GEOSPATIAL_EDIT: '/rec-resource/$id/geospatial/edit',
+  REC_RESOURCE_RESERVATION: '/rec-resource/$id/reservation',
+  REC_RESOURCE_RESERVATION_EDIT: '/rec-resource/$id/reservation/edit',
 } as const satisfies Record<string, NavigateOptions['to']>;
