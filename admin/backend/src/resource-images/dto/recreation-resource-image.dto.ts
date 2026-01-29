@@ -203,27 +203,6 @@ export class FinalizeImageUploadRequestDto {
   @IsNotEmpty()
   file_size_original: number;
 
-  @ApiProperty({
-    description: 'Sizes of screen variant in bytes',
-    example: 1048576,
-  })
-  @IsNotEmpty()
-  file_size_scr: number;
-
-  @ApiProperty({
-    description: 'Size of preview variant in bytes',
-    example: 524288,
-  })
-  @IsNotEmpty()
-  file_size_pre: number;
-
-  @ApiProperty({
-    description: 'Size of thumbnail variant in bytes',
-    example: 262144,
-  })
-  @IsNotEmpty()
-  file_size_thm: number;
-
   @ApiPropertyOptional({
     description: 'Consent form data (metadata and PDF file)',
     type: () => ConsentFormDto,

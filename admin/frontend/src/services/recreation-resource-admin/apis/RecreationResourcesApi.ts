@@ -120,9 +120,6 @@ export interface FinalizeImageUploadRequest {
   imageId: string;
   fileName: string;
   fileSizeOriginal: number;
-  fileSizeScr: number;
-  fileSizePre: number;
-  fileSizeThm: number;
   consent?: ConsentFormDto;
 }
 
@@ -701,27 +698,6 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       );
     }
 
-    if (requestParameters['fileSizeScr'] == null) {
-      throw new runtime.RequiredError(
-        'fileSizeScr',
-        'Required parameter "fileSizeScr" was null or undefined when calling finalizeImageUpload().',
-      );
-    }
-
-    if (requestParameters['fileSizePre'] == null) {
-      throw new runtime.RequiredError(
-        'fileSizePre',
-        'Required parameter "fileSizePre" was null or undefined when calling finalizeImageUpload().',
-      );
-    }
-
-    if (requestParameters['fileSizeThm'] == null) {
-      throw new runtime.RequiredError(
-        'fileSizeThm',
-        'Required parameter "fileSizeThm" was null or undefined when calling finalizeImageUpload().',
-      );
-    }
-
     const queryParameters: any = {};
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -760,27 +736,6 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       formParams.append(
         'file_size_original',
         requestParameters['fileSizeOriginal'] as any,
-      );
-    }
-
-    if (requestParameters['fileSizeScr'] != null) {
-      formParams.append(
-        'file_size_scr',
-        requestParameters['fileSizeScr'] as any,
-      );
-    }
-
-    if (requestParameters['fileSizePre'] != null) {
-      formParams.append(
-        'file_size_pre',
-        requestParameters['fileSizePre'] as any,
-      );
-    }
-
-    if (requestParameters['fileSizeThm'] != null) {
-      formParams.append(
-        'file_size_thm',
-        requestParameters['fileSizeThm'] as any,
       );
     }
 

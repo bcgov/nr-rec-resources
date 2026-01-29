@@ -112,25 +112,20 @@ describe('ConsentFormsS3Service', () => {
     });
   });
 
-  describe('deleteConsentForm', () => {
-    it('should delete consent form from S3', async () => {
-      vi.mocked(mockS3Service.deleteFile).mockResolvedValue(undefined);
+  describe('getS3Service', () => {
+    it('should return underlying S3 service for direct operations', () => {
+      const s3Service = service.getS3Service();
 
-      await service.deleteConsentForm('REC0001', 'image-123', 'doc-456');
-
-      expect(mockS3Service.deleteFile).toHaveBeenCalledWith(
-        'REC0001/image-123/doc-456.pdf',
-      );
+      expect(s3Service).toBeDefined();
+      expect(s3Service.getBucketName()).toBe('test-consent-forms-bucket');
     });
+  });
 
-    it('should throw on delete error', async () => {
-      vi.mocked(mockS3Service.deleteFile).mockRejectedValueOnce(
-        new Error('Delete failed'),
-      );
+  describe('getConsentFormKey', () => {
+    it('should build correct S3 key for consent form', () => {
+      const key = service.getConsentFormKey('REC0001', 'image-123', 'doc-456');
 
-      await expect(
-        service.deleteConsentForm('REC0001', 'image-123', 'doc-456'),
-      ).rejects.toThrow('Delete failed');
+      expect(key).toBe('REC0001/image-123/doc-456.pdf');
     });
   });
 });

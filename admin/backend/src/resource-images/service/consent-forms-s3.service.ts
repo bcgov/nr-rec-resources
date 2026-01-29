@@ -4,6 +4,8 @@ import { S3Service } from '@/s3/s3.service';
 import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { Injectable, Logger } from '@nestjs/common';
 
+const CONSENT_FORM_FILE_TYPE = 'pdf';
+
 /**
  * Specialized S3 service for consent forms.
  * Uses composition with S3Service to provide consent form-specific business logic:
@@ -29,6 +31,24 @@ export class ConsentFormsS3Service {
   }
 
   /**
+   * Get underlying S3 service for direct operations (e.g., cleanup)
+   */
+  getS3Service(): S3Service {
+    return this.s3Service;
+  }
+
+  /**
+   * Build the S3 key for a consent form
+   */
+  getConsentFormKey(
+    recResourceId: string,
+    imageId: string,
+    docId: string,
+  ): string {
+    return `${recResourceId}/${imageId}/${docId}.${CONSENT_FORM_FILE_TYPE}`;
+  }
+
+  /**
    * Upload consent form PDF to S3
    * @param recResourceId - Recreation resource ID
    * @param imageId - Image UUID this consent form belongs to
@@ -44,7 +64,7 @@ export class ConsentFormsS3Service {
     buffer: Buffer,
     originalFileName?: string,
   ): Promise<string> {
-    const key = `${recResourceId}/${imageId}/${docId}.pdf`;
+    const key = this.getConsentFormKey(recResourceId, imageId, docId);
 
     try {
       this.logger.log(
@@ -73,30 +93,6 @@ export class ConsentFormsS3Service {
     } catch (error) {
       this.logger.error(
         `Error uploading consent form to S3 - Key: ${key}: ${error.message}`,
-      );
-      throw error;
-    }
-  }
-
-  /**
-   * Delete consent form from S3
-   * @param recResourceId - Recreation resource ID
-   * @param imageId - Image UUID
-   * @param docId - Document UUID
-   */
-  async deleteConsentForm(
-    recResourceId: string,
-    imageId: string,
-    docId: string,
-  ): Promise<void> {
-    const key = `${recResourceId}/${imageId}/${docId}.pdf`;
-
-    try {
-      await this.s3Service.deleteFile(key);
-      this.logger.log(`Consent form deleted from S3 - Key: ${key}`);
-    } catch (error) {
-      this.logger.error(
-        `Error deleting consent form from S3 - Key: ${key}: ${error.message}`,
       );
       throw error;
     }

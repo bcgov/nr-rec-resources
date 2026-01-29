@@ -2,6 +2,7 @@ import { AppConfigModule } from '@/app-config/app-config.module';
 import { PrismaService } from '@/prisma.service';
 import { ResourceImagesController } from '@/resource-images/resource-images.controller';
 import { ResourceImagesService } from '@/resource-images/service/resource-images.service';
+import { ConsentFormsS3Service } from '@/resource-images/service/consent-forms-s3.service';
 import { S3Service } from '@/s3/s3.service';
 import { HttpException, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -28,6 +29,14 @@ describe('ResourceImagesController', () => {
             getSignedUploadUrl: vi.fn(),
             deleteFile: vi.fn(),
             listObjectsByPrefix: vi.fn(),
+          },
+        },
+        {
+          provide: ConsentFormsS3Service,
+          useValue: {
+            uploadConsentForm: vi.fn(),
+            getS3Service: vi.fn().mockReturnValue({ deleteFile: vi.fn() }),
+            getConsentFormKey: vi.fn().mockReturnValue('mock/key.pdf'),
           },
         },
       ],
@@ -289,6 +298,7 @@ describe('ResourceImagesController', () => {
       expect(resourceImagesService.finalizeUpload).toHaveBeenCalledWith(
         'REC0001',
         body,
+        undefined,
       );
     });
 
