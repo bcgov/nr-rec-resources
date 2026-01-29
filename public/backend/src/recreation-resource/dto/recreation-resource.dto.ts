@@ -141,11 +141,6 @@ export class RecreationResourceDistrictDto {
 
 export class RecreationResourceReservationInfoDto {
   @ApiProperty({
-    description: 'Reservation instructions of designed resource',
-    example: 'All reservations through partner, not RSTBC',
-  })
-  reservation_instructions: string;
-  @ApiProperty({
     description: 'Reservation website of designed resource',
     example: 'www.firesidecamping.ca',
     required: false,
@@ -163,12 +158,6 @@ export class RecreationResourceReservationInfoDto {
     required: false,
   })
   reservation_email?: string;
-  @ApiProperty({
-    description: 'Reservation comments of designed resource',
-    example: 'Membership required to reserve',
-    required: false,
-  })
-  reservation_comments?: string;
 }
 
 /**
