@@ -66,6 +66,35 @@ describe('ResourceImagesDocsService', () => {
     mockConsentS3Service.deleteFile.mockReset();
   });
 
+  describe('getImageByResourceId', () => {
+    it('should return the image when found', async () => {
+      const mockImage = createMockImage('image-123', 'REC0001', {
+        file_name: 'test-image.webp',
+        created_at: new Date('2025-03-26T23:33:06.175Z'),
+      });
+      vi.mocked(
+        prismaService.recreation_resource_image.findUnique,
+      ).mockResolvedValue(mockImage as any);
+
+      const result = await service.getImageByResourceId('REC0001', 'image-123');
+
+      expect(result).toBeDefined();
+      expect(result.image_id).toBe('image-123');
+      expect(result.file_name).toBe('test-image.webp');
+      expect(result.recreation_resource_image_variants).toHaveLength(4);
+    });
+
+    it('should throw HttpException when image is not found', async () => {
+      vi.mocked(
+        prismaService.recreation_resource_image.findUnique,
+      ).mockResolvedValue(null);
+
+      await expect(
+        service.getImageByResourceId('REC0001', 'nonexistent'),
+      ).rejects.toThrow('Recreation Resource image not found');
+    });
+  });
+
   describe('getAll', () => {
     it('should return all image resources related to the resource', async () => {
       const mockResources = [
@@ -495,6 +524,77 @@ describe('ResourceImagesDocsService', () => {
       await expect(service.finalizeUpload('REC0001', body)).rejects.toThrow(
         'Failed to finalize upload',
       );
+    });
+
+    it('should create image and consent form records when consent file is provided', async () => {
+      const body = {
+        image_id: 'test-image-id-456',
+        file_name: 'image-with-consent.webp',
+        file_size_original: 2097152,
+        consent: {
+          date_taken: '2025-01-15',
+          contains_pii: true,
+          photographer_type: 'STAFF',
+          photographer_name: 'John Doe',
+        },
+      };
+
+      const mockConsentFile: Express.Multer.File = {
+        fieldname: 'consent_form',
+        originalname: 'consent-form.pdf',
+        encoding: '7bit',
+        mimetype: 'application/pdf',
+        buffer: Buffer.from('fake pdf content'),
+        size: 1024,
+        stream: null as any,
+        destination: '',
+        filename: '',
+        path: '',
+      };
+
+      const mockImageRecord = createMockImage('test-image-id-456', 'REC0001', {
+        file_name: 'image-with-consent.webp',
+        file_size: BigInt(2097152),
+      });
+
+      mockConsentFormsS3Service.uploadConsentForm.mockResolvedValue(undefined);
+
+      vi.mocked(prismaService.$transaction).mockImplementation(
+        async (fn: any) => {
+          const mockTx = {
+            recreation_resource_image: {
+              create: vi.fn().mockResolvedValue(mockImageRecord),
+            },
+            recreation_resource_document: {
+              create: vi.fn().mockResolvedValue({}),
+            },
+            recreation_image_consent_form: {
+              create: vi.fn().mockResolvedValue({}),
+            },
+          };
+          return fn(mockTx);
+        },
+      );
+
+      const result = await service.finalizeUpload(
+        'REC0001',
+        body,
+        mockConsentFile,
+      );
+
+      expect(result).toBeDefined();
+      expect(result.image_id).toBe('test-image-id-456');
+      expect(result.file_name).toBe('image-with-consent.webp');
+
+      expect(mockConsentFormsS3Service.uploadConsentForm).toHaveBeenCalledWith(
+        'REC0001',
+        'test-image-id-456',
+        expect.any(String), // docId (UUID)
+        mockConsentFile.buffer,
+        'consent-form.pdf',
+      );
+
+      expect(prismaService.$transaction).toHaveBeenCalled();
     });
   });
 });
