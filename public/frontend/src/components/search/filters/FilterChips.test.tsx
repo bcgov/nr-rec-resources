@@ -46,7 +46,7 @@ describe('the FilterChips component', () => {
     filterChipStore.state = mockFilterChips;
     render(<FilterChips />);
 
-    expect(screen.getByText('Clear Filters')).toBeVisible();
+    expect(screen.getByText('Clear filters')).toBeVisible();
   });
 
   it('should hide the clear filters button when no filters are selected', () => {
@@ -54,7 +54,7 @@ describe('the FilterChips component', () => {
 
     render(<FilterChips />);
 
-    expect(screen.queryByText('Clear Filters')).toBeNull();
+    expect(screen.queryByText('Clear filters')).toBeNull();
   });
 
   it('should call the toggleFilter function when a filter chip is clicked', async () => {
