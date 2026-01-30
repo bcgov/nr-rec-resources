@@ -142,7 +142,7 @@ describe('useImageUpload', () => {
       );
     });
 
-    it('processFile calls processImageToVariants and includes consent metadata', async () => {
+    it('processFile calls processImageToVariants and returns variants', async () => {
       const mockFile = createMockFile('test-image.jpg', 'image/jpeg');
       const galleryFile = createMockGalleryFile<
         import('@/pages/rec-resource-page/types').GalleryImage
@@ -171,11 +171,9 @@ describe('useImageUpload', () => {
 
       expect(processFileResult).toMatchObject({
         variants: mockVariants,
-        dateTaken: null,
-        containsPii: false,
-        photographerType: 'STAFF',
-        photographerName: '',
       });
+      expect(processFileResult.dateTaken).toBeUndefined();
+      expect(processFileResult.containsPii).toBeUndefined();
     });
 
     it('does nothing if validation fails', async () => {

@@ -6,7 +6,7 @@ data "aws_guardduty_detector" "this" {}
 data "aws_region" "current" {}
 
 locals {
-  protected_buckets = [aws_s3_bucket.images, aws_s3_bucket.documents]
+  protected_buckets = [aws_s3_bucket.images, aws_s3_bucket.documents, aws_s3_bucket.consent_forms]
 }
 
 # IAM role for GuardDuty
@@ -129,6 +129,29 @@ resource "aws_guardduty_malware_protection_plan" "documents" {
 
   tags = merge(var.common_tags, {
     Name      = "rst-malware-protection-documents-${var.target_env}"
+    UpdatedAt = "2026-01-22-force-revalidation"
+  })
+
+  depends_on = [aws_iam_role_policy.guardduty_malware_protection]
+}
+
+resource "aws_guardduty_malware_protection_plan" "consent_forms" {
+  role = aws_iam_role.guardduty_malware_protection.arn
+
+  protected_resource {
+    s3_bucket {
+      bucket_name = aws_s3_bucket.consent_forms.id
+    }
+  }
+
+  actions {
+    tagging {
+      status = "ENABLED"
+    }
+  }
+
+  tags = merge(var.common_tags, {
+    Name      = "rst-malware-protection-consent-forms-${var.target_env}"
     UpdatedAt = "2026-01-22-force-revalidation"
   })
 
