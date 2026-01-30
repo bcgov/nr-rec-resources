@@ -4,5 +4,6 @@ export * from './components/breadcrumbs';
 export * from './components/recreation-resource-map';
 export * from './components/links';
 export * from './components/environment-banner';
+export * from './components/safe-html';
 export * from './utils';
 export * from './hooks';
