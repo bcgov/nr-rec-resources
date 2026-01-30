@@ -27,20 +27,20 @@ const DOC_NAMES = [
 ];
 
 const uploadStages = [
-  { duration: '1m', target: 5 },
-  { duration: '3m', target: 10 },
-  { duration: '5m', target: 15 },
-  { duration: '3m', target: 10 },
-  { duration: '2m', target: 5 },
+  { duration: '1m', target: 10 },
+  { duration: '3m', target: 20 },
+  { duration: '5m', target: 25 },
+  { duration: '3m', target: 20 },
+  { duration: '2m', target: 15 },
   { duration: '1m', target: 0 },
 ];
 
 const apiStages = [
   { duration: '2m', target: 10 },
   { duration: '5m', target: 20 },
-  { duration: '5m', target: 20 },
-  { duration: '2m', target: 10 },
-  { duration: '3m', target: 10 },
+  { duration: '5m', target: 30 },
+  { duration: '2m', target: 40 },
+  { duration: '3m', target: 20 },
   { duration: '1m', target: 0 },
 ];
 
