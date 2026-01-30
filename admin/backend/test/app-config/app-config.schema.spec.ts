@@ -26,6 +26,7 @@ describe('AppConfigSchema', () => {
     ESTABLISHMENT_ORDER_DOCS_BUCKET: 'test-establishment-order-docs-bucket',
     RST_STORAGE_IMAGES_BUCKET: 'test-rec-resource-images-bucket',
     RST_STORAGE_PUBLIC_DOCUMENTS_BUCKET: 'test-rec-resource-docs-bucket',
+    RST_STORAGE_CONSENT_FORMS_BUCKET: 'test-consent-forms-bucket',
     RST_STORAGE_CLOUDFRONT_URL: 'https://test-cdn.example.com',
     AWS_REGION: 'ca-central-1',
   };

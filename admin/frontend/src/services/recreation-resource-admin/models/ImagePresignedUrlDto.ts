@@ -44,21 +44,9 @@ export interface ImagePresignedUrlDto {
  */
 export const ImagePresignedUrlDtoSizeCodeEnum = {
   Original: 'original',
-  Col: 'col',
-  Con: 'con',
-  Pcs: 'pcs',
-  Hpr: 'hpr',
-  Ili: 'ili',
-  Lan: 'lan',
-  Llc: 'llc',
-  Lpr: 'lpr',
-  Gal: 'gal',
-  Ppp: 'ppp',
-  Pre: 'pre',
-  Rsr: 'rsr',
-  Rth: 'rth',
-  Scr: 'scr',
   Thm: 'thm',
+  Pre: 'pre',
+  Scr: 'scr',
 } as const;
 export type ImagePresignedUrlDtoSizeCodeEnum =
   (typeof ImagePresignedUrlDtoSizeCodeEnum)[keyof typeof ImagePresignedUrlDtoSizeCodeEnum];

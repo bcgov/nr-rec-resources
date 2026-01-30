@@ -12,4 +12,35 @@
   .form-check-input {
     margin-top: 0.3rem;
   }
+
+  .consent-upload-area {
+    .file-upload {
+      margin-top: 1rem;
+
+      &.has-file {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        background-color: $colorBackgroundGrey;
+        border-radius: 0.5rem;
+        border: 1px solid rgba($colorGrey, 0.2);
+      }
+
+      .file-info {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        .filename {
+          font-weight: 500;
+        }
+
+        .size {
+          color: $colorGreyMed;
+          font-size: 0.875rem;
+        }
+      }
+    }
+  }
 }

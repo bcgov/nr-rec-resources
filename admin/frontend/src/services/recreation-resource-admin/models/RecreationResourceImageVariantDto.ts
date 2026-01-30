@@ -56,21 +56,9 @@ export interface RecreationResourceImageVariantDto {
  */
 export const RecreationResourceImageVariantDtoSizeCodeEnum = {
   Original: 'original',
-  Col: 'col',
-  Con: 'con',
-  Pcs: 'pcs',
-  Hpr: 'hpr',
-  Ili: 'ili',
-  Lan: 'lan',
-  Llc: 'llc',
-  Lpr: 'lpr',
-  Gal: 'gal',
-  Ppp: 'ppp',
-  Pre: 'pre',
-  Rsr: 'rsr',
-  Rth: 'rth',
-  Scr: 'scr',
   Thm: 'thm',
+  Pre: 'pre',
+  Scr: 'scr',
 } as const;
 export type RecreationResourceImageVariantDtoSizeCodeEnum =
   (typeof RecreationResourceImageVariantDtoSizeCodeEnum)[keyof typeof RecreationResourceImageVariantDtoSizeCodeEnum];

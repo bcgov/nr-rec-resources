@@ -49,9 +49,9 @@ export class ResourceDocsService extends BaseStorageFileService {
     rec_resource_id: string,
   ): Promise<RecreationResourceDocDto[] | null> {
     const result = await this.prisma.recreation_resource_document.findMany({
-      where: { rec_resource_id },
-      orderBy: [{ updated_at: 'desc' }, { created_at: 'desc' }],
       select: DOCUMENT_SELECT_FIELDS,
+      where: { rec_resource_id, doc_code: 'RM' },
+      orderBy: [{ updated_at: 'desc' }, { created_at: 'desc' }],
     });
     return result.map((i) => this.mapResponse(i, rec_resource_id));
   }

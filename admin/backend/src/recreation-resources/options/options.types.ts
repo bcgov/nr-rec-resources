@@ -25,6 +25,7 @@ export const OPTION_TYPES = {
   CONTROL_ACCESS_CODE: 'controlAccessCode',
   RISK_RATING_CODE: 'riskRatingCode',
   DISTRICT: 'district',
+  PHOTOGRAPHER_TYPE: 'photographerType',
 } as const;
 
 /**

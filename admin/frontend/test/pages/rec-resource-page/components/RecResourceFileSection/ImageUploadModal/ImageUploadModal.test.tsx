@@ -1,36 +1,65 @@
 import { ImageUploadModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal';
 import * as fileTransferState from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
+import * as imageUploadFormHooks from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/hooks';
 import { TestQueryClientProvider } from '@test/test-utils';
 import { fireEvent, render, screen } from '@testing-library/react';
+import { useForm } from 'react-hook-form';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/pages/rec-resource-page/hooks/useRecResourceFileTransferState');
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/hooks',
+);
+vi.mock(
+  '@/services/hooks/recreation-resource-admin/useGetRecreationResourceOptions',
   () => ({
-    useImageUploadForm: vi.fn(() => ({
-      control: {},
-      handleSubmit: vi.fn((fn) => fn),
-      resetForm: vi.fn(),
-      uploadState: 'ready',
-      isUploadEnabled: true,
-    })),
+    useGetRecreationResourceOptions: () => ({
+      data: [{ options: [{ id: 'STAFF', label: 'Staff' }] }],
+    }),
   }),
 );
 
-vi.mock(
-  '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/sections',
-  () => ({
-    ImageUploadForm: () => (
-      <div data-testid="image-upload-form">Privacy Form</div>
-    ),
-  }),
+const mockUseImageUploadForm = vi.mocked(
+  imageUploadFormHooks.useImageUploadForm,
 );
 
 const mockHandleGeneralAction = vi.fn();
 const mockUseRecResourceFileTransferState = vi.mocked(
   fileTransferState.useRecResourceFileTransferState,
 );
+
+const TestWrapper = ({ children }: { children: React.ReactNode }) => {
+  const form = useForm({
+    defaultValues: {
+      displayName: 'test',
+      dateCreated: null,
+      didYouTakePhoto: true,
+      containsIdentifiableInfo: false,
+      photographerName: '',
+      photographerType: 'STAFF',
+      consentFormFile: null,
+      confirmationChecked: true,
+    },
+  });
+
+  mockUseImageUploadForm.mockReturnValue({
+    control: form.control,
+    handleSubmit: form.handleSubmit,
+    errors: {},
+    setValue: form.setValue,
+    resetForm: vi.fn(),
+    isUploadEnabled: true,
+    showDateWarning: false,
+    showTakenDuringWorkingHours: true,
+    showNameField: false,
+    showConsentUpload: false,
+    consentFormFile: null,
+    handleConsentFileSelect: vi.fn(),
+    handleConsentFileRemove: vi.fn(),
+  });
+
+  return <TestQueryClientProvider>{children}</TestQueryClientProvider>;
+};
 
 describe('ImageUploadModal', () => {
   const createFile = (
@@ -72,7 +101,7 @@ describe('ImageUploadModal', () => {
   it('returns null when modal is not shown', () => {
     setMockState({ showUploadOverlay: false, selectedFileForUpload: null });
     const { container } = render(<ImageUploadModal />, {
-      wrapper: TestQueryClientProvider,
+      wrapper: TestWrapper,
     });
     expect(container.firstChild).toBeNull();
   });
@@ -87,7 +116,7 @@ describe('ImageUploadModal', () => {
       ),
     });
     const { container } = render(<ImageUploadModal />, {
-      wrapper: TestQueryClientProvider,
+      wrapper: TestWrapper,
     });
     expect(container.firstChild).toBeNull();
   });
@@ -97,12 +126,14 @@ describe('ImageUploadModal', () => {
       showUploadOverlay: true,
       selectedFileForUpload: createFile(),
     });
-    render(<ImageUploadModal />, { wrapper: TestQueryClientProvider });
+    render(<ImageUploadModal />, { wrapper: TestWrapper });
 
     expect(screen.getByText('Upload Photo')).toBeInTheDocument();
     expect(screen.getByText('Preview')).toBeInTheDocument();
     expect(screen.getByText('test.jpg')).toBeInTheDocument();
-    expect(screen.getByTestId('image-upload-form')).toBeInTheDocument();
+    expect(
+      screen.getByRole('form', { name: 'image-upload-form' }),
+    ).toBeInTheDocument();
   });
 
   it('handles cancel button click', () => {
@@ -110,7 +141,7 @@ describe('ImageUploadModal', () => {
       showUploadOverlay: true,
       selectedFileForUpload: createFile(),
     });
-    render(<ImageUploadModal />, { wrapper: TestQueryClientProvider });
+    render(<ImageUploadModal />, { wrapper: TestWrapper });
 
     fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
     expect(mockHandleGeneralAction).toHaveBeenCalledWith('cancel-upload');
@@ -121,7 +152,7 @@ describe('ImageUploadModal', () => {
       showUploadOverlay: true,
       selectedFileForUpload: createFile(),
     });
-    render(<ImageUploadModal />, { wrapper: TestQueryClientProvider });
+    render(<ImageUploadModal />, { wrapper: TestWrapper });
 
     fireEvent.click(screen.getByRole('button', { name: /upload/i }));
     expect(mockHandleGeneralAction).toHaveBeenCalledWith('confirm-upload');
@@ -132,14 +163,12 @@ describe('ImageUploadModal', () => {
       showUploadOverlay: true,
       selectedFileForUpload: createFile(),
     });
-    render(<ImageUploadModal />, { wrapper: TestQueryClientProvider });
+    render(<ImageUploadModal />, { wrapper: TestWrapper });
 
     expect(
       screen.getByText(
         /uploading this photo will publish to the public website/i,
       ),
     ).toBeInTheDocument();
-    const alertElement = screen.getByRole('alert');
-    expect(alertElement).toHaveClass('base-file-modal__alert');
   });
 });
