@@ -41,7 +41,7 @@ export const SuggestionListCity: React.FC<SearchItemData> = ({
         </Col>
 
         <Col className="content-col">
-          <span className="rec-name">
+          <span>
             <Highlighter search={searchTerm}>{city}</Highlighter>
           </span>
           <div className="description-text">

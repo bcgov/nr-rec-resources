@@ -22,7 +22,7 @@ const FilterChips = () => {
           className="btn-link pl-0 mb-2"
           onClick={clearFilters}
         >
-          Clear Filters
+          Clear filters
         </button>
       )}
     </div>
