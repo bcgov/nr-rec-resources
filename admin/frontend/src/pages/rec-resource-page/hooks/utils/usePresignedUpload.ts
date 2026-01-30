@@ -4,6 +4,7 @@
  */
 
 import { useS3Upload } from '@/services/hooks/recreation-resource-admin/useS3Upload';
+import { ConsentFormParams } from '@/services/hooks/recreation-resource-admin/usePresignAndFinalizeHooks';
 import { handleApiError } from '@/services/utils/errorHandler';
 import {
   addErrorNotification,
@@ -32,6 +33,7 @@ interface PresignedUploadConfig<T extends GalleryFile> {
   removePendingFile: (id: string) => void;
   successMessage: (fileName: string) => string;
   fileType: 'image' | 'document';
+  consent?: ConsentFormParams;
 }
 
 interface ImageUploadResult {
@@ -67,6 +69,7 @@ export function usePresignedUpload<T extends GalleryFile>() {
       removePendingFile,
       successMessage,
       fileType,
+      consent,
     }: PresignedUploadConfig<T>) => {
       const file = galleryFile.pendingFile!;
       const fileName = galleryFile.name; // User-edited filename (without extension)
@@ -166,9 +169,7 @@ export function usePresignedUpload<T extends GalleryFile>() {
             image_id: presignResponse.image_id,
             file_name: fileName,
             file_size_original: variantSizes['original'],
-            file_size_scr: variantSizes['scr'],
-            file_size_pre: variantSizes['pre'],
-            file_size_thm: variantSizes['thm'],
+            consent,
           });
         } else {
           // Document upload
