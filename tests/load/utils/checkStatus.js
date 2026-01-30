@@ -16,6 +16,7 @@ const checkStatus = (response, checkName, statusCode = 200) => {
     },
   });
   errorRate.add(!success, { tag1: checkName });
+  return success;
 };
 
 export default checkStatus;
