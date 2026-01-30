@@ -13,6 +13,12 @@
     padding-top: 0;
   }
 
+  .btn:disabled {
+    border-color: $colorBackgroundGrey;
+    background-color: $colorBackgroundGrey;
+    color: $colorGreyLight;
+  }
+
   &__alert {
     &-icon {
       flex-shrink: 0;
