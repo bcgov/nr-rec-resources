@@ -1,25 +1,74 @@
 # k6 Load Testing
 
-## Steps to run loads tests
+This directory contains k6 load tests for both **public** and **admin**
+backends.
 
-1. Install k6 - https://k6.io/docs/get-started/installation/
+## Prerequisites
 
-2. Test it is working correctly by running tests against your local development
-   server
+1. Install k6 - <https://k6.io/docs/get-started/installation/>
 
-   - The backend server should be running at `http://localhost:8000/`
-   - Run `cd tests/load && make load_test` to run the tests
+## Running Tests
 
-3. Change variable `SERVER_HOST` value in Makefile to the API Gateway route in
-   AWS
+### Public Backend Tests
 
-   - You may have to disable rate limiting on the API Gateway to run the tests
+Tests the public-facing API endpoints (search, resource detail, filters).
 
-   - `SAVE_RESULTS` variable can be set to `true` to save the results in a .csv
-     file located in the `k6_results` folder
+```bash
+# Local development (default: http://localhost:8000)
+cd tests/load && make load_test_public
 
-4. Once the proper variable has been set re-run `make load_test`
+# Custom server
+cd tests/load && make load_test_public PUBLIC_SERVER_HOST=https://dev.example.com
 
-5. Monitor deployment
+# Save results to CSV
+cd tests/load && make load_test_public SAVE_RESULTS=true
+```
 
-6. Results will be in `k6_results` folder in .csv format
+### Admin Backend Tests
+
+Tests admin-specific endpoints including image uploads and search/suggestions.
+
+> **Important**: Admin endpoints are normally protected by authentication. For
+> load testing, temporarily disable auth guards on your target environment.
+
+```bash
+# Local development (default: http://localhost:8001)
+cd tests/load && make load_test_admin
+
+# Custom server (e.g., dev environment with auth disabled)
+cd tests/load && make load_test_admin ADMIN_SERVER_HOST=https://admin-dev.example.com
+
+# Save results to CSV
+cd tests/load && make load_test_admin SAVE_RESULTS=true
+```
+
+### Run All Tests
+
+```bash
+cd tests/load && make load_test_all
+```
+
+### Load Profile
+
+Both test suites use ramping VU (virtual user) stages:
+
+- **Public**: Ramps up to 50 concurrent users at peak
+- **Admin**: Ramps up to 20 concurrent users at peak (admin traffic is typically
+  lower)
+
+### Thresholds
+
+- **Public**: 99% of requests must complete under 1.5s
+- **Admin**: 99% of requests must complete under 3s (uploads may be slower)
+
+## AWS API Gateway Notes
+
+When testing against AWS-hosted environments you may need to disable rate
+limiting on the API Gateway WAF `/infrastructure/api/waf.tf`
+
+## Results
+
+Results are saved to `k6_results/` when `SAVE_RESULTS=true`:
+
+- `public_load_test_results.csv`
+- `admin_load_test_results.csv`

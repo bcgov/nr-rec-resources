@@ -54,13 +54,24 @@ reset_project:
 	@echo "Project reset completed."
 
 .PHONY: load_test
-load_test: ## run performance tests with k6
+load_test: ## run public backend performance tests with k6
 load_test: SERVER_HOST=http://localhost:8000
 load_test: SERVER_API_ROUTE=/api
 load_test: SERVER_ROUTE=$(SERVER_HOST)$(SERVER_API_ROUTE)
 load_test: SAVE_RESULTS=false
-load_test: OUT_OPTION=$(if $(filter true,$(SAVE_RESULTS)),--out csv=k6_results/load_test_results.csv)
+load_test: OUT_OPTION=$(if $(filter true,$(SAVE_RESULTS)),--out csv=k6_results/public_load_test_results.csv)
 load_test:
 	@mkdir -p k6_results
-	@echo "Running backend performance tests with k6"
-	@k6 -e SERVER_HOST=$(SERVER_ROUTE) run tests/load/backend/main.js $(OUT_OPTION)
+	@echo "Running PUBLIC backend performance tests with k6"
+	@k6 -e SERVER_HOST=$(SERVER_ROUTE) run tests/load/public/main.js $(OUT_OPTION)
+
+.PHONY: load_test_admin
+load_test_admin: ## run admin backend performance tests with k6
+load_test_admin: SERVER_HOST=http://localhost:8001
+load_test_admin: SAVE_RESULTS=false
+load_test_admin: OUT_OPTION=$(if $(filter true,$(SAVE_RESULTS)),--out csv=k6_results/admin_load_test_results.csv)
+load_test_admin:
+	@mkdir -p k6_results
+	@echo "Running ADMIN backend performance tests with k6"
+	@echo "NOTE: Ensure auth guards are disabled on target environment"
+	@k6 -e SERVER_HOST=$(SERVER_HOST) run tests/load/admin/main.js $(OUT_OPTION)
