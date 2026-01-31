@@ -1,4 +1,5 @@
 import { Stack } from 'react-bootstrap';
+import { SafeHtml } from '@shared/components/safe-html';
 
 type RecResourceOverviewItemProps =
   | {
@@ -23,7 +24,7 @@ export const RecResourceOverviewItem = ({
     }
 
     if (isHtml) {
-      return <div dangerouslySetInnerHTML={{ __html: value as string }} />;
+      return <SafeHtml html={value as string} />;
     }
 
     return value;

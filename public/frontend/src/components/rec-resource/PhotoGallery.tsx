@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImages } from '@fortawesome/free-solid-svg-icons';
-import { trackEvent } from '@shared/utils';
+import { trackEvent, sanitizeHtml } from '@shared/utils';
 import Lightbox from 'yet-another-react-lightbox';
 import Captions from 'yet-another-react-lightbox/plugins/captions';
 import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails';
@@ -57,9 +57,7 @@ const PhotoGallery: React.FC<PhotoGalleryProps> = ({ photos }) => {
 
   const photoSlides = photos.map((photo) => ({
     src: photo.fullResolutionUrl,
-    description: (
-      <div dangerouslySetInnerHTML={{ __html: photo.caption || '' }} />
-    ),
+    description: photo.caption ? sanitizeHtml(photo.caption) : undefined,
   }));
 
   const handleKeyDownOpen = (e: React.KeyboardEvent) => {
