@@ -1,12 +1,17 @@
 import parse from 'html-react-parser';
-import type { ElementType } from 'react';
 import { sanitizeHtml } from '@shared/utils/sanitizeHtml';
+
+/**
+ * Allowed wrapper elements for SafeHtml.
+ * Excludes elements like 'p' that cannot contain block-level content.
+ */
+type SafeWrapperElement = 'div' | 'span' | 'section' | 'article' | 'aside';
 
 interface SafeHtmlProps {
   /** The HTML string to sanitize and render */
   html: string;
   /** Optional wrapper element type. Defaults to 'div' */
-  as?: ElementType;
+  as?: SafeWrapperElement;
   /** Optional className for the wrapper element */
   className?: string;
 }
@@ -19,7 +24,7 @@ interface SafeHtmlProps {
  * <SafeHtml html={description} />
  *
  * @example
- * <SafeHtml html={content} as="p" className="text-muted" />
+ * <SafeHtml html={content} as="section" className="text-muted" />
  */
 export const SafeHtml = ({
   html,

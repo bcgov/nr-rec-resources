@@ -36,7 +36,7 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
           {driving_directions && (
             <article>
               <h3>Getting there</h3>
-              <SafeHtml html={driving_directions} as="p" className="mb-0" />
+              <SafeHtml html={driving_directions} className="mb-0" />
             </article>
           )}
 

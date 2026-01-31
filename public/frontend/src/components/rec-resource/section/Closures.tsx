@@ -20,7 +20,7 @@ const Closures = forwardRef<HTMLElement, ClosuresProps>(
             <span className="capitalize">{siteName}</span>
             &nbsp;is closed
           </span>
-          <SafeHtml html={comment} as="p" />
+          <SafeHtml html={comment} className="mb-3" />
         </div>
       </section>
     );

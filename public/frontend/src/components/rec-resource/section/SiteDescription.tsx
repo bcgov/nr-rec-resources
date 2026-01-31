@@ -35,7 +35,7 @@ const SiteDescription = forwardRef<HTMLElement, SiteDescriptionProps>(
         ref={ref}
       >
         <h2 className="section-heading">{SectionTitles.SITE_DESCRIPTION}</h2>
-        {description && <SafeHtml html={description} as="p" />}
+        {description && <SafeHtml html={description} className="mb-3" />}
 
         {maintenanceDescription && (
           <section className="mb-4">
