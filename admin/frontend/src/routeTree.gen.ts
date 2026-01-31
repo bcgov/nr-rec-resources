@@ -13,10 +13,12 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as RecResourceIdRouteImport } from './routes/rec-resource/$id'
 import { Route as RecResourceIdIndexRouteImport } from './routes/rec-resource/$id/index'
 import { Route as RecResourceIdFilesRouteImport } from './routes/rec-resource/$id/files'
+import { Route as RecResourceIdReservationIndexRouteImport } from './routes/rec-resource/$id/reservation/index'
 import { Route as RecResourceIdOverviewIndexRouteImport } from './routes/rec-resource/$id/overview/index'
 import { Route as RecResourceIdGeospatialIndexRouteImport } from './routes/rec-resource/$id/geospatial/index'
 import { Route as RecResourceIdFeesIndexRouteImport } from './routes/rec-resource/$id/fees/index'
 import { Route as RecResourceIdActivitiesFeaturesIndexRouteImport } from './routes/rec-resource/$id/activities-features/index'
+import { Route as RecResourceIdReservationEditRouteImport } from './routes/rec-resource/$id/reservation/edit'
 import { Route as RecResourceIdOverviewEditRouteImport } from './routes/rec-resource/$id/overview/edit'
 import { Route as RecResourceIdGeospatialEditRouteImport } from './routes/rec-resource/$id/geospatial/edit'
 import { Route as RecResourceIdFeesAddRouteImport } from './routes/rec-resource/$id/fees/add'
@@ -43,6 +45,12 @@ const RecResourceIdFilesRoute = RecResourceIdFilesRouteImport.update({
   path: '/files',
   getParentRoute: () => RecResourceIdRoute,
 } as any)
+const RecResourceIdReservationIndexRoute =
+  RecResourceIdReservationIndexRouteImport.update({
+    id: '/reservation/',
+    path: '/reservation/',
+    getParentRoute: () => RecResourceIdRoute,
+  } as any)
 const RecResourceIdOverviewIndexRoute =
   RecResourceIdOverviewIndexRouteImport.update({
     id: '/overview/',
@@ -64,6 +72,12 @@ const RecResourceIdActivitiesFeaturesIndexRoute =
   RecResourceIdActivitiesFeaturesIndexRouteImport.update({
     id: '/activities-features/',
     path: '/activities-features/',
+    getParentRoute: () => RecResourceIdRoute,
+  } as any)
+const RecResourceIdReservationEditRoute =
+  RecResourceIdReservationEditRouteImport.update({
+    id: '/reservation/edit',
+    path: '/reservation/edit',
     getParentRoute: () => RecResourceIdRoute,
   } as any)
 const RecResourceIdOverviewEditRoute =
@@ -105,10 +119,12 @@ export interface FileRoutesByFullPath {
   '/rec-resource/$id/fees/add': typeof RecResourceIdFeesAddRoute
   '/rec-resource/$id/geospatial/edit': typeof RecResourceIdGeospatialEditRoute
   '/rec-resource/$id/overview/edit': typeof RecResourceIdOverviewEditRoute
+  '/rec-resource/$id/reservation/edit': typeof RecResourceIdReservationEditRoute
   '/rec-resource/$id/activities-features': typeof RecResourceIdActivitiesFeaturesIndexRoute
   '/rec-resource/$id/fees': typeof RecResourceIdFeesIndexRoute
   '/rec-resource/$id/geospatial': typeof RecResourceIdGeospatialIndexRoute
   '/rec-resource/$id/overview': typeof RecResourceIdOverviewIndexRoute
+  '/rec-resource/$id/reservation': typeof RecResourceIdReservationIndexRoute
   '/rec-resource/$id/fees/$feeId/edit': typeof RecResourceIdFeesFeeIdEditRoute
 }
 export interface FileRoutesByTo {
@@ -119,10 +135,12 @@ export interface FileRoutesByTo {
   '/rec-resource/$id/fees/add': typeof RecResourceIdFeesAddRoute
   '/rec-resource/$id/geospatial/edit': typeof RecResourceIdGeospatialEditRoute
   '/rec-resource/$id/overview/edit': typeof RecResourceIdOverviewEditRoute
+  '/rec-resource/$id/reservation/edit': typeof RecResourceIdReservationEditRoute
   '/rec-resource/$id/activities-features': typeof RecResourceIdActivitiesFeaturesIndexRoute
   '/rec-resource/$id/fees': typeof RecResourceIdFeesIndexRoute
   '/rec-resource/$id/geospatial': typeof RecResourceIdGeospatialIndexRoute
   '/rec-resource/$id/overview': typeof RecResourceIdOverviewIndexRoute
+  '/rec-resource/$id/reservation': typeof RecResourceIdReservationIndexRoute
   '/rec-resource/$id/fees/$feeId/edit': typeof RecResourceIdFeesFeeIdEditRoute
 }
 export interface FileRoutesById {
@@ -135,10 +153,12 @@ export interface FileRoutesById {
   '/rec-resource/$id/fees/add': typeof RecResourceIdFeesAddRoute
   '/rec-resource/$id/geospatial/edit': typeof RecResourceIdGeospatialEditRoute
   '/rec-resource/$id/overview/edit': typeof RecResourceIdOverviewEditRoute
+  '/rec-resource/$id/reservation/edit': typeof RecResourceIdReservationEditRoute
   '/rec-resource/$id/activities-features/': typeof RecResourceIdActivitiesFeaturesIndexRoute
   '/rec-resource/$id/fees/': typeof RecResourceIdFeesIndexRoute
   '/rec-resource/$id/geospatial/': typeof RecResourceIdGeospatialIndexRoute
   '/rec-resource/$id/overview/': typeof RecResourceIdOverviewIndexRoute
+  '/rec-resource/$id/reservation/': typeof RecResourceIdReservationIndexRoute
   '/rec-resource/$id/fees/$feeId/edit': typeof RecResourceIdFeesFeeIdEditRoute
 }
 export interface FileRouteTypes {
@@ -152,10 +172,12 @@ export interface FileRouteTypes {
     | '/rec-resource/$id/fees/add'
     | '/rec-resource/$id/geospatial/edit'
     | '/rec-resource/$id/overview/edit'
+    | '/rec-resource/$id/reservation/edit'
     | '/rec-resource/$id/activities-features'
     | '/rec-resource/$id/fees'
     | '/rec-resource/$id/geospatial'
     | '/rec-resource/$id/overview'
+    | '/rec-resource/$id/reservation'
     | '/rec-resource/$id/fees/$feeId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -166,10 +188,12 @@ export interface FileRouteTypes {
     | '/rec-resource/$id/fees/add'
     | '/rec-resource/$id/geospatial/edit'
     | '/rec-resource/$id/overview/edit'
+    | '/rec-resource/$id/reservation/edit'
     | '/rec-resource/$id/activities-features'
     | '/rec-resource/$id/fees'
     | '/rec-resource/$id/geospatial'
     | '/rec-resource/$id/overview'
+    | '/rec-resource/$id/reservation'
     | '/rec-resource/$id/fees/$feeId/edit'
   id:
     | '__root__'
@@ -181,10 +205,12 @@ export interface FileRouteTypes {
     | '/rec-resource/$id/fees/add'
     | '/rec-resource/$id/geospatial/edit'
     | '/rec-resource/$id/overview/edit'
+    | '/rec-resource/$id/reservation/edit'
     | '/rec-resource/$id/activities-features/'
     | '/rec-resource/$id/fees/'
     | '/rec-resource/$id/geospatial/'
     | '/rec-resource/$id/overview/'
+    | '/rec-resource/$id/reservation/'
     | '/rec-resource/$id/fees/$feeId/edit'
   fileRoutesById: FileRoutesById
 }
@@ -223,6 +249,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecResourceIdFilesRouteImport
       parentRoute: typeof RecResourceIdRoute
     }
+    '/rec-resource/$id/reservation/': {
+      id: '/rec-resource/$id/reservation/'
+      path: '/reservation'
+      fullPath: '/rec-resource/$id/reservation'
+      preLoaderRoute: typeof RecResourceIdReservationIndexRouteImport
+      parentRoute: typeof RecResourceIdRoute
+    }
     '/rec-resource/$id/overview/': {
       id: '/rec-resource/$id/overview/'
       path: '/overview'
@@ -249,6 +282,13 @@ declare module '@tanstack/react-router' {
       path: '/activities-features'
       fullPath: '/rec-resource/$id/activities-features'
       preLoaderRoute: typeof RecResourceIdActivitiesFeaturesIndexRouteImport
+      parentRoute: typeof RecResourceIdRoute
+    }
+    '/rec-resource/$id/reservation/edit': {
+      id: '/rec-resource/$id/reservation/edit'
+      path: '/reservation/edit'
+      fullPath: '/rec-resource/$id/reservation/edit'
+      preLoaderRoute: typeof RecResourceIdReservationEditRouteImport
       parentRoute: typeof RecResourceIdRoute
     }
     '/rec-resource/$id/overview/edit': {
@@ -296,10 +336,12 @@ interface RecResourceIdRouteChildren {
   RecResourceIdFeesAddRoute: typeof RecResourceIdFeesAddRoute
   RecResourceIdGeospatialEditRoute: typeof RecResourceIdGeospatialEditRoute
   RecResourceIdOverviewEditRoute: typeof RecResourceIdOverviewEditRoute
+  RecResourceIdReservationEditRoute: typeof RecResourceIdReservationEditRoute
   RecResourceIdActivitiesFeaturesIndexRoute: typeof RecResourceIdActivitiesFeaturesIndexRoute
   RecResourceIdFeesIndexRoute: typeof RecResourceIdFeesIndexRoute
   RecResourceIdGeospatialIndexRoute: typeof RecResourceIdGeospatialIndexRoute
   RecResourceIdOverviewIndexRoute: typeof RecResourceIdOverviewIndexRoute
+  RecResourceIdReservationIndexRoute: typeof RecResourceIdReservationIndexRoute
   RecResourceIdFeesFeeIdEditRoute: typeof RecResourceIdFeesFeeIdEditRoute
 }
 
@@ -311,11 +353,13 @@ const RecResourceIdRouteChildren: RecResourceIdRouteChildren = {
   RecResourceIdFeesAddRoute: RecResourceIdFeesAddRoute,
   RecResourceIdGeospatialEditRoute: RecResourceIdGeospatialEditRoute,
   RecResourceIdOverviewEditRoute: RecResourceIdOverviewEditRoute,
+  RecResourceIdReservationEditRoute: RecResourceIdReservationEditRoute,
   RecResourceIdActivitiesFeaturesIndexRoute:
     RecResourceIdActivitiesFeaturesIndexRoute,
   RecResourceIdFeesIndexRoute: RecResourceIdFeesIndexRoute,
   RecResourceIdGeospatialIndexRoute: RecResourceIdGeospatialIndexRoute,
   RecResourceIdOverviewIndexRoute: RecResourceIdOverviewIndexRoute,
+  RecResourceIdReservationIndexRoute: RecResourceIdReservationIndexRoute,
   RecResourceIdFeesFeeIdEditRoute: RecResourceIdFeesFeeIdEditRoute,
 }
 

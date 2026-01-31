@@ -24,9 +24,22 @@ const RecResourceReservation: React.FC<RecResourceReservationProps> = ({
     recResource.additional_fees !== undefined &&
     recResource.additional_fees.length > 0;
 
+  const hasReservation =
+    recResource.recreation_resource_reservation_info &&
+    (recResource.recreation_resource_reservation_info.reservation_website ||
+      recResource.recreation_resource_reservation_info.reservation_email ||
+      recResource.recreation_resource_reservation_info
+        .reservation_phone_number) &&
+    (recResource.recreation_resource_reservation_info.reservation_website !==
+      '' ||
+      recResource.recreation_resource_reservation_info.reservation_email !==
+        '' ||
+      recResource.recreation_resource_reservation_info
+        .reservation_phone_number !== '');
+
   return (
     <>
-      {recResource.recreation_resource_reservation_info ? (
+      {hasReservation ? (
         <>
           <div className="icon-container mt-4 mb-4">
             <div className="camp-icon-container">
@@ -47,36 +60,39 @@ const RecResourceReservation: React.FC<RecResourceReservationProps> = ({
             </div>
           </div>
           <div>
-            {recResource.recreation_resource_reservation_info
-              .reservation_website && (
-              <RecReservationButton
-                text={
-                  recResource.recreation_resource_reservation_info
-                    .reservation_website
-                }
-                type={ReservationType.LINK}
-              />
-            )}
-            {recResource.recreation_resource_reservation_info
-              .reservation_email && (
-              <RecReservationButton
-                text={
-                  recResource.recreation_resource_reservation_info
-                    .reservation_email
-                }
-                type={ReservationType.EMAIL}
-              />
-            )}
-            {recResource.recreation_resource_reservation_info
-              .reservation_phone_number && (
-              <RecReservationButton
-                text={
-                  recResource.recreation_resource_reservation_info
-                    .reservation_phone_number
-                }
-                type={ReservationType.PHONE}
-              />
-            )}
+            {recResource.recreation_resource_reservation_info &&
+              recResource.recreation_resource_reservation_info
+                .reservation_website && (
+                <RecReservationButton
+                  text={
+                    recResource.recreation_resource_reservation_info
+                      .reservation_website
+                  }
+                  type={ReservationType.LINK}
+                />
+              )}
+            {recResource.recreation_resource_reservation_info &&
+              recResource.recreation_resource_reservation_info
+                .reservation_email && (
+                <RecReservationButton
+                  text={
+                    recResource.recreation_resource_reservation_info
+                      .reservation_email
+                  }
+                  type={ReservationType.EMAIL}
+                />
+              )}
+            {recResource.recreation_resource_reservation_info &&
+              recResource.recreation_resource_reservation_info
+                .reservation_phone_number && (
+                <RecReservationButton
+                  text={
+                    recResource.recreation_resource_reservation_info
+                      .reservation_phone_number
+                  }
+                  type={ReservationType.PHONE}
+                />
+              )}
           </div>
         </>
       ) : (

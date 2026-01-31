@@ -31,6 +31,7 @@ describe('rec-resource-page constants', () => {
       expect(RecResourceNavKey.FILES).toBe('files');
       expect(RecResourceNavKey.FEES).toBe('fees');
       expect(RecResourceNavKey.GEOSPATIAL).toBe('geospatial');
+      expect(RecResourceNavKey.RESERVATION).toBe('reservation');
     });
 
     it('has all expected tab keys', () => {
@@ -40,6 +41,7 @@ describe('rec-resource-page constants', () => {
         'activities',
         'fees',
         'geospatial',
+        'reservation',
       ]);
     });
   });

@@ -1,6 +1,6 @@
 import { Stack } from 'react-bootstrap';
 
-type RecResourceOverviewItemProps =
+type FieldItemProps =
   | {
       label: string;
       value: string;
@@ -12,11 +12,7 @@ type RecResourceOverviewItemProps =
       isHtml?: false;
     };
 
-export const RecResourceOverviewItem = ({
-  label,
-  value,
-  isHtml,
-}: RecResourceOverviewItemProps) => {
+export const FieldItem = ({ label, value, isHtml }: FieldItemProps) => {
   const renderContent = () => {
     if (!value) {
       return '-';
