@@ -1,0 +1,2 @@
+alter table rst.recreation_resource_reservation_info drop reservation_instructions;
+alter table rst.recreation_resource_reservation_info drop reservation_comments;

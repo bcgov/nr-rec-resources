@@ -2,7 +2,7 @@ import { Col, Row, Stack } from 'react-bootstrap';
 import { FeatureFlagGuard } from '@/contexts/feature-flags';
 import { LinkWithQueryParams } from '@shared/components/link-with-query-params';
 import { CopyButton } from '@shared/components/copy-button';
-import { RecResourceOverviewItem } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/components';
+import { FieldItem } from '../shared/FieldItem';
 import { RecResourceLocationSection } from '@/pages/rec-resource-page/components/RecResourceLocationSection';
 import { Route } from '@/routes/rec-resource/$id/geospatial';
 import { ROUTE_PATHS } from '@/constants/routes';
@@ -74,7 +74,7 @@ export function RecResourceGeospatialSection() {
         <Row className="gy-3">
           {geospatialItems.map((item) => (
             <Col key={item.key} xs={12} md={6} lg={4}>
-              <RecResourceOverviewItem label={item.label} value={item.value} />
+              <FieldItem label={item.label} value={item.value} />
             </Col>
           ))}
         </Row>
