@@ -18,6 +18,12 @@ import {
 } from '../schemas';
 import useUpdateRecreationResourceReservation from '@/services/hooks/recreation-resource-admin/useUpdateRecreationResourceReservation';
 
+const validation_errors = [
+  'reservation_website',
+  'reservation_phone_number',
+  'reservation_email',
+];
+
 /**
  * Custom hook for managing edit resource form logic
  * Handles form state, validation, submission, and complex interactions
@@ -80,9 +86,7 @@ export const useEditReservationForm = (
       (!data.reservation_website || data.reservation_website === '') &&
       (!data.reservation_phone_number || data.reservation_phone_number === '')
     ) {
-      addErrorNotification(
-        `Failed to update recreation resource: at least one contact form must exist.`,
-      );
+      addErrorNotification(`Please fill at least one Reservation Method.`);
       return;
     }
 
@@ -104,9 +108,34 @@ export const useEditReservationForm = (
       });
     } catch (error) {
       const { message } = await handleApiError(error);
-      addErrorNotification(
-        `Failed to update recreation resource: ${message}. Please try again.`,
-      );
+      let showValidationErrors = false;
+      validation_errors.forEach((e) => {
+        if (message.includes(e)) {
+          showValidationErrors = true;
+          switch (e) {
+            case 'reservation_website':
+              addErrorNotification(
+                `Invalid URL format. Example: https://example.com/.`,
+              );
+              break;
+            case 'reservation_email':
+              addErrorNotification(
+                `Invalid email format. Example: [name@example.com].`,
+              );
+              break;
+            case 'reservation_phone_number':
+              addErrorNotification(
+                `Invalid phone number format. Include area code (e.g., 250-555-1234).`,
+              );
+              break;
+          }
+        }
+      });
+      if (!showValidationErrors) {
+        addErrorNotification(
+          `Failed to update reservation info:\n${message}. Try again.`,
+        );
+      }
     }
   };
 
