@@ -65,7 +65,7 @@ select distinct on (rr.rec_resource_id)
       select 1
       from rst.recreation_resource_reservation_info rri
       where rri.rec_resource_id = rr.rec_resource_id
-      and 
+      and
       (
         rri.reservation_website is not null
         or rri.reservation_phone_number is not null
