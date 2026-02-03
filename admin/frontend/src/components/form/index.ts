@@ -5,3 +5,4 @@ export { CurrencyInputField } from './CurrencyInputField';
 export * from './GroupedMultiSelectField';
 export { RichTextEditor } from './rich-text-editor';
 export { MultiSelectField } from './MultiSelectField';
+export { FormLabel } from './FormLabel';

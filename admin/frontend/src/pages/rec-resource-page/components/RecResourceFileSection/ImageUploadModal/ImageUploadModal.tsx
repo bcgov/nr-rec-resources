@@ -1,9 +1,8 @@
 import { BaseFileModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/BaseFileModal';
 import { useRecResourceFileTransferState } from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
 import { faInfoCircle, faUpload } from '@fortawesome/free-solid-svg-icons';
-import { FC } from 'react';
-import { useImageUploadForm } from './hooks';
-import { ImageUploadForm } from './sections';
+import { FC, useCallback, useRef, useState } from 'react';
+import { ImageUploadForm, ImageUploadFormHandlers } from './sections';
 
 const formatFileSize = (bytes: number): string =>
   `${Math.round(bytes / 1024)} KB`;
@@ -14,22 +13,25 @@ export const ImageUploadModal: FC = () => {
     getImageGeneralActionHandler,
   } = useRecResourceFileTransferState();
 
-  const { control, handleSubmit, resetForm, uploadState, isUploadEnabled } =
-    useImageUploadForm(selectedFileForUpload?.name);
+  const [isFormValid, setIsFormValid] = useState(false);
+  const resetFormRef = useRef<() => void>(() => {});
+
+  const handleFormReady = useCallback((handlers: ImageUploadFormHandlers) => {
+    resetFormRef.current = handlers.resetForm;
+    setIsFormValid(handlers.isValid);
+  }, []);
 
   if (!showUploadOverlay || !selectedFileForUpload) return null;
 
   if (selectedFileForUpload.type !== 'image') return null;
 
   const handleCancel = () => {
-    resetForm();
+    resetFormRef.current();
     getImageGeneralActionHandler('cancel-upload')();
   };
 
   const handleUpload = () => {
-    if (isUploadEnabled) {
-      getImageGeneralActionHandler('confirm-upload')();
-    }
+    getImageGeneralActionHandler('confirm-upload')();
   };
 
   const fileSize = selectedFileForUpload.pendingFile?.size;
@@ -53,7 +55,7 @@ export const ImageUploadModal: FC = () => {
       onConfirm={handleUpload}
       confirmButtonText="Upload"
       confirmButtonIcon={faUpload}
-      confirmButtonDisabled={!isUploadEnabled}
+      confirmButtonDisabled={!isFormValid}
     >
       <div className="base-file-modal__file-info">
         <span>{selectedFileForUpload.name}</span>
@@ -61,9 +63,9 @@ export const ImageUploadModal: FC = () => {
       </div>
 
       <ImageUploadForm
-        control={control}
-        uploadState={uploadState}
-        onSubmit={handleSubmit(handleUpload)}
+        fileName={selectedFileForUpload.name}
+        onUpload={handleUpload}
+        onFormReady={handleFormReady}
       />
     </BaseFileModal>
   );

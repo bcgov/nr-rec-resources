@@ -15,10 +15,10 @@
 import * as runtime from '../runtime';
 import type {
   BadRequestResponseDto,
+  ConsentFormDto,
   CreateRecreationFeeDto,
   EstablishmentOrderDocDto,
   FinalizeDocUploadRequestDto,
-  FinalizeImageUploadRequestDto,
   OptionDto,
   OptionsByTypeDto,
   PresignDocUploadResponseDto,
@@ -42,14 +42,14 @@ import type {
 import {
   BadRequestResponseDtoFromJSON,
   BadRequestResponseDtoToJSON,
+  ConsentFormDtoFromJSON,
+  ConsentFormDtoToJSON,
   CreateRecreationFeeDtoFromJSON,
   CreateRecreationFeeDtoToJSON,
   EstablishmentOrderDocDtoFromJSON,
   EstablishmentOrderDocDtoToJSON,
   FinalizeDocUploadRequestDtoFromJSON,
   FinalizeDocUploadRequestDtoToJSON,
-  FinalizeImageUploadRequestDtoFromJSON,
-  FinalizeImageUploadRequestDtoToJSON,
   OptionDtoFromJSON,
   OptionDtoToJSON,
   OptionsByTypeDtoFromJSON,
@@ -138,7 +138,10 @@ export interface FinalizeDocUploadRequest {
 
 export interface FinalizeImageUploadRequest {
   recResourceId: string;
-  finalizeImageUploadRequestDto: FinalizeImageUploadRequestDto;
+  imageId: string;
+  fileName: string;
+  fileSizeOriginal: number;
+  consent?: ConsentFormDto;
 }
 
 export interface GetActivitiesByRecResourceIdRequest {
@@ -888,16 +891,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/docs/finalize`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/docs/finalize`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
@@ -929,7 +928,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates database record for uploaded image variants. Should be called after all S3 uploads complete successfully. No S3 verification is performed.
+   * Creates database record for uploaded image variants and optional consent form. Should be called after all S3 uploads complete successfully.
    * Finalize image upload and create database record
    */
   async finalizeImageUploadRaw(
@@ -943,18 +942,30 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       );
     }
 
-    if (requestParameters['finalizeImageUploadRequestDto'] == null) {
+    if (requestParameters['imageId'] == null) {
       throw new runtime.RequiredError(
-        'finalizeImageUploadRequestDto',
-        'Required parameter "finalizeImageUploadRequestDto" was null or undefined when calling finalizeImageUpload().',
+        'imageId',
+        'Required parameter "imageId" was null or undefined when calling finalizeImageUpload().',
+      );
+    }
+
+    if (requestParameters['fileName'] == null) {
+      throw new runtime.RequiredError(
+        'fileName',
+        'Required parameter "fileName" was null or undefined when calling finalizeImageUpload().',
+      );
+    }
+
+    if (requestParameters['fileSizeOriginal'] == null) {
+      throw new runtime.RequiredError(
+        'fileSizeOriginal',
+        'Required parameter "fileSizeOriginal" was null or undefined when calling finalizeImageUpload().',
       );
     }
 
     const queryParameters: any = {};
 
     const headerParameters: runtime.HTTPHeaders = {};
-
-    headerParameters['Content-Type'] = 'application/json';
 
     if (this.configuration && this.configuration.accessToken) {
       const token = this.configuration.accessToken;
@@ -964,22 +975,55 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
+    const consumes: runtime.Consume[] = [
+      { contentType: 'multipart/form-data' },
+    ];
+    // @ts-ignore: canConsumeForm may be unused
+    const canConsumeForm = runtime.canConsumeForm(consumes);
 
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/images/finalize`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
+    let formParams: { append(param: string, value: any): any };
+    let useForm = false;
+    if (useForm) {
+      formParams = new FormData();
+    } else {
+      formParams = new URLSearchParams();
+    }
+
+    if (requestParameters['imageId'] != null) {
+      formParams.append('image_id', requestParameters['imageId'] as any);
+    }
+
+    if (requestParameters['fileName'] != null) {
+      formParams.append('file_name', requestParameters['fileName'] as any);
+    }
+
+    if (requestParameters['fileSizeOriginal'] != null) {
+      formParams.append(
+        'file_size_original',
+        requestParameters['fileSizeOriginal'] as any,
+      );
+    }
+
+    if (requestParameters['consent'] != null) {
+      formParams.append(
+        'consent',
+        new Blob(
+          [JSON.stringify(ConsentFormDtoToJSON(requestParameters['consent']))],
+          { type: 'application/json' },
+        ),
+      );
+    }
 
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/images/finalize`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
-        body: FinalizeImageUploadRequestDtoToJSON(
-          requestParameters['finalizeImageUploadRequestDto'],
-        ),
+        body: formParams,
       },
       initOverrides,
     );
@@ -990,7 +1034,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates database record for uploaded image variants. Should be called after all S3 uploads complete successfully. No S3 verification is performed.
+   * Creates database record for uploaded image variants and optional consent form. Should be called after all S3 uploads complete successfully.
    * Finalize image upload and create database record
    */
   async finalizeImageUpload(
@@ -1437,7 +1481,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Retrieve all available values for a given option type. Valid types: activities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district
+   * Retrieve all available values for a given option type. Valid types: activities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, photographerType
    * List all options for a type
    */
   async getOptionsByTypeRaw(
@@ -1482,7 +1526,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Retrieve all available values for a given option type. Valid types: activities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district
+   * Retrieve all available values for a given option type. Valid types: activities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, photographerType
    * List all options for a type
    */
   async getOptionsByType(
@@ -1892,16 +1936,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/docs/presign`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/docs/presign`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
@@ -1967,16 +2007,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/images/presign`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/images/presign`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
@@ -2459,6 +2495,7 @@ export const GetOptionsByTypeTypeEnum = {
   ControlAccessCode: 'controlAccessCode',
   RiskRatingCode: 'riskRatingCode',
   District: 'district',
+  PhotographerType: 'photographerType',
 } as const;
 export type GetOptionsByTypeTypeEnum =
   (typeof GetOptionsByTypeTypeEnum)[keyof typeof GetOptionsByTypeTypeEnum];
@@ -2478,6 +2515,7 @@ export const GetOptionsByTypesTypesEnum = {
   ControlAccessCode: 'controlAccessCode',
   RiskRatingCode: 'riskRatingCode',
   District: 'district',
+  PhotographerType: 'photographerType',
 } as const;
 export type GetOptionsByTypesTypesEnum =
   (typeof GetOptionsByTypesTypesEnum)[keyof typeof GetOptionsByTypesTypesEnum];

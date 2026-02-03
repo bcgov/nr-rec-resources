@@ -182,9 +182,6 @@ describe('usePresignedUpload', () => {
         file_name: 'test-image',
       });
       expect(finalizeCall.file_size_original).toBeGreaterThan(0);
-      expect(finalizeCall.file_size_scr).toBeGreaterThan(0);
-      expect(finalizeCall.file_size_pre).toBeGreaterThan(0);
-      expect(finalizeCall.file_size_thm).toBeGreaterThan(0);
 
       // Success
       expect(mockAddSuccessNotification).toHaveBeenCalledWith(
