@@ -18,12 +18,6 @@ import {
 } from '../schemas';
 import useUpdateRecreationResourceReservation from '@/services/hooks/recreation-resource-admin/useUpdateRecreationResourceReservation';
 
-const validation_errors = [
-  'reservation_website',
-  'reservation_phone_number',
-  'reservation_email',
-];
-
 /**
  * Custom hook for managing edit resource form logic
  * Handles form state, validation, submission, and complex interactions
