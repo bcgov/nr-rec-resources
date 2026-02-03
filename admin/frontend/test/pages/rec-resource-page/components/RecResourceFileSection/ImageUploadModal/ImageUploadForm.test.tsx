@@ -4,7 +4,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 vi.mock('@/pages/rec-resource-page/store/recResourceFileTransferStore', () => ({
   setUploadFileName: vi.fn(),
-  setUploadConsentMetadata: vi.fn(),
+  setUploadConsentData: vi.fn(),
 }));
 
 vi.mock(

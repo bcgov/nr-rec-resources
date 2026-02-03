@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform, Type } from 'class-transformer';
+import { Transform } from 'class-transformer';
 import {
   IsNotEmpty,
   IsString,
@@ -7,7 +7,6 @@ import {
   IsOptional,
   IsBoolean,
   IsDateString,
-  ValidateNested,
 } from 'class-validator';
 
 import { RecreationResourceImageSize } from '@shared/constants/images';
@@ -204,11 +203,50 @@ export class FinalizeImageUploadRequestDto {
   file_size_original: number;
 
   @ApiPropertyOptional({
-    description: 'Consent form data (metadata and PDF file)',
-    type: () => ConsentFormDto,
+    description: 'Date the photo was taken (ISO date string)',
+    example: '2024-06-15',
   })
   @IsOptional()
-  @ValidateNested()
-  @Type(() => ConsentFormDto)
-  consent?: ConsentFormDto;
+  @IsDateString()
+  date_taken?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Whether the image contains personally identifiable information',
+    example: false,
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    return value;
+  })
+  @IsBoolean()
+  contains_pii?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Type of photographer (database code)',
+    example: 'STAFF',
+  })
+  @IsOptional()
+  @IsString()
+  photographer_type?: string;
+
+  @ApiPropertyOptional({
+    description: 'Name of the photographer for attribution',
+    example: 'John Doe',
+    maxLength: 255,
+  })
+  @IsOptional()
+  @IsString()
+  @Length(0, 255)
+  photographer_name?: string;
+
+  @ApiPropertyOptional({
+    description: 'Consent form PDF file',
+    type: 'string',
+    format: 'binary',
+  })
+  @IsOptional()
+  consent_form?: Express.Multer.File;
 }

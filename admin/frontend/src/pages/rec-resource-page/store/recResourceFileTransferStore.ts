@@ -1,7 +1,7 @@
 import { Store } from '@tanstack/store';
 import { FileType, GalleryDocument, GalleryFile, GalleryImage } from '../types';
 
-export interface ImageUploadConsentMetadata {
+export interface ImageUploadConsentData {
   dateTaken?: string | null;
   containsPii?: boolean;
   photographerType?: string;
@@ -12,7 +12,7 @@ export interface ImageUploadConsentMetadata {
 export interface RecResourceFileTransferState {
   selectedFileForUpload: GalleryFile | null;
   uploadFileName: string;
-  uploadConsentMetadata: ImageUploadConsentMetadata;
+  uploadConsentData: ImageUploadConsentData;
   showUploadOverlay: boolean;
   pendingDocs: GalleryDocument[];
   galleryDocuments: GalleryDocument[];
@@ -22,7 +22,7 @@ export interface RecResourceFileTransferState {
   fileToDelete?: GalleryFile;
 }
 
-const INITIAL_CONSENT_METADATA: ImageUploadConsentMetadata = {
+const INITIAL_CONSENT_DATA: ImageUploadConsentData = {
   dateTaken: null,
   containsPii: false,
   photographerType: 'STAFF',
@@ -33,7 +33,7 @@ const INITIAL_CONSENT_METADATA: ImageUploadConsentMetadata = {
 const INITIAL_REC_RESOURCE_FILE_TRANSFER_STATE: RecResourceFileTransferState = {
   selectedFileForUpload: null,
   uploadFileName: '',
-  uploadConsentMetadata: { ...INITIAL_CONSENT_METADATA },
+  uploadConsentData: { ...INITIAL_CONSENT_DATA },
   showUploadOverlay: false,
   pendingDocs: [],
   galleryDocuments: [],
@@ -62,13 +62,13 @@ export function setUploadFileName(fileName: string) {
   }));
 }
 
-export function setUploadConsentMetadata(
-  metadata: Partial<ImageUploadConsentMetadata>,
+export function setUploadConsentData(
+  metadata: Partial<ImageUploadConsentData>,
 ) {
   recResourceFileTransferStore.setState((prev) => ({
     ...prev,
-    uploadConsentMetadata: {
-      ...prev.uploadConsentMetadata,
+    uploadConsentData: {
+      ...prev.uploadConsentData,
       ...metadata,
     },
   }));
@@ -87,7 +87,7 @@ export const resetUploadState = () => {
   setUploadFileName('');
   recResourceFileTransferStore.setState((prev) => ({
     ...prev,
-    uploadConsentMetadata: { ...INITIAL_CONSENT_METADATA },
+    uploadConsentData: { ...INITIAL_CONSENT_DATA },
   }));
 };
 

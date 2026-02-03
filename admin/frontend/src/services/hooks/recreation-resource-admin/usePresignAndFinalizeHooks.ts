@@ -67,15 +67,11 @@ export function useFinalizeImageUpload() {
         imageId: rest.image_id,
         fileName: rest.file_name,
         fileSizeOriginal: rest.file_size_original,
-        consent: consent
-          ? {
-              date_taken: consent.date_taken,
-              contains_pii: consent.contains_pii,
-              photographer_type: consent.photographer_type,
-              photographer_name: consent.photographer_name,
-              consent_form: consent.consent_form,
-            }
-          : undefined,
+        dateTaken: consent?.date_taken,
+        containsPii: consent?.contains_pii,
+        photographerType: consent?.photographer_type,
+        photographerName: consent?.photographer_name,
+        consentForm: consent?.consent_form,
       });
     },
     retry: createRetryHandler(),

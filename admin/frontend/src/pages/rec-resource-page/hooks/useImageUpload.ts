@@ -8,6 +8,7 @@ import { useStore } from '@tanstack/react-store';
 import { useCallback } from 'react';
 import {
   addPendingImage,
+  ImageUploadConsentData,
   recResourceFileTransferStore,
   removePendingImage,
   updatePendingImage,
@@ -22,7 +23,7 @@ export function useImageUpload() {
   const finalizeImageMutation = useFinalizeImageUpload();
   const { executePresignedUpload } = usePresignedUpload<GalleryImage>();
 
-  const { uploadConsentMetadata } = useStore(recResourceFileTransferStore);
+  const { uploadConsentData } = useStore(recResourceFileTransferStore);
 
   const updateProgress = useCallback(
     (tempId: string, updates: Partial<GalleryImage>) => {
@@ -46,16 +47,15 @@ export function useImageUpload() {
     [],
   );
 
-  const buildConsent = useCallback(() => {
-    if (!uploadConsentMetadata.consentFormFile) return undefined;
-    return {
-      date_taken: uploadConsentMetadata.dateTaken ?? undefined,
-      contains_pii: uploadConsentMetadata.containsPii,
-      photographer_type: uploadConsentMetadata.photographerType,
-      photographer_name: uploadConsentMetadata.photographerName,
-      consent_form: uploadConsentMetadata.consentFormFile,
-    };
-  }, [uploadConsentMetadata]);
+  const buildConsentData = (metadata: ImageUploadConsentData) => ({
+    date_taken: metadata.dateTaken ?? undefined,
+    contains_pii: metadata.containsPii,
+    photographer_type: metadata.photographerType,
+    photographer_name: metadata.photographerName,
+    ...(metadata.consentFormFile && {
+      consent_form: metadata.consentFormFile,
+    }),
+  });
 
   const handleUpload = useCallback(
     async (galleryFile: GalleryFile, onSuccess?: () => void) => {
@@ -64,12 +64,15 @@ export function useImageUpload() {
         return;
       }
 
+      const consentData = { ...uploadConsentData };
+
       addPendingImage({
         ...galleryFile,
         variants: [],
         previewUrl: '',
         type: 'image',
         isUploading: true,
+        consentData,
       } as GalleryImage);
 
       await executePresignedUpload({
@@ -85,7 +88,7 @@ export function useImageUpload() {
           `Image "${fileName}" uploaded successfully.`,
         fileType: 'image',
         onSuccess,
-        consent: buildConsent(),
+        consent: buildConsentData(consentData),
       });
     },
     [
@@ -95,7 +98,7 @@ export function useImageUpload() {
       finalizeImageMutation,
       processFile,
       updateProgress,
-      buildConsent,
+      uploadConsentData,
     ],
   );
 
@@ -111,6 +114,8 @@ export function useImageUpload() {
         uploadFailed: false,
       });
 
+      const consentData = (pendingImage as GalleryImage).consentData;
+
       await executePresignedUpload({
         recResourceId: recResourceId!,
         galleryFile: pendingImage as GalleryImage,
@@ -124,7 +129,7 @@ export function useImageUpload() {
           `Image "${fileName}" uploaded successfully.`,
         fileType: 'image',
         onSuccess,
-        consent: buildConsent(),
+        consent: consentData ? buildConsentData(consentData) : undefined,
       });
     },
     [
@@ -134,7 +139,6 @@ export function useImageUpload() {
       finalizeImageMutation,
       updateProgress,
       processFile,
-      buildConsent,
     ],
   );
 
