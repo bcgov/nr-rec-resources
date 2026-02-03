@@ -742,21 +742,6 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       formParams = new URLSearchParams();
     }
 
-    if (requestParameters['imageId'] != null) {
-      formParams.append('image_id', requestParameters['imageId'] as any);
-    }
-
-    if (requestParameters['fileName'] != null) {
-      formParams.append('file_name', requestParameters['fileName'] as any);
-    }
-
-    if (requestParameters['fileSizeOriginal'] != null) {
-      formParams.append(
-        'file_size_original',
-        requestParameters['fileSizeOriginal'] as any,
-      );
-    }
-
     if (requestParameters['dateTaken'] != null) {
       formParams.append('date_taken', requestParameters['dateTaken'] as any);
     }
@@ -786,6 +771,21 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       formParams.append(
         'consent_form',
         requestParameters['consentForm'] as any,
+      );
+    }
+
+    if (requestParameters['imageId'] != null) {
+      formParams.append('image_id', requestParameters['imageId'] as any);
+    }
+
+    if (requestParameters['fileName'] != null) {
+      formParams.append('file_name', requestParameters['fileName'] as any);
+    }
+
+    if (requestParameters['fileSizeOriginal'] != null) {
+      formParams.append(
+        'file_size_original',
+        requestParameters['fileSizeOriginal'] as any,
       );
     }
 

@@ -176,8 +176,9 @@ export class ConsentFormDto {
 
 /**
  * DTO for image finalize endpoint request
+ * Extends ConsentFormDto to inherit consent-related fields
  */
-export class FinalizeImageUploadRequestDto {
+export class FinalizeImageUploadRequestDto extends ConsentFormDto {
   @ApiProperty({
     description: 'Image ID (returned from presign endpoint)',
     example: 'a7c1e5f3-8d2b-4c9a-b1e6-f3d8c7a2e5b9',
@@ -201,52 +202,4 @@ export class FinalizeImageUploadRequestDto {
   })
   @IsNotEmpty()
   file_size_original: number;
-
-  @ApiPropertyOptional({
-    description: 'Date the photo was taken (ISO date string)',
-    example: '2024-06-15',
-  })
-  @IsOptional()
-  @IsDateString()
-  date_taken?: string;
-
-  @ApiPropertyOptional({
-    description:
-      'Whether the image contains personally identifiable information',
-    example: false,
-  })
-  @IsOptional()
-  @Transform(({ value }) => {
-    if (value === 'true' || value === true) return true;
-    if (value === 'false' || value === false) return false;
-    return value;
-  })
-  @IsBoolean()
-  contains_pii?: boolean;
-
-  @ApiPropertyOptional({
-    description: 'Type of photographer (database code)',
-    example: 'STAFF',
-  })
-  @IsOptional()
-  @IsString()
-  photographer_type?: string;
-
-  @ApiPropertyOptional({
-    description: 'Name of the photographer for attribution',
-    example: 'John Doe',
-    maxLength: 255,
-  })
-  @IsOptional()
-  @IsString()
-  @Length(0, 255)
-  photographer_name?: string;
-
-  @ApiPropertyOptional({
-    description: 'Consent form PDF file',
-    type: 'string',
-    format: 'binary',
-  })
-  @IsOptional()
-  consent_form?: Express.Multer.File;
 }
