@@ -1,4 +1,3 @@
-
 INSERT INTO rst.recreation_resource_document (doc_id, rec_resource_id, doc_code, file_name, extension, file_size)
 VALUES
   ('7f57518e-95b7-4366-b4fa-b6c257c8241f', 'REC1621', 'RM', 'REC1621', 'pdf', 1032028),
