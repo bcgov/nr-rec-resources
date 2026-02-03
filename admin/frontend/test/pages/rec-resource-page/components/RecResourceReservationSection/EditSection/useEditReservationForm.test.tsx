@@ -112,4 +112,31 @@ describe('useEditReservationForm', () => {
     expect(mockHandleApiError).toHaveBeenCalled();
     expect(mockAddErrorNotification).toHaveBeenCalled();
   });
+
+  it('handles mutation failure by sending validation error', async () => {
+    const error = new Error('boom');
+    mockMutateAsync.mockRejectedValue(error);
+    mockHandleApiError.mockResolvedValue({
+      message:
+        'Validation error: reservation_website: invalid, reservation_phone_number: invalid, reservation_email: invalid',
+    });
+
+    function Expose() {
+      const { onSubmit } = useEditReservationForm('REC123', null);
+      (globalThis as any).__onSubmit = onSubmit;
+      return null;
+    }
+
+    render(<Expose />);
+
+    await (globalThis as any).__onSubmit({
+      has_reservation: true,
+      reservation_email: 'a',
+      reservation_website: 'b',
+      reservation_phone_number: 'c',
+    });
+
+    expect(mockHandleApiError).toHaveBeenCalled();
+    expect(mockAddErrorNotification).toHaveBeenCalledTimes(3);
+  });
 });
