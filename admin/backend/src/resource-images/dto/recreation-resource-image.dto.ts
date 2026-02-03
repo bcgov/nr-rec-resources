@@ -1,58 +1,16 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, Length } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform, Type } from 'class-transformer';
+import {
+  IsNotEmpty,
+  IsString,
+  Length,
+  IsOptional,
+  IsBoolean,
+  IsDateString,
+  ValidateNested,
+} from 'class-validator';
 
-/**
- * Enum representing available image size options for the recreation API
- */
-export enum RecreationResourceImageSize {
-  /** Original upload size */
-  ORIGINAL = 'original',
-
-  /** Collection view thumbnail (100x75) */
-  COLLECTION = 'col',
-
-  /** Content page header image (1110x740) */
-  CONTENT_HEADER = 'con',
-
-  /** Content page link card image (377x251) */
-  CONTENT_CARD = 'pcs',
-
-  /** High resolution print quality image (999999x999999) */
-  HIGH_RES_PRINT = 'hpr',
-
-  /** Inline content image (788x525) */
-  INLINE = 'ili',
-
-  /** Landing page header image (720x780) */
-  LANDING_HEADER = 'lan',
-
-  /** Landing page link card image (630x380) */
-  LANDING_CARD = 'llc',
-
-  /** Low resolution print image (1000x1000) */
-  LOW_RES_PRINT = 'lpr',
-
-  /** Park photo gallery image (1734x1156) */
-  GALLERY = 'gal',
-
-  /** Presentation slide image (1920x1080) */
-  PRESENTATION = 'ppp',
-
-  /** Preview image (900x480) */
-  PREVIEW = 'pre',
-
-  /** Search result image (525x394) */
-  SEARCH = 'rsr',
-
-  /** RST thumbnail image (75x56) */
-  RST_THUMB = 'rth',
-
-  /** Screen resolution image (1400x800) */
-  SCREEN = 'scr',
-
-  /** Standard thumbnail image (175x175) */
-  THUMBNAIL = 'thm',
-}
+import { RecreationResourceImageSize } from '@shared/constants/images';
 
 export class RecreationResourceImageVariantDto {
   @ApiProperty({
@@ -165,6 +123,59 @@ export class PresignImageUploadResponseDto {
 }
 
 /**
+ * DTO for consent form data (metadata + file)
+ */
+export class ConsentFormDto {
+  @ApiPropertyOptional({
+    description: 'Date the photo was taken (ISO date string)',
+    example: '2024-06-15',
+  })
+  @IsOptional()
+  @IsDateString()
+  date_taken?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Whether the image contains personally identifiable information',
+    example: false,
+  })
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (value === 'true' || value === true) return true;
+    if (value === 'false' || value === false) return false;
+    return value;
+  })
+  @IsBoolean()
+  contains_pii?: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Type of photographer (database code)',
+    example: 'STAFF',
+  })
+  @IsOptional()
+  @IsString()
+  photographer_type?: string;
+
+  @ApiPropertyOptional({
+    description: 'Name of the photographer for attribution',
+    example: 'John Doe',
+    maxLength: 255,
+  })
+  @IsOptional()
+  @IsString()
+  @Length(0, 255)
+  photographer_name?: string;
+
+  @ApiPropertyOptional({
+    description: 'Consent form PDF file',
+    type: 'string',
+    format: 'binary',
+  })
+  @IsOptional()
+  consent_form?: Express.Multer.File;
+}
+
+/**
  * DTO for image finalize endpoint request
  */
 export class FinalizeImageUploadRequestDto {
@@ -192,24 +203,12 @@ export class FinalizeImageUploadRequestDto {
   @IsNotEmpty()
   file_size_original: number;
 
-  @ApiProperty({
-    description: 'Sizes of screen variant in bytes',
-    example: 1048576,
+  @ApiPropertyOptional({
+    description: 'Consent form data (metadata and PDF file)',
+    type: () => ConsentFormDto,
   })
-  @IsNotEmpty()
-  file_size_scr: number;
-
-  @ApiProperty({
-    description: 'Size of preview variant in bytes',
-    example: 524288,
-  })
-  @IsNotEmpty()
-  file_size_pre: number;
-
-  @ApiProperty({
-    description: 'Size of thumbnail variant in bytes',
-    example: 262144,
-  })
-  @IsNotEmpty()
-  file_size_thm: number;
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => ConsentFormDto)
+  consent?: ConsentFormDto;
 }

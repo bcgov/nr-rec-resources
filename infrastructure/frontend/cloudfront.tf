@@ -167,7 +167,7 @@ resource "aws_cloudfront_response_headers_policy" "csp_policy" {
       override = true
       content_security_policy = join("; ", [
         "default-src 'self'",
-        "script-src 'self' https://js.arcgis.com https://www2.gov.bc.ca ${var.csp_urls.matomo_src} ${var.csp_urls.script_src}",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://js.arcgis.com https://www2.gov.bc.ca ${var.csp_urls.matomo_src} ${var.csp_urls.script_src}",
         "style-src 'self' 'unsafe-inline' https://js.arcgis.com https://fonts.googleapis.com https://use.fontawesome.com https://cdn.jsdelivr.net ${var.csp_urls.style_src}",
         "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net",
         "style-src-attr 'self' 'unsafe-inline'",

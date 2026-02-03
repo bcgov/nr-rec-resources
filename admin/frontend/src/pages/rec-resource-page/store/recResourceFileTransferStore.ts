@@ -1,9 +1,18 @@
 import { Store } from '@tanstack/store';
 import { FileType, GalleryDocument, GalleryFile, GalleryImage } from '../types';
 
+export interface ImageUploadConsentMetadata {
+  dateTaken?: string | null;
+  containsPii?: boolean;
+  photographerType?: string;
+  photographerName?: string;
+  consentFormFile?: File | null;
+}
+
 export interface RecResourceFileTransferState {
   selectedFileForUpload: GalleryFile | null;
   uploadFileName: string;
+  uploadConsentMetadata: ImageUploadConsentMetadata;
   showUploadOverlay: boolean;
   pendingDocs: GalleryDocument[];
   galleryDocuments: GalleryDocument[];
@@ -13,9 +22,18 @@ export interface RecResourceFileTransferState {
   fileToDelete?: GalleryFile;
 }
 
+const INITIAL_CONSENT_METADATA: ImageUploadConsentMetadata = {
+  dateTaken: null,
+  containsPii: false,
+  photographerType: 'STAFF',
+  photographerName: '',
+  consentFormFile: null,
+};
+
 const INITIAL_REC_RESOURCE_FILE_TRANSFER_STATE: RecResourceFileTransferState = {
   selectedFileForUpload: null,
   uploadFileName: '',
+  uploadConsentMetadata: { ...INITIAL_CONSENT_METADATA },
   showUploadOverlay: false,
   pendingDocs: [],
   galleryDocuments: [],
@@ -44,6 +62,18 @@ export function setUploadFileName(fileName: string) {
   }));
 }
 
+export function setUploadConsentMetadata(
+  metadata: Partial<ImageUploadConsentMetadata>,
+) {
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    uploadConsentMetadata: {
+      ...prev.uploadConsentMetadata,
+      ...metadata,
+    },
+  }));
+}
+
 export function setShowUploadOverlay(show: boolean) {
   recResourceFileTransferStore.setState((prev) => ({
     ...prev,
@@ -55,6 +85,10 @@ export const resetUploadState = () => {
   setShowUploadOverlay(false);
   setSelectedFile(null);
   setUploadFileName('');
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    uploadConsentMetadata: { ...INITIAL_CONSENT_METADATA },
+  }));
 };
 
 export function setShowDeleteModal(show: boolean) {

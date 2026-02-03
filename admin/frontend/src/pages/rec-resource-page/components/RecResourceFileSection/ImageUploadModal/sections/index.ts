@@ -1,1 +1,4 @@
-export { ImageUploadForm } from './ImageUploadForm';
+export {
+  ImageUploadForm,
+  type ImageUploadFormHandlers,
+} from './ImageUploadForm';
