@@ -13,6 +13,7 @@ import { ActivitiesModule } from './activities/activities.module';
 import { FeaturesModule } from './features/features.module';
 import { FeesModule } from './fees/fees.module';
 import { GeospatialModule } from './geospatial/geospatial.module';
+import { ReservationModule } from './reservation/reservation.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { GeospatialModule } from './geospatial/geospatial.module';
     UserContextModule,
     ActivitiesModule,
     FeaturesModule,
+    ReservationModule,
   ],
   controllers: [RecreationResourceController],
   providers: [

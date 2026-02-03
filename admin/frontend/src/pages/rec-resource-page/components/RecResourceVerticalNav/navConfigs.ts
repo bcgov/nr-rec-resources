@@ -7,6 +7,7 @@ export enum RecResourceNavKey {
   ACTIVITIES = 'activities',
   FEES = 'fees',
   GEOSPATIAL = 'geospatial',
+  RESERVATION = 'reservation',
 }
 
 /**
@@ -51,6 +52,13 @@ export const REC_RESOURCE_PAGE_NAV_SECTIONS: Record<
     title: 'Geospatial',
     getNavigateOptions: (id: string) => ({
       to: ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL,
+      params: { id },
+    }),
+  },
+  [RecResourceNavKey.RESERVATION]: {
+    title: 'Reservation',
+    getNavigateOptions: (id: string) => ({
+      to: ROUTE_PATHS.REC_RESOURCE_RESERVATION,
       params: { id },
     }),
   },

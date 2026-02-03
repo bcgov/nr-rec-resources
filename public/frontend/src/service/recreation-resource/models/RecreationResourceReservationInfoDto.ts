@@ -20,12 +20,6 @@ import { mapValues } from '../runtime';
  */
 export interface RecreationResourceReservationInfoDto {
   /**
-   * Reservation instructions of designed resource
-   * @type {string}
-   * @memberof RecreationResourceReservationInfoDto
-   */
-  reservation_instructions: string;
-  /**
    * Reservation website of designed resource
    * @type {string}
    * @memberof RecreationResourceReservationInfoDto
@@ -43,12 +37,6 @@ export interface RecreationResourceReservationInfoDto {
    * @memberof RecreationResourceReservationInfoDto
    */
   reservation_email?: string;
-  /**
-   * Reservation comments of designed resource
-   * @type {string}
-   * @memberof RecreationResourceReservationInfoDto
-   */
-  reservation_comments?: string;
 }
 
 /**
@@ -57,11 +45,6 @@ export interface RecreationResourceReservationInfoDto {
 export function instanceOfRecreationResourceReservationInfoDto(
   value: object,
 ): value is RecreationResourceReservationInfoDto {
-  if (
-    !('reservation_instructions' in value) ||
-    value['reservation_instructions'] === undefined
-  )
-    return false;
   return true;
 }
 
@@ -79,7 +62,6 @@ export function RecreationResourceReservationInfoDtoFromJSONTyped(
     return json;
   }
   return {
-    reservation_instructions: json['reservation_instructions'],
     reservation_website:
       json['reservation_website'] == null
         ? undefined
@@ -90,10 +72,6 @@ export function RecreationResourceReservationInfoDtoFromJSONTyped(
         : json['reservation_phone_number'],
     reservation_email:
       json['reservation_email'] == null ? undefined : json['reservation_email'],
-    reservation_comments:
-      json['reservation_comments'] == null
-        ? undefined
-        : json['reservation_comments'],
   };
 }
 
@@ -112,10 +90,8 @@ export function RecreationResourceReservationInfoDtoToJSONTyped(
   }
 
   return {
-    reservation_instructions: value['reservation_instructions'],
     reservation_website: value['reservation_website'],
     reservation_phone_number: value['reservation_phone_number'],
     reservation_email: value['reservation_email'],
-    reservation_comments: value['reservation_comments'],
   };
 }

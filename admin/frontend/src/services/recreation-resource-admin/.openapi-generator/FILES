@@ -27,6 +27,7 @@ models/RecreationResourceDocDto.ts
 models/RecreationResourceGeospatialDto.ts
 models/RecreationResourceImageDto.ts
 models/RecreationResourceImageVariantDto.ts
+models/RecreationResourceReservationInfoDto.ts
 models/RecreationRiskRatingDto.ts
 models/RecreationStatusDto.ts
 models/RecreationStructureDto.ts
@@ -39,6 +40,7 @@ models/UpdateRecreationAccessCodeDto.ts
 models/UpdateRecreationFeeDto.ts
 models/UpdateRecreationResourceDto.ts
 models/UpdateRecreationResourceGeospatialDto.ts
+models/UpdateRecreationResourceReservationDto.ts
 models/ValidationErrorDetailDto.ts
 models/index.ts
 runtime.ts

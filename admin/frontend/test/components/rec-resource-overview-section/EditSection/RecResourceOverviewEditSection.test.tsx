@@ -81,27 +81,24 @@ vi.mock('@/components/form', () => ({
   ),
 }));
 
-vi.mock(
-  '@/pages/rec-resource-page/components/RecResourceOverviewSection/EditSection/components',
-  () => ({
-    FormErrorBanner: ({ errors }: any) => {
-      const errorMessages = Object.entries(errors || {})
-        .filter(([, error]: any) => error?.message)
-        .map(([field, error]: any) => `${field}: ${error.message}`);
-      if (errorMessages.length === 0) return null;
-      return (
-        <div data-testid="form-error-banner">
-          <div>Please review and correct the following errors:</div>
-          <ul>
-            {errorMessages.map((msg: string, idx: number) => (
-              <li key={idx}>{msg}</li>
-            ))}
-          </ul>
-        </div>
-      );
-    },
-  }),
-);
+vi.mock('@/pages/rec-resource-page/components/shared/FormErrorBanner', () => ({
+  FormErrorBanner: ({ errors }: any) => {
+    const errorMessages = Object.entries(errors || {})
+      .filter(([, error]: any) => error?.message)
+      .map(([field, error]: any) => `${field}: ${error.message}`);
+    if (errorMessages.length === 0) return null;
+    return (
+      <div data-testid="form-error-banner">
+        <div>Please review and correct the following errors:</div>
+        <ul>
+          {errorMessages.map((msg: string, idx: number) => (
+            <li key={idx}>{msg}</li>
+          ))}
+        </ul>
+      </div>
+    );
+  },
+}));
 
 const mockRecResource: RecreationResourceDetailUIModel = {
   rec_resource_id: '123',

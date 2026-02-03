@@ -110,11 +110,9 @@ export const getRecreationResourceSelect = () => ({
   },
   recreation_resource_reservation_info: {
     select: {
-      reservation_instructions: true,
       reservation_website: true,
       reservation_phone_number: true,
       reservation_email: true,
-      reservation_comments: true,
     },
   },
   _count: {
