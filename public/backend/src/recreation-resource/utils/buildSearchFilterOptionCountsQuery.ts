@@ -124,7 +124,7 @@ export function buildFilterOptionCountsQuery({
           SELECT COUNT(*) FROM recreation_resource_search_view
           WHERE COALESCE(recreation_status->>'description', 'Open') = sv.status_desc ${extraFilters}
         )::INT
-        ELSE COUNT(CASE WHEN COALESCE(fr.recreation_status->>'description', 'Open') = sv.status_desc THEN 1 END)::INT
+        ELSE COUNT(CASE WHEN fr.rec_resource_id IS NOT NULL AND COALESCE(fr.recreation_status->>'description', 'Open') = sv.status_desc THEN 1 END)::INT
       END AS count
     FROM status_values sv
     LEFT JOIN filtered_resources fr ON COALESCE(fr.recreation_status->>'description', 'Open') = sv.status_desc

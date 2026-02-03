@@ -75,3 +75,50 @@ load_test_admin:
 	@echo "Running ADMIN backend performance tests with k6"
 	@echo "NOTE: Ensure auth guards are disabled on target environment"
 	@k6 -e SERVER_HOST=$(SERVER_HOST) run tests/load/admin/main.js $(OUT_OPTION)
+
+# LocalStack S3 Development
+
+LOCALSTACK_ENDPOINT=http://localhost:4566
+IMAGES_BUCKET=rst-storage-images-dev
+DOCUMENTS_BUCKET=rst-storage-public-documents-dev
+CONSENT_BUCKET=rst-lza-establishment-order-docs-dev
+CORS_CONFIG='{"CORSRules":[{"AllowedHeaders":["*"],"AllowedMethods":["PUT","GET","HEAD"],"AllowedOrigins":["http://localhost:3001"],"ExposeHeaders":["ETag"],"MaxAgeSeconds":3000}]}'
+
+.PHONY: localstack
+localstack: ## Start LocalStack Docker container (background)
+	@if docker ps --format '{{.Names}}' | grep -q '^localstack$$'; then \
+		echo "LocalStack is already running."; \
+	else \
+		echo "Starting LocalStack..."; \
+		docker stop localstack 2>/dev/null || true; \
+		docker rm localstack 2>/dev/null || true; \
+		docker run -d --rm --name localstack -p 4566:4566 -p 4571:4571 localstack/localstack; \
+		echo "Waiting for LocalStack to be ready..."; \
+		until curl -s $(LOCALSTACK_ENDPOINT)/_localstack/health | grep -q '"s3": "running"'; do sleep 1; done; \
+		echo "LocalStack is ready at $(LOCALSTACK_ENDPOINT)"; \
+	fi
+
+.PHONY: localstack-stop
+localstack-stop: ## Stop LocalStack Docker container
+	@echo "Stopping LocalStack..."
+	@docker stop localstack 2>/dev/null || true
+
+.PHONY: localstack-buckets
+localstack-buckets: ## Create S3 buckets in LocalStack
+	@echo "Creating S3 buckets in LocalStack..."
+	@aws --endpoint-url=$(LOCALSTACK_ENDPOINT) s3 mb s3://$(IMAGES_BUCKET) 2>/dev/null || true
+	@aws --endpoint-url=$(LOCALSTACK_ENDPOINT) s3 mb s3://$(DOCUMENTS_BUCKET) 2>/dev/null || true
+	@aws --endpoint-url=$(LOCALSTACK_ENDPOINT) s3 mb s3://$(CONSENT_BUCKET) 2>/dev/null || true
+	@echo "Buckets created."
+
+.PHONY: localstack-cors
+localstack-cors: ## Configure CORS rules for LocalStack S3 buckets
+	@echo "Configuring CORS for S3 buckets..."
+	@aws --endpoint-url=$(LOCALSTACK_ENDPOINT) s3api put-bucket-cors --bucket $(IMAGES_BUCKET) --cors-configuration $(CORS_CONFIG)
+	@aws --endpoint-url=$(LOCALSTACK_ENDPOINT) s3api put-bucket-cors --bucket $(DOCUMENTS_BUCKET) --cors-configuration $(CORS_CONFIG)
+	@aws --endpoint-url=$(LOCALSTACK_ENDPOINT) s3api put-bucket-cors --bucket $(CONSENT_BUCKET) --cors-configuration $(CORS_CONFIG)
+	@echo "CORS configured."
+
+.PHONY: localstack-setup
+localstack-setup: localstack localstack-buckets localstack-cors ## Start LocalStack, create buckets, and configure CORS
+	@echo "LocalStack S3 setup complete."

@@ -13,6 +13,7 @@ import {
   setSelectedFile,
   setShowDeleteModal,
   setShowUploadOverlay,
+  setUploadConsentMetadata,
   setUploadFileName,
   showDeleteModalForFile,
   updateGalleryDocument,
@@ -72,6 +73,13 @@ describe('recResourceFileTransferStore', () => {
     recResourceFileTransferStore.setState({
       selectedFileForUpload: null,
       uploadFileName: '',
+      uploadConsentMetadata: {
+        dateTaken: null,
+        containsPii: false,
+        photographerType: 'STAFF',
+        photographerName: '',
+        consentFormFile: null,
+      },
       showUploadOverlay: false,
       pendingDocs: [],
       galleryDocuments: [],
@@ -101,6 +109,33 @@ describe('recResourceFileTransferStore', () => {
   it('sets upload file name', () => {
     setUploadFileName('test.pdf');
     expect(recResourceFileTransferStore.state.uploadFileName).toBe('test.pdf');
+  });
+
+  it('sets upload consent metadata', () => {
+    setUploadConsentMetadata({
+      dateTaken: '2024-06-15',
+      containsPii: true,
+      photographerName: 'John Doe',
+    });
+
+    expect(recResourceFileTransferStore.state.uploadConsentMetadata).toEqual({
+      dateTaken: '2024-06-15',
+      containsPii: true,
+      photographerType: 'STAFF',
+      photographerName: 'John Doe',
+      consentFormFile: null,
+    });
+  });
+
+  it('updates consent metadata partially', () => {
+    setUploadConsentMetadata({ photographerType: 'CONTRACTOR' });
+
+    expect(
+      recResourceFileTransferStore.state.uploadConsentMetadata.photographerType,
+    ).toBe('CONTRACTOR');
+    expect(
+      recResourceFileTransferStore.state.uploadConsentMetadata.containsPii,
+    ).toBe(false);
   });
 
   it('sets show upload overlay', () => {

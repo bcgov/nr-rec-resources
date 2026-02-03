@@ -1075,19 +1075,20 @@ model recreation_feature_history {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_resource_document {
-  doc_id                       String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  rec_resource_id              String                       @db.VarChar(10)
-  doc_code                     String                       @db.VarChar
-  file_name                    String                       @db.VarChar
-  extension                    String                       @db.VarChar
-  file_size                    BigInt?
-  updated_at                   DateTime?                    @default(now()) @db.Timestamp(6)
-  updated_by                   String?
-  created_at                   DateTime?                    @default(now()) @db.Timestamp(6)
-  created_by                   String?
-  sys_period                   Unsupported("tstzrange")     @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_resource_doc_code recreation_resource_doc_code @relation(fields: [doc_code], references: [doc_code], onDelete: NoAction, onUpdate: NoAction)
-  recreation_resource          recreation_resource          @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+  doc_id                        String                          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  rec_resource_id               String                          @db.VarChar(10)
+  doc_code                      String                          @db.VarChar
+  file_name                     String                          @db.VarChar
+  extension                     String                          @db.VarChar
+  file_size                     BigInt?
+  updated_at                    DateTime?                       @default(now()) @db.Timestamp(6)
+  updated_by                    String?
+  created_at                    DateTime?                       @default(now()) @db.Timestamp(6)
+  created_by                    String?
+  sys_period                    Unsupported("tstzrange")        @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_image_consent_form recreation_image_consent_form[]
+  recreation_resource_doc_code  recreation_resource_doc_code    @relation(fields: [doc_code], references: [doc_code], onDelete: NoAction, onUpdate: NoAction)
+  recreation_resource           recreation_resource             @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([rec_resource_id], map: "idx_recreation_resource_document_rec_resource_id")
   @@schema("rst")
@@ -1113,17 +1114,18 @@ model recreation_resource_document_history {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_resource_image {
-  image_id            String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  rec_resource_id     String                   @db.VarChar(10)
-  file_name           String                   @db.VarChar
-  extension           String                   @db.VarChar
-  file_size           BigInt?
-  updated_at          DateTime?                @default(now()) @db.Timestamp(6)
-  updated_by          String?
-  created_at          DateTime?                @default(now()) @db.Timestamp(6)
-  created_by          String?
-  sys_period          Unsupported("tstzrange") @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_resource recreation_resource      @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
+  image_id                      String                         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  rec_resource_id               String                         @db.VarChar(10)
+  file_name                     String                         @db.VarChar
+  extension                     String                         @db.VarChar
+  file_size                     BigInt?
+  updated_at                    DateTime?                      @default(now()) @db.Timestamp(6)
+  updated_by                    String?
+  created_at                    DateTime?                      @default(now()) @db.Timestamp(6)
+  created_by                    String?
+  sys_period                    Unsupported("tstzrange")       @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_image_consent_form recreation_image_consent_form?
+  recreation_resource           recreation_resource            @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([rec_resource_id], map: "idx_recreation_resource_image_rec_resource_id")
   @@schema("rst")
@@ -1141,6 +1143,76 @@ model recreation_resource_image_history {
   created_at      DateTime?                @db.Timestamp(6)
   created_by      String?
   sys_period      Unsupported("tstzrange")
+
+  @@ignore
+  @@schema("rst")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_image_consent_form {
+  consent_id                        String                            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  image_id                          String                            @unique @db.Uuid
+  doc_id                            String                            @db.Uuid
+  photographer_type_code            String                            @db.VarChar
+  photographer_name                 String?                           @db.VarChar(255)
+  date_taken                        DateTime?                         @db.Date
+  contains_pii                      Boolean                           @default(false)
+  updated_at                        DateTime?                         @default(now()) @db.Timestamp(6)
+  updated_by                        String?
+  created_at                        DateTime?                         @default(now()) @db.Timestamp(6)
+  created_by                        String?
+  sys_period                        Unsupported("tstzrange")          @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_resource_document      recreation_resource_document      @relation(fields: [doc_id], references: [doc_id], onDelete: NoAction, onUpdate: NoAction)
+  recreation_resource_image         recreation_resource_image         @relation(fields: [image_id], references: [image_id], onDelete: NoAction, onUpdate: NoAction)
+  recreation_photographer_type_code recreation_photographer_type_code @relation(fields: [photographer_type_code], references: [photographer_type_code], onDelete: NoAction, onUpdate: NoAction)
+
+  @@index([doc_id], map: "idx_recreation_image_consent_form_doc_id")
+  @@index([image_id], map: "idx_recreation_image_consent_form_image_id")
+  @@schema("rst")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_image_consent_form_history {
+  consent_id             String                   @db.Uuid
+  image_id               String                   @db.Uuid
+  doc_id                 String                   @db.Uuid
+  photographer_type_code String                   @db.VarChar
+  photographer_name      String?                  @db.VarChar(255)
+  date_taken             DateTime?                @db.Date
+  contains_pii           Boolean
+  updated_at             DateTime?                @db.Timestamp(6)
+  updated_by             String?
+  created_at             DateTime?                @db.Timestamp(6)
+  created_by             String?
+  sys_period             Unsupported("tstzrange")
+
+  @@ignore
+  @@schema("rst")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model recreation_photographer_type_code {
+  photographer_type_code        String                          @id @db.VarChar
+  description                   String?                         @db.VarChar
+  updated_at                    DateTime?                       @default(now()) @db.Timestamp(6)
+  updated_by                    String?
+  created_at                    DateTime?                       @default(now()) @db.Timestamp(6)
+  created_by                    String?
+  sys_period                    Unsupported("tstzrange")        @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_image_consent_form recreation_image_consent_form[]
+
+  @@schema("rst")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model recreation_photographer_type_code_history {
+  photographer_type_code String                   @db.VarChar
+  description            String?                  @db.VarChar
+  updated_at             DateTime?                @db.Timestamp(6)
+  updated_by             String?
+  created_at             DateTime?                @db.Timestamp(6)
+  created_by             String?
+  sys_period             Unsupported("tstzrange")
 
   @@ignore
   @@schema("rst")

@@ -8,13 +8,21 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { PrismaService } from 'src/prisma.service';
 import {
+  FinalizeImageUploadRequestDto,
   RecreationResourceImageDto,
-  RecreationResourceImageSize,
 } from '../dto/recreation-resource-image.dto';
+import { RecreationResourceImageSize } from '@shared/constants/images';
+import { ConsentFormsS3Service } from './consent-forms-s3.service';
 
-// Constants
 const REQUIRED_VARIANTS = ['original', 'scr', 'pre', 'thm'] as const;
 type ImageVariantType = (typeof REQUIRED_VARIANTS)[number];
+
+export interface ConsentMetadata {
+  date_taken?: string;
+  contains_pii?: boolean;
+  photographer_type?: string;
+  photographer_name?: string;
+}
 
 @Injectable()
 export class ResourceImagesService extends BaseStorageFileService {
@@ -22,13 +30,11 @@ export class ResourceImagesService extends BaseStorageFileService {
     prisma: PrismaService,
     appConfig: AppConfigService,
     s3Service: S3Service,
+    private readonly consentFormsS3Service: ConsentFormsS3Service,
   ) {
     super(ResourceImagesService.name, prisma, appConfig, s3Service);
   }
 
-  /**
-   * Get storage configuration for resource images
-   */
   protected getStorageConfig(): StorageConfig {
     return {
       bucketName: this.appConfig.recResourceImagesBucket,
@@ -55,6 +61,32 @@ export class ResourceImagesService extends BaseStorageFileService {
       },
     });
     return result.map((i) => this.mapResponse(i));
+  }
+
+  async getImageByResourceId(
+    rec_resource_id: string,
+    image_id: string,
+  ): Promise<RecreationResourceImageDto> {
+    const result = await this.prisma.recreation_resource_image.findUnique({
+      where: {
+        rec_resource_id,
+        image_id,
+      },
+      select: {
+        rec_resource_id: true,
+        image_id: true,
+        file_name: true,
+        extension: true,
+        file_size: true,
+        created_at: true,
+      },
+    });
+
+    if (result === null) {
+      throw new HttpException('Recreation Resource image not found', 404);
+    }
+
+    return this.mapResponse(result);
   }
 
   /**
@@ -145,36 +177,106 @@ export class ResourceImagesService extends BaseStorageFileService {
 
   /**
    * Finalize image upload by creating database record
+   * Optionally creates consent form records if consent data or file is provided
    * Called after all S3 uploads complete successfully
    * No S3 verification is performed
    */
   async finalizeUpload(
     rec_resource_id: string,
-    {
-      image_id,
-      file_name,
-      file_size_original,
-      _file_size_scr,
-      _file_size_pre,
-      _file_size_thm,
-    }: any,
+    body: FinalizeImageUploadRequestDto,
+    consentFormFile?: Express.Multer.File,
   ): Promise<RecreationResourceImageDto> {
+    const { image_id, file_name, file_size_original, consent } = body;
+
+    // Extract consent form metadata if present
+    const date_taken = consent?.date_taken;
+    const contains_pii = consent?.contains_pii;
+    const photographer_type = consent?.photographer_type;
+    const photographer_name = consent?.photographer_name;
+
     // Check if resource exists
     await this.validateResourceExists(rec_resource_id);
 
     // Validate image_id format (basic UUID validation)
     this.validateEntityId(image_id, 'image_id');
 
+    const hasConsentFile = !!consentFormFile;
+
     try {
-      const result = await this.createDatabaseRecord(
+      // If no consent file, do simple create
+      if (!hasConsentFile) {
+        const result = await this.createDatabaseRecord(
+          rec_resource_id,
+          image_id,
+          file_name,
+          file_size_original,
+        );
+
+        this.logger.log(
+          `Finalized image upload: rec_resource_id=${rec_resource_id}, image_id=${image_id}`,
+        );
+
+        return this.mapResponse(result);
+      }
+
+      // Upload consent form to S3 first
+      const docId = randomUUID();
+      await this.consentFormsS3Service.uploadConsentForm(
         rec_resource_id,
         image_id,
-        file_name,
-        file_size_original, // Store original size as file_size
+        docId,
+        consentFormFile.buffer,
+        consentFormFile.originalname,
       );
 
+      // Use transaction for atomic creation of all records
+      const result = await this.prisma.$transaction(async (tx) => {
+        // Create image record
+        const imageRecord = await tx.recreation_resource_image.create({
+          data: {
+            image_id,
+            rec_resource_id,
+            file_name,
+            extension: 'webp',
+            file_size: BigInt(file_size_original),
+            created_by: 'system',
+            created_at: new Date(),
+          },
+        });
+
+        // Create document record for consent form PDF
+        await tx.recreation_resource_document.create({
+          data: {
+            doc_id: docId,
+            rec_resource_id,
+            doc_code: 'IC',
+            file_name: consentFormFile.originalname,
+            extension: 'pdf',
+            file_size: BigInt(consentFormFile.size),
+            created_by: 'system',
+            created_at: new Date(),
+          },
+        });
+
+        // Create consent form record linking image to document
+        await tx.recreation_image_consent_form.create({
+          data: {
+            image_id,
+            doc_id: docId,
+            date_taken: date_taken ? new Date(date_taken) : null,
+            contains_pii: contains_pii ?? false,
+            photographer_type_code: photographer_type ?? 'UNKNOWN',
+            photographer_name: photographer_name ?? null,
+            created_by: 'system',
+            created_at: new Date(),
+          },
+        });
+
+        return imageRecord;
+      });
+
       this.logger.log(
-        `Finalized image upload: rec_resource_id=${rec_resource_id}, image_id=${image_id}`,
+        `Finalized image upload with consent form: rec_resource_id=${rec_resource_id}, image_id=${image_id}`,
       );
 
       return this.mapResponse(result);
@@ -221,19 +323,33 @@ export class ResourceImagesService extends BaseStorageFileService {
         `All image variants deleted successfully for imageId: ${image_id}`,
       );
 
-      // Delete database record
-      const result = await this.prisma.recreation_resource_image.delete({
-        where: {
-          rec_resource_id,
-          image_id,
-        },
+      const result = await this.prisma.$transaction(async (tx) => {
+        // Check for associated consent form
+        const consentForm = await tx.recreation_image_consent_form.findUnique({
+          where: { image_id },
+        });
+
+        // Delete consent-related records first (foreign key constraints)
+        if (consentForm) {
+          await tx.recreation_image_consent_form.delete({
+            where: { image_id },
+          });
+          await tx.recreation_resource_document.delete({
+            where: { doc_id: consentForm.doc_id },
+          });
+        }
+
+        const deleted = await tx.recreation_resource_image.delete({
+          where: { rec_resource_id, image_id },
+        });
+
+        return { deleted, hadConsentForm: !!consentForm };
       });
 
       this.logger.log(
-        `Successfully deleted image for rec_resource_id: ${rec_resource_id}, image_id: ${image_id}`,
+        `Deleted image ${image_id}${result.hadConsentForm ? ' with consent form' : ''} for resource ${rec_resource_id}`,
       );
-
-      return this.mapResponse(result);
+      return this.mapResponse(result.deleted);
     } catch (error) {
       this.handleError(
         error,

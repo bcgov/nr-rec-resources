@@ -63,6 +63,10 @@ export class EnvironmentVariables {
 
   @IsString()
   @IsNotEmpty()
+  RST_STORAGE_CONSENT_FORMS_BUCKET: string;
+
+  @IsString()
+  @IsNotEmpty()
   AWS_REGION: string;
 
   // Optional: AWS endpoint URL for LocalStack/local development
