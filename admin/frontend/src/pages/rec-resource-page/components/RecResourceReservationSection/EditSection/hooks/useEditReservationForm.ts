@@ -108,34 +108,9 @@ export const useEditReservationForm = (
       });
     } catch (error) {
       const { message } = await handleApiError(error);
-      let showValidationErrors = false;
-      validation_errors.forEach((e) => {
-        if (message.includes(e)) {
-          showValidationErrors = true;
-          switch (e) {
-            case 'reservation_website':
-              addErrorNotification(
-                `Invalid URL format. Example: https://example.com/.`,
-              );
-              break;
-            case 'reservation_email':
-              addErrorNotification(
-                `Invalid email format. Example: [name@example.com].`,
-              );
-              break;
-            case 'reservation_phone_number':
-              addErrorNotification(
-                `Invalid phone number format. Include area code (e.g., 250-555-1234).`,
-              );
-              break;
-          }
-        }
-      });
-      if (!showValidationErrors) {
-        addErrorNotification(
-          `Failed to update reservation info:\n${message}. Try again.`,
-        );
-      }
+      addErrorNotification(
+        `Failed to update reservation info:\n${message}. Try again.`,
+      );
     }
   };
 
