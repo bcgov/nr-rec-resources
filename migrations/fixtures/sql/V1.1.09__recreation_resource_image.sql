@@ -1,4 +1,3 @@
-
 INSERT INTO rst.recreation_resource_image (image_id, rec_resource_id, file_name, extension, file_size)
 VALUES
   ('30b040ca-7442-408e-be17-b0304bcc8d2f', 'REC0108', 'Alexander Falls in June 2011', 'jpg', 1004646),
