@@ -6,7 +6,6 @@ export const EXTERNAL_LINKS = {
     'https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/planning/description',
   CONTACT: 'https://www.sitesandtrailsbc.ca/contact-us.aspx',
   FACEBOOK_BC_REC: 'https://www.facebook.com/BCRecSitesandTrails',
-  CLOSURE: 'https://www.sitesandtrailsbc.ca/closures.aspx',
   ALERTS:
     'https://www2.gov.bc.ca/gov/content/sports-culture/recreation/camping-hiking/sites-trails/alerts',
   ABOUT_RST:
