@@ -80,9 +80,7 @@ export const useEditReservationForm = (
       (!data.reservation_website || data.reservation_website === '') &&
       (!data.reservation_phone_number || data.reservation_phone_number === '')
     ) {
-      addErrorNotification(
-        `Failed to update recreation resource: at least one contact form must exist.`,
-      );
+      addErrorNotification(`Please fill at least one Reservation Method.`);
       return;
     }
 
@@ -105,7 +103,7 @@ export const useEditReservationForm = (
     } catch (error) {
       const { message } = await handleApiError(error);
       addErrorNotification(
-        `Failed to update recreation resource: ${message}. Please try again.`,
+        `Failed to update reservation info:\n${message}. Try again.`,
       );
     }
   };
