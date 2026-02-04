@@ -14,6 +14,9 @@ vi.mock('src/recreation-resource/utils/buildFilterMenu', () => ({
 
 vi.mock('src/recreation-resource/utils/buildSearchFilterQuery', () => ({
   buildSearchFilterQuery: vi.fn().mockReturnValue({ sql: 'WHERE 1=1' }),
+  buildSearchFilterQueryExcluding: vi
+    .fn()
+    .mockReturnValue({ sql: 'WHERE 1=1 (excluding)' }),
 }));
 
 vi.mock('src/recreation-resource/utils/formatSearchResults', () => ({

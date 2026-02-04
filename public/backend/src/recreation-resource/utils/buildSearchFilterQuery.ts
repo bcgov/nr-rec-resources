@@ -15,21 +15,33 @@ export interface FilterOptions {
   radius?: number;
 }
 
+// For single-select filters (type, district), we exclude them when calculating
+// their facet counts so other options don't show 0
+export interface ExcludeOptions {
+  type?: boolean;
+  district?: boolean;
+}
+
 const RADIUS = 50000; // 50 km
 
-// Build where clause for search filter query
-export const buildSearchFilterQuery = ({
-  searchText,
-  activities,
-  type,
-  district,
-  access,
-  facilities,
-  status,
-  fees,
-  lat,
-  lon,
-}: FilterOptions) => {
+// Helper to build individual filter conditions
+const buildFilterConditions = (
+  options: FilterOptions,
+  exclude?: ExcludeOptions,
+) => {
+  const {
+    searchText,
+    activities,
+    type,
+    district,
+    access,
+    facilities,
+    status,
+    fees,
+    lat,
+    lon,
+  } = options;
+
   const activityFilter = activities?.split('_').map(Number) ?? [];
   const typeFilter = type?.split('_').map(String) ?? [];
   const districtFilter = district?.split('_').map(String) ?? [];
@@ -48,12 +60,12 @@ export const buildSearchFilterQuery = ({
       : Prisma.empty;
 
   const districtFilterQuery =
-    districtFilter.length > 0
+    !exclude?.district && districtFilter.length > 0
       ? Prisma.sql`district_code in (${Prisma.join(districtFilter)})`
       : Prisma.empty;
 
   const typeFilterQuery =
-    typeFilter.length > 0
+    !exclude?.type && typeFilter.length > 0
       ? Prisma.sql`recreation_resource_type_code in (${Prisma.join(typeFilter)})`
       : Prisma.empty;
 
@@ -152,6 +164,23 @@ export const buildSearchFilterQuery = ({
     locationFilterQuery,
   ].filter((sql) => sql !== Prisma.empty); // Remove empty conditions
 
+  return conditions;
+};
+
+// Build where clause for search filter query
+export const buildSearchFilterQuery = (options: FilterOptions) => {
+  const conditions = buildFilterConditions(options);
+  return conditions.length
+    ? Prisma.sql`where ${Prisma.join(conditions, ' and ')}`
+    : Prisma.empty;
+};
+
+// Build where clause excluding specific filters
+export const buildSearchFilterQueryExcluding = (
+  options: FilterOptions,
+  exclude: ExcludeOptions,
+) => {
+  const conditions = buildFilterConditions(options, exclude);
   return conditions.length
     ? Prisma.sql`where ${Prisma.join(conditions, ' and ')}`
     : Prisma.empty;

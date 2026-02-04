@@ -6,7 +6,13 @@ import { buildFilterOptionCountsQuery } from './buildSearchFilterOptionCountsQue
 describe('buildFilterOptionCountsQuery', () => {
   it('should build a SQL query with a where clause and no filter flags', () => {
     const whereClause = Prisma.sql`WHERE district_code = ${'D1'}`;
-    const query = buildFilterOptionCountsQuery({ whereClause });
+    const whereClauseExcludingType = Prisma.sql`WHERE district_code = ${'D1'}`;
+    const whereClauseExcludingDistrict = Prisma.sql`WHERE 1=1`;
+    const query = buildFilterOptionCountsQuery({
+      whereClause,
+      whereClauseExcludingType,
+      whereClauseExcludingDistrict,
+    });
 
     // Verify SQL structure
     const queryStr = query.sql;
@@ -23,8 +29,10 @@ describe('buildFilterOptionCountsQuery', () => {
     });
   });
 
-  it('should conditionally apply filter flags in CASE statements', () => {
+  it('should use dedicated CTEs for type and district facet counts', () => {
     const whereClause = Prisma.sql`WHERE access_code = ${'AC1'}`;
+    const whereClauseExcludingType = Prisma.sql`WHERE access_code = ${'AC1'}`;
+    const whereClauseExcludingDistrict = Prisma.sql`WHERE access_code = ${'AC1'}`;
     const filterTypes = {
       isOnlyDistrictFilter: true,
       isOnlyAccessFilter: true,
@@ -35,25 +43,34 @@ describe('buildFilterOptionCountsQuery', () => {
 
     const query = buildFilterOptionCountsQuery({
       whereClause,
+      whereClauseExcludingType,
+      whereClauseExcludingDistrict,
       filterTypes,
     });
     const queryStr = query.sql;
 
+    // Type and district counts now use dedicated CTEs for faceted counting
+    expect(queryStr).toContain('type_filter_resources');
     expect(queryStr).toContain(
-      'WHEN ? THEN (SELECT COUNT(*) FROM recreation_resource_search_view WHERE district_code = dcv.district_code AND display_on_public_site = true  )::INT',
+      'COUNT(tfr.recreation_resource_type_code)::INT AS count',
     );
+    expect(queryStr).toContain('district_filter_resources');
+    expect(queryStr).toContain('COUNT(dfr.district_code)::INT AS count');
+
+    // Access still uses CASE statements
     expect(queryStr).toContain(
       'WHEN ? THEN (SELECT COUNT(*) FROM recreation_resource_search_view WHERE access_code = acv.access_code AND display_on_public_site = true  )::INT',
-    );
-    expect(queryStr).toContain(
-      'WHEN ? THEN (SELECT COUNT(*) FROM recreation_resource_search_view WHERE recreation_resource_type_code = acv.rec_resource_type_code AND display_on_public_site = true  )::INT',
     );
 
     expect(query.values).toContain('AC1');
   });
 
   it('should handle empty where clause', () => {
-    const query = buildFilterOptionCountsQuery({ whereClause: Prisma.empty });
+    const query = buildFilterOptionCountsQuery({
+      whereClause: Prisma.empty,
+      whereClauseExcludingType: Prisma.empty,
+      whereClauseExcludingDistrict: Prisma.empty,
+    });
 
     expect(query.sql).toContain('FROM recreation_resource_search_view');
 
@@ -63,8 +80,15 @@ describe('buildFilterOptionCountsQuery', () => {
 
   it('should include text search condition when searchText is provided', () => {
     const whereClause = Prisma.sql`WHERE 1=1`;
+    const whereClauseExcludingType = Prisma.sql`WHERE 1=1`;
+    const whereClauseExcludingDistrict = Prisma.sql`WHERE 1=1`;
     const searchText = 'lake';
-    const query = buildFilterOptionCountsQuery({ whereClause, searchText });
+    const query = buildFilterOptionCountsQuery({
+      whereClause,
+      whereClauseExcludingType,
+      whereClauseExcludingDistrict,
+      searchText,
+    });
 
     // Should include ilike for name and closest_community
     expect(query.sql).toContain('name ilike');
@@ -74,10 +98,14 @@ describe('buildFilterOptionCountsQuery', () => {
 
   it('should include location filter when lat and lon are provided', () => {
     const whereClause = Prisma.sql`WHERE 1=1`;
+    const whereClauseExcludingType = Prisma.sql`WHERE 1=1`;
+    const whereClauseExcludingDistrict = Prisma.sql`WHERE 1=1`;
     const lat = 49.1;
     const lon = -123.1;
     const query = buildFilterOptionCountsQuery({
       whereClause,
+      whereClauseExcludingType,
+      whereClauseExcludingDistrict,
       lat,
       lon,
     });
@@ -89,6 +117,8 @@ describe('buildFilterOptionCountsQuery', () => {
 
   it('should handle all filterTypes flags as false', () => {
     const whereClause = Prisma.sql`WHERE 1=1`;
+    const whereClauseExcludingType = Prisma.sql`WHERE 1=1`;
+    const whereClauseExcludingDistrict = Prisma.sql`WHERE 1=1`;
     const filterTypes = {
       isOnlyDistrictFilter: false,
       isOnlyAccessFilter: false,
@@ -96,18 +126,26 @@ describe('buildFilterOptionCountsQuery', () => {
       isOnlyStatusFilter: false,
       isOnlyFeesFilter: false,
     };
-    const query = buildFilterOptionCountsQuery({ whereClause, filterTypes });
+    const query = buildFilterOptionCountsQuery({
+      whereClause,
+      whereClauseExcludingType,
+      whereClauseExcludingDistrict,
+      filterTypes,
+    });
 
-    // Should use ELSE COUNT(...)::INT in all CASE statements
-    expect(query.sql).toContain('ELSE COUNT(fr.district_code)::INT');
+    // Access still uses CASE statements with ELSE branch
     expect(query.sql).toContain('ELSE COUNT(fr.access_code)::INT');
+    // Type and district now always use their dedicated CTEs
     expect(query.sql).toContain(
-      'ELSE COUNT(fr.recreation_resource_type_code)::INT',
+      'COUNT(tfr.recreation_resource_type_code)::INT',
     );
+    expect(query.sql).toContain('COUNT(dfr.district_code)::INT');
   });
 
   it('should work with all parameters provided', () => {
     const whereClause = Prisma.sql`WHERE access_code = ${'AC2'}`;
+    const whereClauseExcludingType = Prisma.sql`WHERE access_code = ${'AC2'}`;
+    const whereClauseExcludingDistrict = Prisma.sql`WHERE access_code = ${'AC2'}`;
     const searchText = 'park';
     const filterTypes = {
       isOnlyDistrictFilter: true,
@@ -120,6 +158,8 @@ describe('buildFilterOptionCountsQuery', () => {
     const lon = -120.0;
     const query = buildFilterOptionCountsQuery({
       whereClause,
+      whereClauseExcludingType,
+      whereClauseExcludingDistrict,
       searchText,
       filterTypes,
       lat,
@@ -132,13 +172,8 @@ describe('buildFilterOptionCountsQuery', () => {
     expect(query.values).toContain('%park%');
     expect(query.values).toContain(50.0);
     expect(query.values).toContain(-120.0);
-    // Check that both true and false branches are present
-    expect(query.sql).toContain(
-      'WHEN ? THEN (SELECT COUNT(*) FROM recreation_resource_search_view WHERE district_code = dcv.district_code AND display_on_public_site = true',
-    );
     expect(query.sql).toContain('ELSE COUNT(fr.access_code)::INT');
-    expect(query.sql).toContain(
-      'WHEN ? THEN (SELECT COUNT(*) FROM recreation_resource_search_view WHERE recreation_resource_type_code = acv.rec_resource_type_code AND display_on_public_site = true',
-    );
+    expect(query.sql).toContain('type_filter_resources');
+    expect(query.sql).toContain('district_filter_resources');
   });
 });

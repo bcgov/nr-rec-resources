@@ -2,7 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { AppConfigService } from 'src/app-config/app-config.service';
 import { buildFilterMenu } from 'src/recreation-resource/utils/buildFilterMenu';
-import { buildSearchFilterQuery } from 'src/recreation-resource/utils/buildSearchFilterQuery';
+import {
+  buildSearchFilterQuery,
+  buildSearchFilterQueryExcluding,
+} from 'src/recreation-resource/utils/buildSearchFilterQuery';
 import { formatSearchResults } from 'src/recreation-resource/utils/formatSearchResults';
 import { PaginatedRecreationResourceDto } from 'src/recreation-resource/dto/paginated-recreation-resource.dto';
 import {
@@ -59,7 +62,7 @@ export class RecreationResourceSearchService {
     }
 
     // Build the where clause for filtering
-    const whereClause = buildSearchFilterQuery({
+    const filterOptions = {
       searchText,
       activities,
       type,
@@ -70,7 +73,20 @@ export class RecreationResourceSearchService {
       fees,
       lat,
       lon,
-    });
+    };
+
+    const whereClause = buildSearchFilterQuery(filterOptions);
+
+    // Build separate where clauses that exclude specific filters
+    // for calculating faceted counts (allows showing counts for other options)
+    const whereClauseExcludingType = buildSearchFilterQueryExcluding(
+      filterOptions,
+      { type: true },
+    );
+    const whereClauseExcludingDistrict = buildSearchFilterQueryExcluding(
+      filterOptions,
+      { district: true },
+    );
 
     const recreationResourcePageQuerySql = buildRecreationResourcePageQuery({
       whereClause,
@@ -83,6 +99,8 @@ export class RecreationResourceSearchService {
 
     const filterOptionCountsQuerySql = buildFilterOptionCountsQuery({
       whereClause,
+      whereClauseExcludingType,
+      whereClauseExcludingDistrict,
       searchText,
       filterTypes,
       lat,
