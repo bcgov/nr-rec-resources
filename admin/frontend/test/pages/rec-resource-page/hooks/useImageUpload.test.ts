@@ -23,7 +23,7 @@ vi.mock('@/pages/rec-resource-page/store/recResourceFileTransferStore', () => ({
   updatePendingImage: vi.fn(),
   recResourceFileTransferStore: {
     state: {
-      uploadConsentMetadata: {
+      uploadConsentData: {
         dateTaken: null,
         containsPii: false,
         photographerType: 'STAFF',
@@ -35,10 +35,10 @@ vi.mock('@/pages/rec-resource-page/store/recResourceFileTransferStore', () => ({
   },
 }));
 
-// Mock useStore to return consent metadata
+// Mock useStore to return consent data
 vi.mock('@tanstack/react-store', () => ({
   useStore: vi.fn(() => ({
-    uploadConsentMetadata: {
+    uploadConsentData: {
       dateTaken: null,
       containsPii: false,
       photographerType: 'STAFF',
@@ -255,6 +255,42 @@ describe('useImageUpload', () => {
       await result.current.handleUploadRetry(pendingImage as any);
 
       expect(mockExecutePresignedUpload).not.toHaveBeenCalled();
+    });
+
+    it('uses persisted consentData from the image on retry', async () => {
+      const mockFile = createMockFile('test-image.jpg', 'image/jpeg');
+      const pendingImage = createMockGalleryFile<
+        import('@/pages/rec-resource-page/types').GalleryImage
+      >('image', {
+        id: 'pending-123',
+        name: 'Test Image',
+        pendingFile: mockFile,
+        consentData: {
+          dateTaken: '2024-01-15',
+          containsPii: true,
+          photographerType: 'EXTERNAL',
+          photographerName: 'John Doe',
+          consentFormFile: new File(['consent'], 'consent.pdf', {
+            type: 'application/pdf',
+          }),
+        },
+      });
+
+      mockExecutePresignedUpload.mockResolvedValueOnce(undefined);
+
+      const { result } = renderHook(() => useImageUpload());
+
+      await result.current.handleUploadRetry(pendingImage as any);
+
+      expect(mockExecutePresignedUpload).toHaveBeenCalled();
+      const call = mockExecutePresignedUpload.mock.calls[0][0];
+      expect(call.consent).toEqual({
+        date_taken: '2024-01-15',
+        contains_pii: true,
+        photographer_type: 'EXTERNAL',
+        photographer_name: 'John Doe',
+        consent_form: expect.any(File),
+      });
     });
   });
 });

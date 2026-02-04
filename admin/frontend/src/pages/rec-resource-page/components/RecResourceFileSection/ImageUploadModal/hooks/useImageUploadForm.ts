@@ -9,7 +9,7 @@ import {
 } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/schemas';
 import {
   setUploadFileName,
-  setUploadConsentMetadata,
+  setUploadConsentData,
 } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
 
 export const useImageUploadForm = (initialDisplayName?: string) => {
@@ -68,7 +68,7 @@ export const useImageUploadForm = (initialDisplayName?: string) => {
 
   // Sync consent metadata to store whenever relevant values change
   useEffect(() => {
-    setUploadConsentMetadata({
+    setUploadConsentData({
       dateTaken: dateCreated?.toISOString().split('T')[0] ?? null,
       containsPii: containsIdentifiableInfo ?? false,
       photographerType: photographerType ?? 'STAFF',

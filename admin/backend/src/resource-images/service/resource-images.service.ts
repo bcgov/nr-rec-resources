@@ -186,13 +186,15 @@ export class ResourceImagesService extends BaseStorageFileService {
     body: FinalizeImageUploadRequestDto,
     consentFormFile?: Express.Multer.File,
   ): Promise<RecreationResourceImageDto> {
-    const { image_id, file_name, file_size_original, consent } = body;
-
-    // Extract consent form metadata if present
-    const date_taken = consent?.date_taken;
-    const contains_pii = consent?.contains_pii;
-    const photographer_type = consent?.photographer_type;
-    const photographer_name = consent?.photographer_name;
+    const {
+      image_id,
+      file_name,
+      file_size_original,
+      date_taken,
+      contains_pii,
+      photographer_type,
+      photographer_name,
+    } = body;
 
     // Check if resource exists
     await this.validateResourceExists(rec_resource_id);

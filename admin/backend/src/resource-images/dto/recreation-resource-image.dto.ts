@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform, Type } from 'class-transformer';
+import { Transform } from 'class-transformer';
 import {
   IsNotEmpty,
   IsString,
@@ -7,7 +7,6 @@ import {
   IsOptional,
   IsBoolean,
   IsDateString,
-  ValidateNested,
 } from 'class-validator';
 
 import { RecreationResourceImageSize } from '@shared/constants/images';
@@ -177,8 +176,9 @@ export class ConsentFormDto {
 
 /**
  * DTO for image finalize endpoint request
+ * Extends ConsentFormDto to inherit consent-related fields
  */
-export class FinalizeImageUploadRequestDto {
+export class FinalizeImageUploadRequestDto extends ConsentFormDto {
   @ApiProperty({
     description: 'Image ID (returned from presign endpoint)',
     example: 'a7c1e5f3-8d2b-4c9a-b1e6-f3d8c7a2e5b9',
@@ -202,13 +202,4 @@ export class FinalizeImageUploadRequestDto {
   })
   @IsNotEmpty()
   file_size_original: number;
-
-  @ApiPropertyOptional({
-    description: 'Consent form data (metadata and PDF file)',
-    type: () => ConsentFormDto,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => ConsentFormDto)
-  consent?: ConsentFormDto;
 }

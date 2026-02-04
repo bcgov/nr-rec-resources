@@ -1,6 +1,7 @@
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { RecreationResourceImageVariantDto } from '@/services/recreation-resource-admin';
 import { RouteHandle } from '@shared/index';
+import { ImageUploadConsentData } from './store/recResourceFileTransferStore';
 
 export type FileType = 'image' | 'document';
 
@@ -33,6 +34,7 @@ export interface GalleryImage extends GalleryFile {
   variants: Array<RecreationResourceImageVariantDto>;
   previewUrl: string;
   type: 'image';
+  consentData?: ImageUploadConsentData;
 }
 
 export type GalleryFileAction =

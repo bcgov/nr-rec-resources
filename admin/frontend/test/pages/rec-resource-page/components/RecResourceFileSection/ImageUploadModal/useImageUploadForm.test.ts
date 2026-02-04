@@ -3,12 +3,12 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { useImageUploadForm } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/hooks/useImageUploadForm';
 import {
   setUploadFileName,
-  setUploadConsentMetadata,
+  setUploadConsentData,
 } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
 
 vi.mock('@/pages/rec-resource-page/store/recResourceFileTransferStore', () => ({
   setUploadFileName: vi.fn(),
-  setUploadConsentMetadata: vi.fn(),
+  setUploadConsentData: vi.fn(),
 }));
 
 describe('useImageUploadForm', () => {
@@ -50,7 +50,7 @@ describe('useImageUploadForm', () => {
       renderHook(() => useImageUploadForm('test.jpg'));
 
       await waitFor(() => {
-        expect(setUploadConsentMetadata).toHaveBeenCalledWith(
+        expect(setUploadConsentData).toHaveBeenCalledWith(
           expect.objectContaining({
             dateTaken: null,
             containsPii: false,
