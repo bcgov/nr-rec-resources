@@ -174,6 +174,6 @@ export class ResourceDocsController {
     @Param('rec_resource_id') rec_resource_id: string,
     @Param('document_id') document_id: string,
   ): Promise<RecreationResourceDocDto> {
-    return this.resourceDocsService.delete(rec_resource_id, document_id);
+    return this.resourceDocsService.delete(rec_resource_id, document_id, true);
   }
 }

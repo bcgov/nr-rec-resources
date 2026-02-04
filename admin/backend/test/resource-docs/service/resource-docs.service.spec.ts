@@ -118,6 +118,32 @@ describe('ResourceDocsService', () => {
       expect(result?.url).toBeDefined();
     });
 
+    it('should soft delete resource', async () => {
+      const existingDoc = createMockDocument(DOCUMENT_ID, TEST_CAPTION);
+      vi.mocked(
+        prismaService.recreation_resource_document.findUnique,
+      ).mockResolvedValue(existingDoc as any);
+      vi.mocked(
+        prismaService.recreation_resource_document.delete,
+      ).mockResolvedValue(existingDoc as any);
+
+      const deleteCallOrder: string[] = [];
+      vi.mocked(
+        prismaService.recreation_resource_document.delete,
+      ).mockImplementation(() => {
+        deleteCallOrder.push('db');
+        return existingDoc as any;
+      });
+
+      const result = await service.delete(REC_RESOURCE_ID, DOCUMENT_ID, true);
+
+      expect(deleteCallOrder).toEqual(['db']);
+      expect(s3Service.deleteFile).not.toHaveBeenCalled();
+      expect(result?.doc_code_description).toBe(TEST_CAPTION);
+      expect(result?.document_id).toBe(DOCUMENT_ID);
+      expect(result?.url).toBeDefined();
+    });
+
     it('should return 404 if resource not found', async () => {
       vi.mocked(
         prismaService.recreation_resource_document.findUnique,

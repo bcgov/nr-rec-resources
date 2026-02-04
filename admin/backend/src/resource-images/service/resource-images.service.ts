@@ -294,6 +294,7 @@ export class ResourceImagesService extends BaseStorageFileService {
   async delete(
     rec_resource_id: string,
     image_id: string,
+    soft_delete: boolean = false,
   ): Promise<RecreationResourceImageDto | null> {
     // Check if resource exists
     const resource = await this.prisma.recreation_resource_image.findUnique({
@@ -308,17 +309,19 @@ export class ResourceImagesService extends BaseStorageFileService {
     }
 
     try {
-      // Delete all S3 objects for this image
-      const prefix = `images/${rec_resource_id}/${image_id}/`;
-      const objects = await this.s3Service.listObjectsByPrefix(prefix);
+      if (!soft_delete) {
+        // Delete all S3 objects for this image
+        const prefix = `images/${rec_resource_id}/${image_id}/`;
+        const objects = await this.s3Service.listObjectsByPrefix(prefix);
 
-      this.logger.log(
-        `Deleting ${objects.length} image variants for imageId: ${image_id}`,
-      );
+        this.logger.log(
+          `Deleting ${objects.length} image variants for imageId: ${image_id}`,
+        );
 
-      // Delete each variant
-      for (const object of objects) {
-        await this.s3Service.deleteFile(object.key);
+        // Delete each variant
+        for (const object of objects) {
+          await this.s3Service.deleteFile(object.key);
+        }
       }
 
       this.logger.log(

@@ -59,6 +59,7 @@ export class ResourceDocsService extends BaseStorageFileService {
   async delete(
     rec_resource_id: string,
     document_id: string,
+    soft_delete: boolean = false,
   ): Promise<RecreationResourceDocDto> {
     const doc = await this.prisma.recreation_resource_document.findUnique({
       where: { rec_resource_id, doc_id: document_id },
@@ -81,8 +82,10 @@ export class ResourceDocsService extends BaseStorageFileService {
         where: { rec_resource_id, doc_id: document_id },
       });
 
-      const s3Key = `documents/${rec_resource_id}/${document_id}/${doc.file_name}.${doc.extension}`;
-      await this.deleteS3FileSafely(s3Key);
+      if (!soft_delete) {
+        const s3Key = `documents/${rec_resource_id}/${document_id}/${doc.file_name}.${doc.extension}`;
+        await this.deleteS3FileSafely(s3Key);
+      }
 
       return this.mapResponse(doc, rec_resource_id);
     } catch (error) {
