@@ -1,4 +1,5 @@
 import { Stack } from 'react-bootstrap';
+import { SafeHtml } from '@shared/components/safe-html';
 
 type FieldItemProps =
   | {
@@ -19,7 +20,7 @@ export const FieldItem = ({ label, value, isHtml }: FieldItemProps) => {
     }
 
     if (isHtml) {
-      return <div dangerouslySetInnerHTML={{ __html: value as string }} />;
+      return <SafeHtml html={value as string} />;
     }
 
     return value;

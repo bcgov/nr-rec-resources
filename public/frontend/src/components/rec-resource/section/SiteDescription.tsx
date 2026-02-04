@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import parse from 'html-react-parser';
+import { SafeHtml } from '@shared/components/safe-html';
 import { RecreationResourceDetailDtoMaintenanceStandardCodeEnum } from '@/service/recreation-resource';
 import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 
@@ -35,7 +35,7 @@ const SiteDescription = forwardRef<HTMLElement, SiteDescriptionProps>(
         ref={ref}
       >
         <h2 className="section-heading">{SectionTitles.SITE_DESCRIPTION}</h2>
-        {description && <p>{parse(description)}</p>}
+        {description && <SafeHtml html={description} className="rich-text" />}
 
         {maintenanceDescription && (
           <section className="mb-4">
