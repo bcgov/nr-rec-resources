@@ -14,7 +14,7 @@ const linkColumns = [
     links: [
       {
         title: 'Closures',
-        url: EXTERNAL_LINKS.CLOSURE,
+        url: `${ROUTE_PATHS.HOME}search?status=closed&view=list`,
         component: null,
       },
       {
