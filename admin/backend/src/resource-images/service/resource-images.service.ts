@@ -291,6 +291,12 @@ export class ResourceImagesService extends BaseStorageFileService {
     }
   }
 
+  /**
+   * Delete image from datatabase and S3
+   * @param rec_resource_id - Recreation resource ID
+   * @param image_id - image ID
+   * @param soft_delete - if set to true keeps the image on S3
+   */
   async delete(
     rec_resource_id: string,
     image_id: string,

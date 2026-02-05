@@ -56,6 +56,12 @@ export class ResourceDocsService extends BaseStorageFileService {
     return result.map((i) => this.mapResponse(i, rec_resource_id));
   }
 
+  /**
+   * Delete document from datatabase and S3
+   * @param rec_resource_id - Recreation resource ID
+   * @param document_id - document ID
+   * @param soft_delete - if set to true keeps the image on S3
+   */
   async delete(
     rec_resource_id: string,
     document_id: string,
