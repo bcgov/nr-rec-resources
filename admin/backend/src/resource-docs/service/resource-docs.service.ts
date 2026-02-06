@@ -65,7 +65,7 @@ export class ResourceDocsService extends BaseStorageFileService {
   async delete(
     rec_resource_id: string,
     document_id: string,
-    soft_delete: boolean = false,
+    soft_delete: boolean = true,
   ): Promise<RecreationResourceDocDto> {
     const doc = await this.prisma.recreation_resource_document.findUnique({
       where: { rec_resource_id, doc_id: document_id },

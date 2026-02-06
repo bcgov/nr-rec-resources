@@ -300,7 +300,7 @@ export class ResourceImagesService extends BaseStorageFileService {
   async delete(
     rec_resource_id: string,
     image_id: string,
-    soft_delete: boolean = false,
+    soft_delete: boolean = true,
   ): Promise<RecreationResourceImageDto | null> {
     // Check if resource exists
     const resource = await this.prisma.recreation_resource_image.findUnique({
