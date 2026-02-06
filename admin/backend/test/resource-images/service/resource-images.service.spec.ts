@@ -129,7 +129,7 @@ describe('ResourceImagesDocsService', () => {
   });
 
   describe('delete', () => {
-    it('should return the deleted resource', async () => {
+    it('should hard delete return the deleted resource', async () => {
       const mockResource = createMockImage('11535', 'REC1735', {
         file_name: 'abbott-lake-rec1735.webp',
         created_at: new Date('2025-03-26T23:33:06.175Z'),
@@ -183,7 +183,7 @@ describe('ResourceImagesDocsService', () => {
         },
       );
 
-      const result = await service.delete('REC0001', '11535');
+      const result = await service.delete('REC0001', '11535', false);
       expect(result).toBeDefined();
       expect(result?.ref_id).toBe('11535');
       expect(result?.image_id).toBe('11535');
@@ -271,7 +271,7 @@ describe('ResourceImagesDocsService', () => {
         },
       );
 
-      const result = await service.delete('REC0001', '11535');
+      const result = await service.delete('REC0001', '11535', false);
       expect(result).toBeDefined();
       expect(mockConsentFormDelete).toHaveBeenCalledWith({
         where: { image_id: '11535' },
