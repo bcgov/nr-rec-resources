@@ -10,7 +10,7 @@
 .topic-container {
   display: flex;
   flex-direction: column;
-  width: 360px;
+  width: 370px;
   margin-right: 16px;
 
   @include media-breakpoint-down(md) {
