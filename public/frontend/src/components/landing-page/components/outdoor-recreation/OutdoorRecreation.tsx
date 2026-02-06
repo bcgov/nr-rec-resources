@@ -17,7 +17,7 @@ export const OutdoorRecreation = () => {
       mobileIcon: campgroundMobile,
       title: '1455+',
       description:
-        'Recreation Site: Discover a great spot for camping, hiking, or picnicking—perfect for enjoying the outdoors.',
+        'Recreation Sites: Discover a great spot for camping, hiking, or picnicking—perfect for enjoying the outdoors.',
       linkText: 'Explore sites',
       type: 'SIT',
     },
@@ -26,7 +26,7 @@ export const OutdoorRecreation = () => {
       mobileIcon: flagMobile,
       title: '750+',
       description:
-        'Recreation Trail: Follow a marked path for walking, hiking, or cycling through beautiful scenery.',
+        'Recreation Trails: Follow a marked path for walking, hiking, or cycling through beautiful scenery.',
       linkText: 'Explore trails',
       type: 'RTR',
     },

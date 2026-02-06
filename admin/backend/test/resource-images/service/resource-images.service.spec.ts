@@ -129,7 +129,7 @@ describe('ResourceImagesDocsService', () => {
   });
 
   describe('delete', () => {
-    it('should return the deleted resource', async () => {
+    it('should hard delete return the deleted resource', async () => {
       const mockResource = createMockImage('11535', 'REC1735', {
         file_name: 'abbott-lake-rec1735.webp',
         created_at: new Date('2025-03-26T23:33:06.175Z'),
@@ -183,7 +183,7 @@ describe('ResourceImagesDocsService', () => {
         },
       );
 
-      const result = await service.delete('REC0001', '11535');
+      const result = await service.delete('REC0001', '11535', false);
       expect(result).toBeDefined();
       expect(result?.ref_id).toBe('11535');
       expect(result?.image_id).toBe('11535');
@@ -193,6 +193,45 @@ describe('ResourceImagesDocsService', () => {
         'images/REC0001/11535/',
       );
       expect(s3Service.deleteFile).toHaveBeenCalledTimes(4);
+      expect(prismaService.$transaction).toHaveBeenCalled();
+    });
+
+    it('should soft delete an image', async () => {
+      const mockResource = createMockImage('11535', 'REC1735', {
+        file_name: 'abbott-lake-rec1735.webp',
+        created_at: new Date('2025-03-26T23:33:06.175Z'),
+      });
+      vi.mocked(
+        prismaService.recreation_resource_image.findUnique,
+      ).mockResolvedValue(mockResource as any);
+
+      // Mock the transaction for delete
+      vi.mocked(prismaService.$transaction).mockImplementation(
+        async (fn: any) => {
+          const mockTx = {
+            recreation_image_consent_form: {
+              findUnique: vi.fn().mockResolvedValue(null),
+              delete: vi.fn(),
+            },
+            recreation_resource_document: {
+              delete: vi.fn(),
+            },
+            recreation_resource_image: {
+              delete: vi.fn().mockResolvedValue(mockResource),
+            },
+          };
+          return fn(mockTx);
+        },
+      );
+
+      const result = await service.delete('REC0001', '11535', true);
+      expect(result).toBeDefined();
+      expect(result?.ref_id).toBe('11535');
+      expect(result?.image_id).toBe('11535');
+      expect(result?.file_name).toBe('abbott-lake-rec1735.webp');
+      expect(result?.recreation_resource_image_variants).toHaveLength(4);
+      expect(s3Service.listObjectsByPrefix).not.toHaveBeenCalled();
+      expect(s3Service.deleteFile).not.toHaveBeenCalled();
       expect(prismaService.$transaction).toHaveBeenCalled();
     });
 
@@ -232,7 +271,7 @@ describe('ResourceImagesDocsService', () => {
         },
       );
 
-      const result = await service.delete('REC0001', '11535');
+      const result = await service.delete('REC0001', '11535', false);
       expect(result).toBeDefined();
       expect(mockConsentFormDelete).toHaveBeenCalledWith({
         where: { image_id: '11535' },
