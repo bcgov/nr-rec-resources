@@ -187,6 +187,6 @@ export class ResourceImagesController {
     @Param('rec_resource_id') rec_resource_id: string,
     @Param('image_id') image_id: string,
   ): Promise<RecreationResourceImageDto | null> {
-    return this.resourceImagesService.delete(rec_resource_id, image_id);
+    return this.resourceImagesService.delete(rec_resource_id, image_id, true);
   }
 }
