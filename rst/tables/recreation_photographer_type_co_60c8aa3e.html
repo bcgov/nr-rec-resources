@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>recreation_resource_images - default.rst</title>
+        <title>recreation_photographer_type_code_history - default.rst</title>
         <!-- Tell the browser to be responsive to screen width -->
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
         <link rel="icon" type="image/png" sizes="16x16" href="../favicon.png">
@@ -73,7 +73,7 @@
             <div class="content-wrapper">
                 <!-- Content Header (Page header) -->
                 <section class="content-header">
-                    <h1>recreation_resource_images</h1><p><span id="recordNumber">-1</span> rows</p><br />
+                    <h1>recreation_photographer_type_code_history</h1><p><span id="recordNumber">-1</span> rows</p><br />
                 </section>
                 <!-- Main content -->
                 <section class="content">
@@ -109,29 +109,7 @@
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="rec_resource_id">rec_resource_id</span></td>
-                                    <td>varchar</td>
-                                    <td>10</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                            <tr>
-                                                <td title="recreation_resource_images.rec_resource_id references recreation_resource.rec_resource_id via recreation_resource_images_rec_resource_id_fkey"><a href='recreation_resource.html'>recreation_resource</a><span class='relatedKey'>.rec_resource_id</span></td>
-                                                <td class="constraint detail">recreation_resource_images_rec_resource_id_fkey</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="ref_id">ref_id</span></td>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="photographer_type_code">photographer_type_code</span></td>
                                     <td>varchar</td>
                                     <td>2147483647</td>
                                     <td title=''></td>
@@ -139,21 +117,21 @@
                                     <td>null</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
-                                            <tr>
-                                                <td title="recreation_resource_image_variants.ref_id references recreation_resource_images.ref_id via recreation_resource_image_variants_ref_id_fkey"><a href='recreation_resource_image_variants.html'>recreation_resource_image_variants</a><span class='relatedKey'>.ref_id</span></td>
-                                                <td class="constraint detail">recreation_resource_image_variants_ref_id_fkey</td>
-                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
-                                            </tr>
                                         </table>
                                     </td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="recreation_photographer_type_code_history.photographer_type_code&#39;s name implies that it&#39;s a child of recreation_photographer_type_code.photographer_type_code, but it doesn&#39;t reference that column."><a href='recreation_photographer_type_code.html'>recreation_photographer_type_code</a><span class='relatedKey'>.photographer_type_code</span></td>
+                                                <td class="constraint detail">Implied Constraint</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
                                         </table>
                                     </td>
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="caption">caption</span></td>
+                                    <td><span id="description">description</span></td>
                                     <td>varchar</td>
                                     <td>2147483647</td>
                                     <td title='nullable'>√</td>
@@ -175,7 +153,7 @@
                                     <td>29,6</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>now()</td>
+                                    <td>null</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -209,7 +187,7 @@
                                     <td>29,6</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>now()</td>
+                                    <td>null</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -243,7 +221,7 @@
                                     <td>2147483647</td>
                                     <td title=''></td>
                                     <td title=''></td>
-                                    <td>tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)</td>
+                                    <td>null</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -260,48 +238,6 @@
                     </div>
                     <div class="box box-primary">
                         <div class="box-header with-border">
-                            <i class="fa fa-sitemap"></i>
-                            <h3 id="Indexes" class="box-title">Indexes</h3>
-                            <div class="box-tools pull-right">
-                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
-                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
-                            </div>
-                        </div>
-                        <div class="box-body">
-                            <table
-                                    id="indexes_table"
-                                    class="table table-bordered table-striped dataTable"
-                                    role="grid"
-                                    data-paging="true"
-                                    data-page-length="10"
-                                    data-length-change="false">
-                                <thead>
-                                <tr>
-                                    <th>Constraint Name</th>
-                                    <th>Type</th>
-                                    <th>Sort</th>
-                                    <th>Column(s)</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr>
-                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey'></i> recreation_resource_images_pkey</td>
-                                    <td>Primary key</td>
-                                    <td><span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span></td>
-                                    <td>rec_resource_id + ref_id</td>
-                                </tr>
-                                <tr>
-                                    <td class='uniqueKey' title='Unique Key'><i class='icon ion-key iconkey'></i> recreation_resource_images_ref_id_key</td>
-                                    <td>Must be unique</td>
-                                    <td><span title='Ascending'>Asc</span></td>
-                                    <td>ref_id</td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div><!-- /.box-body -->
-                    </div>
-                    <div class="box box-primary">
-                        <div class="box-header with-border">
                             <i class="fa fa-code-fork"></i>
                             <h3 id="Relationships" class="box-title">Relationships</h3>
                             <div class="box-tools pull-right">
@@ -314,89 +250,31 @@
                                 <h5>Close relationships within degrees of separation</h5>
                                 <ul class="nav nav-tabs pull-left ui-sortable-handle">
                                     <li class="active"><a href="#oneDegreeImg-chart" data-toggle="tab" aria-expanded="true">One</a></li>
-                                    <li class=""><a href="#twodegreesDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two degrees</a></li>
                                     <li class=""><a href="#oneimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">One implied</a></li>
                                     <li class=""><a href="#twoimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two implied</a></li>
                                 </ul>
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="recreation_resource_image_variants.html" target="_top" title="recreation_resource_image_variants" alt="" coords="809,37,1177,184">
-<area shape="rect" id="node2" href="recreation_resource_images.html" target="_top" title="recreation_resource_images" alt="" coords="327,5,765,309">
-<area shape="rect" id="node3" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="5,8,283,243">
+<area shape="rect" id="node1" href="recreation_photographer_type_co_60c8aa3e.html" target="_top" title="recreation_photographer_type_code_history" alt="" coords="5,5,571,280">
 </map>
-                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/recreation_resource_images.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
-                                    </div>
-                                    <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
-                                        <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
-<area shape="rect" id="node1" href="recreation_access.html" target="_top" title="recreation_access" alt="" coords="878,5,1099,93">
-<area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="448,845,725,1080">
-<area shape="rect" id="node11" href="recreation_control_access_code.html" target="_top" title="recreation_control_access_code" alt="" coords="40,973,369,1061">
-<area shape="rect" id="node12" href="recreation_district_code.html" target="_top" title="recreation_district_code" alt="" coords="69,763,340,851">
-<area shape="rect" id="node13" href="recreation_maintenance_standard_code.html" target="_top" title="recreation_maintenance_standard_code" alt="" coords="5,868,404,956">
-<area shape="rect" id="node14" href="recreation_risk_rating_code.html" target="_top" title="recreation_risk_rating_code" alt="" coords="55,1079,354,1167">
-<area shape="rect" id="node3" href="recreation_activity.html" target="_top" title="recreation_activity" alt="" coords="874,111,1103,199">
-<area shape="rect" id="node4" href="recreation_agreement_holder.html" target="_top" title="recreation_agreement_holder" alt="" coords="831,216,1147,304">
-<area shape="rect" id="node5" href="recreation_defined_campsite.html" target="_top" title="recreation_defined_campsite" alt="" coords="834,321,1143,409">
-<area shape="rect" id="node6" href="recreation_driving_direction.html" target="_top" title="recreation_driving_direction" alt="" coords="837,427,1141,515">
-<area shape="rect" id="node7" href="recreation_establishment_order_docs.html" target="_top" title="recreation_establishment_order_docs" alt="" coords="800,532,1177,620">
-<area shape="rect" id="node8" href="recreation_feature.html" target="_top" title="recreation_feature" alt="" coords="874,637,1103,725">
-<area shape="rect" id="node9" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="891,743,1086,831">
-<area shape="rect" id="node10" href="recreation_map_feature.html" target="_top" title="recreation_map_feature" alt="" coords="853,848,1124,936">
-<area shape="rect" id="node15" href="recreation_resource_docs.html" target="_top" title="recreation_resource_docs" alt="" coords="847,953,1130,1041">
-<area shape="rect" id="node16" href="recreation_resource_document.html" target="_top" title="recreation_resource_document" alt="" coords="825,1059,1153,1147">
-<area shape="rect" id="node17" href="recreation_resource_image.html" target="_top" title="recreation_resource_image" alt="" coords="841,1164,1136,1252">
-<area shape="rect" id="node18" href="recreation_resource_image_variants.html" target="_top" title="recreation_resource_image_variants" alt="" coords="1252,1301,1620,1448">
-<area shape="rect" id="node19" href="recreation_resource_images.html" target="_top" title="recreation_resource_images" alt="" coords="769,1269,1208,1573">
-<area shape="rect" id="node20" href="recreation_resource_reservation_info.html" target="_top" title="recreation_resource_reservation_info" alt="" coords="801,1591,1177,1679">
-<area shape="rect" id="node21" href="recreation_site_description.html" target="_top" title="recreation_site_description" alt="" coords="841,1696,1137,1784">
-<area shape="rect" id="node22" href="recreation_status.html" target="_top" title="recreation_status" alt="" coords="879,1801,1099,1889">
-<area shape="rect" id="node23" href="recreation_structure.html" target="_top" title="recreation_structure" alt="" coords="867,1907,1111,1995">
-</map>
-                                        <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/recreation_resource_images.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/recreation_photographer_type_co_60c8aa3e.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_resource_image_variants.html" target="_top" title="recreation_resource_image_variants" alt="" coords="809,37,1177,184">
-<area shape="rect" id="node2" href="recreation_resource_images.html" target="_top" title="recreation_resource_images" alt="" coords="327,5,765,309">
-<area shape="rect" id="node3" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="5,8,283,243">
+<area shape="rect" id="node1" href="recreation_photographer_type_co_60c8aa3e.html" target="_top" title="recreation_photographer_type_code_history" alt="" coords="416,5,981,280">
+<area shape="rect" id="node2" href="recreation_photographer_type_code.html" target="_top" title="recreation_photographer_type_code" alt="" coords="5,8,372,125">
 </map>
-                                        <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/recreation_resource_images.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                        <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/recreation_photographer_type_co_60c8aa3e.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
-<area shape="rect" id="node1" href="recreation_access.html" target="_top" title="recreation_access" alt="" coords="878,731,1099,819">
-<area shape="rect" id="node2" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="448,996,725,1231">
-<area shape="rect" id="node13" href="recreation_control_access_code.html" target="_top" title="recreation_control_access_code" alt="" coords="40,1111,369,1199">
-<area shape="rect" id="node14" href="recreation_district_code.html" target="_top" title="recreation_district_code" alt="" coords="69,1005,340,1093">
-<area shape="rect" id="node15" href="recreation_maintenance_standard_code.html" target="_top" title="recreation_maintenance_standard_code" alt="" coords="5,151,404,239">
-<area shape="rect" id="node16" href="recreation_risk_rating_code.html" target="_top" title="recreation_risk_rating_code" alt="" coords="55,471,354,559">
-<area shape="rect" id="node3" href="recreation_access_history.html" target="_top" title="recreation_access_history" alt="" coords="1294,695,1578,783">
-<area shape="rect" id="node4" href="recreation_activity.html" target="_top" title="recreation_activity" alt="" coords="874,836,1103,924">
-<area shape="rect" id="node5" href="recreation_agreement_holder.html" target="_top" title="recreation_agreement_holder" alt="" coords="831,941,1147,1029">
-<area shape="rect" id="node6" href="recreation_defined_campsite.html" target="_top" title="recreation_defined_campsite" alt="" coords="834,1047,1143,1135">
-<area shape="rect" id="node7" href="recreation_driving_direction.html" target="_top" title="recreation_driving_direction" alt="" coords="837,1152,1141,1240">
-<area shape="rect" id="node8" href="recreation_establishment_order_docs.html" target="_top" title="recreation_establishment_order_docs" alt="" coords="800,1257,1177,1345">
-<area shape="rect" id="node9" href="recreation_feature.html" target="_top" title="recreation_feature" alt="" coords="874,1363,1103,1451">
-<area shape="rect" id="node10" href="recreation_feature_history.html" target="_top" title="recreation_feature_history" alt="" coords="843,1468,1135,1556">
-<area shape="rect" id="node11" href="recreation_fee.html" target="_top" title="recreation_fee" alt="" coords="891,1573,1086,1661">
-<area shape="rect" id="node12" href="recreation_map_feature.html" target="_top" title="recreation_map_feature" alt="" coords="1301,1221,1571,1309">
-<area shape="rect" id="node17" href="recreation_resource_docs.html" target="_top" title="recreation_resource_docs" alt="" coords="847,1715,1130,1803">
-<area shape="rect" id="node18" href="recreation_resource_document.html" target="_top" title="recreation_resource_document" alt="" coords="825,1820,1153,1908">
-<area shape="rect" id="node19" href="recreation_resource_history.html" target="_top" title="recreation_resource_history" alt="" coords="837,5,1140,93">
-<area shape="rect" id="node20" href="recreation_resource_image.html" target="_top" title="recreation_resource_image" alt="" coords="841,1925,1136,2013">
-<area shape="rect" id="node21" href="recreation_resource_image_variants.html" target="_top" title="recreation_resource_image_variants" alt="" coords="1252,2063,1620,2209">
-<area shape="rect" id="node22" href="recreation_resource_images.html" target="_top" title="recreation_resource_images" alt="" coords="769,2031,1208,2335">
-<area shape="rect" id="node23" href="recreation_resource_reservation_info.html" target="_top" title="recreation_resource_reservation_info" alt="" coords="801,2352,1177,2440">
-<area shape="rect" id="node24" href="recreation_resource_search_view.html" target="_top" title="recreation_resource_search_view" alt="" coords="819,2457,1158,2521">
-<area shape="rect" id="node25" href="recreation_resource_type_view_admin.html" target="_top" title="recreation_resource_type_view_admin" alt="" coords="799,111,1178,175">
-<area shape="rect" id="node26" href="recreation_resource_type_view_public.html" target="_top" title="recreation_resource_type_view_public" alt="" coords="800,192,1177,256">
-<area shape="rect" id="node27" href="recreation_site_description.html" target="_top" title="recreation_site_description" alt="" coords="841,273,1137,361">
-<area shape="rect" id="node28" href="recreation_status.html" target="_top" title="recreation_status" alt="" coords="879,379,1099,467">
-<area shape="rect" id="node29" href="recreation_structure.html" target="_top" title="recreation_structure" alt="" coords="867,484,1111,572">
-<area shape="rect" id="node30" href="recreation_structure_history.html" target="_top" title="recreation_structure_history" alt="" coords="835,589,1143,677">
+<area shape="rect" id="node1" href="recreation_image_consent_form.html" target="_top" title="recreation_image_consent_form" alt="" coords="532,5,865,93">
+<area shape="rect" id="node2" href="recreation_photographer_type_code.html" target="_top" title="recreation_photographer_type_code" alt="" coords="5,71,372,188">
+<area shape="rect" id="node3" href="recreation_image_consent_form_history.html" target="_top" title="recreation_image_consent_form_history" alt="" coords="1025,40,1423,128">
+<area shape="rect" id="node4" href="recreation_photographer_type_co_60c8aa3e.html" target="_top" title="recreation_photographer_type_code_history" alt="" coords="416,147,981,421">
 </map>
-                                        <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/recreation_resource_images.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                        <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/recreation_photographer_type_co_60c8aa3e.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                 </div>
                             </div>

@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>recreation_resource_image_variants - default.rst</title>
+        <title>recreation_image_consent_form - default.rst</title>
         <!-- Tell the browser to be responsive to screen width -->
         <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
         <link rel="icon" type="image/png" sizes="16x16" href="../favicon.png">
@@ -73,7 +73,20 @@
             <div class="content-wrapper">
                 <!-- Content Header (Page header) -->
                 <section class="content-header">
-                    <h1>recreation_resource_image_variants</h1><p><span id="recordNumber">-1</span> rows</p><br />
+                    <h1>recreation_image_consent_form</h1><p><span id="recordNumber">-1</span> rows</p><br />
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <i class="fa fa-file-text-o"></i>
+                            <h3 id="Description" class="box-title">Description</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+                            </div>
+                        </div><!-- /.box-header -->
+                        <div class="box-body clearfix">
+                            <p>Links recreation resource images to their consent forms</p>
+                        </div><!-- /.box-body -->
+                    </div>
                 </section>
                 <!-- Main content -->
                 <section class="content">
@@ -109,7 +122,73 @@
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="ref_id">ref_id</span></td>
+                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="consent_id">consent_id</span></td>
+                                    <td>uuid</td>
+                                    <td>2147483647</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>gen_random_uuid()</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="recreation_image_consent_form_history.consent_id&#39;s name implies that it&#39;s a child of recreation_image_consent_form.consent_id, but it doesn&#39;t reference that column."><a href='recreation_image_consent_form_history.html'>recreation_image_consent_form_history</a><span class='relatedKey'>.consent_id</span></td>
+                                                <td class="constraint detail">Implied Constraint</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td><p>Unique UUID identifier for the consent record</p></td>
+                                </tr>
+                                <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="image_id">image_id</span></td>
+                                    <td>uuid</td>
+                                    <td>2147483647</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="recreation_image_consent_form.image_id references recreation_resource_image.image_id via recreation_image_consent_form_image_id_fkey"><a href='recreation_resource_image.html'>recreation_resource_image</a><span class='relatedKey'>.image_id</span></td>
+                                                <td class="constraint detail">recreation_image_consent_form_image_id_fkey</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td><p>Reference to the recreation resource image</p></td>
+                                </tr>
+                                <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="doc_id">doc_id</span></td>
+                                    <td>uuid</td>
+                                    <td>2147483647</td>
+                                    <td title=''></td>
+                                    <td title=''></td>
+                                    <td>null</td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                        </table>
+                                    </td>
+                                    <td>
+                                        <table border='0' cellspacing='0' cellpadding='0'>
+                                            <tr>
+                                                <td title="recreation_image_consent_form.doc_id references recreation_resource_document.doc_id via recreation_image_consent_form_doc_id_fkey"><a href='recreation_resource_document.html'>recreation_resource_document</a><span class='relatedKey'>.doc_id</span></td>
+                                                <td class="constraint detail">recreation_image_consent_form_doc_id_fkey</td>
+                                                <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                    <td><p>Reference to the consent form document</p></td>
+                                </tr>
+                                <tr>
+                                    <td class='foreignKey' title='Foreign Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="photographer_type_code">photographer_type_code</span></td>
                                     <td>varchar</td>
                                     <td>2147483647</td>
                                     <td title=''></td>
@@ -122,35 +201,18 @@
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                             <tr>
-                                                <td title="recreation_resource_image_variants.ref_id references recreation_resource_images.ref_id via recreation_resource_image_variants_ref_id_fkey"><a href='recreation_resource_images.html'>recreation_resource_images</a><span class='relatedKey'>.ref_id</span></td>
-                                                <td class="constraint detail">recreation_resource_image_variants_ref_id_fkey</td>
+                                                <td title="recreation_image_consent_form.photographer_type_code references recreation_photographer_type_code.photographer_type_code via recreation_image_consent_form_photographer_type_code_fkey"><a href='recreation_photographer_type_code.html'>recreation_photographer_type_code</a><span class='relatedKey'>.photographer_type_code</span></td>
+                                                <td class="constraint detail">recreation_image_consent_form_photographer_type_code_fkey</td>
                                                 <td class="constraint detail"><span title='Restrict delete:&#10;Parent cannot be deleted if children exist'>R</span></td>
                                             </tr>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Type of photographer (STAFF, CONTRACTOR, VOLUNTEER, PHOTOGRAPHER, or OTHER)</p></td>
                                 </tr>
                                 <tr>
-                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey' style='padding-left: 5px;'></i><span id="size_code">size_code</span></td>
+                                    <td><span id="photographer_name">photographer_name</span></td>
                                     <td>varchar</td>
-                                    <td>20</td>
-                                    <td title=''></td>
-                                    <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="url">url</span></td>
-                                    <td>text</td>
-                                    <td>2147483647</td>
+                                    <td>255</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>null</td>
@@ -162,12 +224,12 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Name of the photographer for attribution</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="width">width</span></td>
-                                    <td>int4</td>
-                                    <td>10</td>
+                                    <td><span id="date_taken">date_taken</span></td>
+                                    <td>date</td>
+                                    <td>13</td>
                                     <td title='nullable'>√</td>
                                     <td title=''></td>
                                     <td>null</td>
@@ -179,32 +241,15 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Date the photo was taken</p></td>
                                 </tr>
                                 <tr>
-                                    <td><span id="height">height</span></td>
-                                    <td>int4</td>
-                                    <td>10</td>
-                                    <td title='nullable'>√</td>
+                                    <td><span id="contains_pii">contains_pii</span></td>
+                                    <td>bool</td>
+                                    <td>1</td>
                                     <td title=''></td>
-                                    <td>null</td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td>
-                                        <table border='0' cellspacing='0' cellpadding='0'>
-                                        </table>
-                                    </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td><span id="extension">extension</span></td>
-                                    <td>varchar</td>
-                                    <td>10</td>
-                                    <td title='nullable'>√</td>
                                     <td title=''></td>
-                                    <td>null</td>
+                                    <td>false</td>
                                     <td>
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
@@ -213,7 +258,7 @@
                                         <table border='0' cellspacing='0' cellpadding='0'>
                                         </table>
                                     </td>
-                                    <td></td>
+                                    <td><p>Whether the image contains personally identifiable information</p></td>
                                 </tr>
                                 <tr>
                                     <td><span id="updated_at">updated_at</span></td>
@@ -331,10 +376,28 @@
                                 </thead>
                                 <tbody>
                                 <tr>
-                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey'></i> recreation_resource_image_variants_pkey</td>
+                                    <td class='primaryKey' title='Primary Key'><i class='icon ion-key iconkey'></i> recreation_image_consent_form_pkey</td>
                                     <td>Primary key</td>
-                                    <td><span title='Ascending'>Asc</span>/<span title='Ascending'>Asc</span></td>
-                                    <td>ref_id + size_code</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>consent_id</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idx_recreation_image_consent_form_doc_id</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>doc_id</td>
+                                </tr>
+                                <tr>
+                                    <td title='Indexed'>idx_recreation_image_consent_form_image_id</td>
+                                    <td>Performance</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>image_id</td>
+                                </tr>
+                                <tr>
+                                    <td class='uniqueKey' title='Unique Key'><i class='icon ion-key iconkey'></i> recreation_image_consent_form_image_id_key</td>
+                                    <td>Must be unique</td>
+                                    <td><span title='Ascending'>Asc</span></td>
+                                    <td>image_id</td>
                                 </tr>
                                 </tbody>
                             </table>
@@ -355,22 +418,54 @@
                                 <ul class="nav nav-tabs pull-left ui-sortable-handle">
                                     <li class="active"><a href="#oneDegreeImg-chart" data-toggle="tab" aria-expanded="true">One</a></li>
                                     <li class=""><a href="#twodegreesDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two degrees</a></li>
+                                    <li class=""><a href="#oneimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">One implied</a></li>
+                                    <li class=""><a href="#twoimpliedDegreeImg-chart" data-toggle="tab" aria-expanded="true">Two implied</a></li>
                                 </ul>
                                 <div class="tab-content no-padding">
                                     <div class="chart tab-pane active" id="oneDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="oneDegreeRelationshipsDiagram" name="oneDegreeRelationshipsDiagram">
-<area shape="rect" id="node1" href="recreation_resource_image_variants.html" target="_top" title="recreation_resource_image_variants" alt="" coords="352,32,856,424">
-<area shape="rect" id="node2" href="recreation_resource_images.html" target="_top" title="recreation_resource_images" alt="" coords="5,5,308,152">
+<area shape="rect" id="node1" href="recreation_image_consent_form.html" target="_top" title="recreation_image_consent_form" alt="" coords="416,108,885,529">
+<area shape="rect" id="node2" href="recreation_resource_document.html" target="_top" title="recreation_resource_document" alt="" coords="25,169,353,345">
+<area shape="rect" id="node3" href="recreation_resource_image.html" target="_top" title="recreation_resource_image" alt="" coords="41,5,336,152">
+<area shape="rect" id="node4" href="recreation_photographer_type_code.html" target="_top" title="recreation_photographer_type_code" alt="" coords="5,363,372,480">
 </map>
-                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/recreation_resource_image_variants.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                        <a name='diagram'><img id="oneDegreeImg" src="../diagrams/tables/recreation_image_consent_form.1degree.png" usemap="#oneDegreeRelationshipsDiagram" class="diagram" border="0" align="left"></a>
                                     </div>
                                     <div class="chart tab-pane " id="twodegreesDegreeImg-chart" style="position: relative; overflow-x:auto;">
                                         <map id="twoDegreesRelationshipsDiagram" name="twoDegreesRelationshipsDiagram">
-<area shape="rect" id="node1" href="recreation_resource_image_variants.html" target="_top" title="recreation_resource_image_variants" alt="" coords="636,32,1140,424">
-<area shape="rect" id="node2" href="recreation_resource_images.html" target="_top" title="recreation_resource_images" alt="" coords="289,5,592,152">
-<area shape="rect" id="node3" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="5,8,245,96">
+<area shape="rect" id="node1" href="recreation_image_consent_form.html" target="_top" title="recreation_image_consent_form" alt="" coords="779,108,1248,529">
+<area shape="rect" id="node2" href="recreation_resource_document.html" target="_top" title="recreation_resource_document" alt="" coords="387,169,715,345">
+<area shape="rect" id="node3" href="recreation_resource_image.html" target="_top" title="recreation_resource_image" alt="" coords="404,5,699,152">
+<area shape="rect" id="node4" href="recreation_photographer_type_code.html" target="_top" title="recreation_photographer_type_code" alt="" coords="368,363,735,480">
+<area shape="rect" id="node5" href="recreation_resource_doc_code.html" target="_top" title="recreation_resource_doc_code" alt="" coords="5,231,324,319">
+<area shape="rect" id="node6" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="45,81,285,169">
 </map>
-                                        <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/recreation_resource_image_variants.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                        <a name='diagram'><img id="twodegreesDegreeImg" src="../diagrams/tables/recreation_image_consent_form.2degrees.png" usemap="#twoDegreesRelationshipsDiagram" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="oneimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="oneDegreeRelationshipsDiagramImplied" name="oneDegreeRelationshipsDiagramImplied">
+<area shape="rect" id="node1" href="recreation_image_consent_form.html" target="_top" title="recreation_image_consent_form" alt="" coords="416,82,885,503">
+<area shape="rect" id="node2" href="recreation_resource_document.html" target="_top" title="recreation_resource_document" alt="" coords="25,235,353,411">
+<area shape="rect" id="node3" href="recreation_resource_image.html" target="_top" title="recreation_resource_image" alt="" coords="41,61,336,207">
+<area shape="rect" id="node4" href="recreation_photographer_type_code.html" target="_top" title="recreation_photographer_type_code" alt="" coords="5,451,372,569">
+<area shape="rect" id="node5" href="recreation_image_consent_form_history.html" target="_top" title="recreation_image_consent_form_history" alt="" coords="929,254,1327,459">
+</map>
+                                        <a name='diagram'><img id="oneimpliedDegreeImg" src="../diagrams/tables/recreation_image_consent_form.implied1degrees.png" usemap="#oneDegreeRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
+                                    </div>
+                                    <div class="chart tab-pane " id="twoimpliedDegreeImg-chart" style="position: relative; overflow-x:auto;">
+                                        <map id="twoDegreesRelationshipsDiagramImplied" name="twoDegreesRelationshipsDiagramImplied">
+<area shape="rect" id="node1" href="recreation_image_consent_form.html" target="_top" title="recreation_image_consent_form" alt="" coords="779,147,1248,568">
+<area shape="rect" id="node2" href="recreation_resource_document.html" target="_top" title="recreation_resource_document" alt="" coords="387,79,715,167">
+<area shape="rect" id="node3" href="recreation_resource_image.html" target="_top" title="recreation_resource_image" alt="" coords="404,452,699,540">
+<area shape="rect" id="node4" href="recreation_photographer_type_code.html" target="_top" title="recreation_photographer_type_code" alt="" coords="368,729,735,817">
+<area shape="rect" id="node7" href="recreation_resource_doc_code.html" target="_top" title="recreation_resource_doc_code" alt="" coords="5,41,324,129">
+<area shape="rect" id="node8" href="recreation_resource.html" target="_top" title="recreation_resource" alt="" coords="45,248,285,336">
+<area shape="rect" id="node5" href="recreation_image_consent_form_history.html" target="_top" title="recreation_image_consent_form_history" alt="" coords="1292,405,1689,493">
+<area shape="rect" id="node6" href="recreation_photographer_type_co_60c8aa3e.html" target="_top" title="recreation_photographer_type_code_history" alt="" coords="799,727,1228,815">
+<area shape="rect" id="node9" href="recreation_resource_document_history.html" target="_top" title="recreation_resource_document_history" alt="" coords="818,5,1209,93">
+<area shape="rect" id="node10" href="recreation_resource_image_history.html" target="_top" title="recreation_resource_image_history" alt="" coords="834,585,1193,673">
+</map>
+                                        <a name='diagram'><img id="twoimpliedDegreeImg" src="../diagrams/tables/recreation_image_consent_form.implied2degrees.png" usemap="#twoDegreesRelationshipsDiagramImplied" class="diagram" border="0" align="left"></a>
                                     </div>
                                 </div>
                             </div>
