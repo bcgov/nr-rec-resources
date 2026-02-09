@@ -128,4 +128,24 @@ describe('ConsentFormsS3Service', () => {
       expect(key).toBe('REC0001/image-123/doc-456.pdf');
     });
   });
+
+  describe('getPresignedDownloadUrl', () => {
+    it('should return presigned download URL', async () => {
+      mockS3Service.getSignedUrl = vi
+        .fn()
+        .mockResolvedValue('https://s3.amazonaws.com/presigned-download');
+
+      const result = await service.getPresignedDownloadUrl(
+        'REC0001',
+        'image-123',
+        'doc-456',
+      );
+
+      expect(result).toBe('https://s3.amazonaws.com/presigned-download');
+      expect(mockS3Service.getSignedUrl).toHaveBeenCalledWith(
+        'REC0001/image-123/doc-456.pdf',
+        3600,
+      );
+    });
+  });
 });

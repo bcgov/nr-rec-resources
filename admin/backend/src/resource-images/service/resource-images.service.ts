@@ -58,6 +58,22 @@ export class ResourceImagesService extends BaseStorageFileService {
         extension: true,
         file_size: true,
         created_at: true,
+        updated_by: true,
+        created_by: true,
+        recreation_image_consent_form: {
+          select: {
+            doc_id: true,
+            date_taken: true,
+            contains_pii: true,
+            photographer_type_code: true,
+            photographer_name: true,
+            recreation_photographer_type_code: {
+              select: {
+                description: true,
+              },
+            },
+          },
+        },
       },
     });
     return result.map((i) => this.mapResponse(i));
@@ -79,6 +95,22 @@ export class ResourceImagesService extends BaseStorageFileService {
         extension: true,
         file_size: true,
         created_at: true,
+        updated_by: true,
+        created_by: true,
+        recreation_image_consent_form: {
+          select: {
+            doc_id: true,
+            date_taken: true,
+            contains_pii: true,
+            photographer_type_code: true,
+            photographer_name: true,
+            recreation_photographer_type_code: {
+              select: {
+                description: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -408,12 +440,57 @@ export class ResourceImagesService extends BaseStorageFileService {
       height: 0,
     }));
 
+    const consentForm = payload.recreation_image_consent_form;
+
     return {
       ref_id: payload.image_id, // Map image_id to ref_id for backward compatibility
       image_id: payload.image_id,
       file_name: payload.file_name,
       created_at: payload.created_at,
       recreation_resource_image_variants: variants,
+      file_size: payload.file_size ? Number(payload.file_size) : undefined,
+      date_taken:
+        consentForm?.date_taken?.toISOString?.()?.split('T')[0] ?? undefined,
+      photographer_type: consentForm?.photographer_type_code ?? undefined,
+      photographer_type_description:
+        consentForm?.recreation_photographer_type_code?.description ??
+        undefined,
+      photographer_name: consentForm?.photographer_name ?? undefined,
+      photographer_display_name:
+        consentForm?.photographer_name ??
+        payload.updated_by ??
+        payload.created_by ??
+        undefined,
+      contains_pii: consentForm?.contains_pii ?? undefined,
     };
+  }
+
+  /**
+   * Get presigned download URL for consent form
+   * @param rec_resource_id - Recreation resource ID
+   * @param image_id - Image UUID
+   * @returns Presigned download URL
+   * @throws HttpException if image or consent form not found
+   */
+  async getConsentDownloadUrl(
+    rec_resource_id: string,
+    image_id: string,
+  ): Promise<string> {
+    // Find consent form for this image
+    const consentForm =
+      await this.prisma.recreation_image_consent_form.findUnique({
+        where: { image_id },
+        select: { doc_id: true },
+      });
+
+    if (!consentForm) {
+      throw new HttpException('Consent form not found for this image', 404);
+    }
+
+    return this.consentFormsS3Service.getPresignedDownloadUrl(
+      rec_resource_id,
+      image_id,
+      consentForm.doc_id,
+    );
   }
 }

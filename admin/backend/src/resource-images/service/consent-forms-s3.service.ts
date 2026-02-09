@@ -97,4 +97,27 @@ export class ConsentFormsS3Service {
       throw error;
     }
   }
+
+  /**
+   * Generate a presigned download URL for a consent form
+   * @param recResourceId - Recreation resource ID
+   * @param imageId - Image UUID this consent form belongs to
+   * @param docId - Document UUID for the consent form
+   * @param expiresIn - URL expiration time in seconds (default: 1 hour)
+   * @returns Presigned download URL
+   */
+  async getPresignedDownloadUrl(
+    recResourceId: string,
+    imageId: string,
+    docId: string,
+    expiresIn: number = 3600,
+  ): Promise<string> {
+    const key = this.getConsentFormKey(recResourceId, imageId, docId);
+
+    this.logger.log(
+      `Generating presigned download URL for consent form - Key: ${key}`,
+    );
+
+    return this.s3Service.getSignedUrl(key, expiresIn);
+  }
 }

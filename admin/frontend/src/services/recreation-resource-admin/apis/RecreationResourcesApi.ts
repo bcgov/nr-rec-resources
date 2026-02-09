@@ -18,6 +18,7 @@ import type {
   CreateRecreationFeeDto,
   EstablishmentOrderDocDto,
   FinalizeDocUploadRequestDto,
+  GetConsentFormDownloadUrl200Response,
   OptionDto,
   OptionsByTypeDto,
   PresignDocUploadResponseDto,
@@ -47,6 +48,8 @@ import {
   EstablishmentOrderDocDtoToJSON,
   FinalizeDocUploadRequestDtoFromJSON,
   FinalizeDocUploadRequestDtoToJSON,
+  GetConsentFormDownloadUrl200ResponseFromJSON,
+  GetConsentFormDownloadUrl200ResponseToJSON,
   OptionDtoFromJSON,
   OptionDtoToJSON,
   OptionsByTypeDtoFromJSON,
@@ -136,6 +139,11 @@ export interface GetActivitiesByRecResourceIdRequest {
 
 export interface GetAllEstablishmentOrderDocsRequest {
   recResourceId: string;
+}
+
+export interface GetConsentFormDownloadUrlRequest {
+  recResourceId: string;
+  imageId: string;
 }
 
 export interface GetDocumentsByRecResourceIdRequest {
@@ -935,6 +943,78 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<Array<EstablishmentOrderDocDto>> {
     const response = await this.getAllEstablishmentOrderDocsRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Returns a presigned URL for downloading the consent form PDF associated with an image
+   * Get presigned URL for consent form download
+   */
+  async getConsentFormDownloadUrlRaw(
+    requestParameters: GetConsentFormDownloadUrlRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<GetConsentFormDownloadUrl200Response>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling getConsentFormDownloadUrl().',
+      );
+    }
+
+    if (requestParameters['imageId'] == null) {
+      throw new runtime.RequiredError(
+        'imageId',
+        'Required parameter "imageId" was null or undefined when calling getConsentFormDownloadUrl().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resources/{rec_resource_id}/images/{image_id}/consent-download`
+          .replace(
+            `{${'rec_resource_id'}}`,
+            encodeURIComponent(String(requestParameters['recResourceId'])),
+          )
+          .replace(
+            `{${'image_id'}}`,
+            encodeURIComponent(String(requestParameters['imageId'])),
+          ),
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      GetConsentFormDownloadUrl200ResponseFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Returns a presigned URL for downloading the consent form PDF associated with an image.
+   * Get presigned URL for consent form download
+   */
+  async getConsentFormDownloadUrl(
+    requestParameters: GetConsentFormDownloadUrlRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<GetConsentFormDownloadUrl200Response> {
+    const response = await this.getConsentFormDownloadUrlRaw(
       requestParameters,
       initOverrides,
     );

@@ -35,11 +35,20 @@ export interface GalleryImage extends GalleryFile {
   previewUrl: string;
   type: 'image';
   consentData?: ImageUploadConsentData;
+  file_size?: number;
+  date_taken?: string;
+  photographer_type?: string;
+  photographer_type_description?: string;
+  photographer_name?: string;
+  contains_pii?: boolean;
+  photographer_display_name?: string;
 }
 
 export type GalleryFileAction =
   | 'view'
+  | 'viewDetails'
   | 'download'
+  | 'downloadConsent'
   | 'retry'
   | 'delete'
   | 'dismiss';

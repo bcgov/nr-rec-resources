@@ -393,4 +393,39 @@ describe('ResourceImagesController', () => {
       }
     });
   });
+
+  describe('getConsentDownloadUrl', () => {
+    it('should return presigned URL for consent form download', async () => {
+      vi.spyOn(
+        resourceImagesService,
+        'getConsentDownloadUrl',
+      ).mockResolvedValue('https://s3.amazonaws.com/presigned-consent-url');
+
+      const response = await controller.getConsentDownloadUrl(
+        'REC0001',
+        'image-123',
+      );
+
+      expect(response).toEqual({
+        url: 'https://s3.amazonaws.com/presigned-consent-url',
+      });
+    });
+
+    it('should throw 404 when consent form not found', async () => {
+      vi.spyOn(
+        resourceImagesService,
+        'getConsentDownloadUrl',
+      ).mockRejectedValue(
+        new HttpException('Consent form not found for this image', 404),
+      );
+
+      try {
+        await controller.getConsentDownloadUrl('REC0001', 'image-123');
+      } catch (e) {
+        expect(e).toBeInstanceOf(HttpException);
+        expect(e.message).toBe('Consent form not found for this image');
+        expect(e.getStatus()).toBe(404);
+      }
+    });
+  });
 });
