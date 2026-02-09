@@ -7,6 +7,7 @@ import { FormLabel } from '@/components';
 import {
   BC_GOV_PERSONAL_INFORMATION_URL,
   CONSENT_FORM_URL,
+  CONSENT_INFORMATION_URL,
 } from '@/constants/urls';
 import { ConsentFileUpload } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/components';
 import { useImageUploadForm } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/hooks';
@@ -280,8 +281,15 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
             <div className="w-100">
               <strong>This photo requires a consent and release form.</strong>
               <p className="mb-2">
-                Please download and ask the people in the photo to complete. If
-                this is part of a photoshoot please combine into one pdf.
+                Please download the form and ensure the photographer and/or all
+                identifiable individuals in the image complete it.{' '}
+                <a
+                  href={CONSENT_INFORMATION_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Learn more.
+                </a>
               </p>
               <Button
                 variant="primary"
