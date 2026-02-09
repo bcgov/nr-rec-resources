@@ -4,10 +4,20 @@
   .modal-dialog {
     max-width: 694px;
   }
+
   .modal-header {
     border-bottom: none;
     padding-bottom: 0;
+
+    .btn-close {
+      opacity: 1;
+
+      &:hover {
+        opacity: 0.6;
+      }
+    }
   }
+
   .modal-footer {
     border-top: none;
     padding-top: 0;
@@ -42,6 +52,56 @@
     border-radius: 8px;
     margin-bottom: 0.5rem;
     border: 1px solid $colorGreyLight;
+  }
+
+  &__preview-button {
+    position: relative;
+    width: 100%;
+    padding: 0;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.85;
+
+      .base-file-modal__preview-icon {
+        opacity: 1;
+      }
+    }
+  }
+
+  &__preview-icon {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 4px;
+    color: $colorBlue;
+    font-size: 16px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+
+  &__preview-actions {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    margin-bottom: 8px;
+    width: 100%;
+  }
+
+  &__preview-action-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    width: 100%;
   }
 
   &__preview-pdf {

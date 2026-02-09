@@ -2,6 +2,8 @@ import {
   addPendingDoc,
   addPendingImage,
   hideDeleteModal,
+  hideImageLightbox,
+  hidePhotoDetails,
   recResourceFileTransferStore,
   removePendingDoc,
   removePendingImage,
@@ -16,6 +18,8 @@ import {
   setUploadConsentData,
   setUploadFileName,
   showDeleteModalForFile,
+  showImageLightboxForImage,
+  showPhotoDetailsForImage,
   updateGalleryDocument,
   updateGalleryImage,
   updatePendingDoc,
@@ -70,24 +74,7 @@ const anotherImage: GalleryImage = {
 
 describe('recResourceFileTransferStore', () => {
   beforeEach(() => {
-    recResourceFileTransferStore.setState({
-      selectedFileForUpload: null,
-      uploadFileName: '',
-      uploadConsentData: {
-        dateTaken: null,
-        containsPii: false,
-        photographerType: 'STAFF',
-        photographerName: '',
-        consentFormFile: null,
-      },
-      showUploadOverlay: false,
-      pendingDocs: [],
-      galleryDocuments: [],
-      pendingImages: [],
-      galleryImages: [],
-      showDeleteModal: false,
-      fileToDelete: undefined,
-    });
+    resetRecResourceFileTransferStore();
   });
 
   it('sets selected file', () => {
@@ -422,5 +409,51 @@ describe('recResourceFileTransferStore', () => {
     expect(recResourceFileTransferStore.state.galleryImages).toEqual([]);
     expect(recResourceFileTransferStore.state.showDeleteModal).toBe(false);
     expect(recResourceFileTransferStore.state.fileToDelete).toBeUndefined();
+  });
+
+  describe('photo details modal', () => {
+    it('shows photo details for an image', () => {
+      showPhotoDetailsForImage(baseImage);
+
+      expect(recResourceFileTransferStore.state.showPhotoDetailsModal).toBe(
+        true,
+      );
+      expect(recResourceFileTransferStore.state.selectedImageForDetails).toBe(
+        baseImage,
+      );
+    });
+
+    it('hides photo details', () => {
+      showPhotoDetailsForImage(baseImage);
+      hidePhotoDetails();
+
+      expect(recResourceFileTransferStore.state.showPhotoDetailsModal).toBe(
+        false,
+      );
+      expect(
+        recResourceFileTransferStore.state.selectedImageForDetails,
+      ).toBeNull();
+    });
+  });
+
+  describe('image lightbox', () => {
+    it('shows lightbox for an image', () => {
+      showImageLightboxForImage(baseImage);
+
+      expect(recResourceFileTransferStore.state.showImageLightbox).toBe(true);
+      expect(recResourceFileTransferStore.state.selectedImageForLightbox).toBe(
+        baseImage,
+      );
+    });
+
+    it('hides lightbox', () => {
+      showImageLightboxForImage(baseImage);
+      hideImageLightbox();
+
+      expect(recResourceFileTransferStore.state.showImageLightbox).toBe(false);
+      expect(
+        recResourceFileTransferStore.state.selectedImageForLightbox,
+      ).toBeNull();
+    });
   });
 });

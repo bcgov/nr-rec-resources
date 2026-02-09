@@ -253,6 +253,14 @@ export class ResourceImagesService extends BaseStorageFileService {
         return this.mapResponse(result);
       }
 
+      // Validate required consent form fields
+      if (!photographer_type) {
+        throw new HttpException(
+          'photographer_type is required when uploading a consent form',
+          400,
+        );
+      }
+
       // Upload consent form to S3 first
       const docId = randomUUID();
       await this.consentFormsS3Service.uploadConsentForm(
@@ -299,14 +307,24 @@ export class ResourceImagesService extends BaseStorageFileService {
             doc_id: docId,
             date_taken: date_taken ? new Date(date_taken) : null,
             contains_pii: contains_pii ?? false,
-            photographer_type_code: photographer_type ?? 'UNKNOWN',
+            photographer_type_code: photographer_type,
             photographer_name: photographer_name ?? null,
             created_by: 'system',
             created_at: new Date(),
           },
         });
 
-        return imageRecord;
+        return {
+          ...imageRecord,
+          recreation_image_consent_form: {
+            doc_id: docId,
+            date_taken: date_taken ? new Date(date_taken) : undefined,
+            contains_pii: contains_pii ?? false,
+            photographer_type_code: photographer_type,
+            photographer_name: photographer_name ?? undefined,
+            recreation_photographer_type_code: undefined,
+          },
+        };
       });
 
       this.logger.log(
@@ -456,10 +474,11 @@ export class ResourceImagesService extends BaseStorageFileService {
         consentForm?.recreation_photographer_type_code?.description ??
         undefined,
       photographer_name: consentForm?.photographer_name ?? undefined,
+      // Photographer display name, fallback to updated_by then created_by if name not available
       photographer_display_name:
-        consentForm?.photographer_name ??
-        payload.updated_by ??
-        payload.created_by ??
+        consentForm?.photographer_name ||
+        payload.updated_by ||
+        payload.created_by ||
         undefined,
       contains_pii: consentForm?.contains_pii ?? undefined,
     };

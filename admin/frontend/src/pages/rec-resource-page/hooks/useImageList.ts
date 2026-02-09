@@ -24,6 +24,13 @@ export function useImageList(rec_resource_id?: string) {
         previewUrl: preview?.url,
         variants,
         type: 'image',
+        file_size: img.file_size,
+        date_taken: img.date_taken,
+        photographer_type: img.photographer_type,
+        photographer_type_description: img.photographer_type_description,
+        photographer_name: img.photographer_name,
+        photographer_display_name: img.photographer_display_name,
+        contains_pii: img.contains_pii,
       };
     });
   }, [imagesFromServer]);

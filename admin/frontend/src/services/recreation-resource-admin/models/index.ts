@@ -4,6 +4,7 @@ export * from './BadRequestResponseDto';
 export * from './CreateRecreationFeeDto';
 export * from './EstablishmentOrderDocDto';
 export * from './FinalizeDocUploadRequestDto';
+export * from './GetConsentFormDownloadUrl200Response';
 export * from './HealthControllerCheck200Response';
 export * from './HealthControllerCheck200ResponseInfoValue';
 export * from './HealthControllerCheck503Response';

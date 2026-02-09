@@ -576,12 +576,10 @@ describe('ResourceImagesDocsService', () => {
         image_id: 'test-image-id-456',
         file_name: 'image-with-consent.webp',
         file_size_original: 2097152,
-        consent: {
-          date_taken: '2025-01-15',
-          contains_pii: true,
-          photographer_type: 'STAFF',
-          photographer_name: 'John Doe',
-        },
+        date_taken: '2025-01-15',
+        contains_pii: true,
+        photographer_type: 'STAFF',
+        photographer_name: 'John Doe',
       };
 
       const mockConsentFile: Express.Multer.File = {
@@ -600,6 +598,7 @@ describe('ResourceImagesDocsService', () => {
       const mockImageRecord = createMockImage('test-image-id-456', 'REC0001', {
         file_name: 'image-with-consent.webp',
         file_size: BigInt(2097152),
+        created_by: 'creator@gov.bc.ca',
       });
 
       mockConsentFormsS3Service.uploadConsentForm.mockResolvedValue(undefined);
@@ -630,6 +629,9 @@ describe('ResourceImagesDocsService', () => {
       expect(result).toBeDefined();
       expect(result.image_id).toBe('test-image-id-456');
       expect(result.file_name).toBe('image-with-consent.webp');
+      expect(result.photographer_display_name).toBe('John Doe');
+      expect(result.photographer_name).toBe('John Doe');
+      expect(result.contains_pii).toBe(true);
 
       expect(mockConsentFormsS3Service.uploadConsentForm).toHaveBeenCalledWith(
         'REC0001',

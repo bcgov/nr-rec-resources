@@ -20,6 +20,10 @@ export interface RecResourceFileTransferState {
   galleryImages: GalleryImage[];
   showDeleteModal: boolean;
   fileToDelete?: GalleryFile;
+  showPhotoDetailsModal: boolean;
+  selectedImageForDetails: GalleryImage | null;
+  showImageLightbox: boolean;
+  selectedImageForLightbox: GalleryImage | null;
 }
 
 const INITIAL_CONSENT_DATA: ImageUploadConsentData = {
@@ -41,6 +45,10 @@ const INITIAL_REC_RESOURCE_FILE_TRANSFER_STATE: RecResourceFileTransferState = {
   galleryImages: [],
   showDeleteModal: false,
   fileToDelete: undefined,
+  showPhotoDetailsModal: false,
+  selectedImageForDetails: null,
+  showImageLightbox: false,
+  selectedImageForLightbox: null,
 };
 
 export const recResourceFileTransferStore =
@@ -113,6 +121,38 @@ export const showDeleteModalForFile = (file: GalleryFile) => {
 export const hideDeleteModal = () => {
   setShowDeleteModal(false);
   setFileToDelete(undefined);
+};
+
+export const showPhotoDetailsForImage = (image: GalleryImage) => {
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    selectedImageForDetails: image,
+    showPhotoDetailsModal: true,
+  }));
+};
+
+export const hidePhotoDetails = () => {
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    showPhotoDetailsModal: false,
+    selectedImageForDetails: null,
+  }));
+};
+
+export const showImageLightboxForImage = (image: GalleryImage) => {
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    selectedImageForLightbox: image,
+    showImageLightbox: true,
+  }));
+};
+
+export const hideImageLightbox = () => {
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    showImageLightbox: false,
+    selectedImageForLightbox: null,
+  }));
 };
 
 function addPendingFile<T extends GalleryFile>(file: T, type: FileType): void {

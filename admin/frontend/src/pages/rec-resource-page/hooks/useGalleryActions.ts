@@ -8,20 +8,31 @@ import {
   removePendingImage,
   resetUploadState,
   showDeleteModalForFile,
+  showImageLightboxForImage,
+  showPhotoDetailsForImage,
 } from '../store/recResourceFileTransferStore';
-import { GalleryFile, GalleryFileAction, GalleryGeneralAction } from '../types';
+import {
+  GalleryFile,
+  GalleryFileAction,
+  GalleryGeneralAction,
+  GalleryImage,
+} from '../types';
+import { useConsentDownload } from './useConsentDownload';
 import { useDocumentDelete } from './useDocumentDelete';
 import { useDocumentUpload } from './useDocumentUpload';
 import { useFileDownload } from './useFileDownload';
 import { useImageDelete } from './useImageDelete';
 import { useImageUpload } from './useImageUpload';
+import { useRecResource } from './useRecResource';
 
 /**
  * Hook to manage gallery actions for both documents and images.
  * Handles view, download, retry, delete, and upload operations.
  */
 export function useGalleryActions() {
+  const { rec_resource_id } = useRecResource();
   const downloadMutation = useFileDownload();
+  const consentDownloadMutation = useConsentDownload();
   const {
     handleUploadRetry: handleDocumentUploadRetry,
     handleUpload: handleDocumentUpload,
@@ -42,10 +53,30 @@ export function useGalleryActions() {
     (action: GalleryFileAction, file: GalleryFile, onSuccess?: () => void) => {
       switch (action) {
         case 'view':
-          window.open(file.url, '_blank');
+          // For images, open in lightbox; for documents, open in new tab
+          if (file.type === 'image') {
+            showImageLightboxForImage(file as GalleryImage);
+          } else {
+            window.open(file.url, '_blank');
+          }
           break;
+        case 'viewDetails':
+          // Only images can have details viewed
+          if (file.type === 'image') {
+            showPhotoDetailsForImage(file as GalleryImage);
+          }
+          break;
+
         case 'download':
           downloadMutation.mutate({ file });
+          break;
+        case 'downloadConsent':
+          if (rec_resource_id && file.type === 'image') {
+            consentDownloadMutation.mutate({
+              recResourceId: rec_resource_id,
+              imageId: file.id,
+            });
+          }
           break;
         case 'retry': {
           const isImageRetry = file.type === 'image';
@@ -75,6 +106,8 @@ export function useGalleryActions() {
       handleDocumentUploadRetry,
       handleImageUploadRetry,
       downloadMutation,
+      consentDownloadMutation,
+      rec_resource_id,
       showDeleteModalForFile,
     ],
   );

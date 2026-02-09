@@ -11,11 +11,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock dependencies
 const mockDownloadMutation = vi.fn();
+const mockConsentDownloadMutation = vi.fn();
 const mockHandleUploadRetry = vi.fn();
 const mockHandleUpload = vi.fn();
 const mockHandleDelete = vi.fn();
 const mockShowDeleteModalForDoc = vi.fn();
 const mockHideDeleteModal = vi.fn();
+const mockShowImageLightboxForImage = vi.fn();
+const mockShowPhotoDetailsForImage = vi.fn();
 const mockHandleAddFileByType = vi.fn();
 const mockHandleAddPdfFileClick = vi.fn();
 const mockResetUploadState = vi.fn();
@@ -45,6 +48,18 @@ const mockUseStore = vi.fn(() => mockStoreState);
 vi.mock('@/pages/rec-resource-page/hooks/useFileDownload', () => ({
   useFileDownload: () => ({
     mutate: mockDownloadMutation,
+  }),
+}));
+
+vi.mock('@/pages/rec-resource-page/hooks/useConsentDownload', () => ({
+  useConsentDownload: () => ({
+    mutate: mockConsentDownloadMutation,
+  }),
+}));
+
+vi.mock('@/pages/rec-resource-page/hooks/useRecResource', () => ({
+  useRecResource: () => ({
+    rec_resource_id: 'REC0001',
   }),
 }));
 
@@ -91,6 +106,9 @@ vi.mock('@/pages/rec-resource-page/store/recResourceFileTransferStore', () => ({
       fileToDelete: null,
     },
   },
+  showImageLightboxForImage: (image: any) =>
+    mockShowImageLightboxForImage(image),
+  showPhotoDetailsForImage: (image: any) => mockShowPhotoDetailsForImage(image),
   hideDeleteModal: () => mockHideDeleteModal(),
   showDeleteModalForFile: (file: any) => mockShowDeleteModalForDoc(file),
   showDeleteModalForDoc: (file: any) => mockShowDeleteModalForDoc(file),
@@ -151,7 +169,7 @@ describe('useGalleryActions', () => {
       vi.clearAllMocks();
     });
 
-    it('handles view action by opening window', () => {
+    it('handles view action for documents by opening window', () => {
       const mockOpen = vi.spyOn(window, 'open').mockImplementation(() => null);
       const { result } = renderHook(() => useGalleryActions(), {
         wrapper: createWrapper(),
@@ -161,6 +179,72 @@ describe('useGalleryActions', () => {
 
       expect(mockOpen).toHaveBeenCalledWith(testFile.url, '_blank');
       mockOpen.mockRestore();
+    });
+
+    it('handles view action for images by opening lightbox', () => {
+      const imageFile: GalleryFile = {
+        id: 'img-1',
+        name: 'test.jpg',
+        date: '2023-01-01',
+        url: 'http://example.com/test.jpg',
+        extension: 'jpg',
+        type: 'image',
+      };
+
+      const { result } = renderHook(() => useGalleryActions(), {
+        wrapper: createWrapper(),
+      });
+
+      result.current.handleFileAction('view', imageFile);
+
+      expect(mockShowImageLightboxForImage).toHaveBeenCalledWith(imageFile);
+    });
+
+    it('handles viewDetails action for images by opening photo details', () => {
+      const imageFile: GalleryFile = {
+        id: 'img-1',
+        name: 'test.jpg',
+        date: '2023-01-01',
+        url: 'http://example.com/test.jpg',
+        extension: 'jpg',
+        type: 'image',
+      };
+
+      const { result } = renderHook(() => useGalleryActions(), {
+        wrapper: createWrapper(),
+      });
+
+      result.current.handleFileAction(
+        'viewDetails' as GalleryFileAction,
+        imageFile,
+      );
+
+      expect(mockShowPhotoDetailsForImage).toHaveBeenCalledWith(imageFile);
+    });
+
+    it('handles downloadConsent action by calling consent download mutation', () => {
+      const imageFile: GalleryFile = {
+        id: 'img-1',
+        name: 'test.jpg',
+        date: '2023-01-01',
+        url: 'http://example.com/test.jpg',
+        extension: 'jpg',
+        type: 'image',
+      };
+
+      const { result } = renderHook(() => useGalleryActions(), {
+        wrapper: createWrapper(),
+      });
+
+      result.current.handleFileAction(
+        'downloadConsent' as GalleryFileAction,
+        imageFile,
+      );
+
+      expect(mockConsentDownloadMutation).toHaveBeenCalledWith({
+        recResourceId: 'REC0001',
+        imageId: 'img-1',
+      });
     });
 
     it('handles download action by calling download mutation', () => {

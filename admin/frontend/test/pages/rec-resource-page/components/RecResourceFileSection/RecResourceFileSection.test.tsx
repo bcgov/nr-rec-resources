@@ -1,13 +1,20 @@
 import { RecResourceFileSection } from '@/pages/rec-resource-page/components/RecResourceFileSection';
 import { fireEvent, render, screen } from '@testing-library/react';
 
-const mockUseDocumentList = vi.fn();
 const mockUseRecResourceFileTransferState = vi.fn();
 const mockResetRecResourceFileTransferStore = vi.fn();
+const mockHideImageLightbox = vi.fn();
+const mockUseStore = vi.fn();
 
 vi.mock('@/pages/rec-resource-page/store/recResourceFileTransferStore', () => ({
   resetRecResourceFileTransferStore: () =>
     mockResetRecResourceFileTransferStore(),
+  recResourceFileTransferStore: {},
+  hideImageLightbox: () => mockHideImageLightbox(),
+}));
+
+vi.mock('@tanstack/react-store', () => ({
+  useStore: () => mockUseStore(),
 }));
 
 vi.mock(
@@ -43,9 +50,6 @@ vi.mock(
     ),
   }),
 );
-vi.mock('@/pages/rec-resource-page/hooks/useDocumentList', () => ({
-  useDocumentList: () => mockUseDocumentList(),
-}));
 vi.mock(
   '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState',
   () => ({
@@ -85,6 +89,18 @@ vi.mock(
     DeleteFileModal: () => <div data-testid="delete-file-modal" />,
   }),
 );
+vi.mock(
+  '@/pages/rec-resource-page/components/RecResourceFileSection/PhotoDetailsModal',
+  () => ({
+    PhotoDetailsModal: () => <div data-testid="photo-details-modal" />,
+  }),
+);
+vi.mock(
+  '@/pages/rec-resource-page/components/RecResourceFileSection/ImageLightboxModal',
+  () => ({
+    ImageLightboxModal: () => <div data-testid="image-lightbox-modal" />,
+  }),
+);
 
 describe('RecResourceFileSection', () => {
   const defaultState = {
@@ -104,17 +120,15 @@ describe('RecResourceFileSection', () => {
     isFetching: false,
     isFetchingImages: false,
   };
-  const defaultList = {
-    documents: [{ id: 1, name: 'Doc1' }],
-    isDocumentUploadDisabled: false,
-    isFetching: false,
-    refetch: vi.fn(),
-  };
 
   beforeEach(() => {
-    mockUseDocumentList.mockReturnValue(defaultList);
     mockUseRecResourceFileTransferState.mockReturnValue(defaultState);
     mockResetRecResourceFileTransferStore.mockClear();
+    mockHideImageLightbox.mockClear();
+    mockUseStore.mockReturnValue({
+      showImageLightbox: false,
+      selectedImageForLightbox: null,
+    });
   });
 
   it('renders gallery accordion and file cards', () => {
@@ -123,7 +137,7 @@ describe('RecResourceFileSection', () => {
       galleryDocuments: [{ id: 1, name: 'Doc1' }],
     });
     render(<RecResourceFileSection />);
-    expect(screen.getAllByTestId('gallery-accordion')).toHaveLength(2); // One for documents, one for images
+    expect(screen.getAllByTestId('gallery-accordion')).toHaveLength(2); // One for images, one for documents
     expect(screen.getByTestId('gallery-file-card')).toBeInTheDocument();
     expect(screen.getByText('Doc1')).toBeInTheDocument();
   });
@@ -135,7 +149,7 @@ describe('RecResourceFileSection', () => {
       getDocumentGeneralActionHandler,
     });
     render(<RecResourceFileSection />);
-    fireEvent.click(screen.getAllByTestId('upload-label')[0]); // Click first upload button
+    fireEvent.click(screen.getAllByTestId('upload-label')[1]); // Documents is the second accordion now
     expect(getDocumentGeneralActionHandler).toHaveBeenCalledWith('upload');
   });
 
@@ -148,7 +162,7 @@ describe('RecResourceFileSection', () => {
       isDocumentUploadDisabled: true,
     });
     render(<RecResourceFileSection />);
-    fireEvent.click(screen.getAllByTestId('upload-label')[0]); // Click first upload button
+    fireEvent.click(screen.getAllByTestId('upload-label')[1]); // Documents is the second accordion now
     expect(actionHandler).not.toHaveBeenCalled(); // Upload action should not be called
   });
 
@@ -181,6 +195,16 @@ describe('RecResourceFileSection', () => {
   it('shows delete modal', () => {
     render(<RecResourceFileSection />);
     expect(screen.getByTestId('delete-file-modal')).toBeInTheDocument();
+  });
+
+  it('renders photo details modal', () => {
+    render(<RecResourceFileSection />);
+    expect(screen.getByTestId('photo-details-modal')).toBeInTheDocument();
+  });
+
+  it('renders image lightbox modal', () => {
+    render(<RecResourceFileSection />);
+    expect(screen.getByTestId('image-lightbox-modal')).toBeInTheDocument();
   });
 
   it('calls document action handler when file card action is clicked', () => {
