@@ -25,6 +25,7 @@
       background: $colorRedLight;
       color: $colorRed;
     }
+
     &--pending {
       background: $colorBackgroundGrey;
     }
@@ -45,6 +46,7 @@
 
     .gallery-file-card__action-button-container {
       color: $colorWhite;
+
       &:hover * {
         color: $colorGold;
       }
@@ -60,10 +62,12 @@
   }
 
   &__filename {
-    font-size: 15px;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 140%;
+
     &--error {
-      color: $colorRed !important;
-      font-weight: bold;
+      color: $colorRed;
     }
   }
 
@@ -77,29 +81,76 @@
     -webkit-box-orient: vertical;
   }
 
+  &__body {
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }
+
   &__menu {
     font-size: 20px;
     color: $colorGrey;
-    opacity: 0.7;
     cursor: pointer;
-    padding: 5px !important;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
+    padding: 0 !important;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
     &:hover,
     &:focus {
-      background: $colorBackgroundGrey;
+      background: transparent;
+      color: $colorGrey;
     }
+
     &::after {
       display: none;
     }
   }
 
   &__date {
-    font-size: 0.92rem;
-    color: $colorBackgroundGrey;
+    font-size: 14px;
+    color: $colorGreyMed;
+    line-height: 140%;
+
     &--error {
       color: $colorRed !important;
+    }
+  }
+
+  .dropdown-menu {
+    border: 1px solid $colorBlue;
+    border-radius: 8px;
+    box-shadow: 0px 25.6px 57.6px 0px rgba(0, 0, 0, 0.22);
+    padding: 0;
+
+    .dropdown-item {
+      min-height: 48px;
+      padding: 10px 16px;
+      gap: 8px;
+      color: $colorBlue;
+      border-bottom: 1px solid $colorBlue;
+      display: flex;
+      align-items: center;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      &:hover,
+      &:focus {
+        color: $colorBlue;
+        background-color: $colorBlueLight;
+      }
     }
   }
 }

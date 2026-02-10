@@ -1,4 +1,5 @@
 import {
+  ConsentFormDownloadResponseDto,
   RecreationResourceImageDto,
   RecreationResourceImageVariantDto,
 } from '@/resource-images/dto/recreation-resource-image.dto';
@@ -72,6 +73,34 @@ describe('RecreationResourceDocDto', () => {
       expect(dto.width).toBe(1440);
       expect(dto.height).toBe(1080);
       expect(dto.size_code).toBe(RecreationResourceImageSize.ORIGINAL);
+    });
+  });
+
+  it('should accept consent metadata fields', () => {
+    const dto = new RecreationResourceImageDto();
+    dto.file_size = 2097152;
+    dto.date_taken = '2024-06-15';
+    dto.photographer_type = 'STAFF';
+    dto.photographer_type_description = 'Staff Member';
+    dto.photographer_name = 'John Doe';
+    dto.contains_pii = false;
+    dto.photographer_display_name = 'John Doe';
+
+    expect(dto.file_size).toBe(2097152);
+    expect(dto.date_taken).toBe('2024-06-15');
+    expect(dto.photographer_type).toBe('STAFF');
+    expect(dto.photographer_type_description).toBe('Staff Member');
+    expect(dto.photographer_name).toBe('John Doe');
+    expect(dto.contains_pii).toBe(false);
+    expect(dto.photographer_display_name).toBe('John Doe');
+  });
+
+  describe('ConsentFormDownloadResponseDto', () => {
+    it('should create a valid DTO instance', () => {
+      const dto = new ConsentFormDownloadResponseDto();
+      dto.url = 'https://bucket.s3.amazonaws.com/consent/test.pdf';
+
+      expect(dto.url).toBe('https://bucket.s3.amazonaws.com/consent/test.pdf');
     });
   });
 });

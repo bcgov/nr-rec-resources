@@ -5,13 +5,11 @@ import { TestQueryClientProvider } from '@test/test-utils';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Mock URL.createObjectURL
 Object.defineProperty(URL, 'createObjectURL', {
   writable: true,
   value: vi.fn(() => 'mocked-object-url'),
 });
 
-// Mock FontAwesome icons
 vi.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: ({ icon, size, color, className }: any) => (
     <div
@@ -23,15 +21,7 @@ vi.mock('@fortawesome/react-fontawesome', () => ({
     />
   ),
 }));
-
-// Mock CustomButton
 vi.mock('@/components', () => ({
-  CustomButton: ({ children, onClick, variant, leftIcon }: any) => (
-    <button onClick={onClick} data-variant={variant}>
-      {leftIcon}
-      {children}
-    </button>
-  ),
   ClampLines: ({ text }: any) => <div>{text}</div>,
 }));
 
@@ -155,8 +145,8 @@ describe('BaseFileModal', () => {
       const confirmButton = screen.getByRole('button', { name: /delete/i });
       const closeButton = screen.getByRole('button', { name: /close/i });
 
-      expect(cancelButton).toHaveAttribute('data-variant', 'tertiary');
-      expect(confirmButton).toHaveAttribute('data-variant', 'danger');
+      expect(cancelButton).toBeInTheDocument();
+      expect(confirmButton).toBeInTheDocument();
 
       fireEvent.click(cancelButton);
       fireEvent.click(confirmButton);
@@ -208,7 +198,6 @@ describe('BaseFileModal', () => {
         title: 'Minimal',
         galleryFile: documentFile,
         confirmButtonText: 'OK',
-        confirmButtonIcon: faUpload,
       };
 
       expect(() =>

@@ -81,7 +81,7 @@ load_test_admin:
 LOCALSTACK_ENDPOINT=http://localhost:4566
 IMAGES_BUCKET=rst-storage-images-dev
 DOCUMENTS_BUCKET=rst-storage-public-documents-dev
-CONSENT_BUCKET=rst-lza-establishment-order-docs-dev
+CONSENT_BUCKET=rst-storage-consent-forms-dev
 CORS_CONFIG='{"CORSRules":[{"AllowedHeaders":["*"],"AllowedMethods":["PUT","GET","HEAD"],"AllowedOrigins":["http://localhost:3001"],"ExposeHeaders":["ETag"],"MaxAgeSeconds":3000}]}'
 
 .PHONY: localstack

@@ -181,4 +181,46 @@ describe('useImageList', () => {
       'test-resource-id',
     );
   });
+
+  it('should map consent metadata fields from server response', () => {
+    const mockImagesFromServer = [
+      {
+        ref_id: 'image-1',
+        image_id: 'image-1',
+        file_name: 'consent-image.webp',
+        created_at: '2025-01-01T10:00:00Z',
+        recreation_resource_image_variants: [
+          {
+            size_code: 'original',
+            url: 'https://example.com/original.jpg',
+            extension: 'jpg',
+          },
+        ],
+        file_size: 2097152,
+        date_taken: '2024-06-15',
+        photographer_type: 'STAFF',
+        photographer_type_description: 'Staff Member',
+        photographer_name: 'Test User',
+        photographer_display_name: 'Test User',
+        contains_pii: true,
+      },
+    ];
+
+    (useGetImagesByRecResourceId as any).mockReturnValue({
+      data: mockImagesFromServer,
+      isLoading: false,
+      error: null,
+    });
+
+    const { result } = renderHook(() => useImageList('test-resource-id'));
+
+    const image = result.current.galleryImagesFromServer[0];
+    expect(image.file_size).toBe(2097152);
+    expect(image.date_taken).toBe('2024-06-15');
+    expect(image.photographer_type).toBe('STAFF');
+    expect(image.photographer_type_description).toBe('Staff Member');
+    expect(image.photographer_name).toBe('Test User');
+    expect(image.photographer_display_name).toBe('Test User');
+    expect(image.contains_pii).toBe(true);
+  });
 });

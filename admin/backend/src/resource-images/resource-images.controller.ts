@@ -28,9 +28,9 @@ import {
   ApiQuery,
   ApiResponse,
   ApiTags,
-  getSchemaPath,
 } from '@nestjs/swagger';
 import {
+  ConsentFormDownloadResponseDto,
   FinalizeImageUploadRequestDto,
   PresignImageUploadResponseDto,
   RecreationResourceImageDto,
@@ -60,10 +60,7 @@ export class ResourceImagesController {
   @ApiResponse({
     status: 200,
     description: 'Images Found',
-    schema: {
-      type: 'array',
-      items: { $ref: getSchemaPath(RecreationResourceImageDto) },
-    },
+    type: [RecreationResourceImageDto],
   })
   async getAll(
     @Param('rec_resource_id') rec_resource_id: string,
@@ -188,5 +185,46 @@ export class ResourceImagesController {
     @Param('image_id') image_id: string,
   ): Promise<RecreationResourceImageDto | null> {
     return this.resourceImagesService.delete(rec_resource_id, image_id, true);
+  }
+
+  @Get(':rec_resource_id/images/:image_id/consent-download')
+  @ApiOperation({
+    summary: 'Get presigned URL for consent form download',
+    operationId: 'getConsentFormDownloadUrl',
+    description:
+      'Returns a time-limited presigned URL for downloading the consent form PDF associated with an image.',
+  })
+  @ApiParam({
+    name: 'rec_resource_id',
+    required: true,
+    description: 'Resource identifier',
+    type: 'string',
+    example: 'REC204118',
+  })
+  @ApiParam({
+    name: 'image_id',
+    required: true,
+    description: 'Image identifier (UUID)',
+    type: 'string',
+    example: 'a7c1e5f3-8d2b-4c9a-b1e6-f3d8c7a2e5b9',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Presigned download URL generated',
+    type: ConsentFormDownloadResponseDto,
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Image or consent form not found',
+  })
+  async getConsentDownloadUrl(
+    @Param('rec_resource_id') rec_resource_id: string,
+    @Param('image_id') image_id: string,
+  ): Promise<{ url: string }> {
+    const url = await this.resourceImagesService.getConsentDownloadUrl(
+      rec_resource_id,
+      image_id,
+    );
+    return { url };
   }
 }

@@ -1,9 +1,20 @@
-import { ClampLines, CustomButton } from '@/components';
+import { ClampLines } from '@/components';
 import { COLOR_RED } from '@/styles/colors';
-import { IconDefinition, faFilePdf } from '@fortawesome/free-solid-svg-icons';
+import {
+  IconDefinition,
+  faFilePdf,
+  faUpRightFromSquare,
+} from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FC, ReactNode } from 'react';
-import { Alert, AlertProps, ButtonProps, Modal, Stack } from 'react-bootstrap';
+import {
+  Alert,
+  AlertProps,
+  Button,
+  ButtonProps,
+  Modal,
+  Stack,
+} from 'react-bootstrap';
 import { GalleryFile } from '../../types';
 import './BaseFileModal.scss';
 
@@ -24,10 +35,11 @@ interface BaseFileModalProps {
   className?: string;
   onCancel?: () => void;
   onConfirm?: () => void;
-  confirmButtonText: string;
-  confirmButtonIcon: IconDefinition;
+  confirmButtonText?: string;
+  confirmButtonIcon?: IconDefinition;
   confirmButtonVariant?: ButtonProps['variant'];
   confirmButtonDisabled?: boolean;
+  onImageClick?: () => void;
 }
 
 export const BaseFileModal: FC<BaseFileModalProps> = ({
@@ -44,6 +56,7 @@ export const BaseFileModal: FC<BaseFileModalProps> = ({
   confirmButtonVariant,
   confirmButtonDisabled = false,
   className = '',
+  onImageClick,
 }) => {
   if (!show) return null;
 
@@ -52,14 +65,32 @@ export const BaseFileModal: FC<BaseFileModalProps> = ({
   // Create preview component
   const filePreview = (() => {
     if (isImage) {
+      const imageElement = (
+        <img
+          src={galleryFile.url}
+          alt="preview"
+          className={`${className}__preview-img base-file-modal__preview-img`}
+        />
+      );
+
       return (
         <>
           <h4>Preview</h4>
-          <img
-            src={galleryFile.url}
-            alt="preview"
-            className={`${className}__preview-img base-file-modal__preview-img`}
-          />
+          {onImageClick ? (
+            <button
+              type="button"
+              onClick={onImageClick}
+              className="base-file-modal__preview-button"
+              aria-label="View full size image"
+            >
+              {imageElement}
+              <span className="base-file-modal__preview-icon">
+                <FontAwesomeIcon icon={faUpRightFromSquare} />
+              </span>
+            </button>
+          ) : (
+            imageElement
+          )}
         </>
       );
     }
@@ -118,17 +149,21 @@ export const BaseFileModal: FC<BaseFileModalProps> = ({
         {children}
       </Modal.Body>
       <Modal.Footer>
-        <CustomButton variant="tertiary" onClick={onCancel}>
+        <Button variant="secondary" onClick={onCancel ?? onHide}>
           Cancel
-        </CustomButton>
-        <CustomButton
-          variant={confirmButtonVariant}
-          onClick={onConfirm}
-          leftIcon={<FontAwesomeIcon icon={confirmButtonIcon} />}
-          disabled={confirmButtonDisabled}
-        >
-          {confirmButtonText}
-        </CustomButton>
+        </Button>
+        {onConfirm && (
+          <Button
+            variant={confirmButtonVariant}
+            onClick={onConfirm}
+            disabled={confirmButtonDisabled}
+          >
+            {confirmButtonIcon && (
+              <FontAwesomeIcon icon={confirmButtonIcon} className="me-2" />
+            )}
+            {confirmButtonText}
+          </Button>
+        )}
       </Modal.Footer>
     </Modal>
   );

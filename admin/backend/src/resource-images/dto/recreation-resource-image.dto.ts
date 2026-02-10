@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
+import { RecreationResourceImageSize } from '@shared/constants/images';
 import {
   IsNotEmpty,
   IsString,
@@ -8,8 +9,6 @@ import {
   IsBoolean,
   IsDateString,
 } from 'class-validator';
-
-import { RecreationResourceImageSize } from '@shared/constants/images';
 
 export class RecreationResourceImageVariantDto {
   @ApiProperty({
@@ -78,6 +77,50 @@ export class RecreationResourceImageDto {
     type: String,
   })
   created_at: string | null;
+
+  @ApiPropertyOptional({
+    description: 'Size of the original image in bytes',
+    example: 2097152,
+  })
+  file_size?: number;
+
+  @ApiPropertyOptional({
+    description: 'Date the photo was taken',
+    example: '2024-06-15',
+  })
+  date_taken?: string;
+
+  @ApiPropertyOptional({
+    description: 'Photographer type code',
+    example: 'STAFF',
+  })
+  photographer_type?: string;
+
+  @ApiPropertyOptional({
+    description: 'Photographer type description',
+    example: 'Staff Member',
+  })
+  photographer_type_description?: string;
+
+  @ApiPropertyOptional({
+    description: 'Photographer name for attribution',
+    example: 'Test User',
+  })
+  photographer_name?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Whether the image contains personally identifiable information',
+    example: false,
+  })
+  contains_pii?: boolean;
+
+  @ApiPropertyOptional({
+    description:
+      'Display name for photographer (photographer_name, or updated_by, or created_by)',
+    example: 'Test User',
+  })
+  photographer_display_name?: string;
 }
 
 /**
@@ -202,4 +245,15 @@ export class FinalizeImageUploadRequestDto extends ConsentFormDto {
   })
   @IsNotEmpty()
   file_size_original: number;
+}
+
+/**
+ * DTO for consent form download endpoint response
+ */
+export class ConsentFormDownloadResponseDto {
+  @ApiProperty({
+    description: 'Presigned URL for downloading the consent form PDF',
+    example: 'https://bucket.s3.amazonaws.com/consent/...',
+  })
+  url: string;
 }

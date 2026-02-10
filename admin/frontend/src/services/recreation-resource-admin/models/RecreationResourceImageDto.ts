@@ -57,6 +57,48 @@ export interface RecreationResourceImageDto {
    * @memberof RecreationResourceImageDto
    */
   created_at: string;
+  /**
+   * Size of the original image in bytes
+   * @type {number}
+   * @memberof RecreationResourceImageDto
+   */
+  file_size?: number;
+  /**
+   * Date the photo was taken
+   * @type {string}
+   * @memberof RecreationResourceImageDto
+   */
+  date_taken?: string;
+  /**
+   * Photographer type code
+   * @type {string}
+   * @memberof RecreationResourceImageDto
+   */
+  photographer_type?: string;
+  /**
+   * Photographer type description
+   * @type {string}
+   * @memberof RecreationResourceImageDto
+   */
+  photographer_type_description?: string;
+  /**
+   * Photographer name for attribution
+   * @type {string}
+   * @memberof RecreationResourceImageDto
+   */
+  photographer_name?: string;
+  /**
+   * Whether the image contains personally identifiable information
+   * @type {boolean}
+   * @memberof RecreationResourceImageDto
+   */
+  contains_pii?: boolean;
+  /**
+   * Display name for photographer (photographer_name, or updated_by, or created_by)
+   * @type {string}
+   * @memberof RecreationResourceImageDto
+   */
+  photographer_display_name?: string;
 }
 
 /**
@@ -96,6 +138,22 @@ export function RecreationResourceImageDtoFromJSONTyped(
             RecreationResourceImageVariantDtoFromJSON,
           ),
     created_at: json['created_at'],
+    file_size: json['file_size'] == null ? undefined : json['file_size'],
+    date_taken: json['date_taken'] == null ? undefined : json['date_taken'],
+    photographer_type:
+      json['photographer_type'] == null ? undefined : json['photographer_type'],
+    photographer_type_description:
+      json['photographer_type_description'] == null
+        ? undefined
+        : json['photographer_type_description'],
+    photographer_name:
+      json['photographer_name'] == null ? undefined : json['photographer_name'],
+    contains_pii:
+      json['contains_pii'] == null ? undefined : json['contains_pii'],
+    photographer_display_name:
+      json['photographer_display_name'] == null
+        ? undefined
+        : json['photographer_display_name'],
   };
 }
 
@@ -124,5 +182,12 @@ export function RecreationResourceImageDtoToJSONTyped(
             RecreationResourceImageVariantDtoToJSON,
           ),
     created_at: value['created_at'],
+    file_size: value['file_size'],
+    date_taken: value['date_taken'],
+    photographer_type: value['photographer_type'],
+    photographer_type_description: value['photographer_type_description'],
+    photographer_name: value['photographer_name'],
+    contains_pii: value['contains_pii'],
+    photographer_display_name: value['photographer_display_name'],
   };
 }

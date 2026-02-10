@@ -1,0 +1,1 @@
+export { PhotoDetailsModal } from './PhotoDetailsModal';

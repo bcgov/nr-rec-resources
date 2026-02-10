@@ -22,6 +22,7 @@ describe('ResourceImagesDocsService', () => {
 
   const mockConsentFormsS3Service = {
     uploadConsentForm: vi.fn(),
+    getPresignedDownloadUrl: vi.fn(),
     getS3Service: vi.fn().mockReturnValue(mockConsentS3Service),
     getConsentFormKey: vi
       .fn()
@@ -61,6 +62,11 @@ describe('ResourceImagesDocsService', () => {
     vi.mocked(prismaService.recreation_resource.findUnique).mockResolvedValue({
       rec_resource_id: 'REC0001',
     } as any);
+
+    // Mock recreation_image_consent_form for consent download tests
+    (prismaService as any).recreation_image_consent_form = {
+      findUnique: vi.fn(),
+    };
 
     mockConsentFormsS3Service.uploadConsentForm.mockReset();
     mockConsentS3Service.deleteFile.mockReset();
@@ -570,12 +576,10 @@ describe('ResourceImagesDocsService', () => {
         image_id: 'test-image-id-456',
         file_name: 'image-with-consent.webp',
         file_size_original: 2097152,
-        consent: {
-          date_taken: '2025-01-15',
-          contains_pii: true,
-          photographer_type: 'STAFF',
-          photographer_name: 'John Doe',
-        },
+        date_taken: '2025-01-15',
+        contains_pii: true,
+        photographer_type: 'STAFF',
+        photographer_name: 'John Doe',
       };
 
       const mockConsentFile: Express.Multer.File = {
@@ -594,6 +598,7 @@ describe('ResourceImagesDocsService', () => {
       const mockImageRecord = createMockImage('test-image-id-456', 'REC0001', {
         file_name: 'image-with-consent.webp',
         file_size: BigInt(2097152),
+        created_by: 'creator@gov.bc.ca',
       });
 
       mockConsentFormsS3Service.uploadConsentForm.mockResolvedValue(undefined);
@@ -624,6 +629,9 @@ describe('ResourceImagesDocsService', () => {
       expect(result).toBeDefined();
       expect(result.image_id).toBe('test-image-id-456');
       expect(result.file_name).toBe('image-with-consent.webp');
+      expect(result.photographer_display_name).toBe('John Doe');
+      expect(result.photographer_name).toBe('John Doe');
+      expect(result.contains_pii).toBe(true);
 
       expect(mockConsentFormsS3Service.uploadConsentForm).toHaveBeenCalledWith(
         'REC0001',
@@ -634,6 +642,107 @@ describe('ResourceImagesDocsService', () => {
       );
 
       expect(prismaService.$transaction).toHaveBeenCalled();
+    });
+  });
+
+  describe('mapResponse with consent metadata', () => {
+    it('should include consent metadata when consent form exists', async () => {
+      const mockImage = createMockImage('image-123', 'REC0001', {
+        file_name: 'test.webp',
+        file_size: BigInt(2097152),
+        updated_by: 'updater@gov.bc.ca',
+        created_by: 'creator@gov.bc.ca',
+        recreation_image_consent_form: {
+          doc_id: 'doc-456',
+          date_taken: new Date('2024-06-15'),
+          contains_pii: true,
+          photographer_type_code: 'STAFF',
+          photographer_name: 'John Doe',
+          recreation_photographer_type_code: { description: 'Staff Member' },
+        },
+      });
+
+      vi.mocked(
+        prismaService.recreation_resource_image.findMany,
+      ).mockResolvedValue([mockImage] as any);
+
+      const result = await service.getAll('REC0001');
+
+      expect(result?.[0]?.file_size).toBe(2097152);
+      expect(result?.[0]?.date_taken).toBe('2024-06-15');
+      expect(result?.[0]?.photographer_type).toBe('STAFF');
+      expect(result?.[0]?.photographer_type_description).toBe('Staff Member');
+      expect(result?.[0]?.photographer_name).toBe('John Doe');
+      expect(result?.[0]?.photographer_display_name).toBe('John Doe');
+      expect(result?.[0]?.contains_pii).toBe(true);
+    });
+
+    it('should use updated_by as photographer_display_name fallback', async () => {
+      const mockImage = createMockImage('image-123', 'REC0001', {
+        file_name: 'test.webp',
+        updated_by: 'updater@gov.bc.ca',
+        created_by: 'creator@gov.bc.ca',
+        recreation_image_consent_form: {
+          doc_id: 'doc-456',
+          date_taken: null,
+          contains_pii: false,
+          photographer_type_code: 'STAFF',
+          photographer_name: null,
+          recreation_photographer_type_code: { description: 'Staff Member' },
+        },
+      });
+
+      vi.mocked(
+        prismaService.recreation_resource_image.findMany,
+      ).mockResolvedValue([mockImage] as any);
+
+      const result = await service.getAll('REC0001');
+
+      expect(result?.[0]?.photographer_display_name).toBe('updater@gov.bc.ca');
+    });
+
+    it('should omit consent fields when no consent form exists', async () => {
+      const mockImage = createMockImage('image-123', 'REC0001', {
+        file_name: 'test.webp',
+      });
+
+      vi.mocked(
+        prismaService.recreation_resource_image.findMany,
+      ).mockResolvedValue([mockImage] as any);
+
+      const result = await service.getAll('REC0001');
+
+      expect(result?.[0]?.date_taken).toBeUndefined();
+      expect(result?.[0]?.photographer_type).toBeUndefined();
+      expect(result?.[0]?.contains_pii).toBeUndefined();
+    });
+  });
+
+  describe('getConsentDownloadUrl', () => {
+    it('should return presigned URL when consent form exists', async () => {
+      vi.mocked(
+        prismaService.recreation_image_consent_form.findUnique,
+      ).mockResolvedValue({ doc_id: 'doc-456' } as any);
+      mockConsentFormsS3Service.getPresignedDownloadUrl.mockResolvedValue(
+        'https://s3.amazonaws.com/presigned-consent-url',
+      );
+
+      const result = await service.getConsentDownloadUrl('REC0001', 'img-123');
+
+      expect(result).toBe('https://s3.amazonaws.com/presigned-consent-url');
+      expect(
+        mockConsentFormsS3Service.getPresignedDownloadUrl,
+      ).toHaveBeenCalledWith('REC0001', 'img-123', 'doc-456');
+    });
+
+    it('should throw 404 when no consent form found', async () => {
+      vi.mocked(
+        prismaService.recreation_image_consent_form.findUnique,
+      ).mockResolvedValue(null);
+
+      await expect(
+        service.getConsentDownloadUrl('REC0001', 'img-123'),
+      ).rejects.toThrow('Consent form not found for this image');
     });
   });
 });
