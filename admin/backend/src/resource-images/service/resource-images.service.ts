@@ -122,28 +122,6 @@ export class ResourceImagesService extends BaseStorageFileService {
   }
 
   /**
-   * Create database record with image and variants
-   */
-  private async createDatabaseRecord(
-    rec_resource_id: string,
-    image_id: string,
-    file_name: string,
-    file_size: number,
-  ) {
-    return this.prisma.recreation_resource_image.create({
-      data: {
-        image_id,
-        rec_resource_id,
-        file_name: file_name,
-        extension: 'webp',
-        file_size: BigInt(file_size),
-        created_by: 'system',
-        created_at: new Date(),
-      },
-    });
-  }
-
-  /**
    * Generate presigned upload URLs for 4 image variants
    * Called before client-side image processing and upload
    * @param rec_resource_id - Recreation resource ID
@@ -234,46 +212,34 @@ export class ResourceImagesService extends BaseStorageFileService {
     // Validate image_id format (basic UUID validation)
     this.validateEntityId(image_id, 'image_id');
 
-    const hasConsentFile = !!consentFormFile;
-
     try {
-      // If no consent file, do simple create
-      if (!hasConsentFile) {
-        const result = await this.createDatabaseRecord(
-          rec_resource_id,
-          image_id,
-          file_name,
-          file_size_original,
-        );
+      const hasConsentFile = !!consentFormFile;
+      const hasMetadata =
+        date_taken || photographer_type || contains_pii || photographer_name;
 
-        this.logger.log(
-          `Finalized image upload: rec_resource_id=${rec_resource_id}, image_id=${image_id}`,
-        );
-
-        return this.mapResponse(result);
-      }
-
-      // Validate required consent form fields
-      if (!photographer_type) {
+      // Validate photographer_type is required when uploading a consent file
+      if (hasConsentFile && !photographer_type) {
         throw new HttpException(
           'photographer_type is required when uploading a consent form',
           400,
         );
       }
 
-      // Upload consent form to S3 first
-      const docId = randomUUID();
-      await this.consentFormsS3Service.uploadConsentForm(
-        rec_resource_id,
-        image_id,
-        docId,
-        consentFormFile.buffer,
-        consentFormFile.originalname,
-      );
+      // Upload consent form PDF to S3 before the DB transaction
+      let docId: string | null = null;
+      if (hasConsentFile) {
+        docId = randomUUID();
+        await this.consentFormsS3Service.uploadConsentForm(
+          rec_resource_id,
+          image_id,
+          docId,
+          consentFormFile.buffer,
+          consentFormFile.originalname,
+        );
+      }
 
-      // Use transaction for atomic creation of all records
       const result = await this.prisma.$transaction(async (tx) => {
-        // Create image record
+        // Always create the image record
         const imageRecord = await tx.recreation_resource_image.create({
           data: {
             image_id,
@@ -286,28 +252,35 @@ export class ResourceImagesService extends BaseStorageFileService {
           },
         });
 
-        // Create document record for consent form PDF
-        await tx.recreation_resource_document.create({
-          data: {
-            doc_id: docId,
-            rec_resource_id,
-            doc_code: 'IC',
-            file_name: consentFormFile.originalname,
-            extension: 'pdf',
-            file_size: BigInt(consentFormFile.size),
-            created_by: 'system',
-            created_at: new Date(),
-          },
-        });
+        // Create consent/document records if we have a file or metadata
+        if (!hasConsentFile && !hasMetadata) {
+          return imageRecord;
+        }
 
-        // Create consent form record linking image to document
+        // Create document record only when a consent file is uploaded
+        if (hasConsentFile && docId) {
+          await tx.recreation_resource_document.create({
+            data: {
+              doc_id: docId,
+              rec_resource_id,
+              doc_code: 'IC',
+              file_name: consentFormFile.originalname,
+              extension: 'pdf',
+              file_size: BigInt(consentFormFile.size),
+              created_by: 'system',
+              created_at: new Date(),
+            },
+          });
+        }
+
+        // Create consent metadata record (with or without document)
         await tx.recreation_image_consent_form.create({
           data: {
             image_id,
             doc_id: docId,
             date_taken: date_taken ? new Date(date_taken) : null,
             contains_pii: contains_pii ?? false,
-            photographer_type_code: photographer_type,
+            photographer_type_code: photographer_type ?? null,
             photographer_name: photographer_name ?? null,
             created_by: 'system',
             created_at: new Date(),
@@ -320,7 +293,7 @@ export class ResourceImagesService extends BaseStorageFileService {
             doc_id: docId,
             date_taken: date_taken ? new Date(date_taken) : undefined,
             contains_pii: contains_pii ?? false,
-            photographer_type_code: photographer_type,
+            photographer_type_code: photographer_type ?? undefined,
             photographer_name: photographer_name ?? undefined,
             recreation_photographer_type_code: undefined,
           },
@@ -328,7 +301,7 @@ export class ResourceImagesService extends BaseStorageFileService {
       });
 
       this.logger.log(
-        `Finalized image upload with consent form: rec_resource_id=${rec_resource_id}, image_id=${image_id}`,
+        `Finalized image upload: rec_resource_id=${rec_resource_id}, image_id=${image_id}`,
       );
 
       return this.mapResponse(result);
@@ -395,9 +368,11 @@ export class ResourceImagesService extends BaseStorageFileService {
           await tx.recreation_image_consent_form.delete({
             where: { image_id },
           });
-          await tx.recreation_resource_document.delete({
-            where: { doc_id: consentForm.doc_id },
-          });
+          if (consentForm.doc_id) {
+            await tx.recreation_resource_document.delete({
+              where: { doc_id: consentForm.doc_id },
+            });
+          }
         }
 
         const deleted = await tx.recreation_resource_image.delete({
@@ -504,6 +479,13 @@ export class ResourceImagesService extends BaseStorageFileService {
 
     if (!consentForm) {
       throw new HttpException('Consent form not found for this image', 404);
+    }
+
+    if (!consentForm.doc_id) {
+      throw new HttpException(
+        'No consent form document associated with this image',
+        404,
+      );
     }
 
     return this.consentFormsS3Service.getPresignedDownloadUrl(

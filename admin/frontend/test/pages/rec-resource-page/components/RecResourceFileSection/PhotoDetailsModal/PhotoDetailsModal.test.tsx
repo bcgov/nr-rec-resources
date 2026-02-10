@@ -104,7 +104,7 @@ describe('PhotoDetailsModal', () => {
 
     expect(screen.getByText('Photo Details')).toBeInTheDocument();
     expect(screen.getByText('test-photo.webp')).toBeInTheDocument();
-    expect(screen.getByText('January 1, 2024')).toBeInTheDocument();
+    expect(screen.getByText('Jun 15, 2024')).toBeInTheDocument();
     expect(screen.getByText('2.0 MB')).toBeInTheDocument();
 
     expect(screen.getByText('Staff Member')).toBeInTheDocument();
