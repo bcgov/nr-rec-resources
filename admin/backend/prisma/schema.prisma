@@ -39,10 +39,8 @@ model recreation_resource {
   recreation_district_code             recreation_district_code?              @relation(fields: [district_code], references: [district_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_maintenance_standard_code recreation_maintenance_standard_code?  @relation(fields: [maintenance_standard_code], references: [maintenance_standard_code], onDelete: NoAction, onUpdate: NoAction)
   recreation_risk_rating_code          recreation_risk_rating_code?           @relation(fields: [risk_rating_code], references: [risk_rating_code], onDelete: NoAction, onUpdate: NoAction)
-  recreation_resource_docs             recreation_resource_docs[]
   recreation_resource_document         recreation_resource_document[]
   recreation_resource_image            recreation_resource_image[]
-  recreation_resource_images           recreation_resource_images[]
   recreation_resource_reservation_info recreation_resource_reservation_info?
   recreation_site_description          recreation_site_description?
   recreation_status                    recreation_status?
@@ -522,40 +520,6 @@ model recreation_sub_access_code_history {
   @@schema("rst")
 }
 
-model recreation_resource_image_variants {
-  ref_id                     String                     @db.VarChar
-  size_code                  String                     @db.VarChar(20)
-  url                        String?
-  width                      Int?
-  height                     Int?
-  extension                  String?                    @db.VarChar(10)
-  updated_at                 DateTime?                  @default(now()) @db.Timestamp(6)
-  updated_by                 String?
-  created_at                 DateTime?                  @default(now()) @db.Timestamp(6)
-  created_by                 String?
-  sys_period                 Unsupported("tstzrange")   @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_resource_images recreation_resource_images @relation(fields: [ref_id], references: [ref_id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@id([ref_id, size_code])
-  @@schema("rst")
-}
-
-model recreation_resource_images {
-  rec_resource_id                    String                               @db.VarChar(10)
-  ref_id                             String                               @unique @db.VarChar
-  caption                            String?                              @db.VarChar
-  updated_at                         DateTime?                            @default(now()) @db.Timestamp(6)
-  updated_by                         String?
-  created_at                         DateTime?                            @default(now()) @db.Timestamp(6)
-  created_by                         String?
-  sys_period                         Unsupported("tstzrange")             @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_resource_image_variants recreation_resource_image_variants[]
-  recreation_resource                recreation_resource                  @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction)
-
-  @@id([rec_resource_id, ref_id])
-  @@schema("rst")
-}
-
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_resource_doc_code {
   doc_code                     String                         @id @db.VarChar
@@ -565,29 +529,8 @@ model recreation_resource_doc_code {
   created_at                   DateTime?                      @default(now()) @db.Timestamp(6)
   created_by                   String?
   sys_period                   Unsupported("tstzrange")       @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_resource_docs     recreation_resource_docs[]
   recreation_resource_document recreation_resource_document[]
 
-  @@schema("rst")
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model recreation_resource_docs {
-  ref_id                       String                        @id @db.VarChar
-  rec_resource_id              String?                       @db.VarChar(10)
-  title                        String?                       @db.VarChar
-  url                          String?                       @db.VarChar
-  doc_code                     String?                       @db.VarChar
-  extension                    String?                       @db.VarChar
-  updated_at                   DateTime?                     @default(now()) @db.Timestamp(6)
-  updated_by                   String?
-  created_at                   DateTime?                     @default(now()) @db.Timestamp(6)
-  created_by                   String?
-  sys_period                   Unsupported("tstzrange")      @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_resource_doc_code recreation_resource_doc_code? @relation(fields: [doc_code], references: [doc_code], onDelete: NoAction, onUpdate: NoAction, map: "recreation_resource_doc_doc_code_fkey")
-  recreation_resource          recreation_resource?          @relation(fields: [rec_resource_id], references: [rec_resource_id], onDelete: NoAction, onUpdate: NoAction, map: "recreation_resource_doc_rec_resource_id_fkey")
-
-  @@unique([rec_resource_id, ref_id])
   @@schema("rst")
 }
 
@@ -1150,21 +1093,21 @@ model recreation_resource_image_history {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model recreation_image_consent_form {
-  consent_id                        String                            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  image_id                          String                            @unique @db.Uuid
-  doc_id                            String                            @db.Uuid
-  photographer_type_code            String                            @db.VarChar
-  photographer_name                 String?                           @db.VarChar(255)
-  date_taken                        DateTime?                         @db.Date
-  contains_pii                      Boolean                           @default(false)
-  updated_at                        DateTime?                         @default(now()) @db.Timestamp(6)
+  consent_id                        String                             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  image_id                          String                             @unique @db.Uuid
+  doc_id                            String?                            @db.Uuid
+  photographer_type_code            String?                            @db.VarChar
+  photographer_name                 String?                            @db.VarChar(255)
+  date_taken                        DateTime?                          @db.Date
+  contains_pii                      Boolean                            @default(false)
+  updated_at                        DateTime?                          @default(now()) @db.Timestamp(6)
   updated_by                        String?
-  created_at                        DateTime?                         @default(now()) @db.Timestamp(6)
+  created_at                        DateTime?                          @default(now()) @db.Timestamp(6)
   created_by                        String?
-  sys_period                        Unsupported("tstzrange")          @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
-  recreation_resource_document      recreation_resource_document      @relation(fields: [doc_id], references: [doc_id], onDelete: NoAction, onUpdate: NoAction)
-  recreation_resource_image         recreation_resource_image         @relation(fields: [image_id], references: [image_id], onDelete: NoAction, onUpdate: NoAction)
-  recreation_photographer_type_code recreation_photographer_type_code @relation(fields: [photographer_type_code], references: [photographer_type_code], onDelete: NoAction, onUpdate: NoAction)
+  sys_period                        Unsupported("tstzrange")           @default(dbgenerated("tstzrange(CURRENT_TIMESTAMP, NULL::timestamp with time zone)"))
+  recreation_resource_document      recreation_resource_document?      @relation(fields: [doc_id], references: [doc_id], onDelete: NoAction, onUpdate: NoAction)
+  recreation_resource_image         recreation_resource_image          @relation(fields: [image_id], references: [image_id], onDelete: NoAction, onUpdate: NoAction)
+  recreation_photographer_type_code recreation_photographer_type_code? @relation(fields: [photographer_type_code], references: [photographer_type_code], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([doc_id], map: "idx_recreation_image_consent_form_doc_id")
   @@index([image_id], map: "idx_recreation_image_consent_form_image_id")

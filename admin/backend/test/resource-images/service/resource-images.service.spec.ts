@@ -475,18 +475,25 @@ describe('ResourceImagesDocsService', () => {
         file_size: BigInt(2097152),
       });
 
-      vi.mocked(
-        prismaService.recreation_resource_image.create,
-      ).mockResolvedValue(mockCreated as any);
+      const mockImageCreate = vi.fn().mockResolvedValue(mockCreated);
+
+      vi.mocked(prismaService.$transaction).mockImplementation(
+        async (fn: any) => {
+          const mockTx = {
+            recreation_resource_image: {
+              create: mockImageCreate,
+            },
+          };
+          return fn(mockTx);
+        },
+      );
 
       const result = await service.finalizeUpload('REC0001', body);
 
       expect(result).toBeDefined();
       expect(result.image_id).toBe('test-image-id-123');
       expect(result.file_name).toBe('beautiful-mountain-view.webp');
-      expect(
-        prismaService.recreation_resource_image.create,
-      ).toHaveBeenCalledWith({
+      expect(mockImageCreate).toHaveBeenCalledWith({
         data: {
           image_id: 'test-image-id-123',
           rec_resource_id: 'REC0001',
@@ -562,9 +569,9 @@ describe('ResourceImagesDocsService', () => {
         file_size_thm: 128,
       };
 
-      vi.mocked(
-        prismaService.recreation_resource_image.create,
-      ).mockRejectedValue(new Error('Database error'));
+      vi.mocked(prismaService.$transaction).mockRejectedValue(
+        new Error('Database error'),
+      );
 
       await expect(service.finalizeUpload('REC0001', body)).rejects.toThrow(
         'Failed to finalize upload',
@@ -642,6 +649,67 @@ describe('ResourceImagesDocsService', () => {
       );
 
       expect(prismaService.$transaction).toHaveBeenCalled();
+    });
+
+    it('should create consent metadata record without consent file when metadata is present', async () => {
+      const body = {
+        image_id: 'test-image-id-789',
+        file_name: 'image-with-date.webp',
+        file_size_original: 2097152,
+        date_taken: '2025-01-15',
+        contains_pii: false,
+        photographer_type: 'STAFF',
+        photographer_name: 'Jane Doe',
+      };
+
+      const mockImageRecord = createMockImage('test-image-id-789', 'REC0001', {
+        file_name: 'image-with-date.webp',
+        file_size: BigInt(2097152),
+      });
+
+      const mockConsentFormCreate = vi.fn().mockResolvedValue({});
+
+      vi.mocked(prismaService.$transaction).mockImplementation(
+        async (fn: any) => {
+          const mockTx = {
+            recreation_resource_image: {
+              create: vi.fn().mockResolvedValue(mockImageRecord),
+            },
+            recreation_image_consent_form: {
+              create: mockConsentFormCreate,
+            },
+          };
+          return fn(mockTx);
+        },
+      );
+
+      const result = await service.finalizeUpload('REC0001', body);
+
+      expect(result).toBeDefined();
+      expect(result.image_id).toBe('test-image-id-789');
+      expect(result.date_taken).toBe('2025-01-15');
+      expect(result.photographer_name).toBe('Jane Doe');
+      expect(result.photographer_type).toBe('STAFF');
+      expect(result.contains_pii).toBe(false);
+
+      expect(mockConsentFormCreate).toHaveBeenCalledWith({
+        data: {
+          image_id: 'test-image-id-789',
+          doc_id: null,
+          date_taken: expect.any(Date),
+          contains_pii: false,
+          photographer_type_code: 'STAFF',
+          photographer_name: 'Jane Doe',
+          created_by: 'system',
+          created_at: expect.any(Date),
+        },
+      });
+
+      expect(prismaService.$transaction).toHaveBeenCalled();
+      // Should NOT have called simple createDatabaseRecord
+      expect(
+        prismaService.recreation_resource_image.create,
+      ).not.toHaveBeenCalled();
     });
   });
 

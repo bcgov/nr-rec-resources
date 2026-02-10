@@ -9,6 +9,7 @@ import {
   showImageLightboxForImage,
 } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
 import { formatFileSize } from '@/utils/imageProcessing';
+import { formatDateReadable } from '@shared/utils';
 import {
   faDownload,
   faUpRightFromSquare,
@@ -123,7 +124,10 @@ export const PhotoDetailsModal: FC = () => {
             </div>
             <div className="photo-details-modal__item">
               <dt>Date taken</dt>
-              <dd>{image.date || 'Not specified'}</dd>
+              <dd>
+                {formatDateReadable(image.date_taken, { timeZone: 'UTC' }) ||
+                  'Not specified'}
+              </dd>
             </div>
             <div className="photo-details-modal__item">
               <dt>File size</dt>
