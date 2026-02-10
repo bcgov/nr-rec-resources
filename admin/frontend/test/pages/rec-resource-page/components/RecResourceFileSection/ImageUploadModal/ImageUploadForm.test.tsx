@@ -88,13 +88,13 @@ describe('ImageUploadForm', () => {
     it('renders date taken section', () => {
       render(<TestWrapper />);
 
-      expect(screen.getByText('Date Taken')).toBeInTheDocument();
+      expect(screen.getByText('Date taken')).toBeInTheDocument();
     });
 
     it('renders photographer type dropdown', () => {
       render(<TestWrapper />);
 
-      expect(screen.getByText('Photographer Type')).toBeInTheDocument();
+      expect(screen.getByText('Photographer type')).toBeInTheDocument();
       expect(screen.getByRole('combobox')).toBeInTheDocument();
     });
 

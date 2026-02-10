@@ -1,7 +1,7 @@
 import { FC, useEffect } from 'react';
 import { Alert, Button, Form } from 'react-bootstrap';
 import { Controller } from 'react-hook-form';
-import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
+import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FormLabel } from '@/components';
 import {
@@ -100,7 +100,7 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
 
       {/* Date Created */}
       <Form.Group className="mb-4">
-        <Form.Label>Date Taken</Form.Label>
+        <Form.Label>Date taken</Form.Label>
         <Controller
           name="dateCreated"
           control={control}
@@ -119,9 +119,7 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
                 }}
                 isInvalid={!!errors.dateCreated}
               />
-              <Form.Text className="text-muted">
-                Update if inaccurate.
-              </Form.Text>
+              <Form.Text className="text-muted">Update if inaccurate</Form.Text>
               {errors.dateCreated && (
                 <Form.Control.Feedback type="invalid">
                   {errors.dateCreated.message}
@@ -142,7 +140,7 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
 
       {/* Photographer Type */}
       <Form.Group className="mb-3">
-        <FormLabel required>Photographer Type</FormLabel>
+        <FormLabel required>Photographer type</FormLabel>
         <Controller
           name="photographerType"
           control={control}
@@ -240,7 +238,7 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
           </a>
         </FormLabel>
         <Form.Text className="text-muted mt-0 mb-2">
-          Includes faces, vehicle plates, or identifiable details.
+          Includes faces, license plates, or identifiable details.
         </Form.Text>
         <Controller
           name="containsIdentifiableInfo"
@@ -276,8 +274,14 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
       {/* Consent form upload (shown when photo contains identifiable info) */}
       {showConsentUpload && (
         <div className="consent-upload-area mb-3">
-          <Alert variant="danger" className="d-flex align-items-start gap-2">
-            <FontAwesomeIcon icon={faCircleInfo} className="mt-1" />
+          <Alert
+            variant="danger"
+            className="d-flex align-items-start gap-2 text-body"
+          >
+            <FontAwesomeIcon
+              icon={faCircleExclamation}
+              className="mt-1 text-danger"
+            />
             <div className="w-100">
               <strong>This photo requires a consent and release form.</strong>
               <p className="mb-2">
@@ -287,6 +291,7 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
                   href={CONSENT_INFORMATION_URL}
                   target="_blank"
                   rel="noopener noreferrer"
+                  className="text-body text-decoration-underline"
                 >
                   Learn more.
                 </a>

@@ -128,7 +128,7 @@ describe('ImageUploadModal', () => {
     });
     render(<ImageUploadModal />, { wrapper: TestWrapper });
 
-    expect(screen.getByText('Upload Photo')).toBeInTheDocument();
+    expect(screen.getByText('Upload photo')).toBeInTheDocument();
     expect(screen.getByText('Preview')).toBeInTheDocument();
     expect(screen.getByText('test.jpg')).toBeInTheDocument();
     expect(
