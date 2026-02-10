@@ -108,6 +108,7 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
             <>
               <Form.Control
                 type="date"
+                max={new Date().toISOString().split('T')[0]}
                 value={
                   field.value
                     ? new Date(field.value).toISOString().split('T')[0]
