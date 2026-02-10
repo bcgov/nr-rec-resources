@@ -78,6 +78,19 @@ resource "aws_route53_record" "www" {
   }
 }
 
+# A record for beta subdomain -> Public CloudFront
+resource "aws_route53_record" "beta" {
+  zone_id = aws_route53_zone.main.zone_id
+  name    = "beta.${var.domain_name}"
+  type    = "A"
+
+  alias {
+    name                   = data.terraform_remote_state.public_frontend.outputs.cloudfront.domain_name
+    zone_id                = local.cloudfront_hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
 # A record for staff subdomain -> Admin CloudFront
 resource "aws_route53_record" "staff" {
   zone_id = aws_route53_zone.main.zone_id
