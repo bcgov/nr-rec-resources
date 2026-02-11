@@ -23,7 +23,7 @@ export const FILE_TYPE_CONFIGS: Record<
     maxFiles: 30,
   },
   image: {
-    accept: 'image/png,image/jpg,image/jpeg,image/webp',
+    accept: 'image/png,image/jpg,image/jpeg,image/webp,image/heic',
     maxFiles: 20,
   },
 } as const;

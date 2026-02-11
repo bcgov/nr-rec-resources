@@ -11,6 +11,7 @@ import {
   setUploadFileName,
 } from './store/recResourceFileTransferStore';
 import { FileType, GalleryFile } from './types';
+import heic2any from 'heic2any';
 
 /**
  * Formats the date string for display.
@@ -26,23 +27,94 @@ export function formatGalleryFileDate(date: string): string {
   });
 }
 
+async function heicToResizedWebp(file: File): Promise<File> {
+  const decoded = await heic2any({
+    blob: file,
+    toType: 'image/png',
+  });
+
+  const blob = Array.isArray(decoded) ? decoded[0] : decoded;
+
+  const img = await createImageBitmap(blob);
+
+  const scale = Math.min(1, 1024 / Math.max(img.width, img.height));
+  const width = Math.round(img.width * scale);
+  const height = Math.round(img.height * scale);
+
+  const canvas = new OffscreenCanvas(width, height);
+  const ctx = canvas.getContext('2d')!;
+  ctx.drawImage(img, 0, 0, width, height);
+
+  const webpBlob = await canvas.convertToBlob({
+    type: 'image/webp',
+    quality: 0.7,
+  });
+
+  const newName = file.name.replace(/\.heic$/i, '.webp');
+  return new File([webpBlob], newName, { type: 'image/webp' });
+}
+
 /**
  * Creates a temporary GalleryFile object from a File for upload purposes.
  */
-export function createTempGalleryFile(file: File, type: FileType): GalleryFile {
-  const extension = file.name.split('.').pop()?.toLowerCase() || '';
+export async function createTempGalleryFile(
+  file: File,
+  type: FileType,
+): Promise<GalleryFile> {
+  let extension = file.name.split('.').pop()?.toLowerCase() || '';
   const now = new Date();
+
+  let tempFile = file;
+
+  if (extension === 'heic') {
+    tempFile = await heicToResizedWebp(file);
+    extension = 'webp';
+  }
 
   return {
     id: `temp-${now.getTime()}-${crypto.randomUUID()}`,
-    name: file.name,
+    name: tempFile.name,
     date: formatGalleryFileDate(now.toISOString()),
-    url: URL.createObjectURL(file),
+    url: URL.createObjectURL(tempFile),
     extension,
-    pendingFile: file,
+    pendingFile: tempFile,
     type,
   };
 }
+// export async function createTempGalleryFile(
+//   file: File,
+//   type: FileType,
+// ): Promise<GalleryFile> {
+//   const extension = file.name.split('.').pop()?.toLowerCase() || '';
+//   const now = new Date();
+//   let tempFile = file;
+//   // If it's heic file convert to jpg for the preview
+//   if (extension === 'heic') {
+//     const convertedBlob = await heic2any({
+//       blob: file,
+//       toType: 'image/webp',
+//       quality: 0.7,
+//     });
+//     // Normalize result
+//     const blob = Array.isArray(convertedBlob)
+//       ? convertedBlob[0]
+//       : convertedBlob;
+//     tempFile = new File([blob], file.name + '.webp', {
+//       type: 'image/webp',
+//     });
+//   }
+
+//   const temp = {
+//     id: `temp-${now.getTime()}-${crypto.randomUUID()}`,
+//     name: tempFile.name,
+//     date: formatGalleryFileDate(now.toISOString()),
+//     url: URL.createObjectURL(tempFile),
+//     extension,
+//     pendingFile: tempFile,
+//     type,
+//   };
+//   return temp;
+// }
 
 /**
  * Get the accepted MIME types for a specific file type.
@@ -73,7 +145,10 @@ export function getMaxFilesByFileType(fileType: FileType): number {
  * @param accept - MIME type string to restrict file selection (e.g., "application/pdf").
  * @param type - The type of file being uploaded ("document" or "image").
  */
-export function handleAddFileClick(accept: string, type: FileType): void {
+export async function handleAddFileClick(
+  accept: string,
+  type: FileType,
+): Promise<void> {
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = accept;
@@ -83,7 +158,7 @@ export function handleAddFileClick(accept: string, type: FileType): void {
     document.body.removeChild(input);
   };
 
-  input.onchange = (event: Event) => {
+  input.onchange = async (event: Event) => {
     const target = event.target as HTMLInputElement;
     try {
       const file = target.files?.[0];
@@ -96,7 +171,7 @@ export function handleAddFileClick(accept: string, type: FileType): void {
           return;
         }
         // File is valid, proceed to open modal
-        const galleryFile = createTempGalleryFile(file, type);
+        const galleryFile = await createTempGalleryFile(file, type);
         setSelectedFile(galleryFile);
         setShowUploadOverlay(true);
         setUploadFileName(getFileNameWithoutExtension(file));
