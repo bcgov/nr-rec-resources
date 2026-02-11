@@ -35,3 +35,12 @@
     font-size: 2rem;
   }
 }
+
+.btn:disabled {
+  border-color: $colorBackgroundGrey;
+  background-color: $colorBackgroundGrey;
+  color: $colorGreyLight;
+  & .rec-resource-files-page__action-button-icon {
+    border: 1px solid $colorGreyLight;
+  }
+}
