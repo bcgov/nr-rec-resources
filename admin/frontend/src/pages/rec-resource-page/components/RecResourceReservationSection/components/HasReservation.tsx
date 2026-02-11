@@ -36,9 +36,7 @@ export const HasReservation = ({
               Requires Reservation
             </span>
             <span className={`pill pill__${value ? 'visible' : 'hidden'}`}>
-              {value
-                ? `Yes - Requires reservation`
-                : `No - do not require reservation`}
+              {value ? `Yes - Reservable` : `No - First come first served`}
             </span>
           </Stack>
           {isEditMode && (
