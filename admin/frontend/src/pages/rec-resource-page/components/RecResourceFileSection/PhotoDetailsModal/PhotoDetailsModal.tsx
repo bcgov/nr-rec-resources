@@ -86,7 +86,7 @@ export const PhotoDetailsModal: FC = () => {
     <BaseFileModal
       show={show}
       onHide={hidePhotoDetails}
-      title="Photo Details"
+      title="Photo details"
       galleryFile={galleryFile}
       className="photo-details-modal"
       onCancel={hidePhotoDetails}

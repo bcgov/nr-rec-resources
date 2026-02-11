@@ -48,7 +48,7 @@ export const ImageUploadModal: FC = () => {
     <BaseFileModal
       show={showUploadOverlay}
       onHide={handleCancel}
-      title="Upload Photo"
+      title="Upload photo"
       galleryFile={selectedFileForUpload}
       alerts={alerts}
       onCancel={handleCancel}
