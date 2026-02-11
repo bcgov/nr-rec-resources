@@ -26,10 +26,10 @@ describe('HasReservation', () => {
     expect(screen.getByTestId('icon')).toHaveTextContent('calendar');
 
     expect(
-      screen.getByText('No - do not require reservation'),
+      screen.getByText('No - First come first served'),
     ).toBeInTheDocument();
 
-    const pill = screen.getByText('No - do not require reservation');
+    const pill = screen.getByText('No - First come first served');
     expect(pill.className).toContain('pill__hidden');
 
     expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
@@ -40,7 +40,7 @@ describe('HasReservation', () => {
 
     expect(screen.getByTestId('icon')).toHaveTextContent('calendar-check');
 
-    const pill = screen.getByText('Yes - Requires reservation');
+    const pill = screen.getByText('Yes - Reservable');
     expect(pill.className).toContain('pill__visible');
   });
 
