@@ -11,7 +11,7 @@ export const EDIT_RESERVATION_FIELD_LABEL_MAP: Record<
   keyof EditReservationFormData,
   string
 > = {
-  has_reservation: 'Requires Reservation',
+  has_reservation: 'Reservable',
   reservation_email: 'Email',
   reservation_phone_number: 'Phone Number',
   reservation_website: 'Website',

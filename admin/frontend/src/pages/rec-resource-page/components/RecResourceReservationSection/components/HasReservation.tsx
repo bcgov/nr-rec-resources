@@ -33,7 +33,7 @@ export const HasReservation = ({
                 icon={value ? faCalendarCheck : faCalendar}
                 className="me-2"
               />
-              Requires Reservation
+              Reservable
             </span>
             <span className={`pill pill__${value ? 'visible' : 'hidden'}`}>
               {value ? `Yes - Reservable` : `No - First come first served`}
