@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { buildSearchFilterQuery } from 'src/recreation-resource/utils/buildSearchFilterQuery';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@generated/prisma';
 
 const getQueryString = (query: Prisma.Sql) => {
   return query.sql.replace(/\s+/g, ' ').trim();

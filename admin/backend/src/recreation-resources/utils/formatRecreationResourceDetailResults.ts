@@ -1,4 +1,4 @@
-import { getRecreationResourceSpatialFeatureGeometry } from '@/prisma-generated-sql';
+import { getRecreationResourceSpatialFeatureGeometry } from '@prisma-generated-sql/getRecreationResourceSpatialFeatureGeometry';
 import { RecreationResourceDetailDto } from '../dtos/recreation-resource-detail.dto';
 import { OPEN_STATUS } from '../recreation-resource.constants';
 import { RecreationResourceGetPayload } from '../recreation-resource.types';

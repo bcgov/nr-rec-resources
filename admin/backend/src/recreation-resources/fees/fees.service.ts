@@ -1,5 +1,5 @@
 import { PrismaService } from '@/prisma.service';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@generated/prisma';
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { RecreationFeeDto } from '@/recreation-resources/fees/dto/recreation-fee.dto';
 import { CreateRecreationFeeDto } from '@/recreation-resources/fees/dto/create-recreation-fee.dto';

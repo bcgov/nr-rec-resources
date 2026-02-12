@@ -4,33 +4,29 @@ import {
 } from '@/prisma/audit.extension';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Mock Prisma.dmmf globally
-vi.mock('@prisma/client', async () => {
-  const actual = await vi.importActual('@prisma/client');
+// Mock Prisma v7 with ScalarFieldEnum constants (replaces removed dmmf)
+vi.mock('@generated/prisma', async () => {
+  const actual = await vi.importActual('@generated/prisma');
   return {
     ...actual,
     Prisma: {
       ...(actual as any).Prisma,
-      dmmf: {
-        datamodel: {
-          models: [
-            {
-              name: 'Post',
-              fields: [
-                { name: 'id' },
-                { name: 'title' },
-                { name: 'created_at' },
-                { name: 'created_by' },
-                { name: 'updated_at' },
-                { name: 'updated_by' },
-              ],
-            },
-            {
-              name: 'NonAuditedModel',
-              fields: [{ name: 'id' }, { name: 'title' }],
-            },
-          ],
-        },
+      ModelName: {
+        Post: 'Post',
+        NonAuditedModel: 'NonAuditedModel',
+      },
+      // Prisma v7 generates <PascalModel>ScalarFieldEnum for each model
+      PostScalarFieldEnum: {
+        id: 'id',
+        title: 'title',
+        created_at: 'created_at',
+        created_by: 'created_by',
+        updated_at: 'updated_at',
+        updated_by: 'updated_by',
+      },
+      Non_audited_modelScalarFieldEnum: {
+        id: 'id',
+        title: 'title',
       },
     },
   };

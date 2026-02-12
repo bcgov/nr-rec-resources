@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@generated/prisma';
 import { RecreationFeeDto } from '@/recreation-resources/fees/dto/recreation-fee.dto';
 
 export type FeeWithDescription = Prisma.recreation_feeGetPayload<{
