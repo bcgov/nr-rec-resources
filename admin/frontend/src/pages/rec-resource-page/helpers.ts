@@ -57,21 +57,22 @@ async function heicToResizedWebp(file: File): Promise<File> {
 /**
  * Creates a temporary GalleryFile object from a File for upload purposes.
  */
-export async function createTempGalleryFile(
+export function createTempGalleryFile(
   file: File,
   type: FileType,
 ): Promise<GalleryFile> {
   let extension = file.name.split('.').pop()?.toLowerCase() || '';
   const now = new Date();
 
-  let tempFile = file;
+  const filePromise =
+    extension === 'heic'
+      ? heicToResizedWebp(file).then((f) => {
+          extension = 'webp';
+          return f;
+        })
+      : Promise.resolve(file);
 
-  if (extension === 'heic') {
-    tempFile = await heicToResizedWebp(file);
-    extension = 'webp';
-  }
-
-  return {
+  return filePromise.then((tempFile) => ({
     id: `temp-${now.getTime()}-${crypto.randomUUID()}`,
     name: tempFile.name,
     date: formatGalleryFileDate(now.toISOString()),
@@ -79,42 +80,8 @@ export async function createTempGalleryFile(
     extension,
     pendingFile: tempFile,
     type,
-  };
+  }));
 }
-// export async function createTempGalleryFile(
-//   file: File,
-//   type: FileType,
-// ): Promise<GalleryFile> {
-//   const extension = file.name.split('.').pop()?.toLowerCase() || '';
-//   const now = new Date();
-//   let tempFile = file;
-//   // If it's heic file convert to jpg for the preview
-//   if (extension === 'heic') {
-//     const convertedBlob = await heic2any({
-//       blob: file,
-//       toType: 'image/webp',
-//       quality: 0.7,
-//     });
-//     // Normalize result
-//     const blob = Array.isArray(convertedBlob)
-//       ? convertedBlob[0]
-//       : convertedBlob;
-//     tempFile = new File([blob], file.name + '.webp', {
-//       type: 'image/webp',
-//     });
-//   }
-
-//   const temp = {
-//     id: `temp-${now.getTime()}-${crypto.randomUUID()}`,
-//     name: tempFile.name,
-//     date: formatGalleryFileDate(now.toISOString()),
-//     url: URL.createObjectURL(tempFile),
-//     extension,
-//     pendingFile: tempFile,
-//     type,
-//   };
-//   return temp;
-// }
 
 /**
  * Get the accepted MIME types for a specific file type.
@@ -145,10 +112,7 @@ export function getMaxFilesByFileType(fileType: FileType): number {
  * @param accept - MIME type string to restrict file selection (e.g., "application/pdf").
  * @param type - The type of file being uploaded ("document" or "image").
  */
-export async function handleAddFileClick(
-  accept: string,
-  type: FileType,
-): Promise<void> {
+export function handleAddFileClick(accept: string, type: FileType): void {
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = accept;
@@ -171,10 +135,10 @@ export async function handleAddFileClick(
           return;
         }
         // File is valid, proceed to open modal
-        const galleryFile = await createTempGalleryFile(file, type);
-        setSelectedFile(galleryFile);
         setShowUploadOverlay(true);
         setUploadFileName(getFileNameWithoutExtension(file));
+        const galleryFile = await createTempGalleryFile(file, type);
+        setSelectedFile(galleryFile);
       }
     } finally {
       cleanup();
