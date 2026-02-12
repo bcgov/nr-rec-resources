@@ -21,7 +21,7 @@ describe('HasReservation', () => {
   it('renders non-edit mode with value=false', () => {
     render(<HasReservation value={false} />);
 
-    expect(screen.getByText('Requires Reservation')).toBeInTheDocument();
+    expect(screen.getByText('Reservable')).toBeInTheDocument();
 
     expect(screen.getByTestId('icon')).toHaveTextContent('calendar');
 
