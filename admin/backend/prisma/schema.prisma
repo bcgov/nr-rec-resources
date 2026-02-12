@@ -1118,8 +1118,8 @@ model recreation_image_consent_form {
 model recreation_image_consent_form_history {
   consent_id             String                   @db.Uuid
   image_id               String                   @db.Uuid
-  doc_id                 String                   @db.Uuid
-  photographer_type_code String                   @db.VarChar
+  doc_id                 String?                  @db.Uuid
+  photographer_type_code String?                  @db.VarChar
   photographer_name      String?                  @db.VarChar(255)
   date_taken             DateTime?                @db.Date
   contains_pii           Boolean
