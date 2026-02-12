@@ -9,7 +9,7 @@
   "scripts": {
     "prisma-generate": "prisma generate",
     "build": "prisma generate && nest build && tsc-alias",
-    "copy-prisma-generated-sql": "prisma generate --sql && cp src/generated/prisma/sql/*.ts src/prisma-generated-sql/",
+    "copy-prisma-generated-sql": "prisma generate --sql && cp src/generated/prisma/sql/*.ts src/prisma-generated-sql/ && npm run prettier-fix",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "deploy": "npm install --ignore-scripts --no-update-notifier && npm run build",
     "start": "node dist/admin/backend/src/main.js",
@@ -55,6 +55,7 @@
     "winston": "^3.17.0"
   },
   "devDependencies": {
+    "dotenv": "^17.0.0",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
     "@nestjs/schematics": "^11.0.0",
