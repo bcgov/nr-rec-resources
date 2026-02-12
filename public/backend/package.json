@@ -6,7 +6,7 @@
     "prisma-generate": "prisma generate",
     "prebuild": "rimraf dist",
     "build": "prisma generate && nest build && tsc-alias",
-    "copy-prisma-generated-sql": "prisma generate --sql && cp src/generated/prisma/sql/*.ts src/prisma-generated-sql/",
+    "copy-prisma-generated-sql": "prisma generate --sql && cp src/generated/prisma/sql/*.ts src/prisma-generated-sql/ && npm run prettier-fix",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "deploy": "npm install --ignore-scripts --no-update-notifier && npm run build",
     "dev": "node --import @swc-node/register/esm-register --watch src/main.ts",
