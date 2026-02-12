@@ -350,7 +350,7 @@ describe('ResourceImagesDocsService', () => {
   });
 
   describe('presignUpload', () => {
-    it('should generate 4 presigned URLs with fileName (tags on original)', async () => {
+    it('should generate 4 presigned URLs for all variants', async () => {
       const mockUrls = [
         'https://s3.amazonaws.com/presigned-url-1',
         'https://s3.amazonaws.com/presigned-url-2',
@@ -374,15 +374,13 @@ describe('ResourceImagesDocsService', () => {
       expect(result.presigned_urls[2].size_code).toBe('pre');
       expect(result.presigned_urls[3].size_code).toBe('thm');
 
-      // Verify tags are added to original variant
+      // Verify all variants are called without tags
       expect(s3Service.getSignedUploadUrl).toHaveBeenCalledWith(
         expect.stringContaining('original.webp'),
         'image/webp',
         900,
-        { filename: 'my-image' },
+        undefined,
       );
-
-      // Verify other variants don't have tags
       expect(s3Service.getSignedUploadUrl).toHaveBeenCalledWith(
         expect.stringContaining('scr.webp'),
         'image/webp',
@@ -391,7 +389,7 @@ describe('ResourceImagesDocsService', () => {
       );
     });
 
-    it('should generate 4 presigned URLs without fileName (no tags)', async () => {
+    it('should generate 4 presigned URLs without fileName', async () => {
       const mockUrls = [
         'https://s3.amazonaws.com/presigned-url-1',
         'https://s3.amazonaws.com/presigned-url-2',
@@ -410,7 +408,7 @@ describe('ResourceImagesDocsService', () => {
       expect(result).toBeDefined();
       expect(result.presigned_urls).toHaveLength(4);
 
-      // Verify no tags on original when fileName is empty
+      // Verify no tags on any variant
       expect(s3Service.getSignedUploadUrl).toHaveBeenCalledWith(
         expect.stringContaining('original.webp'),
         'image/webp',

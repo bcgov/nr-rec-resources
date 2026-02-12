@@ -147,17 +147,10 @@ export class ResourceImagesService extends BaseStorageFileService {
         REQUIRED_VARIANTS.map(async (sizeCode) => {
           const key = this.constructS3Path(rec_resource_id, image_id, sizeCode);
 
-          // Add filename tag only to the original variant
-          const tags =
-            sizeCode === 'original' && fileName
-              ? { filename: fileName }
-              : undefined;
-
           const url = await this.generatePresignedUrl(
             key,
             'image/webp',
             900, // 15 minutes
-            tags,
           );
 
           return {
