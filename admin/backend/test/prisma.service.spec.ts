@@ -2,7 +2,7 @@ import { AppConfigModule } from '@/app-config/app-config.module';
 import { UserContextModule } from '@/common/modules/user-context/user-context.module';
 import { PrismaService } from '@/prisma.service';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@generated/prisma';
 import { ClsModule } from 'nestjs-cls';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 

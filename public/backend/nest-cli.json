@@ -3,6 +3,6 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "deleteOutDir": true,
-    "assets": ["**/*.sql", "prisma-generated-sql/**/*"]
+    "assets": ["**/*.sql"]
   }
 }

@@ -272,3 +272,5 @@ admin/backend/coverage/**/*
 # Ops
 ops/logs/
 ops/out/
+# Prisma generated client (output of `prisma generate`)
+**/src/generated/prisma/

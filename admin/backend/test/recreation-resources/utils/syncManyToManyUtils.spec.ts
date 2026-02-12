@@ -2,7 +2,7 @@ import {
   syncManyToMany,
   syncManyToManyComposite,
 } from '@/recreation-resources/utils/syncManyToManyUtils';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@generated/prisma';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('syncManyToMany', () => {

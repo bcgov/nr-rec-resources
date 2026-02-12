@@ -13,18 +13,12 @@ COPY admin/backend/package.json admin/backend/
 # Copy all source files
 COPY . .
 
-ENV PRISMA_CLI_BINARY_TARGETS=debian-openssl-3.0.x
-
 # Install all dependencies at root (npm workspace install)
 RUN npm install
 
 # Build the backend (runs in admin/backend folder)
 WORKDIR /app/admin/backend
 RUN npm run build
-
-# Ensure .prisma directory exists in the correct location
-WORKDIR /app
-RUN mkdir -p admin/backend/node_modules/.prisma || true
 
 # Dependencies
 FROM node:24.11.1-slim AS dependencies
@@ -41,8 +35,6 @@ COPY admin/backend/package.json admin/backend/
 # Copy all source files
 COPY . .
 
-ENV PRISMA_CLI_BINARY_TARGETS=debian-openssl-3.0.x
-
 # Install production dependencies at root (npm workspace install)
 RUN npm install --ignore-scripts --no-update-notifier --omit=dev
 
@@ -53,8 +45,6 @@ ENV NODE_ENV=production
 # Copy app and dependencies
 WORKDIR /app
 COPY --from=dependencies /app/node_modules ./node_modules
-COPY --from=build /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
 COPY --from=build /app/admin/backend/dist ./dist
 
 # Boilerplate, not used in OpenShift/Kubernetes

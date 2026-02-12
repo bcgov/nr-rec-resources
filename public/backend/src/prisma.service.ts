@@ -4,12 +4,13 @@ import {
   OnModuleDestroy,
   Logger,
 } from '@nestjs/common';
-import { PrismaClient, Prisma } from '@prisma/client';
+import { PrismaClient, Prisma } from '@generated/prisma';
+import { PrismaPg } from '@prisma/adapter-pg';
 import { AppConfigService } from 'src/app-config/app-config.service';
 
 @Injectable()
 class PrismaService
-  extends PrismaClient<Prisma.PrismaClientOptions, 'query'>
+  extends PrismaClient
   implements OnModuleInit, OnModuleDestroy
 {
   private static instance: PrismaService;
@@ -21,13 +22,15 @@ class PrismaService
       return PrismaService.instance;
     }
     const dataSourceURL = appConfig.databaseUrl;
+    const dbSchema = appConfig.databaseSchema;
+    const adapter = new PrismaPg({
+      connectionString: dataSourceURL,
+      schema: dbSchema,
+      options: `-c search_path=${dbSchema},public`,
+    });
     super({
       errorFormat: 'pretty',
-      datasources: {
-        db: {
-          url: dataSourceURL,
-        },
-      },
+      adapter,
       log: [
         { emit: 'event', level: 'query' },
         { emit: 'stdout', level: 'info' },

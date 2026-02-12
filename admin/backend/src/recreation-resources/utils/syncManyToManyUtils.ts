@@ -4,7 +4,7 @@
  * Minimizes history table entries for temporal tables by only deleting removed items
  * and creating new ones, leaving unchanged items untouched.
  */
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@generated/prisma';
 import { getTableClient, type TableClient } from './prisma-table-helper';
 
 /**

@@ -3,7 +3,7 @@ import {
   RecreationResourceMaintenanceStandardCode,
 } from 'src/recreation-resource/dto/recreation-resource.dto';
 import { RecreationResourceGetPayload } from 'src/recreation-resource/service/types';
-import { getRecreationResourceSpatialFeatureGeometry } from '@prisma-generated-sql';
+import { getRecreationResourceSpatialFeatureGeometry } from '@prisma-generated-sql/getRecreationResourceSpatialFeatureGeometry';
 import { RecreationResourceDocCode } from 'src/recreation-resource/dto/recreation-resource-doc.dto';
 import { OPEN_STATUS } from 'src/recreation-resource/constants/service.constants';
 import { RecreationResourceGeometry } from '../dto/recreation-resource-geometry.dto';
