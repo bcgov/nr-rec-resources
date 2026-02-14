@@ -513,10 +513,10 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="image_id" nullable="false" remarks="Reference to the recreation resource image" size="2147483647" type="uuid" typeCode="1111">
             <parent column="image_id" foreignKey="recreation_image_consent_form_image_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource_image"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="doc_id" nullable="false" remarks="Reference to the consent form document" size="2147483647" type="uuid" typeCode="1111">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="doc_id" nullable="true" remarks="Reference to the consent form document (nullable when no consent form PDF is uploaded)" size="2147483647" type="uuid" typeCode="1111">
             <parent column="doc_id" foreignKey="recreation_image_consent_form_doc_id_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_resource_document"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="photographer_type_code" nullable="false" remarks="Type of photographer (STAFF, CONTRACTOR, VOLUNTEER, PHOTOGRAPHER, or OTHER)" size="2147483647" type="varchar" typeCode="12">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="photographer_type_code" nullable="true" remarks="Type of photographer (STAFF, CONTRACTOR, VOLUNTEER, PHOTOGRAPHER, or OTHER). Nullable when metadata is stored without a consent form." size="2147483647" type="varchar" typeCode="12">
             <parent column="photographer_type_code" foreignKey="recreation_image_consent_form_photographer_type_code_fkey" implied="false" onDeleteCascade="false" schema="rst" table="recreation_photographer_type_code"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="photographer_name" nullable="true" remarks="Name of the photographer for attribution" size="255" type="varchar" typeCode="12"/>
@@ -548,10 +548,10 @@
          <column autoUpdated="false" defaultValue="null" digits="0" id="1" name="image_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
             <parent column="image_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_image"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="doc_id" nullable="false" remarks="" size="2147483647" type="uuid" typeCode="1111">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="2" name="doc_id" nullable="true" remarks="" size="2147483647" type="uuid" typeCode="1111">
             <parent column="doc_id" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_resource_document"/>
          </column>
-         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="photographer_type_code" nullable="false" remarks="" size="2147483647" type="varchar" typeCode="12">
+         <column autoUpdated="false" defaultValue="null" digits="0" id="3" name="photographer_type_code" nullable="true" remarks="" size="2147483647" type="varchar" typeCode="12">
             <parent column="photographer_type_code" foreignKey="Implied Constraint" implied="true" onDeleteCascade="false" schema="rst" table="recreation_photographer_type_code"/>
          </column>
          <column autoUpdated="false" defaultValue="null" digits="0" id="4" name="photographer_name" nullable="true" remarks="" size="255" type="varchar" typeCode="12"/>
