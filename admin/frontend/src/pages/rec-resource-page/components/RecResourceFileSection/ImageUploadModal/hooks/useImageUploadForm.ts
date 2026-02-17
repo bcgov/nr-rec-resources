@@ -89,18 +89,19 @@ export const useImageUploadForm = (initialDisplayName?: string) => {
   // Conditional field visibility based on photographer type
   const isStaff = photographerType === 'STAFF';
 
-  // "Was this photo taken during working hours?" only shows for staff
+  // "Was this taken by staff during regular duties?" only shows for staff
   const showTakenDuringWorkingHours = isStaff;
 
-  // Name field shows for non-staff only
-  const showNameField = !isStaff;
+  // Name field for non-staff — disabled while non-staff uploads are not accepted
+  const showNameField = false; // !isStaff
 
-  // Consent form NOT needed only if: staff + during working hours + no PII
-  const showConsentUpload = isStaff
-    ? // Staff: show only when we've confirmed consent IS required
-      didYouTakePhoto === false || containsIdentifiableInfo === true
-    : // Non-staff: always requires consent
-      true;
+  // Not accepted: show warning when not staff, or staff answers "No"
+  const showNotAcceptedAlert =
+    !isStaff || (isStaff && didYouTakePhoto === false);
+
+  // Consent form needed when PII is present and not blocked by non-staff alert
+  const showConsentUpload =
+    !showNotAcceptedAlert && containsIdentifiableInfo === true;
 
   // Handle consent form PDF upload
   const handleConsentFileSelect = useCallback((file: File | null) => {
@@ -140,9 +141,11 @@ export const useImageUploadForm = (initialDisplayName?: string) => {
     setValue: form.setValue,
     resetForm,
     isUploadEnabled,
+    isStaff,
     showDateWarning,
     showTakenDuringWorkingHours,
     showNameField,
+    showNotAcceptedAlert,
     showConsentUpload,
     consentFormFile,
     handleConsentFileSelect,
