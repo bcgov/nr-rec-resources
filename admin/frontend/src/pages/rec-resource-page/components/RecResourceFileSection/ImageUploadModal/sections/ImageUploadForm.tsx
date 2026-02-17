@@ -37,9 +37,11 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
     errors,
     resetForm,
     isUploadEnabled,
+    isStaff,
     showDateWarning,
     showTakenDuringWorkingHours,
     showNameField,
+    showNotAcceptedAlert,
     showConsentUpload,
     consentFormFile,
     handleConsentFileSelect,
@@ -160,11 +162,11 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
         />
       </Form.Group>
 
-      {/* Was this photo taken during working hours? (Staff only) */}
+      {/* Was this taken by staff during regular duties? (Staff only) */}
       {showTakenDuringWorkingHours && (
         <Form.Group className="mb-3">
           <FormLabel required>
-            Was this photo taken during working hours?
+            Was this taken by staff during regular duties?
           </FormLabel>
           <Controller
             name="didYouTakePhoto"
@@ -198,7 +200,16 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
         </Form.Group>
       )}
 
-      {/* Photographer Name (shown for non-staff only) */}
+      {/* Not accepted blocking alert */}
+      {showNotAcceptedAlert && (
+        <Alert variant="warning" className="mb-3">
+          {isStaff
+            ? 'RecSpace is currently accepting photos only taken during working hours. Thank you for your patience as we continue to enhance this feature.'
+            : 'RecSpace is currently accepting photos only taken by staff. Thank you for your patience as we continue to enhance this feature.'}
+        </Alert>
+      )}
+
+      {/* Photographer Name (shown for non-staff only — currently disabled) */}
       {showNameField && (
         <Form.Group className="mb-3">
           <FormLabel required>
@@ -226,126 +237,133 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
         </Form.Group>
       )}
 
-      {/* Contains identifiable information? */}
-      <Form.Group className="mb-3 d-flex flex-column">
-        <FormLabel className="mb-0" required>
-          Does this photo contain{' '}
-          <a
-            href={BC_GOV_PERSONAL_INFORMATION_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            personally identifiable information?
-          </a>
-        </FormLabel>
-        <Form.Text className="text-muted mt-0 mb-2">
-          Includes faces, license plates, or identifiable details.
-        </Form.Text>
-        <Controller
-          name="containsIdentifiableInfo"
-          control={control}
-          render={({ field }) => (
-            <div className="image-upload-form__radio-group">
-              <Form.Check
-                inline
-                type="radio"
-                id="containsIdentifiableInfo-yes"
-                label="Yes"
-                checked={field.value === true}
-                onChange={() => field.onChange(true)}
-              />
-              <Form.Check
-                inline
-                type="radio"
-                id="containsIdentifiableInfo-no"
-                label="No"
-                checked={field.value === false}
-                onChange={() => field.onChange(false)}
-              />
-            </div>
-          )}
-        />
-        {errors.containsIdentifiableInfo && (
-          <Form.Text className="text-danger">
-            {errors.containsIdentifiableInfo.message}
-          </Form.Text>
-        )}
-      </Form.Group>
-
-      {/* Consent form upload (shown when photo contains identifiable info) */}
-      {showConsentUpload && (
-        <div className="consent-upload-area mb-3">
-          <Alert
-            variant="danger"
-            className="d-flex align-items-start gap-2 text-body"
-          >
-            <FontAwesomeIcon
-              icon={faCircleExclamation}
-              className="mt-1 text-danger"
-            />
-            <div className="w-100">
-              <strong>This photo requires a consent and release form.</strong>
-              <p className="mb-2">
-                Please download the form and ensure the photographer and/or all
-                identifiable individuals in the image complete it.{' '}
-                <a
-                  href={CONSENT_INFORMATION_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-body text-decoration-underline"
-                >
-                  Learn more.
-                </a>
-              </p>
-              <Button
-                variant="primary"
-                className="w-100 text-white"
-                href={CONSENT_FORM_URL}
+      {/* Everything below hidden when non-staff alert is showing */}
+      {!showNotAcceptedAlert && (
+        <>
+          {/* Contains identifiable information? */}
+          <Form.Group className="mb-3 d-flex flex-column">
+            <FormLabel className="mb-0" required>
+              Does this photo contain{' '}
+              <a
+                href={BC_GOV_PERSONAL_INFORMATION_URL}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Download consent and release form
-              </Button>
-            </div>
-          </Alert>
-
-          <ConsentFileUpload
-            file={consentFormFile}
-            onFileSelect={handleConsentFileSelect}
-            onFileRemove={handleConsentFileRemove}
-          />
-          {errors.consentFormFile && (
-            <Form.Text className="text-danger d-block mt-2">
-              {errors.consentFormFile.message}
+                personally identifiable information?
+              </a>
+            </FormLabel>
+            <Form.Text className="text-muted mt-0 mb-2">
+              Includes faces, license plates, or identifiable details.
             </Form.Text>
-          )}
-        </div>
-      )}
+            <Controller
+              name="containsIdentifiableInfo"
+              control={control}
+              render={({ field }) => (
+                <div className="image-upload-form__radio-group">
+                  <Form.Check
+                    inline
+                    type="radio"
+                    id="containsIdentifiableInfo-yes"
+                    label="Yes"
+                    checked={field.value === true}
+                    onChange={() => field.onChange(true)}
+                  />
+                  <Form.Check
+                    inline
+                    type="radio"
+                    id="containsIdentifiableInfo-no"
+                    label="No"
+                    checked={field.value === false}
+                    onChange={() => field.onChange(false)}
+                  />
+                </div>
+              )}
+            />
+            {errors.containsIdentifiableInfo && (
+              <Form.Text className="text-danger">
+                {errors.containsIdentifiableInfo.message}
+              </Form.Text>
+            )}
+          </Form.Group>
 
-      {/* Confirmation checkbox */}
-      <Alert className="base-file-modal__alert base-file-modal__alert--info mb-0">
-        <Controller
-          name="confirmationChecked"
-          control={control}
-          render={({ field }) => (
-            <>
-              <Form.Check
-                type="checkbox"
-                id="confirmationChecked"
-                label="By uploading this photo, I confirm that it contains no personally identifiable information or that I have obtained the required consent forms, and the image rights belong to Recreation Sites and Trails."
-                checked={field.value}
-                onChange={(e) => field.onChange(e.target.checked)}
-                isInvalid={!!errors.confirmationChecked}
+          {/* Consent form upload (shown when photo contains identifiable info) */}
+          {showConsentUpload && (
+            <div className="consent-upload-area mb-3">
+              <Alert
+                variant="danger"
+                className="d-flex align-items-start gap-2 text-body"
+              >
+                <FontAwesomeIcon
+                  icon={faCircleExclamation}
+                  className="mt-1 text-danger"
+                />
+                <div className="w-100">
+                  <strong>
+                    This photo requires a consent and release form.
+                  </strong>
+                  <p className="mb-2">
+                    Please download the form and ensure the photographer and/or
+                    all identifiable individuals in the image complete it.{' '}
+                    <a
+                      href={CONSENT_INFORMATION_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-body text-decoration-underline"
+                    >
+                      Learn more.
+                    </a>
+                  </p>
+                  <Button
+                    variant="primary"
+                    className="w-100 text-white"
+                    href={CONSENT_FORM_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Download consent and release form
+                  </Button>
+                </div>
+              </Alert>
+
+              <ConsentFileUpload
+                file={consentFormFile}
+                onFileSelect={handleConsentFileSelect}
+                onFileRemove={handleConsentFileRemove}
               />
-              {errors.confirmationChecked && (
-                <Form.Text className="text-danger">
-                  {errors.confirmationChecked.message}
+              {errors.consentFormFile && (
+                <Form.Text className="text-danger d-block mt-2">
+                  {errors.consentFormFile.message}
                 </Form.Text>
               )}
-            </>
+            </div>
           )}
-        />
-      </Alert>
+
+          {/* Confirmation checkbox */}
+          <Alert className="base-file-modal__alert base-file-modal__alert--info mb-0">
+            <Controller
+              name="confirmationChecked"
+              control={control}
+              render={({ field }) => (
+                <>
+                  <Form.Check
+                    type="checkbox"
+                    id="confirmationChecked"
+                    label="By uploading this photo, I confirm that it contains no personally identifiable information or that I have obtained the required consent forms, and the image rights belong to Recreation Sites and Trails."
+                    checked={field.value}
+                    onChange={(e) => field.onChange(e.target.checked)}
+                    isInvalid={!!errors.confirmationChecked}
+                  />
+                  {errors.confirmationChecked && (
+                    <Form.Text className="text-danger">
+                      {errors.confirmationChecked.message}
+                    </Form.Text>
+                  )}
+                </>
+              )}
+            />
+          </Alert>
+        </>
+      )}
     </Form>
   );
 };

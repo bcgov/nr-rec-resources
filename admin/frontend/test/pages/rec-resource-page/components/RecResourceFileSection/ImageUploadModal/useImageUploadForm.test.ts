@@ -81,10 +81,22 @@ describe('useImageUploadForm', () => {
 
       expect(result.current.showConsentUpload).toBe(false);
     });
+
+    it('identifies as staff by default', () => {
+      const { result } = renderHook(() => useImageUploadForm('test.jpg'));
+
+      expect(result.current.isStaff).toBe(true);
+    });
   });
 
-  describe('staff consent upload visibility', () => {
-    it('shows consent upload when staff photo NOT taken during working hours', async () => {
+  describe('not-accepted alert visibility', () => {
+    it('does not show not-accepted alert by default (staff, no answer yet)', () => {
+      const { result } = renderHook(() => useImageUploadForm('test.jpg'));
+
+      expect(result.current.showNotAcceptedAlert).toBe(false);
+    });
+
+    it('shows not-accepted alert when staff answers "No" to regular duties', async () => {
       const { result } = renderHook(() => useImageUploadForm('test.jpg'));
 
       act(() => {
@@ -92,7 +104,48 @@ describe('useImageUploadForm', () => {
       });
 
       await waitFor(() => {
-        expect(result.current.showConsentUpload).toBe(true);
+        expect(result.current.showNotAcceptedAlert).toBe(true);
+      });
+    });
+
+    it('does not show not-accepted alert when staff answers "Yes"', async () => {
+      const { result } = renderHook(() => useImageUploadForm('test.jpg'));
+
+      act(() => {
+        result.current.setValue('didYouTakePhoto', true);
+      });
+
+      await waitFor(() => {
+        expect(result.current.showNotAcceptedAlert).toBe(false);
+      });
+    });
+
+    it.each(['CONTRACTOR', 'VOLUNTEER', 'PHOTOGRAPHER', 'OTHER'])(
+      '%s: shows not-accepted alert for non-staff photographer type',
+      async (photographerType) => {
+        const { result } = renderHook(() => useImageUploadForm('test.jpg'));
+
+        act(() => {
+          result.current.setValue('photographerType', photographerType);
+        });
+
+        await waitFor(() => {
+          expect(result.current.showNotAcceptedAlert).toBe(true);
+        });
+      },
+    );
+  });
+
+  describe('staff consent upload visibility', () => {
+    it('hides consent upload when staff answers "No" (blocked by non-staff alert)', async () => {
+      const { result } = renderHook(() => useImageUploadForm('test.jpg'));
+
+      act(() => {
+        result.current.setValue('didYouTakePhoto', false);
+      });
+
+      await waitFor(() => {
+        expect(result.current.showConsentUpload).toBe(false);
       });
     });
 
