@@ -268,3 +268,7 @@ admin/backend/coverage/**/*
 
 # Tanstack
 .tanstack
+
+# Ops
+ops/logs/
+ops/out/

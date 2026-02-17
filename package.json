@@ -5,6 +5,7 @@
     "admin/frontend",
     "public/backend",
     "public/frontend",
+    "ops",
     "shared"
   ],
   "nohoist": [
