@@ -49,6 +49,8 @@ reset_project:
 	@echo "Resetting the project..."
 	make reset_db
 	npm install
+	rm -rf public/backend/src/generated/prisma
+	rm -rf admin/backend/src/generated/prisma
 	cd public/backend && npx prisma generate --sql
 	cd admin/backend && npx prisma generate --sql
 	@echo "Project reset completed."
