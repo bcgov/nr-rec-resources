@@ -4,12 +4,10 @@ import { Prisma } from '@generated/prisma';
 const AUDIT_FIELDS = ['created_by', 'updated_by', 'created_at', 'updated_at'];
 
 /**
- * Lazily detects which Prisma models have audit fields using Prisma v7's
- * runtime ScalarFieldEnum metadata. Computed once on first use.
+ * Detects which Prisma models have audit fields by introspecting
+ * the generated ScalarFieldEnum constants. Computed once on first use.
  *
- * Prisma v7 removed `Prisma.dmmf` (the DMMF metadata object) with no
- * replacement API. This workaround introspects the generated
- * `<Model>ScalarFieldEnum` constants instead.
+ * Prisma v7 removed `Prisma.dmmf` with no replacement API.
  * https://github.com/prisma/prisma/issues/27028
  */
 const getModelAuditFields = (() => {
@@ -18,21 +16,19 @@ const getModelAuditFields = (() => {
   return (modelName: string): Set<string> | undefined => {
     if (cache) return cache.get(modelName);
 
-    const prismaNamespace = Prisma as unknown as Record<string, unknown>;
-    cache = new Map<string, Set<string>>();
+    cache = new Map();
+    const ns = Prisma as any;
 
-    for (const name of Object.values(Prisma.ModelName)) {
+    for (const model of Object.values(Prisma.ModelName)) {
       const enumKey =
-        name.charAt(0).toUpperCase() + name.slice(1) + 'ScalarFieldEnum';
-      const fields = prismaNamespace[enumKey];
-      if (!fields || typeof fields !== 'object') continue;
+        model.charAt(0).toUpperCase() + model.slice(1) + 'ScalarFieldEnum';
+      const fields = ns[enumKey];
+      if (!fields) continue;
 
-      const fieldNames = Object.values(fields as Record<string, string>);
-      const present = AUDIT_FIELDS.filter((f) => fieldNames.includes(f));
-
-      if (present.length > 0) {
-        cache.set(name, new Set(present));
-      }
+      const present = AUDIT_FIELDS.filter((f) =>
+        Object.values(fields).includes(f),
+      );
+      if (present.length) cache.set(model, new Set(present));
     }
     return cache.get(modelName);
   };
