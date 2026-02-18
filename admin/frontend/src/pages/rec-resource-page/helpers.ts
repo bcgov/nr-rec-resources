@@ -27,7 +27,7 @@ export function formatGalleryFileDate(date: string): string {
   });
 }
 
-async function heicToResizedWebp(file: File): Promise<File> {
+export async function heicToResizedWebp(file: File): Promise<File> {
   const decoded = await heic2any({
     blob: file,
     toType: 'image/webp',

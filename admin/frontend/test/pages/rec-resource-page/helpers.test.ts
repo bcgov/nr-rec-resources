@@ -4,6 +4,7 @@ import {
   getMaxFilesByFileType,
   handleAddFileByType,
   handleAddFileClick,
+  heicToResizedWebp,
 } from '@/pages/rec-resource-page/helpers';
 import {
   setSelectedFile,
@@ -41,6 +42,37 @@ vi.mock('heic2any', () => ({
     .mockResolvedValue(new Blob(['fake'], { type: 'image/webp' })),
 }));
 
+// ---- Mock createImageBitmap ----
+Object.defineProperty(globalThis, 'createImageBitmap', {
+  writable: true,
+  value: vi.fn().mockResolvedValue({
+    width: 2000,
+    height: 1000,
+    close: vi.fn(),
+  }),
+});
+
+// ---- Mock OffscreenCanvas ----
+class MockOffscreenCanvas {
+  constructor(
+    public width: number,
+    public height: number,
+  ) {}
+
+  getContext() {
+    return { drawImage: vi.fn() };
+  }
+
+  async convertToBlob() {
+    return new Blob(['final'], { type: 'image/webp' });
+  }
+}
+
+Object.defineProperty(globalThis, 'OffscreenCanvas', {
+  writable: true,
+  value: MockOffscreenCanvas,
+});
+
 // Helper to create mock input element
 function createMockInput(): HTMLInputElement {
   return {
@@ -66,6 +98,18 @@ async function simulateFileSelection(
   const mockEvent = { target: mockInput } as unknown as Event;
   await mockInput.onchange?.(mockEvent);
 }
+
+describe('heicToResizedWebp', () => {
+  it('converts HEIC to resized WEBP', async () => {
+    const file = new File(['heic'], 'photo.HEIC');
+
+    const result = await heicToResizedWebp(file);
+
+    expect(result).toBeInstanceOf(File);
+    expect(result.name).toBe('photo.webp');
+    expect(result.type).toBe('image/webp');
+  });
+});
 
 describe('formatGalleryFileDate', () => {
   it.each([
@@ -242,6 +286,23 @@ describe('createTempGalleryFile', () => {
       /[A-Za-z]{3}\s\d{1,2},\s\d{4},\s\d{1,2}:\d{2}\s[ap]\.m\./,
     );
   });
+
+  // it('creates temp gallery file of a HEIC image', async () => {
+  //   const mockFile = new File(['content'], 'test-image.HEIC', {
+  //     type: 'image/heic',
+  //   });
+  //   const result = await createTempGalleryFile(mockFile, 'image');
+
+  //   expect(result.id).toMatch(/^temp-\d+-mocked-uuid$/);
+  //   expect(result.name).toBe('test-image.HEIC');
+  //   expect(result.extension).toBe('webp');
+  //   expect(result.url).toBe('mocked-object-url');
+  //   expect(result.pendingFile).toBe(mockFile);
+  //   expect(result.type).toBe('image');
+  //   expect(result.date).toMatch(
+  //     /[A-Za-z]{3}\s\d{1,2},\s\d{4},\s\d{1,2}:\d{2}\s[ap]\.m\./,
+  //   );
+  // });
 
   it.each([
     ['filename.', '', 'document'],
