@@ -97,34 +97,14 @@ describe('ImageUploadForm', () => {
       expect(screen.getByText('Photographer type')).toBeInTheDocument();
       expect(screen.getByRole('combobox')).toBeInTheDocument();
     });
-
-    it('renders identifiable information question', () => {
-      render(<TestWrapper />);
-
-      expect(
-        screen.getByRole('link', {
-          name: /personally identifiable information/i,
-        }),
-      ).toBeInTheDocument();
-    });
-
-    it('renders confirmation checkbox', () => {
-      render(<TestWrapper />);
-
-      expect(
-        screen.getByText(
-          /by uploading this photo, i confirm that it contains no personally identifiable information/i,
-        ),
-      ).toBeInTheDocument();
-    });
   });
 
   describe('staff-specific fields', () => {
-    it('shows "working hours" question for staff (default)', () => {
+    it('shows "staff during regular duties" question for staff (default)', () => {
       render(<TestWrapper />);
 
       expect(
-        screen.getByText(/was this photo taken during working hours\?/i),
+        screen.getByText(/was this taken by staff during regular duties\?/i),
       ).toBeInTheDocument();
     });
 
@@ -136,8 +116,32 @@ describe('ImageUploadForm', () => {
       ).not.toBeInTheDocument();
     });
 
+    it('shows identifiable information question for staff (default)', () => {
+      render(<TestWrapper />);
+
+      expect(
+        screen.getByRole('link', {
+          name: /personally identifiable information/i,
+        }),
+      ).toBeInTheDocument();
+    });
+
+    it('renders confirmation checkbox for staff (default)', () => {
+      render(<TestWrapper />);
+
+      expect(
+        screen.getByText(
+          /by uploading this photo, i confirm that it contains no personally identifiable information/i,
+        ),
+      ).toBeInTheDocument();
+    });
+
     it('shows consent upload when staff + has PII', async () => {
       render(<TestWrapper />);
+
+      // Answer "Yes" to staff question first
+      const staffYes = document.getElementById('didYouTakePhoto-yes');
+      fireEvent.click(staffYes!);
 
       // Click "Yes" for contains identifiable information
       const yesRadio = document.getElementById('containsIdentifiableInfo-yes');
@@ -149,11 +153,44 @@ describe('ImageUploadForm', () => {
         ).toBeInTheDocument();
       });
     });
+
+    it('shows warning alert when staff answers "No" to regular duties', async () => {
+      render(<TestWrapper />);
+
+      const noRadio = document.getElementById('didYouTakePhoto-no');
+      fireEvent.click(noRadio!);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(
+            /currently accepting photos only taken during working hours/i,
+          ),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it('hides PII question and confirmation when staff answers "No"', async () => {
+      render(<TestWrapper />);
+
+      const noRadio = document.getElementById('didYouTakePhoto-no');
+      fireEvent.click(noRadio!);
+
+      await waitFor(() => {
+        expect(
+          screen.queryByRole('link', {
+            name: /personally identifiable information/i,
+          }),
+        ).not.toBeInTheDocument();
+        expect(
+          screen.queryByText(/by uploading this photo, i confirm/i),
+        ).not.toBeInTheDocument();
+      });
+    });
   });
 
-  describe('non-staff fields (all types behave the same)', () => {
+  describe('not-accepted fields (all types behave the same)', () => {
     it.each(NON_STAFF_TYPES)(
-      '$label: hides "working hours" question',
+      '$label: hides "staff during regular duties" question',
       async ({ id }) => {
         render(<TestWrapper />);
 
@@ -162,14 +199,16 @@ describe('ImageUploadForm', () => {
 
         await waitFor(() => {
           expect(
-            screen.queryByText(/was this photo taken during working hours\?/i),
+            screen.queryByText(
+              /was this taken by staff during regular duties\?/i,
+            ),
           ).not.toBeInTheDocument();
         });
       },
     );
 
     it.each(NON_STAFF_TYPES)(
-      '$label: shows photographer name field',
+      '$label: shows not-accepted warning alert',
       async ({ id }) => {
         render(<TestWrapper />);
 
@@ -178,14 +217,14 @@ describe('ImageUploadForm', () => {
 
         await waitFor(() => {
           expect(
-            screen.getByPlaceholderText('Enter photographer name'),
+            screen.getByText(/currently accepting photos only taken by staff/i),
           ).toBeInTheDocument();
         });
       },
     );
 
     it.each(NON_STAFF_TYPES)(
-      '$label: always shows consent upload section',
+      '$label: hides PII question, consent upload, and confirmation',
       async ({ id }) => {
         render(<TestWrapper />);
 
@@ -194,8 +233,16 @@ describe('ImageUploadForm', () => {
 
         await waitFor(() => {
           expect(
-            screen.getByText(/this photo requires a consent and release form/i),
-          ).toBeInTheDocument();
+            screen.queryByRole('link', {
+              name: /personally identifiable information/i,
+            }),
+          ).not.toBeInTheDocument();
+          expect(
+            screen.queryByPlaceholderText('Enter photographer name'),
+          ).not.toBeInTheDocument();
+          expect(
+            screen.queryByText(/by uploading this photo, i confirm/i),
+          ).not.toBeInTheDocument();
         });
       },
     );
