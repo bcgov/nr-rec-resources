@@ -30,4 +30,39 @@ describe('FileUploadTile', () => {
     renderTile({ disabled: true });
     expect(screen.getByTestId('upload-tile')).toHaveClass('disabled');
   });
+
+  it('calls onFileDrop with the dropped file', () => {
+    const onFileDrop = vi.fn();
+    const file = new File(['hello'], 'test.png', { type: 'image/png' });
+    renderTile({ onFileDrop });
+    const tile = screen.getByTestId('upload-tile');
+
+    fireEvent.dragEnter(tile, { dataTransfer: { files: [file] } });
+    fireEvent.drop(tile, { dataTransfer: { files: [file] } });
+
+    expect(onFileDrop).toHaveBeenCalledWith(file);
+  });
+
+  it('shows active state while dragging and clears on leave', () => {
+    renderTile({ onFileDrop: vi.fn() });
+    const tile = screen.getByTestId('upload-tile');
+
+    fireEvent.dragEnter(tile, { dataTransfer: { files: [] } });
+    expect(tile).toHaveClass('active');
+
+    fireEvent.dragLeave(tile, { dataTransfer: { files: [] } });
+    expect(tile).not.toHaveClass('active');
+  });
+
+  it('does not call onFileDrop when disabled', () => {
+    const onFileDrop = vi.fn();
+    const file = new File(['hello'], 'test.png', { type: 'image/png' });
+    renderTile({ onFileDrop, disabled: true });
+
+    fireEvent.drop(screen.getByTestId('upload-tile'), {
+      dataTransfer: { files: [file] },
+    });
+
+    expect(onFileDrop).not.toHaveBeenCalled();
+  });
 });
