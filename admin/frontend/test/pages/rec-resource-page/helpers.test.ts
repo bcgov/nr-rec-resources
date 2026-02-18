@@ -287,22 +287,18 @@ describe('createTempGalleryFile', () => {
     );
   });
 
-  // it('creates temp gallery file of a HEIC image', async () => {
-  //   const mockFile = new File(['content'], 'test-image.HEIC', {
-  //     type: 'image/heic',
-  //   });
-  //   const result = await createTempGalleryFile(mockFile, 'image');
+  it('creates temp gallery file of a HEIC image', async () => {
+    const mockFile = new File(['content'], 'test-image.HEIC', {
+      type: 'image/heic',
+    });
+    const result = await createTempGalleryFile(mockFile, 'image');
 
-  //   expect(result.id).toMatch(/^temp-\d+-mocked-uuid$/);
-  //   expect(result.name).toBe('test-image.HEIC');
-  //   expect(result.extension).toBe('webp');
-  //   expect(result.url).toBe('mocked-object-url');
-  //   expect(result.pendingFile).toBe(mockFile);
-  //   expect(result.type).toBe('image');
-  //   expect(result.date).toMatch(
-  //     /[A-Za-z]{3}\s\d{1,2},\s\d{4},\s\d{1,2}:\d{2}\s[ap]\.m\./,
-  //   );
-  // });
+    expect(result.id).toMatch(/^temp-\d+-mocked-uuid$/);
+    expect(result.name).toBe('test-image.webp');
+    expect(result.extension).toBe('webp');
+    expect(result.url).toBe('mocked-object-url');
+    expect(result.type).toBe('image');
+  });
 
   it.each([
     ['filename.', '', 'document'],
