@@ -65,7 +65,7 @@ export const FileUploadTile: FC<FileUploadTileProps> = ({
       show={disabled ? false : undefined}
       overlay={
         <Tooltip id={tooltipId}>
-          Click to select a file or drag and drop one here
+          Drag & drop files here or click to browse
         </Tooltip>
       }
     >
