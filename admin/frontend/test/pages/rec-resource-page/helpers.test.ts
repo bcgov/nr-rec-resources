@@ -35,6 +35,12 @@ vi.mock('@/store/notificationStore', () => ({
   addErrorNotification: vi.fn(),
 }));
 
+vi.mock('heic2any', () => ({
+  default: vi
+    .fn()
+    .mockResolvedValue(new Blob(['fake'], { type: 'image/webp' })),
+}));
+
 // Helper to create mock input element
 function createMockInput(): HTMLInputElement {
   return {
@@ -48,17 +54,17 @@ function createMockInput(): HTMLInputElement {
 }
 
 // Helper to simulate file selection
-function simulateFileSelection(
+async function simulateFileSelection(
   mockInput: HTMLInputElement,
   files: File | File[] | null,
-): void {
+): Promise<void> {
   mockInput.files = (files
     ? Array.isArray(files)
       ? files
       : [files]
     : null) as unknown as FileList;
   const mockEvent = { target: mockInput } as unknown as Event;
-  mockInput.onchange?.(mockEvent);
+  await mockInput.onchange?.(mockEvent);
 }
 
 describe('formatGalleryFileDate', () => {
@@ -114,13 +120,13 @@ describe('handleAddFileClick', () => {
     expect(mockInput.click).toHaveBeenCalled();
   });
 
-  it('processes valid file selection correctly', () => {
+  it('processes valid file selection correctly', async () => {
     const mockFile = new File(['test content'], 'test.pdf', {
       type: 'application/pdf',
     });
 
     handleAddFileClick('application/pdf', 'document');
-    simulateFileSelection(mockInput, mockFile);
+    await simulateFileSelection(mockInput, mockFile);
 
     expect(setSelectedFile).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -207,7 +213,7 @@ describe('handleAddFileByType', () => {
 
   it.each([
     ['document', 'application/pdf'],
-    ['image', 'image/png,image/jpg,image/jpeg,image/webp'],
+    ['image', 'image/png,image/jpg,image/jpeg,image/webp,image/heic'],
   ])(
     'calls handleAddFileClick with correct mime type for %s',
     (type, expectedAccept) => {
@@ -220,11 +226,11 @@ describe('handleAddFileByType', () => {
 });
 
 describe('createTempGalleryFile', () => {
-  it('creates temp gallery file with all required properties', () => {
+  it('creates temp gallery file with all required properties', async () => {
     const mockFile = new File(['content'], 'test-image.jpg', {
       type: 'image/jpeg',
     });
-    const result = createTempGalleryFile(mockFile, 'image');
+    const result = await createTempGalleryFile(mockFile, 'image');
 
     expect(result.id).toMatch(/^temp-\d+-mocked-uuid$/);
     expect(result.name).toBe('test-image.jpg');
@@ -241,20 +247,23 @@ describe('createTempGalleryFile', () => {
     ['filename.', '', 'document'],
     ['file.name.with.multiple.dots.png', 'png', 'image'],
     ['document.PDF', 'pdf', 'document'],
-  ])('handles file name "%s" correctly', (fileName, expectedExt, type) => {
-    const mockFile = new File(['content'], fileName, {
-      type: type === 'image' ? 'image/png' : 'application/pdf',
-    });
-    const result = createTempGalleryFile(
-      mockFile,
-      type as 'document' | 'image',
-    );
+  ])(
+    'handles file name "%s" correctly',
+    async (fileName, expectedExt, type) => {
+      const mockFile = new File(['content'], fileName, {
+        type: type === 'image' ? 'image/png' : 'application/pdf',
+      });
+      const result = await createTempGalleryFile(
+        mockFile,
+        type as 'document' | 'image',
+      );
 
-    expect(result.extension).toBe(expectedExt);
-    expect(result.name).toBe(fileName);
-    expect(result.type).toBe(type);
-    expect(result.url).toBe('mocked-object-url');
-  });
+      expect(result.extension).toBe(expectedExt);
+      expect(result.name).toBe(fileName);
+      expect(result.type).toBe(type);
+      expect(result.url).toBe('mocked-object-url');
+    },
+  );
 });
 
 describe('getMaxFilesByFileType', () => {

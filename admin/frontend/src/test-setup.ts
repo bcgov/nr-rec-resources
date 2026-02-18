@@ -1,7 +1,15 @@
 import '@testing-library/jest-dom';
 import { HttpResponse, http } from 'msw';
 import { setupServer } from 'msw/node';
-import { afterAll, afterEach, beforeAll } from 'vitest';
+import { afterAll, afterEach, beforeAll, vi } from 'vitest';
+
+vi.mock('heic2any', () => {
+  return {
+    default: vi
+      .fn()
+      .mockResolvedValue(new Blob(['fake'], { type: 'image/webp' })),
+  };
+});
 
 const users = [
   {

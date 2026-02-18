@@ -30,7 +30,7 @@ export function formatGalleryFileDate(date: string): string {
 async function heicToResizedWebp(file: File): Promise<File> {
   const decoded = await heic2any({
     blob: file,
-    toType: 'image/png',
+    toType: 'image/webp',
   });
 
   const blob = Array.isArray(decoded) ? decoded[0] : decoded;
@@ -135,10 +135,10 @@ export function handleAddFileClick(accept: string, type: FileType): void {
           return;
         }
         // File is valid, proceed to open modal
-        setShowUploadOverlay(true);
-        setUploadFileName(getFileNameWithoutExtension(file));
         const galleryFile = await createTempGalleryFile(file, type);
         setSelectedFile(galleryFile);
+        setShowUploadOverlay(true);
+        setUploadFileName(getFileNameWithoutExtension(file));
       }
     } finally {
       cleanup();
