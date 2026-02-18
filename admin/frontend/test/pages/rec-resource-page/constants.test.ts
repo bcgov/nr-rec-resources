@@ -15,7 +15,7 @@ describe('rec-resource-page constants', () => {
 
     it('has correct configuration for image type', () => {
       expect(FILE_TYPE_CONFIGS.image).toEqual({
-        accept: 'image/png,image/jpg,image/jpeg,image/webp',
+        accept: 'image/png,image/jpg,image/jpeg,image/webp,image/heic',
         maxFiles: 20,
       });
     });

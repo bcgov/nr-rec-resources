@@ -11,6 +11,7 @@ import {
   setUploadFileName,
 } from './store/recResourceFileTransferStore';
 import { FileType, GalleryFile } from './types';
+import heic2any from 'heic2any';
 
 /**
  * Formats the date string for display.
@@ -26,22 +27,60 @@ export function formatGalleryFileDate(date: string): string {
   });
 }
 
+export async function heicToResizedWebp(file: File): Promise<File> {
+  const decoded = await heic2any({
+    blob: file,
+    toType: 'image/webp',
+  });
+
+  const blob = Array.isArray(decoded) ? decoded[0] : decoded;
+
+  const img = await createImageBitmap(blob);
+
+  const scale = Math.min(1, 1024 / Math.max(img.width, img.height));
+  const width = Math.round(img.width * scale);
+  const height = Math.round(img.height * scale);
+
+  const canvas = new OffscreenCanvas(width, height);
+  const ctx = canvas.getContext('2d')!;
+  ctx.drawImage(img, 0, 0, width, height);
+
+  const webpBlob = await canvas.convertToBlob({
+    type: 'image/webp',
+    quality: 0.7,
+  });
+
+  const newName = file.name.replace(/\.heic$/i, '.webp');
+  return new File([webpBlob], newName, { type: 'image/webp' });
+}
+
 /**
  * Creates a temporary GalleryFile object from a File for upload purposes.
  */
-export function createTempGalleryFile(file: File, type: FileType): GalleryFile {
-  const extension = file.name.split('.').pop()?.toLowerCase() || '';
+export function createTempGalleryFile(
+  file: File,
+  type: FileType,
+): Promise<GalleryFile> {
+  let extension = file.name.split('.').pop()?.toLowerCase() || '';
   const now = new Date();
 
-  return {
+  const filePromise =
+    extension === 'heic'
+      ? heicToResizedWebp(file).then((f) => {
+          extension = 'webp';
+          return f;
+        })
+      : Promise.resolve(file);
+
+  return filePromise.then((tempFile) => ({
     id: `temp-${now.getTime()}-${crypto.randomUUID()}`,
-    name: file.name,
+    name: tempFile.name,
     date: formatGalleryFileDate(now.toISOString()),
-    url: URL.createObjectURL(file),
+    url: URL.createObjectURL(tempFile),
     extension,
-    pendingFile: file,
+    pendingFile: tempFile,
     type,
-  };
+  }));
 }
 
 /**
@@ -83,7 +122,7 @@ export function handleAddFileClick(accept: string, type: FileType): void {
     document.body.removeChild(input);
   };
 
-  input.onchange = (event: Event) => {
+  input.onchange = async (event: Event) => {
     const target = event.target as HTMLInputElement;
     try {
       const file = target.files?.[0];
@@ -96,7 +135,7 @@ export function handleAddFileClick(accept: string, type: FileType): void {
           return;
         }
         // File is valid, proceed to open modal
-        const galleryFile = createTempGalleryFile(file, type);
+        const galleryFile = await createTempGalleryFile(file, type);
         setSelectedFile(galleryFile);
         setShowUploadOverlay(true);
         setUploadFileName(getFileNameWithoutExtension(file));

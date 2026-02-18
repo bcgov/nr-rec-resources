@@ -93,6 +93,11 @@ export function validateFileMimeType(
   allowedMimeTypes: string,
 ): boolean {
   const allowedTypes = allowedMimeTypes.split(',');
+  // Handle HEIC files with empty type
+  if (file.type === '') {
+    const heicExt = /\.(heic)$/i;
+    if (heicExt.test(file.name)) return true;
+  }
   return allowedTypes.some((type) => {
     const normalizedType = type.trim().toLowerCase();
     const normalizedFileType = file.type.toLowerCase();
