@@ -168,7 +168,13 @@ export const PhotoDetailsModal: FC = () => {
             </div>
             <div className="photo-details-modal__item">
               <dt>Personal identifiable information</dt>
-              <dd>{image.contains_pii ? 'Yes' : 'No'}</dd>
+              <dd>
+                {image.contains_pii == null
+                  ? 'Not specified'
+                  : image.contains_pii
+                    ? 'Yes'
+                    : 'No'}
+              </dd>
             </div>
             {image.contains_pii && (
               <div className="photo-details-modal__item">
