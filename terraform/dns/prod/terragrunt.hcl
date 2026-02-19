@@ -54,6 +54,7 @@ generate "tfvars" {
     dynamodb_table = "${local.statelock_table_name}"
     region         = "${local.region}"
   }
+  google_search_console_verification_txt = get_env("google_search_console_verification_txt", "")
 EOF
 }
 
