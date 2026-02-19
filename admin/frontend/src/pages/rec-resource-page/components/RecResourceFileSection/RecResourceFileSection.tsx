@@ -1,4 +1,5 @@
 import { FILE_TYPE_CONFIGS, MAX_FILE_SIZE_MB } from '@/pages/rec-resource-page';
+import { processSelectedFile } from '@/pages/rec-resource-page/helpers';
 import { DeleteFileModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/DeleteFileModal';
 import { DocumentUploadModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/DocumentUploadModal';
 import { ImageUploadModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal';
@@ -82,6 +83,7 @@ export const RecResourceFileSection = () => {
         uploadLabel="Upload"
         isLoading={isFetchingImages}
         onFileUploadTileClick={getImageGeneralActionHandler('upload')}
+        onFileDrop={(file) => processSelectedFile(file, 'image')}
         uploadDisabled={isImageUploadDisabled}
         renderItem={renderGalleryImageCard}
       />
@@ -93,6 +95,7 @@ export const RecResourceFileSection = () => {
         uploadLabel="Upload"
         isLoading={isFetching}
         onFileUploadTileClick={getDocumentGeneralActionHandler('upload')}
+        onFileDrop={(file) => processSelectedFile(file, 'document')}
         uploadDisabled={isDocumentUploadDisabled}
         renderItem={renderGalleryDocumentCard}
       />

@@ -88,18 +88,7 @@ export function handleAddFileClick(accept: string, type: FileType): void {
     try {
       const file = target.files?.[0];
       if (file) {
-        // Validate file immediately after selection
-        const fileError = validateFile(file, type);
-        if (fileError) {
-          // Show error in notification and prevent modal from opening
-          addErrorNotification(fileError);
-          return;
-        }
-        // File is valid, proceed to open modal
-        const galleryFile = createTempGalleryFile(file, type);
-        setSelectedFile(galleryFile);
-        setShowUploadOverlay(true);
-        setUploadFileName(getFileNameWithoutExtension(file));
+        processSelectedFile(file, type);
       }
     } finally {
       cleanup();
@@ -121,6 +110,23 @@ export function handleAddFileClick(accept: string, type: FileType): void {
 export function handleAddFileByType(fileType: FileType): void {
   const acceptTypes = getAcceptedMimeTypes(fileType);
   handleAddFileClick(acceptTypes, fileType);
+}
+
+/**
+ * Validates and stages a selected file for upload (from file picker or drag/drop).
+ */
+export function processSelectedFile(file: File, type: FileType): boolean {
+  const fileError = validateFile(file, type);
+  if (fileError) {
+    addErrorNotification(fileError);
+    return false;
+  }
+
+  const galleryFile = createTempGalleryFile(file, type);
+  setSelectedFile(galleryFile);
+  setShowUploadOverlay(true);
+  setUploadFileName(getFileNameWithoutExtension(file));
+  return true;
 }
 
 /**
