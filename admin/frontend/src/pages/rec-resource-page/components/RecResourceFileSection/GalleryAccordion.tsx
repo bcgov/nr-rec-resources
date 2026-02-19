@@ -19,6 +19,7 @@ interface GalleryAccordionProps<T> {
   items: T[];
   renderItem: (item: T, idx: number) => ReactNode;
   onFileUploadTileClick?: () => void;
+  onFileDrop?: (file: File) => void;
   uploadLabel?: string;
   isLoading?: boolean;
   uploadDisabled?: boolean;
@@ -31,6 +32,7 @@ export function GalleryAccordion<T>({
   items,
   renderItem,
   onFileUploadTileClick,
+  onFileDrop,
   uploadLabel = 'Upload',
   isLoading = false,
   uploadDisabled = false,
@@ -65,6 +67,7 @@ export function GalleryAccordion<T>({
                   disabled={uploadDisabled}
                   label={uploadLabel}
                   onClick={onFileUploadTileClick}
+                  onFileDrop={onFileDrop}
                 />
               </GalleryColumn>
             )}
