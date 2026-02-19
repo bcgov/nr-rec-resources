@@ -121,7 +121,7 @@ describe('PhotoDetailsModal', () => {
     expect(screen.getByText('No')).toBeInTheDocument();
   });
 
-  it('shows "Not specified" for missing fields', () => {
+  it('shows "Not specified" for missing fields including PII', () => {
     const minimalImage: GalleryImage = {
       id: 'img-2',
       name: 'minimal.webp',
@@ -137,7 +137,7 @@ describe('PhotoDetailsModal', () => {
     render(<PhotoDetailsModal />, { wrapper: TestQueryClientProvider });
 
     const notSpecified = screen.getAllByText('Not specified');
-    expect(notSpecified.length).toBeGreaterThanOrEqual(2);
+    expect(notSpecified.length).toBeGreaterThanOrEqual(3); // date, photographer, PII
   });
 
   it('renders download consent button when image contains PII', () => {
