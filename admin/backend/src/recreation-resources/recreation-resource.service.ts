@@ -1,7 +1,5 @@
-import {
-  getRecreationResourceSpatialFeatureGeometry,
-  getRecreationResourceSuggestions,
-} from '@/prisma-generated-sql';
+import { getRecreationResourceSpatialFeatureGeometry } from '@prisma-generated-sql/getRecreationResourceSpatialFeatureGeometry';
+import { getRecreationResourceSuggestions } from '@prisma-generated-sql/getRecreationResourceSuggestions';
 import { PrismaService } from '@/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { RecreationResourceDetailDto } from './dtos/recreation-resource-detail.dto';

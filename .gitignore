@@ -268,3 +268,6 @@ admin/backend/coverage/**/*
 
 # Tanstack
 .tanstack
+
+# Prisma generated client (output of `prisma generate`)
+**/src/generated/prisma/

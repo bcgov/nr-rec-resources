@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@generated/prisma';
 import { EXCLUDED_ACTIVITY_CODES } from '../constants/service.constants';
 import { buildFilterOptionCountsQuery } from './buildSearchFilterOptionCountsQuery';
 

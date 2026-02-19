@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@generated/prisma';
 import { getTableClient } from '@/recreation-resources/utils/prisma-table-helper';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
