@@ -12,6 +12,10 @@
   flex-direction: column;
   width: 370px;
   margin-right: 16px;
+  @media (max-width: $xlBreakpoint) {
+    width: 360px;
+    margin-right: 6px;
+  }
 
   @include media-breakpoint-down(md) {
     width: 100%;
@@ -28,10 +32,14 @@
 .description {
   color: $colorBlue;
   font-size: 16px;
-  width: 100%;
   @include media-breakpoint-down(md) {
     margin-bottom: 1em;
   }
+}
+
+.topic-description {
+  color: $colorBlue;
+  font-size: 16px;
 }
 
 .indicators {
@@ -84,12 +92,20 @@
 
 .map-image-container {
   margin-top: 40px;
+  @media (max-width: $xlBreakpoint) {
+    padding-left: 0px;
+  }
+
   .desktop-image {
     @include media-breakpoint-up(md) {
       border: solid 6px $colorWhite;
       border-radius: 24px;
       max-width: 100%;
       height: auto;
+    }
+
+    @media (max-width: $xlBreakpoint) {
+      width: 980px;
     }
   }
 }

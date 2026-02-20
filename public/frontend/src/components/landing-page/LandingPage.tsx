@@ -38,7 +38,6 @@ export const LandingPage: FC = () => {
           aria-label="Enjoy BC outdoor recreation"
           headingComponent={<h1>Enjoy BC outdoor recreation</h1>}
           sectionContent={<OutdoorRecreation />}
-          className="first-session"
         />
         <ContentSection
           aria-label="Find sites and trails by activity"
