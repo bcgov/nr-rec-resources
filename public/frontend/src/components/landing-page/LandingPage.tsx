@@ -49,7 +49,7 @@ export const LandingPage: FC = () => {
           headingComponent={<h1>Partnering and volunteering</h1>}
           sectionContent={
             <>
-              <div className="d-none d-md-flex align-items-center gap-4">
+              <div className="d-none d-md-flex align-items-center gap-4 part-container">
                 <p className="mb-0 flex-grow-1">
                   We partner with volunteer organizations through Stewardship
                   Partner Insurance Program (SPIP) agreements. These agreements

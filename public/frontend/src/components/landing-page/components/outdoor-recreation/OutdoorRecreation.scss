@@ -95,7 +95,7 @@
 
 .map-image-container {
   margin-top: 40px;
-  @media (max-width: $xlBreakpoint) {
+  @media (min-width: $mdBreakpoint) and (max-width: $xlBreakpoint) {
     padding-left: 0px;
   }
 
@@ -107,7 +107,7 @@
       height: auto;
     }
 
-    @media (max-width: $xlBreakpoint) {
+    @media (min-width: $mdBreakpoint) and (max-width: $xlBreakpoint) {
       width: 980px;
     }
   }
