@@ -28,3 +28,8 @@ variable "admin_frontend_remote_state" {
     region         = string
   })
 }
+
+variable "google_search_console_verification_txt" {
+  description = "TXT record value from Google Search Console for domain verification (e.g. google-site-verification=...). Creates a TXT record at the apex domain."
+  type        = string
+}
