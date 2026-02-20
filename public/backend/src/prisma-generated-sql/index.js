@@ -5,3 +5,5 @@ exports.getMultipleResourcesSpatialFeatureGeometry =
   require('./getMultipleResourcesSpatialFeatureGeometry.js').getMultipleResourcesSpatialFeatureGeometry;
 exports.getRecreationResourceSpatialFeatureGeometry =
   require('./getRecreationResourceSpatialFeatureGeometry.js').getRecreationResourceSpatialFeatureGeometry;
+exports.getRecreationResourceSummary =
+  require('./getRecreationResourceSummary.js').getRecreationResourceSummary;

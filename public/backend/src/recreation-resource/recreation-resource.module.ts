@@ -7,6 +7,7 @@ import { RecreationResourceController } from './recreation-resource.controller';
 import { PrismaModule } from 'src/prisma.module';
 import { ApiModule } from 'src/service/fsa-resources';
 import { FsaResourceService } from './service/fsa-resource.service';
+import { RecreationResourceSummaryService } from './service/recreation-resource-summary.service';
 
 @Module({
   controllers: [RecreationResourceController],
@@ -16,6 +17,7 @@ import { FsaResourceService } from './service/fsa-resource.service';
     RecreationResourceSuggestionsService,
     RecreationResourceAlphabeticalService,
     FsaResourceService,
+    RecreationResourceSummaryService,
   ],
   imports: [PrismaModule, ApiModule],
 })
