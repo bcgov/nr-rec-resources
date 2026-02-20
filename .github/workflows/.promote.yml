@@ -9,7 +9,7 @@ on:
         required: true
       tag:
         description: "Manually provide the tag of the containers to promote"
-        type: number
+        type: string
         required: true
 
 jobs:
