@@ -43,7 +43,13 @@ export class FeesController {
   constructor(private readonly feesService: FeesService) {}
 
   @Get()
-  @AuthRoles([RecreationResourceAuthRole.RST_VIEWER], ROLE_MODE.ALL)
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
   @ApiOperation({
     operationId: 'getRecreationResourceFees',
     summary: 'Get all fees for a recreation resource',
@@ -71,7 +77,7 @@ export class FeesController {
   }
 
   @Post()
-  @AuthRoles([RecreationResourceAuthRole.RST_ADMIN], ROLE_MODE.ALL)
+  @AuthRoles([RecreationResourceAuthRole.RST_ADMIN], ROLE_MODE.ANY)
   @ApiOperation({
     operationId: 'createRecreationResourceFee',
     summary: 'Create a new fee for a recreation resource',
@@ -120,7 +126,7 @@ export class FeesController {
   }
 
   @Put(':fee_id')
-  @AuthRoles([RecreationResourceAuthRole.RST_ADMIN], ROLE_MODE.ALL)
+  @AuthRoles([RecreationResourceAuthRole.RST_ADMIN], ROLE_MODE.ANY)
   @ApiOperation({
     operationId: 'updateRecreationResourceFee',
     summary: 'Update an existing fee for a recreation resource',

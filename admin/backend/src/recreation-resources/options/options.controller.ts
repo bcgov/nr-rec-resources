@@ -37,6 +37,13 @@ import { type OptionType } from './options.types';
 export class OptionsController {
   constructor(private readonly optionsService: OptionsService) {}
 
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
   @Get(':type')
   @ApiOperation({
     summary: 'List all options for a type',
@@ -57,6 +64,13 @@ export class OptionsController {
     return this.optionsService.findAllByType(type);
   }
 
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
   @Get()
   @ApiOperation({
     summary: 'List options for multiple types',
