@@ -37,6 +37,13 @@ import { FeaturesService } from './features.service';
 export class FeaturesController {
   constructor(private readonly featuresService: FeaturesService) {}
 
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
   @Get(':rec_resource_id/features')
   @ApiOperation({
     summary: 'Get all features related to the resource',

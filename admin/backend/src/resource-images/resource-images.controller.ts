@@ -41,10 +41,17 @@ import { ResourceImagesService } from './service/resource-images.service';
 @ApiTags('recreation-resources')
 @ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
 @UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
-@AuthRoles([RecreationResourceAuthRole.RST_VIEWER], ROLE_MODE.ALL)
+@AuthRoles([RecreationResourceAuthRole.RST_ADMIN], ROLE_MODE.ALL)
 export class ResourceImagesController {
   constructor(private readonly resourceImagesService: ResourceImagesService) {}
 
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
   @Get(':rec_resource_id/images')
   @ApiOperation({
     summary: 'Get all images related to the resource',
@@ -187,6 +194,13 @@ export class ResourceImagesController {
     return this.resourceImagesService.delete(rec_resource_id, image_id, true);
   }
 
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
   @Get(':rec_resource_id/images/:image_id/consent-download')
   @ApiOperation({
     summary: 'Get presigned URL for consent form download',
