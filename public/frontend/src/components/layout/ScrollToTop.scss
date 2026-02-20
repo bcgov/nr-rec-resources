@@ -9,6 +9,9 @@
   right: 2%;
   z-index: $zIndexScrollToTop;
   border-radius: 4px;
+  @media (min-width: $mdBreakpoint) and (max-width: $xlBreakpoint) {
+    left: 88%;
+  }
 }
 
 .btn-scroll--inner {

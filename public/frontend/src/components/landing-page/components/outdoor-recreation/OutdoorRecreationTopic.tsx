@@ -24,7 +24,7 @@ export const OutdoorRecreationTopic: FC<Topic> = ({
         <img src={icon} alt="Topic icon" height={50} width={50} />{' '}
         <span className="indicators">{title}</span>
       </Container>
-      <span className="description d-none d-md-block">{description}</span>
+      <span className="topic-description d-none d-md-block">{description}</span>
       <a href={`${ROUTE_PATHS.HOME}${'search?type='}${type}`}>
         <Container className="d-flex align-items-center link">
           <Col className="d-flex align-items-center flex-nowrap text-nowrap">
