@@ -12,6 +12,7 @@ import { RecreationResourceImageSize } from '@shared/constants/images';
 import { FsaResourceService } from './service/fsa-resource.service';
 import { ApiModule } from 'src/service/fsa-resources';
 import { SiteOperatorDto } from './dto/recreation-resource.dto';
+import { RecreationResourceSummaryService } from './service/recreation-resource-summary.service';
 
 describe('RecreationResourceController', () => {
   let recService: RecreationResourceService;
@@ -44,6 +45,12 @@ describe('RecreationResourceController', () => {
             rstStorageCloudfrontUrl: 'https://test-cloudfront.example.com',
             forestClientApiKey: 'test-api-key',
             forestClientApiUrl: 'https://test-api.example.com',
+          },
+        },
+        {
+          provide: RecreationResourceSummaryService,
+          useValue: {
+            findAll: vi.fn(),
           },
         },
       ],
@@ -461,6 +468,44 @@ describe('RecreationResourceController', () => {
           RecreationResourceImageSize.PREVIEW,
         ],
       );
+    });
+  });
+
+  describe('getSummary', () => {
+    it('should call findAll with page param 1', async () => {
+      const mockSummary = [
+        {
+          rec_resource_id: 'REC204117',
+          name: 'Aileen Lake',
+          district_code: 'RDCK',
+          district: 'Chilliwack',
+          rec_resource_type_code: 'SIT',
+          rec_resource_type: 'Recreation Site',
+          display_on_public_site: true,
+          status_code: null,
+          status: null,
+          closure_comment: null,
+        },
+      ];
+
+      const summaryService = app.get(RecreationResourceSummaryService);
+      vi.spyOn(summaryService, 'findAll').mockResolvedValueOnce(
+        mockSummary as any,
+      );
+
+      const result = await controller.getSummary(1);
+
+      expect(result).toEqual(mockSummary);
+      expect(summaryService.findAll).toHaveBeenCalledWith(1);
+    });
+
+    it('should parse and pass the page param as a number', async () => {
+      const summaryService = app.get(RecreationResourceSummaryService);
+      vi.spyOn(summaryService, 'findAll').mockResolvedValueOnce([] as any);
+
+      await controller.getSummary(50);
+
+      expect(summaryService.findAll).toHaveBeenCalledWith(50);
     });
   });
 });
