@@ -35,6 +35,9 @@
   @include media-breakpoint-down(md) {
     margin-bottom: 1em;
   }
+  @media (min-width: $mdBreakpoint) and (max-width: $xlBreakpoint) {
+    width: 98%;
+  }
 }
 
 .topic-description {
