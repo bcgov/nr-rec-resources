@@ -1,4 +1,7 @@
 import { Route } from '@/routes/search/a-z-list';
+import { ROUTE_PATHS, ROUTE_TITLES } from '@/constants/routes';
+import { META_DESCRIPTIONS, OG_DEFAULT_IMAGE_PATH } from '@/constants/seo';
+import { buildAbsoluteUrl } from '@/utils/seo';
 import { describe, expect, it, beforeEach, vi } from 'vitest';
 
 describe('A-Z List Route', () => {
@@ -94,5 +97,24 @@ describe('A-Z List Route', () => {
     const breadcrumb = result.breadcrumb();
 
     expect(breadcrumb[1].href).toBe('/search?filter=test');
+  });
+  it('should return correct OpenGraph head metadata', () => {
+    const headResult = Route.options.head!({} as any);
+
+    const description = META_DESCRIPTIONS.ALPHABETICAL;
+    const pageTitle = ROUTE_TITLES.ALPHABETICAL;
+    const ogImage = buildAbsoluteUrl(OG_DEFAULT_IMAGE_PATH);
+    const ogUrl = buildAbsoluteUrl(ROUTE_PATHS.ALPHABETICAL);
+
+    expect(headResult).toEqual({
+      meta: expect.arrayContaining([
+        { name: 'description', content: description },
+        { title: pageTitle },
+        { property: 'og:title', content: pageTitle },
+        { property: 'og:description', content: description },
+        { property: 'og:url', content: ogUrl },
+        { property: 'og:image', content: ogImage },
+      ]),
+    });
   });
 });
