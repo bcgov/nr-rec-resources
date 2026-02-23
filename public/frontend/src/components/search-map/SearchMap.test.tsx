@@ -353,5 +353,21 @@ describe('SearchMap', () => {
       'locationCenterState',
       '0,0',
     );
+
+    popup.focus();
+    fireEvent.keyDown(popup, { key: 'Enter' });
+
+    expect(sessionStorage.setItem).toHaveBeenCalledWith(
+      'locationZoomState',
+      '10',
+    );
+
+    popup.focus();
+    fireEvent.keyDown(popup, { key: ' ' });
+
+    expect(sessionStorage.setItem).toHaveBeenCalledWith(
+      'locationZoomState',
+      '10',
+    );
   });
 });
