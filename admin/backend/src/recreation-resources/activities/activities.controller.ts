@@ -37,6 +37,13 @@ import { UpdateActivitiesDto } from './dtos/update-activities.dto';
 export class ActivitiesController {
   constructor(private readonly activitiesService: ActivitiesService) {}
 
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
   @Get(':rec_resource_id/activities')
   @ApiOperation({
     summary: 'Get all activities related to the resource',
