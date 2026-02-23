@@ -82,6 +82,10 @@ const FilterMenuSearchMap = ({
     }
   }, [data?.filters]);
 
+  const activeGroups = useMemo(() => {
+    return params.filter((param) => localFilters[param]?.length > 0);
+  }, [localFilters, params]);
+
   const handleClose = () => setIsOpen(false);
 
   const handleToggleFilter = (param: string, id: string | number) => {
@@ -172,6 +176,7 @@ const FilterMenuSearchMap = ({
       isOpen={isOpen}
       onClose={handleClose}
       params={params}
+      activeGroups={activeGroups}
     >
       {({ isGroupOpen, toggleGroup }) => (
         <>

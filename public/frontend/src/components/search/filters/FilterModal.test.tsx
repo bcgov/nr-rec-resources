@@ -57,4 +57,22 @@ describe('FilterModal', () => {
     fireEvent.click(closeButton);
     expect(onClose).toHaveBeenCalled();
   });
+  it('opens groups by default when included in activeGroups', () => {
+    let groupOpenState = false;
+    render(
+      <FilterModal
+        isOpen={true}
+        onClose={vi.fn()}
+        params={defaultParams}
+        activeGroups={['activity_type']}
+      >
+        {({ isGroupOpen }) => {
+          groupOpenState = isGroupOpen('activity_type');
+          return <div>{groupOpenState ? 'Group Open' : 'Group Closed'}</div>;
+        }}
+      </FilterModal>,
+    );
+
+    expect(screen.getByText('Group Open')).toBeInTheDocument();
+  });
 });

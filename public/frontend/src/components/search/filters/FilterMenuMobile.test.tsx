@@ -2,6 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import FilterMenuMobile from '@/components/search/filters/FilterMenuMobile';
 import { useClearFilters } from '@/components/search/hooks/useClearFilters';
 import searchResultsStore from '@/store/searchResults';
+import filterChipStore from '@/store/filterChips';
 import { mockFilterMenuContent } from '@/components/search/test/mock-data';
 
 vi.mock('@tanstack/react-router', () => ({
@@ -66,5 +67,20 @@ describe('FilterMenuMobile component', () => {
 
     // Verify that the useClearFilters hook has been called
     expect(useClearFilters).toHaveBeenCalled();
+  });
+
+  it('should open groups with active filters by default', () => {
+    const mockState = [
+      { param: mockFilterMenuContent[0].param, id: '1', label: 'Test' },
+    ];
+    Object.defineProperty(filterChipStore, 'state', {
+      get: vi.fn(() => mockState),
+      configurable: true,
+    });
+
+    render(<FilterMenuMobile isOpen={true} setIsOpen={vi.fn()} />);
+
+    // Group should be open (represented by the close icon showing)
+    expect(screen.getByTestId('close-filter-group')).toBeInTheDocument();
   });
 });
