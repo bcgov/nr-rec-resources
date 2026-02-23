@@ -65,7 +65,6 @@ describe('SEO Utils', () => {
         expect.arrayContaining([
           { property: 'og:title', content: 'Test Title' },
           { property: 'og:description', content: 'Test description' },
-          { property: 'og:type', content: SITE_METADATA.type },
           { property: 'og:site_name', content: SITE_METADATA.title },
           { property: 'og:locale', content: SITE_METADATA.locale },
           { property: 'og:url', content: 'https://example.com/test' },
@@ -89,14 +88,12 @@ describe('SEO Utils', () => {
         imageAlt: 'Custom alt',
         imageWidth: 800,
         imageHeight: 600,
-        type: 'article',
         siteName: 'Custom Site',
         locale: 'en_US',
       });
 
       expect(result).toEqual(
         expect.arrayContaining([
-          { property: 'og:type', content: 'article' },
           { property: 'og:site_name', content: 'Custom Site' },
           { property: 'og:locale', content: 'en_US' },
           { property: 'og:image:width', content: '800' },

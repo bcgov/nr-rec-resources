@@ -1,4 +1,7 @@
 import { Route } from '@/routes/resource/$id/contact';
+import { ROUTE_TITLES } from '@/constants/routes';
+import { META_DESCRIPTIONS, OG_DEFAULT_IMAGE_PATH } from '@/constants/seo';
+import { buildAbsoluteUrl } from '@/utils/seo';
 import { recResourceLoader } from '@/service/loaders/recResourceLoader';
 import { describe, expect, it } from 'vitest';
 
@@ -51,5 +54,26 @@ describe('Resource Contact Route', () => {
     const lastItem = breadcrumb[breadcrumb.length - 1];
     expect(lastItem.label).toBe('Contact');
     expect(lastItem.isCurrent).toBe(true);
+  });
+  it('should return correct OpenGraph head metadata', () => {
+    const headResult = Route.options.head!({
+      params: { id: '123' },
+    } as any);
+
+    const description = META_DESCRIPTIONS.REC_RESOURCE_CONTACT;
+    const pageTitle = ROUTE_TITLES.REC_RESOURCE_CONTACT('');
+    const ogImage = buildAbsoluteUrl(OG_DEFAULT_IMAGE_PATH);
+    const ogUrl = buildAbsoluteUrl('/resource/123/contact');
+
+    expect(headResult).toEqual({
+      meta: expect.arrayContaining([
+        { name: 'description', content: description },
+        { title: pageTitle },
+        { property: 'og:title', content: pageTitle },
+        { property: 'og:description', content: description },
+        { property: 'og:url', content: ogUrl },
+        { property: 'og:image', content: ogImage },
+      ]),
+    });
   });
 });
