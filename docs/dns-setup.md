@@ -57,6 +57,24 @@ The following DNS records are configured in Route 53:
 | ----------- | --------------------------- | ----------------------- | ------------------------ |
 | A (Alias)   | `staff.sitesandtrailsbc.ca` | CloudFront Distribution | Administrative interface |
 
+### Google Search Console Verification (TXT)
+
+A **TXT record** at the apex domain (`sitesandtrailsbc.ca`) is used for
+[Google Search Console](https://search.google.com/search-console) domain
+verification. The value is supplied via a required Terraform variable and must
+not be committed to the repo.
+
+| Record Type | Domain                | Purpose                            |
+| ----------- | --------------------- | ---------------------------------- |
+| TXT         | `sitesandtrailsbc.ca` | Google Search Console verification |
+
+- **Terraform variable**: `google_search_console_verification_txt` (required)
+- **Value source**: GitHub Actions secret (_not env specific_)
+  **`GOOGLE_SEARCH_CONSOLE_VERIFICATION_TXT`**
+- The workflow passes this to the DNS Terraform run via
+  [`terraform/dns/prod/terragrunt.hcl`](../terraform/dns/prod/terragrunt.hcl).
+  The record is only created when the variable is non-empty.
+
 ### Record Configuration Details
 
 All frontend records are configured as **Route 53 Alias records** pointing to
@@ -208,6 +226,12 @@ To add new DNS records:
 3. CI/CD: GitHub Actions workflow will automatically apply changes to Route 53
 4. Changes propagate automatically (no registrar coordination needed)
 
+**Required for DNS deploy**: The `deploy-dns` job (see
+[main.yml](../.github/workflows/main.yml)) requires the
+**`GOOGLE_SEARCH_CONSOLE_VERIFICATION_TXT`** GitHub Actions secret to be set,
+because the Terraform variable `google_search_console_verification_txt` is
+required. If the secret is missing, the DNS apply will fail.
+
 **Example**:
 
 ```terraform
@@ -245,6 +269,9 @@ Use these commands to verify DNS is working correctly:
 dig sitesandtrailsbc.ca A
 dig www.sitesandtrailsbc.ca A
 dig staff.sitesandtrailsbc.ca A
+
+# Check TXT record (Google Search Console verification)
+dig sitesandtrailsbc.ca TXT
 
 # Check from specific DNS server
 dig @8.8.8.8 sitesandtrailsbc.ca

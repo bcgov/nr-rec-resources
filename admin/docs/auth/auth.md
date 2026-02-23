@@ -1,156 +1,116 @@
-# 🔐 Authentication & Authorization Implementation Guide
+# Authentication & Authorization
 
-Our web-based admin interface implements secure authentication using BC Gov SSO
-(Keycloak), following modern best practices for browser-based applications.
-
-Key Implementation Features:
-
-- Uses Public Client with PKCE authentication flow
-- Integrates with BC Gov SSO (powered by Keycloak)
-- Follows industry-standard security practices
-
-The authentication process is divided into two main components:
-
-- Frontend (React): Handles user login through browser-based authentication flow
-  and token retrieval
-- Backend (NestJS): Manages token validation and security enforcement
+The admin interface uses
+[BC Gov Common Hosted Single Sign-on (CSS)](https://bcgov.github.io/sso-docs/)
+(Keycloak) with a Public Client and PKCE. The frontend handles login, token
+refresh, and session-expiry UX; the backend validates JWTs and enforces RBAC.
 
 ## Architecture Overview
 
 ![img](./auth-flow-diagram.png)
 
-## Frontend Authentication
+## Frontend
 
-### Setup and Configuration
+### App structure
 
-The frontend uses `keycloak-js` to handle authentication.
+- **AuthProvider** (outermost): exposes auth state and `AuthService` to the app
+- **AuthGuard**: shows loading, error, login, unauthorized, or app content (see
+  table below)
+- **RouterProvider**: only rendered when the user is authenticated and
+  authorized
 
-### Key Components
+### Configuration
 
-1. **Keycloak Initialization**
+- Keycloak is initialized at startup with server URL, realm, and client ID from
+  env
+- `check-sso` for silent sign-in when the user is already in BC Gov SSO
+- Session check iframe to detect logout in another tab
 
-- The Keycloak client needs to be initialized when the application starts
-- Configuration includes the Keycloak server URL, realm, and client ID
+### Key components
 
-### Authentication Flow
+**AuthService** (singleton)
 
-**Login Process**
+- Wraps Keycloak; exposes `init()`, `login()`, `logout()`, `getToken()`, and
+  user/role helpers
+- Before `init()`, registers:
+  - **onTokenExpired**: calls `updateToken(70)` to refresh in the background; on
+    failure dispatches error so the UI shows “Log in again”
+  - **onAuthRefreshError**: dispatches error with “Your session has expired.
+    Please log in again.”
+- Tokens live in memory only (not localStorage or cookies)
 
-- When an unauthenticated user tries to access a protected route, they are
-  redirected to the BC Gov login page
-- After successful authentication, users are redirected back to the application
-  with an access token
-- The token is stored and used for subsequent API requests
+**AuthContext / AuthProvider** — holds `user`, `isAuthenticated`,
+`isAuthorized`, `isLoading`, `error`, `authService`; subscribes to auth events
+and updates state.
 
-**Token Management**
+**AuthGuard** — chooses what to render based on auth state (see table).
 
-- Access tokens are automatically managed by the Keycloak client
-- Token refresh is handled automatically when tokens expire
-- Tokens are included in API requests via Authorization headers
+### End-user experience
 
-**Logout Process**
+| State                         | What the user sees                                               |
+| ----------------------------- | ---------------------------------------------------------------- |
+| Loading                       | Full-screen spinner while auth is initializing.                  |
+| Not authenticated             | Login page with button to sign in via BC Gov SSO.                |
+| Authenticated, not authorized | “You are not authorized to log in yet.”                          |
+| Session / refresh error       | “Authentication error” plus message and **Log in again** button. |
+| Authenticated and authorized  | The app; tokens are refreshed in the background.                 |
 
-- When users log out, they are redirected to SSO logout endpoint
-- The session is terminated both in the application and SSO server
-- All local tokens are cleared
+### Token lifecycle
 
-## Backend Authentication
+- **Access token**: 5 min default
+  ([BC Gov CSS additional settings](https://bcgov.github.io/sso-docs/integrating-your-application/additional-settings)).
+  Sent in `Authorization` header. When it expires, Keycloak fires
+  `onTokenExpired` and the app calls `updateToken(70)` to refresh in the
+  background.
+- **Refresh / session**: 30 min idle default (no successful refresh for 30 min →
+  session expired, user sees “Log in again”). 10 hr session max; after that the
+  user must sign in again.
+- **Logout**: App calls Keycloak logout; user is redirected to SSO logout;
+  session and tokens are cleared.
 
-### Setup and Configuration
+## Backend
 
-The backend uses:
+- **Stack**: `@nestjs/passport`, `passport-keycloak-bearer`, `passport`
+- **Guards**: Protect routes; validate JWT (signature via Keycloak JWKS, issuer,
+  audience, expiration); invalid/expired → 401
+- **RBAC**: Use `@AuthRoles` with `RolesGuard` to restrict by token roles:
 
-- `@nestjs/passport` (v11.0.5)
-- `passport-keycloak-bearer` (v2.4.1)
-- `passport` (v0.7.0)
-
-### Authentication Components
-
-**Authentication Guard**
-
-- Protects routes requiring authentication
-- Validates incoming JWT tokens
-- Integrates with NestJS's guard system
-
-**Token Validation**
-
-- Validates tokens against Keycloak's public key
-- Verifies token signature, expiration, and required claims
-- Checks token permissions and roles if required
-
-### Token Security & Access Control
-
-Our token security implementation includes:
-
-- Mandatory token validation on every request
-- Strict token expiration enforcement
-- Role-based access control (RBAC) using token claims
-
-### RBAC Implementation
-
-Role-Based Access Control (RBAC) restricts access to specific routes based on
-user roles in token claims. NestJS implements this through a combination of
-guards and decorators.
-
-Here's how to protect routes using the @AuthRoles decorator:
-
-```tsx
+```ts
 @UseGuards(AuthGuard('keycloak'), RolesGuard)
-@AuthRoles('rst-admin', 'rst-rec-tech')
+@AuthRoles('rst-admin', 'rst-viewer')
 @Get('/secure-data')
 getSecureData() {
-   return 'Protected by role-based access';
+  return 'Protected by role-based access';
 }
 ```
 
-## API Authentication Flow
+Protected routes: frontend sends Bearer token in `Authorization`; backend
+validates it; invalid or expired tokens get 401.
 
-### Token Validation Process
+## Environment
 
-The Passport library handles JWT token validation through these sequential
-steps:
+**Frontend**
 
-1. Token Extraction
-   - Retrieves Bearer token from Authorization header
-2. Signature Verification
-   - Validates token signature using Keycloak's JWKS endpoint public key
-3. Claims Validation
-   - Verifies token issuer matches configured Keycloak realm
-   - Validates audience claim against client ID
-   - Checks token expiration status
-4. Payload Processing
-   - Processes decoded token payload through validate() method if all checks
-     pass
-   - Note: Currently no additional validation logic implemented
-
-### Request Flow
-
-For protected routes (using `AuthGuard`):
-
-- Frontend sends access token in Authorization header
-- Backend validates token automatically
-  - Protection enabled via `@UseGuards` decorator on controllers/routes
-- Invalid or expired tokens receive 401 Unauthorized response
-
-## Environment Configuration
-
-Both frontend and backend require proper environment configuration:
-
-### Frontend Environment Variables
-
-```
-
-VITE_KEYCLOAK_URL=<keycloak-server-url>
-VITE_KEYCLOAK_REALM=<realm-name>
+```text
+VITE_KEYCLOAK_AUTH_SERVER_URL=<keycloak-server-url>   # e.g. https://dev.loginproxy.gov.bc.ca/auth
+VITE_KEYCLOAK_REALM=<realm-name>                      # e.g. standard
 VITE_KEYCLOAK_CLIENT_ID=<client-id>
-
 ```
 
-### Backend Environment Variables
+**Backend**
 
-```
-
+```text
 KEYCLOAK_REALM_URL=<keycloak-realm-url>
 KEYCLOAK_CLIENT_ID=<client-id>
-
 ```
+
+## CSS documentation
+
+- [Introduction & overview](https://bcgov.github.io/sso-docs/)
+- [Additional settings](https://bcgov.github.io/sso-docs/integrating-your-application/additional-settings)
+  — access token lifespan, client session idle/max
+- [Client setup without adapter](https://bcgov.github.io/sso-docs/integrating-your-application/settingup-no-adapter)
+  — endpoints, OpenID configuration URLs
+- [Client setup with an adapter](https://bcgov.github.io/sso-docs/integrating-your-application/settingup-adapter)
+- [Installation JSON](https://bcgov.github.io/sso-docs/integrating-your-application/installation-json)
+  — understanding the client config file
