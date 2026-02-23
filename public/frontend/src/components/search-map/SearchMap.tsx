@@ -274,7 +274,13 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
       <div
         ref={popupRef}
         className="search-map-feature-preview"
+        data-testid="location-modal"
         onClick={() => storeLocation()}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            storeLocation();
+          }
+        }}
       >
         {selectedFeature && (
           <RecreationFeaturePreview

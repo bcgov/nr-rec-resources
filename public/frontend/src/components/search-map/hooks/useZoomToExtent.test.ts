@@ -38,14 +38,6 @@ vi.mock('@/store/searchInputStore', () => ({
   default: { setState: vi.fn() },
 }));
 
-// ---- Fake OL Map & View ----
-const mockView = {
-  getZoom: vi.fn(() => 10),
-  setZoom: vi.fn(),
-  setCenter: vi.fn(),
-  fit: vi.fn(),
-};
-
 describe('useZoomToExtent', () => {
   const extentGeoJSON = JSON.stringify({
     type: 'Polygon',
