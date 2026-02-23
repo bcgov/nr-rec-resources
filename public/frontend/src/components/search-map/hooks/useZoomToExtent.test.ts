@@ -38,6 +38,14 @@ vi.mock('@/store/searchInputStore', () => ({
   default: { setState: vi.fn() },
 }));
 
+// ---- Fake OL Map & View ----
+const mockView = {
+  getZoom: vi.fn(() => 10),
+  setZoom: vi.fn(),
+  setCenter: vi.fn(),
+  fit: vi.fn(),
+};
+
 describe('useZoomToExtent', () => {
   const extentGeoJSON = JSON.stringify({
     type: 'Polygon',
@@ -231,5 +239,24 @@ describe('useZoomToExtent', () => {
 
     // Should not have called fit because wasCleared is true
     expect(fit).not.toHaveBeenCalled();
+  });
+
+  it('zooms when there is a state', () => {
+    sessionStorage.setItem('locationZoomState', '12');
+    sessionStorage.setItem('locationCenterState', '123,456');
+    mockUseSearchParams.mockReturnValue('filter=abc');
+
+    const mapRef = { current: { getMap: () => createMapMock(1200, 800) } };
+
+    const { rerender } = renderHook(
+      ({ extent }) => useZoomToExtent(mapRef, extent),
+      { initialProps: { extent: extentGeoJSON } },
+    );
+
+    // Second call should trigger zoom when extent changes
+    rerender({ extent: differentExtentGeoJSON });
+
+    expect(sessionStorage.getItem('lastZoomState')).toBeNull();
+    expect(sessionStorage.getItem('lastCenterState')).toBeNull();
   });
 });
