@@ -186,6 +186,18 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
     }
   }, [searchViewControlsProps.props, searchViewControlsProps.props.style]);
 
+  const storeLocation = () => {
+    const map = mapRef.current?.getMap();
+    if (!map) return;
+    const view = map.getView();
+    const zoom = view.getZoom();
+    const center = view.getCenter();
+    if (zoom && center) {
+      sessionStorage.setItem('locationZoomState', `${zoom}`);
+      sessionStorage.setItem('locationCenterState', `${center}`);
+    }
+  };
+
   return (
     <div
       className="search-map-container d-flex flex-column vh-100"
@@ -263,7 +275,17 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
           setIsOpen={setIsFilterMenuOpen}
         />
       </div>
-      <div ref={popupRef} className="search-map-feature-preview">
+      <div
+        ref={popupRef}
+        className="search-map-feature-preview"
+        data-testid="location-modal"
+        onClick={() => storeLocation()}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            storeLocation();
+          }
+        }}
+      >
         {selectedFeature && (
           <RecreationFeaturePreview
             rec_resource_id={selectedFeature.get('FOREST_FILE_ID')}
