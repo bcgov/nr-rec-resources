@@ -1,0 +1,18 @@
+@import '@/styles/variables.scss';
+
+.filter-btn-content {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-count {
+  width: 24px;
+  height: 24px;
+  border-radius: 32px;
+  background: $colorIceBlue;
+  color: $colorBlueMed;
+  font-family: $globalFont;
+  font-size: 16px;
+  font-weight: 700;
+}
