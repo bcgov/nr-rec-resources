@@ -41,7 +41,7 @@ import { RecreationResourceService } from './recreation-resource.service';
 @ApiTags('recreation-resources')
 @ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
 @UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
-@AuthRoles([RecreationResourceAuthRole.RST_VIEWER], ROLE_MODE.ALL)
+@AuthRoles([RecreationResourceAuthRole.RST_ADMIN], ROLE_MODE.ALL)
 export class RecreationResourceController {
   constructor(
     private readonly recreationResourceService: RecreationResourceService,
@@ -56,6 +56,13 @@ export class RecreationResourceController {
    * @param query - Query parameters containing the searchTerm
    * @returns SuggestionsResponseDto containing total and data array
    */
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
   @Get('suggestions')
   @ApiOkResponse({
     type: SuggestionsResponseDto,
@@ -86,6 +93,13 @@ export class RecreationResourceController {
    * @param rec_resource_id - The ID of the recreation resource
    * @returns The recreation resource detail DTO
    */
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
   @Get(':rec_resource_id')
   @ApiOperation({
     summary: 'Find recreation resource by ID',
