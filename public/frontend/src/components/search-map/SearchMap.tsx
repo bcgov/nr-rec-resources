@@ -20,6 +20,7 @@ import {
   RecreationFeaturePreview,
   WildfireFeaturePreview,
 } from '@/components/search-map/preview';
+import FilterButtonLabel from '@/components/search-map/FilterButtonLabel';
 import FilterMenuSearchMap from '@/components/search/filters/FilterMenuSearchMap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSliders } from '@fortawesome/free-solid-svg-icons';
@@ -39,6 +40,7 @@ import { useMapFocus } from '@/components/search-map/hooks/useMapFocus';
 import Overlay from 'ol/Overlay';
 import { LoadingOverlay } from '@shared/components/loading-overlay';
 import { useBaseMaps } from '@/components/search-map/hooks/useBaseMaps';
+import filterChipStore from '@/store/filterChips';
 import '@/components/search-map/SearchMap.scss';
 
 interface SearchViewControlsProps {
@@ -49,11 +51,13 @@ interface SearchViewControlsProps {
 
 const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
   const { extent, recResourceIds } = useStore(searchResultsStore);
+  const filterChips = useStore(filterChipStore);
   const [selectedFeature, setSelectedFeature] = useState<Feature | null>(null);
   const [selectedWildfireFeature, setSelectedWildfireFeature] =
     useState<Feature | null>(null);
   const [isFilterMenuOpen, setIsFilterMenuOpen] = useState(false);
   const [isDisclaimerModalOpen, setIsDisclaimerModalOpen] = useState(false);
+  const selectedFilterCount = filterChips.length;
 
   const mapRef = useRef<{ getMap: () => OLMap }>(null);
   const popupRef = useRef<HTMLDivElement | null>(null);
@@ -246,7 +250,7 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
             onClick={() => setIsFilterMenuOpen(!isFilterMenuOpen)}
             aria-label="Toggle filter menu desktop"
           >
-            Filters
+            <FilterButtonLabel selectedFilterCount={selectedFilterCount} />
           </Button>
         </div>
         <div className="d-flex flex-col flex-lg-row align-items-center gap-2">
@@ -257,7 +261,7 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
             aria-label="Toggle filter menu mobile"
           >
             <FontAwesomeIcon icon={faSliders} className="me-2" />
-            Filters
+            <FilterButtonLabel selectedFilterCount={selectedFilterCount} />
           </Button>
           <SearchViewControls
             variant="list"

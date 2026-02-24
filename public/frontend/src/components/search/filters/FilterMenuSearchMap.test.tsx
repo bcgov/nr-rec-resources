@@ -198,4 +198,12 @@ describe('FilterMenuSearchMap', () => {
     const cancelButton = screen.getByText('Cancel');
     fireEvent.click(cancelButton);
   });
+
+  it('opens groups by default when there are active filters', async () => {
+    render(<FilterMenuSearchMap isOpen={true} setIsOpen={setIsOpenMock} />);
+
+    // Check if the group is open (data-testid="close-filter-group" means it's open)
+    const openGroupIcons = await screen.findAllByTestId('close-filter-group');
+    expect(openGroupIcons.length).toBeGreaterThan(0);
+  });
 });

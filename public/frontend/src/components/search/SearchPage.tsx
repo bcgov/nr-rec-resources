@@ -17,7 +17,6 @@ import {
 } from '@/components/search/filters';
 import SearchLinks from '@/components/search/SearchLinks';
 import SearchLinksMobile from '@/components/search/SearchLinksMobile';
-import filterChipStore from '@/store/filterChips';
 import searchResultsStore, { initialState } from '@/store/searchResults';
 import { useSearchRecreationResourcesPaginated } from '@/service/queries/recreation-resource';
 import { useInitialPageFromSearchParams } from '@/components/search/hooks/useInitialPageFromSearchParams';
@@ -75,7 +74,6 @@ const SearchPage = () => {
   });
 
   const searchResults = useStore(searchResultsStore);
-  const filterChips = useStore(filterChipStore);
   const isMapView = searchParams.view === 'map';
   const trackingView = isMapView ? 'map' : 'list';
 
@@ -84,7 +82,7 @@ const SearchPage = () => {
   }, [data]);
 
   useEffect(() => {
-    setFilterChipsFromSearchParams(filterChips, searchResults, searchParams);
+    setFilterChipsFromSearchParams(searchResults, searchParams);
     // eslint-disable-next-line
   }, [searchResults]);
 
