@@ -125,10 +125,21 @@ vi.mock('@/components/layout/Header', () => ({
   default: () => <div data-testid="header">Header</div>,
 }));
 
+vi.mock('ol/Overlay', () => {
+  return {
+    default: class {
+      constructor() {}
+      setElement() {}
+      setPosition() {}
+    },
+  };
+});
+
 describe('SearchMap', () => {
   const mockUseMapFocus = hooks.useMapFocus as any;
 
   beforeEach(() => {
+    vi.spyOn(Storage.prototype, 'setItem');
     vi.clearAllMocks();
     mockUseMapFocus.mockReturnValue({
       isMapFocusLoading: false,
@@ -317,5 +328,46 @@ describe('SearchMap', () => {
     trackClickEvent(eventData);
 
     expect(trackClickEvent).toHaveBeenCalledWith(eventData);
+  });
+
+  it('click on a location modal', async () => {
+    await renderWithRouter(
+      <SearchMap
+        ids={[]}
+        totalCount={0}
+        props={{
+          style: { visibility: 'visible' },
+        }}
+      />,
+    );
+
+    const popup = screen.getByTestId('location-modal');
+
+    fireEvent.click(popup);
+
+    expect(sessionStorage.setItem).toHaveBeenCalledWith(
+      'locationZoomState',
+      '10',
+    );
+    expect(sessionStorage.setItem).toHaveBeenCalledWith(
+      'locationCenterState',
+      '0,0',
+    );
+
+    popup.focus();
+    fireEvent.keyDown(popup, { key: 'Enter' });
+
+    expect(sessionStorage.setItem).toHaveBeenCalledWith(
+      'locationZoomState',
+      '10',
+    );
+
+    popup.focus();
+    fireEvent.keyDown(popup, { key: ' ' });
+
+    expect(sessionStorage.setItem).toHaveBeenCalledWith(
+      'locationZoomState',
+      '10',
+    );
   });
 });
