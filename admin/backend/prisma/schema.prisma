@@ -26,6 +26,7 @@ model recreation_resource {
   project_established_date             DateTime?                              @db.Date
   control_access_code                  String?                                @db.VarChar(1)
   risk_rating_code                     String?                                @db.VarChar(2)
+  right_of_way                         Decimal?                               @db.Decimal(7, 1)
   recreation_access                    recreation_access[]
   recreation_activity                  recreation_activity[]
   recreation_agreement_holder          recreation_agreement_holder?
@@ -442,6 +443,7 @@ model recreation_resource_history {
   project_established_date  DateTime?                @db.Date
   control_access_code       String?                  @db.VarChar(1)
   risk_rating_code          String?                  @db.VarChar(2)
+  right_of_way              Decimal?                 @db.Decimal(7, 1)
 
   @@ignore
   @@schema("rst")

@@ -112,4 +112,41 @@ describe('RecResourceGeospatialSection', () => {
 
     expect(screen.queryByText('Edit')).toBeNull();
   });
+
+  it('renders section with empty fallback when geospatial data is undefined', () => {
+    mockUseGetRecreationResourceGeospatial.mockReturnValueOnce({
+      data: undefined,
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    expect(screen.getByText('Geospatial')).toBeDefined();
+    expect(screen.queryByText('Edit')).toBeNull();
+  });
+
+  it('renders measure items (total length, total area, right-of-way) when present', () => {
+    mockUseGetRecreationResourceGeospatial.mockReturnValueOnce({
+      data: {
+        utm_zone: 10,
+        utm_easting: 500000,
+        utm_northing: 5480000,
+        latitude: 49.12,
+        longitude: -123.65,
+        total_length_km: 41.103,
+        total_area_hectares: 61.6545,
+        right_of_way_m: 15,
+      },
+    });
+
+    render(<RecResourceGeospatialSection />);
+
+    expect(screen.getByText('Total length (km)')).toBeDefined();
+    expect(screen.getByText('41.103')).toBeDefined();
+
+    expect(screen.getByText('Total area (ha)')).toBeDefined();
+    expect(screen.getByText('61.6545')).toBeDefined();
+
+    expect(screen.getByText('Right-of-way width (m)')).toBeDefined();
+    expect(screen.getByText('15.00')).toBeDefined();
+  });
 });

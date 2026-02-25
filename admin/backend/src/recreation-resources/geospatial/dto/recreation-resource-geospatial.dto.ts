@@ -28,6 +28,35 @@ export class RecreationResourceGeospatialDto {
 
   @ApiProperty({
     description:
+      'Total length in km: perimeter for polygon/multi-polygon features plus length for linear features.',
+    type: Number,
+    required: false,
+    example: 2.5,
+    nullable: true,
+  })
+  total_length_km?: number | null;
+
+  @ApiProperty({
+    description:
+      'Total area in hectares: polygon area plus trail area (length × right_of_way) when applicable.',
+    type: Number,
+    required: false,
+    example: 12.35,
+    nullable: true,
+  })
+  total_area_hectares?: number | null;
+
+  @ApiProperty({
+    description: 'Right-of-way width in metres (from recreation resource).',
+    type: Number,
+    required: false,
+    example: 6,
+    nullable: true,
+  })
+  right_of_way_m?: number | null;
+
+  @ApiProperty({
+    description:
       'GeoJSON geometry string representing the point location of the recreation site',
     type: String,
     required: false,
