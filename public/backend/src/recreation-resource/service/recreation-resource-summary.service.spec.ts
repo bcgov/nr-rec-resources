@@ -2,9 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from 'src/prisma.service';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 import { RecreationResourceSummaryService } from './recreation-resource-summary.service';
-import { getRecreationResourceSummary } from '@prisma-generated-sql';
+import { getRecreationResourceSummary } from '@prisma-generated-sql/getRecreationResourceSummary';
 
-vi.mock('@prisma-generated-sql', () => ({
+vi.mock('@prisma-generated-sql/getRecreationResourceSummary', () => ({
   getRecreationResourceSummary: vi.fn(),
 }));
 

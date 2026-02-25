@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import { RecreationResourceSummaryDto } from 'src/recreation-resource/dto/recreation-resource-summary.dto';
 import { PaginatedRecreationResourceSummaryDto } from 'src/recreation-resource/dto/paginated-recreation-resource-summary.dto';
-import { getRecreationResourceSummary } from '@prisma-generated-sql';
+import { getRecreationResourceSummary } from '@prisma-generated-sql/getRecreationResourceSummary';
 
 @Injectable()
 export class RecreationResourceSummaryService {
