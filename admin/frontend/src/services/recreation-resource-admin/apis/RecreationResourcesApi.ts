@@ -15,10 +15,10 @@
 import * as runtime from '../runtime';
 import type {
   BadRequestResponseDto,
+  ConsentFormDownloadResponseDto,
   CreateRecreationFeeDto,
   EstablishmentOrderDocDto,
   FinalizeDocUploadRequestDto,
-  GetConsentFormDownloadUrl200Response,
   OptionDto,
   OptionsByTypeDto,
   PresignDocUploadResponseDto,
@@ -42,14 +42,14 @@ import type {
 import {
   BadRequestResponseDtoFromJSON,
   BadRequestResponseDtoToJSON,
+  ConsentFormDownloadResponseDtoFromJSON,
+  ConsentFormDownloadResponseDtoToJSON,
   CreateRecreationFeeDtoFromJSON,
   CreateRecreationFeeDtoToJSON,
   EstablishmentOrderDocDtoFromJSON,
   EstablishmentOrderDocDtoToJSON,
   FinalizeDocUploadRequestDtoFromJSON,
   FinalizeDocUploadRequestDtoToJSON,
-  GetConsentFormDownloadUrl200ResponseFromJSON,
-  GetConsentFormDownloadUrl200ResponseToJSON,
   OptionDtoFromJSON,
   OptionDtoToJSON,
   OptionsByTypeDtoFromJSON,
@@ -950,13 +950,13 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Returns a presigned URL for downloading the consent form PDF associated with an image
+   * Returns a time-limited presigned URL for downloading the consent form PDF associated with an image.
    * Get presigned URL for consent form download
    */
   async getConsentFormDownloadUrlRaw(
     requestParameters: GetConsentFormDownloadUrlRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<GetConsentFormDownloadUrl200Response>> {
+  ): Promise<runtime.ApiResponse<ConsentFormDownloadResponseDto>> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
@@ -1002,18 +1002,18 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     );
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      GetConsentFormDownloadUrl200ResponseFromJSON(jsonValue),
+      ConsentFormDownloadResponseDtoFromJSON(jsonValue),
     );
   }
 
   /**
-   * Returns a presigned URL for downloading the consent form PDF associated with an image.
+   * Returns a time-limited presigned URL for downloading the consent form PDF associated with an image.
    * Get presigned URL for consent form download
    */
   async getConsentFormDownloadUrl(
     requestParameters: GetConsentFormDownloadUrlRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<GetConsentFormDownloadUrl200Response> {
+  ): Promise<ConsentFormDownloadResponseDto> {
     const response = await this.getConsentFormDownloadUrlRaw(
       requestParameters,
       initOverrides,

@@ -183,6 +183,12 @@ export interface RecreationResourceDetailDto {
    * @memberof RecreationResourceDetailDto
    */
   display_on_public_site?: boolean;
+  /**
+   * Right-of-way width in metres for linear features (both lanes combined)
+   * @type {object}
+   * @memberof RecreationResourceDetailDto
+   */
+  right_of_way?: object | null;
 }
 
 /**
@@ -310,6 +316,8 @@ export function RecreationResourceDetailDtoFromJSONTyped(
       json['display_on_public_site'] == null
         ? undefined
         : json['display_on_public_site'],
+    right_of_way:
+      json['right_of_way'] == null ? undefined : json['right_of_way'],
   };
 }
 
@@ -360,5 +368,6 @@ export function RecreationResourceDetailDtoToJSONTyped(
     ),
     risk_rating: RecreationRiskRatingDtoToJSON(value['risk_rating']),
     display_on_public_site: value['display_on_public_site'],
+    right_of_way: value['right_of_way'],
   };
 }

@@ -133,5 +133,7 @@ export function formatRecreationResourceDetailResults(
       description: recreation_control_access_code?.description ?? '',
     },
     risk_rating: riskRating,
+    right_of_way:
+      result.right_of_way != null ? Number(result.right_of_way) : undefined,
   };
 }

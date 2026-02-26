@@ -70,6 +70,7 @@ describe('formatRecreationResourceDetailResults', () => {
   it('should format a fully populated resource (happy path)', () => {
     const input = {
       ...baseResource,
+      right_of_way: 10,
       recreation_district_code: {
         description: 'District 1',
         district_code: 'D1',
@@ -158,6 +159,9 @@ describe('formatRecreationResourceDetailResults', () => {
     expect(result.site_point_geometry).toBe(
       '{"type":"Point","coordinates":[123.45,67.89]}',
     );
+
+    // right_of_way is normalized to number when present
+    expect(result.right_of_way).toBe(10);
   });
 
   it('should handle missing optional fields and use OPEN_STATUS defaults', () => {
@@ -198,6 +202,7 @@ describe('formatRecreationResourceDetailResults', () => {
     });
     expect(result.recreation_district).toBeUndefined();
     expect(result.risk_rating).toBeUndefined();
+    expect(result.right_of_way).toBeUndefined();
   });
 
   it('should group subAccessCodes by access code and sort accessCodes by code', () => {

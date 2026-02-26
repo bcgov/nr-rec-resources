@@ -14,6 +14,9 @@ export namespace getRecreationResourceGeospatialData {
   export type Parameters = [text: string];
   export type Result = {
     spatial_feature_geometry: string[] | null;
+    total_length_km: $runtime.Decimal | null;
+    total_area_hectares: $runtime.Decimal | null;
+    right_of_way_m: $runtime.Decimal | null;
     site_point_geometry: string | null;
     latitude: $runtime.Decimal | null;
     longitude: $runtime.Decimal | null;
