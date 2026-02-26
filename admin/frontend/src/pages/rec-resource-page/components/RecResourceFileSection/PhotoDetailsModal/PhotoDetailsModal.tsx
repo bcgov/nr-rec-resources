@@ -6,6 +6,7 @@ import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import {
   hidePhotoDetails,
   recResourceFileTransferStore,
+  showEditPhotoForImage,
   showImageLightboxForImage,
 } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
 import { formatFileSize } from '@/utils/imageProcessing';
@@ -17,7 +18,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useStore } from '@tanstack/react-store';
 import { FC, useCallback, useEffect, useState } from 'react';
-import { Button } from 'react-bootstrap';
+import { Alert, Button } from 'react-bootstrap';
 import './PhotoDetailsModal.scss';
 
 export const PhotoDetailsModal: FC = () => {
@@ -51,6 +52,13 @@ export const PhotoDetailsModal: FC = () => {
     if (image) {
       hidePhotoDetails();
       showImageLightboxForImage(image);
+    }
+  }, [image]);
+
+  const handleEditPhoto = useCallback(() => {
+    if (image) {
+      hidePhotoDetails();
+      showEditPhotoForImage(image);
     }
   }, [image]);
 
@@ -90,6 +98,9 @@ export const PhotoDetailsModal: FC = () => {
       galleryFile={galleryFile}
       className="photo-details-modal"
       onCancel={hidePhotoDetails}
+      onConfirm={handleEditPhoto}
+      confirmButtonText="Edit"
+      confirmButtonVariant="primary"
       onImageClick={handleViewFullSize}
     >
       {/* Action buttons under preview */}
@@ -193,6 +204,12 @@ export const PhotoDetailsModal: FC = () => {
             )}
           </dl>
         </section>
+        {!image.has_consent_metadata && (
+          <Alert variant="warning" className="mb-0">
+            This image does not have consent and release information. Please
+            edit the photo to add consent details.
+          </Alert>
+        )}
       </div>
     </BaseFileModal>
   );

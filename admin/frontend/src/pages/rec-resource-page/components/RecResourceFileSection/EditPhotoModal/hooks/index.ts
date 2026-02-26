@@ -1,0 +1,1 @@
+export { useEditPhoto } from './useEditPhoto';

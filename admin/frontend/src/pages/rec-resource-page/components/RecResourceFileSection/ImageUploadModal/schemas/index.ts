@@ -1,4 +1,5 @@
 export {
+  createImageUploadSchema,
   imageUploadSchema,
   isDateSuspiciouslyOld,
   MAX_DISPLAY_NAME_LENGTH,

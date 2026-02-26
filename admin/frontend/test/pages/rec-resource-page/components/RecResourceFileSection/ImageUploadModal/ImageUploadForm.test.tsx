@@ -39,15 +39,21 @@ const NON_STAFF_TYPES = [
 const TestWrapper = ({
   onUpload = vi.fn(),
   onFormReady = vi.fn(),
+  initialValues,
+  formKey,
 }: {
   onUpload?: () => void;
   onFormReady?: (handlers: any) => void;
+  initialValues?: Record<string, unknown>;
+  formKey?: string;
 }) => {
   return (
     <ImageUploadForm
+      key={formKey}
       fileName="test-image.jpg"
       onUpload={onUpload}
       onFormReady={onFormReady}
+      initialValues={initialValues}
     />
   );
 };
@@ -67,6 +73,8 @@ describe('ImageUploadForm', () => {
           expect.objectContaining({
             resetForm: expect.any(Function),
             isValid: expect.any(Boolean),
+            isDirty: expect.any(Boolean),
+            submitForm: expect.any(Function),
           }),
         );
       });
@@ -96,6 +104,50 @@ describe('ImageUploadForm', () => {
 
       expect(screen.getByText('Photographer type')).toBeInTheDocument();
       expect(screen.getByRole('combobox')).toBeInTheDocument();
+    });
+
+    it('resets form values when component remounts', async () => {
+      const { rerender } = render(
+        <TestWrapper
+          formKey="image-a"
+          initialValues={{
+            displayName: 'Image A',
+            dateCreated: new Date('2024-01-01'),
+          }}
+        />,
+      );
+
+      await waitFor(() => {
+        expect(
+          (
+            screen.getByPlaceholderText(
+              'Enter a display name',
+            ) as HTMLInputElement
+          ).value,
+        ).toBe('Image A');
+        expect(screen.getByDisplayValue('2024-01-01')).toBeInTheDocument();
+      });
+
+      rerender(
+        <TestWrapper
+          formKey="image-b"
+          initialValues={{
+            displayName: 'Image B',
+            dateCreated: new Date('2024-02-02'),
+          }}
+        />,
+      );
+
+      await waitFor(() => {
+        expect(
+          (
+            screen.getByPlaceholderText(
+              'Enter a display name',
+            ) as HTMLInputElement
+          ).value,
+        ).toBe('Image B');
+        expect(screen.getByDisplayValue('2024-02-02')).toBeInTheDocument();
+      });
     });
   });
 

@@ -5,12 +5,17 @@ import {
 } from '@/common/services/base-storage-file-service';
 import { S3Service } from '@/s3/s3.service';
 import { HttpException, Injectable } from '@nestjs/common';
+import { Prisma } from '@generated/prisma';
 import { randomUUID } from 'crypto';
 import { PrismaService } from 'src/prisma.service';
 import {
   FinalizeImageUploadRequestDto,
   RecreationResourceImageDto,
 } from '../dto/recreation-resource-image.dto';
+import {
+  UpdateImageConsentDto,
+  UpdateImageConsentPatchDto,
+} from '../dto/update-image-consent.dto';
 import { RecreationResourceImageSize } from '@shared/constants/images';
 import { ConsentFormsS3Service } from './consent-forms-s3.service';
 
@@ -23,6 +28,41 @@ export interface ConsentMetadata {
   photographer_type?: string;
   photographer_name?: string;
 }
+
+const IMAGE_WITH_CONSENT_SELECT = {
+  rec_resource_id: true,
+  image_id: true,
+  file_name: true,
+  extension: true,
+  file_size: true,
+  created_at: true,
+  updated_by: true,
+  created_by: true,
+  recreation_image_consent_form: {
+    select: {
+      doc_id: true,
+      date_taken: true,
+      contains_pii: true,
+      photographer_type_code: true,
+      photographer_name: true,
+      recreation_photographer_type_code: {
+        select: {
+          description: true,
+        },
+      },
+    },
+  },
+};
+
+const IMAGE_SIZE_CODE_MAP: Record<
+  ImageVariantType,
+  RecreationResourceImageSize
+> = {
+  original: RecreationResourceImageSize.ORIGINAL,
+  scr: RecreationResourceImageSize.SCREEN,
+  pre: RecreationResourceImageSize.PREVIEW,
+  thm: RecreationResourceImageSize.THUMBNAIL,
+};
 
 @Injectable()
 export class ResourceImagesService extends BaseStorageFileService {
@@ -51,30 +91,7 @@ export class ResourceImagesService extends BaseStorageFileService {
         rec_resource_id,
       },
       orderBy: [{ updated_at: 'desc' }, { created_at: 'desc' }],
-      select: {
-        rec_resource_id: true,
-        image_id: true,
-        file_name: true,
-        extension: true,
-        file_size: true,
-        created_at: true,
-        updated_by: true,
-        created_by: true,
-        recreation_image_consent_form: {
-          select: {
-            doc_id: true,
-            date_taken: true,
-            contains_pii: true,
-            photographer_type_code: true,
-            photographer_name: true,
-            recreation_photographer_type_code: {
-              select: {
-                description: true,
-              },
-            },
-          },
-        },
-      },
+      select: IMAGE_WITH_CONSENT_SELECT,
     });
     return result.map((i) => this.mapResponse(i));
   }
@@ -83,42 +100,172 @@ export class ResourceImagesService extends BaseStorageFileService {
     rec_resource_id: string,
     image_id: string,
   ): Promise<RecreationResourceImageDto> {
-    const result = await this.prisma.recreation_resource_image.findUnique({
-      where: {
-        rec_resource_id,
-        image_id,
-      },
-      select: {
-        rec_resource_id: true,
-        image_id: true,
-        file_name: true,
-        extension: true,
-        file_size: true,
-        created_at: true,
-        updated_by: true,
-        created_by: true,
-        recreation_image_consent_form: {
-          select: {
-            doc_id: true,
-            date_taken: true,
-            contains_pii: true,
-            photographer_type_code: true,
-            photographer_name: true,
-            recreation_photographer_type_code: {
-              select: {
-                description: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    if (result === null) {
-      throw new HttpException('Recreation Resource image not found', 404);
-    }
-
+    const result = await this.getImageWithConsent(rec_resource_id, image_id);
     return this.mapResponse(result);
+  }
+
+  async createImageConsent(
+    rec_resource_id: string,
+    image_id: string,
+    body: UpdateImageConsentDto,
+    consentFormFile?: Express.Multer.File,
+  ): Promise<RecreationResourceImageDto> {
+    await this.validateResourceExists(rec_resource_id);
+    this.validateEntityId(image_id, 'image_id');
+    await this.assertImageExists(rec_resource_id, image_id);
+
+    const {
+      file_name,
+      date_taken,
+      contains_pii,
+      photographer_type,
+      photographer_name,
+    } = body;
+
+    let docId: string | null = null;
+    let uploadedConsentKey: string | null = null;
+
+    try {
+      const existingConsent =
+        await this.prisma.recreation_image_consent_form.findUnique({
+          where: { image_id },
+          select: { consent_id: true },
+        });
+
+      if (existingConsent) {
+        throw new HttpException(
+          'Consent metadata already exists for this image',
+          409,
+        );
+      }
+
+      const normalizedConsent = this.normalizeConsentInput(
+        { date_taken, contains_pii, photographer_type, photographer_name },
+        consentFormFile,
+      );
+
+      if (!consentFormFile && !normalizedConsent.hasMetadata) {
+        throw new HttpException(
+          'Consent metadata or consent_form is required to update these fields',
+          400,
+        );
+      }
+
+      if (consentFormFile) {
+        docId = randomUUID();
+        uploadedConsentKey = await this.consentFormsS3Service.uploadConsentForm(
+          rec_resource_id,
+          image_id,
+          docId,
+          consentFormFile.buffer,
+          consentFormFile.originalname,
+        );
+      }
+
+      const result = await this.prisma.$transaction(async (tx) => {
+        if (file_name !== undefined) {
+          await tx.recreation_resource_image.update({
+            where: { rec_resource_id, image_id },
+            data: {
+              file_name,
+              updated_by: 'system',
+              updated_at: new Date(),
+            },
+          });
+        }
+
+        await this.createConsentRecords(tx, {
+          rec_resource_id,
+          image_id,
+          consentFormFile,
+          docId,
+          consentData: normalizedConsent,
+        });
+
+        return this.getImageWithConsent(rec_resource_id, image_id, tx);
+      });
+
+      if (!result) {
+        throw new HttpException('Recreation Resource image not found', 404);
+      }
+
+      return this.mapResponse(result);
+    } catch (error) {
+      if (uploadedConsentKey) {
+        await this.consentFormsS3Service
+          .getS3Service()
+          .deleteFile(uploadedConsentKey)
+          .catch(() => undefined);
+      }
+      this.handleError(
+        error,
+        `Failed to create image consent for rec_resource_id: ${rec_resource_id}, image_id: ${image_id}`,
+        'Failed to create image consent',
+      );
+    }
+  }
+
+  async updateImageConsent(
+    rec_resource_id: string,
+    image_id: string,
+    body: UpdateImageConsentPatchDto,
+  ): Promise<RecreationResourceImageDto> {
+    await this.validateResourceExists(rec_resource_id);
+    this.validateEntityId(image_id, 'image_id');
+    await this.assertImageExists(rec_resource_id, image_id);
+
+    try {
+      const existingConsent =
+        await this.prisma.recreation_image_consent_form.findUnique({
+          where: { image_id },
+          select: { consent_id: true },
+        });
+
+      if (!existingConsent) {
+        throw new HttpException('Consent form not found for this image', 404);
+      }
+
+      const result = await this.prisma.$transaction(async (tx) => {
+        if (body.file_name !== undefined) {
+          await tx.recreation_resource_image.update({
+            where: { rec_resource_id, image_id },
+            data: {
+              file_name: body.file_name,
+              updated_by: 'system',
+              updated_at: new Date(),
+            },
+          });
+        }
+
+        await tx.recreation_image_consent_form.update({
+          where: { image_id },
+          data: {
+            date_taken:
+              body.date_taken === undefined
+                ? undefined
+                : body.date_taken
+                  ? new Date(body.date_taken)
+                  : null,
+            updated_by: 'system',
+            updated_at: new Date(),
+          },
+        });
+
+        return this.getImageWithConsent(rec_resource_id, image_id, tx);
+      });
+
+      if (!result) {
+        throw new HttpException('Recreation Resource image not found', 404);
+      }
+
+      return this.mapResponse(result);
+    } catch (error) {
+      this.handleError(
+        error,
+        `Failed to update image consent for rec_resource_id: ${rec_resource_id}, image_id: ${image_id}`,
+        'Failed to update image consent',
+      );
+    }
   }
 
   /**
@@ -135,13 +282,6 @@ export class ResourceImagesService extends BaseStorageFileService {
     const image_id = randomUUID();
 
     try {
-      const sizeCodeMap = {
-        original: RecreationResourceImageSize.ORIGINAL,
-        scr: RecreationResourceImageSize.SCREEN,
-        pre: RecreationResourceImageSize.PREVIEW,
-        thm: RecreationResourceImageSize.THUMBNAIL,
-      };
-
       // Generate presigned URLs for all 4 variants
       const presignedUrls = await Promise.all(
         REQUIRED_VARIANTS.map(async (sizeCode) => {
@@ -156,7 +296,7 @@ export class ResourceImagesService extends BaseStorageFileService {
           return {
             key,
             url,
-            size_code: sizeCodeMap[sizeCode],
+            size_code: IMAGE_SIZE_CODE_MAP[sizeCode],
           };
         }),
       );
@@ -206,21 +346,16 @@ export class ResourceImagesService extends BaseStorageFileService {
     this.validateEntityId(image_id, 'image_id');
 
     try {
-      const hasConsentFile = !!consentFormFile;
-      const hasMetadata =
-        date_taken || photographer_type || contains_pii || photographer_name;
-
-      // Validate photographer_type is required when uploading a consent file
-      if (hasConsentFile && !photographer_type) {
-        throw new HttpException(
-          'photographer_type is required when uploading a consent form',
-          400,
-        );
-      }
+      const normalizedConsent = this.normalizeConsentInput(
+        { date_taken, contains_pii, photographer_type, photographer_name },
+        consentFormFile,
+      );
+      const shouldCreateConsentRecords =
+        Boolean(consentFormFile) || normalizedConsent.hasMetadata;
 
       // Upload consent form PDF to S3 before the DB transaction
       let docId: string | null = null;
-      if (hasConsentFile) {
+      if (consentFormFile) {
         docId = randomUUID();
         await this.consentFormsS3Service.uploadConsentForm(
           rec_resource_id,
@@ -245,52 +380,21 @@ export class ResourceImagesService extends BaseStorageFileService {
           },
         });
 
-        // Create consent/document records if we have a file or metadata
-        if (!hasConsentFile && !hasMetadata) {
-          return imageRecord;
-        }
-
-        // Create document record only when a consent file is uploaded
-        if (hasConsentFile && docId) {
-          await tx.recreation_resource_document.create({
-            data: {
-              doc_id: docId,
-              rec_resource_id,
-              doc_code: 'IC',
-              file_name: consentFormFile.originalname,
-              extension: 'pdf',
-              file_size: BigInt(consentFormFile.size),
-              created_by: 'system',
-              created_at: new Date(),
-            },
+        if (shouldCreateConsentRecords) {
+          await this.createConsentRecords(tx, {
+            rec_resource_id,
+            image_id,
+            consentFormFile,
+            docId,
+            consentData: normalizedConsent,
           });
         }
 
-        // Create consent metadata record (with or without document)
-        await tx.recreation_image_consent_form.create({
-          data: {
-            image_id,
-            doc_id: docId,
-            date_taken: date_taken ? new Date(date_taken) : null,
-            contains_pii: contains_pii ?? false,
-            photographer_type_code: photographer_type ?? null,
-            photographer_name: photographer_name ?? null,
-            created_by: 'system',
-            created_at: new Date(),
-          },
-        });
+        if (!shouldCreateConsentRecords) {
+          return imageRecord;
+        }
 
-        return {
-          ...imageRecord,
-          recreation_image_consent_form: {
-            doc_id: docId,
-            date_taken: date_taken ? new Date(date_taken) : undefined,
-            contains_pii: contains_pii ?? false,
-            photographer_type_code: photographer_type ?? undefined,
-            photographer_name: photographer_name ?? undefined,
-            recreation_photographer_type_code: undefined,
-          },
-        };
+        return this.getImageWithConsent(rec_resource_id, image_id, tx);
       });
 
       this.logger.log(
@@ -406,13 +510,6 @@ export class ResourceImagesService extends BaseStorageFileService {
   }
 
   private mapResponse(payload: any): RecreationResourceImageDto {
-    const sizeCodeMap: Record<ImageVariantType, RecreationResourceImageSize> = {
-      original: RecreationResourceImageSize.ORIGINAL,
-      scr: RecreationResourceImageSize.SCREEN,
-      pre: RecreationResourceImageSize.PREVIEW,
-      thm: RecreationResourceImageSize.THUMBNAIL,
-    };
-
     // Generate URLs for all variants (synchronous - direct URL construction)
     const variants = REQUIRED_VARIANTS.map((sizeCode) => ({
       url: this.constructImageUrl(
@@ -420,7 +517,7 @@ export class ResourceImagesService extends BaseStorageFileService {
         payload.image_id,
         sizeCode,
       ),
-      size_code: sizeCodeMap[sizeCode],
+      size_code: IMAGE_SIZE_CODE_MAP[sizeCode],
       extension: 'webp',
       width: 0,
       height: 0,
@@ -449,6 +546,7 @@ export class ResourceImagesService extends BaseStorageFileService {
         payload.created_by ||
         undefined,
       contains_pii: consentForm?.contains_pii ?? undefined,
+      has_consent_metadata: !!consentForm,
     };
   }
 
@@ -486,5 +584,129 @@ export class ResourceImagesService extends BaseStorageFileService {
       image_id,
       consentForm.doc_id,
     );
+  }
+
+  private async assertImageExists(
+    rec_resource_id: string,
+    image_id: string,
+  ): Promise<void> {
+    const existingImage =
+      await this.prisma.recreation_resource_image.findUnique({
+        where: { rec_resource_id, image_id },
+        select: { image_id: true },
+      });
+
+    if (!existingImage) {
+      throw new HttpException('Recreation Resource image not found', 404);
+    }
+  }
+
+  private async getImageWithConsent(
+    rec_resource_id: string,
+    image_id: string,
+    tx?: Prisma.TransactionClient,
+  ) {
+    const client = tx ?? this.prisma;
+    const result = await client.recreation_resource_image.findUnique({
+      where: { rec_resource_id, image_id },
+      select: IMAGE_WITH_CONSENT_SELECT,
+    });
+
+    if (!result) {
+      throw new HttpException('Recreation Resource image not found', 404);
+    }
+
+    return result;
+  }
+
+  private normalizeConsentInput(
+    body: ConsentMetadata,
+    consentFormFile?: Express.Multer.File,
+  ) {
+    const hasConsentFile = Boolean(consentFormFile);
+
+    if (body.contains_pii === true && !hasConsentFile) {
+      throw new HttpException(
+        'consent_form is required when contains_pii is true',
+        400,
+      );
+    }
+
+    if (hasConsentFile && body.contains_pii !== true) {
+      throw new HttpException(
+        'contains_pii must be true when uploading a consent form',
+        400,
+      );
+    }
+
+    if (hasConsentFile && !body.photographer_type) {
+      throw new HttpException(
+        'photographer_type is required when uploading a consent form',
+        400,
+      );
+    }
+
+    const hasMetadata =
+      body.date_taken !== undefined ||
+      body.contains_pii !== undefined ||
+      body.photographer_type !== undefined ||
+      body.photographer_name !== undefined;
+
+    return {
+      date_taken: body.date_taken,
+      contains_pii: body.contains_pii ?? false,
+      photographer_type: body.photographer_type,
+      photographer_name: body.photographer_name,
+      hasMetadata,
+    };
+  }
+
+  private async createConsentRecords(
+    tx: Prisma.TransactionClient,
+    input: {
+      rec_resource_id: string;
+      image_id: string;
+      consentFormFile?: Express.Multer.File;
+      docId: string | null;
+      consentData: {
+        date_taken?: string;
+        contains_pii?: boolean;
+        photographer_type?: string;
+        photographer_name?: string;
+      };
+    },
+  ) {
+    const { rec_resource_id, image_id, consentFormFile, docId, consentData } =
+      input;
+
+    if (consentFormFile && docId) {
+      await tx.recreation_resource_document.create({
+        data: {
+          doc_id: docId,
+          rec_resource_id,
+          doc_code: 'IC',
+          file_name: consentFormFile.originalname,
+          extension: 'pdf',
+          file_size: BigInt(consentFormFile.size),
+          created_by: 'system',
+          created_at: new Date(),
+        },
+      });
+    }
+
+    await tx.recreation_image_consent_form.create({
+      data: {
+        image_id,
+        doc_id: docId,
+        date_taken: consentData.date_taken
+          ? new Date(consentData.date_taken)
+          : null,
+        contains_pii: consentData.contains_pii ?? false,
+        photographer_type_code: consentData.photographer_type ?? null,
+        photographer_name: consentData.photographer_name ?? null,
+        created_by: 'system',
+        created_at: new Date(),
+      },
+    });
   }
 }

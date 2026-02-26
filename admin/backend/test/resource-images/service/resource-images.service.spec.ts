@@ -605,6 +605,22 @@ describe('ResourceImagesDocsService', () => {
         file_size: BigInt(2097152),
         created_by: 'creator@gov.bc.ca',
       });
+      const mockImageWithConsent = createMockImage(
+        'test-image-id-456',
+        'REC0001',
+        {
+          file_name: 'image-with-consent.webp',
+          file_size: BigInt(2097152),
+          recreation_image_consent_form: {
+            doc_id: 'doc-123',
+            date_taken: new Date('2025-01-15'),
+            contains_pii: true,
+            photographer_type_code: 'STAFF',
+            photographer_name: 'John Doe',
+            recreation_photographer_type_code: { description: 'Staff Member' },
+          },
+        },
+      );
 
       mockConsentFormsS3Service.uploadConsentForm.mockResolvedValue(undefined);
 
@@ -613,6 +629,7 @@ describe('ResourceImagesDocsService', () => {
           const mockTx = {
             recreation_resource_image: {
               create: vi.fn().mockResolvedValue(mockImageRecord),
+              findUnique: vi.fn().mockResolvedValue(mockImageWithConsent),
             },
             recreation_resource_document: {
               create: vi.fn().mockResolvedValue({}),
@@ -664,6 +681,22 @@ describe('ResourceImagesDocsService', () => {
         file_name: 'image-with-date.webp',
         file_size: BigInt(2097152),
       });
+      const mockImageWithConsent = createMockImage(
+        'test-image-id-789',
+        'REC0001',
+        {
+          file_name: 'image-with-date.webp',
+          file_size: BigInt(2097152),
+          recreation_image_consent_form: {
+            doc_id: null,
+            date_taken: new Date('2025-01-15'),
+            contains_pii: false,
+            photographer_type_code: 'STAFF',
+            photographer_name: 'Jane Doe',
+            recreation_photographer_type_code: { description: 'Staff Member' },
+          },
+        },
+      );
 
       const mockConsentFormCreate = vi.fn().mockResolvedValue({});
 
@@ -672,6 +705,7 @@ describe('ResourceImagesDocsService', () => {
           const mockTx = {
             recreation_resource_image: {
               create: vi.fn().mockResolvedValue(mockImageRecord),
+              findUnique: vi.fn().mockResolvedValue(mockImageWithConsent),
             },
             recreation_image_consent_form: {
               create: mockConsentFormCreate,
@@ -709,6 +743,311 @@ describe('ResourceImagesDocsService', () => {
         prismaService.recreation_resource_image.create,
       ).not.toHaveBeenCalled();
     });
+
+    it('should reject contains_pii true without consent file', async () => {
+      const body = {
+        image_id: 'test-image-id-999',
+        file_name: 'image-without-consent.webp',
+        file_size_original: 123,
+        contains_pii: true,
+        photographer_type: 'STAFF',
+      };
+
+      await expect(service.finalizeUpload('REC0001', body)).rejects.toThrow(
+        'consent_form is required when contains_pii is true',
+      );
+    });
+
+    it('should reject consent file when contains_pii is false', async () => {
+      const body = {
+        image_id: 'test-image-id-998',
+        file_name: 'image-with-consent.webp',
+        file_size_original: 123,
+        contains_pii: false,
+        photographer_type: 'STAFF',
+      };
+
+      const mockConsentFile: Express.Multer.File = {
+        fieldname: 'consent_form',
+        originalname: 'consent-form.pdf',
+        encoding: '7bit',
+        mimetype: 'application/pdf',
+        buffer: Buffer.from('fake pdf content'),
+        size: 1024,
+        stream: null as any,
+        destination: '',
+        filename: '',
+        path: '',
+      };
+
+      await expect(
+        service.finalizeUpload('REC0001', body, mockConsentFile),
+      ).rejects.toThrow(
+        'contains_pii must be true when uploading a consent form',
+      );
+    });
+  });
+
+  describe('createImageConsent', () => {
+    it('creates consent metadata for legacy images when consent metadata is provided', async () => {
+      const mockImageWithConsent = createMockImage('img-1', 'REC0001', {
+        file_name: 'legacy-image.webp',
+        recreation_image_consent_form: {
+          doc_id: null,
+          date_taken: null,
+          contains_pii: false,
+          photographer_type_code: null,
+          photographer_name: null,
+          recreation_photographer_type_code: null,
+        },
+      });
+
+      vi.mocked(
+        prismaService.recreation_resource_image.findUnique,
+      ).mockResolvedValueOnce({ image_id: 'img-1' } as any);
+      (prismaService as any).recreation_image_consent_form.findUnique = vi
+        .fn()
+        .mockResolvedValue(null);
+
+      const mockConsentCreate = vi.fn();
+      const mockImageUpdate = vi.fn();
+      const mockImageFind = vi.fn().mockResolvedValue(mockImageWithConsent);
+
+      vi.mocked(prismaService.$transaction).mockImplementation(
+        async (fn: any) => {
+          const mockTx = {
+            recreation_resource_image: {
+              update: mockImageUpdate,
+              findUnique: mockImageFind,
+            },
+            recreation_resource_document: {
+              create: vi.fn(),
+            },
+            recreation_image_consent_form: {
+              create: mockConsentCreate,
+            },
+          };
+          return fn(mockTx);
+        },
+      );
+
+      const result = await service.createImageConsent('REC0001', 'img-1', {
+        file_name: 'Legacy Name',
+        contains_pii: false,
+      } as any);
+
+      expect(result).toBeDefined();
+      expect(result.has_consent_metadata).toBe(true);
+    });
+  });
+
+  describe('updateImageConsent', () => {
+    it('throws when consent metadata does not exist', async () => {
+      vi.mocked(
+        prismaService.recreation_resource_image.findUnique,
+      ).mockResolvedValueOnce({ image_id: 'img-1' } as any);
+      (prismaService as any).recreation_image_consent_form.findUnique = vi
+        .fn()
+        .mockResolvedValue(null);
+
+      await expect(
+        service.updateImageConsent('REC0001', 'img-1', {
+          file_name: 'Updated Name',
+        } as any),
+      ).rejects.toThrow('Consent form not found for this image');
+    });
+
+    it('updates consent metadata and file name', async () => {
+      const mockImageWithConsent = createMockImage('img-1', 'REC0001', {
+        file_name: 'Updated Name',
+        recreation_image_consent_form: {
+          doc_id: null,
+          date_taken: new Date('2024-06-15'),
+          contains_pii: false,
+          photographer_type_code: null,
+          photographer_name: null,
+          recreation_photographer_type_code: null,
+        },
+      });
+
+      vi.mocked(
+        prismaService.recreation_resource_image.findUnique,
+      ).mockResolvedValueOnce({ image_id: 'img-1' } as any);
+      (prismaService as any).recreation_image_consent_form.findUnique = vi
+        .fn()
+        .mockResolvedValue({ consent_id: 'consent-1' });
+
+      const mockImageUpdate = vi.fn();
+      const mockConsentUpdate = vi.fn();
+      const mockImageFind = vi.fn().mockResolvedValue(mockImageWithConsent);
+
+      vi.mocked(prismaService.$transaction).mockImplementation(
+        async (fn: any) => {
+          const mockTx = {
+            recreation_resource_image: {
+              update: mockImageUpdate,
+              findUnique: mockImageFind,
+            },
+            recreation_image_consent_form: {
+              update: mockConsentUpdate,
+            },
+          };
+          return fn(mockTx);
+        },
+      );
+
+      const result = await service.updateImageConsent('REC0001', 'img-1', {
+        file_name: 'Updated Name',
+        date_taken: '2024-06-15',
+      } as any);
+
+      expect(result).toBeDefined();
+      expect(result.file_name).toBe('Updated Name');
+      expect(result.has_consent_metadata).toBe(true);
+    });
+  });
+
+  describe('createImageConsent', () => {
+    const mockConsentFile: Express.Multer.File = {
+      fieldname: 'consent_form',
+      originalname: 'consent-form.pdf',
+      encoding: '7bit',
+      mimetype: 'application/pdf',
+      buffer: Buffer.from('fake pdf content'),
+      size: 1024,
+      stream: null as any,
+      destination: '',
+      filename: '',
+      path: '',
+    };
+
+    beforeEach(() => {
+      vi.mocked(
+        prismaService.recreation_resource_image.findUnique,
+      ).mockResolvedValue({
+        image_id: 'img-1',
+      } as any);
+
+      vi.mocked(
+        prismaService.recreation_image_consent_form.findUnique,
+      ).mockResolvedValue(null);
+    });
+
+    it('should reject contains_pii true without consent file', async () => {
+      await expect(
+        service.createImageConsent(
+          'REC0001',
+          'img-1',
+          {
+            contains_pii: true,
+            photographer_type: 'STAFF',
+          } as any,
+          undefined,
+        ),
+      ).rejects.toThrow('consent_form is required when contains_pii is true');
+    });
+
+    it('should reject consent file when contains_pii is false', async () => {
+      await expect(
+        service.createImageConsent(
+          'REC0001',
+          'img-1',
+          {
+            contains_pii: false,
+            photographer_type: 'STAFF',
+          } as any,
+          mockConsentFile,
+        ),
+      ).rejects.toThrow(
+        'contains_pii must be true when uploading a consent form',
+      );
+    });
+
+    it('should reject consent file when photographer_type is missing', async () => {
+      await expect(
+        service.createImageConsent(
+          'REC0001',
+          'img-1',
+          {
+            contains_pii: true,
+          } as any,
+          mockConsentFile,
+        ),
+      ).rejects.toThrow(
+        'photographer_type is required when uploading a consent form',
+      );
+    });
+  });
+
+  describe('updateImageConsent', () => {
+    it('should update photographer_name and date_taken', async () => {
+      const imageId = 'a7c1e5f3-8d2b-4c9a-b1e6-f3d8c7a2e5b9';
+      const body = {
+        file_name: 'updated-display-name',
+        date_taken: '2025-02-01',
+      };
+
+      const mockImage = createMockImage(imageId, 'REC0001', {
+        file_name: 'test.webp',
+        recreation_image_consent_form: {
+          doc_id: null,
+          date_taken: new Date('2025-02-01'),
+          contains_pii: false,
+          photographer_type_code: 'STAFF',
+          photographer_name: 'Updated Name',
+          recreation_photographer_type_code: { description: 'Staff Member' },
+        },
+      });
+
+      vi.mocked(
+        prismaService.recreation_resource_image.findUnique,
+      ).mockResolvedValueOnce({
+        image_id: imageId,
+      } as any);
+
+      vi.mocked(
+        prismaService.recreation_image_consent_form.findUnique,
+      ).mockResolvedValueOnce({ consent_id: 'consent-1' } as any);
+
+      const mockConsentUpdate = vi.fn();
+      const mockImageUpdate = vi.fn();
+
+      vi.mocked(prismaService.$transaction).mockImplementation(
+        async (fn: any) => {
+          const mockTx = {
+            recreation_image_consent_form: {
+              update: mockConsentUpdate,
+            },
+            recreation_resource_image: {
+              update: mockImageUpdate,
+              findUnique: vi.fn().mockResolvedValue(mockImage),
+            },
+          };
+          return fn(mockTx);
+        },
+      );
+
+      const result = await service.updateImageConsent('REC0001', imageId, body);
+
+      expect(result.file_name).toBe('test.webp');
+      expect(result.date_taken).toBe('2025-02-01');
+      expect(mockConsentUpdate).toHaveBeenCalledWith({
+        where: { image_id: imageId },
+        data: {
+          date_taken: expect.any(Date),
+          updated_by: 'system',
+          updated_at: expect.any(Date),
+        },
+      });
+      expect(mockImageUpdate).toHaveBeenCalledWith({
+        where: { rec_resource_id: 'REC0001', image_id: imageId },
+        data: {
+          file_name: 'updated-display-name',
+          updated_by: 'system',
+          updated_at: expect.any(Date),
+        },
+      });
+    });
   });
 
   describe('mapResponse with consent metadata', () => {
@@ -741,6 +1080,7 @@ describe('ResourceImagesDocsService', () => {
       expect(result?.[0]?.photographer_name).toBe('John Doe');
       expect(result?.[0]?.photographer_display_name).toBe('John Doe');
       expect(result?.[0]?.contains_pii).toBe(true);
+      expect(result?.[0]?.has_consent_metadata).toBe(true);
     });
 
     it('should use updated_by as photographer_display_name fallback', async () => {
@@ -781,6 +1121,7 @@ describe('ResourceImagesDocsService', () => {
       expect(result?.[0]?.date_taken).toBeUndefined();
       expect(result?.[0]?.photographer_type).toBeUndefined();
       expect(result?.[0]?.contains_pii).toBeUndefined();
+      expect(result?.[0]?.has_consent_metadata).toBe(false);
     });
   });
 

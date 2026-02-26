@@ -428,4 +428,35 @@ describe('ResourceImagesController', () => {
       }
     });
   });
+
+  describe('updateImageConsent', () => {
+    it('should call service and return updated image', async () => {
+      const body = {
+        photographer_name: 'Jane Doe',
+        date_taken: '2025-01-01',
+      };
+      const result = {
+        image_id: 'image-123',
+        file_name: 'test.webp',
+        has_consent_metadata: true,
+      };
+
+      vi.spyOn(resourceImagesService, 'updateImageConsent').mockResolvedValue(
+        result as any,
+      );
+
+      const response = await controller.updateImageConsent(
+        'REC0001',
+        'image-123',
+        body,
+      );
+
+      expect(response).toBe(result);
+      expect(resourceImagesService.updateImageConsent).toHaveBeenCalledWith(
+        'REC0001',
+        'image-123',
+        body,
+      );
+    });
+  });
 });

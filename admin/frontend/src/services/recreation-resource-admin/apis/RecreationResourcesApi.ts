@@ -34,6 +34,7 @@ import type {
   SuggestionsResponseDto,
   UpdateActivitiesDto,
   UpdateFeaturesDto,
+  UpdateImageConsentDto,
   UpdateRecreationFeeDto,
   UpdateRecreationResourceDto,
   UpdateRecreationResourceGeospatialDto,
@@ -80,6 +81,8 @@ import {
   UpdateActivitiesDtoToJSON,
   UpdateFeaturesDtoFromJSON,
   UpdateFeaturesDtoToJSON,
+  UpdateImageConsentDtoFromJSON,
+  UpdateImageConsentDtoToJSON,
   UpdateRecreationFeeDtoFromJSON,
   UpdateRecreationFeeDtoToJSON,
   UpdateRecreationResourceDtoFromJSON,
@@ -94,6 +97,17 @@ export interface CreateEstablishmentOrderDocRequest {
   recResourceId: string;
   file: Blob;
   title: string;
+}
+
+export interface CreateImageConsentRequest {
+  recResourceId: string;
+  imageId: string;
+  dateTaken?: string;
+  containsPii?: boolean;
+  photographerType?: string;
+  photographerName?: string;
+  consentForm?: Blob;
+  fileName?: string;
 }
 
 export interface CreateRecreationResourceFeeRequest {
@@ -204,6 +218,12 @@ export interface UpdateActivitiesRequest {
 export interface UpdateFeaturesRequest {
   recResourceId: string;
   updateFeaturesDto: UpdateFeaturesDto;
+}
+
+export interface UpdateImageConsentRequest {
+  recResourceId: string;
+  imageId: string;
+  updateImageConsentDto: UpdateImageConsentDto;
 }
 
 export interface UpdateRecreationResourceByIdRequest {
@@ -324,6 +344,129 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<EstablishmentOrderDocDto> {
     const response = await this.createEstablishmentOrderDocRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Create consent metadata for an existing image
+   */
+  async createImageConsentRaw(
+    requestParameters: CreateImageConsentRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceImageDto>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling createImageConsent().',
+      );
+    }
+
+    if (requestParameters['imageId'] == null) {
+      throw new runtime.RequiredError(
+        'imageId',
+        'Required parameter "imageId" was null or undefined when calling createImageConsent().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+    const consumes: runtime.Consume[] = [
+      { contentType: 'multipart/form-data' },
+    ];
+    // @ts-ignore: canConsumeForm may be unused
+    const canConsumeForm = runtime.canConsumeForm(consumes);
+
+    let formParams: { append(param: string, value: any): any };
+    let useForm = false;
+    // use FormData to transmit files using content-type "multipart/form-data"
+    useForm = canConsumeForm;
+    if (useForm) {
+      formParams = new FormData();
+    } else {
+      formParams = new URLSearchParams();
+    }
+
+    if (requestParameters['dateTaken'] != null) {
+      formParams.append('date_taken', requestParameters['dateTaken'] as any);
+    }
+
+    if (requestParameters['containsPii'] != null) {
+      formParams.append(
+        'contains_pii',
+        requestParameters['containsPii'] as any,
+      );
+    }
+
+    if (requestParameters['photographerType'] != null) {
+      formParams.append(
+        'photographer_type',
+        requestParameters['photographerType'] as any,
+      );
+    }
+
+    if (requestParameters['photographerName'] != null) {
+      formParams.append(
+        'photographer_name',
+        requestParameters['photographerName'] as any,
+      );
+    }
+
+    if (requestParameters['consentForm'] != null) {
+      formParams.append(
+        'consent_form',
+        requestParameters['consentForm'] as any,
+      );
+    }
+
+    if (requestParameters['fileName'] != null) {
+      formParams.append('file_name', requestParameters['fileName'] as any);
+    }
+
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resources/{rec_resource_id}/images/{image_id}/consent`
+          .replace(
+            `{${'rec_resource_id'}}`,
+            encodeURIComponent(String(requestParameters['recResourceId'])),
+          )
+          .replace(
+            `{${'image_id'}}`,
+            encodeURIComponent(String(requestParameters['imageId'])),
+          ),
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+        body: formParams,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationResourceImageDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Create consent metadata for an existing image
+   */
+  async createImageConsent(
+    requestParameters: CreateImageConsentRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationResourceImageDto> {
+    const response = await this.createImageConsentRaw(
       requestParameters,
       initOverrides,
     );
@@ -1887,6 +2030,88 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<Array<RecreationFeatureDto>> {
     const response = await this.updateFeaturesRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Update consent metadata for an existing image
+   */
+  async updateImageConsentRaw(
+    requestParameters: UpdateImageConsentRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceImageDto>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling updateImageConsent().',
+      );
+    }
+
+    if (requestParameters['imageId'] == null) {
+      throw new runtime.RequiredError(
+        'imageId',
+        'Required parameter "imageId" was null or undefined when calling updateImageConsent().',
+      );
+    }
+
+    if (requestParameters['updateImageConsentDto'] == null) {
+      throw new runtime.RequiredError(
+        'updateImageConsentDto',
+        'Required parameter "updateImageConsentDto" was null or undefined when calling updateImageConsent().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    headerParameters['Content-Type'] = 'application/json';
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resources/{rec_resource_id}/images/{image_id}/consent`
+          .replace(
+            `{${'rec_resource_id'}}`,
+            encodeURIComponent(String(requestParameters['recResourceId'])),
+          )
+          .replace(
+            `{${'image_id'}}`,
+            encodeURIComponent(String(requestParameters['imageId'])),
+          ),
+        method: 'PATCH',
+        headers: headerParameters,
+        query: queryParameters,
+        body: UpdateImageConsentDtoToJSON(
+          requestParameters['updateImageConsentDto'],
+        ),
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationResourceImageDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Update consent metadata for an existing image
+   */
+  async updateImageConsent(
+    requestParameters: UpdateImageConsentRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationResourceImageDto> {
+    const response = await this.updateImageConsentRaw(
       requestParameters,
       initOverrides,
     );

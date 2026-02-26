@@ -10,6 +10,7 @@ import {
   Controller,
   Delete,
   Get,
+  Patch,
   Param,
   Post,
   Query,
@@ -35,6 +36,10 @@ import {
   PresignImageUploadResponseDto,
   RecreationResourceImageDto,
 } from './dto/recreation-resource-image.dto';
+import {
+  UpdateImageConsentDto,
+  UpdateImageConsentPatchDto,
+} from './dto/update-image-consent.dto';
 import { ResourceImagesService } from './service/resource-images.service';
 
 @Controller({ path: 'recreation-resources', version: '1' })
@@ -154,6 +159,92 @@ export class ResourceImagesController {
       rec_resource_id,
       body,
       consentForm,
+    );
+  }
+
+  @Post(':rec_resource_id/images/:image_id/consent')
+  @UseInterceptors(FileInterceptor('consent_form'))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({
+    summary: 'Create consent metadata for an existing image',
+    operationId: 'createImageConsent',
+  })
+  @ApiParam({
+    name: 'rec_resource_id',
+    required: true,
+    description: 'Resource identifier',
+    type: 'string',
+    example: 'REC204118',
+  })
+  @ApiParam({
+    name: 'image_id',
+    required: true,
+    description: 'Image identifier (UUID)',
+    type: 'string',
+    example: 'a7c1e5f3-8d2b-4c9a-b1e6-f3d8c7a2e5b9',
+  })
+  @ApiBody({
+    required: true,
+    type: UpdateImageConsentDto,
+    description: 'Consent metadata and optional consent form PDF',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Consent metadata created',
+    type: RecreationResourceImageDto,
+  })
+  async createImageConsent(
+    @Param('rec_resource_id') rec_resource_id: string,
+    @Param('image_id') image_id: string,
+    @Body() body: UpdateImageConsentDto,
+    @UploadedFile() consentForm?: Express.Multer.File,
+  ): Promise<RecreationResourceImageDto> {
+    return this.resourceImagesService.createImageConsent(
+      rec_resource_id,
+      image_id,
+      body,
+      consentForm,
+    );
+  }
+
+  @Patch(':rec_resource_id/images/:image_id/consent')
+  @ApiOperation({
+    summary: 'Update consent metadata for an existing image',
+    operationId: 'updateImageConsent',
+  })
+  @ApiParam({
+    name: 'rec_resource_id',
+    required: true,
+    description: 'Resource identifier',
+    type: 'string',
+    example: 'REC204118',
+  })
+  @ApiParam({
+    name: 'image_id',
+    required: true,
+    description: 'Image identifier (UUID)',
+    type: 'string',
+    example: 'a7c1e5f3-8d2b-4c9a-b1e6-f3d8c7a2e5b9',
+  })
+  @ApiBody({
+    required: true,
+    type: UpdateImageConsentPatchDto,
+    description: 'Consent metadata updates (name/date only)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Consent metadata updated',
+    type: RecreationResourceImageDto,
+  })
+  async updateImageConsent(
+    @Param('rec_resource_id') rec_resource_id: string,
+    @Param('image_id') image_id: string,
+    @Body() body: UpdateImageConsentPatchDto,
+  ): Promise<RecreationResourceImageDto> {
+    return this.resourceImagesService.updateImageConsent(
+      rec_resource_id,
+      image_id,
+      body,
     );
   }
 
