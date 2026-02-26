@@ -31,6 +31,7 @@ export function useImageList(rec_resource_id?: string) {
         photographer_name: img.photographer_name,
         photographer_display_name: img.photographer_display_name,
         contains_pii: img.contains_pii,
+        has_consent_metadata: img.has_consent_metadata,
       };
     });
   }, [imagesFromServer]);

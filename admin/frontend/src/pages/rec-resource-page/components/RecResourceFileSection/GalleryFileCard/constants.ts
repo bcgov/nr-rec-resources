@@ -3,6 +3,7 @@ import {
   faDownload,
   faEye,
   faFile,
+  faPenToSquare,
   faTrash,
   IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
@@ -12,6 +13,7 @@ export const ACTION_TYPES = {
   VIEW: 'view',
   DOWNLOAD: 'download',
   DOWNLOAD_CONSENT: 'downloadConsent',
+  EDIT: 'edit',
   DELETE: 'delete',
 } as const;
 
@@ -21,13 +23,14 @@ export const ACTION_TYPES = {
 export const IMAGE_CARD_ACTIONS: ReadonlyArray<{
   key: Extract<
     GalleryFileAction,
-    'viewDetails' | 'view' | 'downloadConsent' | 'delete'
+    'viewDetails' | 'view' | 'downloadConsent' | 'edit' | 'delete'
   >;
   icon: IconDefinition;
   label: string;
 }> = [
   { key: ACTION_TYPES.VIEW, icon: faEye, label: 'View image' },
   { key: ACTION_TYPES.VIEW_DETAILS, icon: faFile, label: 'View details' },
+  { key: ACTION_TYPES.EDIT, icon: faPenToSquare, label: 'Edit details' },
   {
     key: ACTION_TYPES.DOWNLOAD_CONSENT,
     icon: faDownload,
