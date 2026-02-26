@@ -18,17 +18,29 @@ import './ImageUploadForm.scss';
 export interface ImageUploadFormHandlers {
   resetForm: () => void;
   isValid: boolean;
+  isDirty: boolean;
+  submitForm: () => void;
 }
 
 interface ImageUploadFormProps {
   fileName: string;
   onUpload: () => void;
+  onSubmitForm?: (values: any) => void | Promise<void>;
+  mode?: 'upload' | 'edit';
+  initialValues?: Record<string, unknown>;
+  disableConsentFields?: boolean;
+  showConsentSection?: boolean;
   onFormReady: (handlers: ImageUploadFormHandlers) => void;
 }
 
 export const ImageUploadForm: FC<ImageUploadFormProps> = ({
   fileName,
   onUpload,
+  onSubmitForm,
+  mode = 'upload',
+  initialValues,
+  disableConsentFields = false,
+  showConsentSection = false,
   onFormReady,
 }) => {
   const {
@@ -37,6 +49,7 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
     errors,
     resetForm,
     isUploadEnabled,
+    isFormDirty,
     isStaff,
     showDateWarning,
     showTakenDuringWorkingHours,
@@ -46,18 +59,32 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
     consentFormFile,
     handleConsentFileSelect,
     handleConsentFileRemove,
-  } = useImageUploadForm(fileName);
+  } = useImageUploadForm(fileName, {
+    initialValues: initialValues as any,
+    syncToUploadStore: mode === 'upload',
+    disableConsentFields,
+  });
 
   const { data: photographerTypeOptions } = useGetRecreationResourceOptions([
     'photographerType',
   ]);
   const photographerTypes = photographerTypeOptions?.[0]?.options ?? [];
 
-  useEffect(() => {
-    onFormReady({ resetForm, isValid: isUploadEnabled });
-  }, [onFormReady, resetForm, isUploadEnabled]);
+  const onSubmit = handleSubmit(async (values) => {
+    await onSubmitForm?.(values);
+    onUpload();
+  });
 
-  const onSubmit = handleSubmit(onUpload);
+  useEffect(() => {
+    onFormReady({
+      resetForm,
+      isValid: isUploadEnabled,
+      isDirty: isFormDirty,
+      submitForm: () => {
+        void onSubmit();
+      },
+    });
+  }, [onFormReady, resetForm, isUploadEnabled, isFormDirty]);
   return (
     <Form
       className="image-upload-form"
@@ -84,7 +111,9 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
                 isInvalid={!!errors.displayName}
                 onChange={(e) => {
                   field.onChange(e);
-                  setUploadFileName((e.target as HTMLInputElement).value);
+                  if (mode === 'upload') {
+                    setUploadFileName((e.target as HTMLInputElement).value);
+                  }
                 }}
               />
               <Form.Text className="text-muted">
@@ -151,6 +180,7 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
             <Form.Select
               value={field.value ?? 'STAFF'}
               onChange={(e) => field.onChange(e.target.value)}
+              disabled={disableConsentFields}
             >
               {photographerTypes.map((opt) => (
                 <option key={opt.id} value={opt.id}>
@@ -180,6 +210,7 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
                   label="Yes"
                   checked={field.value === true}
                   onChange={() => field.onChange(true)}
+                  disabled={disableConsentFields}
                 />
                 <Form.Check
                   inline
@@ -188,6 +219,7 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
                   label="No"
                   checked={field.value === false}
                   onChange={() => field.onChange(false)}
+                  disabled={disableConsentFields}
                 />
               </div>
             )}
@@ -225,6 +257,7 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
                   type="text"
                   placeholder="Enter photographer name"
                   isInvalid={!!errors.photographerName}
+                  disabled={disableConsentFields}
                 />
                 {errors.photographerName && (
                   <Form.Control.Feedback type="invalid">
@@ -238,7 +271,7 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
       )}
 
       {/* Everything below hidden when non-staff alert is showing */}
-      {!showNotAcceptedAlert && (
+      {(!showNotAcceptedAlert || showConsentSection) && (
         <>
           {/* Contains identifiable information? */}
           <Form.Group className="mb-3 d-flex flex-column">
@@ -267,6 +300,7 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
                     label="Yes"
                     checked={field.value === true}
                     onChange={() => field.onChange(true)}
+                    disabled={disableConsentFields}
                   />
                   <Form.Check
                     inline
@@ -275,6 +309,7 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
                     label="No"
                     checked={field.value === false}
                     onChange={() => field.onChange(false)}
+                    disabled={disableConsentFields}
                   />
                 </div>
               )}
@@ -327,8 +362,12 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
 
               <ConsentFileUpload
                 file={consentFormFile}
-                onFileSelect={handleConsentFileSelect}
-                onFileRemove={handleConsentFileRemove}
+                onFileSelect={
+                  disableConsentFields ? () => {} : handleConsentFileSelect
+                }
+                onFileRemove={
+                  disableConsentFields ? () => {} : handleConsentFileRemove
+                }
               />
               {errors.consentFormFile && (
                 <Form.Text className="text-danger d-block mt-2">
@@ -351,6 +390,7 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
                     label="By uploading this photo, I confirm that it contains no personally identifiable information or that I have obtained the required consent forms, and the image rights belong to Recreation Sites and Trails."
                     checked={field.value}
                     onChange={(e) => field.onChange(e.target.checked)}
+                    disabled={disableConsentFields}
                     isInvalid={!!errors.confirmationChecked}
                   />
                   {errors.confirmationChecked && (

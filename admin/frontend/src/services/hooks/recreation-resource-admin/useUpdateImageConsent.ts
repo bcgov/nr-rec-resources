@@ -1,8 +1,9 @@
-import { useRecreationResourceAdminApiClient } from '@/services/hooks';
-import { RECREATION_RESOURCE_QUERY_KEYS } from '@/services/hooks/recreation-resource-admin/queryKeys';
-import { createRetryHandler } from '@/services/hooks/recreation-resource-admin/helpers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createRetryHandler } from './helpers';
+import { RECREATION_RESOURCE_QUERY_KEYS } from './queryKeys';
+import { useRecreationResourceAdminApiClient } from './useRecreationResourceAdminApiClient';
 
+// Updates consent metadata on images that already have consent info.
 export interface UpdateImageConsentParams {
   recResourceId: string;
   imageId: string;

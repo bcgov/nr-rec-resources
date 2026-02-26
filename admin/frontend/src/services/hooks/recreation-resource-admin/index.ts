@@ -1,4 +1,5 @@
 export * from './helpers';
+export * from './useCreateImageConsent';
 export * from './useCreateFee';
 export * from './useDeleteEstablishmentOrderDoc';
 export * from './useDeleteResourceDocument';
@@ -12,6 +13,7 @@ export * from './useGetRecreationResourceSuggestions';
 export * from './useRecreationResourceAdminApiClient';
 export * from './useS3Upload';
 export * from './useUpdateActivities';
+export * from './useUpdateImageConsent';
 export * from './useUpdateFeatures';
 export * from './useUpdateFee';
 export * from './useUpdateRecreationResource';
