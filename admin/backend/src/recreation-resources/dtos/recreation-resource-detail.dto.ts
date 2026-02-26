@@ -365,6 +365,7 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
     example: 6,
     required: false,
     nullable: true,
+    type: Number,
   })
   right_of_way?: number | null;
 }

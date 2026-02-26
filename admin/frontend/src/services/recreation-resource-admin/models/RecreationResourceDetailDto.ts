@@ -185,10 +185,10 @@ export interface RecreationResourceDetailDto {
   display_on_public_site?: boolean;
   /**
    * Right-of-way width in metres for linear features (both lanes combined)
-   * @type {object}
+   * @type {number}
    * @memberof RecreationResourceDetailDto
    */
-  right_of_way?: object | null;
+  right_of_way?: number | null;
 }
 
 /**
