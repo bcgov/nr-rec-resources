@@ -49,8 +49,8 @@ export const EditPhotoModal: FC = () => {
         onSubmitForm={handleEditSubmit}
         mode="edit"
         initialValues={initialValues}
-        disableConsentFields={!!image.has_consent_metadata}
-        showConsentSection
+        disableConsentFields={Boolean(image.has_consent_metadata)}
+        showConsentSection={Boolean(image.has_consent_metadata)}
         onFormReady={handleFormReady}
       />
     </BaseFileModal>

@@ -12,21 +12,25 @@ interface ConsentFileUploadProps {
   file: File | null;
   onFileSelect: (file: File | null) => void;
   onFileRemove: () => void;
+  disabled?: boolean;
 }
 
 export const ConsentFileUpload: FC<ConsentFileUploadProps> = ({
   file,
   onFileSelect,
   onFileRemove,
+  disabled = false,
 }) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleClick = useCallback(() => {
+    if (disabled) return;
     inputRef.current?.click();
-  }, []);
+  }, [disabled]);
 
   const handleFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (disabled) return;
       const selectedFile = e.target.files?.[0];
       if (selectedFile) {
         // Validate PDF only
@@ -41,7 +45,7 @@ export const ConsentFileUpload: FC<ConsentFileUploadProps> = ({
         inputRef.current.value = '';
       }
     },
-    [onFileSelect],
+    [disabled, onFileSelect],
   );
 
   if (file) {
@@ -62,6 +66,7 @@ export const ConsentFileUpload: FC<ConsentFileUploadProps> = ({
           size="sm"
           onClick={onFileRemove}
           aria-label="Remove consent form"
+          disabled={disabled}
         >
           <FontAwesomeIcon icon={faTrash} />
         </Button>
@@ -82,6 +87,7 @@ export const ConsentFileUpload: FC<ConsentFileUploadProps> = ({
         variant="primary"
         className="w-100 text-white"
         onClick={handleClick}
+        disabled={disabled}
       >
         <FontAwesomeIcon icon={faSquarePlus} className="me-2" />
         Attach file

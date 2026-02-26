@@ -72,15 +72,25 @@ export const useImageUploadForm = (
   // Update display name when initial name changes
   useEffect(() => {
     if (!syncToUploadStore) return;
-    if (displayNameWithoutExtension) {
-      const defaultDisplayName = displayNameWithoutExtension.slice(
-        0,
-        MAX_DISPLAY_NAME_LENGTH,
-      );
-      setValue('displayName', defaultDisplayName);
-      setUploadFileName(defaultDisplayName);
+    const initialDisplayName =
+      typeof initialValues?.displayName === 'string'
+        ? initialValues.displayName
+        : undefined;
+    const defaultDisplayName = displayNameWithoutExtension?.slice(
+      0,
+      MAX_DISPLAY_NAME_LENGTH,
+    );
+    const displayNameToUse = initialDisplayName ?? defaultDisplayName;
+    if (displayNameToUse) {
+      setValue('displayName', displayNameToUse);
+      setUploadFileName(displayNameToUse);
     }
-  }, [displayNameWithoutExtension, setValue, syncToUploadStore]);
+  }, [
+    displayNameWithoutExtension,
+    initialValues?.displayName,
+    setValue,
+    syncToUploadStore,
+  ]);
 
   // Sync consent form file to form state
   useEffect(() => {

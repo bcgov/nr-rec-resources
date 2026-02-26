@@ -189,7 +189,7 @@ export class ResourceImagesController {
     description: 'Consent metadata and optional consent form PDF',
   })
   @ApiResponse({
-    status: 200,
+    status: 201,
     description: 'Consent metadata created',
     type: RecreationResourceImageDto,
   })

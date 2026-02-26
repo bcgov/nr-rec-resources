@@ -362,12 +362,9 @@ export const ImageUploadForm: FC<ImageUploadFormProps> = ({
 
               <ConsentFileUpload
                 file={consentFormFile}
-                onFileSelect={
-                  disableConsentFields ? () => {} : handleConsentFileSelect
-                }
-                onFileRemove={
-                  disableConsentFields ? () => {} : handleConsentFileRemove
-                }
+                onFileSelect={handleConsentFileSelect}
+                onFileRemove={handleConsentFileRemove}
+                disabled={disableConsentFields}
               />
               {errors.consentFormFile && (
                 <Form.Text className="text-danger d-block mt-2">
