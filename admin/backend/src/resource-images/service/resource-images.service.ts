@@ -5,7 +5,7 @@ import {
 } from '@/common/services/base-storage-file-service';
 import { S3Service } from '@/s3/s3.service';
 import { HttpException, Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@generated/prisma';
 import { randomUUID } from 'crypto';
 import { PrismaService } from 'src/prisma.service';
 import {
