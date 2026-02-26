@@ -789,7 +789,7 @@ describe('ResourceImagesDocsService', () => {
   });
 
   describe('createImageConsent', () => {
-    it('creates consent metadata for legacy images', async () => {
+    it('creates consent metadata for legacy images when consent metadata is provided', async () => {
       const mockImageWithConsent = createMockImage('img-1', 'REC0001', {
         file_name: 'legacy-image.webp',
         recreation_image_consent_form: {
@@ -833,6 +833,7 @@ describe('ResourceImagesDocsService', () => {
 
       const result = await service.createImageConsent('REC0001', 'img-1', {
         file_name: 'Legacy Name',
+        contains_pii: false,
       } as any);
 
       expect(result).toBeDefined();

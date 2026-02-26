@@ -144,6 +144,13 @@ export class ResourceImagesService extends BaseStorageFileService {
         consentFormFile,
       );
 
+      if (!consentFormFile && !normalizedConsent.hasMetadata) {
+        throw new HttpException(
+          'Consent metadata or consent_form is required to update these fields',
+          400,
+        );
+      }
+
       if (consentFormFile) {
         docId = randomUUID();
         uploadedConsentKey = await this.consentFormsS3Service.uploadConsentForm(
