@@ -96,6 +96,12 @@ vi.mock(
   }),
 );
 vi.mock(
+  '@/pages/rec-resource-page/components/RecResourceFileSection/EditPhotoModal',
+  () => ({
+    EditPhotoModal: () => <div data-testid="edit-photo-modal" />,
+  }),
+);
+vi.mock(
   '@/pages/rec-resource-page/components/RecResourceFileSection/ImageLightboxModal',
   () => ({
     ImageLightboxModal: () => <div data-testid="image-lightbox-modal" />,
@@ -205,6 +211,11 @@ describe('RecResourceFileSection', () => {
   it('renders image lightbox modal', () => {
     render(<RecResourceFileSection />);
     expect(screen.getByTestId('image-lightbox-modal')).toBeInTheDocument();
+  });
+
+  it('renders edit photo modal', () => {
+    render(<RecResourceFileSection />);
+    expect(screen.getByTestId('edit-photo-modal')).toBeInTheDocument();
   });
 
   it('calls document action handler when file card action is clicked', () => {

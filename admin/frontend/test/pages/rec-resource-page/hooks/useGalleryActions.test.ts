@@ -19,6 +19,7 @@ const mockShowDeleteModalForDoc = vi.fn();
 const mockHideDeleteModal = vi.fn();
 const mockShowImageLightboxForImage = vi.fn();
 const mockShowPhotoDetailsForImage = vi.fn();
+const mockShowEditPhotoForImage = vi.fn();
 const mockHandleAddFileByType = vi.fn();
 const mockHandleAddPdfFileClick = vi.fn();
 const mockResetUploadState = vi.fn();
@@ -109,6 +110,7 @@ vi.mock('@/pages/rec-resource-page/store/recResourceFileTransferStore', () => ({
   showImageLightboxForImage: (image: any) =>
     mockShowImageLightboxForImage(image),
   showPhotoDetailsForImage: (image: any) => mockShowPhotoDetailsForImage(image),
+  showEditPhotoForImage: (image: any) => mockShowEditPhotoForImage(image),
   hideDeleteModal: () => mockHideDeleteModal(),
   showDeleteModalForFile: (file: any) => mockShowDeleteModalForDoc(file),
   showDeleteModalForDoc: (file: any) => mockShowDeleteModalForDoc(file),
@@ -303,6 +305,25 @@ describe('useGalleryActions', () => {
       result.current.handleFileAction('delete', testFile);
 
       expect(mockShowDeleteModalForDoc).toHaveBeenCalledWith(testFile);
+    });
+
+    it('handles edit action by opening edit modal for images', () => {
+      const imageFile: GalleryFile = {
+        id: 'image-1',
+        name: 'test.jpg',
+        date: '2023-01-01',
+        url: 'http://example.com/test.jpg',
+        extension: 'jpg',
+        type: 'image',
+      };
+
+      const { result } = renderHook(() => useGalleryActions(), {
+        wrapper: createWrapper(),
+      });
+
+      result.current.handleFileAction('edit', imageFile);
+
+      expect(mockShowEditPhotoForImage).toHaveBeenCalledWith(imageFile);
     });
 
     it('handles dismiss action by removing pending doc', () => {

@@ -33,6 +33,7 @@ export * from './SuggestionDto';
 export * from './SuggestionsResponseDto';
 export * from './UpdateActivitiesDto';
 export * from './UpdateFeaturesDto';
+export * from './UpdateImageConsentDto';
 export * from './UpdateRecreationAccessCodeDto';
 export * from './UpdateRecreationFeeDto';
 export * from './UpdateRecreationResourceDto';
