@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
     "strict": false,
     "noUncheckedIndexedAccess": true,
     "moduleDetection": "force",
@@ -21,9 +21,14 @@
     "lib": ["es2022"],
     "types": ["vitest/globals", "node"],
     "paths": {
-      "@prisma-generated-sql": ["src/prisma-generated-sql"],
-      "@shared/*": ["../../shared/src/*"]
+      "@shared/*": ["../../shared/src/*"],
+      "@generated/prisma": ["src/generated/prisma/client"],
+      "@generated/prisma/*": ["src/generated/prisma/*"],
+      "@prisma-generated-sql/*": ["src/prisma-generated-sql/*"]
     }
+  },
+  "tsc-alias": {
+    "resolveFullPaths": true
   },
   "include": ["src/**/*.ts", "e2e/**/*.ts", "**/*.ts", "**/*.mjs", "**/*.mts"]
 }

@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@generated/prisma';
 
 /**
  * Builds fuzzy search conditions for recreation resource queries

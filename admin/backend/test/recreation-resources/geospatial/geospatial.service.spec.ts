@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { GeospatialService } from '@/recreation-resources/geospatial/geospatial.service';
 import { PrismaService } from '@/prisma.service';
-import { getRecreationResourceGeospatialData } from '@/prisma-generated-sql';
+import { getRecreationResourceGeospatialData } from '@prisma-generated-sql/getRecreationResourceGeospatialData';
 import { RecreationResourceGeospatialDto } from '@/recreation-resources/geospatial/dto/recreation-resource-geospatial.dto';
 
 describe('GeospatialService', () => {
@@ -149,8 +149,9 @@ describe('GeospatialService', () => {
     const expectedEpsg = 32600 + Math.trunc(utmZone);
 
     expect(prismaMock.$executeRawUnsafe).toHaveBeenCalled();
-    const callArgs = (prismaMock.$executeRawUnsafe as unknown as jest.Mock).mock
-      .calls[0];
+    const callArgs = (
+      prismaMock.$executeRawUnsafe as unknown as ReturnType<typeof vi.fn>
+    ).mock.calls[0]!;
 
     // callArgs[0] is the SQL string, then parameters: rec_resource_id, easting, northing, epsg
     expect(callArgs[0]).toEqual(expect.any(String));

@@ -42,6 +42,7 @@ jobs:
         with:
           commands: |
             npm install
+            npm run prisma-generate || true
             npm run test:cov
           dir: ${{ inputs.app }}/${{ matrix.dir }}
           node_version: "22"

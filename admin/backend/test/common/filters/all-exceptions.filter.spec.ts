@@ -7,7 +7,7 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@generated/prisma';
 import { Request, Response } from 'express';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -333,8 +333,7 @@ describe('AllExceptionsFilter', () => {
   });
 
   describe('Prisma error handling', () => {
-    it('should handle Prisma P2025 (record not found) as 404', async () => {
-      const { Prisma } = await import('@prisma/client');
+    it('should handle Prisma P2025 (record not found) as 404', () => {
       const exception = new Prisma.PrismaClientKnownRequestError(
         'Record not found',
         {
@@ -356,8 +355,7 @@ describe('AllExceptionsFilter', () => {
       );
     });
 
-    it('should handle Prisma P2002 (unique constraint) as 400', async () => {
-      const { Prisma } = await import('@prisma/client');
+    it('should handle Prisma P2002 (unique constraint) as 400', () => {
       const exception = new Prisma.PrismaClientKnownRequestError(
         'Unique constraint failed',
         {
@@ -379,8 +377,7 @@ describe('AllExceptionsFilter', () => {
       );
     });
 
-    it('should handle Prisma P2003 (foreign key constraint) as 400', async () => {
-      const { Prisma } = await import('@prisma/client');
+    it('should handle Prisma P2003 (foreign key constraint) as 400', () => {
       const exception = new Prisma.PrismaClientKnownRequestError(
         'Foreign key constraint failed on the field: `control_access_code`',
         {
@@ -402,8 +399,7 @@ describe('AllExceptionsFilter', () => {
       );
     });
 
-    it('should handle Prisma validation error as 400', async () => {
-      const { Prisma } = await import('@prisma/client');
+    it('should handle Prisma validation error as 400', () => {
       const exception = new Prisma.PrismaClientValidationError('Invalid data', {
         clientVersion: '5.0.0',
       });
@@ -420,8 +416,7 @@ describe('AllExceptionsFilter', () => {
       );
     });
 
-    it('should handle unknown Prisma error code as 500', async () => {
-      const { Prisma } = await import('@prisma/client');
+    it('should handle unknown Prisma error code as 500', () => {
       const exception = new Prisma.PrismaClientKnownRequestError(
         'Unknown error',
         {

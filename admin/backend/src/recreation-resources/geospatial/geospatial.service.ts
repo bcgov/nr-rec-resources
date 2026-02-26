@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@/prisma.service';
-import { getRecreationResourceGeospatialData } from '@/prisma-generated-sql';
+import { getRecreationResourceGeospatialData } from '@prisma-generated-sql/getRecreationResourceGeospatialData';
 import { RecreationResourceGeospatialDto } from './dto/recreation-resource-geospatial.dto';
 import { UpdateRecreationResourceGeospatialDto } from './dto/update-recreation-resource-geospatial.dto';
 

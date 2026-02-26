@@ -1,7 +1,7 @@
-import { getRecreationResourceSuggestions } from '@/prisma-generated-sql';
+import { getRecreationResourceSuggestions } from '@prisma-generated-sql/getRecreationResourceSuggestions';
 import { PrismaService } from '@/prisma.service';
 import { Injectable, Logger } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@generated/prisma';
 import { UpdateRecreationResourceDto } from './dtos/update-recreation-resource.dto';
 import { recreationResourceSelect } from './recreation-resource.select';
 import { RecreationResourceGetPayload } from './recreation-resource.types';

@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@generated/prisma';
 import { getRecreationResourceSelect } from 'src/recreation-resource/utils/getRecreationResourceSelect';
 
 export type RecreationResourceGetPayload =

@@ -9,10 +9,8 @@ import { formatRecreationResourceDetailResults } from 'src/recreation-resource/u
 import { getRecreationResourceSelect } from 'src/recreation-resource/utils/getRecreationResourceSelect';
 import { RecreationResourceDetailDto } from 'src/recreation-resource/dto/recreation-resource.dto';
 import { AlphabeticalRecreationResourceDto } from 'src/recreation-resource/dto/alphabetical-recreation-resource.dto';
-import {
-  getRecreationResourceSpatialFeatureGeometry,
-  getMultipleResourcesSpatialFeatureGeometry,
-} from '@prisma-generated-sql';
+import { getRecreationResourceSpatialFeatureGeometry } from '@prisma-generated-sql/getRecreationResourceSpatialFeatureGeometry';
+import { getMultipleResourcesSpatialFeatureGeometry } from '@prisma-generated-sql/getMultipleResourcesSpatialFeatureGeometry';
 import { RecreationResourceGeometry } from 'src/recreation-resource/dto/recreation-resource-geometry.dto';
 import { RecreationResourceImageSize } from '@shared/constants/images';
 

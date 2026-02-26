@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@generated/prisma';
 import { FilterTypes } from '../service/types';
 import { EXCLUDED_ACTIVITY_CODES } from '../constants/service.constants';
 

@@ -4,14 +4,15 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@generated/prisma';
+import { PrismaPg } from '@prisma/adapter-pg';
 import { AppConfigService } from './app-config/app-config.service';
 import { UserContextService } from './common/modules/user-context/user-context.service';
 import { createAuditExtension } from '@/prisma/audit.extension';
 
 @Injectable()
 class PrismaService
-  extends PrismaClient<Prisma.PrismaClientOptions, 'query'>
+  extends PrismaClient
   implements OnModuleInit, OnModuleDestroy
 {
   private readonly logger = new Logger(PrismaService.name);
@@ -22,12 +23,16 @@ class PrismaService
     private readonly userContext: UserContextService,
   ) {
     const databaseUrl = appConfigService.databaseUrl;
+    const dbSchema = appConfigService.databaseSchema;
+    const adapter = new PrismaPg({
+      connectionString: databaseUrl,
+      schema: dbSchema,
+      options: `-c search_path=${dbSchema},public`,
+    });
 
     super({
       errorFormat: 'pretty',
-      datasources: {
-        db: { url: databaseUrl },
-      },
+      adapter,
       log: [
         { emit: 'event', level: 'query' },
         { emit: 'stdout', level: 'info' },
@@ -49,7 +54,7 @@ class PrismaService
     await this.$connect();
 
     // Query logging
-    this.$on<any>('query', (e: Prisma.QueryEvent) => {
+    (this as any).$on('query', (e: Prisma.QueryEvent) => {
       if (e.query.includes('SELECT 1')) return;
       this.logger.log(
         `Query: ${e.query} - Params: ${e.params} - Duration: ${e.duration}ms`,
