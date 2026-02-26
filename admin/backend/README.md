@@ -37,6 +37,8 @@ The NR Rec Resources Admin backend is responsible for:
 
 ## File Storage
 
+A [flowchart of the file storage architecture](../../docs/architecture/file-storage-flow.mmd) (images, documents, CloudFront, presigned URLs) is available in the docs.
+
 The backend manages three types of file storage:
 
 - **Recreation Resource Images**: Stored in S3, served via CloudFront CDN for

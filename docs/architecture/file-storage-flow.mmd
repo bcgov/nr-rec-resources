@@ -1,0 +1,32 @@
+%%{init: {"flowchart": {"curve": "linear"}}}%%
+flowchart TB
+  subgraph publicApp [Public application]
+    PublicUI[Public UI]
+  end
+
+  subgraph adminApp [Admin application]
+    AdminUI[Admin UI]
+    AdminAPI[Admin API]
+  end
+
+  subgraph cdn [Public CDN]
+    CloudFront[CloudFront]
+  end
+
+  subgraph s3 [S3 storage]
+    S3Images[Images bucket]
+    S3Docs[Public documents bucket]
+    S3Private[Establishment order docs]
+  end
+
+  PublicUI -->|"GET images/documents"| CloudFront
+  CloudFront -->|"/images/* origin"| S3Images
+  CloudFront -->|"/documents/* origin"| S3Docs
+
+  AdminUI -->|"Upload image or document"| AdminAPI
+  AdminAPI -->|"PUT image WebP variants"| S3Images
+  AdminAPI -->|"PUT document PDF etc"| S3Docs
+  AdminAPI -->|"PUT private doc"| S3Private
+  AdminUI -->|"Request establishment doc"| AdminAPI
+  AdminAPI -->|"Presigned URL"| AdminUI
+  AdminUI -->|"GET with presigned URL"| S3Private
