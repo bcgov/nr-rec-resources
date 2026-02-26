@@ -42,6 +42,7 @@ export interface GalleryImage extends GalleryFile {
   photographer_name?: string;
   contains_pii?: boolean;
   photographer_display_name?: string;
+  has_consent_metadata?: boolean;
 }
 
 export type GalleryFileAction =
@@ -49,6 +50,7 @@ export type GalleryFileAction =
   | 'viewDetails'
   | 'download'
   | 'downloadConsent'
+  | 'edit'
   | 'retry'
   | 'delete'
   | 'dismiss';

@@ -1,4 +1,5 @@
 import {
+  createImageUploadSchema,
   imageUploadSchema,
   ImageUploadFormData,
   isDateSuspiciouslyOld,
@@ -239,6 +240,30 @@ describe('imageUploadSchema', () => {
     it('accepts when confirmation is checked', () => {
       const result = imageUploadSchema.safeParse(
         createValidFormData({ confirmationChecked: true }),
+      );
+      expect(result.success).toBe(true);
+    });
+  });
+
+  describe('edit-mode validation overrides', () => {
+    it('skips consent-related validation when consent fields are disabled', () => {
+      const schema = createImageUploadSchema({ disableConsentFields: true });
+      const result = schema.safeParse(
+        createValidFormData({
+          photographerType: 'CONTRACTOR',
+          photographerName: '',
+          didYouTakePhoto: null,
+          containsIdentifiableInfo: null,
+          consentFormFile: null,
+        }),
+      );
+      expect(result.success).toBe(true);
+    });
+
+    it('skips confirmation requirement when consent fields are disabled', () => {
+      const schema = createImageUploadSchema({ disableConsentFields: true });
+      const result = schema.safeParse(
+        createValidFormData({ confirmationChecked: false }),
       );
       expect(result.success).toBe(true);
     });

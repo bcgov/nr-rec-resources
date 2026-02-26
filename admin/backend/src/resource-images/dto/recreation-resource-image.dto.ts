@@ -121,6 +121,12 @@ export class RecreationResourceImageDto {
     example: 'Test User',
   })
   photographer_display_name?: string;
+
+  @ApiPropertyOptional({
+    description: 'Whether consent metadata record exists for this image',
+    example: true,
+  })
+  has_consent_metadata?: boolean;
 }
 
 /**
