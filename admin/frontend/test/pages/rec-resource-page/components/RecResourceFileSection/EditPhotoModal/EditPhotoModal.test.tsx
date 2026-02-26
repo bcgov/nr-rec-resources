@@ -9,15 +9,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const mockMutateAsync = vi.fn();
 const mockCreateImageConsent = vi.fn();
 
-vi.mock('@/pages/rec-resource-page/hooks/useUpdateImageConsent', () => ({
+vi.mock('@/services/hooks', () => ({
+  useCreateImageConsent: () => ({
+    mutateAsync: mockCreateImageConsent,
+  }),
   useUpdateImageConsent: () => ({
     mutateAsync: mockMutateAsync,
-  }),
-}));
-
-vi.mock('@/services/hooks', () => ({
-  useRecreationResourceAdminApiClient: () => ({
-    createImageConsent: mockCreateImageConsent,
   }),
 }));
 
