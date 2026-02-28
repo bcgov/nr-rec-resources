@@ -1,9 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router';
 import AlphabeticalListPage from '@/components/alphabetical-list/AlphabeticalListPage';
 import { BreadcrumbItem } from '@shared/components/breadcrumbs';
-import { ROUTE_TITLES } from '@/constants/routes';
+import { ROUTE_TITLES, ROUTE_PATHS } from '@/constants/routes';
 import { alphabeticalLoader } from '@/service/loaders/alphabeticalLoader';
-import { META_DESCRIPTIONS } from '@/constants/seo';
+import { META_DESCRIPTIONS, OG_DEFAULT_IMAGE_PATH } from '@/constants/seo';
+import { buildAbsoluteUrl, buildOgMeta } from '@/utils/seo';
 
 export type SearchParams = {
   letter?: string;
@@ -18,10 +19,23 @@ export const Route = createFileRoute('/search/a-z-list')({
     type: search.type as string | undefined,
   }),
   head: () => ({
-    meta: [
-      { name: 'description', content: META_DESCRIPTIONS.ALPHABETICAL },
-      { title: ROUTE_TITLES.ALPHABETICAL },
-    ],
+    meta: (() => {
+      const description = META_DESCRIPTIONS.ALPHABETICAL;
+      const pageTitle = ROUTE_TITLES.ALPHABETICAL;
+      const ogImage = buildAbsoluteUrl(OG_DEFAULT_IMAGE_PATH);
+      const ogUrl = buildAbsoluteUrl(ROUTE_PATHS.ALPHABETICAL);
+      const ogMeta = buildOgMeta({
+        title: pageTitle,
+        description,
+        url: ogUrl,
+        image: ogImage,
+      });
+      return [
+        { name: 'description', content: description },
+        { title: pageTitle },
+        ...ogMeta,
+      ];
+    })(),
   }),
   beforeLoad: () => ({
     breadcrumb: (): BreadcrumbItem[] => {
