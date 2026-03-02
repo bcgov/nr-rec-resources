@@ -18,7 +18,9 @@ import type {
   ConsentFormDownloadResponseDto,
   CreateRecreationFeeDto,
   EstablishmentOrderDocDto,
+  ExportPreviewResponseDto,
   FinalizeDocUploadRequestDto,
+  ListExportDatasetsResponseDto,
   OptionDto,
   OptionsByTypeDto,
   PresignDocUploadResponseDto,
@@ -49,8 +51,12 @@ import {
   CreateRecreationFeeDtoToJSON,
   EstablishmentOrderDocDtoFromJSON,
   EstablishmentOrderDocDtoToJSON,
+  ExportPreviewResponseDtoFromJSON,
+  ExportPreviewResponseDtoToJSON,
   FinalizeDocUploadRequestDtoFromJSON,
   FinalizeDocUploadRequestDtoToJSON,
+  ListExportDatasetsResponseDtoFromJSON,
+  ListExportDatasetsResponseDtoToJSON,
   OptionDtoFromJSON,
   OptionDtoToJSON,
   OptionsByTypeDtoFromJSON,
@@ -130,6 +136,12 @@ export interface DeleteImageResourceRequest {
   imageId: string;
 }
 
+export interface DownloadExportCsvRequest {
+  dataset: DownloadExportCsvDatasetEnum;
+  district?: string;
+  resourceType?: string;
+}
+
 export interface FinalizeDocUploadRequest {
   recResourceId: string;
   finalizeDocUploadRequestDto: FinalizeDocUploadRequestDto;
@@ -162,6 +174,13 @@ export interface GetConsentFormDownloadUrlRequest {
 
 export interface GetDocumentsByRecResourceIdRequest {
   recResourceId: string;
+}
+
+export interface GetExportPreviewRequest {
+  dataset: GetExportPreviewDatasetEnum;
+  district?: string;
+  resourceType?: string;
+  limit?: number;
 }
 
 export interface GetFeaturesByRecResourceIdRequest {
@@ -758,6 +777,73 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
+   * Returns the full CSV payload for an implemented export
+   * Download an implemented CSV export dataset
+   */
+  async downloadExportCsvRaw(
+    requestParameters: DownloadExportCsvRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Blob>> {
+    if (requestParameters['dataset'] == null) {
+      throw new runtime.RequiredError(
+        'dataset',
+        'Required parameter "dataset" was null or undefined when calling downloadExportCsv().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    if (requestParameters['dataset'] != null) {
+      queryParameters['dataset'] = requestParameters['dataset'];
+    }
+
+    if (requestParameters['district'] != null) {
+      queryParameters['district'] = requestParameters['district'];
+    }
+
+    if (requestParameters['resourceType'] != null) {
+      queryParameters['resourceType'] = requestParameters['resourceType'];
+    }
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resources/exports/download`,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.BlobApiResponse(response);
+  }
+
+  /**
+   * Returns the full CSV payload for an implemented export
+   * Download an implemented CSV export dataset
+   */
+  async downloadExportCsv(
+    requestParameters: DownloadExportCsvRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<Blob> {
+    const response = await this.downloadExportCsvRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
    * Creates database record for uploaded document. Should be called after S3 upload completes successfully. No S3 verification is performed.
    * Finalize document upload and create database record
    */
@@ -1216,6 +1302,124 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<Array<RecreationResourceDocDto>> {
     const response = await this.getDocumentsByRecResourceIdRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Returns the datasets currently enabled for the admin CSV export workflow
+   * List implemented CSV export datasets
+   */
+  async getExportDatasetsRaw(
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<ListExportDatasetsResponseDto>> {
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resources/exports/datasets`,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      ListExportDatasetsResponseDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Returns the datasets currently enabled for the admin CSV export workflow
+   * List implemented CSV export datasets
+   */
+  async getExportDatasets(
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<ListExportDatasetsResponseDto> {
+    const response = await this.getExportDatasetsRaw(initOverrides);
+    return await response.value();
+  }
+
+  /**
+   * Returns a limited row preview for an implemented export
+   * Preview an implemented CSV export dataset
+   */
+  async getExportPreviewRaw(
+    requestParameters: GetExportPreviewRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<ExportPreviewResponseDto>> {
+    if (requestParameters['dataset'] == null) {
+      throw new runtime.RequiredError(
+        'dataset',
+        'Required parameter "dataset" was null or undefined when calling getExportPreview().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    if (requestParameters['dataset'] != null) {
+      queryParameters['dataset'] = requestParameters['dataset'];
+    }
+
+    if (requestParameters['district'] != null) {
+      queryParameters['district'] = requestParameters['district'];
+    }
+
+    if (requestParameters['resourceType'] != null) {
+      queryParameters['resourceType'] = requestParameters['resourceType'];
+    }
+
+    if (requestParameters['limit'] != null) {
+      queryParameters['limit'] = requestParameters['limit'];
+    }
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resources/exports/preview`,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      ExportPreviewResponseDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Returns a limited row preview for an implemented export
+   * Preview an implemented CSV export dataset
+   */
+  async getExportPreview(
+    requestParameters: GetExportPreviewRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<ExportPreviewResponseDto> {
+    const response = await this.getExportPreviewRaw(
       requestParameters,
       initOverrides,
     );
@@ -2419,6 +2623,50 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 }
 
+/**
+ * @export
+ */
+export const DownloadExportCsvDatasetEnum = {
+  FileDetails: 'file-details',
+  FileDetailsFta: 'file-details-fta',
+  FeeList: 'fee-list',
+  FeeListFta: 'fee-list-fta',
+  AgreementList: 'agreement-list',
+  AgreementListFta: 'agreement-list-fta',
+  CampsiteList: 'campsite-list',
+  CampsiteListFta: 'campsite-list-fta',
+  ObjectiveListFta: 'objective-list-fta',
+  StructureListFta: 'structure-list-fta',
+  AccessList: 'access-list',
+  AccessListFta: 'access-list-fta',
+  ActivitiesList: 'activities-list',
+  ActivitiesListFta: 'activities-list-fta',
+  SiteInspectionFta: 'site-inspection-fta',
+} as const;
+export type DownloadExportCsvDatasetEnum =
+  (typeof DownloadExportCsvDatasetEnum)[keyof typeof DownloadExportCsvDatasetEnum];
+/**
+ * @export
+ */
+export const GetExportPreviewDatasetEnum = {
+  FileDetails: 'file-details',
+  FileDetailsFta: 'file-details-fta',
+  FeeList: 'fee-list',
+  FeeListFta: 'fee-list-fta',
+  AgreementList: 'agreement-list',
+  AgreementListFta: 'agreement-list-fta',
+  CampsiteList: 'campsite-list',
+  CampsiteListFta: 'campsite-list-fta',
+  ObjectiveListFta: 'objective-list-fta',
+  StructureListFta: 'structure-list-fta',
+  AccessList: 'access-list',
+  AccessListFta: 'access-list-fta',
+  ActivitiesList: 'activities-list',
+  ActivitiesListFta: 'activities-list-fta',
+  SiteInspectionFta: 'site-inspection-fta',
+} as const;
+export type GetExportPreviewDatasetEnum =
+  (typeof GetExportPreviewDatasetEnum)[keyof typeof GetExportPreviewDatasetEnum];
 /**
  * @export
  */
