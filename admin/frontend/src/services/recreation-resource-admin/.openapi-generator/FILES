@@ -7,11 +7,14 @@ models/BadRequestResponseDto.ts
 models/ConsentFormDownloadResponseDto.ts
 models/CreateRecreationFeeDto.ts
 models/EstablishmentOrderDocDto.ts
+models/ExportDatasetDto.ts
+models/ExportPreviewResponseDto.ts
 models/FinalizeDocUploadRequestDto.ts
 models/HealthControllerCheck200Response.ts
 models/HealthControllerCheck200ResponseInfoValue.ts
 models/HealthControllerCheck503Response.ts
 models/ImagePresignedUrlDto.ts
+models/ListExportDatasetsResponseDto.ts
 models/OptionDto.ts
 models/OptionsByTypeDto.ts
 models/PresignDocUploadResponseDto.ts
