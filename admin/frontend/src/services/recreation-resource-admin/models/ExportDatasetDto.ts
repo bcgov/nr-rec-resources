@@ -38,11 +38,11 @@ export interface ExportDatasetDto {
    */
   source: ExportDatasetDtoSourceEnum;
   /**
-   * Whether preview and download are currently implemented
-   * @type {boolean}
+   * Dataset note or sentinel value such as 'not-implemented' for unavailable datasets
+   * @type {string}
    * @memberof ExportDatasetDto
    */
-  implemented: boolean;
+  info?: string;
 }
 
 /**
@@ -90,8 +90,6 @@ export function instanceOfExportDatasetDto(
   if (!('id' in value) || value['id'] === undefined) return false;
   if (!('label' in value) || value['label'] === undefined) return false;
   if (!('source' in value) || value['source'] === undefined) return false;
-  if (!('implemented' in value) || value['implemented'] === undefined)
-    return false;
   return true;
 }
 
@@ -110,7 +108,7 @@ export function ExportDatasetDtoFromJSONTyped(
     id: json['id'],
     label: json['label'],
     source: json['source'],
-    implemented: json['implemented'],
+    info: json['info'] == null ? undefined : json['info'],
   };
 }
 
@@ -130,6 +128,6 @@ export function ExportDatasetDtoToJSONTyped(
     id: value['id'],
     label: value['label'],
     source: value['source'],
-    implemented: value['implemented'],
+    info: value['info'],
   };
 }
