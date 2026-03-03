@@ -777,8 +777,8 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Returns the full CSV payload for an implemented export
-   * Download an implemented CSV export dataset
+   * Returns the full CSV payload for the requested export dataset
+   * Download a CSV export dataset
    */
   async downloadExportCsvRaw(
     requestParameters: DownloadExportCsvRequest,
@@ -829,8 +829,8 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Returns the full CSV payload for an implemented export
-   * Download an implemented CSV export dataset
+   * Returns the full CSV payload for the requested export dataset
+   * Download a CSV export dataset
    */
   async downloadExportCsv(
     requestParameters: DownloadExportCsvRequest,
@@ -1309,8 +1309,8 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Returns the datasets currently enabled for the admin CSV export workflow
-   * List implemented CSV export datasets
+   * Returns the datasets currently available for the admin CSV export workflow
+   * List CSV export datasets
    */
   async getExportDatasetsRaw(
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
@@ -1343,8 +1343,8 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Returns the datasets currently enabled for the admin CSV export workflow
-   * List implemented CSV export datasets
+   * Returns the datasets currently available for the admin CSV export workflow
+   * List CSV export datasets
    */
   async getExportDatasets(
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
@@ -1354,8 +1354,8 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Returns a limited row preview for an implemented export
-   * Preview an implemented CSV export dataset
+   * Returns a limited row preview for the requested export dataset
+   * Preview a CSV export dataset
    */
   async getExportPreviewRaw(
     requestParameters: GetExportPreviewRequest,
@@ -1412,8 +1412,8 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Returns a limited row preview for an implemented export
-   * Preview an implemented CSV export dataset
+   * Returns a limited row preview for the requested export dataset
+   * Preview a CSV export dataset
    */
   async getExportPreview(
     requestParameters: GetExportPreviewRequest,
@@ -2636,6 +2636,7 @@ export const DownloadExportCsvDatasetEnum = {
   CampsiteList: 'campsite-list',
   CampsiteListFta: 'campsite-list-fta',
   ObjectiveListFta: 'objective-list-fta',
+  StructureList: 'structure-list',
   StructureListFta: 'structure-list-fta',
   AccessList: 'access-list',
   AccessListFta: 'access-list-fta',
@@ -2658,6 +2659,7 @@ export const GetExportPreviewDatasetEnum = {
   CampsiteList: 'campsite-list',
   CampsiteListFta: 'campsite-list-fta',
   ObjectiveListFta: 'objective-list-fta',
+  StructureList: 'structure-list',
   StructureListFta: 'structure-list-fta',
   AccessList: 'access-list',
   AccessListFta: 'access-list-fta',

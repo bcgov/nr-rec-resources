@@ -6,6 +6,28 @@
 export const RECREATION_RESOURCE_QUERY_KEYS = {
   all: ['recreation-resource-admin'] as const,
   detail: (id: string) => ['recreation-resource-admin', 'detail', id] as const,
+  exportDatasets: () =>
+    ['recreation-resource-admin', 'exports', 'datasets'] as const,
+  exportPreview: (
+    request:
+      | {
+          dataset?: string;
+          district?: string;
+          resourceType?: string;
+          limit?: number;
+        }
+      | null
+      | undefined,
+  ) =>
+    [
+      'recreation-resource-admin',
+      'exports',
+      'preview',
+      request?.dataset ?? '',
+      request?.district ?? '',
+      request?.resourceType ?? '',
+      request?.limit ?? 0,
+    ] as const,
   images: (id: string) => ['recreation-resource-admin', 'images', id] as const,
   documents: (id: string) =>
     ['recreation-resource-admin', 'documents', id] as const,
