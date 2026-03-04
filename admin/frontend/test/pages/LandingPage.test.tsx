@@ -2,6 +2,20 @@ import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { LandingPage } from '@/pages/LandingPage';
 
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({
+    children,
+    className,
+  }: {
+    children: React.ReactNode;
+    className?: string;
+  }) => (
+    <a href="/exports" className={className}>
+      {children}
+    </a>
+  ),
+}));
+
 vi.mock(
   '@/components/rec-resource-suggestion-form/RecreationResourceSuggestionForm',
   () => ({
@@ -22,5 +36,9 @@ describe('LandingPage', () => {
 
     expect(document.querySelector('.landing-page')).toBeInTheDocument();
     expect(document.querySelector('.search-container')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /data export/i })).toHaveAttribute(
+      'href',
+      '/exports',
+    );
   });
 });
