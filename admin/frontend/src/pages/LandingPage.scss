@@ -23,4 +23,16 @@
     top: 25%;
     letter-spacing: 0.02rem;
   }
+
+  .exports-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    color: $colorWhite;
+    text-decoration: underline;
+
+    &:hover {
+      opacity: 0.7;
+    }
+  }
 }
