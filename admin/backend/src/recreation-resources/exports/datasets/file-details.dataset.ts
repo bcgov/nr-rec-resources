@@ -27,10 +27,8 @@ export const fileDetailsDataset: ExportDatasetBuilder = {
       rs.status_code::text AS "FILE_STATUS_ST",
       COALESCE(rsc.description, 'Open') AS "STATUS",
       COALESCE(resource_counts.defined_campsites, '0') AS "DEFINED_CAMPSITES",
-      COALESCE(resource_counts.structure_count, '0') AS "STRUCTURE_COUNT",
       COALESCE(resource_counts.activity_count, '0') AS "ACTIVITY_COUNT",
-      ${sql.formatTimestamp(Prisma.sql`rr.updated_at`)} AS "UPDATE_TIMESTAMP",
-      COALESCE(resource_counts.total_remedial_repairs, '0') AS "TOTAL_REMEDIAL_REPAIRS"
+      ${sql.formatTimestamp(Prisma.sql`rr.updated_at`)} AS "UPDATE_TIMESTAMP"
     FROM recreation_resource rr
     ${sql.sharedJoins}
     WHERE ${sql.rstFilters}

@@ -5,7 +5,7 @@ import {
 } from '@/services';
 import { DownloadExportCsvDatasetEnum } from '@/services/recreation-resource-admin/apis/RecreationResourcesApi';
 import { addErrorNotification } from '@/store/notificationStore';
-import { useMemo, useState } from 'react';
+import { type ChangeEvent, useMemo, useState } from 'react';
 import { NOT_IMPLEMENTED_INFO } from '../constants';
 import { useExportFilterOptions } from './useExportFilterOptions';
 
@@ -95,6 +95,18 @@ export const useExportState = () => {
     setSelectedResourceType('');
   };
 
+  const handleDatasetChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    handleSelectDataset(event.target.value);
+  };
+
+  const handleDistrictChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedDistrict(event.target.value);
+  };
+
+  const handleResourceTypeChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    setSelectedResourceType(event.target.value);
+  };
+
   const handleDownload = async () => {
     if (!selectedDataset || isDownloading) {
       return;
@@ -146,9 +158,9 @@ export const useExportState = () => {
       options: { districtOptions, resourceTypeOptions },
       isLoading: isLoadingFilters,
       handlers: {
-        handleSelectDataset,
-        setSelectedDistrict,
-        setSelectedResourceType,
+        handleDatasetChange,
+        handleDistrictChange,
+        handleResourceTypeChange,
       },
     },
     preview: {

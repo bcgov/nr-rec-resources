@@ -71,7 +71,7 @@ export const RecreationResourceSuggestionForm = () => {
   };
 
   return (
-    <Form className="w-100 p-4 pb-2 recreation-resource-suggestion-form">
+    <Form className="w-100 p-4 recreation-resource-suggestion-form">
       <Form.Group controlId="recreation-resource-suggestion">
         <Stack direction="vertical" gap={2}>
           <Form.Label className="fw-bold form-label w-100">
