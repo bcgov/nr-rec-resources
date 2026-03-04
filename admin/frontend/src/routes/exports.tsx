@@ -11,7 +11,7 @@ export const Route = createFileRoute('/exports')({
         href: '/',
       },
       {
-        label: 'Data export',
+        label: 'Data exports',
         href: '/exports',
       },
     ],

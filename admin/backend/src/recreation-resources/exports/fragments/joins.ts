@@ -50,7 +50,6 @@ export function buildSharedJoins(): Prisma.Sql {
         rr_inner.rec_resource_id,
         COALESCE(resource_campsites_inner.defined_campsites, '0') AS defined_campsites,
         COALESCE(resource_campsites_inner.total_remedial_repairs, '0') AS total_remedial_repairs,
-        COALESCE(resource_structures_inner.structure_count, '0') AS structure_count,
         COALESCE(resource_activities_inner.activity_count, '0') AS activity_count
       FROM recreation_resource rr_inner
       LEFT JOIN (
@@ -64,14 +63,6 @@ export function buildSharedJoins(): Prisma.Sql {
         GROUP BY rec_resource_id
       ) resource_campsites_inner
         ON resource_campsites_inner.rec_resource_id = rr_inner.rec_resource_id
-      LEFT JOIN (
-        SELECT
-          rec_resource_id,
-          COUNT(*)::text AS structure_count
-        FROM recreation_structure
-        GROUP BY rec_resource_id
-      ) resource_structures_inner
-        ON resource_structures_inner.rec_resource_id = rr_inner.rec_resource_id
       LEFT JOIN (
         SELECT
           rec_resource_id,

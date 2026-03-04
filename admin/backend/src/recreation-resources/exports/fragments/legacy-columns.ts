@@ -12,7 +12,6 @@ export function legacySharedColumnsBeforeTail(): Prisma.Sql {
     rs.status_code::text AS "FILE_STATUS_ST",
     COALESCE(rsc.description, 'Open') AS "STATUS",
     COALESCE(resource_counts.defined_campsites, '0') AS "DEFINED_CAMPSITES",
-    COALESCE(resource_counts.structure_count, '0') AS "STRUCTURE_COUNT",
     COALESCE(resource_counts.activity_count, '0') AS "ACTIVITY_COUNT"
   `;
 }

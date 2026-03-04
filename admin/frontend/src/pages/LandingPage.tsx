@@ -14,7 +14,7 @@ export const LandingPage: FC = () => {
         <div className="ps-4 pb-2 pt-0">
           <Link className="exports-link" to={ROUTE_PATHS.EXPORTS}>
             <FontAwesomeIcon icon={faFileExport} aria-hidden="true" />
-            Data export
+            Data exports
           </Link>
         </div>
       </div>
