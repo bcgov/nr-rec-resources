@@ -1,8 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import {
-  imageUploadSchema,
+  createImageUploadSchema,
   ImageUploadFormData,
   isDateSuspiciouslyOld,
   MAX_DISPLAY_NAME_LENGTH,
@@ -12,7 +12,21 @@ import {
   setUploadConsentData,
 } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
 
-export const useImageUploadForm = (initialDisplayName?: string) => {
+interface UseImageUploadFormOptions {
+  initialValues?: Partial<ImageUploadFormData>;
+  syncToUploadStore?: boolean;
+  disableConsentFields?: boolean;
+}
+
+export const useImageUploadForm = (
+  initialDisplayName?: string,
+  options: UseImageUploadFormOptions = {},
+) => {
+  const {
+    initialValues,
+    syncToUploadStore = true,
+    disableConsentFields = false,
+  } = options;
   const [consentFormFile, setConsentFormFile] = useState<File | null>(null);
 
   const displayNameWithoutExtension = initialDisplayName?.replace(
@@ -20,9 +34,8 @@ export const useImageUploadForm = (initialDisplayName?: string) => {
     '',
   );
 
-  const form = useForm<ImageUploadFormData>({
-    resolver: zodResolver(imageUploadSchema),
-    defaultValues: {
+  const defaultValues = useMemo(
+    () => ({
       displayName: displayNameWithoutExtension?.slice(
         0,
         MAX_DISPLAY_NAME_LENGTH,
@@ -34,7 +47,23 @@ export const useImageUploadForm = (initialDisplayName?: string) => {
       photographerType: 'STAFF',
       consentFormFile: null,
       confirmationChecked: false,
-    },
+      ...initialValues,
+    }),
+    [displayNameWithoutExtension, initialValues],
+  );
+  const defaultValuesRef = useRef(defaultValues);
+
+  useEffect(() => {
+    defaultValuesRef.current = defaultValues;
+  }, [defaultValues]);
+
+  const form = useForm<ImageUploadFormData>({
+    resolver: zodResolver(
+      createImageUploadSchema({
+        disableConsentFields,
+      }),
+    ),
+    defaultValues,
     mode: 'onChange',
   });
 
@@ -42,15 +71,26 @@ export const useImageUploadForm = (initialDisplayName?: string) => {
 
   // Update display name when initial name changes
   useEffect(() => {
-    if (displayNameWithoutExtension) {
-      const defaultDisplayName = displayNameWithoutExtension.slice(
-        0,
-        MAX_DISPLAY_NAME_LENGTH,
-      );
-      setValue('displayName', defaultDisplayName);
-      setUploadFileName(defaultDisplayName);
+    if (!syncToUploadStore) return;
+    const initialDisplayName =
+      typeof initialValues?.displayName === 'string'
+        ? initialValues.displayName
+        : undefined;
+    const defaultDisplayName = displayNameWithoutExtension?.slice(
+      0,
+      MAX_DISPLAY_NAME_LENGTH,
+    );
+    const displayNameToUse = initialDisplayName ?? defaultDisplayName;
+    if (displayNameToUse) {
+      setValue('displayName', displayNameToUse);
+      setUploadFileName(displayNameToUse);
     }
-  }, [displayNameWithoutExtension, setValue]);
+  }, [
+    displayNameWithoutExtension,
+    initialValues?.displayName,
+    setValue,
+    syncToUploadStore,
+  ]);
 
   // Sync consent form file to form state
   useEffect(() => {
@@ -68,6 +108,7 @@ export const useImageUploadForm = (initialDisplayName?: string) => {
 
   // Sync consent metadata to store whenever relevant values change
   useEffect(() => {
+    if (!syncToUploadStore) return;
     setUploadConsentData({
       dateTaken: dateCreated?.toISOString().split('T')[0] ?? null,
       containsPii: containsIdentifiableInfo ?? false,
@@ -81,6 +122,7 @@ export const useImageUploadForm = (initialDisplayName?: string) => {
     photographerType,
     photographerName,
     consentFormFile,
+    syncToUploadStore,
   ]);
 
   // Check if date is suspiciously old for warning display
@@ -115,24 +157,15 @@ export const useImageUploadForm = (initialDisplayName?: string) => {
   }, [setValue]);
 
   const resetForm = () => {
-    reset({
-      displayName: displayNameWithoutExtension?.slice(
-        0,
-        MAX_DISPLAY_NAME_LENGTH,
-      ),
-      dateCreated: null,
-      didYouTakePhoto: null,
-      containsIdentifiableInfo: null,
-      photographerName: '',
-      photographerType: 'STAFF',
-      consentFormFile: null,
-      confirmationChecked: false,
-    });
+    reset(defaultValuesRef.current);
     setConsentFormFile(null);
-    setUploadFileName(displayNameWithoutExtension ?? '');
+    if (syncToUploadStore) {
+      setUploadFileName(displayNameWithoutExtension ?? '');
+    }
   };
 
   const isUploadEnabled = form.formState.isValid;
+  const isFormDirty = form.formState.isDirty;
 
   return {
     control: form.control,
@@ -141,6 +174,7 @@ export const useImageUploadForm = (initialDisplayName?: string) => {
     setValue: form.setValue,
     resetForm,
     isUploadEnabled,
+    isFormDirty,
     isStaff,
     showDateWarning,
     showTakenDuringWorkingHours,

@@ -23,6 +23,7 @@ import {
 } from './GalleryFileCard/constants';
 import { ImageLightboxModal } from './ImageLightboxModal';
 import { PhotoDetailsModal } from './PhotoDetailsModal';
+import { EditPhotoModal } from './EditPhotoModal';
 
 export const RecResourceFileSection = () => {
   const {
@@ -104,6 +105,7 @@ export const RecResourceFileSection = () => {
       <ImageUploadModal />
       <DeleteFileModal />
       <PhotoDetailsModal />
+      <EditPhotoModal />
       <ImageLightboxModal
         show={showImageLightbox}
         onHide={hideImageLightbox}

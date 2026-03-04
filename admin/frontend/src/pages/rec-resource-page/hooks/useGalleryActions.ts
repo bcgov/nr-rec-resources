@@ -8,6 +8,7 @@ import {
   removePendingImage,
   resetUploadState,
   showDeleteModalForFile,
+  showEditPhotoForImage,
   showImageLightboxForImage,
   showPhotoDetailsForImage,
 } from '../store/recResourceFileTransferStore';
@@ -76,6 +77,11 @@ export function useGalleryActions() {
               recResourceId: rec_resource_id,
               imageId: file.id,
             });
+          }
+          break;
+        case 'edit':
+          if (file.type === 'image') {
+            showEditPhotoForImage(file as GalleryImage);
           }
           break;
         case 'retry': {

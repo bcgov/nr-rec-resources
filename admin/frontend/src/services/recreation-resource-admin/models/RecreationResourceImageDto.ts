@@ -99,6 +99,12 @@ export interface RecreationResourceImageDto {
    * @memberof RecreationResourceImageDto
    */
   photographer_display_name?: string;
+  /**
+   * Whether consent metadata record exists for this image
+   * @type {boolean}
+   * @memberof RecreationResourceImageDto
+   */
+  has_consent_metadata?: boolean;
 }
 
 /**
@@ -154,6 +160,10 @@ export function RecreationResourceImageDtoFromJSONTyped(
       json['photographer_display_name'] == null
         ? undefined
         : json['photographer_display_name'],
+    has_consent_metadata:
+      json['has_consent_metadata'] == null
+        ? undefined
+        : json['has_consent_metadata'],
   };
 }
 
@@ -189,5 +199,6 @@ export function RecreationResourceImageDtoToJSONTyped(
     photographer_name: value['photographer_name'],
     contains_pii: value['contains_pii'],
     photographer_display_name: value['photographer_display_name'],
+    has_consent_metadata: value['has_consent_metadata'],
   };
 }

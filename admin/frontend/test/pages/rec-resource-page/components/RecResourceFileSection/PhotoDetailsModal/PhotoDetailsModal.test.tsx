@@ -140,6 +140,22 @@ describe('PhotoDetailsModal', () => {
     expect(notSpecified.length).toBeGreaterThanOrEqual(3); // date, photographer, PII
   });
 
+  it('shows warning when consent metadata is missing', () => {
+    const legacyImage = {
+      ...mockImage,
+      has_consent_metadata: false,
+    };
+    openModalWithImage(legacyImage);
+
+    render(<PhotoDetailsModal />, { wrapper: TestQueryClientProvider });
+
+    expect(
+      screen.getByText(
+        /this image does not have consent and release information/i,
+      ),
+    ).toBeInTheDocument();
+  });
+
   it('renders download consent button when image contains PII', () => {
     openModalWithImage(mockImage);
 
@@ -172,5 +188,13 @@ describe('PhotoDetailsModal', () => {
     const downloadBtn = screen.getByText('Download');
     fireEvent.click(downloadBtn);
     expect(mockDownloadMutate).toHaveBeenCalledWith({ file: mockImage });
+  });
+
+  it('renders edit button', () => {
+    openModalWithImage(mockImage);
+
+    render(<PhotoDetailsModal />, { wrapper: TestQueryClientProvider });
+
+    expect(screen.getByText('Edit')).toBeInTheDocument();
   });
 });

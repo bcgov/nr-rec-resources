@@ -22,6 +22,8 @@ export interface RecResourceFileTransferState {
   fileToDelete?: GalleryFile;
   showPhotoDetailsModal: boolean;
   selectedImageForDetails: GalleryImage | null;
+  showEditPhotoModal: boolean;
+  selectedImageForEdit: GalleryImage | null;
   showImageLightbox: boolean;
   selectedImageForLightbox: GalleryImage | null;
 }
@@ -47,6 +49,8 @@ const INITIAL_REC_RESOURCE_FILE_TRANSFER_STATE: RecResourceFileTransferState = {
   fileToDelete: undefined,
   showPhotoDetailsModal: false,
   selectedImageForDetails: null,
+  showEditPhotoModal: false,
+  selectedImageForEdit: null,
   showImageLightbox: false,
   selectedImageForLightbox: null,
 };
@@ -136,6 +140,22 @@ export const hidePhotoDetails = () => {
     ...prev,
     showPhotoDetailsModal: false,
     selectedImageForDetails: null,
+  }));
+};
+
+export const showEditPhotoForImage = (image: GalleryImage) => {
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    selectedImageForEdit: image,
+    showEditPhotoModal: true,
+  }));
+};
+
+export const hideEditPhoto = () => {
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    showEditPhotoModal: false,
+    selectedImageForEdit: null,
   }));
 };
 
