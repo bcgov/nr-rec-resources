@@ -1,9 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router';
 import SearchPage from '@/components/search/SearchPage';
 import { BreadcrumbItem } from '@shared/components/breadcrumbs';
-import { ROUTE_TITLES } from '@/constants/routes';
+import { ROUTE_TITLES, ROUTE_PATHS } from '@/constants/routes';
 import { searchLoader } from '@/service/loaders/searchLoader';
-import { META_DESCRIPTIONS } from '@/constants/seo';
+import { META_DESCRIPTIONS, OG_DEFAULT_IMAGE_PATH } from '@/constants/seo';
+import { buildAbsoluteUrl, buildOgMeta } from '@/utils/seo';
 
 export type SearchParams = {
   filter?: string;
@@ -44,10 +45,21 @@ export const Route = createFileRoute('/search/')({
     };
   },
   head: () => {
+    const description = META_DESCRIPTIONS.SEARCH;
+    const pageTitle = ROUTE_TITLES.SEARCH;
+    const ogImage = buildAbsoluteUrl(OG_DEFAULT_IMAGE_PATH);
+    const ogUrl = buildAbsoluteUrl(ROUTE_PATHS.SEARCH);
+    const ogMeta = buildOgMeta({
+      title: pageTitle,
+      description,
+      url: ogUrl,
+      image: ogImage,
+    });
     return {
       meta: [
-        { name: 'description', content: META_DESCRIPTIONS.SEARCH },
-        { title: ROUTE_TITLES.SEARCH },
+        { name: 'description', content: description },
+        { title: pageTitle },
+        ...ogMeta,
       ],
     };
   },
