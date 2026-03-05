@@ -7,6 +7,11 @@ vi.mock('@/contexts/feature-flags', () => ({
   useFeatureFlagsEnabled: vi.fn(),
 }));
 
+const mockUseAuthorizations = vi.fn();
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: () => mockUseAuthorizations(),
+}));
+
 vi.mock('@shared/components/link-with-query-params', () => ({
   LinkWithQueryParams: ({ to, children, ...props }: any) => (
     <a href={to} {...props}>
@@ -127,6 +132,11 @@ describe('RecResourceFeesTable', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseAuthorizations.mockReturnValue({
+      canView: true,
+      canEdit: true,
+      isDeveloper: false,
+    });
   });
 
   it('renders fee table with correct columns', () => {
@@ -271,5 +281,23 @@ describe('RecResourceFeesTable', () => {
     expect(screen.getByText('Day Use')).toBeInTheDocument();
     expect(screen.getByText('Camping')).toBeInTheDocument();
     expect(screen.getByText('TYPE_C')).toBeInTheDocument();
+  });
+
+  it.each([
+    ['admin', { canView: true, canEdit: true, isDeveloper: false }, true],
+    ['viewer', { canView: true, canEdit: false, isDeveloper: false }, false],
+  ])('%s user edit link visible=%s', (_, auth, showsEditLink) => {
+    mockUseAuthorizations.mockReturnValue(auth);
+    mockedUseFeatureFlagsEnabled.mockReturnValue(true);
+
+    render(
+      <RecResourceFeesTable fees={[mockFees[0]]} recResourceId="REC123" />,
+    );
+
+    if (showsEditLink) {
+      expect(screen.getByLabelText('Edit fee')).toBeInTheDocument();
+    } else {
+      expect(screen.queryByLabelText('Edit fee')).not.toBeInTheDocument();
+    }
   });
 });
