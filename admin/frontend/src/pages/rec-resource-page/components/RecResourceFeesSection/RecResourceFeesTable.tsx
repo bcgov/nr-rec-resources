@@ -4,6 +4,7 @@ import { RecreationFeeUIModel } from '@/services';
 import { COLOR_BLACK, COLOR_GREY } from '@/styles/colors';
 import { getIndividualDays } from './helpers';
 import { useFeatureFlagsEnabled } from '@/contexts/feature-flags';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPen } from '@fortawesome/free-solid-svg-icons';
 import { LinkWithQueryParams } from '@shared/components/link-with-query-params';
@@ -17,7 +18,8 @@ export const RecResourceFeesTable = ({
   fees,
   recResourceId,
 }: RecResourceFeesTableProps) => {
-  const canEditFees = useFeatureFlagsEnabled('enable_full_features');
+  const { canEdit } = useAuthorizations();
+  const canEditFees = useFeatureFlagsEnabled('enable_full_features') && canEdit;
 
   const columns: any[] = [
     {

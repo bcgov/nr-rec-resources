@@ -33,7 +33,7 @@ export const Route = createFileRoute('/rec-resource/$id/activities-features/')({
 function RecResourceActivitiesFeaturesRoute() {
   return (
     <FeatureFlagRouteGuard requiredFlags={['enable_full_features']}>
-      <RecResourceActivitiesFeaturesPage />;
+      <RecResourceActivitiesFeaturesPage />
     </FeatureFlagRouteGuard>
   );
 }

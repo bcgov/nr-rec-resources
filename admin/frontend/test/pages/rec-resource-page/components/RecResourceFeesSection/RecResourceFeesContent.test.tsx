@@ -6,6 +6,10 @@ vi.mock('@/contexts/feature-flags', () => ({
   FeatureFlagGuard: ({ children }: any) => <>{children}</>,
 }));
 
+vi.mock('@/components/auth', () => ({
+  RoleGuard: ({ children }: any) => <>{children}</>,
+}));
+
 vi.mock('@shared/components/link-with-query-params', () => ({
   LinkWithQueryParams: ({ to, children }: any) => <a href={to}>{children}</a>,
 }));

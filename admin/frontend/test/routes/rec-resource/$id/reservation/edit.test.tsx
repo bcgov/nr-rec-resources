@@ -5,6 +5,10 @@ import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
+vi.mock('@/components/auth', () => ({
+  RoleRouteGuard: ({ children }: { children: React.ReactNode }) => children,
+}));
+
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceReservationSection',
   () => ({
@@ -36,6 +40,7 @@ vi.mock('@/contexts/feature-flags', () => ({
 describe('RecResource Reservation Edit Route', () => {
   it('should render component with FeatureFlagRouteGuard', () => {
     const Component = EditRoute.options.component!;
+    vi.spyOn(EditRoute, 'useParams').mockReturnValue({ id: 'REC123' } as any);
     render(<Component />);
     const guard = screen.getByTestId('feature-flag-route-guard');
     expect(guard).toHaveAttribute('data-flags', 'enable_full_features');

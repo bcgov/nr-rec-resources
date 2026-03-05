@@ -4,6 +4,23 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import * as featureFlagHooks from '@/contexts/feature-flags/hooks';
 
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: () => ({
+    canView: true,
+    canEdit: true,
+    isDeveloper: false,
+  }),
+  ROLES: {
+    VIEWER: 'rst-viewer',
+    ADMIN: 'rst-admin',
+    DEVELOPER: 'rst-developer',
+  },
+}));
+
+vi.mock('@/components/auth', () => ({
+  RoleGuard: ({ children }: any) => <>{children}</>,
+}));
+
 const mockFees = [
   {
     fee_amount: 15,

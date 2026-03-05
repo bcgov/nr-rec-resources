@@ -1,6 +1,7 @@
 import { CustomButton } from '@/components';
 import { RecResourceFileSection } from '@/pages/rec-resource-page/components/RecResourceFileSection';
 import { useRecResourceFileTransferState } from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 import {
   faEllipsisH,
   faInfoCircle,
@@ -55,6 +56,7 @@ const ActionButton: FC<ActionButtonProps> = ({
 );
 
 const ActionButtonsSection = () => {
+  const { canEdit } = useAuthorizations();
   const {
     isDocumentUploadDisabled,
     isImageUploadDisabled,
@@ -87,7 +89,10 @@ const ActionButtonsSection = () => {
             />
           </Dropdown.Toggle>
           <Dropdown.Menu>
-            <Dropdown.Item onClick={getImageGeneralActionHandler('upload')}>
+            <Dropdown.Item
+              onClick={getImageGeneralActionHandler('upload')}
+              disabled={!canEdit || isImageUploadDisabled}
+            >
               <FontAwesomeIcon
                 icon={faPlus}
                 className="me-2 rec-resource-files-page__action-button-icon"
@@ -96,7 +101,7 @@ const ActionButtonsSection = () => {
             </Dropdown.Item>
             <Dropdown.Item
               onClick={getDocumentGeneralActionHandler('upload')}
-              disabled={isDocumentUploadDisabled}
+              disabled={!canEdit || isDocumentUploadDisabled}
             >
               <FontAwesomeIcon
                 icon={faPlus}
@@ -116,12 +121,12 @@ const ActionButtonsSection = () => {
         <ActionButton
           label="Add image"
           onClick={getImageGeneralActionHandler('upload')}
-          disabled={isImageUploadDisabled}
+          disabled={!canEdit || isImageUploadDisabled}
         />
         <ActionButton
           label="Add document"
           onClick={getDocumentGeneralActionHandler('upload')}
-          disabled={isDocumentUploadDisabled}
+          disabled={!canEdit || isDocumentUploadDisabled}
         />
       </Stack>
     </Stack>
@@ -129,10 +134,12 @@ const ActionButtonsSection = () => {
 };
 
 export const RecResourceFilesPage = () => {
+  const { canEdit } = useAuthorizations();
+
   return (
     <Stack direction="vertical" gap={4}>
       <ActionButtonsSection />
-      <InfoBanner />
+      {canEdit ? <InfoBanner /> : null}
       <RecResourceFileSection />
     </Stack>
   );
