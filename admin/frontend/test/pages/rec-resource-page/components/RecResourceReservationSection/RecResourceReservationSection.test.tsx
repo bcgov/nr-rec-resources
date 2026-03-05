@@ -1,10 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
-/* =====================================================
-   Mocks — MUST be declared before component import
-   ===================================================== */
-
 vi.mock('@/routes/rec-resource/$id/reservation', () => ({
   Route: {
     useParams: vi.fn(),
@@ -19,6 +15,10 @@ vi.mock('@shared/components/link-with-query-params', () => ({
 
 vi.mock('@/contexts/feature-flags', () => ({
   FeatureFlagGuard: ({ children }: any) => <>{children}</>,
+}));
+
+vi.mock('@/components/auth', () => ({
+  RoleGuard: ({ children }: any) => <>{children}</>,
 }));
 
 vi.mock(

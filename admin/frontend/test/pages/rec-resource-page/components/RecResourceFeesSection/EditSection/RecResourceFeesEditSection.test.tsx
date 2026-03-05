@@ -11,6 +11,23 @@ vi.mock('@/contexts/feature-flags', () => ({
   FeatureFlagGuard: ({ children }: any) => <>{children}</>,
 }));
 
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: () => ({
+    canView: true,
+    canEdit: true,
+    isDeveloper: false,
+  }),
+  ROLES: {
+    VIEWER: 'rst-viewer',
+    ADMIN: 'rst-admin',
+    DEVELOPER: 'rst-developer',
+  },
+}));
+
+vi.mock('@/components/auth', () => ({
+  RoleGuard: ({ children }: any) => <>{children}</>,
+}));
+
 const mockFees = [
   {
     fee_id: 1,
