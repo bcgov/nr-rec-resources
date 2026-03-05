@@ -3,6 +3,7 @@ import { BaseFileModal } from '@/pages/rec-resource-page/components/RecResourceF
 import { useConsentDownload } from '@/pages/rec-resource-page/hooks/useConsentDownload';
 import { useFileDownload } from '@/pages/rec-resource-page/hooks/useFileDownload';
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 import {
   hidePhotoDetails,
   recResourceFileTransferStore,
@@ -22,6 +23,7 @@ import { Alert, Button } from 'react-bootstrap';
 import './PhotoDetailsModal.scss';
 
 export const PhotoDetailsModal: FC = () => {
+  const { canEdit } = useAuthorizations();
   const { showPhotoDetailsModal: show, selectedImageForDetails: image } =
     useStore(recResourceFileTransferStore);
   const { rec_resource_id } = useRecResource();
@@ -101,6 +103,7 @@ export const PhotoDetailsModal: FC = () => {
       onConfirm={handleEditPhoto}
       confirmButtonText="Edit"
       confirmButtonVariant="primary"
+      confirmButtonDisabled={!canEdit}
       onImageClick={handleViewFullSize}
     >
       {/* Action buttons under preview */}
@@ -187,7 +190,7 @@ export const PhotoDetailsModal: FC = () => {
                     : 'No'}
               </dd>
             </div>
-            {image.contains_pii && (
+            {image.contains_pii && canEdit && (
               <div className="photo-details-modal__item">
                 <dt>Consent and release</dt>
                 <dd>

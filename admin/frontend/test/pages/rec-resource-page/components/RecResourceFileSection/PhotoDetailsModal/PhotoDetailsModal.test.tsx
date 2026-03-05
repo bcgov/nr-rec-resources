@@ -8,6 +8,11 @@ import { TestQueryClientProvider } from '@test/test-utils';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+const mockUseAuthorizations = vi.fn();
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: () => mockUseAuthorizations(),
+}));
+
 vi.mock('@fortawesome/react-fontawesome', () => ({
   FontAwesomeIcon: ({ icon, className }: any) => (
     <span
@@ -87,6 +92,11 @@ function resetStore() {
 describe('PhotoDetailsModal', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseAuthorizations.mockReturnValue({
+      canView: true,
+      canEdit: true,
+      isDeveloper: false,
+    });
     resetStore();
   });
 
@@ -196,5 +206,21 @@ describe('PhotoDetailsModal', () => {
     render(<PhotoDetailsModal />, { wrapper: TestQueryClientProvider });
 
     expect(screen.getByText('Edit')).toBeInTheDocument();
+  });
+
+  it.each([
+    ['admin', { canView: true, canEdit: true, isDeveloper: false }, false],
+    ['viewer', { canView: true, canEdit: false, isDeveloper: false }, true],
+  ])('%s user Edit button disabled=%s', (_, auth, isDisabled) => {
+    mockUseAuthorizations.mockReturnValue(auth);
+    showPhotoDetailsForImage(mockImage);
+    render(<PhotoDetailsModal />, { wrapper: TestQueryClientProvider });
+
+    const editButton = screen.getByRole('button', { name: 'Edit' });
+    if (isDisabled) {
+      expect(editButton).toBeDisabled();
+    } else {
+      expect(editButton).not.toBeDisabled();
+    }
   });
 });
