@@ -29,7 +29,7 @@ const mockResources: AlphabeticalRecreationResourceModel[] = [
     name: 'Aileen Lake',
     closest_community: 'MERRITT',
     recreation_resource_type: 'Trail',
-    recreation_resource_type_code: 'RTR',
+    recreation_resource_type_code: 'RTE',
   },
   {
     rec_resource_id: '3',

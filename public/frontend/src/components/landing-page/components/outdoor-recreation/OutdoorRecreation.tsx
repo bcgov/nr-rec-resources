@@ -1,4 +1,5 @@
 import { Container, Row } from 'react-bootstrap';
+import { RECREATION_RESOURCE_TYPES_PUBLIC } from '@shared/constants/types';
 import campground from '@/images/icons/campground.svg';
 import flag from '@/images/icons/flag.svg';
 import tree from '@/images/icons/tree.svg';
@@ -19,7 +20,7 @@ export const OutdoorRecreation = () => {
       description:
         'Recreation Sites: Discover a great spot for camping, hiking, or picnicking—perfect for enjoying the outdoors.',
       linkText: 'Explore sites',
-      type: 'SIT',
+      type: RECREATION_RESOURCE_TYPES_PUBLIC.RECREATION_SITE,
     },
     {
       icon: flag,
@@ -28,7 +29,7 @@ export const OutdoorRecreation = () => {
       description:
         'Recreation Trails: Follow a marked path for walking, hiking, or cycling through beautiful scenery.',
       linkText: 'Explore trails',
-      type: 'RTR',
+      type: RECREATION_RESOURCE_TYPES_PUBLIC.RECREATION_TRAIL,
     },
     {
       icon: tree,
@@ -37,7 +38,7 @@ export const OutdoorRecreation = () => {
       description:
         'Interpretive Forests: Learn and connect with nature through educational displays and trails.',
       linkText: 'Explore interpretive forests',
-      type: 'IF',
+      type: RECREATION_RESOURCE_TYPES_PUBLIC.INTERPRETIVE_FOREST,
     },
   ];
   return (
