@@ -1,15 +1,15 @@
 import { describe, it, expect } from 'vitest';
 import {
   createSITIcon,
-  createRTRIcon,
+  createRTEIcon,
   createIFIcon,
 } from '@/components/search-map/styles/icons';
 import SIT_ICON from '@shared/assets/icons/recreation_site.svg';
 import SIT_ICON_CLOSED from '@shared/assets/icons/recreation_site_closed.svg';
 import SIT_ICON_SELECTED from '@shared/assets/icons/recreation_site_selected.svg';
-import RTR_ICON from '@shared/assets/icons/recreation_trail.svg';
-import RTR_ICON_CLOSED from '@shared/assets/icons/recreation_trail_closed.svg';
-import RTR_ICON_SELECTED from '@shared/assets/icons/recreation_trail_selected.svg';
+import RTE_ICON from '@shared/assets/icons/recreation_trail.svg';
+import RTE_ICON_CLOSED from '@shared/assets/icons/recreation_trail_closed.svg';
+import RTE_ICON_SELECTED from '@shared/assets/icons/recreation_trail_selected.svg';
 import IF_ICON from '@shared/assets/icons/interpretive_forest.svg';
 import IF_ICON_CLOSED from '@shared/assets/icons/interpretive_forest_closed.svg';
 import IF_ICON_SELECTED from '@shared/assets/icons/interpretive_forest_selected.svg';
@@ -44,20 +44,20 @@ describe('Recreation Site Icons', () => {
 });
 
 describe('Recreation Trail Icons', () => {
-  it('createRTRIcon creates default variant', () => {
-    const icon = createRTRIcon().getImage() as Icon;
-    expect(icon.getSrc()).toBe(RTR_ICON);
+  it('createRTEIcon creates default variant', () => {
+    const icon = createRTEIcon().getImage() as Icon;
+    expect(icon.getSrc()).toBe(RTE_ICON);
     expect(icon.getScale()).toBe(0.8);
   });
 
-  it('createRTRIcon creates closed variant', () => {
-    const icon = createRTRIcon({ variant: 'closed' }).getImage() as Icon;
-    expect(icon.getSrc()).toBe(RTR_ICON_CLOSED);
+  it('createRTEIcon creates closed variant', () => {
+    const icon = createRTEIcon({ variant: 'closed' }).getImage() as Icon;
+    expect(icon.getSrc()).toBe(RTE_ICON_CLOSED);
   });
 
-  it('createRTRIcon creates selected variant', () => {
-    const icon = createRTRIcon({ variant: 'selected' }).getImage() as Icon;
-    expect(icon.getSrc()).toBe(RTR_ICON_SELECTED);
+  it('createRTEIcon creates selected variant', () => {
+    const icon = createRTEIcon({ variant: 'selected' }).getImage() as Icon;
+    expect(icon.getSrc()).toBe(RTE_ICON_SELECTED);
   });
 });
 
