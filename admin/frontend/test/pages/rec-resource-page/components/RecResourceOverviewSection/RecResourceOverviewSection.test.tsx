@@ -4,6 +4,11 @@ import { useLocation } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+const mockUseAuthorizations = vi.fn();
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: () => mockUseAuthorizations(),
+}));
+
 vi.mock('@tanstack/react-router', async (importOriginal) => {
   const actual =
     await importOriginal<typeof import('@tanstack/react-router')>();
@@ -50,6 +55,12 @@ describe('RecResourceOverviewSection', () => {
   };
 
   beforeEach(() => {
+    mockUseAuthorizations.mockReturnValue({
+      canView: true,
+      canEdit: true,
+      canViewFeatureFlag: false,
+    });
+
     vi.mocked(useLocation).mockReturnValue({
       ...mockLocation,
       search: '',

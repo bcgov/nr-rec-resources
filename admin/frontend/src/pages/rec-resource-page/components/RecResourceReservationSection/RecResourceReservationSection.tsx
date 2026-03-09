@@ -1,7 +1,8 @@
 import { ROUTE_PATHS } from '@/constants/routes';
 import { FeatureFlagGuard } from '@/contexts/feature-flags';
+import { EditAction } from '@/components/buttons';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 import { RecreationResourceReservationInfoDto } from '@/services';
-import { LinkWithQueryParams } from '@shared/components/link-with-query-params';
 import { Col, Row, Stack } from 'react-bootstrap';
 import { Route } from '@/routes/rec-resource/$id/reservation';
 import { RESERVATION_METHOD_LABEL_MAP } from '@/pages/rec-resource-page/components/RecResourceReservationSection/EditSection/constants';
@@ -20,6 +21,7 @@ export const RecResourceReservationSection = (
 ) => {
   const params = Route.useParams();
   const recResourceId = params?.id;
+  const { canEdit } = useAuthorizations();
   const { reservationInfo } = props;
   const reservationMethodKey = getReservationMethod(reservationInfo);
   const reservationMethod = reservationMethodKey
@@ -60,13 +62,13 @@ export const RecResourceReservationSection = (
         <h2 className="mb-0">Reservations</h2>
 
         <FeatureFlagGuard requiredFlags={['enable_full_features']}>
-          <LinkWithQueryParams
-            to={ROUTE_PATHS.REC_RESOURCE_RESERVATION_EDIT}
-            params={{ id: recResourceId }}
-            className="btn btn-outline-primary"
-          >
-            Edit
-          </LinkWithQueryParams>
+          <EditAction
+            to={ROUTE_PATHS.REC_RESOURCE_RESERVATION_EDIT.replace(
+              '$id',
+              recResourceId,
+            )}
+            disabled={!canEdit}
+          />
         </FeatureFlagGuard>
       </div>
 

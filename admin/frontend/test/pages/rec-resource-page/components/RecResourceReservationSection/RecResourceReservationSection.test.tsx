@@ -8,18 +8,26 @@ vi.mock('@/routes/rec-resource/$id/reservation', () => ({
 }));
 
 vi.mock('@shared/components/link-with-query-params', () => ({
-  LinkWithQueryParams: ({ children, to, params }: any) => (
-    <a href={`${to}/${params?.id}`}>{children}</a>
-  ),
+  LinkWithQueryParams: ({ children, to }: any) => <a href={to}>{children}</a>,
 }));
 
 vi.mock('@/contexts/feature-flags', () => ({
   FeatureFlagGuard: ({ children }: any) => <>{children}</>,
 }));
 
+const mockUseAuthorizations = vi.fn();
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: () => mockUseAuthorizations(),
+}));
+
+vi.mock('@/components/buttons', () => ({
+  EditAction: ({ to, disabled }: { to: string; disabled?: boolean }) =>
+    disabled ? <button disabled>Edit</button> : <a href={to}>Edit</a>,
+}));
+
 vi.mock('@/constants/routes', () => ({
   ROUTE_PATHS: {
-    REC_RESOURCE_RESERVATION_EDIT: '/edit',
+    REC_RESOURCE_RESERVATION_EDIT: '/edit/$id',
   },
 }));
 
@@ -37,6 +45,11 @@ import { Route } from '@/routes/rec-resource/$id/reservation';
 describe('RecResourceReservationSection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseAuthorizations.mockReturnValue({
+      canView: true,
+      canEdit: true,
+      canViewFeatureFlag: false,
+    });
     vi.mocked(Route.useParams).mockReturnValue({ id: 'REC123' });
   });
 

@@ -135,7 +135,7 @@ describe('RecResourceFeesTable', () => {
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: true,
-      isDeveloper: false,
+      canViewFeatureFlag: false,
     });
   });
 
@@ -284,8 +284,16 @@ describe('RecResourceFeesTable', () => {
   });
 
   it.each([
-    ['admin', { canView: true, canEdit: true, isDeveloper: false }, true],
-    ['viewer', { canView: true, canEdit: false, isDeveloper: false }, false],
+    [
+      'admin',
+      { canView: true, canEdit: true, canViewFeatureFlag: false },
+      true,
+    ],
+    [
+      'viewer',
+      { canView: true, canEdit: false, canViewFeatureFlag: false },
+      false,
+    ],
   ])('%s user edit link visible=%s', (_, auth, showsEditLink) => {
     mockUseAuthorizations.mockReturnValue(auth);
     mockedUseFeatureFlagsEnabled.mockReturnValue(true);

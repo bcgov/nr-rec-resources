@@ -6,8 +6,9 @@ vi.mock('@/contexts/feature-flags', () => ({
   FeatureFlagGuard: ({ children }: any) => <>{children}</>,
 }));
 
-vi.mock('@/components/auth', () => ({
-  RoleGuard: ({ children }: any) => <>{children}</>,
+const mockUseAuthorizations = vi.fn();
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: () => mockUseAuthorizations(),
 }));
 
 vi.mock('@shared/components/link-with-query-params', () => ({
@@ -24,6 +25,14 @@ vi.mock(
 );
 
 describe('RecResourceFeesContent', () => {
+  beforeEach(() => {
+    mockUseAuthorizations.mockReturnValue({
+      canView: true,
+      canEdit: true,
+      canViewFeatureFlag: false,
+    });
+  });
+
   it('renders Fees heading and table', () => {
     render(
       <RecResourceFeesContent

@@ -1,6 +1,11 @@
 import { RecResourceFileSection } from '@/pages/rec-resource-page/components/RecResourceFileSection';
 import { fireEvent, render, screen } from '@testing-library/react';
 
+const mockUseAuthorizations = vi.fn();
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: () => mockUseAuthorizations(),
+}));
+
 const mockUseRecResourceFileTransferState = vi.fn();
 const mockResetRecResourceFileTransferStore = vi.fn();
 const mockHideImageLightbox = vi.fn();
@@ -128,6 +133,15 @@ describe('RecResourceFileSection', () => {
   };
 
   beforeEach(() => {
+    defaultState.getDocumentGeneralActionHandler.mockClear();
+    defaultState.getDocumentFileActionHandler.mockClear();
+    defaultState.getImageGeneralActionHandler.mockClear();
+    defaultState.getImageFileActionHandler.mockClear();
+    mockUseAuthorizations.mockReturnValue({
+      canView: true,
+      canEdit: true,
+      canViewFeatureFlag: false,
+    });
     mockUseRecResourceFileTransferState.mockReturnValue(defaultState);
     mockResetRecResourceFileTransferStore.mockClear();
     mockHideImageLightbox.mockClear();
@@ -264,5 +278,36 @@ describe('RecResourceFileSection', () => {
 
     // Verify reset function was called during cleanup
     expect(mockResetRecResourceFileTransferStore).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    [
+      'admin',
+      { canView: true, canEdit: true, canViewFeatureFlag: false },
+      false,
+    ],
+    [
+      'viewer',
+      { canView: true, canEdit: false, canViewFeatureFlag: false },
+      true,
+    ],
+  ])('%s user image upload disabled=%s', (_, auth, expectDisabled) => {
+    mockUseAuthorizations.mockReturnValue(auth);
+    mockUseRecResourceFileTransferState.mockReturnValue({
+      ...defaultState,
+      galleryImages: [{ id: 1, name: 'Image1.jpg' }],
+    });
+    render(<RecResourceFileSection />);
+
+    const uploadLabels = screen.getAllByTestId('upload-label');
+    const imageUploadLabel = uploadLabels[0];
+
+    if (expectDisabled) {
+      fireEvent.click(imageUploadLabel!);
+      expect(defaultState.getImageGeneralActionHandler).not.toHaveBeenCalled();
+    } else {
+      fireEvent.click(imageUploadLabel!);
+      expect(defaultState.getImageGeneralActionHandler).toHaveBeenCalled();
+    }
   });
 });

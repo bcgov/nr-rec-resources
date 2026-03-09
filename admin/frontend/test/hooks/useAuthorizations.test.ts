@@ -12,7 +12,7 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: true,
       canEdit: false,
-      isDeveloper: false,
+      canViewFeatureFlag: false,
     });
   });
 
@@ -24,7 +24,7 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: true,
       canEdit: true,
-      isDeveloper: false,
+      canViewFeatureFlag: false,
     });
   });
 
@@ -36,7 +36,7 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: false,
       canEdit: false,
-      isDeveloper: true,
+      canViewFeatureFlag: true,
     });
   });
 
@@ -48,7 +48,7 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: true,
       canEdit: false,
-      isDeveloper: true,
+      canViewFeatureFlag: true,
     });
   });
 
@@ -60,7 +60,7 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: true,
       canEdit: true,
-      isDeveloper: true,
+      canViewFeatureFlag: true,
     });
   });
 });

@@ -8,7 +8,7 @@ vi.mock('@/hooks/useAuthorizations', () => ({
   useAuthorizations: () => ({
     canView: true,
     canEdit: true,
-    isDeveloper: false,
+    canViewFeatureFlag: false,
   }),
   ROLES: {
     VIEWER: 'rst-viewer',
