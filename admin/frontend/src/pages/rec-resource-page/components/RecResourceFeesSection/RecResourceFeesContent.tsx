@@ -4,6 +4,7 @@ import { RecResourceFeesTable } from '@/pages/rec-resource-page/components/RecRe
 import { LinkWithQueryParams } from '@shared/components/link-with-query-params';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { RecreationFeeUIModel } from '@/services';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 
 export const RecResourceFeesContent = ({
   fees,
@@ -12,6 +13,8 @@ export const RecResourceFeesContent = ({
   fees: RecreationFeeUIModel[];
   recResourceId?: string;
 }) => {
+  const { canEdit } = useAuthorizations();
+
   return (
     <Stack direction="vertical" gap={4}>
       <div className="d-flex justify-content-between align-items-center">
@@ -19,15 +22,21 @@ export const RecResourceFeesContent = ({
         <Stack direction="horizontal" gap={2}>
           <FeatureFlagGuard requiredFlags={['enable_full_features']}>
             {recResourceId ? (
-              <LinkWithQueryParams
-                to={ROUTE_PATHS.REC_RESOURCE_FEES_ADD.replace(
-                  '$id',
-                  recResourceId,
-                )}
-                className="btn btn-primary"
-              >
-                Add Fee
-              </LinkWithQueryParams>
+              canEdit ? (
+                <LinkWithQueryParams
+                  to={ROUTE_PATHS.REC_RESOURCE_FEES_ADD.replace(
+                    '$id',
+                    recResourceId,
+                  )}
+                  className="btn btn-primary"
+                >
+                  Add Fee
+                </LinkWithQueryParams>
+              ) : (
+                <button className="btn btn-primary" disabled>
+                  Add Fee
+                </button>
+              )
             ) : null}
           </FeatureFlagGuard>
         </Stack>
