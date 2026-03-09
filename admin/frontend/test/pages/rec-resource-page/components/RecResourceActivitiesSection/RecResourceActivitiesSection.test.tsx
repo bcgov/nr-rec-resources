@@ -28,6 +28,11 @@ vi.mock('@/contexts/feature-flags', () => ({
   ),
 }));
 
+const mockUseAuthorizations = vi.fn();
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: () => mockUseAuthorizations(),
+}));
+
 vi.mock('@shared/data/activityIconMap', () => ({
   activityIconMapFull: {
     '1': '/path/to/hiking-icon.svg',
@@ -37,6 +42,12 @@ vi.mock('@shared/data/activityIconMap', () => ({
 
 describe('RecResourceActivitiesSection', () => {
   beforeEach(() => {
+    mockUseAuthorizations.mockReturnValue({
+      canView: true,
+      canEdit: true,
+      canViewFeatureFlag: false,
+    });
+
     vi.mocked(useParams).mockReturnValue({
       id: 'test-resource-123',
     } as any);
@@ -111,7 +122,7 @@ describe('RecResourceActivitiesSection', () => {
     expect(editLink).toHaveTextContent('Edit');
     expect(editLink).toHaveAttribute(
       'href',
-      '/rec-resource/$id/activities-features/edit',
+      '/rec-resource/test-resource-123/activities-features/edit',
     );
   });
 

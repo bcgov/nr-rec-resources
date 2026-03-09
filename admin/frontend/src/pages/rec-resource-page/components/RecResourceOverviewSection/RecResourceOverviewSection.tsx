@@ -1,8 +1,9 @@
 import { ROUTE_PATHS } from '@/constants/routes';
 import { FeatureFlagGuard } from '@/contexts/feature-flags';
+import { EditAction } from '@/components/buttons';
 import { RecreationResourceDetailUIModel } from '@/services';
-import { LinkWithQueryParams } from '@shared/components/link-with-query-params';
 import { Col, Row, Stack } from 'react-bootstrap';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 import { RecResourceEstablishmentOrderSection } from '../RecResourceEstablishmentOrderSection';
 import { RecResourceLocationSection } from '../RecResourceLocationSection';
 import { RecreationResourceAccessRow, VisibleOnPublicSite } from './components';
@@ -16,6 +17,7 @@ export const RecResourceOverviewSection = (
   props: RecResourceOverviewSectionProps,
 ) => {
   const { recResource } = props;
+  const { canEdit } = useAuthorizations();
 
   const overviewItems = [
     {
@@ -56,13 +58,13 @@ export const RecResourceOverviewSection = (
         <h2>Overview</h2>
 
         <FeatureFlagGuard requiredFlags={['enable_full_features']}>
-          <LinkWithQueryParams
-            to={ROUTE_PATHS.REC_RESOURCE_OVERVIEW_EDIT}
-            params={{ id: recResource.rec_resource_id }}
-            className="btn btn-outline-primary"
-          >
-            Edit
-          </LinkWithQueryParams>
+          <EditAction
+            to={ROUTE_PATHS.REC_RESOURCE_OVERVIEW_EDIT.replace(
+              '$id',
+              recResource.rec_resource_id,
+            )}
+            disabled={!canEdit}
+          />
         </FeatureFlagGuard>
       </div>
 

@@ -1,6 +1,6 @@
 import { Col, Row, Stack } from 'react-bootstrap';
 import { FeatureFlagGuard } from '@/contexts/feature-flags';
-import { LinkWithQueryParams } from '@shared/components/link-with-query-params';
+import { EditAction } from '@/components/buttons';
 import { CopyButton } from '@shared/components/copy-button';
 import { FieldItem } from '../shared/FieldItem';
 import { RecResourceLocationSection } from '@/pages/rec-resource-page/components/RecResourceLocationSection';
@@ -8,6 +8,7 @@ import { Route } from '@/routes/rec-resource/$id/geospatial';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { useGetRecreationResourceGeospatial } from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceGeospatial';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 
 const geometryNumberFormat: Intl.NumberFormatOptions = {
   minimumFractionDigits: 2,
@@ -18,6 +19,7 @@ export function RecResourceGeospatialSection() {
   const params = Route.useParams();
   const recResourceId = params?.id;
   const { recResource } = useRecResource();
+  const { canEdit } = useAuthorizations();
 
   const { data: geospatialData } =
     useGetRecreationResourceGeospatial(recResourceId);
@@ -94,15 +96,13 @@ export function RecResourceGeospatialSection() {
 
         <FeatureFlagGuard requiredFlags={['enable_full_features']}>
           {hasGeometryData && (
-            <LinkWithQueryParams
+            <EditAction
               to={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL_EDIT.replace(
                 '$id',
                 recResourceId,
               )}
-              className="btn btn-outline-primary"
-            >
-              Edit
-            </LinkWithQueryParams>
+              disabled={!canEdit}
+            />
           )}
         </FeatureFlagGuard>
       </div>

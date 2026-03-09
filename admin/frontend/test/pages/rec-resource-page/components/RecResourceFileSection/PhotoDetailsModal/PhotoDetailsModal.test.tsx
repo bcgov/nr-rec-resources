@@ -95,7 +95,7 @@ describe('PhotoDetailsModal', () => {
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: true,
-      isDeveloper: false,
+      canViewFeatureFlag: false,
     });
     resetStore();
   });
@@ -209,8 +209,16 @@ describe('PhotoDetailsModal', () => {
   });
 
   it.each([
-    ['admin', { canView: true, canEdit: true, isDeveloper: false }, false],
-    ['viewer', { canView: true, canEdit: false, isDeveloper: false }, true],
+    [
+      'admin',
+      { canView: true, canEdit: true, canViewFeatureFlag: false },
+      false,
+    ],
+    [
+      'viewer',
+      { canView: true, canEdit: false, canViewFeatureFlag: false },
+      true,
+    ],
   ])('%s user Edit button disabled=%s', (_, auth, isDisabled) => {
     mockUseAuthorizations.mockReturnValue(auth);
     showPhotoDetailsForImage(mockImage);

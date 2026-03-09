@@ -12,7 +12,7 @@ export type Role = (typeof ROLES)[keyof typeof ROLES];
 const hasAnyRole = (roles: string[], requiredRoles: string[]) =>
   requiredRoles.some((role) => roles.includes(role));
 
-export type AuthorizationKey = 'canView' | 'canEdit' | 'isDeveloper';
+export type AuthorizationKey = 'canView' | 'canEdit' | 'canViewFeatureFlag';
 
 export const useAuthorizations = () => {
   const context = useContext(AuthContext);
@@ -22,7 +22,7 @@ export const useAuthorizations = () => {
       return {
         canView: false,
         canEdit: false,
-        isDeveloper: false,
+        canViewFeatureFlag: false,
       };
     }
 
@@ -32,7 +32,7 @@ export const useAuthorizations = () => {
     return {
       canView: hasAnyRole(roles, [ROLES.VIEWER, ROLES.ADMIN]),
       canEdit: hasAnyRole(roles, [ROLES.ADMIN]),
-      isDeveloper: hasAnyRole(roles, [ROLES.DEVELOPER]),
+      canViewFeatureFlag: hasAnyRole(roles, [ROLES.DEVELOPER]),
     };
   }, [context]);
 };

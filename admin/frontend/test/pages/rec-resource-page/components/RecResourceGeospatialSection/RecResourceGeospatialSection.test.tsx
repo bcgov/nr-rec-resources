@@ -30,6 +30,11 @@ vi.mock('@/contexts/feature-flags', () => ({
   FeatureFlagGuard: ({ children }: any) => <>{children}</>,
 }));
 
+const mockUseAuthorizations = vi.fn();
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: () => mockUseAuthorizations(),
+}));
+
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceLocationSection',
   () => ({
@@ -51,6 +56,12 @@ const { RecResourceGeospatialSection } = await import(
 
 describe('RecResourceGeospatialSection', () => {
   beforeEach(() => {
+    mockUseAuthorizations.mockReturnValue({
+      canView: true,
+      canEdit: true,
+      canViewFeatureFlag: false,
+    });
+
     mockUseRecResource.mockReturnValue({
       rec_resource_id: 'REC0001',
       recResource: {},

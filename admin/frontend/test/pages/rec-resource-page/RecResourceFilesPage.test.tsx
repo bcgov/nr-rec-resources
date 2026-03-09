@@ -70,7 +70,7 @@ describe('RecResourceFilesPage', () => {
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: true,
-      isDeveloper: false,
+      canViewFeatureFlag: false,
     });
     mockUseRecResourceFileTransferState.mockReturnValue(defaultState);
     mockGetImageGeneralActionHandler.mockReturnValue(vi.fn());
@@ -230,8 +230,16 @@ describe('RecResourceFilesPage', () => {
   });
 
   it.each([
-    ['admin', { canView: true, canEdit: true, isDeveloper: false }, true],
-    ['viewer', { canView: true, canEdit: false, isDeveloper: false }, false],
+    [
+      'admin',
+      { canView: true, canEdit: true, canViewFeatureFlag: false },
+      true,
+    ],
+    [
+      'viewer',
+      { canView: true, canEdit: false, canViewFeatureFlag: false },
+      false,
+    ],
   ])('%s user %s InfoBanner', (_, auth, showsBanner) => {
     mockUseAuthorizations.mockReturnValue(auth);
     render(<RecResourceFilesPage />);
@@ -244,8 +252,16 @@ describe('RecResourceFilesPage', () => {
   });
 
   it.each([
-    ['admin', { canView: true, canEdit: true, isDeveloper: false }, false],
-    ['viewer', { canView: true, canEdit: false, isDeveloper: false }, true],
+    [
+      'admin',
+      { canView: true, canEdit: true, canViewFeatureFlag: false },
+      false,
+    ],
+    [
+      'viewer',
+      { canView: true, canEdit: false, canViewFeatureFlag: false },
+      true,
+    ],
   ])('%s user upload buttons disabled=%s', (_, auth, expectDisabled) => {
     mockUseAuthorizations.mockReturnValue(auth);
     render(<RecResourceFilesPage />);
