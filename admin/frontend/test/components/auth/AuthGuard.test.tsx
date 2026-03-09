@@ -3,7 +3,10 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/contexts/AuthContext', () => ({ useAuthContext: vi.fn() }));
+vi.mock('@/contexts/AuthContext', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@/contexts/AuthContext')>()),
+  useAuthContext: vi.fn(),
+}));
 
 const authService = {
   getUserFullName: () => 'Test User',

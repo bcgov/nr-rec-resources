@@ -1,7 +1,17 @@
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
-import { BreadcrumbItem } from '@shared/components/breadcrumbs';
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+const mockRoleRouteGuard = vi.fn(
+  ({ children }: { children: React.ReactNode }) => <>{children}</>,
+);
+vi.mock('@/components/auth', () => ({
+  RoleRouteGuard: (props: {
+    children: React.ReactNode;
+    require: string[];
+    redirectTo: string;
+  }) => mockRoleRouteGuard(props),
+}));
 
 vi.mock(
   '@/pages/rec-resource-page/RecResourceActivitiesFeaturesEditPage',
@@ -46,29 +56,25 @@ import { Route } from '@/routes/rec-resource/$id/activities-features/edit';
 import { recResourceActivitiesFeaturesLoader } from '@/services/loaders/recResourceActivitiesFeaturesLoader';
 
 describe('RecResourceActivitiesEditRoute', () => {
-  const createParentBreadcrumb =
-    (
-      items: BreadcrumbItem[] = [
-        { label: 'Home', href: '/' },
-        { label: 'Resource Details', href: '/rec-resource/test-123' },
-      ],
-    ) =>
-    (loaderData?: any) => {
-      const result = [...items];
-      if (items.length > 1 && loaderData?.recResource?.name) {
-        result[1] = { ...result[1]!, label: loaderData.recResource.name };
-      }
-      return result;
-    };
+  const parentBreadcrumb = (loaderData?: {
+    recResource?: { name?: string };
+  }) => [
+    { label: 'Home', href: '/' },
+    {
+      label: loaderData?.recResource?.name || 'Resource Details',
+      href: '/rec-resource/test-123',
+    },
+  ];
 
   const callBeforeLoad = (params = { id: 'test-123' }, context = {}) =>
     (Route.options.beforeLoad as any)({ params, context });
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(Route, 'useParams').mockReturnValue({ id: 'test-123' } as any);
     mockParentBeforeLoad.mockReturnValue({
       tab: RecResourceNavKey.OVERVIEW,
-      breadcrumb: createParentBreadcrumb(),
+      breadcrumb: parentBreadcrumb,
     });
   });
 
@@ -87,6 +93,19 @@ describe('RecResourceActivitiesEditRoute', () => {
     expect(guard).toHaveAttribute('data-flags', 'enable_full_features');
     expect(guard).toContainElement(
       screen.getByTestId('rec-resource-activities-features-edit-page'),
+    );
+  });
+
+  it('wraps the route in an admin RoleRouteGuard with the activities redirect', () => {
+    const Component = Route.options.component!;
+    render(<Component />);
+
+    expect(mockRoleRouteGuard).toHaveBeenCalledWith(
+      expect.objectContaining({
+        require: ['rst-admin'],
+        redirectTo: '/rec-resource/test-123/activities-features',
+        children: expect.anything(),
+      }),
     );
   });
 
@@ -153,12 +172,19 @@ describe('RecResourceActivitiesEditRoute', () => {
   });
 
   it('should use params.id from beforeLoad and handle multiple calls', () => {
+    const rec0001ParentBreadcrumb = (loaderData?: {
+      recResource?: { name?: string };
+    }) => [
+      { label: 'Home', href: '/' },
+      {
+        label: loaderData?.recResource?.name || 'Resource',
+        href: '/rec-resource/REC0001',
+      },
+    ];
+
     mockParentBeforeLoad.mockReturnValue({
       tab: RecResourceNavKey.OVERVIEW,
-      breadcrumb: createParentBreadcrumb([
-        { label: 'Home', href: '/' },
-        { label: 'Resource', href: '/rec-resource/REC0001' },
-      ]),
+      breadcrumb: rec0001ParentBreadcrumb,
     });
 
     const result = callBeforeLoad({ id: 'REC0001' });

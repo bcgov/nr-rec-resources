@@ -2,8 +2,19 @@ import { Route as EditRoute } from '@/routes/rec-resource/$id/geospatial/edit';
 import { Route as IndexRoute } from '@/routes/rec-resource/$id/geospatial';
 import { recResourceGeospatialLoader } from '@/services/loaders/recResourceGeospatialLoader';
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+
+const mockRoleRouteGuard = vi.fn(
+  ({ children }: { children: React.ReactNode }) => <>{children}</>,
+);
+vi.mock('@/components/auth', () => ({
+  RoleRouteGuard: (props: {
+    children: React.ReactNode;
+    require: string[];
+    redirectTo: string;
+  }) => mockRoleRouteGuard(props),
+}));
 
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceGeospatialSection',
@@ -34,6 +45,11 @@ vi.mock('@/contexts/feature-flags', () => ({
 }));
 
 describe('RecResource Geospatial Edit Route', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.spyOn(EditRoute, 'useParams').mockReturnValue({ id: 'REC123' } as any);
+  });
+
   it('should render component with FeatureFlagRouteGuard', () => {
     const Component = EditRoute.options.component!;
     render(<Component />);
@@ -41,6 +57,19 @@ describe('RecResource Geospatial Edit Route', () => {
     expect(guard).toHaveAttribute('data-flags', 'enable_full_features');
     expect(guard).toContainElement(
       screen.getByTestId('rec-resource-geospatial-edit-section'),
+    );
+  });
+
+  it('wraps the route in an admin RoleRouteGuard with the geospatial redirect', () => {
+    const Component = EditRoute.options.component!;
+    render(<Component />);
+
+    expect(mockRoleRouteGuard).toHaveBeenCalledWith(
+      expect.objectContaining({
+        require: ['rst-admin'],
+        redirectTo: '/rec-resource/REC123/geospatial',
+        children: expect.anything(),
+      }),
     );
   });
 
