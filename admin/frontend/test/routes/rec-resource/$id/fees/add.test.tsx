@@ -1,9 +1,42 @@
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { Route } from '@/routes/rec-resource/$id/fees/add';
 import { recResourceFeesLoader } from '@/services/loaders/recResourceFeesLoader';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { render, screen } from '@testing-library/react';
+
+const mockRoleRouteGuard = vi.fn(
+  ({ children }: { children: React.ReactNode }) => <>{children}</>,
+);
+
+vi.mock('@/components/auth', () => ({
+  RoleRouteGuard: (props: {
+    children: React.ReactNode;
+    require: string[];
+    redirectTo: string;
+  }) => mockRoleRouteGuard(props),
+}));
+
+vi.mock(
+  '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/RecResourceFeesAddSection',
+  () => ({
+    RecResourceFeesAddSection: () => (
+      <div data-testid="rec-resource-fees-add-section">Add Fee Page</div>
+    ),
+  }),
+);
+
+vi.mock('@/contexts/feature-flags', () => ({
+  FeatureFlagRouteGuard: ({ children }: { children: React.ReactNode }) => (
+    <>{children}</>
+  ),
+}));
 
 describe('RecResource Fees Add Route', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.spyOn(Route, 'useParams').mockReturnValue({ id: 'REC123' } as any);
+  });
+
   it('should export a Route with correct component', () => {
     expect(Route).toBeDefined();
     expect(Route.options.component).toBeDefined();
@@ -11,10 +44,6 @@ describe('RecResource Fees Add Route', () => {
 
   it('should have loader set to recResourceFeesLoader', () => {
     expect(Route.options.loader).toBe(recResourceFeesLoader);
-  });
-
-  it('should have beforeLoad function', () => {
-    expect(Route.options.beforeLoad).toBeDefined();
   });
 
   it('should set tab to FEES in beforeLoad', () => {
@@ -61,5 +90,27 @@ describe('RecResource Fees Add Route', () => {
 
     expect(result.breadcrumb).toBeDefined();
     expect(typeof result.breadcrumb).toBe('function');
+  });
+
+  it('renders the add section', () => {
+    const Component = Route.options.component!;
+    render(<Component />);
+
+    expect(
+      screen.getByTestId('rec-resource-fees-add-section'),
+    ).toBeInTheDocument();
+  });
+
+  it('wraps the route in an admin RoleRouteGuard with the fees redirect', () => {
+    const Component = Route.options.component!;
+    render(<Component />);
+
+    expect(mockRoleRouteGuard).toHaveBeenCalledWith(
+      expect.objectContaining({
+        require: ['rst-admin'],
+        redirectTo: '/rec-resource/REC123/fees',
+        children: expect.anything(),
+      }),
+    );
   });
 });

@@ -6,11 +6,15 @@ import * as services from '@/services';
 import * as fileUtils from '@shared/utils';
 import * as notificationStore from '@/store/notificationStore';
 import { handleApiError } from '@/services/utils/errorHandler';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 
 vi.mock('@/services');
 vi.mock('@shared/utils');
 vi.mock('@/store/notificationStore');
 vi.mock('@/services/utils/errorHandler');
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: vi.fn(),
+}));
 vi.mock('@/pages/rec-resource-page/validation/fileUploadSchema', () => ({
   createFileUploadValidator: vi.fn(() => ({
     safeParse: vi.fn(() => ({ success: true, data: {} })),
@@ -66,6 +70,11 @@ describe('RecResourceEstablishmentOrderSection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     global.URL.createObjectURL = vi.fn(() => 'blob:mock-url');
+    vi.mocked(useAuthorizations).mockReturnValue({
+      canView: true,
+      canEdit: true,
+      canViewFeatureFlag: false,
+    });
     setupMocks();
   });
 
