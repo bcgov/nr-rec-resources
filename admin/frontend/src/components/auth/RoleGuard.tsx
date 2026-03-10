@@ -2,10 +2,10 @@ import { Role, useUserRoles } from '@/hooks/useAuthorizations';
 import { ReactNode } from 'react';
 
 export interface RoleGuardProps {
-  requireAll?: Role[];
-  requireAny?: Role[];
-  fallback?: ReactNode;
-  children: ReactNode;
+  readonly requireAll?: readonly Role[];
+  readonly requireAny?: readonly Role[];
+  readonly fallback?: ReactNode;
+  readonly children: ReactNode;
 }
 
 export function RoleGuard({
@@ -13,12 +13,12 @@ export function RoleGuard({
   requireAny = [],
   fallback = null,
   children,
-}: RoleGuardProps) {
+}: Readonly<RoleGuardProps>) {
   const userRoles = useUserRoles();
 
-  const meetsAllRequirements =
-    requireAll.length === 0 ||
-    requireAll.every((role) => userRoles.includes(role));
+  const meetsAllRequirements = requireAll.every((role) =>
+    userRoles.includes(role),
+  );
   const meetsAnyRequirements =
     requireAny.length === 0 ||
     requireAny.some((role) => userRoles.includes(role));
