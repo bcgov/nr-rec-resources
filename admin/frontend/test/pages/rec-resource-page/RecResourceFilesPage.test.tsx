@@ -3,8 +3,15 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockUseAuthorizations = vi.fn();
+const mockUseUserRoles = vi.fn();
 vi.mock('@/hooks/useAuthorizations', () => ({
+  ROLES: {
+    VIEWER: 'rst-viewer',
+    ADMIN: 'rst-admin',
+    DEVELOPER: 'rst-developer',
+  },
   useAuthorizations: () => mockUseAuthorizations(),
+  useUserRoles: () => mockUseUserRoles(),
 }));
 
 const mockUseRecResourceFileTransferState = vi.fn();
@@ -71,7 +78,9 @@ describe('RecResourceFilesPage', () => {
       canView: true,
       canEdit: true,
       canViewFeatureFlag: false,
+      canEditFeatureFlag: false,
     });
+    mockUseUserRoles.mockReturnValue(['rst-admin']);
     mockUseRecResourceFileTransferState.mockReturnValue(defaultState);
     mockGetImageGeneralActionHandler.mockReturnValue(vi.fn());
     mockGetDocumentGeneralActionHandler.mockReturnValue(vi.fn());
@@ -232,16 +241,29 @@ describe('RecResourceFilesPage', () => {
   it.each([
     [
       'admin',
-      { canView: true, canEdit: true, canViewFeatureFlag: false },
+      {
+        canView: true,
+        canEdit: true,
+        canViewFeatureFlag: false,
+        canEditFeatureFlag: false,
+      },
       true,
     ],
     [
       'viewer',
-      { canView: true, canEdit: false, canViewFeatureFlag: false },
+      {
+        canView: true,
+        canEdit: false,
+        canViewFeatureFlag: false,
+        canEditFeatureFlag: false,
+      },
       false,
     ],
   ])('%s user %s InfoBanner', (_, auth, showsBanner) => {
     mockUseAuthorizations.mockReturnValue(auth);
+    mockUseUserRoles.mockReturnValue(
+      auth.canEdit ? ['rst-admin'] : ['rst-viewer'],
+    );
     render(<RecResourceFilesPage />);
 
     if (showsBanner) {
@@ -254,29 +276,46 @@ describe('RecResourceFilesPage', () => {
   it.each([
     [
       'admin',
-      { canView: true, canEdit: true, canViewFeatureFlag: false },
-      false,
+      {
+        canView: true,
+        canEdit: true,
+        canViewFeatureFlag: false,
+        canEditFeatureFlag: false,
+      },
+      true,
     ],
     [
       'viewer',
-      { canView: true, canEdit: false, canViewFeatureFlag: false },
-      true,
+      {
+        canView: true,
+        canEdit: false,
+        canViewFeatureFlag: false,
+        canEditFeatureFlag: false,
+      },
+      false,
     ],
-  ])('%s user upload buttons disabled=%s', (_, auth, expectDisabled) => {
+  ])('%s user upload buttons visible=%s', (_, auth, expectVisible) => {
     mockUseAuthorizations.mockReturnValue(auth);
+    mockUseUserRoles.mockReturnValue(
+      auth.canEdit ? ['rst-admin'] : ['rst-viewer'],
+    );
     render(<RecResourceFilesPage />);
 
-    const addImageButton = screen.getByRole('button', { name: /add image/i });
-    const addDocumentButton = screen.getByRole('button', {
-      name: /add document/i,
-    });
+    if (expectVisible) {
+      const addImageButton = screen.getByRole('button', { name: /add image/i });
+      const addDocumentButton = screen.getByRole('button', {
+        name: /add document/i,
+      });
 
-    if (expectDisabled) {
-      expect(addImageButton).toBeDisabled();
-      expect(addDocumentButton).toBeDisabled();
-    } else {
       expect(addImageButton).not.toBeDisabled();
       expect(addDocumentButton).not.toBeDisabled();
+    } else {
+      expect(
+        screen.queryByRole('button', { name: /add image/i }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: /add document/i }),
+      ).not.toBeInTheDocument();
     }
   });
 });

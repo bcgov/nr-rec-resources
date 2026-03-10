@@ -1,11 +1,11 @@
-import * as featureFlags from '@/contexts/feature-flags';
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { useVisibleNavSections } from '@/pages/rec-resource-page/hooks/useVisibleNavSections';
 import { renderHook } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/contexts/feature-flags', () => ({
-  useFeatureFlagContext: vi.fn(),
+const mockUseAuthorizations = vi.fn();
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: () => mockUseAuthorizations(),
 }));
 
 describe('useVisibleNavSections', () => {
@@ -13,27 +13,22 @@ describe('useVisibleNavSections', () => {
     vi.clearAllMocks();
   });
 
-  it('should return all sections when no feature flags are required', () => {
-    vi.mocked(featureFlags.useFeatureFlagContext).mockReturnValue({
-      enable_full_features: false,
+  it('returns only files when flagged content is not viewable', () => {
+    mockUseAuthorizations.mockReturnValue({
+      canViewFeatureFlag: false,
     });
 
     const { result } = renderHook(() => useVisibleNavSections());
 
-    expect(result.current).toHaveLength(6);
+    expect(result.current).toHaveLength(1);
     expect(result.current.map(([key]) => key)).toEqual([
-      RecResourceNavKey.OVERVIEW,
       RecResourceNavKey.FILES,
-      RecResourceNavKey.ACTIVITIES,
-      RecResourceNavKey.FEES,
-      RecResourceNavKey.GEOSPATIAL,
-      RecResourceNavKey.RESERVATION,
     ]);
   });
 
-  it('should include fees section when enable_full_features is true', () => {
-    vi.mocked(featureFlags.useFeatureFlagContext).mockReturnValue({
-      enable_full_features: true,
+  it('returns all sections when flagged content is viewable', () => {
+    mockUseAuthorizations.mockReturnValue({
+      canViewFeatureFlag: true,
     });
 
     const { result } = renderHook(() => useVisibleNavSections());
@@ -50,8 +45,8 @@ describe('useVisibleNavSections', () => {
   });
 
   it('should return sections with correct structure', () => {
-    vi.mocked(featureFlags.useFeatureFlagContext).mockReturnValue({
-      enable_full_features: true,
+    mockUseAuthorizations.mockReturnValue({
+      canViewFeatureFlag: true,
     });
 
     const { result } = renderHook(() => useVisibleNavSections());

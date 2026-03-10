@@ -13,11 +13,11 @@ import { EditReservationFormData } from './schemas';
 import { HasReservation } from '@/pages/rec-resource-page/components/RecResourceReservationSection/components';
 import { RecreationResourceReservationInfoDto } from '@/services';
 import { useRecResourceReservation } from '@/pages/rec-resource-page/hooks/useRecResourceReservation';
-import { LinkWithQueryParams } from '@shared/components/link-with-query-params';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { Route } from '@/routes/rec-resource/$id/reservation/edit';
 import { FormErrorBanner } from '@/pages/rec-resource-page/components/shared/FormErrorBanner';
 import '@/pages/rec-resource-page/components/RecResourceReservationSection/RecResourceReservationSection.scss';
+import { Link } from '@tanstack/react-router';
 
 export const RecResourceReservationEditSection = () => {
   const params = Route.useParams();
@@ -55,7 +55,7 @@ export const RecResourceReservationEditSection = () => {
       <div className="d-flex justify-content-between align-items-center">
         <h2 className="mb-0">Edit Reservations</h2>
         <Stack direction="horizontal" gap={2}>
-          <LinkWithQueryParams
+          <Link
             to={ROUTE_PATHS.REC_RESOURCE_RESERVATION.replace(
               '$id',
               recResourceId,
@@ -63,7 +63,7 @@ export const RecResourceReservationEditSection = () => {
             className="btn btn-outline-primary"
           >
             Cancel
-          </LinkWithQueryParams>
+          </Link>
           <Button
             variant="primary"
             onClick={handleSubmit(onSubmit as any)}

@@ -1,4 +1,3 @@
-import { FeatureFlagProvider } from '@/contexts/feature-flags';
 import { RecResourceOverviewSection } from '@/pages/rec-resource-page/components/RecResourceOverviewSection/RecResourceOverviewSection';
 import { useLocation } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
@@ -6,6 +5,12 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockUseAuthorizations = vi.fn();
 vi.mock('@/hooks/useAuthorizations', () => ({
+  ROLES: {
+    VIEWER: 'rst-viewer',
+    ADMIN: 'rst-admin',
+    DEVELOPER: 'rst-developer',
+  },
+  useUserRoles: () => ['rst-viewer', 'rst-admin', 'rst-developer'],
   useAuthorizations: () => mockUseAuthorizations(),
 }));
 
@@ -59,6 +64,7 @@ describe('RecResourceOverviewSection', () => {
       canView: true,
       canEdit: true,
       canViewFeatureFlag: false,
+      canEditFeatureFlag: false,
     });
 
     vi.mocked(useLocation).mockReturnValue({
@@ -91,9 +97,7 @@ describe('RecResourceOverviewSection', () => {
     ],
   } as any;
 
-  const renderWithProvider = (ui: React.ReactNode) => {
-    return render(<FeatureFlagProvider>{ui}</FeatureFlagProvider>);
-  };
+  const renderWithProvider = (ui: React.ReactNode) => render(ui);
 
   it('renders all overview items', () => {
     renderWithProvider(
@@ -337,18 +341,18 @@ describe('RecResourceOverviewSection', () => {
       <RecResourceOverviewSection recResource={recResource} />,
     );
     expect(screen.getByText('RecResourceLocationSection')).toBeInTheDocument();
-
-    // Establishment Order section should not render without feature flag
     expect(
-      screen.queryByText('RecResourceEstablishmentOrderSection'),
-    ).not.toBeInTheDocument();
+      screen.getByText('RecResourceEstablishmentOrderSection'),
+    ).toBeInTheDocument();
   });
 
-  it('renders the Establishment Order section when feature flag is enabled', () => {
-    vi.mocked(useLocation).mockReturnValue({
-      ...mockLocation,
-      search: '?enable_full_features=true',
-    } as any);
+  it('renders the Establishment Order section regardless of flagged-content access', () => {
+    mockUseAuthorizations.mockReturnValue({
+      canView: true,
+      canEdit: true,
+      canViewFeatureFlag: true,
+      canEditFeatureFlag: true,
+    });
     renderWithProvider(
       <RecResourceOverviewSection recResource={recResource} />,
     );

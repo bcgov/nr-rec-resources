@@ -11,7 +11,7 @@ const mockRoleRouteGuard = vi.fn(
 vi.mock('@/components/auth', () => ({
   RoleRouteGuard: (props: {
     children: React.ReactNode;
-    require: string[];
+    requireAll: string[];
     redirectTo: string;
   }) => mockRoleRouteGuard(props),
 }));
@@ -24,12 +24,6 @@ vi.mock(
     ),
   }),
 );
-
-vi.mock('@/contexts/feature-flags', () => ({
-  FeatureFlagRouteGuard: ({ children }: { children: React.ReactNode }) => (
-    <>{children}</>
-  ),
-}));
 
 describe('RecResource Fees Add Route', () => {
   beforeEach(() => {
@@ -107,7 +101,7 @@ describe('RecResource Fees Add Route', () => {
 
     expect(mockRoleRouteGuard).toHaveBeenCalledWith(
       expect.objectContaining({
-        require: ['rst-admin'],
+        requireAll: ['rst-developer', 'rst-admin'],
         redirectTo: '/rec-resource/REC123/fees',
         children: expect.anything(),
       }),

@@ -8,28 +8,28 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
     await importOriginal<typeof import('@tanstack/react-router')>();
   return {
     ...actual,
+    Link: ({ to, children, className }: any) => (
+      <a href={to} className={className} data-testid="edit-link">
+        {children}
+      </a>
+    ),
     useParams: vi.fn(),
   };
 });
 
-vi.mock('@shared/components/link-with-query-params', () => ({
-  LinkWithQueryParams: ({ to, children, className }: any) => (
-    <a href={to} className={className} data-testid="edit-link">
-      {children}
-    </a>
-  ),
-}));
-
-vi.mock('@/contexts/feature-flags', () => ({
-  FeatureFlagGuard: ({ children, requiredFlags }: any) => (
-    <div data-testid="feature-flag-guard" data-flags={requiredFlags.join(',')}>
-      {children}
-    </div>
+vi.mock('@/components/auth', () => ({
+  RoleGuard: ({ children }: any) => (
+    <div data-testid="role-guard">{children}</div>
   ),
 }));
 
 const mockUseAuthorizations = vi.fn();
 vi.mock('@/hooks/useAuthorizations', () => ({
+  ROLES: {
+    VIEWER: 'rst-viewer',
+    ADMIN: 'rst-admin',
+    DEVELOPER: 'rst-developer',
+  },
   useAuthorizations: () => mockUseAuthorizations(),
 }));
 
@@ -45,7 +45,8 @@ describe('RecResourceActivitiesSection', () => {
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: true,
-      canViewFeatureFlag: false,
+      canViewFeatureFlag: true,
+      canEditFeatureFlag: true,
     });
 
     vi.mocked(useParams).mockReturnValue({
@@ -107,15 +108,10 @@ describe('RecResourceActivitiesSection', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('renders Edit button with FeatureFlagGuard when feature flag is enabled', () => {
+  it('renders Edit button behind the role guard', () => {
     render(<RecResourceActivitiesSection recreationActivities={[]} />);
 
-    const featureFlagGuard = screen.getByTestId('feature-flag-guard');
-    expect(featureFlagGuard).toBeInTheDocument();
-    expect(featureFlagGuard).toHaveAttribute(
-      'data-flags',
-      'enable_full_features',
-    );
+    expect(screen.getByTestId('role-guard')).toBeInTheDocument();
 
     const editLink = screen.getByTestId('edit-link');
     expect(editLink).toBeInTheDocument();

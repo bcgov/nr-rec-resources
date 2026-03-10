@@ -96,6 +96,7 @@ describe('PhotoDetailsModal', () => {
       canView: true,
       canEdit: true,
       canViewFeatureFlag: false,
+      canEditFeatureFlag: false,
     });
     resetStore();
   });
@@ -211,12 +212,22 @@ describe('PhotoDetailsModal', () => {
   it.each([
     [
       'admin',
-      { canView: true, canEdit: true, canViewFeatureFlag: false },
+      {
+        canView: true,
+        canEdit: true,
+        canViewFeatureFlag: false,
+        canEditFeatureFlag: false,
+      },
       false,
     ],
     [
       'viewer',
-      { canView: true, canEdit: false, canViewFeatureFlag: false },
+      {
+        canView: true,
+        canEdit: false,
+        canViewFeatureFlag: false,
+        canEditFeatureFlag: false,
+      },
       true,
     ],
   ])('%s user Edit button disabled=%s', (_, auth, isDisabled) => {

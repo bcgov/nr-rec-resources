@@ -3,15 +3,9 @@ import { RecResourceGeospatialPage } from '@/pages/rec-resource-page/RecResource
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { recResourceGeospatialLoader } from '@/services/loaders/recResourceGeospatialLoader';
 import { Route as ParentRoute } from '@/routes/rec-resource/$id';
-import { FeatureFlagRouteGuard } from '@/contexts/feature-flags';
-
-function RecResourceGeospatialPageRoute() {
-  return (
-    <FeatureFlagRouteGuard requiredFlags={['enable_full_features']}>
-      <RecResourceGeospatialPage />
-    </FeatureFlagRouteGuard>
-  );
-}
+import { RoleRouteGuard } from '@/components/auth';
+import { ROLES } from '@/hooks/useAuthorizations';
+import { ROUTE_PATHS } from '@/constants/routes';
 
 export const Route = createFileRoute('/rec-resource/$id/geospatial/')({
   component: RecResourceGeospatialPageRoute,
@@ -37,3 +31,17 @@ export const Route = createFileRoute('/rec-resource/$id/geospatial/')({
     };
   },
 });
+
+function RecResourceGeospatialPageRoute() {
+  const { id } = Route.useParams();
+
+  return (
+    <RoleRouteGuard
+      requireAll={[ROLES.DEVELOPER]}
+      requireAny={[ROLES.VIEWER, ROLES.ADMIN]}
+      redirectTo={ROUTE_PATHS.REC_RESOURCE_FILES.replace('$id', id)}
+    >
+      <RecResourceGeospatialPage />
+    </RoleRouteGuard>
+  );
+}

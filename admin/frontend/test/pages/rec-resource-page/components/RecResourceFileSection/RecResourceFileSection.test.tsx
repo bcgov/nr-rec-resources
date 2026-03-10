@@ -141,6 +141,7 @@ describe('RecResourceFileSection', () => {
       canView: true,
       canEdit: true,
       canViewFeatureFlag: false,
+      canEditFeatureFlag: false,
     });
     mockUseRecResourceFileTransferState.mockReturnValue(defaultState);
     mockResetRecResourceFileTransferStore.mockClear();
@@ -283,12 +284,22 @@ describe('RecResourceFileSection', () => {
   it.each([
     [
       'admin',
-      { canView: true, canEdit: true, canViewFeatureFlag: false },
+      {
+        canView: true,
+        canEdit: true,
+        canViewFeatureFlag: false,
+        canEditFeatureFlag: false,
+      },
       false,
     ],
     [
       'viewer',
-      { canView: true, canEdit: false, canViewFeatureFlag: false },
+      {
+        canView: true,
+        canEdit: false,
+        canViewFeatureFlag: false,
+        canEditFeatureFlag: false,
+      },
       true,
     ],
   ])('%s user image upload disabled=%s', (_, auth, expectDisabled) => {

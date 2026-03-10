@@ -4,8 +4,8 @@ import {
   DAY_PRESET_OPTIONS,
 } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/schemas/addFee';
 import { useCreateFee, useUpdateFee } from '@/services';
-import { useNavigateWithQueryParams } from '@shared/hooks';
 import { renderHook } from '@testing-library/react';
+import { useNavigate } from '@tanstack/react-router';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import * as reactHookForm from 'react-hook-form';
@@ -15,8 +15,8 @@ vi.mock('@/services', () => ({
   useUpdateFee: vi.fn(),
 }));
 
-vi.mock('@shared/hooks', () => ({
-  useNavigateWithQueryParams: vi.fn(),
+vi.mock('@tanstack/react-router', () => ({
+  useNavigate: vi.fn(),
 }));
 
 vi.mock('react-hook-form', async (importOriginal) => {
@@ -41,9 +41,7 @@ describe('useFeeForm', () => {
     vi.clearAllMocks();
     mockDirtyFields = {};
 
-    vi.mocked(useNavigateWithQueryParams).mockReturnValue({
-      navigate: mockNavigate,
-    } as any);
+    vi.mocked(useNavigate).mockReturnValue(mockNavigate);
 
     vi.mocked(useCreateFee).mockReturnValue({
       mutateAsync: mockCreateMutateAsync,

@@ -1,5 +1,4 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { FeatureFlagRouteGuard } from '@/contexts/feature-flags';
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { recResourceFeesLoader } from '@/services/loaders/recResourceFeesLoader';
 import { Route as ParentRoute } from '@/routes/rec-resource/$id';
@@ -45,12 +44,10 @@ function RecResourceFeeEditRoute() {
 
   return (
     <RoleRouteGuard
-      require={[ROLES.ADMIN]}
+      requireAll={[ROLES.DEVELOPER, ROLES.ADMIN]}
       redirectTo={ROUTE_PATHS.REC_RESOURCE_FEES.replace('$id', id)}
     >
-      <FeatureFlagRouteGuard requiredFlags={['enable_full_features']}>
-        <RecResourceFeesEditSection />
-      </FeatureFlagRouteGuard>
+      <RecResourceFeesEditSection />
     </RoleRouteGuard>
   );
 }

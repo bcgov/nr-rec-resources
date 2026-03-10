@@ -4,6 +4,12 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 const mockUseRecResource = vi.fn();
 const mockUseGetRecreationResourceGeospatial = vi.fn();
 
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({ children, className }: any) => (
+    <button className={className}>{children}</button>
+  ),
+}));
+
 const mockRoute = {
   useParams: vi.fn(() => ({
     id: 'REC0001',
@@ -26,12 +32,17 @@ vi.mock(
   }),
 );
 
-vi.mock('@/contexts/feature-flags', () => ({
-  FeatureFlagGuard: ({ children }: any) => <>{children}</>,
+vi.mock('@/components/auth', () => ({
+  RoleGuard: ({ children }: any) => <>{children}</>,
 }));
 
 const mockUseAuthorizations = vi.fn();
 vi.mock('@/hooks/useAuthorizations', () => ({
+  ROLES: {
+    VIEWER: 'rst-viewer',
+    ADMIN: 'rst-admin',
+    DEVELOPER: 'rst-developer',
+  },
   useAuthorizations: () => mockUseAuthorizations(),
 }));
 
@@ -44,12 +55,6 @@ vi.mock(
   }),
 );
 
-vi.mock('@shared/components/link-with-query-params', () => ({
-  LinkWithQueryParams: ({ children, className }: any) => (
-    <button className={className}>{children}</button>
-  ),
-}));
-
 const { RecResourceGeospatialSection } = await import(
   '@/pages/rec-resource-page/components/RecResourceGeospatialSection/RecResourceGeospatialSection'
 );
@@ -59,7 +64,8 @@ describe('RecResourceGeospatialSection', () => {
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: true,
-      canViewFeatureFlag: false,
+      canViewFeatureFlag: true,
+      canEditFeatureFlag: true,
     });
 
     mockUseRecResource.mockReturnValue({

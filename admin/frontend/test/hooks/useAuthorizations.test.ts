@@ -13,6 +13,7 @@ describe('useAuthorizations', () => {
       canView: true,
       canEdit: false,
       canViewFeatureFlag: false,
+      canEditFeatureFlag: false,
     });
   });
 
@@ -25,6 +26,7 @@ describe('useAuthorizations', () => {
       canView: true,
       canEdit: true,
       canViewFeatureFlag: false,
+      canEditFeatureFlag: false,
     });
   });
 
@@ -36,7 +38,8 @@ describe('useAuthorizations', () => {
     expect(result.current).toEqual({
       canView: false,
       canEdit: false,
-      canViewFeatureFlag: true,
+      canViewFeatureFlag: false,
+      canEditFeatureFlag: false,
     });
   });
 
@@ -49,6 +52,7 @@ describe('useAuthorizations', () => {
       canView: true,
       canEdit: false,
       canViewFeatureFlag: true,
+      canEditFeatureFlag: false,
     });
   });
 
@@ -61,6 +65,7 @@ describe('useAuthorizations', () => {
       canView: true,
       canEdit: true,
       canViewFeatureFlag: true,
+      canEditFeatureFlag: true,
     });
   });
 });

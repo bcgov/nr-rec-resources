@@ -1,38 +1,29 @@
-import { AuthContext } from '@/contexts/AuthContext';
-import { Role } from '@/hooks/useAuthorizations';
-import { ReactNode, useContext, useEffect } from 'react';
+import { Role, useUserRoles } from '@/hooks/useAuthorizations';
+import { ReactNode, useEffect } from 'react';
 import { useRouter } from '@tanstack/react-router';
 
 export interface RoleRouteGuardProps {
-  require: Role[];
-  requireAll?: boolean;
+  requireAll?: Role[];
+  requireAny?: Role[];
   redirectTo: string;
   children: ReactNode;
 }
 
-const useUserRoles = (): string[] => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    return [];
-  }
-
-  const { user, authService } = context;
-  return user?.client_roles ?? authService.getUserRoles();
-};
-
 export function RoleRouteGuard({
-  require,
-  requireAll = true,
+  requireAll = [],
+  requireAny = [],
   redirectTo,
   children,
 }: RoleRouteGuardProps) {
   const userRoles = useUserRoles();
   const router = useRouter();
-  const requirements = require;
-
-  const isAllowed = requireAll
-    ? requirements.every((role) => userRoles.includes(role))
-    : requirements.some((role) => userRoles.includes(role));
+  const meetsAllRequirements =
+    requireAll.length === 0 ||
+    requireAll.every((role) => userRoles.includes(role));
+  const meetsAnyRequirements =
+    requireAny.length === 0 ||
+    requireAny.some((role) => userRoles.includes(role));
+  const isAllowed = meetsAllRequirements && meetsAnyRequirements;
 
   useEffect(() => {
     if (!isAllowed) {

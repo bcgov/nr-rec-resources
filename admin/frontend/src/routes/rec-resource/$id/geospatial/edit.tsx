@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { RecResourceGeospatialEditSection } from '@/pages/rec-resource-page/components/RecResourceGeospatialSection';
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
-import { FeatureFlagRouteGuard } from '@/contexts/feature-flags';
 import { recResourceGeospatialLoader } from '@/services/loaders/recResourceGeospatialLoader';
 import { Route as ParentRoute } from '@/routes/rec-resource/$id';
 import { RoleRouteGuard } from '@/components/auth';
@@ -41,12 +40,10 @@ function RecResourceGeospatialEditRoute() {
 
   return (
     <RoleRouteGuard
-      require={[ROLES.ADMIN]}
+      requireAll={[ROLES.DEVELOPER, ROLES.ADMIN]}
       redirectTo={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL.replace('$id', id)}
     >
-      <FeatureFlagRouteGuard requiredFlags={['enable_full_features']}>
-        <RecResourceGeospatialEditSection />
-      </FeatureFlagRouteGuard>
+      <RecResourceGeospatialEditSection />
     </RoleRouteGuard>
   );
 }

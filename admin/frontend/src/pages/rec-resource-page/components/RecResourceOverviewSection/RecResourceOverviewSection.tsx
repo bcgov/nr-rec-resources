@@ -1,9 +1,9 @@
 import { ROUTE_PATHS } from '@/constants/routes';
-import { FeatureFlagGuard } from '@/contexts/feature-flags';
-import { EditAction } from '@/components/buttons';
+import { RoleGuard } from '@/components/auth';
+import { ROLES } from '@/hooks/useAuthorizations';
 import { RecreationResourceDetailUIModel } from '@/services';
+import { Link } from '@tanstack/react-router';
 import { Col, Row, Stack } from 'react-bootstrap';
-import { useAuthorizations } from '@/hooks/useAuthorizations';
 import { RecResourceEstablishmentOrderSection } from '../RecResourceEstablishmentOrderSection';
 import { RecResourceLocationSection } from '../RecResourceLocationSection';
 import { RecreationResourceAccessRow, VisibleOnPublicSite } from './components';
@@ -17,7 +17,6 @@ export const RecResourceOverviewSection = (
   props: RecResourceOverviewSectionProps,
 ) => {
   const { recResource } = props;
-  const { canEdit } = useAuthorizations();
 
   const overviewItems = [
     {
@@ -57,15 +56,17 @@ export const RecResourceOverviewSection = (
       <div className="d-flex justify-content-between align-items-center">
         <h2>Overview</h2>
 
-        <FeatureFlagGuard requiredFlags={['enable_full_features']}>
-          <EditAction
+        <RoleGuard requireAll={[ROLES.ADMIN]}>
+          <Link
             to={ROUTE_PATHS.REC_RESOURCE_OVERVIEW_EDIT.replace(
               '$id',
               recResource.rec_resource_id,
             )}
-            disabled={!canEdit}
-          />
-        </FeatureFlagGuard>
+            className="btn btn-outline-primary"
+          >
+            Edit
+          </Link>
+        </RoleGuard>
       </div>
 
       <Row>
@@ -113,11 +114,9 @@ export const RecResourceOverviewSection = (
         </Col>
       </Row>
 
-      <FeatureFlagGuard requiredFlags={['enable_full_features']}>
-        <RecResourceEstablishmentOrderSection
-          recResourceId={recResource.rec_resource_id}
-        />
-      </FeatureFlagGuard>
+      <RecResourceEstablishmentOrderSection
+        recResourceId={recResource.rec_resource_id}
+      />
 
       {recResource && <RecResourceLocationSection recResource={recResource} />}
     </Stack>

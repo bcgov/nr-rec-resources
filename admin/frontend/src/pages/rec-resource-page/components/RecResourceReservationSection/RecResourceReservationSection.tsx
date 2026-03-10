@@ -1,8 +1,7 @@
 import { ROUTE_PATHS } from '@/constants/routes';
-import { FeatureFlagGuard } from '@/contexts/feature-flags';
-import { EditAction } from '@/components/buttons';
-import { useAuthorizations } from '@/hooks/useAuthorizations';
+import { RoleGuard } from '@/components/auth';
 import { RecreationResourceReservationInfoDto } from '@/services';
+import { Link } from '@tanstack/react-router';
 import { Col, Row, Stack } from 'react-bootstrap';
 import { Route } from '@/routes/rec-resource/$id/reservation';
 import { RESERVATION_METHOD_LABEL_MAP } from '@/pages/rec-resource-page/components/RecResourceReservationSection/EditSection/constants';
@@ -11,6 +10,7 @@ import {
   getReservationMethod,
 } from '@/pages/rec-resource-page/components/RecResourceReservationSection/helpers';
 import './RecResourceReservationSection.scss';
+import { ROLES } from '@/hooks/useAuthorizations';
 
 type RecResourceReservationSectionProps = {
   reservationInfo: RecreationResourceReservationInfoDto | null;
@@ -21,7 +21,6 @@ export const RecResourceReservationSection = (
 ) => {
   const params = Route.useParams();
   const recResourceId = params?.id;
-  const { canEdit } = useAuthorizations();
   const { reservationInfo } = props;
   const reservationMethodKey = getReservationMethod(reservationInfo);
   const reservationMethod = reservationMethodKey
@@ -61,15 +60,17 @@ export const RecResourceReservationSection = (
       <div className="reservation-section__header d-flex justify-content-between align-items-center">
         <h2 className="mb-0">Reservations</h2>
 
-        <FeatureFlagGuard requiredFlags={['enable_full_features']}>
-          <EditAction
+        <RoleGuard requireAll={[ROLES.ADMIN]}>
+          <Link
             to={ROUTE_PATHS.REC_RESOURCE_RESERVATION_EDIT.replace(
               '$id',
               recResourceId,
             )}
-            disabled={!canEdit}
-          />
-        </FeatureFlagGuard>
+            className="btn btn-outline-primary"
+          >
+            Edit
+          </Link>
+        </RoleGuard>
       </div>
 
       <div className="reservation-panel">

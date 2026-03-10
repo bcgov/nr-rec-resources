@@ -7,9 +7,12 @@ import {
 import { RecResourceActivitiesEditSection } from '@/pages/rec-resource-page/components/RecResourceActivitiesSection';
 import { useActivitiesOptions } from '@/pages/rec-resource-page/components/RecResourceActivitiesSection/EditSection/hooks/useActivitiesOptions';
 import { useEditActivitiesForm } from '@/pages/rec-resource-page/components/RecResourceActivitiesSection/EditSection/hooks/useEditActivitiesForm';
-import { LinkWithQueryParams } from '@shared/components/link-with-query-params';
-import { useNavigateWithQueryParams } from '@shared/hooks';
-import { useLoaderData, useParams } from '@tanstack/react-router';
+import {
+  Link,
+  useLoaderData,
+  useNavigate,
+  useParams,
+} from '@tanstack/react-router';
 import { Button, Col, Form, Row, Stack } from 'react-bootstrap';
 
 export const RecResourceActivitiesFeaturesEditPage = () => {
@@ -17,7 +20,7 @@ export const RecResourceActivitiesFeaturesEditPage = () => {
     from: '/rec-resource/$id/activities-features/edit',
   });
   const { id: rec_resource_id } = useParams({ from: '/rec-resource/$id' });
-  const { navigate } = useNavigateWithQueryParams();
+  const navigate = useNavigate();
 
   const { options: activityOptions, isLoading: activityOptionsLoading } =
     useActivitiesOptions();
@@ -87,13 +90,13 @@ export const RecResourceActivitiesFeaturesEditPage = () => {
           <div className="d-flex justify-content-between align-items-center">
             <h2>Activities</h2>
             <Stack direction="horizontal" gap={2}>
-              <LinkWithQueryParams
+              <Link
                 to={ROUTE_PATHS.REC_RESOURCE_ACTIVITIES_FEATURES}
                 params={{ id: rec_resource_id }}
                 className="btn btn-outline-primary"
               >
                 Cancel
-              </LinkWithQueryParams>
+              </Link>
               <Button
                 variant="primary"
                 onClick={() => void onSave()}

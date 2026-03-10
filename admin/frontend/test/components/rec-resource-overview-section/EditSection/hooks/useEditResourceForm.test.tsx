@@ -10,12 +10,10 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { createElement, type ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const mockNavigateWithQueryParams = vi.fn();
+const mockNavigate = vi.fn();
 
-vi.mock('@shared/hooks', () => ({
-  useNavigateWithQueryParams: vi.fn(() => ({
-    navigate: mockNavigateWithQueryParams,
-  })),
+vi.mock('@tanstack/react-router', () => ({
+  useNavigate: () => mockNavigate,
 }));
 
 vi.mock(
@@ -283,7 +281,7 @@ describe('useEditResourceForm', () => {
       });
 
       await waitFor(() => {
-        expect(mockNavigateWithQueryParams).toHaveBeenCalledWith({
+        expect(mockNavigate).toHaveBeenCalledWith({
           to: ROUTE_PATHS.REC_RESOURCE_OVERVIEW,
           params: { id: '123' },
         });

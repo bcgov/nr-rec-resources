@@ -1,18 +1,23 @@
 import { RecResourceFeesContent } from '@/pages/rec-resource-page/components/RecResourceFeesSection/RecResourceFeesContent';
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/contexts/feature-flags', () => ({
-  FeatureFlagGuard: ({ children }: any) => <>{children}</>,
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({ to, children }: any) => <a href={to}>{children}</a>,
+}));
+
+vi.mock('@/components/auth', () => ({
+  RoleGuard: ({ children }: any) => <>{children}</>,
 }));
 
 const mockUseAuthorizations = vi.fn();
 vi.mock('@/hooks/useAuthorizations', () => ({
+  ROLES: {
+    VIEWER: 'rst-viewer',
+    ADMIN: 'rst-admin',
+    DEVELOPER: 'rst-developer',
+  },
   useAuthorizations: () => mockUseAuthorizations(),
-}));
-
-vi.mock('@shared/components/link-with-query-params', () => ({
-  LinkWithQueryParams: ({ to, children }: any) => <a href={to}>{children}</a>,
 }));
 
 vi.mock(
@@ -29,7 +34,8 @@ describe('RecResourceFeesContent', () => {
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: true,
-      canViewFeatureFlag: false,
+      canViewFeatureFlag: true,
+      canEditFeatureFlag: true,
     });
   });
 

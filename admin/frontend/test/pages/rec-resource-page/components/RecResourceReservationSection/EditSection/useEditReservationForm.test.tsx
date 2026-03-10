@@ -15,8 +15,8 @@ vi.mock(
   }),
 );
 
-vi.mock('@shared/hooks', () => ({
-  useNavigateWithQueryParams: () => ({ navigate: mockNavigate }),
+vi.mock('@tanstack/react-router', () => ({
+  useNavigate: () => mockNavigate,
 }));
 
 vi.mock('@/store/notificationStore', () => ({
