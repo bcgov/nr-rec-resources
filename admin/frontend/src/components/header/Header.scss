@@ -33,13 +33,10 @@
     background-color: transparent !important;
     color: $colorWhite;
     height: $headerHeight;
+    border-bottom: none;
 
     &--title {
       color: $colorWhite !important;
     }
-  }
-
-  .bcds-header {
-    border: none;
   }
 }

@@ -3,10 +3,10 @@ import { ReactNode, useEffect } from 'react';
 import { useRouter } from '@tanstack/react-router';
 
 export interface RoleRouteGuardProps {
-  requireAll?: Role[];
-  requireAny?: Role[];
-  redirectTo: string;
-  children: ReactNode;
+  readonly requireAll?: readonly Role[];
+  readonly requireAny?: readonly Role[];
+  readonly redirectTo: string;
+  readonly children: ReactNode;
 }
 
 export function RoleRouteGuard({
@@ -14,12 +14,12 @@ export function RoleRouteGuard({
   requireAny = [],
   redirectTo,
   children,
-}: RoleRouteGuardProps) {
+}: Readonly<RoleRouteGuardProps>) {
   const userRoles = useUserRoles();
   const router = useRouter();
-  const meetsAllRequirements =
-    requireAll.length === 0 ||
-    requireAll.every((role) => userRoles.includes(role));
+  const meetsAllRequirements = requireAll.every((role) =>
+    userRoles.includes(role),
+  );
   const meetsAnyRequirements =
     requireAny.length === 0 ||
     requireAny.some((role) => userRoles.includes(role));
