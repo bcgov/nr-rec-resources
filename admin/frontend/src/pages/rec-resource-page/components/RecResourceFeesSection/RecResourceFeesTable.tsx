@@ -3,10 +3,10 @@ import { ROUTE_PATHS } from '@/constants/routes';
 import { RecreationFeeUIModel } from '@/services';
 import { COLOR_BLACK, COLOR_GREY } from '@/styles/colors';
 import { getIndividualDays } from './helpers';
-import { useFeatureFlagsEnabled } from '@/contexts/feature-flags';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPen } from '@fortawesome/free-solid-svg-icons';
-import { LinkWithQueryParams } from '@shared/components/link-with-query-params';
+import { Link } from '@tanstack/react-router';
 
 interface RecResourceFeesTableProps {
   fees: RecreationFeeUIModel[];
@@ -17,7 +17,7 @@ export const RecResourceFeesTable = ({
   fees,
   recResourceId,
 }: RecResourceFeesTableProps) => {
-  const canEditFees = useFeatureFlagsEnabled('enable_full_features');
+  const { canEdit } = useAuthorizations();
 
   const columns: any[] = [
     {
@@ -76,9 +76,9 @@ export const RecResourceFeesTable = ({
     {
       header: 'Actions',
       render: (fee: RecreationFeeUIModel) => {
-        if (!canEditFees || !recResourceId) return <span>--</span>;
+        if (!canEdit || !recResourceId) return <span>--</span>;
         return (
-          <LinkWithQueryParams
+          <Link
             to={ROUTE_PATHS.REC_RESOURCE_FEE_EDIT}
             params={{ id: recResourceId, feeId: String(fee.fee_id) }}
             className="p-0 align-middle bc-color-blue-dk"
@@ -86,7 +86,7 @@ export const RecResourceFeesTable = ({
             title="Edit fee"
           >
             <FontAwesomeIcon icon={faPen} />
-          </LinkWithQueryParams>
+          </Link>
         );
       },
     },

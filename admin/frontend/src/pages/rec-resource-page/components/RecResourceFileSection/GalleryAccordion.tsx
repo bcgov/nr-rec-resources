@@ -23,6 +23,7 @@ interface GalleryAccordionProps<T> {
   uploadLabel?: string;
   isLoading?: boolean;
   uploadDisabled?: boolean;
+  showInfoBanner?: boolean;
 }
 
 export function GalleryAccordion<T>({
@@ -36,6 +37,7 @@ export function GalleryAccordion<T>({
   uploadLabel = 'Upload',
   isLoading = false,
   uploadDisabled = false,
+  showInfoBanner = true,
 }: GalleryAccordionProps<T>) {
   return (
     <StyledAccordion eventKey={eventKey} title={`${title} (${items.length})`}>
@@ -51,13 +53,16 @@ export function GalleryAccordion<T>({
           gap={4}
           className="gallery-accordion__stack"
         >
-          {/* Gallery alert banner */}
-          <div className="gallery-accordion__alert-banner px-4 py-2">
-            <span className="gallery-accordion__alert-icon">
-              <FontAwesomeIcon icon={faInfoCircle} />
-            </span>
-            <span className="gallery-accordion__alert-text">{description}</span>
-          </div>
+          {showInfoBanner && (
+            <div className="gallery-accordion__alert-banner px-4 py-2">
+              <span className="gallery-accordion__alert-icon">
+                <FontAwesomeIcon icon={faInfoCircle} />
+              </span>
+              <span className="gallery-accordion__alert-text">
+                {description}
+              </span>
+            </div>
+          )}
 
           <Row className="gallery-accordion__row g-3">
             {/* Upload tile */}

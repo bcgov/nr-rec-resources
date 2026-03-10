@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
-/* =====================================================
-   Mocks — MUST be declared before component import
-   ===================================================== */
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({ children, to }: any) => <a href={to}>{children}</a>,
+}));
 
 vi.mock('@/routes/rec-resource/$id/reservation', () => ({
   Route: {
@@ -11,14 +11,18 @@ vi.mock('@/routes/rec-resource/$id/reservation', () => ({
   },
 }));
 
-vi.mock('@shared/components/link-with-query-params', () => ({
-  LinkWithQueryParams: ({ children, to, params }: any) => (
-    <a href={`${to}/${params?.id}`}>{children}</a>
-  ),
+vi.mock('@/components/auth', () => ({
+  RoleGuard: ({ children }: any) => <>{children}</>,
 }));
 
-vi.mock('@/contexts/feature-flags', () => ({
-  FeatureFlagGuard: ({ children }: any) => <>{children}</>,
+const mockUseAuthorizations = vi.fn();
+vi.mock('@/hooks/useAuthorizations', () => ({
+  ROLES: {
+    VIEWER: 'rst-viewer',
+    ADMIN: 'rst-admin',
+    DEVELOPER: 'rst-developer',
+  },
+  useAuthorizations: () => mockUseAuthorizations(),
 }));
 
 vi.mock(
@@ -40,7 +44,7 @@ vi.mock('@/pages/rec-resource-page/components/shared/FieldItem', () => ({
 
 vi.mock('@/constants/routes', () => ({
   ROUTE_PATHS: {
-    REC_RESOURCE_RESERVATION_EDIT: '/edit',
+    REC_RESOURCE_RESERVATION_EDIT: '/edit/$id',
   },
 }));
 
@@ -58,6 +62,12 @@ import { Route } from '@/routes/rec-resource/$id/reservation';
 describe('RecResourceReservationSection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseAuthorizations.mockReturnValue({
+      canView: true,
+      canEdit: true,
+      canViewFeatureFlag: true,
+      canEditFeatureFlag: true,
+    });
     vi.mocked(Route.useParams).mockReturnValue({ id: 'REC123' });
   });
 

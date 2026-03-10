@@ -1,5 +1,6 @@
 import { FILE_TYPE_CONFIGS, MAX_FILE_SIZE_MB } from '@/pages/rec-resource-page';
 import { processSelectedFile } from '@/pages/rec-resource-page/helpers';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 import { DeleteFileModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/DeleteFileModal';
 import { DocumentUploadModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/DocumentUploadModal';
 import { ImageUploadModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal';
@@ -18,14 +19,18 @@ import { useEffect } from 'react';
 import { GalleryAccordion } from './GalleryAccordion';
 import { GalleryFileCard } from './GalleryFileCard';
 import {
+  DOCUMENT_VIEWER_CARD_ACTIONS,
   IMAGE_CARD_ACTIONS,
   IMAGE_PREVIEW_ACTIONS,
+  IMAGE_VIEWER_CARD_ACTIONS,
+  IMAGE_VIEWER_PREVIEW_ACTIONS,
 } from './GalleryFileCard/constants';
 import { ImageLightboxModal } from './ImageLightboxModal';
 import { PhotoDetailsModal } from './PhotoDetailsModal';
 import { EditPhotoModal } from './EditPhotoModal';
 
 export const RecResourceFileSection = () => {
+  const { canEdit } = useAuthorizations();
   const {
     getDocumentFileActionHandler,
     getDocumentGeneralActionHandler,
@@ -59,6 +64,7 @@ export const RecResourceFileSection = () => {
       }
       file={doc}
       getFileActionHandler={getDocumentFileActionHandler}
+      actions={canEdit ? undefined : DOCUMENT_VIEWER_CARD_ACTIONS}
     />
   );
 
@@ -69,8 +75,10 @@ export const RecResourceFileSection = () => {
       topContent={<img src={image.previewUrl} alt={image.name} />}
       file={image}
       getFileActionHandler={getImageFileActionHandler}
-      actions={IMAGE_CARD_ACTIONS}
-      previewActions={IMAGE_PREVIEW_ACTIONS}
+      actions={canEdit ? IMAGE_CARD_ACTIONS : IMAGE_VIEWER_CARD_ACTIONS}
+      previewActions={
+        canEdit ? IMAGE_PREVIEW_ACTIONS : IMAGE_VIEWER_PREVIEW_ACTIONS
+      }
     />
   );
 
@@ -83,9 +91,14 @@ export const RecResourceFileSection = () => {
         items={galleryImages}
         uploadLabel="Upload"
         isLoading={isFetchingImages}
-        onFileUploadTileClick={getImageGeneralActionHandler('upload')}
-        onFileDrop={(file) => processSelectedFile(file, 'image')}
-        uploadDisabled={isImageUploadDisabled}
+        onFileUploadTileClick={
+          canEdit ? getImageGeneralActionHandler('upload') : undefined
+        }
+        onFileDrop={
+          canEdit ? (file) => processSelectedFile(file, 'image') : undefined
+        }
+        uploadDisabled={!canEdit || isImageUploadDisabled}
+        showInfoBanner={canEdit}
         renderItem={renderGalleryImageCard}
       />
       <GalleryAccordion<GalleryDocument>
@@ -95,9 +108,14 @@ export const RecResourceFileSection = () => {
         items={galleryDocuments}
         uploadLabel="Upload"
         isLoading={isFetching}
-        onFileUploadTileClick={getDocumentGeneralActionHandler('upload')}
-        onFileDrop={(file) => processSelectedFile(file, 'document')}
-        uploadDisabled={isDocumentUploadDisabled}
+        onFileUploadTileClick={
+          canEdit ? getDocumentGeneralActionHandler('upload') : undefined
+        }
+        onFileDrop={
+          canEdit ? (file) => processSelectedFile(file, 'document') : undefined
+        }
+        uploadDisabled={!canEdit || isDocumentUploadDisabled}
+        showInfoBanner={canEdit}
         renderItem={renderGalleryDocumentCard}
       />
 

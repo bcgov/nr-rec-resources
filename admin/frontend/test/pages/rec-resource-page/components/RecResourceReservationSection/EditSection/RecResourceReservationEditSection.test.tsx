@@ -27,8 +27,8 @@ vi.mock('react-hook-form', () => ({
     render({ field: { onChange: vi.fn(), value: false } }),
 }));
 
-vi.mock('@shared/components/link-with-query-params', () => ({
-  LinkWithQueryParams: ({ children }: any) => <a>{children}</a>,
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({ children }: any) => <a>{children}</a>,
 }));
 
 vi.mock('../components', () => ({

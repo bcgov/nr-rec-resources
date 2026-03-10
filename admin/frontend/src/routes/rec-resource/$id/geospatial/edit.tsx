@@ -1,9 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { RecResourceGeospatialEditSection } from '@/pages/rec-resource-page/components/RecResourceGeospatialSection';
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
-import { FeatureFlagRouteGuard } from '@/contexts/feature-flags';
 import { recResourceGeospatialLoader } from '@/services/loaders/recResourceGeospatialLoader';
 import { Route as ParentRoute } from '@/routes/rec-resource/$id';
+import { RoleRouteGuard } from '@/components/auth';
+import { ROLES } from '@/hooks/useAuthorizations';
+import { ROUTE_PATHS } from '@/constants/routes';
 
 export const Route = createFileRoute('/rec-resource/$id/geospatial/edit')({
   component: RecResourceGeospatialEditRoute,
@@ -22,7 +24,10 @@ export const Route = createFileRoute('/rec-resource/$id/geospatial/edit')({
           ...parentBeforeLoad.breadcrumb(loaderData),
           {
             label: 'Edit Geospatial',
-            href: `/rec-resource/${params.id}/geospatial/edit`,
+            href: ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL_EDIT.replace(
+              '$id',
+              params.id,
+            ),
           },
         ];
       },
@@ -31,9 +36,14 @@ export const Route = createFileRoute('/rec-resource/$id/geospatial/edit')({
 });
 
 function RecResourceGeospatialEditRoute() {
+  const { id } = Route.useParams();
+
   return (
-    <FeatureFlagRouteGuard requiredFlags={['enable_full_features']}>
+    <RoleRouteGuard
+      requireAll={[ROLES.DEVELOPER, ROLES.ADMIN]}
+      redirectTo={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL.replace('$id', id)}
+    >
       <RecResourceGeospatialEditSection />
-    </FeatureFlagRouteGuard>
+    </RoleRouteGuard>
   );
 }

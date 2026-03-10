@@ -1,4 +1,6 @@
 import { CustomButton } from '@/components';
+import { RoleGuard } from '@/components/auth';
+import { ROLES } from '@/hooks/useAuthorizations';
 import {
   REC_RESOURCE_PAGE_NAV_SECTIONS,
   RecResourceNavKey,
@@ -6,10 +8,9 @@ import {
 import { useVisibleNavSections } from '@/pages/rec-resource-page/hooks/useVisibleNavSections';
 import { faBars } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useNavigateWithQueryParams } from '@shared/hooks';
+import { useNavigate } from '@tanstack/react-router';
 import { Dropdown, Nav } from 'react-bootstrap';
 import './RecResourceVerticalNav.scss';
-import { FeatureFlagGuard } from '@/contexts/feature-flags';
 
 interface RecResourceVerticalNavProps {
   activeTab: RecResourceNavKey;
@@ -20,7 +21,7 @@ export const RecResourceVerticalNav = ({
   activeTab,
   resourceId,
 }: RecResourceVerticalNavProps) => {
-  const { navigate } = useNavigateWithQueryParams();
+  const navigate = useNavigate();
   const visibleNavSections = useVisibleNavSections();
 
   const handleNavSelect = (eventKey: string | null) => {
@@ -49,18 +50,21 @@ export const RecResourceVerticalNav = ({
 
           <Dropdown.Menu>
             {visibleNavSections.map(([key, { title }]) => (
-              <FeatureFlagGuard
+              <RoleGuard
                 key={key}
-                requiredFlags={
+                requireAll={
+                  key === RecResourceNavKey.FILES ? [] : [ROLES.DEVELOPER]
+                }
+                requireAny={
                   key === RecResourceNavKey.FILES
                     ? []
-                    : ['enable_full_features']
+                    : [ROLES.VIEWER, ROLES.ADMIN]
                 }
               >
                 <Dropdown.Item eventKey={key} key={key}>
                   {title}
                 </Dropdown.Item>
-              </FeatureFlagGuard>
+              </RoleGuard>
             ))}
           </Dropdown.Menu>
         </Dropdown>
@@ -74,16 +78,19 @@ export const RecResourceVerticalNav = ({
         onSelect={handleNavSelect}
       >
         {visibleNavSections.map(([key, { title }]) => (
-          <FeatureFlagGuard
+          <RoleGuard
             key={key}
-            requiredFlags={
-              key === RecResourceNavKey.FILES ? [] : ['enable_full_features']
+            requireAll={
+              key === RecResourceNavKey.FILES ? [] : [ROLES.DEVELOPER]
+            }
+            requireAny={
+              key === RecResourceNavKey.FILES ? [] : [ROLES.VIEWER, ROLES.ADMIN]
             }
           >
             <Nav.Item key={key}>
               <Nav.Link eventKey={key}>{title}</Nav.Link>
             </Nav.Item>
-          </FeatureFlagGuard>
+          </RoleGuard>
         ))}
       </Nav>
     </>

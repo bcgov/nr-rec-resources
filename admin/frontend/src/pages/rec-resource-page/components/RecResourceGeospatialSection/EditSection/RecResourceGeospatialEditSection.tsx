@@ -1,12 +1,12 @@
 import { Controller } from 'react-hook-form';
 import { Button, Col, Form, Row, Stack } from 'react-bootstrap';
 import { ROUTE_PATHS } from '@/constants/routes';
-import { LinkWithQueryParams } from '@shared/components/link-with-query-params';
 import { Route } from '@/routes/rec-resource/$id/geospatial/edit';
 import { RecResourceLocationSection } from '@/pages/rec-resource-page/components/RecResourceLocationSection';
 import { useEditGeospatialForm } from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/EditSection/hooks';
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { useGetRecreationResourceGeospatial } from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceGeospatial';
+import { Link } from '@tanstack/react-router';
 
 const onNumberChange = (onChange: (v?: number) => void) => {
   return (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,7 +32,7 @@ export const RecResourceGeospatialEditSection = () => {
       <div className="d-flex justify-content-between align-items-center">
         <h2>Edit Geospatial</h2>
         <Stack direction="horizontal" gap={2}>
-          <LinkWithQueryParams
+          <Link
             to={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL.replace(
               '$id',
               recResourceId,
@@ -40,7 +40,7 @@ export const RecResourceGeospatialEditSection = () => {
             className="btn btn-outline-primary"
           >
             Cancel
-          </LinkWithQueryParams>
+          </Link>
 
           <Button
             variant="primary"

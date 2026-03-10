@@ -3,7 +3,9 @@ import { RecResourceFeesAddSection } from '@/pages/rec-resource-page/components/
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { recResourceFeesLoader } from '@/services/loaders/recResourceFeesLoader';
 import { Route as ParentRoute } from '@/routes/rec-resource/$id';
-import { FeatureFlagRouteGuard } from '@/contexts/feature-flags';
+import { RoleRouteGuard } from '@/components/auth';
+import { ROLES } from '@/hooks/useAuthorizations';
+import { ROUTE_PATHS } from '@/constants/routes';
 
 export const Route = createFileRoute('/rec-resource/$id/fees/add')({
   component: RecResourceFeesEditRoute,
@@ -22,11 +24,11 @@ export const Route = createFileRoute('/rec-resource/$id/fees/add')({
           ...parentBeforeLoad.breadcrumb(loaderData),
           {
             label: 'Fees',
-            href: `/rec-resource/${params.id}/fees`,
+            href: ROUTE_PATHS.REC_RESOURCE_FEES.replace('$id', params.id),
           },
           {
             label: 'Add Fee',
-            href: `/rec-resource/${params.id}/fees/add`,
+            href: ROUTE_PATHS.REC_RESOURCE_FEES_ADD.replace('$id', params.id),
           },
         ];
       },
@@ -35,9 +37,14 @@ export const Route = createFileRoute('/rec-resource/$id/fees/add')({
 });
 
 function RecResourceFeesEditRoute() {
+  const { id } = Route.useParams();
+
   return (
-    <FeatureFlagRouteGuard requiredFlags={['enable_full_features']}>
+    <RoleRouteGuard
+      requireAll={[ROLES.DEVELOPER, ROLES.ADMIN]}
+      redirectTo={ROUTE_PATHS.REC_RESOURCE_FEES.replace('$id', id)}
+    >
       <RecResourceFeesAddSection />
-    </FeatureFlagRouteGuard>
+    </RoleRouteGuard>
   );
 }

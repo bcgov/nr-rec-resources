@@ -12,9 +12,9 @@ import {
   addSuccessNotification,
 } from '@/store/notificationStore';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigateWithQueryParams } from '@shared/hooks';
 import { useMemo } from 'react';
 import { useForm, useWatch, type Resolver } from 'react-hook-form';
+import { useNavigate } from '@tanstack/react-router';
 import { EditResourceFormData, createEditResourceSchema } from '../schemas';
 
 /**
@@ -27,7 +27,7 @@ export const useEditResourceForm = (
   recResource: RecreationResourceDetailUIModel,
   districtOptions: RecreationResourceOptionUIModel[] = [],
 ) => {
-  const { navigate } = useNavigateWithQueryParams();
+  const navigate = useNavigate();
   const updateMutation = useUpdateRecreationResource();
 
   // Create schema with district options for validation

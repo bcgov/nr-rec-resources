@@ -1,4 +1,4 @@
-import { useFeatureFlagContext } from '@/contexts/feature-flags';
+import { useAuthorizations } from '@/hooks/useAuthorizations';
 import {
   REC_RESOURCE_PAGE_NAV_SECTIONS,
   RecResourceNavKey,
@@ -7,23 +7,16 @@ import {
 import { useMemo } from 'react';
 
 /**
- * Hook to get visible navigation sections based on feature flags.
- * Filters out navigation sections that require feature flags that are not enabled.
- *
- * @returns Array of [key, config] tuples for visible navigation sections
+ * Returns the nav sections visible to the current user.
  */
 export function useVisibleNavSections(): Array<
   [RecResourceNavKey, NavSectionConfig]
 > {
-  const featureFlags = useFeatureFlagContext();
+  const { canViewFeatureFlag } = useAuthorizations();
 
   return useMemo(() => {
     return Object.entries(REC_RESOURCE_PAGE_NAV_SECTIONS).filter(
-      ([, config]) => {
-        if (!config.requiredFlags) return true;
-        // Check if all required flags are enabled
-        return config.requiredFlags.every((flag) => featureFlags[flag]);
-      },
+      ([key]) => key === RecResourceNavKey.FILES || canViewFeatureFlag,
     ) as Array<[RecResourceNavKey, NavSectionConfig]>;
-  }, [featureFlags]);
+  }, [canViewFeatureFlag]);
 }

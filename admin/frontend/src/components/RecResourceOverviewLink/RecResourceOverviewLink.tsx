@@ -1,5 +1,5 @@
 import { ROUTE_PATHS } from '@/constants/routes';
-import { LinkWithQueryParams } from '@shared/components/link-with-query-params';
+import { Link } from '@tanstack/react-router';
 import { FC } from 'react';
 
 export const RecResourceOverviewLink: FC<{
@@ -7,11 +7,11 @@ export const RecResourceOverviewLink: FC<{
   children: React.ReactNode;
 }> = ({ rec_resource_id, children }) => {
   return (
-    <LinkWithQueryParams
+    <Link
       to={ROUTE_PATHS.REC_RESOURCE_OVERVIEW}
       params={{ id: rec_resource_id }}
     >
       {children}
-    </LinkWithQueryParams>
+    </Link>
   );
 };

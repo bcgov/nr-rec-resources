@@ -1,11 +1,12 @@
 import { ROUTE_PATHS } from '@/constants/routes';
-import { FeatureFlagGuard } from '@/contexts/feature-flags';
+import { RoleGuard } from '@/components/auth';
 import { RecreationResourceReservationInfoDto } from '@/services';
-import { LinkWithQueryParams } from '@shared/components/link-with-query-params';
+import { Link } from '@tanstack/react-router';
 import { Col, Row, Stack } from 'react-bootstrap';
 import { HasReservation } from './components';
 import { FieldItem } from '../shared/FieldItem';
 import { Route } from '@/routes/rec-resource/$id/reservation';
+import { ROLES } from '@/hooks/useAuthorizations';
 
 type RecResourceReservationSectionProps = {
   reservationInfo: RecreationResourceReservationInfoDto | null;
@@ -47,15 +48,17 @@ export const RecResourceReservationSection = (
       <div className="d-flex justify-content-between align-items-center">
         <h2>Reservation</h2>
 
-        <FeatureFlagGuard requiredFlags={['enable_full_features']}>
-          <LinkWithQueryParams
-            to={ROUTE_PATHS.REC_RESOURCE_RESERVATION_EDIT}
-            params={{ id: recResourceId }}
+        <RoleGuard requireAll={[ROLES.ADMIN]}>
+          <Link
+            to={ROUTE_PATHS.REC_RESOURCE_RESERVATION_EDIT.replace(
+              '$id',
+              recResourceId,
+            )}
             className="btn btn-outline-primary"
           >
             Edit
-          </LinkWithQueryParams>
-        </FeatureFlagGuard>
+          </Link>
+        </RoleGuard>
       </div>
 
       <Row>

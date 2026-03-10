@@ -3,12 +3,35 @@ import { Route } from '@/routes/rec-resource/$id/fees/$feeId/edit';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
-vi.mock('@shared/hooks', () => ({
-  useNavigateWithQueryParams: () => ({ navigate: vi.fn() }),
+vi.mock('@tanstack/react-router', async () => {
+  const actual: any = await vi.importActual('@tanstack/react-router');
+  return {
+    ...actual,
+    Link: ({ to, children, className }: any) => (
+      <a href={to} className={className}>
+        {children}
+      </a>
+    ),
+    useNavigate: () => vi.fn(),
+  };
+});
+
+vi.mock('@/hooks/useAuthorizations', () => ({
+  useAuthorizations: () => ({
+    canView: true,
+    canEdit: true,
+    canViewFeatureFlag: true,
+    canEditFeatureFlag: true,
+  }),
+  ROLES: {
+    VIEWER: 'rst-viewer',
+    ADMIN: 'rst-admin',
+    DEVELOPER: 'rst-developer',
+  },
 }));
 
-vi.mock('@/contexts/feature-flags', () => ({
-  FeatureFlagGuard: ({ children }: any) => <>{children}</>,
+vi.mock('@/components/auth', () => ({
+  RoleGuard: ({ children }: any) => <>{children}</>,
 }));
 
 const mockFees = [
@@ -73,14 +96,6 @@ vi.mock(
     ),
   }),
 );
-
-vi.mock('@shared/components/link-with-query-params', () => ({
-  LinkWithQueryParams: ({ to, children, className }: any) => (
-    <a href={to} className={className}>
-      {children}
-    </a>
-  ),
-}));
 
 describe('RecResourceFeesEditSection', () => {
   beforeEach(() => {

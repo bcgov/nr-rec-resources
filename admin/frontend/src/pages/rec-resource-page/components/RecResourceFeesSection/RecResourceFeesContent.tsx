@@ -1,9 +1,10 @@
 import { Stack } from 'react-bootstrap';
-import { FeatureFlagGuard } from '@/contexts/feature-flags';
+import { RoleGuard } from '@/components/auth';
 import { RecResourceFeesTable } from '@/pages/rec-resource-page/components/RecResourceFeesSection/RecResourceFeesTable';
-import { LinkWithQueryParams } from '@shared/components/link-with-query-params';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { RecreationFeeUIModel } from '@/services';
+import { ROLES } from '@/hooks/useAuthorizations';
+import { Link } from '@tanstack/react-router';
 
 export const RecResourceFeesContent = ({
   fees,
@@ -17,9 +18,9 @@ export const RecResourceFeesContent = ({
       <div className="d-flex justify-content-between align-items-center">
         <h2>Fees</h2>
         <Stack direction="horizontal" gap={2}>
-          <FeatureFlagGuard requiredFlags={['enable_full_features']}>
+          <RoleGuard requireAll={[ROLES.ADMIN]}>
             {recResourceId ? (
-              <LinkWithQueryParams
+              <Link
                 to={ROUTE_PATHS.REC_RESOURCE_FEES_ADD.replace(
                   '$id',
                   recResourceId,
@@ -27,9 +28,9 @@ export const RecResourceFeesContent = ({
                 className="btn btn-primary"
               >
                 Add Fee
-              </LinkWithQueryParams>
+              </Link>
             ) : null}
-          </FeatureFlagGuard>
+          </RoleGuard>
         </Stack>
       </div>
       <div className="rounded">
