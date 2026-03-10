@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest';
 describe('RoleGuard', () => {
   it('renders children when user has the required role', () => {
     render(
-      <RoleGuard require={['rst-admin']}>
+      <RoleGuard requireAll={['rst-admin']}>
         <div>Protected Content</div>
       </RoleGuard>,
       { wrapper: createAuthWrapper(['rst-admin']) },
@@ -17,7 +17,7 @@ describe('RoleGuard', () => {
 
   it('hides children when user lacks the required role', () => {
     render(
-      <RoleGuard require={['rst-admin']}>
+      <RoleGuard requireAll={['rst-admin']}>
         <div>Protected Content</div>
       </RoleGuard>,
       { wrapper: createAuthWrapper(['rst-viewer']) },
@@ -28,7 +28,7 @@ describe('RoleGuard', () => {
 
   it('renders fallback when role check fails', () => {
     render(
-      <RoleGuard require={['rst-admin']} fallback={<div>No access</div>}>
+      <RoleGuard requireAll={['rst-admin']} fallback={<div>No access</div>}>
         <div>Protected Content</div>
       </RoleGuard>,
       { wrapper: createAuthWrapper(['rst-viewer']) },
@@ -38,9 +38,9 @@ describe('RoleGuard', () => {
     expect(screen.getByText('No access')).toBeInTheDocument();
   });
 
-  it('requires all roles when requireAll is true', () => {
+  it('requires all roles in requireAll', () => {
     render(
-      <RoleGuard require={['rst-admin', 'rst-developer']}>
+      <RoleGuard requireAll={['rst-admin', 'rst-developer']}>
         <div>Protected Content</div>
       </RoleGuard>,
       { wrapper: createAuthWrapper(['rst-admin']) },
@@ -49,14 +49,28 @@ describe('RoleGuard', () => {
     expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
   });
 
-  it('allows access with any role when requireAll is false', () => {
+  it('allows access with any matching requireAny role', () => {
     render(
-      <RoleGuard require={['rst-viewer', 'rst-admin']} requireAll={false}>
+      <RoleGuard requireAny={['rst-viewer', 'rst-admin']}>
         <div>Protected Content</div>
       </RoleGuard>,
       { wrapper: createAuthWrapper(['rst-viewer']) },
     );
 
     expect(screen.getByText('Protected Content')).toBeInTheDocument();
+  });
+
+  it('requires both requireAll and requireAny conditions when both are provided', () => {
+    render(
+      <RoleGuard
+        requireAll={['rst-developer']}
+        requireAny={['rst-viewer', 'rst-admin']}
+      >
+        <div>Protected Content</div>
+      </RoleGuard>,
+      { wrapper: createAuthWrapper(['rst-developer']) },
+    );
+
+    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
   });
 });

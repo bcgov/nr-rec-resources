@@ -1,35 +1,28 @@
-import { AuthContext } from '@/contexts/AuthContext';
-import { Role } from '@/hooks/useAuthorizations';
-import { ReactNode, useContext } from 'react';
+import { Role, useUserRoles } from '@/hooks/useAuthorizations';
+import { ReactNode } from 'react';
 
 export interface RoleGuardProps {
-  require: Role[];
-  requireAll?: boolean;
+  requireAll?: Role[];
+  requireAny?: Role[];
   fallback?: ReactNode;
   children: ReactNode;
 }
 
-const useUserRoles = (): string[] => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    return [];
-  }
-
-  const { user, authService } = context;
-  return user?.client_roles ?? authService.getUserRoles();
-};
-
 export function RoleGuard({
-  require,
-  requireAll = true,
+  requireAll = [],
+  requireAny = [],
   fallback = null,
   children,
 }: RoleGuardProps) {
   const userRoles = useUserRoles();
 
-  const isAllowed = requireAll
-    ? require.every((role) => userRoles.includes(role))
-    : require.some((role) => userRoles.includes(role));
+  const meetsAllRequirements =
+    requireAll.length === 0 ||
+    requireAll.every((role) => userRoles.includes(role));
+  const meetsAnyRequirements =
+    requireAny.length === 0 ||
+    requireAny.some((role) => userRoles.includes(role));
+  const isAllowed = meetsAllRequirements && meetsAnyRequirements;
 
   if (!isAllowed) return <>{fallback}</>;
 

@@ -2,8 +2,8 @@ import { useCreateFee, useUpdateFee, RecreationFeeUIModel } from '@/services';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect, useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { useNavigateWithQueryParams } from '@shared/hooks';
 import { ROUTE_PATHS } from '@/constants/routes';
+import { useNavigate } from '@tanstack/react-router';
 import {
   AddFeeFormData,
   FEE_APPLIES_OPTIONS,
@@ -65,7 +65,7 @@ export function useFeeForm({
 }) {
   const createMutation = useCreateFee();
   const updateMutation = useUpdateFee();
-  const { navigate } = useNavigateWithQueryParams();
+  const navigate = useNavigate();
 
   const defaultValues: AddFeeFormData = useMemo(() => {
     if (!initialFee) {

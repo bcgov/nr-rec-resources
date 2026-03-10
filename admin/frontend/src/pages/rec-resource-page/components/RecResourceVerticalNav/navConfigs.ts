@@ -10,6 +10,11 @@ export enum RecResourceNavKey {
   RESERVATION = 'reservation',
 }
 
+export type NavSectionConfig = {
+  title: string;
+  getNavigateOptions: (id: string) => NavigateOptions;
+};
+
 /**
  * Navigation configuration for recreation resource pages.
  *
@@ -18,7 +23,7 @@ export enum RecResourceNavKey {
  */
 export const REC_RESOURCE_PAGE_NAV_SECTIONS: Record<
   RecResourceNavKey,
-  { title: string; getNavigateOptions: (id: string) => NavigateOptions }
+  NavSectionConfig
 > = {
   [RecResourceNavKey.OVERVIEW]: {
     title: 'Overview',

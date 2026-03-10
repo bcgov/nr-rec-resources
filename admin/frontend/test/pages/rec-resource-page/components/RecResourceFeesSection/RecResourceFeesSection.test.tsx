@@ -2,14 +2,10 @@ import { RecResourceFeesSection } from '@/pages/rec-resource-page/components/Rec
 import { Route } from '@/routes/rec-resource/$id/fees/index';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import * as featureFlagHooks from '@/contexts/feature-flags/hooks';
 
+const mockUseAuthorizations = vi.fn();
 vi.mock('@/hooks/useAuthorizations', () => ({
-  useAuthorizations: () => ({
-    canView: true,
-    canEdit: true,
-    canViewFeatureFlag: false,
-  }),
+  useAuthorizations: () => mockUseAuthorizations(),
   ROLES: {
     VIEWER: 'rst-viewer',
     ADMIN: 'rst-admin',
@@ -18,11 +14,22 @@ vi.mock('@/hooks/useAuthorizations', () => ({
 }));
 
 vi.mock('@/components/auth', () => ({
-  RoleGuard: ({ children }: any) => <>{children}</>,
+  RoleGuard: ({ children, requireAll }: any) => {
+    const auth = mockUseAuthorizations();
+    const isAdminGuard =
+      Array.isArray(requireAll) && requireAll.includes('rst-admin');
+
+    if (isAdminGuard && !auth.canEdit) {
+      return null;
+    }
+
+    return <>{children}</>;
+  },
 }));
 
 const mockFees = [
   {
+    fee_id: 1,
     fee_amount: 15,
     fee_start_date: new Date('2024-05-15'),
     fee_end_date: new Date('2024-10-15'),
@@ -39,6 +46,7 @@ const mockFees = [
     fee_end_date_readable_utc: 'October 15, 2024',
   },
   {
+    fee_id: 2,
     fee_amount: 7,
     fee_start_date: new Date('2024-05-15'),
     fee_end_date: new Date('2024-10-15'),
@@ -55,8 +63,6 @@ const mockFees = [
     fee_end_date_readable_utc: 'October 15, 2024',
   },
 ];
-
-vi.mock('@/contexts/feature-flags/hooks');
 
 vi.mock('@/routes/rec-resource/$id/fees/index', () => {
   return {
@@ -75,28 +81,30 @@ vi.mock('@tanstack/react-router', async () => {
   const actual = await vi.importActual('@tanstack/react-router');
   return {
     ...actual,
+    Link: ({ to, children, className }: any) => (
+      <a href={to} className={className}>
+        {children}
+      </a>
+    ),
     useNavigate: vi.fn(() => vi.fn()),
   };
 });
 
-vi.mock('@shared/components/link-with-query-params', () => ({
-  LinkWithQueryParams: ({ to, children, className }: any) => (
-    <a href={to} className={className}>
-      {children}
-    </a>
-  ),
-}));
-
 describe('RecResourceFeesSection', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseAuthorizations.mockReturnValue({
+      canView: true,
+      canEdit: true,
+      canViewFeatureFlag: true,
+      canEditFeatureFlag: true,
+    });
     vi.mocked(Route.useLoaderData).mockReturnValue({
       fees: mockFees,
     });
     vi.mocked(Route.useParams).mockReturnValue({
       id: 'test-id',
     });
-    vi.mocked(featureFlagHooks.useFeatureFlagsEnabled).mockReturnValue(true);
   });
 
   it('renders h2 heading with Fees title', () => {
@@ -227,6 +235,7 @@ describe('RecResourceFeesSection', () => {
       },
       {
         ...mockFees[0],
+        fee_id: 2,
         recreation_fee_code: 'D',
         fee_start_date: new Date('2024-05-15'),
         fee_amount: 20,
@@ -262,16 +271,19 @@ describe('RecResourceFeesSection', () => {
     expect(row).toHaveTextContent('--');
   });
 
-  it('renders Add Fee button when feature flag is enabled', () => {
-    vi.mocked(featureFlagHooks.useFeatureFlagsEnabled).mockReturnValue(true);
-
+  it('renders Add Fee button for admin users', () => {
     render(<RecResourceFeesSection />);
 
     expect(screen.getByRole('link', { name: /add fee/i })).toBeInTheDocument();
   });
 
-  it('does not render Add Fee button when feature flag is disabled', () => {
-    vi.mocked(featureFlagHooks.useFeatureFlagsEnabled).mockReturnValue(false);
+  it('hides Add Fee button for non-admin users', () => {
+    mockUseAuthorizations.mockReturnValue({
+      canView: true,
+      canEdit: false,
+      canViewFeatureFlag: true,
+      canEditFeatureFlag: false,
+    });
 
     render(<RecResourceFeesSection />);
 

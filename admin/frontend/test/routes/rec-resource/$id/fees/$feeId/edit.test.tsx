@@ -9,7 +9,7 @@ const mockRoleRouteGuard = vi.fn(({ children }: { children: ReactNode }) => (
 vi.mock('@/components/auth', () => ({
   RoleRouteGuard: (props: {
     children: ReactNode;
-    require: string[];
+    requireAll: string[];
     redirectTo: string;
   }) => mockRoleRouteGuard(props),
 }));
@@ -22,23 +22,6 @@ vi.mock(
     ),
   }),
 );
-
-vi.mock('@/contexts/feature-flags', () => ({
-  FeatureFlagRouteGuard: ({
-    children,
-    requiredFlags,
-  }: {
-    children: ReactNode;
-    requiredFlags: string[];
-  }) => (
-    <div
-      data-testid="feature-flag-route-guard"
-      data-flags={requiredFlags.join(',')}
-    >
-      {children}
-    </div>
-  ),
-}));
 
 const mockParentBeforeLoad = vi.fn();
 vi.mock('@/routes/rec-resource/$id', () => ({
@@ -89,14 +72,12 @@ describe('RecResource Fees FeeId Edit Route', () => {
     expect(Route.options.beforeLoad).toBeDefined();
   });
 
-  it('renders component with FeatureFlagRouteGuard', () => {
+  it('renders component within RoleRouteGuard', () => {
     const Component = Route.options.component!;
     render(<Component />);
-    const guard = screen.getByTestId('feature-flag-route-guard');
-    expect(guard).toHaveAttribute('data-flags', 'enable_full_features');
-    expect(guard).toContainElement(
+    expect(
       screen.getByTestId('rec-resource-fees-edit-section'),
-    );
+    ).toBeInTheDocument();
   });
 
   it('wraps the route in an admin RoleRouteGuard with the fees redirect', () => {
@@ -105,7 +86,7 @@ describe('RecResource Fees FeeId Edit Route', () => {
 
     expect(mockRoleRouteGuard).toHaveBeenCalledWith(
       expect.objectContaining({
-        require: ['rst-admin'],
+        requireAll: ['rst-developer', 'rst-admin'],
         redirectTo: '/rec-resource/REC123/fees',
         children: expect.anything(),
       }),

@@ -10,11 +10,10 @@ import { EditReservationFormData } from './schemas';
 import { HasReservation } from '../components';
 import { RecreationResourceReservationInfoDto } from '@/services';
 import { useRecResourceReservation } from '@/pages/rec-resource-page/hooks/useRecResourceReservation';
-import { LinkWithQueryParams } from '@shared/components/link-with-query-params';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { Route } from '@/routes/rec-resource/$id/reservation/edit';
-import { useEffect, useState } from 'react';
 import { FormErrorBanner } from '../../shared/FormErrorBanner';
+import { Link } from '@tanstack/react-router';
 
 /**
  * Edit section for recreation resource overview
@@ -29,9 +28,6 @@ export const RecResourceReservationEditSection = () => {
     Boolean(reservationInfo?.reservation_website) ||
     Boolean(reservationInfo?.reservation_phone_number) ||
     Boolean(reservationInfo?.reservation_email);
-  const [requireReservation, setRequireReservation] = useState(
-    checkRequireReservation,
-  );
   const initialReservationInfo = reservationInfo;
 
   const {
@@ -60,18 +56,16 @@ export const RecResourceReservationEditSection = () => {
     name: 'reservation_phone_number',
   });
 
-  useEffect(() => {
-    if (
-      reservationEmail === '' &&
-      reservationWebsite === '' &&
-      reservationPhone === ''
-    ) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setRequireReservation(false);
-    } else {
-      setRequireReservation(true);
-    }
-  }, [reservationEmail, reservationWebsite, reservationPhone]);
+  const hasReservation = useWatch({
+    control,
+    name: 'has_reservation',
+  });
+
+  const requireReservation =
+    hasReservation ||
+    (reservationEmail ?? '') !== '' ||
+    (reservationWebsite ?? '') !== '' ||
+    (reservationPhone ?? '') !== '';
 
   const clearFields = () => {
     setValue('has_reservation', false, {
@@ -111,16 +105,20 @@ export const RecResourceReservationEditSection = () => {
     );
   };
 
-  const handleRequireReservation = () => {
-    setRequireReservation((prev) => {
-      const next = !prev;
-      if (!next) {
-        clearFields();
-      } else {
-        restoreFields();
-      }
-      return next;
-    });
+  const handleRequireReservation = (
+    next: boolean,
+    onChange: (...event: any[]) => void,
+  ) => {
+    onChange(next);
+
+    if (!next) {
+      clearFields();
+      return;
+    }
+
+    if (checkRequireReservation) {
+      restoreFields();
+    }
   };
 
   return (
@@ -128,7 +126,7 @@ export const RecResourceReservationEditSection = () => {
       <div className="d-flex justify-content-between align-items-center">
         <h2>Edit Reservation</h2>
         <Stack direction="horizontal" gap={2}>
-          <LinkWithQueryParams
+          <Link
             to={ROUTE_PATHS.REC_RESOURCE_RESERVATION.replace(
               '$id',
               recResourceId,
@@ -136,7 +134,7 @@ export const RecResourceReservationEditSection = () => {
             className="btn btn-outline-primary"
           >
             Cancel
-          </LinkWithQueryParams>
+          </Link>
           <Button
             variant="primary"
             onClick={handleSubmit(onSubmit as any)}
@@ -163,7 +161,9 @@ export const RecResourceReservationEditSection = () => {
                   <HasReservation
                     isEditMode={true}
                     value={requireReservation}
-                    onChange={(field.onChange, handleRequireReservation)}
+                    onChange={(next) =>
+                      handleRequireReservation(next, field.onChange)
+                    }
                   />
                 )}
               />

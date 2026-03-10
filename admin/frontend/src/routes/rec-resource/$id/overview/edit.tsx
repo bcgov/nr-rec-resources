@@ -2,7 +2,6 @@ import { createFileRoute } from '@tanstack/react-router';
 import { RecResourceOverviewEditSection } from '@/pages/rec-resource-page/components/RecResourceOverviewSection';
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { BreadcrumbItem } from '@shared/components/breadcrumbs';
-import { FeatureFlagRouteGuard } from '@/contexts/feature-flags';
 import { RoleRouteGuard } from '@/components/auth';
 import { ROLES } from '@/hooks/useAuthorizations';
 import { Route as ParentRoute } from '@/routes/rec-resource/$id';
@@ -41,12 +40,10 @@ function RecResourceOverviewEditRoute() {
 
   return (
     <RoleRouteGuard
-      require={[ROLES.ADMIN]}
+      requireAll={[ROLES.DEVELOPER, ROLES.ADMIN]}
       redirectTo={ROUTE_PATHS.REC_RESOURCE_OVERVIEW.replace('$id', id)}
     >
-      <FeatureFlagRouteGuard requiredFlags={['enable_full_features']}>
-        <RecResourceOverviewEditSection />
-      </FeatureFlagRouteGuard>
+      <RecResourceOverviewEditSection />
     </RoleRouteGuard>
   );
 }

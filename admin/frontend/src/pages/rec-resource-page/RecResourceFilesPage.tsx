@@ -1,7 +1,8 @@
 import { CustomButton } from '@/components';
+import { RoleGuard } from '@/components/auth';
+import { ROLES } from '@/hooks/useAuthorizations';
 import { RecResourceFileSection } from '@/pages/rec-resource-page/components/RecResourceFileSection';
 import { useRecResourceFileTransferState } from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
-import { useAuthorizations } from '@/hooks/useAuthorizations';
 import {
   faEllipsisH,
   faInfoCircle,
@@ -56,7 +57,6 @@ const ActionButton: FC<ActionButtonProps> = ({
 );
 
 const ActionButtonsSection = () => {
-  const { canEdit } = useAuthorizations();
   const {
     isDocumentUploadDisabled,
     isImageUploadDisabled,
@@ -72,74 +72,78 @@ const ActionButtonsSection = () => {
     >
       <h2 className="mb-0">Files</h2>
 
-      {/* Responsive actions: dropdown on mobile, buttons on desktop */}
-      {/* Mobile: show dropdown */}
-      <div className="d-flex d-lg-none align-items-center">
-        <Dropdown align="end">
-          <Dropdown.Toggle
-            as="span"
-            id="rec-resource-files-actions-dropdown"
-            className="rec-resource-files-page__ellipsis-toggle no-caret"
-            aria-label="File actions menu"
+      <RoleGuard requireAll={[ROLES.ADMIN]}>
+        <>
+          {/* Responsive actions: dropdown on mobile, buttons on desktop */}
+          {/* Mobile: show dropdown */}
+          <div className="d-flex d-lg-none align-items-center">
+            <Dropdown align="end">
+              <Dropdown.Toggle
+                as="span"
+                id="rec-resource-files-actions-dropdown"
+                className="rec-resource-files-page__ellipsis-toggle no-caret"
+                aria-label="File actions menu"
+              >
+                <FontAwesomeIcon
+                  icon={faEllipsisH}
+                  size="lg"
+                  className="rec-resource-files-page__ellipsis-icon"
+                />
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                <Dropdown.Item
+                  onClick={getImageGeneralActionHandler('upload')}
+                  disabled={isImageUploadDisabled}
+                >
+                  <FontAwesomeIcon
+                    icon={faPlus}
+                    className="me-2 rec-resource-files-page__action-button-icon"
+                  />
+                  Add image
+                </Dropdown.Item>
+                <Dropdown.Item
+                  onClick={getDocumentGeneralActionHandler('upload')}
+                  disabled={isDocumentUploadDisabled}
+                >
+                  <FontAwesomeIcon
+                    icon={faPlus}
+                    className="me-2 rec-resource-files-page__action-button-icon"
+                  />
+                  Add document
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </div>
+          {/* Desktop: show buttons */}
+          <Stack
+            direction="horizontal"
+            gap={2}
+            className="py-2 rec-resource-files-page__action-buttons align-items-center d-none d-lg-flex"
           >
-            <FontAwesomeIcon
-              icon={faEllipsisH}
-              size="lg"
-              className="rec-resource-files-page__ellipsis-icon"
-            />
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            <Dropdown.Item
+            <ActionButton
+              label="Add image"
               onClick={getImageGeneralActionHandler('upload')}
-              disabled={!canEdit || isImageUploadDisabled}
-            >
-              <FontAwesomeIcon
-                icon={faPlus}
-                className="me-2 rec-resource-files-page__action-button-icon"
-              />
-              Add image
-            </Dropdown.Item>
-            <Dropdown.Item
+              disabled={isImageUploadDisabled}
+            />
+            <ActionButton
+              label="Add document"
               onClick={getDocumentGeneralActionHandler('upload')}
-              disabled={!canEdit || isDocumentUploadDisabled}
-            >
-              <FontAwesomeIcon
-                icon={faPlus}
-                className="me-2 rec-resource-files-page__action-button-icon"
-              />
-              Add document
-            </Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
-      </div>
-      {/* Desktop: show buttons */}
-      <Stack
-        direction="horizontal"
-        gap={2}
-        className="py-2 rec-resource-files-page__action-buttons align-items-center d-none d-lg-flex"
-      >
-        <ActionButton
-          label="Add image"
-          onClick={getImageGeneralActionHandler('upload')}
-          disabled={!canEdit || isImageUploadDisabled}
-        />
-        <ActionButton
-          label="Add document"
-          onClick={getDocumentGeneralActionHandler('upload')}
-          disabled={!canEdit || isDocumentUploadDisabled}
-        />
-      </Stack>
+              disabled={isDocumentUploadDisabled}
+            />
+          </Stack>
+        </>
+      </RoleGuard>
     </Stack>
   );
 };
 
 export const RecResourceFilesPage = () => {
-  const { canEdit } = useAuthorizations();
-
   return (
     <Stack direction="vertical" gap={4}>
       <ActionButtonsSection />
-      {canEdit ? <InfoBanner /> : null}
+      <RoleGuard requireAll={[ROLES.ADMIN]}>
+        <InfoBanner />
+      </RoleGuard>
       <RecResourceFileSection />
     </Stack>
   );

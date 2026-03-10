@@ -1,4 +1,3 @@
-import { FeatureFlagRouteGuard } from '@/contexts/feature-flags';
 import { RoleRouteGuard } from '@/components/auth';
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { RecResourceActivitiesFeaturesEditPage } from '@/pages/rec-resource-page/RecResourceActivitiesFeaturesEditPage';
@@ -50,15 +49,13 @@ function RecResourceActivitiesFeaturesEditRoute() {
 
   return (
     <RoleRouteGuard
-      require={[ROLES.ADMIN]}
+      requireAll={[ROLES.DEVELOPER, ROLES.ADMIN]}
       redirectTo={ROUTE_PATHS.REC_RESOURCE_ACTIVITIES_FEATURES.replace(
         '$id',
         id,
       )}
     >
-      <FeatureFlagRouteGuard requiredFlags={['enable_full_features']}>
-        <RecResourceActivitiesFeaturesEditPage />
-      </FeatureFlagRouteGuard>
+      <RecResourceActivitiesFeaturesEditPage />
     </RoleRouteGuard>
   );
 }

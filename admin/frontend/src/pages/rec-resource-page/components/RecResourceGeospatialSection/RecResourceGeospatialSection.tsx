@@ -1,6 +1,5 @@
 import { Col, Row, Stack } from 'react-bootstrap';
-import { FeatureFlagGuard } from '@/contexts/feature-flags';
-import { EditAction } from '@/components/buttons';
+import { RoleGuard } from '@/components/auth';
 import { CopyButton } from '@shared/components/copy-button';
 import { FieldItem } from '../shared/FieldItem';
 import { RecResourceLocationSection } from '@/pages/rec-resource-page/components/RecResourceLocationSection';
@@ -8,7 +7,8 @@ import { Route } from '@/routes/rec-resource/$id/geospatial';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { useRecResource } from '@/pages/rec-resource-page/hooks/useRecResource';
 import { useGetRecreationResourceGeospatial } from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceGeospatial';
-import { useAuthorizations } from '@/hooks/useAuthorizations';
+import { ROLES } from '@/hooks/useAuthorizations';
+import { Link } from '@tanstack/react-router';
 
 const geometryNumberFormat: Intl.NumberFormatOptions = {
   minimumFractionDigits: 2,
@@ -19,7 +19,6 @@ export function RecResourceGeospatialSection() {
   const params = Route.useParams();
   const recResourceId = params?.id;
   const { recResource } = useRecResource();
-  const { canEdit } = useAuthorizations();
 
   const { data: geospatialData } =
     useGetRecreationResourceGeospatial(recResourceId);
@@ -94,17 +93,19 @@ export function RecResourceGeospatialSection() {
       <div className="d-flex justify-content-between align-items-center">
         <h2>Geospatial</h2>
 
-        <FeatureFlagGuard requiredFlags={['enable_full_features']}>
+        <RoleGuard requireAll={[ROLES.ADMIN]}>
           {hasGeometryData && (
-            <EditAction
+            <Link
               to={ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL_EDIT.replace(
                 '$id',
                 recResourceId,
               )}
-              disabled={!canEdit}
-            />
+              className="btn btn-outline-primary"
+            >
+              Edit
+            </Link>
           )}
-        </FeatureFlagGuard>
+        </RoleGuard>
       </div>
 
       <div className="rec-resource-geospatial-section__body">

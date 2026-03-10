@@ -1,8 +1,7 @@
 import { ROUTE_PATHS } from '@/constants/routes';
-import { FeatureFlagProvider } from '@/contexts/feature-flags';
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { RecResourceVerticalNav } from '@/pages/rec-resource-page/components/RecResourceVerticalNav';
-import { useLocation } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -24,10 +23,19 @@ Object.defineProperty(window, 'matchMedia', {
 
 const mockNavigate = vi.fn();
 
-vi.mock('@shared/hooks', () => ({
-  useNavigateWithQueryParams: vi.fn(() => ({
-    navigate: mockNavigate,
-  })),
+vi.mock('@/hooks/useAuthorizations', () => ({
+  ROLES: {
+    VIEWER: 'rst-viewer',
+    ADMIN: 'rst-admin',
+    DEVELOPER: 'rst-developer',
+  },
+  useUserRoles: () => ['rst-viewer', 'rst-admin', 'rst-developer'],
+  useAuthorizations: () => ({
+    canView: true,
+    canEdit: true,
+    canViewFeatureFlag: true,
+    canEditFeatureFlag: true,
+  }),
 }));
 
 vi.mock('@tanstack/react-router', async (importOriginal) => {
@@ -35,12 +43,12 @@ vi.mock('@tanstack/react-router', async (importOriginal) => {
     await importOriginal<typeof import('@tanstack/react-router')>();
   return {
     ...actual,
-    useLocation: vi.fn(),
+    useNavigate: vi.fn(),
   };
 });
 
 const renderWithRouter = (component: React.ReactElement) => {
-  return render(<FeatureFlagProvider>{component}</FeatureFlagProvider>);
+  return render(component);
 };
 
 describe('RecResourceVerticalNav', () => {
@@ -51,9 +59,7 @@ describe('RecResourceVerticalNav', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(useLocation).mockReturnValue({
-      search: '',
-    } as any);
+    vi.mocked(useNavigate).mockReturnValue(mockNavigate);
   });
 
   it('renders all navigation items in desktop view', () => {

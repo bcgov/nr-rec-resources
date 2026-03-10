@@ -4,6 +4,10 @@ import { RecResourceGeospatialEditSection } from '@/pages/rec-resource-page/comp
 
 const mockUseGetRecreationResourceGeospatial = vi.fn();
 
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({ children, ...props }: any) => <a {...props}>{children}</a>,
+}));
+
 vi.mock('react-hook-form', async () => {
   const actual = await vi.importActual('react-hook-form');
   return {
@@ -67,12 +71,6 @@ vi.mock(
     ),
   }),
 );
-
-vi.mock('@shared/components/link-with-query-params', () => ({
-  LinkWithQueryParams: ({ children, ...props }: any) => (
-    <a {...props}>{children}</a>
-  ),
-}));
 
 describe('RecResourceGeospatialEditSection', () => {
   it('renders header and action buttons', () => {

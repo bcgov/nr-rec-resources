@@ -1,22 +1,27 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({ children, to }: any) => <a href={to}>{children}</a>,
+}));
+
 vi.mock('@/routes/rec-resource/$id/reservation', () => ({
   Route: {
     useParams: vi.fn(),
   },
 }));
 
-vi.mock('@shared/components/link-with-query-params', () => ({
-  LinkWithQueryParams: ({ children, to }: any) => <a href={to}>{children}</a>,
-}));
-
-vi.mock('@/contexts/feature-flags', () => ({
-  FeatureFlagGuard: ({ children }: any) => <>{children}</>,
+vi.mock('@/components/auth', () => ({
+  RoleGuard: ({ children }: any) => <>{children}</>,
 }));
 
 const mockUseAuthorizations = vi.fn();
 vi.mock('@/hooks/useAuthorizations', () => ({
+  ROLES: {
+    VIEWER: 'rst-viewer',
+    ADMIN: 'rst-admin',
+    DEVELOPER: 'rst-developer',
+  },
   useAuthorizations: () => mockUseAuthorizations(),
 }));
 
@@ -60,7 +65,8 @@ describe('RecResourceReservationSection', () => {
     mockUseAuthorizations.mockReturnValue({
       canView: true,
       canEdit: true,
-      canViewFeatureFlag: false,
+      canViewFeatureFlag: true,
+      canEditFeatureFlag: true,
     });
     vi.mocked(Route.useParams).mockReturnValue({ id: 'REC123' });
   });

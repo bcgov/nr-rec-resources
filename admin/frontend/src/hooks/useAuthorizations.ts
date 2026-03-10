@@ -12,27 +12,40 @@ export type Role = (typeof ROLES)[keyof typeof ROLES];
 const hasAnyRole = (roles: string[], requiredRoles: string[]) =>
   requiredRoles.some((role) => roles.includes(role));
 
-export type AuthorizationKey = 'canView' | 'canEdit' | 'canViewFeatureFlag';
+const getUserRoles = (context: React.ContextType<typeof AuthContext>) => {
+  if (!context) {
+    return [];
+  }
+
+  const { user, authService } = context;
+  return user?.client_roles ?? authService.getUserRoles();
+};
+
+export const useUserRoles = () => {
+  const context = useContext(AuthContext);
+  return useMemo(() => getUserRoles(context), [context]);
+};
+
+export type AuthorizationKey =
+  | 'canView'
+  | 'canEdit'
+  | 'canViewFeatureFlag'
+  | 'canEditFeatureFlag';
 
 export const useAuthorizations = () => {
   const context = useContext(AuthContext);
 
   return useMemo(() => {
-    if (!context) {
-      return {
-        canView: false,
-        canEdit: false,
-        canViewFeatureFlag: false,
-      };
-    }
-
-    const { user, authService } = context;
-    const roles = user?.client_roles ?? authService.getUserRoles();
+    const roles = getUserRoles(context);
+    const canView = hasAnyRole(roles, [ROLES.VIEWER, ROLES.ADMIN]);
+    const canEdit = hasAnyRole(roles, [ROLES.ADMIN]);
+    const hasDeveloperAccess = hasAnyRole(roles, [ROLES.DEVELOPER]);
 
     return {
-      canView: hasAnyRole(roles, [ROLES.VIEWER, ROLES.ADMIN]),
-      canEdit: hasAnyRole(roles, [ROLES.ADMIN]),
-      canViewFeatureFlag: hasAnyRole(roles, [ROLES.DEVELOPER]),
+      canView,
+      canEdit,
+      canViewFeatureFlag: hasDeveloperAccess && canView,
+      canEditFeatureFlag: hasDeveloperAccess && canEdit,
     };
   }, [context]);
 };

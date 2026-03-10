@@ -5,9 +5,13 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 const navigateMock = vi.fn();
 
-vi.mock('@shared/hooks', () => ({
-  useNavigateWithQueryParams: () => ({ navigate: navigateMock }),
-}));
+vi.mock('@tanstack/react-router', async () => {
+  const actual: any = await vi.importActual('@tanstack/react-router');
+  return {
+    ...actual,
+    useNavigate: () => navigateMock,
+  };
+});
 
 const mockFees = [{ fee_id: 1 } as any];
 

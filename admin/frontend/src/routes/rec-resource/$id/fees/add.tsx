@@ -3,7 +3,6 @@ import { RecResourceFeesAddSection } from '@/pages/rec-resource-page/components/
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { recResourceFeesLoader } from '@/services/loaders/recResourceFeesLoader';
 import { Route as ParentRoute } from '@/routes/rec-resource/$id';
-import { FeatureFlagRouteGuard } from '@/contexts/feature-flags';
 import { RoleRouteGuard } from '@/components/auth';
 import { ROLES } from '@/hooks/useAuthorizations';
 import { ROUTE_PATHS } from '@/constants/routes';
@@ -42,12 +41,10 @@ function RecResourceFeesEditRoute() {
 
   return (
     <RoleRouteGuard
-      require={[ROLES.ADMIN]}
+      requireAll={[ROLES.DEVELOPER, ROLES.ADMIN]}
       redirectTo={ROUTE_PATHS.REC_RESOURCE_FEES.replace('$id', id)}
     >
-      <FeatureFlagRouteGuard requiredFlags={['enable_full_features']}>
-        <RecResourceFeesAddSection />
-      </FeatureFlagRouteGuard>
+      <RecResourceFeesAddSection />
     </RoleRouteGuard>
   );
 }

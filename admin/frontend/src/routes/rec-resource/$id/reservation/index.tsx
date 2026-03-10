@@ -3,15 +3,9 @@ import { RecResourceReservationPage } from '@/pages/rec-resource-page/RecResourc
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { recResourceReservationLoader } from '@/services/loaders/recResourceReservationLoader';
 import { Route as ParentRoute } from '@/routes/rec-resource/$id';
-import { FeatureFlagRouteGuard } from '@/contexts/feature-flags';
-
-function RecResourceReservationPageRoute() {
-  return (
-    <FeatureFlagRouteGuard requiredFlags={['enable_full_features']}>
-      <RecResourceReservationPage />
-    </FeatureFlagRouteGuard>
-  );
-}
+import { RoleRouteGuard } from '@/components/auth';
+import { ROLES } from '@/hooks/useAuthorizations';
+import { ROUTE_PATHS } from '@/constants/routes';
 
 export const Route = createFileRoute('/rec-resource/$id/reservation/')({
   component: RecResourceReservationPageRoute,
@@ -37,3 +31,17 @@ export const Route = createFileRoute('/rec-resource/$id/reservation/')({
     };
   },
 });
+
+function RecResourceReservationPageRoute() {
+  const { id } = Route.useParams();
+
+  return (
+    <RoleRouteGuard
+      requireAll={[ROLES.DEVELOPER]}
+      requireAny={[ROLES.VIEWER, ROLES.ADMIN]}
+      redirectTo={ROUTE_PATHS.REC_RESOURCE_FILES.replace('$id', id)}
+    >
+      <RecResourceReservationPage />
+    </RoleRouteGuard>
+  );
+}

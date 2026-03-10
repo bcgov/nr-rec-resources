@@ -1,7 +1,7 @@
 import { RoleRouteGuard } from '@/components/auth/RoleRouteGuard';
 import { createAuthWrapper } from '@test/routes/helpers/roleGuardTestHelper';
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockNavigate = vi.fn();
 vi.mock('@tanstack/react-router', () => ({
@@ -9,9 +9,13 @@ vi.mock('@tanstack/react-router', () => ({
 }));
 
 describe('RoleRouteGuard', () => {
+  beforeEach(() => {
+    mockNavigate.mockClear();
+  });
+
   it('renders children when user has the required role', () => {
     render(
-      <RoleRouteGuard require={['rst-admin']} redirectTo="/home">
+      <RoleRouteGuard requireAll={['rst-admin']} redirectTo="/home">
         <div>Protected Route</div>
       </RoleRouteGuard>,
       { wrapper: createAuthWrapper(['rst-admin']) },
@@ -23,7 +27,7 @@ describe('RoleRouteGuard', () => {
 
   it('redirects when user lacks the required role', () => {
     render(
-      <RoleRouteGuard require={['rst-admin']} redirectTo="/home">
+      <RoleRouteGuard requireAll={['rst-admin']} redirectTo="/home">
         <div>Protected Route</div>
       </RoleRouteGuard>,
       { wrapper: createAuthWrapper(['rst-viewer']) },
@@ -34,5 +38,21 @@ describe('RoleRouteGuard', () => {
       to: '/home',
       replace: true,
     });
+  });
+
+  it('supports combined requireAll and requireAny checks', () => {
+    render(
+      <RoleRouteGuard
+        requireAll={['rst-developer']}
+        requireAny={['rst-viewer', 'rst-admin']}
+        redirectTo="/home"
+      >
+        <div>Protected Route</div>
+      </RoleRouteGuard>,
+      { wrapper: createAuthWrapper(['rst-viewer', 'rst-developer']) },
+    );
+
+    expect(screen.getByText('Protected Route')).toBeInTheDocument();
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 });

@@ -11,7 +11,7 @@ const mockRoleRouteGuard = vi.fn(
 vi.mock('@/components/auth', () => ({
   RoleRouteGuard: (props: {
     children: React.ReactNode;
-    require: string[];
+    requireAll: string[];
     redirectTo: string;
   }) => mockRoleRouteGuard(props),
 }));
@@ -26,23 +26,6 @@ vi.mock(
     ),
   }),
 );
-
-vi.mock('@/contexts/feature-flags', () => ({
-  FeatureFlagRouteGuard: ({
-    children,
-    requiredFlags,
-  }: {
-    children: React.ReactNode;
-    requiredFlags: string[];
-  }) => (
-    <div
-      data-testid="feature-flag-route-guard"
-      data-flags={requiredFlags.join(',')}
-    >
-      {children}
-    </div>
-  ),
-}));
 
 describe('RecResource Overview Edit Route', () => {
   beforeEach(() => {
@@ -90,18 +73,13 @@ describe('RecResource Overview Edit Route', () => {
     });
   });
 
-  it('renders the edit section behind the full-features guard', () => {
+  it('renders the edit section inside RoleRouteGuard', () => {
     const Component = Route.options.component!;
     render(<Component />);
 
     expect(
       screen.getByTestId('rec-resource-overview-edit-section'),
     ).toBeInTheDocument();
-    const guard = screen.getByTestId('feature-flag-route-guard');
-    expect(guard).toHaveAttribute('data-flags', 'enable_full_features');
-    expect(guard).toContainElement(
-      screen.getByTestId('rec-resource-overview-edit-section'),
-    );
   });
 
   it('wraps the route in an admin RoleRouteGuard with the overview redirect', () => {
@@ -110,7 +88,7 @@ describe('RecResource Overview Edit Route', () => {
 
     expect(mockRoleRouteGuard).toHaveBeenCalledWith(
       expect.objectContaining({
-        require: ['rst-admin'],
+        requireAll: ['rst-developer', 'rst-admin'],
         redirectTo: '/rec-resource/REC123/overview',
         children: expect.anything(),
       }),
