@@ -19,6 +19,8 @@ export const ExportsPage = () => {
     datasets.selected?.info,
   );
   const areFilterSelectsDisabled = !hasSelectedDataset || filters.isLoading;
+  const showPreviewTable =
+    preview.isEnabled && preview.data && !preview.isLoading;
 
   return (
     <PageLayout>
@@ -172,13 +174,13 @@ export const ExportsPage = () => {
             <div className="d-flex align-items-center gap-2 mb-2">
               <h2 className="h5">Preview</h2>
               {preview.isLoading && (
-                <span
-                  role="status"
+                <output
+                  aria-label="Loading preview"
                   className="d-inline-flex align-items-center gap-2"
                 >
                   <Spinner animation="border" size="sm" aria-hidden="true" />
                   <span className="visually-hidden">Loading preview</span>
-                </span>
+                </output>
               )}
             </div>
 
@@ -195,7 +197,7 @@ export const ExportsPage = () => {
               </p>
             ) : null}
 
-            {preview.isEnabled && !preview.isLoading && preview.data ? (
+            {showPreviewTable ? (
               <DataTable
                 className="mb-0"
                 columns={preview.data.columns.map((column) => ({

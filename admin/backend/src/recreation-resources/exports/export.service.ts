@@ -25,9 +25,10 @@ export class ExportService {
     query: ExportPreviewQueryDto,
   ): Promise<ExportPreviewResponseDto> {
     const rows = await this.exportRepository.getPreviewRows(query);
+    const columns = this.getColumns(rows);
 
     return {
-      columns: rows[0] ? Object.keys(rows[0]) : [],
+      columns,
       rows,
     };
   }
@@ -36,12 +37,16 @@ export class ExportService {
     query: ExportDownloadQueryDto,
   ): Promise<ExportDownloadResult> {
     const rows = await this.exportRepository.getDownloadRows(query);
-    const columns = rows[0] ? Object.keys(rows[0]) : [];
+    const columns = this.getColumns(rows);
 
     return {
       csv: this.buildCsv(columns, rows),
       fileName: this.buildDownloadFileName(query.dataset),
     };
+  }
+
+  private getColumns(rows: ExportPreviewRow[]): string[] {
+    return rows[0] ? Object.keys(rows[0]) : [];
   }
 
   private buildCsv(columns: string[], rows: ExportPreviewRow[]): string {
@@ -50,13 +55,13 @@ export class ExportService {
     }
 
     const csvRows = [
-      columns.map((column) => this.escapeCsvCell(column)).join(','),
-      ...rows.map((row) =>
-        columns.map((column) => this.escapeCsvCell(row[column])).join(','),
-      ),
+      columns,
+      ...rows.map((row) => columns.map((column) => row[column])),
     ];
 
-    return csvRows.join('\r\n');
+    return csvRows
+      .map((row) => row.map((cell) => this.escapeCsvCell(cell)).join(','))
+      .join('\r\n');
   }
 
   private buildDownloadFileName(dataset: string): string {

@@ -19,7 +19,7 @@ const getDownloadFileName = (
     return `${fallbackDataset}.csv`;
   }
 
-  const fileNameMatch = contentDisposition.match(/filename="([^"]+)"/i);
+  const fileNameMatch = /filename="([^"]+)"/i.exec(contentDisposition);
 
   if (fileNameMatch?.[1]) {
     return fileNameMatch[1];
@@ -134,7 +134,7 @@ export const useExportState = () => {
       link.click();
       link.remove();
 
-      window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 0);
+      globalThis.setTimeout(() => URL.revokeObjectURL(downloadUrl), 0);
     } catch {
       addErrorNotification(
         'Failed to download the CSV export. Please try again.',

@@ -30,7 +30,10 @@ import { ExportService } from './export.service';
 })
 @ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
 @UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
-@AuthRoles([RecreationResourceAuthRole.RST_ADMIN], ROLE_MODE.ALL)
+@AuthRoles(
+  [RecreationResourceAuthRole.RST_ADMIN, RecreationResourceAuthRole.RST_VIEWER],
+  ROLE_MODE.ANY,
+)
 export class ExportController {
   constructor(private readonly exportService: ExportService) {}
 
