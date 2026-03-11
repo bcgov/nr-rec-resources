@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ExportsRouteImport } from './routes/exports'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as RecResourceIdRouteImport } from './routes/rec-resource/$id'
 import { Route as RecResourceIdIndexRouteImport } from './routes/rec-resource/$id/index'
@@ -25,6 +26,11 @@ import { Route as RecResourceIdFeesAddRouteImport } from './routes/rec-resource/
 import { Route as RecResourceIdActivitiesFeaturesEditRouteImport } from './routes/rec-resource/$id/activities-features/edit'
 import { Route as RecResourceIdFeesFeeIdEditRouteImport } from './routes/rec-resource/$id/fees/$feeId/edit'
 
+const ExportsRoute = ExportsRouteImport.update({
+  id: '/exports',
+  path: '/exports',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -112,6 +118,7 @@ const RecResourceIdFeesFeeIdEditRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/exports': typeof ExportsRoute
   '/rec-resource/$id': typeof RecResourceIdRouteWithChildren
   '/rec-resource/$id/files': typeof RecResourceIdFilesRoute
   '/rec-resource/$id/': typeof RecResourceIdIndexRoute
@@ -129,6 +136,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/exports': typeof ExportsRoute
   '/rec-resource/$id/files': typeof RecResourceIdFilesRoute
   '/rec-resource/$id': typeof RecResourceIdIndexRoute
   '/rec-resource/$id/activities-features/edit': typeof RecResourceIdActivitiesFeaturesEditRoute
@@ -146,6 +154,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/exports': typeof ExportsRoute
   '/rec-resource/$id': typeof RecResourceIdRouteWithChildren
   '/rec-resource/$id/files': typeof RecResourceIdFilesRoute
   '/rec-resource/$id/': typeof RecResourceIdIndexRoute
@@ -165,6 +174,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/exports'
     | '/rec-resource/$id'
     | '/rec-resource/$id/files'
     | '/rec-resource/$id/'
@@ -182,6 +192,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/exports'
     | '/rec-resource/$id/files'
     | '/rec-resource/$id'
     | '/rec-resource/$id/activities-features/edit'
@@ -198,6 +209,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/exports'
     | '/rec-resource/$id'
     | '/rec-resource/$id/files'
     | '/rec-resource/$id/'
@@ -216,11 +228,19 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ExportsRoute: typeof ExportsRoute
   RecResourceIdRoute: typeof RecResourceIdRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/exports': {
+      id: '/exports'
+      path: '/exports'
+      fullPath: '/exports'
+      preLoaderRoute: typeof ExportsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -369,6 +389,7 @@ const RecResourceIdRouteWithChildren = RecResourceIdRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ExportsRoute: ExportsRoute,
   RecResourceIdRoute: RecResourceIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport

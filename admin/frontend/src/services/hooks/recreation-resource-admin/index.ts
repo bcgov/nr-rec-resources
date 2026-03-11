@@ -4,6 +4,8 @@ export * from './useCreateFee';
 export * from './useDeleteEstablishmentOrderDoc';
 export * from './useDeleteResourceDocument';
 export * from './useDeleteResourceImage';
+export * from './useGetExportDatasets';
+export * from './useGetExportPreview';
 export * from './useGetDocumentsByRecResourceId';
 export * from './useGetEstablishmentOrderDocs';
 export * from './useGetImagesByRecResourceId';
