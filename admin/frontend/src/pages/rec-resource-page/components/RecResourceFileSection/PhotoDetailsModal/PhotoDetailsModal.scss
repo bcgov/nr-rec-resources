@@ -1,0 +1,75 @@
+@import '@/styles/variables';
+
+.photo-details-modal {
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  &__section {
+    border-bottom: 1px solid $colorGreyLight;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+
+    &:first-child {
+      padding-top: 0;
+    }
+
+    &:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+  }
+
+  &__section-title {
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    color: $colorGrey;
+  }
+
+  &__list {
+    display: grid;
+    gap: 0.75rem;
+    margin: 0;
+
+    @media screen and (min-width: $smBreakpoint) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    dt {
+      color: $colorGreyMed;
+      font-weight: 500;
+      font-size: 0.875rem;
+    }
+
+    dd {
+      margin: 0;
+      color: $colorGrey;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+  }
+
+  &__link-button {
+    background: none;
+    border: none;
+    padding: 0;
+    color: $colorBlue;
+    font-size: 0.875rem;
+    cursor: pointer;
+    text-decoration: underline;
+
+    &:hover {
+      color: $colorBlueMed;
+    }
+  }
+}

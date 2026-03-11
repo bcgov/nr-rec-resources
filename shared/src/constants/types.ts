@@ -1,0 +1,8 @@
+export const RECREATION_RESOURCE_TYPES_PUBLIC = {
+  RECREATION_SITE: 'SIT',
+  RECREATION_TRAIL: 'RTE',
+  INTERPRETIVE_FOREST: 'IF',
+} as const;
+
+export type RecreationResourceTypeCodePublic =
+  (typeof RECREATION_RESOURCE_TYPES_PUBLIC)[keyof typeof RECREATION_RESOURCE_TYPES_PUBLIC];

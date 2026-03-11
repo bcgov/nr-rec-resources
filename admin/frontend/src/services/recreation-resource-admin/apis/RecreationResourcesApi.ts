@@ -15,10 +15,10 @@
 import * as runtime from '../runtime';
 import type {
   BadRequestResponseDto,
+  ConsentFormDownloadResponseDto,
   CreateRecreationFeeDto,
   EstablishmentOrderDocDto,
   FinalizeDocUploadRequestDto,
-  FinalizeImageUploadRequestDto,
   OptionDto,
   OptionsByTypeDto,
   PresignDocUploadResponseDto,
@@ -34,6 +34,7 @@ import type {
   SuggestionsResponseDto,
   UpdateActivitiesDto,
   UpdateFeaturesDto,
+  UpdateImageConsentDto,
   UpdateRecreationFeeDto,
   UpdateRecreationResourceDto,
   UpdateRecreationResourceGeospatialDto,
@@ -42,14 +43,14 @@ import type {
 import {
   BadRequestResponseDtoFromJSON,
   BadRequestResponseDtoToJSON,
+  ConsentFormDownloadResponseDtoFromJSON,
+  ConsentFormDownloadResponseDtoToJSON,
   CreateRecreationFeeDtoFromJSON,
   CreateRecreationFeeDtoToJSON,
   EstablishmentOrderDocDtoFromJSON,
   EstablishmentOrderDocDtoToJSON,
   FinalizeDocUploadRequestDtoFromJSON,
   FinalizeDocUploadRequestDtoToJSON,
-  FinalizeImageUploadRequestDtoFromJSON,
-  FinalizeImageUploadRequestDtoToJSON,
   OptionDtoFromJSON,
   OptionDtoToJSON,
   OptionsByTypeDtoFromJSON,
@@ -80,6 +81,8 @@ import {
   UpdateActivitiesDtoToJSON,
   UpdateFeaturesDtoFromJSON,
   UpdateFeaturesDtoToJSON,
+  UpdateImageConsentDtoFromJSON,
+  UpdateImageConsentDtoToJSON,
   UpdateRecreationFeeDtoFromJSON,
   UpdateRecreationFeeDtoToJSON,
   UpdateRecreationResourceDtoFromJSON,
@@ -96,24 +99,20 @@ export interface CreateEstablishmentOrderDocRequest {
   title: string;
 }
 
+export interface CreateImageConsentRequest {
+  recResourceId: string;
+  imageId: string;
+  dateTaken?: string;
+  containsPii?: boolean;
+  photographerType?: string;
+  photographerName?: string;
+  consentForm?: Blob;
+  fileName?: string;
+}
+
 export interface CreateRecreationResourceFeeRequest {
   recResourceId: string;
   createRecreationFeeDto: CreateRecreationFeeDto;
-}
-
-export interface CreateRecreationresourceDocumentRequest {
-  recResourceId: string;
-  fileName: string;
-  file: Blob;
-}
-
-export interface CreateRecreationresourceImageRequest {
-  recResourceId: string;
-  fileName: string;
-  original: Blob;
-  scr: Blob;
-  pre: Blob;
-  thm: Blob;
 }
 
 export interface DeleteDocumentResourceRequest {
@@ -138,7 +137,14 @@ export interface FinalizeDocUploadRequest {
 
 export interface FinalizeImageUploadRequest {
   recResourceId: string;
-  finalizeImageUploadRequestDto: FinalizeImageUploadRequestDto;
+  imageId: string;
+  fileName: string;
+  fileSizeOriginal: number;
+  dateTaken?: string;
+  containsPii?: boolean;
+  photographerType?: string;
+  photographerName?: string;
+  consentForm?: Blob;
 }
 
 export interface GetActivitiesByRecResourceIdRequest {
@@ -147,6 +153,11 @@ export interface GetActivitiesByRecResourceIdRequest {
 
 export interface GetAllEstablishmentOrderDocsRequest {
   recResourceId: string;
+}
+
+export interface GetConsentFormDownloadUrlRequest {
+  recResourceId: string;
+  imageId: string;
 }
 
 export interface GetDocumentsByRecResourceIdRequest {
@@ -207,6 +218,12 @@ export interface UpdateActivitiesRequest {
 export interface UpdateFeaturesRequest {
   recResourceId: string;
   updateFeaturesDto: UpdateFeaturesDto;
+}
+
+export interface UpdateImageConsentRequest {
+  recResourceId: string;
+  imageId: string;
+  updateImageConsentDto: UpdateImageConsentDto;
 }
 
 export interface UpdateRecreationResourceByIdRequest {
@@ -334,6 +351,129 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
+   * Create consent metadata for an existing image
+   */
+  async createImageConsentRaw(
+    requestParameters: CreateImageConsentRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceImageDto>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling createImageConsent().',
+      );
+    }
+
+    if (requestParameters['imageId'] == null) {
+      throw new runtime.RequiredError(
+        'imageId',
+        'Required parameter "imageId" was null or undefined when calling createImageConsent().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+    const consumes: runtime.Consume[] = [
+      { contentType: 'multipart/form-data' },
+    ];
+    // @ts-ignore: canConsumeForm may be unused
+    const canConsumeForm = runtime.canConsumeForm(consumes);
+
+    let formParams: { append(param: string, value: any): any };
+    let useForm = false;
+    // use FormData to transmit files using content-type "multipart/form-data"
+    useForm = canConsumeForm;
+    if (useForm) {
+      formParams = new FormData();
+    } else {
+      formParams = new URLSearchParams();
+    }
+
+    if (requestParameters['dateTaken'] != null) {
+      formParams.append('date_taken', requestParameters['dateTaken'] as any);
+    }
+
+    if (requestParameters['containsPii'] != null) {
+      formParams.append(
+        'contains_pii',
+        requestParameters['containsPii'] as any,
+      );
+    }
+
+    if (requestParameters['photographerType'] != null) {
+      formParams.append(
+        'photographer_type',
+        requestParameters['photographerType'] as any,
+      );
+    }
+
+    if (requestParameters['photographerName'] != null) {
+      formParams.append(
+        'photographer_name',
+        requestParameters['photographerName'] as any,
+      );
+    }
+
+    if (requestParameters['consentForm'] != null) {
+      formParams.append(
+        'consent_form',
+        requestParameters['consentForm'] as any,
+      );
+    }
+
+    if (requestParameters['fileName'] != null) {
+      formParams.append('file_name', requestParameters['fileName'] as any);
+    }
+
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resources/{rec_resource_id}/images/{image_id}/consent`
+          .replace(
+            `{${'rec_resource_id'}}`,
+            encodeURIComponent(String(requestParameters['recResourceId'])),
+          )
+          .replace(
+            `{${'image_id'}}`,
+            encodeURIComponent(String(requestParameters['imageId'])),
+          ),
+        method: 'POST',
+        headers: headerParameters,
+        query: queryParameters,
+        body: formParams,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationResourceImageDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Create consent metadata for an existing image
+   */
+  async createImageConsent(
+    requestParameters: CreateImageConsentRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationResourceImageDto> {
+    const response = await this.createImageConsentRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
    * Creates a new fee and associates it with the recreation resource
    * Create a new fee for a recreation resource
    */
@@ -399,241 +539,6 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<RecreationFeeDto> {
     const response = await this.createRecreationResourceFeeRaw(
-      requestParameters,
-      initOverrides,
-    );
-    return await response.value();
-  }
-
-  /**
-   * Create a new Document Resource with an uploaded file
-   */
-  async createRecreationresourceDocumentRaw(
-    requestParameters: CreateRecreationresourceDocumentRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationResourceDocDto>> {
-    if (requestParameters['recResourceId'] == null) {
-      throw new runtime.RequiredError(
-        'recResourceId',
-        'Required parameter "recResourceId" was null or undefined when calling createRecreationresourceDocument().',
-      );
-    }
-
-    if (requestParameters['fileName'] == null) {
-      throw new runtime.RequiredError(
-        'fileName',
-        'Required parameter "fileName" was null or undefined when calling createRecreationresourceDocument().',
-      );
-    }
-
-    if (requestParameters['file'] == null) {
-      throw new runtime.RequiredError(
-        'file',
-        'Required parameter "file" was null or undefined when calling createRecreationresourceDocument().',
-      );
-    }
-
-    const queryParameters: any = {};
-
-    const headerParameters: runtime.HTTPHeaders = {};
-
-    if (this.configuration && this.configuration.accessToken) {
-      const token = this.configuration.accessToken;
-      const tokenString = await token('keycloak', []);
-
-      if (tokenString) {
-        headerParameters['Authorization'] = `Bearer ${tokenString}`;
-      }
-    }
-    const consumes: runtime.Consume[] = [
-      { contentType: 'multipart/form-data' },
-    ];
-    // @ts-ignore: canConsumeForm may be unused
-    const canConsumeForm = runtime.canConsumeForm(consumes);
-
-    let formParams: { append(param: string, value: any): any };
-    let useForm = false;
-    // use FormData to transmit files using content-type "multipart/form-data"
-    useForm = canConsumeForm;
-    if (useForm) {
-      formParams = new FormData();
-    } else {
-      formParams = new URLSearchParams();
-    }
-
-    if (requestParameters['fileName'] != null) {
-      formParams.append('file_name', requestParameters['fileName'] as any);
-    }
-
-    if (requestParameters['file'] != null) {
-      formParams.append('file', requestParameters['file'] as any);
-    }
-
-    const response = await this.request(
-      {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/docs`.replace(
-          `{${'rec_resource_id'}}`,
-          encodeURIComponent(String(requestParameters['recResourceId'])),
-        ),
-        method: 'POST',
-        headers: headerParameters,
-        query: queryParameters,
-        body: formParams,
-      },
-      initOverrides,
-    );
-
-    return new runtime.JSONApiResponse(response, (jsonValue) =>
-      RecreationResourceDocDtoFromJSON(jsonValue),
-    );
-  }
-
-  /**
-   * Create a new Document Resource with an uploaded file
-   */
-  async createRecreationresourceDocument(
-    requestParameters: CreateRecreationresourceDocumentRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<RecreationResourceDocDto> {
-    const response = await this.createRecreationresourceDocumentRaw(
-      requestParameters,
-      initOverrides,
-    );
-    return await response.value();
-  }
-
-  /**
-   * Accepts 4 WebP image variants (original, scr, pre, thm) that have been processed client-side.
-   * Create a new Image Resource with 4 pre-processed WebP variants
-   */
-  async createRecreationresourceImageRaw(
-    requestParameters: CreateRecreationresourceImageRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationResourceImageDto>> {
-    if (requestParameters['recResourceId'] == null) {
-      throw new runtime.RequiredError(
-        'recResourceId',
-        'Required parameter "recResourceId" was null or undefined when calling createRecreationresourceImage().',
-      );
-    }
-
-    if (requestParameters['fileName'] == null) {
-      throw new runtime.RequiredError(
-        'fileName',
-        'Required parameter "fileName" was null or undefined when calling createRecreationresourceImage().',
-      );
-    }
-
-    if (requestParameters['original'] == null) {
-      throw new runtime.RequiredError(
-        'original',
-        'Required parameter "original" was null or undefined when calling createRecreationresourceImage().',
-      );
-    }
-
-    if (requestParameters['scr'] == null) {
-      throw new runtime.RequiredError(
-        'scr',
-        'Required parameter "scr" was null or undefined when calling createRecreationresourceImage().',
-      );
-    }
-
-    if (requestParameters['pre'] == null) {
-      throw new runtime.RequiredError(
-        'pre',
-        'Required parameter "pre" was null or undefined when calling createRecreationresourceImage().',
-      );
-    }
-
-    if (requestParameters['thm'] == null) {
-      throw new runtime.RequiredError(
-        'thm',
-        'Required parameter "thm" was null or undefined when calling createRecreationresourceImage().',
-      );
-    }
-
-    const queryParameters: any = {};
-
-    const headerParameters: runtime.HTTPHeaders = {};
-
-    if (this.configuration && this.configuration.accessToken) {
-      const token = this.configuration.accessToken;
-      const tokenString = await token('keycloak', []);
-
-      if (tokenString) {
-        headerParameters['Authorization'] = `Bearer ${tokenString}`;
-      }
-    }
-    const consumes: runtime.Consume[] = [
-      { contentType: 'multipart/form-data' },
-    ];
-    // @ts-ignore: canConsumeForm may be unused
-    const canConsumeForm = runtime.canConsumeForm(consumes);
-
-    let formParams: { append(param: string, value: any): any };
-    let useForm = false;
-    // use FormData to transmit files using content-type "multipart/form-data"
-    useForm = canConsumeForm;
-    // use FormData to transmit files using content-type "multipart/form-data"
-    useForm = canConsumeForm;
-    // use FormData to transmit files using content-type "multipart/form-data"
-    useForm = canConsumeForm;
-    // use FormData to transmit files using content-type "multipart/form-data"
-    useForm = canConsumeForm;
-    if (useForm) {
-      formParams = new FormData();
-    } else {
-      formParams = new URLSearchParams();
-    }
-
-    if (requestParameters['fileName'] != null) {
-      formParams.append('file_name', requestParameters['fileName'] as any);
-    }
-
-    if (requestParameters['original'] != null) {
-      formParams.append('original', requestParameters['original'] as any);
-    }
-
-    if (requestParameters['scr'] != null) {
-      formParams.append('scr', requestParameters['scr'] as any);
-    }
-
-    if (requestParameters['pre'] != null) {
-      formParams.append('pre', requestParameters['pre'] as any);
-    }
-
-    if (requestParameters['thm'] != null) {
-      formParams.append('thm', requestParameters['thm'] as any);
-    }
-
-    const response = await this.request(
-      {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/images`.replace(
-          `{${'rec_resource_id'}}`,
-          encodeURIComponent(String(requestParameters['recResourceId'])),
-        ),
-        method: 'POST',
-        headers: headerParameters,
-        query: queryParameters,
-        body: formParams,
-      },
-      initOverrides,
-    );
-
-    return new runtime.JSONApiResponse(response, (jsonValue) =>
-      RecreationResourceImageDtoFromJSON(jsonValue),
-    );
-  }
-
-  /**
-   * Accepts 4 WebP image variants (original, scr, pre, thm) that have been processed client-side.
-   * Create a new Image Resource with 4 pre-processed WebP variants
-   */
-  async createRecreationresourceImage(
-    requestParameters: CreateRecreationresourceImageRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<RecreationResourceImageDto> {
-    const response = await this.createRecreationresourceImageRaw(
       requestParameters,
       initOverrides,
     );
@@ -888,16 +793,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/docs/finalize`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/docs/finalize`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
@@ -929,7 +830,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates database record for uploaded image variants. Should be called after all S3 uploads complete successfully. No S3 verification is performed.
+   * Creates database record for uploaded image variants and optional consent form. Should be called after all S3 uploads complete successfully.
    * Finalize image upload and create database record
    */
   async finalizeImageUploadRaw(
@@ -943,18 +844,30 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       );
     }
 
-    if (requestParameters['finalizeImageUploadRequestDto'] == null) {
+    if (requestParameters['imageId'] == null) {
       throw new runtime.RequiredError(
-        'finalizeImageUploadRequestDto',
-        'Required parameter "finalizeImageUploadRequestDto" was null or undefined when calling finalizeImageUpload().',
+        'imageId',
+        'Required parameter "imageId" was null or undefined when calling finalizeImageUpload().',
+      );
+    }
+
+    if (requestParameters['fileName'] == null) {
+      throw new runtime.RequiredError(
+        'fileName',
+        'Required parameter "fileName" was null or undefined when calling finalizeImageUpload().',
+      );
+    }
+
+    if (requestParameters['fileSizeOriginal'] == null) {
+      throw new runtime.RequiredError(
+        'fileSizeOriginal',
+        'Required parameter "fileSizeOriginal" was null or undefined when calling finalizeImageUpload().',
       );
     }
 
     const queryParameters: any = {};
 
     const headerParameters: runtime.HTTPHeaders = {};
-
-    headerParameters['Content-Type'] = 'application/json';
 
     if (this.configuration && this.configuration.accessToken) {
       const token = this.configuration.accessToken;
@@ -964,22 +877,79 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
+    const consumes: runtime.Consume[] = [
+      { contentType: 'multipart/form-data' },
+    ];
+    // @ts-ignore: canConsumeForm may be unused
+    const canConsumeForm = runtime.canConsumeForm(consumes);
 
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/images/finalize`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
+    let formParams: { append(param: string, value: any): any };
+    let useForm = false;
+    // use FormData to transmit files using content-type "multipart/form-data"
+    useForm = canConsumeForm;
+    if (useForm) {
+      formParams = new FormData();
+    } else {
+      formParams = new URLSearchParams();
+    }
+
+    if (requestParameters['dateTaken'] != null) {
+      formParams.append('date_taken', requestParameters['dateTaken'] as any);
+    }
+
+    if (requestParameters['containsPii'] != null) {
+      formParams.append(
+        'contains_pii',
+        requestParameters['containsPii'] as any,
+      );
+    }
+
+    if (requestParameters['photographerType'] != null) {
+      formParams.append(
+        'photographer_type',
+        requestParameters['photographerType'] as any,
+      );
+    }
+
+    if (requestParameters['photographerName'] != null) {
+      formParams.append(
+        'photographer_name',
+        requestParameters['photographerName'] as any,
+      );
+    }
+
+    if (requestParameters['consentForm'] != null) {
+      formParams.append(
+        'consent_form',
+        requestParameters['consentForm'] as any,
+      );
+    }
+
+    if (requestParameters['imageId'] != null) {
+      formParams.append('image_id', requestParameters['imageId'] as any);
+    }
+
+    if (requestParameters['fileName'] != null) {
+      formParams.append('file_name', requestParameters['fileName'] as any);
+    }
+
+    if (requestParameters['fileSizeOriginal'] != null) {
+      formParams.append(
+        'file_size_original',
+        requestParameters['fileSizeOriginal'] as any,
+      );
+    }
 
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/images/finalize`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
-        body: FinalizeImageUploadRequestDtoToJSON(
-          requestParameters['finalizeImageUploadRequestDto'],
-        ),
+        body: formParams,
       },
       initOverrides,
     );
@@ -990,7 +960,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates database record for uploaded image variants. Should be called after all S3 uploads complete successfully. No S3 verification is performed.
+   * Creates database record for uploaded image variants and optional consent form. Should be called after all S3 uploads complete successfully.
    * Finalize image upload and create database record
    */
   async finalizeImageUpload(
@@ -1123,23 +1093,24 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Get one document resource by document ID
+   * Returns a time-limited presigned URL for downloading the consent form PDF associated with an image.
+   * Get presigned URL for consent form download
    */
-  async getDocumentResourceByIdRaw(
-    requestParameters: GetDocumentResourceByIdRequest,
+  async getConsentFormDownloadUrlRaw(
+    requestParameters: GetConsentFormDownloadUrlRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationResourceDocDto>> {
+  ): Promise<runtime.ApiResponse<ConsentFormDownloadResponseDto>> {
     if (requestParameters['recResourceId'] == null) {
       throw new runtime.RequiredError(
         'recResourceId',
-        'Required parameter "recResourceId" was null or undefined when calling getDocumentResourceById().',
+        'Required parameter "recResourceId" was null or undefined when calling getConsentFormDownloadUrl().',
       );
     }
 
-    if (requestParameters['documentId'] == null) {
+    if (requestParameters['imageId'] == null) {
       throw new runtime.RequiredError(
-        'documentId',
-        'Required parameter "documentId" was null or undefined when calling getDocumentResourceById().',
+        'imageId',
+        'Required parameter "imageId" was null or undefined when calling getConsentFormDownloadUrl().',
       );
     }
 
@@ -1157,14 +1128,14 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     }
     const response = await this.request(
       {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/docs/{document_id}`
+        path: `/api/v1/recreation-resources/{rec_resource_id}/images/{image_id}/consent-download`
           .replace(
             `{${'rec_resource_id'}}`,
             encodeURIComponent(String(requestParameters['recResourceId'])),
           )
           .replace(
-            `{${'document_id'}}`,
-            encodeURIComponent(String(requestParameters['documentId'])),
+            `{${'image_id'}}`,
+            encodeURIComponent(String(requestParameters['imageId'])),
           ),
         method: 'GET',
         headers: headerParameters,
@@ -1174,18 +1145,19 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     );
 
     return new runtime.JSONApiResponse(response, (jsonValue) =>
-      RecreationResourceDocDtoFromJSON(jsonValue),
+      ConsentFormDownloadResponseDtoFromJSON(jsonValue),
     );
   }
 
   /**
-   * Get one document resource by document ID
+   * Returns a time-limited presigned URL for downloading the consent form PDF associated with an image.
+   * Get presigned URL for consent form download
    */
-  async getDocumentResourceById(
-    requestParameters: GetDocumentResourceByIdRequest,
+  async getConsentFormDownloadUrl(
+    requestParameters: GetConsentFormDownloadUrlRequest,
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<RecreationResourceDocDto> {
-    const response = await this.getDocumentResourceByIdRaw(
+  ): Promise<ConsentFormDownloadResponseDto> {
+    const response = await this.getConsentFormDownloadUrlRaw(
       requestParameters,
       initOverrides,
     );
@@ -1309,76 +1281,6 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Get one image resource by image ID
-   */
-  async getImageResourceByIdRaw(
-    requestParameters: GetImageResourceByIdRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<RecreationResourceImageDto>> {
-    if (requestParameters['recResourceId'] == null) {
-      throw new runtime.RequiredError(
-        'recResourceId',
-        'Required parameter "recResourceId" was null or undefined when calling getImageResourceById().',
-      );
-    }
-
-    if (requestParameters['imageId'] == null) {
-      throw new runtime.RequiredError(
-        'imageId',
-        'Required parameter "imageId" was null or undefined when calling getImageResourceById().',
-      );
-    }
-
-    const queryParameters: any = {};
-
-    const headerParameters: runtime.HTTPHeaders = {};
-
-    if (this.configuration && this.configuration.accessToken) {
-      const token = this.configuration.accessToken;
-      const tokenString = await token('keycloak', []);
-
-      if (tokenString) {
-        headerParameters['Authorization'] = `Bearer ${tokenString}`;
-      }
-    }
-    const response = await this.request(
-      {
-        path: `/api/v1/recreation-resources/{rec_resource_id}/images/{image_id}`
-          .replace(
-            `{${'rec_resource_id'}}`,
-            encodeURIComponent(String(requestParameters['recResourceId'])),
-          )
-          .replace(
-            `{${'image_id'}}`,
-            encodeURIComponent(String(requestParameters['imageId'])),
-          ),
-        method: 'GET',
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
-
-    return new runtime.JSONApiResponse(response, (jsonValue) =>
-      RecreationResourceImageDtoFromJSON(jsonValue),
-    );
-  }
-
-  /**
-   * Get one image resource by image ID
-   */
-  async getImageResourceById(
-    requestParameters: GetImageResourceByIdRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<RecreationResourceImageDto> {
-    const response = await this.getImageResourceByIdRaw(
-      requestParameters,
-      initOverrides,
-    );
-    return await response.value();
-  }
-
-  /**
    * Get all images related to the resource
    */
   async getImagesByRecResourceIdRaw(
@@ -1437,7 +1339,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Retrieve all available values for a given option type. Valid types: activities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district
+   * Retrieve all available values for a given option type. Valid types: activities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, photographerType
    * List all options for a type
    */
   async getOptionsByTypeRaw(
@@ -1482,7 +1384,7 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
-   * Retrieve all available values for a given option type. Valid types: activities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district
+   * Retrieve all available values for a given option type. Valid types: activities, access, sub-access, maintenance, resourceType, feeType, featureCode, recreationStatus, structure, controlAccessCode, riskRatingCode, district, photographerType
    * List all options for a type
    */
   async getOptionsByType(
@@ -1892,16 +1794,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/docs/presign`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/docs/presign`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
@@ -1967,16 +1865,12 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         headerParameters['Authorization'] = `Bearer ${tokenString}`;
       }
     }
-
-    let urlPath = `/api/v1/recreation-resources/{rec_resource_id}/images/presign`;
-    urlPath = urlPath.replace(
-      `{${'rec_resource_id'}}`,
-      encodeURIComponent(String(requestParameters['recResourceId'])),
-    );
-
     const response = await this.request(
       {
-        path: urlPath,
+        path: `/api/v1/recreation-resources/{rec_resource_id}/images/presign`.replace(
+          `{${'rec_resource_id'}}`,
+          encodeURIComponent(String(requestParameters['recResourceId'])),
+        ),
         method: 'POST',
         headers: headerParameters,
         query: queryParameters,
@@ -2136,6 +2030,88 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
     initOverrides?: RequestInit | runtime.InitOverrideFunction,
   ): Promise<Array<RecreationFeatureDto>> {
     const response = await this.updateFeaturesRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
+   * Update consent metadata for an existing image
+   */
+  async updateImageConsentRaw(
+    requestParameters: UpdateImageConsentRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<RecreationResourceImageDto>> {
+    if (requestParameters['recResourceId'] == null) {
+      throw new runtime.RequiredError(
+        'recResourceId',
+        'Required parameter "recResourceId" was null or undefined when calling updateImageConsent().',
+      );
+    }
+
+    if (requestParameters['imageId'] == null) {
+      throw new runtime.RequiredError(
+        'imageId',
+        'Required parameter "imageId" was null or undefined when calling updateImageConsent().',
+      );
+    }
+
+    if (requestParameters['updateImageConsentDto'] == null) {
+      throw new runtime.RequiredError(
+        'updateImageConsentDto',
+        'Required parameter "updateImageConsentDto" was null or undefined when calling updateImageConsent().',
+      );
+    }
+
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    headerParameters['Content-Type'] = 'application/json';
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/v1/recreation-resources/{rec_resource_id}/images/{image_id}/consent`
+          .replace(
+            `{${'rec_resource_id'}}`,
+            encodeURIComponent(String(requestParameters['recResourceId'])),
+          )
+          .replace(
+            `{${'image_id'}}`,
+            encodeURIComponent(String(requestParameters['imageId'])),
+          ),
+        method: 'PATCH',
+        headers: headerParameters,
+        query: queryParameters,
+        body: UpdateImageConsentDtoToJSON(
+          requestParameters['updateImageConsentDto'],
+        ),
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      RecreationResourceImageDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Update consent metadata for an existing image
+   */
+  async updateImageConsent(
+    requestParameters: UpdateImageConsentRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<RecreationResourceImageDto> {
+    const response = await this.updateImageConsentRaw(
       requestParameters,
       initOverrides,
     );
@@ -2459,6 +2435,7 @@ export const GetOptionsByTypeTypeEnum = {
   ControlAccessCode: 'controlAccessCode',
   RiskRatingCode: 'riskRatingCode',
   District: 'district',
+  PhotographerType: 'photographerType',
 } as const;
 export type GetOptionsByTypeTypeEnum =
   (typeof GetOptionsByTypeTypeEnum)[keyof typeof GetOptionsByTypeTypeEnum];
@@ -2478,6 +2455,7 @@ export const GetOptionsByTypesTypesEnum = {
   ControlAccessCode: 'controlAccessCode',
   RiskRatingCode: 'riskRatingCode',
   District: 'district',
+  PhotographerType: 'photographerType',
 } as const;
 export type GetOptionsByTypesTypesEnum =
   (typeof GetOptionsByTypesTypesEnum)[keyof typeof GetOptionsByTypesTypesEnum];

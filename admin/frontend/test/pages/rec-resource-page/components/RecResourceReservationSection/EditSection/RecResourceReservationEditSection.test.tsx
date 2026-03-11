@@ -106,7 +106,7 @@ describe('RecResourceReservationEditSection', () => {
     // Mocking useWatch returning a value
     (vi.mocked(useWatch) as any).mockReturnValue('valid@email.com');
     renderComponent();
-    expect(screen.getByText('Requires Reservation')).toBeInTheDocument();
+    expect(screen.getByText('Reservable')).toBeInTheDocument();
   });
 
   it('clears fields when toggling off reservation', () => {

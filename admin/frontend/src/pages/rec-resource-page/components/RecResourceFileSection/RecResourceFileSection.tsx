@@ -1,16 +1,29 @@
 import { FILE_TYPE_CONFIGS, MAX_FILE_SIZE_MB } from '@/pages/rec-resource-page';
+import { processSelectedFile } from '@/pages/rec-resource-page/helpers';
 import { DeleteFileModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/DeleteFileModal';
 import { DocumentUploadModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/DocumentUploadModal';
 import { ImageUploadModal } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal';
 import { useRecResourceFileTransferState } from '@/pages/rec-resource-page/hooks/useRecResourceFileTransferState';
-import { resetRecResourceFileTransferStore } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
+import {
+  hideImageLightbox,
+  recResourceFileTransferStore,
+  resetRecResourceFileTransferStore,
+} from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
 import { GalleryDocument, GalleryImage } from '@/pages/rec-resource-page/types';
 import { COLOR_RED } from '@/styles/colors';
 import { faFilePdf } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useStore } from '@tanstack/react-store';
 import { useEffect } from 'react';
 import { GalleryAccordion } from './GalleryAccordion';
 import { GalleryFileCard } from './GalleryFileCard';
+import {
+  IMAGE_CARD_ACTIONS,
+  IMAGE_PREVIEW_ACTIONS,
+} from './GalleryFileCard/constants';
+import { ImageLightboxModal } from './ImageLightboxModal';
+import { PhotoDetailsModal } from './PhotoDetailsModal';
+import { EditPhotoModal } from './EditPhotoModal';
 
 export const RecResourceFileSection = () => {
   const {
@@ -25,6 +38,10 @@ export const RecResourceFileSection = () => {
     isFetching,
     isFetchingImages,
   } = useRecResourceFileTransferState();
+
+  const { showImageLightbox, selectedImageForLightbox } = useStore(
+    recResourceFileTransferStore,
+  );
 
   // reset the store on unmount
   useEffect(() => {
@@ -52,6 +69,8 @@ export const RecResourceFileSection = () => {
       topContent={<img src={image.previewUrl} alt={image.name} />}
       file={image}
       getFileActionHandler={getImageFileActionHandler}
+      actions={IMAGE_CARD_ACTIONS}
+      previewActions={IMAGE_PREVIEW_ACTIONS}
     />
   );
 
@@ -65,6 +84,7 @@ export const RecResourceFileSection = () => {
         uploadLabel="Upload"
         isLoading={isFetchingImages}
         onFileUploadTileClick={getImageGeneralActionHandler('upload')}
+        onFileDrop={(file) => processSelectedFile(file, 'image')}
         uploadDisabled={isImageUploadDisabled}
         renderItem={renderGalleryImageCard}
       />
@@ -76,6 +96,7 @@ export const RecResourceFileSection = () => {
         uploadLabel="Upload"
         isLoading={isFetching}
         onFileUploadTileClick={getDocumentGeneralActionHandler('upload')}
+        onFileDrop={(file) => processSelectedFile(file, 'document')}
         uploadDisabled={isDocumentUploadDisabled}
         renderItem={renderGalleryDocumentCard}
       />
@@ -83,6 +104,13 @@ export const RecResourceFileSection = () => {
       <DocumentUploadModal />
       <ImageUploadModal />
       <DeleteFileModal />
+      <PhotoDetailsModal />
+      <EditPhotoModal />
+      <ImageLightboxModal
+        show={showImageLightbox}
+        onHide={hideImageLightbox}
+        image={selectedImageForLightbox}
+      />
     </>
   );
 };

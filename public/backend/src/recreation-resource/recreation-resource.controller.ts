@@ -1,9 +1,11 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Get,
   HttpException,
   Param,
+  ParseIntPipe,
   Post,
   Query,
   ValidationPipe,
@@ -28,6 +30,8 @@ import {
 } from './dto/recreation-resource.dto';
 import { AlphabeticalRecreationResourceDto } from './dto/alphabetical-recreation-resource.dto';
 import { FsaResourceService } from './service/fsa-resource.service';
+import { RecreationResourceSummaryService } from './service/recreation-resource-summary.service';
+import { PaginatedRecreationResourceSummaryDto } from './dto/paginated-recreation-resource-summary.dto';
 
 @ApiTags('recreation-resource')
 @Controller({ path: 'recreation-resource', version: '1' })
@@ -35,6 +39,7 @@ export class RecreationResourceController {
   constructor(
     private readonly recreationResourceService: RecreationResourceService,
     private readonly fsaResourceService: FsaResourceService,
+    private readonly recreationResourceSummaryService: RecreationResourceSummaryService,
   ) {}
 
   @ApiOperation({
@@ -243,6 +248,31 @@ export class RecreationResourceController {
       RecreationResourceImageSize.ORIGINAL,
       RecreationResourceImageSize.PREVIEW,
     ]);
+  }
+
+  @Get('summary')
+  @ApiOperation({
+    summary: 'Get a paginated summary of recreation resources',
+    operationId: 'getRecreationResourcesSummary',
+    description:
+      'Returns a page-based paginated summary of recreation resources with key metadata. ' +
+      'Use the page query parameter to navigate through results. Each page returns up to 1000 resources.',
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    type: Number,
+    description: 'Page number, defaults to 1',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Paginated summary list of recreation resources',
+    type: PaginatedRecreationResourceSummaryDto,
+  })
+  async getSummary(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+  ): Promise<PaginatedRecreationResourceSummaryDto> {
+    return this.recreationResourceSummaryService.findAll(page);
   }
 
   @Get(':id')

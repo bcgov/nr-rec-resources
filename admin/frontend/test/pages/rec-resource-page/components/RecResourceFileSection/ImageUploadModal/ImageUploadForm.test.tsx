@@ -1,109 +1,302 @@
 import { ImageUploadForm } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/sections/ImageUploadForm';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
-import { useForm } from 'react-hook-form';
-import { ImageUploadFormData } from '@/pages/rec-resource-page/components/RecResourceFileSection/ImageUploadModal/schemas';
-import { setUploadFileName } from '@/pages/rec-resource-page/store/recResourceFileTransferStore';
+import { render, screen, waitFor, fireEvent } from '@testing-library/react';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 
 vi.mock('@/pages/rec-resource-page/store/recResourceFileTransferStore', () => ({
   setUploadFileName: vi.fn(),
+  setUploadConsentData: vi.fn(),
 }));
 
+vi.mock(
+  '@/services/hooks/recreation-resource-admin/useGetRecreationResourceOptions',
+  () => ({
+    useGetRecreationResourceOptions: () => ({
+      data: [
+        {
+          type: 'photographerType',
+          options: [
+            { id: 'STAFF', label: 'Staff' },
+            { id: 'CONTRACTOR', label: 'Contractor' },
+            { id: 'VOLUNTEER', label: 'Volunteer' },
+            { id: 'PHOTOGRAPHER', label: 'Photographer' },
+            { id: 'OTHER', label: 'Other' },
+          ],
+        },
+      ],
+      isLoading: false,
+      error: null,
+    }),
+  }),
+);
+
+const NON_STAFF_TYPES = [
+  { id: 'CONTRACTOR', label: 'Contractor' },
+  { id: 'VOLUNTEER', label: 'Volunteer' },
+  { id: 'PHOTOGRAPHER', label: 'Photographer' },
+  { id: 'OTHER', label: 'Other' },
+];
+
 const TestWrapper = ({
-  uploadState,
-  onSubmit = vi.fn(),
+  onUpload = vi.fn(),
+  onFormReady = vi.fn(),
+  initialValues,
+  formKey,
 }: {
-  uploadState: string;
-  onSubmit?: any;
+  onUpload?: () => void;
+  onFormReady?: (handlers: any) => void;
+  initialValues?: Record<string, unknown>;
+  formKey?: string;
 }) => {
-  const { control, handleSubmit } = useForm<ImageUploadFormData>();
   return (
     <ImageUploadForm
-      control={control}
-      uploadState={uploadState as any}
-      onSubmit={handleSubmit(onSubmit)}
+      key={formKey}
+      fileName="test-image.jpg"
+      onUpload={onUpload}
+      onFormReady={onFormReady}
+      initialValues={initialValues}
     />
   );
 };
 
 describe('ImageUploadForm', () => {
-  it('renders display name input', () => {
-    render(<TestWrapper uploadState="initial" />);
-
-    expect(
-      screen.getByPlaceholderText('Enter a display name'),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/briefly describe the location or feature/i),
-    ).toBeInTheDocument();
+  beforeEach(() => {
+    vi.clearAllMocks();
   });
 
-  it('renders working hours toggle question', () => {
-    render(<TestWrapper uploadState="initial" />);
+  describe('component setup', () => {
+    it('calls onFormReady with form handlers on mount', async () => {
+      const onFormReady = vi.fn();
+      render(<TestWrapper onFormReady={onFormReady} />);
 
-    expect(
-      screen.getByText(/was this photo taken by staff during working hours/i),
-    ).toBeInTheDocument();
+      await waitFor(() => {
+        expect(onFormReady).toHaveBeenCalledWith(
+          expect.objectContaining({
+            resetForm: expect.any(Function),
+            isValid: expect.any(Boolean),
+            isDirty: expect.any(Boolean),
+            submitForm: expect.any(Function),
+          }),
+        );
+      });
+    });
   });
 
-  it('renders personal info toggle question', () => {
-    render(<TestWrapper uploadState="initial" />);
+  describe('common fields (always visible)', () => {
+    it('renders display name input', () => {
+      render(<TestWrapper />);
 
-    expect(
-      screen.getByText((content) =>
-        content.toLowerCase().includes('personally identifiable information'),
-      ),
-    ).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText('Enter a display name'),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/briefly describe the location or feature/i),
+      ).toBeInTheDocument();
+    });
+
+    it('renders date taken section', () => {
+      render(<TestWrapper />);
+
+      expect(screen.getByText('Date taken')).toBeInTheDocument();
+    });
+
+    it('renders photographer type dropdown', () => {
+      render(<TestWrapper />);
+
+      expect(screen.getByText('Photographer type')).toBeInTheDocument();
+      expect(screen.getByRole('combobox')).toBeInTheDocument();
+    });
+
+    it('resets form values when component remounts', async () => {
+      const { rerender } = render(
+        <TestWrapper
+          formKey="image-a"
+          initialValues={{
+            displayName: 'Image A',
+            dateCreated: new Date('2024-01-01'),
+          }}
+        />,
+      );
+
+      await waitFor(() => {
+        expect(
+          (
+            screen.getByPlaceholderText(
+              'Enter a display name',
+            ) as HTMLInputElement
+          ).value,
+        ).toBe('Image A');
+        expect(screen.getByDisplayValue('2024-01-01')).toBeInTheDocument();
+      });
+
+      rerender(
+        <TestWrapper
+          formKey="image-b"
+          initialValues={{
+            displayName: 'Image B',
+            dateCreated: new Date('2024-02-02'),
+          }}
+        />,
+      );
+
+      await waitFor(() => {
+        expect(
+          (
+            screen.getByPlaceholderText(
+              'Enter a display name',
+            ) as HTMLInputElement
+          ).value,
+        ).toBe('Image B');
+        expect(screen.getByDisplayValue('2024-02-02')).toBeInTheDocument();
+      });
+    });
   });
 
-  it('shows warning when not taken during working hours', () => {
-    render(<TestWrapper uploadState="not-working-hours" />);
+  describe('staff-specific fields', () => {
+    it('shows "staff during regular duties" question for staff (default)', () => {
+      render(<TestWrapper />);
 
-    expect(
-      screen.getByText(
-        /recspace is currently accepting photos only by staff during working hours/i,
-      ),
-    ).toBeInTheDocument();
+      expect(
+        screen.getByText(/was this taken by staff during regular duties\?/i),
+      ).toBeInTheDocument();
+    });
+
+    it('does not show photographer name field for staff', () => {
+      render(<TestWrapper />);
+
+      expect(
+        screen.queryByPlaceholderText('Enter photographer name'),
+      ).not.toBeInTheDocument();
+    });
+
+    it('shows identifiable information question for staff (default)', () => {
+      render(<TestWrapper />);
+
+      expect(
+        screen.getByRole('link', {
+          name: /personally identifiable information/i,
+        }),
+      ).toBeInTheDocument();
+    });
+
+    it('renders confirmation checkbox for staff (default)', () => {
+      render(<TestWrapper />);
+
+      expect(
+        screen.getByText(
+          /by uploading this photo, i confirm that it contains no personally identifiable information/i,
+        ),
+      ).toBeInTheDocument();
+    });
+
+    it('shows consent upload when staff + has PII', async () => {
+      render(<TestWrapper />);
+
+      // Answer "Yes" to staff question first
+      const staffYes = document.getElementById('didYouTakePhoto-yes');
+      fireEvent.click(staffYes!);
+
+      // Click "Yes" for contains identifiable information
+      const yesRadio = document.getElementById('containsIdentifiableInfo-yes');
+      fireEvent.click(yesRadio!);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/this photo requires a consent and release form/i),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it('shows warning alert when staff answers "No" to regular duties', async () => {
+      render(<TestWrapper />);
+
+      const noRadio = document.getElementById('didYouTakePhoto-no');
+      fireEvent.click(noRadio!);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(
+            /currently accepting photos only taken during working hours/i,
+          ),
+        ).toBeInTheDocument();
+      });
+    });
+
+    it('hides PII question and confirmation when staff answers "No"', async () => {
+      render(<TestWrapper />);
+
+      const noRadio = document.getElementById('didYouTakePhoto-no');
+      fireEvent.click(noRadio!);
+
+      await waitFor(() => {
+        expect(
+          screen.queryByRole('link', {
+            name: /personally identifiable information/i,
+          }),
+        ).not.toBeInTheDocument();
+        expect(
+          screen.queryByText(/by uploading this photo, i confirm/i),
+        ).not.toBeInTheDocument();
+      });
+    });
   });
 
-  it('shows warning when photo has personal info', () => {
-    render(<TestWrapper uploadState="has-personal-info" />);
+  describe('not-accepted fields (all types behave the same)', () => {
+    it.each(NON_STAFF_TYPES)(
+      '$label: hides "staff during regular duties" question',
+      async ({ id }) => {
+        render(<TestWrapper />);
 
-    expect(
-      screen.getByText(
-        /recspace is not currently accepting photos with personally identifiable information/i,
-      ),
-    ).toBeInTheDocument();
-  });
+        const dropdown = screen.getByRole('combobox');
+        fireEvent.change(dropdown, { target: { value: id } });
 
-  it('shows confirmation checkbox when ready to confirm', () => {
-    render(<TestWrapper uploadState="confirm-no-personal-info" />);
+        await waitFor(() => {
+          expect(
+            screen.queryByText(
+              /was this taken by staff during regular duties\?/i,
+            ),
+          ).not.toBeInTheDocument();
+        });
+      },
+    );
 
-    expect(
-      screen.getByText(
-        /by uploading this photo, i confirm that it contains no personally identifiable information/i,
-      ),
-    ).toBeInTheDocument();
-  });
+    it.each(NON_STAFF_TYPES)(
+      '$label: shows not-accepted warning alert',
+      async ({ id }) => {
+        render(<TestWrapper />);
 
-  it('syncs display name to store on change', () => {
-    render(<TestWrapper uploadState="initial" />);
-    const input = screen.getByPlaceholderText('Enter a display name');
+        const dropdown = screen.getByRole('combobox');
+        fireEvent.change(dropdown, { target: { value: id } });
 
-    fireEvent.change(input, { target: { value: 'New Display Name' } });
+        await waitFor(() => {
+          expect(
+            screen.getByText(/currently accepting photos only taken by staff/i),
+          ).toBeInTheDocument();
+        });
+      },
+    );
 
-    expect(setUploadFileName).toHaveBeenCalledWith('New Display Name');
-  });
+    it.each(NON_STAFF_TYPES)(
+      '$label: hides PII question, consent upload, and confirmation',
+      async ({ id }) => {
+        render(<TestWrapper />);
 
-  it('triggers onSubmit when Enter key is pressed on display name field', async () => {
-    const onSubmit = vi.fn();
-    render(<TestWrapper uploadState="initial" onSubmit={onSubmit} />);
+        const dropdown = screen.getByRole('combobox');
+        fireEvent.change(dropdown, { target: { value: id } });
 
-    const input = screen.getByPlaceholderText('Enter a display name');
-    fireEvent.change(input, { target: { value: 'Valid Name' } });
-
-    fireEvent.submit(screen.getByLabelText('image-upload-form'));
-
-    await vi.waitFor(() => expect(onSubmit).toHaveBeenCalled());
+        await waitFor(() => {
+          expect(
+            screen.queryByRole('link', {
+              name: /personally identifiable information/i,
+            }),
+          ).not.toBeInTheDocument();
+          expect(
+            screen.queryByPlaceholderText('Enter photographer name'),
+          ).not.toBeInTheDocument();
+          expect(
+            screen.queryByText(/by uploading this photo, i confirm/i),
+          ).not.toBeInTheDocument();
+        });
+      },
+    );
   });
 });

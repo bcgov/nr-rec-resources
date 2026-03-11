@@ -63,7 +63,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.toggleFilterOn(filter.typeFilters, RecResourceType.TRAIL);
 
-    await utils.checkExpectedUrlParams('type=RTR');
+    await utils.checkExpectedUrlParams('type=RTE');
 
     await searchPage.waitForResults();
   });
@@ -91,7 +91,7 @@ test.describe('Search page filter menu workflows', () => {
 
     await filter.toggleFilterOn(filter.typeFilters, RecResourceType.SITE);
 
-    await utils.checkExpectedUrlParams('type=RTR_SIT');
+    await utils.checkExpectedUrlParams('type=RTE_SIT');
 
     await searchPage.waitForResults();
   });

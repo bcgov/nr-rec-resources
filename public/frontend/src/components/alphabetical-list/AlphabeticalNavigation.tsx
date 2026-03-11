@@ -1,4 +1,5 @@
 import { useNavigate } from '@tanstack/react-router';
+import { RECREATION_RESOURCE_TYPES_PUBLIC } from '@shared/constants/types';
 import './AlphabeticalNavigation.scss';
 
 interface AlphabeticalNavigationProps {
@@ -19,9 +20,18 @@ export const AlphabeticalNavigation = ({
   ];
 
   const typeFilters = [
-    { label: 'Recreation site', code: 'SIT' },
-    { label: 'Recreation trail', code: 'RTR' },
-    { label: 'Interpretive forest', code: 'IF' },
+    {
+      label: 'Recreation site',
+      code: RECREATION_RESOURCE_TYPES_PUBLIC.RECREATION_SITE,
+    },
+    {
+      label: 'Recreation trail',
+      code: RECREATION_RESOURCE_TYPES_PUBLIC.RECREATION_TRAIL,
+    },
+    {
+      label: 'Interpretive forest',
+      code: RECREATION_RESOURCE_TYPES_PUBLIC.INTERPRETIVE_FOREST,
+    },
   ];
 
   const updateSearchParams = (updates: {

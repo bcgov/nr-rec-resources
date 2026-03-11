@@ -42,8 +42,20 @@
       padding: 2rem;
     }
 
-    @media (max-width: 380px) {
-      margin-top: 6rem;
+    @media (max-width: 680px) {
+      margin-top: 2rem;
+    }
+
+    @media (max-width: 518px) {
+      margin-top: 4rem;
+    }
+
+    @media (max-width: 428px) {
+      margin-top: 8rem;
+    }
+
+    @media (max-width: 338px) {
+      margin-top: 10rem;
     }
 
     .search-header {

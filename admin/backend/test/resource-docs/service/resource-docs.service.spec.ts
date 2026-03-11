@@ -85,7 +85,7 @@ describe('ResourceDocsService', () => {
   });
 
   describe('delete', () => {
-    it('should return the deleted resource', async () => {
+    it('should hard delete and return the deleted resource', async () => {
       const existingDoc = createMockDocument(DOCUMENT_ID, TEST_CAPTION);
       vi.mocked(
         prismaService.recreation_resource_document.findUnique,
@@ -107,12 +107,38 @@ describe('ResourceDocsService', () => {
         return undefined;
       });
 
-      const result = await service.delete(REC_RESOURCE_ID, DOCUMENT_ID);
+      const result = await service.delete(REC_RESOURCE_ID, DOCUMENT_ID, false);
 
       expect(deleteCallOrder).toEqual(['db', 's3']);
       expect(s3Service.deleteFile).toHaveBeenCalledWith(
         `documents/${REC_RESOURCE_ID}/${DOCUMENT_ID}/sample.pdf`,
       );
+      expect(result?.doc_code_description).toBe(TEST_CAPTION);
+      expect(result?.document_id).toBe(DOCUMENT_ID);
+      expect(result?.url).toBeDefined();
+    });
+
+    it('should soft delete resource', async () => {
+      const existingDoc = createMockDocument(DOCUMENT_ID, TEST_CAPTION);
+      vi.mocked(
+        prismaService.recreation_resource_document.findUnique,
+      ).mockResolvedValue(existingDoc as any);
+      vi.mocked(
+        prismaService.recreation_resource_document.delete,
+      ).mockResolvedValue(existingDoc as any);
+
+      const deleteCallOrder: string[] = [];
+      vi.mocked(
+        prismaService.recreation_resource_document.delete,
+      ).mockImplementation(() => {
+        deleteCallOrder.push('db');
+        return existingDoc as any;
+      });
+
+      const result = await service.delete(REC_RESOURCE_ID, DOCUMENT_ID, true);
+
+      expect(deleteCallOrder).toEqual(['db']);
+      expect(s3Service.deleteFile).not.toHaveBeenCalled();
       expect(result?.doc_code_description).toBe(TEST_CAPTION);
       expect(result?.document_id).toBe(DOCUMENT_ID);
       expect(result?.url).toBeDefined();
@@ -154,7 +180,7 @@ describe('ResourceDocsService', () => {
         prismaService.recreation_resource_document.delete,
       ).mockResolvedValue(existingDoc as any);
 
-      const result = await service.delete(REC_RESOURCE_ID, DOCUMENT_ID);
+      const result = await service.delete(REC_RESOURCE_ID, DOCUMENT_ID, false);
       expect(result).toBeDefined();
       expect(
         prismaService.recreation_resource_document.delete,
@@ -178,7 +204,7 @@ describe('ResourceDocsService', () => {
       ).mockResolvedValue(existingDoc as any);
 
       await expect(
-        service.delete(REC_RESOURCE_ID, DOCUMENT_ID),
+        service.delete(REC_RESOURCE_ID, DOCUMENT_ID, false),
       ).rejects.toThrow(
         'Document metadata is incomplete: missing file_name or extension',
       );
@@ -199,7 +225,7 @@ describe('ResourceDocsService', () => {
       ).mockResolvedValue(existingDoc as any);
 
       await expect(
-        service.delete(REC_RESOURCE_ID, DOCUMENT_ID),
+        service.delete(REC_RESOURCE_ID, DOCUMENT_ID, false),
       ).rejects.toThrow(
         'Document metadata is incomplete: missing file_name or extension',
       );
@@ -218,7 +244,7 @@ describe('ResourceDocsService', () => {
         new Error('S3 delete failed'),
       );
 
-      const result = await service.delete(REC_RESOURCE_ID, DOCUMENT_ID);
+      const result = await service.delete(REC_RESOURCE_ID, DOCUMENT_ID, false);
 
       expect(
         prismaService.recreation_resource_document.delete,

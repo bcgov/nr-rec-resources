@@ -1,10 +1,10 @@
 /* tslint:disable */
 /* eslint-disable */
 export * from './BadRequestResponseDto';
+export * from './ConsentFormDownloadResponseDto';
 export * from './CreateRecreationFeeDto';
 export * from './EstablishmentOrderDocDto';
 export * from './FinalizeDocUploadRequestDto';
-export * from './FinalizeImageUploadRequestDto';
 export * from './HealthControllerCheck200Response';
 export * from './HealthControllerCheck200ResponseInfoValue';
 export * from './HealthControllerCheck503Response';
@@ -33,6 +33,7 @@ export * from './SuggestionDto';
 export * from './SuggestionsResponseDto';
 export * from './UpdateActivitiesDto';
 export * from './UpdateFeaturesDto';
+export * from './UpdateImageConsentDto';
 export * from './UpdateRecreationAccessCodeDto';
 export * from './UpdateRecreationFeeDto';
 export * from './UpdateRecreationResourceDto';

@@ -19,12 +19,13 @@ jobs:
   trivy:
     name: Trivy Security Scan
     runs-on: ubuntu-24.04
-    timeout-minutes: 2
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v6
       - name: Run Trivy vulnerability scanner in repo mode
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@0.34.1
         with:
+          version: "v0.69.2"
           format: "sarif"
           output: "trivy-results.sarif"
           ignore-unfixed: true

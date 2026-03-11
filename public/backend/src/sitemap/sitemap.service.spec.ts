@@ -71,7 +71,7 @@ describe('SitemapService', () => {
     (config.get as any).mockReturnValue(undefined);
     (prisma.recreation_resource.findMany as any).mockResolvedValue([]);
     const xml = await service.generateSitemap();
-    expect(xml).toContain('<loc>https://beta.sitesandtrailsbc.ca/</loc>');
+    expect(xml).toContain('<loc>https://www.sitesandtrailsbc.ca/</loc>');
   });
 
   it('formats date as YYYY-MM-DD', () => {

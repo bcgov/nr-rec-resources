@@ -2,6 +2,7 @@ import { AppConfigModule } from '@/app-config/app-config.module';
 import { PrismaService } from '@/prisma.service';
 import { ResourceImagesController } from '@/resource-images/resource-images.controller';
 import { ResourceImagesService } from '@/resource-images/service/resource-images.service';
+import { ConsentFormsS3Service } from '@/resource-images/service/consent-forms-s3.service';
 import { S3Service } from '@/s3/s3.service';
 import { HttpException, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
@@ -28,6 +29,14 @@ describe('ResourceImagesController', () => {
             getSignedUploadUrl: vi.fn(),
             deleteFile: vi.fn(),
             listObjectsByPrefix: vi.fn(),
+          },
+        },
+        {
+          provide: ConsentFormsS3Service,
+          useValue: {
+            uploadConsentForm: vi.fn(),
+            getS3Service: vi.fn().mockReturnValue({ deleteFile: vi.fn() }),
+            getConsentFormKey: vi.fn().mockReturnValue('mock/key.pdf'),
           },
         },
       ],
@@ -289,6 +298,7 @@ describe('ResourceImagesController', () => {
       expect(resourceImagesService.finalizeUpload).toHaveBeenCalledWith(
         'REC0001',
         body,
+        undefined,
       );
     });
 
@@ -381,6 +391,72 @@ describe('ResourceImagesController', () => {
         expect(e.message).toBe('Database error');
         expect(e.getStatus()).toBe(500);
       }
+    });
+  });
+
+  describe('getConsentDownloadUrl', () => {
+    it('should return presigned URL for consent form download', async () => {
+      vi.spyOn(
+        resourceImagesService,
+        'getConsentDownloadUrl',
+      ).mockResolvedValue('https://s3.amazonaws.com/presigned-consent-url');
+
+      const response = await controller.getConsentDownloadUrl(
+        'REC0001',
+        'image-123',
+      );
+
+      expect(response).toEqual({
+        url: 'https://s3.amazonaws.com/presigned-consent-url',
+      });
+    });
+
+    it('should throw 404 when consent form not found', async () => {
+      vi.spyOn(
+        resourceImagesService,
+        'getConsentDownloadUrl',
+      ).mockRejectedValue(
+        new HttpException('Consent form not found for this image', 404),
+      );
+
+      try {
+        await controller.getConsentDownloadUrl('REC0001', 'image-123');
+      } catch (e) {
+        expect(e).toBeInstanceOf(HttpException);
+        expect(e.message).toBe('Consent form not found for this image');
+        expect(e.getStatus()).toBe(404);
+      }
+    });
+  });
+
+  describe('updateImageConsent', () => {
+    it('should call service and return updated image', async () => {
+      const body = {
+        photographer_name: 'Jane Doe',
+        date_taken: '2025-01-01',
+      };
+      const result = {
+        image_id: 'image-123',
+        file_name: 'test.webp',
+        has_consent_metadata: true,
+      };
+
+      vi.spyOn(resourceImagesService, 'updateImageConsent').mockResolvedValue(
+        result as any,
+      );
+
+      const response = await controller.updateImageConsent(
+        'REC0001',
+        'image-123',
+        body,
+      );
+
+      expect(response).toBe(result);
+      expect(resourceImagesService.updateImageConsent).toHaveBeenCalledWith(
+        'REC0001',
+        'image-123',
+        body,
+      );
     });
   });
 });

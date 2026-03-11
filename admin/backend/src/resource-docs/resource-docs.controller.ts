@@ -37,10 +37,17 @@ import { ResourceDocsService } from './service/resource-docs.service';
 @ApiTags('recreation-resources')
 @ApiBearerAuth(AUTH_STRATEGY.KEYCLOAK)
 @UseGuards(AuthGuard(AUTH_STRATEGY.KEYCLOAK), AuthRolesGuard)
-@AuthRoles([RecreationResourceAuthRole.RST_VIEWER], ROLE_MODE.ALL)
+@AuthRoles([RecreationResourceAuthRole.RST_ADMIN], ROLE_MODE.ALL)
 export class ResourceDocsController {
   constructor(private readonly resourceDocsService: ResourceDocsService) {}
 
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
   @Get(':rec_resource_id/docs')
   @ApiOperation({
     summary: 'Get all documents related to the resource',
@@ -174,6 +181,6 @@ export class ResourceDocsController {
     @Param('rec_resource_id') rec_resource_id: string,
     @Param('document_id') document_id: string,
   ): Promise<RecreationResourceDocDto> {
-    return this.resourceDocsService.delete(rec_resource_id, document_id);
+    return this.resourceDocsService.delete(rec_resource_id, document_id, true);
   }
 }

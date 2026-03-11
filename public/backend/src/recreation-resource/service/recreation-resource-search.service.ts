@@ -59,7 +59,7 @@ export class RecreationResourceSearchService {
     }
 
     // Build the where clause for filtering
-    const whereClause = buildSearchFilterQuery({
+    const filterOptions = {
       searchText,
       activities,
       type,
@@ -70,6 +70,17 @@ export class RecreationResourceSearchService {
       fees,
       lat,
       lon,
+    };
+
+    const whereClause = buildSearchFilterQuery(filterOptions);
+
+    // For single-select filters (ie rec resources only have one type, district)
+    // so unselected options show their actual counts instead of 0
+    const whereClauseExcludingType = buildSearchFilterQuery(filterOptions, {
+      type: true,
+    });
+    const whereClauseExcludingDistrict = buildSearchFilterQuery(filterOptions, {
+      district: true,
     });
 
     const recreationResourcePageQuerySql = buildRecreationResourcePageQuery({
@@ -83,6 +94,8 @@ export class RecreationResourceSearchService {
 
     const filterOptionCountsQuerySql = buildFilterOptionCountsQuery({
       whereClause,
+      whereClauseExcludingType,
+      whereClauseExcludingDistrict,
       searchText,
       filterTypes,
       lat,

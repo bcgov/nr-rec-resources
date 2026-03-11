@@ -1,6 +1,7 @@
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
 import { RecreationResourceImageVariantDto } from '@/services/recreation-resource-admin';
 import { RouteHandle } from '@shared/index';
+import { ImageUploadConsentData } from './store/recResourceFileTransferStore';
 
 export type FileType = 'image' | 'document';
 
@@ -33,11 +34,23 @@ export interface GalleryImage extends GalleryFile {
   variants: Array<RecreationResourceImageVariantDto>;
   previewUrl: string;
   type: 'image';
+  consentData?: ImageUploadConsentData;
+  file_size?: number;
+  date_taken?: string;
+  photographer_type?: string;
+  photographer_type_description?: string;
+  photographer_name?: string;
+  contains_pii?: boolean;
+  photographer_display_name?: string;
+  has_consent_metadata?: boolean;
 }
 
 export type GalleryFileAction =
   | 'view'
+  | 'viewDetails'
   | 'download'
+  | 'downloadConsent'
+  | 'edit'
   | 'retry'
   | 'delete'
   | 'dismiss';

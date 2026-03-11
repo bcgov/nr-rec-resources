@@ -1,9 +1,11 @@
-import { Prisma } from '@prisma/client';
+import { Prisma } from '@generated/prisma';
 import { FilterTypes } from '../service/types';
 import { EXCLUDED_ACTIVITY_CODES } from '../constants/service.constants';
 
 export interface BuildFilterOptionCountsQueryOptions {
   whereClause: Prisma.Sql;
+  whereClauseExcludingType: Prisma.Sql;
+  whereClauseExcludingDistrict: Prisma.Sql;
   searchText?: string;
   filterTypes?: FilterTypes;
   lat?: number;
@@ -12,6 +14,8 @@ export interface BuildFilterOptionCountsQueryOptions {
 
 export function buildFilterOptionCountsQuery({
   whereClause,
+  whereClauseExcludingType,
+  whereClauseExcludingDistrict,
   searchText = '',
   filterTypes,
   lat,
@@ -50,6 +54,18 @@ export function buildFilterOptionCountsQuery({
      SUM(has_tables::int)::int AS total_table_count
    FROM filtered_resources
   ),
+  type_filter_resources AS (
+    SELECT rec_resource_id, recreation_resource_type_code
+    FROM recreation_resource_search_view
+    ${whereClauseExcludingType}
+    LIMIT 5000
+  ),
+  district_filter_resources AS (
+    SELECT rec_resource_id, district_code
+    FROM recreation_resource_search_view
+    ${whereClauseExcludingDistrict}
+    LIMIT 5000
+  ),
   activity_counts AS (
     SELECT
       rac.recreation_activity_code,
@@ -66,14 +82,9 @@ export function buildFilterOptionCountsQuery({
     SELECT
       dcv.district_code AS code,
       MAX(dcv.description) AS description,
-      CASE
-        WHEN ${
-          filterTypes?.isOnlyDistrictFilter ?? false
-        } THEN (SELECT COUNT(*) FROM recreation_resource_search_view WHERE district_code = dcv.district_code ${extraFilters})::INT
-        ELSE COUNT(fr.district_code)::INT
-      END AS count
+      COUNT(dfr.district_code)::INT AS count
     FROM recreation_resource_district_count_view dcv
-    LEFT JOIN filtered_resources fr ON fr.district_code = dcv.district_code
+    LEFT JOIN district_filter_resources dfr ON dfr.district_code = dcv.district_code
     WHERE dcv.district_code != 'NULL'
     GROUP BY dcv.district_code, dcv.description
     ORDER BY dcv.description ASC
@@ -98,14 +109,9 @@ export function buildFilterOptionCountsQuery({
     SELECT
       acv.rec_resource_type_code AS code,
       MAX(acv.description) AS description,
-      CASE
-        WHEN ${
-          filterTypes?.isOnlyTypeFilter ?? false
-        } THEN (SELECT COUNT(*) FROM recreation_resource_search_view WHERE recreation_resource_type_code = acv.rec_resource_type_code ${extraFilters})::INT
-        ELSE COUNT(fr.recreation_resource_type_code)::INT
-      END AS count
+      COUNT(tfr.recreation_resource_type_code)::INT AS count
     FROM recreation_resource_type_count_view acv
-    LEFT JOIN filtered_resources fr ON fr.recreation_resource_type_code = acv.rec_resource_type_code
+    LEFT JOIN type_filter_resources tfr ON tfr.recreation_resource_type_code = acv.rec_resource_type_code
     GROUP BY acv.rec_resource_type_code, acv.description
     ORDER BY acv.rec_resource_type_code DESC
   ),
@@ -124,7 +130,7 @@ export function buildFilterOptionCountsQuery({
           SELECT COUNT(*) FROM recreation_resource_search_view
           WHERE COALESCE(recreation_status->>'description', 'Open') = sv.status_desc ${extraFilters}
         )::INT
-        ELSE COUNT(CASE WHEN COALESCE(fr.recreation_status->>'description', 'Open') = sv.status_desc THEN 1 END)::INT
+        ELSE COUNT(CASE WHEN fr.rec_resource_id IS NOT NULL AND COALESCE(fr.recreation_status->>'description', 'Open') = sv.status_desc THEN 1 END)::INT
       END AS count
     FROM status_values sv
     LEFT JOIN filtered_resources fr ON COALESCE(fr.recreation_status->>'description', 'Open') = sv.status_desc

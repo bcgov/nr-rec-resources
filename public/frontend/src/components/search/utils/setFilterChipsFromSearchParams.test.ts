@@ -32,29 +32,22 @@ describe('setFilterChipsFromSearchParams', () => {
 
     mockSearchResultsData.filters = mockFilterMenuContent;
 
-    setFilterChipsFromSearchParams([], mockSearchResultsData, searchParams);
+    setFilterChipsFromSearchParams(mockSearchResultsData, searchParams);
 
     expect(filterChipStore.setState).toHaveBeenCalled();
   });
 
-  it('should not set filter chips if no search params', () => {
-    setFilterChipsFromSearchParams([], mockSearchResultsData, {});
+  it('should clear filter chips if no search params', () => {
+    setFilterChipsFromSearchParams(mockSearchResultsData, {});
 
-    expect(filterChipStore.setState).not.toHaveBeenCalled();
+    expect(filterChipStore.setState).toHaveBeenCalled();
   });
 
-  it('should not set filter chips if filter chips are already set', () => {
-    const searchParams = {
-      activities: 'hiking',
-      type: 'camping',
-    };
+  it('should set filter chips when search params change', () => {
+    const searchParams = { activities: 'hiking', type: 'camping' };
 
-    setFilterChipsFromSearchParams(
-      [{ id: '1', label: 'test', param: 'test' }],
-      mockSearchResultsData,
-      searchParams,
-    );
+    setFilterChipsFromSearchParams(mockSearchResultsData, searchParams);
 
-    expect(filterChipStore.setState).not.toHaveBeenCalled();
+    expect(filterChipStore.setState).toHaveBeenCalled();
   });
 });

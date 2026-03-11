@@ -31,6 +31,9 @@ The NR Rec Resources Admin backend is responsible for:
 - **Cloud Ready:** Designed for deployment to AWS.
 - **File Storage:** S3-based storage for images and documents with CloudFront
   CDN integration.
+- **Geospatial data:** Spatial feature geometry, total length/area,
+  right-of-way, and site point coordinates (see
+  [Geospatial data and spatial calculations](../../docs/geospatial.md)).
 
 ## File Storage
 

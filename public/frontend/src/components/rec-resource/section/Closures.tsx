@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import parse from 'html-react-parser';
+import { SafeHtml } from '@shared/components/safe-html';
 import alertIcon from '@/images/icons/red-alert.svg';
 import { SectionIds, SectionTitles } from '@/components/rec-resource/enum';
 
@@ -20,7 +20,7 @@ const Closures = forwardRef<HTMLElement, ClosuresProps>(
             <span className="capitalize">{siteName}</span>
             &nbsp;is closed
           </span>
-          <p>{parse(comment)}</p>
+          <SafeHtml html={comment} className="rich-text" />
         </div>
       </section>
     );

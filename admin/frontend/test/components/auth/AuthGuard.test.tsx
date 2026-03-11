@@ -3,98 +3,69 @@ import { useAuthContext } from '@/contexts/AuthContext';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-// Mock useAuthContext
-vi.mock('@/contexts/AuthContext', () => ({
-  useAuthContext: vi.fn(),
-}));
+vi.mock('@/contexts/AuthContext', () => ({ useAuthContext: vi.fn() }));
 
-const baseMock = {
+const authService = {
+  getUserFullName: () => 'Test User',
+  logout: vi.fn(),
+  login: vi.fn(),
+};
+
+const defaultContext = {
   isLoading: false,
   isAuthenticated: false,
   isAuthorized: false,
-  error: null,
+  error: null as { getMessage: () => string } | null,
   user: undefined,
-  authService: {
-    getUserFullName: () => 'Test User',
-    logout: vi.fn(),
-  },
+  authService,
 };
 
+function renderWithContext(overrides: Partial<typeof defaultContext> = {}) {
+  (useAuthContext as ReturnType<typeof vi.fn>).mockReturnValue({
+    ...defaultContext,
+    ...overrides,
+  });
+  return render(
+    <AuthGuard>
+      <div>Protected Content</div>
+    </AuthGuard>,
+  );
+}
+
 describe('AuthGuard', () => {
-  it('renders spinner when loading', () => {
-    (useAuthContext as any).mockReturnValue({
-      ...baseMock,
-      isLoading: true,
-    });
-    render(
-      <AuthGuard>
-        <div>Protected Content</div>
-      </AuthGuard>,
-    );
-    expect(document.querySelector('.spinner-border')).not.toBeNull();
+  it('shows spinner when loading', () => {
+    renderWithContext({ isLoading: true });
+    expect(document.querySelector('.spinner-border')).toBeInTheDocument();
   });
 
-  it('renders error message when error exists', () => {
-    (useAuthContext as any).mockReturnValue({
-      ...baseMock,
+  it('shows error message and Log in again calls authService.login', () => {
+    const login = vi.fn();
+    renderWithContext({
       error: { getMessage: () => 'Auth failed' },
+      authService: { ...authService, login },
     });
-    render(
-      <AuthGuard>
-        <div>Protected Content</div>
-      </AuthGuard>,
-    );
-    expect(screen.getByText('Authentication error')).not.toBeNull();
-    expect(screen.getByText('Auth failed')).not.toBeNull();
+    expect(screen.getByText('Authentication error')).toBeInTheDocument();
+    expect(screen.getByText('Auth failed')).toBeInTheDocument();
+    screen.getByRole('button', { name: /log in again/i }).click();
+    expect(login).toHaveBeenCalledTimes(1);
   });
 
   it('renders LoginPage when not authenticated', () => {
-    (useAuthContext as any).mockReturnValue({
-      ...baseMock,
-      isAuthenticated: false,
-      isAuthorized: false,
-    });
-    render(
-      <AuthGuard>
-        <div>Protected Content</div>
-      </AuthGuard>,
-    );
-    // LoginPage should be rendered, not the protected content
-    expect(screen.queryByText('Protected Content')).toBeNull();
-    // Check for LoginPage content
-    expect(screen.getByText('Welcome to RecSpace')).not.toBeNull();
+    renderWithContext({ isAuthenticated: false, isAuthorized: false });
+    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
+    expect(screen.getByText('Welcome to RecSpace')).toBeInTheDocument();
   });
 
   it('renders UnauthorizedPage when authenticated but not authorized', () => {
-    (useAuthContext as any).mockReturnValue({
-      ...baseMock,
-      isAuthenticated: true,
-      isAuthorized: false,
-    });
-    render(
-      <AuthGuard>
-        <div>Protected Content</div>
-      </AuthGuard>,
-    );
-    // UnauthorizedPage should be rendered, not the protected content
-    expect(screen.queryByText('Protected Content')).toBeNull();
-    // Check for UnauthorizedPage content
+    renderWithContext({ isAuthenticated: true, isAuthorized: false });
+    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
     expect(
       screen.getByText('You are not authorized to log in yet'),
-    ).not.toBeNull();
+    ).toBeInTheDocument();
   });
 
   it('renders children when authenticated and authorized', () => {
-    (useAuthContext as any).mockReturnValue({
-      ...baseMock,
-      isAuthenticated: true,
-      isAuthorized: true,
-    });
-    render(
-      <AuthGuard>
-        <div>Protected Content</div>
-      </AuthGuard>,
-    );
-    expect(screen.getByText('Protected Content')).not.toBeNull();
+    renderWithContext({ isAuthenticated: true, isAuthorized: true });
+    expect(screen.getByText('Protected Content')).toBeInTheDocument();
   });
 });

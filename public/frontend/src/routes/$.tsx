@@ -13,6 +13,7 @@ export const Route = createFileRoute('/$')({
         content: META_DESCRIPTIONS.NOT_FOUND,
       },
       { title: ROUTE_TITLES.NOT_FOUND },
+      { name: 'robots', content: 'noindex' },
     ],
   }),
   beforeLoad: () => ({

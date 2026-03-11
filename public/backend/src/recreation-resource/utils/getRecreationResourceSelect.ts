@@ -87,6 +87,9 @@ export const getRecreationResourceSelect = () => ({
     },
   },
   recreation_resource_document: {
+    where: {
+      doc_code: 'RM',
+    },
     select: {
       doc_id: true,
       doc_code: true,

@@ -2,6 +2,8 @@ import {
   addPendingDoc,
   addPendingImage,
   hideDeleteModal,
+  hideImageLightbox,
+  hidePhotoDetails,
   recResourceFileTransferStore,
   removePendingDoc,
   removePendingImage,
@@ -13,8 +15,11 @@ import {
   setSelectedFile,
   setShowDeleteModal,
   setShowUploadOverlay,
+  setUploadConsentData,
   setUploadFileName,
   showDeleteModalForFile,
+  showImageLightboxForImage,
+  showPhotoDetailsForImage,
   updateGalleryDocument,
   updateGalleryImage,
   updatePendingDoc,
@@ -69,17 +74,7 @@ const anotherImage: GalleryImage = {
 
 describe('recResourceFileTransferStore', () => {
   beforeEach(() => {
-    recResourceFileTransferStore.setState({
-      selectedFileForUpload: null,
-      uploadFileName: '',
-      showUploadOverlay: false,
-      pendingDocs: [],
-      galleryDocuments: [],
-      pendingImages: [],
-      galleryImages: [],
-      showDeleteModal: false,
-      fileToDelete: undefined,
-    });
+    resetRecResourceFileTransferStore();
   });
 
   it('sets selected file', () => {
@@ -101,6 +96,33 @@ describe('recResourceFileTransferStore', () => {
   it('sets upload file name', () => {
     setUploadFileName('test.pdf');
     expect(recResourceFileTransferStore.state.uploadFileName).toBe('test.pdf');
+  });
+
+  it('sets upload consent data', () => {
+    setUploadConsentData({
+      dateTaken: '2024-06-15',
+      containsPii: true,
+      photographerName: 'John Doe',
+    });
+
+    expect(recResourceFileTransferStore.state.uploadConsentData).toEqual({
+      dateTaken: '2024-06-15',
+      containsPii: true,
+      photographerType: 'STAFF',
+      photographerName: 'John Doe',
+      consentFormFile: null,
+    });
+  });
+
+  it('updates consent data partially', () => {
+    setUploadConsentData({ photographerType: 'CONTRACTOR' });
+
+    expect(
+      recResourceFileTransferStore.state.uploadConsentData.photographerType,
+    ).toBe('CONTRACTOR');
+    expect(
+      recResourceFileTransferStore.state.uploadConsentData.containsPii,
+    ).toBe(false);
   });
 
   it('sets show upload overlay', () => {
@@ -387,5 +409,51 @@ describe('recResourceFileTransferStore', () => {
     expect(recResourceFileTransferStore.state.galleryImages).toEqual([]);
     expect(recResourceFileTransferStore.state.showDeleteModal).toBe(false);
     expect(recResourceFileTransferStore.state.fileToDelete).toBeUndefined();
+  });
+
+  describe('photo details modal', () => {
+    it('shows photo details for an image', () => {
+      showPhotoDetailsForImage(baseImage);
+
+      expect(recResourceFileTransferStore.state.showPhotoDetailsModal).toBe(
+        true,
+      );
+      expect(recResourceFileTransferStore.state.selectedImageForDetails).toBe(
+        baseImage,
+      );
+    });
+
+    it('hides photo details', () => {
+      showPhotoDetailsForImage(baseImage);
+      hidePhotoDetails();
+
+      expect(recResourceFileTransferStore.state.showPhotoDetailsModal).toBe(
+        false,
+      );
+      expect(
+        recResourceFileTransferStore.state.selectedImageForDetails,
+      ).toBeNull();
+    });
+  });
+
+  describe('image lightbox', () => {
+    it('shows lightbox for an image', () => {
+      showImageLightboxForImage(baseImage);
+
+      expect(recResourceFileTransferStore.state.showImageLightbox).toBe(true);
+      expect(recResourceFileTransferStore.state.selectedImageForLightbox).toBe(
+        baseImage,
+      );
+    });
+
+    it('hides lightbox', () => {
+      showImageLightboxForImage(baseImage);
+      hideImageLightbox();
+
+      expect(recResourceFileTransferStore.state.showImageLightbox).toBe(false);
+      expect(
+        recResourceFileTransferStore.state.selectedImageForLightbox,
+      ).toBeNull();
+    });
   });
 });

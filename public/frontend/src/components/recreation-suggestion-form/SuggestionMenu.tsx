@@ -70,7 +70,11 @@ export const SuggestionMenu = ({
                 community={closest_community}
                 icon={
                   <Image
-                    src={RESOURCE_TYPE_ICONS[recreation_resource_type_code]}
+                    src={
+                      // fallback to IF tree icon if new types get added in the future
+                      RESOURCE_TYPE_ICONS[recreation_resource_type_code] ??
+                      RESOURCE_TYPE_ICONS['IF']
+                    }
                   />
                 }
                 resourceType={recreation_resource_type}

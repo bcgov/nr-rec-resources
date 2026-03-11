@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import validator from 'validator';
 
 /**
  * Creates the validation schema for recreation resource edit form
@@ -8,9 +9,22 @@ export const createEditReservationSchema = () => {
   return z.object({
     has_reservation: z.boolean().default(false),
     // Basic reservation information
-    reservation_website: z.string().max(200).optional().nullable(),
-    reservation_phone_number: z.string().max(50).optional().nullable(),
-    reservation_email: z.string().max(100).optional().nullable(),
+    reservation_website: z
+      .url('Invalid URL format. Example: https://example.com/.')
+      .max(200)
+      .or(z.literal('').optional().nullable()),
+    reservation_phone_number: z
+      .string()
+      .refine(
+        validator.isMobilePhone,
+        'Invalid phone number format. Include area code (e.g., 250-555-1234).',
+      )
+      .max(50)
+      .or(z.literal('').optional().nullable()),
+    reservation_email: z
+      .email('Invalid email format. Example: [name@example.com].')
+      .max(100)
+      .or(z.literal('').optional().nullable()),
   });
 };
 

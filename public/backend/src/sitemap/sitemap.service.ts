@@ -14,7 +14,7 @@ export class SitemapService {
   async generateSitemap(): Promise<string> {
     const baseUrl =
       this.configService.get<string>('PUBLIC_FRONTEND_BASE_URL') ||
-      'https://beta.sitesandtrailsbc.ca';
+      'https://www.sitesandtrailsbc.ca';
 
     const resources = await this.prisma.recreation_resource.findMany({
       where: {

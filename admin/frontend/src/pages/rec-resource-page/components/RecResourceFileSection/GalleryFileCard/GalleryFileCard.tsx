@@ -5,12 +5,14 @@ import {
 } from '@/pages/rec-resource-page/types';
 import {
   faCancel,
-  faEllipsisV,
+  faEllipsisH,
   faFileImage,
   faFilePdf,
   faRedo,
   faTimes,
+  IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import clsx from 'clsx';
 import { Card, Col, Dropdown, Row, Stack } from 'react-bootstrap';
@@ -29,13 +31,24 @@ import { LoadingState } from './LoadingState';
  * @property {T} file - File object to display.
  * @property {(action: GalleryFileAction, file: T) => () => void} getFileActionHandler -
  *   Function that returns an event handler for a given file action and file.
- * @property {typeof CARD_ACTIONS} [actions] - Optional custom actions to display. Defaults to CARD_ACTIONS.
+ * @property {ReadonlyArray} [actions] - Optional custom actions to display. Defaults to CARD_ACTIONS.
  */
 export interface GalleryFileCardProps<T extends GalleryFile> {
   topContent?: React.ReactNode;
   file: T;
   getFileActionHandler: (action: GalleryFileAction, file: T) => () => void;
-  actions?: typeof CARD_ACTIONS;
+  /** Actions shown in the dropdown menu (ellipsis) */
+  actions?: ReadonlyArray<{
+    key: GalleryFileAction;
+    icon: IconDefinition;
+    label: string;
+  }>;
+  /** Actions shown on the preview overlay (defaults to actions if not provided) */
+  previewActions?: ReadonlyArray<{
+    key: GalleryFileAction;
+    icon: IconDefinition;
+    label: string;
+  }>;
 }
 
 /**
@@ -46,7 +59,10 @@ export const GalleryFileCard = <T extends GalleryFile>({
   file,
   getFileActionHandler,
   actions = CARD_ACTIONS,
+  previewActions,
 }: GalleryFileCardProps<T>) => {
+  // Use previewActions for preview overlay, fallback to actions if not provided
+  const effectivePreviewActions = previewActions ?? actions;
   const isUploadError = Boolean(file.uploadFailed);
   const isUploading = Boolean(file.isUploading);
   const isDownloading = Boolean(file.isDownloading);
@@ -101,7 +117,7 @@ export const GalleryFileCard = <T extends GalleryFile>({
     return (
       <>
         <Stack direction="horizontal" className="gallery-file-card__top-hover">
-          {actions.map(({ key, icon, label }) => (
+          {effectivePreviewActions.map(({ key, icon, label }) => (
             <ActionButton
               key={key}
               icon={icon}
@@ -158,7 +174,7 @@ export const GalleryFileCard = <T extends GalleryFile>({
                 aria-label="File actions menu"
                 disabled={isUploading}
               >
-                <FontAwesomeIcon icon={faEllipsisV} />
+                <FontAwesomeIcon icon={faEllipsisH} />
               </Dropdown.Toggle>
 
               <Dropdown.Menu>

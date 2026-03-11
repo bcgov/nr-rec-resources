@@ -1,11 +1,31 @@
+@import '@/styles/variables.scss';
+
 .upload-tile {
-  border: 2px dashed #ccc;
+  border: 2px dashed $colorGreyLight;
   border-radius: 8px;
   min-height: 120px;
   cursor: pointer;
-  transition: opacity 0.2s;
-  background: #fafbfc;
+  transition:
+    opacity 0.2s,
+    border-color 0.2s,
+    background-color 0.2s,
+    transform 0.2s,
+    box-shadow 0.2s;
+  background: $colorWhite;
 }
+
+.upload-tile:hover:not(.disabled) {
+  border-color: $colorBlueMed;
+  background: $colorIceBlue;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba($colorBlueMed, 0.18);
+}
+
+.upload-tile.active {
+  border-color: $colorBlueMed;
+  background: $colorIceBlue;
+}
+
 .upload-tile.disabled {
   pointer-events: none;
   opacity: 0.5;

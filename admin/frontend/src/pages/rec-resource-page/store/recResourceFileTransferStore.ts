@@ -1,9 +1,18 @@
 import { Store } from '@tanstack/store';
 import { FileType, GalleryDocument, GalleryFile, GalleryImage } from '../types';
 
+export interface ImageUploadConsentData {
+  dateTaken?: string | null;
+  containsPii?: boolean;
+  photographerType?: string;
+  photographerName?: string;
+  consentFormFile?: File | null;
+}
+
 export interface RecResourceFileTransferState {
   selectedFileForUpload: GalleryFile | null;
   uploadFileName: string;
+  uploadConsentData: ImageUploadConsentData;
   showUploadOverlay: boolean;
   pendingDocs: GalleryDocument[];
   galleryDocuments: GalleryDocument[];
@@ -11,11 +20,26 @@ export interface RecResourceFileTransferState {
   galleryImages: GalleryImage[];
   showDeleteModal: boolean;
   fileToDelete?: GalleryFile;
+  showPhotoDetailsModal: boolean;
+  selectedImageForDetails: GalleryImage | null;
+  showEditPhotoModal: boolean;
+  selectedImageForEdit: GalleryImage | null;
+  showImageLightbox: boolean;
+  selectedImageForLightbox: GalleryImage | null;
 }
+
+const INITIAL_CONSENT_DATA: ImageUploadConsentData = {
+  dateTaken: null,
+  containsPii: false,
+  photographerType: 'STAFF',
+  photographerName: '',
+  consentFormFile: null,
+};
 
 const INITIAL_REC_RESOURCE_FILE_TRANSFER_STATE: RecResourceFileTransferState = {
   selectedFileForUpload: null,
   uploadFileName: '',
+  uploadConsentData: { ...INITIAL_CONSENT_DATA },
   showUploadOverlay: false,
   pendingDocs: [],
   galleryDocuments: [],
@@ -23,6 +47,12 @@ const INITIAL_REC_RESOURCE_FILE_TRANSFER_STATE: RecResourceFileTransferState = {
   galleryImages: [],
   showDeleteModal: false,
   fileToDelete: undefined,
+  showPhotoDetailsModal: false,
+  selectedImageForDetails: null,
+  showEditPhotoModal: false,
+  selectedImageForEdit: null,
+  showImageLightbox: false,
+  selectedImageForLightbox: null,
 };
 
 export const recResourceFileTransferStore =
@@ -44,6 +74,18 @@ export function setUploadFileName(fileName: string) {
   }));
 }
 
+export function setUploadConsentData(
+  metadata: Partial<ImageUploadConsentData>,
+) {
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    uploadConsentData: {
+      ...prev.uploadConsentData,
+      ...metadata,
+    },
+  }));
+}
+
 export function setShowUploadOverlay(show: boolean) {
   recResourceFileTransferStore.setState((prev) => ({
     ...prev,
@@ -55,6 +97,10 @@ export const resetUploadState = () => {
   setShowUploadOverlay(false);
   setSelectedFile(null);
   setUploadFileName('');
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    uploadConsentData: { ...INITIAL_CONSENT_DATA },
+  }));
 };
 
 export function setShowDeleteModal(show: boolean) {
@@ -79,6 +125,54 @@ export const showDeleteModalForFile = (file: GalleryFile) => {
 export const hideDeleteModal = () => {
   setShowDeleteModal(false);
   setFileToDelete(undefined);
+};
+
+export const showPhotoDetailsForImage = (image: GalleryImage) => {
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    selectedImageForDetails: image,
+    showPhotoDetailsModal: true,
+  }));
+};
+
+export const hidePhotoDetails = () => {
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    showPhotoDetailsModal: false,
+    selectedImageForDetails: null,
+  }));
+};
+
+export const showEditPhotoForImage = (image: GalleryImage) => {
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    selectedImageForEdit: image,
+    showEditPhotoModal: true,
+  }));
+};
+
+export const hideEditPhoto = () => {
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    showEditPhotoModal: false,
+    selectedImageForEdit: null,
+  }));
+};
+
+export const showImageLightboxForImage = (image: GalleryImage) => {
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    selectedImageForLightbox: image,
+    showImageLightbox: true,
+  }));
+};
+
+export const hideImageLightbox = () => {
+  recResourceFileTransferStore.setState((prev) => ({
+    ...prev,
+    showImageLightbox: false,
+    selectedImageForLightbox: null,
+  }));
 };
 
 function addPendingFile<T extends GalleryFile>(file: T, type: FileType): void {

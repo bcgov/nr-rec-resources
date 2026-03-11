@@ -135,7 +135,7 @@ test.describe('Filter chip workflows', () => {
     const utils = new UtilsPOM(page);
 
     await searchPage.route(
-      '?page=1&district=RDCK_RDCO_RDKA&type=RTR_SIT_IF&access=B_F_R_T&facilities=toilet&activities=1',
+      '?page=1&district=RDCK_RDCO_RDKA&type=RTE_SIT_IF&access=B_F_R_T&facilities=toilet&activities=1',
     );
 
     await filterChips.verifyFilterChips([

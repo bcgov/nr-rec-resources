@@ -32,6 +32,24 @@ export interface RecreationResourceGeospatialDto {
    */
   spatial_feature_geometry?: Array<string>;
   /**
+   * Total length in km: perimeter for polygon/multi-polygon features plus length for linear features.
+   * @type {number}
+   * @memberof RecreationResourceGeospatialDto
+   */
+  total_length_km?: number | null;
+  /**
+   * Total area in hectares: polygon area plus trail area (length × right_of_way) when applicable.
+   * @type {number}
+   * @memberof RecreationResourceGeospatialDto
+   */
+  total_area_hectares?: number | null;
+  /**
+   * Right-of-way width in metres (from recreation resource).
+   * @type {number}
+   * @memberof RecreationResourceGeospatialDto
+   */
+  right_of_way_m?: number | null;
+  /**
    * GeoJSON geometry string representing the point location of the recreation site
    * @type {string}
    * @memberof RecreationResourceGeospatialDto
@@ -99,6 +117,14 @@ export function RecreationResourceGeospatialDtoFromJSONTyped(
       json['spatial_feature_geometry'] == null
         ? undefined
         : json['spatial_feature_geometry'],
+    total_length_km:
+      json['total_length_km'] == null ? undefined : json['total_length_km'],
+    total_area_hectares:
+      json['total_area_hectares'] == null
+        ? undefined
+        : json['total_area_hectares'],
+    right_of_way_m:
+      json['right_of_way_m'] == null ? undefined : json['right_of_way_m'],
     site_point_geometry:
       json['site_point_geometry'] == null
         ? undefined
@@ -129,6 +155,9 @@ export function RecreationResourceGeospatialDtoToJSONTyped(
   return {
     rec_resource_id: value['rec_resource_id'],
     spatial_feature_geometry: value['spatial_feature_geometry'],
+    total_length_km: value['total_length_km'],
+    total_area_hectares: value['total_area_hectares'],
+    right_of_way_m: value['right_of_way_m'],
     site_point_geometry: value['site_point_geometry'],
     utm_zone: value['utm_zone'],
     utm_easting: value['utm_easting'],

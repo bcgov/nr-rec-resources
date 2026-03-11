@@ -57,6 +57,27 @@ export class AuthService {
       );
     };
 
+    // Refresh token when Keycloak reports it has expired (background refresh)
+    this.keycloak.onTokenExpired = () => {
+      this.keycloak.updateToken(70).catch((err) => {
+        window.dispatchEvent(
+          new CustomEvent(AuthServiceEvent.AUTH_ERROR, { detail: err }),
+        );
+      });
+    };
+
+    // When refresh fails (e.g. session expired), notify the app
+    this.keycloak.onAuthRefreshError = () => {
+      window.dispatchEvent(
+        new CustomEvent(AuthServiceEvent.AUTH_ERROR, {
+          detail: {
+            error: 'session_expired',
+            error_description: 'Your session has expired. Please log in again.',
+          },
+        }),
+      );
+    };
+
     return this.keycloak.init({
       onLoad: 'check-sso',
       redirectUri: window.location.href,

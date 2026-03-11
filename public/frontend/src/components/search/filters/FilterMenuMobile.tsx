@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useStore } from '@tanstack/react-store';
 import { useClearFilters } from '@/components/search/hooks/useClearFilters';
 import searchResultsStore from '@/store/searchResults';
@@ -23,6 +24,10 @@ const FilterMenuMobile = ({ isOpen, setIsOpen }: FilterMenuMobileProps) => {
   const selectedFilters = useStore(filterChipStore);
   const params = menuContent?.map(({ param }) => param) ?? [];
 
+  const activeGroups = useMemo(() => {
+    return Array.from(new Set(selectedFilters?.map((f) => f.param) ?? []));
+  }, [selectedFilters]);
+
   const handleClose = () => setIsOpen(false);
   const handleShowResults = () => {
     const filterNames = selectedFilters?.map((f) => f.label) ?? [];
@@ -45,6 +50,7 @@ const FilterMenuMobile = ({ isOpen, setIsOpen }: FilterMenuMobileProps) => {
         isOpen={isOpen}
         onClose={handleClose}
         params={params}
+        activeGroups={activeGroups}
         className="d-block d-lg-none"
       >
         {({ isGroupOpen, toggleGroup }) => (

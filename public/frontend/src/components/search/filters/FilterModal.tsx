@@ -13,6 +13,7 @@ interface FilterModalProps {
   onClose: () => void;
   title?: string;
   params: string[];
+  activeGroups?: string[];
   children: (helpers: {
     isGroupOpen: (param: string) => boolean;
     toggleGroup: (param: string) => void;
@@ -25,27 +26,31 @@ const FilterModal = ({
   onClose,
   title = 'Filter',
   params,
+  activeGroups = [],
   children,
   className = '',
 }: FilterModalProps) => {
-  const initialState = Object.fromEntries(params.map((p) => [p, false]));
   const [expandAll, setExpandAll] = useState(false);
-  const [groupStates, setGroupStates] =
-    useState<Record<string, boolean>>(initialState);
+  const [toggledGroups, setToggledGroups] = useState<Record<string, boolean>>(
+    {},
+  );
 
-  const isGroupOpen = (param: string) => !!groupStates[param];
+  const isGroupOpen = (param: string) => {
+    if (toggledGroups[param] !== undefined) return toggledGroups[param];
+    return activeGroups.includes(param);
+  };
 
   const toggleGroup = (param: string) => {
-    setGroupStates((prev) => ({
+    setToggledGroups((prev) => ({
       ...prev,
-      [param]: !prev[param],
+      [param]: !isGroupOpen(param),
     }));
   };
 
   const handleExpandAll = () => {
     const next = !expandAll;
     setExpandAll(next);
-    setGroupStates(Object.fromEntries(params.map((p) => [p, next])));
+    setToggledGroups(Object.fromEntries(params.map((p) => [p, next])));
   };
 
   return (

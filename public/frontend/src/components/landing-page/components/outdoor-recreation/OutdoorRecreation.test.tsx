@@ -71,7 +71,7 @@ describe('OutdoorRecreation', () => {
       expect.objectContaining({
         title: '750+',
         linkText: 'Explore trails',
-        type: 'RTR',
+        type: 'RTE',
       }),
     );
 

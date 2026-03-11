@@ -9,7 +9,7 @@ import { capitalizeWords } from '@shared/utils/capitalizeWords';
 import { featureLabelText } from '@/components/search-map/styles/feature';
 import {
   createSITIcon,
-  createRTRIcon,
+  createRTEIcon,
   createIFIcon,
 } from '@/components/search-map/styles/icons';
 import { clusterStyle } from '@/components/search-map/styles/cluster';
@@ -34,10 +34,17 @@ const getCapitalizedName = (name: string): string => {
 };
 
 const PROJECT_TYPE_ICON_MAP = {
+  // Recreation site types:
   SIT: createSITIcon,
-  RR: createSITIcon, // Recreation Reserves are displayed as Recreation Sites
-  RTR: createRTRIcon,
+  RR: createSITIcon,
+  // Recreation trail types:
+  RTR: createRTEIcon,
+  RTE: createRTEIcon,
+  TBL: createRTEIcon,
+  TRB: createRTEIcon,
+  // Interpretive forest types:
   IF: createIFIcon,
+  IFT: createIFIcon,
 } as const;
 
 const getProjectTypeIcon = (
@@ -56,7 +63,8 @@ const getProjectTypeIcon = (
     }
   }
 
-  return createSITIcon(options);
+  // Fallback to IF icon if no icon exists for new types
+  return createIFIcon(options);
 };
 
 export function createClusteredRecreationFeatureStyle(

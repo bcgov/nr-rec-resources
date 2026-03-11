@@ -55,7 +55,7 @@ vi.mock('@/components/search-map/styles/icons', () => ({
   createSITIcon: vi.fn(
     ({ opacity, variant }) => new Style({ opacity, variant } as any),
   ),
-  createRTRIcon: vi.fn(
+  createRTEIcon: vi.fn(
     ({ opacity, variant }) => new Style({ opacity, variant } as any),
   ),
   createIFIcon: vi.fn(
@@ -87,7 +87,7 @@ import { capitalizeWords } from '@shared/utils/capitalizeWords';
 import { featureLabelText } from '@/components/search-map/styles/feature';
 import {
   createSITIcon,
-  createRTRIcon,
+  createRTEIcon,
   createIFIcon,
 } from '@/components/search-map/styles/icons';
 import { clusterStyle } from '@/components/search-map/styles/cluster';
@@ -278,7 +278,7 @@ describe('recreationFeatureLayer', () => {
       const projectTypes = [
         { type: 'SIT', icon: createSITIcon },
         { type: 'RR', icon: createSITIcon },
-        { type: 'RTR', icon: createRTRIcon },
+        { type: 'RTR', icon: createRTEIcon },
         { type: 'IF', icon: createIFIcon },
       ];
 
@@ -299,7 +299,7 @@ describe('recreationFeatureLayer', () => {
       it('should fall back to default icons for unknown project types', () => {
         const mockFeature = createMockFeature('UNKNOWN_TYPE', false);
         createClusteredRecreationFeatureStyle(mockFeature, 200);
-        expect(createSITIcon).toHaveBeenCalledWith({
+        expect(createIFIcon).toHaveBeenCalledWith({
           opacity: 1,
           variant: 'default',
         });
@@ -308,7 +308,7 @@ describe('recreationFeatureLayer', () => {
       it('should fall back to closed icon for closed unknown project types', () => {
         const mockFeature = createMockFeature('UNKNOWN_TYPE', true);
         createClusteredRecreationFeatureStyle(mockFeature, 200);
-        expect(createSITIcon).toHaveBeenCalledWith({
+        expect(createIFIcon).toHaveBeenCalledWith({
           opacity: 1,
           variant: 'closed',
         });

@@ -5,6 +5,7 @@ export const recreationResourceSelect = {
   maintenance_standard_code: true,
   project_established_date: true,
   display_on_public_site: true,
+  right_of_way: true,
   recreation_maintenance_standard_code: {
     select: {
       description: true,

@@ -9,7 +9,6 @@ describe('AuthService', () => {
   let authService: AuthService;
   let mockKeycloak: any;
   let dispatchEventSpy: ReturnType<typeof vi.spyOn>;
-  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     vi.stubEnv('VITE_KEYCLOAK_AUTH_SERVER_URL', 'http://localhost:8080');
@@ -43,13 +42,11 @@ describe('AuthService', () => {
       window,
       'dispatchEvent',
     ) as unknown as ReturnType<typeof vi.spyOn>;
-    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
     vi.unstubAllEnvs();
     vi.clearAllMocks();
-    consoleErrorSpy.mockRestore();
   });
 
   describe('getInstance', () => {
@@ -147,33 +144,53 @@ describe('AuthService', () => {
       await expect(authService.init()).rejects.toThrow('fail');
     });
 
-    it('sets up all event handlers', async () => {
+    it('onTokenExpired calls updateToken(70) and dispatches AUTH_ERROR on reject', async () => {
       await authService.init();
-      expect(typeof mockKeycloak.onAuthSuccess).toBe('function');
-      expect(typeof mockKeycloak.onAuthLogout).toBe('function');
-      expect(typeof mockKeycloak.onAuthError).toBe('function');
+      mockKeycloak.updateToken.mockRejectedValueOnce(
+        new Error('refresh failed'),
+      );
+      mockKeycloak.onTokenExpired!();
+      expect(mockKeycloak.updateToken).toHaveBeenCalledWith(70);
+      await vi.waitFor(
+        () => {
+          expect(dispatchEventSpy).toHaveBeenCalledWith(
+            expect.objectContaining({
+              type: AuthServiceEvent.AUTH_ERROR,
+              detail: expect.any(Error),
+            }),
+          );
+        },
+        { timeout: 500 },
+      );
     });
 
-    it('returns authenticated value if already initialized (didInitialize=true, authenticated=true)', async () => {
-      mockKeycloak.didInitialize = true;
-      mockKeycloak.authenticated = true;
-      const result = await authService.init();
-      expect(result).toBe(true);
+    it('onAuthRefreshError dispatches AUTH_ERROR with session-expired message', async () => {
+      await authService.init();
+      mockKeycloak.onAuthRefreshError!();
+      expect(dispatchEventSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: AuthServiceEvent.AUTH_ERROR,
+          detail: expect.objectContaining({
+            error: 'session_expired',
+            error_description: 'Your session has expired. Please log in again.',
+          }),
+        }),
+      );
     });
 
-    it('returns false if already initialized (didInitialize=true, authenticated=false)', async () => {
-      mockKeycloak.didInitialize = true;
-      mockKeycloak.authenticated = false;
-      const result = await authService.init();
-      expect(result).toBe(false);
-    });
-
-    it('returns false if already initialized (didInitialize=true, authenticated undefined)', async () => {
-      mockKeycloak.didInitialize = true;
-      mockKeycloak.authenticated = undefined;
-      const result = await authService.init();
-      expect(result).toBe(false);
-    });
+    it.each([
+      [true, true],
+      [false, false],
+      [undefined, false],
+    ] as const)(
+      'returns %s when already initialized with authenticated=%s',
+      async (authenticated, expected) => {
+        mockKeycloak.didInitialize = true;
+        mockKeycloak.authenticated = authenticated;
+        const result = await authService.init();
+        expect(result).toBe(expected);
+      },
+    );
   });
 
   describe('login/logout', () => {
@@ -211,29 +228,29 @@ describe('AuthService', () => {
     });
   });
 
-  describe('roles and authorization helpers', () => {
+  describe('roles and authorization', () => {
     beforeEach(() => {
       authService = AuthService.getInstance();
     });
 
-    it('hasRequiredRole returns true when user has a required role', () => {
-      mockKeycloak.tokenParsed = { client_roles: ['foo', 'bar'] } as UserInfo;
-      expect(authService.hasRequiredRole(['bar', 'baz'])).toBe(true);
-    });
+    it.each([
+      [['foo', 'bar'], ['bar', 'baz'], true],
+      [['alpha'], ['beta', 'gamma'], false],
+    ])(
+      'hasRequiredRole with client_roles %s and required %s returns %s',
+      (clientRoles, required, expected) => {
+        mockKeycloak.tokenParsed = { client_roles: clientRoles } as UserInfo;
+        expect(authService.hasRequiredRole(required)).toBe(expected);
+      },
+    );
 
-    it('hasRequiredRole returns false when user lacks required roles', () => {
-      mockKeycloak.tokenParsed = { client_roles: ['alpha'] } as UserInfo;
-      expect(authService.hasRequiredRole(['beta', 'gamma'])).toBe(false);
-    });
-
-    it('isAuthorized returns true when user has rst-admin or rst-viewer', () => {
-      mockKeycloak.tokenParsed = { client_roles: ['rst-admin'] } as UserInfo;
-      expect(authService.isAuthorized()).toBe(true);
-    });
-
-    it('isAuthorized returns false when user lacks rst roles', () => {
-      mockKeycloak.tokenParsed = { client_roles: ['other'] } as UserInfo;
-      expect(authService.isAuthorized()).toBe(false);
+    it.each([
+      [['rst-admin'], true],
+      [['rst-viewer'], true],
+      [['other'], false],
+    ])('isAuthorized() with roles %s returns %s', (clientRoles, expected) => {
+      mockKeycloak.tokenParsed = { client_roles: clientRoles } as UserInfo;
+      expect(authService.isAuthorized()).toBe(expected);
     });
   });
 
@@ -279,22 +296,17 @@ describe('AuthService', () => {
       authService = AuthService.getInstance();
     });
 
-    it('returns client_roles from tokenParsed', () => {
-      const roles = authService.getUserRoles();
-      expect(roles).toEqual(['user', 'admin']);
-    });
-
-    it('returns empty array if client_roles missing', () => {
-      mockKeycloak.tokenParsed = { sub: 'test-user' };
-      const roles = authService.getUserRoles();
-      expect(roles).toEqual([]);
-    });
-
-    it('returns empty array if tokenParsed is undefined', () => {
-      mockKeycloak.tokenParsed = undefined;
-      const roles = authService.getUserRoles();
-      expect(roles).toEqual([]);
-    });
+    it.each([
+      [undefined, []],
+      [{ sub: 'test-user' }, []],
+      [{ client_roles: ['user', 'admin'] }, ['user', 'admin']],
+    ] as const)(
+      'returns expected roles for tokenParsed %s',
+      (tokenParsed, expected) => {
+        mockKeycloak.tokenParsed = tokenParsed as UserInfo;
+        expect(authService.getUserRoles()).toEqual(expected);
+      },
+    );
   });
 
   describe('getUserFullName', () => {
@@ -302,47 +314,20 @@ describe('AuthService', () => {
       authService = AuthService.getInstance();
     });
 
-    it('returns full name from given_name and family_name', () => {
-      mockKeycloak.tokenParsed = {
-        given_name: 'Jane',
-        family_name: 'Doe',
-        name: 'Jane D.',
-      };
-      expect(authService.getUserFullName()).toBe('Jane Doe');
-    });
-
-    it('returns only given_name if family_name is missing', () => {
-      mockKeycloak.tokenParsed = {
-        given_name: 'Jane',
-        name: 'Jane D.',
-      };
-      expect(authService.getUserFullName()).toBe('Jane');
-    });
-
-    it('returns only family_name if given_name is missing', () => {
-      mockKeycloak.tokenParsed = {
-        family_name: 'Doe',
-        name: 'Jane D.',
-      };
-      expect(authService.getUserFullName()).toBe('Doe');
-    });
-
-    it('returns name if given_name and family_name are missing', () => {
-      mockKeycloak.tokenParsed = {
-        name: 'Jane D.',
-      };
-      expect(authService.getUserFullName()).toBe('Jane D.');
-    });
-
-    it('returns empty string if all fields are missing', () => {
-      mockKeycloak.tokenParsed = {};
-      expect(authService.getUserFullName()).toBe('');
-    });
-
-    it('returns empty string if tokenParsed is undefined', () => {
-      mockKeycloak.tokenParsed = undefined;
-      expect(authService.getUserFullName()).toBe('');
-    });
+    it.each([
+      [{ given_name: 'Jane', family_name: 'Doe', name: 'Jane D.' }, 'Jane Doe'],
+      [{ given_name: 'Jane', name: 'Jane D.' }, 'Jane'],
+      [{ family_name: 'Doe', name: 'Jane D.' }, 'Doe'],
+      [{ name: 'Jane D.' }, 'Jane D.'],
+      [{}, ''],
+      [undefined, ''],
+    ] as const)(
+      'returns expected name for tokenParsed',
+      (tokenParsed, expected) => {
+        mockKeycloak.tokenParsed = tokenParsed as UserInfo;
+        expect(authService.getUserFullName()).toBe(expected);
+      },
+    );
   });
 
   describe('keycloakInstance', () => {

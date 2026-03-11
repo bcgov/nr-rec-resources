@@ -1,13 +1,13 @@
 import { Icon, Style } from 'ol/style';
 import locationDotOrange from '@/assets/location-dot-orange.png';
 import SIT_ICON from '@shared/assets/icons/recreation_site.svg';
-import RTR_ICON from '@shared/assets/icons/recreation_trail.svg';
+import RTE_ICON from '@shared/assets/icons/recreation_trail.svg';
 import IF_ICON from '@shared/assets/icons/interpretive_forest.svg';
 import SIT_ICON_CLOSED from '@shared/assets/icons/recreation_site_closed.svg';
-import RTR_ICON_CLOSED from '@shared/assets/icons/recreation_trail_closed.svg';
+import RTE_ICON_CLOSED from '@shared/assets/icons/recreation_trail_closed.svg';
 import IF_ICON_CLOSED from '@shared/assets/icons/interpretive_forest_closed.svg';
 import SIT_ICON_SELECTED from '@shared/assets/icons/recreation_site_selected.svg';
-import RTR_ICON_SELECTED from '@shared/assets/icons/recreation_trail_selected.svg';
+import RTE_ICON_SELECTED from '@shared/assets/icons/recreation_trail_selected.svg';
 import IF_ICON_SELECTED from '@shared/assets/icons/interpretive_forest_selected.svg';
 
 interface LocationDotIconOptions {
@@ -71,14 +71,14 @@ export const createSITIcon = (options?: IconOptions) => {
   return createIcon(iconSrc, options);
 };
 
-export const createRTRIcon = (options?: IconOptions) => {
+export const createRTEIcon = (options?: IconOptions) => {
   const variant = options?.variant || 'default';
-  let iconSrc = RTR_ICON;
+  let iconSrc = RTE_ICON;
 
   if (variant === 'selected') {
-    iconSrc = RTR_ICON_SELECTED;
+    iconSrc = RTE_ICON_SELECTED;
   } else if (variant === 'closed') {
-    iconSrc = RTR_ICON_CLOSED;
+    iconSrc = RTE_ICON_CLOSED;
   }
 
   return createIcon(iconSrc, options);

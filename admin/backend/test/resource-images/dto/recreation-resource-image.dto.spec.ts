@@ -1,8 +1,9 @@
 import {
+  ConsentFormDownloadResponseDto,
   RecreationResourceImageDto,
-  RecreationResourceImageSize,
   RecreationResourceImageVariantDto,
 } from '@/resource-images/dto/recreation-resource-image.dto';
+import { RecreationResourceImageSize } from '@shared/constants/images';
 import { describe, expect, it } from 'vitest';
 
 describe('RecreationResourceDocDto', () => {
@@ -19,11 +20,11 @@ describe('RecreationResourceDocDto', () => {
         size_code: RecreationResourceImageSize.ORIGINAL,
       },
       {
-        url: '/filestore/2/7/2/3/3_ce2c0d2d1f7b567/33272hpr_50d64095d1b545b.jpg?v=1742978094',
-        extension: 'jpg',
-        width: 1440,
-        height: 1080,
-        size_code: RecreationResourceImageSize.HIGH_RES_PRINT,
+        url: '/filestore/2/7/2/3/3_ce2c0d2d1f7b567/33272thm_50d64095d1b545b.webp?v=1742978094',
+        extension: 'webp',
+        width: 175,
+        height: 175,
+        size_code: RecreationResourceImageSize.THUMBNAIL,
       },
     ];
 
@@ -43,7 +44,7 @@ describe('RecreationResourceDocDto', () => {
 
   it('should validate enum values', () => {
     expect(Object.values(RecreationResourceImageSize)).toContain('original');
-    expect(Object.keys(RecreationResourceImageSize)).toHaveLength(16);
+    expect(Object.keys(RecreationResourceImageSize)).toHaveLength(4);
   });
 
   it('should handle empty values', () => {
@@ -72,6 +73,34 @@ describe('RecreationResourceDocDto', () => {
       expect(dto.width).toBe(1440);
       expect(dto.height).toBe(1080);
       expect(dto.size_code).toBe(RecreationResourceImageSize.ORIGINAL);
+    });
+  });
+
+  it('should accept consent metadata fields', () => {
+    const dto = new RecreationResourceImageDto();
+    dto.file_size = 2097152;
+    dto.date_taken = '2024-06-15';
+    dto.photographer_type = 'STAFF';
+    dto.photographer_type_description = 'Staff Member';
+    dto.photographer_name = 'John Doe';
+    dto.contains_pii = false;
+    dto.photographer_display_name = 'John Doe';
+
+    expect(dto.file_size).toBe(2097152);
+    expect(dto.date_taken).toBe('2024-06-15');
+    expect(dto.photographer_type).toBe('STAFF');
+    expect(dto.photographer_type_description).toBe('Staff Member');
+    expect(dto.photographer_name).toBe('John Doe');
+    expect(dto.contains_pii).toBe(false);
+    expect(dto.photographer_display_name).toBe('John Doe');
+  });
+
+  describe('ConsentFormDownloadResponseDto', () => {
+    it('should create a valid DTO instance', () => {
+      const dto = new ConsentFormDownloadResponseDto();
+      dto.url = 'https://bucket.s3.amazonaws.com/consent/test.pdf';
+
+      expect(dto.url).toBe('https://bucket.s3.amazonaws.com/consent/test.pdf');
     });
   });
 });

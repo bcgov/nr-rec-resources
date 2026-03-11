@@ -2,15 +2,11 @@ import { SearchResultsStore } from '@/store/searchResults';
 import { FilterChip } from '@/components/search/types';
 import filterChipStore from '@/store/filterChips';
 
-// Util to set filter chips from search params on initial page load
+// Util to synchronize filter chips in the store with the current search params
 const setFilterChipsFromSearchParams = (
-  filterChips: FilterChip[],
   searchResults: SearchResultsStore,
   searchParams: Record<string, any>,
 ) => {
-  const isFilterChips = filterChips.length > 0;
-  if (isFilterChips) return;
-
   const { filters } = searchResults;
   const filterChipList: FilterChip[] = [];
 
@@ -20,7 +16,10 @@ const setFilterChipsFromSearchParams = (
     ),
   );
 
-  if (Object.keys(filterParams).length === 0) return;
+  if (Object.keys(filterParams).length === 0) {
+    filterChipStore.setState(() => []);
+    return;
+  }
 
   filters.forEach((filterGroup) => {
     const groupParam = filterGroup.param;

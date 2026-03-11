@@ -1,4 +1,4 @@
-import { getRecreationResourceSpatialFeatureGeometry } from '@/prisma-generated-sql';
+import { getRecreationResourceSpatialFeatureGeometry } from '@prisma-generated-sql/getRecreationResourceSpatialFeatureGeometry';
 import { RecreationResourceDetailDto } from '../dtos/recreation-resource-detail.dto';
 import { OPEN_STATUS } from '../recreation-resource.constants';
 import { RecreationResourceGetPayload } from '../recreation-resource.types';
@@ -133,5 +133,7 @@ export function formatRecreationResourceDetailResults(
       description: recreation_control_access_code?.description ?? '',
     },
     risk_rating: riskRating,
+    right_of_way:
+      result.right_of_way != null ? Number(result.right_of_way) : undefined,
   };
 }

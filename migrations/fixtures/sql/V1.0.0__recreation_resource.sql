@@ -1,16 +1,16 @@
-insert into
-  rst.recreation_resource (
-    rec_resource_id,
-    name,
-    description,
-    closest_community,
-    display_on_public_site,
-    district_code,
-    maintenance_standard_code,
-    project_established_date,
-    control_access_code,
-    risk_rating_code
-  )
+insert into rst.recreation_resource (
+  rec_resource_id,
+  name,
+  description,
+  closest_community,
+  display_on_public_site,
+  district_code,
+  maintenance_standard_code,
+  project_established_date,
+  control_access_code,
+  risk_rating_code,
+  right_of_way
+)
 values
   (
     'REC204117',
@@ -22,7 +22,8 @@ values
     'M',
     '2015-03-15',
     'G',
-    'H'
+    'H',
+    null
   ),
   (
     'REC1222',
@@ -34,7 +35,8 @@ values
     null,
     '2008-01-15',
     'R',
-    'L'
+    'L',
+    20.0
   ),
   (
     'REC160773',
@@ -46,7 +48,8 @@ values
     'U',
     '2012-07-22',
     'G',
-    'M'
+    'M',
+    null
   ),
   (
     'REC203239',
@@ -58,7 +61,8 @@ values
     'M',
     '2014-11-08',
     null,
-    'M'
+    'M',
+    null
   ),
   (
     'REC6866',
@@ -70,7 +74,8 @@ values
     'M',
     '1998-05-12',
     'G',
-    'L'
+    'L',
+    6.0
   ),
   (
     'REC203900',
@@ -82,7 +87,8 @@ values
     'M',
     '2016-09-30',
     'G',
-    'L'
+    'L',
+    null
   ),
   (
     'REC160432',
@@ -94,7 +100,8 @@ values
     null,
     '2011-02-14',
     'G',
-    'V'
+    'V',
+    null
   ),
   (
     'REC6739',
@@ -106,7 +113,8 @@ values
     'M',
     '2007-12-03',
     'G',
-    'M'
+    'M',
+    15.0
   ),
   (
     'REC16158',
@@ -118,7 +126,8 @@ values
     'U',
     '2013-06-18',
     'G',
-    'L'
+    'L',
+    3.0
   ),
   (
     'REC2094',
@@ -130,7 +139,8 @@ values
     'M',
     '2009-04-25',
     'G',
-    'L'
+    'L',
+    null
   ),
   (
     'REC6897',
@@ -142,7 +152,8 @@ values
     'M',
     '2005-08-16',
     'G',
-    'L'
+    'L',
+    15.0
   ),
   (
     'REC2206',
@@ -154,7 +165,8 @@ values
     null,
     '2010-03-07',
     'G',
-    'L'
+    'L',
+    null
   ),
   (
     'REC206043',
@@ -166,7 +178,8 @@ values
     'M',
     '2017-10-14',
     'R',
-    'L'
+    'L',
+    6.0
   ),
   (
     'REC166903',
@@ -178,7 +191,8 @@ values
     'M',
     '2006-01-28',
     null,
-    'L'
+    'L',
+    4.0
   ),
   (
     'REC32013',
@@ -190,7 +204,8 @@ values
     'M',
     '2004-11-19',
     null,
-    'L'
+    'L',
+    3.0
   ),
   (
     'REC261475',
@@ -202,7 +217,8 @@ values
     null,
     '2018-07-01',
     null,
-    'M'
+    'M',
+    4.0
   ),
   (
     'REC166942',
@@ -214,7 +230,8 @@ values
     'M',
     '2003-09-12',
     null,
-    'V'
+    'V',
+    null
   ),
   (
     'REC2792',
@@ -226,7 +243,8 @@ values
     'U',
     '2001-12-05',
     null,
-    'L'
+    'L',
+    4.0
   ),
   (
     'REC230522',
@@ -238,7 +256,8 @@ values
     'M',
     '2019-02-15',
     null,
-    'L'
+    'L',
+    null
   ),
   (
     'REC205035',
@@ -250,7 +269,8 @@ values
     null,
     '2016-04-20',
     null,
-    'L'
+    'L',
+    null
   ),
   (
     'REC2566',
@@ -262,7 +282,8 @@ values
     'M',
     '2002-06-08',
     null,
-    'H'
+    'H',
+    null
   ),
   (
     'REC1735',
@@ -274,7 +295,8 @@ values
     'M',
     '2008-10-11',
     'G',
-    'L'
+    'L',
+    null
   ),
   (
     'REC2978',
@@ -286,7 +308,8 @@ values
     'U',
     '2000-05-20',
     null,
-    'L'
+    'L',
+    3.0
   ),
   (
     'REC136003',
@@ -298,7 +321,8 @@ values
     'U',
     '2014-08-03',
     null,
-    'H'
+    'H',
+    null
   ),
   (
     'REC265901',
@@ -310,7 +334,8 @@ values
     null,
     '2011-09-27',
     null,
-    'M'
+    'M',
+    null
   ),
   (
     'REC1585',
@@ -322,7 +347,8 @@ values
     null,
     '2007-03-14',
     null,
-    'L'
+    'L',
+    null
   ),
   (
     'REC262200',
@@ -334,7 +360,8 @@ values
     null,
     '2015-12-01',
     null,
-    'M'
+    'M',
+    null
   ),
   (
     'REC265549',
@@ -346,7 +373,8 @@ values
     'U',
     '2012-01-18',
     'G',
-    'L'
+    'L',
+    null
   ),
   (
     'REC270155',
@@ -358,7 +386,8 @@ values
     'U',
     '2009-07-09',
     null,
-    'M'
+    'M',
+    null
   ),
   (
     'REC0587',
@@ -370,7 +399,8 @@ values
     'U',
     '2006-04-22',
     null,
-    'H'
+    'H',
+    null
   ),
   (
     'REC166367',
@@ -382,7 +412,8 @@ values
     'M',
     '2003-11-30',
     null,
-    'M'
+    'M',
+    null
   ),
   (
     'REC1621',
@@ -394,7 +425,8 @@ values
     'M',
     '2013-02-26',
     null,
-    'L'
+    'L',
+    null
   ),
   (
     'REC1164',
@@ -406,7 +438,8 @@ values
     null,
     '2010-08-17',
     'G',
-    'M'
+    'M',
+    null
   ),
   (
     'REC5763',
@@ -418,7 +451,8 @@ values
     'M',
     '2005-12-04',
     'G',
-    'H'
+    'H',
+    null
   ),
   (
     'REC4519',
@@ -430,7 +464,8 @@ values
     'U',
     null,
     'G',
-    'M'
+    'M',
+    null
   ),
   (
     'REC265446',
@@ -442,7 +477,8 @@ values
     'U',
     null,
     'G',
-    'M'
+    'M',
+    null
   ),
   (
     'REC262362',
@@ -454,7 +490,8 @@ values
     'U',
     null,
     'G',
-    'H'
+    'H',
+    null
   ),
   (
     'REC192109',
@@ -466,7 +503,8 @@ values
     'M',
     null,
     'G',
-    'M'
+    'M',
+    null
   ),
   (
     'REC204480',
@@ -478,7 +516,8 @@ values
     null,
     null,
     'G',
-    'M'
+    'M',
+    null
   ),
   (
     'REC0180',
@@ -490,7 +529,8 @@ values
     null,
     null,
     'G',
-    'L'
+    'L',
+    null
   ),
   (
     'REC97746',
@@ -502,7 +542,8 @@ values
     'M',
     null,
     'G',
-    'L'
+    'L',
+    null
   ),
   (
     'REC2047',
@@ -514,7 +555,8 @@ values
     'U',
     null,
     'G',
-    'L'
+    'L',
+    null
   ),
   (
     'REC2054',
@@ -526,7 +568,8 @@ values
     'U',
     null,
     'G',
-    'L'
+    'L',
+    null
   ),
   (
     'REC0108',
@@ -538,7 +581,8 @@ values
     null,
     null,
     'G',
-    'M'
+    'M',
+    null
   ),
   (
     'REC13876',
@@ -550,7 +594,8 @@ values
     null,
     null,
     'G',
-    'L'
+    'L',
+    null
   ),
   (
     'REC1605',
@@ -562,7 +607,8 @@ values
     'U',
     null,
     'G',
-    'H'
+    'H',
+    null
   ),
   (
     'REC1163',
@@ -574,7 +620,8 @@ values
     'M',
     null,
     'G',
-    'V'
+    'V',
+    3.0
   ),
   (
     'REC5973',
@@ -586,7 +633,8 @@ values
     'U',
     null,
     'G',
-    'L'
+    'L',
+    null
   ),
   (
     'REC1298',
@@ -596,6 +644,7 @@ values
     true,
     'RDSQ',
     'M',
+    null,
     null,
     null,
     null
@@ -610,7 +659,8 @@ values
     'M',
     null,
     null,
-    null
+    null,
+    3.0
   ),
   (
     'REC3176',
@@ -620,6 +670,7 @@ values
     true,
     'RDSQ',
     'M',
+    null,
     null,
     null,
     null

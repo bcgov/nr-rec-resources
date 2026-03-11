@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import parse from 'html-react-parser';
+import { SafeHtml } from '@shared/components/safe-html';
 import { RecreationResourceMap } from '@/components/rec-resource/RecreationResourceMap';
 import { RecreationResourceDetailModel } from '@/service/custom-models';
 import { RecreationResourceDocsList } from '@/components/rec-resource/RecreationResourceDocsList';
@@ -36,7 +36,7 @@ const MapsAndLocation = forwardRef<HTMLElement, MapsAndLocationProps>(
           {driving_directions && (
             <article>
               <h3>Getting there</h3>
-              <p className="mb-0">{parse(driving_directions)}</p>
+              <SafeHtml html={driving_directions} className="rich-text mb-0" />
             </article>
           )}
 

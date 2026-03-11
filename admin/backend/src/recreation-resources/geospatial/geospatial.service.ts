@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '@/prisma.service';
-import { getRecreationResourceGeospatialData } from '@/prisma-generated-sql';
+import { getRecreationResourceGeospatialData } from '@prisma-generated-sql/getRecreationResourceGeospatialData';
 import { RecreationResourceGeospatialDto } from './dto/recreation-resource-geospatial.dto';
 import { UpdateRecreationResourceGeospatialDto } from './dto/update-recreation-resource-geospatial.dto';
 
@@ -33,9 +33,14 @@ export class GeospatialService {
     const data = result[0];
     if (!data) return null;
 
+    const toNum = (v: unknown): number | null => (v != null ? Number(v) : null);
+
     return {
       rec_resource_id,
       spatial_feature_geometry: data.spatial_feature_geometry ?? undefined,
+      total_length_km: toNum(data.total_length_km),
+      total_area_hectares: toNum(data.total_area_hectares),
+      right_of_way_m: toNum(data.right_of_way_m),
       site_point_geometry: data.site_point_geometry ?? undefined,
       utm_zone: data.utm_zone,
       utm_easting: data.utm_easting,

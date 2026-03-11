@@ -12,15 +12,19 @@
       $colorWhite 100%
     );
   }
-  @include media-breakpoint-down(md) {
-    margin-top: 2.5em !important;
+
+  @media (max-width: 428px) {
+    margin-top: 6rem !important;
   }
-  @media (min-width: 340px) {
-    margin-top: 5.5em !important;
+
+  @media (max-width: 374px) {
+    margin-top: 8rem !important;
   }
-  @media (min-width: 390px) {
-    margin-top: 1em !important;
+
+  @media (max-width: 338px) {
+    margin-top: 10rem !important;
   }
+
   .content-section {
     @extend .page;
   }
@@ -32,5 +36,9 @@
     svg {
       font-size: 0.7rem;
     }
+  }
+
+  .part-container {
+    width: 97%;
   }
 }

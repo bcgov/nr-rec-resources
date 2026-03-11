@@ -358,4 +358,14 @@ export class RecreationResourceDetailDto extends BaseRecreationResourceDto {
     required: false,
   })
   display_on_public_site?: boolean;
+
+  @ApiProperty({
+    description:
+      'Right-of-way width in metres for linear features (both lanes combined)',
+    example: 6,
+    required: false,
+    nullable: true,
+    type: Number,
+  })
+  right_of_way?: number | null;
 }

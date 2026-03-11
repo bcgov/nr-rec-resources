@@ -4,9 +4,12 @@ import {
   usePresignImageUpload,
 } from '@/services/hooks/recreation-resource-admin/usePresignAndFinalizeHooks';
 import { processImageToVariants } from '@/utils/imageProcessing';
+import { useStore } from '@tanstack/react-store';
 import { useCallback } from 'react';
 import {
   addPendingImage,
+  ImageUploadConsentData,
+  recResourceFileTransferStore,
   removePendingImage,
   updatePendingImage,
 } from '../store/recResourceFileTransferStore';
@@ -19,6 +22,8 @@ export function useImageUpload() {
   const presignImageMutation = usePresignImageUpload();
   const finalizeImageMutation = useFinalizeImageUpload();
   const { executePresignedUpload } = usePresignedUpload<GalleryImage>();
+
+  const { uploadConsentData } = useStore(recResourceFileTransferStore);
 
   const updateProgress = useCallback(
     (tempId: string, updates: Partial<GalleryImage>) => {
@@ -36,10 +41,21 @@ export function useImageUpload() {
         file,
         onProgress,
       });
+
       return { variants };
     },
     [],
   );
+
+  const buildConsentData = (metadata: ImageUploadConsentData) => ({
+    date_taken: metadata.dateTaken ?? undefined,
+    contains_pii: metadata.containsPii,
+    photographer_type: metadata.photographerType,
+    photographer_name: metadata.photographerName,
+    ...(metadata.consentFormFile && {
+      consent_form: metadata.consentFormFile,
+    }),
+  });
 
   const handleUpload = useCallback(
     async (galleryFile: GalleryFile, onSuccess?: () => void) => {
@@ -48,12 +64,15 @@ export function useImageUpload() {
         return;
       }
 
+      const consentData = { ...uploadConsentData };
+
       addPendingImage({
         ...galleryFile,
         variants: [],
         previewUrl: '',
         type: 'image',
         isUploading: true,
+        consentData,
       } as GalleryImage);
 
       await executePresignedUpload({
@@ -69,6 +88,7 @@ export function useImageUpload() {
           `Image "${fileName}" uploaded successfully.`,
         fileType: 'image',
         onSuccess,
+        consent: buildConsentData(consentData),
       });
     },
     [
@@ -78,6 +98,7 @@ export function useImageUpload() {
       finalizeImageMutation,
       processFile,
       updateProgress,
+      uploadConsentData,
     ],
   );
 
@@ -93,6 +114,8 @@ export function useImageUpload() {
         uploadFailed: false,
       });
 
+      const consentData = (pendingImage as GalleryImage).consentData;
+
       await executePresignedUpload({
         recResourceId: recResourceId!,
         galleryFile: pendingImage as GalleryImage,
@@ -106,6 +129,7 @@ export function useImageUpload() {
           `Image "${fileName}" uploaded successfully.`,
         fileType: 'image',
         onSuccess,
+        consent: consentData ? buildConsentData(consentData) : undefined,
       });
     },
     [

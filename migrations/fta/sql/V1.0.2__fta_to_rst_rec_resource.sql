@@ -12,7 +12,8 @@ insert into rst.recreation_resource (
     maintenance_standard_code,
     project_established_date,
     control_access_code,
-    risk_rating_code
+    risk_rating_code,
+    right_of_way
 )
 select
     rp.forest_file_id as rec_resource_id,
@@ -31,7 +32,8 @@ select
     rp.recreation_maintain_std_code as maintenance_standard_code,
     rp.project_established_date as project_established_date,
     rp.recreation_control_access_code as control_access_code,
-    rp.recreation_risk_rating_code as risk_rating_code
+    rp.recreation_risk_rating_code as risk_rating_code,
+    rp.right_of_way as right_of_way
 from
     fta.recreation_project rp
 left join
@@ -58,4 +60,5 @@ set
     maintenance_standard_code = excluded.maintenance_standard_code,
     project_established_date = excluded.project_established_date,
     control_access_code = excluded.control_access_code,
-    risk_rating_code = excluded.risk_rating_code;
+    risk_rating_code = excluded.risk_rating_code,
+    right_of_way = excluded.right_of_way;
