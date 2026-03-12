@@ -145,7 +145,7 @@ describe('DownloadKmlResults', () => {
 
     expect(downloadBtn).toBeDisabled();
     expect(downloadBtn.querySelector('.spinner-border')).toBeInTheDocument();
-    expect(downloadBtn).toHaveClass('kml-download-button');
+    expect(downloadBtn).toHaveClass('download-button');
   });
 
   it('runs downloadKMLMultiple when data exists', async () => {
