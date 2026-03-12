@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import { CSSProperties, ReactNode } from 'react';
 import { Button, Spinner, Stack } from 'react-bootstrap';
 
 interface LoadingButtonProps {
@@ -7,6 +7,8 @@ interface LoadingButtonProps {
   className?: string;
   variant?: string;
   disabled?: boolean;
+  ariaLabel?: string;
+  style?: CSSProperties;
   children: ReactNode;
 }
 
@@ -16,6 +18,8 @@ export const LoadingButton: React.FC<LoadingButtonProps> = ({
   className = '',
   variant = 'secondary',
   disabled = false,
+  ariaLabel,
+  style,
   children,
 }) => {
   return (
@@ -25,9 +29,17 @@ export const LoadingButton: React.FC<LoadingButtonProps> = ({
       className={`d-flex align-items-center justify-content-center ${className}`}
       variant={variant}
       disabled={disabled}
+      aria-label={ariaLabel}
+      style={style}
     >
       <Stack direction="horizontal" gap={2}>
-        {loading ? <Spinner size="sm" /> : children}
+        {loading ? (
+          <Spinner size="sm" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </Spinner>
+        ) : (
+          children
+        )}
       </Stack>
     </Button>
   );

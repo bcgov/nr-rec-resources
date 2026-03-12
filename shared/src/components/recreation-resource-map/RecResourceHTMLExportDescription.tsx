@@ -1,12 +1,12 @@
 import { CSSProperties, FC } from 'react';
 import { RecreationResourceMapData } from '@shared/components/recreation-resource-map/RecreationResourceMap';
-import parse from 'html-react-parser';
 import { activityIconMap } from '@shared/data/activityIconMap';
 import {
   formatFeeDate,
   formatFeeDays,
   getFeeTypeLabel,
 } from '@shared/utils/feeUtils';
+import { SafeHtml } from '@shared/components/safe-html';
 
 interface RecResourceHTMLExportDescriptionProps {
   recResource: RecreationResourceMapData;
@@ -34,7 +34,7 @@ const SiteDescription: FC<{
       {description && (
         <div>
           <h2>Description</h2>
-          <span>{parse(description)}</span>
+          <SafeHtml html={description} as="span" />
         </div>
       )}
       {maintenanceDesc && (
@@ -273,7 +273,7 @@ export const RecResourceHTMLExportDescription: FC<
         {driving_directions && (
           <div>
             <h3>Driving directions</h3>
-            <span>{parse(driving_directions)}</span>
+            <SafeHtml html={driving_directions} as="span" />
           </div>
         )}
         {renderThingsToDo()}
