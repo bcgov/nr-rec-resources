@@ -70,9 +70,10 @@
         text-decoration: underline;
       }
     }
-    .download-button:disabled {
-      background-color: $colorGreyLight;
-      border: none;
+
+    .download-button {
+      min-width: 100%;
+      margin-bottom: 0.5rem;
     }
 
     .description {
@@ -92,12 +93,6 @@
       color: $colorBlack;
     }
   }
-}
-
-.cancel-button {
-  background-color: $colorWhite;
-  color: $colorBlue;
-  border: 1px solid $colorBlue;
 }
 
 .close-filter-btn {
