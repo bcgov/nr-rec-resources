@@ -1,5 +1,6 @@
 import { renderHook } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { act } from 'react';
 
 const mockNavigate = vi.fn();
 const mockAddSuccessNotification = vi.fn();
@@ -119,5 +120,77 @@ describe('useEditReservationForm', () => {
 
     expect(mockHandleApiError).toHaveBeenCalled();
     expect(mockAddErrorNotification).toHaveBeenCalled();
+  });
+
+  it('clears dependent fields when reservations are toggled off', () => {
+    const { result } = renderHook(() =>
+      useEditReservationForm('REC123', {
+        rec_resource_id: 'REC123',
+        reservation_email: undefined,
+        reservation_website: 'https://www.website.com',
+        reservation_phone_number: undefined,
+      }),
+    );
+
+    act(() => {
+      result.current.handleHasReservationChange(false);
+    });
+
+    expect((result.current.control as any)._formValues).toMatchObject({
+      has_reservation: false,
+      reservation_contact: '',
+    });
+    expect((result.current.control as any)._formValues.reservation_method).toBe(
+      undefined,
+    );
+  });
+
+  it('updates reservation method and resets contact when the method changes', () => {
+    const { result } = renderHook(() =>
+      useEditReservationForm('REC123', {
+        rec_resource_id: 'REC123',
+        reservation_email: undefined,
+        reservation_website: 'https://www.website.com',
+        reservation_phone_number: undefined,
+      }),
+    );
+
+    act(() => {
+      result.current.handleReservationMethodChange('reservation_email');
+    });
+
+    expect((result.current.control as any)._formValues).toMatchObject({
+      reservation_method: 'reservation_email',
+      reservation_contact: '',
+    });
+
+    act(() => {
+      result.current.handleReservationMethodChange('');
+    });
+
+    expect((result.current.control as any)._formValues.reservation_method).toBe(
+      undefined,
+    );
+  });
+
+  it('submits an empty payload when reservations are disabled', async () => {
+    mockMutateAsync.mockResolvedValue({});
+
+    const { result } = renderHook(() => useEditReservationForm('REC123', null));
+
+    await result.current.onSubmit({
+      has_reservation: false,
+      reservation_method: undefined,
+      reservation_contact: '',
+    });
+
+    expect(mockMutateAsync).toHaveBeenCalledWith({
+      recResourceId: 'REC123',
+      updateRecreationResourceReservationDto: {
+        reservation_email: undefined,
+        reservation_website: undefined,
+        reservation_phone_number: undefined,
+      },
+    });
   });
 });

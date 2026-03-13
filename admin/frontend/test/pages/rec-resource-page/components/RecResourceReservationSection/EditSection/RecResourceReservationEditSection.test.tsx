@@ -123,4 +123,52 @@ describe('RecResourceReservationEditSection', () => {
     fireEvent.click(toggle);
     expect(handleHasReservationChange).toHaveBeenCalledWith(false);
   });
+
+  it('hides reservation method and contact fields when not reservable', () => {
+    (vi.mocked(useWatch) as any).mockImplementation(({ name }: any) => {
+      if (name === 'has_reservation') {
+        return false;
+      }
+
+      return undefined;
+    });
+
+    renderComponent();
+
+    expect(
+      screen.queryByLabelText('Reservation method'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText(/Reservation contact/i),
+    ).not.toBeInTheDocument();
+  });
+
+  it('renders email contact input settings when email is selected', () => {
+    (vi.mocked(useEditReservationForm) as any).mockReturnValue({
+      ...mockFormHooks,
+      isDirty: true,
+      register: () => ({}),
+    });
+    (vi.mocked(useWatch) as any).mockImplementation(({ name }: any) => {
+      if (name === 'has_reservation') {
+        return true;
+      }
+
+      if (name === 'reservation_method') {
+        return 'reservation_email';
+      }
+
+      return undefined;
+    });
+
+    renderComponent();
+
+    expect(screen.getByLabelText(/Reservation contact/i)).toHaveAttribute(
+      'type',
+      'email',
+    );
+    expect(
+      screen.getByPlaceholderText(/name@example.com/i),
+    ).toBeInTheDocument();
+  });
 });

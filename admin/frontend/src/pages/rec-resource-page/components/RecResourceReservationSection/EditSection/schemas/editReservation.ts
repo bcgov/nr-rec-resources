@@ -24,7 +24,7 @@ export const createEditReservationSchema = () => {
 
       if (!data.reservation_method) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           path: ['reservation_method'],
           message: 'Select a reservation method.',
         });
@@ -33,7 +33,7 @@ export const createEditReservationSchema = () => {
 
       if (!data.reservation_contact.trim()) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: 'custom',
           path: ['reservation_contact'],
           message: 'Enter reservation contact information.',
         });
@@ -47,7 +47,7 @@ export const createEditReservationSchema = () => {
         const result = website.safeParse(data.reservation_contact);
         if (!result.success) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             path: ['reservation_contact'],
             message: 'Invalid URL format. Example: https://example.com/.',
           });
@@ -57,7 +57,7 @@ export const createEditReservationSchema = () => {
       if (data.reservation_method === 'reservation_phone_number') {
         if (!validator.isMobilePhone(data.reservation_contact)) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             path: ['reservation_contact'],
             message: 'Invalid phone number format. Example: 250-555-1234.',
           });
@@ -71,7 +71,7 @@ export const createEditReservationSchema = () => {
         const result = email.safeParse(data.reservation_contact);
         if (!result.success) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             path: ['reservation_contact'],
             message: 'Invalid email format. Example: name@example.com.',
           });
