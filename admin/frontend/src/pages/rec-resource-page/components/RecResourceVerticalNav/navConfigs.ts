@@ -56,7 +56,7 @@ export const REC_RESOURCE_PAGE_NAV_SECTIONS: Record<
     }),
   },
   [RecResourceNavKey.RESERVATION]: {
-    title: 'Reservation',
+    title: 'Reservations',
     getNavigateOptions: (id: string) => ({
       to: ROUTE_PATHS.REC_RESOURCE_RESERVATION,
       params: { id },

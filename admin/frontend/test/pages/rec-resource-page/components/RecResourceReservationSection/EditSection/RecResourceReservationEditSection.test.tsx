@@ -31,21 +31,12 @@ vi.mock('@shared/components/link-with-query-params', () => ({
   LinkWithQueryParams: ({ children }: any) => <a>{children}</a>,
 }));
 
-vi.mock('../components', () => ({
-  HasReservation: ({ onChange, value }: any) => (
-    <button data-testid="toggle-res" onClick={() => onChange(!value)}>
-      {value ? 'Has Res' : 'No Res'}
-    </button>
-  ),
-  FormErrorBanner: () => null,
-}));
-
 describe('RecResourceReservationEditSection', () => {
   const mockParams = { id: '123' };
   const mockReservationInfo = {
     reservation_email: 'test@example.com',
     reservation_website: 'https://test.com',
-    reservation_phone_number: '1234567890',
+    reservation_phone_number: '123-456-7890',
   };
 
   const mockFormHooks = {
@@ -59,7 +50,8 @@ describe('RecResourceReservationEditSection', () => {
     isDirty: false,
     updateMutation: { isPending: false },
     onSubmit: vi.fn(),
-    setValue: vi.fn(),
+    handleHasReservationChange: vi.fn(),
+    handleReservationMethodChange: vi.fn(),
   };
 
   beforeEach(() => {
@@ -71,7 +63,17 @@ describe('RecResourceReservationEditSection', () => {
       reservationInfo: mockReservationInfo,
     });
     (vi.mocked(useEditReservationForm) as any).mockReturnValue(mockFormHooks);
-    (vi.mocked(useWatch) as any).mockReturnValue('');
+    (vi.mocked(useWatch) as any).mockImplementation(({ name }: any) => {
+      if (name === 'has_reservation') {
+        return true;
+      }
+
+      if (name === 'reservation_method') {
+        return 'reservation_website';
+      }
+
+      return undefined;
+    });
   });
 
   const renderComponent = () => render(<RecResourceReservationEditSection />);
@@ -103,26 +105,22 @@ describe('RecResourceReservationEditSection', () => {
   });
 
   it('updates state based on field values (useWatch)', () => {
-    // Mocking useWatch returning a value
-    (vi.mocked(useWatch) as any).mockReturnValue('valid@email.com');
     renderComponent();
-    expect(screen.getByText('Reservable')).toBeInTheDocument();
+    expect(screen.getByLabelText('Reservation method')).toBeInTheDocument();
+    expect(screen.getByLabelText(/Reservation contact/i)).toBeInTheDocument();
   });
 
-  it('clears fields when toggling off reservation', () => {
-    const setValue = vi.fn();
+  it('clears method and contact when toggling off reservation', () => {
+    const handleHasReservationChange = vi.fn();
     (vi.mocked(useEditReservationForm) as any).mockReturnValue({
       ...mockFormHooks,
-      setValue,
+      handleHasReservationChange,
     });
 
     renderComponent();
-    const toggle = screen.getByTestId('toggle-res');
+    const toggle = screen.getByTestId('reservable-no');
 
-    // The component logic calls handleRequireReservation
     fireEvent.click(toggle);
-    expect(setValue).toHaveBeenCalled();
-    fireEvent.click(toggle);
-    expect(setValue).toHaveBeenCalled();
+    expect(handleHasReservationChange).toHaveBeenCalledWith(false);
   });
 });

@@ -2,76 +2,40 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { HasReservation } from '@/pages/rec-resource-page/components/RecResourceReservationSection/components/HasReservation';
 
-/* -------------------------------------------------
-   FontAwesome mock (prevents SVG complexity)
--------------------------------------------------- */
-
-vi.mock('@fortawesome/react-fontawesome', () => ({
-  FontAwesomeIcon: ({ icon }: any) => (
-    <span data-testid="icon">{icon.iconName}</span>
-  ),
-}));
-
-vi.mock('@fortawesome/free-solid-svg-icons', () => ({
-  faCalendarCheck: { iconName: 'calendar-check' },
-  faCalendar: { iconName: 'calendar' },
-}));
-
 describe('HasReservation', () => {
-  it('renders non-edit mode with value=false', () => {
+  it('renders radio buttons with the current selection', () => {
     render(<HasReservation value={false} />);
 
-    expect(screen.getByText('Reservable')).toBeInTheDocument();
-
-    expect(screen.getByTestId('icon')).toHaveTextContent('calendar');
-
-    expect(
-      screen.getByText('No - First come first served'),
-    ).toBeInTheDocument();
-
-    const pill = screen.getByText('No - First come first served');
-    expect(pill.className).toContain('pill__hidden');
-
-    expect(screen.queryByRole('checkbox')).not.toBeInTheDocument();
-  });
-
-  it('renders non-edit mode with value=true', () => {
-    render(<HasReservation value />);
-
-    expect(screen.getByTestId('icon')).toHaveTextContent('calendar-check');
-
-    const pill = screen.getByText('Yes - Reservable');
-    expect(pill.className).toContain('pill__visible');
-  });
-
-  it('renders switch when isEditMode=true', () => {
-    render(<HasReservation value={false} isEditMode />);
-
-    const checkbox = screen.getByRole('checkbox', {
-      name: 'Toggle requirement for reservation on rec resource',
+    const noRadio = screen.getByRole('radio', {
+      name: 'Reservable no',
+    });
+    const yesRadio = screen.getByRole('radio', {
+      name: 'Reservable yes',
     });
 
-    expect(checkbox).toBeInTheDocument();
-    expect(checkbox).not.toBeChecked();
+    expect(noRadio).toBeInTheDocument();
+    expect(yesRadio).toBeInTheDocument();
+    expect(noRadio).toBeChecked();
+    expect(yesRadio).not.toBeChecked();
   });
 
-  it('calls onChange with new value when toggled', () => {
+  it('calls onChange with new value when yes is selected', () => {
     const onChange = vi.fn();
 
-    render(<HasReservation value={false} isEditMode onChange={onChange} />);
+    render(<HasReservation value={false} onChange={onChange} />);
 
-    const checkbox = screen.getByRole('checkbox');
-    fireEvent.click(checkbox);
+    const yesRadio = screen.getByRole('radio', { name: 'Reservable yes' });
+    fireEvent.click(yesRadio);
 
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange).toHaveBeenCalledWith(true);
   });
 
   it('does not throw when onChange is undefined', () => {
-    render(<HasReservation value isEditMode onChange={undefined} />);
+    render(<HasReservation value onChange={undefined} />);
 
-    const checkbox = screen.getByRole('checkbox');
+    const noRadio = screen.getByRole('radio', { name: 'Reservable no' });
 
-    expect(() => fireEvent.click(checkbox)).not.toThrow();
+    expect(() => fireEvent.click(noRadio)).not.toThrow();
   });
 });

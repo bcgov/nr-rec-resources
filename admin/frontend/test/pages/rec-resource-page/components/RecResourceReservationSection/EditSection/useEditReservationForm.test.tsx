@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 const mockNavigate = vi.fn();
@@ -37,17 +37,12 @@ beforeEach(() => {
 
 describe('useEditReservationForm', () => {
   it('returns error when set requires reservation true but no properties', async () => {
-    function Expose() {
-      const { onSubmit } = useEditReservationForm('REC001', null);
-      (globalThis as any).__onSubmit = onSubmit;
-      return null;
-    }
-    render(<Expose />);
-    await (globalThis as any).__onSubmit({
+    const { result } = renderHook(() => useEditReservationForm('REC001', null));
+
+    await result.current.onSubmit({
       has_reservation: true,
-      reservation_email: '',
-      reservation_website: '',
-      reservation_phone_number: '',
+      reservation_method: undefined,
+      reservation_contact: '',
     });
     expect(mockAddSuccessNotification).not.toHaveBeenCalled();
     expect(mockNavigate).not.toHaveBeenCalled();
@@ -56,36 +51,56 @@ describe('useEditReservationForm', () => {
 
   it('calls update mutation, shows success notification and navigates on success', async () => {
     const returned = {
-      reservation_email: 'email@email.com',
-      reservation_website: 'www.website.com',
-      reservation_phone_number: '7789787786',
+      reservation_email: undefined,
+      reservation_website: 'https://www.website.com',
+      reservation_phone_number: undefined,
     };
     mockMutateAsync.mockResolvedValue(returned);
 
-    function Expose() {
-      const { onSubmit } = useEditReservationForm('REC123', {
+    const { result } = renderHook(() =>
+      useEditReservationForm('REC123', {
         rec_resource_id: 'REC123',
-        reservation_email: 'email@email.com',
-        reservation_website: 'www.website.com',
-        reservation_phone_number: '7789787786',
-      });
-      (globalThis as any).__onSubmit = onSubmit;
-      return null;
-    }
+        reservation_email: undefined,
+        reservation_website: 'https://www.website.com',
+        reservation_phone_number: undefined,
+      }),
+    );
 
-    render(<Expose />);
-
-    await (globalThis as any).__onSubmit({
-      reservation_email: 'email@email.com',
-      reservation_website: 'www.website.com',
-      reservation_phone_number: '7789787786',
+    await result.current.onSubmit({
+      has_reservation: true,
+      reservation_method: 'reservation_website',
+      reservation_contact: 'https://www.website.com',
     });
 
-    expect(mockMutateAsync).toHaveBeenCalled();
+    expect(mockMutateAsync).toHaveBeenCalledWith({
+      recResourceId: 'REC123',
+      updateRecreationResourceReservationDto: {
+        reservation_email: undefined,
+        reservation_website: 'https://www.website.com',
+        reservation_phone_number: undefined,
+      },
+    });
     expect(mockAddSuccessNotification).toHaveBeenCalled();
     expect(mockNavigate).toHaveBeenCalledWith({
       to: ROUTE_PATHS.REC_RESOURCE_RESERVATION,
       params: { id: 'REC123' },
+    });
+  });
+
+  it('defaults to website when multiple reservation methods exist', () => {
+    const { result } = renderHook(() =>
+      useEditReservationForm('REC123', {
+        rec_resource_id: 'REC123',
+        reservation_email: 'email@example.com',
+        reservation_website: 'https://www.website.com',
+        reservation_phone_number: '778-978-7786',
+      }),
+    );
+
+    expect(result.current.getValues()).toMatchObject({
+      has_reservation: true,
+      reservation_method: 'reservation_website',
+      reservation_contact: 'https://www.website.com',
     });
   });
 
@@ -94,19 +109,12 @@ describe('useEditReservationForm', () => {
     mockMutateAsync.mockRejectedValue(error);
     mockHandleApiError.mockResolvedValue({ message: 'something went wrong' });
 
-    function Expose() {
-      const { onSubmit } = useEditReservationForm('REC123', null);
-      (globalThis as any).__onSubmit = onSubmit;
-      return null;
-    }
+    const { result } = renderHook(() => useEditReservationForm('REC123', null));
 
-    render(<Expose />);
-
-    await (globalThis as any).__onSubmit({
+    await result.current.onSubmit({
       has_reservation: true,
-      reservation_email: 'email@email.com',
-      reservation_website: 'www.website.com',
-      reservation_phone_number: '7789787786',
+      reservation_method: 'reservation_email',
+      reservation_contact: 'email@email.com',
     });
 
     expect(mockHandleApiError).toHaveBeenCalled();
