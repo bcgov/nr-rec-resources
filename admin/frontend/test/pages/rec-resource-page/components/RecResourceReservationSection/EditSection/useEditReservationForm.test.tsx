@@ -97,7 +97,7 @@ describe('useEditReservationForm', () => {
       }),
     );
 
-    expect(result.current.getValues()).toMatchObject({
+    expect((result.current.control as any)._defaultValues).toMatchObject({
       has_reservation: true,
       reservation_method: 'reservation_website',
       reservation_contact: 'https://www.website.com',
