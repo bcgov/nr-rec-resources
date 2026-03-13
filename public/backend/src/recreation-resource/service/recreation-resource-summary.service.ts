@@ -41,6 +41,7 @@ export class RecreationResourceSummaryService {
     return {
       rec_resource_id: row.rec_resource_id,
       name: row.name ?? '',
+      closest_community: row.closest_community ?? null,
       district_code: row.district_code ?? '',
       district: row.district_description ?? '',
       rec_resource_type_code: row.rec_resource_type_code ?? '',
