@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { render } from '@testing-library/react';
 import { RecResourceHTMLExportDescription } from '@shared/components/recreation-resource-map/RecResourceHTMLExportDescription';
 import { RecreationResourceMapData } from '@shared/components/recreation-resource-map/types';
+import { renderToString } from 'react-dom/server';
 
 const getRecResourceDetailPageUrl = (id: string) =>
   `https://testhost/resource/${id}`;
@@ -187,5 +188,23 @@ describe('RecResourceHTMLExportDescription', () => {
         />,
       ).queryByAltText('Test Site'),
     ).toBeNull();
+  });
+
+  it('does not throw when stored html is malformed', () => {
+    const resourceWithMalformedHtml: RecreationResourceMapData = {
+      ...baseResource,
+      description: '<p>See <ahref="http://example.com">details</a></p>',
+      driving_directions:
+        '<div>Start here <ahref="http://example.com">map</a></div>',
+    };
+
+    expect(() =>
+      renderToString(
+        <RecResourceHTMLExportDescription
+          recResource={resourceWithMalformedHtml}
+          getResourceDetailUrl={getRecResourceDetailPageUrl}
+        />,
+      ),
+    ).not.toThrow();
   });
 });
