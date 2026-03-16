@@ -17,6 +17,7 @@ const createMockDbRow = (
 ): getRecreationResourceSummary.Result => ({
   rec_resource_id: id,
   name: 'Aileen Lake',
+  closest_community: 'Merritt',
   display_on_public_site: true,
   district_code: 'RDCK',
   district_description: 'Chilliwack',
@@ -33,6 +34,7 @@ const createMockDbRow = (
 const expectedDto = {
   rec_resource_id: 'REC204117',
   name: 'Aileen Lake',
+  closest_community: 'Merritt',
   district_code: 'RDCK',
   district: 'Chilliwack',
   rec_resource_type_code: 'SIT',
@@ -159,5 +161,15 @@ describe('RecreationResourceSummaryService', () => {
     expect(result.data[0].rec_resource_type_code).toBe('');
     expect(result.data[0].rec_resource_type).toBe('');
     expect(result.data[0].display_on_public_site).toBe(false);
+  });
+
+  it('should allow closest_community to be null', async () => {
+    vi.mocked(prismaService.$queryRawTyped).mockResolvedValueOnce([
+      createMockDbRow('REC204117', { closest_community: null }),
+    ]);
+
+    const result = await service.findAll();
+
+    expect(result.data[0].closest_community).toBeNull();
   });
 });
