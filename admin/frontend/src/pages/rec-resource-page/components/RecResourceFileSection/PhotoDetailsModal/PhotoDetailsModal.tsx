@@ -206,8 +206,8 @@ export const PhotoDetailsModal: FC = () => {
         </section>
         {!image.has_consent_metadata && (
           <Alert variant="warning" className="mb-0">
-            This image does not have consent and release information. Please
-            edit the photo to add consent details.
+            This image does not have privacy and ownership information. Please
+            edit the photo to add these details.
           </Alert>
         )}
       </div>
