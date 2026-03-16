@@ -29,7 +29,7 @@ export const Route = createFileRoute('/rec-resource/$id/reservation/edit')({
         return [
           ...parentBeforeLoad.breadcrumb(loaderData),
           {
-            label: 'Edit Reservation',
+            label: 'Edit Reservations',
             href: `/rec-resource/${params.id}/reservation/edit`,
           },
         ];

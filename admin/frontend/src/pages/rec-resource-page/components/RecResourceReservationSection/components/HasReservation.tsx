@@ -1,60 +1,47 @@
-import { Card, Form, Stack } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCalendarCheck, faCalendar } from '@fortawesome/free-solid-svg-icons';
-import './HasReservation.scss';
+import { Form, Stack } from 'react-bootstrap';
+import { FormLabel } from '@/components/form';
+import '@/pages/rec-resource-page/components/RecResourceReservationSection/RecResourceReservationSection.scss';
 
 type HasReservationProps = {
-  isEditMode?: boolean;
   value: boolean;
   onChange?: (value: boolean) => void;
 };
 
-export const HasReservation = ({
-  isEditMode = false,
-  value,
-  onChange,
-}: HasReservationProps) => {
-  const handleToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
-    onChange?.(event.target.checked);
-  };
-
+export const HasReservation = ({ value, onChange }: HasReservationProps) => {
   return (
-    <Card className="reservation-card">
-      <Card.Body>
-        <Stack
-          direction="horizontal"
-          gap={2}
-          className="align-items-start justify-content-between"
-          aria-label="Reservation requirement control"
-        >
-          <Stack direction="vertical" gap={2}>
-            <span className="fw-bold">
-              <FontAwesomeIcon
-                icon={value ? faCalendarCheck : faCalendar}
-                className="me-2"
-              />
-              Reservable
-            </span>
-            <span className={`pill pill__${value ? 'visible' : 'hidden'}`}>
-              {value ? `Yes - Reservable` : `No - First come first served`}
-            </span>
-          </Stack>
-          {isEditMode && (
-            <div>
-              <Form.Check
-                data-testid="toggle-res"
-                type="switch"
-                id="reservation-requirement-switch"
-                checked={value}
-                onChange={handleToggle}
-                aria-label="Toggle requirement for reservation on rec resource"
-                className="cursor-pointer"
-                name="has_reservation"
-              />
-            </div>
-          )}
-        </Stack>
-      </Card.Body>
-    </Card>
+    <Form.Group className="m-0 p-0">
+      <Stack>
+        <FormLabel className="fw-bold fs-5 mb-2" public>
+          Reservation
+        </FormLabel>
+      </Stack>
+      <FormLabel className="reservation-form-label mb-2" required>
+        Is this resource reservable?
+      </FormLabel>
+      <Stack direction="horizontal" gap={4}>
+        <Form.Check
+          data-testid="reservable-yes"
+          type="radio"
+          id="reservation-requirement-yes"
+          checked={value}
+          onChange={() => onChange?.(true)}
+          aria-label="Reservable yes"
+          label="Yes"
+          className="cursor-pointer"
+          name="has_reservation"
+        />
+        <Form.Check
+          data-testid="reservable-no"
+          type="radio"
+          id="reservation-requirement-no"
+          checked={!value}
+          onChange={() => onChange?.(false)}
+          aria-label="Reservable no"
+          label="No"
+          className="cursor-pointer"
+          name="has_reservation"
+        />
+      </Stack>
+    </Form.Group>
   );
 };
