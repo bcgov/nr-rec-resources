@@ -2,6 +2,7 @@ import { NavigateOptions } from '@tanstack/react-router';
 
 export const ROUTE_PATHS = {
   LANDING: '/',
+  EXPORTS: '/exports',
   REC_RESOURCE_PAGE: '/rec-resource/$id',
   REC_RESOURCE_OVERVIEW: '/rec-resource/$id/overview',
   REC_RESOURCE_OVERVIEW_EDIT: '/rec-resource/$id/overview/edit',

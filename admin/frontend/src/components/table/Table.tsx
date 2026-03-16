@@ -22,7 +22,7 @@ export const Table = <T,>({
   className = '',
 }: TableProps<T>) => {
   return (
-    <div className="table-responsive">
+    <div className="custom-table-wrapper table-responsive">
       <BootstrapTable className={`custom-table ${className}`}>
         <thead>
           <tr>
