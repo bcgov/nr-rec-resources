@@ -9,14 +9,19 @@ import {
   addSuccessNotification,
 } from '@/store/notificationStore';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigateWithQueryParams } from '@shared/hooks';
-import { useMemo } from 'react';
-import { useForm, type Resolver } from 'react-hook-form';
+import {
+  getReservationContact,
+  getReservationMethod,
+} from '@/pages/rec-resource-page/components/RecResourceReservationSection/helpers';
 import {
   EditReservationFormData,
   createEditReservationSchema,
-} from '../schemas';
+} from '@/pages/rec-resource-page/components/RecResourceReservationSection/EditSection/schemas';
+import { useNavigateWithQueryParams } from '@shared/hooks';
+import { useMemo } from 'react';
+import { useForm, type Resolver } from 'react-hook-form';
 import useUpdateRecreationResourceReservation from '@/services/hooks/recreation-resource-admin/useUpdateRecreationResourceReservation';
+import { ReservationMethod } from '../constants';
 
 /**
  * Custom hook for managing edit resource form logic
@@ -38,13 +43,15 @@ export const useEditReservationForm = (
 
   // Get default values from resource data
   const defaultValues: EditReservationFormData = useMemo(() => {
+    const reservationMethod = getReservationMethod(recResourceReservationInfo);
+
     return {
-      has_reservation: false,
-      reservation_email: recResourceReservationInfo?.reservation_email || '',
-      reservation_website:
-        recResourceReservationInfo?.reservation_website || '',
-      reservation_phone_number:
-        recResourceReservationInfo?.reservation_phone_number || '',
+      has_reservation: Boolean(reservationMethod),
+      reservation_method: reservationMethod,
+      reservation_contact: getReservationContact(
+        recResourceReservationInfo,
+        reservationMethod,
+      ),
     };
   }, [recResourceReservationInfo]);
 
@@ -55,8 +62,6 @@ export const useEditReservationForm = (
     handleSubmit,
     formState: { errors, isDirty },
     setValue,
-    resetField,
-    getValues,
   } = useForm<EditReservationFormData>({
     resolver: zodResolver(
       editReservationSchema,
@@ -66,22 +71,45 @@ export const useEditReservationForm = (
     reValidateMode: 'onChange', // Re-validate on change to clear errors when fixed
   });
 
+  const handleHasReservationChange = (value: boolean) => {
+    setValue('has_reservation', value, {
+      shouldDirty: true,
+    });
+
+    if (!value) {
+      setValue('reservation_method', undefined, {
+        shouldDirty: true,
+      });
+      setValue('reservation_contact', '', {
+        shouldDirty: true,
+      });
+    }
+  };
+
+  const handleReservationMethodChange = (value?: ReservationMethod | '') => {
+    setValue('reservation_method', value || undefined, {
+      shouldDirty: true,
+    });
+    setValue('reservation_contact', '', {
+      shouldDirty: true,
+    });
+  };
+
   const onSubmit = async (data: EditReservationFormData) => {
-    // Prepare update data with proper type conversion
+    if (data.has_reservation && !data.reservation_method) {
+      addErrorNotification(`Please select a Reservation Method.`);
+      return;
+    }
+
     const updateData: UpdateRecreationResourceReservationDto = {
-      reservation_email: data.reservation_email || undefined,
-      reservation_website: data.reservation_website || undefined,
-      reservation_phone_number: data.reservation_phone_number || undefined,
+      reservation_email: undefined,
+      reservation_website: undefined,
+      reservation_phone_number: undefined,
     };
 
-    if (
-      data.has_reservation &&
-      (!data.reservation_email || data.reservation_email === '') &&
-      (!data.reservation_website || data.reservation_website === '') &&
-      (!data.reservation_phone_number || data.reservation_phone_number === '')
-    ) {
-      addErrorNotification(`Please fill at least one Reservation Method.`);
-      return;
+    if (data.has_reservation && data.reservation_method) {
+      updateData[data.reservation_method] =
+        data.reservation_contact || undefined;
     }
 
     // Submit the update using mutateAsync for cleaner async handling
@@ -114,10 +142,9 @@ export const useEditReservationForm = (
     handleSubmit,
     errors,
     isDirty,
-    setValue,
-    resetField,
-    getValues,
     updateMutation,
     onSubmit,
+    handleHasReservationChange,
+    handleReservationMethodChange,
   };
 };
