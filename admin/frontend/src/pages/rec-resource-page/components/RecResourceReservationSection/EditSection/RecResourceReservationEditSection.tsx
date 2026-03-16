@@ -1,38 +1,29 @@
-import { TextField } from '@/components/form';
 import { Button, Col, Form, Row, Stack } from 'react-bootstrap';
 import { Controller, useWatch } from 'react-hook-form';
+import { FormLabel } from '@/components/form';
 import {
   EDIT_RESERVATION_FIELD_LABEL_MAP,
-  EMAIL_MAX_LENGTH,
+  getReservationContactConfig,
+  RESERVATION_METHOD_LABEL_MAP,
+  RESERVATION_METHOD_OPTIONS,
+  ReservationMethod,
 } from './constants';
 import { useEditReservationForm } from './hooks';
 import { EditReservationFormData } from './schemas';
-import { HasReservation } from '../components';
+import { HasReservation } from '@/pages/rec-resource-page/components/RecResourceReservationSection/components';
 import { RecreationResourceReservationInfoDto } from '@/services';
 import { useRecResourceReservation } from '@/pages/rec-resource-page/hooks/useRecResourceReservation';
 import { LinkWithQueryParams } from '@shared/components/link-with-query-params';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { Route } from '@/routes/rec-resource/$id/reservation/edit';
-import { useEffect, useState } from 'react';
-import { FormErrorBanner } from '../../shared/FormErrorBanner';
+import { FormErrorBanner } from '@/pages/rec-resource-page/components/shared/FormErrorBanner';
+import '@/pages/rec-resource-page/components/RecResourceReservationSection/RecResourceReservationSection.scss';
 
-/**
- * Edit section for recreation resource overview
- * Allows editing of resource details including name, description, location, and access information
- */
 export const RecResourceReservationEditSection = () => {
   const params = Route.useParams();
   const recResourceId = params?.id;
   const { reservationInfo = {} as RecreationResourceReservationInfoDto } =
     useRecResourceReservation(recResourceId);
-  const checkRequireReservation =
-    Boolean(reservationInfo?.reservation_website) ||
-    Boolean(reservationInfo?.reservation_phone_number) ||
-    Boolean(reservationInfo?.reservation_email);
-  const [requireReservation, setRequireReservation] = useState(
-    checkRequireReservation,
-  );
-  const initialReservationInfo = reservationInfo;
 
   const {
     handleSubmit,
@@ -42,91 +33,27 @@ export const RecResourceReservationEditSection = () => {
     isDirty,
     updateMutation,
     onSubmit,
-    setValue,
+    handleHasReservationChange,
+    handleReservationMethodChange,
   } = useEditReservationForm(recResourceId, reservationInfo);
 
-  const reservationEmail = useWatch({
+  const hasReservation = useWatch({
     control,
-    name: 'reservation_email',
+    name: 'has_reservation',
   });
 
-  const reservationWebsite = useWatch({
+  const reservationMethod = useWatch({
     control,
-    name: 'reservation_website',
+    name: 'reservation_method',
   });
 
-  const reservationPhone = useWatch({
-    control,
-    name: 'reservation_phone_number',
-  });
-
-  useEffect(() => {
-    if (
-      reservationEmail === '' &&
-      reservationWebsite === '' &&
-      reservationPhone === ''
-    ) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setRequireReservation(false);
-    } else {
-      setRequireReservation(true);
-    }
-  }, [reservationEmail, reservationWebsite, reservationPhone]);
-
-  const clearFields = () => {
-    setValue('has_reservation', false, {
-      shouldDirty: true,
-    });
-    setValue('reservation_email', '', {
-      shouldDirty: true,
-    });
-    setValue('reservation_website', '', {
-      shouldDirty: true,
-    });
-    setValue('reservation_phone_number', '', {
-      shouldDirty: true,
-    });
-  };
-
-  const restoreFields = () => {
-    setValue('has_reservation', true, {
-      shouldDirty: true,
-    });
-    setValue('reservation_email', initialReservationInfo?.reservation_email, {
-      shouldDirty: true,
-    });
-    setValue(
-      'reservation_website',
-      initialReservationInfo?.reservation_website,
-      {
-        shouldDirty: true,
-      },
-    );
-    setValue(
-      'reservation_phone_number',
-      initialReservationInfo?.reservation_phone_number,
-      {
-        shouldDirty: true,
-      },
-    );
-  };
-
-  const handleRequireReservation = () => {
-    setRequireReservation((prev) => {
-      const next = !prev;
-      if (!next) {
-        clearFields();
-      } else {
-        restoreFields();
-      }
-      return next;
-    });
-  };
+  const reservationContactConfig =
+    getReservationContactConfig(reservationMethod);
 
   return (
     <Stack direction="vertical" gap={4}>
       <div className="d-flex justify-content-between align-items-center">
-        <h2>Edit Reservation</h2>
+        <h2 className="mb-0">Edit Reservations</h2>
         <Stack direction="horizontal" gap={2}>
           <LinkWithQueryParams
             to={ROUTE_PATHS.REC_RESOURCE_RESERVATION.replace(
@@ -153,58 +80,82 @@ export const RecResourceReservationEditSection = () => {
       />
 
       <Form onSubmit={handleSubmit(onSubmit as any)}>
-        <Stack direction="vertical" gap={4}>
-          <Row>
-            <Col xs={12}>
-              <Controller<EditReservationFormData>
-                name="has_reservation"
-                control={control}
-                render={({ field }) => (
-                  <HasReservation
-                    isEditMode={true}
-                    value={requireReservation}
-                    onChange={(field.onChange, handleRequireReservation)}
-                  />
-                )}
-              />
-            </Col>
-          </Row>
+        <div className="reservation-panel">
+          <Stack direction="vertical" gap={4}>
+            <Row>
+              <Col xs={12}>
+                <Controller<EditReservationFormData>
+                  name="has_reservation"
+                  control={control}
+                  render={() => (
+                    <HasReservation
+                      value={Boolean(hasReservation)}
+                      onChange={handleHasReservationChange}
+                    />
+                  )}
+                />
+              </Col>
+            </Row>
 
-          <Row className="gy-3">
-            <Col lg={12}>
-              <TextField
-                name="reservation_email"
-                label={EDIT_RESERVATION_FIELD_LABEL_MAP.reservation_email}
-                placeholder="Enter the email for the reservation info ..."
-                register={register}
-                errors={errors}
-                maxLength={EMAIL_MAX_LENGTH}
-              />
-            </Col>
-            <Col lg={12}>
-              <TextField
-                name="reservation_website"
-                label={EDIT_RESERVATION_FIELD_LABEL_MAP.reservation_website}
-                placeholder="Enter the website for the reservation info ..."
-                register={register}
-                errors={errors}
-                maxLength={EMAIL_MAX_LENGTH}
-              />
-            </Col>
-            <Col lg={12}>
-              <TextField
-                name="reservation_phone_number"
-                label={
-                  EDIT_RESERVATION_FIELD_LABEL_MAP.reservation_phone_number
-                }
-                placeholder="Enter the phone number for the reservation info ..."
-                register={register}
-                errors={errors}
-                maxLength={EMAIL_MAX_LENGTH}
-              />
-            </Col>
-          </Row>
-        </Stack>
+            {hasReservation && (
+              <Row className="gy-3">
+                <Col lg={12}>
+                  <Controller<EditReservationFormData>
+                    name="reservation_method"
+                    control={control}
+                    render={() => (
+                      <Form.Group controlId="reservation_method">
+                        <FormLabel className="reservation-form-label" required>
+                          {EDIT_RESERVATION_FIELD_LABEL_MAP.reservation_method}
+                        </FormLabel>
+                        <Form.Select
+                          aria-label="Reservation method"
+                          value={reservationMethod || ''}
+                          onChange={(event) =>
+                            handleReservationMethodChange(
+                              event.target.value as ReservationMethod,
+                            )
+                          }
+                          isInvalid={!!errors.reservation_method}
+                        >
+                          <option value="">Select a reservation method</option>
+                          {RESERVATION_METHOD_OPTIONS.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </Form.Select>
+                        <Form.Control.Feedback type="invalid">
+                          {errors.reservation_method?.message}
+                        </Form.Control.Feedback>
+                      </Form.Group>
+                    )}
+                  />
+                </Col>
+                {reservationMethod && (
+                  <Col lg={12}>
+                    <Form.Group controlId="reservation_contact">
+                      <FormLabel className="reservation-form-label" required>
+                        {EDIT_RESERVATION_FIELD_LABEL_MAP.reservation_contact}
+                        {` (${RESERVATION_METHOD_LABEL_MAP[reservationMethod]})`}
+                      </FormLabel>
+                      <Form.Control
+                        type={reservationContactConfig.type}
+                        placeholder={reservationContactConfig.placeholder}
+                        maxLength={reservationContactConfig.maxLength}
+                        {...register('reservation_contact')}
+                        isInvalid={!!errors.reservation_contact}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {errors.reservation_contact?.message}
+                      </Form.Control.Feedback>
+                    </Form.Group>
+                  </Col>
+                )}
+              </Row>
+            )}
+          </Stack>
+        </div>
       </Form>
     </Stack>
   );

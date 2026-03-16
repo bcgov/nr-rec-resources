@@ -21,23 +21,6 @@ vi.mock('@/contexts/feature-flags', () => ({
   FeatureFlagGuard: ({ children }: any) => <>{children}</>,
 }));
 
-vi.mock(
-  '@/pages/rec-resource-page/components/RecResourceReservationSection/components',
-  () => ({
-    HasReservation: ({ value }: { value: boolean }) => (
-      <div data-testid="has-reservation">{String(value)}</div>
-    ),
-  }),
-);
-
-vi.mock('@/pages/rec-resource-page/components/shared/FieldItem', () => ({
-  FieldItem: ({ label, value }: { label: string; value?: string | null }) => (
-    <div data-testid={`reservation-item-${label}`}>
-      {label}:{value ?? ''}
-    </div>
-  ),
-}));
-
 vi.mock('@/constants/routes', () => ({
   ROUTE_PATHS: {
     REC_RESOURCE_RESERVATION_EDIT: '/edit',
@@ -64,15 +47,13 @@ describe('RecResourceReservationSection', () => {
   it('renders correctly when reservationInfo is null', () => {
     render(<RecResourceReservationSection reservationInfo={null} />);
 
-    expect(screen.getByText('Reservation')).toBeInTheDocument();
+    expect(screen.getByText('Reservations')).toBeInTheDocument();
 
-    expect(screen.getByTestId('has-reservation')).toHaveTextContent('false');
+    expect(screen.getByText('Reservable')).toBeInTheDocument();
+    expect(screen.getByText('No')).toBeInTheDocument();
 
-    expect(screen.getByTestId('reservation-item-Email')).toBeInTheDocument();
-    expect(screen.getByTestId('reservation-item-Website')).toBeInTheDocument();
-    expect(
-      screen.getByTestId('reservation-item-Phone Number'),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Reservation method')).toBeInTheDocument();
+    expect(screen.getByText('Reservation contact')).toBeInTheDocument();
 
     expect(screen.getByText('Edit')).toHaveAttribute('href', '/edit/REC123');
   });
@@ -90,7 +71,7 @@ describe('RecResourceReservationSection', () => {
       />,
     );
 
-    expect(screen.getByTestId('has-reservation')).toHaveTextContent('false');
+    expect(screen.getByText('No')).toBeInTheDocument();
   });
 
   it('is reservable when at least one reservation field exists', () => {
@@ -106,10 +87,25 @@ describe('RecResourceReservationSection', () => {
       />,
     );
 
-    expect(screen.getByTestId('has-reservation')).toHaveTextContent('true');
+    expect(screen.getByText('Yes')).toBeInTheDocument();
+    expect(screen.getByText('Email')).toBeInTheDocument();
+    expect(screen.getByText('test@example.com')).toBeInTheDocument();
+  });
 
-    expect(screen.getByTestId('reservation-item-Email')).toHaveTextContent(
-      'test@example.com',
+  it('shows website when multiple reservation methods exist', () => {
+    render(
+      <RecResourceReservationSection
+        reservationInfo={
+          {
+            reservation_email: 'test@example.com',
+            reservation_phone_number: '778-978-7786',
+            reservation_website: 'https://example.com',
+          } as any
+        }
+      />,
     );
+
+    expect(screen.getByText('Website')).toBeInTheDocument();
+    expect(screen.getByText('https://example.com')).toBeInTheDocument();
   });
 });

@@ -1,0 +1,31 @@
+@import '@/styles/variables';
+
+.reservation-panel {
+  border: 1px solid $colorGreyLight;
+  border-radius: 8px;
+  background: $colorWhite;
+  padding: 24px;
+}
+
+.reservation-form-label {
+  font-size: 13.33px;
+  font-weight: 400;
+  line-height: 21px;
+  color: $colorGrey;
+}
+
+.reservation-body-text {
+  font-size: 16px;
+  line-height: 26px;
+  color: $colorGrey;
+}
+
+.reservation-section__item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.reservation-section__label {
+  font-weight: 700;
+}

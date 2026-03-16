@@ -39,7 +39,7 @@ jobs:
     name: Deploys Database
     uses: ./.github/workflows/.aws-deployer.yml
     concurrency:
-      group: deploy-db-${{ inputs.environment_name }}
+      group: deploy-db-${{ inputs.app_env }}
       cancel-in-progress: false
     with:
       app_env: ${{ inputs.app_env }}
@@ -51,7 +51,7 @@ jobs:
     name: Deploys Storage (S3 + CloudFront)
     uses: ./.github/workflows/.aws-deployer.yml
     concurrency:
-      group: deploy-storage-${{ inputs.environment_name }}
+      group: deploy-storage-${{ inputs.app_env }}
       cancel-in-progress: false
     with:
       app_env: ${{ inputs.app_env }}
@@ -64,7 +64,7 @@ jobs:
     needs: [deploy-db, deploy-storage]
     uses: ./.github/workflows/.aws-deployer.yml
     concurrency:
-      group: deploy-api-${{ inputs.app }}-${{ inputs.environment_name }}
+      group: deploy-api-${{ inputs.app }}-${{ inputs.app_env }}
       cancel-in-progress: false
     with:
       app: ${{ inputs.app }}
@@ -79,7 +79,7 @@ jobs:
     needs: deploy-storage
     uses: ./.github/workflows/.aws-deployer.yml
     concurrency:
-      group: deploy-cloudfront-${{ inputs.app }}-${{ inputs.environment_name }}
+      group: deploy-cloudfront-${{ inputs.app }}-${{ inputs.app_env }}
       cancel-in-progress: false
     with:
       app: ${{ inputs.app }}
