@@ -14,6 +14,14 @@ export class RecreationResourceSummaryDto {
   name: string;
 
   @ApiProperty({
+    description: 'Closest community to the recreation resource',
+    example: 'Merritt',
+    type: String,
+    nullable: true,
+  })
+  closest_community: string | null;
+
+  @ApiProperty({
     description: 'District code of the Recreation Resource',
     example: 'RDCK',
   })
