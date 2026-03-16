@@ -20,6 +20,7 @@ import {
   MATOMO_ACTION_EXPORT_FILTERED_RESULTS,
   MATOMO_CATEGORY_EXPORT_MAP,
 } from '@/constants/analytics';
+import { LoadingButton } from '@/components/LoadingButton';
 
 interface DownloadKmlResultsProps {
   searchResultsNumber: number;
@@ -132,19 +133,21 @@ const DownloadKmlResults = ({
               {'< '}Refine your search
             </button>
           ) : (
-            <button
-              aria-label="Download"
+            <LoadingButton
               onClick={() => handleDownload()}
-              disabled={searchResultsNumber > REC_LIMIT && !isPending}
-              className="btn btn-primary w-100 mx-0 mb-2 download-button"
+              loading={isPending}
+              disabled={isPending}
+              ariaLabel="Download KML"
+              variant="primary"
+              className="btn btn-primary download-button"
             >
               Download
-            </button>
+            </LoadingButton>
           )}
         </Col>
         <Col>
           <button
-            className="btn w-100 mx-0 mb-2 cancel-button"
+            className="btn btn-secondary w-100 mx-0 mb-2"
             onClick={handleCloseModal}
           >
             Cancel
