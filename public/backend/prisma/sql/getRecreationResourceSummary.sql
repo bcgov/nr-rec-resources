@@ -1,12 +1,13 @@
 -- @param {Int} $1:limit
 -- @param {Int} $2:offset
 select
-  rr.rec_resource_id,
-  rr.name,
-  rr.display_on_public_site,
-  rdc.district_code,
-  rdc.description as district_description,
-  rtv.rec_resource_type_code,
+rr.rec_resource_id,
+rr.name,
+rr.closest_community,
+rr.display_on_public_site,
+rdc.district_code,
+rdc.description as district_description,
+rtv.rec_resource_type_code,
   rtv.description as rec_resource_type_description,
   rs.status_code,
   rsc.description as status_description,
