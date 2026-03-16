@@ -1,4 +1,7 @@
 import { Route } from '@/routes/resource/$id/index';
+import { ROUTE_TITLES } from '@/constants/routes';
+import { buildAbsoluteUrl, getResourceMetaDescription } from '@/utils/seo';
+import { OG_DEFAULT_IMAGE_PATH } from '@/constants/seo';
 import { recResourceLoader } from '@/service/loaders/recResourceLoader';
 import { describe, expect, it } from 'vitest';
 
@@ -49,5 +52,28 @@ describe('Resource Detail Route', () => {
 
     expect(breadcrumb.length).toBeGreaterThan(0);
     expect(breadcrumb[breadcrumb.length - 1].isCurrent).toBe(true);
+  });
+  it('should return correct OpenGraph head metadata', () => {
+    const headResult = Route.options.head!({
+      params: { id: '123' },
+      loaderData: { recResource: { name: 'Test Resource' } },
+    } as any);
+
+    const description = getResourceMetaDescription(undefined, 'Test Resource');
+    const pageTitle = ROUTE_TITLES.REC_RESOURCE('Test Resource');
+    const ogImage = buildAbsoluteUrl(OG_DEFAULT_IMAGE_PATH);
+    const ogUrl = buildAbsoluteUrl(`/resource/123`);
+
+    expect(headResult).toEqual({
+      meta: expect.arrayContaining([
+        { name: 'description', content: description },
+        { title: pageTitle },
+        { property: 'og:title', content: pageTitle },
+        { property: 'og:description', content: description },
+        { property: 'og:url', content: ogUrl },
+        { property: 'og:image', content: ogImage },
+        { property: 'og:image:alt', content: 'Test Resource photo' },
+      ]),
+    });
   });
 });

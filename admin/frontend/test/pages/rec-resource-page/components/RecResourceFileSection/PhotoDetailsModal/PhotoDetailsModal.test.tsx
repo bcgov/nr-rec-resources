@@ -151,7 +151,7 @@ describe('PhotoDetailsModal', () => {
 
     expect(
       screen.getByText(
-        /this image does not have consent and release information/i,
+        /this image does not have privacy and ownership information/i,
       ),
     ).toBeInTheDocument();
   });

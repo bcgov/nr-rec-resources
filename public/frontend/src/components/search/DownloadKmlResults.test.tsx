@@ -118,6 +118,36 @@ describe('DownloadKmlResults', () => {
     expect(mutateAsyncMock).toHaveBeenCalled();
   });
 
+  it('shows a spinner while download is pending', () => {
+    (
+      recreationHooks.useRecreationResourcesWithGeometryMutation as vi.Mock
+    ).mockReturnValueOnce({
+      data: undefined,
+      mutateAsync: vi.fn(),
+      isSuccess: false,
+      isError: false,
+      isPending: true,
+      status: 'pending',
+    });
+
+    render(
+      <DownloadKmlResults
+        searchResultsNumber={1}
+        ids={['r1']}
+        trackingView="list"
+        handleCloseModal={() => {
+          return;
+        }}
+      />,
+    );
+
+    const downloadBtn = screen.getByRole('button', { name: /download kml/i });
+
+    expect(downloadBtn).toBeDisabled();
+    expect(downloadBtn.querySelector('.spinner-border')).toBeInTheDocument();
+    expect(downloadBtn).toHaveClass('download-button');
+  });
+
   it('runs downloadKMLMultiple when data exists', async () => {
     (
       recreationHooks.useRecreationResourcesWithGeometryMutation as vi.Mock
