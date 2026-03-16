@@ -6,6 +6,7 @@ describe('RecreationResourceSummaryDto', () => {
     const dto = new RecreationResourceSummaryDto();
     dto.rec_resource_id = 'REC204117';
     dto.name = 'Aileen Lake';
+    dto.closest_community = 'Merritt';
     dto.district_code = 'RDCK';
     dto.district = 'Chilliwack';
     dto.rec_resource_type_code = 'SIT';
@@ -20,6 +21,7 @@ describe('RecreationResourceSummaryDto', () => {
     expect(dto).toBeDefined();
     expect(dto.rec_resource_id).toBe('REC204117');
     expect(dto.name).toBe('Aileen Lake');
+    expect(dto.closest_community).toBe('Merritt');
     expect(dto.district_code).toBe('RDCK');
     expect(dto.district).toBe('Chilliwack');
     expect(dto.rec_resource_type_code).toBe('SIT');
