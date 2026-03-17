@@ -7,7 +7,6 @@ export const Activity: FC<LandingPageActivity> = ({
   title,
   description,
   imageUrl,
-  mobileImageUrl,
   activityFilter,
 }) => {
   return (
@@ -44,7 +43,7 @@ export const Activity: FC<LandingPageActivity> = ({
               data-testid="mobile-link"
             >
               <img
-                src={mobileImageUrl}
+                src={imageUrl}
                 alt={description}
                 width={100}
                 height={78}
