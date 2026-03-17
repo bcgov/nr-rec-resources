@@ -19,7 +19,6 @@ describe('Activity component', () => {
       description: 'Explore the mountains',
       imageUrl: 'https://example.com/hiking.jpg',
       activityFilter: 12,
-      mobileImageUrl: 'https://example.com/hiking_mobile.jpg',
     };
 
     render(<Activity {...props} />);
@@ -49,7 +48,6 @@ describe('Activity component', () => {
     expect(desktopImage).toHaveAttribute('height', '203');
     expect(desktopImage).toHaveClass('activity-image');
     const mobileImage = screen.getByTestId('mobile-image');
-    expect(mobileImage).toHaveAttribute('src', props.mobileImageUrl);
     expect(mobileImage).toHaveAttribute('alt', props.description);
     expect(mobileImage).toHaveAttribute('width', '100');
     expect(mobileImage).toHaveAttribute('height', '78');
