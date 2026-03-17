@@ -17,7 +17,7 @@ import {
   EditReservationFormData,
   createEditReservationSchema,
 } from '@/pages/rec-resource-page/components/RecResourceReservationSection/EditSection/schemas';
-import { useNavigateWithQueryParams } from '@shared/hooks';
+import { useNavigate } from '@tanstack/react-router';
 import { useMemo } from 'react';
 import { useForm, type Resolver } from 'react-hook-form';
 import useUpdateRecreationResourceReservation from '@/services/hooks/recreation-resource-admin/useUpdateRecreationResourceReservation';
@@ -32,7 +32,7 @@ export const useEditReservationForm = (
   recResourceId: string,
   recResourceReservationInfo: RecreationResourceReservationInfoDto | null,
 ) => {
-  const { navigate } = useNavigateWithQueryParams();
+  const navigate = useNavigate();
   const updateMutation = useUpdateRecreationResourceReservation();
 
   // Create schema with district options for validation

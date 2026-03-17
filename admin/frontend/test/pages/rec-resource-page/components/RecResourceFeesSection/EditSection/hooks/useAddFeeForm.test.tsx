@@ -6,8 +6,8 @@ import {
 } from '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/schemas/addFee';
 import { useCreateFee } from '@/services';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigateWithQueryParams } from '@shared/hooks';
 import { renderHook } from '@testing-library/react';
+import { useNavigate } from '@tanstack/react-router';
 import { useForm } from 'react-hook-form';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -26,8 +26,8 @@ vi.mock('@/services', () => ({
   useCreateFee: vi.fn(),
 }));
 
-vi.mock('@shared/hooks', () => ({
-  useNavigateWithQueryParams: vi.fn(),
+vi.mock('@tanstack/react-router', () => ({
+  useNavigate: vi.fn(),
 }));
 
 describe('useAddFeeForm', () => {
@@ -55,9 +55,7 @@ describe('useAddFeeForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    vi.mocked(useNavigateWithQueryParams).mockReturnValue({
-      navigate: mockNavigate,
-    } as any);
+    vi.mocked(useNavigate).mockReturnValue(mockNavigate);
 
     vi.mocked(useCreateFee).mockReturnValue({
       mutateAsync: mockMutateAsync,

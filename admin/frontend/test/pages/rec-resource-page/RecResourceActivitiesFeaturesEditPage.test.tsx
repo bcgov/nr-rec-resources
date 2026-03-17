@@ -1,37 +1,25 @@
 import { RecResourceActivitiesFeaturesEditPage } from '@/pages/rec-resource-page/RecResourceActivitiesFeaturesEditPage';
-import { useLoaderData, useParams } from '@tanstack/react-router';
+import { useLoaderData, useNavigate, useParams } from '@tanstack/react-router';
 import { render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+
+const mockNavigate = vi.fn();
 
 vi.mock('@tanstack/react-router', async (importOriginal) => {
   const actual =
     await importOriginal<typeof import('@tanstack/react-router')>();
   return {
     ...actual,
+    Link: ({ children, to }: { children: React.ReactNode; to: string }) => (
+      <a href={to} data-testid="cancel-link">
+        {children}
+      </a>
+    ),
     useLoaderData: vi.fn(),
+    useNavigate: vi.fn(),
     useParams: vi.fn(),
   };
 });
-
-vi.mock('@shared/hooks', () => ({
-  useNavigateWithQueryParams: vi.fn(() => ({
-    navigate: vi.fn(),
-  })),
-}));
-
-vi.mock('@shared/components/link-with-query-params', () => ({
-  LinkWithQueryParams: ({
-    children,
-    to,
-  }: {
-    children: React.ReactNode;
-    to: string;
-  }) => (
-    <a href={to} data-testid="cancel-link">
-      {children}
-    </a>
-  ),
-}));
 
 const mockActivitiesFormReturn = {
   control: {},
@@ -93,6 +81,7 @@ vi.mock(
 
 describe('RecResourceActivitiesFeaturesEditPage', () => {
   beforeEach(() => {
+    vi.mocked(useNavigate).mockReturnValue(mockNavigate);
     vi.mocked(useLoaderData).mockReturnValue({
       activities: [],
       features: [],

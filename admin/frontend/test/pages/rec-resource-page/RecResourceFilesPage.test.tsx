@@ -2,6 +2,18 @@ import { RecResourceFilesPage } from '@/pages/rec-resource-page/RecResourceFiles
 import { fireEvent, render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+const mockUseAuthorizations = vi.fn();
+const mockUseUserRoles = vi.fn();
+vi.mock('@/hooks/useAuthorizations', () => ({
+  ROLES: {
+    VIEWER: 'rst-viewer',
+    ADMIN: 'rst-admin',
+    DEVELOPER: 'rst-developer',
+  },
+  useAuthorizations: () => mockUseAuthorizations(),
+  useUserRoles: () => mockUseUserRoles(),
+}));
+
 const mockUseRecResourceFileTransferState = vi.fn();
 const mockGetImageGeneralActionHandler = vi.fn();
 const mockGetDocumentGeneralActionHandler = vi.fn();
@@ -62,6 +74,13 @@ describe('RecResourceFilesPage', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseAuthorizations.mockReturnValue({
+      canView: true,
+      canEdit: true,
+      canViewFeatureFlag: false,
+      canEditFeatureFlag: false,
+    });
+    mockUseUserRoles.mockReturnValue(['rst-admin']);
     mockUseRecResourceFileTransferState.mockReturnValue(defaultState);
     mockGetImageGeneralActionHandler.mockReturnValue(vi.fn());
     mockGetDocumentGeneralActionHandler.mockReturnValue(vi.fn());
@@ -217,5 +236,86 @@ describe('RecResourceFilesPage', () => {
       'All images and documents will be published to the website within 15 minutes.',
     );
     expect(textElement).toHaveClass('rec-resource-page__info-banner-text');
+  });
+
+  it.each([
+    [
+      'admin',
+      {
+        canView: true,
+        canEdit: true,
+        canViewFeatureFlag: false,
+        canEditFeatureFlag: false,
+      },
+      true,
+    ],
+    [
+      'viewer',
+      {
+        canView: true,
+        canEdit: false,
+        canViewFeatureFlag: false,
+        canEditFeatureFlag: false,
+      },
+      false,
+    ],
+  ])('%s user %s InfoBanner', (_, auth, showsBanner) => {
+    mockUseAuthorizations.mockReturnValue(auth);
+    mockUseUserRoles.mockReturnValue(
+      auth.canEdit ? ['rst-admin'] : ['rst-viewer'],
+    );
+    render(<RecResourceFilesPage />);
+
+    if (showsBanner) {
+      expect(screen.getByRole('alert')).toBeInTheDocument();
+    } else {
+      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    }
+  });
+
+  it.each([
+    [
+      'admin',
+      {
+        canView: true,
+        canEdit: true,
+        canViewFeatureFlag: false,
+        canEditFeatureFlag: false,
+      },
+      true,
+    ],
+    [
+      'viewer',
+      {
+        canView: true,
+        canEdit: false,
+        canViewFeatureFlag: false,
+        canEditFeatureFlag: false,
+      },
+      false,
+    ],
+  ])('%s user upload buttons visible=%s', (_, auth, expectVisible) => {
+    mockUseAuthorizations.mockReturnValue(auth);
+    mockUseUserRoles.mockReturnValue(
+      auth.canEdit ? ['rst-admin'] : ['rst-viewer'],
+    );
+    render(<RecResourceFilesPage />);
+
+    if (expectVisible) {
+      const addImageButton = screen.getByRole('button', { name: /add image/i });
+      const addDocumentButton = screen.getByRole('button', {
+        name: /add document/i,
+      });
+
+      expect(addImageButton).not.toBeDisabled();
+      expect(addDocumentButton).not.toBeDisabled();
+    } else {
+      expect(
+        screen.queryByRole('button', { name: /add image/i }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole('button', { name: /add document/i }),
+      ).not.toBeInTheDocument();
+    }
   });
 });

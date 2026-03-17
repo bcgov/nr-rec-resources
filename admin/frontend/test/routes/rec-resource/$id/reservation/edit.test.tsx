@@ -2,8 +2,19 @@ import { Route as EditRoute } from '@/routes/rec-resource/$id/reservation/edit';
 import { Route as IndexRoute } from '@/routes/rec-resource/$id/reservation';
 import { recResourceReservationLoader } from '@/services/loaders/recResourceReservationLoader';
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+
+const mockRoleRouteGuard = vi.fn(
+  ({ children }: { children: React.ReactNode }) => <>{children}</>,
+);
+vi.mock('@/components/auth', () => ({
+  RoleRouteGuard: (props: {
+    children: React.ReactNode;
+    requireAll: string[];
+    redirectTo: string;
+  }) => mockRoleRouteGuard(props),
+}));
 
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceReservationSection',
@@ -16,31 +27,30 @@ vi.mock(
   }),
 );
 
-vi.mock('@/contexts/feature-flags', () => ({
-  FeatureFlagRouteGuard: ({
-    children,
-    requiredFlags,
-  }: {
-    children: React.ReactNode;
-    requiredFlags: string[];
-  }) => (
-    <div
-      data-testid="feature-flag-route-guard"
-      data-flags={requiredFlags.join(',')}
-    >
-      {children}
-    </div>
-  ),
-}));
-
 describe('RecResource Reservation Edit Route', () => {
-  it('should render component with FeatureFlagRouteGuard', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    vi.spyOn(EditRoute, 'useParams').mockReturnValue({ id: 'REC123' } as any);
+  });
+
+  it('should render component within RoleRouteGuard', () => {
     const Component = EditRoute.options.component!;
     render(<Component />);
-    const guard = screen.getByTestId('feature-flag-route-guard');
-    expect(guard).toHaveAttribute('data-flags', 'enable_full_features');
-    expect(guard).toContainElement(
+    expect(
       screen.getByTestId('rec-resource-reservation-edit-section'),
+    ).toBeInTheDocument();
+  });
+
+  it('wraps the route in an admin RoleRouteGuard with the reservation redirect', () => {
+    const Component = EditRoute.options.component!;
+    render(<Component />);
+
+    expect(mockRoleRouteGuard).toHaveBeenCalledWith(
+      expect.objectContaining({
+        requireAll: ['rst-developer', 'rst-admin'],
+        redirectTo: '/rec-resource/REC123/reservation',
+        children: expect.anything(),
+      }),
     );
   });
 

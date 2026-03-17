@@ -29,3 +29,8 @@
     border-right-color: $colorBlue;
   }
 }
+
+// Patch for BC Gov React Components icon not vertically centered
+.bcds-Alert-Banner--Icon {
+  display: flex;
+}

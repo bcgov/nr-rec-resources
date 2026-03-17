@@ -87,6 +87,24 @@ getSecureData() {
 Protected routes: frontend sends Bearer token in `Authorization`; backend
 validates it; invalid or expired tokens get 401.
 
+## Role Combinations
+
+On the `feat/roles` branch, the admin app uses three roles:
+
+- `rst-viewer`
+- `rst-admin`
+- `rst-developer`
+
+`rst-developer` does not grant access on its own. Instead, it unlocks the
+feature flags when paired with either `rst-viewer` or `rst-admin`.
+
+| Role combination               | Access level | Typical use                                                      |
+| ------------------------------ | ------------ | ---------------------------------------------------------------- |
+| `rst-viewer`                   | View only    | Can read/view content and use read-only routes. No edit actions. |
+| `rst-admin`                    | View + edit  | Can view content and use edit/update actions.                    |
+| `rst-viewer` + `rst-developer` | View only    | Can view content including feature flags                         |
+| `rst-admin` + `rst-developer`  | View + edit  | Can view and use edit/update actions including feature flags     |
+
 ## Environment
 
 **Frontend**

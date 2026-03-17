@@ -43,6 +43,8 @@
 - [OpenAPI/Swagger Documentation](docs/open-api-swagger.md)
   - [Swagger Decorators](docs/open-api-swagger.md#swagger-decorators)
   - [Accessing Generated Documentation](docs/open-api-swagger.md#accessing-generated-documentation)
+- [Admin Authentication & Authorization](admin/docs/auth/auth.md)
+  - [Role Combinations](admin/docs/auth/auth.md#role-combinations)
 
 ### CI/CD
 

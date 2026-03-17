@@ -12,21 +12,16 @@ vi.mock('@/pages/rec-resource-page/RecResourceActivitiesFeaturesPage', () => ({
   ),
 }));
 
-vi.mock('@/contexts/feature-flags', () => ({
-  FeatureFlagRouteGuard: ({
-    children,
-    requiredFlags,
-  }: {
+const mockRoleRouteGuard = vi.fn(
+  ({ children }: { children: React.ReactNode }) => <>{children}</>,
+);
+vi.mock('@/components/auth', () => ({
+  RoleRouteGuard: (props: {
     children: React.ReactNode;
-    requiredFlags: string[];
-  }) => (
-    <div
-      data-testid="feature-flag-route-guard"
-      data-flags={requiredFlags.join(',')}
-    >
-      {children}
-    </div>
-  ),
+    requireAll: string[];
+    requireAny: string[];
+    redirectTo: string;
+  }) => mockRoleRouteGuard(props),
 }));
 
 describe('RecResourceActivitiesRoute', () => {
@@ -43,13 +38,21 @@ describe('RecResourceActivitiesRoute', () => {
     expect(Route.options.beforeLoad).toBeDefined();
   });
 
-  it('should render component with FeatureFlagRouteGuard', () => {
+  it('should render component with RoleRouteGuard', () => {
+    vi.spyOn(Route, 'useParams').mockReturnValue({ id: 'REC123' } as any);
+
     const Component = Route.options.component!;
     render(<Component />);
-    const guard = screen.getByTestId('feature-flag-route-guard');
-    expect(guard).toHaveAttribute('data-flags', 'enable_full_features');
-    expect(guard).toContainElement(
+    expect(
       screen.getByTestId('rec-resource-activities-features-page'),
+    ).toBeInTheDocument();
+    expect(mockRoleRouteGuard).toHaveBeenCalledWith(
+      expect.objectContaining({
+        requireAll: ['rst-developer'],
+        requireAny: ['rst-viewer', 'rst-admin'],
+        redirectTo: '/rec-resource/REC123/files',
+        children: expect.anything(),
+      }),
     );
   });
 

@@ -1,7 +1,8 @@
 import { ROUTE_PATHS } from '@/constants/routes';
-import { FeatureFlagGuard } from '@/contexts/feature-flags';
+import { RoleGuard } from '@/components/auth';
+import { ROLES } from '@/hooks/useAuthorizations';
 import { RecreationResourceDetailUIModel } from '@/services';
-import { LinkWithQueryParams } from '@shared/components/link-with-query-params';
+import { Link } from '@tanstack/react-router';
 import { Col, Row, Stack } from 'react-bootstrap';
 import { RecResourceEstablishmentOrderSection } from '../RecResourceEstablishmentOrderSection';
 import { RecResourceLocationSection } from '../RecResourceLocationSection';
@@ -55,15 +56,17 @@ export const RecResourceOverviewSection = (
       <div className="d-flex justify-content-between align-items-center">
         <h2>Overview</h2>
 
-        <FeatureFlagGuard requiredFlags={['enable_full_features']}>
-          <LinkWithQueryParams
-            to={ROUTE_PATHS.REC_RESOURCE_OVERVIEW_EDIT}
-            params={{ id: recResource.rec_resource_id }}
+        <RoleGuard requireAll={[ROLES.ADMIN]}>
+          <Link
+            to={ROUTE_PATHS.REC_RESOURCE_OVERVIEW_EDIT.replace(
+              '$id',
+              recResource.rec_resource_id,
+            )}
             className="btn btn-outline-primary"
           >
             Edit
-          </LinkWithQueryParams>
-        </FeatureFlagGuard>
+          </Link>
+        </RoleGuard>
       </div>
 
       <Row>
@@ -111,11 +114,9 @@ export const RecResourceOverviewSection = (
         </Col>
       </Row>
 
-      <FeatureFlagGuard requiredFlags={['enable_full_features']}>
-        <RecResourceEstablishmentOrderSection
-          recResourceId={recResource.rec_resource_id}
-        />
-      </FeatureFlagGuard>
+      <RecResourceEstablishmentOrderSection
+        recResourceId={recResource.rec_resource_id}
+      />
 
       {recResource && <RecResourceLocationSection recResource={recResource} />}
     </Stack>

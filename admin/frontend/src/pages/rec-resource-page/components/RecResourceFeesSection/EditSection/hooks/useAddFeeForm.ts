@@ -2,8 +2,8 @@ import { useCreateFee } from '@/services';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
-import { useNavigateWithQueryParams } from '@shared/hooks';
 import { ROUTE_PATHS } from '@/constants/routes';
+import { useNavigate } from '@tanstack/react-router';
 import {
   AddFeeFormData,
   FEE_APPLIES_OPTIONS,
@@ -44,7 +44,7 @@ const prepareFeeData = (data: AddFeeFormData, recResourceId: string) => {
 
 export const useAddFeeForm = (recResourceId: string) => {
   const createMutation = useCreateFee();
-  const { navigate } = useNavigateWithQueryParams();
+  const navigate = useNavigate();
 
   const defaultValues: AddFeeFormData = {
     recreation_fee_code: '',

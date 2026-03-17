@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
+import { useNavigate } from '@tanstack/react-router';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   RecreationResourceGeospatialDto,
@@ -10,7 +11,6 @@ import {
   createEditResourceGeospatialSchema,
   EditResourceGeospatialFormData,
 } from '@/pages/rec-resource-page/components/RecResourceGeospatialSection/EditSection/schemas/editResourceGeospatial';
-import { useNavigateWithQueryParams } from '@shared/hooks';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { handleApiError } from '@/services/utils/errorHandler';
 import {
@@ -28,7 +28,7 @@ export const useEditGeospatialForm = (
   geospatialData?: RecreationResourceGeospatialDto,
   recResourceId?: string,
 ) => {
-  const { navigate } = useNavigateWithQueryParams();
+  const navigate = useNavigate();
   const updateGeospatial = useUpdateRecreationResourceGeospatial();
 
   const defaultValues = useMemo<EditResourceGeospatialFormData>(() => {

@@ -1,8 +1,18 @@
 import { RecResourceNavKey } from '@/pages/rec-resource-page';
-import { BreadcrumbItem } from '@shared/components/breadcrumbs';
 import { render, screen } from '@testing-library/react';
 import { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+const mockRoleRouteGuard = vi.fn(({ children }: { children: ReactNode }) => (
+  <>{children}</>
+));
+vi.mock('@/components/auth', () => ({
+  RoleRouteGuard: (props: {
+    children: ReactNode;
+    requireAll: string[];
+    redirectTo: string;
+  }) => mockRoleRouteGuard(props),
+}));
 
 vi.mock(
   '@/pages/rec-resource-page/components/RecResourceFeesSection/EditSection/RecResourceFeesEditSection',
@@ -12,23 +22,6 @@ vi.mock(
     ),
   }),
 );
-
-vi.mock('@/contexts/feature-flags', () => ({
-  FeatureFlagRouteGuard: ({
-    children,
-    requiredFlags,
-  }: {
-    children: ReactNode;
-    requiredFlags: string[];
-  }) => (
-    <div
-      data-testid="feature-flag-route-guard"
-      data-flags={requiredFlags.join(',')}
-    >
-      {children}
-    </div>
-  ),
-}));
 
 const mockParentBeforeLoad = vi.fn();
 vi.mock('@/routes/rec-resource/$id', () => ({
@@ -45,20 +38,15 @@ import { Route } from '@/routes/rec-resource/$id/fees/$feeId/edit';
 import { recResourceFeesLoader } from '@/services/loaders/recResourceFeesLoader';
 
 describe('RecResource Fees FeeId Edit Route', () => {
-  const createParentBreadcrumb =
-    (
-      items: BreadcrumbItem[] = [
-        { label: 'Home', href: '/' },
-        { label: 'Resource Details', href: '/rec-resource/REC123' },
-      ],
-    ) =>
-    (loaderData?: any) => {
-      const result = [...items];
-      if (items.length > 1 && loaderData?.recResource?.name) {
-        result[1] = { ...result[1]!, label: loaderData.recResource.name };
-      }
-      return result;
-    };
+  const parentBreadcrumb = (loaderData?: {
+    recResource?: { name?: string };
+  }) => [
+    { label: 'Home', href: '/' },
+    {
+      label: loaderData?.recResource?.name || 'Resource Details',
+      href: '/rec-resource/REC123',
+    },
+  ];
 
   const callBeforeLoad = (
     params = { id: 'REC123', feeId: '1' },
@@ -67,9 +55,13 @@ describe('RecResource Fees FeeId Edit Route', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(Route, 'useParams').mockReturnValue({
+      id: 'REC123',
+      feeId: '1',
+    } as any);
     mockParentBeforeLoad.mockReturnValue({
       tab: RecResourceNavKey.OVERVIEW,
-      breadcrumb: createParentBreadcrumb(),
+      breadcrumb: parentBreadcrumb,
     });
   });
 
@@ -80,13 +72,24 @@ describe('RecResource Fees FeeId Edit Route', () => {
     expect(Route.options.beforeLoad).toBeDefined();
   });
 
-  it('renders component with FeatureFlagRouteGuard', () => {
+  it('renders component within RoleRouteGuard', () => {
     const Component = Route.options.component!;
     render(<Component />);
-    const guard = screen.getByTestId('feature-flag-route-guard');
-    expect(guard).toHaveAttribute('data-flags', 'enable_full_features');
-    expect(guard).toContainElement(
+    expect(
       screen.getByTestId('rec-resource-fees-edit-section'),
+    ).toBeInTheDocument();
+  });
+
+  it('wraps the route in an admin RoleRouteGuard with the fees redirect', () => {
+    const Component = Route.options.component!;
+    render(<Component />);
+
+    expect(mockRoleRouteGuard).toHaveBeenCalledWith(
+      expect.objectContaining({
+        requireAll: ['rst-developer', 'rst-admin'],
+        redirectTo: '/rec-resource/REC123/fees',
+        children: expect.anything(),
+      }),
     );
   });
 
