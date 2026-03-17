@@ -6,10 +6,14 @@
 
 .activities-container {
   margin-top: 1em;
+
+  @media (min-width: 768px) and (max-width: 1021px) {
+    justify-content: center !important;
+  }
+
   @include media-breakpoint-down(md) {
     margin-top: 2em;
   }
-  padding-bottom: 20px;
 }
 
 .activity-container {

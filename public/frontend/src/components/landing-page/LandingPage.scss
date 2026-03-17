@@ -1,7 +1,31 @@
 @import '@/styles/global';
 
 .info-section {
-  @include media-breakpoint-up(md) {
+  @media (min-width: 768px) and (max-width: 917px) {
+    background: repeating-linear-gradient(
+      to bottom,
+      $colorWhite 0,
+      $colorWhite 33.33%,
+      $colorBackgroundGrey 33.33%,
+      $colorBackgroundGrey 84.86%,
+      $colorWhite 84.86%,
+      $colorWhite 100%
+    );
+  }
+
+  @media (min-width: 918px) and (max-width: 1021px) {
+    background: repeating-linear-gradient(
+      to bottom,
+      $colorWhite 0,
+      $colorWhite 33.33%,
+      $colorBackgroundGrey 33.33%,
+      $colorBackgroundGrey 86%,
+      $colorWhite 86%,
+      $colorWhite 100%
+    );
+  }
+
+  @media (min-width: 1022px) {
     background: repeating-linear-gradient(
       to bottom,
       $colorWhite 0,
