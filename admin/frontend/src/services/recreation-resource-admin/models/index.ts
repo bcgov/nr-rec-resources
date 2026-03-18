@@ -1,5 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
+export * from './AdminSearchResponseDto';
+export * from './AdminSearchResultRowDto';
 export * from './BadRequestResponseDto';
 export * from './ConsentFormDownloadResponseDto';
 export * from './CreateRecreationFeeDto';
@@ -36,7 +38,7 @@ export * from './SuggestionDto';
 export * from './SuggestionsResponseDto';
 export * from './UpdateActivitiesDto';
 export * from './UpdateFeaturesDto';
-export * from './UpdateImageConsentDto';
+export * from './UpdateImageConsentPatchDto';
 export * from './UpdateRecreationAccessCodeDto';
 export * from './UpdateRecreationFeeDto';
 export * from './UpdateRecreationResourceDto';

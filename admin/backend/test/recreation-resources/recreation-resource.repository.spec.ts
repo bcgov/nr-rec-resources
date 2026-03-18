@@ -52,6 +52,8 @@ describe('RecreationResourceRepository', () => {
       $queryRawTyped: vi.fn(),
       recreation_resource: {
         findUnique: vi.fn(),
+        count: vi.fn(),
+        findMany: vi.fn(),
       },
       $transaction: vi.fn(),
     } as unknown as MockedPrismaService;
@@ -94,6 +96,31 @@ describe('RecreationResourceRepository', () => {
       prisma.recreation_resource.findUnique.mockResolvedValue(null);
       const result = await repo.findOneById('notfound');
       expect(result).toBeNull();
+    });
+  });
+
+  describe('searchResources', () => {
+    it('should query count and page data with normalized filters', async () => {
+      const mockData = [{ rec_resource_id: 'REC001' }];
+      (
+        prisma.$transaction as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValue([42, mockData]);
+
+      const result = await repo.searchResources({
+        q: 'lake',
+        page: 2,
+        sort: 'name:desc',
+        type: ['SIT'],
+        access: ['R'],
+        defined_campsites: 'yes',
+        closest_community: 'Hope',
+      });
+
+      expect(prisma.$transaction).toHaveBeenCalledTimes(1);
+      expect(result).toEqual({
+        total: 42,
+        data: mockData,
+      });
     });
   });
 

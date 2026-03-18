@@ -14,6 +14,7 @@
 
 import * as runtime from '../runtime';
 import type {
+  AdminSearchResponseDto,
   BadRequestResponseDto,
   ConsentFormDownloadResponseDto,
   CreateRecreationFeeDto,
@@ -36,13 +37,15 @@ import type {
   SuggestionsResponseDto,
   UpdateActivitiesDto,
   UpdateFeaturesDto,
-  UpdateImageConsentDto,
+  UpdateImageConsentPatchDto,
   UpdateRecreationFeeDto,
   UpdateRecreationResourceDto,
   UpdateRecreationResourceGeospatialDto,
   UpdateRecreationResourceReservationDto,
 } from '../models/index';
 import {
+  AdminSearchResponseDtoFromJSON,
+  AdminSearchResponseDtoToJSON,
   BadRequestResponseDtoFromJSON,
   BadRequestResponseDtoToJSON,
   ConsentFormDownloadResponseDtoFromJSON,
@@ -87,8 +90,8 @@ import {
   UpdateActivitiesDtoToJSON,
   UpdateFeaturesDtoFromJSON,
   UpdateFeaturesDtoToJSON,
-  UpdateImageConsentDtoFromJSON,
-  UpdateImageConsentDtoToJSON,
+  UpdateImageConsentPatchDtoFromJSON,
+  UpdateImageConsentPatchDtoToJSON,
   UpdateRecreationFeeDtoFromJSON,
   UpdateRecreationFeeDtoToJSON,
   UpdateRecreationResourceDtoFromJSON,
@@ -229,6 +232,20 @@ export interface PresignImageUploadRequest {
   fileName: string;
 }
 
+export interface SearchRecreationResourcesRequest {
+  q?: string;
+  sort?: SearchRecreationResourcesSortEnum;
+  page?: number;
+  type?: Array<string>;
+  district?: Array<string>;
+  activities?: Array<string>;
+  access?: Array<string>;
+  definedCampsites?: SearchRecreationResourcesDefinedCampsitesEnum;
+  closestCommunity?: string;
+  establishmentDateFrom?: string;
+  establishmentDateTo?: string;
+}
+
 export interface UpdateActivitiesRequest {
   recResourceId: string;
   updateActivitiesDto: UpdateActivitiesDto;
@@ -242,7 +259,7 @@ export interface UpdateFeaturesRequest {
 export interface UpdateImageConsentRequest {
   recResourceId: string;
   imageId: string;
-  updateImageConsentDto: UpdateImageConsentDto;
+  updateImageConsentPatchDto: UpdateImageConsentPatchDto;
 }
 
 export interface UpdateRecreationResourceByIdRequest {
@@ -2103,6 +2120,102 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
   }
 
   /**
+   * Search recreation resources for admin
+   */
+  async searchRecreationResourcesRaw(
+    requestParameters: SearchRecreationResourcesRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<AdminSearchResponseDto>> {
+    const queryParameters: any = {};
+
+    if (requestParameters['q'] != null) {
+      queryParameters['q'] = requestParameters['q'];
+    }
+
+    if (requestParameters['sort'] != null) {
+      queryParameters['sort'] = requestParameters['sort'];
+    }
+
+    if (requestParameters['page'] != null) {
+      queryParameters['page'] = requestParameters['page'];
+    }
+
+    if (requestParameters['type'] != null) {
+      queryParameters['type'] = requestParameters['type'];
+    }
+
+    if (requestParameters['district'] != null) {
+      queryParameters['district'] = requestParameters['district'];
+    }
+
+    if (requestParameters['activities'] != null) {
+      queryParameters['activities'] = requestParameters['activities'];
+    }
+
+    if (requestParameters['access'] != null) {
+      queryParameters['access'] = requestParameters['access'];
+    }
+
+    if (requestParameters['definedCampsites'] != null) {
+      queryParameters['defined_campsites'] =
+        requestParameters['definedCampsites'];
+    }
+
+    if (requestParameters['closestCommunity'] != null) {
+      queryParameters['closest_community'] =
+        requestParameters['closestCommunity'];
+    }
+
+    if (requestParameters['establishmentDateFrom'] != null) {
+      queryParameters['establishment_date_from'] =
+        requestParameters['establishmentDateFrom'];
+    }
+
+    if (requestParameters['establishmentDateTo'] != null) {
+      queryParameters['establishment_date_to'] =
+        requestParameters['establishmentDateTo'];
+    }
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    if (this.configuration && this.configuration.accessToken) {
+      const token = this.configuration.accessToken;
+      const tokenString = await token('keycloak', []);
+
+      if (tokenString) {
+        headerParameters['Authorization'] = `Bearer ${tokenString}`;
+      }
+    }
+    const response = await this.request(
+      {
+        path: `/api/recreation-resources/search`,
+        method: 'GET',
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) =>
+      AdminSearchResponseDtoFromJSON(jsonValue),
+    );
+  }
+
+  /**
+   * Search recreation resources for admin
+   */
+  async searchRecreationResources(
+    requestParameters: SearchRecreationResourcesRequest = {},
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<AdminSearchResponseDto> {
+    const response = await this.searchRecreationResourcesRaw(
+      requestParameters,
+      initOverrides,
+    );
+    return await response.value();
+  }
+
+  /**
    * Update activities for a recreation resource
    */
   async updateActivitiesRaw(
@@ -2261,10 +2374,10 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       );
     }
 
-    if (requestParameters['updateImageConsentDto'] == null) {
+    if (requestParameters['updateImageConsentPatchDto'] == null) {
       throw new runtime.RequiredError(
-        'updateImageConsentDto',
-        'Required parameter "updateImageConsentDto" was null or undefined when calling updateImageConsent().',
+        'updateImageConsentPatchDto',
+        'Required parameter "updateImageConsentPatchDto" was null or undefined when calling updateImageConsent().',
       );
     }
 
@@ -2296,8 +2409,8 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
         method: 'PATCH',
         headers: headerParameters,
         query: queryParameters,
-        body: UpdateImageConsentDtoToJSON(
-          requestParameters['updateImageConsentDto'],
+        body: UpdateImageConsentPatchDtoToJSON(
+          requestParameters['updateImageConsentPatchDto'],
         ),
       },
       initOverrides,
@@ -2636,7 +2749,6 @@ export const DownloadExportCsvDatasetEnum = {
   CampsiteList: 'campsite-list',
   CampsiteListFta: 'campsite-list-fta',
   ObjectiveListFta: 'objective-list-fta',
-  StructureList: 'structure-list',
   StructureListFta: 'structure-list-fta',
   AccessList: 'access-list',
   AccessListFta: 'access-list-fta',
@@ -2659,7 +2771,6 @@ export const GetExportPreviewDatasetEnum = {
   CampsiteList: 'campsite-list',
   CampsiteListFta: 'campsite-list-fta',
   ObjectiveListFta: 'objective-list-fta',
-  StructureList: 'structure-list',
   StructureListFta: 'structure-list-fta',
   AccessList: 'access-list',
   AccessListFta: 'access-list-fta',
@@ -2709,3 +2820,39 @@ export const GetOptionsByTypesTypesEnum = {
 } as const;
 export type GetOptionsByTypesTypesEnum =
   (typeof GetOptionsByTypesTypesEnum)[keyof typeof GetOptionsByTypesTypesEnum];
+/**
+ * @export
+ */
+export const SearchRecreationResourcesSortEnum = {
+  NameAsc: 'name:asc',
+  NameDesc: 'name:desc',
+  RecResourceIdAsc: 'rec_resource_id:asc',
+  RecResourceIdDesc: 'rec_resource_id:desc',
+  TypeAsc: 'type:asc',
+  TypeDesc: 'type:desc',
+  EstablishedDateAsc: 'established_date:asc',
+  EstablishedDateDesc: 'established_date:desc',
+  ActivitiesAsc: 'activities:asc',
+  ActivitiesDesc: 'activities:desc',
+  AccessAsc: 'access:asc',
+  AccessDesc: 'access:desc',
+  FeeAsc: 'fee:asc',
+  FeeDesc: 'fee:desc',
+  CommunityAsc: 'community:asc',
+  CommunityDesc: 'community:desc',
+  CampsitesAsc: 'campsites:asc',
+  CampsitesDesc: 'campsites:desc',
+  DistrictAsc: 'district:asc',
+  DistrictDesc: 'district:desc',
+} as const;
+export type SearchRecreationResourcesSortEnum =
+  (typeof SearchRecreationResourcesSortEnum)[keyof typeof SearchRecreationResourcesSortEnum];
+/**
+ * @export
+ */
+export const SearchRecreationResourcesDefinedCampsitesEnum = {
+  Yes: 'yes',
+  No: 'no',
+} as const;
+export type SearchRecreationResourcesDefinedCampsitesEnum =
+  (typeof SearchRecreationResourcesDefinedCampsitesEnum)[keyof typeof SearchRecreationResourcesDefinedCampsitesEnum];

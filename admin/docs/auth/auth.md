@@ -89,7 +89,7 @@ validates it; invalid or expired tokens get 401.
 
 ## Role Combinations
 
-On the `feat/roles` branch, the admin app uses three roles:
+RecSpace uses three roles:
 
 - `rst-viewer`
 - `rst-admin`

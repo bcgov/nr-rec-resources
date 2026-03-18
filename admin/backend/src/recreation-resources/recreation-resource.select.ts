@@ -43,6 +43,26 @@ export const recreationResourceSelect = {
       },
     },
   },
+  recreation_structure: {
+    select: {
+      recreation_structure_code: {
+        select: {
+          structure_code: true,
+          description: true,
+        },
+      },
+    },
+  },
+  recreation_fee: {
+    select: {
+      recreation_fee_code: true,
+    },
+  },
+  recreation_resource_reservation_info: {
+    select: {
+      rec_resource_id: true,
+    },
+  },
   recreation_activity: {
     select: {
       recreation_activity: true,
