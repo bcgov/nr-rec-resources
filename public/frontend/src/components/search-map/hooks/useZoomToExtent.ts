@@ -50,27 +50,21 @@ export const useZoomToExtent = (
       const view = map.getView();
 
       map.once('moveend', () => {
-        // Nudge the zoom level slightly to fix white tile rendering issue
-        const zoom = view.getZoom();
-        if (zoom != null) {
-          view.setZoom(zoom + 0.01);
-        }
-      });
-
-      map.once('postrender', () => {
         // Check if there is a stored location when the user clicks on the description
         // Set the zoom level and center last time the location was clicked
         // Clear the session items
         const lastZoom = sessionStorage.getItem('locationZoomState');
         const lastCenter = sessionStorage.getItem('locationCenterState');
+        console.log('moveend', lastCenter, lastZoom);
         if (lastZoom != null && lastCenter != null) {
           try {
             const zoom = Number(lastZoom);
             const center = JSON.parse(lastCenter);
-            console.log('postrender', zoom, center);
+
             if (!isNaN(zoom) && Array.isArray(center) && center.length === 2) {
-              view.setZoom(zoom);
               view.setCenter(center);
+              view.setZoom(zoom);
+              return; // skip nudge if restoring
             }
           } catch (e) {
             console.warn('Failed to restore location', e);
@@ -78,6 +72,12 @@ export const useZoomToExtent = (
 
           sessionStorage.removeItem('locationZoomState');
           sessionStorage.removeItem('locationCenterState');
+        }
+
+        // Nudge the zoom level slightly to fix white tile rendering issue
+        const zoom = view.getZoom();
+        if (zoom != null) {
+          view.setZoom(zoom + 0.01);
         }
       });
 
