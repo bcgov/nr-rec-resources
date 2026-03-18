@@ -1,8 +1,8 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook } from '@testing-library/react';
 import { ReactNode } from 'react';
-import { DEFAULT_ADMIN_SEARCH_STATE } from '@/pages/admin-search-page/constants';
-import { useAdminSearchController } from '@/pages/admin-search-page/hooks/useAdminSearchController';
+import { DEFAULT_ADMIN_SEARCH_STATE } from '@/pages/search/constants';
+import { useAdminSearchController } from '@/pages/search/hooks/useAdminSearchController';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockNavigate = vi.fn();

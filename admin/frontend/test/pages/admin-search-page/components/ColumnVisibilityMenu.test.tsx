@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import { ColumnVisibilityMenu } from '@/pages/admin-search-page/components/ColumnVisibilityMenu';
+import { ColumnVisibilityMenu } from '@/pages/search/components/ColumnVisibilityMenu';
 
 describe('ColumnVisibilityMenu', () => {
   it('stays open while toggling columns and closes on outside click', async () => {
@@ -11,7 +11,7 @@ describe('ColumnVisibilityMenu', () => {
     render(
       <div>
         <ColumnVisibilityMenu
-          visibleColumns={['rec_resource_id', 'project_name']}
+          visibleColumns={['rec_resource_id', 'name']}
           onToggle={onToggle}
         />
         <button type="button">Outside</button>
@@ -22,14 +22,14 @@ describe('ColumnVisibilityMenu', () => {
     await user.click(toggle);
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
 
-    const projectNameToggle = screen.getByRole('button', {
-      name: /project name/i,
+    const nameToggle = screen.getByRole('button', {
+      name: /name/i,
     });
-    await user.click(projectNameToggle);
+    await user.click(nameToggle);
 
-    expect(onToggle).toHaveBeenCalledWith('project_name');
+    expect(onToggle).toHaveBeenCalledWith('name');
     expect(toggle).toHaveAttribute('aria-expanded', 'true');
-    expect(projectNameToggle).toBeVisible();
+    expect(nameToggle).toBeVisible();
 
     await user.click(screen.getByRole('button', { name: 'Outside' }));
 
@@ -38,12 +38,12 @@ describe('ColumnVisibilityMenu', () => {
     });
   });
 
-  it('does not render a site type option', async () => {
+  it('does not render a last updated option', async () => {
     const user = userEvent.setup();
 
     render(
       <ColumnVisibilityMenu
-        visibleColumns={['rec_resource_id', 'project_name']}
+        visibleColumns={['rec_resource_id', 'name']}
         onToggle={vi.fn()}
       />,
     );
@@ -51,7 +51,7 @@ describe('ColumnVisibilityMenu', () => {
     await user.click(screen.getByRole('button', { name: 'Columns' }));
 
     expect(
-      screen.queryByRole('button', { name: /site type/i }),
+      screen.queryByRole('button', { name: /last updated/i }),
     ).not.toBeInTheDocument();
   });
 
@@ -60,7 +60,7 @@ describe('ColumnVisibilityMenu', () => {
 
     render(
       <ColumnVisibilityMenu
-        visibleColumns={['rec_resource_id', 'project_name']}
+        visibleColumns={['rec_resource_id', 'name']}
         onToggle={vi.fn()}
       />,
     );

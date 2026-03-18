@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { DEFAULT_ADMIN_SEARCH_STATE } from '@/pages/admin-search-page/constants';
+import { DEFAULT_ADMIN_SEARCH_STATE } from '@/pages/search/constants';
 import {
   coerceVisibleAdminSearchColumns,
   resolveAdminSearchRouteState,
   validateAdminSearch,
-} from '@/pages/admin-search-page/utils/searchSchema';
+} from '@/pages/search/utils/searchSchema';
 
 describe('validateAdminSearch', () => {
   it('drops invalid params instead of materializing default params into the URL state', () => {
@@ -76,8 +76,8 @@ describe('validateAdminSearch', () => {
   it('keeps only supported visible-column ids from stored preferences', () => {
     expect(
       coerceVisibleAdminSearchColumns(
-        'rec_resource_id,project_name,site_type,last_updated,map,details',
+        'rec_resource_id,name,recreation_resource_type,last_updated,map,details',
       ),
-    ).toEqual(['rec_resource_id', 'project_name']);
+    ).toEqual(['rec_resource_id', 'name', 'recreation_resource_type']);
   });
 });

@@ -1,290 +1,234 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { ReactNode } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AdminSearchPage } from '@/pages/admin-search-page';
-import { DEFAULT_ADMIN_SEARCH_STATE } from '@/pages/admin-search-page/constants';
-import { AdminSearchRouteState } from '@/pages/admin-search-page/types';
-import { serializeAdminSearchRouteState } from '@/pages/admin-search-page/utils/urlState';
+import { SearchPage } from '@/pages/search';
+import { DEFAULT_ADMIN_SEARCH_STATE } from '@/pages/search/constants';
+import { serializeAdminSearchRouteState } from '@/pages/search/utils/urlState';
 
-const mockNavigate = vi.fn();
+const mockRouteSearch = vi.fn();
+const mockController = vi.fn();
+const mockTypeahead = vi.fn();
+const mockColumns = vi.fn();
 
-vi.mock('@tanstack/react-router', async () => {
-  const actual = await vi.importActual<object>('@tanstack/react-router');
+vi.mock('@/routes', () => ({
+  Route: {
+    useSearch: () => mockRouteSearch(),
+  },
+}));
 
-  return {
-    ...actual,
-    useNavigate: () => mockNavigate,
-  };
-});
+vi.mock('@tanstack/react-router', () => ({
+  Link: ({
+    children,
+    ...props
+  }: {
+    children: ReactNode;
+    [key: string]: unknown;
+  }) => <a {...props}>{children}</a>,
+}));
 
-vi.mock('@/pages/admin-search-page/components/SearchSubmitBar', () => ({
-  SearchSubmitBar: ({ onSubmit }: { onSubmit: () => void }) => (
-    <button type="button" onClick={onSubmit}>
-      Search results
+vi.mock('@/components/page-layout', () => ({
+  PageLayout: ({ children }: { children: ReactNode }) => (
+    <div data-testid="page-layout">{children}</div>
+  ),
+}));
+
+vi.mock('@/pages/search/hooks/useAdminSearchController', () => ({
+  useAdminSearchController: (...args: unknown[]) => mockController(...args),
+}));
+
+vi.mock('@/pages/search/hooks/useAdminSearchTypeahead', () => ({
+  useAdminSearchTypeahead: (...args: unknown[]) => mockTypeahead(...args),
+}));
+
+vi.mock('@/pages/search/hooks/useAdminSearchColumns', () => ({
+  useAdminSearchColumns: () => mockColumns(),
+}));
+
+vi.mock('@/pages/search/components/SearchSubmitBar', () => ({
+  SearchSubmitBar: ({
+    committedQuery,
+    onSubmit,
+  }: {
+    committedQuery: string;
+    onSubmit: (value: string) => void;
+  }) => (
+    <button type="button" onClick={() => onSubmit('ridge')}>
+      Search results for {committedQuery}
     </button>
   ),
 }));
 
-vi.mock('@/pages/admin-search-page/hooks/useAdminSearchTypeahead', () => ({
-  useAdminSearchTypeahead: () => ({
-    inputValue: 'lake',
-    setInputValue: vi.fn(),
-    setSearchTerm: vi.fn(),
-    suggestions: [],
-    isLoading: false,
-    error: null,
-    isValidSearchTerm: true,
-  }),
+vi.mock('@/pages/search/components/FilterAccordion', () => ({
+  FilterAccordion: ({ showTrigger }: { showTrigger: boolean }) => (
+    <div data-testid="filter-accordion">{String(showTrigger)}</div>
+  ),
 }));
 
-vi.mock(
-  '@/services/hooks/recreation-resource-admin/useGetRecreationResourceSearch',
-  () => ({
-    default: () => ({
-      data: {
-        data: [
-          {
-            rec_resource_id: 'REC001',
-            name: 'Blue Lake',
-            recreation_resource_type: 'Recreation site',
-            established_date: '2024-06-10',
-            access_types: ['Walk in'],
-            fee_types: ['Has fees'],
-            campsite_count: 2,
-            closest_community: 'Hope',
-          },
-        ],
-        total: 42,
-        page: 3,
-        page_size: 10,
-      },
-      isLoading: false,
-      isFetching: false,
-      error: null,
-    }),
-  }),
-);
+vi.mock('@/pages/search/components/AppliedFilterChips', () => ({
+  AppliedFilterChips: ({ chips }: { chips: Array<{ label: string }> }) => (
+    <div data-testid="applied-filter-chips">
+      {chips.map((chip) => chip.label).join(',')}
+    </div>
+  ),
+}));
 
-vi.mock('@/services', async () => {
-  const actual = await vi.importActual<object>('@/services');
+vi.mock('@/pages/search/components/ColumnVisibilityMenu', () => ({
+  ColumnVisibilityMenu: ({
+    onToggle,
+  }: {
+    onToggle: (columnId: string) => void;
+  }) => (
+    <button type="button" onClick={() => onToggle('name')}>
+      Toggle columns
+    </button>
+  ),
+}));
 
-  return {
-    ...actual,
-    useGetRecreationResourceOptions: () => ({
-      data: [
-        {
-          type: 'activities',
-          options: [
-            { id: '1', label: 'Hiking' },
-            { id: '2', label: 'Fishing' },
-          ],
-        },
-        {
-          type: 'resourceType',
-          options: [
-            { id: 'SIT', label: 'Recreation site' },
-            { id: 'RTR', label: 'Trail' },
-          ],
-        },
-        {
-          type: 'access',
-          options: [{ id: 'W', label: 'Walk in' }],
-        },
-        {
-          type: 'district',
-          options: [
-            { id: 'DCK', label: 'Chilliwack', is_archived: false },
-            { id: 'RDKB', label: 'Kootenay Boundary', is_archived: false },
-          ],
-        },
-      ],
-      isLoading: false,
-    }),
-  };
-});
+vi.mock('@/pages/search/components/SearchResultsTable', () => ({
+  SearchResultsTable: ({
+    rows,
+    visibleColumns,
+    onSortChange,
+  }: {
+    rows: Array<{ recResourceId: string }>;
+    visibleColumns: string[];
+    onSortChange: (sort: string) => void;
+  }) => (
+    <div>
+      <div data-testid="results-count">{rows.length}</div>
+      <div data-testid="visible-columns">{visibleColumns.join(',')}</div>
+      <button type="button" onClick={() => onSortChange('name:desc')}>
+        Sort results
+      </button>
+    </div>
+  ),
+}));
 
-const baseSearch: AdminSearchRouteState = {
+vi.mock('@/pages/search/components/SearchResultsPagination', () => ({
+  SearchResultsPagination: ({
+    pagination,
+  }: {
+    pagination: { setPageIndex: (pageIndex: number) => void };
+  }) => (
+    <button type="button" onClick={() => pagination.setPageIndex(2)}>
+      Go to page 3
+    </button>
+  ),
+}));
+
+vi.mock('@/pages/search/components/SearchResultsSummary', () => ({
+  SearchResultsSummary: ({
+    total,
+    query,
+  }: {
+    total: number;
+    query: string;
+  }) => (
+    <div>
+      {total} results for {query}
+    </div>
+  ),
+}));
+
+const baseSearch = {
   ...DEFAULT_ADMIN_SEARCH_STATE,
   q: 'camp',
   page: 3,
 };
 
-describe('AdminSearchPage', () => {
+function buildController() {
+  return {
+    submitQuery: vi.fn(),
+    toggleFilterPanel: vi.fn(),
+    isFilterPanelOpen: false,
+    hasAppliedState: true,
+    appliedFilterChips: [
+      { key: 'query:camp', label: 'Query: camp', onClear: vi.fn() },
+    ],
+    results: [{ recResourceId: 'REC001' }],
+    resultsError: null,
+    isResultsFetching: false,
+    total: 42,
+    pagination: {
+      state: { pageIndex: 2, pageSize: 25 },
+      pageCount: 5,
+      rowCount: 42,
+      canPreviousPage: true,
+      canNextPage: true,
+      setPageIndex: vi.fn(),
+      previousPage: vi.fn(),
+      nextPage: vi.fn(),
+    },
+    setSort: vi.fn(),
+  };
+}
+
+describe('SearchPage', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    window.sessionStorage.clear();
-  });
 
-  it('updates route search state when sorting changes', async () => {
-    const user = userEvent.setup();
-
-    render(<AdminSearchPage search={baseSearch} />);
-
-    await user.click(screen.getByRole('button', { name: /sort by rec #/i }));
-    expect(mockNavigate).toHaveBeenNthCalledWith(1, {
-      to: '/',
-      search: serializeAdminSearchRouteState({
-        ...baseSearch,
-        sort: 'rec_resource_id:asc',
-      }),
-      resetScroll: false,
+    mockRouteSearch.mockReturnValue(serializeAdminSearchRouteState(baseSearch));
+    mockController.mockReturnValue(buildController());
+    mockTypeahead.mockReturnValue({
+      inputValue: 'camp',
+      setInputValue: vi.fn(),
+      suggestions: [],
+      isLoading: false,
+      error: null,
+    });
+    mockColumns.mockReturnValue({
+      visibleColumns: ['rec_resource_id', 'name'],
+      toggleColumn: vi.fn(),
     });
   });
 
-  it('supports server-driven pagination and jump-to-page changes', async () => {
-    const user = userEvent.setup();
+  it('renders the route query into the page shell', () => {
+    render(<SearchPage />);
 
-    render(<AdminSearchPage search={baseSearch} />);
-
-    await user.click(screen.getByRole('button', { name: '2' }));
-    expect(mockNavigate).toHaveBeenNthCalledWith(1, {
-      to: '/',
-      search: serializeAdminSearchRouteState({
-        ...baseSearch,
-        page: 2,
-      }),
-      resetScroll: false,
-    });
-
-    await user.selectOptions(
-      screen.getByRole('combobox', { name: 'Jump to page' }),
-      '4',
-    );
-    expect(mockNavigate).toHaveBeenNthCalledWith(2, {
-      to: '/',
-      search: serializeAdminSearchRouteState({
-        ...baseSearch,
-        page: 4,
-      }),
-      resetScroll: false,
-    });
+    expect(screen.getByRole('heading', { name: 'Search' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Search results for camp' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('42 results for camp')).toBeInTheDocument();
+    expect(screen.getByTestId('results-count')).toHaveTextContent('1');
   });
 
-  it('applies filter interactions through route search updates', async () => {
+  it('wires search submit, sorting, pagination, and column toggles to the current controller state', async () => {
     const user = userEvent.setup();
+    const controller = buildController();
+    const toggleColumn = vi.fn();
 
-    render(<AdminSearchPage search={baseSearch} />);
-
-    await user.click(screen.getByRole('button', { name: 'Filters' }));
-    expect(screen.getByRole('button', { name: 'Apply' })).toBeDisabled();
-
-    await user.click(screen.getByRole('button', { name: 'Resource type' }));
-    await user.click(screen.getByRole('button', { name: /Recreation site/i }));
-    expect(screen.getByRole('button', { name: 'Apply' })).toBeEnabled();
-
-    await user.click(screen.getByRole('button', { name: 'Apply' }));
-    expect(mockNavigate).toHaveBeenNthCalledWith(1, {
-      to: '/',
-      search: serializeAdminSearchRouteState({
-        ...baseSearch,
-        type: ['SIT'],
-        page: 1,
-      }),
-      resetScroll: false,
+    mockController.mockReturnValue(controller);
+    mockColumns.mockReturnValue({
+      visibleColumns: ['rec_resource_id', 'name'],
+      toggleColumn,
     });
 
-    await user.click(screen.getByRole('button', { name: 'Reset filters' }));
-    expect(mockNavigate).toHaveBeenLastCalledWith({
-      to: '/',
-      search: serializeAdminSearchRouteState({
-        ...baseSearch,
-        type: [],
-        district: [],
-        activities: [],
-        access: [],
-        establishment_date_from: undefined,
-        establishment_date_to: undefined,
-        page: 1,
-      }),
-      resetScroll: false,
-    });
-  });
+    render(<SearchPage />);
 
-  it('accumulates district and activity selections before applying filters', async () => {
-    const user = userEvent.setup();
-
-    render(<AdminSearchPage search={baseSearch} />);
-
-    await user.click(screen.getByRole('button', { name: 'Filters' }));
-    await user.click(screen.getByRole('button', { name: 'District' }));
-    await user.click(screen.getByRole('button', { name: /Chilliwack/i }));
     await user.click(
-      screen.getByRole('button', { name: /Kootenay Boundary/i }),
+      screen.getByRole('button', { name: 'Search results for camp' }),
     );
-    await user.click(screen.getByRole('button', { name: 'Activities' }));
-    await user.click(screen.getByRole('button', { name: /Hiking/i }));
-    await user.click(screen.getByRole('button', { name: /Fishing/i }));
+    await user.click(screen.getByRole('button', { name: 'Sort results' }));
+    await user.click(screen.getByRole('button', { name: 'Go to page 3' }));
+    await user.click(screen.getByRole('button', { name: 'Toggle columns' }));
 
-    expect(
-      screen.getByRole('button', { name: 'District (2)' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'Activities (2)' }),
-    ).toBeInTheDocument();
-
-    await user.click(screen.getByRole('button', { name: 'Apply' }));
-
-    expect(mockNavigate).toHaveBeenNthCalledWith(1, {
-      to: '/',
-      search: serializeAdminSearchRouteState({
-        ...baseSearch,
-        district: ['DCK', 'RDKB'],
-        activities: ['1', '2'],
-        page: 1,
-      }),
-      resetScroll: false,
-    });
+    expect(controller.submitQuery).toHaveBeenCalledWith('ridge');
+    expect(controller.setSort).toHaveBeenCalledWith('name:desc');
+    expect(controller.pagination.setPageIndex).toHaveBeenCalledWith(2);
+    expect(toggleColumn).toHaveBeenCalledWith('name');
   });
 
-  it('keeps apply disabled when a filter change is reverted', async () => {
-    const user = userEvent.setup();
+  it('shows applied chips only when the controller reports applied state', () => {
+    const controller = buildController();
+    controller.hasAppliedState = false;
+    mockController.mockReturnValue(controller);
 
-    render(<AdminSearchPage search={baseSearch} />);
-
-    await user.click(screen.getByRole('button', { name: 'Filters' }));
-
-    const applyButton = screen.getByRole('button', { name: 'Apply' });
-
-    await user.click(screen.getByRole('button', { name: 'Resource type' }));
-    await user.click(screen.getByRole('button', { name: /Recreation site/i }));
-    expect(applyButton).toBeEnabled();
-
-    await user.click(screen.getByRole('button', { name: /Recreation site/i }));
-    expect(applyButton).toBeDisabled();
-  });
-
-  it('keeps the filter form visible when filters are already active', () => {
-    render(
-      <AdminSearchPage
-        search={{
-          ...baseSearch,
-          type: ['RR'],
-        }}
-      />,
-    );
+    render(<SearchPage />);
 
     expect(
-      screen.getByRole('button', { name: 'Resource type (1)' }),
-    ).toBeInTheDocument();
-  });
-
-  it('does not render the filter form when the panel is closed', () => {
-    render(<AdminSearchPage search={baseSearch} />);
-
-    expect(screen.queryByLabelText('Resource type')).not.toBeInTheDocument();
-  });
-
-  it('does not render tab controls on the search page', () => {
-    render(<AdminSearchPage search={baseSearch} />);
-
-    expect(
-      screen.queryByRole('button', { name: 'All' }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Sites' }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Trails' }),
+      screen.queryByTestId('applied-filter-chips'),
     ).not.toBeInTheDocument();
   });
 });

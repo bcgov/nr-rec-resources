@@ -1,7 +1,7 @@
 import * as ApiClientModule from '@/services/hooks/recreation-resource-admin/useRecreationResourceAdminApiClient';
 import * as HelpersModule from '@/services/hooks/recreation-resource-admin/helpers';
 import useGetRecreationResourceSearch from '@/services/hooks/recreation-resource-admin/useGetRecreationResourceSearch';
-import { DEFAULT_ADMIN_SEARCH_STATE } from '@/pages/admin-search-page/constants';
+import { DEFAULT_ADMIN_SEARCH_STATE } from '@/pages/search/constants';
 import { TestQueryClientProvider } from '@test/test-utils';
 import { renderHook, waitFor } from '@testing-library/react';
 import { Mock, describe, beforeEach, expect, it, vi } from 'vitest';

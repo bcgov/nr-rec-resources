@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mapAdminSearchResultRow } from '@/pages/admin-search-page/searchResultsMapper';
+import { mapAdminSearchResultRow } from '@/pages/search/searchResultsMapper';
 import { AdminSearchResultRowDto } from '@/services/recreation-resource-admin';
 
 const baseRow: AdminSearchResultRowDto = {

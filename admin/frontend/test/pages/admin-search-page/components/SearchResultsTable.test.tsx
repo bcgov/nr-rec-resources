@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi, beforeEach } from 'vitest';
-import { SearchResultsTable } from '@/pages/admin-search-page/components/SearchResultsTable';
-import { AdminSearchResultRow } from '@/pages/admin-search-page/types';
+import { SearchResultsTable } from '@/pages/search/components/SearchResultsTable';
+import { AdminSearchResultRow } from '@/pages/search/types';
 
 const mockNavigate = vi.fn();
 
@@ -10,12 +10,26 @@ vi.mock('@tanstack/react-router', () => ({
   useNavigate: () => mockNavigate,
 }));
 
+function createPagination() {
+  return {
+    state: { pageIndex: 0, pageSize: 25 },
+    pageCount: 1,
+    rowCount: 1,
+    canPreviousPage: false,
+    canNextPage: false,
+    setPageIndex: vi.fn(),
+    previousPage: vi.fn(),
+    nextPage: vi.fn(),
+  };
+}
+
 describe('SearchResultsTable', () => {
   const rows: AdminSearchResultRow[] = [
     {
       recResourceId: 'REC001',
       projectName: 'Blue Lake',
       recreationResourceType: 'Recreation site',
+      district: 'Chilliwack',
       establishmentDate: '2024-06-10',
       accessType: 'Walk in',
       feeType: 'Reservable, Has fees',
@@ -34,11 +48,12 @@ describe('SearchResultsTable', () => {
         rows={rows}
         visibleColumns={[
           'rec_resource_id',
-          'project_name',
+          'name',
           'defined_campsites',
           'closest_community',
         ]}
         sort="name:asc"
+        pagination={createPagination()}
         isLoading={false}
         onSortChange={vi.fn()}
       />,
@@ -48,7 +63,7 @@ describe('SearchResultsTable', () => {
       screen.getByRole('button', { name: /sort by rec #/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: /sort by project name/i }),
+      screen.getByRole('button', { name: /sort by name/i }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole('button', { name: /sort by defined campsites/i }),
@@ -57,7 +72,7 @@ describe('SearchResultsTable', () => {
       screen.getByRole('button', { name: /sort by closest community/i }),
     ).toBeInTheDocument();
     expect(
-      screen.queryByRole('columnheader', { name: 'Resource type' }),
+      screen.queryByRole('columnheader', { name: 'Type' }),
     ).not.toBeInTheDocument();
     expect(screen.getByText('Blue Lake')).toBeInTheDocument();
     expect(screen.getByText('3')).toBeInTheDocument();
@@ -71,16 +86,15 @@ describe('SearchResultsTable', () => {
     render(
       <SearchResultsTable
         rows={rows}
-        visibleColumns={['rec_resource_id', 'project_name']}
+        visibleColumns={['rec_resource_id', 'name']}
         sort="name:asc"
+        pagination={createPagination()}
         isLoading={false}
         onSortChange={onSortChange}
       />,
     );
 
-    await user.click(
-      screen.getByRole('button', { name: /sort by project name/i }),
-    );
+    await user.click(screen.getByRole('button', { name: /sort by name/i }));
 
     expect(onSortChange).toHaveBeenCalledWith('name:desc');
   });
@@ -94,6 +108,7 @@ describe('SearchResultsTable', () => {
         rows={rows}
         visibleColumns={['rec_resource_id', 'defined_campsites']}
         sort="name:asc"
+        pagination={createPagination()}
         isLoading={false}
         onSortChange={onSortChange}
       />,
@@ -115,6 +130,7 @@ describe('SearchResultsTable', () => {
         rows={rows}
         visibleColumns={['rec_resource_id', 'recreation_resource_type']}
         sort="name:asc"
+        pagination={createPagination()}
         isLoading={false}
         onSortChange={onSortChange}
       />,
@@ -137,6 +153,7 @@ describe('SearchResultsTable', () => {
         ]}
         visibleColumns={['rec_resource_id', 'defined_campsites']}
         sort="name:asc"
+        pagination={createPagination()}
         isLoading={false}
         onSortChange={vi.fn()}
       />,
@@ -153,11 +170,12 @@ describe('SearchResultsTable', () => {
         rows={[]}
         visibleColumns={[
           'rec_resource_id',
-          'project_name',
+          'name',
           'defined_campsites',
           'closest_community',
         ]}
         sort="name:asc"
+        pagination={createPagination()}
         isLoading={true}
         onSortChange={vi.fn()}
       />,
@@ -173,11 +191,12 @@ describe('SearchResultsTable', () => {
         rows={[]}
         visibleColumns={[
           'rec_resource_id',
-          'project_name',
+          'name',
           'defined_campsites',
           'closest_community',
         ]}
         sort="name:asc"
+        pagination={createPagination()}
         isLoading={false}
         onSortChange={vi.fn()}
       />,
@@ -188,14 +207,15 @@ describe('SearchResultsTable', () => {
     ).toBeInTheDocument();
   });
 
-  it('navigates to the resource page from the rec id cell', async () => {
+  it('navigates to the resource page from the row click target', async () => {
     const user = userEvent.setup();
 
     render(
       <SearchResultsTable
         rows={rows}
-        visibleColumns={['rec_resource_id', 'project_name']}
+        visibleColumns={['rec_resource_id', 'name']}
         sort="name:asc"
+        pagination={createPagination()}
         isLoading={false}
         onSortChange={vi.fn()}
       />,
@@ -217,8 +237,9 @@ describe('SearchResultsTable', () => {
     render(
       <SearchResultsTable
         rows={rows}
-        visibleColumns={['rec_resource_id', 'project_name']}
+        visibleColumns={['rec_resource_id', 'name']}
         sort="name:asc"
+        pagination={createPagination()}
         isLoading={false}
         onSortChange={vi.fn()}
       />,

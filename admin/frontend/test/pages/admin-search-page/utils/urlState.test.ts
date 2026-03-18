@@ -6,9 +6,9 @@ import {
   setAdminSearchEstablishmentDateToFilter,
   setAdminSearchTypeFilter,
   submitAdminSearchQuery,
-} from '@/pages/admin-search-page/utils/urlState';
-import { DEFAULT_ADMIN_SEARCH_STATE } from '@/pages/admin-search-page/constants';
-import { validateAdminSearch } from '@/pages/admin-search-page/utils/searchSchema';
+} from '@/pages/search/utils/urlState';
+import { DEFAULT_ADMIN_SEARCH_STATE } from '@/pages/search/constants';
+import { validateAdminSearch } from '@/pages/search/utils/searchSchema';
 import { describe, expect, it } from 'vitest';
 
 const baseState = {

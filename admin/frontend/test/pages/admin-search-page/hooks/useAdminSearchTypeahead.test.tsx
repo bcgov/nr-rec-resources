@@ -1,6 +1,6 @@
 import { renderHook, act } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { useAdminSearchTypeahead } from '@/pages/admin-search-page/hooks/useAdminSearchTypeahead';
+import { useAdminSearchTypeahead } from '@/pages/search/hooks/useAdminSearchTypeahead';
 
 const mockUseGetRecreationResourceSuggestions = vi.fn();
 const mockIsValidRecreationResourceSearchTerm = vi.fn();
