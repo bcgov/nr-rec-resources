@@ -15,17 +15,18 @@ export const useZoomToExtent = (
   const isMapInitialized = useRef(false);
 
   useEffect(() => {
+    console.log('useZoomToExtent start');
     if (!extent || !mapRef.current) return;
-
+    console.log('useZoomToExtent extent');
     const map = mapRef.current.getMap();
     if (!map) return;
-
+    console.log('useZoomToExtent map');
     // Skip on initial load - only run when extent changes after map is initialized
     if (!isMapInitialized.current) {
       isMapInitialized.current = true;
       return;
     }
-
+    console.log('useZoomToExtent isMapInitialized');
     // If the search input was cleared, do not zoom to extent
     if (wasCleared) {
       searchInputStore.setState((prev) => ({
@@ -34,6 +35,7 @@ export const useZoomToExtent = (
       }));
       return;
     }
+    console.log('useZoomToExtent wasCleared');
 
     try {
       const geojson = JSON.parse(extent);
