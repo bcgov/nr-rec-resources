@@ -13,16 +13,17 @@ describe('useVisibleNavSections', () => {
     vi.clearAllMocks();
   });
 
-  it('returns only files when flagged content is not viewable', () => {
+  it('returns only non-feature-flagged sections when flagged content is not viewable', () => {
     mockUseAuthorizations.mockReturnValue({
       canViewFeatureFlag: false,
     });
 
     const { result } = renderHook(() => useVisibleNavSections());
 
-    expect(result.current).toHaveLength(1);
+    expect(result.current).toHaveLength(2);
     expect(result.current.map(([key]) => key)).toEqual([
       RecResourceNavKey.FILES,
+      RecResourceNavKey.RESERVATION,
     ]);
   });
 

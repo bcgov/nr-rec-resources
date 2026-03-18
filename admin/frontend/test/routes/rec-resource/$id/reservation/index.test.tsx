@@ -16,7 +16,7 @@ const mockRoleRouteGuard = vi.fn(
 vi.mock('@/components/auth', () => ({
   RoleRouteGuard: (props: {
     children: React.ReactNode;
-    requireAll: string[];
+    requireAll?: string[];
     requireAny: string[];
     redirectTo: string;
   }) => mockRoleRouteGuard(props),
@@ -33,7 +33,6 @@ describe('RecResource Reservation Index Route', () => {
     ).toBeInTheDocument();
     expect(mockRoleRouteGuard).toHaveBeenCalledWith(
       expect.objectContaining({
-        requireAll: ['rst-developer'],
         requireAny: ['rst-viewer', 'rst-admin'],
         redirectTo: '/rec-resource/REC123/files',
         children: expect.anything(),
