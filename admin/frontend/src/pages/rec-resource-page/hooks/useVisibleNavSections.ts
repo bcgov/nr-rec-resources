@@ -16,7 +16,7 @@ export function useVisibleNavSections(): Array<
 
   return useMemo(() => {
     return Object.entries(REC_RESOURCE_PAGE_NAV_SECTIONS).filter(
-      ([key]) => key === RecResourceNavKey.FILES || canViewFeatureFlag,
+      ([, config]) => !config.isFeatureFlagged || canViewFeatureFlag,
     ) as Array<[RecResourceNavKey, NavSectionConfig]>;
   }, [canViewFeatureFlag]);
 }

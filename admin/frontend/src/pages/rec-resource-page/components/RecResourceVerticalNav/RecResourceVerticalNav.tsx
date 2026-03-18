@@ -1,6 +1,4 @@
 import { CustomButton } from '@/components';
-import { RoleGuard } from '@/components/auth';
-import { ROLES } from '@/hooks/useAuthorizations';
 import {
   REC_RESOURCE_PAGE_NAV_SECTIONS,
   RecResourceNavKey,
@@ -50,21 +48,9 @@ export const RecResourceVerticalNav = ({
 
           <Dropdown.Menu>
             {visibleNavSections.map(([key, { title }]) => (
-              <RoleGuard
-                key={key}
-                requireAll={
-                  key === RecResourceNavKey.FILES ? [] : [ROLES.DEVELOPER]
-                }
-                requireAny={
-                  key === RecResourceNavKey.FILES
-                    ? []
-                    : [ROLES.VIEWER, ROLES.ADMIN]
-                }
-              >
-                <Dropdown.Item eventKey={key} key={key}>
-                  {title}
-                </Dropdown.Item>
-              </RoleGuard>
+              <Dropdown.Item eventKey={key} key={key}>
+                {title}
+              </Dropdown.Item>
             ))}
           </Dropdown.Menu>
         </Dropdown>
@@ -78,19 +64,9 @@ export const RecResourceVerticalNav = ({
         onSelect={handleNavSelect}
       >
         {visibleNavSections.map(([key, { title }]) => (
-          <RoleGuard
-            key={key}
-            requireAll={
-              key === RecResourceNavKey.FILES ? [] : [ROLES.DEVELOPER]
-            }
-            requireAny={
-              key === RecResourceNavKey.FILES ? [] : [ROLES.VIEWER, ROLES.ADMIN]
-            }
-          >
-            <Nav.Item key={key}>
-              <Nav.Link eventKey={key}>{title}</Nav.Link>
-            </Nav.Item>
-          </RoleGuard>
+          <Nav.Item key={key}>
+            <Nav.Link eventKey={key}>{title}</Nav.Link>
+          </Nav.Item>
         ))}
       </Nav>
     </>

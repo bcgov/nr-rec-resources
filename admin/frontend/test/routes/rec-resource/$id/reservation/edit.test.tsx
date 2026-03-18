@@ -47,7 +47,7 @@ describe('RecResource Reservation Edit Route', () => {
 
     expect(mockRoleRouteGuard).toHaveBeenCalledWith(
       expect.objectContaining({
-        requireAll: ['rst-developer', 'rst-admin'],
+        requireAll: ['rst-admin'],
         redirectTo: '/rec-resource/REC123/reservation',
         children: expect.anything(),
       }),
