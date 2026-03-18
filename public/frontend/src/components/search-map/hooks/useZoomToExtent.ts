@@ -98,6 +98,8 @@ export const useZoomToExtent = (
         }
       }, 0);
 
+      console.log('monitor restored', restored);
+
       const mapSize = map.getSize(); // [width, height]
       if (mapSize) {
         const [width] = mapSize;
