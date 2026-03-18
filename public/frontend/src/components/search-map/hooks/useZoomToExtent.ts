@@ -55,21 +55,27 @@ export const useZoomToExtent = (
         if (zoom != null) {
           view.setZoom(zoom + 0.01);
         }
+      });
 
+      map.once('postrender', () => {
         // Check if there is a stored location when the user clicks on the description
         // Set the zoom level and center last time the location was clicked
         // Clear the session items
         const lastZoom = sessionStorage.getItem('locationZoomState');
         const lastCenter = sessionStorage.getItem('locationCenterState');
-        if (lastZoom && lastCenter) {
-          view.setZoom(parseFloat(lastZoom) + 0.01);
-          const coordinates = lastCenter.split(',');
-          if (coordinates.length === 2) {
-            view.setCenter([
-              parseFloat(coordinates[0]),
-              parseFloat(coordinates[1]),
-            ]);
+        if (lastZoom != null && lastCenter != null) {
+          try {
+            const zoom = Number(lastZoom);
+            const center = JSON.parse(lastCenter);
+            console.log('postrender', zoom, center);
+            if (!isNaN(zoom) && Array.isArray(center) && center.length === 2) {
+              view.setZoom(zoom);
+              view.setCenter(center);
+            }
+          } catch (e) {
+            console.warn('Failed to restore location', e);
           }
+
           sessionStorage.removeItem('locationZoomState');
           sessionStorage.removeItem('locationCenterState');
         }
