@@ -40,7 +40,7 @@ function RecResourceReservationEditRoute() {
 
   return (
     <RoleRouteGuard
-      requireAll={[ROLES.DEVELOPER, ROLES.ADMIN]}
+      requireAll={[ROLES.ADMIN]}
       redirectTo={ROUTE_PATHS.REC_RESOURCE_RESERVATION.replace('$id', id)}
     >
       <RecResourceReservationEditSection />

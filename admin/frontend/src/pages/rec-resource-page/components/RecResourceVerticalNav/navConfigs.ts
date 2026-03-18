@@ -13,6 +13,7 @@ export enum RecResourceNavKey {
 export type NavSectionConfig = {
   title: string;
   getNavigateOptions: (id: string) => NavigateOptions;
+  isFeatureFlagged?: boolean;
 };
 
 /**
@@ -27,6 +28,7 @@ export const REC_RESOURCE_PAGE_NAV_SECTIONS: Record<
 > = {
   [RecResourceNavKey.OVERVIEW]: {
     title: 'Overview',
+    isFeatureFlagged: true,
     getNavigateOptions: (id: string) => ({
       to: ROUTE_PATHS.REC_RESOURCE_OVERVIEW,
       params: { id },
@@ -41,6 +43,7 @@ export const REC_RESOURCE_PAGE_NAV_SECTIONS: Record<
   },
   [RecResourceNavKey.ACTIVITIES]: {
     title: 'Activities & features',
+    isFeatureFlagged: true,
     getNavigateOptions: (id: string) => ({
       to: ROUTE_PATHS.REC_RESOURCE_ACTIVITIES_FEATURES,
       params: { id },
@@ -48,6 +51,7 @@ export const REC_RESOURCE_PAGE_NAV_SECTIONS: Record<
   },
   [RecResourceNavKey.FEES]: {
     title: 'Fees',
+    isFeatureFlagged: true,
     getNavigateOptions: (id: string) => ({
       to: ROUTE_PATHS.REC_RESOURCE_FEES,
       params: { id },
@@ -55,6 +59,7 @@ export const REC_RESOURCE_PAGE_NAV_SECTIONS: Record<
   },
   [RecResourceNavKey.GEOSPATIAL]: {
     title: 'Geospatial',
+    isFeatureFlagged: true,
     getNavigateOptions: (id: string) => ({
       to: ROUTE_PATHS.REC_RESOURCE_GEOSPATIAL,
       params: { id },
