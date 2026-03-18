@@ -49,13 +49,12 @@ export const useZoomToExtent = (
 
       const view = map.getView();
 
-      map.once('moveend', () => {
-        // Check if there is a stored location when the user clicks on the description
-        // Set the zoom level and center last time the location was clicked
-        // Clear the session items
+      const restoreLocation = () => {
         const lastZoom = sessionStorage.getItem('locationZoomState');
         const lastCenter = sessionStorage.getItem('locationCenterState');
-        console.log('moveend', lastCenter, lastZoom);
+
+        console.log('restoreLocation', lastCenter, lastZoom);
+
         if (lastZoom != null && lastCenter != null) {
           try {
             const zoom = Number(lastZoom);
@@ -64,7 +63,7 @@ export const useZoomToExtent = (
             if (!isNaN(zoom) && Array.isArray(center) && center.length === 2) {
               view.setCenter(center);
               view.setZoom(zoom);
-              return; // skip nudge if restoring
+              return true;
             }
           } catch (e) {
             console.warn('Failed to restore location', e);
@@ -74,12 +73,30 @@ export const useZoomToExtent = (
           sessionStorage.removeItem('locationCenterState');
         }
 
-        // Nudge the zoom level slightly to fix white tile rendering issue
-        const zoom = view.getZoom();
-        if (zoom != null) {
-          view.setZoom(zoom + 0.01);
+        return false;
+      };
+
+      let restored = false;
+
+      map.once('moveend', () => {
+        restored = restoreLocation();
+        console.log('moveend restoreLocation result', restored);
+
+        if (!restored) {
+          const zoom = view.getZoom();
+          if (zoom != null) {
+            view.setZoom(zoom + 0.01);
+          }
         }
       });
+
+      // Fallback if moveend never fires
+      setTimeout(() => {
+        if (!restored) {
+          console.log('fallback restore');
+          restoreLocation();
+        }
+      }, 0);
 
       const mapSize = map.getSize(); // [width, height]
       if (mapSize) {
