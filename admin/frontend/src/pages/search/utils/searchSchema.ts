@@ -124,6 +124,7 @@ export function validateAdminSearch(
     type: getSearchFilterTokenList(search.type),
     district: getSearchFilterTokenList(search.district),
     activities: getSearchFilterTokenList(search.activities),
+    status: getSearchFilterTokenList(search.status),
     establishment_date_from: getOptionalToken(search.establishment_date_from),
     establishment_date_to: getOptionalToken(search.establishment_date_to),
     access: getSearchFilterTokenList(search.access),
@@ -153,6 +154,7 @@ export function resolveAdminSearchRouteState(
     type: searchFilterTokenList(search.type),
     district: searchFilterTokenList(search.district),
     activities: searchFilterTokenList(search.activities),
+    status: searchFilterTokenList(search.status),
     access: searchFilterTokenList(search.access),
     defined_campsites:
       search.defined_campsites ?? DEFAULT_ADMIN_SEARCH_STATE.defined_campsites,

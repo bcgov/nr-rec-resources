@@ -9,6 +9,8 @@ function formatList(values?: string[] | null): string {
 export function mapAdminSearchResultRow(
   row: AdminSearchResultRowDto,
 ): AdminSearchResultRow {
+  const status = row.status?.trim() ? row.status : '-';
+
   return {
     recResourceId: row.rec_resource_id,
     projectName: capitalizeWords(row.name),
@@ -21,5 +23,6 @@ export function mapAdminSearchResultRow(
     closestCommunity: row.closest_community
       ? capitalizeWords(row.closest_community)
       : '-',
+    status,
   };
 }

@@ -44,6 +44,12 @@ export class AdminSearchResultRowDto {
   closest_community: string;
 
   @ApiProperty({
+    description: 'Recreation status description',
+    example: 'Open',
+  })
+  status: string;
+
+  @ApiProperty({
     description: 'Access types associated with the resource',
     type: [String],
     example: ['Road', '4WD'],

@@ -75,6 +75,10 @@ describe('useAdminSearchController', () => {
       data: [
         { type: 'activities', options: [] },
         { type: 'resourceType', options: [] },
+        {
+          type: 'recreationStatus',
+          options: [{ id: '1', label: 'Open', is_archived: false }],
+        },
         { type: 'access', options: [] },
         {
           type: 'district',
@@ -132,6 +136,7 @@ describe('useAdminSearchController', () => {
       type: ['RTR'],
       district: ['C'],
       activities: ['8'],
+      status: ['1'],
       access: ['W'],
       establishment_date_from: '2020-01-01',
       establishment_date_to: '2021-01-01',
@@ -145,6 +150,7 @@ describe('useAdminSearchController', () => {
         'RTR',
         'Alpha District',
         '8',
+        'Open',
         'W',
         'Established from: 2020-01-01',
         'Established to: 2021-01-01',
@@ -153,8 +159,8 @@ describe('useAdminSearchController', () => {
 
     result.current.appliedFilterChips[0].onClear();
     result.current.appliedFilterChips[1].onClear();
-    result.current.appliedFilterChips[4].onClear();
     result.current.appliedFilterChips[5].onClear();
+    result.current.appliedFilterChips[6].onClear();
 
     expect(mockNavigate).toHaveBeenNthCalledWith(1, {
       to: '/',
@@ -162,6 +168,7 @@ describe('useAdminSearchController', () => {
         q: 'lake',
         district: 'C',
         activities: '8',
+        status: '1',
         access: 'W',
         establishment_date_from: '2020-01-01',
         establishment_date_to: '2021-01-01',
@@ -174,6 +181,7 @@ describe('useAdminSearchController', () => {
         q: 'lake',
         type: 'RTR',
         activities: '8',
+        status: '1',
         access: 'W',
         establishment_date_from: '2020-01-01',
         establishment_date_to: '2021-01-01',
@@ -187,6 +195,7 @@ describe('useAdminSearchController', () => {
         type: 'RTR',
         district: 'C',
         activities: '8',
+        status: '1',
         access: 'W',
         establishment_date_to: '2021-01-01',
       },
@@ -199,6 +208,7 @@ describe('useAdminSearchController', () => {
         type: 'RTR',
         district: 'C',
         activities: '8',
+        status: '1',
         access: 'W',
         establishment_date_from: '2020-01-01',
       },

@@ -22,6 +22,7 @@ function buildSearchRequest(
     type: search.type.length ? search.type : undefined,
     district: search.district.length ? search.district : undefined,
     activities: search.activities.length ? search.activities : undefined,
+    status: search.status.length ? search.status : undefined,
     access: search.access.length ? search.access : undefined,
     definedCampsites: search.defined_campsites as
       | SearchRecreationResourcesDefinedCampsitesEnum

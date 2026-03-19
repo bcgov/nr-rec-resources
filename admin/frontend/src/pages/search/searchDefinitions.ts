@@ -15,6 +15,8 @@ export const ADMIN_SEARCH_SORT_VALUES = [
   'fee:desc',
   'community:asc',
   'community:desc',
+  'status:asc',
+  'status:desc',
   'campsites:asc',
   'campsites:desc',
   'district:asc',
@@ -53,6 +55,12 @@ export const ADMIN_SEARCH_COLUMN_DEFINITIONS = [
     label: 'Closest community',
     resultKey: 'closestCommunity',
     sortKey: 'community',
+  },
+  {
+    id: 'status',
+    label: 'Status',
+    resultKey: 'status',
+    sortKey: 'status',
   },
   {
     id: 'project_established_date',

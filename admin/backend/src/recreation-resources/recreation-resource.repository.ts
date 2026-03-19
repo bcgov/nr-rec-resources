@@ -228,6 +228,22 @@ export class RecreationResourceRepository {
       });
     }
 
+    if (query.status?.length) {
+      const statusCodes = query.status
+        .map((status) => Number.parseInt(status, 10))
+        .filter((status): status is number => Number.isInteger(status));
+
+      if (statusCodes.length) {
+        and.push({
+          recreation_status: {
+            status_code: {
+              in: statusCodes,
+            },
+          },
+        });
+      }
+    }
+
     const definedCampsitesFilter = this.buildDefinedCampsitesWhere(
       query.defined_campsites,
     );

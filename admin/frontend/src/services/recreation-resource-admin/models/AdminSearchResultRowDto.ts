@@ -62,6 +62,12 @@ export interface AdminSearchResultRowDto {
    */
   closest_community: string;
   /**
+   * Recreation status description
+   * @type {string}
+   * @memberof AdminSearchResultRowDto
+   */
+  status: string;
+  /**
    * Access types associated with the resource
    * @type {Array<string>}
    * @memberof AdminSearchResultRowDto
@@ -127,6 +133,7 @@ export function instanceOfAdminSearchResultRowDto(
     value['closest_community'] === undefined
   )
     return false;
+  if (!('status' in value) || value['status'] === undefined) return false;
   if (!('access_types' in value) || value['access_types'] === undefined)
     return false;
   if (!('activities' in value) || value['activities'] === undefined)
@@ -158,6 +165,7 @@ export function AdminSearchResultRowDtoFromJSONTyped(
     district_description: json['district_description'],
     display_on_public_site: json['display_on_public_site'],
     closest_community: json['closest_community'],
+    status: json['status'],
     access_types: json['access_types'],
     activities: json['activities'],
     fee_types: json['fee_types'],
@@ -189,6 +197,7 @@ export function AdminSearchResultRowDtoToJSONTyped(
     district_description: value['district_description'],
     display_on_public_site: value['display_on_public_site'],
     closest_community: value['closest_community'],
+    status: value['status'],
     access_types: value['access_types'],
     activities: value['activities'],
     fee_types: value['fee_types'],

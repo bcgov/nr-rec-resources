@@ -28,6 +28,8 @@ export const ADMIN_SEARCH_SORT_VALUES = [
   'fee:desc',
   'community:asc',
   'community:desc',
+  'status:asc',
+  'status:desc',
   'campsites:asc',
   'campsites:desc',
   'district:asc',
@@ -123,6 +125,17 @@ export class AdminSearchQueryDto {
   @IsArray()
   @IsString({ each: true })
   access?: string[];
+
+  @ApiPropertyOptional({
+    description: 'Recreation status codes',
+    type: [String],
+    example: ['1', '2'],
+  })
+  @Transform(transformStringArrayQueryParam)
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  status?: string[];
 
   @ApiPropertyOptional({
     description: 'Defined campsite presence filter',

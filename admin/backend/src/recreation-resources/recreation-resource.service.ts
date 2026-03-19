@@ -79,6 +79,8 @@ export class RecreationResourceService {
           resource.recreation_district_code?.description ?? '',
         display_on_public_site: resource.display_on_public_site ?? false,
         closest_community: resource.closest_community ?? '',
+        status:
+          resource.recreation_status?.recreation_status_code?.description ?? '',
         activities: this.getUniqueValues(
           resource.recreation_activity?.map(
             (activity) => activity.recreation_activity?.description ?? '',

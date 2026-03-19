@@ -20,6 +20,7 @@ type FilterAccordionControllerProps = Pick<
   | 'typeOptions'
   | 'districtOptions'
   | 'activityOptions'
+  | 'statusOptions'
   | 'accessOptions'
   | 'applyFilters'
   | 'resetFilters'
@@ -39,6 +40,7 @@ const getEditableFilters = (
   type: state.type,
   district: state.district,
   activities: state.activities,
+  status: state.status,
   access: state.access,
   establishment_date_from: state.establishment_date_from,
   establishment_date_to: state.establishment_date_to,
@@ -61,6 +63,7 @@ export function FilterAccordion({
     typeOptions,
     districtOptions,
     activityOptions,
+    statusOptions,
     accessOptions,
     applyFilters: onApply,
     resetFilters: onReset,
@@ -69,6 +72,7 @@ export function FilterAccordion({
     typeOptions,
     districtOptions,
     activityOptions,
+    statusOptions,
     accessOptions,
   };
   const searchFilters = getEditableFilters(search);
@@ -183,6 +187,7 @@ export function FilterAccordion({
                     type: draft.type,
                     district: draft.district,
                     activities: draft.activities,
+                    status: draft.status,
                     access: draft.access,
                     establishment_date_from: draft.establishment_date_from,
                     establishment_date_to: draft.establishment_date_to,

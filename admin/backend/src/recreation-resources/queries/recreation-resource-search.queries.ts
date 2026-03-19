@@ -36,6 +36,8 @@ export const SORT_FIELD_MAP: Record<
       description: 'desc',
     },
   },
+  'status:asc': { name: 'asc' },
+  'status:desc': { name: 'desc' },
   'type:asc': { name: 'asc' },
   'type:desc': { name: 'desc' },
   'activities:asc': { name: 'asc' },
@@ -49,6 +51,8 @@ export const SORT_FIELD_MAP: Record<
 // These sorts depend on aggregated related data, so they use the raw SQL path
 // instead of Prisma's standard orderBy support.
 export const RAW_SQL_SORTS = new Set<AdminSearchSort>([
+  'status:asc',
+  'status:desc',
   'type:asc',
   'type:desc',
   'activities:asc',
@@ -120,6 +124,23 @@ export function buildSearchWhereSql(query: AdminSearchQueryDto): Prisma.Sql {
     `);
   }
 
+  if (query.status?.length) {
+    const statusCodes = query.status
+      .map((status) => Number.parseInt(status, 10))
+      .filter((status): status is number => Number.isInteger(status));
+
+    if (statusCodes.length) {
+      conditions.push(Prisma.sql`
+        EXISTS (
+          SELECT 1
+          FROM rst.recreation_status rs
+          WHERE rs.rec_resource_id = rr.rec_resource_id
+            AND rs.status_code IN (${Prisma.join(statusCodes)})
+        )
+      `);
+    }
+  }
+
   if (query.defined_campsites === 'yes') {
     conditions.push(Prisma.sql`
       EXISTS (
@@ -168,12 +189,14 @@ export function buildSearchWhereSql(query: AdminSearchQueryDto): Prisma.Sql {
 
 export function buildDerivedSortOrderSql(sort: AdminSearchSort): Prisma.Sql {
   const [field, direction] = sort.split(':') as [
-    'type' | 'activities' | 'access' | 'fee',
+    'status' | 'type' | 'activities' | 'access' | 'fee',
     'asc' | 'desc',
   ];
   const directionSql = direction === 'asc' ? Prisma.sql`ASC` : Prisma.sql`DESC`;
 
   switch (field) {
+    case 'status':
+      return Prisma.sql`COALESCE(status_agg.status_value, '') ${directionSql}`;
     case 'type':
       return Prisma.sql`COALESCE(rrtva.description, '') ${directionSql}`;
     case 'activities':
@@ -209,6 +232,14 @@ export function buildDerivedSortIdsQuery({
     FROM rst.recreation_resource rr
     LEFT JOIN rst.recreation_resource_type_view_admin rrtva
       ON rrtva.rec_resource_id = rr.rec_resource_id
+    LEFT JOIN LATERAL (
+      SELECT COALESCE(rsc.description, '') AS status_value
+      FROM rst.recreation_status rs
+      LEFT JOIN rst.recreation_status_code rsc
+        ON rsc.status_code = rs.status_code
+      WHERE rs.rec_resource_id = rr.rec_resource_id
+      LIMIT 1
+    ) status_agg ON TRUE
     LEFT JOIN LATERAL (
       SELECT string_agg(
         DISTINCT COALESCE(rac.description, ''),

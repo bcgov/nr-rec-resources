@@ -241,6 +241,7 @@ export interface SearchRecreationResourcesRequest {
   district?: Array<string>;
   activities?: Array<string>;
   access?: Array<string>;
+  status?: Array<string>;
   definedCampsites?: SearchRecreationResourcesDefinedCampsitesEnum;
   closestCommunity?: string;
   establishmentDateFrom?: string;
@@ -2161,6 +2162,10 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       queryParameters['access'] = requestParameters['access'];
     }
 
+    if (requestParameters['status'] != null) {
+      queryParameters['status'] = requestParameters['status'];
+    }
+
     if (requestParameters['definedCampsites'] != null) {
       queryParameters['defined_campsites'] =
         requestParameters['definedCampsites'];
@@ -2845,6 +2850,8 @@ export const SearchRecreationResourcesSortEnum = {
   FeeDesc: 'fee:desc',
   CommunityAsc: 'community:asc',
   CommunityDesc: 'community:desc',
+  StatusAsc: 'status:asc',
+  StatusDesc: 'status:desc',
   CampsitesAsc: 'campsites:asc',
   CampsitesDesc: 'campsites:desc',
   DistrictAsc: 'district:asc',
