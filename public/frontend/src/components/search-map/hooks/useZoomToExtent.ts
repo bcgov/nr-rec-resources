@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import type { RefObject } from 'react';
 import type OLMap from 'ol/Map';
 import GeoJSON from 'ol/format/GeoJSON';
@@ -13,7 +13,6 @@ export const useZoomToExtent = (
 ) => {
   const { wasCleared } = useStore(searchInputStore);
   const isMapInitialized = useRef(false);
-  const [fitView, setFitView] = useState(true);
 
   const checkRestore = () => {
     const lastZoom = sessionStorage.getItem('locationZoomState');
@@ -26,12 +25,9 @@ export const useZoomToExtent = (
   };
 
   useEffect(() => {
-    console.log('useZoomToExtent start');
     if (!extent || !mapRef.current) return;
-    console.log('useZoomToExtent extent');
     const map = mapRef.current.getMap();
     if (!map) return;
-    console.log('useZoomToExtent map');
 
     const view = map.getView();
 
@@ -44,18 +40,14 @@ export const useZoomToExtent = (
       const lastZoom = sessionStorage.getItem('locationZoomState');
       const lastCenter = sessionStorage.getItem('locationCenterState');
 
-      console.log('restoreLocation 3', lastCenter, lastZoom);
-
       if (lastZoom != null && lastCenter != null) {
         try {
           const zoom = Number(lastZoom);
           const center = JSON.parse(lastCenter);
 
           if (!isNaN(zoom) && Array.isArray(center) && center.length === 2) {
-            console.log('Set Zoom !!!');
             view.setCenter(center);
             view.setZoom(zoom);
-            clearLocation();
           }
         } catch (e) {
           console.warn('Failed to restore location', e);
@@ -70,9 +62,10 @@ export const useZoomToExtent = (
     // Skip on initial load - only run when extent changes after map is initialized
     if (!isMapInitialized.current) {
       isMapInitialized.current = true;
+      clearLocation();
       return;
     }
-    console.log('useZoomToExtent isMapInitialized');
+
     // If the search input was cleared, do not zoom to extent
     if (wasCleared) {
       searchInputStore.setState((prev) => ({
@@ -81,7 +74,6 @@ export const useZoomToExtent = (
       }));
       return;
     }
-    console.log('useZoomToExtent wasCleared');
 
     try {
       const geojson = JSON.parse(extent);
@@ -104,13 +96,13 @@ export const useZoomToExtent = (
 
       const mapSize = map.getSize(); // [width, height]
       if (mapSize) {
-        console.log('Fit zoom', fitView);
         if (!checkRestore()) {
           const [width] = mapSize;
           const padding = calculateMapPadding(width);
           view.fit(olExtent3857, { padding, maxZoom: 16, duration: 500 });
         }
       }
+      clearLocation();
     } catch (err) {
       console.error('Failed to parse or fit extent:', err);
     }

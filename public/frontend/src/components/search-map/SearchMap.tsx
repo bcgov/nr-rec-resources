@@ -197,7 +197,7 @@ const SearchMap = (searchViewControlsProps: SearchViewControlsProps) => {
       sessionStorage.setItem('locationCenterState', JSON.stringify(center));
     }
     console.log(
-      'storeLocation 3',
+      'storeLocation 5',
       sessionStorage.getItem('locationCenterState'),
     );
   };
