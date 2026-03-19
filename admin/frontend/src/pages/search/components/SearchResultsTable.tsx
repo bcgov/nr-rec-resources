@@ -25,20 +25,16 @@ export const SearchResultsTable = ({
   isLoading,
   onSortChange,
 }: SearchResultsTableProps) => {
-  const {
-    table,
-    tableRows,
-    visibleLeafColumns,
-    statusMessage,
-    getRowInteractionProps,
-  } = useSearchResultsTable({
-    rows,
-    visibleColumns,
-    sort,
-    pagination,
-    isLoading,
-    onSortChange,
-  });
+  const { table, tableRows, statusMessage, getRowInteractionProps } =
+    useSearchResultsTable({
+      rows,
+      visibleColumns,
+      sort,
+      pagination,
+      isLoading,
+      onSortChange,
+    });
+  const hasRows = tableRows.length > 0;
 
   return (
     <div className="search-results-table">
@@ -64,9 +60,9 @@ export const SearchResultsTable = ({
             </tr>
           ))}
         </thead>
-        <tbody>
-          {tableRows.length > 0 ? (
-            tableRows.map((row) => (
+        {hasRows ? (
+          <tbody>
+            {tableRows.map((row) => (
               <tr key={row.id} {...getRowInteractionProps(row)}>
                 {row.getVisibleCells().map((cell) => (
                   <td
@@ -77,19 +73,15 @@ export const SearchResultsTable = ({
                   </td>
                 ))}
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td
-                colSpan={visibleLeafColumns.length || 1}
-                className="text-center text-muted py-4"
-              >
-                {statusMessage}
-              </td>
-            </tr>
-          )}
-        </tbody>
+            ))}
+          </tbody>
+        ) : null}
       </table>
+      {hasRows ? null : (
+        <div className="search-results-table__status text-center text-muted">
+          {statusMessage}
+        </div>
+      )}
     </div>
   );
 };

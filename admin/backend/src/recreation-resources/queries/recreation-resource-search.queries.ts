@@ -141,8 +141,9 @@ export function buildSearchWhereSql(query: AdminSearchQueryDto): Prisma.Sql {
   }
 
   if (trimmedCommunity) {
+    const communityWildcard = `%${trimmedCommunity}%`;
     conditions.push(
-      Prisma.sql`rr.closest_community ILIKE ${`%${trimmedCommunity}%`}`,
+      Prisma.sql`rr.closest_community ILIKE ${communityWildcard}`,
     );
   }
 

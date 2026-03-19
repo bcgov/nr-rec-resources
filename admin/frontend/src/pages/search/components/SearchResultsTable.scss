@@ -1,8 +1,17 @@
 @import '@/styles/variables.scss';
 
 .search-results-table {
+  position: relative;
   max-width: 100%;
   overflow-x: auto;
+
+  &__status {
+    min-width: 100%;
+    padding: 1rem;
+    border: 1px solid rgba($colorGreyLight, 0.55);
+    border-top: 0;
+    background-color: $colorWhite;
+  }
 }
 
 .results-table {

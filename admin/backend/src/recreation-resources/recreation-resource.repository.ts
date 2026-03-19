@@ -228,20 +228,11 @@ export class RecreationResourceRepository {
       });
     }
 
-    if (query.defined_campsites === 'yes') {
-      and.push({
-        recreation_defined_campsite: {
-          some: {},
-        },
-      });
-    }
-
-    if (query.defined_campsites === 'no') {
-      and.push({
-        recreation_defined_campsite: {
-          none: {},
-        },
-      });
+    const definedCampsitesFilter = this.buildDefinedCampsitesWhere(
+      query.defined_campsites,
+    );
+    if (definedCampsitesFilter) {
+      and.push(definedCampsitesFilter);
     }
 
     if (trimmedCommunity) {
@@ -267,6 +258,28 @@ export class RecreationResourceRepository {
     }
 
     return and.length > 0 ? { AND: and } : {};
+  }
+
+  private buildDefinedCampsitesWhere(
+    definedCampsites: AdminSearchQueryDto['defined_campsites'],
+  ): Prisma.recreation_resourceWhereInput | null {
+    if (definedCampsites === 'yes') {
+      return {
+        recreation_defined_campsite: {
+          some: {},
+        },
+      };
+    }
+
+    if (definedCampsites === 'no') {
+      return {
+        recreation_defined_campsite: {
+          none: {},
+        },
+      };
+    }
+
+    return null;
   }
 
   /**
