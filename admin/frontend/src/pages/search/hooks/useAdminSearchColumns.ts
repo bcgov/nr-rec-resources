@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { type AdminSearchColumnId } from '@/pages/search/constants';
+import type { AdminSearchColumnId } from '@/pages/search/searchDefinitions';
 import {
   readAdminSearchVisibleColumns,
   writeAdminSearchVisibleColumns,

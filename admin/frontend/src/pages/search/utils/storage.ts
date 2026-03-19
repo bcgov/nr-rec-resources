@@ -1,9 +1,11 @@
 import {
   ADMIN_SEARCH_STORAGE_KEYS,
   DEFAULT_VISIBLE_ADMIN_SEARCH_COLUMNS,
-  type AdminSearchColumnId,
 } from '@/pages/search/constants';
-import { coerceVisibleAdminSearchColumns } from '@/pages/search/utils/searchSchema';
+import {
+  normalizeVisibleAdminSearchColumns,
+  type AdminSearchColumnId,
+} from '@/pages/search/searchDefinitions';
 
 // Utils to read and save session storage for the Search page
 
@@ -23,7 +25,7 @@ export function readAdminSearchVisibleColumns(): AdminSearchColumnId[] {
     return DEFAULT_VISIBLE_ADMIN_SEARCH_COLUMNS;
   }
 
-  return coerceVisibleAdminSearchColumns(rawValue);
+  return normalizeVisibleAdminSearchColumns(rawValue);
 }
 
 export function writeAdminSearchVisibleColumns(columns: AdminSearchColumnId[]) {

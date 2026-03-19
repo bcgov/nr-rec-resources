@@ -13,11 +13,12 @@ import { AdminSearchRouteState } from '@/pages/search/types';
 
 function buildSearchRequest(
   search: AdminSearchRouteState,
-): SearchRecreationResourcesRequest {
+): SearchRecreationResourcesRequest & { pageSize?: number } {
   return {
     q: search.q || undefined,
     sort: search.sort as SearchRecreationResourcesSortEnum,
     page: search.page,
+    pageSize: search.page_size,
     type: search.type.length ? search.type : undefined,
     district: search.district.length ? search.district : undefined,
     activities: search.activities.length ? search.activities : undefined,
@@ -42,7 +43,7 @@ export default function useGetRecreationResourceSearch(
     queryKey: RECREATION_RESOURCE_QUERY_KEYS.search(request),
     queryFn: async () => {
       return await recreationResourceAdminApiClient.searchRecreationResources(
-        request,
+        request as SearchRecreationResourcesRequest,
       );
     },
     enabled: true,

@@ -1,9 +1,9 @@
 import {
   AdminSearchFilters,
   AdminSearchRouteState,
-  AdminSearchSort,
 } from '@/pages/search/types';
 import { DEFAULT_ADMIN_SEARCH_STATE } from '@/pages/search/constants';
+import type { AdminSearchSort } from '@/pages/search/searchDefinitions';
 
 type SerializedListFilterFields = 'type' | 'district' | 'activities' | 'access';
 
@@ -38,6 +38,10 @@ export const serializeAdminSearchRouteState = (
 
   if (state.page !== DEFAULT_ADMIN_SEARCH_STATE.page) {
     search.page = state.page;
+  }
+
+  if (state.page_size !== DEFAULT_ADMIN_SEARCH_STATE.page_size) {
+    search.page_size = state.page_size;
   }
 
   if (state.type.length > 0) {
@@ -98,6 +102,15 @@ export const setAdminSearchPage = (
 ): AdminSearchRouteState => ({
   ...state,
   page,
+});
+
+export const setAdminSearchPageSize = (
+  state: AdminSearchRouteState,
+  pageSize: number,
+): AdminSearchRouteState => ({
+  ...state,
+  page: 1,
+  page_size: pageSize,
 });
 
 const setFilterState = (

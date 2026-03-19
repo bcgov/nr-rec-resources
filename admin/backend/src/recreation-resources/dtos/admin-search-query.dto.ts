@@ -34,7 +34,11 @@ export const ADMIN_SEARCH_SORT_VALUES = [
   'district:desc',
 ] as const;
 
+export const ADMIN_SEARCH_PAGE_SIZE_VALUES = [25, 50, 100] as const;
+
 export type AdminSearchSort = (typeof ADMIN_SEARCH_SORT_VALUES)[number];
+export type AdminSearchPageSize =
+  (typeof ADMIN_SEARCH_PAGE_SIZE_VALUES)[number];
 
 export class AdminSearchQueryDto {
   @ApiPropertyOptional({
@@ -64,6 +68,17 @@ export class AdminSearchQueryDto {
   @IsInt()
   @Min(1)
   page?: number;
+
+  @ApiPropertyOptional({
+    description: 'Page size',
+    enum: ADMIN_SEARCH_PAGE_SIZE_VALUES,
+    example: 25,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @IsIn(ADMIN_SEARCH_PAGE_SIZE_VALUES)
+  page_size?: AdminSearchPageSize;
 
   @ApiPropertyOptional({
     description: 'Recreation resource type codes',

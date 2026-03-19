@@ -4,6 +4,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@generated/prisma';
 import { UpdateRecreationResourceDto } from './dtos/update-recreation-resource.dto';
 import {
+  ADMIN_SEARCH_PAGE_SIZE_VALUES,
   AdminSearchQueryDto,
   AdminSearchSort,
 } from './dtos/admin-search-query.dto';
@@ -50,7 +51,7 @@ export class RecreationResourceRepository {
     data: RecreationResourceGetPayload[];
   }> {
     const page = query.page ?? 1;
-    const pageSize = 25;
+    const pageSize = query.page_size ?? ADMIN_SEARCH_PAGE_SIZE_VALUES[0];
     const sort = query.sort ?? 'name:asc';
 
     if (RAW_SQL_SORTS.has(sort)) {

@@ -109,6 +109,7 @@ describe('RecreationResourceRepository', () => {
       const result = await repo.searchResources({
         q: 'lake',
         page: 2,
+        page_size: 50,
         sort: 'name:desc',
         type: ['SIT'],
         access: ['R'],
@@ -117,6 +118,12 @@ describe('RecreationResourceRepository', () => {
       });
 
       expect(prisma.$transaction).toHaveBeenCalledTimes(1);
+      expect(prisma.recreation_resource.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          skip: 50,
+          take: 50,
+        }),
+      );
       expect(result).toEqual({
         total: 42,
         data: mockData,

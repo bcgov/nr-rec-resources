@@ -1,0 +1,42 @@
+@import '@/styles/variables.scss';
+
+.pagination-bar {
+  &__jump .form-select {
+    width: auto;
+    min-width: 6rem;
+    max-width: 100%;
+  }
+
+  &__label {
+    color: $colorGreyMed;
+  }
+
+  &__pages {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+
+    .page-link {
+      background: transparent;
+      border: none;
+      border-radius: 4px;
+      color: $colorBlue;
+      font-weight: 500;
+      padding: 0.375rem 0.75rem;
+
+      &:hover {
+        background-color: $colorIceBlue;
+      }
+    }
+
+    .active .page-link {
+      background-color: $colorBlue;
+      color: $colorWhite;
+    }
+
+    .disabled .page-link {
+      background: transparent;
+      color: $colorGreyMed;
+      opacity: 0.45;
+    }
+  }
+}

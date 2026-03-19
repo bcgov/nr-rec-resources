@@ -1,9 +1,11 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTableColumns } from '@fortawesome/free-solid-svg-icons';
 import { CheckboxDropdownField } from '@/components/form';
+import { ADMIN_SEARCH_COLUMN_IDS } from '@/pages/search/constants';
 import {
-  ADMIN_SEARCH_COLUMN_IDS,
+  ADMIN_SEARCH_COLUMN_LABELS,
   type AdminSearchColumnId,
-} from '@/pages/search/constants';
-import { ADMIN_SEARCH_COLUMN_LABELS } from '@/pages/search/searchDefinitions';
+} from '@/pages/search/searchDefinitions';
 
 interface ColumnVisibilityMenuProps {
   visibleColumns: AdminSearchColumnId[];
@@ -20,14 +22,15 @@ export function ColumnVisibilityMenu({
 
   return (
     <CheckboxDropdownField
+      className="control-button"
       items={selectableColumnIds.map((columnId) => ({
         value: columnId,
         label: ADMIN_SEARCH_COLUMN_LABELS[columnId],
       }))}
       selectedValues={visibleColumns}
       label="Columns"
-      toggleVariant="light"
-      toggleClassName="control-button d-flex align-items-center gap-2"
+      icon={<FontAwesomeIcon icon={faTableColumns} aria-hidden="true" />}
+      toggleStyle="button"
       onToggle={(columnId) => onToggle(columnId as AdminSearchColumnId)}
     />
   );

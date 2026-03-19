@@ -99,4 +99,23 @@ describe('useAdminSearchController', () => {
       { id: 'B', label: 'Beta District', is_archived: false },
     ]);
   });
+
+  it('resets to page 1 when page size changes', () => {
+    const search = {
+      ...DEFAULT_ADMIN_SEARCH_STATE,
+      page: 4,
+      page_size: 25,
+    };
+    const { result } = renderHook(() => useAdminSearchController(search), {
+      wrapper: createWrapper(),
+    });
+
+    result.current.pagination.setPageSize(100);
+
+    expect(mockNavigate).toHaveBeenCalledWith({
+      to: '/',
+      search: { page_size: 100 },
+      resetScroll: false,
+    });
+  });
 });

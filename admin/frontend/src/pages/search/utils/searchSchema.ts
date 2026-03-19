@@ -1,36 +1,20 @@
 import { z } from 'zod';
 import {
+  ADMIN_SEARCH_PAGE_SIZE_OPTIONS,
   DEFAULT_ADMIN_SEARCH_STATE,
-  type AdminSearchColumnId,
 } from '@/pages/search/constants';
-import { AdminSearchRouteState, AdminSearchSort } from '@/pages/search/types';
+import {
+  ADMIN_SEARCH_SORT_VALUES,
+  normalizeVisibleAdminSearchColumns,
+  type AdminSearchSort,
+} from '@/pages/search/searchDefinitions';
+import type { AdminSearchRouteState } from '@/pages/search/types';
 import {
   SerializedAdminSearchRouteState,
   serializeAdminSearchRouteState,
 } from '@/pages/search/utils/urlState';
 
-const sortSchema = z.enum([
-  'name:asc',
-  'name:desc',
-  'rec_resource_id:asc',
-  'rec_resource_id:desc',
-  'type:asc',
-  'type:desc',
-  'established_date:asc',
-  'established_date:desc',
-  'activities:asc',
-  'activities:desc',
-  'access:asc',
-  'access:desc',
-  'fee:asc',
-  'fee:desc',
-  'community:asc',
-  'community:desc',
-  'campsites:asc',
-  'campsites:desc',
-  'district:asc',
-  'district:desc',
-] satisfies AdminSearchSort[]);
+const sortSchema = z.enum(ADMIN_SEARCH_SORT_VALUES);
 
 const definedCampsitesSchema = z.enum(['yes', 'no']);
 
@@ -71,18 +55,6 @@ function getNumberValue(
   }
 
   return parsed;
-}
-
-function getTokenList(value: unknown): string[] {
-  if (typeof value === 'string') {
-    return value.split(',').map(normalizeStringToken).filter(Boolean);
-  }
-
-  if (Array.isArray(value)) {
-    return value.flatMap((entry) => getTokenList(entry));
-  }
-
-  return [];
 }
 
 function getSearchFilterTokenList(value: unknown): string[] {
@@ -145,6 +117,11 @@ export function validateAdminSearch(
     q: getStringValue(search.q) ?? DEFAULT_ADMIN_SEARCH_STATE.q,
     sort: getSortValue(search.sort) ?? DEFAULT_ADMIN_SEARCH_STATE.sort,
     page: getNumberValue(search.page, DEFAULT_ADMIN_SEARCH_STATE.page),
+    page_size: getNumberValue(
+      search.page_size,
+      DEFAULT_ADMIN_SEARCH_STATE.page_size,
+      [...ADMIN_SEARCH_PAGE_SIZE_OPTIONS],
+    ),
     type: getSearchFilterTokenList(search.type),
     district: getSearchFilterTokenList(search.district),
     activities: getSearchFilterTokenList(search.activities),
@@ -185,25 +162,4 @@ export function resolveAdminSearchRouteState(
   };
 }
 
-export function coerceVisibleAdminSearchColumns(
-  value: unknown,
-): AdminSearchColumnId[] {
-  const parsed = getTokenList(value).filter(
-    (entry): entry is AdminSearchColumnId =>
-      [
-        'rec_resource_id',
-        'name',
-        'recreation_resource_type',
-        'district',
-        'project_established_date',
-        'access_types',
-        'fee_types',
-        'defined_campsites',
-        'closest_community',
-      ].includes(entry),
-  );
-
-  return parsed.includes('rec_resource_id')
-    ? parsed
-    : ['rec_resource_id', ...parsed];
-}
+export { normalizeVisibleAdminSearchColumns };

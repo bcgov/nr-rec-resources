@@ -236,6 +236,7 @@ export interface SearchRecreationResourcesRequest {
   q?: string;
   sort?: SearchRecreationResourcesSortEnum;
   page?: number;
+  pageSize?: SearchRecreationResourcesPageSizeEnum;
   type?: Array<string>;
   district?: Array<string>;
   activities?: Array<string>;
@@ -2140,6 +2141,10 @@ export class RecreationResourcesApi extends runtime.BaseAPI {
       queryParameters['page'] = requestParameters['page'];
     }
 
+    if (requestParameters['pageSize'] != null) {
+      queryParameters['page_size'] = requestParameters['pageSize'];
+    }
+
     if (requestParameters['type'] != null) {
       queryParameters['type'] = requestParameters['type'];
     }
@@ -2847,6 +2852,16 @@ export const SearchRecreationResourcesSortEnum = {
 } as const;
 export type SearchRecreationResourcesSortEnum =
   (typeof SearchRecreationResourcesSortEnum)[keyof typeof SearchRecreationResourcesSortEnum];
+/**
+ * @export
+ */
+export const SearchRecreationResourcesPageSizeEnum = {
+  NUMBER_25: 25,
+  NUMBER_50: 50,
+  NUMBER_100: 100,
+} as const;
+export type SearchRecreationResourcesPageSizeEnum =
+  (typeof SearchRecreationResourcesPageSizeEnum)[keyof typeof SearchRecreationResourcesPageSizeEnum];
 /**
  * @export
  */

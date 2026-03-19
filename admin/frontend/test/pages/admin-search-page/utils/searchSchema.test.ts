@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { DEFAULT_ADMIN_SEARCH_STATE } from '@/pages/search/constants';
 import {
-  coerceVisibleAdminSearchColumns,
+  normalizeVisibleAdminSearchColumns,
   resolveAdminSearchRouteState,
   validateAdminSearch,
 } from '@/pages/search/utils/searchSchema';
@@ -24,6 +24,7 @@ describe('validateAdminSearch', () => {
         q: '  tamihi  ',
         sort: 'campsite_count:desc',
         page: '3',
+        page_size: '50',
         type: 'RR_RTR',
         district: 'DCK_DRM',
         activities: '1_2',
@@ -37,6 +38,7 @@ describe('validateAdminSearch', () => {
       q: 'tamihi',
       sort: 'campsites_desc',
       page: 3,
+      page_size: 50,
       type: 'RR_RTR',
       district: 'DCK_DRM',
       activities: '1_2',
@@ -54,6 +56,7 @@ describe('validateAdminSearch', () => {
         q: 'tamihi',
         sort: 'closest_community_desc',
         page: 3,
+        page_size: 100,
         type: 'RR_RTR',
         district: 'DCK_DRM',
         activities: '1_2',
@@ -65,6 +68,7 @@ describe('validateAdminSearch', () => {
       q: 'tamihi',
       sort: 'community:desc',
       page: 3,
+      page_size: 100,
       type: ['RR', 'RTR'],
       district: ['DCK', 'DRM'],
       activities: ['1', '2'],
@@ -75,7 +79,7 @@ describe('validateAdminSearch', () => {
 
   it('keeps only supported visible-column ids from stored preferences', () => {
     expect(
-      coerceVisibleAdminSearchColumns(
+      normalizeVisibleAdminSearchColumns(
         'rec_resource_id,name,recreation_resource_type,last_updated,map,details',
       ),
     ).toEqual(['rec_resource_id', 'name', 'recreation_resource_type']);

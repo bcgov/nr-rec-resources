@@ -3,7 +3,10 @@ import { getRecreationResourceSuggestions } from '@prisma-generated-sql/getRecre
 import { PrismaService } from '@/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { RecreationResourceDetailDto } from './dtos/recreation-resource-detail.dto';
-import { AdminSearchQueryDto } from './dtos/admin-search-query.dto';
+import {
+  ADMIN_SEARCH_PAGE_SIZE_VALUES,
+  AdminSearchQueryDto,
+} from './dtos/admin-search-query.dto';
 import {
   AdminSearchResponseDto,
   AdminSearchResultRowDto,
@@ -53,10 +56,11 @@ export class RecreationResourceService {
   async searchResources(
     query: AdminSearchQueryDto,
   ): Promise<AdminSearchResponseDto> {
-    const pageSize = 25;
+    const defaultPageSize = ADMIN_SEARCH_PAGE_SIZE_VALUES[0];
     const normalizedQuery = {
       ...query,
       page: query.page ?? 1,
+      page_size: query.page_size ?? defaultPageSize,
       sort: query.sort ?? 'name:asc',
     };
     const { total, data } =
@@ -97,7 +101,7 @@ export class RecreationResourceService {
       data: mappedRows,
       total,
       page: normalizedQuery.page,
-      page_size: pageSize,
+      page_size: normalizedQuery.page_size,
     };
   }
 

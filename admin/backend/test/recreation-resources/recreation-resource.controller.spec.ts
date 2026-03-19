@@ -39,6 +39,7 @@ describe('RecreationResourceController', () => {
     const query: AdminSearchQueryDto = {
       q: 'Test',
       page: 2,
+      page_size: 50,
       sort: 'name:desc',
     };
     const mockResponse = {
@@ -57,7 +58,7 @@ describe('RecreationResourceController', () => {
       ],
       total: 1,
       page: 2,
-      page_size: 25,
+      page_size: 50,
     };
 
     (service.searchResources as any).mockResolvedValue(mockResponse);

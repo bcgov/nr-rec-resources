@@ -1,4 +1,5 @@
 import {
+  ADMIN_SEARCH_PAGE_SIZE_VALUES,
   ADMIN_SEARCH_SORT_VALUES,
   AdminSearchQueryDto,
 } from '@/recreation-resources/dtos/admin-search-query.dto';
@@ -17,6 +18,7 @@ describe('Admin Search DTOs', () => {
         q: 'tamihi',
         sort: ADMIN_SEARCH_SORT_VALUES[0],
         page: '2',
+        page_size: String(ADMIN_SEARCH_PAGE_SIZE_VALUES[1]),
         type: 'SIT_RTR',
         district: ['CHWK_RDCK'],
         activities: ['1_22'],
@@ -29,6 +31,7 @@ describe('Admin Search DTOs', () => {
 
       expect(await validate(dto)).toHaveLength(0);
       expect(dto.page).toBe(2);
+      expect(dto.page_size).toBe(50);
       expect(dto.type).toEqual(['SIT', 'RTR']);
       expect(dto.district).toEqual(['CHWK', 'RDCK']);
       expect(dto.activities).toEqual(['1', '22']);
@@ -38,6 +41,7 @@ describe('Admin Search DTOs', () => {
     it('rejects invalid page and sort values', async () => {
       const dto = plainToInstance(AdminSearchQueryDto, {
         page: '0',
+        page_size: '75',
         sort: 'invalid:asc',
       });
 

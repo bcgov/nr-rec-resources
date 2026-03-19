@@ -83,6 +83,7 @@ describe('RecreationResourceService', () => {
   it('should map admin search results into response DTO shape', async () => {
     const query: AdminSearchQueryDto = {
       q: 'lake',
+      page_size: 50,
     };
     (repo.searchResources as any).mockResolvedValue({
       total: 1,
@@ -141,6 +142,7 @@ describe('RecreationResourceService', () => {
     expect(repo.searchResources).toHaveBeenCalledWith({
       ...query,
       page: 1,
+      page_size: 50,
       sort: 'name:asc',
     });
     expect(result).toEqual({
@@ -162,7 +164,7 @@ describe('RecreationResourceService', () => {
       ],
       total: 1,
       page: 1,
-      page_size: 25,
+      page_size: 50,
     });
   });
 

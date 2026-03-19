@@ -4,6 +4,7 @@ import {
   setAdminSearchAccessFilter,
   setAdminSearchEstablishmentDateFromFilter,
   setAdminSearchEstablishmentDateToFilter,
+  setAdminSearchPageSize,
   setAdminSearchTypeFilter,
   submitAdminSearchQuery,
 } from '@/pages/search/utils/urlState';
@@ -17,6 +18,7 @@ const baseState = {
   q: 'old query',
   type: ['RTR'],
   access: ['W'],
+  page_size: 50,
   defined_campsites: 'yes' as const,
   closest_community: 'Hope',
   establishment_date_from: '2020-01-01',
@@ -58,6 +60,13 @@ describe('admin search urlState helpers', () => {
     });
   });
 
+  it('resets page when changing page size', () => {
+    expect(setAdminSearchPageSize(baseState, 100)).toMatchObject({
+      page: 1,
+      page_size: 100,
+    });
+  });
+
   it('serializes hidden compatibility filters when present', () => {
     expect(
       serializeAdminSearchRouteState({
@@ -91,6 +100,7 @@ describe('admin search urlState helpers', () => {
         ...DEFAULT_ADMIN_SEARCH_STATE,
         q: '  tamihi  ',
         page: 3,
+        page_size: 50,
         district: ['RDCS'],
         access: ['W'],
         closest_community: '  Hope  ',
@@ -98,6 +108,7 @@ describe('admin search urlState helpers', () => {
     ).toEqual({
       q: 'tamihi',
       page: 3,
+      page_size: 50,
       district: 'RDCS',
       access: 'W',
       closest_community: 'Hope',

@@ -1,4 +1,11 @@
-import { AdminSearchRouteState, AdminSearchSort } from '@/pages/search/types';
+import {
+  ADMIN_SEARCH_COLUMN_IDS as SEARCH_COLUMN_IDS,
+  type AdminSearchColumnId,
+  type AdminSearchSort,
+} from '@/pages/search/searchDefinitions';
+import type { AdminSearchRouteState } from '@/pages/search/types';
+
+export type { AdminSearchColumnId } from '@/pages/search/searchDefinitions';
 
 export type EditableAdminSearchFilters = Pick<
   AdminSearchRouteState,
@@ -14,6 +21,7 @@ export const DEFAULT_ADMIN_SEARCH_STATE: AdminSearchRouteState = {
   q: '',
   sort: 'name:asc',
   page: 1,
+  page_size: 25,
   type: [],
   district: [],
   activities: [],
@@ -23,6 +31,8 @@ export const DEFAULT_ADMIN_SEARCH_STATE: AdminSearchRouteState = {
   defined_campsites: undefined,
   closest_community: undefined,
 };
+
+export const ADMIN_SEARCH_PAGE_SIZE_OPTIONS = [25, 50, 100] as const;
 
 export const DEFAULT_ADMIN_SEARCH_SORT: AdminSearchSort =
   DEFAULT_ADMIN_SEARCH_STATE.sort;
@@ -69,28 +79,8 @@ export const ADMIN_SEARCH_STORAGE_KEYS = {
   draftQuery: 'admin-search-draft-query',
 } as const;
 
-export const ADMIN_SEARCH_COLUMN_IDS = [
-  'rec_resource_id',
-  'name',
-  'recreation_resource_type',
-  'district',
-  'closest_community',
-  'project_established_date',
-  'access_types',
-  'fee_types',
-  'defined_campsites',
-] as const;
-
-export type AdminSearchColumnId = (typeof ADMIN_SEARCH_COLUMN_IDS)[number];
-
 export const DEFAULT_VISIBLE_ADMIN_SEARCH_COLUMNS: AdminSearchColumnId[] = [
-  'rec_resource_id',
-  'name',
-  'recreation_resource_type',
-  'district',
-  'closest_community',
-  'project_established_date',
-  'access_types',
-  'fee_types',
-  'defined_campsites',
+  ...SEARCH_COLUMN_IDS,
 ];
+
+export const ADMIN_SEARCH_COLUMN_IDS = SEARCH_COLUMN_IDS;

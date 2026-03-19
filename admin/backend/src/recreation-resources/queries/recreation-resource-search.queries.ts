@@ -162,7 +162,7 @@ export function buildSearchWhereSql(query: AdminSearchQueryDto): Prisma.Sql {
     return Prisma.empty;
   }
 
-  return Prisma.sql`WHERE ${Prisma.join(conditions, Prisma.sql` AND `)}`;
+  return Prisma.sql`WHERE ${Prisma.join(conditions, ' AND ')}`;
 }
 
 export function buildDerivedSortOrderSql(sort: AdminSearchSort): Prisma.Sql {

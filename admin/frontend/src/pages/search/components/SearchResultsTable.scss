@@ -1,0 +1,99 @@
+@import '@/styles/variables.scss';
+
+.search-results-table {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.results-table {
+  width: 100%;
+  min-width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    border: 1px solid rgba($colorGreyLight, 0.55);
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  th {
+    background-color: $colorBackgroundGrey;
+    color: $colorGrey;
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+  }
+
+  td {
+    background-color: $colorWhite;
+    padding: 0.5rem;
+  }
+
+  &__row {
+    cursor: pointer;
+
+    &:hover td,
+    &:focus-visible td,
+    &:focus-within td {
+      background-color: $colorIceBlue;
+    }
+
+    &:hover td:first-child,
+    &:focus-visible td:first-child,
+    &:focus-within td:first-child {
+      box-shadow: inset 3px 0 0 rgba($colorBlueMed, 0.45);
+    }
+  }
+
+  &__sort {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.5rem;
+    border: 0;
+    background: transparent;
+    color: $colorGrey;
+    font-weight: 600;
+    text-align: left;
+    white-space: nowrap;
+
+    &:hover,
+    &:focus-visible {
+      color: $colorBlue;
+    }
+  }
+
+  &__column {
+    &--rec_resource_id {
+      min-width: 6.5rem;
+    }
+
+    &--name {
+      min-width: 16rem;
+    }
+
+    &--recreation_resource_type,
+    &--access_types,
+    &--fee_types,
+    &--closest_community {
+      min-width: 9rem;
+    }
+
+    &--project_established_date {
+      min-width: 7.5rem;
+    }
+
+    &--defined_campsites {
+      min-width: 7rem;
+    }
+  }
+
+  &__header {
+    display: flex;
+    align-items: stretch;
+    min-height: 100%;
+  }
+}
