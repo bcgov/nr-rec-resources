@@ -8,6 +8,7 @@ describe('services/hooks/index', () => {
     expect(hooksIndex).toHaveProperty('useGetDocumentsByRecResourceId');
     expect(hooksIndex).toHaveProperty('useGetImagesByRecResourceId');
     expect(hooksIndex).toHaveProperty('useGetRecreationResourceById');
+    expect(hooksIndex).toHaveProperty('useGetRecreationResourceSearch');
     expect(hooksIndex).toHaveProperty('useGetRecreationResourceSuggestions');
     expect(hooksIndex).toHaveProperty('useRecreationResourceAdminApiClient');
     expect(hooksIndex).toHaveProperty('createRetryHandler');
@@ -24,6 +25,7 @@ describe('services/hooks/index', () => {
     expect(typeof hooksIndex.useGetDocumentsByRecResourceId).toBe('function');
     expect(typeof hooksIndex.useGetImagesByRecResourceId).toBe('function');
     expect(typeof hooksIndex.useGetRecreationResourceById).toBe('function');
+    expect(typeof hooksIndex.useGetRecreationResourceSearch).toBe('function');
     expect(typeof hooksIndex.useGetRecreationResourceSuggestions).toBe(
       'function',
     );

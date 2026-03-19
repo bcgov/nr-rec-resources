@@ -1,6 +1,5 @@
 /**
  * PageLayout constrains content to a max width and provides responsive padding.
- * Use for all pages except the landing page.
  */
 import './PageLayout.scss';
 

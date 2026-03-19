@@ -1,0 +1,144 @@
+@import '@shared/styles/variables';
+
+.checkbox-dropdown {
+  position: relative;
+
+  &--field {
+    width: 100%;
+  }
+
+  &__menu {
+    max-width: min(32rem, calc(100vw - 2rem));
+    max-height: 18rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    z-index: 1025;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+
+    .dropdown-item {
+      white-space: normal;
+    }
+
+    width: max-content;
+
+    .checkbox-dropdown--field & {
+      width: 100%;
+      min-width: 100%;
+    }
+  }
+
+  &__item {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    column-gap: 0.5rem;
+    font-weight: 400;
+  }
+
+  &__checkbox {
+    margin-top: 0;
+  }
+
+  &__label {
+    min-width: 0;
+  }
+
+  &__toggle {
+    position: relative;
+
+    &--field {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      border: 1px solid $colorGreyLight;
+      background-color: $colorWhite;
+      color: $colorGrey;
+      font: inherit;
+      height: calc(1.5em + 0.75rem + 2px);
+      min-height: calc(1.5em + 0.75rem + 2px);
+      padding: 0.375rem 2.25rem 0.375rem 0.75rem;
+      border-radius: 0.375rem;
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.5;
+      text-align: left;
+
+      &.btn,
+      &.btn:hover,
+      &.btn:active,
+      &.btn.show {
+        border-color: $colorGreyLight;
+        background-color: $colorWhite;
+        color: $colorGrey;
+        box-shadow: none;
+      }
+
+      &.btn:focus,
+      &.btn:focus-visible,
+      &.btn.show:focus,
+      &.btn.show:focus-visible {
+        border-color: #86b7fe;
+        background-color: $colorWhite;
+        color: $colorGrey;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+      }
+
+      &::after {
+        position: absolute;
+        top: 50%;
+        right: 0.75rem;
+        transform: translateY(-50%);
+      }
+    }
+
+    &--button {
+      &.btn-light,
+      &.btn-light:hover,
+      &.btn-light:active,
+      &.btn-light.show {
+        border: 1px solid $colorBlue;
+        background-color: $colorWhite;
+        color: $colorBlue;
+        box-shadow: none;
+      }
+
+      &.btn-light:hover {
+        background-color: $colorIceBlue;
+      }
+
+      &.btn-light:focus,
+      &.btn-light:focus-visible,
+      &.btn-light.show:focus,
+      &.btn-light.show:focus-visible {
+        border-color: #86b7fe;
+        background-color: $colorWhite;
+        color: $colorBlue;
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+      }
+
+      &::after {
+        display: none;
+      }
+    }
+
+    &--with-icon {
+      .checkbox-dropdown__toggle-icon {
+        display: inline-flex;
+        align-items: center;
+        flex-shrink: 0;
+      }
+    }
+  }
+
+  &__toggle-content {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+
+  &__toggle-label {
+    min-width: 0;
+  }
+}

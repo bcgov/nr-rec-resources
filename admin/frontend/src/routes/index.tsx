@@ -1,9 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router';
-import { LandingPage } from '@/pages/LandingPage';
+import { SearchPage } from '@/pages/search';
+import { validateAdminSearch } from '@/pages/search/utils/searchSchema';
 import { BreadcrumbItem } from '@shared/components/breadcrumbs';
 
 export const Route = createFileRoute('/')({
-  component: LandingRoute,
+  validateSearch: validateAdminSearch,
+  component: IndexRoute,
   beforeLoad: () => ({
     breadcrumb: (): BreadcrumbItem[] => [
       {
@@ -14,6 +16,6 @@ export const Route = createFileRoute('/')({
   }),
 });
 
-function LandingRoute() {
-  return <LandingPage />;
+function IndexRoute() {
+  return <SearchPage />;
 }

@@ -28,6 +28,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { RecreationResourceDetailDto } from './dtos/recreation-resource-detail.dto';
+import { AdminSearchQueryDto } from './dtos/admin-search-query.dto';
+import { AdminSearchResponseDto } from './dtos/admin-search-response.dto';
 import { SuggestionsQueryDto } from './dtos/suggestions-query.dto';
 import { SuggestionsResponseDto } from './dtos/suggestions-response.dto';
 import { UpdateRecreationResourceDto } from './dtos/update-recreation-resource.dto';
@@ -56,6 +58,28 @@ export class RecreationResourceController {
    * @param query - Query parameters containing the searchTerm
    * @returns SuggestionsResponseDto containing total and data array
    */
+  @AuthRoles(
+    [
+      RecreationResourceAuthRole.RST_VIEWER,
+      RecreationResourceAuthRole.RST_ADMIN,
+    ],
+    ROLE_MODE.ANY,
+  )
+  @Get('search')
+  @ApiOkResponse({
+    type: AdminSearchResponseDto,
+    description: 'Successful retrieval of admin search results',
+  })
+  @ApiOperation({
+    operationId: 'searchRecreationResources',
+    summary: 'Search recreation resources for admin',
+  })
+  async searchResources(
+    @Query() query: AdminSearchQueryDto,
+  ): Promise<AdminSearchResponseDto> {
+    return await this.recreationResourceService.searchResources(query);
+  }
+
   @AuthRoles(
     [
       RecreationResourceAuthRole.RST_VIEWER,

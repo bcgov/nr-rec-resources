@@ -5,6 +5,10 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { RouterProvider, createRouter } from '@tanstack/react-router';
 import { routeTree } from './routeTree.gen';
 import { useGlobalQueryErrorHandler } from './services/hooks/useGlobalQueryErrorHandler';
+import {
+  parseRouterSearch,
+  stringifyRouterSearch,
+} from './utils/routerSearchParams';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -18,6 +22,8 @@ const router = createRouter({
   routeTree,
   scrollRestoration: true,
   scrollRestorationBehavior: 'instant',
+  parseSearch: parseRouterSearch,
+  stringifySearch: stringifyRouterSearch,
   context: {
     queryClient,
   },

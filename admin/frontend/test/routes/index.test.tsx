@@ -1,5 +1,11 @@
+import { render, screen } from '@testing-library/react';
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('@/pages/search', () => ({
+  SearchPage: () => <div>Mock Search Page</div>,
+}));
+
 import { Route } from '@/routes/index';
-import { describe, expect, it } from 'vitest';
 
 describe('Landing Route', () => {
   it('should export a Route with correct path', () => {
@@ -24,5 +30,12 @@ describe('Landing Route', () => {
       label: 'Home',
       href: '/',
     });
+  });
+
+  it('renders the search page component for the route', () => {
+    const Component = Route.options.component;
+    render(<Component />);
+
+    expect(screen.getByText('Mock Search Page')).toBeInTheDocument();
   });
 });

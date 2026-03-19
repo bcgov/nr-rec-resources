@@ -1,0 +1,34 @@
+@import '@/styles/variables.scss';
+
+.search-page {
+  .control-button.btn {
+    // override bootstrap focus styles
+    &:focus,
+    &:focus-visible {
+      border-color: #86b7fe;
+      background-color: $colorWhite;
+      color: $colorBlue;
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+
+    &.is-active,
+    &.is-active:hover,
+    &.is-active:focus,
+    &.is-active:focus-visible {
+      border-color: $colorBlue;
+      background-color: $colorBlue;
+      color: $colorWhite;
+    }
+
+    &.is-active:focus,
+    &.is-active:focus-visible {
+      border-color: #86b7fe;
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    }
+  }
+
+  h1,
+  h2 {
+    color: $colorBlack;
+  }
+}

@@ -11,6 +11,7 @@ export * from './useGetEstablishmentOrderDocs';
 export * from './useGetImagesByRecResourceId';
 export * from './useGetRecreationResourceById';
 export * from './useGetRecreationResourceOptions';
+export { default as useGetRecreationResourceSearch } from './useGetRecreationResourceSearch';
 export * from './useGetRecreationResourceSuggestions';
 export * from './useRecreationResourceAdminApiClient';
 export * from './useS3Upload';
