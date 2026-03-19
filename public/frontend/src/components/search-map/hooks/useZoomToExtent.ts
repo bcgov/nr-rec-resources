@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { RefObject } from 'react';
 import type OLMap from 'ol/Map';
 import GeoJSON from 'ol/format/GeoJSON';
@@ -13,6 +13,17 @@ export const useZoomToExtent = (
 ) => {
   const { wasCleared } = useStore(searchInputStore);
   const isMapInitialized = useRef(false);
+  const [fitView, setFitView] = useState(true);
+
+  const checkRestore = () => {
+    const lastZoom = sessionStorage.getItem('locationZoomState');
+    const lastCenter = sessionStorage.getItem('locationCenterState');
+    if (lastZoom != null && lastCenter != null) {
+      return true;
+    }
+
+    return false;
+  };
 
   useEffect(() => {
     console.log('useZoomToExtent start');
@@ -21,6 +32,41 @@ export const useZoomToExtent = (
     const map = mapRef.current.getMap();
     if (!map) return;
     console.log('useZoomToExtent map');
+
+    const view = map.getView();
+
+    const restoreLocation = () => {
+      const lastZoom = sessionStorage.getItem('locationZoomState');
+      const lastCenter = sessionStorage.getItem('locationCenterState');
+
+      console.log('restoreLocation 3', lastCenter, lastZoom);
+
+      if (lastZoom != null && lastCenter != null) {
+        try {
+          const zoom = Number(lastZoom);
+          const center = JSON.parse(lastCenter);
+
+          if (!isNaN(zoom) && Array.isArray(center) && center.length === 2) {
+            console.log('Set Zoom !!!');
+            view.setCenter(center);
+            view.setZoom(zoom);
+            setFitView(false);
+          }
+        } catch (e) {
+          console.warn('Failed to restore location', e);
+        }
+        console.log(
+          'delete 3',
+          sessionStorage.getItem('locationZoomState'),
+          sessionStorage.getItem('locationCenterState'),
+        );
+      }
+    };
+
+    if (checkRestore()) {
+      restoreLocation();
+    }
+
     // Skip on initial load - only run when extent changes after map is initialized
     if (!isMapInitialized.current) {
       isMapInitialized.current = true;
@@ -49,66 +95,24 @@ export const useZoomToExtent = (
         'EPSG:3857',
       );
 
-      const view = map.getView();
-
-      const restoreLocation = () => {
-        const lastZoom = sessionStorage.getItem('locationZoomState');
-        const lastCenter = sessionStorage.getItem('locationCenterState');
-
-        console.log('restoreLocation', lastCenter, lastZoom);
-
-        if (lastZoom != null && lastCenter != null) {
-          try {
-            const zoom = Number(lastZoom);
-            const center = JSON.parse(lastCenter);
-
-            if (!isNaN(zoom) && Array.isArray(center) && center.length === 2) {
-              view.setCenter(center);
-              view.setZoom(zoom);
-              return true;
-            }
-          } catch (e) {
-            console.warn('Failed to restore location', e);
-          }
-
-          sessionStorage.removeItem('locationZoomState');
-          sessionStorage.removeItem('locationCenterState');
-        }
-
-        return false;
-      };
-
-      let restored = false;
-
       map.once('moveend', () => {
-        restored = restoreLocation();
-        console.log('moveend restoreLocation result', restored);
-
-        if (!restored) {
-          const zoom = view.getZoom();
-          if (zoom != null) {
-            view.setZoom(zoom + 0.01);
-          }
+        const zoom = view.getZoom();
+        if (zoom != null) {
+          view.setZoom(zoom + 0.01);
         }
       });
 
-      // Fallback if moveend never fires
-      setTimeout(() => {
-        if (!restored) {
-          console.log('fallback restore');
-          restoreLocation();
-        }
-      }, 0);
-
-      console.log('monitor restored', restored);
-
       const mapSize = map.getSize(); // [width, height]
       if (mapSize) {
-        const [width] = mapSize;
-        const padding = calculateMapPadding(width);
-
-        view.fit(olExtent3857, { padding, maxZoom: 16, duration: 500 });
+        console.log('Fit zoom', fitView);
+        if (!checkRestore()) {
+          const [width] = mapSize;
+          const padding = calculateMapPadding(width);
+          view.fit(olExtent3857, { padding, maxZoom: 16, duration: 500 });
+        }
       }
+      sessionStorage.removeItem('locationZoomState');
+      sessionStorage.removeItem('locationCenterState');
     } catch (err) {
       console.error('Failed to parse or fit extent:', err);
     }
