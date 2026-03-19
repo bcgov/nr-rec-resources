@@ -16,6 +16,7 @@ const baseRow: AdminSearchResultRowDto & { status?: string } = {
   established_date: '2024-06-10',
   campsite_count: 3,
   status: 'Open',
+  status_code: 1,
 };
 
 describe('mapAdminSearchResultRow', () => {
@@ -24,6 +25,7 @@ describe('mapAdminSearchResultRow', () => {
       projectName: 'Blue Lake',
       closestCommunity: 'Hope',
       status: 'Open',
+      statusCode: 1,
     });
   });
 
@@ -39,14 +41,16 @@ describe('mapAdminSearchResultRow', () => {
     });
   });
 
-  it('falls back when status is unavailable', () => {
+  it('keeps the backend-provided open fallback status', () => {
     expect(
       mapAdminSearchResultRow({
         ...baseRow,
-        status: '',
+        status: 'Open',
+        status_code: 1,
       }),
     ).toMatchObject({
-      status: '-',
+      status: 'Open',
+      statusCode: 1,
     });
   });
 });

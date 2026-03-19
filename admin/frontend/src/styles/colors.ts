@@ -16,3 +16,6 @@ export const COLOR_BROWN_DARK = '#736c5d';
 export const COLOR_BROWN_MED = '#e6e1d7';
 export const COLOR_BROWN_LIGHT = '#f2f0eb';
 export const COLOR_GREEN = '#4b944d';
+export const COLOR_GREEN_DARKER = '#2e8540';
+export const COLOR_GREEN_LIGHT = '#4f8747';
+export const COLOR_GREEN_LIGHTEST = '#e0eddb';

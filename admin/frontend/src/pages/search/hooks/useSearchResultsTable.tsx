@@ -8,6 +8,7 @@ import {
 } from '@tanstack/react-table';
 import type { KeyboardEvent } from 'react';
 import { useNavigate } from '@tanstack/react-router';
+import { AdminStatusBadge } from '@/components';
 import { ROUTE_PATHS } from '@/constants/routes';
 import {
   ADMIN_SEARCH_COLUMN_IDS,
@@ -45,20 +46,33 @@ const buildColumns = (
   sortDirection: string,
   onSortChange: (sort: AdminSearchRouteState['sort']) => void,
 ): ColumnDef<AdminSearchResultRow>[] =>
-  ADMIN_SEARCH_COLUMN_DEFINITIONS.map(({ id, resultKey }) => ({
-    id,
-    accessorKey: resultKey,
-    header: () => (
-      <SearchResultsTableSortableHeader
-        columnId={id}
-        sortField={sortField}
-        sortDirection={sortDirection}
-        onSortChange={onSortChange}
-      />
-    ),
-    cell: ({ row }: { row: Row<AdminSearchResultRow> }) =>
-      String(row.original[resultKey] ?? ''),
-  }));
+  ADMIN_SEARCH_COLUMN_DEFINITIONS.map(({ id, resultKey }) => {
+    const column: ColumnDef<AdminSearchResultRow> = {
+      id,
+      accessorKey: resultKey,
+      header: () => (
+        <SearchResultsTableSortableHeader
+          columnId={id}
+          sortField={sortField}
+          sortDirection={sortDirection}
+          onSortChange={onSortChange}
+        />
+      ),
+      cell: ({ row }: { row: Row<AdminSearchResultRow> }) =>
+        String(row.original[resultKey] ?? ''),
+    };
+
+    if (id === 'status') {
+      column.cell = ({ row }: { row: Row<AdminSearchResultRow> }) => (
+        <AdminStatusBadge
+          label={row.original.status}
+          statusCode={row.original.statusCode}
+        />
+      );
+    }
+
+    return column;
+  });
 
 export function useSearchResultsTable({
   rows,

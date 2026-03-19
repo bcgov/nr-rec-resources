@@ -50,6 +50,12 @@ export class AdminSearchResultRowDto {
   status: string;
 
   @ApiProperty({
+    description: 'Recreation status code',
+    example: 1,
+  })
+  status_code: number;
+
+  @ApiProperty({
     description: 'Access types associated with the resource',
     type: [String],
     example: ['Road', '4WD'],

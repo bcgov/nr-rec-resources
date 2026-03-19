@@ -36,6 +36,7 @@ describe('SearchResultsTable', () => {
       definedCampsites: '3',
       closestCommunity: 'Hope',
       status: 'Open',
+      statusCode: 1,
     },
   ];
 
@@ -83,6 +84,23 @@ describe('SearchResultsTable', () => {
     expect(screen.getByText('3')).toBeInTheDocument();
     expect(screen.getByText('Hope')).toBeInTheDocument();
     expect(screen.getByText('Open')).toBeInTheDocument();
+  });
+
+  it('renders status as a badge in the status column', () => {
+    render(
+      <SearchResultsTable
+        rows={rows}
+        visibleColumns={['rec_resource_id', 'status']}
+        sort="name:asc"
+        pagination={createPagination()}
+        isLoading={false}
+        onSortChange={vi.fn()}
+      />,
+    );
+
+    const statusCell = screen.getByText('Open');
+    expect(statusCell.tagName).toBe('SPAN');
+    expect(statusCell).toHaveClass('custom-badge');
   });
 
   it('emits the next sort when a sortable header is clicked', async () => {

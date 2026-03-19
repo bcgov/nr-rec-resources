@@ -1,5 +1,6 @@
 import { PrismaService } from '@/prisma.service';
 import { AdminSearchQueryDto } from '@/recreation-resources/dtos/admin-search-query.dto';
+import { OPEN_STATUS } from '@/recreation-resources/recreation-resource.constants';
 import { UpdateRecreationResourceDto } from '@/recreation-resources/dtos/update-recreation-resource.dto';
 import { RecreationResourceRepository } from '@/recreation-resources/recreation-resource.repository';
 import { RecreationResourceService } from '@/recreation-resources/recreation-resource.service';
@@ -130,6 +131,12 @@ describe('RecreationResourceService', () => {
           recreation_district_code: {
             description: 'Chilliwack',
           },
+          recreation_status: {
+            recreation_status_code: {
+              description: 'Open',
+            },
+            status_code: 1,
+          },
           _count: {
             recreation_defined_campsite: 5,
           },
@@ -155,6 +162,8 @@ describe('RecreationResourceService', () => {
           district_description: 'Chilliwack',
           display_on_public_site: true,
           closest_community: 'Hope',
+          status: 'Open',
+          status_code: 1,
           activities: ['Fishing', 'Hiking'],
           access_types: ['Walk in'],
           fee_types: ['Reservable', 'Has fees'],
@@ -165,6 +174,38 @@ describe('RecreationResourceService', () => {
       total: 1,
       page: 1,
       page_size: 50,
+    });
+  });
+
+  it('should default missing search status to open', async () => {
+    (repo.searchResources as any).mockResolvedValue({
+      total: 1,
+      data: [
+        {
+          rec_resource_id: 'REC124',
+          name: 'No Status Lake',
+          closest_community: '',
+          project_established_date: null,
+          display_on_public_site: true,
+          recreation_activity: [],
+          recreation_access: [],
+          recreation_fee: [],
+          recreation_resource_reservation_info: null,
+          recreation_resource_type_view_admin: [],
+          recreation_district_code: null,
+          recreation_status: null,
+          _count: {
+            recreation_defined_campsite: 0,
+          },
+        },
+      ],
+    });
+
+    const result = await service.searchResources({});
+
+    expect(result.data[0]).toMatchObject({
+      status: OPEN_STATUS.DESCRIPTION,
+      status_code: OPEN_STATUS.STATUS_CODE,
     });
   });
 
@@ -296,6 +337,8 @@ describe('RecreationResourceService', () => {
           activities: ['hiking', 'Hiking'],
           access_types: ['boat', 'Boat'],
           fee_types: ['No fees'],
+          status: OPEN_STATUS.DESCRIPTION,
+          status_code: OPEN_STATUS.STATUS_CODE,
           established_date: null,
           campsite_count: 0,
         },

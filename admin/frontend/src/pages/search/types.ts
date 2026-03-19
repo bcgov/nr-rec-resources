@@ -41,4 +41,5 @@ export interface AdminSearchResultRow {
   definedCampsites: string;
   closestCommunity: string;
   status: string;
+  statusCode: number;
 }

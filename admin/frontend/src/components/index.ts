@@ -1,3 +1,4 @@
+export * from './admin-status-badge';
 export * from './auth';
 export * from './avatar';
 export * from './buttons';

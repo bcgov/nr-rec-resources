@@ -170,7 +170,8 @@ export function FilterAccordion({
             className="justify-content-between flex-wrap mt-4 border-top pt-3"
           >
             <Button
-              variant="outline-secondary"
+              variant="outline-primary"
+              className="control-button"
               onClick={() => {
                 resetDraft();
                 onReset();
@@ -197,8 +198,8 @@ export function FilterAccordion({
                 Apply
               </Button>
               <Button
-                variant="link"
-                className="text-decoration-none px-0 text-muted"
+                variant="outline-primary"
+                className="control-button"
                 onClick={() => {
                   setDraft(searchFilters);
                   onClose();
