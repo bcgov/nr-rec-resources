@@ -3,8 +3,12 @@
  * This ensures consistency between loaders and hooks, preventing duplicate API calls.
  */
 
+import type { SearchRecreationResourcesRequest } from '@/services/recreation-resource-admin';
+
 export const RECREATION_RESOURCE_QUERY_KEYS = {
   all: ['recreation-resource-admin'] as const,
+  search: (params: SearchRecreationResourcesRequest) =>
+    ['recreation-resource-admin', 'search', params] as const,
   detail: (id: string) => ['recreation-resource-admin', 'detail', id] as const,
   exportDatasets: () =>
     ['recreation-resource-admin', 'exports', 'datasets'] as const,

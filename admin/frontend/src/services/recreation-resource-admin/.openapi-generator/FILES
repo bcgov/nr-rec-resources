@@ -3,6 +3,8 @@ apis/HealthApi.ts
 apis/RecreationResourcesApi.ts
 apis/index.ts
 index.ts
+models/AdminSearchResponseDto.ts
+models/AdminSearchResultRowDto.ts
 models/BadRequestResponseDto.ts
 models/ConsentFormDownloadResponseDto.ts
 models/CreateRecreationFeeDto.ts
@@ -39,7 +41,7 @@ models/SuggestionDto.ts
 models/SuggestionsResponseDto.ts
 models/UpdateActivitiesDto.ts
 models/UpdateFeaturesDto.ts
-models/UpdateImageConsentDto.ts
+models/UpdateImageConsentPatchDto.ts
 models/UpdateRecreationAccessCodeDto.ts
 models/UpdateRecreationFeeDto.ts
 models/UpdateRecreationResourceDto.ts

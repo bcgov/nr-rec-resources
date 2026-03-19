@@ -1,0 +1,41 @@
+@import '@/styles/variables.scss';
+
+.chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: 100%;
+  min-width: 0;
+  gap: 0.5rem;
+}
+
+.chip.btn {
+  height: fit-content;
+  border: 1px solid $colorBlue;
+  background-color: $colorBlue;
+  color: $colorWhite;
+  border-radius: 32px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 4px 12px;
+  margin: 0;
+
+  &:hover,
+  &:focus-visible,
+  &:active {
+    background-color: $colorBlueMed;
+    border-color: $colorBlueMed;
+    color: $colorWhite;
+  }
+
+  .close-icon {
+    font-size: 1rem;
+    margin-left: 8px;
+  }
+}
+
+@media (max-width: $lgBreakpoint) {
+  .chip-list {
+    justify-content: flex-start;
+  }
+}

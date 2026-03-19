@@ -1,4 +1,5 @@
 import { PrismaService } from '@/prisma.service';
+import { AdminSearchQueryDto } from '@/recreation-resources/dtos/admin-search-query.dto';
 import { UpdateRecreationResourceDto } from '@/recreation-resources/dtos/update-recreation-resource.dto';
 import { RecreationResourceRepository } from '@/recreation-resources/recreation-resource.repository';
 import { RecreationResourceService } from '@/recreation-resources/recreation-resource.service';
@@ -11,6 +12,7 @@ describe('RecreationResourceService', () => {
 
   beforeEach(() => {
     repo = {
+      searchResources: vi.fn(),
       findSuggestions: vi.fn(),
     } as unknown as RecreationResourceRepository;
     prisma = {
@@ -76,6 +78,232 @@ describe('RecreationResourceService', () => {
 
     const result = await service.getSuggestions('Test');
     expect(result.suggestions.length).toBe(0);
+  });
+
+  it('should map admin search results into response DTO shape', async () => {
+    const query: AdminSearchQueryDto = {
+      q: 'lake',
+      page_size: 50,
+    };
+    (repo.searchResources as any).mockResolvedValue({
+      total: 1,
+      data: [
+        {
+          rec_resource_id: 'REC123',
+          name: 'Blue Lake',
+          closest_community: 'Hope',
+          project_established_date: new Date('2024-06-10T00:00:00.000Z'),
+          display_on_public_site: true,
+          recreation_activity: [
+            {
+              recreation_activity: {
+                description: 'Fishing',
+              },
+            },
+            {
+              recreation_activity: {
+                description: 'Hiking',
+              },
+            },
+          ],
+          recreation_access: [
+            {
+              recreation_access_code: {
+                description: 'Walk in',
+              },
+            },
+          ],
+          recreation_fee: [
+            {
+              recreation_fee_code: 'D',
+            },
+          ],
+          recreation_resource_reservation_info: {
+            rec_resource_id: 'REC123',
+          },
+          recreation_resource_type_view_admin: [
+            {
+              description: 'Recreation site',
+              rec_resource_type_code: 'SIT',
+            },
+          ],
+          recreation_district_code: {
+            description: 'Chilliwack',
+          },
+          _count: {
+            recreation_defined_campsite: 5,
+          },
+        },
+      ],
+    });
+
+    const result = await service.searchResources(query);
+
+    expect(repo.searchResources).toHaveBeenCalledWith({
+      ...query,
+      page: 1,
+      page_size: 50,
+      sort: 'name:asc',
+    });
+    expect(result).toEqual({
+      data: [
+        {
+          rec_resource_id: 'REC123',
+          name: 'Blue Lake',
+          recreation_resource_type: 'Recreation site',
+          recreation_resource_type_code: 'SIT',
+          district_description: 'Chilliwack',
+          display_on_public_site: true,
+          closest_community: 'Hope',
+          activities: ['Fishing', 'Hiking'],
+          access_types: ['Walk in'],
+          fee_types: ['Reservable', 'Has fees'],
+          established_date: '2024-06-10',
+          campsite_count: 5,
+        },
+      ],
+      total: 1,
+      page: 1,
+      page_size: 50,
+    });
+  });
+
+  it('should normalize derived list values alphabetically', async () => {
+    const query: AdminSearchQueryDto = {};
+    (repo.searchResources as any).mockResolvedValue({
+      total: 1,
+      data: [
+        {
+          rec_resource_id: 'REC200',
+          name: 'Test Lake',
+          closest_community: 'Hope',
+          established_date: null,
+          updated_at: null,
+          display_on_public_site: true,
+          recreation_activity: [
+            {
+              recreation_activity: {
+                description: 'Hiking',
+              },
+            },
+            {
+              recreation_activity: {
+                description: 'Fishing',
+              },
+            },
+          ],
+          recreation_access: [
+            {
+              recreation_access_code: {
+                description: 'Road',
+              },
+            },
+            {
+              recreation_access_code: {
+                description: 'Boat',
+              },
+            },
+          ],
+          recreation_fee: [],
+          recreation_resource_reservation_info: null,
+          recreation_resource_type_view_admin: [
+            {
+              description: 'Trail',
+              rec_resource_type_code: 'RTR',
+            },
+          ],
+          recreation_district_code: null,
+          _count: {
+            recreation_defined_campsite: 0,
+          },
+        },
+      ],
+    });
+
+    const result = await service.searchResources(query);
+
+    expect(result.data[0]).toMatchObject({
+      activities: ['Fishing', 'Hiking'],
+      access_types: ['Boat', 'Road'],
+    });
+  });
+
+  it('should apply default paging, remove blank duplicates, and map missing optionals safely', async () => {
+    (repo.searchResources as any).mockResolvedValue({
+      total: 1,
+      data: [
+        {
+          rec_resource_id: 'REC201',
+          name: null,
+          closest_community: null,
+          project_established_date: null,
+          display_on_public_site: null,
+          recreation_activity: [
+            {
+              recreation_activity: {
+                description: ' hiking ',
+              },
+            },
+            {
+              recreation_activity: {
+                description: 'Hiking',
+              },
+            },
+            {
+              recreation_activity: {
+                description: ' ',
+              },
+            },
+          ],
+          recreation_access: [
+            {
+              recreation_access_code: {
+                description: ' boat ',
+              },
+            },
+            {
+              recreation_access_code: {
+                description: 'Boat',
+              },
+            },
+          ],
+          recreation_fee: [],
+          recreation_resource_reservation_info: null,
+          recreation_resource_type_view_admin: [],
+          recreation_district_code: null,
+          _count: {},
+        },
+      ],
+    });
+
+    const result = await service.searchResources({});
+
+    expect(repo.searchResources).toHaveBeenCalledWith({
+      page: 1,
+      page_size: 25,
+      sort: 'name:asc',
+    });
+    expect(result).toEqual({
+      data: [
+        {
+          rec_resource_id: 'REC201',
+          name: '',
+          recreation_resource_type: '',
+          recreation_resource_type_code: '',
+          district_description: '',
+          display_on_public_site: false,
+          closest_community: '',
+          activities: ['hiking', 'Hiking'],
+          access_types: ['boat', 'Boat'],
+          fee_types: ['No fees'],
+          established_date: null,
+          campsite_count: 0,
+        },
+      ],
+      total: 1,
+      page: 1,
+      page_size: 25,
+    });
   });
 });
 

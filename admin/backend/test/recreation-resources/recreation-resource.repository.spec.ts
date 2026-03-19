@@ -1,6 +1,7 @@
 import { PrismaService } from '@/prisma.service';
 import { RecreationResourceRepository } from '@/recreation-resources/recreation-resource.repository';
 import { syncManyToManyComposite } from '@/recreation-resources/utils/syncManyToManyUtils';
+import { Prisma } from '@generated/prisma';
 import { beforeEach, describe, expect, it, Mocked, vi } from 'vitest';
 
 // Mock the utility function
@@ -50,8 +51,11 @@ describe('RecreationResourceRepository', () => {
   beforeEach(() => {
     prisma = {
       $queryRawTyped: vi.fn(),
+      $queryRaw: vi.fn(),
       recreation_resource: {
         findUnique: vi.fn(),
+        count: vi.fn(),
+        findMany: vi.fn(),
       },
       $transaction: vi.fn(),
     } as unknown as MockedPrismaService;
@@ -94,6 +98,98 @@ describe('RecreationResourceRepository', () => {
       prisma.recreation_resource.findUnique.mockResolvedValue(null);
       const result = await repo.findOneById('notfound');
       expect(result).toBeNull();
+    });
+  });
+
+  describe('searchResources', () => {
+    it('should query count and page data with normalized filters', async () => {
+      const mockData = [{ rec_resource_id: 'REC001' }];
+      (
+        prisma.$transaction as unknown as ReturnType<typeof vi.fn>
+      ).mockResolvedValue([42, mockData]);
+
+      const result = await repo.searchResources({
+        q: 'lake',
+        page: 2,
+        page_size: 50,
+        sort: 'name:desc',
+        type: ['SIT'],
+        access: ['R'],
+        defined_campsites: 'yes',
+        closest_community: 'Hope',
+      });
+
+      expect(prisma.$transaction).toHaveBeenCalledTimes(1);
+      expect(prisma.recreation_resource.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          skip: 50,
+          take: 50,
+        }),
+      );
+      expect(result).toEqual({
+        total: 42,
+        data: mockData,
+      });
+    });
+
+    it('should use raw SQL path for derived sorts and preserve returned order', async () => {
+      prisma.$queryRaw
+        .mockResolvedValueOnce([{ total: 2n }])
+        .mockResolvedValueOnce([
+          { rec_resource_id: 'REC002' },
+          { rec_resource_id: 'REC001' },
+        ]);
+      prisma.recreation_resource.findMany.mockResolvedValue([
+        { rec_resource_id: 'REC001' },
+        { rec_resource_id: 'REC002' },
+      ]);
+
+      const result = await repo.searchResources({
+        sort: 'fee:desc',
+        page: 2,
+        page_size: 25,
+      });
+
+      expect(prisma.$transaction).not.toHaveBeenCalled();
+      expect(prisma.$queryRaw).toHaveBeenCalledTimes(2);
+      expect(prisma.recreation_resource.findMany).toHaveBeenCalledWith({
+        where: {
+          rec_resource_id: {
+            in: ['REC002', 'REC001'],
+          },
+        },
+        select: expect.anything(),
+      });
+      expect(result).toEqual({
+        total: 2,
+        data: [{ rec_resource_id: 'REC002' }, { rec_resource_id: 'REC001' }],
+      });
+
+      const countQuery = prisma.$queryRaw.mock.calls[0]?.[0] as Prisma.Sql;
+      const idsQuery = prisma.$queryRaw.mock.calls[1]?.[0] as Prisma.Sql;
+
+      expect(countQuery.sql.replace(/\s+/g, ' ').trim()).toContain(
+        'SELECT COUNT(*)::bigint AS total',
+      );
+      expect(idsQuery.sql.replace(/\s+/g, ' ').trim()).toContain(
+        "ORDER BY COALESCE(fee_agg.fee_values, '') DESC, rr.rec_resource_id ASC",
+      );
+    });
+
+    it('should return an empty data array when the derived-sort ID query returns no rows', async () => {
+      prisma.$queryRaw
+        .mockResolvedValueOnce([{ total: 0n }])
+        .mockResolvedValueOnce([]);
+
+      const result = await repo.searchResources({
+        sort: 'activities:asc',
+      });
+
+      expect(prisma.recreation_resource.findMany).not.toHaveBeenCalled();
+      expect(result).toEqual({
+        total: 0,
+        data: [],
+      });
     });
   });
 

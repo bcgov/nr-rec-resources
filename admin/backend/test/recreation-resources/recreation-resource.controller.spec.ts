@@ -1,4 +1,5 @@
 import { SuggestionsQueryDto } from '@/recreation-resources/dtos/suggestions-query.dto';
+import { AdminSearchQueryDto } from '@/recreation-resources/dtos/admin-search-query.dto';
 import { SuggestionsResponseDto } from '@/recreation-resources/dtos/suggestions-response.dto';
 import { UpdateRecreationResourceDto } from '@/recreation-resources/dtos/update-recreation-resource.dto';
 import { RecreationResourceController } from '@/recreation-resources/recreation-resource.controller';
@@ -17,6 +18,7 @@ describe('RecreationResourceController', () => {
         {
           provide: RecreationResourceService,
           useValue: {
+            searchResources: vi.fn(),
             getSuggestions: vi.fn(),
             findOne: vi.fn(),
             update: vi.fn(),
@@ -31,6 +33,40 @@ describe('RecreationResourceController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  it('should call service.searchResources and return its result', async () => {
+    const query: AdminSearchQueryDto = {
+      q: 'Test',
+      page: 2,
+      page_size: 50,
+      sort: 'name:desc',
+    };
+    const mockResponse = {
+      data: [
+        {
+          rec_resource_id: 'REC123',
+          name: 'Test Resource',
+          recreation_resource_type: 'Recreation site',
+          recreation_resource_type_code: 'S',
+          district_description: 'Test District',
+          display_on_public_site: true,
+          closest_community: 'Hope',
+          established_date: '2024-01-01',
+          campsite_count: 3,
+        },
+      ],
+      total: 1,
+      page: 2,
+      page_size: 50,
+    };
+
+    (service.searchResources as any).mockResolvedValue(mockResponse);
+
+    const result = await controller.searchResources(query);
+
+    expect(service.searchResources).toHaveBeenCalledWith(query);
+    expect(result).toEqual(mockResponse);
   });
 
   it('should call service.getSuggestions and return its result', async () => {
@@ -109,7 +145,7 @@ describe('RecreationResourceController', () => {
         recreation_district: undefined,
         spatial_feature_geometry: undefined,
         site_point_geometry: undefined,
-        project_established_date: undefined,
+        established_date: undefined,
         recreation_control_access_code: {
           recreation_control_access_code: '',
           description: '',
