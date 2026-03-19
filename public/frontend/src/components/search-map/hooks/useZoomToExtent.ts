@@ -35,6 +35,11 @@ export const useZoomToExtent = (
 
     const view = map.getView();
 
+    const clearLocation = () => {
+      sessionStorage.removeItem('locationZoomState');
+      sessionStorage.removeItem('locationCenterState');
+    };
+
     const restoreLocation = () => {
       const lastZoom = sessionStorage.getItem('locationZoomState');
       const lastCenter = sessionStorage.getItem('locationCenterState');
@@ -50,16 +55,11 @@ export const useZoomToExtent = (
             console.log('Set Zoom !!!');
             view.setCenter(center);
             view.setZoom(zoom);
-            setFitView(false);
+            clearLocation();
           }
         } catch (e) {
           console.warn('Failed to restore location', e);
         }
-        console.log(
-          'delete 3',
-          sessionStorage.getItem('locationZoomState'),
-          sessionStorage.getItem('locationCenterState'),
-        );
       }
     };
 
@@ -111,8 +111,6 @@ export const useZoomToExtent = (
           view.fit(olExtent3857, { padding, maxZoom: 16, duration: 500 });
         }
       }
-      sessionStorage.removeItem('locationZoomState');
-      sessionStorage.removeItem('locationCenterState');
     } catch (err) {
       console.error('Failed to parse or fit extent:', err);
     }
