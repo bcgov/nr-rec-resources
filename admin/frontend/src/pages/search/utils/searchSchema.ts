@@ -5,7 +5,6 @@ import {
 } from '@/pages/search/constants';
 import {
   ADMIN_SEARCH_SORT_VALUES,
-  normalizeVisibleAdminSearchColumns,
   type AdminSearchSort,
 } from '@/pages/search/searchDefinitions';
 import type { AdminSearchRouteState } from '@/pages/search/types';
@@ -25,7 +24,7 @@ function normalizeStringToken(value: string): string {
 function getStringValue(value: unknown): string | undefined {
   if (typeof value === 'string') {
     const trimmed = normalizeStringToken(value);
-    return trimmed ? trimmed : undefined;
+    return trimmed || undefined;
   }
 
   if (Array.isArray(value)) {
@@ -162,4 +161,4 @@ export function resolveAdminSearchRouteState(
   };
 }
 
-export { normalizeVisibleAdminSearchColumns };
+export { normalizeVisibleAdminSearchColumns } from '@/pages/search/searchDefinitions';

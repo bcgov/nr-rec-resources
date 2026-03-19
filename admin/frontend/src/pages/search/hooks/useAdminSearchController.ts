@@ -199,14 +199,6 @@ export function useAdminSearchController(search: AdminSearchRouteState) {
   const clearEstablishmentDateTo = () =>
     updateSearch(setAdminSearchEstablishmentDateToFilter(search, undefined));
   const appliedFilterChips: AdminAppliedFilterChip[] = [];
-
-  if (search.q) {
-    appliedFilterChips.push({
-      key: `query:${search.q}`,
-      label: `Query: ${search.q}`,
-      onClear: clearQuery,
-    });
-  }
   appliedFilterChips.push(
     ...search.type.map((type) => ({
       key: `type:${type}`,

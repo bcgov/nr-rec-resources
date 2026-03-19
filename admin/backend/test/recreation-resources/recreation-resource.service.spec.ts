@@ -227,6 +227,84 @@ describe('RecreationResourceService', () => {
       access_types: ['Boat', 'Road'],
     });
   });
+
+  it('should apply default paging, remove blank duplicates, and map missing optionals safely', async () => {
+    (repo.searchResources as any).mockResolvedValue({
+      total: 1,
+      data: [
+        {
+          rec_resource_id: 'REC201',
+          name: null,
+          closest_community: null,
+          project_established_date: null,
+          display_on_public_site: null,
+          recreation_activity: [
+            {
+              recreation_activity: {
+                description: ' hiking ',
+              },
+            },
+            {
+              recreation_activity: {
+                description: 'Hiking',
+              },
+            },
+            {
+              recreation_activity: {
+                description: ' ',
+              },
+            },
+          ],
+          recreation_access: [
+            {
+              recreation_access_code: {
+                description: ' boat ',
+              },
+            },
+            {
+              recreation_access_code: {
+                description: 'Boat',
+              },
+            },
+          ],
+          recreation_fee: [],
+          recreation_resource_reservation_info: null,
+          recreation_resource_type_view_admin: [],
+          recreation_district_code: null,
+          _count: {},
+        },
+      ],
+    });
+
+    const result = await service.searchResources({});
+
+    expect(repo.searchResources).toHaveBeenCalledWith({
+      page: 1,
+      page_size: 25,
+      sort: 'name:asc',
+    });
+    expect(result).toEqual({
+      data: [
+        {
+          rec_resource_id: 'REC201',
+          name: '',
+          recreation_resource_type: '',
+          recreation_resource_type_code: '',
+          district_description: '',
+          display_on_public_site: false,
+          closest_community: '',
+          activities: ['hiking', 'Hiking'],
+          access_types: ['boat', 'Boat'],
+          fee_types: ['No fees'],
+          established_date: null,
+          campsite_count: 0,
+        },
+      ],
+      total: 1,
+      page: 1,
+      page_size: 25,
+    });
+  });
 });
 
 describe('RecreationResourceService - findOne', () => {

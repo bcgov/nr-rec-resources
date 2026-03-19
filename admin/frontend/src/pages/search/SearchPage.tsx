@@ -5,7 +5,6 @@ import { faFile, faFilter } from '@fortawesome/free-solid-svg-icons';
 import { ROUTE_PATHS } from '@/constants/routes';
 import { PageLayout } from '@/components/page-layout';
 import { useAdminSearchController } from '@/pages/search/hooks/useAdminSearchController';
-import { useAdminSearchTypeahead } from '@/pages/search/hooks/useAdminSearchTypeahead';
 import { useAdminSearchColumns } from '@/pages/search/hooks/useAdminSearchColumns';
 import { SearchSubmitBar } from '@/pages/search/components/SearchSubmitBar';
 import { FilterAccordion } from '@/pages/search/components/FilterAccordion';
@@ -21,8 +20,15 @@ import './SearchPage.scss';
 export function SearchPage() {
   const search = resolveAdminSearchRouteState(Route.useSearch());
   const controller = useAdminSearchController(search);
-  const typeahead = useAdminSearchTypeahead(search.q);
   const columns = useAdminSearchColumns();
+  const filterDraftKey = JSON.stringify({
+    type: search.type,
+    district: search.district,
+    activities: search.activities,
+    access: search.access,
+    establishment_date_from: search.establishment_date_from,
+    establishment_date_to: search.establishment_date_to,
+  });
 
   return (
     <PageLayout>
@@ -32,8 +38,8 @@ export function SearchPage() {
         <Card body>
           <Stack gap={3}>
             <SearchSubmitBar
+              key={search.q}
               committedQuery={search.q}
-              typeahead={typeahead}
               onSubmit={controller.submitQuery}
             />
           </Stack>
@@ -80,6 +86,7 @@ export function SearchPage() {
             </div>
 
             <FilterAccordion
+              key={filterDraftKey}
               search={search}
               controller={controller}
               showTrigger={false}

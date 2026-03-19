@@ -19,16 +19,17 @@ function buildPageItems(pageIndex: number, pageCount: number): PageItem[] {
     return buildPageRange(0, pageCount - 1);
   }
 
-  const middlePages =
-    pageIndex <= 2
-      ? buildPageRange(1, 3)
-      : pageIndex >= pageCount - 3
-        ? buildPageRange(pageCount - 4, pageCount - 2)
-        : buildPageRange(pageIndex - 1, pageIndex + 1);
+  let middlePages = buildPageRange(pageIndex - 1, pageIndex + 1);
+
+  if (pageIndex <= 2) {
+    middlePages = buildPageRange(1, 3);
+  } else if (pageIndex >= pageCount - 3) {
+    middlePages = buildPageRange(pageCount - 4, pageCount - 2);
+  }
 
   return [0, ...middlePages, pageCount - 1].reduce<PageItem[]>(
     (items, currentIndex) => {
-      const previousIndex = items[items.length - 1];
+      const previousIndex = items.at(-1);
 
       if (
         typeof previousIndex === 'number' &&
@@ -46,7 +47,7 @@ function buildPageItems(pageIndex: number, pageCount: number): PageItem[] {
 
 export function SearchResultsPagination({
   pagination,
-}: SearchResultsPaginationProps) {
+}: Readonly<SearchResultsPaginationProps>) {
   const {
     rowCount,
     pageCount,
@@ -83,7 +84,10 @@ export function SearchResultsPagination({
           </Pagination.Prev>
           {pageItems.map((item, index) =>
             item === 'ellipsis' ? (
-              <Pagination.Ellipsis key={`ellipsis-${index}`} disabled />
+              <Pagination.Ellipsis
+                key={`ellipsis-${pageItems[index - 1]}-${pageItems[index + 1]}`}
+                disabled
+              />
             ) : (
               <Pagination.Item
                 key={item}

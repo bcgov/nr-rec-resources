@@ -8,7 +8,9 @@ interface AppliedFilterChipsProps {
   chips: AdminAppliedFilterChip[];
 }
 
-export function AppliedFilterChips({ chips }: AppliedFilterChipsProps) {
+export function AppliedFilterChips({
+  chips,
+}: Readonly<AppliedFilterChipsProps>) {
   if (chips.length === 0) {
     return null;
   }

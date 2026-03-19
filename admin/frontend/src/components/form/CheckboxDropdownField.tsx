@@ -29,7 +29,7 @@ export function CheckboxDropdownField({
   variant,
   toggleStyle = 'button',
   icon,
-}: CheckboxDropdownFieldProps) {
+}: Readonly<CheckboxDropdownFieldProps>) {
   const resolvedVariant =
     variant ??
     (toggleStyle === 'field' ? 'outline-secondary' : 'outline-primary');

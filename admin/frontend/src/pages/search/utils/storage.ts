@@ -10,11 +10,11 @@ import {
 // Utils to read and save session storage for the Search page
 
 function getSessionStorage() {
-  if (typeof window === 'undefined') {
+  if (typeof globalThis.window === 'undefined') {
     return null;
   }
 
-  return window.sessionStorage;
+  return globalThis.window.sessionStorage;
 }
 
 export function readAdminSearchVisibleColumns(): AdminSearchColumnId[] {

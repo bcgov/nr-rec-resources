@@ -1,8 +1,9 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 import { ReactNode } from 'react';
 import { DEFAULT_ADMIN_SEARCH_STATE } from '@/pages/search/constants';
 import { useAdminSearchController } from '@/pages/search/hooks/useAdminSearchController';
+import * as storage from '@/pages/search/utils/storage';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mockNavigate = vi.fn();
@@ -86,6 +87,11 @@ describe('useAdminSearchController', () => {
       ],
       isLoading: false,
     });
+
+    vi.spyOn(storage, 'readAdminSearchFilterPanelOpen').mockReturnValue(false);
+    vi.spyOn(storage, 'writeAdminSearchFilterPanelOpen').mockImplementation(
+      vi.fn(),
+    );
   });
 
   it('filters archived district options from admin search filters', () => {
@@ -117,5 +123,122 @@ describe('useAdminSearchController', () => {
       search: { page_size: 100 },
       resetScroll: false,
     });
+  });
+
+  it('builds clearable applied filter chips for the active search state', () => {
+    const search = {
+      ...DEFAULT_ADMIN_SEARCH_STATE,
+      q: 'lake',
+      type: ['RTR'],
+      district: ['C'],
+      activities: ['8'],
+      access: ['W'],
+      establishment_date_from: '2020-01-01',
+      establishment_date_to: '2021-01-01',
+    };
+    const { result } = renderHook(() => useAdminSearchController(search), {
+      wrapper: createWrapper(),
+    });
+
+    expect(result.current.appliedFilterChips.map((chip) => chip.label)).toEqual(
+      [
+        'RTR',
+        'Alpha District',
+        '8',
+        'W',
+        'Established from: 2020-01-01',
+        'Established to: 2021-01-01',
+      ],
+    );
+
+    result.current.appliedFilterChips[0].onClear();
+    result.current.appliedFilterChips[1].onClear();
+    result.current.appliedFilterChips[4].onClear();
+    result.current.appliedFilterChips[5].onClear();
+
+    expect(mockNavigate).toHaveBeenNthCalledWith(1, {
+      to: '/',
+      search: {
+        q: 'lake',
+        district: 'C',
+        activities: '8',
+        access: 'W',
+        establishment_date_from: '2020-01-01',
+        establishment_date_to: '2021-01-01',
+      },
+      resetScroll: false,
+    });
+    expect(mockNavigate).toHaveBeenNthCalledWith(2, {
+      to: '/',
+      search: {
+        q: 'lake',
+        type: 'RTR',
+        activities: '8',
+        access: 'W',
+        establishment_date_from: '2020-01-01',
+        establishment_date_to: '2021-01-01',
+      },
+      resetScroll: false,
+    });
+    expect(mockNavigate).toHaveBeenNthCalledWith(3, {
+      to: '/',
+      search: {
+        q: 'lake',
+        type: 'RTR',
+        district: 'C',
+        activities: '8',
+        access: 'W',
+        establishment_date_to: '2021-01-01',
+      },
+      resetScroll: false,
+    });
+    expect(mockNavigate).toHaveBeenNthCalledWith(4, {
+      to: '/',
+      search: {
+        q: 'lake',
+        type: 'RTR',
+        district: 'C',
+        activities: '8',
+        access: 'W',
+        establishment_date_from: '2020-01-01',
+      },
+      resetScroll: false,
+    });
+  });
+
+  it('persists preferred filter-panel state only when there are no active filters', () => {
+    const writeSpy = vi.mocked(storage.writeAdminSearchFilterPanelOpen);
+    const { result: noFilters } = renderHook(
+      () => useAdminSearchController(DEFAULT_ADMIN_SEARCH_STATE),
+      { wrapper: createWrapper() },
+    );
+
+    expect(noFilters.current.isFilterPanelOpen).toBe(false);
+    act(() => {
+      noFilters.current.toggleFilterPanel();
+    });
+    expect(writeSpy).toHaveBeenCalledWith(true);
+
+    const { result: withFilters } = renderHook(
+      () =>
+        useAdminSearchController({
+          ...DEFAULT_ADMIN_SEARCH_STATE,
+          type: ['RTR'],
+        }),
+      { wrapper: createWrapper() },
+    );
+
+    expect(withFilters.current.isFilterPanelOpen).toBe(true);
+    act(() => {
+      withFilters.current.closeFilterPanel();
+    });
+    expect(withFilters.current.isFilterPanelOpen).toBe(false);
+    expect(writeSpy).toHaveBeenCalledTimes(1);
+
+    act(() => {
+      withFilters.current.toggleFilterPanel();
+    });
+    expect(withFilters.current.isFilterPanelOpen).toBe(true);
+    expect(writeSpy).toHaveBeenCalledTimes(1);
   });
 });

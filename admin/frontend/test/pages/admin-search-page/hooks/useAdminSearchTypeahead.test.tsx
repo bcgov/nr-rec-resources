@@ -35,14 +35,14 @@ describe('useAdminSearchTypeahead', () => {
 
     expect(result.current.inputValue).toBe('committed');
     expect(window.sessionStorage.getItem('admin-search-draft-query')).toBe(
-      'committed',
+      'draft lake',
     );
     expect(mockUseGetRecreationResourceSuggestions).toHaveBeenCalledWith(
       'committed',
     );
   });
 
-  it('syncs the draft state when the committed query changes later', () => {
+  it('does not sync the draft state when the committed query changes later', () => {
     window.sessionStorage.setItem('admin-search-draft-query', 'draft lake');
 
     const { result, rerender } = renderHook(
@@ -54,12 +54,12 @@ describe('useAdminSearchTypeahead', () => {
 
     rerender({ committedQuery: 'ridge' });
 
-    expect(result.current.inputValue).toBe('ridge');
+    expect(result.current.inputValue).toBe('committed');
     expect(window.sessionStorage.getItem('admin-search-draft-query')).toBe(
-      'ridge',
+      'draft lake',
     );
     expect(mockUseGetRecreationResourceSuggestions).toHaveBeenLastCalledWith(
-      'ridge',
+      'committed',
     );
   });
 

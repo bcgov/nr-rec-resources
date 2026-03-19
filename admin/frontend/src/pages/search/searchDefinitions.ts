@@ -106,14 +106,16 @@ export function normalizeVisibleAdminSearchColumns(
 ): AdminSearchColumnId[] {
   // Normalize stored column preferences by dropping unsupported ids and
   // restore the required rec_resource_id column if it is missing.
-  const tokens =
-    typeof value === 'string'
-      ? value.split(',')
-      : Array.isArray(value)
-        ? value.flatMap((entry) =>
-            typeof entry === 'string' ? entry.split(',') : [],
-          )
-        : [];
+  let tokens: string[] = [];
+
+  if (typeof value === 'string') {
+    tokens = value.split(',');
+  } else if (Array.isArray(value)) {
+    tokens = value.flatMap((entry) =>
+      typeof entry === 'string' ? entry.split(',') : [],
+    );
+  }
+
   const parsed = tokens
     .map((entry) => entry.trim())
     .filter(isAdminSearchColumnId);

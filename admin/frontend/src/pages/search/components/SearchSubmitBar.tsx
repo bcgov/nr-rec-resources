@@ -14,22 +14,17 @@ import { useAdminSearchTypeahead } from '@/pages/search/hooks/useAdminSearchType
 import { writeAdminSearchDraftQuery } from '@/pages/search/utils/storage';
 import './SearchSubmitBar.scss';
 
-type SearchSubmitBarTypeaheadProps = Pick<
-  ReturnType<typeof useAdminSearchTypeahead>,
-  'inputValue' | 'setInputValue' | 'suggestions' | 'isLoading' | 'error'
->;
-
 interface SearchSubmitBarProps {
   committedQuery: string;
-  typeahead: SearchSubmitBarTypeaheadProps;
   onSubmit: (value: string) => void;
 }
 
 export function SearchSubmitBar({
   committedQuery,
-  typeahead: { inputValue, setInputValue, suggestions, isLoading, error },
   onSubmit,
-}: SearchSubmitBarProps) {
+}: Readonly<SearchSubmitBarProps>) {
+  const { inputValue, setInputValue, suggestions, isLoading, error } =
+    useAdminSearchTypeahead(committedQuery);
   const navigate = useNavigate();
   const latestInputValueRef = useRef(inputValue);
 
@@ -97,6 +92,7 @@ export function SearchSubmitBar({
             onInputChange={updateInputValue}
             onClear={() => {
               updateInputValue('');
+              submitValue('');
             }}
             onChange={(suggestion) =>
               navigate({

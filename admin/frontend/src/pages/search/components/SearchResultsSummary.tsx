@@ -10,7 +10,7 @@ export function SearchResultsSummary({
   isLoading,
   total,
   query,
-}: SearchResultsSummaryProps) {
+}: Readonly<SearchResultsSummaryProps>) {
   if (isLoading) {
     return (
       <span>

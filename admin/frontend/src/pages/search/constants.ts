@@ -1,11 +1,12 @@
 import {
-  ADMIN_SEARCH_COLUMN_IDS as SEARCH_COLUMN_IDS,
+  ADMIN_SEARCH_COLUMN_IDS,
   type AdminSearchColumnId,
   type AdminSearchSort,
 } from '@/pages/search/searchDefinitions';
 import type { AdminSearchRouteState } from '@/pages/search/types';
 
 export type { AdminSearchColumnId } from '@/pages/search/searchDefinitions';
+export { ADMIN_SEARCH_COLUMN_IDS } from '@/pages/search/searchDefinitions';
 
 export type EditableAdminSearchFilters = Pick<
   AdminSearchRouteState,
@@ -80,7 +81,5 @@ export const ADMIN_SEARCH_STORAGE_KEYS = {
 } as const;
 
 export const DEFAULT_VISIBLE_ADMIN_SEARCH_COLUMNS: AdminSearchColumnId[] = [
-  ...SEARCH_COLUMN_IDS,
+  ...ADMIN_SEARCH_COLUMN_IDS,
 ];
-
-export const ADMIN_SEARCH_COLUMN_IDS = SEARCH_COLUMN_IDS;

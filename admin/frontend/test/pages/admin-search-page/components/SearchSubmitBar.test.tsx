@@ -1,11 +1,11 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useState } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SearchSubmitBar } from '@/pages/search/components/SearchSubmitBar';
 import { ROUTE_PATHS } from '@/constants/routes';
 
 const mockNavigate = vi.fn();
+const mockUseAdminSearchTypeahead = vi.fn();
 
 vi.mock('@tanstack/react-router', async () => {
   const actual = await vi.importActual<object>('@tanstack/react-router');
@@ -18,6 +18,11 @@ vi.mock('@tanstack/react-router', async () => {
 
 vi.mock('@/components/rec-resource-suggestion-form/SuggestionMenu', () => ({
   SuggestionMenu: () => <div data-testid="suggestion-menu" />,
+}));
+
+vi.mock('@/pages/search/hooks/useAdminSearchTypeahead', () => ({
+  useAdminSearchTypeahead: (...args: unknown[]) =>
+    mockUseAdminSearchTypeahead(...args),
 }));
 
 vi.mock('react-bootstrap-typeahead', async () => {
@@ -120,18 +125,16 @@ function renderSearchSubmitBar({
   error?: Error | null;
   onSubmit?: (value: string) => void;
 } = {}) {
+  mockUseAdminSearchTypeahead.mockReturnValue({
+    inputValue,
+    setInputValue,
+    suggestions,
+    isLoading,
+    error,
+  });
+
   render(
-    <SearchSubmitBar
-      committedQuery={committedQuery}
-      typeahead={{
-        inputValue,
-        setInputValue,
-        suggestions,
-        isLoading,
-        error,
-      }}
-      onSubmit={onSubmit}
-    />,
+    <SearchSubmitBar committedQuery={committedQuery} onSubmit={onSubmit} />,
   );
 
   return { setInputValue, onSubmit };
@@ -168,32 +171,20 @@ describe('SearchSubmitBar', () => {
   it('submits the latest typed value on Enter', async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();
+    const setInputValue = vi.fn();
 
-    function Wrapper() {
-      const [inputValue, setInputValue] = useState('ridge');
-
-      return (
-        <SearchSubmitBar
-          committedQuery=""
-          typeahead={{
-            inputValue,
-            setInputValue,
-            suggestions: [],
-            isLoading: false,
-            error: null,
-          }}
-          onSubmit={onSubmit}
-        />
-      );
-    }
-
-    render(<Wrapper />);
+    renderSearchSubmitBar({
+      inputValue: 'ridge',
+      setInputValue,
+      onSubmit,
+    });
 
     const input = screen.getByPlaceholderText('By name or number');
     await user.clear(input);
     await user.type(input, 'ridge lake{enter}');
 
     expect(onSubmit).toHaveBeenCalledWith('ridge lake');
+    expect(setInputValue).toHaveBeenCalledWith('ridge lake');
   });
 
   it('quick-opens the selected suggestion detail page', async () => {
@@ -216,7 +207,7 @@ describe('SearchSubmitBar', () => {
     });
   });
 
-  it('clears the draft input and suggestion query without submitting', async () => {
+  it('clears the draft input, suggestion query, and submits an empty search', async () => {
     const user = userEvent.setup();
     const { onSubmit, setInputValue } = renderSearchSubmitBar({
       committedQuery: 'camp',
@@ -225,7 +216,7 @@ describe('SearchSubmitBar', () => {
     await user.click(screen.getByRole('button', { name: 'Clear search' }));
 
     expect(setInputValue).toHaveBeenCalledWith('');
-    expect(onSubmit).not.toHaveBeenCalled();
+    expect(onSubmit).toHaveBeenCalledWith('');
     expect(mockNavigate).not.toHaveBeenCalled();
   });
 });

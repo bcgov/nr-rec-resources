@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   isValidRecreationResourceSearchTerm,
   useGetRecreationResourceSuggestions,
@@ -9,18 +9,12 @@ import {
 } from '@/pages/search/utils/storage';
 
 export function useAdminSearchTypeahead(committedQuery: string) {
-  const [inputValue, setInputValueState] = useState(
+  const [inputValue, setInputValue] = useState(
     () => committedQuery || readAdminSearchDraftQuery(),
   );
 
-  useEffect(() => {
-    const nextValue = committedQuery || readAdminSearchDraftQuery();
-    setInputValueState(nextValue);
-    writeAdminSearchDraftQuery(nextValue);
-  }, [committedQuery]);
-
-  const setInputValue = (value: string) => {
-    setInputValueState(value);
+  const updateInputValue = (value: string) => {
+    setInputValue(value);
     writeAdminSearchDraftQuery(value);
   };
 
@@ -28,7 +22,7 @@ export function useAdminSearchTypeahead(committedQuery: string) {
 
   return {
     inputValue,
-    setInputValue,
+    setInputValue: updateInputValue,
     suggestions: suggestionsQuery.data.suggestions,
     isLoading: suggestionsQuery.isFetching,
     error: suggestionsQuery.error,

@@ -53,7 +53,7 @@ export function FilterAccordion({
   search,
   controller,
   showTrigger = true,
-}: FilterAccordionProps) {
+}: Readonly<FilterAccordionProps>) {
   const {
     isFilterPanelOpen: isOpen,
     closeFilterPanel: onClose,
@@ -111,7 +111,6 @@ export function FilterAccordion({
                           : [],
                       )}
                       selectedValues={draft[field.key]}
-                      fullWidth
                       toggleStyle="field"
                       showSelectedCount
                       onToggle={(value) =>
@@ -209,23 +208,23 @@ export function FilterAccordion({
     </div>
   );
 
-  if (!showTrigger) {
-    return renderedPanel;
+  if (showTrigger) {
+    return (
+      <div className="filters">
+        <div className="d-flex justify-content-end mb-3">
+          <Button
+            variant={isOpen ? 'primary' : 'outline-primary'}
+            onClick={onToggle}
+            className="d-flex align-items-center gap-2"
+          >
+            <FontAwesomeIcon icon={faFilter} className="d-none d-sm-inline" />
+            Filters
+          </Button>
+        </div>
+        {renderedPanel}
+      </div>
+    );
   }
 
-  return (
-    <div className="filters">
-      <div className="d-flex justify-content-end mb-3">
-        <Button
-          variant={isOpen ? 'primary' : 'outline-primary'}
-          onClick={onToggle}
-          className="d-flex align-items-center gap-2"
-        >
-          <FontAwesomeIcon icon={faFilter} className="d-none d-sm-inline" />
-          Filters
-        </Button>
-      </div>
-      {renderedPanel}
-    </div>
-  );
+  return renderedPanel;
 }

@@ -15,7 +15,7 @@ interface ColumnVisibilityMenuProps {
 export function ColumnVisibilityMenu({
   visibleColumns,
   onToggle,
-}: ColumnVisibilityMenuProps) {
+}: Readonly<ColumnVisibilityMenuProps>) {
   const selectableColumnIds = ADMIN_SEARCH_COLUMN_IDS.filter(
     (columnId) => columnId !== 'rec_resource_id',
   );
