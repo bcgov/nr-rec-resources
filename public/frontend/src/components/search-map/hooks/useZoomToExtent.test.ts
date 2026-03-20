@@ -172,7 +172,21 @@ describe('useZoomToExtent', () => {
       .spyOn(console, 'error')
       .mockImplementation(() => {});
 
-    const mapRef = { current: { getMap: () => ({}) as unknown as OLMap } };
+    const mapRef = {
+      current: {
+        getMap: () =>
+          ({
+            getView: () => ({
+              setCenter: vi.fn(),
+              setZoom: vi.fn(),
+              getZoom: vi.fn(),
+              fit: vi.fn(),
+            }),
+            once: vi.fn(),
+            getSize: vi.fn(),
+          }) as unknown as OLMap,
+      },
+    };
 
     const { rerender } = renderHook(
       ({ extent }) => useZoomToExtent(mapRef, extent),

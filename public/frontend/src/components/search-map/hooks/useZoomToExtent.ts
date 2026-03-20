@@ -14,15 +14,59 @@ export const useZoomToExtent = (
   const { wasCleared } = useStore(searchInputStore);
   const isMapInitialized = useRef(false);
 
+  const checkRestore = () => {
+    const lastZoom = sessionStorage.getItem('locationZoomState');
+    const lastCenter = sessionStorage.getItem('locationCenterState');
+    if (lastZoom != null && lastCenter != null) {
+      return true;
+    }
+
+    return false;
+  };
+
   useEffect(() => {
     if (!extent || !mapRef.current) return;
-
     const map = mapRef.current.getMap();
     if (!map) return;
+
+    const view = map.getView();
+
+    const clearLocation = () => {
+      sessionStorage.removeItem('locationZoomState');
+      sessionStorage.removeItem('locationCenterState');
+    };
+
+    const restoreLocation = () => {
+      const lastZoom = sessionStorage.getItem('locationZoomState');
+      const lastCenter = sessionStorage.getItem('locationCenterState');
+
+      if (lastZoom != null && lastCenter != null) {
+        try {
+          const zoom = Number(lastZoom);
+          const center = JSON.parse(lastCenter);
+
+          if (
+            !Number.isNaN(zoom) &&
+            Array.isArray(center) &&
+            center.length === 2
+          ) {
+            view.setCenter(center);
+            view.setZoom(zoom);
+          }
+        } catch (e) {
+          console.warn('Failed to restore location', e);
+        }
+      }
+    };
+
+    if (checkRestore()) {
+      restoreLocation();
+    }
 
     // Skip on initial load - only run when extent changes after map is initialized
     if (!isMapInitialized.current) {
       isMapInitialized.current = true;
+      clearLocation();
       return;
     }
 
@@ -47,41 +91,22 @@ export const useZoomToExtent = (
         'EPSG:3857',
       );
 
-      const view = map.getView();
-
       map.once('moveend', () => {
-        // Nudge the zoom level slightly to fix white tile rendering issue
         const zoom = view.getZoom();
         if (zoom != null) {
           view.setZoom(zoom + 0.01);
-        }
-
-        // Check if there is a stored location when the user clicks on the description
-        // Set the zoom level and center last time the location was clicked
-        // Clear the session items
-        const lastZoom = sessionStorage.getItem('locationZoomState');
-        const lastCenter = sessionStorage.getItem('locationCenterState');
-        if (lastZoom && lastCenter) {
-          view.setZoom(parseFloat(lastZoom) + 0.01);
-          const coordinates = lastCenter.split(',');
-          if (coordinates.length === 2) {
-            view.setCenter([
-              parseFloat(coordinates[0]),
-              parseFloat(coordinates[1]),
-            ]);
-          }
-          sessionStorage.removeItem('locationZoomState');
-          sessionStorage.removeItem('locationCenterState');
         }
       });
 
       const mapSize = map.getSize(); // [width, height]
       if (mapSize) {
-        const [width] = mapSize;
-        const padding = calculateMapPadding(width);
-
-        view.fit(olExtent3857, { padding, maxZoom: 16, duration: 500 });
+        if (!checkRestore()) {
+          const [width] = mapSize;
+          const padding = calculateMapPadding(width);
+          view.fit(olExtent3857, { padding, maxZoom: 16, duration: 500 });
+        }
       }
+      clearLocation();
     } catch (err) {
       console.error('Failed to parse or fit extent:', err);
     }
